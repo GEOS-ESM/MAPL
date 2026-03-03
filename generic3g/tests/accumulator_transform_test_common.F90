@@ -7,7 +7,7 @@ module accumulator_transform_test_common
    use esmf
    use funit
    use MAPL_FieldUtils
-   implicit none
+   implicit none(type,external)
 
    integer, parameter :: R4 = ESMF_KIND_R4
    integer, parameter :: R8 = ESMF_KIND_R8
@@ -50,6 +50,22 @@ contains
       t = MAPL_UNDEFINED_REAL
 
    end subroutine set_undef
+
+   elemental logical function undef_r8(t) result(lval)
+      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL64
+      real(kind=ESMF_KIND_R8), intent(in) :: t
+
+      lval = t == MAPL_UNDEFINED_REAL64
+
+   end function undef_r8
+
+   elemental subroutine set_undef_r8(t)
+      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL64
+      real(kind=ESMF_KIND_R8), intent(inout) :: t
+
+      t = MAPL_UNDEFINED_REAL64
+
+   end subroutine set_undef_r8
 
    subroutine create_grid(grid, rc)
       type(ESMF_Grid), optional, intent(inout) :: grid

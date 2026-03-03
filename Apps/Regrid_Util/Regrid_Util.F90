@@ -4,7 +4,7 @@
 
    use ESMF
    use MAPL
-   use gFTL_StringVector
+   use gFTL2_StringVector
 
    implicit NONE
 
@@ -332,7 +332,7 @@
    use MAPL_ESMFFieldBundleRead
    use MAPL_ServerManager
    use MAPL_FileMetadataUtilsMod
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use regrid_util_support_mod
    use mpi
 
@@ -555,8 +555,8 @@ CONTAINS
 
     subroutine generate_report()
 
-         character(:), allocatable :: report_lines(:)
-         integer :: i
+         type(StringVector) :: report_lines
+         type(StringVectorIterator) :: iter
          character(1) :: empty(0)
 
          reporter = ProfileReporter(empty)
@@ -573,8 +573,10 @@ CONTAINS
          if (mapl_am_I_root()) then
             write(*,'(a)')'Final profile'
             write(*,'(a)')'============='
-            do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
+            iter = report_lines%begin()
+            do while (iter /= report_lines%end())
+               write(*,'(a)') iter%of()
+               call iter%next()
             end do
             write(*,'(a)') ''
          end if

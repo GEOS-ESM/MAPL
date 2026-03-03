@@ -2,7 +2,6 @@ module mapl3g_Field_API
    use mapl3g_FieldGet, only: MAPL_FieldGet => FieldGet
    use mapl3g_FieldSet, only: MAPL_FieldSet => FieldSet
    use mapl3g_FieldCreate
-   use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemAllocation
    use mapl3g_RestartModes
    use mapl_FieldPointerUtilities, only: MAPL_AssignFptr => assign_fptr

@@ -6,25 +6,27 @@ module mapl3g_ExtDataRule
    use MAPL_TimeStringConversion
    use mapl3g_ExtDataSample
    use mapl3g_ExtDataSampleMap
+   use gFTL2_StringVector
    implicit none
    private
 
    type, public :: ExtDataRule
       character(:), allocatable :: start_time
       character(:), allocatable :: collection
-      character(:), allocatable :: file_var
+      !character(:), allocatable :: file_var
+      type(StringVector) :: file_vars
       character(:), allocatable :: sample_key
       real, allocatable :: linear_trans(:)
       character(:), allocatable :: regrid_method
       character(:), allocatable :: vector_partner
       character(:), allocatable :: vector_component
       character(:), allocatable :: vector_file_partner
+      character(:), allocatable :: vertical_alignment
       logical :: enable_vertical_regrid
       logical :: multi_rule
       logical :: fail_on_missing_file = .true.
       contains
          procedure :: set_defaults
-         procedure :: split_vector
    end type
 
    interface ExtDataRule
@@ -68,9 +70,9 @@ contains
       end if
       if (variable_present) then
          tempc = ESMF_HConfigAsString(config,keyString="variable",_RC)
-         rule%file_var=tempc
+         rule%file_vars = split_file_var(tempc)
       else
-         rule%file_var='null'
+         call rule%file_vars%push_back('null')
       end if
 
       if (ESMF_HConfigIsDefined(config,keyString="sample")) then
@@ -92,7 +94,7 @@ contains
          allocate(rule%linear_trans(2))
          rule%linear_trans = ESMF_HConfigAsR4Seq(config,keyString="linear_transformation",_RC)
       else
-         allocate(rule%linear_trans,source=[0.0,0.0])
+         allocate(rule%linear_trans,source=[0.0,1.0])
       end if
 
       if (allocated(tempc)) deallocate(tempc)
@@ -118,6 +120,10 @@ contains
          rule%enable_vertical_regrid = .false.
       end if
 
+      if (ESMF_HConfigIsDefined(config,keyString="vertical_alignment")) then
+         rule%vertical_alignment = ESMF_HConfigAsString(config,keyString="vertical_alignment",_RC)
+      end if
+
       rule%multi_rule=usable_multi_rule
 
       _RETURN(_SUCCESS)
@@ -130,39 +136,23 @@ contains
 
       _UNUSED_DUMMY(unusable)
       this%collection=''
-      this%file_var='missing_variable'
+      call this%file_vars%push_back('missing_variable')
       this%regrid_method='BILINEAR'
       _RETURN(_SUCCESS)
    end subroutine set_defaults
 
-   subroutine split_vector(this,original_key,ucomp,vcomp,unusable,rc)
-      class(ExtDataRule), intent(in) :: this
-      character(len=*), intent(in) :: original_key
-      type(ExtDataRule), intent(inout) :: ucomp,vcomp
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+   function split_file_var(original_string) result(file_vars)
+      type(StringVector) :: file_vars
+      character(len=*), intent(in) :: original_string
       integer :: semi_pos
-      character(len=:),allocatable :: uname,vname
 
-      _UNUSED_DUMMY(unusable)
-
-      semi_pos = index(this%file_var,";")
-      _ASSERT(semi_pos > 0,"vector rule does not have 2 variables in the file_var")
-      uname = this%file_var(1:semi_pos-1)
-      vname = this%file_var(semi_pos+1:len_trim(this%file_var))
-      ucomp = this
-      vcomp = this
-      semi_pos = index(original_key,";")
-      ucomp%vector_partner = original_key(semi_pos+1:len_trim(original_key))
-      vcomp%vector_partner = original_key(1:semi_pos-1)
-      ucomp%file_var = uname
-      vcomp%file_var = vname
-      ucomp%vector_file_partner = vname
-      vcomp%vector_file_partner = uname
-      ucomp%vector_component = "EW"
-      vcomp%vector_component = "NS"
-      _RETURN(_SUCCESS)
-
-   end subroutine split_vector
+      semi_pos = index(original_string, ';')
+      if (semi_pos > 0) then
+         call file_vars%push_back(original_string(1:semi_pos-1))
+         call file_vars%push_back(original_string(semi_pos+1:))
+      else
+         call file_vars%push_back(original_string)
+      end if
+   end function
 
 end module mapl3g_ExtDataRule

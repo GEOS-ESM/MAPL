@@ -1,10 +1,13 @@
 #include "MAPL.h"
 
 module mapl3g_HistoryCollectionGridComp
+
    use mapl3
    use mapl3g_HistoryCollectionGridComp_private
    use esmf
    use MAPL_StringTemplate, only: fill_grads_template_esmf
+   use pFlogger, only: logger, logging
+
    implicit none
    private
 
@@ -22,6 +25,7 @@ module mapl3g_HistoryCollectionGridComp
       character(len=:), allocatable :: current_file
       type(ESMF_Time), allocatable :: time_vector(:)
       real, allocatable :: real_time_vector(:)
+      logical :: shift_back
    end type HistoryCollectionGridComp
 
    character(len=*), parameter :: null_file = 'null_file'
@@ -63,7 +67,6 @@ contains
       type(ESMF_Geom) :: geom
       character(len=ESMF_MAXSTR) :: name
       type(FileMetadata) :: metadata
-      type(MaplGeom), pointer :: mapl_geom
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
@@ -73,20 +76,19 @@ contains
 
       geom = detect_geom(collection_gridcomp%output_bundle, name, _RC)
       metadata = bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
-      mapl_geom => get_mapl_geom(geom, _RC)
       allocate(collection_gridcomp%writer, source=make_geom_pfio(metadata, rc=status))
       _VERIFY(STATUS)
-      call collection_gridcomp%writer%initialize(metadata, mapl_geom, _RC)
+      call collection_gridcomp%writer%initialize(metadata, geom, _RC)
 
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
       collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
       collection_gridcomp%current_file = null_file
       collection_gridcomp%template = ESMF_HConfigAsString(hconfig, keyString='template', _RC)
-      
+      collection_gridcomp%shift_back = ESMF_HConfigAsLogical(hconfig, keyString='shift_back', _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(exportState)
    end subroutine init
-
 
    subroutine init_geom(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
@@ -108,6 +110,9 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine init_geom
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
@@ -124,17 +129,25 @@ contains
       character(len=ESMF_MAXSTR) :: name
       character(len=128) :: current_file
       type(ESMF_Time), allocatable :: esmf_time_vector(:)
+      class(logger), pointer :: lgr
+      character(len=*), parameter :: isostring = '1999-12-31T23:29:59'
+      character(len=len(isostring)) :: time_string
 
-      call ESMF_GridCompGet(gridcomp, name=name, _RC)
-      call ESMF_ClockGet(clock, currTime=current_time, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
+      call ESMF_GridCompGet(gridcomp, name=name, _RC)
+      !call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
+      lgr => logging%get_logger('HIST.'//name)
+
+      if (collection_gridcomp%shift_back) then
+         call ESMF_ClockGetNextTime(clock, current_time, _RC)
+      else
+         call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      end if
 
       run_collection = (current_time >= collection_gridcomp%start_stop_times(1)) .and. &
                            (current_time <= collection_gridcomp%start_stop_times(2))
 
       _RETURN_UNLESS(run_collection)
-
-      _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
 
       call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=current_time, _RC)
       if (trim(current_file) /= collection_gridcomp%current_file) then
@@ -152,13 +165,21 @@ contains
       deallocate(collection_gridcomp%time_vector)
       allocate(collection_gridcomp%time_vector(time_index), _STAT)
       collection_gridcomp%time_vector = esmf_time_vector
-    
+
       if (allocated(collection_gridcomp%real_time_vector))    deallocate(collection_gridcomp%real_time_vector)
       call get_real_time_vector(collection_gridcomp%initial_file_time, collection_gridcomp%time_vector, collection_gridcomp%real_time_vector, _RC)
       call collection_gridcomp%writer%stage_time_to_file(collection_gridcomp%current_file, collection_gridcomp%real_time_vector,  _RC)
+      if (time_index == 1) then
+         call collection_gridcomp%writer%stage_coordinates_to_file(collection_gridcomp%current_file, _RC)
+      end if
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
-      _RETURN(_SUCCESS)
 
+      call ESMF_TimeGet(current_time, timeString=time_string, _RC)
+      call lgr%info('History writing file '//collection_gridcomp%current_file//' at '//time_string)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
    end subroutine run
 
 end module mapl3g_HistoryCollectionGridComp

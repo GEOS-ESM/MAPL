@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_StateGet
+   use mapl3g_VerticalGrid_API
    use mapl3g_Field_API
    use mapl3g_UngriddedDims
    use mapl_ErrorHandling

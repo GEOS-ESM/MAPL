@@ -24,11 +24,17 @@ module mapl3g_pFIOServerBounds
       integer, allocatable :: local_start(:)
       integer, allocatable :: global_start(:)
       integer, allocatable :: global_count(:)
+      integer, allocatable :: corner_local_start(:)
+      integer, allocatable :: corner_global_start(:)
+      integer, allocatable :: corner_global_count(:)
       integer, allocatable :: file_shape(:)
    contains
       procedure :: get_local_start
       procedure :: get_global_start
       procedure :: get_global_count
+      procedure :: get_corner_local_start
+      procedure :: get_corner_global_start
+      procedure :: get_corner_global_count
       procedure :: get_file_shape
    end type pFIOServerBounds
 
@@ -55,6 +61,24 @@ contains
       class(pFIOServerBounds), intent(in) :: this
       global_count = this%global_count
    end function get_global_count
+
+   function get_corner_local_start(this) result(corner_local_start)
+      integer, allocatable :: corner_local_start(:)
+      class(pFIOServerBounds), intent(in) :: this
+      corner_local_start = this%corner_local_start
+   end function get_corner_local_start
+
+   function get_corner_global_start(this) result(corner_global_start)
+      integer, allocatable :: corner_global_start(:)
+      class(pFIOServerBounds), intent(in) :: this
+      corner_global_start = this%corner_global_start
+   end function get_corner_global_start
+
+   function get_corner_global_count(this) result(corner_global_count)
+      integer, allocatable :: corner_global_count(:)
+      class(pFIOServerBounds), intent(in) :: this
+      corner_global_count = this%corner_global_count
+   end function get_corner_global_count
 
    function get_file_shape(this) result(file_shape)
       integer, allocatable :: file_shape(:)
@@ -135,10 +159,14 @@ contains
       allocate(server_bounds%global_start(file_dims+tm))
       allocate(server_bounds%global_count(file_dims+tm))
       allocate(server_bounds%local_start(file_dims+tm))
+      allocate(server_bounds%corner_global_start(file_dims+tm))
+      allocate(server_bounds%corner_global_count(file_dims+tm))
+      allocate(server_bounds%corner_local_start(file_dims+tm))
 
       server_bounds%file_shape(new_grid_dims+1:file_dims) = field_shape(grid_dims+1:n_dims)
 
       server_bounds%global_start(1:file_dims) = 1
+      server_bounds%corner_global_start(1:file_dims) = 1
       if(present(time_index)) server_bounds%global_start(file_dims+1) = time_index
 
       server_bounds%global_count(new_grid_dims+1:file_dims) = field_shape(grid_dims+1:n_dims)
@@ -156,6 +184,10 @@ contains
          server_bounds%file_shape(1:new_grid_dims) = [field_shape(1), field_shape(2), 1]
          server_bounds%global_count(1:new_grid_dims) =[global_dim(1), global_dim(1), tile_count]
          server_bounds%local_start(1:new_grid_dims) = [i1, j1-(tile-1)*global_dim(1), tile]
+
+         
+         server_bounds%corner_global_count(1:new_grid_dims) =[global_dim(1)+1, global_dim(1)+1, tile_count]
+         server_bounds%corner_local_start(1:new_grid_dims) = [i1, j1-(tile-1)*global_dim(1), tile]
 
       case (1)
 

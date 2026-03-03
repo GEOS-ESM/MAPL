@@ -5,7 +5,7 @@ submodule (mapl3g_OuterMetaComponent) write_restart_smod
    use mapl3g_RestartHandler
    use mapl_OS
    use mapl_ErrorHandling
-   implicit none (type, external)
+   implicit none(type,external)
 
 contains
 
@@ -34,33 +34,38 @@ contains
       driver => this%get_user_gc_driver()
       call esmf_ClockGet(driver%get_clock(), currTime=currTime, _RC)
 
-      restart_handler = RestartHandler( &
-           driver%get_name(), &
-           this%get_geom(), &
-           currTime, &
-           this%get_logger())
+      restart_handler = RestartHandler(this%get_geom(), currTime, this%get_logger())
 
       states = driver%get_states()
       subdir = get_checkpoint_subdir(this%hconfig, currTime, _RC)
 
       if (this%component_spec%misc%checkpoint_controls%import) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_import.nc')
+         call this%start_timer("WriteImportCheckpoint", _RC)
          call restart_handler%write(states%importState, filename, _RC)
+         call this%stop_timer("WriteImportCheckpoint", _RC)
       end if
       
       if (this%component_spec%misc%checkpoint_controls%internal) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_internal.nc')
+         call this%start_timer("WriteInternalCheckpoint", _RC)
          call restart_handler%write(states%internalState, filename, _RC)
+         call this%stop_timer("WriteInternalCheckpoint", _RC)
       end if
       
       if (this%component_spec%misc%checkpoint_controls%export) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_export.nc')
+         call this%start_timer("WriteExportCheckpoint", _RC)
          call restart_handler%write(states%exportState, filename, _RC)
+         call this%stop_timer("WriteExportCheckpoint", _RC)
       end if
 
       call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
       _UNUSED_DUMMY(unusable)
    end subroutine write_restart
 

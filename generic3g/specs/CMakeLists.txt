@@ -13,15 +13,18 @@ target_sources(MAPL.generic3g PRIVATE
   WildcardClassAspect.F90
   ServiceClassAspect.F90
   BracketClassAspect.F90
+  VectorBracketClassAspect.F90
   ExpressionClassAspect.F90
 
   AttributesAspect.F90
   GeomAspect.F90
   TypekindAspect.F90
+  VerticalAlignment.F90
   VerticalGridAspect.F90
   UngriddedDimsAspect.F90
   UnitsAspect.F90
   FrequencyAspect.F90
+  QuantityTypeAspect.F90
 
   VariableSpec.F90
   StateItem.F90
@@ -29,12 +32,12 @@ target_sources(MAPL.generic3g PRIVATE
 
   GeometrySpec.F90
 
-  HorizontalDimsSpec.F90
   GridSpec.F90
   
   StateItemSpec.F90
+  StateItemSpecVector.F90
+  StateItemSpecPtrVector.F90
   StateItemSpecMap.F90
-  StateItemModify.F90
 
   ChildSpec.F90
   ChildSpecMap.F90

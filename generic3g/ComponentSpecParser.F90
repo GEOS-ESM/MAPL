@@ -28,7 +28,7 @@ module mapl3g_ComponentSpecParser
    use gftl2_StringVector, only: StringVector
    use esmf
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: MAPL_SECTION
@@ -78,28 +78,31 @@ module mapl3g_ComponentSpecParser
    !>
    ! Submodule declarations
    INTERFACE
-      module function parse_component_spec(hconfig, registry, timeStep, offset, rc) result(spec)
+      module function parse_component_spec(hconfig, registry, component_name, timeStep, offset, rc) result(spec)
          type(ComponentSpec) :: spec
          type(ESMF_HConfig), target, intent(inout) :: hconfig
          type(StateRegistry), target, intent(in) :: registry
+         character(*), intent(in) :: component_name
          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
          type(ESMF_TimeInterval), optional, intent(in) :: offset
          integer, optional, intent(out) :: rc
       end function parse_component_spec
 
-      module function parse_geometry_spec(mapl_cfg, registry, rc) result(geometry_spec)
+      module function parse_geometry_spec(mapl_cfg, registry, component_name, rc) result(geometry_spec)
          type(GeometrySpec) :: geometry_spec
          type(ESMF_HConfig), intent(in) :: mapl_cfg
          type(StateRegistry), target, intent(in) :: registry
+         character(*), intent(in) :: component_name
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
-      module function parse_var_specs(hconfig, timeStep, offset, registry, rc) result(var_specs)
+      module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, rc) result(var_specs)
          type(VariableSpecVector) :: var_specs
          type(ESMF_HConfig), intent(in) :: hconfig
          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
          type(ESMF_TimeInterval), optional, intent(in) :: offset
          type(StateRegistry), target, intent(in) :: registry
+         character(*), intent(in) :: component_name
          integer, optional, intent(out) :: rc
       end function parse_var_specs
 

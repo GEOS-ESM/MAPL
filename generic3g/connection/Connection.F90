@@ -1,5 +1,5 @@
 module mapl3g_Connection
-   implicit none
+   implicit none(type,external)
    private
 
    public :: Connection
@@ -26,7 +26,7 @@ module mapl3g_Connection
       subroutine I_activate(this, registry, rc)
          use mapl3g_StateRegistry
          import Connection
-         class(Connection), intent(in) :: this
+         class(Connection), target, intent(in) :: this
          type(StateRegistry), target, intent(inout) :: registry
          integer, optional, intent(out) :: rc
       end subroutine I_activate
@@ -34,7 +34,7 @@ module mapl3g_Connection
       subroutine I_connect(this, registry, rc)
          use mapl3g_StateRegistry
          import Connection
-         class(Connection), intent(inout) :: this
+         class(Connection), target, intent(inout) :: this
          type(StateRegistry), target, intent(inout) :: registry
          integer, optional, intent(out) :: rc
       end subroutine I_connect

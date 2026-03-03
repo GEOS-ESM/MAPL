@@ -1,7 +1,6 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_VectorBasis) mid_pt_sphere_smod
-   use mapl_base, only: MAPL_GridGetCorners
 contains
 
 

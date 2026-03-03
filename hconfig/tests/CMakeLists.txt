@@ -13,5 +13,8 @@ add_pfunit_ctest(MAPL.hconfig.tests
                 )
 set_target_properties(MAPL.hconfig.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.hconfig.tests PROPERTIES LABELS "ESSENTIAL")
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  set_tests_properties(MAPL.hconfig.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+endif()
 
 add_dependencies(build-tests MAPL.hconfig.tests)

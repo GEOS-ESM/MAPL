@@ -2,7 +2,6 @@
 
 submodule (mapl3g_LatLonDecomposition) get_lon_subset_smod
    use mapl_ErrorHandlingMod
-   use MAPL_Base
    implicit none (type, external)
 
 contains

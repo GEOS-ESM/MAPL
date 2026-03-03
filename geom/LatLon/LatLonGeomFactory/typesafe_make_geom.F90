@@ -24,8 +24,10 @@ contains
 
       integer :: status
       type(ESMF_Grid) :: grid
+      character(:), allocatable :: name
 
-      grid = create_basic_grid(spec, _RC)
+      if (spec%has_name()) name = spec%get_name()
+      grid = create_basic_grid(spec, name=name, _RC)
       call fill_coordinates(spec, grid, _RC)
       geom = ESMF_GeomCreate(grid=grid, _RC)
 

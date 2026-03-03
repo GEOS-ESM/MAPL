@@ -56,6 +56,7 @@ ALLOC = 'alloc'
 ARRAY = 'array'
 CONDITION = 'condition'
 DIMS = 'dims'
+EXPORT_NAME = 'export_name'
 INTENT_ARG = 'intent_arg' 
 INTERNAL_NAME = 'internal_name'
 MANGLED = 'mangled'
@@ -152,6 +153,7 @@ def get_options(args):
         'attributes' : {MAPPING: STRINGVECTOR}, 
         CONDITION: {FLAGS: {STORE}}, 
         'dependencies': {MAPPING: STRINGVECTOR}, 
+        EXPORT_NAME: {MAPPING: STRING},
         'itemtype': {}, 
         'orientation': {}, 
         'regrid_method': {}, 

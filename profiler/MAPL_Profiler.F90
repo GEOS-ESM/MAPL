@@ -21,6 +21,7 @@ module mapl_Profiler
    use mapl_MemoryProfiler
 
    use mapl_ProfileReporter
+   use mapl_CsvProfileReporter
    use mapl_AbstractColumn
    use mapl_SimpleColumn
    use mapl_TextColumn
@@ -28,6 +29,8 @@ module mapl_Profiler
    use mapl_FormattedTextColumn
    use mapl_MemoryTextColumn
    use mapl_NameColumn
+   use mapl_PlainNameColumn
+   use mapl_DepthColumn
    use mapl_NumCyclesColumn
    use mapl_InclusiveColumn
    use mapl_ExclusiveColumn
@@ -91,13 +94,15 @@ contains
       use mpi
       use pflogger, only: logging
       use pflogger, only: Logger
+      use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
 
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       integer, optional, intent(out) :: rc
       type (ProfileReporter) :: reporter
-      integer :: i, world_comm
-      character(:), allocatable :: report_lines(:)
+      integer :: world_comm
+      type(StringVector) :: report_lines
+      type(StringVectorIterator) :: iter
       type (MultiColumn) :: inclusive
       type (MultiColumn) :: exclusive
       integer :: npes, my_rank, ierror
@@ -138,8 +143,10 @@ contains
             report_lines = reporter%generate_report(t_p)
             lgr => logging%get_logger('MAPL.profiler')
             call lgr%info('Report on process: %i0', my_rank)
-            do i = 1, size(report_lines)
-               call lgr%info('%a', report_lines(i))
+            iter = report_lines%begin()
+            do while (iter /= report_lines%end())
+               call lgr%info('%a', iter%of())
+               call iter%next()
             end do
          end if
       end if
@@ -163,8 +170,10 @@ contains
          if (my_rank == 0) then
             report_lines = reporter%generate_report(m_p)
             lgr => logging%get_logger('MAPL.profiler')
-            do i = 1, size(report_lines)
-               call lgr%info('%a', report_lines(i))
+            iter = report_lines%begin()
+            do while (iter /= report_lines%end())
+               call lgr%info('%a', iter%of())
+               call iter%next()
             end do
          end if
       end if

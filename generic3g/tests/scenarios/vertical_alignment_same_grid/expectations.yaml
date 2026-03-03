@@ -1,0 +1,12 @@
+# Scenario: Same vertical grid with different field alignments (degenerate case)
+# Component A exports field E_A with downward alignment
+# Component B imports field I_B with upward alignment
+# Expected: Copy with flip since alignments differ but grid is the same
+
+- component: A
+  export:
+    E_A: {status: complete, typekind: R4, rank: 3, value: 15.}
+
+- component: B
+  import:
+    I_B: {status: complete, typekind: R4, rank: 3, value: 15.}

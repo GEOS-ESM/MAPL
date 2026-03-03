@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_EsmfRegridder
+
    use mapl3g_RegridderParam
    use mapl3g_RegridderSpec
    use mapl3g_Regridder
@@ -10,11 +11,13 @@ module mapl3g_EsmfRegridder
    use mapl3g_NullRegridder
    use mapl_ErrorHandlingMod
    use esmf
+
    implicit none
    private
 
    public :: EsmfRegridder
    public :: EsmfRegridderParam
+   public :: make_EsmfRegridderParam
 
    type, extends(RegridderParam) :: EsmfRegridderParam
       private
@@ -23,10 +26,12 @@ module mapl3g_EsmfRegridder
       type(ESMF_TermOrder_Flag) :: termorder
       logical :: checkflag
       type(DynamicMask) :: dyn_mask
-   contains
-      procedure :: equal_to
-      procedure :: get_routehandle_param
-   end type EsmfRegridderParam
+    contains
+       procedure :: equal_to
+       procedure :: get_routehandle_param
+       procedure :: make_info
+       procedure :: is_conservative
+    end type EsmfRegridderParam
 
    type, extends(Regridder) :: EsmfRegridder
       private
@@ -36,7 +41,6 @@ module mapl3g_EsmfRegridder
       procedure :: regrid_field
    end type EsmfRegridder
 
-
    interface EsmfRegridderParam
       procedure :: new_EsmfRegridderParam_simple
       procedure :: new_EsmfRegridderParam
@@ -45,7 +49,13 @@ module mapl3g_EsmfRegridder
    interface EsmfRegridder
       procedure :: new_EsmfRegridder
    end interface EsmfRegridder
-   
+
+   interface make_EsmfRegridderParam
+      procedure make_regridder_param_from_info
+   end interface make_EsmfRegridderParam
+
+   character(*), parameter :: KEY_ROUTEHANDLE = 'EsmfRouteHandle'
+
 contains
 
    function new_EsmfRegridderParam_simple(regridmethod, zeroregion, termorder, checkflag, dyn_mask) result(param)
@@ -60,7 +70,6 @@ contains
       param = EsmfRegridderParam(RoutehandleParam(regridmethod=regridmethod), &
            zeroregion=zeroregion, termorder=termorder, checkflag=checkflag, &
            dyn_mask=dyn_mask)
-      
    end function new_EsmfRegridderParam_simple
 
    function new_EsmfRegridderParam(routehandle_param, zeroregion, termorder, checkflag, dyn_mask) result(param)
@@ -87,7 +96,6 @@ contains
 
       param%checkflag = .false.
       if (present(checkflag)) param%checkflag = checkflag
-      
    end function new_EsmfRegridderParam
 
    function new_EsmfRegridder(regridder_param, routehandle) result(regriddr)
@@ -95,18 +103,15 @@ contains
       type(EsmfRegridderParam), intent(in) :: regridder_param
       type(ESMF_Routehandle), intent(in) :: routehandle
 
-      integer :: status
-
       regriddr%regridder_param = regridder_param
       regriddr%routehandle = routehandle
-
    end function new_EsmfRegridder
 
    subroutine regrid_field(this, f_in, f_out, rc)
       class(EsmfRegridder), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: f_in, f_out
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       logical :: has_ungridded_dims
       logical :: has_dynamic_mask
@@ -125,7 +130,7 @@ contains
            has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r8)
            if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r8
         end if
-        
+
         if (has_dynamic_mask .and. has_ungridded_dims) then
            call regrid_ungridded(this, mask, f_in, f_out, n=product(max(ub,1)), _RC)
            _RETURN(_SUCCESS)
@@ -144,11 +149,12 @@ contains
    end subroutine regrid_field
 
    subroutine regrid_ungridded(this, mask, f_in, f_out, n, rc)
+
       class(EsmfRegridder), intent(inout) :: this
       type(ESMF_DynamicMask), intent(in) :: mask
       type(ESMF_Field), intent(inout) :: f_in, f_out
       integer, intent(in) :: n
-      integer, optional, intent(out) :: rc 
+      integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: k
@@ -172,9 +178,9 @@ contains
 
          call ESMF_FieldDestroy(f_tmp_in, nogarbage=.true., _RC)
          call ESMF_FieldDestroy(f_tmp_out, nogarbage=.true.,  _RC)
-         
+
       end do
-      
+
       _RETURN(_SUCCESS)
 
    contains
@@ -220,7 +226,7 @@ contains
               farrayptr=x_slice, _RC)
 
          call ESMF_GeomDestroy(geom, _RC)
-         
+
          _RETURN(_SUCCESS)
       end function get_slice
 
@@ -238,7 +244,7 @@ contains
          if (.not. this%zeroregion == q%zeroregion) return
          if (.not. this%termorder == q%termorder) return
          if (this%checkflag .neqv. q%checkflag) return
-         
+
          if (this%dyn_mask /= q%dyn_mask) return
       class default
          return
@@ -247,12 +253,53 @@ contains
       equal_to = .true.
    end function equal_to
 
-
    function get_routehandle_param(this) result(routehandle_param)
       class(EsmfRegridderParam), intent(in) :: this
       type(RoutehandleParam) :: routehandle_param
 
       routehandle_param = this%routehandle_param
    end function get_routehandle_param
+
+   function make_info(this, rc) result(info)
+      type(esmf_Info) :: info
+      class(EsmfRegridderParam), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_Info) :: rh_info
+
+      info = esmf_InfoCreate(_RC)
+      rh_info = this%routehandle_param%make_info(_RC)
+      call esmf_InfoSet(info, key=KEY_ROUTEHANDLE, value=rh_info, _RC)
+      call esmf_InfoDestroy(rh_info, _RC)
+
+      call esmf_InfoPrint(info, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_info
+
+   function make_regridder_param_from_info(info, rc) result(regridder_param)
+      type(EsmfRegridderParam) :: regridder_param
+      type(esmf_Info), intent(in) :: info
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_Info) :: rh_info
+      type(RouteHandleParam) :: rh_param
+
+      rh_info = esmf_InfoCreate(info, key=KEY_ROUTEHANDLE, _RC)
+      rh_param = make_RouteHandleParam(rh_info, _RC)
+      regridder_param = EsmfRegridderParam(rh_param)
+
+      call esmf_InfoDestroy(rh_info, _RC)
+
+       _RETURN(_SUCCESS)
+    end function make_regridder_param_from_info
+
+    logical function is_conservative(this)
+       class(EsmfRegridderParam), intent(in) :: this
+
+       is_conservative = this%routehandle_param%is_conservative()
+    end function is_conservative
 
 end module mapl3g_EsmfRegridder

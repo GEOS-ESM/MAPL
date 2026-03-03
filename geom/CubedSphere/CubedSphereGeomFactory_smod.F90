@@ -1,5 +1,7 @@
 #include "MAPL_ErrLog.h"
+
 submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
+
    use mapl3g_GeomSpec
    use mapl3g_LonAxis
    use mapl3g_LatAxis
@@ -10,14 +12,15 @@ submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
    use mapl_Constants
    use pFIO
    use gFTL2_StringVector
+   use mapl3g_StringDictionary
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+
    implicit none(type,external)
 
    real(kind=ESMF_Kind_R8), parameter :: UNDEF_SCHMIDT = 1d15
 
 contains
-
 
    module function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
       class(GeomSpec), allocatable :: geom_spec
@@ -33,7 +36,6 @@ contains
       _UNUSED_DUMMY(this)
    end function make_geom_spec_from_hconfig
 
-
    module function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
       class(GeomSpec), allocatable :: geom_spec
       class(CubedSphereGeomFactory), intent(in) :: this
@@ -47,7 +49,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end function make_geom_spec_from_metadata
-
 
    logical module function supports_spec(this, geom_spec) result(supports)
       class(CubedSphereGeomFactory), intent(in) :: this
@@ -69,7 +70,7 @@ contains
       type(CubedSphereGeomSpec) :: spec
 
       supports = spec%supports(hconfig, _RC)
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end function supports_hconfig
@@ -83,11 +84,10 @@ contains
       type(CubedSphereGeomSpec) :: spec
 
       supports = spec%supports(file_metadata, _RC)
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end function supports_metadata
-
 
    module function make_geom(this, geom_spec, rc) result(geom)
       type(ESMF_Geom) :: geom
@@ -108,7 +108,6 @@ contains
       _UNUSED_DUMMY(this)
    end function make_geom
 
-
    function typesafe_make_geom(spec, rc) result(geom)
       type(ESMF_Geom) :: geom
       class(CubedSphereGeomSpec), intent(in) :: spec
@@ -116,18 +115,20 @@ contains
 
       integer :: status
       type(ESMF_Grid) :: grid
+      character(:), allocatable :: name
 
-      grid = create_basic_grid(spec, _RC)
+      if (spec%has_name()) name = spec%get_name()
+      grid = create_basic_grid(spec, name=name, _RC)
       geom = ESMF_GeomCreate(grid=grid, _RC)
 
       _RETURN(_SUCCESS)
    end function typesafe_make_geom
 
-
-   module function create_basic_grid(spec, unusable, rc) result(grid)
+   module function create_basic_grid(spec, unusable, name, rc) result(grid)
       type(ESMF_Grid) :: grid
       type(CubedSphereGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       integer :: status, im_world, ntiles, i
@@ -141,27 +142,29 @@ contains
       decomp = spec%get_decomposition()
       schmidt_parameters = spec%get_schmidt_parameters()
       im_world = spec%get_im_world()
-      not_stretched = .not. is_stretched_cube(schmidt_parameters) 
+      not_stretched = .not. is_stretched_cube(schmidt_parameters)
       face_ims = decomp%get_x_distribution()
       face_jms = decomp%get_y_distribution()
       allocate(ims(size(face_ims),ntiles))
       allocate(jms(size(face_jms),ntiles))
       do i=1,ntiles
-         ims(:,i) = face_ims 
-         jms(:,i) = face_jms 
+         ims(:,i) = face_ims
+         jms(:,i) = face_jms
       enddo
 
       if (not_stretched) then
          grid = ESMF_GridCreateCubedSPhere(im_world,countsPerDEDim1PTile=ims, &
             countsPerDEDim2PTile=jms, &
-            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
+            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
+            name=name, _RC)
       else
          grid = ESMF_GridCreateCubedSPhere(im_world,countsPerDEDim1PTile=ims, &
             countsPerDEDim2PTile=jms,  &
             staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
-            transformArgs=schmidt_parameters, _RC)
+            transformArgs=schmidt_parameters, &
+            name=name, _RC)
       end if
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function create_basic_grid
@@ -186,6 +189,24 @@ contains
       _UNUSED_DUMMY(this)
    end function make_gridded_dims
 
+   module function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
+      type(StringDictionary) :: variable_attributes
+      class(CubedSphereGeomFactory), intent(in) :: this
+      class(GeomSpec), intent(in) :: geom_spec
+      integer, optional, intent(out) :: rc
+
+      variable_attributes = StringDictionary()
+      select type(geom_spec)
+      type is (CubedSphereGeomSpec)
+         call variable_attributes%put('coordinates','lons lats')
+         call variable_attributes%put('grid_mapping','cubed_sphere')
+      class default
+         _FAIL('geom_spec is not of dynamic type CubedSphereGeomSpec.')
+      end select
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end function make_variable_attributes
 
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
       type(FileMetadata) :: file_metadata
@@ -209,7 +230,7 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
-  end function make_file_metadata
+   end function make_file_metadata
 
    function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
       type(FileMetadata) :: file_metadata
@@ -249,15 +270,17 @@ contains
       ! Coordinate variables
       v = Variable(type=PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
-      call v%add_attribute('units', 'degrees_east')
+      !call v%add_attribute('units', 'degrees_east')
+      call v%add_attribute('units', 'index')
       temp_coords = [(i,i=1,im_world)]
       call file_metadata%add_variable('Xdim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
 
       v = Variable(type=PFIO_REAL64, dimensions='Ydim')
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
-      call v%add_attribute('units', 'degrees_north')
-      temp_coords = [(i,i=1,im_world)] 
+      !call v%add_attribute('units', 'degrees_north')
+      call v%add_attribute('units', 'index')
+      temp_coords = [(i,i=1,im_world)]
       call file_metadata%add_variable('Ydim', CoordinateVariable(v, temp_coords))
       deallocate(temp_coords)
 
@@ -364,7 +387,7 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(chunksizes)
-  end function typesafe_make_file_metadata
+   end function typesafe_make_file_metadata
 
    function is_stretched_cube(schmidt_parameters) result(is_stretched)
       logical :: is_stretched
@@ -372,7 +395,7 @@ contains
 
       is_stretched = (schmidt_parameters%target_lat /= UNDEF_SCHMIDT) .and. &
                           (schmidt_parameters%target_lon /= UNDEF_SCHMIDT) .and. &
-                          (schmidt_parameters%stretch_factor /= UNDEF_SCHMIDT) 
+                          (schmidt_parameters%stretch_factor /= UNDEF_SCHMIDT)
    end function is_stretched_cube
 
 end submodule CubedSphereGeomFactory_smod

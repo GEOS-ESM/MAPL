@@ -7,6 +7,7 @@ set (TEST_SRCS
   test_PercentageColumn.pf
   test_TimeProfiler.pf
   test_ProfileReporter.pf
+  test_CsvProfileReporter.pf
   test_MeterNode.pf
   test_MeterNodeIterator.pf
   test_DistributedMeter.pf

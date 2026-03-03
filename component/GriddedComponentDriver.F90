@@ -47,7 +47,7 @@ module mapl3g_GriddedComponentDriver
    interface
 
       module recursive subroutine initialize(this, unusable, phase_idx, rc)
-         class(GriddedComponentDriver), intent(inout) :: this
+         class(GriddedComponentDriver), target, intent(inout) :: this
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
@@ -56,21 +56,21 @@ module mapl3g_GriddedComponentDriver
       ! run_self() is implemented in submodule to avoid circular dependency
       ! on OuterMetaComponent.
       module recursive subroutine run(this, unusable, phase_idx, rc)
-         class(GriddedComponentDriver), intent(inout) :: this
+         class(GriddedComponentDriver), target, intent(inout) :: this
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine
 
       module recursive subroutine finalize(this, unusable, phase_idx, rc)
-         class(GriddedComponentDriver), intent(inout) :: this
+         class(GriddedComponentDriver), target, intent(inout) :: this
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine finalize
 
       module recursive subroutine write_restart(this, unusable, phase_idx, rc)
-         class(GriddedComponentDriver), intent(inout) :: this
+         class(GriddedComponentDriver), target, intent(inout) :: this
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc

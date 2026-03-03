@@ -4,19 +4,20 @@ submodule (mapl3g_ComponentSpecParser) parse_geometry_spec_smod
 
    use mapl3g_VerticalGrid
    use mapl3g_BasicVerticalGrid
-   use mapl3g_FixedLevelsVerticalGrid
+   use mapl3g_VerticalGrid_API
    use mapl3g_ModelVerticalGrid
 
-   implicit none(external,type)
+   implicit none(type,external)
 
 contains
 
    ! Geom subcfg is passed raw to the GeomManager layer.  So little
    ! processing is needed here.
-   module function parse_geometry_spec(mapl_cfg, registry, rc) result(geometry_spec)
+   module function parse_geometry_spec(mapl_cfg, registry, component_name, rc) result(geometry_spec)
       type(GeometrySpec) :: geometry_spec
       type(ESMF_HConfig), intent(in) :: mapl_cfg
       type(StateRegistry), target, intent(in) :: registry
+      character(*), intent(in) :: component_name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -89,6 +90,7 @@ contains
          geom_mgr => get_geom_manager()
          allocate(geom_spec, source=geom_mgr%make_geom_spec(esmf_geom_cfg, rc=status))
          _VERIFY(status)
+         call geom_spec%set_name(component_name)
          call ESMF_HConfigDestroy(geometry_cfg, _RC)
       end if
 
@@ -106,53 +108,25 @@ contains
       class(VerticalGrid), allocatable, intent(out) :: vertical_grid
       integer, optional, intent(out) :: rc
 
-      integer :: num_levels
-      character(:), allocatable :: class, standard_name, units
-      real, allocatable :: levels(:)
       integer :: status
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
 
-      class = ESMF_HConfigAsString(vertical_grid_cfg, keyString="class", _RC)
-      select case(class)
-      case("basic")
-         num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString="num_levels", _RC)
-         vertical_grid = BasicVerticalGrid(num_levels)
-      case("fixed_levels")
-         standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString="standard_name", _RC)
-         units = ESMF_HConfigAsString(vertical_grid_cfg, keyString="units", _RC)
-         levels = ESMF_HConfigAsR4Seq(vertical_grid_cfg, keyString="levels" ,_RC)
-         vertical_grid = FixedLevelsVerticalGrid(standard_name, levels, units)
-      case("model")
-         call parse_model_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, _RC)
-      case default
-         _FAIL("vertical grid class "//class//" not supported")
+      vgrid_manager => get_vertical_grid_manager(_RC)
+      vgrid => vgrid_manager%create_grid(vertical_grid_cfg, _RC)
+
+      ! ModelVerticalGrid needs a registry which cannot be derived
+      ! from a config.  Could possibly make registry an argument on
+      ! create_grid() above, and just ignore it for other vertical
+      ! grid subclasses?
+      select type(vgrid)
+      type is(ModelVerticalGrid)
+         call vgrid%set_registry(registry)
       end select
+
+      vertical_grid = vgrid
 
       _RETURN(_SUCCESS)
    end subroutine parse_vertical_grid_
-
-   subroutine parse_model_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, rc)
-      type(ESMF_HConfig), intent(in) :: vertical_grid_cfg
-      type(StateRegistry), target, intent(in) :: registry
-      class(VerticalGrid), allocatable, intent(out) :: vertical_grid
-      integer, optional, intent(out) :: rc
-
-      integer :: num_levels
-      character(:), allocatable :: standard_name, units, field_edge, field_center
-      integer :: status
-
-      standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString="standard_name", _RC)
-      units = ESMF_HConfigAsString(vertical_grid_cfg, keyString="units", _RC)
-      num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString="num_levels", _RC)
-      vertical_grid = ModelVerticalGrid(standard_name=standard_name, units=units, num_levels=num_levels)
-      field_edge = ESMF_HConfigAsString(vertical_grid_cfg, keyString="field_edge", _RC)
-      field_center = ESMF_HConfigAsString(vertical_grid_cfg, keyString="field_center", _RC)
-      select type(vertical_grid)
-      type is(ModelVerticalGrid)
-         call vertical_grid%set_registry(registry)
-         call vertical_grid%add_short_name(edge=field_edge, center=field_center)
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine parse_model_vertical_grid_
 
 end submodule parse_geometry_spec_smod

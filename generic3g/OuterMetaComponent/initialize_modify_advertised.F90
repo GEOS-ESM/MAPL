@@ -7,7 +7,7 @@ submodule (mapl3g_OuterMetaComponent) initialize_modify_advertised_smod
    use mapl3g_ConnectionVector, only: ConnectionVectorIterator
    use mapl3g_ConnectionVector, only: operator(/=)
    use mapl_ErrorHandling
-   implicit none
+   implicit none(type,external)
 
 contains
 
@@ -31,7 +31,6 @@ contains
       call recurse(this, phase_idx=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
 
       call process_connections(this, _RC)
-
       call this%registry%propagate_exports(_RC)
 
       _RETURN(_SUCCESS)
@@ -41,9 +40,9 @@ contains
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(clock)
    end subroutine initialize_modify_advertised
-   
+
    subroutine process_connections(this, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status

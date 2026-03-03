@@ -6,9 +6,13 @@
 
 
 module mapl3g_MaplFramework
+
    use mapl_ErrorHandling
    use mapl_KeywordEnforcerMod
-   use mapl_profiler, only: DistributedProfiler
+   use mapl3g_VerticalGrid_API
+   use mapl3g_FixedLevelsVerticalGrid
+   use mapl3g_ModelVerticalGrid
+   use mapl_profiler, only: profiler_initialize => initialize, profiler_finalize => finalize
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod
    use pfio_MpiServerMod, only: MpiServer
@@ -19,6 +23,7 @@ module mapl3g_MaplFramework
    use pflogger, only: Logger
    use mpi
    use esmf
+
    implicit none
    private
 
@@ -38,7 +43,6 @@ module mapl3g_MaplFramework
       type(DirectoryService) :: directory_service
       type(MpiServer), pointer :: o_server => null()
       type(MpiServer), pointer :: i_server => null()
-      type(DistributedProfiler) :: time_profiler
    contains
       procedure :: initialize
       procedure :: initialize_esmf
@@ -86,9 +90,12 @@ contains
       character(*), optional, intent(in) :: level_name
       integer, optional, intent(in) :: configFilenameFromArgNum
       integer, optional, intent(out) :: rc
+      type(VerticalGridManager), pointer :: vgrid_manager
 
       integer :: status
-
+      type(FixedLevelsVerticalGridFactory) :: fixed_levels_vgrid_factory
+      type(ModelVerticalGridFactory) :: model_vgrid_factory
+      
 
       _ASSERT(.not. this%mapl_initialized, "MaplFramework object is already initialized")
       this%mapl_initialized = .true.
@@ -104,6 +111,11 @@ contains
       call this%initialize_profilers(_RC)
       call this%initialize_servers(is_model_pet=is_model_pet, servers=servers, _RC)
       call this%initialize_udunits(_RC)
+
+      vgrid_manager => get_vertical_grid_manager(_RC)
+      call vgrid_manager%initialize(_RC)
+      call vgrid_manager%register_factory("FixedLevels", fixed_levels_vgrid_factory, _RC)
+      call vgrid_manager%register_factory("Model", model_vgrid_factory, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -208,19 +220,18 @@ contains
 #endif
 
 
-   subroutine initialize_profilers(this, unusable, rc)
+   subroutine initialize_profilers(this, rc)
       class(MaplFramework), target, intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       integer :: world_comm
+      integer :: status
+
       call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
-!#      call initialize_profiler(comm=world_comm, enable_global_timeprof=enable_global_timeprof, &
-!#      enable_global_memprof=enable_global_memprof, _RC)
+      call profiler_initialize(comm=world_comm, enable_global_timeprof=.true., enable_global_memprof=.true., _RC)
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+      ! _UNUSED_DUMMY(unusable)
    end subroutine initialize_profilers
 
    subroutine initialize_servers(this, unusable, is_model_pet, servers, rc)
@@ -504,6 +515,10 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      integer :: status
+
+      call profiler_finalize(_RC)
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(this)
@@ -676,6 +691,7 @@ contains
       call UDUNITS_Initialize(_RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine initialize_udunits
 
 end module mapl3g_MaplFramework

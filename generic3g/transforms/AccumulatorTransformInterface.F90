@@ -9,7 +9,7 @@ module mapl3g_AccumulatorTransformInterface
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, operator(/=)
-   implicit none
+   implicit none(type,external)
 
    public :: AccumulatorTransform
    public :: MeanTransform
@@ -50,8 +50,6 @@ contains
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
       class(ExtensionTransform), allocatable, intent(out) :: transform
       integer, optional, intent(out) :: rc 
-
-      integer :: status
 
       allocate(transform, source=NullTransform())
 

@@ -39,6 +39,24 @@ contains
    end subroutine test_initialize
 
    @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_initialize_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(AccumulatorTransform) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      logical :: equals_expected_value 
+
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R8, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      @assertTrue(acc%initialized, 'initialized .FALSE.')
+      equals_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R8, _RC)
+      @assertTrue(equals_expected_value, 'accumulation_field was not cleared.')
+      call destroy_objects(importState, exportState, clock, _RC)
+
+   end subroutine test_initialize_r8
+
+   @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_invalidate(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(AccumulatorTransform) :: acc
@@ -64,6 +82,33 @@ contains
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_invalidate
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_invalidate_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(AccumulatorTransform) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      type(ESMF_Field) :: import_field
+      real(kind=R8), parameter :: invalidate_value = 4.0_R8
+      logical :: equals_expected_value
+
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R8, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call get_field(importState, import_field, _RC)
+      call FieldSet(import_field, invalidate_value, _RC)
+      call acc%invalidate(importState, exportState, clock, _RC)
+      @assertFalse(acc%update_calculated, 'update_calculated .TRUE.')
+      equals_expected_value = FieldIsConstant(acc%accumulation_field, invalidate_value, _RC)
+      @assertTrue(equals_expected_value, 'accumulation_field not equal to invalidate_value')
+      call acc%invalidate(importState, exportState, clock, _RC)
+      @assertFalse(acc%update_calculated, 'update_calculated .TRUE.')
+      equals_expected_value = FieldIsConstant(acc%accumulation_field, 2*invalidate_value, _RC)
+      @assertTrue(equals_expected_value, 'accumulation_field .FALSE.')
+      call destroy_objects(importState, exportState, clock, _RC)
+
+   end subroutine test_invalidate_r8
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update(this)
@@ -110,6 +155,50 @@ contains
    end subroutine test_update
 
    @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(AccumulatorTransform) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      type(ESMF_Field) :: import_field, export_field
+      real(kind=R8), parameter :: invalidate_value = 4.0_R8
+      real(kind=R8) :: update_value
+      logical :: equals_expected_value
+
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R8, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call get_field(importState, import_field, _RC)
+      call FieldSet(import_field, invalidate_value, _RC)
+      call acc%invalidate(importState, exportState, clock, _RC)
+      call acc%update(importState, exportState, clock, _RC)
+      update_value = invalidate_value
+      @assertTrue(acc%update_calculated, 'update_calculated .FALSE.')
+      equals_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R8, _RC)
+      @assertTrue(equals_expected_value, 'accumulation_field was not cleared.')
+      equals_expected_value = FieldIsConstant(acc%result_field, update_value, _RC)
+      @assertTrue(equals_expected_value, 'result_field not equal to update_value')
+      call get_field(exportState, export_field, _RC)
+      equals_expected_value = FieldIsConstant(export_field, update_value, _RC)
+      @assertTrue(equals_expected_value, 'export_field not equal to update_value')
+
+      call acc%invalidate(importState, exportState, clock, _RC)
+      call acc%invalidate(importState, exportState, clock, _RC)
+      call acc%update(importState, exportState, clock, _RC)
+      update_value = 2 * invalidate_value
+      @assertTrue(acc%update_calculated, 'update_calculated .FALSE')
+      equals_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R8, _RC)
+      @assertTrue(equals_expected_value, 'accumulation_field was not cleared.')
+      equals_expected_value = FieldIsConstant(acc%result_field, update_value, _RC)
+      @assertTrue(equals_expected_value, 'result_field not equal to update_value.')
+      call get_field(exportState, export_field, _RC)
+      equals_expected_value = FieldIsConstant(export_field, update_value, _RC)
+      @assertTrue(equals_expected_value, 'export_field not equal to update_value')
+      call destroy_objects(importState, exportState, clock, _RC)
+
+   end subroutine test_update_r8
+
+   @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_accumulate(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(AccumulatorTransform) :: acc
@@ -153,6 +242,26 @@ contains
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_clear
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_clear_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(AccumulatorTransform) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      logical :: is_expected_value
+      real(kind=ESMF_KIND_R8), parameter :: TEST_VALUE = 2.0_ESMF_KIND_R8
+
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R8, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call FieldSet(acc%accumulation_field, TEST_VALUE, _RC)
+      call acc%clear(_RC)
+      is_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R8, _RC)
+      @assertTrue(is_expected_value, 'accumulation_field was not cleared.')
+      call destroy_objects(importState, exportState, clock, _RC)
+
+   end subroutine test_clear_r8
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_accumulate_R4(this)
@@ -213,6 +322,66 @@ contains
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_accumulate_R4
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_R8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(AccumulatorTransform) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      real(kind=R8), parameter :: INITIAL_VALUE = 2.0_R8
+      real(kind=R8), parameter :: UPDATE_VALUE = 3.0_R8
+      real(kind=R8) :: expected_value
+      real(kind=R8), pointer :: upPtr(:), accPtr(:)
+      type(ESMF_Field) :: update_field
+      logical :: field_is_expected_value
+      integer :: n
+
+      ! first accumulate
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R8, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call initialize_field(update_field, acc%accumulation_field, _RC)
+      call FieldSet(update_field, UPDATE_VALUE, _RC)
+      call FieldSet(acc%accumulation_field, INITIAL_VALUE, _RC)
+      call acc%accumulate_R8(update_field, _RC)
+      expected_value = INITIAL_VALUE + UPDATE_VALUE
+      field_is_expected_value = FieldIsConstant(acc%accumulation_field, expected_value, _RC)
+      @assertTrue(field_is_expected_value, 'accumulation_field not equal to expected_value. (first test)')
+      ! second accumulate
+      call acc%accumulate_R8(update_field, _RC)
+      expected_value = expected_value + UPDATE_VALUE
+      field_is_expected_value = FieldIsConstant(acc%accumulation_field, expected_value, _RC)
+      @assertTrue(field_is_expected_value, 'accumulation_field not equal to expected_value. (second test)')
+
+      ! one update point to undef
+      expected_value = UPDATE_VALUE
+      call acc%initialize(importState, exportState, clock, _RC)
+      call assign_fptr(update_field, upPtr, _RC)
+      call assign_fptr(acc%accumulation_field, accPtr, _RC)
+      n = size(upPtr)
+      call set_undef_r8(upPtr(n))
+      call acc%accumulate_R8(update_field, _RC)
+      @assertTrue(undef_r8(accPtr(n)), 'invalid point is not UNDEF.')
+      @assertTrue(all(pack(accPtr, .not. undef_r8(accPtr)) == expected_value), 'valid point not equal to expected value. (update undef)')
+
+      ! one accumulation point to undef
+      call acc%initialize(importState, exportState, clock, _RC)
+      call assign_fptr(update_field, upPtr, _RC)
+      upPtr = UPDATE_VALUE
+      call assign_fptr(acc%accumulation_field, accPtr, _RC)
+      accPtr = INITIAL_VALUE
+      n = size(accPtr)
+      call set_undef_r8(accPtr(n))
+      call acc%accumulate_R8(update_field, _RC)
+      expected_value = INITIAL_VALUE + UPDATE_VALUE
+      @assertTrue(undef_r8(accPtr(n)), 'invalid point is not UNDEF.')
+      @assertTrue(all(pack(accPtr, .not. undef_r8(accPtr)) == expected_value), 'valid point not equal to expected value. (accumulation undef)')
+
+      call ESMF_FieldDestroy(update_field, _RC)
+      call destroy_objects(importState, exportState, clock, _RC)
+
+   end subroutine test_accumulate_R8
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_runs_invalidate(this)

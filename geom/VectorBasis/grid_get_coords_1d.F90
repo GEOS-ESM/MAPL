@@ -1,9 +1,8 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_VectorBasis) grid_get_coords_1d_smod
-   use mapl_base, only: MAPL_GridGetCorners
-contains
 
+contains
 
    ! GridGetCoords - specific procedures
    module subroutine grid_get_coords_1d(grid, longitudes, latitudes, rc)

@@ -1,4 +1,4 @@
-# Changelog
+# Changelog 
 
 All notable changes to this project will be documented in this file.
 
@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Removes backward compatibility for MAPL_FargparseCLI functions. Only accepts function usage in which the result is of
+- Removes backward compatibility for `MAPL_FargparseCLI` functions. Only accepts function usage in which the result is of
   MAPL_CapOptions type.
 - Remove FLAP support.
 - Remove `BUILD_SHARED_MAPL` CMake option. MAPL3 is now always built as a shared library.
@@ -61,6 +61,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add validation for VariableSpec
 - Add a common set of string functions (StringCommon) in shared to consolidate
 - Add a new implementation of MAPL_HConfigGet that does not require a HConfigParams object
+- Add and use character parameters for `ESMF_Field` names in ExtensionTransform subclasses
+- Extend ExtensionTransform derived types to support ESMF_KIND_R8
+- Extend ExtensionTransform derived types to support ESMF_FieldBundle objects
+- Add utility to destroy states including states, bundles, and fields nested in them
+- Add test of units coupling
+- Add test of typekind coupling
+- Add tests of update_payload and update_from_payload for UnitsAspect
 
 ### Changed
 
@@ -79,6 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change refTime to refTime_offset for several MAPL derived types
 - Change `.rc` to `.acg` in user guide and acg tutorial
 - Refactor ACG to produce MAPL3 procedures
+- Pulled destroy_bundle and destroy_fields from MAPL_StateDestroy into MAPL_FieldBundleDestroy and FieldsDestroy
+- Added checks for bundle type in ExtensionTransform subtypes
 
 ### Fixed
 
@@ -94,18 +103,217 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a check to assign_fptr that verifies that the pointer type/kind matches the Field typekind
 - Workaround for GCC 15 bug (see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=120179)
 - Fixed handling of invalid value for RESTART column in ACG3
+- Fixed initialization of field in test_min_accumulate_R4` in `Test_MinTransform.pf`
 
 ## [Unreleased]
 
 ### Fixed
 
-- Change a few keyword names in sampler for consistency with HISTORY
-- Fix for NAG + macOS Arm which does not support IEEE halting properly
-
 ### Added
 
 ### Changed
 
+### Removed
+
+### Deprecated
+
+## [2.67.0] - 2026-02-27
+
+### Added
+
+- Introducing a two-way generic python bridge exposing limited MAPL feature down in Python. The system is opt-in and uses
+dynamic loading of py package based on a user given string. It also provides with _some_ tooling, to be expanded upon, to
+make using Fortran-allocated memory transparent.
+- Added optional `local_id` to create a simple locstream
+
+## [2.66.0] - 2026-02-13
+
+### Fixed
+
+- Guarded against 32-bit integer overflow in QSswap
+
+### Added
+
+- Added 9 modular OpenCode agent skills for MAPL development workflows (replaces AGENTS.md)
+  - mapl-setup: First-time environment configuration
+  - mapl-build: Building with NAG, gfortran, Intel compilers
+  - mapl-testing: Running and debugging tests with pFUnit
+  - fortran-style: MAPL Fortran coding standards
+  - mapl-error-handling: Error handling macros and best practices
+  - github-workflow: Git/GitHub conventions and PR process
+  - remote-build: Building on bucy with Intel compiler
+  - pfunit-troubleshooting: Debug pFUnit test failures
+  - compiler-switching: Switch between compilers safely
+- Added `.rgignore` to have ripgrep ignore common build directories
+
+### Changed
+
+- Update `components.yaml`
+  - `ESMA_env` v5.17.0
+    - Update to Baselibs 8.24.0
+      - ESMF v9.0.0b08
+      - GFE v1.22.0
+        - pFUnit v4.15.0
+      - curl 8.17.0
+      - NCO 5.3.6
+      - CDO 2.5.4
+      - Various updates for Athena/Turin/TOSS5 at NAS
+    - Support for Athena/Turin/TOSS5 at NAS
+      - Update `build.csh` to support Athena/Turin/TOSS5 at NAS
+        - Also remove Haswell
+  - `ESMA_cmake` v3.72.0
+    - Add `USES_TERMINAL` to our `tests` target to ensure output is shown as tests run with Ninja
+    - Updates for f2py and f2py3 for running on macOS with Spack
+    - Add Athena frontend nodes for NAS detection
+    - Remove `ctest` pre-test build
+
+## [2.65.0] - 2026-01-29
+
+### Added
+
+- Added implementation for `mapl_GetPartition()` with unit tests.  Replaces logic that will disappear with MAPL2
+- Added backwards compatibility with non-CF dimensionless vertical coordinate in ExtData2G
+- Added logic in History to check for consistent History and averaging coupler alarms
+
+### Changed
+
+- added formating string to the pFlogger call in `FileBundleRead.F90` to avoid processing incidental '%' characters in the filename
+- replaced `rc=status` with `_RC` in `MAPL_read_bundle`
+- `MAPL_read_bundle` now logs the filename instead of the file template
+- added optional argument "NoGarbage" to `MAPL_BundleDestroy`
+- Updated CI to use Baselibs 8.24.0
+  - This provides ESMF 9.0.0b08
+  - Update ifx tests to 2025.3 (enabled by ESMF 9.0.0b08)
+
+## [2.64.2] - 2026-01-16
+
+### Fixed
+
+- Fixed issue with `find_any_file` where bad logic caused issues with GAAS files not being read (forward port of MAPL 2.57.1 fix)
+
+## [2.64.1] - 2025-12-30
+
+### Fixed
+
+- Restore workaround for binary restart reads with GNU
+  - Brings back changes from PR #1038: Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
+
+## [2.64.0] - 2025-12-05
+
+### Added
+
+- Added `pfaf_index` to `MAPL_Locstream`
+- Added a simple MAPL_LocstreamCreate
+
+### Changed
+
+- Enforced presence of `grid` when reading binary tile file
+
+## [2.63.1] - 2025-11-25
+
+### Changed
+
+- Combine MAPL_Grid_interior and MAPL_GridgetInterior
+  - This is needed for 1-d tile space output in netCDF4 format
+
+## [2.63.0] - 2025-11-21
+
+### Fixed
+
+- Removed obsolete pfio test
+- Fix a memory leak in trajectory sampler due to misuage of FieldRegrid which should be FieldRedist
+- Fixed `mapl_acg.cmake` to allow for more than one StateSpecs file per target
+- Fix NVHPC issue with IEEE halting code
+- Fix a misspelled `MAPL_LIBRARY_TYPE` in `vertical`
+- Workaround for Flang
+
+### Added
+
+- Added updated version of `MAPL_GridCompSpecs_ACG_writer.py`
+- Added 'Gridname' attribute to history output
+- Create TilgridIO's outbundle from output grid and deallocate mGriddedIO in History
+- Added TileGridIO.F90 to output NC4 History file in tile space. The collection's format should be 'CFIO'
+- Added bit shave to TileGridIO
+
+### Changed
+
+- Update CI
+  - Use Baselibs 8.20.0
+  - Add gcc15 test
+  - Use organization reusable workflows
+  - Run CI build test with NAG on PRs
+- Update `README_ACG_WRITER.md`
+- Update `components.yaml`
+  - `ESMA_env` v5.16.0
+    - Update to Baselibs 8.20.0
+      - GFE v1.20.0
+        - gFTL v1.16.0
+        - gFTL-shared v1.11.0
+        - fArgParse v1.10.0
+        - pFUnit v4.13.0
+        - yaFyaml v1.6.0
+        - pFlogger v1.17.0
+      - NCO 5.3.5
+      - This is mainly for ifx 2025.2 support
+      - Requires CMake 3.24
+  - `ESMA_cmake` v3.68.0
+    - Update `ifx` flags to match as close as possible to `ifort` flags
+    - Update site detection for NAS
+    - Updates for f2py and flang
+
+### Removed
+
+- Removed TileIO.F90. It is integrated into TileGridIO.F90
+
+## [2.62.2] - 2025-10-29
+
+### Fixed
+
+- Fixed bug when one of the two names in an ExtData2G rule for a vector is contained is a substring in another item, for example UA;VA and EVAP
+
+## [2.62.1] - 2025-10-14
+
+### Fixed
+
+- Fixed bug when regridding with grid that has PET with no DEs
+
+## [2.62.0] - 2025-09-25
+
+### Fixed
+
+- CMake workaround for ifx 2025.2
+  - NOTE: Requires ESMA_cmake v3.65.0 for ifx 2025.2 support as well as updates in GFE not yet in Baselibs
+
+### Changed
+
+- Update `components.yaml`
+  - `ESMA_env` v5.14.0
+    - Update to Baselibs 8.19.0
+      - esmf 9.0.0b03
+      - curl 8.16.0
+  - `ESMA_cmake` v3.65.0
+    - Workaround for ifx 2025.2
+
+## [2.61.0] - 2025-09-18
+
+### Changed
+
+- Added support for ESMF 9
+  - Requires `#ifdef` to support changes in deprecated `ESMF_Attribute` API in ESMF 9
+- Improved some error statements
+
+## [2.60.0] - 2025-09-11
+
+### Fixed
+
+- Fix NRL Solar Constant read routine for cycle-Cycle24 option
+- Change a few keyword names in sampler for consistency with HISTORY
+- Fixes for NVHPC: Move some subroutines in `MAPL_MaskMod` from submodule to module
+- Fix for NAG + macOS Arm which does not support IEEE halting properly
+
+### Changed
+
+- Updated the default `VERSION` in History to `1` (which has been the effective default in `HISTORY.rc` for some time)
 - Update `components.yaml`
   - `ESMA_env` v5.13.0
     - Update to Baselibs 8.18.0
@@ -120,10 +328,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Support for libaec
     - Add `FindISSM.cmake`
 - Update CI to use Baselibs 8.18.0
-
-### Removed
-
-### Deprecated
+- Allow row lookups to return key if key in values (ACG2)
 
 ## [2.59.0] - 2025-08-06
 
@@ -162,6 +367,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added RC for Timer call in `MAPL_Generic.F90`
 - Adds the wall clock date and time to the GCM stdout log so we can more readily diagnose slow periods of performance during the run
+
+## [2.57.1] - 2026-01-16
+
+### Fixed
+
+- Fixed issue with `find_any_file` where bad logic caused issues with GAAS files not being read
 
 ## [2.57.0] - 2025-06-18
 

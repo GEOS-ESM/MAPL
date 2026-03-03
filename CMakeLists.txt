@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.59.0
+  VERSION 2.67.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -97,13 +97,7 @@ if(BUILD_WITH_FARGPARSE)
   message (STATUS "Found fArgParse: ${FARGPARSE_DIR} (found version ${FARGPARSE_VERSION})")
 endif()
 
-option(USE_EXTDATA2G "Use ExtData2G" ON)
-if(USE_EXTDATA2G)
-  set (EXTDATA2G_TARGET "MAPL.ExtData2G" CACHE STRING "ExtData2G Target")
-  message (STATUS "Building with ExtData2G")
-else()
-  set (EXTDATA2G_TARGET "" CACHE STRING "ExtData2G Target")
-endif()
+message (STATUS "Building with ExtData2G")
 
 option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
 if (BUILD_WITH_PFLOGGER)
@@ -136,15 +130,15 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET ESMF::ESMF)
-    find_package(ESMF 8.8.1 MODULE REQUIRED)
+    find_package(ESMF 9.0.0 MODULE REQUIRED)
     target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
   endif ()
 else ()
   # This is an ESMF version test when using Baselibs which doesn't use the
   # same find_package internally in ESMA_cmake as used above (with a version
   # number) so this lets us at least trap use of old Baselibs here.
-  if (ESMF_VERSION VERSION_LESS 8.8.1)
-    message(FATAL_ERROR "ESMF must be at least 8.8.1")
+  if (ESMF_VERSION VERSION_LESS 9.0.0)
+    message(FATAL_ERROR "ESMF must be at least 9.0.0")
   endif ()
 endif ()
 
@@ -237,15 +231,18 @@ add_subdirectory (GeomIO)
 add_subdirectory (esmf_utils)
 add_subdirectory (vertical)
 add_subdirectory (component)
+add_subdirectory (alarm)
 if (BUILD_WITH_FARGPARSE)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
 endif()
-
 add_subdirectory (geom)
+add_subdirectory (vertical_grid)
 add_subdirectory (regridder_mgr)
 add_subdirectory (hconfig)
 add_subdirectory (hconfig_utils)
+add_subdirectory (utilities)
+add_subdirectory(Python)
 
 add_subdirectory (mesh2)
 
@@ -263,13 +260,6 @@ add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
 esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
-
-# Install the Python directory
-install (
-   DIRECTORY Python
-   DESTINATION lib
-   USE_SOURCE_PERMISSIONS
-   )
 
 install (
    DIRECTORY cmake

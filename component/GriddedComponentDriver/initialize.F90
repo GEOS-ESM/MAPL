@@ -8,7 +8,7 @@ contains
 
 
    recursive module subroutine initialize(this, unusable, phase_idx, rc)
-      class(GriddedComponentDriver), intent(inout) :: this
+      class(GriddedComponentDriver), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc

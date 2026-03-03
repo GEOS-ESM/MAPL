@@ -1,5 +1,7 @@
 #include "MAPL_Exceptions.h"
+
 module VerticalCoordinateMod
+
    use PFIO
    use MAPL_ExceptionHandling
    use MAPL_FileMetadataUtilsMod
@@ -11,6 +13,7 @@ module VerticalCoordinateMod
 
    implicit none
    private
+
    public VerticalCoordinate
    public model_pressure
    public simple_coord
@@ -80,6 +83,8 @@ contains
          if (metadata%has_variable(dim_name)) then
             dim_var => metadata%get_variable(dim_name)
             is_vertical_coord_var = detect_cf_vertical_coord_var(dim_var, _RC)
+            ! allow backwards-compatibility with non-cf files
+            is_vertical_coord_var = is_vertical_coord_var .or. dim_name == 'lev'
             if (is_vertical_coord_var) then
                lev_name = dim_name
                exit
@@ -104,6 +109,24 @@ contains
             if (vertical_coord%levels(1) > vertical_coord%levels(2)) vertical_coord%positive = "up" !bmaa
             _RETURN(_SUCCESS)
          end if
+
+         ! now test if no positive attribute and does not have pressure units
+         ! for backwards compatibility with non-cf files
+         if ((.not. coord_var%is_attribute_present("positive")) .and. &
+              (.not. has_pressure_units)) then
+            standard_name = coord_var%get_attribute_string("standard_name")
+            ! metadata combinations that imply integer levels
+            if ( any(standard_name == ["level ", "levels"])  .and. &
+                 any(temp_units == ["1    ", "level"])) then
+               vertical_coord%positive = "up"
+               if (vertical_coord%levels(1) >= vertical_coord%levels(2)) then
+                  vertical_coord%positive = "down"
+               endif
+            else
+               _FAIL('lev positive attribute not in file and no rule defined for setting it from standard_name and units')
+            endif
+         endif
+
          ! now test if this is a "fixed" height level, if has height units, then dimensioanl coordinate, but must have positive
          has_height_units = safe_are_convertible(temp_units, 'm', _RC)
          if (has_height_units) then
@@ -169,132 +192,136 @@ contains
       end if
       _RETURN(_SUCCESS)
 
-    end function new_VerticalCoordinate
+   end function new_VerticalCoordinate
 
-    ! this is what CF says makes a vertical coordinate
-    ! see 2nd paragraph of section 4.3
-    ! but, either the coordinate variable is dimensional  has units of pressure, in this case positive is optional
-    ! or it still dimensional and has some other units of height and positive is not optional
-    ! or it dimensionless in which case must have positive
-    function detect_cf_vertical_coord_var(var, rc) result(is_vertical_coord_var)
-       logical :: is_vertical_coord_var
-       type(Variable), intent(in) :: var
-       integer, optional, intent(out) :: rc
+   ! this is what CF says makes a vertical coordinate
+   ! see 2nd paragraph of section 4.3
+   ! but, either the coordinate variable is dimensional  has units of pressure, in this case positive is optional
+   ! or it still dimensional and has some other units of height and positive is not optional
+   ! or it dimensionless in which case must have positive
+   function detect_cf_vertical_coord_var(var, rc) result(is_vertical_coord_var)
+      logical :: is_vertical_coord_var
+      type(Variable), intent(in) :: var
+      integer, optional, intent(out) :: rc
 
-       integer :: status
+      integer :: status
 
-       logical :: has_positive, has_pressure_units, has_units
-       character(len=:), allocatable :: units
-       character(len=3) :: pressure_hpa
+      logical :: has_positive, has_pressure_units, has_units
+      character(len=:), allocatable :: units
+      character(len=3) :: pressure_hpa
 
-       is_vertical_coord_var = .false.
-       pressure_hpa = "Pa"
-       has_positive = var%is_attribute_present("positive", _RC)
-       has_units = var%is_attribute_present("units", _RC)
-       has_pressure_units = .false.
-       if (has_units) then
-          units = var%get_attribute_string("units", _RC)
-          has_pressure_units = safe_are_convertible(units, pressure_hpa, _RC)
-       end if
-       is_vertical_coord_var = has_pressure_units .or. has_positive
-       _RETURN(_SUCCESS)
-    end function detect_cf_vertical_coord_var
+      is_vertical_coord_var = .false.
+      pressure_hpa = "Pa"
+      has_positive = var%is_attribute_present("positive", _RC)
+      has_units = var%is_attribute_present("units", _RC)
+      has_pressure_units = .false.
+      if (has_units) then
+         units = var%get_attribute_string("units", _RC)
+         has_pressure_units = safe_are_convertible(units, pressure_hpa, _RC)
+      end if
+      is_vertical_coord_var = has_pressure_units .or. has_positive
+      _RETURN(_SUCCESS)
+   end function detect_cf_vertical_coord_var
 
-    function get_coords(coord_var, rc) result(coords)
-       real, allocatable :: coords(:)
-       class(CoordinateVariable), intent(in) :: coord_var
-       integer, intent(out), optional :: rc
+   function get_coords(coord_var, rc) result(coords)
+      real, allocatable :: coords(:)
+      class(CoordinateVariable), intent(in) :: coord_var
+      integer, intent(out), optional :: rc
 
-       class(*), pointer :: ptr(:)
+      class(*), pointer :: ptr(:)
 
-       ptr => coord_var%get_coordinate_data()
-       _ASSERT(associated(ptr),"coord variable coordinate data not found")
-       select type (ptr)
-       type is (real(kind=REAL64))
-          coords=ptr
-       type is (real(kind=REAL32))
-          coords=ptr
-       type is (integer(kind=INT64))
-          coords=ptr
-       type is (integer(kind=INT32))
-          coords=ptr
-       class default
-          _FAIL("unsupported coordinate variable type in ")
-       end select
-       _RETURN(_SUCCESS)
-    end function get_coords
+      ptr => coord_var%get_coordinate_data()
+      _ASSERT(associated(ptr),"coord variable coordinate data not found")
+      select type (ptr)
+      type is (real(kind=REAL64))
+         coords=ptr
+      type is (real(kind=REAL32))
+         coords=ptr
+      type is (integer(kind=INT64))
+         coords=ptr
+      type is (integer(kind=INT32))
+         coords=ptr
+      class default
+         _FAIL("unsupported coordinate variable type in ")
+      end select
 
-    subroutine parse_formula_terms(formula_terms, ps, ak, bk, rc)
-       character(len=*), intent(in) :: formula_terms
-       character(len=:), allocatable, intent(out) :: ps
-       character(len=:), allocatable, intent(out) :: ak
-       character(len=:), allocatable, intent(out) :: bk
-       integer, intent(out), optional :: rc
+      _RETURN(_SUCCESS)
+   end function get_coords
 
-       ps = find_term(formula_terms, "ps:")
-       ak = find_term(formula_terms, "ap:")
-       bk = find_term(formula_terms, "b:")
+   subroutine parse_formula_terms(formula_terms, ps, ak, bk, rc)
+      character(len=*), intent(in) :: formula_terms
+      character(len=:), allocatable, intent(out) :: ps
+      character(len=:), allocatable, intent(out) :: ak
+      character(len=:), allocatable, intent(out) :: bk
+      integer, intent(out), optional :: rc
 
-       _RETURN(_SUCCESS)
-    end subroutine parse_formula_terms
+      ps = find_term(formula_terms, "ps:")
+      ak = find_term(formula_terms, "ap:")
+      bk = find_term(formula_terms, "b:")
 
-    function find_term(string, key) result(string_value)
-       character(len=:), allocatable :: string_value
-       character(len=*), intent(in) :: string
-       character(len=*), intent(in) :: key
+      _RETURN(_SUCCESS)
+   end subroutine parse_formula_terms
 
-       integer :: key_pos, key_len, space_pos
-       character(len=:), allocatable :: temp_string
-       key_pos = index(string, key)
-       key_len = len_trim(key)
-       temp_string = string(key_pos+key_len:)
-       temp_string = adjustl(trim(temp_string))
-       space_pos = index(temp_string," ")
-       if (space_pos > 0) then
-          string_value = temp_string(1:space_pos-1)
-       else
-          string_value = temp_string
-       end if
+   function find_term(string, key) result(string_value)
+      character(len=:), allocatable :: string_value
+      character(len=*), intent(in) :: string
+      character(len=*), intent(in) :: key
 
-    end function find_term
+      integer :: key_pos, key_len, space_pos
+      character(len=:), allocatable :: temp_string
 
-    function safe_are_convertible(from, to, rc) result(convertible)
-       logical :: convertible
-       character(*), intent(in) :: from, to
-       integer, optional, intent(out) :: rc
+      key_pos = index(string, key)
+      key_len = len_trim(key)
+      temp_string = string(key_pos+key_len:)
+      temp_string = adjustl(trim(temp_string))
+      space_pos = index(temp_string," ")
+      if (space_pos > 0) then
+         string_value = temp_string(1:space_pos-1)
+      else
+         string_value = temp_string
+      end if
+   end function find_term
 
-       integer :: status
-       type(UDUnit) :: unit1, unit2
-       logical :: from_invalid, to_invalid
+   function safe_are_convertible(from, to, rc) result(convertible)
+      logical :: convertible
+      character(*), intent(in) :: from, to
+      integer, optional, intent(out) :: rc
 
-       unit1 = UDUnit(from)
-       unit2 = UDUnit(to)
+      integer :: status
+      type(UDUnit) :: unit1, unit2
+      logical :: from_invalid, to_invalid
 
-       from_invalid = unit1%is_free()
-       to_invalid = unit2%is_free()
+      unit1 = UDUnit(from)
+      unit2 = UDUnit(to)
 
-       if (from_invalid .or. to_invalid) then
-          convertible = .false.
-          _RETURN(_SUCCESS)
-       end if
-       convertible = UDUNITS_are_convertible(unit1, unit2, _RC)
+      from_invalid = unit1%is_free()
+      to_invalid = unit2%is_free()
 
-       _RETURN(_SUCCESS)
-    end function safe_are_convertible
+      if (from_invalid .or. to_invalid) then
+         convertible = .false.
+         _RETURN(_SUCCESS)
+      end if
+      convertible = UDUNITS_are_convertible(unit1, unit2, _RC)
 
-    function compute_ple(this, ps, rc) result(ple)
-       real, allocatable :: ple(:,:,:)
-       class(VerticalCoordinate), intent(in) :: this
-       real, intent(in) :: ps(:,:)
-       integer, optional, intent(out) :: rc
-       integer :: status, im, jm, i
-       im=size(ps,1)
-       jm=size(ps,2)
-       allocate(ple(im,jm,this%num_levels+1))
-       do i=1,this%num_levels+1
-          ple(:,:,i)=this%ak(i)+(ps*this%bk(i))
-       enddo
-       _RETURN(_SUCCESS)
-    end function
+      _RETURN(_SUCCESS)
+   end function safe_are_convertible
+
+   function compute_ple(this, ps, rc) result(ple)
+      real, allocatable :: ple(:,:,:)
+      class(VerticalCoordinate), intent(in) :: this
+      real, intent(in) :: ps(:,:)
+      integer, optional, intent(out) :: rc
+
+      integer :: im, jm, i
+
+      im=size(ps,1)
+      jm=size(ps,2)
+      allocate(ple(im,jm,this%num_levels+1))
+      do i=1,this%num_levels+1
+         ple(:,:,i)=this%ak(i)+(ps*this%bk(i))
+      enddo
+
+      _RETURN(_SUCCESS)
+   end function
 
 end module VerticalCoordinateMod

@@ -28,6 +28,7 @@ module mapl3g_CubedSphereGeomSpec
 
       ! Accessors
       procedure :: get_decomposition
+      procedure :: get_topology
       procedure :: get_im_world
       procedure :: get_schmidt_parameters
    end type CubedSphereGeomSpec
@@ -100,6 +101,11 @@ interface
          type(CubedSphereDecomposition) :: decomposition
          class(CubedSphereGeomSpec), intent(in) :: spec
       end function get_decomposition
+
+      module function get_topology(spec) result(topology)
+         class(CubedSphereGeomSpec), intent(in) :: spec
+         integer, allocatable :: topology(:)
+      end function get_topology
 
       pure module function get_im_world(spec) result(im_world)
          integer :: im_world

@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_ExpressionClassAspect
+
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ClassAspect
@@ -13,11 +14,6 @@ module mapl3g_ExpressionClassAspect
    use mapl3g_UngriddedDimsAspect
 
    use mapl3g_StateRegistry
-!#   use mapl3g_VerticalGrid
-!#   use mapl3g_VerticalStaggerLoc
-!#   use mapl3g_VerticalStaggerLoc
-!#   use mapl3g_UngriddedDims
-
    use mapl3g_EvalTransform
    use mapl3g_NullTransform
    use mapl3g_ComponentDriver
@@ -31,7 +27,7 @@ module mapl3g_ExpressionClassAspect
    use mapl3g_VirtualConnectionPtVector
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
-   use mapl3g_StateItemExtension
+   use mapl3g_StateItemSpec
 
    use mapl3g_Field_API
    use mapl3g_FieldInfo
@@ -40,7 +36,9 @@ module mapl3g_ExpressionClassAspect
    use gftl2_StringVector
 
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
+
    implicit none(type,external)
    private
 
@@ -57,6 +55,7 @@ module mapl3g_ExpressionClassAspect
       private
       character(:), allocatable :: expression
       type(StateRegistry), pointer :: registry => null()
+      type(ESMF_Field) :: payload ! to hold metadata
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -74,12 +73,12 @@ module mapl3g_ExpressionClassAspect
       procedure :: add_to_bundle
 
       procedure, nopass :: get_aspect_id
+      procedure :: get_payload
    end type ExpressionClassAspect
 
    interface ExpressionClassAspect
       procedure :: new_ExpressionClassAspect
    end interface ExpressionClassAspect
-
 
 contains
 
@@ -107,20 +106,22 @@ contains
            ]
 
       _RETURN(_SUCCESS)
-
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-
    ! No op
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, rc)
       class(ExpressionClassAspect), intent(inout) :: this
-      integer, optional, intent(in) :: handle(:)
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
       integer :: status
 
+      this%payload = ESMF_FieldEmptyCreate(name='expression', _RC)
+
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -128,7 +129,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemExtension), pointer :: extension
+      type(StateItemSpec), pointer :: extension
       type(StateItemSpec), pointer :: spec
       type(StringVector) :: expression_variables
       type(StringVectorIterator) :: iter
@@ -139,13 +140,13 @@ contains
       iter = b
       do while (iter /= e)
          variable => iter%of()
-         extension => this%registry%get_primary_extension(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable), _RC)
-         spec => extension%get_spec()
+         extension => this%registry%get_primary_spec(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable), _RC)
+         spec => extension
          call spec%activate()
          call iter%next()
       enddo
       end associate
-          
+
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
 
@@ -155,11 +156,10 @@ contains
       type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
-      integer :: status
- 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine allocate
-
 
    ! no op
    subroutine destroy(this, rc)
@@ -167,6 +167,7 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine destroy
 
    ! no op
@@ -176,6 +177,8 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(import)
    end subroutine connect_to_import
 
    ! no op
@@ -185,9 +188,9 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(export)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
@@ -236,26 +239,27 @@ contains
       type(MultiState) :: multi_state
       type(VirtualConnectionPt), pointer :: v_pt
       type(ActualConnectionPt) :: a_pt
-      type(StateItemExtension), pointer :: new_extension
+      type(StateItemSpec), pointer :: new_extension
       type(StateItemSpec), pointer :: new_spec
       type(StateItemSpec), target :: goal_spec
-      type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
       type(AspectMap), pointer :: goal_aspects
-      type(ESMF_Field) :: field
+      type(ESMF_Field), allocatable :: field
       type(VirtualConnectionPtVector) :: empty
       integer :: n
       type(StringVector) :: expression_variables
       type(StringVectorIterator) :: iter
       character(:), pointer :: variable
 
+      transform = NullTransform()
       multi_state = MultiState()
 
       select type (dst)
       type is (FieldClassAspect)
 
+
          expression_variables = parser_variables_in_expression(src%expression, _RC)
-         associate (b => expression_variables%begin(), e => expression_variables%end()) 
+         associate (b => expression_variables%begin(), e => expression_variables%end())
          iter = b
          do while (iter /= e)
             variable => iter%of()
@@ -268,29 +272,31 @@ contains
          goal_aspects => goal_spec%get_aspects()
          n = goal_aspects%erase(CLASS_ASPECT_ID)
          call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
-        do i = 1, inputs%size()
+         call goal_spec%create(_RC)
+
+         do i = 1, inputs%size()
             v_pt => inputs%of(i)
             new_extension => src%registry%extend(v_pt, goal_spec, _RC)
             coupler => new_extension%get_producer()
             if (associated(coupler)) then
                call input_couplers%push_back(coupler)
             end if
-            new_spec => new_extension%get_spec()
+            new_spec => new_extension
 
             class_aspect => new_spec%get_aspect(CLASS_ASPECT_ID, _RC)
             select type(class_aspect)
             type is (FieldClassAspect)
-               field = class_aspect%get_payload()
+               call class_aspect%get_payload(field=field, _RC)
                a_pt = ActualConnectionPt(v_pt)
                call class_aspect%add_to_state(multi_state, a_pt, _RC)
             class default
                _FAIL("unsupported aspect type; must be FieldClassAspect")
             end select
-         end do
+        end do
 
+         deallocate(transform)
          allocate(transform, source=EvalTransform(src%expression, multi_state%exportState, input_couplers))
       class default
-         allocate(transform, source=NullTransform())
          _FAIL('expression connected to non-field')
       end select
 
@@ -299,7 +305,10 @@ contains
 
    logical function supports_conversion_general(src)
       class(ExpressionClassAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    ! Expressions can only evaluate to fields
@@ -313,7 +322,7 @@ contains
          supports_conversion_specific = .true.
       end select
 
-      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(src)
    end function supports_conversion_specific
 
    ! No op
@@ -324,6 +333,9 @@ contains
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(multi_state)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine add_to_state
 
    ! noop
@@ -332,9 +344,9 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: field_bundle
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field_bundle)
    end subroutine add_to_bundle
 
    function get_aspect_id() result(aspect_id)
@@ -343,17 +355,36 @@ contains
    end function get_aspect_id
 
   function matches(src, dst)
-     logical :: matches
+      logical :: matches
       class(ExpressionClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
       matches = .false.
+
 !#      select type(dst)
 !#      class is (FieldClassAspect)
 !#         _HERE
 !#         matches = .true.
 !#      end select
+
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function matches
 
-   
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
+      class(ExpressionClassAspect), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      field = this%payload
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
+   end subroutine get_payload
+
 end module mapl3g_ExpressionClassAspect

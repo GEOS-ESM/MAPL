@@ -15,6 +15,7 @@ module mapl3g_FieldBundleClassAspect
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleCreate, MAPL_FieldBundleInfoSetInternal
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundlesAreAliased
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
+   use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
 
@@ -86,24 +87,25 @@ contains
            ]
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, rc)
       class(FieldBundleClassAspect), intent(inout) :: this
-      integer, optional, intent(in) :: handle(:)
+      type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(_RC)
-      _RETURN_UNLESS(present(handle))
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldBundleInfoSetInternal(info, spec_handle=handle, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -168,42 +170,31 @@ contains
       type(FieldBundleClassAspect) :: export_
       integer :: status
 
-      _FAIL("FieldBundleClassAspect::connect_to_export - not implemented yet")
-
-      ! export_ = to_FieldClassAspect(export, _RC)
-      ! call this%destroy(_RC) ! import is replaced by export/extension
-      ! this%payload = export_%payload
-
-      ! call mirror(this%default_value, export_%default_value)
+      export_ = to_FieldBundleClassAspect(export, _RC)
+      call this%destroy(_RC) ! import is replaced by export/extension
+      this%payload = export_%payload
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(export)
       _UNUSED_DUMMY(actual_pt)
       _UNUSED_DUMMY(rc)
-
-   ! contains
-
-   !   subroutine mirror(dst, src)
-   !      real, allocatable, intent(inout) :: dst
-   !      real, allocatable, intent(in) :: src
-
-   !      if (.not. allocated(src)) return
-
-   !      if (.not. allocated(dst)) then
-   !         dst = src
-   !         return
-   !      end if
-
-   !      ! TODO: Problematic case: both allocated with different values.
-   !      if (dst /= src) then
-   !         _HERE, "WARNING: mismatched default values for ", actual_pt
-   !         _HERE, "    src = ", src, "; dst = ",dst, " (src value wins)"
-   !      end if
-
-   !    end subroutine mirror
-
    end subroutine connect_to_export
+
+   function to_FieldBundleClassAspect(aspect, rc) result(bundle_aspect)
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+      type(FieldBundleClassAspect) :: bundle_aspect ! result
+
+      select type(aspect)
+      class is (FieldBundleClassAspect)
+         bundle_aspect = aspect
+      class default
+         _FAIL('aspect is not FieldBundleClassAspect')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function to_FieldBundleClassAspect
 
    function make_transform(src, dst, other_aspects, rc) result(transform)
       class(ExtensionTransform), allocatable :: transform
@@ -215,11 +206,17 @@ contains
       transform = NullTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    logical function supports_conversion_general(src)
       class(FieldBundleClassAspect), intent(in) :: src
+
       supports_conversion_general = .false.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
@@ -228,6 +225,7 @@ contains
 
       supports_conversion_specific = .false.
 
+      _UNUSED_DUMMY(src)
       _UNUSED_DUMMY(dst)
    end function supports_conversion_specific
 
@@ -241,9 +239,10 @@ contains
       type(esmf_StateItem_Flag) :: itemType
       logical :: is_alias
       type(ESMF_State) :: state, substate
-      character(:), allocatable :: full_name, inner_name
+      character(:), allocatable :: full_name, inner_name, intent
       integer :: idx, status
 
+      intent = actual_pt%get_state_intent()
       call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
 
       full_name = actual_pt%get_full_name()
@@ -252,24 +251,36 @@ contains
       inner_name = full_name(idx+1:)
 
       alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
-     alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then
-         call ESMF_StateGet(substate, itemName=inner_name, fieldBundle=existing_bundle, _RC)
-         is_alias = mapl_FieldBundlesAreAliased(alias, existing_bundle, _RC)
-         _ASSERT(is_alias, 'Different field bundles added under the same name in state.')
-      else
-         call ESMF_StateAdd(substate, [alias], _RC)
+         if (intent /= "import") then
+            call ESMF_StateGet(substate, itemName=inner_name, fieldBundle=existing_bundle, _RC)
+            is_alias = mapl_FieldBundlesAreAliased(alias, existing_bundle, _RC)
+            _ASSERT(is_alias, 'Different field bundles added under the same name in state.')
+         end if
       end if
+      call ESMF_StateAddReplace(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-   function get_payload(this) result(field_bundle)
-      type(ESMF_FieldBundle) :: field_bundle
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(FieldBundleClassAspect), intent(in) :: this
-      field_bundle = this%payload
-   end function get_payload
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      bundle = this%payload
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(state)
+   end subroutine get_payload
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id

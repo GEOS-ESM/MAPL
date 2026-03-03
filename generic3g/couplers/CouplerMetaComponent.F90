@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_CouplerMetaComponent
+
    use mapl3g_TransformId
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
    use mapl3g_CouplerPhases
@@ -33,7 +34,6 @@ module mapl3g_CouplerMetaComponent
 
       type(ESMF_Geom), allocatable :: geom_in
       type(ESMF_Geom), allocatable :: geom_out
-      
    end type TimeVaryingAspects
 
    type :: CouplerMetaComponent
@@ -93,10 +93,10 @@ contains
          source_wrapper%ptr => source
          call this%sources%push_back(source_wrapper)
       end if
-
    end function new_CouplerMetaComponent
 
    recursive subroutine initialize(this, importState, exportState, clock, rc)
+
       class(CouplerMetaComponent), intent(inout) :: this
       type(ESMF_State), intent(inout) :: importState
       type(ESMF_State), intent(inout) :: exportState
@@ -104,15 +104,16 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Geom), allocatable :: geom_in, geom_out
 
       call this%initialize_sources(_RC)
 
       if (all(this%transform%get_transformId() /= [EXTEND_TRANSFORM_ID, EVAL_TRANSFORM_ID])) then
          call copy_shared_attributes()
-            
-         geom_in = get_geom(importState, IMPORT_NAME, _RC)
-         geom_out = get_geom(exportState, EXPORT_NAME, _RC)
+
+         call get_geom(importState, IMPORT_NAME, geom_in, _RC)
+         call get_geom(exportState, EXPORT_NAME, geom_out, _RC)
+
          if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then
 !#         _ASSERT(geom_in == geom_out, 'mismatched geom in non regrid coupler')
             this%time_varying%geom = geom_in
@@ -146,7 +147,7 @@ contains
          call get_info(exportState, itemName=EXPORT_NAME, info=info_out, _RC)
          call ESMF_InfoSet(info_out, INFO_SHARED_NAMESPACE, shared_attrs, _RC)
          call ESMF_InfoDestroy(shared_attrs)
-      
+
          _RETURN(_SUCCESS)
       end subroutine copy_shared_attributes
 
@@ -167,7 +168,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine initialize_sources
-
 
    recursive subroutine update(this, importState, exportState, clock, rc)
       class(CouplerMetaComponent), intent(inout) :: this
@@ -191,10 +191,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update
 
-
    ! Check if export item has been updated and update import item
    ! accordingly.
    recursive subroutine update_time_varying(this, importState, exportState, clock, rc)
+
       class(CouplerMetaComponent), intent(inout) :: this
       type(ESMF_State), intent(inout) :: importState
       type(ESMF_State), intent(inout) :: exportState
@@ -202,14 +202,13 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Field) :: f_in, f_out
       type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
 
       call ESMF_StateGet(importState, itemName=IMPORT_NAME, itemType=itemType_in, _RC)
       call ESMF_StateGet(exportState, itemName=EXPORT_NAME, itemType=itemType_out, _RC)
 
       call dispatch(itemType_in, itemType_out, _RC)
-      
+
       _RETURN(_SUCCESS)
 
    contains
@@ -256,7 +255,7 @@ contains
 
          ! (1) Interpolation weights can only change on import side
          call MAPL_FieldBundleGet(fb_in, fieldBundleType=fieldBundleType, _RC)
-         if (fieldBundleType == FIELDBUNDLETYPE_BRACKET) then
+         if (fieldBundleType == FIELDBUNDLETYPE_BRACKET .or. FieldBundleType == FIELDBUNDLETYPE_VECTORBRACKET) then
             call MAPL_FieldBundleGet(fb_in, interpolation_weights=interpolation_weights, _RC)
             if (.not. same_weights(interpolation_weights, this%time_varying%interpolation_weights)) then
                call MAPL_FieldBundleSet(fb_out, interpolation_weights=interpolation_weights, _RC)
@@ -267,10 +266,8 @@ contains
          _RETURN(_SUCCESS)
       end subroutine update_time_varying_fieldbundle_fieldbundle
 
-
       logical function same_weights(w1, w2) result(same)
          real, allocatable, intent(in) :: w1(:), w2(:)
-
 
          same = allocated(w1) .eqv. allocated(w2)
          if (.not. same) return
@@ -290,13 +287,13 @@ contains
          integer :: status
          type(ESMF_FieldBundle) :: fb_in
          type(ESMF_Field) :: f_out
-         type(ESMF_Geom) :: geom_in, geom_out
+         type(ESMF_Geom), allocatable :: geom_in, geom_out
 
          call ESMF_StateGet(importState, itemName=IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=EXPORT_NAME, field=f_out, _RC)
 
-         geom_in = get_geom(importState, IMPORT_NAME, _RC)
-         geom_out = get_geom(exportState, EXPORT_NAME, _RC)
+         call get_geom(importState, IMPORT_NAME, geom_in, _RC)
+         call get_geom(exportState, EXPORT_NAME, geom_out, _RC)
 
          if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then ! only one side can vary
             if (geom_in /= this%time_varying%geom) then
@@ -316,7 +313,7 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine update_time_varying_fieldbundle_field
-      
+
       ! Things that are allowed to be time-varying for field-field
       !   - geom (sampler, extdata)
       subroutine update_time_varying_field_field(rc)
@@ -324,13 +321,13 @@ contains
 
          integer :: status
          type(ESMF_Field) :: f_in, f_out
-         type(ESMF_Geom) :: geom_in, geom_out
+         type(ESMF_Geom), allocatable :: geom_in, geom_out
 
          call ESMF_StateGet(importState, itemName=IMPORT_NAME, field=f_in, _RC)
          call ESMF_StateGet(exportState, itemName=EXPORT_NAME, field=f_out, _RC)
 
-         geom_in = get_geom(importState, IMPORT_NAME, _RC)
-         geom_out = get_geom(exportState, EXPORT_NAME, _RC)
+         call get_geom(importState, IMPORT_NAME, geom_in, _RC)
+         call get_geom(exportState, EXPORT_NAME, geom_out, _RC)
 
          if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then ! only one side can vary
             if (geom_in /= this%time_varying%geom) then
@@ -350,7 +347,7 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine update_time_varying_field_field
-      
+
    end subroutine update_time_varying
 
    recursive subroutine update_sources(this, rc)
@@ -378,16 +375,11 @@ contains
       type(ESMF_Clock), intent(inout) :: clock
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ESMF_Field) :: f_in, f_out
-
-!#      _RETURN_UNLESS(this%import_is_time_varying())
-      call ESMF_StateGet(importState, itemName=IMPORT_NAME, field=f_in, _RC)
-      call ESMF_StateGet(exportState, itemName=EXPORT_NAME, field=f_out, _RC)
-
-!#      call FieldUpdate(f_out, from=f_in, ignore=this%transform%get_ignore(), _RC)
-      
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine invalidate_time_varying
 
    recursive subroutine invalidate(this, importState, exportState, clock, rc)
@@ -407,11 +399,10 @@ contains
 
       call this%invalidate_consumers(_RC)
       call this%set_stale()
-  
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine invalidate
-      
+
    recursive subroutine invalidate_consumers(this, rc)
       class(CouplerMetaComponent), target :: this
       integer, intent(out) :: rc
@@ -447,8 +438,9 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(clock)
    end subroutine clock_advance
-      
+
    subroutine add_consumer(this, consumer)
       class(CouplerMetaComponent), target, intent(inout) :: this
       class(ComponentDriver) :: consumer
@@ -529,10 +521,10 @@ contains
       is_stale = this%stale
    end function is_stale
 
-   function get_geom(state, itemName, rc) result(geom)
-      type(ESMF_Geom) :: geom
+   subroutine get_geom(state, itemName, geom, rc)
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: itemName
+      type(ESMF_Geom), allocatable, intent(out) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -551,33 +543,35 @@ contains
          _FAIL('unsupported itemType')
       end if
 
+      _ASSERT(allocated(geom), 'geom should be allocated by this point')
+
       _RETURN(_SUCCESS)
-   end function get_geom
+   end subroutine get_geom
 
-      subroutine get_info(state, itemName, info, rc)
-         type(ESMF_State), intent(inout) :: state
-         character(*), intent(in) :: itemName
-         type(ESMF_Info), intent(out) :: info
-         integer, optional, intent(out) :: rc
+   subroutine get_info(state, itemName, info, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: itemName
+      type(ESMF_Info), intent(out) :: info
+      integer, optional, intent(out) :: rc
 
-         integer :: status
-         type(ESMF_Field) :: f
-         type(ESMF_FieldBundle) :: fb
-         type(ESMF_StateItem_Flag) :: itemType
+      integer :: status
+      type(ESMF_Field) :: f
+      type(ESMF_FieldBundle) :: fb
+      type(ESMF_StateItem_Flag) :: itemType
 
-         call ESMF_StateGet(state, itemName, itemType=itemType, _RC)
+      call ESMF_StateGet(state, itemName, itemType=itemType, _RC)
 
-         if (itemType == ESMF_STATEITEM_FIELD) then
-            call ESMF_StateGet(state, itemName, field=f, _RC)
-            call ESMF_InfoGetFromHost(f, info, _RC)
-         elseif (itemType == ESMF_STATEITEM_FIELDBUNDLE) then
-            call ESMF_StateGet(state, itemName, fieldBundle=fb, _RC)
-            call ESMF_InfoGetFromHost(fb, info, _RC)
-         else
-            _FAIL(itemName // ':: unsupported itemType; must be Field or FieldBundle')
-         end if
+      if (itemType == ESMF_STATEITEM_FIELD) then
+         call ESMF_StateGet(state, itemName, field=f, _RC)
+         call ESMF_InfoGetFromHost(f, info, _RC)
+      elseif (itemType == ESMF_STATEITEM_FIELDBUNDLE) then
+         call ESMF_StateGet(state, itemName, fieldBundle=fb, _RC)
+         call ESMF_InfoGetFromHost(fb, info, _RC)
+      else
+         _FAIL(itemName // ':: unsupported itemType; must be Field or FieldBundle')
+      end if
 
-         _RETURN(_SUCCESS)
-      end subroutine get_info
+      _RETURN(_SUCCESS)
+   end subroutine get_info
 
 end module mapl3g_CouplerMetaComponent

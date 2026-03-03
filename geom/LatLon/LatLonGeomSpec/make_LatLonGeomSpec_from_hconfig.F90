@@ -3,13 +3,10 @@
 submodule (mapl3g_LatLonGeomSpec) make_LatLonGeomSpec_from_hconfig_smod
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
-   use pfio
-   use MAPL_RangeMod
-   use MAPLBase_Mod
    use mapl_ErrorHandling
    use esmf
    implicit none (type, external)
-   
+
 contains
 
    ! HConfig section
@@ -18,7 +15,6 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      logical :: is_regional
       integer :: status
 
       spec%lon_axis = make_LonAxis(hconfig, _RC)

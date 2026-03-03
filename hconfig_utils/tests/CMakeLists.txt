@@ -22,6 +22,14 @@ if (APPLE)
 else()
   set(LD_PATH "LD_LIBRARY_PATH")
 endif ()
-set_property(TEST MAPL.hconfig_utils.tests PROPERTY ENVIRONMENT "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}}")
+
+# We need to build up a variable to pass to set_tests_properties
+
+set(TEST_ENV "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}}")
+
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
+endif()
+set_tests_properties(MAPL.hconfig_utils.tests PROPERTIES ENVIRONMENT "${TEST_ENV}")
 
 add_dependencies(build-tests MAPL.hconfig_utils.tests)

@@ -1,5 +1,7 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
+
 module mapl3g_ExtDataConfig
+
    use ESMF
    use PFIO
    use gFTL2_StringVector
@@ -22,9 +24,11 @@ module mapl3g_ExtDataConfig
 
    implicit none
    private
+
    public ExtDataConfig
    public new_ExtDataConfig_from_yaml
    public make_PrimaryExport
+   public rule_sep
 
    character(len=1), parameter :: rule_sep = "+"
 
@@ -34,16 +38,15 @@ module mapl3g_ExtDataConfig
       type(ExtDataDerivedMap) :: derived_map
       type(ExtDataCollectionMap) :: file_stream_map
       type(ExtDataSampleMap) :: sample_map
-
-      contains
-         procedure :: add_new_rule
-         procedure :: get_item_type
-         procedure :: count_rules_for_item
-         procedure :: get_time_range
-         procedure :: get_extra_derived_items
-         procedure :: has_rule_for
-         procedure :: make_PrimaryExport
-   end type
+   contains
+      procedure :: add_new_rule
+      procedure :: get_item_type
+      procedure :: count_rules_for_item
+      procedure :: get_time_range
+      procedure :: get_extra_derived_items
+      procedure :: has_rule_for
+      procedure :: make_PrimaryExport
+   end type ExtDataConfig
 
 contains
 
@@ -85,7 +88,7 @@ contains
          do i=1,size(sub_configs)
             inquire(file=trim(sub_configs(i)),exist=file_found)
             _ASSERT(file_found,"could not find: "//trim(sub_configs(i)))
-            sub_config = ESMF_HConfigCreate(filename=sub_configs(i), _RC)
+            sub_config = ESMF_HConfigCreate(filename=trim(sub_configs(i)), _RC)
             call new_ExtDataConfig_from_yaml(ext_config,sub_config,current_time,_RC)
          enddo
       end if
@@ -112,7 +115,7 @@ contains
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
             temp_ds => ext_config%file_stream_map%at(hconfig_key)
-           _ASSERT(.not.associated(temp_ds),"defined duplicate named collection " // trim(hconfig_key))
+            _ASSERT(.not.associated(temp_ds),"defined duplicate named collection " // trim(hconfig_key))
             single_collection = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
             ds = ExtDataCollection(single_collection, current_time, _RC)
             call ext_config%file_stream_map%insert(trim(hconfig_key),ds)
@@ -155,7 +158,7 @@ contains
             single_export = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
             derived = ExtDataDerived(single_export,_RC)
             temp_derived => ext_config%derived_map%at(trim(hconfig_key))
-             _ASSERT(.not.associated(temp_derived),"duplicated derived entry key")
+            _ASSERT(.not.associated(temp_derived),"duplicated derived entry key")
             call ext_config%derived_map%insert(trim(hconfig_key),derived)
          end do
       end if
@@ -192,10 +195,11 @@ contains
       _RETURN(_SUCCESS)
    end function count_rules_for_item
 
-   function get_time_range(this,item_name,rc) result(time_range)
-      type(ESMF_Time), allocatable :: time_range(:)
+   subroutine get_time_range(this,full_name,base_name,time_range,rc)
       class(ExtDataConfig), target, intent(in) :: this
-      character(len=*), intent(in) :: item_name
+      character(len=*), intent(in) :: base_name
+      character(len=*), intent(in) :: full_name
+      type(ESMF_Time), allocatable, intent(out) :: time_range(:)
       integer, optional, intent(out) :: rc
 
       type(ExtDataRuleMapIterator) :: rule_iterator
@@ -205,30 +209,50 @@ contains
       type(ExtDataRule), pointer :: rule
       integer :: i,status,idx
       type(ESMF_Time) :: very_future_time
+      type(ESMF_Time) :: start_time
+      character(len=:), allocatable :: char_start_time
+      type(ESMF_Time), allocatable :: full_time_range(:)
 
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
          key => rule_iterator%first()
+         rule => rule_iterator%second()
          idx = index(key,rule_sep)
          if (idx > 0) then
-            if (key(1:idx-1) == trim(item_name)) then
-               rule => rule_iterator%second()
+            if (key(1:idx-1) == trim(base_name)) then
                call start_times%push_back(rule%start_time)
             end if
+         end if
+         if (key == full_name .and. allocated(rule%start_time)) then
+            char_start_time = rule%start_time
          end if
          call rule_iterator%next()
       enddo
 
       num_rules = start_times%size()
-      allocate(time_range(num_rules+1))
+      if (num_rules == 0) then
+         allocate(time_range(0))
+         _RETURN(_SUCCESS)
+      end if
+      start_time = string_to_esmf_time(char_start_time)
+
+      allocate(full_time_range(num_rules+1))
       do i=1,num_rules
-          time_range(i) = string_to_esmf_time(start_times%at(i))
+         full_time_range(i) = string_to_esmf_time(start_times%at(i))
       enddo
       call ESMF_TimeSet(very_future_time,yy=2365,mm=1,dd=1,_RC)
-      time_range(num_rules+1) = very_future_time
+      full_time_range(num_rules+1) = very_future_time
+
+      allocate(time_range(2))
+      do i=1,num_rules
+         if (start_time == full_time_range(i)) then
+            time_range(1) = full_time_range(i)
+            time_range(2) = full_time_range(i+1)
+         end if
+      enddo
 
       _RETURN(_SUCCESS)
-   end function get_time_range
+   end subroutine get_time_range
 
    function sort_rules_by_start(hconfig_sequence,rc) result(sorted_index)
       integer, allocatable :: sorted_index(:)
@@ -268,6 +292,7 @@ contains
             end if
          enddo
       enddo
+
       _RETURN(_SUCCESS)
    end function sort_rules_by_start
 
@@ -319,6 +344,7 @@ contains
          item_type=derived_type
          found_rule = .true.
       end if
+
       _RETURN(_SUCCESS)
    end function get_item_type
 
@@ -329,12 +355,10 @@ contains
       logical, optional, intent(in) :: multi_rule
       integer, intent(out), optional :: rc
 
-      integer :: semi_pos,status,rule_n_pos
-      type(ExtDataRule) :: rule,ucomp,vcomp
+      integer :: status
+      type(ExtDataRule) :: rule
       type(ExtDataRule), pointer :: temp_rule
-      character(len=:), allocatable :: uname,vname,original_key
       logical :: usable_multi_rule
-      character(len=1) :: rule_num
 
       if (present(multi_rule)) then
          usable_multi_rule = multi_rule
@@ -342,35 +366,12 @@ contains
          usable_multi_rule = .false.
       end if
 
-      call rule%set_defaults(rc=status)
-      _VERIFY(status)
+      call rule%set_defaults(_RC)
       rule = ExtDataRule(export_rule,this%sample_map,key,multi_rule=usable_multi_rule,_RC)
-      semi_pos = index(key,";")
-      if (semi_pos > 0) then
-         rule_n_pos = index(key,rule_sep)
-         original_key = key
-         if (rule_n_pos > 0) original_key = key(1:rule_n_pos-1)
+      temp_rule => this%rule_map%at(trim(key))
+      _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
+      call this%rule_map%insert(trim(key),rule)
 
-         call rule%split_vector(original_key,ucomp,vcomp,rc=status)
-         uname = key(1:semi_pos-1)
-         vname = key(semi_pos+1:len_trim(key))
-
-         if (rule_n_pos > 0) then
-            rule_num = key(rule_n_pos+1:rule_n_pos+1)
-            uname=uname//rule_sep//rule_num
-         end if
-
-         temp_rule => this%rule_map%at(trim(uname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(uname))
-         call this%rule_map%insert(trim(uname),ucomp)
-         temp_rule => this%rule_map%at(trim(vname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(vname))
-         call this%rule_map%insert(trim(vname),vcomp)
-      else
-         temp_rule => this%rule_map%at(trim(key))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
-         call this%rule_map%insert(trim(key),rule)
-      end if
       _RETURN(_SUCCESS)
    end subroutine add_new_rule
 
@@ -440,24 +441,26 @@ contains
          end if
          if (found_rule) exit
       enddo
-      _RETURN(_SUCCESS)
-   end function
 
-   function make_PrimaryExport(this, item_name, rc) result(export)
+      _RETURN(_SUCCESS)
+   end function has_rule_for
+
+   function make_PrimaryExport(this, full_name, base_name, time_step, rc) result(export)
       type(PrimaryExport) :: export
       class(ExtDataConfig), intent(inout) :: this
-      character(len=*), intent(in) :: item_name
+      character(len=*), intent(in) :: full_name
+      character(len=*), intent(in) :: base_name
+      type(ESMF_TimeInterval), intent(in) :: time_step
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ExtDataRule), pointer :: export_rule
-      class(AbstractDataSetFileSelector), allocatable :: file_selector
       type(ExtDataCollection), pointer :: collection
       type(ExtDataSample), pointer :: sample
-      type(NonClimDataSetFileSelector) :: non_clim_file_selector
       type(ExtDataSample), target :: default_sample
- 
-      export_rule => this%rule_map%at(item_name)
+      type(ESMF_Time), allocatable :: time_range(:)
+
+      export_rule => this%rule_map%at(full_name)
       collection => null()
       sample => this%sample_map%at(export_rule%sample_key)
       if (export_rule%collection /= "/dev/null") then
@@ -467,9 +470,10 @@ contains
          call default_sample%set_defaults()
          sample => default_sample
       end if
-      export = PrimaryExport(item_name, export_rule, collection, sample, _RC)
+      call this%get_time_range(full_name, base_name, time_range, _RC)
+      export = PrimaryExport(base_name, export_rule, collection, sample, time_range, time_step, _RC)
 
       _RETURN(_SUCCESS)
-  end function
+   end function make_PrimaryExport
 
 end module mapl3g_ExtDataConfig

@@ -2,7 +2,7 @@
 
 module mapl3g_TimeAverageTransform
    use mapl3g_ExtensionTransform, only : ExtensionTransform
-   implicit none
+   implicit none(type,external)
 
    private
    public :: TimeAverageTransform

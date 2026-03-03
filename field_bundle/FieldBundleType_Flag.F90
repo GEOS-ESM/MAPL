@@ -6,7 +6,10 @@ module mapl3g_FieldBundleType_Flag
    public :: FIELDBUNDLETYPE_BASIC
    public :: FIELDBUNDLETYPE_VECTOR
    public :: FIELDBUNDLETYPE_BRACKET
-   public :: FIELDBUNDLETYPE_VECTOR_BRACKET
+   public :: FIELDBUNDLETYPE_VECTORBRACKET
+   public :: FIELDBUNDLETYPE_SERVICE
+   public :: FIELDBUNDLETYPE_SERVICE_AGGREGATE
+   public :: FIELDBUNDLETYPE_SERVICE_SEPARATE
    public :: FIELDBUNDLETYPE_INVALID
 
    public :: operator(==)
@@ -35,7 +38,10 @@ module mapl3g_FieldBundleType_Flag
    type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_BASIC = FieldBundleType_Flag(1, "FIELDBUNDLETYPE_BASIC")
    type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_VECTOR = FieldBundleType_Flag(2, "FIELDBUNDLETYPE_VECTOR")
    type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_BRACKET = FieldBundleType_Flag(3, "FIELDBUNDLETYPE_BRACKET")
-   type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_VECTOR_BRACKET = FieldBundleType_Flag(4, "FIELDBUNDLETYPE_VECTOR_BRACKET")
+   type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_VECTORBRACKET = FieldBundleType_Flag(4, "FIELDBUNDLETYPE_VECTORBRACKET")
+   type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_SERVICE = FieldBundleType_Flag(5, "FIELDBUNDLETYPE_SERVICE")
+   type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_SERVICE_AGGREGATE = FieldBundleType_Flag(6, "FIELDBUNDLETYPE_SERVICE_AGGREGATE")
+   type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_SERVICE_SEPARATE = FieldBundleType_Flag(7, "FIELDBUNDLETYPE_SERVICE_SEPARATE")
    type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_INVALID = FieldBundleType_Flag(-1, "FIELDBUNDLETYPE_INVALID")
 
 contains
@@ -51,6 +57,14 @@ contains
          type_flag = FIELDBUNDLETYPE_VECTOR
       case ("FIELDBUNDLETYPE_BRACKET")
          type_flag = FIELDBUNDLETYPE_BRACKET
+      case ("FIELDBUNDLETYPE_VECTORBRACKET")
+         type_flag = FIELDBUNDLETYPE_VECTORBRACKET
+      case ("FIELDBUNDLETYPE_SERVICE")
+         type_flag = FIELDBUNDLETYPE_SERVICE
+      case ("FIELDBUNDLETYPE_SERVICE_AGGREGATE")
+         type_flag = FIELDBUNDLETYPE_SERVICE_AGGREGATE
+      case ("FIELDBUNDLETYPE_SERVICE_SEPARATE")
+         type_flag = FIELDBUNDLETYPE_SERVICE_SEPARATE
       case default
          type_flag = FIELDBUNDLETYPE_INVALID
       end select

@@ -1,9 +1,12 @@
 #include "MAPL.h"
+
 module mapl3g_TimeAverage
+
    use mapl3g_AbstractTimeStatistic
    use mapl3
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+
    implicit none(type,external)
    private
 
@@ -38,14 +41,12 @@ contains
       type(esmf_Field), intent(in) :: avg_f
       type(esmf_Alarm), intent(in) :: alarm
 
-      integer :: state
-
       stat%f = f
       stat%avg_f = avg_f
       stat%alarm = alarm
 
+      _UNUSED_DUMMY(unusable)
    end function new_TimeAverage
-
 
    subroutine initialize(this, rc)
       class(TimeAverage), intent(inout) :: this
@@ -58,6 +59,7 @@ contains
 
       call mapl_FieldGet(this%f, short_name=name, _RC)
       call mapl_FieldClone(this%f, this%sum_f, _RC)
+
       call esmf_FieldSet(this%sum_f, name='sum_'//name, _RC)
 
       call esmf_FieldGet(this%f, rank=rank, _RC)
@@ -112,7 +114,7 @@ contains
          call update_r8(this, _RC)
       end if
 
-      is_ringing = esmf_AlarmIsRinging(this%alarm, _RC)
+      is_ringing = esmf_AlarmWillRingNext(this%alarm, _RC)
       _RETURN_UNLESS(is_ringing)
 
       call this%compute_result(_RC)
@@ -184,6 +186,7 @@ contains
 
       call MAPL_AssignFptr(this%f, f, _RC)
       call MAPL_AssignFptr(this%sum_f, sum_f, _RC)
+      call MAPL_AssignFptr(this%avg_f, avg_f, _RC)
 
       where (this%counts > 0)
          avg_f = sum_f / this%counts
@@ -211,10 +214,10 @@ contains
       end where
 
       _RETURN(_SUCCESS)
-    end subroutine compute_result_r8
-      
-      
-  subroutine add_to_state(this, state, rc)
+   end subroutine compute_result_r8
+
+
+   subroutine add_to_state(this, state, rc)
       class(TimeAverage), intent(inout) :: this
       type(esmf_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
@@ -226,7 +229,7 @@ contains
       _RETURN_UNLESS(was_ringing)
 
       call esmf_StateAdd(state, [this%avg_f], _RC)
-      
+
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 

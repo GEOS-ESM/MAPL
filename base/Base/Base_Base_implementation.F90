@@ -1283,6 +1283,7 @@ contains
     character(len=ESMF_MAXSTR) :: newName_
     character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_FieldCreateNewgrid'
     real, pointer :: ptr1d(:)
+    logical :: has_de
 
     call ESMF_FieldGet(FIELD, grid=fgrid, _RC)
 
@@ -1369,8 +1370,11 @@ contains
     call ESMF_InfoGetFromHost(F,infoh,_RC)
     call ESMF_InfoSet(infoh,'DIMS',DIMS,_RC)
 
-    call assign_fptr(f, ptr1d, _RC)
-    ptr1d = 0.0
+    has_de = MAPL_GridHasDe(grid, _RC)
+    if (has_de) then
+       call assign_fptr(f, ptr1d, _RC)
+       ptr1d = 0.0
+    end if
 
     _RETURN(ESMF_SUCCESS)
   end function MAPL_FieldCreateNewgrid
@@ -1620,8 +1624,12 @@ contains
        I1 = AL(1, deId)
        IN = AU(1, deId)
        !    _ASSERT(gridRank > 1, 'tilegrid is 1d (without RC this only for info')
-       J1 = AL(2, deId)
-       JN = AU(2, deId)
+       J1 = 1
+       JN = 1
+       if (gridRank > 1) then
+         J1 = AL(2, deId)
+         JN = AU(2, deId)
+       endif
        deallocate(AU, AL, localDeToDeMap)
     end if
 
@@ -2152,73 +2160,6 @@ contains
 
   end subroutine MAPL_GridGetCorners
 
-  !............................................................................
-
-
-  !
-  ! Note: The routine below came from ESMFL; it has been moved here to
-  !       avoid circular dependencies (Arlindo).
-  !
-  module subroutine MAPL_GridGetInterior(GRID,I1,IN,J1,JN)
-    type (ESMF_Grid), intent(IN) :: grid
-    integer, intent(OUT)         :: I1, IN, J1, JN
-
-    ! local vars
-    integer                               :: status
-    !    character(len=ESMF_MAXSTR)            :: IAm='MAPL_GridGetInterior'
-
-    type (ESMF_DistGrid)                  :: distGrid
-    type(ESMF_DELayout)                   :: LAYOUT
-    type (ESMF_VM)                        :: vm
-    integer,               allocatable    :: AL(:,:)
-    integer,               allocatable    :: AU(:,:)
-    integer                               :: nDEs
-    integer                               :: deId
-    integer                               :: gridRank
-    integer                               :: rc
-    logical                               :: isPresent
-    integer, allocatable                  :: global_grid_info(:)
-    integer                               :: itemCount
-    type(ESMF_Info)                       :: infoh
-
-    i1=-1
-    j1=-1
-    in=-1
-    jn=-1
-
-    call ESMF_InfoGetFromHost(grid,infoh,_RC)
-    isPresent = ESMF_InfoIsPresent(infoh,'GLOBAL_GRID_INFO',_RC)
-    if (isPresent) then
-      call ESMF_InfoGetAlloc(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
-      I1 = global_grid_info(7)
-      IN = global_grid_info(8)
-      j1 = global_grid_info(9)
-      JN = global_grid_info(10)
-      deallocate(global_grid_info, _STAT)
-      _RETURN(_SUCCESS)
-    end if
-
-
-    call ESMF_GridGet    (GRID, dimCount=gridRank, distGrid=distGrid, _RC)
-    call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
-    call ESMF_DELayoutGet(layout, vm=vm, _RC)
-    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, _RC)
-
-    allocate (AL(gridRank,0:nDEs-1),  _STAT)
-    allocate (AU(gridRank,0:nDEs-1),  _STAT)
-
-    call MAPL_DistGridGet(distgrid, &
-         minIndex=AL, maxIndex=AU, _RC)
-
-    I1 = AL(1, deId)
-    IN = AU(1, deId)
-    !    _ASSERT(gridRank > 1, 'tilegrid is 1d (without RC this only for info')
-    J1 = AL(2, deId)
-    JN = AU(2, deId)
-    deallocate(AU, AL)
-
-  end subroutine MAPL_GridGetInterior
-
   !.......................................................................
 
   module function MAPL_RmQualifier(str, del) result(new)
@@ -2395,8 +2336,9 @@ contains
   end subroutine MAPL_FieldAttSetI4
   ! ========================================
 
-  module subroutine MAPL_FieldBundleDestroy(Bundle,RC)
+  module subroutine MAPL_FieldBundleDestroy(Bundle,NoGarbage,RC)
     type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
+    logical, optional,         intent(IN   ) :: NoGarbage
     integer, optional,         intent(OUT  ) :: RC
 
     integer                               :: I
@@ -2416,6 +2358,7 @@ contains
           call ESMF_FieldBundleGet(BUNDLE, I, FIELD, _RC)
           call MAPL_FieldDestroy(FIELD, _RC)
        end do
+       call ESMF_FieldBundleDestroy(bundle, NoGarbage=NoGarbage, _RC)
     end if
 
     _RETURN(ESMF_SUCCESS)

@@ -6,7 +6,7 @@ module mapl3g_VectorBasis
    use mapl_FieldPointerUtilities
    use mapl_ErrorHandlingMod
 
-   implicit none
+   implicit none(type, external)
    private
 
    public :: VectorBasis
@@ -43,12 +43,7 @@ module mapl3g_VectorBasis
    interface GridGetCoords
       module procedure grid_get_coords_1d
       module procedure grid_get_coords_2d
-      module procedure grid_get_centers
    end interface GridGetCoords
-
-   interface GridGetCorners
-      module procedure grid_get_corners
-   end interface GridGetCorners
 
    interface
 
@@ -67,19 +62,16 @@ module mapl3g_VectorBasis
       end function new_GridVectorBasis
 
       ! Utility functions
-      !------------------
       pure module function get_unit_vector( p1, p2, p3 ) result(uvect)
-         real(kind=ESMF_KIND_R8), intent(in):: p1(2), p2(2), p3(2) 
-         real(kind=ESMF_KIND_R8) :: uvect(3) 
+         real(kind=ESMF_KIND_R8), intent(in):: p1(2), p2(2), p3(2)
+         real(kind=ESMF_KIND_R8) :: uvect(3)
       end function get_unit_vector
-
 
       module subroutine create_fields(elements, geom, rc)
          type(ESMF_Field), intent(inout) :: elements(NI,NJ)
          type(ESMF_Geom), intent(in) :: geom
          integer, optional, intent(out) :: rc
       end subroutine create_fields
-
 
       ! Geometry utilities
 
@@ -125,18 +117,8 @@ module mapl3g_VectorBasis
          integer, optional, intent(out) :: rc
       end subroutine grid_get_coords_2d
 
-      module subroutine grid_get_centers(grid, centers, rc)
-         type(ESMF_Grid), intent(in) :: grid
-         real(kind=ESMF_KIND_R8), allocatable, intent(out) :: centers(:,:,:)
-         integer, optional, intent(out) :: rc
-      end subroutine grid_get_centers
-
-      module subroutine grid_get_corners(grid, corners, rc)
-         type(ESMF_Grid), intent(inout) :: grid
-         real(kind=ESMF_KIND_R8), allocatable, intent(out) :: corners(:,:,:)
-         integer, optional, intent(out) :: rc
-      end subroutine grid_get_corners
    end interface
+
 end module mapl3g_VectorBasis
 
 

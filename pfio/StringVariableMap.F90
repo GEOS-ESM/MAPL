@@ -3,7 +3,6 @@
 
 module pFIO_StringVariableMapMod
    use pFIO_VariableMod
-   use pFIO_CoordinateVariableMod
 
    ! Create a map (associative array) between names and pFIO_Variables.
 

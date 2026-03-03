@@ -2,7 +2,6 @@
 
 submodule (mapl3g_LatLonDecomposition) get_idx_range_smod
    use mapl_ErrorHandlingMod
-   use MAPL_Base
    implicit none
 
 contains

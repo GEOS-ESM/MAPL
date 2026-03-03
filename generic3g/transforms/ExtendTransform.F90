@@ -14,7 +14,7 @@ module mapl3g_ExtendTransform
    use mapl3g_TransformId
    use mapl3g_ExtensionTransform
    use mapl_ErrorHandling
-   implicit none
+   implicit none(type,external)
    private
 
    public :: ExtendTransform
@@ -26,15 +26,7 @@ module mapl3g_ExtendTransform
       procedure :: get_transformId
    end type ExtendTransform
 
-   interface ExtendTransform
-      procedure new_ExtendTransform
-   end interface
-
 contains
-
-   function new_ExtendTransform() result(transform)
-      type(ExtendTransform) :: transform
-   end function new_ExtendTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
@@ -71,6 +63,8 @@ contains
       class(ExtendTransform), intent(in) :: this
 
       id = EXTEND_TRANSFORM_ID
+
+      _UNUSED_DUMMY(this)
    end function get_transformId
 
 end module mapl3g_ExtendTransform

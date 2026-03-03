@@ -8,6 +8,11 @@ set(srcs
   UngriddedDimVector.F90
   LU_Bound.F90
   ESMF_Time_Utilities.F90
+  HorizontalDimsSpec.F90
+  VectorBasisKind.F90
+  NormalizationType.F90
+  QuantityType.F90
+  QuantityTypeMetadata.F90
   )
 
 esma_add_library(${this}
@@ -18,6 +23,8 @@ esma_add_library(${this}
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+add_subdirectory(comms)
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests)

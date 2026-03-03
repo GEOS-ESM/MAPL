@@ -12,6 +12,7 @@ module mapl3g_AttributesAspect
    use mapl3g_NullTransform
    use mapl_ErrorHandling
    use gftl2_StringVector
+   use esmf, only: esmf_FIeld, esmf_FieldBundle, esmf_State
    implicit none
    private
 
@@ -28,6 +29,9 @@ module mapl3g_AttributesAspect
       procedure :: make_transform
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
+
+      procedure :: update_from_payload
+      procedure :: update_payload
    end type AttributesAspect
 
    interface AttributesAspect
@@ -51,12 +55,17 @@ contains
    logical function supports_conversion_general(src)
       class(AttributesAspect), intent(in) :: src
       supports_conversion_general = .false.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
       class(AttributesAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
       supports_conversion_specific = .false.
+
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function supports_conversion_specific
 
    logical function matches(src, dst)
@@ -105,6 +114,9 @@ contains
       transform = NullTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    function get_aspect_id() result(aspect_id)
@@ -124,5 +136,40 @@ contains
       _UNUSED_DUMMY(export)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
+
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(AttributesAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      ! no-op
+      ! public attributes are shared across connections
+      ! private attributes do not change and are
+      ! set explicitly by the user.
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(AttributesAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      ! no-op; see above
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
+   end subroutine update_payload
 
 end module mapl3g_AttributesAspect

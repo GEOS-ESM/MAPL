@@ -28,11 +28,14 @@ set (srcs
   StubProfiler.F90
 
   reporting/ProfileReporter.F90
+  reporting/CsvProfileReporter.F90
   reporting/AbstractColumn.F90
   reporting/SimpleColumn.F90
   reporting/TextColumn.F90
   reporting/SimpleTextColumn.F90
   reporting/NameColumn.F90
+  reporting/PlainNameColumn.F90
+  reporting/DepthColumn.F90
   reporting/FormattedTextColumn.F90
   reporting/MemoryTextColumn.F90
   reporting/SeparatorColumn.F90
@@ -53,11 +56,11 @@ set (srcs
   MAPL_Profiler.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 PFLOGGER::pflogger MAPL.shared MPI::MPI_Fortran TYPE SHARED)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 PFLOGGER::pflogger MAPL.shared MPI::MPI_Fortran ESMF::ESMF TYPE SHARED)
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
-add_subdirectory (demo EXCLUDE_FROM_ALL)
+add_subdirectory (demo)
 if (PFUNIT_FOUND)
   add_subdirectory (tests EXCLUDE_FROM_ALL)
 endif ()

@@ -1,15 +1,15 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_LatLonGeomSpec) supports_hconfig_smod
+
    use mapl3g_CoordinateAxis
    use mapl3g_GeomSpec
    use pfio
-   use MAPL_RangeMod
-   use MAPLBase_Mod
    use mapl_ErrorHandling
    use esmf
+
    implicit none (type, external)
-   
+
 contains
 
    logical module function supports_hconfig_(this, hconfig, rc) result(supports)
@@ -29,7 +29,7 @@ contains
       geom_class = ESMF_HConfigAsString(hconfig, keyString='class', _RC)
       supports = (geom_class == 'latlon')
       _RETURN_UNLESS(supports)
-      
+
       supports = lon_axis%supports(hconfig, _RC)
       _RETURN_UNLESS(supports)
 
@@ -37,6 +37,7 @@ contains
       _RETURN_UNLESS(supports)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end function supports_hconfig_
 
 end submodule supports_hconfig_smod

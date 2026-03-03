@@ -26,7 +26,7 @@ module mapl_BaseProfiler
       private
       type(MeterNode) :: root_node
       type(MeterNodeStack) :: stack
-      integer :: status = 0
+      integer :: status
       integer :: comm_world
    contains
       procedure :: start_name
@@ -53,8 +53,6 @@ module mapl_BaseProfiler
       procedure :: get_root_node
       procedure :: get_status
       procedure :: copy_profiler
-      procedure(copy_profiler), deferred :: copy
-      generic :: assignment(=) => copy
 
       procedure :: reset
       procedure :: accumulate
@@ -102,6 +100,7 @@ contains
 
       logical :: empty_stack
 
+      this%status = 0
       empty_stack = .true.
       !$omp master
       if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
@@ -143,7 +142,7 @@ contains
 
       class(AbstractMeter), allocatable :: m
       type(MeterNodePtr), pointer :: node_ptr
-      class(AbstractMeterNode), pointer :: node
+      class(AbstractMeterNode), pointer :: node => null()
 
       logical :: stack_is_not_empty
 
@@ -164,7 +163,9 @@ contains
       end if
       !$omp end master
       _ASSERT_RC(stack_is_not_empty, "Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
+      !$omp master
       call this%start(node)
+      !$omp end master
 
       _RETURN(_SUCCESS)
    end subroutine start_name
@@ -176,7 +177,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(MeterNodePtr), pointer :: node_ptr
-      class(AbstractMeterNode), pointer :: node
+      class(AbstractMeterNode), pointer :: node => null()
 
       logical :: name_is_node_name
 

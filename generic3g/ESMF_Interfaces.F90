@@ -9,7 +9,7 @@
 
 
 module mapl3g_ESMF_Interfaces
-   implicit none
+   implicit none(type,external)
    private
 
    public :: I_SetServices
@@ -23,7 +23,6 @@ module mapl3g_ESMF_Interfaces
 
    interface MAPL_UserCompGetInternalState
       subroutine ESMF_UserCompGetInternalState(gridcomp, name, wrapper, status)
-         use ESMF, only: ESMF_GridComp
          type(*) :: gridcomp
          character(*), optional :: name
          type(*) :: wrapper
@@ -33,7 +32,6 @@ module mapl3g_ESMF_Interfaces
 
    interface MAPL_UserCompSetInternalState
       subroutine ESMF_UserCompSetInternalState(gridcomp, name, wrapper, status)
-         use ESMF, only: ESMF_GridComp
          type(*) :: gridcomp
          character(*), optional :: name
          type(*) :: wrapper
@@ -45,7 +43,7 @@ module mapl3g_ESMF_Interfaces
 
       subroutine I_SetServices(gridcomp, rc)
          use ESMF, only: ESMF_GridComp
-         implicit none
+         implicit none(type,external)
          type(ESMF_GridComp)  :: gridcomp
          integer, intent(out) :: rc
       end subroutine I_SetServices
@@ -54,7 +52,7 @@ module mapl3g_ESMF_Interfaces
          use esmf, only: ESMF_GridComp
          use esmf, only: ESMF_State
          use esmf, only: ESMF_Clock
-         implicit none
+         implicit none(type,external)
          type(ESMF_GridComp)   :: gridcomp
          type(ESMF_State)      :: importState
          type(ESMF_State)      :: exportState
@@ -64,7 +62,7 @@ module mapl3g_ESMF_Interfaces
 
       subroutine I_CplSetServices(cplcomp, rc)
          use ESMF, only: ESMF_CplComp
-         implicit none
+         implicit none(type,external)
          type(ESMF_CplComp)   :: cplcomp
          integer, intent(out) :: rc
       end subroutine I_CplSetServices
@@ -74,7 +72,7 @@ module mapl3g_ESMF_Interfaces
          use :: esmf, only: ESMF_CplComp
          use :: esmf, only: ESMF_State
          use :: esmf, only: ESMF_Clock
-         implicit none
+         implicit none(type,external)
          type(ESMF_CplComp)    :: cplcomp
          type(ESMF_State)      :: importState
          type(ESMF_State)      :: exportState

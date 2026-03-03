@@ -1,11 +1,13 @@
 #include "MAPL.h"
 
 module mapl3g_HistoryGridComp
+
    use mapl3
    use mapl3g_HistoryGridComp_private
    use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices
    use MAPL_TimeStringConversion
    use pFlogger, only: logger
+
    implicit none(type,external)
    private
 
@@ -25,7 +27,6 @@ contains
       type(ChildSpec) :: child_spec
       integer :: num_collections, status
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_TimeInterval), allocatable :: offset
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER", _RC)
@@ -55,23 +56,25 @@ contains
          child_hconfig = make_child_hconfig(hconfig, collection_name, _RC)
          child_name = make_child_name(collection_name, _RC)
 
-         call get_child_timespec(child_hconfig, timeStep, offset, _RC)
-         child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep, offset=offset)
+         call get_child_timespec(child_hconfig, timeStep,  _RC)
+         call add_shift_back(child_hconfig, hconfig, _RC)
+         call add_child_ref_time(child_hconfig, _RC)
+
+         child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep)
          call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
       end do
-      
+
       _RETURN(_SUCCESS)
    end subroutine setServices
 
-   subroutine get_child_timespec(hconfig, timeStep, offset, rc)
+   subroutine get_child_timespec(hconfig, timeStep, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_TimeInterval), allocatable, intent(out) :: timeStep
-      type(ESMF_TimeInterval), allocatable, intent(out) :: offset
       integer, intent(out), optional :: rc
 
       integer :: status
       type(ESMF_HConfig) :: time_hconfig
-      logical :: has_offset, has_frequency
+      logical :: has_frequency
 
       time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
 
@@ -80,33 +83,66 @@ contains
          timeStep = mapl_HConfigAsTimeInterval(time_hconfig, keystring='frequency', _RC)
       end if
 
-      has_offset = ESMF_HConfigIsDefined(time_hconfig, keyString='offset', _RC)
-      if (has_offset) then
-         offset = mapl_HConfigAsTimeInterval(time_hconfig, keystring='offset', _RC)
-      end if
-
       _RETURN(_SUCCESS)
    end subroutine get_child_timespec
 
+   subroutine add_shift_back(child_hconfig, hconfig, rc)
+      type(ESMF_HConfig), intent(inout) :: child_hconfig
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_shift, shift
+
+      shift = .true.
+      has_shift = ESMF_HConfigIsDefined(hconfig, keystring='shift_back', _RC)
+      if (has_shift) then
+         shift = ESMF_HConfigAsLogical(hconfig, keystring='shift_back', _RC)
+      end if
+      call ESMF_HConfigAdd(child_hconfig, shift, addKeyString='shift_back', _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine add_shift_back
+
+   subroutine add_child_ref_time(hconfig, rc)
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: time_hconfig
+      logical :: has_ref_time
+      character(len=:), allocatable :: ref_time
+
+      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
+
+      ref_time = 'PT0S'
+      has_ref_time = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_time', _RC)
+      if (has_ref_time) then
+         ref_time = ESMF_HConfigAsString(time_hconfig, keystring='ref_time', _RC)
+      end if
+      call ESMF_HConfigAdd(hconfig, ref_time, addKeyString='ref_time', _RC)
+      _RETURN(_SUCCESS)
+   end subroutine add_child_ref_time
 
    subroutine init(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
-      integer :: status
-      
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(gridcomp)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine init
-
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
       integer :: status
@@ -115,7 +151,11 @@ contains
 
       call o_Clients%done_collective_stage()
       call o_Clients%post_wait()
+
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine run
 
 end module mapl3g_HistoryGridComp
@@ -123,14 +163,14 @@ end module mapl3g_HistoryGridComp
 subroutine setServices(gridcomp,rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use mapl3g_HistoryGridComp, only: History_setServices => SetServices    
+   use mapl3g_HistoryGridComp, only: History_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 
    integer :: status
 
    call History_setServices(gridcomp,_RC)
-   _RETURN(_SUCCESS)
 
+   _RETURN(_SUCCESS)
 end subroutine
 

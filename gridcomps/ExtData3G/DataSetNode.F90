@@ -1,12 +1,16 @@
-#include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
+
 module mapl3g_DataSetNode
+
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use pFIO
    use MAPL_FileMetadataUtilsMod
    use mapl3g_geomio
+   use mapl3g_ExtDataUtilities
+   use pFlogger, only: logger
+
    implicit none
    private
 
@@ -14,30 +18,27 @@ module mapl3g_DataSetNode
    public :: NODE_LEFT
    public :: NODE_RIGHT
    public :: NODE_UNKNOWN
- 
+
    enum, bind(c)
       enumerator :: NODE_LEFT
       enumerator :: NODE_RIGHT
       enumerator :: NODE_UNKNOWN
-   end enum      
+   end enum
 
    type :: DataSetNode
       integer :: node_side
       logical :: update = .false.
       logical :: enabled = .false.
       type(ESMF_Time) :: interp_time
-      type(ESMF_Time) :: file_time
       character(len=:), allocatable :: file
-      integer :: time_index 
+      integer :: time_index
       contains
-         procedure :: set_file_time
          procedure :: set_interp_time
          procedure :: set_time_index
          procedure :: set_file
          procedure :: set_node_side
          procedure :: set_update
          procedure :: set_enabled
-         procedure :: get_file_time 
          procedure :: get_interp_time
          procedure :: get_time_index
          procedure :: get_file
@@ -59,29 +60,21 @@ module mapl3g_DataSetNode
 
 contains
 
-   function new_DataSetNode(file, time_index, file_time, interp_time, enabled, update) result(node)
+   function new_DataSetNode(file, time_index, interp_time, enabled, update) result(node)
       type(DataSetNode) :: node
       character(len=*), intent(in) :: file
       integer, intent(in) :: time_index
-      type(ESMF_Time), intent(in) :: file_time
       type(ESMF_Time), intent(in) :: interp_time
       logical, intent(in) :: enabled
       logical, intent(in) :: update
 
-      node%file_time = file_time
       node%interp_time = interp_time
       node%file = trim(file)
       node%time_index = time_index
       node%enabled = enabled
       node%update = update
-      
-   end function new_DataSetNode
 
-   subroutine set_file_time(this, file_time)
-      class(DataSetNode), intent(inout) :: this
-      type(ESMF_Time), intent(in) :: file_time
-      this%file_time=file_time
-   end subroutine
+   end function new_DataSetNode
 
    subroutine set_interp_time(this, interp_time)
       class(DataSetNode), intent(inout) :: this
@@ -110,20 +103,14 @@ contains
    subroutine set_enabled(this, enabled)
       class(DataSetNode), intent(inout) :: this
       logical, intent(in) :: enabled
-      this%enabled = enabled 
+      this%enabled = enabled
    end subroutine
 
    subroutine set_update(this, update)
       class(DataSetNode), intent(inout) :: this
       logical, intent(in) :: update
-      this%update = update 
+      this%update = update
    end subroutine
-
-   function get_file_time(this) result(file_time)
-      type(ESMF_Time) :: file_time
-      class(DataSetNode), intent(inout) :: this
-      file_time=this%file_time
-   end function
 
    function get_interp_time(this) result(interp_time)
       type(ESMF_Time) :: interp_time
@@ -165,15 +152,8 @@ contains
       class(DataSetNode), intent(in) :: a
       class(DataSetNode), intent(in) :: b
 
-      equals = (trim(a%file)==trim(b%file)) .and. (a%file_time==b%file_time) .and. (a%time_index==b%time_index) .and. (a%interp_time==b%interp_time)
+      equals = (trim(a%file)==trim(b%file)) .and. (a%time_index==b%time_index) .and. (a%interp_time==b%interp_time)
    end function equals
-
-   subroutine reset(this)
-      class(DataSetNode), intent(inout) :: this
-      deallocate(this%file)
-      this%enabled = .false.
-      this%update = .false.
-   end subroutine
 
    function validate(this, current_time, rc) result(node_is_valid)
       logical :: node_is_valid
@@ -181,7 +161,6 @@ contains
       type(ESMF_Time), intent(in) :: current_time
       integer, intent(out), optional :: rc
 
-      integer :: status
       if (.not.allocated(this%file)) then
          node_is_valid = .false.
          _RETURN(_SUCCESS)
@@ -191,9 +170,9 @@ contains
          _RETURN(_SUCCESS)
       end if
       if (this%node_side == NODE_LEFT) then
-         node_is_valid = (current_time >= this%file_time)
+         node_is_valid = (current_time >= this%interp_time)
       else if (this%node_side == NODE_RIGHT) then
-         node_is_valid = (current_time < this%file_time)
+         node_is_valid = (current_time < this%interp_time)
       end if
       _RETURN(_SUCCESS)
    end function
@@ -201,7 +180,7 @@ contains
    subroutine invalidate(this)
       class(DataSetNode), intent(inout) :: this
       if (allocated(this%file)) then
-         deallocate(this%file) 
+         deallocate(this%file)
       end if
       this%enabled = .false.
       this%update = .false.
@@ -232,7 +211,6 @@ contains
             if (target_time >= time_vector(i)) then
                this%file = filename
                this%interp_time = time_vector(i)
-               this%file_time = time_vector(i)
                this%time_index = i
                this%enabled = .true.
                this%update = .true.
@@ -244,7 +222,6 @@ contains
             if (target_time < time_vector(i)) then
                this%file = filename
                this%interp_time = time_vector(i)
-               this%file_time = time_vector(i)
                this%time_index = i
                this%enabled = .true.
                this%update = .true.
@@ -261,25 +238,22 @@ contains
       class(DataSetNode), intent(inout) :: this
       is_allocated = allocated(this%file)
    end function
- 
-   subroutine write_node(this, pre_string)
+
+   subroutine write_node(this, lgr)
       class(DataSetNode), intent(inout) :: this
-      character(len=*), optional, intent(in) :: pre_string
-      if (present(pre_string)) then
-         print*,pre_string//'writing node '
-      else
-         print*,'writing node '
+      class(logger), intent(in), pointer :: lgr
+
+      character(len=:), allocatable :: node_side
+      character(len=ESMF_MAXSTR) :: interp_time_string
+
+      if (this%node_side == NODE_LEFT) then
+         node_side = "left"
+      else if (this%node_side == NODE_RIGHT) then
+         node_side = "right"
       end if
-      print*,'node_side: ',this%node_side
-      print*,'update: ',this%update
-      print*,'enabled: ',this%enabled
-      if (allocated(this%file)) then
-         print*,'file: ',trim(this%file)
-      else
-         print*,'file not allocated'
-      end if
-      print*,'time_index ',this%time_index
-      call ESMF_TimePrint(this%interp_time, options='string', prestring='interp time: ')
-      call ESMF_TimePrint(this%file_time, options='string', prestring='file time: ')
+      call ESMF_TimeGet(this%interp_time, timeString=interp_time_string)
+
+      call lgr%info('node status side %a at time %a time index %i0.5 updated %g0 enabled %g0', node_side, interp_time_string, this%time_index, this%update, this%enabled)
   end subroutine
+
 end module mapl3g_DataSetNode

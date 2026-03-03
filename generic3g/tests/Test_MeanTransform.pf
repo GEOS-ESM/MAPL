@@ -52,6 +52,47 @@ contains
    end subroutine test_calculate_mean_R4
 
    @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_calculate_mean_R8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(MeanTransform) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      integer(kind=ESMF_KIND_I4), parameter :: COUNTER = 4
+      real(kind=ESMF_KIND_R8), parameter :: MEAN = 4.0_R8
+      logical :: matches_expected
+      real(kind=ESMF_KIND_R8), pointer :: fptr(:)
+      integer(kind=ESMF_KIND_I4), pointer :: ifptr(:)
+      integer :: n
+      logical, allocatable :: mask(:)
+
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R8, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
+      call assign_fptr(acc%accumulation_field, fptr, _RC)
+      call assign_fptr(acc%counter_field, ifptr, _RC)
+      ifptr = COUNTER
+      n = size(fptr)-1
+
+      ! All points are not UNDEF and counter > 0
+      call acc%calculate_mean_R8(_RC)
+      matches_expected = FieldIsConstant(acc%accumulation_field, MEAN, _RC)
+      @assertTrue(matches_expected, 'accumulation_field not equal to MEAN')
+
+      ! counter 0 at one point
+      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
+      call assign_fptr(acc%counter_field, ifptr, _RC)
+      ifptr(n) = 0
+      mask = ifptr /= 0
+      call assign_fptr(acc%accumulation_field, fptr, _RC)
+      call acc%calculate_mean_R8(_RC)
+      @assertTrue(all(pack(fptr, mask) == MEAN), 'Some valid points not equal to MEAN')
+      @assertTrue(undef_r8(fptr(n)), 'mean at point was not UNDEF')
+      call destroy_objects(importState, exportState, clock, _RC)
+
+   end subroutine test_calculate_mean_R8
+
+   @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_clear(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(MeanTransform) :: acc
@@ -209,5 +250,53 @@ contains
       call ESMF_FieldDestroy(update_field)
 
    end subroutine test_accumulate_with_undef_some_steps
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_with_undef_some_steps_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(MeanTransform) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      type(ESMF_Field) :: update_field
+      integer :: n
+      real(kind=ESMF_KIND_R8), parameter :: UPDATE_VALUE = 3.0_R8
+      real(kind=ESMF_KIND_R8), pointer :: upPtr(:), accPtr(:)
+      integer(kind=ESMF_KIND_I4), pointer :: countPtr(:)
+      logical, allocatable :: mask(:)
+
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R8, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call initialize_field(update_field, acc%accumulation_field, _RC)
+      call assign_fptr(update_field, upPtr, _RC)
+      upPtr = UPDATE_VALUE
+      allocate(mask(size(upPtr)))
+      mask = .TRUE.
+
+      call acc%accumulate(update_field, _RC)
+      call acc%accumulate(update_field, _RC)
+
+      call assign_fptr(update_field, upPtr, _RC)
+      n = size(upPtr) - 1
+      call set_undef_r8(upPtr(n)) 
+      call acc%accumulate(update_field, _RC)
+      mask(n) = .FALSE.
+
+      call assign_fptr(update_field, upPtr, _RC)
+      upPtr = UPDATE_VALUE
+      call acc%accumulate(update_field, _RC)
+      call acc%accumulate(update_field, _RC)
+
+      call assign_fptr(acc%counter_field, countPtr, _RC)
+      @assertEqual(4, countPtr(n), 'Missing point counter does not match.')
+      @assertTrue(all(pack(countPtr, mask) == 5), 'Other point counters do not match.')
+
+      call assign_fptr(acc%accumulation_field, accPtr, _RC)
+      @assertEqual(4*UPDATE_VALUE, accPtr(n), 'Missing point does not match.')
+      @assertTrue(all(pack(accPtr, mask) == 5*UPDATE_VALUE), 'Other points do not match.')
+      call destroy_objects(importState, exportState, clock, _RC)
+      call ESMF_FieldDestroy(update_field)
+
+   end subroutine test_accumulate_with_undef_some_steps_r8
 
 end module Test_MeanTransform

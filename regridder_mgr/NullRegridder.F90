@@ -1,10 +1,12 @@
 #include "MAPL.h"
 
 module mapl3g_NullRegridder
+
    use esmf
    use mapl3g_Regridder
    use mapl3g_RegridderSpec
    use mapl_ErrorHandlingMod
+
    implicit none
    private
 
@@ -22,7 +24,6 @@ contains
 
    function new_NullRegridder() result(regriddr)
       type(NullRegridder) :: regriddr
-      
    end function new_NullRegridder
 
    subroutine regrid_field(this, f_in, f_out, rc)
@@ -31,7 +32,10 @@ contains
       integer, optional, intent(out) :: rc
 
       _FAIL('Null regridder')
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(f_in)
+      _UNUSED_DUMMY(f_out)
    end subroutine regrid_field
 
 end module mapl3g_NullRegridder
-      
+

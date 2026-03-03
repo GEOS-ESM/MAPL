@@ -8,6 +8,9 @@ set(srcs
   FieldBundleInfo.F90
   FieldBundleDelta.F90
   FieldBundleCreate.F90
+  FieldBundleCopy.F90
+  FieldBundleDestroy.F90
+  FieldBundleGetPointer.F90
 )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
@@ -18,7 +21,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.field MAPL.shared ESMF::ESMF
+  DEPENDENCIES MAPL.vertical_grid MAPL.field MAPL.shared MAPL.esmf_utils ESMF::ESMF
   TYPE SHARED
   )
   

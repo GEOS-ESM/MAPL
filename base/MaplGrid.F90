@@ -39,6 +39,11 @@ module mapl_MaplGrid
       procedure :: set
    end type MaplGrid
 
+   interface MAPL_GridGet
+      procedure :: GridGet
+   end interface MAPL_GridGet
+
+   
 
 contains
 
@@ -245,7 +250,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
  end subroutine GridCoordGet
 
-  subroutine MAPL_GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, layout, RC)
+  subroutine GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, layout, RC)
       type (ESMF_Grid), intent(IN) :: GRID
       integer, optional, intent(INout) :: globalCellCountPerDim(:)
       integer, optional, intent(INout) :: localCellCountPerDim(:)
@@ -362,7 +367,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
       _RETURN(ESMF_SUCCESS)
 
-    end subroutine MAPL_GridGet
+   end subroutine GridGet
 
   subroutine MAPL_DistGridGet(distGrid,minIndex,maxIndex,rc)
 

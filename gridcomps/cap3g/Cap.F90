@@ -32,7 +32,6 @@ module mapl3g_Cap
 
 contains
 
-
    subroutine mapl_run_driver(hconfig, is_model_pet, unusable, servers, rc)
       USE mapl_ApplicationSupport
       type(esmf_HConfig), intent(inout) :: hconfig
@@ -54,16 +53,18 @@ contains
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, options%checkpointing, _RC)
+      call integrate(driver, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(servers)
    end subroutine mapl_run_driver
 
-   subroutine integrate(driver, checkpointing, rc)
+   subroutine integrate(driver, checkpointing, lgr, rc)
       type(GriddedComponentDriver), intent(inout) :: driver
       type(CheckpointOptions), intent(in) :: checkpointing
+      class(Logger), intent(inout) :: lgr
       integer, optional, intent(out) :: rc
 
       type(esmf_Clock) :: clock
@@ -76,6 +77,8 @@ contains
 
       time: do while (currTime < stopTime)
          ! TODO:  include Bill's monitoring log messages here
+         call ESMF_TimeGet(currTime, timeString=iso_time, _RC)
+         call lgr%info('cap time: %a', trim(iso_time))
          call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
          currTime = advance_clock(driver, _RC)
          call checkpoint(driver, checkpointing, final=.false., _RC)
@@ -98,10 +101,10 @@ contains
 
       clock = driver%get_clock()
       call esmf_ClockGet(clock, currTime=new_time, _RC)
-      
+
       _RETURN(_SUCCESS)
    end function advance_clock
-   
+
    subroutine checkpoint(driver, checkpointing, final, rc)
       type(GriddedComponentDriver), intent(inout) :: driver
       type(CheckpointOptions), intent(in) :: checkpointing
@@ -142,11 +145,11 @@ contains
       character(ESMF_MAXSTR) :: iso_time
       type(ESMF_Time) :: currTime
       integer :: status
-      
+
       call esmf_ClockGet(clock, currTime=currTime, _RC)
       call esmf_TimeGet(currTime, timeStringISOFrac=iso_time, _RC)
       path = trim(iso_time)
-      
+
       _RETURN(_SUCCESS)
    end function get_timestamp
 
@@ -161,7 +164,7 @@ contains
       type(esmf_GridComp) :: cap_gridcomp
       integer :: status, user_status
       integer, allocatable :: petList(:)
-      
+
       petList = get_model_pets(options%is_model_pet, _RC)
 
       cap_gridcomp = mapl_GridCompCreate(options%name, user_setservices(cap_setservices), hconfig, petList=petList, _RC)
@@ -185,7 +188,7 @@ contains
       options%lgr => logging%get_logger(options%name, _RC)
 
       options%checkpointing = make_checkpointing_options(hconfig, _RC)
-      
+
       _RETURN(_SUCCESS)
    contains
 
@@ -193,11 +196,11 @@ contains
          type(CheckpointOptions) :: options
          type(esmf_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
-         
+
          integer :: status
          type(esmf_HConfig) :: checkpointing_cfg
          logical :: has_checkpointing, has_enabled, has_final
-         
+
          has_checkpointing = esmf_HConfigIsDefined(hconfig, keystring='checkpointing', _RC)
          _RETURN_UNLESS(has_checkpointing)
 
@@ -248,9 +251,6 @@ contains
       type(ESMF_Logical), target :: flag_as_array(1)
       integer :: i, petCount
 
-      integer, target :: i1(1)
-      integer, target, allocatable :: i2(:)
-
       call esmf_VMGetCurrent(vm, _RC)
       call esmf_VMGet(vm, petCount=petCount, _RC)
       allocate(flags(petCount))
@@ -268,7 +268,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_Alarm) :: record_alarm
       type(esmf_HConfig) :: clock_cfg, restart_cfg
       type(ESMF_Time) :: startTime, stopTime, currTime
       type(ESMF_Time) :: end_of_segment
@@ -282,23 +281,23 @@ contains
       restart_cfg = esmf_HConfigCreate(filename=cap_restart_file, _RC)
       currTime = mapl_HConfigAsTime(restart_cfg, keyString='currTime', _RC)
       iso_time = esmf_HConfigAsString(restart_cfg, keystring='currTime', _RC)
-      call lgr%info('current time: %a', trim(iso_time)) 
+      call lgr%info('current time: %a', trim(iso_time))
       call esmf_HConfigDestroy(restart_cfg, _RC)
 
       clock_cfg = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
-      
+
       startTime = mapl_HConfigAsTime(clock_cfg, keystring='start', _RC)
       _ASSERT(currTime >= startTime, "current time should be >= start time")
       call esmf_TimeGet(startTime, timeStringISOFrac=iso_time, _RC)
-      call lgr%info('start time: %a', trim(iso_time)) 
+      call lgr%info('start time: %a', trim(iso_time))
 
       stopTime = mapl_HConfigAsTime(clock_cfg, keystring='stop', _RC)
       call esmf_TimeGet(stopTime, timeStringISOFrac=iso_time, _RC)
-      call lgr%info('stop time: %a', trim(iso_time)) 
+      call lgr%info('stop time: %a', trim(iso_time))
 
       timeStep = mapl_HConfigAsTimeInterval(clock_cfg, keystring='dt', _RC)
       call esmf_TimeIntervalGet(timeStep, timeStringISOFrac=iso_time, _RC)
-      call lgr%info('time step: %a', trim(iso_time)) 
+      call lgr%info('time step: %a', trim(iso_time))
 
       segment_duration = mapl_HConfigAsTimeInterval(clock_cfg, keystring='segment_duration', _RC)
       end_of_segment = currTime + segment_duration
@@ -313,11 +312,12 @@ contains
          call esmf_TimeIntervalGet(repeatDuration, timeStringISOFrac=iso_time, _RC)
          call lgr%info('repeat duration: %a', trim(iso_time))
       end if
-      
+
       clock = esmf_ClockCreate(timeStep=timeStep, &
-           startTime=currTime, stopTime=end_of_segment, &
+           startTime=startTime, stopTime=end_of_segment, &
            refTime=startTime, &
            repeatDuration=repeatDuration, _RC)
+      call ESMF_ClockSet(clock, currTime=currTime, _RC)
 
       call esmf_HConfigDestroy(clock_cfg, _RC)
 
@@ -432,7 +432,7 @@ contains
          end if
 
          num_items = esmf_HConfigGetSize(subcfg, _RC)
-         
+
          do i = 1, num_items
             iso_string = esmf_HConfigAsString(subcfg,  index=i, _RC)
             if (has_times) then
@@ -523,7 +523,7 @@ contains
 
       if (MAPL_AmIRoot()) then
          call MAPL_PushDirectory(checkpointing_path, _RC)
-         call MAPL_MakeSymbolicLink(src_path=target_name, link_path=LAST_CHECKPOINT, is_directory=.true., _RC)
+         call MAPL_MakeSymbolicLink(src_path=target_name, link_path=LAST_CHECKPOINT, _RC)
          path = MAPL_PopDirectory(_RC)
       end if
 

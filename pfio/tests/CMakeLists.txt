@@ -119,24 +119,7 @@ endforeach ()
 #  set_tests_properties (pFIO_tests_mpi_2layer PROPERTIES DISABLED True)
 #endif ()
 
-set(TESTPERF pfio_performance.x)
-
-ecbuild_add_executable (
-  TARGET ${TESTPERF}
-  NOINSTALL
-  SOURCES pfio_performance.F90
-  DEFINITIONS USE_MPI
-  LIBS MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
-target_link_libraries(${TESTPERF} MAPL.pfio NetCDF::NetCDF_Fortran OpenMP::OpenMP_Fortran)
-set_target_properties(${TESTPERF} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-
-add_test(NAME pFIO_performance
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
-  )
-set_tests_properties (pFIO_performance PROPERTIES LABELS "PERFORMANCE")
-
 add_dependencies(build-tests MAPL.pfio.tests)
 add_dependencies(build-tests ${TESTO})
 add_dependencies(build-tests pfio_writer.x)
-add_dependencies(build-tests ${TESTPERF})
 

@@ -4,7 +4,7 @@ submodule (mapl3g_OuterMetaComponent) run_clock_advance_smod
    use mapl3g_GenericPhases
    use mapl3g_GriddedComponentDriverMap
    use mapl_ErrorHandling
-   implicit none
+   implicit none(type,external)
 
 contains
 
@@ -20,12 +20,12 @@ contains
       type(GriddedComponentDriver), pointer :: child
       type(StringVector), pointer :: run_phases
       logical :: found
-      type(ESMF_Alarm) :: alarm
       logical :: is_ringing
       integer :: phase
+      type(ESMF_Time) :: currTime
 
-      call ESMF_ClockGetAlarm(clock, alarm=alarm, alarmName=RUN_USER_ALARM, _RC)
-      is_ringing = ESMF_AlarmIsRinging(alarm, _RC)
+      call ESMF_ClockGet(clock, currTime=currTime, _RC)
+      is_ringing = this%user_run_alarm%is_ringing(currTime, _RC)
       _RETURN_IF(.not. is_ringing)
 
       associate(e => this%children%ftn_end())

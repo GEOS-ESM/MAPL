@@ -7,7 +7,6 @@ set(srcs
   FieldDictionaryItem.F90
   FieldDictionaryItemMap.F90
   FieldDictionary.F90
-  StateItemGetVerticalGrid.F90
 
   GenericGrid.F90
 
@@ -31,6 +30,7 @@ set(srcs
   ESMF_HConfigUtilities.F90
   RestartHandler.F90
   )
+
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
 #set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
 #  PROPERTY COMPILE_FLAGS ${MISMATCH})
@@ -47,9 +47,10 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils MAPL.vertical MAPL.component
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils
-  ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
+    MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared
+    MAPL.profiler MAPL.hconfig_utils MAPL.vertical MAPL.component MAPL.field_bundle
+  ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm
   TYPE SHARED
   )
 
@@ -64,7 +65,8 @@ esma_add_fortran_submodules(
   TARGET MAPL.generic3g
   SUBDIRECTORY OuterMetaComponent
   SOURCES SetServices.F90 add_child_by_spec.F90 new_outer_meta.F90 init_meta.F90
-          get_child_by_name.F90 run_child_by_name.F90 run_children.F90
+          get_num_children.F90 get_child_name.F90 get_child_by_name.F90
+          run_child_by_name.F90 run_children.F90
           get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
           get_phases.F90 set_hconfig.F90 get_hconfig.F90 has_geom.F90 get_geom.F90
 	  advertise_variable.F90
@@ -79,7 +81,7 @@ esma_add_fortran_submodules(
           set_geom.F90 set_vertical_grid.F90 get_vertical_grid.F90 get_registry.F90
           get_component_spec.F90 get_internal_state.F90 get_logger.F90
           get_user_gc_driver.F90 connect_all.F90 set_entry_point.F90
-          finalize.F90)
+          finalize.F90 start_timer.F90 stop_timer.F90)
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic3g

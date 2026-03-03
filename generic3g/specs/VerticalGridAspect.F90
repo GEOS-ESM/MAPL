@@ -3,10 +3,14 @@
 module mapl3g_VerticalGridAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionTransform
    use mapl3g_ExtendTransform
    use mapl3g_VerticalGrid
+   use mapl3g_VerticalCoordinateDirection
+   use mapl3g_VerticalAlignment
    use mapl3g_NullTransform
    use mapl3g_VerticalRegridTransform
    use mapl3g_GeomAspect
@@ -16,7 +20,8 @@ module mapl3g_VerticalGridAspect
    use mapl3g_VerticalRegridMethod
    use mapl3g_ComponentDriver
    use mapl_ErrorHandling
-   use ESMF
+   use esmf
+   use gftl2_StringVector
    implicit none(type,external)
    private
 
@@ -33,8 +38,10 @@ module mapl3g_VerticalGridAspect
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalRegridMethod) :: regrid_method = VERTICAL_REGRID_LINEAR
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
+      type(VerticalAlignment) :: vertical_alignment = VALIGN_WITH_GRID
    contains
       procedure :: matches
+      procedure :: typesafe_matches
       procedure :: make_transform
       procedure :: connect_to_export
       procedure :: supports_conversion_general
@@ -45,6 +52,14 @@ module mapl3g_VerticalGridAspect
       procedure :: get_vertical_grid
       procedure :: get_vertical_stagger
       procedure :: set_vertical_stagger
+      procedure :: get_vertical_alignment
+      procedure :: set_vertical_alignment
+      procedure :: get_resolved_alignment
+      procedure :: is_conservative
+
+      procedure :: update_from_payload
+      procedure :: update_payload
+
    end type VerticalGridAspect
 
    interface VerticalGridAspect
@@ -53,11 +68,12 @@ module mapl3g_VerticalGridAspect
 
 contains
 
-   function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, geom, typekind, time_dependent) result(aspect)
+   function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, geom, typekind, time_dependent) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalRegridMethod), optional, intent(in) :: regrid_method
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+      type(VerticalAlignment), optional, intent(in) :: vertical_alignment
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
       logical, optional, intent(in) :: time_dependent
@@ -72,65 +88,141 @@ contains
          aspect%regrid_method = regrid_method
       end if
 
-     aspect%vertical_stagger = VERTICAL_STAGGER_CENTER
-     if (present(vertical_stagger)) then
+      aspect%vertical_stagger = VERTICAL_STAGGER_CENTER
+      if (present(vertical_stagger)) then
          aspect%vertical_stagger = vertical_stagger
+      end if
+      
+      ! Default vertical_alignment is already set to VALIGN_WITH_GRID
+      if (present(vertical_alignment)) then
+         aspect%vertical_alignment = vertical_alignment
       end if
     
       call aspect%set_time_dependent(time_dependent)
+
+      _UNUSED_DUMMY(geom)
+      _UNUSED_DUMMY(typekind)
    end function new_VerticalGridAspect_specific
 
    function new_VerticalGridAspect_mirror() result(aspect)
       type(VerticalGridAspect) :: aspect
 
       call aspect%set_mirror(.true.)
-
    end function new_VerticalGridAspect_mirror
 
    logical function supports_conversion_general(src)
       class(VerticalGridAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
+
 
    logical function supports_conversion_specific(src, dst)
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      logical :: src_2d, dst_2d
+      type(StringVector) :: vec_in
+      type(StringVector) :: vec_out
+      integer :: i
+
       supports_conversion_specific = .false.
 
       select type (dst)
       class is (VerticalGridAspect)
-         ! Note: "grid%can_connect_to()" reverses dst and src.   Something that should be fixed.
-         ! tclune said this is is just wrong, replaced the following 3 lines
-         !supports_conversion_specific = src%vertical_grid%can_connect_to(dst%vertical_grid)
-         src_2d = src%vertical_stagger == VERTICAL_STAGGER_NONE
-         dst_2d = dst%vertical_stagger == VERTICAL_STAGGER_NONE
-         supports_conversion_specific = src_2d .eqv. dst_2d
-      end select
 
+         vec_in = src%vertical_grid%get_supported_physical_dimensions()
+         vec_out = dst%vertical_grid%get_supported_physical_dimensions()
+
+         do i = 1, vec_in%size()
+            if (find(vec_out%begin(), vec_out%end(), vec_in%of(i)) /= vec_out%end()) then
+               supports_conversion_specific = .true.
+               return
+            end if
+         end do
+         supports_conversion_specific = .false.
+      end select
    end function supports_conversion_specific
 
    logical function matches(src, dst)
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      select type(dst)
-      class is (VerticalGridAspect)
-         if (src%is_mirror()) then
-            matches = .false. ! need geom extension
-         else
-            matches = dst%vertical_grid%is_identical_to(src%vertical_grid)
-            if (.not.matches) return
-            matches = dst%vertical_stagger == src%vertical_stagger
-         end if
+      matches = dst%is_mirror()
+      if (matches) return
+
+      select type (dst)
+      type is (VerticalGridAspect)
+         matches = src%typesafe_matches(dst)
       class default
          matches = .false.
       end select
 
    end function matches
 
-  function make_transform(src, dst, other_aspects, rc) result(transform)
+   logical function typesafe_matches(src, dst) result(matches)
+      class(VerticalGridAspect), intent(in) :: src
+      type(VerticalGridAspect), intent(in) :: dst
+
+      logical :: grids_match
+      type(VerticalCoordinateDirection) :: src_resolved, dst_resolved
+
+      if (src%is_mirror()) then
+         matches = .false. ! need geom extension
+         return
+      end if
+
+      if (any([src%vertical_stagger,dst%vertical_stagger] == VERTICAL_STAGGER_NONE)) then
+         ! both must be 2D
+         matches = src%vertical_stagger == dst%vertical_stagger
+         return
+      end if
+
+      ! Both must have vertical grids to get here, so can compare ids.
+      grids_match = dst%vertical_grid%get_id() == src%vertical_grid%get_id()
+      if (.not. grids_match) then
+         ! The following allows Basic to match to grids that have the same number of levels
+         grids_match = src%vertical_grid%matches(dst%vertical_grid)
+      end if
+
+      if (.not. grids_match) then
+         matches = .false.
+         return
+      end if
+
+      ! Grids match - now check if alignments also match
+      src_resolved = src%get_resolved_alignment()
+      dst_resolved = dst%get_resolved_alignment()
+      matches = (src_resolved == dst_resolved)
+
+   end function typesafe_matches
+
+   function find_common_physical_dimension(src, dst, rc) result(physical_dimension)
+      character(:), allocatable :: physical_dimension
+      class(VerticalGridAspect), intent(in) :: src
+      class(VerticalGridAspect), intent(in) :: dst
+      integer, optional, intent(out) :: rc
+
+      type(StringVector) :: vec_in
+      type(StringVector) :: vec_out
+      integer :: i
+
+      physical_dimension = 'not found'
+      vec_in = src%vertical_grid%get_supported_physical_dimensions()
+      vec_out = dst%vertical_grid%get_supported_physical_dimensions()
+
+      do i = 1, vec_in%size()
+         if (find(vec_out%begin(), vec_out%end(), vec_in%of(i)) /= vec_out%end()) then
+            physical_dimension = vec_in%of(i)
+            _RETURN(_SUCCESS)
+         end if
+      end do
+
+      _FAIL('No common physical dimension found between source and destination VerticalGridAspect')
+   end function find_common_physical_dimension
+
+   function make_transform(src, dst, other_aspects, rc) result(transform)
       class(ExtensionTransform), allocatable :: transform
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -143,8 +235,12 @@ contains
       type(VerticalGridAspect) :: dst_
       type(GeomAspect) :: geom_aspect
       type(TypekindAspect) :: typekind_aspect
-      character(:), allocatable :: units
-      integer :: status
+       character(:), allocatable :: units
+       character(:), allocatable :: physical_dimension
+       type(VerticalCoordinateDirection) :: src_alignment, dst_alignment
+       logical :: grids_match
+       type(VerticalRegridParam) :: regrid_param
+       integer :: status
 
       if (src%is_mirror()) then
          allocate(transform, source=ExtendTransform())
@@ -153,17 +249,65 @@ contains
 
       allocate(transform,source=NullTransform()) ! just in case
       dst_ = to_VerticalGridAspect(dst, _RC)
-      deallocate(transform)
 
       geom_aspect = to_GeomAspect(other_aspects, _RC)
       typekind_aspect = to_TypekindAspect(other_aspects, _RC)
-      units = src%vertical_grid%get_units()
+
+
+      physical_dimension = find_common_physical_dimension(src, dst_, _RC)
+      units = dst_%vertical_grid%get_units(physical_dimension, _RC)
       
-      call src%vertical_grid%get_coordinate_field(v_in_field, v_in_coupler, 'ignore', &
-           geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, src%vertical_stagger, _RC)
-      call dst_%vertical_grid%get_coordinate_field(v_out_field, v_out_coupler, 'ignore', &
-           geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, dst_%vertical_stagger, _RC)
-      transform = VerticalRegridTransform(v_in_field, v_in_coupler, v_out_field, v_out_coupler, dst_%regrid_method)
+      v_in_field = src%vertical_grid%get_coordinate_field(geom_aspect%get_geom(), physical_dimension, &
+           units, typekind_aspect%get_typekind(), coupler=v_in_coupler, _RC)
+      v_out_field = dst_%vertical_grid%get_coordinate_field(geom_aspect%get_geom(), physical_dimension, &
+           units, typekind_aspect%get_typekind(), coupler=v_out_coupler, _RC)
+      
+      ! Get resolved alignments
+      src_alignment = src%get_resolved_alignment()
+      dst_alignment = dst_%get_resolved_alignment()
+      
+      !> Degenerate Case Detection
+      !! ------------------------
+      !! A "degenerate case" occurs when source and destination have the same vertical
+      !! grid but different coordinate alignments (e.g., both use 72-level grid but
+      !! one is UP and the other is DOWN).
+      !!
+      !! Detection logic:
+      !! 1. First check: Compare grid IDs (fast path for identical grid objects)
+      !! 2. Fallback: Use vertical_grid%matches() for structural equality
+      !!    - BasicVerticalGrid matches any grid with same number of levels
+      !!    - Allows flexibility for runtime-defined grids
+      !!
+      !! Special handling based on alignment:
+      !! - Same grid + same alignment → NullTransform (no operation needed)
+      !! - Same grid + different alignment → VerticalRegridTransform with is_degenerate_case=.true.
+      !!   (performs vertical flip without interpolation)
+      !! - Different grids → VerticalRegridTransform with is_degenerate_case=.false.
+      !!   (performs full regridding with alignment-aware coordinate canonicalization)
+      ! Check if grids are the same (degenerate case)
+      grids_match = dst_%vertical_grid%get_id() == src%vertical_grid%get_id()
+      if (.not. grids_match) then
+         ! The following allows Basic to match to grids that have the same number of levels
+         grids_match = src%vertical_grid%matches(dst_%vertical_grid)
+      end if
+      
+      ! If grids match AND alignments match, no transform needed
+      if (grids_match .and. (src_alignment == dst_alignment)) then
+         deallocate(transform)
+         allocate(transform, source=NullTransform())
+         _RETURN(_SUCCESS)
+      end if
+      
+      ! Build regrid parameters
+      regrid_param%stagger_in = src%vertical_stagger
+      regrid_param%stagger_out = dst_%vertical_stagger
+      regrid_param%method = dst_%regrid_method
+      regrid_param%src_alignment = src_alignment
+      regrid_param%dst_alignment = dst_alignment
+      regrid_param%is_degenerate_case = grids_match
+      
+      deallocate(transform)
+      transform = VerticalRegridTransform(v_in_field, v_in_coupler, v_out_field, v_out_coupler, regrid_param)
 
       _RETURN(_SUCCESS)
    end function make_transform
@@ -235,12 +379,12 @@ contains
    end function get_aspect_id
 
    function get_vertical_grid(this, rc) result(vertical_grid)
-      class(VerticalGridAspect), intent(in) :: this
-      class(VerticalGrid), allocatable :: vertical_grid
+      class(VerticalGridAspect), target, intent(in) :: this
+      class(VerticalGrid), pointer :: vertical_grid
       integer, optional, intent(out) :: rc
 
       _ASSERT(allocated(this%vertical_grid), "vertical_grid not allocated.")
-      vertical_grid = this%vertical_grid
+      vertical_grid => this%vertical_grid
 
       _RETURN(_SUCCESS)
    end function get_vertical_grid
@@ -255,5 +399,115 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_vertical_stagger
+
+   function get_vertical_alignment(this, rc) result(vertical_alignment)
+      class(VerticalGridAspect), intent(in) :: this
+      type(VerticalAlignment) :: vertical_alignment
+      integer, optional, intent(out) :: rc
+
+      vertical_alignment = this%vertical_alignment
+
+      _RETURN(_SUCCESS)
+   end function get_vertical_alignment
+
+   subroutine set_vertical_alignment(this, vertical_alignment)
+      class(VerticalGridAspect), intent(inout) :: this
+      type(VerticalAlignment), intent(in) :: vertical_alignment
+
+      this%vertical_alignment = vertical_alignment
+   end subroutine set_vertical_alignment
+
+   function get_resolved_alignment(this) result(direction)
+      class(VerticalGridAspect), intent(in) :: this
+      type(VerticalCoordinateDirection) :: direction
+      
+      type(VerticalCoordinateDirection) :: grid_direction
+      
+      if (.not. allocated(this%vertical_grid)) then
+         direction = VCOORD_DIRECTION_INVALID
+         return
+      end if
+      
+
+      grid_direction = this%vertical_grid%get_coordinate_direction()
+      direction = this%vertical_alignment%resolve(grid_direction)
+
+   end function get_resolved_alignment
+
+   logical function is_conservative(this)
+      class(VerticalGridAspect), intent(in) :: this
+      
+      is_conservative = (this%regrid_method == VERTICAL_REGRID_CONSERVATIVE)
+   end function is_conservative
+
+   subroutine update_from_payload(this, field, bundle, state, rc)
+      class(VerticalGridAspect), intent(inout) :: this
+      type(esmf_Field), optional, intent(in) :: field
+      type(esmf_FieldBundle), optional, intent(in) :: bundle
+      type(esmf_State), optional, intent(in) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      ! Must use a pointer for get/set, but aspect uses an allocatable
+      ! Future work should consider changing aspect to also be pointer.
+      class(VerticalGrid), pointer :: vgrid
+      logical :: is_mirror
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (present(field)) then
+         call mapl_FieldGet(field, vgrid=vgrid, vert_staggerloc=this%vertical_stagger, vert_alignment=this%vertical_alignment, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleGet(bundle, vgrid=vgrid, vert_staggerloc=this%vertical_stagger, _RC)
+      end if
+
+      is_mirror = .not. allocated(this%vertical_stagger)
+      if (.not. is_mirror) then
+         if (this%vertical_stagger /= VERTICAL_STAGGER_NONE) then
+            is_mirror = .not. associated(vgrid)
+         end if
+      end if
+      call this%set_mirror(is_mirror)
+
+      if (allocated(this%vertical_grid))  deallocate(this%vertical_grid)
+      if (associated(vgrid)) then
+         this%vertical_grid = vgrid
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
+   end subroutine update_from_payload
+
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(VerticalGridAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: num_vgrid_levels
+      integer, allocatable :: num_levels
+
+      _RETURN_UNLESS(present(field) .or. present(bundle))
+
+      if (allocated(this%vertical_grid)) then
+         num_vgrid_levels = this%vertical_grid%get_num_levels()
+         if (this%vertical_stagger == VERTICAL_STAGGER_EDGE) then
+            num_levels = num_vgrid_levels + 1
+         else if (this%vertical_stagger == VERTICAL_STAGGER_CENTER) then
+            num_levels = num_vgrid_levels
+         end if
+      end if
+         
+      if (present(field)) then
+         call mapl_FieldSet(field, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, vert_alignment=this%vertical_alignment, num_levels=num_levels, _RC)
+      else if (present(bundle)) then
+         call mapl_FieldBundleSet(bundle, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, num_levels=num_levels, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
+   end subroutine update_payload
 
 end module mapl3g_VerticalGridAspect

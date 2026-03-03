@@ -1,5 +1,7 @@
 #include "MAPL.h"
+
 module mapl3g_StatisticsGridComp
+
    use mapl3
    use mapl3g_RestartHandler
    ! local modules
@@ -7,9 +9,11 @@ module mapl3g_StatisticsGridComp
    use mapl3g_StatisticsVector
    use mapl3g_NullStatistic
    use mapl3g_TimeAverage
-   use pflogger
+   use pflogger, only: Logger
+
    implicit none(type,external)
    private
+
    public :: setServices
 
    type :: Statistics ! private state
@@ -31,6 +35,7 @@ contains
       type(esmf_HConfigIter) :: iter, b, e
 
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
+      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, initialize, _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_READRESTART, custom_read_restart, phase_name='GENERIC:READ_RESTART', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_WRITERESTART, custom_write_restart, phase_name='GENERIC::WRITE_RESTART', _RC)
@@ -71,6 +76,7 @@ contains
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
+
       itemtype = mapl_HConfigAsItemType(hconfig, keystring='itemtype', _RC)
 
       varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, name, _RC)
@@ -101,8 +107,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine advertise_item
 
-
    subroutine modify_advertise(gridcomp, importState, exportState, clock, rc)
+
       type(esmf_GridComp) :: gridcomp
       type(esmf_State) :: importState
       type(esmf_State) :: exportState
@@ -115,7 +121,6 @@ contains
       type(esmf_HConfig) :: hconfig, items_hconfig
       class(AbstractTimeStatistic), allocatable :: item
 
-      _HERE
       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
       call mapl_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       items_hconfig = esmf_HConfigCreateAt(hconfig, keystring='stats', _RC)
@@ -130,6 +135,7 @@ contains
       call esmf_HConfigdestroy(items_hconfig, _RC)
 
       _RETURN(_SUCCESS)
+
    contains
 
       subroutine modify_advertise_item(iter, rc)
@@ -144,48 +150,45 @@ contains
          type(StateItemAllocation) :: allocation_status
          type(esmf_HConfig) :: hconfig
 
-         type(esmf_Geom) :: geom
+         type(esmf_Geom), allocatable :: geom
          character(:), allocatable :: units
          character(:), allocatable :: standard_name, long_name
          type(esmf_TypeKind_Flag) :: typekind
-         class(VerticalGrid), allocatable :: vertical_grid
+         class(VerticalGrid), pointer :: vertical_grid
+         type(VerticalStaggerLoc) :: vstagger
          type(UngriddedDims) :: ungridded_dims
          type(esmf_StateItem_Flag) :: itemtype
 
-         _HERE
-         _HERE, importState
          action = esmf_HConfigAsString(iter, keystring='action', _RC)
          name = esmf_HConfigAsString(iter, keystring='name', _RC)
 
          call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
-         _RETURN_IF(itemtype == ESMF_STATEITEM_NOTFOUND) 
+         _RETURN_IF(itemtype == ESMF_STATEITEM_NOTFOUND)
 
-         _HERE
          call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
-         _HERE
          call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
-         _HERE, allocation_status%to_string()
          _RETURN_UNLESS(allocation_status == STATEITEM_ALLOCATION_CONNECTED)
-
-         _HERE,' woo hoo - connected now !!!'
 
          call mapl_FieldGet(f_in, &
               geom=geom, &
               ungridded_dims=ungridded_dims, &
               units=units, &
               typekind=typekind, &
+              vgrid=vertical_grid, &
+              vert_staggerloc=vstagger, &
               _RC)
-         call mapl_FieldGetVerticalGrid(f_in, vertical_grid=vertical_grid, _RC)
 
-         _HERE
          call mapl_StateGet(exportState, itemName=name, field=f_out, _RC)
-         call mapl_FieldModify(f_out, &
-              has_deferred_aspects=.false., &
+
+         call mapl_FieldSet(f_out, &
               geom=geom, &
               ungridded_dims=ungridded_dims, &
               units=units, &
               typekind=typekind, &
-              vertical_grid=vertical_grid, &
+              vgrid=vertical_grid, &
+              vert_staggerloc=vstagger, &
+              standard_name='foo', &
+              has_deferred_aspects=.false., &
               _RC)
 
          item = make_item(name, iter, clock, _RC)
@@ -229,7 +232,7 @@ contains
 
          integer :: status
          type(esmf_Field) :: f_in, f_out
-         
+
          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
@@ -245,13 +248,13 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(esmf_TimeInterval) :: period, offset
+         type(esmf_TimeInterval) :: period, offset, timeStep
          type(esmf_Time) :: ringTime, refTime
          character(:), allocatable :: iso_timeinterval
 
          period = mapl_HConfigAsTimeInterval(iter, keystring='period', _RC)
          offset = mapl_HConfigAsTimeInterval(iter, keystring='offset', _RC)
-!#         refTime=
+         call esmf_ClockGet(clock, refTime=refTime, timeStep=timeStep, _RC)
          ringTime = refTime + offset
 
          alarm = esmf_AlarmCreate(clock, ringTime=ringTime, ringInterval=period, _RC)
@@ -260,6 +263,35 @@ contains
 
    end subroutine modify_advertise
 
+   subroutine initialize(gridcomp, importState, exportState, clock, rc)
+      type(esmf_GridComp) :: gridcomp
+      type(esmf_State) :: importState
+      type(esmf_State) :: exportState
+      type(esmf_Clock) :: clock
+      integer, intent(out) :: rc
+
+      type(Statistics), pointer :: stats
+      class(AbstractTimeStatistic), pointer :: stat
+      integer :: status
+
+      type(StatisticsVectorIterator) :: iter
+
+      _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
+
+      iter = stats%items%ftn_begin()
+      associate (e => stats%items%ftn_end())
+        do while (iter /= e)
+           call iter%next()
+           stat => iter%of()
+           call stat%initialize(_RC)
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
+   end subroutine initialize
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(esmf_GridComp) :: gridcomp
@@ -274,6 +306,8 @@ contains
 
       type(StatisticsVectorIterator) :: iter
 
+      _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
+
       iter = stats%items%ftn_begin()
       associate (e => stats%items%ftn_end())
         do while (iter /= e)
@@ -284,10 +318,14 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(gridcomp)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine run
 
-   subroutine custom_read_restart(gridComp, importState, exportState, clock, rc)
-      type(esmf_GridComp) :: gridComp
+   subroutine custom_read_restart(gridcomp, importState, exportState, clock, rc)
+      type(esmf_GridComp) :: gridcomp
       type(esmf_State) :: importState
       type(esmf_State) :: exportState
       type(esmf_Clock) :: clock
@@ -318,14 +356,17 @@ contains
       end associate
 
       call esmf_ClockGet(clock, currTime=currTime, _RC)
-      restart_handler = RestartHandler(name, geom, currTime, lgr)
+      restart_handler = RestartHandler(geom, currTime, lgr)
 
       filename = name // '_custom_import.nc'
       call restart_handler%read(state, filename, _RC)
 
       call esmf_StateDestroy(state, _RC)
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(gridcomp)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
    end subroutine custom_read_restart
 
    subroutine custom_write_restart(gridcomp, importState, exportState, clock, rc)
@@ -360,7 +401,7 @@ contains
       end associate
 
       call esmf_ClockGet(clock, currTime=currTime, _RC)
-      restart_handler = RestartHandler(name, geom, currTime, lgr)
+      restart_handler = RestartHandler(geom, currTime, lgr)
 
        filename = name // '_custom_import.nc'
      call restart_handler%write(state, filename, _RC)
@@ -368,6 +409,8 @@ contains
       call esmf_StateDestroy(state, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
    end subroutine custom_write_restart
 
 end module mapl3g_StatisticsGridComp

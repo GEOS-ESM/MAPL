@@ -41,14 +41,14 @@ module mapl3g_CubedSphereDecomposition
    interface
 
       ! Constructors
-      pure module function new_CubedSphereDecomposition_basic(x_distribution, y_distribution) result(decomp)
+      module function new_CubedSphereDecomposition_basic(x_distribution, y_distribution) result(decomp)
          type(CubedSphereDecomposition) :: decomp
          integer, intent(in) :: x_distribution(:)
          integer, intent(in) :: y_distribution(:)
       end function new_CubedSphereDecomposition_basic
 
       ! Keyword enforced to avoid ambiguity with '_topo' interface
-      pure module function new_CubedSphereDecomposition_petcount(dims, unusable, petCount) result(decomp)
+      module function new_CubedSphereDecomposition_petcount(dims, unusable, petCount) result(decomp)
          type(CubedSphereDecomposition) :: decomp
          integer, intent(in) :: dims(2)
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -56,7 +56,7 @@ module mapl3g_CubedSphereDecomposition
       end function new_CubedSphereDecomposition_petcount
 
       ! Keyword enforced to avoid ambiguity with '_petcount' interface
-      pure module function new_CubedSphereDecomposition_topo(dims, unusable, topology) result(decomp)
+      module function new_CubedSphereDecomposition_topo(dims, unusable, topology) result(decomp)
          type(CubedSphereDecomposition) :: decomp
          integer, intent(in) :: dims(2)
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -64,12 +64,12 @@ module mapl3g_CubedSphereDecomposition
       end function new_CubedSphereDecomposition_topo
 
       ! accessors
-      pure module function get_x_distribution(decomp) result(x_distribution)
+      module function get_x_distribution(decomp) result(x_distribution)
          integer, allocatable :: x_distribution(:)
          class(CubedSphereDecomposition), intent(in) :: decomp
       end function get_x_distribution
 
-      pure module function get_y_distribution(decomp) result(y_distribution)
+      module function get_y_distribution(decomp) result(y_distribution)
          integer, allocatable :: y_distribution(:)
          class(CubedSphereDecomposition), intent(in) :: decomp
       end function get_y_distribution

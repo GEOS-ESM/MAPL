@@ -5,6 +5,7 @@ from itertools import product
 from functools import reduce, partial
 from operator import concat
 from collections import namedtuple
+from collections.abc import Sequence
 import sys
 import MAPL_GridCompSpecs_ACGv3 as acg3
 
@@ -114,6 +115,26 @@ class TestMappings(unittest.TestCase):
         r = acg3.compute_rank('txyz', UNGRIDDED)
         self.assertIsNone(r, m)
         
+    def test_string_mapping(self):
+        options = acg3.get_options({})
+        column_name = acg3.EXPORT_NAME
+        column_value = 'ZYZZY'
+        specs = [{column_name: column_value}]
+        values = acg3.get_values(specs, options)
+        self.assertIsInstance(values, Sequence)
+        specs_values, *_ = values
+        self.assertIsInstance(specs_values, Sequence)
+        spec_values, *_ = specs_values
+        self.assertIsInstance(spec_values, dict)
+        val = spec_values.get(column_name)
+        self.assertIsInstance(val, str)
+        self.assertTrue(len(val) >= 2)
+        first, *middle, last = val
+        self.assertEqual(last, first)
+        self.assertIn(first, r'\'"')
+        middle = ''.join(middle)
+        self.assertEqual(middle, column_value)
+
 class TestHelpers(unittest.TestCase):
 
     def test_isiterable(self):

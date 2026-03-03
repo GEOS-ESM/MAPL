@@ -7,6 +7,7 @@ set(srcs
  DataSetBracket.F90
  AbstractDataSetFileSelector.F90
  NonClimDataSetFileSelector.F90
+ ClimDataSetFileSelector.F90
  ExtDataUtilities.F90
  ExtDataCollection.F90
  ExtDataCollectionMap.F90
@@ -27,7 +28,7 @@ find_package (MPI REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES mapl3g MAPL.pfio MAPL.base MAPL.vertical PFLOGGER::pflogger TYPE SHARED)
+  DEPENDENCIES mapl3g MAPL.pfio MAPL.base MAPL.vertical MAPL.regridder_mgr PFLOGGER::pflogger TYPE SHARED)
 
 if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
   target_compile_definitions(${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)

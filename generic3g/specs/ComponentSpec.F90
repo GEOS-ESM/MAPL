@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_ComponentSpec
+
    use mapl3g_Connection
    use mapl3g_SimpleConnection
    use mapl3g_ReexportConnection
@@ -16,6 +17,7 @@ module mapl3g_ComponentSpec
    use mapl_stringutilities
    use gftl2_StringVector
    use ESMF
+
    implicit none
    private
 
@@ -49,9 +51,9 @@ module mapl3g_ComponentSpec
    contains
       procedure :: has_geom_hconfig
       procedure :: add_var_spec
-      procedure :: add_connection_conn
-      generic :: add_connection => add_connection_conn
-      procedure :: add_connectivity
+       procedure :: add_connection_conn
+       generic :: add_connection => add_connection_conn, add_connection_strings
+       procedure :: add_connection_strings
       procedure :: reexport
    end type ComponentSpec
 
@@ -88,7 +90,7 @@ contains
       call this%connections%push_back(conn)
    end subroutine add_connection_conn
 
-   subroutine add_connectivity(this, unusable, src_comp, src_names, dst_comp, dst_names, rc)
+   subroutine add_connection_strings(this, unusable, src_comp, src_names, dst_comp, dst_names, rc)
       class(ComponentSpec), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), intent(in) :: src_comp
@@ -97,7 +99,6 @@ contains
       character(*), optional, intent(in) :: dst_names
       integer, optional, intent(out) :: rc
 
-      integer :: status
       character(:), allocatable :: dst_names_
       type(ConnectionPt) :: src_pt, dst_pt
       type(SimpleConnection) :: conn
@@ -119,7 +120,8 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine add_connectivity
+      _UNUSED_DUMMY(unusable)
+   end subroutine add_connection_strings
 
    subroutine reexport(this, unusable, src_comp, src_name, src_intent, new_name, rc)
       class(ComponentSpec), intent(inout) :: this
@@ -130,8 +132,6 @@ contains
       character(*), optional, intent(in) :: new_name ! default is src_name
       integer, optional, intent(out) :: rc
 
-
-      integer :: status
       character(:), allocatable :: new_name_
       type(ConnectionPt) :: src_pt, dst_pt
       type(ReexportConnection) :: conn
@@ -158,6 +158,7 @@ contains
       call this%add_connection(conn)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine reexport
 
 end module mapl3g_ComponentSpec

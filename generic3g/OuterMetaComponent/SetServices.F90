@@ -8,7 +8,8 @@ submodule (mapl3g_OuterMetaComponent) SetServices_smod
    use mapl3g_BasicVerticalGrid
    use mapl3g_GriddedComponentDriverMap
    use mapl_ErrorHandling
-   implicit none
+   use pflogger, only: logger_t => logger
+   implicit none(type,external)
 
 contains
 
@@ -32,13 +33,17 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: user_gridcomp
+      class(logger_t), pointer :: logger
 
       ! Note that Parent component should set timestep and offset in outer meta before calling SetServices.
-      this%component_spec = parse_component_spec(this%hconfig, this%registry, this%user_timeStep, this%user_offset, _RC)
+      this%component_spec = parse_component_spec(this%hconfig, this%registry, this%user_gc_driver%get_name(), this%user_timeStep, this%user_offset, _RC)
 
       user_gridcomp = this%user_gc_driver%get_gridcomp()
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
+      logger => this%get_logger()
+      call logger%info("SetServices:: starting...", _RC)
       call this%user_setservices%run(user_gridcomp, _RC)
+      call logger%info("SetServices:: ...completed", _RC)
       call add_children(this, _RC)
       call run_children_setservices(this, _RC)
 
@@ -53,7 +58,6 @@ contains
          integer :: status
          type(ChildSpecMapIterator) :: iter
          type(ChildSpec), pointer :: child_spec
-         type(ESMF_HConfig), allocatable :: child_hconfig
          character(:), allocatable :: child_name
 
          associate ( e => this%component_spec%children%ftn_end() )

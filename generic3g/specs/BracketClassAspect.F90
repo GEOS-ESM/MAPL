@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_BracketClassAspect
+
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_ActualConnectionPt
@@ -30,7 +31,9 @@ module mapl3g_BracketClassAspect
    use mapl_FieldUtilities
 
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
+
    implicit none(type,external)
    private
 
@@ -41,7 +44,7 @@ module mapl3g_BracketClassAspect
       procedure :: to_BracketClassAspect_from_poly
       procedure :: to_BracketClassAspect_from_map
    end interface to_BracketClassAspect
-   
+
    type, extends(ClassAspect) :: BracketClassAspect
       private
       type(ESMF_FieldBundle) :: payload
@@ -50,6 +53,7 @@ module mapl3g_BracketClassAspect
       integer :: bracket_size   ! allocate only if not time dependent
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
+      real(kind=ESMF_KIND_R4), allocatable :: default_value
 
    contains
       procedure :: get_aspect_order
@@ -66,7 +70,7 @@ module mapl3g_BracketClassAspect
       procedure :: add_to_state
 
       procedure :: get_payload
-      
+
    end type BracketClassAspect
 
    interface BracketClassAspect
@@ -75,13 +79,14 @@ module mapl3g_BracketClassAspect
 
 contains
 
-   function new_BracketClassAspect(bracket_size, standard_name, long_name) result(aspect)
+   function new_BracketClassAspect(bracket_size, standard_name, long_name, default_value) result(aspect)
       type(BracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
 
-      aspect%field_aspect = FieldClassAspect(standard_name, long_name)
+      aspect%field_aspect = FieldClassAspect(standard_name, long_name, default_value)
       aspect%bracket_size = bracket_size
       if (present(standard_name)) then
          aspect%standard_name = standard_name
@@ -89,7 +94,10 @@ contains
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
-      
+      if (present(default_value)) then
+         aspect%default_value = default_value
+      end if
+
    end function new_BracketClassAspect
 
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
@@ -117,24 +125,25 @@ contains
            ]
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
-   subroutine create(this, handle, rc)
+   subroutine create(this, other_aspects, rc)
       class(BracketClassAspect), intent(inout) :: this
-      integer, optional, intent(in) :: handle(:) 
-     integer, optional, intent(out) :: rc
+      type(AspectMap), intent(in) :: other_aspects
+      integer, optional, intent(out) :: rc
 
      integer :: status
      type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
-      _RETURN_UNLESS(present(handle))
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldBundleInfoSetInternal(info, spec_handle=handle, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -158,11 +167,13 @@ contains
       integer :: i
       type(FieldClassAspect) :: tmp
 
+
       associate (n => this%bracket_size)
-        
         do i = 1, n
            tmp = this%field_aspect
-           call tmp%create(_RC)
+           call tmp%create(other_aspects, _RC)
+           call update_payload(tmp, other_aspects, _RC)
+
            call tmp%allocate(other_aspects, _RC)
            call tmp%add_to_bundle(this%payload, _RC)
         end do
@@ -182,6 +193,31 @@ contains
 
    end subroutine allocate
 
+
+   subroutine update_payload(field_aspect, other_aspects, rc)
+      type(FieldClassAspect), intent(inout) :: field_aspect
+      type(AspectMap), target, intent(in) :: other_aspects
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(AspectMapIterator) :: iter
+      class(StateItemAspect), pointer :: aspect
+      type(esmf_Field), allocatable :: field
+
+      call field_aspect%get_payload(field=field, _RC)
+
+      associate(e => other_aspects%ftn_end())
+        iter = other_aspects%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           aspect => iter%second()
+           call aspect%update_payload(field=field, _RC)
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+
+   end subroutine update_payload
 
   subroutine destroy(this, rc)
       class(BracketClassAspect), intent(inout) :: this
@@ -214,14 +250,12 @@ contains
       _UNUSED_DUMMY(export)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
-   
+
 
    function to_BracketClassAspect_from_poly(aspect, rc) result(bracket_aspect)
       type(BracketClassAspect) :: bracket_aspect
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       select type(aspect)
       class is (BracketClassAspect)
@@ -246,7 +280,7 @@ contains
 
       _RETURN(_SUCCESS)
    end function to_BracketClassAspect_from_map
-   
+
 
    function make_transform(src, dst, other_aspects, rc) result(transform)
       class(ExtensionTransform), allocatable :: transform
@@ -260,6 +294,9 @@ contains
       transform = TimeInterpolateTransform()
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
    end function make_transform
 
    ! Should only connect to FieldClassAspect and
@@ -270,11 +307,16 @@ contains
 
       matches = .false.
 
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function matches
 
    logical function supports_conversion_general(src)
       class(BracketClassAspect), intent(in) :: src
+
       supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    ! Only can convert if import is FieldClassAspect.
@@ -288,7 +330,7 @@ contains
          supports_conversion_specific = .true.
       end select
 
-      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(src)
    end function supports_conversion_specific
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
@@ -325,10 +367,21 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-   function get_payload(this) result(payload)
+   subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(BracketClassAspect), intent(in) :: this
-      type(ESMF_FieldBundle) :: payload
-      payload = this%payload
-   end function get_payload
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(esmf_Field), optional, allocatable, intent(out) :: field
+      type(esmf_FieldBundle), optional, allocatable, intent(out) :: bundle
+      type(esmf_State), optional, allocatable, intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      bundle = this%payload
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(state)
+   end subroutine get_payload
 
 end module mapl3g_BracketClassAspect

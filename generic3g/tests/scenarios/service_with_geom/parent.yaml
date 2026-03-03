@@ -1,0 +1,40 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+
+    vertical_grid:
+      class: basic
+      num_levels: 5
+
+  children:
+    subscriber_A:
+      sharedObj: libconfigurable_gridcomp
+      setServices: setservices_
+      config_file: scenarios/service_with_geom/subscriber_A.yaml
+    subscriber_B:
+      sharedObj: libconfigurable_gridcomp
+      setServices: setservices_
+      config_file: scenarios/service_with_geom/subscriber_B.yaml
+    provider:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/service_with_geom/provider.yaml
+
+  states: {}
+
+
+  connections:
+    - src_name: S
+      dst_name: S
+      src_comp: provider
+      dst_comp: subscriber_A
+
+    - src_name: S
+      dst_name: S1
+      src_comp: provider
+      dst_comp: subscriber_B
+

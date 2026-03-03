@@ -4,12 +4,12 @@ submodule (mapl3g_OuterMetaComponent) initialize_realize_smod
    use mapl3g_Multistate
    use mapl3g_GenericPhases
    use mapl_ErrorHandling
-   implicit none
+   implicit none(type,external)
 
 contains
 
    module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       type(esmf_State) :: importState
       type(esmf_State) :: exportState
       type(esmf_Clock) :: clock
@@ -35,6 +35,7 @@ contains
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(clock)
       _UNUSED_DUMMY(unusable)
 
    end subroutine initialize_realize

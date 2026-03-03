@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl3g_ESMF_HConfigUtilities) write_hconfig_smod
-   implicit none
+   implicit none(type,external)
 
 contains
 
@@ -130,7 +130,6 @@ contains
          character(*), intent(inout) :: iomsg
 
          type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
-         type(ESMF_HConfig) :: val_hconfig
          logical :: first
 
          iostat = 0 ! unless
@@ -182,6 +181,8 @@ contains
          write(unit, '(a)', iostat=iostat, iomsg=iomsg)  str
          if (iostat /= 0) return
 
+         _UNUSED_DUMMY(iotype)
+         _UNUSED_DUMMY(v_list)
       end subroutine write_scalar
 
    end subroutine write_hconfig

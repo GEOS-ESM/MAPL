@@ -4,10 +4,12 @@ module mapl3g_ExtensionTransform
    use mapl3g_AspectId
    use mapl_ErrorHandling
    use ESMF
-   implicit none
+   implicit none(type,external)
    private
 
    public :: ExtensionTransform
+   public :: COUPLER_IMPORT_NAME
+   public :: COUPLER_EXPORT_NAME
 
    type, abstract :: ExtensionTransform
    contains
@@ -38,6 +40,9 @@ module mapl3g_ExtensionTransform
       end function I_get_transformId
    end interface
 
+   character(len=*), parameter :: COUPLER_IMPORT_NAME = 'import[1]'
+   character(len=*), parameter :: COUPLER_EXPORT_NAME = 'export[1]'
+
 contains
 
    ! This is a default no-op implementation of invalidate. Types derived from
@@ -63,6 +68,7 @@ contains
    logical function runs_invalidate(this)
       class(ExtensionTransform), intent(in) :: this
       runs_invalidate = .FALSE.
+      _UNUSED_DUMMY(this)
    end function runs_invalidate
 
 end module mapl3g_ExtensionTransform
