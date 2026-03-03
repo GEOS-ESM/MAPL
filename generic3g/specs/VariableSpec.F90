@@ -605,12 +605,12 @@ contains
                ], &
                basis_kind)
       case (MAPL_STATEITEM_BRACKET%ot)
-         aspect = BracketClassAspect(this%bracket_size, this%standard_name)
+         aspect = BracketClassAspect(this%bracket_size, this%standard_name, default_value=this%default_value)
       case (MAPL_STATEITEM_VECTORBRACKET%ot)
          if (allocated(this%vector_basis_kind)) then
-            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, vector_basis_kind=this%vector_basis_kind)
+            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, vector_basis_kind=this%vector_basis_kind, default_value=this%default_value)
          else
-            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name)
+            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, default_value=this%default_value)
          end if
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(aspect,source=WildcardClassAspect())

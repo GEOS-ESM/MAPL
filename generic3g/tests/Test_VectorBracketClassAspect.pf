@@ -10,6 +10,8 @@ module Test_VectorBracketClassAspect
    use mapl3g_StateItemAspect
    use mapl3g_StateRegistry
    use mapl3g_Geom_API
+   use mapl3g_FieldBundle_API
+   use MAPL_FieldUtils
    use funit
    use esmf
    implicit none
@@ -42,7 +44,7 @@ contains
       type(ESMF_FieldBundle), allocatable :: field_bundle
 
       integer :: status
-      integer :: fieldCount
+      integer :: fieldCount,i 
       type(AspectMap), pointer :: aspects
       type(VectorBracketClassAspect) :: bracket_aspect
       integer, parameter :: BRACKET_SIZE = 4
@@ -51,9 +53,13 @@ contains
       class(VerticalGrid), allocatable :: vgrid
 
       type(BasicVerticalGridFactory) :: factory
+      real(kind=ESMF_KIND_R4), pointer :: ptr(:)
+      real(kind=ESMF_KIND_R4), allocatable :: expected_value(:)
+      type(ESMF_Field), allocatable :: fieldList(:)
       
       var_spec = make_VariableSpec(itemtype=MAPL_STATEITEM_VECTORBRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
-           short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, _RC)
+           short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, &
+           default_value=17.0, _RC)
 
       vspec = BasicVerticalGridSpec(num_levels=5)
       vgrid = factory%create_grid_from_spec(vspec, _RC)
@@ -69,6 +75,15 @@ contains
       call ESMF_FieldBundleValidate(field_bundle, _RC)
       call ESMF_FieldBundleGet(field_bundle, fieldCount=fieldCount, _RC)
       @assert_that(fieldCount, is(BRACKET_SIZE))
+
+      call MAPL_FieldBundleGet(field_bundle, fieldList=fieldList, _RC)
+      do i=1,fieldCount
+         call assign_fptr(fieldList(i), ptr, _RC)
+         allocate(expected_value(size(ptr)))
+         expected_value = 17.0
+         @assertEqual(ptr, expected_value)
+         deallocate(expected_value)
+      enddo
 
       call bracket_aspect%destroy(_RC)
 
