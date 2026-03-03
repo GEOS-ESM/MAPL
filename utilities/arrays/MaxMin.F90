@@ -61,7 +61,7 @@ contains
       integer, optional, intent(out) :: rc
       real :: pmaxmin(2) ! [pmax, pmin]
 
-      real :: pmax, pmin, pm_send(2), pm_recv(2)
+      real :: pm_send(2), pm_recv(2)
       integer, parameter :: TWO=2
       logical :: has_nans
       integer :: status

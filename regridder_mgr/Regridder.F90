@@ -4,6 +4,7 @@ module mapl3g_Regridder
    use esmf
    use mapl_FieldUtils
    use mapl3g_FieldBundle_API
+   use mapl3g_VectorBasisKind
    use mapl_ErrorHandlingMod
    use mapl3g_Geom_API
    use mapl3g_RegridderSpec
@@ -60,21 +61,30 @@ contains
       if (bundleType_in == FIELDBUNDLETYPE_VECTOR) then
          call this%regrid_vector(fb_in, fb_out, _RC)
          _RETURN(_SUCCESS)
-      else if (bundleType_in == FIELDBUNDLETYPE_VECTOR_BRACKET) then
+      else if (bundleType_in == FIELDBUNDLETYPE_VECTORBRACKET) then
          call MAPL_FieldBundleGet(fb_in, fieldList=field_list_in, _RC)
          call MAPL_FieldBundleGet(fb_out, fieldList=field_list_out, _RC)
+         _ASSERT(mod(size(field_list_in), 2) == 0, 'VectorBracket must contain an even number of fields')
+         _ASSERT(mod(size(field_list_out), 2) == 0, 'VectorBracket must contain an even number of fields')
 
-         tb_in = ESMF_FieldBundleCreate(fieldList=field_list_in(1:2), _RC)
-         tb_out = ESMF_FieldBundleCreate(fieldList=field_list_out(1:2), _RC)
-         call this%regrid_vector(tb_in, tb_out, _RC)
-         call ESMF_FieldBundleDestroy(tb_in, noGarbage=.true., _RC)
-         call ESMF_FieldBundleDestroy(tb_out, noGarbage=.true., _RC)
+         ! Get vector_basis_kind from parent bundle
+         block
+            type(VectorBasisKind) :: basis_kind
+            integer :: i, n_pairs
+            call MAPL_FieldBundleGet(fb_in, vector_basis_kind=basis_kind, _RC)
 
-         tb_in = ESMF_FieldBundleCreate(fieldList=field_list_in(3:4), _RC)
-         tb_out = ESMF_FieldBundleCreate(fieldList=field_list_out(3:4), _RC)
-         call this%regrid_vector(tb_in, tb_out, _RC)
-         call ESMF_FieldBundleDestroy(tb_in, noGarbage=.true., _RC)
-         call ESMF_FieldBundleDestroy(tb_out, noGarbage=.true., _RC)
+            n_pairs = size(field_list_in) / 2
+            ! Loop over all vector pairs
+            do i = 1, n_pairs
+               tb_in = MAPL_FieldBundleCreate(fieldList=field_list_in(2*i-1:2*i), fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+               tb_out = MAPL_FieldBundleCreate(fieldList=field_list_out(2*i-1:2*i), fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+               call MAPL_FieldBundleSet(tb_in, vector_basis_kind=basis_kind, _RC)
+               call MAPL_FieldBundleSet(tb_out, vector_basis_kind=basis_kind, _RC)
+               call this%regrid_vector(tb_in, tb_out, _RC)
+               call ESMF_FieldBundleDestroy(tb_in, noGarbage=.true., _RC)
+               call ESMF_FieldBundleDestroy(tb_out, noGarbage=.true., _RC)
+            end do
+         end block
 
          _RETURN(_SUCCESS)
       end if
@@ -119,6 +129,7 @@ contains
       type(VectorBasis), pointer :: basis
       type(GeomManager), pointer :: geom_mgr
       type(ESMF_Geom) :: geom_in, geom_out
+      type(VectorBasisKind) :: basis_kind
 
       call MAPL_FieldBundleGet(fb_in, fieldList=uv_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=uv_out, _RC)
@@ -136,10 +147,12 @@ contains
 
       geom_mgr => this%get_geom_manager()
 
+      ! Get basis kind from input bundle and get corresponding basis
+      call MAPL_FieldBundleGet(fb_in, vector_basis_kind=basis_kind, _RC)
       call ESMF_FieldGet(uv_in(1), geom=geom_in, _RC)
       id_in = MAPL_GeomGetId(geom_in, _RC)
       mapl_geom => geom_mgr%get_mapl_geom(id_in, _RC)
-      basis => mapl_geom%get_basis('NS', _RC)
+      basis => mapl_geom%get_basis(basis_kind, _RC)
 
       call FieldGEMV('N', 1., basis%elements, uv_in, 0., xyz_in, _RC)
 
@@ -148,10 +161,12 @@ contains
          call this%regrid(xyz_in(i), xyz_out(i), _RC)
       end do
 
+      ! Get basis kind from output bundle and get corresponding basis
+      call MAPL_FieldBundleGet(fb_out, vector_basis_kind=basis_kind, _RC)
       call ESMF_FieldGet(uv_out(1), geom=geom_out, _RC)
       id_out = MAPL_GeomGetId(geom_out, _RC)
       mapl_geom => geom_mgr%get_mapl_geom(id_out, _RC)
-      basis => mapl_geom%get_basis('NS', _RC)
+      basis => mapl_geom%get_basis(basis_kind, _RC)
       call FieldGEMV('T', 1., basis%elements, xyz_out, 0., uv_out, _RC)
 
       call destroy_field_vector(xyz_in, _RC)

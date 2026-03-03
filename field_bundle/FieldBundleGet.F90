@@ -2,11 +2,14 @@
 
 module mapl3g_FieldBundleGet
    use mapl3g_VerticalGrid_API
+   use mapl3g_VerticalAlignment
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_Field_API
    use mapl3g_UngriddedDims
+   use mapl3g_QuantityTypeMetadata
    use mapl3g_FieldBundleType_Flag
+   use mapl3g_VectorBasisKind
    use mapl3g_FieldBundleInfo
    use mapl3g_InfoUtilities
    use mapl3g_LU_Bound
@@ -33,12 +36,14 @@ contains
         ! Bracket specific items
         typekind, interpolation_weights, &
         ! Bracket field-prototype items
-        ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
+        ungridded_dims, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         units, standard_name, long_name, &
         allocation_status, &
         bracket_updated, &
         has_deferred_aspects, &
         regridder_param_info, &
+        vector_basis_kind, &
+        quantity_type_metadata, &
         rc)
 
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
@@ -53,6 +58,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: standard_name
@@ -61,6 +67,8 @@ contains
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
+      type(VectorBasisKind), optional, intent(out) :: vector_basis_kind
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -82,20 +90,22 @@ contains
          call ESMF_FieldBundleGet(fieldBundle, fieldList=fieldList, itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
       end if
 
-     ! Get these from FieldBundleInfo
+      ! Get these from FieldBundleInfo
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
       call FieldBundleInfoGetInternal(bundle_info, &
+           vgrid_id=vgrid_id, &
            fieldBundleType=fieldBundleType, &
            typekind=typekind, interpolation_weights=interpolation_weights, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, num_vgrid_levels=num_vgrid_levels, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            bracket_updated=bracket_updated, &
            has_geom=has_geom, &
-           vgrid_id=vgrid_id, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
+           vector_basis_kind=vector_basis_kind, &
+           quantity_type_metadata=quantity_type_metadata, &
            _RC)
 
       if (present(geom) .and. has_geom) then

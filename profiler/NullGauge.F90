@@ -1,6 +1,10 @@
+#include "unused_dummy.H"
+
 module MAPL_NullGauge
+
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    use MAPL_AbstractGauge
+
    implicit none
    private
 
@@ -16,16 +20,12 @@ module MAPL_NullGauge
       module procedure :: new_NullGauge
    end interface NullGauge
 
-
 contains
-
 
    function new_NullGauge() result(gauge)
       type (NullGauge) :: gauge
       integer(kind=INT64) :: count_rate
-
    end function new_NullGauge
-
 
    ! TODO: compute denomintor once during initialization
    function get_measurement(this) result(measurement)
@@ -34,7 +34,7 @@ contains
 
       measurement = 0
 
+      _UNUSED_DUMMY(this)
    end function get_measurement
-
 
 end module MAPL_NullGauge

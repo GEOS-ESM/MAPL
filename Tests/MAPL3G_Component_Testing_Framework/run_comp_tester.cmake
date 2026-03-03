@@ -1,4 +1,4 @@
-macro(run_case CASE)
+macro(run_case CASE DESCRIPTION)
     string(RANDOM LENGTH 24 tempdir)
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E make_directory ${tempdir}
@@ -12,18 +12,26 @@ macro(run_case CASE)
     endif()
 
     file(STRINGS ${tempdir}/steps.rc file_lines)
+    list(LENGTH file_lines total_steps)
+    set(step_num 1)
     foreach(line IN LISTS file_lines)
+			 message(STATUS "${CASE} (${DESCRIPTION}): Running step ${step_num}/${total_steps}: ${line}")
 			 execute_process(
 				COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MPIEXEC_PREFLAGS} ${MY_BINARY_DIR}/MAPL_Component_Driver.x ${line}
 				RESULT_VARIABLE CMD_RESULT
 				WORKING_DIRECTORY ${tempdir}
 				)
 			 if(CMD_RESULT)
-				 message(FATAL_ERROR "Error running ${CASE}")
+				 if(NOT "${DESCRIPTION}" STREQUAL "")
+					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${line})\nTest Description: ${DESCRIPTION}")
+				 else()
+					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${line})")
+				 endif()
 			 endif()
+			 math(EXPR step_num "${step_num} + 1")
     endforeach()
 	 execute_process(
 		COMMAND ${CMAKE_COMMAND} -E rm -rf ${tempdir}
 		)
 endmacro()
-run_case(${TEST_CASE})
+run_case(${TEST_CASE} ${TEST_DESCRIPTION})

@@ -39,6 +39,7 @@ module mapl3g_UngriddedDimsAspect
       procedure :: get_ungridded_dims
       procedure :: update_from_payload
       procedure :: update_payload
+      procedure, private :: set_ungridded_dims
 
    end type UngriddedDimsAspect
 
@@ -52,16 +53,22 @@ contains
    function new_UngriddedDimsAspect(ungridded_dims) result(aspect)
       type(UngriddedDimsAspect) :: aspect
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      type(UngriddedDims) :: ungridded_dims_
 
-      call aspect%set_mirror(.true.)
-      aspect%ungridded_dims = UngriddedDims()
-
-      if (present(ungridded_dims)) then
-         aspect%ungridded_dims = ungridded_dims
-         call aspect%set_mirror(.false.)
-      end if
+      ungridded_dims_ = UngriddedDims(is_mirror=.true.)
+      if (present(ungridded_dims)) ungridded_dims_ = ungridded_dims
+      call aspect%set_ungridded_dims(ungridded_dims_)
 
    end function new_UngriddedDimsAspect
+
+   subroutine set_ungridded_dims(this, ungridded_dims)
+      class(UngriddedDimsAspect), intent(inout) :: this
+      class(UngriddedDims), intent(in) :: ungridded_dims
+
+      this%ungridded_dims = ungridded_dims
+      call this%set_mirror(ungridded_dims%is_mirror())
+
+   end subroutine set_ungridded_dims
 
    logical function supports_conversion_general(src)
       class(UngriddedDimsAspect), intent(in) :: src
@@ -178,43 +185,41 @@ contains
       type(esmf_FieldBundle), optional, intent(in) :: bundle
       type(esmf_State), optional, intent(in) :: state
       integer, optional, intent(out) :: rc
-
       integer :: status
+      type(UngriddedDims) :: ungridded_dims
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
-
       if (present(field)) then
-         call mapl_FieldGet(field, ungridded_dims=this%ungridded_dims, _RC)
+         call mapl_FieldGet(field, ungridded_dims=ungridded_dims, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleGet(bundle, ungridded_dims=this%ungridded_dims, _RC)
+         call mapl_FieldBundleGet(bundle, ungridded_dims=ungridded_dims, _RC)
       end if
-
-      ! In practice there is no way that this can happen unless it was already mirror ...
-      call this%set_mirror(.not. allocated(this%ungridded_dims))
-
+      call this%set_ungridded_dims(ungridded_dims)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
+
    end subroutine update_from_payload
 
    subroutine update_payload(this, field, bundle, state, rc)
-      class(UngriddeddimsAspect), intent(in) :: this
+      class(UngriddedDimsAspect), intent(in) :: this
       type(esmf_Field), optional, intent(inout) :: field
       type(esmf_FieldBundle), optional, intent(inout) :: bundle
       type(esmf_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
-
+      type(UngriddedDims) :: ungridded_dims
       integer :: status
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
+      ungridded_dims = this%get_ungridded_dims()
       if (present(field)) then
-         call mapl_FieldSet(field, ungridded_dims=this%ungridded_dims, _RC)
+         call mapl_FieldSet(field, ungridded_dims=ungridded_dims, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleSet(bundle, ungridded_dims=this%ungridded_dims, _RC)
+         call mapl_FieldBundleSet(bundle, ungridded_dims=ungridded_dims, _RC)
       end if
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
+
    end subroutine update_payload
 
 end module mapl3g_UngriddedDimsAspect

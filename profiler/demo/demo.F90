@@ -1,12 +1,14 @@
 #define I_AM_MAIN
 #include "MAPL_ErrLog.h"
+
 program main
+
    use MPI
    use MAPL_Profiler
    use MAPL_ErrorHandlingMod
    use gFTL2_StringVector
-   implicit none
 
+   implicit none
 
    !type (MemoryProfiler), target :: mem_prof
    type (TimeProfiler), target :: main_prof
@@ -16,7 +18,7 @@ program main
 
    type(StringVector) :: report_lines
    type(StringVectorIterator) :: iter
-   integer :: ierror, rc, status
+   integer :: ierror
    character(1) :: empty(0)
 
    call MPI_Init(ierror)
@@ -48,13 +50,11 @@ program main
 
    call main_prof%stop('init reporter')
 
-
    !call mem_prof%start('lap')
    call do_lap(lap_prof) ! lap 1
    call lap_prof%stop()
    call main_prof%accumulate(lap_prof)
    !call mem_prof%stop('lap')
-
 
    call main_prof%start('use reporter')
    report_lines = reporter%generate_report(lap_prof)
@@ -96,7 +96,6 @@ program main
       call iter%next()
    end do
    write(*,'(a)') ''
-
 
    call MPI_Finalize(ierror)
 
@@ -142,7 +141,6 @@ contains
       call prof%start('timer_2') ! 6
       call prof%stop('timer_2')
    end subroutine do_lap
-
 
 end program main
 

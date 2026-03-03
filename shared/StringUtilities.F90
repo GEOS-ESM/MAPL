@@ -2,9 +2,13 @@
 ! potential error conditions.  These are function that we want to use
 ! in expressions and as actual arguments to other procedures.
 
+#include "unused_dummy.H"
+
 module mapl_StringUtilities
+
    use gftl2_StringVector
    use mapl_KeywordEnforcer
+
    implicit none(type,external)
    private
 
@@ -62,14 +66,12 @@ contains
    ! vector whose sole element is an empty string.  If the user wants
    ! an empty vector, they can pass instead an unallocated string.
 
-
    function split_string(s, unusable, delim, preserve_whitespace) result(list)
       type(StringVector) :: list
       character(*), optional, intent(in) :: s
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(1), optional, intent(in) :: delim
       logical, optional, intent(in) :: preserve_whitespace
-
 
       character(1) :: delim_
       character(:), allocatable :: tmp
@@ -81,7 +83,7 @@ contains
 
       preserve_whitespace_ = .false.
       if (present(preserve_whitespace)) preserve_whitespace_ = preserve_whitespace
-      
+
       delim_ = ','
       if (present(delim)) delim_ = delim
 
@@ -109,6 +111,7 @@ contains
          if (.not. preserve_whitespace_) tmp = adjustl(tmp)
       end do
 
+      _UNUSED_DUMMY(unusable)
    end function split_string
 
    !===============================================================================
@@ -240,7 +243,7 @@ contains
    function to_lower_string(s) result(t)
       character(len=:), allocatable :: t
       character(len=*), intent(in) :: s
-      
+
       t = to_string(lowercase(to_character_array(s)))
 
    end function to_lower_string
@@ -256,7 +259,7 @@ contains
    function capitalize_string(s) result(t)
       character(len=:), allocatable :: t
       character(len=*), intent(in) :: s
-      
+
       t = ''
       if(len(s) > 0) t = to_upper(s(1:1)) // to_lower(s(2:))
 
@@ -280,7 +283,7 @@ contains
    function get_ascii_interval_string(bounds) result(interval)
       character(len=:), allocatable :: interval
       character(len=2), intent(in) :: bounds
-      
+
       interval = to_string(get_ascii_interval(to_character_array(bounds)))
 
    end function get_ascii_interval_string

@@ -4,6 +4,7 @@ module Test_BasicVerticalGrid
    use mapl3g_VerticalGridSpec, only: VerticalGridSpec
    use mapl3g_VerticalGrid, only: VerticalGrid
    use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE
+   use mapl3g_VerticalCoordinateDirection
    use esmf, only: esmf_HConfig, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
    use esmf, only: esmf_HConfigCreate, esmf_HConfigDestroy
    implicit none
@@ -22,6 +23,46 @@ contains
       call grid%initialize(spec)
       @assert_that('Grid should have correct number of levels', grid%get_num_levels(), is(72))
    end subroutine test_basic_grid_spec_initialization
+
+
+   @test
+   subroutine test_coordinate_direction_default()
+      type(BasicVerticalGridSpec) :: spec
+      type(BasicVerticalGrid) :: grid
+      type(VerticalCoordinateDirection) :: direction
+      
+      spec = BasicVerticalGridSpec(num_levels=72)
+      call grid%initialize(spec)
+      
+      direction = grid%get_coordinate_direction()
+      @assertEqual("downward", direction%to_string(), 'Default coordinate direction should be downward')
+   end subroutine test_coordinate_direction_default
+
+
+   @test
+   subroutine test_coordinate_direction_get_set()
+      type(BasicVerticalGridSpec) :: spec
+      type(BasicVerticalGrid) :: grid
+      type(VerticalCoordinateDirection) :: direction
+      
+      spec = BasicVerticalGridSpec(num_levels=72)
+      call grid%initialize(spec)
+      
+      ! Test setting to upward
+      call grid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      direction = grid%get_coordinate_direction()
+      @assertEqual("upward", direction%to_string(), 'Should be able to set to upward')
+      
+      ! Test setting to downward
+      call grid%set_coordinate_direction(VCOORD_DIRECTION_DOWN)
+      direction = grid%get_coordinate_direction()
+      @assertEqual("downward", direction%to_string(), 'Should be able to set to downward')
+      
+      ! Test setting to unspecified
+      call grid%set_coordinate_direction(VCOORD_DIRECTION_UNSPECIFIED)
+      direction = grid%get_coordinate_direction()
+      @assertEqual("unspecified", direction%to_string(), 'Should be able to set to unspecified')
+   end subroutine test_coordinate_direction_get_set
 
 
    @test

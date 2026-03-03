@@ -103,10 +103,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a check to assign_fptr that verifies that the pointer type/kind matches the Field typekind
 - Workaround for GCC 15 bug (see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=120179)
 - Fixed handling of invalid value for RESTART column in ACG3
+- Fixed initialization of field in test_min_accumulate_R4` in `Test_MinTransform.pf`
 
 ## [Unreleased]
-
-- Introduced AGENTS.md to assist in using copilot for MAPL development
 
 ### Fixed
 
@@ -117,6 +116,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.67.0] - 2026-02-27
+
+### Added
+
+- Introducing a two-way generic python bridge exposing limited MAPL feature down in Python. The system is opt-in and uses
+dynamic loading of py package based on a user given string. It also provides with _some_ tooling, to be expanded upon, to
+make using Fortran-allocated memory transparent.
+- Added optional `local_id` to create a simple locstream
+
+## [2.66.0] - 2026-02-13
+
+### Fixed
+
+- Guarded against 32-bit integer overflow in QSswap
+
+### Added
+
+- Added 9 modular OpenCode agent skills for MAPL development workflows (replaces AGENTS.md)
+  - mapl-setup: First-time environment configuration
+  - mapl-build: Building with NAG, gfortran, Intel compilers
+  - mapl-testing: Running and debugging tests with pFUnit
+  - fortran-style: MAPL Fortran coding standards
+  - mapl-error-handling: Error handling macros and best practices
+  - github-workflow: Git/GitHub conventions and PR process
+  - remote-build: Building on bucy with Intel compiler
+  - pfunit-troubleshooting: Debug pFUnit test failures
+  - compiler-switching: Switch between compilers safely
+- Added `.rgignore` to have ripgrep ignore common build directories
+
+### Changed
+
+- Update `components.yaml`
+  - `ESMA_env` v5.17.0
+    - Update to Baselibs 8.24.0
+      - ESMF v9.0.0b08
+      - GFE v1.22.0
+        - pFUnit v4.15.0
+      - curl 8.17.0
+      - NCO 5.3.6
+      - CDO 2.5.4
+      - Various updates for Athena/Turin/TOSS5 at NAS
+    - Support for Athena/Turin/TOSS5 at NAS
+      - Update `build.csh` to support Athena/Turin/TOSS5 at NAS
+        - Also remove Haswell
+  - `ESMA_cmake` v3.72.0
+    - Add `USES_TERMINAL` to our `tests` target to ensure output is shown as tests run with Ninja
+    - Updates for f2py and f2py3 for running on macOS with Spack
+    - Add Athena frontend nodes for NAS detection
+    - Remove `ctest` pre-test build
 
 ## [2.65.0] - 2026-01-29
 

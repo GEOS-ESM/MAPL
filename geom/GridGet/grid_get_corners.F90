@@ -1,46 +1,48 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl3g_VectorBasis) grid_get_corners_smod
+submodule (mapl3g_GridGet) grid_get_corners_smod
+
    use mapl_Constants
    use esmf
-   implicit none(type,external)
+
+   implicit none(type, external)
+
 contains
 
-
    module subroutine grid_get_corners(grid, corners, rc)
-      type(ESMF_Grid), intent(inout) :: grid
+      type(ESMF_Grid), intent(in) :: grid
       real(kind=ESMF_KIND_R8), allocatable, intent(out) :: corners(:,:,:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: im, jm
-      real(kind=ESMF_KIND_R8), pointer :: longitudes(:,:)
-      real(kind=ESMF_KIND_R8), pointer :: latitudes(:,:)
+      integer :: counts(3)
       real(kind=ESMF_KIND_R8), allocatable :: corner_lons(:,:)
       real(kind=ESMF_KIND_R8), allocatable :: corner_lats(:,:)
 
-      call GridGetCoords(grid, longitudes, latitudes, _RC)
-      im = size(longitudes,1)
-      jm = size(longitudes,2)
+      ! Get grid dimensions from exclusiveCount (without halos)
+      ! This must match how legacy_get_corners computes im and jm
+      call ESMF_GridGet(grid, localDe=0, staggerloc=ESMF_STAGGERLOC_CENTER, exclusiveCount=counts, _RC)
+      im = counts(1)
+      jm = counts(2)
 
       allocate(corner_lons(im+1,jm+1))
       allocate(corner_lats(im+1,jm+1))
 
       call legacy_get_corners(grid, corner_lons, corner_lats, _RC)
 
-      allocate(corners(size(longitudes,1),size(longitudes,2),2))
+      allocate(corners(im+1,jm+1,2))
       corners(:,:,1) = corner_lons
       corners(:,:,2) = corner_lats
 
       _RETURN(ESMF_SUCCESS)
    end subroutine grid_get_corners
 
-
    subroutine legacy_get_corners(grid, gridCornerLons, gridCornerLats, rc)
-      type (ESMF_Grid), intent(INOUT) :: grid
-      real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLons(:,:)
-      real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLats(:,:)
-      integer, optional, intent(  OUT) :: RC
+      type(ESMF_Grid), intent(in) :: grid
+      real(ESMF_KIND_R8), intent(inout) :: gridCornerLons(:,:)
+      real(ESMF_KIND_R8), intent(inout) :: gridCornerLats(:,:)
+      integer, optional, intent(out) :: rc
 
       integer :: status
 
@@ -66,7 +68,9 @@ contains
       call ESMF_InfoGetFromHost(grid,infoh,_RC)
       hasLons = ESMF_InfoIsPresent(infoh,'GridCornerLons',_RC)
       hasLats = ESMF_InfoIsPresent(infoh,'GridCornerLats',_RC)
+
       if (hasLons .and. hasLats) then
+
          call ESMF_InfoGet(infoh,key='GridCornerLons',size=lsz,_RC)
          _ASSERT(size(gridCornerLons,1)*size(gridCornerLons,2)==lsz,"stored corner sizes to not match grid")
          call ESMF_InfoGet(infoh,key='GridCornerLats',size=lsz,_RC)
@@ -93,6 +97,7 @@ contains
             end do
          end do
          deallocate(r8ptr)
+
       else
 
          call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
@@ -138,11 +143,10 @@ contains
          call ESMF_InfoSet(infoh,key='GridCornerLons:',values=lons1d,_RC)
          call ESMF_InfoSet(infoh,key='GridCornerLats:',values=lats1d,_RC)
          deallocate(lons1d,lats1d)
+
       end if
 
       _RETURN(ESMF_SUCCESS)
-
    end subroutine Legacy_Get_Corners
-
 
 end submodule grid_get_corners_smod

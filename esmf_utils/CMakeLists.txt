@@ -9,6 +9,10 @@ set(srcs
   LU_Bound.F90
   ESMF_Time_Utilities.F90
   HorizontalDimsSpec.F90
+  VectorBasisKind.F90
+  NormalizationType.F90
+  QuantityType.F90
+  QuantityTypeMetadata.F90
   )
 
 esma_add_library(${this}

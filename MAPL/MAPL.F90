@@ -7,7 +7,6 @@ module MAPL
    use ESMF_CFIOMod
    use pFIO
    use MAPL_GridCompsMod
-   use mapl_StubComponent
    use MAPL_ESMFFieldBundleRead
    use MAPL_ESMFFieldBundleWrite
    use MAPL_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
@@ -17,6 +16,7 @@ module MAPL
    use MAPL_Profiler, initialize_profiler => initialize, finalize_profiler => finalize
    use MAPL_FieldUtils
    use MAPL_StateUtils
+   use MAPL_PythonBridge
    implicit none
 end module MAPL
 

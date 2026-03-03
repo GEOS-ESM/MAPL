@@ -235,7 +235,7 @@ contains
       has_variable = ESMF_HConfigIsDefined(hconfig, keyString='variable', _RC)
       if (has_variable) then
          variable_name = ESMF_HConfigAsString(hconfig, keyString='variable', _RC)
-         if (index(variable_name, ';') > 0) item_type = MAPL_STATEITEM_VECTOR_BRACKET
+         if (index(variable_name, ';') > 0) item_type = MAPL_STATEITEM_VECTORBRACKET
       end if
       _RETURN(_SUCCESS)
    end function get_maplitem_type_single_map
@@ -246,7 +246,7 @@ contains
       type(ESMF_StateItem_Flag) :: item_type
       if (item_type == MAPL_STATEITEM_BRACKET) then
          bracket_size = 2
-      else if (item_type == MAPL_STATEITEM_VECTOR_BRACKET) then
+      else if (item_type == MAPL_STATEITEM_VECTORBRACKET) then
          bracket_size = 4
       end if
     end function get_bracket_size

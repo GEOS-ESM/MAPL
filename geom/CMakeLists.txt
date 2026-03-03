@@ -16,6 +16,7 @@ set(srcs
 
   GeomGet.F90
   GridGet.F90
+  GridGetGlobal.F90
 
   # gFTL containers
   GeomFactoryVector.F90
@@ -23,14 +24,15 @@ set(srcs
   IntegerMaplGeomMap.F90
 
   VectorBasis.F90
-  )
+)
 
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.pfio MAPL.shared MAPL.hconfig_utils MAPL.field GFTL::gftl-v2
   TYPE SHARED
-  )
+)
 
+add_subdirectory(GridGet)
 add_subdirectory(MaplGeom)
 add_subdirectory(CoordinateAxis)
 add_subdirectory(LatLon)

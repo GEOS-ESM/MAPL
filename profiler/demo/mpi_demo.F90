@@ -1,12 +1,14 @@
 #define I_AM_MAIN
 #include "MAPL_ErrLog.h"
+
 program main
+
    use mapl_Profiler
    use MAPL_ErrorHandlingMod
    use MPI
    use gFTL2_StringVector
-   implicit none
 
+   implicit none
 
 !   type (MemoryProfiler), target :: mem_prof
    type (DistributedProfiler), target :: main_prof
@@ -16,7 +18,7 @@ program main
 
    type(StringVector) :: report_lines
    type(StringVectorIterator) :: iter
-   integer :: rank, ierror, rc, status
+   integer :: rank, ierror
    character(1) :: empty(0)
 
 !!$   mem_prof = MemoryProfiler('TOTAL')
@@ -64,13 +66,11 @@ program main
 
    call main_prof%stop('init reporter')
 
-
 !   call mem_prof%start('lap')
    call do_lap(lap_prof) ! lap 1
    call lap_prof%stop()
    call main_prof%accumulate(lap_prof)
 !   call mem_prof%stop('lap')
-
 
    call main_prof%start('use reporter')
    if (rank == 0) then
@@ -147,7 +147,7 @@ program main
       end do
       write(*,'(a)') ''
    end if
-   
+
 !   call mem_prof%finalize()
 !   if (rank == 0) then
 !      report_lines = mem_reporter%generate_report(mem_prof)
