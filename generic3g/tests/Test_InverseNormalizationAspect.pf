@@ -47,14 +47,13 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_default_aspect_is_mirror(this)
-      ! Test that default constructor creates Category 1 aspect (not mirror)
-      ! with no denormalization configured
+      ! Test that default constructor creates mirror aspect
       class(ESMF_TestMethod), intent(inout) :: this
       type(InverseNormalizationAspect) :: aspect
 
       aspect = InverseNormalizationAspect()
 
-      @assertFalse(aspect%is_mirror(), 'default aspect should not be mirror (Category 1)')
+      @assertTrue(aspect%is_mirror(), 'default aspect should be mirror')
 
       _UNUSED_DUMMY(this)
 
@@ -108,12 +107,10 @@ contains
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_matches_when_mirror(this)
       ! Test that mirror aspects match anything
-      ! Note: Mirror mode is set explicitly via update_from_payload, not constructor
       class(ESMF_TestMethod), intent(inout) :: this
       type(InverseNormalizationAspect) :: aspect1, aspect2
 
-      aspect1 = InverseNormalizationAspect()
-      call aspect1%set_mirror(.true.)  ! Explicitly set mirror mode
+      aspect1 = InverseNormalizationAspect()  ! mirror
       aspect2 = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
 
       @assertTrue(aspect1%matches(aspect2), 'mirror should match any aspect')

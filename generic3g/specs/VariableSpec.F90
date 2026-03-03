@@ -452,11 +452,13 @@ contains
       ! Add QuantityType aspect (default: QUANTITY_UNKNOWN, not mirror)
       if (allocated(aspect)) deallocate(aspect)
       allocate(aspect, source=QuantityTypeAspect())
+      call aspect%set_mirror(.false.)  ! Explicit default value, not mirror
       call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
 
       ! Add Normalization aspect (default: no normalization, not mirror)
       if (allocated(aspect)) deallocate(aspect)
       allocate(aspect, source=NormalizationAspect())
+      call aspect%set_mirror(.false.)  ! Explicit default value, not mirror
       call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
 
       aspect = this%make_VerticalGridAspect(vertical_grid, &
@@ -466,6 +468,7 @@ contains
       ! Add InverseNormalization aspect (default: no denormalization, not mirror)
       if (allocated(aspect)) deallocate(aspect)
       allocate(aspect, source=InverseNormalizationAspect())
+      call aspect%set_mirror(.false.)  ! Explicit default value, not mirror
       call aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
 
       aspect = this%make_FrequencyAspect(timestep, offset, _RC)
