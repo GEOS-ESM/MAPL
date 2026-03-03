@@ -244,8 +244,6 @@ add_subdirectory (hconfig_utils)
 add_subdirectory (utilities)
 add_subdirectory(Python)
 
-add_subdirectory (mesh2)
-
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
