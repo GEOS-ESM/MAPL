@@ -76,15 +76,18 @@ contains
       type(AspectMap), intent(in) :: goal_aspects
       integer, optional, intent(out) :: rc
 
-      aspect_ids = [ &
-           CLASS_ASPECT_ID, &
-           ATTRIBUTES_ASPECT_ID, &
-           UNGRIDDED_DIMS_ASPECT_ID, &
-           GEOM_ASPECT_ID, &
-           VERTICAL_GRID_ASPECT_ID, &
-           UNITS_ASPECT_ID, &
-           TYPEKIND_ASPECT_ID &
-           ]
+       aspect_ids = [ &
+            CLASS_ASPECT_ID, &
+            ATTRIBUTES_ASPECT_ID, &
+            UNGRIDDED_DIMS_ASPECT_ID, &
+            QUANTITY_TYPE_ASPECT_ID, &
+            NORMALIZATION_ASPECT_ID, &
+            GEOM_ASPECT_ID, &
+            VERTICAL_GRID_ASPECT_ID, &
+            INVERSE_NORMALIZATION_ASPECT_ID, &
+            UNITS_ASPECT_ID, &
+            TYPEKIND_ASPECT_ID &
+            ]
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
