@@ -54,6 +54,7 @@ module mapl3g_VectorBracketClassAspect
        character(:), allocatable :: standard_name
        character(:), allocatable :: long_name
        type(VectorBasisKind) :: vector_basis_kind
+       real(kind=ESMF_KIND_R4) :: default_value
 
    contains
       procedure :: get_aspect_order
@@ -79,14 +80,15 @@ module mapl3g_VectorBracketClassAspect
 
 contains
 
-   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name, vector_basis_kind) result(aspect)
+   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name, vector_basis_kind, default_value) result(aspect)
       type(VectorBracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
 
-       aspect%field_aspect = FieldClassAspect(standard_name, long_name)
+       aspect%field_aspect = FieldClassAspect(standard_name, long_name, default_value)
        aspect%bracket_size = bracket_size
        if (present(standard_name)) then
           aspect%standard_name = standard_name
@@ -98,6 +100,9 @@ contains
        aspect%vector_basis_kind = VECTOR_BASIS_KIND_NS
        if (present(vector_basis_kind)) then
           aspect%vector_basis_kind = vector_basis_kind
+       end if
+       if (present(default_value)) then
+          aspect%default_value = default_value
        end if
       
    end function new_VectorBracketClassAspect
