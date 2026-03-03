@@ -142,6 +142,9 @@ contains
          ! Match if normalization parameters match or if either is a mirror
          if (src%is_mirror() .or. dst%is_mirror()) then
             matches = .true.
+         else if (.not. allocated(src%aux_field_name) .and. .not. allocated(dst%aux_field_name)) then
+            ! Both have no normalization configured - they match
+            matches = .true.
          else if (allocated(src%aux_field_name) .and. allocated(dst%aux_field_name)) then
             matches = (src%aux_field_name == dst%aux_field_name) .and. &
                      (abs(src%scale_factor - dst%scale_factor) < 1e-10)
