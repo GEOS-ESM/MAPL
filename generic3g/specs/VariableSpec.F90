@@ -25,6 +25,9 @@ module mapl3g_VariableSpec
    use mapl3g_VerticalRegridMethod
    use mapl3g_FrequencyAspect
    use mapl3g_TypekindAspect
+   use mapl3g_QuantityTypeAspect
+   use mapl3g_NormalizationAspect
+   use mapl3g_InverseNormalizationAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VectorBasisKind
@@ -446,9 +449,24 @@ contains
       aspect = this%make_AttributesAspect(_RC)
       call aspects%insert(ATTRIBUTES_ASPECT_ID, aspect)
 
+      ! Add QuantityType aspect (default/mirror mode)
+      if (allocated(aspect)) deallocate(aspect)
+      allocate(aspect, source=QuantityTypeAspect())
+      call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+
+      ! Add Normalization aspect (default/mirror mode)
+      if (allocated(aspect)) deallocate(aspect)
+      allocate(aspect, source=NormalizationAspect())
+      call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
+
       aspect = this%make_VerticalGridAspect(vertical_grid, &
            component_geom=component_geom, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
+
+      ! Add InverseNormalization aspect (default/mirror mode)
+      if (allocated(aspect)) deallocate(aspect)
+      allocate(aspect, source=InverseNormalizationAspect())
+      call aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
 
       aspect = this%make_FrequencyAspect(timestep, offset, _RC)
       call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
