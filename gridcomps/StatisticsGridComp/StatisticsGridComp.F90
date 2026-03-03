@@ -79,15 +79,12 @@ contains
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
 
-      !itemtype = mapl_HConfigAsItemType(hconfig, keystring='itemtype', _RC)
-
       varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, name, _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       select case (action)
       case ('average')
          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
          offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
-         _HERE, 'bmaa adding '//trim(name)
          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
               has_deferred_aspects=.true., _RC)
          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
