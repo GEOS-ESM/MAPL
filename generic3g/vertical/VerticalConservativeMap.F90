@@ -33,13 +33,13 @@ contains
       type(SparseMatrix_sp), intent(out) :: matrix
       integer, optional, intent(out) :: rc
       
-      integer :: nlev_src, nlev_dst
-      integer :: j, k
-      real(REAL32) :: overlap_bot, overlap_top, overlap_thickness
-      real(REAL32) :: source_thickness
-      real(REAL32), allocatable :: row_weights(:)
-      real(REAL32), parameter :: epsilon_sp = tiny(1.0_REAL32)
-      integer :: status
+       integer :: nlev_src, nlev_dst
+       integer :: j, k
+       real(REAL32) :: overlap_bot, overlap_top, overlap_thickness
+       real(REAL32) :: dest_thickness
+       real(REAL32), allocatable :: row_weights(:)
+       real(REAL32), parameter :: epsilon_sp = tiny(1.0_REAL32)
+       integer :: status
       
       nlev_src = size(src_interfaces) - 1
       nlev_dst = size(dst_interfaces) - 1
@@ -53,35 +53,36 @@ contains
       ! Initialize sparse matrix - each row will contain all nlev_src columns
       matrix = SparseMatrix_sp(nlev_dst, nlev_src, nlev_dst*nlev_src)
       
-      ! For each destination layer
-      do j = 1, nlev_dst
-         ! Initialize this row's weights to zero for all source layers
-         row_weights(:) = 0.0
-         
-         ! Find all source layers that overlap with this destination layer
-         do k = 1, nlev_src
-            ! Compute overlap interval (works for both increasing and decreasing coords)
-            overlap_bot = max(min(dst_interfaces(j), dst_interfaces(j+1)), &
-                             min(src_interfaces(k), src_interfaces(k+1)))
-            overlap_top = min(max(dst_interfaces(j), dst_interfaces(j+1)), &
-                             max(src_interfaces(k), src_interfaces(k+1)))
-            
-            overlap_thickness = abs(overlap_top - overlap_bot)
-            
-            ! If there's an overlap
-            if (overlap_thickness > epsilon_sp) then
-               source_thickness = abs(src_interfaces(k+1) - src_interfaces(k))
-               
-               _ASSERT(source_thickness > epsilon_sp, "Source layer has zero thickness")
-               
-               ! Weight = fraction of source layer that overlaps with dest layer
-               row_weights(k) = overlap_thickness / source_thickness
-            end if
-         end do
-         
-         ! Add this row to the sparse matrix (all columns, starting from column 1)
-         call add_row(matrix, j, 1, row_weights(1:nlev_src))
-      end do
+       ! For each destination layer
+       do j = 1, nlev_dst
+          ! Initialize this row's weights to zero for all source layers
+          row_weights(:) = 0.0
+          
+          ! Compute destination layer thickness
+          dest_thickness = abs(dst_interfaces(j+1) - dst_interfaces(j))
+          _ASSERT(dest_thickness > epsilon_sp, "Destination layer has zero thickness")
+          
+          ! Find all source layers that overlap with this destination layer
+          do k = 1, nlev_src
+             ! Compute overlap interval (works for both increasing and decreasing coords)
+             overlap_bot = max(min(dst_interfaces(j), dst_interfaces(j+1)), &
+                              min(src_interfaces(k), src_interfaces(k+1)))
+             overlap_top = min(max(dst_interfaces(j), dst_interfaces(j+1)), &
+                              max(src_interfaces(k), src_interfaces(k+1)))
+             
+             ! Check if there's actually an overlap (overlap_top must be > overlap_bot)
+             if (overlap_top > overlap_bot + epsilon_sp) then
+                overlap_thickness = overlap_top - overlap_bot
+                
+                ! Weight = fraction of destination layer covered by this overlap
+                ! This ensures row sums = 1.0 for conservative (intensive) regridding
+                row_weights(k) = overlap_thickness / dest_thickness
+             end if
+          end do
+          
+          ! Add this row to the sparse matrix (all columns, starting from column 1)
+          call add_row(matrix, j, 1, row_weights(1:nlev_src))
+       end do
       
       deallocate(row_weights)
       
