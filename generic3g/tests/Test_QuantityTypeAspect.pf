@@ -91,13 +91,14 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_default_aspect_is_mirror(this)
-      ! Test that default constructor creates mirror aspect
+      ! Test that default constructor creates Category 1 aspect (not mirror)
+      ! with QUANTITY_UNKNOWN as default value
       class(ESMF_TestMethod), intent(inout) :: this
       type(QuantityTypeAspect) :: aspect
 
       aspect = QuantityTypeAspect()
 
-      @assertTrue(aspect%is_mirror(), 'default aspect should be mirror')
+      @assertFalse(aspect%is_mirror(), 'default aspect should not be mirror (Category 1)')
 
       _UNUSED_DUMMY(this)
 

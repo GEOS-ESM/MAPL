@@ -79,19 +79,20 @@ contains
    function new_QuantityTypeAspect(quantity_type, dimensions, basis, molecular_weight, is_time_dependent) result(aspect)
        type(QuantityTypeAspect) :: aspect
        type(QuantityType), optional, intent(in) :: quantity_type
-       character(*), optional, intent(in) :: dimensions
        type(MixingRatioBasis), optional, intent(in) :: basis
        real, optional, intent(in) :: molecular_weight
+       character(*), optional, intent(in) :: dimensions
        logical, optional, intent(in) :: is_time_dependent
 
        integer :: rc
        integer :: status
 
-       call aspect%set_mirror(.true.)
+       ! Category 1 aspect: sensible defaults (QUANTITY_UNKNOWN), not mirror mode
+       ! Only set mirror=true if explicitly configured via update_from_payload
+       call aspect%set_mirror(.false.)
        
        if (present(quantity_type)) then
           aspect%quantity_type = quantity_type
-          call aspect%set_mirror(.false.)
        end if
        
        if (present(dimensions)) then

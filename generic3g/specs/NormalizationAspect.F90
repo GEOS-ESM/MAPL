@@ -78,11 +78,12 @@ contains
        logical, optional, intent(in) :: is_time_dependent
        logical, optional, intent(in) :: is_inverse
 
-       call aspect%set_mirror(.true.)
+       ! Category 1 aspect: sensible defaults, not mirror mode
+       ! Only set mirror=true if explicitly configured via update_from_payload
+       call aspect%set_mirror(.false.)
        
        if (present(aux_field_name)) then
           aspect%aux_field_name = aux_field_name
-          call aspect%set_mirror(.false.)
        end if
        
        if (present(scale_factor)) then
