@@ -9,6 +9,7 @@ set (TEST_SRCS
   Test_LatLonGeomFactory.pf
   Test_CubedSphereGeomFactory.pf
   Test_GridGet.pf
+  Test_GridGetHorzIJIndex.pf
   Test_LocStreamGeomFactory.pf
   Test_LocStreamGeomFactory_Metadata.pf
 )
@@ -21,6 +22,7 @@ add_pfunit_ctest(MAPL.geom.tests
   EXTRA_USE MAPL_pFUnit_Initialize
   MAX_PES 8
 )
+
 set_target_properties(MAPL.geom.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.geom.tests PROPERTIES LABELS "ESSENTIAL")
 
