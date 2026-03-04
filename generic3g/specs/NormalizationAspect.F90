@@ -406,22 +406,19 @@ contains
        integer :: status
        type(NormalizationMetadata) :: metadata
        type(NormalizationType) :: norm_type
+       logical :: should_write
 
        _RETURN_UNLESS(present(field) .or. present(bundle))
 
-       ! Create metadata from aspect state
+       should_write = .false.
+       
+       ! Determine what to write based on aspect state
        if (this%is_mirror()) then
-          ! Mirror aspect: write mirror metadata
+          ! Mirror aspect: always write mirror metadata
           metadata = NormalizationMetadata()  ! Creates mirror metadata
-          
-          if (present(field)) then
-             call MAPL_FieldSet(field, normalization_metadata=metadata, _RC)
-          else if (present(bundle)) then
-             call MAPL_FieldBundleSet(bundle, normalization_metadata=metadata, _RC)
-          end if
+          should_write = .true.
        else if (allocated(this%aux_field_name)) then
-          ! Non-mirror with explicit normalization: write normalization metadata
-          ! Determine normalization type from aux_field_name
+          ! Non-mirror with explicit normalization: write it (overrides QuantityTypeAspect)
           select case (trim(this%aux_field_name))
           case ('DELP')
              norm_type = NORMALIZE_DELP
@@ -431,20 +428,36 @@ contains
              norm_type = NORMALIZE_NONE
           end select
           
-          ! Create non-mirror metadata with normalization parameters
           metadata = NormalizationMetadata( &
                normalization_type=norm_type, &
                normalization_scale=this%scale_factor, &
                aux_field_name=this%aux_field_name)
+          should_write = .true.
+       else
+          ! Non-mirror with NO explicit normalization (default Category 1 state)
+          ! Check if QuantityTypeAspect already wrote non-mirror metadata
+          if (present(field)) then
+             call MAPL_FieldGet(field, normalization_metadata=metadata, _RC)
+          else if (present(bundle)) then
+             call MAPL_FieldBundleGet(bundle, normalization_metadata=metadata, _RC)
+          end if
           
+          ! If existing metadata is mirror, we must write non-mirror NORMALIZE_NONE
+          ! Otherwise, leave it as-is (QuantityTypeAspect may have set it)
+          if (metadata%is_mirror()) then
+             metadata = NormalizationMetadata(NORMALIZE_NONE)
+             should_write = .true.
+          end if
+       end if
+
+       ! Write metadata if needed
+       if (should_write) then
           if (present(field)) then
              call MAPL_FieldSet(field, normalization_metadata=metadata, _RC)
           else if (present(bundle)) then
              call MAPL_FieldBundleSet(bundle, normalization_metadata=metadata, _RC)
           end if
        end if
-       ! Note: If non-mirror with NO explicit normalization (default Category 1 state),
-       ! we don't write anything - leave metadata as-is (may have been set by QuantityTypeAspect)
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(state)

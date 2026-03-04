@@ -390,6 +390,12 @@ contains
          call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
       type is (TypekindAspect)
          call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
+      type is (QuantityTypeAspect)
+         call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+      type is (NormalizationAspect)
+         call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
+      type is (InverseNormalizationAspect)
+         call aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
       class default
          _FAIL('Unsupported type')
       end select
