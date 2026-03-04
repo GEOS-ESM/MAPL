@@ -22,7 +22,7 @@ module mapl3g_GridGetHorzIJIndex
    ! use MAPL_Grid, only: MAPL_GridGet, MAPL_GridGetInterior, MAPL_GridGetCorners
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Assert, MAPL_Return
 
-   implicit none
+   implicit none(type, external)
    private
 
    public :: GridGetHorzIJIndex
@@ -96,7 +96,7 @@ contains
          where (i1 <= ii .and. ii <= i2 .and. j1 <= jj .and. jj <= j2)
             ii = ii - i1 + 1
             jj = jj - j1 + 1
-            elsewhere
+            else where
             ii = -1
             jj = -1
          end where
@@ -104,11 +104,9 @@ contains
          _ASSERT(local_search, "Global Search for IJ for latlon not implemented")
          call ESMF_GridGetCoord(grid, coordDim=1, localDe=0, staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr=lons, _RC)
          call ESMF_GridGetCoord(grid, coordDim=2, localDe=0, staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr=lats, _RC)
-         allocate(elons(im + 1), _STAT)
-         allocate(elats(jm + 1), _STAT)
-         call ESMF_GridGet(grid, coordSys=coord_sys, _RC)
          elons = lons(:, 1)
          elats = lats(1, :)
+         call ESMF_GridGet(grid, coordSys=coord_sys, _RC)
          if (coord_sys == ESMF_COORDSYS_SPH_DEG) then
             elons = elons * MAPL_DEGREES_TO_RADIANS_R8
             elats = elats * MAPL_DEGREES_TO_RADIANS_R8
@@ -121,8 +119,8 @@ contains
             lonloc = tmp_lons(i)
             latloc = tmp_lats(i)
             if (lonloc > MAPL_PI) lonloc = lonloc - 2.0 * MAPL_PI
-            iiloc = ijsearch(elons, im + 1, lonloc, .false.)
-            jjloc = ijsearch(elats, jm + 1, latloc, .false.)
+            iiloc = ijsearch(elons, lonloc, .false.)
+            jjloc = ijsearch(elats, latloc, .false.)
             ii(i) = iiloc
             jj(i) = jjloc
          end do
@@ -134,16 +132,15 @@ contains
 
    contains
 
-      integer function ijsearch(coords, idim, valueIn, periodic) ! fast bisection version
-         implicit none
+      integer function ijsearch(coords, valueIn, periodic) ! fast bisection version
          real(kind=ESMF_KIND_R8), intent(in) :: coords(:)
-         integer, intent(in) :: idim
          real, intent(inout) :: valueIn
          logical, intent(in) :: periodic
 
-         integer :: i, i1, i2, k
+         integer :: i, i1, i2, k, idim
          real :: value
 
+         idim = size(coords)
          value = valueIn
          if (periodic) then
             if (value > coords(idim)) value = value - 360.
@@ -334,8 +331,6 @@ contains
          call MAPL_GridGet(grid, im=im, jm=jm, _RC)
          OK = .true.
          ! check the edge of face 1 along longitude
-         ! call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER,farrayPtr=corner_lons,_RC)
-         ! call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER,farrayPtr=corner_lats,_RC)
          call MAPL_GridGet(grid, corners=corners, _RC)
          corner_lons = corners(:, :, 1)
          corner_lats = corners(:, :, 2)
@@ -440,7 +435,7 @@ contains
       where (n_s)
          lonRe = 0.0d0
          latRe = half_pi * sign(1.0d0, Zz)
-         elsewhere
+         else where
          lonRe = atan2(Yy, Xx)
          latRe = asin(Zz)
       end where
@@ -451,7 +446,7 @@ contains
 
       where (lonRe < 0)
          lonRe = lonRe + two_pi
-         elsewhere (lonRe >= two_pi)
+         else where (lonRe >= two_pi)
          lonRe = lonRe - two_pi
       end where
 
