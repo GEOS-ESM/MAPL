@@ -104,18 +104,27 @@ contains
       integer :: status
       type(GeomAspect) :: geom_aspect
 
-      aspect_ids = [ &
-           CLASS_ASPECT_ID, &
-           ATTRIBUTES_ASPECT_ID, &
-           UNGRIDDED_DIMS_ASPECT_ID, &
-           QUANTITY_TYPE_ASPECT_ID, &
-           NORMALIZATION_ASPECT_ID, &
-           GEOM_ASPECT_ID, &
-           VERTICAL_GRID_ASPECT_ID, &
-           INVERSE_NORMALIZATION_ASPECT_ID, &
-           UNITS_ASPECT_ID, &
-           TYPEKIND_ASPECT_ID &
+      geom_aspect = to_GeomAspect(goal_aspects, _RC)
+      if (geom_aspect%is_time_dependent()) then
+         ! must do time interpolation first
+         aspect_ids = [ &
+              ATTRIBUTES_ASPECT_ID, &
+              UNGRIDDED_DIMS_ASPECT_ID, &
+              QUANTITY_TYPE_ASPECT_ID, &
+              NORMALIZATION_ASPECT_ID, &
+              CLASS_ASPECT_ID, &
+              GEOM_ASPECT_ID &
            ]
+      else
+         aspect_ids = [ &
+              ATTRIBUTES_ASPECT_ID, &
+              UNGRIDDED_DIMS_ASPECT_ID, &
+              QUANTITY_TYPE_ASPECT_ID, &
+              NORMALIZATION_ASPECT_ID, &
+              GEOM_ASPECT_ID, &
+              CLASS_ASPECT_ID &
+           ]
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
