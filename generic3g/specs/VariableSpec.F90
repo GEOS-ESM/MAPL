@@ -25,6 +25,9 @@ module mapl3g_VariableSpec
    use mapl3g_VerticalRegridMethod
    use mapl3g_FrequencyAspect
    use mapl3g_TypekindAspect
+   use mapl3g_QuantityTypeAspect
+   use mapl3g_NormalizationAspect
+   use mapl3g_InverseNormalizationAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VectorBasisKind
@@ -387,6 +390,12 @@ contains
          call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
       type is (TypekindAspect)
          call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
+      type is (QuantityTypeAspect)
+         call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+      type is (NormalizationAspect)
+         call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
+      type is (InverseNormalizationAspect)
+         call aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
       class default
          _FAIL('Unsupported type')
       end select
@@ -446,9 +455,27 @@ contains
       aspect = this%make_AttributesAspect(_RC)
       call aspects%insert(ATTRIBUTES_ASPECT_ID, aspect)
 
+      ! Add QuantityType aspect (default: QUANTITY_UNKNOWN, not mirror)
+      if (allocated(aspect)) deallocate(aspect)
+      allocate(aspect, source=QuantityTypeAspect())
+      call aspect%set_mirror(.false.)  ! Explicit default value, not mirror
+      call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+
+      ! Add Normalization aspect (default: no normalization, not mirror)
+      if (allocated(aspect)) deallocate(aspect)
+      allocate(aspect, source=NormalizationAspect())
+      call aspect%set_mirror(.false.)  ! Explicit default value, not mirror
+      call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
+
       aspect = this%make_VerticalGridAspect(vertical_grid, &
            component_geom=component_geom, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
+
+      ! Add InverseNormalization aspect (default: no denormalization, not mirror)
+      if (allocated(aspect)) deallocate(aspect)
+      allocate(aspect, source=InverseNormalizationAspect())
+      call aspect%set_mirror(.false.)  ! Explicit default value, not mirror
+      call aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
 
       aspect = this%make_FrequencyAspect(timestep, offset, _RC)
       call aspects%insert(FREQUENCY_ASPECT_ID, aspect)

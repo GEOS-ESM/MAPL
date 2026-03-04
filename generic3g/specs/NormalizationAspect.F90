@@ -142,6 +142,9 @@ contains
          ! Match if normalization parameters match or if either is a mirror
          if (src%is_mirror() .or. dst%is_mirror()) then
             matches = .true.
+         else if (.not. allocated(src%aux_field_name) .and. .not. allocated(dst%aux_field_name)) then
+            ! Both have no normalization configured - they match
+            matches = .true.
          else if (allocated(src%aux_field_name) .and. allocated(dst%aux_field_name)) then
             matches = (src%aux_field_name == dst%aux_field_name) .and. &
                      (abs(src%scale_factor - dst%scale_factor) < 1e-10)
@@ -332,93 +335,137 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_target_units
 
-   subroutine update_from_payload(this, field, bundle, state, rc)
-      class(NormalizationAspect), intent(inout) :: this
-      type(esmf_Field), optional, intent(in) :: field
-      type(esmf_FieldBundle), optional, intent(in) :: bundle
-      type(esmf_State), optional, intent(in) :: state
-      integer, optional, intent(out) :: rc
+    subroutine update_from_payload(this, field, bundle, state, rc)
+       class(NormalizationAspect), intent(inout) :: this
+       type(esmf_Field), optional, intent(in) :: field
+       type(esmf_FieldBundle), optional, intent(in) :: bundle
+       type(esmf_State), optional, intent(in) :: state
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(NormalizationMetadata) :: norm_metadata
-      type(NormalizationType) :: norm_type
-      character(:), allocatable :: units
+       integer :: status
+       type(NormalizationMetadata) :: norm_metadata
+       type(NormalizationType) :: norm_type
+       character(:), allocatable :: units
 
-      _RETURN_UNLESS(present(field) .or. present(bundle))
+       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      ! Get NormalizationMetadata from field/bundle
-      if (present(field)) then
-         call MAPL_FieldGet(field, normalization_metadata=norm_metadata, _RC)
-      else if (present(bundle)) then
-         call MAPL_FieldBundleGet(bundle, normalization_metadata=norm_metadata, _RC)
-      end if
+       ! Get NormalizationMetadata from field/bundle
+       if (present(field)) then
+          call MAPL_FieldGet(field, normalization_metadata=norm_metadata, _RC)
+       else if (present(bundle)) then
+          call MAPL_FieldBundleGet(bundle, normalization_metadata=norm_metadata, _RC)
+       end if
 
-      ! Check if metadata indicates normalization is needed
-      if (norm_metadata%is_mirror()) then
-         call this%set_mirror(.true.)
-         _RETURN(_SUCCESS)
-      end if
+       ! Copy mirror flag from metadata (following UngriddedDimsAspect pattern)
+       call this%set_mirror(norm_metadata%is_mirror())
+       
+       ! If metadata is mirror, we're done (no parameters to extract)
+       _RETURN_IF(norm_metadata%is_mirror())
 
-      ! Get normalization parameters from metadata
-      norm_type = norm_metadata%get_normalization_type()
+       ! Get normalization parameters from metadata
+       norm_type = norm_metadata%get_normalization_type()
 
-      if (norm_type /= NORMALIZE_NONE) then
-         ! Field needs normalization/denormalization - extract parameters
-         this%aux_field_name = norm_metadata%get_aux_field_name()
-         this%scale_factor = norm_metadata%get_normalization_scale()
-         
-         ! Get source units
-         if (present(field)) then
-            call MAPL_FieldGet(field, units=units, _RC)
-         else if (present(bundle)) then
-            call MAPL_FieldBundleGet(bundle, units=units, _RC)
-         end if
-         this%source_units = units
-         
-         ! Compute target units (depends on is_inverse flag)
-         if (this%is_inverse) then
-            ! Denormalization: compute original units from normalized units
-            call compute_denormalized_units(this%source_units, this%aux_field_name, &
-                                          this%scale_factor, this%target_units, _RC)
-         else
-            ! Normalization: compute normalized units from original units
-            call compute_normalized_units(this%source_units, this%aux_field_name, &
-                                        this%scale_factor, this%target_units, _RC)
-         end if
-         
-         call this%set_mirror(.false.)
-      else
-         ! Field doesn't need normalization/denormalization
-         call this%set_mirror(.true.)
-      end if
+       if (norm_type /= NORMALIZE_NONE) then
+          ! Field needs normalization/denormalization - extract parameters
+          this%aux_field_name = norm_metadata%get_aux_field_name()
+          this%scale_factor = norm_metadata%get_normalization_scale()
+          
+           ! Get source units
+           if (present(field)) then
+              call MAPL_FieldGet(field, units=units, _RC)
+           else if (present(bundle)) then
+              call MAPL_FieldBundleGet(bundle, units=units, _RC)
+           end if
+           if (allocated(units)) then
+              this%source_units = units
+           else
+              this%source_units = ''  ! Default to empty string if units not set
+           end if
+          
+          ! Compute target units (depends on is_inverse flag)
+          if (this%is_inverse) then
+             ! Denormalization: compute original units from normalized units
+             call compute_denormalized_units(this%source_units, this%aux_field_name, &
+                                           this%scale_factor, this%target_units, _RC)
+          else
+             ! Normalization: compute normalized units from original units
+             call compute_normalized_units(this%source_units, this%aux_field_name, &
+                                         this%scale_factor, this%target_units, _RC)
+          end if
+       end if
+       ! Note: If norm_type == NORMALIZE_NONE and metadata is not mirror,
+       ! then mirror flag is already set to false above
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
    end subroutine update_from_payload
 
-   subroutine update_payload(this, field, bundle, state, rc)
-      class(NormalizationAspect), intent(in) :: this
-      type(esmf_Field), optional, intent(inout) :: field
-      type(esmf_FieldBundle), optional, intent(inout) :: bundle
-      type(esmf_State), optional, intent(inout) :: state
-      integer, optional, intent(out) :: rc
+    subroutine update_payload(this, field, bundle, state, rc)
+       class(NormalizationAspect), intent(in) :: this
+       type(esmf_Field), optional, intent(inout) :: field
+       type(esmf_FieldBundle), optional, intent(inout) :: bundle
+       type(esmf_State), optional, intent(inout) :: state
+       integer, optional, intent(out) :: rc
 
-      integer :: status
+       integer :: status
+       type(NormalizationMetadata) :: metadata
+       type(NormalizationType) :: norm_type
+       logical :: should_write
 
-      _RETURN_UNLESS(present(field) .or. present(bundle))
-      _RETURN_IF(this%is_mirror())
+       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      ! For now, NormalizationAspect doesn't directly modify the payload
-      ! The normalization/denormalization will be handled by transforms:
-      !   - NormalizationTransform (Task 2.2) for normalization
-      !   - InverseNormalizationTransform (Task 2.4) for denormalization
-      ! This aspect serves as metadata storage only in Phase 2
+       should_write = .false.
+       
+       ! Determine what to write based on aspect state
+       if (this%is_mirror()) then
+          ! Mirror aspect: always write mirror metadata
+          metadata = NormalizationMetadata()  ! Creates mirror metadata
+          should_write = .true.
+       else if (allocated(this%aux_field_name)) then
+          ! Non-mirror with explicit normalization: write it (overrides QuantityTypeAspect)
+          select case (trim(this%aux_field_name))
+          case ('DELP')
+             norm_type = NORMALIZE_DELP
+          case ('DZ')
+             norm_type = NORMALIZE_DZ
+          case default
+             norm_type = NORMALIZE_NONE
+          end select
+          
+          metadata = NormalizationMetadata( &
+               normalization_type=norm_type, &
+               normalization_scale=this%scale_factor, &
+               aux_field_name=this%aux_field_name)
+          should_write = .true.
+       else
+          ! Non-mirror with NO explicit normalization (default Category 1 state)
+          ! Check if QuantityTypeAspect already wrote non-mirror metadata
+          if (present(field)) then
+             call MAPL_FieldGet(field, normalization_metadata=metadata, _RC)
+          else if (present(bundle)) then
+             call MAPL_FieldBundleGet(bundle, normalization_metadata=metadata, _RC)
+          end if
+          
+          ! If existing metadata is mirror, we must write non-mirror NORMALIZE_NONE
+          ! Otherwise, leave it as-is (QuantityTypeAspect may have set it)
+          if (metadata%is_mirror()) then
+             metadata = NormalizationMetadata(NORMALIZE_NONE)
+             should_write = .true.
+          end if
+       end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(state)
-      _UNUSED_DUMMY(field)
-      _UNUSED_DUMMY(bundle)
-   end subroutine update_payload
+       ! Write metadata if needed
+       if (should_write) then
+          if (present(field)) then
+             call MAPL_FieldSet(field, normalization_metadata=metadata, _RC)
+          else if (present(bundle)) then
+             call MAPL_FieldBundleSet(bundle, normalization_metadata=metadata, _RC)
+          end if
+       end if
+
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(state)
+    end subroutine update_payload
 
    subroutine print_aspect(this, file, line, rc)
       class(NormalizationAspect), intent(in) :: this
