@@ -31,22 +31,21 @@ module mapl3g_VerticalGrid
       procedure(I_matches), deferred :: matches
    end type VerticalGrid
    
-   abstract interface
-      ! Existing interface
-      function I_get_coordinate_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
-         use mapl3g_ComponentDriver, only: ComponentDriver
-         use esmf, only: esmf_Field, esmf_Geom, esmf_TypeKind_Flag
-         import VerticalGrid
-         implicit none
-         type(esmf_Field) :: field
-         class(VerticalGrid), intent(in) :: this
-         type(esmf_Geom), intent(in) :: geom
-         character(len=*), intent(in) :: physical_dimension
-         character(len=*), intent(in) :: units
-         type(esmf_TypeKind_Flag), intent(in) :: typekind
-         class(ComponentDriver), pointer, intent(out) :: coupler
-         integer, intent(out), optional :: rc
-      end function I_get_coordinate_field
+    abstract interface
+       ! Updated interface - accepts aspects as unlimited polymorphic to avoid circular dependencies
+       ! Implementations should expect this to be type(AspectMap) from mapl3g_StateItemAspect
+       function I_get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
+          use mapl3g_ComponentDriver, only: ComponentDriver
+          use esmf, only: esmf_Field
+          import VerticalGrid
+          implicit none
+          type(esmf_Field) :: field
+          class(VerticalGrid), intent(in) :: this
+          character(len=*), intent(in) :: physical_dimension
+          class(*), intent(in) :: aspects
+          class(ComponentDriver), pointer, intent(out) :: coupler
+          integer, intent(out), optional :: rc
+       end function I_get_coordinate_field
       
       ! New interface for supported physical dimensions
       function I_get_supported_physical_dimensions(this) result(dimensions)
