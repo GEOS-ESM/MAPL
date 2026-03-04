@@ -4,10 +4,6 @@ set (srcs
   SurrogateFrameworkComponent.F90
   AbstractComponent.F90
 
-  StringCompositeMap.F90
-  ConcreteComposite.F90
-  CompositeComponent.F90
-
   # Specs
   VarSpecType.F90
   VarSpec.F90

@@ -68,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add test of units coupling
 - Add test of typekind coupling
 - Add tests of update_payload and update_from_payload for UnitsAspect
+- Add tests of update_payload and update_from_payload for GeomAspect
 
 ### Changed
 
@@ -106,12 +107,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed initialization of field in test_min_accumulate_R4` in `Test_MinTransform.pf`
 
 ## [Unreleased]
-
-- Introduced AGENTS.md to assist in using copilot for MAPL development
-- Introdcing a two-way generic python bridge exposing limited MAPL feature down in Python. The system is opt-in and uses
-dynamic loading of py package based on a user given string. It also provides with _some_ tooling, to be expanded upon, to
-make using Fortran-allocated memory transparent.
-
 
 ### Fixed
 
