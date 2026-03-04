@@ -24,6 +24,9 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_UngriddedDimsAspect
    use mapl3g_AttributesAspect
    use mapl3g_TypekindAspect
+   use mapl3g_QuantityTypeAspect
+   use mapl3g_NormalizationAspect
+   use mapl3g_InverseNormalizationAspect
    use mapl3g_VerticalGridAspect
    use pfio
    use esmf
@@ -213,6 +216,7 @@ contains
       type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
       type(esmf_Field), allocatable :: field_
+      class(StateItemAspect), allocatable :: aspect
 
       n = this%spec%physical_dimensions%size()
       do i = 1, n
@@ -233,6 +237,22 @@ contains
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDimS()))
       call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
+      
+      ! Add new aspects with mirror=false (Category 1 behavior)
+      allocate(aspect, source=QuantityTypeAspect())
+      call aspect%set_mirror(.false.)
+      call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+      
+      deallocate(aspect)
+      allocate(aspect, source=NormalizationAspect())
+      call aspect%set_mirror(.false.)
+      call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
+      
+      deallocate(aspect)
+      allocate(aspect, source=InverseNormalizationAspect())
+      call aspect%set_mirror(.false.)
+      call aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
+      
       call goal_spec%create(_RC)
       
       new_extension => this%registry%extend(v_pt, goal_spec, _RC)
