@@ -60,6 +60,7 @@ set (test_srcs
    Test_QuantityTypeAspect.pf
    Test_NormalizationAspect.pf
    Test_InverseNormalizationAspect.pf
+   Test_PolymorphicSetMirror.pf
    Test_2DConservativeRegrid.pf
 )
 
