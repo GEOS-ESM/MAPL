@@ -256,4 +256,118 @@ contains
 
    end subroutine test_compute_normalized_units_dz
 
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_then_from_payload_mirror(this)
+      ! Test roundtrip: mirror aspect -> field -> aspect (following UngriddedDimsAspect pattern)
+      use mapl3g_Field_API
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      ! Create mirror aspect
+      aspect1 = NormalizationAspect()
+      @assertTrue(aspect1%is_mirror(), 'aspect1 should be mirror')
+
+      ! Create field
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[10,10], _RC)
+      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='test', _RC)
+
+      ! Write aspect to field
+      call aspect1%update_payload(field=field, _RC)
+
+      ! Read back into new aspect
+      aspect2 = NormalizationAspect()
+      call aspect2%set_mirror(.false.)  ! Start with different state
+      call aspect2%update_from_payload(field=field, _RC)
+
+      ! Should now be mirror
+      @assertTrue(aspect2%is_mirror(), 'aspect2 should be mirror after update_from_payload')
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_then_from_payload_mirror
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_then_from_payload_non_mirror_empty(this)
+      ! Test roundtrip: non-mirror empty aspect -> field -> aspect
+      use mapl3g_Field_API
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      ! Create non-mirror aspect with no normalization (default Category 1 state)
+      aspect1 = NormalizationAspect()
+      call aspect1%set_mirror(.false.)
+      @assertFalse(aspect1%is_mirror(), 'aspect1 should not be mirror')
+
+      ! Create field
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[10,10], _RC)
+      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='test', _RC)
+
+      ! Write aspect to field (should write NORMALIZE_NONE metadata with is_mirror=false)
+      call aspect1%update_payload(field=field, _RC)
+
+      ! Read back into new aspect
+      aspect2 = NormalizationAspect()  ! Starts as mirror
+      @assertTrue(aspect2%is_mirror(), 'aspect2 should start as mirror')
+      call aspect2%update_from_payload(field=field, _RC)
+
+      ! Should now be non-mirror
+      @assertFalse(aspect2%is_mirror(), 'aspect2 should be non-mirror after update_from_payload')
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_then_from_payload_non_mirror_empty
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_then_from_payload_with_normalization(this)
+      ! Test roundtrip: aspect with normalization -> field -> aspect
+      use mapl3g_Field_API
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      character(:), allocatable :: aux_field
+      real :: scale
+      integer :: status
+
+      ! Create aspect with DELP normalization
+      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      @assertFalse(aspect1%is_mirror(), 'aspect1 should not be mirror when created with params')
+
+      ! Create field
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[10,10], _RC)
+      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='test', _RC)
+
+      ! Write aspect to field
+      call aspect1%update_payload(field=field, _RC)
+
+      ! Read back into new aspect
+      aspect2 = NormalizationAspect()  ! Starts as mirror
+      call aspect2%update_from_payload(field=field, _RC)
+
+      ! Should have same state as aspect1
+      @assertFalse(aspect2%is_mirror(), 'aspect2 should not be mirror')
+      aux_field = aspect2%get_aux_field_name(_RC)
+      @assertEqual('DELP', aux_field, 'aux_field_name should match')
+      scale = aspect2%get_scale_factor(_RC)
+      @assertTrue(abs(scale - 0.102) < 1.0e-6, 'scale_factor should match')
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_then_from_payload_with_normalization
+
 end module Test_NormalizationAspect
