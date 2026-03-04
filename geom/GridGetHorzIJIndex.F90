@@ -16,8 +16,8 @@ module mapl3g_GridGetHorzIJIndex
    use ESMF, only: ESMF_CoordSys_Flag, ESMF_COORDSYS_SPH_DEG, ESMF_COORDSYS_CART, operator(==)
    use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoIsPresent, ESMF_InfoGet
    use mapl3g_Geom_API, only: MAPL_GridGet
-   use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
-   use MAPL_Base, only: MAPL2_GridGetInterior => MAPL_GridGetInterior
+   ! use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
+   use MAPL_BaseMod, only: MAPL2_GridGet => MAPL_GridGet, MAPL2_GridGetInterior => MAPL_GridGetInterior
    use MAPL_Constants, only: MAPL_PI, MAPL_PI_R8, MAPL_DEGREES_TO_RADIANS_R8
    ! use MAPL_Grid, only: MAPL_GridGet, MAPL_GridGetInterior, MAPL_GridGetCorners
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Assert, MAPL_Return
@@ -45,8 +45,8 @@ contains
       type(ESMF_Grid), optional, intent(inout) :: grid ! ESMF grid
       integer, optional, intent(out) :: rc ! return code
 
-      integer :: im, jm, im_world, jm_world
-      integer, allocatable :: dims(:)
+      integer :: im, jm, dims(3), im_world, jm_world
+      ! integer, allocatable :: dims(:)
       real(kind=ESMF_KIND_R8), pointer :: lons(:, :)
       real(kind=ESMF_KIND_R8), pointer :: lats(:, :)
       real(kind=ESMF_KIND_R8), allocatable :: elons(:)
@@ -68,7 +68,8 @@ contains
       ! and assume search on the global domain
       if (present(grid)) then
          call MAPL_GridGet(grid, im=im, jm=jm, _RC)
-         call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=dims, _RC)
+         ! call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=dims, _RC)
+         call MAPL2_GridGet(grid, globalCellCountPerDim=dims, _RC)
          im_world = dims(1)
          jm_world = dims(2)
          local_search = .true.
@@ -197,8 +198,8 @@ contains
       integer, optional, intent(out) :: rc ! return code
 
       integer :: status
-      integer :: im_world, jm_world
-      integer, allocatable :: dims(:)
+      integer :: dims(3), im_world, jm_world
+      ! integer, allocatable :: dims(:)
       real(kind=ESMF_KIND_R8), allocatable, dimension(:, :) :: xyz
       real(kind=ESMF_KIND_R8), allocatable, dimension(:) :: x, y, z
       real(kind=ESMF_KIND_R8), allocatable :: max_abs(:)
@@ -215,7 +216,8 @@ contains
       if (.not.present(grid)) then
          _FAIL("need a cubed-sphere grid")
       end if
-      call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=dims, _RC)
+      ! call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=dims, _RC)
+      call MAPL2_GridGet(grid, globalCellCountPerDim=dims, _RC)
       im_world = dims(1)
       jm_world = dims(2)
       _ASSERT(im_world * 6 == jm_world, "It only works for cubed-sphere grid")
