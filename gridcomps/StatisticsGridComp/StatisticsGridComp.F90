@@ -26,9 +26,7 @@ module mapl3g_StatisticsGridComp
 contains
 
    subroutine setServices(gridComp, rc)
-      !type(esmf_GridComp), intent(inout) :: gridComp
       type(esmf_GridComp) :: gridComp
-      !integer, optional, intent(out) :: rc
       integer, intent(out) :: rc
 
       integer :: status
