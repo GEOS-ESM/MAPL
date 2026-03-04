@@ -411,8 +411,16 @@ contains
 
        ! Create metadata from aspect state
        if (this%is_mirror()) then
+          ! Mirror aspect: write mirror metadata
           metadata = NormalizationMetadata()  ! Creates mirror metadata
+          
+          if (present(field)) then
+             call MAPL_FieldSet(field, normalization_metadata=metadata, _RC)
+          else if (present(bundle)) then
+             call MAPL_FieldBundleSet(bundle, normalization_metadata=metadata, _RC)
+          end if
        else if (allocated(this%aux_field_name)) then
+          ! Non-mirror with explicit normalization: write normalization metadata
           ! Determine normalization type from aux_field_name
           select case (trim(this%aux_field_name))
           case ('DELP')
@@ -428,17 +436,15 @@ contains
                normalization_type=norm_type, &
                normalization_scale=this%scale_factor, &
                aux_field_name=this%aux_field_name)
-       else
-          ! Create non-mirror metadata with NORMALIZE_NONE
-          metadata = NormalizationMetadata(NORMALIZE_NONE)
+          
+          if (present(field)) then
+             call MAPL_FieldSet(field, normalization_metadata=metadata, _RC)
+          else if (present(bundle)) then
+             call MAPL_FieldBundleSet(bundle, normalization_metadata=metadata, _RC)
+          end if
        end if
-
-       ! Write metadata to field/bundle
-       if (present(field)) then
-          call MAPL_FieldSet(field, normalization_metadata=metadata, _RC)
-       else if (present(bundle)) then
-          call MAPL_FieldBundleSet(bundle, normalization_metadata=metadata, _RC)
-       end if
+       ! Note: If non-mirror with NO explicit normalization (default Category 1 state),
+       ! we don't write anything - leave metadata as-is (may have been set by QuantityTypeAspect)
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(state)
