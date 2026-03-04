@@ -370,13 +370,17 @@ contains
           this%aux_field_name = norm_metadata%get_aux_field_name()
           this%scale_factor = norm_metadata%get_normalization_scale()
           
-          ! Get source units
-          if (present(field)) then
-             call MAPL_FieldGet(field, units=units, _RC)
-          else if (present(bundle)) then
-             call MAPL_FieldBundleGet(bundle, units=units, _RC)
-          end if
-          this%source_units = units
+           ! Get source units
+           if (present(field)) then
+              call MAPL_FieldGet(field, units=units, _RC)
+           else if (present(bundle)) then
+              call MAPL_FieldBundleGet(bundle, units=units, _RC)
+           end if
+           if (allocated(units)) then
+              this%source_units = units
+           else
+              this%source_units = ''  ! Default to empty string if units not set
+           end if
           
           ! Compute target units (depends on is_inverse flag)
           if (this%is_inverse) then
