@@ -196,13 +196,11 @@ contains
       registry => this%registry
    end function get_registry
 
-   function get_coordinate_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
+   function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
       type(ESMF_Field) :: field
       class(ModelVerticalGrid), intent(in) :: this
       character(*), intent(in) :: physical_dimension
-      type(ESMF_Geom), intent(in) :: geom
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      character(*), intent(in) :: units
+      class(*), intent(in) :: aspects
       class(ComponentDriver), pointer, intent(out) :: coupler
       integer, optional, intent(out) :: rc
 
@@ -213,7 +211,7 @@ contains
       type(StateItemSpec), pointer :: new_extension
       type(StateItemSpec), pointer :: new_spec
       type(StateItemSpec), target :: goal_spec
-      type(AspectMap), pointer :: aspects
+      type(AspectMap), pointer :: goal_aspects
       class(StateItemAspect), pointer :: class_aspect
       type(esmf_Field), allocatable :: field_
       class(StateItemAspect), allocatable :: aspect
@@ -229,29 +227,32 @@ contains
 
       v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
 
-      aspects => goal_spec%get_aspects()
-      call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
-      call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
-      call aspects%insert(VERTICAL_GRID_ASPECT_ID, VerticalGridAspect(vertical_grid=this, vertical_stagger=VERTICAL_STAGGER_EDGE))
-      call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(typekind))
-      call aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
-      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDimS()))
-      call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
+      ! Copy all provided aspects to goal_spec
+      goal_aspects => goal_spec%get_aspects()
+      select type (aspects)
+      type is (AspectMap)
+         goal_aspects = aspects
+      class default
+         _FAIL('aspects must be of type AspectMap')
+      end select
+      
+      ! Add VerticalGridAspect (cannot be in input aspects due to aliasing)
+      call goal_aspects%insert(VERTICAL_GRID_ASPECT_ID, VerticalGridAspect(vertical_grid=this, vertical_stagger=VERTICAL_STAGGER_EDGE))
       
       ! Add new aspects with mirror=false (Category 1 behavior)
       allocate(aspect, source=QuantityTypeAspect())
       call aspect%set_mirror(.false.)
-      call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+      call goal_aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
       
       deallocate(aspect)
       allocate(aspect, source=NormalizationAspect())
       call aspect%set_mirror(.false.)
-      call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
+      call goal_aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
       
       deallocate(aspect)
       allocate(aspect, source=InverseNormalizationAspect())
       call aspect%set_mirror(.false.)
-      call aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
+      call goal_aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
       
       call goal_spec%create(_RC)
       

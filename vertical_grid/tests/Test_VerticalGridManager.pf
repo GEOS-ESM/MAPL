@@ -164,15 +164,13 @@ contains
    end subroutine test_manager_remove_nonexistent_grid
 
 
-   function mock_create_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
-      use esmf, only: esmf_Field, esmf_FieldEmptyCreate, esmf_TypeKind_Flag
+   function mock_create_field(this, physical_dimension, aspects, coupler, rc) result(field)
+      use esmf, only: esmf_Field, esmf_FieldEmptyCreate
       use mapl3g_ComponentDriver, only: ComponentDriver
       type(esmf_Field) :: field
       class(MockVerticalGrid), intent(in) :: this
-      type(esmf_Geom), intent(in) :: geom
       character(len=*), intent(in) :: physical_dimension
-      character(len=*), intent(in) :: units
-      type(esmf_TypeKind_Flag), intent(in) :: typekind
+      class(*), intent(in) :: aspects
       class(ComponentDriver), pointer, intent(out) :: coupler
       integer, intent(out), optional :: rc
       
