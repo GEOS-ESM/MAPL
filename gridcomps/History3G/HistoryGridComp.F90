@@ -6,6 +6,7 @@ module mapl3g_HistoryGridComp
    use mapl3g_HistoryGridComp_private
    use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices
    use MAPL_TimeStringConversion
+   use mapl3g_StatisticsGridComp, only: statistics_setServices => setServices
    use pFlogger, only: logger
 
    implicit none(type,external)
@@ -61,12 +62,14 @@ contains
          call add_child_ref_time(child_hconfig, _RC)
 
          child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep)
+
+         call add_stats_gc(gridcomp, child_name, child_hconfig, _RC)
          call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine setServices
-
+   
    subroutine get_child_timespec(hconfig, timeStep, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_TimeInterval), allocatable, intent(out) :: timeStep
