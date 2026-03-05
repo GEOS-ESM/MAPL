@@ -7,6 +7,7 @@ module Test_FieldDelta
    use mapl3g_UngriddedDim
    use mapl3g_InfoUtilities
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalGrid_API
    use mapl3g_FieldInfo
    use esmf
    use ESMF_TestMethod_mod
@@ -31,12 +32,17 @@ contains
       type(ESMF_FieldStatus_Flag) :: field_status
       type(ESMF_TypeKind_Flag) :: typekind
       type(FieldDelta) :: delta
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
       
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
 
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=ORIG_VGRID_LEVELS+1), _RC)
+
       f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
+      call MAPL_FieldSet(f, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
 
       delta = FieldDelta(typekind=ESMF_TYPEKIND_R8)
       call delta%reallocate_field(f, _RC)
@@ -64,11 +70,17 @@ contains
       type(ESMF_TypeKind_Flag) :: typekind
       real(kind=ESMF_KIND_R4), pointer :: x(:,:)
       type(FieldDelta) :: delta
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
       
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
+
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=ORIG_VGRID_LEVELS+1), _RC)
+
       f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
+      call MAPL_FieldSet(f, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
 
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
@@ -103,11 +115,17 @@ contains
       type(ESMF_TypeKind_Flag) :: typekind
       real(kind=ESMF_KIND_R4), pointer :: x(:,:)
       type(FieldDelta) :: delta
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
       
       grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom1 = ESMF_GeomCreate(grid1, _RC)
+
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=ORIG_VGRID_LEVELS+1), _RC)
+
       f = MAPL_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
+      call MAPL_FieldSet(f, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
 
       grid2 = ESMF_GridCreateNoPeriDim(maxIndex=[3,5], name='I_AM_GROOT', _RC)
       geom2 = ESMF_GeomCreate(grid2, _RC)
@@ -142,11 +160,17 @@ contains
       type(ESMF_TypeKind_Flag) :: typekind
       real(kind=ESMF_KIND_R4), pointer :: x(:,:)
       type(FieldDelta) :: delta
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
 
       grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom1 = ESMF_GeomCreate(grid1, _RC)
+
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=ORIG_VGRID_LEVELS+1), _RC)
+
       f = MAPL_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
+      call MAPL_FieldSet(f, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
 
@@ -184,17 +208,24 @@ contains
       real(ESMF_KIND_R4), pointer :: x(:,:,:,:)
       type(FieldDelta) :: delta
       integer, parameter :: NEW_NUM_LEVELS = 7
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid, new_vgrid
 
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
 
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=ORIG_VGRID_LEVELS), _RC)
+
       f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
            ungridded_dims=UngriddedDims([3]), &
-           num_levels=ORIG_VGRID_LEVELS, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
 
-      delta = FieldDelta(num_levels=NEW_NUM_LEVELS+1) ! edge
-      call delta%reallocate_field(f, _RC)
+      ! Note: Since FieldDelta no longer tracks num_levels changes directly,
+      ! vertical grid changes would be reflected through geom changes.
+      ! For this test, we'll use FieldSet to update the vgrid
+      new_vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NEW_NUM_LEVELS), _RC)
+      call MAPL_FieldSet(f, vgrid=new_vgrid, _RC)
       
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
@@ -228,14 +259,16 @@ contains
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
 
-      ! Surface field
+      ! Surface field - no vertical grid needed for surface fields
       f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
            ungridded_dims=UngriddedDims([2,3]), _RC)
-      call MAPL_FieldSet(f, num_levels=0, _RC)
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
 
-      delta = FieldDelta(num_levels=4)
+      ! Since FieldDelta no longer tracks num_levels, and surface fields
+      ! don't have vertical grids, there's nothing to change.
+      ! Surface fields remain unaffected by vertical grid changes.
+      delta = FieldDelta()
       call delta%reallocate_field(f, _RC)
 
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
@@ -268,18 +301,25 @@ contains
       type(ESMF_TypeKind_Flag) :: typekind
       type(FieldDelta) :: delta
       type(UngriddedDims) :: ungridded_dims
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
 
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
 
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=ORIG_VGRID_LEVELS), _RC)
+
       call ungridded_dims%add_dim(UngriddedDim(3))
       f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
-          num_levels=ORIG_VGRID_LEVELS,  ungridded_dims=ungridded_dims, &
-          vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+          ungridded_dims=ungridded_dims, &
+          vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
 
-      delta = FieldDelta(num_levels=ORIG_VGRID_LEVELS)
+      ! Since FieldDelta no longer tracks num_levels, an empty delta
+      ! should not reallocate
+      delta = FieldDelta()
       call delta%reallocate_field(f, _RC)
 
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, geom=other_geom, _RC)
@@ -312,6 +352,8 @@ contains
       real(ESMF_KIND_R8), pointer :: x8(:,:,:,:)
       type(ESMF_TypeKind_Flag) :: typekind
       type(FieldDelta) :: delta
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid, vgrid_ref
 
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
@@ -319,14 +361,20 @@ contains
       grid_ref = ESMF_GridCreateNoPeriDim(maxIndex=[7,7], name='I_AM_GROOT', _RC)
       geom_ref = ESMF_GeomCreate(grid_ref, _RC)
 
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=ORIG_VGRID_LEVELS), _RC)
+      vgrid_ref => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=ORIG_VGRID_LEVELS), _RC)
+
       f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
-           ungridded_dims=UngriddedDims([ORIG_VGRID_LEVELS,3]), _RC)
+           ungridded_dims=UngriddedDims([3]), &
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
 
       f_ref = MAPL_FieldCreate(geom_ref, typekind=ESMF_TYPEKIND_R8, name='in', &
-           ungridded_dims=UngriddedDims([ORIG_VGRID_LEVELS-1,3]), _RC)
+           ungridded_dims=UngriddedDims([3]), &
+           vgrid=vgrid_ref, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
 
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS, units=ORIGINAL_UNITS, _RC)
-      call MAPL_FieldSet(f_ref, num_levels=ORIG_VGRID_LEVELS, units=REFERENCE_UNITS, _RC)
+      call MAPL_FieldSet(f, units=ORIGINAL_UNITS, _RC)
+      call MAPL_FieldSet(f_ref, units=REFERENCE_UNITS, _RC)
 
       call delta%initialize(f, f_ref, _RC)
       call delta%update_field(f, ignore='geom', _RC)
@@ -339,7 +387,7 @@ contains
       call MAPL_FieldGet(f, units=new_units, _RC)
       @assertEqual(REFERENCE_UNITS, new_units)
 
-      ! check that field shape is changed due to new num levels
+      ! check that field shape is unchanged (same num levels)
       call ESMF_FieldGet(f, fArrayPtr=x8, _RC)
       @assert_that(shape(x8),is(equal_to([4,4,ORIG_VGRID_LEVELS,3])))
 
