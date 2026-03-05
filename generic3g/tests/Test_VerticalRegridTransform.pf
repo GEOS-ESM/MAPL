@@ -219,14 +219,19 @@ contains
        real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
        real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
        integer :: i, j, k, status
+       type(VerticalGridManager), pointer :: vgrid_manager
+       class(VerticalGrid), pointer :: vgrid
        
        ! Create ESMF_Geom from grid
        geom = ESMF_GeomCreate(grid, _RC)
        
+       vgrid_manager => get_vertical_grid_manager()
+       vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+       
         ! Create input vertical coordinate (DOWN aligned: decreasing values)
         ! E.g., pressure levels: 10mb at top (k=1) -> 1000mb at bottom (k=NZ)
         v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-             num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+             vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
        call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
        do k = 1, NZ
           do j = 1, NY
@@ -239,7 +244,7 @@ contains
         ! Create output vertical coordinate (UP aligned: increasing values)
         ! E.g., height levels: 0km at bottom (k=1) -> 100km at top (k=NZ)
         v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-             num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+             vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
        call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
        do k = 1, NZ
           do j = 1, NY
@@ -251,10 +256,10 @@ contains
        
        ! Create fields aligned with their respective grids
        f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-            num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
             vert_alignment=VALIGN_DOWN, _RC)
        f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-            num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
             vert_alignment=VALIGN_UP, _RC)
        
        ! Fill input field with test pattern
@@ -322,14 +327,19 @@ contains
        real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
        real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
        integer :: i, j, k, status
+       type(VerticalGridManager), pointer :: vgrid_manager
+       class(VerticalGrid), pointer :: vgrid
        
        ! Create ESMF_Geom from grid
        geom = ESMF_GeomCreate(grid, _RC)
        
+       vgrid_manager => get_vertical_grid_manager()
+       vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+       
         ! Create input vertical coordinate (DOWN aligned: pressure decreasing upward)
         ! 1000, 900, 800, ..., 100 mb (top = index 1 = 1000mb, bottom = index NZ = 100mb)
         v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-             num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+             vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
        call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
        do k = 1, NZ
           do j = 1, NY
@@ -342,7 +352,7 @@ contains
         ! Create output vertical coordinate (UP aligned: pressure increasing upward in array)
         ! 100, 200, ..., 1000 mb (bottom = index 1 = 100mb, top = index NZ = 1000mb)
         v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-             num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+             vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
        call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
        do k = 1, NZ
           do j = 1, NY
@@ -354,10 +364,10 @@ contains
        
        ! Create fields aligned with their respective grids
        f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-            num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
             vert_alignment=VALIGN_DOWN, _RC)
        f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-            num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
             vert_alignment=VALIGN_UP, _RC)
        
        ! Fill input field with test pattern
@@ -423,14 +433,19 @@ contains
        real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
        real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
        integer :: i, j, k, status
+       type(VerticalGridManager), pointer :: vgrid_manager
+       class(VerticalGrid), pointer :: vgrid
        
        ! Create ESMF_Geom from grid
        geom = ESMF_GeomCreate(grid, _RC)
        
+       vgrid_manager => get_vertical_grid_manager()
+       vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+       
         ! Create input vertical coordinate (DOWN aligned: height decreasing downward)
         ! 100, 90, 80, ..., 10 km (top = index 1 = 100km, bottom = index NZ = 10km)
         v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-             num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+             vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
        call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
        do k = 1, NZ
           do j = 1, NY
@@ -443,7 +458,7 @@ contains
         ! Create output vertical coordinate (UP aligned: height increasing upward in array)
         ! 10, 20, ..., 100 km (bottom = index 1 = 10km, top = index NZ = 100km)
         v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-             num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+             vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
        call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
        do k = 1, NZ
           do j = 1, NY
@@ -455,10 +470,10 @@ contains
        
        ! Create fields aligned with their respective grids
        f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-            num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
             vert_alignment=VALIGN_DOWN, _RC)
        f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-            num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
             vert_alignment=VALIGN_UP, _RC)
        
        ! Fill input field with test pattern
