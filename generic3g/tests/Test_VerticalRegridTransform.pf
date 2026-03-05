@@ -9,6 +9,7 @@ module Test_VerticalRegridTransform
    use mapl3g_VerticalCoordinateDirection
    use mapl3g_VerticalAlignment
    use mapl3g_FieldCreate, only: MAPL_FieldCreate
+   use mapl3g_VerticalGrid_API
    use mapl3g_StateItem
    use pfunit
    use esmf
@@ -39,13 +40,18 @@ contains
       type(ESMF_Geom) :: geom
       real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:), v_data(:,:,:)
       integer :: i, j, k, status
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
       
       ! Create ESMF_Geom from grid
       geom = ESMF_GeomCreate(grid, _RC)
       
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+      
       ! Create vertical coordinate field (same for input and output)
       v_coord = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-           num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
       call ESMF_FieldGet(v_coord, farrayPtr=v_data, _RC)
       do k = 1, NZ
          do j = 1, NY
@@ -57,10 +63,10 @@ contains
       
       ! Create input and output fields with MAPL metadata
       f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-           num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
       f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-           num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_UP, _RC)
       
       ! Fill input field with test pattern where vertical level is identifiable
@@ -122,13 +128,18 @@ contains
       type(ESMF_Geom) :: geom
       real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:), v_data(:,:,:)
       integer :: i, j, k, status
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
       
       ! Create ESMF_Geom from grid
       geom = ESMF_GeomCreate(grid, _RC)
       
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+      
       ! Create vertical coordinate field (same for input and output)
       v_coord = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-           num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
       call ESMF_FieldGet(v_coord, farrayPtr=v_data, _RC)
       do k = 1, NZ
          do j = 1, NY
@@ -140,10 +151,10 @@ contains
       
       ! Create input and output fields with MAPL metadata
       f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-           num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_UP, _RC)
       f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-           num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
       
       ! Fill input field with test pattern where vertical level is identifiable
