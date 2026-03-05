@@ -70,7 +70,7 @@ contains
 
       call esmf_FieldGet(field, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_COMPLETE) then
-         field_delta = FieldDelta(geom=geom, num_levels=num_levels, typekind=typekind, units=units)
+         field_delta = FieldDelta(geom=geom, typekind=typekind, units=units)
          call field_delta%update_field(field, _RC)
       end if
 
@@ -89,7 +89,6 @@ contains
            vgrid_id=vgrid_id, &
            vert_staggerloc=vert_staggerloc, &
            vert_alignment=vert_alignment, &
-           num_levels=num_levels, &
            typekind=typekind, &
            units=units, standard_name=standard_name, long_name=long_name, &
            ungridded_dims=ungridded_dims, &

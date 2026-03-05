@@ -230,7 +230,7 @@ contains
        call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
+           vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
            units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
            has_deferred_aspects=has_deferred_aspects, &
