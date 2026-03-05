@@ -216,7 +216,7 @@ module mapl3g_PrimaryExport
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
          call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
-                 typekind=ESMF_TYPEKIND_R4, num_levels=this%vcoord%num_levels, &
+                 typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
                  vert_staggerloc=VERTICAL_STAGGER_CENTER,  _RC)
       else
          _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))

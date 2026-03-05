@@ -2,9 +2,11 @@
 
 module mapl3g_FieldCreate
 
+   use mapl3g_VerticalGrid_API
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
+   use mapl3g_FieldSet
    use mapl3g_FieldGet
    use mapl3g_UngriddedDims
    use mapl3g_HorizontalDimsSpec
@@ -51,7 +53,7 @@ contains
         name, &
         gridToFieldMap, ungridded_dims, &
         ! Optional MAPL args
-        num_levels, vert_staggerloc, vert_alignment, &
+        vgrid, vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
         rc) result(field)
       type(ESMF_Field) :: field
@@ -61,7 +63,7 @@ contains
       character(*), optional, intent(in) :: name
       integer, optional, intent(in) :: gridToFieldMap(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
-      integer, optional, intent(in) :: num_levels
+      class(VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(len=*), optional, intent(in) :: units
@@ -70,13 +72,20 @@ contains
       integer, optional, intent(out) :: rc
 
       type(UngriddedDims) :: ungrd
+      integer :: num_levels
       integer :: status
 
       field = MAPL_FieldEmptyCreate(name=name, _RC)
-      call vertical_level_sanity_check(num_levels, vert_staggerloc, _RC)
+      call vertical_level_sanity_check(vgrid, vert_staggerloc, _RC)
 
       ungrd = UngriddedDims()
       if (present(ungridded_dims)) ungrd = ungridded_dims
+
+      ! Derive num_levels from vgrid if present
+      num_levels = 0
+      if (present(vgrid) .and. present(vert_staggerloc)) then
+         num_levels = vert_staggerloc%get_num_levels(vgrid%get_num_levels())
+      end if
 
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
       call MAPL_FieldEmptyComplete(field, &
@@ -84,6 +93,11 @@ contains
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
            units=units, standard_name=standard_name, long_name=long_name, &
            _RC)
+      
+      ! Set vgrid info
+      if (present(vgrid)) then
+         call FieldSet(field, vgrid=vgrid, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -231,7 +245,6 @@ contains
       call FieldInfoSetInternal(field_info, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc_, &
            vert_alignment=vert_alignment, &
            units=units, &
@@ -244,12 +257,12 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_empty_complete
 
-   subroutine vertical_level_sanity_check(num_levels, vertical_stagger, rc)
-      integer, optional, intent(in) :: num_levels
+   subroutine vertical_level_sanity_check(vgrid, vertical_stagger, rc)
+      class(VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       integer, optional, intent(out) :: rc
 
-      if (present(num_levels)) then
+      if (present(vgrid)) then
          _ASSERT(present(vertical_stagger), "vertical_stagger must be specified for 3D fields")
       end if
 
