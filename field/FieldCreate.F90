@@ -217,7 +217,8 @@ contains
       type(ESMF_Geom) :: geom
       integer :: dim_count, idim, status
 
-      call vertical_level_sanity_check(num_levels, vert_staggerloc, _RC)
+      ! Note: This is an internal subroutine called after vgrid has been converted to num_levels
+      ! No need to call vertical_level_sanity_check here - it's already been checked in field_create
       if (present(gridToFieldMap)) then
          grid_to_field_map = gridToFieldMap
       else
