@@ -43,25 +43,25 @@ module mapl3g_ModelVerticalGrid
       integer :: num_levels = -1
    end type ModelVerticalGridSpec
 
-   type, extends(VerticalGrid) :: ModelVerticalGrid
-      private
-      type(ModelVerticalGridSpec) :: spec
-      type(StateRegistry), pointer :: registry => null()
-   contains
-      procedure :: initialize
-      procedure :: get_num_levels
-      procedure :: get_units
-      procedure :: get_coordinate_field
+    type, extends(VerticalGrid) :: ModelVerticalGrid
+       private
+       type(ModelVerticalGridSpec) :: spec
+       type(StateRegistry), pointer :: registry => null()
+    contains
+       procedure :: initialize
+       procedure :: get_num_layers
+       procedure :: get_units
+       procedure :: get_coordinate_field
 !#      procedure :: is_identical_to
-      procedure :: write_formatted
-      procedure :: get_supported_physical_dimensions
-      procedure :: matches
+       procedure :: write_formatted
+       procedure :: get_supported_physical_dimensions
+       procedure :: matches
 
-      ! subclass-specific methods
-      procedure :: add_field
-      procedure :: set_registry
-      procedure :: get_registry
-   end type ModelVerticalGrid
+       ! subclass-specific methods
+       procedure :: add_field
+       procedure :: set_registry
+       procedure :: get_registry
+    end type ModelVerticalGrid
 
    ! Factory type
    type, extends(VerticalGridFactory) :: ModelVerticalGridFactory
@@ -121,10 +121,10 @@ contains
    end function new_ModelVerticalGrid_basic
 
 
-   integer function get_num_levels(this) result(num_levels)
+   integer function get_num_layers(this) result(num_layers)
       class(ModelVerticalGrid), intent(in) :: this
-      num_levels = this%spec%num_levels
-   end function get_num_levels
+      num_layers = this%spec%num_levels
+   end function get_num_layers
 
    function get_units(this, physical_dimension, rc) result(units)
       character(:), allocatable :: units
@@ -299,7 +299,7 @@ contains
       class(ModelVerticalGrid), intent(in) :: this
       class(VerticalGrid), intent(in) :: other
 
-      matches = this%get_num_levels() == other%get_num_levels()
+      matches = this%get_num_layers() == other%get_num_layers()
       if (.not. matches) return
 
       select type (other)

@@ -536,7 +536,7 @@ contains
       ! Derive num_levels from vgrid
       vgrid_manager => get_vertical_grid_manager()
       vgrid_ptr => vgrid_manager%get_grid(id=vgrid_id_local, _RC)
-      num_vgrid_levels_local = vgrid_ptr%get_num_levels()
+      num_vgrid_levels_local = vgrid_ptr%get_num_layers()
       num_levels_local = vert_staggerloc_local%get_num_levels(num_vgrid_levels_local)
 
       ! Set output values

@@ -25,17 +25,17 @@ module mapl3g_BasicVerticalGrid
    end type BasicVerticalGridSpec
 
    ! Grid type
-   type, extends(VerticalGrid) :: BasicVerticalGrid
-      private
-      type(BasicVerticalGridSpec) :: spec
-   contains
-      procedure :: initialize
-      procedure :: get_num_levels
-      procedure :: get_coordinate_field
-      procedure :: get_supported_physical_dimensions
-      procedure :: get_units
-      procedure :: matches
-   end type BasicVerticalGrid
+    type, extends(VerticalGrid) :: BasicVerticalGrid
+       private
+       type(BasicVerticalGridSpec) :: spec
+    contains
+       procedure :: initialize
+       procedure :: get_num_layers
+       procedure :: get_coordinate_field
+       procedure :: get_supported_physical_dimensions
+       procedure :: get_units
+       procedure :: matches
+    end type BasicVerticalGrid
 
    ! Factory type
    type, extends(VerticalGridFactory) :: BasicVerticalGridFactory
@@ -59,12 +59,12 @@ contains
       ! Default coordinate direction is already set to VCOORD_DIRECTION_DOWN in VerticalGrid
    end subroutine initialize
 
-   function get_num_levels(this) result(num_levels)
-      integer :: num_levels
+   function get_num_layers(this) result(num_layers)
+      integer :: num_layers
       class(BasicVerticalGrid), intent(in) :: this
 
-      num_levels = this%spec%num_levels
-   end function get_num_levels
+      num_layers = this%spec%num_levels
+   end function get_num_layers
 
    function get_coordinate_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
       type(esmf_Field) :: field
@@ -116,7 +116,7 @@ contains
       class(BasicVerticalGrid), intent(in) :: this
       class(VerticalGrid), intent(in) :: other
 
-      matches = this%get_num_levels() == other%get_num_levels()
+      matches = this%get_num_layers() == other%get_num_layers()
    end function matches
 
    ! Factory methods

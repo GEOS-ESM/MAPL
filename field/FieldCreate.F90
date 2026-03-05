@@ -84,7 +84,7 @@ contains
       ! Derive num_levels from vgrid if present
       num_levels = 0
       if (present(vgrid) .and. present(vert_staggerloc)) then
-         num_levels = vert_staggerloc%get_num_levels(vgrid%get_num_levels())
+         num_levels = vert_staggerloc%get_num_levels(vgrid%get_num_layers())
       end if
 
       call ESMF_FieldEmptySet(field, geom=geom, _RC)

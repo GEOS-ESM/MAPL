@@ -20,11 +20,11 @@ module mapl3g_VerticalGrid
       procedure :: set_id
       procedure :: get_coordinate_direction
       procedure :: set_coordinate_direction
-      procedure(I_get_coordinate_field), deferred :: get_coordinate_field
-      procedure(I_get_supported_physical_dimensions), deferred :: get_supported_physical_dimensions
-      procedure(I_get_units), deferred :: get_units
-      procedure(I_get_num_levels), deferred :: get_num_levels
-      procedure(I_matches), deferred :: matches
+       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
+       procedure(I_get_supported_physical_dimensions), deferred :: get_supported_physical_dimensions
+       procedure(I_get_units), deferred :: get_units
+       procedure(I_get_num_layers), deferred :: get_num_layers
+       procedure(I_matches), deferred :: matches
    end type VerticalGrid
    
    abstract interface
@@ -63,11 +63,11 @@ module mapl3g_VerticalGrid
          integer, optional, intent(out) :: rc
       end function I_get_units
 
-      integer function I_get_num_levels(this) result(num_levels)
+      integer function I_get_num_layers(this) result(num_layers)
          import VerticalGrid
          implicit none
          class(VerticalGrid), intent(in) :: this
-      end function I_get_num_levels
+      end function I_get_num_layers
 
       function I_matches(this, other) result(matches)
          import VerticalGrid

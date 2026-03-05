@@ -30,19 +30,19 @@ module mapl3g_FixedLevelsVerticalGrid
    end type FixedLevelsVerticalGridSpec
    
    ! Grid type
-   type, extends(VerticalGrid) :: FixedLevelsVerticalGrid
-      private
-      type(FixedLevelsVerticalGridSpec) :: spec
-   contains
-      procedure :: initialize
-      procedure :: get_levels
-      procedure :: get_physical_dimension
-      procedure :: get_units
-      procedure :: get_num_levels
-      procedure :: get_coordinate_field
-      procedure :: get_supported_physical_dimensions
-      procedure :: matches
-   end type FixedLevelsVerticalGrid
+    type, extends(VerticalGrid) :: FixedLevelsVerticalGrid
+       private
+       type(FixedLevelsVerticalGridSpec) :: spec
+    contains
+       procedure :: initialize
+       procedure :: get_levels
+       procedure :: get_physical_dimension
+       procedure :: get_units
+       procedure :: get_num_layers
+       procedure :: get_coordinate_field
+       procedure :: get_supported_physical_dimensions
+       procedure :: matches
+    end type FixedLevelsVerticalGrid
    
    ! Factory type
    type, extends(VerticalGridFactory) :: FixedLevelsVerticalGridFactory
@@ -108,12 +108,12 @@ contains
       _RETURN(_SUCCESS)
    end function get_units
 
-   function get_num_levels(this) result(num_levels)
-      integer :: num_levels
+   function get_num_layers(this) result(num_layers)
+      integer :: num_layers
       class(FixedLevelsVerticalGrid), intent(in) :: this
 
-      num_levels = size(this%spec%levels)
-   end function get_num_levels
+      num_layers = size(this%spec%levels)
+   end function get_num_layers
 
    function get_coordinate_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
       type(esmf_Field) :: field
@@ -161,7 +161,7 @@ contains
       class(FixedLevelsVerticalGrid), intent(in) :: this
       class(VerticalGrid), intent(in) :: other
 
-      matches = this%get_num_levels() == other%get_num_levels()
+      matches = this%get_num_layers() == other%get_num_layers()
       if (.not. matches) return
 
       select type (other)
