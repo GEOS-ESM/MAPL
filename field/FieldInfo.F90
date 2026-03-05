@@ -274,36 +274,7 @@ contains
 
       ! Derive num_levels from vgrid_id + vert_staggerloc
       if (present(num_levels) .or. present(num_vgrid_levels)) then
-         integer :: vgrid_id_local
-         type(VerticalGridManager), pointer :: vgrid_manager
-         class(VerticalGrid), pointer :: vgrid_ptr
-         integer :: num_vgrid_levels_local
-         
-         ! Get vgrid_id
-         call esmf_InfoGet(info, namespace_ // KEY_VGRID_ID, &
-              vgrid_id_local, default=VERTICAL_GRID_NOT_FOUND, _RC)
-         
-         if (vgrid_id_local /= VERTICAL_GRID_NOT_FOUND) then
-            ! Get vert_staggerloc
-            character(:), allocatable :: vert_staggerloc_str_local
-            type(VerticalStaggerLoc) :: vert_staggerloc_local
-            
-            call MAPL_InfoGet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc_str_local, _RC)
-            vert_staggerloc_local = VerticalStaggerLoc(vert_staggerloc_str_local)
-            
-            ! Derive num_levels from vgrid
-            vgrid_manager => get_vertical_grid_manager()
-            vgrid_ptr => vgrid_manager%get_grid(id=vgrid_id_local, _RC)
-            num_vgrid_levels_local = vgrid_ptr%get_num_levels()
-            num_levels_ = vert_staggerloc_local%get_num_levels(num_vgrid_levels_local)
-            
-            if (present(num_levels)) num_levels = num_levels_
-            if (present(num_vgrid_levels)) num_vgrid_levels = num_vgrid_levels_local
-         else
-            ! No vertical grid
-            if (present(num_levels)) num_levels = 0
-            if (present(num_vgrid_levels)) num_vgrid_levels = 0
-         end if
+         call derive_num_levels_from_vgrid(info, namespace_, num_levels, num_vgrid_levels, _RC)
       end if
 
       if (present(vert_staggerloc) .and. .not. present(num_levels) .and. .not. present(num_vgrid_levels)) then
@@ -530,5 +501,49 @@ contains
       end select
 
    end function to_typekind
+
+   subroutine derive_num_levels_from_vgrid(info, namespace, num_levels, num_vgrid_levels, rc)
+      type(ESMF_Info), intent(in) :: info
+      character(*), intent(in) :: namespace
+      integer, optional, intent(out) :: num_levels
+      integer, optional, intent(out) :: num_vgrid_levels
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: vgrid_id_local
+      integer :: num_vgrid_levels_local
+      integer :: num_levels_local
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid_ptr
+      character(:), allocatable :: vert_staggerloc_str
+      type(VerticalStaggerLoc) :: vert_staggerloc_local
+
+      ! Get vgrid_id
+      call esmf_InfoGet(info, namespace // KEY_VGRID_ID, &
+           vgrid_id_local, default=VERTICAL_GRID_NOT_FOUND, _RC)
+
+      ! Early return for no vertical grid
+      if (vgrid_id_local == VERTICAL_GRID_NOT_FOUND) then
+         if (present(num_levels)) num_levels = 0
+         if (present(num_vgrid_levels)) num_vgrid_levels = 0
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Get vert_staggerloc
+      call MAPL_InfoGet(info, namespace // KEY_VERT_STAGGERLOC, vert_staggerloc_str, _RC)
+      vert_staggerloc_local = VerticalStaggerLoc(vert_staggerloc_str)
+
+      ! Derive num_levels from vgrid
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid_ptr => vgrid_manager%get_grid(id=vgrid_id_local, _RC)
+      num_vgrid_levels_local = vgrid_ptr%get_num_levels()
+      num_levels_local = vert_staggerloc_local%get_num_levels(num_vgrid_levels_local)
+
+      ! Set output values
+      if (present(num_levels)) num_levels = num_levels_local
+      if (present(num_vgrid_levels)) num_vgrid_levels = num_vgrid_levels_local
+
+      _RETURN(_SUCCESS)
+   end subroutine derive_num_levels_from_vgrid
 
 end module mapl3g_FieldInfo
