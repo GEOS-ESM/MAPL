@@ -141,12 +141,9 @@ contains
        stat_item = ESMF_HConfigCreate(_RC)
            
            ! Add fields to this stat item
-       call ESMF_HConfigAdd(stat_item, trim(name), AddKeyString="name", _RC)
-           
-       call ESMF_HConfigAdd(stat_item, trim(action), AddkeyString="action", _RC)
-           
-       call ESMF_HConfigAdd(stat_item, trim(period), AddKeyString="period", _RC)
-           
+       call ESMF_HConfigAdd(stat_item, trim(name), AddKeyString="name", _RC)     
+       call ESMF_HConfigAdd(stat_item, trim(action), AddkeyString="action", _RC)    
+       call ESMF_HConfigAdd(stat_item, trim(period), AddKeyString="period", _RC)   
        call ESMF_HConfigAdd(stat_item, trim(offset), AddKeyString="offset", _RC)
            
        _RETURN(_SUCCESS)
