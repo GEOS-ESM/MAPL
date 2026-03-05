@@ -99,29 +99,30 @@ contains
       time_hconfig = ESMF_HConfigCreateAt(child_hconfig, keyString='time_spec', _RC)
       has_mode = ESMF_HConfigIsDefined(time_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
       has_frequency = ESMF_HConfigIsDefined(time_hconfig, keyString='frequency', _RC)
-      if (has_mode) then
-         mode = ESMF_HConfigAsString(time_hconfig, keyString='mode', _RC)
-         _RETURN_IF(mode == 'instantaneous')
-         _ASSERT(has_frequency, 'requested statitics performed on collection: '//child_name//' but did not provide frequency of the collection')
 
-         stats_hconfig = ESMF_HConfigCreate(_RC)
-         stats_list = ESMF_HConfigCreate(_RC)
-         frequency = ESMF_HConfigAsString(time_hconfig, keyString='frequency', _RC)
-         var_list = ESMF_HConfigCreateAt(child_hconfig, keyString=VAR_LIST_KEY, _RC)
-         iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
-         iter_end = ESMF_HConfigIterEnd(var_list,_RC)
-         iter = iter_begin
-         do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
-            _VERIFY(status)
-            call parse_item(iter, short_name=short_name, name_in_comp=name_in_comp, _RC)
-            stat_item = create_stats_entry(short_name, mode, frequency, 'PT0H', _RC)
-            call ESMF_HConfigAdd(stats_list, stat_item, _RC)
-            call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
-         enddo
-         call ESMF_HConfigAdd(stats_hconfig, stats_list, addKeyString='stats', _RC)
-         child_spec = ChildSpec(user_setservices(statistics_setServices),hconfig=stats_hconfig)
-         call MAPL_GridCompAddChild(gridcomp,'stats_'//child_name, child_spec, _RC)
-      end if
+      _RETURN_UNLESS(has_mode)
+
+      mode = ESMF_HConfigAsString(time_hconfig, keyString='mode', _RC)
+      _RETURN_IF(mode == 'instantaneous')
+      _ASSERT(has_frequency, 'requested statitics performed on collection: '//child_name//' but did not provide frequency of the collection')
+
+      stats_hconfig = ESMF_HConfigCreate(_RC)
+      stats_list = ESMF_HConfigCreate(_RC)
+      frequency = ESMF_HConfigAsString(time_hconfig, keyString='frequency', _RC)
+      var_list = ESMF_HConfigCreateAt(child_hconfig, keyString=VAR_LIST_KEY, _RC)
+      iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
+      iter_end = ESMF_HConfigIterEnd(var_list,_RC)
+      iter = iter_begin
+      do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
+         _VERIFY(status)
+         call parse_item(iter, short_name=short_name, name_in_comp=name_in_comp, _RC)
+         stat_item = create_stats_entry(short_name, mode, frequency, 'PT0H', _RC)
+         call ESMF_HConfigAdd(stats_list, stat_item, _RC)
+         call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
+      enddo
+      call ESMF_HConfigAdd(stats_hconfig, stats_list, addKeyString='stats', _RC)
+      child_spec = ChildSpec(user_setservices(statistics_setServices),hconfig=stats_hconfig)
+      call MAPL_GridCompAddChild(gridcomp,'stats_'//child_name, child_spec, _RC)
 
       _RETURN(_SUCCESS)
 
