@@ -4,6 +4,7 @@ module Test_RegridderManager
    use pfunit
    use mapl3g_FieldCreate
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalGrid_API
    use mapl3g_regridder_mgr
    use mapl3g_Geom_API
    use mapl3g_FieldBundle_API
@@ -48,10 +49,14 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x(:,:)
       real(kind=ESMF_KIND_R4), pointer :: x_3d(:,:,:)
       integer :: status
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
 
       
       if (present(lm)) then
-         field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, num_levels=lm, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+         vgrid_manager => get_vertical_grid_manager()
+         vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=lm), _RC)
+         field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
          call ESMF_FieldGet(field, farrayptr=x_3d, _RC)
          x_3d = value
       else
