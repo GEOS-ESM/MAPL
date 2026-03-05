@@ -217,9 +217,10 @@ contains
       vgrid_manager => get_vertical_grid_manager()
       vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=ORIG_VGRID_LEVELS), _RC)
 
+      ! BasicVerticalGrid only supports CENTER staggering
       f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
            ungridded_dims=UngriddedDims([3]), &
-           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
 
       ! Note: Since FieldDelta no longer tracks num_levels changes directly,
       ! vertical grid changes would be reflected through geom changes.
@@ -232,7 +233,7 @@ contains
       @assert_that(typekind == ESMF_TYPEKIND_R4, is(true()))
 
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
-      @assert_that(shape(x), is(equal_to([4,4,NEW_NUM_LEVELS+1,3])))
+      @assert_that(shape(x), is(equal_to([4,4,NEW_NUM_LEVELS,3])))
 
       call ESMF_FieldDestroy(f, _RC)
       call ESMF_GridDestroy(grid, _RC)
