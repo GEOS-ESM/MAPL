@@ -541,14 +541,20 @@ contains
        integer :: i, j, k, status
        integer, parameter :: NZ_IN = 8
        integer, parameter :: NZ_OUT = 9
+       type(VerticalGridManager), pointer :: vgrid_manager
+       class(VerticalGrid), pointer :: vgrid_in, vgrid_out
        
        ! Create ESMF_Geom from grid
        geom = ESMF_GeomCreate(grid, _RC)
        
+       vgrid_manager => get_vertical_grid_manager()
+       vgrid_in => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
+       vgrid_out => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
+       
         ! Create input vertical coordinate (DOWN aligned: pressure, 8 levels)
         ! 1000, 850, 700, 550, 400, 250, 100, 10 mb
         v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-             num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+             vgrid=vgrid_in, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
        call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
        v_in(:,:,1) = 1000.0
        v_in(:,:,2) = 850.0
@@ -562,7 +568,7 @@ contains
         ! Create output vertical coordinate (DOWN aligned: pressure, 9 levels)
         ! 900, 800, 700, 600, 500, 400, 300, 200, 100 mb
         v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-             num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+             vgrid=vgrid_out, vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
        call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
        do k = 1, NZ_OUT
           v_out(:,:,k) = real(1000 - (k-1)*100, ESMF_KIND_R4)
@@ -570,10 +576,10 @@ contains
        
        ! Create fields aligned with their respective grids (both DOWN)
        f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-            num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vgrid=vgrid_in, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
             vert_alignment=VALIGN_DOWN, _RC)
        f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
-            num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vgrid=vgrid_out, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
             vert_alignment=VALIGN_DOWN, _RC)
        
        ! Fill input field with a linear profile in pressure
