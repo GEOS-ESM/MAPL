@@ -519,14 +519,12 @@ contains
 
       is_instantaneous = .true.
       has_time_spec = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIME_SPEC, _RC)
-      if (has_time_spec) then
-         mode = KEY_INSTANTANEOUS
-         has_mode = ESMF_HConfigIsDefined(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
-         if (has_mode) then
-            mode = ESMF_HConfigAsString(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
-         end if
-         is_instantaneous = mode .eq. KEY_INSTANTANEOUS
-      end if
+      _RETURN_UNLESS(has_time_spec)
+      mode = KEY_INSTANTANEOUS
+      has_mode = ESMF_HConfigIsDefined(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
+      _RETURN_UNLESS(has_mode)
+      mode = ESMF_HConfigAsString(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
+      is_instantaneous = mode == KEY_INSTANTANEOUS
       _RETURN(_SUCCESS)
    end function
 
