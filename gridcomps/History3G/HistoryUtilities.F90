@@ -69,7 +69,7 @@ contains
          temp_string = replace_delimiter(short_name)
          slash_loc = index(temp_string, '/')
          name_in_comp = temp_string
-         if (slash_loc .gt. 0) then
+         if (slash_loc > 0) then
             name_in_comp = temp_string(slash_loc+1:)
          end if
       end if
