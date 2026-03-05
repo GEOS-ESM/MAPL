@@ -181,30 +181,31 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
 
-   subroutine field_info_get_internal(info, unusable, &
-        namespace, &
-        typekind, &
-        horizontal_dims_spec, &
-        vgrid_id, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
-        units, &
-        long_name, standard_name, &
-        ungridded_dims, &
-        quantity_type_metadata, &
-        allocation_status, &
-        has_deferred_aspects, &
-        regridder_param_info, &
-        rc)
+    subroutine field_info_get_internal(info, unusable, &
+         namespace, &
+         typekind, &
+         horizontal_dims_spec, &
+         vgrid_id, num_levels, num_layers, vert_staggerloc, vert_alignment, num_vgrid_levels, &
+         units, &
+         long_name, standard_name, &
+         ungridded_dims, &
+         quantity_type_metadata, &
+         allocation_status, &
+         has_deferred_aspects, &
+         regridder_param_info, &
+         rc)
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-      type(esmf_TypeKind_Flag), optional, intent(out) :: typekind
-      type(HorizontalDimsSpec), optional, intent(out) :: horizontal_dims_spec
-      integer, optional, intent(out) :: vgrid_id
-      integer, optional, intent(out) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
-      type(VerticalAlignment), optional, intent(out) :: vert_alignment
-      integer, optional, intent(out) :: num_vgrid_levels
-      character(:), optional, allocatable, intent(out) :: units
+       type(esmf_TypeKind_Flag), optional, intent(out) :: typekind
+       type(HorizontalDimsSpec), optional, intent(out) :: horizontal_dims_spec
+       integer, optional, intent(out) :: vgrid_id
+       integer, optional, intent(out) :: num_levels
+       integer, optional, intent(out) :: num_layers
+       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+       type(VerticalAlignment), optional, intent(out) :: vert_alignment
+       integer, optional, intent(out) :: num_vgrid_levels
+       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
@@ -272,10 +273,10 @@ contains
          end if
       end if
 
-      ! Derive num_levels from vgrid_id + vert_staggerloc
-      if (present(num_levels) .or. present(num_vgrid_levels)) then
-         call derive_num_levels_from_vgrid(info, namespace_, num_levels, num_vgrid_levels, _RC)
-      end if
+       ! Derive num_levels from vgrid_id + vert_staggerloc
+       if (present(num_levels) .or. present(num_layers) .or. present(num_vgrid_levels)) then
+          call derive_num_levels_from_vgrid(info, namespace_, num_levels, num_layers, num_vgrid_levels, _RC)
+       end if
 
       if (present(vert_staggerloc) .and. .not. present(num_levels) .and. .not. present(num_vgrid_levels)) then
          call MAPL_InfoGet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc_str, _RC)
@@ -502,12 +503,13 @@ contains
 
    end function to_typekind
 
-   subroutine derive_num_levels_from_vgrid(info, namespace, num_levels, num_vgrid_levels, rc)
-      type(ESMF_Info), intent(in) :: info
-      character(*), intent(in) :: namespace
-      integer, optional, intent(out) :: num_levels
-      integer, optional, intent(out) :: num_vgrid_levels
-      integer, optional, intent(out) :: rc
+    subroutine derive_num_levels_from_vgrid(info, namespace, num_levels, num_layers, num_vgrid_levels, rc)
+       type(ESMF_Info), intent(in) :: info
+       character(*), intent(in) :: namespace
+       integer, optional, intent(out) :: num_levels
+       integer, optional, intent(out) :: num_layers
+       integer, optional, intent(out) :: num_vgrid_levels
+       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: vgrid_id_local
@@ -522,12 +524,13 @@ contains
       call esmf_InfoGet(info, namespace // KEY_VGRID_ID, &
            vgrid_id_local, default=VERTICAL_GRID_NOT_FOUND, _RC)
 
-      ! Early return for no vertical grid
-      if (vgrid_id_local == VERTICAL_GRID_NOT_FOUND) then
-         if (present(num_levels)) num_levels = 0
-         if (present(num_vgrid_levels)) num_vgrid_levels = 0
-         _RETURN(_SUCCESS)
-      end if
+       ! Early return for no vertical grid
+       if (vgrid_id_local == VERTICAL_GRID_NOT_FOUND) then
+          if (present(num_levels)) num_levels = 0
+          if (present(num_layers)) num_layers = 0
+          if (present(num_vgrid_levels)) num_vgrid_levels = 0
+          _RETURN(_SUCCESS)
+       end if
 
       ! Get vert_staggerloc
       call MAPL_InfoGet(info, namespace // KEY_VERT_STAGGERLOC, vert_staggerloc_str, _RC)
@@ -539,9 +542,10 @@ contains
       num_vgrid_levels_local = vgrid_ptr%get_num_layers()
       num_levels_local = vert_staggerloc_local%get_num_levels(num_vgrid_levels_local)
 
-      ! Set output values
-      if (present(num_levels)) num_levels = num_levels_local
-      if (present(num_vgrid_levels)) num_vgrid_levels = num_vgrid_levels_local
+       ! Set output values
+       if (present(num_levels)) num_levels = num_levels_local
+       if (present(num_layers)) num_layers = num_vgrid_levels_local
+       if (present(num_vgrid_levels)) num_vgrid_levels = num_vgrid_levels_local
 
       _RETURN(_SUCCESS)
    end subroutine derive_num_levels_from_vgrid
