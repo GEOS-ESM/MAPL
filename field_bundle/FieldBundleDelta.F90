@@ -47,16 +47,15 @@ module mapl3g_FieldBundleDelta
 
 contains
 
-   function new_FieldBundleDelta(fieldCount, geom, typekind, num_levels, units, interpolation_weights) result(bundle_delta)
+   function new_FieldBundleDelta(fieldCount, geom, typekind, units, interpolation_weights) result(bundle_delta)
       type(FieldBundleDelta) :: bundle_delta
       integer, optional, intent(in) :: fieldCount
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      integer, optional, intent(in) :: num_levels
       character(*), optional, intent(in) :: units
       real(ESMF_KIND_R4), intent(in), optional :: interpolation_weights(:)
 
-      associate (field_delta => FieldDelta(geom=geom, typekind=typekind, num_levels=num_levels, units=units))
+      associate (field_delta => FieldDelta(geom=geom, typekind=typekind, units=units))
         bundle_delta = FieldBundleDelta(field_delta, fieldCount, interpolation_weights)
       end associate
    end function new_FieldBundleDelta
