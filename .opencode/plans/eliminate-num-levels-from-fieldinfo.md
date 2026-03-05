@@ -1,7 +1,7 @@
 # Plan: Eliminate num_levels from FieldInfo Layer
 
 **Created**: 2026-03-05  
-**Status**: In Progress  
+**Status**: In Progress - BLOCKED on semantic fix  
 **Branch**: `feature/4487-eliminate-num-levels-from-fieldinfo`  
 **Issue**: https://github.com/GEOS-ESM/MAPL/issues/4487
 
@@ -15,19 +15,138 @@
 
 This dual storage creates complications, especially when `vgrid_id` is passed without `num_levels`. The cleaner approach is to eliminate `num_levels` from the FieldInfo layer entirely and derive it on-demand from `vgrid_id` + `vert_staggerloc`.
 
+**CRITICAL ISSUE DISCOVERED**: Semantic confusion between "num_levels", "num_layers", and "num_edges"
+- `VerticalGrid%get_num_levels()` is ambiguous - different grid types return different things
+- `VerticalStaggerLoc%get_num_levels()` assumes input is `num_edges` and applies CENTER → `num_edges - 1`
+- FixedLevelsVerticalGrid returns num_layers (CENTER coordinates), not num_edges
+- This causes runtime errors: field created with wrong number of levels
+
+**NEW PRIORITY**: Rename `VerticalGrid%get_num_levels()` → `get_num_layers()` to fix semantic confusion.
+
 **Scope**: 
-- 6 production code files
-- 8 test files  
-- ~70-80 locations to update
+- **Original scope**: 6 production code files, 8 test files, ~70-80 locations
+- **NEW scope (Phase 0)**: Rename get_num_levels → get_num_layers in VerticalGrid hierarchy
+  - `vertical_grid/VerticalGrid.F90` (base class)
+  - `generic3g/vertical/BasicVerticalGrid.F90`
+  - `generic3g/vertical/FixedLevelsVerticalGrid.F90`
+  - `generic3g/vertical/ModelVerticalGrid.F90`
+  - `vertical_grid/MirrorVerticalGrid.F90`
+  - All callers of `get_num_levels()` throughout codebase
+  - Update `VerticalStaggerLoc%get_num_levels()` to accept `num_layers` parameter
 - Core infrastructure changes in FieldInfo, FieldCreate, FieldDelta
 
 ## Strategy
 
+- **NEW Phase 0**: Rename VerticalGrid methods for semantic clarity
+  - `VerticalGrid%get_num_levels()` → `get_num_layers()` 
+  - This returns the number of CENTER-staggered levels (layers/cells)
+  - For FixedLevelsVerticalGrid: returns `size(spec%levels)` (correct)
+  - For ModelVerticalGrid: returns layer count (= num_edges - 1)
 - **Store in FieldInfo**: Only `vgrid_id` + `vert_staggerloc`
-- **Derive when needed**: Use `VerticalGridManager` to look up the grid and compute `num_levels = vert_staggerloc%get_num_levels(vgrid%get_num_levels())`
+- **Derive when needed**: Use `VerticalGridManager` to look up grid and compute `num_levels = vert_staggerloc%get_num_levels(vgrid%get_num_layers())`
 - **Handle at higher layers**: FieldSet/Get and FieldBundleSet/Get do the derivation
 - **No backward compatibility**: All vgrids must have IDs (per requirements)
 - **FieldCreate change**: No longer accepts `num_levels` parameter
+
+---
+
+## Phase 0: Fix Semantic Confusion (NEW - HIGHEST PRIORITY)
+
+**Root cause**: "num_levels" means different things for different VerticalGrid types:
+- FixedLevelsVerticalGrid: returns num_layers (CENTER levels)
+- ModelVerticalGrid: may return num_edges
+- Leads to incorrect calculation: `STAGGER_CENTER.get_num_levels(num_layers)` → `num_layers - 1` (WRONG!)
+
+### 0.1 Rename VerticalGrid::get_num_levels → get_num_layers
+
+**Files to modify**:
+1. `vertical_grid/VerticalGrid.F90` - Base class interface
+2. `generic3g/vertical/BasicVerticalGrid.F90` - Implementation
+3. `generic3g/vertical/FixedLevelsVerticalGrid.F90` - Implementation
+4. `generic3g/vertical/ModelVerticalGrid.F90` - Implementation
+5. `vertical_grid/MirrorVerticalGrid.F90` - Implementation (if exists)
+
+**Change**:
+```fortran
+! OLD:
+integer function get_num_levels(this)
+
+! NEW:
+integer function get_num_layers(this)
+   ! Returns the number of CENTER-staggered levels (layers/cells)
+   ! For FixedLevelsVerticalGrid: size(spec%levels)
+   ! For ModelVerticalGrid: num_edges - 1
+```
+
+### 0.2 Update VerticalStaggerLoc::get_num_levels parameter name
+
+**File**: `vertical_grid/VerticalStaggerLoc.F90`
+
+**Change** (line 132):
+```fortran
+! OLD:
+integer function get_num_levels(this, num_vgrid_levels) result(num_levels)
+   class(VerticalStaggerLoc), intent(in) :: this
+   integer, intent(in) :: num_vgrid_levels  ! AMBIGUOUS NAME
+
+! NEW:
+integer function get_num_levels(this, num_layers) result(num_levels)
+   class(VerticalStaggerLoc), intent(in) :: this
+   integer, intent(in) :: num_layers  ! Number of CENTER levels in the vgrid
+   
+   ! Logic:
+   ! - For EDGE: returns num_layers + 1 (edges = layers + 1)
+   ! - For CENTER: returns num_layers (no change)
+   ! - For NONE: returns 0
+```
+
+**Update logic** (lines 136-147):
+```fortran
+select case (this%id)
+case (NONE)
+   num_levels = 0
+case (EDGE)
+   num_levels = num_layers + 1  ! CHANGED: was num_vgrid_levels
+case (CENTER)
+   num_levels = num_layers       ! CHANGED: was num_vgrid_levels - 1
+case (MIRROR)
+   num_levels = num_layers       ! CHANGED: was num_vgrid_levels
+case default
+   num_levels = -1
+end select
+```
+
+### 0.3 Update all callers of get_num_levels()
+
+**Search pattern**: `%get_num_levels()`
+
+**Key files**:
+- `field/FieldInfo.F90` (line 539): `vgrid_ptr%get_num_levels()` → `get_num_layers()`
+- `field/FieldCondensedArray.F90`: Update if present
+- `generic3g/vertical/*.F90`: Update any internal uses
+- All test files
+
+**Pattern**:
+```fortran
+! OLD:
+num_vgrid_levels = vgrid_ptr%get_num_levels()
+num_levels = vert_staggerloc%get_num_levels(num_vgrid_levels)
+
+! NEW:
+num_layers = vgrid_ptr%get_num_layers()
+num_levels = vert_staggerloc%get_num_levels(num_layers)
+```
+
+### 0.4 Consider adding get_num_edges() method (OPTIONAL)
+
+For ModelVerticalGrid, consider adding an explicit `get_num_edges()` method:
+```fortran
+integer function get_num_edges(this)
+   ! Returns num_layers + 1 for ModelVerticalGrid
+   ! Not applicable for FixedLevelsVerticalGrid
+```
+
+This would make the distinction even clearer.
 
 ---
 
@@ -312,23 +431,30 @@ After all changes:
 
 ## Progress Tracking
 
-- [ ] Phase 1: Fix Production Code Bootstrap Patterns
-  - [ ] 1.1 Fix PrimaryExport.F90
-  - [ ] 1.2 Verify FieldBundleSet.F90
-- [ ] Phase 2: Update Core Infrastructure
-  - [ ] 2.1 Modify FieldInfo.F90
-  - [ ] 2.2 Update FieldCreate.F90
-  - [ ] 2.3 Update FieldSet.F90
-  - [ ] 2.4 Update FieldDelta.F90
-  - [ ] 2.5 Update FieldBundleInfo.F90
-- [ ] Phase 3: Fix Unit Tests
-  - [ ] 3.1 Test_FieldDelta.pf
-  - [ ] 3.2 Test_RegridderManager.pf
-  - [ ] 3.3 Test_FieldBLAS.pf
-  - [ ] 3.4 Test_VerticalRegridTransform.pf
-  - [ ] 3.5 Other test files
-- [ ] Phase 4: Update Field Bundle Infrastructure
-- [ ] Phase 5: Validation & Testing
+- [x] Phase 1: Fix Production Code Bootstrap Patterns (COMPLETED)
+  - [x] 1.1 Fix PrimaryExport.F90
+  - [x] 1.2 Verify FieldBundleSet.F90
+- [x] Phase 2: Update Core Infrastructure (COMPLETED)
+  - [x] 2.1 Modify FieldInfo.F90
+  - [x] 2.2 Update FieldCreate.F90
+  - [x] 2.3 Update FieldSet.F90
+  - [x] 2.4 Update FieldDelta.F90
+  - [x] 2.5 Update FieldBundleInfo.F90
+- [x] Phase 3: Fix Unit Tests (COMPLETED)
+  - [x] 3.1 Test_FieldDelta.pf
+  - [x] 3.2 Test_RegridderManager.pf
+  - [x] 3.3 Test_FieldBLAS.pf
+  - [x] 3.4 Test_VerticalRegridTransform.pf
+  - [x] 3.5 Other test files
+- [ ] **Phase 0: Fix Semantic Confusion (BLOCKING - IN PROGRESS)**
+  - [ ] 0.1 Rename VerticalGrid::get_num_levels → get_num_layers
+  - [ ] 0.2 Update VerticalStaggerLoc::get_num_levels parameter and logic
+  - [ ] 0.3 Update all callers of get_num_levels()
+  - [ ] 0.4 (Optional) Add get_num_edges() method
+- [ ] Phase 4: Update Field Bundle Infrastructure (BLOCKED)
+- [ ] Phase 5: Validation & Testing (BLOCKED)
   - [ ] Build with all compilers
   - [ ] Run full test suite
   - [ ] Integration tests
+
+**Status**: Phases 1-3 completed but tests fail due to semantic bug in Phase 0. Must complete Phase 0 before proceeding.
