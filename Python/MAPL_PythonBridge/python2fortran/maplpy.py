@@ -88,7 +88,13 @@ class MAPLPyAPI:
         )
 
     @property
+    def fpy_converter(self) -> FortranPythonConverter:
+        """Fortran to Python converter helper"""
+        return self._fpy_converter
+
+    @property
     def grid_dims(self) -> list[int]:
+        """Local 3D grid dimensions"""
         return [self._fpy_converter.im, self._fpy_converter.jm, self._fpy_converter.lm]
 
 
