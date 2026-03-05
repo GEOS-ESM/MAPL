@@ -151,6 +151,7 @@ contains
 
       _RETURN_UNLESS(run_collection)
 
+      ! if collection is not instataneous timestamp in middle of period
       if (collection_gridcomp%accumulation_mode /= KEY_INSTANTANEOUS) then
          current_time = current_time - collection_gridcomp%timeStep/2
       end if
