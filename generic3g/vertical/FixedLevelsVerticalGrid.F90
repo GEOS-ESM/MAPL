@@ -133,7 +133,7 @@ contains
       field = MAPL_FieldCreate( &
            geom=geom, &
            typekind=ESMF_TYPEKIND_R4, &
-           num_levels=size(this%spec%levels), &
+           vgrid=this, &
            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            _RC)
 
