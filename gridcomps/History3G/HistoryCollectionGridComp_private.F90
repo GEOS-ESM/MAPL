@@ -266,7 +266,7 @@ contains
       item_type=MAPL_STATEITEM_FIELD
       if (index(alias,'[') /= 0 .and. index(alias,']') /= 0 .and. index(alias,',') /= 0) item_type = MAPL_STATEITEM_VECTOR
       varspec_short_name = short_name
-      if (opts%accumulation_type .ne. KEY_INSTANTANEOUS) then
+      if (opts%accumulation_type /= KEY_INSTANTANEOUS) then
          slash_loc = index(short_name, '/')
          varspec_short_name = short_name(slash_loc+1:)
       end if 
