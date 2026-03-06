@@ -62,6 +62,7 @@ set (test_srcs
    Test_InverseNormalizationAspect.pf
    Test_PolymorphicSetMirror.pf
    Test_2DConservativeRegrid.pf
+   Test_3DConservativeMixingRatio.pf
 )
 
 add_pfunit_ctest(

@@ -1,0 +1,512 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_3DConservativeMixingRatio
+   use mapl3g_VerticalRegridTransform
+   use mapl3g_VerticalRegridMethod
+   use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalCoordinateDirection
+   use mapl3g_VerticalAlignment
+   use mapl3g_ExtensionTransform, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME
+   use mapl3g_FieldCreate, only: MAPL_FieldCreate
+   use mapl3g_QuantityType
+   use mapl3g_QuantityTypeMetadata
+   use mapl3g_NormalizationType
+   use mapl3g_NormalizationMetadata
+   use mapl3g_Field_API
+   use mapl_ErrorHandling
+   use esmf
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none
+
+   ! Module-level fixtures
+   type(ESMF_State) :: importState
+   type(ESMF_State) :: exportState
+   type(ESMF_Grid) :: grid
+   type(ESMF_Clock) :: clock
+   integer, parameter :: NX = 4
+   integer, parameter :: NY = 4
+   integer, parameter :: REG_DECOMP(2) = [1, 1]
+   
+   ! Constants for testing
+   real, parameter :: GRAVITY = 9.80665  ! m/s²
+   real, parameter :: CO2_MIXING_RATIO = 400.0e-6  ! 400 ppm (kg/kg wet)
+   real, parameter :: TOLERANCE_STRICT = 1.0e-10
+   real, parameter :: TOLERANCE_LOOSE = 1.0e-5
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! Test 1: Uniform field - verify exact conservation
+   !---------------------------------------------------------------------------
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_uniform_field_conservation(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalRegridTransform) :: transform
+      type(VerticalRegridParam) :: regrid_param
+      type(ESMF_Field) :: v_coord_in, v_coord_out, f_in, f_out
+      type(ESMF_Geom) :: geom
+      real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
+      real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
+      real(ESMF_KIND_R8) :: mass_in, mass_out, relative_error
+      integer, parameter :: NZ_IN = 10, NZ_OUT = 15
+      integer :: i, j, k, status
+      
+      ! Create ESMF_Geom from grid
+      geom = ESMF_GeomCreate(grid, _RC)
+      
+      ! Create edge-staggered vertical coordinates (required for conservative method)
+      ! Input: 10 layers = 11 edges (0, 10, 20, ..., 100 Pa)
+      v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
+      do k = 1, NZ_IN+1
+         do j = 1, NY
+            do i = 1, NX
+               v_in(i,j,k) = real(k-1, ESMF_KIND_R4) * 10.0
+            end do
+         end do
+      end do
+      
+      ! Output: 15 layers = 16 edges (0, 6.67, 13.33, ..., 100 Pa)
+      v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
+      do k = 1, NZ_OUT+1
+         do j = 1, NY
+            do i = 1, NX
+               v_out(i,j,k) = real(k-1, ESMF_KIND_R4) * 100.0 / real(NZ_OUT, ESMF_KIND_R4)
+            end do
+         end do
+      end do
+      
+      ! Create input and output data fields at CENTER (layer centers)
+      f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      
+      ! Fill input with uniform mixing ratio
+      call ESMF_FieldGet(f_in, farrayPtr=data_in, _RC)
+      data_in = CO2_MIXING_RATIO
+      
+      ! Initialize output
+      call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+      ! Calculate total mass before regridding: mass = sum(q × Δp)
+      mass_in = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_IN
+         do j = 1, NY
+            do i = 1, NX
+               mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
+                    abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
+            end do
+         end do
+      end do
+      
+      ! Create transform with CONSERVATIVE method
+      regrid_param%stagger_in = VERTICAL_STAGGER_EDGE
+      regrid_param%stagger_out = VERTICAL_STAGGER_EDGE
+      regrid_param%method = VERTICAL_REGRID_CONSERVATIVE
+      regrid_param%src_alignment = VCOORD_DIRECTION_DOWN
+      regrid_param%dst_alignment = VCOORD_DIRECTION_DOWN
+      regrid_param%is_degenerate_case = .false.
+      transform = VerticalRegridTransform(v_coord_in, null(), v_coord_out, null(), regrid_param)
+      
+      ! Add fields to states
+      call ESMF_StateAdd(importState, fieldList=[f_in], _RC)
+      call ESMF_StateAdd(exportState, fieldList=[f_out], _RC)
+      
+      ! Initialize and run transform
+      call transform%initialize(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
+      
+      ! Calculate total mass after regridding
+      mass_out = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_OUT
+         do j = 1, NY
+            do i = 1, NX
+               mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
+                    abs(real(v_out(i,j,k+1) - v_out(i,j,k), ESMF_KIND_R8))
+            end do
+         end do
+      end do
+      
+      ! Verify exact mass conservation for uniform field
+      @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
+      relative_error = abs(mass_out - mass_in) / mass_in
+      @assertTrue(relative_error < TOLERANCE_STRICT, 'Mass conservation failed for uniform field')
+      
+      ! Verify output is uniform (for uniform input, conservative regridding should produce uniform output)
+      do k = 1, NZ_OUT
+         do j = 1, NY
+            do i = 1, NX
+               @assertEqual(CO2_MIXING_RATIO, data_out(i,j,k), tolerance=TOLERANCE_LOOSE)
+            end do
+         end do
+      end do
+      
+      ! Cleanup
+      call ESMF_FieldDestroy(v_coord_in, rc=status)
+      call ESMF_FieldDestroy(v_coord_out, rc=status)
+      call ESMF_FieldDestroy(f_in, rc=status)
+      call ESMF_FieldDestroy(f_out, rc=status)
+      _UNUSED_DUMMY(this)
+      
+   end subroutine test_uniform_field_conservation
+
+
+   !---------------------------------------------------------------------------
+   ! Test 2: Realistic atmospheric profile - verify conservation with varying data
+   !---------------------------------------------------------------------------
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realistic_atmospheric_profile(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalRegridTransform) :: transform
+      type(VerticalRegridParam) :: regrid_param
+      type(ESMF_Field) :: v_coord_in, v_coord_out, f_in, f_out
+      type(ESMF_Geom) :: geom
+      real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
+      real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
+      real(ESMF_KIND_R8) :: mass_in, mass_out, relative_error
+      integer, parameter :: NZ_IN = 72, NZ_OUT = 50  ! Realistic atmospheric levels
+      integer :: i, j, k, status
+      
+      geom = ESMF_GeomCreate(grid, _RC)
+      
+      ! Create input vertical coordinates (pressure levels, linearly decreasing)
+      ! Surface (1000 hPa) to top (0 hPa) in 72 levels
+      v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
+      do k = 1, NZ_IN+1
+         v_in(:,:,k) = 1000.0 - real(k-1, ESMF_KIND_R4) * 1000.0 / real(NZ_IN, ESMF_KIND_R4)
+      end do
+      
+      ! Create output vertical coordinates (different resolution)
+      v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
+      do k = 1, NZ_OUT+1
+         v_out(:,:,k) = 1000.0 - real(k-1, ESMF_KIND_R4) * 1000.0 / real(NZ_OUT, ESMF_KIND_R4)
+      end do
+      
+      ! Create data fields
+      f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      
+      ! Fill input with varying profile (simulating atmospheric concentration)
+      call ESMF_FieldGet(f_in, farrayPtr=data_in, _RC)
+      do k = 1, NZ_IN
+         do j = 1, NY
+            do i = 1, NX
+               ! Varying concentration: higher near surface, lower aloft
+               data_in(i,j,k) = 100.0 + 50.0 * (1.0 - real(k, ESMF_KIND_R4) / real(NZ_IN, ESMF_KIND_R4))
+            end do
+         end do
+      end do
+      
+      call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+      ! Calculate input mass
+      mass_in = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_IN
+         do j = 1, NY
+            do i = 1, NX
+               mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
+                    abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
+            end do
+         end do
+      end do
+      
+      ! Create and run transform
+      regrid_param%stagger_in = VERTICAL_STAGGER_EDGE
+      regrid_param%stagger_out = VERTICAL_STAGGER_EDGE
+      regrid_param%method = VERTICAL_REGRID_CONSERVATIVE
+      regrid_param%src_alignment = VCOORD_DIRECTION_DOWN
+      regrid_param%dst_alignment = VCOORD_DIRECTION_DOWN
+      regrid_param%is_degenerate_case = .false.
+      transform = VerticalRegridTransform(v_coord_in, null(), v_coord_out, null(), regrid_param)
+      
+      call ESMF_StateAdd(importState, fieldList=[f_in], _RC)
+      call ESMF_StateAdd(exportState, fieldList=[f_out], _RC)
+      
+      call transform%initialize(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
+      
+      ! Calculate output mass
+      mass_out = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_OUT
+         do j = 1, NY
+            do i = 1, NX
+               mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
+                    abs(real(v_out(i,j,k+1) - v_out(i,j,k), ESMF_KIND_R8))
+            end do
+         end do
+      end do
+      
+      ! Verify conservation
+      @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
+      relative_error = abs(mass_out - mass_in) / mass_in
+      @assertTrue(relative_error < TOLERANCE_LOOSE, 'Mass conservation failed for realistic profile')
+      
+      ! Verify all output values are positive
+      @assertTrue(all(data_out > 0.0), 'All output values should be positive')
+      
+      ! Cleanup
+      call ESMF_FieldDestroy(v_coord_in, rc=status)
+      call ESMF_FieldDestroy(v_coord_out, rc=status)
+      call ESMF_FieldDestroy(f_in, rc=status)
+      call ESMF_FieldDestroy(f_out, rc=status)
+      _UNUSED_DUMMY(this)
+      
+   end subroutine test_realistic_atmospheric_profile
+
+
+   !---------------------------------------------------------------------------
+   ! Test 3: Coarse to fine regridding - verify conservation
+   !---------------------------------------------------------------------------
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_coarse_to_fine_conservation(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalRegridTransform) :: transform
+      type(VerticalRegridParam) :: regrid_param
+      type(ESMF_Field) :: v_coord_in, v_coord_out, f_in, f_out
+      type(ESMF_Geom) :: geom
+      real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
+      real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
+      real(ESMF_KIND_R8) :: mass_in, mass_out, relative_error
+      integer, parameter :: NZ_IN = 5, NZ_OUT = 20  ! Coarse to fine
+      integer :: i, j, k, status
+      
+      geom = ESMF_GeomCreate(grid, _RC)
+      
+      ! Coarse input grid (5 layers)
+      v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
+      do k = 1, NZ_IN+1
+         v_in(:,:,k) = real(k-1, ESMF_KIND_R4) * 20.0  ! 0, 20, 40, 60, 80, 100
+      end do
+      
+      ! Fine output grid (20 layers)
+      v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
+      do k = 1, NZ_OUT+1
+         v_out(:,:,k) = real(k-1, ESMF_KIND_R4) * 5.0  ! 0, 5, 10, ..., 100
+      end do
+      
+      f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      
+      ! Varying input (each layer has different value)
+      call ESMF_FieldGet(f_in, farrayPtr=data_in, _RC)
+      do k = 1, NZ_IN
+         data_in(:,:,k) = real(k, ESMF_KIND_R4) * 100.0  ! 100, 200, 300, 400, 500
+      end do
+      
+      call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+      ! Calculate input mass
+      mass_in = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_IN
+         do j = 1, NY
+            do i = 1, NX
+               mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
+                    abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
+            end do
+         end do
+      end do
+      
+      ! Create and run transform
+      regrid_param%stagger_in = VERTICAL_STAGGER_EDGE
+      regrid_param%stagger_out = VERTICAL_STAGGER_EDGE
+      regrid_param%method = VERTICAL_REGRID_CONSERVATIVE
+      regrid_param%src_alignment = VCOORD_DIRECTION_DOWN
+      regrid_param%dst_alignment = VCOORD_DIRECTION_DOWN
+      regrid_param%is_degenerate_case = .false.
+      transform = VerticalRegridTransform(v_coord_in, null(), v_coord_out, null(), regrid_param)
+      
+      call ESMF_StateAdd(importState, fieldList=[f_in], _RC)
+      call ESMF_StateAdd(exportState, fieldList=[f_out], _RC)
+      
+      call transform%initialize(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
+      
+      ! Calculate output mass
+      mass_out = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_OUT
+         do j = 1, NY
+            do i = 1, NX
+               mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
+                    abs(real(v_out(i,j,k+1) - v_out(i,j,k), ESMF_KIND_R8))
+            end do
+         end do
+      end do
+      
+      ! Verify conservation
+      @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
+      relative_error = abs(mass_out - mass_in) / mass_in
+      @assertTrue(relative_error < TOLERANCE_LOOSE, 'Mass conservation failed for coarse-to-fine')
+      
+      ! Cleanup
+      call ESMF_FieldDestroy(v_coord_in, rc=status)
+      call ESMF_FieldDestroy(v_coord_out, rc=status)
+      call ESMF_FieldDestroy(f_in, rc=status)
+      call ESMF_FieldDestroy(f_out, rc=status)
+      _UNUSED_DUMMY(this)
+      
+   end subroutine test_coarse_to_fine_conservation
+
+
+   !---------------------------------------------------------------------------
+   ! Test 4: Fine to coarse regridding - verify conservation
+   !---------------------------------------------------------------------------
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fine_to_coarse_conservation(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalRegridTransform) :: transform
+      type(VerticalRegridParam) :: regrid_param
+      type(ESMF_Field) :: v_coord_in, v_coord_out, f_in, f_out
+      type(ESMF_Geom) :: geom
+      real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
+      real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
+      real(ESMF_KIND_R8) :: mass_in, mass_out, relative_error
+      integer, parameter :: NZ_IN = 30, NZ_OUT = 10  ! Fine to coarse
+      integer :: i, j, k, status
+      
+      geom = ESMF_GeomCreate(grid, _RC)
+      
+      ! Fine input grid (30 layers)
+      v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
+      do k = 1, NZ_IN+1
+         v_in(:,:,k) = real(k-1, ESMF_KIND_R4) * 10.0 / 3.0  ! 0, 3.33, 6.67, ..., 100
+      end do
+      
+      ! Coarse output grid (10 layers)
+      v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
+      do k = 1, NZ_OUT+1
+         v_out(:,:,k) = real(k-1, ESMF_KIND_R4) * 10.0  ! 0, 10, 20, ..., 100
+      end do
+      
+      f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      
+      ! Fill with varying data
+      call ESMF_FieldGet(f_in, farrayPtr=data_in, _RC)
+      do k = 1, NZ_IN
+         data_in(:,:,k) = 50.0 + 10.0 * sin(real(k, ESMF_KIND_R4) / 5.0)
+      end do
+      
+      call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+      ! Calculate input mass
+      mass_in = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_IN
+         do j = 1, NY
+            do i = 1, NX
+               mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
+                    abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
+            end do
+         end do
+      end do
+      
+      ! Create and run transform
+      regrid_param%stagger_in = VERTICAL_STAGGER_EDGE
+      regrid_param%stagger_out = VERTICAL_STAGGER_EDGE
+      regrid_param%method = VERTICAL_REGRID_CONSERVATIVE
+      regrid_param%src_alignment = VCOORD_DIRECTION_DOWN
+      regrid_param%dst_alignment = VCOORD_DIRECTION_DOWN
+      regrid_param%is_degenerate_case = .false.
+      transform = VerticalRegridTransform(v_coord_in, null(), v_coord_out, null(), regrid_param)
+      
+      call ESMF_StateAdd(importState, fieldList=[f_in], _RC)
+      call ESMF_StateAdd(exportState, fieldList=[f_out], _RC)
+      
+      call transform%initialize(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
+      
+      ! Calculate output mass
+      mass_out = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_OUT
+         do j = 1, NY
+            do i = 1, NX
+               mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
+                    abs(real(v_out(i,j,k+1) - v_out(i,j,k), ESMF_KIND_R8))
+            end do
+         end do
+      end do
+      
+      ! Verify conservation
+      @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
+      relative_error = abs(mass_out - mass_in) / mass_in
+      @assertTrue(relative_error < TOLERANCE_LOOSE, 'Mass conservation failed for fine-to-coarse')
+      
+      ! Cleanup
+      call ESMF_FieldDestroy(v_coord_in, rc=status)
+      call ESMF_FieldDestroy(v_coord_out, rc=status)
+      call ESMF_FieldDestroy(f_in, rc=status)
+      call ESMF_FieldDestroy(f_out, rc=status)
+      _UNUSED_DUMMY(this)
+      
+   end subroutine test_fine_to_coarse_conservation
+
+
+   !---------------------------------------------------------------------------
+   ! Setup and teardown
+   !---------------------------------------------------------------------------
+   @Before
+   subroutine set_up(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_Time) :: startTime
+      integer :: status
+
+      call ESMF_TimeIntervalSet(timeStep, s=1, _RC)
+      call ESMF_TimeSet(startTime, yy=2026, mm=3, dd=6, h=12, m=0, _RC)
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, _RC)
+      grid = ESMF_GridCreateNoPeriDim(regDecomp=REG_DECOMP, maxIndex=[NX, NY], _RC)
+      importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name='import', _RC)
+      exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name='export', _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine set_up
+   
+   @After
+   subroutine tear_down(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+
+      call ESMF_StateDestroy(importState, rc=status)
+      call ESMF_StateDestroy(exportState, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_ClockDestroy(clock, rc=status)
+      _UNUSED_DUMMY(this)
+
+   end subroutine tear_down
+
+end module Test_3DConservativeMixingRatio
