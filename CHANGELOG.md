@@ -68,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add test of units coupling
 - Add test of typekind coupling
 - Add tests of update_payload and update_from_payload for UnitsAspect
+- Add tests of update_payload and update_from_payload for GeomAspect
 
 ### Changed
 

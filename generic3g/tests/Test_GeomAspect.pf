@@ -1,0 +1,539 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+! type(ESMF_GeomMatch_Flag)
+module Test_GeomAspect
+   use mapl3g_GeomAspect, only: GeomAspect
+   use mapl3g_Field_API, only: MAPL_FieldSet, MAPL_FieldGet
+   use mapl3g_FieldBundle_API, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet
+   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, operator(==)
+   use mapl3g_HorizontalDimsSpec, only: HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
+   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
+   use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_Grid, ESMF_Geom
+   use ESMF, only: ESMF_GridCreate, ESMF_GeomCreate, ESMF_GridDestroy
+   use ESMF, only: ESMF_GeomGet, ESMF_GeomDestroy, operator(==)
+   use ESMF, only: ESMF_GeomMatch, ESMF_GeomMatch_Flag, ESMF_GEOMMATCH_INVALID
+   use ESMF, only: ESMF_GEOMMATCH_NONE, ESMF_GEOMMATCH_ALIAS, ESMF_GEOMMATCH_GEOMALIAS
+   use ESMF, only: ESMF_FieldCreate, ESMF_FieldEmptyCreate
+   use ESMF, only: ESMF_FieldGet, ESMF_FieldDestroy
+   use ESMF, only: ESMF_FieldBundleCreate, ESMF_FieldBundleAdd
+   use ESMF, only: ESMF_FieldBundleGet, ESMF_FieldBundleDestroy
+   use ESMF, only: ESMF_RegridMethod_Flag
+   use ESMF, only: ESMF_REGRIDMETHOD_CONSERVE, ESMF_REGRIDMETHOD_BILINEAR
+   use ESMF, only: ESMF_Info, ESMF_FieldStatus_Flag, ESMF_FIELDSTATUS_COMPLETE
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none(type, external)
+
+   type(ESMF_TypeKind_Flag), parameter :: TK4 = ESMF_TYPEKIND_R4
+   integer, parameter :: MAXINDEX_(*) = [4, 4]
+   integer, parameter :: ALTMAXINDEX(*) = MAXINDEX_ + [1, 1]
+   character(len=*), parameter :: BASE_NAME = 'FIELD'
+   type(ESMF_RegridMethod_Flag), parameter :: REGRID_METHOD = ESMF_REGRIDMETHOD_BILINEAR
+   type(ESMF_RegridMethod_Flag), parameter :: ALT_REGRID_METHOD = ESMF_REGRIDMETHOD_CONSERVE
+   type(HorizontalDimsSpec), parameter :: HORZ_DIMS_SPEC = HORIZONTAL_DIMS_GEOM
+   type(HorizontalDimsSpec), parameter :: ALT_HORZ_DIMS_SPEC = HORIZONTAL_DIMS_NONE
+   character(len=*), parameter :: GEOM_MISMATCH = &
+      & 'The actual_geom does not match expected_geom.' 
+   character(len=*), parameter :: HORZ_MISMATCH = &
+      & 'The actual HorizontalDimsSpec does not match the expected HorizontalDimsSpec.'
+   character(len=*), parameter :: REGRIDDER_MISMATCH = &
+      & 'The actual field_regridder_info does not match the expected field_regridder_info.'
+
+      !EsmfRegridderParam(regridmethod=regridmethod)
+
+contains
+
+!===============================================================================
+!TESTS
+!===============================================================================
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: field, test_field
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: field_geom, aspect_geom, actual_geom
+      type(EsmfRegridderParam) :: field_regridder_param
+      type(ESMF_Info), allocatable :: field_regridder_info, test_regridder_info
+      type(HorizontalDimsSpec) :: expected_horizontal_dims_spec, actual_horizontal_dims_spec
+      integer :: status
+      logical :: is_match
+
+      expected_horizontal_dims_spec = HORZ_DIMS_SPEC
+      call get_geom(field_geom, maxindex=MAXINDEX_, _RC)
+      field_regridder_param = EsmfRegridderParam(regridmethod=REGRID_METHOD)
+      field_regridder_info = field_regridder_param%make_info(_RC)
+      call get_field(field, geom=field_geom, _RC)
+      call MAPL_FieldSet(field, regridder_param_info=field_regridder_info, &
+         & horizontal_dims_spec=expected_horizontal_dims_spec, _RC)
+
+      call get_geom(aspect_geom, maxindex=ALTMAXINDEX, _RC)
+      aspect = GeomAspect(geom=aspect_geom, horizontal_dims_spec=ALT_HORZ_DIMS_SPEC,&
+         & regridder_param=EsmfRegridderParam(regridmethod=ALT_REGRID_METHOD))
+
+      call aspect%update_from_payload(field=field, _RC)
+
+      actual_geom = aspect%get_geom(_RC)
+      is_match = field_geom == actual_geom
+      @assertTrue(is_match, GEOM_MISMATCH)
+
+      call get_field(test_field, _RC)
+      call aspect%update_payload(field=test_field, _RC)
+      call MAPL_FieldGet(test_field, regridder_param_info=test_regridder_info, _RC)
+      is_match = field_regridder_info == test_regridder_info
+      @assertTrue(is_match, REGRIDDER_MISMATCH)
+
+      actual_horizontal_dims_spec = aspect%get_horizontal_dims_spec(_RC)
+      is_match = expected_horizontal_dims_spec == actual_horizontal_dims_spec 
+      @assertTrue(is_match, HORZ_MISMATCH)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_field
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: field
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: field_geom, aspect_geom
+      type(ESMF_Geom), allocatable :: actual_geom
+      type(EsmfRegridderParam) :: field_regridder_param, aspect_regridder_param
+      type(ESMF_Info), allocatable :: field_regridder_info, actual_regridder_info
+      type(ESMF_Info), allocatable :: aspect_regridder_info
+      type(HorizontalDimsSpec) :: actual_horizontal_dims_spec
+      integer :: status
+      logical :: is_match
+
+      call get_geom(aspect_geom, maxindex=MAXINDEX_, _RC)
+      aspect_regridder_param = EsmfRegridderParam(regridmethod=REGRID_METHOD)
+      aspect_regridder_info = aspect_regridder_param%make_info(_RC)
+      aspect = GeomAspect(geom=aspect_geom, horizontal_dims_spec=HORZ_DIMS_SPEC,&
+         & regridder_param=aspect_regridder_param)
+
+      call get_geom(field_geom, maxindex=ALTMAXINDEX, _RC)
+      field_regridder_param = EsmfRegridderParam(regridmethod=ALT_REGRID_METHOD)
+      field_regridder_info = field_regridder_param%make_info(_RC)
+      call get_field(field, geom=field_geom, _RC)
+      call MAPL_FieldSet(field, regridder_param_info=field_regridder_info, &
+         & horizontal_dims_spec=ALT_HORZ_DIMS_SPEC, _RC)
+
+      call aspect%update_payload(field=field, _RC)
+
+      call MAPL_FieldGet(field, geom=actual_geom, &
+          & horizontal_dims_spec=actual_horizontal_dims_spec,&
+          & regridder_param_info=actual_regridder_info, _RC)
+
+      is_match = aspect_geom == actual_geom
+      @assertTrue(is_match, GEOM_MISMATCH)
+
+      is_match = actual_horizontal_dims_spec == HORZ_DIMS_SPEC
+      @assertTrue(is_match, HORZ_MISMATCH)
+
+      is_match = aspect_regridder_info == actual_regridder_info
+      @assertTrue(is_match, REGRIDDER_MISMATCH)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_field
+   
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_no_geom_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: field
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: aspect_geom
+      integer :: status
+      logical :: is_mirror
+      type(ESMF_Info) :: info
+      type(EsmfRegridderParam) :: regridder_param
+
+      field = ESMF_FieldEmptyCreate(_RC)
+      regridder_param = EsmfRegridderParam(regridmethod=REGRID_METHOD)
+      info = regridder_param%make_info(_RC)
+      call MAPL_FieldSet(field, regridder_param_info=info, &
+         & horizontal_dims_spec = HORZ_DIMS_SPEC, _RC)
+      call get_geom(aspect_geom, _RC)
+      aspect = GeomAspect(geom=aspect_geom)
+      call aspect%update_from_payload(field=field, _RC)
+      is_mirror = aspect%is_mirror()
+      @assertTrue(is_mirror, 'The aspect geom should not be set after update.')
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_no_geom_field
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_no_geom_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: field
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: field_geom
+      type(ESMF_Geom), allocatable :: actual_geom
+      type(EsmfRegridderParam) :: field_regridder_param, aspect_regridder_param
+      type(ESMF_Info), allocatable :: field_regridder_info
+      integer :: status
+      logical :: is_match
+      type(ESMF_GeomMatch_Flag) :: geom_match
+      character(len=:), allocatable :: msg
+
+      aspect_regridder_param = EsmfRegridderParam(regridmethod=REGRID_METHOD)
+      aspect = GeomAspect(horizontal_dims_spec=HORZ_DIMS_SPEC,&
+         & regridder_param=aspect_regridder_param)
+
+      call get_geom(field_geom, maxindex=MAXINDEX_, _RC)
+      field_regridder_param = EsmfRegridderParam(regridmethod=ALT_REGRID_METHOD)
+      field_regridder_info = field_regridder_param%make_info(_RC)
+      call get_field(field, geom=field_geom, _RC)
+      call MAPL_FieldSet(field, regridder_param_info=field_regridder_info, &
+         & horizontal_dims_spec=ALT_HORZ_DIMS_SPEC, _RC)
+
+      call aspect%update_payload(field=field, _RC)
+
+      ! since aspect%is_mirror(), update_payload should have no impact on the field geom
+      call MAPL_FieldGet(field, geom=actual_geom, _RC)
+      geom_match = ESMF_GeomMatch(field_geom, actual_geom, _RC)
+      is_match = geom_match == ESMF_GEOMMATCH_ALIAS
+      if(.not. is_match) msg = GEOM_MISMATCH // '[' // get_geom_match_string(geom_match) // ']'
+      @assertTrue(is_match, 'Field geom shoud not change.')
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_no_geom_field
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: bundle, test_bundle
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: bundle_geom, aspect_geom, actual_geom
+      type(EsmfRegridderParam) :: bundle_regridder_param
+      type(ESMF_Info), allocatable :: bundle_regridder_info, test_regridder_info
+      integer :: status
+      type(ESMF_GeomMatch_Flag) :: geom_match
+      logical :: is_match
+      character(len=:), allocatable :: msg
+
+      call get_geom(bundle_geom, maxindex=MAXINDEX_, _RC)
+      bundle_regridder_param = EsmfRegridderParam(regridmethod=REGRID_METHOD)
+      bundle_regridder_info = bundle_regridder_param%make_info(_RC)
+      call get_bundle(bundle, geom=bundle_geom, _RC)
+      call MAPL_FieldBundleSet(bundle, regridder_param_info=bundle_regridder_info, _RC)
+
+      call get_geom(aspect_geom, maxindex=ALTMAXINDEX, _RC)
+      aspect = GeomAspect(geom=aspect_geom,&
+         & regridder_param=EsmfRegridderParam(regridmethod=ALT_REGRID_METHOD))
+
+      call aspect%update_from_payload(bundle=bundle, _RC)
+
+      actual_geom = aspect%get_geom(_RC)
+      geom_match = ESMF_GeomMatch(bundle_geom, actual_geom)
+      is_match = geom_match == ESMF_GEOMMATCH_GEOMALIAS
+      if(.not. is_match) msg = GEOM_MISMATCH // '[' // get_geom_match_string(geom_match) // ']'
+      @assertTrue(is_match, msg)
+
+      call get_bundle(test_bundle, _RC)
+      call aspect%update_payload(bundle=test_bundle, _RC)
+      call MAPL_FieldBundleGet(test_bundle, regridder_param_info=test_regridder_info, _RC)
+      is_match = bundle_regridder_info == test_regridder_info
+      @assertTrue(is_match, REGRIDDER_MISMATCH)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_bundle
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: bundle
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: bundle_geom, aspect_geom
+      type(ESMF_Geom), allocatable :: actual_geom
+      type(EsmfRegridderParam) :: bundle_regridder_param, aspect_regridder_param
+      type(ESMF_Info), allocatable :: bundle_regridder_info, actual_regridder_info
+      type(ESMF_Info), allocatable :: aspect_regridder_info
+      integer :: status
+      logical :: is_match
+      type(ESMF_GeomMatch_Flag) :: geom_match
+      character(len=:), allocatable :: msg
+
+      call get_geom(aspect_geom, maxindex=MAXINDEX_, _RC)
+      aspect_regridder_param = EsmfRegridderParam(regridmethod=REGRID_METHOD)
+      aspect_regridder_info = aspect_regridder_param%make_info(_RC)
+      aspect = GeomAspect(geom=aspect_geom, regridder_param=aspect_regridder_param)
+
+      call get_geom(bundle_geom, maxindex=ALTMAXINDEX, _RC)
+      bundle_regridder_param = EsmfRegridderParam(regridmethod=ALT_REGRID_METHOD)
+      bundle_regridder_info = bundle_regridder_param%make_info(_RC)
+      call get_bundle(bundle, geom=bundle_geom, _RC)
+      call MAPL_FieldBundleSet(bundle, regridder_param_info=bundle_regridder_info, _RC)
+
+      call aspect%update_payload(bundle=bundle, _RC)
+
+      call MAPL_FieldBundleGet(bundle, geom=actual_geom, &
+          & regridder_param_info=actual_regridder_info, _RC)
+      geom_match = ESMF_GeomMatch(aspect_geom, actual_geom)
+      is_match = geom_match == ESMF_GEOMMATCH_GEOMALIAS
+      if(.not. is_match) msg = GEOM_MISMATCH // '[' // get_geom_match_string(geom_match) // ']'
+      @assertTrue(is_match, msg)
+
+      is_match = aspect_regridder_info == actual_regridder_info
+      @assertTrue(is_match, REGRIDDER_MISMATCH)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_bundle
+   
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_payload_no_geom_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: bundle
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: aspect_geom
+      integer :: status
+      logical :: is_mirror
+      type(ESMF_Info) :: info
+      type(EsmfRegridderParam) :: regridder_param
+
+      bundle = ESMF_FieldBundleCreate(_RC)
+      regridder_param = EsmfRegridderParam(regridmethod=REGRID_METHOD)
+      info = regridder_param%make_info(_RC)
+      call MAPL_FieldBundleSet(bundle, regridder_param_info=info, _RC)
+      call get_geom(aspect_geom, _RC)
+      aspect = GeomAspect(geom=aspect_geom)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      is_mirror = aspect%is_mirror()
+      @assertTrue(is_mirror, 'The aspect geom should not be set after update.')
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_payload_no_geom_bundle
+
+!===============================================================================
+! HELPERS
+!===============================================================================
+
+   function get_geom_match_string(gm) result(string)
+      character(len=:), allocatable :: string
+      type(ESMF_GeomMatch_Flag), intent(in) :: gm
+      
+      if(gm == ESMF_GEOMMATCH_INVALID) then
+         string = 'ESMF_GEOMMATCH_INVALID'
+      else if(gm == ESMF_GEOMMATCH_NONE) then
+         string = 'ESMF_GEOMMATCH_NONE'
+      else if(gm == ESMF_GEOMMATCH_ALIAS) then
+         string = 'ESMF_GEOMMATCH_ALIAS'
+      else if(gm == ESMF_GEOMMATCH_GEOMALIAS) then
+         string = 'ESMF_GEOMMATCH_GEOMALIAS'
+      else
+         string = 'UNKNOWN ESMF_GeomMatch_Flag)'
+      end if
+
+   end function get_geom_match_string
+         
+   function get_regridder_param(default) result(rp)
+      type(EsmfRegridderParam) :: rp
+      logical, optional, intent(in) :: default
+      type(ESMF_RegridMethod_Flag) :: regridmethod
+      
+      regridmethod = REGRID_METHOD
+      if(present(default)) then
+         if(.not. default) regridmethod = ALT_REGRID_METHOD
+      end if
+      rp = EsmfRegridderParam(regridmethod=regridmethod)
+
+   end function get_regridder_param
+
+   subroutine get_geom(geom, grid, maxindex, rc)
+      type(ESMF_Geom), intent(out) :: geom
+      type(ESMF_Grid), optional, intent(in) :: grid
+      integer, optional, intent(in) :: maxindex(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Grid) :: grid_
+      
+      grid_ = ESMF_GridCreate(maxindex=MAXINDEX_, _RC)
+      if(present(grid)) then
+         grid_ = grid
+      else
+         if(present(maxindex)) then
+            grid_ = ESMF_GridCreate(maxindex=maxindex, _RC)
+         end if
+      end if
+      geom = ESMF_GeomCreate(grid=grid_, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine get_geom
+
+   subroutine destroy_geom(geom, rc)
+      type(ESMF_Geom), intent(inout) :: geom
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Grid) :: grid
+
+      call ESMF_GeomGet(geom, grid=grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_geom
+
+   subroutine get_field(field, geom, field_name, rc)
+      type(ESMF_Field), intent(out) :: field
+      type(ESMF_Geom), optional, intent(in) :: geom
+      character(len=*), optional, intent(in) :: field_name
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Geom) :: geom_
+      character(len=:), allocatable :: name_
+
+      name_ = BASE_NAME
+      if(present(field_name)) name_ = field_name
+
+      call get_geom(geom_, _RC)
+      if(present(geom)) geom_ = geom
+         
+      field = ESMF_FieldCreate(geom_, TK4, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine get_field
+
+   subroutine destroy_field(field, rc)
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Geom) :: geom
+
+      call ESMF_FieldGet(field, geom=geom, _RC)
+      call ESMF_FieldDestroy(field, _RC)
+      call destroy_geom(geom, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_field
+   
+   subroutine destroy_fields(fields, rc)
+      type(ESMF_Field), intent(inout) :: fields(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i
+
+      do i=1, size(fields)
+         call destroy_field(fields(i), _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_fields
+   
+   subroutine get_bundle(bundle, geom, field_count, basename, rc)
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      type(ESMF_Geom), optional, intent(in) :: geom
+      integer, optional, intent(in) :: field_count
+      character(len=*), optional, intent(in) :: basename
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Geom) :: geom_
+      integer :: fieldCount
+      type(ESMF_Field), allocatable :: fields(:)
+      character(len=:), allocatable :: basename_
+
+      fieldCount = 5
+      if(present(field_count)) fieldCount = field_count
+      if(fieldCount < 1) then
+         _RETURN(_FAILURE)
+      end if
+
+      basename_ = BASE_NAME
+      if(present(basename)) basename_ = basename
+
+      call get_fields(field_count=fieldCount, fields=fields, basename=basename_, _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
+
+      call get_geom(geom_, _RC)
+      if(present(geom)) geom_ = geom
+      call MAPL_FieldBundleSet(bundle, geom=geom_, _RC)
+      _RETURN(_SUCCESS)
+      
+   end subroutine get_bundle
+
+   subroutine get_fields(field_count, fields, basename, rc)
+      integer, intent(in) :: field_count
+      type(ESMF_Field), allocatable, intent(out) :: fields(:)
+      character(len=*), intent(in) :: basename
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i
+      character(len=:), allocatable :: field_name
+      
+      allocate(fields(field_count))
+      do i=1, size(fields)
+         call make_field_name(field_name, base=basename, num=i, _RC)
+         call get_field(fields(i), field_name=field_name, _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine get_fields
+     
+   subroutine destroy_bundle(bundle, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Field), allocatable :: fields(:)
+      integer :: fieldCount
+
+      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
+      allocate(fields(fieldCount))
+      call ESMF_FieldBundleGet(bundle, fieldList=fields, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call destroy_fields(fields, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_bundle
+
+   subroutine destroy(field, bundle, geom, rc)
+      type(ESMF_Field), optional, intent(inout) :: field
+      type(ESMF_FieldBundle), optional, intent(inout) :: bundle
+      type(ESMF_Geom), optional, intent(inout) :: geom
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      if(present(field)) then
+         call destroy_field(field, _RC)
+      end if
+      if(present(bundle)) then
+         call destroy_bundle(bundle, _RC)
+      end if
+      if(present(geom)) then
+         call destroy_geom(geom, _RC)
+      end if
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy
+
+   subroutine make_field_name(field_name, base, num, rc)
+      character(len=:), allocatable, intent(out) :: field_name
+      character(len=*), intent(in) :: base
+      integer, intent(in) :: num
+      integer, optional, intent(out) :: rc
+      integer :: status
+      character(len=32) :: intstr
+
+      if(num < 0) then
+         _RETURN(_FAILURE)
+      end if
+      write(intstr, '(G0)', iostat=status) num
+      if(status /= 0) then
+         _RETURN(status)
+      end if
+      field_name = trim(adjustl(base)) // trim(adjustl(intstr))
+      _RETURN(_SUCCESS)
+
+   end subroutine make_field_name
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      _UNUSED_DUMMY(this)
+   end subroutine setUp
+   
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      _UNUSED_DUMMY(this)
+   end subroutine shutDown
+   
+end module Test_GeomAspect
