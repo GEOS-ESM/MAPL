@@ -15,11 +15,10 @@ module mapl3g_GridGetHorzIJIndex
    use ESMF, only: ESMF_Grid, ESMF_GridGet, ESMF_GridGetCoord, ESMF_STAGGERLOC_CORNER
    use ESMF, only: ESMF_CoordSys_Flag, ESMF_COORDSYS_SPH_DEG, ESMF_COORDSYS_CART, operator(==)
    use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoIsPresent, ESMF_InfoGet
-   use mapl3g_Geom_API, only: MAPL_GridGet
+   use mapl3g_GridGet, only: GridGet
    ! use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
    use MAPL_BaseMod, only: MAPL2_GridGet => MAPL_GridGet, MAPL2_GridGetInterior => MAPL_GridGetInterior
    use MAPL_Constants, only: MAPL_PI, MAPL_PI_R8, MAPL_DEGREES_TO_RADIANS_R8
-   ! use MAPL_Grid, only: MAPL_GridGet, MAPL_GridGetInterior, MAPL_GridGetCorners
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Assert, MAPL_Return
 
    implicit none(type, external)
@@ -67,7 +66,7 @@ contains
       ! pass in the the dimensions of the grid and we must compute them
       ! and assume search on the global domain
       if (present(grid)) then
-         call MAPL_GridGet(grid, im=im, jm=jm, _RC)
+         call GridGet(grid, im=im, jm=jm, _RC)
          ! call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=dims, _RC)
          call MAPL2_GridGet(grid, globalCellCountPerDim=dims, _RC)
          im_world = dims(1)
@@ -328,10 +327,10 @@ contains
 
          tolerance = epsilon(1.0)
          call MAPL2_GridGetInterior(grid, i1, i2, j1, j2)
-         call MAPL_GridGet(grid, im=im, jm=jm, _RC)
+         call GridGet(grid, im=im, jm=jm, _RC)
          OK = .true.
          ! check the edge of face 1 along longitude
-         call MAPL_GridGet(grid, corners=corners, _RC)
+         call GridGet(grid, corners=corners, _RC)
          corner_lons = corners(:, :, 1)
          corner_lats = corners(:, :, 2)
 
