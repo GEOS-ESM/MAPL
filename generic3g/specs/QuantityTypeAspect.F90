@@ -521,15 +521,9 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc
 
-      _HERE, file, line, this%is_mirror(), this%quantity_type%to_string()
       if (allocated(this%dimensions)) then
-         _HERE, file, line, 'dimensions:', this%dimensions
       end if
-      _HERE, file, line, 'basis:', this%basis%to_string()
-      _HERE, file, line, 'conservative_regridable:', this%conservative_regridable
-      _HERE, file, line, 'normalization_type:', this%normalization_type%to_string()
       if (allocated(this%aux_field_name)) then
-         _HERE, file, line, 'aux_field_name:', this%aux_field_name
       end if
 
       _RETURN(_SUCCESS)

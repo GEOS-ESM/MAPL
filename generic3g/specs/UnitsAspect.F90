@@ -257,9 +257,7 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc
 
-      _HERE, file, line, this%is_mirror(), allocated(this%units)
       if (allocated(this%units)) then
-         _HERE, file, line, '<', this%units, '>'
       end if
 
       _RETURN(_SUCCESS)

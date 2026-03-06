@@ -27,6 +27,7 @@ module mapl3g_FieldDelta
       type(ESMF_Geom), allocatable :: geom
       type(ESMF_TypeKind_Flag), allocatable :: typekind
       ! info attributes
+      integer, allocatable :: num_levels
       character(:), allocatable :: units
    contains
       procedure :: initialize_field_delta
@@ -45,11 +46,12 @@ module mapl3g_FieldDelta
 
 contains
 
-   function new_FieldDelta(geom, typekind, units) result(field_delta)
+   function new_FieldDelta(geom, typekind, num_levels, units) result(field_delta)
       type(FieldDelta) :: field_delta
 
       type(ESMF_Geom), intent(in), optional :: geom
       type(ESMF_TypeKind_Flag), intent(in), optional :: typekind
+      integer, intent(in), optional :: num_levels
       character(*), intent(in), optional :: units
 
       if (present(geom)) then
@@ -58,6 +60,10 @@ contains
 
       if (present(typekind)) then
          field_delta%typekind = typekind
+      end if
+
+      if (present(num_levels)) then
+         field_delta%num_levels = num_levels
       end if
 
       if (present(units)) then
@@ -252,7 +258,7 @@ contains
 
       call select_geom(geom, current_geom, this%geom, ignore_, new_array)
       call select_typekind(typekind, current_typekind, this%typekind, ignore_, new_array)
-      call select_ungriddedUbound(ungriddedUbound, field, ignore_, new_array, _RC)
+      call select_ungriddedUbound(ungriddedUbound, field, this%num_levels, ignore_, new_array, _RC)
       ungriddedLBound = [(1, i=1, size(ungriddedUBound))]
 
       _RETURN_UNLESS(new_array)
@@ -301,9 +307,10 @@ contains
          typekind = new_typekind
       end subroutine select_typekind
 
-      subroutine select_ungriddedUbound(ungriddedUbound, field, ignore, new_array, rc)
+      subroutine select_ungriddedUbound(ungriddedUbound, field, new_num_levels, ignore, new_array, rc)
          integer, allocatable, intent(out) :: ungriddedUbound(:)
          type(ESMF_Field), intent(inout) :: field
+         integer, optional, intent(in) :: new_num_levels
          character(*), intent(in) :: ignore
          logical, intent(inout) :: new_array
          integer, optional, intent(inout) :: rc
@@ -311,8 +318,10 @@ contains
          integer :: status
          integer :: ungriddedDimCount
          integer :: rank
+         integer :: current_num_levels
          integer, allocatable :: localElementCount(:)
          integer, allocatable :: current_ungriddedUBound(:)
+         type(VerticalStaggerLoc) :: vert_staggerloc
 
          call ESMF_FieldGet(field, &
               ungriddedDimCount=ungriddedDimCount, &
@@ -321,8 +330,19 @@ contains
          current_ungriddedUBound = localElementCount(rank-ungriddedDimCount+1:)
          ungriddedUbound = current_ungriddedUBound
 
-         ! Note: num_levels changes are now detected via geom/vgrid changes
-         ! No special handling needed here
+         if (ignore == 'num_levels') return
+         if (.not. present(new_num_levels)) return
+
+         call FieldGet(field, vert_staggerloc=vert_staggerloc, _RC)
+
+         ! Surface fields are not impacted by change in vertical grid
+         _RETURN_IF(vert_staggerloc == VERTICAL_STAGGER_NONE)
+
+         call FieldGet(field, num_levels=current_num_levels, _RC)
+         _ASSERT(count(vert_staggerloc == [VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE]) == 1, 'unsupported vertical stagger')
+         ungriddedUBound(1) = new_num_levels
+
+         new_array = new_array .or. (new_num_levels /= current_num_levels)
 
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)
