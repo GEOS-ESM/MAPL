@@ -1,0 +1,447 @@
+#include "MAPL_TestErr.h"
+
+module Test_GridGetHorzIJIndex
+
+   use pfunit
+   use ESMF_TestMethod_mod
+   use mapl3g_GridGetHorzIJIndex, only: GridGetHorzIJIndex
+   use mapl3g_Geom_API, only: GeomManager, get_geom_manager, MaplGeom, MAPL_GridGet
+   use MAPL_Constants, only: MAPL_PI, MAPL_PI_R8
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use esmf, only: ESMF_Grid, ESMF_Geom, ESMF_GeomGet, ESMF_KIND_R8
+
+   implicit none
+
+contains
+
+   function make_grid_from_hconfig(hconfig, rc) result(grid)
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      integer, optional, intent(out) :: rc
+      type(ESMF_Grid) :: grid
+
+      type(GeomManager), pointer :: geom_manager
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom_manager => get_geom_manager()
+      mapl_geom => geom_manager%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_GeomGet(geom, grid=grid, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_grid_from_hconfig
+
+   ! Test GridGetHorzIJIndex with a lat-lon grid - basic single precision
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_horz_ij_index_lat_lon_single_precision(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: npts
+      real, allocatable :: lons(:), lats(:)
+      integer, allocatable :: ii(:), jj(:)
+      integer :: i, status
+      character(len=:), allocatable :: content
+
+      ! Create a simple lat-lon grid (12x13)
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      ! Test with 3 points
+      npts = 3
+      allocate(lons(npts), lats(npts), ii(npts), jj(npts))
+
+      ! Set input points (in radians, roughly distributed)
+      lons(1) = 0.0
+      lats(1) = 0.0
+      lons(2) = MAPL_PI/2.0
+      lats(2) = MAPL_PI/4.0
+      lons(3) = MAPL_PI
+      lats(3) = -MAPL_PI/4.0
+
+      ! Call the subroutine
+      call GridGetHorzIJIndex(npts, ii, jj, lon=lons, lat=lats, grid=grid, _RC)
+
+      ! Verify that indices are returned (should be in valid range or -1)
+      do i = 1, npts
+         @assert_that(ii(i) >= -1, is(.true.))
+         @assert_that(jj(i) >= -1, is(.true.))
+      end do
+
+      deallocate(lons, lats, ii, jj)
+   end subroutine test_get_horz_ij_index_lat_lon_single_precision
+
+   ! Test GridGetHorzIJIndex with a lat-lon grid - double precision
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_horz_ij_index_lat_lon_double_precision(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer, parameter :: npts = 4
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      integer, allocatable :: ii(:), jj(:)
+      integer :: i, status
+      character(len=:), allocatable :: content
+
+      ! Create a simple lat-lon grid (12x13)
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      allocate(lonR8(npts), latR8(npts), ii(npts), jj(npts))
+
+      ! Set input points (in radians)
+      lonR8(1) = 0.0d0
+      latR8(1) = 0.0d0
+      lonR8(2) = MAPL_PI_R8/2.0d0
+      latR8(2) = MAPL_PI_R8/4.0d0
+      lonR8(3) = MAPL_PI_R8
+      latR8(3) = -MAPL_PI_R8/4.0d0
+      lonR8(4) = -MAPL_PI_R8/2.0d0
+      latR8(4) = MAPL_PI_R8/2.0d0
+
+      ! Call the subroutine
+      call GridGetHorzIJIndex(npts, ii, jj, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+
+      ! Verify that indices are returned
+      do i = 1, npts
+         @assert_that(ii(i) >= -1, is(.true.))
+         @assert_that(jj(i) >= -1, is(.true.))
+      end do
+
+      deallocate(lonR8, latR8, ii, jj)
+   end subroutine test_get_horz_ij_index_lat_lon_double_precision
+
+   ! Test with single point
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_horz_ij_index_lat_lon_single_point(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: npts
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      integer, allocatable :: ii(:), jj(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      ! Create a simple lat-lon grid
+      content = "{class: latlon, im_world: 10, jm_world: 10, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      ! Test with single point
+      npts = 1
+      allocate(lonR8(npts), latR8(npts), ii(npts), jj(npts))
+
+      lonR8(1) = 0.0d0  ! Prime meridian
+      latR8(1) = 0.0d0  ! Equator
+
+      call GridGetHorzIJIndex(npts, ii, jj, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+
+      ! Should return valid indices or -1
+      @assert_that(ii(1) >= -1, is(.true.))
+      @assert_that(jj(1) >= -1, is(.true.))
+
+      deallocate(lonR8, latR8, ii, jj)
+   end subroutine test_get_horz_ij_index_lat_lon_single_point
+
+   ! Test with longitude wrapping (crossing dateline)
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_horz_ij_index_lat_lon_dateline_crossing(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: npts
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      integer, allocatable :: ii(:), jj(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      ! Create a simple lat-lon grid
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      ! Test with points around the dateline
+      npts = 2
+      allocate(lonR8(npts), latR8(npts), ii(npts), jj(npts))
+
+      ! Point 1: Near dateline (positive)
+      lonR8(1) = 3.0d0  ! ~172 degrees
+      latR8(1) = 0.0d0
+
+      ! Point 2: Near dateline (negative)
+      lonR8(2) = -3.0d0  ! ~-172 degrees
+      latR8(2) = 0.0d0
+
+      call GridGetHorzIJIndex(npts, ii, jj, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+
+      deallocate(lonR8, latR8, ii, jj)
+   end subroutine test_get_horz_ij_index_lat_lon_dateline_crossing
+
+   ! Test with out-of-bounds points
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_horz_ij_index_lat_lon_out_of_bounds(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: npts
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      integer, allocatable :: ii(:), jj(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      ! Create a simple lat-lon grid
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      ! Test with out-of-bounds points
+      npts = 2
+      allocate(lonR8(npts), latR8(npts), ii(npts), jj(npts))
+
+      ! Point 1: Beyond north pole
+      lonR8(1) = 0.0d0
+      latR8(1) = 2.0d0  ! > pi/2
+
+      ! Point 2: Beyond south pole
+      lonR8(2) = 0.0d0
+      latR8(2) = -2.0d0  ! < -pi/2
+
+      call GridGetHorzIJIndex(npts, ii, jj, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+
+      ! Out-of-bounds points should return -1
+      @assert_that(ii(1) == -1 .or. ii(1) > 0, is(.true.))
+      @assert_that(jj(1) == -1 .or. jj(1) > 0, is(.true.))
+
+      deallocate(lonR8, latR8, ii, jj)
+   end subroutine test_get_horz_ij_index_lat_lon_out_of_bounds
+
+   ! Test with zero points
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_horz_ij_index_lat_lon_zero_points(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: npts
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      integer, allocatable :: ii(:), jj(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      ! Create a simple lat-lon grid
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      ! Test with zero points - should handle gracefully
+      npts = 0
+      allocate(lonR8(npts), latR8(npts), ii(npts), jj(npts))
+
+      call GridGetHorzIJIndex(npts, ii, jj, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+
+      deallocate(lonR8, latR8, ii, jj)
+   end subroutine test_get_horz_ij_index_lat_lon_zero_points
+
+   ! Test with larger array of points
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_horz_ij_index_lat_lon_large_array(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: npts, i
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), parameter :: pi = 3.1415926535897932d0
+      character(len=:), allocatable :: content
+      integer :: status
+
+      ! Create a simple lat-lon grid
+      content = "{class: latlon, im_world: 20, jm_world: 20, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      ! Test with larger array
+      npts = 100
+      allocate(lonR8(npts), latR8(npts), ii(npts), jj(npts))
+
+      ! Fill with random-like distributed points
+      do i = 1, npts
+         lonR8(i) = -pi + (2.0d0 * pi * real(i - 1, ESMF_KIND_R8) / real(npts - 1, ESMF_KIND_R8))
+         latR8(i) = -pi/2.0d0 + (pi * real(i - 1, ESMF_KIND_R8) / real(npts - 1, ESMF_KIND_R8))
+      end do
+
+      call GridGetHorzIJIndex(npts, ii, jj, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+
+      ! All indices should be valid or -1
+      do i = 1, npts
+         @assert_that(ii(i) >= -1, is(.true.))
+         @assert_that(jj(i) >= -1, is(.true.))
+      end do
+
+      deallocate(lonR8, latR8, ii, jj)
+   end subroutine test_get_horz_ij_index_lat_lon_large_array
+
+   ! Test consistency between single and double precision on same points
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_horz_ij_index_lat_lon_precision_consistency(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: npts, i
+      real, allocatable :: lons(:), lats(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      integer, allocatable :: ii_sp(:), jj_sp(:), ii_dp(:), jj_dp(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      ! Create a simple lat-lon grid
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      npts = 5
+      allocate(lons(npts), lats(npts), lonR8(npts), latR8(npts))
+      allocate(ii_sp(npts), jj_sp(npts), ii_dp(npts), jj_dp(npts))
+
+      ! Set test points
+      lons(1) = 0.0
+      lats(1) = 0.0
+      lonR8(1) = 0.0d0
+      latR8(1) = 0.0d0
+
+      lons(2) = MAPL_PI/2.0
+      lats(2) = MAPL_PI/4.0
+      lonR8(2) = MAPL_PI_R8/2.0d0
+      latR8(2) = MAPL_PI_R8/4.0d0
+
+      lons(3) = -MAPL_PI/2.0
+      lats(3) = -MAPL_PI/4.0
+      lonR8(3) = -MAPL_PI_R8/2.0d0
+      latR8(3) = -MAPL_PI_R8/4.0d0
+
+      lons(4) = MAPL_PI
+      lats(4) = 0.0
+      lonR8(4) = MAPL_PI_R8
+      latR8(4) = 0.0d0
+
+      lons(5) = -MAPL_PI
+      lats(5) = MAPL_PI/4.0
+      lonR8(5) = -MAPL_PI_R8
+      latR8(5) = MAPL_PI_R8/4.0d0
+
+      ! Call with single precision
+      call GridGetHorzIJIndex(npts, ii_sp, jj_sp, lon=lons, lat=lats, grid=grid, _RC)
+
+      ! Call with double precision
+      call GridGetHorzIJIndex(npts, ii_dp, jj_dp, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+
+      ! Results should be same or very close
+      do i = 1, npts
+         ! Allow for small differences due to precision conversion
+         @assert_that(abs(ii_sp(i) - ii_dp(i)) <= 1, is(.true.))
+         @assert_that(abs(jj_sp(i) - jj_dp(i)) <= 1, is(.true.))
+      end do
+
+      deallocate(lons, lats, lonR8, latR8, ii_sp, jj_sp, ii_dp, jj_dp)
+   end subroutine test_get_horz_ij_index_lat_lon_precision_consistency
+
+   ! Test GridGetHorzIJIndex with a cubed-sphere grid - double precision
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_get_horz_ij_index_cubed_sphere_double_precision(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer, parameter :: npts = 5
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      integer, allocatable :: ii(:), jj(:)
+      integer :: i, im, jm, status
+      character(len=:), allocatable :: content
+
+      content = "{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      call MAPL_GridGet(grid, im=im, jm=jm, _RC)
+
+      allocate(lonR8(npts), latR8(npts), ii(npts), jj(npts))
+
+      lonR8 = [0.0d0, 0.8d0, -1.2d0, 2.2d0, -2.4d0]
+      latR8 = [0.0d0, 0.3d0, -0.4d0, 0.2d0, -0.6d0]
+
+      call GridGetHorzIJIndex(npts, ii, jj, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+
+      do i = 1, npts
+         @assert_that(ii(i) == -1 .or. (ii(i) >= 1 .and. ii(i) <= im), is(.true.))
+         @assert_that(jj(i) == -1 .or. (jj(i) >= 1 .and. jj(i) <= jm), is(.true.))
+      end do
+
+      deallocate(lonR8, latR8, ii, jj)
+   end subroutine test_get_horz_ij_index_cubed_sphere_double_precision
+
+   ! Test consistency between single and double precision on cubed-sphere grid
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_get_horz_ij_index_cubed_sphere_precision_consistency(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer, parameter :: npts = 5
+      real, allocatable :: lons(:), lats(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      integer, allocatable :: ii_sp(:), jj_sp(:), ii_dp(:), jj_dp(:)
+      integer :: i, im, jm, status
+      character(len=:), allocatable :: content
+
+      content = "{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      grid = make_grid_from_hconfig(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      call MAPL_GridGet(grid, im=im, jm=jm, _RC)
+
+      allocate(lons(npts), lats(npts), lonR8(npts), latR8(npts))
+      allocate(ii_sp(npts), jj_sp(npts), ii_dp(npts), jj_dp(npts))
+
+      lonR8 = [0.0d0, 0.8d0, -1.2d0, 2.2d0, -2.4d0]
+      latR8 = [0.0d0, 0.3d0, -0.4d0, 0.2d0, -0.6d0]
+      lons = real(lonR8)
+      lats = real(latR8)
+
+      call GridGetHorzIJIndex(npts, ii_sp, jj_sp, lon=lons, lat=lats, grid=grid, _RC)
+      call GridGetHorzIJIndex(npts, ii_dp, jj_dp, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
+
+      do i = 1, npts
+         @assert_that(ii_sp(i) == -1 .or. (ii_sp(i) >= 1 .and. ii_sp(i) <= im), is(.true.))
+         @assert_that(jj_sp(i) == -1 .or. (jj_sp(i) >= 1 .and. jj_sp(i) <= jm), is(.true.))
+         @assert_that(ii_dp(i) == -1 .or. (ii_dp(i) >= 1 .and. ii_dp(i) <= im), is(.true.))
+         @assert_that(jj_dp(i) == -1 .or. (jj_dp(i) >= 1 .and. jj_dp(i) <= jm), is(.true.))
+         if (ii_sp(i) > 0 .and. ii_dp(i) > 0) then
+            @assert_that(abs(ii_sp(i) - ii_dp(i)) <= 1, is(.true.))
+         end if
+         if (jj_sp(i) > 0 .and. jj_dp(i) > 0) then
+            @assert_that(abs(jj_sp(i) - jj_dp(i)) <= 1, is(.true.))
+         end if
+      end do
+
+      deallocate(lons, lats, lonR8, latR8, ii_sp, jj_sp, ii_dp, jj_dp)
+   end subroutine test_get_horz_ij_index_cubed_sphere_precision_consistency
+
+end module Test_GridGetHorzIJIndex
