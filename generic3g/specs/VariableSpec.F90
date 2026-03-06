@@ -156,6 +156,9 @@ module mapl3g_VariableSpec
       procedure :: make_GeomAspect
       procedure :: make_UngriddedDimsAspect
       procedure :: make_AttributesAspect
+      procedure :: make_QuantityTypeAspect
+      procedure :: make_NormalizationAspect
+      procedure :: make_InverseNormalizationAspect
       procedure :: make_VerticalGridAspect
       procedure :: make_FrequencyAspect
       procedure :: make_ClassAspect
@@ -455,26 +458,17 @@ contains
       aspect = this%make_AttributesAspect(_RC)
       call aspects%insert(ATTRIBUTES_ASPECT_ID, aspect)
 
-      ! Add QuantityType aspect (default: QUANTITY_UNKNOWN, not mirror)
-      if (allocated(aspect)) deallocate(aspect)
-      allocate(aspect, source=QuantityTypeAspect())
-      call aspect%set_mirror(.false.)  ! Explicit default value, not mirror
+      aspect = this%make_QuantityTypeAspect(_RC)
       call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
 
-      ! Add Normalization aspect (default: no normalization, not mirror)
-      if (allocated(aspect)) deallocate(aspect)
-      allocate(aspect, source=NormalizationAspect())
-      call aspect%set_mirror(.false.)  ! Explicit default value, not mirror
+      aspect = this%make_NormalizationAspect(_RC)
       call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
 
       aspect = this%make_VerticalGridAspect(vertical_grid, &
            component_geom=component_geom, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
 
-      ! Add InverseNormalization aspect (default: no denormalization, not mirror)
-      if (allocated(aspect)) deallocate(aspect)
-      allocate(aspect, source=InverseNormalizationAspect())
-      call aspect%set_mirror(.false.)  ! Explicit default value, not mirror
+      aspect = this%make_InverseNormalizationAspect(_RC)
       call aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
 
       aspect = this%make_FrequencyAspect(timestep, offset, _RC)
@@ -540,6 +534,39 @@ contains
       aspect = AttributesAspect(this%attributes)
       _RETURN(_SUCCESS)
    end function make_AttributesAspect
+
+   function make_QuantityTypeAspect(this, rc) result(aspect)
+      type(QuantityTypeAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      
+      ! Create with default (QUANTITY_UNKNOWN) and explicit non-mirror behavior
+      aspect = QuantityTypeAspect()
+      call aspect%set_mirror(.false.)
+      _RETURN(_SUCCESS)
+   end function make_QuantityTypeAspect
+
+   function make_NormalizationAspect(this, rc) result(aspect)
+      type(NormalizationAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      
+      ! Create with default (no normalization) and explicit non-mirror behavior
+      aspect = NormalizationAspect()
+      call aspect%set_mirror(.false.)
+      _RETURN(_SUCCESS)
+   end function make_NormalizationAspect
+
+   function make_InverseNormalizationAspect(this, rc) result(aspect)
+      type(InverseNormalizationAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      
+      ! Create with default (no denormalization) and explicit non-mirror behavior
+      aspect = InverseNormalizationAspect()
+      call aspect%set_mirror(.false.)
+      _RETURN(_SUCCESS)
+   end function make_InverseNormalizationAspect
 
    function make_VerticalGridAspect(this, vertical_grid, component_geom, time_dependent, rc) result(aspect)
       type(VerticalGridAspect) :: aspect
