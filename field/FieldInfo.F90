@@ -503,13 +503,13 @@ contains
 
    end function to_typekind
 
-    subroutine derive_num_levels_from_vgrid(info, namespace, num_levels, num_layers, num_vgrid_levels, rc)
-       type(ESMF_Info), intent(in) :: info
-       character(*), intent(in) :: namespace
-       integer, optional, intent(out) :: num_levels
-       integer, optional, intent(out) :: num_layers
-       integer, optional, intent(out) :: num_vgrid_levels
-       integer, optional, intent(out) :: rc
+     subroutine derive_num_levels_from_vgrid(info, namespace, num_levels, num_layers, num_vgrid_levels, rc)
+        type(ESMF_Info), intent(in) :: info
+        character(*), intent(in) :: namespace
+        integer, optional, intent(out) :: num_levels
+        integer, optional, intent(out) :: num_layers
+        integer, optional, intent(out) :: num_vgrid_levels
+        integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: vgrid_id_local

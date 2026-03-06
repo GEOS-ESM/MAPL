@@ -8,6 +8,8 @@ module Test_FieldBundleDelta
    use mapl3g_FieldInfo
    use mapl3g_esmf_info_keys
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_BasicVerticalGrid
+   use mapl3g_VerticalGrid_API
    use mapl3g_InfoUtilities
    use mapl_FieldUtilities
    use mapl3g_UngriddedDims
@@ -101,6 +103,10 @@ contains
       integer :: fieldCount
       type(UngriddedDims) :: ungridded_dims
       type(VerticalStaggerLoc) :: vert_staggerloc
+      type(BasicVerticalGrid) :: basic_vgrid
+      type(BasicVerticalGridSpec) :: vgrid_spec
+      class(VerticalGrid), pointer :: vgrid_ptr
+      type(VerticalGridManager), pointer :: vgrid_manager
 
       bundle = MAPL_FieldBundleCreate()
       call MAPL_FieldBundleSet(bundle, geom=geom)
@@ -117,7 +123,12 @@ contains
       if (present(with_ungridded)) then
          if (with_ungridded) then
             vert_staggerloc = VERTICAL_STAGGER_CENTER
-            call MAPL_FieldBundleSet(bundle, num_levels=NUM_LEVELS_VGRID)
+            ! Create a vertical grid with NUM_LEVELS_VGRID layers
+            vgrid_spec%num_levels = NUM_LEVELS_VGRID
+            call basic_vgrid%initialize(vgrid_spec)
+            vgrid_manager => get_vertical_grid_manager()
+            vgrid_ptr => vgrid_manager%add_grid(basic_vgrid)
+            call MAPL_FieldBundleSet(bundle, vgrid=vgrid_ptr)
             call ungridded_dims%add_dim(UngriddedDim(NUM_RADII, "radius", 'nm'))
          end if
       end if
@@ -361,9 +372,8 @@ contains
       call setup_bundle(bundle, weights=DEFAULT_WEIGHTS, geom=geom, typekind=ESMF_TYPEKIND_R4, units='km', with_ungridded=.true.)
 
 
-      delta = FieldBundleDelta(interpolation_weights=new_weights) 
+      delta = FieldBundleDelta(interpolation_weights=new_weights)
       call delta%update_bundle(bundle, _RC) ! should not reallocate fields
-
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
       @assert_that(size(fieldList), is(FIELD_COUNT))
 
