@@ -213,8 +213,8 @@ contains
       type(StateItemSpec), target :: goal_spec
       type(AspectMap), pointer :: goal_aspects
       class(StateItemAspect), pointer :: class_aspect
-      type(esmf_Field), allocatable :: field_
       class(StateItemAspect), allocatable :: aspect
+      type(esmf_Field), allocatable :: field_
 
       n = this%spec%physical_dimensions%size()
       do i = 1, n
@@ -239,19 +239,20 @@ contains
       ! Add VerticalGridAspect (cannot be in input aspects due to aliasing)
       call goal_aspects%insert(VERTICAL_GRID_ASPECT_ID, VerticalGridAspect(vertical_grid=this, vertical_stagger=VERTICAL_STAGGER_EDGE))
       
-      ! Add new aspects with mirror=false (Category 1 behavior)
+      ! Add mirror aspects for coordinate field - these will inherit from source vertical grid
+      ! No transform needed for these aspects on coordinate fields
       allocate(aspect, source=QuantityTypeAspect())
-      call aspect%set_mirror(.false.)
+      call aspect%set_mirror(.true.)
       call goal_aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
       
       deallocate(aspect)
       allocate(aspect, source=NormalizationAspect())
-      call aspect%set_mirror(.false.)
+      call aspect%set_mirror(.true.)
       call goal_aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
       
       deallocate(aspect)
       allocate(aspect, source=InverseNormalizationAspect())
-      call aspect%set_mirror(.false.)
+      call aspect%set_mirror(.true.)
       call goal_aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
       
       call goal_spec%create(_RC)
