@@ -1,12 +1,3 @@
-shift_back: false
-
-geoms:
-  geom1: &geom1
-    class: latlon
-    im_world: 10
-    jm_world: 9
-    pole: PC
-    dateline: DC
 
 active_collections:
   - test
@@ -14,11 +5,11 @@ active_collections:
 time_specs:
   three_hour: &one_hour
     frequency: PT24H
+    mode: average
 
 collections:
   test:
-    template: "%c.nc4"
-    #geom: *geom1
+    template: "%c_%y4%m2%d2_%h2%n2z.nc4"
     time_spec: *one_hour
     var_list:
       E_1: {expr: E_1}

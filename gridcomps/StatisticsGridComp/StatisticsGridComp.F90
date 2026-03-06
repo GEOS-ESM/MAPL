@@ -26,8 +26,8 @@ module mapl3g_StatisticsGridComp
 contains
 
    subroutine setServices(gridComp, rc)
-      type(esmf_GridComp), intent(inout) :: gridComp
-      integer, optional, intent(out) :: rc
+      type(esmf_GridComp) :: gridComp
+      integer, intent(out) :: rc
 
       integer :: status
       type(Statistics), pointer :: stats
@@ -76,8 +76,6 @@ contains
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
-
-      itemtype = mapl_HConfigAsItemType(hconfig, keystring='itemtype', _RC)
 
       varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, name, _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
