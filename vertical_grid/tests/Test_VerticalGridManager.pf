@@ -17,7 +17,7 @@ module Test_VerticalGridManager
       procedure :: get_coordinate_field => mock_create_field
       procedure :: get_supported_physical_dimensions => mock_get_supported_physical_dimensions
       procedure :: get_units => mock_get_units
-      procedure :: get_num_levels
+      procedure :: get_num_layers
       procedure :: matches
    end type MockVerticalGrid
 
@@ -181,12 +181,12 @@ contains
       if (present(rc)) rc = 0
    end function mock_create_field
 
-   function get_num_levels(this) result(n_levels)
-      integer :: n_levels
+   function get_num_layers(this) result(n_layers)
+      integer :: n_layers
       class(MockVerticalGrid), intent(in) :: this
       
-      n_levels = this%num_levels
-   end function get_num_levels
+      n_layers = this%num_levels
+   end function get_num_layers
 
    function mock_get_supported_physical_dimensions(this) result(dimensions)
       type(StringVector) :: dimensions

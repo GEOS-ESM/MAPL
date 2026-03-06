@@ -26,41 +26,41 @@ contains
 
    @test
    subroutine test_num_levels_none()
-      integer, parameter :: vgrid_levels = 72
+      integer, parameter :: num_layers = 72
       integer :: num_levels
       
-      num_levels = VERTICAL_STAGGER_NONE%get_num_levels(vgrid_levels)
+      num_levels = VERTICAL_STAGGER_NONE%get_num_levels(num_layers)
       @assert_that('NONE stagger should have 0 levels', num_levels, is(0))
    end subroutine test_num_levels_none
 
 
    @test
    subroutine test_num_levels_edge()
-      integer, parameter :: vgrid_levels = 72
+      integer, parameter :: num_layers = 72
       integer :: num_levels
       
-      num_levels = VERTICAL_STAGGER_EDGE%get_num_levels(vgrid_levels)
-      @assert_that('EDGE stagger should have same number of levels', num_levels, is(vgrid_levels))
+      num_levels = VERTICAL_STAGGER_EDGE%get_num_levels(num_layers)
+      @assert_that('EDGE stagger should have num_layers + 1 levels', num_levels, is(num_layers + 1))
    end subroutine test_num_levels_edge
 
 
    @test
    subroutine test_num_levels_center()
-      integer, parameter :: vgrid_levels = 72
+      integer, parameter :: num_layers = 72
       integer :: num_levels
       
-      num_levels = VERTICAL_STAGGER_CENTER%get_num_levels(vgrid_levels)
-      @assert_that('CENTER stagger should have one less level', num_levels, is(vgrid_levels - 1))
+      num_levels = VERTICAL_STAGGER_CENTER%get_num_levels(num_layers)
+      @assert_that('CENTER stagger should have num_layers levels', num_levels, is(num_layers))
    end subroutine test_num_levels_center
 
 
    @test
    subroutine test_num_levels_mirror()
-      integer, parameter :: vgrid_levels = 72
+      integer, parameter :: num_layers = 72
       integer :: num_levels
       
-      num_levels = VERTICAL_STAGGER_MIRROR%get_num_levels(vgrid_levels)
-      @assert_that('MIRROR stagger should have same number of levels', num_levels, is(vgrid_levels))
+      num_levels = VERTICAL_STAGGER_MIRROR%get_num_levels(num_layers)
+      @assert_that('MIRROR stagger should have num_layers + 1 levels', num_levels, is(num_layers + 1))
    end subroutine test_num_levels_mirror
 
 

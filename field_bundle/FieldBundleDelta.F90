@@ -13,11 +13,12 @@ module mapl3g_FieldBundleDelta
    use mapl3g_FieldDelta
    use mapl3g_InfoUtilities
    use mapl3g_VerticalStaggerLoc
-   use mapl3g_FieldCreate
-   use mapl3g_FieldGet
+   use mapl3g_VerticalGrid_API
+   use mapl3g_Field_API
    use mapl3g_FieldInfo
    use mapl_FieldUtilities
    use mapl3g_UngriddedDims
+   use mapl3g_HorizontalDimsSpec
    use mapl_FieldPointerUtilities
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -47,16 +48,15 @@ module mapl3g_FieldBundleDelta
 
 contains
 
-   function new_FieldBundleDelta(fieldCount, geom, typekind, num_levels, units, interpolation_weights) result(bundle_delta)
+   function new_FieldBundleDelta(fieldCount, geom, typekind, units, interpolation_weights) result(bundle_delta)
       type(FieldBundleDelta) :: bundle_delta
       integer, optional, intent(in) :: fieldCount
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      integer, optional, intent(in) :: num_levels
       character(*), optional, intent(in) :: units
       real(ESMF_KIND_R4), intent(in), optional :: interpolation_weights(:)
 
-      associate (field_delta => FieldDelta(geom=geom, typekind=typekind, num_levels=num_levels, units=units))
+      associate (field_delta => FieldDelta(geom=geom, typekind=typekind, units=units))
         bundle_delta = FieldBundleDelta(field_delta, fieldCount, interpolation_weights)
       end associate
    end function new_FieldBundleDelta
@@ -213,19 +213,19 @@ contains
       integer :: i
       type(ESMF_TypeKind_Flag) :: typekind
       integer :: old_field_count, new_field_count
-      integer, allocatable :: num_levels
       character(:), allocatable :: units
       type(VerticalStaggerLoc) :: vert_staggerloc
       character(ESMF_MAXSTR), allocatable :: fieldNameList(:)
       type(UngriddedDims) :: ungridded_dims
+      class(VerticalGrid), pointer :: vgrid
 
       ! Easy case 1: field count unchanged
       call FieldBundleGet(bundle, fieldList=fieldList, _RC)
       _RETURN_UNLESS(allocated(this%interpolation_weights))
       ! The number of weights is always one larger than the number of fields to support a constant
       ! offset.  ("Weights" is a funny term in that case.)
-      new_field_count = size(this%interpolation_weights) - 1
       old_field_count = size(fieldList)
+      new_field_count = size(this%interpolation_weights) - 1
       _RETURN_IF(new_field_count == old_field_count)
 
       ! Easy case 2: field count changing to zero
@@ -234,7 +234,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      ! Hard case: need to create new fields?
+      ! Hard case: need to create new fields
       _ASSERT(size(fieldList) == 0, 'fieldCount should only change to or from zero.  ExtData use case.')
       deallocate(fieldList)
       allocate(fieldList(new_field_count))
@@ -245,23 +245,29 @@ contains
            ungridded_dims=ungridded_dims, &
            units=units, &
            vert_staggerloc=vert_staggerloc, &
+           vgrid=vgrid, &
            _RC)
 
       _ASSERT(allocated(bundle_geom), 'geom should be allocated by this point')
       _ASSERT(vert_staggerloc /= VERTICAL_STAGGER_INVALID, 'Vert stagger is INVALID.')
-      if (vert_staggerloc /= VERTICAL_STAGGER_NONE) then
-         ! Allocate num_levels so that it is PRESENT() int FieldEmptyComplete() below.
-         allocate(num_levels)
-         call FieldBundleGet(bundle, num_levels=num_levels, _RC)
-      end if
 
       do i = 1, new_field_count
          fieldList(i) = ESMF_FieldEmptyCreate(_RC)
          call ESMF_FieldEmptySet(fieldList(i), geom=bundle_geom, _RC)
-         call MAPL_FieldEmptyComplete(fieldList(i), typekind=typekind, &
+         ! Set all metadata on the field first
+         call MAPL_FieldSet(fieldList(i), &
+              horizontal_dims_spec=HORIZONTAL_DIMS_GEOM, &
+              typekind=typekind, &
               ungridded_dims=ungridded_dims, &
-              num_levels=num_levels, vert_staggerLoc=vert_staggerLoc, &
-              units=units, _RC)
+              vert_staggerloc=vert_staggerloc, &
+              units=units, &
+              _RC)
+         ! Set vgrid only if present
+         if (associated(vgrid)) then
+            call MAPL_FieldSet(fieldList(i), vgrid=vgrid, _RC)
+         end if
+         ! Then complete the field from the info
+         call MAPL_FieldEmptyComplete(fieldList(i), _RC)
       end do
 
       allocate(fieldNameList(old_field_count))

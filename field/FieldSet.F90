@@ -3,13 +3,16 @@
 module mapl3g_FieldSet
 
    use mapl3g_VerticalGrid_API
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
+   use mapl3g_FieldGet
    use mapl3g_FieldDelta
    use mapl3g_StateItemAllocation
    use mapl3g_QuantityTypeMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+   use mapl_FieldPointerUtilities, only: FieldGetLocalElementCount
    use mapl3g_UngriddedDims
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec
    use esmf
@@ -67,10 +70,44 @@ contains
       type(FieldDelta) :: field_delta
       type(esmf_FieldStatus_Flag) :: fstatus
       integer, allocatable :: vgrid_id
+      integer :: derived_num_levels, current_num_levels
+      integer :: rank, ungriddedDimCount
+      integer, allocatable :: localElementCount(:)
+      type(VerticalStaggerLoc) :: stagger
 
       call esmf_FieldGet(field, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_COMPLETE) then
-         field_delta = FieldDelta(geom=geom, num_levels=num_levels, typekind=typekind, units=units)
+         ! Determine num_levels to pass to FieldDelta
+         if (present(vgrid) .and. .not. present(num_levels)) then
+            ! vgrid is present but num_levels wasn't explicitly provided
+            ! Derive num_levels from vgrid and only pass to FieldDelta if it changed
+            if (present(vert_staggerloc)) then
+               stagger = vert_staggerloc
+            else
+               call FieldGet(field, vert_staggerloc=stagger, _RC)
+            end if
+            derived_num_levels = stagger%get_num_levels(vgrid%get_num_layers())
+            
+            ! Check if num_levels actually changed
+            ! Get current num_levels from field array dimensions, not from vgrid
+            localElementCount = FieldGetLocalElementCount(field, _RC)
+            call ESMF_FieldGet(field, rank=rank, ungriddedDimCount=ungriddedDimCount, _RC)
+            if (ungriddedDimCount > 0) then
+               current_num_levels = localElementCount(rank-ungriddedDimCount+1)
+            else
+               current_num_levels = 0  ! No vertical dimension
+            end if
+            if (derived_num_levels /= current_num_levels) then
+               ! num_levels changed - pass it to FieldDelta
+               field_delta = FieldDelta(geom=geom, num_levels=derived_num_levels, typekind=typekind, units=units)
+            else
+               ! num_levels didn't change - don't pass it to FieldDelta
+               field_delta = FieldDelta(geom=geom, typekind=typekind, units=units)
+            end if
+         else
+            ! Either no vgrid, or num_levels was explicitly provided
+            field_delta = FieldDelta(geom=geom, num_levels=num_levels, typekind=typekind, units=units)
+         end if
          call field_delta%update_field(field, _RC)
       end if
 
@@ -89,7 +126,6 @@ contains
            vgrid_id=vgrid_id, &
            vert_staggerloc=vert_staggerloc, &
            vert_alignment=vert_alignment, &
-           num_levels=num_levels, &
            typekind=typekind, &
            units=units, standard_name=standard_name, long_name=long_name, &
            ungridded_dims=ungridded_dims, &

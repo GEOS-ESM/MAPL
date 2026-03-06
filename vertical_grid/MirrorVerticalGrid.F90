@@ -23,7 +23,7 @@ module mapl3g_MirrorVerticalGrid
    type, extends(VerticalGrid) :: MirrorVerticalGrid
       private
    contains
-      procedure :: get_num_levels
+      procedure :: get_num_layers
       procedure :: get_coordinate_field
       procedure :: can_connect_to
       procedure :: is_identical_to
@@ -40,10 +40,10 @@ contains
       type(MirrorVerticalGrid) :: vertical_grid
    end function
 
-   function get_num_levels(this) result(num_levels)
-      integer :: num_levels
+   function get_num_layers(this) result(num_layers)
+      integer :: num_layers
       class(MirrorVerticalGrid), intent(in) :: this
-      num_levels = -1
+      num_layers = -1
       _UNUSED_DUMMY(this)
    end function
       

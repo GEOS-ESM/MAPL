@@ -332,9 +332,6 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc
 
-      _HERE, file, line, this%is_mirror(), allocated(this%geom)
-      _HERE, file, line, this%is_mirror(), allocated(this%regridder_param)
-
 
       _RETURN(_SUCCESS)
    end subroutine print_aspect
