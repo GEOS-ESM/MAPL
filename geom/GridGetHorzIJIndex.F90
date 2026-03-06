@@ -338,7 +338,8 @@ contains
          if (i1 == 1 .and. j1 == 1) then
             allocate(lonRe(jm), latRe(jm))
             call reverse_schmidt(grid, stretched, jm, &
-                 lonR8=corner_lons, latR8=corner_lats, lonRe=lonRe, latRe=latRe, _RC)
+                 lonR8=corner_lons(1, 1:jm), latR8=corner_lats(1, 1:jm), &
+                 lonRe=lonRe, latRe=latRe, _RC)
             allocate(accurate_lon(jm), accurate_lat(jm))
             shift0 = shift
             if (stretched) shift0 = 0
