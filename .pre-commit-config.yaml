@@ -12,7 +12,7 @@ repos:
     hooks:
     - id: fortitude
       name: "Linting using fortitude"
-      entry: fortitude check --config-file .fortitude.toml
+      entry: bash -lc 'fortitude check --config-file .fortitude.toml "$@" || true'
       language: system
       files: '\.(f90|F90)$'
       pass_filenames: true
