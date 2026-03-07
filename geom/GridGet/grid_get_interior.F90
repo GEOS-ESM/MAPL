@@ -2,9 +2,6 @@
 
 submodule (mapl3g_GridGet) grid_get_interior_smod
 
-   use ESMF, only: ESMF_Grid, ESMF_DistGrid, ESMF_DELayout
-   use ESMF, only: ESMF_GridGet, ESMF_DistGridGet, ESMF_DELayoutGet
-   use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoGetAlloc
    use mapl3g_DistGridGet, only: DistGridGet
 
    implicit none(type, external)
