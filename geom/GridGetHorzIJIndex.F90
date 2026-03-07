@@ -17,7 +17,7 @@ module mapl3g_GridGetHorzIJIndex
    use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoIsPresent, ESMF_InfoGet
    use mapl3g_GridGet, only: GridGet
    ! use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
-   use MAPL_BaseMod, only: MAPL2_GridGet => MAPL_GridGet, MAPL2_GridGetInterior => MAPL_GridGetInterior
+   use MAPL_BaseMod, only: MAPL2_GridGet => MAPL_GridGet
    use MAPL_Constants, only: MAPL_PI, MAPL_PI_R8, MAPL_DEGREES_TO_RADIANS_R8
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Assert, MAPL_Return
 
@@ -51,6 +51,7 @@ contains
       real(kind=ESMF_KIND_R8), allocatable :: elons(:)
       real(kind=ESMF_KIND_R8), allocatable :: elats(:)
       integer :: i, iiloc, jjloc, i1, i2, j1, j2
+      integer, allocatable :: interior(:)
       real(kind=ESMF_KIND_R4) :: lonloc, latloc
       logical :: local_search
       real(kind=ESMF_KIND_R8), allocatable :: tmp_lons(:), tmp_lats(:)
@@ -90,7 +91,11 @@ contains
       ! if(trim(grid_type) == "Cubed-Sphere") then
       if (im_world * 6 == jm_world) then
          call get_global_horz_ij_index(npts, ii, jj, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, grid=grid, _RC)
-         call MAPL2_GridGetInterior(grid, i1, i2, j1, j2)
+         call GridGet(grid, interior=interior, _RC)
+         i1 = interior(1)
+         i2 = interior(2)
+         j1 = interior(3)
+         j2 = interior(4)
          ! convert index to local, if it is not in domain, set it to -1 just as the legacy code
          where (i1 <= ii .and. ii <= i2 .and. j1 <= jj .and. jj <= j2)
             ii = ii - i1 + 1
@@ -317,7 +322,8 @@ contains
       function grid_is_ok(grid) result(OK)
          type(ESMF_Grid), intent(inout) :: grid
          logical :: OK
-         integer :: i1, i2, j1, j2, j
+         integer :: i1, j1, j2, j
+         integer, allocatable :: interior(:)
          real(kind=ESMF_KIND_R8), allocatable :: corners(:, :, :), corner_lons(:, :), corner_lats(:, :)
          real(kind=ESMF_KIND_R8), allocatable :: lonRe(:), latRe(:)
          real(kind=ESMF_KIND_R8), allocatable :: accurate_lat(:), accurate_lon(:)
@@ -326,8 +332,10 @@ contains
          integer :: im, jm
 
          tolerance = epsilon(1.0)
-         call MAPL2_GridGetInterior(grid, i1, i2, j1, j2)
-         call GridGet(grid, im=im, jm=jm, _RC)
+         call GridGet(grid, im=im, jm=jm, interior=interior, _RC)
+         i1 = interior(1)
+         j1 = interior(3)
+         j2 = interior(4)
          OK = .true.
          ! check the edge of face 1 along longitude
          call GridGet(grid, corners=corners, _RC)
