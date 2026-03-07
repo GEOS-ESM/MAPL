@@ -2,9 +2,11 @@
 
 module mapl3g_FieldCreate
 
+   use mapl3g_VerticalGrid_API
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
+   use mapl3g_FieldSet
    use mapl3g_FieldGet
    use mapl3g_UngriddedDims
    use mapl3g_HorizontalDimsSpec
@@ -14,6 +16,7 @@ module mapl3g_FieldCreate
    use mapl_ErrorHandling
    use mapl_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
    use esmf, MAPL_FieldEmptyCreate => ESMF_FieldEmptyCreate
+   use mapl3g_BasicVerticalGrid, only: BasicVerticalGrid, BasicVerticalGridSpec
 
    implicit none(type,external)
    private
@@ -24,6 +27,7 @@ module mapl3g_FieldCreate
 
    interface MAPL_FieldCreate
       procedure :: field_create
+      procedure :: field_create_legacy  ! DEPRECATED: Use vgrid parameter instead of num_levels
    end interface MAPL_FieldCreate
 
    interface MAPL_FieldEmptyComplete
@@ -51,7 +55,7 @@ contains
         name, &
         gridToFieldMap, ungridded_dims, &
         ! Optional MAPL args
-        num_levels, vert_staggerloc, vert_alignment, &
+        vgrid, vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
         rc) result(field)
       type(ESMF_Field) :: field
@@ -61,7 +65,7 @@ contains
       character(*), optional, intent(in) :: name
       integer, optional, intent(in) :: gridToFieldMap(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
-      integer, optional, intent(in) :: num_levels
+      class(VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(len=*), optional, intent(in) :: units
@@ -70,13 +74,20 @@ contains
       integer, optional, intent(out) :: rc
 
       type(UngriddedDims) :: ungrd
+      integer :: num_levels
       integer :: status
 
       field = MAPL_FieldEmptyCreate(name=name, _RC)
-      call vertical_level_sanity_check(num_levels, vert_staggerloc, _RC)
+      call vertical_level_sanity_check(vgrid, vert_staggerloc, _RC)
 
       ungrd = UngriddedDims()
       if (present(ungridded_dims)) ungrd = ungridded_dims
+
+      ! Derive num_levels from vgrid if present
+      num_levels = 0
+      if (present(vgrid) .and. present(vert_staggerloc)) then
+         num_levels = vert_staggerloc%get_num_levels(vgrid%get_num_layers())
+      end if
 
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
       call MAPL_FieldEmptyComplete(field, &
@@ -84,10 +95,79 @@ contains
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
            units=units, standard_name=standard_name, long_name=long_name, &
            _RC)
+      
+      ! Set vgrid info
+      if (present(vgrid)) then
+         call FieldSet(field, vgrid=vgrid, _RC)
+      end if
+
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(unusable)
+   end function field_create
+
+   ! DEPRECATED LEGACY INTERFACE - for backward compatibility with GEOSgcm
+   ! This interface will be removed in a future PR after GEOSgcm is updated.
+   ! New code should use field_create with vgrid parameter instead.
+   ! NOTE: num_levels is REQUIRED (not optional) to distinguish from new interface
+   function field_create_legacy( &
+        geom, typekind, &
+        unusable, & ! keyword enforcement
+        num_levels, & ! REQUIRED for disambiguation - DEPRECATED, use vgrid instead
+        ! Optional ESMF args
+        name, &
+        gridToFieldMap, ungridded_dims, &
+        ! Optional MAPL args
+        vert_staggerloc, vert_alignment, &
+        units, standard_name, long_name, &
+        rc) result(field)
+      type(ESMF_Field) :: field
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, intent(in) :: num_levels  ! REQUIRED - DEPRECATED, use vgrid instead
+      character(*), optional, intent(in) :: name
+      integer, optional, intent(in) :: gridToFieldMap(:)
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
+      character(len=*), optional, intent(in) :: units
+      character(len=*), optional, intent(in) :: standard_name
+      character(len=*), optional, intent(in) :: long_name
+      integer, optional, intent(out) :: rc
+
+      type(BasicVerticalGrid) :: vgrid_
+      type(BasicVerticalGridSpec) :: vgrid_spec
+      integer :: status
+
+      ! Convert num_levels to a BasicVerticalGrid for compatibility
+      if (num_levels > 0) then
+         ! Create a basic vertical grid with num_levels
+         ! Note: This assumes CENTER stagger, which means num_layers = num_levels
+         vgrid_spec = BasicVerticalGridSpec(num_levels=num_levels)
+         call vgrid_%initialize(vgrid_spec)
+         
+         ! Call the new interface with vgrid
+         field = field_create( &
+              geom=geom, typekind=typekind, &
+              name=name, &
+              gridToFieldMap=gridToFieldMap, ungridded_dims=ungridded_dims, &
+              vgrid=vgrid_, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
+              units=units, standard_name=standard_name, long_name=long_name, &
+              _RC)
+      else
+         ! No vertical levels, call without vgrid
+         field = field_create( &
+              geom=geom, typekind=typekind, &
+              name=name, &
+              gridToFieldMap=gridToFieldMap, ungridded_dims=ungridded_dims, &
+              vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
+              units=units, standard_name=standard_name, long_name=long_name, &
+              _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function field_create
+   end function field_create_legacy
 
    subroutine field_empty_complete_from_info(field, rc)
       type(ESMF_Field), intent(inout) :: field
@@ -203,7 +283,8 @@ contains
       type(ESMF_Geom) :: geom
       integer :: dim_count, idim, status
 
-      call vertical_level_sanity_check(num_levels, vert_staggerloc, _RC)
+      ! Note: This is an internal subroutine called after vgrid has been converted to num_levels
+      ! No need to call vertical_level_sanity_check here - it's already been checked in field_create
       if (present(gridToFieldMap)) then
          grid_to_field_map = gridToFieldMap
       else
@@ -231,7 +312,6 @@ contains
       call FieldInfoSetInternal(field_info, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc_, &
            vert_alignment=vert_alignment, &
            units=units, &
@@ -244,12 +324,12 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_empty_complete
 
-   subroutine vertical_level_sanity_check(num_levels, vertical_stagger, rc)
-      integer, optional, intent(in) :: num_levels
+   subroutine vertical_level_sanity_check(vgrid, vertical_stagger, rc)
+      class(VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       integer, optional, intent(out) :: rc
 
-      if (present(num_levels)) then
+      if (present(vgrid)) then
          _ASSERT(present(vertical_stagger), "vertical_stagger must be specified for 3D fields")
       end if
 

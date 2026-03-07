@@ -1,0 +1,311 @@
+---
+
+# The style used for all options not specifically set in the configuration.
+# Possible values are:
+# - `Codee`               -> A style recommended by Codee.
+# - `InheritParentConfig` -> Use the `.codee-format` from parent directories.
+#                            If no such file is found falls back to `Codee`.
+# - `Preserve`            -> Preserve the original source code style. It can be
+#                            used as a base configuration to create a specific
+#                            style.
+
+# If true, free-form end-of-line continuation ampersands are always placed at
+# the column limit instead of right after the end of the line.
+# This option doesn't have any effect when there is no `ColumnLimit` set.
+# Defaults to **`false`**.
+AlignAmpersandToColumnLimit: false
+
+# When breaking lines according to `ColumnLimit`, preferentially break at
+# operators inside assignments. Possible values are: `true` or `false`.
+# Defaults to **`false`**.
+AlignAssignmentOperators: true
+
+# Set the kind of alignment used when breaking module imports into separate
+# lines.
+AlignUseItems:
+  # Set the kind of alignment used when breaking module imports into separate lines
+  Kind:            OneItemPerLine
+  # Set the preference for how the first line is used when breaking module imports into separate lines
+  FirstLineFit:    FitIfPossible
+
+# When aligning operators inside assignments, place them at the beginning of the
+# line. Possible values are: `true` or `false`. Defaults to **`true`**.
+BreakBeforeBinaryOperators: true
+
+# Control the letter casing. Possible values are:
+# - `Lowercase`       -> All lowercase (e.g., `real`, `integer`, `do`).
+# - `Uppercase`       -> All uppercase (e.g., `REAL`, `INTEGER`, `DO`).
+# - `Capitalized`     -> First letter uppercase (e.g., `Real`, `Integer`, `Do`).
+# - `FirstOccurrence` -> Take the casing of each identifier from its first
+#                        occurrence in the file (only valid for `Identifiers`).
+# - **`Preserve`**    -> Keep the original casing as it is.
+Casing:
+  # Set the casing of variable and function names
+  Identifiers: FirstOccurrence
+  # Set the casing of Fortran keywords (e.g., real, integer, do)
+  Keywords: Lowercase
+  # Set the casing of logical constants (e.g., .true., .false.)
+  LogicalConstants: Lowercase
+  # Set the casing of logical operators (e.g., .and., .or.)
+  LogicalOperators: Lowercase
+  # Set the casing of logical operators (e.g., .lt., .eq.)
+  RelationalOperators: Lowercase
+  # Set the casing of user defined operators (e.g., .foo.)
+  UserDefinedOperators: Lowercase
+
+# Set the line size, breaking lines longer than the specified limit.
+# Default value is **`0`**, meaning no limit.
+ColumnLimit: 120
+
+# List of comment prefixes, i.e., text following the comment marker (`!`), that
+# should be interpreted as directives, which may be needed for proper line
+# breaking and continuation. For example, the `$omp` and `$acc` directives are
+# already supported by default.
+# Defaults to an empty list: **`[]`**.
+CommentDirectivePrefixes: []
+
+# List of comment directive prefixes, i.e., text following the comment marker
+# (`!`), that will disable line breaks for the entire comment. Defaults to an
+# empty list: **`[]`**. Related: `CommentDirectivePrefixes`.
+DisabledDirectivePrefixes: []
+
+# List of preprocessor directives that should be completely ignored by the
+# formatter. Regular expressions are allowed to define multiple directives. Defaults
+# to an empty list: **`[]`**
+IgnoredPreprocessorDirectives: []
+
+# Set the number of columns to use for indentation. Possible values are:
+# - `unsigned integer`.
+# - **`Preserve`**: Keep the original indent as it is.
+IndentSize: 3
+
+# Control specific indentation cases.
+
+# Possible values for `Contains` are:
+# - **`IndentBeforeAndAfter`** -> Increase the level of indentation before and
+#                                 after it.
+# - `IndentBefore`            -> Increase the level of indentation before it
+#                                only.
+# - `DoNotIndent`             -> Keep the current indentation level after it.
+
+# Possible valures for `Comments` are:
+# - **`Indent`** -> Always indent comments.
+# - `DoNotIndent` -> Do not indent comments and leave them as they are.
+# - `IndentIfAlreadyIndented` -> Indent comments if they are already indented.
+
+IndentExceptions:
+  # Set the indentation before and after the "contains" statement
+  Contains:        IndentBeforeAndAfter
+  # Set the indentation for comments
+  Comments:        Indent
+
+# Set the alignment used for the statement labels when in fixed-form compatible
+# mode. Possible values are:
+#  - **`Right`**-> Aligns to the right (e.g., `   10 print *, "Hi"`).
+#  - `Left`     -> Aligns to the left  (e.g., `10    print *, "Hi"`).
+#  - `Preserve` -> Do not align statement labels.
+FixedFormLabelAlignment: Right
+
+# Set the number of spaces for line continuations or `DoubleIndentSize`
+# (`IndentSize * 2`).
+ContinuationIndentSize: 5 # DoubleIndentSize
+
+# Separate the variable name from its declaration with `::`. Possible values are:
+# - `AddAlways`   -> Always add `::` to separate the type from the variable name.
+# - **`Preserve`**-> Keep the original separation as it is.
+DoubleColonSeparator: AddAlways
+
+# Normalize end of line control character sequence. Possible values are:
+# - **`Autodetect`**-> Use the first detected EOL in the input.
+# - `Preserve`    -> Do not normalize end of line character sequences.
+# - `Unix`        -> Use `\n`.
+# - `Windows`     -> Use `\r\n`.
+EndOfLineNormalization: Autodetect
+
+# Set the format to write the `end` keyword with its corresponding structure and
+# name (e.g., `end function foo`. Possible values are:
+# - `EndOnly`             -> Set only the `end` keyword.
+# - `EndAndStructure`     -> Set the end with the corresponding structure kind
+#                          (e.g., `end function`).
+# - `EndStructureAndName` -> Set the end with the corresponding structure kind and
+#                          its name (e.g., `end function foo`).
+# - **`Preserve`**        -> Keep the original form as it is.
+EndStatementFormat: EndStructureAndName
+
+# Set the separation between the `end` and its corresponding statement (e.g.,
+# `enddo` `end do`). Possible values are:
+# - `Joined`      -> Prefer the joined form (e.g., `enddo`, `endif`).
+# - `Separated`   -> Prefer the separated form (e.g., `end do`, `end if`).
+# - **`Preserve`**-> Keep the original form as it is.
+EndStatementSeparation:
+  # Set "endassociate" or "end associate"
+  EndAssociate:    Separated
+  # Set "endblock" or "end block"
+  EndBlockConstruct: Separated
+  # Set "endblockdata" or "end block data"
+  EndBlockData:    Separated
+  # Set "endcritical" or "end critical"
+  EndCritical:     Separated
+  # Set "endteam" or "end team"
+  EndTeam:         Separated
+  # Set "enddo" or "end do"
+  EndDoLoop:       Separated
+  # Set "endenum" or "end enum"
+  EndEnum:         Separated
+  # Set "endenumerationtype" or "end enumeration type"
+  EndEnumerationType: Separated
+  # Set "endforall" or "end forall"
+  EndForall:       Separated
+  # Set "endfunction" or "end function"
+  EndFunction:     Separated
+  # Set "endif" or "end if"
+  EndIf:           Separated
+  # Set "endinterface" or "end interface"
+  EndInterface:    Separated
+  # Set "endmodule" or "end module"
+  EndModule:       Separated
+  # Set "endprocedure" or "end procedure"
+  EndModuleProcedure: Separated
+  # Set "endprogram" or "end program"
+  EndProgram:      Separated
+  # Set "endselect" or "end select"
+  EndSelect:       Separated
+  # Set "endsubmodule" or "end submodule"
+  EndSubmodule:    Separated
+  # Set "endsubroutine" or "end subroutine"
+  EndSubroutine:   Separated
+  # Set "endtype" or "end type"
+  EndType:         Separated
+  # Set "endwhere" or "end where"
+  EndWhere:        Separated
+
+# Add a newline sequence at the end of the file if missing (Default: **`true`**).
+EnsureNewlineAtEOF: true
+
+# Number of consecutive empty lines. Valid values are:
+# - Positive integer number.
+# - Preserve: Keep consecutive empty lines as found.
+ConsecutiveEmptyLines:
+  # Maximum number of consecutive empty lines to keep (Default: 1)
+  MaxToKeep:       1
+  # Number of consecutive empty lines between procedures. Overrides `MaxToKeep` (Default: 1)
+  BetweenProcedures: 1
+  # Removes all empty lines in the begining of the file (Default: true)
+  RemoveAtStartOfFile: true
+  # Removes all empty lines at the end of the file (Default: true)
+  RemoveAtEndOfFile: true
+
+# Add or remove the optional `kind=` keyword for intrinsic type variable
+# declarations that already specify it. Possible values are:
+# - `AddAlways`    -> Always add `kind=` (e.g., `real(kind=4) :: var`).
+# - `RemoveAlways` -> Always remove `kind=` (e.g., `real(4) :: var`).
+# - **`Preserve`** -> Keep the original form as it is.
+KindKeywordPrefix: AddAlways
+
+# List of identifiers that should be interpreted as macros, which may be needed
+# for correct parsing and re-casing.
+# Defaults to an empty list: **`[]`**.
+MacroIdentifiers: []
+
+# Replace legacy textual relational operators (e.g., `.lt.`, .`eq.`) by its
+# symbol form. Possible values are:
+# - `UseSymbols`  -> Convert the legacy textual way into the corresponding
+#                    symbol (e.g., `.eq.` is converted into `==`).
+# - **`Preserve`**-> Keep the original form as it is.
+RelationalOperators: UseSymbols
+
+# Control the spacing around the operators (e.g., `a+b`, `a + b`, `a + (b*c)`)
+# Possible values are:
+# - `NoSpaces`    -> Remove all spacing around the operator (e.g., `b+c`).
+# - `Both`        -> Add leading and trailing space (e.g., `b + c`).
+# - `NoLeading`   -> Remove leading space and keep the original trailing space
+#                    (e.g., `b+ c` or `b+c`).
+# - `Leading`     -> Add leading space and keep the original trailing space
+#                    (e.g., `b + c` or `b +c`).
+# - `OnlyLeading` -> Add leading space and remove the trailing space
+#                    e.g., `b +c`).
+# - `NoTrailing`  -> Remove trailing space and keep the original leading space
+#                    (e.g., `b +c` or `b + c`).
+# - `Trailing`    -> Add trailing space and keep the original leading space
+#                    (e.g., `b + c` or `b+ c`).
+# - `OnlyTrailing`-> Add trailing space and remove the leading space
+#                    (e.g., `b+ c`).
+# - **`Preserve`**-> Keep the original form as it is.
+SpacesAroundOperators:
+  # a + (a+b)
+  LeftParenthesisExpression: NoTrailing
+  # function(a,b)
+  LeftParenthesisGeneric: NoSpaces
+  # do while (a > 0)
+  LeftParenthesisKeyword: OnlyLeading
+  # (a+b) + b
+  RightParenthesisExpression: NoLeading
+  # function(a,b) result(x)
+  RightParenthesisGeneric: NoLeading
+  # else if (x == 0) then
+  RightParenthesisKeyword: NoLeading
+  # a = b
+  Assignment:      Both
+  # a => b
+  Association:     Both
+  # do i = 1, 5
+  ControlFlowAssignment: Both
+  # kind=4
+  KeywordAssignment: NoSpaces
+  # parameter (PI=3.141593)
+  ParameterAssignment: NoSpaces
+  # a + b
+  BinaryArithmetic: Both
+  # a**b
+  Exponentiation:  NoSpaces
+  # a .defbinop. b
+  DefinedBinary:   Both
+  # .defunop.b
+  DefinedUnary:    NoTrailing
+  # a < b
+  Relational:      Both
+  # a .lt. b
+  RelationalLegacy: Both
+  # a .and. b
+  LogicalBinary:   Both
+  # .not.b
+  LogicalNot:      NoTrailing
+  # -b
+  UnaryPlusMinus:  NoTrailing
+  # a, b
+  Comma:           OnlyTrailing
+  # Comma for dimensions in array declarations:
+  #  ... :: array(:, :)
+  #  ...dimension(:, :) :: array
+  #  ... :: coarray(:, :)[:, :]
+  #  etc.
+  CommaInArrayDeclDimensions: OnlyTrailing
+  # str1 // str2
+  Concat:          Both
+  # real :: b
+  DoubleColon:     Both
+
+# Turn any sequence of whitespace characters between visible characters of a
+# line into a single space, except within string literals and comments.
+# Possible values are: `true` or `false`.
+# Defaults to **`true`**.
+RemoveConsecutiveWhitespace: true
+
+# Remove semicolons when possible. Possible values are `true` or `false`.
+# Defaults to `true`.
+RemoveSemicolons: true
+
+# Remove trailing whitespace (any tabs and spaces between the last visible
+# character and the end of each line). Possible values are: `true` or `false`.
+# Defaults to **`true`**.
+RemoveTrailingWhitespace: true
+
+# Separate statements that are in the same line, delimited with a ';', into
+# different lines. Possible values are: `true` or `false`. Defaults to **`true`**.
+SeparateMultipleInlineStatements: true
+---
+Language:        FortranFixedForm
+ColumnLimit:     72
+IndentExceptions:
+  Comments:        IndentIfAlreadyIndented
+...

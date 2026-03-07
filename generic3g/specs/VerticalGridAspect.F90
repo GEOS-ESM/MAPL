@@ -486,24 +486,13 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: num_vgrid_levels
-      integer, allocatable :: num_levels
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      if (allocated(this%vertical_grid)) then
-         num_vgrid_levels = this%vertical_grid%get_num_levels()
-         if (this%vertical_stagger == VERTICAL_STAGGER_EDGE) then
-            num_levels = num_vgrid_levels + 1
-         else if (this%vertical_stagger == VERTICAL_STAGGER_CENTER) then
-            num_levels = num_vgrid_levels
-         end if
-      end if
-         
       if (present(field)) then
-         call mapl_FieldSet(field, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, vert_alignment=this%vertical_alignment, num_levels=num_levels, _RC)
+         call mapl_FieldSet(field, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, vert_alignment=this%vertical_alignment, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleSet(bundle, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, num_levels=num_levels, _RC)
+         call mapl_FieldBundleSet(bundle, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, _RC)
       end if
 
       _RETURN(_SUCCESS)

@@ -21,7 +21,7 @@ contains
       spec = BasicVerticalGridSpec(num_levels=72)
       
       call grid%initialize(spec)
-      @assert_that('Grid should have correct number of levels', grid%get_num_levels(), is(72))
+      @assert_that('Grid should have correct number of levels', grid%get_num_layers(), is(72))
    end subroutine test_basic_grid_spec_initialization
 
 
@@ -179,7 +179,7 @@ contains
       
       select type (grid)
       type is (BasicVerticalGrid)
-         @assert_that('Grid should have correct num_levels', grid%get_num_levels(), is(72))
+         @assert_that('Grid should have correct num_levels', grid%get_num_layers(), is(72))
       class default
          @assertFail('Grid should be BasicVerticalGrid type')
       end select
@@ -202,7 +202,7 @@ contains
       
       select type (grid)
       type is (BasicVerticalGrid)
-         @assert_that('Grid should have correct num_levels', grid%get_num_levels(), is(144))
+         @assert_that('Grid should have correct num_levels', grid%get_num_layers(), is(144))
       class default
          @assertFail('Grid should be BasicVerticalGrid type')
       end select

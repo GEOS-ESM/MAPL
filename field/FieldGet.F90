@@ -28,7 +28,7 @@ contains
    subroutine field_get(field, unusable, &
         short_name, typekind, &
         geom, horizontal_dims_spec, &
-        vgrid, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
+        vgrid, num_levels, num_layers, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         ungridded_dims, &
         quantity_type_metadata, &
         units, standard_name, long_name, &
@@ -43,10 +43,11 @@ contains
       character(len=:), optional, allocatable, intent(out) :: short_name
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       class(VerticalGrid), pointer, optional, intent(out) :: vgrid
-      integer, optional, intent(out) :: num_levels
+      integer, optional, intent(out) :: num_levels     ! Actual field levels (depends on vgrid + stagger)
+      integer, optional, intent(out) :: num_layers     ! Number of layers from vgrid (CENTER levels)
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(out) :: vert_alignment
-      integer, optional, intent(out) :: num_vgrid_levels
+      integer, optional, intent(out) :: num_vgrid_levels  ! Deprecated: use num_layers instead
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       character(len=:), optional, allocatable, intent(out) :: units
@@ -81,21 +82,22 @@ contains
       end if
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
-      call FieldInfoGetInternal(field_info, &
-           typekind=typekind, &
-           horizontal_dims_spec=horizontal_dims_spec, &
-           vgrid_id=vgrid_id, &
-           num_levels=num_levels, &
-           vert_staggerloc=vert_staggerloc, &
-           vert_alignment=vert_alignment, &
-           num_vgrid_levels=num_vgrid_levels, &
-           ungridded_dims=ungridded_dims, &
-           quantity_type_metadata=quantity_type_metadata, &
-           units=units, standard_name=standard_name, long_name=long_name, &
-           allocation_status=allocation_status, &
-           has_deferred_aspects=has_deferred_aspects, &
-           regridder_param_info=regridder_param_info, &
-           _RC)
+       call FieldInfoGetInternal(field_info, &
+            typekind=typekind, &
+            horizontal_dims_spec=horizontal_dims_spec, &
+            vgrid_id=vgrid_id, &
+            num_levels=num_levels, &
+            num_layers=num_layers, &
+            vert_staggerloc=vert_staggerloc, &
+            vert_alignment=vert_alignment, &
+            num_vgrid_levels=num_vgrid_levels, &
+            ungridded_dims=ungridded_dims, &
+            quantity_type_metadata=quantity_type_metadata, &
+            units=units, standard_name=standard_name, long_name=long_name, &
+            allocation_status=allocation_status, &
+            has_deferred_aspects=has_deferred_aspects, &
+            regridder_param_info=regridder_param_info, &
+            _RC)
 
       if (present(vgrid)) then
          if (vgrid_id == VERTICAL_GRID_NOT_FOUND) then

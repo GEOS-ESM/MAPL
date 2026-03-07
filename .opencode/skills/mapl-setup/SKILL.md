@@ -64,7 +64,7 @@ modules:
   mpi: "openmpi/4.1"               # Or mpi, mpich, intel-mpi
   baselibs: "MAPL-baselibs"        # Or baselibs, mapl-deps
   ifx: "ifx-stack"                 # For bucy (usually same for everyone)
-  
+
 paths:
   mapl_root: "~/swdev/VS/MAPL"     # Your MAPL checkout location
   build_dir_prefix: ""              # Empty for ./nag, or "build-" for ./build-nag
@@ -111,7 +111,7 @@ git --version
 1. **`develop`** - Legacy MAPL (MAPL 2.x maintenance)
    - Use for bug fixes and features for MAPL 2.x
    - Most stable, production-ready code
-   
+
 2. **`release/MAPL-v3`** - MAPL v3 pre-release
    - Use for new MAPL v3 development
    - Active development branch for next major version
@@ -230,6 +230,7 @@ rm -rf ./build ./build-test  # Remove old directories
 After setup, use these skills for specific tasks:
 - **`mapl-build`** - Build MAPL with different compilers
 - **`mapl-testing`** - Run and debug tests
+- **`vscode-bucy-dev`** - Configure VS Code for MAPL development on bucy
 - **`fortran-style`** - Learn MAPL coding standards
 - **`github-workflow`** - Understand Git/GitHub conventions
 - **`remote-build`** - Build on bucy with Intel compiler

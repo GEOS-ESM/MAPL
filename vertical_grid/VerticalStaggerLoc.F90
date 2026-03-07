@@ -129,19 +129,19 @@ contains
       end select
    end function get_dimension_name
 
-   integer function get_num_levels(this, num_vgrid_levels) result(num_levels)
+   integer function get_num_levels(this, num_layers) result(num_levels)
       class(VerticalStaggerLoc), intent(in) :: this
-      integer, intent(in) :: num_vgrid_levels
+      integer, intent(in) :: num_layers
 
       select case (this%id)
       case (NONE)
          num_levels = 0
       case (EDGE)
-         num_levels = num_vgrid_levels
+         num_levels = num_layers + 1
       case (CENTER)
-         num_levels = num_vgrid_levels - 1
+         num_levels = num_layers
       case (MIRROR)
-         num_levels = num_vgrid_levels
+         num_levels = num_layers + 1
       case default
          num_levels = -1
       end select

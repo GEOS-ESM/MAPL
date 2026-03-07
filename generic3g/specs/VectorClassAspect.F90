@@ -255,11 +255,9 @@ contains
            return
         end if
 
-        ! TODO: Problematic case: both allocated with different values.
-        if (dst /= src) then
-           _HERE, 'WARNING: mismatched default values for ', actual_pt
-           _HERE, '    src = ', src, '; dst = ',dst, ' (src value wins)'
-        end if
+         ! TODO: Problematic case: both allocated with different values.
+         if (dst /= src) then
+         end if
       end subroutine mirror
       
    end subroutine connect_to_export
