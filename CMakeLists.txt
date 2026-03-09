@@ -68,14 +68,6 @@ list (PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # automatic build-tree RPATH (absolute paths) for targets in the build tree.
 set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
-if (BUILD_SHARED_MAPL)
-  set (MAPL_LIBRARY_TYPE SHARED)
-else ()
-  set (MAPL_LIBRARY_TYPE STATIC)
-endif()
-message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
-
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
 # This would then populate the target already leading to find_package()
