@@ -64,25 +64,17 @@ contains
       v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
-      do k = 1, NZ_IN+1
-         do j = 1, NY
-            do i = 1, NX
-               v_in(i,j,k) = real(k-1, ESMF_KIND_R4) * 10.0
-            end do
+      do concurrent (k = 1:NZ_IN+1, j = 1:NY, i = 1:NX)
+         v_in(i,j,k) = real(k-1, ESMF_KIND_R4) * 10.0
          end do
-      end do
       
       ! Output: 15 layers = 16 edges (0, 6.67, 13.33, ..., 100 Pa)
       v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
-      do k = 1, NZ_OUT+1
-         do j = 1, NY
-            do i = 1, NX
-               v_out(i,j,k) = real(k-1, ESMF_KIND_R4) * 100.0 / real(NZ_OUT, ESMF_KIND_R4)
-            end do
+      do concurrent (k = 1:NZ_OUT+1, j = 1:NY, i = 1:NX)
+         v_out(i,j,k) = real(k-1, ESMF_KIND_R4) * 100.0 / real(NZ_OUT, ESMF_KIND_R4)
          end do
-      end do
       
       ! Create input and output data fields at CENTER (layer centers)
       f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
@@ -102,13 +94,9 @@ contains
       
       ! Calculate total mass before regridding: mass = sum(q × Δp)
       mass_in = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_IN
-         do j = 1, NY
-            do i = 1, NX
-               mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
-                    abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
-            end do
-         end do
+      do concurrent (k = 1:NZ_IN, j = 1:NY, i = 1:NX)
+         mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
+              abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
       end do
       
       ! Create transform with CONSERVATIVE method
@@ -130,13 +118,9 @@ contains
       
       ! Calculate total mass after regridding
       mass_out = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_OUT
-         do j = 1, NY
-            do i = 1, NX
-               mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
-                    abs(real(v_out(i,j,k+1) - v_out(i,j,k), ESMF_KIND_R8))
-            end do
-         end do
+      do concurrent (k = 1:NZ_OUT, j = 1:NY, i = 1:NX)
+         mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
+              abs(real(v_out(i,j,k+1) - v_out(i,j,k), ESMF_KIND_R8))
       end do
       
       ! Verify exact mass conservation for uniform field
@@ -145,13 +129,7 @@ contains
       @assertTrue(relative_error < TOLERANCE_STRICT, 'Mass conservation failed for uniform field')
       
       ! Verify output is uniform (for uniform input, conservative regridding should produce uniform output)
-      do k = 1, NZ_OUT
-         do j = 1, NY
-            do i = 1, NX
-               @assertEqual(CO2_MIXING_RATIO, data_out(i,j,k), tolerance=TOLERANCE_LOOSE)
-            end do
-         end do
-      end do
+      @assertEqual(CO2_MIXING_RATIO, data_out, tolerance=TOLERANCE_LOOSE)
       
       ! Cleanup
       call ESMF_FieldDestroy(v_coord_in, rc=status)
@@ -208,13 +186,9 @@ contains
       
       ! Fill input with varying profile (simulating atmospheric concentration)
       call ESMF_FieldGet(f_in, farrayPtr=data_in, _RC)
-      do k = 1, NZ_IN
-         do j = 1, NY
-            do i = 1, NX
-               ! Varying concentration: higher near surface, lower aloft
-               data_in(i,j,k) = 100.0 + 50.0 * (1.0 - real(k, ESMF_KIND_R4) / real(NZ_IN, ESMF_KIND_R4))
-            end do
-         end do
+      do concurrent (k = 1:NZ_IN, j = 1:NY, i = 1:NX)
+         ! Varying concentration: higher near surface, lower aloft
+         data_in(i,j,k) = 100.0 + 50.0 * (1.0 - real(k, ESMF_KIND_R4) / real(NZ_IN, ESMF_KIND_R4))
       end do
       
       call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
@@ -222,13 +196,9 @@ contains
       
       ! Calculate input mass
       mass_in = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_IN
-         do j = 1, NY
-            do i = 1, NX
-               mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
-                    abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
-            end do
-         end do
+      do concurrent (k = 1:NZ_IN, j = 1:NY, i = 1:NX)
+         mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
+              abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
       end do
       
       ! Create and run transform
@@ -248,13 +218,9 @@ contains
       
       ! Calculate output mass
       mass_out = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_OUT
-         do j = 1, NY
-            do i = 1, NX
-               mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
+      do concurrent (k = 1:NZ_OUT, j = 1:NY, i = 1:NX)
+      mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
                     abs(real(v_out(i,j,k+1) - v_out(i,j,k), ESMF_KIND_R8))
-            end do
-         end do
       end do
       
       ! Verify conservation
@@ -327,13 +293,9 @@ contains
       
       ! Calculate input mass
       mass_in = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_IN
-         do j = 1, NY
-            do i = 1, NX
-               mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
+      do concurrent (k = 1:NZ_IN, j = 1:NY, i = 1:NX)
+      mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
                     abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
-            end do
-         end do
       end do
       
       ! Create and run transform
@@ -353,13 +315,9 @@ contains
       
       ! Calculate output mass
       mass_out = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_OUT
-         do j = 1, NY
-            do i = 1, NX
-               mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
+      do concurrent (k = 1:NZ_OUT, j = 1:NY, i = 1:NX)
+      mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
                     abs(real(v_out(i,j,k+1) - v_out(i,j,k), ESMF_KIND_R8))
-            end do
-         end do
       end do
       
       ! Verify conservation
@@ -429,13 +387,9 @@ contains
       
       ! Calculate input mass
       mass_in = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_IN
-         do j = 1, NY
-            do i = 1, NX
-               mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
+      do concurrent (k = 1:NZ_IN, j = 1:NY, i = 1:NX)
+      mass_in = mass_in + real(data_in(i,j,k), ESMF_KIND_R8) * &
                     abs(real(v_in(i,j,k+1) - v_in(i,j,k), ESMF_KIND_R8))
-            end do
-         end do
       end do
       
       ! Create and run transform
@@ -455,13 +409,9 @@ contains
       
       ! Calculate output mass
       mass_out = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_OUT
-         do j = 1, NY
-            do i = 1, NX
-               mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
+      do concurrent (k = 1:NZ_OUT, j = 1:NY, i = 1:NX)
+      mass_out = mass_out + real(data_out(i,j,k), ESMF_KIND_R8) * &
                     abs(real(v_out(i,j,k+1) - v_out(i,j,k), ESMF_KIND_R8))
-            end do
-         end do
       end do
       
       ! Verify conservation
@@ -586,13 +536,9 @@ contains
       allocate(area_out(NX_OUT, NY_OUT))
       
       ! Calculate Δp for input
-      do k = 1, NZ_IN
-         do j = 1, NY_IN
-            do i = 1, NX_IN
-               delp_in(i,j,k) = abs(v_in(i,j,k+1) - v_in(i,j,k))
-            end do
+      do concurrent (k = 1:NZ_IN, j = 1:NY_IN, i = 1:NX_IN)
+         delp_in(i,j,k) = abs(v_in(i,j,k+1) - v_in(i,j,k))
          end do
-      end do
       
       ! Simple area calculation (uniform for this test)
       area_in = 1.0
@@ -642,13 +588,9 @@ contains
       
       ! Update v_coord_horz based on regridded PS
       call ESMF_FieldGet(v_coord_horz, farrayPtr=v_horz, _RC)
-      do k = 1, NZ_IN+1
-         do j = 1, NY_OUT
-            do i = 1, NX_OUT
-               v_horz(i,j,k) = PTOP + (ps_out_ptr(i,j) - PTOP) * real(k-1, ESMF_KIND_R4) / real(NZ_IN, ESMF_KIND_R4)
-            end do
+      do concurrent (k = 1:NZ_IN+1, j = 1:NY_OUT, i = 1:NX_OUT)
+         v_horz(i,j,k) = PTOP + (ps_out_ptr(i,j) - PTOP) * real(k-1, ESMF_KIND_R4) / real(NZ_IN, ESMF_KIND_R4)
          end do
-      end do
       
       ! Step 2: Manually multiply by Δp (convert mixing ratio to extensive quantity)
       do k = 1, NZ_IN
@@ -668,13 +610,9 @@ contains
       call horz_transform%update(import_horz, export_horz, clock, _RC)
       
       ! Calculate Δp after horizontal regrid
-      do k = 1, NZ_IN
-         do j = 1, NY_OUT
-            do i = 1, NX_OUT
-               delp_horz(i,j,k) = abs(v_horz(i,j,k+1) - v_horz(i,j,k))
-            end do
+      do concurrent (k = 1:NZ_IN, j = 1:NY_OUT, i = 1:NX_OUT)
+         delp_horz(i,j,k) = abs(v_horz(i,j,k+1) - v_horz(i,j,k))
          end do
-      end do
       
       ! CRITICAL: Convert back to mixing ratio before vertical regrid
       ! Vertical regridder expects mixing ratio (q), not extensive quantity (q×Δp)
@@ -685,13 +623,9 @@ contains
       ! Step 4: Vertical regridding (on mixing ratio q)
       ! Update v_coord_out based on PS_OUT
       call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
-      do k = 1, NZ_OUT+1
-         do j = 1, NY_OUT
-            do i = 1, NX_OUT
-               v_out(i,j,k) = PTOP + (ps_out_ptr(i,j) - PTOP) * real(k-1, ESMF_KIND_R4) / real(NZ_OUT, ESMF_KIND_R4)
-            end do
+      do concurrent (k = 1:NZ_OUT+1, j = 1:NY_OUT, i = 1:NX_OUT)
+         v_out(i,j,k) = PTOP + (ps_out_ptr(i,j) - PTOP) * real(k-1, ESMF_KIND_R4) / real(NZ_OUT, ESMF_KIND_R4)
          end do
-      end do
       
       call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
       data_out = 0.0
@@ -717,13 +651,9 @@ contains
       call vert_transform%update(import_vert, export_vert, clock, _RC)
       
       ! Calculate Δp for output
-      do k = 1, NZ_OUT
-         do j = 1, NY_OUT
-            do i = 1, NX_OUT
-               delp_out(i,j,k) = abs(v_out(i,j,k+1) - v_out(i,j,k))
-            end do
+      do concurrent (k = 1:NZ_OUT, j = 1:NY_OUT, i = 1:NX_OUT)
+         delp_out(i,j,k) = abs(v_out(i,j,k+1) - v_out(i,j,k))
          end do
-      end do
       
       ! Note: data_out now contains mixing ratio (q) after vertical regrid
       ! The vertical regridder handles Δp weighting internally
