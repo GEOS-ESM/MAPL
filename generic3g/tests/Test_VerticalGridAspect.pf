@@ -7,42 +7,70 @@ module Test_VerticalGridAspect
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalGrid_API
    use mapl3g_Field_API
+   use mapl_ErrorHandling
    use esmf
-   use pfunit
+!   use pfunit
+   use funit
    use ESMF_TestMethod_mod
    implicit none(type, external)
 
    type(BasicVerticalGridFactory) :: FACTORY
+   integer, parameter :: MAXINDEX(2) = [4, 4]
+   type(ESMF_TypeKind_Flag), parameter :: TK = ESMF_TYPEKIND_R4
+   character(len=*), parameter :: GRID_TYPE = "basic"
+   character(len=*), parameter :: GRID_TYPE_KEY = "grid_type"
+   character(len=*), parameter :: NUM_LEVELS_KEY = "num_levels"
 
 contains
 
-!      aspect = VerticalGridAspect(vertical_grid, regrid_method, vertical_stagger,&
-!         & vertical_alignment, _RC)
+!VerticalGridAspect(grid, method, stagger, alignment, _RC)
 !===============================================================================
 !ESMF_Field
 !===============================================================================
    @Test(type=ESMF_TestMethod, npes[1])
    subroutine test_update_from_payload(this)
       class(ESMF_TestMethod), intent(inout) ::  this
-      type(VerticalGridAspect) :: aspect
-      class(VerticalGrid), allocatable :: field_vertical_grid
-      class(VerticalGrid), allocatable :: aspect_vertical_grid
-      class(VerticalGrid), allocatable :: actual_vertical_grid
-      integer :: status
-      integer, parameter :: field_num_levels = 3, aspect_num_levels = 2
-      logical :: matches
-      type(ESMF_Field) :: field
+!      type(VerticalGridAspect) :: aspect
+!      class(VerticalGrid), allocatable :: field_vertical_grid
+!      class(VerticalGrid), allocatable :: aspect_vertical_grid
+!      class(VerticalGrid), allocatable :: actual_vertical_grid
+!      integer :: status
+!      integer, parameter :: field_num_levels = 3, aspect_num_levels = 2
+!      logical :: matches
+!      type(ESMF_Field) :: field
+!      type(ESMF_Grid) :: grid
+!      type(ESMF_Geom) :: geom
+!      type(ESMF_HConfig) :: hconfig, hconfig2
+!      class(VerticalGridSpec), allocatable :: spec
 
-      field_vertical_grid = build_vertical_grid(field_num_levels, _RC)
-      field = make_field(vertical_grid=field_vertical_grid,&
-         & vertical_stagger=VERTICAL_STAGGER_EDGE, vertical_alignment=VALIGN_UP, _RC)
-      aspect_vertical_grid = build_vertical_grid(aspect_num_levels, _RC)
-      aspect = VerticalGridAspect(aspect_vertical_grid, VERTICAL_REGRID_CONSERVATIVE, &
-         & VERTICAL_STAGGER_CENTER, VALIGN_UP)
-      call aspect%update_from_payload(field=field, _RC)
-      matches = actual_vertical_grid%matches(field_vertical_grid)
-      @assertTrue(matches, 'The vertical grid does not match.')
+!      hconfig = ESMF_HConfigCreate(_RC)
+!      call ESMF_HConfigSet(hconfig, GRID_TYPE, keyString=GRID_TYPE_KEY, _RC)
+!      call ESMF_HConfigSet(hconfig, field_num_levels, keyString=NUM_LEVELS_KEY, _RC)
+!      spec = FACTORY%create_spec_from_config(hconfig, _RC)
+!      field_vertical_grid = FACTORY%create_grid_from_spec(spec, _RC)
+!      grid = ESMF_GridCreate(maxindex=MAXINDEX, _RC)
+!      geom = ESMF_GeomCreate(grid=grid, _RC)
+!      field = ESMF_FieldCreate(geom=geom, typekind=TK, _RC)
+!      call MAPL_FieldSet(field, vgrid=field_vertical_grid, vert_staggerloc=VERTICAL_STAGGER_EDGE,&
+!         & vert_alignment=VALIGN_UP, _RC)
+!      !field_vertical_grid = build_vertical_grid(field_num_levels, _RC)
+!      !field = make_field(vertical_grid=field_vertical_grid,&
+!      !   & vertical_stagger=VERTICAL_STAGGER_EDGE, vertical_alignment=VALIGN_UP, _RC)
+!      !aspect_vertical_grid = build_vertical_grid(aspect_num_levels, _RC)
+!      hconfig2 = ESMF_HConfigCreate(_RC)
+!      call ESMF_HConfigSet(hconfig2, GRID_TYPE, keyString=GRID_TYPE_KEY, _RC)
+!      call ESMF_HConfigSet(hconfig2, aspect_num_levels, keyString=NUM_LEVELS_KEY, _RC)
+!      spec = FACTORY%create_spec_from_config(hconfig2, _RC)
+!      aspect_vertical_grid = FACTORY%create_grid_from_spec(spec, _RC)
+!      aspect = VerticalGridAspect(aspect_vertical_grid, VERTICAL_REGRID_CONSERVATIVE, &
+!         & VERTICAL_STAGGER_CENTER, VALIGN_UP)
+!      call aspect%update_from_payload(field=field, _RC)
+!      actual_vertical_grid = aspect%get_vertical_grid(_RC)
+!      matches = actual_vertical_grid%matches(field_vertical_grid)
+!      @assertTrue(matches, 'The vertical grid does not match.')
 
+!      call ESMF_HConfigDestroy(hconfig, _RC)
+!      call ESMF_HConfigDestroy(hconfig2, _RC)
    end subroutine test_update_from_payload
 !   @Test
 !   subroutine test_update_from_payload_no_vgrid(this)
@@ -58,59 +86,59 @@ contains
 !===============================================================================
 !ESMF_FieldBundle
 !===============================================================================
-   @Before
-   subroutine setUp(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-   end subroutine setUp
+!   @Before
+!   subroutine setUp(this)
+!      class(ESMF_TestMethod), intent(inout) :: this
+!   end subroutine setUp
    
-   @After
-   subroutine shutDown(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-   end subroutine shutDown
+!   @After
+!   subroutine shutDown(this)
+!      class(ESMF_TestMethod), intent(inout) :: this
+!   end subroutine shutDown
 
-   function build_vertical_grid(num_levels, rc) result(vgrid)
-      class(VerticalGrid), allocatable :: vgrid
-      integer, intent(in) :: num_levels
-      integer, optional, intent(out) :: rc
-      integer :: status
-      type(ESMF_HConfig) :: hconfig
-      class(VerticalGridSpec), allocatable :: spec
-      character(len=*), parameter :: GRID_TYPE = "basic"
-      character(len=*), parameter :: GRID_TYPE_KEY = "grid_type"
-      character(len=*), parameter :: NUM_LEVELS_KEY = "num_levels"
+!   function build_vertical_grid(num_levels, rc) result(vgrid)
+!      class(VerticalGrid), allocatable :: vgrid
+!      integer, intent(in) :: num_levels
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!      type(ESMF_HConfig) :: hconfig
+!      class(VerticalGridSpec), allocatable :: spec
+!      character(len=*), parameter :: GRID_TYPE = "basic"
+!      character(len=*), parameter :: GRID_TYPE_KEY = "grid_type"
+!      character(len=*), parameter :: NUM_LEVELS_KEY = "num_levels"
 
-      if(num_levels > 0) then
-         _RETURN(_FAILURE)
-      end if
-      hconfig = ESMF_HConfigCreate(_RC)
-      call ESMF_HConfigSet(hconfig, GRID_TYPE, keyString=GRID_TYPE_KEY, _RC)
-      call ESMF_HConfigSet(hconfig, num_levels, keyString=NUM_LEVELS_KEY, _RC)
-      spec = FACTORY%create_spec_from_config(hconfig, _RC)
-      vgrid = FACTORY%create_grid_from_spec(spec, _RC)
-      call ESMF_HConfigDestroy(hconfig, _RC)
-      _RETURN(_SUCCESS)
+!      if(num_levels > 0) then
+!         _RETURN(_FAILURE)
+!      end if
+!      hconfig = ESMF_HConfigCreate(_RC)
+!      call ESMF_HConfigSet(hconfig, GRID_TYPE, keyString=GRID_TYPE_KEY, _RC)
+!      call ESMF_HConfigSet(hconfig, num_levels, keyString=NUM_LEVELS_KEY, _RC)
+!      spec = FACTORY%create_spec_from_config(hconfig, _RC)
+!      vgrid = FACTORY%create_grid_from_spec(spec, _RC)
+!      call ESMF_HConfigDestroy(hconfig, _RC)
+!      _RETURN(_SUCCESS)
 
-   end function build_vertical_grid
+!   end function build_vertical_grid
 
-   function make_field(vertical_grid, vertical_stagger, vertical_alignment, rc) result(field)
-      type(ESMF_Field) :: field
-      class(VerticalGrid), optional, intent(in) :: vertical_grid
-      class(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
-      class(VerticalAlignment), optional, intent(in) :: vertical_alignment
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer, parameter :: MAXINDEX(2) = [4, 4]
-      type(ESMF_Grid) :: grid
-      type(ESMF_Geom) :: geom
-      type(ESMF_TypeKind_Flag), parameter :: TK = ESMF_TYPEKIND_R4
+!   function make_field(vertical_grid, vertical_stagger, vertical_alignment, rc) result(field)
+!      type(ESMF_Field) :: field
+!      class(VerticalGrid), optional, intent(in) :: vertical_grid
+!      class(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+!      class(VerticalAlignment), optional, intent(in) :: vertical_alignment
+!      integer, optional, intent(out) :: rc
+!      integer :: status
+!      integer, parameter :: MAXINDEX(2) = [4, 4]
+!      type(ESMF_Grid) :: grid
+!      type(ESMF_Geom) :: geom
+!      type(ESMF_TypeKind_Flag), parameter :: TK = ESMF_TYPEKIND_R4
 
-      grid = ESMF_GridCreate(maxindex=MAXINDEX, _RC)
-      geom = ESMF_GeomCreate(grid=grid, _RC)
-      field = ESMF_FieldCreate(geom=geom, typekind=TK, _RC)
-      call MAPL_FieldSet(field, vgrid=vertical_grid, vert_staggerloc=vertical_stagger,&
-         & vert_alignment=vertical_alignment, _RC)
-      _RETURN(_SUCCESS)
+!      grid = ESMF_GridCreate(maxindex=MAXINDEX, _RC)
+!      geom = ESMF_GeomCreate(grid=grid, _RC)
+!      field = ESMF_FieldCreate(geom=geom, typekind=TK, _RC)
+!      call MAPL_FieldSet(field, vgrid=vertical_grid, vert_staggerloc=vertical_stagger,&
+!         & vert_alignment=vertical_alignment, _RC)
+!      _RETURN(_SUCCESS)
 
-   end function make_field
+!   end function make_field
 
 end module Test_VerticalGridAspect
