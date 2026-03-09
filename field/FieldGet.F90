@@ -49,18 +49,11 @@ contains
       integer, optional, intent(out) :: num_layers     ! Number of layers from vgrid (CENTER levels)
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(out) :: vert_alignment
-<<<<<<< HEAD
       integer, optional, intent(out) :: num_vgrid_levels  ! Deprecated: use num_layers instead
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
+      type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
       character(len=:), optional, allocatable, intent(out) :: units
-=======
-      integer, optional, intent(out) :: num_vgrid_levels
-       type(UngriddedDims), optional, intent(out) :: ungridded_dims
-       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
-       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
-       character(len=:), optional, allocatable, intent(out) :: units
->>>>>>> b6d936e94 (Phase 2 Task 2.1: Implement NormalizationAspect with separated metadata (#4448))
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(StateItemAllocation), optional, intent(out) :: allocation_status
@@ -92,29 +85,12 @@ contains
       end if
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
-<<<<<<< HEAD
-       call FieldInfoGetInternal(field_info, &
-            typekind=typekind, &
-            horizontal_dims_spec=horizontal_dims_spec, &
-            vgrid_id=vgrid_id, &
-            num_levels=num_levels, &
-            num_layers=num_layers, &
-            vert_staggerloc=vert_staggerloc, &
-            vert_alignment=vert_alignment, &
-            num_vgrid_levels=num_vgrid_levels, &
-            ungridded_dims=ungridded_dims, &
-            quantity_type_metadata=quantity_type_metadata, &
-            units=units, standard_name=standard_name, long_name=long_name, &
-            allocation_status=allocation_status, &
-            has_deferred_aspects=has_deferred_aspects, &
-            regridder_param_info=regridder_param_info, &
-            _RC)
-=======
       call FieldInfoGetInternal(field_info, &
            typekind=typekind, &
            horizontal_dims_spec=horizontal_dims_spec, &
            vgrid_id=vgrid_id, &
            num_levels=num_levels, &
+           num_layers=num_layers, &
            vert_staggerloc=vert_staggerloc, &
            vert_alignment=vert_alignment, &
            num_vgrid_levels=num_vgrid_levels, &
@@ -126,7 +102,6 @@ contains
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
            _RC)
->>>>>>> b6d936e94 (Phase 2 Task 2.1: Implement NormalizationAspect with separated metadata (#4448))
 
       if (present(vgrid)) then
          if (vgrid_id == VERTICAL_GRID_NOT_FOUND) then
