@@ -27,7 +27,6 @@ module mapl3g_VerticalGrid
       procedure(I_get_supported_physical_dimensions), deferred :: get_supported_physical_dimensions
       procedure(I_get_units), deferred :: get_units
       procedure(I_get_num_layers), deferred :: get_num_layers
-      procedure(I_get_num_levels), deferred :: get_num_levels
       procedure(I_matches), deferred :: matches
    end type VerticalGrid
    
