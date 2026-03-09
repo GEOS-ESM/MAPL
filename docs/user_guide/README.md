@@ -41,6 +41,8 @@ It:
 
 ### 3.9 [Automatic Code Generator](docs/mapl_code_generator.md)
 
+### 3.10 [Conservative Vertical Regridding](docs/conservative_regridding.md)
+
 <!--
 ## 4 [Demos](../tutorial/README.md)
 -->
