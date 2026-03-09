@@ -61,6 +61,13 @@ endif ()
 # This tells cmake to assume MAPL's cmake directory is the first place to look
 list (PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
+# Newer ecbuild sets CMAKE_BUILD_WITH_INSTALL_RPATH=TRUE when ENABLE_RELATIVE_RPATHS
+# is ON (the default). This causes test binaries in the build tree to use the
+# install RPATH ($ORIGIN/../lib) at build time, which does not resolve correctly
+# against the build-tree library locations. Force FALSE so that CMake uses its
+# automatic build-tree RPATH (absolute paths) for targets in the build tree.
+set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
 option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
 if (BUILD_SHARED_MAPL)
   set (MAPL_LIBRARY_TYPE SHARED)
