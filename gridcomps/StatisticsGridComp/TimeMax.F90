@@ -17,7 +17,7 @@ module mapl3g_TimeMax
       type(esmf_Alarm) :: alarm
       type(esmf_Field) :: f      ! input
       type(esmf_Field) :: max_f  ! output
-      integer, allocatable :: counts(:)
+      type(esmf_Field) :: temp_max_f
    contains
       procedure :: initialize
       procedure :: destroy
@@ -53,15 +53,11 @@ contains
 
       integer :: status
       character(len=:), allocatable :: name
-      integer, allocatable :: localElementCount(:)
-      integer :: rank
 
       call mapl_FieldGet(this%f, short_name=name, _RC)
+      call mapl_FieldClone(this%f, this%temp_max_f, _RC)
 
-      call esmf_FieldGet(this%f, rank=rank, _RC)
-      allocate(localElementCount(rank))
-      call esmf_FieldGet(this%f, localElementCount=localElementCount, _RC)
-      allocate(this%counts(product(localElementCount)))
+      call esmf_FieldSet(this%temp_max_f, name='temp_max'//name, _RC)
 
       call this%reset(_RC)
 
@@ -76,8 +72,6 @@ contains
 
       call esmf_FieldDestroy(this%max_f, _RC)
 
-      deallocate(this%counts)
-
       _RETURN(_SUCCESS)
    end subroutine destroy
 
@@ -86,11 +80,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R8), pointer :: max_f(:)
 
-      call MAPL_AssignFptr(this%max_f, max_f, _RC)
-      max_f = MAPL_UNDEF
-      this%counts = 0
+      call esmf_FieldFill(this%temp_max_f, dataFillScheme='const', const1=0.d0, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine reset
@@ -125,18 +116,17 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: f(:), max_f(:)
+      real(kind=ESMF_KIND_R4), pointer :: f(:), temp_max_f(:)
 
       call MAPL_AssignFptr(this%f, f, _RC)
-      call MAPL_AssignFptr(this%max_f, max_f, _RC)
+      call MAPL_AssignFptr(this%temp_max_f, temp_max_f, _RC)
 
       where (f /= MAPL_UNDEF)
-         where (max_f == MAPL_UNDEF)
-            max_f = f
+         where (temp_max_f == MAPL_UNDEF)
+            temp_max_f = f
          elsewhere
-            max_f = max(max_f, f)
+            temp_max_f = max(temp_max_f, f)
          end where
-         this%counts = this%counts + 1
       end where
 
       _RETURN(_SUCCESS)
@@ -147,18 +137,17 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R8), pointer :: f(:), max_f(:)
+      real(kind=ESMF_KIND_R8), pointer :: f(:), temp_max_f(:)
 
       call MAPL_AssignFptr(this%f, f, _RC)
-      call MAPL_AssignFptr(this%max_f, max_f, _RC)
+      call MAPL_AssignFptr(this%temp_max_f, temp_max_f, _RC)
 
       where (f /= MAPL_UNDEF)
-         where (max_f == MAPL_UNDEF)
-            max_f = f
+         where (temp_max_f == MAPL_UNDEF)
+            temp_max_f = f
          elsewhere
-            max_f = max(max_f, f)
+            temp_max_f = max(temp_max_f, f)
          end where
-         this%counts = this%counts + 1
       end where
 
       _RETURN(_SUCCESS)
@@ -168,12 +157,49 @@ contains
       class(TimeMax), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      ! For maximum, computation happens during updates
-      ! This is a no-op subroutine to satisfy the abstract interface
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: typekind
 
+      call mapl_FieldGet(this%f, typekind=typekind, _RC)
+
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call compute_result_r4(this, _RC)
+      else if (typekind == ESMF_TYPEKIND_R8) then
+         call compute_result_r8(this, _RC)
+      end if
       _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
    end subroutine compute_result
+
+   subroutine compute_result_r4(this, rc)
+      class(TimeMax), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real(kind=ESMF_KIND_R4), pointer :: temp_max_f(:), max_f(:)
+
+      call MAPL_AssignFptr(this%temp_max_f, temp_max_f, _RC)
+      call MAPL_AssignFptr(this%max_f, max_f, _RC)
+
+      max_f = temp_max_f
+
+      _RETURN(_SUCCESS)
+   end subroutine compute_result_r4
+
+   subroutine compute_result_r8(this, rc)
+      class(TimeMax), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real(kind=ESMF_KIND_R8), pointer :: temp_max_f(:), max_f(:)
+
+      call MAPL_AssignFptr(this%temp_max_f, temp_max_f, _RC)
+      call MAPL_AssignFptr(this%max_f, max_f, _RC)
+
+      max_f = temp_max_f
+
+      _RETURN(_SUCCESS)
+   end subroutine compute_result_r8
 
    subroutine add_to_state(this, state, rc)
       class(TimeMax), intent(inout) :: this
