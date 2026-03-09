@@ -16,6 +16,11 @@ Added a new feature: create a halo based on local displacement members, local-di
 	
 ### Changed
 
+- Update `components.yaml` to match GEOSgcm v12
+  - ESMA_cmake v4.35.0
+    - Multiple fixes for f2py with spack and on macOS
+  - ecbuild geos/v3.13.1
+
 ### Removed
 
 ### Deprecated
