@@ -23,8 +23,24 @@ monthly_covariance: &monthly_covariance
   action: variance
   <<: *monthly
 
+daily_min: &daily_min
+  action: min
+  <<: *daily
+
+daily_max: &daily_max
+  action: max
+  <<: *daily
+
 stats:
   - name: A/TS
     action: average
+    itemtype: field
+    <<: *daily
+  - name: A/TS
+    action: min
+    itemtype: field
+    <<: *daily
+  - name: A/TS
+    action: max
     itemtype: field
     <<: *daily

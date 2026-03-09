@@ -6,10 +6,14 @@
 - component: root/A/<user>
   export:
     TS: {status: complete}
+    min_TS: {status: complete}
+    max_TS: {status: complete}
 
 - component: root/A
   export:
     TS: {status: complete}
+    min_TS: {status: complete}
+    max_TS: {status: complete}
 
 - component: root/<user>
   export: {}
@@ -17,26 +21,40 @@
 - component: root
   export:
     A/TS: {status: complete}
+    A/min_TS: {status: complete}
+    A/max_TS: {status: complete}
 
 - component: history/collection_1/<user>
   import:
     TS_avg: {status: complete, value: 1.}
+    TS_min: {status: complete, value: 0.}
+    TS_max: {status: complete, value: 24.}
 
 - component: history/collection_1
   import:
     TS_avg: {status: complete}
+    TS_min: {status: complete}
+    TS_max: {status: complete}
 
 - component: history/stat/<user>
   import:
     A/TS: {status: complete}
+    A/min_TS: {status: complete}
+    A/max_TS: {status: complete}
   export:
     A/TS: {status: complete}
+    A/min_TS: {status: complete}
+    A/max_TS: {status: complete}
 
 - component: history/stat
   import:
     A/TS: {status: complete}
+    A/min_TS: {status: complete}
+    A/max_TS: {status: complete}
   export:
     A/TS: {status: complete}
+    A/min_TS: {status: complete}
+    A/max_TS: {status: complete}
 
 - component: history/<user>
   import: {}
@@ -44,6 +62,8 @@
 - component: history
   export:
     stat/A/TS: {status: complete}
+    stat/A/min_TS: {status: complete}
+    stat/A/max_TS: {status: complete}
 
 - component: <user>
   import: {}
@@ -54,4 +74,8 @@
   import: {}
   export:
     A/TS: {status: complete}
+    A/min_TS: {status: complete}
+    A/max_TS: {status: complete}
     stat/A/TS: {status: complete}
+    stat/A/min_TS: {status: complete}
+    stat/A/max_TS: {status: complete}
