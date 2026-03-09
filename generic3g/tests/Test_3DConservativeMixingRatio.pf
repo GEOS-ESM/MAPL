@@ -7,13 +7,16 @@ module Test_3DConservativeMixingRatio
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalCoordinateDirection
    use mapl3g_VerticalAlignment
-   use mapl3g_ExtensionTransform, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME
+   use mapl3g_ExtensionTransform, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME, ExtensionTransform
    use mapl3g_FieldCreate, only: MAPL_FieldCreate
    use mapl3g_QuantityType
    use mapl3g_QuantityTypeMetadata
    use mapl3g_NormalizationType
    use mapl3g_NormalizationMetadata
    use mapl3g_Field_API
+   use mapl3g_RegridTransform
+   use mapl3g_regridder_mgr, only: EsmfRegridderParam
+   use mapl3g_Geom_API
    use mapl_ErrorHandling
    use esmf
    use pfunit
@@ -474,6 +477,289 @@ contains
       _UNUSED_DUMMY(this)
       
    end subroutine test_fine_to_coarse_conservation
+
+
+   !---------------------------------------------------------------------------
+   ! Test 5a: Combined horizontal + vertical regridding (manual/explicit)
+   ! Tests the complete conservative regridding workflow with explicit Δp normalization
+   !---------------------------------------------------------------------------
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_combined_horizontal_vertical_manual(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(GeomManager), pointer :: geom_mgr
+      type(MaplGeom) :: mapl_geom
+      type(ESMF_HConfig) :: hconfig
+      class(ExtensionTransform), allocatable :: horz_transform
+      type(VerticalRegridTransform) :: vert_transform
+      type(VerticalRegridParam) :: vert_param
+      type(EsmfRegridderParam) :: horz_param
+      
+      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Field) :: f_in, f_horz, f_out
+      type(ESMF_Field) :: v_coord_in, v_coord_horz, v_coord_out
+      type(ESMF_Field) :: ps_in, ps_out  ! Surface pressure fields
+      type(ESMF_Field) :: ps_in_alias, ps_out_alias  ! Named aliases for transforms
+      type(ESMF_Field) :: f_in_alias, f_horz_alias, f_out_alias  ! Named aliases for transforms
+      type(ESMF_State) :: import_horz, export_horz, import_vert, export_vert
+      
+      real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_horz(:,:,:), data_out(:,:,:)
+      real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_horz(:,:,:), v_out(:,:,:)
+      real(ESMF_KIND_R4), pointer :: ps_in_ptr(:,:), ps_out_ptr(:,:)
+      real(ESMF_KIND_R4), allocatable :: delp_in(:,:,:), delp_horz(:,:,:), delp_out(:,:,:)
+      real(ESMF_KIND_R4), allocatable :: area_in(:,:), area_out(:,:)
+      
+      real(ESMF_KIND_R8) :: mass_in, mass_out, relative_error, ps_mass_in, ps_mass_out
+      integer, parameter :: NX_IN = 4, NY_IN = 4, NZ_IN = 10
+      integer, parameter :: NX_OUT = 6, NY_OUT = 6, NZ_OUT = 15
+      real, parameter :: PTOP = 1.0  ! Top of atmosphere pressure (hPa)
+      integer :: i, j, k, status
+      
+      ! Get geometry manager
+      geom_mgr => get_geom_manager()
+      
+      ! Create input grid (4×4 horizontal) using GeomManager
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC}", _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom_in = mapl_geom%get_geom()
+      
+      ! Create output grid (6×6 horizontal) using GeomManager
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 6, pole: PC, dateline: DC}", _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom_out = mapl_geom%get_geom()
+      
+      ! Create surface pressure fields (2D)
+      ps_in = MAPL_FieldCreate(geom=geom_in, typekind=ESMF_TYPEKIND_R4, name='PS_IN', _RC)
+      ps_out = MAPL_FieldCreate(geom=geom_out, typekind=ESMF_TYPEKIND_R4, name='PS_OUT', _RC)
+      
+      ! Initialize surface pressure (varies spatially: ~1000 hPa at equator, ~900 hPa at poles)
+      call ESMF_FieldGet(ps_in, farrayPtr=ps_in_ptr, _RC)
+      do j = 1, NY_IN
+         do i = 1, NX_IN
+            ! Vary from 950 to 1000 hPa
+            ps_in_ptr(i,j) = 950.0 + 50.0 * real(j, ESMF_KIND_R4) / real(NY_IN, ESMF_KIND_R4)
+         end do
+      end do
+      
+      ! Create vertical coordinates (edge-staggered)
+      ! Input: 10 layers with PTOP constant
+      v_coord_in = MAPL_FieldCreate(geom_in, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
+      do k = 1, NZ_IN+1
+         do j = 1, NY_IN
+            do i = 1, NX_IN
+               ! Pressure coordinate: PTOP at top, PS at surface
+               v_in(i,j,k) = PTOP + (ps_in_ptr(i,j) - PTOP) * real(k-1, ESMF_KIND_R4) / real(NZ_IN, ESMF_KIND_R4)
+            end do
+         end do
+      end do
+      
+      ! After horizontal regrid: 6×6, 10 layers
+      v_coord_horz = MAPL_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      
+      ! Output: 6×6, 15 layers
+      v_coord_out = MAPL_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      
+      ! Create data fields
+      f_in = MAPL_FieldCreate(geom_in, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      f_horz = MAPL_FieldCreate(geom_out, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      f_out = MAPL_FieldCreate(geom_out, name='Q_FINAL', typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      
+      ! Fill input with uniform mixing ratio
+      call ESMF_FieldGet(f_in, farrayPtr=data_in, _RC)
+      data_in = CO2_MIXING_RATIO
+      
+      ! Allocate Δp arrays
+      allocate(delp_in(NX_IN, NY_IN, NZ_IN))
+      allocate(delp_horz(NX_OUT, NY_OUT, NZ_IN))
+      allocate(delp_out(NX_OUT, NY_OUT, NZ_OUT))
+      allocate(area_in(NX_IN, NY_IN))
+      allocate(area_out(NX_OUT, NY_OUT))
+      
+      ! Calculate Δp for input
+      do k = 1, NZ_IN
+         do j = 1, NY_IN
+            do i = 1, NX_IN
+               delp_in(i,j,k) = abs(v_in(i,j,k+1) - v_in(i,j,k))
+            end do
+         end do
+      end do
+      
+      ! Simple area calculation (uniform for this test)
+      area_in = 1.0
+      area_out = (real(NX_IN, ESMF_KIND_R4) / real(NX_OUT, ESMF_KIND_R4)) * &
+                 (real(NY_IN, ESMF_KIND_R4) / real(NY_OUT, ESMF_KIND_R4))
+      
+      ! Calculate total mass before regridding
+      mass_in = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_IN
+         do j = 1, NY_IN
+            do i = 1, NX_IN
+               mass_in = mass_in + real(data_in(i,j,k) * delp_in(i,j,k) * area_in(i,j), ESMF_KIND_R8)
+            end do
+         end do
+      end do
+      
+      ! Step 1: Regrid surface pressure horizontally (to update PS for output grid)
+      call ESMF_FieldGet(ps_out, farrayPtr=ps_out_ptr, _RC)
+      ps_out_ptr = 0.0
+      
+      import_horz = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name='ps_import', _RC)
+      export_horz = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name='ps_export', _RC)
+      ps_in_alias = ESMF_NamedAlias(ps_in, name='import[1]', _RC)
+      ps_out_alias = ESMF_NamedAlias(ps_out, name='export[1]', _RC)
+      call ESMF_StateAdd(import_horz, fieldList=[ps_in_alias], _RC)
+      call ESMF_StateAdd(export_horz, fieldList=[ps_out_alias], _RC)
+      
+      horz_param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      allocate(horz_transform, source=RegridTransform(geom_in, geom_out, horz_param))
+      call horz_transform%initialize(import_horz, export_horz, clock, _RC)
+      call horz_transform%update(import_horz, export_horz, clock, _RC)
+      
+      ! Verify PS conservation
+      ps_mass_in = 0.0_ESMF_KIND_R8
+      ps_mass_out = 0.0_ESMF_KIND_R8
+      do j = 1, NY_IN
+         do i = 1, NX_IN
+            ps_mass_in = ps_mass_in + real(ps_in_ptr(i,j) * area_in(i,j), ESMF_KIND_R8)
+         end do
+      end do
+      do j = 1, NY_OUT
+         do i = 1, NX_OUT
+            ps_mass_out = ps_mass_out + real(ps_out_ptr(i,j) * area_out(i,j), ESMF_KIND_R8)
+         end do
+      end do
+      @assertTrue(abs(ps_mass_out - ps_mass_in) / ps_mass_in < TOLERANCE_LOOSE, 'PS not conserved in horizontal regrid')
+      
+      ! Update v_coord_horz based on regridded PS
+      call ESMF_FieldGet(v_coord_horz, farrayPtr=v_horz, _RC)
+      do k = 1, NZ_IN+1
+         do j = 1, NY_OUT
+            do i = 1, NX_OUT
+               v_horz(i,j,k) = PTOP + (ps_out_ptr(i,j) - PTOP) * real(k-1, ESMF_KIND_R4) / real(NZ_IN, ESMF_KIND_R4)
+            end do
+         end do
+      end do
+      
+      ! Step 2: Manually multiply by Δp (convert mixing ratio to extensive quantity)
+      do k = 1, NZ_IN
+         data_in(:,:,k) = data_in(:,:,k) * delp_in(:,:,k)
+      end do
+      
+      ! Step 3: Horizontal regridding (conservative on extensive quantity q×Δp)
+      call ESMF_FieldGet(f_horz, farrayPtr=data_horz, _RC)
+      data_horz = 0.0
+      
+      call ESMF_StateRemove(import_horz, itemNameList=['import[1]'], _RC)
+      call ESMF_StateRemove(export_horz, itemNameList=['export[1]'], _RC)
+      f_in_alias = ESMF_NamedAlias(f_in, name='import[1]', _RC)
+      f_horz_alias = ESMF_NamedAlias(f_horz, name='export[1]', _RC)
+      call ESMF_StateAdd(import_horz, fieldList=[f_in_alias], _RC)
+      call ESMF_StateAdd(export_horz, fieldList=[f_horz_alias], _RC)
+      call horz_transform%update(import_horz, export_horz, clock, _RC)
+      
+      ! Calculate Δp after horizontal regrid
+      do k = 1, NZ_IN
+         do j = 1, NY_OUT
+            do i = 1, NX_OUT
+               delp_horz(i,j,k) = abs(v_horz(i,j,k+1) - v_horz(i,j,k))
+            end do
+         end do
+      end do
+      
+      ! CRITICAL: Convert back to mixing ratio before vertical regrid
+      ! Vertical regridder expects mixing ratio (q), not extensive quantity (q×Δp)
+      do k = 1, NZ_IN
+         data_horz(:,:,k) = data_horz(:,:,k) / delp_horz(:,:,k)
+      end do
+      
+      ! Step 4: Vertical regridding (on mixing ratio q)
+      ! Update v_coord_out based on PS_OUT
+      call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
+      do k = 1, NZ_OUT+1
+         do j = 1, NY_OUT
+            do i = 1, NX_OUT
+               v_out(i,j,k) = PTOP + (ps_out_ptr(i,j) - PTOP) * real(k-1, ESMF_KIND_R4) / real(NZ_OUT, ESMF_KIND_R4)
+            end do
+         end do
+      end do
+      
+      call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+      vert_param%stagger_in = VERTICAL_STAGGER_EDGE
+      vert_param%stagger_out = VERTICAL_STAGGER_EDGE
+      vert_param%method = VERTICAL_REGRID_CONSERVATIVE
+      vert_param%src_alignment = VCOORD_DIRECTION_DOWN
+      vert_param%dst_alignment = VCOORD_DIRECTION_DOWN
+      vert_param%is_degenerate_case = .false.
+      vert_transform = VerticalRegridTransform(v_coord_horz, null(), v_coord_out, null(), vert_param)
+      
+      import_vert = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name='vert_import', _RC)
+      export_vert = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name='vert_export', _RC)
+      
+      ! Create named aliases for vertical regrid
+      f_horz_alias = ESMF_NamedAlias(f_horz, name='import[1]', _RC)
+      f_out_alias = ESMF_NamedAlias(f_out, name='export[1]', _RC)
+      call ESMF_StateAdd(import_vert, fieldList=[f_horz_alias], _RC)
+      call ESMF_StateAdd(export_vert, fieldList=[f_out_alias], _RC)
+      
+      call vert_transform%initialize(import_vert, export_vert, clock, _RC)
+      call vert_transform%update(import_vert, export_vert, clock, _RC)
+      
+      ! Calculate Δp for output
+      do k = 1, NZ_OUT
+         do j = 1, NY_OUT
+            do i = 1, NX_OUT
+               delp_out(i,j,k) = abs(v_out(i,j,k+1) - v_out(i,j,k))
+            end do
+         end do
+      end do
+      
+      ! Note: data_out now contains mixing ratio (q) after vertical regrid
+      ! The vertical regridder handles Δp weighting internally
+      
+      ! Calculate total mass after regridding
+      mass_out = 0.0_ESMF_KIND_R8
+      do k = 1, NZ_OUT
+         do j = 1, NY_OUT
+            do i = 1, NX_OUT
+               mass_out = mass_out + real(data_out(i,j,k) * delp_out(i,j,k) * area_out(i,j), ESMF_KIND_R8)
+            end do
+         end do
+      end do
+      
+      ! Verify conservation
+      @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
+      relative_error = abs(mass_out - mass_in) / mass_in
+      @assertTrue(relative_error < TOLERANCE_LOOSE, 'Mass conservation failed for combined horizontal+vertical regrid')
+      
+      ! Cleanup
+      call ESMF_StateDestroy(import_horz, rc=status)
+      call ESMF_StateDestroy(export_horz, rc=status)
+      call ESMF_StateDestroy(import_vert, rc=status)
+      call ESMF_StateDestroy(export_vert, rc=status)
+      call ESMF_FieldDestroy(ps_in, rc=status)
+      call ESMF_FieldDestroy(ps_out, rc=status)
+      call ESMF_FieldDestroy(v_coord_in, rc=status)
+      call ESMF_FieldDestroy(v_coord_horz, rc=status)
+      call ESMF_FieldDestroy(v_coord_out, rc=status)
+      call ESMF_FieldDestroy(f_in, rc=status)
+      call ESMF_FieldDestroy(f_horz, rc=status)
+      call ESMF_FieldDestroy(f_out, rc=status)
+      deallocate(delp_in, delp_horz, delp_out, area_in, area_out)
+      _UNUSED_DUMMY(this)
+      
+   end subroutine test_combined_horizontal_vertical_manual
 
 
    !---------------------------------------------------------------------------
