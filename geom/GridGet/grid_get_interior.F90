@@ -35,24 +35,23 @@ contains
       call ESMF_GridGet(grid, dimCount=grid_rank, distGrid=dist_grid, _RC)
       call ESMF_DistGridGet(dist_grid, delayout=layout, _RC)
       call ESMF_DELayoutGet(layout, deCount=de_count, localDECount=local_de_count, _RC)
-      if (local_de_count > 0) then
-         allocate(local_de_to_demap(local_de_count), _STAT)
-         call ESMF_DELayoutGet(layout, localDeToDeMap=local_de_to_demap, _RC)
-         de_id = local_de_to_demap(1)
-         allocate(AL(grid_rank, 0:de_count - 1), _STAT)
-         allocate(AU(grid_rank, 0:de_count - 1), _STAT)
-         call DistGridGet(dist_grid, min_index=AL, max_index=AU, _RC)
-         interior = [AL(1, de_id), AU(1, de_id)] ! i1, in
-         ! _ASSERT(grid_rank > 1, 'tilegrid is 1d (without RC this only for info')
-         j1 = 1
-         jn = 1
-         if (grid_rank > 1) then
-            j1 = AL(2, de_id)
-            jn = AU(2, de_id)
-         end if
-         interior = [interior, j1, jn] ! i1, in, j1, jn
-         deallocate(AU, AL, local_de_to_demap)
+      _RETURN_UNLESS(local_de_count > 0)
+      
+      allocate(local_de_to_demap(local_de_count), _STAT)
+      call ESMF_DELayoutGet(layout, localDeToDeMap=local_de_to_demap, _RC)
+      de_id = local_de_to_demap(1)
+      allocate(AL(grid_rank, 0:de_count - 1), _STAT)
+      allocate(AU(grid_rank, 0:de_count - 1), _STAT)
+      call DistGridGet(dist_grid, min_index=AL, max_index=AU, _RC)
+      interior = [AL(1, de_id), AU(1, de_id)] ! i1, in
+      ! _ASSERT(grid_rank > 1, 'tilegrid is 1d (without RC this only for info')
+      j1 = 1
+      jn = 1
+      if (grid_rank > 1) then
+         j1 = AL(2, de_id)
+         jn = AU(2, de_id)
       end if
+      interior = [interior, j1, jn] ! i1, in, j1, jn
 
       _RETURN(_SUCCESS)
    end subroutine grid_get_interior
