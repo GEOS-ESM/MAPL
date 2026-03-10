@@ -15,6 +15,8 @@ module mapl3g_VerticalGridAspect
    use mapl3g_VerticalRegridTransform
    use mapl3g_GeomAspect
    use mapl3g_TypekindAspect
+   use mapl3g_UnitsAspect
+   use mapl3g_QuantityTypeAspect
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalRegridMethod
@@ -229,18 +231,19 @@ contains
       type(AspectMap), target, intent(in)  :: other_aspects
       integer, optional, intent(out) :: rc
 
-      class(ComponentDriver), pointer :: v_in_coupler
-      class(ComponentDriver), pointer :: v_out_coupler
-      type(ESMF_Field) :: v_in_field, v_out_field
-      type(VerticalGridAspect) :: dst_
-      type(GeomAspect) :: geom_aspect
-      type(TypekindAspect) :: typekind_aspect
-       character(:), allocatable :: units
-       character(:), allocatable :: physical_dimension
-       type(VerticalCoordinateDirection) :: src_alignment, dst_alignment
-       logical :: grids_match
-       type(VerticalRegridParam) :: regrid_param
-       integer :: status
+       class(ComponentDriver), pointer :: v_in_coupler
+       class(ComponentDriver), pointer :: v_out_coupler
+       type(ESMF_Field) :: v_in_field, v_out_field
+       type(VerticalGridAspect) :: dst_
+       type(QuantityTypeAspect) :: quantity_type_aspect
+       type(AspectMap) :: coord_aspects  ! Aspects for coordinate field creation
+        character(:), allocatable :: units
+        character(:), allocatable :: physical_dimension
+        type(VerticalCoordinateDirection) :: src_alignment, dst_alignment
+        logical :: grids_match
+        logical :: needs_normalization
+        type(VerticalRegridParam) :: regrid_param
+        integer :: status
 
       if (src%is_mirror()) then
          allocate(transform, source=ExtendTransform())
@@ -250,17 +253,30 @@ contains
       allocate(transform,source=NullTransform()) ! just in case
       dst_ = to_VerticalGridAspect(dst, _RC)
 
-      geom_aspect = to_GeomAspect(other_aspects, _RC)
-      typekind_aspect = to_TypekindAspect(other_aspects, _RC)
+       ! Query QuantityTypeAspect to determine if normalization is needed
+       ! for conservative vertical regridding. If QuantityTypeAspect is not present,
+       ! default to no normalization (status will be non-zero).
+       needs_normalization = .false.
+       if (dst_%regrid_method == VERTICAL_REGRID_CONSERVATIVE) then
+          quantity_type_aspect = to_QuantityTypeAspect(other_aspects, status)
+          if (status == _SUCCESS) then
+             needs_normalization = quantity_type_aspect%needs_vertical_normalization()
+          end if
+       end if
 
 
       physical_dimension = find_common_physical_dimension(src, dst_, _RC)
       units = dst_%vertical_grid%get_units(physical_dimension, _RC)
       
-      v_in_field = src%vertical_grid%get_coordinate_field(geom_aspect%get_geom(), physical_dimension, &
-           units, typekind_aspect%get_typekind(), coupler=v_in_coupler, _RC)
-      v_out_field = dst_%vertical_grid%get_coordinate_field(geom_aspect%get_geom(), physical_dimension, &
-           units, typekind_aspect%get_typekind(), coupler=v_out_coupler, _RC)
+      ! Build aspect map for coordinate field creation
+      ! Copy other_aspects and ensure UNITS is set to the derived value
+      coord_aspects = other_aspects
+      call coord_aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
+      
+      v_in_field = src%vertical_grid%get_coordinate_field(physical_dimension, &
+           coord_aspects, coupler=v_in_coupler, _RC)
+      v_out_field = dst_%vertical_grid%get_coordinate_field(physical_dimension, &
+           coord_aspects, coupler=v_out_coupler, _RC)
       
       ! Get resolved alignments
       src_alignment = src%get_resolved_alignment()
@@ -298,13 +314,14 @@ contains
          _RETURN(_SUCCESS)
       end if
       
-      ! Build regrid parameters
-      regrid_param%stagger_in = src%vertical_stagger
-      regrid_param%stagger_out = dst_%vertical_stagger
-      regrid_param%method = dst_%regrid_method
-      regrid_param%src_alignment = src_alignment
-      regrid_param%dst_alignment = dst_alignment
-      regrid_param%is_degenerate_case = grids_match
+       ! Build regrid parameters
+       regrid_param%stagger_in = src%vertical_stagger
+       regrid_param%stagger_out = dst_%vertical_stagger
+       regrid_param%method = dst_%regrid_method
+       regrid_param%src_alignment = src_alignment
+       regrid_param%dst_alignment = dst_alignment
+       regrid_param%is_degenerate_case = grids_match
+       regrid_param%needs_normalization = needs_normalization
       
       deallocate(transform)
       transform = VerticalRegridTransform(v_in_field, v_in_coupler, v_out_field, v_out_coupler, regrid_param)

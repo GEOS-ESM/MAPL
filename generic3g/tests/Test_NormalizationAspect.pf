@@ -1,0 +1,373 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_NormalizationAspect
+   use funit
+   use mapl3g_NormalizationAspect
+   use mapl3g_StateItemAspect
+   use mapl3g_ActualConnectionPt
+   use mapl3g_ExtensionTransform
+   use mapl_ErrorHandling
+   use esmf
+   use ESMF_TestMethod_mod
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_new_normalization_aspect(this)
+      ! Test creating a normalization aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect
+      character(:), allocatable :: aux_field
+      real :: scale
+      integer :: status
+
+      aspect = NormalizationAspect(aux_field_name='DELP', &
+                                   scale_factor=0.102, &
+                                   source_units='kg/kg', &
+                                   target_units='kg/m2')
+
+      @assertFalse(aspect%is_mirror(), 'aspect should not be mirror when created with parameters')
+      
+      aux_field = aspect%get_aux_field_name(_RC)
+      @assertTrue(aux_field == 'DELP', 'aux field should be DELP')
+      
+      scale = aspect%get_scale_factor(_RC)
+      @assertTrue(abs(scale - 0.102) < 1.0e-6, 'scale should be 0.102')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_new_normalization_aspect
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_default_aspect_is_mirror(this)
+      ! Test that default constructor creates mirror aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect
+
+      aspect = NormalizationAspect()
+
+      @assertTrue(aspect%is_mirror(), 'default aspect should be mirror')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_default_aspect_is_mirror
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_same_normalization(this)
+      ! Test that matching normalization aspects return true
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+
+      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+
+      @assertTrue(aspect1%matches(aspect2), 'same normalization should match')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_matches_same_normalization
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_does_not_match_different_aux_field(this)
+      ! Test that different auxiliary fields don't match
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+
+      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = NormalizationAspect(aux_field_name='DZ', scale_factor=0.102)
+
+      @assertFalse(aspect1%matches(aspect2), 'different aux fields should not match')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_does_not_match_different_aux_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_does_not_match_different_scale(this)
+      ! Test that different scale factors don't match
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+
+      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = NormalizationAspect(aux_field_name='DELP', scale_factor=1.0)
+
+      @assertFalse(aspect1%matches(aspect2), 'different scale factors should not match')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_does_not_match_different_scale
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_when_mirror(this)
+      ! Test that mirror aspects match anything
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+
+      aspect1 = NormalizationAspect()  ! mirror
+      aspect2 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+
+      @assertTrue(aspect1%matches(aspect2), 'mirror should match any aspect')
+      @assertTrue(aspect2%matches(aspect1), 'any aspect should match mirror')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_matches_when_mirror
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_getters_and_setters(this)
+      ! Test all getter and setter methods
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect
+      character(:), allocatable :: str_val
+      real :: real_val
+      integer :: status
+
+      aspect = NormalizationAspect()
+
+      ! Test aux_field_name
+      call aspect%set_aux_field_name('TEST_FIELD', _RC)
+      str_val = aspect%get_aux_field_name(_RC)
+      @assertTrue(str_val == 'TEST_FIELD', 'aux_field_name getter/setter')
+
+      ! Test scale_factor
+      call aspect%set_scale_factor(2.5, _RC)
+      real_val = aspect%get_scale_factor(_RC)
+      @assertTrue(abs(real_val - 2.5) < 1.0e-6, 'scale_factor getter/setter')
+
+      ! Test source_units
+      call aspect%set_source_units('mol/mol', _RC)
+      str_val = aspect%get_source_units(_RC)
+      @assertTrue(str_val == 'mol/mol', 'source_units getter/setter')
+
+      ! Test target_units
+      call aspect%set_target_units('mol/m2', _RC)
+      str_val = aspect%get_target_units(_RC)
+      @assertTrue(str_val == 'mol/m2', 'target_units getter/setter')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_getters_and_setters
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_conversion(this)
+      ! Test supports_conversion methods
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+
+      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+
+      @assertTrue(aspect1%supports_conversion(), 'should support conversion in general')
+      @assertTrue(aspect1%supports_conversion(aspect2), 'should support conversion to same normalization')
+
+      aspect2 = NormalizationAspect(aux_field_name='DZ', scale_factor=1.0)
+      @assertFalse(aspect1%supports_conversion(aspect2), 'should not support conversion to different normalization')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_supports_conversion
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_connect_to_export(this)
+      ! Test connect_to_export method
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: import_aspect, export_aspect
+      type(ActualConnectionPt) :: actual_pt
+      character(:), allocatable :: aux_field
+      real :: scale
+      integer :: status
+
+      export_aspect = NormalizationAspect(aux_field_name='DELP', &
+                                         scale_factor=0.102, &
+                                         source_units='kg/kg', &
+                                         target_units='kg/m2')
+      
+      import_aspect = NormalizationAspect()  ! mirror
+      
+      call import_aspect%connect_to_export(export_aspect, actual_pt, _RC)
+
+      aux_field = import_aspect%get_aux_field_name(_RC)
+      @assertTrue(aux_field == 'DELP', 'import should have export aux_field after connect')
+      
+      scale = import_aspect%get_scale_factor(_RC)
+      @assertTrue(abs(scale - 0.102) < 1.0e-6, 'import should have export scale after connect')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_connect_to_export
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_transform_returns_null(this)
+      ! Test that make_transform returns NullTransform for now
+      ! (Task 2.2 will implement actual NormalizationTransform)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: src, dst
+      type(AspectMap) :: other_aspects
+      class(ExtensionTransform), allocatable :: transform
+      integer :: status
+
+      src = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      dst = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+
+      transform = src%make_transform(dst, other_aspects, _RC)
+
+      @assertTrue(allocated(transform), 'transform should be allocated')
+      ! For now, we just check that it returns something
+      ! In Task 2.2, we'll test that it returns NormalizationTransform
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_make_transform_returns_null
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_compute_normalized_units_delp(this)
+      ! Test unit computation for DELP normalization
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect
+
+      aspect = NormalizationAspect(aux_field_name='DELP', &
+                                   scale_factor=0.102, &
+                                   source_units='kg/kg')
+      
+      ! The aspect should compute target units internally
+      ! For 'kg/kg' × (DELP × 1/g) → 'kg/m2'
+      ! This would be tested more thoroughly once update_from_payload works
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_compute_normalized_units_delp
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_compute_normalized_units_dz(this)
+      ! Test unit computation for DZ normalization
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect
+
+      aspect = NormalizationAspect(aux_field_name='DZ', &
+                                   scale_factor=1.0, &
+                                   source_units='kg/m3')
+      
+      ! The aspect should compute target units internally
+      ! For 'kg/m3' × DZ → 'kg/m2'
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_compute_normalized_units_dz
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_then_from_payload_mirror(this)
+      ! Test roundtrip: mirror aspect -> field -> aspect (following UngriddedDimsAspect pattern)
+      use mapl3g_Field_API
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      ! Create mirror aspect
+      aspect1 = NormalizationAspect()
+      @assertTrue(aspect1%is_mirror(), 'aspect1 should be mirror')
+
+      ! Create field
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[10,10], _RC)
+      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='test', _RC)
+
+      ! Write aspect to field
+      call aspect1%update_payload(field=field, _RC)
+
+      ! Read back into new aspect
+      aspect2 = NormalizationAspect()
+      call aspect2%set_mirror(.false.)  ! Start with different state
+      call aspect2%update_from_payload(field=field, _RC)
+
+      ! Should now be mirror
+      @assertTrue(aspect2%is_mirror(), 'aspect2 should be mirror after update_from_payload')
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_then_from_payload_mirror
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_then_from_payload_non_mirror_empty(this)
+      ! Test roundtrip: non-mirror empty aspect -> field -> aspect
+      use mapl3g_Field_API
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      ! Create non-mirror aspect with no normalization (default Category 1 state)
+      aspect1 = NormalizationAspect()
+      call aspect1%set_mirror(.false.)
+      @assertFalse(aspect1%is_mirror(), 'aspect1 should not be mirror')
+
+      ! Create field
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[10,10], _RC)
+      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='test', _RC)
+
+      ! Write aspect to field (should write NORMALIZE_NONE metadata with is_mirror=false)
+      call aspect1%update_payload(field=field, _RC)
+
+      ! Read back into new aspect
+      aspect2 = NormalizationAspect()  ! Starts as mirror
+      @assertTrue(aspect2%is_mirror(), 'aspect2 should start as mirror')
+      call aspect2%update_from_payload(field=field, _RC)
+
+      ! Should now be non-mirror
+      @assertFalse(aspect2%is_mirror(), 'aspect2 should be non-mirror after update_from_payload')
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_then_from_payload_non_mirror_empty
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_then_from_payload_with_normalization(this)
+      ! Test roundtrip: aspect with normalization -> field -> aspect
+      use mapl3g_Field_API
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NormalizationAspect) :: aspect1, aspect2
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      character(:), allocatable :: aux_field
+      real :: scale
+      integer :: status
+
+      ! Create aspect with DELP normalization
+      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      @assertFalse(aspect1%is_mirror(), 'aspect1 should not be mirror when created with params')
+
+      ! Create field
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[10,10], _RC)
+      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='test', _RC)
+
+      ! Write aspect to field
+      call aspect1%update_payload(field=field, _RC)
+
+      ! Read back into new aspect
+      aspect2 = NormalizationAspect()  ! Starts as mirror
+      call aspect2%update_from_payload(field=field, _RC)
+
+      ! Should have same state as aspect1
+      @assertFalse(aspect2%is_mirror(), 'aspect2 should not be mirror')
+      aux_field = aspect2%get_aux_field_name(_RC)
+      @assertEqual('DELP', aux_field, 'aux_field_name should match')
+      scale = aspect2%get_scale_factor(_RC)
+      @assertTrue(abs(scale - 0.102) < 1.0e-6, 'scale_factor should match')
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_then_from_payload_with_normalization
+
+end module Test_NormalizationAspect

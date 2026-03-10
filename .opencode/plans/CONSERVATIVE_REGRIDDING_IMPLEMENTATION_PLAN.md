@@ -6,11 +6,17 @@
 
 ## Implementation Progress
 
-- **Completed (2026-02-22):**
+- **Phase 1 - Completed (2026-02-22):**
   - ✅ Task 1.1: QuantityType enum types (`QuantityType.F90`)
   - ✅ Task 1.2: QuantityTypeAspect (`QuantityTypeAspect.F90`)
   - ✅ Unit tests for both components (12 tests for enums, 20 tests for aspect)
   - ✅ Successfully builds with NAG compiler
+
+- **Phase 2 - In Progress (started 2026-02-23):**
+  - ✅ Task 2.1: NormalizationAspect - COMPLETED & MERGED (PR #4449)
+  - ✅ Task 2.2: NormalizationTransform - COMPLETED & MERGED (PR #4452)
+    - ⚠️ Known issue: Auxiliary field access needs refactoring (Task 2.2b created)
+  - 🔄 **Next:** Task 2.2b - Refactor auxiliary field access to use coupler mechanism
 
 ## GitHub Issues
 
@@ -648,6 +654,110 @@ end subroutine
   - Test with 3D and 2D fields
   - Test error handling (aux field not found, etc.)
 
+**Status:** ✅ COMPLETED (2026-02-24) - Initial implementation merged to integration branch
+**Note:** Auxiliary field access pattern needs refactoring (see Task 2.2b)
+
+---
+
+#### Task 2.2b: Refactor NormalizationTransform Auxiliary Field Access
+**File:** `generic3g/transforms/NormalizationTransform.F90` (modify)  
+**File:** `generic3g/specs/NormalizationAspect.F90` (modify)  
+**Effort:** 16 hours
+
+**Description:**
+Refactor NormalizationTransform to use coupler mechanism for auxiliary field access,
+following the VerticalRegridTransform pattern. The current implementation violates
+the design constraint that couplers have ONE item in import and ONE item in export.
+
+**Problem:**
+Current implementation attempts to get auxiliary field (DELP/DZ) directly from 
+importState, but coupler states are tightly constrained to have exactly one item
+in import and one item in export.
+
+**Solution:**
+Follow VerticalGridAspect/VerticalRegridTransform pattern:
+1. NormalizationAspect creates a coupler for the auxiliary field
+2. Transform stores pointer to that coupler
+3. Transform runs coupler during update() to get auxiliary field values
+
+**Implementation Changes:**
+
+**NormalizationAspect updates:**
+```fortran
+function make_transform(src, dst, other_aspects, rc) result(transform)
+   ! Similar to VerticalGridAspect::make_transform (lines 260-263)
+   
+   class(ComponentDriver), pointer :: aux_field_coupler
+   type(ESMF_Field) :: aux_field
+   
+   ! Get auxiliary field from vertical grid (or other source)
+   ! Example: get DELP field with its coupler
+   aux_field = get_auxiliary_field(aux_field_name, geom_aspect%get_geom(), &
+                                   typekind_aspect%get_typekind(), &
+                                   coupler=aux_field_coupler, _RC)
+   
+   ! Create transform with coupler
+   transform = NormalizationTransform(aux_field_name, scale_factor, &
+                                      aux_field, aux_field_coupler)
+end function
+```
+
+**NormalizationTransform updates:**
+```fortran
+type, extends(ExtensionTransform) :: NormalizationTransform
+   private
+   character(:), allocatable :: aux_field_name
+   real :: scale_factor
+   type(ESMF_Field) :: aux_field                    ! NEW - auxiliary field
+   class(ComponentDriver), pointer :: aux_coupler => null()  ! NEW - coupler
+contains
+   procedure :: initialize
+   procedure :: update
+   procedure :: get_transformId
+end type
+
+subroutine update(this, importState, exportState, clock, rc)
+   ! Run auxiliary field coupler (if present) to update values
+   if (associated(this%aux_coupler)) then
+      call this%aux_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+   end if
+   
+   ! Get the field to normalize (from coupler states)
+   call ESMF_StateGet(importState, COUPLER_IMPORT_NAME, field=f_in, _RC)
+   call ESMF_StateGet(exportState, COUPLER_EXPORT_NAME, field=f_out, _RC)
+   
+   ! Use stored auxiliary field (not from state)
+   f_aux = this%aux_field
+   
+   ! Get data pointers and perform normalization
+   ! ... rest of implementation ...
+end subroutine
+```
+
+**Reference Implementation:**
+See `VerticalGridAspect.F90`:
+- Lines 260-263: Get coordinate field with coupler
+- Lines 232-234: Coupler pointer declaration
+- Lines 310: Pass coupler to transform constructor
+
+See `VerticalRegridTransform.F90`:
+- Lines 85-86: Coupler pointers stored in transform
+- Lines 120-121: Constructor sets coupler pointers
+- Lines 193-199: Couplers run during update (currently commented out)
+
+**Tests:**
+Update `Test_NormalizationTransform.pf`:
+- Mock or create real coupler for auxiliary field
+- Verify coupler is called during update
+- Verify auxiliary field values correctly accessed
+- Test without coupler (static auxiliary field)
+
+**Acceptance Criteria:**
+- NormalizationTransform follows same pattern as VerticalRegridTransform
+- No direct access to importState for auxiliary fields
+- Coupler mechanism properly integrated
+- All existing tests still pass
+
 ---
 
 #### Task 2.3: Create InverseNormalizationAspect
@@ -805,6 +915,104 @@ end subroutine
   - Verify conservation (mass conserved across vertical regrid)
   - Test with different vertical grids
   - Test without normalization (temperature field, etc.)
+
+---
+
+#### Task 2.6b: Conservative Vertical Regridding Matrix Construction
+**File:** `generic3g/vertical/VerticalLinearMap.F90` (add new function)  
+**Effort:** 20 hours
+
+**Description:**
+Implement overlap-based conservative vertical regridding matrix construction. Currently `VerticalRegridTransform` only supports linear interpolation via `compute_linear_map()`. This task adds `compute_conservative_map()` for mass-conserving vertical regridding.
+
+**Current State:**
+- `compute_linear_map()` interpolates using layer centers
+- Works for intensive quantities (temperature, etc.)
+- Not mass-conserving for extensive quantities
+
+**New Algorithm: Overlap-Based Conservative Regridding**
+
+For each destination layer, compute weights from overlapping source layers:
+
+```fortran
+function compute_conservative_map(z_src_interfaces, z_dst_interfaces, &
+                                  coord_direction) result(matrix)
+   real, intent(in) :: z_src_interfaces(:)  ! nlev_src + 1
+   real, intent(in) :: z_dst_interfaces(:)  ! nlev_dst + 1  
+   type(VerticalCoordinateDirection), intent(in) :: coord_direction
+   type(SparseMatrix_sp) :: matrix
+   
+   ! For each destination layer j
+   do j = 1, nlev_dst
+      ! Find source layers that overlap with dst layer j
+      do k = 1, nlev_src
+         ! Compute overlap interval
+         overlap_bot = max(z_dst_interfaces(j), z_src_interfaces(k))
+         overlap_top = min(z_dst_interfaces(j+1), z_src_interfaces(k+1))
+         
+         if (overlap_top > overlap_bot) then
+            ! Compute weight: overlap fraction of source layer
+            overlap_thickness = overlap_top - overlap_bot
+            source_thickness = z_src_interfaces(k+1) - z_src_interfaces(k)
+            weight = overlap_thickness / source_thickness
+            
+            ! Add to sparse matrix: matrix(j, k) = weight
+            call matrix%add_element(j, k, weight)
+         end if
+      end do
+   end do
+   
+   ! Validate: sum of weights for each row should = 1.0
+   call validate_conservative_weights(matrix)
+end function
+```
+
+**Key Requirements:**
+
+1. **Layer Interfaces (Edges)**
+   - Need interfaces, not centers
+   - May require adding `get_layer_interfaces()` to VerticalGrid
+   - Or derive from layer centers and thicknesses
+
+2. **Coordinate Direction Handling**
+   - Pressure: typically decreasing (surface → TOA)
+   - Height: typically increasing
+   - Use `coordinate_direction` to interpret "top" vs "bottom"
+   - Handle monotonicity correctly
+
+3. **Conservation Validation**
+   - For each destination layer: Σ(weights) = 1.0
+   - Mass conservation: Σ(input × dp_src) = Σ(output × dp_dst)
+   - Add assertion checks
+
+4. **Integration with VerticalRegridTransform**
+   - Modify `VerticalRegridTransform%initialize()` to select method
+   - Use `VerticalRegridMethod` parameter:
+     - `VERTICAL_REGRID_LINEAR` → `compute_linear_map()`
+     - `VERTICAL_REGRID_CONSERVATIVE` → `compute_conservative_map()`
+   - Store in existing `SparseMatrix_sp` member
+
+**Implementation Steps:**
+
+1. Add `compute_conservative_map()` to `VerticalLinearMap.F90`
+2. Add `VERTICAL_REGRID_CONSERVATIVE` to `VerticalRegridMethod` enum
+3. Add `get_layer_interfaces()` or equivalent to VerticalGrid (if needed)
+4. Modify `VerticalRegridTransform%initialize()` to choose method
+5. Add validation for conservation
+
+**Tests:**
+- `Test_ConservativeVerticalMap.pf`:
+  - Conservation: `sum(output * dp_dst) == sum(input * dp_src)`
+  - Coarse → fine regridding (72 → 144 levels)
+  - Fine → coarse regridding (144 → 72 levels)
+  - Same grid → identity matrix
+  - Different coordinate systems (pressure vs height)
+  - Edge cases: partial overlaps, non-uniform grids
+
+**Distinction from Task 2.6:**
+- **Task 2.6b** (this task): Core conservative regrid algorithm and matrix
+- **Task 2.6**: Fused normalization workflow that uses the conservative matrix
+- Task 2.6 depends on Task 2.6b being completed first
 
 ---
 
@@ -1418,11 +1626,11 @@ aerosol_spec = FieldSpec( &
 | Phase | Total Effort | Major Components |
 |-------|-------------|------------------|
 | Phase 1 | ~80 hours | Infrastructure, QuantityTypeAspect, 2D tests |
-| Phase 2 | ~120 hours | Normalization aspects, fused vertical, 3D tests |
+| Phase 2 | ~136 hours | Normalization aspects, fused vertical, 3D tests (includes 2.2b refactor) |
 | Phase 3 | ~80 hours | Basis conversions, moisture handling |
 | Phase 4 | ~60 hours | Concentration support, dz handling |
 | Phase 5 | ~120 hours (deferred) | ExtData, advanced features |
-| **Total** | **~340 hours** | **Phases 1-4** |
+| **Total** | **~356 hours** | **Phases 1-4** |
 
 **Timeline estimate (1 FTE):**
 - Phase 1: 2-3 weeks
