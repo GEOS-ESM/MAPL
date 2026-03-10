@@ -116,6 +116,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml` to match GEOSgcm v12
+  - ESMA_cmake v4.35.0
+    - Multiple fixes for f2py with spack and on macOS
+  - ecbuild geos/v3.13.1
+
 ### Removed
 
 ### Deprecated
