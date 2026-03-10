@@ -33,6 +33,7 @@ set (test_srcs
   
   Test_ModelVerticalGrid.pf
   Test_VerticalLinearMap.pf
+  Test_VerticalConservativeMap.pf
   Test_VerticalRegridTransform.pf
 
   Test_CSR_SparseMatrix.pf
@@ -49,6 +50,7 @@ set (test_srcs
   Test_VariableSpec_private.pf
   Test_ConvertUnitsTransform.pf
   Test_CopyTransform.pf
+  Test_NormalizationTransform.pf
   Test_VectorBracketClassAspect.pf
   Test_VectorBasisKind.pf
   Test_ExtensionTransformUtils.pf
@@ -56,7 +58,11 @@ set (test_srcs
   Test_UnitsAspect.pf
   Test_QuantityType.pf
   Test_QuantityTypeAspect.pf
+  Test_NormalizationAspect.pf
+  Test_InverseNormalizationAspect.pf
+  Test_PolymorphicSetMirror.pf
   Test_2DConservativeRegrid.pf
+  Test_3DConservativeMixingRatio.pf
   Test_GeomAspect.pf
 )
 

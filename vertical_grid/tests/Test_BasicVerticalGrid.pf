@@ -209,4 +209,69 @@ contains
       call esmf_HConfigDestroy(config)
    end subroutine test_basic_factory_create_grid_from_config
 
+
+   @test
+   subroutine test_primary_coordinate_default()
+      type(BasicVerticalGridSpec) :: spec
+      type(BasicVerticalGrid) :: grid
+      character(:), allocatable :: primary_coord
+      
+      spec = BasicVerticalGridSpec(num_levels=72)
+      call grid%initialize(spec)
+      
+      primary_coord = grid%get_primary_coordinate()
+      @assertEqual("", primary_coord, 'Default primary coordinate should be empty string')
+   end subroutine test_primary_coordinate_default
+
+
+   @test
+   subroutine test_primary_coordinate_set_pressure()
+      type(BasicVerticalGridSpec) :: spec
+      type(BasicVerticalGrid) :: grid
+      character(:), allocatable :: primary_coord
+      
+      spec = BasicVerticalGridSpec(num_levels=72)
+      call grid%initialize(spec)
+      
+      call grid%set_primary_coordinate("pressure")
+      primary_coord = grid%get_primary_coordinate()
+      @assertEqual("pressure", primary_coord, 'Should be able to set primary coordinate to pressure')
+   end subroutine test_primary_coordinate_set_pressure
+
+
+   @test
+   subroutine test_primary_coordinate_set_height()
+      type(BasicVerticalGridSpec) :: spec
+      type(BasicVerticalGrid) :: grid
+      character(:), allocatable :: primary_coord
+      
+      spec = BasicVerticalGridSpec(num_levels=72)
+      call grid%initialize(spec)
+      
+      call grid%set_primary_coordinate("height")
+      primary_coord = grid%get_primary_coordinate()
+      @assertEqual("height", primary_coord, 'Should be able to set primary coordinate to height')
+   end subroutine test_primary_coordinate_set_height
+
+
+   @test
+   subroutine test_primary_coordinate_change()
+      type(BasicVerticalGridSpec) :: spec
+      type(BasicVerticalGrid) :: grid
+      character(:), allocatable :: primary_coord
+      
+      spec = BasicVerticalGridSpec(num_levels=72)
+      call grid%initialize(spec)
+      
+      ! Set to pressure first
+      call grid%set_primary_coordinate("pressure")
+      primary_coord = grid%get_primary_coordinate()
+      @assertEqual("pressure", primary_coord, 'Should be pressure initially')
+      
+      ! Change to height
+      call grid%set_primary_coordinate("height")
+      primary_coord = grid%get_primary_coordinate()
+      @assertEqual("height", primary_coord, 'Should be able to change to height')
+   end subroutine test_primary_coordinate_change
+
 end module Test_BasicVerticalGrid
