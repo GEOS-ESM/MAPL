@@ -80,8 +80,18 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(esmf_TypeKind_Flag) :: typekind
+      real(kind=ESMF_KIND_R4), pointer :: f4(:)
+      real(kind=ESMF_KIND_R8), pointer :: f8(:)
 
-      call esmf_FieldFill(this%temp_min_f, dataFillScheme='const', const1=0.d0, _RC)
+      call mapl_FieldGet(this%temp_min_f, typekind=typekind, _RC)
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call MAPL_AssignFptr(this%temp_min_f, f4,  _RC)
+         f4 = MAPL_UNDEF
+      else if (typekind == ESMF_TYPEKIND_R8) then
+         call MAPL_AssignFptr(this%temp_min_f, f8,  _RC)
+         f8 = MAPL_UNDEF
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine reset
