@@ -71,76 +71,76 @@ module mapl3g_NormalizationAspect
 contains
 
    function new_NormalizationAspect(aux_field_name, scale_factor, source_units, target_units, is_time_dependent, is_inverse) result(aspect)
-       type(NormalizationAspect) :: aspect
-       character(*), optional, intent(in) :: aux_field_name
-       real, optional, intent(in) :: scale_factor
-       character(*), optional, intent(in) :: source_units
-       character(*), optional, intent(in) :: target_units
-       logical, optional, intent(in) :: is_time_dependent
-       logical, optional, intent(in) :: is_inverse
+      type(NormalizationAspect) :: aspect
+      character(*), optional, intent(in) :: aux_field_name
+      real, optional, intent(in) :: scale_factor
+      character(*), optional, intent(in) :: source_units
+      character(*), optional, intent(in) :: target_units
+      logical, optional, intent(in) :: is_time_dependent
+      logical, optional, intent(in) :: is_inverse
 
-       type(NormalizationType) :: norm_type
+      type(NormalizationType) :: norm_type
 
-       call aspect%set_mirror(.true.)
-       
-       if (present(aux_field_name) .and. present(scale_factor)) then
-          ! Determine normalization type from aux_field_name
-          select case (trim(aux_field_name))
-          case ('DELP')
-             norm_type = NORMALIZE_DELP
-          case ('DZ')
-             norm_type = NORMALIZE_DZ
-          case default
-             norm_type = NORMALIZE_NONE
-          end select
-          
-          ! Create metadata with normalization parameters
-          aspect%metadata = NormalizationMetadata( &
-               normalization_type=norm_type, &
-               normalization_scale=scale_factor, &
-               aux_field_name=aux_field_name)
-          call aspect%set_mirror(.false.)
-       else if (present(aux_field_name) .or. present(scale_factor)) then
-          ! If only one is provided, use default for the other
-          if (present(aux_field_name)) then
-             select case (trim(aux_field_name))
-             case ('DELP')
-                norm_type = NORMALIZE_DELP
-             case ('DZ')
-                norm_type = NORMALIZE_DZ
-             case default
-                norm_type = NORMALIZE_NONE
-             end select
-             aspect%metadata = NormalizationMetadata( &
-                  normalization_type=norm_type, &
-                  normalization_scale=1.0, &
-                  aux_field_name=aux_field_name)
-          else
-             aspect%metadata = NormalizationMetadata( &
-                  normalization_type=NORMALIZE_NONE, &
-                  normalization_scale=scale_factor)
-          end if
-          call aspect%set_mirror(.false.)
-       else
-          ! No normalization parameters provided - create mirror metadata
-          aspect%metadata = NormalizationMetadata()  ! Creates mirror
-       end if
-       
-       if (present(source_units)) then
-          aspect%source_units = source_units
-       end if
-       
-       if (present(target_units)) then
-          aspect%target_units = target_units
-       end if
+      call aspect%set_mirror(.true.)
+      
+      if (present(aux_field_name) .and. present(scale_factor)) then
+         ! Determine normalization type from aux_field_name
+         select case (trim(aux_field_name))
+         case ('DELP')
+            norm_type = NORMALIZE_DELP
+         case ('DZ')
+            norm_type = NORMALIZE_DZ
+         case default
+            norm_type = NORMALIZE_NONE
+         end select
+         
+         ! Create metadata with normalization parameters
+         aspect%metadata = NormalizationMetadata( &
+              normalization_type=norm_type, &
+              normalization_scale=scale_factor, &
+              aux_field_name=aux_field_name)
+         call aspect%set_mirror(.false.)
+      else if (present(aux_field_name) .or. present(scale_factor)) then
+         ! If only one is provided, use default for the other
+         if (present(aux_field_name)) then
+            select case (trim(aux_field_name))
+            case ('DELP')
+               norm_type = NORMALIZE_DELP
+            case ('DZ')
+               norm_type = NORMALIZE_DZ
+            case default
+               norm_type = NORMALIZE_NONE
+            end select
+            aspect%metadata = NormalizationMetadata( &
+                 normalization_type=norm_type, &
+                 normalization_scale=1.0, &
+                 aux_field_name=aux_field_name)
+         else
+            aspect%metadata = NormalizationMetadata( &
+                 normalization_type=NORMALIZE_NONE, &
+                 normalization_scale=scale_factor)
+         end if
+         call aspect%set_mirror(.false.)
+      else
+         ! No normalization parameters provided - create mirror metadata
+         aspect%metadata = NormalizationMetadata()  ! Creates mirror
+      end if
+      
+      if (present(source_units)) then
+         aspect%source_units = source_units
+      end if
+      
+      if (present(target_units)) then
+         aspect%target_units = target_units
+      end if
 
-       if (present(is_inverse)) then
-          aspect%is_inverse = is_inverse
-       end if
+      if (present(is_inverse)) then
+         aspect%is_inverse = is_inverse
+      end if
 
-       call aspect%set_time_dependent(is_time_dependent)
+      call aspect%set_time_dependent(is_time_dependent)
 
-    end function new_NormalizationAspect
+   end function new_NormalizationAspect
 
    logical function supports_conversion_general(src)
       class(NormalizationAspect), intent(in) :: src
@@ -155,13 +155,18 @@ contains
       class(NormalizationAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-       select type (dst)
-       class is (NormalizationAspect)
-          ! For now, only support exact match
-          supports_conversion_specific = (src%metadata == dst%metadata)
-       class default
-          supports_conversion_specific = .false.
-       end select
+      select type (dst)
+      class is (NormalizationAspect)
+         ! Match if either is a mirror or if metadata matches
+         if (src%is_mirror() .or. dst%is_mirror()) then
+            supports_conversion_specific = .true.
+         else
+            ! For now, only support exact metadata match
+            supports_conversion_specific = (src%metadata == dst%metadata)
+         end if
+      class default
+         supports_conversion_specific = .false.
+      end select
 
    end function supports_conversion_specific
 
@@ -169,18 +174,18 @@ contains
       class(NormalizationAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-       select type(dst)
-       class is (NormalizationAspect)
-          ! Match if normalization parameters match or if either is a mirror
-          if (src%is_mirror() .or. dst%is_mirror()) then
-             matches = .true.
-          else
-             ! Use metadata equality (includes aux_field_name and scale_factor comparison)
-             matches = (src%metadata == dst%metadata)
-          end if
-       class default
-          matches = .false.
-       end select
+      select type(dst)
+      class is (NormalizationAspect)
+         ! Match if normalization parameters match or if either is a mirror
+         if (src%is_mirror() .or. dst%is_mirror()) then
+            matches = .true.
+         else
+            ! Use metadata equality (includes aux_field_name and scale_factor comparison)
+            matches = (src%metadata == dst%metadata)
+         end if
+      class default
+         matches = .false.
+      end select
 
    end function matches
 
