@@ -5,6 +5,8 @@ set(srcs
   StatisticsVector.F90
   NullStatistic.F90
   TimeAverage.F90
+  TimeMin.F90
+  TimeMax.F90
   StatisticsGridComp.F90
   )
 
