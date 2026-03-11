@@ -100,6 +100,21 @@ contains
 
    end subroutine test_update_field
 
+   
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_field_no_vgrid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: aspect
+      type(ESMF_Field) :: field
+      integer :: status
+      class(VerticalGrid), pointer :: actual_vertical_grid
+      logical :: matches
+
+      field = make_field(num_levels=DEST_NUM_LEVELS, _RC)
+
+
+   end subroutine test_update_field_no_vgrid
+
 !===============================================================================
 !ESMF_FieldBundle
 !===============================================================================
