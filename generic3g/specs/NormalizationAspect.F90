@@ -118,18 +118,19 @@ contains
       class(NormalizationAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      select type (dst)
-      class is (NormalizationAspect)
-         ! For now, only support exact match
-         if (allocated(src%aux_field_name) .and. allocated(dst%aux_field_name)) then
-            supports_conversion_specific = (src%aux_field_name == dst%aux_field_name) .and. &
-                                          (abs(src%scale_factor - dst%scale_factor) < 1e-10)
-         else
-            supports_conversion_specific = .false.
-         end if
-      class default
-         supports_conversion_specific = .false.
-      end select
+       select type (dst)
+       class is (NormalizationAspect)
+          ! For now, only support exact match
+          if (allocated(src%aux_field_name) .and. allocated(dst%aux_field_name)) then
+             ! Scale factors represent discrete normalization choices, use exact equality
+             supports_conversion_specific = (src%aux_field_name == dst%aux_field_name) .and. &
+                                           (src%scale_factor == dst%scale_factor)
+          else
+             supports_conversion_specific = .false.
+          end if
+       class default
+          supports_conversion_specific = .false.
+       end select
 
    end function supports_conversion_specific
 
@@ -137,23 +138,24 @@ contains
       class(NormalizationAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      select type(dst)
-      class is (NormalizationAspect)
-         ! Match if normalization parameters match or if either is a mirror
-         if (src%is_mirror() .or. dst%is_mirror()) then
-            matches = .true.
-         else if (.not. allocated(src%aux_field_name) .and. .not. allocated(dst%aux_field_name)) then
-            ! Both have no normalization configured - they match
-            matches = .true.
-         else if (allocated(src%aux_field_name) .and. allocated(dst%aux_field_name)) then
-            matches = (src%aux_field_name == dst%aux_field_name) .and. &
-                     (abs(src%scale_factor - dst%scale_factor) < 1e-10)
-         else
-            matches = .false.
-         end if
-      class default
-         matches = .false.
-      end select
+       select type(dst)
+       class is (NormalizationAspect)
+          ! Match if normalization parameters match or if either is a mirror
+          if (src%is_mirror() .or. dst%is_mirror()) then
+             matches = .true.
+          else if (.not. allocated(src%aux_field_name) .and. .not. allocated(dst%aux_field_name)) then
+             ! Both have no normalization configured - they match
+             matches = .true.
+          else if (allocated(src%aux_field_name) .and. allocated(dst%aux_field_name)) then
+             ! Scale factors represent discrete normalization choices, use exact equality
+             matches = (src%aux_field_name == dst%aux_field_name) .and. &
+                      (src%scale_factor == dst%scale_factor)
+          else
+             matches = .false.
+          end if
+       class default
+          matches = .false.
+       end select
 
    end function matches
 

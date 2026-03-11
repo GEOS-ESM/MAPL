@@ -11,6 +11,7 @@ set(srcs
   HorizontalDimsSpec.F90
   VectorBasisKind.F90
   NormalizationType.F90
+  ConservationType.F90
   QuantityType.F90
   QuantityTypeMetadata.F90
   DistGridGet.F90
