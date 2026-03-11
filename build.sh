@@ -7,7 +7,16 @@ set -e
 # Default values
 COMPILER="${1:-nag}"
 BUILD_TYPE="${2:-Debug}"
-BUILD_DIR="build-${COMPILER}"
+INSTALL_PREFIX="${3:-}"
+
+# Use full paths for safety
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUILD_DIR="${SOURCE_DIR}/build-${COMPILER}"
+if [[ -z "$INSTALL_PREFIX" ]]; then
+    INSTALL_DIR="${SOURCE_DIR}/install-${COMPILER}"
+else
+    INSTALL_DIR="$INSTALL_PREFIX"
+fi
 
 # Supported compilers
 SUPPORTED_COMPILERS="nag gfortran ifort"
@@ -25,6 +34,7 @@ echo "========================================="
 echo "Compiler:    $COMPILER"
 echo "Build Type:  $BUILD_TYPE"
 echo "Build Dir:   $BUILD_DIR"
+echo "Install Dir: $INSTALL_DIR"
 echo "========================================="
 
 # Load the appropriate compiler stack
@@ -36,25 +46,24 @@ echo ""
 echo "Loaded modules:"
 module list
 
-# Create build directory
-mkdir -p "$BUILD_DIR"
-cd "$BUILD_DIR"
-
-# Configure with CMake
+# Configure with CMake (modern syntax)
 echo ""
 echo "Configuring with CMake..."
-cmake .. \
-    -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DCMAKE_INSTALL_PREFIX=../install
+cmake -B "${BUILD_DIR}" \
+      -S "${SOURCE_DIR}" \
+      --install-prefix="${INSTALL_DIR}" \
+      -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
 
 # Build
 echo ""
 echo "Building..."
-cmake --build . -j8
+cmake --build "${BUILD_DIR}" --parallel 8
 
 echo ""
 echo "========================================="
 echo "Build completed successfully!"
 echo "========================================="
 echo "Build directory: $BUILD_DIR"
+echo "Install directory: $INSTALL_DIR"
 echo "To run tests: ./test.sh $COMPILER"
+echo "To install: cmake --build ${BUILD_DIR} --target install"

@@ -7,7 +7,10 @@ set -e
 # Default values
 COMPILER="${1:-nag}"
 TEST_PATTERN="${2:-}"
-BUILD_DIR="build-${COMPILER}"
+
+# Use full paths for safety
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUILD_DIR="${SOURCE_DIR}/build-${COMPILER}"
 
 # Supported compilers
 SUPPORTED_COMPILERS="nag gfortran ifort"
@@ -45,16 +48,13 @@ echo ""
 echo "Loaded modules:"
 module list
 
-# Change to build directory
-cd "$BUILD_DIR"
-
-# Run tests using ctest
+# Run tests using ctest (modern syntax with --test-dir)
 echo ""
 echo "Running tests..."
 if [[ -n "$TEST_PATTERN" ]]; then
-    ctest --output-on-failure -R "$TEST_PATTERN"
+    ctest --test-dir "${BUILD_DIR}" --output-on-failure -R "$TEST_PATTERN"
 else
-    ctest --output-on-failure
+    ctest --test-dir "${BUILD_DIR}" --output-on-failure
 fi
 
 echo ""
