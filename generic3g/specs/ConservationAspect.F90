@@ -9,7 +9,7 @@ module mapl3g_ConservationAspect
    use mapl3g_NullTransform
    use mapl3g_ConservationType
    use mapl3g_QuantityType
-   use mapl3g_QuantityTypeAspect
+   use mapl3g_QuantityTypeMetadata
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl_KeywordEnforcer
@@ -253,20 +253,19 @@ contains
        integer, optional, intent(out) :: rc
 
        integer :: status
-       type(QuantityTypeAspect) :: qty_aspect
+       type(QuantityTypeMetadata) :: qty_metadata
        type(QuantityType) :: qty_type
-       class(StateItemAspect), pointer :: poly_aspect
        type(ESMF_Info) :: info
        character(:), allocatable :: conservation_str
        logical :: is_present
 
        _RETURN_UNLESS(present(field) .or. present(bundle))
 
-       ! First, check if conservation_type is explicitly set in Info
+       ! Get Info object from field or bundle
        if (present(field)) then
-          call ESMF_FieldGet(field, info=info, _RC)
+          call ESMF_InfoGetFromHost(field, info, _RC)
        else if (present(bundle)) then
-          call ESMF_FieldBundleGet(bundle, info=info, _RC)
+          call ESMF_InfoGetFromHost(bundle, info, _RC)
        end if
 
        is_present = ESMF_InfoIsPresent(info, key="/conservation_type", _RC)
@@ -278,63 +277,53 @@ contains
           call ESMF_InfoGet(info, key="/is_conservable", value=this%is_conservable, _RC)
           call this%set_mirror(.false.)
        else
-          ! Conservation type not set - infer from QuantityTypeAspect if available
+          ! Conservation type not set - infer from QuantityTypeMetadata if available
           ! This provides backward compatibility
           if (present(field)) then
-             call MAPL_FieldGet(field, quantity_type_aspect=poly_aspect, _RC)
+             call MAPL_FieldGet(field, quantity_type_metadata=qty_metadata, _RC)
           else if (present(bundle)) then
-             call MAPL_FieldBundleGet(bundle, quantity_type_aspect=poly_aspect, _RC)
+             call MAPL_FieldBundleGet(bundle, quantity_type_metadata=qty_metadata, _RC)
           end if
 
-          if (associated(poly_aspect)) then
-             qty_aspect = to_QuantityTypeAspect(poly_aspect, _RC)
+          if (.not. qty_metadata%is_mirror()) then
+             qty_type = qty_metadata%get_quantity_type()
              
-             if (.not. qty_aspect%is_mirror()) then
-                qty_type = qty_aspect%get_quantity_type(_RC)
-                
-                ! Infer conservation type from quantity type
-                select case (qty_type%to_string())
-                case ("QUANTITY_MIXING_RATIO")
-                   this%conservation_type = CONSERVE_MASS
-                   this%is_conservable = .true.
-                case ("QUANTITY_CONCENTRATION")
-                   this%conservation_type = CONSERVE_MASS
-                   this%is_conservable = .true.
-                case ("QUANTITY_PRESSURE")
-                   ! Surface pressure conserves mass (relates to column mass)
-                   this%conservation_type = CONSERVE_MASS
-                   this%is_conservable = .true.
-                case ("QUANTITY_EXTENSIVE")
-                   ! Extensive quantities are conservable (mass per unit area)
-                   this%conservation_type = CONSERVE_MASS
-                   this%is_conservable = .true.
-                case ("QUANTITY_TEMPERATURE", "QUANTITY_UNKNOWN")
-                   ! Not conservable
-                   this%conservation_type = CONSERVE_NONE
-                   this%is_conservable = .false.
-                case default
-                   this%conservation_type = CONSERVE_NONE
-                   this%is_conservable = .false.
-                end select
-                
-                call this%set_mirror(.false.)
-             else
-                ! QuantityType is mirror - default to CONSERVE_NONE, not conservable
+             ! Infer conservation type from quantity type
+             select case (qty_type%to_string())
+             case ("QUANTITY_MIXING_RATIO")
+                this%conservation_type = CONSERVE_MASS
+                this%is_conservable = .true.
+             case ("QUANTITY_CONCENTRATION")
+                this%conservation_type = CONSERVE_MASS
+                this%is_conservable = .true.
+             case ("QUANTITY_PRESSURE")
+                ! Surface pressure conserves mass (relates to column mass)
+                this%conservation_type = CONSERVE_MASS
+                this%is_conservable = .true.
+             case ("QUANTITY_EXTENSIVE")
+                ! Extensive quantities are conservable (mass per unit area)
+                this%conservation_type = CONSERVE_MASS
+                this%is_conservable = .true.
+             case ("QUANTITY_TEMPERATURE", "QUANTITY_UNKNOWN")
+                ! Not conservable
                 this%conservation_type = CONSERVE_NONE
                 this%is_conservable = .false.
-                call this%set_mirror(.false.)
-             end if
-          else
-             ! No QuantityTypeAspect - default to CONSERVE_NONE, not conservable
-             this%conservation_type = CONSERVE_NONE
-             this%is_conservable = .false.
+             case default
+                ! Unknown - default to non-conservable
+                this%conservation_type = CONSERVE_NONE
+                this%is_conservable = .false.
+             end select
+             
              call this%set_mirror(.false.)
+          else
+             ! No quantity type metadata - remain as mirror
+             call this%set_mirror(.true.)
           end if
        end if
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(state)
-   end subroutine update_from_payload
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(state)
+    end subroutine update_from_payload
 
     subroutine update_payload(this, field, bundle, state, rc)
        class(ConservationAspect), intent(in) :: this
@@ -348,15 +337,11 @@ contains
 
        _RETURN_UNLESS(present(field) .or. present(bundle))
 
-       if (this%is_mirror()) then
-          _RETURN(_SUCCESS)
-       end if
-
-       ! Write conservation metadata to Info
+       ! Get Info object from field or bundle
        if (present(field)) then
-          call ESMF_FieldGet(field, info=info, _RC)
+          call ESMF_InfoGetFromHost(field, info, _RC)
        else if (present(bundle)) then
-          call ESMF_FieldBundleGet(bundle, info=info, _RC)
+          call ESMF_InfoGetFromHost(bundle, info, _RC)
        end if
 
        call ESMF_InfoSet(info, key="/conservation_type", value=this%conservation_type%to_string(), _RC)

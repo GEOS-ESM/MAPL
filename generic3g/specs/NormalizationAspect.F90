@@ -30,9 +30,10 @@ module mapl3g_NormalizationAspect
    type, extends(StateItemAspect) :: NormalizationAspect
       private
       
-      ! Normalization parameters
-      character(:), allocatable :: aux_field_name     ! "DELP" or "DZ"
-      real :: scale_factor = 1.0                      ! e.g., 1/g for delp
+      ! Use composition for shared fields (eliminates duplication with NormalizationMetadata)
+      type(NormalizationMetadata) :: metadata
+      
+      ! Aspect-specific fields only
       character(:), allocatable :: source_units       ! e.g., "kg/kg"
       character(:), allocatable :: target_units       ! e.g., "kg/m2"
       
@@ -78,15 +79,51 @@ contains
        logical, optional, intent(in) :: is_time_dependent
        logical, optional, intent(in) :: is_inverse
 
+       type(NormalizationType) :: norm_type
+
        call aspect%set_mirror(.true.)
        
-       if (present(aux_field_name)) then
-          aspect%aux_field_name = aux_field_name
+       if (present(aux_field_name) .and. present(scale_factor)) then
+          ! Determine normalization type from aux_field_name
+          select case (trim(aux_field_name))
+          case ('DELP')
+             norm_type = NORMALIZE_DELP
+          case ('DZ')
+             norm_type = NORMALIZE_DZ
+          case default
+             norm_type = NORMALIZE_NONE
+          end select
+          
+          ! Create metadata with normalization parameters
+          aspect%metadata = NormalizationMetadata( &
+               normalization_type=norm_type, &
+               normalization_scale=scale_factor, &
+               aux_field_name=aux_field_name)
           call aspect%set_mirror(.false.)
-       end if
-       
-       if (present(scale_factor)) then
-          aspect%scale_factor = scale_factor
+       else if (present(aux_field_name) .or. present(scale_factor)) then
+          ! If only one is provided, use default for the other
+          if (present(aux_field_name)) then
+             select case (trim(aux_field_name))
+             case ('DELP')
+                norm_type = NORMALIZE_DELP
+             case ('DZ')
+                norm_type = NORMALIZE_DZ
+             case default
+                norm_type = NORMALIZE_NONE
+             end select
+             aspect%metadata = NormalizationMetadata( &
+                  normalization_type=norm_type, &
+                  normalization_scale=1.0, &
+                  aux_field_name=aux_field_name)
+          else
+             aspect%metadata = NormalizationMetadata( &
+                  normalization_type=NORMALIZE_NONE, &
+                  normalization_scale=scale_factor)
+          end if
+          call aspect%set_mirror(.false.)
+       else
+          ! No normalization parameters provided - create mirror metadata
+          aspect%metadata = NormalizationMetadata()  ! Creates mirror
        end if
        
        if (present(source_units)) then
@@ -121,13 +158,7 @@ contains
        select type (dst)
        class is (NormalizationAspect)
           ! For now, only support exact match
-          if (allocated(src%aux_field_name) .and. allocated(dst%aux_field_name)) then
-             ! Scale factors represent discrete normalization choices, use exact equality
-             supports_conversion_specific = (src%aux_field_name == dst%aux_field_name) .and. &
-                                           (src%scale_factor == dst%scale_factor)
-          else
-             supports_conversion_specific = .false.
-          end if
+          supports_conversion_specific = (src%metadata == dst%metadata)
        class default
           supports_conversion_specific = .false.
        end select
@@ -143,15 +174,9 @@ contains
           ! Match if normalization parameters match or if either is a mirror
           if (src%is_mirror() .or. dst%is_mirror()) then
              matches = .true.
-          else if (.not. allocated(src%aux_field_name) .and. .not. allocated(dst%aux_field_name)) then
-             ! Both have no normalization configured - they match
-             matches = .true.
-          else if (allocated(src%aux_field_name) .and. allocated(dst%aux_field_name)) then
-             ! Scale factors represent discrete normalization choices, use exact equality
-             matches = (src%aux_field_name == dst%aux_field_name) .and. &
-                      (src%scale_factor == dst%scale_factor)
           else
-             matches = .false.
+             ! Use metadata equality (includes aux_field_name and scale_factor comparison)
+             matches = (src%metadata == dst%metadata)
           end if
        class default
           matches = .false.
@@ -190,8 +215,10 @@ contains
 
       export_ = to_NormalizationAspect(export, _RC)
       
-      if (allocated(export_%aux_field_name)) this%aux_field_name = export_%aux_field_name
-      this%scale_factor = export_%scale_factor
+      ! Copy metadata
+      this%metadata = export_%metadata
+      
+      ! Copy aspect-specific fields
       if (allocated(export_%source_units)) this%source_units = export_%source_units
       if (allocated(export_%target_units)) this%target_units = export_%target_units
 
@@ -249,11 +276,8 @@ contains
       class(NormalizationAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      if (allocated(this%aux_field_name)) then
-         aux_field_name = this%aux_field_name
-      else
-         aux_field_name = ''
-      end if
+      ! Delegate to metadata
+      aux_field_name = this%metadata%get_aux_field_name()
 
       _RETURN(_SUCCESS)
    end function get_aux_field_name
@@ -263,7 +287,27 @@ contains
       character(*), intent(in) :: aux_field_name
       integer, optional, intent(out) :: rc
 
-      this%aux_field_name = aux_field_name
+      type(NormalizationType) :: norm_type
+      real :: scale
+
+      ! Determine normalization type from aux_field_name
+      select case (trim(aux_field_name))
+      case ('DELP')
+         norm_type = NORMALIZE_DELP
+      case ('DZ')
+         norm_type = NORMALIZE_DZ
+      case default
+         norm_type = NORMALIZE_NONE
+      end select
+      
+      ! Get current scale or use default
+      scale = this%metadata%get_normalization_scale()
+      
+      ! Update metadata with new aux_field_name
+      this%metadata = NormalizationMetadata( &
+           normalization_type=norm_type, &
+           normalization_scale=scale, &
+           aux_field_name=aux_field_name)
       call this%set_mirror(.false.)
 
       _RETURN(_SUCCESS)
@@ -274,7 +318,8 @@ contains
       class(NormalizationAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      scale_factor = this%scale_factor
+      ! Delegate to metadata
+      scale_factor = this%metadata%get_normalization_scale()
 
       _RETURN(_SUCCESS)
    end function get_scale_factor
@@ -284,7 +329,24 @@ contains
       real, intent(in) :: scale_factor
       integer, optional, intent(out) :: rc
 
-      this%scale_factor = scale_factor
+      type(NormalizationType) :: norm_type
+      character(:), allocatable :: aux_field
+
+      ! Get current values from metadata
+      norm_type = this%metadata%get_normalization_type()
+      aux_field = this%metadata%get_aux_field_name()
+      
+      ! Update metadata with new scale_factor
+      if (allocated(aux_field) .and. len(aux_field) > 0) then
+         this%metadata = NormalizationMetadata( &
+              normalization_type=norm_type, &
+              normalization_scale=scale_factor, &
+              aux_field_name=aux_field)
+      else
+         this%metadata = NormalizationMetadata( &
+              normalization_type=norm_type, &
+              normalization_scale=scale_factor)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine set_scale_factor
@@ -347,7 +409,7 @@ contains
        integer :: status
        type(NormalizationMetadata) :: norm_metadata
        type(NormalizationType) :: norm_type
-       character(:), allocatable :: units
+       character(:), allocatable :: units, aux_field
 
        _RETURN_UNLESS(present(field) .or. present(bundle))
 
@@ -358,7 +420,10 @@ contains
           call MAPL_FieldBundleGet(bundle, normalization_metadata=norm_metadata, _RC)
        end if
 
-       ! Copy mirror flag from metadata (following UngriddedDimsAspect pattern)
+       ! Store metadata directly (composition pattern)
+       this%metadata = norm_metadata
+       
+       ! Copy mirror flag from metadata to aspect (following UngriddedDimsAspect pattern)
        call this%set_mirror(norm_metadata%is_mirror())
        
        ! If metadata is mirror, we're done (no parameters to extract)
@@ -366,11 +431,10 @@ contains
 
        ! Get normalization parameters from metadata
        norm_type = norm_metadata%get_normalization_type()
+       aux_field = norm_metadata%get_aux_field_name()
 
-       if (norm_type /= NORMALIZE_NONE) then
-          ! Field needs normalization/denormalization - extract parameters
-          this%aux_field_name = norm_metadata%get_aux_field_name()
-          this%scale_factor = norm_metadata%get_normalization_scale()
+       if (norm_type /= NORMALIZE_NONE .and. allocated(aux_field) .and. len(aux_field) > 0) then
+          ! Field needs normalization/denormalization - extract units and compute target units
           
            ! Get source units
            if (present(field)) then
@@ -387,12 +451,12 @@ contains
           ! Compute target units (depends on is_inverse flag)
           if (this%is_inverse) then
              ! Denormalization: compute original units from normalized units
-             call compute_denormalized_units(this%source_units, this%aux_field_name, &
-                                           this%scale_factor, this%target_units, _RC)
+             call compute_denormalized_units(this%source_units, aux_field, &
+                                           norm_metadata%get_normalization_scale(), this%target_units, _RC)
           else
              ! Normalization: compute normalized units from original units
-             call compute_normalized_units(this%source_units, this%aux_field_name, &
-                                         this%scale_factor, this%target_units, _RC)
+             call compute_normalized_units(this%source_units, aux_field, &
+                                         norm_metadata%get_normalization_scale(), this%target_units, _RC)
           end if
        end if
        ! Note: If norm_type == NORMALIZE_NONE and metadata is not mirror,
@@ -410,8 +474,7 @@ contains
        integer, optional, intent(out) :: rc
 
        integer :: status
-       type(NormalizationMetadata) :: metadata
-       type(NormalizationType) :: norm_type
+       type(NormalizationMetadata) :: metadata, existing_metadata
        logical :: should_write
 
        _RETURN_UNLESS(present(field) .or. present(bundle))
@@ -423,34 +486,22 @@ contains
           ! Mirror aspect: always write mirror metadata
           metadata = NormalizationMetadata()  ! Creates mirror metadata
           should_write = .true.
-       else if (allocated(this%aux_field_name)) then
-          ! Non-mirror with explicit normalization: write it (overrides QuantityTypeAspect)
-          select case (trim(this%aux_field_name))
-          case ('DELP')
-             norm_type = NORMALIZE_DELP
-          case ('DZ')
-             norm_type = NORMALIZE_DZ
-          case default
-             norm_type = NORMALIZE_NONE
-          end select
-          
-          metadata = NormalizationMetadata( &
-               normalization_type=norm_type, &
-               normalization_scale=this%scale_factor, &
-               aux_field_name=this%aux_field_name)
+       else if (.not. this%metadata%is_mirror()) then
+          ! Non-mirror with explicit metadata: write it directly (overrides QuantityTypeAspect)
+          metadata = this%metadata
           should_write = .true.
        else
-          ! Non-mirror with NO explicit normalization (default Category 1 state)
+          ! Non-mirror aspect but metadata is still mirror (default Category 1 state)
           ! Check if QuantityTypeAspect already wrote non-mirror metadata
           if (present(field)) then
-             call MAPL_FieldGet(field, normalization_metadata=metadata, _RC)
+             call MAPL_FieldGet(field, normalization_metadata=existing_metadata, _RC)
           else if (present(bundle)) then
-             call MAPL_FieldBundleGet(bundle, normalization_metadata=metadata, _RC)
+             call MAPL_FieldBundleGet(bundle, normalization_metadata=existing_metadata, _RC)
           end if
           
           ! If existing metadata is mirror, we must write non-mirror NORMALIZE_NONE
           ! Otherwise, leave it as-is (QuantityTypeAspect may have set it)
-          if (metadata%is_mirror()) then
+          if (existing_metadata%is_mirror()) then
              metadata = NormalizationMetadata(NORMALIZE_NONE)
              should_write = .true.
           end if
@@ -475,11 +526,18 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc
 
+      character(:), allocatable :: aux_field
+
       _HERE, file, line, this%is_mirror()
-      if (allocated(this%aux_field_name)) then
-         _HERE, file, line, 'aux_field_name:', this%aux_field_name
+      
+      ! Print metadata fields
+      aux_field = this%metadata%get_aux_field_name()
+      if (allocated(aux_field) .and. len(aux_field) > 0) then
+         _HERE, file, line, 'aux_field_name:', aux_field
       end if
-      _HERE, file, line, 'scale_factor:', this%scale_factor
+      _HERE, file, line, 'scale_factor:', this%metadata%get_normalization_scale()
+      
+      ! Print aspect-specific fields
       if (allocated(this%source_units)) then
          _HERE, file, line, 'source_units:', this%source_units
       end if
