@@ -126,10 +126,15 @@ contains
 
       aspect = NormalizationAspect()
 
-      ! Test aux_field_name
-      call aspect%set_aux_field_name('TEST_FIELD', _RC)
+      ! Test aux_field_name with valid field (DELP maps to NORMALIZE_DELP)
+      call aspect%set_aux_field_name('DELP', _RC)
       str_val = aspect%get_aux_field_name(_RC)
-      @assertTrue(str_val == 'TEST_FIELD', 'aux_field_name getter/setter')
+      @assertTrue(str_val == 'DELP', 'aux_field_name getter/setter')
+      
+      ! Test aux_field_name with another valid field (DZ maps to NORMALIZE_DZ)
+      call aspect%set_aux_field_name('DZ', _RC)
+      str_val = aspect%get_aux_field_name(_RC)
+      @assertTrue(str_val == 'DZ', 'aux_field_name getter/setter for DZ')
 
       ! Test scale_factor
       call aspect%set_scale_factor(2.5, _RC)

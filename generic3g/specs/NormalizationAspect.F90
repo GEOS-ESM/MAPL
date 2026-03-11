@@ -94,11 +94,10 @@ contains
             norm_type = NORMALIZE_NONE
          end select
          
-         ! Create metadata with normalization parameters
+         ! Create metadata with normalization parameters (no aux_field_name stored)
          aspect%metadata = NormalizationMetadata( &
               normalization_type=norm_type, &
-              normalization_scale=scale_factor, &
-              aux_field_name=aux_field_name)
+              normalization_scale=scale_factor)
          call aspect%set_mirror(.false.)
       else if (present(aux_field_name) .or. present(scale_factor)) then
          ! If only one is provided, use default for the other
@@ -113,8 +112,7 @@ contains
             end select
             aspect%metadata = NormalizationMetadata( &
                  normalization_type=norm_type, &
-                 normalization_scale=1.0, &
-                 aux_field_name=aux_field_name)
+                 normalization_scale=1.0)
          else
             aspect%metadata = NormalizationMetadata( &
                  normalization_type=NORMALIZE_NONE, &
@@ -281,8 +279,19 @@ contains
       class(NormalizationAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      ! Delegate to metadata
-      aux_field_name = this%metadata%get_aux_field_name()
+      type(NormalizationType) :: norm_type
+
+      ! Derive aux_field_name from normalization_type
+      norm_type = this%metadata%get_normalization_type()
+      
+      select case (norm_type%to_string())
+      case ('NORMALIZE_DELP')
+         aux_field_name = 'DELP'
+      case ('NORMALIZE_DZ')
+         aux_field_name = 'DZ'
+      case default
+         aux_field_name = ''
+      end select
 
       _RETURN(_SUCCESS)
    end function get_aux_field_name
@@ -308,11 +317,10 @@ contains
       ! Get current scale or use default
       scale = this%metadata%get_normalization_scale()
       
-      ! Update metadata with new aux_field_name
+      ! Update metadata with new normalization_type (aux_field_name not stored)
       this%metadata = NormalizationMetadata( &
            normalization_type=norm_type, &
-           normalization_scale=scale, &
-           aux_field_name=aux_field_name)
+           normalization_scale=scale)
       call this%set_mirror(.false.)
 
       _RETURN(_SUCCESS)
@@ -335,23 +343,14 @@ contains
       integer, optional, intent(out) :: rc
 
       type(NormalizationType) :: norm_type
-      character(:), allocatable :: aux_field
 
-      ! Get current values from metadata
+      ! Get current normalization type from metadata
       norm_type = this%metadata%get_normalization_type()
-      aux_field = this%metadata%get_aux_field_name()
       
-      ! Update metadata with new scale_factor
-      if (allocated(aux_field) .and. len(aux_field) > 0) then
-         this%metadata = NormalizationMetadata( &
-              normalization_type=norm_type, &
-              normalization_scale=scale_factor, &
-              aux_field_name=aux_field)
-      else
-         this%metadata = NormalizationMetadata( &
-              normalization_type=norm_type, &
-              normalization_scale=scale_factor)
-      end if
+      ! Update metadata with new scale_factor (aux_field_name not stored)
+      this%metadata = NormalizationMetadata( &
+           normalization_type=norm_type, &
+           normalization_scale=scale_factor)
 
       _RETURN(_SUCCESS)
    end subroutine set_scale_factor
@@ -436,7 +435,16 @@ contains
 
        ! Get normalization parameters from metadata
        norm_type = norm_metadata%get_normalization_type()
-       aux_field = norm_metadata%get_aux_field_name()
+       
+       ! Derive aux_field_name from normalization_type
+       select case (norm_type%to_string())
+       case ('NORMALIZE_DELP')
+          aux_field = 'DELP'
+       case ('NORMALIZE_DZ')
+          aux_field = 'DZ'
+       case default
+          aux_field = ''
+       end select
 
        if (norm_type /= NORMALIZE_NONE .and. allocated(aux_field) .and. len(aux_field) > 0) then
           ! Field needs normalization/denormalization - extract units and compute target units
@@ -532,14 +540,18 @@ contains
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: aux_field
+      type(NormalizationType) :: norm_type
+      integer :: status
 
       _HERE, file, line, this%is_mirror()
       
-      ! Print metadata fields
-      aux_field = this%metadata%get_aux_field_name()
+      ! Print metadata fields - derive aux_field_name from normalization_type
+      norm_type = this%metadata%get_normalization_type()
+      aux_field = this%get_aux_field_name(_RC)
       if (allocated(aux_field) .and. len(aux_field) > 0) then
          _HERE, file, line, 'aux_field_name:', aux_field
       end if
+      _HERE, file, line, 'normalization_type:', norm_type%to_string()
       _HERE, file, line, 'scale_factor:', this%metadata%get_normalization_scale()
       
       ! Print aspect-specific fields
