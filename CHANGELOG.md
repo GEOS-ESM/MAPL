@@ -20,6 +20,7 @@ Added a new feature: create a halo based on local displacement members, local-di
   - ESMA_cmake v4.35.0
     - Multiple fixes for f2py with spack and on macOS
   - ecbuild geos/v3.13.1
+- Add CTest scheduling metadata for pFIO tests so parallel `ctest` runs do not overlap the pFIO performance cases in the same working directory.
 
 ### Removed
 
