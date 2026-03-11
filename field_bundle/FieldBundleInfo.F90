@@ -9,6 +9,7 @@ module mapl3g_FieldBundleInfo
    use mapl3g_UngriddedDims
    use mapl3g_QuantityTypeMetadata
    use mapl3g_NormalizationMetadata
+   use mapl3g_ConservationMetadata
    use mapl3g_FieldBundleType_Flag
    use mapl3g_VectorBasisKind
    use mapl3g_VerticalAlignment
@@ -35,6 +36,7 @@ module mapl3g_FieldBundleInfo
    character(*), parameter :: KEY_HAS_GEOM = "/has_geom"
    character(*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
    character(*), parameter :: KEY_NORMALIZATION_METADATA = "/normalization_metadata"
+   character(*), parameter :: KEY_CONSERVATION_METADATA = "/conservation_metadata"
 
 contains
 
@@ -53,6 +55,7 @@ contains
        vector_basis_kind, &
        quantity_type_metadata, &
        normalization_metadata, &
+       conservation_metadata, &
        rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -78,6 +81,7 @@ contains
       type(VectorBasisKind), optional, intent(out) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(out) :: conservation_metadata
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -143,6 +147,17 @@ contains
          end if
       end if
 
+      if (present(conservation_metadata)) then
+         if (ESMF_InfoIsPresent(info, key=namespace_//KEY_CONSERVATION_METADATA)) then
+            block
+               type(ESMF_Info) :: conservation_info
+               conservation_info = ESMF_InfoCreate(info, namespace_//KEY_CONSERVATION_METADATA, _RC)
+               conservation_metadata = make_ConservationMetadata(conservation_info, _RC)
+               call ESMF_InfoDestroy(conservation_info, _RC)
+            end block
+         end if
+      end if
+
       ! Field-prototype items that come from field-info (including typekind)
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
@@ -174,6 +189,7 @@ contains
        vector_basis_kind, &
        quantity_type_metadata, &
        normalization_metadata, &
+       conservation_metadata, &
        rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -198,6 +214,7 @@ contains
       type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(in) :: conservation_metadata
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -250,6 +267,15 @@ contains
             normalization_info = normalization_metadata%make_info(_RC)
             call MAPL_InfoSet(info, key=namespace_ // KEY_NORMALIZATION_METADATA, value=normalization_info, _RC)
             call ESMF_InfoDestroy(normalization_info, _RC)
+         end block
+      end if
+
+      if (present(conservation_metadata)) then
+         block
+            type(ESMF_Info) :: conservation_info
+            conservation_info = conservation_metadata%make_info(_RC)
+            call MAPL_InfoSet(info, key=namespace_ // KEY_CONSERVATION_METADATA, value=conservation_info, _RC)
+            call ESMF_InfoDestroy(conservation_info, _RC)
          end block
       end if
 

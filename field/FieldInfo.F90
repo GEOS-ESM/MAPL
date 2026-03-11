@@ -11,6 +11,7 @@ module mapl3g_FieldInfo
    use mapl3g_UngriddedDims
    use mapl3g_QuantityTypeMetadata
    use mapl3g_NormalizationMetadata
+   use mapl3g_ConservationMetadata
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalAlignment
    use mapl3g_StateItemAllocation
@@ -68,6 +69,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
    character(*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
    character(*), parameter :: KEY_NORMALIZATION_METADATA = "/normalization_metadata"
+   character(*), parameter :: KEY_CONSERVATION_METADATA = "/conservation_metadata"
    character(*), parameter :: KEY_REGRIDDER_PARAM = "/EsmfRegridderParam"
 
    character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
@@ -88,6 +90,7 @@ contains
         ungridded_dims, &
         quantity_type_metadata, &
         normalization_metadata, &
+        conservation_metadata, &
         units, long_name, standard_name, &
         allocation_status, &
         has_deferred_aspects, &
@@ -104,6 +107,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(in) :: conservation_metadata
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
@@ -113,7 +117,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: ungridded_info, quantity_info, normalization_info
+      type(ESMF_Info) :: ungridded_info, quantity_info, normalization_info, conservation_info
       character(:), allocatable :: namespace_
       character(:), allocatable :: str
       logical :: isPresent
@@ -153,6 +157,12 @@ contains
          normalization_info = normalization_metadata%make_info(_RC)
          call MAPL_InfoSet(info, namespace_ // KEY_NORMALIZATION_METADATA, normalization_info, _RC)
          call esmf_InfoDestroy(normalization_info, _RC)
+      end if
+
+      if (present(conservation_metadata)) then
+         conservation_info = conservation_metadata%make_info(_RC)
+         call MAPL_InfoSet(info, namespace_ // KEY_CONSERVATION_METADATA, conservation_info, _RC)
+         call esmf_InfoDestroy(conservation_info, _RC)
       end if
 
       if (present(units)) then
@@ -201,6 +211,7 @@ contains
         ungridded_dims, &
         quantity_type_metadata, &
         normalization_metadata, &
+        conservation_metadata, &
         allocation_status, &
         has_deferred_aspects, &
         regridder_param_info, &
@@ -222,6 +233,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(out) :: conservation_metadata
       type(StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
@@ -229,7 +241,7 @@ contains
 
       integer :: status
       integer :: num_levels_
-      type(esmf_Info) :: ungridded_info, quantity_info, normalization_info
+      type(esmf_Info) :: ungridded_info, quantity_info, normalization_info, conservation_info
       character(:), allocatable :: vert_staggerloc_str, vert_alignment_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_
@@ -287,6 +299,14 @@ contains
          else
             normalization_metadata = NormalizationMetadata()  ! mirror
          end if
+      end if
+
+      if (present(conservation_metadata)) then
+         is_present = ESMF_InfoIsPresent(info, namespace_ // KEY_CONSERVATION_METADATA, _RC)
+         _ASSERT(is_present, 'Conservation metadata not present in field info')
+         conservation_info = ESMF_InfoCreate(info, namespace_ // KEY_CONSERVATION_METADATA, _RC)
+         conservation_metadata = make_ConservationMetadata(conservation_info, _RC)
+         call ESMF_InfoDestroy(conservation_info, _RC)
       end if
 
       if (present(regridder_param_info)) then

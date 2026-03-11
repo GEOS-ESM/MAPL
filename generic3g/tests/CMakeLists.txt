@@ -58,6 +58,8 @@ set (test_srcs
   Test_UnitsAspect.pf
   Test_QuantityType.pf
   Test_QuantityTypeAspect.pf
+  Test_ConservationType.pf
+  Test_ConservationAspect.pf
   Test_NormalizationAspect.pf
   Test_InverseNormalizationAspect.pf
   Test_PolymorphicSetMirror.pf

@@ -26,6 +26,7 @@ module mapl3g_VariableSpec
    use mapl3g_FrequencyAspect
    use mapl3g_TypekindAspect
    use mapl3g_QuantityTypeAspect
+   use mapl3g_ConservationAspect
    use mapl3g_NormalizationAspect
    use mapl3g_InverseNormalizationAspect
    use mapl3g_UngriddedDims
@@ -157,6 +158,7 @@ module mapl3g_VariableSpec
       procedure :: make_UngriddedDimsAspect
       procedure :: make_AttributesAspect
       procedure :: make_QuantityTypeAspect
+      procedure :: make_ConservationAspect
       procedure :: make_NormalizationAspect
       procedure :: make_InverseNormalizationAspect
       procedure :: make_VerticalGridAspect
@@ -395,6 +397,8 @@ contains
          call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
       type is (QuantityTypeAspect)
          call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+      type is (ConservationAspect)
+         call aspects%insert(CONSERVATION_ASPECT_ID, aspect)
       type is (NormalizationAspect)
          call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
       type is (InverseNormalizationAspect)
@@ -460,6 +464,9 @@ contains
 
       aspect = this%make_QuantityTypeAspect(_RC)
       call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+
+      aspect = this%make_ConservationAspect(_RC)
+      call aspects%insert(CONSERVATION_ASPECT_ID, aspect)
 
       aspect = this%make_NormalizationAspect(_RC)
       call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
@@ -546,14 +553,23 @@ contains
       _RETURN(_SUCCESS)
    end function make_QuantityTypeAspect
 
+   function make_ConservationAspect(this, rc) result(aspect)
+      type(ConservationAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      
+      ! Create default ConservationAspect (will infer from QuantityType)
+      aspect = ConservationAspect()
+      _RETURN(_SUCCESS)
+   end function make_ConservationAspect
+
    function make_NormalizationAspect(this, rc) result(aspect)
       type(NormalizationAspect) :: aspect
       class(VariableSpec), intent(in) :: this
       integer, optional, intent(out) :: rc
       
-      ! Create with default (no normalization) and explicit non-mirror behavior
-      aspect = NormalizationAspect()
-      call aspect%set_mirror(.false.)
+      ! Create with explicit NORMALIZE_NONE (non-mirror, no normalization needed)
+      aspect = NormalizationAspect(aux_field_name='', scale_factor=1.0)
       _RETURN(_SUCCESS)
    end function make_NormalizationAspect
 
@@ -562,9 +578,8 @@ contains
       class(VariableSpec), intent(in) :: this
       integer, optional, intent(out) :: rc
       
-      ! Create with default (no denormalization) and explicit non-mirror behavior
-      aspect = InverseNormalizationAspect()
-      call aspect%set_mirror(.false.)
+      ! Create with explicit NORMALIZE_NONE (non-mirror, no denormalization needed)
+      aspect = InverseNormalizationAspect(aux_field_name='', scale_factor=1.0)
       _RETURN(_SUCCESS)
    end function make_InverseNormalizationAspect
 

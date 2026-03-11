@@ -76,18 +76,23 @@ contains
       type(AspectMap), intent(in) :: goal_aspects
       integer, optional, intent(out) :: rc
 
-       aspect_ids = [ &
-            CLASS_ASPECT_ID, &
-            ATTRIBUTES_ASPECT_ID, &
-            UNGRIDDED_DIMS_ASPECT_ID, &
-            QUANTITY_TYPE_ASPECT_ID, &
-            NORMALIZATION_ASPECT_ID, &
-            GEOM_ASPECT_ID, &
-            VERTICAL_GRID_ASPECT_ID, &
-            INVERSE_NORMALIZATION_ASPECT_ID, &
-            UNITS_ASPECT_ID, &
-            TYPEKIND_ASPECT_ID &
-            ]
+      ! WARNING: Most of these aspects should not be in this list.
+      ! Bundles can have different aspects for different fields inside the bundle,
+      ! so bundle-level aspect ordering is not well-defined. This list exists only
+      ! because there are no tests covering the general case.
+        aspect_ids = [ &
+             CLASS_ASPECT_ID, &
+             ATTRIBUTES_ASPECT_ID, &
+             UNGRIDDED_DIMS_ASPECT_ID, &
+             QUANTITY_TYPE_ASPECT_ID, &
+             CONSERVATION_ASPECT_ID, &
+             NORMALIZATION_ASPECT_ID, &
+             GEOM_ASPECT_ID, &
+             VERTICAL_GRID_ASPECT_ID, &
+             INVERSE_NORMALIZATION_ASPECT_ID, &
+             UNITS_ASPECT_ID, &
+             TYPEKIND_ASPECT_ID &
+             ]
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)

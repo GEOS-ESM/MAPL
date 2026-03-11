@@ -8,6 +8,7 @@ module mapl3g_FieldGet
    use mapl3g_StateItemAllocation
    use mapl3g_QuantityTypeMetadata
    use mapl3g_NormalizationMetadata
+   use mapl3g_ConservationMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
@@ -33,6 +34,7 @@ contains
         ungridded_dims, &
         quantity_type_metadata, &
         normalization_metadata, &
+        conservation_metadata, &
         units, standard_name, long_name, &
         allocation_status, &
         has_deferred_aspects, &
@@ -53,6 +55,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(out) :: conservation_metadata
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
@@ -97,6 +100,7 @@ contains
            ungridded_dims=ungridded_dims, &
            quantity_type_metadata=quantity_type_metadata, &
            normalization_metadata=normalization_metadata, &
+           conservation_metadata=conservation_metadata, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &

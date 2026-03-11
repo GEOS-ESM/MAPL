@@ -129,6 +129,7 @@ contains
             ATTRIBUTES_ASPECT_ID, &
             UNGRIDDED_DIMS_ASPECT_ID, &
             QUANTITY_TYPE_ASPECT_ID, &
+            CONSERVATION_ASPECT_ID, &
             NORMALIZATION_ASPECT_ID, &
             GEOM_ASPECT_ID, &
             VERTICAL_GRID_ASPECT_ID, &

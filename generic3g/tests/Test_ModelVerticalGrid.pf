@@ -33,6 +33,9 @@ module Test_ModelVerticalGrid
    use mapl3g_UngriddedDims
    use mapl3g_AttributesAspect
    use mapl3g_FieldClassAspect
+   use mapl3g_QuantityTypeAspect
+   use mapl3g_ConservationAspect
+   use mapl3g_NormalizationAspect
    use gFTL2_StringVector
    use esmf
    ! testing framework
@@ -201,11 +204,14 @@ contains
 
       ! Build aspect map with required aspects
       call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
+      call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
+      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
+      call aspects%insert(QUANTITY_TYPE_ASPECT_ID, QuantityTypeAspect())
+      call aspects%insert(CONSERVATION_ASPECT_ID, ConservationAspect())
+      call aspects%insert(NORMALIZATION_ASPECT_ID, NormalizationAspect(aux_field_name='', scale_factor=1.0))
       call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("hPa"))
-      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
-      call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
       
       vcoord = vgrid%get_coordinate_field( &
            physical_dimension="pressure", &
@@ -242,11 +248,14 @@ contains
 
       ! Build aspect map with required aspects
       call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
+      call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
+      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
+      call aspects%insert(QUANTITY_TYPE_ASPECT_ID, QuantityTypeAspect())
+      call aspects%insert(CONSERVATION_ASPECT_ID, ConservationAspect())
+      call aspects%insert(NORMALIZATION_ASPECT_ID, NormalizationAspect(aux_field_name='', scale_factor=1.0))
       call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("Pa"))
-      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
-      call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
       
        vcoord = vgrid%get_coordinate_field( &
            physical_dimension="pressure", &
