@@ -143,11 +143,12 @@ contains
       type(AspectMap), target, intent(in)  :: other_aspects
       integer, optional, intent(out) :: rc
 
-      ! ConservationAspect is metadata-only, returns NullTransform
-      ! Actual conservation handling is done via normalization aspects
-      allocate(transform, source=NullTransform())
+      integer :: status
 
-      _RETURN(_SUCCESS)
+      ! ConservationAspect is metadata-only and should not create transforms
+      ! This routine should be unreachable - conservation is handled via normalization
+      _FAIL("ConservationAspect::make_transform() should not be called")
+
       _UNUSED_DUMMY(src)
       _UNUSED_DUMMY(dst)
       _UNUSED_DUMMY(other_aspects)
@@ -268,8 +269,6 @@ contains
 
       integer :: status
       type(ConservationMetadata) :: conservation_metadata
-      type(QuantityTypeMetadata) :: qty_metadata
-      type(QuantityType) :: qty_type
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
@@ -280,48 +279,10 @@ contains
          call MAPL_FieldBundleGet(bundle, conservation_metadata=conservation_metadata, rc=status)
       end if
 
-      if (status == 0 .and. .not. conservation_metadata%is_mirror()) then
-         ! Conservation metadata explicitly set - use it
+      ! Update aspect with retrieved metadata
+      if (status == 0) then
          this%metadata = conservation_metadata
-         call this%set_mirror(.false.)
-      else
-         ! Conservation metadata not set - infer from QuantityTypeMetadata if available
-         ! This provides backward compatibility
-         if (present(field)) then
-            call MAPL_FieldGet(field, quantity_type_metadata=qty_metadata, rc=status)
-         else if (present(bundle)) then
-            call MAPL_FieldBundleGet(bundle, quantity_type_metadata=qty_metadata, rc=status)
-         end if
-
-         if (status == 0 .and. .not. qty_metadata%is_mirror()) then
-            qty_type = qty_metadata%get_quantity_type()
-            
-            ! Infer conservation type from quantity type
-            select case (qty_type%to_string())
-            case ("QUANTITY_MIXING_RATIO")
-               this%metadata = ConservationMetadata(CONSERVE_MASS, .true.)
-            case ("QUANTITY_CONCENTRATION")
-               this%metadata = ConservationMetadata(CONSERVE_MASS, .true.)
-            case ("QUANTITY_PRESSURE")
-               ! Surface pressure conserves mass (relates to column mass)
-               this%metadata = ConservationMetadata(CONSERVE_MASS, .true.)
-            case ("QUANTITY_EXTENSIVE")
-               ! Extensive quantities are conservable (mass per unit area)
-               this%metadata = ConservationMetadata(CONSERVE_MASS, .true.)
-            case ("QUANTITY_TEMPERATURE", "QUANTITY_UNKNOWN")
-               ! Not conservable
-               this%metadata = ConservationMetadata(CONSERVE_NONE, .false.)
-            case default
-               ! Unknown - default to non-conservable
-               this%metadata = ConservationMetadata(CONSERVE_NONE, .false.)
-            end select
-            
-            call this%set_mirror(.false.)
-         else
-            ! No quantity type metadata - remain as mirror
-            this%metadata = ConservationMetadata()  ! mirror
-            call this%set_mirror(.true.)
-         end if
+         call this%set_mirror(conservation_metadata%is_mirror())
       end if
 
       _RETURN(_SUCCESS)

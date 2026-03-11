@@ -24,7 +24,7 @@ module mapl3g_ConservationType
    type :: ConservationType
       private
       integer :: id = 0
-      character(32) :: name = "CONSERVE_NONE"
+      character(32) :: name = ""
    contains
       procedure :: to_string => conservation_type_to_string
       procedure :: is_valid => conservation_type_is_valid

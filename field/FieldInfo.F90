@@ -302,13 +302,12 @@ contains
       end if
 
       if (present(conservation_metadata)) then
+         conservation_metadata = ConservationMetadata()  ! default: mirror
          is_present = ESMF_InfoIsPresent(info, namespace_ // KEY_CONSERVATION_METADATA, _RC)
          if (is_present) then
             conservation_info = ESMF_InfoCreate(info, namespace_ // KEY_CONSERVATION_METADATA, _RC)
             conservation_metadata = make_ConservationMetadata(conservation_info, _RC)
             call ESMF_InfoDestroy(conservation_info, _RC)
-         else
-            conservation_metadata = ConservationMetadata()  ! mirror
          end if
       end if
 

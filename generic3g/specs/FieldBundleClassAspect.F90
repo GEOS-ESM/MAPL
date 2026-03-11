@@ -76,6 +76,10 @@ contains
       type(AspectMap), intent(in) :: goal_aspects
       integer, optional, intent(out) :: rc
 
+      ! WARNING: Most of these aspects should not be in this list.
+      ! Bundles can have different aspects for different fields inside the bundle,
+      ! so bundle-level aspect ordering is not well-defined. This list exists only
+      ! because there are no tests covering the general case.
         aspect_ids = [ &
              CLASS_ASPECT_ID, &
              ATTRIBUTES_ASPECT_ID, &
