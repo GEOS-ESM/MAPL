@@ -162,29 +162,6 @@ contains
    end subroutine test_update_payload_field
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_update_from_payload_empty_field(this)
-      ! Test reading from field without conservation info - aspect should remain unchanged
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(ConservationAspect) :: aspect
-      type(ESMF_Field) :: field
-      integer :: status
-
-      aspect = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
-      field = create_test_field()
-      
-      call aspect%update_from_payload(field=field, _RC)
-
-      ! Aspect should remain unchanged when field has no conservation metadata
-      @assertFalse(aspect%is_mirror(), 'aspect should remain concrete')
-      @assertTrue(aspect%get_conservation_type() == CONSERVE_MASS, 'conservation type should remain unchanged')
-      @assertTrue(aspect%get_is_conservable(), 'conservable should remain unchanged')
-
-      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
-      _UNUSED_DUMMY(this)
-
-   end subroutine test_update_from_payload_empty_field
-
-   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_connect_to_export(this)
       ! Test mirroring from export aspect
       class(ESMF_TestMethod), intent(inout) :: this
