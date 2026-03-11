@@ -14,6 +14,7 @@ set(srcs
   ConservationType.F90
   QuantityType.F90
   QuantityTypeMetadata.F90
+  ConservationMetadata.F90
   DistGridGet.F90
   NormalizationMetadata.F90
   )

@@ -6,6 +6,7 @@ module mapl3g_FieldBundleSet
    use mapl3g_UngriddedDims
    use mapl3g_QuantityTypeMetadata
    use mapl3g_NormalizationMetadata
+   use mapl3g_ConservationMetadata
    use mapl3g_FieldBundleType_Flag
    use mapl3g_VectorBasisKind
    use mapl3g_FieldBundleInfo
@@ -45,6 +46,7 @@ contains
        vector_basis_kind, &
        quantity_type_metadata, &
        normalization_metadata, &
+       conservation_metadata, &
        rc)
 
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
@@ -68,6 +70,7 @@ contains
       type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(in) :: conservation_metadata
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -157,6 +160,7 @@ contains
            vector_basis_kind=vector_basis_kind, &
            quantity_type_metadata=quantity_type_metadata, &
            normalization_metadata=normalization_metadata, &
+           conservation_metadata=conservation_metadata, &
           _RC)
 
       _RETURN(_SUCCESS)

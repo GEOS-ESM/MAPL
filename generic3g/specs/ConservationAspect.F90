@@ -8,6 +8,7 @@ module mapl3g_ConservationAspect
    use mapl3g_ExtensionTransform
    use mapl3g_NullTransform
    use mapl3g_ConservationType
+   use mapl3g_ConservationMetadata
    use mapl3g_QuantityType
    use mapl3g_QuantityTypeMetadata
    use mapl3g_Field_API
@@ -30,9 +31,8 @@ module mapl3g_ConservationAspect
    type, extends(StateItemAspect) :: ConservationAspect
       private
       
-      ! Conservation properties
-      type(ConservationType) :: conservation_type = CONSERVE_NONE
-      logical :: is_conservable = .false.
+      ! Use composition with ConservationMetadata
+      type(ConservationMetadata) :: metadata
       
    contains
       ! StateItemAspect interface
@@ -66,16 +66,22 @@ contains
       logical, optional, intent(in) :: is_conservable
       logical, optional, intent(in) :: is_time_dependent
 
-      call aspect%set_mirror(.true.)
+      logical :: is_mirror
       
-      if (present(conservation_type)) then
-         aspect%conservation_type = conservation_type
-         call aspect%set_mirror(.false.)
+      ! Determine if this is a mirror based on whether conservation_type is provided
+      is_mirror = .not. present(conservation_type)
+      
+      ! Create metadata with mirror status
+      if (is_mirror) then
+         aspect%metadata = ConservationMetadata()  ! Default mirror
+      else
+         aspect%metadata = ConservationMetadata( &
+              conservation_type=conservation_type, &
+              is_conservable=is_conservable)
       end if
       
-      if (present(is_conservable)) then
-         aspect%is_conservable = is_conservable
-      end if
+      ! Set aspect mirror status to match metadata
+      call aspect%set_mirror(aspect%metadata%is_mirror())
 
       call aspect%set_time_dependent(is_time_dependent)
 
@@ -94,11 +100,17 @@ contains
       class(ConservationAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
+      ! Check for mirrors first (always support conversion with mirrors)
+      if (src%is_mirror() .or. dst%is_mirror()) then
+         supports_conversion_specific = .true.
+         return
+      end if
+
       select type (dst)
       class is (ConservationAspect)
          ! Only support exact match for now
          ! Future: could support transforms between conservation types
-         supports_conversion_specific = (src%conservation_type == dst%conservation_type)
+         supports_conversion_specific = (src%metadata == dst%metadata)
       class default
          supports_conversion_specific = .false.
       end select
@@ -116,7 +128,7 @@ contains
             matches = .true.
          else
             ! Must conserve the same quantity to match
-            matches = (src%conservation_type == dst%conservation_type)
+            matches = (src%metadata == dst%metadata)
          end if
       class default
          matches = .false.
@@ -152,8 +164,8 @@ contains
 
       export_ = to_ConservationAspect(export, _RC)
       
-      this%conservation_type = export_%conservation_type
-      this%is_conservable = export_%is_conservable
+      this%metadata = export_%metadata
+      call this%set_mirror(export_%is_mirror())
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
@@ -209,7 +221,7 @@ contains
       class(ConservationAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      conservation_type = this%conservation_type
+      conservation_type = this%metadata%get_conservation_type()
 
       _RETURN(_SUCCESS)
    end function get_conservation_type
@@ -219,8 +231,9 @@ contains
       type(ConservationType), intent(in) :: conservation_type
       integer, optional, intent(out) :: rc
 
-      this%conservation_type = conservation_type
-      call this%set_mirror(.false.)
+      ! Create a new metadata with the updated conservation_type
+      this%metadata = ConservationMetadata(conservation_type, this%metadata%get_is_conservable())
+      call this%set_mirror(this%metadata%is_mirror())
 
       _RETURN(_SUCCESS)
    end subroutine set_conservation_type
@@ -230,7 +243,7 @@ contains
       class(ConservationAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      is_conservable = this%is_conservable
+      is_conservable = this%metadata%get_is_conservable()
 
       _RETURN(_SUCCESS)
    end function get_is_conservable
@@ -240,7 +253,8 @@ contains
       logical, intent(in) :: is_conservable
       integer, optional, intent(out) :: rc
 
-      this%is_conservable = is_conservable
+      ! Create a new metadata with the updated is_conservable
+      this%metadata = ConservationMetadata(this%metadata%get_conservation_type(), is_conservable)
 
       _RETURN(_SUCCESS)
    end subroutine set_is_conservable
@@ -253,31 +267,25 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ConservationMetadata) :: conservation_metadata
       type(QuantityTypeMetadata) :: qty_metadata
       type(QuantityType) :: qty_type
-      type(ESMF_Info) :: info
-      character(:), allocatable :: conservation_str
-      logical :: is_present
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      ! Get Info object from field or bundle
+      ! Get ConservationMetadata from field or bundle using MAPL API
       if (present(field)) then
-         call ESMF_InfoGetFromHost(field, info, _RC)
+         call MAPL_FieldGet(field, conservation_metadata=conservation_metadata, rc=status)
       else if (present(bundle)) then
-         call ESMF_InfoGetFromHost(bundle, info, _RC)
+         call MAPL_FieldBundleGet(bundle, conservation_metadata=conservation_metadata, rc=status)
       end if
 
-      is_present = ESMF_InfoIsPresent(info, key="/conservation_type", _RC)
-      
-      if (is_present) then
-         ! Conservation type explicitly set - use it
-         call ESMF_InfoGetCharAlloc(info, key="/conservation_type", value=conservation_str, _RC)
-         this%conservation_type = ConservationType(conservation_str)
-         call ESMF_InfoGet(info, key="/is_conservable", value=this%is_conservable, _RC)
+      if (status == 0 .and. .not. conservation_metadata%is_mirror()) then
+         ! Conservation metadata explicitly set - use it
+         this%metadata = conservation_metadata
          call this%set_mirror(.false.)
       else
-         ! Conservation type not set - infer from QuantityTypeMetadata if available
+         ! Conservation metadata not set - infer from QuantityTypeMetadata if available
          ! This provides backward compatibility
          if (present(field)) then
             call MAPL_FieldGet(field, quantity_type_metadata=qty_metadata, rc=status)
@@ -291,32 +299,27 @@ contains
             ! Infer conservation type from quantity type
             select case (qty_type%to_string())
             case ("QUANTITY_MIXING_RATIO")
-               this%conservation_type = CONSERVE_MASS
-               this%is_conservable = .true.
+               this%metadata = ConservationMetadata(CONSERVE_MASS, .true.)
             case ("QUANTITY_CONCENTRATION")
-               this%conservation_type = CONSERVE_MASS
-               this%is_conservable = .true.
+               this%metadata = ConservationMetadata(CONSERVE_MASS, .true.)
             case ("QUANTITY_PRESSURE")
                ! Surface pressure conserves mass (relates to column mass)
-               this%conservation_type = CONSERVE_MASS
-               this%is_conservable = .true.
+               this%metadata = ConservationMetadata(CONSERVE_MASS, .true.)
             case ("QUANTITY_EXTENSIVE")
                ! Extensive quantities are conservable (mass per unit area)
-               this%conservation_type = CONSERVE_MASS
-               this%is_conservable = .true.
+               this%metadata = ConservationMetadata(CONSERVE_MASS, .true.)
             case ("QUANTITY_TEMPERATURE", "QUANTITY_UNKNOWN")
                ! Not conservable
-               this%conservation_type = CONSERVE_NONE
-               this%is_conservable = .false.
+               this%metadata = ConservationMetadata(CONSERVE_NONE, .false.)
             case default
                ! Unknown - default to non-conservable
-               this%conservation_type = CONSERVE_NONE
-               this%is_conservable = .false.
+               this%metadata = ConservationMetadata(CONSERVE_NONE, .false.)
             end select
             
             call this%set_mirror(.false.)
          else
             ! No quantity type metadata - remain as mirror
+            this%metadata = ConservationMetadata()  ! mirror
             call this%set_mirror(.true.)
          end if
       end if
@@ -333,19 +336,15 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: info
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      ! Get Info object from field or bundle
+      ! Set ConservationMetadata in field or bundle using MAPL API
       if (present(field)) then
-         call ESMF_InfoGetFromHost(field, info, _RC)
+         call MAPL_FieldSet(field, conservation_metadata=this%metadata, _RC)
       else if (present(bundle)) then
-         call ESMF_InfoGetFromHost(bundle, info, _RC)
+         call MAPL_FieldBundleSet(bundle, conservation_metadata=this%metadata, _RC)
       end if
-
-      call ESMF_InfoSet(info, key="/conservation_type", value=this%conservation_type%to_string(), _RC)
-      call ESMF_InfoSet(info, key="/is_conservable", value=this%is_conservable, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
@@ -357,9 +356,12 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc
 
+      type(ConservationType) :: ctype
+
+      ctype = this%metadata%get_conservation_type()
       _HERE, file, line, this%is_mirror()
-      _HERE, file, line, 'conservation_type:', this%conservation_type%to_string()
-      _HERE, file, line, 'is_conservable:', this%is_conservable
+      _HERE, file, line, 'conservation_type:', ctype%to_string()
+      _HERE, file, line, 'is_conservable:', this%metadata%get_is_conservable()
 
       _RETURN(_SUCCESS)
    end subroutine print_aspect
