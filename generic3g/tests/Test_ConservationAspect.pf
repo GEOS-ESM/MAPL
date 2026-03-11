@@ -76,18 +76,20 @@ contains
    end subroutine test_new_conservation_aspect_none
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_default_aspect_is_mirror(this)
-      ! Test that default constructor creates mirror aspect
+   subroutine test_default_aspect_is_not_mirror(this)
+      ! Test that default constructor creates concrete aspect with CONSERVE_NONE
       class(ESMF_TestMethod), intent(inout) :: this
       type(ConservationAspect) :: aspect
 
       aspect = ConservationAspect()
 
-      @assertTrue(aspect%is_mirror(), 'default aspect should be mirror')
+      @assertFalse(aspect%is_mirror(), 'default aspect should not be mirror')
+      @assertTrue(aspect%get_conservation_type() == CONSERVE_NONE, 'default should be CONSERVE_NONE')
+      @assertFalse(aspect%get_is_conservable(), 'default should not be conservable')
 
       _UNUSED_DUMMY(this)
 
-   end subroutine test_default_aspect_is_mirror
+   end subroutine test_default_aspect_is_not_mirror
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_matches_same_conservation_type(this)
@@ -125,7 +127,7 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
       type(ConservationAspect) :: mirror_aspect, mass_aspect
 
-      mirror_aspect = ConservationAspect()  ! Creates mirror
+      mirror_aspect = ConservationAspect(is_mirror=.true.)  ! Explicit mirror
       mass_aspect = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
 
       @assertTrue(mirror_aspect%matches(mass_aspect), 'mirror should match any type')
@@ -161,7 +163,7 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_empty_field(this)
-      ! Test reading from field without conservation info
+      ! Test reading from field without conservation info - aspect should remain unchanged
       class(ESMF_TestMethod), intent(inout) :: this
       type(ConservationAspect) :: aspect
       type(ESMF_Field) :: field
@@ -172,7 +174,10 @@ contains
       
       call aspect%update_from_payload(field=field, _RC)
 
-      @assertTrue(aspect%is_mirror(), 'aspect should become mirror when reading empty field')
+      ! Aspect should remain unchanged when field has no conservation metadata
+      @assertFalse(aspect%is_mirror(), 'aspect should remain concrete')
+      @assertTrue(aspect%get_conservation_type() == CONSERVE_MASS, 'conservation type should remain unchanged')
+      @assertTrue(aspect%get_is_conservable(), 'conservable should remain unchanged')
 
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -189,7 +194,7 @@ contains
 
       export_aspect = ConservationAspect(conservation_type=CONSERVE_ENERGY, &
                                          is_conservable=.true.)
-      import_aspect = ConservationAspect()  ! mirror
+      import_aspect = ConservationAspect(is_mirror=.true.)  ! Explicit mirror
 
       call import_aspect%connect_to_export(export_aspect, actual_pt, _RC)
 
@@ -207,7 +212,7 @@ contains
       type(ConservationAspect) :: aspect
       integer :: status
 
-      aspect = ConservationAspect()
+      aspect = ConservationAspect()  ! Default: CONSERVE_NONE
 
       call aspect%set_conservation_type(CONSERVE_MOMENTUM, _RC)
       @assertTrue(aspect%get_conservation_type() == CONSERVE_MOMENTUM)

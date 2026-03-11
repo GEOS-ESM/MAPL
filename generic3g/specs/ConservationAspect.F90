@@ -60,29 +60,38 @@ module mapl3g_ConservationAspect
 
 contains
 
-   function new_ConservationAspect(conservation_type, is_conservable, is_time_dependent) result(aspect)
+   function new_ConservationAspect(conservation_type, is_conservable, is_time_dependent, is_mirror) result(aspect)
       type(ConservationAspect) :: aspect
       type(ConservationType), optional, intent(in) :: conservation_type
       logical, optional, intent(in) :: is_conservable
       logical, optional, intent(in) :: is_time_dependent
+      logical, optional, intent(in) :: is_mirror
 
-      logical :: is_mirror
+      type(ConservationType) :: ctype
       
-      ! Determine if this is a mirror based on whether conservation_type is provided
-      is_mirror = .not. present(conservation_type)
-      
-      ! Create metadata with mirror status
-      if (is_mirror) then
-         aspect%metadata = ConservationMetadata()  ! Default mirror
-      else
-         aspect%metadata = ConservationMetadata( &
-              conservation_type=conservation_type, &
-              is_conservable=is_conservable)
+      ! Explicit mirror requested
+      if (present(is_mirror)) then
+         if (is_mirror) then
+            aspect%metadata = new_ConservationMetadata_mirror()
+            call aspect%set_mirror(.true.)
+            call aspect%set_time_dependent(is_time_dependent)
+            return
+         end if
       end if
       
-      ! Set aspect mirror status to match metadata
-      call aspect%set_mirror(aspect%metadata%is_mirror())
-
+      ! Not a mirror - create concrete metadata
+      ! Default to CONSERVE_NONE if not specified
+      if (present(conservation_type)) then
+         ctype = conservation_type
+      else
+         ctype = CONSERVE_NONE
+      end if
+      
+      aspect%metadata = ConservationMetadata( &
+           conservation_type=ctype, &
+           is_conservable=is_conservable)
+      
+      call aspect%set_mirror(.false.)
       call aspect%set_time_dependent(is_time_dependent)
 
    end function new_ConservationAspect

@@ -10,13 +10,14 @@ module mapl3g_ConservationMetadata
    private
    
    public :: ConservationMetadata
+   public :: new_ConservationMetadata_mirror
    public :: make_ConservationMetadata
    public :: operator(==)
    public :: operator(/=)
    
    type :: ConservationMetadata
       private
-      logical :: is_mirror_ = .true.
+      logical :: is_mirror_ = .false.
       type(ConservationType) :: conservation_type = CONSERVE_NONE
       logical :: is_conservable = .false.
    contains
