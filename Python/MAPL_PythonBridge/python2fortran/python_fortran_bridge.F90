@@ -403,8 +403,7 @@ module mapl_python_fortran_bridge
         call c_f_pointer(c_mapl_state, state)              
 
         call MAPL_Get(state, IM=local_r, RC=STATUS)
-        print*, "MAPL_GetIM", result
-
+        
         VERIFY_(STATUS)
         result = local_r
     
