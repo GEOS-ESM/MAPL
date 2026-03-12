@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_NormalizationAspect
+module mapl3g_ExportNormalization
 
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
@@ -19,15 +19,15 @@ module mapl3g_NormalizationAspect
    implicit none
    private
 
-   public :: NormalizationAspect
-   public :: to_NormalizationAspect
+   public :: ExportNormalization
+   public :: to_ExportNormalization
 
-   interface to_NormalizationAspect
+   interface to_ExportNormalization
       procedure :: to_normalization_from_poly
       procedure :: to_normalization_from_map
-   end interface to_NormalizationAspect
+   end interface to_ExportNormalization
 
-   type, extends(StateItemAspect) :: NormalizationAspect
+   type, extends(StateItemAspect) :: ExportNormalization
       private
       
       ! Use composition for shared fields (eliminates duplication with NormalizationMetadata)
@@ -62,16 +62,16 @@ module mapl3g_NormalizationAspect
        procedure :: update_from_payload
       procedure :: update_payload
       procedure :: print_aspect
-   end type NormalizationAspect
+   end type ExportNormalization
 
-   interface NormalizationAspect
-      procedure new_NormalizationAspect
+   interface ExportNormalization
+      procedure new_ExportNormalization
    end interface
 
 contains
 
-   function new_NormalizationAspect(aux_field_name, scale_factor, source_units, target_units, is_time_dependent, is_inverse) result(aspect)
-      type(NormalizationAspect) :: aspect
+   function new_ExportNormalization(aux_field_name, scale_factor, source_units, target_units, is_time_dependent, is_inverse) result(aspect)
+      type(ExportNormalization) :: aspect
       character(*), optional, intent(in) :: aux_field_name
       real, optional, intent(in) :: scale_factor
       character(*), optional, intent(in) :: source_units
@@ -94,11 +94,10 @@ contains
             norm_type = NORMALIZE_NONE
          end select
          
-         ! Create metadata with normalization parameters
+         ! Create metadata with normalization parameters (no aux_field_name stored)
          aspect%metadata = NormalizationMetadata( &
               normalization_type=norm_type, &
-              normalization_scale=scale_factor, &
-              aux_field_name=aux_field_name)
+              normalization_scale=scale_factor)
          call aspect%set_mirror(.false.)
       else if (present(aux_field_name) .or. present(scale_factor)) then
          ! If only one is provided, use default for the other
@@ -113,8 +112,7 @@ contains
             end select
             aspect%metadata = NormalizationMetadata( &
                  normalization_type=norm_type, &
-                 normalization_scale=1.0, &
-                 aux_field_name=aux_field_name)
+                 normalization_scale=1.0)
          else
             aspect%metadata = NormalizationMetadata( &
                  normalization_type=NORMALIZE_NONE, &
@@ -140,23 +138,23 @@ contains
 
       call aspect%set_time_dependent(is_time_dependent)
 
-   end function new_NormalizationAspect
+   end function new_ExportNormalization
 
    logical function supports_conversion_general(src)
-      class(NormalizationAspect), intent(in) :: src
+      class(ExportNormalization), intent(in) :: src
 
-      ! NormalizationAspect supports conversion (normalization is a transformation)
+      ! ExportNormalization supports conversion (normalization is a transformation)
       supports_conversion_general = .true.
 
       _UNUSED_DUMMY(src)
    end function supports_conversion_general
 
    logical function supports_conversion_specific(src, dst)
-      class(NormalizationAspect), intent(in) :: src
+      class(ExportNormalization), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
       select type (dst)
-      class is (NormalizationAspect)
+      class is (ExportNormalization)
          ! Match if either is a mirror or if metadata matches
          if (src%is_mirror() .or. dst%is_mirror()) then
             supports_conversion_specific = .true.
@@ -171,11 +169,11 @@ contains
    end function supports_conversion_specific
 
    logical function matches(src, dst)
-      class(NormalizationAspect), intent(in) :: src
+      class(ExportNormalization), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
       select type(dst)
-      class is (NormalizationAspect)
+      class is (ExportNormalization)
          ! Match if normalization parameters match or if either is a mirror
          if (src%is_mirror() .or. dst%is_mirror()) then
             matches = .true.
@@ -191,7 +189,7 @@ contains
 
    function make_transform(src, dst, other_aspects, rc) result(transform)
       class(ExtensionTransform), allocatable :: transform
-      class(NormalizationAspect), intent(in) :: src
+      class(ExportNormalization), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
       integer, optional, intent(out) :: rc
@@ -210,15 +208,15 @@ contains
    end function make_transform
 
    subroutine connect_to_export(this, export, actual_pt, rc)
-      class(NormalizationAspect), intent(inout) :: this
+      class(ExportNormalization), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(NormalizationAspect) :: export_
+      type(ExportNormalization) :: export_
       integer :: status
 
-      export_ = to_NormalizationAspect(export, _RC)
+      export_ = to_ExportNormalization(export, _RC)
       
       ! Copy metadata
       this%metadata = export_%metadata
@@ -232,22 +230,22 @@ contains
    end subroutine connect_to_export
 
    function to_normalization_from_poly(aspect, rc) result(normalization_aspect)
-      type(NormalizationAspect) :: normalization_aspect
+      type(ExportNormalization) :: normalization_aspect
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
       select type(aspect)
-      class is (NormalizationAspect)
+      class is (ExportNormalization)
          normalization_aspect = aspect
       class default
-         _FAIL('aspect is not NormalizationAspect')
+         _FAIL('aspect is not ExportNormalization')
       end select
 
       _RETURN(_SUCCESS)
    end function to_normalization_from_poly
 
    function to_normalization_from_map(map, aspect_id, rc) result(normalization_aspect)
-      type(NormalizationAspect) :: normalization_aspect
+      type(ExportNormalization) :: normalization_aspect
       type(AspectMap), target, intent(in) :: map
       type(AspectId), optional, intent(in) :: aspect_id
       integer, optional, intent(out) :: rc
@@ -256,39 +254,50 @@ contains
       class(StateItemAspect), pointer :: poly
       type(AspectId) :: id_to_use
 
-      ! Use provided aspect_id or default to NORMALIZATION_ASPECT_ID
+      ! Use provided aspect_id or default to EXPORT_NORMALIZATION_ASPECT_ID
       if (present(aspect_id)) then
          id_to_use = aspect_id
       else
-         id_to_use = NORMALIZATION_ASPECT_ID
+         id_to_use = EXPORT_NORMALIZATION_ASPECT_ID
       end if
 
       poly => map%at(id_to_use, _RC)
-      normalization_aspect = to_NormalizationAspect(poly, _RC)
+      normalization_aspect = to_ExportNormalization(poly, _RC)
 
       _RETURN(_SUCCESS)
    end function to_normalization_from_map
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
-      aspect_id = NORMALIZATION_ASPECT_ID
+      aspect_id = EXPORT_NORMALIZATION_ASPECT_ID
    end function get_aspect_id
 
    ! Getters/Setters
    
    function get_aux_field_name(this, rc) result(aux_field_name)
       character(:), allocatable :: aux_field_name
-      class(NormalizationAspect), intent(in) :: this
+      class(ExportNormalization), intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      ! Delegate to metadata
-      aux_field_name = this%metadata%get_aux_field_name()
+      type(NormalizationType) :: norm_type
+
+      ! Derive aux_field_name from normalization_type
+      norm_type = this%metadata%get_normalization_type()
+      
+      select case (norm_type%to_string())
+      case ('NORMALIZE_DELP')
+         aux_field_name = 'DELP'
+      case ('NORMALIZE_DZ')
+         aux_field_name = 'DZ'
+      case default
+         aux_field_name = ''
+      end select
 
       _RETURN(_SUCCESS)
    end function get_aux_field_name
 
    subroutine set_aux_field_name(this, aux_field_name, rc)
-      class(NormalizationAspect), intent(inout) :: this
+      class(ExportNormalization), intent(inout) :: this
       character(*), intent(in) :: aux_field_name
       integer, optional, intent(out) :: rc
 
@@ -308,11 +317,10 @@ contains
       ! Get current scale or use default
       scale = this%metadata%get_normalization_scale()
       
-      ! Update metadata with new aux_field_name
+      ! Update metadata with new normalization_type (aux_field_name not stored)
       this%metadata = NormalizationMetadata( &
            normalization_type=norm_type, &
-           normalization_scale=scale, &
-           aux_field_name=aux_field_name)
+           normalization_scale=scale)
       call this%set_mirror(.false.)
 
       _RETURN(_SUCCESS)
@@ -320,7 +328,7 @@ contains
 
    function get_scale_factor(this, rc) result(scale_factor)
       real :: scale_factor
-      class(NormalizationAspect), intent(in) :: this
+      class(ExportNormalization), intent(in) :: this
       integer, optional, intent(out) :: rc
 
       ! Delegate to metadata
@@ -330,35 +338,26 @@ contains
    end function get_scale_factor
 
    subroutine set_scale_factor(this, scale_factor, rc)
-      class(NormalizationAspect), intent(inout) :: this
+      class(ExportNormalization), intent(inout) :: this
       real, intent(in) :: scale_factor
       integer, optional, intent(out) :: rc
 
       type(NormalizationType) :: norm_type
-      character(:), allocatable :: aux_field
 
-      ! Get current values from metadata
+      ! Get current normalization type from metadata
       norm_type = this%metadata%get_normalization_type()
-      aux_field = this%metadata%get_aux_field_name()
       
-      ! Update metadata with new scale_factor
-      if (allocated(aux_field) .and. len(aux_field) > 0) then
-         this%metadata = NormalizationMetadata( &
-              normalization_type=norm_type, &
-              normalization_scale=scale_factor, &
-              aux_field_name=aux_field)
-      else
-         this%metadata = NormalizationMetadata( &
-              normalization_type=norm_type, &
-              normalization_scale=scale_factor)
-      end if
+      ! Update metadata with new scale_factor (aux_field_name not stored)
+      this%metadata = NormalizationMetadata( &
+           normalization_type=norm_type, &
+           normalization_scale=scale_factor)
 
       _RETURN(_SUCCESS)
    end subroutine set_scale_factor
 
    function get_source_units(this, rc) result(source_units)
       character(:), allocatable :: source_units
-      class(NormalizationAspect), intent(in) :: this
+      class(ExportNormalization), intent(in) :: this
       integer, optional, intent(out) :: rc
 
       if (allocated(this%source_units)) then
@@ -371,7 +370,7 @@ contains
    end function get_source_units
 
    subroutine set_source_units(this, source_units, rc)
-      class(NormalizationAspect), intent(inout) :: this
+      class(ExportNormalization), intent(inout) :: this
       character(*), intent(in) :: source_units
       integer, optional, intent(out) :: rc
 
@@ -382,7 +381,7 @@ contains
 
    function get_target_units(this, rc) result(target_units)
       character(:), allocatable :: target_units
-      class(NormalizationAspect), intent(in) :: this
+      class(ExportNormalization), intent(in) :: this
       integer, optional, intent(out) :: rc
 
       if (allocated(this%target_units)) then
@@ -395,7 +394,7 @@ contains
    end function get_target_units
 
    subroutine set_target_units(this, target_units, rc)
-      class(NormalizationAspect), intent(inout) :: this
+      class(ExportNormalization), intent(inout) :: this
       character(*), intent(in) :: target_units
       integer, optional, intent(out) :: rc
 
@@ -405,7 +404,7 @@ contains
    end subroutine set_target_units
 
     subroutine update_from_payload(this, field, bundle, state, rc)
-       class(NormalizationAspect), intent(inout) :: this
+       class(ExportNormalization), intent(inout) :: this
        type(esmf_Field), optional, intent(in) :: field
        type(esmf_FieldBundle), optional, intent(in) :: bundle
        type(esmf_State), optional, intent(in) :: state
@@ -436,7 +435,16 @@ contains
 
        ! Get normalization parameters from metadata
        norm_type = norm_metadata%get_normalization_type()
-       aux_field = norm_metadata%get_aux_field_name()
+       
+       ! Derive aux_field_name from normalization_type
+       select case (norm_type%to_string())
+       case ('NORMALIZE_DELP')
+          aux_field = 'DELP'
+       case ('NORMALIZE_DZ')
+          aux_field = 'DZ'
+       case default
+          aux_field = ''
+       end select
 
        if (norm_type /= NORMALIZE_NONE .and. allocated(aux_field) .and. len(aux_field) > 0) then
           ! Field needs normalization/denormalization - extract units and compute target units
@@ -472,7 +480,7 @@ contains
    end subroutine update_from_payload
 
     subroutine update_payload(this, field, bundle, state, rc)
-       class(NormalizationAspect), intent(in) :: this
+       class(ExportNormalization), intent(in) :: this
        type(esmf_Field), optional, intent(inout) :: field
        type(esmf_FieldBundle), optional, intent(inout) :: bundle
        type(esmf_State), optional, intent(inout) :: state
@@ -526,20 +534,24 @@ contains
     end subroutine update_payload
 
    subroutine print_aspect(this, file, line, rc)
-      class(NormalizationAspect), intent(in) :: this
+      class(ExportNormalization), intent(in) :: this
       character(*), intent(in) :: file
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: aux_field
+      type(NormalizationType) :: norm_type
+      integer :: status
 
       _HERE, file, line, this%is_mirror()
       
-      ! Print metadata fields
-      aux_field = this%metadata%get_aux_field_name()
+      ! Print metadata fields - derive aux_field_name from normalization_type
+      norm_type = this%metadata%get_normalization_type()
+      aux_field = this%get_aux_field_name(_RC)
       if (allocated(aux_field) .and. len(aux_field) > 0) then
          _HERE, file, line, 'aux_field_name:', aux_field
       end if
+      _HERE, file, line, 'normalization_type:', norm_type%to_string()
       _HERE, file, line, 'scale_factor:', this%metadata%get_normalization_scale()
       
       ! Print aspect-specific fields
@@ -631,4 +643,4 @@ contains
       _UNUSED_DUMMY(scale)
    end subroutine compute_denormalized_units
 
-end module mapl3g_NormalizationAspect
+end module mapl3g_ExportNormalization

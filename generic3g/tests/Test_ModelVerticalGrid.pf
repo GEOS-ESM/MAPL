@@ -35,7 +35,7 @@ module Test_ModelVerticalGrid
    use mapl3g_FieldClassAspect
    use mapl3g_QuantityTypeAspect
    use mapl3g_ConservationAspect
-   use mapl3g_NormalizationAspect
+   use mapl3g_ExportNormalization
    use gFTL2_StringVector
    use esmf
    ! testing framework
@@ -208,7 +208,7 @@ contains
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
       call aspects%insert(QUANTITY_TYPE_ASPECT_ID, QuantityTypeAspect())
       call aspects%insert(CONSERVATION_ASPECT_ID, ConservationAspect())
-      call aspects%insert(NORMALIZATION_ASPECT_ID, NormalizationAspect(aux_field_name='', scale_factor=1.0))
+      call aspects%insert(EXPORT_NORMALIZATION_ASPECT_ID, ExportNormalization(aux_field_name='', scale_factor=1.0))
       call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("hPa"))
@@ -252,7 +252,7 @@ contains
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
       call aspects%insert(QUANTITY_TYPE_ASPECT_ID, QuantityTypeAspect())
       call aspects%insert(CONSERVATION_ASPECT_ID, ConservationAspect())
-      call aspects%insert(NORMALIZATION_ASPECT_ID, NormalizationAspect(aux_field_name='', scale_factor=1.0))
+      call aspects%insert(EXPORT_NORMALIZATION_ASPECT_ID, ExportNormalization(aux_field_name='', scale_factor=1.0))
       call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("Pa"))
