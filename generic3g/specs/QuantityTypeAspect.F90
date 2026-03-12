@@ -459,26 +459,20 @@ contains
       select case (quantity_type%to_string())
       case ('QUANTITY_MIXING_RATIO')
          metadata = NormalizationMetadata( &
-            conservative_regridable = .true., &
             normalization_type = NORMALIZE_DELP, &
-            normalization_scale = 1.0 / GRAV, &
-            aux_field_name = 'DELP' &
+            normalization_scale = 1.0 / GRAV &
          )
          
       case ('QUANTITY_CONCENTRATION')
          metadata = NormalizationMetadata( &
-            conservative_regridable = .true., &
             normalization_type = NORMALIZE_DZ, &
-            normalization_scale = 1.0, &
-            aux_field_name = 'DZ' &
+            normalization_scale = 1.0 &
          )
          
       case ('QUANTITY_DRY_MIXING_RATIO')
          metadata = NormalizationMetadata( &
-            conservative_regridable = .true., &
             normalization_type = NORMALIZE_DELP, &
-            normalization_scale = 1.0 / GRAV, &
-            aux_field_name = 'DELP' &
+            normalization_scale = 1.0 / GRAV &
          )
          
       case default

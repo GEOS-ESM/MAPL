@@ -1,9 +1,9 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-module Test_NormalizationAspect
+module Test_ExportNormalization
    use funit
-   use mapl3g_NormalizationAspect
+   use mapl3g_ExportNormalization
    use mapl3g_StateItemAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_ExtensionTransform
@@ -18,12 +18,12 @@ contains
    subroutine test_new_normalization_aspect(this)
       ! Test creating a normalization aspect
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect
+      type(ExportNormalization) :: aspect
       character(:), allocatable :: aux_field
       real :: scale
       integer :: status
 
-      aspect = NormalizationAspect(aux_field_name='DELP', &
+      aspect = ExportNormalization(aux_field_name='DELP', &
                                    scale_factor=0.102, &
                                    source_units='kg/kg', &
                                    target_units='kg/m2')
@@ -44,9 +44,9 @@ contains
    subroutine test_default_aspect_is_mirror(this)
       ! Test that default constructor creates mirror aspect
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect
+      type(ExportNormalization) :: aspect
 
-      aspect = NormalizationAspect()
+      aspect = ExportNormalization()
 
       @assertTrue(aspect%is_mirror(), 'default aspect should be mirror')
 
@@ -58,10 +58,10 @@ contains
    subroutine test_matches_same_normalization(this)
       ! Test that matching normalization aspects return true
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect1, aspect2
+      type(ExportNormalization) :: aspect1, aspect2
 
-      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      aspect2 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect1 = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
 
       @assertTrue(aspect1%matches(aspect2), 'same normalization should match')
 
@@ -73,10 +73,10 @@ contains
    subroutine test_does_not_match_different_aux_field(this)
       ! Test that different auxiliary fields don't match
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect1, aspect2
+      type(ExportNormalization) :: aspect1, aspect2
 
-      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      aspect2 = NormalizationAspect(aux_field_name='DZ', scale_factor=0.102)
+      aspect1 = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = ExportNormalization(aux_field_name='DZ', scale_factor=0.102)
 
       @assertFalse(aspect1%matches(aspect2), 'different aux fields should not match')
 
@@ -88,10 +88,10 @@ contains
    subroutine test_does_not_match_different_scale(this)
       ! Test that different scale factors don't match
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect1, aspect2
+      type(ExportNormalization) :: aspect1, aspect2
 
-      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      aspect2 = NormalizationAspect(aux_field_name='DELP', scale_factor=1.0)
+      aspect1 = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = ExportNormalization(aux_field_name='DELP', scale_factor=1.0)
 
       @assertFalse(aspect1%matches(aspect2), 'different scale factors should not match')
 
@@ -103,10 +103,10 @@ contains
    subroutine test_matches_when_mirror(this)
       ! Test that mirror aspects match anything
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect1, aspect2
+      type(ExportNormalization) :: aspect1, aspect2
 
-      aspect1 = NormalizationAspect()  ! mirror
-      aspect2 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect1 = ExportNormalization()  ! mirror
+      aspect2 = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
 
       @assertTrue(aspect1%matches(aspect2), 'mirror should match any aspect')
       @assertTrue(aspect2%matches(aspect1), 'any aspect should match mirror')
@@ -119,17 +119,22 @@ contains
    subroutine test_getters_and_setters(this)
       ! Test all getter and setter methods
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect
+      type(ExportNormalization) :: aspect
       character(:), allocatable :: str_val
       real :: real_val
       integer :: status
 
-      aspect = NormalizationAspect()
+      aspect = ExportNormalization()
 
-      ! Test aux_field_name
-      call aspect%set_aux_field_name('TEST_FIELD', _RC)
+      ! Test aux_field_name with valid field (DELP maps to NORMALIZE_DELP)
+      call aspect%set_aux_field_name('DELP', _RC)
       str_val = aspect%get_aux_field_name(_RC)
-      @assertTrue(str_val == 'TEST_FIELD', 'aux_field_name getter/setter')
+      @assertTrue(str_val == 'DELP', 'aux_field_name getter/setter')
+      
+      ! Test aux_field_name with another valid field (DZ maps to NORMALIZE_DZ)
+      call aspect%set_aux_field_name('DZ', _RC)
+      str_val = aspect%get_aux_field_name(_RC)
+      @assertTrue(str_val == 'DZ', 'aux_field_name getter/setter for DZ')
 
       ! Test scale_factor
       call aspect%set_scale_factor(2.5, _RC)
@@ -154,15 +159,15 @@ contains
    subroutine test_supports_conversion(this)
       ! Test supports_conversion methods
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect1, aspect2
+      type(ExportNormalization) :: aspect1, aspect2
 
-      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      aspect2 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect1 = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
 
       @assertTrue(aspect1%supports_conversion(), 'should support conversion in general')
       @assertTrue(aspect1%supports_conversion(aspect2), 'should support conversion to same normalization')
 
-      aspect2 = NormalizationAspect(aux_field_name='DZ', scale_factor=1.0)
+      aspect2 = ExportNormalization(aux_field_name='DZ', scale_factor=1.0)
       @assertFalse(aspect1%supports_conversion(aspect2), 'should not support conversion to different normalization')
 
       _UNUSED_DUMMY(this)
@@ -173,18 +178,18 @@ contains
    subroutine test_connect_to_export(this)
       ! Test connect_to_export method
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: import_aspect, export_aspect
+      type(ExportNormalization) :: import_aspect, export_aspect
       type(ActualConnectionPt) :: actual_pt
       character(:), allocatable :: aux_field
       real :: scale
       integer :: status
 
-      export_aspect = NormalizationAspect(aux_field_name='DELP', &
+      export_aspect = ExportNormalization(aux_field_name='DELP', &
                                          scale_factor=0.102, &
                                          source_units='kg/kg', &
                                          target_units='kg/m2')
       
-      import_aspect = NormalizationAspect()  ! mirror
+      import_aspect = ExportNormalization()  ! mirror
       
       call import_aspect%connect_to_export(export_aspect, actual_pt, _RC)
 
@@ -203,13 +208,13 @@ contains
       ! Test that make_transform returns NullTransform for now
       ! (Task 2.2 will implement actual NormalizationTransform)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: src, dst
+      type(ExportNormalization) :: src, dst
       type(AspectMap) :: other_aspects
       class(ExtensionTransform), allocatable :: transform
       integer :: status
 
-      src = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      dst = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      src = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      dst = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
 
       transform = src%make_transform(dst, other_aspects, _RC)
 
@@ -225,9 +230,9 @@ contains
    subroutine test_compute_normalized_units_delp(this)
       ! Test unit computation for DELP normalization
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect
+      type(ExportNormalization) :: aspect
 
-      aspect = NormalizationAspect(aux_field_name='DELP', &
+      aspect = ExportNormalization(aux_field_name='DELP', &
                                    scale_factor=0.102, &
                                    source_units='kg/kg')
       
@@ -243,9 +248,9 @@ contains
    subroutine test_compute_normalized_units_dz(this)
       ! Test unit computation for DZ normalization
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect
+      type(ExportNormalization) :: aspect
 
-      aspect = NormalizationAspect(aux_field_name='DZ', &
+      aspect = ExportNormalization(aux_field_name='DZ', &
                                    scale_factor=1.0, &
                                    source_units='kg/m3')
       
@@ -261,13 +266,13 @@ contains
       ! Test roundtrip: mirror aspect -> field -> aspect (following UngriddedDimsAspect pattern)
       use mapl3g_Field_API
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect1, aspect2
+      type(ExportNormalization) :: aspect1, aspect2
       type(ESMF_Field) :: field
       type(ESMF_Grid) :: grid
       integer :: status
 
       ! Create mirror aspect
-      aspect1 = NormalizationAspect()
+      aspect1 = ExportNormalization()
       @assertTrue(aspect1%is_mirror(), 'aspect1 should be mirror')
 
       ! Create field
@@ -278,7 +283,7 @@ contains
       call aspect1%update_payload(field=field, _RC)
 
       ! Read back into new aspect
-      aspect2 = NormalizationAspect()
+      aspect2 = ExportNormalization()
       call aspect2%set_mirror(.false.)  ! Start with different state
       call aspect2%update_from_payload(field=field, _RC)
 
@@ -297,13 +302,13 @@ contains
       ! Test roundtrip: non-mirror empty aspect -> field -> aspect
       use mapl3g_Field_API
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect1, aspect2
+      type(ExportNormalization) :: aspect1, aspect2
       type(ESMF_Field) :: field
       type(ESMF_Grid) :: grid
       integer :: status
 
       ! Create non-mirror aspect with no normalization (default Category 1 state)
-      aspect1 = NormalizationAspect()
+      aspect1 = ExportNormalization()
       call aspect1%set_mirror(.false.)
       @assertFalse(aspect1%is_mirror(), 'aspect1 should not be mirror')
 
@@ -315,7 +320,7 @@ contains
       call aspect1%update_payload(field=field, _RC)
 
       ! Read back into new aspect
-      aspect2 = NormalizationAspect()  ! Starts as mirror
+      aspect2 = ExportNormalization()  ! Starts as mirror
       @assertTrue(aspect2%is_mirror(), 'aspect2 should start as mirror')
       call aspect2%update_from_payload(field=field, _RC)
 
@@ -334,7 +339,7 @@ contains
       ! Test roundtrip: aspect with normalization -> field -> aspect
       use mapl3g_Field_API
       class(ESMF_TestMethod), intent(inout) :: this
-      type(NormalizationAspect) :: aspect1, aspect2
+      type(ExportNormalization) :: aspect1, aspect2
       type(ESMF_Field) :: field
       type(ESMF_Grid) :: grid
       character(:), allocatable :: aux_field
@@ -342,7 +347,7 @@ contains
       integer :: status
 
       ! Create aspect with DELP normalization
-      aspect1 = NormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect1 = ExportNormalization(aux_field_name='DELP', scale_factor=0.102)
       @assertFalse(aspect1%is_mirror(), 'aspect1 should not be mirror when created with params')
 
       ! Create field
@@ -353,7 +358,7 @@ contains
       call aspect1%update_payload(field=field, _RC)
 
       ! Read back into new aspect
-      aspect2 = NormalizationAspect()  ! Starts as mirror
+      aspect2 = ExportNormalization()  ! Starts as mirror
       call aspect2%update_from_payload(field=field, _RC)
 
       ! Should have same state as aspect1
@@ -370,4 +375,4 @@ contains
 
    end subroutine test_update_payload_then_from_payload_with_normalization
 
-end module Test_NormalizationAspect
+end module Test_ExportNormalization

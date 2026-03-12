@@ -3,7 +3,7 @@
 
 module Test_PolymorphicSetMirror
    use funit
-   use mapl3g_NormalizationAspect
+   use mapl3g_ExportNormalization
    use mapl3g_StateItemAspect
    use mapl_ErrorHandling
    use esmf
@@ -19,7 +19,7 @@ contains
       class(StateItemAspect), allocatable :: aspect
       
       ! Create aspect through polymorphic variable (like VariableSpec does)
-      allocate(aspect, source=NormalizationAspect())
+      allocate(aspect, source=ExportNormalization())
       
       ! Verify it starts as mirror=true (default)
       @assertTrue(aspect%is_mirror(), 'default should be mirror=true')
@@ -35,16 +35,16 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_two_non_mirror_aspects_can_connect(this)
-      ! Test that two NormalizationAspects with mirror=false can connect
+      ! Test that two ExportNormalizations with mirror=false can connect
       class(ESMF_TestMethod), intent(inout) :: this
       class(StateItemAspect), allocatable :: aspect1, aspect2
       logical :: can_connect
       
       ! Create both aspects with mirror=false (like VariableSpec does)
-      allocate(aspect1, source=NormalizationAspect())
+      allocate(aspect1, source=ExportNormalization())
       call aspect1%set_mirror(.false.)
       
-      allocate(aspect2, source=NormalizationAspect())
+      allocate(aspect2, source=ExportNormalization())
       call aspect2%set_mirror(.false.)
       
       ! Verify both are non-mirror
@@ -53,7 +53,7 @@ contains
       
       ! Test if they can connect
       can_connect = aspect1%can_connect_to(aspect2)
-      @assertTrue(can_connect, 'two default NormalizationAspects with mirror=false should connect')
+      @assertTrue(can_connect, 'two default ExportNormalizations with mirror=false should connect')
       
       _UNUSED_DUMMY(this)
    end subroutine test_two_non_mirror_aspects_can_connect

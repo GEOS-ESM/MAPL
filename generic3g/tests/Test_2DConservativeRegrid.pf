@@ -86,11 +86,7 @@ contains
       ! Create normalization metadata for surface pressure
       ! (normalization parameters are derived from quantity type in QuantityTypeAspect)
       normalization_metadata = NormalizationMetadata( &
-         normalization_type=NORMALIZE_DELP, &
-         conservative_regridable=.true.)
-      
-      ! Verify conservative regridable flag
-      @assertTrue(normalization_metadata%get_conservative_regridable())
+         normalization_type=NORMALIZE_DELP)
       
       ! Verify normalization type
       @assertTrue(normalization_metadata%get_normalization_type() == NORMALIZE_DELP)
