@@ -25,8 +25,8 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_AttributesAspect
    use mapl3g_TypekindAspect
    use mapl3g_QuantityTypeAspect
-   use mapl3g_NormalizationAspect
-   use mapl3g_InverseNormalizationAspect
+   use mapl3g_ExportNormalization
+   use mapl3g_ImportNormalization
    use mapl3g_VerticalGridAspect
    use pfio
    use esmf
@@ -246,14 +246,14 @@ contains
       call goal_aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
       
       deallocate(aspect)
-      allocate(aspect, source=NormalizationAspect())
+      allocate(aspect, source=ExportNormalization())
       call aspect%set_mirror(.true.)
-      call goal_aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
+      call goal_aspects%insert(EXPORT_NORMALIZATION_ASPECT_ID, aspect)
       
       deallocate(aspect)
-      allocate(aspect, source=InverseNormalizationAspect())
+      allocate(aspect, source=ImportNormalization())
       call aspect%set_mirror(.true.)
-      call goal_aspects%insert(INVERSE_NORMALIZATION_ASPECT_ID, aspect)
+      call goal_aspects%insert(IMPORT_NORMALIZATION_ASPECT_ID, aspect)
       
       call goal_spec%create(_RC)
       

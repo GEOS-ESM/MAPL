@@ -1,31 +1,31 @@
 #include "MAPL.h"
 
-module mapl3g_InverseNormalizationAspect
+module mapl3g_ImportNormalization
 
    use mapl3g_AspectId
-   use mapl3g_NormalizationAspect
+   use mapl3g_ExportNormalization
    use mapl_ErrorHandling
    
    implicit none
    private
 
-   public :: InverseNormalizationAspect
+   public :: ImportNormalization
 
-   ! Thin subclass of NormalizationAspect for inverse (denormalization)
+   ! Thin subclass of ExportNormalization for inverse (denormalization)
    ! Inherits all implementation from parent, only overrides aspect ID
-   type, extends(NormalizationAspect) :: InverseNormalizationAspect
+   type, extends(ExportNormalization) :: ImportNormalization
    contains
       procedure, nopass :: get_aspect_id
-   end type InverseNormalizationAspect
+   end type ImportNormalization
 
-   interface InverseNormalizationAspect
-      procedure new_InverseNormalizationAspect
+   interface ImportNormalization
+      procedure new_ImportNormalization
    end interface
 
 contains
 
-   function new_InverseNormalizationAspect(aux_field_name, scale_factor, source_units, target_units, is_time_dependent) result(aspect)
-      type(InverseNormalizationAspect) :: aspect
+   function new_ImportNormalization(aux_field_name, scale_factor, source_units, target_units, is_time_dependent) result(aspect)
+      type(ImportNormalization) :: aspect
       character(*), optional, intent(in) :: aux_field_name
       real, optional, intent(in) :: scale_factor
       character(*), optional, intent(in) :: source_units
@@ -33,15 +33,15 @@ contains
       logical, optional, intent(in) :: is_time_dependent
 
       ! Call parent constructor with is_inverse=.true.
-      aspect%NormalizationAspect = NormalizationAspect(aux_field_name, scale_factor, &
+      aspect%ExportNormalization = ExportNormalization(aux_field_name, scale_factor, &
                                                        source_units, target_units, is_time_dependent, &
                                                        is_inverse=.true.)
 
-   end function new_InverseNormalizationAspect
+   end function new_ImportNormalization
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
-      aspect_id = INVERSE_NORMALIZATION_ASPECT_ID
+      aspect_id = IMPORT_NORMALIZATION_ASPECT_ID
    end function get_aspect_id
 
-end module mapl3g_InverseNormalizationAspect
+end module mapl3g_ImportNormalization

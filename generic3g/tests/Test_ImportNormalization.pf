@@ -1,9 +1,9 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-module Test_InverseNormalizationAspect
+module Test_ImportNormalization
    use funit
-   use mapl3g_InverseNormalizationAspect
+   use mapl3g_ImportNormalization
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ActualConnectionPt
@@ -19,13 +19,13 @@ contains
    subroutine test_new_inverse_normalization_aspect(this)
       ! Test creating an inverse normalization aspect using subclass
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect
+      type(ImportNormalization) :: aspect
       type(AspectId) :: aspect_id
       character(:), allocatable :: aux_field
       real :: scale
       integer :: status
 
-      aspect = InverseNormalizationAspect(aux_field_name='DELP', &
+      aspect = ImportNormalization(aux_field_name='DELP', &
                                           scale_factor=0.102, &
                                           source_units='kg/m2', &
                                           target_units='kg/kg')
@@ -39,7 +39,7 @@ contains
       @assertTrue(abs(scale - 0.102) < 1.0e-6, 'scale should be 0.102')
       
       aspect_id = aspect%get_aspect_id()
-      @assertTrue(aspect_id == INVERSE_NORMALIZATION_ASPECT_ID, 'aspect_id should be INVERSE_NORMALIZATION_ASPECT_ID')
+      @assertTrue(aspect_id == IMPORT_NORMALIZATION_ASPECT_ID, 'aspect_id should be IMPORT_NORMALIZATION_ASPECT_ID')
 
       _UNUSED_DUMMY(this)
 
@@ -49,9 +49,9 @@ contains
    subroutine test_default_aspect_is_mirror(this)
       ! Test that default constructor creates mirror aspect
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect
+      type(ImportNormalization) :: aspect
 
-      aspect = InverseNormalizationAspect()
+      aspect = ImportNormalization()
 
       @assertTrue(aspect%is_mirror(), 'default aspect should be mirror')
 
@@ -63,10 +63,10 @@ contains
    subroutine test_matches_same_normalization(this)
       ! Test that matching inverse normalization aspects return true
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect1, aspect2
+      type(ImportNormalization) :: aspect1, aspect2
 
-      aspect1 = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      aspect2 = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect1 = ImportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = ImportNormalization(aux_field_name='DELP', scale_factor=0.102)
 
       @assertTrue(aspect1%matches(aspect2), 'same inverse normalization should match')
 
@@ -78,10 +78,10 @@ contains
    subroutine test_does_not_match_different_aux_field(this)
       ! Test that different auxiliary fields don't match
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect1, aspect2
+      type(ImportNormalization) :: aspect1, aspect2
 
-      aspect1 = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      aspect2 = InverseNormalizationAspect(aux_field_name='DZ', scale_factor=0.102)
+      aspect1 = ImportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = ImportNormalization(aux_field_name='DZ', scale_factor=0.102)
 
       @assertFalse(aspect1%matches(aspect2), 'different aux fields should not match')
 
@@ -93,10 +93,10 @@ contains
    subroutine test_does_not_match_different_scale(this)
       ! Test that different scale factors don't match
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect1, aspect2
+      type(ImportNormalization) :: aspect1, aspect2
 
-      aspect1 = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      aspect2 = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=1.0)
+      aspect1 = ImportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = ImportNormalization(aux_field_name='DELP', scale_factor=1.0)
 
       @assertFalse(aspect1%matches(aspect2), 'different scale factors should not match')
 
@@ -108,10 +108,10 @@ contains
    subroutine test_matches_when_mirror(this)
       ! Test that mirror aspects match anything
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect1, aspect2
+      type(ImportNormalization) :: aspect1, aspect2
 
-      aspect1 = InverseNormalizationAspect()  ! mirror
-      aspect2 = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect1 = ImportNormalization()  ! mirror
+      aspect2 = ImportNormalization(aux_field_name='DELP', scale_factor=0.102)
 
       @assertTrue(aspect1%matches(aspect2), 'mirror should match any aspect')
       @assertTrue(aspect2%matches(aspect1), 'any aspect should match mirror')
@@ -124,12 +124,12 @@ contains
    subroutine test_getters_and_setters(this)
       ! Test all getter and setter methods (inherited from parent)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect
+      type(ImportNormalization) :: aspect
       character(:), allocatable :: str_val
       real :: real_val
       integer :: status
 
-      aspect = InverseNormalizationAspect()
+      aspect = ImportNormalization()
 
       ! Test aux_field_name with valid field (DELP maps to NORMALIZE_DELP)
       call aspect%set_aux_field_name('DELP', _RC)
@@ -164,15 +164,15 @@ contains
    subroutine test_supports_conversion(this)
       ! Test supports_conversion methods
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect1, aspect2
+      type(ImportNormalization) :: aspect1, aspect2
 
-      aspect1 = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      aspect2 = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      aspect1 = ImportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      aspect2 = ImportNormalization(aux_field_name='DELP', scale_factor=0.102)
 
       @assertTrue(aspect1%supports_conversion(), 'should support conversion in general')
       @assertTrue(aspect1%supports_conversion(aspect2), 'should support conversion to same inverse normalization')
 
-      aspect2 = InverseNormalizationAspect(aux_field_name='DZ', scale_factor=1.0)
+      aspect2 = ImportNormalization(aux_field_name='DZ', scale_factor=1.0)
       @assertFalse(aspect1%supports_conversion(aspect2), 'should not support conversion to different inverse normalization')
 
       _UNUSED_DUMMY(this)
@@ -183,18 +183,18 @@ contains
    subroutine test_connect_to_export(this)
       ! Test connect_to_export method
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: import_aspect, export_aspect
+      type(ImportNormalization) :: import_aspect, export_aspect
       type(ActualConnectionPt) :: actual_pt
       character(:), allocatable :: aux_field
       real :: scale
       integer :: status
 
-      export_aspect = InverseNormalizationAspect(aux_field_name='DELP', &
+      export_aspect = ImportNormalization(aux_field_name='DELP', &
                                                   scale_factor=0.102, &
                                                   source_units='kg/m2', &
                                                   target_units='kg/kg')
       
-      import_aspect = InverseNormalizationAspect()  ! mirror
+      import_aspect = ImportNormalization()  ! mirror
       
       call import_aspect%connect_to_export(export_aspect, actual_pt, _RC)
 
@@ -213,13 +213,13 @@ contains
       ! Test that make_transform returns NullTransform for now
       ! (Task 2.4 will implement actual NormalizationTransform with is_inverse flag)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: src, dst
+      type(ImportNormalization) :: src, dst
       type(AspectMap) :: other_aspects
       class(ExtensionTransform), allocatable :: transform
       integer :: status
 
-      src = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
-      dst = InverseNormalizationAspect(aux_field_name='DELP', scale_factor=0.102)
+      src = ImportNormalization(aux_field_name='DELP', scale_factor=0.102)
+      dst = ImportNormalization(aux_field_name='DELP', scale_factor=0.102)
 
       transform = src%make_transform(dst, other_aspects, _RC)
 
@@ -235,9 +235,9 @@ contains
    subroutine test_compute_denormalized_units_delp(this)
       ! Test unit computation for DELP denormalization (inverse)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect
+      type(ImportNormalization) :: aspect
 
-      aspect = InverseNormalizationAspect(aux_field_name='DELP', &
+      aspect = ImportNormalization(aux_field_name='DELP', &
                                           scale_factor=0.102, &
                                           source_units='kg/m2')
       
@@ -253,9 +253,9 @@ contains
    subroutine test_compute_denormalized_units_dz(this)
       ! Test unit computation for DZ denormalization (inverse)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(InverseNormalizationAspect) :: aspect
+      type(ImportNormalization) :: aspect
 
-      aspect = InverseNormalizationAspect(aux_field_name='DZ', &
+      aspect = ImportNormalization(aux_field_name='DZ', &
                                           scale_factor=1.0, &
                                           source_units='kg/m2')
       
@@ -300,4 +300,4 @@ contains
 
    end subroutine test_roundtrip_units_dz
 
-end module Test_InverseNormalizationAspect
+end module Test_ImportNormalization

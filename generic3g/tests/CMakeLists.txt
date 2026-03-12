@@ -60,8 +60,8 @@ set (test_srcs
   Test_QuantityTypeAspect.pf
   Test_ConservationType.pf
   Test_ConservationAspect.pf
-  Test_NormalizationAspect.pf
-  Test_InverseNormalizationAspect.pf
+  Test_ExportNormalization.pf
+  Test_ImportNormalization.pf
   Test_PolymorphicSetMirror.pf
   Test_2DConservativeRegrid.pf
   Test_3DConservativeMixingRatio.pf
