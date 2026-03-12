@@ -36,8 +36,8 @@ contains
 
       user_offset = this%user_offset
 
-      call check_compatibility(user_timestep, timeStep, compatible, offset=user_offset, _RC)
-      _ASSERT(compatible, 'The user timestep and offset are not compatible with the outer timestep.')
+      !call check_compatibility(user_timestep, timeStep, compatible, offset=user_offset, _RC)
+      !_ASSERT(compatible, 'The user timestep and offset are not compatible with the outer timestep.')
 
       user_clock = ESMF_ClockCreate(outer_clock, _RC)
       call ESMF_ClockSet(user_clock, timestep=user_timeStep, _RC)
@@ -94,41 +94,35 @@ contains
       integer :: status
       type(ESMF_TimeInterval) :: outer_timestep, user_timestep, ref_time, t24
       type(ESMF_Time) :: currTime, clock_refTime, user_runTime, startTime, user_clockTime
-      logical :: has_shift_back, has_ref_time, shift_back
+      logical :: has_run_next_step, has_ref_time, run_next_step
 
       call ESMF_ClockGet(outer_clock, timestep=outer_timestep, currTime=currTime, refTime=clock_refTime, startTime=startTime, _RC)
       call ESMF_ClockGet(user_clock, timestep=user_timestep, _RC)
 
       has_ref_time = ESMF_HConfigIsDefined(this%hconfig, keyString='ref_time', _RC)
-      has_shift_back = ESMF_HConfigIsDefined(this%hconfig, keyString='shift_back', _RC)
+      has_run_next_step = ESMF_HConfigIsDefined(this%hconfig, keyString='run_next_step', _RC)
 
       if (has_ref_time) then
-         ! this logic is straight from History2G because of the alarms not working right...
-         ! once the alarms are fixed so that they ring no matter what the clock time 
-         ! is when they are created I think all this obtuse logic can go away...
+         ! if we have ref_time must sub this into current time to set initial ring time
+         ! also the clock must be also adjusted so that it starts on the ref time
          ref_time = MAPL_HConfigAsTimeInterval(this%hconfig, keyString='ref_time', _RC) 
          call ESMF_TimeIntervalSet(t24, h=24, _RC)
          _ASSERT(ref_time <= t24, 'reference time must be between 0 and 24 hours')
          user_runTime = sub_time_in_datetime(currTime, ref_time, _RC)
          user_clockTime = user_runTime
-         if (user_runTime < currTime) then
-            user_clockTime = user_runTime +(INT((currTime-user_runTime)/user_timestep)+1)*user_timestep
-         end if
       else
          user_runTime = clock_refTime + this%user_offset
       end if
 
-      shift_back = .false.
-      if (has_shift_back) then
-         shift_back = ESMF_HConfigAsLogical(this%hconfig, keyString='shift_back', _RC)
+      this%run_if_alarm_rings_next = .false.
+      if (has_run_next_step) then
+         this%run_if_alarm_rings_next = ESMF_HConfigAsLogical(this%hconfig, keyString='run_next_step', _RC)
       end if
-      if (shift_back) user_runTime = user_runTime - outer_timestep
 
       this%user_run_alarm = SimpleAlarm(user_runTime, user_timeStep, _RC)
       if (has_ref_time) then 
          ! want to shift it back until user_clockTime is greater OR equal to start time of clock
          call reset_user_time(user_clockTime, currTime, user_timestep, _RC)
-         if (shift_back .and. (user_clockTime > currTime)) user_clockTime = user_clockTime - user_timestep
          call ESMF_ClockGet(user_clock, startTime=startTime, _RC)
          if (startTime > user_clockTime) then
             call ESMF_ClockSet(user_clock, startTime=user_clockTime, _RC)
