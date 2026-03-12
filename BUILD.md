@@ -96,7 +96,7 @@ cmake --build build-nag -j8
 ## System Requirements
 
 - Lmod module system
-- CMake 3.12+
+- CMake 3.24+
 - Appropriate compiler stack modules installed
 
 ## Troubleshooting
