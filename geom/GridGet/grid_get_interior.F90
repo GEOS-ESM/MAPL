@@ -28,7 +28,6 @@ contains
       if (is_present) then
          call ESMF_InfoGetAlloc(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
          interior = global_grid_info(7:10)
-         deallocate(global_grid_info, _STAT)
          _RETURN(_SUCCESS)
       end if
 
