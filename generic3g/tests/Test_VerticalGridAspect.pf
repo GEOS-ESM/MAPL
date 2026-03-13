@@ -45,7 +45,7 @@ contains
       actual_vertical_grid => null()
       field = make_field(num_levels=SOURCE_NUM_LEVELS, _RC) 
       call MAPL_FieldSet(field, vgrid=SourceVertGrid,&
-         & vert_staggerloc=VERTICAL_STAGGER_EDGE, vert_alignment=VALIGN_UP, _RC)
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
       aspect = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
          & VERTICAL_STAGGER_CENTER, VALIGN_UP)
       call aspect%update_from_payload(field=field, _RC)
@@ -66,7 +66,7 @@ contains
       type(ESMF_Field) :: field
 
       field = make_field(_RC) 
-      call MAPL_FieldSet(field, vert_staggerloc=VERTICAL_STAGGER_EDGE,&
+      call MAPL_FieldSet(field, vert_staggerloc=VERTICAL_STAGGER_CENTER,&
          & vert_alignment=VALIGN_UP, _RC)
       aspect = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
          & VERTICAL_STAGGER_CENTER, VALIGN_UP)
@@ -89,7 +89,7 @@ contains
       actual_vertical_grid => null()
       field = make_field(num_levels=DEST_NUM_LEVELS, _RC)
       call MAPL_FieldSet(field, vgrid=DestVertGrid,&
-         & vert_staggerloc=VERTICAL_STAGGER_EDGE, vert_alignment=VALIGN_UP, _RC)
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
       aspect = VerticalGridAspect(SourceVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
          & VERTICAL_STAGGER_CENTER, VALIGN_UP)
       call aspect%update_payload(field=field, _RC)
@@ -108,10 +108,14 @@ contains
       type(ESMF_Field) :: field
       integer :: status
       class(VerticalGrid), pointer :: actual_vertical_grid
-      logical :: matches
 
       field = make_field(num_levels=DEST_NUM_LEVELS, _RC)
-
+      call MAPL_FieldSet(field, vgrid=DestVertGrid,&
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect()
+      call aspect%update_payload(field=field, _RC)
+      call MAPL_FieldGet(field, vgrid=actual_vertical_grid, _RC)
+      @assertFalse(associated(actual_vertical_grid), 'The Field vertical grid should not be associated.')
 
    end subroutine test_update_field_no_vgrid
 
@@ -130,7 +134,7 @@ contains
       actual_vertical_grid => null()
       bundle = ESMF_FieldBundleCreate(_RC)
       call MAPL_FieldBundleSet(bundle, vgrid=SourceVertGrid,&
-         & vert_staggerloc=VERTICAL_STAGGER_EDGE, vert_alignment=VALIGN_UP, _RC)
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
       aspect = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
          & VERTICAL_STAGGER_CENTER, VALIGN_UP)
       call aspect%update_from_payload(bundle=bundle, _RC)
@@ -150,7 +154,7 @@ contains
       type(ESMF_FieldBundle) :: bundle
 
       bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(bundle, vert_staggerloc=VERTICAL_STAGGER_EDGE,&
+      call MAPL_FieldBundleSet(bundle, vert_staggerloc=VERTICAL_STAGGER_CENTER,&
          & vert_alignment=VALIGN_UP, _RC)
       aspect = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
          & VERTICAL_STAGGER_CENTER, VALIGN_UP)
@@ -173,7 +177,7 @@ contains
       actual_vertical_grid => null()
       bundle = ESMF_FieldBundleCreate(_RC)
       call MAPL_FieldBundleSet(bundle, vgrid=DestVertGrid,&
-         & vert_staggerloc=VERTICAL_STAGGER_EDGE, vert_alignment=VALIGN_UP, _RC)
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
       aspect = VerticalGridAspect(SourceVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
          & VERTICAL_STAGGER_CENTER, VALIGN_UP)
       call aspect%update_payload(bundle=bundle, _RC)
