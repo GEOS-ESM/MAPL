@@ -12,6 +12,7 @@ module mapl3g_FieldCreate
    use mapl3g_HorizontalDimsSpec
    use mapl3g_StateItemAllocation
    use mapl3g_LU_Bound
+   use mapl3g_FieldFill, only: MAPL_FieldFill
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
@@ -311,8 +312,8 @@ contains
            ungriddedUBound=bounds%upper, &
            _RC)
 
-        ! Initialize field with appropriate sentinel values to catch uninitialized data usage
-        call initialize_field_sentinel(field, typekind, _RC)
+      ! Initialize field with appropriate sentinel values to catch uninitialized data usage
+      call MAPL_FieldFill(field, _RC)
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       vert_staggerloc_ = VERTICAL_STAGGER_NONE
@@ -363,50 +364,5 @@ contains
 
       _RETURN(_SUCCESS)
    end function fields_are_aliased
-
-   subroutine initialize_field_sentinel(field, typekind, rc)
-      use mapl_FieldPointerUtilities, only: assign_fptr
-      use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_signaling_nan
-      use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
-      type(ESMF_Field), intent(inout) :: field
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      integer, optional, intent(out) :: rc
-
-      real(REAL32), pointer :: ptr_r4(:)
-      real(REAL64), pointer :: ptr_r8(:)
-      integer(INT32), pointer :: ptr_i4(:)
-      integer(INT64), pointer :: ptr_i8(:)
-      integer :: status, local_status
-      real(REAL32) :: snan_r4
-      real(REAL64) :: snan_r8
-      type(ESMF_FieldStatus_Flag) :: field_status
-
-      ! Only initialize if field is complete (has allocated data)
-      call ESMF_FieldGet(field, status=field_status, rc=local_status)
-      if (local_status /= ESMF_SUCCESS) then
-         _RETURN(_SUCCESS)  ! Silently skip if we can't get status
-      end if
-      if (field_status /= ESMF_FIELDSTATUS_COMPLETE) then
-         _RETURN(_SUCCESS)  ! Skip if field is not complete
-      end if
-
-      if (typekind == ESMF_TYPEKIND_R4) then
-         snan_r4 = ieee_value(snan_r4, ieee_signaling_nan)
-         call assign_fptr(field, ptr_r4, rc=local_status)
-         if (local_status == ESMF_SUCCESS) ptr_r4 = snan_r4
-      else if (typekind == ESMF_TYPEKIND_R8) then
-         snan_r8 = ieee_value(snan_r8, ieee_signaling_nan)
-         call assign_fptr(field, ptr_r8, rc=local_status)
-         if (local_status == ESMF_SUCCESS) ptr_r8 = snan_r8
-      else if (typekind == ESMF_TYPEKIND_I4) then
-         call assign_fptr(field, ptr_i4, rc=local_status)
-         if (local_status == ESMF_SUCCESS) ptr_i4 = -huge(1_INT32)
-      else if (typekind == ESMF_TYPEKIND_I8) then
-         call assign_fptr(field, ptr_i8, rc=local_status)
-         if (local_status == ESMF_SUCCESS) ptr_i8 = -huge(1_INT64)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine initialize_field_sentinel
 
 end module mapl3g_FieldCreate
