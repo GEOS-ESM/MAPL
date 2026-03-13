@@ -1,0 +1,412 @@
+#include "MAPL_ErrLog.h"
+
+submodule (mapl3g_MeshGeomFactory) MeshGeomFactory_smod
+
+   use mapl3g_GeomSpec
+   use mapl3g_MeshGeomSpec
+   use mapl3g_MeshDecomposition
+   use mapl_ErrorHandlingMod
+   use mapl_Constants, only: MAPL_PI_R8
+   use pfio
+   use gftl2_StringVector
+   use mapl3g_StringDictionary
+   use esmf
+
+   implicit none
+
+contains
+
+   ! Make GeomSpec from HConfig
+   module function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
+      class(GeomSpec), allocatable :: geom_spec
+      class(MeshGeomFactory), intent(in) :: this
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      geom_spec = make_MeshGeomSpec(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_geom_spec_from_hconfig
+
+   ! Make GeomSpec from FileMetadata
+   module function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
+      class(GeomSpec), allocatable :: geom_spec
+      class(MeshGeomFactory), intent(in) :: this
+      type(FileMetadata), intent(in) :: file_metadata
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      geom_spec = make_MeshGeomSpec(file_metadata, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_geom_spec_from_metadata
+
+   ! Check if factory supports this GeomSpec type
+   module logical function supports_spec(this, geom_spec) result(supports)
+      class(MeshGeomFactory), intent(in) :: this
+      class(GeomSpec), intent(in) :: geom_spec
+
+      type(MeshGeomSpec) :: reference
+
+      _UNUSED_DUMMY(this)
+
+      supports = same_type_as(geom_spec, reference)
+
+   end function supports_spec
+
+   ! Check if factory supports this HConfig
+   module logical function supports_hconfig(this, hconfig, rc) result(supports)
+      class(MeshGeomFactory), intent(in) :: this
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(MeshGeomSpec) :: spec
+      type(MeshDecomposition) :: decomp
+
+      _UNUSED_DUMMY(this)
+
+      ! Create dummy spec to test support
+      decomp = MeshDecomposition([1])
+      spec = MeshGeomSpec(1, 1, decomp)
+      supports = spec%supports(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function supports_hconfig
+
+   ! Check if factory supports this FileMetadata
+   module logical function supports_metadata(this, file_metadata, rc) result(supports)
+      class(MeshGeomFactory), intent(in) :: this
+      type(FileMetadata), intent(in) :: file_metadata
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(MeshGeomSpec) :: spec
+      type(MeshDecomposition) :: decomp
+
+      _UNUSED_DUMMY(this)
+
+      ! Create dummy spec to test support
+      decomp = MeshDecomposition([1])
+      spec = MeshGeomSpec(1, 1, decomp)
+      supports = spec%supports(file_metadata, _RC)
+
+      _RETURN(_SUCCESS)
+   end function supports_metadata
+
+   ! Create ESMF_Geom from GeomSpec
+   module function make_geom(this, geom_spec, rc) result(geom)
+      type(ESMF_Geom) :: geom
+      class(MeshGeomFactory), intent(in) :: this
+      class(GeomSpec), intent(in) :: geom_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      select type (geom_spec)
+      type is (MeshGeomSpec)
+         geom = typesafe_make_geom(geom_spec, _RC)
+      class default
+         _FAIL("geom_spec type not supported")
+      end select
+
+      _RETURN(_SUCCESS)
+   end function make_geom
+
+   ! Type-safe helper for creating ESMF_Geom from MeshGeomSpec
+   function typesafe_make_geom(spec, rc) result(geom)
+      type(ESMF_Geom) :: geom
+      type(MeshGeomSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Mesh) :: mesh
+
+      mesh = create_esmf_mesh(spec, _RC)
+      geom = ESMF_GeomCreate(mesh=mesh, _RC)
+
+      _RETURN(_SUCCESS)
+   end function typesafe_make_geom
+
+   ! Create ESMF_Mesh from MeshGeomSpec
+   function create_esmf_mesh(spec, rc) result(mesh)
+      type(ESMF_Mesh) :: mesh
+      type(MeshGeomSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: nnodes, nelements
+      real(kind=ESMF_KIND_R8), pointer :: node_coords(:,:)
+      integer, pointer :: element_conn(:)
+      integer, pointer :: num_element_conn(:)
+      integer, pointer :: element_mask(:)
+      
+      ! Local node data for this PE
+      integer :: local_node_count
+      integer, allocatable :: nodeIds(:)
+      real(kind=ESMF_KIND_R8), allocatable :: nodeCoords(:)
+      
+      ! Local element data for this PE
+      integer :: local_element_count
+      integer, allocatable :: elementIds(:)
+      integer, allocatable :: elementTypes(:)
+      integer, allocatable :: elementConn(:)
+      integer, allocatable :: elementMask(:)
+      
+      type(MeshDecomposition) :: decomp
+      type(ESMF_VM) :: vm
+      integer :: localPet
+      integer :: i, elem_idx, conn_idx, conn_start, conn_end, np
+      integer :: i_elem_start, i_elem_end
+
+      ! Get mesh data from spec
+      nnodes = spec%get_nnodes()
+      nelements = spec%get_nelements()
+      call spec%get_node_coords(node_coords)
+      call spec%get_connectivity(element_conn)
+      call spec%get_num_element_conn(num_element_conn)
+      call spec%get_element_mask(element_mask)
+
+      _ASSERT(associated(node_coords), 'Node coordinates not set in MeshGeomSpec')
+      _ASSERT(associated(element_conn), 'Element connectivity not set in MeshGeomSpec')
+      _ASSERT(associated(num_element_conn), 'Num element connections not set in MeshGeomSpec')
+
+      ! Get decomposition info
+      decomp = spec%get_decomposition()
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, localPet=localPet, _RC)
+
+      ! For now, use simple decomposition: all nodes on all PEs, distribute elements
+      ! This is a simplified approach - full parallel decomposition in Phase 3
+      call decomp%get_local_indices(localPet, i_elem_start, i_elem_end)
+      local_element_count = i_elem_end - i_elem_start + 1
+      
+      ! For simplicity in Phase 2, put all nodes on all PEs
+      ! In Phase 3, we'll implement proper node distribution
+      local_node_count = nnodes
+
+      ! Create mesh with parametric and spatial dimensions
+      mesh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, &
+                             coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
+
+      ! Add nodes (all nodes on all PEs for now)
+      allocate(nodeIds(local_node_count))
+      allocate(nodeCoords(2*local_node_count))
+      
+      do i = 1, local_node_count
+         nodeIds(i) = i
+         nodeCoords(2*(i-1)+1) = node_coords(1, i)  ! longitude
+         nodeCoords(2*(i-1)+2) = node_coords(2, i)  ! latitude
+      end do
+      
+      call ESMF_MeshAddNodes(mesh, nodeIds, nodeCoords, _RC)
+      
+      deallocate(nodeIds, nodeCoords)
+
+      ! Add elements (distributed by decomposition)
+      allocate(elementIds(local_element_count))
+      allocate(elementTypes(local_element_count))
+      
+      ! Calculate total connectivity size for local elements
+      conn_idx = 0
+      do elem_idx = i_elem_start, i_elem_end
+         np = num_element_conn(elem_idx)
+         conn_idx = conn_idx + np
+      end do
+      
+      allocate(elementConn(conn_idx))
+      
+      if (associated(element_mask)) then
+         allocate(elementMask(local_element_count))
+      end if
+
+      ! Fill element data
+      conn_idx = 1
+      conn_start = 1
+      do elem_idx = 1, i_elem_start - 1
+         conn_start = conn_start + num_element_conn(elem_idx)
+      end do
+      
+      do i = 1, local_element_count
+         elem_idx = i_elem_start + i - 1
+         elementIds(i) = elem_idx
+         
+         np = num_element_conn(elem_idx)
+         elementTypes(i) = np  ! Number of nodes = element type for ESMF
+         
+         ! Copy connectivity for this element
+         conn_end = conn_start + np - 1
+         elementConn(conn_idx:conn_idx+np-1) = element_conn(conn_start:conn_end)
+         conn_idx = conn_idx + np
+         conn_start = conn_end + 1
+         
+         if (associated(element_mask)) then
+            elementMask(i) = element_mask(elem_idx)
+         end if
+      end do
+
+      ! Add elements to mesh
+      if (associated(element_mask)) then
+         call ESMF_MeshAddElements(mesh, elementIds, elementTypes, elementConn, &
+                                    elementMask=elementMask, _RC)
+         deallocate(elementMask)
+      else
+         call ESMF_MeshAddElements(mesh, elementIds, elementTypes, elementConn, _RC)
+      end if
+      
+      deallocate(elementIds, elementTypes, elementConn)
+
+      _RETURN(_SUCCESS)
+   end function create_esmf_mesh
+
+   ! Generate file metadata for mesh
+   module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      type(FileMetadata) :: file_metadata
+      class(MeshGeomFactory), intent(in) :: this
+      class(GeomSpec), intent(in) :: geom_spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: chunksizes(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(chunksizes)
+
+      select type (geom_spec)
+      type is (MeshGeomSpec)
+         file_metadata = typesafe_make_file_metadata(geom_spec, _RC)
+      class default
+         _FAIL('geom_spec is not of dynamic type MeshGeomSpec.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function make_file_metadata
+
+   ! Type-safe helper for creating FileMetadata from MeshGeomSpec
+   function typesafe_make_file_metadata(geom_spec, rc) result(file_metadata)
+      type(FileMetadata) :: file_metadata
+      type(MeshGeomSpec), intent(in) :: geom_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: nnodes, nelements
+      integer, pointer :: element_conn(:), num_element_conn(:)
+      integer :: total_conn
+      type(Variable) :: var
+
+      file_metadata = FileMetadata()
+
+      nnodes = geom_spec%get_nnodes()
+      nelements = geom_spec%get_nelements()
+      call geom_spec%get_connectivity(element_conn)
+      call geom_spec%get_num_element_conn(num_element_conn)
+
+      ! Calculate total connectivity count
+      if (associated(num_element_conn)) then
+         total_conn = sum(num_element_conn)
+      else
+         total_conn = 0
+      end if
+
+      ! Add dimensions
+      call file_metadata%add_dimension('nodeCount', nnodes, _RC)
+      call file_metadata%add_dimension('elementCount', nelements, _RC)
+      call file_metadata%add_dimension('coordDim', 2, _RC)
+      if (total_conn > 0) then
+         call file_metadata%add_dimension('connectionCount', total_conn, _RC)
+      end if
+
+      ! Add node coordinate variable
+      var = Variable(type=PFIO_REAL64, dimensions='coordDim,nodeCount')
+      call var%add_attribute('units', Attribute('degrees'))
+      call var%add_attribute('long_name', Attribute('Node coordinates (longitude, latitude)'))
+      call file_metadata%add_variable('nodeCoords', var)
+
+      ! Add connectivity variable
+      if (total_conn > 0) then
+         var = Variable(type=PFIO_INT32, dimensions='connectionCount')
+         call var%add_attribute('long_name', &
+            Attribute('Node indices that define the element connectivity'))
+         call var%add_attribute('_FillValue', Attribute(-1))
+         call var%add_attribute('start_index', Attribute(1))
+         call file_metadata%add_variable('elementConn', var)
+
+         ! Add number of nodes per element
+         var = Variable(type=PFIO_INT32, dimensions='elementCount')
+         call var%add_attribute('long_name', Attribute('Number of nodes per element'))
+         call file_metadata%add_variable('numElementConn', var)
+      end if
+
+      ! Add element mask variable (optional)
+      var = Variable(type=PFIO_INT32, dimensions='elementCount')
+      call var%add_attribute('long_name', &
+         Attribute('Element mask for surface types'))
+      call file_metadata%add_variable('elementMask', var)
+
+      ! Add global attributes
+      call file_metadata%add_attribute('gridType', Attribute('unstructured'))
+      call file_metadata%add_attribute('version', Attribute('0.9'))
+      call file_metadata%add_attribute('convention', Attribute('ESMF'))
+
+      _RETURN(_SUCCESS)
+   end function typesafe_make_file_metadata
+
+   ! Return gridded dimensions for mesh
+   module function make_gridded_dims(this, geom_spec, rc) result(gridded_dims)
+      type(StringVector) :: gridded_dims
+      class(MeshGeomFactory), intent(in) :: this
+      class(GeomSpec), intent(in) :: geom_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      select type (geom_spec)
+      type is (MeshGeomSpec)
+         ! For unstructured mesh, use element count as the gridded dimension
+         call gridded_dims%push_back("ncells")
+      class default
+         _FAIL('geom_spec is not of dynamic type MeshGeomSpec.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function make_gridded_dims
+
+   ! Return variable attributes for mesh
+   module function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
+      type(StringDictionary) :: variable_attributes
+      class(MeshGeomFactory), intent(in) :: this
+      class(GeomSpec), intent(in) :: geom_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      variable_attributes = StringDictionary()
+
+      select type (geom_spec)
+      type is (MeshGeomSpec)
+         ! CF-compliant attributes for unstructured mesh
+         call variable_attributes%put('location', 'face')
+         call variable_attributes%put('mesh', 'mesh_topology')
+      class default
+         _FAIL('geom_spec is not of dynamic type MeshGeomSpec.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function make_variable_attributes
+
+end submodule MeshGeomFactory_smod

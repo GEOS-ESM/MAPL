@@ -12,6 +12,10 @@ set (TEST_SRCS
   Test_LocStreamDecomposition.pf
   Test_LocStreamGeomFactory.pf
   Test_LocStreamGeomFactory_Metadata.pf
+  Test_MeshDecomposition.pf
+  Test_MeshGeomSpec.pf
+  Test_MeshGeomFactory.pf
+  Test_MeshGeomFactory_Metadata.pf
 )
 
 add_pfunit_ctest(MAPL.geom.tests

@@ -1,0 +1,397 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_MeshGeomFactory
+   use pfunit
+   use esmf_TestMethod_mod ! mapl
+   use mapl3g_GeomSpec
+   use mapl3g_MeshGeomFactory
+   use mapl3g_MeshGeomSpec
+   use mapl3g_MeshDecomposition
+   use gftl2_StringVector
+   use mapl3g_StringDictionary
+   use esmf
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_factory_supports_mesh_spec(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      logical :: supports
+      
+      _UNUSED_DUMMY(this)
+      
+      decomp = MeshDecomposition([1])
+      mesh_spec = MeshGeomSpec(4, 1, decomp)
+      
+      supports = factory%supports_spec(mesh_spec)
+      @assertTrue(supports)
+      
+   end subroutine test_factory_supports_mesh_spec
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_factory_supports_mesh_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      logical :: supports
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Test mesh HConfig with file
+      hconfig = ESMF_HConfigCreate(content="{class: mesh, file: 'test.nc'}", rc=status)
+      @assert_that(status, is(0))
+      
+      supports = factory%supports_hconfig(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(supports)
+      
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+      
+   end subroutine test_factory_supports_mesh_hconfig
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_factory_does_not_support_locstream(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      logical :: supports
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Test that locstream is NOT supported
+      hconfig = ESMF_HConfigCreate(content="{class: locstream, lon: [0.0], lat: [0.0]}", rc=status)
+      @assert_that(status, is(0))
+      
+      supports = factory%supports_hconfig(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assertFalse(supports)
+      
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+      
+   end subroutine test_factory_does_not_support_locstream
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_gridded_dims(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(StringVector) :: gridded_dims
+      integer :: status
+      
+      _UNUSED_DUMMY(this)
+      
+      decomp = MeshDecomposition([1])
+      mesh_spec = MeshGeomSpec(4, 1, decomp)
+      
+      gridded_dims = factory%make_gridded_dims(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(int(gridded_dims%size()), is(1))
+      @assert_that(gridded_dims%of(1), is("ncells"))
+      
+   end subroutine test_make_gridded_dims
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_variable_attributes(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(StringDictionary) :: attrs
+      integer :: status
+      
+      _UNUSED_DUMMY(this)
+      
+      decomp = MeshDecomposition([1])
+      mesh_spec = MeshGeomSpec(4, 1, decomp)
+      
+      attrs = factory%make_variable_attributes(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+      
+      ! For now, just verify it returns successfully
+      ! TODO: Add actual attribute checking when we understand StringDictionary API
+      
+   end subroutine test_make_variable_attributes
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_create_simple_quad_mesh(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_GeomType_Flag) :: geomtype
+      integer :: status
+      integer :: nodeCount, elementCount
+      
+      ! Create mesh data programmatically
+      real(kind=ESMF_KIND_R8) :: node_coords(2, 4)
+      integer :: element_conn(4)
+      integer :: num_element_conn(1)
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create a simple quad mesh: 4 nodes forming a square
+      ! Node layout:
+      !  4 ---- 3
+      !  |      |
+      !  |      |
+      !  1 ---- 2
+      
+      node_coords(1, :) = [0.0d0, 1.0d0, 1.0d0, 0.0d0]  ! longitudes
+      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0, 1.0d0]  ! latitudes
+      
+      element_conn = [1, 2, 3, 4]  ! One quad connecting all 4 nodes
+      num_element_conn = [4]       ! 4 nodes per element
+      
+      ! Create mesh spec
+      decomp = MeshDecomposition([1])  ! Single element on one PE
+      mesh_spec = MeshGeomSpec(4, 1, decomp)
+      
+      ! Set the mesh data
+      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create the ESMF geometry
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Verify it's a mesh geometry
+      call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(geomtype == ESMF_GEOMTYPE_MESH)
+      
+      ! Get the mesh and verify node/element counts
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nodeCount, is(4))
+      @assert_that(elementCount, is(1))
+      
+   end subroutine test_create_simple_quad_mesh
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_create_triangle_mesh(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      integer :: status
+      integer :: nodeCount, elementCount
+      
+      ! Create mesh data programmatically
+      real(kind=ESMF_KIND_R8) :: node_coords(2, 3)
+      integer :: element_conn(3)
+      integer :: num_element_conn(1)
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create a simple triangle mesh
+      node_coords(1, :) = [0.0d0, 1.0d0, 0.5d0]  ! longitudes
+      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0]  ! latitudes
+      
+      element_conn = [1, 2, 3]    ! One triangle
+      num_element_conn = [3]      ! 3 nodes per element
+      
+      ! Create mesh spec
+      decomp = MeshDecomposition([1])
+      mesh_spec = MeshGeomSpec(3, 1, decomp)
+      
+      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create the ESMF geometry
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Verify mesh was created correctly
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nodeCount, is(3))
+      @assert_that(elementCount, is(1))
+      
+   end subroutine test_create_triangle_mesh
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_create_hexagon_mesh(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      integer :: status
+      integer :: nodeCount, elementCount
+      
+      ! Create mesh data programmatically
+      real(kind=ESMF_KIND_R8) :: node_coords(2, 6)
+      integer :: element_conn(6)
+      integer :: num_element_conn(1)
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create a hexagon mesh (6-sided polygon)
+      ! Note: ESMF supports hexagons natively
+      node_coords(1, :) = [1.0d0, 0.5d0, -0.5d0, -1.0d0, -0.5d0, 0.5d0]   ! lon
+      node_coords(2, :) = [0.0d0, 0.866d0, 0.866d0, 0.0d0, -0.866d0, -0.866d0]  ! lat
+      
+      element_conn = [1, 2, 3, 4, 5, 6]  ! One hexagon
+      num_element_conn = [6]             ! 6 nodes per element
+      
+      ! Create mesh spec
+      decomp = MeshDecomposition([1])
+      mesh_spec = MeshGeomSpec(6, 1, decomp)
+      
+      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create the ESMF geometry
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Verify mesh was created correctly
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nodeCount, is(6))
+      @assert_that(elementCount, is(1))
+      
+   end subroutine test_create_hexagon_mesh
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_create_octagon_mesh(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      integer :: status
+      integer :: nodeCount, elementCount
+      
+      ! Create mesh data programmatically
+      real(kind=ESMF_KIND_R8) :: node_coords(2, 8)
+      integer :: element_conn(8)
+      integer :: num_element_conn(1)
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create an octagon mesh (8-sided polygon)
+      ! Regular octagon vertices
+      node_coords(1, :) = [1.0d0, 0.707d0, 0.0d0, -0.707d0, -1.0d0, -0.707d0, 0.0d0, 0.707d0]
+      node_coords(2, :) = [0.0d0, 0.707d0, 1.0d0, 0.707d0, 0.0d0, -0.707d0, -1.0d0, -0.707d0]
+      
+      element_conn = [1, 2, 3, 4, 5, 6, 7, 8]  ! One octagon
+      num_element_conn = [8]                    ! 8 nodes per element
+      
+      ! Create mesh spec
+      decomp = MeshDecomposition([1])
+      mesh_spec = MeshGeomSpec(8, 1, decomp)
+      
+      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create the ESMF geometry
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Verify mesh was created correctly
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nodeCount, is(8))
+      @assert_that(elementCount, is(1))
+      
+   end subroutine test_create_octagon_mesh
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_create_mixed_polygon_mesh(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      integer :: status
+      integer :: nodeCount, elementCount
+      
+      ! Create mesh with mixed ESMF-supported element types: triangle, quad, hexagon
+      real(kind=ESMF_KIND_R8) :: node_coords(2, 13)
+      integer :: element_conn(13)
+      integer :: num_element_conn(3)
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Define 13 nodes for 3 elements
+      ! Triangle: nodes 1-3
+      node_coords(1, 1:3) = [0.0d0, 1.0d0, 0.5d0]
+      node_coords(2, 1:3) = [0.0d0, 0.0d0, 1.0d0]
+      
+      ! Quad: nodes 4-7
+      node_coords(1, 4:7) = [2.0d0, 3.0d0, 3.0d0, 2.0d0]
+      node_coords(2, 4:7) = [0.0d0, 0.0d0, 1.0d0, 1.0d0]
+      
+      ! Hexagon: nodes 8-13
+      node_coords(1, 8:13) = [5.0d0, 4.5d0, 3.5d0, 3.0d0, 3.5d0, 4.5d0]
+      node_coords(2, 8:13) = [0.0d0, 0.866d0, 0.866d0, 0.0d0, -0.866d0, -0.866d0]
+      
+      ! Connectivity
+      element_conn = [1, 2, 3,       & ! Triangle (3 nodes)
+                      4, 5, 6, 7,    & ! Quad (4 nodes)
+                      8, 9, 10, 11, 12, 13]  ! Hexagon (6 nodes)
+      num_element_conn = [3, 4, 6]
+      
+      ! Create mesh spec
+      decomp = MeshDecomposition([3])  ! 3 elements
+      mesh_spec = MeshGeomSpec(13, 3, decomp)
+      
+      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create the ESMF geometry
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Verify mesh was created correctly
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nodeCount, is(13))
+      @assert_that(elementCount, is(3))
+      
+   end subroutine test_create_mixed_polygon_mesh
+
+end module Test_MeshGeomFactory

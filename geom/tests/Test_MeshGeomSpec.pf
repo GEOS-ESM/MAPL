@@ -1,0 +1,149 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_MeshGeomSpec
+   use pfunit
+   use esmf_TestMethod_mod ! mapl
+   use mapl3g_MeshGeomSpec
+   use mapl3g_MeshDecomposition
+   use esmf
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_mesh_spec_creation(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomSpec) :: spec
+      type(MeshDecomposition) :: decomp
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create a simple mesh spec: 4 nodes, 1 element
+      decomp = MeshDecomposition([1])  ! Single element on one PE
+      spec = MeshGeomSpec(4, 1, decomp)
+      
+      @assert_that(spec%get_nnodes(), is(4))
+      @assert_that(spec%get_nelements(), is(1))
+      
+   end subroutine test_mesh_spec_creation
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_mesh_spec_equality(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomSpec) :: spec1, spec2, spec3
+      type(MeshDecomposition) :: decomp1, decomp2
+      
+      _UNUSED_DUMMY(this)
+      
+      decomp1 = MeshDecomposition([1])
+      decomp2 = MeshDecomposition([2])
+      
+      spec1 = MeshGeomSpec(4, 1, decomp1)
+      spec2 = MeshGeomSpec(4, 1, decomp1)
+      spec3 = MeshGeomSpec(6, 2, decomp2)
+      
+      ! Test equality
+      @assertTrue(spec1 == spec2)
+      @assertFalse(spec1 == spec3)
+      
+   end subroutine test_mesh_spec_equality
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_mesh_spec_set_and_get_data(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomSpec) :: spec
+      type(MeshDecomposition) :: decomp
+      real(kind=ESMF_KIND_R8) :: node_coords(2, 4)
+      integer :: element_conn(4)
+      integer :: num_element_conn(1)
+      integer :: element_mask(1)
+      real(kind=ESMF_KIND_R8), pointer :: coords_out(:,:)
+      integer, pointer :: conn_out(:), num_conn_out(:), mask_out(:)
+      integer :: status
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create a simple quad mesh
+      ! Nodes at corners of unit square
+      node_coords(1, :) = [0.0d0, 1.0d0, 1.0d0, 0.0d0]  ! lon
+      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0, 1.0d0]  ! lat
+      
+      ! One quad element connecting all 4 nodes
+      element_conn = [1, 2, 3, 4]
+      num_element_conn = [4]
+      element_mask = [1]  ! Ocean
+      
+      decomp = MeshDecomposition([1])
+      spec = MeshGeomSpec(4, 1, decomp)
+      
+      call spec%set_mesh_data(node_coords, element_conn, num_element_conn, element_mask, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Verify data can be retrieved
+      call spec%get_node_coords(coords_out)
+      @assertTrue(associated(coords_out))
+      @assert_that(size(coords_out, 1), is(2))
+      @assert_that(size(coords_out, 2), is(4))
+      @assert_that(coords_out(1, 1), is(0.0d0))
+      @assert_that(coords_out(1, 2), is(1.0d0))
+      
+      call spec%get_connectivity(conn_out)
+      @assertTrue(associated(conn_out))
+      @assert_that(size(conn_out), is(4))
+      @assert_that(conn_out(1), is(1))
+      @assert_that(conn_out(4), is(4))
+      
+      call spec%get_num_element_conn(num_conn_out)
+      @assertTrue(associated(num_conn_out))
+      @assert_that(num_conn_out(1), is(4))
+      
+      call spec%get_element_mask(mask_out)
+      @assertTrue(associated(mask_out))
+      @assert_that(mask_out(1), is(1))
+      
+   end subroutine test_mesh_spec_set_and_get_data
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(ESMF_HConfig) :: hconfig
+      type(MeshGeomSpec) :: spec
+      type(MeshDecomposition) :: decomp
+      integer :: status
+      logical :: supports
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Test valid mesh HConfig
+      hconfig = ESMF_HConfigCreate(content="{class: mesh, file: 'dummy.nc'}", rc=status)
+      @assert_that(status, is(0))
+      
+      decomp = MeshDecomposition([1])
+      spec = MeshGeomSpec(1, 1, decomp)
+      
+      supports = spec%supports(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(supports)
+      
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Test non-mesh HConfig
+      hconfig = ESMF_HConfigCreate(content="{class: locstream, lon: [0.0], lat: [0.0]}", rc=status)
+      @assert_that(status, is(0))
+      
+      supports = spec%supports(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assertFalse(supports)
+      
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+      
+   end subroutine test_supports_hconfig
+
+end module Test_MeshGeomSpec

@@ -1,0 +1,111 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_MeshGeomFactory_Metadata
+   use pfunit
+   use esmf_TestMethod_mod ! mapl
+   use mapl3g_GeomSpec
+   use mapl3g_MeshGeomFactory
+   use mapl3g_MeshGeomSpec
+   use mapl3g_MeshDecomposition
+   use pfio
+   use esmf
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_file_metadata_from_spec(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(FileMetadata) :: file_metadata
+      integer :: status
+      
+      ! Create mesh data
+      real(kind=ESMF_KIND_R8) :: node_coords(2, 4)
+      integer :: element_conn(4)
+      integer :: num_element_conn(1)
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Simple quad mesh
+      node_coords(1, :) = [0.0d0, 1.0d0, 1.0d0, 0.0d0]
+      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0, 1.0d0]
+      element_conn = [1, 2, 3, 4]
+      num_element_conn = [4]
+      
+      decomp = MeshDecomposition([1])
+      mesh_spec = MeshGeomSpec(4, 1, decomp)
+      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Generate file metadata
+      file_metadata = factory%make_file_metadata(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Verify dimensions exist
+      @assertTrue(file_metadata%has_dimension('nodeCount'))
+      @assertTrue(file_metadata%has_dimension('elementCount'))
+      @assertTrue(file_metadata%has_dimension('coordDim'))
+      @assertTrue(file_metadata%has_dimension('connectionCount'))
+      
+      ! Verify dimension sizes
+      @assert_that(file_metadata%get_dimension('nodeCount', rc=status), is(4))
+      @assert_that(file_metadata%get_dimension('elementCount', rc=status), is(1))
+      @assert_that(file_metadata%get_dimension('coordDim', rc=status), is(2))
+      @assert_that(file_metadata%get_dimension('connectionCount', rc=status), is(4))
+      
+      ! Verify variables exist
+      @assertTrue(file_metadata%has_variable('nodeCoords'))
+      @assertTrue(file_metadata%has_variable('elementConn'))
+      @assertTrue(file_metadata%has_variable('numElementConn'))
+      
+   end subroutine test_make_file_metadata_from_spec
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_metadata_roundtrip(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec1, mesh_spec2
+      type(MeshDecomposition) :: decomp
+      type(FileMetadata) :: file_metadata
+      integer :: status
+      
+      ! Create mesh data
+      real(kind=ESMF_KIND_R8) :: node_coords(2, 3)
+      integer :: element_conn(3)
+      integer :: num_element_conn(1)
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Triangle mesh
+      node_coords(1, :) = [0.0d0, 1.0d0, 0.5d0]
+      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0]
+      element_conn = [1, 2, 3]
+      num_element_conn = [3]
+      
+      ! Create first spec
+      decomp = MeshDecomposition([1])
+      mesh_spec1 = MeshGeomSpec(3, 1, decomp)
+      call mesh_spec1%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Generate metadata
+      file_metadata = factory%make_file_metadata(mesh_spec1, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create second spec from metadata
+      mesh_spec2 = make_MeshGeomSpec(file_metadata, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Verify specs match
+      @assert_that(mesh_spec2%get_nnodes(), is(3))
+      @assert_that(mesh_spec2%get_nelements(), is(1))
+      
+   end subroutine test_metadata_roundtrip
+
+end module Test_MeshGeomFactory_Metadata

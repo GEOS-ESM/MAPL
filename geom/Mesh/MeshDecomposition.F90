@@ -74,6 +74,7 @@ module mapl3g_MeshDecomposition
 
 contains
 
+   ! Constructor implementations (kept in main module for simplicity)
    function new_MeshDecomposition_basic(point_distribution) result(decomp)
       type(MeshDecomposition) :: decomp
       integer, intent(in) :: point_distribution(:)
@@ -94,6 +95,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_MeshDecomposition_petcount
 
+   ! Accessor implementations (kept in main module)
    pure function get_point_distribution(decomp) result(point_distribution)
       integer, allocatable :: point_distribution(:)
       class(MeshDecomposition), intent(in) :: decomp
