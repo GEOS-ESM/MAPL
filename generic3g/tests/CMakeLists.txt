@@ -23,6 +23,7 @@ add_library(MAPL.generic3g.test_common SHARED
 )
 target_link_libraries(MAPL.generic3g.test_common PUBLIC MAPL.generic3g MAPL.shared MAPL.pfunit)
 set_target_properties(MAPL.generic3g.test_common PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+target_include_directories(MAPL.generic3g.test_common PUBLIC $<BUILD_INTERFACE:${MODULE_DIRECTORY}>)
 
 # Common dependencies for all test suites
 set(COMMON_LINK_LIBRARIES MAPL.generic3g.test_common MAPL.pfunit configurable_gridcomp MAPL_StatisticsGridComp)
