@@ -11,6 +11,8 @@ module mapl3g_MirrorVerticalGrid
    use mapl3g_VerticalGrid
    use mapl3g_ComponentDriver
    use mapl3g_VerticalStaggerLoc
+   use mapl_ErrorHandling
+   use gftl2_StringVector, only: StringVector
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
@@ -23,14 +25,14 @@ module mapl3g_MirrorVerticalGrid
    type, extends(VerticalGrid) :: MirrorVerticalGrid
       private
    contains
-      procedure :: get_num_layers
       procedure :: get_coordinate_field
       procedure :: get_supported_physical_dimensions
       procedure :: get_units
+      procedure :: get_num_layers
+      procedure :: matches
       procedure :: can_connect_to
       procedure :: is_identical_to
       procedure :: write_formatted
-      procedure :: matches
    end type MirrorVerticalGrid
 
    interface MirrorVerticalGrid
@@ -41,12 +43,13 @@ contains
 
    function new_MirrorVerticalGrid() result(vertical_grid)
       type(MirrorVerticalGrid) :: vertical_grid
+      call vertical_grid%set_id(VERTICAL_GRID_NOT_FOUND)
    end function
 
    function get_num_layers(this) result(num_layers)
       integer :: num_layers
       class(MirrorVerticalGrid), intent(in) :: this
-      num_layers = -1
+      num_layers = 0
       _UNUSED_DUMMY(this)
    end function
       
@@ -68,12 +71,10 @@ contains
    end function get_coordinate_field
 
    function get_supported_physical_dimensions(this) result(dimensions)
-      use gftl2_StringVector, only: StringVector
-      implicit none
       type(StringVector) :: dimensions
-      class(VerticalGrid), target, intent(in) :: this
+      class(MirrorVerticalGrid), target, intent(in) :: this
       
-      _FAIL('MirrorVerticalGrid should have been replaced before this procedure was called.')
+      ! no op
  
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(dimensions)
@@ -81,15 +82,15 @@ contains
 
    function get_units(this, physical_dimension, rc) result(units)
       character(len=:), allocatable :: units
-      class(VerticalGrid), intent(in) :: this
+      class(MirrorVerticalGrid), intent(in) :: this
       character(len=*), intent(in) :: physical_dimension
       integer, optional, intent(out) :: rc
 
+      units = ''
       _FAIL('MirrorVerticalGrid should have been replaced before this procedure was called.')
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(physical_dimension)
-      _UNUSED_DUMMY(units)
    end function get_units
 
    logical function can_connect_to(this, dst, rc)
@@ -130,9 +131,14 @@ contains
       _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
 
-   function matches(this, other) result(matches)
+   function matches(this, other)
       logical :: matches
-      class(VerticalGrid), intent(in) :: this
+      class(MirrorVerticalGrid), intent(in) :: this
       class(VerticalGrid), intent(in) :: other
+
+      matches = .FALSE.
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(other)
    end function matches
+
 end module mapl3g_MirrorVerticalGrid

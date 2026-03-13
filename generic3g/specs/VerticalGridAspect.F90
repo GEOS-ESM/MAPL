@@ -509,8 +509,8 @@ contains
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      vgrid = MirrorVerticalGrid()
-      if(.not. this%is_mirror()) vgrid = this%get_vertical_grid()
+      vgrid = this%vertical_grid
+      if(this%is_mirror()) vgrid = MirrorVerticalGrid()
       if (present(field)) then
          call mapl_FieldSet(field, vgrid=vgrid, vert_staggerloc=this%vertical_stagger, vert_alignment=this%vertical_alignment, _RC)
       else if (present(bundle)) then

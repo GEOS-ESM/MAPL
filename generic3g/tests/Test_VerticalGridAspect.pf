@@ -29,10 +29,26 @@ module Test_VerticalGridAspect
 
 contains
 
-!VerticalGridAspect(grid, method, stagger, alignment, _RC)
+!wdb fixme deleteme Notes Block
+!VerticalGridAspect(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, ..., rc)
+
+! What should the behavior be regarding a mirrored vertical grid for field/bundle?
+! If aspect%is_mirror(), what should the field/bundle vertical grid be? VERTICAL_GRID_NOT_FOUND? MirrorVerticalGrid?
+!   If it is not defined already, let it undefined?
+!   If it is defined already, clear it? Set to VERTICAL_GRID_NOT_FOUND?
+
+! If field/bundle does not have a vertical grid, the aspect should be is_mirror() (not allocated).
+
+! What are the conditions where is_mirror()?
+
+! If aspect changes fto is_mirror(), should the vertical grid be deallocated?
+
+!wdb fixme deleteme Notes Block END
+
 !===============================================================================
 !ESMF_Field
 !===============================================================================
+
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_field(this)
       class(ESMF_TestMethod), intent(inout) ::  this
@@ -116,12 +132,14 @@ contains
       call aspect%update_payload(field=field, _RC)
       call MAPL_FieldGet(field, vgrid=actual_vertical_grid, _RC)
       @assertFalse(associated(actual_vertical_grid), 'The Field vertical grid should not be associated.')
+      _UNUSED_DUMMY(this)
 
    end subroutine test_update_field_no_vgrid
 
 !===============================================================================
 !ESMF_FieldBundle
 !===============================================================================
+
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_bundle(this)
       class(ESMF_TestMethod), intent(inout) ::  this
@@ -188,9 +206,33 @@ contains
 
    end subroutine test_update_bundle
 
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_bundle_no_vgrid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+      class(VerticalGrid), pointer :: actual_vertical_grid
+      character(len=*), parameter :: ASST_MSG = &
+         & 'The FieldBundle vertical grid should not be associated.'
+
+      actual_vertical_grid => null()
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(bundle, vgrid=DestVertGrid,&
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect(regrid_method=VERTICAL_REGRID_CONSERVATIVE, &
+         & vertical_stagger=VERTICAL_STAGGER_CENTER, vertical_alignment=VALIGN_UP)
+      call aspect%update_payload(bundle=bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, vgrid=actual_vertical_grid, _RC)
+      @assertFalse(associated(actual_vertical_grid), ASST_MSG)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_bundle_no_vgrid
+
 !===============================================================================
 !HELPER PROCEDURES
 !===============================================================================
+
    @Before
    subroutine setUp(this)
       class(ESMF_TestMethod), intent(inout) :: this
