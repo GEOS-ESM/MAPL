@@ -2,6 +2,17 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.generic3g/tests")
 
 add_subdirectory(gridcomps)
 
+# Copy scenarios directory to build directory at build time
+# Define this early so it can be used as a dependency
+# Using COMMAND_EXPAND_LISTS and VERBATIM for robustness
+add_custom_target(copy_scenarios ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/scenarios
+    ${CMAKE_CURRENT_BINARY_DIR}/scenarios
+  COMMENT "Copying scenarios directory to build directory"
+  VERBATIM
+)
+
 # Common dependencies for all test suites
 set(COMMON_OTHER_SOURCES MockUserGridComp.F90 accumulator_transform_test_common.F90 MockAspect.F90)
 set(COMMON_LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit configurable_gridcomp MAPL_StatisticsGridComp)
@@ -198,14 +209,3 @@ add_dependencies(build-tests
   MAPL.generic3g.components
   MAPL.generic3g.core
 )
-
-# Copy scenarios directory to build directory at build time
-# Using COMMAND_EXPAND_LISTS and VERBATIM for robustness
-add_custom_target(copy_scenarios ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/scenarios
-    ${CMAKE_CURRENT_BINARY_DIR}/scenarios
-  COMMENT "Copying scenarios directory to build directory"
-  VERBATIM
-)
-
