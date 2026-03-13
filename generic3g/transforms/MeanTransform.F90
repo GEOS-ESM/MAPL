@@ -51,7 +51,6 @@ contains
       type(ESMF_Geom) :: geom
       integer, allocatable :: gmap(:)
       integer :: ndims
-      integer(COUNTER_KIND), pointer :: counter(:)
 
       _RETURN_IF(this%initialized)
       call this%AccumulatorTransform%create_fields(import_field, export_field, _RC)
@@ -61,12 +60,6 @@ contains
          call ESMF_FieldGet(f, geom=geom, gridToFieldMap=gmap, _RC)
          this%counter_field =  MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_I4, gridToFieldMap=gmap, _RC)
       end associate
-      
-      ! Initialize counter field to 0
-      counter => null()
-      call assign_fptr(this%counter_field, counter, _RC)
-      counter = 0_COUNTER_KIND
-      
       _RETURN(_SUCCESS)
 
    end subroutine create_fields_mean

@@ -10,7 +10,7 @@ module mapl3g_FieldDelta
    use mapl3g_FieldGet
    use mapl3g_VerticalStaggerLoc
    use mapl3g_InfoUtilities
-   use mapl3g_FieldFill, only: MAPL_FieldFill
+   use mapl3g_FieldFill, only: FieldFill
    use mapl_FieldPointerUtilities
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -273,7 +273,7 @@ contains
             _RC)
 
       ! Initialize field with appropriate sentinel values to catch uninitialized data usage
-      call MAPL_FieldFill(field, _RC)
+      call FieldFill(field, _RC)
 
       _RETURN(_SUCCESS)
 

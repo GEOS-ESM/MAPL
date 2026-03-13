@@ -7,11 +7,11 @@ module mapl3g_FieldFill
    implicit none(type,external)
    private
 
-   public :: MAPL_FieldFill
+   public :: FieldFill
 
-   interface MAPL_FieldFill
+   interface FieldFill
       procedure :: field_fill
-   end interface MAPL_FieldFill
+   end interface FieldFill
 
 contains
 
@@ -31,12 +31,12 @@ contains
       type(ESMF_FieldStatus_Flag) :: field_status
       type(ESMF_TypeKind_Flag) :: typekind
 
-      ! Verify field is complete (has allocated data)
-      call ESMF_FieldGet(field, status=field_status, _RC)
-      _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, 'Field must be completed prior to fill')
+       ! Verify field is complete (has allocated data)
+       call ESMF_FieldGet(field, status=field_status, _RC)
+       _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, 'Field must be completed prior to fill')
 
-      ! Get typekind from the field
-      call ESMF_FieldGet(field, typekind=typekind, _RC)
+       ! Get typekind from the field
+       call ESMF_FieldGet(field, typekind=typekind, _RC)
 
       if (typekind == ESMF_TYPEKIND_R4) then
          snan_r4 = ieee_value(snan_r4, ieee_signaling_nan)
