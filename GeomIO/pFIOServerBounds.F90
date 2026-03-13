@@ -6,7 +6,8 @@ module mapl3g_pFIOServerBounds
    use esmf
    use pfio
    use gFTL2_StringVector
-   use MAPL_BaseMod, only: MAPL2_GridGet => MAPL_GridGet, MAPL2_GridGetInterior => MAPL_GridGetInterior
+   use mapl3g_Geom_API, only: MAPL_GridGet
+   use MAPL_BaseMod, only: MAPL2_GridGet => MAPL_GridGet
 
    implicit none
    private
@@ -120,11 +121,11 @@ contains
 
       tm = 0
       if (present(time_index)) tm = 1
-      
+
       allocate(server_bounds%file_shape(1), source=num_field_levels)
-      allocate(server_bounds%local_start(1+tm), source=1)
-      allocate(server_bounds%global_start(1+tm), source=1)
-      allocate(server_bounds%global_count(1+tm), source=1)
+      allocate(server_bounds%local_start(1 + tm), source=1)
+      allocate(server_bounds%global_start(1 + tm), source=1)
+      allocate(server_bounds%global_count(1 + tm), source=1)
       server_bounds%global_count(1) = num_field_levels
 
       _RETURN(_SUCCESS)
@@ -140,9 +141,14 @@ contains
 
       integer :: status, tile_count, n_dims, tm, global_dim(3)
       integer :: i1, in, j1, jn, tile, extra_file_dim, file_dims, new_grid_dims
+      integer, allocatable :: interior(:)
 
       call ESMF_GridGet(grid, tileCount=tile_count, _RC)
-      call MAPL2_GridGetInterior(grid, i1, in, j1, jn)
+      call MAPL_GridGet(grid, interior=interior, _RC)
+      i1 = interior(1)
+      in = interior(2)
+      j1 = interior(3)
+      jn = interior(4)
       call MAPL2_GridGet(grid, globalCellCountPerDim=global_dim, _RC)
       n_dims = size(field_shape)
 
@@ -156,44 +162,43 @@ contains
       file_dims = n_dims + extra_file_dim
 
       allocate(server_bounds%file_shape(file_dims))
-      allocate(server_bounds%global_start(file_dims+tm))
-      allocate(server_bounds%global_count(file_dims+tm))
-      allocate(server_bounds%local_start(file_dims+tm))
-      allocate(server_bounds%corner_global_start(file_dims+tm))
-      allocate(server_bounds%corner_global_count(file_dims+tm))
-      allocate(server_bounds%corner_local_start(file_dims+tm))
+      allocate(server_bounds%global_start(file_dims + tm))
+      allocate(server_bounds%global_count(file_dims + tm))
+      allocate(server_bounds%local_start(file_dims + tm))
+      allocate(server_bounds%corner_global_start(file_dims + tm))
+      allocate(server_bounds%corner_global_count(file_dims + tm))
+      allocate(server_bounds%corner_local_start(file_dims + tm))
 
-      server_bounds%file_shape(new_grid_dims+1:file_dims) = field_shape(grid_dims+1:n_dims)
+      server_bounds%file_shape(new_grid_dims + 1:file_dims) = field_shape(grid_dims + 1:n_dims)
 
       server_bounds%global_start(1:file_dims) = 1
       server_bounds%corner_global_start(1:file_dims) = 1
-      if(present(time_index)) server_bounds%global_start(file_dims+1) = time_index
+      if (present(time_index)) server_bounds%global_start(file_dims + 1) = time_index
 
-      server_bounds%global_count(new_grid_dims+1:file_dims) = field_shape(grid_dims+1:n_dims)
-      if (present(time_index)) server_bounds%global_count(file_dims+1) = 1
+      server_bounds%global_count(new_grid_dims + 1:file_dims) = field_shape(grid_dims + 1:n_dims)
+      if (present(time_index)) server_bounds%global_count(file_dims + 1) = 1
 
       server_bounds%local_start = 1
       if (read_or_write == PFIO_BOUNDS_READ) then
-         if(present(time_index)) server_bounds%local_start(file_dims+1) = time_index
+         if (present(time_index)) server_bounds%local_start(file_dims + 1) = time_index
       end if
 
       select case (tile_count)
       case (6) ! Assume cubed-sphere
 
-         tile = 1 + (j1-1)/global_dim(1)
+         tile = 1 + (j1 - 1) / global_dim(1)
          server_bounds%file_shape(1:new_grid_dims) = [field_shape(1), field_shape(2), 1]
-         server_bounds%global_count(1:new_grid_dims) =[global_dim(1), global_dim(1), tile_count]
-         server_bounds%local_start(1:new_grid_dims) = [i1, j1-(tile-1)*global_dim(1), tile]
+         server_bounds%global_count(1:new_grid_dims) = [global_dim(1), global_dim(1), tile_count]
+         server_bounds%local_start(1:new_grid_dims) = [i1, j1 - (tile - 1) * global_dim(1), tile]
 
-         
-         server_bounds%corner_global_count(1:new_grid_dims) =[global_dim(1)+1, global_dim(1)+1, tile_count]
-         server_bounds%corner_local_start(1:new_grid_dims) = [i1, j1-(tile-1)*global_dim(1), tile]
+         server_bounds%corner_global_count(1:new_grid_dims) = [global_dim(1) + 1, global_dim(1) + 1, tile_count]
+         server_bounds%corner_local_start(1:new_grid_dims) = [i1, j1 - (tile - 1) * global_dim(1), tile]
 
       case (1)
 
          server_bounds%file_shape(1:new_grid_dims) = [field_shape(1), field_shape(2)]
          server_bounds%global_count(1:new_grid_dims) = [global_dim(1), global_dim(2)]
-         server_bounds%local_start(1:new_grid_dims) = [i1,j1]
+         server_bounds%local_start(1:new_grid_dims) = [i1, j1]
 
       case default
 

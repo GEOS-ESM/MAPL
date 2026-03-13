@@ -26,35 +26,42 @@ module mapl3g_GridGet
 
       module subroutine grid_get_centers(grid, centers, rc)
          type(ESMF_Grid), intent(in) :: grid
-         real(kind=ESMF_KIND_R8), allocatable, intent(out) :: centers(:,:,:)
+         real(kind=ESMF_KIND_R8), allocatable, intent(out) :: centers(:, :, :)
          integer, optional, intent(out) :: rc
       end subroutine grid_get_centers
 
       module subroutine grid_get_corners(grid, corners, rc)
          type(ESMF_Grid), intent(in) :: grid
-         real(kind=ESMF_KIND_R8), allocatable, intent(out) :: corners(:,:,:)
+         real(kind=ESMF_KIND_R8), allocatable, intent(out) :: corners(:, :, :)
          integer, optional, intent(out) :: rc
       end subroutine grid_get_corners
+
+      module subroutine grid_get_interior(grid, interior, rc)
+         type(ESMF_Grid), intent(in) :: grid
+         integer, allocatable, intent(out) :: interior(:)
+         integer, optional, intent(out) :: rc
+      end subroutine grid_get_interior
 
    end interface
 
 contains
 
-   subroutine grid_get(grid, unusable, name, dimCount, coordDimCount, im, jm, centers, corners, rc)
-      type(esmf_Grid), intent(in) :: grid
+   subroutine grid_get(grid, unusable, name, dimCount, coordDimCount, im, jm, centers, corners, interior, rc)
+      type(ESMF_Grid), intent(in) :: grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(:), optional, allocatable, intent(out) :: name
       integer, optional, intent(out) :: dimCount
       integer, optional, allocatable, intent(out) :: coordDimCount(:)
       integer, optional, intent(out) :: im, jm
-      real(kind=ESMF_KIND_R8), optional, allocatable, intent(out) :: centers(:,:,:)
-      real(kind=ESMF_KIND_R8), optional, allocatable, intent(out) :: corners(:,:,:)
+      real(kind=ESMF_KIND_R8), optional, allocatable, intent(out) :: centers(:, :, :)
+      real(kind=ESMF_KIND_R8), optional, allocatable, intent(out) :: corners(:, :, :)
+      integer, optional, allocatable, intent(out) :: interior(:)
       integer, optional, intent(out) :: rc
 
       integer :: dimCount_
       character(ESMF_MAXSTR) :: name_
       integer :: status
-      real(kind=ESMF_KIND_R8), pointer :: coords(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: coords(:, :)
 
       call esmf_GridGet(grid, dimCount=dimCount_, _RC)
       if (present(dimCount)) then
@@ -85,11 +92,15 @@ contains
          call grid_get_corners(grid, corners, _RC)
       end if
 
+      if (present(interior)) then
+         call grid_get_interior(grid, interior, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine grid_get
 
-   logical function grid_has_DE(grid,rc) result(has_DE)
+   logical function grid_has_DE(grid, rc) result(has_DE)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(out), optional :: rc
 
@@ -98,22 +109,22 @@ contains
       type(ESMF_DeLayout) :: layout
       integer :: localDECount
 
-      call ESMF_GridGet    (GRID, distGrid=distGrid, _RC)
-      call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
-      call ESMF_DELayoutGet(layout, localDeCount=localDeCount,_RC)
+      call esmf_GridGet(grid, distGrid=distGrid, _RC)
+      call ESMF_DistGridGet(distGrid, delayout=layout, _RC)
+      call ESMF_DELayoutGet(layout, localDECount=localDECount, _RC)
       has_DE = (localDECount /=0)
 
       _RETURN(_SUCCESS)
    end function grid_has_DE
 
    subroutine grid_get_coordinates_r4(grid, longitudes, latitudes, rc)
-      type(esmf_Grid), intent(in) :: grid
-      real(ESMF_KIND_R4), allocatable, intent(out) :: longitudes(:,:)
-      real(ESMF_KIND_R4), allocatable, intent(out) :: latitudes(:,:)
+      type(ESMF_Grid), intent(in) :: grid
+      real(kind=ESMF_KIND_R4), allocatable, intent(out) :: longitudes(:, :)
+      real(kind=ESMF_KIND_R4), allocatable, intent(out) :: latitudes(:, :)
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(ESMF_KIND_R8), pointer :: ptr(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: ptr(:, :)
 
       call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=ptr, _RC)
       longitudes = ptr
@@ -125,13 +136,13 @@ contains
    end subroutine grid_get_coordinates_r4
 
    subroutine grid_get_coordinates_r8(grid, longitudes, latitudes, rc)
-      type(esmf_Grid), intent(in) :: grid
-      real(ESMF_KIND_R8), allocatable, intent(out) :: longitudes(:,:)
-      real(ESMF_KIND_R8), allocatable, intent(out) :: latitudes(:,:)
+      type(ESMF_Grid), intent(in) :: grid
+      real(kind=ESMF_KIND_R8), allocatable, intent(out) :: longitudes(:, :)
+      real(kind=ESMF_KIND_R8), allocatable, intent(out) :: latitudes(:, :)
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(ESMF_KIND_R8), pointer :: ptr(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: ptr(:, :)
 
       call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=ptr, _RC)
       longitudes = ptr
@@ -143,9 +154,9 @@ contains
    end subroutine grid_get_coordinates_r8
 
    subroutine grid_get_coordinates_r8ptr(grid, longitudes, latitudes, rc)
-      type(esmf_Grid), intent(in) :: grid
-      real(ESMF_KIND_R8), pointer, intent(out) :: longitudes(:,:)
-      real(ESMF_KIND_R8), pointer, intent(out) :: latitudes(:,:)
+      type(ESMF_Grid), intent(in) :: grid
+      real(kind=ESMF_KIND_R8), pointer, intent(out) :: longitudes(:, :)
+      real(kind=ESMF_KIND_R8), pointer, intent(out) :: latitudes(:, :)
       integer, optional, intent(out) :: rc
 
       integer :: status
