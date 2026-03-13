@@ -27,7 +27,7 @@ module mapl3g_HistoryCollectionGridComp
       character(len=:), allocatable :: current_file
       type(ESMF_Time), allocatable :: time_vector(:)
       real, allocatable :: real_time_vector(:)
-      logical :: shift_back
+      logical :: run_next_step
    end type HistoryCollectionGridComp
 
    character(len=*), parameter :: null_file = 'null_file'
@@ -87,7 +87,7 @@ contains
       collection_gridcomp%accumulation_mode = get_accumulation_mode(hconfig, _RC)
       collection_gridcomp%current_file = null_file
       collection_gridcomp%template = ESMF_HConfigAsString(hconfig, keyString='template', _RC)
-      collection_gridcomp%shift_back = ESMF_HConfigAsLogical(hconfig, keyString='shift_back', _RC)
+      collection_gridcomp%run_next_step = ESMF_HConfigAsLogical(hconfig, keyString='run_next_step', _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(exportState)
@@ -140,7 +140,7 @@ contains
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
       lgr => logging%get_logger('HIST.'//name)
 
-      if (collection_gridcomp%shift_back) then
+      if (collection_gridcomp%run_next_step) then
          call ESMF_ClockGetNextTime(clock, current_time, _RC)
       else
          call ESMF_ClockGet(clock, currTime=current_time, _RC)

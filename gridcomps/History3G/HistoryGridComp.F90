@@ -58,7 +58,7 @@ contains
          child_name = make_child_name(collection_name, _RC)
 
          call get_child_timespec(child_hconfig, timeStep,  _RC)
-         call add_shift_back(child_hconfig, hconfig, _RC)
+         call add_run_next_step(child_hconfig, hconfig, _RC)
          call add_child_ref_time(child_hconfig, _RC)
 
          child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep)
@@ -89,7 +89,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_child_timespec
 
-   subroutine add_shift_back(child_hconfig, hconfig, rc)
+   subroutine add_run_next_step(child_hconfig, hconfig, rc)
       type(ESMF_HConfig), intent(inout) :: child_hconfig
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
@@ -98,14 +98,14 @@ contains
       logical :: has_shift, shift
 
       shift = .true.
-      has_shift = ESMF_HConfigIsDefined(hconfig, keystring='shift_back', _RC)
+      has_shift = ESMF_HConfigIsDefined(hconfig, keystring='run_next_step', _RC)
       if (has_shift) then
-         shift = ESMF_HConfigAsLogical(hconfig, keystring='shift_back', _RC)
+         shift = ESMF_HConfigAsLogical(hconfig, keystring='run_next_step', _RC)
       end if
-      call ESMF_HConfigAdd(child_hconfig, shift, addKeyString='shift_back', _RC)
+      call ESMF_HConfigAdd(child_hconfig, shift, addKeyString='run_next_step', _RC)
       _RETURN(_SUCCESS)
 
-   end subroutine add_shift_back
+   end subroutine add_run_next_step
 
    subroutine add_child_ref_time(hconfig, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig

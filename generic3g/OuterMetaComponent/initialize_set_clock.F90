@@ -102,14 +102,19 @@ contains
       has_ref_time = ESMF_HConfigIsDefined(this%hconfig, keyString='ref_time', _RC)
       has_run_next_step = ESMF_HConfigIsDefined(this%hconfig, keyString='run_next_step', _RC)
 
+      ! this logic for ref time is there to set the alarm right in the case of a ref time
+      ! as well as to set the clock correctly for components that use a ref time
       if (has_ref_time) then
          ! if we have ref_time must sub this into current time to set initial ring time
-         ! also the clock must be also adjusted so that it starts on the ref time
          ref_time = MAPL_HConfigAsTimeInterval(this%hconfig, keyString='ref_time', _RC) 
          call ESMF_TimeIntervalSet(t24, h=24, _RC)
          _ASSERT(ref_time <= t24, 'reference time must be between 0 and 24 hours')
          user_runTime = sub_time_in_datetime(currTime, ref_time, _RC)
          user_clockTime = user_runTime
+         ! also the clock must be also adjusted so that it starts on the ref time
+         if (user_runTime < currTime) then
+            user_clockTime = user_runTime +(INT((currTime-user_runTime)/user_timestep)+1)*user_timestep
+         end if
       else
          user_runTime = clock_refTime + this%user_offset
       end if
@@ -122,7 +127,8 @@ contains
       this%user_run_alarm = SimpleAlarm(user_runTime, user_timeStep, _RC)
       if (has_ref_time) then 
          ! want to shift it back until user_clockTime is greater OR equal to start time of clock
-         ! this is to make ESMF happy
+         ! this gets the clock back to time closest to the start of that clock
+         ! and still compatible with the reference time
          call reset_user_time(user_clockTime, currTime, user_timestep, _RC)
          call ESMF_ClockGet(user_clock, startTime=startTime, _RC)
          if (startTime > user_clockTime) then
