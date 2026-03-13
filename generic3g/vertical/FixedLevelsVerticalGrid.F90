@@ -115,21 +115,37 @@ contains
       num_layers = size(this%spec%levels)
    end function get_num_layers
 
-   function get_coordinate_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
+   function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
+      use mapl3g_StateItemAspect, only: AspectMap
+      use mapl3g_GeomAspect, only: GeomAspect, to_GeomAspect
       type(esmf_Field) :: field
       class(FixedLevelsVerticalGrid), intent(in) :: this
-      type(esmf_Geom), intent(in) :: geom
       character(len=*), intent(in) :: physical_dimension
-      character(len=*), intent(in) :: units
-      type(esmf_TypeKind_Flag), intent(in) :: typekind
+      class(*), intent(in) :: aspects
       class(ComponentDriver), pointer, intent(out) :: coupler
       integer, intent(out), optional :: rc
       
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: farray3d(:, :, :)
       integer :: shape_(3), horz, ungrd
+      type(GeomAspect) :: geom_aspect
+      type(esmf_Geom) :: geom
+      type(AspectMap) :: aspects_
 
       coupler => null()
+      
+      ! Convert class(*) to AspectMap
+      select type (aspects)
+      type is (AspectMap)
+         aspects_ = aspects
+      class default
+         _FAIL('aspects must be of type AspectMap')
+      end select
+      
+      ! Extract geom from aspects
+      geom_aspect = to_GeomAspect(aspects_, _RC)
+      geom = geom_aspect%get_geom()
+      
       field = MAPL_FieldCreate( &
            geom=geom, &
            typekind=ESMF_TYPEKIND_R4, &
@@ -146,8 +162,6 @@ contains
       
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(physical_dimension)
-      _UNUSED_DUMMY(units)
-      _UNUSED_DUMMY(typekind)
    end function get_coordinate_field
 
    function get_supported_physical_dimensions(this) result(dimensions)

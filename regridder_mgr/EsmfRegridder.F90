@@ -273,8 +273,6 @@ contains
       call esmf_InfoSet(info, key=KEY_ROUTEHANDLE, value=rh_info, _RC)
       call esmf_InfoDestroy(rh_info, _RC)
 
-      call esmf_InfoPrint(info, _RC)
-
       _RETURN(_SUCCESS)
    end function make_info
 

@@ -1,0 +1,81 @@
+#include "MAPL_TestErr.h"
+module Test_ConservationType
+   use mapl3g_ConservationType
+   use funit
+   implicit none
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! ConservationType tests
+   !---------------------------------------------------------------------------
+
+   @test
+   subroutine test_conservation_type_to_string()
+      character(:), allocatable :: str
+      
+      str = CONSERVE_NONE%to_string()
+      @assertEqual('CONSERVE_NONE', str)
+      
+      str = CONSERVE_MASS%to_string()
+      @assertEqual('CONSERVE_MASS', str)
+      
+      str = CONSERVE_ENERGY%to_string()
+      @assertEqual('CONSERVE_ENERGY', str)
+      
+      str = CONSERVE_MOMENTUM%to_string()
+      @assertEqual('CONSERVE_MOMENTUM', str)
+      
+   end subroutine test_conservation_type_to_string
+
+
+   @test
+   subroutine test_conservation_type_from_string()
+      type(ConservationType) :: ctype
+      
+      ctype = ConservationType('CONSERVE_NONE')
+      @assertTrue(ctype == CONSERVE_NONE)
+      
+      ctype = ConservationType('CONSERVE_MASS')
+      @assertTrue(ctype == CONSERVE_MASS)
+      
+      ctype = ConservationType('CONSERVE_ENERGY')
+      @assertTrue(ctype == CONSERVE_ENERGY)
+      
+      ctype = ConservationType('CONSERVE_MOMENTUM')
+      @assertTrue(ctype == CONSERVE_MOMENTUM)
+      
+      ! Invalid string should return CONSERVE_NONE
+      ctype = ConservationType('INVALID_VALUE')
+      @assertTrue(ctype == CONSERVE_NONE)
+      
+   end subroutine test_conservation_type_from_string
+
+
+   @test
+   subroutine test_conservation_type_equality()
+      @assertTrue(CONSERVE_NONE == CONSERVE_NONE)
+      @assertTrue(CONSERVE_MASS == CONSERVE_MASS)
+      @assertTrue(CONSERVE_ENERGY == CONSERVE_ENERGY)
+      @assertTrue(CONSERVE_MOMENTUM == CONSERVE_MOMENTUM)
+      
+      @assertFalse(CONSERVE_NONE == CONSERVE_MASS)
+      @assertFalse(CONSERVE_MASS == CONSERVE_ENERGY)
+      @assertFalse(CONSERVE_ENERGY == CONSERVE_MOMENTUM)
+      
+   end subroutine test_conservation_type_equality
+
+
+   @test
+   subroutine test_conservation_type_inequality()
+      @assertTrue(CONSERVE_NONE /= CONSERVE_MASS)
+      @assertTrue(CONSERVE_MASS /= CONSERVE_ENERGY)
+      @assertTrue(CONSERVE_ENERGY /= CONSERVE_MOMENTUM)
+      
+      @assertFalse(CONSERVE_NONE /= CONSERVE_NONE)
+      @assertFalse(CONSERVE_MASS /= CONSERVE_MASS)
+      
+   end subroutine test_conservation_type_inequality
+
+
+end module Test_ConservationType

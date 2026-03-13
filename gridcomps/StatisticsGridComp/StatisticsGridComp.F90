@@ -9,6 +9,8 @@ module mapl3g_StatisticsGridComp
    use mapl3g_StatisticsVector
    use mapl3g_NullStatistic
    use mapl3g_TimeAverage
+   use mapl3g_TimeMin
+   use mapl3g_TimeMax
    use pflogger, only: Logger
 
    implicit none(type,external)
@@ -79,25 +81,27 @@ contains
 
       varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, name, _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      select case (action)
-      case ('average')
-         period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
-         offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
-         varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
-              has_deferred_aspects=.true., _RC)
-         call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-!#         call mapl_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, dims='XY', vstagger=VERTICAL_STAGGER_NONE, &
-!#              itemtype=itemtype, _RC)
-!#              standard_name='<unknown>', timestep=period, &
-!#              refTime_offset=offset, &
-!#              has_deferred_aspects=.true., _RC)
-!#         call mapl_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, dims='XY', vstagger=VERTICAL_STAGGER_NONE, &
-!#              itemtype=itemtype, &
-!#              standard_name='<unknown>', timestep=period, &
-!#              refTime_offset=offset, &
-!#              has_deferred_aspects=.true., _RC)
-      case default
-         _FAIL('unsupported action: '//action)
+       select case (action)
+       case ('average')
+          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
+          offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
+               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+       case ('min')
+          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
+          offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
+               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+       case ('max')
+          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
+          offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
+               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+       case default
+          _FAIL('unsupported action: '//action)
       end select
 
       call esmf_HConfigDestroy(hconfig, _RC)
@@ -210,13 +214,19 @@ contains
          action = esmf_HConfigAsString(iter, keystring='action', _RC)
          alarm = make_alarm(clock, iter, _RC)
 
-         select case (action)
-         case ('average')
-            deallocate(stat) ! gfortran workaround
-            stat = make_average_stat(name, iter, alarm, _RC)
-         case default
-            _FAIL('unsupported statistics class: '//action)
-         end select
+          select case (action)
+          case ('average')
+             deallocate(stat) ! gfortran workaround
+             stat = make_average_stat(name, iter, alarm, _RC)
+          case ('min')
+             deallocate(stat) ! gfortran workaround
+             stat = make_min_stat(name, iter, alarm, _RC)
+          case ('max')
+             deallocate(stat) ! gfortran workaround
+             stat = make_max_stat(name, iter, alarm, _RC)
+          case default
+             _FAIL('unsupported statistics class: '//action)
+          end select
 
          _RETURN(_SUCCESS)
       end function make_item
@@ -237,9 +247,45 @@ contains
          average = TimeAverage(f=f_in, avg_f=f_out, alarm=alarm)
 
          _RETURN(_SUCCESS)
-      end function make_average_stat
+       end function make_average_stat
 
-      function make_alarm(clock, iter, rc) result(alarm)
+       function make_min_stat(name, iter, alarm, rc) result(min_stat)
+          type(TimeMin) :: min_stat
+          character(*), intent(in) :: name
+          type(esmf_HConfigIter), intent(in) :: iter
+          type(esmf_Alarm), intent(in) :: alarm
+          integer, optional, intent(out) :: rc
+
+          integer :: status
+          type(esmf_Field) :: f_in, f_out
+
+          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+
+          min_stat = TimeMin(f=f_in, min_f=f_out, alarm=alarm)
+
+          _RETURN(_SUCCESS)
+       end function make_min_stat
+
+       function make_max_stat(name, iter, alarm, rc) result(max_stat)
+          type(TimeMax) :: max_stat
+          character(*), intent(in) :: name
+          type(esmf_HConfigIter), intent(in) :: iter
+          type(esmf_Alarm), intent(in) :: alarm
+          integer, optional, intent(out) :: rc
+
+          integer :: status
+          type(esmf_Field) :: f_in, f_out
+
+          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+
+          max_stat = TimeMax(f=f_in, max_f=f_out, alarm=alarm)
+
+          _RETURN(_SUCCESS)
+       end function make_max_stat
+
+       function make_alarm(clock, iter, rc) result(alarm)
          type(esmf_Alarm) :: alarm
          type(esmf_Clock), intent(in) :: clock
          type(esmf_HConfigIter), intent(in) :: iter

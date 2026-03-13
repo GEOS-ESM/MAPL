@@ -141,9 +141,18 @@ contains
 
       ! Convert num_levels to a BasicVerticalGrid for compatibility
       if (num_levels > 0) then
-         ! Create a basic vertical grid with num_levels
-         ! Note: This assumes CENTER stagger, which means num_layers = num_levels
-         vgrid_spec = BasicVerticalGridSpec(num_levels=num_levels)
+         ! Convert field num_levels to num_layers based on vert_staggerloc
+         ! The legacy num_levels parameter represents the vertical dimension of the field.
+         ! BasicVerticalGrid stores num_layers, so we need to convert:
+         ! - For CENTER stagger: num_layers = num_levels
+         ! - For EDGE stagger: num_layers = num_levels - 1
+         ! - For MIRROR stagger: num_layers = num_levels - 1
+         if (present(vert_staggerloc)) then
+            vgrid_spec = BasicVerticalGridSpec(num_levels=vert_staggerloc%get_num_layers(num_levels))
+         else
+            ! Default to CENTER stagger if not specified
+            vgrid_spec = BasicVerticalGridSpec(num_levels=num_levels)
+         end if
          call vgrid_%initialize(vgrid_spec)
          
          ! Call the new interface with vgrid

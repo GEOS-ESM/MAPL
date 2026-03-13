@@ -12,6 +12,7 @@ module mapl3g_VerticalRegridTransform
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalLinearMap, only: compute_linear_map
+   use mapl3g_VerticalConservativeMap, only: compute_conservative_map
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use mapl3g_VerticalCoordinateDirection
@@ -38,10 +39,11 @@ module mapl3g_VerticalRegridTransform
    type :: VerticalRegridParam
       type(VerticalStaggerLoc) :: stagger_in                               !< Source vertical stagger location
       type(VerticalStaggerLoc) :: stagger_out                              !< Destination vertical stagger location
-      type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN       !< Regridding method (currently only LINEAR)
+      type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN       !< Regridding method (LINEAR or CONSERVATIVE)
       type(VerticalCoordinateDirection) :: src_alignment = VCOORD_DIRECTION_DOWN  !< Source data storage convention
       type(VerticalCoordinateDirection) :: dst_alignment = VCOORD_DIRECTION_DOWN  !< Destination data storage convention  
       logical :: is_degenerate_case = .false.                              !< True if grids match, only alignment differs
+      logical :: needs_normalization = .false.                             !< True if conservative regridding requires normalization
    end type VerticalRegridParam
 
    !> @brief Vertical regridding transform with support for data alignment
@@ -90,6 +92,7 @@ module mapl3g_VerticalRegridTransform
       type(VerticalCoordinateDirection) :: src_alignment
       type(VerticalCoordinateDirection) :: dst_alignment
       logical :: is_degenerate_case = .false.
+      logical :: needs_normalization = .false.
    contains
       procedure :: initialize
       procedure :: update
@@ -126,6 +129,7 @@ contains
       transform%src_alignment = regrid_param%src_alignment
       transform%dst_alignment = regrid_param%dst_alignment
       transform%is_degenerate_case = regrid_param%is_degenerate_case
+      transform%needs_normalization = regrid_param%needs_normalization
    end function new_VerticalRegridTransform
 
    !> Initialize the vertical regrid transform.
@@ -146,7 +150,7 @@ contains
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
-      _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "regrid method can only be linear")
+      _ASSERT(this%method == VERTICAL_REGRID_LINEAR .or. this%method == VERTICAL_REGRID_CONSERVATIVE, "method must be LINEAR or CONSERVATIVE")
 
       ! Degenerate case is determined by VerticalGridAspect and passed to constructor
       ! No need to re-check here
@@ -190,13 +194,14 @@ contains
        type(ESMF_FieldBundle) :: fb_in, fb_out
        integer :: status
 
-      ! if (associated(this%v_in_coupler)) then
-      !    call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
-      ! end if
+      ! Update vertical coordinates (time-varying)
+      if (associated(this%v_in_coupler)) then
+         call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+      end if
 
-      ! if (associated(this%v_out_coupler)) then
-      !    call this%v_out_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
-      ! end if
+      if (associated(this%v_out_coupler)) then
+         call this%v_out_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+      end if
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemtype=itemtype_out, _RC)
@@ -204,8 +209,7 @@ contains
 
       ! Compute interpolation matrix once (if needed for regridding)
       if (.not. this%is_degenerate_case) then
-         _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "conservative not supported (yet)")
-         call compute_interpolation_matrix_(this%v_in_coord, this%stagger_in, this%src_alignment, &
+         call compute_interpolation_matrix_(this%method, this%v_in_coord, this%stagger_in, this%src_alignment, &
               this%v_out_coord, this%stagger_out, this%dst_alignment, this%matrix, _RC)
       end if
 
@@ -237,7 +241,7 @@ contains
    !! @param[inout] fb_out   Output field bundle (modified in place)
    !! @param[out]   rc       Return code
    subroutine process_fieldbundle(this, fb_in, fb_out, rc)
-      class(VerticalRegridTransform), intent(in) :: this
+      class(VerticalRegridTransform), intent(inout) :: this
       type(ESMF_FieldBundle), intent(in) :: fb_in
       type(ESMF_FieldBundle), intent(inout) :: fb_out
       integer, optional, intent(out) :: rc
@@ -270,12 +274,12 @@ contains
    !!   - Uses regrid_field_ with pre-computed interpolation matrix
    !!   - Regridding handles both interpolation and alignment adjustment
    !!
-    !! @param[in]    this   The transform object
+    !! @param[inout] this   The transform object (need inout to access mutable ESMF fields)
     !! @param[inout] f_in   Input field (ESMF requires inout for pointer access)
     !! @param[inout] f_out  Output field (modified in place)
    !! @param[out]   rc     Return code
     subroutine process_field(this, f_in, f_out, rc)
-       class(VerticalRegridTransform), intent(in) :: this
+       class(VerticalRegridTransform), intent(inout) :: this
        type(ESMF_Field), intent(inout) :: f_in
        type(ESMF_Field), intent(inout) :: f_out
        integer, optional, intent(out) :: rc
@@ -288,7 +292,9 @@ contains
          call copy_field_flipped_(f_in, f_out, _RC)
       else
          ! Different grids → regrid with alignment support
-         call regrid_field_(this%matrix, f_in, this%src_alignment, f_out, this%dst_alignment, _RC)
+         call regrid_field_(this%matrix, this%needs_normalization, &
+              this%v_in_coord, this%v_out_coord, &
+              f_in, this%src_alignment, f_out, this%dst_alignment, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -352,6 +358,7 @@ contains
     !! - Matrix computed using flipped ocean coords and atm coords
     !! - regrid_field_ applies matrix (no output flip needed since dst is DOWN)
     !!
+    !! @param[in]    method        Regridding method (LINEAR or CONSERVATIVE)
     !! @param[inout] v_in_coord    Source vertical coordinate field
     !! @param[in]    stagger_in    Source stagger location
     !! @param[in]    src_alignment Source coordinate direction (UP/DOWN)
@@ -360,8 +367,9 @@ contains
     !! @param[in]    dst_alignment Destination coordinate direction (UP/DOWN)
     !! @param[out]   matrix        Computed interpolation matrix array
     !! @param[out]   rc            Return code
-    subroutine compute_interpolation_matrix_(v_in_coord, stagger_in, src_alignment, &
+    subroutine compute_interpolation_matrix_(method, v_in_coord, stagger_in, src_alignment, &
          v_out_coord, stagger_out, dst_alignment, matrix, rc)
+       type(VerticalRegridMethod), intent(in) :: method
        type(ESMF_Field), intent(inout) :: v_in_coord
        type(VerticalStaggerLoc), intent(in) :: stagger_in
        type(VerticalCoordinateDirection), intent(in) :: src_alignment
@@ -411,7 +419,13 @@ contains
        do horz = 1, n_horz
           do ungrd = 1, n_ungridded
              associate(src => vv_in(horz, :, ungrd), dst => vv_out(horz, :, ungrd))
-               call compute_linear_map(src, dst, matrix(horz), _RC)
+               if (method == VERTICAL_REGRID_LINEAR) then
+                  call compute_linear_map(src, dst, matrix(horz), _RC)
+               else if (method == VERTICAL_REGRID_CONSERVATIVE) then
+                  call compute_conservative_map(src, dst, matrix(horz), _RC)
+               else
+                  _FAIL("Unknown vertical regridding method")
+               end if
              end associate
           end do
        end do
@@ -469,59 +483,120 @@ contains
     !! - Final output:       [Ta, Tb, Tc] aligned with DOWN coords
     !!
     !! @param[in]    matrix        Pre-computed interpolation matrix
-    !! @param[inout] f_in          Source field
-    !! @param[in]    src_alignment Source coordinate direction
-    !! @param[inout] f_out         Destination field (modified in place)
-    !! @param[in]    dst_alignment Destination coordinate direction
-    !! @param[out]   rc            Return code
-    subroutine regrid_field_(matrix, f_in, src_alignment, f_out, dst_alignment, rc)
-       type(SparseMatrix_sp), allocatable, intent(in) :: matrix(:)
-       type(ESMF_Field), intent(inout) :: f_in, f_out
-       type(VerticalCoordinateDirection), intent(in) :: src_alignment
-       type(VerticalCoordinateDirection), intent(in) :: dst_alignment
-       integer, optional, intent(out) :: rc
+   !! @param[in]    matrix          Sparse interpolation matrix
+   !! @param[in]    needs_normalization  True if conservative regridding requires normalization
+   !! @param[inout] v_in_coord     Source vertical coordinate field (for layer thickness if normalizing)
+   !! @param[inout] v_out_coord    Destination vertical coordinate field (for layer thickness if normalizing)
+   !! @param[inout] f_in           Source field
+   !! @param[in]    src_alignment  Source coordinate direction
+   !! @param[inout] f_out          Destination field (modified in place)
+   !! @param[in]    dst_alignment  Destination coordinate direction
+   !! @param[out]   rc             Return code
+   subroutine regrid_field_(matrix, needs_normalization, v_in_coord, v_out_coord, &
+                             f_in, src_alignment, f_out, dst_alignment, rc)
+      type(SparseMatrix_sp), allocatable, intent(in) :: matrix(:)
+      logical, intent(in) :: needs_normalization
+      type(ESMF_Field), intent(inout) :: v_in_coord, v_out_coord
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      type(VerticalCoordinateDirection), intent(in) :: src_alignment
+      type(VerticalCoordinateDirection), intent(in) :: dst_alignment
+      integer, optional, intent(out) :: rc
 
-       real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
-       real(ESMF_KIND_R4), allocatable :: x_in_working(:,:,:), x_out_working(:,:,:)
-       integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
-       integer :: horz, ungrd, status
+      real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
+      real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
+      real(ESMF_KIND_R4), allocatable :: x_in_working(:,:,:), x_out_working(:,:,:)
+      real(ESMF_KIND_R4), allocatable :: dp_in(:,:,:), dp_out(:,:,:)
+      integer :: shape_in(3), shape_out(3), n_horz, n_ungridded, nlev_in, nlev_out
+      integer :: horz, ungrd, k, status
 
-       call assign_fptr_condensed_array(f_in, x_in, _RC)
-       shape_in = shape(x_in)
-       call assign_fptr_condensed_array(f_out, x_out, _RC)
-       shape_out = shape(x_out)
-       _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
-       _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
+      call assign_fptr_condensed_array(f_in, x_in, _RC)
+      shape_in = shape(x_in)
+      call assign_fptr_condensed_array(f_out, x_out, _RC)
+      shape_out = shape(x_out)
+      _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
+      _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
 
-       n_horz = shape_in(1)
-       n_ungridded = shape_in(3)
-       
-       ! Canonicalize input data to match coordinate transformation
-       ! DOWN alignment = default (no flip)
-       ! UP alignment = reversed (flip to DOWN for interpolation)
-       if (src_alignment == VCOORD_DIRECTION_UP) then
-          x_in_working = flip_vertical_data(x_in)
-       else
-          x_in_working = x_in
-       end if
-       
-       ! Apply interpolation matrix
-       allocate(x_out_working(shape_out(1), shape_out(2), shape_out(3)))
-       do concurrent (horz=1:n_horz, ungrd=1:n_ungridded)
-          x_out_working(horz, :, ungrd) = matmul(matrix(horz), x_in_working(horz, :, ungrd))
-       end do
-       
-       ! Transform output to destination alignment
-       ! Matrix output is in DOWN alignment
-       ! If destination is UP, flip the result
-       if (dst_alignment == VCOORD_DIRECTION_UP) then
-          x_out = flip_vertical_data(x_out_working)
-       else
-          x_out = x_out_working
-       end if
+      n_horz = shape_in(1)
+      nlev_in = shape_in(2)
+      nlev_out = shape_out(2)
+      n_ungridded = shape_in(3)
+      
+      ! Canonicalize input data to match coordinate transformation
+      ! DOWN alignment = default (no flip)
+      ! UP alignment = reversed (flip to DOWN for interpolation)
+      if (src_alignment == VCOORD_DIRECTION_UP) then
+         x_in_working = flip_vertical_data(x_in)
+      else
+         x_in_working = x_in
+      end if
+      
+      ! Apply fused normalization for conservative regridding if needed
+      if (needs_normalization) then
+         ! Get vertical coordinate fields (layer interfaces)
+         call assign_fptr_condensed_array(v_in_coord, v_in, _RC)
+         call assign_fptr_condensed_array(v_out_coord, v_out, _RC)
+         
+         ! Compute layer thickness (dp) from interfaces
+         ! dp(k) = |coord(k+1) - coord(k)|
+         allocate(dp_in(n_horz, nlev_in, n_ungridded))
+         allocate(dp_out(n_horz, nlev_out, n_ungridded))
+         
+         do horz = 1, n_horz
+            do ungrd = 1, n_ungridded
+               do k = 1, nlev_in
+                  dp_in(horz, k, ungrd) = abs(v_in(horz, k+1, ungrd) - v_in(horz, k, ungrd))
+               end do
+               do k = 1, nlev_out
+                  dp_out(horz, k, ungrd) = abs(v_out(horz, k+1, ungrd) - v_out(horz, k, ungrd))
+               end do
+            end do
+         end do
+         
+         ! Step 1: Normalize by dividing by source layer thickness
+         ! Converts kg/m2 → kg/(m2·Pa) for mixing ratios
+         do horz = 1, n_horz
+            do ungrd = 1, n_ungridded
+               do k = 1, nlev_in
+                  x_in_working(horz, k, ungrd) = x_in_working(horz, k, ungrd) / dp_in(horz, k, ungrd)
+               end do
+            end do
+         end do
+         
+         ! Step 2: Apply conservative interpolation matrix
+         allocate(x_out_working(shape_out(1), shape_out(2), shape_out(3)))
+         do concurrent (horz=1:n_horz, ungrd=1:n_ungridded)
+            x_out_working(horz, :, ungrd) = matmul(matrix(horz), x_in_working(horz, :, ungrd))
+         end do
+         
+         ! Step 3: Denormalize by multiplying by destination layer thickness
+         ! Converts kg/(m2·Pa) → kg/m2
+         do horz = 1, n_horz
+            do ungrd = 1, n_ungridded
+               do k = 1, nlev_out
+                  x_out_working(horz, k, ungrd) = x_out_working(horz, k, ungrd) * dp_out(horz, k, ungrd)
+               end do
+            end do
+         end do
+         
+      else
+         ! Standard regridding without normalization
+         allocate(x_out_working(shape_out(1), shape_out(2), shape_out(3)))
+         do concurrent (horz=1:n_horz, ungrd=1:n_ungridded)
+            x_out_working(horz, :, ungrd) = matmul(matrix(horz), x_in_working(horz, :, ungrd))
+         end do
+      end if
+      
+      ! Transform output to destination alignment
+      ! Matrix output is in DOWN alignment
+      ! If destination is UP, flip the result
+      if (dst_alignment == VCOORD_DIRECTION_UP) then
+         x_out = flip_vertical_data(x_out_working)
+      else
+         x_out = x_out_working
+      end if
 
-       _RETURN(_SUCCESS)
-    end subroutine regrid_field_
+      _RETURN(_SUCCESS)
+   end subroutine regrid_field_
 
     function get_transformId(this) result(id)
        type(TransformId) :: id

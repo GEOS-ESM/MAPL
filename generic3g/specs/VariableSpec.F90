@@ -25,6 +25,10 @@ module mapl3g_VariableSpec
    use mapl3g_VerticalRegridMethod
    use mapl3g_FrequencyAspect
    use mapl3g_TypekindAspect
+   use mapl3g_QuantityTypeAspect
+   use mapl3g_ConservationAspect
+   use mapl3g_ExportNormalization
+   use mapl3g_ImportNormalization
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VectorBasisKind
@@ -153,6 +157,10 @@ module mapl3g_VariableSpec
       procedure :: make_GeomAspect
       procedure :: make_UngriddedDimsAspect
       procedure :: make_AttributesAspect
+      procedure :: make_QuantityTypeAspect
+      procedure :: make_ConservationAspect
+      procedure :: make_ExportNormalization
+      procedure :: make_ImportNormalization
       procedure :: make_VerticalGridAspect
       procedure :: make_FrequencyAspect
       procedure :: make_ClassAspect
@@ -387,6 +395,14 @@ contains
          call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
       type is (TypekindAspect)
          call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
+      type is (QuantityTypeAspect)
+         call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+      type is (ConservationAspect)
+         call aspects%insert(CONSERVATION_ASPECT_ID, aspect)
+      type is (ExportNormalization)
+         call aspects%insert(EXPORT_NORMALIZATION_ASPECT_ID, aspect)
+      type is (ImportNormalization)
+         call aspects%insert(IMPORT_NORMALIZATION_ASPECT_ID, aspect)
       class default
          _FAIL('Unsupported type')
       end select
@@ -446,9 +462,21 @@ contains
       aspect = this%make_AttributesAspect(_RC)
       call aspects%insert(ATTRIBUTES_ASPECT_ID, aspect)
 
+      aspect = this%make_QuantityTypeAspect(_RC)
+      call aspects%insert(QUANTITY_TYPE_ASPECT_ID, aspect)
+
+      aspect = this%make_ConservationAspect(_RC)
+      call aspects%insert(CONSERVATION_ASPECT_ID, aspect)
+
+      aspect = this%make_ExportNormalization(_RC)
+      call aspects%insert(EXPORT_NORMALIZATION_ASPECT_ID, aspect)
+
       aspect = this%make_VerticalGridAspect(vertical_grid, &
            component_geom=component_geom, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
+
+      aspect = this%make_ImportNormalization(_RC)
+      call aspects%insert(IMPORT_NORMALIZATION_ASPECT_ID, aspect)
 
       aspect = this%make_FrequencyAspect(timestep, offset, _RC)
       call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
@@ -513,6 +541,47 @@ contains
       aspect = AttributesAspect(this%attributes)
       _RETURN(_SUCCESS)
    end function make_AttributesAspect
+
+   function make_QuantityTypeAspect(this, rc) result(aspect)
+      type(QuantityTypeAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      
+      ! Create with default (QUANTITY_UNKNOWN) and explicit non-mirror behavior
+      aspect = QuantityTypeAspect()
+      call aspect%set_mirror(.false.)
+      _RETURN(_SUCCESS)
+   end function make_QuantityTypeAspect
+
+   function make_ConservationAspect(this, rc) result(aspect)
+      type(ConservationAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      
+      ! Create default ConservationAspect (will infer from QuantityType)
+      aspect = ConservationAspect()
+      _RETURN(_SUCCESS)
+   end function make_ConservationAspect
+
+   function make_ExportNormalization(this, rc) result(aspect)
+      type(ExportNormalization) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      
+      ! Create with explicit NORMALIZE_NONE (non-mirror, no normalization needed)
+      aspect = ExportNormalization(aux_field_name='', scale_factor=1.0)
+      _RETURN(_SUCCESS)
+   end function make_ExportNormalization
+
+   function make_ImportNormalization(this, rc) result(aspect)
+      type(ImportNormalization) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      
+      ! Create with explicit NORMALIZE_NONE (non-mirror, no denormalization needed)
+      aspect = ImportNormalization(aux_field_name='', scale_factor=1.0)
+      _RETURN(_SUCCESS)
+   end function make_ImportNormalization
 
    function make_VerticalGridAspect(this, vertical_grid, component_geom, time_dependent, rc) result(aspect)
       type(VerticalGridAspect) :: aspect

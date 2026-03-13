@@ -29,27 +29,16 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_new_mixing_ratio_aspect(this)
-      ! Test creating a mixing ratio aspect and check derived properties
+      ! Test creating a mixing ratio aspect
       class(ESMF_TestMethod), intent(inout) :: this
       type(QuantityTypeAspect) :: aspect
-      type(NormalizationType) :: norm_type
-      real :: scale
-      character(:), allocatable :: aux_field
-      integer :: status
 
       aspect = QuantityTypeAspect(quantity_type=QUANTITY_MIXING_RATIO, &
                                    basis=BASIS_WET_MASS)
 
       @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
-      @assertTrue(aspect%get_conservative_regridable(), 'mixing ratio should be conservative regridable')
-      
-      call aspect%get_normalization_info(normalization_type=norm_type, &
-                                         scale=scale, &
-                                         aux_field_name=aux_field, _RC)
-      
-      @assertTrue(norm_type == NORMALIZE_DELP, 'normalization type should be DELP')
-      @assertTrue(abs(scale - 1.0/GRAV) < 1.0e-6, 'scale should be 1/g')
-      @assertTrue(aux_field == 'DELP', 'aux field should be DELP')
+      @assertTrue(aspect%get_quantity_type() == QUANTITY_MIXING_RATIO, 'quantity type should match')
+      @assertTrue(aspect%get_basis() == BASIS_WET_MASS, 'basis should match')
 
       _UNUSED_DUMMY(this)
 
@@ -57,26 +46,14 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_new_concentration_aspect(this)
-      ! Test creating a concentration aspect and check derived properties
+      ! Test creating a concentration aspect
       class(ESMF_TestMethod), intent(inout) :: this
       type(QuantityTypeAspect) :: aspect
-      type(NormalizationType) :: norm_type
-      real :: scale
-      character(:), allocatable :: aux_field
-      integer :: status
 
       aspect = QuantityTypeAspect(quantity_type=QUANTITY_CONCENTRATION)
 
       @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
-      @assertTrue(aspect%get_conservative_regridable(), 'concentration should be conservative regridable')
-      
-      call aspect%get_normalization_info(normalization_type=norm_type, &
-                                         scale=scale, &
-                                         aux_field_name=aux_field, _RC)
-      
-      @assertTrue(norm_type == NORMALIZE_DZ, 'normalization type should be DZ')
-      @assertTrue(abs(scale - 1.0) < 1.0e-6, 'scale should be 1.0')
-      @assertTrue(aux_field == 'DZ', 'aux field should be DZ')
+      @assertTrue(aspect%get_quantity_type() == QUANTITY_CONCENTRATION, 'quantity type should match')
 
       _UNUSED_DUMMY(this)
 
@@ -87,17 +64,11 @@ contains
       ! Test creating a temperature aspect (non-conservative)
       class(ESMF_TestMethod), intent(inout) :: this
       type(QuantityTypeAspect) :: aspect
-      type(NormalizationType) :: norm_type
-      integer :: status
 
       aspect = QuantityTypeAspect(quantity_type=QUANTITY_TEMPERATURE)
 
       @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
-      @assertFalse(aspect%get_conservative_regridable(), 'temperature should not be conservative regridable')
-      
-      call aspect%get_normalization_info(normalization_type=norm_type, _RC)
-      
-      @assertTrue(norm_type == NORMALIZE_NONE, 'normalization type should be NONE')
+      @assertTrue(aspect%get_quantity_type() == QUANTITY_TEMPERATURE, 'quantity type should match')
 
       _UNUSED_DUMMY(this)
 
@@ -108,17 +79,11 @@ contains
       ! Test creating an extensive quantity aspect
       class(ESMF_TestMethod), intent(inout) :: this
       type(QuantityTypeAspect) :: aspect
-      type(NormalizationType) :: norm_type
-      integer :: status
 
       aspect = QuantityTypeAspect(quantity_type=QUANTITY_EXTENSIVE)
 
       @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
-      @assertTrue(aspect%get_conservative_regridable(), 'extensive should be conservative regridable')
-      
-      call aspect%get_normalization_info(normalization_type=norm_type, _RC)
-      
-      @assertTrue(norm_type == NORMALIZE_NONE, 'normalization type should be NONE for extensive')
+      @assertTrue(aspect%get_quantity_type() == QUANTITY_EXTENSIVE, 'quantity type should match')
 
       _UNUSED_DUMMY(this)
 
@@ -235,7 +200,6 @@ contains
       @assertTrue(aspect_in%get_quantity_type() == QUANTITY_MIXING_RATIO, 'quantity type should match')
       @assertTrue(aspect_in%get_basis() == BASIS_WET_MASS, 'basis should match')
       @assertEqual('kg/kg', aspect_in%get_dimensions(), 'dimensions should match')
-      @assertTrue(aspect_in%get_conservative_regridable(), 'conservative flag should be set')
 
       call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -278,7 +242,6 @@ contains
 
       @assertTrue(import_aspect%get_quantity_type() == QUANTITY_CONCENTRATION, 'should mirror quantity type')
       @assertEqual('kg/m3', import_aspect%get_dimensions(), 'should mirror dimensions')
-      @assertTrue(import_aspect%get_conservative_regridable(), 'should mirror derived properties')
 
       _UNUSED_DUMMY(this)
 
@@ -286,24 +249,20 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_set_quantity_type_updates_derived(this)
-      ! Test that setting quantity type updates derived properties
+      ! Test that setting quantity type updates properties
       class(ESMF_TestMethod), intent(inout) :: this
       type(QuantityTypeAspect) :: aspect
-      type(NormalizationType) :: norm_type
-      character(:), allocatable :: aux_field
       integer :: status
 
       aspect = QuantityTypeAspect(quantity_type=QUANTITY_TEMPERATURE)
-      @assertFalse(aspect%get_conservative_regridable(), 'temperature not conservative')
+      @assertTrue(aspect%get_quantity_type() == QUANTITY_TEMPERATURE, 'quantity type should be temperature')
 
       ! Change to mixing ratio
       call aspect%set_quantity_type(QUANTITY_MIXING_RATIO, _RC)
       call aspect%set_basis(BASIS_WET_MASS, _RC)
 
-      @assertTrue(aspect%get_conservative_regridable(), 'mixing ratio should be conservative')
-      call aspect%get_normalization_info(normalization_type=norm_type, aux_field_name=aux_field, _RC)
-      @assertTrue(norm_type == NORMALIZE_DELP, 'should update normalization type')
-      @assertTrue(aux_field == 'DELP', 'should update aux field')
+      @assertTrue(aspect%get_quantity_type() == QUANTITY_MIXING_RATIO, 'quantity type should be updated')
+      @assertTrue(aspect%get_basis() == BASIS_WET_MASS, 'basis should be updated')
 
       _UNUSED_DUMMY(this)
 

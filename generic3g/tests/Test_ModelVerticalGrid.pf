@@ -17,6 +17,8 @@ module Test_ModelVerticalGrid
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
+   use mapl3g_StateItemAspect
+   use mapl3g_AspectId
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverVector
@@ -24,6 +26,16 @@ module Test_ModelVerticalGrid
    use mapl3g_MultiState
    use mapl3g_Geom_API
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
+   use mapl3g_GeomAspect
+   use mapl3g_TypekindAspect
+   use mapl3g_UnitsAspect
+   use mapl3g_UngriddedDimsAspect
+   use mapl3g_UngriddedDims
+   use mapl3g_AttributesAspect
+   use mapl3g_FieldClassAspect
+   use mapl3g_QuantityTypeAspect
+   use mapl3g_ConservationAspect
+   use mapl3g_ExportNormalization
    use gFTL2_StringVector
    use esmf
    ! testing framework
@@ -186,14 +198,24 @@ contains
       type(ESMF_Geom) :: geom
       integer :: rc, status
       real(ESMF_KIND_R4), pointer :: a(:,:,:)
+      type(AspectMap) :: aspects
 
       call setup(geom, vgrid, _RC)
 
+      ! Build aspect map with required aspects
+      call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
+      call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
+      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
+      call aspects%insert(QUANTITY_TYPE_ASPECT_ID, QuantityTypeAspect())
+      call aspects%insert(CONSERVATION_ASPECT_ID, ConservationAspect())
+      call aspects%insert(EXPORT_NORMALIZATION_ASPECT_ID, ExportNormalization(aux_field_name='', scale_factor=1.0))
+      call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
+      call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
+      call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("hPa"))
+      
       vcoord = vgrid%get_coordinate_field( &
-           geom=geom, &
            physical_dimension="pressure", &
-           typekind=ESMF_TYPEKIND_R4, &
-           units="hPa", &
+           aspects=aspects, &
            coupler=coupler, &
            _RC)
       @assert_that(associated(coupler), is(false()))
@@ -220,14 +242,24 @@ contains
       type(ComponentDriverPtr) :: driver
       class(ComponentDriver), pointer :: coupler
       integer :: i, rc
+      type(AspectMap) :: aspects
 
       call setup(geom, vgrid, _RC)
 
+      ! Build aspect map with required aspects
+      call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
+      call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
+      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
+      call aspects%insert(QUANTITY_TYPE_ASPECT_ID, QuantityTypeAspect())
+      call aspects%insert(CONSERVATION_ASPECT_ID, ConservationAspect())
+      call aspects%insert(EXPORT_NORMALIZATION_ASPECT_ID, ExportNormalization(aux_field_name='', scale_factor=1.0))
+      call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
+      call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
+      call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("Pa"))
+      
        vcoord = vgrid%get_coordinate_field( &
-           geom=geom, &
            physical_dimension="pressure", &
-           typekind=ESMF_TYPEKIND_R4, &
-           units="Pa", &
+           aspects=aspects, &
            coupler=coupler, &
            _RC)
       @assert_that(associated(coupler), is(true()))

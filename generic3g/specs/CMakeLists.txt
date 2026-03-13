@@ -25,6 +25,9 @@ target_sources(MAPL.generic3g PRIVATE
   UnitsAspect.F90
   FrequencyAspect.F90
   QuantityTypeAspect.F90
+  ConservationAspect.F90
+  ExportNormalization.F90
+  ImportNormalization.F90
 
   VariableSpec.F90
   StateItem.F90
