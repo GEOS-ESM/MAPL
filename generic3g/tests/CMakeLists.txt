@@ -41,7 +41,6 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_target_properties(MAPL.generic3g.scenarios PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.generic3g.scenarios PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic3g.scenarios proto_extdata_gc proto_stat_gc copy_scenarios)
 
@@ -70,7 +69,6 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_target_properties(MAPL.generic3g.transforms PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.generic3g.transforms PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic3g.transforms proto_extdata_gc proto_stat_gc)
 
@@ -91,7 +89,6 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_target_properties(MAPL.generic3g.vertical PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.generic3g.vertical PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic3g.vertical proto_extdata_gc proto_stat_gc)
 
@@ -121,7 +118,6 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_target_properties(MAPL.generic3g.aspects PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.generic3g.aspects PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic3g.aspects proto_extdata_gc proto_stat_gc)
 
@@ -145,7 +141,6 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_target_properties(MAPL.generic3g.components PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.generic3g.components PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic3g.components proto_extdata_gc proto_stat_gc)
 
@@ -176,7 +171,6 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_target_properties(MAPL.generic3g.core PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.generic3g.core PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic3g.core proto_extdata_gc proto_stat_gc)
 
