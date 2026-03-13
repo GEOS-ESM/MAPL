@@ -13,9 +13,19 @@ add_custom_target(copy_scenarios ALL
   VERBATIM
 )
 
+# Create a shared library for common test sources to avoid parallel build race conditions
+# When multiple test suites compile the same OTHER_SOURCES files to the same MODULE_DIRECTORY,
+# they can conflict during parallel builds
+add_library(MAPL.generic3g.test_common SHARED
+  MockUserGridComp.F90
+  accumulator_transform_test_common.F90
+  MockAspect.F90
+)
+target_link_libraries(MAPL.generic3g.test_common PUBLIC MAPL.generic3g MAPL.shared MAPL.pfunit)
+set_target_properties(MAPL.generic3g.test_common PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+
 # Common dependencies for all test suites
-set(COMMON_OTHER_SOURCES MockUserGridComp.F90 accumulator_transform_test_common.F90 MockAspect.F90)
-set(COMMON_LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit configurable_gridcomp MAPL_StatisticsGridComp)
+set(COMMON_LINK_LIBRARIES MAPL.generic3g.test_common MAPL.pfunit configurable_gridcomp MAPL_StatisticsGridComp)
 
 # 1. MAPL.generic3g.scenarios - End-to-end integration test scenarios
 set(scenarios_test_srcs
@@ -28,7 +38,6 @@ add_pfunit_ctest(
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
-  OTHER_SOURCES ${COMMON_OTHER_SOURCES}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -58,7 +67,6 @@ add_pfunit_ctest(
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
-  OTHER_SOURCES ${COMMON_OTHER_SOURCES}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -80,7 +88,6 @@ add_pfunit_ctest(
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
-  OTHER_SOURCES ${COMMON_OTHER_SOURCES}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -111,7 +118,6 @@ add_pfunit_ctest(
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
-  OTHER_SOURCES ${COMMON_OTHER_SOURCES}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -136,7 +142,6 @@ add_pfunit_ctest(
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
-  OTHER_SOURCES ${COMMON_OTHER_SOURCES}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -168,7 +173,6 @@ add_pfunit_ctest(
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
-  OTHER_SOURCES ${COMMON_OTHER_SOURCES}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
