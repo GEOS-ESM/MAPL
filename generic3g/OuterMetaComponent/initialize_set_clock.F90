@@ -122,6 +122,7 @@ contains
       this%user_run_alarm = SimpleAlarm(user_runTime, user_timeStep, _RC)
       if (has_ref_time) then 
          ! want to shift it back until user_clockTime is greater OR equal to start time of clock
+         ! this is to make ESMF happy
          call reset_user_time(user_clockTime, currTime, user_timestep, _RC)
          call ESMF_ClockGet(user_clock, startTime=startTime, _RC)
          if (startTime > user_clockTime) then
