@@ -9,21 +9,32 @@ submodule (mapl3g_LatLonGeomSpec) get_horz_ij_index_smod
 
 contains
 
-   module subroutine get_horz_ij_index(this, npts, ii, jj, lon, lat, lonR8, latR8, rc)
+   module subroutine get_horz_ij_index(this, ii, jj, lon, lat, lonR8, latR8, rc)
 
       class(LatLonGeomSpec), intent(in) :: this
-      integer, intent(in) :: npts
-      integer, intent(out) :: ii(npts)
-      integer, intent(out) :: jj(npts)
-      real, optional, intent(in) :: lon(npts)
-      real, optional, intent(in) :: lat(npts)
-      real(kind=R8), optional, intent(in) :: lonR8(npts)
-      real(kind=R8), optional, intent(in) :: latR8(npts)
+      integer, allocatable, intent(out) :: ii(:)
+      integer, allocatable, intent(out) :: jj(:)
+      real, optional, intent(in) :: lon(:)
+      real, optional, intent(in) :: lat(:)
+      real(kind=R8), optional, intent(in) :: lonR8(:)
+      real(kind=R8), optional, intent(in) :: latR8(:)
       integer, optional, intent(out) :: rc
 
-      integer :: i, status
+      integer :: i, npts, status
       real(kind=R8), allocatable :: lon_corners(:), lat_corners(:)
       real(kind=R8) :: lon_value, lat_value
+
+      if (present(lonR8) .and. present(latR8)) then
+         npts = size(lonR8)
+         _ASSERT(size(latR8) == npts, 'lonR8/latR8 size mismatch')
+      else if (present(lon) .and. present(lat)) then
+         npts = size(lon)
+         _ASSERT(size(lat) == npts, 'lon/lat size mismatch')
+      else
+         _FAIL('Need either lon/lat or lonR8/latR8 inputs')
+      end if
+
+      allocate(ii(npts), jj(npts))
 
       lon_corners = this%lon_axis%get_corners()
       lat_corners = this%lat_axis%get_corners()

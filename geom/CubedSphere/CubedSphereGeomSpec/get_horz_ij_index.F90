@@ -9,34 +9,38 @@ submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_get_horz_ij_index_smo
 
 contains
 
-   module subroutine get_horz_ij_index(this, npts, ii, jj, lon, lat, lonR8, latR8, rc)
+   module subroutine get_horz_ij_index(this, ii, jj, lon, lat, lonR8, latR8, rc)
       class(CubedSphereGeomSpec), intent(in) :: this
-      integer, intent(in) :: npts
-      integer, intent(out) :: ii(npts)
-      integer, intent(out) :: jj(npts)
-      real, optional, intent(in) :: lon(npts)
-      real, optional, intent(in) :: lat(npts)
-      real(kind=R8), optional, intent(in) :: lonR8(npts)
-      real(kind=R8), optional, intent(in) :: latR8(npts)
+      integer, allocatable, intent(out) :: ii(:)
+      integer, allocatable, intent(out) :: jj(:)
+      real, optional, intent(in) :: lon(:)
+      real, optional, intent(in) :: lat(:)
+      real(kind=R8), optional, intent(in) :: lonR8(:)
+      real(kind=R8), optional, intent(in) :: latR8(:)
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      integer :: npts, status
       real(kind=R8), allocatable :: xyz(:, :), max_abs(:), tmp_lons(:), tmp_lats(:)
       real(kind=R8) :: shift0
       logical :: stretched
       real(kind=R8), parameter :: shift = 0.174532925199433d0
 
-      _RETURN_UNLESS(npts > 0)
-
       if (present(lonR8) .and. present(latR8)) then
+         npts = size(lonR8)
+         _ASSERT(size(latR8) == npts, 'lonR8/latR8 size mismatch')
          tmp_lons = lonR8
          tmp_lats = latR8
       else if (present(lon) .and. present(lat)) then
+         npts = size(lon)
+         _ASSERT(size(lat) == npts, 'lon/lat size mismatch')
          tmp_lons = lon
          tmp_lats = lat
       else
          _FAIL('Need either lon/lat or lonR8/latR8 inputs')
       end if
+      _RETURN_UNLESS(npts > 0)
+
+      allocate(ii(npts), jj(npts))
 
       call reverse_schmidt_(this%schmidt_parameters, npts, tmp_lons, tmp_lats, stretched)
 

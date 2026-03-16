@@ -29,21 +29,20 @@ contains
       _UNUSED_DUMMY(b)
    end function equal_to
 
-   subroutine get_horz_ij_index(this, npts, ii, jj, lon, lat, lonR8, latR8, rc)
+   subroutine get_horz_ij_index(this, ii, jj, lon, lat, lonR8, latR8, rc)
       class(NullGeomSpec), intent(in) :: this
-      integer, intent(in) :: npts
-      integer, intent(out) :: ii(npts)
-      integer, intent(out) :: jj(npts)
-      real, optional, intent(in) :: lon(npts)
-      real, optional, intent(in) :: lat(npts)
-      real(kind=ESMF_KIND_R8), optional, intent(in) :: lonR8(npts)
-      real(kind=ESMF_KIND_R8), optional, intent(in) :: latR8(npts)
+      integer, allocatable, intent(out) :: ii(:)
+      integer, allocatable, intent(out) :: jj(:)
+      real, optional, intent(in) :: lon(:)
+      real, optional, intent(in) :: lat(:)
+      real(kind=ESMF_KIND_R8), optional, intent(in) :: lonR8(:)
+      real(kind=ESMF_KIND_R8), optional, intent(in) :: latR8(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      ii = -1
-      jj = -1
+      allocate(ii(1), jj(1), source=-1)
+
       _FAIL('get_horz_ij_index is not supported for NullGeomSpec')
 
       _UNUSED_DUMMY(this)

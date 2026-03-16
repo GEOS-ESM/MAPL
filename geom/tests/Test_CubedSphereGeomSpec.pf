@@ -33,9 +33,8 @@ contains
 
       lonR8 = [0.0d0, MAPL_PI_R8 / 2.0d0, MAPL_PI_R8, -MAPL_PI_R8 / 2.0d0, 0.0d0, 0.0d0]
       latR8 = [0.0d0, 0.0d0, 0.0d0, 0.0d0, MAPL_PI_R8 / 2.0d0, -MAPL_PI_R8 / 2.0d0]
-      allocate(ii(size(lonR8)), jj(size(lonR8)))
 
-      call spec%get_horz_ij_index(size(lonR8), ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(all(ii >= 1))
@@ -69,9 +68,8 @@ contains
 
       lon = [0.0, MAPL_PI / 2.0, MAPL_PI, -MAPL_PI / 2.0, 0.0, 0.0]
       lat = [0.0, 0.0, 0.0, 0.0, MAPL_PI / 2.0, -MAPL_PI / 2.0]
-      allocate(ii(size(lon)), jj(size(lon)))
 
-      call spec%get_horz_ij_index(size(lon), ii, jj, lon=lon, lat=lat, rc=status)
+      call spec%get_horz_ij_index(ii, jj, lon=lon, lat=lat, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(all(ii >= 1))
@@ -105,9 +103,8 @@ contains
 
       lonR8 = [0.0d0]
       latR8 = [0.0d0]
-      allocate(ii(size(lonR8)), jj(size(lonR8)))
 
-      call spec%get_horz_ij_index(size(lonR8), ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(ii(1) >= 1)
@@ -141,9 +138,8 @@ contains
 
       lonR8 = [3.0d0, -3.0d0]
       latR8 = [0.0d0, 0.0d0]
-      allocate(ii(size(lonR8)), jj(size(lonR8)))
 
-      call spec%get_horz_ij_index(size(lonR8), ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(all(ii >= 1))
@@ -177,9 +173,8 @@ contains
 
       lonR8 = [0.0d0, 0.0d0]
       latR8 = [2.0d0, -2.0d0]
-      allocate(ii(size(lonR8)), jj(size(lonR8)))
 
-      call spec%get_horz_ij_index(size(lonR8), ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(all(ii >= 1))
@@ -211,9 +206,9 @@ contains
       spec = make_CubedSphereGeomSpec(hconfig, rc=status)
       @assert_that(status, is(0))
 
-      allocate(lonR8(0), latR8(0), ii(0), jj(0))
+      allocate(lonR8(0), latR8(0))
 
-      call spec%get_horz_ij_index(0, ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, size(ii))
       @assertEqual(0, size(jj))

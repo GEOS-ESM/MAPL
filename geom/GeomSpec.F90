@@ -30,16 +30,15 @@ module mapl3g_GeomSpec
          class(GeomSpec), intent(in) :: b
       end function I_equal_to
 
-      subroutine I_get_horz_ij_index(this, npts, ii, jj, lon, lat, lonR8, latR8, rc)
+      subroutine I_get_horz_ij_index(this, ii, jj, lon, lat, lonR8, latR8, rc)
          import GeomSpec, ESMF_KIND_R8
          class(GeomSpec), intent(in) :: this
-         integer, intent(in) :: npts
-         integer, intent(out) :: ii(npts)
-         integer, intent(out) :: jj(npts)
-         real, optional, intent(in) :: lon(npts)
-         real, optional, intent(in) :: lat(npts)
-         real(kind=ESMF_KIND_R8), optional, intent(in) :: lonR8(npts)
-         real(kind=ESMF_KIND_R8), optional, intent(in) :: latR8(npts)
+         integer, allocatable, intent(out) :: ii(:)
+         integer, allocatable, intent(out) :: jj(:)
+         real, optional, intent(in) :: lon(:)
+         real, optional, intent(in) :: lat(:)
+         real(kind=ESMF_KIND_R8), optional, intent(in) :: lonR8(:)
+         real(kind=ESMF_KIND_R8), optional, intent(in) :: latR8(:)
          integer, optional, intent(out) :: rc
       end subroutine I_get_horz_ij_index
    end interface
