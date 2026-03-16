@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added optional `tilelons` and `tilelats` to create a simple locstream
+
 ### Changed
 
 - Update `components.yaml` to match GEOSgcm v12
