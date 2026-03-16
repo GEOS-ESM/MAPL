@@ -116,7 +116,6 @@ contains
               ATTRIBUTES_ASPECT_ID, &
               UNGRIDDED_DIMS_ASPECT_ID, &
               QUANTITY_TYPE_ASPECT_ID, &
-              EXPORT_NORMALIZATION_ASPECT_ID, &
               CLASS_ASPECT_ID, &
               GEOM_ASPECT_ID &
            ]
@@ -125,7 +124,6 @@ contains
               ATTRIBUTES_ASPECT_ID, &
               UNGRIDDED_DIMS_ASPECT_ID, &
               QUANTITY_TYPE_ASPECT_ID, &
-              EXPORT_NORMALIZATION_ASPECT_ID, &
               GEOM_ASPECT_ID, &
               CLASS_ASPECT_ID &
            ]
