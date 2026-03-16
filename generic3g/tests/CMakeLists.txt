@@ -106,8 +106,7 @@ set(aspects_test_srcs
   Test_QuantityTypeAspect.pf
   Test_GeomAspect.pf
   Test_ConservationAspect.pf
-  Test_ExportNormalization.pf
-  Test_ImportNormalization.pf
+  Test_NormalizationAspect.pf
 )
 
 add_pfunit_ctest(

@@ -19,8 +19,7 @@ module mapl3g_AspectId
    public :: TYPEKIND_ASPECT_ID
    public :: QUANTITY_TYPE_ASPECT_ID
    public :: CONSERVATION_ASPECT_ID
-   public :: EXPORT_NORMALIZATION_ASPECT_ID
-   public :: IMPORT_NORMALIZATION_ASPECT_ID
+   public :: NORMALIZATION_ASPECT_ID
    public :: INVALID_ASPECT_ID
    public :: MOCK_ASPECT_ID
    
@@ -42,8 +41,7 @@ module mapl3g_AspectId
    type(AspectId), parameter :: TYPEKIND_ASPECT_ID = AspectId(8)
    type(AspectId), parameter :: QUANTITY_TYPE_ASPECT_ID = AspectId(9)
    type(AspectId), parameter :: CONSERVATION_ASPECT_ID = AspectId(10)
-   type(AspectId), parameter :: EXPORT_NORMALIZATION_ASPECT_ID = AspectId(11)
-   type(AspectId), parameter :: IMPORT_NORMALIZATION_ASPECT_ID = AspectId(12)
+   type(AspectId), parameter :: NORMALIZATION_ASPECT_ID = AspectId(11)
 
    type(AspectId), parameter :: MOCK_ASPECT_ID = AspectId(99)
    
@@ -89,10 +87,8 @@ contains
          s = "QUANTITY_TYPE"
       case (CONSERVATION_ASPECT_ID%id)
          s = "CONSERVATION"
-      case (EXPORT_NORMALIZATION_ASPECT_ID%id)
-         s = "EXPORT_NORMALIZATION"
-      case (IMPORT_NORMALIZATION_ASPECT_ID%id)
-         s = "IMPORT_NORMALIZATION"
+      case (NORMALIZATION_ASPECT_ID%id)
+         s = "NORMALIZATION"
       case default
          s = "UNKNOWN"
       end select
