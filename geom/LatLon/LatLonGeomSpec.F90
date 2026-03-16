@@ -20,6 +20,7 @@ module mapl3g_LatLonGeomSpec
    contains
       ! mandatory interface
       procedure :: equal_to
+      procedure :: get_horz_ij_index
 
       ! LatLon specific
       procedure :: supports_hconfig => supports_hconfig_
@@ -108,6 +109,18 @@ interface
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
       end function supports_metadata_
+
+      module subroutine get_horz_ij_index(this, npts, ii, jj, lon, lat, lonR8, latR8, rc)
+         class(LatLonGeomSpec), intent(in) :: this
+         integer, intent(in) :: npts
+         integer, intent(out) :: ii(npts)
+         integer, intent(out) :: jj(npts)
+         real, optional, intent(in) :: lon(npts)
+         real, optional, intent(in) :: lat(npts)
+         real(kind=R8), optional, intent(in) :: lonR8(npts)
+         real(kind=R8), optional, intent(in) :: latR8(npts)
+         integer, optional, intent(out) :: rc
+      end subroutine get_horz_ij_index
 
       module function make_decomposition(hconfig, dims, rc) result(decomp)
          type(LatLonDecomposition) :: decomp

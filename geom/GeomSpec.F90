@@ -1,8 +1,10 @@
 #include "MAPL.h"
 
 module mapl3g_GeomSpec
-   use esmf
-   implicit none(type,external)
+
+   use ESMF, only: ESMF_KIND_R8
+
+   implicit none(type, external)
    private
 
    public :: GeomSpec
@@ -12,6 +14,7 @@ module mapl3g_GeomSpec
       character(:), allocatable :: name
    contains
       procedure(I_equal_to), deferred :: equal_to
+      procedure(I_get_horz_ij_index), deferred :: get_horz_ij_index
       generic :: operator(==) => equal_to
 
       procedure, non_overridable :: set_name
@@ -19,13 +22,26 @@ module mapl3g_GeomSpec
       procedure, non_overridable :: has_name
    end type GeomSpec
 
-
    abstract interface
+
       logical function I_equal_to(a, b)
          import GeomSpec
          class(GeomSpec), intent(in) :: a
          class(GeomSpec), intent(in) :: b
       end function I_equal_to
+
+      subroutine I_get_horz_ij_index(this, npts, ii, jj, lon, lat, lonR8, latR8, rc)
+         import GeomSpec, ESMF_KIND_R8
+         class(GeomSpec), intent(in) :: this
+         integer, intent(in) :: npts
+         integer, intent(out) :: ii(npts)
+         integer, intent(out) :: jj(npts)
+         real, optional, intent(in) :: lon(npts)
+         real, optional, intent(in) :: lat(npts)
+         real(kind=ESMF_KIND_R8), optional, intent(in) :: lonR8(npts)
+         real(kind=ESMF_KIND_R8), optional, intent(in) :: latR8(npts)
+         integer, optional, intent(out) :: rc
+      end subroutine I_get_horz_ij_index
    end interface
 
 contains
@@ -39,10 +55,9 @@ contains
    function get_name(this) result(name)
       class(GeomSpec), intent(in) :: this
       character(:), allocatable :: name
+      name = ""
       if (allocated(this%name)) then
          name = this%name
-      else
-         name = ''
       end if
    end function get_name
 

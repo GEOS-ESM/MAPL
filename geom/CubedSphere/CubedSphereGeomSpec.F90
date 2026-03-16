@@ -15,11 +15,12 @@ module mapl3g_CubedSphereGeomSpec
       private
       integer :: im_world
       type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
-      type(CubedSphereDecomposition) :: decomposition  
-      
+      type(CubedSphereDecomposition) :: decomposition
+
    contains
       ! mandatory interface
       procedure :: equal_to
+      procedure :: get_horz_ij_index
 
       ! CubedSphere specific
       procedure :: supports_hconfig => supports_hconfig_
@@ -116,6 +117,18 @@ interface
          type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
          class(CubedSphereGeomSpec), intent(in) :: spec
       end function get_schmidt_parameters
+
+      module subroutine get_horz_ij_index(this, npts, ii, jj, lon, lat, lonR8, latR8, rc)
+         class(CubedSphereGeomSpec), intent(in) :: this
+         integer, intent(in) :: npts
+         integer, intent(out) :: ii(npts)
+         integer, intent(out) :: jj(npts)
+         real, optional, intent(in) :: lon(npts)
+         real, optional, intent(in) :: lat(npts)
+         real(kind=R8), optional, intent(in) :: lonR8(npts)
+         real(kind=R8), optional, intent(in) :: latR8(npts)
+         integer, optional, intent(out) :: rc
+      end subroutine get_horz_ij_index
 
    end interface
 
