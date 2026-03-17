@@ -12,6 +12,7 @@ module mapl3g_FieldCreate
    use mapl3g_HorizontalDimsSpec
    use mapl3g_StateItemAllocation
    use mapl3g_LU_Bound
+   use mapl3g_FieldFill, only: FieldFill
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
@@ -311,8 +312,8 @@ contains
            ungriddedUBound=bounds%upper, &
            _RC)
 
-      ! Initialize field to zero
-      call ESMF_FieldFill(field, dataFillScheme="const", const1=0.d0, _RC)
+      ! Initialize field with appropriate sentinel values to catch uninitialized data usage
+      call FieldFill(field, _RC)
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       vert_staggerloc_ = VERTICAL_STAGGER_NONE

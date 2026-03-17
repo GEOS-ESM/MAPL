@@ -151,6 +151,18 @@ contains
 
       ! Change the geom
        call MAPL_FieldBundleSet(fb, geom=geom_2, _RC)
+       
+       ! Initialize field values after geom change to avoid FP exceptions
+       block
+          type(ESMF_Field), allocatable :: fields(:)
+          real(kind=ESMF_KIND_R4), pointer :: fptr(:,:)
+          integer :: j
+          call MAPL_FieldBundleGet(fb, fieldList=fields, _RC)
+          do j = 1, size(fields)
+             call ESMF_FieldGet(fields(j), farrayPtr=fptr, _RC)
+             fptr = 0.0
+          end do
+       end block
 
       ! Run
       call driver%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC) ! probably not needed for test

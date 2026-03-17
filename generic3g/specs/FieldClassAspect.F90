@@ -130,10 +130,9 @@ contains
             UNGRIDDED_DIMS_ASPECT_ID, &
             QUANTITY_TYPE_ASPECT_ID, &
             CONSERVATION_ASPECT_ID, &
-            EXPORT_NORMALIZATION_ASPECT_ID, &
             GEOM_ASPECT_ID, &
             VERTICAL_GRID_ASPECT_ID, &
-            IMPORT_NORMALIZATION_ASPECT_ID, &
+            NORMALIZATION_ASPECT_ID, &
             UNITS_ASPECT_ID, &
             TYPEKIND_ASPECT_ID &
             ]

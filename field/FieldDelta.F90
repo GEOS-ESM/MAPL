@@ -10,6 +10,7 @@ module mapl3g_FieldDelta
    use mapl3g_FieldGet
    use mapl3g_VerticalStaggerLoc
    use mapl3g_InfoUtilities
+   use mapl3g_FieldFill, only: FieldFill
    use mapl_FieldPointerUtilities
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -266,10 +267,13 @@ contains
       call ESMF_FieldEmptyReset(field, status=ESMF_FIELDSTATUS_EMPTY, _RC)
       call ESMF_FieldEmptySet(field, geom, _RC)
 
-      call ESMF_FieldEmptyComplete(field, &
-           typekind=typekind, &
-           ungriddedLBound=ungriddedLBound, ungriddedUbound=ungriddedUBound, &
-           _RC)
+       call ESMF_FieldEmptyComplete(field, &
+            typekind=typekind, &
+            ungriddedLBound=ungriddedLBound, ungriddedUbound=ungriddedUBound, &
+            _RC)
+
+      ! Initialize field with appropriate sentinel values to catch uninitialized data usage
+      call FieldFill(field, _RC)
 
       _RETURN(_SUCCESS)
 

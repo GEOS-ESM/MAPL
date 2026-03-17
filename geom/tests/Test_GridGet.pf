@@ -11,32 +11,41 @@ module Test_GridGet
 
 contains
 
+   function make_grid_from_hconfig(hconfig, rc) result(grid)
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      integer, optional, intent(out) :: rc
+      type(ESMF_Grid) :: grid
+
+      type(GeomManager), pointer :: geom_manager
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom_manager => get_geom_manager()
+      mapl_geom => geom_manager%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_GeomGet(geom, grid=grid, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_grid_from_hconfig
+
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_grid_get(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager), target :: geom_manager
       type(ESMF_HConfig) :: hconfig
-      type(MaplGeom), pointer :: mapl_geom
-      type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
       integer :: im, jm, status
       real(kind=ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:)
+      character(len=:), allocatable :: content
 
-      hconfig = ESMF_HConfigCreate( &
-           content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
-           rc=status)
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
       @assert_that(status, is(0))
 
-      geom_manager = GeomManager()
-      mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
-      @assert_that(status, is(0))
+      grid = make_grid_from_hconfig(hconfig, _RC)
 
       call ESMF_HConfigDestroy(hconfig, rc=status)
-      @assert_that(status, is(0))
-
-      geom = mapl_geom%get_geom()
-      call ESMF_GeomGet(geom, grid=grid, rc=status)
       @assert_that(status, is(0))
 
       call mapl_GridGet(grid, im=im, jm=jm, rc=status)
@@ -46,9 +55,97 @@ contains
 
       call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
       @assert_that(status, is(0))
-      @assert_that(shape(lons), is(equal_to([12,13])))
-      @assert_that(shape(lats), is(equal_to([12,13])))
+      @assert_that(shape(lons), is(equal_to([12, 13])))
+      @assert_that(shape(lats), is(equal_to([12, 13])))
 
    end subroutine test_grid_get
+
+   @test(type=ESMF_TestMethod, npes=[2])
+   subroutine test_grid_get_interior(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      integer :: status
+      integer :: local_pet, pet_count
+      integer, allocatable :: interior(:)
+      character(len=:), allocatable :: content
+
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 2, ny: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assert_that(status, is(0))
+
+      grid = make_grid_from_hconfig(hconfig, _RC)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      call mapl_GridGet(grid, interior=interior, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(shape(interior), is(equal_to([4])))
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=local_pet, petCount=pet_count, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(pet_count, is(equal_to(2)))
+
+      if (local_pet == 0) then
+         @assert_that(interior, is(equal_to([1, 6, 1, 13])))
+      else
+         @assert_that(interior, is(equal_to([7, 12, 1, 13])))
+      end if
+
+   end subroutine test_grid_get_interior
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_grid_get_interior_cubed_sphere(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      integer :: status
+      integer :: im, jm
+      integer :: local_pet, pet_count
+      integer, allocatable :: interior(:)
+      character(len=:), allocatable :: content
+
+      content = "{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}"
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assert_that(status, is(0))
+
+      grid = make_grid_from_hconfig(hconfig, _RC)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      call mapl_GridGet(grid, im=im, jm=jm, interior=interior, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(im, is(12))
+      @assert_that(jm, is(12))
+      @assert_that(shape(interior), is(equal_to([4])))
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=local_pet, petCount=pet_count, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(pet_count, is(equal_to(6)))
+
+      select case (local_pet)
+      case (0)
+         @assert_that(interior, is(equal_to([1, 12, 1, 12])))
+      case (1)
+         @assert_that(interior, is(equal_to([1, 12, 13, 24])))
+      case (2)
+         @assert_that(interior, is(equal_to([1, 12, 25, 36])))
+      case (3)
+         @assert_that(interior, is(equal_to([1, 12, 37, 48])))
+      case (4)
+         @assert_that(interior, is(equal_to([1, 12, 49, 60])))
+      case (5)
+         @assert_that(interior, is(equal_to([1, 12, 61, 72])))
+   end select
+
+   end subroutine test_grid_get_interior_cubed_sphere
 
 end module Test_GridGet
