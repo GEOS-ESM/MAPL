@@ -18,7 +18,6 @@ target_sources(MAPL.generic3g PRIVATE
 
   AttributesAspect.F90
   GeomAspect.F90
-  GeomAspect/make_transform.F90
   TypekindAspect.F90
   VerticalAlignment.F90
   VerticalGridAspect.F90
@@ -49,3 +48,8 @@ target_sources(MAPL.generic3g PRIVATE
   is_in_set.h
   VariableSpec_private.F90
 )
+
+esma_add_fortran_submodules(
+  TARGET MAPL.generic3g
+  SUBDIRECTORY GeomAspect
+  SOURCES make_transform.F90)

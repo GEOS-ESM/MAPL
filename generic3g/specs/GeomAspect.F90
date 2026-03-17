@@ -15,9 +15,9 @@ module mapl3g_GeomAspect
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_EsmfRegridder
-   use mapl3g_NormalizationAspect
-   use mapl3g_NormalizationMetadata
-   use mapl3g_NormalizationType
+   use mapl3g_NormalizationAspect, only: NormalizationAspect, to_NormalizationAspect
+   use mapl3g_NormalizationMetadata, only: NormalizationMetadata
+   use mapl3g_NormalizationType, only: NormalizationType
    use mapl3g_VerticalGrid
    use mapl3g_ComponentDriver, only: ComponentDriver
    use mapl_ErrorHandling

@@ -3,6 +3,7 @@
 submodule (mapl3g_GeomAspect) make_transform_smod
 
    use mapl3g_VerticalGridAspect
+   use mapl3g_NormalizationType, only: NORMALIZE_NONE, operator(==)
 
    implicit none(type,external)
 contains
