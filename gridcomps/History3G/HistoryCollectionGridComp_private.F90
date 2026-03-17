@@ -339,9 +339,9 @@ contains
          options%timeStep = timeStep
       end if
 
-      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_OFFSET, _RC)
+      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_REF_TIME, _RC)
       if(hasKey) then
-         mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_OFFSET, _RC)
+         mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_REF_TIME, _RC)
          call ESMF_TimeIntervalSet(offset, timeIntervalString=mapVal, _RC)
          options%runTime_offset = offset
       end if
