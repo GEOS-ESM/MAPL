@@ -30,6 +30,7 @@ module mapl3g_GeomAspect
 
    public :: GeomAspect
    public :: to_GeomAspect ! cast from poly
+   public :: get_regridder_param
 
    interface to_GeomAspect
       procedure :: to_geom_from_poly
