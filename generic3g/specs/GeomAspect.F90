@@ -15,6 +15,11 @@ module mapl3g_GeomAspect
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_EsmfRegridder
+   use mapl3g_NormalizationAspect
+   use mapl3g_NormalizationMetadata
+   use mapl3g_NormalizationType
+   use mapl3g_VerticalGrid
+   use mapl3g_ComponentDriver, only: ComponentDriver
    use mapl_ErrorHandling
    use ESMF, only: esmf_Geom
    use ESMF, only: esmf_Field, esmf_FieldBundle, esmf_State
@@ -55,6 +60,17 @@ module mapl3g_GeomAspect
 
    interface GeomAspect
       procedure new_GeomAspect
+   end interface
+
+   ! Submodule interface for make_transform
+   interface
+      module function make_transform(src, dst, other_aspects, rc) result(transform)
+         class(ExtensionTransform), allocatable :: transform
+         class(GeomAspect), intent(in) :: src
+         class(StateItemAspect), intent(in)  :: dst
+         type(AspectMap), target, intent(in)  :: other_aspects
+         integer, optional, intent(out) :: rc
+      end function make_transform
    end interface
 
 contains
@@ -125,32 +141,6 @@ contains
       end select
 
    end function matches
-
-   function make_transform(src, dst, other_aspects, rc) result(transform)
-      class(ExtensionTransform), allocatable :: transform
-      class(GeomAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      type(AspectMap), target, intent(in)  :: other_aspects
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(GeomAspect) :: dst_
-      type(EsmfRegridderParam) :: regridder_param
-
-      allocate(transform,source=NullTransform()) ! just in case
-      dst_ = to_GeomAspect(dst, _RC)
-
-      deallocate(transform)
-
-      if (src%is_mirror()) then
-         allocate(transform, source=ExtendTransform())
-      else
-         regridder_param = get_regridder_param(src, dst_, _RC)
-         allocate(transform, source=RegridTransform(src%geom, dst_%geom, regridder_param))
-      end if
-
-      _RETURN(_SUCCESS)
-   end function make_transform
 
    function get_regridder_param(src_aspect, dst_aspect, rc) result(regridder_param)
       type(EsmfRegridderParam) :: regridder_param

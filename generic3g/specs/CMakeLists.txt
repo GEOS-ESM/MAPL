@@ -18,6 +18,7 @@ target_sources(MAPL.generic3g PRIVATE
 
   AttributesAspect.F90
   GeomAspect.F90
+  GeomAspect/make_transform.F90
   TypekindAspect.F90
   VerticalAlignment.F90
   VerticalGridAspect.F90
