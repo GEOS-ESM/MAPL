@@ -16,7 +16,8 @@ module mapl3g_VerticalGridAspect
    use mapl3g_GeomAspect
    use mapl3g_TypekindAspect
    use mapl3g_UnitsAspect
-   use mapl3g_QuantityTypeAspect
+   use mapl3g_NormalizationAspect
+   use mapl3g_NormalizationType
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalRegridMethod
@@ -235,10 +236,11 @@ contains
        class(ComponentDriver), pointer :: v_out_coupler
        type(ESMF_Field) :: v_in_field, v_out_field
        type(VerticalGridAspect) :: dst_
-       type(QuantityTypeAspect) :: quantity_type_aspect
+       type(NormalizationAspect) :: norm_aspect
+       type(NormalizationType) :: norm_type
        type(AspectMap) :: coord_aspects  ! Aspects for coordinate field creation
-        character(:), allocatable :: units
-        character(:), allocatable :: physical_dimension
+       character(:), allocatable :: units
+       character(:), allocatable :: physical_dimension
         type(VerticalCoordinateDirection) :: src_alignment, dst_alignment
         logical :: grids_match
         logical :: needs_normalization
@@ -253,14 +255,15 @@ contains
       allocate(transform,source=NullTransform()) ! just in case
       dst_ = to_VerticalGridAspect(dst, _RC)
 
-       ! Query QuantityTypeAspect to determine if normalization is needed
-       ! for conservative vertical regridding. If QuantityTypeAspect is not present,
+       ! Query NormalizationAspect to determine if normalization is needed
+       ! for conservative vertical regridding. If NormalizationAspect is not present,
        ! default to no normalization (status will be non-zero).
        needs_normalization = .false.
        if (dst_%regrid_method == VERTICAL_REGRID_CONSERVATIVE) then
-          quantity_type_aspect = to_QuantityTypeAspect(other_aspects, status)
+          norm_aspect = to_NormalizationAspect(other_aspects, rc=status)
           if (status == _SUCCESS) then
-             needs_normalization = quantity_type_aspect%needs_vertical_normalization()
+             norm_type = norm_aspect%get_normalization_type(_RC)
+             needs_normalization = (norm_type /= NORMALIZE_NONE)
           end if
        end if
 
