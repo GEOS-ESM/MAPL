@@ -239,8 +239,8 @@ contains
        type(NormalizationAspect) :: norm_aspect
        type(NormalizationType) :: norm_type
        type(AspectMap) :: coord_aspects  ! Aspects for coordinate field creation
-        character(:), allocatable :: units
-        character(:), allocatable :: physical_dimension
+       character(:), allocatable :: units
+       character(:), allocatable :: physical_dimension
         type(VerticalCoordinateDirection) :: src_alignment, dst_alignment
         logical :: grids_match
         logical :: needs_normalization
