@@ -210,8 +210,8 @@ contains
 
       call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
       @assert_that(status, is(0))
-      @assertEqual(0, size(ii))
-      @assertEqual(0, size(jj))
+      @assertFalse(allocated(ii))
+      @assertFalse(allocated(jj))
 
       call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
