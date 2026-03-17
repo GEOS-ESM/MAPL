@@ -62,4 +62,23 @@ contains
 
    end procedure get_local_indices
 
+   ! Get local node indices for a given rank (Phase 3)
+   module procedure get_local_node_indices
+      integer :: i
+
+      ! If node distribution is not set, fallback to point distribution
+      if (.not. allocated(this%node_distribution)) then
+         call get_local_indices(this, rank, i_0, i_1)
+         return
+      end if
+
+      i_0 = 1
+      do i = 1, rank
+         i_0 = i_0 + this%node_distribution(i)
+      end do
+
+      i_1 = i_0 + this%node_distribution(rank + 1) - 1
+
+   end procedure get_local_node_indices
+
 end submodule MeshDecomposition_smod

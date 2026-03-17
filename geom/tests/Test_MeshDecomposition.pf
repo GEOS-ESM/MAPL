@@ -140,4 +140,112 @@ contains
       
    end subroutine test_decomposition_from_vm
 
+   ! Phase 3 Tests: Node distribution
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_node_distribution_creation(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshDecomposition) :: decomp
+      integer, allocatable :: elem_dist(:), node_dist(:)
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create decomposition with both elements and nodes
+      ! 100 elements, 150 nodes, across 4 PETs
+      decomp = MeshDecomposition(100, 150, petCount=4)
+      
+      elem_dist = decomp%get_point_distribution()
+      node_dist = decomp%get_node_distribution()
+      
+      ! Check element distribution
+      @assert_that(size(elem_dist), is(4))
+      @assert_that(sum(elem_dist), is(100))
+      
+      ! Check node distribution
+      @assert_that(size(node_dist), is(4))
+      @assert_that(sum(node_dist), is(150))
+      
+      ! Both should have at least 1 point per PE
+      @assertTrue(all(elem_dist >= 1))
+      @assertTrue(all(node_dist >= 1))
+      
+   end subroutine test_node_distribution_creation
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_local_node_indices(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshDecomposition) :: decomp
+      integer :: i_0, i_1
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create decomposition with 100 elements and 150 nodes across 4 PETs
+      decomp = MeshDecomposition(100, 150, petCount=4)
+      
+      ! Test node indices for each rank
+      ! With 150 nodes across 4 PETs, expect roughly 37-38 nodes per PE
+      
+      ! Test rank 0
+      call decomp%get_local_node_indices(0, i_0, i_1)
+      @assertTrue(i_0 == 1)
+      @assertTrue(i_1 > i_0)
+      
+      ! Test rank 1 - should start where rank 0 ended
+      call decomp%get_local_node_indices(1, i_0, i_1)
+      @assertTrue(i_0 > 1)
+      @assertTrue(i_1 > i_0)
+      
+      ! Test rank 3 - should end at 150
+      call decomp%get_local_node_indices(3, i_0, i_1)
+      @assertTrue(i_1 == 150)
+      
+   end subroutine test_get_local_node_indices
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_node_indices_fallback(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshDecomposition) :: decomp
+      integer :: elem_i0, elem_i1, node_i0, node_i1
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create old-style decomposition (elements only)
+      decomp = MeshDecomposition(100, petCount=4)
+      
+      ! When node distribution is not set, get_local_node_indices 
+      ! should fallback to element distribution
+      call decomp%get_local_indices(0, elem_i0, elem_i1)
+      call decomp%get_local_node_indices(0, node_i0, node_i1)
+      
+      @assert_that(node_i0, is(elem_i0))
+      @assert_that(node_i1, is(elem_i1))
+      
+   end subroutine test_node_indices_fallback
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_node_distribution_coverage(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshDecomposition) :: decomp
+      integer :: i_0, i_1, rank
+      integer :: total_nodes, covered_nodes
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create decomposition with 200 nodes across 5 PETs
+      decomp = MeshDecomposition(80, 200, petCount=5)
+      
+      ! Verify all nodes are covered exactly once
+      covered_nodes = 0
+      do rank = 0, 4
+         call decomp%get_local_node_indices(rank, i_0, i_1)
+         covered_nodes = covered_nodes + (i_1 - i_0 + 1)
+      end do
+      
+      @assert_that(covered_nodes, is(200))
+      
+   end subroutine test_node_distribution_coverage
+
 end module Test_MeshDecomposition
