@@ -128,7 +128,7 @@ contains
       integer :: status, time_index
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       logical :: run_collection
-      type(ESMF_Time) :: current_time
+      type(ESMF_Time) :: current_time, file_timestamp
       character(len=ESMF_MAXSTR) :: name
       character(len=128) :: current_file
       type(ESMF_Time), allocatable :: esmf_time_vector(:)
@@ -151,21 +151,19 @@ contains
 
       _RETURN_UNLESS(run_collection)
 
-      ! if collection is not instataneous timestamp in middle of period
-      if (collection_gridcomp%accumulation_mode /= KEY_INSTANTANEOUS) then
-         current_time = current_time - collection_gridcomp%timeStep/2
-      end if
-      call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=current_time, _RC)
+      file_timestamp = compute_file_timestamp(collection_gridcomp%accumulation_mode, &
+             current_time, collection_gridcomp%timeStep, _RC)
+      call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=file_timestamp, _RC)
 
       if (trim(current_file) /= collection_gridcomp%current_file) then
          collection_gridcomp%current_file = current_file
-         call collection_gridcomp%writer%update_time_on_server(current_time, _RC)
-         collection_gridcomp%initial_file_time = current_time
+         call collection_gridcomp%writer%update_time_on_server(file_timestamp, _RC)
+         collection_gridcomp%initial_file_time = file_timestamp 
          if (allocated(collection_gridcomp%time_vector)) deallocate(collection_gridcomp%time_vector)
          allocate(collection_gridcomp%time_vector(0), _STAT)
       end if
 
-      esmf_time_vector = append_to_time_vec(collection_gridcomp%time_vector, current_time, _RC)
+      esmf_time_vector = append_to_time_vec(collection_gridcomp%time_vector, file_timestamp, _RC)
       deallocate(collection_gridcomp%time_vector)
       allocate(collection_gridcomp%time_vector, source=esmf_time_vector, _STAT)
       time_index = size(collection_gridcomp%time_vector)

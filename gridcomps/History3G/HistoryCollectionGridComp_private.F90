@@ -26,6 +26,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: get_frequency
    public :: get_accumulation_mode
    public :: append_to_time_vec
+   public :: compute_file_timestamp
    ! These are public for testing.
    !public :: parse_item
    public :: get_expression_variables
@@ -543,4 +544,26 @@ contains
       _RETURN(_SUCCESS)
    end function append_to_time_vec
 
+   function compute_file_timestamp(accumulation_mode, current_time, timestep, rc) result(file_timestamp)
+      type(ESMF_Time) :: file_timestamp
+      character(len=*), intent(in) :: accumulation_mode
+      type(ESMF_Time), intent(in) :: current_time
+      type(ESMF_TimeInterval), intent(in) :: timestep
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Time) :: previous_time
+      type(ESMF_TimeInterval) :: time_delta
+
+      file_timestamp = current_time      
+      if (accumulation_mode /= KEY_INSTANTANEOUS) then
+         previous_time = current_time - timestep
+         time_delta = (current_time - previous_time)/2
+         call ESMF_TimePrint(previous_time, options='string',prestring='bmaa next time: ')
+         call ESMF_TimePrint(current_time, options='string',prestring='bmaa current time: ')
+         call ESMF_TimeIntervalPrint(time_delta, options='string') !bmaa
+         file_timestamp = current_time - time_delta
+      end if
+      _RETURN(_SUCCESS)
+   end function compute_file_timestamp
+         
 end module mapl3g_HistoryCollectionGridComp_private
