@@ -71,10 +71,10 @@ contains
       has_run_phases = ESMF_HConfigIsDefined(mapl_hconfig, keyString='run_phases', _RC)
       if (has_run_phases) then
          run_phases_hconfig = ESMF_HConfigCreateAt(mapl_hconfig, keyString='run_phases', _RC)
-         has_run1 = ESMF_HConfigIsDefined(run_phases_hconfig, keyString='run1', _RC)
-         if (has_run1) run1 = ESMF_HConfigAsLogical(run_phases_hconfig, keyString='run1', _RC)
-         has_run2 = ESMF_HConfigIsDefined(run_phases_hconfig, keyString='run2', _RC)
-         if (has_run2) run2 = ESMF_HConfigAsLogical(run_phases_hconfig, keyString='run2', _RC)
+         has_run1 = ESMF_HConfigIsDefined(run_phases_hconfig, keyString='Run1', _RC)
+         if (has_run1) run1 = ESMF_HConfigAsLogical(run_phases_hconfig, keyString='Run1', _RC)
+         has_run2 = ESMF_HConfigIsDefined(run_phases_hconfig, keyString='Run2', _RC)
+         if (has_run2) run2 = ESMF_HConfigAsLogical(run_phases_hconfig, keyString='Run2', _RC)
          call ESMF_HConfigDestroy(run_phases_hconfig, _RC)
       end if
       call ESMF_HConfigDestroy(mapl_hconfig, _RC)
