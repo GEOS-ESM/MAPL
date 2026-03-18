@@ -3,6 +3,7 @@
 submodule (mapl3g_GeomAspect) make_transform_smod
 
    use mapl3g_VerticalGridAspect
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_NormalizationType, only: NORMALIZE_NONE, operator(==)
 
    implicit none(type,external)
@@ -96,7 +97,7 @@ contains
    ! Helper: Build a regrid transform with integrated normalization
    !---------------------------------------------------------------------------
    function build_normalized_regrid_transform(src_geom, dst_geom, regridder_param, &
-                                               other_aspects, norm_metadata, rc) result(transform)
+                                                other_aspects, norm_metadata, rc) result(transform)
       class(ExtensionTransform), allocatable :: transform
       type(ESMF_Geom), intent(in) :: src_geom, dst_geom
       type(EsmfRegridderParam), intent(in) :: regridder_param
@@ -112,10 +113,22 @@ contains
       type(AspectMap) :: coord_aspects
       type(NormalizationType) :: norm_type
       integer :: status
+      type(VerticalStaggerLoc) :: vertical_stagger
+      logical :: has_layers
 
-      ! Get vertical grid from aspect map
-      vert_aspect = to_VerticalGridAspect(other_aspects, _RC)
-      vert_grid => vert_aspect%get_vertical_grid(_RC)
+       ! Get vertical grid from aspect map
+       vert_aspect = to_VerticalGridAspect(other_aspects, _RC)
+       vert_grid => vert_aspect%get_vertical_grid(_RC)
+
+       ! Only build a normalized transform if the field has vertical layers.
+       ! This is determined by the vertical stagger: any stagger other than
+       ! VERTICAL_STAGGER_NONE implies the presence of layers.
+       vertical_stagger = vert_aspect%get_vertical_stagger(_RC)
+       has_layers = (vertical_stagger /= VERTICAL_STAGGER_NONE)
+       if (.not. has_layers) then
+          allocate(transform, source=RegridTransform(src_geom, dst_geom, regridder_param))
+          _RETURN(_SUCCESS)
+       end if
 
       ! Determine physical dimension from normalization type
       norm_type = norm_metadata%get_normalization_type()
