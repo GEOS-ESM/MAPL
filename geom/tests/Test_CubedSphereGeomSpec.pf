@@ -34,7 +34,7 @@ contains
       lonR8 = [0.0d0, MAPL_PI_R8 / 2.0d0, MAPL_PI_R8, -MAPL_PI_R8 / 2.0d0, 0.0d0, 0.0d0]
       latR8 = [0.0d0, 0.0d0, 0.0d0, 0.0d0, MAPL_PI_R8 / 2.0d0, -MAPL_PI_R8 / 2.0d0]
 
-      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(all(ii >= 1))
@@ -69,7 +69,7 @@ contains
       lon = [0.0, MAPL_PI / 2.0, MAPL_PI, -MAPL_PI / 2.0, 0.0, 0.0]
       lat = [0.0, 0.0, 0.0, 0.0, MAPL_PI / 2.0, -MAPL_PI / 2.0]
 
-      call spec%get_horz_ij_index(ii, jj, lon=lon, lat=lat, rc=status)
+      call spec%get_horz_ij_index(lon=lon, lat=lat, ii=ii, jj=jj, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(all(ii >= 1))
@@ -104,7 +104,7 @@ contains
       lonR8 = [0.0d0]
       latR8 = [0.0d0]
 
-      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(ii(1) >= 1)
@@ -139,7 +139,7 @@ contains
       lonR8 = [3.0d0, -3.0d0]
       latR8 = [0.0d0, 0.0d0]
 
-      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(all(ii >= 1))
@@ -174,7 +174,7 @@ contains
       lonR8 = [0.0d0, 0.0d0]
       latR8 = [2.0d0, -2.0d0]
 
-      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
       @assert_that(status, is(0))
 
       @assertTrue(all(ii >= 1))
@@ -208,7 +208,7 @@ contains
 
       allocate(lonR8(0), latR8(0))
 
-      call spec%get_horz_ij_index(ii, jj, lonR8=lonR8, latR8=latR8, rc=status)
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
       @assert_that(status, is(0))
       @assertFalse(allocated(ii))
       @assertFalse(allocated(jj))

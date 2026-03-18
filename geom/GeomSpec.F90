@@ -2,7 +2,7 @@
 
 module mapl3g_GeomSpec
 
-   use ESMF, only: ESMF_KIND_R8
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
 
    implicit none(type, external)
    private
@@ -14,7 +14,9 @@ module mapl3g_GeomSpec
       character(:), allocatable :: name
    contains
       procedure(I_equal_to), deferred :: equal_to
-      procedure(I_get_horz_ij_index), deferred :: get_horz_ij_index
+      procedure(I_get_horz_ij_index_r4), deferred :: get_horz_ij_index_r4
+      procedure(I_get_horz_ij_index_r8), deferred :: get_horz_ij_index_r8
+      generic :: get_horz_ij_index => get_horz_ij_index_r4, get_horz_ij_index_r8
       generic :: operator(==) => equal_to
 
       procedure, non_overridable :: set_name
@@ -30,17 +32,25 @@ module mapl3g_GeomSpec
          class(GeomSpec), intent(in) :: b
       end function I_equal_to
 
-      subroutine I_get_horz_ij_index(this, ii, jj, lon, lat, lonR8, latR8, rc)
-         import GeomSpec, ESMF_KIND_R8
+      subroutine I_get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+         import GeomSpec, ESMF_KIND_R4
          class(GeomSpec), intent(in) :: this
+         real(kind=ESMF_KIND_R4), intent(in) :: lon(:)
+         real(kind=ESMF_KIND_R4), intent(in) :: lat(:)
          integer, allocatable, intent(out) :: ii(:)
          integer, allocatable, intent(out) :: jj(:)
-         real, optional, intent(in) :: lon(:)
-         real, optional, intent(in) :: lat(:)
-         real(kind=ESMF_KIND_R8), optional, intent(in) :: lonR8(:)
-         real(kind=ESMF_KIND_R8), optional, intent(in) :: latR8(:)
          integer, optional, intent(out) :: rc
-      end subroutine I_get_horz_ij_index
+      end subroutine I_get_horz_ij_index_r4
+
+      subroutine I_get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+         import GeomSpec, ESMF_KIND_R8
+         class(GeomSpec), intent(in) :: this
+         real(kind=ESMF_KIND_R8), intent(in) :: lon(:)
+         real(kind=ESMF_KIND_R8), intent(in) :: lat(:)
+         integer, allocatable, intent(out) :: ii(:)
+         integer, allocatable, intent(out) :: jj(:)
+         integer, optional, intent(out) :: rc
+      end subroutine I_get_horz_ij_index_r8
    end interface
 
 contains

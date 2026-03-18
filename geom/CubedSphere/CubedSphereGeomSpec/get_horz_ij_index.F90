@@ -5,18 +5,53 @@ submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_get_horz_ij_index_smo
    use MAPL_Constants, only: MAPL_PI_R8
    use mapl_ErrorHandling
 
-   implicit none (type, external)
+   implicit none(type, external)
 
 contains
 
-   module subroutine get_horz_ij_index(this, ii, jj, lon, lat, lonR8, latR8, rc)
+   module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
       class(CubedSphereGeomSpec), intent(in) :: this
+      real(kind=R4), intent(in) :: lon(:)
+      real(kind=R4), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
-      real, optional, intent(in) :: lon(:)
-      real, optional, intent(in) :: lat(:)
-      real(kind=R8), optional, intent(in) :: lonR8(:)
-      real(kind=R8), optional, intent(in) :: latR8(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real(kind=R8), allocatable :: tmp_lons(:), tmp_lats(:)
+
+      _ASSERT(size(lat) == size(lon), 'lon/lat size mismatch')
+      tmp_lons = real(lon, kind=R8)
+      tmp_lats = real(lat, kind=R8)
+
+      call get_horz_ij_index_impl_(this, tmp_lons, tmp_lats, ii, jj, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_horz_ij_index_r4
+
+   module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+      class(CubedSphereGeomSpec), intent(in) :: this
+      real(kind=R8), intent(in) :: lon(:)
+      real(kind=R8), intent(in) :: lat(:)
+      integer, allocatable, intent(out) :: ii(:)
+      integer, allocatable, intent(out) :: jj(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(size(lat) == size(lon), 'lon/lat size mismatch')
+
+      call get_horz_ij_index_impl_(this, lon, lat, ii, jj, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_horz_ij_index_r8
+
+   subroutine get_horz_ij_index_impl_(this, lon, lat, ii, jj, rc)
+      class(CubedSphereGeomSpec), intent(in) :: this
+      real(kind=R8), intent(in) :: lon(:)
+      real(kind=R8), intent(in) :: lat(:)
+      integer, allocatable, intent(out) :: ii(:)
+      integer, allocatable, intent(out) :: jj(:)
       integer, optional, intent(out) :: rc
 
       integer :: npts, status
@@ -25,24 +60,15 @@ contains
       logical :: stretched
       real(kind=R8), parameter :: shift = 0.174532925199433d0
 
-      if (present(lonR8) .and. present(latR8)) then
-         npts = size(lonR8)
-         _ASSERT(size(latR8) == npts, 'lonR8/latR8 size mismatch')
-         tmp_lons = lonR8
-         tmp_lats = latR8
-      else if (present(lon) .and. present(lat)) then
-         npts = size(lon)
-         _ASSERT(size(lat) == npts, 'lon/lat size mismatch')
-         tmp_lons = lon
-         tmp_lats = lat
-      else
-         _FAIL('Need either lon/lat or lonR8/latR8 inputs')
-      end if
+      npts = size(lon)
+      _ASSERT(size(lat) == npts, 'lon/lat size mismatch')
+      tmp_lons = lon
+      tmp_lats = lat
       _RETURN_UNLESS(npts > 0)
 
       allocate(ii(npts), jj(npts))
 
-      call reverse_schmidt_(this%schmidt_parameters, npts, tmp_lons, tmp_lats, stretched)
+      call inverse_schmidt_(this%schmidt_parameters, npts, tmp_lons, tmp_lats, stretched)
 
       shift0 = shift
       if (stretched) shift0 = 0.0d0
@@ -61,7 +87,7 @@ contains
       call calculate_(xyz(1, :), xyz(2, :), xyz(3, :), this%im_world, ii, jj)
 
       _RETURN(_SUCCESS)
-   end subroutine get_horz_ij_index
+   end subroutine get_horz_ij_index_impl_
 
    elemental subroutine calculate_(x, y, z, im_world, i, j)
       real(kind=R8), intent(in) :: x
@@ -117,7 +143,7 @@ contains
       if (j == im_world + 1) j = im_world
    end subroutine angle_to_index_
 
-   subroutine reverse_schmidt_(schmidt_parameters, npoints, lon_values, lat_values, is_stretched)
+   subroutine inverse_schmidt_(schmidt_parameters, npoints, lon_values, lat_values, is_stretched)
       type(ESMF_CubedSphereTransform_Args), intent(in) :: schmidt_parameters
       integer, intent(in) :: npoints
       real(kind=R8), intent(inout) :: lon_values(npoints)
@@ -164,6 +190,6 @@ contains
       elsewhere (lon_values >= two_pi)
          lon_values = lon_values - two_pi
       end where
-   end subroutine reverse_schmidt_
+   end subroutine inverse_schmidt_
 
 end submodule CubedSphereGeomSpec_get_horz_ij_index_smod
