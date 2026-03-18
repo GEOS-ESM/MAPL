@@ -33,7 +33,7 @@ module mapl3g_MirrorVerticalGrid
    end type MirrorVerticalGrid
 
    interface MirrorVerticalGrid
-      module procedure new_MirrorVerticalGrid
+      module procedure :: new_MirrorVerticalGrid
    end interface MirrorVerticalGrid
 
 contains
@@ -41,14 +41,14 @@ contains
    function new_MirrorVerticalGrid() result(vertical_grid)
       type(MirrorVerticalGrid) :: vertical_grid
       call vertical_grid%set_id(VERTICAL_GRID_NOT_FOUND)
-   end function
+   end function new_MirrorVerticalGrid
 
    function get_num_layers(this) result(num_layers)
       integer :: num_layers
       class(MirrorVerticalGrid), intent(in) :: this
       num_layers = 0
       _UNUSED_DUMMY(this)
-   end function
+   end function get_num_layers
       
    function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
       type(ESMF_Field) :: field

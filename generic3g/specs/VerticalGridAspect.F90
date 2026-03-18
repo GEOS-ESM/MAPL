@@ -504,13 +504,18 @@ contains
       type(esmf_FieldBundle), optional, intent(inout) :: bundle
       type(esmf_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
-      class(VerticalGrid), allocatable :: vgrid
       integer :: status
+      type(MirrorVerticalGrid) :: mirror_grid
+      class(VerticalGrid), allocatable :: vgrid
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      vgrid = MirrorVerticalGrid()
-      if(allocated(this%vertical_grid)) vgrid = this%vertical_grid
+      mirror_grid = MirrorVerticalGrid()
+      vgrid = mirror_grid
+      if(.not. this%is_mirror()) then
+         vgrid = this%vertical_grid
+      end if
+
       if (present(field)) then
          call mapl_FieldSet(field, vgrid=vgrid, vert_staggerloc=this%vertical_stagger, vert_alignment=this%vertical_alignment, _RC)
       else if (present(bundle)) then
