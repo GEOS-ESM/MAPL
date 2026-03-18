@@ -1,12 +1,192 @@
 module Test_LatLonGeomSpec
-   use mapl3g_LatLonAxis
+
    use mapl3g_LatLonGeomSpec
    use esmf
    use funit
+
    implicit none
 
-   integer, parameter :: R8 = ESMF_KIND_R8
-
 contains
+
+   @test
+   subroutine test_get_horz_ij_index_double_precision()
+      type(ESMF_HConfig) :: hconfig
+      type(LatLonGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assertEqual(0, status)
+
+      spec = make_LatLonGeomSpec(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      lonR8 = [0.1d0, -3.0d0, 1.0d0, 5.5d0]
+      latR8 = [0.0d0, 0.0d0, 0.8d0, -0.8d0]
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(all(ii >= 1))
+      @assertTrue(all(ii <= 12))
+      @assertTrue(all(jj >= 1))
+      @assertTrue(all(jj <= 13))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_get_horz_ij_index_double_precision
+
+   @test
+   subroutine test_get_horz_ij_index_single_precision()
+      type(ESMF_HConfig) :: hconfig
+      type(LatLonGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R4), allocatable :: lon(:), lat(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assertEqual(0, status)
+
+      spec = make_LatLonGeomSpec(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      lon = [0.1, -3.0, 1.0, 5.5]
+      lat = [0.0, 0.0, 0.8, -0.8]
+
+      call spec%get_horz_ij_index(lon=lon, lat=lat, ii=ii, jj=jj, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(all(ii >= 1))
+      @assertTrue(all(ii <= 12))
+      @assertTrue(all(jj >= 1))
+      @assertTrue(all(jj <= 13))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_get_horz_ij_index_single_precision
+
+   @test
+   subroutine test_get_horz_ij_index_single_point()
+      type(ESMF_HConfig) :: hconfig
+      type(LatLonGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: latlon, im_world: 10, jm_world: 10, pole: PC, dateline: DC}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assertEqual(0, status)
+
+      spec = make_LatLonGeomSpec(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      lonR8 = [0.0d0]
+      latR8 = [0.0d0]
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(ii(1) >= 1)
+      @assertTrue(ii(1) <= 10)
+      @assertTrue(jj(1) >= 1)
+      @assertTrue(jj(1) <= 10)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_get_horz_ij_index_single_point
+
+   @test
+   subroutine test_get_horz_ij_index_dateline_crossing()
+      type(ESMF_HConfig) :: hconfig
+      type(LatLonGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assertEqual(0, status)
+
+      spec = make_LatLonGeomSpec(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      lonR8 = [3.0d0, -3.0d0]
+      latR8 = [0.0d0, 0.0d0]
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(all(ii >= 1))
+      @assertTrue(all(ii <= 12))
+      @assertTrue(all(jj >= 1))
+      @assertTrue(all(jj <= 13))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_get_horz_ij_index_dateline_crossing
+
+   @test
+   subroutine test_get_horz_ij_index_out_of_bounds()
+      type(ESMF_HConfig) :: hconfig
+      type(LatLonGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assertEqual(0, status)
+
+      spec = make_LatLonGeomSpec(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      lonR8 = [0.0d0, 0.0d0]
+      latR8 = [2.0d0, -2.0d0]
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(all(ii >= 1))
+      @assertTrue(all(ii <= 12))
+      @assertTrue(all(jj == -1))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_get_horz_ij_index_out_of_bounds
+
+   @test
+   subroutine test_get_horz_ij_index_zero_points()
+      type(ESMF_HConfig) :: hconfig
+      type(LatLonGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assertEqual(0, status)
+
+      spec = make_LatLonGeomSpec(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      allocate(lonR8(0), latR8(0))
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, size(ii))
+      @assertEqual(0, size(jj))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_get_horz_ij_index_zero_points
 
 end module Test_LatLonGeomSpec

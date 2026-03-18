@@ -6,10 +6,11 @@ set (TEST_SRCS
   Test_CoordinateAxis.pf
   Test_LonAxis.pf
   Test_LatAxis.pf
+  Test_LatLonGeomSpec.pf
   Test_LatLonGeomFactory.pf
+  Test_CubedSphereGeomSpec.pf
   Test_CubedSphereGeomFactory.pf
   Test_GridGet.pf
-  Test_GridGetHorzIJIndex.pf
   Test_LocStreamGeomFactory.pf
   Test_LocStreamGeomFactory_Metadata.pf
 )
