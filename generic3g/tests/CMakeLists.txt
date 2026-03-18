@@ -59,6 +59,7 @@ set(transforms_test_srcs
   Test_2DConservativeRegrid.pf
   Test_NormalizationTransform.pf
   Test_3DConservativeMixingRatio.pf
+  Test_IntegratedNormalization.pf
 )
 
 add_pfunit_ctest(
