@@ -287,7 +287,81 @@ contains
    end subroutine test_bilinear_no_normalization
 
    !===========================================================================
-   ! Test 3: Full 3D Pipeline - Horizontal + Vertical Conservative Regridding
+   ! Test 3: Normalization Mismatch Handling
+   ! Verifies that connection machinery correctly handles cases where import and 
+   ! export have different normalizations. This is a baseline test for Task 5, 
+   ! Scenario 5 ("True Normalization Mismatch").
+   !
+   ! NOTE: This test currently verifies that connections with mismatched 
+   ! normalizations complete without error. Full validation of extension creation
+   ! and transform generation will be added in Phase 2 when NormalizationTransform
+   ! is fully implemented (currently returns NullTransform as placeholder).
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_normalization_mismatch(this)
+      use mapl3g_StateRegistry
+      use mapl3g_StateItemSpec
+      use mapl3g_StateItemSpecPtrVector
+      use mapl3g_VirtualConnectionPt
+      use mapl3g_ConnectionPt
+      use mapl3g_ExtensionFamily
+      use mapl3g_SimpleConnection
+      use mapl3g_NormalizationAspect
+      use mapl3g_AspectId
+      use MockAspect_mod
+      
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(StateRegistry), target :: parent_registry, src_registry, dst_registry
+      type(VirtualConnectionPt) :: export_pt, import_pt
+      type(StateItemSpec), target :: export_spec, import_spec
+      type(SimpleConnection) :: connection
+      integer :: status
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create registries (parent with two child registries)
+      parent_registry = StateRegistry('parent')
+      src_registry = StateRegistry('source')
+      dst_registry = StateRegistry('destination')
+      call parent_registry%add_subregistry(src_registry)
+      call parent_registry%add_subregistry(dst_registry)
+      
+      ! Create connection points
+      export_pt = VirtualConnectionPt(state_intent='export', short_name='Q')
+      import_pt = VirtualConnectionPt(state_intent='import', short_name='Q')
+      
+      ! Create export spec with NORMALIZE_DELP (simulating [kg/kg] with DELP normalization)
+      export_spec = MockItemSpec(1, state_intent=ESMF_STATEINTENT_EXPORT, &
+           short_name='Q', typekind=ESMF_TYPEKIND_R4, units='kg kg-1')
+      ! Set normalization aspect to NORMALIZE_DELP
+      call export_spec%set_aspect( &
+           NormalizationAspect(normalization_type=NORMALIZE_DELP, scale_factor=1.0), _RC)
+      
+      ! Create import spec with NORMALIZE_NONE (wants different normalization)
+      import_spec = MockItemSpec(2, state_intent=ESMF_STATEINTENT_IMPORT, &
+           short_name='Q', typekind=ESMF_TYPEKIND_R4, units='kg kg-1')
+      ! Set normalization aspect to NORMALIZE_NONE  
+      call import_spec%set_aspect( &
+           NormalizationAspect(normalization_type=NORMALIZE_NONE, scale_factor=1.0), _RC)
+      
+      ! Add specs to registries
+      call src_registry%add_primary_spec(export_pt, export_spec, _RC)
+      call dst_registry%add_primary_spec(import_pt, import_spec, _RC)
+      
+      ! Create and execute connection - this should succeed even with normalization mismatch
+      ! The connection machinery should handle the mismatch appropriately
+      connection = SimpleConnection( &
+           ConnectionPt('source', export_pt), &
+           ConnectionPt('destination', import_pt))
+      call connection%connect(parent_registry, _RC)
+      
+      ! Verify connection succeeded (status should be 0)
+      @assertEqual(0, status, 'Connection with normalization mismatch should succeed')
+      
+   end subroutine test_normalization_mismatch
+
+   !===========================================================================
+   ! Test 4: Full 3D Pipeline - Horizontal + Vertical Conservative Regridding
    ! Verifies mass conservation through full 3D regridding pipeline
    ! This follows the pattern from Test_3DConservativeMixingRatio.pf
    !===========================================================================
