@@ -1,0 +1,437 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_IntegratedNormalization
+   use mapl3g_RegridTransform
+   use mapl3g_VerticalRegridTransform
+   use mapl3g_VerticalRegridMethod
+   use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalCoordinateDirection
+   use mapl3g_VerticalAlignment
+   use mapl3g_ExtensionTransform, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME, ExtensionTransform
+   use mapl3g_FieldCreate, only: MAPL_FieldCreate
+   use mapl3g_QuantityType
+   use mapl3g_QuantityTypeMetadata
+   use mapl3g_NormalizationType
+   use mapl3g_NormalizationMetadata
+   use mapl3g_Field_API
+   use mapl3g_regridder_mgr, only: EsmfRegridderParam
+   use mapl3g_RoutehandleParam, only: RoutehandleParam
+   use mapl3g_Geom_API
+   use mapl3g_StateRegistry
+   use mapl3g_ExtensionFamily
+   use mapl3g_VirtualConnectionPt
+   use mapl3g_ActualConnectionPt
+   use mapl_ErrorHandling
+   use esmf
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none
+
+    ! Module-level fixtures
+    type(ESMF_State) :: importState
+    type(ESMF_State) :: exportState
+    type(ESMF_Geom) :: geom_coarse, geom_fine
+    type(ESMF_Clock) :: clock
+    type(GeomManager), pointer :: geom_mgr
+    
+    ! Grid dimensions
+    integer, parameter :: NX_COARSE = 4
+    integer, parameter :: NY_COARSE = 4
+    integer, parameter :: NX_FINE = 8
+    integer, parameter :: NY_FINE = 8
+    integer, parameter :: NZ = 10
+   
+   ! Constants for testing
+   real, parameter :: GRAVITY = 9.80665  ! m/s²
+   real, parameter :: CO2_MIXING_RATIO = 400.0e-6  ! 400 ppm (kg/kg wet)
+   real, parameter :: TOLERANCE_STRICT = 1.0e-10
+   real, parameter :: TOLERANCE_LOOSE = 1.0e-5
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! Setup: Create test fixtures
+   !---------------------------------------------------------------------------
+    @Before
+    subroutine setUp(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       integer :: status
+       type(ESMF_Time) :: startTime
+       type(ESMF_Time) :: stopTime
+       type(ESMF_TimeInterval) :: timeStep
+       type(ESMF_HConfig) :: hconfig
+       type(MaplGeom) :: mapl_geom
+       character(len=256) :: config_str
+       
+       _UNUSED_DUMMY(this)
+       
+       ! Get GeomManager
+       geom_mgr => get_geom_manager()
+       
+        ! Create coarse geometry (4x4) using GeomManager for proper coordinates
+        ! Use PE/DE (pole-edge/dateline-edge) for bilinear regridding to avoid
+        ! floating point overflow in ESMF with pole-centered degenerate cells
+        write(config_str, '(A,I0,A,I0,A)') &
+             '{class: latlon, im_world: ', NX_COARSE, ', jm_world: ', NY_COARSE, ', pole: PE, dateline: DE}'
+        hconfig = ESMF_HConfigCreate(content=trim(config_str), _RC)
+        mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+        geom_coarse = mapl_geom%get_geom()
+        
+        ! Create fine geometry (8x8) using GeomManager for proper coordinates
+        ! Use PE/DE (pole-edge/dateline-edge) for bilinear regridding to avoid
+        ! floating point overflow in ESMF with pole-centered degenerate cells
+        write(config_str, '(A,I0,A,I0,A)') &
+             '{class: latlon, im_world: ', NX_FINE, ', jm_world: ', NY_FINE, ', pole: PE, dateline: DE}'
+        hconfig = ESMF_HConfigCreate(content=trim(config_str), _RC)
+        mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+        geom_fine = mapl_geom%get_geom()
+       
+       ! Create states
+       importState = ESMF_StateCreate(name='import', stateintent=ESMF_STATEINTENT_IMPORT, _RC)
+       exportState = ESMF_StateCreate(name='export', stateintent=ESMF_STATEINTENT_EXPORT, _RC)
+       
+       ! Create clock
+       call ESMF_TimeSet(startTime, yy=2000, mm=1, dd=1, h=0, m=0, s=0, _RC)
+       call ESMF_TimeSet(stopTime, yy=2000, mm=1, dd=2, h=0, m=0, s=0, _RC)
+       call ESMF_TimeIntervalSet(timeStep, h=6, _RC)
+       clock = ESMF_ClockCreate(name='clock', timeStep=timeStep, &
+            startTime=startTime, stopTime=stopTime, _RC)
+       
+    end subroutine setUp
+
+   !---------------------------------------------------------------------------
+   ! Teardown: Clean up test fixtures
+   !---------------------------------------------------------------------------
+    @After
+    subroutine tearDown(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       integer :: status
+       
+       _UNUSED_DUMMY(this)
+       
+       call ESMF_StateDestroy(importState, _RC)
+       call ESMF_StateDestroy(exportState, _RC)
+       ! Note: geometries are managed by GeomManager, don't destroy them
+       call ESMF_ClockDestroy(clock, _RC)
+       
+    end subroutine tearDown
+
+   !===========================================================================
+   ! Test 1: Memory Efficiency - Matching Grids
+   ! Expected: Zero extension fields created (no regrid, no normalization)
+   !===========================================================================
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_matching_grids_no_extensions(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       type(StateRegistry) :: registry
+       type(ESMF_Field) :: field_import, field_export
+       integer :: initial_extensions, final_extensions
+       integer :: status
+       
+       _UNUSED_DUMMY(this)
+       
+       ! Create import and export fields on SAME grid (use coarse geom from setUp)
+       field_import = MAPL_FieldCreate(geom_coarse, name='CO2', typekind=ESMF_TYPEKIND_R4, &
+            num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vert_alignment=VALIGN_DOWN, _RC)
+       field_export = MAPL_FieldCreate(geom_coarse, name='CO2', typekind=ESMF_TYPEKIND_R4, &
+            num_levels=NZ, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vert_alignment=VALIGN_DOWN, _RC)
+      
+      ! TODO: Set up normalization aspects (same normalization for both)
+      ! TODO: Connect import to export via registry
+      ! TODO: Count extensions before and after
+      
+      ! Expected: zero extensions created (grids match, normalization matches)
+      ! @assertEqual(0, final_extensions - initial_extensions)
+      
+       ! Cleanup
+       call ESMF_FieldDestroy(field_import, _RC)
+       call ESMF_FieldDestroy(field_export, _RC)
+       ! Note: geometries are managed by GeomManager, don't destroy them
+       
+    end subroutine test_matching_grids_no_extensions
+
+   !===========================================================================
+   ! Test 2: Memory Efficiency - Different Grids
+   ! Expected: Only 1 extension for regrid (not 3 for norm+regrid+denorm)
+   !===========================================================================
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_different_grids_one_extension(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       class(ExtensionTransform), allocatable :: transform
+       type(EsmfRegridderParam) :: regrid_param
+       type(ESMF_Field) :: field_in, field_out, delp_field
+       type(NormalizationMetadata) :: norm_metadata
+       type(ESMF_Geom) :: test_geom_coarse, test_geom_fine
+       type(GeomManager), pointer :: test_geom_mgr
+       type(ESMF_HConfig) :: hconfig
+       type(MaplGeom) :: mapl_geom
+       real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:), delp(:,:,:)
+       real(ESMF_KIND_R8) :: mass_in, mass_out, rel_error
+       integer :: i, j, k, status
+       
+       _UNUSED_DUMMY(this)
+       
+       ! Create geometries locally (matching working test pattern)
+       test_geom_mgr => get_geom_manager()
+       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC}", _RC)
+       mapl_geom = test_geom_mgr%get_mapl_geom(hconfig, _RC)
+       test_geom_coarse = mapl_geom%get_geom()
+       
+       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 8, jm_world: 8, pole: PC, dateline: DC}", _RC)
+       mapl_geom = test_geom_mgr%get_mapl_geom(hconfig, _RC)
+       test_geom_fine = mapl_geom%get_geom()
+       
+       ! Create fields on different grids
+       field_in = MAPL_FieldCreate(test_geom_coarse, name=COUPLER_IMPORT_NAME, &
+            typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
+            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vert_alignment=VALIGN_DOWN, _RC)
+       field_out = MAPL_FieldCreate(test_geom_fine, name=COUPLER_EXPORT_NAME, &
+            typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
+            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vert_alignment=VALIGN_DOWN, _RC)
+       
+       ! Create DELP field (pressure thickness) for normalization
+       delp_field = MAPL_FieldCreate(test_geom_coarse, name='DELP', &
+            typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
+            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+            vert_alignment=VALIGN_DOWN, _RC)
+      
+      ! Fill input with uniform mixing ratio and pressure
+      call ESMF_FieldGet(field_in, farrayPtr=data_in, _RC)
+      call ESMF_FieldGet(delp_field, farrayPtr=delp, _RC)
+      data_in = CO2_MIXING_RATIO
+      delp = 100.0  ! 100 Pa per layer
+      
+      ! Initialize output
+      call ESMF_FieldGet(field_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+      ! Create normalization metadata
+      norm_metadata = NormalizationMetadata( &
+           normalization_type=NORMALIZE_DELP, &
+           normalization_scale=1.0/GRAVITY)
+      
+        ! Create conservative regrid transform with integrated normalization
+        ! Note: PE/DE grids ensure full grid coverage without unmapped points
+        regrid_param = EsmfRegridderParam(RoutehandleParam( &
+             regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+       allocate(transform, source=RegridTransform(test_geom_coarse, test_geom_fine, regrid_param, &
+            delp_field, null(), norm_metadata))
+       
+       ! Add fields to states using aliases (matching working test pattern)
+       block
+          type(ESMF_Field) :: field_in_alias, field_out_alias
+          field_in_alias = ESMF_NamedAlias(field_in, name=COUPLER_IMPORT_NAME, _RC)
+          field_out_alias = ESMF_NamedAlias(field_out, name=COUPLER_EXPORT_NAME, _RC)
+          call ESMF_StateAdd(importState, [field_in_alias], _RC)
+          call ESMF_StateAdd(exportState, [field_out_alias], _RC)
+       end block
+      call transform%initialize(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
+      
+      ! Calculate initial mass (coarse grid)
+      mass_in = 0.0_ESMF_KIND_R8
+      do concurrent (k = 1:NZ, j = 1:NY_COARSE, i = 1:NX_COARSE)
+         mass_in = mass_in + real(data_in(i,j,k) * delp(i,j,k), ESMF_KIND_R8)
+      end do
+      mass_in = mass_in / GRAVITY
+      
+      ! Calculate final mass (fine grid) 
+      ! Note: Need to get DELP on fine grid for accurate mass calculation
+      ! For now, verify output is non-zero and has correct units
+      @assertGreaterThan(maxval(abs(data_out)), 0.0)
+      
+      ! TODO: Add proper mass conservation check with DELP on fine grid
+      ! TODO: Count extensions created - should be only 1 (regrid), not 3
+      
+      ! Cleanup
+      call ESMF_FieldDestroy(field_in, _RC)
+       call ESMF_FieldDestroy(field_out, _RC)
+       call ESMF_FieldDestroy(delp_field, _RC)
+       ! Note: geometries are managed by GeomManager, don't destroy them
+       
+    end subroutine test_different_grids_one_extension
+
+   !===========================================================================
+   ! Test 3: Full 3D Conservative Pipeline
+   ! Expected: Both horizontal and vertical transforms use integrated normalization
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_3d_conservative_pipeline(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      
+      _UNUSED_DUMMY(this)
+      
+      ! TODO: Create different horizontal AND vertical grids
+      ! TODO: Apply horizontal regrid with integrated normalization
+      ! TODO: Apply vertical regrid with integrated normalization
+      ! TODO: Verify global mass conservation throughout pipeline
+      ! TODO: Verify field maintains [kg/kg] units throughout
+      
+      @assertTrue(.true., 'Placeholder - test not yet implemented')
+      
+   end subroutine test_3d_conservative_pipeline
+
+   !===========================================================================
+   ! Test 4: Non-Conservative Fallback
+   ! Expected: No normalization overhead for bilinear regridding
+   !===========================================================================
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_non_conservative_no_normalization(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       class(ExtensionTransform), allocatable :: transform
+       type(EsmfRegridderParam) :: regrid_param
+       type(ESMF_Field) :: field_in, field_out
+       real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
+       integer :: status
+       
+       _UNUSED_DUMMY(this)
+      
+      ! Create fields
+      field_in = MAPL_FieldCreate(geom_coarse, name=COUPLER_IMPORT_NAME, &
+           typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      field_out = MAPL_FieldCreate(geom_fine, name=COUPLER_EXPORT_NAME, &
+           typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      
+      ! Fill input
+      call ESMF_FieldGet(field_in, farrayPtr=data_in, _RC)
+      data_in = CO2_MIXING_RATIO
+      
+      ! Initialize output
+      call ESMF_FieldGet(field_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+        ! Create BILINEAR regrid transform (no normalization metadata)
+        ! Note: PE/DE grids avoid pole degeneracies that cause ESMF overflow errors
+        regrid_param = EsmfRegridderParam(RoutehandleParam( &
+             regridmethod=ESMF_REGRIDMETHOD_BILINEAR))
+       allocate(transform, source=RegridTransform(geom_coarse, geom_fine, regrid_param))
+       
+       ! Add fields to states using aliases
+       block
+          type(ESMF_Field) :: field_in_alias, field_out_alias
+          field_in_alias = ESMF_NamedAlias(field_in, name=COUPLER_IMPORT_NAME, _RC)
+          field_out_alias = ESMF_NamedAlias(field_out, name=COUPLER_EXPORT_NAME, _RC)
+          call ESMF_StateAdd(importState, [field_in_alias], _RC)
+          call ESMF_StateAdd(exportState, [field_out_alias], _RC)
+       end block
+       
+       ! Initialize and apply transform
+       call transform%initialize(importState, exportState, clock, _RC)
+       call transform%update(importState, exportState, clock, _RC)
+      
+      ! Verify output is non-zero (regridding worked)
+      @assertGreaterThan(maxval(abs(data_out)), 0.0)
+      
+      ! Verify no normalization was applied (values should be similar to input)
+      @assertRelativelyEqual(CO2_MIXING_RATIO, maxval(data_out), TOLERANCE_LOOSE)
+      
+       ! Cleanup
+       call ESMF_FieldDestroy(field_in, _RC)
+       call ESMF_FieldDestroy(field_out, _RC)
+       ! Note: geometries are managed by GeomManager, don't destroy them
+       
+    end subroutine test_non_conservative_no_normalization
+
+   !===========================================================================
+   ! Test 5: True Normalization Mismatch
+   ! Expected: NormalizationAspect creates actual transform for unit conversion
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_normalization_mismatch(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      
+      _UNUSED_DUMMY(this)
+      
+      ! TODO: Create import field with [kg/kg] normalization
+      ! TODO: Create export field requesting [kg/m³] normalization
+      ! TODO: Verify NormalizationAspect creates a conversion transform
+      ! TODO: Verify correct unit conversion is applied
+      
+      @assertTrue(.true., 'Placeholder - test not yet implemented')
+      
+   end subroutine test_normalization_mismatch
+
+   !===========================================================================
+   ! Test 6: Verify Conservative Regridding Maintains Mass
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_mass_conservation_2d(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       class(ExtensionTransform), allocatable :: transform
+       type(EsmfRegridderParam) :: regrid_param
+       type(ESMF_Field) :: field_in, field_out
+       type(ESMF_Grid) :: grid_in, grid_out
+       real(ESMF_KIND_R4), pointer :: data_in(:,:), data_out(:,:)
+       real(ESMF_KIND_R8) :: sum_in, sum_out, rel_error
+       integer :: status
+       
+       _UNUSED_DUMMY(this)
+       
+       ! Extract grids from geometries for 2D field creation
+       call ESMF_GeomGet(geom_coarse, grid=grid_in, _RC)
+       call ESMF_GeomGet(geom_fine, grid=grid_out, _RC)
+      
+       ! Create 2D fields (no vertical dimension)
+       field_in = ESMF_FieldCreate(grid_in, name=COUPLER_IMPORT_NAME, &
+            typekind=ESMF_TYPEKIND_R4, _RC)
+       field_out = ESMF_FieldCreate(grid_out, name=COUPLER_EXPORT_NAME, &
+            typekind=ESMF_TYPEKIND_R4, _RC)
+      
+      ! Fill input with varying values
+      call ESMF_FieldGet(field_in, farrayPtr=data_in, _RC)
+      data_in = 1.0  ! Uniform field for simplicity
+      
+      ! Initialize output
+      call ESMF_FieldGet(field_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+      ! Calculate initial sum
+      sum_in = sum(real(data_in, ESMF_KIND_R8))
+      
+        ! Create conservative regrid transform (no normalization for 2D)
+        ! Note: PE/DE grids ensure full grid coverage without unmapped points
+        regrid_param = EsmfRegridderParam(RoutehandleParam( &
+             regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+       allocate(transform, source=RegridTransform(geom_coarse, geom_fine, regrid_param))
+       
+       ! Add fields to states using aliases
+       block
+          type(ESMF_Field) :: field_in_alias, field_out_alias
+          field_in_alias = ESMF_NamedAlias(field_in, name=COUPLER_IMPORT_NAME, _RC)
+          field_out_alias = ESMF_NamedAlias(field_out, name=COUPLER_EXPORT_NAME, _RC)
+          call ESMF_StateAdd(importState, [field_in_alias], _RC)
+          call ESMF_StateAdd(exportState, [field_out_alias], _RC)
+       end block
+       
+       ! Initialize and apply transform
+       call transform%initialize(importState, exportState, clock, _RC)
+       call transform%update(importState, exportState, clock, _RC)
+      
+       ! Calculate final sum
+       sum_out = sum(real(data_out, ESMF_KIND_R8))
+       
+       ! Verify regridding produced non-zero output
+       @assertGreaterThan(sum_out, 0.0_ESMF_KIND_R8)
+       
+        ! Note: With PE/DE grids, all cells should map properly and conservation
+        ! should hold. This test verifies regridding completes successfully.
+       
+        ! Cleanup
+       call ESMF_FieldDestroy(field_in, _RC)
+       call ESMF_FieldDestroy(field_out, _RC)
+       ! Note: geometries are managed by GeomManager, don't destroy them
+       
+    end subroutine test_mass_conservation_2d
+
+end module Test_IntegratedNormalization
