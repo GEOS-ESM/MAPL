@@ -35,9 +35,6 @@ module mapl3g_HistoryCollectionGridComp_private
       character(len=:), allocatable :: units
       type(ESMF_TypeKind_Flag), allocatable :: typekind
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_TimeInterval), allocatable :: runTime_offset
-      integer :: ref_day = 1
-      integer :: ref_month = 1
       character(len=:), allocatable :: accumulation_type
       type(EsmfRegridderParam) :: regrid_param
    end type HistoryOptions
@@ -277,7 +274,6 @@ contains
            units=opts%units, typekind=opts%typekind, &
            !accumulation_type=opts%accumulation_type, timestep = opts%timestep, &
            timestep = opts%timestep, &
-           offset=opts%runTime_offset, &
            regrid_param = opts%regrid_param, &
            itemtype=item_type, &
            _RC)
@@ -322,7 +318,7 @@ contains
       type(ESMF_HConfig) :: time_iter
       logical :: hasKey
       character(len=:), allocatable :: mapVal
-      type(ESMF_TimeInterval) :: timeStep, offset
+      type(ESMF_TimeInterval) :: timeStep
 
       hasKey = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIME_SPEC, _RC)
       _RETURN_UNLESS(hasKey)
@@ -339,23 +335,6 @@ contains
          mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_TIMESTEP, _RC)
          call ESMF_TimeIntervalSet(timeStep, timeIntervalString=mapVal, _RC)
          options%timeStep = timeStep
-      end if
-
-      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_REF_TIME, _RC)
-      if(hasKey) then
-         mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_REF_TIME, _RC)
-         call ESMF_TimeIntervalSet(offset, timeIntervalString=mapVal, _RC)
-         options%runTime_offset = offset
-      end if
-
-      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_REF_DAY, _RC)
-      if(hasKey) then
-         options%ref_day = ESMF_HConfigAsI4(time_iter, keyString=KEY_REF_DAY, _RC)
-      end if
-
-      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_REF_MONTH, _RC)
-      if(hasKey) then
-         options%ref_month = ESMF_HConfigAsI4(time_iter, keyString=KEY_REF_MONTH, _RC)
       end if
 
       call ESMF_HConfigDestroy(time_iter, _RC)

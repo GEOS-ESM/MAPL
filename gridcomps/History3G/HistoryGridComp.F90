@@ -59,9 +59,7 @@ contains
 
          call get_child_timespec(child_hconfig, timeStep,  _RC)
          call add_run_next_step(child_hconfig, hconfig, _RC)
-         call add_child_ref_time(child_hconfig, _RC)
-         call add_child_ref_day(child_hconfig, _RC)
-         call add_child_ref_month(child_hconfig, _RC)
+         call add_child_ref_datetime(child_hconfig, _RC)
 
          child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep)
 
@@ -109,65 +107,26 @@ contains
 
    end subroutine add_run_next_step
 
-   subroutine add_child_ref_time(hconfig, rc)
+   subroutine add_child_ref_datetime(hconfig, rc)
       type(ESMF_HConfig), intent(inout) :: hconfig
       integer, intent(out), optional :: rc
 
       integer :: status
       type(ESMF_HConfig) :: time_hconfig
-      logical :: has_ref_time
-      character(len=:), allocatable :: ref_time
+      logical :: has_ref_datetime
+      character(len=:), allocatable :: ref_datetime
 
       time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
 
-      ref_time = 'PT0S'
-      has_ref_time = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_time', _RC)
-      if (has_ref_time) then
-         ref_time = ESMF_HConfigAsString(time_hconfig, keystring='ref_time', _RC)
+      ref_datetime = "'%y4%m2%d2_%h2%n2'"
+      has_ref_datetime = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_datetime', _RC)
+      if (has_ref_datetime) then
+         ref_datetime = ESMF_HConfigAsString(time_hconfig, keystring='ref_datetime', _RC)
+         ref_datetime = "'"//ref_datetime//"'"
       end if
-      call ESMF_HConfigAdd(hconfig, ref_time, addKeyString='ref_time', _RC)
+      call ESMF_HConfigAdd(hconfig, ref_datetime, addKeyString='ref_datetime', _RC)
       _RETURN(_SUCCESS)
-   end subroutine add_child_ref_time
-
-   subroutine add_child_ref_day(hconfig, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
-      integer, intent(out), optional :: rc
-
-      integer :: status
-      type(ESMF_HConfig) :: time_hconfig
-      logical :: has_ref_day
-      integer :: ref_day
-
-      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
-
-      ref_day = 1
-      has_ref_day = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_day', _RC)
-      if (has_ref_day) then
-         ref_day = ESMF_HConfigAsI4(time_hconfig, keystring='ref_day', _RC)
-      end if
-      call ESMF_HConfigAdd(hconfig, ref_day, addKeyString='ref_day', _RC)
-      _RETURN(_SUCCESS)
-   end subroutine add_child_ref_day
-
-   subroutine add_child_ref_month(hconfig, rc)
-      type(ESMF_HConfig), intent(inout) :: hconfig
-      integer, intent(out), optional :: rc
-
-      integer :: status
-      type(ESMF_HConfig) :: time_hconfig
-      logical :: has_ref_month
-      integer :: ref_month
-
-      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
-
-      ref_month = 1
-      has_ref_month = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_month', _RC)
-      if (has_ref_month) then
-         ref_month = ESMF_HConfigAsI4(time_hconfig, keystring='ref_month', _RC)
-      end if
-      call ESMF_HConfigAdd(hconfig, ref_month, addKeyString='ref_month', _RC)
-      _RETURN(_SUCCESS)
-   end subroutine add_child_ref_month
+   end subroutine add_child_ref_datetime
 
    subroutine init(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp

@@ -431,7 +431,6 @@ contains
             call assign_fptr(field, ptr, _RC)
             call assign_fptr(reference_field, reference_ptr, _RC)
             if (any(abs(ptr-reference_ptr) > threshold)) then
-               _HERE,' bmaa ptr: ',maxval(reference_ptr),maxval(ptr)
                _FAIL("state differs from reference state greater than allowed threshold")
             end if
          else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
