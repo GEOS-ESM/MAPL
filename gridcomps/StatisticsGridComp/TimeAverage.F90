@@ -117,6 +117,7 @@ contains
       is_ringing = esmf_AlarmWillRingNext(this%alarm, _RC)
       _RETURN_UNLESS(is_ringing)
 
+      _HERE,'bmaa computing average'
       call this%compute_result(_RC)
       call this%reset(_RC)
 

@@ -95,12 +95,27 @@ contains
       type(ESMF_TimeInterval) :: outer_timestep, user_timestep, ref_time, t24
       type(ESMF_Time) :: currTime, clock_refTime, user_runTime, startTime, user_clockTime
       logical :: has_run_next_step, has_ref_time, run_next_step
+      logical :: has_ref_day, has_ref_month
+      integer :: ref_day, ref_month
 
       call ESMF_ClockGet(outer_clock, timestep=outer_timestep, currTime=currTime, refTime=clock_refTime, startTime=startTime, _RC)
       call ESMF_ClockGet(user_clock, timestep=user_timestep, _RC)
 
       has_ref_time = ESMF_HConfigIsDefined(this%hconfig, keyString='ref_time', _RC)
       has_run_next_step = ESMF_HConfigIsDefined(this%hconfig, keyString='run_next_step', _RC)
+      has_ref_day = ESMF_HConfigIsDefined(this%hconfig, keyString='ref_day', _RC)
+      has_ref_month = ESMF_HConfigIsDefined(this%hconfig, keyString='ref_month', _RC)
+
+      ref_day = 1
+      ref_month = 1
+      if (has_ref_day) then
+         ref_day = ESMF_HConfigAsI4(this%hconfig, keyString='ref_day', _RC)
+         _ASSERT(ref_day >= 1 .and. ref_day <= 28, 'reference day must be between 1 and 28')
+      end if
+      if (has_ref_month) then
+         ref_month = ESMF_HConfigAsI4(this%hconfig, keyString='ref_month', _RC)
+         _ASSERT(ref_month >= 1 .and. ref_month <= 12, 'reference month must be between 1 and 12')
+      end if
 
       ! this logic for ref time is there to set the alarm right in the case of a ref time
       ! as well as to set the clock correctly for components that use a ref time
@@ -109,12 +124,8 @@ contains
          ref_time = MAPL_HConfigAsTimeInterval(this%hconfig, keyString='ref_time', _RC) 
          call ESMF_TimeIntervalSet(t24, h=24, _RC)
          _ASSERT(ref_time <= t24, 'reference time must be between 0 and 24 hours')
-         user_runTime = sub_time_in_datetime(currTime, ref_time, _RC)
+         user_runTime = sub_time_in_datetime(currTime, ref_time, ref_day, ref_month, _RC)
          user_clockTime = user_runTime
-         ! also the clock must be also adjusted so that it starts on the ref time
-         if (user_runTime < currTime) then
-            user_clockTime = user_runTime +(INT((currTime-user_runTime)/user_timestep)+1)*user_timestep
-         end if
       else
          user_runTime = clock_refTime + this%user_offset
       end if
@@ -148,26 +159,39 @@ contains
 
          type(ESMF_Time) :: temp_time
 
+         call ESMF_TimePrint(user_clockTime, options='string', prestring='bmaa user time ')
+         call ESMF_TimePrint(currTime, options='string', prestring='bmaa curr time ')
          temp_time = user_clockTime
-         do while(temp_time >= currTime)
-            temp_time=temp_time-user_timeStep
-         enddo
-         if (temp_time < currTime) temp_time=temp_time+user_timeStep
-         user_clockTime = temp_time
+         if (user_clockTime < currTime) then
+            do while(temp_time < currTime)
+               temp_time=temp_time+user_timeStep
+            enddo
+            if (temp_time /= currTime) temp_time=temp_time-user_timeStep
+         else if (user_clockTime > currTime) then
+            do while(temp_time > currTime)
+               temp_time=temp_time-user_timeStep
+            enddo
+         end if
+         user_clockTime=temp_time
+         call ESMF_TimePrint(user_clockTime, options='string', prestring='bmaa user time after ')
  
          _RETURN(_SUCCESS)
 
    end subroutine reset_user_time
 
-   function sub_time_in_datetime(time, time_interval, rc) result(new_time)
+   function sub_time_in_datetime(time, time_interval, ref_day, ref_month, rc) result(new_time)
       type(ESMF_Time) :: new_time
       type(ESMF_Time), intent(in) :: time
       type(ESMF_TimeInterval), intent(in) :: time_interval
+      integer, intent(in) :: ref_day
+      integer, intent(in) :: ref_month
       integer, optional, intent(out) :: rc
 
       integer :: status, year, month, day
 
       call ESMF_TimeGet(time, yy=year, mm=month, dd=day, _RC)
+      month = ref_month
+      day = ref_day
       call ESMF_TimeSet(new_time, yy=year, mm=month, dd=day, h=0, m=0, s=0, _RC)
       new_time=new_time+time_interval
 

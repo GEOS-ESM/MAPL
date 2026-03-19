@@ -36,6 +36,8 @@ module mapl3g_HistoryCollectionGridComp_private
       type(ESMF_TypeKind_Flag), allocatable :: typekind
       type(ESMF_TimeInterval), allocatable :: timeStep
       type(ESMF_TimeInterval), allocatable :: runTime_offset
+      integer :: ref_day = 1
+      integer :: ref_month = 1
       character(len=:), allocatable :: accumulation_type
       type(EsmfRegridderParam) :: regrid_param
    end type HistoryOptions
@@ -346,6 +348,16 @@ contains
          options%runTime_offset = offset
       end if
 
+      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_REF_DAY, _RC)
+      if(hasKey) then
+         options%ref_day = ESMF_HConfigAsI4(time_iter, keyString=KEY_REF_DAY, _RC)
+      end if
+
+      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_REF_MONTH, _RC)
+      if(hasKey) then
+         options%ref_month = ESMF_HConfigAsI4(time_iter, keyString=KEY_REF_MONTH, _RC)
+      end if
+
       call ESMF_HConfigDestroy(time_iter, _RC)
 
       _RETURN(_SUCCESS)
@@ -558,9 +570,6 @@ contains
       if (accumulation_mode /= KEY_INSTANTANEOUS) then
          previous_time = current_time - timestep
          time_delta = (current_time - previous_time)/2
-         call ESMF_TimePrint(previous_time, options='string',prestring='bmaa next time: ')
-         call ESMF_TimePrint(current_time, options='string',prestring='bmaa current time: ')
-         call ESMF_TimeIntervalPrint(time_delta, options='string') !bmaa
          file_timestamp = current_time - time_delta
       end if
       _RETURN(_SUCCESS)

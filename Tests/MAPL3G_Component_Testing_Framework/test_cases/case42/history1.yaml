@@ -1,0 +1,23 @@
+
+active_collections:
+  - monthly
+  #- daily
+
+time_specs:
+  monthly_output: &monthly_output
+    frequency: P1M
+    mode: average
+  daily_output: &daily_output
+    frequency: PT24H
+
+collections:
+  monthly:
+    template: "%c_%y4%m2%d2_%h2%n2.nc4"
+    time_spec: *monthly_output
+    var_list:
+      E_1: {expr: E_1}
+  daily:
+    template: "%c_%y4%m2_%h2%n2.nc4"
+    time_spec: *daily_output
+    var_list:
+      E_1: {expr: E_1}
