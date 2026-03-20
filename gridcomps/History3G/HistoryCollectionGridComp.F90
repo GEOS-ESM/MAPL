@@ -145,8 +145,6 @@ contains
       else
          call ESMF_ClockGet(clock, currTime=current_time, _RC)
       end if
-      _HERE,' bmaa ',collection_gridcomp%run_next_step
-      call ESMF_TimePrint(current_time, options='string', prestring='bmaa curr time hist')
 
       run_collection = (current_time >= collection_gridcomp%start_stop_times(1)) .and. &
                            (current_time <= collection_gridcomp%start_stop_times(2))
