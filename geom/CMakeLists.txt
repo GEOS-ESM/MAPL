@@ -18,6 +18,7 @@ set(srcs
   GridGet.F90
   GridGetGlobal.F90
   GridGetHorzIJIndex.F90
+  GeomGetHorzIJIndex.F90
 
   # gFTL containers
   GeomFactoryVector.F90
