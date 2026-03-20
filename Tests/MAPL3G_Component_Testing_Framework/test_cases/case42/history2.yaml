@@ -1,5 +1,3 @@
-run_next_step: false
-
 geoms:
   geom1: &geom1
     class: latlon
@@ -9,16 +7,16 @@ geoms:
     dateline: DC
 
 active_collections:
-  - test
+  #- coll1
 
 time_specs:
   three_hour: &one_hour
     frequency: PT1H
 
 collections:
-  test:
-    template: "%c.nc4"
-    #geom: *geom1
+  coll1:
+    template: "%c_%y4%m2%d2.nc4"
+    geom: *geom1
     time_spec: *one_hour
     var_list:
-      E_1: {expr: E_1}
+      E1: {expr: E_1}

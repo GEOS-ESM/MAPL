@@ -60,6 +60,8 @@ module mapl3g_OuterMetaComponent
       type(SimpleAlarm) :: user_run_alarm
       type(DistributedProfiler) :: profiler
 
+      logical :: run_if_alarm_rings_next
+
    contains
 
       procedure :: get_user_gc_driver
