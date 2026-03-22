@@ -5,7 +5,7 @@ module mapl3g_HistoryConstants
 
    public :: VAR_LIST_KEY
    public :: KEY_TIMESTEP
-   public :: KEY_OFFSET
+   public :: KEY_REF_DATETIME
    public :: KEY_ACCUMULATION_TYPE
    public :: KEY_TIME_SPEC
    public :: KEY_TYPEKIND
@@ -16,7 +16,7 @@ module mapl3g_HistoryConstants
 
    character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
    character(len=*), parameter :: KEY_TIMESTEP = 'frequency'
-   character(len=*), parameter :: KEY_OFFSET = 'ref_time'
+   character(len=*), parameter :: KEY_REF_DATETIME = 'ref_datetime'
    character(len=*), parameter :: KEY_ACCUMULATION_TYPE = 'mode'
    character(len=*), parameter :: KEY_TIME_SPEC = 'time_spec'
    character(len=*), parameter :: KEY_TYPEKIND = 'typekind'
