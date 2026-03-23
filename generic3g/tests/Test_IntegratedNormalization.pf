@@ -47,6 +47,32 @@ module Test_IntegratedNormalization
 contains
 
    !---------------------------------------------------------------------------
+   ! Helper: Calculate total mass
+   ! Computes total mass from mixing ratio, pressure thickness, and area
+   ! Formula: mass = sum(q × Δp × area) / g
+   !---------------------------------------------------------------------------
+   function calculate_total_mass(mixing_ratio, delp, area) result(total_mass)
+      real(ESMF_KIND_R4), intent(in) :: mixing_ratio(:,:,:)  ! kg/kg
+      real(ESMF_KIND_R4), intent(in) :: delp(:,:,:)          ! Pa
+      real(ESMF_KIND_R4), intent(in) :: area(:,:)            ! m²
+      real(ESMF_KIND_R8) :: total_mass                       ! kg
+      real(ESMF_KIND_R4), allocatable :: area_3d(:,:,:)
+      integer :: nz
+      
+      ! Broadcast area to 3D
+      nz = size(delp, 3)
+      allocate(area_3d(size(area,1), size(area,2), nz))
+      area_3d = spread(area, dim=3, ncopies=nz)
+      
+      ! mass = sum(q × Δp × area) / g
+      total_mass = sum(real(mixing_ratio * delp * area_3d, ESMF_KIND_R8))
+      total_mass = total_mass / GRAVITY
+      
+      deallocate(area_3d)
+      
+   end function calculate_total_mass
+
+   !---------------------------------------------------------------------------
    ! Setup: Create test fixtures
    !---------------------------------------------------------------------------
    @Before
@@ -123,6 +149,7 @@ contains
       type(ESMF_Grid) :: grid_in, grid_out
       real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
       real(ESMF_KIND_R4), allocatable :: area_in(:,:), area_out(:,:)
+      real(ESMF_KIND_R4), allocatable :: delp_in(:,:,:), delp_out(:,:,:)
       real(ESMF_KIND_R4) :: delp_value
       real(ESMF_KIND_R8) :: mass_in, mass_out, rel_error
       integer :: i, j, k, status
@@ -154,6 +181,8 @@ contains
       ! Allocate area arrays for mass calculation
       allocate(area_in(NX_COARSE, NY_COARSE))
       allocate(area_out(NX_FINE, NY_FINE))
+      allocate(delp_in(NX_COARSE, NY_COARSE, NZ))
+      allocate(delp_out(NX_FINE, NY_FINE, NZ))
       
       ! Simplified area calculation (uniform for this test)
       area_in = 1.0
@@ -162,17 +191,11 @@ contains
       
       ! Uniform pressure thickness
       delp_value = 100.0  ! Pa per layer
+      delp_in = delp_value
+      delp_out = delp_value
       
-      ! Calculate initial mass: mass = sum(q × Δp × area) / g
-      mass_in = 0.0_ESMF_KIND_R8
-      do k = 1, NZ
-         do j = 1, NY_COARSE
-            do i = 1, NX_COARSE
-               mass_in = mass_in + real(data_in(i,j,k) * delp_value * area_in(i,j), ESMF_KIND_R8)
-            end do
-         end do
-      end do
-      mass_in = mass_in / GRAVITY
+      ! Calculate initial mass
+      mass_in = calculate_total_mass(data_in, delp_in, area_in)
       
       ! Create conservative regrid transform (without integrated normalization for this basic test)
       regrid_param = EsmfRegridderParam(RoutehandleParam( &
@@ -193,15 +216,7 @@ contains
       call transform%update(importState, exportState, clock, _RC)
       
       ! Calculate final mass
-      mass_out = 0.0_ESMF_KIND_R8
-      do k = 1, NZ
-         do j = 1, NY_FINE
-            do i = 1, NX_FINE
-               mass_out = mass_out + real(data_out(i,j,k) * delp_value * area_out(i,j), ESMF_KIND_R8)
-            end do
-         end do
-      end do
-      mass_out = mass_out / GRAVITY
+      mass_out = calculate_total_mass(data_out, delp_out, area_out)
      
       ! Verify mass conservation (conservative regridding should preserve mass for uniform mixing ratio)
       @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
@@ -216,7 +231,7 @@ contains
       @assertRelativelyEqual(CO2_MIXING_RATIO, minval(data_out), TOLERANCE_LOOSE)
       
       ! Cleanup
-      deallocate(area_in, area_out)
+      deallocate(area_in, area_out, delp_in, delp_out)
       call ESMF_FieldDestroy(field_in, _RC)
       call ESMF_FieldDestroy(field_out, _RC)
       
@@ -467,15 +482,7 @@ contains
                  (real(NX_OUT, ESMF_KIND_R4) * real(NY_OUT, ESMF_KIND_R4))
       
       ! Calculate total mass before regridding
-      mass_in = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_IN
-         do j = 1, NY_IN
-            do i = 1, NX_IN
-               mass_in = mass_in + real(data_in(i,j,k) * delp_in(i,j,k) * area_in(i,j), ESMF_KIND_R8)
-            end do
-         end do
-      end do
-      mass_in = mass_in / GRAVITY
+      mass_in = calculate_total_mass(data_in, delp_in, area_in)
       
       ! Step 1: Horizontal regridding
       call ESMF_FieldGet(f_horz, farrayPtr=data_horz, _RC)
@@ -521,15 +528,7 @@ contains
       end do
       
       ! Calculate total mass after regridding
-      mass_out = 0.0_ESMF_KIND_R8
-      do k = 1, NZ_OUT
-         do j = 1, NY_OUT
-            do i = 1, NX_OUT
-               mass_out = mass_out + real(data_out(i,j,k) * delp_out(i,j,k) * area_out(i,j), ESMF_KIND_R8)
-            end do
-         end do
-      end do
-      mass_out = mass_out / GRAVITY
+      mass_out = calculate_total_mass(data_out, delp_out, area_out)
       
       ! Verify conservation
       @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
