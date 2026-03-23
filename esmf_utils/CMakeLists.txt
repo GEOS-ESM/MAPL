@@ -11,8 +11,12 @@ set(srcs
   HorizontalDimsSpec.F90
   VectorBasisKind.F90
   NormalizationType.F90
+  ConservationType.F90
   QuantityType.F90
   QuantityTypeMetadata.F90
+  ConservationMetadata.F90
+  DistGridGet.F90
+  NormalizationMetadata.F90
   )
 
 esma_add_library(${this}

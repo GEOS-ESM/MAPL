@@ -33,6 +33,9 @@ contains
       logical :: is_ringing
 
       call ESMF_ClockGet(clock, currTime=currTime, _RC)
+      if (this%run_if_alarm_rings_next) then
+         call ESMF_ClockGetNextTime(clock, nextTime=currTime, _RC)
+      end if
       is_ringing = this%user_run_alarm%is_ringing(currTime, _RC)
       _RETURN_IF(.not. is_ringing)
 

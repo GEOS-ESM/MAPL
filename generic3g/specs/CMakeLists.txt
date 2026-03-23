@@ -25,6 +25,8 @@ target_sources(MAPL.generic3g PRIVATE
   UnitsAspect.F90
   FrequencyAspect.F90
   QuantityTypeAspect.F90
+  ConservationAspect.F90
+  NormalizationAspect.F90
 
   VariableSpec.F90
   StateItem.F90
@@ -46,3 +48,8 @@ target_sources(MAPL.generic3g PRIVATE
   is_in_set.h
   VariableSpec_private.F90
 )
+
+esma_add_fortran_submodules(
+  TARGET MAPL.generic3g
+  SUBDIRECTORY GeomAspect
+  SOURCES make_transform.F90)

@@ -25,17 +25,17 @@ module mapl3g_BasicVerticalGrid
    end type BasicVerticalGridSpec
 
    ! Grid type
-   type, extends(VerticalGrid) :: BasicVerticalGrid
-      private
-      type(BasicVerticalGridSpec) :: spec
-   contains
-      procedure :: initialize
-      procedure :: get_num_levels
-      procedure :: get_coordinate_field
-      procedure :: get_supported_physical_dimensions
-      procedure :: get_units
-      procedure :: matches
-   end type BasicVerticalGrid
+    type, extends(VerticalGrid) :: BasicVerticalGrid
+       private
+       type(BasicVerticalGridSpec) :: spec
+    contains
+       procedure :: initialize
+       procedure :: get_num_layers
+       procedure :: get_coordinate_field
+       procedure :: get_supported_physical_dimensions
+       procedure :: get_units
+       procedure :: matches
+    end type BasicVerticalGrid
 
    ! Factory type
    type, extends(VerticalGridFactory) :: BasicVerticalGridFactory
@@ -59,20 +59,18 @@ contains
       ! Default coordinate direction is already set to VCOORD_DIRECTION_DOWN in VerticalGrid
    end subroutine initialize
 
-   function get_num_levels(this) result(num_levels)
-      integer :: num_levels
+   function get_num_layers(this) result(num_layers)
+      integer :: num_layers
       class(BasicVerticalGrid), intent(in) :: this
 
-      num_levels = this%spec%num_levels
-   end function get_num_levels
+      num_layers = this%spec%num_levels
+   end function get_num_layers
 
-   function get_coordinate_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
+   function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
       type(esmf_Field) :: field
       class(BasicVerticalGrid), intent(in) :: this
-      type(esmf_Geom), intent(in) :: geom
       character(len=*), intent(in) :: physical_dimension
-      character(len=*), intent(in) :: units
-      type(esmf_TypeKind_Flag), intent(in) :: typekind
+      class(*), intent(in) :: aspects
       class(ComponentDriver), pointer, intent(out) :: coupler
       integer, intent(out), optional :: rc
 
@@ -84,10 +82,8 @@ contains
       _FAIL('BasicVerticalGrid should have been connected to a different subclass before this is called.')
 
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(geom)
       _UNUSED_DUMMY(physical_dimension)
-      _UNUSED_DUMMY(units)
-      _UNUSED_DUMMY(typekind)
+      _UNUSED_DUMMY(aspects)
    end function get_coordinate_field
 
    ! New method: get supported physical dimensions
@@ -116,7 +112,7 @@ contains
       class(BasicVerticalGrid), intent(in) :: this
       class(VerticalGrid), intent(in) :: other
 
-      matches = this%get_num_levels() == other%get_num_levels()
+      matches = this%get_num_layers() == other%get_num_layers()
    end function matches
 
    ! Factory methods

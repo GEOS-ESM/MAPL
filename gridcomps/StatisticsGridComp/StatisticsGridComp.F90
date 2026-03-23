@@ -9,6 +9,8 @@ module mapl3g_StatisticsGridComp
    use mapl3g_StatisticsVector
    use mapl3g_NullStatistic
    use mapl3g_TimeAverage
+   use mapl3g_TimeMin
+   use mapl3g_TimeMax
    use pflogger, only: Logger
 
    implicit none(type,external)
@@ -26,8 +28,8 @@ module mapl3g_StatisticsGridComp
 contains
 
    subroutine setServices(gridComp, rc)
-      type(esmf_GridComp), intent(inout) :: gridComp
-      integer, optional, intent(out) :: rc
+      type(esmf_GridComp) :: gridComp
+      integer, intent(out) :: rc
 
       integer :: status
       type(Statistics), pointer :: stats
@@ -66,7 +68,7 @@ contains
       type(esmf_HConfigIter), intent(in) :: iter
       integer, optional, intent(out) :: rc
 
-      type(esmf_TimeInterval) :: period, offset
+      type(esmf_TimeInterval) :: period
       character(:), allocatable :: action, name
       type(esmf_StateItem_Flag) :: itemtype
       integer :: status
@@ -77,29 +79,26 @@ contains
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
 
-      itemtype = mapl_HConfigAsItemType(hconfig, keystring='itemtype', _RC)
-
       varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, name, _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      select case (action)
-      case ('average')
-         period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
-         offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
-         varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
-              has_deferred_aspects=.true., _RC)
-         call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-!#         call mapl_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, dims='XY', vstagger=VERTICAL_STAGGER_NONE, &
-!#              itemtype=itemtype, _RC)
-!#              standard_name='<unknown>', timestep=period, &
-!#              refTime_offset=offset, &
-!#              has_deferred_aspects=.true., _RC)
-!#         call mapl_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, dims='XY', vstagger=VERTICAL_STAGGER_NONE, &
-!#              itemtype=itemtype, &
-!#              standard_name='<unknown>', timestep=period, &
-!#              refTime_offset=offset, &
-!#              has_deferred_aspects=.true., _RC)
-      case default
-         _FAIL('unsupported action: '//action)
+       select case (action)
+       case ('average')
+          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
+               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+       case ('min')
+          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
+               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+       case ('max')
+          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
+               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+       case default
+          _FAIL('unsupported action: '//action)
       end select
 
       call esmf_HConfigDestroy(hconfig, _RC)
@@ -212,13 +211,19 @@ contains
          action = esmf_HConfigAsString(iter, keystring='action', _RC)
          alarm = make_alarm(clock, iter, _RC)
 
-         select case (action)
-         case ('average')
-            deallocate(stat) ! gfortran workaround
-            stat = make_average_stat(name, iter, alarm, _RC)
-         case default
-            _FAIL('unsupported statistics class: '//action)
-         end select
+          select case (action)
+          case ('average')
+             deallocate(stat) ! gfortran workaround
+             stat = make_average_stat(name, iter, alarm, _RC)
+          case ('min')
+             deallocate(stat) ! gfortran workaround
+             stat = make_min_stat(name, iter, alarm, _RC)
+          case ('max')
+             deallocate(stat) ! gfortran workaround
+             stat = make_max_stat(name, iter, alarm, _RC)
+          case default
+             _FAIL('unsupported statistics class: '//action)
+          end select
 
          _RETURN(_SUCCESS)
       end function make_item
@@ -239,27 +244,138 @@ contains
          average = TimeAverage(f=f_in, avg_f=f_out, alarm=alarm)
 
          _RETURN(_SUCCESS)
-      end function make_average_stat
+       end function make_average_stat
 
-      function make_alarm(clock, iter, rc) result(alarm)
-         type(esmf_Alarm) :: alarm
-         type(esmf_Clock), intent(in) :: clock
-         type(esmf_HConfigIter), intent(in) :: iter
-         integer, optional, intent(out) :: rc
+       function make_min_stat(name, iter, alarm, rc) result(min_stat)
+          type(TimeMin) :: min_stat
+          character(*), intent(in) :: name
+          type(esmf_HConfigIter), intent(in) :: iter
+          type(esmf_Alarm), intent(in) :: alarm
+          integer, optional, intent(out) :: rc
 
-         integer :: status
-         type(esmf_TimeInterval) :: period, offset, timeStep
-         type(esmf_Time) :: ringTime, refTime
-         character(:), allocatable :: iso_timeinterval
+          integer :: status
+          type(esmf_Field) :: f_in, f_out
 
-         period = mapl_HConfigAsTimeInterval(iter, keystring='period', _RC)
-         offset = mapl_HConfigAsTimeInterval(iter, keystring='offset', _RC)
-         call esmf_ClockGet(clock, refTime=refTime, timeStep=timeStep, _RC)
-         ringTime = refTime + offset
+          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
-         alarm = esmf_AlarmCreate(clock, ringTime=ringTime, ringInterval=period, _RC)
-         _RETURN(_SUCCESS)
-      end function make_alarm
+          min_stat = TimeMin(f=f_in, min_f=f_out, alarm=alarm)
+
+          _RETURN(_SUCCESS)
+       end function make_min_stat
+
+       function make_max_stat(name, iter, alarm, rc) result(max_stat)
+          type(TimeMax) :: max_stat
+          character(*), intent(in) :: name
+          type(esmf_HConfigIter), intent(in) :: iter
+          type(esmf_Alarm), intent(in) :: alarm
+          integer, optional, intent(out) :: rc
+
+          integer :: status
+          type(esmf_Field) :: f_in, f_out
+
+          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+
+          max_stat = TimeMax(f=f_in, max_f=f_out, alarm=alarm)
+
+          _RETURN(_SUCCESS)
+       end function make_max_stat
+
+       function make_alarm(clock, iter, rc) result(alarm)
+          type(ESMF_Alarm) :: alarm
+          type(esmf_Clock), intent(in) :: clock
+          type(esmf_HConfigIter), intent(in) :: iter
+          integer, optional, intent(out) :: rc
+
+          integer :: status
+          type(esmf_TimeInterval) :: period
+          type(esmf_Time) :: ringTime, currTime
+          character(:), allocatable :: ref_datetime
+
+          period = mapl_HConfigAsTimeInterval(iter, keystring='period', _RC)
+          ref_datetime = esmf_HConfigAsString(iter, keystring='ref_datetime', _RC)
+
+          call esmf_ClockGet(clock, currTime=currTime, _RC)
+          ringTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
+
+          alarm = esmf_AlarmCreate(clock, ringTime=ringTime, ringInterval=period, _RC)
+          _RETURN(_SUCCESS)
+       end function make_alarm
+
+       function sub_time_in_datetime(time, ref_datetime, rc) result(new_time)
+          type(ESMF_Time) :: new_time
+          type(ESMF_Time), intent(in) :: time
+          character(len=*), intent(in) :: ref_datetime
+          integer, optional, intent(out) :: rc
+
+          integer :: status, year, month, day, hour, minute
+          integer :: pos
+
+          call ESMF_TimeGet(time, yy=year, mm=month, dd=day, h=hour, m=minute, _RC)
+
+          ! Parse template left-to-right. Format: %y4%m2%d2_%h2%n2
+          ! Tokens starting with % are substituted from current time.
+          ! Literal digits replace the corresponding time component.
+          pos = 1
+
+          ! Year: either %y4 (3 chars, use current year) or 4 literal digits
+          if (ref_datetime(pos:pos) == '%') then
+             _ASSERT(ref_datetime(pos:pos+2) == '%y4', 'Invalid token in ref_datetime at year position, expected %y4')
+             pos = pos + 3
+          else
+             read(ref_datetime(pos:pos+3), '(I4)') year
+             pos = pos + 4
+          end if
+
+          ! Month: either %m2 (3 chars, use current month) or 2 literal digits
+          if (ref_datetime(pos:pos) == '%') then
+             _ASSERT(ref_datetime(pos:pos+2) == '%m2', 'Invalid token in ref_datetime at month position, expected %m2')
+             pos = pos + 3
+          else
+             read(ref_datetime(pos:pos+1), '(I2)') month
+             _ASSERT(month >= 1 .and. month <= 12, 'ref_datetime month must be between 1 and 12')
+             pos = pos + 2
+          end if
+
+          ! Day: either %d2 (3 chars, use current day) or 2 literal digits
+          if (ref_datetime(pos:pos) == '%') then
+             _ASSERT(ref_datetime(pos:pos+2) == '%d2', 'Invalid token in ref_datetime at day position, expected %d2')
+             pos = pos + 3
+          else
+             read(ref_datetime(pos:pos+1), '(I2)') day
+             _ASSERT(day >= 1 .and. day <= 28, 'ref_datetime day must be between 1 and 28')
+             pos = pos + 2
+          end if
+
+          ! Separator: underscore
+          _ASSERT(ref_datetime(pos:pos) == '_', 'Expected underscore separator in ref_datetime')
+          pos = pos + 1
+
+          ! Hour: either %h2 (3 chars, use current hour) or 2 literal digits
+          if (ref_datetime(pos:pos) == '%') then
+             _ASSERT(ref_datetime(pos:pos+2) == '%h2', 'Invalid token in ref_datetime at hour position, expected %h2')
+             pos = pos + 3
+          else
+             read(ref_datetime(pos:pos+1), '(I2)') hour
+             _ASSERT(hour >= 0 .and. hour <= 23, 'ref_datetime hour must be between 0 and 23')
+             pos = pos + 2
+          end if
+
+          ! Minute: either %n2 (3 chars, use current minute) or 2 literal digits
+          if (ref_datetime(pos:pos) == '%') then
+             _ASSERT(ref_datetime(pos:pos+2) == '%n2', 'Invalid token in ref_datetime at minute position, expected %n2')
+             pos = pos + 3
+          else
+             read(ref_datetime(pos:pos+1), '(I2)') minute
+             _ASSERT(minute >= 0 .and. minute <= 59, 'ref_datetime minute must be between 0 and 59')
+             pos = pos + 2
+          end if
+
+          call ESMF_TimeSet(new_time, yy=year, mm=month, dd=day, h=hour, m=minute, s=0, _RC)
+
+          _RETURN(_SUCCESS)
+       end function sub_time_in_datetime
 
    end subroutine modify_advertise
 

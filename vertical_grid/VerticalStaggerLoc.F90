@@ -30,11 +30,12 @@ module mapl3g_VerticalStaggerLoc
       private
       integer :: id = INVALID
       character(24) :: name = "VERTICAL_STAGGER_INVALID"
-   contains
-      procedure :: to_string
-      procedure :: get_dimension_name
-      procedure :: get_num_levels
-   end type VerticalStaggerLoc
+    contains
+       procedure :: to_string
+       procedure :: get_dimension_name
+       procedure :: get_num_levels
+       procedure :: get_num_layers
+    end type VerticalStaggerLoc
 
    interface VerticalStaggerLoc
       procedure :: new_VerticalStaggerLoc
@@ -129,22 +130,41 @@ contains
       end select
    end function get_dimension_name
 
-   integer function get_num_levels(this, num_vgrid_levels) result(num_levels)
+   integer function get_num_levels(this, num_layers) result(num_levels)
       class(VerticalStaggerLoc), intent(in) :: this
-      integer, intent(in) :: num_vgrid_levels
+      integer, intent(in) :: num_layers
 
       select case (this%id)
       case (NONE)
          num_levels = 0
       case (EDGE)
-         num_levels = num_vgrid_levels
+         num_levels = num_layers + 1
       case (CENTER)
-         num_levels = num_vgrid_levels - 1
+         num_levels = num_layers
       case (MIRROR)
-         num_levels = num_vgrid_levels
+         num_levels = num_layers + 1
       case default
          num_levels = -1
       end select
    end function get_num_levels
+
+   ! Inverse of get_num_levels: converts field num_levels to num_layers
+   integer function get_num_layers(this, num_levels) result(num_layers)
+      class(VerticalStaggerLoc), intent(in) :: this
+      integer, intent(in) :: num_levels
+
+      select case (this%id)
+      case (NONE)
+         num_layers = 0
+      case (EDGE)
+         num_layers = num_levels - 1
+      case (CENTER)
+         num_layers = num_levels
+      case (MIRROR)
+         num_layers = num_levels - 1
+      case default
+         num_layers = -1
+      end select
+   end function get_num_layers
 
 end module mapl3g_VerticalStaggerLoc

@@ -6,7 +6,9 @@ set (TEST_SRCS
   Test_CoordinateAxis.pf
   Test_LonAxis.pf
   Test_LatAxis.pf
+  Test_LatLonGeomSpec.pf
   Test_LatLonGeomFactory.pf
+  Test_CubedSphereGeomSpec.pf
   Test_CubedSphereGeomFactory.pf
   Test_GridGet.pf
   Test_LocStreamDecomposition.pf
@@ -31,6 +33,7 @@ add_pfunit_ctest(MAPL.geom.tests
   EXTRA_USE MAPL_pFUnit_Initialize
   MAX_PES 8
 )
+
 set_target_properties(MAPL.geom.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.geom.tests PROPERTIES LABELS "ESSENTIAL")
 

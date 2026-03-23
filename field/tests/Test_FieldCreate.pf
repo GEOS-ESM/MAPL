@@ -7,6 +7,9 @@ module Test_FieldCreate
    use mapl3g_FieldInfo
    use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_EDGE, VERTICAL_STAGGER_CENTER
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
+   use mapl3g_VerticalGrid_API
+   use mapl3g_FixedLevelsVerticalGrid
+   use mapl3g_FieldSet, only: FieldSet
    use funit
    use ESMF_TestMethod_mod
    use esmf
@@ -46,14 +49,25 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_field_create_vert_only(this)
-      class(ESMF_TestMethod), intent(inout) :: this
+       class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_Field) :: field
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
       real(kind=ESMF_KIND_R4), pointer :: farray(:, :, :)
-      integer, parameter :: num_vgrid_levels = 5
+      integer, parameter :: num_layers = 5
+      real, parameter :: levels(num_layers) = [100., 200., 300., 400., 500.]
+      type(FixedLevelsVerticalGridSpec) :: vgrid_spec
+      type(FixedLevelsVerticalGrid) :: vgrid_local
+      class(VerticalGrid), pointer :: vgrid
+      type(VerticalGridManager), pointer :: vgrid_manager
       integer :: num_levels, status
+
+      ! Create a FixedLevelsVerticalGrid with 5 layers
+      vgrid_spec = FixedLevelsVerticalGridSpec(physical_dimension='air_pressure', levels=levels, units='Pa')
+      call vgrid_local%initialize(vgrid_spec)
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%add_grid(vgrid_local, _RC)
 
       field = ESMF_FieldEmptyCreate(_RC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[3,2], _RC)
@@ -63,14 +77,17 @@ contains
            field, &
            typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[0, 0], &
-           num_levels=num_vgrid_levels+1, & ! +1 since it's an edge variable
-           vert_staggerloc=VERTICAL_STAGGER_EDGE, &
+           num_levels=num_layers, & ! CENTER fields have num_layers levels
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            _RC)
+      
+      ! Set vgrid info after completing the field
+      call FieldSet(field, vgrid=vgrid, _RC)
 
       call MAPL_FieldGet(field, num_levels=num_levels, _RC)
-      @assertEqual(num_levels, num_vgrid_levels+1)
+      @assertEqual(num_levels, num_layers)
       call assign_fptr_condensed_array(field, farray, _RC)
-      @assertEqual(shape(farray), [1, num_vgrid_levels+1, 1])
+      @assertEqual(shape(farray), [1, num_layers, 1])
 
       call ESMF_FieldDestroy(field, _RC)
       call ESMF_GeomDestroy(geom, _RC)
@@ -87,8 +104,19 @@ contains
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
       real(kind=ESMF_KIND_R4), pointer :: farray(:, :, :)
-      integer, parameter :: num_vgrid_levels = 5
+      integer, parameter :: num_layers = 5
+      real, parameter :: levels(num_layers) = [100., 200., 300., 400., 500.]
+      type(FixedLevelsVerticalGridSpec) :: vgrid_spec
+      type(FixedLevelsVerticalGrid) :: vgrid_local
+      class(VerticalGrid), pointer :: vgrid
+      type(VerticalGridManager), pointer :: vgrid_manager
       integer :: num_levels, status
+
+      ! Create a FixedLevelsVerticalGrid with 5 layers
+      vgrid_spec = FixedLevelsVerticalGridSpec(physical_dimension='air_pressure', levels=levels, units='Pa')
+      call vgrid_local%initialize(vgrid_spec)
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%add_grid(vgrid_local, _RC)
 
       field = ESMF_FieldEmptyCreate(_RC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[3,2], _RC)
@@ -97,14 +125,17 @@ contains
       call MAPL_FieldEmptyComplete( &
            field, &
            typekind=ESMF_TYPEKIND_R4, &
-           num_levels=num_vgrid_levels, &
+           num_levels=num_layers, & ! CENTER fields have num_layers levels
            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            _RC)
+      
+      ! Set vgrid info after completing the field
+      call FieldSet(field, vgrid=vgrid, _RC)
 
       call MAPL_FieldGet(field, num_levels=num_levels, _RC)
-      @assertEqual(num_levels, num_vgrid_levels)
+      @assertEqual(num_levels, num_layers)
       call assign_fptr_condensed_array(field, farray, _RC)
-      @assertEqual(shape(farray), [6, num_vgrid_levels, 1])
+      @assertEqual(shape(farray), [6, num_layers, 1])
 
       call ESMF_FieldDestroy(field, _RC)
       call ESMF_GeomDestroy(geom, _RC)

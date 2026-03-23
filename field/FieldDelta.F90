@@ -10,6 +10,7 @@ module mapl3g_FieldDelta
    use mapl3g_FieldGet
    use mapl3g_VerticalStaggerLoc
    use mapl3g_InfoUtilities
+   use mapl3g_FieldFill, only: FieldFill
    use mapl_FieldPointerUtilities
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -84,7 +85,6 @@ contains
 
       call compute_geom_delta(this%geom, f_a, f_b, _RC)
       call compute_typekind_delta(this%typekind, f_a, f_b, _RC)
-      call compute_num_levels_delta(this%num_levels, f_a, f_b, _RC)
       call compute_units_delta(this%units, f_a, f_b, _RC)
 
       _RETURN(_SUCCESS)
@@ -129,25 +129,6 @@ contains
          _RETURN(_SUCCESS)
       end subroutine compute_typekind_delta
 
-      subroutine compute_num_levels_delta(num_levels, f_a, f_b, rc)
-         integer, allocatable, intent(out) :: num_levels
-         type(ESMF_Field), intent(in) :: f_a
-         type(ESMF_Field), intent(in) :: f_b
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         integer :: num_levels_a, num_levels_b
-
-         call FieldGet(f_a, num_levels=num_levels_a, _RC)
-         call FieldGet(f_b, num_levels=num_levels_b, _RC)
-
-          if (num_levels_a /= num_levels_b) then
-              num_levels = num_levels_b
-          end if
-
-         _RETURN(_SUCCESS)
-      end subroutine compute_num_levels_delta
-
       subroutine compute_units_delta(units, f_a, f_b, rc)
          character(:), allocatable, intent(out) :: units
          type(ESMF_Field), intent(in) :: f_a
@@ -183,8 +164,7 @@ contains
       allocate(this%typekind)
       call ESMF_FieldGet(f, geom=this%geom, typekind=typekind, _RC)
 
-      allocate(this%num_levels)
-      call FieldGet(f, num_levels=this%num_levels, units=this%units, _RC)
+      call FieldGet(f, units=this%units, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine initialize_field_delta_degenerate
@@ -204,30 +184,11 @@ contains
 
       call this%reallocate_field(field, ignore=ignore_, _RC)
 
-      call update_num_levels(this%num_levels, field, ignore=ignore_, _RC)
       call update_units(this%units, field, ignore=ignore_, _RC)
 
       _RETURN(_SUCCESS)
 
    contains
-
-      subroutine update_num_levels(num_levels, field, ignore, rc)
-         integer, optional, intent(in) :: num_levels
-         type(ESMF_Field), intent(inout) :: field
-         character(*), intent(in) :: ignore
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         type(ESMF_Info) :: info
-
-         _RETURN_UNLESS(present(num_levels))
-         _RETURN_IF(ignore == 'num_levels')
-
-         call ESMF_InfoGetFromHost(field, info, _RC)
-         call FieldInfoSetInternal(info, num_levels=num_levels, _RC)
-
-         _RETURN(_SUCCESS)
-      end subroutine update_num_levels
 
       subroutine update_units(units, field, ignore, rc)
          character(*), optional, intent(in) :: units
@@ -306,10 +267,13 @@ contains
       call ESMF_FieldEmptyReset(field, status=ESMF_FIELDSTATUS_EMPTY, _RC)
       call ESMF_FieldEmptySet(field, geom, _RC)
 
-      call ESMF_FieldEmptyComplete(field, &
-           typekind=typekind, &
-           ungriddedLBound=ungriddedLBound, ungriddedUbound=ungriddedUBound, &
-           _RC)
+       call ESMF_FieldEmptyComplete(field, &
+            typekind=typekind, &
+            ungriddedLBound=ungriddedLBound, ungriddedUbound=ungriddedUBound, &
+            _RC)
+
+      ! Initialize field with appropriate sentinel values to catch uninitialized data usage
+      call FieldFill(field, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -378,12 +342,11 @@ contains
          ! Surface fields are not impacted by change in vertical grid
          _RETURN_IF(vert_staggerloc == VERTICAL_STAGGER_NONE)
 
-
          call FieldGet(field, num_levels=current_num_levels, _RC)
          _ASSERT(count(vert_staggerloc == [VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE]) == 1, 'unsupported vertical stagger')
-         ungriddedUBound(1) = this%num_levels
+         ungriddedUBound(1) = new_num_levels
 
-         new_array = new_array .or. (this%num_levels /= current_num_levels)
+         new_array = new_array .or. (new_num_levels /= current_num_levels)
 
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)

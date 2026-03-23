@@ -7,6 +7,8 @@ module mapl3g_FieldGet
    use mapl3g_FieldInfo
    use mapl3g_StateItemAllocation
    use mapl3g_QuantityTypeMetadata
+   use mapl3g_NormalizationMetadata
+   use mapl3g_ConservationMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
@@ -28,9 +30,11 @@ contains
    subroutine field_get(field, unusable, &
         short_name, typekind, &
         geom, horizontal_dims_spec, &
-        vgrid, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
+        vgrid, num_levels, num_layers, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         ungridded_dims, &
         quantity_type_metadata, &
+        normalization_metadata, &
+        conservation_metadata, &
         units, standard_name, long_name, &
         allocation_status, &
         has_deferred_aspects, &
@@ -43,12 +47,15 @@ contains
       character(len=:), optional, allocatable, intent(out) :: short_name
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       class(VerticalGrid), pointer, optional, intent(out) :: vgrid
-      integer, optional, intent(out) :: num_levels
+      integer, optional, intent(out) :: num_levels     ! Actual field levels (depends on vgrid + stagger)
+      integer, optional, intent(out) :: num_layers     ! Number of layers from vgrid (CENTER levels)
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(out) :: vert_alignment
-      integer, optional, intent(out) :: num_vgrid_levels
+      integer, optional, intent(out) :: num_vgrid_levels  ! Deprecated: use num_layers instead
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
+      type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(out) :: conservation_metadata
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
@@ -86,11 +93,14 @@ contains
            horizontal_dims_spec=horizontal_dims_spec, &
            vgrid_id=vgrid_id, &
            num_levels=num_levels, &
+           num_layers=num_layers, &
            vert_staggerloc=vert_staggerloc, &
            vert_alignment=vert_alignment, &
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
            quantity_type_metadata=quantity_type_metadata, &
+           normalization_metadata=normalization_metadata, &
+           conservation_metadata=conservation_metadata, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &

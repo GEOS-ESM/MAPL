@@ -101,18 +101,18 @@ ctest --output-on-failure  # Show output only on failure (recommended)
 
 ## Fast Workflow (generic3g Only)
 
-**Problem:** Running `ctest` at top level is too slow during development.
+**Problem:** Running `ctest` at the top-level build dir is too slow during development.
 
-**Solution:** Build and run generic3g tests directly from their directory.
+**Solution:** Build generic3g tests once, then run `ctest` from `generic3g/tests`, which now contains multiple smaller test suites.
 
 ### Important Setup Requirements
 
-**CRITICAL:** 
-- You MUST run from within `$BUILD/generic3g/tests` directory
-- You MUST set `DYLD_LIBRARY_PATH` to include gridcomps directory
-- gridcomps directory also contains NAG compiler license information
+**CRITICAL:**
+- You MUST build from within `$BUILD/generic3g/tests` using `make`
+- You SHOULD run tests with `ctest` from the same directory
+- On macOS + NAG, you MUST set `DYLD_LIBRARY_PATH` to include `gridcomps` if you run the raw executables (rarely needed now)
 
-### Step-by-Step Fast Workflow
+### Step-by-Step Fast Workflow (Recommended)
 
 ```bash
 # 1. Navigate to generic3g tests directory
@@ -123,66 +123,54 @@ cd ~/swdev/VS/MAPL/nag/generic3g/tests
 cd ~/swdev/VS/MAPL/gfortran/generic3g/tests
 
 # 2. Build just generic3g tests
-make
-
-# 3. Set library path
-export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
-
-# 4. Run tests
-mpirun -np 1 ./MAPL.generic3g.tests
-```
-
-### Fast Workflow Test Logging (Recommended)
-
-**IMPORTANT:** Always log test output:
-
-```bash
-# Build with logging
-cd $BUILD/generic3g/tests
 make 2>&1 | tee build.log
 
-# Run tests with logging
-export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
-mpirun -np 1 ./MAPL.generic3g.tests 2>&1 | tee test-run.log
+# 3. Run the generic3g test suites via CTest
+ctest --output-on-failure 2>&1 | tee ctest.log
 ```
 
-**Why log:**
-- `tail` can hide progress issues from user
-- Full log allows reviewing test output later
-- Logs persist in tests directory for later review
-- Standard locations: `$BUILD/generic3g/tests/build.log` and `test-run.log`
+This will run the split generic3g suites, for example:
 
-**AI Agents:** When running generic3g tests, ALWAYS use `tee` to create logs.
+- `MAPL.generic3g.scenarios`
+- `MAPL.generic3g.transforms`
+- `MAPL.generic3g.vertical`
+- `MAPL.generic3g.aspects`
+- `MAPL.generic3g.components`
+- `MAPL.generic3g.core`
 
-### Why This Works
+### Running Individual generic3g Suites
 
-- **make** rebuilds only generic3g tests, not entire MAPL
-- **gridcomps/** contains compiled test components (shared libraries)
-- **DYLD_LIBRARY_PATH** tells system where to find those libraries
-- **gridcomps/** also has NAG license info (critical for NAG builds)
-
-### Common Mistake
+Use `ctest -R` from `generic3g/tests`:
 
 ```bash
-# WRONG - running from top-level build directory
-cd ~/swdev/VS/MAPL/nag
-export DYLD_LIBRARY_PATH=$PWD/generic3g/tests/gridcomps:$DYLD_LIBRARY_PATH
-mpirun -np 1 ./generic3g/tests/MAPL.generic3g.tests  # Will fail!
-
-# CORRECT - running from within tests directory
-cd ~/swdev/VS/MAPL/nag/generic3g/tests
-export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
-mpirun -np 1 ./MAPL.generic3g.tests  # Works!
+cd $BUILD/generic3g/tests
+ctest -R MAPL.generic3g.transforms --output-on-failure
+ctest -R MAPL.generic3g.scenarios  --output-on-failure
 ```
+
+This is now the preferred way to focus on a particular generic3g area.
+
+### When To Use The Raw Executable
+
+You can still drop to the underlying pFUnit driver if you need `-d` / `-f` flags:
+
+```bash
+cd $BUILD/generic3g/tests
+export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
+mpirun -np 1 ./MAPL.generic3g.transforms -d
+mpirun -np 1 ./MAPL.generic3g.scenarios -d -f SomeTestName
+```
+
+But for normal work, prefer `ctest` from `generic3g/tests`.
 
 ## Test Debugging Flags
 
-When running `./MAPL.generic3g.tests`, use these flags AFTER the executable name:
+When running a generic3g test driver executable (e.g. `MAPL.generic3g.transforms` or `MAPL.generic3g.scenarios`), use these flags AFTER the executable name:
 
 ### -d Flag: Diagnostic Output
 
 ```bash
-mpirun -np 1 ./MAPL.generic3g.tests -d
+mpirun -np 1 ./MAPL.generic3g.transforms -d
 ```
 
 **Use when:**
@@ -192,7 +180,7 @@ mpirun -np 1 ./MAPL.generic3g.tests -d
 
 **Logging diagnostic output:**
 ```bash
-mpirun -np 1 ./MAPL.generic3g.tests -d 2>&1 | tee test-diagnostic.log
+mpirun -np 1 ./MAPL.generic3g.scenarios -d 2>&1 | tee test-diagnostic.log
 ```
 
 **Output:**
@@ -208,7 +196,7 @@ This shows Test_GridComp_run started but never finished.
 ### -f Flag: Filter Tests
 
 ```bash
-mpirun -np 1 ./MAPL.generic3g.tests -f ComponentDriver
+mpirun -np 1 ./MAPL.generic3g.transforms -f ComponentDriver
 ```
 
 **Use when:**
@@ -226,7 +214,7 @@ mpirun -np 1 ./MAPL.generic3g.tests -f ComponentDriver
 ### Combining Flags
 
 ```bash
-mpirun -np 1 ./MAPL.generic3g.tests -d -f GridComp
+mpirun -np 1 ./MAPL.generic3g.scenarios -d -f GridComp
 ```
 
 This runs only GridComp tests with diagnostic output. Perfect for focused debugging.
@@ -234,17 +222,17 @@ This runs only GridComp tests with diagnostic output. Perfect for focused debugg
 ### Examples
 
 ```bash
-# Run all tests with diagnostics
-mpirun -np 1 ./MAPL.generic3g.tests -d
+# Run all transforms tests with diagnostics
+mpirun -np 1 ./MAPL.generic3g.transforms -d
 
-# Run only ComponentDriver tests
-mpirun -np 1 ./MAPL.generic3g.tests -f ComponentDriver
+# Run only ComponentDriver-related scenarios
+mpirun -np 1 ./MAPL.generic3g.scenarios -f ComponentDriver
 
-# Debug GridComp tests specifically
-mpirun -np 1 ./MAPL.generic3g.tests -d -f GridComp
+# Debug GridComp tests specifically in scenarios
+mpirun -np 1 ./MAPL.generic3g.scenarios -d -f GridComp
 
-# Run tests matching "create" in name
-mpirun -np 1 ./MAPL.generic3g.tests -f create
+# Run tests matching "create" in name in core suite
+mpirun -np 1 ./MAPL.generic3g.core -f create
 ```
 
 ## Platform-Specific Tests
@@ -350,17 +338,9 @@ The filter matches any test name containing that substring.
 
 ### Full ctest Too Slow During Development
 
-**Problem:** Need quick test feedback during generic3g development
+**Problem:** Need quick test feedback during generic3g development.
 
-**Solution:** Use fast workflow (see above)
-```bash
-cd $BUILD/generic3g/tests
-make
-export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
-mpirun -np 1 ./MAPL.generic3g.tests
-```
-
-This typically takes < 1 minute vs many minutes for full ctest.
+**Solution:** Use the fast workflow above (build once with `make` in `generic3g/tests`, then call `ctest` from that same directory). This typically takes on the order of 10 seconds on a modern Mac, versus many minutes for a top-level `ctest`.
 
 ## Debugging Workflow
 
@@ -428,15 +408,14 @@ ctest --output-on-failure 2>&1 | tee ctest.log
 ```bash
 cd $BUILD/generic3g/tests
 make 2>&1 | tee build.log
-export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
-mpirun -np 1 ./MAPL.generic3g.tests 2>&1 | tee test-run.log
+ctest --output-on-failure 2>&1 | tee ctest.log
 ```
 
-### Debug Specific Test
+### Debug Specific Test (generic3g)
 ```bash
 cd $BUILD/generic3g/tests
 export DYLD_LIBRARY_PATH=$PWD/gridcomps:$DYLD_LIBRARY_PATH
-mpirun -np 1 ./MAPL.generic3g.tests -d -f TestName 2>&1 | tee test-debug.log
+mpirun -np 1 ./MAPL.generic3g.scenarios -d -f TestName 2>&1 | tee test-debug.log
 ```
 
 ## Related Skills

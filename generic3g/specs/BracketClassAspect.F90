@@ -113,16 +113,21 @@ contains
       if (geom_aspect%is_time_dependent()) then
          ! must do time interpolation first
          aspect_ids = [ &
+              ATTRIBUTES_ASPECT_ID, &
+              UNGRIDDED_DIMS_ASPECT_ID, &
+              QUANTITY_TYPE_ASPECT_ID, &
               CLASS_ASPECT_ID, &
               GEOM_ASPECT_ID &
            ]
-      end if
-
-      ! Othrerwise doing geom regrid first is a performance improveent.
-      aspect_ids = [ &
-           GEOM_ASPECT_ID, &
-           CLASS_ASPECT_ID &
+      else
+         aspect_ids = [ &
+              ATTRIBUTES_ASPECT_ID, &
+              UNGRIDDED_DIMS_ASPECT_ID, &
+              QUANTITY_TYPE_ASPECT_ID, &
+              GEOM_ASPECT_ID, &
+              CLASS_ASPECT_ID &
            ]
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)

@@ -325,7 +325,7 @@ contains
          vertical_grid_ => outer_meta_%get_vertical_grid()
          num_levels = 1
          if (associated(vertical_grid_)) then
-            num_levels = vertical_grid_%get_num_levels()
+            num_levels = vertical_grid_%get_num_layers()
          end if
       end if
 

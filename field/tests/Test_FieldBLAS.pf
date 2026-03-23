@@ -3,6 +3,7 @@
 module Test_FieldBLAS
    use mapl3g_FieldCreate
    use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalGrid_API
    use mapl_FieldBLAS
    use field_utils_setup
    use MAPL_FieldPointerUtilities
@@ -397,13 +398,18 @@ contains
       type(ESMF_Info) :: x_info, y_info
       type(ESMF_Grid) :: grid
       type(ESMF_Geom) :: geom
+      type(VerticalGridManager), pointer :: vgrid_manager
+      class(VerticalGrid), pointer :: vgrid
 
       integer :: status, rc
 
       grid= mk_grid('a', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
 
-      x = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, num_levels=3, vert_staggerloc=VERTICAL_STAGGER_EDGE, units='m', standard_name='foo', _RC)
+      vgrid_manager => get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=3), _RC)
+
+      x = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, units='m', standard_name='foo', _RC)
       call FieldClone(x, y, _RC)
 
       call ESMF_InfoGetFromHost(x, x_info, _RC)

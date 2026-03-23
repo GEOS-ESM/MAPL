@@ -17,7 +17,7 @@ module Test_VerticalGridManager
       procedure :: get_coordinate_field => mock_create_field
       procedure :: get_supported_physical_dimensions => mock_get_supported_physical_dimensions
       procedure :: get_units => mock_get_units
-      procedure :: get_num_levels
+      procedure :: get_num_layers
       procedure :: matches
    end type MockVerticalGrid
 
@@ -164,15 +164,13 @@ contains
    end subroutine test_manager_remove_nonexistent_grid
 
 
-   function mock_create_field(this, geom, physical_dimension, units, typekind, coupler, rc) result(field)
-      use esmf, only: esmf_Field, esmf_FieldEmptyCreate, esmf_TypeKind_Flag
+   function mock_create_field(this, physical_dimension, aspects, coupler, rc) result(field)
+      use esmf, only: esmf_Field, esmf_FieldEmptyCreate
       use mapl3g_ComponentDriver, only: ComponentDriver
       type(esmf_Field) :: field
       class(MockVerticalGrid), intent(in) :: this
-      type(esmf_Geom), intent(in) :: geom
       character(len=*), intent(in) :: physical_dimension
-      character(len=*), intent(in) :: units
-      type(esmf_TypeKind_Flag), intent(in) :: typekind
+      class(*), intent(in) :: aspects
       class(ComponentDriver), pointer, intent(out) :: coupler
       integer, intent(out), optional :: rc
       
@@ -181,12 +179,12 @@ contains
       if (present(rc)) rc = 0
    end function mock_create_field
 
-   function get_num_levels(this) result(n_levels)
-      integer :: n_levels
+   function get_num_layers(this) result(n_layers)
+      integer :: n_layers
       class(MockVerticalGrid), intent(in) :: this
       
-      n_levels = this%num_levels
-   end function get_num_levels
+      n_layers = this%num_levels
+   end function get_num_layers
 
    function mock_get_supported_physical_dimensions(this) result(dimensions)
       type(StringVector) :: dimensions

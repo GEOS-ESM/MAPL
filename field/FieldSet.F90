@@ -3,13 +3,18 @@
 module mapl3g_FieldSet
 
    use mapl3g_VerticalGrid_API
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
+   use mapl3g_FieldGet
    use mapl3g_FieldDelta
    use mapl3g_StateItemAllocation
    use mapl3g_QuantityTypeMetadata
+   use mapl3g_NormalizationMetadata
+   use mapl3g_ConservationMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+   use mapl_FieldPointerUtilities, only: FieldGetLocalElementCount
    use mapl3g_UngriddedDims
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec
    use esmf
@@ -35,9 +40,11 @@ contains
         unusable, &
         num_levels, &
         units, standard_name, long_name, &
-        ungridded_dims, &
-        quantity_type_metadata, &
-        attributes, &
+       ungridded_dims, &
+       quantity_type_metadata, &
+       normalization_metadata, &
+       conservation_metadata, &
+       attributes, &
         allocation_status, &
         has_deferred_aspects, &
         regridder_param_info, &
@@ -54,9 +61,11 @@ contains
       character(len=*), optional, intent(in) :: units
       character(len=*), optional, intent(in) :: standard_name
       character(len=*), optional, intent(in) :: long_name
-      type(UngriddedDims), optional, intent(in) :: ungridded_dims
-      type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
-      type(StringVector), optional, intent(in) :: attributes
+       type(UngriddedDims), optional, intent(in) :: ungridded_dims
+       type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
+       type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
+       type(ConservationMetadata), optional, intent(in) :: conservation_metadata
+       type(StringVector), optional, intent(in) :: attributes
       type(StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_Info), optional, intent(in) :: regridder_param_info
@@ -67,10 +76,44 @@ contains
       type(FieldDelta) :: field_delta
       type(esmf_FieldStatus_Flag) :: fstatus
       integer, allocatable :: vgrid_id
+      integer :: derived_num_levels, current_num_levels
+      integer :: rank, ungriddedDimCount
+      integer, allocatable :: localElementCount(:)
+      type(VerticalStaggerLoc) :: stagger
 
       call esmf_FieldGet(field, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_COMPLETE) then
-         field_delta = FieldDelta(geom=geom, num_levels=num_levels, typekind=typekind, units=units)
+         ! Determine num_levels to pass to FieldDelta
+         if (present(vgrid) .and. .not. present(num_levels)) then
+            ! vgrid is present but num_levels wasn't explicitly provided
+            ! Derive num_levels from vgrid and only pass to FieldDelta if it changed
+            if (present(vert_staggerloc)) then
+               stagger = vert_staggerloc
+            else
+               call FieldGet(field, vert_staggerloc=stagger, _RC)
+            end if
+            derived_num_levels = stagger%get_num_levels(vgrid%get_num_layers())
+            
+            ! Check if num_levels actually changed
+            ! Get current num_levels from field array dimensions, not from vgrid
+            localElementCount = FieldGetLocalElementCount(field, _RC)
+            call ESMF_FieldGet(field, rank=rank, ungriddedDimCount=ungriddedDimCount, _RC)
+            if (ungriddedDimCount > 0) then
+               current_num_levels = localElementCount(rank-ungriddedDimCount+1)
+            else
+               current_num_levels = 0  ! No vertical dimension
+            end if
+            if (derived_num_levels /= current_num_levels) then
+               ! num_levels changed - pass it to FieldDelta
+               field_delta = FieldDelta(geom=geom, num_levels=derived_num_levels, typekind=typekind, units=units)
+            else
+               ! num_levels didn't change - don't pass it to FieldDelta
+               field_delta = FieldDelta(geom=geom, typekind=typekind, units=units)
+            end if
+         else
+            ! Either no vgrid, or num_levels was explicitly provided
+            field_delta = FieldDelta(geom=geom, num_levels=num_levels, typekind=typekind, units=units)
+         end if
          call field_delta%update_field(field, _RC)
       end if
 
@@ -89,11 +132,12 @@ contains
            vgrid_id=vgrid_id, &
            vert_staggerloc=vert_staggerloc, &
            vert_alignment=vert_alignment, &
-           num_levels=num_levels, &
            typekind=typekind, &
            units=units, standard_name=standard_name, long_name=long_name, &
            ungridded_dims=ungridded_dims, &
            quantity_type_metadata=quantity_type_metadata, &
+           normalization_metadata=normalization_metadata, &
+           conservation_metadata=conservation_metadata, &
            allocation_status=allocation_status, &
            has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &

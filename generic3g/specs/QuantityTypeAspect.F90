@@ -10,6 +10,7 @@ module mapl3g_QuantityTypeAspect
    use mapl3g_QuantityType
    use mapl3g_QuantityTypeMetadata
    use mapl3g_NormalizationType
+   use mapl3g_NormalizationMetadata
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl_KeywordEnforcer
@@ -30,22 +31,14 @@ module mapl3g_QuantityTypeAspect
    type, extends(StateItemAspect) :: QuantityTypeAspect
       private
       
-      ! User-specified (semantic) properties
+      ! Semantic properties (user-specified)
       type(QuantityType) :: quantity_type = QUANTITY_UNKNOWN
       character(:), allocatable :: dimensions          ! e.g., "kg/kg", "kg/m3"
       type(MixingRatioBasis) :: basis = BASIS_NONE
       real, allocatable :: molecular_weight            ! For volume mixing ratios
       
-      ! Framework-derived (operational) properties
-      logical :: conservative_regridable = .false.     ! Computed during initialize
-      type(NormalizationType) :: normalization_type = NORMALIZE_NONE
-      real :: normalization_scale = 1.0                ! e.g., 1/g for delp
-      character(:), allocatable :: aux_field_name      ! e.g., "DELP", "DZ"
-      
    contains
-      procedure :: initialize_derived_properties
       procedure :: validate
-      procedure :: get_normalization_info
       
       ! StateItemAspect interface
       procedure :: matches
@@ -64,7 +57,10 @@ module mapl3g_QuantityTypeAspect
       procedure :: set_basis
       procedure :: get_molecular_weight
       procedure :: set_molecular_weight
-      procedure :: get_conservative_regridable
+      procedure :: set_from_metadata
+
+      ! Query methods
+      procedure :: needs_vertical_normalization
 
       procedure :: update_from_payload
       procedure :: update_payload
@@ -112,61 +108,7 @@ contains
 
        call aspect%set_time_dependent(is_time_dependent)
 
-       ! Initialize derived properties
-       call aspect%initialize_derived_properties(_RC)
-
     end function new_QuantityTypeAspect
-
-   subroutine initialize_derived_properties(this, rc)
-      class(QuantityTypeAspect), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      ! Default: not conservative regridable
-      this%conservative_regridable = .false.
-      this%normalization_type = NORMALIZE_NONE
-      this%normalization_scale = 1.0
-      if (allocated(this%aux_field_name)) deallocate(this%aux_field_name)
-
-      ! Derive operational properties from semantic properties
-      select case (this%quantity_type%to_string())
-      case ('QUANTITY_MIXING_RATIO')
-         this%conservative_regridable = .true.
-         this%normalization_type = NORMALIZE_DELP
-         this%normalization_scale = 1.0 / GRAV  ! Convert delp [Pa] to [kg/m^2]
-         this%aux_field_name = 'DELP'
-         
-      case ('QUANTITY_CONCENTRATION')
-         this%conservative_regridable = .true.
-         this%normalization_type = NORMALIZE_DZ
-         this%normalization_scale = 1.0
-         this%aux_field_name = 'DZ'
-         
-      case ('QUANTITY_TEMPERATURE')
-         this%conservative_regridable = .false.
-         this%normalization_type = NORMALIZE_NONE
-         
-      case ('QUANTITY_PRESSURE')
-         this%conservative_regridable = .false.
-         this%normalization_type = NORMALIZE_NONE
-         
-      case ('QUANTITY_EXTENSIVE')
-         ! Extensive quantities like mass - already in [kg/m^2] or [kg]
-         this%conservative_regridable = .true.
-         this%normalization_type = NORMALIZE_NONE
-         
-      case ('QUANTITY_UNKNOWN')
-         ! Unknown - default to non-conservative
-         this%conservative_regridable = .false.
-         this%normalization_type = NORMALIZE_NONE
-         
-      case default
-         _FAIL('Unknown quantity type')
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine initialize_derived_properties
 
    subroutine validate(this, rc)
       class(QuantityTypeAspect), intent(in) :: this
@@ -192,26 +134,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine validate
-
-   subroutine get_normalization_info(this, normalization_type, scale, aux_field_name, rc)
-      class(QuantityTypeAspect), intent(in) :: this
-      type(NormalizationType), optional, intent(out) :: normalization_type
-      real, optional, intent(out) :: scale
-      character(:), allocatable, optional, intent(out) :: aux_field_name
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      if (present(normalization_type)) normalization_type = this%normalization_type
-      if (present(scale)) scale = this%normalization_scale
-      if (present(aux_field_name)) then
-         if (allocated(this%aux_field_name)) then
-            aux_field_name = this%aux_field_name
-         end if
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine get_normalization_info
 
    logical function supports_conversion_general(src)
       class(QuantityTypeAspect), intent(in) :: src
@@ -292,9 +214,6 @@ contains
          this%molecular_weight = export_%molecular_weight
       end if
 
-      ! Re-initialize derived properties after mirroring
-      call this%initialize_derived_properties(_RC)
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
@@ -354,7 +273,6 @@ contains
 
       this%quantity_type = quantity_type
       call this%set_mirror(.false.)
-      call this%initialize_derived_properties(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine set_quantity_type
@@ -401,7 +319,6 @@ contains
       integer :: status
 
       this%basis = basis
-      call this%initialize_derived_properties(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine set_basis
@@ -428,11 +345,41 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_molecular_weight
 
-   logical function get_conservative_regridable(this)
+   !> Query whether this quantity type requires vertical normalization for conservative regridding
+   !!
+   !! Wet mass mixing ratios (kg/kg) need normalization by layer pressure thickness (delp)
+   !! for conservative vertical regridding to preserve mass.
+   !!
+   !! @return .true. if quantity requires normalization (divide by dp, regrid, multiply by dp)
+   logical function needs_vertical_normalization(this)
       class(QuantityTypeAspect), intent(in) :: this
 
-      get_conservative_regridable = this%conservative_regridable
-   end function get_conservative_regridable
+      ! Wet mass mixing ratios need normalization for conservative vertical regridding
+      needs_vertical_normalization = &
+         (this%quantity_type == QUANTITY_MIXING_RATIO .and. this%basis == BASIS_WET_MASS)
+
+   end function needs_vertical_normalization
+
+   subroutine set_from_metadata(this, metadata, rc)
+      class(QuantityTypeAspect), intent(inout) :: this
+      type(QuantityTypeMetadata), intent(in) :: metadata
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! Extract and set all properties from metadata
+      this%quantity_type = metadata%get_quantity_type()
+      this%dimensions = metadata%get_dimensions()
+      this%basis = metadata%get_basis()
+      if (metadata%has_molecular_weight()) then
+         if (.not. allocated(this%molecular_weight)) allocate(this%molecular_weight)
+         this%molecular_weight = metadata%get_molecular_weight()
+      end if
+      
+      call this%set_mirror(.false.)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_from_metadata
 
    subroutine update_from_payload(this, field, bundle, state, rc)
       class(QuantityTypeAspect), intent(inout) :: this
@@ -458,20 +405,7 @@ contains
       end if
 
       if (has_metadata) then
-         ! Extract properties from metadata
-         this%quantity_type = metadata%get_quantity_type()
-         this%dimensions = metadata%get_dimensions()
-         this%basis = metadata%get_basis()
-         if (metadata%has_molecular_weight()) then
-            if (.not. allocated(this%molecular_weight)) allocate(this%molecular_weight)
-            this%molecular_weight = metadata%get_molecular_weight()
-         end if
-         this%conservative_regridable = metadata%get_conservative_regridable()
-         this%normalization_type = metadata%get_normalization_type()
-         this%normalization_scale = metadata%get_normalization_scale()
-         this%aux_field_name = metadata%get_aux_field_name()
-         
-         call this%set_mirror(.false.)
+         call this%set_from_metadata(metadata, _RC)
       else
          call this%set_mirror(.true.)
       end if
@@ -488,32 +422,65 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(QuantityTypeMetadata) :: metadata
+      type(QuantityTypeMetadata) :: qty_metadata
+      type(NormalizationMetadata) :: norm_metadata
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
       _RETURN_IF(this%is_mirror())
 
-      ! Create metadata from aspect properties
-      metadata = QuantityTypeMetadata( &
+      ! Create QuantityTypeMetadata from aspect properties
+      qty_metadata = QuantityTypeMetadata( &
          quantity_type = this%quantity_type, &
          dimensions = this%dimensions, &
          basis = this%basis, &
-         molecular_weight = this%molecular_weight, &
-         conservative_regridable = this%conservative_regridable, &
-         normalization_type = this%normalization_type, &
-         normalization_scale = this%normalization_scale, &
-         aux_field_name = this%aux_field_name &
+         molecular_weight = this%molecular_weight &
       )
 
+      ! Derive NormalizationMetadata from quantity_type
+      norm_metadata = derive_normalization_metadata(this%quantity_type)
+
       if (present(field)) then
-         call MAPL_FieldSet(field, quantity_type_metadata=metadata, _RC)
+         call MAPL_FieldSet(field, quantity_type_metadata=qty_metadata, _RC)
+         call MAPL_FieldSet(field, normalization_metadata=norm_metadata, _RC)
       else if (present(bundle)) then
-         call MAPL_FieldBundleSet(bundle, quantity_type_metadata=metadata, _RC)
+         call MAPL_FieldBundleSet(bundle, quantity_type_metadata=qty_metadata, _RC)
+         call MAPL_FieldBundleSet(bundle, normalization_metadata=norm_metadata, _RC)
       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
    end subroutine update_payload
+
+   function derive_normalization_metadata(quantity_type) result(metadata)
+      type(QuantityType), intent(in) :: quantity_type
+      type(NormalizationMetadata) :: metadata
+
+      ! Derive normalization parameters from quantity_type
+      select case (quantity_type%to_string())
+      case ('QUANTITY_MIXING_RATIO')
+         metadata = NormalizationMetadata( &
+            normalization_type = NORMALIZE_DELP, &
+            normalization_scale = 1.0 / GRAV &
+         )
+         
+      case ('QUANTITY_CONCENTRATION')
+         metadata = NormalizationMetadata( &
+            normalization_type = NORMALIZE_DZ, &
+            normalization_scale = 1.0 &
+         )
+         
+      case ('QUANTITY_DRY_MIXING_RATIO')
+         metadata = NormalizationMetadata( &
+            normalization_type = NORMALIZE_DELP, &
+            normalization_scale = 1.0 / GRAV &
+         )
+         
+      case default
+         ! Not a conservative regridable quantity
+         metadata = NormalizationMetadata()  ! mirror (no normalization)
+      end select
+
+   end function derive_normalization_metadata
 
    subroutine print_aspect(this, file, line, rc)
       class(QuantityTypeAspect), intent(in) :: this
@@ -521,16 +488,9 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc
 
-      _HERE, file, line, this%is_mirror(), this%quantity_type%to_string()
       if (allocated(this%dimensions)) then
-         _HERE, file, line, 'dimensions:', this%dimensions
       end if
       _HERE, file, line, 'basis:', this%basis%to_string()
-      _HERE, file, line, 'conservative_regridable:', this%conservative_regridable
-      _HERE, file, line, 'normalization_type:', this%normalization_type%to_string()
-      if (allocated(this%aux_field_name)) then
-         _HERE, file, line, 'aux_field_name:', this%aux_field_name
-      end if
 
       _RETURN(_SUCCESS)
    end subroutine print_aspect

@@ -1,0 +1,18 @@
+repos:
+  # Codee formatter (local)
+  - repo: local
+    hooks:
+      - id: codee-format
+        name: "Formatting using codee formatter"
+        entry: codee format
+        language: system
+
+  # Fortitude (local)
+  - repo: local
+    hooks:
+    - id: fortitude
+      name: "Linting using fortitude"
+      entry: bash -lc 'fortitude check --config-file .fortitude.toml "$@" || true'
+      language: system
+      files: '\.(f90|F90)$'
+      pass_filenames: true
