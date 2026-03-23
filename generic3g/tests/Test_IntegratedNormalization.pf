@@ -1,0 +1,726 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_IntegratedNormalization
+   use mapl3g_RegridTransform
+   use mapl3g_VerticalRegridTransform
+   use mapl3g_VerticalRegridMethod
+   use mapl3g_VerticalStaggerLoc
+   use mapl3g_VerticalCoordinateDirection
+   use mapl3g_VerticalAlignment
+   use mapl3g_VerticalGrid_API
+   use mapl3g_ExtensionTransform, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME, ExtensionTransform
+   use mapl3g_FieldCreate, only: MAPL_FieldCreate
+   use mapl3g_QuantityType
+   use mapl3g_QuantityTypeMetadata
+   use mapl3g_NormalizationType
+   use mapl3g_NormalizationMetadata
+   use mapl3g_Field_API
+   use mapl3g_regridder_mgr, only: EsmfRegridderParam
+   use mapl3g_RoutehandleParam, only: RoutehandleParam
+   use mapl3g_Geom_API
+   use mapl_ErrorHandling
+   use esmf
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none
+
+   ! Module-level fixtures
+   type(ESMF_State) :: importState
+   type(ESMF_State) :: exportState
+   type(ESMF_Geom) :: geom_coarse, geom_fine
+   type(ESMF_Clock) :: clock
+   type(GeomManager), pointer :: geom_mgr
+   class(VerticalGrid), pointer :: vertical_grid => null()
+   
+   ! Grid dimensions
+   integer, parameter :: NX_COARSE = 4
+   integer, parameter :: NY_COARSE = 4
+   integer, parameter :: NX_FINE = 8
+   integer, parameter :: NY_FINE = 8
+   integer, parameter :: NZ = 10
+  
+   ! Constants for testing
+   real, parameter :: GRAVITY = 9.80665  ! m/s²
+   real, parameter :: CO2_MIXING_RATIO = 400.0e-6  ! 400 ppm (kg/kg wet)
+   real, parameter :: TOLERANCE_STRICT = 1.0e-10
+   real, parameter :: TOLERANCE_LOOSE = 1.0e-5
+
+contains
+
+   !---------------------------------------------------------------------------
+   ! Helper: Calculate total mass
+   ! Computes total mass from mixing ratio, pressure thickness, and area
+   ! Formula: mass = sum(q × Δp × area) / g
+   !---------------------------------------------------------------------------
+   function calculate_total_mass(mixing_ratio, delp, area) result(total_mass)
+      real(ESMF_KIND_R4), intent(in) :: mixing_ratio(:,:,:)  ! kg/kg
+      real(ESMF_KIND_R4), intent(in) :: delp(:,:,:)          ! Pa
+      real(ESMF_KIND_R4), intent(in) :: area(:,:)            ! m²
+      real(ESMF_KIND_R8) :: total_mass                       ! kg
+      real(ESMF_KIND_R4), allocatable :: area_3d(:,:,:)
+      integer :: nz
+      
+      ! Broadcast area to 3D
+      nz = size(delp, 3)
+      allocate(area_3d(size(area,1), size(area,2), nz))
+      area_3d = spread(area, dim=3, ncopies=nz)
+      
+      ! mass = sum(q × Δp × area) / g
+      total_mass = sum(real(mixing_ratio * delp * area_3d, ESMF_KIND_R8))
+      total_mass = total_mass / GRAVITY
+      
+      deallocate(area_3d)
+      
+   end function calculate_total_mass
+
+   !---------------------------------------------------------------------------
+   ! Helper: Create a simple vertical grid for testing
+   !---------------------------------------------------------------------------
+   function create_test_vertical_grid(rc) result(vgrid)
+      class(VerticalGrid), pointer :: vgrid
+      integer, optional, intent(out) :: rc
+      
+      type(VerticalGridManager), pointer :: vgrid_manager
+      type(BasicVerticalGridSpec) :: vspec
+      integer :: status
+      
+      ! Create a simple basic vertical grid with NZ levels
+      vspec = BasicVerticalGridSpec(num_levels=NZ)
+      
+      vgrid_manager => get_vertical_grid_manager(_RC)
+      vgrid => vgrid_manager%create_grid(vspec, _RC)
+      
+      _RETURN(_SUCCESS)
+   end function create_test_vertical_grid
+
+   !---------------------------------------------------------------------------
+   ! Setup: Create test fixtures
+   !---------------------------------------------------------------------------
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(ESMF_Time) :: startTime
+      type(ESMF_Time) :: stopTime
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom) :: mapl_geom
+      character(len=256) :: config_str
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Get GeomManager
+      geom_mgr => get_geom_manager()
+      
+      ! Create coarse geometry (4x4) using GeomManager
+      ! Use PE/DE (pole-edge/dateline-edge) to avoid ESMF floating overflow errors with bilinear
+      write(config_str, '(A,I0,A,I0,A)') &
+           '{class: latlon, im_world: ', NX_COARSE, ', jm_world: ', NY_COARSE, ', pole: PE, dateline: DE}'
+      hconfig = ESMF_HConfigCreate(content=trim(config_str), _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom_coarse = mapl_geom%get_geom()
+      
+      ! Create fine geometry (8x8) using GeomManager
+      write(config_str, '(A,I0,A,I0,A)') &
+           '{class: latlon, im_world: ', NX_FINE, ', jm_world: ', NY_FINE, ', pole: PE, dateline: DE}'
+      hconfig = ESMF_HConfigCreate(content=trim(config_str), _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom_fine = mapl_geom%get_geom()
+      
+      ! Create states
+      importState = ESMF_StateCreate(name='import', stateintent=ESMF_STATEINTENT_IMPORT, _RC)
+      exportState = ESMF_StateCreate(name='export', stateintent=ESMF_STATEINTENT_EXPORT, _RC)
+      
+      ! Create clock
+      call ESMF_TimeSet(startTime, yy=2000, mm=1, dd=1, h=0, m=0, s=0, _RC)
+      call ESMF_TimeSet(stopTime, yy=2000, mm=1, dd=2, h=0, m=0, s=0, _RC)
+      call ESMF_TimeIntervalSet(timeStep, h=6, _RC)
+      clock = ESMF_ClockCreate(name='clock', timeStep=timeStep, &
+           startTime=startTime, stopTime=stopTime, _RC)
+      
+      ! Create vertical grid
+      vertical_grid => create_test_vertical_grid(_RC)
+      
+   end subroutine setUp
+
+   !---------------------------------------------------------------------------
+   ! Teardown: Clean up test fixtures
+   !---------------------------------------------------------------------------
+   @After
+   subroutine tearDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      
+      _UNUSED_DUMMY(this)
+      
+      call ESMF_StateDestroy(importState, _RC)
+      call ESMF_StateDestroy(exportState, _RC)
+      ! Note: geometries are managed by GeomManager, don't destroy them
+      call ESMF_ClockDestroy(clock, _RC)
+      
+   end subroutine tearDown
+
+   !===========================================================================
+   ! Test 1: Horizontal Conservative Regrid with Mass Conservation
+   ! Verifies that conservative regridding preserves total mass
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_horizontal_conservative_mass_conservation(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      class(ExtensionTransform), allocatable :: transform
+      type(EsmfRegridderParam) :: regrid_param
+      type(ESMF_Field) :: field_in, field_out
+      type(ESMF_Grid) :: grid_in, grid_out
+      real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
+      real(ESMF_KIND_R4), allocatable :: area_in(:,:), area_out(:,:)
+      real(ESMF_KIND_R4), allocatable :: delp_in(:,:,:), delp_out(:,:,:)
+      real(ESMF_KIND_R4) :: delp_value
+      real(ESMF_KIND_R8) :: mass_in, mass_out, rel_error
+      integer :: i, j, k, status
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Extract grids from geometries
+      call ESMF_GeomGet(geom_coarse, grid=grid_in, _RC)
+      call ESMF_GeomGet(geom_fine, grid=grid_out, _RC)
+      
+      ! Create fields on different grids
+      field_in = MAPL_FieldCreate(geom_coarse, name=COUPLER_IMPORT_NAME, &
+           typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      field_out = MAPL_FieldCreate(geom_fine, name=COUPLER_EXPORT_NAME, &
+           typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+     
+      ! Fill input with uniform mixing ratio
+      call ESMF_FieldGet(field_in, farrayPtr=data_in, _RC)
+      data_in = CO2_MIXING_RATIO
+      
+      ! Initialize output
+      call ESMF_FieldGet(field_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+      ! Allocate area arrays for mass calculation
+      allocate(area_in(NX_COARSE, NY_COARSE))
+      allocate(area_out(NX_FINE, NY_FINE))
+      allocate(delp_in(NX_COARSE, NY_COARSE, NZ))
+      allocate(delp_out(NX_FINE, NY_FINE, NZ))
+      
+      ! Simplified area calculation (uniform for this test)
+      area_in = 1.0
+      area_out = real(NX_COARSE, ESMF_KIND_R4) * real(NY_COARSE, ESMF_KIND_R4) / &
+                 (real(NX_FINE, ESMF_KIND_R4) * real(NY_FINE, ESMF_KIND_R4))
+      
+      ! Uniform pressure thickness
+      delp_value = 100.0  ! Pa per layer
+      delp_in = delp_value
+      delp_out = delp_value
+      
+      ! Calculate initial mass
+      mass_in = calculate_total_mass(data_in, delp_in, area_in)
+      
+      ! Create conservative regrid transform (without integrated normalization for this basic test)
+      regrid_param = EsmfRegridderParam(RoutehandleParam( &
+           regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+      allocate(transform, source=RegridTransform(geom_coarse, geom_fine, regrid_param))
+      
+      ! Add fields to states using aliases
+      block
+         type(ESMF_Field) :: field_in_alias, field_out_alias
+         field_in_alias = ESMF_NamedAlias(field_in, name=COUPLER_IMPORT_NAME, _RC)
+         field_out_alias = ESMF_NamedAlias(field_out, name=COUPLER_EXPORT_NAME, _RC)
+         call ESMF_StateAdd(importState, [field_in_alias], _RC)
+         call ESMF_StateAdd(exportState, [field_out_alias], _RC)
+      end block
+      
+      ! Initialize and apply transform
+      call transform%initialize(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
+      
+      ! Calculate final mass
+      mass_out = calculate_total_mass(data_out, delp_out, area_out)
+     
+      ! Verify mass conservation (conservative regridding should preserve mass for uniform mixing ratio)
+      @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
+      rel_error = abs(mass_out - mass_in) / mass_in
+      @assertTrue(rel_error < TOLERANCE_LOOSE, 'Mass not conserved in horizontal conservative regrid')
+      
+      ! Verify output is non-zero (regridding worked)
+      @assertGreaterThan(maxval(abs(data_out)), 0.0)
+      
+      ! Verify uniform field stays relatively uniform
+      @assertRelativelyEqual(CO2_MIXING_RATIO, maxval(data_out), TOLERANCE_LOOSE)
+      @assertRelativelyEqual(CO2_MIXING_RATIO, minval(data_out), TOLERANCE_LOOSE)
+      
+      ! Cleanup
+      deallocate(area_in, area_out, delp_in, delp_out)
+      call ESMF_FieldDestroy(field_in, _RC)
+      call ESMF_FieldDestroy(field_out, _RC)
+      
+   end subroutine test_horizontal_conservative_mass_conservation
+
+   !===========================================================================
+   ! Test 2: Non-Conservative (Bilinear) Regrid - No Normalization Overhead
+   ! Verifies that bilinear regridding works without normalization overhead
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bilinear_no_normalization(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      class(ExtensionTransform), allocatable :: transform
+      type(EsmfRegridderParam) :: regrid_param
+      type(ESMF_Field) :: field_in, field_out
+      real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
+      integer :: status
+      
+      _UNUSED_DUMMY(this)
+     
+      ! Create fields
+      field_in = MAPL_FieldCreate(geom_coarse, name=COUPLER_IMPORT_NAME, &
+           typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      field_out = MAPL_FieldCreate(geom_fine, name=COUPLER_EXPORT_NAME, &
+           typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+     
+      ! Fill input
+      call ESMF_FieldGet(field_in, farrayPtr=data_in, _RC)
+      data_in = CO2_MIXING_RATIO
+     
+      ! Initialize output
+      call ESMF_FieldGet(field_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+     
+      ! Create BILINEAR regrid transform (no normalization - uses PE/DE grids to avoid overflow)
+      regrid_param = EsmfRegridderParam(RoutehandleParam( &
+           regridmethod=ESMF_REGRIDMETHOD_BILINEAR))
+      allocate(transform, source=RegridTransform(geom_coarse, geom_fine, regrid_param))
+      
+      ! Add fields to states using aliases
+      block
+         type(ESMF_Field) :: field_in_alias, field_out_alias
+         field_in_alias = ESMF_NamedAlias(field_in, name=COUPLER_IMPORT_NAME, _RC)
+         field_out_alias = ESMF_NamedAlias(field_out, name=COUPLER_EXPORT_NAME, _RC)
+         call ESMF_StateAdd(importState, [field_in_alias], _RC)
+         call ESMF_StateAdd(exportState, [field_out_alias], _RC)
+      end block
+      
+      ! Initialize and apply transform
+      call transform%initialize(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
+     
+      ! Verify output is non-zero (regridding worked)
+      @assertGreaterThan(maxval(abs(data_out)), 0.0)
+     
+      ! Verify no normalization was applied (values should be similar to input for uniform field)
+      @assertRelativelyEqual(CO2_MIXING_RATIO, maxval(data_out), TOLERANCE_LOOSE)
+      @assertRelativelyEqual(CO2_MIXING_RATIO, minval(data_out), TOLERANCE_LOOSE)
+     
+      ! Cleanup
+      call ESMF_FieldDestroy(field_in, _RC)
+      call ESMF_FieldDestroy(field_out, _RC)
+      
+   end subroutine test_bilinear_no_normalization
+
+   !===========================================================================
+   ! Test 3: Normalization Mismatch Handling
+   ! Verifies that connection machinery correctly handles cases where import and 
+   ! export have different normalizations. This is a baseline test for Task 5, 
+   ! Scenario 5 ("True Normalization Mismatch").
+   !
+   ! NOTE: This test currently verifies that connections with mismatched 
+   ! normalizations complete without error. Full validation of extension creation
+   ! and transform generation will be added in Phase 2 when NormalizationTransform
+   ! is fully implemented (currently returns NullTransform as placeholder).
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_normalization_mismatch(this)
+      use mapl3g_StateRegistry
+      use mapl3g_StateItemSpec
+      use mapl3g_StateItemSpecPtrVector
+      use mapl3g_VirtualConnectionPt
+      use mapl3g_ConnectionPt
+      use mapl3g_ExtensionFamily
+      use mapl3g_SimpleConnection
+      use mapl3g_NormalizationAspect
+      use mapl3g_AspectId
+      use MockAspect_mod
+      
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(StateRegistry), target :: parent_registry, src_registry, dst_registry
+      type(VirtualConnectionPt) :: export_pt, import_pt
+      type(StateItemSpec), target :: export_spec, import_spec
+      type(SimpleConnection) :: connection
+      integer :: status
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create registries (parent with two child registries)
+      parent_registry = StateRegistry('parent')
+      src_registry = StateRegistry('source')
+      dst_registry = StateRegistry('destination')
+      call parent_registry%add_subregistry(src_registry)
+      call parent_registry%add_subregistry(dst_registry)
+      
+      ! Create connection points
+      export_pt = VirtualConnectionPt(state_intent='export', short_name='Q')
+      import_pt = VirtualConnectionPt(state_intent='import', short_name='Q')
+      
+      ! Create export spec with NORMALIZE_DELP (simulating [kg/kg] with DELP normalization)
+      export_spec = MockItemSpec(1, state_intent=ESMF_STATEINTENT_EXPORT, &
+           short_name='Q', typekind=ESMF_TYPEKIND_R4, units='kg kg-1')
+      ! Set normalization aspect to NORMALIZE_DELP
+      call export_spec%set_aspect( &
+           NormalizationAspect(normalization_type=NORMALIZE_DELP, scale_factor=1.0), _RC)
+      
+      ! Create import spec with NORMALIZE_NONE (wants different normalization)
+      import_spec = MockItemSpec(2, state_intent=ESMF_STATEINTENT_IMPORT, &
+           short_name='Q', typekind=ESMF_TYPEKIND_R4, units='kg kg-1')
+      ! Set normalization aspect to NORMALIZE_NONE  
+      call import_spec%set_aspect( &
+           NormalizationAspect(normalization_type=NORMALIZE_NONE, scale_factor=1.0), _RC)
+      
+      ! Add specs to registries
+      call src_registry%add_primary_spec(export_pt, export_spec, _RC)
+      call dst_registry%add_primary_spec(import_pt, import_spec, _RC)
+      
+      ! Create and execute connection - this should succeed even with normalization mismatch
+      ! The connection machinery should handle the mismatch appropriately
+      connection = SimpleConnection( &
+           ConnectionPt('source', export_pt), &
+           ConnectionPt('destination', import_pt))
+      call connection%connect(parent_registry, _RC)
+      
+      ! Verify connection succeeded (status should be 0)
+      @assertEqual(0, status, 'Connection with normalization mismatch should succeed')
+      
+   end subroutine test_normalization_mismatch
+
+   !===========================================================================
+   ! Test 4: Memory Efficiency - Matching Grids, No Extensions
+   ! Verifies that when grids match, no extension fields are created.
+   ! Uses num_variants() to count extensions in the export family.
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_memory_efficiency_matching_grids(this)
+      use mapl3g_StateRegistry
+      use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
+      use mapl3g_StateItemSpec
+      use mapl3g_VirtualConnectionPt
+      use mapl3g_ConnectionPt
+      use mapl3g_SimpleConnection
+      use mapl3g_ExtensionFamily
+      
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(StateRegistry), target :: parent_registry, src_registry, dst_registry
+      type(VirtualConnectionPt) :: export_pt, import_pt
+      type(StateItemSpec) :: export_spec, import_spec
+      type(VariableSpec) :: var_spec
+      type(SimpleConnection) :: connection
+      type(ExtensionFamily), pointer :: family
+      integer :: num_extensions, status
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create registries
+      parent_registry = StateRegistry('parent')
+      src_registry = StateRegistry('source')
+      dst_registry = StateRegistry('destination')
+      call parent_registry%add_subregistry(src_registry)
+      call parent_registry%add_subregistry(dst_registry)
+      
+      ! Create connection points
+      export_pt = VirtualConnectionPt(state_intent='export', short_name='Q')
+      import_pt = VirtualConnectionPt(state_intent='import', short_name='Q')
+      
+      ! Create export spec with geom_coarse
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'Q', &
+           typekind=ESMF_TYPEKIND_R4, units='kg kg-1', _RC)
+      export_spec = var_spec%make_StateItemSpec(src_registry, &
+           component_geom=geom_coarse, vertical_grid=vertical_grid, _RC)
+      call export_spec%create(_RC)
+      
+      ! Create import spec with SAME grid (geom_coarse)
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, 'Q', &
+           typekind=ESMF_TYPEKIND_R4, units='kg kg-1', _RC)
+      import_spec = var_spec%make_StateItemSpec(dst_registry, &
+           component_geom=geom_coarse, vertical_grid=vertical_grid, _RC)
+      call import_spec%create(_RC)
+      
+      ! Add specs to registries
+      call src_registry%add_primary_spec(export_pt, export_spec, _RC)
+      call dst_registry%add_primary_spec(import_pt, import_spec, _RC)
+      
+      ! Connect - with matching grids, should create NO extension fields
+      connection = SimpleConnection( &
+           ConnectionPt('source', export_pt), &
+           ConnectionPt('destination', import_pt))
+      call connection%connect(parent_registry, _RC)
+      
+      ! Get the export family and count extensions
+      family => src_registry%get_extension_family(export_pt, _RC)
+      num_extensions = family%num_variants()
+      
+      ! Key test: With matching grids, no extensions should be created
+      ! num_variants() returns 1 for the primary spec + number of extensions
+      ! So we expect num_variants() == 1 (just the primary, no extensions)
+      @assertEqual(1, num_extensions, 'With matching grids, should have only primary spec (no extensions)')
+      
+   end subroutine test_memory_efficiency_matching_grids
+
+   !===========================================================================
+   ! Test 5: Memory Efficiency - Different Grids, Single Extension
+   ! Verifies that with different grids, only ONE extension is created
+   ! (the regrid transform), not three (norm + regrid + denorm).
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_memory_efficiency_different_grids(this)
+      use mapl3g_StateRegistry
+      use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
+      use mapl3g_StateItemSpec
+      use mapl3g_VirtualConnectionPt
+      use mapl3g_ConnectionPt
+      use mapl3g_SimpleConnection
+      use mapl3g_ExtensionFamily
+      
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(StateRegistry), target :: parent_registry, src_registry, dst_registry
+      type(VirtualConnectionPt) :: export_pt, import_pt
+      type(StateItemSpec) :: export_spec, import_spec
+      type(VariableSpec) :: var_spec
+      type(SimpleConnection) :: connection
+      type(ExtensionFamily), pointer :: family
+      integer :: num_extensions, status
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create registries
+      parent_registry = StateRegistry('parent')
+      src_registry = StateRegistry('source')
+      dst_registry = StateRegistry('destination')
+      call parent_registry%add_subregistry(src_registry)
+      call parent_registry%add_subregistry(dst_registry)
+      
+      ! Create connection points
+      export_pt = VirtualConnectionPt(state_intent='export', short_name='Q')
+      import_pt = VirtualConnectionPt(state_intent='import', short_name='Q')
+      
+      ! Create export spec with geom_coarse (4x4 grid)
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'Q', &
+           typekind=ESMF_TYPEKIND_R4, units='kg kg-1', _RC)
+      export_spec = var_spec%make_StateItemSpec(src_registry, &
+           component_geom=geom_coarse, vertical_grid=vertical_grid, _RC)
+      call export_spec%create(_RC)
+      
+      ! Create import spec with DIFFERENT grid (geom_fine - 8x8 grid)
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, 'Q', &
+           typekind=ESMF_TYPEKIND_R4, units='kg kg-1', _RC)
+      import_spec = var_spec%make_StateItemSpec(dst_registry, &
+           component_geom=geom_fine, vertical_grid=vertical_grid, _RC)
+      call import_spec%create(_RC)
+      
+      ! Add specs to registries
+      call src_registry%add_primary_spec(export_pt, export_spec, _RC)
+      call dst_registry%add_primary_spec(import_pt, import_spec, _RC)
+      
+      ! Connect - with different grids, should create regrid extension
+      connection = SimpleConnection( &
+           ConnectionPt('source', export_pt), &
+           ConnectionPt('destination', import_pt))
+      call connection%connect(parent_registry, _RC)
+      
+      ! Get the export family and count extensions
+      family => src_registry%get_extension_family(export_pt, _RC)
+      num_extensions = family%num_variants()
+      
+      ! Key test: With different grids, should create 1 extension (regrid only)
+      ! num_variants() returns 1 for primary + number of extensions
+      ! With integrated normalization: 1 (primary) + 1 (regrid) = 2
+      ! Without integrated normalization: 1 (primary) + 3 (norm+regrid+denorm) = 4
+      @assertEqual(2, num_extensions, 'With different grids and integrated normalization, should have primary + 1 extension')
+      
+   end subroutine test_memory_efficiency_different_grids
+
+   !===========================================================================
+   ! Test 6: Full 3D Pipeline - Horizontal + Vertical Conservative Regridding
+   ! Verifies mass conservation through full 3D regridding pipeline
+   ! This follows the pattern from Test_3DConservativeMixingRatio.pf
+   !===========================================================================
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_3d_pipeline_mass_conservation(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(ESMF_HConfig) :: hconfig_in, hconfig_out
+      type(MaplGeom) :: mapl_geom_in, mapl_geom_out
+      type(ESMF_Geom) :: geom_in, geom_out
+      class(ExtensionTransform), allocatable :: horz_transform
+      type(VerticalRegridTransform) :: vert_transform
+      type(VerticalRegridParam) :: vert_param
+      type(EsmfRegridderParam) :: horz_param
+      
+      type(ESMF_Field) :: f_in, f_horz, f_out
+      type(ESMF_Field) :: v_coord_in, v_coord_horz, v_coord_out
+      type(ESMF_Field) :: f_in_alias, f_horz_alias, f_out_alias
+      type(ESMF_State) :: import_horz, export_horz, import_vert, export_vert
+      
+      real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_horz(:,:,:), data_out(:,:,:)
+      real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_horz(:,:,:), v_out(:,:,:)
+      real(ESMF_KIND_R4), allocatable :: delp_in(:,:,:), delp_horz(:,:,:), delp_out(:,:,:)
+      real(ESMF_KIND_R4), allocatable :: area_in(:,:), area_out(:,:)
+      
+      real(ESMF_KIND_R8) :: mass_in, mass_out, relative_error
+      integer, parameter :: NX_IN = 4, NY_IN = 4, NZ_IN = 10
+      integer, parameter :: NX_OUT = 6, NY_OUT = 6, NZ_OUT = 15
+      integer :: i, j, k, status
+      character(len=256) :: config_str
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create input grid (4×4 horizontal, 10 vertical)
+      write(config_str, '(A,I0,A,I0,A)') &
+           '{class: latlon, im_world: ', NX_IN, ', jm_world: ', NY_IN, ', pole: PE, dateline: DE}'
+      hconfig_in = ESMF_HConfigCreate(content=trim(config_str), _RC)
+      mapl_geom_in = geom_mgr%get_mapl_geom(hconfig_in, _RC)
+      geom_in = mapl_geom_in%get_geom()
+      
+      ! Create output grid (6×6 horizontal, 15 vertical)
+      write(config_str, '(A,I0,A,I0,A)') &
+           '{class: latlon, im_world: ', NX_OUT, ', jm_world: ', NY_OUT, ', pole: PE, dateline: DE}'
+      hconfig_out = ESMF_HConfigCreate(content=trim(config_str), _RC)
+      mapl_geom_out = geom_mgr%get_mapl_geom(hconfig_out, _RC)
+      geom_out = mapl_geom_out%get_geom()
+      
+      ! Create vertical coordinates (edge-staggered)
+      ! Input: 10 layers
+      v_coord_in = MAPL_FieldCreate(geom_in, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
+      do concurrent (k = 1:NZ_IN+1, j = 1:NY_IN, i = 1:NX_IN)
+         v_in(i,j,k) = real(k-1, ESMF_KIND_R4) * 10.0  ! 0, 10, 20, ..., 100 Pa
+      end do
+      
+      ! After horizontal regrid: 6×6, 10 layers
+      v_coord_horz = MAPL_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_horz, farrayPtr=v_horz, _RC)
+      do concurrent (k = 1:NZ_IN+1, j = 1:NY_OUT, i = 1:NX_OUT)
+         v_horz(i,j,k) = real(k-1, ESMF_KIND_R4) * 10.0  ! Same vertical structure after horz regrid
+      end do
+      
+      ! Output: 6×6, 15 layers
+      v_coord_out = MAPL_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
+      do concurrent (k = 1:NZ_OUT+1, j = 1:NY_OUT, i = 1:NX_OUT)
+         v_out(i,j,k) = real(k-1, ESMF_KIND_R4) * 100.0 / real(NZ_OUT, ESMF_KIND_R4)  ! 0, 6.67, ..., 100 Pa
+      end do
+      
+      ! Create data fields
+      f_in = MAPL_FieldCreate(geom_in, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      f_horz = MAPL_FieldCreate(geom_out, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      f_out = MAPL_FieldCreate(geom_out, name='Q_FINAL', typekind=ESMF_TYPEKIND_R4, &
+           num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=VALIGN_DOWN, _RC)
+      
+      ! Fill input with uniform mixing ratio
+      call ESMF_FieldGet(f_in, farrayPtr=data_in, _RC)
+      data_in = CO2_MIXING_RATIO
+      
+      ! Allocate Δp and area arrays
+      allocate(delp_in(NX_IN, NY_IN, NZ_IN))
+      allocate(delp_horz(NX_OUT, NY_OUT, NZ_IN))
+      allocate(delp_out(NX_OUT, NY_OUT, NZ_OUT))
+      allocate(area_in(NX_IN, NY_IN))
+      allocate(area_out(NX_OUT, NY_OUT))
+      
+      ! Calculate Δp for input
+      do concurrent (k = 1:NZ_IN, j = 1:NY_IN, i = 1:NX_IN)
+         delp_in(i,j,k) = abs(v_in(i,j,k+1) - v_in(i,j,k))
+      end do
+      
+      ! Simple area calculation (uniform for this test)
+      area_in = 1.0
+      area_out = real(NX_IN, ESMF_KIND_R4) * real(NY_IN, ESMF_KIND_R4) / &
+                 (real(NX_OUT, ESMF_KIND_R4) * real(NY_OUT, ESMF_KIND_R4))
+      
+      ! Calculate total mass before regridding
+      mass_in = calculate_total_mass(data_in, delp_in, area_in)
+      
+      ! Step 1: Horizontal regridding
+      call ESMF_FieldGet(f_horz, farrayPtr=data_horz, _RC)
+      data_horz = 0.0
+      
+      import_horz = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name='horz_import', _RC)
+      export_horz = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name='horz_export', _RC)
+      f_in_alias = ESMF_NamedAlias(f_in, name=COUPLER_IMPORT_NAME, _RC)
+      f_horz_alias = ESMF_NamedAlias(f_horz, name=COUPLER_EXPORT_NAME, _RC)
+      call ESMF_StateAdd(import_horz, fieldList=[f_in_alias], _RC)
+      call ESMF_StateAdd(export_horz, fieldList=[f_horz_alias], _RC)
+      
+      horz_param = EsmfRegridderParam(RoutehandleParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+      allocate(horz_transform, source=RegridTransform(geom_in, geom_out, horz_param))
+      call horz_transform%initialize(import_horz, export_horz, clock, _RC)
+      call horz_transform%update(import_horz, export_horz, clock, _RC)
+      
+      ! Step 2: Vertical regridding
+      call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
+      data_out = 0.0
+      
+      vert_param%stagger_in = VERTICAL_STAGGER_EDGE
+      vert_param%stagger_out = VERTICAL_STAGGER_EDGE
+      vert_param%method = VERTICAL_REGRID_CONSERVATIVE
+      vert_param%src_alignment = VCOORD_DIRECTION_DOWN
+      vert_param%dst_alignment = VCOORD_DIRECTION_DOWN
+      vert_param%is_degenerate_case = .false.
+      vert_transform = VerticalRegridTransform(v_coord_horz, null(), v_coord_out, null(), vert_param)
+      
+      import_vert = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name='vert_import', _RC)
+      export_vert = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name='vert_export', _RC)
+      f_horz_alias = ESMF_NamedAlias(f_horz, name=COUPLER_IMPORT_NAME, _RC)
+      f_out_alias = ESMF_NamedAlias(f_out, name=COUPLER_EXPORT_NAME, _RC)
+      call ESMF_StateAdd(import_vert, fieldList=[f_horz_alias], _RC)
+      call ESMF_StateAdd(export_vert, fieldList=[f_out_alias], _RC)
+      
+      call vert_transform%initialize(import_vert, export_vert, clock, _RC)
+      call vert_transform%update(import_vert, export_vert, clock, _RC)
+      
+      ! Calculate Δp for output
+      do concurrent (k = 1:NZ_OUT, j = 1:NY_OUT, i = 1:NX_OUT)
+         delp_out(i,j,k) = abs(v_out(i,j,k+1) - v_out(i,j,k))
+      end do
+      
+      ! Calculate total mass after regridding
+      mass_out = calculate_total_mass(data_out, delp_out, area_out)
+      
+      ! Verify conservation
+      @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
+      relative_error = abs(mass_out - mass_in) / mass_in
+      @assertTrue(relative_error < TOLERANCE_LOOSE, 'Mass conservation failed for full 3D pipeline')
+      
+      ! Verify output is uniform (for uniform input, conservative regridding should produce uniform output)
+      @assertEqual(CO2_MIXING_RATIO, data_out, tolerance=TOLERANCE_LOOSE)
+      
+      ! Cleanup
+      call ESMF_StateDestroy(import_horz, rc=status)
+      call ESMF_StateDestroy(export_horz, rc=status)
+      call ESMF_StateDestroy(import_vert, rc=status)
+      call ESMF_StateDestroy(export_vert, rc=status)
+      call ESMF_FieldDestroy(v_coord_in, rc=status)
+      call ESMF_FieldDestroy(v_coord_horz, rc=status)
+      call ESMF_FieldDestroy(v_coord_out, rc=status)
+      call ESMF_FieldDestroy(f_in, rc=status)
+      call ESMF_FieldDestroy(f_horz, rc=status)
+      call ESMF_FieldDestroy(f_out, rc=status)
+      deallocate(delp_in, delp_horz, delp_out, area_in, area_out)
+      
+   end subroutine test_3d_pipeline_mass_conservation
+
+end module Test_IntegratedNormalization
