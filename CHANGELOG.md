@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Python bridge: support for `icx`, fix GPU upload python side and updated base API to support python 3.12+
 - Guard IEEE halting mode calls on macOS flang to avoid missing `fe*except` symbols when initializing MPI.
 
 ### Added
