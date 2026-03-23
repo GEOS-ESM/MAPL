@@ -4,7 +4,7 @@ module mapl3g_MeshGeomSpec
    use mapl3g_GeomSpec
    use mapl3g_MeshDecomposition
    use mapl_ErrorHandlingMod
-   use esmf, only: ESMF_KIND_R8, ESMF_HConfig
+   use esmf, only: ESMF_KIND_R8, ESMF_HConfig, ESMF_KIND_R4
    use pfio, only: FileMetadata
    implicit none(type,external)
    private
@@ -32,6 +32,8 @@ module mapl3g_MeshGeomSpec
    contains
       ! Mandatory interface
       procedure :: equal_to
+      procedure :: get_horz_ij_index_r4
+      procedure :: get_horz_ij_index_r8
       
       ! Mesh-specific support methods
       procedure :: supports_hconfig => supports_hconfig_
@@ -205,5 +207,41 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_mesh_data
+
+   subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+      class(MeshGeomSpec), intent(in) :: this
+      real(kind=ESMF_KIND_R4), intent(in) :: lon(:)
+      real(kind=ESMF_KIND_R4), intent(in) :: lat(:)
+      integer, allocatable, intent(out) :: ii(:)
+      integer, allocatable, intent(out) :: jj(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      allocate(ii(1), jj(1), source=-1)
+      _FAIL('get_horz_ij_index is not supported for MeshGeomSpec')
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(lon)
+      _UNUSED_DUMMY(lat)
+   end subroutine get_horz_ij_index_r4
+
+   subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+      class(MeshGeomSpec), intent(in) :: this
+      real(kind=R8), intent(in) :: lon(:)
+      real(kind=R8), intent(in) :: lat(:)
+      integer, allocatable, intent(out) :: ii(:)
+      integer, allocatable, intent(out) :: jj(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      allocate(ii(1), jj(1), source=-1)
+      _FAIL('get_horz_ij_index is not supported for MeshGeomSpec')
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(lon)
+      _UNUSED_DUMMY(lat)
+   end subroutine get_horz_ij_index_r8
 
 end module mapl3g_MeshGeomSpec
