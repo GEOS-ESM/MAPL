@@ -16,11 +16,16 @@ set (TEST_SRCS
   Test_MeshGeomSpec.pf
   Test_MeshGeomFactory.pf
   Test_MeshGeomFactory_Metadata.pf
+  Test_MeshGeomFactory_File.pf
+)
+
+set (OTHER_SRCS
+  MeshTestHelper.F90
 )
 
 add_pfunit_ctest(MAPL.geom.tests
   TEST_SOURCES ${TEST_SRCS}
-  # OTHER_SOURCES ${SRCS}
+  OTHER_SOURCES ${OTHER_SRCS}
   LINK_LIBRARIES MAPL.geom MAPL.shared MAPL.pfunit
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize

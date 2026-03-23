@@ -18,6 +18,7 @@ module mapl3g_MeshGeomSpec
       private
       integer :: nnodes = 0               ! Number of nodes/vertices
       integer :: nelements = 0            ! Number of elements/cells
+      character(len=:), allocatable :: filename  ! Mesh data file path
       
       ! Node coordinates (lon, lat) in degrees
       real(kind=R8), pointer :: node_coords(:,:) => null()  ! (2, nnodes)
@@ -40,11 +41,13 @@ module mapl3g_MeshGeomSpec
       ! Accessors
       procedure, public :: get_nnodes
       procedure, public :: get_nelements
+      procedure, public :: get_filename
       procedure, public :: get_node_coords
       procedure, public :: get_connectivity
       procedure, public :: get_num_element_conn
       procedure, public :: get_element_mask
       procedure, public :: set_mesh_data
+      procedure, public :: set_filename
       procedure, public :: get_decomposition
    end type MeshGeomSpec
 
@@ -65,9 +68,10 @@ module mapl3g_MeshGeomSpec
          integer, optional, intent(out) :: rc
       end function make_MeshGeomSpec_from_hconfig
 
-      module function make_MeshGeomSpec_from_metadata(file_metadata, rc) result(spec)
+      module function make_MeshGeomSpec_from_metadata(file_metadata, filename, rc) result(spec)
          type(MeshGeomSpec) :: spec
          type(FileMetadata), intent(in) :: file_metadata
+         character(len=*), optional, intent(in) :: filename
          integer, optional, intent(out) :: rc
       end function make_MeshGeomSpec_from_metadata
 
@@ -111,12 +115,26 @@ contains
       n = this%nnodes
    end function get_nnodes
 
-   integer function get_nelements(this) result(n)
-      class(MeshGeomSpec), intent(in) :: this
-      n = this%nelements
-   end function get_nelements
+    integer function get_nelements(this) result(n)
+       class(MeshGeomSpec), intent(in) :: this
+       n = this%nelements
+    end function get_nelements
 
-   subroutine get_node_coords(this, coords)
+    function get_filename(this) result(filename)
+       character(len=:), allocatable :: filename
+       class(MeshGeomSpec), intent(in) :: this
+       if (allocated(this%filename)) then
+          filename = this%filename
+       end if
+    end function get_filename
+
+    subroutine set_filename(this, filename)
+       class(MeshGeomSpec), intent(inout) :: this
+       character(*), intent(in) :: filename
+       this%filename = filename
+    end subroutine set_filename
+
+    subroutine get_node_coords(this, coords)
       class(MeshGeomSpec), intent(in) :: this
       real(kind=R8), pointer, intent(out) :: coords(:,:)
       coords => this%node_coords

@@ -145,10 +145,19 @@ contains
 
       integer :: status
       integer :: nnodes, nelements
+      integer :: mask_status  ! For optional elementMask read
       real(kind=ESMF_KIND_R8), pointer :: node_coords(:,:)
       integer, pointer :: element_conn(:)
       integer, pointer :: num_element_conn(:)
       integer, pointer :: element_mask(:)
+      character(len=:), allocatable :: filename
+      
+      ! For file reading
+      type(NetCDF4_FileFormatter) :: file_formatter
+      real(kind=ESMF_KIND_R8), allocatable :: node_coords_file(:,:)
+      integer, allocatable :: element_conn_file(:)
+      integer, allocatable :: num_element_conn_file(:)
+      integer, allocatable :: element_mask_file(:)
       
        ! Local node data for this PE
        integer :: local_node_count
@@ -180,10 +189,51 @@ contains
       ! Get mesh data from spec
       nnodes = spec%get_nnodes()
       nelements = spec%get_nelements()
+      
+      ! Check if spec already has data loaded
       call spec%get_node_coords(node_coords)
       call spec%get_connectivity(element_conn)
       call spec%get_num_element_conn(num_element_conn)
       call spec%get_element_mask(element_mask)
+      
+      ! If data not loaded, read from file
+      if (.not. associated(node_coords)) then
+         filename = spec%get_filename()
+         _ASSERT(allocated(filename), 'Neither mesh data nor filename provided in MeshGeomSpec')
+         
+         ! Read mesh data from file
+         call file_formatter%open(filename, pFIO_READ, _RC)
+         
+         ! Read node coordinates (2, nodeCount)
+         call file_formatter%get_var('nodeCoords', node_coords_file, _RC)
+         
+         ! Read element connectivity
+         call file_formatter%get_var('elementConn', element_conn_file, _RC)
+         
+         ! Read number of nodes per element
+         call file_formatter%get_var('numElementConn', num_element_conn_file, _RC)
+         
+         ! Read element mask (optional) - try to read, ignore if not present
+         call file_formatter%get_var('elementMask', element_mask_file, rc=mask_status)
+         ! If mask_status /= 0, elementMask not present - that's ok, it's optional
+         
+         call file_formatter%close(_RC)
+         
+         ! Point to file-read data
+         allocate(node_coords(size(node_coords_file,1), size(node_coords_file,2)))
+         node_coords = node_coords_file
+         
+         allocate(element_conn(size(element_conn_file)))
+         element_conn = element_conn_file
+         
+         allocate(num_element_conn(size(num_element_conn_file)))
+         num_element_conn = num_element_conn_file
+         
+         if (allocated(element_mask_file)) then
+            allocate(element_mask(size(element_mask_file)))
+            element_mask = element_mask_file
+         end if
+      end if
 
       _ASSERT(associated(node_coords), 'Node coordinates not set in MeshGeomSpec')
       _ASSERT(associated(element_conn), 'Element connectivity not set in MeshGeomSpec')
@@ -355,6 +405,12 @@ contains
       end if
       
       deallocate(elementIds, elementTypes, elementConn)
+      
+      ! Clean up temporary data if we read from file
+      if (allocated(node_coords_file)) then
+         deallocate(node_coords, element_conn, num_element_conn)
+         if (allocated(element_mask_file) .and. associated(element_mask)) deallocate(element_mask)
+      end if
 
       _RETURN(_SUCCESS)
    end function create_esmf_mesh

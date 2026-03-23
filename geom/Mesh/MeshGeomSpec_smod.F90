@@ -40,7 +40,9 @@ contains
          metadata = file_formatter%read(_RC)
          call file_formatter%close(_RC)
          
-         spec = make_MeshGeomSpec(metadata, _RC)
+         ! Pass filename to metadata factory method
+         spec = make_MeshGeomSpec(metadata, filename=filename, rc=status)
+         _VERIFY(status)
       else
          ! For now, require file-based configuration
          ! TODO: Add support for inline mesh specification
@@ -51,9 +53,10 @@ contains
    end function make_MeshGeomSpec_from_hconfig
 
    ! Factory method from FileMetadata
-   module function make_MeshGeomSpec_from_metadata(file_metadata, rc) result(spec)
+   module function make_MeshGeomSpec_from_metadata(file_metadata, filename, rc) result(spec)
       type(MeshGeomSpec) :: spec
       type(FileMetadata), intent(in) :: file_metadata
+      character(len=*), optional, intent(in) :: filename
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -68,8 +71,12 @@ contains
       decomp = make_MeshDecomposition(nelements, _RC)
       
       ! Create spec with basic info
-      ! Note: Actual data reading from files will be handled elsewhere
       spec = MeshGeomSpec(nnodes, nelements, decomp)
+      
+      ! Store filename if provided
+      if (present(filename)) then
+         spec%filename = filename
+      end if
 
       _RETURN(_SUCCESS)
    end function make_MeshGeomSpec_from_metadata
