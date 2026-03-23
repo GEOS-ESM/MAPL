@@ -118,7 +118,7 @@ contains
 
       time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
 
-      ref_datetime = "'%y4%m2%d2_%h2%n2'"
+      ref_datetime = "'YYYY-MM-DDTHH:NN:SS'"
       has_ref_datetime = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_datetime', _RC)
       if (has_ref_datetime) then
          ref_datetime = ESMF_HConfigAsString(time_hconfig, keystring='ref_datetime', _RC)
