@@ -124,8 +124,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine intervals_are_compatible
 
-   logical function absolute_interval_divides_one_day(aug) result(divides)
+   logical function absolute_interval_divides_one_day(aug, rc) result(divides)
       type(AugmentedInterval), intent(in) :: aug
+      integer, optional, intent(out) :: rc
       integer(kind=I4) :: d, s, ns
       integer(kind=I8) :: total_ns, one_day_ns
       integer :: status
@@ -133,7 +134,7 @@ contains
       integer(kind=I8), parameter :: SECS_PER_DAY = 86400_I8
 
       divides = .FALSE.
-      call ESMF_TimeIntervalGet(aug%interval, d=d, s=s, ns=ns, _VERIFY)
+      call ESMF_TimeIntervalGet(aug%interval, d=d, s=s, ns=ns, _RC)
       _VERIFY(STATUS)
 
       total_ns = int(d, kind=I8) * SECS_PER_DAY * NS_PER_SEC &
