@@ -135,7 +135,6 @@ contains
 
       divides = .FALSE.
       call ESMF_TimeIntervalGet(aug%interval, d=d, s=s, ns=ns, _RC)
-      _VERIFY(STATUS)
 
       total_ns = int(d, kind=I8) * SECS_PER_DAY * NS_PER_SEC &
          & + int(s, kind=I8) * NS_PER_SEC + int(ns, kind=I8)
@@ -143,6 +142,8 @@ contains
 
       one_day_ns = SECS_PER_DAY * NS_PER_SEC
       divides = (mod(one_day_ns, total_ns) == 0_I8)
+
+      _RETURN(_SUCCESS)
 
    end function absolute_interval_divides_one_day
 
