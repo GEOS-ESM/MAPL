@@ -62,13 +62,19 @@ contains
       integer :: status
       integer :: nnodes, nelements
       type(MeshDecomposition) :: decomp
+      type(ESMF_VM) :: vm
+      integer :: petCount
 
       ! Get dimensions from metadata
       nnodes = file_metadata%get_dimension('nodeCount', _RC)
       nelements = file_metadata%get_dimension('elementCount', _RC)
       
-      ! Create decomposition based on elements
-      decomp = make_MeshDecomposition(nelements, _RC)
+      ! Get petCount from current VM
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, petCount=petCount, _RC)
+      
+      ! Create decomposition with both element and node distribution (Phase 3)
+      decomp = MeshDecomposition(nelements, nnodes, petCount=petCount)
       
       ! Create spec with basic info
       spec = MeshGeomSpec(nnodes, nelements, decomp)
