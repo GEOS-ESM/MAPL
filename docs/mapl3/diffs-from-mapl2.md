@@ -26,6 +26,10 @@ MAPL3.
 10. [Build System](#10-build-system)
 11. [Items Requiring Peer Review](#12-items-requiring-peer-review)
 
+**Related documents**
+
+- [`api-changes.md`](api-changes.md) — detailed, procedure-level listing of every stubbed-out V2 API and the new MAPL3 replacements (lifecycle, child management, field specs, connectivity, resource access, timers)
+
 ---
 
 ## 1. Component Structure
@@ -499,6 +503,14 @@ Support for the FLAP command-line parsing library has been removed.
 All executables now use **fArgParse**.  The `MAPL_FargparseCLI`
 interface no longer accepts the old calling convention; the result
 must be of type `MAPL_CapOptions`.
+
+---
+
+## 11. See Also
+
+- [`api-changes.md`](api-changes.md) — detailed, procedure-level listing of
+  every stubbed-out V2 API and the new MAPL3 replacements (lifecycle, child
+  management, field specs, connectivity, resource access, timers).
 
 ---
 

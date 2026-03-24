@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   files, Cap/time-loop changes, History3G, ExtData, the new Statistics component,
   clocks, and build system changes.  It is intended as the primary migration reference
   for developers and users moving from MAPL2 to MAPL3.
+- Add [`docs/mapl3/api-changes.md`](docs/mapl3/api-changes.md) — a procedure-level
+  reference of core framework API changes: stubbed-out V2 procedures, new MAPL3
+  framework entry points (`MAPL_initialize`, `MAPL_finalize`, `MaplFramework`),
+  and replacements for lifecycle, child management, field specs, connectivity,
+  resource access, and timer APIs.
 
 ## [Unreleased]
 
