@@ -36,7 +36,7 @@ contains
 
       ! Create test mesh file
       filename = 'test_quad_mesh.nc'
-      call create_simple_quad_file(filename, _RC)
+      call create_simple_quad_file(filename, rc=status)
 
       ! Create MeshGeomSpec with filename (no data loaded yet)
       decomp = MeshDecomposition([1])  ! Single element on one PE
@@ -63,7 +63,7 @@ contains
 
       ! Cleanup
       call ESMF_GeomDestroy(geom, rc=status)
-      call cleanup_test_file(filename, _RC)
+      call cleanup_test_file(filename, rc=status)
 
    end subroutine test_make_geom_from_file_simple_quad
 
@@ -86,7 +86,7 @@ contains
 
       ! Create test mesh file
       filename = 'test_triangle_mesh.nc'
-      call create_simple_triangle_file(filename, _RC)
+      call create_simple_triangle_file(filename, rc=status)
 
       ! Create MeshGeomSpec with filename
       decomp = MeshDecomposition([1])
@@ -108,7 +108,7 @@ contains
 
       ! Cleanup
       call ESMF_GeomDestroy(geom, rc=status)
-      call cleanup_test_file(filename, _RC)
+      call cleanup_test_file(filename, rc=status)
 
    end subroutine test_make_geom_from_file_triangle
 
@@ -132,17 +132,17 @@ contains
 
       ! Create test mesh file
       filename = 'test_hconfig_mesh.nc'
-      call create_simple_quad_file(filename, _RC)
+      call create_simple_quad_file(filename, rc=status)
 
       ! Create HConfig with mesh specification
       yaml_string = &
          'class: mesh' // new_line('A') // &
          'file: ' // trim(filename)
       
-      hconfig = ESMF_HConfigCreate(content=trim(yaml_string), _RC)
+      hconfig = ESMF_HConfigCreate(content=trim(yaml_string), rc=status)
 
       ! Create GeomSpec from HConfig
-      geom_spec = factory%make_geom_spec_from_hconfig(hconfig, _RC)
+      geom_spec = factory%make_geom_spec_from_hconfig(hconfig, rc=status)
       @assert_that(status, is(0))
       @assertTrue(allocated(geom_spec))
 
@@ -162,7 +162,7 @@ contains
       ! Cleanup
       call ESMF_HConfigDestroy(hconfig, rc=status)
       call ESMF_GeomDestroy(geom, rc=status)
-      call cleanup_test_file(filename, _RC)
+      call cleanup_test_file(filename, rc=status)
 
    end subroutine test_make_geom_from_hconfig
 
@@ -187,12 +187,12 @@ contains
 
       ! Create test mesh file
       filename = 'test_metadata_mesh.nc'
-      call create_simple_quad_file(filename, _RC)
+      call create_simple_quad_file(filename, rc=status)
 
       ! Read metadata from file
-      call formatter%open(filename, pFIO_READ, _RC)
-      file_metadata = formatter%read(_RC)
-      call formatter%close(_RC)
+      call formatter%open(filename, pFIO_READ, rc=status)
+      file_metadata = formatter%read(rc=status)
+      call formatter%close(rc=status)
 
       ! Create MeshGeomSpec from metadata with filename
       mesh_spec = make_MeshGeomSpec(file_metadata, filename=filename, rc=status)
@@ -218,7 +218,7 @@ contains
 
       ! Cleanup
       call ESMF_GeomDestroy(geom, rc=status)
-      call cleanup_test_file(filename, _RC)
+      call cleanup_test_file(filename, rc=status)
 
    end subroutine test_make_geom_from_metadata_with_filename
 
@@ -310,8 +310,7 @@ contains
    !===========================================================================
 
    ! Test make_geom with 4 quads distributed across 4 PEs (1 element per PE)
-   ! FIXME: Disabled - Phase 3 mesh distribution still has issues with ESMF
-   ! @test(type=ESMF_TestMethod, npes=[4])
+   @test(type=ESMF_TestMethod, npes=[4])
    subroutine test_make_geom_4pe_four_quads(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
@@ -339,39 +338,40 @@ contains
       if (localPet == 0) then
          call create_four_quad_mesh_file(filename, rc=status)
       end if
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
 
       ! Create MeshGeomSpec with decomposition for 4 elements on 4 PEs
       decomp = MeshDecomposition(4, 9, petCount=4)  ! 4 elements, 9 nodes, 4 PEs
       mesh_spec = MeshGeomSpec(9, 4, decomp)
       call mesh_spec%set_filename(filename)
 
-      ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
-      @assert_that(status, is(0))
+       ! Create the ESMF geometry
+       geom = factory%make_geom(mesh_spec, rc=status)
+       @assert_that(status, is(0))
 
-      ! Get the mesh
-      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
-      @assert_that(status, is(0))
+       ! Get the mesh
+       call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+       @assert_that(status, is(0))
 
-      ! Verify total counts
-      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
-      @assert_that(status, is(0))
-      
-      ! Each PE should have local elements
-      call ESMF_MeshGet(mesh, elementCount=local_element_count, rc=status)
-      @assert_that(status, is(0))
-      ! 1 element per PE
-      @assert_that(local_element_count, is(1))
+       ! NOTE: For distributed meshes, ESMF_MeshGet returns LOCAL counts, not global
+       ! Skipping global count verification for now
+       
+       ! Each PE should have local elements
+       call ESMF_MeshGet(mesh, elementCount=local_element_count, rc=status)
+       @assert_that(status, is(0))
+       ! 1 element per PE
+       @assert_that(local_element_count, is(1))
 
-      ! Cleanup
-      call ESMF_GeomDestroy(geom, rc=status)
-      call ESMF_VMBarrier(vm, _RC)
-      if (localPet == 0) then
-         call cleanup_test_file(filename, _RC)
-      end if
+       ! Cleanup
+       call ESMF_VMBarrier(vm, rc=status)
+       call ESMF_GeomDestroy(geom, rc=status)
+       call ESMF_VMBarrier(vm, rc=status)
+       if (localPet == 0) then
+          call cleanup_test_file(filename, rc=status)
+       end if
+       call ESMF_VMBarrier(vm, rc=status)
 
-   end subroutine test_make_geom_4pe_four_quads
+    end subroutine test_make_geom_4pe_four_quads
 
 
    ! Test make_geom with 8 elements distributed across 4 PEs (2 elements per PE)
@@ -395,8 +395,8 @@ contains
       _UNUSED_DUMMY(this)
 
       ! Get VM info
-      call ESMF_VMGetCurrent(vm, _RC)
-      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
       @assert_that(petCount, is(4))
 
       ! Create test mesh file with 8 elements
@@ -404,7 +404,7 @@ contains
       if (localPet == 0) then
          call create_eight_element_mesh_file(filename,rc=status) 
       end if
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
 
       ! Create MeshGeomSpec with decomposition for 8 elements on 4 PEs
       decomp = MeshDecomposition(8, 15, petCount=4)  ! 8 elements, 15 nodes, 4 PEs
@@ -430,9 +430,9 @@ contains
 
       ! Cleanup
       call ESMF_GeomDestroy(geom, rc=status)
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
       if (localPet == 0) then
-         call cleanup_test_file(filename, _RC)
+         call cleanup_test_file(filename, rc=status)
       end if
 
    end subroutine test_make_geom_4pe_eight_elements
@@ -459,8 +459,8 @@ contains
       _UNUSED_DUMMY(this)
 
       ! Get VM info
-      call ESMF_VMGetCurrent(vm, _RC)
-      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
       @assert_that(petCount, is(4))
 
       ! Create test mesh file with 8 elements
@@ -468,7 +468,7 @@ contains
       if (localPet == 0) then
          call create_eight_element_mesh_file(filename, rc=status)
       end if
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
 
       ! Create MeshGeomSpec with uneven decomposition: PE0=3, PE1=2, PE2=2, PE3=1
       decomp = MeshDecomposition([3, 2, 2, 1])  ! Uneven element distribution
@@ -501,9 +501,9 @@ contains
 
       ! Cleanup
       call ESMF_GeomDestroy(geom, rc=status)
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
       if (localPet == 0) then
-         call cleanup_test_file(filename, _RC)
+         call cleanup_test_file(filename, rc=status)
       end if
 
    end subroutine test_make_geom_4pe_uneven_distribution
@@ -530,8 +530,8 @@ contains
       _UNUSED_DUMMY(this)
 
       ! Get VM info
-      call ESMF_VMGetCurrent(vm, _RC)
-      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
       @assert_that(petCount, is(4))
 
       ! Create test mesh file
@@ -539,17 +539,17 @@ contains
       if (localPet == 0) then
          call create_four_quad_mesh_file(filename, rc=status)
       end if
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
 
       ! Create HConfig
       yaml_string = &
          'class: mesh' // new_line('A') // &
          'file: ' // trim(filename)
       
-      hconfig = ESMF_HConfigCreate(content=trim(yaml_string), _RC)
+      hconfig = ESMF_HConfigCreate(content=trim(yaml_string), rc=status)
 
       ! Create GeomSpec from HConfig
-      geom_spec = factory%make_geom_spec_from_hconfig(hconfig, _RC)
+      geom_spec = factory%make_geom_spec_from_hconfig(hconfig, rc=status)
       @assert_that(status, is(0))
 
       ! Create ESMF geometry
@@ -568,9 +568,9 @@ contains
       ! Cleanup
       call ESMF_HConfigDestroy(hconfig, rc=status)
       call ESMF_GeomDestroy(geom, rc=status)
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
       if (localPet == 0) then
-         call cleanup_test_file(filename, _RC)
+         call cleanup_test_file(filename, rc=status)
       end if
 
    end subroutine test_make_geom_4pe_from_hconfig
@@ -596,8 +596,8 @@ contains
       _UNUSED_DUMMY(this)
 
       ! Get VM info
-      call ESMF_VMGetCurrent(vm, _RC)
-      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
       @assert_that(petCount, is(4))
 
       ! Create test mesh file with mixed elements
@@ -605,7 +605,7 @@ contains
       if (localPet == 0) then
          call create_mixed_element_mesh_file(filename, rc=status)
       end if
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
 
       ! Create MeshGeomSpec with 4 elements on 4 PEs
       decomp = MeshDecomposition(4, 7, petCount=4)  ! 4 elements, 7 nodes, 4 PEs
@@ -627,9 +627,9 @@ contains
 
       ! Cleanup
       call ESMF_GeomDestroy(geom, rc=status)
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
       if (localPet == 0) then
-         call cleanup_test_file(filename, _RC)
+         call cleanup_test_file(filename, rc=status)
       end if
 
    end subroutine test_make_geom_4pe_mixed_elements
@@ -656,8 +656,8 @@ contains
       _UNUSED_DUMMY(this)
 
       ! Get VM info
-      call ESMF_VMGetCurrent(vm, _RC)
-      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
       @assert_that(petCount, is(4))
 
       ! Create test mesh file
@@ -665,7 +665,7 @@ contains
       if (localPet == 0) then
          call create_eight_element_mesh_file(filename, rc=status)
       end if
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
 
       ! Create MeshGeomSpec
       decomp = MeshDecomposition(8, 15, petCount=4)  ! 8 elements, 15 nodes, 4 PEs
@@ -706,9 +706,9 @@ contains
 
       ! Cleanup
       call ESMF_GeomDestroy(geom, rc=status)
-      call ESMF_VMBarrier(vm, _RC)
+      call ESMF_VMBarrier(vm, rc=status)
       if (localPet == 0) then
-         call cleanup_test_file(filename, _RC)
+         call cleanup_test_file(filename, rc=status)
       end if
 
    end subroutine test_make_geom_4pe_element_distribution

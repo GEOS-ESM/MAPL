@@ -124,19 +124,24 @@ contains
    end function make_geom
 
    ! Type-safe helper for creating ESMF_Geom from MeshGeomSpec
-   function typesafe_make_geom(spec, rc) result(geom)
-      type(ESMF_Geom) :: geom
-      type(MeshGeomSpec), intent(in) :: spec
-      integer, optional, intent(out) :: rc
+    function typesafe_make_geom(spec, rc) result(geom)
+       type(ESMF_Geom) :: geom
+       type(MeshGeomSpec), intent(in) :: spec
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ESMF_Mesh) :: mesh
+       integer :: status
+       type(ESMF_Mesh) :: mesh
+       type(ESMF_VM) :: vm
 
-      mesh = create_esmf_mesh(spec, _RC)
-      geom = ESMF_GeomCreate(mesh=mesh, _RC)
+       mesh = create_esmf_mesh(spec, _RC)
+       geom = ESMF_GeomCreate(mesh=mesh, _RC)
+       
+       ! Synchronize after ESMF_GeomCreate (collective operation)
+       call ESMF_VMGetCurrent(vm, rc=status)
+       call ESMF_VMBarrier(vm, _RC)
 
-      _RETURN(_SUCCESS)
-   end function typesafe_make_geom
+       _RETURN(_SUCCESS)
+    end function typesafe_make_geom
 
    ! Create ESMF_Mesh from MeshGeomSpec
    function create_esmf_mesh(spec, rc) result(mesh)
@@ -172,6 +177,7 @@ contains
        integer :: num_ghost_nodes, ghost_idx
        logical :: use_phase3_distribution
        integer, allocatable :: node_dist(:)
+       integer, allocatable :: global_to_local(:)  ! Map global node ID to local index
       
       ! Local element data for this PE
       integer :: local_element_count
@@ -340,6 +346,8 @@ contains
            ! Phase 3: Add only nodes needed by local elements, with proper ownership
            ! Nodes are shared among PEs - each PE adds nodes needed by its elements
            allocate(nodeOwners(local_node_count))
+           allocate(global_to_local(nnodes))
+           global_to_local = 0  ! 0 means node not on this PE
            
            ! Add all nodes needed by this PE's elements
            ghost_idx = 1
@@ -349,12 +357,13 @@ contains
                  nodeOwners(ghost_idx) = node_to_pe(i)  ! Owner PE (first PE that uses it)
                  nodeCoords(2*(ghost_idx-1)+1) = node_coords(1, i)  ! longitude
                  nodeCoords(2*(ghost_idx-1)+2) = node_coords(2, i)  ! latitude
+                 global_to_local(i) = ghost_idx  ! Map global ID to local index
                  ghost_idx = ghost_idx + 1
               end if
            end do
            
-           call ESMF_MeshAddNodes(mesh, nodeIds, nodeCoords, nodeOwners=nodeOwners, _RC)
-           deallocate(nodeOwners)
+            call ESMF_MeshAddNodes(mesh, nodeIds, nodeCoords, nodeOwners=nodeOwners, _RC)
+            deallocate(nodeOwners)
         else
            ! Phase 2: All nodes on all PEs (no ownership)
            do i = 1, local_node_count
@@ -366,7 +375,10 @@ contains
            call ESMF_MeshAddNodes(mesh, nodeIds, nodeCoords, _RC)
         end if
        
-       deallocate(nodeIds, nodeCoords)
+         ! Synchronize after adding nodes (ESMF collective operation)
+         call ESMF_VMBarrier(vm, _RC)
+        
+        deallocate(nodeIds, nodeCoords)
        if (use_phase3_distribution) then
           deallocate(is_ghost_node, node_to_pe)
        end if
@@ -403,15 +415,31 @@ contains
          elementTypes(i) = np  ! Number of nodes = element type for ESMF
          
          ! Copy connectivity for this element
+         ! IMPORTANT: ESMF requires LOCAL indices, not global node IDs
          conn_end = conn_start + np - 1
-         elementConn(conn_idx:conn_idx+np-1) = element_conn(conn_start:conn_end)
-         conn_idx = conn_idx + np
+         if (use_phase3_distribution) then
+            ! Phase 3: Convert global node IDs to local indices
+            do j = conn_start, conn_end
+               node_id = element_conn(j)
+               elementConn(conn_idx) = global_to_local(node_id)
+               conn_idx = conn_idx + 1
+            end do
+         else
+            ! Phase 2: All nodes on all PEs, IDs are already local (1:nnodes)
+            elementConn(conn_idx:conn_idx+np-1) = element_conn(conn_start:conn_end)
+            conn_idx = conn_idx + np
+         end if
          conn_start = conn_end + 1
          
          if (associated(element_mask)) then
             elementMask(i) = element_mask(elem_idx)
          end if
       end do
+      
+      ! Clean up Phase 3 mapping
+      if (use_phase3_distribution) then
+         deallocate(global_to_local)
+      end if
 
       ! Add elements to mesh
       if (associated(element_mask)) then
@@ -424,14 +452,14 @@ contains
       
       deallocate(elementIds, elementTypes, elementConn)
       
-      ! Clean up temporary data if we read from file
-      if (allocated(node_coords_file)) then
-         deallocate(node_coords, element_conn, num_element_conn)
-         if (allocated(element_mask_file) .and. associated(element_mask)) deallocate(element_mask)
-      end if
+       ! Clean up temporary data if we read from file
+       if (allocated(node_coords_file)) then
+          deallocate(node_coords, element_conn, num_element_conn)
+          if (allocated(element_mask_file) .and. associated(element_mask)) deallocate(element_mask)
+       end if
 
-      _RETURN(_SUCCESS)
-   end function create_esmf_mesh
+       _RETURN(_SUCCESS)
+    end function create_esmf_mesh
 
    ! Generate file metadata for mesh
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)

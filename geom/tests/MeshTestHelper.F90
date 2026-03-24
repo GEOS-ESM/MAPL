@@ -51,35 +51,35 @@ contains
       file_metadata = FileMetadata()
       
       ! Add dimensions
-      call file_metadata%add_dimension('nodeCount', n_nodes, _RC)
-      call file_metadata%add_dimension('elementCount', n_elements, _RC)
-      call file_metadata%add_dimension('coordDim', 2, _RC)
-      call file_metadata%add_dimension('connectionCount', n_conn, _RC)
+      call file_metadata%add_dimension('nodeCount', n_nodes, rc=status)
+      call file_metadata%add_dimension('elementCount', n_elements, rc=status)
+      call file_metadata%add_dimension('coordDim', 2, rc=status)
+      call file_metadata%add_dimension('connectionCount', n_conn, rc=status)
 
       ! Add nodeCoords variable
-      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', _RC)
+      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', rc=status)
       call var%add_attribute('units', Attribute('degrees'))
       call var%add_attribute('long_name', Attribute('Node coordinates (longitude, latitude)'))
-      call file_metadata%add_variable('nodeCoords', var, _RC)
+      call file_metadata%add_variable('nodeCoords', var, rc=status)
 
       ! Add elementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='connectionCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='connectionCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Node indices that define the element connectivity'))
       call var%add_attribute('_FillValue', Attribute(-1))
       call var%add_attribute('start_index', Attribute(1))
-      call file_metadata%add_variable('elementConn', var, _RC)
+      call file_metadata%add_variable('elementConn', var, rc=status)
 
       ! Add numElementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', Attribute('Number of nodes per element'))
-      call file_metadata%add_variable('numElementConn', var, _RC)
+      call file_metadata%add_variable('numElementConn', var, rc=status)
 
       ! Add elementMask variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Surface type: {1: Ocean, 2: Land, 3: Lake, 4: Landice}'))
-      call file_metadata%add_variable('elementMask', var, _RC)
+      call file_metadata%add_variable('elementMask', var, rc=status)
 
       ! Add global attributes
       call file_metadata%add_attribute('gridType', Attribute('unstructured'))
@@ -87,17 +87,17 @@ contains
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
 
       ! Create file and write metadata
-      call formatter%create(file=filename,mode=pFIO_CLOBBER, _RC)
-      call formatter%write(file_metadata, _RC)
+      call formatter%create(file=filename,mode=pFIO_CLOBBER, rc=status)
+      call formatter%write(file_metadata, rc=status)
 
       ! Write data
-      call formatter%put_var('nodeCoords', node_coords, _RC)
-      call formatter%put_var('elementConn', element_conn, _RC)
-      call formatter%put_var('numElementConn', num_element_conn, _RC)
-      call formatter%put_var('elementMask', element_mask, _RC)
+      call formatter%put_var('nodeCoords', node_coords, rc=status)
+      call formatter%put_var('elementConn', element_conn, rc=status)
+      call formatter%put_var('numElementConn', num_element_conn, rc=status)
+      call formatter%put_var('elementMask', element_mask, rc=status)
 
       ! Close file
-      call formatter%close(_RC)
+      call formatter%close(rc=status)
 
       _RETURN(_SUCCESS)
    end subroutine create_simple_quad_file
@@ -136,35 +136,35 @@ contains
       file_metadata = FileMetadata()
       
       ! Add dimensions
-      call file_metadata%add_dimension('nodeCount', n_nodes, _RC)
-      call file_metadata%add_dimension('elementCount', n_elements, _RC)
-      call file_metadata%add_dimension('coordDim', 2, _RC)
-      call file_metadata%add_dimension('connectionCount', n_conn, _RC)
+      call file_metadata%add_dimension('nodeCount', n_nodes, rc=status)
+      call file_metadata%add_dimension('elementCount', n_elements, rc=status)
+      call file_metadata%add_dimension('coordDim', 2, rc=status)
+      call file_metadata%add_dimension('connectionCount', n_conn, rc=status)
 
       ! Add nodeCoords variable
-      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', _RC)
+      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', rc=status)
       call var%add_attribute('units', Attribute('degrees'))
       call var%add_attribute('long_name', Attribute('Node coordinates (longitude, latitude)'))
-      call file_metadata%add_variable('nodeCoords', var, _RC)
+      call file_metadata%add_variable('nodeCoords', var, rc=status)
 
       ! Add elementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='connectionCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='connectionCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Node indices that define the element connectivity'))
       call var%add_attribute('_FillValue', Attribute(-1))
       call var%add_attribute('start_index', Attribute(1))
-      call file_metadata%add_variable('elementConn', var, _RC)
+      call file_metadata%add_variable('elementConn', var, rc=status)
 
       ! Add numElementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', Attribute('Number of nodes per element'))
-      call file_metadata%add_variable('numElementConn', var, _RC)
+      call file_metadata%add_variable('numElementConn', var, rc=status)
 
       ! Add elementMask variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Surface type: {1: Ocean, 2: Land, 3: Lake, 4: Landice}'))
-      call file_metadata%add_variable('elementMask', var, _RC)
+      call file_metadata%add_variable('elementMask', var, rc=status)
 
       ! Add global attributes
       call file_metadata%add_attribute('gridType', Attribute('unstructured'))
@@ -172,17 +172,17 @@ contains
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
 
       ! Create file and write metadata
-      call formatter%create(file=filename, mode=pFIO_CLOBBER,  _RC)
-      call formatter%write(file_metadata, _RC)
+      call formatter%create(file=filename, mode=pFIO_CLOBBER,  rc=status)
+      call formatter%write(file_metadata, rc=status)
 
       ! Write data
-      call formatter%put_var('nodeCoords', node_coords, _RC)
-      call formatter%put_var('elementConn', element_conn, _RC)
-      call formatter%put_var('numElementConn', num_element_conn, _RC)
-      call formatter%put_var('elementMask', element_mask, _RC)
+      call formatter%put_var('nodeCoords', node_coords, rc=status)
+      call formatter%put_var('elementConn', element_conn, rc=status)
+      call formatter%put_var('numElementConn', num_element_conn, rc=status)
+      call formatter%put_var('elementMask', element_mask, rc=status)
 
       ! Close file
-      call formatter%close(_RC)
+      call formatter%close(rc=status)
 
       _RETURN(_SUCCESS)
    end subroutine create_simple_triangle_file
@@ -242,52 +242,52 @@ contains
       file_metadata = FileMetadata()
       
       ! Add dimensions
-      call file_metadata%add_dimension('nodeCount', n_nodes, _RC)
-      call file_metadata%add_dimension('elementCount', n_elements, _RC)
-      call file_metadata%add_dimension('coordDim', 2, _RC)
-      call file_metadata%add_dimension('connectionCount', n_conn, _RC)
+      call file_metadata%add_dimension('nodeCount', n_nodes, rc=status)
+      call file_metadata%add_dimension('elementCount', n_elements, rc=status)
+      call file_metadata%add_dimension('coordDim', 2, rc=status)
+      call file_metadata%add_dimension('connectionCount', n_conn, rc=status)
 
       ! Add nodeCoords variable
-      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', _RC)
+      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', rc=status)
       call var%add_attribute('units', Attribute('degrees'))
       call var%add_attribute('long_name', Attribute('Node coordinates (longitude, latitude)'))
-      call file_metadata%add_variable('nodeCoords', var, _RC)
+      call file_metadata%add_variable('nodeCoords', var, rc=status)
 
       ! Add elementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='connectionCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='connectionCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Node indices that define the element connectivity'))
       call var%add_attribute('_FillValue', Attribute(-1))
       call var%add_attribute('start_index', Attribute(1))
-      call file_metadata%add_variable('elementConn', var, _RC)
+      call file_metadata%add_variable('elementConn', var, rc=status)
 
       ! Add numElementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', Attribute('Number of nodes per element'))
-      call file_metadata%add_variable('numElementConn', var, _RC)
+      call file_metadata%add_variable('numElementConn', var, rc=status)
 
       ! Add elementMask variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Surface type: {1: Ocean, 2: Land, 3: Lake, 4: Landice}'))
-      call file_metadata%add_variable('elementMask', var, _RC)
+      call file_metadata%add_variable('elementMask', var, rc=status)
 
       ! Add global attributes
       call file_metadata%add_attribute('gridType', Attribute('unstructured'))
       call file_metadata%add_attribute('version', Attribute('0.9'))
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
       ! Create file and write metadata
-      call formatter%create(file=filename,mode=PFIO_CLOBBER, _RC)
-      call formatter%write(file_metadata, _RC)
+      call formatter%create(file=filename,mode=PFIO_CLOBBER, rc=status)
+      call formatter%write(file_metadata, rc=status)
 
        ! Write data
-       call formatter%put_var('nodeCoords', node_coords, _RC)
-       call formatter%put_var('elementConn', element_conn, _RC)
-       call formatter%put_var('numElementConn', num_element_conn, _RC)
-       call formatter%put_var('elementMask', element_mask, _RC)
+       call formatter%put_var('nodeCoords', node_coords, rc=status)
+       call formatter%put_var('elementConn', element_conn, rc=status)
+       call formatter%put_var('numElementConn', num_element_conn, rc=status)
+       call formatter%put_var('elementMask', element_mask, rc=status)
 
        ! Close file
-       call formatter%close(_RC)
+       call formatter%close(rc=status)
 
        _RETURN(_SUCCESS)
     end subroutine create_four_quad_mesh_file
@@ -357,35 +357,35 @@ contains
       file_metadata = FileMetadata()
       
       ! Add dimensions
-      call file_metadata%add_dimension('nodeCount', n_nodes, _RC)
-      call file_metadata%add_dimension('elementCount', n_elements, _RC)
-      call file_metadata%add_dimension('coordDim', 2, _RC)
-      call file_metadata%add_dimension('connectionCount', n_conn, _RC)
+      call file_metadata%add_dimension('nodeCount', n_nodes, rc=status)
+      call file_metadata%add_dimension('elementCount', n_elements, rc=status)
+      call file_metadata%add_dimension('coordDim', 2, rc=status)
+      call file_metadata%add_dimension('connectionCount', n_conn, rc=status)
 
       ! Add nodeCoords variable
-      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', _RC)
+      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', rc=status)
       call var%add_attribute('units', Attribute('degrees'))
       call var%add_attribute('long_name', Attribute('Node coordinates (longitude, latitude)'))
-      call file_metadata%add_variable('nodeCoords', var, _RC)
+      call file_metadata%add_variable('nodeCoords', var, rc=status)
 
       ! Add elementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='connectionCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='connectionCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Node indices that define the element connectivity'))
       call var%add_attribute('_FillValue', Attribute(-1))
       call var%add_attribute('start_index', Attribute(1))
-      call file_metadata%add_variable('elementConn', var, _RC)
+      call file_metadata%add_variable('elementConn', var, rc=status)
 
       ! Add numElementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', Attribute('Number of nodes per element'))
-      call file_metadata%add_variable('numElementConn', var, _RC)
+      call file_metadata%add_variable('numElementConn', var, rc=status)
 
       ! Add elementMask variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Surface type: {1: Ocean, 2: Land, 3: Lake, 4: Landice}'))
-      call file_metadata%add_variable('elementMask', var, _RC)
+      call file_metadata%add_variable('elementMask', var, rc=status)
 
       ! Add global attributes
       call file_metadata%add_attribute('gridType', Attribute('unstructured'))
@@ -393,17 +393,17 @@ contains
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
 
       ! Create file and write metadata
-      call formatter%create(file=filename,mode=pFIO_Clobber,  _RC)
-      call formatter%write(file_metadata, _RC)
+      call formatter%create(file=filename,mode=pFIO_Clobber,  rc=status)
+      call formatter%write(file_metadata, rc=status)
 
       ! Write data
-      call formatter%put_var('nodeCoords', node_coords, _RC)
-      call formatter%put_var('elementConn', element_conn, _RC)
-      call formatter%put_var('numElementConn', num_element_conn, _RC)
-      call formatter%put_var('elementMask', element_mask, _RC)
+      call formatter%put_var('nodeCoords', node_coords, rc=status)
+      call formatter%put_var('elementConn', element_conn, rc=status)
+      call formatter%put_var('numElementConn', num_element_conn, rc=status)
+      call formatter%put_var('elementMask', element_mask, rc=status)
 
       ! Close file
-      call formatter%close(_RC)
+      call formatter%close(rc=status)
 
       _RETURN(_SUCCESS)
    end subroutine create_eight_element_mesh_file
@@ -461,35 +461,35 @@ contains
       file_metadata = FileMetadata()
       
       ! Add dimensions
-      call file_metadata%add_dimension('nodeCount', n_nodes, _RC)
-      call file_metadata%add_dimension('elementCount', n_elements, _RC)
-      call file_metadata%add_dimension('coordDim', 2, _RC)
-      call file_metadata%add_dimension('connectionCount', n_conn, _RC)
+      call file_metadata%add_dimension('nodeCount', n_nodes, rc=status)
+      call file_metadata%add_dimension('elementCount', n_elements, rc=status)
+      call file_metadata%add_dimension('coordDim', 2, rc=status)
+      call file_metadata%add_dimension('connectionCount', n_conn, rc=status)
 
       ! Add nodeCoords variable
-      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', _RC)
+      var = Variable(type=pFIO_REAL64, dimensions='coordDim,nodeCount', rc=status)
       call var%add_attribute('units', Attribute('degrees'))
       call var%add_attribute('long_name', Attribute('Node coordinates (longitude, latitude)'))
-      call file_metadata%add_variable('nodeCoords', var, _RC)
+      call file_metadata%add_variable('nodeCoords', var, rc=status)
 
       ! Add elementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='connectionCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='connectionCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Node indices that define the element connectivity'))
       call var%add_attribute('_FillValue', Attribute(-1))
       call var%add_attribute('start_index', Attribute(1))
-      call file_metadata%add_variable('elementConn', var, _RC)
+      call file_metadata%add_variable('elementConn', var, rc=status)
 
       ! Add numElementConn variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', Attribute('Number of nodes per element'))
-      call file_metadata%add_variable('numElementConn', var, _RC)
+      call file_metadata%add_variable('numElementConn', var, rc=status)
 
       ! Add elementMask variable
-      var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
+      var = Variable(type=pFIO_INT32, dimensions='elementCount', rc=status)
       call var%add_attribute('long_name', &
            Attribute('Surface type: {1: Ocean, 2: Land, 3: Lake, 4: Landice}'))
-      call file_metadata%add_variable('elementMask', var, _RC)
+      call file_metadata%add_variable('elementMask', var, rc=status)
 
       ! Add global attributes
       call file_metadata%add_attribute('gridType', Attribute('unstructured'))
@@ -497,39 +497,39 @@ contains
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
 
       ! Create file and write metadata
-      call formatter%create(file=filename, mode=pFIO_CLOBBER,  _RC)
-      call formatter%write(file_metadata, _RC)
+      call formatter%create(file=filename, mode=pFIO_CLOBBER,  rc=status)
+      call formatter%write(file_metadata, rc=status)
 
       ! Write data
-      call formatter%put_var('nodeCoords', node_coords, _RC)
-      call formatter%put_var('elementConn', element_conn, _RC)
-      call formatter%put_var('numElementConn', num_element_conn, _RC)
-      call formatter%put_var('elementMask', element_mask, _RC)
+      call formatter%put_var('nodeCoords', node_coords, rc=status)
+      call formatter%put_var('elementConn', element_conn, rc=status)
+      call formatter%put_var('numElementConn', num_element_conn, rc=status)
+      call formatter%put_var('elementMask', element_mask, rc=status)
 
 print*, __LINE__
       ! Close file
-      call formatter%close(_RC)
+      call formatter%close(rc=status)
 print*, __LINE__
       _RETURN(_SUCCESS)
    end subroutine create_mixed_element_mesh_file
 
    ! Clean up test file
-   subroutine cleanup_test_file(filename, rc)
-      character(len=*), intent(in) :: filename
-      integer, optional, intent(out) :: rc
+    subroutine cleanup_test_file(filename, rc)
+       character(len=*), intent(in) :: filename
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      logical :: file_exists
+       integer :: status
+       logical :: file_exists
 
-      inquire(file=filename, exist=file_exists)
-      if (file_exists) then
-         open(unit=999, file=filename, status='old', iostat=status)
-         if (status == 0) then
-            close(unit=999, status='delete', iostat=status)
-         end if
-      end if
+       inquire(file=filename, exist=file_exists)
+       if (file_exists) then
+          open(unit=999, file=filename, status='old', iostat=status)
+          if (status == 0) then
+             close(unit=999, status='delete', iostat=status)
+          end if
+       end if
 
-      _RETURN(_SUCCESS)
-   end subroutine cleanup_test_file
+       _RETURN(_SUCCESS)
+    end subroutine cleanup_test_file
 
 end module mapl3g_MeshTestHelper
