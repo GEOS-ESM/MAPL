@@ -153,12 +153,13 @@ contains
       integer, pointer :: element_mask(:)
       character(len=:), allocatable :: filename
       
-      ! For file reading
-      type(NetCDF4_FileFormatter) :: file_formatter
-      real(kind=ESMF_KIND_R8), allocatable :: node_coords_file(:,:)
-      integer, allocatable :: element_conn_file(:)
-      integer, allocatable :: num_element_conn_file(:)
-      integer, allocatable :: element_mask_file(:)
+        ! For file reading
+        type(NetCDF4_FileFormatter) :: file_formatter
+        real(kind=ESMF_KIND_R8), allocatable :: node_coords_file(:,:)
+        integer, allocatable :: element_conn_file(:)
+        integer, allocatable :: num_element_conn_file(:)
+        integer, allocatable :: element_mask_file(:)
+        integer :: coord_dim = 0, node_count = 0, conn_count = 0, element_count = 0  ! Dimension sizes from file
       
        ! Local node data for this PE
        integer :: local_node_count
@@ -197,28 +198,42 @@ contains
       call spec%get_num_element_conn(num_element_conn)
       call spec%get_element_mask(element_mask)
       
-      ! If data not loaded, read from file
-      if (.not. associated(node_coords)) then
-         filename = spec%get_filename()
-         _ASSERT(allocated(filename), 'Neither mesh data nor filename provided in MeshGeomSpec')
-         
-         ! Read mesh data from file
-         call file_formatter%open(filename, pFIO_READ, _RC)
-         
-         ! Read node coordinates (2, nodeCount)
-         call file_formatter%get_var('nodeCoords', node_coords_file, _RC)
-         
-         ! Read element connectivity
-         call file_formatter%get_var('elementConn', element_conn_file, _RC)
-         
-         ! Read number of nodes per element
-         call file_formatter%get_var('numElementConn', num_element_conn_file, _RC)
-         
-         ! Read element mask (optional) - try to read, ignore if not present
-         call file_formatter%get_var('elementMask', element_mask_file, rc=mask_status)
-         ! If mask_status /= 0, elementMask not present - that's ok, it's optional
-         
-         call file_formatter%close(_RC)
+       ! If data not loaded, read from file
+       if (.not. associated(node_coords)) then
+          filename = spec%get_filename()
+          _ASSERT(allocated(filename), 'Neither mesh data nor filename provided in MeshGeomSpec')
+          
+          ! Read mesh data from file
+          call file_formatter%open(filename, pFIO_READ, _RC)
+          
+          ! Query dimensions before allocating arrays
+          coord_dim = file_formatter%inq_dim('coordDim', _RC)
+          node_count = file_formatter%inq_dim('nodeCount', _RC)
+          conn_count = file_formatter%inq_dim('connectionCount', _RC)
+          element_count = file_formatter%inq_dim('elementCount', _RC)
+          
+          ! Allocate arrays with correct sizes
+          ! nodeCoords has dimensions (nodeCount, coordDim) in NetCDF, which is (coordDim, nodeCount) in Fortran
+          allocate(node_coords_file(coord_dim, node_count))
+          allocate(element_conn_file(conn_count))
+          allocate(num_element_conn_file(element_count))
+          
+          ! Read node coordinates (2, nodeCount)
+          call file_formatter%get_var('nodeCoords', node_coords_file, _RC)
+          
+          ! Read element connectivity
+          call file_formatter%get_var('elementConn', element_conn_file, _RC)
+          
+          ! Read number of nodes per element
+          call file_formatter%get_var('numElementConn', num_element_conn_file, _RC)
+          
+          ! Read element mask (optional) - try to read, ignore if not present
+          ! Allocate elementMask array
+          allocate(element_mask_file(element_count))
+          call file_formatter%get_var('elementMask', element_mask_file, rc=mask_status)
+          ! If mask_status /= 0, elementMask not present - that's ok, it's optional
+          
+          call file_formatter%close(_RC)
          
          ! Point to file-read data
          allocate(node_coords(size(node_coords_file,1), size(node_coords_file,2)))
