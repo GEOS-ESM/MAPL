@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v3.0.0 - Development]
 
+### Documentation
+
+- Add [`docs/mapl3/diffs-from-mapl2.md`](docs/mapl3/diffs-from-mapl2.md) — a comprehensive
+  overview of the architectural and user-facing differences between MAPL3 and MAPL2.
+  This document covers component structure, connections, field specifications, resource
+  files, Cap/time-loop changes, History3G, ExtData, the new Statistics component,
+  clocks, and build system changes.  It supersedes individual changelog entries for
+  the v3.0.0 release and is intended as the primary migration reference for developers
+  and users moving from MAPL2 to MAPL3.
+
 ### Removed
 
 - Removes backward compatibility for `MAPL_FargparseCLI` functions. Only accepts function usage in which the result is of
