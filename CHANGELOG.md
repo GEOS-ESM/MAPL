@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ESMF_Mesh and Locstream to geom 
 - Moved generic3g from using yafyaml to ESMF HConfig for yaml parsing
 - Tests for wildcard field specification in History
 - New generic3g directory intended to replace existing generic directory when completed.
