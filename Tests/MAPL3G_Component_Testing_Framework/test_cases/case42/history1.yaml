@@ -1,23 +1,26 @@
 
 active_collections:
   - monthly
-  #- daily
+  - djf
 
 time_specs:
   monthly_output: &monthly_output
     frequency: P1M
     mode: average
-  daily_output: &daily_output
-    frequency: PT24H
+    ref_datetime: "YYYY-MM-01T00:00:00"
+  djf_output: &djf_output
+    frequency: P3M
+    mode: average
+    ref_datetime: "YYYY-12-01T00:00:00"
 
 collections:
   monthly:
     template: "%c_%y4%m2%d2_%h2%n2.nc4"
     time_spec: *monthly_output
     var_list:
-      E_1: {expr: E_1}
-  daily:
-    template: "%c_%y4%m2_%h2%n2.nc4"
-    time_spec: *daily_output
+      monthly_avg: {expr: E_1}
+  djf:
+    template: "%c_%y4%m2%d2_%h2%n2.nc4"
+    time_spec: *djf_output
     var_list:
-      E_1: {expr: E_1}
+      djf_avg: {expr: E_1}

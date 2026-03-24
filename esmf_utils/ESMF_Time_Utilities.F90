@@ -12,6 +12,7 @@ module mapl3g_ESMF_Time_Utilities
 
    public :: check_compatibility
    public :: interval_is_all_zero
+   public :: sub_time_in_datetime
 
    ! This type provides additional logical fields for TimeInterval.
    ! It allows checks on the values of the fields without calling
@@ -122,5 +123,99 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine interval_is_all_zero
+
+   ! Parse a ref_datetime template and substitute time components from the given ESMF_Time.
+   ! Template format: YYYY-MM-DDTHH:NN:SS (always 19 characters, fixed positions).
+   ! Placeholder tokens (YYYY, MM, DD, HH, NN, SS) mean "use the value from the input time".
+   ! Literal numeric values override the corresponding component.
+   function sub_time_in_datetime(time, ref_datetime, rc) result(new_time)
+      type(ESMF_Time) :: new_time
+      type(ESMF_Time), intent(in) :: time
+      character(len=*), intent(in) :: ref_datetime
+      integer, optional, intent(out) :: rc
+
+      integer :: status, year, month, day, hour, minute, second
+      logical :: year_is_set, month_is_set, day_is_set, hour_is_set, minute_is_set, second_is_set
+
+      _ASSERT(len(ref_datetime) == 19, 'ref_datetime must be 19 characters: YYYY-MM-DDTHH:NN:SS, got: '//ref_datetime)
+
+      ! Determine which tokens have been substituted with numeric values
+      year_is_set   = (ref_datetime(1:4)   /= 'YYYY')
+      month_is_set  = (ref_datetime(6:7)   /= 'MM')
+      day_is_set    = (ref_datetime(9:10)  /= 'DD')
+      hour_is_set   = (ref_datetime(12:13) /= 'HH')
+      minute_is_set = (ref_datetime(15:16) /= 'NN')
+      second_is_set = (ref_datetime(18:19) /= 'SS')
+
+      ! Substituted tokens must form a contiguous suffix (from least to most significant).
+      ! If a more-significant token is substituted, all less-significant ones must be too.
+      _ASSERT(.not. (year_is_set   .and. .not. month_is_set),  'If YYYY is substituted, MM must also be substituted')
+      _ASSERT(.not. (month_is_set  .and. .not. day_is_set),    'If MM is substituted, DD must also be substituted')
+      _ASSERT(.not. (day_is_set    .and. .not. hour_is_set),   'If DD is substituted, HH must also be substituted')
+      _ASSERT(.not. (hour_is_set   .and. .not. minute_is_set), 'If HH is substituted, NN must also be substituted')
+      _ASSERT(.not. (minute_is_set .and. .not. second_is_set), 'If NN is substituted, SS must also be substituted')
+
+      call ESMF_TimeGet(time, yy=year, mm=month, dd=day, h=hour, m=minute, s=second, _RC)
+
+      ! Year (positions 1-4): YYYY = use current year, else read 4-digit integer
+      if (ref_datetime(1:4) /= 'YYYY') then
+         read(ref_datetime(1:4), '(I4)', iostat=status) year
+         _ASSERT(status == 0, 'Failed to parse year from ref_datetime: '//ref_datetime(1:4))
+      end if
+
+      ! Separator (position 5): must be '-'
+      _ASSERT(ref_datetime(5:5) == '-', 'Expected dash separator at position 5 in ref_datetime')
+
+      ! Month (positions 6-7): MM = use current month, else read 2-digit integer
+      if (ref_datetime(6:7) /= 'MM') then
+         read(ref_datetime(6:7), '(I2)', iostat=status) month
+         _ASSERT(status == 0, 'Failed to parse month from ref_datetime: '//ref_datetime(6:7))
+         _ASSERT(month >= 1 .and. month <= 12, 'ref_datetime month must be between 1 and 12')
+      end if
+
+      ! Separator (position 8): must be '-'
+      _ASSERT(ref_datetime(8:8) == '-', 'Expected dash separator at position 8 in ref_datetime')
+
+      ! Day (positions 9-10): DD = use current day, else read 2-digit integer
+      if (ref_datetime(9:10) /= 'DD') then
+         read(ref_datetime(9:10), '(I2)', iostat=status) day
+         _ASSERT(status == 0, 'Failed to parse day from ref_datetime: '//ref_datetime(9:10))
+         _ASSERT(day >= 1 .and. day <= 28, 'ref_datetime day must be between 1 and 28')
+      end if
+
+      ! Separator (position 11): must be 'T'
+      _ASSERT(ref_datetime(11:11) == 'T', 'Expected T separator at position 11 in ref_datetime')
+
+      ! Hour (positions 12-13): HH = use current hour, else read 2-digit integer
+      if (ref_datetime(12:13) /= 'HH') then
+         read(ref_datetime(12:13), '(I2)', iostat=status) hour
+         _ASSERT(status == 0, 'Failed to parse hour from ref_datetime: '//ref_datetime(12:13))
+         _ASSERT(hour >= 0 .and. hour <= 23, 'ref_datetime hour must be between 0 and 23')
+      end if
+
+      ! Separator (position 14): must be ':'
+      _ASSERT(ref_datetime(14:14) == ':', 'Expected colon separator at position 14 in ref_datetime')
+
+      ! Minute (positions 15-16): NN = use current minute, else read 2-digit integer
+      if (ref_datetime(15:16) /= 'NN') then
+         read(ref_datetime(15:16), '(I2)', iostat=status) minute
+         _ASSERT(status == 0, 'Failed to parse minute from ref_datetime: '//ref_datetime(15:16))
+         _ASSERT(minute >= 0 .and. minute <= 59, 'ref_datetime minute must be between 0 and 59')
+      end if
+
+      ! Separator (position 17): must be ':'
+      _ASSERT(ref_datetime(17:17) == ':', 'Expected colon separator at position 17 in ref_datetime')
+
+      ! Second (positions 18-19): SS = use current second, else read 2-digit integer
+      if (ref_datetime(18:19) /= 'SS') then
+         read(ref_datetime(18:19), '(I2)', iostat=status) second
+         _ASSERT(status == 0, 'Failed to parse second from ref_datetime: '//ref_datetime(18:19))
+         _ASSERT(second >= 0 .and. second <= 59, 'ref_datetime second must be between 0 and 59')
+      end if
+
+      call ESMF_TimeSet(new_time, yy=year, mm=month, dd=day, h=hour, m=minute, s=second, _RC)
+
+      _RETURN(_SUCCESS)
+   end function sub_time_in_datetime
 
 end module mapl3g_ESMF_Time_Utilities
