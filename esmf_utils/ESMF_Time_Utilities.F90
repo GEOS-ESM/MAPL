@@ -133,8 +133,8 @@ contains
       integer(kind=I8), parameter :: SECS_PER_DAY = 86400_I8
 
       divides = .FALSE.
-      call ESMF_TimeIntervalGet(aug%interval, d=d, s=s, ns=ns, rc=status)
-      if (status /= ESMF_SUCCESS) return
+      call ESMF_TimeIntervalGet(aug%interval, d=d, s=s, ns=ns, _VERIFY)
+      _VERIFY(STATUS)
 
       total_ns = int(d, kind=I8) * SECS_PER_DAY * NS_PER_SEC &
          & + int(s, kind=I8) * NS_PER_SEC + int(ns, kind=I8)
