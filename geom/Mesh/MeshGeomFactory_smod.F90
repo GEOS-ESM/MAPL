@@ -255,14 +255,14 @@ contains
       _ASSERT(associated(element_conn), 'Element connectivity not set in MeshGeomSpec')
       _ASSERT(associated(num_element_conn), 'Num element connections not set in MeshGeomSpec')
 
-       ! Get decomposition info
-       decomp = spec%get_decomposition()
-       call ESMF_VMGetCurrent(vm, _RC)
-       call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
+        ! Get decomposition info
+        decomp = spec%get_decomposition()
+        call ESMF_VMGetCurrent(vm, _RC)
+        call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
 
-        ! Check if Phase 3 node distribution is enabled
-        node_dist = decomp%get_node_distribution()
-        use_phase3_distribution = allocated(node_dist)
+         ! Check if Phase 3 node distribution is enabled
+         node_dist = decomp%get_node_distribution()
+         use_phase3_distribution = (size(node_dist) /= 0)
 
         ! Get element distribution (elements are distributed across PEs)
         call decomp%get_local_indices(localPet, i_elem_start, i_elem_end)

@@ -241,7 +241,6 @@ contains
       ! Create file metadata
       file_metadata = FileMetadata()
       
-print*, __LINE__, __FILE__
       ! Add dimensions
       call file_metadata%add_dimension('nodeCount', n_nodes, _RC)
       call file_metadata%add_dimension('elementCount', n_elements, _RC)
@@ -262,7 +261,6 @@ print*, __LINE__, __FILE__
       call var%add_attribute('start_index', Attribute(1))
       call file_metadata%add_variable('elementConn', var, _RC)
 
-print*, __LINE__, __FILE__
       ! Add numElementConn variable
       var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
       call var%add_attribute('long_name', Attribute('Number of nodes per element'))

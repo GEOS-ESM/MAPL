@@ -137,7 +137,10 @@ contains
 
       if (allocated(decomp%node_distribution)) then
          node_distribution = decomp%node_distribution
+      else
+         allocate(node_distribution(0))
       end if
+      
    end function get_node_distribution
 
    elemental function not_equal_to(decomp1, decomp2)
