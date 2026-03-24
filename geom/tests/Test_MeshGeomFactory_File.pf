@@ -439,8 +439,7 @@ contains
 
 
    ! Test make_geom with uneven distribution across 4 PEs
-   ! FIXME: Disabled - uneven distribution causes ESMF error 509 in MeshAddElements
-   ! @test(type=ESMF_TestMethod, npes=[4])
+   @test(type=ESMF_TestMethod, npes=[4])
    subroutine test_make_geom_4pe_uneven_distribution(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
@@ -471,7 +470,9 @@ contains
       call ESMF_VMBarrier(vm, rc=status)
 
       ! Create MeshGeomSpec with uneven decomposition: PE0=3, PE1=2, PE2=2, PE3=1
-      decomp = MeshDecomposition([3, 2, 2, 1])  ! Uneven element distribution
+      ! Element distribution: uneven [3,2,2,1]
+      ! Node distribution: even distribution of 15 nodes across 4 PEs: [4,4,4,3]
+      decomp = MeshDecomposition([3, 2, 2, 1], node_distribution=[4, 4, 4, 3])
       mesh_spec = MeshGeomSpec(15, 8, decomp)
       call mesh_spec%set_filename(filename)
 

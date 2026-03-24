@@ -27,6 +27,7 @@ module mapl3g_MeshDecomposition
 
    interface MeshDecomposition
       procedure :: new_MeshDecomposition_basic
+      procedure :: new_MeshDecomposition_with_nodes
       procedure :: new_MeshDecomposition_petcount
       procedure :: new_MeshDecomposition_full
    end interface MeshDecomposition
@@ -91,6 +92,20 @@ contains
 
       decomp%point_distribution = point_distribution
    end function new_MeshDecomposition_basic
+
+   ! Constructor with both element and node distribution arrays
+   function new_MeshDecomposition_with_nodes(element_distribution, unusable, node_distribution) result(decomp)
+      use mapl_KeywordEnforcer
+      type(MeshDecomposition) :: decomp
+      integer, intent(in) :: element_distribution(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, intent(in) :: node_distribution(:)
+
+      decomp%point_distribution = element_distribution
+      decomp%node_distribution = node_distribution
+
+      _UNUSED_DUMMY(unusable)
+   end function new_MeshDecomposition_with_nodes
 
    function new_MeshDecomposition_petcount(npoints, unusable, petCount) result(decomp)
       use mapl_KeywordEnforcer
