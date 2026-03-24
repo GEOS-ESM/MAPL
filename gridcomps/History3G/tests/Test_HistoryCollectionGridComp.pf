@@ -58,7 +58,7 @@ contains
       state = ESMF_Statecreate(nestedStateList=[substate],_RC)
 
       hconfig_hist = ESMF_HConfigCreate(content= &
-         "{var_list: {E1: {expr: DYN.E_1}}}", _RC)
+         "{var_list: {E1: {source: DYN.E_1}}}", _RC)
  
       bundle = create_output_bundle(hconfig_hist, state, _RC)
       call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
@@ -153,8 +153,8 @@ contains
       expected_name = 'A_1'
       expected_alias= 'A1'
 
-      content = '{' // expected_alias // ': {expr: ' // expected_name// '}}'
-!      content = '{A_1: {expr: GC1.F1+GC2.F2}}' 
+      content = '{' // expected_alias // ': {source: ' // expected_name// '}}'
+!      content = '{A_1: {source: GC1.F1+GC2.F2}}' 
       hconfig = ESMF_HConfigCreate(content=content, _RC)
 
       hc_iter_begin = ESMF_HConfigIterBegin(hconfig, _RC)
