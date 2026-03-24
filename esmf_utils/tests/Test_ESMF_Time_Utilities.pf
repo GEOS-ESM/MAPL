@@ -71,7 +71,7 @@ contains
       call ESMF_TimeIntervalSet(larger, yy=1, _RC)
       call ESMF_TimeIntervalSet(smaller, d=1, _RC)
       call check_compatibility(larger, smaller, compatible, _RC)
-      @assertFalse(compatible, 'The interval types are inconsistent.')
+      @assertTrue(compatible, 'A calendar interval should be compatible with an absolute interval that divides 1 day.')
 
    end subroutine test_1yy_1d
 
@@ -180,6 +180,96 @@ contains
       @assertTrue(compatible, SHOULD)
 
    end subroutine test_3mm_1mm_2mm
+
+   ! ---- Mixed calendar/absolute compatibility tests ----
+
+   @Test
+   subroutine test_1mm_1d()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, mm=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, d=1, _RC)
+      call check_compatibility(larger, smaller, compatible, _RC)
+      @assertTrue(compatible, '1 day divides 1 day, so 1 month / 1 day should be compatible.')
+
+   end subroutine test_1mm_1d
+
+   @Test
+   subroutine test_1yy_6h()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, yy=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, h=6, _RC)
+      call check_compatibility(larger, smaller, compatible, _RC)
+      @assertTrue(compatible, '6 hours divides 1 day, so 1 year / 6 hours should be compatible.')
+
+   end subroutine test_1yy_6h
+
+   @Test
+   subroutine test_1mm_8h()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, mm=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, h=8, _RC)
+      call check_compatibility(larger, smaller, compatible, _RC)
+      @assertTrue(compatible, '8 hours divides 1 day, so 1 month / 8 hours should be compatible.')
+
+   end subroutine test_1mm_8h
+
+   @Test
+   subroutine test_1mm_7h()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, mm=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, h=7, _RC)
+      call check_compatibility(larger, smaller, compatible, _RC)
+      @assertFalse(compatible, '7 hours does not divide 1 day, so 1 month / 7 hours should be incompatible.')
+
+   end subroutine test_1mm_7h
+
+   @Test
+   subroutine test_1yy_1d_offset_3d()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      type(ESMF_TimeInterval) :: offset
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, yy=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, d=1, _RC)
+      call ESMF_TimeIntervalSet(offset, d=3, _RC)
+      call check_compatibility(larger, smaller, compatible, offset=offset, _RC)
+      @assertTrue(compatible, '1 day divides both 1 day and 3 days, so this should be compatible.')
+
+   end subroutine test_1yy_1d_offset_3d
+
+   @Test
+   subroutine test_1mm_6h_offset_5h()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      type(ESMF_TimeInterval) :: offset
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, mm=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, h=6, _RC)
+      call ESMF_TimeIntervalSet(offset, h=5, _RC)
+      call check_compatibility(larger, smaller, compatible, offset=offset, _RC)
+      @assertFalse(compatible, '6 hours divides 1 day but not 5 hours, so this should be incompatible.')
+
+   end subroutine test_1mm_6h_offset_5h
 
    ! ---- sub_time_in_datetime tests ----
 

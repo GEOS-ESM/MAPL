@@ -35,19 +35,13 @@ contains
 
       user_offset = this%user_offset
 
-      !call check_compatibility(user_timestep, timeStep, compatible, offset=user_offset, _RC)
-      !_ASSERT(compatible, 'The user timestep and offset are not compatible with the outer timestep.')
+      call check_compatibility(user_timestep, timeStep, compatible, offset=user_offset, _RC)
+      _ASSERT(compatible, 'The user timestep and offset are not compatible with the outer timestep.')
 
       user_clock = ESMF_ClockCreate(outer_clock, _RC)
       call ESMF_ClockSet(user_clock, timestep=user_timeStep, _RC)
       call set_run_user_alarm(this, outer_clock, user_clock, _RC)
 
-      block
-         type(ESMF_Time) :: current_time
-         character(len=ESMF_MAXSTR) :: time_string
-         call ESMF_ClockGet(user_clock, currTime=current_time, _RC)
-         call ESMF_TimeGet(current_time, timeString=time_string, _RC)
-      end block
       call this%user_gc_driver%set_clock(user_clock)
 
       call set_children_outer_clock(this%children, user_clock, _RC)
