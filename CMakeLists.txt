@@ -22,6 +22,8 @@ set (ESMA_CMAKE_DIRS
   ESMA_cmake@
   )
 
+message(STATUS "This is a trivial commit for testing CI")
+
 foreach (dir IN LISTS ESMA_CMAKE_DIRS)
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/${dir})
     list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/${dir}")
