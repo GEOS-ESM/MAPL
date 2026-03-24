@@ -24,7 +24,8 @@ MAPL3.
 8. [Statistics Component](#8-statistics-component)
 9. [Clocks](#9-clocks)
 10. [Build System](#10-build-system)
-11. [Items Requiring Peer Review](#12-items-requiring-peer-review)
+11. [Logging (pFlogger)](#11-logging-pflogger)
+13. [Items Requiring Peer Review](#13-items-requiring-peer-review)
 
 **Related documents**
 
@@ -506,7 +507,53 @@ must be of type `MAPL_CapOptions`.
 
 ---
 
-## 11. See Also
+## 11. Logging (pFlogger)
+
+Both MAPL2 and MAPL3 use the [pFlogger](https://github.com/Goddard-Fortran-Ecosystem/pFlogger)
+library for structured, hierarchical logging.  The key difference is in
+how each component's logger is named.
+
+### MAPL2 — Full Hierarchy Name
+
+In MAPL2, each gridded component receives a logger whose name is the
+**full dot-separated path** of the component within the hierarchy.
+For example, a dust component nested inside several parents would have
+the logger name:
+
+```
+GCM.AGCM.PHYS.CHEM.GOCART2G.DU
+```
+
+This mirrors the ESMF component hierarchy and makes it straightforward
+to set the log level for an entire subtree in the pFlogger resource
+file: setting the level on `GCM.AGCM` automatically affects all
+descendants.
+
+### MAPL3 — Short (Final) Name
+
+In MAPL3, each component's logger is identified by its **short name**
+(the name passed to `MAPL_AddChild` / the component's own name) rather
+than the full hierarchical path.  The same dust component is simply:
+
+```
+DU
+```
+
+**Trade-offs:**
+
+| Aspect | MAPL2 (full name) | MAPL3 (short name) |
+|--------|------------------|-------------------|
+| Resource file complexity | More verbose; must list full paths | Simpler; just use the short component name |
+| Setting level for a subtree | Easy — set level on a common prefix | Harder — each leaf must be configured individually |
+| Name collisions across hierarchies | None (paths are unique) | Possible if two unrelated components share a short name |
+
+**Migration note:** If your `logging.yaml` (or equivalent pFlogger
+resource file) references loggers by their full hierarchical names, you
+will need to update it to use short names when moving to MAPL3.
+
+---
+
+## 12. See Also
 
 - [`api-changes.md`](api-changes.md) — detailed, procedure-level listing of
   every stubbed-out V2 API and the new MAPL3 replacements (lifecycle, child
@@ -514,7 +561,7 @@ must be of type `MAPL_CapOptions`.
 
 ---
 
-## 12. Items Requiring Peer Review
+## 13. Items Requiring Peer Review
 
 The following sections need review or additional content from
 subject-matter experts before this document should be considered
