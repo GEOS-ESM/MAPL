@@ -87,7 +87,7 @@ contains
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
 
       ! Create file and write metadata
-      call formatter%create(file=filename, _RC)
+      call formatter%create(file=filename,mode=pFIO_CLOBBER, _RC)
       call formatter%write(file_metadata, _RC)
 
       ! Write data
@@ -172,7 +172,7 @@ contains
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
 
       ! Create file and write metadata
-      call formatter%create(file=filename, _RC)
+      call formatter%create(file=filename, mode=pFIO_CLOBBER,  _RC)
       call formatter%write(file_metadata, _RC)
 
       ! Write data
@@ -241,6 +241,7 @@ contains
       ! Create file metadata
       file_metadata = FileMetadata()
       
+print*, __LINE__, __FILE__
       ! Add dimensions
       call file_metadata%add_dimension('nodeCount', n_nodes, _RC)
       call file_metadata%add_dimension('elementCount', n_elements, _RC)
@@ -261,6 +262,7 @@ contains
       call var%add_attribute('start_index', Attribute(1))
       call file_metadata%add_variable('elementConn', var, _RC)
 
+print*, __LINE__, __FILE__
       ! Add numElementConn variable
       var = Variable(type=pFIO_INT32, dimensions='elementCount', _RC)
       call var%add_attribute('long_name', Attribute('Number of nodes per element'))
@@ -276,22 +278,21 @@ contains
       call file_metadata%add_attribute('gridType', Attribute('unstructured'))
       call file_metadata%add_attribute('version', Attribute('0.9'))
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
-
       ! Create file and write metadata
-      call formatter%create(file=filename, _RC)
+      call formatter%create(file=filename,mode=PFIO_CLOBBER, _RC)
       call formatter%write(file_metadata, _RC)
 
-      ! Write data
-      call formatter%put_var('nodeCoords', node_coords, _RC)
-      call formatter%put_var('elementConn', element_conn, _RC)
-      call formatter%put_var('numElementConn', num_element_conn, _RC)
-      call formatter%put_var('elementMask', element_mask, _RC)
+       ! Write data
+       call formatter%put_var('nodeCoords', node_coords, _RC)
+       call formatter%put_var('elementConn', element_conn, _RC)
+       call formatter%put_var('numElementConn', num_element_conn, _RC)
+       call formatter%put_var('elementMask', element_mask, _RC)
 
-      ! Close file
-      call formatter%close(_RC)
+       ! Close file
+       call formatter%close(_RC)
 
-      _RETURN(_SUCCESS)
-   end subroutine create_four_quad_mesh_file
+       _RETURN(_SUCCESS)
+    end subroutine create_four_quad_mesh_file
 
    ! Create a mesh with 8 elements for 4-PE testing (2 elements per PE)
    ! Grid layout: 4x2 grid of quads
@@ -394,7 +395,7 @@ contains
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
 
       ! Create file and write metadata
-      call formatter%create(file=filename, _RC)
+      call formatter%create(file=filename,mode=pFIO_Clobber,  _RC)
       call formatter%write(file_metadata, _RC)
 
       ! Write data
@@ -498,7 +499,7 @@ contains
       call file_metadata%add_attribute('convention', Attribute('ESMF'))
 
       ! Create file and write metadata
-      call formatter%create(file=filename, _RC)
+      call formatter%create(file=filename, mode=pFIO_CLOBBER,  _RC)
       call formatter%write(file_metadata, _RC)
 
       ! Write data
@@ -507,9 +508,10 @@ contains
       call formatter%put_var('numElementConn', num_element_conn, _RC)
       call formatter%put_var('elementMask', element_mask, _RC)
 
+print*, __LINE__
       ! Close file
       call formatter%close(_RC)
-
+print*, __LINE__
       _RETURN(_SUCCESS)
    end subroutine create_mixed_element_mesh_file
 

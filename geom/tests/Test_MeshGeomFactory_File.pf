@@ -357,15 +357,18 @@ contains
       _UNUSED_DUMMY(this)
 
       ! Get VM info
-      call ESMF_VMGetCurrent(vm, _RC)
-      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
       @assert_that(petCount, is(4))
 
       ! Create test mesh file with 4 quads
       filename = 'test_4pe_four_quads.nc'
       if (localPet == 0) then
-         call create_four_quad_mesh_file(filename, _RC)
+         print*, "call create_four_quad_mesh_file(filename, _RC)"
+         call create_four_quad_mesh_file(filename, rc=status)
+         print*, "done call create_four_quad_mesh_file(filename, _RC)"
       end if
+      print*, "localPet:", localPet
       call ESMF_VMBarrier(vm, _RC)
 
       ! Create MeshGeomSpec with decomposition for 4 elements on 4 PEs
@@ -428,7 +431,7 @@ contains
       ! Create test mesh file with 8 elements
       filename = 'test_4pe_eight_elements.nc'
       if (localPet == 0) then
-         call create_eight_element_mesh_file(filename, _RC)
+         call create_eight_element_mesh_file(filename,rc=status) 
       end if
       call ESMF_VMBarrier(vm, _RC)
 
@@ -491,7 +494,7 @@ contains
       ! Create test mesh file with 8 elements
       filename = 'test_4pe_uneven.nc'
       if (localPet == 0) then
-         call create_eight_element_mesh_file(filename, _RC)
+         call create_eight_element_mesh_file(filename, rc=status)
       end if
       call ESMF_VMBarrier(vm, _RC)
 
@@ -561,7 +564,7 @@ contains
       ! Create test mesh file
       filename = 'test_4pe_hconfig.nc'
       if (localPet == 0) then
-         call create_four_quad_mesh_file(filename, _RC)
+         call create_four_quad_mesh_file(filename, rc=status)
       end if
       call ESMF_VMBarrier(vm, _RC)
 
@@ -626,7 +629,7 @@ contains
       ! Create test mesh file with mixed elements
       filename = 'test_4pe_mixed.nc'
       if (localPet == 0) then
-         call create_mixed_element_mesh_file(filename, _RC)
+         call create_mixed_element_mesh_file(filename, rc=status)
       end if
       call ESMF_VMBarrier(vm, _RC)
 
@@ -685,7 +688,7 @@ contains
       ! Create test mesh file
       filename = 'test_4pe_elem_dist.nc'
       if (localPet == 0) then
-         call create_eight_element_mesh_file(filename, _RC)
+         call create_eight_element_mesh_file(filename, rc=status)
       end if
       call ESMF_VMBarrier(vm, _RC)
 

@@ -245,109 +245,111 @@ contains
        call ESMF_VMGetCurrent(vm, _RC)
        call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
 
-       ! Check if Phase 3 node distribution is enabled
-       node_dist = decomp%get_node_distribution()
-       use_phase3_distribution = allocated(node_dist)
+        ! Check if Phase 3 node distribution is enabled
+        node_dist = decomp%get_node_distribution()
+        use_phase3_distribution = allocated(node_dist)
 
-       ! Phase 3: Implement proper node distribution (if node_distribution is set)
-       ! Phase 2: Fall back to all nodes on all PEs
-       ! Get element distribution
-       call decomp%get_local_indices(localPet, i_elem_start, i_elem_end)
-       local_element_count = i_elem_end - i_elem_start + 1
-       
-       if (use_phase3_distribution) then
-          ! Phase 3: Distribute nodes across PEs with ghost nodes
-          ! Get node distribution
-          call decomp%get_local_node_indices(localPet, i_node_start, i_node_end)
-          
-          ! Build node ownership map
-          allocate(node_to_pe(nnodes))
-          node_to_pe = -1  ! Initialize as unowned
-          
-          ! Assign nodes to PEs based on node distribution
-          do i = 0, petCount - 1
-             call decomp%get_local_node_indices(i, n_start, n_end)
-             do n_id = n_start, n_end
-                node_to_pe(n_id) = i
-             end do
-          end do
-          
-          ! Identify ghost nodes: nodes referenced by local elements but owned by other PEs
-          allocate(is_ghost_node(nnodes))
-          is_ghost_node = .false.
-          
-          ! Mark nodes needed by local elements
-          conn_start = 1
-          do elem_idx = 1, i_elem_start - 1
-             conn_start = conn_start + num_element_conn(elem_idx)
-          end do
-          
-          do elem_idx = i_elem_start, i_elem_end
-             np = num_element_conn(elem_idx)
-             conn_end = conn_start + np - 1
-             do j = conn_start, conn_end
-                node_id = element_conn(j)
-                if (node_id < i_node_start .or. node_id > i_node_end) then
-                   is_ghost_node(node_id) = .true.
-                end if
-             end do
-             conn_start = conn_end + 1
-          end do
-          
-          ! Count local and ghost nodes
-          num_ghost_nodes = count(is_ghost_node)
-          local_node_count = (i_node_end - i_node_start + 1) + num_ghost_nodes
-       else
-          ! Phase 2: All nodes on all PEs (backward compatibility)
-          i_node_start = 1
-          i_node_end = nnodes
-          local_node_count = nnodes
-       end if
+        ! Get element distribution (elements are distributed across PEs)
+        call decomp%get_local_indices(localPet, i_elem_start, i_elem_end)
+        local_element_count = i_elem_end - i_elem_start + 1
+        
+        if (use_phase3_distribution) then
+           ! Phase 3: Elements are distributed, nodes are shared among PEs
+           ! Each PE owns a subset of elements, but nodes can be shared with neighboring PEs
+           
+           ! First, identify all nodes needed by this PE's local elements
+           allocate(is_ghost_node(nnodes))
+           is_ghost_node = .false.
+           
+           ! Mark nodes needed by local elements
+           conn_start = 1
+           do elem_idx = 1, i_elem_start - 1
+              conn_start = conn_start + num_element_conn(elem_idx)
+           end do
+           
+           do elem_idx = i_elem_start, i_elem_end
+              np = num_element_conn(elem_idx)
+              conn_end = conn_start + np - 1
+              do j = conn_start, conn_end
+                 node_id = element_conn(j)
+                 is_ghost_node(node_id) = .true.  ! Mark as needed
+              end do
+              conn_start = conn_end + 1
+           end do
+           
+            ! Build node ownership map: assign ownership based on first element using each node
+            allocate(node_to_pe(nnodes))
+            node_to_pe = -1  ! Initialize as unowned
+            
+            ! Process all elements to assign node ownership
+            conn_start = 1
+            do elem_idx = 1, nelements
+               ! Find which PE owns this element
+               do i = 0, petCount - 1
+                  call decomp%get_local_indices(i, n_start, n_end)
+                  if (elem_idx >= n_start .and. elem_idx <= n_end) then
+                     ! PE i owns element elem_idx - assign unassigned nodes to PE i
+                     np = num_element_conn(elem_idx)
+                     conn_end = conn_start + np - 1
+                     do j = conn_start, conn_end
+                        node_id = element_conn(j)
+                        if (node_to_pe(node_id) == -1) then
+                           node_to_pe(node_id) = i
+                        end if
+                     end do
+                     exit
+                  end if
+               end do
+               ! Move to next element's connectivity
+               conn_start = conn_start + num_element_conn(elem_idx)
+            end do
+            
+            ! Count nodes needed by this PE
+            local_node_count = count(is_ghost_node)
+        else
+           ! Phase 2: All nodes on all PEs (backward compatibility)
+           i_node_start = 1
+           i_node_end = nnodes
+           local_node_count = nnodes
+        end if
 
       ! Create mesh with parametric and spatial dimensions
       mesh = ESMF_MeshCreate(parametricDim=2, spatialDim=2, &
                              coordSys=ESMF_COORDSYS_SPH_DEG, _RC)
 
-       ! Add nodes (Phase 2: all nodes, Phase 3: owned nodes + ghost nodes)
-       allocate(nodeIds(local_node_count))
-       allocate(nodeCoords(2*local_node_count))
-       
-       if (use_phase3_distribution) then
-          ! Phase 3: Distribute nodes with ownership
-          allocate(nodeOwners(local_node_count))
-          
-          ! First add owned nodes
-          do i = i_node_start, i_node_end
-             nodeIds(i - i_node_start + 1) = i
-             nodeOwners(i - i_node_start + 1) = localPet
-             nodeCoords(2*(i - i_node_start)+1) = node_coords(1, i)  ! longitude
-             nodeCoords(2*(i - i_node_start)+2) = node_coords(2, i)  ! latitude
-          end do
-          
-          ! Then add ghost nodes
-          ghost_idx = i_node_end - i_node_start + 2
-          do i = 1, nnodes
-             if (is_ghost_node(i)) then
-                nodeIds(ghost_idx) = i
-                nodeOwners(ghost_idx) = node_to_pe(i)  ! Owner PE
-                nodeCoords(2*(ghost_idx-1)+1) = node_coords(1, i)  ! longitude
-                nodeCoords(2*(ghost_idx-1)+2) = node_coords(2, i)  ! latitude
-                ghost_idx = ghost_idx + 1
-             end if
-          end do
-          
-          call ESMF_MeshAddNodes(mesh, nodeIds, nodeCoords, nodeOwners=nodeOwners, _RC)
-          deallocate(nodeOwners)
-       else
-          ! Phase 2: All nodes on all PEs (no ownership)
-          do i = 1, local_node_count
-             nodeIds(i) = i
-             nodeCoords(2*(i-1)+1) = node_coords(1, i)  ! longitude
-             nodeCoords(2*(i-1)+2) = node_coords(2, i)  ! latitude
-          end do
-          
-          call ESMF_MeshAddNodes(mesh, nodeIds, nodeCoords, _RC)
-       end if
+       ! Add nodes (Phase 2: all nodes, Phase 3: nodes needed by local elements with proper ownership)
+        allocate(nodeIds(local_node_count))
+        allocate(nodeCoords(2*local_node_count))
+        
+        if (use_phase3_distribution) then
+           ! Phase 3: Add only nodes needed by local elements, with proper ownership
+           ! Nodes are shared among PEs - each PE adds nodes needed by its elements
+           allocate(nodeOwners(local_node_count))
+           
+           ! Add all nodes needed by this PE's elements
+           ghost_idx = 1
+           do i = 1, nnodes
+              if (is_ghost_node(i)) then
+                 nodeIds(ghost_idx) = i
+                 nodeOwners(ghost_idx) = node_to_pe(i)  ! Owner PE (first PE that uses it)
+                 nodeCoords(2*(ghost_idx-1)+1) = node_coords(1, i)  ! longitude
+                 nodeCoords(2*(ghost_idx-1)+2) = node_coords(2, i)  ! latitude
+                 ghost_idx = ghost_idx + 1
+              end if
+           end do
+           
+           call ESMF_MeshAddNodes(mesh, nodeIds, nodeCoords, nodeOwners=nodeOwners, _RC)
+           deallocate(nodeOwners)
+        else
+           ! Phase 2: All nodes on all PEs (no ownership)
+           do i = 1, local_node_count
+              nodeIds(i) = i
+              nodeCoords(2*(i-1)+1) = node_coords(1, i)  ! longitude
+              nodeCoords(2*(i-1)+2) = node_coords(2, i)  ! latitude
+           end do
+           
+           call ESMF_MeshAddNodes(mesh, nodeIds, nodeCoords, _RC)
+        end if
        
        deallocate(nodeIds, nodeCoords)
        if (use_phase3_distribution) then
