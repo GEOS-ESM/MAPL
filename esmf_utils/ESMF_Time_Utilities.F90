@@ -159,7 +159,8 @@ contains
 
       ! Year (positions 1-4): YYYY = use current year, else read 4-digit integer
       if (ref_datetime(1:4) /= 'YYYY') then
-         read(ref_datetime(1:4), '(I4)') year
+         read(ref_datetime(1:4), '(I4)', iostat=status) year
+         _ASSERT(status == 0, 'Failed to parse year from ref_datetime: '//ref_datetime(1:4))
       end if
 
       ! Separator (position 5): must be '-'
@@ -167,7 +168,8 @@ contains
 
       ! Month (positions 6-7): MM = use current month, else read 2-digit integer
       if (ref_datetime(6:7) /= 'MM') then
-         read(ref_datetime(6:7), '(I2)') month
+         read(ref_datetime(6:7), '(I2)', iostat=status) month
+         _ASSERT(status == 0, 'Failed to parse month from ref_datetime: '//ref_datetime(6:7))
          _ASSERT(month >= 1 .and. month <= 12, 'ref_datetime month must be between 1 and 12')
       end if
 
@@ -176,7 +178,8 @@ contains
 
       ! Day (positions 9-10): DD = use current day, else read 2-digit integer
       if (ref_datetime(9:10) /= 'DD') then
-         read(ref_datetime(9:10), '(I2)') day
+         read(ref_datetime(9:10), '(I2)', iostat=status) day
+         _ASSERT(status == 0, 'Failed to parse day from ref_datetime: '//ref_datetime(9:10))
          _ASSERT(day >= 1 .and. day <= 28, 'ref_datetime day must be between 1 and 28')
       end if
 
@@ -185,7 +188,8 @@ contains
 
       ! Hour (positions 12-13): HH = use current hour, else read 2-digit integer
       if (ref_datetime(12:13) /= 'HH') then
-         read(ref_datetime(12:13), '(I2)') hour
+         read(ref_datetime(12:13), '(I2)', iostat=status) hour
+         _ASSERT(status == 0, 'Failed to parse hour from ref_datetime: '//ref_datetime(12:13))
          _ASSERT(hour >= 0 .and. hour <= 23, 'ref_datetime hour must be between 0 and 23')
       end if
 
@@ -194,7 +198,8 @@ contains
 
       ! Minute (positions 15-16): NN = use current minute, else read 2-digit integer
       if (ref_datetime(15:16) /= 'NN') then
-         read(ref_datetime(15:16), '(I2)') minute
+         read(ref_datetime(15:16), '(I2)', iostat=status) minute
+         _ASSERT(status == 0, 'Failed to parse minute from ref_datetime: '//ref_datetime(15:16))
          _ASSERT(minute >= 0 .and. minute <= 59, 'ref_datetime minute must be between 0 and 59')
       end if
 
@@ -203,7 +208,8 @@ contains
 
       ! Second (positions 18-19): SS = use current second, else read 2-digit integer
       if (ref_datetime(18:19) /= 'SS') then
-         read(ref_datetime(18:19), '(I2)') second
+         read(ref_datetime(18:19), '(I2)', iostat=status) second
+         _ASSERT(status == 0, 'Failed to parse second from ref_datetime: '//ref_datetime(18:19))
          _ASSERT(second >= 0 .and. second <= 59, 'ref_datetime second must be between 0 and 59')
       end if
 
