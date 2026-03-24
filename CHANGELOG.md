@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v3.0.0-alpha-0]
 
-### Documentation
+### Added
 
 - Add [`docs/mapl3/diffs-from-mapl2.md`](docs/mapl3/diffs-from-mapl2.md) — a comprehensive
   overview of the architectural and user-facing differences between MAPL3 and MAPL2.
