@@ -10,7 +10,7 @@ module mapl3g_HistoryConstants
    public :: KEY_TIME_SPEC
    public :: KEY_TYPEKIND
    public :: KEY_UNITS
-   public :: KEY_EXPRESSION
+   public :: KEY_SOURCE
    public :: KEY_INSTANTANEOUS
    public :: KEY_REGRID
 
@@ -21,7 +21,7 @@ module mapl3g_HistoryConstants
    character(len=*), parameter :: KEY_TIME_SPEC = 'time_spec'
    character(len=*), parameter :: KEY_TYPEKIND = 'typekind'
    character(len=*), parameter :: KEY_UNITS = 'units'
-   character(len=*), parameter :: KEY_EXPRESSION = 'expr'
+   character(len=*), parameter :: KEY_SOURCE = 'source'
    character(len=*), parameter :: KEY_INSTANTANEOUS = 'instantaneous'
    character(len=*), parameter :: KEY_REGRID = 'regrid'
 
