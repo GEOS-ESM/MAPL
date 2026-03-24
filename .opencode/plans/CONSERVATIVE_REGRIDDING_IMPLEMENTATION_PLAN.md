@@ -1,8 +1,45 @@
 # MAPL3 Conservative Regridding - Detailed Implementation Plan
 
-**Document Version:** 2.2  
-**Date:** 2026-03-10  
-**Status:** Phase 2 - In Progress
+**Document Version:** 2.3  
+**Date:** 2026-03-23  
+**Status:** Phase 2 - Completed (with modifications)
+
+---
+
+## ⚠️ SUPERSEDED - Normalization Aspects Replaced
+
+**Important:** The normalization aspects of this plan (originally Phases 2-3) have been **superseded** by the [Integrated Normalization Architecture](../docs/integrated_normalization.md).
+
+### What Changed
+
+The original plan proposed separate `ExportNormalization` and `ImportNormalization` aspects that would create explicit extension fields for each normalization operation. This approach was replaced with **integrated normalization** where transforms maintain normalization internally.
+
+**Key differences:**
+- ❌ **Old:** ExportNormalization + ImportNormalization aspects → 3 extensions (norm + regrid + denorm)
+- ✅ **New:** Single NormalizationAspect + integrated normalization in transforms → 1 extension (regrid with internal norm)
+- **Memory savings:** 50% reduction in extension fields for common cases
+
+**See:** [Integrated Normalization Architecture Documentation](../docs/integrated_normalization.md) for complete details.
+
+### Implementation Status
+
+**Phase 1 (Infrastructure):**
+- ✅ QuantityType and QuantityTypeAspect - Completed
+
+**Phase 2 (Normalization) - Replaced by Integrated Normalization:**
+- ✅ NormalizationAspect (unified, not split) - PR #4535
+- ✅ RegridTransform with integrated normalization - PR #4536
+- ✅ GeomAspect enhancements - PR #4538
+- ✅ VerticalRegridTransform with integrated normalization - PR #4539
+- ✅ Integration testing - PR #4546
+- ✅ Documentation - docs/integrated_normalization.md
+
+**Phase 3 (3D Conservative Regridding):**
+- Status: May revisit after Phase 2 completion
+
+---
+
+## Original Implementation Progress
 
 ## Implementation Progress
 

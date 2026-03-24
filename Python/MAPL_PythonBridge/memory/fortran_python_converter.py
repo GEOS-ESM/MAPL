@@ -86,6 +86,8 @@ class FortranPythonConverter:
             "float": np.float32,
             "double": np.float64,
             "int": np.int32,
+            "_Bool": bool,
+            "bool": bool,
         }
 
     def device_sync(self):
@@ -118,10 +120,9 @@ class FortranPythonConverter:
         dims: list[int] | None,
     ) -> DeviceArray:
         """Upload to device & transform to Pace compatible layout"""
-        device_array = cp.asarray(host_array)
-        final_array = self._transform_from_fortran_layout(device_array, dims)
+        device_array = cp.asarray(host_array.reshape(dims, copy=False))
         self._current_stream = self._stream_A if self._current_stream == self._stream_B else self._stream_B
-        return final_array
+        return device_array
 
     def _transform_from_fortran_layout(
         self,
