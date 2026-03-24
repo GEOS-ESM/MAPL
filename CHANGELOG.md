@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v3.0.0 - Development]
+## [v3.0.0-alpha-0]
 
 ### Documentation
 
@@ -13,108 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   overview of the architectural and user-facing differences between MAPL3 and MAPL2.
   This document covers component structure, connections, field specifications, resource
   files, Cap/time-loop changes, History3G, ExtData, the new Statistics component,
-  clocks, and build system changes.  It supersedes individual changelog entries for
-  the v3.0.0 release and is intended as the primary migration reference for developers
-  and users moving from MAPL2 to MAPL3.
-
-### Removed
-
-- Removes backward compatibility for `MAPL_FargparseCLI` functions. Only accepts function usage in which the result is of
-  MAPL_CapOptions type.
-- Remove FLAP support.
-- Remove `BUILD_SHARED_MAPL` CMake option. MAPL3 is now always built as a shared library.
-
-### Added
-
-- Moved generic3g from using yafyaml to ESMF HConfig for yaml parsing
-- Tests for wildcard field specification in History
-- New generic3g directory intended to replace existing generic directory when completed.
-  - Modules there temporarily have `mapl3g_` as the prefix.
-- New command line switches for activating global time and memory
-    profiling.  The default is off.  Use `--enable_global_timeprof` and
-    `--enable_global_memprof` to activate.
-- New gauge for measuring memory allocation based upon mallinfo().
-	MAPL is now instrumented with this memory profiler and it produces
-	reasonable results.  Should nicely complement other tools that
-	measure HWM.
-- Replace ESMF_Attribute calls with ESMF_Info calls in MAPL_FieldCopyAttribute
-- Convert values in ESMF\_Field with compatible units using udunits2.
-- Add make_geom function in new module mapl3g_HistoryCollectionGridComp_private.
-- Use anchors for reading HConfig in Test_HistoryGridComp.
-- Add procedures for MAPL_GetResource from ESMF_HConfig.
-- Added GitHub Action to generate MAPL3 Ford Docs
-- Added capability for HistoryCollectionGridComp to extract field names from expressions
-- Added ability for HistoryCollectionGridComp to extract multiple field names from expressions
-- Added vertical and ungridded dimensions to output for History3G
-- Create rank-agnostic representation of `ESMF_Field` objects as rank-3 array pointers.
-- Add time accumulation for output from ESMF_Field objects.
-- Add tests for time accumulation
-- Add variable to FieldSpec for accumulation type
-- Add accumulation type variable to VariableSpec and ComponentSpecParser
-- Add run_dt to ComponentSpec and ComponentSpecParser
-- Add run_dt to FieldSpec
-- Add FrequencyAspect
-- Remove MAPL `==` and `/=` for `ESMF_Geom`
-  - NOTE: This *requires* ESMF 8.8.0 or later
-- Add ability for child component to specify reference_time for execution.
-- Add reference_time
-- Change `run_dt` to `timestep`
-- Add checks for compatibility between `timestep` and `reference_time` for OuterMetaComponent and user component.
-- Changed `refTime` (`reference_time`) to `offset` and runTime = refTime + offset
-- Added handling of array brackets in array-valued columns for ACG3
-- Add ALIAS column for ACG for MAPL3
-- Add time accumulation to History3G
-- Add unit tests for ACG3
-- Add enumerators for RESTART setting
-- Add `add2export` to ACG3
-- Changed `MAPL_GridCompAddFieldSpec` and ACG3 to use new RESTART enum
-- Add validation for VariableSpec
-- Add a common set of string functions (StringCommon) in shared to consolidate
-- Add a new implementation of MAPL_HConfigGet that does not require a HConfigParams object
-- Add and use character parameters for `ESMF_Field` names in ExtensionTransform subclasses
-- Extend ExtensionTransform derived types to support ESMF_KIND_R8
-- Extend ExtensionTransform derived types to support ESMF_FieldBundle objects
-- Add utility to destroy states including states, bundles, and fields nested in them
-- Add test of units coupling
-- Add test of typekind coupling
-- Add tests of update_payload and update_from_payload for UnitsAspect
-- Add tests of update_payload and update_from_payload for GeomAspect
-
-### Changed
-
-- Workaround to pass ifx 2025.1 tests in debug mode
-- Profile reporting has been relocated into the `./profile` directory.
-- Improved diagnostic message for profiler imbalances at end of run.
-  Now gives the name of the timer that has not been stopped when
-  finalizing a profiler.
-- Changed all ESMF_AttributeGet and ESMF_AttributeSet to ESMF_InfoGet and ESMF_InfoSet respectively as old calls will be deprecated soon.
-- Update executables using FLAP to use fArgParse
-- Update `Findudunits.cmake` to link with libdl and look for the `udunits2.xml` file (as some MAPL tests require it)
-- Modified `ESMF_GridComp` creation in `GenericGridComp` to use `ESMF_CONTEXT_PARENT_VM` by default.
-- Changed `get_fptr_shape` in `FieldCondensedArray*.F90`
-- Change name of ExtensionAction%run to ExtensionAction%update in the abstract type and derived types.
-- Add invalid method to ExtensionAction with a no-op implementation in the abstract type
-- Change refTime to refTime_offset for several MAPL derived types
-- Change `.rc` to `.acg` in user guide and acg tutorial
-- Refactor ACG to produce MAPL3 procedures
-- Pulled destroy_bundle and destroy_fields from MAPL_StateDestroy into MAPL_FieldBundleDestroy and FieldsDestroy
-- Added checks for bundle type in ExtensionTransform subtypes
-
-### Fixed
-
-- Fixed failures to fully trap errors in
-  - History GC
-  - MemUtils
-  - `register_generic_entry_points`
-- Implemented workaround for NAG related to ArrayReference use in GriddedIO.
-- Implemented workarounds to avoid needing `-dusty` for NAG.  (Related PR in ESMA_CMake.)
-- Added constructor for DSO_SetServicesWrapper
-- Change macro in field/undo_function_overload.macro
-- Fixed bug with AccumulatorAction and subtypes
-- Added a check to assign_fptr that verifies that the pointer type/kind matches the Field typekind
-- Workaround for GCC 15 bug (see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=120179)
-- Fixed handling of invalid value for RESTART column in ACG3
-- Fixed initialization of field in test_min_accumulate_R4` in `Test_MinTransform.pf`
+  clocks, and build system changes.  It is intended as the primary migration reference
+  for developers and users moving from MAPL2 to MAPL3.
 
 ## [Unreleased]
 
