@@ -135,8 +135,25 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, year, month, day, hour, minute, second
+      logical :: year_is_set, month_is_set, day_is_set, hour_is_set, minute_is_set, second_is_set
 
       _ASSERT(len(ref_datetime) == 19, 'ref_datetime must be 19 characters: YYYY-MM-DDTHH:NN:SS, got: '//ref_datetime)
+
+      ! Determine which tokens have been substituted with numeric values
+      year_is_set   = (ref_datetime(1:4)   /= 'YYYY')
+      month_is_set  = (ref_datetime(6:7)   /= 'MM')
+      day_is_set    = (ref_datetime(9:10)  /= 'DD')
+      hour_is_set   = (ref_datetime(12:13) /= 'HH')
+      minute_is_set = (ref_datetime(15:16) /= 'NN')
+      second_is_set = (ref_datetime(18:19) /= 'SS')
+
+      ! Substituted tokens must form a contiguous suffix (from least to most significant).
+      ! If a more-significant token is substituted, all less-significant ones must be too.
+      _ASSERT(.not. (year_is_set   .and. .not. month_is_set),  'If YYYY is substituted, MM must also be substituted')
+      _ASSERT(.not. (month_is_set  .and. .not. day_is_set),    'If MM is substituted, DD must also be substituted')
+      _ASSERT(.not. (day_is_set    .and. .not. hour_is_set),   'If DD is substituted, HH must also be substituted')
+      _ASSERT(.not. (hour_is_set   .and. .not. minute_is_set), 'If HH is substituted, NN must also be substituted')
+      _ASSERT(.not. (minute_is_set .and. .not. second_is_set), 'If NN is substituted, SS must also be substituted')
 
       call ESMF_TimeGet(time, yy=year, mm=month, dd=day, h=hour, m=minute, s=second, _RC)
 
