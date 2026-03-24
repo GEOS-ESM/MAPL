@@ -115,7 +115,7 @@ contains
          ! Since months can be 28, 29, 30, or 31 days, interval2 must evenly
          ! divide ALL possible day-lengths. The GCD of {28,29,30,31} is 1 day,
          ! so interval2 must evenly divide exactly 1 day (86400 seconds).
-         compatible = absolute_interval_divides_one_day(aug2)
+         compatible = absolute_interval_divides_one_day(aug2, _RC)
       else
          ! Reverse mixed case (absolute / calendar): always incompatible
          compatible = .FALSE.
