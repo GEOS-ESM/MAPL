@@ -143,17 +143,116 @@ replace the existing `generic` directory when complete.
 `ESMF_GridComp` objects, which is the correct context for components
 embedded within a parent VM.
 
-#### Shared Libraries and Run-Time Composition
+#### Declarative Component Configuration: The `mapl:` Section
 
-MAPL3 is designed with the expectation that user components are
-implemented as shared libraries (DSOs).  This enables run-time
-composition of the component hierarchy for greater flexibility.
+In MAPL3, every component's YAML config file may contain a `mapl:`
+section that the framework reads before calling the user's
+`SetServices`.  This is the primary mechanism for declaring a
+component's geometry, children, and how the hierarchy is assembled —
+without writing or recompiling Fortran.
 
-While MAPL2 had some support for this approach, MAPL3 makes it the
-default: the `mapl` section of a component's HConfig specifies children
-by DSO name, enabling the hierarchy to be assembled at run time without
-recompilation.  See the [Cap and Time Loop](#5-cap-and-time-loop)
-section for an example.
+The `mapl:` section supports the following top-level keys (all optional):
+
+| Key | Purpose |
+|-----|---------|
+| `geometry:` | Declare or inherit the component's horizontal/vertical geometry |
+| `children:` | Declare child components to be loaded from shared libraries |
+| `connections:` | *(Advanced)* Wire fields between children; most connections are expressed in Fortran code, but can also be declared here |
+| `states:` | *(Advanced)* Declare import/export/internal variables; the preferred approach is to use ACG instead |
+| `misc:` | Testing and checkpoint/restart flags |
+
+##### `geometry:`
+
+Controls how this component's geometry is established.  The `kind:` key
+selects the mode:
+
+| `kind` | Meaning |
+|--------|---------|
+| `from_parent` | Inherit geometry from the parent (default when `geometry:` is absent) |
+| `provider` | This component defines its own geometry via `esmf_geom:` and/or `vertical_grid:` |
+| `from_child` | Inherit geometry from a named child (`provider: <child_name>`) |
+| `none` | Component has no geometry (ungridded) |
+
+##### `children:`
+
+Declares child components that the framework loads and registers
+automatically — no Fortran required.  Each entry maps a child name to a
+specification:
+
+```yaml
+children:
+  <child_name>:
+    dso: <library_name>           # required — shared library base name
+    SetServices: <procedure_name> # optional, default 'setservices_'
+    config_file: <path.yaml>      # optional — child's own YAML config
+    timestep: <ISO8601_duration>  # optional — overrides parent clock step
+    run_time_offset: <duration>   # optional — shifts child's run phase
+```
+
+The `dso:` key accepts four synonymous spellings: `dso`, `DSO`,
+`sharedObj`, `sharedobj`.  The library name is portable: `libfoo`,
+`libfoo.so`, and `libfoo.dylib` all resolve correctly at load time.
+Loading is delegated to ESMF, which uses `dlopen()` / `LoadLibrary()`
+under the hood.
+
+When `config_file:` is given, the named YAML is made available to the
+child's own `mapl:` parser.
+
+Both config-declared and Fortran-declared children can coexist in a
+single component.  Config-declared children are registered first, then
+the user's `SetServices` runs and may add further children via
+`MAPL_AddChild()`.
+
+##### Examples
+
+Three representative cases follow.
+
+**`DYN.yaml` — component defines its own cubed-sphere geometry:**
+
+```yaml
+mapl:
+  geometry:
+    kind: provider
+    esmf_geom:
+      class: CubedSphere
+      im_world: 180
+    vertical_grid:
+      class: model
+      fields:
+        pressure: PLE
+      num_levels: 72
+```
+
+**`GOCART.yaml` — component inherits geometry from its parent:**
+
+```yaml
+mapl:
+  geometry:
+    kind: from_parent
+```
+
+This is also the default when `geometry:` is omitted entirely.
+
+**`AGCM.yaml` — component gets geometry from a child, and declares its
+children via DSO:**
+
+```yaml
+mapl:
+  geometry:
+    kind: from_child
+    provider: DYN
+
+  children:
+    DYN:
+      dso:         libDYN_GridComp
+      config_file: DYN.yaml
+    PHYS:
+      dso:         libPHYS_GridComp
+      config_file: PHYS.yaml
+    GOCART:
+      dso:         libGOCART_GridComp
+      config_file: GOCART.yaml
+```
 
 ---
 
@@ -278,8 +377,8 @@ components or in sibling components.
 
 > **Caveat:** The `mapl` section of HConfig is not shared with
 > children.  This section is used for framework-level configuration
-> such as specifying child DSOs (see
-> [Cap and Time Loop](#5-cap-and-time-loop)).
+> such as specifying child DSOs (see [Declarative Component
+> Configuration](#declarative-component-configuration-the-mapl-section)).
 
 ---
 
@@ -358,9 +457,10 @@ mapl:
       num_nodes: any
 ```
 
-The `mapl.children` section drives run-time composition of the
-component hierarchy: each child is identified by its DSO name and given
-its own configuration file.
+The `cap.mapl.children` section is one instance of the general `mapl:`
+config mechanism — see [Declarative Component
+Configuration](#declarative-component-configuration-the-mapl-section)
+in Section 1 for the full description.
 
 ---
 
