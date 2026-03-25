@@ -462,6 +462,41 @@ config mechanism — see [Declarative Component
 Configuration](#declarative-component-configuration-the-mapl-section)
 in Section 1 for the full description.
 
+#### The `GEOS.x` Universal Executable
+
+MAPL3 ships a single universal executable, `GEOS.x`
+(`gridcomps/cap3g/GEOS.F90`).  Through the combination of `cap.yaml`,
+DSO loading, and ESMF's server infrastructure, `GEOS.x` can run *any*
+GEOS model configuration without recompilation.  There is no longer a
+need for separate model-specific executables such as `GEOSgcm.x`.
+
+It is invoked with a single positional argument — the path to the
+top-level YAML config file:
+
+```sh
+mpirun -np N GEOS.x cap.yaml
+```
+
+`cap.yaml` has four top-level sections that together drive the entire
+run:
+
+| Section | Purpose |
+|---------|---------|
+| `esmf:` | ESMF initialisation (`logKindFlag`, `defaultCalKind`, etc.) |
+| `mapl:` | Global MAPL settings: `model_petcount`, `pflogger_cfg_file`, `servers:` (I/O server node counts and DSOs) |
+| `cap:` | Clock (`start`, `stop`, `dt`, `segment_duration`), restart file, checkpointing alarms, and the root/extdata/history component names |
+| `cap.mapl.children:` | The DSO declarations that select which science components to load — this is what makes `GEOS.x` universal |
+
+By changing only `cap.yaml` — and in particular the `cap.mapl.children:`
+entries — an operator can switch between entirely different model
+configurations (atmosphere-only, coupled, aquaplanet, etc.) without
+touching a line of Fortran or rebuilding the executable.
+
+A generic equivalent, `MAPL_Component_Driver.x`
+(`Apps/MAPL_Component_Driver/`), follows the same pattern and is
+available for non-GEOS MAPL3 applications. **[REVIEW NEEDED: determine
+whether `MAPL_Component_Driver.x` is still needed or can be removed.]**
+
 ---
 
 ## 6. History
@@ -672,3 +707,4 @@ complete:
 | [Variable specs — SERVICE type](#the-service-type-and-the-replacement-of-friendly) | @atrayano | Verify description of MAPL2 "friendly" mechanism; document how `SERVICE`/`SERVICE_PROVIDER`/`SERVICE_SUBSCRIBER` replace it in MAPL3 |
 | [History3G](#6-history) | @bena-nasa | Provide reference History3G YAML config example; document breaking changes from `HISTORY.rc` |
 | [ExtData](#7-extdata) | @bena-nasa | Document any breaking changes in ExtData YAML config between MAPL2 and MAPL3 |
+| [GEOS.x universal executable](#the-geosx-universal-executable) | @tclune | Determine whether `MAPL_Component_Driver.x` is still needed or can be removed |
