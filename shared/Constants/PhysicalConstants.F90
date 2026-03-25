@@ -21,7 +21,3 @@ module MAPL_PhysicalConstants
 
 end module MAPL_PhysicalConstants
 
-! Backwards compatibility alias
-module MAPL_PhysicalConstantsMod
-   use MAPL_PhysicalConstants
-end module MAPL_PhysicalConstantsMod

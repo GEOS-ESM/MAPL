@@ -204,7 +204,3 @@ module MAPL_InternalConstants
 
 end module MAPL_InternalConstants
 
-! Backwards compatibility alias
-module MAPL_InternalConstantsMod
-   use MAPL_InternalConstants
-end module MAPL_InternalConstantsMod

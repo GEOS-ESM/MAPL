@@ -14,7 +14,3 @@ contains
 
 end module MAPL_Constants
 
-! Backwards compatibility alias
-module MAPL_ConstantsMod
-   use MAPL_Constants
-end module MAPL_ConstantsMod

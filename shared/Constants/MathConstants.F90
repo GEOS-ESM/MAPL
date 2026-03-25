@@ -12,7 +12,3 @@ module MAPL_MathConstants
 
 end module MAPL_MathConstants
 
-! Backwards compatibility alias
-module MAPL_MathConstantsMod
-   use MAPL_MathConstants
-end module MAPL_MathConstantsMod
