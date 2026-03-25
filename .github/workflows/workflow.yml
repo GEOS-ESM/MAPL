@@ -146,10 +146,11 @@ jobs:
       matrix:
         compiler: [ifort, gfortran-14, gfortran-15]
         build-type: [Debug]
-    uses: GEOS-ESM/CI-workflows/.github/workflows/geosgcm_build_tests.yml@project/geosgcm
+    uses: GEOS-ESM/CI-workflows/.github/workflows/geosgcm_build_tests.yml@project/geosgcm-purnendu
     with:
       compiler: ${{ matrix.compiler }}
       cmake-build-type: ${{ matrix.build-type }}
       fixture-repo: GEOS-ESM/GEOSgcm
       fixture-ref: release/MAPL-v3
       run-mepo-develop: false
+      run-gocart-tests: true
