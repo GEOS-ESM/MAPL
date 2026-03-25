@@ -66,3 +66,31 @@ add_test(NAME bundleio_tests_cube
 
 add_dependencies(build-tests ${TESTIO})
 
+set(TESTTILING test_tiling_nc4.x)
+ecbuild_add_executable (
+  TARGET ${TESTTILING}
+  NOINSTALL
+  SOURCES test_tiling_nc4.F90
+  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
+  DEFINITIONS USE_MPI)
+set_target_properties(${TESTTILING} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+
+add_test(NAME tiling_nc4_comparison_test
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTTILING})
+
+add_dependencies(build-tests ${TESTTILING})
+
+set(TESTTILINGSERIAL test_tiling_nc4_serial.x)
+ecbuild_add_executable (
+  TARGET ${TESTTILINGSERIAL}
+  NOINSTALL
+  SOURCES test_tiling_nc4_serial.F90
+  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio NetCDF::NetCDF_Fortran
+  DEFINITIONS USE_MPI)
+set_target_properties(${TESTTILINGSERIAL} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+
+add_test(NAME tiling_nc4_serial_test
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${TESTTILINGSERIAL})
+
+add_dependencies(build-tests ${TESTTILINGSERIAL})
+
