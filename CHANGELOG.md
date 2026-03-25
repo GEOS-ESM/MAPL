@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Add `concurrency` groups to GitHub Actions workflows to prevent hitting runner concurrency limits on PRs
+  - Added to `workflow.yml`, `changelog-enforcer.yml`, `enforce-labels.yml`, `markup-link-checker.yml`, `validate_yaml_files.yml`
+  - Fixed `spack-ci.yml` to scope concurrency per PR number rather than per ref
 - Update `components.yaml` to match GEOSgcm v12
   - ESMA_cmake v4.35.0
     - Multiple fixes for f2py with spack and on macOS
