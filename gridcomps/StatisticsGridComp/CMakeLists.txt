@@ -7,6 +7,10 @@ set(srcs
   TimeAverage.F90
   TimeMin.F90
   TimeMax.F90
+  Variance.F90
+  AbstractVariance.F90
+  WelfordVariance.F90
+  ShiftedVariance.F90
   StatisticsGridComp.F90
   )
 
