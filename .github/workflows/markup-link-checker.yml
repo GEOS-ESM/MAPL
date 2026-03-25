@@ -11,12 +11,13 @@ jobs:
   # Enforces that all links in the documentation are valid.
   link-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
 
     - name: Markup Link Checker (mlc) - with retries
-      uses: Wandalen/wretry.action@master
+      uses: Wandalen/wretry.action@v3.8.0
       with:
         action: becheran/mlc@v1.0.0
         with: |
