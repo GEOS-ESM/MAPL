@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Multiple fixes for f2py with spack and on macOS
   - ecbuild geos/v3.13.1
 - Add CTest scheduling metadata for pFIO tests so parallel `ctest` runs do not overlap the pFIO performance cases in the same working directory.
+- Update CI to use Baselibs 8.27.0
 
 ### Removed
 
