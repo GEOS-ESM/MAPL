@@ -13,7 +13,7 @@ module MAPL_EsmfRegridderMod
    use MAPL_BaseMod, only: MAPL_undef, MAPL_GridHasDE
    use MAPL_RegridderSpecRouteHandleMap
    use MAPL_MAPLGrid
-   use MAPL_ConstantsMod
+   use MAPL_Constants
    use pFlogger, only: logging, Logger
    implicit none
    private

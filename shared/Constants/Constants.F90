@@ -1,21 +1,20 @@
 module MAPL_Constants
 
-use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
-use MAPL_InternalConstantsMod
-use MAPL_MathConstantsMod
-use MAPL_PhysicalConstantsMod
+   use MAPL_InternalConstants
+   use MAPL_MathConstants
+   use MAPL_PhysicalConstants
+   use MAPL_EarthConstants
+   use MAPL_EarthAtmosphericConstants
 
 contains
 
-subroutine initialize_constants()
-   implicit none
-end subroutine initialize_constants
+   subroutine initialize_constants()
+      implicit none
+   end subroutine initialize_constants
 
 end module MAPL_Constants
 
-! For backwards compatibility
+! Backwards compatibility alias
 module MAPL_ConstantsMod
-use MAPL_Constants
+   use MAPL_Constants
 end module MAPL_ConstantsMod
-
-

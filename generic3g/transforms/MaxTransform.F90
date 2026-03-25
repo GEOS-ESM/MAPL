@@ -4,7 +4,7 @@
 module mapl3g_MaxTransform
    use mapl3g_AccumulatorTransform
    use MAPL_ExceptionHandling
-   use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
+   use MAPL_InternalConstants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_FieldPointerUtilities, only: assign_fptr
    use ESMF
    implicit none(type,external)

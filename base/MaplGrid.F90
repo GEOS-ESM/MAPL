@@ -6,7 +6,7 @@ module mapl_MaplGrid
    use pFlogger, only: logging, Logger, WrapArray
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
-   use MAPL_ConstantsMod, only : MAPL_PI_R8, MAPL_UnitsRadians
+   use MAPL_Constants, only : MAPL_PI_R8, MAPL_UnitsRadians
    implicit none
    private
 

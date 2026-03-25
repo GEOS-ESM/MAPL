@@ -39,7 +39,7 @@ module mapl3g_Generic
    use mapl3g_hconfig_get
    use mapl3g_RestartModes, only: RestartMode
    use mapl3g_ComponentSpecParser, only: parse_geometry_spec
-   use mapl_InternalConstantsMod
+   use mapl_InternalConstants
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
