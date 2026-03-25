@@ -513,9 +513,7 @@ contains
       mirror_grid = MirrorVerticalGrid()
       vgrid = mirror_grid
       if(.not. this%is_mirror()) then
-#ifdef __GFORTRAN__
-         deallocate(vgrid)
-#endif         
+         deallocate(vgrid)      
          vgrid = this%vertical_grid
       end if
 
