@@ -45,8 +45,9 @@ contains
 
    end function new_WelfordVariance
 
-   subroutine post_initialize(this, rc)
+   subroutine post_initialize(this, name, rc)
       class(WelfordVariance), intent(inout) :: this
+      character(len=*), intent(in) :: name
       integer, optional, intent(out) :: rc
       integer :: status
      
@@ -64,6 +65,7 @@ contains
 
       call ESMF_FieldDestroy(this%mu, _RC)
       call ESMF_FieldDestroy(this%m2, _RC)
+      call ESMF_FieldDestroy(this%variance, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine post_destroy
