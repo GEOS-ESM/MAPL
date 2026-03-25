@@ -6,6 +6,7 @@ program main
    use mapl_ErrorHandling
    use esmf
    use mpi
+   use fargparse
 
    implicit none(type,external)
 
@@ -28,65 +29,42 @@ program main
    type(MaplGeom), pointer :: mapl_geom
    type(ESMF_Geom) :: geom
 
-   integer           :: i, nargs
-   character(len=16) :: im_world, nx, ny, arg
-   character(len=256) :: infile
+   integer           :: i
+   character(:), allocatable :: im_world, nx, ny
+   character(:), allocatable :: infile
    character(:), allocatable :: content
+   type(StringUnlimitedMap) :: options
 
-   nargs = command_argument_count()
-
-   if (nargs == 0) then
-     call print_usage()
-     stop
+   options = parse_command_line()
+   
+   ! Get input file
+   if (options%count('input') == 0) then
+      print *, 'Error: -i/--input is required'
+      stop 1
    end if
-   i = 1
-   do while ( i <= nargs)
-      call get_command_argument(i, arg, status=status)
-      if (status /=0) then
-        print*, "Error, cannot retrieve argument"
-         stop 1
-      endif
-      select case ( trim(arg))
-        case('-i', '--input')
-          i = i + 1
-          if (i > nargs) then
-             print *, 'Error: -i/--input requires filename '
-             stop 1
-          end if
-          call get_command_argument(i, infile, status=status)
-        case('-x', '--nx')
-          i = i + 1
-          if (i > nargs) then
-             print *, 'Error: -x/--nx requires nx'
-             stop 1
-          end if
-          call get_command_argument(i, nx, status=status)
-        case('-y', '--ny')
-          i = i + 1
-          if (i > nargs) then
-             print *, 'Error: -y/--ny requires ny'
-             stop 1
-          end if
-          call get_command_argument(i, ny, status=status)
-        case('-m', '--im_world')
-          i = i + 1
-          if (i > nargs) then
-             print *, 'Error: -m/--im_world requires target im_world'
-             stop 1
-          end if
-          call get_command_argument(i, im_world, status=status)
-        case ('-h', '--help')
-           call print_usage()
-           stop
-        case default
-           print *, 'Error: Unknown option: ', trim(arg)
-           call print_usage()
-           stop 1
-        end select
-        i = i + 1
-   end do
-
-
+   call cast(options%at('input'), infile)
+   
+   ! Get nx
+   if (options%count('nx') == 0) then
+      print *, 'Error: -x/--nx is required'
+      stop 1
+   end if
+   call cast(options%at('nx'), nx)
+   
+   ! Get ny
+   if (options%count('ny') == 0) then
+      print *, 'Error: -y/--ny is required'
+      stop 1
+   end if
+   call cast(options%at('ny'), ny)
+   
+   ! Get im_world
+   if (options%count('im_world') == 0) then
+      print *, 'Error: -m/--im_world is required'
+      stop 1
+   end if
+   call cast(options%at('im_world'), im_world)
+  
    call ESMF_Initialize(_RC)
 
    call ESMF_VMGetGlobal(VM, _RC)
@@ -224,20 +202,38 @@ program main
    call ESMF_Finalize(_RC)
 
 contains
-  subroutine print_usage()
-        print *, 'Usage: xgrid to benchmark performance'
-        print *, ''
-        print *, 'Options:'
-        print *, '  -i, --input    File        Input file that contains mesh info'
-        print *, '  -m, --im_world im_world    target grid resolution'
-        print *, '  -x, --nx       nx          nx distribution '
-        print *, '  -y, --ny       ny          ny distribution '
-        print *, '  -h, --help             Display this help message'
-        print *, ''
-        print *, 'Example:'
-        print *, 'mpirun -np 96 ./xgrid.x -i sufrace_mesh.nc4 -m 1440 -x 4 -y 24'
-   end subroutine print_usage
+
+  function parse_command_line() result(options)
+     type(StringUnlimitedMap) :: options
+     type(ArgParser) :: parser
+
+     parser = ArgParser()
+
+     call parser%add_argument('-i', '--input', &
+        help='Input file that contains mesh info', &
+        action='store', &
+        type='string')
+
+     call parser%add_argument('-m', '--im_world', &
+        help='Target grid resolution', &
+        action='store', &
+        type='string')
+
+     call parser%add_argument('-x', '--nx', &
+        help='nx distribution', &
+        action='store', &
+        type='string')
+
+     call parser%add_argument('-y', '--ny', &
+        help='ny distribution', &
+        action='store', &
+        type='string')
+
+     options = parser%parse_args()
+
+  end function parse_command_line
 
 
 end program main
+
 
