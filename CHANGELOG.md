@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added "read and bcast"pattern for MAPL_ReadTilingNC4
+
 ### Changed
 
 - Update `components.yaml` to match GEOSgcm v12
