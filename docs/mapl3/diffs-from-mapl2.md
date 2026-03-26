@@ -770,6 +770,9 @@ resolution-dependent parameters without relying on global counts:
 - [`api-changes.md`](api-changes.md) — detailed, procedure-level listing of
   every stubbed-out V2 API and the new MAPL3 replacements (lifecycle, child
   management, field specs, connectivity, resource access, timers).
+- [`gridcomp-template.md`](gridcomp-template.md) — minimal Fortran template
+  for a MAPL3 gridded component, with ACG spec file format and CMake
+  integration reference.
 
 ---
 
