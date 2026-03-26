@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_ComponentDriverGridComp
+module mapl3g_ComponentDriverDriverGridComp
 
    use mapl_ErrorHandling
    use mapl3
@@ -454,12 +454,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine compare_states
 
-end module mapl3g_ComponentDriverGridComp
+end module mapl3g_ComponentDriverDriverGridComp
 
 subroutine setServices(gridcomp, rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use mapl3g_ComponentDriverGridComp, only: Root_setServices => SetServices
+   use mapl3g_ComponentDriverDriverGridComp, only: Root_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 
