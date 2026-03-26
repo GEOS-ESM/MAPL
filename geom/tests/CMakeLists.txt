@@ -19,6 +19,7 @@ set (TEST_SRCS
   Test_MeshGeomFactory.pf
   Test_MeshGeomFactory_Metadata.pf
   Test_MeshGeomFactory_File.pf
+  Test_MeshGeomFactory_Distribution.pf
 )
 
 set (OTHER_SRCS

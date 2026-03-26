@@ -143,20 +143,98 @@ contains
        _RETURN(_SUCCESS)
     end function typesafe_make_geom
 
+   ! Helper function: Check if decomposition is uniform (matches ESMF automatic distribution)
+   function is_uniform_decomposition(decomp, nelements, petCount) result(is_uniform)
+      logical :: is_uniform
+      type(MeshDecomposition), intent(in) :: decomp
+      integer, intent(in) :: nelements
+      integer, intent(in) :: petCount
+      
+      integer, allocatable :: point_dist(:)
+      integer, allocatable :: expected_dist(:)
+      integer :: i, im, remainder
+      
+      ! Get actual distribution
+      point_dist = decomp%get_point_distribution()
+      
+      ! Check size matches petCount
+      if (size(point_dist) /= petCount) then
+         is_uniform = .false.
+         return
+      end if
+      
+      ! Compute expected uniform distribution (same as ESMF algorithm)
+      allocate(expected_dist(petCount))
+      im = nelements / petCount
+      expected_dist = im
+      remainder = nelements - petCount * im
+      expected_dist(:remainder) = expected_dist(:remainder) + 1
+      
+      ! Compare
+      is_uniform = all(point_dist == expected_dist)
+      
+   end function is_uniform_decomposition
+
+   ! Helper function: Convert MeshDecomposition to ESMF_DistGrid for element distribution
+   function decomp_to_distgrid(decomp, nelements, rc) result(distgrid)
+      type(ESMF_DistGrid) :: distgrid
+      type(MeshDecomposition), intent(in) :: decomp
+      integer, intent(in) :: nelements
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      integer, allocatable :: point_dist(:)
+      integer :: i, j, petCount, idx
+      integer, allocatable :: indexList(:)
+      type(ESMF_VM) :: vm
+      integer :: localPet
+      
+      ! Get element distribution from decomposition
+      point_dist = decomp%get_point_distribution()
+      petCount = size(point_dist)
+      
+      ! Get current VM and local PET
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, localPet=localPet, _RC)
+      
+      ! Build local index list for this PET
+      allocate(indexList(point_dist(localPet+1)))
+      
+      ! Calculate starting global index for this PET
+      idx = 1
+      do i = 1, localPet
+         idx = idx + point_dist(i)
+      end do
+      
+      ! Fill local index list with global indices
+      do j = 1, point_dist(localPet+1)
+         indexList(j) = idx
+         idx = idx + 1
+      end do
+      
+      ! Create DistGrid with arbitrary sequence index list
+      distgrid = ESMF_DistGridCreate(arbSeqIndexList=indexList, _RC)
+      
+      deallocate(indexList)
+      
+      _RETURN(_SUCCESS)
+   end function decomp_to_distgrid
+
    ! Create ESMF_Mesh from MeshGeomSpec
    function create_esmf_mesh(spec, rc) result(mesh)
       type(ESMF_Mesh) :: mesh
       type(MeshGeomSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: nnodes, nelements
-      integer :: mask_status  ! For optional elementMask read
-      real(kind=ESMF_KIND_R8), pointer :: node_coords(:,:)
-      integer, pointer :: element_conn(:)
-      integer, pointer :: num_element_conn(:)
-      integer, pointer :: element_mask(:)
-      character(len=:), allocatable :: filename
+       integer :: status
+       integer :: nnodes, nelements
+       integer :: mask_status  ! For optional elementMask read
+       real(kind=ESMF_KIND_R8), pointer :: node_coords(:,:)
+       integer, pointer :: element_conn(:)
+       integer, pointer :: num_element_conn(:)
+       integer, pointer :: element_mask(:)
+       character(len=:), allocatable :: filename
+       type(ESMF_DistGrid) :: elementDistgrid  ! For custom distribution
       
         ! For file reading
         type(NetCDF4_FileFormatter) :: file_formatter
@@ -198,64 +276,38 @@ contains
       nnodes = spec%get_nnodes()
       nelements = spec%get_nelements()
       
-      ! Check if spec already has data loaded
-      call spec%get_node_coords(node_coords)
-      call spec%get_connectivity(element_conn)
-      call spec%get_num_element_conn(num_element_conn)
-      call spec%get_element_mask(element_mask)
-      
-       ! If data not loaded, read from file
-       if (.not. associated(node_coords)) then
-          filename = spec%get_filename()
-          _ASSERT(allocated(filename), 'Neither mesh data nor filename provided in MeshGeomSpec')
-          
-          ! Read mesh data from file
-          call file_formatter%open(filename, pFIO_READ, _RC)
-          
-          ! Query dimensions before allocating arrays
-          coord_dim = file_formatter%inq_dim('coordDim', _RC)
-          node_count = file_formatter%inq_dim('nodeCount', _RC)
-          conn_count = file_formatter%inq_dim('connectionCount', _RC)
-          element_count = file_formatter%inq_dim('elementCount', _RC)
-          
-          ! Allocate arrays with correct sizes
-          ! nodeCoords has dimensions (nodeCount, coordDim) in NetCDF, which is (coordDim, nodeCount) in Fortran
-          allocate(node_coords_file(coord_dim, node_count))
-          allocate(element_conn_file(conn_count))
-          allocate(num_element_conn_file(element_count))
-          
-          ! Read node coordinates (2, nodeCount)
-          call file_formatter%get_var('nodeCoords', node_coords_file, _RC)
-          
-          ! Read element connectivity
-          call file_formatter%get_var('elementConn', element_conn_file, _RC)
-          
-          ! Read number of nodes per element
-          call file_formatter%get_var('numElementConn', num_element_conn_file, _RC)
-          
-          ! Read element mask (optional) - try to read, ignore if not present
-          ! Allocate elementMask array
-          allocate(element_mask_file(element_count))
-          call file_formatter%get_var('elementMask', element_mask_file, rc=mask_status)
-          ! If mask_status /= 0, elementMask not present - that's ok, it's optional
-          
-          call file_formatter%close(_RC)
-         
-         ! Point to file-read data
-         allocate(node_coords(size(node_coords_file,1), size(node_coords_file,2)))
-         node_coords = node_coords_file
-         
-         allocate(element_conn(size(element_conn_file)))
-         element_conn = element_conn_file
-         
-         allocate(num_element_conn(size(num_element_conn_file)))
-         num_element_conn = num_element_conn_file
-         
-         if (allocated(element_mask_file)) then
-            allocate(element_mask(size(element_mask_file)))
-            element_mask = element_mask_file
-         end if
-      end if
+       ! Check if spec already has data loaded
+       call spec%get_node_coords(node_coords)
+       call spec%get_connectivity(element_conn)
+       call spec%get_num_element_conn(num_element_conn)
+       call spec%get_element_mask(element_mask)
+       
+        ! If data not loaded, we can read from file using ESMF_MeshCreate
+        if (.not. associated(node_coords)) then
+           filename = spec%get_filename()
+           _ASSERT(allocated(filename), 'Neither mesh data nor filename provided in MeshGeomSpec')
+           
+           ! Get decomposition and VM info
+           decomp = spec%get_decomposition()
+           call ESMF_VMGetCurrent(vm, _RC)
+           call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, _RC)
+           
+           ! Check if decomposition is uniform (matches ESMF automatic distribution)
+           if (is_uniform_decomposition(decomp, nelements, petCount)) then
+              ! Path 1: Use ESMF_MeshCreate with automatic distribution
+              ! This is the simplest and most efficient path
+              mesh = ESMF_MeshCreate(filename, fileFormat=ESMF_FILEFORMAT_ESMFMESH, _RC)
+              _RETURN(_SUCCESS)
+           else
+              ! Path 2: Use ESMF_MeshCreate with custom elementDistgrid
+              ! This allows custom load balancing
+              elementDistgrid = decomp_to_distgrid(decomp, nelements, _RC)
+              mesh = ESMF_MeshCreate(filename, fileFormat=ESMF_FILEFORMAT_ESMFMESH, &
+                                     elementDistgrid=elementDistgrid, _RC)
+              call ESMF_DistGridDestroy(elementDistgrid, _RC)
+              _RETURN(_SUCCESS)
+           end if
+       end if
 
       _ASSERT(associated(node_coords), 'Node coordinates not set in MeshGeomSpec')
       _ASSERT(associated(element_conn), 'Element connectivity not set in MeshGeomSpec')
