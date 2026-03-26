@@ -65,7 +65,6 @@
 !      R/<interval>
 
 !#define STRICT_ISO8601 !Uncomment for strict ISO8601 compliance
-#include "MAPL_Exceptions.h"
 #include "MAPL.h"
 module MAPL_ISO8601_DateTime
    use MAPL_KeywordEnforcerMod

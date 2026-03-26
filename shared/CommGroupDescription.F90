@@ -1,5 +1,4 @@
 #include "MAPL.h"
-#include "MAPL.h"
 module MAPL_CommGroupDescriptionMod
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod

@@ -1,5 +1,4 @@
 #include "MAPL.h"
-#include "MAPL.h"
 
 
 ! A simple comm splitter determines the local color purely from the

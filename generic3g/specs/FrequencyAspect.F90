@@ -1,5 +1,4 @@
 #include "MAPL.h"
-#include "MAPL.h"
 module mapl3g_FrequencyAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId

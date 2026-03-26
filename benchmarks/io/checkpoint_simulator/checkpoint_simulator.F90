@@ -903,7 +903,7 @@ contains
 end module
 
 #define I_AM_MAIN
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 program checkpoint_tester
    use ESMF
    use MAPL_ErrorHandlingMod
