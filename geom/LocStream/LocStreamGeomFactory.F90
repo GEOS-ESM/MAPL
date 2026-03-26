@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl3g_LocStreamGeomFactory
    use mapl3g_GeomSpec
