@@ -17,10 +17,8 @@ module sf_Vertex
       procedure :: get_connection
       procedure :: has_connection
 
-!#      procedure :: insert_connection_vertex
       procedure :: insert_connection_dir
-!#      generic :: insert_connection => insert_connection_vertex
-      generic :: insert_connection => insert_connection_dir
+      generic   :: insert_connection => insert_connection_dir
   
       procedure :: replace_connection
       procedure :: get_direction_to
@@ -78,10 +76,6 @@ contains
 
       integer :: status
 
-!#      if (product(v%loc - this%loc) /= 0) then
-!#         _HERE, v%loc
-!#         _HERE, this%loc
-!#      end if
       _ASSERT(product(v%loc - this%loc) == 0, 'Illegal direction.')
       _ASSERT(.not. all(v%loc == this%loc), 'Cannot connect to self - indeterminate direction')
 
