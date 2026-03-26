@@ -27,6 +27,7 @@ contains
 
 
 #undef I_AM_MAIN
+#include "MAPL.h"
    subroutine run(spec, rc)
       type(BW_BenchmarkSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
