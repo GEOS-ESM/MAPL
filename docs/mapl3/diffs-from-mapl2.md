@@ -25,7 +25,8 @@ MAPL3.
 9. [Clocks](#9-clocks)
 10. [Build System](#10-build-system)
 11. [Logging (pFlogger)](#11-logging-pflogger)
-13. [Items Requiring Peer Review](#13-items-requiring-peer-review)
+12. [Grid and Geometry Access](#12-grid-and-geometry-access)
+13. [Items Requiring Peer Review](#14-items-requiring-peer-review)
 
 **Related documents**
 
@@ -686,7 +687,85 @@ will need to update it to use short names when moving to MAPL3.
 
 ---
 
-## 12. See Also
+## 12. Grid and Geometry Access
+
+### MAPL2 — Global Resolution Parameters
+
+In MAPL2, components routinely queried global grid resolution parameters
+to drive internal logic — allocating arrays, choosing numerical scheme
+parameters, or tuning resolution-dependent constants.  The canonical
+APIs were:
+
+```fortran
+call MAPL_GetGlobalHorzIJIndex(gc, im_world=im, jm_world=jm, ...)
+call MAPL_Get(gc, IM_WORLD=im, JM_WORLD=jm, LM=lm, ...)
+```
+
+This practice has two serious failure modes:
+
+- **Incorrect array sizing.** Components occasionally used global
+  dimensions to allocate local work arrays, producing wrong results or
+  crashes on domains smaller than the full grid.
+- **Fragility under non-standard grids.** Global counts are
+  well-defined for a uniform lat-lon grid but meaningless or misleading
+  for stretched grids, variable-resolution grids, or single-column
+  configurations.  Components that branch on `IM_WORLD` silently
+  produce wrong results in these cases.
+
+### MAPL3 — Local-Domain and Geometry-Based Approach
+
+MAPL3 actively discourages querying global resolution parameters.
+Components should operate only on their local domain; the framework
+handles all decomposition.
+
+In place of global counts, MAPL3 provides geometry-based accessors
+that are correct for any grid type:
+
+```fortran
+! Cell areas via geom
+call GeomGet(geom, area=area_field, rc=rc)
+
+! Cell areas via grid
+call GridGet(grid, area=area_field, rc=rc)
+```
+
+For cell areas specifically, MAPL2 components typically imported an
+`AREA` export from `DYN`.  The `GeomGet`/`GridGet` area accessors make
+this import unnecessary for most use cases, though importing from `DYN`
+remains supported.
+
+Additional accessors giving min/max cell spacing and area on the local
+domain are planned, to allow components to determine
+resolution-dependent parameters without relying on global counts:
+
+| Accessor | Description |
+|----------|-------------|
+| `min_spacing` | Minimum angular/linear cell spacing on the local domain |
+| `max_spacing` | Maximum angular/linear cell spacing on the local domain |
+| `min_area` | Minimum cell area on the local domain |
+| `max_area` | Maximum cell area on the local domain |
+
+> **[REVIEW NEEDED]** The `min_spacing`, `max_spacing`, `min_area`, and
+> `max_area` accessors are not yet implemented — see issue
+> [#4570](https://github.com/GEOS-ESM/MAPL/issues/4570).  This section
+> should be updated with the final call signatures once they land.
+
+### Migration Guidance
+
+- Replace any use of `MAPL_GetGlobalHorzIJIndex` or
+  `MAPL_Get(..., IM_WORLD=..., JM_WORLD=...)` with the geometry-based
+  accessors above.
+- If your component uses global counts only to size a local work array,
+  the local array bounds are already available from the field itself —
+  no geometry query is needed at all.
+- If your component uses global counts to select a resolution-dependent
+  parameter (e.g. a diffusion coefficient), replace it with
+  `min_spacing` or `max_spacing` once those accessors are available
+  (issue [#4570](https://github.com/GEOS-ESM/MAPL/issues/4570)).
+
+---
+
+## 13. See Also
 
 - [`api-changes.md`](api-changes.md) — detailed, procedure-level listing of
   every stubbed-out V2 API and the new MAPL3 replacements (lifecycle, child
@@ -694,7 +773,7 @@ will need to update it to use short names when moving to MAPL3.
 
 ---
 
-## 13. Items Requiring Peer Review
+## 14. Items Requiring Peer Review
 
 The following sections need review or additional content from
 subject-matter experts before this document should be considered
@@ -705,3 +784,4 @@ complete:
 | [Variable specs — SERVICE type](#the-service-type-and-the-replacement-of-friendly) | @atrayano | Verify description of MAPL2 "friendly" mechanism; document how `SERVICE`/`SERVICE_PROVIDER`/`SERVICE_SUBSCRIBER` replace it in MAPL3 |
 | [History3G](#6-history) | @bena-nasa | Provide reference History3G YAML config example; document breaking changes from `HISTORY.rc` |
 | [ExtData](#7-extdata) | @bena-nasa | Document any breaking changes in ExtData YAML config between MAPL2 and MAPL3 |
+| [Grid and Geometry Access](#12-grid-and-geometry-access) | @tclune | Implement `min_spacing`, `max_spacing`, `min_area`, `max_area` on `GeomGet`/`GridGet` (issue [#4570](https://github.com/GEOS-ESM/MAPL/issues/4570)); update call signatures here |
