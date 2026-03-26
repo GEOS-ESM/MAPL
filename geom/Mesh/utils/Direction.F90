@@ -8,6 +8,8 @@ module sf_Direction
    public :: next_direction
    public :: dir_string
 
+   ! Do not change the order of the enumerators
+   ! It is clockwise
    enum, bind(c)
       enumerator :: EAST = 1
       enumerator :: SOUTH
