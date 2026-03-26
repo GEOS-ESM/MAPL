@@ -147,7 +147,7 @@ contains
          else if (time_vector(mid) < target_time) then
             left = mid + 1
          else
-            right = mid -1
+            right = mid - 1
          end if
       enddo
    end function time_in_vector
