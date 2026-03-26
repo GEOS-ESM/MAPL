@@ -1,5 +1,5 @@
 #define I_AM_MAIN
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 program main
    use mapl_ErrorHandling
    use sf_Mesh
