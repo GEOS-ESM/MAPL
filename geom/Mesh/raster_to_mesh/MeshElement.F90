@@ -1,12 +1,12 @@
-#include "MAPL_ErrLog.h"
-module sf_Element
-   use sf_Direction
+#include "MAPL.h"
+module mapl_MeshElement
+   use mapl_Direction
    use mapl_Errorhandling
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
    implicit none(type,external)
    private
 
-   public :: Element
+   public :: MeshElement
    public :: PIXEL_KIND
 
    integer, parameter :: PIXEL_KIND = INT32
@@ -16,7 +16,7 @@ module sf_Element
    
    ! [1] --- [3] --- [2]
    
-   type :: Element
+   type :: MeshElement
       integer(kind=INT64) :: iv_0 ! idx of vertex at SW corner
       integer :: dir  ! dir=1 for east, and clockwise from there; Will
                       ! be east for all except the element covering
@@ -30,16 +30,16 @@ module sf_Element
       procedure :: is_fully_refined
       procedure :: set_fully_refined
       procedure :: get_type
-   end type Element
+   end type MeshElement
 
-   interface Element
-      procedure :: new_Element
-   end interface Element
+   interface MeshElement
+      procedure :: new_MeshElement
+   end interface MeshElement
 
 contains
 
-   function new_Element(pixels, iv_0, dir, pole, fully_refined) result(e)
-      type(Element) :: e
+   function new_MeshElement(pixels, iv_0, dir, pole, fully_refined) result(e)
+      type(MeshElement) :: e
       integer(kind=PIXEL_KIND), target, intent(in) :: pixels(:,:)
       integer(kind=INT64), intent(in) :: iv_0 ! id of vertex in mesh
       integer, intent(in) :: dir ! EAST, SOUTH, WEST, NORTH
@@ -54,7 +54,7 @@ contains
       if (present(pole)) e%pole = pole
       if (present(fully_refined)) e%fully_refined = fully_refined
       
-   end function new_Element
+   end function new_MeshElement
 
 
    !    [4] ------------------- [3]
@@ -89,7 +89,7 @@ contains
    ! An element must be refined if it contains more than one value in
    ! its pixels.
    logical function do_refine(e)
-      class(Element), intent(in) :: e
+      class(MeshElement), intent(in) :: e
 
       integer(kind=PIXEL_KIND) :: archetype
       integer :: i, j
@@ -126,17 +126,17 @@ contains
    end function do_refine
 
    subroutine set_fully_refined(this)
-      class(Element), intent(inout) :: this
+      class(MeshElement), intent(inout) :: this
       this%fully_refined = .true.
    end subroutine set_fully_refined
 
    logical function is_fully_refined(this)
-      class(Element), intent(in) :: this
+      class(MeshElement), intent(in) :: this
       is_fully_refined = this%fully_refined
    end function is_fully_refined
 
    integer function get_type(this)
-      class(Element), intent(in) :: this
+      class(MeshElement), intent(in) :: this
 
       integer :: counts(4)
       integer :: j
@@ -150,4 +150,4 @@ contains
       
    end function get_type
 
-end module sf_Element
+end module mapl_MeshElement

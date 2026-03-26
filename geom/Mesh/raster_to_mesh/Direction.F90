@@ -1,4 +1,4 @@
-module sf_Direction
+module mapl_Direction
    implicit none(type,external)
    private
 
@@ -47,4 +47,4 @@ contains
       end select
    end function dir_string
 
-end module sf_Direction
+end module mapl_Direction

@@ -1,10 +1,10 @@
-#include "MAPL_ErrLog.h"
-module sf_Mesh
-   use sf_Direction
-   use sf_Vertex
-   use sf_VertexVector
-   use sf_Element
-   use sf_ElementVector
+#include "MAPL.h"
+module mapl_Mesh
+   use mapl_Direction
+   use mapl_MeshVertex
+   use mapl_MeshVertexVector
+   use mapl_MeshElement
+   use mapl_MeshElementVector
    use mapl_ErrorHandling
    use mapl_constants, only: MAPL_DEGREES_TO_RADIANS_R8, MAPL_PI_R8
    use mapl_constants, only: MAPL_RADIANS_TO_DEGREES
@@ -21,8 +21,8 @@ module sf_Mesh
 
    type :: Mesh
       integer(PIXEL_KIND), pointer :: pixels(:,:) => null()
-      type(VertexVector) :: vertices
-      type(ElementVector) :: elements
+      type(MeshVertexVector)  :: vertices
+      type(MeshElementVector) :: elements
       real(kind=REAL64) :: longitude_range(2)
       real(kind=REAL64) :: latitude_range(2)
    contains
@@ -56,7 +56,7 @@ contains
    function add_vertex(this, v) result(iv)
       integer(kind=INT64) :: iv
       class(Mesh), target, intent(inout) :: this
-      type(Vertex), intent(in) :: v
+      type(MeshVertex), intent(in) :: v
 
       call this%vertices%push_back(v)
       iv = this%vertices%size()
@@ -67,7 +67,7 @@ contains
       integer(kind=INT64), intent(in) :: iv_1, iv_2
       integer, optional, intent(out) :: rc
 
-      type(Vertex), pointer :: v_1, v_2
+      type(MeshVertex), pointer :: v_1, v_2
       integer :: dir
       integer :: status
 
@@ -115,15 +115,15 @@ contains
       ! Assuming a 10 arcsecond pixelization this provides:
       !     nj = 64800
       !     dn = 63360
-      iv_1 = m%add_vertex(Vertex([1+0*ni/4,j_s]))
-      iv_2 = m%add_vertex(Vertex([1+1*ni/4,j_s]))
-      iv_3 = m%add_vertex(Vertex([1+2*ni/4,j_s]))
-      iv_4 = m%add_vertex(Vertex([1+3*ni/4,j_s]))
+      iv_1 = m%add_vertex(MeshVertex([1+0*ni/4,j_s]))
+      iv_2 = m%add_vertex(MeshVertex([1+1*ni/4,j_s]))
+      iv_3 = m%add_vertex(MeshVertex([1+2*ni/4,j_s]))
+      iv_4 = m%add_vertex(MeshVertex([1+3*ni/4,j_s]))
 
-      iv_5 = m%add_vertex(Vertex([1+0*ni/4,j_n]))
-      iv_6 = m%add_vertex(Vertex([1+1*ni/4,j_n]))
-      iv_7 = m%add_vertex(Vertex([1+2*ni/4,j_n]))
-      iv_8 = m%add_vertex(Vertex([1+3*ni/4,j_n]))
+      iv_5 = m%add_vertex(MeshVertex([1+0*ni/4,j_n]))
+      iv_6 = m%add_vertex(MeshVertex([1+1*ni/4,j_n]))
+      iv_7 = m%add_vertex(MeshVertex([1+2*ni/4,j_n]))
+      iv_8 = m%add_vertex(MeshVertex([1+3*ni/4,j_n]))
 
       call m%connect(iv_1, iv_2, _RC)
       call m%connect(iv_1, iv_4, _RC)
@@ -142,15 +142,15 @@ contains
 
       ! Elements
       ! South cap
-      call m%elements%push_back(Element(m%pixels(:,1:j_s-1), iv_1, dir=WEST, pole = -1, fully_refined = .true.))
+      call m%elements%push_back(MeshElement(m%pixels(:,1:j_s-1), iv_1, dir=WEST, pole = -1, fully_refined = .true.))
       ! North cap - careful with orientation (corner is not SW)
-      call m%elements%push_back(Element(m%pixels(:,j_n:), iv_5, dir=EAST, pole = 1, fully_refined = .true.))
+      call m%elements%push_back(MeshElement(m%pixels(:,j_n:), iv_5, dir=EAST, pole = 1, fully_refined = .true.))
 
       ! Quadrants
-      call m%elements%push_back(Element(m%pixels(1+0*(ni/4):1*(ni/4),j_s:j_n-1), iv_1, dir=EAST))
-      call m%elements%push_back(Element(m%pixels(1+1*(ni/4):2*(ni/4),j_s:j_n-1), iv_2, dir=EAST))
-      call m%elements%push_back(Element(m%pixels(1+2*(ni/4):3*(ni/4),j_s:j_n-1), iv_3, dir=EAST))
-      call m%elements%push_back(Element(m%pixels(1+3*(ni/4):4*(ni/4),j_s:j_n-1), iv_4, dir=EAST))
+      call m%elements%push_back(MeshElement(m%pixels(1+0*(ni/4):1*(ni/4),j_s:j_n-1), iv_1, dir=EAST))
+      call m%elements%push_back(MeshElement(m%pixels(1+1*(ni/4):2*(ni/4),j_s:j_n-1), iv_2, dir=EAST))
+      call m%elements%push_back(MeshElement(m%pixels(1+2*(ni/4):3*(ni/4),j_s:j_n-1), iv_3, dir=EAST))
+      call m%elements%push_back(MeshElement(m%pixels(1+3*(ni/4):4*(ni/4),j_s:j_n-1), iv_4, dir=EAST))
 
 
       _RETURN(_SUCCESS)
@@ -165,7 +165,7 @@ contains
       integer :: status
       integer :: d_loc(2)
       integer :: ni, dir
-      type(Vertex), pointer :: v_1, v_2
+      type(MeshVertex), pointer :: v_1, v_2
 
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
@@ -188,7 +188,7 @@ contains
       integer :: status
       integer :: d_loc(2)
       integer :: dir
-      type(Vertex), pointer :: v_1, v_2
+      type(MeshVertex), pointer :: v_1, v_2
 
       real(kind=REAL64) :: lat_1, lat_2, new_lat ! radians
       real(kind=REAL64) :: frac
@@ -222,10 +222,10 @@ contains
       integer :: status
       integer :: dir
       integer :: new_loc(2)
-      type(Vertex), pointer :: v_1, v_2, v_new
+      type(MeshVertex), pointer :: v_1, v_2, v_new
 
       new_loc = this%split_loc_east_west(ivs, _RC)
-      new_iv = this%add_vertex(Vertex(new_loc))
+      new_iv = this%add_vertex(MeshVertex(new_loc))
 
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
@@ -249,10 +249,10 @@ contains
       integer :: status
       integer :: new_loc(2)
       integer :: dir
-      type(Vertex), pointer :: v_1, v_2, v_new
+      type(MeshVertex), pointer :: v_1, v_2, v_new
 
       new_loc = this%split_loc_north_south(ivs, _RC)
-      new_iv = this%add_vertex(Vertex(new_loc))
+      new_iv = this%add_vertex(MeshVertex(new_loc))
 
       v_1 => this%vertices%of(ivs(1))
       v_2 => this%vertices%of(ivs(2))
@@ -270,7 +270,7 @@ contains
    ! Refine element e ...
    subroutine refine(this, e, rc)
       class(Mesh), target, intent(inout) :: this
-      type(Element), intent(inout) :: e
+      type(MeshElement), intent(inout) :: e
       integer, optional, intent(out) :: rc
 
       integer :: ni, nj
@@ -335,7 +335,7 @@ contains
 
    subroutine refine_north_south(this, e, rc)
       class(Mesh), target, intent(inout) :: this
-      type(Element), intent(inout) :: e
+      type(MeshElement), intent(inout) :: e
       integer, optional, intent(out) :: rc
 
       integer :: ni, nj
@@ -346,12 +346,12 @@ contains
       type(Integer64Vector), target :: vertices
       integer(kind=INT64) :: iv_east, iv_west
       integer(kind=PIXEL_KIND), pointer :: pixels(:,:)
-      type(Vertex), pointer :: v
+      type(MeshVertex), pointer :: v
       integer :: status
       integer :: ni_glob
       integer :: mid_loc(2)
       integer :: j_mid
-      type(Element) :: new_element
+      type(MeshElement) :: new_element
 
       ni = size(e%pixels, 1)
       nj = size(e%pixels, 2)
@@ -430,7 +430,7 @@ contains
 !#      call describe_element(this, e)
 
       ! Add new element
-      new_element = Element(pixels(:,j_mid+1:), iv_west, dir=EAST)
+      new_element = MeshElement(pixels(:,j_mid+1:), iv_west, dir=EAST)
 !#      call describe_element(this, new_element)
       call this%elements%push_back(new_element)
 
@@ -440,7 +440,7 @@ contains
 
    subroutine refine_east_west(this, e, rc)
       class(Mesh), target, intent(inout) :: this
-      type(Element), intent(inout) :: e
+      type(MeshElement), intent(inout) :: e
       integer, optional, intent(out) :: rc
 
       integer :: ni, nj
@@ -449,12 +449,12 @@ contains
       integer :: k_sw, k_se, k_ne, k_nw
       integer, dimension(2) :: sw_corner, se_corner, ne_corner, nw_corner, mid_loc
       integer :: k
-      type(Vertex), pointer :: v
+      type(MeshVertex), pointer :: v
       type(Integer64Vector), target :: vertices
       integer(kind=INT64) :: iv_south, iv_north
       integer(kind=PIXEL_KIND), pointer :: pixels(:,:)
       integer :: status
-      type(Element) :: new_element
+      type(MeshElement) :: new_element
       integer :: ni_glob
 
       ni = size(e%pixels, 1)
@@ -533,7 +533,7 @@ contains
       e%pixels => pixels(:i_mid,:)
 !#      call describe_element(this, e)
 
-      new_element = Element(pixels(i_mid+1:,:), iv_south, dir=EAST)
+      new_element = MeshElement(pixels(i_mid+1:,:), iv_south, dir=EAST)
 !#      call describe_element(this, new_element)
 
       call this%elements%push_back(new_element)
@@ -547,7 +547,7 @@ contains
    ! we proceed.
    integer function element_degree(this, e)
       class(Mesh), target, intent(in) :: this
-      type(Element), intent(in) :: e
+      type(MeshElement), intent(in) :: e
 
       type(Integer64Vector) :: ivs
 
@@ -557,7 +557,7 @@ contains
    end function element_degree
 
    function get_element(this, ith) result(e)
-      type(Element), pointer :: e
+      type(MeshElement), pointer :: e
       class(Mesh), target, intent(in) :: this
       integer, intent(in) :: ith
 
@@ -565,7 +565,7 @@ contains
    end function get_element
 
    function get_vertex(this, ith) result(v)
-      type(Vertex), pointer :: v
+      type(MeshVertex), pointer :: v
       class(Mesh), target,intent(in) :: this
       integer(kind=INT64), intent(in) :: ith
 
@@ -575,13 +575,13 @@ contains
    function get_perimeter(this, e, rc) result(ivs)
       type(Integer64Vector) :: ivs
       class(Mesh), target, intent(in) :: this
-      type(Element), intent(in) :: e
+      type(MeshElement), intent(in) :: e
       integer, optional, intent(out) :: rc
 
       integer(kind=INT64) :: iv_0, iv
       integer :: dir
       integer :: i, quarter
-      type(Vertex), pointer :: v
+      type(MeshVertex), pointer :: v
       integer :: j
       integer, parameter :: MAX_COUNT = 1000
 
@@ -644,9 +644,9 @@ contains
 
    subroutine describe_element(this, e)
       class(Mesh), target, intent(in) :: this
-      type(Element), intent(in) :: e
+      type(MeshElement), intent(in) :: e
 
-      type(Vertex), pointer :: v
+      type(MeshVertex), pointer :: v
       type(Integer64Vector) :: nodes
       integer :: k
       real(kind=REAL64) :: lon, lat
@@ -693,8 +693,8 @@ contains
       integer(kind=INT64) :: k64
       integer :: np, n_elements, n_vertices
       integer(kind=INT64) :: n_conn
-      type(Element), pointer :: e
-      type(Vertex), pointer :: v
+      type(MeshElement), pointer :: e
+      type(MeshVertex), pointer :: v
       type(Integer64Vector), target :: p
       integer, allocatable :: elementConn(:)
       integer, allocatable :: elementIds(:)
@@ -824,11 +824,11 @@ contains
    function aspect_ratio(this, e)
       real(kind=REAL64) :: aspect_ratio
       class(Mesh), target, intent(in) :: this
-      type(Element), intent(in) :: e
+      type(MeshElement), intent(in) :: e
 
       integer :: loc_sw(2), loc_ne(2)
       integer(kind=INT64) :: iv_0
-      type(Vertex), pointer :: v
+      type(MeshVertex), pointer :: v
 
       real(kind=REAL64) :: lon_sw, lat_sw
       real(kind=REAL64) :: lon_ne, lat_ne
@@ -883,11 +883,11 @@ contains
    function resolution(this, e)
       real(kind=REAL64) :: resolution
       class(Mesh), target, intent(in) :: this
-      type(Element), intent(in) :: e
+      type(MeshElement), intent(in) :: e
 
       integer :: loc_sw(2), loc_ne(2)
       integer(kind=INT64) :: iv_0
-      type(Vertex), pointer :: v
+      type(MeshVertex), pointer :: v
 
       real(kind=REAL64) :: lon_sw, lat_sw
       real(kind=REAL64) :: lon_ne, lat_ne
@@ -1037,8 +1037,8 @@ contains
       integer :: np, n_elements, n_vertices, n_esmf_elements
       integer :: nodeCount
       integer(kind=INT64) :: n_conn
-      type(Element), pointer :: e
-      type(Vertex), pointer :: v
+      type(MeshElement), pointer :: e
+      type(MeshVertex), pointer :: v
       type(Integer64Vector), target :: p
       integer, allocatable :: elementConn(:)
       integer, allocatable :: elementMask(:)
@@ -1163,7 +1163,7 @@ contains
      class(Mesh), target, intent(inout) :: this
      integer, optional, intent(out) :: rc
 
-     type(Element), pointer :: e
+     type(MeshElement), pointer :: e
      type(Integer64Vector)  :: ive
      integer :: ne
      integer(kind=INT64) :: nv, i, j, k, node
@@ -1197,8 +1197,8 @@ contains
 
         recursive subroutine quicksort(elements, vertices, low, high)
            implicit none
-           type(ElementVector), intent(inout) :: elements
-           type(VertexVector),  intent(in)    :: vertices
+           type(MeshElementVector), intent(inout) :: elements
+           type(MeshVertexVector),  intent(in)    :: vertices
            integer, intent(in) :: low, high
            integer :: pivot_index
    
@@ -1212,11 +1212,11 @@ contains
 
        integer function partition(elements, vertices, low, high)
          implicit none
-         type(ElementVector), intent(inout) :: elements
-         type(VertexVector),  intent(in)    :: vertices
+         type(MeshElementVector), intent(inout) :: elements
+         type(MeshVertexVector),  intent(in)    :: vertices
          integer, intent(in) :: low, high
-         type(Element) :: pivot, temp
-         type(Element), pointer :: e
+         type(MeshElement) :: pivot, temp
+         type(MeshElement), pointer :: e
          integer :: i, j
 
          pivot = elements%of(high)
@@ -1242,9 +1242,9 @@ contains
 
        logical function compare_elements(e1, e2, vertices)
          implicit none
-         type(Element), intent(in) :: e1, e2
-         type(VertexVector),  intent(in)    :: vertices
-         type(Vertex) :: v1, v2
+         type(MeshElement), intent(in) :: e1, e2
+         type(MeshVertexVector),  intent(in)    :: vertices
+         type(MeshVertex) :: v1, v2
          integer(kind=INT64) :: iv1, iv2
          integer :: prime_key1, prime_key2, second_key1, second_key2
 
@@ -1269,13 +1269,13 @@ contains
        end function compare_elements
 
        subroutine reorder_vertices(vertices, nodes)
-         type(VertexVector),  intent(inout):: vertices
+         type(MeshVertexVector),  intent(inout):: vertices
          integer(kind=INT64), intent(in)   :: nodes(:)
-         type(VertexVector)  :: vertices_temp
+         type(MeshVertexVector)  :: vertices_temp
          integer(kind=INT64), allocatable  :: nodes_reorder(:)
          integer(kind=INT64) :: k, node, iv
          integer :: dir
-         type(Vertex) :: vtemp
+         type(MeshVertex) :: vtemp
 
          allocate(nodes_reorder(size(nodes)))
          do node = 1, size(nodes)
@@ -1300,5 +1300,5 @@ contains
 
    end subroutine reorder_elements
 
-end module sf_Mesh
+end module mapl_Mesh
 

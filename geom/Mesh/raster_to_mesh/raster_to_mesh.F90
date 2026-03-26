@@ -2,9 +2,8 @@
 #include "MAPL.h"
 program main
    use mapl_ErrorHandling
-   use sf_Mesh
-   use sf_Element
-   use sf_Vertex
+   use mapl_Mesh
+   use mapl_MeshElement
    use pfio
    use esmf
    use mpi
@@ -23,7 +22,7 @@ program main
    integer :: level, num_levels
    
    type(Mesh), target :: m
-   type(Element), pointer :: e
+   type(MeshElement), pointer :: e
    integer :: ni, nj
 
    integer :: rc, status, connCount

@@ -1,5 +1,5 @@
 #define I_AM_MAIN
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 program main
    use mapl3g_Geom_API

@@ -11,4 +11,4 @@ target_sources(MAPL.geom PRIVATE
 
 )
 
-add_subdirectory(utils)
+add_subdirectory(raster_to_mesh)
