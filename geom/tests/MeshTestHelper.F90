@@ -506,10 +506,8 @@ contains
       call formatter%put_var('numElementConn', num_element_conn, rc=status)
       call formatter%put_var('elementMask', element_mask, rc=status)
 
-print*, __LINE__
       ! Close file
       call formatter%close(rc=status)
-print*, __LINE__
       _RETURN(_SUCCESS)
    end subroutine create_mixed_element_mesh_file
 
