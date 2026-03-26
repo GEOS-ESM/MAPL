@@ -3,7 +3,7 @@
 
 module mapl3g_ESMF_Time_Utilities
 
-   use esmf, I4 => ESMF_KIND_I4
+   use esmf, I4 => ESMF_KIND_I4, I8 => ESMF_KIND_I8
    use mapl_ErrorHandling
    use MAPL_KeywordEnforcerMod
 
@@ -51,10 +51,15 @@ contains
 
    ! The intervals and offset are compatible if the second interval evenly divides the first interval and
    ! the offset (if present). To check this, intervals must be comparable. The second interval cannot be
-   ! all zero. Either, the first interval is all zero, both have years and/or months only, or both have
-   ! day, second, and/or nanosecond only. This is because the ESMF_TimeInterval mod operation returns
-   ! results that cannot be used to compare the intervals that are a mix of (years, months) & (days,
-   ! seconds, nanoseconds). The same is true of the offset and the second interval.
+   ! all zero. If both intervals are the same type (both years/months only, or both day/second/nanosecond
+   ! only), the modulo operation is used directly.
+   !
+   ! Mixed types are supported when interval1 is calendar-based (years/months) and interval2 is absolute
+   ! (days/seconds/nanoseconds). Since months can be 28, 29, 30, or 31 days, interval2 must evenly divide
+   ! ALL possible month lengths. The GCD of {28,29,30,31} is 1, so interval2 must evenly divide 1 day
+   ! (86400 seconds). The reverse direction (absolute interval1 / calendar interval2) is always incompatible.
+   !
+   ! If an offset is provided, it must be in the same category as interval2 and divisible by it.
    subroutine check_compatibility(interval1, interval2, compatible, unusable, offset, rc)
       type(ESMF_TimeInterval), intent(in) :: interval1
       type(ESMF_TimeInterval), intent(in) :: interval2
@@ -100,15 +105,47 @@ contains
       compatible = aug1%valid .and. aug2%valid
       _RETURN_IF(aug1%all_zero .or. aug1%interval == aug2%interval)
 
-      compatible = compatible .and. (aug1%only_years_months .eqv. aug2%only_years_months)
-      _RETURN_UNLESS(compatible)
-
-      augmod = AugmentedInterval(mod(aug1%interval, aug2%interval))
-      _ASSERT(augmod%valid, 'Unable to perform modulo operation')
-      compatible = augmod%all_zero
+      if (aug1%only_years_months .eqv. aug2%only_years_months) then
+         ! Same-type: use existing modulo check
+         augmod = AugmentedInterval(mod(aug1%interval, aug2%interval))
+         _ASSERT(augmod%valid, 'Unable to perform modulo operation')
+         compatible = augmod%all_zero
+      else if (aug1%only_years_months .and. .not. aug2%only_years_months) then
+         ! Mixed case: calendar interval1 divided by absolute interval2.
+         ! Since months can be 28, 29, 30, or 31 days, interval2 must evenly
+         ! divide ALL possible day-lengths. The GCD of {28,29,30,31} is 1 day,
+         ! so interval2 must evenly divide exactly 1 day (86400 seconds).
+         compatible = absolute_interval_divides_one_day(aug2, _RC)
+      else
+         ! Reverse mixed case (absolute / calendar): always incompatible
+         compatible = .FALSE.
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine intervals_are_compatible
+
+   logical function absolute_interval_divides_one_day(aug, rc) result(divides)
+      type(AugmentedInterval), intent(in) :: aug
+      integer, optional, intent(out) :: rc
+      integer(kind=I4) :: d, s, ns
+      integer(kind=I8) :: total_ns, one_day_ns
+      integer :: status
+      integer(kind=I8), parameter :: NS_PER_SEC = 1000000000_I8
+      integer(kind=I8), parameter :: SECS_PER_DAY = 86400_I8
+
+      divides = .FALSE.
+      call ESMF_TimeIntervalGet(aug%interval, d=d, s=s, ns=ns, _RC)
+
+      total_ns = int(d, kind=I8) * SECS_PER_DAY * NS_PER_SEC &
+         & + int(s, kind=I8) * NS_PER_SEC + int(ns, kind=I8)
+      if (total_ns <= 0_I8) return
+
+      one_day_ns = SECS_PER_DAY * NS_PER_SEC
+      divides = (mod(one_day_ns, total_ns) == 0_I8)
+
+      _RETURN(_SUCCESS)
+
+   end function absolute_interval_divides_one_day
 
    subroutine interval_is_all_zero(interval, all_zero, rc)
       type(ESMF_TimeInterval), intent(in) :: interval
