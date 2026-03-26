@@ -1,6 +1,6 @@
 ! Maybe change this to be a map of ESMF_MethodFlag to a
 ! PhaseMethodMap?
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl3g_MethodPhasesMap_private
    use :: gFTL2_StringVector, only: StringVector

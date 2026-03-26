@@ -35,7 +35,7 @@
 ! Fully-formed time with time zone. Local time not-supported
 !      <time>Z
 #include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module MAPL_DateTime_Parsing
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling

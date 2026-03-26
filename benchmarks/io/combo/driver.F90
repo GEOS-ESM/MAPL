@@ -1,5 +1,5 @@
 #define I_AM_MAIN
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 program main
    use mapl_ComboSpec
    use mapl_GathervKernel
@@ -28,7 +28,6 @@ contains
 
 
 #undef I_AM_MAIN
-#include "MAPL_ErrLog.h"
    subroutine run(spec, rc)
       type(ComboSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc

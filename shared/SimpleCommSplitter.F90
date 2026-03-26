@@ -1,5 +1,5 @@
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
+#include "MAPL.h"
+#include "MAPL.h"
 
 
 ! A simple comm splitter determines the local color purely from the

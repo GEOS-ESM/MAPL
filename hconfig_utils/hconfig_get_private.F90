@@ -1,5 +1,5 @@
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
+#include "MAPL.h"
+#include "MAPL.h"
 module mapl3g_hconfig_get_private
    use mapl3g_hconfig_params
    use mapl3g_get_hconfig

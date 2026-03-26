@@ -1,5 +1,5 @@
 #include "MAPL.h"
-#include "unused_dummy.H"
+#include "MAPL.h"
 
 !> @brief Transform that multiplies or divides fields by auxiliary normalization fields
 !!

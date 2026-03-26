@@ -1,5 +1,5 @@
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
+#include "MAPL.h"
+#include "MAPL.h"
 
 module MAPL_RangeMod
   use, intrinsic :: iso_fortran_env, only: REAL32

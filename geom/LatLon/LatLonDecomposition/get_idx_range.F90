@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_LatLonDecomposition) get_idx_range_smod
    use mapl_ErrorHandlingMod

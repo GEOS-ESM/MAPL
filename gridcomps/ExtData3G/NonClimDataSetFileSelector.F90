@@ -1,5 +1,5 @@
 #include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module mapl3g_NonClimDataSetFileSelector
    use ESMF
    use MAPL_KeywordEnforcerMod
