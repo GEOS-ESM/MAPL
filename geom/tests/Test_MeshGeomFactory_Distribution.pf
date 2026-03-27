@@ -50,8 +50,8 @@ contains
       ! Create MeshGeomSpec with UNIFORM decomposition
       ! This should trigger the automatic distribution path
       decomp = MeshDecomposition(8, 15, petCount=4)  ! 8 elements, 15 nodes, 4 PEs
-      mesh_spec = MeshGeomSpec(15, 8, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Create the ESMF geometry - should use ESMF_MeshCreate automatic path
       geom = factory%make_geom(mesh_spec, rc=status)
@@ -113,8 +113,8 @@ contains
       ! This should trigger the custom distribution path with elementDistgrid
       ! Distribution: PE0=3, PE1=2, PE2=2, PE3=1
       decomp = MeshDecomposition([3, 2, 2, 1], node_distribution=[4, 4, 4, 3])
-      mesh_spec = MeshGeomSpec(15, 8, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Create the ESMF geometry - should use ESMF_MeshCreate with custom elementDistgrid
       geom = factory%make_geom(mesh_spec, rc=status)
@@ -187,8 +187,8 @@ contains
 
       ! Create MeshGeomSpec with uniform decomposition
       decomp = MeshDecomposition(10, 18, petCount=4)  ! 10 elements, 18 nodes, 4 PEs
-      mesh_spec = MeshGeomSpec(18, 10, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Create the ESMF geometry
       geom = factory%make_geom(mesh_spec, rc=status)
@@ -248,8 +248,8 @@ contains
 
       ! Create MeshGeomSpec with single-PE decomposition
       decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(4, 1, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Create the ESMF geometry - should use automatic path
       geom = factory%make_geom(mesh_spec, rc=status)

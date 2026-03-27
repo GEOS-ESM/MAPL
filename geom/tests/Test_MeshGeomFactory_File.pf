@@ -38,10 +38,10 @@ contains
       filename = 'test_quad_mesh.nc'
       call create_simple_quad_file(filename, rc=status)
 
-      ! Create MeshGeomSpec with filename (no data loaded yet)
+      ! Create MeshGeomSpec from file with explicit decomposition
       decomp = MeshDecomposition([1])  ! Single element on one PE
-      mesh_spec = MeshGeomSpec(4, 1, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Create the ESMF geometry - this should read data from file
       geom = factory%make_geom(mesh_spec, rc=status)
@@ -88,10 +88,10 @@ contains
       filename = 'test_triangle_mesh.nc'
       call create_simple_triangle_file(filename, rc=status)
 
-      ! Create MeshGeomSpec with filename
+      ! Create MeshGeomSpec from file
       decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(3, 1, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Create the ESMF geometry
       geom = factory%make_geom(mesh_spec, rc=status)
@@ -222,33 +222,39 @@ contains
 
    end subroutine test_make_geom_from_metadata_with_filename
 
-   ! Test make_geom verifies filename is stored correctly
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_filename_accessor(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      
-      type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
-      character(len=:), allocatable :: filename
-      character(len=:), allocatable :: retrieved_filename
+    ! Test make_geom verifies filename is stored correctly
+    @test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_filename_accessor(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       
+       type(MeshGeomSpec) :: mesh_spec
+       type(MeshDecomposition) :: decomp
+       character(len=:), allocatable :: filename
+       character(len=:), allocatable :: retrieved_filename
+       integer :: status
 
-      _UNUSED_DUMMY(this)
+       _UNUSED_DUMMY(this)
 
-      filename = 'test_accessor.nc'
+       filename = 'test_accessor.nc'
+       call create_simple_quad_file(filename, rc=status)
+       @assert_that(status, is(0))
 
-      ! Create spec with filename
-      decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(4, 1, decomp)
-      call mesh_spec%set_filename(filename)
+       ! Create spec with filename
+       decomp = MeshDecomposition([1])
+       mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+       @assert_that(status, is(0))
 
-      ! Retrieve filename
-      retrieved_filename = mesh_spec%get_filename()
+       ! Retrieve filename
+       retrieved_filename = mesh_spec%get_filename()
 
-      ! Verify
-      @assertTrue(allocated(retrieved_filename))
-      @assert_that(trim(retrieved_filename), is(trim(filename)))
+       ! Verify
+       @assertTrue(allocated(retrieved_filename))
+       @assert_that(trim(retrieved_filename), is(trim(filename)))
 
-   end subroutine test_filename_accessor
+       ! Cleanup
+       call cleanup_test_file(filename, rc=status)
+
+    end subroutine test_filename_accessor
 
 
    !===========================================================================
@@ -288,8 +294,8 @@ contains
 
       ! Create MeshGeomSpec with decomposition for 4 elements on 4 PEs
       decomp = MeshDecomposition(4, 9, petCount=4)  ! 4 elements, 9 nodes, 4 PEs
-      mesh_spec = MeshGeomSpec(9, 4, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
        ! Create the ESMF geometry
        geom = factory%make_geom(mesh_spec, rc=status)
@@ -353,8 +359,8 @@ contains
 
       ! Create MeshGeomSpec with decomposition for 8 elements on 4 PEs
       decomp = MeshDecomposition(8, 15, petCount=4)  ! 8 elements, 15 nodes, 4 PEs
-      mesh_spec = MeshGeomSpec(15, 8, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Create the ESMF geometry
       geom = factory%make_geom(mesh_spec, rc=status)
@@ -419,8 +425,8 @@ contains
       ! Element distribution: uneven [3,2,2,1]
       ! Node distribution: even distribution of 15 nodes across 4 PEs: [4,4,4,3]
       decomp = MeshDecomposition([3, 2, 2, 1], node_distribution=[4, 4, 4, 3])
-      mesh_spec = MeshGeomSpec(15, 8, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Create the ESMF geometry
       geom = factory%make_geom(mesh_spec, rc=status)
@@ -558,8 +564,8 @@ contains
 
       ! Create MeshGeomSpec with 4 elements on 4 PEs
       decomp = MeshDecomposition(4, 7, petCount=4)  ! 4 elements, 7 nodes, 4 PEs
-      mesh_spec = MeshGeomSpec(7, 4, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Create the ESMF geometry
       geom = factory%make_geom(mesh_spec, rc=status)
@@ -619,8 +625,8 @@ contains
 
       ! Create MeshGeomSpec
       decomp = MeshDecomposition(8, 15, petCount=4)  ! 8 elements, 15 nodes, 4 PEs
-      mesh_spec = MeshGeomSpec(15, 8, decomp)
-      call mesh_spec%set_filename(filename)
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
 
       ! Verify decomposition gives correct local indices
       call decomp%get_local_indices(localPet, i_start, i_end)

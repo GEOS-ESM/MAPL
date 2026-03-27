@@ -6,6 +6,7 @@ module Test_MeshGeomSpec
    use esmf_TestMethod_mod ! mapl
    use mapl3g_MeshGeomSpec
    use mapl3g_MeshDecomposition
+   use mapl3g_MeshTestHelper
    use esmf
    implicit none
 
@@ -17,15 +18,26 @@ contains
       
       type(MeshGeomSpec) :: spec
       type(MeshDecomposition) :: decomp
+      character(len=256) :: filename
+      integer :: status
       
       _UNUSED_DUMMY(this)
       
-      ! Create a simple mesh spec: 4 nodes, 1 element
+      ! Create mesh file
+      filename = 'test_spec_creation.nc'
+      call create_simple_quad_file(filename, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create a simple mesh spec from file with explicit decomposition
       decomp = MeshDecomposition([1])  ! Single element on one PE
-      spec = MeshGeomSpec(4, 1, decomp)
+      spec = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
       
       @assert_that(spec%get_nnodes(), is(4))
       @assert_that(spec%get_nelements(), is(1))
+      
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
       
    end subroutine test_mesh_spec_creation
 
@@ -35,19 +47,37 @@ contains
       
       type(MeshGeomSpec) :: spec1, spec2, spec3
       type(MeshDecomposition) :: decomp1, decomp2
+      character(len=256) :: filename1, filename2
+      integer :: status
       
       _UNUSED_DUMMY(this)
       
-      decomp1 = MeshDecomposition([1])
-      decomp2 = MeshDecomposition([2])
+      ! Create mesh files
+      filename1 = 'test_equality_quad.nc'
+      call create_simple_quad_file(filename1, rc=status)
+      @assert_that(status, is(0))
       
-      spec1 = MeshGeomSpec(4, 1, decomp1)
-      spec2 = MeshGeomSpec(4, 1, decomp1)
-      spec3 = MeshGeomSpec(6, 2, decomp2)
+      filename2 = 'test_equality_triangle.nc'
+      call create_simple_triangle_file(filename2, rc=status)
+      @assert_that(status, is(0))
+      
+      decomp1 = MeshDecomposition([1])
+      decomp2 = MeshDecomposition([1])
+      
+      spec1 = MeshGeomSpec(filename1, decomposition=decomp1, rc=status)
+      @assert_that(status, is(0))
+      spec2 = MeshGeomSpec(filename1, decomposition=decomp1, rc=status)
+      @assert_that(status, is(0))
+      spec3 = MeshGeomSpec(filename2, decomposition=decomp2, rc=status)
+      @assert_that(status, is(0))
       
       ! Test equality
       @assertTrue(spec1 == spec2)
       @assertFalse(spec1 == spec3)
+      
+      ! Clean up
+      call cleanup_test_file(filename1, rc=status)
+      call cleanup_test_file(filename2, rc=status)
       
    end subroutine test_mesh_spec_equality
 
@@ -56,22 +86,28 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
       
       type(MeshGeomSpec) :: spec
-      type(MeshDecomposition) :: decomp
       character(len=:), allocatable :: filename
+      character(len=256) :: test_file
+      integer :: status
       
       _UNUSED_DUMMY(this)
       
-      ! Create a mesh spec with filename
-      decomp = MeshDecomposition([1])
-      spec = MeshGeomSpec(4, 1, decomp)
+      ! Create mesh file
+      test_file = 'test_with_filename.nc'
+      call create_simple_quad_file(test_file, rc=status)
+      @assert_that(status, is(0))
       
-      ! Set filename
-      call spec%set_filename('test_mesh.nc')
+      ! Create a mesh spec from file (filename is automatically stored)
+      spec = MeshGeomSpec(test_file, rc=status)
+      @assert_that(status, is(0))
       
       ! Verify filename can be retrieved
       filename = spec%get_filename()
       @assertTrue(allocated(filename))
-      @assert_that(trim(filename), is('test_mesh.nc'))
+      @assert_that(trim(filename), is(trim(test_file)))
+      
+      ! Clean up
+      call cleanup_test_file(test_file, rc=status)
       
    end subroutine test_mesh_spec_with_filename
 
@@ -81,18 +117,24 @@ contains
       
       type(ESMF_HConfig) :: hconfig
       type(MeshGeomSpec) :: spec
-      type(MeshDecomposition) :: decomp
+      character(len=256) :: test_file
       integer :: status
       logical :: supports
       
       _UNUSED_DUMMY(this)
       
+      ! Create a test mesh file
+      test_file = 'test_supports.nc'
+      call create_simple_quad_file(test_file, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create spec from file
+      spec = MeshGeomSpec(test_file, rc=status)
+      @assert_that(status, is(0))
+      
       ! Test valid mesh HConfig
       hconfig = ESMF_HConfigCreate(content="{class: mesh, file: 'dummy.nc'}", rc=status)
       @assert_that(status, is(0))
-      
-      decomp = MeshDecomposition([1])
-      spec = MeshGeomSpec(1, 1, decomp)
       
       supports = spec%supports(hconfig, rc=status)
       @assert_that(status, is(0))
@@ -111,6 +153,9 @@ contains
       
       call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
+      
+      ! Clean up
+      call cleanup_test_file(test_file, rc=status)
       
    end subroutine test_supports_hconfig
 

@@ -22,16 +22,25 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
+      character(len=256) :: filename
+      integer :: status
       logical :: supports
       
       _UNUSED_DUMMY(this)
       
-      decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(4, 1, decomp)
+      ! Create a test file and spec
+      filename = 'test_factory_supports.nc'
+      call create_simple_quad_file(filename, rc=status)
+      @assert_that(status, is(0))
+      
+      mesh_spec = MeshGeomSpec(filename, rc=status)
+      @assert_that(status, is(0))
       
       supports = factory%supports_spec(mesh_spec)
       @assertTrue(supports)
+      
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
       
    end subroutine test_factory_supports_mesh_spec
 
@@ -89,19 +98,25 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
       type(StringVector) :: gridded_dims
+      character(len=256) :: filename
       integer :: status
       
       _UNUSED_DUMMY(this)
       
-      decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(4, 1, decomp)
+      filename = 'test_gridded_dims.nc'
+      call create_simple_quad_file(filename, rc=status)
+      @assert_that(status, is(0))
+      
+      mesh_spec = MeshGeomSpec(filename, rc=status)
+      @assert_that(status, is(0))
       
       gridded_dims = factory%make_gridded_dims(mesh_spec, rc=status)
       @assert_that(status, is(0))
       @assert_that(int(gridded_dims%size()), is(1))
       @assert_that(gridded_dims%of(1), is("ncells"))
+      
+      call cleanup_test_file(filename, rc=status)
       
    end subroutine test_make_gridded_dims
 
@@ -111,20 +126,26 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
       type(StringDictionary) :: attrs
+      character(len=256) :: filename
       integer :: status
       
       _UNUSED_DUMMY(this)
       
-      decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(4, 1, decomp)
+      filename = 'test_var_attrs.nc'
+      call create_simple_quad_file(filename, rc=status)
+      @assert_that(status, is(0))
+      
+      mesh_spec = MeshGeomSpec(filename, rc=status)
+      @assert_that(status, is(0))
       
       attrs = factory%make_variable_attributes(mesh_spec, rc=status)
       @assert_that(status, is(0))
       
       ! For now, just verify it returns successfully
       ! TODO: Add actual attribute checking when we understand StringDictionary API
+      
+      call cleanup_test_file(filename, rc=status)
       
    end subroutine test_make_variable_attributes
 
