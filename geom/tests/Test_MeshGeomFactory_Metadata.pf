@@ -8,6 +8,7 @@ module Test_MeshGeomFactory_Metadata
    use mapl3g_MeshGeomFactory
    use mapl3g_MeshGeomSpec
    use mapl3g_MeshDecomposition
+   use mapl3g_MeshTestHelper
    use pfio
    use esmf
    implicit none
@@ -20,26 +21,28 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
       type(FileMetadata) :: file_metadata
+      type(ESMF_HConfig) :: hconfig
       integer :: status
-      
-      ! Create mesh data
-      real(kind=ESMF_KIND_R8) :: node_coords(2, 4)
-      integer :: element_conn(4)
-      integer :: num_element_conn(1)
+      character(len=256) :: filename
+      character(len=512) :: hconfig_str
       
       _UNUSED_DUMMY(this)
       
-      ! Simple quad mesh
-      node_coords(1, :) = [0.0d0, 1.0d0, 1.0d0, 0.0d0]
-      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0, 1.0d0]
-      element_conn = [1, 2, 3, 4]
-      num_element_conn = [4]
+      ! Create mesh file
+      filename = 'test_metadata_quad.nc'
+      call create_simple_quad_file(filename, rc=status)
+      @assert_that(status, is(0))
       
-      decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(4, 1, decomp)
-      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      ! Create mesh spec from HConfig pointing to file
+      write(hconfig_str, '(A,A,A)') "{class: mesh, file: '", trim(filename), "'}"
+      hconfig = ESMF_HConfigCreate(content=trim(hconfig_str), rc=status)
+      @assert_that(status, is(0))
+      
+      mesh_spec = make_MeshGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
       
       ! Generate file metadata
@@ -50,18 +53,18 @@ contains
       @assertTrue(file_metadata%has_dimension('nodeCount'))
       @assertTrue(file_metadata%has_dimension('elementCount'))
       @assertTrue(file_metadata%has_dimension('coordDim'))
-      @assertTrue(file_metadata%has_dimension('connectionCount'))
       
       ! Verify dimension sizes
       @assert_that(file_metadata%get_dimension('nodeCount', rc=status), is(4))
       @assert_that(file_metadata%get_dimension('elementCount', rc=status), is(1))
       @assert_that(file_metadata%get_dimension('coordDim', rc=status), is(2))
-      @assert_that(file_metadata%get_dimension('connectionCount', rc=status), is(4))
       
-      ! Verify variables exist
+      ! Verify variables exist (connectivity variables not included since we don't have the data)
       @assertTrue(file_metadata%has_variable('nodeCoords'))
-      @assertTrue(file_metadata%has_variable('elementConn'))
-      @assertTrue(file_metadata%has_variable('numElementConn'))
+      @assertTrue(file_metadata%has_variable('elementMask'))
+      
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
       
    end subroutine test_make_file_metadata_from_spec
 
@@ -71,27 +74,28 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec1, mesh_spec2
-      type(MeshDecomposition) :: decomp
       type(FileMetadata) :: file_metadata
+      type(ESMF_HConfig) :: hconfig
       integer :: status
-      
-      ! Create mesh data
-      real(kind=ESMF_KIND_R8) :: node_coords(2, 3)
-      integer :: element_conn(3)
-      integer :: num_element_conn(1)
+      character(len=256) :: filename
+      character(len=512) :: hconfig_str
       
       _UNUSED_DUMMY(this)
       
-      ! Triangle mesh
-      node_coords(1, :) = [0.0d0, 1.0d0, 0.5d0]
-      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0]
-      element_conn = [1, 2, 3]
-      num_element_conn = [3]
+      ! Create mesh file
+      filename = 'test_metadata_triangle.nc'
+      call create_simple_triangle_file(filename, rc=status)
+      @assert_that(status, is(0))
       
-      ! Create first spec
-      decomp = MeshDecomposition([1])
-      mesh_spec1 = MeshGeomSpec(3, 1, decomp)
-      call mesh_spec1%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      ! Create first spec from file
+      write(hconfig_str, '(A,A,A)') "{class: mesh, file: '", trim(filename), "'}"
+      hconfig = ESMF_HConfigCreate(content=trim(hconfig_str), rc=status)
+      @assert_that(status, is(0))
+      
+      mesh_spec1 = make_MeshGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
       
       ! Generate metadata
@@ -105,6 +109,9 @@ contains
       ! Verify specs match
       @assert_that(mesh_spec2%get_nnodes(), is(3))
       @assert_that(mesh_spec2%get_nelements(), is(1))
+      
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
       
    end subroutine test_metadata_roundtrip
 

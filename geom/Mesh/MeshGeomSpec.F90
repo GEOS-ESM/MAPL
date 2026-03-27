@@ -20,14 +20,6 @@ module mapl3g_MeshGeomSpec
       integer :: nelements = 0            ! Number of elements/cells
       character(len=:), allocatable :: filename  ! Mesh data file path
       
-      ! Node coordinates (lon, lat) in degrees
-      real(kind=R8), pointer :: node_coords(:,:) => null()  ! (2, nnodes)
-      
-      ! Element connectivity
-      integer, pointer :: element_conn(:) => null()         ! Flattened connectivity array
-      integer, pointer :: num_element_conn(:) => null()     ! Number of nodes per element
-      integer, pointer :: element_mask(:) => null()         ! Optional element masks
-      
       type(MeshDecomposition) :: decomposition
    contains
       ! Mandatory interface
@@ -44,11 +36,6 @@ module mapl3g_MeshGeomSpec
       procedure, public :: get_nnodes
       procedure, public :: get_nelements
       procedure, public :: get_filename
-      procedure, public :: get_node_coords
-      procedure, public :: get_connectivity
-      procedure, public :: get_num_element_conn
-      procedure, public :: get_element_mask
-      procedure, public :: set_mesh_data
       procedure, public :: set_filename
       procedure, public :: get_decomposition
    end type MeshGeomSpec
@@ -122,91 +109,25 @@ contains
        n = this%nelements
     end function get_nelements
 
-    function get_filename(this) result(filename)
-       character(len=:), allocatable :: filename
-       class(MeshGeomSpec), intent(in) :: this
-       if (allocated(this%filename)) then
-          filename = this%filename
-       end if
-    end function get_filename
+     function get_filename(this) result(filename)
+        character(len=:), allocatable :: filename
+        class(MeshGeomSpec), intent(in) :: this
+        if (allocated(this%filename)) then
+           filename = this%filename
+        end if
+     end function get_filename
 
-    subroutine set_filename(this, filename)
-       class(MeshGeomSpec), intent(inout) :: this
-       character(*), intent(in) :: filename
-       this%filename = filename
-    end subroutine set_filename
+     subroutine set_filename(this, filename)
+        class(MeshGeomSpec), intent(inout) :: this
+        character(*), intent(in) :: filename
+        this%filename = filename
+     end subroutine set_filename
 
-    subroutine get_node_coords(this, coords)
-      class(MeshGeomSpec), intent(in) :: this
-      real(kind=R8), pointer, intent(out) :: coords(:,:)
-      coords => this%node_coords
-   end subroutine get_node_coords
-
-   subroutine get_connectivity(this, conn)
-      class(MeshGeomSpec), intent(in) :: this
-      integer, pointer, intent(out) :: conn(:)
-      conn => this%element_conn
-   end subroutine get_connectivity
-
-   subroutine get_num_element_conn(this, num_conn)
-      class(MeshGeomSpec), intent(in) :: this
-      integer, pointer, intent(out) :: num_conn(:)
-      num_conn => this%num_element_conn
-   end subroutine get_num_element_conn
-
-   subroutine get_element_mask(this, mask)
-      class(MeshGeomSpec), intent(in) :: this
-      integer, pointer, intent(out) :: mask(:)
-      mask => this%element_mask
-   end subroutine get_element_mask
-
-   pure function get_decomposition(this) result(decomposition)
+     pure function get_decomposition(this) result(decomposition)
       type(MeshDecomposition) :: decomposition
       class(MeshGeomSpec), intent(in) :: this
       decomposition = this%decomposition
    end function get_decomposition
-
-   ! Set mesh data
-   subroutine set_mesh_data(this, node_coords, element_conn, num_element_conn, element_mask, rc)
-      class(MeshGeomSpec), intent(inout) :: this
-      real(kind=R8), target, intent(in) :: node_coords(:,:)
-      integer, target, intent(in) :: element_conn(:)
-      integer, target, intent(in) :: num_element_conn(:)
-      integer, target, optional, intent(in) :: element_mask(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      ! Clean up existing data
-      if (associated(this%node_coords)) deallocate(this%node_coords)
-      if (associated(this%element_conn)) deallocate(this%element_conn)
-      if (associated(this%num_element_conn)) deallocate(this%num_element_conn)
-      if (associated(this%element_mask)) deallocate(this%element_mask)
-
-      ! Allocate and copy node coordinates
-      allocate(this%node_coords(size(node_coords,1), size(node_coords,2)), stat=status)
-      _ASSERT(status == 0, 'Failed to allocate node_coords')
-      this%node_coords = node_coords
-
-      ! Allocate and copy connectivity
-      allocate(this%element_conn(size(element_conn)), stat=status)
-      _ASSERT(status == 0, 'Failed to allocate element_conn')
-      this%element_conn = element_conn
-
-      ! Allocate and copy number of nodes per element
-      allocate(this%num_element_conn(size(num_element_conn)), stat=status)
-      _ASSERT(status == 0, 'Failed to allocate num_element_conn')
-      this%num_element_conn = num_element_conn
-
-      ! Optionally allocate and copy element mask
-      if (present(element_mask)) then
-         allocate(this%element_mask(size(element_mask)), stat=status)
-         _ASSERT(status == 0, 'Failed to allocate element_mask')
-         this%element_mask = element_mask
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine set_mesh_data
 
    subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
       class(MeshGeomSpec), intent(in) :: this

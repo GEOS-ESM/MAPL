@@ -271,57 +271,6 @@ contains
    end subroutine test_single_pe_automatic_distribution
 
 
-   ! Test backward compatibility: programmatic mesh creation still works
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_programmatic_mesh_backward_compat(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      
-      type(MeshGeomFactory) :: factory
-      type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
-      type(ESMF_Geom) :: geom
-      type(ESMF_Mesh) :: mesh
-      integer :: status
-      integer :: nodeCount, elementCount
-      
-      ! Mesh data
-      real(kind=ESMF_KIND_R8) :: node_coords(2, 4)
-      integer :: element_conn(4)
-      integer :: num_element_conn(1)
-
-      _UNUSED_DUMMY(this)
-
-      ! Create mesh data programmatically (backward compatibility path)
-      node_coords(1, :) = [0.0d0, 1.0d0, 1.0d0, 0.0d0]
-      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0, 1.0d0]
-      element_conn = [1, 2, 3, 4]
-      num_element_conn = [4]
-
-      ! Create spec and set data
-      decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(4, 1, decomp)
-      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
-      @assert_that(status, is(0))
-
-      ! Create geometry - should use manual construction path (not file-based)
-      geom = factory%make_geom(mesh_spec, rc=status)
-      @assert_that(status, is(0))
-
-      ! Verify mesh
-      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
-      @assert_that(status, is(0))
-
-      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
-      @assert_that(status, is(0))
-      @assert_that(nodeCount, is(4))
-      @assert_that(elementCount, is(1))
-
-      ! Cleanup
-      call ESMF_GeomDestroy(geom, rc=status)
-
-   end subroutine test_programmatic_mesh_backward_compat
-
-
    !===========================================================================
    ! Helper subroutine to create 10-element mesh file for remainder test
    !===========================================================================

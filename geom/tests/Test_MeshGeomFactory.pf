@@ -8,6 +8,7 @@ module Test_MeshGeomFactory
    use mapl3g_MeshGeomFactory
    use mapl3g_MeshGeomSpec
    use mapl3g_MeshDecomposition
+   use mapl3g_MeshTestHelper
    use gftl2_StringVector
    use mapl3g_StringDictionary
    use esmf
@@ -133,39 +134,31 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
       type(ESMF_GeomType_Flag) :: geomtype
+      type(ESMF_HConfig) :: hconfig
       integer :: status
       integer :: nodeCount, elementCount
-      
-      ! Create mesh data programmatically
-      real(kind=ESMF_KIND_R8) :: node_coords(2, 4)
-      integer :: element_conn(4)
-      integer :: num_element_conn(1)
+      character(len=256) :: filename
+      character(len=512) :: hconfig_str
       
       _UNUSED_DUMMY(this)
       
-      ! Create a simple quad mesh: 4 nodes forming a square
-      ! Node layout:
-      !  4 ---- 3
-      !  |      |
-      !  |      |
-      !  1 ---- 2
+      ! Create mesh file
+      filename = 'test_simple_quad.nc'
+      call create_simple_quad_file(filename, rc=status)
+      @assert_that(status, is(0))
       
-      node_coords(1, :) = [0.0d0, 1.0d0, 1.0d0, 0.0d0]  ! longitudes
-      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0, 1.0d0]  ! latitudes
+      ! Create mesh spec from HConfig pointing to file
+      write(hconfig_str, '(A,A,A)') "{class: mesh, file: '", trim(filename), "'}"
+      hconfig = ESMF_HConfigCreate(content=trim(hconfig_str), rc=status)
+      @assert_that(status, is(0))
       
-      element_conn = [1, 2, 3, 4]  ! One quad connecting all 4 nodes
-      num_element_conn = [4]       ! 4 nodes per element
+      mesh_spec = make_MeshGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
       
-      ! Create mesh spec
-      decomp = MeshDecomposition([1])  ! Single element on one PE
-      mesh_spec = MeshGeomSpec(4, 1, decomp)
-      
-      ! Set the mesh data
-      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
@@ -186,6 +179,9 @@ contains
       @assert_that(nodeCount, is(4))
       @assert_that(elementCount, is(1))
       
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
+      
    end subroutine test_create_simple_quad_mesh
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -194,31 +190,30 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
+      type(ESMF_HConfig) :: hconfig
       integer :: status
       integer :: nodeCount, elementCount
-      
-      ! Create mesh data programmatically
-      real(kind=ESMF_KIND_R8) :: node_coords(2, 3)
-      integer :: element_conn(3)
-      integer :: num_element_conn(1)
+      character(len=256) :: filename
+      character(len=512) :: hconfig_str
       
       _UNUSED_DUMMY(this)
       
-      ! Create a simple triangle mesh
-      node_coords(1, :) = [0.0d0, 1.0d0, 0.5d0]  ! longitudes
-      node_coords(2, :) = [0.0d0, 0.0d0, 1.0d0]  ! latitudes
+      ! Create mesh file
+      filename = 'test_simple_triangle.nc'
+      call create_simple_triangle_file(filename, rc=status)
+      @assert_that(status, is(0))
       
-      element_conn = [1, 2, 3]    ! One triangle
-      num_element_conn = [3]      ! 3 nodes per element
+      ! Create mesh spec from HConfig pointing to file
+      write(hconfig_str, '(A,A,A)') "{class: mesh, file: '", trim(filename), "'}"
+      hconfig = ESMF_HConfigCreate(content=trim(hconfig_str), rc=status)
+      @assert_that(status, is(0))
       
-      ! Create mesh spec
-      decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(3, 1, decomp)
+      mesh_spec = make_MeshGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
       
-      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
@@ -234,6 +229,9 @@ contains
       @assert_that(nodeCount, is(3))
       @assert_that(elementCount, is(1))
       
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
+      
    end subroutine test_create_triangle_mesh
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -242,32 +240,30 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
+      type(ESMF_HConfig) :: hconfig
       integer :: status
       integer :: nodeCount, elementCount
-      
-      ! Create mesh data programmatically
-      real(kind=ESMF_KIND_R8) :: node_coords(2, 6)
-      integer :: element_conn(6)
-      integer :: num_element_conn(1)
+      character(len=256) :: filename
+      character(len=512) :: hconfig_str
       
       _UNUSED_DUMMY(this)
       
-      ! Create a hexagon mesh (6-sided polygon)
-      ! Note: ESMF supports hexagons natively
-      node_coords(1, :) = [1.0d0, 0.5d0, -0.5d0, -1.0d0, -0.5d0, 0.5d0]   ! lon
-      node_coords(2, :) = [0.0d0, 0.866d0, 0.866d0, 0.0d0, -0.866d0, -0.866d0]  ! lat
+      ! Create mesh file
+      filename = 'test_simple_hexagon.nc'
+      call create_simple_hexagon_file(filename, rc=status)
+      @assert_that(status, is(0))
       
-      element_conn = [1, 2, 3, 4, 5, 6]  ! One hexagon
-      num_element_conn = [6]             ! 6 nodes per element
+      ! Create mesh spec from HConfig pointing to file
+      write(hconfig_str, '(A,A,A)') "{class: mesh, file: '", trim(filename), "'}"
+      hconfig = ESMF_HConfigCreate(content=trim(hconfig_str), rc=status)
+      @assert_that(status, is(0))
       
-      ! Create mesh spec
-      decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(6, 1, decomp)
+      mesh_spec = make_MeshGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
       
-      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
@@ -283,6 +279,9 @@ contains
       @assert_that(nodeCount, is(6))
       @assert_that(elementCount, is(1))
       
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
+      
    end subroutine test_create_hexagon_mesh
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -291,32 +290,30 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
+      type(ESMF_HConfig) :: hconfig
       integer :: status
       integer :: nodeCount, elementCount
-      
-      ! Create mesh data programmatically
-      real(kind=ESMF_KIND_R8) :: node_coords(2, 8)
-      integer :: element_conn(8)
-      integer :: num_element_conn(1)
+      character(len=256) :: filename
+      character(len=512) :: hconfig_str
       
       _UNUSED_DUMMY(this)
       
-      ! Create an octagon mesh (8-sided polygon)
-      ! Regular octagon vertices
-      node_coords(1, :) = [1.0d0, 0.707d0, 0.0d0, -0.707d0, -1.0d0, -0.707d0, 0.0d0, 0.707d0]
-      node_coords(2, :) = [0.0d0, 0.707d0, 1.0d0, 0.707d0, 0.0d0, -0.707d0, -1.0d0, -0.707d0]
+      ! Create mesh file
+      filename = 'test_simple_octagon.nc'
+      call create_simple_octagon_file(filename, rc=status)
+      @assert_that(status, is(0))
       
-      element_conn = [1, 2, 3, 4, 5, 6, 7, 8]  ! One octagon
-      num_element_conn = [8]                    ! 8 nodes per element
+      ! Create mesh spec from HConfig pointing to file
+      write(hconfig_str, '(A,A,A)') "{class: mesh, file: '", trim(filename), "'}"
+      hconfig = ESMF_HConfigCreate(content=trim(hconfig_str), rc=status)
+      @assert_that(status, is(0))
       
-      ! Create mesh spec
-      decomp = MeshDecomposition([1])
-      mesh_spec = MeshGeomSpec(8, 1, decomp)
+      mesh_spec = make_MeshGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
       
-      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
@@ -332,6 +329,9 @@ contains
       @assert_that(nodeCount, is(8))
       @assert_that(elementCount, is(1))
       
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
+      
    end subroutine test_create_octagon_mesh
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -340,43 +340,30 @@ contains
       
       type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
-      type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
+      type(ESMF_HConfig) :: hconfig
       integer :: status
       integer :: nodeCount, elementCount
-      
-      ! Create mesh with mixed ESMF-supported element types: triangle, quad, hexagon
-      real(kind=ESMF_KIND_R8) :: node_coords(2, 13)
-      integer :: element_conn(13)
-      integer :: num_element_conn(3)
+      character(len=256) :: filename
+      character(len=512) :: hconfig_str
       
       _UNUSED_DUMMY(this)
       
-      ! Define 13 nodes for 3 elements
-      ! Triangle: nodes 1-3
-      node_coords(1, 1:3) = [0.0d0, 1.0d0, 0.5d0]
-      node_coords(2, 1:3) = [0.0d0, 0.0d0, 1.0d0]
+      ! Create mesh file
+      filename = 'test_mixed_polygon.nc'
+      call create_mixed_element_mesh_file(filename, rc=status)
+      @assert_that(status, is(0))
       
-      ! Quad: nodes 4-7
-      node_coords(1, 4:7) = [2.0d0, 3.0d0, 3.0d0, 2.0d0]
-      node_coords(2, 4:7) = [0.0d0, 0.0d0, 1.0d0, 1.0d0]
+      ! Create mesh spec from HConfig pointing to file
+      write(hconfig_str, '(A,A,A)') "{class: mesh, file: '", trim(filename), "'}"
+      hconfig = ESMF_HConfigCreate(content=trim(hconfig_str), rc=status)
+      @assert_that(status, is(0))
       
-      ! Hexagon: nodes 8-13
-      node_coords(1, 8:13) = [5.0d0, 4.5d0, 3.5d0, 3.0d0, 3.5d0, 4.5d0]
-      node_coords(2, 8:13) = [0.0d0, 0.866d0, 0.866d0, 0.0d0, -0.866d0, -0.866d0]
+      mesh_spec = make_MeshGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
       
-      ! Connectivity
-      element_conn = [1, 2, 3,       & ! Triangle (3 nodes)
-                      4, 5, 6, 7,    & ! Quad (4 nodes)
-                      8, 9, 10, 11, 12, 13]  ! Hexagon (6 nodes)
-      num_element_conn = [3, 4, 6]
-      
-      ! Create mesh spec
-      decomp = MeshDecomposition([3])  ! 3 elements
-      mesh_spec = MeshGeomSpec(13, 3, decomp)
-      
-      call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn, rc=status)
+      call ESMF_HConfigDestroy(hconfig, rc=status)
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
@@ -389,8 +376,11 @@ contains
       
       call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
       @assert_that(status, is(0))
-      @assert_that(nodeCount, is(13))
-      @assert_that(elementCount, is(3))
+      @assert_that(nodeCount, is(7))
+      @assert_that(elementCount, is(4))
+      
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
       
    end subroutine test_create_mixed_polygon_mesh
 

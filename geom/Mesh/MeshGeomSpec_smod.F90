@@ -98,8 +98,6 @@ contains
       type(HConfigParams) :: params
       logical :: has_file
 
-      _UNUSED_DUMMY(this)
-
       ! Check for class: mesh (case-insensitive)
       params = HConfigParams(hconfig, "class")
       call get_hconfig(class_name, params, _RC)
@@ -120,6 +118,7 @@ contains
       has_file = ESMF_HConfigIsDefined(hconfig, keyString='file', _RC)
       supports = has_file  ! For now, require file
 
+      _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
    end function supports_hconfig_
 
@@ -131,14 +130,13 @@ contains
 
       integer :: status
 
-      _UNUSED_DUMMY(this)
-
       ! Mesh must have nodeCount, elementCount, and connectivity
       ! This distinguishes it from LocStream (which lacks elementCount/connectivity)
       supports = file_metadata%has_dimension('nodeCount') .and. &
                  file_metadata%has_dimension('elementCount') .and. &
                  file_metadata%has_variable('elementConn')
 
+      _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
    end function supports_metadata_
 
