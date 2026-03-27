@@ -20,5 +20,6 @@ esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES mapl3g TYPE SHARED)
 
-#add_subdirectory(tests EXCLUDE_FROM_ALL)
-
+if (PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif ()
