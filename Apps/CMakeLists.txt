@@ -27,8 +27,28 @@ install(
   PROGRAMS forcing_converter/utilities.py
   DESTINATION bin/forcing_converter)
 
+esma_add_library(configurable_reader_gridcomp
+  SRCS Regrid_Util/ConfigurableReaderGridComp.F90
+  DEPENDENCIES MAPL.generic3g MAPL
+  TYPE SHARED)
+
+esma_add_library(configurable_writer_gridcomp
+  SRCS Regrid_Util/ConfigurableWriterGridComp.F90
+  DEPENDENCIES MAPL.generic3g MAPL
+  TYPE SHARED)
+
+esma_add_library(reader_writer_coupler_gridcomp
+  SRCS Regrid_Util/ReaderWriterCouplerGridComp.F90
+  DEPENDENCIES MAPL.generic3g MAPL
+  TYPE SHARED)
+
+esma_add_library(regrid_util_support_mod
+  SRCS Regrid_Util/regrid_util_support_mod.F90
+  DEPENDENCIES MAPL
+  TYPE SHARED)
+
 ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util/Regrid_Util.F90)
-target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
+target_link_libraries (Regrid_Util.x PRIVATE regrid_util_support_mod configurable_reader_gridcomp configurable_writer_gridcomp reader_writer_coupler_gridcomp MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
 target_include_directories (Regrid_Util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 ecbuild_add_executable (TARGET time_ave_util.x SOURCES time_ave_util.F90)

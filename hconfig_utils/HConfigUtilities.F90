@@ -7,12 +7,14 @@ module mapl3g_HConfigUtilities
    use esmf, only: ESMF_HConfigCreate, ESMF_HConfigIsMap, ESMF_HConfigAsStringMapKey
    use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigCreateAtMapVal, ESMF_HConfigAdd
    use esmf, only: ESMF_HConfigLog
+   use gftl2_StringVector, only: StringVector
    use mapl_ErrorHandling
 
    implicit none(type,external)
    private
 
    public :: merge_hconfig
+   public :: add_string_vector_to_hconfig
 
    character(*), parameter :: MAPL_SECTION = 'mapl'
 
@@ -61,6 +63,27 @@ contains
 
       _RETURN(_SUCCESS)
    end function merge_hconfig
+
+   subroutine add_string_vector_to_hconfig(hconfig, key, values, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(len=*), intent(in) :: key
+      type(StringVector), intent(in) :: values
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      type(ESMF_HConfig) :: list_hconfig
+
+      list_hconfig = ESMF_HConfigCreate(_RC)
+
+      do i = 1, values%size()
+         call ESMF_HConfigAdd(list_hconfig, values%at(i), _RC)
+      end do
+
+      call ESMF_HConfigAdd(hconfig, list_hconfig, addKeyString=key, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_string_vector_to_hconfig
 
 end module mapl3g_HConfigUtilities
 

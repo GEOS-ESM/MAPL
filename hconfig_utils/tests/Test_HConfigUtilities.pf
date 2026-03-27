@@ -4,6 +4,9 @@ module Test_HConfigUtilities
    use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
    use esmf, only: ESMF_HConfigAdd, ESMF_HConfigAsString
    use esmf, only: ESMF_HConfigIsDefined
+   use esmf, only: ESMF_HConfigCreateAt, ESMF_HConfigGetSize
+   use mapl3g_HConfigAs, only: HConfigAsStringVector
+   use gftl2_StringVector, only: StringVector
    use mapl_ErrorHandling
    use pfunit
    implicit none(type, external)
@@ -139,5 +142,40 @@ contains
       call check_match(merged, KEY3, CHVALUE3, _RC)
 
    end subroutine test_merge_hconfig_duplicate
+
+   @Test
+   subroutine test_add_string_vector_to_hconfig()
+      integer :: status
+      type(StringVector) :: values
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_HConfig) :: sub_hconfig
+      type(StringVector) :: result_values
+      integer :: n
+      character(len=*), parameter :: TEST_KEY = 'my_strings'
+
+      call values%push_back('alpha')
+      call values%push_back('beta')
+      call values%push_back('gamma')
+
+      hconfig = ESMF_HConfigCreate(_RC)
+      call add_string_vector_to_hconfig(hconfig, TEST_KEY, values, _RC)
+
+      ! Verify the key exists and the sequence has the correct size
+      n = ESMF_HConfigGetSize(hconfig, keyString=TEST_KEY, _RC)
+      @assert_that(n, is(3))
+
+      ! Read back as StringVector and verify contents
+      sub_hconfig = ESMF_HConfigCreateAt(hconfig, keyString=TEST_KEY, _RC)
+      result_values = HConfigAsStringVector(sub_hconfig, _RC)
+
+      @assert_that(int(result_values%size()), is(3))
+      @assertEqual('alpha', result_values%of(1))
+      @assertEqual('beta', result_values%of(2))
+      @assertEqual('gamma', result_values%of(3))
+
+      call ESMF_HConfigDestroy(sub_hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+   end subroutine test_add_string_vector_to_hconfig
 
 end module Test_HConfigUtilities
