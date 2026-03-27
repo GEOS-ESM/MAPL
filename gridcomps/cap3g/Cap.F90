@@ -3,6 +3,7 @@
 module mapl3g_Cap
    use mapl3
    use mapl3g_CapGridComp, only: cap_setservices => setServices
+   use mapl_TimeStringConversion, only: string_to_esmf_time
    use mapl_os
    use mapl_ErrorHandling, only: MAPL_Assert
    use pflogger
@@ -53,7 +54,7 @@ contains
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, options%checkpointing, options%lgr, _RC)
+      call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
 
       _RETURN(_SUCCESS)
@@ -61,8 +62,9 @@ contains
       _UNUSED_DUMMY(servers)
    end subroutine mapl_run_driver
 
-   subroutine integrate(driver, checkpointing, lgr, rc)
+   subroutine integrate(driver, hconfig, checkpointing, lgr, rc)
       type(GriddedComponentDriver), intent(inout) :: driver
+      type(ESMF_HConfig), intent(in) :: hconfig
       type(CheckpointOptions), intent(in) :: checkpointing
       class(Logger), intent(inout) :: lgr
       integer, optional, intent(out) :: rc
@@ -71,22 +73,84 @@ contains
       type(esmf_Time) :: currTime, stopTime
       integer :: status
       character(ESMF_MAXSTR) :: iso_time
+      type(ESMF_Time), allocatable :: time_vector(:)
+      logical :: do_run
 
       clock = driver%get_clock()
       call esmf_ClockGet(clock, currTime=currTime, stopTime=stopTime, _RC)
 
+      call fill_time_vector(hconfig, time_vector, _RC)
       time: do while (currTime < stopTime)
          ! TODO:  include Bill's monitoring log messages here
-         call ESMF_TimeGet(currTime, timeString=iso_time, _RC)
-         call lgr%info('cap time: %a', trim(iso_time))
-         call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+         do_run = time_in_vector(currTime, time_vector)
+
+         if (do_run) then
+            call ESMF_TimeGet(currTime, timeString=iso_time, _RC)
+            call lgr%info('cap time: %a', trim(iso_time))
+            call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+         end if
          currTime = advance_clock(driver, _RC)
-         call checkpoint(driver, checkpointing, final=.false., _RC)
+         if (do_run) then
+            call checkpoint(driver, checkpointing, final=.false., _RC)
+         end if
       end do time
       call checkpoint(driver, checkpointing, final=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine integrate
+
+   subroutine fill_time_vector(hconfig, time_vector, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      type(ESMF_Time), intent(inout), allocatable :: time_vector(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status, num_times, i
+      character(len=:), allocatable :: temp_str(:)
+      logical :: has_time_vector
+      
+      has_time_vector = esmf_HConfigIsDefined(hconfig, keyString='run_times', _RC)
+
+      if (.not. has_time_vector) then
+         allocate(time_vector(0), _STAT)
+         _RETURN(_SUCCESS)
+      end if
+
+      temp_str = ESMF_HConfigAsStringSeq(hconfig, stringLen=25, keyString='run_times', _RC)
+      num_times = size(temp_str)
+      allocate(time_vector(num_times), _STAT)
+      do i=1,num_times
+         time_vector(i) = string_to_esmf_time(temp_str(i), _RC)
+      enddo
+      _RETURN(_SUCCESS)
+   end subroutine fill_time_vector
+
+   function time_in_vector(target_time, time_vector) result(in_vector)
+      logical :: in_vector
+      type(ESMF_Time), intent(in) :: target_time
+      type(ESMF_Time), intent(in) :: time_vector(:)
+
+      integer :: left, right, mid
+
+      in_vector = .false.
+      if (size(time_vector) == 0) then
+         in_vector = .true.
+         return
+      end if
+
+      left = 1
+      right = size(time_vector)
+      do while (left <= right)
+         mid = left + (right - left) / 2
+         if (time_vector(mid) == target_time) then
+            in_vector = .true.
+            return
+         else if (time_vector(mid) < target_time) then
+            left = mid + 1
+         else
+            right = mid - 1
+         end if
+      enddo
+   end function time_in_vector
 
    function advance_clock(driver, rc) result(new_time)
       type(esmf_Time) :: new_time

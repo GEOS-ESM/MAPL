@@ -1,11 +1,13 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl3g_LatLonGeomSpec
+
    use mapl3g_GeomSpec
    use mapl3g_LatLonDecomposition
    use mapl3g_LonAxis
    use mapl3g_LatAxis
-   use esmf, only: ESMF_KIND_R8, ESMF_HCONFIG
+   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_HConfig
+
    implicit none
    private
 
@@ -20,6 +22,8 @@ module mapl3g_LatLonGeomSpec
    contains
       ! mandatory interface
       procedure :: equal_to
+      procedure :: get_horz_ij_index_r4
+      procedure :: get_horz_ij_index_r8
 
       ! LatLon specific
       procedure :: supports_hconfig => supports_hconfig_
@@ -41,10 +45,7 @@ module mapl3g_LatLonGeomSpec
       procedure make_LatLonGeomSpec_from_metadata
    end interface make_LatLonGeomSpec
 
-!#   interface get_coordinates
-!#      procedure get_coordinates_try
-!#   end interface get_coordinates
-!#
+   integer, parameter :: R4 = ESMF_KIND_R4
    integer, parameter :: R8 = ESMF_KIND_R8
 
 interface
@@ -53,7 +54,6 @@ interface
          class(LatLonGeomSpec), intent(in) :: a
          class(GeomSpec), intent(in) :: b
       end function equal_to
-
 
       ! HConfig section
       module function make_LatLonGeomSpec_from_hconfig(hconfig, rc) result(spec)
@@ -109,6 +109,24 @@ interface
          integer, optional, intent(out) :: rc
       end function supports_metadata_
 
+      module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+         class(LatLonGeomSpec), intent(in) :: this
+         real(kind=R4), intent(in) :: lon(:)
+         real(kind=R4), intent(in) :: lat(:)
+         integer, allocatable, intent(out) :: ii(:)
+         integer, allocatable, intent(out) :: jj(:)
+         integer, optional, intent(out) :: rc
+      end subroutine get_horz_ij_index_r4
+
+      module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+         class(LatLonGeomSpec), intent(in) :: this
+         real(kind=R8), intent(in) :: lon(:)
+         real(kind=R8), intent(in) :: lat(:)
+         integer, allocatable, intent(out) :: ii(:)
+         integer, allocatable, intent(out) :: jj(:)
+         integer, optional, intent(out) :: rc
+      end subroutine get_horz_ij_index_r8
+
       module function make_decomposition(hconfig, dims, rc) result(decomp)
          type(LatLonDecomposition) :: decomp
          type(ESMF_HConfig), intent(in) :: hconfig
@@ -118,7 +136,7 @@ interface
 
    end interface
 
-   CONTAINS
+contains
 
    ! Basic constructor for LatLonGeomSpec
    function new_LatLonGeomSpec(lon_axis, lat_axis, decomposition) result(spec)
@@ -130,13 +148,11 @@ interface
       spec%lon_axis = lon_axis
       spec%lat_axis = lat_axis
       spec%decomposition = decomposition
-
    end function new_LatLonGeomSpec
 
    pure function get_decomposition(spec) result(decomposition)
       type(LatLonDecomposition) :: decomposition
       class(LatLonGeomSpec), intent(in) :: spec
-
       decomposition = spec%decomposition
    end function get_decomposition
 

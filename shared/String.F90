@@ -1,7 +1,7 @@
 ! Primary purpose is to wrap allocatable strings and thereby
 ! improve usability of such strings in generic interfaces.
 
-#include "unused_dummy.H"
+#include "MAPL.h"
 module MAPL_String
    use mapl_StringUtilities, only: to_upper, to_lower, capitalize_string => capitalize
 

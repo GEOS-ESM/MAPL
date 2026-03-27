@@ -27,6 +27,7 @@ module mapl3g_NormalizationType
    contains
       procedure :: to_string => normalization_type_to_string
       procedure :: is_valid => normalization_type_is_valid
+      procedure :: get_physical_dimension => normalization_type_get_physical_dimension
    end type NormalizationType
    
    interface NormalizationType
@@ -89,6 +90,20 @@ contains
       class(NormalizationType), intent(in) :: this
       normalization_type_is_valid = (this%id >= 0 .and. this%id <= 2)
    end function normalization_type_is_valid
+   
+   function normalization_type_get_physical_dimension(this) result(dimension)
+      character(:), allocatable :: dimension
+      class(NormalizationType), intent(in) :: this
+      
+      select case (this%id)
+      case (NORMALIZE_DELP%id)
+         dimension = "pressure"
+      case (NORMALIZE_DZ%id)
+         dimension = "height"
+      case default
+         dimension = "none"
+      end select
+   end function normalization_type_get_physical_dimension
    
    function normalization_type_from_string(name, rc) result(ntype)
       character(*), intent(in) :: name

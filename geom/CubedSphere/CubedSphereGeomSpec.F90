@@ -1,11 +1,11 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl3g_CubedSphereGeomSpec
    use mapl3g_GeomSpec
    use mapl3g_CubedSphereDecomposition
-   use esmf, only: ESMF_KIND_R8, ESMF_CubedSphereTransform_Args
+   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_CubedSphereTransform_Args
    implicit none
-   real(kind=ESMF_Kind_R8) :: undef_schmidt = 1d15
+   real(kind=ESMF_KIND_R8) :: undef_schmidt = 1d15
    private
 
    public :: CubedSphereGeomSpec
@@ -15,11 +15,13 @@ module mapl3g_CubedSphereGeomSpec
       private
       integer :: im_world
       type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
-      type(CubedSphereDecomposition) :: decomposition  
-      
+      type(CubedSphereDecomposition) :: decomposition
+
    contains
       ! mandatory interface
       procedure :: equal_to
+      procedure :: get_horz_ij_index_r4
+      procedure :: get_horz_ij_index_r8
 
       ! CubedSphere specific
       procedure :: supports_hconfig => supports_hconfig_
@@ -42,24 +44,23 @@ module mapl3g_CubedSphereGeomSpec
       procedure make_CubedSphereGeomSpec_from_metadata
    end interface make_CubedSphereGeomSpec
 
+   integer, parameter :: R4 = ESMF_KIND_R4
    integer, parameter :: R8 = ESMF_KIND_R8
 
-interface
+   interface
 
       ! Basic constructor for CubedSphereGeomSpec
       module function new_CubedSphereGeomSpec(im_world, schmidt_parameters, decomposition) result(spec)
          type(CubedSphereGeomSpec) :: spec
          integer, intent(in) :: im_world
          type(ESMF_CubedSphereTransform_Args), intent(in) :: schmidt_parameters
-         type(CubedSpheredecomposition), intent(in) :: decomposition
+         type(CubedSphereDecomposition), intent(in) :: decomposition
       end function new_CubedSphereGeomSpec
-
 
       pure logical module function equal_to(a, b)
          class(CubedSphereGeomSpec), intent(in) :: a
          class(GeomSpec), intent(in) :: b
       end function equal_to
-
 
       ! HConfig section
       module function make_CubedSphereGeomSpec_from_hconfig(hconfig, rc) result(spec)
@@ -80,7 +81,6 @@ interface
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
       end function make_CubedSphereGeomSpec_from_metadata
-
 
       logical module function supports_hconfig_(this, hconfig, rc) result(supports)
          use esmf, only: ESMF_HConfig
@@ -117,8 +117,24 @@ interface
          class(CubedSphereGeomSpec), intent(in) :: spec
       end function get_schmidt_parameters
 
+      module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+         class(CubedSphereGeomSpec), intent(in) :: this
+         real(kind=R4), intent(in) :: lon(:)
+         real(kind=R4), intent(in) :: lat(:)
+         integer, allocatable, intent(out) :: ii(:)
+         integer, allocatable, intent(out) :: jj(:)
+         integer, optional, intent(out) :: rc
+      end subroutine get_horz_ij_index_r4
+
+      module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+         class(CubedSphereGeomSpec), intent(in) :: this
+         real(kind=R8), intent(in) :: lon(:)
+         real(kind=R8), intent(in) :: lat(:)
+         integer, allocatable, intent(out) :: ii(:)
+         integer, allocatable, intent(out) :: jj(:)
+         integer, optional, intent(out) :: rc
+      end subroutine get_horz_ij_index_r8
+
    end interface
 
 end module mapl3g_CubedSphereGeomSpec
-
-

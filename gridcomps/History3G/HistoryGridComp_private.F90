@@ -90,8 +90,8 @@ contains
 
       integer :: status
       type(ESMF_HConfig) :: time_hconfig, stats_hconfig, var_list
-      logical :: has_mode, has_frequency
-      character(len=:), allocatable :: mode, ref_time, frequency, short_name, name_in_comp
+      logical :: has_mode, has_frequency, has_ref_datetime
+      character(len=:), allocatable :: mode, ref_datetime, frequency, short_name, name_in_comp
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: stat_item, stats_list
       type(ChildSpec) :: child_spec
@@ -107,6 +107,13 @@ contains
       _ASSERT(has_frequency, 'requested statitics performed on collection: '//child_name//' but did not provide frequency of the collection')
 
       stats_hconfig = ESMF_HConfigCreate(_RC)
+      ref_datetime = "'YYYY-MM-DDTHH:NN:SS'"
+      has_ref_datetime = ESMF_HConfigIsDefined(child_hconfig, keyString='ref_datetime', _RC)
+      if (has_ref_datetime) then
+         ref_datetime = ESMF_HConfigAsString(child_hconfig, keyString='ref_datetime', _RC)
+         ref_datetime = "'"//ref_datetime//"'"
+      end if
+
       stats_list = ESMF_HConfigCreate(_RC)
       frequency = ESMF_HConfigAsString(time_hconfig, keyString='frequency', _RC)
       var_list = ESMF_HConfigCreateAt(child_hconfig, keyString=VAR_LIST_KEY, _RC)
@@ -116,7 +123,7 @@ contains
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          _VERIFY(status)
          call parse_item(iter, short_name=short_name, name_in_comp=name_in_comp, _RC)
-         stat_item = create_stats_entry(short_name, mode, frequency, 'PT0H', _RC)
+         stat_item = create_stats_entry(short_name, mode, frequency, ref_datetime, _RC)
          call ESMF_HConfigAdd(stats_list, stat_item, _RC)
          call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
       enddo
@@ -128,13 +135,13 @@ contains
 
    end subroutine add_stats_gc
 
-   function create_stats_entry(name, action, period, offset, rc) result(stat_item)
+   function create_stats_entry(name, action, period, ref_datetime, rc) result(stat_item)
        type(ESMF_HConfig) :: stat_item 
        ! Input arguments
        character(len=*), intent(in) :: name
        character(len=*), intent(in) :: action
        character(len=*), intent(in) :: period
-       character(len=*), intent(in) :: offset
+       character(len=*), intent(in) :: ref_datetime
        
        integer, intent(out), optional :: rc
        integer :: status
@@ -145,7 +152,7 @@ contains
        call ESMF_HConfigAdd(stat_item, trim(name), AddKeyString="name", _RC)     
        call ESMF_HConfigAdd(stat_item, trim(action), AddkeyString="action", _RC)    
        call ESMF_HConfigAdd(stat_item, trim(period), AddKeyString="period", _RC)   
-       call ESMF_HConfigAdd(stat_item, trim(offset), AddKeyString="offset", _RC)
+       call ESMF_HConfigAdd(stat_item, trim(ref_datetime), AddKeyString="ref_datetime", _RC)
            
        _RETURN(_SUCCESS)
        

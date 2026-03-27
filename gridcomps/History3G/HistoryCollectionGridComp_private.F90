@@ -26,6 +26,7 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: get_frequency
    public :: get_accumulation_mode
    public :: append_to_time_vec
+   public :: compute_file_timestamp
    ! These are public for testing.
    !public :: parse_item
    public :: get_expression_variables
@@ -34,7 +35,6 @@ module mapl3g_HistoryCollectionGridComp_private
       character(len=:), allocatable :: units
       type(ESMF_TypeKind_Flag), allocatable :: typekind
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_TimeInterval), allocatable :: runTime_offset
       character(len=:), allocatable :: accumulation_type
       type(EsmfRegridderParam) :: regrid_param
    end type HistoryOptions
@@ -274,7 +274,6 @@ contains
            units=opts%units, typekind=opts%typekind, &
            !accumulation_type=opts%accumulation_type, timestep = opts%timestep, &
            timestep = opts%timestep, &
-           offset=opts%runTime_offset, &
            regrid_param = opts%regrid_param, &
            itemtype=item_type, &
            _RC)
@@ -319,7 +318,7 @@ contains
       type(ESMF_HConfig) :: time_iter
       logical :: hasKey
       character(len=:), allocatable :: mapVal
-      type(ESMF_TimeInterval) :: timeStep, offset
+      type(ESMF_TimeInterval) :: timeStep
 
       hasKey = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIME_SPEC, _RC)
       _RETURN_UNLESS(hasKey)
@@ -336,13 +335,6 @@ contains
          mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_TIMESTEP, _RC)
          call ESMF_TimeIntervalSet(timeStep, timeIntervalString=mapVal, _RC)
          options%timeStep = timeStep
-      end if
-
-      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_OFFSET, _RC)
-      if(hasKey) then
-         mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_OFFSET, _RC)
-         call ESMF_TimeIntervalSet(offset, timeIntervalString=mapVal, _RC)
-         options%runTime_offset = offset
       end if
 
       call ESMF_HConfigDestroy(time_iter, _RC)
@@ -543,4 +535,23 @@ contains
       _RETURN(_SUCCESS)
    end function append_to_time_vec
 
+   function compute_file_timestamp(accumulation_mode, current_time, timestep, rc) result(file_timestamp)
+      type(ESMF_Time) :: file_timestamp
+      character(len=*), intent(in) :: accumulation_mode
+      type(ESMF_Time), intent(in) :: current_time
+      type(ESMF_TimeInterval), intent(in) :: timestep
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Time) :: previous_time
+      type(ESMF_TimeInterval) :: time_delta
+
+      file_timestamp = current_time      
+      if (accumulation_mode /= KEY_INSTANTANEOUS) then
+         previous_time = current_time - timestep
+         time_delta = (current_time - previous_time)/2
+         file_timestamp = current_time - time_delta
+      end if
+      _RETURN(_SUCCESS)
+   end function compute_file_timestamp
+         
 end module mapl3g_HistoryCollectionGridComp_private

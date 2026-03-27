@@ -4,6 +4,7 @@ module mapl3g_StatisticsGridComp
 
    use mapl3
    use mapl3g_RestartHandler
+   use mapl3g_ESMF_Time_Utilities, only: sub_time_in_datetime
    ! local modules
    use mapl3g_AbstractTimeStatistic
    use mapl3g_StatisticsVector
@@ -68,7 +69,7 @@ contains
       type(esmf_HConfigIter), intent(in) :: iter
       integer, optional, intent(out) :: rc
 
-      type(esmf_TimeInterval) :: period, offset
+      type(esmf_TimeInterval) :: period
       character(:), allocatable :: action, name
       type(esmf_StateItem_Flag) :: itemtype
       integer :: status
@@ -84,20 +85,17 @@ contains
        select case (action)
        case ('average')
           period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
-          offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
        case ('min')
           period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
-          offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
        case ('max')
           period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
-          offset= mapl_HConfigAsTimeInterval(hconfig, keystring='offset', _RC)
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, offset=offset, &
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
        case default
@@ -286,24 +284,25 @@ contains
        end function make_max_stat
 
        function make_alarm(clock, iter, rc) result(alarm)
-         type(esmf_Alarm) :: alarm
-         type(esmf_Clock), intent(in) :: clock
-         type(esmf_HConfigIter), intent(in) :: iter
-         integer, optional, intent(out) :: rc
+          type(ESMF_Alarm) :: alarm
+          type(esmf_Clock), intent(in) :: clock
+          type(esmf_HConfigIter), intent(in) :: iter
+          integer, optional, intent(out) :: rc
 
-         integer :: status
-         type(esmf_TimeInterval) :: period, offset, timeStep
-         type(esmf_Time) :: ringTime, refTime
-         character(:), allocatable :: iso_timeinterval
+          integer :: status
+          type(esmf_TimeInterval) :: period
+          type(esmf_Time) :: ringTime, currTime
+          character(:), allocatable :: ref_datetime
 
-         period = mapl_HConfigAsTimeInterval(iter, keystring='period', _RC)
-         offset = mapl_HConfigAsTimeInterval(iter, keystring='offset', _RC)
-         call esmf_ClockGet(clock, refTime=refTime, timeStep=timeStep, _RC)
-         ringTime = refTime + offset
+          period = mapl_HConfigAsTimeInterval(iter, keystring='period', _RC)
+          ref_datetime = esmf_HConfigAsString(iter, keystring='ref_datetime', _RC)
 
-         alarm = esmf_AlarmCreate(clock, ringTime=ringTime, ringInterval=period, _RC)
-         _RETURN(_SUCCESS)
-      end function make_alarm
+          call esmf_ClockGet(clock, currTime=currTime, _RC)
+          ringTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
+
+          alarm = esmf_AlarmCreate(clock, ringTime=ringTime, ringInterval=period, _RC)
+           _RETURN(_SUCCESS)
+        end function make_alarm
 
    end subroutine modify_advertise
 

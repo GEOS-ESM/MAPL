@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_VectorBasis) xyz2latlon_smod
 contains

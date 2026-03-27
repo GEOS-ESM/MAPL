@@ -6,7 +6,6 @@ submodule (mapl3g_OuterMetaComponent) initialize_set_clock_smod
    use mapl3g_GriddedComponentDriverMap
    use mapl3g_ESMF_Time_Utilities
    use mapl_ErrorHandling
-   use mapl3g_HConfig_API
    implicit none(type,external)
 
 contains
@@ -43,12 +42,6 @@ contains
       call ESMF_ClockSet(user_clock, timestep=user_timeStep, _RC)
       call set_run_user_alarm(this, outer_clock, user_clock, _RC)
 
-      block
-         type(ESMF_Time) :: current_time
-         character(len=ESMF_MAXSTR) :: time_string
-         call ESMF_ClockGet(user_clock, currTime=current_time, _RC)
-         call ESMF_TimeGet(current_time, timeString=time_string, _RC)
-      end block
       call this%user_gc_driver%set_clock(user_clock)
 
       call set_children_outer_clock(this%children, user_clock, _RC)
@@ -92,48 +85,44 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_TimeInterval) :: outer_timestep, user_timestep, ref_time, t24
+      type(ESMF_TimeInterval) :: outer_timestep, user_timestep
       type(ESMF_Time) :: currTime, clock_refTime, user_runTime, startTime, user_clockTime
-      logical :: has_shift_back, has_ref_time, shift_back
+      logical :: has_run_next_step, has_ref_datetime
+      character(len=:), allocatable :: ref_datetime
 
       call ESMF_ClockGet(outer_clock, timestep=outer_timestep, currTime=currTime, refTime=clock_refTime, startTime=startTime, _RC)
       call ESMF_ClockGet(user_clock, timestep=user_timestep, _RC)
 
-      has_ref_time = ESMF_HConfigIsDefined(this%hconfig, keyString='ref_time', _RC)
-      has_shift_back = ESMF_HConfigIsDefined(this%hconfig, keyString='shift_back', _RC)
+      has_ref_datetime = ESMF_HConfigIsDefined(this%hconfig, keyString='ref_datetime', _RC)
+      has_run_next_step = ESMF_HConfigIsDefined(this%hconfig, keyString='run_next_step', _RC)
 
-      if (has_ref_time) then
-         ! this logic is straight from History2G because of the alarms not working right...
-         ! once the alarms are fixed so that they ring no matter what the clock time 
-         ! is when they are created I think all this obtuse logic can go away...
-         ref_time = MAPL_HConfigAsTimeInterval(this%hconfig, keyString='ref_time', _RC) 
-         call ESMF_TimeIntervalSet(t24, h=24, _RC)
-         _ASSERT(ref_time <= t24, 'reference time must be between 0 and 24 hours')
-         user_runTime = sub_time_in_datetime(currTime, ref_time, _RC)
+      ! this logic for ref_datetime is there to set the alarm right in the case of a ref_datetime
+      ! as well as to set the clock correctly for components that use a ref_datetime
+      if (has_ref_datetime) then
+         ! if we have ref_datetime must sub this into current time to set initial ring time
+         ref_datetime = ESMF_HConfigAsString(this%hconfig, keyString='ref_datetime', _RC)
+         user_runTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
          user_clockTime = user_runTime
-         if (user_runTime < currTime) then
-            user_clockTime = user_runTime +(INT((currTime-user_runTime)/user_timestep)+1)*user_timestep
-         end if
       else
          user_runTime = clock_refTime + this%user_offset
       end if
 
-      shift_back = .false.
-      if (has_shift_back) then
-         shift_back = ESMF_HConfigAsLogical(this%hconfig, keyString='shift_back', _RC)
+      this%run_if_alarm_rings_next = .false.
+      if (has_run_next_step) then
+         this%run_if_alarm_rings_next = ESMF_HConfigAsLogical(this%hconfig, keyString='run_next_step', _RC)
       end if
-      if (shift_back) user_runTime = user_runTime - outer_timestep
 
       this%user_run_alarm = SimpleAlarm(user_runTime, user_timeStep, _RC)
-      if (has_ref_time) then 
+      if (has_ref_datetime) then
          ! want to shift it back until user_clockTime is greater OR equal to start time of clock
+         ! this gets the clock back to time closest to the start of that clock
+         ! and still compatible with the reference time
          call reset_user_time(user_clockTime, currTime, user_timestep, _RC)
-         if (shift_back .and. (user_clockTime > currTime)) user_clockTime = user_clockTime - user_timestep
          call ESMF_ClockGet(user_clock, startTime=startTime, _RC)
          if (startTime > user_clockTime) then
             call ESMF_ClockSet(user_clock, startTime=user_clockTime, _RC)
          end if
-         call ESMF_ClockSet(user_clock, currTime=user_clockTime, _RC) 
+         call ESMF_ClockSet(user_clock, currTime=user_clockTime, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -148,29 +137,20 @@ contains
          type(ESMF_Time) :: temp_time
 
          temp_time = user_clockTime
-         do while(temp_time >= currTime)
-            temp_time=temp_time-user_timeStep
-         enddo
-         if (temp_time < currTime) temp_time=temp_time+user_timeStep
-         user_clockTime = temp_time
+         if (user_clockTime < currTime) then
+            do while(temp_time < currTime)
+               temp_time=temp_time+user_timeStep
+            enddo
+            if (temp_time /= currTime) temp_time=temp_time-user_timeStep
+         else if (user_clockTime > currTime) then
+            do while(temp_time > currTime)
+               temp_time=temp_time-user_timeStep
+            enddo
+         end if
+         user_clockTime=temp_time
  
          _RETURN(_SUCCESS)
 
    end subroutine reset_user_time
-
-   function sub_time_in_datetime(time, time_interval, rc) result(new_time)
-      type(ESMF_Time) :: new_time
-      type(ESMF_Time), intent(in) :: time
-      type(ESMF_TimeInterval), intent(in) :: time_interval
-      integer, optional, intent(out) :: rc
-
-      integer :: status, year, month, day
-
-      call ESMF_TimeGet(time, yy=year, mm=month, dd=day, _RC)
-      call ESMF_TimeSet(new_time, yy=year, mm=month, dd=day, h=0, m=0, s=0, _RC)
-      new_time=new_time+time_interval
-
-      _RETURN(_SUCCESS)
-   end function sub_time_in_datetime
 
 end submodule initialize_set_clock_smod
