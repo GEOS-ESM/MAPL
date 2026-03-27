@@ -144,7 +144,7 @@ program main
 !#   call MPI_Finalize(status)
 contains
 #undef I_AM_MAIN
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
    function parse_command_line() result(options)
       type(StringUnlimitedMap) :: options

@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl3g_MeshGeomFactory
    use mapl3g_GeomSpec
