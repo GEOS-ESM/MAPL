@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module mapl3g_ExtDataSample
    use ESMF
    use MAPL_KeywordEnforcerMod

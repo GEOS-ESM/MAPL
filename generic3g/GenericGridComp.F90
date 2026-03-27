@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 ! Each generic initialize phase can be supplemented by the user
 ! gridcomp if necessary.   User phases are MAPL phases appended by

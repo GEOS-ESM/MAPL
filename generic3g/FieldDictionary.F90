@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 ! The FieldDictionary serves as a central structure for both ensuring
 ! consistent standard names and units across GEOS as well as a convenient

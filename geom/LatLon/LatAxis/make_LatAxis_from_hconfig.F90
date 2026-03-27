@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_LatAxis) make_LatAxis_from_hconfig_smod
    use mapl_RangeMod

@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_ComponentSpecParser) to_itemtype_smod
    implicit none(type,external)
