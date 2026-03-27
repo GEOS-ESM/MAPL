@@ -4,6 +4,7 @@ module mapl3g_MeshGeomSpec
    use mapl3g_GeomSpec
    use mapl3g_MeshDecomposition
    use mapl_ErrorHandlingMod
+   use mapl_KeywordEnforcer
    use esmf, only: ESMF_KIND_R8, ESMF_HConfig, ESMF_KIND_R4
    use pfio, only: FileMetadata
    implicit none(type,external)
@@ -16,8 +17,6 @@ module mapl3g_MeshGeomSpec
 
    type, extends(GeomSpec) :: MeshGeomSpec
       private
-      integer :: nnodes = 0               ! Number of nodes/vertices
-      integer :: nelements = 0            ! Number of elements/cells
       character(len=:), allocatable :: filename  ! Mesh data file path
       
       type(MeshDecomposition) :: decomposition
@@ -41,7 +40,7 @@ module mapl3g_MeshGeomSpec
    end type MeshGeomSpec
 
    interface MeshGeomSpec
-      module procedure new_MeshGeomSpec
+      module procedure new_MeshGeomSpec_from_file
    end interface MeshGeomSpec
 
    interface make_MeshGeomSpec
@@ -63,6 +62,16 @@ module mapl3g_MeshGeomSpec
          character(len=*), optional, intent(in) :: filename
          integer, optional, intent(out) :: rc
       end function make_MeshGeomSpec_from_metadata
+
+      ! New file-based constructor (in submodule)
+      module function new_MeshGeomSpec_from_file(filename, unusable, decomposition, rc) result(spec)
+         use mapl_KeywordEnforcer
+         type(MeshGeomSpec) :: spec
+         character(len=*), intent(in) :: filename
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         type(MeshDecomposition), optional, intent(in) :: decomposition
+         integer, optional, intent(out) :: rc
+      end function new_MeshGeomSpec_from_file
 
       ! Support methods (in submodule)
       module logical function supports_hconfig_(this, hconfig, rc) result(supports)
@@ -86,27 +95,51 @@ module mapl3g_MeshGeomSpec
 
 contains
 
-   ! Basic constructor (kept in main module)
-   function new_MeshGeomSpec(nnodes, nelements, decomposition) result(spec)
-      type(MeshGeomSpec) :: spec
-      integer, intent(in) :: nnodes
-      integer, intent(in) :: nelements
-      type(MeshDecomposition), intent(in) :: decomposition
-      
-      spec%nnodes = nnodes
-      spec%nelements = nelements
-      spec%decomposition = decomposition
-   end function new_MeshGeomSpec
-
-   ! Accessor methods
+   ! Accessor methods - read from file on demand
    integer function get_nnodes(this) result(n)
+      use pfio
       class(MeshGeomSpec), intent(in) :: this
-      n = this%nnodes
+      type(NetCDF4_FileFormatter) :: file_formatter
+      type(FileMetadata) :: metadata
+      integer :: status
+      
+      if (.not. allocated(this%filename)) then
+         n = 0
+         return
+      end if
+      
+      call file_formatter%open(this%filename, pFIO_READ, rc=status)
+      if (status /= 0) then
+         n = 0
+         return
+      end if
+      metadata = file_formatter%read(rc=status)
+      call file_formatter%close(rc=status)
+      
+      n = metadata%get_dimension('nodeCount', rc=status)
    end function get_nnodes
 
     integer function get_nelements(this) result(n)
+       use pfio
        class(MeshGeomSpec), intent(in) :: this
-       n = this%nelements
+       type(NetCDF4_FileFormatter) :: file_formatter
+       type(FileMetadata) :: metadata
+       integer :: status
+       
+       if (.not. allocated(this%filename)) then
+          n = 0
+          return
+       end if
+       
+       call file_formatter%open(this%filename, pFIO_READ, rc=status)
+       if (status /= 0) then
+          n = 0
+          return
+       end if
+       metadata = file_formatter%read(rc=status)
+       call file_formatter%close(rc=status)
+       
+       n = metadata%get_dimension('elementCount', rc=status)
     end function get_nelements
 
      function get_filename(this) result(filename)

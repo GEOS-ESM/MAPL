@@ -17,6 +17,51 @@ submodule (mapl3g_MeshGeomSpec) MeshGeomSpec_smod
 
 contains
 
+   ! New file-based constructor that reads nnodes/nelements from file
+   module function new_MeshGeomSpec_from_file(filename, unusable, decomposition, rc) result(spec)
+      use mapl_KeywordEnforcer
+      type(MeshGeomSpec) :: spec
+      character(len=*), intent(in) :: filename
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(MeshDecomposition), optional, intent(in) :: decomposition
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: nnodes, nelements
+      type(NetCDF4_FileFormatter) :: file_formatter
+      type(FileMetadata) :: metadata
+      type(MeshDecomposition) :: decomp
+      type(ESMF_VM) :: vm
+      integer :: petCount
+
+      _UNUSED_DUMMY(unusable)
+
+      ! Read file to get dimensions
+      call file_formatter%open(filename, pFIO_READ, _RC)
+      metadata = file_formatter%read(_RC)
+      call file_formatter%close(_RC)
+
+      ! Extract dimensions from metadata
+      nnodes = metadata%get_dimension('nodeCount', _RC)
+      nelements = metadata%get_dimension('elementCount', _RC)
+
+      ! Create or use provided decomposition
+      if (present(decomposition)) then
+         decomp = decomposition
+      else
+         ! Auto-create decomposition based on current VM
+         call ESMF_VMGetCurrent(vm, _RC)
+         call ESMF_VMGet(vm, petCount=petCount, _RC)
+         decomp = MeshDecomposition(nelements, nnodes, petCount=petCount)
+      end if
+
+      ! Set spec fields directly (no old constructor)
+      spec%decomposition = decomp
+      spec%filename = filename
+
+      _RETURN(_SUCCESS)
+   end function new_MeshGeomSpec_from_file
+
    ! Factory method from HConfig
    module function make_MeshGeomSpec_from_hconfig(hconfig, rc) result(spec)
       type(MeshGeomSpec) :: spec
@@ -26,8 +71,6 @@ contains
       integer :: status
       logical :: has_file
       character(len=:), allocatable :: filename
-      type(NetCDF4_FileFormatter) :: file_formatter
-      type(FileMetadata) :: metadata
 
       ! Check if file-based configuration
       has_file = ESMF_HConfigIsDefined(hconfig, keyString='file', _RC)
@@ -35,13 +78,8 @@ contains
       if (has_file) then
          filename = ESMF_HConfigAsString(hconfig, keyString='file', _RC)
          
-         ! Read mesh from file
-         call file_formatter%open(filename, pFIO_READ, _RC)
-         metadata = file_formatter%read(_RC)
-         call file_formatter%close(_RC)
-         
-         ! Pass filename to metadata factory method
-         spec = make_MeshGeomSpec(metadata, filename=filename, rc=status)
+         ! Use new file-based constructor
+         spec = MeshGeomSpec(filename, rc=status)
          _VERIFY(status)
       else
          ! For now, require file-based configuration
@@ -60,28 +98,13 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: nnodes, nelements
-      type(MeshDecomposition) :: decomp
-      type(ESMF_VM) :: vm
-      integer :: petCount
 
-      ! Get dimensions from metadata
-      nnodes = file_metadata%get_dimension('nodeCount', _RC)
-      nelements = file_metadata%get_dimension('elementCount', _RC)
-      
-      ! Get petCount from current VM
-      call ESMF_VMGetCurrent(vm, _RC)
-      call ESMF_VMGet(vm, petCount=petCount, _RC)
-      
-      ! Create decomposition with both element and node distribution (Phase 3)
-      decomp = MeshDecomposition(nelements, nnodes, petCount=petCount)
-      
-      ! Create spec with basic info
-      spec = MeshGeomSpec(nnodes, nelements, decomp)
-      
-      ! Store filename if provided
+      ! If filename is provided, use the file-based constructor
       if (present(filename)) then
-         spec%filename = filename
+         spec = MeshGeomSpec(filename, rc=status)
+         _VERIFY(status)
+      else
+         _FAIL('Filename is required for MeshGeomSpec creation')
       end if
 
       _RETURN(_SUCCESS)
@@ -149,9 +172,12 @@ contains
       
       select type (b)
       type is (MeshGeomSpec)
-         ! Compare basic properties
-         if (a%nnodes /= b%nnodes) return
-         if (a%nelements /= b%nelements) return
+         ! Compare filenames (if both allocated)
+         if (allocated(a%filename) .and. allocated(b%filename)) then
+            if (a%filename /= b%filename) return
+         else if (allocated(a%filename) .neqv. allocated(b%filename)) then
+            return
+         end if
          
          ! Compare decompositions
          if (a%decomposition /= b%decomposition) return
