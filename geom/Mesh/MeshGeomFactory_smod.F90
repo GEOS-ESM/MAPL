@@ -7,6 +7,9 @@ submodule (mapl3g_MeshGeomFactory) MeshGeomFactory_smod
    use mapl3g_MeshDecomposition
    use mapl_ErrorHandlingMod
    use mapl_Constants, only: MAPL_PI_R8
+   use mapl_StringUtilities, only: to_lower
+   use mapl3g_get_hconfig, only: get_hconfig
+   use mapl3g_hconfig_params, only: HConfigParams
    use pfio
    use gftl2_StringVector
    use mapl3g_StringDictionary
@@ -65,36 +68,69 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(MeshGeomSpec) :: spec
-      type(MeshDecomposition) :: decomp
+      character(len=:), allocatable :: class_name
+      type(HConfigParams) :: params
+      logical :: has_file
 
-      ! Create dummy spec to test support
-      decomp = MeshDecomposition([1])
-      spec = MeshGeomSpec(1, 1, decomp)
-      supports = spec%supports(hconfig, _RC)
+      ! Check for class: mesh (case-insensitive)
+      params = HConfigParams(hconfig, "class")
+      call get_hconfig(class_name, params, _RC)
+      
+      if (.not. allocated(class_name)) then
+         supports = .false.
+         _RETURN(_SUCCESS)
+      end if
+
+      class_name = to_lower(class_name)
+      supports = trim(class_name) == "mesh"
+      
+      if (.not. supports) then
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Verify required fields
+      has_file = ESMF_HConfigIsDefined(hconfig, keyString='file', _RC)
+      supports = has_file  ! For now, require file
 
       _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
    end function supports_hconfig
 
-   ! Check if factory supports this FileMetadata
-   module logical function supports_metadata(this, file_metadata, rc) result(supports)
-      class(MeshGeomFactory), intent(in) :: this
-      type(FileMetadata), intent(in) :: file_metadata
-      integer, optional, intent(out) :: rc
+    ! Check if factory supports this FileMetadata
+    module logical function supports_metadata(this, file_metadata, rc) result(supports)
+       class(MeshGeomFactory), intent(in) :: this
+       type(FileMetadata), intent(in) :: file_metadata
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(MeshGeomSpec) :: spec
-      type(MeshDecomposition) :: decomp
+       integer :: status
+       character(len=:), allocatable :: source_file
+       type(NetCDF4_FileFormatter) :: formatter
+       type(FileMetadata) :: temp_metadata
 
-      ! Create dummy spec to test support
-      decomp = MeshDecomposition([1])
-      spec = MeshGeomSpec(1, 1, decomp)
-      supports = spec%supports(file_metadata, _RC)
+       ! Check if file_metadata has a source_file set
+       ! If so, try to read it and check if it's a valid mesh file
+       supports = .false.
+       
+       ! Try to get source_file - if it fails, this metadata doesn't have one
+       source_file = file_metadata%get_source_file(rc=status)
+       if (status /= 0) then
+          _RETURN(_SUCCESS)
+       end if
+       
+       ! Try to open the file and check if it has mesh structure
+       ! Mesh must have nodeCount, elementCount, and connectivity
+       ! This distinguishes it from LocStream (which lacks elementCount/connectivity)
+       call formatter%open(source_file, pFIO_READ, _RC)
+       temp_metadata = formatter%read(_RC)
+       call formatter%close(_RC)
+       
+       supports = temp_metadata%has_dimension('nodeCount') .and. &
+                  temp_metadata%has_dimension('elementCount') .and. &
+                  temp_metadata%has_variable('elementConn')
 
-      _UNUSED_DUMMY(this)
-      _RETURN(_SUCCESS)
-   end function supports_metadata
+       _UNUSED_DUMMY(this)
+       _RETURN(_SUCCESS)
+    end function supports_metadata
 
    ! Create ESMF_Geom from GeomSpec
    module function make_geom(this, geom_spec, rc) result(geom)
@@ -282,45 +318,29 @@ contains
       _RETURN(_SUCCESS)
    end function make_file_metadata
 
-   ! Type-safe helper for creating FileMetadata from MeshGeomSpec
-   function typesafe_make_file_metadata(geom_spec, rc) result(file_metadata)
-      type(FileMetadata) :: file_metadata
-      type(MeshGeomSpec), intent(in) :: geom_spec
-      integer, optional, intent(out) :: rc
+    ! Type-safe helper for creating FileMetadata from MeshGeomSpec
+    ! The file_metadata only needs to store the filename, since the file contains
+    ! all mesh information (dimensions, coordinates, connectivity, etc.)
+    function typesafe_make_file_metadata(geom_spec, rc) result(file_metadata)
+       type(FileMetadata) :: file_metadata
+       type(MeshGeomSpec), intent(in) :: geom_spec
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: nnodes, nelements
-      type(Variable) :: var
+       integer :: status
+       character(len=:), allocatable :: filename
 
-      file_metadata = FileMetadata()
+       file_metadata = FileMetadata()
 
-      nnodes = geom_spec%get_nnodes()
-      nelements = geom_spec%get_nelements()
+       ! Get filename from spec
+       filename = geom_spec%get_filename()
+       _ASSERT(allocated(filename), 'Filename must be provided in MeshGeomSpec')
 
-      ! Add dimensions
-      call file_metadata%add_dimension('nodeCount', nnodes, _RC)
-      call file_metadata%add_dimension('elementCount', nelements, _RC)
-      call file_metadata%add_dimension('coordDim', 2, _RC)
+       ! Store the filename using set_source_file
+       ! This allows the file_metadata to reference the mesh file
+       call file_metadata%set_source_file(filename, _RC)
 
-      ! Add node coordinate variable
-      var = Variable(type=PFIO_REAL64, dimensions='coordDim,nodeCount')
-      call var%add_attribute('units', Attribute('degrees'))
-      call var%add_attribute('long_name', Attribute('Node coordinates (longitude, latitude)'))
-      call file_metadata%add_variable('nodeCoords', var)
-
-      ! Add element mask variable (optional)
-      var = Variable(type=PFIO_INT32, dimensions='elementCount')
-      call var%add_attribute('long_name', &
-         Attribute('Element mask for surface types'))
-      call file_metadata%add_variable('elementMask', var)
-
-      ! Add global attributes
-      call file_metadata%add_attribute('gridType', Attribute('unstructured'))
-      call file_metadata%add_attribute('version', Attribute('0.9'))
-      call file_metadata%add_attribute('convention', Attribute('ESMF'))
-
-      _RETURN(_SUCCESS)
-   end function typesafe_make_file_metadata
+       _RETURN(_SUCCESS)
+    end function typesafe_make_file_metadata
 
    ! Return gridded dimensions for mesh
    module function make_gridded_dims(this, geom_spec, rc) result(gridded_dims)
