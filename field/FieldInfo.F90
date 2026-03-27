@@ -150,10 +150,7 @@ contains
       if (present(quantity_type_metadata)) then
          quantity_info = quantity_type_metadata%make_info(_RC)
          call MAPL_InfoSet(info, namespace_ // KEY_QUANTITY_TYPE_METADATA, quantity_info, _RC)
-         _HERE
-         call ESMF_InfoPrint(quantity_info, _RC)
          call esmf_InfoDestroy(quantity_info, _RC)
-         _HERE
       end if
 
       if (present(normalization_metadata)) then

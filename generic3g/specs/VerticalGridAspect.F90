@@ -514,7 +514,9 @@ contains
       vgrid = mirror_grid
       if(.not. this%is_mirror()) then
          deallocate(vgrid)      
-         vgrid = this%vertical_grid
+         if (allocated(this%vertical_grid)) then
+            vgrid = this%vertical_grid
+         end if
       end if
 
       if (present(field)) then
