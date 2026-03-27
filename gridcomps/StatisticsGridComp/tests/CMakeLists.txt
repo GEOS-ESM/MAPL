@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 set(MODULE_DIRECTORY "${esma_include}/MAPL.statistics.tests")
 
 set(test_srcs
