@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 set(MODULE_DIRECTORY "${esma_include}/MAPL.statistics.tests")
 
-set(test_srcs
+set (test_srcs)
+  Test_ShiftedVariance.pf
+  Test_WelfordVariance.pf
+  Test_Variance.pf
   Test_TimeAccumulate.pf
   )
 

@@ -21,5 +21,6 @@ esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL MAPL.utilities TYPE SHARED)
 
-add_subdirectory(tests)
-
+if (PFUNIT_FOUND)
+  add_subdirectory(tests)
+endif ()
