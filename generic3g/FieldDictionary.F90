@@ -20,6 +20,7 @@ module mapl3g_FieldDictionary
    use gftl2_StringStringMap
    use mapl3g_FieldDictionaryItem
    use mapl3g_FieldDictionaryItemMap
+   use mapl3g_VerificationStatus
 
    implicit none(type,external)
    private
@@ -95,9 +96,13 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ESMF_HConfig) :: aliases_node
+         type(ESMF_HConfig) :: aliases_node, provenance_node
          character(:), allocatable :: long_name, units, temp_string
+         character(:), allocatable :: physical_dimension, verified_by
+         logical :: conserved
          type(StringVector) :: aliases
+         type(VerificationStatus) :: vstatus
+         type(Provenance) :: prov
          type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
 
          _ASSERT(ESMF_HConfigIsMap(item_node), 'Each node in FieldDictionary yaml must be a mapping node')
@@ -105,9 +110,10 @@ contains
          long_name = ESMF_HconfigAsString(item_node,keyString='long_name',_RC)
          units = ESMF_HConfigAsString(item_node,keyString='canonical_units',_RC)
 
+         ! --- optional: aliases ---
          if (ESMF_HConfigIsDefined(item_node,keyString='aliases')) then
-          
-            aliases_node = ESMF_HConfigCreateAt(item_node,keyString='aliases',_RC) 
+
+            aliases_node = ESMF_HConfigCreateAt(item_node,keyString='aliases',_RC)
             _ASSERT(ESMF_HConfigIsSequence(aliases_node), "'aliases' must be a sequence")
 
             hconfigIter = ESMF_HConfigIterBegin(aliases_node)
@@ -121,8 +127,46 @@ contains
 
          end if
 
-         item = FieldDictionaryItem(long_name, units, aliases)
-         
+         ! --- optional: physical_dimension ---
+         if (ESMF_HConfigIsDefined(item_node,keyString='physical_dimension')) then
+            physical_dimension = ESMF_HConfigAsString(item_node,keyString='physical_dimension',_RC)
+         else
+            physical_dimension = ''
+         end if
+
+         ! --- optional: conserved (default .false.) ---
+         if (ESMF_HConfigIsDefined(item_node,keyString='conserved')) then
+            conserved = ESMF_HConfigAsLogical(item_node,keyString='conserved',_RC)
+         else
+            conserved = .false.
+         end if
+
+         ! --- optional: verification_status (default unverified) ---
+         if (ESMF_HConfigIsDefined(item_node,keyString='verification_status')) then
+            temp_string = ESMF_HConfigAsString(item_node,keyString='verification_status',_RC)
+            vstatus = VerificationStatus(temp_string)
+         else
+            vstatus = VERIFICATION_STATUS_UNVERIFIED
+         end if
+
+         ! --- optional: provenance ---
+         if (ESMF_HConfigIsDefined(item_node,keyString='provenance')) then
+            provenance_node = ESMF_HConfigCreateAt(item_node,keyString='provenance',_RC)
+            if (ESMF_HConfigIsDefined(provenance_node,keyString='verified_by')) then
+               verified_by = ESMF_HConfigAsString(provenance_node,keyString='verified_by',_RC)
+               prov%verified_by = verified_by
+            end if
+         end if
+
+         item = FieldDictionaryItem( &
+              long_name=long_name, &
+              canonical_units=units, &
+              aliases=aliases, &
+              physical_dimension=physical_dimension, &
+              conserved=conserved, &
+              verification_status=vstatus, &
+              provenance=prov)
+
          _RETURN(_SUCCESS)
       end function to_item
 
