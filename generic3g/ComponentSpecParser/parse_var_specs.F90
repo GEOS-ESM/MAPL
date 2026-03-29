@@ -18,9 +18,9 @@ contains
       character(*), intent(in) :: component_name
       integer, optional, intent(out) :: rc
 
-       integer :: status
-       logical :: has_states_section
-       type(ESMF_HConfig) :: subcfg
+      integer :: status
+      logical :: has_states_section
+      type(ESMF_HConfig) :: subcfg
 
       has_states_section = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
       _RETURN_UNLESS(has_states_section)
@@ -28,8 +28,8 @@ contains
       subcfg = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
 
       call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  timeStep, offset, component_name, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION,    timeStep, offset, component_name, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION,    timeStep, offset, component_name, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, timeStep, offset, component_name, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, timeStep, offset, component_name, _RC)
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 
@@ -122,9 +122,9 @@ contains
             itemtype = to_itemtype(attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
-             dependencies = to_dependencies(attributes, _RC)
+            dependencies = to_dependencies(attributes, _RC)
 
-             geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
+            geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
             if (allocated(geometry_spec%geom_spec)) then
                geom_mgr => get_geom_manager()
                mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
@@ -135,28 +135,28 @@ contains
             end if
 
 
-             esmf_state_intent = to_esmf_state_intent(state_intent)
-             var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
-                  units=units, &
-                  itemtype=itemtype, &
-                  typekind=typekind, &
-                  vertical_stagger=vertical_stagger, &
-                  ungridded_dims=ungridded_dims, &
-                  default_value=default_value, &
-                  service_items=service_items, &
-                  standard_name=standard_name, &
-                  dependencies=dependencies, &
-                  expression=expression, &
-                  geom=geom, &
-                  vertical_grid=vertical_grid, &
-                  accumulation_type=accumulation_type, &
-                  timeStep=timeStep, &
-                  vector_component_names=vector_component_names, &
-                  offset=offset, _RC)
+            esmf_state_intent = to_esmf_state_intent(state_intent)
+            var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
+                 units=units, &
+                 itemtype=itemtype, &
+                 typekind=typekind, &
+                 vertical_stagger=vertical_stagger, &
+                 ungridded_dims=ungridded_dims, &
+                 default_value=default_value, &
+                 service_items=service_items, &
+                 standard_name=standard_name, &
+                 dependencies=dependencies, &
+                 expression=expression, &
+                 geom=geom, &
+                 vertical_grid=vertical_grid, &
+                 accumulation_type=accumulation_type, &
+                 timeStep=timeStep, &
+                 vector_component_names=vector_component_names, &
+                 offset=offset, _RC)
 
-             if (allocated(units)) deallocate(units)
-             if (allocated(standard_name)) deallocate(standard_name)
-             if (allocated(accumulation_type)) deallocate(accumulation_type)
+            if (allocated(units)) deallocate(units)
+            if (allocated(standard_name)) deallocate(standard_name)
+            if (allocated(accumulation_type)) deallocate(accumulation_type)
             call var_specs%push_back(var_spec)
 
             call ESMF_HConfigDestroy(attributes, _RC)
