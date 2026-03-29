@@ -326,6 +326,7 @@ contains
    @test
    subroutine test_multiple_fields_from_dict()
       type(VariableSpecVector) :: var_specs
+      type(VariableSpec) :: vs
       type(StateRegistry), target :: registry
       type(ESMF_HConfig) :: hconfig
       type(FieldDictionaryConfig) :: cfg
@@ -352,15 +353,14 @@ contains
 
       ! Find T and Q by short_name
       do i = 1, var_specs%size()
-         associate(vs => var_specs%of(i))
-            if (vs%short_name == 'T') then
-               @assertEqual('K', vs%units)
-               @assertEqual('Air Temperature', vs%long_name)
-            else if (vs%short_name == 'Q') then
-               @assertEqual('kg kg-1', vs%units)
-               @assertEqual('Specific Humidity', vs%long_name)
-            end if
-         end associate
+         vs = var_specs%of(i)
+         if (vs%short_name == 'T') then
+            @assertEqual('K', vs%units)
+            @assertEqual('Air Temperature', vs%long_name)
+         else if (vs%short_name == 'Q') then
+            @assertEqual('kg kg-1', vs%units)
+            @assertEqual('Specific Humidity', vs%long_name)
+         end if
       end do
 
       call ESMF_HConfigDestroy(hconfig)
