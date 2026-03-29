@@ -478,10 +478,10 @@ contains
 
       config = FieldDictionaryConfig()
 
+      ! Default path is 'field_dictionary.yaml' in CWD
       @assertEqual('field_dictionary.yaml', config%get_dictionary_path())
+      @assertTrue(config%has_dictionary_path())
       @assertTrue(config%get_validation_mode() == VALIDATION_MODE_PERMISSIVE)
-      @assertTrue(config%get_warn_on_unverified())
-      @assertFalse(config%get_warn_on_non_cf())
 
    end subroutine test_config_defaults
 

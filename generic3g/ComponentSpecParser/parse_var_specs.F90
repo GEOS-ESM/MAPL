@@ -24,28 +24,31 @@ contains
       type(FieldDictionaryConfig), optional, intent(in) :: field_dict_config
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      logical :: has_states_section
-      type(ESMF_HConfig) :: subcfg
-      type(FieldDictionary), allocatable :: field_dict
-      type(FieldDictionaryConfig) :: cfg
-      logical :: dict_file_exists
+       integer :: status
+       logical :: has_states_section
+       type(ESMF_HConfig) :: subcfg
+       type(FieldDictionary), allocatable :: field_dict
+       type(FieldDictionaryConfig) :: cfg
+       logical :: dict_file_exists
 
       ! Resolve the configuration to use.
       if (present(field_dict_config)) then
          cfg = field_dict_config
       else
-         cfg = FieldDictionaryConfig()   ! defaults: permissive, field_dictionary.yaml
+         cfg = FieldDictionaryConfig()   ! defaults: permissive, no dictionary path
       end if
 
-      ! Attempt to load the field dictionary.  If the file does not exist,
-      ! skip silently in PERMISSIVE mode; fail in STRICT mode.
-      inquire(file=cfg%get_dictionary_path(), exist=dict_file_exists)
-      if (dict_file_exists) then
-         allocate(field_dict)
-         field_dict = FieldDictionary(filename=cfg%get_dictionary_path(), _RC)
-      else if (cfg%get_validation_mode() == VALIDATION_MODE_STRICT) then
-         _FAIL('FieldDictionary file not found: '//cfg%get_dictionary_path())
+      ! Attempt to load the field dictionary only when a path was explicitly
+      ! configured.  If the file does not exist, skip silently in PERMISSIVE
+      ! mode; fail in STRICT mode.
+      if (cfg%has_dictionary_path()) then
+         inquire(file=cfg%get_dictionary_path(), exist=dict_file_exists)
+         if (dict_file_exists) then
+            allocate(field_dict)
+            field_dict = FieldDictionary(filename=cfg%get_dictionary_path(), _RC)
+         else if (cfg%get_validation_mode() == VALIDATION_MODE_STRICT) then
+            _FAIL('FieldDictionary file not found: '//cfg%get_dictionary_path())
+         end if
       end if
 
       has_states_section = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
@@ -106,11 +109,12 @@ contains
          type(ESMF_Geom), allocatable :: geom
          class(VerticalGrid), allocatable :: vertical_grid
 
-         ! Field dictionary lookup support
-         type(FieldDictionaryItem) :: dict_item
-         character(:), allocatable :: long_name
-         logical :: found_in_dict
-         type(logger_t), pointer :: lgr
+          ! Field dictionary lookup support
+          type(FieldDictionaryItem) :: dict_item
+          character(:), allocatable :: long_name
+          character(:), allocatable :: log_msg
+          logical :: found_in_dict
+          type(logger_t), pointer :: lgr
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
          _RETURN_UNLESS(has_state)
@@ -177,18 +181,18 @@ contains
              end if
 
              ! Validation: warn or fail when no dictionary entry found for a
-             ! non-exempt field that has a standard_name.
-             if (.not. cfg%is_exempt(itemtype) .and. has_standard_name .and. allocated(field_dict) &
-                  .and. .not. found_in_dict) then
-                lgr => logging%get_logger('FieldDictionary')
-                if (cfg%get_validation_mode() == VALIDATION_MODE_STRICT) then
-                   _FAIL('FieldDictionary: no entry for standard_name "'//standard_name//&
-                        '" in component '//component_name)
-                else
-                   call lgr%warning('FieldDictionary: no entry for standard_name "' &
-                        //standard_name//'" in component '//component_name)
-                end if
-             end if
+              ! non-exempt field that has a standard_name.
+              if (.not. cfg%is_exempt(itemtype) .and. has_standard_name .and. allocated(field_dict) &
+                   .and. .not. found_in_dict) then
+                 lgr => logging%get_logger('FieldDictionary')
+                 log_msg = 'FieldDictionary: no entry for standard_name "' &
+                      //standard_name//'" in component '//component_name
+                 if (cfg%get_validation_mode() == VALIDATION_MODE_STRICT) then
+                    _FAIL(log_msg)
+                 else
+                    call lgr%warning(log_msg)
+                 end if
+              end if
 
              geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
             if (allocated(geometry_spec%geom_spec)) then

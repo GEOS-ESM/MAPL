@@ -102,34 +102,20 @@ contains
       item%canonical_units = canonical_units
       item%aliases = aliases
 
-      if (present(physical_dimension)) then
-         item%physical_dimension = physical_dimension
-      else
-         item%physical_dimension = ''
-      end if
+       item%physical_dimension = ''
+      if (present(physical_dimension)) item%physical_dimension = physical_dimension
 
-      if (present(conserved)) then
-         item%conserved = conserved
-      else
-         item%conserved = .false.
-      end if
+      item%conserved = .false.
+      if (present(conserved)) item%conserved = conserved
 
-      if (present(verification_status)) then
-         item%verification_status_ = verification_status
-      else
-         item%verification_status_ = VERIFICATION_STATUS_UNVERIFIED
-      end if
+       item%verification_status_ = VERIFICATION_STATUS_UNVERIFIED
+      if (present(verification_status)) item%verification_status_ = verification_status
 
-      if (present(provenance)) then
-         item%provenance_ = provenance
-      end if
+      if (present(provenance)) item%provenance_ = provenance
 
       ! Conserved quantities use conservative regridding by default
-      if (item%conserved) then
-         item%regrid_method = ESMF_REGRIDMETHOD_CONSERVE
-      else
-         item%regrid_method = ESMF_REGRIDMETHOD_BILINEAR
-      end if
+      item%regrid_method = ESMF_REGRIDMETHOD_BILINEAR
+      if (item%conserved) item%regrid_method = ESMF_REGRIDMETHOD_CONSERVE
 
    end function new_FieldDictionaryItem_full
 

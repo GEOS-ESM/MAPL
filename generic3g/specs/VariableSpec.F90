@@ -365,12 +365,13 @@ contains
          return
       end if
 
-      cfg = FieldDictionaryConfig()   ! defaults: permissive, field_dictionary.yaml
-      inquire(file=cfg%get_dictionary_path(), exist=file_exists)
-      if (.not. file_exists) then
+      cfg = FieldDictionaryConfig()   ! defaults: permissive, no dictionary path
+      if (.not. cfg%has_dictionary_path()) then
          rc = _FAILURE
          return
       end if
+      inquire(file=cfg%get_dictionary_path(), exist=file_exists)
+      _ASSERT(file_exists, 'FieldDictionary file not found: '//cfg%get_dictionary_path())
 
       field_dict = FieldDictionary(filename=cfg%get_dictionary_path(), _RC)
       regrid_method = field_dict%get_regrid_method(standard_name, _RC)

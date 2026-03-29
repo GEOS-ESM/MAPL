@@ -4,6 +4,11 @@
 ! dictionary subsystem, parsed from the mapl/field_dictionary section of
 ! cap.yaml.  It also provides the is_exempt() predicate that determines
 ! which item types skip dictionary validation.
+!
+! The default dictionary path is 'field_dictionary.yaml' (CWD).  Experiment
+! setup is expected to install/link the MAPL-installed geos_field_dictionary.yaml
+! as 'field_dictionary.yaml' in the run directory.  Use has_dictionary_path()
+! to distinguish a user-supplied explicit path from the default.
 
 module mapl3g_FieldDictionaryConfig
 
@@ -21,13 +26,10 @@ module mapl3g_FieldDictionaryConfig
       private
       character(:), allocatable :: dictionary_path
       type(ValidationMode) :: validation_mode
-      logical :: warn_on_unverified = .true.
-      logical :: warn_on_non_cf     = .false.
    contains
       procedure :: get_dictionary_path
       procedure :: get_validation_mode
-      procedure :: get_warn_on_unverified
-      procedure :: get_warn_on_non_cf
+      procedure :: has_dictionary_path
       procedure :: is_exempt
    end type FieldDictionaryConfig
 
@@ -38,14 +40,16 @@ module mapl3g_FieldDictionaryConfig
 
 contains
 
-   ! Construct with sensible defaults (permissive, CWD dictionary)
+   ! Construct with sensible defaults: permissive mode, look for
+   ! 'field_dictionary.yaml' in the current working directory.
+   ! Experiment setup is expected to copy or link the MAPL-installed
+   ! dictionary (geos_field_dictionary.yaml → field_dictionary.yaml)
+   ! into the run directory before execution.
    function new_default() result(config)
       type(FieldDictionaryConfig) :: config
 
       config%dictionary_path   = 'field_dictionary.yaml'
       config%validation_mode   = VALIDATION_MODE_PERMISSIVE
-      config%warn_on_unverified = .true.
-      config%warn_on_non_cf    = .false.
    end function new_default
 
    ! Construct from the mapl/field_dictionary YAML mapping node
@@ -70,14 +74,6 @@ contains
          config%validation_mode = ValidationMode(temp_string)
       end if
 
-      if (ESMF_HConfigIsDefined(node, keyString='warn_on_unverified')) then
-         config%warn_on_unverified = ESMF_HConfigAsLogical(node, keyString='warn_on_unverified', _RC)
-      end if
-
-      if (ESMF_HConfigIsDefined(node, keyString='warn_on_non_cf')) then
-         config%warn_on_non_cf = ESMF_HConfigAsLogical(node, keyString='warn_on_non_cf', _RC)
-      end if
-
       _RETURN(_SUCCESS)
    end function new_from_hconfig
 
@@ -89,14 +85,15 @@ contains
       class(FieldDictionaryConfig), intent(in) :: this
       type(ESMF_StateItem_Flag), intent(in) :: item_type
 
-      is_exempt = &
-           item_type == MAPL_STATEITEM_SERVICE          .or. &
-           item_type == MAPL_STATEITEM_SERVICE_PROVIDER  .or. &
-           item_type == MAPL_STATEITEM_SERVICE_SUBSCRIBER .or. &
-           item_type == MAPL_STATEITEM_FIELDBUNDLE       .or. &
-           item_type == MAPL_STATEITEM_STATE             .or. &
-           item_type == MAPL_STATEITEM_WILDCARD          .or. &
-           item_type == MAPL_STATEITEM_EXPRESSION
+      is_exempt = any(item_type == [ &
+           MAPL_STATEITEM_SERVICE,            &
+           MAPL_STATEITEM_SERVICE_PROVIDER,   &
+           MAPL_STATEITEM_SERVICE_SUBSCRIBER, &
+           MAPL_STATEITEM_FIELDBUNDLE,        &
+           MAPL_STATEITEM_STATE,              &
+           MAPL_STATEITEM_WILDCARD,           &
+           MAPL_STATEITEM_EXPRESSION          &
+           ])
    end function is_exempt
 
    ! Accessors
@@ -113,14 +110,9 @@ contains
       mode = this%validation_mode
    end function get_validation_mode
 
-   pure logical function get_warn_on_unverified(this)
+   pure logical function has_dictionary_path(this)
       class(FieldDictionaryConfig), intent(in) :: this
-      get_warn_on_unverified = this%warn_on_unverified
-   end function get_warn_on_unverified
-
-   pure logical function get_warn_on_non_cf(this)
-      class(FieldDictionaryConfig), intent(in) :: this
-      get_warn_on_non_cf = this%warn_on_non_cf
-   end function get_warn_on_non_cf
+      has_dictionary_path = len(this%dictionary_path) > 0
+   end function has_dictionary_path
 
 end module mapl3g_FieldDictionaryConfig
