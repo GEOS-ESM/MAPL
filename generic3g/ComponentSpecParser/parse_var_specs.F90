@@ -206,44 +206,24 @@ contains
 
 
              esmf_state_intent = to_esmf_state_intent(state_intent)
-             if (allocated(long_name)) then
-                var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
-                     units=units, &
-                     long_name=long_name, &
-                     itemtype=itemtype, &
-                     typekind=typekind, &
-                     vertical_stagger=vertical_stagger, &
-                     ungridded_dims=ungridded_dims, &
-                     default_value=default_value, &
-                     service_items=service_items, &
-                     standard_name=standard_name, &
-                     dependencies=dependencies, &
-                     expression=expression, &
-                     geom=geom, &
-                     vertical_grid=vertical_grid, &
-                     accumulation_type=accumulation_type, &
-                     timeStep=timeStep, &
-                     vector_component_names=vector_component_names, &
-                     offset=offset, _RC)
-             else
-                var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
-                     units=units, &
-                     itemtype=itemtype, &
-                     typekind=typekind, &
-                     vertical_stagger=vertical_stagger, &
-                     ungridded_dims=ungridded_dims, &
-                     default_value=default_value, &
-                     service_items=service_items, &
-                     standard_name=standard_name, &
-                     dependencies=dependencies, &
-                     expression=expression, &
-                     geom=geom, &
-                     vertical_grid=vertical_grid, &
-                     accumulation_type=accumulation_type, &
-                     timeStep=timeStep, &
-                     vector_component_names=vector_component_names, &
-                     offset=offset, _RC)
-             end if
+             var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
+                  units=units, &
+                  long_name=long_name, &
+                  itemtype=itemtype, &
+                  typekind=typekind, &
+                  vertical_stagger=vertical_stagger, &
+                  ungridded_dims=ungridded_dims, &
+                  default_value=default_value, &
+                  service_items=service_items, &
+                  standard_name=standard_name, &
+                  dependencies=dependencies, &
+                  expression=expression, &
+                  geom=geom, &
+                  vertical_grid=vertical_grid, &
+                  accumulation_type=accumulation_type, &
+                  timeStep=timeStep, &
+                  vector_component_names=vector_component_names, &
+                  offset=offset, _RC)
 
              if (allocated(units)) deallocate(units)
              if (allocated(standard_name)) deallocate(standard_name)
