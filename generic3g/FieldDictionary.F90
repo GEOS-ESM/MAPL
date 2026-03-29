@@ -16,6 +16,8 @@ module mapl3g_FieldDictionary
 
    use esmf
    use mapl_ErrorHandling
+   use pflogger, only: logging, logger_t => logger
+   use iso_fortran_env, only: error_unit
    use gftl2_StringVector
    use gftl2_StringStringMap
    use mapl3g_FieldDictionaryItem
@@ -27,20 +29,26 @@ module mapl3g_FieldDictionary
 
    public :: FieldDictionary
 
+   ! Sentinel stored in alias_map when a short name maps to more than one
+   ! standard name.  A lookup that resolves to this value is hard-failed
+   ! with a clear error message.
+   character(*), parameter :: ALIAS_AMBIGUOUS = '__ambiguous__'
+
    type :: FieldDictionary
       private
       type(FieldDictionaryItemMap) :: entries
       type(StringStringMap) :: alias_map  ! For efficiency
    contains
-      procedure :: add_item
-      procedure :: add_aliases
-      ! accessors
-      procedure :: get_item   ! returns a pointer
-      procedure :: get_units
-      procedure :: get_long_name
-      procedure :: get_standard_name
-      procedure :: get_regrid_method
-      procedure :: size
+       procedure :: add_item
+       procedure :: add_aliases
+       ! accessors
+       procedure :: has_item
+       procedure :: get_item   ! returns a pointer
+       procedure :: get_units
+       procedure :: get_long_name
+       procedure :: get_standard_name
+       procedure :: get_regrid_method
+       procedure :: size
    end type FieldDictionary
 
    interface FieldDictionary
@@ -102,7 +110,7 @@ contains
          logical :: conserved
          type(StringVector) :: aliases
          type(VerificationStatus) :: vstatus
-         type(Provenance) :: prov
+         type(CF_Provenance) :: prov
          type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
 
          _ASSERT(ESMF_HConfigIsMap(item_node), 'Each node in FieldDictionary yaml must be a mapping node')
@@ -194,13 +202,26 @@ contains
 
       type(StringVectorIterator) :: iter
       character(:), pointer :: alias
-
+      integer :: n_erased
+      type(logger_t), pointer :: lgr
       associate (b => aliases%begin(), e => aliases%end())
         iter = b
         do while (iter /= e)
-           alias => iter%of()
-           _ASSERT(this%alias_map%count(alias) == 0, 'ambiguous short name references more than one item in dictionary')
-           call this%alias_map%insert(alias, standard_name)
+            alias => iter%of()
+            if (this%alias_map%count(alias) /= 0) then
+               ! Alias already registered for a different standard name.
+               ! Warn and mark as ambiguous so any lookup via this alias
+               ! will fail with a clear error rather than silently returning
+               ! the wrong entry.
+               lgr => logging%get_logger('FieldDictionary')
+               call lgr%warning( &
+                    'Short name "'//alias//'" is an alias for more than one standard name;' // &
+                    ' lookups via this short name will fail.')
+               n_erased = this%alias_map%erase(alias)
+               call this%alias_map%insert(alias, ALIAS_AMBIGUOUS)
+           else
+              call this%alias_map%insert(alias, standard_name)
+           end if
            call iter%next()
         end do
       end associate
@@ -211,18 +232,20 @@ contains
    ! This accessor returns a copy for safety reasons.  Returning a
    ! pointer would be more efficient, but it would allow client code
    ! to modify the dictionary.
-   function get_item(this, standard_name, rc) result(item)
-      type(FieldDictionaryItem) :: item
-      class(FieldDictionary), intent(in) :: this
-      character(*), intent(in) :: standard_name
-      integer, optional, intent(out) :: rc
+    function get_item(this, standard_name, rc) result(item)
+       type(FieldDictionaryItem) :: item
+       class(FieldDictionary), intent(in) :: this
+       character(*), intent(in) :: standard_name
+       integer, optional, intent(out) :: rc
 
-      integer :: status
+       integer :: status
 
-      item = this%entries%at(standard_name, _RC)
+       _ASSERT(this%entries%count(standard_name) > 0, &
+            'FieldDictionary: no entry for standard_name "'//standard_name//'"')
+       item = this%entries%at(standard_name, _RC)
 
-      _RETURN(_SUCCESS)
-   end function get_item
+       _RETURN(_SUCCESS)
+    end function get_item
 
    function get_units(this, standard_name, rc) result(canonical_units)
       character(:), allocatable :: canonical_units
@@ -262,8 +285,13 @@ contains
 
       integer :: status
 
+      _ASSERT(this%alias_map%count(alias) /= 0, &
+           'FieldDictionary: short name "' // alias // '" not found in dictionary')
       standard_name = this%alias_map%at(alias, _RC)
-      
+      _ASSERT(standard_name /= ALIAS_AMBIGUOUS, &
+           'FieldDictionary: short name "' // alias // &
+           '" is ambiguous (maps to multiple standard names); provide standard_name explicitly')
+
       _RETURN(_SUCCESS)
    end function get_standard_name
 
@@ -282,9 +310,15 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method
 
+   logical function has_item(this, standard_name)
+      class(FieldDictionary), intent(in) :: this
+      character(*), intent(in) :: standard_name
+      has_item = this%entries%count(standard_name) > 0
+   end function has_item
+
    integer function size(this)
       class(FieldDictionary), intent(in) :: this
       size = this%entries%size()
    end function size
-   
+    
 end module mapl3g_FieldDictionary

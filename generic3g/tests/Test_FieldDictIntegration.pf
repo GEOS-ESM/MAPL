@@ -1,0 +1,370 @@
+#include "MAPL_TestErr.h"
+! Integration tests: parse_var_specs + FieldDictionary interaction.
+! These tests verify that parse_var_specs correctly:
+!   1. Fills `units` from the dictionary when not specified in YAML.
+!   2. Fills `long_name` from the dictionary when a standard_name matches.
+!   3. Lets YAML-specified `units` take precedence over dictionary defaults.
+!   4. Skips validation for exempt item types (e.g. expression).
+!   5. Warns (permissive) when no dictionary entry found for a standard_name.
+!   6. Fails (strict) when no dictionary entry found for a standard_name.
+!   7. Fails (strict) when dictionary file is missing.
+!   8. Succeeds (permissive) when dictionary file is missing.
+
+module Test_FieldDictIntegration
+   use funit
+   use esmf
+   use mapl3g_ComponentSpecParser
+   use mapl3g_FieldDictionaryConfig
+   use mapl3g_ValidationMode
+   use mapl3g_VariableSpecVector
+   use mapl3g_VariableSpec
+   use mapl3g_StateRegistry
+   use mapl_ErrorHandling
+   implicit none(type, external)
+
+   ! Mini field-dictionary YAML used by most tests.
+   character(*), parameter :: DICT_YAML = &
+      'air_temperature:' // new_line('a') // &
+      '  canonical_units: K' // new_line('a') // &
+      '  long_name: Air Temperature' // new_line('a') // &
+      'specific_humidity:' // new_line('a') // &
+      '  canonical_units: "kg kg-1"' // new_line('a') // &
+      '  long_name: Specific Humidity' // new_line('a')
+
+contains
+
+   ! ------------------------------------------------------------------
+   ! Helper: write DICT_YAML to a temp file; return the filename.
+   ! ------------------------------------------------------------------
+   subroutine write_dict_file(filename)
+      character(*), intent(in) :: filename
+      integer :: unit
+      open(newunit=unit, file=filename, form='formatted', status='unknown')
+      write(unit, '(a)') DICT_YAML
+      close(unit)
+   end subroutine write_dict_file
+
+   ! Helper: delete a temp file.
+   subroutine delete_file(filename)
+      character(*), intent(in) :: filename
+      integer :: unit
+      open(newunit=unit, file=filename, form='formatted', status='unknown')
+      close(unit, status='delete')
+   end subroutine delete_file
+
+   ! Helper: build a FieldDictionaryConfig pointing at `path`.
+   function make_config(path, mode_str) result(cfg)
+      type(FieldDictionaryConfig) :: cfg
+      character(*), intent(in) :: path
+      character(*), optional, intent(in) :: mode_str   ! 'permissive' or 'strict'
+      type(ESMF_HConfig) :: node
+      character(:), allocatable :: content
+      content = '{path: ' // path
+      if (present(mode_str)) then
+         content = content // ', validation_mode: ' // mode_str
+      end if
+      content = content // '}'
+      node = ESMF_HConfigCreate(content=content)
+      cfg  = FieldDictionaryConfig(node)
+      call ESMF_HConfigDestroy(node)
+   end function make_config
+
+   ! ==================================================================
+   ! 1. Units filled from dictionary when absent in YAML
+   ! ==================================================================
+   @test
+   subroutine test_units_filled_from_dict()
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec) :: vs
+      type(StateRegistry), target :: registry
+      type(ESMF_HConfig) :: hconfig
+      type(FieldDictionaryConfig) :: cfg
+      integer :: status
+
+      character(*), parameter :: DICT_FILE = 'test_dict_units.yaml'
+      character(*), parameter :: YAML = &
+         'states:' // new_line('a') // &
+         '  export:' // new_line('a') // &
+         '    T:' // new_line('a') // &
+         '      standard_name: air_temperature' // new_line('a')
+
+      call write_dict_file(DICT_FILE)
+      cfg = make_config(DICT_FILE)
+
+      registry = StateRegistry('TestComp')
+      hconfig  = ESMF_HConfigCreate(content=YAML)
+      var_specs = parse_var_specs(hconfig, registry=registry, &
+           component_name='TestComp', field_dict_config=cfg, rc=status)
+      @assert_that(status, is(0))
+
+      ! Should have one entry
+      @assertEqual(1, int(var_specs%size()))
+
+      vs = var_specs%of(1)
+      ! Units should come from the dictionary
+      @assert_that(allocated(vs%units), is(true()))
+      @assertEqual('K', vs%units)
+      ! long_name should come from the dictionary
+      @assert_that(allocated(vs%long_name), is(true()))
+      @assertEqual('Air Temperature', vs%long_name)
+
+      call ESMF_HConfigDestroy(hconfig)
+      call delete_file(DICT_FILE)
+   end subroutine test_units_filled_from_dict
+
+   ! ==================================================================
+   ! 2. YAML-specified units take precedence over dictionary defaults
+   ! ==================================================================
+   @test
+   subroutine test_yaml_units_override_dict()
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec) :: vs
+      type(StateRegistry), target :: registry
+      type(ESMF_HConfig) :: hconfig
+      type(FieldDictionaryConfig) :: cfg
+      integer :: status
+
+      character(*), parameter :: DICT_FILE = 'test_dict_override.yaml'
+      character(*), parameter :: YAML = &
+         'states:' // new_line('a') // &
+         '  export:' // new_line('a') // &
+         '    T:' // new_line('a') // &
+         '      standard_name: air_temperature' // new_line('a') // &
+         '      units: degC' // new_line('a')
+
+      call write_dict_file(DICT_FILE)
+      cfg = make_config(DICT_FILE)
+
+      registry = StateRegistry('TestComp')
+      hconfig  = ESMF_HConfigCreate(content=YAML)
+      var_specs = parse_var_specs(hconfig, registry=registry, &
+           component_name='TestComp', field_dict_config=cfg, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, int(var_specs%size()))
+
+      vs = var_specs%of(1)
+      ! YAML override must win
+      @assert_that(allocated(vs%units), is(true()))
+      @assertEqual('degC', vs%units)
+      ! long_name still filled from dict
+      @assert_that(allocated(vs%long_name), is(true()))
+      @assertEqual('Air Temperature', vs%long_name)
+
+      call ESMF_HConfigDestroy(hconfig)
+      call delete_file(DICT_FILE)
+   end subroutine test_yaml_units_override_dict
+
+   ! ==================================================================
+   ! 3. Exempt item types (expression) skip dictionary validation
+   !    entirely — no error even in strict mode + missing entry.
+   ! ==================================================================
+   @test
+   subroutine test_exempt_item_type_skips_validation()
+      type(VariableSpecVector) :: var_specs
+      type(StateRegistry), target :: registry
+      type(ESMF_HConfig) :: hconfig
+      type(FieldDictionaryConfig) :: cfg
+      integer :: status
+
+      character(*), parameter :: DICT_FILE = 'test_dict_exempt.yaml'
+      ! YAML: expression-type field with a standard_name NOT in dictionary.
+      character(*), parameter :: YAML = &
+         'states:' // new_line('a') // &
+         '  export:' // new_line('a') // &
+         '    MyExpr:' // new_line('a') // &
+         '      expression: A+B' // new_line('a') // &
+         '      standard_name: no_such_entry_in_dict' // new_line('a')
+
+      call write_dict_file(DICT_FILE)
+      ! Use strict mode: if validation weren't bypassed this would fail.
+      cfg = make_config(DICT_FILE, 'strict')
+
+      registry = StateRegistry('TestComp')
+      hconfig  = ESMF_HConfigCreate(content=YAML)
+      var_specs = parse_var_specs(hconfig, registry=registry, &
+           component_name='TestComp', field_dict_config=cfg, rc=status)
+      ! Should succeed because expression items are exempt.
+      @assert_that(status, is(0))
+
+      call ESMF_HConfigDestroy(hconfig)
+      call delete_file(DICT_FILE)
+   end subroutine test_exempt_item_type_skips_validation
+
+   ! ==================================================================
+   ! 4. Permissive mode: no error when entry absent in dictionary
+   ! ==================================================================
+   @test
+   subroutine test_permissive_missing_entry_no_error()
+      type(VariableSpecVector) :: var_specs
+      type(StateRegistry), target :: registry
+      type(ESMF_HConfig) :: hconfig
+      type(FieldDictionaryConfig) :: cfg
+      integer :: status
+
+      character(*), parameter :: DICT_FILE = 'test_dict_permissive.yaml'
+      ! standard_name not in dictionary
+      character(*), parameter :: YAML = &
+         'states:' // new_line('a') // &
+         '  export:' // new_line('a') // &
+         '    UNKNOWN:' // new_line('a') // &
+         '      standard_name: no_such_standard_name' // new_line('a') // &
+         '      units: 1' // new_line('a')
+
+      call write_dict_file(DICT_FILE)
+      cfg = make_config(DICT_FILE, 'permissive')
+
+      registry = StateRegistry('TestComp')
+      hconfig  = ESMF_HConfigCreate(content=YAML)
+      var_specs = parse_var_specs(hconfig, registry=registry, &
+           component_name='TestComp', field_dict_config=cfg, rc=status)
+      ! Permissive: should warn but not fail.
+      @assert_that(status, is(0))
+
+      call ESMF_HConfigDestroy(hconfig)
+      call delete_file(DICT_FILE)
+   end subroutine test_permissive_missing_entry_no_error
+
+   ! ==================================================================
+   ! 5. Strict mode: error when entry absent in dictionary
+   ! ==================================================================
+   @test
+   subroutine test_strict_missing_entry_fails()
+      type(VariableSpecVector) :: var_specs
+      type(StateRegistry), target :: registry
+      type(ESMF_HConfig) :: hconfig
+      type(FieldDictionaryConfig) :: cfg
+      integer :: status
+
+      character(*), parameter :: DICT_FILE = 'test_dict_strict.yaml'
+      character(*), parameter :: YAML = &
+         'states:' // new_line('a') // &
+         '  export:' // new_line('a') // &
+         '    UNKNOWN:' // new_line('a') // &
+         '      standard_name: no_such_standard_name' // new_line('a') // &
+         '      units: 1' // new_line('a')
+
+      call write_dict_file(DICT_FILE)
+      cfg = make_config(DICT_FILE, 'strict')
+
+      registry = StateRegistry('TestComp')
+      hconfig  = ESMF_HConfigCreate(content=YAML)
+      var_specs = parse_var_specs(hconfig, registry=registry, &
+           component_name='TestComp', field_dict_config=cfg, rc=status)
+       ! The _FAIL in parse_state_specs fires first, then _VERIFY propagates.
+       ! Consume both exceptions directly (avoid pFUnit @directive early-return between them).
+       call assertExceptionRaised('FieldDictionary: no entry for standard_name "no_such_standard_name" in component TestComp')
+       call assertExceptionRaised()
+
+      call ESMF_HConfigDestroy(hconfig)
+      call delete_file(DICT_FILE)
+   end subroutine test_strict_missing_entry_fails
+
+   ! ==================================================================
+   ! 6. Permissive mode: missing dictionary FILE is silently ignored
+   ! ==================================================================
+   @test
+   subroutine test_permissive_missing_file_succeeds()
+      type(VariableSpecVector) :: var_specs
+      type(StateRegistry), target :: registry
+      type(ESMF_HConfig) :: hconfig
+      type(FieldDictionaryConfig) :: cfg
+      integer :: status
+
+      character(*), parameter :: NONEXISTENT = 'does_not_exist_at_all.yaml'
+      character(*), parameter :: YAML = &
+         'states:' // new_line('a') // &
+         '  export:' // new_line('a') // &
+         '    T:' // new_line('a') // &
+         '      standard_name: air_temperature' // new_line('a') // &
+         '      units: K' // new_line('a')
+
+      cfg = make_config(NONEXISTENT, 'permissive')
+
+      registry = StateRegistry('TestComp')
+      hconfig  = ESMF_HConfigCreate(content=YAML)
+      var_specs = parse_var_specs(hconfig, registry=registry, &
+           component_name='TestComp', field_dict_config=cfg, rc=status)
+      ! Permissive + missing file: should succeed, no dictionary defaults applied.
+      @assert_that(status, is(0))
+
+      call ESMF_HConfigDestroy(hconfig)
+   end subroutine test_permissive_missing_file_succeeds
+
+   ! ==================================================================
+   ! 7. Strict mode: missing dictionary FILE is an error
+   ! ==================================================================
+   @test
+   subroutine test_strict_missing_file_fails()
+      type(VariableSpecVector) :: var_specs
+      type(StateRegistry), target :: registry
+      type(ESMF_HConfig) :: hconfig
+      type(FieldDictionaryConfig) :: cfg
+      integer :: status
+
+      character(*), parameter :: NONEXISTENT = 'does_not_exist_either.yaml'
+      character(*), parameter :: YAML = &
+         'states:' // new_line('a') // &
+         '  export:' // new_line('a') // &
+         '    T:' // new_line('a') // &
+         '      standard_name: air_temperature' // new_line('a') // &
+         '      units: K' // new_line('a')
+
+      cfg = make_config(NONEXISTENT, 'strict')
+
+      registry = StateRegistry('TestComp')
+      hconfig  = ESMF_HConfigCreate(content=YAML)
+      var_specs = parse_var_specs(hconfig, registry=registry, &
+           component_name='TestComp', field_dict_config=cfg, rc=status)
+      @assertExceptionRaised('FieldDictionary file not found: ' // NONEXISTENT)
+
+      call ESMF_HConfigDestroy(hconfig)
+   end subroutine test_strict_missing_file_fails
+
+   ! ==================================================================
+   ! 8. Multiple fields: both get correct dictionary defaults
+   ! ==================================================================
+   @test
+   subroutine test_multiple_fields_from_dict()
+      type(VariableSpecVector) :: var_specs
+      type(StateRegistry), target :: registry
+      type(ESMF_HConfig) :: hconfig
+      type(FieldDictionaryConfig) :: cfg
+      integer :: status, i
+
+      character(*), parameter :: DICT_FILE = 'test_dict_multi.yaml'
+      character(*), parameter :: YAML = &
+         'states:' // new_line('a') // &
+         '  export:' // new_line('a') // &
+         '    T:' // new_line('a') // &
+         '      standard_name: air_temperature' // new_line('a') // &
+         '    Q:' // new_line('a') // &
+         '      standard_name: specific_humidity' // new_line('a')
+
+      call write_dict_file(DICT_FILE)
+      cfg = make_config(DICT_FILE)
+
+      registry = StateRegistry('TestComp')
+      hconfig  = ESMF_HConfigCreate(content=YAML)
+      var_specs = parse_var_specs(hconfig, registry=registry, &
+           component_name='TestComp', field_dict_config=cfg, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(2, int(var_specs%size()))
+
+      ! Find T and Q by short_name
+      do i = 1, var_specs%size()
+         associate(vs => var_specs%of(i))
+            if (vs%short_name == 'T') then
+               @assertEqual('K', vs%units)
+               @assertEqual('Air Temperature', vs%long_name)
+            else if (vs%short_name == 'Q') then
+               @assertEqual('kg kg-1', vs%units)
+               @assertEqual('Specific Humidity', vs%long_name)
+            end if
+         end associate
+      end do
+
+      call ESMF_HConfigDestroy(hconfig)
+      call delete_file(DICT_FILE)
+   end subroutine test_multiple_fields_from_dict
+
+end module Test_FieldDictIntegration

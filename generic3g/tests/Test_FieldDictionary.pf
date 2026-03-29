@@ -155,6 +155,56 @@ contains
 
    end subroutine test_get_standard_name_from_alias_multi
 
+   @test
+   ! Verify that loading a dictionary where the same short name appears as
+   ! an alias for two different entries does NOT abort at load time — it
+   ! should only warn.  A subsequent lookup via the ambiguous alias must
+   ! fail (non-zero rc) rather than silently returning the wrong entry.
+   subroutine test_ambiguous_alias_fails_at_lookup()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      ! Both X_Y_Z and A_B_C claim alias 'x' — this should warn but not abort.
+      fd = FieldDictionary(stream = '{' // &
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x]},' // &
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [x]} }')
+
+      ! Lookup via the ambiguous alias must return a non-zero rc.
+      standard_name = fd%get_standard_name('x', rc=status)
+      @assertExceptionRaised('FieldDictionary: short name "x" is ambiguous (maps to multiple standard names); provide standard_name explicitly')
+      @assert_that(status, is(not(equal_to(0))))
+
+   end subroutine test_ambiguous_alias_fails_at_lookup
+
+   @test
+   ! Verify that a non-ambiguous alias in the same dictionary as an
+   ! ambiguous one still resolves correctly.
+   subroutine test_unambiguous_alias_still_works_alongside_ambiguous()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      fd = FieldDictionary(stream = '{' // &
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x, unique_x]},' // &
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [x, unique_a]} }')
+
+      ! Ambiguous alias fails.
+      standard_name = fd%get_standard_name('x', rc=status)
+      @assertExceptionRaised('FieldDictionary: short name "x" is ambiguous (maps to multiple standard names); provide standard_name explicitly')
+      @assert_that(status, is(not(equal_to(0))))
+
+      ! Unique aliases still resolve correctly.
+      standard_name = fd%get_standard_name('unique_x', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('X_Y_Z', standard_name)
+
+      standard_name = fd%get_standard_name('unique_a', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A_B_C', standard_name)
+
+   end subroutine test_unambiguous_alias_still_works_alongside_ambiguous
+
    ! ---------------------------------------------------------------
    ! New schema: defaults when optional fields are absent
    ! ---------------------------------------------------------------
@@ -329,7 +379,7 @@ contains
    subroutine test_provenance_verified_by()
       type(FieldDictionary) :: fd
       type(FieldDictionaryItem) :: item
-      type(Provenance) :: prov
+      type(CF_Provenance) :: prov
       integer :: status
 
       fd = FieldDictionary(stream= &
@@ -474,7 +524,7 @@ contains
    subroutine test_full_entry_all_fields()
       type(FieldDictionary) :: fd
       type(FieldDictionaryItem) :: item
-      type(Provenance) :: prov
+      type(CF_Provenance) :: prov
       integer :: status
 
       fd = FieldDictionary(stream= &

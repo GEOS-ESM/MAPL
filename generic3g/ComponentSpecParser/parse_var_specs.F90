@@ -2,6 +2,11 @@
 
 submodule (mapl3g_ComponentSpecParser) parse_var_specs_smod
    use mapl3g_VerticalGrid
+   use mapl3g_FieldDictionary
+   use mapl3g_FieldDictionaryItem
+   use mapl3g_ValidationMode
+   use mapl3g_VerificationStatus
+   use pflogger, only: logging, logger_t => logger
    implicit none(type,external)
    
 contains
@@ -9,40 +14,63 @@ contains
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
    ! have var specs in MAPL3, as it does not really have a preferred geom on which to declare
    ! imports and exports.
-   module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, rc) result(var_specs)
+   module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, field_dict_config, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
       type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StateRegistry), target, intent(in) :: registry
       character(*), intent(in) :: component_name
+      type(FieldDictionaryConfig), optional, intent(in) :: field_dict_config
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: has_states_section
       type(ESMF_HConfig) :: subcfg
+      type(FieldDictionary), allocatable :: field_dict
+      type(FieldDictionaryConfig) :: cfg
+      logical :: dict_file_exists
+
+      ! Resolve the configuration to use.
+      if (present(field_dict_config)) then
+         cfg = field_dict_config
+      else
+         cfg = FieldDictionaryConfig()   ! defaults: permissive, field_dictionary.yaml
+      end if
+
+      ! Attempt to load the field dictionary.  If the file does not exist,
+      ! skip silently in PERMISSIVE mode; fail in STRICT mode.
+      inquire(file=cfg%get_dictionary_path(), exist=dict_file_exists)
+      if (dict_file_exists) then
+         allocate(field_dict)
+         field_dict = FieldDictionary(filename=cfg%get_dictionary_path(), _RC)
+      else if (cfg%get_validation_mode() == VALIDATION_MODE_STRICT) then
+         _FAIL('FieldDictionary file not found: '//cfg%get_dictionary_path())
+      end if
 
       has_states_section = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
       _RETURN_UNLESS(has_states_section)
 
       subcfg = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
 
-      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  timeStep, offset, component_name, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, timeStep, offset, component_name, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, timeStep, offset, component_name, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  timeStep, offset, component_name, field_dict, cfg, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION,    timeStep, offset, component_name, field_dict, cfg, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION,    timeStep, offset, component_name, field_dict, cfg, _RC)
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
    contains
 
-      subroutine parse_state_specs(var_specs, hconfig, state_intent, timeStep, offset, component_name, rc)
+      subroutine parse_state_specs(var_specs, hconfig, state_intent, timeStep, offset, component_name, field_dict, cfg, rc)
          type(VariableSpecVector), intent(inout) :: var_specs
          type(ESMF_HConfig), target, intent(in) :: hconfig
          character(*), intent(in) :: state_intent
          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
          type(ESMF_TimeInterval), optional, intent(in) :: offset
          character(*), intent(in) :: component_name
+         type(FieldDictionary), allocatable, intent(in) :: field_dict
+         type(FieldDictionaryConfig), intent(in) :: cfg
          integer, optional, intent(out) :: rc
 
          type(VariableSpec) :: var_spec
@@ -77,6 +105,12 @@ contains
          type(GeomManager), pointer :: geom_mgr
          type(ESMF_Geom), allocatable :: geom
          class(VerticalGrid), allocatable :: vertical_grid
+
+         ! Field dictionary lookup support
+         type(FieldDictionaryItem) :: dict_item
+         character(:), allocatable :: long_name
+         logical :: found_in_dict
+         type(logger_t), pointer :: lgr
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
          _RETURN_UNLESS(has_state)
@@ -122,9 +156,41 @@ contains
             itemtype = to_itemtype(attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
-            dependencies = to_dependencies(attributes, _RC)
+             dependencies = to_dependencies(attributes, _RC)
 
-            geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
+             ! --- Field dictionary lookup ---
+             ! Apply dictionary defaults for units and long_name, subject to
+             ! YAML overrides.  Exempt item types skip validation entirely.
+             found_in_dict = .false.
+             if (.not. cfg%is_exempt(itemtype) .and. has_standard_name .and. allocated(field_dict)) then
+                ! Use has_item to avoid NAG crash on missing key in at()
+                if (field_dict%has_item(standard_name)) then
+                   found_in_dict = .true.
+                   dict_item = field_dict%get_item(standard_name, _RC)
+                   ! Apply dictionary unit as default (only if YAML did not specify units)
+                   if (.not. has_units) then
+                      units = dict_item%get_units()
+                   end if
+                   ! long_name is always filled from dictionary if available
+                   long_name = dict_item%get_long_name()
+                end if
+             end if
+
+             ! Validation: warn or fail when no dictionary entry found for a
+             ! non-exempt field that has a standard_name.
+             if (.not. cfg%is_exempt(itemtype) .and. has_standard_name .and. allocated(field_dict) &
+                  .and. .not. found_in_dict) then
+                lgr => logging%get_logger('FieldDictionary')
+                if (cfg%get_validation_mode() == VALIDATION_MODE_STRICT) then
+                   _FAIL('FieldDictionary: no entry for standard_name "'//standard_name//&
+                        '" in component '//component_name)
+                else
+                   call lgr%warning('FieldDictionary: no entry for standard_name "' &
+                        //standard_name//'" in component '//component_name)
+                end if
+             end if
+
+             geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
             if (allocated(geometry_spec%geom_spec)) then
                geom_mgr => get_geom_manager()
                mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
@@ -135,28 +201,30 @@ contains
             end if
 
 
-            esmf_state_intent = to_esmf_state_intent(state_intent)
-            var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
-                 units=units, &
-                 itemtype=itemtype, &
-                 typekind=typekind, &
-                 vertical_stagger=vertical_stagger, &
-                 ungridded_dims=ungridded_dims, &
-                 default_value=default_value, &
-                 service_items=service_items, &
-                 standard_name=standard_name, &
-                 dependencies=dependencies, &
-                 expression=expression, &
-                 geom=geom, &
-                 vertical_grid=vertical_grid, &
-                 accumulation_type=accumulation_type, &
-                 timeStep=timeStep, &
-                 vector_component_names=vector_component_names, &
-                 offset=offset, _RC)
+             esmf_state_intent = to_esmf_state_intent(state_intent)
+             var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
+                  units=units, &
+                  long_name=long_name, &
+                  itemtype=itemtype, &
+                  typekind=typekind, &
+                  vertical_stagger=vertical_stagger, &
+                  ungridded_dims=ungridded_dims, &
+                  default_value=default_value, &
+                  service_items=service_items, &
+                  standard_name=standard_name, &
+                  dependencies=dependencies, &
+                  expression=expression, &
+                  geom=geom, &
+                  vertical_grid=vertical_grid, &
+                  accumulation_type=accumulation_type, &
+                  timeStep=timeStep, &
+                  vector_component_names=vector_component_names, &
+                  offset=offset, _RC)
 
-            if (allocated(units)) deallocate(units)
-            if (allocated(standard_name)) deallocate(standard_name)
-            if (allocated(accumulation_type)) deallocate(accumulation_type)
+             if (allocated(units)) deallocate(units)
+             if (allocated(standard_name)) deallocate(standard_name)
+             if (allocated(long_name)) deallocate(long_name)
+             if (allocated(accumulation_type)) deallocate(accumulation_type)
             call var_specs%push_back(var_spec)
 
             call ESMF_HConfigDestroy(attributes, _RC)

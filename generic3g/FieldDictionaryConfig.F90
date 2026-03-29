@@ -85,7 +85,7 @@ contains
    ! Exempt types: SERVICE, SERVICE_PROVIDER, SERVICE_SUBSCRIBER,
    !               FIELDBUNDLE, STATE, WILDCARD, EXPRESSION
    ! Required types: FIELD, VECTOR, BRACKET, VECTORBRACKET
-   pure logical function is_exempt(this, item_type)
+   logical function is_exempt(this, item_type)
       class(FieldDictionaryConfig), intent(in) :: this
       type(ESMF_StateItem_Flag), intent(in) :: item_type
 

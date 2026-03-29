@@ -8,12 +8,12 @@ module mapl3g_FieldDictionaryItem
    private
 
    public :: FieldDictionaryItem
-   public :: Provenance
+   public :: CF_Provenance
 
-   type :: Provenance
+   type :: CF_Provenance
       character(:), allocatable :: verified_by
       ! Extensible: future fields may include verification_date, notes, etc.
-   end type Provenance
+   end type CF_Provenance
 
    type :: FieldDictionaryItem
       private
@@ -21,8 +21,8 @@ module mapl3g_FieldDictionaryItem
       character(:), allocatable :: canonical_units
       character(:), allocatable :: physical_dimension
       logical :: conserved = .false.
-      type(VerificationStatus) :: verification_status
-      type(Provenance) :: provenance
+      type(VerificationStatus) :: verification_status_
+      type(CF_Provenance) :: provenance_
       type(ESMF_RegridMethod_Flag) :: regrid_method
       type(StringVector) :: aliases
    contains
@@ -46,7 +46,6 @@ module mapl3g_FieldDictionaryItem
       module procedure new_FieldDictionaryItem_
       module procedure new_FieldDictionaryItem_one_alias
       module procedure new_FieldDictionaryItem_multi_aliases
-      module procedure new_FieldDictionaryItem_vector
       module procedure new_FieldDictionaryItem_full
    end interface
 
@@ -88,25 +87,9 @@ contains
 
    end function new_FieldDictionaryItem_multi_aliases
 
-   function new_FieldDictionaryItem_vector(long_name, canonical_units, aliases) result(item)
-      type(FieldDictionaryItem) :: item
-      character(*), intent(in) :: long_name
-      character(*), intent(in) :: canonical_units
-      type(StringVector), intent(in) :: aliases
-
-      item%long_name = long_name
-      item%canonical_units = canonical_units
-      item%physical_dimension = ''
-      item%conserved = .false.
-      item%verification_status = VERIFICATION_STATUS_UNVERIFIED
-      item%regrid_method = ESMF_REGRIDMETHOD_BILINEAR
-      item%aliases = aliases
-
-   end function new_FieldDictionaryItem_vector
-
    function new_FieldDictionaryItem_full( &
-        long_name, canonical_units, aliases, &
-        physical_dimension, conserved, verification_status, provenance) result(item)
+         long_name, canonical_units, aliases, &
+         physical_dimension, conserved, verification_status, provenance) result(item)
       type(FieldDictionaryItem) :: item
       character(*), intent(in) :: long_name
       character(*), intent(in) :: canonical_units
@@ -114,8 +97,7 @@ contains
       character(*), optional, intent(in) :: physical_dimension
       logical, optional, intent(in) :: conserved
       type(VerificationStatus), optional, intent(in) :: verification_status
-      type(Provenance), optional, intent(in) :: provenance
-
+      type(CF_Provenance), optional, intent(in) :: provenance
       item%long_name = long_name
       item%canonical_units = canonical_units
       item%aliases = aliases
@@ -133,13 +115,13 @@ contains
       end if
 
       if (present(verification_status)) then
-         item%verification_status = verification_status
+         item%verification_status_ = verification_status
       else
-         item%verification_status = VERIFICATION_STATUS_UNVERIFIED
+         item%verification_status_ = VERIFICATION_STATUS_UNVERIFIED
       end if
 
       if (present(provenance)) then
-         item%provenance = provenance
+         item%provenance_ = provenance
       end if
 
       ! Conserved quantities use conservative regridding by default
@@ -186,13 +168,13 @@ contains
    pure function get_verification_status(this) result(verification_status)
       type(VerificationStatus) :: verification_status
       class(FieldDictionaryItem), intent(in) :: this
-      verification_status = this%verification_status
+      verification_status = this%verification_status_
    end function get_verification_status
 
-   pure function get_provenance(this) result(provenance)
-      type(Provenance) :: provenance
+   pure function get_provenance(this) result(prov)
+      type(CF_Provenance) :: prov
       class(FieldDictionaryItem), intent(in) :: this
-      provenance = this%provenance
+      prov = this%provenance_
    end function get_provenance
 
    pure logical function is_conserved(this)

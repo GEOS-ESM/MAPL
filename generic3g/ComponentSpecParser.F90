@@ -25,6 +25,7 @@ module mapl3g_ComponentSpecParser
    use mapl3g_ESMF_Utilities
    use mapl3g_UserSetServices
    use mapl3g_StateRegistry
+   use mapl3g_FieldDictionaryConfig
    use gftl2_StringVector, only: StringVector
    use esmf
 
@@ -41,6 +42,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_geometry_spec
    public :: parse_timespec
    public :: to_itemtype
+   public :: parse_var_specs
 
    character(*), parameter :: MAPL_SECTION = 'mapl'
    character(*), parameter :: COMPONENT_GEOMETRY_SECTION = 'geometry'
@@ -96,15 +98,16 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
-      module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, rc) result(var_specs)
-         type(VariableSpecVector) :: var_specs
-         type(ESMF_HConfig), intent(in) :: hconfig
-         type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-         type(ESMF_TimeInterval), optional, intent(in) :: offset
-         type(StateRegistry), target, intent(in) :: registry
-         character(*), intent(in) :: component_name
-         integer, optional, intent(out) :: rc
-      end function parse_var_specs
+       module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, field_dict_config, rc) result(var_specs)
+          type(VariableSpecVector) :: var_specs
+          type(ESMF_HConfig), intent(in) :: hconfig
+          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+          type(ESMF_TimeInterval), optional, intent(in) :: offset
+          type(StateRegistry), target, intent(in) :: registry
+          character(*), intent(in) :: component_name
+          type(FieldDictionaryConfig), optional, intent(in) :: field_dict_config
+          integer, optional, intent(out) :: rc
+       end function parse_var_specs
 
       module function parse_connections(hconfig, rc) result(connections)
          type(ConnectionVector) :: connections

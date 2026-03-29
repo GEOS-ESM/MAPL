@@ -150,6 +150,7 @@ set(core_test_srcs
   Test_VirtualConnectionPt.pf
   Test_ConnectionPt.pf
   Test_FieldDictionary.pf
+  Test_FieldDictIntegration.pf
   Test_StateRegistry.pf
   Test_Couplers.pf
   Test_CSR_SparseMatrix.pf

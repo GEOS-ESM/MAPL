@@ -43,6 +43,7 @@ module mapl3g_VariableSpec
    use mapl3g_AspectId
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_FieldDictionary
+   use mapl3g_FieldDictionaryConfig
    use mapl_KeywordEnforcerMod
    use mapl3g_RestartModes, only: RestartMode
    use esmf
@@ -170,6 +171,7 @@ contains
    function make_VariableSpec( &
         state_intent, short_name, unusable, &
         standard_name, &
+        long_name, &
         geom, &
         units, &
         itemtype, &
@@ -201,6 +203,7 @@ contains
       ! Optional args:
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: long_name
       type(ESMF_Geom), optional, intent(in) :: geom
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: expression
@@ -237,6 +240,7 @@ contains
 #endif
 #define _SET_OPTIONAL(opt) if (present(opt)) var_spec%opt = opt
       _SET_OPTIONAL(standard_name)
+      _SET_OPTIONAL(long_name)
       _SET_OPTIONAL(geom)
       _SET_OPTIONAL(units)
       _SET_OPTIONAL(expression)
@@ -351,22 +355,24 @@ contains
       character(*), optional, intent(in) :: standard_name
       integer, optional, intent(out) :: rc
 
-      character(len=*), parameter :: field_dictionary_file = "field_dictionary.yml"
+      type(FieldDictionaryConfig) :: cfg
       type(FieldDictionary) :: field_dict
       logical :: file_exists
       integer :: status
 
-      inquire(file=trim(field_dictionary_file), exist=file_exists)
+      if (.not. present(standard_name)) then
+         rc = _FAILURE
+         return
+      end if
+
+      cfg = FieldDictionaryConfig()   ! defaults: permissive, field_dictionary.yaml
+      inquire(file=cfg%get_dictionary_path(), exist=file_exists)
       if (.not. file_exists) then
          rc = _FAILURE
          return
       end if
 
-      field_dict = FieldDictionary(filename=field_dictionary_file, _RC)
-      if (.not. present(standard_name)) then
-         rc = _FAILURE
-         return
-      end if
+      field_dict = FieldDictionary(filename=cfg%get_dictionary_path(), _RC)
       regrid_method = field_dict%get_regrid_method(standard_name, _RC)
 
       _RETURN(_SUCCESS)
