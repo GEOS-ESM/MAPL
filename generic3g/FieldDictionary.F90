@@ -238,11 +238,12 @@ contains
        character(*), intent(in) :: standard_name
        integer, optional, intent(out) :: rc
 
-       integer :: status
+        integer :: status
+        character(:), allocatable :: msg
 
-       _ASSERT(this%entries%count(standard_name) > 0, &
-            'FieldDictionary: no entry for standard_name "'//standard_name//'"')
-       item = this%entries%at(standard_name, _RC)
+        msg = 'FieldDictionary: no entry for standard_name "' // standard_name // '"'
+        _ASSERT(this%entries%count(standard_name) > 0, msg)
+        item = this%entries%at(standard_name, _RC)
 
        _RETURN(_SUCCESS)
     end function get_item
@@ -283,14 +284,15 @@ contains
       character(*), intent(in) :: alias
       integer, optional, intent(out) :: rc
 
-      integer :: status
+       integer :: status
+       character(:), allocatable :: msg
 
-      _ASSERT(this%alias_map%count(alias) /= 0, &
-           'FieldDictionary: short name "' // alias // '" not found in dictionary')
-      standard_name = this%alias_map%at(alias, _RC)
-      _ASSERT(standard_name /= ALIAS_AMBIGUOUS, &
-           'FieldDictionary: short name "' // alias // &
-           '" is ambiguous (maps to multiple standard names); provide standard_name explicitly')
+       msg = 'FieldDictionary: short name "' // alias // '" not found in dictionary'
+       _ASSERT(this%alias_map%count(alias) /= 0, msg)
+       standard_name = this%alias_map%at(alias, _RC)
+       msg = 'FieldDictionary: short name "' // alias // &
+            '" is ambiguous (maps to multiple standard names); provide standard_name explicitly'
+       _ASSERT(standard_name /= ALIAS_AMBIGUOUS, msg)
 
       _RETURN(_SUCCESS)
    end function get_standard_name
