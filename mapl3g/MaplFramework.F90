@@ -12,6 +12,7 @@ module mapl3g_MaplFramework
    use mapl3g_VerticalGrid_API
    use mapl3g_FixedLevelsVerticalGrid
    use mapl3g_ModelVerticalGrid
+   use mapl3g_FieldDictionary, only: load_field_dictionary
    use mapl_profiler, only: profiler_initialize => initialize, profiler_finalize => finalize
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod
@@ -53,6 +54,7 @@ module mapl3g_MaplFramework
       procedure :: initialize_udunits
       procedure :: initialize_servers
       procedure :: initialize_simple_servers
+      procedure :: initialize_field_dictionary
 
       procedure :: finalize
       procedure :: finalize_servers
@@ -111,6 +113,7 @@ contains
       call this%initialize_profilers(_RC)
       call this%initialize_servers(is_model_pet=is_model_pet, servers=servers, _RC)
       call this%initialize_udunits(_RC)
+      call this%initialize_field_dictionary(_RC)
 
       vgrid_manager => get_vertical_grid_manager(_RC)
       call vgrid_manager%initialize(_RC)
@@ -693,6 +696,23 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end subroutine initialize_udunits
+
+   subroutine initialize_field_dictionary(this, rc)
+      class(MaplFramework), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_path
+      character(:), allocatable :: path
+
+      has_path = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_dictionary', _RC)
+      if (has_path) then
+         path = ESMF_HConfigAsString(this%mapl_hconfig, keystring='field_dictionary', _RC)
+         call load_field_dictionary(path, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize_field_dictionary
 
 end module mapl3g_MaplFramework
 
