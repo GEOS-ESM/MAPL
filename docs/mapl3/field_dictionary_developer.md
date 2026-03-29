@@ -1,0 +1,415 @@
+# Field Dictionary — Developer Reference
+
+## Overview
+
+This document describes the Fortran types and modules that implement the MAPL3
+field dictionary subsystem, and explains how dictionary lookup is integrated
+into the component spec parser.  For user-facing configuration, see
+[docs/user_guide/docs/field_dictionary.md](../user_guide/docs/field_dictionary.md).
+
+---
+
+## Module Inventory
+
+| Module | File | Purpose |
+|--------|------|---------|
+| `mapl3g_VerificationStatus` | `generic3g/VerificationStatus.F90` | Typed enum: `unverified` / `verified` / `cf_compliant` |
+| `mapl3g_ValidationMode` | `generic3g/ValidationMode.F90` | Typed enum: `permissive` / `strict` |
+| `mapl3g_FieldDictionaryItem` | `generic3g/FieldDictionaryItem.F90` | Single dictionary entry with getters |
+| `mapl3g_FieldDictionary` | `generic3g/FieldDictionary.F90` | Dictionary container, YAML parser |
+| `mapl3g_FieldDictionaryConfig` | `generic3g/FieldDictionaryConfig.F90` | Runtime config, exemption predicate |
+
+---
+
+## `mapl3g_VerificationStatus`
+
+A typed enum following the MAPL pattern (see `esmf_utils/VectorBasisKind.F90`
+for the reference pattern).
+
+### Public API
+
+```fortran
+use mapl3g_VerificationStatus
+
+! Parameter instances
+type(VerificationStatus) :: s
+
+s = VERIFICATION_STATUS_UNVERIFIED   ! id = 0
+s = VERIFICATION_STATUS_VERIFIED     ! id = 1
+s = VERIFICATION_STATUS_CF_COMPLIANT ! id = 2
+
+! Constructor from string (case-insensitive)
+s = VerificationStatus('cf_compliant')
+
+! Comparison operators
+if (s == VERIFICATION_STATUS_CF_COMPLIANT) ...
+if (s /= VERIFICATION_STATUS_UNVERIFIED)  ...
+
+! Conversion to string
+print *, s%to_string()   ! 'unverified', 'verified', or 'cf_compliant'
+```
+
+### Notes
+
+- Unknown strings default to `VERIFICATION_STATUS_UNVERIFIED` (no error).
+- Both lowercase and uppercase strings are accepted by the constructor.
+
+---
+
+## `mapl3g_ValidationMode`
+
+A typed enum with two values.
+
+### Public API
+
+```fortran
+use mapl3g_ValidationMode
+
+type(ValidationMode) :: m
+
+m = VALIDATION_MODE_PERMISSIVE   ! id = 0 (default)
+m = VALIDATION_MODE_STRICT       ! id = 1
+
+! Constructor from string
+m = ValidationMode('strict')
+
+! Comparison
+if (m == VALIDATION_MODE_STRICT) ...
+```
+
+---
+
+## `mapl3g_FieldDictionaryItem`
+
+Holds all metadata for a single dictionary entry.
+
+### Types
+
+```fortran
+type :: CF_Provenance
+   character(:), allocatable :: verified_by
+end type
+
+type :: FieldDictionaryItem
+   ! (private members — use getters)
+contains
+   procedure :: get_long_name         ! character(:), allocatable
+   procedure :: get_units             ! character(:), allocatable
+   procedure :: get_physical_dimension ! character(:), allocatable
+   procedure :: get_aliases           ! type(StringVector)
+   procedure :: get_regrid_method     ! type(ESMF_RegridMethod_Flag)
+   procedure :: get_verification_status ! type(VerificationStatus)
+   procedure :: get_provenance        ! type(CF_Provenance)
+   procedure :: is_conserved          ! logical
+end type
+```
+
+### Constructors
+
+```fortran
+! Minimal — long_name and canonical_units only
+item = FieldDictionaryItem(long_name, canonical_units)
+
+! With one alias
+item = FieldDictionaryItem(long_name, canonical_units, alias)
+
+! With multiple aliases
+item = FieldDictionaryItem(long_name, canonical_units, [alias1, alias2])
+
+! Full — all optional fields available
+item = FieldDictionaryItem( &
+     long_name          = 'Air Temperature',   &
+     canonical_units    = 'K',                 &
+     aliases            = aliases_vector,       &   ! type(StringVector)
+     physical_dimension = 'temperature',        &   ! optional
+     conserved          = .false.,              &   ! optional, default .false.
+     verification_status = VERIFICATION_STATUS_CF_COMPLIANT, &  ! optional
+     provenance         = prov)                     ! optional, type(CF_Provenance)
+```
+
+### Regrid method derivation
+
+The `regrid_method` member is set automatically in the constructor:
+
+| `conserved` | `get_regrid_method()` |
+|-------------|----------------------|
+| `.false.` | `ESMF_REGRIDMETHOD_BILINEAR` |
+| `.true.` | `ESMF_REGRIDMETHOD_CONSERVE` |
+
+---
+
+## `mapl3g_FieldDictionary`
+
+Container for `FieldDictionaryItem` entries, keyed by CF standard name.  Also
+maintains an alias map for reverse lookup by short name.
+
+### Public API
+
+```fortran
+use mapl3g_FieldDictionary
+
+type(FieldDictionary) :: dict
+
+! Constructors
+dict = FieldDictionary(filename='path/to/dict.yaml', rc=status)
+dict = FieldDictionary(stream='yaml_string', rc=status)
+dict = FieldDictionary()   ! empty dictionary
+
+! Predicates
+logical :: found
+found = dict%has_item('air_temperature')     ! lookup by standard name
+found = dict%has_item('T')                   ! lookup by alias
+
+! Item access (returns pointer; check has_item first!)
+type(FieldDictionaryItem), pointer :: item_ptr
+item_ptr => dict%get_item('air_temperature', rc=status)
+
+! Convenience accessors (by standard name or alias)
+character(:), allocatable :: u, ln, sn
+type(ESMF_RegridMethod_Flag) :: rm
+
+u  = dict%get_units('air_temperature', rc=status)
+ln = dict%get_long_name('air_temperature', rc=status)
+sn = dict%get_standard_name('T', rc=status)   ! alias → standard name
+rm = dict%get_regrid_method('air_temperature', rc=status)
+
+! Size
+integer :: n
+n = dict%size()
+```
+
+### YAML parser behaviour
+
+- The top-level YAML node is expected to be a mapping where each key is a CF
+  standard name.
+- For each entry, `long_name` and `canonical_units` are required; all other
+  fields are optional with the defaults shown in the user guide.
+- The parser also supports the `field_dictionary.entries` wrapper (v0.2.0
+  schema with metadata header).  Entries without the wrapper (flat mapping)
+  are also accepted for backward compatibility.
+- Duplicate standard names are a fatal parse error.
+- Ambiguous aliases (same alias pointing to two different standard names) are
+  stored as `__ambiguous__`; a lookup by that alias fails with a clear error.
+
+### Alias lookup rules
+
+```fortran
+! Aliases are registered automatically for each entry's 'aliases' list.
+! get_standard_name(alias) returns the standard name, or fails if ambiguous.
+! has_item(alias) returns .true. if the alias maps unambiguously to one entry.
+! get_item(standard_name) requires the canonical key — aliases are not accepted.
+```
+
+---
+
+## `mapl3g_FieldDictionaryConfig`
+
+Holds the runtime configuration for the dictionary subsystem, parsed from the
+`mapl/field_dictionary` section of `cap.yaml`.
+
+### Public API
+
+```fortran
+use mapl3g_FieldDictionaryConfig
+
+type(FieldDictionaryConfig) :: cfg
+
+! Default constructor (path='field_dictionary.yaml', permissive mode)
+cfg = FieldDictionaryConfig()
+
+! Constructor from ESMF_HConfig node
+type(ESMF_HConfig) :: node
+cfg = FieldDictionaryConfig(node, rc=status)
+
+! Accessors
+character(:), allocatable :: path
+path = cfg%get_dictionary_path()         ! 'field_dictionary.yaml' by default
+
+type(ValidationMode) :: mode
+mode = cfg%get_validation_mode()         ! VALIDATION_MODE_PERMISSIVE by default
+
+! Predicates
+logical :: has_path, exempt
+has_path = cfg%has_dictionary_path()     ! .true. if path is non-empty
+
+type(ESMF_StateItem_Flag) :: item_type
+exempt = cfg%is_exempt(item_type)        ! .true. for SERVICE, STATE, etc.
+```
+
+### `is_exempt` logic
+
+Returns `.true.` for item types that skip dictionary validation:
+
+```fortran
+is_exempt = any(item_type == [ &
+     MAPL_STATEITEM_SERVICE,            &
+     MAPL_STATEITEM_SERVICE_PROVIDER,   &
+     MAPL_STATEITEM_SERVICE_SUBSCRIBER, &
+     MAPL_STATEITEM_FIELDBUNDLE,        &
+     MAPL_STATEITEM_STATE,              &
+     MAPL_STATEITEM_WILDCARD,           &
+     MAPL_STATEITEM_EXPRESSION          &
+     ])
+```
+
+---
+
+## Integration in `parse_var_specs`
+
+The dictionary lookup is performed in
+`generic3g/ComponentSpecParser/parse_var_specs.F90` (submodule of
+`mapl3g_ComponentSpecParser`).
+
+### Call signature
+
+```fortran
+module function parse_var_specs( &
+     hconfig, timeStep, offset, registry, component_name, &
+     field_dict_config, rc) result(var_specs)
+
+   type(VariableSpecVector) :: var_specs
+   type(ESMF_HConfig),          intent(in)           :: hconfig
+   type(ESMF_TimeInterval),     intent(in), optional :: timeStep
+   type(ESMF_TimeInterval),     intent(in), optional :: offset
+   type(StateRegistry), target, intent(in)           :: registry
+   character(*),                intent(in)           :: component_name
+   type(FieldDictionaryConfig), intent(in), optional :: field_dict_config
+   integer,                     intent(out), optional :: rc
+```
+
+The `field_dict_config` argument is optional; when absent, a default
+`FieldDictionaryConfig()` is used (look for `field_dictionary.yaml` in CWD,
+PERMISSIVE mode).
+
+### Dictionary load logic
+
+```
+if cfg%has_dictionary_path():
+    inquire(file=cfg%get_dictionary_path(), exist=dict_file_exists)
+    if dict_file_exists:
+        load FieldDictionary from path
+    elif STRICT mode:
+        _FAIL  (fatal error)
+    else:
+        skip silently  (permissive: no dictionary loaded)
+```
+
+### Per-field lookup logic (inside `parse_state_specs`)
+
+For each variable spec entry in the component YAML:
+
+1. Check `cfg%is_exempt(item_type)` — if exempt, skip.
+2. If a dictionary was loaded, call `field_dict%has_item(standard_name)`.
+3. If found: apply dictionary `long_name`, `units`, and `regrid_method` as
+   defaults (only if not already supplied in the component YAML).
+4. If not found:
+   - PERMISSIVE mode: log a warning via pflogger.
+   - STRICT mode: `_FAIL`.
+
+### Integration point for `VariableSpec`
+
+After dictionary defaults are applied, `make_VariableSpec` is called with
+the resolved `long_name`.  The `regrid_method` default is supplied via
+`get_regrid_method_from_field_dict_` (in `VariableSpec.F90`), which queries
+the dictionary.  If the dictionary file is absent it returns `_FAILURE`
+silently so the caller (`get_regrid_param`) falls back to the default regrid
+method — it does **not** raise a fatal error, regardless of mode.
+STRICT-mode enforcement for missing files is handled only in `parse_var_specs`
+where the full `FieldDictionaryConfig` is available.
+
+---
+
+## Adding New Fields to the Dictionary
+
+1. Edit `GEOS_FieldDictionary/geos_field_dictionary.yaml`.
+2. Add an entry following the v0.2.0 schema (see user guide for schema details).
+3. Set `verification_status: unverified` initially; mark `verified` after
+   domain-scientist review; mark `cf_compliant` only for fields with exact
+   CF standard names.
+4. Run `python GEOS_FieldDictionary/utils/validate_schema.py
+   GEOS_FieldDictionary/geos_field_dictionary.yaml` to validate.
+5. Open a PR to `GEOS-ESM/GEOS_FieldDictionary`.
+
+---
+
+## Writing Tests with the Dictionary
+
+Unit tests should use the test dictionary
+`generic3g/tests/field_dictionary_test.yaml`, which contains fictitious
+standard names to avoid coupling tests to the production dictionary:
+
+```fortran
+! In a pFUnit test:
+use mapl3g_FieldDictionary
+
+type(FieldDictionary) :: dict
+integer :: status
+
+dict = FieldDictionary( &
+     filename='path/to/field_dictionary_test.yaml', rc=status)
+@assertEqual(0, status)
+@assert(dict%has_item('test_temperature'))
+
+character(:), allocatable :: units
+units = dict%get_units('test_temperature', rc=status)
+@assertEqual('K', units)
+```
+
+See `generic3g/tests/Test_FieldDictionary.pf` and
+`generic3g/tests/Test_FieldDictIntegration.pf` for full examples.
+
+---
+
+## Design Notes
+
+### Typed enum pattern
+
+`VerificationStatus` and `ValidationMode` follow the pattern established by
+`esmf_utils/VectorBasisKind.F90`: a private `integer :: id` member, `parameter`
+instances, `operator(==)` / `operator(/=)` overloads, and a string constructor
+for YAML parsing.  This avoids magic integers scattered throughout the code
+while remaining comparable with `==`.
+
+### `implicit none(type, external)` and NAG
+
+Under NAG's strict `implicit none(type, external)`, a local variable cannot
+share a name with a derived type in scope.  When adding new local variables to
+any module in this subsystem, ensure their names do not collide with the type
+names (`FieldDictionary`, `FieldDictionaryItem`, `VerificationStatus`, etc.).
+
+### gFTL `StringStringMap` insert/erase
+
+`gFTL StringStringMap::insert` does **not** overwrite an existing key.  To
+replace a value: call `map%erase(key)` first, then `map%insert(key, value)`.
+
+### `map%at()` on missing key (NAG)
+
+Under NAG, `map%at(key)` on a missing key returns a disassociated pointer and
+does not raise an error at the Fortran level — it causes a runtime crash later.
+Always call `map%count(key) > 0` (or `dict%has_item(key)`) before `%at()`.
+
+---
+
+## Related Files
+
+```
+generic3g/VerificationStatus.F90
+generic3g/ValidationMode.F90
+generic3g/FieldDictionaryItem.F90
+generic3g/FieldDictionaryItemMap.F90
+generic3g/FieldDictionary.F90
+generic3g/FieldDictionaryConfig.F90
+generic3g/ComponentSpecParser/parse_var_specs.F90
+generic3g/specs/VariableSpec.F90
+generic3g/tests/field_dictionary_test.yaml
+generic3g/tests/Test_FieldDictionary.pf
+generic3g/tests/Test_FieldDictIntegration.pf
+GEOS_FieldDictionary/geos_field_dictionary.yaml
+GEOS_FieldDictionary/utils/validate_schema.py
+GEOS_FieldDictionary/docs/schema-rfc-v0.2.0.md
+```
+
+---
+
+*Last updated: March 2026*
+*MAPL Version: 3.0*

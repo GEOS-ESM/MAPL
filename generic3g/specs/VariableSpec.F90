@@ -371,7 +371,13 @@ contains
          return
       end if
       inquire(file=cfg%get_dictionary_path(), exist=file_exists)
-      _ASSERT(file_exists, 'FieldDictionary file not found: '//cfg%get_dictionary_path())
+      if (.not. file_exists) then
+         ! Dictionary file absent — not a fatal error here; the caller will
+         ! fall back to the default regrid method.  STRICT-mode enforcement
+         ! happens in parse_var_specs where the full config is available.
+         rc = _FAILURE
+         return
+      end if
 
       field_dict = FieldDictionary(filename=cfg%get_dictionary_path(), _RC)
       regrid_method = field_dict%get_regrid_method(standard_name, _RC)
