@@ -277,12 +277,10 @@ contains
       ! Only fills in values not already provided by the caller.
       if (present(standard_name)) then
          fd => get_field_dictionary()
-         if (associated(fd)) then
-            if (fd%has_item(standard_name)) then
-               dict_item = fd%get_item(standard_name, _RC)
-               if (.not. present(units)) var_spec%units = dict_item%get_units()
-               if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
-            end if
+         if (fd%has_item(standard_name)) then
+            dict_item = fd%get_item(standard_name, _RC)
+            if (.not. present(units)) var_spec%units = dict_item%get_units()
+            if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
          end if
       end if
 
@@ -380,11 +378,6 @@ contains
       end if
 
       fd => get_field_dictionary()
-      if (.not. associated(fd)) then
-         rc = _FAILURE
-         return
-      end if
-
       if (.not. fd%has_item(standard_name)) then
          rc = _FAILURE
          return

@@ -35,7 +35,6 @@ module mapl3g_FieldDictionary
    ! via get_field_dictionary().  PROTECTED so external code can read through
    ! the pointer but cannot re-seat or modify the variable itself.
    type(FieldDictionary), protected, private, target, save :: the_field_dictionary
-   logical, private, save :: dictionary_is_loaded = .false.
 
    ! Sentinel stored in alias_map when a short name maps to more than one
    ! standard name.  A lookup that resolves to this value is hard-failed
@@ -331,8 +330,6 @@ contains
       size = this%entries%size()
    end function size
 
-   ! Load the module-level dictionary from a file.  Safe to call multiple
-   ! times; a second call replaces the existing dictionary.
    subroutine load_field_dictionary(filename, rc)
       character(*), intent(in) :: filename
       integer, optional, intent(out) :: rc
@@ -340,21 +337,13 @@ contains
       integer :: status
 
       the_field_dictionary = FieldDictionary(filename=filename, _RC)
-      dictionary_is_loaded = .true.
 
       _RETURN(_SUCCESS)
    end subroutine load_field_dictionary
 
-   ! Return a pointer to the module-level dictionary, or a null pointer if
-   ! no dictionary has been loaded yet.
    function get_field_dictionary() result(ptr)
       type(FieldDictionary), pointer :: ptr
-
-      if (dictionary_is_loaded) then
-         ptr => the_field_dictionary
-      else
-         ptr => null()
-      end if
+      ptr => the_field_dictionary
    end function get_field_dictionary
 
 end module mapl3g_FieldDictionary
