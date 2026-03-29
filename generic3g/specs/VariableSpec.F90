@@ -43,7 +43,6 @@ module mapl3g_VariableSpec
    use mapl3g_AspectId
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_FieldDictionary
-   use mapl3g_FieldDictionaryConfig
    use mapl_KeywordEnforcerMod
    use mapl3g_RestartModes, only: RestartMode
    use esmf
@@ -232,6 +231,10 @@ contains
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 !#      type(EsmfRegridderParam) :: regrid_param_
 
+      type(FieldDictionary), pointer :: fd
+      type(FieldDictionaryItem) :: dict_item
+      integer :: status
+
        var_spec%short_name = short_name
       var_spec%state_intent = state_intent
 
@@ -269,6 +272,19 @@ contains
           _ASSERT(any(var_spec%itemType == [MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET]), 'vector_basis_kind can only be specified for vectors')
           var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
        end if
+
+      ! Apply field dictionary defaults for units and long_name.
+      ! Only fills in values not already provided by the caller.
+      if (present(standard_name)) then
+         fd => get_field_dictionary()
+         if (associated(fd)) then
+            if (fd%has_item(standard_name)) then
+               dict_item = fd%get_item(standard_name, _RC)
+               if (.not. present(units)) var_spec%units = dict_item%get_units()
+               if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
+            end if
+         end if
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -355,9 +371,7 @@ contains
       character(*), optional, intent(in) :: standard_name
       integer, optional, intent(out) :: rc
 
-      type(FieldDictionaryConfig) :: cfg
-      type(FieldDictionary) :: field_dict
-      logical :: file_exists
+      type(FieldDictionary), pointer :: fd
       integer :: status
 
       if (.not. present(standard_name)) then
@@ -365,22 +379,18 @@ contains
          return
       end if
 
-      cfg = FieldDictionaryConfig()   ! defaults: permissive, no dictionary path
-      if (.not. cfg%has_dictionary_path()) then
-         rc = _FAILURE
-         return
-      end if
-      inquire(file=cfg%get_dictionary_path(), exist=file_exists)
-      if (.not. file_exists) then
-         ! Dictionary file absent — not a fatal error here; the caller will
-         ! fall back to the default regrid method.  STRICT-mode enforcement
-         ! happens in parse_var_specs where the full config is available.
+      fd => get_field_dictionary()
+      if (.not. associated(fd)) then
          rc = _FAILURE
          return
       end if
 
-      field_dict = FieldDictionary(filename=cfg%get_dictionary_path(), _RC)
-      regrid_method = field_dict%get_regrid_method(standard_name, _RC)
+      if (.not. fd%has_item(standard_name)) then
+         rc = _FAILURE
+         return
+      end if
+
+      regrid_method = fd%get_regrid_method(standard_name, _RC)
 
       _RETURN(_SUCCESS)
    end function get_regrid_method_from_field_dict_
