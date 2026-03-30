@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `.mlc.toml` file to configure `mlc` link checker
+- Added a new feature: create a halo based on local displacement members, local-displacement-ensemble (LDE), requested some time ago by Arlindo da Silva
 
 ### Changed
 
