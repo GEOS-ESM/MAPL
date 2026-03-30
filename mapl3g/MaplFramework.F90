@@ -702,7 +702,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_path
+      logical :: has_path, file_exists
       character(:), allocatable :: path
       type(Logger), pointer :: lgr
 
@@ -713,8 +713,14 @@ contains
          path = 'geos_field_dictionary.yaml'
       end if
 
-      call load_field_dictionary(path, rc=status)
-      if (status /= 0) then
+      inquire(file=path, exist=file_exists)
+      if (file_exists) then
+         call load_field_dictionary(path, _RC)
+      else if (has_path) then
+         ! Explicitly configured path must exist — fail hard.
+         _ASSERT(.false., 'Field dictionary not found at configured path: "'//path//'"')
+      else
+         ! Default path absent — warn and proceed without the dictionary.
          lgr => logging%get_logger('MAPL')
          call lgr%warning('Field dictionary not loaded: "'//path//'" not found. ' // &
               'Dictionary defaults (units, long_name) will not be applied.')
