@@ -12,6 +12,12 @@ on:
       - ".github/PULL_REQUEST_TEMPLATE.md"
       - ".editorconfig"
 
+concurrency:
+  # For PRs: one slot per PR number.
+  # For non-PR events (schedule, workflow_dispatch): one slot per ref.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check-ford-docs:
     name: Build Ford Docs
@@ -38,7 +44,7 @@ jobs:
     name: gfortran / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env-mkl:v8.24.0-openmpi_5.0.5-gcc_14.2.0
+      image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_14.2.0
     strategy:
       fail-fast: false
       matrix:
@@ -67,7 +73,7 @@ jobs:
     name: gfortran-15 / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env-mkl:v8.24.0-openmpi_5.0.5-gcc_15.2.0
+      image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_15.2.0
     strategy:
       fail-fast: false
       matrix:
@@ -96,7 +102,7 @@ jobs:
     name: ifort / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.24.0-intelmpi_2021.13-ifort_2021.13
+      image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.13-ifort_2021.13
     strategy:
       fail-fast: false
       matrix:
@@ -120,7 +126,7 @@ jobs:
     name: ifx / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.24.0-intelmpi_2021.17-ifx_2025.3
+      image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.17-ifx_2025.3
     strategy:
       fail-fast: false
       matrix:
@@ -144,7 +150,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ifort, gfortran-14, gfortran-15]
+        compiler: [ifort, ifx, gfortran-14, gfortran-15]
         build-type: [Debug]
     uses: GEOS-ESM/CI-workflows/.github/workflows/geosgcm_build_tests.yml@project/geosgcm
     with:
