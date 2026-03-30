@@ -4,7 +4,7 @@
 
 This document describes the Fortran types and modules that implement the MAPL3
 field dictionary subsystem, and explains how dictionary lookup is integrated
-into the component spec parser.  For user-facing configuration, see
+into `make_VariableSpec`.  For user-facing configuration, see
 [docs/user_guide/docs/field_dictionary.md](../user_guide/docs/field_dictionary.md).
 
 ---
@@ -254,68 +254,95 @@ is_exempt = any(item_type == [ &
 
 ---
 
-## Integration in `parse_var_specs`
+## Dictionary Initialization — `MaplFramework`
 
-The dictionary lookup is performed in
-`generic3g/ComponentSpecParser/parse_var_specs.F90` (submodule of
-`mapl3g_ComponentSpecParser`).
+The dictionary singleton is loaded once, unconditionally, during
+`MaplFramework%initialize` (called by `MAPL_Initialize` which is invoked at
+program startup, and also by `MAPL_pFUnit_Initialize` for every pFUnit test
+suite).
 
-### Call signature
+The relevant code lives in `mapl3g/MaplFramework.F90` in the
+`initialize_field_dictionary` subroutine:
+
+```
+1. Read the optional 'field_dictionary' key from the mapl: section of cap.yaml
+   (ESMF_HConfig).
+   - If present, use that string as the path.
+   - If absent, use the default path 'geos_field_dictionary.yaml' (CWD).
+
+2. inquire(file=path, exist=file_exists)   ! avoid ESMF throw on missing file
+
+3. if file_exists:
+       call load_field_dictionary(path, rc)   ! populates the singleton
+   else if path was explicitly configured:
+       _ASSERT(.false., ...)                  ! fatal — explicit path must exist
+   else (default path missing):
+       lgr%warning(...)                       ! warn and continue without dict
+```
+
+The `inquire()` check is essential because `FieldDictionary(filename=...)` calls
+`ESMF_HConfigCreateFromFile`, which calls `MAPL_Verify` internally.  If the
+file is missing, `MAPL_Verify` would throw an exception into pFUnit's machinery
+before the caller could check the status, causing every test suite to fail.
+
+---
+
+## Integration in `make_VariableSpec`
+
+The per-field dictionary lookup is performed in
+`generic3g/specs/VariableSpec.F90` inside the `make_VariableSpec` function.
+`parse_var_specs` is restored to baseline and contains no field dictionary
+logic.
+
+### Lookup logic (inside `make_VariableSpec`)
 
 ```fortran
-module function parse_var_specs( &
-     hconfig, timeStep, offset, registry, component_name, &
-     field_dict_config, rc) result(var_specs)
-
-   type(VariableSpecVector) :: var_specs
-   type(ESMF_HConfig),          intent(in)           :: hconfig
-   type(ESMF_TimeInterval),     intent(in), optional :: timeStep
-   type(ESMF_TimeInterval),     intent(in), optional :: offset
-   type(StateRegistry), target, intent(in)           :: registry
-   character(*),                intent(in)           :: component_name
-   type(FieldDictionaryConfig), intent(in), optional :: field_dict_config
-   integer,                     intent(out), optional :: rc
+if (present(standard_name)) then
+   ! Skip compound vector names of the form "(eastward_wind,northward_wind)"
+   if (index(standard_name, '(') == 0) then
+      fd => get_field_dictionary()          ! pointer to module singleton
+      if (fd%has_item(standard_name)) then
+         dict_item = fd%get_item(standard_name, rc)
+         if (.not. present(units))     var_spec%units     = dict_item%get_units()
+         if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
+      else
+         lgr%warning('standard_name "..." not found in field dictionary; ...')
+      end if
+   end if
+end if
 ```
 
-The `field_dict_config` argument is optional; when absent, a default
-`FieldDictionaryConfig()` is used (look for `field_dictionary.yaml` in CWD,
-PERMISSIVE mode).
+Key points:
 
-### Dictionary load logic
+- **Warn-only**: a missing standard name logs a warning but never fails.
+- **Caller values win**: `units` and `long_name` already supplied by the caller
+  are never overwritten by the dictionary.
+- **Compound names skipped**: any `standard_name` containing `(` is a
+  two-component vector encoding (e.g. `(eastward_wind,northward_wind)`) and
+  is not a dictionary key — skip silently.
+- **Singleton access**: `get_field_dictionary()` always returns a pointer to
+  the module-level singleton `the_field_dictionary` declared in
+  `FieldDictionary.F90`.  If the dictionary was never loaded (file absent),
+  the singleton is an empty `FieldDictionary` and `has_item` always returns
+  `.false.`.
 
+### Regrid method
+
+The `conserved` → regrid method mapping is resolved separately in
+`get_regrid_param` → `get_regrid_method_from_field_dict_`:
+
+```fortran
+function get_regrid_method_from_field_dict_(standard_name, rc) result(regrid_method)
+   fd => get_field_dictionary()
+   if (.not. fd%has_item(standard_name)) then
+      _RETURN(_FAILURE)   ! caller falls back to BILINEAR
+   end if
+   regrid_method = fd%get_regrid_method(standard_name, rc)
+end function
 ```
-if cfg%has_dictionary_path():
-    inquire(file=cfg%get_dictionary_path(), exist=dict_file_exists)
-    if dict_file_exists:
-        load FieldDictionary from path
-    elif STRICT mode:
-        _FAIL  (fatal error)
-    else:
-        skip silently  (permissive: no dictionary loaded)
-```
 
-### Per-field lookup logic (inside `parse_state_specs`)
-
-For each variable spec entry in the component YAML:
-
-1. Check `cfg%is_exempt(item_type)` — if exempt, skip.
-2. If a dictionary was loaded, call `field_dict%has_item(standard_name)`.
-3. If found: apply dictionary `long_name`, `units`, and `regrid_method` as
-   defaults (only if not already supplied in the component YAML).
-4. If not found:
-   - PERMISSIVE mode: log a warning via pflogger.
-   - STRICT mode: `_FAIL`.
-
-### Integration point for `VariableSpec`
-
-After dictionary defaults are applied, `make_VariableSpec` is called with
-the resolved `long_name`.  The `regrid_method` default is supplied via
-`get_regrid_method_from_field_dict_` (in `VariableSpec.F90`), which queries
-the dictionary.  If the dictionary file is absent it returns `_FAILURE`
-silently so the caller (`get_regrid_param`) falls back to the default regrid
-method — it does **not** raise a fatal error, regardless of mode.
-STRICT-mode enforcement for missing files is handled only in `parse_var_specs`
-where the full `FieldDictionaryConfig` is available.
+This function returns `_FAILURE` (not a fatal error) when the standard name is
+absent; the caller (`get_regrid_param`) falls back to `BILINEAR`.
 
 ---
 

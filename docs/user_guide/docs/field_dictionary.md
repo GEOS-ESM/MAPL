@@ -60,9 +60,9 @@ mapl:
         long_name: Atmospheric Pressure
 ```
 
-If `units` and `long_name` are both present in the component spec, the
-dictionary is consulted only for the `conserved` flag (which drives the default
-regrid method).
+If `units` and `long_name` are both present in the component spec, those
+explicit values are used as-is. The dictionary is still consulted for the
+`conserved` flag (which drives the default regrid method).
 
 ---
 
@@ -104,20 +104,18 @@ warning is emitted even if the `standard_name` is absent from the dictionary:
 
 ### Default behavior
 
-By default, MAPL3 looks for `field_dictionary.yaml` in the current working
-directory. Experiment setup is expected to place (or symlink) the dictionary
-there before execution:
+By default, MAPL3 looks for `geos_field_dictionary.yaml` in the current working
+directory. The installed dictionary is placed in the `etc/` subdirectory of the
+MAPL install prefix during `cmake --install`. Experiment setup is expected to
+place (or symlink) it into the run directory before execution:
 
 ```bash
 # In your experiment run directory:
-ln -s /path/to/install/etc/geos_field_dictionary.yaml field_dictionary.yaml
+ln -s /path/to/install/etc/geos_field_dictionary.yaml geos_field_dictionary.yaml
 ```
 
-The installed dictionary (`geos_field_dictionary.yaml`) is placed in the `etc/`
-subdirectory of the MAPL install prefix during `cmake --install`.
-
-If `field_dictionary.yaml` does not exist in the run directory, MAPL3 silently
-skips dictionary lookups in PERMISSIVE mode.
+If `geos_field_dictionary.yaml` does not exist in the run directory, MAPL3 logs
+a warning and skips dictionary lookups.
 
 ### Explicit configuration in cap.yaml
 
@@ -130,7 +128,7 @@ mapl:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `path` | string | `field_dictionary.yaml` | Path to the YAML dictionary file |
+| `path` | string | `geos_field_dictionary.yaml` | Path to the YAML dictionary file |
 | `validation_mode` | string | `permissive` | `permissive` = warnings only; `strict` = errors |
 
 ### Validation modes
@@ -300,14 +298,15 @@ For a standard GEOS experiment:
 2. **Link the dictionary into your run directory:**
    ```bash
    ln -s $INSTALL_PREFIX/etc/geos_field_dictionary.yaml \
-         $RUNDIR/field_dictionary.yaml
+         $RUNDIR/geos_field_dictionary.yaml
    ```
 
-3. **Run**: MAPL3 automatically finds `field_dictionary.yaml` in the working
+3. **Run**: MAPL3 automatically finds `geos_field_dictionary.yaml` in the working
    directory.
 
-If the symlink is absent, MAPL3 runs without the dictionary (PERMISSIVE mode).
-In STRICT mode, the absence of the dictionary file is a fatal error.
+If the symlink is absent, MAPL3 logs a warning and runs without the dictionary.
+In STRICT mode (explicit `path:` key), the absence of the dictionary file is a
+fatal error.
 
 ---
 
@@ -325,21 +324,20 @@ The field's `standard_name` does not appear in the loaded dictionary. Options:
 3. **Use permissive mode**: If you intentionally want to skip validation,
    set `validation_mode: permissive` in `cap.yaml`.
 
-### Error: "FieldDictionary file not found" (STRICT mode)
+### Error: "Field dictionary not found at configured path" (explicit path)
 
-The file specified by `path` (or the default `field_dictionary.yaml`) does not
-exist in the run directory. Either:
+The file specified by the `path` key in `cap.yaml` does not exist. Either:
 
-- Symlink `geos_field_dictionary.yaml` as described in Experiment Setup above.
-- Switch to `validation_mode: permissive` to make the missing file a non-fatal
-  condition.
+- Fix the path, or symlink the file as described in Experiment Setup above.
+- Remove the `path:` key entirely to fall back to the default
+  `geos_field_dictionary.yaml` (missing default = warning, not error).
 
 ### Dictionary not loaded (no warnings, no lookups)
 
-- Verify `field_dictionary.yaml` (or the configured path) exists in the run
-  directory.
-- Check `cap.yaml` for a `field_dictionary.path` key; if absent, the default
-  path `field_dictionary.yaml` is used.
+- Verify `geos_field_dictionary.yaml` (or the configured `path`) exists in the
+  run directory.
+- Check `cap.yaml` for a `mapl: field_dictionary:` key; if absent, the default
+  path `geos_field_dictionary.yaml` in CWD is used.
 - Enable debug logging to see dictionary load messages.
 
 ---
