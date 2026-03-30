@@ -43,6 +43,7 @@ module mapl3g_VariableSpec
    use mapl3g_AspectId
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_FieldDictionary
+   use mapl3g_FieldDictionaryItem, only: FieldDictionaryItem
    use mapl_KeywordEnforcerMod
    use mapl3g_RestartModes, only: RestartMode
    use esmf

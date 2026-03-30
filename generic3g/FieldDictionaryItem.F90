@@ -56,7 +56,8 @@ contains
       character(*), intent(in) :: long_name
       character(*), intent(in) :: canonical_units
 
-      item = FieldDictionaryItem(long_name, canonical_units, [character(1) ::])
+      type(StringVector) :: empty_aliases
+      item = FieldDictionaryItem(long_name, canonical_units, empty_aliases)
 
    end function new_FieldDictionaryItem_
 

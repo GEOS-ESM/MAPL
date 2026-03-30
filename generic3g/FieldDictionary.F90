@@ -17,7 +17,6 @@ module mapl3g_FieldDictionary
    use esmf
    use mapl_ErrorHandling
    use pflogger, only: logging, logger_t => logger
-   use iso_fortran_env, only: error_unit
    use gftl2_StringVector
    use gftl2_StringStringMap
    use mapl3g_FieldDictionaryItem
@@ -30,11 +29,6 @@ module mapl3g_FieldDictionary
    public :: FieldDictionary
    public :: get_field_dictionary
    public :: load_field_dictionary
-
-   ! Module-level singleton: loaded once via load_field_dictionary(), retrieved
-   ! via get_field_dictionary().  PROTECTED so external code can read through
-   ! the pointer but cannot re-seat or modify the variable itself.
-   type(FieldDictionary), protected, private, target, save :: the_field_dictionary
 
    ! Sentinel stored in alias_map when a short name maps to more than one
    ! standard name.  A lookup that resolves to this value is hard-failed
@@ -61,6 +55,11 @@ module mapl3g_FieldDictionary
    interface FieldDictionary
       module procedure new_from_yaml
    end interface FieldDictionary
+
+   ! Module-level singleton: loaded once via load_field_dictionary(), retrieved
+   ! via get_field_dictionary().  PROTECTED so external code can read through
+   ! the pointer but cannot re-seat or modify the variable itself.
+   type(FieldDictionary), protected, private, target, save :: the_field_dictionary
 
 contains
 
@@ -143,25 +142,22 @@ contains
          end if
 
          ! --- optional: physical_dimension ---
+         physical_dimension = ''
          if (ESMF_HConfigIsDefined(item_node,keyString='physical_dimension')) then
             physical_dimension = ESMF_HConfigAsString(item_node,keyString='physical_dimension',_RC)
-         else
-            physical_dimension = ''
          end if
 
          ! --- optional: conserved (default .false.) ---
+         conserved = .false.
          if (ESMF_HConfigIsDefined(item_node,keyString='conserved')) then
             conserved = ESMF_HConfigAsLogical(item_node,keyString='conserved',_RC)
-         else
-            conserved = .false.
          end if
 
          ! --- optional: verification_status (default unverified) ---
+         vstatus = VERIFICATION_STATUS_UNVERIFIED
          if (ESMF_HConfigIsDefined(item_node,keyString='verification_status')) then
             temp_string = ESMF_HConfigAsString(item_node,keyString='verification_status',_RC)
             vstatus = VerificationStatus(temp_string)
-         else
-            vstatus = VERIFICATION_STATUS_UNVERIFIED
          end if
 
          ! --- optional: provenance ---
@@ -209,8 +205,13 @@ contains
 
       type(StringVectorIterator) :: iter
       character(:), pointer :: alias
-      integer :: n_erased
       type(logger_t), pointer :: lgr
+      integer :: status
+
+      if (aliases%size() == 0) then
+         _RETURN(_SUCCESS)
+      end if
+
       associate (b => aliases%begin(), e => aliases%end())
         iter = b
         do while (iter /= e)
@@ -224,7 +225,7 @@ contains
                call lgr%warning( &
                     'Short name "'//alias//'" is an alias for more than one standard name;' // &
                     ' lookups via this short name will fail.')
-               n_erased = this%alias_map%erase(alias)
+               status = this%alias_map%erase(alias)
                call this%alias_map%insert(alias, ALIAS_AMBIGUOUS)
            else
               call this%alias_map%insert(alias, standard_name)
