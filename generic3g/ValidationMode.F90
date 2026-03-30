@@ -1,4 +1,5 @@
 module mapl3g_ValidationMode
+   use mapl_StringUtilities, only: to_lower
    implicit none(type, external)
    private
 
@@ -41,10 +42,10 @@ contains
       type(ValidationMode) :: mode
       character(*), intent(in) :: str
 
-      select case (trim(str))
-      case ('permissive', 'PERMISSIVE')
+      select case (to_lower(trim(str)))
+      case ('permissive')
          mode = VALIDATION_MODE_PERMISSIVE
-      case ('strict', 'STRICT')
+      case ('strict')
          mode = VALIDATION_MODE_STRICT
       case default
          mode = VALIDATION_MODE_PERMISSIVE

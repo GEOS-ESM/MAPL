@@ -1,4 +1,5 @@
 module mapl3g_VerificationStatus
+   use mapl_StringUtilities, only: to_lower
    implicit none(type, external)
    private
 
@@ -43,12 +44,12 @@ contains
       type(VerificationStatus) :: status
       character(*), intent(in) :: str
 
-      select case (trim(str))
-      case ('unverified', 'UNVERIFIED')
+      select case (to_lower(trim(str)))
+      case ('unverified')
          status = VERIFICATION_STATUS_UNVERIFIED
-      case ('verified', 'VERIFIED')
+      case ('verified')
          status = VERIFICATION_STATUS_VERIFIED
-      case ('cf_compliant', 'CF_COMPLIANT')
+      case ('cf_compliant')
          status = VERIFICATION_STATUS_CF_COMPLIANT
       case default
          status = VERIFICATION_STATUS_UNVERIFIED

@@ -97,15 +97,15 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
-       module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, rc) result(var_specs)
-          type(VariableSpecVector) :: var_specs
-          type(ESMF_HConfig), intent(in) :: hconfig
-          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-          type(ESMF_TimeInterval), optional, intent(in) :: offset
-          type(StateRegistry), target, intent(in) :: registry
-          character(*), intent(in) :: component_name
-          integer, optional, intent(out) :: rc
-       end function parse_var_specs
+      module function parse_var_specs(hconfig, timeStep, offset, registry, component_name, rc) result(var_specs)
+         type(VariableSpecVector) :: var_specs
+         type(ESMF_HConfig), intent(in) :: hconfig
+         type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+         type(ESMF_TimeInterval), optional, intent(in) :: offset
+         type(StateRegistry), target, intent(in) :: registry
+         character(*), intent(in) :: component_name
+         integer, optional, intent(out) :: rc
+      end function parse_var_specs
 
       module function parse_connections(hconfig, rc) result(connections)
          type(ConnectionVector) :: connections

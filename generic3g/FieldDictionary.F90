@@ -40,16 +40,16 @@ module mapl3g_FieldDictionary
       type(FieldDictionaryItemMap) :: entries
       type(StringStringMap) :: alias_map  ! For efficiency
    contains
-       procedure :: add_item
-       procedure :: add_aliases
-       ! accessors
-       procedure :: has_item
-       procedure :: get_item   ! returns a pointer
-       procedure :: get_units
-       procedure :: get_long_name
-       procedure :: get_standard_name
-       procedure :: get_regrid_method
-       procedure :: size
+      procedure :: add_item
+      procedure :: add_aliases
+      ! accessors
+      procedure :: has_item
+      procedure :: get_item   ! returns a pointer
+      procedure :: get_units
+      procedure :: get_long_name
+      procedure :: get_standard_name
+      procedure :: get_regrid_method
+      procedure :: size
    end type FieldDictionary
 
    interface FieldDictionary
@@ -240,21 +240,21 @@ contains
    ! This accessor returns a copy for safety reasons.  Returning a
    ! pointer would be more efficient, but it would allow client code
    ! to modify the dictionary.
-    function get_item(this, standard_name, rc) result(item)
-       type(FieldDictionaryItem) :: item
-       class(FieldDictionary), intent(in) :: this
-       character(*), intent(in) :: standard_name
-       integer, optional, intent(out) :: rc
+   function get_item(this, standard_name, rc) result(item)
+      type(FieldDictionaryItem) :: item
+      class(FieldDictionary), intent(in) :: this
+      character(*), intent(in) :: standard_name
+      integer, optional, intent(out) :: rc
 
-        integer :: status
-        character(:), allocatable :: msg
+      integer :: status
+      character(:), allocatable :: msg
 
-        msg = 'FieldDictionary: no entry for standard_name "' // standard_name // '"'
-        _ASSERT(this%entries%count(standard_name) > 0, msg)
-        item = this%entries%at(standard_name, _RC)
+      msg = 'FieldDictionary: no entry for standard_name "' // standard_name // '"'
+      _ASSERT(this%entries%count(standard_name) > 0, msg)
+      item = this%entries%at(standard_name, _RC)
 
-       _RETURN(_SUCCESS)
-    end function get_item
+      _RETURN(_SUCCESS)
+   end function get_item
 
    function get_units(this, standard_name, rc) result(canonical_units)
       character(:), allocatable :: canonical_units
