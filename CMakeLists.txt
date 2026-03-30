@@ -275,6 +275,23 @@ install (
 configure_file(BUILD_INFO.rc.in BUILD_INFO.rc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/BUILD_INFO.rc DESTINATION etc)
 
+# Install the canonical GEOS field dictionary so experiment scripts can
+# copy/link it as field_dictionary.yaml in the run directory.
+# mepo can clone subrepos in three styles (no prefix, @ prefix, @ suffix).
+set(FIELD_DICTIONARY_DIRS
+  GEOS_FieldDictionary
+  @GEOS_FieldDictionary
+  GEOS_FieldDictionary@
+)
+foreach(dir IN LISTS FIELD_DICTIONARY_DIRS)
+  if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/geos_field_dictionary.yaml)
+    install(
+      FILES ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/geos_field_dictionary.yaml
+      DESTINATION etc
+    )
+  endif()
+endforeach()
+
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/
 # --- auto-ignore build directory
 if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)

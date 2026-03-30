@@ -9,6 +9,7 @@ module Test_VectorBasisKind
    use mapl3g_VerticalGrid_API
    use mapl3g_StateItemAspect
    use mapl3g_FieldBundle_API
+   use mapl3g_FieldDictionary, only: load_field_dictionary
    use esmf
    use funit
    implicit none
@@ -30,6 +31,8 @@ contains
       mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
       geom = mapl_geom%get_geom()
       call ESMF_HConfigDestroy(hconfig)
+
+      call load_field_dictionary('field_dictionary_test.yaml', _RC)
 
    end subroutine setup
 

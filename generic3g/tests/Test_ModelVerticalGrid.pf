@@ -36,6 +36,7 @@ module Test_ModelVerticalGrid
    use mapl3g_QuantityTypeAspect
    use mapl3g_ConservationAspect
    use mapl3g_NormalizationAspect
+   use mapl3g_FieldDictionary, only: load_field_dictionary
    use mapl3g_NormalizationType
    use gFTL2_StringVector
    use esmf
@@ -95,17 +96,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine setup_
 
-   subroutine setup(geom, vgrid, rc)
-      type(ESMF_Geom), intent(out) :: geom
-      class(VerticalGrid), allocatable, intent(out) :: vgrid
-      integer, intent(out) :: rc
+    subroutine setup(geom, vgrid, rc)
+       type(ESMF_Geom), intent(out) :: geom
+       class(VerticalGrid), allocatable, intent(out) :: vgrid
+       integer, intent(out) :: rc
 
-      integer :: status
-      type(VerticalGridManager), pointer :: vgrid_mgr
-      type(ModelVerticalGridSpec) :: vspec
-      type(StringVector) :: names, dims
+       integer :: status
+       type(VerticalGridManager), pointer :: vgrid_mgr
+       type(ModelVerticalGridSpec) :: vspec
+       type(StringVector) :: names, dims
 
-      ! geom, registry etc.
+       call load_field_dictionary('field_dictionary_test.yaml', _RC)
+
+       ! geom, registry etc.
       geom = make_geom(_RC)
       r = StateRegistry("dyn")
 
