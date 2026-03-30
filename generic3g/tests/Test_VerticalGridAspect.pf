@@ -1,0 +1,304 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_VerticalGridAspect
+   use mapl3g_StateItemAspect
+   use mapl3g_VerticalGridAspect
+   use mapl3g_VerticalRegridMethod
+   use mapl3g_VerticalGrid_API
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
+   use mapl_ErrorHandling
+   use esmf
+   use funit
+   use ESMF_TestMethod_mod
+   implicit none(type, external)
+
+   type(BasicVerticalGridFactory) :: FACTORY
+   integer, parameter :: MAX_INDEX(2) = [4, 4]
+   type(ESMF_TypeKind_Flag), parameter :: TK = ESMF_TYPEKIND_R4
+   character(len=*), parameter :: GRID_TYPE = "basic"
+   character(len=*), parameter :: GRID_TYPE_KEY = "grid_type"
+   character(len=*), parameter :: NUM_LEVELS_KEY = "num_levels"
+   character(len=*), parameter :: CONTENT_STUB = '{grid_type: basic, num_levels: '
+   integer, parameter :: SOURCE_NUM_LEVELS = 3
+   integer, parameter :: DEST_NUM_LEVELS = 2
+
+   class(VerticalGrid), pointer :: SourceVertGrid => null()
+   class(VerticalGrid), pointer :: DestVertGrid => null()
+
+contains
+
+!wdb fixme deleteme Notes Block
+!VerticalGridAspect(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, ..., rc)
+
+! What should the behavior be regarding a mirrored vertical grid for field/bundle?
+! If aspect%is_mirror(), what should the field/bundle vertical grid be? VERTICAL_GRID_NOT_FOUND? MirrorVerticalGrid?
+!   If it is not defined already, let it undefined?
+!   If it is defined already, clear it? Set to VERTICAL_GRID_NOT_FOUND?
+
+! If field/bundle does not have a vertical grid, the aspect should be is_mirror() (not allocated).
+
+! What are the conditions where is_mirror()?
+
+! If aspect changes fto is_mirror(), should the vertical grid be deallocated?
+
+!wdb fixme deleteme Notes Block END
+
+!===============================================================================
+!ESMF_Field
+!===============================================================================
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_field(this)
+      class(ESMF_TestMethod), intent(inout) ::  this
+      type(ESMF_Field) :: field
+      type(VerticalGridAspect) :: aspect
+      class(VerticalGrid), pointer :: actual_vertical_grid
+      integer :: status
+      logical :: matches
+
+      actual_vertical_grid => null()
+      field = make_field(num_levels=SOURCE_NUM_LEVELS, _RC) 
+      call MAPL_FieldSet(field, vgrid=SourceVertGrid,&
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP)
+      call aspect%update_from_payload(field=field, _RC)
+      actual_vertical_grid => aspect%get_vertical_grid(_RC)
+      matches = actual_vertical_grid%matches(SourceVertGrid)
+      @assertTrue(matches, 'The vertical grid does not match.')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_field
+
+   !wdb fixme deleteme disable, ask if VerticalStaggerLoc, VerticalAlignment
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_field_no_vgrid(this)
+      class(ESMF_TestMethod), intent(inout) ::  this
+      type(VerticalGridAspect) :: aspect
+      integer :: status
+      type(ESMF_Field) :: field
+
+      field = make_field(_RC) 
+      call MAPL_FieldSet(field, vert_staggerloc=VERTICAL_STAGGER_CENTER,&
+         & vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP)
+      call aspect%update_from_payload(field=field, _RC)
+      @assertTrue(aspect%is_mirror(), 'The aspect should be mirrored.')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_field_no_vgrid
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: aspect
+      type(ESMF_Field) :: field
+      integer :: status
+      class(VerticalGrid), pointer :: actual_vertical_grid
+      logical :: matches
+
+      actual_vertical_grid => null()
+      field = make_field(num_levels=DEST_NUM_LEVELS, _RC)
+      call MAPL_FieldSet(field, vgrid=DestVertGrid,&
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect(SourceVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP)
+      call aspect%update_payload(field=field, _RC)
+      call MAPL_FieldGet(field, vgrid=actual_vertical_grid, _RC)
+      matches = actual_vertical_grid%matches(SourceVertGrid)
+      @assertTrue(matches, 'The vertical grid does not match.')
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_field
+
+   
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_field_no_vgrid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: aspect
+      type(ESMF_Field) :: field
+      integer :: status
+      class(VerticalGrid), pointer :: actual_vertical_grid
+
+      field = make_field(num_levels=DEST_NUM_LEVELS, _RC)
+      call MAPL_FieldSet(field, vgrid=DestVertGrid,&
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect()
+      call aspect%update_payload(field=field, _RC)
+      call MAPL_FieldGet(field, vgrid=actual_vertical_grid, _RC)
+      @assertFalse(associated(actual_vertical_grid), 'The Field vertical grid should not be associated.')
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_field_no_vgrid
+
+!===============================================================================
+!ESMF_FieldBundle
+!===============================================================================
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_bundle(this)
+      class(ESMF_TestMethod), intent(inout) ::  this
+      type(ESMF_FieldBundle) :: bundle
+      type(VerticalGridAspect) :: aspect
+      class(VerticalGrid), pointer :: actual_vertical_grid
+      integer :: status
+      logical :: matches
+
+      actual_vertical_grid => null()
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(bundle, vgrid=SourceVertGrid,&
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      actual_vertical_grid => aspect%get_vertical_grid(_RC)
+      matches = actual_vertical_grid%matches(SourceVertGrid)
+      @assertTrue(matches, 'The vertical grid does not match.')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_bundle
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_from_bundle_no_vgrid(this)
+      class(ESMF_TestMethod), intent(inout) ::  this
+      type(VerticalGridAspect) :: aspect
+      integer :: status
+      type(ESMF_FieldBundle) :: bundle
+
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(bundle, vert_staggerloc=VERTICAL_STAGGER_CENTER,&
+         & vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP)
+      call aspect%update_from_payload(bundle=bundle, _RC)
+      @assertTrue(aspect%is_mirror(), 'The aspect should be mirrored.')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_from_bundle_no_vgrid
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+      class(VerticalGrid), pointer :: actual_vertical_grid
+      logical :: matches
+
+      actual_vertical_grid => null()
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(bundle, vgrid=DestVertGrid,&
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect(SourceVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP)
+      call aspect%update_payload(bundle=bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, vgrid=actual_vertical_grid, _RC)
+      matches = actual_vertical_grid%matches(SourceVertGrid)
+      @assertTrue(matches, 'The vertical grid does not match.')
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_bundle
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_bundle_no_vgrid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: aspect
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+      class(VerticalGrid), pointer :: actual_vertical_grid
+      character(len=*), parameter :: ASST_MSG = &
+         & 'The FieldBundle vertical grid should not be associated.'
+
+      actual_vertical_grid => null()
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(bundle, vgrid=DestVertGrid,&
+         & vert_staggerloc=VERTICAL_STAGGER_CENTER, vert_alignment=VALIGN_UP, _RC)
+      aspect = VerticalGridAspect(regrid_method=VERTICAL_REGRID_CONSERVATIVE, &
+         & vertical_stagger=VERTICAL_STAGGER_CENTER, vertical_alignment=VALIGN_UP)
+      call aspect%update_payload(bundle=bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, vgrid=actual_vertical_grid, _RC)
+      @assertFalse(associated(actual_vertical_grid), ASST_MSG)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_bundle_no_vgrid
+
+!===============================================================================
+!HELPER PROCEDURES
+!===============================================================================
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridManager), pointer :: mgr
+      integer :: status
+
+      if(associated(SourceVertGrid) .and. associated(DestVertGrid)) return
+
+      mgr => get_vertical_grid_manager(_RC)
+      call force_register(mgr, _RC)
+
+      if(.not. associated(SourceVertGrid)) then
+         SourceVertGrid => mgr%add_grid(BasicVerticalGridSpec(num_levels=SOURCE_NUM_LEVELS), _RC)
+      end if
+      if(.not. associated(DestVertGrid)) then
+         DestVertGrid => mgr%add_grid(BasicVerticalGridSpec(num_levels=DEST_NUM_LEVELS), _RC)
+      end if
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine setUp
+   
+   subroutine force_register(mgr, rc)
+      type(VerticalGridManager), pointer, intent(in) :: mgr
+      integer, optional, intent(out) :: rc
+      integer :: status
+      class(VerticalGridFactory), pointer :: ptr
+
+      if(.not. associated(mgr)) then
+         _RETURN(_FAILURE)
+      end if
+      ptr => mgr%find_factory(BasicVerticalGridSpec(1), rc=status)
+      if(.not. associated(ptr) .or. status /= ESMF_SUCCESS) then
+         call mgr%register_factory('Basic', BasicVerticalGridFactory(), _RC)
+      end if
+
+   end subroutine force_register
+     
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      _UNUSED_DUMMY(this)
+
+   end subroutine shutDown
+   
+   function make_field(num_levels, rc) result(field)
+      type(ESMF_Field) :: field
+      integer, optional, intent(in) :: num_levels
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+
+      grid = ESMF_GridCreate(maxindex=MAX_INDEX, _RC)
+      geom = ESMF_GeomCreate(grid=grid, _RC)
+      if(present(num_levels)) then
+         if(num_levels < 0) then
+            _RETURN(_FAILURE)
+         end if
+         field = ESMF_FieldCreate(geom=geom, typekind=TK,&
+            & ungriddedLBound=[1], ungriddedUBound=[num_levels], _RC)
+         _RETURN(_SUCCESS)
+      end if
+      field = ESMF_FieldCreate(geom=geom, typekind=TK, _RC)
+      _RETURN(_SUCCESS)
+
+   end function make_field
+
+end module Test_VerticalGridAspect
