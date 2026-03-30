@@ -1,5 +1,5 @@
 #undef I_AM_MAIN
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module mapl_checkpoint_support_mod
 
    use ESMF
@@ -903,7 +903,7 @@ contains
 end module
 
 #define I_AM_MAIN
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 program checkpoint_tester
    use ESMF
    use MAPL_ErrorHandlingMod

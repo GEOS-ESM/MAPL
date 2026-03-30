@@ -11,6 +11,7 @@ set(srcs
   VerticalGridFactory.F90
   VerticalGridManager.F90
   BasicVerticalGrid.F90
+  MirrorVerticalGrid.F90
 
   # gftl containers
   IntegerVerticalGridMap.F90
