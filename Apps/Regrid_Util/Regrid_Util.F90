@@ -14,9 +14,9 @@
    integer :: status
 
    call main(_RC)
-
 CONTAINS
 
+#undef I_AM_MAIN
    subroutine main(rc)
    use mapl3g_GenericGridComp, only: generic_SetServices => setServices
    integer, optional, intent(out) :: rc
@@ -27,6 +27,8 @@ CONTAINS
    type(ESMF_GridComp) :: readerwriter_gridcomp
    type(ESMF_HConfig) :: hconfig
    type(ESMF_Clock) :: clock
+   type(ESMF_Time) :: time
+   type(ESMF_TimeInterval) :: time_interval
 
    call MAPL_Initialize()
    call support%process_command_line(_RC)
@@ -37,26 +39,16 @@ CONTAINS
 
    readerwriter_gridcomp = mapl_GridCompCreate('readerwritercoupler_gc',user_setservices(ReaderWriter_setServices), hconfig, _RC)
    call ESMF_GridCompSetServices(ReaderWriter_gridcomp, generic_setServices, _USERRC)
-   clock = create_some_clock(_RC)
+   call ESMF_TimeIntervalSet(time_interval, m=30, _RC)
+   call ESMF_TimeSet(time, yy=2004, mm=01, dd=01, h=0, m=0, s=0, _RC)
+   clock = ESMF_ClockCreate(timeStep=time_interval, startTime=time, _RC)
    driver = GriddedComponentDriver(ReaderWriter_gridcomp, clock=clock)
    call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+   call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
    call driver%finalize(_RC)
    call MAPL_Finalize()
+   _RETURN(_SUCCESS)
 
    end subroutine main
-
-   function create_some_clock(rc) result(clock)
-      type(ESMF_Clock) :: clock
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_Time) :: time
-      type(ESMF_TimeInterval) :: time_interval
-      integer :: status
-
-      call ESMF_TimeIntervalSet(time_interval, m=30, _RC)
-      call ESMF_TimeSet(time, yy=2004, mm=01, dd=01, h=0, m=0, s=0, _RC)
-      clock = ESMF_ClockCreate(timeStep=time_interval, startTime=time, _RC)
-      _RETURN(_SUCCESS)
-   end function create_some_clock
 
    end program Regrid_Util

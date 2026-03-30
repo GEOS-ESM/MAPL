@@ -50,6 +50,11 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
+      integer :: status 
+      type(ESMF_Time) :: current_time
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      call ESMF_TimePrint(current_time, options='string', preString='bmaa reader time: ', _RC)
+      _HERE, 'bmaa reader run'
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(gridcomp)
       _UNUSED_DUMMY(importState)
