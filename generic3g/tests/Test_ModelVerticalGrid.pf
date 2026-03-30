@@ -36,6 +36,7 @@ module Test_ModelVerticalGrid
    use mapl3g_QuantityTypeAspect
    use mapl3g_ConservationAspect
    use mapl3g_NormalizationAspect
+   use mapl3g_FieldDictionary, only: load_field_dictionary
    use mapl3g_NormalizationType
    use gFTL2_StringVector
    use esmf
@@ -51,6 +52,12 @@ module Test_ModelVerticalGrid
    type(StateRegistry), target :: r
 
 contains
+
+   @before
+   subroutine load_dict()
+      integer :: status
+      call load_field_dictionary('field_dictionary_test.yaml', rc=status)
+   end subroutine load_dict
 
    subroutine setup_(var_name, geom, vgrid, registry, rc)
       character(*), intent(in) :: var_name

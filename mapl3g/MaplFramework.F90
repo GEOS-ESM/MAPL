@@ -708,8 +708,10 @@ contains
       has_path = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_dictionary', _RC)
       if (has_path) then
          path = ESMF_HConfigAsString(this%mapl_hconfig, keystring='field_dictionary', _RC)
-         call load_field_dictionary(path, _RC)
+      else
+         path = 'geos_field_dictionary.yaml'
       end if
+      call load_field_dictionary(path, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine initialize_field_dictionary

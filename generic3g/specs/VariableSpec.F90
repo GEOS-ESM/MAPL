@@ -276,9 +276,13 @@ contains
 
       ! Apply field dictionary defaults for units and long_name.
       ! Only fills in values not already provided by the caller.
+      ! Compound vector names of the form "(name1,name2)" are skipped —
+      ! they encode two component standard names and are not dictionary keys.
       if (present(standard_name)) then
-         fd => get_field_dictionary()
-         if (fd%has_item(standard_name)) then
+         if (index(standard_name, '(') == 0) then
+            fd => get_field_dictionary()
+            _ASSERT(fd%has_item(standard_name), &
+                 'standard_name "'//standard_name//'" not found in field dictionary')
             dict_item = fd%get_item(standard_name, _RC)
             if (.not. present(units)) var_spec%units = dict_item%get_units()
             if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()

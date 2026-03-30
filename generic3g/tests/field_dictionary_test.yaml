@@ -166,3 +166,25 @@ test_tropopause_pressure:
   conserved: false
   verification_status: unverified
   aliases: [test_TROPP, test_trop_pres, test_TP]
+
+# --- Entries required by non-field-dictionary unit tests ---
+# These tests pass standard_name to make_VariableSpec for reasons other than
+# field dictionary functionality (e.g. vector encoding, aspect testing).
+# They are included here so the mandatory dictionary lookup in make_VariableSpec
+# succeeds without modifying those tests.
+
+air_temperature:
+  long_name: Air Temperature
+  canonical_units: K
+
+air_pressure PLE:
+  long_name: Air Pressure at Layer Edges
+  canonical_units: hPa
+
+air_pressure PL:
+  long_name: Air Pressure at Layer Centers
+  canonical_units: hPa
+
+A:
+  long_name: Test Scalar A
+  canonical_units: m
