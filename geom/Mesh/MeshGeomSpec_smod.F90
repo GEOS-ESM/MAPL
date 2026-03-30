@@ -133,9 +133,8 @@ contains
       class_name = to_lower(class_name)
       supports = trim(class_name) == "mesh"
       
-      if (.not. supports) then
-         _RETURN(_SUCCESS)
-      end if
+      _RETURN_UNLESS(supports)
+
 
       ! Verify required fields
       has_file = ESMF_HConfigIsDefined(hconfig, keyString='file', _RC)
