@@ -53,12 +53,6 @@ module Test_ModelVerticalGrid
 
 contains
 
-   @before
-   subroutine load_dict()
-      integer :: status
-      call load_field_dictionary('field_dictionary_test.yaml', rc=status)
-   end subroutine load_dict
-
    subroutine setup_(var_name, geom, vgrid, registry, rc)
       character(*), intent(in) :: var_name
       type(ESMF_Geom), intent(in) :: geom
@@ -102,17 +96,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine setup_
 
-   subroutine setup(geom, vgrid, rc)
-      type(ESMF_Geom), intent(out) :: geom
-      class(VerticalGrid), allocatable, intent(out) :: vgrid
-      integer, intent(out) :: rc
+    subroutine setup(geom, vgrid, rc)
+       type(ESMF_Geom), intent(out) :: geom
+       class(VerticalGrid), allocatable, intent(out) :: vgrid
+       integer, intent(out) :: rc
 
-      integer :: status
-      type(VerticalGridManager), pointer :: vgrid_mgr
-      type(ModelVerticalGridSpec) :: vspec
-      type(StringVector) :: names, dims
+       integer :: status
+       type(VerticalGridManager), pointer :: vgrid_mgr
+       type(ModelVerticalGridSpec) :: vspec
+       type(StringVector) :: names, dims
 
-      ! geom, registry etc.
+       call load_field_dictionary('field_dictionary_test.yaml', _RC)
+
+       ! geom, registry etc.
       geom = make_geom(_RC)
       r = StateRegistry("dyn")
 
