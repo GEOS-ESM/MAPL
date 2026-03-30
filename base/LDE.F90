@@ -15,6 +15,7 @@ module mapl_LocalDisplacementEnsemble
    integer, parameter :: UnInit=-9999
    
    type :: LocalDisplacementEnsemble
+      private
       integer :: hw
       integer :: num_members
       integer, allocatable :: mapping(:,:,:,:)
