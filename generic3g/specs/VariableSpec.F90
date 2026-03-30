@@ -38,6 +38,7 @@ module mapl3g_VariableSpec
    use mapl3g_VerticalGrid
    use mapl3g_VirtualConnectionPtVector
    use mapl_ErrorHandling
+   use pflogger, only: logging, logger_t => logger
    use mapl3g_StateRegistry
    use mapl3g_StateItem
    use mapl3g_AspectId
@@ -234,6 +235,7 @@ contains
 
       type(FieldDictionary), pointer :: fd
       type(FieldDictionaryItem) :: dict_item
+      type(logger_t), pointer :: lgr
       integer :: status
 
        var_spec%short_name = short_name
@@ -281,11 +283,15 @@ contains
       if (present(standard_name)) then
          if (index(standard_name, '(') == 0) then
             fd => get_field_dictionary()
-            _ASSERT(fd%has_item(standard_name), &
-                 'standard_name "'//standard_name//'" not found in field dictionary')
-            dict_item = fd%get_item(standard_name, _RC)
-            if (.not. present(units)) var_spec%units = dict_item%get_units()
-            if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
+            if (fd%has_item(standard_name)) then
+               dict_item = fd%get_item(standard_name, _RC)
+               if (.not. present(units)) var_spec%units = dict_item%get_units()
+               if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
+            else
+               lgr => logging%get_logger('MAPL')
+               call lgr%warning('standard_name "'//standard_name//'" not found in field dictionary; ' // &
+                    'units and long_name defaults will not be applied.')
+            end if
          end if
       end if
 

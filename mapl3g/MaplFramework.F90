@@ -704,6 +704,7 @@ contains
       integer :: status
       logical :: has_path
       character(:), allocatable :: path
+      type(Logger), pointer :: lgr
 
       has_path = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_dictionary', _RC)
       if (has_path) then
@@ -711,7 +712,13 @@ contains
       else
          path = 'geos_field_dictionary.yaml'
       end if
-      call load_field_dictionary(path, _RC)
+
+      call load_field_dictionary(path, rc=status)
+      if (status /= 0) then
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning('Field dictionary not loaded: "'//path//'" not found. ' // &
+              'Dictionary defaults (units, long_name) will not be applied.')
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine initialize_field_dictionary
