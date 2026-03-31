@@ -5,6 +5,7 @@ module mapl3g_ConfigurableReaderGridComp
    use mapl_ErrorHandling
    use mapl3
    use esmf
+   use regrid_util_support_mod
 
    implicit none
    private
@@ -26,6 +27,7 @@ contains
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       input_file = ESMF_HConfigAsString(hconfig,keyString='input_file', _RC)
       _HERE,' bmaa '//trim(input_file) 
+      call add_varspecs_from_file(gridcomp, input_file, ESMF_STATEINTENT_EXPORT, _RC)
       _RETURN(_SUCCESS)
    end subroutine setServices
 

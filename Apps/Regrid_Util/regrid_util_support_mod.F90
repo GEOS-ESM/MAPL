@@ -301,4 +301,77 @@
        _RETURN(_SUCCESS)
      end function create_output_geom_hconfig
 
+   subroutine add_varspecs_from_file(gridcomp, data_file, state_intent, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: data_file
+      type(ESMF_STATEINTENT_FLAG) :: state_intent
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(FileMetadata) :: metadata, file_variables
+      type(NetCDF4_FileFormatter) :: formatter
+      type(StringVariableMap), pointer :: variables
+      type(MAPLGeom), pointer :: mapl_geom
+      class(GeomFactory), allocatable :: factory
+      class(GeomSpec), allocatable :: geom_spec
+      type(StringVector) :: file_variables_vec
+      type(StringVariableMapIterator) :: var_iter
+      type(VariableSpec) :: varspec
+      character(len=:), pointer :: var_name
+
+      call formatter%open(data_file, pFIO_READ, _RC)
+      metadata = formatter%read(_RC)
+      call formatter%close(_RC)
+      mapl_geom => geom_manager%get_mapl_geom_from_metadata(metadata, _RC)
+      factory = mapl_geom%get_factory()
+      geom_spec = mapl_geom%get_spec()
+      file_variables = factory%make_file_metadata(geom_spec, _RC)
+      file_variables_vec = string_vector_from_metadata(metadata)
+      call file_variables_vec%push_back('time')
+      variables => metadata%get_variables()
+      var_iter = variables%ftn_begin()
+      do while (var_iter /= variables%ftn_end())
+         var_name => var_iter%first()
+         if (string_in_vector(file_variables_vec, var_name)) cycle
+         varspec = make_VariableSpec(state_intent, var_name, &
+            typekind=ESMF_TYPEKIND_R4,  itemType=ESMF_STATEITEM_FIELD, _RC)
+         call var_iter%next()
+      enddo
+
+      _RETURN(_SUCCESS)
+   end subroutine add_varspecs_from_file
+
+   function string_in_vector(string_vector, string) result(in_vector)
+      logical :: in_vector
+      type(StringVector), intent(in) :: string_vector
+      character(len=*), intent(in) :: string
+
+      integer :: i
+
+      in_vector = .false.
+      do i=1,string_vector%size()
+         if (trim(string) == string_vector%of(i)) then
+            in_vector = .true.
+            exit
+         end if
+      enddo
+   end function string_in_vector
+
+   function string_vector_from_metadata(metadata) result(string_vector)
+      type(StringVector) :: string_vector
+      type(FileMetadata), intent(in) :: metadata
+      type(StringVariableMap), pointer :: variables
+      type(StringVariableMapIterator) :: var_iter
+      character(len=:), pointer :: var_name
+
+      variables =>  metadata%get_variables()
+      var_iter = variables%ftn_begin()
+      do while (var_iter /= variables%ftn_end())
+         var_name => var_iter%first()
+         call string_vector%push_back(var_name)
+         call var_iter%next()
+      enddo
+
+   end function string_vector_from_metadata
+
    end module regrid_util_support_mod

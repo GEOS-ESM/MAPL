@@ -29,7 +29,7 @@ install(
 
 esma_add_library(configurable_reader_gridcomp
   SRCS Regrid_Util/ConfigurableReaderGridComp.F90
-  DEPENDENCIES MAPL.generic3g MAPL
+  DEPENDENCIES MAPL.generic3g MAPL regrid_util_support_mod
   TYPE SHARED)
 
 esma_add_library(configurable_writer_gridcomp
@@ -39,7 +39,7 @@ esma_add_library(configurable_writer_gridcomp
 
 esma_add_library(reader_writer_coupler_gridcomp
   SRCS Regrid_Util/ReaderWriterCouplerGridComp.F90
-  DEPENDENCIES MAPL.generic3g MAPL
+  DEPENDENCIES MAPL.generic3g MAPL configurable_reader_gridcomp configurable_writer_gridcomp
   TYPE SHARED)
 
 esma_add_library(regrid_util_support_mod
