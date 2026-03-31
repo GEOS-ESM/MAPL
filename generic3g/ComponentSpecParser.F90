@@ -41,6 +41,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_geometry_spec
    public :: parse_timespec
    public :: to_itemtype
+   public :: parse_var_specs
 
    character(*), parameter :: MAPL_SECTION = 'mapl'
    character(*), parameter :: COMPONENT_GEOMETRY_SECTION = 'geometry'

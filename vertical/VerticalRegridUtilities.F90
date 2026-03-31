@@ -5,7 +5,7 @@ module VerticalRegridUtilitiesMod
    use PFIO
    use MAPL_ExceptionHandling
    use MAPL_CommsMod
-   use MAPL_ConstantsMod, only: MAPL_GRAV
+   use MAPL_Constants, only: MAPL_GRAV
 
    implicit none
    private

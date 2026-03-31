@@ -2,7 +2,7 @@
 module mapl3g_AccumulatorTransform
    use mapl3g_TransformId
    use mapl3g_ExtensionTransform
-   use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
+   use MAPL_InternalConstants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_FieldUtilities, only: FieldSet 
    use MAPL_FieldPointerUtilities
    use MAPL_ExceptionHandling
