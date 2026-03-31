@@ -59,7 +59,11 @@ jobs:
       - name: Install CMake 4.3
         shell: bash
         run: |
-          python3 -m pip install --quiet cmake==4.3.1
+          cmake_version=4.3.1
+          wget -q "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-linux-x86_64.sh" \
+            -O /tmp/cmake-install.sh
+          chmod +x /tmp/cmake-install.sh
+          /tmp/cmake-install.sh --skip-license --prefix=/usr/local
           cmake --version
 
       - name: Mepo clone external repos
