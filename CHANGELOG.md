@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Skip expensive CI on draft PRs to match CircleCI behavior
+  - Added `ready_for_review` trigger and `if: github.event.pull_request.draft == false` condition to `workflow.yml`, `spack-ci.yml`, and `nag_build_discover.yml`
 - Add `concurrency` groups to GitHub Actions workflows to prevent hitting runner concurrency limits on PRs
   - Added to `workflow.yml`, `changelog-enforcer.yml`, `enforce-labels.yml`, `markup-link-checker.yml`, `validate_yaml_files.yml`
   - Fixed `spack-ci.yml` to scope concurrency per PR number rather than per ref
