@@ -219,15 +219,15 @@ contains
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-       type(esmf_TypeKind_Flag), optional, intent(out) :: typekind
-       type(HorizontalDimsSpec), optional, intent(out) :: horizontal_dims_spec
-       integer, optional, intent(out) :: vgrid_id
-       integer, optional, intent(out) :: num_levels
-       integer, optional, intent(out) :: num_layers
-       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
-       type(VerticalAlignment), optional, intent(out) :: vert_alignment
-       integer, optional, intent(out) :: num_vgrid_levels
-       character(:), optional, allocatable, intent(out) :: units
+      type(esmf_TypeKind_Flag), optional, intent(out) :: typekind
+      type(HorizontalDimsSpec), optional, intent(out) :: horizontal_dims_spec
+      integer, optional, intent(out) :: vgrid_id
+      integer, optional, intent(out) :: num_levels
+      integer, optional, intent(out) :: num_layers
+      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(out) :: vert_alignment
+      integer, optional, intent(out) :: num_vgrid_levels
+      character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims

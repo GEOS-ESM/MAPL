@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl_BW_Benchmark
    use mapl_ErrorHandlingMod

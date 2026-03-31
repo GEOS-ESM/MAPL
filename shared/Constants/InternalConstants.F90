@@ -1,44 +1,38 @@
-module MAPL_InternalConstantsMod
+module MAPL_InternalConstants
 
    use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
 
    implicit none
-!=============================================================================
-!BOP
 
-! !MODULE: -- A container module for MAPL internal constants
+   ! Kind parameters
+   integer, parameter :: MAPL_R8 = selected_real_kind(12) ! 8-byte real
+   integer, parameter :: MAPL_R4 = selected_real_kind( 6) ! 4-byte real
+   integer, parameter :: MAPL_RN = kind(1.0)              ! native real
+   integer, parameter :: MAPL_I8 = selected_int_kind (13) ! 8-byte integer
+   integer, parameter :: MAPL_I4 = selected_int_kind ( 6) ! 4-byte integer
+   integer, parameter :: MAPL_IN = kind(1)                ! native integer
 
-! !PUBLIC VARIABLES:
-   integer,parameter            :: MAPL_R8                      = selected_real_kind(12) ! 8 byte real
-   integer,parameter            :: MAPL_R4                      = selected_real_kind( 6) ! 4 byte real
-   integer,parameter            :: MAPL_RN                      = kind(1.0)              ! native real
-   integer,parameter            :: MAPL_I8                      = selected_int_kind (13) ! 8 byte integer
-   integer,parameter            :: MAPL_I4                      = selected_int_kind ( 6) ! 4 byte integer
-   integer,parameter            :: MAPL_IN                      = kind(1)                ! native integer
+   ! Sentinel / undefined values
+   integer,            parameter :: MAPL_UNDEFINED_INTEGER = 1 - huge(1)
+   real,               parameter :: MAPL_UNDEFINED_REAL    = huge(1.)
+   real(kind=REAL64),  parameter :: MAPL_UNDEFINED_REAL64  = huge(1.d0)
+   character(len=*),   parameter :: MAPL_UNDEFINED_CHAR    = '**'
 
-   integer,parameter            :: MAPL_UNDEFINED_INTEGER       = 1-huge(1)
-   real,parameter               :: MAPL_UNDEFINED_REAL          = huge(1.)
-   real(kind=REAL64), parameter :: MAPL_UNDEFINED_REAL64        = huge(1.d0)
-   character(len=*), parameter  :: MAPL_UNDEFINED_CHAR          = '**'
-   character(len=*), parameter  :: MAPL_GRID_NAME_DEFAULT       = 'UNKNOWN'
-   character(len=*), parameter  :: MAPL_GRID_FILE_NAME_DEFAULT  = 'UNKNOWN'
-   character(len=*), parameter  :: MAPL_CF_COMPONENT_SEPARATOR  = '.'
-   character(len=*), parameter  :: MAPL_DESTINATIONMASK         = "MAPL_DestinationMask"
+   ! Default string values
+   character(len=*), parameter :: MAPL_GRID_NAME_DEFAULT      = 'UNKNOWN'
+   character(len=*), parameter :: MAPL_GRID_FILE_NAME_DEFAULT = 'UNKNOWN'
+   character(len=*), parameter :: MAPL_CF_COMPONENT_SEPARATOR = '.'
+   character(len=*), parameter :: MAPL_DESTINATIONMASK        = "MAPL_DestinationMask"
 
-   enum, bind(c)
-      enumerator MAPL_TimerModeOld
-      enumerator MAPL_TimerModeRootOnly
-      enumerator MAPL_TimerModeMax
-      enumerator MAPL_TimerModeMinMax
-   endenum
-
+   ! Qsat formulation selectors
    enum, bind(c)
       enumerator :: MAPL_UseStarrQsat = 1
-      enumerator MAPL_UseGoffGratchQsat
-      enumerator MAPL_UseMurphyKoopQsat
-      enumerator MAPL_UseCAMQsat
+      enumerator    MAPL_UseGoffGratchQsat
+      enumerator    MAPL_UseMurphyKoopQsat
+      enumerator    MAPL_UseCAMQsat
    endenum
 
+   ! Gather/scatter direction
    enum, bind(c)
       enumerator MAPL_Unknown
       enumerator MAPL_IsGather
@@ -46,42 +40,47 @@ module MAPL_InternalConstantsMod
    endenum
 
    integer, parameter :: MAPL_TileNameLength = 128
+   integer, parameter :: MAPL_NoShm = 255
 
-   integer, parameter :: MAPL_NoShm=255
-
+   ! Return codes
    enum, bind(c)
       enumerator MAPL_SUCCESS
       enumerator MAPL_FILE_NOT_FOUND
    endenum
 
+   ! Dimension topology
    enum, bind(c)
       enumerator :: MAPL_DimTopoEdge = -1
-      enumerator MAPL_DimTopoCyclic
-      enumerator MAPL_DimTopoCenter
+      enumerator    MAPL_DimTopoCyclic
+      enumerator    MAPL_DimTopoCenter
    endenum
 
-   integer, parameter :: MAPL_CplUNKNOWN        = 0  !Not used
-   integer, parameter :: MAPL_CplSATISFIED      = 1
-   integer, parameter :: MAPL_CplNEEDED         = 2  !not used
-   integer, parameter :: MAPL_CplNOTNEEDED      = 4  !not used
-   integer, parameter :: MAPL_FriendlyVariable  = 8
-   integer, parameter :: MAPL_FieldItem         = 8
-   integer, parameter :: MAPL_BundleItem        = 16
-   integer, parameter :: MAPL_StateItem         = 32
-   integer, parameter :: MAPL_NoRestart         = 64  !not used
-   integer, parameter :: MAPL_UnitsRadians      = 99
+   ! Coupling / item flags
+   integer, parameter :: MAPL_CplUNKNOWN       = 0   ! not used
+   integer, parameter :: MAPL_CplSATISFIED     = 1
+   integer, parameter :: MAPL_CplNEEDED        = 2   ! not used
+   integer, parameter :: MAPL_CplNOTNEEDED     = 4   ! not used
+   integer, parameter :: MAPL_FriendlyVariable = 8
+   integer, parameter :: MAPL_FieldItem        = 8
+   integer, parameter :: MAPL_BundleItem       = 16
+   integer, parameter :: MAPL_StateItem        = 32
+   integer, parameter :: MAPL_NoRestart        = 64  ! not used
+   integer, parameter :: MAPL_UnitsRadians     = 99
 
+   ! Write destination
    enum, bind(c)
       enumerator MAPL_Write2Disk
       enumerator MAPL_Write2RAM
    endenum
 
+   ! Vertical location
    enum, bind(c)
       enumerator MAPL_VLocationNone
       enumerator MAPL_VLocationEdge
       enumerator MAPL_VLocationCenter
    endenum
 
+   ! Dimension type
    enum, bind(c)
       enumerator MAPL_DimsUnknown
       enumerator MAPL_DimsVertOnly
@@ -92,71 +91,82 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_DimsNone
    endenum
 
+   ! Field type
    enum, bind(c)
       enumerator :: MAPL_ScalarField = 1
-      enumerator MAPL_VectorField
+      enumerator    MAPL_VectorField
    endenum
 
+   ! Coupler accumulation mode
    enum, bind(c)
       enumerator MAPL_CplAverage
       enumerator MAPL_CplMin
       enumerator MAPL_CplMax
       enumerator MAPL_CplAccumulate
-      enumerator MAPL_MinMaxUnknown   ! This was defined to MAPL_CplAverage before and is not used
+      enumerator MAPL_MinMaxUnknown   ! not used
    endenum
 
+   ! Attribute type
    enum, bind(c)
       enumerator :: MAPL_AttrGrid = 1
-      enumerator MAPL_AttrTile
+      enumerator    MAPL_AttrTile
    endenum
 
+   ! Initialisation status
    enum, bind(c)
       enumerator MAPL_Uninitialized
       enumerator MAPL_InitialDefault
       enumerator MAPL_InitialRestart
    endenum
 
+   ! Connection type
    enum, bind(c)
       enumerator :: MAPL_DuplicateEntry = -99
       enumerator :: MAPL_ConnUnknown = -1
-      enumerator MAPL_Self
-      enumerator MAPL_Import
-      enumerator MAPL_Export
+      enumerator    MAPL_Self
+      enumerator    MAPL_Import
+      enumerator    MAPL_Export
    endenum
 
+   ! Run phase
    enum, bind(c)
       enumerator :: MAPL_FirstPhase = 1
-      enumerator MAPL_SecondPhase
-      enumerator MAPL_ThirdPhase
-      enumerator MAPL_FourthPhase
-      enumerator MAPL_FifthPhase
+      enumerator    MAPL_SecondPhase
+      enumerator    MAPL_ThirdPhase
+      enumerator    MAPL_FourthPhase
+      enumerator    MAPL_FifthPhase
    endenum
 
-   integer, parameter :: MAPL_Ocean              = 0
-   integer, parameter :: MAPL_Lake               = 19
-   integer, parameter :: MAPL_LandIce            = 20
-   integer, parameter :: MAPL_Land               = 100
-   integer, parameter :: MAPL_Vegetated          = 101
-   integer, parameter :: MAPL_NumVegTypes        = 6
+   ! Land surface type codes
+   integer, parameter :: MAPL_Ocean      = 0
+   integer, parameter :: MAPL_Lake       = 19
+   integer, parameter :: MAPL_LandIce    = 20
+   integer, parameter :: MAPL_Land       = 100
+   integer, parameter :: MAPL_Vegetated  = 101
+   integer, parameter :: MAPL_NumVegTypes = 6
 
+   ! Grid stagger
    enum, bind(c)
       enumerator MAPL_AGrid
       enumerator MAPL_CGrid
       enumerator MAPL_DGrid
    endenum
 
+   ! Grid rotation type
    enum, bind(c)
       enumerator MAPL_RotateLL
       enumerator MAPL_RotateCube
    endenum
 
+   ! Horizontal transform order
    enum, bind(c)
-      enumerator MAPL_HorzTransOrderBinning
-      enumerator MAPL_HorzTransOrderBilinear
+      enumerator    MAPL_HorzTransOrderBinning
+      enumerator    MAPL_HorzTransOrderBilinear
       enumerator :: MAPL_HorzTransOrderFraction = 98
-      enumerator MAPL_HorzTransOrderSample
+      enumerator    MAPL_HorzTransOrderSample
    endenum
 
+   ! Restart flags
    enum, bind(c)
       enumerator MAPL_RestartOptional
       enumerator MAPL_RestartSkip
@@ -165,29 +175,32 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_RestartSkipInitial
    endenum
 
-   integer, parameter :: MAPL_NBITS_NOT_SET = 1000
+   ! Quantization parameters
+   integer, parameter :: MAPL_NBITS_NOT_SET    = 1000
    integer, parameter :: MAPL_NBITS_UPPER_LIMIT = 24
-   ! Constants for netCDF quantize (these echo the values in the netcdf-fortran library)
+
+   ! netCDF quantize algorithm selectors (values mirror the netcdf-fortran library)
    enum, bind(c)
       enumerator MAPL_NOQUANTIZE
       enumerator MAPL_QUANTIZE_BITGROOM
       enumerator MAPL_QUANTIZE_GRANULAR_BITROUND
       enumerator MAPL_QUANTIZE_BITROUND
    endenum
-   ! Maximum number of significant digits for quantization (bitgroom, granular_bitround)
-   integer, parameter :: MAPL_QUANTIZE_MAX_NSD = 7
-   ! Maximum number of significant bits for quantization (bitround)
-   integer, parameter :: MAPL_QUANTIZE_MAX_NSB = 23
-   ! Constant masking
+
+   integer, parameter :: MAPL_QUANTIZE_MAX_NSD = 7   ! max significant digits  (bitgroom, granular_bitround)
+   integer, parameter :: MAPL_QUANTIZE_MAX_NSB = 23  ! max significant bits    (bitround)
+
+   ! Masking direction
    enum, bind(c)
       enumerator MAPL_MASK_OUT
       enumerator MAPL_MASK_IN
    endenum
 
-   integer, parameter :: MAPL_FILETYPE_NC4 = 0
-   integer, parameter :: MAPL_FILETYPE_TXT = 1
-   integer, parameter :: MAPL_FILETYPE_BIN = 2
+   ! File type codes
+   integer, parameter :: MAPL_FILETYPE_NC4 =  0
+   integer, parameter :: MAPL_FILETYPE_TXT =  1
+   integer, parameter :: MAPL_FILETYPE_BIN =  2
    integer, parameter :: MAPL_FILETYPE_UNK = -1
-!EOP
 
-end module MAPL_InternalConstantsMod
+end module MAPL_InternalConstants
+
