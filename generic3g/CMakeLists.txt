@@ -4,9 +4,12 @@ set(srcs
   ESMF_Subset.F90
   Generic3g.F90
 
+  VerificationStatus.F90
+  ValidationMode.F90
   FieldDictionaryItem.F90
   FieldDictionaryItemMap.F90
   FieldDictionary.F90
+  FieldDictionaryConfig.F90
 
   GenericGrid.F90
 
