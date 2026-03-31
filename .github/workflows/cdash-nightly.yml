@@ -24,6 +24,8 @@ jobs:
   cdash:
     name: CDash / gfortran-15 / ${{ matrix.cmake-build-type }}
     runs-on: ubuntu-latest
+    # Scheduled runs only on release/MAPL-v3; workflow_dispatch runs on any branch
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/release/MAPL-v3'
     container:
       image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_15.2.0
     strategy:
@@ -57,7 +59,11 @@ jobs:
       - name: Install CMake 4.3
         shell: bash
         run: |
-          pip install --quiet cmake==4.3.1
+          cmake_version=4.3.1
+          wget -q "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-linux-x86_64.sh" \
+            -O /tmp/cmake-install.sh
+          chmod +x /tmp/cmake-install.sh
+          /tmp/cmake-install.sh --skip-license --prefix=/usr/local
           cmake --version
 
       - name: Mepo clone external repos
