@@ -119,6 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `.mlc.toml` file to configure `mlc` link checker
 - Added a new feature: create a halo based on local displacement members, local-displacement-ensemble (LDE), requested some time ago by Arlindo da Silva
+- Added CDash nightly submission workflow (`.github/workflows/cdash-nightly.yml`). Note: This is currently only used in MAPL3 development so it is not used in `main` or `develop` as of yet (see https://github.com/GEOS-ESM/MAPL/pull/4586)
 
 ### Changed
 
