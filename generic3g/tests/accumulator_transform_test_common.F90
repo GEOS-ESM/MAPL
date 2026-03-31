@@ -36,7 +36,7 @@ contains
    end function is_initialized
 
    elemental logical function undef(t) result(lval)
-      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
+      use MAPL_InternalConstants, only: MAPL_UNDEFINED_REAL
       real(kind=ESMF_KIND_R4), intent(in) :: t
 
       lval = t == MAPL_UNDEFINED_REAL
@@ -44,7 +44,7 @@ contains
    end function undef
 
    elemental subroutine set_undef(t)
-      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
+      use MAPL_InternalConstants, only: MAPL_UNDEFINED_REAL
       real(kind=ESMF_KIND_R4), intent(inout) :: t
 
       t = MAPL_UNDEFINED_REAL
@@ -52,7 +52,7 @@ contains
    end subroutine set_undef
 
    elemental logical function undef_r8(t) result(lval)
-      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL64
+      use MAPL_InternalConstants, only: MAPL_UNDEFINED_REAL64
       real(kind=ESMF_KIND_R8), intent(in) :: t
 
       lval = t == MAPL_UNDEFINED_REAL64
@@ -60,7 +60,7 @@ contains
    end function undef_r8
 
    elemental subroutine set_undef_r8(t)
-      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL64
+      use MAPL_InternalConstants, only: MAPL_UNDEFINED_REAL64
       real(kind=ESMF_KIND_R8), intent(inout) :: t
 
       t = MAPL_UNDEFINED_REAL64
