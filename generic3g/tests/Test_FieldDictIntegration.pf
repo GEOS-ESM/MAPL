@@ -1,0 +1,151 @@
+#include "MAPL_TestErr.h"
+! Integration tests: make_VariableSpec + FieldDictionary singleton interaction.
+! These tests verify that make_VariableSpec correctly:
+!   1. Fills `units` from the dictionary when not specified by the caller.
+!   2. Fills `long_name` from the dictionary when a standard_name matches.
+!   3. Lets caller-specified `units` take precedence over dictionary defaults.
+!   4. Works correctly when called via parse_var_specs (YAML path).
+
+module Test_FieldDictIntegration
+   use funit
+   use esmf
+   use mapl3g_ComponentSpecParser
+   use mapl3g_FieldDictionary
+   use mapl3g_VariableSpecVector
+   use mapl3g_VariableSpec
+   use mapl3g_StateRegistry
+   use mapl_ErrorHandling
+   implicit none(type, external)
+
+   ! Mini field-dictionary YAML used by most tests.
+   character(*), parameter :: DICT_YAML = &
+      'air_temperature:' // new_line('a') // &
+      '  canonical_units: K' // new_line('a') // &
+      '  long_name: Air Temperature' // new_line('a') // &
+      'specific_humidity:' // new_line('a') // &
+      '  canonical_units: "kg kg-1"' // new_line('a') // &
+      '  long_name: Specific Humidity' // new_line('a')
+
+contains
+
+   ! ------------------------------------------------------------------
+   ! Helper: write DICT_YAML to a temp file; return the filename.
+   ! ------------------------------------------------------------------
+   subroutine write_dict_file(filename)
+      character(*), intent(in) :: filename
+      integer :: unit
+      open(newunit=unit, file=filename, form='formatted', status='unknown')
+      write(unit, '(a)') DICT_YAML
+      close(unit)
+   end subroutine write_dict_file
+
+   ! Helper: delete a temp file.
+   subroutine delete_file(filename)
+      character(*), intent(in) :: filename
+      integer :: unit
+      open(newunit=unit, file=filename, form='formatted', status='unknown')
+      close(unit, status='delete')
+   end subroutine delete_file
+
+   ! ==================================================================
+   ! 1. make_VariableSpec fills units + long_name from singleton dict
+   ! ==================================================================
+   @test
+   subroutine test_units_and_long_name_filled_from_dict()
+      type(VariableSpec) :: vs
+      integer :: status
+
+      character(*), parameter :: DICT_FILE = 'test_dict_units.yaml'
+
+      call write_dict_file(DICT_FILE)
+      call load_field_dictionary(DICT_FILE, rc=status)
+      @assert_that(status, is(0))
+
+      vs = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
+           standard_name='air_temperature', rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(allocated(vs%units), is(true()))
+      @assertEqual('K', vs%units)
+      @assert_that(allocated(vs%long_name), is(true()))
+      @assertEqual('Air Temperature', vs%long_name)
+
+      call delete_file(DICT_FILE)
+   end subroutine test_units_and_long_name_filled_from_dict
+
+   ! ==================================================================
+   ! 2. Caller-specified units take precedence over dictionary defaults
+   ! ==================================================================
+   @test
+   subroutine test_caller_units_override_dict()
+      type(VariableSpec) :: vs
+      integer :: status
+
+      character(*), parameter :: DICT_FILE = 'test_dict_override.yaml'
+
+      call write_dict_file(DICT_FILE)
+      call load_field_dictionary(DICT_FILE, rc=status)
+      @assert_that(status, is(0))
+
+      vs = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
+           standard_name='air_temperature', units='degC', rc=status)
+      @assert_that(status, is(0))
+
+      ! Caller-specified units must win
+      @assert_that(allocated(vs%units), is(true()))
+      @assertEqual('degC', vs%units)
+      ! long_name still filled from dict
+      @assert_that(allocated(vs%long_name), is(true()))
+      @assertEqual('Air Temperature', vs%long_name)
+
+      call delete_file(DICT_FILE)
+   end subroutine test_caller_units_override_dict
+
+   ! ==================================================================
+   ! 3. Multiple fields via parse_var_specs: both get dict defaults
+   ! ==================================================================
+   @test
+   subroutine test_multiple_fields_from_dict()
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec) :: vs
+      type(StateRegistry), target :: registry
+      type(ESMF_HConfig) :: hconfig
+      integer :: status, i
+
+      character(*), parameter :: DICT_FILE = 'test_dict_multi.yaml'
+      character(*), parameter :: YAML = &
+         'states:' // new_line('a') // &
+         '  export:' // new_line('a') // &
+         '    T:' // new_line('a') // &
+         '      standard_name: air_temperature' // new_line('a') // &
+         '    Q:' // new_line('a') // &
+         '      standard_name: specific_humidity' // new_line('a')
+
+      call write_dict_file(DICT_FILE)
+      call load_field_dictionary(DICT_FILE, rc=status)
+      @assert_that(status, is(0))
+
+      registry = StateRegistry('TestComp')
+      hconfig  = ESMF_HConfigCreate(content=YAML)
+      var_specs = parse_var_specs(hconfig, registry=registry, &
+           component_name='TestComp', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(2, int(var_specs%size()))
+
+      ! Find T and Q by short_name
+      do i = 1, var_specs%size()
+         vs = var_specs%of(i)
+         if (vs%short_name == 'T') then
+            @assertEqual('K', vs%units)
+            @assertEqual('Air Temperature', vs%long_name)
+         else if (vs%short_name == 'Q') then
+            @assertEqual('kg kg-1', vs%units)
+            @assertEqual('Specific Humidity', vs%long_name)
+         end if
+      end do
+
+      call ESMF_HConfigDestroy(hconfig)
+      call delete_file(DICT_FILE)
+   end subroutine test_multiple_fields_from_dict
+
+end module Test_FieldDictIntegration
