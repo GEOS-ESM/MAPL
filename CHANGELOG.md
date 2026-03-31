@@ -11,18 +11,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Python bridge: support for `icx`, fix GPU upload python side and updated base API to support python 3.12+
 - Guard IEEE halting mode calls on macOS flang to avoid missing `fe*except` symbols when initializing MPI.
+- Fixed some warnings with `mlc` link checker
 
 ### Added
 
 - Added "read and bcast" pattern for MAPL_ReadTilingNC4
+- Add `.mlc.toml` file to configure `mlc` link checker
+- Added a new feature: create a halo based on local displacement members, local-displacement-ensemble (LDE), requested some time ago by Arlindo da Silva
 
 ### Changed
 
+- Add `concurrency` groups to GitHub Actions workflows to prevent hitting runner concurrency limits on PRs
+  - Added to `workflow.yml`, `changelog-enforcer.yml`, `enforce-labels.yml`, `markup-link-checker.yml`, `validate_yaml_files.yml`
+  - Fixed `spack-ci.yml` to scope concurrency per PR number rather than per ref
 - Update `components.yaml` to match GEOSgcm v12
   - ESMA_cmake v4.35.0
     - Multiple fixes for f2py with spack and on macOS
   - ecbuild geos/v3.13.1
 - Add CTest scheduling metadata for pFIO tests so parallel `ctest` runs do not overlap the pFIO performance cases in the same working directory.
+- Update CI to use Baselibs 8.27.0
 
 ### Removed
 
