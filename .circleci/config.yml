@@ -141,6 +141,20 @@ workflows:
       #     change_layout: false                           #
       ######################################################
 
+      # Run GOCART tests
+      - ci/run_gocart_tests:
+          name: run-GOCART-tests-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort, ifx]
+          requires:
+            - build-GEOSgcm-on-<< matrix.compiler >>
+          repo: GEOSgcm
+          baselibs_version: *baselibs_version
+          bcs_version: *bcs_version
+
   #########################################################
   # build-GEOSldas:                                       #
   #   jobs:                                               #
