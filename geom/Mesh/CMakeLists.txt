@@ -11,4 +11,6 @@ target_sources(MAPL.geom PRIVATE
 
 )
 
-add_subdirectory(raster_to_mesh)
+if (BUILD_WITH_FARGPARSE)
+  add_subdirectory(raster_to_mesh)
+endif()
