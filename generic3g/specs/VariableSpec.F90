@@ -147,6 +147,7 @@ module mapl3g_VariableSpec
       !=====================
       type(StringVector) :: dependencies ! default empty
       logical :: has_deferred_aspects = .false.
+      logical :: use_field_dictionary = .false.
 
    contains
       procedure :: make_virtualPt
@@ -226,8 +227,9 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
       character(*), optional, intent(in) :: vector_basis_kind
-      logical, optional, intent(in) :: has_deferred_aspects
-      type(RestartMode), optional, intent(in) :: restart_mode
+       logical, optional, intent(in) :: has_deferred_aspects
+       logical, optional, intent(in) :: use_field_dictionary
+       type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -267,8 +269,9 @@ contains
       _SET_OPTIONAL(timeStep)
       _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
-      _SET_OPTIONAL(has_deferred_aspects)
-      _SET_OPTIONAL(restart_mode)
+       _SET_OPTIONAL(has_deferred_aspects)
+       _SET_OPTIONAL(use_field_dictionary)
+       _SET_OPTIONAL(restart_mode)
 
        var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
        if (present(vector_basis_kind)) then
@@ -276,23 +279,44 @@ contains
           var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
        end if
 
-      ! Apply field dictionary defaults for units and long_name.
-      ! Only fills in values not already provided by the caller.
-      ! Compound vector names of the form "(name1,name2)" are skipped —
-      ! they encode two component standard names and are not dictionary keys.
-      if (present(standard_name)) then
-         if (index(standard_name, '(') == 0) then
-            fd => get_field_dictionary()
-            if (fd%has_item(standard_name)) then
-               dict_item = fd%get_item(standard_name, _RC)
-               if (.not. present(units)) var_spec%units = dict_item%get_units()
+      ! Apply field dictionary defaults when use_field_dictionary=.true.
+      ! Lookup key priority:
+      !   1. standard_name (if present and not a compound vector name)
+      !   2. short_name as alias
+      ! Caller-supplied units/long_name always take priority over FD defaults.
+      ! Compound vector names of the form "(name1,name2)" are never FD keys.
+      if (var_spec%use_field_dictionary) then
+         fd => get_field_dictionary()
+         block
+            character(:), allocatable :: lookup_key
+            logical :: by_alias
+
+            by_alias = .false.
+            if (present(standard_name) .and. index(standard_name, '(') == 0) then
+               lookup_key = standard_name
+            else
+               lookup_key = short_name
+               by_alias = .true.
+            end if
+
+            if (fd%has_item(lookup_key)) then
+               dict_item = fd%get_item(lookup_key, _RC)
+               if (.not. present(units))     var_spec%units     = dict_item%get_units()
                if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
+            else if (by_alias) then
+               ! short_name alias not in FD — try it as a standard_name key too
+               ! (aliases and standard names share the same has_item lookup)
+               lgr => logging%get_logger('MAPL')
+               call lgr%warning('use_field_dictionary=.true. but short_name "' // &
+                    short_name // '" not found in field dictionary (no alias or standard_name match); ' // &
+                    'units and long_name defaults will not be applied.')
             else
                lgr => logging%get_logger('MAPL')
-               call lgr%warning('standard_name "'//standard_name//'" not found in field dictionary; ' // &
+               call lgr%warning('use_field_dictionary=.true. but standard_name "' // &
+                    standard_name // '" not found in field dictionary; ' // &
                     'units and long_name defaults will not be applied.')
             end if
-         end if
+         end block
       end if
 
       _RETURN(_SUCCESS)
@@ -345,12 +369,14 @@ contains
       _RETURN(_SUCCESS)
    end function make_dependencies
 
-   function get_regrid_param(requested_param, standard_name) result(regrid_param)
+   function get_regrid_param(requested_param, standard_name, use_field_dictionary) result(regrid_param)
       type(EsmfRegridderParam) :: regrid_param
       type(EsmfRegridderParam), optional, intent(in) :: requested_param
       character(*), optional, intent(in) :: standard_name
+      logical, optional, intent(in) :: use_field_dictionary
 
       type(ESMF_RegridMethod_Flag) :: regrid_method
+      logical :: use_fd
       integer :: status
 
       if (present(requested_param)) then
@@ -358,19 +384,15 @@ contains
          return
       end if
 
-      ! if (NUOPC_FieldDictionaryHasEntry(this%standard_name, rc=status)) then
-      !    call NUOPC_FieldDictionaryGetEntry(this%standard_name, regrid_method, rc=status)
-      !    if (status==ESMF_SUCCESS) then
-      !       this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-      !       return
-      !    end if
-      ! end if
-      regrid_param = EsmfRegridderParam() ! last resort - use default regrid method
+      regrid_param = EsmfRegridderParam() ! default regrid method
+
+      use_fd = .false.
+      if (present(use_field_dictionary)) use_fd = use_field_dictionary
+      if (.not. use_fd) return
 
       regrid_method = get_regrid_method_from_field_dict_(standard_name, rc=status)
       if (status==ESMF_SUCCESS) then
          regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-         return
       end if
 
    end function get_regrid_param
