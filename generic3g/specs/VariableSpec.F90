@@ -324,17 +324,18 @@ contains
          dict_item = fd%get_item(lookup_key, _RC)
          if (.not. present(units))     var_spec%units     = dict_item%get_units()
          if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
+         _RETURN(_SUCCESS)
+      end if
+
+      lgr => logging%get_logger('MAPL')
+      if (by_alias) then
+         call lgr%warning('use_field_dictionary=.true. but short_name "' // &
+              short_name // '" not found in field dictionary; ' // &
+              'units and long_name defaults will not be applied.')
       else
-         lgr => logging%get_logger('MAPL')
-         if (by_alias) then
-            call lgr%warning('use_field_dictionary=.true. but short_name "' // &
-                 short_name // '" not found in field dictionary; ' // &
-                 'units and long_name defaults will not be applied.')
-         else
-            call lgr%warning('use_field_dictionary=.true. but standard_name "' // &
-                 standard_name // '" not found in field dictionary; ' // &
-                 'units and long_name defaults will not be applied.')
-         end if
+         call lgr%warning('use_field_dictionary=.true. but standard_name "' // &
+              standard_name // '" not found in field dictionary; ' // &
+              'units and long_name defaults will not be applied.')
       end if
 
       _RETURN(_SUCCESS)
