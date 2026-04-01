@@ -196,6 +196,7 @@ contains
         vector_component_names, &
         vector_basis_kind, &
         has_deferred_aspects, &
+        use_field_dictionary, &
         restart_mode, &
         rc) result(var_spec)
 
@@ -227,9 +228,9 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
       character(*), optional, intent(in) :: vector_basis_kind
-       logical, optional, intent(in) :: has_deferred_aspects
-       logical, optional, intent(in) :: use_field_dictionary
-       type(RestartMode), optional, intent(in) :: restart_mode
+      logical, optional, intent(in) :: has_deferred_aspects
+      logical, optional, intent(in) :: use_field_dictionary
+      type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
