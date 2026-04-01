@@ -53,7 +53,7 @@ program test_tiling_nc4_serial
                           JM=JMs, N_Grids=N_Grids, AVR=AVR, rc=status)
    if (status /= 0) then
       print *, "ERROR: MAPL_ReadTilingNC4 failed, rc=", status
-      call exit(1)
+      stop 1
    endif
    NT = size(AVR,1)
    
