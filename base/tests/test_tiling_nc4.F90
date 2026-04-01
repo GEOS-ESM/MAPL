@@ -42,7 +42,7 @@ program test_tiling_nc4_simple
    layout = ESMF_DELayoutCreate(vm, rc=status)
    if (status /= ESMF_SUCCESS) then
       print *, "Failed to create DELayout"
-      call exit(1)
+      stop 1
    endif
    
    if (rank == 0) then
