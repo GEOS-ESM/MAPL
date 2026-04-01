@@ -144,7 +144,7 @@ program test_tiling_nc4_simple
    if (status /= 0) then
       print *, "ERROR on rank ", rank, ": MAPL_ReadTilingNC4 failed, rc=", status
       call ESMF_Finalize(rc=status)
-      call exit(1)
+      stop 1
    endif
    NT = size(AVR,1)
    
