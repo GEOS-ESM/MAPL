@@ -196,7 +196,6 @@ contains
         vector_component_names, &
         vector_basis_kind, &
         has_deferred_aspects, &
-        use_fd, &
         restart_mode, &
         rc) result(var_spec)
 
@@ -228,9 +227,9 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
       character(*), optional, intent(in) :: vector_basis_kind
-      logical, optional, intent(in) :: has_deferred_aspects
-      logical, optional, intent(in) :: use_fd
-      type(RestartMode), optional, intent(in) :: restart_mode
+       logical, optional, intent(in) :: has_deferred_aspects
+       logical, optional, intent(in) :: use_field_dictionary
+       type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -267,9 +266,9 @@ contains
       _SET_OPTIONAL(timeStep)
       _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
-      _SET_OPTIONAL(has_deferred_aspects)
-      if (present(use_fd)) var_spec%use_field_dictionary = use_fd
-      _SET_OPTIONAL(restart_mode)
+       _SET_OPTIONAL(has_deferred_aspects)
+       _SET_OPTIONAL(use_field_dictionary)
+       _SET_OPTIONAL(restart_mode)
 
        var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
        if (present(vector_basis_kind)) then
