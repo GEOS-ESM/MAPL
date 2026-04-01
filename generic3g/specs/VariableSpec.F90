@@ -235,9 +235,6 @@ contains
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 !#      type(EsmfRegridderParam) :: regrid_param_
 
-      type(FieldDictionary), pointer :: fd
-      type(FieldDictionaryItem) :: dict_item
-      type(logger_t), pointer :: lgr
       integer :: status
 
        var_spec%short_name = short_name
@@ -279,49 +276,69 @@ contains
           var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
        end if
 
-      ! Apply field dictionary defaults when use_field_dictionary=.true.
-      ! Lookup key priority:
-      !   1. standard_name (if present and not a compound vector name)
-      !   2. short_name as alias
-      ! Caller-supplied units/long_name always take priority over FD defaults.
-      ! Compound vector names of the form "(name1,name2)" are never FD keys.
       if (var_spec%use_field_dictionary) then
-         fd => get_field_dictionary()
-         block
-            character(:), allocatable :: lookup_key
-            logical :: by_alias
-
-            by_alias = .false.
-            if (present(standard_name) .and. index(standard_name, '(') == 0) then
-               lookup_key = standard_name
-            else
-               lookup_key = short_name
-               by_alias = .true.
-            end if
-
-            if (fd%has_item(lookup_key)) then
-               dict_item = fd%get_item(lookup_key, _RC)
-               if (.not. present(units))     var_spec%units     = dict_item%get_units()
-               if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
-            else if (by_alias) then
-               ! short_name alias not in FD — try it as a standard_name key too
-               ! (aliases and standard names share the same has_item lookup)
-               lgr => logging%get_logger('MAPL')
-               call lgr%warning('use_field_dictionary=.true. but short_name "' // &
-                    short_name // '" not found in field dictionary (no alias or standard_name match); ' // &
-                    'units and long_name defaults will not be applied.')
-            else
-               lgr => logging%get_logger('MAPL')
-               call lgr%warning('use_field_dictionary=.true. but standard_name "' // &
-                    standard_name // '" not found in field dictionary; ' // &
-                    'units and long_name defaults will not be applied.')
-            end if
-         end block
+         call apply_field_dictionary_defaults_(var_spec, short_name, standard_name, units, long_name, _RC)
       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function make_VariableSpec
+
+   ! Apply field dictionary defaults for units and long_name.
+   ! Lookup key priority:
+   !   1. standard_name (if present and not a compound vector name)
+   !   2. short_name as alias
+   ! Caller-supplied units/long_name always take priority over FD defaults.
+   ! Compound vector names of the form "(name1,name2)" are never FD keys.
+   ! A miss is warned about but never fatal.
+   subroutine apply_field_dictionary_defaults_(var_spec, short_name, standard_name, units, long_name, rc)
+      type(VariableSpec), intent(inout) :: var_spec
+      character(*), intent(in) :: short_name
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: units
+      character(*), optional, intent(in) :: long_name
+      integer, optional, intent(out) :: rc
+
+      type(FieldDictionary), pointer :: fd
+      type(FieldDictionaryItem) :: dict_item
+      type(logger_t), pointer :: lgr
+      character(:), allocatable :: lookup_key
+      logical :: by_alias
+      integer :: status
+
+      ! Default: look up by short_name as alias
+      lookup_key = short_name
+      by_alias = .true.
+
+      ! Prefer standard_name when present and not a compound vector encoding
+      if (present(standard_name)) then
+         if (index(standard_name, '(') == 0) then
+            lookup_key = standard_name
+            by_alias = .false.
+         end if
+      end if
+
+      fd => get_field_dictionary()
+
+      if (fd%has_item(lookup_key)) then
+         dict_item = fd%get_item(lookup_key, _RC)
+         if (.not. present(units))     var_spec%units     = dict_item%get_units()
+         if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
+      else
+         lgr => logging%get_logger('MAPL')
+         if (by_alias) then
+            call lgr%warning('use_field_dictionary=.true. but short_name "' // &
+                 short_name // '" not found in field dictionary; ' // &
+                 'units and long_name defaults will not be applied.')
+         else
+            call lgr%warning('use_field_dictionary=.true. but standard_name "' // &
+                 standard_name // '" not found in field dictionary; ' // &
+                 'units and long_name defaults will not be applied.')
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine apply_field_dictionary_defaults_
 
    subroutine split_name(encoded_name, name_1, name_2, rc)
       character(*), intent(in) :: encoded_name
