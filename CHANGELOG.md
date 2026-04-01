@@ -134,8 +134,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added to `workflow.yml`, `changelog-enforcer.yml`, `enforce-labels.yml`, `markup-link-checker.yml`, `validate_yaml_files.yml`
   - Fixed `spack-ci.yml` to scope concurrency per PR number rather than per ref
 - Update `components.yaml` to match GEOSgcm v12
-  - ESMA_cmake v4.35.0
+  - ESMA_env v5.21.0
+    - Update to Baselibs 8.27.0
+      - ESMF v9.0.0b10
+      - GFE v1.23.0
+        - gFTL v1.17.0
+        - gFTL-shared v1.12.0
+        - fArgParse v1.11.0
+        - pFUnit v4.16.0
+      - Better support for LLVM Flang
+    - Fixes for Athena at NAS
+    - Updates for DSL work
+  - ESMA_cmake v4.36.0
     - Multiple fixes for f2py with spack and on macOS
+    - CMake updates mainly for MAPL3 work
   - ecbuild geos/v3.13.1
 - Add CTest scheduling metadata for pFIO tests so parallel `ctest` runs do not overlap the pFIO performance cases in the same working directory.
 - Update CI to use Baselibs 8.27.0
