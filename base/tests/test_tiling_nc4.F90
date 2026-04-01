@@ -35,7 +35,7 @@ program test_tiling_nc4_simple
    call ESMF_VMGet(vm, mpiCommunicator=comm, petCount=npes, localPet=rank, rc=status)
    if (status /= ESMF_SUCCESS) then
       print *, "Failed to get VM info"
-      call exit(1)
+      stop 1
    endif
    
    ! Create DELayout
