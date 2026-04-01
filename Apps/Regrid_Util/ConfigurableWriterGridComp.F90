@@ -5,6 +5,7 @@ module mapl3g_ConfigurableWriterGridComp
    use mapl_ErrorHandling
    use mapl3g_Generic, only: MAPL_GridCompSetEntryPoint
    use esmf
+   use regrid_util_support_mod
 
    implicit none
    private
@@ -18,13 +19,37 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      type(ESMF_HConfig) :: hconfig
+      character(len=:), allocatable :: input_file
 
       _HERE, ' bmaa '
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init_geom, phase_name='GENERIC::INIT_GEOM_A', _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name="run", _RC)
+      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      input_file = ESMF_HConfigAsString(hconfig,keyString='input_file', _RC)
+      _HERE,' bmaa '//trim(input_file)
+      call add_varspecs_from_file(gridcomp, input_file, ESMF_STATEINTENT_IMPORT, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine setServices
+
+   subroutine init_geom(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp)   :: gridcomp
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock
+      integer, intent(out)  :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: hconfig
+
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
+   end subroutine init_geom
 
    subroutine init(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gridcomp

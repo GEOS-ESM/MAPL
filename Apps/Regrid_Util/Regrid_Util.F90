@@ -25,7 +25,7 @@ CONTAINS
    integer :: status, user_status
    type(GriddedComponentDriver) :: driver
    type(ESMF_GridComp) :: readerwriter_gridcomp
-   type(ESMF_HConfig) :: hconfig
+   type(ESMF_HConfig) :: hconfig, geom_hconfig
    type(ESMF_Clock) :: clock
    type(ESMF_Time) :: time
    type(ESMF_TimeInterval) :: time_interval
@@ -36,6 +36,7 @@ CONTAINS
    hconfig = ESMF_HConfigCreate(_RC)
    call add_string_vector_to_hconfig(hconfig, "input_files", support%filenames, _RC)
    call add_string_vector_to_hconfig(hconfig, "output_files", support%filenames, _RC)
+   !geom_hconfig = create_output_geom_hconfig( )
 
    readerwriter_gridcomp = mapl_GridCompCreate('readerwritercoupler_gc',user_setservices(ReaderWriter_setServices), hconfig, _RC)
    call ESMF_GridCompSetServices(ReaderWriter_gridcomp, generic_setServices, _USERRC)

@@ -318,24 +318,28 @@
       type(StringVariableMapIterator) :: var_iter
       type(VariableSpec) :: varspec
       character(len=:), pointer :: var_name
+      type(GeomManager), pointer :: geom_mgr
 
+      _HERE,' reading bmaa: '//data_file
       call formatter%open(data_file, pFIO_READ, _RC)
       metadata = formatter%read(_RC)
       call formatter%close(_RC)
-      mapl_geom => geom_manager%get_mapl_geom_from_metadata(metadata, _RC)
+      geom_mgr => get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom_from_metadata(metadata, _RC)
+
       factory = mapl_geom%get_factory()
       geom_spec = mapl_geom%get_spec()
       file_variables = factory%make_file_metadata(geom_spec, _RC)
-      file_variables_vec = string_vector_from_metadata(metadata)
+      file_variables_vec = string_vector_from_metadata(file_variables)
       call file_variables_vec%push_back('time')
       variables => metadata%get_variables()
       var_iter = variables%ftn_begin()
       do while (var_iter /= variables%ftn_end())
+         call var_iter%next()
          var_name => var_iter%first()
          if (string_in_vector(file_variables_vec, var_name)) cycle
          varspec = make_VariableSpec(state_intent, var_name, &
             typekind=ESMF_TYPEKIND_R4,  itemType=ESMF_STATEITEM_FIELD, _RC)
-         call var_iter%next()
       enddo
 
       _RETURN(_SUCCESS)
@@ -367,11 +371,35 @@
       variables =>  metadata%get_variables()
       var_iter = variables%ftn_begin()
       do while (var_iter /= variables%ftn_end())
-         var_name => var_iter%first()
-         call string_vector%push_back(var_name)
          call var_iter%next()
+         var_name => var_iter%first()
+         _HERE,' bmaa '//trim(var_name)
+         call string_vector%push_back(var_name)
       enddo
 
    end function string_vector_from_metadata
+
+   subroutine add_geom_from_file(gridcomp, data_file, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: data_file
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(FileMetadata) :: metadata
+      type(NetCDF4_FileFormatter) :: formatter
+      type(MAPLGeom), pointer :: mapl_geom
+      type(GeomManager), pointer :: geom_mgr
+      type(ESMF_Geom) :: geom
+
+      call formatter%open(data_file, pFIO_READ, _RC)
+      metadata = formatter%read(_RC)
+      call formatter%close(_RC)
+      geom_mgr => get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom_from_metadata(metadata, _RC)
+      geom = mapl_geom%get_geom()
+      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_geom_from_file
 
    end module regrid_util_support_mod

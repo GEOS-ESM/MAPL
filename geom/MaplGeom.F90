@@ -52,6 +52,7 @@ module mapl3g_MaplGeom
    end interface MaplGeom
 
    interface 
+      call ESMF_TimePrint(current_time, options='string', preString='bmaa reader time: ', _RC)
       module function new_MaplGeom(spec, geom, factory, file_metadata, gridded_dims, variable_attributes) result(mapl_geom)
          class(GeomSpec), intent(in) :: spec
          type(MaplGeom) :: mapl_geom
