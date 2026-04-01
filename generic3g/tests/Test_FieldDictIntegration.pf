@@ -1,13 +1,13 @@
 #include "MAPL_TestErr.h"
 ! Integration tests: make_VariableSpec + FieldDictionary singleton interaction.
 ! These tests verify that make_VariableSpec correctly:
-!   1. Fills `units` from the dictionary when use_field_dictionary=.true. and
+!   1. Fills `units` from the dictionary when use_fd=.true. and
 !      not specified by the caller.
 !   2. Fills `long_name` from the dictionary when a standard_name matches.
 !   3. Lets caller-specified `units` take precedence over dictionary defaults.
-!   4. Works correctly for multiple fields, each with use_field_dictionary=.true.
+!   4. Works correctly for multiple fields, each with use_fd=.true.
 !
-! Note: the parse_var_specs (YAML) path does not yet propagate use_field_dictionary;
+! Note: the parse_var_specs (YAML) path does not yet propagate use_fd;
 ! that is tracked separately in GH issue #4578.
 
 module Test_FieldDictIntegration
@@ -50,7 +50,7 @@ contains
 
    ! ==================================================================
    ! 1. make_VariableSpec fills units + long_name from singleton dict
-   !    when use_field_dictionary=.true.
+   !    when use_fd=.true.
    ! ==================================================================
    @test
    subroutine test_units_and_long_name_filled_from_dict()
@@ -63,9 +63,9 @@ contains
       call load_field_dictionary(DICT_FILE, rc=status)
       @assert_that(status, is(0))
 
-      vs = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
-           standard_name='air_temperature', &
-           use_field_dictionary=.true., rc=status)
+       vs = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
+            standard_name='air_temperature', &
+            use_fd=.true., rc=status)
       @assert_that(status, is(0))
 
       @assert_that(allocated(vs%units), is(true()))
@@ -90,9 +90,9 @@ contains
       call load_field_dictionary(DICT_FILE, rc=status)
       @assert_that(status, is(0))
 
-      vs = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
-           standard_name='air_temperature', units='degC', &
-           use_field_dictionary=.true., rc=status)
+       vs = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
+            standard_name='air_temperature', units='degC', &
+            use_fd=.true., rc=status)
       @assert_that(status, is(0))
 
       ! Caller-specified units must win
@@ -106,7 +106,7 @@ contains
    end subroutine test_caller_units_override_dict
 
    ! ==================================================================
-   ! 3. Without use_field_dictionary=.true., dict is NOT consulted,
+   ! 3. Without use_fd=.true., dict is NOT consulted,
    !    even when standard_name matches a dict entry.
    ! ==================================================================
    @test
@@ -120,7 +120,7 @@ contains
       call load_field_dictionary(DICT_FILE, rc=status)
       @assert_that(status, is(0))
 
-      ! No use_field_dictionary argument — default is .false.
+      ! No use_fd argument — default is .false.
       vs = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
            standard_name='air_temperature', rc=status)
       @assert_that(status, is(0))
@@ -134,7 +134,7 @@ contains
 
    ! ==================================================================
    ! 4. Multiple fields via make_VariableSpec both get dict defaults
-   !    when use_field_dictionary=.true.
+   !    when use_fd=.true.
    ! ==================================================================
    @test
    subroutine test_multiple_fields_from_dict()
@@ -147,12 +147,12 @@ contains
       call load_field_dictionary(DICT_FILE, rc=status)
       @assert_that(status, is(0))
 
-      vs_t = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
-           standard_name='air_temperature', use_field_dictionary=.true., rc=status)
-      @assert_that(status, is(0))
+       vs_t = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
+            standard_name='air_temperature', use_fd=.true., rc=status)
+       @assert_that(status, is(0))
 
-      vs_q = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='Q', &
-           standard_name='specific_humidity', use_field_dictionary=.true., rc=status)
+       vs_q = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='Q', &
+            standard_name='specific_humidity', use_fd=.true., rc=status)
       @assert_that(status, is(0))
 
       @assertEqual('K', vs_t%units)
