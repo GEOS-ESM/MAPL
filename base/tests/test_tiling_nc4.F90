@@ -29,7 +29,7 @@ program test_tiling_nc4_simple
    call ESMF_Initialize(vm=vm, logkindflag=ESMF_LOGKIND_NONE, rc=status)
    if (status /= ESMF_SUCCESS) then
       print *, "Failed to initialize ESMF"
-      call exit(1)
+      stop 1
    endif
    
    call ESMF_VMGet(vm, mpiCommunicator=comm, petCount=npes, localPet=rank, rc=status)
