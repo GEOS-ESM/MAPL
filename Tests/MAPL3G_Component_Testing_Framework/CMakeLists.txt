@@ -26,8 +26,12 @@ foreach(LINE ${DESC_LINES})
   endif()
 endforeach()
 
-set(LD_PATH "LD_LIBRARY_PATH")
-set(TEST_ENV "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}")
+if (APPLE)
+  set(LD_PATH "DYLD_LIBRARY_PATH")
+else()
+  set(LD_PATH "LD_LIBRARY_PATH")
+endif()
+set(TEST_ENV "${LD_PATH}=$<TARGET_FILE_DIR:configurable_gridcomp>:$<TARGET_FILE_DIR:MAPL.componentDriverGridComp>:${CMAKE_CURRENT_BINARY_DIR}/gridcomps:${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}")
 
 foreach(TEST_CASE ${TEST_CASES})
 
