@@ -43,7 +43,6 @@ contains
       end select
 
       call var%set_common(f=f, variance_field=variance_field, alarm=alarm, biased=biased)
-      if(present(biased)) var%biased_ = biased
 
    end function newVariance
 

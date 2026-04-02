@@ -1,0 +1,141 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_Variance
+   use pfunit
+   use esmf
+   use mapl3g_Sampler
+   use mapl3g_FieldAPI
+   use ESMF_TestMethod_mod
+   use mapl3g_Variance
+   implicit none(type, external)
+
+   character(len=*), parameter :: START_TIME = '20260401T020000'
+   character(len=*), parameter :: TIME_STEP = 'PT1S'
+   integer, parameter :: RING_INTERVAL = 3600
+   type(ESMF_Time) :: startTime
+   type(ESMF_TimeInterval) :: timeStep, ringInterval
+   logical :: startTimeIsSet = .FALSE.
+   logical :: timeStepIsSet = .FALSE.
+   logical, parameter :: ALARM_IS_STICKY = .TRUE.
+   integer, pointer :: seed_ptr => null()
+
+contains
+
+   @Test(type=ESMF_TestMethod, npes[1])
+   subroutine test_calculate_r4_shifted_biased(this)
+      class(ESMF_TestMethod), intent(inout) ::  this
+      class(Variance), allocatable :: var
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field), importField, variance_field
+      type(ESMF_Clock) :: clock
+      type(ESMF_Alarm) :: alarm
+      integer :: status, i
+      integer, parameter :: MAXI = 2
+      integer, parameter :: MAXY = 2
+      real(kind=ESMF_KIND_R4) :: expected(MAXI*MAXY)
+      real(kind=kind(expected)), allocatable, target :: updateData(:, :)
+      real(kind=kind(expected)) :: samples(:)
+      real(kind=kind(expected)), pointer :: importData(:, :) => null()
+      real(kind=kind(expected)), pointer :: varianceData(:, :) => null()
+      real(kind=kind(expected)), allocatable :: expected(:, :)
+      type(ESMF_Typekind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
+
+      allocate(samples(MAXI*MAXY*RING_INTERVAL))
+      allocate(updateData(MAXI, MAXY))
+      allocate(expected, mold=updateData)
+      importData => updateData
+      samples = get_sample(size(samples), _RC)
+      call initialize(clock, alarm, _RC)
+      grid = ESMF_Grid(maxIndex=[MAXI, MAXY], _RC)
+
+      importField = ESMF_FieldEmptyCreate(_RC)
+      call ESMF_FieldEmptySet(importField, grid=grid, _RC)
+      call ESMF_FieldEmptyComplete(importField, typekind=typekind, _RC)
+      call MAPL_FieldClone(importField, variance_field, _RC)
+
+      var = Variance(algorithm=SHIFTED, f=importField, variance_field=variance_field,&
+         & alarm=alarm)
+      do i=1, size(samples), size(updateData)
+         updateData = reshape(samples(i:i+size(updateData)-1), shape(updateData))
+         call ESMF_FieldSet(importField, fptr=importData, _RC)
+         call var%update(_RC)
+         call clock%advance(_RC)
+      end do
+
+      expected = expected_variance(samples, MAXI*MAXY, _RC)
+
+      call ESMF_FieldDestroy(importField)
+      call ESMF_FieldDestroy(variance_field)
+      call ESMF_GridDestroy(grid)
+      if(allocated(updateData)) deallocate(updateData)
+      importData => null()
+      varianceData => null()
+      call finalize(clock, alarm, rc=status)
+
+   end subroutine test_calculate_r4_shifted_biased
+
+   subroutine initialize(clock, alarm, rc)
+      type(ESMF_Clock), intent(inout) :: clock
+      type(ESMF_Alarm), intent(inout) :: alarm
+      integer, intent(out) :: rc
+      integer :: status
+
+      rc = -1
+      if(.not. (startTimeIsSet .and. timeStepIsSet)) return
+      clock = ESMF_ClockCreate(startTime=startTime, timeStep=timeStep, rc=status)
+      rc = status
+      if(status /= _SUCCESS) then
+         if(ESMF_ClockIsCreated(clock)) call ESMF_ClockDestroy(clock)
+         return
+      end if
+      alarm = ESMF_AlarmCreate(clock, ringInterval=ringInterval, rc=status)
+      rc = status
+      if(status /= _SUCCESS) then
+         if(ESMF_AlarmIsCreated(alarm)) call ESMF_AlarmDestroy(alarm)
+         return
+      end if
+      rc = _SUCCESS
+
+   end subroutine initialize
+
+   subroutine finalize(clock, alarm, rc)
+      type(ESMF_Clock), intent(inout) :: clock
+      type(ESMF_Alarm), intent(inout) :: alarm
+      integer, intent(out) :: rc
+      integer :: stat00, stat01, stat10, stat11
+
+      rc = -1
+      if(ESMF_AlarmIsCreated(alarm, stat00)) call ESMF_AlarmDestroy(alarm, stat01)
+      if(ESMF_ClockIsCreated(clock, stat10)) call ESMF_ClockDestroy(clock, stat11)
+      if(all([stat00, stat01, stat10, stat11] == _SUCCESS)) rc = _SUCCESS
+
+   end subroutine finalize
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status, iostat
+      logical :: is_created
+      character(len=:), allocatable :: errmsg
+      integer :: n
+      integer, allocatable, target :: the_seed
+
+      if(.not. startTimeIsSet) then
+         call ESMF_TimeSet(startTime, START_TIME, rc=status)
+         startTimeIsSet = (status == _SUCCESS)
+      end if
+      @assertTrue(startTimeIsSet, 'startTime is not set.')
+
+      if(.not. timeStepIsSet) then
+         call ESMF_TimeIntervalSet(timeStep, TIME_STEP, rc=status)
+         timeStepIsSet = (status == _SUCCESS)
+         ringInterval = RING_INTERVAL * timeStep
+      end if
+      @assertTrue(timeStepIsSet, 'timeStep is not set.')
+
+      if(.not. associated(seed_ptr)) seed_ptr => set_seed_ptr()
+
+   end subroutine setUp
+         
+end module Test_Variance

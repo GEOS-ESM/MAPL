@@ -32,18 +32,18 @@ module mapl3g_ShiftedVariance
 
 contains
 
-   function new_ShiftedVariance(unusable, f, variance_field, alarm, biased) result(var)
-      type(ShiftedVariance) :: var
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Field), intent(in) :: f
-      type(ESMF_Field), intent(in) :: variance_field
-      type(ESMF_Alarm), intent(in) :: alarm
-      character(len=*), optional, intent(in) :: biased
+!   function new_ShiftedVariance(unusable, f, variance_field, alarm, biased) result(var)
+!      type(ShiftedVariance) :: var
+!      class(KeywordEnforcer), optional, intent(in) :: unusable
+!      type(ESMF_Field), intent(in) :: f
+!      type(ESMF_Field), intent(in) :: variance_field
+!      type(ESMF_Alarm), intent(in) :: alarm
+!      character(len=*), optional, intent(in) :: biased
 
-      call set_common(var, f=f, variance_field=variance_field, alarm=alarm, biased=biased)
-      _UNUSED_DUMMY(unusable)
+!      call set_common(var, f=f, variance_field=variance_field, alarm=alarm, biased=biased)
+!      _UNUSED_DUMMY(unusable)
 
-   end function new_ShiftedVariance
+!   end function new_ShiftedVariance
 
    subroutine post_initialize(this, rc)
       class(ShiftedVariance), intent(inout) :: this
