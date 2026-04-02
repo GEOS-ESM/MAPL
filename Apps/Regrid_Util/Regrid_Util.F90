@@ -18,7 +18,6 @@ CONTAINS
 
 #undef I_AM_MAIN
    subroutine main(rc)
-   use mapl3g_GenericGridComp, only: generic_SetServices => setServices
    integer, optional, intent(out) :: rc
 
    type(regrid_support), target :: support
@@ -36,7 +35,8 @@ CONTAINS
    hconfig = ESMF_HConfigCreate(_RC)
    call add_string_vector_to_hconfig(hconfig, "input_files", support%filenames, _RC)
    call add_string_vector_to_hconfig(hconfig, "output_files", support%filenames, _RC)
-   !geom_hconfig = create_output_geom_hconfig( )
+   call support%create_grid(support%gridname, geom_hconfig, _RC)
+   call ESMF_HConfigAdd(hconfig, geom_hconfig, addKeyString="input_file", _RC)
 
    readerwriter_gridcomp = mapl_GridCompCreate('readerwritercoupler_gc',user_setservices(ReaderWriter_setServices), hconfig, _RC)
    call ESMF_GridCompSetServices(ReaderWriter_gridcomp, generic_setServices, _USERRC)

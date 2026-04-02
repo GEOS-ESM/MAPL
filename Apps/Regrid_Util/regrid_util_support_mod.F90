@@ -14,7 +14,7 @@
    real, parameter :: uninit = MAPL_UNDEF
 
    type regrid_support
-      type(ESMF_Grid)     :: new_grid
+      character(len=:), allocatable :: gridname
       type(StringVector) :: filenames,outputfiles
       integer :: Nx,Ny
       integer :: itime(2)
@@ -32,7 +32,6 @@
    contains
       procedure :: create_grid
       procedure :: process_command_line
-      procedure :: has_level
    end type regrid_support
 
    contains
@@ -111,7 +110,8 @@
       case('-i')
          call get_command_argument(i+1,cfilenames)
       case('-ogrid')
-         call get_command_argument(i+1,Gridname)
+         call get_command_argument(i+1,gridname)
+         this%gridname = gridname
       case('-nx')
          call get_command_argument(i+1,astr)
          read(astr,*)this%nx
@@ -190,56 +190,27 @@
        _ASSERT(this%filenames%size() == 1,'if selecting time from file, can only regrid a single file')
     end if
 
-    !call this%create_grid(gridname,_RC)
     _RETURN(_SUCCESS)
 
     end subroutine process_command_line
 
-    subroutine create_grid(this,grid_name,rc)
+    subroutine create_grid(this,grid_name,geom_hconfig,rc)
     class(regrid_support) :: this
     character(len=*), intent(in) :: grid_name
+    type(ESMF_HConfig), intent(inout) :: geom_hconfig
     integer, optional, intent(out) :: rc
 
-    !type (FileMetaDataUtils) :: metadata
-    !type (FileMetaData) :: basic_metadata
-    character(len=:),allocatable :: lev_name
     integer :: im_world,jm_world,lm_world
-    !type(NetCDF4_FileFormatter) :: formatter
-    !character(len=:), allocatable :: filename
     character(len=2) :: dateline,pole
     integer :: status
-    type(ESMF_HConfig) :: output_geom_hconfig
 
-    !filename = this%filenames%at(1)
-
-    !call formatter%open(trim(filename),pFIO_Read,_RC)
-    !basic_metadata=formatter%read(_RC)
-    !call metadata%create(basic_metadata,trim(filename))
-
-    !call formatter%close(_RC)
-
-    !lm_world=0
-    !lev_name=metadata%get_level_name()
-    !if (trim(lev_name)/='') then
-       !lm_world = metadata%get_dimension(lev_name,_RC)
-    !end if
     call UnpackGridName(Grid_name,im_world,jm_world,dateline,pole)
 
-    output_geom_hconfig = create_output_geom_hconfig(grid_name,im_world,jm_world,this%nx,this%ny,lm_world,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
-    !this%new_grid=grid_manager%make_grid(cfoutput,prefix=trim(grid_name)//".",_RC)
+    lm_world=1
+    geom_hconfig = create_output_geom_hconfig(grid_name,im_world,jm_world,this%nx,this%ny,lm_world,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
 
     _RETURN(_SUCCESS)
     end subroutine create_grid
-
-    function has_level(this,rc) result(file_has_level)
-       logical :: file_has_level
-       class(regrid_support), intent(in) :: this
-       integer, intent(out), optional :: rc
-       integer :: global_dims(3),status
-       call MAPL_GridGet(this%new_grid,globalCellCountPerDim=global_dims,_RC)
-       file_has_level = (global_dims(3) /= 0)
-       _RETURN(_SUCCESS)
-    end function
 
     function create_output_geom_hconfig(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,lon_range,lat_range,tripolar_file,rc) result(output_geom_hconfig)
        type(ESMF_HConfig)              :: output_geom_hconfig
@@ -373,7 +344,6 @@
       do while (var_iter /= variables%ftn_end())
          call var_iter%next()
          var_name => var_iter%first()
-         _HERE,' bmaa '//trim(var_name)
          call string_vector%push_back(var_name)
       enddo
 

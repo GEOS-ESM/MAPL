@@ -43,8 +43,19 @@ contains
 
       integer :: status
       type(ESMF_HConfig) :: hconfig
+      type(GeomManager), pointer :: geom_mgr
+      type(ESMF_HConfig) :: geom_hconfig
+      type(MaplGeom) :: mapl_geom
+      type(ESMF_Geom) :: geom
 
-
+      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      geom_mgr => get_geom_manager()
+      geom_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='output_geom', _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(geom_hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(geom_hconfig, _RC)
+      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
       _UNUSED_DUMMY(exportState)
