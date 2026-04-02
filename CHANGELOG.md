@@ -11,7 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- CDash nightly workflow configured to build and test `release/MAPL-v3` from the `main` branch
+- CTest dashboard configuration files (`CTestDashboard.cmake`, `CTestConfig.cmake`, `CTestCustom.cmake`) ported from `release/MAPL-v3` to support nightly CI/CD testing
+
 ### Changed
+
+- CDash nightly GitHub Actions workflow now triggers scheduled builds from `main` while testing the `release/MAPL-v3` branch
 
 ### Removed
 
