@@ -10,7 +10,7 @@ module mapl3g_ClimDataSetFileSelector
    use mapl3g_AbstractDataSetFileSelector
    use mapl3g_ExtdataUtilities
    use mapl_StringTemplate
-   use mapl3g_geomio
+   use mapl3g_GeomIO_API
    use mapl3g_FieldBundle_API
    use MAPL_FieldUtils
 
@@ -49,7 +49,7 @@ contains
 
       file_handler%file_template = file_template
       if ( index(file_handler%file_template,'%') == 0 ) file_handler%single_file = .true.
-      file_handler%collection_id = mapl3g_AddDataCollection(file_handler%file_template)
+      file_handler%collection_id = MAPL_AddDataCollection(file_handler%file_template)
 
       if (present(valid_range)) then
          _ASSERT(size(valid_range)==2,"Valid range must be 2")

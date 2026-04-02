@@ -4,7 +4,7 @@ module mapl3g_RestartHandler
 
    use esmf
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return
-   use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio
+   use mapl3g_GeomIO_API, only: MAPL_bundle_to_metadata, GeomPFIO, MAPL_make_geom_pfio
    use mapl3g_FieldInfo, only: FieldInfoGetInternal
    use mapl3g_RestartModes, only: RestartMode, operator(==), MAPL_RESTART_SKIP
    use mapl3g_Field_API, only: MAPL_FieldGet
@@ -108,8 +108,8 @@ contains
       class(GeomPFIO), allocatable :: writer
       integer :: status
 
-      metadata = bundle_to_metadata(bundle, this%gridcomp_geom, _RC)
-      allocate(writer, source=make_geom_pfio(metadata), _STAT)
+      metadata = MAPL_bundle_to_metadata(bundle, this%gridcomp_geom, _RC)
+      allocate(writer, source=MAPL_make_geom_pfio(metadata), _STAT)
       call writer%initialize(metadata, this%gridcomp_geom, _RC)
       call writer%update_time_on_server(this%current_time, _RC)
       ! TODO: no-op if bundle is empty, or should we skip empty bundles?
@@ -134,7 +134,7 @@ contains
       call file_formatter%open(filename, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
       call file_formatter%close(_RC)
-      allocate(reader, source=make_geom_pfio(metadata), _STAT)
+      allocate(reader, source=MAPL_make_geom_pfio(metadata), _STAT)
       call reader%initialize(filename, this%gridcomp_geom, _RC)
       call reader%request_data_from_file(filename, bundle, _RC)
       call i_Clients%done_collective_prefetch()

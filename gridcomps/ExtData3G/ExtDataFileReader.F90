@@ -5,7 +5,7 @@ module mapl3g_ExtDataReader
    use gftl2_StringStringMap
    use gftl2_StringIntegerMap
    use mapl3g_FieldBundle_API
-   use mapl3g_geomio
+   use mapl3g_GeomIO_API
    use PFIO
    use MAPL_FieldPointerUtilities
    use pFlogger, only: logger
@@ -108,7 +108,7 @@ module mapl3g_ExtDataReader
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
          call FieldGetCptr(field_list(i), address, _RC)
-         pfio_typekind = esmf_to_pfio_type(esmf_typekind, _RC)
+         pfio_typekind = MAPL_esmf_to_pfio_type(esmf_typekind, _RC)
          new_element_count = server_bounds%get_file_shape()
          ref = ArrayReference(address, pfio_typekind, new_element_count)
          call i_Clients%collective_prefetch_data( &

@@ -13,7 +13,7 @@ module mapl3g_ExtDataGridComp
    use mapl3g_ExtDataConfig
    use mapl3g_PrimaryExportVector
    use mapl3g_PrimaryExport
-   use mapl3g_geomio
+   use mapl3g_GeomIO_API
    use mapl3g_Geom_API
    use mapl3g_AbstractDataSetFileSelector
    use MAPL_FileMetadataUtilsMod

@@ -18,7 +18,7 @@ module mapl3g_ExtDataConfig
    use mapl3g_ExtDataSampleMap
    use MAPL_TimeStringConversion
    use mapl3g_PrimaryExport
-   use mapl3g_geomio
+   use mapl3g_GeomIO_API
    use mapl3g_AbstractDataSetFileSelector
    use mapl3g_NonClimDataSetFileSelector
 

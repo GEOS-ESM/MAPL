@@ -8,7 +8,7 @@ module mapl3g_AbstractDataSetFileSelector
    use mapl3g_DataSetBracket
    use mapl_StringTemplate
    use mapl_FileMetadataUtilsMod
-   use mapl3g_geomio
+   use mapl3g_GeomIO_API
    use mapl3g_ExtDataConstants
 
    implicit none

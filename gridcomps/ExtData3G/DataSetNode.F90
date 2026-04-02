@@ -7,7 +7,7 @@ module mapl3g_DataSetNode
    use MAPL_ExceptionHandling
    use pFIO
    use MAPL_FileMetadataUtilsMod
-   use mapl3g_geomio
+   use mapl3g_GeomIO_API
    use mapl3g_ExtDataUtilities
    use pFlogger, only: logger
 

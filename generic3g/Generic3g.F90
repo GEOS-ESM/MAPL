@@ -16,6 +16,6 @@ module Generic3g
    use mapl3g_UserSetServices
    use mapl3g_ESMF_HConfigUtilities, only: MAPL_HConfigMatch
    use mapl3g_VerticalStaggerLoc
-   use mapl3g_geomio
+   use mapl3g_GeomIO_API
    use mapl3g_ESMF_Utilities
 end module Generic3g
