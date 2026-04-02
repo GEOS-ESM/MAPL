@@ -95,7 +95,21 @@ if(NOT DEFINED build_name)
   if(NOT _fc_name)
     set(_fc_name "unknown-FC")
   endif()
-  set(build_name "${_os_name}-${_os_rel}-${_fc_name}-${build_type}-${generator}")
+
+  # Try to grab the current git branch name
+  execute_process(
+    COMMAND git rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY "${CTEST_SOURCE_DIRECTORY}"
+    RESULT_VARIABLE _git_res
+    OUTPUT_VARIABLE _git_branch
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  if(_git_res EQUAL 0 AND NOT _git_branch STREQUAL "HEAD" AND NOT _git_branch STREQUAL "")
+    string(REPLACE "/" "-" _safe_branch "${_git_branch}")
+    set(build_name "${_safe_branch}-${_os_name}-${_os_rel}-${_fc_name}-${build_type}-${generator}")
+  else()
+    set(build_name "${_os_name}-${_os_rel}-${_fc_name}-${build_type}-${generator}")
+  endif()
 endif()
 set(CTEST_BUILD_NAME "${build_name}")
 
