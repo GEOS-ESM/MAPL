@@ -2,7 +2,7 @@
 
 module mapl3g_StatisticsGridComp
 
-   use mapl3
+   use MAPL
    use mapl3g_RestartHandler
    use mapl3g_ESMF_Time_Utilities, only: sub_time_in_datetime
    ! local modules
@@ -459,7 +459,7 @@ contains
 end module mapl3g_StatisticsGridComp
 
 subroutine setServices(gridComp, rc)
-   use mapl3
+   use MAPL
    use mapl3g_StatisticsGridComp, only: StatisticsSetServices => setServices
    implicit none(type,external)
    type(esmf_GridComp), intent(inout) :: gridcomp
