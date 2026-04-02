@@ -157,13 +157,11 @@ string(APPEND CTEST_CONFIGURE_COMMAND " \"${CTEST_SOURCE_DIRECTORY}\"")
 ## 4. Build commands  (all must be single strings)
 ##    Step 1: install (the main build)
 ##    Step 2: build-tests (MAPL test executables are a separate target)
+##    Note: We combine both into a single build command to ensure the
+##          total build time is correctly captured in a single CDash step.
 ## ---------------------------------------------------------------------------
 set(CTEST_BUILD_COMMAND
-    "\"${CTEST_CMAKE_COMMAND}\" --build \"${CTEST_BINARY_DIRECTORY}\" --parallel ${jobs} --target install"
-)
-# Second build step for tests -- called explicitly after ctest_build()
-set(_build_tests_command
-    "\"${CTEST_CMAKE_COMMAND}\" --build \"${CTEST_BINARY_DIRECTORY}\" --parallel ${jobs} --target build-tests"
+    "\"${CTEST_CMAKE_COMMAND}\" --build \"${CTEST_BINARY_DIRECTORY}\" --parallel ${jobs} --target install --target build-tests"
 )
 
 ## ---------------------------------------------------------------------------
@@ -247,7 +245,7 @@ if(_configure_result)
   return()
 endif()
 
-# Build (install target)
+# Build (install & build-tests targets)
 ctest_build(
   NUMBER_ERRORS   _build_errors
   NUMBER_WARNINGS _build_warnings
@@ -255,10 +253,9 @@ ctest_build(
 )
 message(STATUS "Build: ${_build_errors} error(s), ${_build_warnings} warning(s)")
 
-# Stop early if the main build failed -- don't overwrite its log with the
-# build-tests step, and don't attempt to run tests against broken binaries.
+# Stop early if the build failed -- don't attempt to run tests against broken binaries.
 if(_build_errors GREATER 0)
-  message(WARNING "Main build had ${_build_errors} error(s) -- skipping test step")
+  message(WARNING "Build had ${_build_errors} error(s) -- skipping test step")
   if(_cdash_auth_header)
     ctest_submit(PARTS Configure Build HTTPHEADER "${_cdash_auth_header}"
                  RETURN_VALUE _submit_result)
@@ -272,18 +269,6 @@ if(_build_errors GREATER 0)
   endif()
   return()
 endif()
-
-# Build test executables (separate target in MAPL)
-message(STATUS "Building test executables (build-tests target)...")
-set(CTEST_BUILD_COMMAND "${_build_tests_command}")
-ctest_build(
-  TARGET          build-tests
-  NUMBER_ERRORS   _build_tests_errors
-  NUMBER_WARNINGS _build_tests_warnings
-  RETURN_VALUE    _build_tests_result
-  APPEND
-)
-message(STATUS "Build-tests: ${_build_tests_errors} error(s), ${_build_tests_warnings} warning(s)")
 
 # Run ESSENTIAL tests only (matching CI behaviour).
 # Run serially (parallel 1) as in CI to avoid MPI oversubscription issues.
