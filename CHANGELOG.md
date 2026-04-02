@@ -9,12 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed compiler bug encountered with certain versions of Intel compilers
+- Fixed bug when one of the two names in an ExtData2G rule for a vector is contained in a substring in another item, for example UA;VA and EVAP 
 
 ### Added
 - Add debug logger call to print out the name of the container being read from `ExtData.rc`
 - Added dimensionless vertical coordinates to criteria for vertically flipping imports in ExtData
+- Added ExtData2G criteria for presence of vertical coordinate for cases of non-CF-compliant files
 
 ### Changed
+- Changed default ExtData2G import vertical direction from down to up
 
 ### Removed
 

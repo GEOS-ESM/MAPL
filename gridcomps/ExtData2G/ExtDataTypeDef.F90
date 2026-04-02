@@ -73,7 +73,9 @@ module MAPL_ExtDataTypeDef
 
      type(ESMF_FieldBundle) :: t_interp_bundle
 
-     character(len=4) :: importVDir = "down"
+     ! Change default for GCHP
+     !character(len=4) :: importVDir = "down"
+     character(len=4) :: importVDir = "up"
      logical :: enable_vertical_regrid = .false.
      logical :: allow_vertical_regrid = .false.
      character(len=:), allocatable :: aux_ps, aux_q
