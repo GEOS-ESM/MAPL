@@ -161,7 +161,7 @@ string(APPEND CTEST_CONFIGURE_COMMAND " \"${CTEST_SOURCE_DIRECTORY}\"")
 ##          total build time is correctly captured in a single CDash step.
 ## ---------------------------------------------------------------------------
 set(CTEST_BUILD_COMMAND
-    "\"${CTEST_CMAKE_COMMAND}\" --build \"${CTEST_BINARY_DIRECTORY}\" --parallel ${jobs} --target install --target build-tests"
+    "\"${CTEST_CMAKE_COMMAND}\" --build \"${CTEST_BINARY_DIRECTORY}\" --parallel ${jobs} --target install build-tests"
 )
 
 ## ---------------------------------------------------------------------------
