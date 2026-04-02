@@ -1,11 +1,18 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-set(MODULE_DIRECTORY "${esma_include}/MAPL.statistics.tests")
+set(MODULE_DIRECTORY "${esma_include}/MAPL_StatisticsGridComp.tests")
 
-set(test_srcs
+set (test_srcs
+  Test_ShiftedVariance.pf
+  Test_WelfordVariance.pf
   Test_Variance.pf
-<<<<<<< HEAD
-  Test_TimeAccumulate.pf
+  )
+
+add_pfunit_ctest(MAPL_StatisticsGridComp.tests
+                TEST_SOURCES ${test_srcs}
+                LINK_LIBRARIES MAPL_StatisticsGridComp MAPL.pfunit
+                EXTRA_INITIALIZE Initialize
+  Test_Variance.pf
+  )
+
   )
 ||||||| parent of 132f2edb (Initial test setup)
   )
@@ -22,7 +29,6 @@ add_library(MAPL.gridcomps.StatisticsGridComp.test_common SHARED
   Sampler.F90
 )
 add_pfunit_ctest(MAPL_StatisticsGridComp.tests
->>>>>>> 132f2edb (Initial test setup)
                 TEST_SOURCES ${test_srcs}
                 LINK_LIBRARIES MAPL_StatisticsGridComp MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
