@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- CDash nightly GitHub Actions workflow now allows manual selection of branch, CMake build type, and compiler via `workflow_dispatch`
 - CDash nightly GitHub Actions workflow now triggers scheduled builds from `main` while testing the `release/MAPL-v3` branch
 
 ### Removed
