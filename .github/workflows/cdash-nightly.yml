@@ -115,12 +115,16 @@ jobs:
         shell: bash
         env:
           CDASH_AUTH_TOKEN: ${{ secrets.CDASH_AUTH_TOKEN }}
+          TESTED_BRANCH: ${{ inputs.branch || 'release/MAPL-v3' }}
         run: |
+          # Replace slashes with dashes to ensure the CDash build name is safe/clean
+          SAFE_BRANCH=$(echo "${TESTED_BRANCH}" | tr '/' '-')
+          
           ctest \
             -D model=${CTEST_MODEL} \
             -D build_type=${CTEST_BUILD_TYPE} \
             -D generator="Unix Makefiles" \
             -D jobs=4 \
-            -D build_name="GHA-ubuntu24-${{ matrix.compiler }}-${CTEST_BUILD_TYPE}" \
+            -D build_name="${SAFE_BRANCH}-GHA-ubuntu24-${{ matrix.compiler }}-${CTEST_BUILD_TYPE}" \
             -S CTestDashboard.cmake \
             -V
