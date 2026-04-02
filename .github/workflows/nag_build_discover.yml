@@ -2,7 +2,7 @@ name: NAG Build on Discover
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
     # Do not run if the only files changed cannot affect the build
     paths-ignore:
       - "**.md"
@@ -28,4 +28,5 @@ defaults:
 
 jobs:
   run-nag-build-discover:
+    if: github.event.pull_request.draft == false
     uses: GEOS-ESM/CI-workflows/.github/workflows/nag-build.yml@project/mapl
