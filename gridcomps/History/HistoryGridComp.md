@@ -17,11 +17,12 @@
   * [4.6 Outputting monthly data](#46-outputting-monthly-data)
 - [5 Tips for `History`](#5-tips-for--history-)
 
+<!-- mlc-disable-next-line -->
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 
 # 1 Overview
-The `History` component is one of several specialized components provided by the MAPL library. `History` exists to write diagnostic data from the Export State of a ESMF gridded component in a MAPL hierarchy. 
+The `History` component is one of several specialized components provided by the MAPL library. `History` exists to write diagnostic data from the Export State of a ESMF gridded component in a MAPL hierarchy.
 `History` relies on a resource file (`HISTORY.rc`) that consists of "collections" which define a group of variables and the components they can be found in that are output with identical parameters. **At its most basic use, i.e. if you don't explicitly tell History to do something else, it will write the field in the native representation of as it exists in the ESMF gridded component the field comes from (i.e. on the same horizontal grid and with same number of vertical levels as in the component).**
 
 **Remark 1:** `History` does not handle the checkpointing of the component states for subsequent use as restarts. That is a separate code from `History`.
@@ -33,9 +34,9 @@ The `History` resource file (`HISTORY.rc`) uses the ESMF config format. The stru
 The following are global options that may be set in the resource file:
 ```
 EXPID: experiment id
-FileOrder: optional, sets the order of the variables in the collection in the netcdf file 
-           to alphabetical (default) and makes sure any variables that are part of the metadata 
-           like lons or lats go first. If you don't want this for some reason set to "add_order" 
+FileOrder: optional, sets the order of the variables in the collection in the netcdf file
+           to alphabetical (default) and makes sure any variables that are part of the metadata
+           like lons or lats go first. If you don't want this for some reason set to "add_order"
            which will just put them in the order they get added to the netcdf file.
 ```
 ## 2.2 Collection List
@@ -50,10 +51,10 @@ If you want to temporarily disable writing of a collection, just remove it from 
 You don't need to delete its definition later in `HISTORY.rc`.
 
 ## 2.3 Grid Labels
-The grid label section provides a list of grid definitions that may be referred to in collections for the HORIZONTAL regridding, so the `LM` value (number of verical levels) is irrelevant. If you put something it will be ignored, the actual non-distributed dimensions of the field will be examined to make decision about how the vertical will be handled.  
-These definitions specify the horizontal output grid for the collection if the user wants the output regridded to a different horizontal grid than the native grid the requested field is defined on. Currently this supports Lat-Lon and Cubed-Sphere grids. Each grid has the form of `grid_name.option` where the `grid_name` is what is referred to in the collection. Note that each grid definition must have a `GRID_TYPE` entry. The rest of the entries may be varying depending on the grid type. 
+The grid label section provides a list of grid definitions that may be referred to in collections for the HORIZONTAL regridding, so the `LM` value (number of verical levels) is irrelevant. If you put something it will be ignored, the actual non-distributed dimensions of the field will be examined to make decision about how the vertical will be handled.
+These definitions specify the horizontal output grid for the collection if the user wants the output regridded to a different horizontal grid than the native grid the requested field is defined on. Currently this supports Lat-Lon and Cubed-Sphere grids. Each grid has the form of `grid_name.option` where the `grid_name` is what is referred to in the collection. Note that each grid definition must have a `GRID_TYPE` entry. The rest of the entries may be varying depending on the grid type.
 
-Here is an example Lat-Lon definitions. The user specifies the longitudinal (`IM_WORLD`) size, the latitudinal (`JM_WORLD`) size, the pole (options `PC` or `PE` for pole edge and pole center), and the dateline options (`DE` or `DC` for dateline edge and dateline center). 
+Here is an example Lat-Lon definitions. The user specifies the longitudinal (`IM_WORLD`) size, the latitudinal (`JM_WORLD`) size, the pole (options `PC` or `PE` for pole edge and pole center), and the dateline options (`DE` or `DC` for dateline edge and dateline center).
 ```
 PC96x49-DC.GRID_TYPE: LatLon
 PC96x49-DC.IM_WORLD: 96
@@ -71,29 +72,29 @@ The actual grid to grid transformation is performed using ESMF and we currently 
 
 ## 2.4 Collections
 ```
-coll_name.template:     grads style template that defines time characteristics of the 
+coll_name.template:     grads style template that defines time characteristics of the
                         output file, e.g. %y4%m2%d2_%h2%n2z.nc4
 coll_name.format:       output file format, 'flat' binary or 'CFIO' netcdf, optional, default 'flat'
-coll_name.mode:         controls time output, whether to time average or write instantaneous values. 
+coll_name.mode:         controls time output, whether to time average or write instantaneous values.
                         Options 'instantaneous' (default) or 'time-averaged'
 coll_name.frequency:    time interval in HHMMSS format, frequency collection will be written
 coll_name.duration:     time interval in HHMMSS format, define how long to write to the
-                        current file before creating a new file, by default duration is the 
+                        current file before creating a new file, by default duration is the
                         freuqency for only one time will be written to each file
 coll_name.grid_label:   grid definition to use for the output horizontal regridding
 coll_name.vscale:
 coll_name.vunit:
 coll_name.vvars:
 coll_name.levels:
-coll_name.ref_time:     time in HHMMSS format, optional, reference time used in 
-                        conjunction with ref_date and frequency to determine when to write, 
+coll_name.ref_time:     time in HHMMSS format, optional, reference time used in
+                        conjunction with ref_date and frequency to determine when to write,
                         optional, default 000000
-coll_name.ref_date:     date in YYYYMMDD format, optional, reference date used in conjunction 
-                        with ref_time and frequency to determine when to write, optional, 
+coll_name.ref_date:     date in YYYYMMDD format, optional, reference date used in conjunction
+                        with ref_time and frequency to determine when to write, optional,
                         defaults to the date of the application clock
-coll_name.end_date:     date in YYYYMMDD format, optional, turns off collection at this date, 
+coll_name.end_date:     date in YYYYMMDD format, optional, turns off collection at this date,
                         by default no end date
-coll_name.end_time:     time in HHMMSS format, optional, turns off collection at this time, 
+coll_name.end_time:     time in HHMMSS format, optional, turns off collection at this time,
                         by default no end time
 coll_name.regrid_name:
 coll_name.regrid_exch:
@@ -101,15 +102,15 @@ coll_name.fields:       Definition of the fields that make up the collection, de
 coll_name.monthly:
 coll_name.splitField:
 coll_name.UseRegex:
-coll_name.nbit:         bit shaving, integer, optional, if not present, no bit shaving, 
-                        otherwise integer, retain that many bits of the mantissa, 
+coll_name.nbit:         bit shaving, integer, optional, if not present, no bit shaving,
+                        otherwise integer, retain that many bits of the mantissa,
                         useful for better compression
 coll_name.deflate:      netcdf compression level, default 0, can be 0-9
-coll_name.chunksize:    netcdf chunking, by default the chunksizes will match the dimension, 
-                        otherwise must be a list of comma separated numbers that match 
-                        the number of dimensions in the output file. For example, suppose 
-                        you are outputting on a 180x90 lat-lon grid, an there are 3D variables 
-                        in the file, the file will have 4 dimensions, lon,lat,lev,time 
+coll_name.chunksize:    netcdf chunking, by default the chunksizes will match the dimension,
+                        otherwise must be a list of comma separated numbers that match
+                        the number of dimensions in the output file. For example, suppose
+                        you are outputting on a 180x90 lat-lon grid, an there are 3D variables
+                        in the file, the file will have 4 dimensions, lon,lat,lev,time
                         so you could say 90,45,1,1
 coll_name.conservative: use conservative regridding, default 0, 0 - bilinear, 1 - conservative
 ```
@@ -122,7 +123,7 @@ The fields entry is described in more detail here as it has several options. The
                           'U;V'      , 'DYN'          ,
                           'ZLE'      , 'DYN'          , 'H'   ,
                           'OMEGA'    , 'DYN'          ,
-                          'Q'        , 'MOIST'        , 'QV'  ,      
+                          'Q'        , 'MOIST'        , 'QV'  ,
                           ::
 ```
 
@@ -167,5 +168,5 @@ This is effectively a dimensionality reducer/splitter for fields. Basically any 
 ## 4.6 Outputting monthly data
 
 # 5 Tips for `History`
-* Unless you are interpolating to a set of levels, you can not mix variables that are defined on the center and edge in the vertical in a collection as only one vertical coordinate may be defined in the output. **If you want to output both center and edge variables on the native levels, you must write two collections**. 
+* Unless you are interpolating to a set of levels, you can not mix variables that are defined on the center and edge in the vertical in a collection as only one vertical coordinate may be defined in the output. **If you want to output both center and edge variables on the native levels, you must write two collections**.
 * Likewise if your field has an ungridded dimension you can output it (the ungridded dimension is denoted as a level in the NetCDF file), but it can't have any vertical level as well (unless you use the splitting keyword for 4D fields ...).
