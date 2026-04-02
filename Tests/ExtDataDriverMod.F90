@@ -4,7 +4,7 @@ module ExtDataDriverMod
 
    use MPI  
    use ESMF
-   use MAPL
+   use MAPL2
    use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
    use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
    use gFTL_StringVector

@@ -2,7 +2,7 @@
 
 module mapl3g_HistoryCollectionGridComp_private
 
-   use mapl3
+   use MAPL
    use esmf
    use gFTL2_StringVector
    use gFTL2_StringSet

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 module mapl3g_HistoryUtilities
-   use mapl3
+   use MAPL
    use esmf
    use mapl3g_HistoryConstants
    !use gFTL2_StringVector

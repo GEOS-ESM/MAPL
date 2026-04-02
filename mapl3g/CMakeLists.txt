@@ -1,7 +1,7 @@
-esma_set_this()
+esma_set_this(OVERRIDE MAPL)
 
 set (srcs
-  mapl3g.F90
+  MAPL.F90
   MaplFramework.F90
   )
 

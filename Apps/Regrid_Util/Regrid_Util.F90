@@ -3,7 +3,7 @@
    module regrid_util_support_mod
 
    use ESMF
-   use MAPL
+   use MAPL2
    use gFTL2_StringVector
 
    implicit NONE
