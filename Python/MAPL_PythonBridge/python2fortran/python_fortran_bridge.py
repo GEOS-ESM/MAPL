@@ -23,7 +23,7 @@ class MAPLPythonFortranBridge:
         geos_dir = os.getenv("GEOSDIR", "Not found")
         if geos_dir == "Not found":
             raise RuntimeError(
-                "[MAPLPyish] Libary loads require a GEOSDIR environment variable"
+                "[MAPLPyish] Library loads require a GEOSDIR environment variable"
                 "pointing to the install directory of GEOS."
             )
 
