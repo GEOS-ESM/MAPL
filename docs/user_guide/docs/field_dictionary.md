@@ -4,80 +4,89 @@
 
 MAPL3 integrates a **field dictionary** that provides canonical metadata for
 GEOS fields: long names, units, physical dimension, and conservation flag.
-When a component declares a field with a `standard_name`, MAPL3 automatically
-fills in metadata from the dictionary — reducing duplication across component
-specs and improving consistency across GEOS.
-
 The dictionary is based on CF Conventions standard names where possible, and
 tracks a **verification status** for each entry (`unverified`, `verified`, or
 `cf_compliant`) to support a gradual migration toward full CF compliance.
+
+Dictionary lookup is **opt-in per variable**: a field only queries the dictionary
+when it is explicitly declared with `use_field_dictionary=.true.` in its
+`make_VariableSpec` call (or, when ACG support is available, via a
+`use_field_dictionary: true` column in the RC file — see
+[GH #4594](https://github.com/GEOS-ESM/MAPL/issues/4594)).
+
+This design means ad-hoc diagnostic fields and History gridcomp mirror variables
+are never burdened with requiring a dictionary entry.
 
 ---
 
 ## Quick Start
 
-### Minimal component spec with dictionary lookup
+### Opt in to dictionary lookup for a variable
 
-```yaml
-# MyComponent.yaml
-mapl:
-  states:
-    export:
-      air_temperature:
-        standard_name: air_temperature
-        dims: [lon, lat, lev]
-        # long_name and units are filled automatically from the dictionary
+In Fortran component code:
+
+```fortran
+var_spec = make_VariableSpec( &
+     state_intent=ESMF_STATEINTENT_EXPORT, &
+     short_name='T', &
+     standard_name='air_temperature', &
+     use_field_dictionary=.true., &   ! <-- opt in
+     rc=status)
 ```
 
-When `air_temperature` is found in the dictionary, MAPL3 uses:
-- `long_name: Air Temperature` (from the dictionary)
-- `canonical_units: K` (from the dictionary)
+When `use_field_dictionary=.true.` and `air_temperature` is found in the
+dictionary, `make_VariableSpec` sets:
+- `long_name = 'Air Temperature'` (from dictionary, if not already supplied)
+- `units = 'K'` (from dictionary, if not already supplied)
 
-These values become the defaults. Any keys you supply explicitly **override**
-the dictionary values.
+Caller-supplied values always win:
 
-### Override individual fields
-
-```yaml
-mapl:
-  states:
-    export:
-      surface_temp_degF:
-        standard_name: air_temperature
-        units: degF          # override the canonical units
-        # long_name still comes from the dictionary
+```fortran
+! Caller-specified units take priority; long_name still filled from dict
+var_spec = make_VariableSpec( &
+     state_intent=ESMF_STATEINTENT_EXPORT, &
+     short_name='T', &
+     standard_name='air_temperature', &
+     units='degC', &
+     use_field_dictionary=.true., &
+     rc=status)
 ```
 
-### Fully explicit spec (dictionary is not consulted)
+### Without the flag — dictionary is not consulted
 
-```yaml
-mapl:
-  states:
-    export:
-      pressure:
-        standard_name: air_pressure
-        units: hPa
-        long_name: Atmospheric Pressure
+```fortran
+! Default behaviour: no FD lookup, no warning
+var_spec = make_VariableSpec( &
+     state_intent=ESMF_STATEINTENT_EXPORT, &
+     short_name='diag_field', &
+     units='1', &
+     rc=status)
 ```
 
-If `units` and `long_name` are both present in the component spec, those
-explicit values are used as-is. The dictionary is still consulted for the
-`conserved` flag (which drives the default regrid method).
+No `standard_name` and no `use_field_dictionary` — units and long_name are
+exactly what the caller provides (or unallocated if omitted).
 
 ---
 
 ## How Dictionary Lookup Works
 
-For each field entry in a component YAML file, MAPL3:
+When `use_field_dictionary=.true.` is passed to `make_VariableSpec`:
 
-1. Checks the `itemType` — **service fields are exempt** (see below).
-2. Looks up `standard_name` in the dictionary.
-3. Uses dictionary values as **defaults** for `long_name` and `units`.
-4. Applies any explicit overrides from the component YAML.
-5. Uses the dictionary `conserved` flag to select the default regrid method
-   (`CONSERVE` for conserved quantities, `BILINEAR` otherwise).
-6. Emits a warning (PERMISSIVE mode) or error (STRICT mode) if the field is
-   not found.
+1. **Key selection**:
+   - If `standard_name` is present and is not a compound vector name
+     (i.e. does not contain `(`): use `standard_name` as the lookup key.
+   - Otherwise: use `short_name` as an alias lookup key.
+2. **Lookup**: search the singleton dictionary for the key.
+3. **Apply defaults**: if found, use dictionary values as defaults for
+   `long_name` and `units` (caller-supplied values always take priority).
+4. **Warn on miss**: if not found, a warning is logged — this is never a
+   fatal error in the current implementation.
+
+### Compound vector names
+
+Names of the form `(eastward_wind,northward_wind)` are compound encodings for
+two-component vectors. They are never valid dictionary keys and are silently
+skipped even when `use_field_dictionary=.true.`.
 
 ### Exempt item types
 
@@ -86,17 +95,17 @@ warning is emitted even if the `standard_name` is absent from the dictionary:
 
 | Item type | Exempt? |
 |-----------|---------|
-| `FIELD` | No — dictionary required |
-| `VECTOR` | No — dictionary required |
-| `BRACKET` | No — dictionary required |
-| `VECTORBRACKET` | No — dictionary required |
-| `SERVICE` | **Yes** |
-| `SERVICE_PROVIDER` | **Yes** |
-| `SERVICE_SUBSCRIBER` | **Yes** |
+| `FIELD` | No — opt in with `use_field_dictionary=.true.` |
+| `VECTOR` | No — opt in with `use_field_dictionary=.true.` |
+| `BRACKET` | No — opt in with `use_field_dictionary=.true.` |
+| `VECTORBRACKET` | No — opt in with `use_field_dictionary=.true.` |
+| `SERVICE` | **Yes** — always exempt |
+| `SERVICE_PROVIDER` | **Yes** — always exempt |
+| `SERVICE_SUBSCRIBER` | **Yes** — always exempt |
 | `FIELDBUNDLE` | **Yes** (may be enforced in future) |
 | `STATE` | **Yes** (may be enforced in future) |
-| `WILDCARD` | **Yes** |
-| `EXPRESSION` | **Yes** |
+| `WILDCARD` | **Yes** — always exempt |
+| `EXPRESSION` | **Yes** — always exempt |
 
 ---
 
