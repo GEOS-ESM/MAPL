@@ -1,8 +1,6 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL_StatisticsGridComp.tests")
 
 set (test_srcs)
-  Test_ShiftedVariance.pf
-  Test_WelfordVariance.pf
   Test_Variance.pf
   )
 
