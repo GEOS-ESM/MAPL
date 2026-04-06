@@ -2,10 +2,7 @@
 module mapl3g_fieldbundle_writer
    use ESMF
    use pFIO
-   use MAPL_GriddedIOMod
    use MAPL_TimeDataMod
-   use MAPL_GriddedIOitemVectorMod
-   use MAPL_GriddedIOitemMod
    use MAPL_VerticalDataMod
    use pFIO_ClientManagerMod, only: o_Clients
    use MAPL_ExceptionHandling
@@ -19,7 +16,6 @@ module mapl3g_fieldbundle_writer
    public :: MAPL_write_bundle
    type :: FieldBundleWriter
       private
-      !type(MAPL_GriddedIO) :: cfio
       class(GeomPFIO), allocatable :: writer
       character(:), allocatable :: file_name
       type(ESMF_Time) :: initial_time
@@ -74,8 +70,6 @@ module mapl3g_fieldbundle_writer
 
          type(TimeData) :: time_info
          integer :: num_fields,i,file_steps,collection_id,status
-         type(GriddedIOItemVector) :: items
-         type(GriddedIOItem) :: item
          type(ESMF_Geom) :: geom
          type(FileMetadata) :: metadata
 
