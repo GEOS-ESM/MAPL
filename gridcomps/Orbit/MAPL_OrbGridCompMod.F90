@@ -31,8 +31,8 @@
        convert_ISO8601_to_integer_time
    use mapl3g_FieldCreate, only: MAPL_FieldCreate
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleAdd
-   Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
-   Use MAPL_ErrorHandlingMod
+   use MAPL_CommsMod, only: MAPL_AM_I_ROOT
+   use MAPL_ErrorHandlingMod
    use mapl3g_generic, only: MAPL_GridCompGet
    use mapl3g_generic, only: MAPL_UserCompSetInternalState, MAPL_UserCompGetInternalState
    use mapl3g_generic, only: MAPL_GridCompAddSpec
@@ -40,7 +40,7 @@
    use mapl3g_generic, only: MAPL_STATEITEM_FIELDBUNDLE
    use mapl3g_generic, only: MAPL_GridCompSetEntryPoint
    use mapl3g_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates
-   use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
+   use mapl3g_Geom_API, only: MAPL_GridGetGlobalCellCountPerDim
    use mapl3g_State_API, only: MAPL_StateGetPointer
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleGetPointer
    use mapl3g_generic, only: MAPL_GridCompGetResource
@@ -59,8 +59,6 @@
         character(len=:), allocatable :: str
     end type string_type
     
-    type(string_type), allocatable :: string_array(:)
-
   character(*), parameter :: PRIVATE_STATE = "StateOrb"
   TYPE Orb_State
      PRIVATE
@@ -95,11 +93,24 @@ CONTAINS
     type (Orb_State), pointer  :: self   ! internal, that is
 
     integer :: i, nCols
+                          _Iam_('SetServices')
     integer :: status
     logical :: found
     character(len=ESMF_MAXSTR) :: temp_key
+    character(len=ESMF_MAXSTR) :: comp_name
     character(len=:), allocatable :: temp_val
 !                              ------------
+
+!   Get my name and set-up traceback handle
+!   ---------------------------------------
+    call ESMF_GridCompGet( GC, name=comp_name, _RC )
+    Iam = TRIM(comp_name) // '::' // TRIM(Iam)
+
+!   Greetings
+!   ---------
+    IF(MAPL_AM_I_ROOT()) THEN
+         PRINT *, TRIM(Iam)//': ACTIVE'
+    END IF
 
 !   Store internal state in GC
 !   --------------------------
@@ -113,7 +124,7 @@ CONTAINS
     _ASSERT(self%no>0,'needs informative message')
     allocate(self%Instrument(self%no), self%Satellite(self%no), &
           self%Swath(self%no), self%halo(self%no), _STAT)
-    if ( self%verbose ) then
+    if ( self%verbose .AND. MAPL_AM_I_ROOT() ) then
           write(*,*)"                                   Swath"
           write(*,*)"Instrument          Satellite       (km)        Halo Width"
           write(*,*)"---------------    -----------    ---------    -------------"
@@ -127,7 +138,7 @@ CONTAINS
        call MAPL_GridCompGetResource(gc,trim(temp_key), self%Swath(i),_RC)
        write(temp_key,'(A,I0)') 'HALO', i
        call MAPL_GridCompGetResource(gc,trim(temp_key), self%halo(i),_RC)
-       if ( self%verbose ) then
+       if ( self%verbose .AND. MAPL_AM_I_ROOT() ) then
           write(*,'(1x,a15,4x,a11,4x,f9.1,4x,i3)') self%Instrument(i)%str, self%Satellite(i)%str, self%Swath(i), self%halo(i)
        end if
     end do
@@ -352,7 +363,7 @@ CONTAINS
 
 !  set swath to zero for now
    swath=0.
-   call GridGetGlobalCellCountPerDim(GRID, globalCellCountPerDim=COUNTS, _RC)
+   call MAPL_GridGetGlobalCellCountPerDim(GRID, globalCellCountPerDim=COUNTS, _RC)
    IM_world = counts(1)
    JM_world = counts(2)
    if (JM_world == 6*IM_world) then

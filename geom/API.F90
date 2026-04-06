@@ -9,6 +9,7 @@ module mapl3g_Geom_API
    use mapl3g_GridGet, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates
    use mapl3g_GridGetHorzIJIndex, only: mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
    use mapl3g_GeomGetHorzIJIndex, only: mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex
+   use mapl3g_GridGetGlobal, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
    use esmf, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4
 
    implicit none(type,external)
@@ -20,6 +21,7 @@ module mapl3g_Geom_API
    public :: mapl_GridGet
    public :: mapl_GridGetCoordinates
    public :: mapl_GridGetHorzIJIndex, mapl_GeomGetHorzIJIndex
+   public :: mapl_GridGetGlobalCellCountPerDim
 
    ! Used internally by MAPL
    ! Users shouldn't need these

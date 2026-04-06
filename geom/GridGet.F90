@@ -19,6 +19,7 @@ module mapl3g_GridGet
    interface GridGetCoordinates
       procedure :: grid_get_coordinates_r4
       procedure :: grid_get_coordinates_r8
+      procedure :: grid_get_coordinates_r4ptr
       procedure :: grid_get_coordinates_r8ptr
    end interface GridGetCoordinates
 
@@ -152,6 +153,20 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine grid_get_coordinates_r8
+
+   subroutine grid_get_coordinates_r4ptr(grid, longitudes, latitudes, rc)
+      type(ESMF_Grid), intent(in) :: grid
+      real(kind=ESMF_KIND_R4), pointer, optional, intent(out) :: longitudes(:, :)
+      real(kind=ESMF_KIND_R4), pointer, optional, intent(out) :: latitudes(:, :)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if(present(longitudes)) call esmf_GridGetCoord(grid, coordDim=1, farrayPtr=longitudes, _RC)
+      if(present(latitudes)) call esmf_GridGetCoord(grid, coordDim=2, farrayPtr=latitudes, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine grid_get_coordinates_r4ptr
 
    subroutine grid_get_coordinates_r8ptr(grid, longitudes, latitudes, rc)
       type(ESMF_Grid), intent(in) :: grid
