@@ -362,7 +362,7 @@ module MAPL_TileGridIOMod
               !end if
               !call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
               !_VERIFY(status)
-              _FAIL('not yet implmented for tile vector')
+              _FAIL('not yet implemented for tile vector')
            end if
            call iter%next()
         enddo

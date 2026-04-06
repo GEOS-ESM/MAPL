@@ -84,6 +84,22 @@ else()
     set(MAPL_TARGET_PREFIX "MAPL")
 endif()
 
+# MAPL_SUPPORT_MAPL3: reduce MAPL2 to a support library for use alongside MAPL3.
+# When ON, disables the generic layer, gridcomps, and renames targets to MAPL2.*.
+# The name MAPL_SUPPORT_MAPL3 is a placeholder pending team agreement.
+# The prefix variable MAPL_TARGET_PREFIX is the single place to change the prefix.
+option(MAPL_SUPPORT_MAPL3
+    "Reduce MAPL2 to a support library for use alongside MAPL3. Disables the generic layer, gridcomps, and renames targets to MAPL2.*"
+    OFF)
+
+if (MAPL_SUPPORT_MAPL3)
+    add_compile_definitions(MAPL_SUPPORT_MAPL3)
+    set(MAPL_TARGET_PREFIX "MAPL2")
+    message(STATUS "MAPL_SUPPORT_MAPL3=ON: building as support library with target prefix '${MAPL_TARGET_PREFIX}'")
+else()
+    set(MAPL_TARGET_PREFIX "MAPL")
+endif()
+
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
 # This would then populate the target already leading to find_package()
