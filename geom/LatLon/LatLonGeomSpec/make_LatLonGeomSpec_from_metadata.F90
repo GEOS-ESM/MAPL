@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_LatLonGeomSpec) make_LatLonGeomSpec_from_metadata_smod
    use mapl3g_CoordinateAxis

@@ -12,8 +12,8 @@ module MAPLBase_Mod
   use MAPL_CFIOMod
   use MAPL_CommsMod
 ! For temporary backward compatibility after Constants Library
-  use MAPL_ConstantsMod
-  use MAPL_ConstantsMod, only: MAPL_PI_R8
+  use MAPL_Constants
+  use MAPL_Constants, only: MAPL_PI_R8
   use MAPL_ConfigMod
   use MAPL_SortMod
   use MAPL_ProfMod
@@ -52,6 +52,8 @@ module MAPLBase_Mod
   use MAPL_VerticalDataMod
   use MAPL_SphericalGeometry
   use MAPL_EASEConversion
+  use mapl_LocalDisplacementEnsemble
+
   logical, save, private :: mapl_is_initialized = .false.
 
 end module MAPLBase_Mod

@@ -14,7 +14,7 @@ find_package (MPI REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES mapl3g TYPE SHARED)
+  DEPENDENCIES MAPL TYPE SHARED)
 
 #add_subdirectory(tests EXCLUDE_FROM_ALL)
 

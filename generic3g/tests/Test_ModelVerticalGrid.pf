@@ -95,17 +95,17 @@ contains
       _RETURN(_SUCCESS)
    end subroutine setup_
 
-   subroutine setup(geom, vgrid, rc)
-      type(ESMF_Geom), intent(out) :: geom
-      class(VerticalGrid), allocatable, intent(out) :: vgrid
-      integer, intent(out) :: rc
+    subroutine setup(geom, vgrid, rc)
+       type(ESMF_Geom), intent(out) :: geom
+       class(VerticalGrid), allocatable, intent(out) :: vgrid
+       integer, intent(out) :: rc
 
-      integer :: status
-      type(VerticalGridManager), pointer :: vgrid_mgr
-      type(ModelVerticalGridSpec) :: vspec
-      type(StringVector) :: names, dims
+       integer :: status
+       type(VerticalGridManager), pointer :: vgrid_mgr
+       type(ModelVerticalGridSpec) :: vspec
+       type(StringVector) :: names, dims
 
-      ! geom, registry etc.
+       ! geom, registry etc.
       geom = make_geom(_RC)
       r = StateRegistry("dyn")
 

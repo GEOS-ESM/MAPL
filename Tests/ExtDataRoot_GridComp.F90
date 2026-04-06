@@ -7,7 +7,7 @@
 
 MODULE ExtDataUtRoot_GridCompMod
       use ESMF
-      use MAPL
+      use MAPL2
       use MAPLShared
       use VarspecDescriptionMod
       use VarspecDescriptionVectorMod

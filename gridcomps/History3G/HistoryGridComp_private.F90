@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_HistoryGridComp_private
-   use mapl3
+   use MAPL
    use mapl_ErrorHandlingMod
    use mapl_keywordenforcermod
    use mapl3g_HistoryConstants

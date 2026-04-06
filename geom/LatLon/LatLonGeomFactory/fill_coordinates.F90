@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 submodule (mapl3g_LatLonGeomFactory) fill_coordinates_smod
    use mapl3g_GeomSpec
    use mapl3g_LonAxis

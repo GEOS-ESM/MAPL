@@ -19,7 +19,7 @@
 program main
       use, intrinsic :: iso_fortran_env, only: REAL32
       use mpi
-      use MAPL
+      use MAPL2
       use ESMF
       use pFIO_UnlimitedEntityMod
       use pFIO_ClientManagerMod, only: o_Clients

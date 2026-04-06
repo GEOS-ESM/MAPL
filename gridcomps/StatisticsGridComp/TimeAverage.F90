@@ -3,7 +3,7 @@
 module mapl3g_TimeAverage
 
    use mapl3g_AbstractTimeStatistic
-   use mapl3
+   use MAPL
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
 

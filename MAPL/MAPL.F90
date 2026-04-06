@@ -1,6 +1,6 @@
 ! This module re-exports the public entities
-! of the underlying packages.
-module MAPL
+! of the legacy (MAPL2) underlying packages.
+module MAPL2
    use MAPLBase_mod
    use MAPL_GenericMod
    use MAPL_VarSpecMiscMod
@@ -18,9 +18,5 @@ module MAPL
    use MAPL_StateUtils
    use MAPL_PythonBridge
    implicit none
-end module MAPL
-
-module MAPL_Mod
-   use MAPL
-end module MAPL_Mod
+end module MAPL2
 
