@@ -76,6 +76,22 @@ else ()
 endif()
 message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 
+# MAPL_SUPPORT_MAPL3: reduce MAPL2 to a support library for use alongside MAPL3.
+# When ON, disables the generic layer, gridcomps, and renames targets to MAPL2.*.
+# The name MAPL_SUPPORT_MAPL3 is a placeholder pending team agreement.
+# The prefix variable MAPL_TARGET_PREFIX is the single place to change the prefix.
+option(MAPL_SUPPORT_MAPL3
+    "Reduce MAPL2 to a support library for use alongside MAPL3. Disables the generic layer, gridcomps, and renames targets to MAPL2.*"
+    OFF)
+
+if (MAPL_SUPPORT_MAPL3)
+    add_compile_definitions(MAPL_SUPPORT_MAPL3)
+    set(MAPL_TARGET_PREFIX "MAPL2")
+    message(STATUS "MAPL_SUPPORT_MAPL3=ON: building as support library with target prefix '${MAPL_TARGET_PREFIX}'")
+else()
+    set(MAPL_TARGET_PREFIX "MAPL")
+endif()
+
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
 # This would then populate the target already leading to find_package()
@@ -206,7 +222,9 @@ add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 # Support for automated code generation
 include(mapl_acg)
 include(mapl_create_stub_component)
-add_subdirectory (Apps)
+if (NOT MAPL_SUPPORT_MAPL3)
+  add_subdirectory (Apps)
+endif ()
 
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
@@ -228,7 +246,9 @@ endif()
 add_subdirectory (udunits2f)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
-add_subdirectory (generic)
+if (NOT MAPL_SUPPORT_MAPL3)
+  add_subdirectory (generic)
+endif ()
 add_subdirectory (field_utils)
 add_subdirectory (state)
 add_subdirectory (oomph) # temporary - will rename to generic when done
@@ -236,21 +256,27 @@ add_subdirectory (shared)
 add_subdirectory (include)
 add_subdirectory (base)
 add_subdirectory (MAPL)
-add_subdirectory (gridcomps)
+if (NOT MAPL_SUPPORT_MAPL3)
+  add_subdirectory (gridcomps)
+endif ()
 add_subdirectory (griddedio)
 add_subdirectory (vertical)
-if (BUILD_WITH_FARGPARSE)
+if (BUILD_WITH_FARGPARSE AND NOT MAPL_SUPPORT_MAPL3)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
 endif()
-add_subdirectory(Python)
+if (NOT MAPL_SUPPORT_MAPL3)
+  add_subdirectory(Python)
+endif ()
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
 
-add_subdirectory (Tests)
+if (NOT MAPL_SUPPORT_MAPL3)
+  add_subdirectory (Tests)
+endif ()
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
 esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
