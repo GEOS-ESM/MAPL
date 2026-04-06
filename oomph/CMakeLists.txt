@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.oomph)
+esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.oomph)
 
 set (srcs
   oomph.F90
@@ -10,7 +10,7 @@ set (srcs
   specs/AbstractStateItemSpec.F90
   specs/FieldSpec.F90
   specs/ConnectionPoint.F90
-  
+
 #  specs/DimensionsSpec.F90
 #
 #  specs/StateItemSpec.F90
@@ -26,9 +26,9 @@ set (srcs
 #  specs/ComponentSpec.F90
 #  specs/ComponentSpecMap.F90
   )
-  
+
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.base GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 TYPE SHARED
+  DEPENDENCIES ${MAPL_TARGET_PREFIX}.base GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 TYPE SHARED
   )
