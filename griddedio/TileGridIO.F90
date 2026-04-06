@@ -174,6 +174,8 @@ module MAPL_TileGridIOMod
            call v%add_attribute('long_name','latitude')
            call this%metadata%add_variable('lat',v,rc=status)
            _VERIFY(status)
+        endif
+        if (allocated(this%i_index)) then
            v = Variable(type=PFIO_INT32,dimensions='tile')
            call v%add_attribute('units','1')
            call v%add_attribute('long_name','i_index')
@@ -185,7 +187,6 @@ module MAPL_TileGridIOMod
            call this%metadata%add_variable('JG',v,rc=status)
            _VERIFY(status)
         endif
-
 
         if (this%itemOrderAlphabetical) then
            call this%alphabatize_variables(metadataVarsSize,rc=status)
@@ -470,7 +471,8 @@ module MAPL_TileGridIOMod
         ref = ArrayReference(this%tilelats)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lat', &
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-
+     endif
+     if (allocated(this%i_index)) then
         ref = ArrayReference(this%i_index)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'IG', &
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
@@ -770,16 +772,11 @@ module MAPL_TileGridIOMod
      call ESMF_FieldRedistStore(srcField= this%field_in, dstField=this%field_out, &
                 routehandle=this%routehandle, _RC)
 
-     ! reordered lat-lon, II, and JJ
-     if (associated(tilelons) .and. associated(tilelats) .and. associated(local_i) .and. associated(local_j)) then
+     call MAPL_FieldGetPointer(this%field_in, ptr1d,rc=status)
+     call MAPL_FieldGetPointer(this%field_out,outptr1d,rc=status)
+     ! reordered lat-lon
+     if (associated(tilelons) .and. associated(tilelats) ) then 
         allocate(this%tilelons(arbIndexCount), this%tilelats(arbIndexCount))
-        allocate(this%i_index(arbIndexCount),  this%j_index(arbIndexCount))
-        call MAPL_FieldGetPointer(this%field_in, ptr1d,rc=status)
-        call MAPL_FieldGetPointer(this%field_out,outptr1d,rc=status)
-
-        call MAPL_LocStreamGet(locstream, attachedgrid=attachedgrid, _RC)
-        call MAPL_grid_interior(attachedgrid, i1, i2, j1, j2)
-        call ESMF_GridGet(attachedgrid, name=gname, _RC)
 
         ptr1d(:) = tilelons(:)
         call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
@@ -788,6 +785,14 @@ module MAPL_TileGridIOMod
         ptr1d(:) = tilelats(:)
         call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
         this%tilelats = outptr1d*MAPL_RADIANS_TO_DEGREES
+     endif
+     ! reordered II, and JJ
+     if ( associated(local_i) .and. associated(local_j)) then 
+        allocate(this%i_index(arbIndexCount),  this%j_index(arbIndexCount))
+
+        call MAPL_LocStreamGet(locstream, attachedgrid=attachedgrid, _RC)
+        call MAPL_grid_interior(attachedgrid, i1, i2, j1, j2)
+        call ESMF_GridGet(attachedgrid, name=gname, _RC)
 
         ptr1d(:) = local_i(:) + i1 -1
         if (index(gname, 'EASE') /=0) ptr1d = ptr1d - 1
@@ -799,6 +804,7 @@ module MAPL_TileGridIOMod
         call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
         this%j_index = nint(outptr1d)
      endif
+
      _RETURN(_SUCCESS)
 
   end subroutine
