@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added "read and bcast" pattern for MAPL_ReadTilingNC4
 - Added optional `tilelons` and `tilelats` to create a simple locstream
 - Add `MAPL_SUPPORT_MAPL3` CMake option to reduce MAPL2 to a support library for use alongside MAPL3. When `ON`, the generic layer, gridcomps, Apps, benchmarks, docs, Python bridge, and top-level Tests are disabled; all CMake targets are renamed with a `MAPL2.*` prefix controlled by the `MAPL_TARGET_PREFIX` variable. Default is `OFF` (no change in behavior).
 - When `MAPL_SUPPORT_MAPL3=ON`, the umbrella module in `MAPL/MAPL.F90` is renamed from `module MAPL` to `module MAPL2` (and the alias from `MAPL_Mod` to `MAPL2_Mod`); `use MAPL` in hybrid mode is intentionally undefined. `use ESMF_CFIOMod` is now unconditional in both modes.
