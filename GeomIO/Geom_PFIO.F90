@@ -91,6 +91,7 @@ contains
 
       ref = ArrayReference(times)
       call o_Clients%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine
 
