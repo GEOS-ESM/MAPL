@@ -10,10 +10,10 @@ if (BUILD_PYTHONBRIDGE)
     MAPL_PythonBridge/fortran2python/fortran_python_bridge.c
     MAPL_PythonBridge/python2fortran/python_fortran_bridge.F90)
 
-  message(STATUS "Building MAPL Python Bridge to interface Fortan code with Python")
+  message(STATUS "Building MAPL Python Bridge to interface Fortran code with Python")
 
   add_definitions(-DPYTHONBRIDGE_INTEGRATION)
-  
+
   # The Python library creation requires mpiexec/mpirun to run on a
   # compute node. Probably a weird SLURM thing?
   find_package(MPI REQUIRED)

@@ -102,7 +102,7 @@ not want to deal with `mepo` or the sub-repositories.
 
 MAPL is also available via [spack](https://spack.io). The spack package is
 maintained by GEOS-ESM and is used by external users to provide MAPL. As such,
-it has many of the ideosyncracies of MAPL's clone-build-install process "baked"
+it has many of the idiosyncrasies of MAPL's clone-build-install process "baked"
 into it. If you need MAPL-as-library, that could be an easier way to go by
 running:
 ```

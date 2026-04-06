@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.shared)
+esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.shared)
 
 set (srcs
     hash.c
@@ -35,7 +35,7 @@ set (srcs
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES ${MAPL_TARGET_PREFIX}.constants GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
