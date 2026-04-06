@@ -2,6 +2,7 @@
 
 module mapl3g_TimeMin
 
+   use ESMF
    use mapl3g_AbstractTimeStatistic
    use MAPL
    use mapl_ErrorHandling
@@ -87,10 +88,10 @@ contains
       call mapl_FieldGet(this%temp_min_f, typekind=typekind, _RC)
       if (typekind == ESMF_TYPEKIND_R4) then
          call MAPL_AssignFptr(this%temp_min_f, f4,  _RC)
-         f4 = MAPL_UNDEF
+         f4 = MAPL_UNDEFINED_REAL
       else if (typekind == ESMF_TYPEKIND_R8) then
          call MAPL_AssignFptr(this%temp_min_f, f8,  _RC)
-         f8 = MAPL_UNDEF
+         f8 = MAPL_UNDEFINED_REAL64
       end if
 
       _RETURN(_SUCCESS)
@@ -131,8 +132,8 @@ contains
       call MAPL_AssignFptr(this%f, f, _RC)
       call MAPL_AssignFptr(this%temp_min_f, temp_min_f, _RC)
 
-      where (f /= MAPL_UNDEF)
-         where (temp_min_f == MAPL_UNDEF)
+      where (f /= MAPL_UNDEFINED_REAL)
+         where (temp_min_f == MAPL_UNDEFINED_REAL)
             temp_min_f = f
          elsewhere
             temp_min_f = min(temp_min_f, f)
@@ -152,8 +153,8 @@ contains
       call MAPL_AssignFptr(this%f, f, _RC)
       call MAPL_AssignFptr(this%temp_min_f, temp_min_f, _RC)
 
-      where (f /= MAPL_UNDEF)
-         where (temp_min_f == MAPL_UNDEF)
+      where (f /= MAPL_UNDEFINED_REAL64)
+         where (temp_min_f == MAPL_UNDEFINED_REAL64)
             temp_min_f = f
          elsewhere
             temp_min_f = min(temp_min_f, f)

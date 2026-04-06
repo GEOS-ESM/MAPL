@@ -2,6 +2,7 @@
 
 module mapl3g_HistoryGridComp
 
+   use ESMF
    use MAPL
    use mapl3g_HistoryGridComp_private
    use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices

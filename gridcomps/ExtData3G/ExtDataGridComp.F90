@@ -20,6 +20,7 @@ module mapl3g_ExtDataGridComp
    use gftl2_StringStringMap
    use gftl2_IntegerVector
    use mapl3g_ExtDataReader
+   use gFTL2_StringVector
 
    implicit none(type,external)
    private

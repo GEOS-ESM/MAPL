@@ -8,6 +8,7 @@ module mapl3g_ExtDataGridComp_private
    use mapl3g_PrimaryExportVector
    use mapl3g_PrimaryExport
    use pflogger, only: logger
+   use gFTL2_StringVector
    implicit none
    private
 

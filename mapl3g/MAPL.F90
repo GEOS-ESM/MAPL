@@ -11,6 +11,7 @@ module MAPL
    use mapl3g_VerticalGrid_API
    use mapl3g_Utilities_Comms_API
    use mapl3g_Utilities
+   use mapl3g_FieldBundle_API
    
 
    ! We use default PUBLIC to avoid explicitly listing exports from

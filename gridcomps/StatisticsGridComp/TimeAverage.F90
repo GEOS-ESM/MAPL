@@ -2,6 +2,7 @@
 
 module mapl3g_TimeAverage
 
+   use ESMF
    use mapl3g_AbstractTimeStatistic
    use MAPL
    use mapl_ErrorHandling
@@ -133,7 +134,7 @@ contains
       call MAPL_AssignFptr(this%f, f, _RC)
       call MAPL_AssignFptr(this%sum_f, sum_f, _RC)
 
-      where (f /= MAPL_UNDEF)
+      where (f /= MAPL_UNDEFINED_REAL)
          sum_f = sum_f + f
          this%counts = this%counts + 1
       end where
@@ -151,7 +152,7 @@ contains
       call MAPL_AssignFptr(this%f, f, _RC)
       call MAPL_AssignFptr(this%sum_f, sum_f, _RC)
 
-      where (f /= MAPL_UNDEF)
+      where (f /= MAPL_UNDEFINED_REAL64)
          sum_f = sum_f + f
          this%counts = this%counts + 1
       end where
@@ -191,7 +192,7 @@ contains
       where (this%counts > 0)
          avg_f = sum_f / this%counts
       elsewhere
-         avg_f = MAPL_UNDEF
+         avg_f = MAPL_UNDEFINED_REAL
       end where
 
       _RETURN(_SUCCESS)
@@ -210,7 +211,7 @@ contains
       where (this%counts > 0)
          avg_f = sum_f / this%counts
       elsewhere
-         avg_f = MAPL_UNDEF
+         avg_f = MAPL_UNDEFINED_REAL64
       end where
 
       _RETURN(_SUCCESS)

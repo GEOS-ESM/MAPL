@@ -19,6 +19,10 @@ module mapl3g_SharedIO
    use esmf
 
    implicit none(type,external)
+   private
+   
+   public :: FileMetaData, Variable, UnlimitedEntity, &
+             PFIO_UNLIMITED, PFIO_REAL32, PFIO_REAL64
 
    public add_variables
    public add_variable
