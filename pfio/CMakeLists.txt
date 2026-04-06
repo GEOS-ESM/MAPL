@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.pfio)
+esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.pfio)
 
 # This is a workaround for a current ifx bug
 # Technically, this bug is only due to a bug between
@@ -95,7 +95,7 @@ if (BUILD_WITH_PFLOGGER)
   find_package (PFLOGGER REQUIRED)
 endif ()
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 
 target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 target_include_directories (${this} PUBLIC

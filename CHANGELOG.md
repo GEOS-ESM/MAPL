@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `MAPL_SUPPORT_MAPL3` CMake option to reduce MAPL2 to a support library for use alongside MAPL3. When `ON`, the generic layer, gridcomps, Apps, benchmarks, docs, Python bridge, and top-level Tests are disabled; all CMake targets are renamed with a `MAPL2.*` prefix controlled by the `MAPL_TARGET_PREFIX` variable. Default is `OFF` (no change in behavior).
 - Add `.mlc.toml` file to configure `mlc` link checker
 - Added a new feature: create a halo based on local displacement members, local-displacement-ensemble (LDE), requested some time ago by Arlindo da Silva
 - CDash nightly workflow configured to build and test `release/MAPL-v3` from the `main` branch
