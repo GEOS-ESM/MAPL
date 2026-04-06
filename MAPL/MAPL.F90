@@ -1,12 +1,16 @@
 ! This module re-exports the public entities
 ! of the underlying packages.
+#ifdef MAPL_SUPPORT_MAPL3
+module MAPL2
+#else
 module MAPL
+#endif
    use MAPLBase_mod
 #ifndef MAPL_SUPPORT_MAPL3
    use MAPL_GenericMod
    use MAPL_VarSpecMiscMod
-   use ESMF_CFIOMod
 #endif
+   use ESMF_CFIOMod
    use pFIO
 #ifndef MAPL_SUPPORT_MAPL3
    use MAPL_GridCompsMod
@@ -27,9 +31,19 @@ module MAPL
    use MAPL_PythonBridge
 #endif
    implicit none
+#ifdef MAPL_SUPPORT_MAPL3
+end module MAPL2
+#else
 end module MAPL
+#endif
 
+#ifdef MAPL_SUPPORT_MAPL3
+module MAPL2_Mod
+   use MAPL2
+end module MAPL2_Mod
+#else
 module MAPL_Mod
    use MAPL
 end module MAPL_Mod
+#endif
    
