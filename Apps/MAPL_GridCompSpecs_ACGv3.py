@@ -384,16 +384,6 @@ def get_internal_name(spec):
     alias = spec.get(ALIAS, EMPTY).strip()
     return alias if alias else spec.get(SHORT_NAME, EMPTY).replace('*', EMPTY)
 
-def delete_nones(values):
-    d = {}
-    n = []
-    for k, v in values.items():
-        if v:
-            d[k] = v
-        else:
-            n.append(k)
-    return d, n
-
 def get_values(specs, options):
     all_values = []
     results = []
@@ -404,8 +394,9 @@ def get_values(specs, options):
         internal_name = get_internal_name(dealiased)
         spec_values, specs_not_found = digest_spec(dealiased, options[SPECIFICATIONS])
         values, values_not_found = map_spec_values(spec_values, options)
-        values, none_values = delete_nones(values)
-        # Because the internal name is used in declare and get_pointer, it is singled out here.
+        nones = [k for k, v in values.items() if v is None]
+        for key in nones:
+            del values[key]
         values[INTERNAL_NAME] = internal_name
         all_values.append(values)
         mandatory_keys = get_mandatory_option_keys(options)
@@ -415,7 +406,7 @@ def get_values(specs, options):
                   SPECS_NOT_FOUND: specs_not_found,
                   VALUES_NOT_FOUND: values_not_found,
                   MISSING_MANDATORY: missing_mandatory,
-                  NONES: none_values}
+                  NONES: nones}
         results.append(result)
     return all_values, results
 
