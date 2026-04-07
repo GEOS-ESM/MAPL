@@ -273,10 +273,10 @@ def get_args():
                     nargs='?', dest="internal", default=argparse.SUPPRESS, const=None,
                     help="override default output filename for AddImportSpec() code")
     parser.add_argument("-g", "--get-pointers", "--get_pointers", action="store", nargs='?',
-                    dest="get", default=argparse.SUPPRESS, const=None,#"{component}_GetPointer___.h",
+                    dest="get", default=argparse.SUPPRESS, const=None,
                     help="override default output filename for get_pointer() code")
     parser.add_argument("-d", "--declare-pointers", "--declare_pointers", action="store",
-                    nargs='?', dest="declare", const=None,#"{component}_DeclarePointer___.h",
+                    nargs='?', dest="declare", const=None,
                     default=argparse.SUPPRESS,
                     help="override default output filename for pointer declaration code")
     parser.add_argument("--standard-name-prefix", "--standard_name_prefix",
