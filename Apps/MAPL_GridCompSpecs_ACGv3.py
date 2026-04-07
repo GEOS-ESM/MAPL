@@ -25,6 +25,7 @@ DIMDELIM = ','
 
 ARGS = 'args' 
 AS = 'as'
+BOOL = 'bool'
 CONSTANTS = 'constants'
 CONTROL = 'control'
 CONTROLS = 'controls'
@@ -41,12 +42,14 @@ MANDATORY = 'mandatory'
 MAPPED = 'mapped' 
 MAPPING = 'mapping'
 MISSING_MANDATORY = 'missing_mandatory'
+NONES = 'nones'
 SPEC = 'spec'
 SPECIFICATIONS = 'specifications'
 SPECS_NOT_FOUND = 'specs_not_found'
 SPEC_ALIASES = 'spec_aliases'
 STORE = 'store'
 STRING = 'string'
+STRLOGICAL = 'strlogical'
 VALUES_NOT_FOUND = 'values_not_found'
 
 #could be read from YAML list
@@ -57,6 +60,7 @@ ARRAY = 'array'
 CONDITION = 'condition'
 DIMS = 'dims'
 EXPORT_NAME = 'export_name'
+FIELD_DICTIONARY_ARG = 'field_dictionary_arg'
 INTENT_ARG = 'intent_arg' 
 INTERNAL_NAME = 'internal_name'
 MANGLED = 'mangled'
@@ -72,6 +76,7 @@ STATE_ARG = 'state_arg'
 STATE_INTENT = 'state_intent'
 STRINGVECTOR = 'string_vector'
 UNGRIDDED_DIMS = 'ungridded_dims'
+USE_FIELD_DICTIONARY = 'use_field_dictionary'
 VSTAGGER = 'vstagger'
 
 # command-line option constants
@@ -148,8 +153,8 @@ def get_options(args):
              'E': 'VERTICAL_STAGGER_EDGE',
              'N': 'VERTICAL_STAGGER_NONE'}},
         ALIAS: {FLAGS: {STORE}}, 
-        ALLOC: {FLAGS: {STORE}}, 
-        ADD_TO_EXPORT: {MAPPING: LOGICAL},
+        ALLOC: {MAPPING: BOOL, FLAGS: {STORE}}, 
+        ADD_TO_EXPORT: {MAPPING: STRLOGICAL},
         'attributes' : {MAPPING: STRINGVECTOR}, 
         CONDITION: {FLAGS: {STORE}}, 
         'dependencies': {MAPPING: STRINGVECTOR}, 
@@ -170,6 +175,7 @@ def get_options(args):
             'I4': 'ESMF_Typekind_I4',
             'I8': 'ESMF_Typekind_I8'}},
         'units': {MAPPING: STRING}, 
+        USE_FIELD_DICTIONARY: {MAPPING: BOOL, FLAGS: {STORE}},
         'vector_pair': {MAPPING: STRING} 
         }
 
@@ -183,7 +189,9 @@ def get_options(args):
         'prec': PRECISION,
         'vloc': VSTAGGER,
         'vlocation': VSTAGGER,
-        'add2export': ADD_TO_EXPORT
+        'add2export': ADD_TO_EXPORT,
+        'field dictionary': USE_FIELD_DICTIONARY,
+        'field_dictionary': USE_FIELD_DICTIONARY
     }
 
     options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: CONTROL, FROM: CONDITION}} 
@@ -194,7 +202,8 @@ def get_options(args):
         STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, STANDARD_NAME_PREFIX), AS: STANDARD_NAME}, 
         INTENT_ARG: {FROM: (STATE_INTENT, STATE), MAPPING: (ID, dict(zip(states, intents))), FLAGS: AS},
         RANK: {MAPPING: RANK, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)}, 
-        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS} 
+        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS},
+        FIELD_DICTIONARY_ARG: {FROM: (USE_FIELD_DICTIONARY,), MAPPING: LOGICAL, FLAGS: AS}
     }
 
     options[CONSTANTS] = {STATES: states}
@@ -242,8 +251,7 @@ def emit_get_pointers(specs, states=None):
 def emit_get_pointer(spec):
     f = spec[MAKE_BLOCK]
     parts = [f'{CALL} {GETPOINTER}({spec[STATE]}', spec[INTERNAL_NAME], spec[SHORT_NAME], TERMINATOR]
-    if alloc := spec.get(ALLOC):
-        parts.insert(-1, f'{ALLOC}={convert_to_fortran_logical(alloc)}')
+    insert_alloc(spec, parts)
     return f(DELIMITER.join(parts), make_else_block(spec[INTERNAL_NAME]))
 
 ############################ PARSE COMMAND ARGUMENTS ###########################
@@ -376,6 +384,16 @@ def get_internal_name(spec):
     alias = spec.get(ALIAS, EMPTY).strip()
     return alias if alias else spec.get(SHORT_NAME, EMPTY).replace('*', EMPTY)
 
+def delete_nones(values):
+    d = {}
+    n = []
+    for k, v in values.items():
+        if v:
+            d[k] = v
+        else:
+            n.append(k)
+    return d, n
+
 def get_values(specs, options):
     all_values = []
     results = []
@@ -386,6 +404,7 @@ def get_values(specs, options):
         internal_name = get_internal_name(dealiased)
         spec_values, specs_not_found = digest_spec(dealiased, options[SPECIFICATIONS])
         values, values_not_found = map_spec_values(spec_values, options)
+        values, none_values = delete_nones(values)
         # Because the internal name is used in declare and get_pointer, it is singled out here.
         values[INTERNAL_NAME] = internal_name
         all_values.append(values)
@@ -395,7 +414,8 @@ def get_values(specs, options):
                   DEALIASED: dealiased,
                   SPECS_NOT_FOUND: specs_not_found,
                   VALUES_NOT_FOUND: values_not_found,
-                  MISSING_MANDATORY: missing_mandatory}
+                  MISSING_MANDATORY: missing_mandatory,
+                  NONES: none_values}
         results.append(result)
     return all_values, results
 
@@ -458,10 +478,13 @@ count_not_empty = lambda s, d: count_true(split_bracketed(s, d), lambda p: len(p
 
 construct_string_vector = lambda value: f"{TO_STRING_VECTOR}({add_quotes(value)})" if value else None
 
-def convert_to_fortran_logical(b):
-     if b is None:
-         return FALSE_VALUE
-     return TRUE_VALUE if b.strip().strip('.').lower() in TRUE_VALUES else FALSE_VALUE 
+convert_to_bool = lambda s: (s.strip().strip('.').lower() in TRUE_VALUES) if s else False
+convert_to_logical = lambda b: TRUE_VALUE if b else FALSE_VALUE
+
+def insert_alloc(spec, parts):
+    alloc_value = spec.get(ALLOC)
+    if alloc_value:
+        parts.insert(-1, f'{ALLOC}={convert_to_logical(alloc_value)}')
 
 def compute_rank(dims, ungridded):
     stripped_len = lambda s: len(s.strip())
@@ -544,7 +567,9 @@ NAMED_MAPPINGS = {
         STANDARD_NAME: mangle_standard_name,
         RANK: compute_rank, 
         MAKE_BLOCK: lambda value: partial(make_block, value),
-        LOGICAL: convert_to_fortran_logical
+        LOGICAL: convert_to_logical,
+        BOOL: convert_to_bool,
+        STRLOGICAL: lambda s: convert_to_logical(convert_to_bool(s))
         }
 
 def fetch_mapping_function(m, func_dict=NAMED_MAPPINGS):
