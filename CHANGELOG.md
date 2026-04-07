@@ -116,13 +116,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.68.0] - 2026-04-06
+
+### Fixed
+
 - Python bridge: support for `icx`, fix GPU upload python side and updated base API to support python 3.12+
 - Guard IEEE halting mode calls on macOS flang to avoid missing `fe*except` symbols when initializing MPI.
 - Fixed some warnings with `mlc` link checker
 
 ### Added
 
-- Added "read and bcast" pattern for MAPL_ReadTilingNC4
+- Added "read and bcast" pattern for `MAPL_ReadTilingNC4`
 - Added optional `tilelons` and `tilelats` to create a simple locstream
 - Add `MAPL_SUPPORT_MAPL3` CMake option to reduce MAPL2 to a support library for use alongside MAPL3. When `ON`, the generic layer, gridcomps, Apps, benchmarks, docs, Python bridge, and top-level Tests are disabled; all CMake targets are renamed with a `MAPL2.*` prefix controlled by the `MAPL_TARGET_PREFIX` variable. Default is `OFF` (no change in behavior).
 - When `MAPL_SUPPORT_MAPL3=ON`, the umbrella module in `MAPL/MAPL.F90` is renamed from `module MAPL` to `module MAPL2` (and the alias from `MAPL_Mod` to `MAPL2_Mod`); `use MAPL` in hybrid mode is intentionally undefined. `use ESMF_CFIOMod` is now unconditional in both modes.
@@ -160,10 +172,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CDash nightly GitHub Actions workflow now includes the branch name in the CDash `build_name` for easier identification
 - `CTestDashboard.cmake` now combines `install` and `build-tests` targets into a single build step to accurately capture total build time in CDash
 - CDash nightly GitHub Actions workflow now triggers scheduled builds from `main` while testing the `release/MAPL-v3` branch
-
-### Removed
-
-### Deprecated
 
 ## [2.67.0] - 2026-02-27
 
