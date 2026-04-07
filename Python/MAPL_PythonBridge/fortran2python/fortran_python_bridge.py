@@ -1,4 +1,4 @@
-from distutils.sysconfig import get_config_var
+from sysconfig import get_config_var
 import cffi
 
 TMPFILEBASE = "mapl_fortan_python_cffi_bridge"

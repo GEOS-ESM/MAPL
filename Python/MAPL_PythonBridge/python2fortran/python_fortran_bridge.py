@@ -1,3 +1,4 @@
+from gt4py.eve.extended_typing import no_type_check
 import cffi
 import os
 from MAPL_PythonBridge.types import CVoidPointer, FFI
@@ -23,7 +24,7 @@ class MAPLPythonFortranBridge:
         geos_dir = os.getenv("GEOSDIR", "Not found")
         if geos_dir == "Not found":
             raise RuntimeError(
-                "[MAPLPyish] Libary loads require a GEOSDIR environment variable"
+                "[MAPLPyish] Library loads require a GEOSDIR environment variable"
                 "pointing to the install directory of GEOS."
             )
 
@@ -101,14 +102,19 @@ class MAPLPythonFortranBridge:
 
         self.ffi.cdef("void* MAPLpy_ESMF_TimeIntervalGet(void* esmf_time_state_c_ptr);")
 
+        # Associated checks
+        # Dev NOTE: we use `int` here because passing boolean from Fortran
+        #           down to Python is an issue with certain compilers not aggreing
+        #           on the Fortran/C definition of boolean, resulting in CFFI
+        #           ValueError. Integer remains the most portable.
         self.ffi.cdef(
-            "bool MAPLpy_GetPointer_2D_associated"
+            "int MAPLpy_GetPointer_2D_associated"
             "(void* esmf_state_c_ptr, char* name_c_ptr, int name_len, bool alloc"
             ");"
         )
 
         self.ffi.cdef(
-            "bool MAPLpy_GetPointer_3D_associated"
+            "int MAPLpy_GetPointer_3D_associated"
             "(void* esmf_state_c_ptr, char* name_c_ptr, int name_len, bool alloc"
             ");"
         )
@@ -148,6 +154,7 @@ class MAPLPythonFortranBridge:
             state, self.ffi.new("char[]", name.encode()), len(name), alloc
         )
 
+    @no_type_check
     def MAPL_GetResource(
         self,
         state: CVoidPointer,
@@ -155,24 +162,24 @@ class MAPLPythonFortranBridge:
         default: npt.DTypeLike | bool,
     ) -> Any:
         dtype = type(default)
-        if dtype in [int, np.int64]:  # type: ignore
-            return self.mapl_c_bridge.MAPLpy_GetResource_Int64(  # type: ignore
+        if dtype in [int, np.int64]:
+            return self.mapl_c_bridge.MAPLpy_GetResource_Int64(
                 state, self.ffi.new("char[]", name.encode()), len(name), default
             )
-        elif dtype in [np.int32]:  # type: ignore
-            return self.mapl_c_bridge.MAPLpy_GetResource_Int32(  # type: ignore
+        elif dtype in [np.int32]:
+            return self.mapl_c_bridge.MAPLpy_GetResource_Int32(
                 state, self.ffi.new("char[]", name.encode()), len(name), default
             )
-        elif dtype in [np.float32]:  # type: ignore
-            return self.mapl_c_bridge.MAPLpy_GetResource_Float(  # type: ignore
+        elif dtype in [np.float32]:
+            return self.mapl_c_bridge.MAPLpy_GetResource_Float(
                 state, self.ffi.new("char[]", name.encode()), len(name), default
             )
-        elif dtype in [float, np.float64]:  # type: ignore
-            return self.mapl_c_bridge.MAPLpy_GetResource_Double(  # type: ignore
+        elif dtype in [float, np.float64]:
+            return self.mapl_c_bridge.MAPLpy_GetResource_Double(
                 state, self.ffi.new("char[]", name.encode()), len(name), default
             )
         elif dtype in [bool]:
-            return self.mapl_c_bridge.MAPLpy_GetResource_Bool(  # type: ignore
+            return self.mapl_c_bridge.MAPLpy_GetResource_Bool(
                 state, self.ffi.new("char[]", name.encode()), len(name), default
             )
         raise NotImplementedError(f"MAPL_GetResource for type {dtype} not implemented.")
@@ -193,28 +200,32 @@ class MAPLPythonFortranBridge:
         return self.mapl_c_bridge.MAPLPy_MAPL_GetNY(state)
 
     def ESMF_TimeIntervalGet(self, time_state: CVoidPointer) -> np.float64:
-        return self.mapl_c_bridge.MAPLpy_ESMF_TimeIntervalGet(time_state)  # type: ignore
+        return self.mapl_c_bridge.MAPLpy_ESMF_TimeIntervalGet(time_state)
 
     def ESMF_GridCompGetName(self, state: CVoidPointer) -> str:
         cdata_string = self.mapl_c_bridge.MAPLpy_ESMF_GridCompGetName(state)
         byte_string = self.ffi.string(cdata_string)
         return byte_string.decode("utf-8").rstrip()
 
+    @no_type_check
     def associated_2d(self, state: CVoidPointer, name: str, alloc: bool = False) -> bool:
-        return self.mapl_c_bridge.MAPLpy_GetPointer_2D_associated(  # type: ignore
+        associated_as_int = self.mapl_c_bridge.MAPLpy_GetPointer_2D_associated(
             state,
             self.ffi.new("char[]", name.encode()),
             len(name),
             alloc,
         )
+        return associated_as_int != 0
 
+    @no_type_check
     def associated_3d(self, state: CVoidPointer, name: str, alloc: bool = False) -> bool:
-        return self.mapl_c_bridge.MAPLpy_GetPointer_3D_associated(  # type: ignore
+        associated_as_int = self.mapl_c_bridge.MAPLpy_GetPointer_3D_associated(
             state,
             self.ffi.new("char[]", name.encode()),
             len(name),
             alloc,
         )
+        return associated_as_int != 0
 
 
 MAPL_PYHTON_FORTRAN_BRIDGE = MAPLPythonFortranBridge(FFI)

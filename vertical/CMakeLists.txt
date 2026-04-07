@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.vertical)
+esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.vertical)
 
 set (srcs
      Eta2Eta.F90
@@ -9,7 +9,7 @@ set (srcs
 
 esma_add_library(${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.shared MAPL.base MAPL.pfio PFLOGGER::pflogger
+    DEPENDENCIES ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.pfio PFLOGGER::pflogger
     TYPE ${MAPL_LIBRARY_TYPE}
     )
 
