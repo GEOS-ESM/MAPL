@@ -1,5 +1,5 @@
-! Public interface (package) to MAPL3
-module mapl3
+! Public interface (package) to MAPL
+module MAPL
    use mapl3g_VM_API
    use mapl3g_MaplFramework
    use generic3g
@@ -15,4 +15,4 @@ module mapl3
    ! the other layers.  When the dust settles and such micro
    ! management become feasible, this can be reconsidered.
    
-end module mapl3
+end module MAPL

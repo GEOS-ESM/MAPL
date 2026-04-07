@@ -1,7 +1,13 @@
 name: "Markup Link Checker"
 on:
   pull_request:
-      types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - labeled
+      - unlabeled
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -13,17 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-    - name: Markup Link Checker (mlc) - with retries
-      uses: Wandalen/wretry.action@v3.8.0
-      with:
-        action: becheran/mlc@v1
+      - name: Markup Link Checker (mlc) - with retries
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          args: >-
-           .
-           --ignore-path "CHANGELOG.md"
-        attempt_limit: 3
-        attempt_delay: 2000
-
+          action: becheran/mlc@v1
+          with: |
+            args: . --ignore-path "CHANGELOG.md"
+          attempt_limit: 3
+          attempt_delay: 2000

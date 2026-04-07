@@ -291,58 +291,95 @@ before the caller could check the status, causing every test suite to fail.
 
 The per-field dictionary lookup is performed in
 `generic3g/specs/VariableSpec.F90` inside the `make_VariableSpec` function.
-`parse_var_specs` is restored to baseline and contains no field dictionary
-logic.
+Lookup is **opt-in**: it is only triggered when `use_field_dictionary=.true.`
+is passed to `make_VariableSpec`.  The flag defaults to `.false.`, so existing
+callers are entirely unaffected.
 
-### Lookup logic (inside `make_VariableSpec`)
+### `VariableSpec` member
 
 ```fortran
-if (present(standard_name)) then
-   ! Skip compound vector names of the form "(eastward_wind,northward_wind)"
-   if (index(standard_name, '(') == 0) then
-      fd => get_field_dictionary()          ! pointer to module singleton
-      if (fd%has_item(standard_name)) then
-         dict_item = fd%get_item(standard_name, rc)
+type VariableSpec
+   ...
+   logical :: use_field_dictionary = .false.
+   ...
+end type
+```
+
+### `make_VariableSpec` signature (relevant fragment)
+
+```fortran
+function make_VariableSpec( &
+     state_intent, short_name, unusable, &
+     ...
+     use_field_dictionary, &   ! optional logical, default .false.
+     rc) result(var_spec)
+```
+
+### Lookup logic
+
+```fortran
+if (var_spec%use_field_dictionary) then
+   fd => get_field_dictionary()
+   block
+      character(:), allocatable :: lookup_key
+      logical :: by_alias
+
+      by_alias = .false.
+      if (present(standard_name) .and. index(standard_name, '(') == 0) then
+         lookup_key = standard_name        ! standard_name is the FD key
+      else
+         lookup_key = short_name           ! fall back to short_name as alias
+         by_alias = .true.
+      end if
+
+      if (fd%has_item(lookup_key)) then
+         dict_item = fd%get_item(lookup_key, rc)
          if (.not. present(units))     var_spec%units     = dict_item%get_units()
          if (.not. present(long_name)) var_spec%long_name = dict_item%get_long_name()
       else
-         lgr%warning('standard_name "..." not found in field dictionary; ...')
+         lgr%warning(...)   ! warn — never a fatal error
       end if
-   end if
+   end block
 end if
 ```
 
 Key points:
 
-- **Warn-only**: a missing standard name logs a warning but never fails.
-- **Caller values win**: `units` and `long_name` already supplied by the caller
-  are never overwritten by the dictionary.
+- **Opt-in**: the block is entirely skipped when `use_field_dictionary` is
+  absent or `.false.` — no FD pointer is obtained, no singleton is queried.
+- **Key priority**: `standard_name` (if present and not a compound vector
+  name) → `short_name` as alias.
 - **Compound names skipped**: any `standard_name` containing `(` is a
-  two-component vector encoding (e.g. `(eastward_wind,northward_wind)`) and
-  is not a dictionary key — skip silently.
+  two-component vector encoding and is never a valid FD key.
+- **Warn-only on miss**: a missing key logs a warning but never fails.
+- **Caller values win**: `units` and `long_name` already supplied by the
+  caller are never overwritten by the dictionary.
 - **Singleton access**: `get_field_dictionary()` always returns a pointer to
-  the module-level singleton `the_field_dictionary` declared in
-  `FieldDictionary.F90`.  If the dictionary was never loaded (file absent),
-  the singleton is an empty `FieldDictionary` and `has_item` always returns
-  `.false.`.
+  the module-level singleton `the_field_dictionary`.  If the dictionary was
+  never loaded, the singleton is an empty `FieldDictionary` and `has_item`
+  always returns `.false.`.
 
 ### Regrid method
 
 The `conserved` → regrid method mapping is resolved separately in
-`get_regrid_param` → `get_regrid_method_from_field_dict_`:
+`get_regrid_param` → `get_regrid_method_from_field_dict_`.  These functions
+now accept a `use_field_dictionary` logical argument; `get_regrid_param`
+skips the FD lookup unless `use_field_dictionary=.true.` is passed:
 
 ```fortran
-function get_regrid_method_from_field_dict_(standard_name, rc) result(regrid_method)
-   fd => get_field_dictionary()
-   if (.not. fd%has_item(standard_name)) then
-      _RETURN(_FAILURE)   ! caller falls back to BILINEAR
+function get_regrid_param(requested_param, standard_name, use_field_dictionary) &
+     result(regrid_param)
+   ...
+   use_fd = .false.
+   if (present(use_field_dictionary)) use_fd = use_field_dictionary
+   if (.not. use_fd) return     ! skip FD lookup entirely
+
+   regrid_method = get_regrid_method_from_field_dict_(standard_name, rc=status)
+   if (status==ESMF_SUCCESS) then
+      regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
    end if
-   regrid_method = fd%get_regrid_method(standard_name, rc)
 end function
 ```
-
-This function returns `_FAILURE` (not a fatal error) when the standard name is
-absent; the caller (`get_regrid_param`) falls back to `BILINEAR`.
 
 ---
 
@@ -368,22 +405,35 @@ standard names to avoid coupling tests to the production dictionary:
 ```fortran
 ! In a pFUnit test:
 use mapl3g_FieldDictionary
+use mapl3g_VariableSpec
 
-type(FieldDictionary) :: dict
+type(VariableSpec) :: vs
 integer :: status
 
-dict = FieldDictionary( &
-     filename='path/to/field_dictionary_test.yaml', rc=status)
+call load_field_dictionary('field_dictionary_test.yaml', rc=status)
 @assertEqual(0, status)
-@assert(dict%has_item('test_temperature'))
 
-character(:), allocatable :: units
-units = dict%get_units('test_temperature', rc=status)
-@assertEqual('K', units)
+! Must pass use_field_dictionary=.true. to trigger FD lookup
+vs = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
+     standard_name='test_temperature', &
+     use_field_dictionary=.true., rc=status)
+@assertEqual(0, status)
+@assertEqual('K', vs%units)
+
+! Without the flag — dictionary is not consulted
+vs = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='T', &
+     standard_name='test_temperature', rc=status)
+@assertEqual(0, status)
+@assertFalse(allocated(vs%units))   ! units not filled from dict
 ```
 
 See `generic3g/tests/Test_FieldDictionary.pf` and
 `generic3g/tests/Test_FieldDictIntegration.pf` for full examples.
+
+**Important**: do **not** call `load_field_dictionary` in a `@before`
+subroutine in test modules that do not actually use `use_field_dictionary=.true.`.
+The FD singleton is not needed for tests that never opt in, and loading it
+unnecessarily couples those tests to the test YAML file.
 
 ---
 

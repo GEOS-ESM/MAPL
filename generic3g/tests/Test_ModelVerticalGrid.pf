@@ -36,7 +36,6 @@ module Test_ModelVerticalGrid
    use mapl3g_QuantityTypeAspect
    use mapl3g_ConservationAspect
    use mapl3g_NormalizationAspect
-   use mapl3g_FieldDictionary, only: load_field_dictionary
    use mapl3g_NormalizationType
    use gFTL2_StringVector
    use esmf
@@ -105,8 +104,6 @@ contains
        type(VerticalGridManager), pointer :: vgrid_mgr
        type(ModelVerticalGridSpec) :: vspec
        type(StringVector) :: names, dims
-
-       call load_field_dictionary('field_dictionary_test.yaml', _RC)
 
        ! geom, registry etc.
       geom = make_geom(_RC)

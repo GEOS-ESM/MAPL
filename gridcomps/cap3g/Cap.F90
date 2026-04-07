@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_Cap
-   use mapl3
+   use MAPL
    use mapl3g_CapGridComp, only: cap_setservices => setServices
    use mapl_TimeStringConversion, only: string_to_esmf_time
    use mapl_os
