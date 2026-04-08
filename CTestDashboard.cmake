@@ -10,6 +10,10 @@
 ##   -D generator=Ninja        # default: Ninja
 ##   -D jobs=8                 # default: 6
 ##   -D site=myhost            # default: auto-detected hostname
+##                             # NOTE: Set this explicitly on CI runners (GitHub Actions),
+##                             # SLURM compute nodes, or laptops on VPNs. Otherwise, CDash
+##                             # sees a different random hostname each time and cannot
+##                             # connect the builds into a contiguous history timeline.
 ##   -D build_name=my-label    # default: auto-generated
 ##
 ## Environment variables (optional):
