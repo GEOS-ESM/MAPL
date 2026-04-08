@@ -17,7 +17,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.field MAPL.field_bundle MAPL.geom MAPL.pfio MAPL.base MAPL.shared MAPL.esmf_utils MAPL.hconfig_utils MAPL.regridder_mgr GFTL::gftl-v2
+  DEPENDENCIES MAPL.field MAPL.field_bundle MAPL.geom MAPL.pfio MAPL.base MAPL.shared MAPL.esmf_utils MAPL.hconfig_utils MAPL.regridder_mgr GFTL::gftl-v2 MAPL.base
   TYPE SHARED
   )
 

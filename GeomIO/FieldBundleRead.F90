@@ -8,12 +8,12 @@ module mapl3g_FieldBundleRead
    use mapl3g_GeomCatagorizer
    use mapl3g_Geom_API, only: MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
    use mapl3g_Field_API, only: MAPL_FieldCreate, MAPL_FieldGet
-   use mapl3g_FieldBundle_API, only: MAPL_FieldBundleAdd, MAPL_FieldBundleGet
+   use mapl3g_FieldBundle_API
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalGrid_API
    use mapl3g_RegridderManager, only: get_regridder_manager, RegridderManager
    use mapl3g_RegridderSpec
-   use mapl3g_RegridderMethods, only: generate_esmf_regrid_param, REGRID_METHOD_BILINEAR
+   use mapl3g_RegridderMethods
    use mapl3g_Regridder, only: Regridder
    use MAPL_FileMetadataUtilsMod
    use MAPL_StringTemplate, only: fill_grads_template
@@ -23,7 +23,7 @@ module mapl3g_FieldBundleRead
    implicit none(type, external)
    private
 
-   public :: FieldBundleRead
+   public :: MAPL_read_bundle
    public :: FieldBundlePopulate
 
 contains
@@ -42,10 +42,10 @@ contains
    !   only_vars       - Comma-separated list of variable names to include (optional)
    !   rc              - Return code (optional)
    !---------------------------------------------------------------------------
-   subroutine FieldBundlePopulate(bundle, file_geom, file_vgrid, metadata_utils, only_vars, rc)
+   subroutine FieldBundlePopulate(bundle, geom, vgrid, metadata_utils, only_vars, rc)
       type(ESMF_FieldBundle),  intent(inout) :: bundle
-      type(ESMF_Geom),         intent(in)    :: file_geom
-      class(VerticalGrid), pointer, intent(in)    :: file_vgrid
+      type(ESMF_Geom),         intent(in)    :: geom
+      class(VerticalGrid), pointer, intent(in)    :: vgrid
       type(FileMetadataUtils), intent(inout) :: metadata_utils
       character(*), optional,  intent(in)    :: only_vars
       integer, optional,       intent(out)   :: rc
@@ -93,7 +93,7 @@ contains
       ! Identify coordinate/dimension variable names to exclude.
       ! Use mapl_geom%get_gridded_dims() which returns the horizontal
       ! dimension names (e.g., "lon,lat" for LatLon or "Xdim,Ydim,nf" for CS).
-      mapl_geom => get_mapl_geom(file_geom, _RC)
+      mapl_geom => get_mapl_geom(geom, _RC)
       gridded_dims = mapl_geom%get_gridded_dims()
 
       ! Build comma-delimited exclude list: all horizontal coord names + lev/edge + time
@@ -158,6 +158,7 @@ contains
          end if
 
          ! Create a MAPL3-compatible field on the file grid
+         vert_staggerloc = VERTICAL_STAGGER_NONE
          if (var_has_levels) then
             ! Determine center vs. edge stagger from the level dimension name.
             ! Convention: if the name contains "edge" use EDGE stagger; otherwise CENTER.
@@ -168,9 +169,9 @@ contains
             end if
 
             field = MAPL_FieldCreate( &
-                 file_geom, ESMF_TYPEKIND_R4, &
+                 geom, ESMF_TYPEKIND_R4, &
                  !num_levels=lev_size, &
-                 vgrid=file_vgrid, &
+                 vgrid=vgrid, &
                  vert_staggerloc=vert_staggerloc, &
                  name=trim(var_name_ptr), &
                  units=trim(units), &
@@ -179,7 +180,8 @@ contains
                  _RC)
          else
             field = MAPL_FieldCreate( &
-                 geom=file_geom, typekind=ESMF_TYPEKIND_R4, &
+                 geom=geom, typekind=ESMF_TYPEKIND_R4, &
+                 vert_staggerloc=vert_staggerloc, &
                  name=trim(var_name_ptr), &
                  units=trim(units), &
                  long_name=trim(long_name), &
@@ -188,6 +190,10 @@ contains
          end if
 
          call MAPL_FieldBundleAdd(bundle, [field], _RC)
+         block
+            type(VerticalStaggerLoc) :: vloc_temp
+            call MAPL_FieldGet(field, vert_staggerloc=vloc_temp, _RC)
+         end block 
 
       end do
 
@@ -220,7 +226,7 @@ contains
    !                   share the same schema (optional)
    !   rc            - Return code (optional)
    !---------------------------------------------------------------------------
-   subroutine FieldBundleRead(bundle, file_tmpl, time, only_vars, regrid_method, &
+   subroutine MAPL_read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
         noread, file_override, rc)
       type(ESMF_FieldBundle), intent(inout) :: bundle
       character(*),           intent(in)    :: file_tmpl
@@ -259,6 +265,9 @@ contains
       class(VerticalGrid), pointer :: file_vgrid
       class(VerticalGridManager), pointer :: vgrid_manager
 
+      if (present(regrid_method)) then
+         _HERE,' bmaa ',regrid_method == REGRID_METHOD_BILINEAR, regrid_method, REGRID_METHOD_BILINEAR
+      end if
       !--- Resolve filename from template ---
       call ESMF_TimeGet(time, timeString=timestring, _RC)
       call fill_grads_template(file_name, file_tmpl, time=time, _RC)
@@ -290,10 +299,15 @@ contains
       vgrid_manager => get_vertical_grid_manager(_RC)
       file_vgrid => vgrid_manager%create_grid_from_file_metadata(metadata, _RC)
 
+      !--- Check whether file grid matches bundle grid ---
+      call MAPL_FieldBundleGet(bundle, _RC)
+      call ESMF_FieldBundleGet(bundle, geom=bundle_geom, _RC)
+      same_grid = MAPL_SameGeom(file_geom, bundle_geom)
+
       !--- Populate empty bundle or verify existing fields ---
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
       if (field_count == 0) then
-         call FieldBundlePopulate(bundle, file_geom, file_vgrid, metadata_utils, &
+         call FieldBundlePopulate(bundle, bundle_geom, file_vgrid, metadata_utils, &
               only_vars=only_vars, _RC)
       else
          ! Verify every field in the bundle exists in the file
@@ -313,11 +327,6 @@ contains
          if (noread) _RETURN(_SUCCESS)
       end if
 
-      !--- Check whether file grid matches bundle grid ---
-      call MAPL_FieldBundleGet(bundle, fieldList=bundle_fields, _RC)
-      call ESMF_FieldGet(bundle_fields(1), geom=bundle_geom, _RC)
-      same_grid = MAPL_SameGeom(file_geom, bundle_geom)
-
       !--- Build a file-grid bundle (alias if same grid, otherwise new) ---
       if (same_grid) then
          file_bundle = bundle
@@ -325,7 +334,9 @@ contains
          ! Create a minimal file_bundle with matching field names/types on file_geom.
          ! Vertical info is copied from the bundle field so the number of levels
          ! in the file field matches (horizontal regrid only; no vertical interp).
+         call MAPL_FieldBundleGet(bundle, fieldList=bundle_fields, _RC)
          file_bundle = ESMF_FieldBundleCreate(_RC)
+         call MAPL_FieldBundleSet(file_bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
          do i = 1, size(bundle_fields)
             block
                character(len=ESMF_MAXSTR)  :: fname_
@@ -334,11 +345,11 @@ contains
                integer                     :: nlevs
                call ESMF_FieldGet(bundle_fields(i), name=fname_, typekind=tk, _RC)
                call MAPL_FieldGet(bundle_fields(i), &
-                    vert_staggerloc=vstag, num_levels=nlevs, _RC)
-               if (vstag /= VERTICAL_STAGGER_NONE .and. nlevs > 0) then
+                    vert_staggerloc=vstag, _RC)
+               if (vstag /= VERTICAL_STAGGER_NONE) then
                   file_field = MAPL_FieldCreate( &
                        geom=file_geom, typekind=tk, &
-                       num_levels=nlevs, vert_staggerloc=vstag, &
+                       vert_staggerloc=vstag, vgrid=file_vgrid, &
                        name=trim(fname_), _RC)
                else
                   file_field = MAPL_FieldCreate( &
@@ -361,6 +372,7 @@ contains
       if (.not. same_grid) then
          regrid_method_ = REGRID_METHOD_BILINEAR
          if (present(regrid_method)) regrid_method_ = regrid_method
+         _HERE,' bmaa ',regrid_method_ == REGRID_METHOD_BILINEAR 
 
          call ESMF_FieldGet(bundle_fields(1), typekind=typekind, _RC)
          regridder_mgr => get_regridder_manager()
@@ -379,6 +391,6 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine FieldBundleRead
+   end subroutine mapl_read_bundle
 
 end module mapl3g_FieldBundleRead

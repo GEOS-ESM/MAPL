@@ -7,7 +7,7 @@ module mapl3g_geomio
    use mapl3g_DataCollectionVector
    use mapl3g_DataCollectionManager
    use mapl3g_pFIOServerBounds
-   use mapl3g_fieldbundle_writer
+   use mapl3g_FieldBundleWrite
    use mapl3g_FieldBundleRead
    implicit none
 

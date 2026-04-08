@@ -1,5 +1,5 @@
 #include "MAPL.h"
-module mapl3g_fieldbundle_writer
+module mapl3g_FieldBundleWrite
    use ESMF
    use pFIO
    use MAPL_TimeDataMod
@@ -31,15 +31,10 @@ module mapl3g_fieldbundle_writer
 
    contains
 
-      subroutine write_bundle_single_time(bundle,clock,output_file,nbits_to_keep,deflate,quantize_algorithm,quantize_level,zstandard_level,rc)
+      subroutine write_bundle_single_time(bundle,clock,output_file,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
          character(len=*), intent(in) :: output_file
-         integer, optional, intent(in)  :: nbits_to_keep
-         integer, optional, intent(in)  :: deflate
-         integer, optional, intent(in)  :: quantize_algorithm
-         integer, optional, intent(in)  :: quantize_level
-         integer, optional, intent(in)  :: zstandard_level
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -48,24 +43,15 @@ module mapl3g_fieldbundle_writer
          type(ESMF_Time) :: time
 
          call ESMF_ClockGet(clock, currTime=time, _RC)
-         !call newWriter%create_from_bundle(bundle,clock,output_file=output_File,n_steps=1,time_interval=0,nbits_to_keep=nbits_to_keep,deflate=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,zstandard_level=zstandard_level,rc=status)
-         call newWriter%create_from_bundle(bundle,clock,output_file=output_File,nbits_to_keep=nbits_to_keep,deflate=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,zstandard_level=zstandard_level,rc=status)
-         _VERIFY(status)
-         call newWriter%start_new_file(bundle, output_File, time, _RC)
+         call newWriter%start_new_file(output_File, time, _RC)
          call newWriter%write_to_file(bundle, time, _RC)
          _RETURN(_SUCCESS)
       end subroutine write_bundle_single_time
 
-      subroutine create_from_bundle(this,bundle,clock,output_file,nbits_to_keep,deflate,quantize_algorithm,quantize_level,zstandard_level,rc)
+      subroutine create_from_bundle(this,bundle,clock,rc)
          class(FieldBundleWRiter), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
-         character(len=*), optional, intent(in) :: output_file
-         integer, optional, intent(in)  :: nbits_to_keep
-         integer, optional, intent(in)  :: deflate
-         integer, optional, intent(in)  :: quantize_algorithm
-         integer, optional, intent(in)  :: quantize_level
-         integer, optional, intent(in)  :: zstandard_level
          integer, optional, intent(out) :: rc
 
          type(TimeData) :: time_info
@@ -81,7 +67,6 @@ module mapl3g_fieldbundle_writer
          call this%writer%initialize(metadata, geom, _RC)
 
          !call this%cfio%set_param(nbits_to_keep=nbits_to_keep,deflation=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,zstandard_level=zstandard_level)
-         !if (present(output_file)) this%file_name = output_file
          !collection_id = o_clients%add_data_collection(this%cfio%metadata)
          !call this%cfio%set_param(write_collection_id=collection_id)
          _RETURN(_SUCCESS)
@@ -120,9 +105,8 @@ module mapl3g_fieldbundle_writer
 
       end subroutine write_to_file
 
-      subroutine start_new_file(this, bundle, filename, time, rc)
+      subroutine start_new_file(this, filename, time, rc)
          class(fieldBundleWriter),intent(inout) :: this
-         type(ESMF_FieldBundle), intent(inout) :: bundle
          character(len=*), intent(in) :: filename
          type(ESMF_Time), intent(in) :: time
          integer, optional, intent(out) :: rc
@@ -137,4 +121,4 @@ module mapl3g_fieldbundle_writer
          _RETURN(_SUCCESS)
       end subroutine start_new_file
 
-end module mapl3g_FieldBundle_Writer
+end module mapl3g_FieldBundleWrite
