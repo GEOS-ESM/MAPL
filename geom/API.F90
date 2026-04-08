@@ -9,6 +9,7 @@ module mapl3g_Geom_API
    use mapl3g_GridGet, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates
    use mapl3g_GridGetHorzIJIndex, only: mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
    use mapl3g_GeomGetHorzIJIndex, only: mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex
+   use mapl3g_Subgrid, only: mapl_Interval => Interval, mapl_make_subgrids => make_subgrids
    use esmf, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4
 
    implicit none(type,external)
@@ -27,5 +28,6 @@ module mapl3g_Geom_API
    public :: mapl_SameGeom, mapl_GeomGetId
    public :: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
    public :: GeomSpec
+   public :: mapl_Interval, mapl_make_subgrids
 
 end module mapl3g_Geom_API
