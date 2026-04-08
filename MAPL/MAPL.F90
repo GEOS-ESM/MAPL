@@ -17,4 +17,3 @@ module MAPL2
    use MAPL_PythonBridge
    implicit none
 end module MAPL2
-
