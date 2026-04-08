@@ -352,11 +352,12 @@ def get_from_values(keys, values, args):
         case _:
             raise RuntimeError('Option is not a supported type')
 
+common_keys = lambda d1, d2: set(d1).intersection(d2)
+exclude_none_value = lambda d: [k for k, v in d.items() if v is not None]
+
 def digest_spec(spec, options):
-    tuples = [(k, spec[k]) for k, v in spec.items() if k in options and spec[k]]
-    spec_options = [options[k] for k, _ in tuples]
-    mapping_functions = [fetch_mapping_function(so.get(MAPPING)) for so in spec_options]
-    values = dict((n, f(v)) for (n, v), f in zip(tuples, mapping_functions) if f(v))
+    f = lambda k: fetch_mapping_function(options[k].get(MAPPING))(spec[k])
+    values = dict((k, f(k)) for k in common_keys(exclude_none_value(spec), options))
     return values, set(spec).difference(values)
 
 def map_spec_values(values, options):
