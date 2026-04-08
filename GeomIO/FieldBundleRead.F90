@@ -265,9 +265,6 @@ contains
       class(VerticalGrid), pointer :: file_vgrid
       class(VerticalGridManager), pointer :: vgrid_manager
 
-      if (present(regrid_method)) then
-         _HERE,' bmaa ',regrid_method == REGRID_METHOD_BILINEAR, regrid_method, REGRID_METHOD_BILINEAR
-      end if
       !--- Resolve filename from template ---
       call ESMF_TimeGet(time, timeString=timestring, _RC)
       call fill_grads_template(file_name, file_tmpl, time=time, _RC)
@@ -372,7 +369,6 @@ contains
       if (.not. same_grid) then
          regrid_method_ = REGRID_METHOD_BILINEAR
          if (present(regrid_method)) regrid_method_ = regrid_method
-         _HERE,' bmaa ',regrid_method_ == REGRID_METHOD_BILINEAR 
 
          call ESMF_FieldGet(bundle_fields(1), typekind=typekind, _RC)
          regridder_mgr => get_regridder_manager()

@@ -190,7 +190,6 @@
     end if
     this%regridMethod = regrid_method_string_to_int(regridMth)
     _ASSERT(this%regridMethod/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
-    _HERE,' bmaa '//trim(regridMth), this%regridMethod,this%regridMethod==REGRID_METHOD_BILINEAR
 
     this%filenames = split_string(cfilenames,',')
     this%outputfiles = split_string(coutputfiles,',')
@@ -370,7 +369,8 @@
 
    use ESMF
    use MAPL
-   !use MAPL2
+   use MAPLBase_Mod, only: FileMetadataUtils
+   use mapl_Profiler
    use regrid_util_support_mod
    use mpi
 
@@ -445,7 +445,6 @@ CONTAINS
          call t_prof%start("Read")
          if (local_am_i_root()) write(*,*)'processing timestep from '//trim(filename)
          time = tSeries(i)
-         _HERE,' bmaa ',support%regridMethod==REGRID_METHOD_BILINEAR, support%regridMethod, REGRID_METHOD_BILINEAR
          if (support%onlyvars) then
             call MAPL_Read_bundle(bundle,trim(filename),time,only_vars=support%vars, regrid_method=support%regridMethod, _RC)
          else
