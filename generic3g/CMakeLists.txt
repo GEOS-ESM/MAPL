@@ -15,7 +15,6 @@ set(srcs
 
   ComponentSpecParser.F90
 
-  ESMF_Interfaces.F90
   UserSetServices.F90
   MethodPhasesMap.F90
 
@@ -32,6 +31,10 @@ set(srcs
 
   ESMF_HConfigUtilities.F90
   RestartHandler.F90
+
+  RunEntryPoint.F90
+  EntryPointVector.F90
+  OpenMP_Support.F90
   )
 
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.

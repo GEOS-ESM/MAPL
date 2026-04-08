@@ -231,6 +231,10 @@ module mapl3g_Generic
       procedure :: clock_get_dt
    end interface MAPL_ClockGet
 
+   interface MAPL_MethodAdd
+      procedure :: method_add
+   end interface MAPL_MethodAdd
+
 contains
 
    recursive subroutine gridcomp_get_outer_meta(gridcomp, outer_meta, rc)
@@ -1159,7 +1163,28 @@ contains
       call ESMF_TimeIntervalGet(timestep, s=seconds, _RC)
       dt = real(seconds, kind=ESMF_KIND_R4)
 
-      _RETURN(_SUCCESS)
+       _RETURN(_SUCCESS)
    end subroutine clock_get_dt
+
+   subroutine method_add(state, label, userRoutine, rc)
+      use esmf, only: ESMF_State, ESMF_MethodAdd
+      use mapl3g_ESMF_Interfaces, only: I_CallBackMethod
+      use mapl3g_StateAddMethod, only: CallbackMap, CallbackMethodWrapper, get_callbacks
+      type(ESMF_State), intent(inout) :: state
+      character(len=*), intent(in) :: label
+      procedure(I_CallBackMethod) :: userRoutine
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(CallbackMap), pointer :: callbacks
+      type(CallbackMethodWrapper) :: wrapper
+
+      call get_callbacks(state, callbacks, _RC)
+      wrapper%userRoutine => userRoutine
+      call callbacks%insert(label, wrapper)
+      call ESMF_MethodAdd(state, label=label, userRoutine=userRoutine, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine method_add
 
 end module mapl3g_Generic

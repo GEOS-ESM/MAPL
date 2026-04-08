@@ -5,6 +5,7 @@ set(srcs
   StateGet.F90
   StateSet.F90
   StateGetPointer.F90
+  StateAddMethod.F90
 
   StateUtils.F90
   StateArithmeticParser.F90
@@ -19,9 +20,11 @@ if (BUILD_WITH_PFLOGGER)
   find_package (PFLOGGER REQUIRED)
 endif ()
 
+find_package (GFTL REQUIRED)
+
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES ${MAPL_TARGET_PREFIX}.vertical_grid ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.field ${MAPL_TARGET_PREFIX}.field_bundle ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.esmf_utils ESMF::ESMF PFLOGGER::pflogger
+  DEPENDENCIES ${MAPL_TARGET_PREFIX}.vertical_grid ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.field ${MAPL_TARGET_PREFIX}.field_bundle ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.esmf_utils ESMF::ESMF PFLOGGER::pflogger GFTL::gftl-v2
   TYPE SHARED
 )
 
