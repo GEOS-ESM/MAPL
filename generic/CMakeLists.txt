@@ -14,12 +14,8 @@ set (srcs
   MaplGeneric.F90
   MAPL_Generic_Stubs.F90
 
-  # OpenMP support and its dependencies
+  # OpenMP support
   OpenMP_Support.F90
-  RunEntryPoint.F90
-  EntryPointVector.F90
-  MAPL_ESMF_Interfaces.F90
-  CallbackMap.F90
   )
 
 if (BUILD_WITH_PFLOGGER)
