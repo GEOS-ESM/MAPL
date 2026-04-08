@@ -370,7 +370,7 @@
 
    use ESMF
    use MAPL
-   use MAPL2
+   !use MAPL2
    use regrid_util_support_mod
    use mpi
 
