@@ -78,9 +78,6 @@ module MAPL_Base
   public MAPL_PinFlagGet
 
 
-  real,    public, parameter :: MAPL_UNDEF              = 1.0e15
-
-
   character(len=ESMF_MAXSTR), public, parameter :: MAPL_StateItemOrderList = 'MAPL_StateItemOrderList'
   character(len=ESMF_MAXSTR), public, parameter :: MAPL_BundleItemOrderList = 'MAPL_BundleItemOrderList'
 

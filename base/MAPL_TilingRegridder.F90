@@ -8,7 +8,6 @@ module MAPL_TilingRegridderMod
    use MAPL_RegridderSpec
    use MAPL_RegridMethods
    use MAPL_DirPathMod
-   use MAPL_BaseMod, only: MAPL_UNDEF
    use MAPL_ShmemMod
    use MAPL_Constants
    use Regrid_Functions_Mod, only: readTileFileNC_file 

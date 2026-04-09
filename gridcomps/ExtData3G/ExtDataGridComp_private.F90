@@ -7,7 +7,7 @@ module mapl3g_ExtDataGridComp_private
    use mapl3g_stateitem
    use mapl3g_PrimaryExportVector
    use mapl3g_PrimaryExport
-   use gFTL2_StringVector, only: StringVector, StringVectorIterator
+   use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use pflogger, only: logger
    implicit none
    private

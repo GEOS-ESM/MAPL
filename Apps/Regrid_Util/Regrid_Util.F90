@@ -311,6 +311,7 @@
 
    use ESMF
    use ESMFL_Mod
+   use MAPL2
    use MAPL_ExceptionHandling
    use MAPL_Profiler
    use MAPL_BaseMod
