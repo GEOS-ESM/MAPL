@@ -7,8 +7,12 @@
    use gFTL2_StringVector
 
    implicit NONE
+   private
 
-   public
+   public :: regrid_support
+   public :: uninit
+   public :: UnpackGridName
+   public :: split_string
 
    real, parameter :: uninit = MAPL_UNDEF
 
