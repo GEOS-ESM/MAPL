@@ -17,12 +17,17 @@ module SupportMod
    use MAPL_Constants
    use MAPL_RangeMod
    use MAPL_StringRouteHandleMapMod
-   use gFTL2_StringVector
+   use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use gFTL2_StringIntegerMap
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT64
    use mpi
    implicit none
-   public
+   private
+
+   public :: local_pet, pet_count, npx, npy, px, py
+   public :: ierror, N_TILES
+   public :: route_handles, srcTerm, default_route_handle
+   public :: RegridSupport
 
 
 
@@ -1194,6 +1199,8 @@ program main
    use ESMF
    use SupportMod
    use pFIO
+   use MAPL_ExceptionHandling
+   use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
 
    integer(kind=INT64) :: c00, c0, c1, crate
@@ -1259,6 +1266,7 @@ contains
 
    subroutine check_resources(rc)
       use SupportMod
+      use MAPL_ExceptionHandling
       integer, optional, intent(out) :: rc
       integer:: status
 
