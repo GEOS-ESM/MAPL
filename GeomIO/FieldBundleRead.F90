@@ -255,7 +255,7 @@ contains
 
       class(GeomPFIO), allocatable    :: reader
       type(RegridderManager), pointer :: regridder_mgr
-      class(Regridder), pointer       :: regridder
+      class(Regridder), pointer       :: mapl_regridder
       type(RegridderSpec)             :: spec
 
       type(ESMF_TypeKind_Flag)        :: typekind
@@ -374,8 +374,8 @@ contains
          spec = RegridderSpec( &
               generate_esmf_regrid_param(regrid_method_, typekind), &
               file_geom, bundle_geom)
-         regridder => regridder_mgr%get_regridder(spec, _RC)
-         call regridder%regrid(file_bundle, bundle, _RC)
+         mapl_regridder => regridder_mgr%get_regridder(spec, _RC)
+         call mapl_regridder%regrid(file_bundle, bundle, _RC)
 
          ! Destroy the temporary file-grid bundle and its fields
          call MAPL_FieldBundleGet(file_bundle, fieldList=file_fields, _RC)
