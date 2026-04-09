@@ -83,8 +83,7 @@ contains
       type(StringVectorIterator) :: dim_iter
       character(len=:), pointer  :: dim_name_ptr
 
-      _ASSERT(.not. present(only_vars) .or. len_trim(only_vars) > 0, &
-           'FieldBundlePopulate: only_vars must not be empty if present')
+      _ASSERT(.not. present(only_vars) .or. len_trim(only_vars) > 0, 'FieldBundlePopulate: only_vars must not be empty if present')
 
       ! Verify the bundle is empty
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
@@ -286,8 +285,7 @@ contains
             exit
          end if
       end do
-      _ASSERT(time_index /= -1, &
-           'FieldBundleRead: time '//trim(timestring)//' not found on file '//trim(file_name))
+      _ASSERT(time_index /= -1, 'FieldBundleRead: time '//trim(timestring)//' not found on file '//trim(file_name))
       deallocate(time_series)
 
       !--- Get the file's geometry from the geom manager ---
@@ -315,8 +313,7 @@ contains
             block
                character(len=ESMF_MAXSTR) :: fname_
                call ESMF_FieldGet(bundle_fields(i), name=fname_, _RC)
-               _ASSERT(metadata_utils%has_variable(trim(fname_)), &
-                    'FieldBundleRead: field "'//trim(fname_)//'" not found in '//trim(file_name))
+               _ASSERT(metadata_utils%has_variable(trim(fname_)), 'FieldBundleRead: field "'//trim(fname_)//'" not found in '//trim(file_name))
             end block
          end do
       end if

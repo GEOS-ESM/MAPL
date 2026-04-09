@@ -1,0 +1,274 @@
+#include "MAPL_TestErr.h"
+
+module Test_FieldBundleIO
+
+   use pfunit
+   use esmf
+   use esmf_TestMethod_mod
+   use mapl3g_Geom_API, only: GeomManager, MaplGeom, get_geom_manager
+   use mapl3g_Field_API, only: MAPL_FieldCreate, MAPL_FieldGet
+   use mapl3g_FieldBundle_API
+   use mapl3g_VerticalGrid_API
+   use mapl3g_geomio
+
+   implicit none
+
+   character(len=*), parameter :: OUTPUT_FILE_2D_3D = 'test_bundle_2d_3d.nc4'
+   character(len=*), parameter :: OUTPUT_FILE_2D = 'test_bundle_2d.nc4'
+
+contains
+
+   ! Helper: create a latlon geom registered with the GeomManager.
+   function make_latlon_geom(im, jm, rc) result(geom)
+      type(ESMF_Geom) :: geom
+      integer, intent(in) :: im, jm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GeomManager), pointer :: geom_mgr
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_HConfig) :: hconfig
+      character(len=256) :: content
+
+      write(content, '(A,I0,A,I0,A)') &
+           '{class: latlon, im_world: ', im, &
+           ', jm_world: ', jm, &
+           ', pole: PC, dateline: DC, nx: 1, ny: 1}'
+
+      hconfig = ESMF_HConfigCreate(content=trim(content), _RC)
+      geom_mgr => get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_latlon_geom
+
+   ! Helper: create an ESMF_Clock at a fixed time.
+   function make_clock(rc) result(clock)
+      type(ESMF_Clock) :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Time) :: start_time
+      type(ESMF_TimeInterval) :: time_step
+
+      call ESMF_TimeSet(start_time, yy=2000, mm=3, dd=15, h=0, m=0, s=0, _RC)
+      call ESMF_TimeIntervalSet(time_step, m=30, _RC)
+      clock = ESMF_ClockCreate(timeStep=time_step, startTime=start_time, _RC)
+      call ESMF_ClockSet(clock, currTime=start_time, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_clock
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_write_read_bundle_2d_and_3d(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(ESMF_Geom) :: geom
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: time
+
+      ! Vertical grid
+      type(VerticalGridManager), pointer :: vgrid_mgr
+      class(VerticalGrid), pointer :: vgrid
+
+      ! Write-side fields and bundle
+      type(ESMF_Field) :: f_temp, f_humid
+      type(ESMF_FieldBundle) :: write_bundle
+      real(kind=ESMF_KIND_R4), pointer :: ptr2d(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: ptr3d(:,:,:)
+
+      ! Writer
+      type(FieldBundleWriter) :: writer
+
+      ! Read-side bundle and fields
+      type(ESMF_FieldBundle) :: read_bundle
+      type(ESMF_Field), allocatable :: read_fields(:)
+      real(kind=ESMF_KIND_R4), pointer :: rptr2d(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: rptr3d(:,:,:)
+      integer :: i, field_count
+      character(len=ESMF_MAXSTR) :: fname
+
+      real(kind=ESMF_KIND_R4), parameter :: TEMP_VALUE = 1.5
+      real(kind=ESMF_KIND_R4), parameter :: HUMID_VALUE = 3.5
+
+      ! ------------------------------------------------------------------
+      ! Setup: geometry, vertical grid, and clock
+      ! ------------------------------------------------------------------
+      geom = make_latlon_geom(4, 5, _RC)
+
+      vgrid_mgr => get_vertical_grid_manager()
+      vgrid => vgrid_mgr%create_grid(BasicVerticalGridSpec(num_levels=3), _RC)
+
+      clock = make_clock(_RC)
+      call ESMF_ClockGet(clock, currTime=time, _RC)
+
+      ! ------------------------------------------------------------------
+      ! Create 2D fields
+      ! ------------------------------------------------------------------
+      f_temp = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, &
+           vert_staggerloc=VERTICAL_STAGGER_NONE, &
+           name='temperature', long_name='temperature', standard_name='temperature', units='K', _RC)
+      call ESMF_FieldGet(f_temp, farrayPtr=ptr2d, _RC)
+      ptr2d = TEMP_VALUE
+
+      ! ------------------------------------------------------------------
+      ! Create 3D fields (center stagger, 3 vertical levels)
+      ! ------------------------------------------------------------------
+      f_humid = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, &
+           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           name='humidity', long_name='humidity', standard_name='humidity', units='kg kg-1', _RC)
+      call ESMF_FieldGet(f_humid, farrayPtr=ptr3d, _RC)
+      ptr3d = HUMID_VALUE
+
+      ! ------------------------------------------------------------------
+      ! Create write bundle and add all fields
+      ! ------------------------------------------------------------------
+      write_bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(write_bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call ESMF_FieldBundleAdd(write_bundle, [f_temp, f_humid], _RC)
+
+      ! ------------------------------------------------------------------
+      ! Write bundle to file
+      ! ------------------------------------------------------------------
+      call writer%create_from_bundle(write_bundle, clock, _RC)
+      call writer%start_new_file(OUTPUT_FILE_2D_3D, time, _RC)
+      call writer%write_to_file(write_bundle, time, _RC)
+
+      ! ------------------------------------------------------------------
+      ! Read bundle back from file
+      ! ------------------------------------------------------------------
+      read_bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call MAPL_read_bundle(read_bundle, OUTPUT_FILE_2D_3D, time, _RC)
+
+      ! ------------------------------------------------------------------
+      ! Verify field count
+      ! ------------------------------------------------------------------
+      call ESMF_FieldBundleGet(read_bundle, fieldCount=field_count, _RC)
+      @assertEqual(2, field_count, 'Expected 2 fields in read bundle')
+
+      ! ------------------------------------------------------------------
+      ! Verify each field's data
+      ! ------------------------------------------------------------------
+      call MAPL_FieldBundleGet(read_bundle, fieldList=read_fields, _RC)
+
+      do i = 1, field_count
+         call ESMF_FieldGet(read_fields(i), name=fname, _RC)
+
+         select case (trim(fname))
+         case ('temperature')
+            call ESMF_FieldGet(read_fields(i), farrayPtr=rptr2d, _RC)
+            @assertEqual(TEMP_VALUE, rptr2d(1,1), 'temperature mismatch')
+
+         case ('humidity')
+            call ESMF_FieldGet(read_fields(i), farrayPtr=rptr3d, _RC)
+            @assertEqual(HUMID_VALUE, rptr3d(1,1,1), 'humidity mismatch')
+
+         case default
+            @assertTrue(.false., 'Unexpected field name: '//trim(fname))
+         end select
+      end do
+
+   end subroutine test_write_read_bundle_2d_and_3d
+
+   !@test(type=ESMF_TestMethod, npes=[1])
+   !subroutine test_write_read_bundle_2d(this)
+      !class(ESMF_TestMethod), intent(inout) :: this
+
+      !integer :: status
+      !type(ESMF_Geom) :: geom
+      !type(ESMF_Clock) :: clock
+      !type(ESMF_Time) :: time
+
+      !! Vertical grid
+      !type(VerticalGridManager), pointer :: vgrid_mgr
+      !class(VerticalGrid), pointer :: vgrid
+
+      !! Write-side fields and bundle
+      !type(ESMF_Field) :: f_temp
+      !type(ESMF_FieldBundle) :: write_bundle
+      !real(kind=ESMF_KIND_R4), pointer :: ptr2d(:,:)
+
+      !! Writer
+      !type(FieldBundleWriter) :: writer
+
+      !! Read-side bundle and fields
+      !type(ESMF_FieldBundle) :: read_bundle
+      !type(ESMF_Field), allocatable :: read_fields(:)
+      !real(kind=ESMF_KIND_R4), pointer :: rptr2d(:,:)
+      !integer :: i, field_count
+      !character(len=ESMF_MAXSTR) :: fname
+
+      !real(kind=ESMF_KIND_R4), parameter :: TEMP_VALUE = 1.5
+
+      !! ------------------------------------------------------------------
+      !! Setup: geometry, vertical grid, and clock
+      !! ------------------------------------------------------------------
+      !geom = make_latlon_geom(4, 5, _RC)
+
+      !vgrid_mgr => get_vertical_grid_manager()
+      !vgrid => vgrid_mgr%create_grid(BasicVerticalGridSpec(num_levels=3), _RC)
+
+      !clock = make_clock(_RC)
+      !call ESMF_ClockGet(clock, currTime=time, _RC)
+
+      !! ------------------------------------------------------------------
+      !! Create 2D fields
+      !! ------------------------------------------------------------------
+      !f_temp = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, &
+           !vert_staggerloc=VERTICAL_STAGGER_NONE, &
+           !name='temperature', long_name='temperature', standard_name='temperature', units='K', _RC)
+      !call ESMF_FieldGet(f_temp, farrayPtr=ptr2d, _RC)
+      !ptr2d = TEMP_VALUE
+
+      !! ------------------------------------------------------------------
+      !! Create write bundle and add all fields
+      !! ------------------------------------------------------------------
+      !write_bundle = ESMF_FieldBundleCreate(_RC)
+      !call MAPL_FieldBundleSet(write_bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      !call ESMF_FieldBundleAdd(write_bundle, [f_temp], _RC)
+
+      !! ------------------------------------------------------------------
+      !! Write bundle to file
+      !! ------------------------------------------------------------------
+      !call writer%create_from_bundle(write_bundle, clock, _RC)
+      !call writer%start_new_file(OUTPUT_FILE_2D, time, _RC)
+      !call writer%write_to_file(write_bundle, time, _RC)
+
+      !! ------------------------------------------------------------------
+      !! Read bundle back from file
+      !! ------------------------------------------------------------------
+      !read_bundle = ESMF_FieldBundleCreate(_RC)
+      !call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      !call MAPL_read_bundle(read_bundle, OUTPUT_FILE_2D, time, _RC)
+
+      !! ------------------------------------------------------------------
+      !! Verify field count
+      !! ------------------------------------------------------------------
+      !call ESMF_FieldBundleGet(read_bundle, fieldCount=field_count, _RC)
+      !@assertEqual(1, field_count, 'Expected 1 fields in read bundle')
+
+      !! ------------------------------------------------------------------
+      !! Verify each field's data
+      !! ------------------------------------------------------------------
+      !call MAPL_FieldBundleGet(read_bundle, fieldList=read_fields, _RC)
+
+      !do i = 1, field_count
+         !call ESMF_FieldGet(read_fields(i), name=fname, _RC)
+
+         !select case (trim(fname))
+         !case ('temperature')
+            !call ESMF_FieldGet(read_fields(i), farrayPtr=rptr2d, _RC)
+            !@assertEqual(TEMP_VALUE, rptr2d(1,1), 'temperature mismatch')
+
+         !case default
+            !@assertTrue(.false., 'Unexpected field name: '//trim(fname))
+         !end select
+      !end do
+
+   !end subroutine test_write_read_bundle_2d
+
+end module Test_FieldBundleIO

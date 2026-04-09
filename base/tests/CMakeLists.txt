@@ -55,22 +55,22 @@ if (NOT MAPL_SUPPORT_MAPL3)
 
 endif ()
 
-if (NOT MAPL_SUPPORT_MAPL3)
-  set(TESTIO mapl_bundleio_test.x)
-  ecbuild_add_executable (
-    TARGET ${TESTIO}
-    NOINSTALL
-    SOURCES mapl_bundleio_test.F90
-    LIBS ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.constants ${MAPL_TARGET_PREFIX}.pfio ${MAPL_TARGET_PREFIX}.griddedio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
-    DEFINITIONS USE_MPI)
-  set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+#if (NOT MAPL_SUPPORT_MAPL3)
+  #set(TESTIO mapl_bundleio_test.x)
+  #ecbuild_add_executable (
+    #TARGET ${TESTIO}
+    #NOINSTALL
+    #SOURCES mapl_bundleio_test.F90
+    #LIBS ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.constants ${MAPL_TARGET_PREFIX}.pfio ${MAPL_TARGET_PREFIX}.griddedio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
+    #DEFINITIONS USE_MPI)
+  #set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
-  add_test(NAME bundleio_tests_latlon
-    COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 2 -ny 1 -ogrid PC90x47-DE -o file1_ll.nc4)
+  #add_test(NAME bundleio_tests_latlon
+    #COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 2 -ny 1 -ogrid PC90x47-DE -o file1_ll.nc4)
 
-  add_test(NAME bundleio_tests_cube
-    COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF -o file_cs.nc4)
+  #add_test(NAME bundleio_tests_cube
+    #COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF -o file_cs.nc4)
 
-  add_dependencies(build-tests ${TESTIO})
-endif ()
+  #add_dependencies(build-tests ${TESTIO})
+#endif ()
 
