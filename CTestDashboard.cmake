@@ -55,6 +55,25 @@ if(NOT DEFINED jobs)
 endif()
 
 ## ---------------------------------------------------------------------------
+## Coverage: gcov tool selection
+##
+## On macOS /usr/bin/gcov is Apple LLVM gcov and cannot read .gcda files
+## produced by gfortran.  We search for a versioned gcov (gcov-15, gcov-14,
+## ...) matching the Homebrew gfortran in PATH, falling back to plain gcov.
+## On Linux with GCC this usually resolves to the correct gcov automatically.
+## ---------------------------------------------------------------------------
+find_program(_gcov_cmd
+  NAMES gcov-15 gcov-14 gcov-13 gcov-12 gcov
+  DOC "gcov tool for coverage data collection"
+)
+if(_gcov_cmd)
+  set(CTEST_COVERAGE_COMMAND "${_gcov_cmd}")
+  message(STATUS "Coverage gcov: ${CTEST_COVERAGE_COMMAND}")
+else()
+  message(WARNING "No versioned gcov found -- coverage may use wrong gcov on macOS")
+endif()
+
+## ---------------------------------------------------------------------------
 ## 1. Source and binary directories
 ## ---------------------------------------------------------------------------
 # Source directory is the directory containing this script
@@ -296,16 +315,26 @@ if(_test_result)
   message(STATUS "Rerun result: ${_test_result}")
 endif()
 
+# Collect coverage data (only meaningful for Coverage build type)
+if(build_type STREQUAL "Coverage")
+  ctest_coverage(RETURN_VALUE _coverage_result)
+  if(_coverage_result)
+    message(WARNING "Coverage step returned ${_coverage_result}")
+  else()
+    message(STATUS "Coverage data collected")
+  endif()
+endif()
+
 # Submit everything to CDash
 if(_cdash_auth_header)
   ctest_submit(
-    PARTS Configure Build Test
+    PARTS Configure Build Test Coverage
     HTTPHEADER "${_cdash_auth_header}"
     RETURN_VALUE _submit_result
   )
 else()
   ctest_submit(
-    PARTS Configure Build Test
+    PARTS Configure Build Test Coverage
     RETURN_VALUE _submit_result
   )
 endif()
