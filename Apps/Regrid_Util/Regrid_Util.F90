@@ -240,11 +240,13 @@
     type(ESMF_HConfig) :: geom_hconfig
     type(MAPLGeom), pointer :: mapl_geom
     type(ESMF_Geom) :: geom
+    type(GeomManager), pointer :: geom_mgr
 
     call UnpackGridName(Grid_name,im_world,jm_world,dateline,pole)
 
     geom_hconfig = create_output_geom_hconfig(grid_name,im_world,jm_world,this%nx,this%ny,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
-    mapl_geom => get_geom_manager()%get_mapl_geom(geom_hconfig, _RC)
+    geom_mgr => get_geom_manager()
+    mapl_geom => geom_mgr%get_mapl_geom(geom_hconfig, _RC)
     geom = mapl_geom%get_geom()
     call ESMF_GeomGet(geom, grid=this%new_grid, _RC)
 

@@ -6,7 +6,7 @@ module mapl3g_FieldBundleRead
    use mapl_ErrorHandling
    use mapl3g_GeomPFIO
    use mapl3g_GeomCatagorizer
-   use mapl3g_Geom_API, only: MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
+   use mapl3g_Geom_API, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
    use mapl3g_Field_API, only: MAPL_FieldCreate, MAPL_FieldGet
    use mapl3g_FieldBundle_API
    use mapl3g_VerticalStaggerLoc
@@ -264,6 +264,7 @@ contains
 
       class(VerticalGrid), pointer :: file_vgrid
       class(VerticalGridManager), pointer :: vgrid_manager
+      type(GeomManager), pointer :: geom_mgr
 
       !--- Resolve filename from template ---
       call ESMF_TimeGet(time, timeString=timestring, _RC)
@@ -290,7 +291,8 @@ contains
       deallocate(time_series)
 
       !--- Get the file's geometry from the geom manager ---
-      file_mapl_geom => get_geom_manager()%get_mapl_geom(metadata, _RC)
+      geom_mgr => get_geom_manager()
+      file_mapl_geom => geom_mgr%get_mapl_geom(metadata, _RC)
       file_geom = file_mapl_geom%get_geom()
 
       vgrid_manager => get_vertical_grid_manager(_RC)
