@@ -20,9 +20,12 @@ module MAPL_Base
   ! !USES:
   !
   use ESMF, only: ESMF_MAXSTR, ESMF_PIN_FLAG, ESMF_PIN_DE_TO_SSI_CONTIG
+  use MAPL_Constants, only: MAPL_UNDEF
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit NONE
   private
+
+  public :: MAPL_UNDEF
 
   ! !PUBLIC MEMBER FUNCTIONS:
   !

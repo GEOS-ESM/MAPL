@@ -16,7 +16,7 @@ module MAPL_InternalConstants
    real,               parameter :: MAPL_UNDEFINED_REAL32  = -huge(1._REAL32)
    real(kind=REAL64),  parameter :: MAPL_UNDEFINED_REAL64  = -huge(1._REAL64)
    real,               parameter :: MAPL_UNDEFINED_REAL    = -huge(1.)
-   real(kind=REAL64),  parameter :: MAPL_UNDEF             = MAPL_UNDEFINED_REAL
+   real,               parameter :: MAPL_UNDEF             = MAPL_UNDEFINED_REAL
    integer,            parameter :: MAPL_UNDEFINED_INTEGER = -huge(1)
    character(len=*),   parameter :: MAPL_UNDEFINED_CHAR    = '**'
 
