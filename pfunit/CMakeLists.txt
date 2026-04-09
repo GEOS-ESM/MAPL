@@ -1,4 +1,4 @@
-esma_set_this(OVERRIDE ${MAPL_TARGET_PREFIX}.pfunit)
+esma_set_this(OVERRIDE MAPL.pfunit)
 
 set (srcs
   ESMF_TestCase.F90
@@ -11,7 +11,7 @@ set (srcs
 esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs} NOINSTALL TYPE SHARED)
 
 target_link_libraries (${this}
-  MAPL ${MAPL_TARGET_PREFIX}.shared
+  MAPL MAPL.shared
   PFUNIT::pfunit
   ESMF::ESMF
   NetCDF::NetCDF_Fortran
