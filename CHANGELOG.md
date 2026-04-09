@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Removed `MAPL_SUPPORT_MAPL3` CMake build option and all associated `MAPL_TARGET_PREFIX` variable logic (GH-4633). The dual-mount MAPL2+MAPL3 approach has been abandoned in favour of a single-mount MAPL3-only strategy.
+
 ### Deprecated
 
 ## [2.68.0] - 2026-04-06
