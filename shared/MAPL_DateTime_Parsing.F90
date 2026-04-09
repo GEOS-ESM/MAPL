@@ -42,6 +42,7 @@ module MAPL_DateTime_Parsing
    use, intrinsic :: iso_fortran_env, only: R64 => real64
 
    implicit none
+   private
 
 ! PUBLIC =======================================================================
 
@@ -61,8 +62,7 @@ module MAPL_DateTime_Parsing
    public :: HOUR_TIME_UNIT, MINUTE_TIME_UNIT, SECOND_TIME_UNIT
    public :: TIME_UNIT, NUM_TIME_UNITS, UNKNOWN_TIME_UNIT 
 
-! Comment out the following line for testing.
-!   private
+   private
 
    interface operator(.multipleof.)
       module procedure :: multipleof
