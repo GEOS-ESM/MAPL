@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.profiler)
+esma_set_this (OVERRIDE MAPL.profiler)
 
 set (srcs
   AbstractMeter.F90
@@ -56,7 +56,7 @@ set (srcs
   MAPL_Profiler.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 PFLOGGER::pflogger ${MAPL_TARGET_PREFIX}.shared MPI::MPI_Fortran ESMF::ESMF TYPE SHARED)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 PFLOGGER::pflogger MAPL.shared MPI::MPI_Fortran ESMF::ESMF TYPE SHARED)
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 

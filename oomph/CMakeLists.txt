@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.oomph)
+esma_set_this (OVERRIDE MAPL.oomph)
 
 set (srcs
   oomph.F90
@@ -30,5 +30,5 @@ set (srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES ${MAPL_TARGET_PREFIX}.base GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 TYPE SHARED
+  DEPENDENCIES MAPL.base GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 TYPE SHARED
   )
