@@ -21,20 +21,26 @@ genhtml --version
 
 ## Step 1 — Configure
 
-Use the `Coverage` CMake preset (defined in `CMakePresets.json`):
+Two presets are available (both set `CMAKE_BUILD_TYPE=Coverage`):
+
+| Preset | Generator | Build dir |
+|---|---|---|
+| `Coverage` | Unix Makefiles | `build-Coverage/` |
+| `Coverage-Ninja` | Ninja | `build-Coverage-Ninja/` |
 
 ```bash
-cmake --preset Coverage
+cmake --preset Coverage-Ninja
 ```
 
-This sets `CMAKE_BUILD_TYPE=Coverage`, which activates `-O0 -g --coverage` for all
-Fortran sources and links every target with `--coverage`.  The build tree is placed in
-`build-Coverage/` and the install tree in `install-Coverage/`.
+This activates `-O0 -g --coverage` for all Fortran sources and links every target with
+`--coverage`.
 
 If you need to pass extra CMake arguments (e.g. pointing at Baselibs):
 
 ```bash
-cmake --preset Coverage -DBASEDIR=/path/to/Baselibs/Darwin -DCMAKE_Fortran_COMPILER=gfortran-15
+cmake --preset Coverage-Ninja \
+  -DBASEDIR=/path/to/Baselibs/Darwin \
+  -DCMAKE_Fortran_COMPILER=gfortran-15
 ```
 
 ## Step 2 — Build
@@ -42,7 +48,7 @@ cmake --preset Coverage -DBASEDIR=/path/to/Baselibs/Darwin -DCMAKE_Fortran_COMPI
 Build only the targets needed for testing (avoids building optional executables):
 
 ```bash
-cmake --build build-Coverage --target build-tests --parallel 6
+cmake --build build-Coverage-Ninja --target build-tests --parallel 6
 ```
 
 ## Step 3 — Run the tests
@@ -51,17 +57,17 @@ Run the `ESSENTIAL`-labeled tests.  Use `--parallel 1` to keep `.gcda` file writ
 serialised (parallel writes to the same `.gcda` file can corrupt coverage data):
 
 ```bash
-ctest --test-dir build-Coverage -L ESSENTIAL --parallel 1 --output-on-failure
+ctest --test-dir build-Coverage-Ninja -L ESSENTIAL --parallel 1 --output-on-failure
 ```
 
 After this step, every compiled source file will have a `.gcda` file next to its `.gcno`
-file somewhere under `build-Coverage/`.
+file somewhere under `build-Coverage-Ninja/`.
 
 ## Step 4 — Collect coverage data
 
 ```bash
 lcov --capture \
-     --directory build-Coverage \
+     --directory build-Coverage-Ninja \
      --gcov-tool gcov-15 \
      --ignore-errors inconsistent,inconsistent \
      --rc geninfo_unexecuted_blocks=1 \
@@ -69,7 +75,8 @@ lcov --capture \
 ```
 
 Key flags:
-- `--gcov-tool gcov-15` — use the gcov that matches your gfortran version
+- `--gcov-tool gcov-15` — use the gcov that matches your gfortran version; on macOS
+  `/usr/bin/gcov` is Apple LLVM and will silently produce wrong results
 - `--ignore-errors inconsistent,inconsistent` — suppresses lcov 2.x false positives
   caused by compiler-generated procedures and pFUnit line-number mappings
 - `--rc geninfo_unexecuted_blocks=1` — include un-hit basic blocks in the report
@@ -83,7 +90,7 @@ lcov --remove coverage.info \
      '/usr/*' \
      '*/pfunit/*' \
      '*/ESMF/*' \
-     '*/install-Coverage/*' \
+     '*/install-Coverage-Ninja/*' \
      '/Users/mathomp4/installed/*' \
      --ignore-errors inconsistent,inconsistent,unused \
      --output-file coverage-filtered.info
@@ -143,16 +150,44 @@ ctest \
   -V
 ```
 
-The `generator` parameter defaults to `Ninja` in `CTestDashboard.cmake`.  If you
-configured with `cmake --preset Coverage` (Unix Makefiles) rather than
-`cmake --preset Coverage-Ninja`, pass `-D generator="Unix Makefiles"` explicitly.
+`CTestDashboard.cmake` will:
+- Auto-detect `gcov-15` (or the highest versioned gcov available) so the correct gcov
+  is used even on macOS where `/usr/bin/gcov` is Apple LLVM
+- Call `ctest_coverage()` automatically after the test step
+- Include `Coverage` in the submitted `PARTS`
 
-> **Note:** `CTestDashboard.cmake` calls `ctest_coverage()` automatically after the test step and
-> includes `Coverage` in the submitted `PARTS`.  The coverage data is uploaded to CDash
-> at <https://my.cdash.org/index.php?project=MAPL>.
-> `CTestCustom.cmake` contains `CTEST_CUSTOM_COVERAGE_EXCLUDE` patterns that strip
-> system headers, Baselibs, pFUnit internals, ESMF, and install trees from the CDash
-> report, so only MAPL source files are counted.
+`CTestCustom.cmake` contains `CTEST_CUSTOM_COVERAGE_EXCLUDE` patterns that strip
+system headers, Baselibs, pFUnit internals, ESMF, and install trees from the CDash
+report, so only MAPL source files are counted.
+
+The `generator` parameter defaults to `Ninja` in `CTestDashboard.cmake` (build dir:
+`build-Coverage-Ninja/`).  If you configured with `cmake --preset Coverage` instead,
+pass `-D generator="Unix Makefiles"` explicitly.
+
+### CDash auth token
+
+Submissions require a Bearer token.  When running `CTestDashboard.cmake`, set the
+environment variable before calling ctest:
+
+```bash
+export CDASH_AUTH_TOKEN=<your-token>
+ctest -D model=Experimental -D build_type=Coverage -S CTestDashboard.cmake -V
+```
+
+If you need to re-submit already-generated XML files from a previous run (e.g. after
+a submission failure), use `ctest -T Submit` with `--http-header`:
+
+```bash
+ctest --test-dir build-Coverage-Ninja \
+  -M Experimental \
+  -T Submit \
+  --http-header "Authorization: Bearer $CDASH_AUTH_TOKEN" \
+  -V
+```
+
+> **Note:** `ctest -T Submit` reads `DartConfiguration.tcl` from the build tree but
+> does **not** read environment variables for auth.  The `--http-header` flag is
+> required; omitting it results in `{"status":1,"description":"Invalid Token"}`.
 
 ## Cleaning up
 
@@ -174,6 +209,6 @@ rm -rf coverage-html/
 To do a completely clean coverage rebuild:
 
 ```bash
-rm -rf build-Coverage install-Coverage
-cmake --preset Coverage
+rm -rf build-Coverage-Ninja install-Coverage-Ninja
+cmake --preset Coverage-Ninja
 ```
