@@ -46,7 +46,7 @@ contains
       type(ESMF_FieldBundle),  intent(inout) :: bundle
       type(ESMF_Geom),         intent(in)    :: geom
       class(VerticalGrid), pointer, intent(in)    :: vgrid
-      type(FileMetadataUtils), intent(inout) :: metadata_utils
+      type(FileMetadataUtils), intent(inout), target :: metadata_utils
       character(*), optional,  intent(in)    :: only_vars
       integer, optional,       intent(out)   :: rc
 
@@ -83,7 +83,9 @@ contains
       type(StringVectorIterator) :: dim_iter
       character(len=:), pointer  :: dim_name_ptr
 
-      _ASSERT(.not. present(only_vars) .or. len_trim(only_vars) > 0, 'FieldBundlePopulate: only_vars must not be empty if present')
+      if (present(only_vars)) then
+         _ASSERT(len_trim(only_vars) > 0, 'FieldBundlePopulate: only_vars must not be empty if present')
+      end if
 
       ! Verify the bundle is empty
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
