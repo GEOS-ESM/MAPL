@@ -218,7 +218,7 @@ contains
       local_spec%num_levels = -1
       allocate(spec, source=local_Spec)
 
-      lev_name = find_lev_name(_RC)
+      lev_name = find_lev_name()
       local_spec%num_levels = file_metadata%get_dimension(lev_name,rc=status)
 
       if (status /= pFIO_DIMENSION_NOT_FOUND) then
@@ -240,10 +240,11 @@ contains
          if (file_metadata%has_dimension('lev')) then
             lev_name = 'lev'
             _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
+            _UNUSED_DUMMY(this)
          end if
 
-         _FAIL('no vertical dim in file')
+         lev_name = ''
+         _RETURN(_SUCCESS)
       end function find_lev_name
 
    end function create_spec_from_file_metadata
