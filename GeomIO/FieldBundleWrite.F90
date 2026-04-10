@@ -2,7 +2,6 @@
 module mapl3g_FieldBundleWrite
    use ESMF
    use pFIO
-   use MAPL_TimeDataMod
    use MAPL_VerticalDataMod
    use pFIO_ClientManagerMod, only: o_Clients
    use MAPL_ExceptionHandling
@@ -54,7 +53,6 @@ module mapl3g_FieldBundleWrite
          type(ESMF_Clock), intent(inout) :: clock
          integer, optional, intent(out) :: rc
 
-         type(TimeData) :: time_info
          integer :: num_fields,i,file_steps,collection_id,status
          type(ESMF_Geom) :: geom
          type(FileMetadata) :: metadata
@@ -66,9 +64,6 @@ module mapl3g_FieldBundleWrite
          _VERIFY(status)
          call this%writer%initialize(metadata, geom, _RC)
 
-         !call this%cfio%set_param(nbits_to_keep=nbits_to_keep,deflation=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,zstandard_level=zstandard_level)
-         !collection_id = o_clients%add_data_collection(this%cfio%metadata)
-         !call this%cfio%set_param(write_collection_id=collection_id)
          _RETURN(_SUCCESS)
 
       end subroutine create_from_bundle
