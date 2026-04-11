@@ -1,7 +1,6 @@
 #include "MAPL.h"
 
 module MAPL_AbstractRegridderMod
-   use MAPL_BaseMod, only: MAPL_UNDEF
    use MAPL_Constants
    use mapl_RegridderSpec
    use mapl_KeywordEnforcerMod

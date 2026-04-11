@@ -857,7 +857,7 @@ contains
 
 
       subroutine fill_south(array, rc)
-         use MAPL_BaseMod, only: MAPL_UNDEF
+         use MAPL_Constants, only: MAPL_UNDEF
          real(kind=REAL32), intent(inout) :: array(:,:)
          integer, optional, intent(out) :: rc
 

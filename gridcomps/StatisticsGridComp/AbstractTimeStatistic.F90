@@ -1,5 +1,6 @@
 module mapl3g_AbstractTimeStatistic
    use MAPL
+   use ESMF
    implicit none(type,external)
    private
 

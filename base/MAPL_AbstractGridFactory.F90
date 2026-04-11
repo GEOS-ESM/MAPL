@@ -5,7 +5,6 @@ module MAPL_AbstractGridFactoryMod
    use ESMF
    use pFIO
    use MAPL_ExceptionHandling
-   use MAPL_BaseMod, only: MAPL_UNDEF
    use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use MAPL_KeywordEnforcerMod

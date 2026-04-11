@@ -12,6 +12,7 @@ module ExtDataDriverMod
    use MAPL_ServerManager
    use, intrinsic :: iso_fortran_env, only: output_unit, REAL64, INT64
    implicit none
+   private
 
    public :: ExtDataDriver
 

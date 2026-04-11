@@ -5,7 +5,7 @@ module MAPL_ObsUtilMod
   use ESMF
   use Plain_netCDF_Time
   use netCDF
-  use MAPL_BaseMod, only: MAPL_UNDEF
+   use MAPL_Constants, only: MAPL_UNDEF
   use MAPL_CommsMod, only : MAPL_AM_I_ROOT
   use pFIO_FileMetadataMod, only : FileMetadata
   use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter

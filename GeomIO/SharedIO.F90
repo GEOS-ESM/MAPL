@@ -19,6 +19,7 @@ module mapl3g_SharedIO
    use esmf
 
    implicit none(type,external)
+   private
 
    public add_variables
    public add_variable
