@@ -7,8 +7,6 @@ module MAPL2
    use ESMF_CFIOMod
    use pFIO
    use MAPL_GridCompsMod
-   use MAPL_ESMFFieldBundleRead
-   use MAPL_ESMFFieldBundleWrite
    use MAPL_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
    use MAPL_OpenMP_Support, only : MAPL_get_num_threads => get_num_threads
    use MAPL_OpenMP_Support, only : MAPL_find_bounds => find_bounds

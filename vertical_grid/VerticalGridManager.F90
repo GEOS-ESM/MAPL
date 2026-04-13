@@ -284,7 +284,7 @@ contains
 
    function find_factory_for_file_metadata(this, file_metadata, rc) result(factory_ptr)
       class(VerticalGridFactory), pointer :: factory_ptr
-      class(VerticalGridManager), intent(inout) :: this
+      class(VerticalGridManager), intent(inout), target :: this
       type(FileMetadata), intent(in), target :: file_metadata
       integer, intent(out), optional :: rc
 
