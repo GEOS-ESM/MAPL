@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.shared)
+esma_set_this (OVERRIDE MAPL.shared)
 
 set (srcs
     hash.c
@@ -39,7 +39,7 @@ set (srcs
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES ${MAPL_TARGET_PREFIX}.constants GFTL_SHARED::gftl-shared GFTL_SHARED::gftl-shared-v2 MPI::MPI_Fortran PFLOGGER::pflogger TYPE SHARED)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared GFTL_SHARED::gftl-shared-v2 MPI::MPI_Fortran PFLOGGER::pflogger TYPE SHARED)
 
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
 # interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).

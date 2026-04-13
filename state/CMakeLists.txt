@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.state)
+esma_set_this (OVERRIDE MAPL.state)
 
 set(srcs
   API.F90
@@ -24,7 +24,7 @@ find_package (GFTL REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES ${MAPL_TARGET_PREFIX}.vertical_grid ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.field ${MAPL_TARGET_PREFIX}.field_bundle ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.esmf_utils ESMF::ESMF PFLOGGER::pflogger GFTL::gftl-v2
+  DEPENDENCIES MAPL.vertical_grid MAPL.base MAPL.field MAPL.field_bundle MAPL.shared MAPL.esmf_utils ESMF::ESMF PFLOGGER::pflogger GFTL::gftl-v2
   TYPE SHARED
 )
 

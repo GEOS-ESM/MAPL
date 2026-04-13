@@ -13,11 +13,11 @@ module MAPL_EarthConstants
    real(kind=REAL64), parameter :: MAPL_MEAN_DRY_SURFACE_PRESSURE = 98305.0_REAL64  ! Pa
    real,              parameter :: MAPL_SECONDS_PER_SIDEREAL_DAY  = 86164.0          ! s
    real,              parameter :: MAPL_GRAVITY                   = 9.80665          ! mean surface gravitational acceleration  m/s^2
-   real(kind=REAL64), parameter :: MAPL_RADIUS                    = 6371.0E3_REAL64  ! mean radius  m
+   real,              parameter :: MAPL_RADIUS                    = 6371.0E3         ! mean radius  m
    real(kind=REAL64), parameter :: MAPL_ROTATION_RATE_R8          = &
         2.0_REAL64 * MAPL_PI_R8 / MAPL_SECONDS_PER_SIDEREAL_DAY                     ! rotation rate (REAL64)  1/s
    real(kind=REAL32), parameter :: MAPL_ROTATION_RATE             = &
-        real(MAPL_ROTATION_RATE_R8, REAL32)                                          ! rotation rate (REAL32)  1/s
+        2.0*MAPL_PI/MAPL_SECONDS_PER_SIDEREAL_DAY                                    ! rotation rate (REAL32)  1/s
    real(kind=REAL64), parameter :: MAPL_ECCENTRICITY              = &
         8.181919084262200d-2                                                          ! WGS84 first eccentricity  --
    real(kind=REAL64), parameter :: MAPL_SEMIMAJOR_AXIS            = 6378137.0_REAL64 ! WGS84 semi-major axis  m

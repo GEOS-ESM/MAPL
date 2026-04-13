@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.base)
+esma_set_this (OVERRIDE MAPL.base)
 
 set (srcs
   MAPL_Profiler.F90
@@ -61,7 +61,7 @@ endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.constants ${MAPL_TARGET_PREFIX}.profiler ${MAPL_TARGET_PREFIX}.pfio MAPL_cfio_r4 ${MAPL_TARGET_PREFIX}.field udunits2f PFLOGGER::pflogger
+  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 MAPL.field udunits2f PFLOGGER::pflogger
                GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED)
@@ -88,8 +88,8 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PUBLIC "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
-ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS ESMF::ESMF ${MAPL_TARGET_PREFIX}.shared)
-target_link_libraries (cub2latlon.x PRIVATE ${this} ${MAPL_TARGET_PREFIX}.pfio MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
+ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS ESMF::ESMF MAPL.shared)
+target_link_libraries (cub2latlon.x PRIVATE ${this} MAPL.pfio MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 set_target_properties(cub2latlon.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 if (EXTENDED_SOURCE)

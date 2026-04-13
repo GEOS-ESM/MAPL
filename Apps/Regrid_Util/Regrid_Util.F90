@@ -7,8 +7,12 @@
    use gFTL2_StringVector
 
    implicit NONE
+   private
 
-   public
+   public :: regrid_support
+   public :: uninit
+   public :: UnpackGridName
+   public :: split_string
 
    real, parameter :: uninit = MAPL_UNDEF
 
@@ -307,6 +311,7 @@
 
    use ESMF
    use ESMFL_Mod
+   use MAPL2
    use MAPL_ExceptionHandling
    use MAPL_Profiler
    use MAPL_BaseMod

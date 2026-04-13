@@ -42,6 +42,7 @@ module MAPL_DateTime_Parsing
    use, intrinsic :: iso_fortran_env, only: R64 => real64
 
    implicit none
+   private
 
 ! PUBLIC =======================================================================
 
@@ -56,13 +57,27 @@ module MAPL_DateTime_Parsing
    public :: is_time_unit
    public :: get_time_unit
    public :: UNSET_FIELD
+   public :: DIGIT_CHARACTERS
 
    public :: YEAR_TIME_UNIT, MONTH_TIME_UNIT, DAY_TIME_UNIT
    public :: HOUR_TIME_UNIT, MINUTE_TIME_UNIT, SECOND_TIME_UNIT
-   public :: TIME_UNIT, NUM_TIME_UNITS, UNKNOWN_TIME_UNIT 
+   public :: TIME_UNIT, NUM_TIME_UNITS, UNKNOWN_TIME_UNIT
 
-! Comment out the following line for testing.
-!   private
+   ! The following are internal implementation details, but are exposed
+   ! public to allow direct unit testing.
+   public :: multipleof, operator(.multipleof.)
+   public :: operator(.between.)
+   public :: is_whole_number
+   public :: get_integer_digit, get_integer_digit_from_string
+   public :: read_whole_number, read_whole_number_indexed
+   public :: undelimit, undelimit_all
+   public :: is_leap_year, get_month_ends, get_month_end
+   public :: is_valid_year, is_valid_month, is_valid_day
+   public :: is_valid_hour, is_valid_minute, is_valid_second, is_valid_millisecond
+   public :: is_valid_timezone_offset
+   public :: is_valid_date, is_valid_time
+   public :: parse_timezone_offset, parse_date, parse_time
+   public :: is_in_char_set, find_delta
 
    interface operator(.multipleof.)
       module procedure :: multipleof
