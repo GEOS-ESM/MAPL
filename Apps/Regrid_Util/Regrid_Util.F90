@@ -15,6 +15,7 @@
    public :: uninit
    public :: UnpackGridName
    public :: split_string
+   public :: local_am_i_root
 
    real, parameter :: uninit = MAPL_UNDEF
 
@@ -379,6 +380,7 @@
    use mapl_Profiler
    use regrid_util_support_mod
    use mpi
+   use gFTL2_StringVector
 
    implicit NONE
 
