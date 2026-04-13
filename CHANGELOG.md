@@ -120,6 +120,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_cmake v4.37.0
+    - Add `Coverage` CMake build type
+- Update CTest configuration for Coverage tests
+
 ### Removed
 
 - Removed `MAPL_SUPPORT_MAPL3` CMake build option and all associated `MAPL_TARGET_PREFIX` variable logic (GH-4633). The dual-mount MAPL2+MAPL3 approach has been abandoned in favour of a single-mount MAPL3-only strategy.
