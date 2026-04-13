@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_cmake v4.37.0
+    - Add `Coverage` CMake build type
+- Update CTest configuration for Coverage tests
+
 ### Removed
 
 ### Deprecated
