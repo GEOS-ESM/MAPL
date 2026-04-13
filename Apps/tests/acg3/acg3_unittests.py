@@ -138,6 +138,8 @@ class TestMappings(unittest.TestCase):
         middle = ''.join(middle)
         self.assertEqual(middle, column_value)
 
+class TestColumns(unittest.TestCase):
+
     def test_use_field_dictionary(self):
         digest_spec = acg3.digest_spec
         options = acg3.get_options({})[SPECIFICATIONS]
@@ -154,10 +156,10 @@ class TestMappings(unittest.TestCase):
                 values, missing_keys = digest_spec(value, options)
                 test(values.get(use_field_dictionary), msg(value, values))
                 keys_in = use_field_dictionary in missing_keys
-#                if use_field_dictionary in values:
-#                    self.assertFalse(keys_in, use_field_dictionary + ' should not be in missing_keys.')
-#                else:
-#                    self.assertTrue(keys_in, use_field_dictionary + ' should be in missing_keys.')
+                if use_field_dictionary in values:
+                    self.assertFalse(keys_in, use_field_dictionary + ' should not be in missing_keys.')
+                else:
+                    self.assertTrue(keys_in, use_field_dictionary + ' should be in missing_keys.')
 
     def test_field_dictionary_arg(self):
         def make_values(spec, specifications):

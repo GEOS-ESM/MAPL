@@ -8,7 +8,9 @@ from collections.abc import Sequence
 from functools import partial, reduce
 from operator import concat
 from re import compile
+from enum import Flag
 
+MappingFlag = Flag('MappingFlag', ('COMPOSITION',))
 ################################# CONSTANTS ####################################
 SUCCESS = 0
 ERROR = SUCCESS - 1
@@ -153,7 +155,9 @@ def get_options(args):
              'E': 'VERTICAL_STAGGER_EDGE',
              'N': 'VERTICAL_STAGGER_NONE'}},
         ALIAS: {FLAGS: {STORE}}, 
-        ALLOC: {MAPPING: BOOL, FLAGS: {STORE}}, 
+        ALLOC: {MAPPING: (partial(convert_to_logical, none_on_false=True),
+                BOOL, MappingFlag.COMPOSITION), 
+            FLAGS: {STORE}}, 
         ADD_TO_EXPORT: {MAPPING: STRLOGICAL},
         'attributes' : {MAPPING: STRINGVECTOR}, 
         CONDITION: {FLAGS: {STORE}}, 
@@ -250,9 +254,10 @@ def emit_get_pointers(specs, states=None):
 
 def emit_get_pointer(spec):
     f = spec[MAKE_BLOCK]
-    parts = [f'{CALL} {GETPOINTER}({spec[STATE]}', spec[INTERNAL_NAME], spec[SHORT_NAME], TERMINATOR]
-    insert_alloc(spec, parts)
-    return f(DELIMITER.join(parts), make_else_block(spec[INTERNAL_NAME]))
+    parts = [f'{CALL} {GETPOINTER}({spec[STATE]}', spec[INTERNAL_NAME], spec[SHORT_NAME]]
+    if value := spec.get(ALLOC):
+        parts.append(value)
+    return f(DELIMITER.join(parts+[TERMINATOR]), make_else_block(spec[INTERNAL_NAME]))
 
 ############################ PARSE COMMAND ARGUMENTS ###########################
 def get_args():
@@ -352,8 +357,8 @@ def get_from_values(keys, values, args):
         case _:
             raise RuntimeError('Option is not a supported type')
 
-common_keys = lambda d1, d2: set(d1).intersection(d2)
-exclude_none_value = lambda d: [k for k, v in d.items() if v is not None]
+common_keys = lambda d1, d2: filter(lambda k: k in d2, d1)
+exclude_none_value = lambda d: dict((k, v) for k, v in d.items() if v is not None)
 
 def digest_spec(spec, options):
     f = lambda k: fetch_mapping_function(options[k].get(MAPPING))(spec[k])
@@ -398,6 +403,7 @@ def get_values(specs, options):
         nones = [k for k, v in values.items() if v is None]
         for key in nones:
             del values[key]
+        # Because the internal name is used in declare and get_pointer, it is singled out here.
         values[INTERNAL_NAME] = internal_name
         all_values.append(values)
         mandatory_keys = get_mandatory_option_keys(options)
@@ -467,16 +473,22 @@ count_true = lambda it, pred: sum(map(pred, it))
 split_bracketed = lambda s, d: (p.strip() for p in s.strip().strip('][').split(d))
 count_by_delim = lambda s, d: s.count(d)+1
 count_not_empty = lambda s, d: count_true(split_bracketed(s, d), lambda p: len(p) > 0)
-
 construct_string_vector = lambda value: f"{TO_STRING_VECTOR}({add_quotes(value)})" if value else None
 
-convert_to_bool = lambda s: (s.strip().strip('.').lower() in TRUE_VALUES) if s else False
-convert_to_logical = lambda b: TRUE_VALUE if b else FALSE_VALUE
+convert_to_bool = lambda s: (s.strip().strip('.').lower() in TRUE_VALUES) if s else None
+def convert_to_logical(b, none_on_false=False):
+    if_false = None if none_on_false else FALSE_VALUE
+    return TRUE_VALUE if b else if_false
 
-def insert_alloc(spec, parts):
-    alloc_value = spec.get(ALLOC)
-    if alloc_value:
-        parts.insert(-1, f'{ALLOC}={convert_to_logical(alloc_value)}')
+def predicated(predicate, onfail=None, prior=False):
+    def inner(func):
+        if prior:
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs) if predicate(*args, **kwargs) else onfail
+        else:
+            def wrapper(*args, **kwargs):
+                r = func(*args, **kwargs)
+                return r if predicate(r, *args, **kwargs) else onfail
 
 def compute_rank(dims, ungridded):
     stripped_len = lambda s: len(s.strip())
@@ -585,10 +597,14 @@ def make_mapping(m, func_sequence=None, func_dict=None):
             return lambda k: m.get(k)
         case int() if valid_index(func_sequence, m):
             return func_sequence[n]
-        case list() if len(m) == 0:
-            return None
-        case tuple() | list() if len(m) > 0:
+        case [*h, t] if m:
+            is_composition = t == MappingFlag.COMPOSITION
+            m = h if is_composition else m
             funcs = tuple(make_mapping(sm, func_sequence=None, func_dict=None) for sm in m)
+            if is_composition:
+                def inner(*args):
+                    return reduce(lambda a, f: f(a), funcs, args)
+                return inner
             def inner(*args):
                 for f, arg in zip(funcs, args):
                     if arg is None:
