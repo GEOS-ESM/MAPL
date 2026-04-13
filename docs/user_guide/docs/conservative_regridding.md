@@ -131,7 +131,7 @@ Conservative regridding requires properly specified vertical staggering:
 exports:
   - short_name: CO2
     vertical: center  # Data at layer centers
-    
+
   - short_name: PLE
     long_name: "Pressure at layer edges"
     vertical: edge    # Coordinates at layer edges
@@ -203,11 +203,11 @@ imports:
   - short_name: PS
     long_name: "Surface pressure"
     units: "Pa"
-    
+
   - short_name: AK
     long_name: "Hybrid coordinate A"
     units: "Pa"
-    
+
   - short_name: BK
     long_name: "Hybrid coordinate B"
     units: "1"
@@ -290,18 +290,18 @@ MAPL3 includes test infrastructure for conservation:
 @Test
 subroutine test_conservation()
    use mapl3g_VerticalRegridTransform
-   
+
    ! Setup source and destination fields...
-   
+
    ! Compute mass before
    mass_in = sum(q_in * delp_in)
-   
+
    ! Apply regridding
    call transform%update(importState, exportState, clock, rc=status)
-   
-   ! Compute mass after  
+
+   ! Compute mass after
    mass_out = sum(q_out * delp_out)
-   
+
    ! Verify conservation
    @assertEqual(mass_in, mass_out, tolerance=1.0e-10)
 end subroutine
@@ -399,7 +399,7 @@ enddo
 
 **Cause**: Several possibilities:
 1. Incorrect DELP field
-2. Wrong vertical staggering  
+2. Wrong vertical staggering
 3. Bug in source/destination grid setup
 
 **Solution**:
@@ -429,7 +429,7 @@ DELP = abs(PLE(:,:,2:NZ+1) - PLE(:,:,1:NZ))
 
 **Cause**: Numerical precision issues with very small mixing ratios.
 
-**Solution**: 
+**Solution**:
 - Use double precision for mass calculations
 - Check if field values are unnaturally small (< 10⁻²⁰)
 - Consider rescaling units (e.g., ppb instead of kg/kg)
@@ -490,7 +490,7 @@ imports:
     transforms:
       - type: vertical_regrid
         method: conservative
-  
+
   # ... 13 more species ...
 
   - short_name: DELP
@@ -530,7 +530,7 @@ use mapl3g_VerticalRegridTransform
 real :: co2_model(NX, NY, 72)
 
 ! Satellite observation requires column at observation levels
-real :: co2_obs_levels(NX, NY, 10)  
+real :: co2_obs_levels(NX, NY, 10)
 
 ! Setup conservative regridding transform
 transform = VerticalRegridTransform( &
@@ -594,10 +594,10 @@ No special configuration needed—conservative regridding works automatically.
 
 Conservative vertical regridding in MAPL3:
 
-✅ **Preserves column-integrated mass/molar quantities**  
-✅ **Automatic when `quantity_type` metadata is set**  
-✅ **Uses pressure thickness (DELP) for mass conservation**  
-✅ **Verified by comprehensive test suite**  
+✅ **Preserves column-integrated mass/molar quantities**
+✅ **Automatic when `quantity_type` metadata is set**
+✅ **Uses pressure thickness (DELP) for mass conservation**
+✅ **Verified by comprehensive test suite**
 ✅ **Production-ready in GEOS-5 and GEOS-Chem**
 
 **Key takeaways:**
@@ -611,9 +611,9 @@ Conservative vertical regridding in MAPL3:
 For more information, see:
 - Source code: `generic3g/transforms/VerticalRegridTransform.F90`
 - Tests: `generic3g/tests/Test_3DConservativeMixingRatio.pf`
-- API docs: [MAPL3 API Documentation](https://geos-esm.github.io/MAPL/)
+- API docs: [MAPL3 API Documentation](https://geos-esm.github.io/MAPL-docs/mapl3-doc/)
 
 ---
 
-*Last updated: March 2026*  
+*Last updated: March 2026*
 *MAPL Version: 3.0*

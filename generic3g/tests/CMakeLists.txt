@@ -13,6 +13,10 @@ add_custom_target(copy_scenarios ALL
   VERBATIM
 )
 
+# Copy field_dictionary_test.yaml to the binary dir so tests that call
+# load_field_dictionary can find it by relative path at runtime.
+configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
+
 # Create a shared library for common test sources to avoid parallel build race conditions
 # When multiple test suites compile the same OTHER_SOURCES files to the same MODULE_DIRECTORY,
 # they can conflict during parallel builds
@@ -150,6 +154,7 @@ set(core_test_srcs
   Test_VirtualConnectionPt.pf
   Test_ConnectionPt.pf
   Test_FieldDictionary.pf
+  Test_FieldDictIntegration.pf
   Test_StateRegistry.pf
   Test_Couplers.pf
   Test_CSR_SparseMatrix.pf

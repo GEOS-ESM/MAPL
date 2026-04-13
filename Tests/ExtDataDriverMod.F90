@@ -4,7 +4,7 @@ module ExtDataDriverMod
 
    use MPI  
    use ESMF
-   use MAPL
+   use MAPL2
    use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
    use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
    use gFTL_StringVector
@@ -12,6 +12,7 @@ module ExtDataDriverMod
    use MAPL_ServerManager
    use, intrinsic :: iso_fortran_env, only: output_unit, REAL64, INT64
    implicit none
+   private
 
    public :: ExtDataDriver
 

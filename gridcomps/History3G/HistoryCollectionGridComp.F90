@@ -2,7 +2,7 @@
 
 module mapl3g_HistoryCollectionGridComp
 
-   use mapl3
+   use MAPL
    use mapl3g_HistoryCollectionGridComp_private
    use mapl3g_HistoryConstants
    use esmf

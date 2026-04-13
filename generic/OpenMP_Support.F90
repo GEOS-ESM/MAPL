@@ -17,12 +17,10 @@ module MAPL_OpenMP_Support
     public :: make_subfields
     public :: make_subFieldBundles
     public :: make_substates
-    public :: make_subgridcomps
     public :: find_bounds
     public :: subset_array
     public :: get_current_thread
     public :: get_num_threads
-    public :: get_callbacks
 
     type :: Interval
         integer :: min
@@ -556,158 +554,8 @@ module MAPL_OpenMP_Support
          end if
       end do
 
-      call copy_callbacks(state, substates, _RC)
-
       _RETURN(0)
       _UNUSED_DUMMY(unusable)
     end function make_substates_from_num_grids
-
-    function make_subgridcomps(GridComp, run_entry_points, num_grids, unusable, rc) result(subgridcomps)
-        use mapl_RunEntryPoint
-        use mapl_EntryPointVector
-        type(ESMF_GridComp), allocatable :: subgridcomps(:)
-        type(ESMF_GridComp), intent(in)  :: GridComp
-        type(EntryPointVector), intent(in) :: run_entry_points
-        integer, intent(in) :: num_grids
-        class(KeywordEnforcer), optional, intent(in) :: unusable
-        integer, optional, intent(out) :: rc
-
-        integer :: status, user_status
-        type(ESMF_VM) :: vm
-        integer :: myPet, i, ilabel
-        logical :: has_private_state
-        type(runEntryPoint), pointer :: run_entry_point
-        procedure(), pointer :: user_method => null()
-
-        type MAPL_GenericWrap
-           type(ESMF_Clock), pointer :: dummy
-        end type MAPL_GenericWrap
-
-        type (MAPL_GenericWrap) :: wrap !, wrap_private
-        character(len=ESMF_MAXSTR) :: comp_name
-        character(len=:), allocatable :: labels(:)
-        integer :: phase
-        type(ESMF_Config) :: CF
-
-        allocate(subgridcomps(num_grids))
-
-        call ESMF_VMGetCurrent(vm, _RC)
-        call ESMF_VMGet(vm, localPET=myPET, _RC)
-
-        call ESMF_GridCompGet(GridComp, config=CF, name=comp_name, _RC)
-        call ESMF_InternalStateGet(GridComp, labelList=labels, _RC)
-
-        do i = 1, num_grids
-          associate (gc => subgridcomps(i) )
-            gc = ESMF_GridCompCreate(name=trim(comp_name), config=CF, petlist=[myPet], &
-                 & contextflag=ESMF_CONTEXT_OWN_VM, _RC)
-            call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, _RC)
-            _VERIFY(user_status)
-          end associate
-        end do
-
-        do ilabel = 1, size(labels)
-           call ESMF_UserCompGetInternalState(GridComp, trim(labels(ilabel)), wrap, status)
-           has_private_state = (status == ESMF_SUCCESS)
-           do i = 1, num_grids
-              associate (gc => subgridcomps(i) )
-                if (has_private_state) then
-                   call ESMF_UserCompSetInternalState(gc, trim(labels(ilabel)), wrap, status)
-                   _VERIFY(status)
-                end if
-              end associate
-           end do
-        end do
-
-        _RETURN(ESMF_SUCCESS)
-        _UNUSED_DUMMY(unusable)
-
-        contains
-
-        subroutine set_services(gc, rc)
-           type(ESMF_GridComp) :: gc
-           integer, intent(out):: rc
-           integer :: status
-            do phase = 1, run_entry_points%size()
-               run_entry_point => run_entry_points%of(phase)
-               if(associated(run_entry_point%run_entry_point)) then
-                  user_method => run_entry_point%run_entry_point
-
-                  call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=phase, userroutine=user_method, _RC)
-                end if
-            end do
-           _RETURN(ESMF_SUCCESS)
-        end subroutine set_services
-
-    end function make_subgridcomps
-
-    subroutine copy_callbacks(state, multi_states, rc)
-       use mapl_ESMF_Interfaces
-       use mapl_CallbackMap
-       type(ESMF_State), intent(inout) :: state
-       type(ESMF_State), intent(inout) :: multi_states(:)
-       integer, optional, intent(out) :: rc
-
-       integer :: n_multi, i
-       integer :: status
-       type(CallbackMethodWrapper), pointer :: wrapper
-       type(CallbackMap), pointer :: callbacks
-       type(CallbackMapIterator) :: iter
-       procedure(), pointer :: userRoutine
-
-       n_multi = size(multi_states)
-       call get_callbacks(state, callbacks, _RC)
-       _ASSERT(associated(callbacks), 'callbacks must be associated')
-       associate( e => callbacks%end())
-          iter = callbacks%begin()
-          do while (iter /= e)
-             wrapper => iter%second()
-             do i = 1, n_multi
-                userRoutine => wrapper%userRoutine
-                call ESMF_MethodAdd(multi_states(i), label=iter%first(), userRoutine=userRoutine, _RC)
-             end do
-             call iter%next()
-          end do
-       end associate
-
-       _RETURN(ESMF_SUCCESS)
-
-    end subroutine copy_callbacks
-
-    subroutine get_callbacks(state, callbacks, rc)
-       use mapl_ESMF_Interfaces
-       use mapl_CallbackMap
-       type(ESMF_State), intent(inout) :: state
-       type(CallbackMap), pointer, intent(out) :: callbacks
-       integer, optional, intent(out) :: rc
-
-       integer :: status
-       integer(kind=ESMF_KIND_I4), allocatable :: valueList(:)
-       logical :: isPresent
-       type(ESMF_Info) :: infoh
-
-       type CallbackMapWrapper
-          type(CallbackMap), pointer :: map
-       end type
-       type(CallbackMapWrapper) :: wrapper
-
-       call ESMF_InfoGetFromHost(state, infoh, _RC)
-       isPresent = ESMF_InfoIsPresent(infoh,'MAPL_CALLBACK_MAP',_RC)
-       if (.not. isPresent) then ! create callback map for this state
-          allocate(callbacks)
-          wrapper%map => callbacks
-          valueList = transfer(wrapper, [1])
-          call ESMF_InfoSet(infoh, key='MAPL_CALLBACK_MAP', values=valueList, _RC)
-       end if
-
-       ! Ugly hack to decode ESMF attribute as a gFTL map
-       valueList = transfer(wrapper, [1])
-       call ESMF_InfoGet(infoh, key='MAPL_CALLBACK_MAP', values=valueList, _RC)
-       wrapper = transfer(valueList, wrapper)
-       callbacks => wrapper%map
-
-       _RETURN(ESMF_SUCCESS)
-
-    end subroutine get_callbacks
 
 end module MAPL_OpenMP_Support

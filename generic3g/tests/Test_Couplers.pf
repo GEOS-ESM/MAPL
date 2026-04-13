@@ -142,6 +142,8 @@ contains
       type(ESMF_HConfig) :: hconfig
       integer :: status
 
+      if(associated(vertical_grid)) vertical_grid => null()
+      if(associated(mapl_geom)) mapl_geom => null()
       vgrid_manager => get_vertical_grid_manager(_RC)
       vspec = BasicVerticalGridSpec(num_levels=5)
       vertical_grid => vgrid_manager%create_grid(vspec, _RC)

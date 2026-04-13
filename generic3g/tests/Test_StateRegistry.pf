@@ -53,11 +53,14 @@ contains
       type(StateItemSpec), pointer :: primary
       type(StateItemSpec), pointer :: spec
       type(MockAspect) :: aspect
+      type(StateItemSpec) :: mock_spec !wdb fixme deleteme 
 
       r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
 
-      call r%add_primary_spec(x, MockItemSpec(1), _RC)
+      !call r%add_primary_spec(x, MockItemSpec(value=1), _RC) ! wdb restore this
+      mock_spec = MockItemSpec(value=1) !wdb fixme deleteme 
+      call r%add_primary_spec(x, mock_spec, _RC) !wdb fixme deleteme 
 
       @assert_that(r%num_owned_items(), is(1))
 

@@ -71,7 +71,7 @@ contains
       call ESMF_TimeIntervalSet(larger, yy=1, _RC)
       call ESMF_TimeIntervalSet(smaller, d=1, _RC)
       call check_compatibility(larger, smaller, compatible, _RC)
-      @assertFalse(compatible, 'The interval types are inconsistent.')
+      @assertTrue(compatible, 'A calendar interval should be compatible with an absolute interval that divides 1 day.')
 
    end subroutine test_1yy_1d
 
@@ -180,5 +180,286 @@ contains
       @assertTrue(compatible, SHOULD)
 
    end subroutine test_3mm_1mm_2mm
+
+   ! ---- Mixed calendar/absolute compatibility tests ----
+
+   @Test
+   subroutine test_1mm_1d()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, mm=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, d=1, _RC)
+      call check_compatibility(larger, smaller, compatible, _RC)
+      @assertTrue(compatible, '1 day divides 1 day, so 1 month / 1 day should be compatible.')
+
+   end subroutine test_1mm_1d
+
+   @Test
+   subroutine test_1yy_6h()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, yy=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, h=6, _RC)
+      call check_compatibility(larger, smaller, compatible, _RC)
+      @assertTrue(compatible, '6 hours divides 1 day, so 1 year / 6 hours should be compatible.')
+
+   end subroutine test_1yy_6h
+
+   @Test
+   subroutine test_1mm_8h()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, mm=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, h=8, _RC)
+      call check_compatibility(larger, smaller, compatible, _RC)
+      @assertTrue(compatible, '8 hours divides 1 day, so 1 month / 8 hours should be compatible.')
+
+   end subroutine test_1mm_8h
+
+   @Test
+   subroutine test_1mm_7h()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, mm=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, h=7, _RC)
+      call check_compatibility(larger, smaller, compatible, _RC)
+      @assertFalse(compatible, '7 hours does not divide 1 day, so 1 month / 7 hours should be incompatible.')
+
+   end subroutine test_1mm_7h
+
+   @Test
+   subroutine test_1yy_1d_offset_3d()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      type(ESMF_TimeInterval) :: offset
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, yy=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, d=1, _RC)
+      call ESMF_TimeIntervalSet(offset, d=3, _RC)
+      call check_compatibility(larger, smaller, compatible, offset=offset, _RC)
+      @assertTrue(compatible, '1 day divides both 1 day and 3 days, so this should be compatible.')
+
+   end subroutine test_1yy_1d_offset_3d
+
+   @Test
+   subroutine test_1mm_6h_offset_5h()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      type(ESMF_TimeInterval) :: offset
+      logical :: compatible
+      integer :: status
+
+      call ESMF_TimeIntervalSet(larger, mm=1, _RC)
+      call ESMF_TimeIntervalSet(smaller, h=6, _RC)
+      call ESMF_TimeIntervalSet(offset, h=5, _RC)
+      call check_compatibility(larger, smaller, compatible, offset=offset, _RC)
+      @assertFalse(compatible, '6 hours divides 1 day but not 5 hours, so this should be incompatible.')
+
+   end subroutine test_1mm_6h_offset_5h
+
+   ! ---- sub_time_in_datetime tests ----
+
+   ! Helper to create a reference ESMF_Time for sub_time_in_datetime tests
+   subroutine make_ref_time(time, rc)
+      type(ESMF_Time), intent(out) :: time
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call ESMF_TimeSet(time, yy=2020, mm=3, dd=15, h=10, m=30, s=45, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_ref_time
+
+   ! --- Valid ordering tests ---
+
+   @Test
+   subroutine test_sub_time_no_substitutions()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-DDTHH:NN:SS', _RC)
+
+      ! Should succeed and return the same time components
+      call assert_time_components(new_time, 2020, 3, 15, 10, 30, 45)
+   end subroutine test_sub_time_no_substitutions
+
+   @Test
+   subroutine test_sub_time_all_substituted()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, _RC)
+      new_time = sub_time_in_datetime(time, '2024-06-15T12:30:45', _RC)
+
+      call assert_time_components(new_time, 2024, 6, 15, 12, 30, 45)
+   end subroutine test_sub_time_all_substituted
+
+   @Test
+   subroutine test_sub_time_only_seconds()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-DDTHH:NN:00', _RC)
+
+      call assert_time_components(new_time, 2020, 3, 15, 10, 30, 0)
+   end subroutine test_sub_time_only_seconds
+
+   @Test
+   subroutine test_sub_time_minutes_and_seconds()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-DDTHH:00:00', _RC)
+
+      call assert_time_components(new_time, 2020, 3, 15, 10, 0, 0)
+   end subroutine test_sub_time_minutes_and_seconds
+
+   @Test
+   subroutine test_sub_time_hours_minutes_seconds()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-DDT00:00:00', _RC)
+
+      call assert_time_components(new_time, 2020, 3, 15, 0, 0, 0)
+   end subroutine test_sub_time_hours_minutes_seconds
+
+   @Test
+   subroutine test_sub_time_day_through_seconds()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-01T00:00:00', _RC)
+
+      call assert_time_components(new_time, 2020, 3, 1, 0, 0, 0)
+   end subroutine test_sub_time_day_through_seconds
+
+   @Test
+   subroutine test_sub_time_month_through_seconds()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-01-01T00:00:00', _RC)
+
+      call assert_time_components(new_time, 2020, 1, 1, 0, 0, 0)
+   end subroutine test_sub_time_month_through_seconds
+
+   !! --- Invalid ordering tests ---
+
+   @Test
+   subroutine test_sub_time_invalid_year_only()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, rc=status)
+      if (status /= 0) return
+
+      ! YYYY substituted but MM left as token - should fail
+      new_time = sub_time_in_datetime(time, '2024-MM-DDTHH:NN:SS', rc=status)
+      @assertExceptionRaised()
+   end subroutine test_sub_time_invalid_year_only
+
+   @Test
+   subroutine test_sub_time_invalid_month_without_day()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, rc=status)
+      if (status /= 0) return
+
+      ! MM substituted but DD left as token - should fail
+      new_time = sub_time_in_datetime(time, 'YYYY-06-DDTHH:NN:SS', rc=status)
+      @assertExceptionRaised()
+   end subroutine test_sub_time_invalid_month_without_day
+
+   @Test
+   subroutine test_sub_time_invalid_day_without_hour()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, rc=status)
+      if (status /= 0) return
+
+      ! DD substituted but HH left as token - should fail
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-15THH:NN:SS', rc=status)
+      @assertExceptionRaised()
+   end subroutine test_sub_time_invalid_day_without_hour
+
+   @Test
+   subroutine test_sub_time_invalid_hour_without_minute()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, rc=status)
+      if (status /= 0) return
+
+      ! HH substituted but NN left as token - should fail
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-DDT12:NN:SS', rc=status)
+      @assertExceptionRaised()
+   end subroutine test_sub_time_invalid_hour_without_minute
+
+   @Test
+   subroutine test_sub_time_invalid_minute_without_second()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, rc=status)
+      if (status /= 0) return
+
+      ! NN substituted but SS left as token - should fail
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-DDTHH:30:SS', rc=status)
+      @assertExceptionRaised()
+   end subroutine test_sub_time_invalid_minute_without_second
+
+   @Test
+   subroutine test_sub_time_invalid_gap_year_and_day()
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call make_ref_time(time, rc=status)
+      if (status /= 0) return
+
+      ! YYYY and DD substituted but MM is token (gap) - should fail
+      new_time = sub_time_in_datetime(time, '2024-MM-15T12:30:45', rc=status)
+      @assertExceptionRaised()
+   end subroutine test_sub_time_invalid_gap_year_and_day
+
+   ! --- Helper to assert all 6 time components ---
+
+   subroutine assert_time_components(time, exp_yy, exp_mm, exp_dd, exp_h, exp_m, exp_s)
+      type(ESMF_Time), intent(in) :: time
+      integer, intent(in) :: exp_yy, exp_mm, exp_dd, exp_h, exp_m, exp_s
+
+      integer :: yy, mm, dd, h, m, s, status
+
+      call ESMF_TimeGet(time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, rc=status)
+      @assertEqual(0, status, 'ESMF_TimeGet failed')
+      @assertEqual(exp_yy, yy, 'Year mismatch')
+      @assertEqual(exp_mm, mm, 'Month mismatch')
+      @assertEqual(exp_dd, dd, 'Day mismatch')
+      @assertEqual(exp_h,  h,  'Hour mismatch')
+      @assertEqual(exp_m,  m,  'Minute mismatch')
+      @assertEqual(exp_s,  s,  'Second mismatch')
+   end subroutine assert_time_components
 
 end module Test_ESMF_Time_Utilities

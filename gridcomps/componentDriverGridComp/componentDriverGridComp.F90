@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl3g_ComponentDriverGridComp
+module mapl3g_ComponentDriverDriverGridComp
 
    use mapl_ErrorHandling
-   use mapl3
-   use mapl, only: MAPL_GetPointer
+   use MAPL
    use esmf
    use gFTL2_StringStringMap
+   use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use MAPL_StateUtils
    use MAPL_FieldUtils
    use timeSupport
@@ -454,12 +454,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine compare_states
 
-end module mapl3g_ComponentDriverGridComp
+end module mapl3g_ComponentDriverDriverGridComp
 
 subroutine setServices(gridcomp, rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use mapl3g_ComponentDriverGridComp, only: Root_setServices => SetServices
+   use mapl3g_ComponentDriverDriverGridComp, only: Root_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 

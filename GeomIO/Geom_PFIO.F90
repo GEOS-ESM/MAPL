@@ -3,7 +3,7 @@
 module mapl3g_GeomPFIO
    use mapl_ErrorHandling
    use ESMF
-   use pfio, only: i_Clients, o_Clients, StringVariableMap, ArrayReference
+   use pfio, only: i_Clients, o_Clients, StringVariableMap, ArrayReference, FileMetadata, Variable
    use mapl3g_Geom_API
    use mapl3g_SharedIO
    implicit none
@@ -91,6 +91,7 @@ contains
 
       ref = ArrayReference(times)
       call o_Clients%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine
 

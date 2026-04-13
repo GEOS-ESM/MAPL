@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_HistoryGridComp_private
-   use mapl3
+   use MAPL
    use mapl_ErrorHandlingMod
    use mapl_keywordenforcermod
    use mapl3g_HistoryConstants
@@ -107,7 +107,7 @@ contains
       _ASSERT(has_frequency, 'requested statitics performed on collection: '//child_name//' but did not provide frequency of the collection')
 
       stats_hconfig = ESMF_HConfigCreate(_RC)
-      ref_datetime = "'%y4%m2%d2_%h2%n2'"
+      ref_datetime = "'YYYY-MM-DDTHH:NN:SS'"
       has_ref_datetime = ESMF_HConfigIsDefined(child_hconfig, keyString='ref_datetime', _RC)
       if (has_ref_datetime) then
          ref_datetime = ESMF_HConfigAsString(child_hconfig, keyString='ref_datetime', _RC)

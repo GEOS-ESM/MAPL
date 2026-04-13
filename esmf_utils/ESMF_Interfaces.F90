@@ -18,6 +18,8 @@ module mapl3g_ESMF_Interfaces
    public :: I_CplSetServices
    public :: I_CplRun
 
+   public :: I_CallBackMethod
+
    public :: MAPL_UserCompGetInternalState
    public :: MAPL_UserCompSetInternalState
 
@@ -40,6 +42,13 @@ module mapl3g_ESMF_Interfaces
    end interface MAPL_UserCompSetInternalState
 
    abstract interface
+
+      subroutine I_CallBackMethod(state, rc)
+         use ESMF, only: ESMF_State
+         implicit none(type,external)
+         type(ESMF_State) :: state
+         integer, intent(out) :: rc
+      end subroutine I_CallBackMethod
 
       subroutine I_SetServices(gridcomp, rc)
          use ESMF, only: ESMF_GridComp
@@ -81,6 +90,5 @@ module mapl3g_ESMF_Interfaces
       end subroutine I_CplRun
 
    end interface
-
 
 end module mapl3g_ESMF_Interfaces

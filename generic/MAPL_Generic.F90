@@ -132,7 +132,6 @@ module MAPL_GenericMod
    use MAPL_GridManagerMod, only: grid_manager,get_factory
    use MaplShared, only: SYSTEM_DSO_EXTENSION, adjust_dso_name, is_valid_dso_name, is_supported_dso_name
    use MaplShared, only: get_file_extension
-   use MAPL_RunEntryPoint
    use MAPL_ResourceMod
    use MAPL_VarSpecTypeMod, only: positive_length
    use, intrinsic :: ISO_C_BINDING
@@ -225,7 +224,6 @@ module MAPL_GenericMod
    public MAPL_GenericStateRestore
    public MAPL_RootGcRetrieve
    public MAPL_AddAttributeToFields
-   public MAPL_MethodAdd
 
    !BOP
    ! !PUBLIC TYPES:
@@ -1780,7 +1778,6 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads
       character(len=ESMF_MAXSTR) :: comp_to_record
 
       !=============================================================================
@@ -1864,24 +1861,18 @@ contains
       ! ----------
       call lgr%debug('Started %a', stage_description)
 
-      use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
-
       call MAPL_GetResource(STATE, comp_to_record, label='COMPONENT_TO_RECORD:', default='', _RC)
       if (comp_name == comp_to_record) then
          call record_component('before', phase, method, GC, import, export, clock, _RC)
       end if
 
-      if (use_threads .and. method == ESMF_METHOD_RUN)  then
-         call omp_driver(GC, import, export, clock, _RC)  ! component threaded with OpenMP
-      else
-         call func_ptr (GC, &
-              importState=IMPORT, &
-              exportState=EXPORT, &
-              clock=CLOCK, PHASE=PHASE_, &
-              userRC=userRC, _RC )
-         _VERIFY(userRC)
-         _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
-      end if
+      call func_ptr (GC, &
+           importState=IMPORT, &
+           exportState=EXPORT, &
+           clock=CLOCK, PHASE=PHASE_, &
+           userRC=userRC, _RC )
+      _VERIFY(userRC)
+      _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
 
       if (comp_name == comp_to_record) then
          call record_component('after', phase, method, GC, import, export, clock, _RC)
@@ -2019,90 +2010,6 @@ contains
      end if
      _RETURN(_SUCCESS)
    end subroutine capture
-
-   !=============================================================================
-
-   !BOPI
-
-   ! !IROUTINE: omp_driver
-
-   ! !INTERFACE:
-   subroutine omp_driver(GC, import, export, clock, RC)
-      use MAPL_OpenMP_Support, only : get_current_thread,  get_num_threads
-
-      type (ESMF_GridComp), intent(inout) :: GC     ! Gridded component
-      type (ESMF_State),    intent(inout) :: import ! Import state
-      type (ESMF_State),    intent(inout) :: export ! Export state
-      type (ESMF_Clock),    intent(inout) :: clock  ! The clock
-      integer, optional,    intent(  out) :: RC     ! Error code:
-
-      type (MAPL_MetaComp), pointer :: MAPL
-      integer :: thread
-      type(ESMF_State) :: subimport
-      type(ESMF_State) :: subexport
-      integer :: status
-      integer, allocatable :: statuses(:), user_statuses(:)
-      integer :: num_threads
-      character(len=ESMF_MAXSTR) :: Iam = "Run1"
-      type(ESMF_GridComp) :: thread_gc
-      integer :: userRC
-      character(len=ESMF_MAXSTR) :: comp_name
-      integer :: phase
-
-
-      call ESMF_GridCompGet (GC, NAME=comp_name, currentPhase=phase, _RC)
-
-      call MAPL_GetObjectFromGC (GC, MAPL, _RC)
-      if(MAPL%is_threading_active()) then
-         call ESMF_GridCompRun (GC, &
-              importState=import, &
-              exportState=export, &
-              clock=CLOCK, PHASE=phase, &
-              userRC=userRC, _RC )
-         _VERIFY(userRC)
-      else
-         !call start_global_time_profiler('activate_threads')
-         num_threads = get_num_threads()
-         call MAPL%activate_threading(num_threads, _RC)
-         !call stop_global_time_profiler('activate_threads')
-         !call start_global_time_profiler('parallel')
-
-         allocate(statuses(num_threads), __STAT__)
-         allocate(user_statuses(num_threads), __STAT__)
-         statuses=0
-         user_statuses=0
-         !$omp parallel default(none), &
-         !$omp& private(thread, subimport, subexport, thread_gc), &
-         !$omp& shared(gc, statuses, user_statuses, clock, PHASE, MAPL)
-
-         thread = get_current_thread()
-
-         subimport = MAPL%get_import_state()
-         subexport = MAPL%get_export_state()
-         thread_gc = MAPL%get_gridcomp()
-
-         call ESMF_GridCompRun (thread_gc, &
-              importState=subimport, &
-              exportState=subexport, &
-              clock=CLOCK, PHASE=phase, &
-              userRC=user_statuses(thread+1), rc=statuses(thread+1) )
-         !$omp end parallel
-         !call stop_global_time_profiler('parallel')
-         if (any(user_statuses /= ESMF_SUCCESS)) then
-            _FAIL('some thread failed for user_statuses')
-         end if
-         if (any(statuses /= ESMF_SUCCESS)) then
-            _FAIL('some thread failed')
-         end if
-         deallocate(statuses, __STAT__)
-         deallocate(user_statuses, __STAT__)
-         !call start_global_time_profiler('deactivate_threads')
-         call MAPL%deactivate_threading(_RC)
-         !call stop_global_time_profiler('deactivate_threads')
-      end if
-      !call stop_global_time_profiler('run1()')
-      RETURN_(ESMF_SUCCESS)
-   end subroutine omp_driver
 
    !=============================================================================
    !=============================================================================
@@ -4042,7 +3949,6 @@ contains
 
       type (MAPL_MetaComp),     pointer     :: META
       integer                               :: phase
-      type(runEntryPoint) :: run_entry_point
 
       call MAPL_InternalStateRetrieve( GC, META, RC=status)
       _VERIFY(status)
@@ -4051,8 +3957,6 @@ contains
          phase = MAPL_AddMethod(META%phase_init, RC=status)
       else if (registeredMethod == ESMF_METHOD_RUN) then
          phase = MAPL_AddMethod(META%phase_run, RC=status)
-         run_entry_point%run_entry_point => usersRoutine
-         call META%run_entry_points%push_back(run_entry_point)
       else if (registeredMethod == ESMF_METHOD_FINALIZE) then
          phase = MAPL_AddMethod(META%phase_final, RC=status)
       else if (registeredMethod == ESMF_METHOD_WRITERESTART) then
@@ -11366,34 +11270,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine MAPL_AddAttributeToFields_I4
-
-   subroutine MAPL_MethodAdd(state, label, userRoutine, rc)
-      use mapl_ESMF_Interfaces
-      use mapl_CallbackMap
-      use mapl_OpenMP_Support, only : get_callbacks
-      type(ESMF_State), intent(inout) :: state
-      character(*), intent(in) :: label
-      procedure(I_CallBackMethod) :: userRoutine
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(CallbackMap), pointer :: callbacks
-
-      call ESMF_MethodAdd(state, label=label, userRoutine=userRoutine, _RC)
-
-      call get_callbacks(state, callbacks, _RC)
-      call callbacks%insert(label, wrap(userRoutine))
-
-      _RETURN(ESMF_SUCCESS)
-   contains
-
-      function wrap(userRoutine) result(wrapper)
-         type(CallbackMethodWrapper) :: wrapper
-         procedure(I_CallBackMethod) :: userRoutine
-         wrapper%userRoutine => userRoutine
-      end function wrap
-
-   end subroutine MAPL_MethodAdd
 
 
 end module MAPL_GenericMod

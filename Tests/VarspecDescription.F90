@@ -5,7 +5,7 @@
 #define _RETURN(A)   if(present(rc)) rc=A; return
 
 module VarspecDescriptionMod
-   use MAPL
+   use MAPL2
    use ESMF
    use gFTL_StringVector
    implicit none
