@@ -61,11 +61,23 @@ endif()
 ## produced by gfortran.  We search for a versioned gcov (gcov-15, gcov-14,
 ## ...) matching the Homebrew gfortran in PATH, falling back to plain gcov.
 ## On Linux with GCC this usually resolves to the correct gcov automatically.
+## The GMAO Docker images install GCC under /gcc/bin (non-standard prefix),
+## so we add that path explicitly to ensure find_program locates gcov there.
 ## ---------------------------------------------------------------------------
 find_program(_gcov_cmd
   NAMES gcov-15 gcov-14 gcov-13 gcov-12 gcov
+  PATHS /gcc/bin
+  NO_DEFAULT_PATH
   DOC "gcov tool for coverage data collection"
 )
+# If not found under the non-standard prefix, fall back to PATH search
+# (covers standard Linux installs and Homebrew on macOS)
+if(NOT _gcov_cmd)
+  find_program(_gcov_cmd
+    NAMES gcov-15 gcov-14 gcov-13 gcov-12 gcov
+    DOC "gcov tool for coverage data collection"
+  )
+endif()
 if(_gcov_cmd)
   set(CTEST_COVERAGE_COMMAND "${_gcov_cmd}")
   message(STATUS "Coverage gcov: ${CTEST_COVERAGE_COMMAND}")
