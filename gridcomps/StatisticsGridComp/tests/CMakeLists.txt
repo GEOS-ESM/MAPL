@@ -1,11 +1,20 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL_StatisticsGridComp.tests")
 
+<<<<<<< HEAD
 set (test_srcs
   Test_ShiftedVariance.pf
   Test_WelfordVariance.pf
+||||||| parent of ce12c039 (Initial test setup)
+set (test_srcs)
+=======
+set(test_srcs
+>>>>>>> ce12c039 (Initial test setup)
   Test_Variance.pf
-  )
+)
 
+add_library(MAPL.gridcomps.StatisticsGridComp.test_common SHARED
+  Sampler.F90
+)
 add_pfunit_ctest(MAPL_StatisticsGridComp.tests
                 TEST_SOURCES ${test_srcs}
                 LINK_LIBRARIES MAPL_StatisticsGridComp MAPL.pfunit
