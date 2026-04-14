@@ -2,9 +2,10 @@
 
 module mapl3g_ShiftedVariance
    use mapl3g_AbstractVariance, only: Variance
-   use mapl3
+   use mapl3g_Field_API
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+   use esmf
 
    implicit none(type,external)
    private
@@ -32,18 +33,18 @@ module mapl3g_ShiftedVariance
 
 contains
 
-!   function new_ShiftedVariance(unusable, f, variance_field, alarm, biased) result(var)
-!      type(ShiftedVariance) :: var
-!      class(KeywordEnforcer), optional, intent(in) :: unusable
-!      type(ESMF_Field), intent(in) :: f
-!      type(ESMF_Field), intent(in) :: variance_field
-!      type(ESMF_Alarm), intent(in) :: alarm
-!      character(len=*), optional, intent(in) :: biased
+   function new_ShiftedVariance(unusable, f, variance_field, alarm, biased) result(var)
+      type(ShiftedVariance) :: var
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Field), intent(in) :: f
+      type(ESMF_Field), intent(in) :: variance_field
+      type(ESMF_Alarm), intent(in) :: alarm
+      logical, optional, intent(in) :: biased
 
-!      call set_common(var, f=f, variance_field=variance_field, alarm=alarm, biased=biased)
-!      _UNUSED_DUMMY(unusable)
+      call var%set_common(f=f, variance_field=variance_field, alarm=alarm, biased=biased)
+      _UNUSED_DUMMY(unusable)
 
-!   end function new_ShiftedVariance
+   end function new_ShiftedVariance
 
    subroutine post_initialize(this, rc)
       class(ShiftedVariance), intent(inout) :: this
@@ -83,7 +84,7 @@ contains
 
    subroutine update_r4(this, rc)
       class(ShiftedVariance), intent(inout) :: this
-      integer, intent(out) :: rc
+      integer, optional, intent(out) :: rc
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: f(:), k(:), ex(:), ex2(:)
 
@@ -107,8 +108,8 @@ contains
    end subroutine update_r4
 
    subroutine update_r8(this, rc)
-      class(Variance), intent(inout) :: this
-      integer, intent(out) :: rc
+      class(ShiftedVariance), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       integer :: status
       real(kind=ESMF_KIND_R8), pointer :: f(:), k(:), ex(:), ex2(:)
 
@@ -132,7 +133,7 @@ contains
    end subroutine update_r8
 
    subroutine compute_r4(this, rc)
-      class(Variance), intent(inout) :: this
+      class(ShiftedVariance), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: ex(:), ex2, var(:)
@@ -155,7 +156,7 @@ contains
    end subroutine compute_r4
 
    subroutine compute_r8(this, rc)
-      class(Variance), intent(inout) :: this
+      class(ShiftedVariance), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
       real(kind=ESMF_KIND_R8), pointer :: ex(:), ex2(:), var(:)

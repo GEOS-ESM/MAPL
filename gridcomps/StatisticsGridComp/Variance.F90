@@ -27,7 +27,7 @@ contains
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(in) :: variance_field
       type(esmf_Alarm), intent(in) :: alarm
-      character(len=*), optional, intent(in) :: biased
+      logical, optional, intent(in) :: biased
       integer(kind=kind(VARIANCE_ALGORITHM)) :: algorithm_
       
       algorithm_ = DEFAULT_ALGORITHM
