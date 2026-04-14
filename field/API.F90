@@ -9,6 +9,7 @@ module mapl3g_Field_API
    use mapl_FieldPointerUtilities, only: MAPL_FieldClone => FieldClone
 
    ! Internal info should not be exposed to users
+   use mapl3g_FieldInfo
 !#   use mapl3g_FieldInfo, only: MAPL_FieldInfoGetPrivate
 !#   use mapl3g_FieldInfo, only: MAPL_FieldInfoSetPrivate
 !#   use mapl3g_FieldInfo, only: MAPL_FieldInfoSetShared
