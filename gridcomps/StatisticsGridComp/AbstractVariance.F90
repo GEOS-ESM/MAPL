@@ -1,8 +1,10 @@
 #include "MAPL.h"
 module mapl3g_AbstractVariance
    use mapl3g_AbstractTimeStatistic
+   use mapl3g_Field_API
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+   use esmf
    implicit none(type, external)
    private
    public :: Variance
@@ -17,12 +19,12 @@ module mapl3g_AbstractVariance
    contains
       procedure :: initialize
       procedure :: destroy
-      procedure :: reset
       procedure :: update
       procedure :: reset
       procedure :: compute_result
       procedure :: biased
-      procedure, private :: set_common
+      procedure :: add_to_state
+      procedure :: set_common
       procedure(VarianceAction), deferred :: post_initialize
       procedure(VarianceAction), deferred :: post_destroy
       procedure(VarianceAction), deferred :: post_reset
@@ -92,8 +94,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_TypeKind_Flag) :: typekind
+      logical :: is_ringing
 
-      call mapl_FieldGet(this%f, typekind=typekind, _RC)
+      call MAPL_FieldGet(this%f, typekind=typekind, _RC)
 
       if (typekind == ESMF_TYPEKIND_R4) then
          call this%update_r4(_RC)
@@ -101,7 +104,7 @@ contains
          call this%update_r8(_RC)
       end if
 
-      is_ringing = esmf_AlarmWillRingNext(this%alarm, _RC)
+      is_ringing = ESMF_AlarmWillRingNext(this%alarm, _RC)
       _RETURN_UNLESS(is_ringing)
 
       call this%compute_result(_RC)
@@ -115,14 +118,14 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_TypeKind_Flag) :: typekind
+      type(ESMF_TypeKind_Flag) :: typekind
 
       call mapl_FieldGet(this%f, typekind=typekind, _RC)
 
       if (typekind == ESMF_TYPEKIND_R4) then
-         call this%compute_result_r4(_RC)
+         call this%compute_r4(_RC)
       else if (typekind == ESMF_TYPEKIND_R8) then
-         call this%compute_result_r8(_RC)
+         call this%compute_r8(_RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -157,7 +160,7 @@ contains
       type(ESMF_Field), intent(in) :: f
       type(ESMF_Field), intent(in) :: variance_field
       type(ESMF_Alarm), intent(in) :: alarm
-      character(len=*), optional, intent(in) :: biased
+      logical, optional, intent(in) :: biased
 
       var%f = f
       var%fvariance = variance_field
