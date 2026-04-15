@@ -4,7 +4,6 @@ module MAPL2
    use MAPLBase_mod
    use MAPL_GenericMod
    use MAPL_VarSpecMiscMod
-   use ESMF_CFIOMod
    use pFIO
    use MAPL_GridCompsMod
    use MAPL_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
