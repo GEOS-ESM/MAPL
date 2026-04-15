@@ -141,44 +141,31 @@ class TestMappings(unittest.TestCase):
 class TestColumns(unittest.TestCase):
 
     def test_use_field_dictionary(self):
+        assertTrue = self.assertTrue
+        assertFalse = self.assertFalse
+        assertIsNone = self.assertIsNone
         digest_spec = acg3.digest_spec
         options = acg3.get_options({})[SPECIFICATIONS]
         use_field_dictionary = acg3.USE_FIELD_DICTIONARY
         BASE_SPEC = {}
         make_spec = lambda v: deepcopy(BASE_SPEC) | ({use_field_dictionary: v} if v else {})
-        params = [(acg3.TRUE_VALUE, self.assertTrue, 'use_field_dictionary should be True'),
-            (acg3.FALSE_VALUE, self.assertFalse, 'use_field_dictionary should be False'),
-            (None, self.assertIsNone, 'use_field_dictionary should not be found')]
-        for s, test, m in params:
-            value = make_spec(s)
-            msg = lambda s, v: f'{m}: specs={s}, values={v}'
-            with self.subTest(value=value, test=test, msg=msg):
-                values, missing_keys = digest_spec(value, options)
-                test(values.get(use_field_dictionary), msg(value, values))
-                keys_in = use_field_dictionary in missing_keys
-                if use_field_dictionary in values:
-                    self.assertFalse(keys_in, use_field_dictionary + ' should not be in missing_keys.')
-                else:
-                    self.assertTrue(keys_in, use_field_dictionary + ' should be in missing_keys.')
+        params = [(acg3.TRUE_VALUE, assertTrue, 'use_field_dictionary should be True'),
+            (acg3.FALSE_VALUE, assertIsNone, 'use_field_dictionary should be None'),
+            (None, assertIsNone, 'use_field_dictionary should not be found')]
+        msg = lambda m, s, v: f'{m}: specs={s}, values={v}'
 
-    def test_field_dictionary_arg(self):
-        def make_values(spec, specifications):
-            values, _ = acg3.digest_spec(spec, specifications)
-            return values
-        assertIsNone = self.assertIsNone
-        options = acg3.get_options({})
-        specifications = options[SPECIFICATIONS]
-        map_spec_values = acg3.map_spec_values
-        use_field_dictionary = acg3.USE_FIELD_DICTIONARY
-        BASE_SPEC = {}
-        params = [(r'.T.', acg3.TRUE_VALUE), (r'.F.', acg3.FALSE_VALUE), (None, acg3.FALSE_VALUE)]
-        for value, expected in params:
-            test = make_equal_test(self, expected)
-            msg = general_msg(use_field_dictionary, value)
-            with self.subTest(value=value, test=test, msg=msg):
-                spec = BASE_SPEC | ({use_field_dictionary: value} if value else {})
-                values, _ = map_spec_values(make_values(spec, specifications), options)
-                test(values.get(use_field_dictionary), msg)
+        s = make_spec(acg3.TRUE_VALUE)
+        values, missing_keys = digest_spec(s, options)
+        assertTrue(values.get(use_field_dictionary), msg('use_field_dictionary should be True', s, values))
+        assertFalse(use_field_dictionary in missing_keys, msg('use_field_dictionary should not be in missing_keys.', s, missing_keys))
+
+        s = make_spec(acg3.FALSE_VALUE)
+        values, missing_keys = digest_spec(s, options)
+        assertFalse(values.get(use_field_dictionary), msg('use_field_dictionary should be False', s, values))
+
+        s = make_spec(None)
+        values, missing_keys = digest_spec(s, options)
+        assertFalse(use_field_dictionary in values, msg('use_field_dictionary should not be in values', s, values))
 
 class TestHelpers(unittest.TestCase):
 
@@ -307,35 +294,7 @@ class TestHelpers(unittest.TestCase):
             with self.subTest(test=test, msg=msg):
                 test(r, msg)
     
-    def test_insert_alloc(self):
-        PARTS = ['first', 'second', 'last']
-        alloc = acg3.ALLOC
-        TRUE_VALUE = acg3.TRUE_VALUE
-        FALSE_VALUE = acg3.FALSE_VALUE
-
-        spec = {alloc: True}
-        test = make_equal_test(self, f'{alloc}={TRUE_VALUE}')
-        msg = general_msg(alloc, True)
-        with self.subTest(test=test, msg=msg, spec=spec):
-            parts = deepcopy(PARTS)
-            acg3.insert_alloc(spec, parts)
-            test(parts[-2], msg)
-
-        spec = {alloc: False}
-        test = make_equal_test(self, PARTS)
-        msg = general_msg('parts', PARTS)
-        with self.subTest(test=test, msg=msg, spec=spec):
-            parts = deepcopy(PARTS)
-            acg3.insert_alloc(spec, parts)
-            test(parts, msg)
-
-        spec = {'dummy': 'dummy'}
-        with self.subTest(test=test, msg=msg, spec=spec):
-            parts = deepcopy(PARTS)
-            acg3.insert_alloc(spec, parts)
-            test(parts, msg)
-
-test_cases = (TestMappings, TestHelpers)
+test_cases = (TestMappings, TestHelpers, TestColumns)
 
 def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()

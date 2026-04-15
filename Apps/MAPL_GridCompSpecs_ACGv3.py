@@ -8,10 +8,9 @@ from collections.abc import Sequence
 from functools import partial, reduce
 from operator import concat
 from re import compile
-from enum import Flag
 
-MappingFlag = Flag('MappingFlag', ('COMPOSITION',))
 ################################# CONSTANTS ####################################
+# str constants internal to script
 SUCCESS = 0
 ERROR = SUCCESS - 1
 DELIMITER = ', '
@@ -25,22 +24,25 @@ INDENT = SPACE * SIZE_INDENT
 DIMSTR = ':'
 DIMDELIM = ','
 
-ARGS = 'args' 
+# str flags
 AS = 'as'
 BOOL = 'bool'
+COMPOSE = 'compose'
+FLAGS = 'flags'
+MANDATORY = 'mandatory'
+
+# additional str constants including keys
+ARGS = 'args' 
 CONSTANTS = 'constants'
 CONTROL = 'control'
 CONTROLS = 'controls'
 DEALIASED = 'dealiased'
 DECLARE = 'declare'
-FLAGS = 'flags'
 FROM = 'from'
 GC_ARGNAME = 'gridcomp'
 GET = 'get'
 MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
-LOGICAL = 'logical'
-MANDATORY = 'mandatory'
 MAPPED = 'mapped' 
 MAPPING = 'mapping'
 MISSING_MANDATORY = 'missing_mandatory'
@@ -54,7 +56,8 @@ STRING = 'string'
 STRLOGICAL = 'strlogical'
 VALUES_NOT_FOUND = 'values_not_found'
 
-#could be read from YAML list
+# These are column names. A few are "special" column names used internally.
+# could be read from YAML list
 ADD_TO_EXPORT = 'add_to_export'
 ALIAS = 'alias'
 ALLOC = 'alloc'
@@ -62,7 +65,6 @@ ARRAY = 'array'
 CONDITION = 'condition'
 DIMS = 'dims'
 EXPORT_NAME = 'export_name'
-FIELD_DICTIONARY_ARG = 'field_dictionary_arg'
 INTENT_ARG = 'intent_arg' 
 INTERNAL_NAME = 'internal_name'
 MANGLED = 'mangled'
@@ -85,22 +87,29 @@ VSTAGGER = 'vstagger'
 GC_VARIABLE = 'gridcomp_variable'
 GC_VARIABLE_DEFAULT = 'gc'
 STANDARD_NAME_PREFIX = "standard_name_prefix"
+
 # procedure names
 ADDSPEC = "MAPL_GridCompAddSpec"
 GETPOINTER = "MAPL_StateGetPointer"
 TO_STRING_VECTOR = "toStringVector"
+
 # Fortran keywords
 CALL = 'call'
+
 # constants for logicals
 FALSE_VALUE = '.false.'
 TRUE_VALUE = '.true.'
 TRUE_VALUES = {'t', 'true', 'yes', 'y'}
+
 # identity function (id is a builtin function, so this is capitalized.)
 ID = lambda u: u
+
+# re
 BRACKET_RE = compile('[][]')
 
 ##################################### FLAGS ####################################
 def get_set(o):
+    """Get a set from an object depending on type."""
     match o:
         case set() as s:
             return s
@@ -112,6 +121,8 @@ def get_set(o):
             return set(o)
 
 def has_flags(has_all, flags, option):
+    """Check to see if flags are present in option."""
+    """has_all indicates that all flags must be present for True."""
     if not isinstance(option, dict):
         return False
     oflags = get_set(option.get(FLAGS))
@@ -137,6 +148,7 @@ def get_options(args):
     states = ['import', 'export', 'internal']
     intents = [f"{INTENT_PREFIX}{state.upper()}" for state in states]
     options = {}
+    # spec columns
     options[SPECIFICATIONS] = { 
         DIMS: {FLAGS: {MANDATORY}, MAPPING: { 
             'z': "'z'",
@@ -155,9 +167,7 @@ def get_options(args):
              'E': 'VERTICAL_STAGGER_EDGE',
              'N': 'VERTICAL_STAGGER_NONE'}},
         ALIAS: {FLAGS: {STORE}}, 
-        ALLOC: {MAPPING: (partial(convert_to_logical, none_on_false=True),
-                BOOL, MappingFlag.COMPOSITION), 
-            FLAGS: {STORE}}, 
+        ALLOC: {FLAGS: {STORE}}, 
         ADD_TO_EXPORT: {MAPPING: STRLOGICAL},
         'attributes' : {MAPPING: STRINGVECTOR}, 
         CONDITION: {FLAGS: {STORE}}, 
@@ -179,10 +189,10 @@ def get_options(args):
             'I4': 'ESMF_Typekind_I4',
             'I8': 'ESMF_Typekind_I8'}},
         'units': {MAPPING: STRING}, 
-        USE_FIELD_DICTIONARY: {MAPPING: BOOL, FLAGS: {STORE}},
+        USE_FIELD_DICTIONARY: {MAPPING: (partial(convert_to_logical, none_on_false=True), convert_to_bool), FLAGS: COMPOSE},
         'vector_pair': {MAPPING: STRING} 
         }
-
+    # spec column aliases
     options[SPEC_ALIASES] = { 
         'ungrid': UNGRIDDED_DIMS,
         'ungridded': UNGRIDDED_DIMS,
@@ -198,24 +208,29 @@ def get_options(args):
         'field_dictionary': USE_FIELD_DICTIONARY
     }
 
+    # flow control
     options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: CONTROL, FROM: CONDITION}} 
 
+    # command line arguments
     options[ARGS] = args
 
+    # mappings from columns to new column
     options[MAPPED] = { 
         STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, STANDARD_NAME_PREFIX), AS: STANDARD_NAME}, 
         INTENT_ARG: {FROM: (STATE_INTENT, STATE), MAPPING: (ID, dict(zip(states, intents))), FLAGS: AS},
         RANK: {MAPPING: RANK, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)}, 
-        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS},
-        FIELD_DICTIONARY_ARG: {FROM: (USE_FIELD_DICTIONARY,), MAPPING: LOGICAL, FLAGS: AS}
+        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS} 
     }
 
+    # internal constants
     options[CONSTANTS] = {STATES: states}
 
     return options
 
 # Procedures for writing to files
+
 def state_filter(states=None):
+    """Create a filter on state."""
     match states:
         case str() as state:
             return lambda s: s[STATE] == state
@@ -225,42 +240,61 @@ def state_filter(states=None):
             return lambda s: True
 
 def emit_specs(specs, options, states=None):
+    """Emit an Iteranble of spec (dict) instances."""
     f = state_filter(states)
     return [(spec[STATE], emit_spec(spec, flatten_options(options))) for spec in specs if f(spec)]
 
 def emit_spec(spec, options):
+    """Emit individual spec (dict) instance."""
+    # grab function to put call in if-then-else block if applicable; otherwise identity function
     f = spec[MAKE_BLOCK]
+    # apply function
     return f(emit_args(spec, options))
 
 def emit_args(values, options):
+    """Emit the arguments from a spec into a subroutine call (str)."""
+    # argument lines
     lines = [f"{INDENT}& {c}={values[c]}{DELIMITER}&"
              for c in values if is_printable(options.get(c))]
+    # create subroutine call
     return [f"{CALL} {ADDSPEC}({GC_ARGNAME}={options[GC_VARIABLE]}, &",
             *lines, f"{INDENT}& {TERMINATOR}"]
 
 def emit_declare_pointers(specs, states=None):
+    """Emit pointer declarations from Iterable of spec instances."""
+    # filter on state
     f = state_filter(states)
     return DECLARE, [emit_declare_pointer(spec) for spec in specs if f(spec)]
 
 def emit_declare_pointer(spec):
+    """Emit individual pointer declartion."""
+    # get precision of pointer
     precision = spec.get(PRECISION)
+    # declaration preamble
     decl = 'real{}, pointer'.format('(kind={})'.format(precision) if precision else EMPTY)
+    # pointer variable
     var = f'{spec[INTERNAL_NAME]}({DIMDELIM.join(DIMSTR*spec[RANK])})'
     return ' :: '.join([decl, var])
 
 def emit_get_pointers(specs, states=None):
+    """Emit pointer get statements from an Iterable of spec instances."""
+    # filter of state
     f = state_filter(states)
     return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec)))
 
 def emit_get_pointer(spec):
+    """Emit individual pointer statement from a spec instance."""
+    # grab function to put call in if-then-else block if applicable; otherwise identity function
     f = spec[MAKE_BLOCK]
-    parts = [f'{CALL} {GETPOINTER}({spec[STATE]}', spec[INTERNAL_NAME], spec[SHORT_NAME]]
-    if value := spec.get(ALLOC):
-        parts.append(value)
-    return f(DELIMITER.join(parts+[TERMINATOR]), make_else_block(spec[INTERNAL_NAME]))
+    # subroutine call parts
+    parts = [f'{CALL} {GETPOINTER}({spec[STATE]}', spec[INTERNAL_NAME], spec[SHORT_NAME], TERMINATOR]
+    if alloc := convert_to_bool(spec.get(ALLOC)):
+        parts.insert(-1, f'{ALLOC}={convert_to_logical(alloc)}')
+    # apply function
+    return f(DELIMITER.join(parts), make_else_block(spec[INTERNAL_NAME]))
 
-############################ PARSE COMMAND ARGUMENTS ###########################
 def get_args():
+    """Parse command line arguments."""
     description = ['generate fieldspecs',
                    'pointer declarations',
                    'and get_pointer calls for mapl gridded component']
@@ -292,8 +326,8 @@ def get_args():
                     nargs='?', default=GC_VARIABLE_DEFAULT, help="ESMF_GridComp variable name")
     return parser.parse_args()
 
-# READ_SPECS function
 def read_specs(specs_filename):
+    """Read specs from a state specs file (.acg/.rc)."""
     """Returns dict of (state_intent: list of dict of (option name: option value) """
     def csv_record_reader(csv_reader):
         """ Read a csv reader iterator until a blank line is found. """
@@ -315,6 +349,7 @@ def read_specs(specs_filename):
         return df
 
     def add_state(d, state):
+        """Add state key/value to dictionary."""
         d[STATE] = state
         return d
 
@@ -323,6 +358,7 @@ def read_specs(specs_filename):
 # So all lookups in the dict below should be converted to lowercase.
     specs = {}
     with open(specs_filename, 'r') as specs_file:
+        # Use '|' as delimiter instead of ','
         specs_reader = csv.reader(specs_file, skipinitialspace=True,delimiter='|')
         gen = csv_record_reader(specs_reader)
         schema_version = next(gen)[0].split(' ')[1]
@@ -330,9 +366,13 @@ def read_specs(specs_filename):
         while True:
             try:
                 gen = csv_record_reader(specs_reader)
+                # Get state.
                 _, state = next(gen)[0].lower().split()
+                # Read first line of column names.
                 columns = [c.strip().lower() for c in next(gen)]
+                # Read data rows.
                 df = dataframe(gen, columns)
+                # Add specs for the current state.
                 specs[state] = [add_state(d, state) for d in df]
             except StopIteration:
                 break
@@ -340,6 +380,7 @@ def read_specs(specs_filename):
     return specs
 
 def get_from_keys(option):
+    """Get the FROM keys for an Option for mapping."""
     match option.get(FROM):
         case str() as k:
             return (k,)
@@ -347,6 +388,7 @@ def get_from_keys(option):
             return s
 
 def get_from_values(keys, values, args):
+    """Get values of FROM options."""
     get_from_value = lambda k: values.get(k, args.get(k))
     match keys:
         case str() as key:
@@ -357,26 +399,40 @@ def get_from_values(keys, values, args):
         case _:
             raise RuntimeError('Option is not a supported type')
 
-common_keys = lambda d1, d2: filter(lambda k: k in d2, d1)
-exclude_none_value = lambda d: dict((k, v) for k, v in d.items() if v is not None)
-
 def digest_spec(spec, options):
-    f = lambda k: fetch_mapping_function(options[k].get(MAPPING))(spec[k])
-    values = dict((k, f(k)) for k in common_keys(exclude_none_value(spec), options))
+    """Process an individual spec."""
+    # Get the key/value pairs that have a matching option key and a value that evaluates False.
+    tuples = [(k, spec[k]) for k, v in spec.items() if k in options and spec[k]]
+    # Get the options corresponding to the spec keys.
+    spec_options = [options[k] for k, _ in tuples]
+    # Get the mapping functions for spec_options.
+    mapping_functions = [fetch_mapping_function(so) for so in spec_options]
+    # Applying mappings to obtain the values.
+    values = dict((n, f(v)) for (n, v), f in zip(tuples, mapping_functions) if f(v))
+    # Return values and the spec keys not found in options or with False values.
     return values, set(spec).difference(values)
 
 def map_spec_values(values, options):
+    """Process those options that apply mappings to existing values."""
+    # Get the relevant options.
     value_options = reduce(lambda a, t: a | options[t], {MAPPED, CONTROLS}, {})
+    # Iterate over value options.
     for option_name, option in filter(lambda t: isinstance(t[1], dict), value_options.items()):
-        m = fetch_mapping_function(option.get(MAPPING))
+        # Get mapping.
+        m = fetch_mapping_function(option)
+        # Get the FROM keys.
         (first, *tail) = get_from_keys(option)
+        # Adjust name if applicable.
         name = option.get(AS, first if has_as_flag(option) else option_name) 
+        # Apply mappings. The empty list is for future troubleshooting.
         values[name] = m(*get_from_values((first, *tail), values, options[ARGS]))
     return values, []
 
 def get_mandatory_option_keys(options):
+    """Get keys for MANDATORY options."""
     keys = []
     for tname, toptions in options.items():
+        # Skip aliases and constants which are not mandatory.
         if tname in {SPEC_ALIASES, CONSTANTS}:
             continue
         for key, option in toptions.items():
@@ -385,21 +441,29 @@ def get_mandatory_option_keys(options):
     return keys
 
 def get_internal_name(spec):
+    """Get the internal name of the pointer variable."""
     if spec is None:
         return None
+    # Get the variable name if an alias exists. This is not the same as column aliases.
     alias = spec.get(ALIAS, EMPTY).strip()
     return alias if alias else spec.get(SHORT_NAME, EMPTY).replace('*', EMPTY)
 
 def get_values(specs, options):
+    """Get values from specs including values computed from prior values."""
     all_values = []
     results = []
     aliases = options[SPEC_ALIASES]
+    # The specs are flattened to remove top-level of dict.
     flat_specs = flatten_specs(specs)
     for spec in flat_specs:
+        # Dealias column names.
         dealiased = dict((aliases.get(k, k), v) for k, v in spec.items())
         internal_name = get_internal_name(dealiased)
+        # Get values from spec.
         spec_values, specs_not_found = digest_spec(dealiased, options[SPECIFICATIONS])
+        # Get values mapped from other values.
         values, values_not_found = map_spec_values(spec_values, options)
+        # Eliminate any None values.
         nones = [k for k, v in values.items() if v is None]
         for key in nones:
             del values[key]
@@ -407,7 +471,9 @@ def get_values(specs, options):
         values[INTERNAL_NAME] = internal_name
         all_values.append(values)
         mandatory_keys = get_mandatory_option_keys(options)
+        # Get any mandatory keys missing from the values.
         missing_mandatory = set(mandatory_keys).difference(values.keys())
+        # Get dict of information regarding processing for troubleshooting.
         result = {SPEC: spec,
                   DEALIASED: dealiased,
                   SPECS_NOT_FOUND: specs_not_found,
@@ -418,6 +484,7 @@ def get_values(specs, options):
     return all_values, results
 
 def flatten_specs(specs):
+    """If specs is a dict, remove top level (without keys). Otherwise, make a list from specs. """
     match specs:
         case Sequence():
             flat_specs = list(specs)
@@ -426,32 +493,41 @@ def flatten_specs(specs):
     return flat_specs
     
 def flatten_options(o):
+    """Remove top level of o dict."""
     flat = {}
     for v in o.values():
         flat.update(v)
     return flat 
 
 def open_file(component, filename, name, suffix=''):
+    """Construct filename from component, name, suffix if filename is not present. Then open output file."""
     fname = filename if filename else f"{component}_{name.capitalize()}{suffix.capitalize()}___.h"
     return open_with_header(fname)
 
-################################# EMIT_VALUES ##################################
 def emit_values(specs, options):
+    """Emit spec results using options."""
 
     add_newlines = lambda lines: (f"{line.rstrip()}{LINESEP}" for line in lines)
+    # Get command line arguments.
     args = options[ARGS]
+    # Get states found in args.
     states = set(args).intersection(options[CONSTANTS][STATES])
 
     component = args.get('name')
+    # Construct component name if necessary.
     if component is None:
         component = splitext(basename(args['input']))[0].replace('_Registry','').replace('_StateSpecs','')
 
+    # Emit relevant specs for AddSpec subroutines based on state.
     emitted_specs = emit_specs(specs, options, states)
     for state in states:
+        # Write specs to state-specific file.
         with open_file(component, args[state], state) as f:
+            # Filter for the specs for the current state.
             filtered = [spec for s, spec in emitted_specs if s == state]
             f.writelines(add_newlines(reduce(concat, filtered, [])))
 
+    # Emit all get_pointer calls and pointer declartions.
     emitters = {DECLARE: emit_declare_pointers, GET: emit_get_pointers}
     for key in set(emitters) & set(args):
         _, emitted = emitters[key](specs, states)
@@ -462,12 +538,14 @@ def emit_values(specs, options):
 
 ############################### HELPER FUNCTIONS ###############################
 def add_quotes(s):
+    """If s is None, return None. Otherwise, remove quotes and then wrap in single quotes(')."""
     if s is None:
         return None
     return f"'{rm_quotes(s)}'"
 mk_array = lambda s: '[ ' + str(s).strip().strip('[]') + ']' if s else None
 rm_quotes = lambda s: s.replace('"', '').replace("'", '') if s else None
 def rm_brackets(s):
+    """Remove (square) brackets from str."""
     return BRACKET_RE.sub(EMPTY, s)
 count_true = lambda it, pred: sum(map(pred, it))
 split_bracketed = lambda s, d: (p.strip() for p in s.strip().strip('][').split(d))
@@ -475,22 +553,15 @@ count_by_delim = lambda s, d: s.count(d)+1
 count_not_empty = lambda s, d: count_true(split_bracketed(s, d), lambda p: len(p) > 0)
 construct_string_vector = lambda value: f"{TO_STRING_VECTOR}({add_quotes(value)})" if value else None
 
+# Convert str representing a Fortran logical to a python bool.
 convert_to_bool = lambda s: (s.strip().strip('.').lower() in TRUE_VALUES) if s else None
 def convert_to_logical(b, none_on_false=False):
+    """Convert python bool to str for Fortran logical. If none_on_false is False, convert False values to None."""
     if_false = None if none_on_false else FALSE_VALUE
     return TRUE_VALUE if b else if_false
 
-def predicated(predicate, onfail=None, prior=False):
-    def inner(func):
-        if prior:
-            def wrapper(*args, **kwargs):
-                return func(*args, **kwargs) if predicate(*args, **kwargs) else onfail
-        else:
-            def wrapper(*args, **kwargs):
-                r = func(*args, **kwargs)
-                return r if predicate(r, *args, **kwargs) else onfail
-
 def compute_rank(dims, ungridded):
+    """Compute Fortran rank based on the dims and ungridded values."""
     stripped_len = lambda s: len(s.strip())
     base_rank = {"'z'": 1, "'xy'": 2, "'xyz'": 3}.get(dims)
     if base_rank is None:
@@ -523,11 +594,13 @@ def header():
 """
 
 def open_with_header(filename):
+    """Open file for output writing header to the top."""
     f = open(filename,'w')
     f.write(header())
     return f
 
 def mangle_standard_name(name, prefix):
+    """Mangle standard name for AddSpec subroutine."""
     if name is None:
         return None
     if name.startswith('*'):
@@ -537,9 +610,11 @@ def mangle_standard_name(name, prefix):
     return add_quotes(name)
 
 def mkiterable(o, exclude_string = True):
+    """Make o iterable. If exclude_string is True and o is a str, do not make Iterable of characters."""
     return o if isiterable(o, exclude_string=exclude_string) else [o]
 
 def isiterable(o, exclude_string = True):
+    """Check if o is Iterable. If exclude_string is True, treat str as not iterable."""
     if o is None or exclude_string and isinstance(o, str):
         return False
     try:
@@ -550,19 +625,25 @@ def isiterable(o, exclude_string = True):
         return True
     
 def make_block(condition, text, else_block=[]):
+    """Create an if-then-else block if there is a Fortran logical-valued condition. Add else block if present."""
     t = mkiterable(text)
+    # If there is no condition, do not put text in if-then-else block.
     if condition is None:
         return t
+    # Lines for the if-then block with else_block
     lines = [f"{INDENT}{l}" for l in t] + else_block
+    # Add condition and end if.
     return [f"if ({condition}) then", *lines, f"end if"]
     
 def make_else_block(name=None):
+    """Make else block to nullify a pointer variable."""
     lines = []
     if name:
         lines.extend([f'else', f'{INDENT}nullify({name})'])
     return lines
 
 ######################### WRITERS for writing AddSpecs #########################
+# dict[str, function] of mappings
 NAMED_MAPPINGS = {
         STRING: lambda value: add_quotes(value),
         STRINGVECTOR: lambda value: construct_string_vector(value),
@@ -571,40 +652,56 @@ NAMED_MAPPINGS = {
         STANDARD_NAME: mangle_standard_name,
         RANK: compute_rank, 
         MAKE_BLOCK: lambda value: partial(make_block, value),
-        LOGICAL: convert_to_logical,
         BOOL: convert_to_bool,
         STRLOGICAL: lambda s: convert_to_logical(convert_to_bool(s))
         }
 
-def fetch_mapping_function(m, func_dict=NAMED_MAPPINGS):
-    return make_mapping(m, func_dict=(func_dict if func_dict else NAMED_MAPPINGS))
+
+def fetch_mapping_function(o, func_dict=NAMED_MAPPINGS):
+    """Get the mapping function for option o."""
+    m = o.get(MAPPING)
+    # Get option flags to make the mapping.
+    flags = o.get(FLAGS, UNIT)
+    return make_mapping(m, func_dict=(func_dict if func_dict else NAMED_MAPPINGS), flags=flags)
 
 def valid_index(seq, n):
+    """Check if n is a valid index for seq."""
     if isinstance(seq, Sequence) and isinstance(n, int):
         return n >= 0 and n < len(seq)
     return False
 
-def make_mapping(m, func_sequence=None, func_dict=None):
+def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
+    """Make a mapping using flags."""
+    # Default case: identity map
     if m is None or m is UNIT:
         return ID
+    # If m is already callable, return it.
     elif callable(m):
         return m
-
+    # Otherwise
     match m:
+        # Retrieve mapping by key if there is a func_dict.
         case str() if func_dict:
             return func_dict.get(m)
+        # Make a function from a dict.
         case dict():
             return lambda k: m.get(k)
+        # Fetch mapping based on index if there is a sequence of functions.
         case int() if valid_index(func_sequence, m):
             return func_sequence[n]
-        case [*h, t] if m:
-            is_composition = t == MappingFlag.COMPOSITION
-            m = h if is_composition else m
-            funcs = tuple(make_mapping(sm, func_sequence=None, func_dict=None) for sm in m)
-            if is_composition:
-                def inner(*args):
-                    return reduce(lambda a, f: f(a), funcs, args)
-                return inner
+        # Return None if m is empty list or tuple.
+        case list() | tuple() if len(m) == 0:
+            return None
+        # Return a composition of functions for a single value.
+        case tuple() | list() if COMPOSE in flags:
+            # Since a composition of functions is applied right to left, reverse the order.
+            funcs = tuple(make_mapping(sm, func_sequence=func_sequence, func_dict=func_dict, flags=flags) for sm in m[::-1])
+            def inner(*args):
+                return reduce(lambda a, c: c(a), funcs, *args)
+            return inner
+        # Return a mapping of multiple values with a sequence of functions. The number of args should match the number of mappings.
+        case tuple() | list(): 
+            funcs = tuple(make_mapping(sm, func_sequence=None, func_dict=None, flags=flags) for sm in m)
             def inner(*args):
                 for f, arg in zip(funcs, args):
                     if arg is None:
@@ -621,6 +718,7 @@ def main():
     args = vars(get_args())
 
 # Get options
+    # Make sure all the option types are present. This is an internal check.
     required_keys = {SPECIFICATIONS, SPEC_ALIASES, CONTROLS, ARGS, MAPPED}
     options = get_options(args)
     missing_keys = required_keys.difference(options)
@@ -632,6 +730,7 @@ def main():
     parsed_specs = read_specs(args['input'])
 
     values, results = get_values(parsed_specs, options)
+    # Make sure mandatory keys are present in specs.
     missing = [(r[SPEC], r[MISSING_MANDATORY]) for r in results if r[MISSING_MANDATORY]]
     if missing:
         for s, n in missing:
