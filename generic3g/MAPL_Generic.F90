@@ -39,7 +39,7 @@ module mapl3g_Generic
    use mapl3g_hconfig_get
    use mapl3g_RestartModes, only: RestartMode
    use mapl3g_ComponentSpecParser, only: parse_geometry_spec
-   use mapl_InternalConstantsMod
+   use mapl_InternalConstants
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
@@ -230,6 +230,10 @@ module mapl3g_Generic
    interface MAPL_ClockGet
       procedure :: clock_get_dt
    end interface MAPL_ClockGet
+
+   interface MAPL_MethodAdd
+      procedure :: method_add
+   end interface MAPL_MethodAdd
 
 contains
 
@@ -1159,7 +1163,28 @@ contains
       call ESMF_TimeIntervalGet(timestep, s=seconds, _RC)
       dt = real(seconds, kind=ESMF_KIND_R4)
 
-      _RETURN(_SUCCESS)
+       _RETURN(_SUCCESS)
    end subroutine clock_get_dt
+
+   subroutine method_add(state, label, userRoutine, rc)
+      use esmf, only: ESMF_State, ESMF_MethodAdd
+      use mapl3g_ESMF_Interfaces, only: I_CallBackMethod
+      use mapl3g_StateAddMethod, only: CallbackMap, CallbackMethodWrapper, get_callbacks
+      type(ESMF_State), intent(inout) :: state
+      character(len=*), intent(in) :: label
+      procedure(I_CallBackMethod) :: userRoutine
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(CallbackMap), pointer :: callbacks
+      type(CallbackMethodWrapper) :: wrapper
+
+      call get_callbacks(state, callbacks, _RC)
+      wrapper%userRoutine => userRoutine
+      call callbacks%insert(label, wrapper)
+      call ESMF_MethodAdd(state, label=label, userRoutine=userRoutine, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine method_add
 
 end module mapl3g_Generic

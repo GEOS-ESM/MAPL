@@ -4,7 +4,7 @@
 program  time_ave
 
    use ESMF
-   use MAPL
+   use MAPL2
    use MAPL_FileMetadataUtilsMod
    use gFTL_StringVector
    use gFTL2_StringVector

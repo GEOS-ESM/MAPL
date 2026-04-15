@@ -3,7 +3,7 @@
 #include "MAPL.h"
 
 program driver_GetHorzIJIndex
-   use MAPL
+   use MAPL2
    use GridComp, only: SetServices
    implicit none
 

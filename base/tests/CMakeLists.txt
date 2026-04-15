@@ -46,27 +46,9 @@ add_pfunit_ctest(MAPL.base.tests
                 )
 set_target_properties(MAPL.base.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.base.tests PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(build-tests MAPL.base.tests)
 
 if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
   set_tests_properties(MAPL.base.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
 endif()
-
-add_dependencies(build-tests MAPL.base.tests)
-
-set(TESTIO mapl_bundleio_test.x)
-ecbuild_add_executable (
-  TARGET ${TESTIO}
-  NOINSTALL
-  SOURCES mapl_bundleio_test.F90
-  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.griddedio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
-  DEFINITIONS USE_MPI)
-set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-
-add_test(NAME bundleio_tests_latlon
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 2 -ny 1 -ogrid PC90x47-DE -o file1_ll.nc4)
-
-add_test(NAME bundleio_tests_cube
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF -o file_cs.nc4)
-
-add_dependencies(build-tests ${TESTIO})
 

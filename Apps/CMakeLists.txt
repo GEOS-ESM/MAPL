@@ -4,8 +4,6 @@
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
 
-add_subdirectory(MAPL_Component_Driver)
-
 file (COPY MAPL_GridCompSpecs_ACG.py DESTINATION ${esma_etc}/MAPL)
 file (COPY MAPL_GridCompSpecs_ACGv3.py DESTINATION ${esma_etc}/MAPL)
 file (COPY mapl_acg.pl DESTINATION ${esma_etc}/MAPL)
@@ -30,12 +28,12 @@ install(
   DESTINATION bin/forcing_converter)
 
 ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util/Regrid_Util.F90)
-target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
+target_link_libraries (Regrid_Util.x PRIVATE MAPL MAPL.base MAPL.profiler MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
 target_include_directories (Regrid_Util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
-ecbuild_add_executable (TARGET time_ave_util.x SOURCES time_ave_util.F90)
-target_link_libraries (time_ave_util.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
-target_include_directories (time_ave_util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+#ecbuild_add_executable (TARGET time_ave_util.x SOURCES time_ave_util.F90)
+#target_link_libraries (time_ave_util.x PRIVATE MAPL2 MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
+#target_include_directories (time_ave_util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)

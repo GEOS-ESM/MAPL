@@ -6,8 +6,8 @@ set (srcs
         GriddedIOitem.F90
         GriddedIO.F90
         TileGridIO.F90
-        FieldBundleRead.F90
-        FieldBundleWrite.F90
+        #FieldBundleRead.F90
+        #FieldBundleWrite.F90
     )
 
 if (BUILD_WITH_PFLOGGER)

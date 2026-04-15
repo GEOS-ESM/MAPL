@@ -1,0 +1,190 @@
+# Field dictionary for unit tests.
+# Uses fictitious standard names to avoid coupling to the production
+# GEOS_FieldDictionary.  Covers the full range of v0.2.0 schema features.
+
+# Minimal entry - only required fields (backward compat test)
+test_temperature:
+  long_name: Test Air Temperature
+  canonical_units: K
+
+# Entry with aliases only (backward compat test)
+test_pressure:
+  long_name: Test Air Pressure
+  canonical_units: Pa
+  aliases: [test_P, test_pres]
+
+# Entry with physical_dimension
+test_wind_speed:
+  long_name: Test Horizontal Wind Speed
+  canonical_units: m s-1
+  physical_dimension: velocity
+
+# Entry with conserved=false (explicit)
+test_surface_flux:
+  long_name: Test Surface Heat Flux
+  canonical_units: W m-2
+  physical_dimension: energy_flux
+  conserved: false
+
+# Entry with conserved=true - should get CONSERVE regrid method
+test_water_vapor_mixing_ratio:
+  long_name: Test Water Vapor Mixing Ratio
+  canonical_units: kg kg-1
+  physical_dimension: mass_fraction
+  conserved: true
+  verification_status: unverified
+
+# Verified entry with provenance
+test_ozone_mixing_ratio:
+  long_name: Test Ozone Mixing Ratio
+  canonical_units: mol mol-1
+  physical_dimension: mole_fraction
+  conserved: true
+  verification_status: verified
+  provenance:
+    verified_by: Test Scientist
+
+# CF-compliant entry
+test_specific_humidity:
+  long_name: Specific Humidity
+  canonical_units: kg kg-1
+  physical_dimension: mass_fraction
+  conserved: true
+  verification_status: cf_compliant
+  provenance:
+    verified_by: CF Conventions Committee
+
+# Entry with aliases and full metadata
+test_soil_moisture:
+  long_name: Test Volumetric Soil Moisture
+  canonical_units: m3 m-3
+  physical_dimension: dimensionless
+  conserved: false
+  verification_status: verified
+  provenance:
+    verified_by: Land Team Scientist
+  aliases: [test_SM, test_SMOIS]
+
+# Dimensionless quantity
+test_cloud_fraction:
+  long_name: Test Cloud Fraction
+  canonical_units: '1'
+  physical_dimension: dimensionless
+  conserved: false
+  verification_status: unverified
+
+# Temperature variant
+test_sea_surface_temperature:
+  long_name: Test Sea Surface Temperature
+  canonical_units: K
+  physical_dimension: temperature
+  conserved: false
+  verification_status: verified
+  provenance:
+    verified_by: Ocean Team
+
+# Pressure level
+test_sea_level_pressure:
+  long_name: Test Sea Level Pressure
+  canonical_units: Pa
+  physical_dimension: pressure
+  conserved: false
+  verification_status: unverified
+
+# Mass density
+test_air_density:
+  long_name: Test Air Density
+  canonical_units: kg m-3
+  physical_dimension: density
+  conserved: false
+  verification_status: unverified
+
+# Velocity component (eastward)
+test_eastward_wind:
+  long_name: Test Eastward Wind Component
+  canonical_units: m s-1
+  physical_dimension: velocity
+  conserved: false
+  verification_status: unverified
+
+# Velocity component (northward)
+test_northward_wind:
+  long_name: Test Northward Wind Component
+  canonical_units: m s-1
+  physical_dimension: velocity
+  conserved: false
+  verification_status: unverified
+
+# Mass flux (conserved)
+test_precipitation_flux:
+  long_name: Test Precipitation Flux
+  canonical_units: kg m-2 s-1
+  physical_dimension: mass_flux
+  conserved: true
+  verification_status: verified
+  provenance:
+    verified_by: Hydrology Scientist
+
+# Energy quantity
+test_net_radiation:
+  long_name: Test Net Radiation at Surface
+  canonical_units: W m-2
+  physical_dimension: energy_flux
+  conserved: false
+  verification_status: unverified
+
+# Concentration
+test_carbon_dioxide_concentration:
+  long_name: Test Carbon Dioxide Concentration
+  canonical_units: ppmv
+  physical_dimension: concentration
+  conserved: false
+  verification_status: unverified
+  aliases: [test_CO2]
+
+# Area-integrated quantity
+test_leaf_area_index:
+  long_name: Test Leaf Area Index
+  canonical_units: m2 m-2
+  physical_dimension: dimensionless
+  conserved: false
+  verification_status: unverified
+
+# Depth / length scale
+test_boundary_layer_height:
+  long_name: Test Planetary Boundary Layer Height
+  canonical_units: m
+  physical_dimension: length
+  conserved: false
+  verification_status: unverified
+
+# Multi-alias entry
+test_tropopause_pressure:
+  long_name: Test Tropopause Pressure
+  canonical_units: Pa
+  physical_dimension: pressure
+  conserved: false
+  verification_status: unverified
+  aliases: [test_TROPP, test_trop_pres, test_TP]
+
+# --- Entries required by non-field-dictionary unit tests ---
+# These tests pass standard_name to make_VariableSpec for reasons other than
+# field dictionary functionality (e.g. vector encoding, aspect testing).
+# They are included here so the mandatory dictionary lookup in make_VariableSpec
+# succeeds without modifying those tests.
+
+air_temperature:
+  long_name: Air Temperature
+  canonical_units: K
+
+air_pressure PLE:
+  long_name: Air Pressure at Layer Edges
+  canonical_units: hPa
+
+air_pressure PL:
+  long_name: Air Pressure at Layer Centers
+  canonical_units: hPa
+
+A:
+  long_name: Test Scalar A
+  canonical_units: m

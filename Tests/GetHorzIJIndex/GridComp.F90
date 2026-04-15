@@ -5,7 +5,7 @@
 module GridComp
 
   use ESMF
-  use MAPL
+  use MAPL2
 
   implicit none
   private
@@ -19,18 +19,13 @@ module GridComp
      type(ESMF_GridComp), intent(inout)  :: gc
      integer, optional :: rc
 
-     type (MAPL_MetaComp),       pointer    :: MAPL
-     type (ESMF_Config) :: cf
-     integer :: status
-     logical :: use_threads
-     integer :: num_threads
+      type (MAPL_MetaComp),       pointer    :: MAPL
+      type (ESMF_Config) :: cf
+      integer :: status
 
-     call MAPL_GetObjectFromGC (gc, MAPL, _RC)
-     call ESMF_GridCompGet(gc, config=cf, _RC)
-     call ESMF_ConfigGetAttribute(cf, use_threads, label='use_threads:', default=.FALSE., _RC)
-     call MAPL%set_use_threads(use_threads)
+      call MAPL_GetObjectFromGC (gc, MAPL, _RC)
 
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, _RC)
+      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run, _RC)
      call MAPL_GenericSetServices(gc, _RC)
 

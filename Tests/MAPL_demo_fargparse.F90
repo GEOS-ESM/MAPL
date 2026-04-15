@@ -8,7 +8,7 @@
 #include "MAPL_ErrLog.h"
 module main_mod
 
-   use MAPL
+   use MAPL2
    use mpi
    use fargparse
 

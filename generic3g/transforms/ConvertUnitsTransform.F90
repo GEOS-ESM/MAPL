@@ -1,5 +1,4 @@
 #include "MAPL.h"
-#include "unused_dummy.H"
 
 module mapl3g_ConvertUnitsTransform
    use mapl3g_TransformId

@@ -3,7 +3,8 @@
 module mapl3g_TimeMax
 
    use mapl3g_AbstractTimeStatistic
-   use mapl3
+   use MAPL
+   use ESMF
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
 

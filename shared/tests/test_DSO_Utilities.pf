@@ -31,4 +31,54 @@ contains
       end select
    end subroutine test_is_valid_dso_extension
 
+   ! Test that adjust_dso_name correctly strips a known DSO extension and
+   ! appends the system one, but leaves dots that are part of the name alone.
+   @test
+   subroutine test_adjust_dso_name_simple()
+      ! No extension: system extension appended
+      @assert_that(adjust_dso_name('libfoo'), is(equal_to('libfoo'//SYSTEM_DSO_EXTENSION)))
+   end subroutine test_adjust_dso_name_simple
+
+   @test
+   subroutine test_adjust_dso_name_strips_known_extension()
+      ! Known extension replaced with system extension
+      @assert_that(adjust_dso_name('libfoo.dylib'), is(equal_to('libfoo'//SYSTEM_DSO_EXTENSION)))
+      @assert_that(adjust_dso_name('libfoo.so'),    is(equal_to('libfoo'//SYSTEM_DSO_EXTENSION)))
+   end subroutine test_adjust_dso_name_strips_known_extension
+
+   @test
+   subroutine test_adjust_dso_name_dotted_no_extension()
+      ! Dotted name with no DSO extension: entire name is basename, system extension appended
+      character(len=:), allocatable :: result
+      result = adjust_dso_name('libMAPL.componentDriverGridComp')
+      @assert_that(result, is(equal_to('libMAPL.componentDriverGridComp'//SYSTEM_DSO_EXTENSION)))
+   end subroutine test_adjust_dso_name_dotted_no_extension
+
+   @test
+   subroutine test_adjust_dso_name_dotted_with_extension()
+      ! Dotted name with known DSO extension: only the extension is stripped
+      character(len=:), allocatable :: result1, result2
+      result1 = adjust_dso_name('libMAPL.componentDriverGridComp.dylib')
+      result2 = adjust_dso_name('libMAPL.extdata3g.so')
+      @assert_that(result1, is(equal_to('libMAPL.componentDriverGridComp'//SYSTEM_DSO_EXTENSION)))
+      @assert_that(result2, is(equal_to('libMAPL.extdata3g'//SYSTEM_DSO_EXTENSION)))
+   end subroutine test_adjust_dso_name_dotted_with_extension
+
+   @test
+   subroutine test_is_supported_dso_name_dotted()
+      ! Dotted names (dots in library name, not extension) should be supported.
+      ! The implementation treats any non-DSO last-dot-segment as part of the
+      ! name rather than an extension, so all three cases below are accepted.
+      ! NOTE: distinguishing ".a" from a dotted name component (e.g.
+      ! ".componentDriverGridComp") is not possible without out-of-band knowledge,
+      ! so we do not attempt to reject ".a" here.
+      logical :: supported_no_ext, supported_dylib, supported_so
+      supported_no_ext = is_supported_dso_name('libMAPL.componentDriverGridComp')
+      supported_dylib  = is_supported_dso_name('libMAPL.componentDriverGridComp.dylib')
+      supported_so     = is_supported_dso_name('libMAPL.componentDriverGridComp.so')
+      @assert_that(supported_no_ext, is(true()))
+      @assert_that(supported_dylib,  is(true()))
+      @assert_that(supported_so,     is(true()))
+   end subroutine test_is_supported_dso_name_dotted
+
 end module test_DSO_Utilities

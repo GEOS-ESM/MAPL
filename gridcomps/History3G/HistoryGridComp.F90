@@ -2,7 +2,8 @@
 
 module mapl3g_HistoryGridComp
 
-   use mapl3
+   use MAPL
+   use ESMF
    use mapl3g_HistoryGridComp_private
    use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices
    use MAPL_TimeStringConversion

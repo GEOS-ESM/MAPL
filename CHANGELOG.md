@@ -1,4 +1,4 @@
-# Changelog 
+# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added CDash nightly submission workflow (`.github/workflows/cdash-nightly.yml`),
+  `CTestConfig.cmake`, `CTestDashboard.cmake`, and `CTestCustom.cmake` to support
+  continuous integration testing via CDash
+- Fixed `_FAILURE` macro definition in `MAPL_ErrLog.h` and `MAPL_TestErr.h` to
+  eliminate compiler warning about redefined preprocessor symbols in test builds
 - Moved generic3g from using yafyaml to ESMF HConfig for yaml parsing
 - Tests for wildcard field specification in History
 - New generic3g directory intended to replace existing generic directory when completed.
@@ -69,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add test of typekind coupling
 - Add tests of update_payload and update_from_payload for UnitsAspect
 - Add tests of update_payload and update_from_payload for GeomAspect
+- Add tests of update_payload and update_from_payload for VerticalGridAspect
 
 ### Changed
 
@@ -110,22 +116,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Python bridge: support for `icx`, fix GPU upload python side and updated base API to support python 3.12+
-- Guard IEEE halting mode calls on macOS flang to avoid missing `fe*except` symbols when initializing MPI.
-
 ### Added
 
 ### Changed
 
-- Update `components.yaml` to match GEOSgcm v12
-  - ESMA_cmake v4.35.0
-    - Multiple fixes for f2py with spack and on macOS
-  - ecbuild geos/v3.13.1
-- Add CTest scheduling metadata for pFIO tests so parallel `ctest` runs do not overlap the pFIO performance cases in the same working directory.
+- Update `components.yaml`
+  - ESMA_cmake v4.37.0
+    - Add `Coverage` CMake build type
+- Update CTest configuration for Coverage tests
 
 ### Removed
 
+- Removed `MAPL_SUPPORT_MAPL3` CMake build option and all associated `MAPL_TARGET_PREFIX` variable logic (GH-4633). The dual-mount MAPL2+MAPL3 approach has been abandoned in favour of a single-mount MAPL3-only strategy.
+
 ### Deprecated
+
+## [2.68.0] - 2026-04-06
+
+### Fixed
+
+- Python bridge: support for `icx`, fix GPU upload python side and updated base API to support python 3.12+
+- Guard IEEE halting mode calls on macOS flang to avoid missing `fe*except` symbols when initializing MPI.
+- Fixed some warnings with `mlc` link checker
+
+### Added
+
+- Added "read and bcast" pattern for `MAPL_ReadTilingNC4`
+- Added optional `tilelons` and `tilelats` to create a simple locstream
+- Add `MAPL_SUPPORT_MAPL3` CMake option to reduce MAPL2 to a support library for use alongside MAPL3. When `ON`, the generic layer, gridcomps, Apps, benchmarks, docs, Python bridge, and top-level Tests are disabled; all CMake targets are renamed with a `MAPL2.*` prefix controlled by the `MAPL_TARGET_PREFIX` variable. Default is `OFF` (no change in behavior).
+- When `MAPL_SUPPORT_MAPL3=ON`, the umbrella module in `MAPL/MAPL.F90` is renamed from `module MAPL` to `module MAPL2` (and the alias from `MAPL_Mod` to `MAPL2_Mod`); `use MAPL` in hybrid mode is intentionally undefined. `use ESMF_CFIOMod` is now unconditional in both modes.
+- Add `.mlc.toml` file to configure `mlc` link checker
+- Added a new feature: create a halo based on local displacement members, local-displacement-ensemble (LDE), requested some time ago by Arlindo da Silva
+- CDash nightly workflow configured to build and test `release/MAPL-v3` from the `main` branch
+- CTest dashboard configuration files (`CTestDashboard.cmake`, `CTestConfig.cmake`, `CTestCustom.cmake`) ported from `release/MAPL-v3` to support nightly CI/CD testing
+
+### Changed
+
+- Skip expensive CI on draft PRs to match CircleCI behavior
+  - Added `ready_for_review` trigger and `if: github.event.pull_request.draft == false` condition to `workflow.yml`, `spack-ci.yml`, and `nag_build_discover.yml`
+- Add `concurrency` groups to GitHub Actions workflows to prevent hitting runner concurrency limits on PRs
+  - Added to `workflow.yml`, `changelog-enforcer.yml`, `enforce-labels.yml`, `markup-link-checker.yml`, `validate_yaml_files.yml`
+  - Fixed `spack-ci.yml` to scope concurrency per PR number rather than per ref
+- Update `components.yaml` to match GEOSgcm v12
+  - ESMA_env v5.21.0
+    - Update to Baselibs 8.27.0
+      - ESMF v9.0.0b10
+      - GFE v1.23.0
+        - gFTL v1.17.0
+        - gFTL-shared v1.12.0
+        - fArgParse v1.11.0
+        - pFUnit v4.16.0
+      - Better support for LLVM Flang
+    - Fixes for Athena at NAS
+    - Updates for DSL work
+  - ESMA_cmake v4.36.0
+    - Multiple fixes for f2py with spack and on macOS
+    - CMake updates mainly for MAPL3 work
+  - ecbuild geos/v3.13.1
+- Add CTest scheduling metadata for pFIO tests so parallel `ctest` runs do not overlap the pFIO performance cases in the same working directory.
+- Update CI to use Baselibs 8.27.0
+- CDash nightly GitHub Actions workflow now allows manual selection of branch, CMake build type, and compiler via `workflow_dispatch`
+- CDash nightly GitHub Actions workflow now includes the branch name in the CDash `build_name` for easier identification
+- `CTestDashboard.cmake` now combines `install` and `build-tests` targets into a single build step to accurately capture total build time in CDash
+- CDash nightly GitHub Actions workflow now triggers scheduled builds from `main` while testing the `release/MAPL-v3` branch
 
 ## [2.67.0] - 2026-02-27
 

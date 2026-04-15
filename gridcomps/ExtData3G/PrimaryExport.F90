@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module mapl3g_PrimaryExport
    use ESMF
    use MAPL_ExceptionHandling

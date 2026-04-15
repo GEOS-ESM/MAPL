@@ -4,7 +4,7 @@
 
 program CapDriver_Main
    use MPI
-   use MAPL
+   use MAPL2
    use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
    implicit none
 
