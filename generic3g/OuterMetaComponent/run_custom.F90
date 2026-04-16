@@ -20,7 +20,6 @@ contains
 
       phases => this%get_phases(method_flag)
       phase_idx = get_phase_index(phases, phase_name, found=found)
-      _HERE, ' bmaa '//this%get_name(),found
       _RETURN_UNLESS(found)
       if (method_flag == ESMF_METHOD_INITIALIZE) then
          call this%user_gc_driver%initialize(phase_idx=phase_idx, _RC)

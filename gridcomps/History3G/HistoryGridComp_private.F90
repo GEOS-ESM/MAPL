@@ -130,7 +130,6 @@ contains
          call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
       enddo
       call ESMF_HConfigAdd(stats_hconfig, stats_list, addKeyString='stats', _RC)
-      call ESMF_HConfigFileSave(stats_hconfig, 'bmaa stats.yaml', _RC)
       child_spec = ChildSpec(user_setservices(statistics_setServices),hconfig=stats_hconfig)
       call MAPL_GridCompAddChild(gridcomp,'stats_'//child_name, child_spec, _RC)
 
