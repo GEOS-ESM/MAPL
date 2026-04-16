@@ -28,9 +28,13 @@ contains
       character(:), allocatable :: filename
       type(esmf_Time) :: currTime
 
+      _HERE, ' bmaa '//this%get_name(), this%has_geom()
       call recurse_write_restart_(this, _RC)
+      _HERE, ' bmaa '//this%get_name()
+      call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)
+      _HERE, ' bmaa '//this%get_name()
       _RETURN_UNLESS(this%has_geom())
-      
+     
       driver => this%get_user_gc_driver()
       call esmf_ClockGet(driver%get_clock(), currTime=currTime, _RC)
 
@@ -60,7 +64,9 @@ contains
          call this%stop_timer("WriteExportCheckpoint", _RC)
       end if
 
-      call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)
+      _HERE, ' bmaa '//this%get_name()
+      !call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)
+      _HERE, ' bmaa '//this%get_name()
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(importState)
