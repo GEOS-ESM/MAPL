@@ -28,10 +28,10 @@ contains
       @assertFalse(conv%is_free(), 'cv_converter is not set')
       cptr = conv%get_cptr()
       @assertTrue(c_associated(cptr), 'c_ptr is not associated')
-      
+
       call conv%free()
       call finalize_udunits_system()
-      
+
   end subroutine test_get_converter
 
    @Test
@@ -98,6 +98,86 @@ contains
    end subroutine test_convert_doubles
 
    @Test
+   subroutine test_convert_double_2d()
+      real(c_double), parameter :: FROM(2,2) = reshape([1.0, 2.0, 3.0, 4.0], [2,2])
+      real(c_double), parameter :: EXPECTED(2,2) = 1000.0 * FROM
+      real(c_double) :: actual(size(EXPECTED,1), size(EXPECTED,2))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      actual = conv%convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv%free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_double_2d
+
+   @Test
+   subroutine test_convert_double_3d()
+      real(c_double), parameter :: FROM(2,2,2) = reshape([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0], [2,2,2])
+      real(c_double), parameter :: EXPECTED(2,2,2) = 1000.0 * FROM
+      real(c_double) :: actual(size(EXPECTED,1), size(EXPECTED,2), size(EXPECTED,3))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      actual = conv%convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv%free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_double_3d
+
+   @Test
+   subroutine test_convert_double_4d()
+      real(c_double), parameter :: FROM(2,2,2,2) = reshape([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, &
+                                                            9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0], [2,2,2,2])
+      real(c_double), parameter :: EXPECTED(2,2,2,2) = 1000.0 * FROM
+      real(c_double) :: actual(size(EXPECTED,1), size(EXPECTED,2), size(EXPECTED,3), size(EXPECTED,4))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      actual = conv%convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv%free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_double_4d
+
+   @Test
+   subroutine test_convert_double_5d()
+      real(c_double), parameter :: FROM(2,2,2,2,2) = reshape([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, &
+                                                             9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, &
+                                                             17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, &
+                                                             25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0], [2,2,2,2,2])
+      real(c_double), parameter :: EXPECTED(2,2,2,2,2) = 1000.0 * FROM
+      real(c_double) :: actual(size(EXPECTED,1), size(EXPECTED,2), size(EXPECTED,3), size(EXPECTED,4), size(EXPECTED,5))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      actual = conv%convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv%free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_double_5d
+
+   @Test
    subroutine test_convert_floats()
       real(c_float), parameter :: FROM(3) = [1.0, 2.0, 3.0]
       real(c_float), parameter :: EXPECTED(3) = 1000.0 * FROM
@@ -117,5 +197,85 @@ contains
       call finalize_udunits_system()
 
    end subroutine test_convert_floats
+
+   @Test
+   subroutine test_convert_float_2d()
+      real(c_float), parameter :: FROM(2,2) = reshape([1.0, 2.0, 3.0, 4.0], [2,2])
+      real(c_float), parameter :: EXPECTED(2,2) = 1000.0 * FROM
+      real(c_float) :: actual(size(EXPECTED,1), size(EXPECTED,2))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      actual = conv%convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv%free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_float_2d
+
+   @Test
+   subroutine test_convert_float_3d()
+      real(c_float), parameter :: FROM(2,2,2) = reshape([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0], [2,2,2])
+      real(c_float), parameter :: EXPECTED(2,2,2) = 1000.0 * FROM
+      real(c_float) :: actual(size(EXPECTED,1), size(EXPECTED,2), size(EXPECTED,3))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      actual = conv%convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv%free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_float_3d
+
+   @Test
+   subroutine test_convert_float_4d()
+      real(c_float), parameter :: FROM(2,2,2,2) = reshape([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, &
+                                                           9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0], [2,2,2,2])
+      real(c_float), parameter :: EXPECTED(2,2,2,2) = 1000.0 * FROM
+      real(c_float) :: actual(size(EXPECTED,1), size(EXPECTED,2), size(EXPECTED,3), size(EXPECTED,4))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      actual = conv%convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv%free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_float_4d
+
+   @Test
+   subroutine test_convert_float_5d()
+      real(c_float), parameter :: FROM(2,2,2,2,2) = reshape([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, &
+                                                            9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, &
+                                                            17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, &
+                                                            25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0], [2,2,2,2,2])
+      real(c_float), parameter :: EXPECTED(2,2,2,2,2) = 1000.0 * FROM
+      real(c_float) :: actual(size(EXPECTED,1), size(EXPECTED,2), size(EXPECTED,3), size(EXPECTED,4), size(EXPECTED,5))
+      type(Converter) :: conv
+      integer(ut_status) :: status
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
+      call get_converter(conv, KM, M, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to get converter')
+      actual = conv%convert(FROM)
+      @assertEqual(actual, EXPECTED, 'Actual does not equal expected.')
+      call conv%free()
+      call finalize_udunits_system()
+
+   end subroutine test_convert_float_5d
 
 end module Test_UDsystem
