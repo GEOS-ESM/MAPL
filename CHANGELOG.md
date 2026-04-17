@@ -99,6 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed tests crash when using nag on Intel X86_64 MacOS
 - Fixed failures to fully trap errors in
   - History GC
   - MemUtils
