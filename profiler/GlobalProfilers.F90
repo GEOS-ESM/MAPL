@@ -74,13 +74,13 @@ contains
       logical, optional, intent(in) :: enabled
       integer, optional, intent(out) :: rc
 
-      logical :: enabled_
-      integer :: status
+       logical :: enabled_
+       integer :: status
 
-      enabled_ = .false.
-      if (present(enabled)) enabled_ = enabled
+       enabled_ = .false.
+       if (present(enabled)) enabled_ = enabled
 
-      if (enabled_) then
+       if (enabled_) then
 !!$         profiler = DistributedProfiler(name, gauge, comm=comm)
          ! Compiler workaround for ifort 2021.3
          allocate(profiler, source=DistributedProfiler(name, gauge, comm=comm))
@@ -89,6 +89,8 @@ contains
          ! Compiler workaround for ifort 2021.3
          allocate(profiler, source=StubProfiler(name))
       end if
+      
+      ! Now safe to call without wrapping - start_self has !$omp parallel inside
       call profiler%start(_RC)
 
       _RETURN(_SUCCESS)

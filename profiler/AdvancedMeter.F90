@@ -80,37 +80,37 @@ contains
    end function new_AdvancedMeter
 
 
-   subroutine start(this)
-      class(AdvancedMeter), intent(inout) :: this
+    subroutine start(this)
+       class(AdvancedMeter), intent(inout) :: this
 
-      !$omp master
-      if (this%active) then
-         this%status = MAPL_METER_START_ACTIVE
-      else
-         this%active = .true.
-         this%start_value = this%gauge%get_measurement()
-      end if
-      !$omp end master
+       !$omp master
+       if (this%active) then
+          this%status = MAPL_METER_START_ACTIVE
+       else
+          this%active = .true.
+          this%start_value = this%gauge%get_measurement()
+       end if
+       !$omp end master
 
-   end subroutine start
+    end subroutine start
 
 
-   subroutine stop(this)
-      class(AdvancedMeter), intent(inout) :: this
+    subroutine stop(this)
+       class(AdvancedMeter), intent(inout) :: this
 
-      real(kind=REAL64) :: increment
-      
-      !$omp master
-      if (.not. this%active) then
-         this%status = MAPL_METER_STOP_INACTIVE
-      else
-         this%active = .false.
-         increment = this%gauge%get_measurement() - this%start_value
-         call this%add_cycle(increment)
-      end if
-      !$omp end master
+       real(kind=REAL64) :: increment
+       
+       !$omp master
+       if (.not. this%active) then
+          this%status = MAPL_METER_STOP_INACTIVE
+       else
+          this%active = .false.
+          increment = this%gauge%get_measurement() - this%start_value
+          call this%add_cycle(increment)
+       end if
+       !$omp end master
 
-   end subroutine stop
+    end subroutine stop
 
 
    function get_total(this) result(val)
