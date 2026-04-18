@@ -172,14 +172,17 @@ contains
       real, allocatable :: x(:)
       integer :: thread, nthreads
 
-!$omp parallel default(none) private(x, thread, nthreads) shared(prof, rank)
+      ! Start profiling timer_1
+      call prof%start('timer_1') ! 2
+!$omp parallel default(none) private(x, thread, nthreads) shared(rank)
       thread = OMP_GET_THREAD_NUM()
       nthreads = OMP_GET_NUM_THREADS()
-      call prof%start('timer_1') ! 2
       allocate(x(10**7 * (rank+1)))
       call random_number(x)
       print*, 'First sum rank, thread ', rank, thread, ' of ', nthreads, ' threads: ', sum(x)
       deallocate(x)
+!$omp end parallel
+      ! Stop timer_1 and profile sub-timers
       call prof%start('timer_1a')! 3
       call prof%stop('timer_1a')
       call prof%start('timer_1b') ! 4
@@ -187,16 +190,21 @@ contains
       call prof%stop('timer_1b1')
       call prof%stop('timer_1b')
       call prof%stop('timer_1')
+      
       call prof%start('timer_2') ! 6
       call prof%start('timer_2b')! 7
       call prof%stop('timer_2b')
       call prof%stop('timer_2')
 
       call prof%start('timer_1') ! 2
+!$omp parallel default(none) private(x, thread, nthreads) shared(rank)
+      thread = OMP_GET_THREAD_NUM()
+      nthreads = OMP_GET_NUM_THREADS()
       allocate(x(1000000))
       call random_number(x)
       print*, 'Second sum rank, thread ', rank, thread, ' of ', nthreads, ' threads: ', sum(x)
       deallocate(x)
+!$omp end parallel
       call prof%start('timer_1a')! 3
       call prof%stop('timer_1a')
       call prof%stop('timer_1')
@@ -205,7 +213,6 @@ contains
       call prof%stop('timer_2')
       call prof%start('timer_2') ! 6
       call prof%stop('timer_2')
-!$omp end parallel
    end subroutine do_lap
 
 end program main
