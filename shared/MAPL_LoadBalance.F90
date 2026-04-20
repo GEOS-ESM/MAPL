@@ -216,9 +216,8 @@ contains
     logical :: SEND, RECV
     integer, pointer :: NOP(:,:)
 
-    if (Idim == 0) then
-       Jdim = 1
-    else
+    Jdim = 1
+    if (Idim /= 0) then
        Jdim = size(A)/Idim
     end if
 
