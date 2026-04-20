@@ -293,21 +293,27 @@ module MAPL_VerticalDataMod
 
         integer :: rank,k,status
         real, pointer :: ptr(:,:,:)
+        type(ESMF_Grid) :: grid
+        logical :: has_de
 
         _ASSERT(allocated(this%surface_level),"class not setup to do topography correction")
         if (this%regrid_type == VERTICAL_METHOD_ETA2LEV) then
-           call ESMF_FieldGet(field,rank=rank,rc=status)
+           call ESMF_FieldGet(field,rank=rank,grid=grid,rc=status)
            _VERIFY(status)
-           if (rank==3) then
-              call ESMF_FieldGet(field,0,farrayptr=ptr,rc=status)
-              _VERIFY(status)
-              do k=1,size(ptr,3)
-                 if (this%ascending) then
-                    where(this%surface_level<this%scaled_levels(k)) ptr(:,:,k)=MAPL_UNDEF
-                 else
-                    where(this%surface_level>this%scaled_levels(k)) ptr(:,:,k)=MAPL_UNDEF
-                 end if
-              end do
+           has_de = MAPL_GridHasDE(grid, rc=status)
+           _VERIFY(status)
+           if (has_de) then
+              if (rank==3) then
+                 call ESMF_FieldGet(field,0,farrayptr=ptr,rc=status)
+                 _VERIFY(status)
+                 do k=1,size(ptr,3)
+                    if (this%ascending) then
+                       where(this%surface_level<this%scaled_levels(k)) ptr(:,:,k)=MAPL_UNDEF
+                    else
+                       where(this%surface_level>this%scaled_levels(k)) ptr(:,:,k)=MAPL_UNDEF
+                    end if
+                 end do
+              end if
            end if
         end if
         _RETURN(_SUCCESS)
