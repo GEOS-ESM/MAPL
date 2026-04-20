@@ -15,7 +15,7 @@ add_latex_document (MAPL_Preamble.tex
 
 set (mapl_api_srcs)
 foreach(src
-    MAPL_Cap.F90 MAPL_Generic.F90 MAPL_CFIO.F90
+    MAPL_Cap.F90 MAPL_Generic.F90
     MAPL_LocStreamMod.F90 MAPL_Base.F90
     ESMFL_Mod.F90 MAPL_HistoryGridComp.F90
     MAPL_GenericCplComp.F90 MAPL_ExtDataGridCompMod.F90

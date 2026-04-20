@@ -8,9 +8,8 @@ module MAPLBase_Mod
   use MAPL_BaseMod, only: MAPL_GRID_INTERIOR
 ! For temporary backward compatibility after moving/renaming:
   use MAPL_BaseMod, only: ESMF_GRID_INTERIOR => MAPL_GRID_INTERIOR
-  use MAPL_IOMod
-  use MAPL_CFIOMod
-  use MAPL_CommsMod
+   use MAPL_IOMod
+   use MAPL_CommsMod
 ! For temporary backward compatibility after Constants Library
   use MAPL_Constants
   use MAPL_Constants, only: MAPL_PI_R8
