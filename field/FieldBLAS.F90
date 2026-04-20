@@ -3,6 +3,7 @@
 module mapl_FieldBLAS
 
    use ESMF
+   use mapl_Constants, only: MAPL_UNDEFINED_REAL32, MAPL_UNDEFINED_REAL64
    use MAPL_ExceptionHandling
    use mapl3g_FieldCondensedArray
    use MAPL_FieldPointerUtilities
@@ -86,7 +87,9 @@ contains
       integer :: status
 
       call assign_fptr(x, x_ptr, _RC)
-      x_ptr = a * x_ptr
+      where (x_ptr /= MAPL_UNDEFINED_REAL32)
+         x_ptr = a * x_ptr
+      end where
 
       _RETURN(_SUCCESS)
    end subroutine scale_r4
@@ -100,7 +103,9 @@ contains
       integer :: status
 
       call assign_fptr(x, x_ptr, _RC)
-      x_ptr = a * x_ptr
+      where (x_ptr /= MAPL_UNDEFINED_REAL64)
+         x_ptr = a * x_ptr
+      end where
 
       _RETURN(_SUCCESS)
    end subroutine scale_r8
@@ -124,7 +129,11 @@ contains
       call assign_fptr(x, x_ptr, _RC)
       call assign_fptr(y, y_ptr, _RC)
 
-      y_ptr = y_ptr + a * x_ptr
+      where (x_ptr /= MAPL_UNDEFINED_REAL32 .and. y_ptr /= MAPL_UNDEFINED_REAL32)
+         y_ptr = y_ptr + a * x_ptr
+      elsewhere (x_ptr == MAPL_UNDEFINED_REAL32 .or. y_ptr == MAPL_UNDEFINED_REAL32)
+         y_ptr = MAPL_UNDEFINED_REAL32
+      end where
 
       _RETURN(_SUCCESS)
    end subroutine axpy_r4
@@ -148,7 +157,11 @@ contains
       call assign_fptr(x, x_ptr, _RC)
       call assign_fptr(y, y_ptr, _RC)
 
-      y_ptr = y_ptr + a * x_ptr
+      where (x_ptr /= MAPL_UNDEFINED_REAL64 .and. y_ptr /= MAPL_UNDEFINED_REAL64)
+         y_ptr = y_ptr + a * x_ptr
+      elsewhere (x_ptr == MAPL_UNDEFINED_REAL64 .or. y_ptr == MAPL_UNDEFINED_REAL64)
+         y_ptr = MAPL_UNDEFINED_REAL64
+      end where
 
       _RETURN(_SUCCESS)
    end subroutine axpy_r8
@@ -218,7 +231,11 @@ contains
                call assign_fptr(A(ix,jy), A_ptr, _RC) ! 1D - no shape arg
             end select
             do kv = 1, n_vert*n_ungridded
-               y_ptr(:,kv) = y_ptr(:,kv) + alpha * A_ptr(:)*x_ptr(:,kv)
+               where((x_ptr(:,kv) /= MAPL_UNDEFINED_REAL32) .and. (y_ptr(:,kv) /= MAPL_UNDEFINED_REAL32))
+                  y_ptr(:,kv) = y_ptr(:,kv) + alpha * A_ptr(:)*x_ptr(:,kv)
+               elsewhere
+                  y_ptr(:,kv) = MAPL_UNDEFINED_REAL32
+               end where
             end do
 
          end do
@@ -275,7 +292,11 @@ contains
          do ix = 1, size(x)
             call assign_fptr(x(ix), fp_shape, x_ptr, _RC)
             do kv = 1, n_ungridded
-               y_ptr(:,jy) = y_ptr(:,jy) + alpha * A(:,ix,jy) * x_ptr(:,kv)
+               where((x_ptr(:,kv) /= MAPL_UNDEFINED_REAL64) .and. (y_ptr(:,kv) /= MAPL_UNDEFINED_REAL64))
+                  y_ptr(:,jy) = y_ptr(:,jy) + alpha * A(:,ix,jy) * x_ptr(:,kv)
+               elsewhere
+                  y_ptr(:,kv) = MAPL_UNDEFINED_REAL64
+               end where
             end do
          end do
       end do
@@ -416,7 +437,11 @@ contains
       call assign_fptr(original, original_ptr, _RC)
       call assign_fptr(converted, converted_ptr, _RC)
 
-      converted_ptr = original_ptr
+      where (original_ptr /= MAPL_UNDEFINED_REAL32)
+         converted_ptr = original_ptr
+      elsewhere
+         converted_ptr = MAPL_UNDEFINED_REAL64
+      end where
 
       _RETURN(_SUCCESS)
    end subroutine convert_prec_R4_to_R8
@@ -433,7 +458,11 @@ contains
       call assign_fptr(original, original_ptr, _RC)
       call assign_fptr(converted, converted_ptr, _RC)
 
-      converted_ptr = original_ptr
+      where (original_ptr /= MAPL_UNDEFINED_REAL64)
+         converted_ptr = original_ptr
+      elsewhere
+         converted_ptr = MAPL_UNDEFINED_REAL32
+      end where
 
       _RETURN(_SUCCESS)
    end subroutine convert_prec_R8_to_R4
