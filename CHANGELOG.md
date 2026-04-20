@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
+
 ### Added
 
 ### Changed
