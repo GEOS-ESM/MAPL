@@ -4,7 +4,7 @@ This is a simple utility to generate inputs for ExtDataDriver.x so that ExtData 
 - The import spec of the GCM component from using the printspec option to GEOS
 - all the needed yaml files in a directory, name of directory is passed
 
-This will generate the import and optionally the export (as well as History) defition for ExtDataDriver.x to spare the human the tedious work.
+This will generate the import and optionally the export (as well as History) definition for ExtDataDriver.x to spare the human the tedious work.
 
 # Example Inputs
 To get the list of ExtDate items, just grab all the lines that look like this to a file:
@@ -55,4 +55,4 @@ To get the GCM component spec, run with `PRINTSPEC: 1` in the `CAP.rc` and copy 
 
 Finally just grab the right yaml files for ExtData.
 
-To run you will of course need to do some further editing of the produced files and link in the acutal data using the same convention `gcm_run.j` does.
+To run you will of course need to do some further editing of the produced files and link in the actual data using the same convention `gcm_run.j` does.

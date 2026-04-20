@@ -18,4 +18,5 @@ module Generic3g
    use mapl3g_VerticalStaggerLoc
    use mapl3g_geomio
    use mapl3g_ESMF_Utilities
+   use mapl3g_OpenMP_Support
 end module Generic3g

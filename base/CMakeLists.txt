@@ -2,12 +2,12 @@ esma_set_this (OVERRIDE MAPL.base)
 
 set (srcs
   MAPL_Profiler.F90
-  CFIOCollection.F90                    MAPL_RegridderManager.F90
+  MAPL_RegridderManager.F90
   NewRegridderManager.F90
   RegridderTypeSpec.F90                 RegridderSpec.F90                   RegridderSpecRouteHandleMap.F90
   RegridMethods.F90                     HorizontalFluxRegridder.F90
   MAPL_FractionalRegridder.F90          MAPL_RegridderTypeSpecRegridderMap.F90
-  ESMF_CFIOPtrVectorMod.F90             MAPL_RegridderVector.F90
+  MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_SatVapor.F90
   FileMetadataUtilities.F90             MAPL_GetLatLonCoord.F90             MAPL_SimpleAlarm.F90
   FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90
@@ -18,7 +18,7 @@ set (srcs
   MAPL_IdentityRegridder.F90            MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
   MAPL_TilingRegridder.F90
-  MAPL_CFIO.F90                         MAPL_TimeMethods.F90
+  MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
   MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
@@ -35,8 +35,6 @@ set (srcs
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   MAPL_ExternalGridFactory.F90
   ServerManager.F90 ApplicationSupport.F90
-  ESMF_CFIOPtrVectorMod.F90
-  CFIOCollection.F90                    MAPL_CFIO.F90
   regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90
   regex_F.c  MAPL_ObsUtil.c
   c_mapl_locstream_F.c  getrss.c  memuse.c
@@ -49,6 +47,7 @@ set (srcs
   MAPL_DateTime_Parsing_ESMF.F90	MAPL_ObsUtil.F90
   MAPL_EASEConversion.F90
   MAPL_EASEGridFactory.F90
+  LDE.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
@@ -60,7 +59,7 @@ endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 MAPL.field udunits2f PFLOGGER::pflogger
+  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL.field udunits2f PFLOGGER::pflogger
                GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED)

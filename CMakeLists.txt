@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.67.0
+  VERSION 2.68.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -67,6 +67,15 @@ list (PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # against the build-tree library locations. Force FALSE so that CMake uses its
 # automatic build-tree RPATH (absolute paths) for targets in the build tree.
 set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
+option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
+if (BUILD_SHARED_MAPL)
+  set (MAPL_LIBRARY_TYPE SHARED)
+else ()
+  set (MAPL_LIBRARY_TYPE STATIC)
+endif()
+message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
+
 
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
@@ -200,10 +209,6 @@ add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 include(mapl_acg)
 include(mapl_create_stub_component)
 
-# Special case - MAPL_cfio is built twice with two different precisions.
-add_subdirectory (MAPL_cfio MAPL_cfio_r4)
-add_subdirectory (MAPL_cfio MAPL_cfio_r8)
-
 # This tests for various capabilities of the compiler
 # We mainly use it for MPICH issues
 include(CheckCompilerCapabilities)
@@ -273,6 +278,23 @@ install (
 
 configure_file(BUILD_INFO.rc.in BUILD_INFO.rc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/BUILD_INFO.rc DESTINATION etc)
+
+# Install the canonical GEOS field dictionary so experiment scripts can
+# copy/link it as field_dictionary.yaml in the run directory.
+# mepo can clone subrepos in three styles (no prefix, @ prefix, @ suffix).
+set(FIELD_DICTIONARY_DIRS
+  GEOS_FieldDictionary
+  @GEOS_FieldDictionary
+  GEOS_FieldDictionary@
+)
+foreach(dir IN LISTS FIELD_DICTIONARY_DIRS)
+  if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/geos_field_dictionary.yaml)
+    install(
+      FILES ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/geos_field_dictionary.yaml
+      DESTINATION etc
+    )
+  endif()
+endforeach()
 
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/
 # --- auto-ignore build directory

@@ -11,11 +11,13 @@ set(srcs
   DataCollectionVector.F90
   DataCollectionManager.F90
   CompressionSettings.F90
+  FieldBundleRead.F90
+  FieldBundleWrite.F90
   )
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.field MAPL.field_bundle MAPL.geom MAPL.pfio MAPL.base MAPL.shared MAPL.esmf_utils MAPL.hconfig_utils GFTL::gftl-v2
+  DEPENDENCIES MAPL.field MAPL.field_bundle MAPL.geom MAPL.pfio MAPL.base MAPL.shared MAPL.esmf_utils MAPL.hconfig_utils MAPL.regridder_mgr GFTL::gftl-v2 MAPL.base
   TYPE SHARED
   )
 

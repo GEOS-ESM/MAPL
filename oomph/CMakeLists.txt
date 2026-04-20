@@ -10,7 +10,7 @@ set (srcs
   specs/AbstractStateItemSpec.F90
   specs/FieldSpec.F90
   specs/ConnectionPoint.F90
-  
+
 #  specs/DimensionsSpec.F90
 #
 #  specs/StateItemSpec.F90
@@ -26,7 +26,7 @@ set (srcs
 #  specs/ComponentSpec.F90
 #  specs/ComponentSpecMap.F90
   )
-  
+
 
 esma_add_library(${this}
   SRCS ${srcs}

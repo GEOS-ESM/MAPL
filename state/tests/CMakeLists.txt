@@ -17,6 +17,10 @@ add_pfunit_ctest(MAPL.state.tests
                 MAX_PES 1
                 )
 set_target_properties(MAPL.state.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+target_include_directories(MAPL.state.tests PRIVATE
+  ${esma_include}/MAPL.pfunit
+  ${esma_include}/MAPL.state_utils
+  ${esma_include}/MAPL.shared)
 set_tests_properties(MAPL.state.tests PROPERTIES LABELS "ESSENTIAL")
 
 if (APPLE)

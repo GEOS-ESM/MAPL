@@ -19,6 +19,7 @@ add_pfunit_ctest(MAPL.shared.tests
                 LINK_LIBRARIES MAPL.shared
                 )
 set_target_properties(MAPL.shared.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+target_include_directories(MAPL.shared.tests PRIVATE ${esma_include}/MAPL.shared)
 set_tests_properties(MAPL.shared.tests PROPERTIES LABELS "ESSENTIAL")
 
 add_dependencies(build-tests MAPL.shared.tests)

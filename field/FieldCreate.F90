@@ -15,7 +15,7 @@ module mapl3g_FieldCreate
    use mapl3g_FieldFill, only: FieldFill
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
-   use mapl_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
+   use mapl_InternalConstants, only: MAPL_UNDEFINED_REAL
    use esmf, MAPL_FieldEmptyCreate => ESMF_FieldEmptyCreate
    use mapl3g_BasicVerticalGrid, only: BasicVerticalGrid, BasicVerticalGridSpec
 

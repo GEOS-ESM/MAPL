@@ -18,14 +18,12 @@
 !
 !#### History
 !- April2010: Arlindo da Silva <arlindo.dasilva@nasa.gov>
-!- 11Feb2011: Todling - remove ESMFL_BundleAddState since in MAPL_CFIO
 !
    module MAPL_SimpleBundleMod
 
    use ESMF
    use ESMFL_Mod
    use MAPL_BaseMod
-   use MAPL_CFIOMod
    use MAPL_MaxMinMod
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    use MAPL_Constants, only: MAPL_PI
@@ -38,9 +36,6 @@
    public MAPL_SimpleBundlePrint
    public MAPL_SimpleBundleGetIndex
    public MAPL_SimpleBundleDestroy
-
-   public MAPL_SimpleBundleRead
-   public MAPL_SimpleBundleWrite
 
    public MAPL_SimpleBundle
 
@@ -96,11 +91,6 @@
    end type MAPL_SimpleBundle
 
 !----------------------------------------------------------------------------
-
-   interface MAPL_SimpleBundleWrite
-      module procedure MAPL_SimpleBundleWrite1
-      module procedure MAPL_SimpleBundleWrite2
-   end interface MAPL_SimpleBundleWrite
 
    interface MAPL_SimpleBundleCreate
       module procedure MAPL_SimpleBundleCreateEmpty
@@ -682,101 +672,6 @@ CONTAINS
     _RETURN(_SUCCESS)
 
   end subroutine MAPL_SimpleBundleDestroy
-
-!-----------------------------------------------------------------------------
-!>
-! Given an ESMF Config object and a filename, reads the corresponding file into
-! a MAPL SimpleBundle.
-!
-  Function MAPL_SimpleBundleRead (filename, bundle_name, grid, time, verbose, &
-                                  only_vars, expid, voting, unusable, rc ) result (self)
-         use mapl_KeywordEnforcerMod
-
-    type(MAPL_SimpleBundle)                    :: self !! Simple Bundle
-
-    character(len=*),            intent(in)    :: filename
-    character(len=*),            intent(in)    :: bundle_name
-    type(ESMF_Time),             intent(inout) :: Time
-    type(ESMF_Grid),             intent(in)    :: Grid
-    logical, OPTIONAL,           intent(in)    :: verbose
-    character(len=*), optional,  intent(IN)    :: only_vars
-    character(len=*), optional,  intent(IN)    :: expid
-    class(KeywordEnforcer), optional, intent(in) :: unusable
-    logical,          optional,  intent(in)    :: voting
-    integer, OPTIONAL,           intent(out)   :: rc
-
-!-----------------------------------------------------------------------------
-
-    integer :: status
-    type(ESMF_FieldBundle),  pointer :: Bundle
-
-    allocate(Bundle, stat=STATUS)
-    _VERIFY(STATUS)
-
-    Bundle = ESMF_FieldBundleCreate ( name=bundle_name, _RC )
-    call ESMF_FieldBundleSet ( bundle, grid=Grid, _RC )
-    call MAPL_CFIORead  ( filename, Time, Bundle, verbose=verbose, &
-                          ONLY_VARS=only_vars, expid=expid, voting=voting, _RC )
-    self = MAPL_SimpleBundleCreate ( Bundle, _RC )
-    self%bundleAlloc = .true.
-
-    _RETURN(_SUCCESS)
-
-    _UNUSED_DUMMY(unusable)
-
-  end function MAPL_SimpleBundleRead
-
-!-----------------------------------------------------------------------------
-!>
-! Writes a MAPL SimpleBundle to file fiven an ESMF Clock object.
-! The file opened, written to, and closed.
-
-  subroutine MAPL_SimpleBundleWrite1 ( self, filename, clock, verbose, rc )
-
-    type(MAPL_SimpleBundle)                 :: self
-    character(len=*),           intent(in) :: filename
-    type(ESMF_Clock),           intent(inout) :: Clock
-    logical, OPTIONAL,          intent(in)  :: verbose
-    integer, OPTIONAL,          intent(out) :: rc
-!                                ---
-    type(MAPL_CFIO)            :: cfio
-    integer                    :: status
-
-    call MAPL_CFIOCreate ( cfio, filename, clock, self%Bundle, _RC)
-    call MAPL_CFIOWrite  ( cfio, Clock, self%Bundle, verbose=verbose, _RC)
-    call MAPL_CFIODestroy ( cfio, _RC )
-    _RETURN(_SUCCESS)
-
-  end subroutine MAPL_SimpleBundleWrite1
-
-!............................................................................................
-!>
-! Writes a MAPL SimpleBundle to file fiven an ESMF Time object.
-! The file opened, written to, and closed.
-! A fake timestep of 30 minutes is assumed.
-!
-  subroutine MAPL_SimpleBundleWrite2 ( self, filename, time, verbose, rc )
-!
-    type(MAPL_SimpleBundle)                 :: self
-    character(len=*),           intent(in) :: filename
-    type(ESMF_Time),            intent(in)  :: time
-    logical, OPTIONAL,          intent(in)  :: verbose
-    integer, OPTIONAL,          intent(out) :: rc
-!                                ---
-    type(ESMF_TimeInterval)    :: TimeStep
-    type(ESMF_Clock)           :: Clock
-    type(MAPL_CFIO)            :: cfio
-    integer                    :: status
-
-    call ESMF_TimeIntervalSet( TimeStep, h=0, m=30, s=0, _RC )
-    CLOCK = ESMF_ClockCreate ( name="Clock", timeStep=TimeStep, startTime=Time, _RC )
-
-    call MAPL_CFIOCreate ( cfio, filename, clock, self%Bundle, _RC)
-    call MAPL_CFIOWrite  ( cfio, Clock, self%Bundle, verbose=verbose, _RC)
-    call MAPL_CFIODestroy ( cfio, _RC )
-    _RETURN(_SUCCESS)
-
-  end subroutine MAPL_SimpleBundleWrite2
 
 !............................................................................................
 !>

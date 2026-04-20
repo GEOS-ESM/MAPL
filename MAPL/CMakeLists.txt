@@ -1,9 +1,8 @@
-esma_set_this()
-
+esma_set_this(OVERRIDE MAPL2)
 
 esma_add_library (${this}
   SRCS MAPL.F90
-  DEPENDENCIES mapl3g MAPL.base MAPL.generic MAPL.pfio MAPL_cfio_r4 MAPL.gridcomps MAPL.orbit MAPL.field MAPL.python_bridge ${EXTDATA_TARGET}
+  DEPENDENCIES MAPL MAPL.base MAPL.generic MAPL.pfio MAPL.gridcomps MAPL.orbit MAPL.field MAPL.python_bridge ${EXTDATA_TARGET}
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED
   )
@@ -12,4 +11,3 @@ target_compile_definitions (${this} PRIVATE $<$<BOOL:${USE_EXTDATA2G}>:BUILD_WIT
 
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-

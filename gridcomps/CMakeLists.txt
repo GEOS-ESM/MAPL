@@ -2,7 +2,7 @@ esma_set_this(OVERRIDE MAPL.gridcomps)
 
 esma_add_library (${this}
      SRCS MAPL_GridComps.F90
-     DEPENDENCIES MAPL.base MAPL.pfio MAPL_cfio_r4
+     DEPENDENCIES MAPL.base MAPL.pfio
                   $<$<BOOL:${BUILD_WITH_FARGPARSE}>:FARGPARSE::fargparse>
      TYPE SHARED
      )
@@ -21,3 +21,4 @@ add_subdirectory(configurable)
 add_subdirectory(ExtData3G)
 add_subdirectory(StatisticsGridComp)
 add_subdirectory(FakeParent)
+add_subdirectory(componentDriverGridComp)

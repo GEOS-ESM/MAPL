@@ -19,6 +19,7 @@ module mapl3g_ExtDataGridComp
    use MAPL_FileMetadataUtilsMod
    use gftl2_StringStringMap
    use gftl2_IntegerVector
+   use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use mapl3g_ExtDataReader
 
    implicit none(type,external)

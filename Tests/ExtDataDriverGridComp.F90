@@ -3,7 +3,7 @@
 
 module ExtData_DriverGridCompMod
   use ESMF
-  use MAPL
+  use MAPL2
   use MAPL_ExtDataGridComp2G, only : ExtData2G_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
