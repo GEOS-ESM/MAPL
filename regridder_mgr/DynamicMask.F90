@@ -230,8 +230,7 @@ contains
             renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. (has_mask .and. &
-                       match(mask_value,dynamicMaskList(i)%srcElement(j)%ptr(k)))) then
+                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -275,8 +274,7 @@ contains
             renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. (has_mask .and. &
-                       match(mask_value,dynamicMaskList(i)%srcElement(j)%ptr(k)))) then
+                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -324,8 +322,7 @@ contains
             min_input = ieee_value(min_input, ieee_positive_inf)
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. (has_mask .and. &
-                       match(mask_value,dynamicMaskList(i)%srcElement(j)%ptr(k)))) then
+                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -381,8 +378,7 @@ contains
             min_input = ieee_value(min_input, ieee_positive_inf)
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. (has_mask .and. &
-                       match(mask_value,dynamicMaskList(i)%srcElement(j)%ptr(k)))) then
+                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -435,8 +431,7 @@ contains
             renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. (has_mask .and. &
-                       match(mask_value,dynamicMaskList(i)%srcElement(j)%ptr(k)))) then
+                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      if (dynamicMaskList(i)%factor(j) > renorm(k)) then
                         renorm(k) = dynamicMaskList(i)%factor(j)
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -480,8 +475,7 @@ contains
             renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. (has_mask .and. &
-                       match(mask_value,dynamicMaskList(i)%srcElement(j)%ptr(k)))) then
+                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      if (dynamicMaskList(i)%factor(j) > renorm(k)) then
                         renorm(k) = dynamicMaskList(i)%factor(j)
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -521,8 +515,7 @@ contains
 
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. (has_mask .and. &
-                       match(mask_value,dynamicMaskList(i)%srcElement(j)%ptr(k)))) then
+                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      if (nint(dynamicMaskList(i)%srcElement(j)%ptr(k)) == 0) then
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) + &
                              & dynamicMaskList(i)%factor(j)
@@ -558,8 +551,7 @@ contains
 
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. (has_mask .and. &
-                       match(mask_value,dynamicMaskList(i)%srcElement(j)%ptr(k)))) then
+                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      if (nint(dynamicMaskList(i)%srcElement(j)%ptr(k)) == 0) then
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) + &
                              & dynamicMaskList(i)%factor(j)
@@ -644,14 +636,16 @@ contains
       not_equal_to = .not. (a == b)
    end function not_equal_to_spec
 
-   logical function match_r4(missing,b)
+   logical function match_r4(has_mask, missing, b)
+      logical,                 intent(in) :: has_mask
       real(kind=ESMF_KIND_R4), intent(in) :: missing, b
-      match_r4 = (missing==b)
+      match_r4 = has_mask .and. (missing == b)
    end function match_r4
 
-   logical function match_r8(missing,b)
+   logical function match_r8(has_mask, missing, b)
+      logical,                 intent(in) :: has_mask
       real(kind=ESMF_KIND_R8), intent(in) :: missing, b
-      match_r8 = (missing==b)
+      match_r8 = has_mask .and. (missing == b)
    end function match_r8
 
 end module mapl3g_DynamicMask
