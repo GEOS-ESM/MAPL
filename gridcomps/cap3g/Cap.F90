@@ -16,6 +16,9 @@ module mapl3g_Cap
    character(*), parameter :: LAST_CHECKPOINT = 'last'
    character(*), parameter :: RECURRING_ALARM_TYPE = 'recurring'
    character(*), parameter :: RING_ONCE_ALARM_TYPE = 'once'
+   character(len=*), parameter :: KEY_RESTART = 'restart'
+   character(len=*), parameter :: KEY_CLOCK = 'clock'
+   character(len=*), parameter :: KEY_CURRTIME = 'currTime'
 
    type CheckpointOptions
       logical :: is_enabled = .false.
@@ -45,6 +48,7 @@ contains
       type(esmf_Clock) :: clock
       type(CapOptions) :: options
       integer :: status
+      character(len=:), allocatable :: currTimeString
 
       options = make_cap_options(hconfig, is_model_pet, _RC)
       clock = make_clock(hconfig, options%lgr, _RC)
@@ -55,7 +59,9 @@ contains
       ! TODO `initialize_phases` should be a MAPL procedure (name)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
+      call get_currTimeString(clock, currTimeString, _RC)
       call driver%finalize(_RC)
+      call update_restart_currTime(hconfig, currTimeString, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -341,14 +347,14 @@ contains
       character(:), allocatable :: cap_restart_file
       character(ESMF_MAXSTR) :: iso_time
 
-      cap_restart_file = esmf_HConfigAsString(hconfig, keyString='restart', _RC)
+      cap_restart_file = esmf_HConfigAsString(hconfig, keyString=KEY_RESTART, _RC)
       restart_cfg = esmf_HConfigCreate(filename=cap_restart_file, _RC)
       currTime = mapl_HConfigAsTime(restart_cfg, keyString='currTime', _RC)
       iso_time = esmf_HConfigAsString(restart_cfg, keystring='currTime', _RC)
       call lgr%info('current time: %a', trim(iso_time))
       call esmf_HConfigDestroy(restart_cfg, _RC)
 
-      clock_cfg = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
+      clock_cfg = esmf_HConfigCreateAt(hconfig, keystring=KEY_CLOCK, _RC)
 
       startTime = mapl_HConfigAsTime(clock_cfg, keystring='start', _RC)
       _ASSERT(currTime >= startTime, "current time should be >= start time")
@@ -593,5 +599,41 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_symlink
+
+   subroutine get_currTimeString(clock, currTimeString, rc)
+      type(ESMF_Clock), intent(inout) :: clock
+      character(len=:), allocatable, intent(out) :: currTimeString
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer, parameter :: ISOSTRING_LENGTH=20
+      character(len=ISOSTRING_LENGTH) :: timeString
+      type(ESMF_Time) :: currTime
+
+      call ESMF_ClockGet(clock, currTime=currTime, _RC)
+      call ESMF_TimeGet(currTime, timeString=timeString, _RC)
+      currTimeString = trim(timeString)
+      _RETURN(_SUCCESS)
+      
+   end subroutine get_currTimeString
+
+   subroutine update_restart_currTime(hconfig, timeString, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      character(len=*), intent(in) :: timeString
+      integer, optional, intent(out) :: rc
+      integer :: status
+      logical :: restart_is_defined
+      character(:), allocatable :: cap_restart_file
+      type(ESMF_HConfig) :: restart_cfg
+
+      restart_is_defined = ESMF_HConfigIsDefined(hconfig, keyString=KEY_RESTART, _RC)
+      _ASSERT(restart_is_defined, 'Unable to get restart filename')
+      cap_restart_file = ESMF_HConfigAsString(hconfig, keyString=KEY_RESTART, _RC)
+      restart_cfg = ESMF_HConfigCreate(filename=cap_restart_file, _RC)
+      call ESMF_HConfigSet(restart_cfg, content=timeString, keyString=KEY_CURRTIME, _RC)
+      call ESMF_HConfigFileSave(restart_cfg, cap_restart_file, _RC)
+      call ESMF_HConfigDestroy(restart_cfg, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine update_restart_currTime
 
 end module mapl3g_Cap
