@@ -213,12 +213,10 @@ contains
       integer,                       intent(out)  :: rc
 
       integer :: i, j, k, n
-      logical :: has_mask
       real(ESMF_KIND_R8) :: mask_value
       real(ESMF_KIND_R8), allocatable  :: renorm(:)
 
-      has_mask = present(dynamicSrcMaskValue)
-      if (has_mask) mask_value = dynamicSrcMaskValue
+      if (present(dynamicSrcMaskValue)) mask_value = dynamicSrcMaskValue
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -230,7 +228,7 @@ contains
             renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -257,12 +255,10 @@ contains
       integer,                       intent(out)  :: rc
 
       integer :: i, j, k, n
-      logical :: has_mask
       real(ESMF_KIND_R4) :: mask_value
       real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
-      has_mask = present(dynamicSrcMaskValue)
-      if (has_mask) mask_value = dynamicSrcMaskValue
+      if (present(dynamicSrcMaskValue)) mask_value = dynamicSrcMaskValue
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -274,7 +270,7 @@ contains
             renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -303,12 +299,10 @@ contains
       integer,                       intent(out)          :: rc
 
       integer :: i, j, k, n
-      logical :: has_mask
       real(ESMF_KIND_R8) :: mask_value
       real(ESMF_KIND_R8), allocatable  :: renorm(:),max_input(:),min_input(:)
 
-      has_mask = present(dynamicSrcMaskValue)
-      if (has_mask) mask_value = dynamicSrcMaskValue
+      if (present(dynamicSrcMaskValue)) mask_value = dynamicSrcMaskValue
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -322,7 +316,7 @@ contains
             min_input = ieee_value(min_input, ieee_positive_inf)
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -359,12 +353,10 @@ contains
       integer,                       intent(out)          :: rc
 
       integer :: i, j, k, n
-      logical :: has_mask
       real(ESMF_KIND_R4) :: mask_value
       real(ESMF_KIND_R4), allocatable  :: renorm(:),max_input(:),min_input(:)
 
-      has_mask = present(dynamicSrcMaskValue)
-      if (has_mask) mask_value = dynamicSrcMaskValue
+      if (present(dynamicSrcMaskValue)) mask_value = dynamicSrcMaskValue
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -378,7 +370,7 @@ contains
             min_input = ieee_value(min_input, ieee_positive_inf)
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
                           + dynamicMaskList(i)%factor(j) &
                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -414,12 +406,10 @@ contains
       integer,                       intent(out)          :: rc
 
       integer :: i, j, k, n
-      logical :: has_mask
       real(ESMF_KIND_R8) :: mask_value
       real(ESMF_KIND_R8), allocatable  :: renorm(:)
 
-      has_mask = present(dynamicSrcMaskValue)
-      if (has_mask) mask_value = dynamicSrcMaskValue
+      if (present(dynamicSrcMaskValue)) mask_value = dynamicSrcMaskValue
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -431,7 +421,7 @@ contains
             renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      if (dynamicMaskList(i)%factor(j) > renorm(k)) then
                         renorm(k) = dynamicMaskList(i)%factor(j)
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -458,12 +448,10 @@ contains
       integer,                       intent(out)          :: rc
 
       integer :: i, j, k, n
-      logical :: has_mask
       real(ESMF_KIND_R4) :: mask_value
       real(ESMF_KIND_R4), allocatable  :: renorm(:)
 
-      has_mask = present(dynamicSrcMaskValue)
-      if (has_mask) mask_value = dynamicSrcMaskValue
+      if (present(dynamicSrcMaskValue)) mask_value = dynamicSrcMaskValue
 
       if (associated(dynamicMaskList)) then
          n = size(dynamicMaskList(1)%srcElement(1)%ptr)
@@ -475,7 +463,7 @@ contains
             renorm = 0.d0 ! reset
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      if (dynamicMaskList(i)%factor(j) > renorm(k)) then
                         renorm(k) = dynamicMaskList(i)%factor(j)
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
@@ -502,11 +490,6 @@ contains
       integer,                       intent(out)          :: rc
 
       integer :: i, j, k
-      logical :: has_mask
-      real(ESMF_KIND_R8) :: mask_value
-
-      has_mask = present(dynamicSrcMaskValue)
-      if (has_mask) mask_value = dynamicSrcMaskValue
 
       if (associated(dynamicMaskList)) then
 
@@ -515,7 +498,7 @@ contains
 
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      if (nint(dynamicMaskList(i)%srcElement(j)%ptr(k)) == 0) then
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) + &
                              & dynamicMaskList(i)%factor(j)
@@ -538,11 +521,6 @@ contains
       integer,                       intent(out)          :: rc
 
       integer :: i, j, k
-      logical :: has_mask
-      real(ESMF_KIND_R4) :: mask_value
-
-      has_mask = present(dynamicSrcMaskValue)
-      if (has_mask) mask_value = dynamicSrcMaskValue
 
       if (associated(dynamicMaskList)) then
 
@@ -551,7 +529,7 @@ contains
 
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. match(has_mask, mask_value, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
                      if (nint(dynamicMaskList(i)%srcElement(j)%ptr(k)) == 0) then
                         dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) + &
                              & dynamicMaskList(i)%factor(j)
@@ -636,16 +614,16 @@ contains
       not_equal_to = .not. (a == b)
    end function not_equal_to_spec
 
-   logical function match_r4(has_mask, missing, b)
-      logical,                 intent(in) :: has_mask
-      real(kind=ESMF_KIND_R4), intent(in) :: missing, b
-      match_r4 = has_mask .and. (missing == b)
+   logical function match_r4(missing, b)
+      real(kind=ESMF_KIND_R4), intent(in), optional :: missing
+      real(kind=ESMF_KIND_R4), intent(in) :: b
+      match_r4 = present(missing) .and. (missing == b)
    end function match_r4
 
-   logical function match_r8(has_mask, missing, b)
-      logical,                 intent(in) :: has_mask
-      real(kind=ESMF_KIND_R8), intent(in) :: missing, b
-      match_r8 = has_mask .and. (missing == b)
+   logical function match_r8(missing, b)
+      real(kind=ESMF_KIND_R8), intent(in), optional :: missing
+      real(kind=ESMF_KIND_R8), intent(in) :: b
+      match_r8 = present(missing) .and. (missing == b)
    end function match_r8
 
 end module mapl3g_DynamicMask
