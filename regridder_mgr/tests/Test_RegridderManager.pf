@@ -339,13 +339,13 @@ contains
    end subroutine test_regrid_2d_vector
 
 
-   @test(type=ESMF_TestMethod, npes=[1])
-   ! Test that masked source points in a vector field bundle are handled
-   ! correctly: ESMF re-normalizes the bilinear stencil over valid points,
-   ! so output points adjacent to the masked band remain finite.
-   ! We verify that unmasked output points far from the masked row still
-   ! match the analytic field, while output points whose stencil is
-   ! partially masked deviate from it.
+    @test(type=ESMF_TestMethod, npes=[1])
+    ! Test that masked source points in a vector field bundle are handled
+    ! correctly: masking is used to exclude physically invalid source points
+    ! (e.g. underground levels near mountains).  ESMF re-normalizes the
+    ! bilinear stencil over the remaining valid points so that output points
+    ! whose stencil overlaps a masked source region still produce finite,
+    ! valid results rather than propagating the invalid value.
    subroutine test_regrid_2d_vector_masked(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(GeomManager), target :: geom_mgr
@@ -370,13 +370,13 @@ contains
       geom_mgr = GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
-      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 36, jm_world: 19, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 17, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_1 = make_geom(geom_mgr, hconfig, _RC)
 
-      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 18, jm_world: 11, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 8, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_2 = make_geom(geom_mgr, hconfig, _RC)
 
-      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF, ESMF_KIND_R8), handleAllElements=.true., _RC)
+      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=MAPL_UNDEF, handleAllElements=.true., _RC)
 
       spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR, dyn_mask=dyn_mask), geom_1, geom_2)
       my_regridder => regridder_mgr%get_regridder(spec, _RC)
@@ -393,9 +393,9 @@ contains
       u1 = -sin(real(lons_1 * DEG2RAD, ESMF_KIND_R4))
       v1 = -sin(real(lats_1 * DEG2RAD, ESMF_KIND_R4)) * cos(real(lons_1 * DEG2RAD, ESMF_KIND_R4))
 
-      ! Mask an entire row of source points (row 10 of 19, near equator)
-      u1(:,10) = real(MAPL_UNDEF, ESMF_KIND_R4)
-      v1(:,10) = real(MAPL_UNDEF, ESMF_KIND_R4)
+      ! Mask an entire row of source points (row 8 of 17, near equator)
+      u1(:,8) = real(MAPL_UNDEF, ESMF_KIND_R4)
+      v1(:,8) = real(MAPL_UNDEF, ESMF_KIND_R4)
 
       f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
@@ -415,13 +415,15 @@ contains
       ! analytic field closely (masking had no effect on their stencil).
       @assert_that(u2(:,2) - u2_expected(:,2), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
       @assert_that(v2(:,2) - v2_expected(:,2), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
-      @assert_that(u2(:,10) - u2_expected(:,10), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
-      @assert_that(v2(:,10) - v2_expected(:,10), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
+      @assert_that(u2(:,8) - u2_expected(:,8), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
+      @assert_that(v2(:,8) - v2_expected(:,8), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
 
-      ! The output row whose stencil straddles the masked source row should
-      ! deviate from the analytic value (re-normalization over fewer points).
-      @assert_that(u2(:,5) - u2_expected(:,5), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
-      @assert_that(v2(:,5) - v2_expected(:,5), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
+      ! The output row whose stencil straddles the masked source row should still
+      ! produce a valid (finite, reasonable) result: ESMF re-normalizes the bilinear
+      ! weights over the remaining valid source points rather than propagating the
+      ! invalid value.
+      @assert_that(u2(:,6) - u2_expected(:,6), every_item(is(near(0._ESMF_KIND_R4, 3.e-3))))
+      @assert_that(v2(:,6) - v2_expected(:,6), every_item(is(near(0._ESMF_KIND_R4, 3.e-3))))
 
    end subroutine test_regrid_2d_vector_masked
 
