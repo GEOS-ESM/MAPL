@@ -5,8 +5,8 @@ set (srcs
   ESMFL_Mod.F90                         MAPL_SatVapor.F90
   FileMetadataUtilities.F90             MAPL_GetLatLonCoord.F90             MAPL_SimpleAlarm.F90
   FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90
-  MAPL_AbstractGridFactory.F90          MAPL_GridSpec.F90                   MAPL_StringGridFactoryMap.F90
-  MAPL_GridType.F90                     MAPL_StringGridMap.F90              MaplGrid.F90
+  MAPL_AbstractGridFactory.F90          MAPL_StringGridFactoryMap.F90
+  MAPL_GridType.F90                     MaplGrid.F90
   MAPL_StringRouteHandleMap.F90
   MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
