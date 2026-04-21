@@ -600,13 +600,21 @@ contains
    end function not_equal_to_spec
 
    logical function match_r4(missing,b)
-      real(kind=ESMF_KIND_R4), intent(in) :: missing, b
-      match_r4 = (missing==b)
+      real(kind=ESMF_KIND_R4), intent(in), optional :: missing, b
+      if (present(missing)) then
+         match_r4 = (missing==b)
+      else
+         match_r4 = .false.
+      end if
    end function match_r4
 
    logical function match_r8(missing,b)
-      real(kind=ESMF_KIND_R8), intent(in) :: missing, b
-      match_r8 = (missing==b)
+      real(kind=ESMF_KIND_R8), intent(in), optional :: missing, b
+      if (present(missing)) then
+         match_r8 = (missing==b)
+      else
+         match_r8 = .false.
+      end if
    end function match_r8
 
 end module mapl3g_DynamicMask
