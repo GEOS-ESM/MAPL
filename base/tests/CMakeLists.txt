@@ -23,7 +23,6 @@ set (TEST_SRCS
 # SRCS are mostly mocks to facilitate tests
 set (SRCS
   MockGridFactory.F90
-  MockRegridder.F90
   )
 
 # This file needs to be in a library because CMake cannot detect the

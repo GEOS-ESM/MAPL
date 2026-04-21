@@ -24,14 +24,6 @@ module MAPLBase_Mod
   use MAPL_HashMod
   use MAPL_LoadBalanceMod
   use MAPL_AbstractGridFactoryMod
-  use MAPL_AbstractRegridderMod
-  use MAPL_RegridderManagerMod
-  use MAPL_NewRegridderManager
-  use mapl_HorizontalFluxRegridder
-  use MAPL_TransposeRegridderMod
-  use MAPL_RegridderSpec
-  use MAPL_RegridderTypeSpec
-  use MAPL_RegridMethods
   use MAPL_GridManagerMod
   use MAPL_LatLonGridFactoryMod
   use MAPL_EASEGridFactoryMod
