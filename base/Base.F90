@@ -36,7 +36,6 @@ module MAPLBase_Mod
   use MAPL_KeywordEnforcerMod
   use MAPL_SimpleCommSplitterMod
   use MAPL_SplitCommunicatorMod
-  use MAPL_EtaHybridVerticalCoordinateMod
   use MAPL_ApplicationSupport
   use MAPL_ServerManager
   use MAPL_FileMetadataUtilsMod
