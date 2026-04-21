@@ -3,7 +3,7 @@
 module mapl3g_RestartHandler
 
    use esmf
-   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return
+   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio
    use mapl3g_FieldInfo, only: FieldInfoGetInternal
    use mapl3g_RestartModes, only: RestartMode, operator(==), MAPL_RESTART_SKIP
@@ -53,17 +53,30 @@ contains
    subroutine write(this, state, filename, rc)
       class(RestartHandler), intent(inout) :: this
       type(ESMF_State), intent(in) :: state
-      character(*), intent(in) :: filename 
+      character(*), intent(in) :: filename
       integer, optional, intent(out) :: rc
 
       type(ESMF_FieldBundle) :: bundle
-      integer :: item_count, status
+      type(ESMF_Field), allocatable :: field_list(:)
+      type(ESMF_FieldStatus_Flag) :: field_status
+      character(len=ESMF_MAXSTR) :: field_name
+      integer :: iter, item_count, status
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       _RETURN_UNLESS(item_count>0)
 
       call this%lgr%info("Writing checkpoint: %a", filename)
       bundle = this%get_field_bundle_from_state_(state, _RC)
+
+      ! Filter out incomplete fields
+      call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+      do iter = 1, size(field_list)
+         call ESMF_FieldGet(field_list(iter), status=field_status, name=field_name, _RC)
+         if (field_status /= ESMF_FIELDSTATUS_COMPLETE) then
+            call ESMF_FieldBundleRemove(bundle, [field_name], _RC)
+         end if
+      end do
+
       call this%write_bundle_(bundle, filename, rc)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
@@ -85,9 +98,7 @@ contains
 
       inquire(file=filename, exist=file_exists)
       if (.not. file_exists) then
-         ! TODO: Need to decide what happens in that case. Bootstrapping variables?
-         call this%lgr%warning("Restart file << %a >> does not exist. Skip reading!", filename)
-         _RETURN(_SUCCESS)
+         _FAIL("Restart file " // trim(filename) // " does not exist")
       end if
       call this%lgr%info("Reading restart: %a", trim(filename))
       bundle = this%get_field_bundle_from_state_(state, _RC)
