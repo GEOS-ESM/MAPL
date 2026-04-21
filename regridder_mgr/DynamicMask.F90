@@ -75,7 +75,7 @@ contains
    function new_DynamicMask_r4(mask_type, src_mask_value, dst_mask_value, handleAllElements, rc) result(mask)
       type(DynamicMask) :: mask
       character(*), intent(in) :: mask_type
-      real(kind=ESMF_KIND_R4) :: src_mask_value
+      real(kind=ESMF_KIND_R4), intent(in) :: src_mask_value
       real(kind=ESMF_KIND_R4), optional, intent(in) :: dst_mask_value
       logical, optional :: handleAllElements
       integer, optional, intent(out) :: rc
@@ -86,13 +86,15 @@ contains
       spec%mask_type = mask_type
       if (present(handleAllElements)) spec%handleAllElements = handleAllElements
 
+      ! Only store the R4 mask values; do NOT widen to R8.
+      ! Many R4 sentinel values are not exactly representable in R8, so a
+      ! naive real() conversion could produce a value that never compares
+      ! equal to R4 source data.
       spec%src_mask_value_r4 = src_mask_value
-      spec%src_mask_value_r8 = spec%src_mask_value_r4
 
       ! No default for dst_mask_value.  Usually left unallocated
       if (present(dst_mask_value)) then
          spec%dst_mask_value_r4 = dst_mask_value
-         spec%dst_mask_value_r8 = dst_mask_value
       end if
 
       mask = DynamicMask(spec, _RC)
@@ -114,13 +116,14 @@ contains
       spec%mask_type = mask_type
       if (present(handleAllElements)) spec%handleAllElements = handleAllElements
 
-      spec%src_mask_value_r8 = src_mask_value
-      spec%src_mask_value_r4 = spec%src_mask_value_r8
+      ! Only store the R8 mask values; do NOT narrow to R4.
+      ! Narrowing an R8 sentinel to R4 may not round-trip back to the
+      ! original R8 bit-pattern, causing mask comparisons to fail silently.
+      if (present(src_mask_value)) spec%src_mask_value_r8 = src_mask_value
 
       ! No default for dst_mask_value.  Usually left unallocated
       if (present(dst_mask_value)) then
          spec%dst_mask_value_r8 = dst_mask_value
-         spec%dst_mask_value_r4 = dst_mask_value
       end if
 
       mask = DynamicMask(spec, _RC)
@@ -284,7 +287,8 @@ contains
    end subroutine missing_r4r8r4v
 
    subroutine monotonic_r8r8r8V(dynamicMaskList, dynamicSrcMaskValue, &
-        dynamicDstMaskValue, rc)
+         dynamicDstMaskValue, rc)
+      use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_positive_inf, ieee_negative_inf
       type(ESMF_DynamicMaskElementR8R8R8V), pointer              :: dynamicMaskList(:)
       real(ESMF_KIND_R8),            intent(in), optional :: dynamicSrcMaskValue
       real(ESMF_KIND_R8),            intent(in), optional :: dynamicDstMaskValue
@@ -300,42 +304,43 @@ contains
          do i=1, size(dynamicMaskList)
             dynamicMaskList(i)%dstElement = 0.0 ! set to zero
 
-            renorm = 0.d0 ! reset
-            max_input = -huge(0.0)
-            min_input = huge(0.0)
-            do j=1, size(dynamicMaskList(i)%factor)
-               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                  if (.not. &
-                       match(dynamicSrcMaskValue,dynamicMaskList(i)%srcElement(j)%ptr(k))) then
-                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
-                          + dynamicMaskList(i)%factor(j) &
-                          * dynamicMaskList(i)%srcElement(j)%ptr(k)
-                     renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
-                     if (dynamicMaskList(i)%srcElement(j)%ptr(k) > max_input(k)) max_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
-                     if (dynamicMaskList(i)%srcElement(j)%ptr(k) < min_input(k)) min_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
-                  endif
-               end do
-            end do
-            where (renorm > 0.d0)
-               dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
-            elsewhere
-               dynamicMaskList(i)%dstElement = dynamicSrcMaskValue
-            end where
-            where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement > max_input)
-               dynamicMaskList(i)%dstElement = max_input
-            end where
-            where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement < min_input)
-               dynamicMaskList(i)%dstElement = min_input
-            end where
-         enddo
-      endif
-      ! return successfully
-      rc = ESMF_SUCCESS
+             renorm = 0.d0 ! reset
+             max_input = ieee_value(max_input, ieee_negative_inf)
+             min_input = ieee_value(min_input, ieee_positive_inf)
+             do j=1, size(dynamicMaskList(i)%factor)
+                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                   if (.not. &
+                        match(dynamicSrcMaskValue,dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                      dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
+                           + dynamicMaskList(i)%factor(j) &
+                           * dynamicMaskList(i)%srcElement(j)%ptr(k)
+                      renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
+                      if (dynamicMaskList(i)%srcElement(j)%ptr(k) > max_input(k)) max_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                      if (dynamicMaskList(i)%srcElement(j)%ptr(k) < min_input(k)) min_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                   endif
+                end do
+             end do
+             where (renorm > 0.d0)
+                dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
+             elsewhere
+                dynamicMaskList(i)%dstElement = dynamicSrcMaskValue
+             end where
+             where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement > max_input)
+                dynamicMaskList(i)%dstElement = max_input
+             end where
+             where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement < min_input)
+                dynamicMaskList(i)%dstElement = min_input
+             end where
+          enddo
+       endif
+
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(dynamicDstMaskValue)
    end subroutine monotonic_r8r8r8V
 
    subroutine monotonic_r4r8r4V(dynamicMaskList, dynamicSrcMaskValue, &
-        dynamicDstMaskValue, rc)
+         dynamicDstMaskValue, rc)
+      use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_positive_inf, ieee_negative_inf
       type(ESMF_DynamicMaskElementR4R8R4V), pointer              :: dynamicMaskList(:)
       real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
       real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
@@ -351,8 +356,8 @@ contains
             dynamicMaskList(i)%dstElement = 0.0 ! set to zero
 
             renorm = 0.d0 ! reset
-            max_input = -huge(0.0)
-            min_input = huge(0.0)
+            max_input = ieee_value(max_input, ieee_negative_inf)
+            min_input = ieee_value(min_input, ieee_positive_inf)
             do j=1, size(dynamicMaskList(i)%factor)
                do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
                   if (.not. &
@@ -378,10 +383,9 @@ contains
                dynamicMaskList(i)%dstElement = min_input
             end where
          enddo
-      endif
+       endif
 
-      ! return successfully
-      rc = ESMF_SUCCESS
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(dynamicDstMaskValue)
    end subroutine monotonic_r4r8r4V
 
@@ -418,10 +422,9 @@ contains
                dynamicMaskList(i)%dstElement = dynamicSrcMaskValue
             end where
          enddo
-      endif
+       endif
 
-      ! return successfully
-      rc = ESMF_SUCCESS
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(dynamicDstMaskValue)
    end subroutine vote_r8r8r8v
 
@@ -458,23 +461,21 @@ contains
                dynamicMaskList(i)%dstElement = dynamicSrcMaskValue
             end where
          enddo
-      endif
+       endif
 
-      ! return successfully
-      rc = ESMF_SUCCESS
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(dynamicDstMaskValue)
    end subroutine vote_r4r8r4v
 
    subroutine fraction_r8r8r8v(dynamicMaskList, dynamicSrcMaskValue, &
-        dynamicDstMaskValue, rc)
+         dynamicDstMaskValue, rc)
       type(ESMF_DynamicMaskElementR8R8R8V), pointer              :: dynamicMaskList(:)
       real(ESMF_KIND_R8),            intent(in), optional :: dynamicSrcMaskValue
       real(ESMF_KIND_R8),            intent(in), optional :: dynamicDstMaskValue
       integer,                       intent(out)          :: rc
-      integer :: i, j, k, n
+      integer :: i, j, k
 
       if (associated(dynamicMaskList)) then
-         n = size(dynamicMaskList(1)%srcElement(1)%ptr)
 
          do i=1, size(dynamicMaskList)
             dynamicMaskList(i)%dstElement = 0.0 ! set to zero
@@ -491,23 +492,21 @@ contains
                end do
             end do
          enddo
-      endif
+       endif
 
-      ! return successfully
-      rc = ESMF_SUCCESS
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(dynamicDstMaskValue)
    end subroutine fraction_r8r8r8v
 
    subroutine fraction_r4r8r4v(dynamicMaskList, dynamicSrcMaskValue, &
-        dynamicDstMaskValue, rc)
+         dynamicDstMaskValue, rc)
       type(ESMF_DynamicMaskElementR4R8R4V), pointer              :: dynamicMaskList(:)
       real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
       real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
       integer,                       intent(out)          :: rc
-      integer :: i, j, k, n
+      integer :: i, j, k
 
       if (associated(dynamicMaskList)) then
-         n = size(dynamicMaskList(1)%srcElement(1)%ptr)
 
          do i=1, size(dynamicMaskList)
             dynamicMaskList(i)%dstElement = 0.0 ! set to zero
@@ -524,10 +523,9 @@ contains
                end do
             end do
          enddo
-      endif
+       endif
 
-      ! return successfully
-      rc = ESMF_SUCCESS
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(dynamicDstMaskValue)
    end subroutine fraction_r4r8r4v
 
@@ -561,8 +559,15 @@ contains
       equal_to = a%mask_type == b%mask_type
       if (.not. equal_to) return
 
-      equal_to = a%src_mask_value_r4 == b%src_mask_value_r4
+      ! src_mask_value_r4/r8 are allocatable and may be unset when only one
+      ! precision was supplied to the constructor.  Check allocation status
+      ! before dereferencing.
+      equal_to = allocated(a%src_mask_value_r4) .eqv. allocated(b%src_mask_value_r4)
       if (.not. equal_to) return
+      if (allocated(a%src_mask_value_r4)) then
+         equal_to = a%src_mask_value_r4 == b%src_mask_value_r4
+         if (.not. equal_to) return
+      end if
 
       equal_to = allocated(a%dst_mask_value_r4) .eqv. allocated(b%dst_mask_value_r4)
       if (.not. equal_to) return
@@ -572,8 +577,12 @@ contains
       end if
       if (.not. equal_to) return
 
-      equal_to = a%src_mask_value_r8 == b%src_mask_value_r8
+      equal_to = allocated(a%src_mask_value_r8) .eqv. allocated(b%src_mask_value_r8)
       if (.not. equal_to) return
+      if (allocated(a%src_mask_value_r8)) then
+         equal_to = a%src_mask_value_r8 == b%src_mask_value_r8
+         if (.not. equal_to) return
+      end if
 
       equal_to = allocated(a%dst_mask_value_r8) .eqv. allocated(b%dst_mask_value_r8)
       if (.not. equal_to) return
