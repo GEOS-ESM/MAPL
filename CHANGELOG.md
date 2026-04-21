@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
 - Fixed SIGFPE (integer divide by zero) in `MAPL_LoadBalanceMod` when load balancing algorithm evaluates maximum differences to zero.
 
 ### Added
