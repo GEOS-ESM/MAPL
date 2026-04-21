@@ -8,10 +8,13 @@ module Test_RegridderManager
    use mapl3g_regridder_mgr
    use mapl3g_Geom_API
    use mapl3g_FieldBundle_API
-   use mapl_BaseMod, only: MAPL_UNDEF
+   use mapl_Constants, only: MAPL_UNDEF
    use esmf_TestMethod_mod ! mapl
    use esmf
+   use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none(type,external)
+
+   real(kind=REAL64), parameter :: MASK = MAPL_UNDEF
 
 contains
 
@@ -234,14 +237,14 @@ contains
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
 
-      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), handleAllElements=.true.,_RC)
+      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=MASK, handleAllElements=.true.,_RC)
       
       spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE, dyn_mask=dyn_mask), geom_1, geom_2)
       my_regridder => regridder_mgr%get_regridder(spec, _RC)
 
       f1 = make_field(geom_1, 'f1', value=2._ESMF_KIND_R4, lm=2, _RC)
       call ESMF_FieldGet(f1, farrayptr=x1, _RC)
-      x1(::4,6,1) = MAPL_UNDEF ! missing bits in level 1
+      x1(::4,6,1) = MASK ! missing bits in level 1
       x1(1::2,:,2) = 0 ! checkerboard on level 2
       f2 = make_field(geom_2, 'f2', value=0._ESMF_KIND_R4, lm=2, _RC)
 
@@ -261,7 +264,11 @@ contains
    end subroutine test_regrid_3d
 
    @test(type=ESMF_TestMethod, npes=[1])
-   ! Test regridding on field bundle representing a tangent vector
+   ! Test regridding on field bundle representing a tangent vector.
+   ! Uses a uniform Cartesian flow F=(1,0,0) projected onto the sphere's
+   ! tangent plane: u=-sin(lon), v=-sin(lat)*cos(lon).  This is an analytic
+   ! field that bilinear regridding should reproduce closely, allowing a
+   ! much tighter tolerance than a constant-value test.
    subroutine test_regrid_2d_vector(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(GeomManager), target :: geom_mgr
@@ -270,41 +277,126 @@ contains
       integer :: status
       class(Regridder), pointer :: my_regridder
       type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_Grid) :: grid_1, grid_2
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Field) :: f1, f2, f3, f4
       type(ESMF_Fieldbundle) :: uv1, uv2
-      real(kind=ESMF_KIND_R4), pointer :: u1(:,:)
-      real(kind=ESMF_KIND_R4), pointer :: v1(:,:)
-      real(kind=ESMF_KIND_R4), pointer :: u2(:,:)
-      real(kind=ESMF_KIND_R4), pointer :: v2(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: u1(:,:), v1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: u2(:,:), v2(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: lons_1(:,:), lats_1(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: lons_2(:,:), lats_2(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: u2_expected(:,:), v2_expected(:,:)
+      real(kind=REAL64), parameter :: PI = acos(-1._REAL64)
+      real(kind=REAL64), parameter :: DEG2RAD = PI / 180._REAL64
 
-      type(DynamicMask) :: dyn_mask
-      
       geom_mgr = GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
-      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 36, jm_world: 19, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_1 = make_geom(geom_mgr, hconfig, _RC)
 
-      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
-      geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 18, jm_world: 11, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC)
 
-      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), handleAllElements=.true.,_RC)
-      
-      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR, dyn_mask=dyn_mask), geom_1, geom_2)
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR), geom_1, geom_2)
       my_regridder => regridder_mgr%get_regridder(spec, _RC)
 
-      ! North-east field
-      f1 = make_field(geom_1, 'u', value=2._ESMF_KIND_R4, _RC)
-      f2 = make_field(geom_1, 'v', value=2._ESMF_KIND_R4, _RC)
+      ! Get source grid coordinates (degrees -> radians for trig)
+      call ESMF_GeomGet(geom_1, grid=grid_1, _RC)
+      call mapl_GridGetCoordinates(grid_1, longitudes=lons_1, latitudes=lats_1, _RC)
+
+      ! Set source field to uniform Cartesian flow F=(1,0,0) projected
+      ! onto tangent plane: u = -sin(lon), v = -sin(lat)*cos(lon)
+      f1 = make_field(geom_1, 'u', value=0._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom_1, 'v', value=0._ESMF_KIND_R4, _RC)
       uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
 
       call ESMF_FieldGet(f1, farrayptr=u1, _RC)
-      u1(::4,6) = MAPL_UNDEF ! checkerboard
-
       call ESMF_FieldGet(f2, farrayptr=v1, _RC)
-      v1(::4,6) = MAPL_UNDEF ! checkerboard
-      
+      u1 = -sin(real(lons_1 * DEG2RAD, ESMF_KIND_R4))
+      v1 = -sin(real(lats_1 * DEG2RAD, ESMF_KIND_R4)) * cos(real(lons_1 * DEG2RAD, ESMF_KIND_R4))
+
+      f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
+      f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+
+      call my_regridder%regrid(uv1, uv2, _RC)
+
+      ! Compute expected output: same analytic field at destination points
+      call ESMF_GeomGet(geom_2, grid=grid_2, _RC)
+      call mapl_GridGetCoordinates(grid_2, longitudes=lons_2, latitudes=lats_2, _RC)
+      u2_expected = -sin(real(lons_2 * DEG2RAD, ESMF_KIND_R4))
+      v2_expected = -sin(real(lats_2 * DEG2RAD, ESMF_KIND_R4)) * cos(real(lons_2 * DEG2RAD, ESMF_KIND_R4))
+
+      call ESMF_FieldGet(f3, farrayptr=u2, _RC)
+      call ESMF_FieldGet(f4, farrayptr=v2, _RC)
+
+      ! Interior rows only (skip poles where vector rotation is degenerate)
+      ! Tolerance of 2e-2 accounts for interpolation error on coarse grids;
+      ! errors are much smaller at realistic resolutions.
+      @assert_that(u2(:,2:10) - u2_expected(:,2:10), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
+      @assert_that(v2(:,2:10) - v2_expected(:,2:10), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
+   end subroutine test_regrid_2d_vector
+
+
+    @test(type=ESMF_TestMethod, npes=[1])
+    ! Test that masked source points in a vector field bundle are handled
+    ! correctly: masking is used to exclude physically invalid source points
+    ! (e.g. underground levels near mountains).  ESMF re-normalizes the
+    ! bilinear stencil over the remaining valid points so that output points
+    ! whose stencil overlaps a masked source region still produce finite,
+    ! valid results rather than propagating the invalid value.
+   subroutine test_regrid_2d_vector_masked(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_Grid) :: grid_1, grid_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2, f3, f4
+      type(ESMF_Fieldbundle) :: uv1, uv2
+      real(kind=ESMF_KIND_R4), pointer :: u1(:,:), v1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: u2(:,:), v2(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: lons_1(:,:), lats_1(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: lons_2(:,:), lats_2(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: u2_expected(:,:), v2_expected(:,:)
+      real(kind=REAL64), parameter :: PI = acos(-1._REAL64)
+      real(kind=REAL64), parameter :: DEG2RAD = PI / 180._REAL64
+      type(DynamicMask) :: dyn_mask
+
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 17, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 8, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC)
+
+      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=MAPL_UNDEF, handleAllElements=.true., _RC)
+
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR, dyn_mask=dyn_mask), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      call ESMF_GeomGet(geom_1, grid=grid_1, _RC)
+      call mapl_GridGetCoordinates(grid_1, longitudes=lons_1, latitudes=lats_1, _RC)
+
+      f1 = make_field(geom_1, 'u', value=0._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom_1, 'v', value=0._ESMF_KIND_R4, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+
+      call ESMF_FieldGet(f1, farrayptr=u1, _RC)
+      call ESMF_FieldGet(f2, farrayptr=v1, _RC)
+      u1 = -sin(real(lons_1 * DEG2RAD, ESMF_KIND_R4))
+      v1 = -sin(real(lats_1 * DEG2RAD, ESMF_KIND_R4)) * cos(real(lons_1 * DEG2RAD, ESMF_KIND_R4))
+
+      ! Mask an entire row of source points (row 8 of 17, near equator)
+      u1(:,8) = real(MAPL_UNDEF, ESMF_KIND_R4)
+      v1(:,8) = real(MAPL_UNDEF, ESMF_KIND_R4)
+
       f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
       uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
@@ -314,12 +406,26 @@ contains
       call ESMF_FieldGet(f3, farrayptr=u2, _RC)
       call ESMF_FieldGet(f4, farrayptr=v2, _RC)
 
-      ! Still north-east?  Note we have a large tolerance due to
-      ! coarse grids and inherent issues with vector regridding.
-      ! Errors are much smaller at realistic resolutions.
-      @assert_that(u2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
-      @assert_that(v2, every_item(is(near(2._ESMF_KIND_R4, 1.e-1))))
-   end subroutine test_regrid_2d_vector
+      call ESMF_GeomGet(geom_2, grid=grid_2, _RC)
+      call mapl_GridGetCoordinates(grid_2, longitudes=lons_2, latitudes=lats_2, _RC)
+      u2_expected = -sin(real(lons_2 * DEG2RAD, ESMF_KIND_R4))
+      v2_expected = -sin(real(lats_2 * DEG2RAD, ESMF_KIND_R4)) * cos(real(lons_2 * DEG2RAD, ESMF_KIND_R4))
+
+      ! Rows well away from the masked source row should still match the
+      ! analytic field closely (masking had no effect on their stencil).
+      @assert_that(u2(:,2) - u2_expected(:,2), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
+      @assert_that(v2(:,2) - v2_expected(:,2), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
+      @assert_that(u2(:,8) - u2_expected(:,8), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
+      @assert_that(v2(:,8) - v2_expected(:,8), every_item(is(near(0._ESMF_KIND_R4, 2.e-3))))
+
+      ! The output row whose stencil straddles the masked source row should still
+      ! produce a valid (finite, reasonable) result: ESMF re-normalizes the bilinear
+      ! weights over the remaining valid source points rather than propagating the
+      ! invalid value.
+      @assert_that(u2(:,6) - u2_expected(:,6), every_item(is(near(0._ESMF_KIND_R4, 3.e-3))))
+      @assert_that(v2(:,6) - v2_expected(:,6), every_item(is(near(0._ESMF_KIND_R4, 3.e-3))))
+
+   end subroutine test_regrid_2d_vector_masked
 
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -651,7 +757,7 @@ contains
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
       geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
 
-      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), handleAllElements=.true.,_RC)
+      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=MASK, handleAllElements=.true.,_RC)
       
       spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR, dyn_mask=dyn_mask), geom_1, geom_2)
       my_regridder => regridder_mgr%get_regridder(spec, _RC)

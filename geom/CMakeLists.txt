@@ -26,6 +26,8 @@ set(srcs
   IntegerMaplGeomMap.F90
 
   VectorBasis.F90
+
+  Subgrid.F90
 )
 
 esma_add_library(${this}

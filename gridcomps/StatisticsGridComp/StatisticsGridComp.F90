@@ -3,6 +3,7 @@
 module mapl3g_StatisticsGridComp
 
    use MAPL
+   use ESMF
    use mapl3g_RestartHandler
    use mapl3g_ESMF_Time_Utilities, only: sub_time_in_datetime
    ! local modules

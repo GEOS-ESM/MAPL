@@ -68,21 +68,14 @@ list (PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # automatic build-tree RPATH (absolute paths) for targets in the build tree.
 set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-# MAPL_SUPPORT_MAPL3: reduce MAPL2 to a support library for use alongside MAPL3.
-# When ON, disables the generic layer, gridcomps, and renames targets to MAPL2.*.
-# The name MAPL_SUPPORT_MAPL3 is a placeholder pending team agreement.
-# The prefix variable MAPL_TARGET_PREFIX is the single place to change the prefix.
-option(MAPL_SUPPORT_MAPL3
-    "Reduce MAPL2 to a support library for use alongside MAPL3. Disables the generic layer, gridcomps, and renames targets to MAPL2.*"
-    OFF)
-
-if (MAPL_SUPPORT_MAPL3)
-    add_compile_definitions(MAPL_SUPPORT_MAPL3)
-    set(MAPL_TARGET_PREFIX "MAPL2")
-    message(STATUS "MAPL_SUPPORT_MAPL3=ON: building as support library with target prefix '${MAPL_TARGET_PREFIX}'")
-else()
-    set(MAPL_TARGET_PREFIX "MAPL")
+option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
+if (BUILD_SHARED_MAPL)
+  set (MAPL_LIBRARY_TYPE SHARED)
+else ()
+  set (MAPL_LIBRARY_TYPE STATIC)
 endif()
+message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
+
 
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
@@ -216,10 +209,6 @@ add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 include(mapl_acg)
 include(mapl_create_stub_component)
 
-# Special case - MAPL_cfio is built twice with two different precisions.
-add_subdirectory (MAPL_cfio MAPL_cfio_r4)
-add_subdirectory (MAPL_cfio MAPL_cfio_r8)
-
 # This tests for various capabilities of the compiler
 # We mainly use it for MPICH issues
 include(CheckCompilerCapabilities)
@@ -249,7 +238,6 @@ add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (mapl3g)
 add_subdirectory (gridcomps)
-add_subdirectory (griddedio)
 add_subdirectory (GeomIO)
 add_subdirectory (esmf_utils)
 add_subdirectory (vertical)

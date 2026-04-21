@@ -3,18 +3,27 @@
    module regrid_util_support_mod
 
    use ESMF
-   use MAPL2
+   use MAPL
+   
+   use mapl3g_RegridderMethods
    use gFTL2_StringVector
 
    implicit NONE
+   private
 
-   public
+   public :: regrid_support
+   public :: uninit
+   public :: UnpackGridName
+   public :: split_string
+   public :: local_am_i_root
 
    real, parameter :: uninit = MAPL_UNDEF
 
    type regrid_support
       type(ESMF_Grid)     :: new_grid
+      class(VerticalGrid), pointer :: new_vgrid ! same as old for now...
       type(StringVector) :: filenames,outputfiles
+      type(CompressionSettings) :: compression_settings
       integer :: Nx,Ny
       integer :: itime(2)
       logical :: onlyVars, allTimes
@@ -23,15 +32,18 @@
       integer :: regridMethod
       real :: cs_stretch_param(3)
       real :: lon_range(2), lat_range(2)
-      integer :: deflate, shave
-      integer :: quantize_algorithm
+      integer :: deflate
+      integer :: shave
+      character(len=:), allocatable :: quantize_algorithm
       integer :: quantize_level
       integer :: zstandard_level
       logical :: use_weights
    contains
       procedure :: create_grid
+      procedure :: create_vgrid
       procedure :: process_command_line
-      procedure :: has_level
+      procedure :: sync_compression_to_bundle
+      procedure :: fill_in_compression_hconfig
    end type regrid_support
 
    contains
@@ -86,18 +98,19 @@
     character(len=ESMF_MAXPATHLEN) :: tp_filein,tp_fileout
     character(len=ESMF_MAXPATHLEN*100) :: cfileNames,coutputFiles
     character(len=ESMF_MAXSTR) :: gridname
+    type(ESMF_HConfig) :: hconfig_compression
 
     this%nx=1
-    this%ny=6
+    this%ny=1
     this%onlyvars=.false.
     this%alltimes=.true.
     regridMth='bilinear'
     this%cs_stretch_param=uninit
     this%lon_range=uninit
     this%lat_range=uninit
-    this%shave=64
+    this%shave=-1
     this%deflate=0
-    this%quantize_algorithm=0
+    this%quantize_algorithm='NONE'
     this%quantize_level=0
     this%zstandard_level=0
     this%use_weights = .false.
@@ -159,7 +172,7 @@
          read(astr,*)this%deflate
       case('-quantize_algorithm')
          call get_command_argument(i+1,astr)
-         read(astr,*)this%quantize_algorithm
+         this%quantize_algorithm=astr
       case('-quantize_level')
          call get_command_argument(i+1,astr)
          read(astr,*)this%quantize_level
@@ -169,7 +182,7 @@
       case('-file_weights')
          this%use_weights = .true.
       case('--help')
-         if (mapl_am_I_root()) then
+         if (local_am_i_root()) then
 
          end if
          call MPI_Finalize(status)
@@ -193,63 +206,63 @@
     end if
 
     call this%create_grid(gridname,_RC)
+    call this%create_vgrid(_RC)
+    hconfig_compression = this%fill_in_compression_hconfig(_RC)
+    this%compression_settings = CompressionSettings(hconfig_compression, _RC)
     _RETURN(_SUCCESS)
 
     end subroutine process_command_line
+
+    subroutine create_vgrid(this,rc)
+    class(regrid_support) :: this
+    integer, optional, intent(out) :: rc
+
+    type(NetCDF4_FileFormatter)     :: file_formatter
+    type(FileMetaData)              :: metadata
+    class(VerticalGridManager), pointer :: vgrid_manager
+    character(len=:), pointer :: file_name
+    integer :: status
+
+    file_name => this%filenames%at(1)
+    call file_formatter%open(trim(file_name), PFIO_READ, _RC)
+    metadata = file_formatter%read(_RC)
+    call file_formatter%close(_RC)
+    vgrid_manager => get_vertical_grid_manager(_RC)
+    this%new_vgrid => vgrid_manager%create_grid_from_file_metadata(metadata, _RC)
+
+    _RETURN(_SUCCESS)
+
+    end subroutine create_vgrid
 
     subroutine create_grid(this,grid_name,rc)
     class(regrid_support) :: this
     character(len=*), intent(in) :: grid_name
     integer, optional, intent(out) :: rc
 
-    type (FileMetaDataUtils) :: metadata
-    type (FileMetaData) :: basic_metadata
-    character(len=:),allocatable :: lev_name
-    integer :: im_world,jm_world,lm_world
-    type(NetCDF4_FileFormatter) :: formatter
-    character(len=:), allocatable :: filename
+    integer :: im_world,jm_world
     character(len=2) :: dateline,pole
     integer :: status
-    type(ESMF_CONFIG) :: cfoutput
+    type(ESMF_HConfig) :: geom_hconfig
+    type(MAPLGeom), pointer :: mapl_geom
+    type(ESMF_Geom) :: geom
+    type(GeomManager), pointer :: geom_mgr
 
-    filename = this%filenames%at(1)
-
-    call formatter%open(trim(filename),pFIO_Read,_RC)
-    basic_metadata=formatter%read(_RC)
-    call metadata%create(basic_metadata,trim(filename))
-
-    call formatter%close(_RC)
-
-    lm_world=0
-    lev_name=metadata%get_level_name()
-    if (trim(lev_name)/='') then
-       lm_world = metadata%get_dimension(lev_name,_RC)
-    end if
     call UnpackGridName(Grid_name,im_world,jm_world,dateline,pole)
 
-    cfoutput = create_cf(grid_name,im_world,jm_world,this%nx,this%ny,lm_world,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
-    this%new_grid=grid_manager%make_grid(cfoutput,prefix=trim(grid_name)//".",_RC)
+    geom_hconfig = create_output_geom_hconfig(grid_name,im_world,jm_world,this%nx,this%ny,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
+    geom_mgr => get_geom_manager()
+    mapl_geom => geom_mgr%get_mapl_geom(geom_hconfig, _RC)
+    geom = mapl_geom%get_geom()
+    call ESMF_GeomGet(geom, grid=this%new_grid, _RC)
 
     _RETURN(_SUCCESS)
     end subroutine create_grid
 
-    function has_level(this,rc) result(file_has_level)
-       logical :: file_has_level
-       class(regrid_support), intent(in) :: this
-       integer, intent(out), optional :: rc
-       integer :: global_dims(3),status
-       call MAPL_GridGet(this%new_grid,globalCellCountPerDim=global_dims,_RC)
-       file_has_level = (global_dims(3) /= 0)
-       _RETURN(_SUCCESS)
-    end function
-
-    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,lon_range,lat_range,tripolar_file,rc) result(cf)
-       use MAPL_ConfigMod
-       type(ESMF_Config)              :: cf
+    function create_output_geom_hconfig(grid_name,im_world,jm_world,nx,ny,cs_stretch_param,lon_range,lat_range,tripolar_file,rc) result(output_geom_hconfig)
+       type(ESMF_HConfig)              :: output_geom_hconfig
        character(len=*), intent(in) :: grid_name
        integer, intent(in)          :: im_world,jm_world
        integer, intent(in)          :: nx,ny
-       integer, intent(in)          :: lm
        real, intent(in)             :: cs_stretch_param(3)
        real, intent(in)             :: lon_range(2)
        real, intent(in)             :: lat_range(2)
@@ -259,82 +272,115 @@
        integer :: status
        character(len=2) :: pole,dateline
        integer :: nn
+       character(len=:), allocatable :: grid_class
+
+       grid_class = 'latlon'
 
        nn = len_trim(grid_name)
        dateline=grid_name(nn-1:nn)
        pole=grid_name(1:2)
 
-       cf = MAPL_ConfigCreate(_RC)
-       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
-       call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
-       if (dateline=='CF') then
-          call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=ny/6, label=trim(grid_name)//".NY:",_RC)
+       if (dateline=='CF') grid_class = 'CubedSphere'
+       if (dateline=='TM') then
+          _FAIL('tripolar grid not supported')
+       end if
+
+       output_geom_hconfig = ESMF_HConfigCreate(content='{}', _RC)
+       if (grid_class=='CubedSphere') then
+          call ESMF_HConfigAdd(output_geom_hconfig, 'CubedSphere', addKeyString='class', _RC)
+          call ESMF_HConfigAdd(output_geom_hconfig, im_world, addKeyString='im_world', _RC)
+          call ESMF_HConfigAdd(output_geom_hconfig, nx, addKeyString='nx_face', _RC)
+          call ESMF_HConfigAdd(output_geom_hconfig, ny/6, addKeyString='ny_face', _RC)
+
           if (any(cs_stretch_param/=uninit)) then
-             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(1),label=trim(grid_name)//".STRETCH_FACTOR:",_RC)
-             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",_RC)
-             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(3),label=trim(grid_name)//".TARGET_LAT:",_RC)
+             call ESMF_HConfigAdd(output_geom_hconfig,cs_stretch_param(1),addKeyString='stretch_factor',_RC)
+             call ESMF_HConfigAdd(output_geom_hconfig,cs_stretch_param(2),addKeyString='target_lon',_RC)
+             call ESMF_HConfigAdd(output_geom_hconfig,cs_stretch_param(3),addKeyString='target_lat',_RC)
           end if
-       else if (dateline=='TM') then
-          call MAPL_ConfigSetAttribute(cf,value="Tripolar", label=trim(grid_name)//".GRID_TYPE:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
-          _ASSERT(tripolar_file /= "empty","asked for tripolar output but did not specify the coordinate file")
-          call MAPL_ConfigSetAttribute(cf,value=tripolar_file,label=trim(grid_name)//".GRIDSPEC:",_RC)
-       else
-          call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=pole, label=trim(grid_name)//".POLE:",_RC)
-          call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",_RC)
+       else if (grid_class=='latlon') then
+          call ESMF_HConfigAdd(output_geom_hconfig, 'latlon', addKeyString='class', _RC)
+          call ESMF_HConfigAdd(output_geom_hconfig, im_world, addKeyString='im_world', _RC)
+          call ESMF_HConfigAdd(output_geom_hconfig, jm_world, addKeyString='jm_world', _RC)
+          call ESMF_HConfigAdd(output_geom_hconfig, pole, addKeyString='pole', _RC)
+          call ESMF_HConfigAdd(output_geom_hconfig, dateline, addKeyString='dateline', _RC)
+          call ESMF_HConfigAdd(output_geom_hconfig, nx, addKeyString='nx', _RC)
+          call ESMF_HConfigAdd(output_geom_hconfig, ny, addKeyString='ny', _RC)
           if (pole=='XY' .and. dateline=='XY') then
              _ASSERT(all(lon_range/=uninit),'if regional must specify lon_range')
              _ASSERT(all(lat_range/=uninit),'if regional must specify lat_range')
-             call MAPL_ConfigSetAttribute(cf,value=lon_range,label=trim(grid_name)//".LON_RANGE:",_RC)
-             call MAPL_ConfigSetAttribute(cf,value=lat_range,label=trim(grid_name)//".LAT_RANGE:",_RC)
+             call ESMF_HConfigAdd(output_geom_hconfig, lon_range, addKeyString='lon_range',_RC)
+             call ESMF_HConfigAdd(output_geom_hconfig, lat_range, addKeyString='lat_range',_RC)
           end if
        end if
+       _RETURN(_SUCCESS)
+     end function create_output_geom_hconfig
 
-     end function create_cf
+     subroutine sync_compression_to_bundle(this, bundle, rc)
+        class(regrid_support), intent(inout) :: this
+        type(ESMF_FieldBundle), intent(inout) :: bundle
+        integer, optional, intent(out) :: rc
+
+        integer :: status, i
+        type(ESMF_Info) :: infoh
+        type(ESMF_Field), allocatable :: field_list(:)
+
+        call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+        do i=1,size(field_list)
+           call ESMF_InfoGetFromHost(field_list(i), infoh, _RC)
+           call this%compression_settings%sync_to_info(infoh, _RC)
+        enddo
+
+        _RETURN(_SUCCESS)
+      end subroutine sync_compression_to_bundle
+
+      function fill_in_compression_hconfig(this, rc) result(hconfig)
+         type(ESMF_HConfig) :: hconfig
+         class(regrid_support), intent(inout) :: this
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         hconfig = ESMF_HConfigCreate(content='{}', _RC)
+         if (this%deflate > 0) then
+            call ESMF_HConfigAdd(hconfig, this%deflate, AddKeyString='deflate', _RC)
+         end if
+         if (this%zstandard_level > 0) then
+            call ESMF_HConfigAdd(hconfig, this%zstandard_level, AddKeyString='zstandard', _RC)
+         end if
+         if (this%quantize_algorithm /= 'NONE') then
+            call ESMF_HConfigAdd(hconfig, this%quantize_level, AddKeyString='quantize_level', _RC)
+            call ESMF_HConfigAdd(hconfig, this%quantize_algorithm, AddKeyString='quantize_algorithm', _RC)
+         end if
+         if (this%shave > 0) then
+            call ESMF_HConfigAdd(hconfig, this%shave, AddKeyString='nbits', _RC)
+         end if
+         _RETURN(_SUCCESS)
+
+      end function fill_in_compression_hconfig
+
+      function local_am_i_root(rc) result(am_i_root)
+         logical :: am_i_root
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_VM) :: vm
+         integer :: localPet, status
+
+         call ESMF_VMGetCurrent(vm, _RC)
+         call ESMF_VMGet(vm, localPet=localPet, _RC)
+         am_i_root = localPet == 0
+         _RETURN(_SUCCESS)
+      end function local_am_i_root
 
    end module regrid_util_support_mod
 
    Program Regrid_Util
 
    use ESMF
-   use ESMFL_Mod
-   use MAPL_ExceptionHandling
-   use MAPL_Profiler
-   use MAPL_BaseMod
-   use MAPL_MemUtilsMod
-   use MAPL_CFIOMod
-   use MAPL_CommsMod
-   use MAPL_ShmemMod
-   use ESMF_CFIOMod
-   use ESMF_CFIOUtilMod
-   use ESMF_CFIOFileMod
-   use MAPL_NewRegridderManager
-   use MAPL_AbstractRegridderMod
-   use mapl_RegridMethods
-   use MAPL_GridManagerMod
-   use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
-   use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-   use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
-   use MAPL_Constants, only: MAPL_PI_R8
-   use MAPL_ExceptionHandling
-   use MAPL_ApplicationSupport
-   use pFIO
-   use MAPL_ESMFFieldBundleWrite
-   use MAPL_ESMFFieldBundleRead
-   use MAPL_ServerManager
-   use MAPL_FileMetadataUtilsMod
-   use gFTL2_StringVector
+   use MAPL
+   use MAPLBase_Mod, only: FileMetadataUtils
+   use mapl_Profiler
    use regrid_util_support_mod
    use mpi
+   use gFTL2_StringVector
 
    implicit NONE
 
@@ -349,12 +395,7 @@ CONTAINS
 
    type(regrid_support), target :: support
 
-   type(ESMF_VM)       :: vm             ! ESMF Virtual Machine
-
    character(len=ESMF_MAXPATHLEN) ::  Filename,OutputFile
-
-   integer :: myPET   ! The local PET number
-   integer :: nPET    ! The total number of PETs you are running on
 
    integer :: status, rc
 
@@ -368,17 +409,12 @@ CONTAINS
    logical :: fileCreated,file_exists
 
    integer :: tsteps,i,j,tint
-   type(VerticalData) :: vertical_data
 
    type(FieldBundleWriter) :: newWriter
-   logical :: writer_created, has_vertical_level
-   type(ServerManager) :: io_server
+   logical :: writer_created
 
 
-   call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, _RC)
-   call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
-   call MAPL_Initialize(_RC)
-   call MAPL_GetNodeInfo (comm=MPI_COMM_WORLD, _RC)
+   call MAPL_Initialize()
    call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, _RC )
 
    call support%process_command_line(_RC)
@@ -386,21 +422,17 @@ CONTAINS
    t_prof=DistributedProfiler('Regrid_Util',MpiTimerGauge(),MPI_COMM_WORLD)
    call t_prof%start(_RC)
 
-   call io_server%initialize(mpi_comm_world)
-
    filename = support%filenames%at(1)
    if (allocated(tSeries)) deallocate(tSeries)
    call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
-   has_vertical_level = support%has_level(_RC)
-   if (has_vertical_level) then
-      call get_file_levels(filename,vertical_data,_RC)
-   end if
 
    Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
                                startTime=tSeries(1), _RC )
 
    bundle=ESMF_FieldBundleCreate(name="cfio_bundle",_RC)
+   call MAPL_FieldBundleSet(bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
    call ESMF_FieldBundleSet(bundle,grid=support%new_grid,_RC)
+   call MAPL_FieldBundleSet(bundle, vgrid=support%new_vgrid, _RC)
 
    writer_created=.false.
    do j=1,support%filenames%size()
@@ -419,12 +451,12 @@ CONTAINS
       do i=1,tsteps
 
          call t_prof%start("Read")
-         if (mapl_am_i_root()) write(*,*)'processing timestep from '//trim(filename)
+         if (local_am_i_root()) write(*,*)'processing timestep from '//trim(filename)
          time = tSeries(i)
          if (support%onlyvars) then
-            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,only_vars=support%vars,file_weights=support%use_weights, _RC)
+            call MAPL_Read_bundle(bundle,trim(filename),time,only_vars=support%vars, regrid_method=support%regridMethod, _RC)
          else
-            call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=support%regridMethod,file_weights=support%use_weights, _RC)
+            call MAPL_Read_bundle(bundle,trim(filename),time,regrid_method=support%regridMethod, _RC)
          end if
          call t_prof%stop("Read")
 
@@ -433,68 +465,34 @@ CONTAINS
 
          call t_prof%start("write")
 
-         if (mapl_am_I_root()) write(*,*) "moving on to writing "//trim(outputfile)
+         if (local_am_i_root()) write(*,*) "moving on to writing "//trim(outputfile)
 
          call ESMF_ClockSet(clock,currtime=time,_RC)
          if (.not. writer_created) then
-            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits_to_keep=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_algorithm=support%quantize_algorithm,quantize_level=support%quantize_level,zstandard_level=support%zstandard_level,_RC)
+            call support%sync_compression_to_bundle(bundle, _RC)
+            call newWriter%create_from_bundle(bundle,clock,_RC)
             writer_created=.true.
          end if
 
          if (.not.fileCreated) then
-            call newWriter%start_new_file(outputFile,_RC)
+            call newWriter%start_new_file(outputFile, time, _RC)
             fileCreated=.true.
          end if
-         call newWriter%write_to_file(_RC)
+         call newWriter%write_to_file(bundle, time, _RC)
          call t_prof%stop("write")
 
       end do
    enddo
 !   All done
 !   --------
-   call ESMF_VMBarrier(VM,_RC)
 
-   call io_server%finalize()
    call t_prof%stop()
    call t_prof%reduce()
    call t_prof%finalize()
    call generate_report()
-   call MAPL_Finalize(_RC)
-   call ESMF_Finalize ( _RC )
+   call MAPL_Finalize()
 
    end subroutine main
-
-   subroutine get_file_levels(filename,vertical_data,rc)
-      character(len=*), intent(in) :: filename
-      type(VerticalData), intent(inout) :: vertical_data
-      integer, intent(out), optional :: rc
-
-      integer :: status
-      type(NetCDF4_fileFormatter) :: formatter
-      type(FileMetadata) :: basic_metadata
-      type(FileMetadataUtils) :: metadata
-      character(len=:), allocatable :: lev_name
-      character(len=ESMF_MAXSTR) :: long_name
-      character(len=ESMF_MAXSTR) :: standard_name
-      character(len=ESMF_MAXSTR) :: vcoord
-      character(len=ESMF_MAXSTR) :: lev_units
-      real, allocatable, target :: levs(:)
-      real, pointer :: plevs(:)
-
-      call formatter%open(trim(filename),pFIO_Read,_RC)
-      basic_metadata=formatter%read(_RC)
-      call metadata%create(basic_metadata,trim(filename))
-      lev_name = metadata%get_level_name(_RC)
-      call metadata%get_coordinate_info(lev_name,coords=levs,coordUnits=lev_units,long_name=long_name,&
-           standard_name=standard_name,coordinate_attr=vcoord,_RC)
-      plevs => levs
-      vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
-                      force_no_regrid=.true.,_RC)
-      nullify(plevs)
-
-      _RETURN(_SUCCESS)
-
-   end subroutine get_file_levels
 
    subroutine get_file_times(filename,itime,alltimes,tseries,timeInterval,tint,tsteps,rc)
       character(len=*), intent(in) :: filename
@@ -570,7 +568,7 @@ CONTAINS
          call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MAX_PE')))
          call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MIN_PE')))
         report_lines = reporter%generate_report(t_prof)
-         if (mapl_am_I_root()) then
+         if (local_am_i_root()) then
             write(*,'(a)')'Final profile'
             write(*,'(a)')'============='
             iter = report_lines%begin()

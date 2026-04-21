@@ -7,7 +7,7 @@ module mapl3g_Cap
    use mapl_os
    use mapl_ErrorHandling, only: MAPL_Assert
    use pflogger
-!#   use esmf
+   use esmf
    implicit none(type,external)
    private
 

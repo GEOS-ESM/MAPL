@@ -76,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tests of update_payload and update_from_payload for UnitsAspect
 - Add tests of update_payload and update_from_payload for GeomAspect
 - Add tests of update_payload and update_from_payload for VerticalGridAspect
+- Add `use_field_dictionary` column to ACG3 with new unit tests.
 
 ### Changed
 
@@ -117,11 +118,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
+- Fixed SIGFPE (integer divide by zero) in `MAPL_LoadBalanceMod` when load balancing algorithm evaluates maximum differences to zero.
+
 ### Added
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_cmake v4.37.0
+    - Add `Coverage` CMake build type
+- Update CTest configuration for Coverage tests
+
 ### Removed
+
+- Removed `MAPL_SUPPORT_MAPL3` CMake build option and all associated `MAPL_TARGET_PREFIX` variable logic (GH-4633). The dual-mount MAPL2+MAPL3 approach has been abandoned in favour of a single-mount MAPL3-only strategy.
 
 ### Deprecated
 

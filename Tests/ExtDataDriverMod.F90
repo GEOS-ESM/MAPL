@@ -12,6 +12,7 @@ module ExtDataDriverMod
    use MAPL_ServerManager
    use, intrinsic :: iso_fortran_env, only: output_unit, REAL64, INT64
    implicit none
+   private
 
    public :: ExtDataDriver
 
@@ -161,7 +162,6 @@ contains
    end subroutine run
 
    subroutine initialize_io_clients_servers(this, comm, unusable, rc)
-     use MAPL_CFIOMod
      class (ExtDataDriver), target, intent(inout) :: this
      integer, intent(in) :: comm
      class (KeywordEnforcer), optional, intent(in) :: unusable
