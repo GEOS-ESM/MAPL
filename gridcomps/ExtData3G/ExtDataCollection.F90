@@ -159,7 +159,7 @@ contains
    function get_file_template(this) result(template)
       class(ExtDataCollection), intent(in) :: this
       character(len=:), allocatable :: template
-      
+
       template = ''
       if (allocated(this%file_template)) then
          template = this%file_template
@@ -170,7 +170,7 @@ contains
    function get_frequency(this) result(freq)
       class(ExtDataCollection), intent(in) :: this
       type(ESMF_TimeInterval) :: freq
-      
+
       freq = this%frequency
    end function get_frequency
 
@@ -178,7 +178,7 @@ contains
    subroutine get_reff_time(this, time)
       class(ExtDataCollection), intent(in) :: this
       type(ESMF_Time), intent(out), allocatable :: time
-      
+
       if (allocated(this%reff_time)) then
          time = this%reff_time
       end if
@@ -188,7 +188,7 @@ contains
    function get_collection_id(this) result(id)
       class(ExtDataCollection), intent(in) :: this
       integer :: id
-      
+
       id = this%collection_id
    end function get_collection_id
 
@@ -196,7 +196,7 @@ contains
    subroutine get_valid_range(this, valid_range)
       class(ExtDataCollection), intent(in) :: this
       type(ESMF_Time), intent(out), allocatable :: valid_range(:)
-      
+
       if (allocated(this%valid_range)) then
          valid_range = this%valid_range
       end if
@@ -206,7 +206,7 @@ contains
    function is_reff_time_allocated(this) result(is_allocated)
       class(ExtDataCollection), intent(in) :: this
       logical :: is_allocated
-      
+
       is_allocated = allocated(this%reff_time)
    end function is_reff_time_allocated
 
@@ -214,7 +214,7 @@ contains
    function is_valid_range_allocated(this) result(is_allocated)
       class(ExtDataCollection), intent(in) :: this
       logical :: is_allocated
-      
+
       is_allocated = allocated(this%valid_range)
    end function is_valid_range_allocated
 
