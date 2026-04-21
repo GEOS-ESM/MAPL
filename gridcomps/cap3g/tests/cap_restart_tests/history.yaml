@@ -1,0 +1,28 @@
+geoms:
+  geom1: &geom1
+    class: latlon
+    im_world: 20
+    jm_world: 15
+    pole: PC
+    dateline: DC
+
+active_collections:
+  - coll1
+  - coll2
+
+time_specs:
+  three_hour: &three_hour
+    frequency: PT3H
+
+collections:
+  coll1:
+    template: "%c_%y4%m2%d2_%h2.nc4"
+    geom: *geom1
+    time_spec: *three_hour
+    var_list:
+      E1: {source: E_1}
+  coll2:
+    template: "%c_%y4%m2%d2_%h2.nc4"
+    time_spec: *three_hour
+    var_list:
+      E2: {source: E_2}
