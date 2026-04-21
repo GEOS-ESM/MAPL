@@ -86,15 +86,13 @@ contains
       spec%mask_type = mask_type
       if (present(handleAllElements)) spec%handleAllElements = handleAllElements
 
-      ! Only store the R4 mask values; do NOT widen to R8.
-      ! Many R4 sentinel values are not exactly representable in R8, so a
-      ! naive real() conversion could produce a value that never compares
-      ! equal to R4 source data.
       spec%src_mask_value_r4 = src_mask_value
+      spec%src_mask_value_r8 = src_mask_value
 
       ! No default for dst_mask_value.  Usually left unallocated
       if (present(dst_mask_value)) then
          spec%dst_mask_value_r4 = dst_mask_value
+         spec%dst_mask_value_r8 = dst_mask_value
       end if
 
       mask = DynamicMask(spec, _RC)
@@ -116,15 +114,10 @@ contains
       spec%mask_type = mask_type
       if (present(handleAllElements)) spec%handleAllElements = handleAllElements
 
-      ! Only store the R8 mask values; do NOT narrow to R4.
-      ! Narrowing an R8 sentinel to R4 may not round-trip back to the
-      ! original R8 bit-pattern, causing mask comparisons to fail silently.
       if (present(src_mask_value)) spec%src_mask_value_r8 = src_mask_value
 
       ! No default for dst_mask_value.  Usually left unallocated
-      if (present(dst_mask_value)) then
-         spec%dst_mask_value_r8 = dst_mask_value
-      end if
+      if (present(dst_mask_value)) spec%dst_mask_value_r8 = dst_mask_value
 
       mask = DynamicMask(spec, _RC)
 
