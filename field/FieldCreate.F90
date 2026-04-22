@@ -202,6 +202,7 @@ contains
            ungriddedLBound=bounds%lower, &
            ungriddedUBound=bounds%upper, &
            _RC)
+      call FieldFill(field, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_empty_complete_from_info

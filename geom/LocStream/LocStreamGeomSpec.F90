@@ -3,6 +3,7 @@
 module mapl3g_LocStreamGeomSpec
 
    use mapl3g_GeomSpec
+   use mapl3g_LocStreamDecomposition
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8
    use mapl_ErrorHandling
 
@@ -18,6 +19,7 @@ module mapl3g_LocStreamGeomSpec
       integer :: npoints = 0
       real(kind=R8), pointer :: lons(:) => null()
       real(kind=R8), pointer :: lats(:) => null()
+      type(LocStreamDecomposition) :: decomposition
    contains
       procedure :: equal_to
       procedure :: get_horz_ij_index_r4
@@ -25,10 +27,12 @@ module mapl3g_LocStreamGeomSpec
       procedure, public :: get_npoints
       procedure, public :: set_coordinates
       procedure, public :: get_coordinates
+      procedure, public :: get_decomposition
    end type LocStreamGeomSpec
 
    interface LocStreamGeomSpec
       module procedure new_LocStreamGeomSpec
+      module procedure new_LocStreamGeomSpec_with_decomp
    end interface LocStreamGeomSpec
 
 contains
@@ -37,7 +41,17 @@ contains
       type(LocStreamGeomSpec) :: spec
       integer, intent(in) :: npoints
       spec%npoints = npoints
+      ! Create default decomposition (will be set properly later)
+      spec%decomposition = LocStreamDecomposition([npoints])
    end function new_LocStreamGeomSpec
+
+   function new_LocStreamGeomSpec_with_decomp(npoints, decomposition) result(spec)
+      type(LocStreamGeomSpec) :: spec
+      integer, intent(in) :: npoints
+      type(LocStreamDecomposition), intent(in) :: decomposition
+      spec%npoints = npoints
+      spec%decomposition = decomposition
+   end function new_LocStreamGeomSpec_with_decomp
 
    integer function get_npoints(this) result(n)
       class(LocStreamGeomSpec), intent(in) :: this
@@ -75,6 +89,13 @@ contains
       lons_out => this%lons
       lats_out => this%lats
    end subroutine get_coordinates
+
+   pure function get_decomposition(this) result(decomposition)
+      type(LocStreamDecomposition) :: decomposition
+      class(LocStreamGeomSpec), intent(in) :: this
+
+      decomposition = this%decomposition
+   end function get_decomposition
 
    logical function equal_to(a, b)
       class(LocStreamGeomSpec), intent(in) :: a
