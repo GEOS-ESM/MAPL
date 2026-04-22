@@ -31,8 +31,8 @@ module mapl_BaseProfiler
    contains
       procedure :: start_name
       procedure :: stop_name
-      procedure :: start_node
-      procedure :: stop_node
+      procedure, private :: start_node
+      procedure, private :: stop_node
       procedure :: start_self
       procedure :: stop_self
       generic :: start => start_name
@@ -126,16 +126,13 @@ contains
        class(AbstractMeter), pointer :: t
        type(MeterNodePtr), pointer :: node_ptr
 
-       !$omp parallel
-       !$omp master
+       ! OpenMP removed: called from within parallel regions in start_self and start_name
        allocate(node_ptr)
        node_ptr%ptr => node
        call this%stack%push_back(node_ptr)
        deallocate(node_ptr)
        t => node%get_meter()
        call t%start()
-       !$omp end master
-       !$omp end parallel
 
     end subroutine start_node
 
@@ -246,13 +243,10 @@ contains
       class(AbstractMeterNode), target, intent(inout) :: node
       class(AbstractMeter), pointer :: t
 
-      !$omp parallel
-      !$omp master
+      ! OpenMP removed: called from within parallel regions in stop_name and stop_self
       t => node%get_meter()
       call t%stop()
       call this%stack%pop_back()
-      !$omp end master
-      !$omp end parallel
 
    end subroutine stop_node
 
@@ -365,10 +359,11 @@ contains
          call t%reset()
          call iter%next()
       end do
-
-      call this%start()
       !$omp end master
       !$omp end parallel
+
+      ! Call moved outside OpenMP region to avoid nesting with start_self's OpenMP
+      call this%start()
 
    end subroutine reset
 
