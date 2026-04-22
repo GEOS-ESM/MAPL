@@ -2,6 +2,7 @@
 #include "unused_dummy.H"
 
 module mapl_BaseProfiler
+   use omp_lib
    use mapl_AdvancedMeter
    use mapl_AbstractMeter
    use mapl_AbstractMeterNode
@@ -99,18 +100,28 @@ contains
        integer, optional, intent(out) :: rc
 
        logical :: empty_stack
+       logical :: already_parallel
 
        this%status = 0
        empty_stack = .true.
+       already_parallel = .false.
+       !$ already_parallel = omp_in_parallel()
        
-       ! FIX: Wrap only the !$omp master section in !$omp parallel
-       !$omp parallel
-       !$omp master
-       if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
-       empty_stack = this%stack%size()== 0
-       if(empty_stack) call this%start(this%root_node)
-       !$omp end master
-       !$omp end parallel
+       if (.not. already_parallel) then
+          !$omp parallel
+          !$omp master
+          if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
+          empty_stack = this%stack%size()== 0
+          if(empty_stack) call this%start(this%root_node)
+          !$omp end master
+          !$omp end parallel
+       else
+          !$omp master
+          if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
+          empty_stack = this%stack%size()== 0
+          if(empty_stack) call this%start(this%root_node)
+          !$omp end master
+       end if
 
        _ASSERT_RC(empty_stack,"Timer "//this%root_node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
 
@@ -146,35 +157,61 @@ contains
       class(AbstractMeterNode), pointer :: node => null()
 
       logical :: stack_is_not_empty
+      logical :: already_parallel
 
       stack_is_not_empty = .true.
+      already_parallel = .false.
+      !$ already_parallel = omp_in_parallel()
       
-      ! FIX: Wrap the !$omp master sections in !$omp parallel
-      !$omp parallel
-      !$omp master
-      if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
-      stack_is_not_empty = .not. this%stack%empty()
+      if (.not. already_parallel) then
+         !$omp parallel
+         !$omp master
+         if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
+         stack_is_not_empty = .not. this%stack%empty()
 
-      if(stack_is_not_empty) then
-         node_ptr => this%stack%back()
-         node => node_ptr%ptr
-         if (.not. node%has_child(name)) then
-            m = this%make_meter()
-            call node%add_child(name, m) !this%make_meter())
+         if(stack_is_not_empty) then
+            node_ptr => this%stack%back()
+            node => node_ptr%ptr
+            if (.not. node%has_child(name)) then
+               m = this%make_meter()
+               call node%add_child(name, m)
+            end if
+
+            node => node%get_child(name)
          end if
+         !$omp end master
+         !$omp end parallel
+      else
+         !$omp master
+         if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
+         stack_is_not_empty = .not. this%stack%empty()
 
-         node => node%get_child(name)
+         if(stack_is_not_empty) then
+            node_ptr => this%stack%back()
+            node => node_ptr%ptr
+            if (.not. node%has_child(name)) then
+               m = this%make_meter()
+               call node%add_child(name, m)
+            end if
+
+            node => node%get_child(name)
+         end if
+         !$omp end master
       end if
-      !$omp end master
-      !$omp end parallel
       
       _ASSERT_RC(stack_is_not_empty, "Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
       
-      !$omp parallel
-      !$omp master
-      call this%start(node)
-      !$omp end master
-      !$omp end parallel
+      if (.not. already_parallel) then
+         !$omp parallel
+         !$omp master
+         call this%start(node)
+         !$omp end master
+         !$omp end parallel
+      else
+         !$omp master
+         call this%start(node)
+         !$omp end master
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine start_name
@@ -189,20 +226,33 @@ contains
       class(AbstractMeterNode), pointer :: node => null()
 
       logical :: name_is_node_name
+      logical :: already_parallel
 
       name_is_node_name = .true.
+      already_parallel = .false.
+      !$ already_parallel = omp_in_parallel()
       
-      ! FIX: Wrap !$omp master in !$omp parallel
-      !$omp parallel
-      !$omp master
-      node_ptr => this%stack%back()
-      node => node_ptr%ptr
-      if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
-      name_is_node_name = name == node%get_name()
+      if (.not. already_parallel) then
+         !$omp parallel
+         !$omp master
+         node_ptr => this%stack%back()
+         node => node_ptr%ptr
+         if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
+         name_is_node_name = name == node%get_name()
 
-      if(name_is_node_name) call this%stop(node)
-      !$omp end master
-      !$omp end parallel
+         if(name_is_node_name) call this%stop(node)
+         !$omp end master
+         !$omp end parallel
+      else
+         !$omp master
+         node_ptr => this%stack%back()
+         node => node_ptr%ptr
+         if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
+         name_is_node_name = name == node%get_name()
+
+         if(name_is_node_name) call this%stop(node)
+         !$omp end master
+      end if
 
       _ASSERT_RC(name_is_node_name,"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
 
@@ -217,22 +267,37 @@ contains
        class(AbstractMeterNode), pointer :: node
 
        logical :: stack_size_is_one
+       logical :: already_parallel
 
        stack_size_is_one = .true.
+       already_parallel = .false.
+       !$ already_parallel = omp_in_parallel()
        
-       ! FIX: Wrap !$omp master in !$omp parallel
-       !$omp parallel
-       !$omp master
-       if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
-       stack_size_is_one = this%stack%size()== 1
+       if (.not. already_parallel) then
+          !$omp parallel
+          !$omp master
+          if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
+          stack_size_is_one = this%stack%size()== 1
 
-       if(stack_size_is_one) then
-         node_ptr => this%stack%back()
-         node => node_ptr%ptr
-         call this%stop(node)
+          if(stack_size_is_one) then
+            node_ptr => this%stack%back()
+            node => node_ptr%ptr
+            call this%stop(node)
+          end if
+          !$omp end master
+          !$omp end parallel
+       else
+          !$omp master
+          if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
+          stack_size_is_one = this%stack%size()== 1
+
+          if(stack_size_is_one) then
+            node_ptr => this%stack%back()
+            node => node_ptr%ptr
+            call this%stop(node)
+          end if
+          !$omp end master
        end if
-       !$omp end master
-       !$omp end parallel
        
        _ASSERT_RC(stack_size_is_one,"Stack not empty when timer stopped.  Active timer: " // node%get_name(),INCORRECTLY_NESTED_METERS)
        _RETURN(_SUCCESS)
@@ -254,11 +319,9 @@ contains
    integer function get_num_meters(this) result(num_meters)
       class(BaseProfiler), intent(in) :: this
 
-      !$omp parallel
       !$omp master
       num_meters = this%root_node%get_num_nodes()
       !$omp end master
-      !$omp end parallel
 
    end function get_num_meters
 
@@ -267,15 +330,28 @@ contains
       class(BaseProfiler), target, intent(inout) :: this
 
       class(AbstractMeter), pointer :: t
+      logical :: already_parallel
 
-      !$omp parallel
-      !$omp master
-      call this%stack%pop_back()
-      t => this%root_node%get_meter()
-      call t%stop()
-      call t%finalize()
-      !$omp end master
-      !$omp end parallel
+      already_parallel = .false.
+      !$ already_parallel = omp_in_parallel()
+
+      if (.not. already_parallel) then
+         !$omp parallel
+         !$omp master
+         call this%stack%pop_back()
+         t => this%root_node%get_meter()
+         call t%stop()
+         call t%finalize()
+         !$omp end master
+         !$omp end parallel
+      else
+         !$omp master
+         call this%stack%pop_back()
+         t => this%root_node%get_meter()
+         call t%stop()
+         call t%finalize()
+         !$omp end master
+      end if
 
    end subroutine finalize
 
@@ -289,7 +365,6 @@ contains
       type(MeterNodeStackIterator) :: iter
       character(:), pointer :: name
 
-      !$omp parallel
       !$omp master
       new%root_node = old%root_node
       new%comm_world = old%comm_world
@@ -314,18 +389,15 @@ contains
          end do
       end if
       !$omp end master
-      !$omp end parallel
 
    end subroutine copy_profiler
 
 
    integer function get_status(this) result(status)
       class(BaseProfiler), intent(in) :: this
-      !$omp parallel
       !$omp master
       status = this%status
       !$omp end master
-      !$omp end parallel
    end function get_status
 
 
@@ -333,12 +405,22 @@ contains
    function get_root_node(this) result(root_node)
       class(AbstractMeterNode), pointer :: root_node
       class(BaseProfiler), target, intent(in) :: this
+      logical :: already_parallel
 
-      !$omp parallel
-      !$omp master
-      root_node => this%root_node
-      !$omp end master
-      !$omp end parallel
+      already_parallel = .false.
+      !$ already_parallel = omp_in_parallel()
+
+      if (.not. already_parallel) then
+         !$omp parallel
+         !$omp master
+         root_node => this%root_node
+         !$omp end master
+         !$omp end parallel
+      else
+         !$omp master
+         root_node => this%root_node
+         !$omp end master
+      end if
 
    end function get_root_node
 
@@ -349,18 +431,34 @@ contains
       class(AbstractMeterNodeIterator), allocatable :: iter
       class(AbstractMeterNode), pointer :: node
       class(AbstractMeter), pointer :: t
+      logical :: already_parallel
 
-      !$omp parallel
-      !$omp master
-      node => this%get_root_node()
-      iter = node%begin()
-      do while (iter /= node%end())
-         t => iter%get_meter()
-         call t%reset()
-         call iter%next()
-      end do
-      !$omp end master
-      !$omp end parallel
+      already_parallel = .false.
+      !$ already_parallel = omp_in_parallel()
+
+      if (.not. already_parallel) then
+         !$omp parallel
+         !$omp master
+         node => this%get_root_node()
+         iter = node%begin()
+         do while (iter /= node%end())
+            t => iter%get_meter()
+            call t%reset()
+            call iter%next()
+         end do
+         !$omp end master
+         !$omp end parallel
+      else
+         !$omp master
+         node => this%get_root_node()
+         iter = node%begin()
+         do while (iter /= node%end())
+            t => iter%get_meter()
+            call t%reset()
+            call iter%next()
+         end do
+         !$omp end master
+      end if
 
       ! Call moved outside OpenMP region to avoid nesting with start_self's OpenMP
       call this%start()
@@ -374,17 +472,32 @@ contains
 
       type(MeterNodePtr), pointer :: node_ptr
       class(AbstractMeterNode), pointer :: node_a, node_b
+      logical :: already_parallel
 
-      !$omp parallel
-      !$omp master
-      node_ptr => a%stack%back()
-      node_a => node_ptr%ptr
+      already_parallel = .false.
+      !$ already_parallel = omp_in_parallel()
 
-      node_b => b%get_root_node()
+      if (.not. already_parallel) then
+         !$omp parallel
+         !$omp master
+         node_ptr => a%stack%back()
+         node_a => node_ptr%ptr
 
-      call node_a%accumulate(node_b)
-      !$omp end master
-      !$omp end parallel
+         node_b => b%get_root_node()
+
+         call node_a%accumulate(node_b)
+         !$omp end master
+         !$omp end parallel
+      else
+         !$omp master
+         node_ptr => a%stack%back()
+         node_a => node_ptr%ptr
+
+         node_b => b%get_root_node()
+
+         call node_a%accumulate(node_b)
+         !$omp end master
+      end if
 
    end subroutine accumulate
 
@@ -393,32 +506,26 @@ contains
       type (BaseProfilerIterator) :: iterator
       class (BaseProfiler), target, intent(in) :: this
 
-      !$omp parallel
       !$omp master
       iterator%node_iterator = this%root_node%begin()
       !$omp end master
-      !$omp end parallel
    end function begin_profiler
 
    function end_profiler(this) result(iterator)
       type (BaseProfilerIterator) :: iterator
       class (BaseProfiler), target, intent(in) :: this
 
-      !$omp parallel
       !$omp master
       iterator%node_iterator = this%root_node%end()
       !$omp end master
-      !$omp end parallel
    end function end_profiler
 
 
    subroutine next_profiler(this)
       class (BaseProfilerIterator), intent(inout) :: this
-      !$omp parallel
       !$omp master
       call this%node_iterator%next()
       !$omp end master
-      !$omp end parallel
    end subroutine next_profiler
 
    ! Type cast to concrete class for convenience of client code.
@@ -428,7 +535,6 @@ contains
 
       class (AbstractMeterNode), pointer :: abstract_node
 
-      !$omp parallel
       !$omp master
       abstract_node => this%node_iterator%get()
       select type (q => abstract_node)
@@ -438,7 +544,6 @@ contains
          error stop "missing error handling in " // __FILE__
       end select
       !$omp end master
-      !$omp end parallel
 
    end function get_node
 
@@ -446,21 +551,17 @@ contains
     subroutine set_node(this, node)
        class(BaseProfiler), intent(inout) :: this
        class(MeterNode), intent(in) :: node
-       !$omp parallel
        !$omp master
        this%root_node = node
        !$omp end master
-       !$omp end parallel
     end subroutine set_node
 
    function get_name(this) result(name)
       character(:), pointer :: name
       class (BaseProfilerIterator), target, intent(in) :: this
-      !$omp parallel
       !$omp master
       name => this%node_iterator%get_name()
       !$omp end master
-      !$omp end parallel
    end function get_name
 
    function get_meter(this) result(meter)
@@ -469,7 +570,6 @@ contains
 
       class (AbstractMeter), pointer :: abstract_meter
 
-      !$omp parallel
       !$omp master
       abstract_meter => this%node_iterator%get_meter()
       select type (q => abstract_meter)
@@ -479,36 +579,29 @@ contains
          print*,'put error handling here'
       end select
       !$omp end master
-      !$omp end parallel
    end function get_meter
 
    logical function equals(this, other)
       class (BaseProfilerIterator), intent(in) :: this
       class (BaseProfilerIterator), intent(in) :: other
-      !$omp parallel
       !$omp master
       equals = (this%node_iterator == other%node_iterator)
       !$omp end master
-      !$omp end parallel
    end function equals
 
    logical function not_equals(this, other)
       class (BaseProfilerIterator), intent(in) :: this
       class (BaseProfilerIterator), intent(in) :: other
-      !$omp parallel
       !$omp master
       not_equals = .not. (this == other)
       !$omp end master
-      !$omp end parallel
    end function not_equals
 
    integer function get_depth(this) result(depth)
       class(BaseProfiler), intent(in) :: this
-      !$omp parallel
       !$omp master
       depth = this%stack%size()
       !$omp end master
-      !$omp end parallel
    end function get_depth
 
     subroutine set_comm_world(this, comm_world)
@@ -516,15 +609,30 @@ contains
        class(BaseProfiler), intent(inout) :: this
        integer, optional, intent(in) :: comm_world
 
-       !$omp parallel
-       !$omp master
-       if(present(comm_world)) then
-         this%comm_world = comm_world
+       logical :: already_parallel
+
+       already_parallel = .false.
+       !$ already_parallel = omp_in_parallel()
+
+       if (.not. already_parallel) then
+          !$omp parallel
+          !$omp master
+          if(present(comm_world)) then
+            this%comm_world = comm_world
+          else
+            this%comm_world =  MPI_COMM_WORLD
+          endif
+          !$omp end master
+          !$omp end parallel
        else
-         this%comm_world =  MPI_COMM_WORLD
-       endif
-       !$omp end master
-       !$omp end parallel
+          !$omp master
+          if(present(comm_world)) then
+            this%comm_world = comm_world
+          else
+            this%comm_world =  MPI_COMM_WORLD
+          endif
+          !$omp end master
+       end if
     end subroutine set_comm_world
 
    ! For debugging
@@ -533,7 +641,6 @@ contains
       type(MeterNodeStackIterator) :: iter
       type(MeterNodePtr), pointer :: node_ptr
 
-      !$omp parallel
       !$omp master
       print*
       print*,'Stack Size: ', s%size()
@@ -549,7 +656,6 @@ contains
       print*,'---------------'
       print*
       !$omp end master
-      !$omp end parallel
 
    end subroutine print_stack
 
