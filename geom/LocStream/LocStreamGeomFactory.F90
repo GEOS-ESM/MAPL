@@ -4,6 +4,7 @@ module mapl3g_LocStreamGeomFactory
    use mapl3g_GeomSpec
    use mapl3g_GeomFactory
    use mapl3g_LocStreamGeomSpec
+   use mapl3g_LocStreamDecomposition
    use mapl3g_CoordinateAxis, only: get_dim_name, get_coordinates
    use mapl_ErrorHandlingMod
    use mapl_StringUtilities, only: to_lower
@@ -97,6 +98,7 @@ contains
       real(kind=ESMF_KIND_R8), allocatable :: lon(:), lat(:)
       integer :: npoints
       type(HConfigParams) :: params
+      type(LocStreamDecomposition) :: decomp
 
       logical :: has_lon, has_lat, has_file
       character(len=:), allocatable :: filename
@@ -144,8 +146,11 @@ contains
       _ASSERT(size(lon) == size(lat), "LocStream lon/lat arrays must have same length")
       npoints = size(lon)
 
+      ! Create decomposition from current VM
+      decomp = make_LocStreamDecomposition(npoints, _RC)
+
       allocate(LocStreamGeomSpec :: geom_spec)
-      geom_spec = LocStreamGeomSpec(npoints)
+      geom_spec = LocStreamGeomSpec(npoints, decomp)
 
       ! Store coordinate values (in degrees) so that the
       ! LocStream can be created with the correct content
@@ -169,6 +174,7 @@ contains
       character(:), allocatable :: lon_var_name, lat_var_name
       integer :: npoints
       real(kind=ESMF_KIND_R8), allocatable :: lon(:), lat(:)
+      type(LocStreamDecomposition) :: decomp
 
       _UNUSED_DUMMY(this)
 
@@ -199,8 +205,11 @@ contains
       _ASSERT(size(lon) == npoints, 'LocStream metadata longitude size mismatch with dimension')
       _ASSERT(size(lat) == npoints, 'LocStream metadata latitude size mismatch with dimension')
 
+      ! Create decomposition from current VM
+      decomp = make_LocStreamDecomposition(npoints, _RC)
+
       allocate(LocStreamGeomSpec :: geom_spec)
-      geom_spec = LocStreamGeomSpec(npoints)
+      geom_spec = LocStreamGeomSpec(npoints, decomp)
 
       ! Persist coordinate values (degrees) in the spec so
       ! they can be converted to radians when constructing
@@ -310,28 +319,39 @@ contains
       type(ESMF_Geom) :: geom
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: local_count
+      integer :: local_count, i_0, i_1
       type(ESMF_LocStream) :: locstream
+      type(ESMF_VM) :: vm
+      integer :: local_pet
       real(kind=ESMF_KIND_R8), allocatable :: tlons(:), tlats(:)
       real(kind=ESMF_KIND_R8), pointer :: lons_deg(:) => null(), lats_deg(:) => null()
+      type(LocStreamDecomposition) :: decomp
 
       _UNUSED_DUMMY(this)
 
       select type (geom_spec)
       type is (LocStreamGeomSpec)
-         local_count = geom_spec%get_npoints()
+         ! Get the decomposition and current PE's rank
+         decomp = geom_spec%get_decomposition()
+         call ESMF_VMGetCurrent(vm, _RC)
+         call ESMF_VMGet(vm, localPet=local_pet, _RC)
+
+         ! Determine local indices for this PE
+         call decomp%get_local_indices(local_pet, i_0, i_1)
+         
+         local_count = i_1 - i_0 + 1
 
          allocate(tlons(local_count))
          allocate(tlats(local_count))
 
-             call geom_spec%get_coordinates(lons_deg, lats_deg)
-             _ASSERT(associated(lons_deg) .and. associated(lats_deg), 'LocStreamGeomSpec missing coordinates')
-             _ASSERT(size(lons_deg) == local_count, 'LocStreamGeomSpec coordinate size mismatch')
-             _ASSERT(size(lats_deg) == local_count, 'LocStreamGeomSpec coordinate size mismatch')
+         call geom_spec%get_coordinates(lons_deg, lats_deg)
+         _ASSERT(associated(lons_deg) .and. associated(lats_deg), 'LocStreamGeomSpec missing coordinates')
+         _ASSERT(i_1 <= size(lons_deg), 'LocStreamGeomSpec coordinate index out of bounds')
+         _ASSERT(i_1 <= size(lats_deg), 'LocStreamGeomSpec coordinate index out of bounds')
 
-         ! Convert from degrees to radians for the LocStream
-         tlons = lons_deg * MAPL_PI_R8 / 180.0_ESMF_KIND_R8
-         tlats = lats_deg * MAPL_PI_R8 / 180.0_ESMF_KIND_R8
+         ! Extract local portion of coordinates and convert from degrees to radians
+         tlons = lons_deg(i_0:i_1) * MAPL_PI_R8 / 180.0_ESMF_KIND_R8
+         tlats = lats_deg(i_0:i_1) * MAPL_PI_R8 / 180.0_ESMF_KIND_R8
 
          locstream = ESMF_LocStreamCreate(localCount=local_count, coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
          call ESMF_LocStreamAddKey(locstream, keyName="ESMF:Lat", farray=tlats, datacopyflag=ESMF_DATACOPY_VALUE, &

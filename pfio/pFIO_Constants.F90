@@ -3,7 +3,7 @@ module pFIO_ConstantsMod
    private
 
    ! Type/kinds
-   public :: pFIO_INT32, pFIO_INT64
+   public :: pFIO_INT16, pFIO_INT32, pFIO_INT64
    public :: pFIO_REAL32, pFIO_REAL64
    public :: pFIO_LOGICAL
    public :: pFIO_CHAR
@@ -33,7 +33,7 @@ module pFIO_ConstantsMod
    public :: pFIO_DIMENSION_SEPARATOR
 
    enum, bind(C)
-      enumerator :: pFIO_INT32, pFIO_INT64
+      enumerator :: pFIO_INT16, pFIO_INT32, pFIO_INT64
       enumerator :: pFIO_REAL32, pFIO_REAL64
       enumerator :: pFIO_LOGICAL
       enumerator :: pFIO_CHAR
