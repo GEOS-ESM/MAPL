@@ -48,7 +48,6 @@ contains
       type(esmf_Clock) :: clock
       type(CapOptions) :: options
       integer :: status
-      character(len=:), allocatable :: currTimeString
 
       options = make_cap_options(hconfig, is_model_pet, _RC)
       clock = make_clock(hconfig, options%lgr, _RC)
@@ -59,10 +58,8 @@ contains
       ! TODO `initialize_phases` should be a MAPL procedure (name)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
-      !call get_currTimeString(clock, currTimeString, _RC)
       call driver%finalize(_RC)
-      !call update_restart_currTime(hconfig, currTimeString, _RC)
-      call update_currTime(hconfig, clock, _RC)
+      call update_restart_currTime(hconfig, clock, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -601,31 +598,23 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_symlink
 
-   subroutine get_currTimeString(clock, currTimeString, rc)
+   subroutine update_restart_currTime(hconfig, clock, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_Clock), intent(inout) :: clock
-      character(len=:), allocatable, intent(out) :: currTimeString
       integer, optional, intent(out) :: rc
       integer :: status
+      character(len=:), allocatable :: currTimeString
+      type(ESMF_Time) :: currTime
+      logical :: restart_is_defined
+      character(:), allocatable :: cap_restart_file
+      type(ESMF_HConfig) :: restart_cfg
       integer, parameter :: ISOSTRING_LENGTH=20
       character(len=ISOSTRING_LENGTH) :: timeString
-      type(ESMF_Time) :: currTime
+
 
       call ESMF_ClockGet(clock, currTime=currTime, _RC)
       call ESMF_TimeGet(currTime, timeString=timeString, _RC)
       currTimeString = trim(timeString)
-      _RETURN(_SUCCESS)
-      
-   end subroutine get_currTimeString
-
-   subroutine update_restart_currTime(hconfig, timeString, rc)
-      type(ESMF_HConfig), intent(in) :: hconfig
-      character(len=*), intent(in) :: timeString
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: restart_is_defined
-      character(:), allocatable :: cap_restart_file
-      type(ESMF_HConfig) :: restart_cfg
-
       restart_is_defined = ESMF_HConfigIsDefined(hconfig, keyString=KEY_RESTART, _RC)
       _ASSERT(restart_is_defined, 'Unable to get restart filename')
       cap_restart_file = ESMF_HConfigAsString(hconfig, keyString=KEY_RESTART, _RC)
@@ -636,17 +625,5 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine update_restart_currTime
-
-   subroutine update_currTime(hconfig, clock, rc)
-      type(ESMF_HConfig), intent(in) :: hconfig
-      type(ESMF_Clock), intent(inout) :: clock
-      integer, optional, intent(out) :: rc
-      integer :: status
-      character(len=:), allocatable :: currTimeString
-
-      call get_currTimeString(clock, currTimeString, _RC)
-      call update_restart_currTime(hconfig, currTimeString, _RC)
-
-   end subroutine update_currTime
 
 end module mapl3g_Cap
