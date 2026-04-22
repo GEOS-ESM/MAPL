@@ -108,7 +108,7 @@ contains
        !$ already_parallel = omp_in_parallel()
        
        if (.not. already_parallel) then
-          !$omp parallel
+          !$omp parallel if(.false.)
           !$omp master
           if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
           empty_stack = this%stack%size()== 0
@@ -164,7 +164,7 @@ contains
       !$ already_parallel = omp_in_parallel()
       
       if (.not. already_parallel) then
-         !$omp parallel
+         !$omp parallel if(.false.)
          !$omp master
          if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
          stack_is_not_empty = .not. this%stack%empty()
@@ -202,7 +202,7 @@ contains
       _ASSERT_RC(stack_is_not_empty, "Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
       
       if (.not. already_parallel) then
-         !$omp parallel
+         !$omp parallel if(.false.)
          !$omp master
          call this%start(node)
          !$omp end master
@@ -233,7 +233,7 @@ contains
       !$ already_parallel = omp_in_parallel()
       
       if (.not. already_parallel) then
-         !$omp parallel
+         !$omp parallel if(.false.)
          !$omp master
          node_ptr => this%stack%back()
          node => node_ptr%ptr
@@ -274,7 +274,7 @@ contains
        !$ already_parallel = omp_in_parallel()
        
        if (.not. already_parallel) then
-          !$omp parallel
+          !$omp parallel if(.false.)
           !$omp master
           if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
           stack_size_is_one = this%stack%size()== 1
@@ -336,7 +336,7 @@ contains
       !$ already_parallel = omp_in_parallel()
 
       if (.not. already_parallel) then
-         !$omp parallel
+         !$omp parallel if(.false.)
          !$omp master
          call this%stack%pop_back()
          t => this%root_node%get_meter()
@@ -411,7 +411,7 @@ contains
       !$ already_parallel = omp_in_parallel()
 
       if (.not. already_parallel) then
-         !$omp parallel
+         !$omp parallel if(.false.)
          !$omp master
          root_node => this%root_node
          !$omp end master
@@ -437,7 +437,7 @@ contains
       !$ already_parallel = omp_in_parallel()
 
       if (.not. already_parallel) then
-         !$omp parallel
+         !$omp parallel if(.false.)
          !$omp master
          node => this%get_root_node()
          iter = node%begin()
@@ -478,7 +478,7 @@ contains
       !$ already_parallel = omp_in_parallel()
 
       if (.not. already_parallel) then
-         !$omp parallel
+         !$omp parallel if(.false.)
          !$omp master
          node_ptr => a%stack%back()
          node_a => node_ptr%ptr
@@ -615,7 +615,7 @@ contains
        !$ already_parallel = omp_in_parallel()
 
        if (.not. already_parallel) then
-          !$omp parallel
+          !$omp parallel if(.false.)
           !$omp master
           if(present(comm_world)) then
             this%comm_world = comm_world
