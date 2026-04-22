@@ -554,6 +554,7 @@ contains
         typekind, &
         itemType, &
         add_to_export, &
+        default_value, &
         export_name, &
         has_deferred_aspects, &
         rc)
@@ -571,6 +572,7 @@ contains
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
+      real, optional, intent(in) :: default_value
       character(*), optional, intent(in) :: export_name
       logical, optional, intent(in) :: has_deferred_aspects
       integer, optional, intent(out) :: rc
@@ -602,6 +604,7 @@ contains
            vertical_stagger=vstagger, &
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
+           default_value=default_value, &
            has_deferred_aspects=has_deferred_aspects, &
            restart_mode=restart, &
            _RC)
