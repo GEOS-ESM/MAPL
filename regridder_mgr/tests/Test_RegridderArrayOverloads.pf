@@ -241,15 +241,23 @@ contains
    ! ===========================================================================
    ! Test 6: pass the interior of a larger array (halo simulation).
    !
-   ! Allocates q_big_in(IM_WORLD, JM_WORLD + 2*NHALO) where NHALO rows of
-   ! "halo" data sit above and below the physical domain.  Only the interior
-   ! slice q_big_in(:, NHALO+1 : JM_WORLD+NHALO) is passed to the regridder,
-   ! emulating the real-world pattern where callers work with halo-padded
-   ! buffers but regrid only the owned interior.
+   ! Allocates q_big_in(IM_WORLD + 2*NHALO, JM_WORLD + 2*NHALO) with halo
+   ! cells on all four sides.  Only the interior slice
+   !   q_big_in(NHALO+1:IM_WORLD+NHALO, NHALO+1:JM_WORLD+NHALO)
+   ! is passed to the regridder, emulating the real-world pattern where
+   ! callers work with halo-padded buffers but regrid only owned interior
+   ! points.
    !
-   ! The interior slice is contiguous in column-major storage (the extra halo
-   ! columns appear only at the ends of the jm dimension), so no copy is
-   ! required and DATACOPY_REFERENCE inside the overload remains valid.
+   ! NOTE: this slice is NOT contiguous in column-major storage because the
+   ! leading dimension of the actual argument (IM_WORLD + 2*NHALO) differs
+   ! from the extent of the slice (IM_WORLD).  The dummy is declared TARGET
+   ! (not CONTIGUOUS), so the standard permits — but does not require — the
+   ! compiler to create a contiguous copy.  If a copy is made, ESMF receives
+   ! a fresh contiguous buffer and DATACOPY_REFERENCE is safe; if no copy is
+   ! made, ESMF receives a non-contiguous view and we rely on ESMF tolerating
+   ! strided data.  Either way the test must pass; failure here indicates a
+   ! gap that needs to be addressed in the overload (e.g. by packing into a
+   ! local contiguous buffer before calling ESMF_FieldCreate).
    ! ===========================================================================
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_array_regrid_interior_slice(this)
@@ -264,8 +272,8 @@ contains
 
       integer, parameter :: NHALO = 2
 
-      ! Large buffer with halo rows in the latitude (second) dimension.
-      real(REAL32), target :: q_big_in(IM_WORLD, JM_WORLD + 2*NHALO)
+      ! Large buffer with halo cells on all four sides.
+      real(REAL32), target :: q_big_in(IM_WORLD + 2*NHALO, JM_WORLD + 2*NHALO)
       real(REAL32)         :: q_out(IM_WORLD, JM_WORLD)
 
       geom_mgr      = GeomManager()
@@ -275,18 +283,18 @@ contains
 
       my_regridder => regridder_mgr%get_regridder(spec, _RC)
 
-      ! Fill the entire buffer (halos included) with a sentinel, then set
-      ! halo rows to a different value to ensure the regridder sees only the
-      ! interior data.
-      q_big_in                          = 9.0_REAL32
-      q_big_in(:, 1:NHALO)              = -1.0_REAL32   ! south halo
-      q_big_in(:, JM_WORLD+NHALO+1:)   = -1.0_REAL32   ! north halo
+      ! Fill entire buffer with interior value, then poison all halo cells.
+      q_big_in = 9.0_REAL32
+      q_big_in(1:NHALO, :)             = -1.0_REAL32   ! west halo
+      q_big_in(IM_WORLD+NHALO+1:, :)  = -1.0_REAL32   ! east halo
+      q_big_in(:, 1:NHALO)             = -1.0_REAL32   ! south halo
+      q_big_in(:, JM_WORLD+NHALO+1:)  = -1.0_REAL32   ! north halo
 
       q_out = 0.0_REAL32
 
-      ! Pass only the physical interior — the slice is contiguous in memory.
+      ! Pass only the physical interior (non-contiguous in leading dim).
       call my_regridder%regrid( &
-           q_big_in(:, NHALO+1 : JM_WORLD+NHALO), &
+           q_big_in(NHALO+1 : IM_WORLD+NHALO, NHALO+1 : JM_WORLD+NHALO), &
            q_out, _RC)
 
       @assert_that(q_out, every_item(is(equal_to(9.0_REAL32))))
