@@ -124,11 +124,11 @@ contains
 
         associate(param => this%regridder_param)
         if (typekind == ESMF_TYPEKIND_R4) then
-           has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r4)
-           if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r4
+           has_dynamic_mask = allocated(param%dyn_mask%mask_r4)
+           if (has_dynamic_mask) mask = param%dyn_mask%mask_r4%esmf_mask
         elseif (typekind == ESMF_TYPEKIND_R8) then
-           has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r8)
-           if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r8
+           has_dynamic_mask = allocated(param%dyn_mask%mask_r8)
+           if (has_dynamic_mask) mask = param%dyn_mask%mask_r8%esmf_mask
         end if
 
         if (has_dynamic_mask .and. has_ungridded_dims) then

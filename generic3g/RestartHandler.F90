@@ -3,7 +3,7 @@
 module mapl3g_RestartHandler
 
    use esmf
-   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return
+   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio
    use mapl3g_FieldInfo, only: FieldInfoGetInternal
    use mapl3g_RestartModes, only: RestartMode, operator(==), MAPL_RESTART_SKIP
@@ -29,7 +29,6 @@ module mapl3g_RestartHandler
       procedure, private :: write_bundle_
       procedure, private :: read_bundle_
       procedure, private :: get_field_bundle_from_state_
-      procedure, private :: filter_fields_
    end type RestartHandler
 
    interface RestartHandler
@@ -53,7 +52,7 @@ contains
    subroutine write(this, state, filename, rc)
       class(RestartHandler), intent(inout) :: this
       type(ESMF_State), intent(in) :: state
-      character(*), intent(in) :: filename 
+      character(*), intent(in) :: filename
       integer, optional, intent(out) :: rc
 
       type(ESMF_FieldBundle) :: bundle
@@ -64,6 +63,7 @@ contains
 
       call this%lgr%info("Writing checkpoint: %a", filename)
       bundle = this%get_field_bundle_from_state_(state, _RC)
+      call filter_fields_incomplete_(bundle, _RC)
       call this%write_bundle_(bundle, filename, rc)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
@@ -85,13 +85,11 @@ contains
 
       inquire(file=filename, exist=file_exists)
       if (.not. file_exists) then
-         ! TODO: Need to decide what happens in that case. Bootstrapping variables?
-         call this%lgr%warning("Restart file << %a >> does not exist. Skip reading!", filename)
-         _RETURN(_SUCCESS)
+         _FAIL("Restart file " // trim(filename) // " does not exist")
       end if
       call this%lgr%info("Reading restart: %a", trim(filename))
       bundle = this%get_field_bundle_from_state_(state, _RC)
-      bundle = this%filter_fields_(bundle, _RC)
+      call filter_fields_skip_restart_(bundle, _RC)
       call this%read_bundle_(filename, bundle, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
@@ -185,29 +183,48 @@ contains
       _RETURN(_SUCCESS)
    end function get_field_bundle_from_state_
 
-   function filter_fields_(this, bundle_in, rc) result(filtered_bundle)
-      class(RestartHandler), intent(in) :: this
-      type(ESMF_FieldBundle), intent(in) :: bundle_in
+   subroutine filter_fields_skip_restart_(bundle, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
       integer, optional, intent(out) :: rc
-      type(ESMF_FieldBundle) :: filtered_bundle ! result
 
       type(ESMF_Field), allocatable :: field_list(:)
       type(ESMF_Info) :: info
       type(RestartMode) :: restart_mode
+      character(len=ESMF_MAXSTR) :: field_name
       integer :: idx, alias_id, status
 
-      filtered_bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleGet(bundle_in, fieldList=field_list, _RC)
+      call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
       do idx = 1, size(field_list)
          call ESMF_InfoGetFromHost(field_list(idx), info, _RC)
          call ESMF_NamedAliasGet(field_list(idx), id=alias_id, _RC)
          call FieldInfoGetInternal(info, alias_id, restart_mode, _RC)
-         if (restart_mode==MAPL_RESTART_SKIP) cycle
-         call MAPL_FieldBundleAdd(filtered_bundle, [field_list(idx)], _RC)
+         if (restart_mode == MAPL_RESTART_SKIP) then
+            call ESMF_FieldGet(field_list(idx), name=field_name, _RC)
+            call ESMF_FieldBundleRemove(bundle, [field_name], _RC)
+         end if
       end do
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-   end function filter_fields_
+   end subroutine filter_fields_skip_restart_
+
+   subroutine filter_fields_incomplete_(bundle, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field), allocatable :: field_list(:)
+      type(ESMF_FieldStatus_Flag) :: field_status
+      character(len=ESMF_MAXSTR) :: field_name
+      integer :: idx, status
+
+      call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+      do idx = 1, size(field_list)
+         call ESMF_FieldGet(field_list(idx), status=field_status, name=field_name, _RC)
+         if (field_status /= ESMF_FIELDSTATUS_COMPLETE) then
+            call ESMF_FieldBundleRemove(bundle, [field_name], _RC)
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine filter_fields_incomplete_
 
 end module mapl3g_RestartHandler
