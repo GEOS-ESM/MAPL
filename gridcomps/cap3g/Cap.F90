@@ -59,9 +59,10 @@ contains
       ! TODO `initialize_phases` should be a MAPL procedure (name)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
-      call get_currTimeString(clock, currTimeString, _RC)
+      !call get_currTimeString(clock, currTimeString, _RC)
       call driver%finalize(_RC)
-      call update_restart_currTime(hconfig, currTimeString, _RC)
+      !call update_restart_currTime(hconfig, currTimeString, _RC)
+      call update_currTime(hconfig, clock, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -635,5 +636,17 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine update_restart_currTime
+
+   subroutine update_currTime(hconfig, clock, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, optional, intent(out) :: rc
+      integer :: status
+      character(len=:), allocatable :: currTimeString
+
+      call get_currTimeString(clock, currTimeString, _RC)
+      call update_restart_currTime(hconfig, currTimeString, _RC)
+
+   end subroutine update_currTime
 
 end module mapl3g_Cap
