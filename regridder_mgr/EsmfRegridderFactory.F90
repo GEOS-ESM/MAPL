@@ -65,6 +65,7 @@ contains
            routehandle = this%rh_manager%get_routehandle(rh_spec, _RC)
            deallocate(regriddr) ! workaround for gfortran 12.3
            regriddr = EsmfRegridder(p, routehandle)
+           call regriddr%set_spec(spec)
         class default
            _FAIL('Wrong RegridderParam subclass passed to EsmfRegridderFactory.')
         end select
