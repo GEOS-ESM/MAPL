@@ -7196,7 +7196,7 @@ contains
             if (DONOTCONN%varIsListed(SHORT_NAME=SHORT_NAME, &
                  IMPORT=I, RC=status)) then
                _VERIFY(status)
-               PARENTIMV = .false.
+               PARENTIMPV = .false.
             end if
             _VERIFY(status)
 
