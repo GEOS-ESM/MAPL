@@ -10,11 +10,12 @@ module Test_RegridderArrayOverloads
    implicit none(type, external)
 
    ! Grid dimensions used throughout; small enough for fast tests.
-   ! These specific dimensions (src 12×11, dst 6×5, pole: PC, dateline: DC)
-   ! are used by existing passing CI tests (test_do_not_reuse_regridder) and
-   ! are known to be safe with ESMF's bilinear regrid on all compilers/platforms.
-   integer, parameter :: IM_SRC = 12, JM_SRC = 11
-   integer, parameter :: IM_DST = 6,  JM_DST = 5
+   ! pole: PC requires an odd number of latitude rows.
+   ! src: 8×5 coarse grid; dst: 16×11 fine grid.
+   ! Using distinct resolutions ensures the regrid route-handle is exercised
+   ! rather than any identity short-circuit.
+   integer, parameter :: IM_SRC = 8,  JM_SRC = 5
+   integer, parameter :: IM_DST = 16, JM_DST = 11
    integer, parameter :: LM = 4    ! ungridded (vertical) levels
 
 contains
@@ -44,7 +45,7 @@ contains
    ! ---------------------------------------------------------------------------
    function src_geom_content() result(content)
       character(len=:), allocatable :: content
-      content = "{class: latlon, im_world: 12, jm_world: 11, " // &
+      content = "{class: latlon, im_world: 8, jm_world: 5, " // &
                 "pole: PC, dateline: DC, nx: 1, ny: 1}"
    end function src_geom_content
 
@@ -53,7 +54,7 @@ contains
    ! ---------------------------------------------------------------------------
    function dst_geom_content() result(content)
       character(len=:), allocatable :: content
-      content = "{class: latlon, im_world: 6, jm_world: 5, " // &
+      content = "{class: latlon, im_world: 16, jm_world: 11, " // &
                 "pole: PC, dateline: DC, nx: 1, ny: 1}"
    end function dst_geom_content
 
@@ -162,11 +163,11 @@ contains
       integer :: status
 
       character(len=*), parameter :: src_content = &
-         "{class: latlon, im_world: 12, jm_world: 11, " // &
-         "pole: PC, dateline: DC, ims: [12], jms: [6, 5]}"
+         "{class: latlon, im_world: 8, jm_world: 5, " // &
+         "pole: PC, dateline: DC, ims: [8], jms: [3, 2]}"
       character(len=*), parameter :: dst_content = &
-         "{class: latlon, im_world: 6, jm_world: 5, " // &
-         "pole: PC, dateline: DC, ims: [6], jms: [3, 2]}"
+         "{class: latlon, im_world: 16, jm_world: 11, " // &
+         "pole: PC, dateline: DC, ims: [16], jms: [6, 5]}"
 
       geom_mgr      = GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
