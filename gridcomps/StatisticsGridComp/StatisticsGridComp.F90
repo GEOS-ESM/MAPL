@@ -146,56 +146,22 @@ contains
          type(esmf_HConfigIter), intent(in) :: iter
          integer, optional, intent(out) :: rc
 
-         integer :: status
-         character(:), allocatable :: action, name
-         type(esmf_Field) :: f_in, f_out
-         logical :: is_connected
-         class(AbstractTimeStatistic), allocatable :: stat
-         type(StateItemAllocation) :: allocation_status
-         type(esmf_HConfig) :: hconfig
+          integer :: status
+          character(:), allocatable :: name
+          type(esmf_Field) :: f_in
+          type(StateItemAllocation) :: allocation_status
+          type(esmf_StateItem_Flag) :: itemtype
 
-         type(esmf_Geom), allocatable :: geom
-         character(:), allocatable :: units
-         character(:), allocatable :: standard_name, long_name
-         type(esmf_TypeKind_Flag) :: typekind
-         class(VerticalGrid), pointer :: vertical_grid
-         type(VerticalStaggerLoc) :: vstagger
-         type(UngriddedDims) :: ungridded_dims
-         type(esmf_StateItem_Flag) :: itemtype
-
-         action = esmf_HConfigAsString(iter, keystring='action', _RC)
          name = esmf_HConfigAsString(iter, keystring='name', _RC)
 
          call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
          _RETURN_IF(itemtype == ESMF_STATEITEM_NOTFOUND)
 
-         call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
-         call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
-         _RETURN_UNLESS(allocation_status == STATEITEM_ALLOCATION_CONNECTED)
+          call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
+          call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
+          _RETURN_UNLESS(allocation_status == STATEITEM_ALLOCATION_CONNECTED)
 
-         call mapl_FieldGet(f_in, &
-              geom=geom, &
-              ungridded_dims=ungridded_dims, &
-              units=units, &
-              typekind=typekind, &
-              vgrid=vertical_grid, &
-              vert_staggerloc=vstagger, &
-              _RC)
-
-         call mapl_StateGet(exportState, itemName=name, field=f_out, _RC)
-
-         call mapl_FieldSet(f_out, &
-              geom=geom, &
-              ungridded_dims=ungridded_dims, &
-              units=units, &
-              typekind=typekind, &
-              vgrid=vertical_grid, &
-              vert_staggerloc=vstagger, &
-              standard_name='foo', &
-              has_deferred_aspects=.false., &
-              _RC)
-
-         item = make_item(name, iter, clock, _RC)
+          item = make_item(name, iter, clock, _RC)
          call stats%items%push_back(item)
 
         _RETURN(_SUCCESS)
@@ -382,11 +348,8 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      !type(Statistics), pointer :: stats
       type(esmf_State) :: state
-      !type(StatisticsVectorIterator) :: iter
       type(RestartHandler) :: restart_handler
-      !class(AbstractTimeStatistic), pointer :: stat
       type(esmf_Time) :: currTime
       class(Logger), pointer :: lgr
       type(esmf_Geom) :: geom
@@ -394,18 +357,7 @@ contains
       character(len=ESMF_MAXPATHLEN) :: filename
 
       call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
-      !_GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
-      !state = esmf_StateCreate(stateIntent=ESMF_STATEINTENT_UNSPECIFIED, _RC)
        call mapl_GridCompGet(gridcomp, logger=lgr, name=name, _RC)
-
-       !iter = stats%items%ftn_begin()
-       !associate (e => stats%items%ftn_end())
-         !do while (iter /= e)
-            !call iter%next()
-            !stat => iter%of()
-            !call stat%add_to_state(state, _RC)
-         !end do
-       !end associate
 
        call get_state_geom(state, geom, _RC)
        call esmf_ClockGet(clock, currTime=currTime, _RC)
@@ -415,8 +367,6 @@ contains
        call fill_grads_template_esmf(filename, template, time=currTime, _RC) 
 
       call restart_handler%write(state, filename, _RC)
-
-      call esmf_StateDestroy(state, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)

@@ -38,7 +38,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
-      type(esmf_Field), intent(in) :: min_f
+      type(esmf_Field), intent(inout) :: min_f
       type(esmf_Alarm), intent(in) :: alarm
       integer, optional, intent(out) :: rc
 
@@ -65,6 +65,17 @@ contains
            typekind=typekind, &
            vgrid=vertical_grid, &
            vert_staggerloc=vstagger, &
+           _RC)
+
+      call mapl_FieldSet(min_f, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           standard_name='foo', &
+           has_deferred_aspects=.false., &
            _RC)
 
       call esmf_StateGet(internal_state, 'temp_min'//name, field=temp_min_f, _RC)

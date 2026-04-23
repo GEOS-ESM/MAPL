@@ -38,7 +38,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
-      type(esmf_Field), intent(in) :: max_f
+      type(esmf_Field), intent(inout) :: max_f
       type(esmf_Alarm), intent(in) :: alarm
       integer, optional, intent(out) :: rc
 
@@ -65,6 +65,17 @@ contains
            typekind=typekind, &
            vgrid=vertical_grid, &
            vert_staggerloc=vstagger, &
+           _RC)
+
+      call mapl_FieldSet(max_f, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           standard_name='foo', &
+           has_deferred_aspects=.false., &
            _RC)
 
       call esmf_StateGet(internal_state, 'temp_max'//name, field=temp_max_f, _RC)
