@@ -31,14 +31,6 @@ contains
       call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
       call this%run_custom(ESMF_METHOD_READRESTART, PHASE_NAME, _RC)
 
-      driver => this%get_user_gc_driver() !bmaa
-      states = driver%get_states() !bmaa
-      _HERE, ' bmaa printing internal '//this%get_name()
-      block
-         integer :: icount
-         call ESMF_StateGet(states%internalState, itemCount=icount, _RC)
-         _HERE, ' bmaa n in state ',icount
-      end block
       _RETURN_UNLESS(this%has_geom())
 
       driver => this%get_user_gc_driver()

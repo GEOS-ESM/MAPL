@@ -39,7 +39,6 @@ contains
       type(esmf_HConfig) :: hconfig, items_hconfig
       type(esmf_HConfigIter) :: iter, b, e
 
-      _HERE,' bmaa '
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_READRESTART, custom_read_restart, phase_name='GENERIC::INIT_READ_RESTART', _RC)
@@ -78,7 +77,6 @@ contains
       type(esmf_HConfig) :: hconfig
       type(VariableSpec) :: varspec
 
-      _HERE,' bmaa '
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
@@ -127,7 +125,6 @@ contains
       type(esmf_HConfig) :: hconfig, items_hconfig
       class(AbstractTimeStatistic), allocatable :: item
 
-      _HERE,' bmaa '
       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
       call mapl_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       items_hconfig = esmf_HConfigCreateAt(hconfig, keystring='stats', _RC)
@@ -140,12 +137,6 @@ contains
       enddo
 
       call esmf_HConfigdestroy(items_hconfig, _RC)
-      _HERE, ' bmaa internal state in mod advertise stats '
-      block
-       type(ESMF_State) :: internal
-       call MAPL_GridCompGetInternalState(gridcomp, internal, _RC)
-       write(*,*)internal
-      end block
 
       _RETURN(_SUCCESS)
 
@@ -357,11 +348,8 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      !type(Statistics), pointer :: stats
       type(esmf_State) :: state
-      !type(StatisticsVectorIterator) :: iter
       type(RestartHandler) :: restart_handler
-      !class(AbstractTimeStatistic), pointer :: stat
       type(esmf_Time) :: currTime
       class(Logger), pointer :: lgr
       type(esmf_Geom) :: geom
@@ -369,18 +357,7 @@ contains
       character(len=ESMF_MAXPATHLEN) :: filename
 
       call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
-      !_GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
-      !state = esmf_StateCreate(stateIntent=ESMF_STATEINTENT_UNSPECIFIED, _RC)
       call mapl_GridCompGet(gridcomp, logger=lgr, name=name, _RC)
-
-      !iter = stats%items%ftn_begin()
-      !associate (e => stats%items%ftn_end())
-        !do while (iter /= e)
-           !call iter%next()
-           !stat => iter%of()
-           !call stat%add_to_state(state, _RC)
-        !end do
-      !end associate
 
       call get_state_geom(state, geom, _RC)
       call esmf_ClockGet(clock, currTime=currTime, _RC)
@@ -390,8 +367,6 @@ contains
       call fill_grads_template_esmf(filename, template, time=currTime, _RC) 
       template = name // '_custom_internal_%y4%m2%d2T%h2%n2.nc4'
       call restart_handler%read(state, filename, _RC)
-
-      call esmf_StateDestroy(state, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(gridcomp)

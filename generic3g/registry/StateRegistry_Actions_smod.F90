@@ -26,7 +26,6 @@ contains
 
       do i = 1, this%owned_items%size()
          item_spec => this%owned_items%of(i)
-         _HERE, ' bmaa ',i,item_spec%is_active()
          if (item_spec%is_active()) then
             call item_spec%allocate(_RC)
          end if

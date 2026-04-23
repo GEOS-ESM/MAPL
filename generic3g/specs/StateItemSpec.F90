@@ -425,7 +425,6 @@ contains
       logical, allocatable :: active, not_connected
       type(StateItemAllocation) :: allocation_status
 
-      _HERE,' bmaa ',this%state_intent==ESMF_STATEINTENT_INTERNAL
       if (this%state_intent == ESMF_STATEINTENT_IMPORT) then
          ! Allow allocation of non-connected imports to support some testing modes
          allocation_status = this%get_allocation_status(_RC)
