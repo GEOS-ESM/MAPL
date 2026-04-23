@@ -2,7 +2,6 @@
 #include "unused_dummy.H"
 
 module mapl_BaseProfiler
-   use omp_lib
    use mapl_AdvancedMeter
    use mapl_AbstractMeter
    use mapl_AbstractMeterNode
