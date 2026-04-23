@@ -444,6 +444,64 @@ contains
       @assertExceptionRaised()
    end subroutine test_sub_time_invalid_gap_year_and_day
 
+   ! --- Rollback (decrement) tests ---
+
+   @Test
+   subroutine test_sub_time_rollback_year()
+      ! ref_datetime=YYYY-12-01T00:00:00, time=2000-10-15T21:00:00
+      ! new_time initially 2000-12-01 > time, leftmost wildcard is year -> subtract 1 year
+      ! expected: 1999-12-01T00:00:00
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call ESMF_TimeSet(time, yy=2000, mm=10, dd=15, h=21, m=0, s=0, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-12-01T00:00:00', _RC)
+
+      call assert_time_components(new_time, 1999, 12, 1, 0, 0, 0)
+   end subroutine test_sub_time_rollback_year
+
+   @Test
+   subroutine test_sub_time_rollback_month()
+      ! ref_datetime=YYYY-MM-20T00:00:00, time=2020-03-15T00:00:00
+      ! new_time initially 2020-03-20 > time, leftmost wildcard is month -> subtract 1 month
+      ! expected: 2020-02-20T00:00:00
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call ESMF_TimeSet(time, yy=2020, mm=3, dd=15, h=0, m=0, s=0, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-20T00:00:00', _RC)
+
+      call assert_time_components(new_time, 2020, 2, 20, 0, 0, 0)
+   end subroutine test_sub_time_rollback_month
+
+   @Test
+   subroutine test_sub_time_rollback_day()
+      ! ref_datetime=YYYY-MM-DDT06:00:00, time=2020-03-15T03:00:00
+      ! new_time initially 2020-03-15T06:00:00 > time, leftmost wildcard is day -> subtract 1 day
+      ! expected: 2020-03-14T06:00:00
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call ESMF_TimeSet(time, yy=2020, mm=3, dd=15, h=3, m=0, s=0, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-MM-DDT06:00:00', _RC)
+
+      call assert_time_components(new_time, 2020, 3, 14, 6, 0, 0)
+   end subroutine test_sub_time_rollback_day
+
+   @Test
+   subroutine test_sub_time_no_rollback_needed()
+      ! ref_datetime=YYYY-12-01T00:00:00, time=2000-12-15T00:00:00
+      ! new_time=2000-12-01 is before time, no decrement
+      ! expected: 2000-12-01T00:00:00
+      type(ESMF_Time) :: time, new_time
+      integer :: status
+
+      call ESMF_TimeSet(time, yy=2000, mm=12, dd=15, h=0, m=0, s=0, _RC)
+      new_time = sub_time_in_datetime(time, 'YYYY-12-01T00:00:00', _RC)
+
+      call assert_time_components(new_time, 2000, 12, 1, 0, 0, 0)
+   end subroutine test_sub_time_no_rollback_needed
+
    ! --- Helper to assert all 6 time components ---
 
    subroutine assert_time_components(time, exp_yy, exp_mm, exp_dd, exp_h, exp_m, exp_s)

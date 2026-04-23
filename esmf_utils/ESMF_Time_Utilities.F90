@@ -173,6 +173,7 @@ contains
 
       integer :: status, year, month, day, hour, minute, second
       logical :: year_is_set, month_is_set, day_is_set, hour_is_set, minute_is_set, second_is_set
+      type(ESMF_TimeInterval) :: decrement_interval
 
       _ASSERT(len(ref_datetime) == 19, 'ref_datetime must be 19 characters: YYYY-MM-DDTHH:NN:SS, got: '//ref_datetime)
 
@@ -251,6 +252,35 @@ contains
       end if
 
       call ESMF_TimeSet(new_time, yy=year, mm=month, dd=day, h=hour, m=minute, s=second, _RC)
+
+      ! If new_time is after the input time, decrement by 1 unit of the rightmost wildcard field
+      if (new_time > time) then
+         if (.not. second_is_set) then
+            call ESMF_TimeIntervalSet(decrement_interval, s=1, _RC)
+            new_time = new_time - decrement_interval
+         else if (.not. minute_is_set) then
+            call ESMF_TimeIntervalSet(decrement_interval, m=1, _RC)
+            new_time = new_time - decrement_interval
+         else if (.not. hour_is_set) then
+            call ESMF_TimeIntervalSet(decrement_interval, h=1, _RC)
+            new_time = new_time - decrement_interval
+         else if (.not. day_is_set) then
+            call ESMF_TimeIntervalSet(decrement_interval, d=1, _RC)
+            new_time = new_time - decrement_interval
+         else if (.not. month_is_set) then
+            ! Decrement month, rolling back year if needed
+            month = month - 1
+            if (month == 0) then
+               month = 12
+               year = year - 1
+            end if
+            call ESMF_TimeSet(new_time, yy=year, mm=month, dd=day, h=hour, m=minute, s=second, _RC)
+         else if (.not. year_is_set) then
+            ! Decrement year
+            year = year - 1
+            call ESMF_TimeSet(new_time, yy=year, mm=month, dd=day, h=hour, m=minute, s=second, _RC)
+         end if
+      end if
 
       _RETURN(_SUCCESS)
    end function sub_time_in_datetime
