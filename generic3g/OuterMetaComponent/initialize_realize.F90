@@ -25,6 +25,12 @@ contains
       call recurse(this, phase_idx=GENERIC_INIT_REALIZE, _RC)
 
       user_states = this%user_gc_driver%get_states()
+      _HERE, ' bmaa printing realize1 internal '//this%get_name()
+      block
+         integer :: icount
+         call ESMF_StateGet(user_states%internalState, itemCount=icount, _RC)
+         _HERE, ' bmaa n in state ',icount
+      end block
       tmp_states = MultiState(importState=user_states%importState)
       call this%registry%add_to_states(tmp_states, mode='user', _RC)
       outer_states = MultiState(importState=importState, exportState=exportState)
@@ -33,6 +39,12 @@ contains
       call this%registry%allocate(_RC)
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+      _HERE, ' bmaa printing realize2 internal '//this%get_name()
+      block
+         integer :: icount
+         call ESMF_StateGet(user_states%internalState, itemCount=icount, _RC)
+         _HERE, ' bmaa n in state ',icount
+      end block
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(clock)

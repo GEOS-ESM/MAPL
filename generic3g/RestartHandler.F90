@@ -64,7 +64,7 @@ contains
 
       call this%lgr%info("Writing checkpoint: %a", filename)
       bundle = this%get_field_bundle_from_state_(state, _RC)
-      call this%write_bundle_(bundle, filename, rc)
+      call this%write_bundle_(bundle, filename, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
       _RETURN(_SUCCESS)
@@ -118,6 +118,7 @@ contains
       call o_Clients%post_wait()
 
       _RETURN(_SUCCESS)
+  
    end subroutine write_bundle_
 
    subroutine read_bundle_(this, filename, bundle, rc)

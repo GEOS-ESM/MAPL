@@ -27,6 +27,8 @@ contains
          call this%user_gc_driver%run(phase_idx=phase_idx, _RC)
       else if (method_flag == ESMF_METHOD_FINALIZE) then
          call this%user_gc_driver%finalize(phase_idx=phase_idx, _RC)
+      else if (method_flag == ESMF_METHOD_READRESTART) then
+         call this%user_gc_driver%read_restart(phase_idx=phase_idx, _RC)
       else if (method_flag == ESMF_METHOD_WRITERESTART) then
          call this%user_gc_driver%write_restart(phase_idx=phase_idx, _RC)
       else

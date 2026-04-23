@@ -20,6 +20,7 @@ module mapl3g_ComponentDriver
       procedure(I_run), deferred :: initialize
       procedure(I_run), deferred :: finalize
       procedure(I_run), deferred :: write_restart
+      procedure(I_run), deferred :: read_restart
 
       procedure(I_get_states), deferred :: get_states
    end type ComponentDriver

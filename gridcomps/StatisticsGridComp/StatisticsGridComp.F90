@@ -14,6 +14,7 @@ module mapl3g_StatisticsGridComp
    use mapl3g_TimeMin
    use mapl3g_TimeMax
    use pflogger, only: Logger
+   use MAPL_StringTemplate, only: fill_grads_template_esmf
 
    implicit none(type,external)
    private
@@ -38,10 +39,10 @@ contains
       type(esmf_HConfig) :: hconfig, items_hconfig
       type(esmf_HConfigIter) :: iter, b, e
 
+      _HERE,' bmaa '
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, initialize, _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_READRESTART, custom_read_restart, phase_name='GENERIC:READ_RESTART', _RC)
+      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_READRESTART, custom_read_restart, phase_name='GENERIC::INIT_READ_RESTART', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_WRITERESTART, custom_write_restart, phase_name='GENERIC::WRITE_RESTART', _RC)
 
       ! Attach private state
@@ -77,6 +78,7 @@ contains
       type(esmf_HConfig) :: hconfig
       type(VariableSpec) :: varspec
 
+      _HERE,' bmaa '
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
@@ -89,16 +91,19 @@ contains
           varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+          call advertise_time_average_internal_fields(gridcomp, name, _RC)
        case ('min')
           period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
           varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+          call advertise_time_min_internal_fields(gridcomp, name, _RC)
        case ('max')
           period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
           varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+          call advertise_time_max_internal_fields(gridcomp, name, _RC)
        case default
           _FAIL('unsupported action: '//action)
       end select
@@ -122,6 +127,7 @@ contains
       type(esmf_HConfig) :: hconfig, items_hconfig
       class(AbstractTimeStatistic), allocatable :: item
 
+      _HERE,' bmaa '
       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
       call mapl_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       items_hconfig = esmf_HConfigCreateAt(hconfig, keystring='stats', _RC)
@@ -134,6 +140,12 @@ contains
       enddo
 
       call esmf_HConfigdestroy(items_hconfig, _RC)
+      _HERE, ' bmaa internal state in mod advertise stats '
+      block
+       type(ESMF_State) :: internal
+       call MAPL_GridCompGetInternalState(gridcomp, internal, _RC)
+       write(*,*)internal
+      end block
 
       _RETURN(_SUCCESS)
 
@@ -243,7 +255,7 @@ contains
          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
-         average = TimeAverage(f=f_in, avg_f=f_out, alarm=alarm)
+         average = TimeAverage(gridcomp=gridcomp, f=f_in, avg_f=f_out, alarm=alarm, _RC)
 
          _RETURN(_SUCCESS)
        end function make_average_stat
@@ -261,7 +273,7 @@ contains
           call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
           call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
-          min_stat = TimeMin(f=f_in, min_f=f_out, alarm=alarm)
+          min_stat = TimeMin(gridcomp=gridcomp, f=f_in, min_f=f_out, alarm=alarm, _RC)
 
           _RETURN(_SUCCESS)
        end function make_min_stat
@@ -279,7 +291,7 @@ contains
           call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
           call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
-          max_stat = TimeMax(f=f_in, max_f=f_out, alarm=alarm)
+          max_stat = TimeMax(gridcomp=gridcomp, f=f_in, max_f=f_out, alarm=alarm, _RC)
 
           _RETURN(_SUCCESS)
        end function make_max_stat
@@ -307,36 +319,6 @@ contains
 
    end subroutine modify_advertise
 
-   subroutine initialize(gridcomp, importState, exportState, clock, rc)
-      type(esmf_GridComp) :: gridcomp
-      type(esmf_State) :: importState
-      type(esmf_State) :: exportState
-      type(esmf_Clock) :: clock
-      integer, intent(out) :: rc
-
-      type(Statistics), pointer :: stats
-      class(AbstractTimeStatistic), pointer :: stat
-      integer :: status
-
-      type(StatisticsVectorIterator) :: iter
-
-      _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
-
-      iter = stats%items%ftn_begin()
-      associate (e => stats%items%ftn_end())
-        do while (iter /= e)
-           call iter%next()
-           stat => iter%of()
-           call stat%initialize(_RC)
-        end do
-      end associate
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(importState)
-      _UNUSED_DUMMY(exportState)
-      _UNUSED_DUMMY(clock)
-   end subroutine initialize
-
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(esmf_GridComp) :: gridcomp
       type(esmf_State) :: importState
@@ -357,12 +339,11 @@ contains
         do while (iter /= e)
            call iter%next()
            stat => iter%of()
-           call stat%update(_RC)
+            call stat%update(gridcomp, _RC)
         end do
       end associate
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(gridcomp)
       _UNUSED_DUMMY(importState)
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(clock)
@@ -376,33 +357,38 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      type(Statistics), pointer :: stats
+      !type(Statistics), pointer :: stats
       type(esmf_State) :: state
-      type(StatisticsVectorIterator) :: iter
+      !type(StatisticsVectorIterator) :: iter
       type(RestartHandler) :: restart_handler
-      class(AbstractTimeStatistic), pointer :: stat
+      !class(AbstractTimeStatistic), pointer :: stat
       type(esmf_Time) :: currTime
       class(Logger), pointer :: lgr
       type(esmf_Geom) :: geom
-      character(:), allocatable :: name, filename
+      character(:), allocatable :: name, template
+      character(len=ESMF_MAXPATHLEN) :: filename
 
-      _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
-      state = esmf_StateCreate(stateIntent=ESMF_STATEINTENT_UNSPECIFIED, _RC)
-      call mapl_GridCompGet(gridcomp, logger=lgr, geom=geom, name=name, _RC)
+      call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
+      !_GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
+      !state = esmf_StateCreate(stateIntent=ESMF_STATEINTENT_UNSPECIFIED, _RC)
+      call mapl_GridCompGet(gridcomp, logger=lgr, name=name, _RC)
 
-      iter = stats%items%ftn_begin()
-      associate (e => stats%items%ftn_end())
-        do while (iter /= e)
-           call iter%next()
-           stat => iter%of()
-           call stat%add_to_state(state, _RC)
-        end do
-      end associate
+      !iter = stats%items%ftn_begin()
+      !associate (e => stats%items%ftn_end())
+        !do while (iter /= e)
+           !call iter%next()
+           !stat => iter%of()
+           !call stat%add_to_state(state, _RC)
+        !end do
+      !end associate
 
+      call get_state_geom(state, geom, _RC)
       call esmf_ClockGet(clock, currTime=currTime, _RC)
       restart_handler = RestartHandler(geom, currTime, lgr)
 
-      filename = name // '_custom_import.nc'
+      template = name // '_custom_internal_%y4%m2%d2T%h2%n2.nc4'
+      call fill_grads_template_esmf(filename, template, time=currTime, _RC) 
+      template = name // '_custom_internal_%y4%m2%d2T%h2%n2.nc4'
       call restart_handler%read(state, filename, _RC)
 
       call esmf_StateDestroy(state, _RC)
@@ -421,35 +407,39 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      type(Statistics), pointer :: stats
+      !type(Statistics), pointer :: stats
       type(esmf_State) :: state
-      type(StatisticsVectorIterator) :: iter
+      !type(StatisticsVectorIterator) :: iter
       type(RestartHandler) :: restart_handler
-      class(AbstractTimeStatistic), pointer :: stat
+      !class(AbstractTimeStatistic), pointer :: stat
       type(esmf_Time) :: currTime
       class(Logger), pointer :: lgr
       type(esmf_Geom) :: geom
-      character(:), allocatable :: name, filename
+      character(:), allocatable :: name, template
+      character(len=ESMF_MAXPATHLEN) :: filename
 
-      _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
-      state = esmf_StateCreate(stateIntent=ESMF_STATEINTENT_UNSPECIFIED, _RC)
+      call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
+      !_GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
+      !state = esmf_StateCreate(stateIntent=ESMF_STATEINTENT_UNSPECIFIED, _RC)
        call mapl_GridCompGet(gridcomp, logger=lgr, name=name, _RC)
 
-       iter = stats%items%ftn_begin()
-       associate (e => stats%items%ftn_end())
-         do while (iter /= e)
-            call iter%next()
-            stat => iter%of()
-            call stat%add_to_state(state, _RC)
-         end do
-       end associate
+       !iter = stats%items%ftn_begin()
+       !associate (e => stats%items%ftn_end())
+         !do while (iter /= e)
+            !call iter%next()
+            !stat => iter%of()
+            !call stat%add_to_state(state, _RC)
+         !end do
+       !end associate
 
        call get_state_geom(state, geom, _RC)
        call esmf_ClockGet(clock, currTime=currTime, _RC)
        restart_handler = RestartHandler(geom, currTime, lgr)
 
-       filename = name // '_custom_import.nc'
-     call restart_handler%write(state, filename, _RC)
+       template = name // '_custom_internal_%y4%m2%d2T%h2%n2.nc4'
+       call fill_grads_template_esmf(filename, template, time=currTime, _RC) 
+
+      call restart_handler%write(state, filename, _RC)
 
       call esmf_StateDestroy(state, _RC)
 
