@@ -51,4 +51,3 @@ add_dependencies(build-tests MAPL.base.tests)
 if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
   set_tests_properties(MAPL.base.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
 endif()
-
