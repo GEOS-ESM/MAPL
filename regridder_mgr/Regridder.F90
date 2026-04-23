@@ -31,6 +31,7 @@ module mapl3g_Regridder
       procedure :: get_geom_manager => get_geom_mgr
       procedure :: set_geom_manager
       procedure, non_overridable :: set_spec
+      procedure, non_overridable :: get_spec
 
       procedure, non_overridable :: regrid_array_1d_r4
       procedure, non_overridable :: regrid_array_1d_r8
@@ -242,6 +243,12 @@ contains
       this%spec = spec
    end subroutine set_spec
 
+   function get_spec(this) result(spec)
+      class(Regridder), intent(in) :: this
+      type(RegridderSpec) :: spec
+      spec = this%spec
+   end function get_spec
+
    ! Returns the number of gridded dimensions for a given geom via dimCount.
    ! Grid -> dimCount from ESMF_GridGet; Mesh, LocStream, XGrid -> 1.
    integer function get_geom_dimcount(geom, rc) result(dimcount)
@@ -290,14 +297,15 @@ contains
 
    subroutine regrid_array_1d_r4(this, q_in, q_out, rc)
       class(Regridder), intent(inout) :: this
-      real(REAL32), target, intent(in) :: q_in(:)
-      real(REAL32), target, intent(out) :: q_out(:)
+      real(REAL32), intent(in)  :: q_in(:)
+      real(REAL32), intent(out) :: q_out(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: dc_in, dc_out
       type(ESMF_Geom) :: geom_in, geom_out
       type(ESMF_Field) :: f_in, f_out
+      real(REAL32), pointer :: p_in(:), p_out(:)
 
       _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
       geom_in  = this%spec%get_geom_in()
@@ -307,15 +315,14 @@ contains
       _ASSERT(dc_in  == 1, 'geom dimCount must be 1 for 1-D array overload')
       _ASSERT(dc_out == 1, 'geom dimCount must be 1 for 1-D array overload')
 
-      f_in = ESMF_FieldCreate(geom_in, farray=q_in, &
-               indexflag=ESMF_INDEX_DELOCAL, &
-           datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
+      f_in  = ESMF_FieldCreate(geom_in,  typekind=ESMF_TYPEKIND_R4, _RC)
+      f_out = ESMF_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, _RC)
 
-      f_out = ESMF_FieldCreate(geom_out, farray=q_out, &
-               indexflag=ESMF_INDEX_DELOCAL, &
-           datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
-
+      call ESMF_FieldGet(f_in,  farrayPtr=p_in,  _RC)
+      p_in = q_in
       call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_out, farrayPtr=p_out, _RC)
+      q_out = p_out
 
       call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
       call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
@@ -325,14 +332,15 @@ contains
 
    subroutine regrid_array_1d_r8(this, q_in, q_out, rc)
       class(Regridder), intent(inout) :: this
-      real(REAL64), target, intent(in) :: q_in(:)
-      real(REAL64), target, intent(out) :: q_out(:)
+      real(REAL64), intent(in)  :: q_in(:)
+      real(REAL64), intent(out) :: q_out(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: dc_in, dc_out
       type(ESMF_Geom) :: geom_in, geom_out
       type(ESMF_Field) :: f_in, f_out
+      real(REAL64), pointer :: p_in(:), p_out(:)
 
       _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
       geom_in  = this%spec%get_geom_in()
@@ -342,15 +350,14 @@ contains
       _ASSERT(dc_in  == 1, 'geom dimCount must be 1 for 1-D array overload')
       _ASSERT(dc_out == 1, 'geom dimCount must be 1 for 1-D array overload')
 
-      f_in = ESMF_FieldCreate(geom_in, farray=q_in, &
-               indexflag=ESMF_INDEX_DELOCAL, &
-           datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
+      f_in  = ESMF_FieldCreate(geom_in,  typekind=ESMF_TYPEKIND_R8, _RC)
+      f_out = ESMF_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R8, _RC)
 
-      f_out = ESMF_FieldCreate(geom_out, farray=q_out, &
-               indexflag=ESMF_INDEX_DELOCAL, &
-           datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
-
+      call ESMF_FieldGet(f_in,  farrayPtr=p_in,  _RC)
+      p_in = q_in
       call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_out, farrayPtr=p_out, _RC)
+      q_out = p_out
 
       call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
       call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
@@ -359,262 +366,256 @@ contains
    end subroutine regrid_array_1d_r8
 
    subroutine regrid_array_2d_r4(this, q_in, q_out, rc)
-       class(Regridder), intent(inout) :: this
-       real(REAL32), target, intent(in) :: q_in(:,:)
-       real(REAL32), target, intent(out) :: q_out(:,:)
-       integer, optional, intent(out) :: rc
+      class(Regridder), intent(inout) :: this
+      real(REAL32), intent(in)  :: q_in(:,:)
+      real(REAL32), intent(out) :: q_out(:,:)
+      integer, optional, intent(out) :: rc
 
-       integer :: status
-       integer :: dc_in, dc_out
-       integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
-       integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
-       type(ESMF_Geom) :: geom_in, geom_out
-       type(ESMF_Field) :: f_in, f_out
+      integer :: status
+      integer :: dc_in, dc_out
+      integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
+      integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
+      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Field) :: f_in, f_out
+      real(REAL32), pointer :: p_in(:,:), p_out(:,:)
 
-       _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
-       geom_in  = this%spec%get_geom_in()
-       geom_out = this%spec%get_geom_out()
-       dc_in  = get_geom_dimcount(geom_in,  _RC)
-       dc_out = get_geom_dimcount(geom_out, _RC)
-       _ASSERT(dc_in  <= 2, 'geom dimCount must be <= 2 for 2-D array overload')
-       _ASSERT(dc_out <= 2, 'geom dimCount must be <= 2 for 2-D array overload')
+      _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
+      geom_in  = this%spec%get_geom_in()
+      geom_out = this%spec%get_geom_out()
+      dc_in  = get_geom_dimcount(geom_in,  _RC)
+      dc_out = get_geom_dimcount(geom_out, _RC)
+      _ASSERT(dc_in  <= 2, 'geom dimCount must be <= 2 for 2-D array overload')
+      _ASSERT(dc_out <= 2, 'geom dimCount must be <= 2 for 2-D array overload')
 
-       call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
-       call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
+      call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
+      call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
 
-       f_in = ESMF_FieldCreate(geom_in, farray=q_in, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_in, &
-            ungriddedLBound=ulb_in, ungriddedUBound=uub_in, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
-       f_out = ESMF_FieldCreate(geom_out, farray=q_out, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_out, &
-            ungriddedLBound=ulb_out, ungriddedUBound=uub_out, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
+      f_in  = ESMF_FieldCreate(geom_in,  typekind=ESMF_TYPEKIND_R4, &
+           gridToFieldMap=gtfm_in,  ungriddedLBound=ulb_in,  ungriddedUBound=uub_in,  _RC)
+      f_out = ESMF_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+           gridToFieldMap=gtfm_out, ungriddedLBound=ulb_out, ungriddedUBound=uub_out, _RC)
 
-       call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_in,  farrayPtr=p_in,  _RC)
+      p_in = q_in
+      call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_out, farrayPtr=p_out, _RC)
+      q_out = p_out
 
-       call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
-       call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
 
-       _RETURN(_SUCCESS)
-    end subroutine regrid_array_2d_r4
+      _RETURN(_SUCCESS)
+   end subroutine regrid_array_2d_r4
 
    subroutine regrid_array_2d_r8(this, q_in, q_out, rc)
-       class(Regridder), intent(inout) :: this
-       real(REAL64), target, intent(in) :: q_in(:,:)
-       real(REAL64), target, intent(out) :: q_out(:,:)
-       integer, optional, intent(out) :: rc
+      class(Regridder), intent(inout) :: this
+      real(REAL64), intent(in)  :: q_in(:,:)
+      real(REAL64), intent(out) :: q_out(:,:)
+      integer, optional, intent(out) :: rc
 
-       integer :: status
-       integer :: dc_in, dc_out
-       integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
-       integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
-       type(ESMF_Geom) :: geom_in, geom_out
-       type(ESMF_Field) :: f_in, f_out
+      integer :: status
+      integer :: dc_in, dc_out
+      integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
+      integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
+      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Field) :: f_in, f_out
+      real(REAL64), pointer :: p_in(:,:), p_out(:,:)
 
-       _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
-       geom_in  = this%spec%get_geom_in()
-       geom_out = this%spec%get_geom_out()
-       dc_in  = get_geom_dimcount(geom_in,  _RC)
-       dc_out = get_geom_dimcount(geom_out, _RC)
-       _ASSERT(dc_in  <= 2, 'geom dimCount must be <= 2 for 2-D array overload')
-       _ASSERT(dc_out <= 2, 'geom dimCount must be <= 2 for 2-D array overload')
+      _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
+      geom_in  = this%spec%get_geom_in()
+      geom_out = this%spec%get_geom_out()
+      dc_in  = get_geom_dimcount(geom_in,  _RC)
+      dc_out = get_geom_dimcount(geom_out, _RC)
+      _ASSERT(dc_in  <= 2, 'geom dimCount must be <= 2 for 2-D array overload')
+      _ASSERT(dc_out <= 2, 'geom dimCount must be <= 2 for 2-D array overload')
 
-       call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
-       call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
+      call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
+      call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
 
-       f_in = ESMF_FieldCreate(geom_in, farray=q_in, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_in, &
-            ungriddedLBound=ulb_in, ungriddedUBound=uub_in, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
-       f_out = ESMF_FieldCreate(geom_out, farray=q_out, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_out, &
-            ungriddedLBound=ulb_out, ungriddedUBound=uub_out, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
+      f_in  = ESMF_FieldCreate(geom_in,  typekind=ESMF_TYPEKIND_R8, &
+           gridToFieldMap=gtfm_in,  ungriddedLBound=ulb_in,  ungriddedUBound=uub_in,  _RC)
+      f_out = ESMF_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R8, &
+           gridToFieldMap=gtfm_out, ungriddedLBound=ulb_out, ungriddedUBound=uub_out, _RC)
 
-       call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_in,  farrayPtr=p_in,  _RC)
+      p_in = q_in
+      call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_out, farrayPtr=p_out, _RC)
+      q_out = p_out
 
-       call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
-       call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
 
-       _RETURN(_SUCCESS)
-    end subroutine regrid_array_2d_r8
+      _RETURN(_SUCCESS)
+   end subroutine regrid_array_2d_r8
 
    subroutine regrid_array_3d_r4(this, q_in, q_out, rc)
-       class(Regridder), intent(inout) :: this
-       real(REAL32), target, intent(in) :: q_in(:,:,:)
-       real(REAL32), target, intent(out) :: q_out(:,:,:)
-       integer, optional, intent(out) :: rc
+      class(Regridder), intent(inout) :: this
+      real(REAL32), intent(in)  :: q_in(:,:,:)
+      real(REAL32), intent(out) :: q_out(:,:,:)
+      integer, optional, intent(out) :: rc
 
-       integer :: status
-       integer :: dc_in, dc_out
-       integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
-       integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
-       type(ESMF_Geom) :: geom_in, geom_out
-       type(ESMF_Field) :: f_in, f_out
+      integer :: status
+      integer :: dc_in, dc_out
+      integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
+      integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
+      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Field) :: f_in, f_out
+      real(REAL32), pointer :: p_in(:,:,:), p_out(:,:,:)
 
-       _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
-       geom_in  = this%spec%get_geom_in()
-       geom_out = this%spec%get_geom_out()
-       dc_in  = get_geom_dimcount(geom_in,  _RC)
-       dc_out = get_geom_dimcount(geom_out, _RC)
-       _ASSERT(dc_in  <= 3, 'geom dimCount must be <= 3 for 3-D array overload')
-       _ASSERT(dc_out <= 3, 'geom dimCount must be <= 3 for 3-D array overload')
+      _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
+      geom_in  = this%spec%get_geom_in()
+      geom_out = this%spec%get_geom_out()
+      dc_in  = get_geom_dimcount(geom_in,  _RC)
+      dc_out = get_geom_dimcount(geom_out, _RC)
+      _ASSERT(dc_in  <= 3, 'geom dimCount must be <= 3 for 3-D array overload')
+      _ASSERT(dc_out <= 3, 'geom dimCount must be <= 3 for 3-D array overload')
 
-       call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
-       call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
+      call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
+      call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
 
-       f_in = ESMF_FieldCreate(geom_in, farray=q_in, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_in, &
-            ungriddedLBound=ulb_in, ungriddedUBound=uub_in, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
-       f_out = ESMF_FieldCreate(geom_out, farray=q_out, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_out, &
-            ungriddedLBound=ulb_out, ungriddedUBound=uub_out, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
+      f_in  = ESMF_FieldCreate(geom_in,  typekind=ESMF_TYPEKIND_R4, &
+           gridToFieldMap=gtfm_in,  ungriddedLBound=ulb_in,  ungriddedUBound=uub_in,  _RC)
+      f_out = ESMF_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+           gridToFieldMap=gtfm_out, ungriddedLBound=ulb_out, ungriddedUBound=uub_out, _RC)
 
-       call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_in,  farrayPtr=p_in,  _RC)
+      p_in = q_in
+      call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_out, farrayPtr=p_out, _RC)
+      q_out = p_out
 
-       call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
-       call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
 
-       _RETURN(_SUCCESS)
-    end subroutine regrid_array_3d_r4
+      _RETURN(_SUCCESS)
+   end subroutine regrid_array_3d_r4
 
    subroutine regrid_array_3d_r8(this, q_in, q_out, rc)
-       class(Regridder), intent(inout) :: this
-       real(REAL64), target, intent(in) :: q_in(:,:,:)
-       real(REAL64), target, intent(out) :: q_out(:,:,:)
-       integer, optional, intent(out) :: rc
+      class(Regridder), intent(inout) :: this
+      real(REAL64), intent(in)  :: q_in(:,:,:)
+      real(REAL64), intent(out) :: q_out(:,:,:)
+      integer, optional, intent(out) :: rc
 
-       integer :: status
-       integer :: dc_in, dc_out
-       integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
-       integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
-       type(ESMF_Geom) :: geom_in, geom_out
-       type(ESMF_Field) :: f_in, f_out
+      integer :: status
+      integer :: dc_in, dc_out
+      integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
+      integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
+      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Field) :: f_in, f_out
+      real(REAL64), pointer :: p_in(:,:,:), p_out(:,:,:)
 
-       _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
-       geom_in  = this%spec%get_geom_in()
-       geom_out = this%spec%get_geom_out()
-       dc_in  = get_geom_dimcount(geom_in,  _RC)
-       dc_out = get_geom_dimcount(geom_out, _RC)
-       _ASSERT(dc_in  <= 3, 'geom dimCount must be <= 3 for 3-D array overload')
-       _ASSERT(dc_out <= 3, 'geom dimCount must be <= 3 for 3-D array overload')
+      _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
+      geom_in  = this%spec%get_geom_in()
+      geom_out = this%spec%get_geom_out()
+      dc_in  = get_geom_dimcount(geom_in,  _RC)
+      dc_out = get_geom_dimcount(geom_out, _RC)
+      _ASSERT(dc_in  <= 3, 'geom dimCount must be <= 3 for 3-D array overload')
+      _ASSERT(dc_out <= 3, 'geom dimCount must be <= 3 for 3-D array overload')
 
-       call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
-       call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
+      call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
+      call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
 
-       f_in = ESMF_FieldCreate(geom_in, farray=q_in, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_in, &
-            ungriddedLBound=ulb_in, ungriddedUBound=uub_in, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
-       f_out = ESMF_FieldCreate(geom_out, farray=q_out, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_out, &
-            ungriddedLBound=ulb_out, ungriddedUBound=uub_out, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
+      f_in  = ESMF_FieldCreate(geom_in,  typekind=ESMF_TYPEKIND_R8, &
+           gridToFieldMap=gtfm_in,  ungriddedLBound=ulb_in,  ungriddedUBound=uub_in,  _RC)
+      f_out = ESMF_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R8, &
+           gridToFieldMap=gtfm_out, ungriddedLBound=ulb_out, ungriddedUBound=uub_out, _RC)
 
-       call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_in,  farrayPtr=p_in,  _RC)
+      p_in = q_in
+      call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_out, farrayPtr=p_out, _RC)
+      q_out = p_out
 
-       call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
-       call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
 
-       _RETURN(_SUCCESS)
-    end subroutine regrid_array_3d_r8
+      _RETURN(_SUCCESS)
+   end subroutine regrid_array_3d_r8
 
    subroutine regrid_array_4d_r4(this, q_in, q_out, rc)
-       class(Regridder), intent(inout) :: this
-       real(REAL32), target, intent(in) :: q_in(:,:,:,:)
-       real(REAL32), target, intent(out) :: q_out(:,:,:,:)
-       integer, optional, intent(out) :: rc
+      class(Regridder), intent(inout) :: this
+      real(REAL32), intent(in)  :: q_in(:,:,:,:)
+      real(REAL32), intent(out) :: q_out(:,:,:,:)
+      integer, optional, intent(out) :: rc
 
-       integer :: status
-       integer :: dc_in, dc_out
-       integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
-       integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
-       type(ESMF_Geom) :: geom_in, geom_out
-       type(ESMF_Field) :: f_in, f_out
+      integer :: status
+      integer :: dc_in, dc_out
+      integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
+      integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
+      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Field) :: f_in, f_out
+      real(REAL32), pointer :: p_in(:,:,:,:), p_out(:,:,:,:)
 
-       _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
-       geom_in  = this%spec%get_geom_in()
-       geom_out = this%spec%get_geom_out()
-       dc_in  = get_geom_dimcount(geom_in,  _RC)
-       dc_out = get_geom_dimcount(geom_out, _RC)
-       _ASSERT(dc_in  <= 4, 'geom dimCount must be <= 4 for 4-D array overload')
-       _ASSERT(dc_out <= 4, 'geom dimCount must be <= 4 for 4-D array overload')
+      _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
+      geom_in  = this%spec%get_geom_in()
+      geom_out = this%spec%get_geom_out()
+      dc_in  = get_geom_dimcount(geom_in,  _RC)
+      dc_out = get_geom_dimcount(geom_out, _RC)
+      _ASSERT(dc_in  <= 4, 'geom dimCount must be <= 4 for 4-D array overload')
+      _ASSERT(dc_out <= 4, 'geom dimCount must be <= 4 for 4-D array overload')
 
-       call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
-       call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
+      call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
+      call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
 
-       f_in = ESMF_FieldCreate(geom_in, farray=q_in, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_in, &
-            ungriddedLBound=ulb_in, ungriddedUBound=uub_in, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
-       f_out = ESMF_FieldCreate(geom_out, farray=q_out, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_out, &
-            ungriddedLBound=ulb_out, ungriddedUBound=uub_out, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
+      f_in  = ESMF_FieldCreate(geom_in,  typekind=ESMF_TYPEKIND_R4, &
+           gridToFieldMap=gtfm_in,  ungriddedLBound=ulb_in,  ungriddedUBound=uub_in,  _RC)
+      f_out = ESMF_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+           gridToFieldMap=gtfm_out, ungriddedLBound=ulb_out, ungriddedUBound=uub_out, _RC)
 
-       call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_in,  farrayPtr=p_in,  _RC)
+      p_in = q_in
+      call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_out, farrayPtr=p_out, _RC)
+      q_out = p_out
 
-       call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
-       call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
 
-       _RETURN(_SUCCESS)
-    end subroutine regrid_array_4d_r4
+      _RETURN(_SUCCESS)
+   end subroutine regrid_array_4d_r4
 
    subroutine regrid_array_4d_r8(this, q_in, q_out, rc)
-       class(Regridder), intent(inout) :: this
-       real(REAL64), target, intent(in) :: q_in(:,:,:,:)
-       real(REAL64), target, intent(out) :: q_out(:,:,:,:)
-       integer, optional, intent(out) :: rc
+      class(Regridder), intent(inout) :: this
+      real(REAL64), intent(in)  :: q_in(:,:,:,:)
+      real(REAL64), intent(out) :: q_out(:,:,:,:)
+      integer, optional, intent(out) :: rc
 
-       integer :: status
-       integer :: dc_in, dc_out
-       integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
-       integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
-       type(ESMF_Geom) :: geom_in, geom_out
-       type(ESMF_Field) :: f_in, f_out
+      integer :: status
+      integer :: dc_in, dc_out
+      integer, allocatable :: gtfm_in(:), ulb_in(:), uub_in(:)
+      integer, allocatable :: gtfm_out(:), ulb_out(:), uub_out(:)
+      type(ESMF_Geom) :: geom_in, geom_out
+      type(ESMF_Field) :: f_in, f_out
+      real(REAL64), pointer :: p_in(:,:,:,:), p_out(:,:,:,:)
 
-       _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
-       geom_in  = this%spec%get_geom_in()
-       geom_out = this%spec%get_geom_out()
-       dc_in  = get_geom_dimcount(geom_in,  _RC)
-       dc_out = get_geom_dimcount(geom_out, _RC)
-       _ASSERT(dc_in  <= 4, 'geom dimCount must be <= 4 for 4-D array overload')
-       _ASSERT(dc_out <= 4, 'geom dimCount must be <= 4 for 4-D array overload')
+      _ASSERT(allocated(this%spec), 'set_spec must be called before regrid array overloads')
+      geom_in  = this%spec%get_geom_in()
+      geom_out = this%spec%get_geom_out()
+      dc_in  = get_geom_dimcount(geom_in,  _RC)
+      dc_out = get_geom_dimcount(geom_out, _RC)
+      _ASSERT(dc_in  <= 4, 'geom dimCount must be <= 4 for 4-D array overload')
+      _ASSERT(dc_out <= 4, 'geom dimCount must be <= 4 for 4-D array overload')
 
-       call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
-       call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
+      call make_fieldCreate_args(dc_in,  shape(q_in),  gtfm_in,  ulb_in,  uub_in)
+      call make_fieldCreate_args(dc_out, shape(q_out), gtfm_out, ulb_out, uub_out)
 
-       f_in = ESMF_FieldCreate(geom_in, farray=q_in, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_in, &
-            ungriddedLBound=ulb_in, ungriddedUBound=uub_in, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
-       f_out = ESMF_FieldCreate(geom_out, farray=q_out, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            gridToFieldMap=gtfm_out, &
-            ungriddedLBound=ulb_out, ungriddedUBound=uub_out, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, _RC)
+      f_in  = ESMF_FieldCreate(geom_in,  typekind=ESMF_TYPEKIND_R8, &
+           gridToFieldMap=gtfm_in,  ungriddedLBound=ulb_in,  ungriddedUBound=uub_in,  _RC)
+      f_out = ESMF_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R8, &
+           gridToFieldMap=gtfm_out, ungriddedLBound=ulb_out, ungriddedUBound=uub_out, _RC)
 
-       call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_in,  farrayPtr=p_in,  _RC)
+      p_in = q_in
+      call this%regrid_field(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_out, farrayPtr=p_out, _RC)
+      q_out = p_out
 
-       call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
-       call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_in,  noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, noGarbage=.true., _RC)
 
-       _RETURN(_SUCCESS)
-    end subroutine regrid_array_4d_r8
+      _RETURN(_SUCCESS)
+   end subroutine regrid_array_4d_r8
 
 end module mapl3g_Regridder
       
