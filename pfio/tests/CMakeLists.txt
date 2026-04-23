@@ -45,6 +45,10 @@ add_pfunit_ctest(MAPL.pfio.tests
                 MAX_PES 8
                 )
 set_target_properties(MAPL.pfio.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+target_include_directories(MAPL.pfio.tests PRIVATE
+  ${esma_include}/MAPL.pfunit
+  ${esma_include}/MAPL.pfio
+  ${esma_include}/MAPL.shared)
 set_tests_properties(MAPL.pfio.tests PROPERTIES LABELS "ESSENTIAL")
 set_tests_properties(MAPL.pfio.tests PROPERTIES PROCESSORS 8)
 
@@ -66,6 +70,7 @@ ecbuild_add_executable (
   LIBS MAPL.shared MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
+target_include_directories(${TESTO} PRIVATE ${esma_include}/MAPL.shared ${esma_include}/MAPL.pfio)
 set_target_properties(${TESTO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
 # Detect if we are using Open MPI and add oversubscribe

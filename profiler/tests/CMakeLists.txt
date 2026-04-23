@@ -22,6 +22,10 @@ add_pfunit_ctest (
   MAX_PES 8
   )
 set_target_properties(MAPL.profiler.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+target_include_directories(MAPL.profiler.tests PRIVATE
+  ${esma_include}/MAPL.pfunit
+  ${esma_include}/MAPL.profiler
+  ${esma_include}/MAPL.shared)
 set_tests_properties(MAPL.profiler.tests PROPERTIES LABELS "ESSENTIAL")
 
 add_dependencies (build-tests MAPL.profiler.tests)
