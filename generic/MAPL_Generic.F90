@@ -5293,7 +5293,7 @@ contains
       logical :: isConnected
       type(ESMF_GridComp), pointer :: gridcomp
 
-      _ASSERT(size(SHORT_NAMES)==size(CHILD_IDS),'needs informative message')
+!ALT: no need for this      _ASSERT(size(SHORT_NAMES)==size(CHILD_IDS),'needs informative message')
 
       call MAPL_GetObjectFromGC(GC, META, RC=status)
       _VERIFY(status)
@@ -5314,7 +5314,7 @@ contains
             isConnected = connect%varIsConnected(short_name,I,rc=status)
             SKIP = ANY(SNAMES==TRIM(SHORT_NAME)) .and. (ANY(CHILD_IDS==I))
             if ((.not.isConnected) .and. (.not.skip)) then
-               call MAPL_DoNotConnect(GC, SHORT_NAME, I, RC=status)
+               call MAPL_DoNotConnect(GC, SHORT_NAME, CHILD=I, RC=status)
                _VERIFY(status)
             end if
          enddo
@@ -7085,11 +7085,13 @@ contains
       integer                                     :: STAT
       logical                                     :: SATISFIED
       logical                                     :: PARENTIMPORT
+      logical :: PARENTIMPV
       logical :: is_connected
       type (MAPL_Connectivity), pointer           :: conn
       type (VarConn), pointer                :: CONNECT
       type (VarConn), pointer                :: DONOTCONN
       type(ESMF_GridComp), pointer :: gridcomp
+
       ! Begin
 
       ! Get my name and set-up traceback handle
@@ -7178,6 +7180,7 @@ contains
 
          do K=1,size(IM_SPECS)
 
+            PARENTIMPV = .true.
             call MAPL_VarSpecGet(IM_SPECS(K), SHORT_NAME=SHORT_NAME, &
                  STAT=STAT, RC=status)
             _VERIFY(status)
@@ -7193,7 +7196,7 @@ contains
             if (DONOTCONN%varIsListed(SHORT_NAME=SHORT_NAME, &
                  IMPORT=I, RC=status)) then
                _VERIFY(status)
-               cycle
+               PARENTIMV = .false.
             end if
             _VERIFY(status)
 
@@ -7271,7 +7274,8 @@ contains
                   ! Imports that are not internally satisfied have their specs put in the GC's
                   ! import spec to be externally satisfied.  Their status is left unaltered.
                   ! --------------------------------------------------------------------------
-                  if (.not. SATISFIED .and. PARENTIMPORT) then
+                  PARENTIMPV = PARENTIMPORT .and. PARENTIMPV
+                  if (.not. SATISFIED .and. PARENTIMPV) then
                      _VERIFY(status)
                      call MAPL_VarSpecGet(IM_SPECS(K), STAT=STAT, RC=status)
                      _VERIFY(status)
