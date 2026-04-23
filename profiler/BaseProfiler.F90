@@ -100,33 +100,21 @@ contains
        integer, optional, intent(out) :: rc
 
        logical :: empty_stack
-       logical :: already_parallel
 
        this%status = 0
        empty_stack = .true.
-       already_parallel = .false.
-       !$ already_parallel = omp_in_parallel()
        
-       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-          !$omp parallel
+       !$omp parallel
 #endif
-          !$omp master
-          if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
-          empty_stack = this%stack%size()== 0
-          if(empty_stack) call this%start(this%root_node)
-          !$omp end master
+       !$omp master
+       if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
+       empty_stack = this%stack%size()== 0
+       if(empty_stack) call this%start(this%root_node)
+       !$omp end master
 #ifdef __NAG_COMPILER_RELEASE
           !$omp end parallel
 #endif
-       else
-          !$omp master
-          if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
-          empty_stack = this%stack%size()== 0
-          if(empty_stack) call this%start(this%root_node)
-          !$omp end master
-       end if
-
        _ASSERT_RC(empty_stack,"Timer "//this%root_node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
 
        _RETURN(_SUCCESS)
@@ -161,69 +149,42 @@ contains
       class(AbstractMeterNode), pointer :: node => null()
 
       logical :: stack_is_not_empty
-      logical :: already_parallel
 
       stack_is_not_empty = .true.
-      already_parallel = .false.
-      !$ already_parallel = omp_in_parallel()
       
-      if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel
+      !$omp parallel
 #endif
-         !$omp master
-         if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
-         stack_is_not_empty = .not. this%stack%empty()
+      !$omp master
+      if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
+      stack_is_not_empty = .not. this%stack%empty()
 
-         if(stack_is_not_empty) then
-            node_ptr => this%stack%back()
-            node => node_ptr%ptr
-            if (.not. node%has_child(name)) then
-               m = this%make_meter()
-               call node%add_child(name, m)
-            end if
-
-            node => node%get_child(name)
+      if(stack_is_not_empty) then
+         node_ptr => this%stack%back()
+         node => node_ptr%ptr
+         if (.not. node%has_child(name)) then
+            m = this%make_meter()
+            call node%add_child(name, m)
          end if
-         !$omp end master
-#ifdef __NAG_COMPILER_RELEASE
-         !$omp end parallel
-#endif
-      else
-         !$omp master
-         if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
-         stack_is_not_empty = .not. this%stack%empty()
 
-         if(stack_is_not_empty) then
-            node_ptr => this%stack%back()
-            node => node_ptr%ptr
-            if (.not. node%has_child(name)) then
-               m = this%make_meter()
-               call node%add_child(name, m)
-            end if
-
-            node => node%get_child(name)
-         end if
-         !$omp end master
+         node => node%get_child(name)
       end if
+      !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
+      !$omp end parallel
+#endif
       
       _ASSERT_RC(stack_is_not_empty, "Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
       
-      if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel
+      !$omp parallel
 #endif
-         !$omp master
-         call this%start(node)
-         !$omp end master
+      !$omp master
+      call this%start(node)
+      !$omp end master
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp end parallel
+      !$omp end parallel
 #endif
-      else
-         !$omp master
-         call this%start(node)
-         !$omp end master
-      end if
 
       _RETURN(_SUCCESS)
    end subroutine start_name
@@ -238,37 +199,23 @@ contains
       class(AbstractMeterNode), pointer :: node => null()
 
       logical :: name_is_node_name
-      logical :: already_parallel
 
       name_is_node_name = .true.
-      already_parallel = .false.
-      !$ already_parallel = omp_in_parallel()
       
-      if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel
+      !$omp parallel
 #endif
-         !$omp master
-         node_ptr => this%stack%back()
-         node => node_ptr%ptr
-         if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
-         name_is_node_name = name == node%get_name()
+      !$omp master
+      node_ptr => this%stack%back()
+      node => node_ptr%ptr
+      if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
+      name_is_node_name = name == node%get_name()
 
-         if(name_is_node_name) call this%stop(node)
-         !$omp end master
+      if(name_is_node_name) call this%stop(node)
+      !$omp end master
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp end parallel
+      !$omp end parallel
 #endif
-      else
-         !$omp master
-         node_ptr => this%stack%back()
-         node => node_ptr%ptr
-         if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
-         name_is_node_name = name == node%get_name()
-
-         if(name_is_node_name) call this%stop(node)
-         !$omp end master
-      end if
 
       _ASSERT_RC(name_is_node_name,"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
 
@@ -283,41 +230,25 @@ contains
        class(AbstractMeterNode), pointer :: node
 
        logical :: stack_size_is_one
-       logical :: already_parallel
 
        stack_size_is_one = .true.
-       already_parallel = .false.
-       !$ already_parallel = omp_in_parallel()
        
-       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-          !$omp parallel
+       !$omp parallel
 #endif
-          !$omp master
-          if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
-          stack_size_is_one = this%stack%size()== 1
+       !$omp master
+       if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
+       stack_size_is_one = this%stack%size()== 1
 
-          if(stack_size_is_one) then
-            node_ptr => this%stack%back()
-            node => node_ptr%ptr
-            call this%stop(node)
-          end if
-          !$omp end master
-#ifdef __NAG_COMPILER_RELEASE
-          !$omp end parallel
-#endif
-       else
-          !$omp master
-          if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
-          stack_size_is_one = this%stack%size()== 1
-
-          if(stack_size_is_one) then
-            node_ptr => this%stack%back()
-            node => node_ptr%ptr
-            call this%stop(node)
-          end if
-          !$omp end master
+       if(stack_size_is_one) then
+         node_ptr => this%stack%back()
+         node => node_ptr%ptr
+         call this%stop(node)
        end if
+       !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
+       !$omp end parallel
+#endif
        
        _ASSERT_RC(stack_size_is_one,"Stack not empty when timer stopped.  Active timer: " // node%get_name(),INCORRECTLY_NESTED_METERS)
        _RETURN(_SUCCESS)
@@ -350,32 +281,20 @@ contains
       class(BaseProfiler), target, intent(inout) :: this
 
       class(AbstractMeter), pointer :: t
-      logical :: already_parallel
 
-      already_parallel = .false.
-      !$ already_parallel = omp_in_parallel()
 
-      if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel
+      !$omp parallel
 #endif
-         !$omp master
-         call this%stack%pop_back()
-         t => this%root_node%get_meter()
-         call t%stop()
-         call t%finalize()
-         !$omp end master
+      !$omp master
+      call this%stack%pop_back()
+      t => this%root_node%get_meter()
+      call t%stop()
+      call t%finalize()
+      !$omp end master
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp end parallel
+      !$omp end parallel
 #endif
-      else
-         !$omp master
-         call this%stack%pop_back()
-         t => this%root_node%get_meter()
-         call t%stop()
-         call t%finalize()
-         !$omp end master
-      end if
 
    end subroutine finalize
 
@@ -429,26 +348,17 @@ contains
    function get_root_node(this) result(root_node)
       class(AbstractMeterNode), pointer :: root_node
       class(BaseProfiler), target, intent(in) :: this
-      logical :: already_parallel
 
-      already_parallel = .false.
-      !$ already_parallel = omp_in_parallel()
 
-      if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel
+      !$omp parallel
 #endif
-         !$omp master
-         root_node => this%root_node
-         !$omp end master
+      !$omp master
+      root_node => this%root_node
+      !$omp end master
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp end parallel
+      !$omp end parallel
 #endif
-      else
-         !$omp master
-         root_node => this%root_node
-         !$omp end master
-      end if
 
    end function get_root_node
 
@@ -459,38 +369,22 @@ contains
       class(AbstractMeterNodeIterator), allocatable :: iter
       class(AbstractMeterNode), pointer :: node
       class(AbstractMeter), pointer :: t
-      logical :: already_parallel
 
-      already_parallel = .false.
-      !$ already_parallel = omp_in_parallel()
-
-      if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel
+      !$omp parallel
 #endif
-         !$omp master
-         node => this%get_root_node()
-         iter = node%begin()
-         do while (iter /= node%end())
-            t => iter%get_meter()
-            call t%reset()
-            call iter%next()
-         end do
-         !$omp end master
+      !$omp master
+      node => this%get_root_node()
+      iter = node%begin()
+      do while (iter /= node%end())
+         t => iter%get_meter()
+         call t%reset()
+         call iter%next()
+      end do
+      !$omp end master
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp end parallel
+      !$omp end parallel
 #endif
-      else
-         !$omp master
-         node => this%get_root_node()
-         iter = node%begin()
-         do while (iter /= node%end())
-            t => iter%get_meter()
-            call t%reset()
-            call iter%next()
-         end do
-         !$omp end master
-      end if
 
       ! Call moved outside OpenMP region to avoid nesting with start_self's OpenMP
       call this%start()
@@ -504,36 +398,21 @@ contains
 
       type(MeterNodePtr), pointer :: node_ptr
       class(AbstractMeterNode), pointer :: node_a, node_b
-      logical :: already_parallel
 
-      already_parallel = .false.
-      !$ already_parallel = omp_in_parallel()
-
-      if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel
+      !$omp parallel
 #endif
-         !$omp master
-         node_ptr => a%stack%back()
-         node_a => node_ptr%ptr
+      !$omp master
+      node_ptr => a%stack%back()
+      node_a => node_ptr%ptr
 
-         node_b => b%get_root_node()
+      node_b => b%get_root_node()
 
-         call node_a%accumulate(node_b)
-         !$omp end master
+      call node_a%accumulate(node_b)
+      !$omp end master
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp end parallel
+      !$omp end parallel
 #endif
-      else
-         !$omp master
-         node_ptr => a%stack%back()
-         node_a => node_ptr%ptr
-
-         node_b => b%get_root_node()
-
-         call node_a%accumulate(node_b)
-         !$omp end master
-      end if
 
    end subroutine accumulate
 
@@ -645,34 +524,21 @@ contains
        class(BaseProfiler), intent(inout) :: this
        integer, optional, intent(in) :: comm_world
 
-       logical :: already_parallel
 
-       already_parallel = .false.
-       !$ already_parallel = omp_in_parallel()
-
-       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-          !$omp parallel
+       !$omp parallel
 #endif
-          !$omp master
-          if(present(comm_world)) then
-            this%comm_world = comm_world
-          else
-            this%comm_world =  MPI_COMM_WORLD
-          endif
-          !$omp end master
-#ifdef __NAG_COMPILER_RELEASE
-          !$omp end parallel
-#endif
+       !$omp master
+       if(present(comm_world)) then
+          this%comm_world = comm_world
        else
-          !$omp master
-          if(present(comm_world)) then
-            this%comm_world = comm_world
-          else
-            this%comm_world =  MPI_COMM_WORLD
-          endif
-          !$omp end master
-       end if
+          this%comm_world =  MPI_COMM_WORLD
+       endif
+       !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
+       !$omp end parallel
+#endif
+
     end subroutine set_comm_world
 
    ! For debugging
