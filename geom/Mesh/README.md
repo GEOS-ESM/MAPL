@@ -370,12 +370,6 @@ call spec%set_mesh_data(nodes, connectivity, num_conn)
 - Mesh refinement utilities
 - Performance optimizations
 
-## See Also
-
-- [CubedSphere Documentation](../CubedSphere/README.md)
-- [LatLon Documentation](../LatLon/README.md)
-- [ESMF Mesh Documentation](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node5.html#SECTION05030000000000000000)
-
 ## Version History
 
 - **v1.0** (2026-03): Full polygon support
