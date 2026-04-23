@@ -14,6 +14,7 @@ module Test_RegridderArrayOverloads
    ! src: 8×5 coarse grid; dst: 16×11 fine grid.
    ! Using distinct resolutions ensures the regrid route-handle is exercised
    ! rather than any identity short-circuit.
+   ! dateline: DE used (DC triggers a crash in ESMF_FieldRegridStore - see GH issue XXXXX).
    integer, parameter :: IM_SRC = 8,  JM_SRC = 5
    integer, parameter :: IM_DST = 16, JM_DST = 11
    integer, parameter :: LM = 4    ! ungridded (vertical) levels
@@ -46,7 +47,7 @@ contains
    function src_geom_content() result(content)
       character(len=:), allocatable :: content
       content = "{class: latlon, im_world: 8, jm_world: 5, " // &
-                "pole: PC, dateline: DC, nx: 1, ny: 1}"
+                "pole: PC, dateline: DE, nx: 1, ny: 1}"
    end function src_geom_content
 
    ! ---------------------------------------------------------------------------
@@ -55,7 +56,7 @@ contains
    function dst_geom_content() result(content)
       character(len=:), allocatable :: content
       content = "{class: latlon, im_world: 16, jm_world: 11, " // &
-                "pole: PC, dateline: DC, nx: 1, ny: 1}"
+                "pole: PC, dateline: DE, nx: 1, ny: 1}"
    end function dst_geom_content
 
    ! ===========================================================================
@@ -163,11 +164,11 @@ contains
       integer :: status
 
       character(len=*), parameter :: src_content = &
-         "{class: latlon, im_world: 8, jm_world: 5, " // &
-         "pole: PC, dateline: DC, ims: [8], jms: [3, 2]}"
+        "{class: latlon, im_world: 8, jm_world: 5, " // &
+        "pole: PC, dateline: DE, ims: [8], jms: [3, 2]}"
       character(len=*), parameter :: dst_content = &
-         "{class: latlon, im_world: 16, jm_world: 11, " // &
-         "pole: PC, dateline: DC, ims: [16], jms: [6, 5]}"
+        "{class: latlon, im_world: 16, jm_world: 11, " // &
+        "pole: PC, dateline: DE, ims: [16], jms: [6, 5]}"
 
       geom_mgr      = GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
