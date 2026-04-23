@@ -109,7 +109,7 @@ contains
        
        if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-          !$omp parallel if(.false.)
+          !$omp parallel
 #endif
           !$omp master
           if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
@@ -169,7 +169,7 @@ contains
       
       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel if(.false.)
+         !$omp parallel
 #endif
          !$omp master
          if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
@@ -211,7 +211,7 @@ contains
       
       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel if(.false.)
+         !$omp parallel
 #endif
          !$omp master
          call this%start(node)
@@ -246,7 +246,7 @@ contains
       
       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel if(.false.)
+         !$omp parallel
 #endif
          !$omp master
          node_ptr => this%stack%back()
@@ -291,7 +291,7 @@ contains
        
        if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-          !$omp parallel if(.false.)
+          !$omp parallel
 #endif
           !$omp master
           if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
@@ -357,7 +357,7 @@ contains
 
       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel if(.false.)
+         !$omp parallel
 #endif
          !$omp master
          call this%stack%pop_back()
@@ -436,7 +436,7 @@ contains
 
       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel if(.false.)
+         !$omp parallel
 #endif
          !$omp master
          root_node => this%root_node
@@ -466,7 +466,7 @@ contains
 
       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel if(.false.)
+         !$omp parallel
 #endif
          !$omp master
          node => this%get_root_node()
@@ -511,7 +511,7 @@ contains
 
       if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-         !$omp parallel if(.false.)
+         !$omp parallel
 #endif
          !$omp master
          node_ptr => a%stack%back()
@@ -652,7 +652,7 @@ contains
 
        if (.not. already_parallel) then
 #ifdef __NAG_COMPILER_RELEASE
-          !$omp parallel if(.false.)
+          !$omp parallel
 #endif
           !$omp master
           if(present(comm_world)) then
