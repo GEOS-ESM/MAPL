@@ -53,11 +53,11 @@ contains
       do ndx = 1, size(dst)
          val = dst(ndx)
          call find_bracket_(val, src, pair)
-         call compute_weights_(val, pair%value_, weight)
-         if (pair(1) == pair(2)) then
+         if (pair(1)%index == pair(2)%index) then
             ! matrix(ndx, pair(1)%index) = weight(1)
-            call add_row(matrix, ndx, pair(1)%index, [weight(1)])
+            call add_row(matrix, ndx, pair(1)%index, [1.0_REAL32])
          else
+            call compute_weights_(val, pair%value_, weight)
             ! matrix(ndx, pair(1)%index) = weight(1)
             ! matrix(ndx, pair(2)%index) = weight(2)
             call add_row(matrix, ndx, pair(1)%index, [weight(1), weight(2)])
@@ -76,13 +76,22 @@ contains
 
       integer :: ndx1, ndx2
 
-      ndx1 = minloc(abs(array - val), 1)
-      if (array(ndx1) < val) then
-         ndx1 = ndx1 - 1
-      end if
-      ndx2 = ndx1 ! array(ndx1) == val
-      if (array(ndx1) /= val) then
-         ndx2 = ndx1 +1
+      ! Clamp out-of-range requests to the nearest endpoint to avoid invalid indices.
+      if (val >= array(1)) then
+         ndx1 = 1
+         ndx2 = 1
+      else if (val <= array(size(array))) then
+         ndx1 = size(array)
+         ndx2 = size(array)
+      else
+         ndx1 = minloc(abs(array - val), 1)
+         if (array(ndx1) < val) then
+            ndx1 = max(1, ndx1 - 1)
+         end if
+         ndx2 = ndx1
+         if (array(ndx1) /= val) then
+            ndx2 = min(size(array), ndx1 + 1)
+         end if
       end if
 
       pair(1) = IndexValuePair(ndx1, array(ndx1))
@@ -95,15 +104,17 @@ contains
       real(REAL32), intent(in) :: value_(2)
       real(REAL32), intent(out) :: weight(2)
 
-      real(REAL32) :: denominator, epsilon_sp
+      real(REAL32) :: denominator, epsilon_sp, t
 
-      denominator = abs(value_(2) - value_(1))
-      epsilon_sp = epsilon(1.0)
-      if (denominator < epsilon_sp) then
-         weight = 1.0
+      denominator = value_(2) - value_(1)
+      epsilon_sp = epsilon(1.0_REAL32)
+      if (abs(denominator) < epsilon_sp) then
+         weight(1) = 1.0_REAL32
+         weight(2) = 0.0_REAL32
       else
-         weight(1) = abs(value_(2) - val)/denominator
-         weight(2) = abs(val - value_(1))/denominator
+         t = (val - value_(1))/denominator
+         weight(2) = max(0.0_REAL32, min(1.0_REAL32, t))
+         weight(1) = 1.0_REAL32 - weight(2)
       end if
    end subroutine compute_weights_
 
