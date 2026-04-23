@@ -129,10 +129,8 @@ contains
 
       call ESMF_FieldGet(f_in,  typekind=typekind_in,  _RC)
       call ESMF_FieldGet(f_out, typekind=typekind_out, _RC)
-      _ASSERT(typekind_in  == this%typekind_in, &
-           'f_in typekind does not match route handle; set typekind_in in RegridderSpec')
-      _ASSERT(typekind_out == this%typekind_out, &
-           'f_out typekind does not match route handle; set typekind_out in RegridderSpec')
+      _ASSERT(typekind_in  == this%typekind_in,  'f_in typekind does not match route handle; set typekind_in in RegridderSpec')
+      _ASSERT(typekind_out == this%typekind_out, 'f_out typekind does not match route handle; set typekind_out in RegridderSpec')
 
       call ESMF_FieldGet(f_in, ungriddedUBound=ub, _RC)
       has_ungridded_dims = any(ub > 1)
