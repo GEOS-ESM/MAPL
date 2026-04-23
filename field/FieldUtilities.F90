@@ -236,16 +236,18 @@ contains
    subroutine destroy_fields(fields, rc)
       type(ESMF_Field), intent(inout) :: fields(:)
       integer, optional, intent(out) :: rc
-      integer :: status, i
+      integer :: status, i, get_status
       character(len=ESMF_MAXSTR) :: name
 
       do i=1, size(fields)
-         call ESMF_FieldGet(fields(i), name=name, _RC)
+         call ESMF_FieldGet(fields(i), name=name, rc=get_status)
+         if (get_status /= ESMF_SUCCESS) name = '<unnamed>'
          call ESMF_FieldDestroy(fields(i), _RC)
          call ESMF_FieldValidate(fields(i), rc=status)
          _ASSERT(status /= ESMF_SUCCESS, 'Field "' // trim(name) // '" was not destroyed.')
       end do
-         
+
+      _RETURN(_SUCCESS)
    end subroutine destroy_fields
 
 end module MAPL_FieldUtilities

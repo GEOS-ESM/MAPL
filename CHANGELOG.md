@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ESMF_Mesh and Locstream to geom 
 - Added CDash nightly submission workflow (`.github/workflows/cdash-nightly.yml`),
   `CTestConfig.cmake`, `CTestDashboard.cmake`, and `CTestCustom.cmake` to support
   continuous integration testing via CDash

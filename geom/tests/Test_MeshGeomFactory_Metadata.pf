@@ -1,0 +1,113 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_MeshGeomFactory_Metadata
+   use pfunit
+   use esmf_TestMethod_mod ! mapl
+   use mapl3g_GeomSpec
+   use mapl3g_MeshGeomFactory
+   use mapl3g_MeshGeomSpec
+   use mapl3g_MeshDecomposition
+   use mapl3g_MeshTestHelper
+   use pfio
+   use esmf
+   implicit none
+
+contains
+
+    @test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_make_file_metadata_from_spec(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       
+       type(MeshGeomFactory) :: factory
+       type(MeshGeomSpec) :: mesh_spec
+       type(FileMetadata) :: file_metadata
+       type(ESMF_HConfig) :: hconfig
+       integer :: status
+       character(len=256) :: filename
+       character(len=:), allocatable :: source_file
+       character(len=512) :: hconfig_str
+       
+       _UNUSED_DUMMY(this)
+       
+       ! Create mesh file
+       filename = 'test_metadata_quad.nc'
+       call create_simple_quad_file(filename, rc=status)
+       @assert_that(status, is(0))
+       
+       ! Create mesh spec from HConfig pointing to file
+       write(hconfig_str, '(A,A,A)') "{class: mesh, file: '", trim(filename), "'}"
+       hconfig = ESMF_HConfigCreate(content=trim(hconfig_str), rc=status)
+       @assert_that(status, is(0))
+       
+       mesh_spec = make_MeshGeomSpec(hconfig, rc=status)
+       @assert_that(status, is(0))
+       
+       call ESMF_HConfigDestroy(hconfig, rc=status)
+       @assert_that(status, is(0))
+       
+       ! Generate file metadata
+       file_metadata = factory%make_file_metadata(mesh_spec, rc=status)
+       @assert_that(status, is(0))
+       
+       ! Verify that source_file is set to the mesh filename
+       ! This is the simplified approach - the file_metadata only stores the filename
+       ! since the file contains all mesh information
+       source_file = file_metadata%get_source_file(rc=status)
+       @assert_that(status, is(0))
+       @assertTrue(allocated(source_file))
+       @assert_that(trim(source_file), is(trim(filename)))
+       
+       ! Clean up
+       call cleanup_test_file(filename, rc=status)
+       
+    end subroutine test_make_file_metadata_from_spec
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_metadata_roundtrip(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec1, mesh_spec2
+      type(FileMetadata) :: file_metadata
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      character(len=256) :: filename
+      character(len=512) :: hconfig_str
+      
+      _UNUSED_DUMMY(this)
+      
+      ! Create mesh file
+      filename = 'test_metadata_triangle.nc'
+      call create_simple_triangle_file(filename, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create first spec from file
+      write(hconfig_str, '(A,A,A)') "{class: mesh, file: '", trim(filename), "'}"
+      hconfig = ESMF_HConfigCreate(content=trim(hconfig_str), rc=status)
+      @assert_that(status, is(0))
+      
+      mesh_spec1 = make_MeshGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Generate metadata
+      file_metadata = factory%make_file_metadata(mesh_spec1, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Create second spec from metadata (need to pass filename)
+      mesh_spec2 = make_MeshGeomSpec(file_metadata, filename=filename, rc=status)
+      @assert_that(status, is(0))
+      
+      ! Verify specs match
+      @assert_that(mesh_spec2%get_nnodes(), is(3))
+      @assert_that(mesh_spec2%get_nelements(), is(1))
+      
+      ! Clean up
+      call cleanup_test_file(filename, rc=status)
+      
+   end subroutine test_metadata_roundtrip
+
+end module Test_MeshGeomFactory_Metadata
