@@ -108,13 +108,17 @@ contains
        !$ already_parallel = omp_in_parallel()
        
        if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
           !$omp parallel if(.false.)
+#endif
           !$omp master
           if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
           empty_stack = this%stack%size()== 0
           if(empty_stack) call this%start(this%root_node)
           !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
           !$omp end parallel
+#endif
        else
           !$omp master
           if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
@@ -164,7 +168,9 @@ contains
       !$ already_parallel = omp_in_parallel()
       
       if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
          !$omp parallel if(.false.)
+#endif
          !$omp master
          if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
          stack_is_not_empty = .not. this%stack%empty()
@@ -180,7 +186,9 @@ contains
             node => node%get_child(name)
          end if
          !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
          !$omp end parallel
+#endif
       else
          !$omp master
          if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
@@ -202,11 +210,15 @@ contains
       _ASSERT_RC(stack_is_not_empty, "Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
       
       if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
          !$omp parallel if(.false.)
+#endif
          !$omp master
          call this%start(node)
          !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
          !$omp end parallel
+#endif
       else
          !$omp master
          call this%start(node)
@@ -233,7 +245,9 @@ contains
       !$ already_parallel = omp_in_parallel()
       
       if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
          !$omp parallel if(.false.)
+#endif
          !$omp master
          node_ptr => this%stack%back()
          node => node_ptr%ptr
@@ -242,7 +256,9 @@ contains
 
          if(name_is_node_name) call this%stop(node)
          !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
          !$omp end parallel
+#endif
       else
          !$omp master
          node_ptr => this%stack%back()
@@ -274,7 +290,9 @@ contains
        !$ already_parallel = omp_in_parallel()
        
        if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
           !$omp parallel if(.false.)
+#endif
           !$omp master
           if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
           stack_size_is_one = this%stack%size()== 1
@@ -285,7 +303,9 @@ contains
             call this%stop(node)
           end if
           !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
           !$omp end parallel
+#endif
        else
           !$omp master
           if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
@@ -336,14 +356,18 @@ contains
       !$ already_parallel = omp_in_parallel()
 
       if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
          !$omp parallel if(.false.)
+#endif
          !$omp master
          call this%stack%pop_back()
          t => this%root_node%get_meter()
          call t%stop()
          call t%finalize()
          !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
          !$omp end parallel
+#endif
       else
          !$omp master
          call this%stack%pop_back()
@@ -411,11 +435,15 @@ contains
       !$ already_parallel = omp_in_parallel()
 
       if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
          !$omp parallel if(.false.)
+#endif
          !$omp master
          root_node => this%root_node
          !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
          !$omp end parallel
+#endif
       else
          !$omp master
          root_node => this%root_node
@@ -437,7 +465,9 @@ contains
       !$ already_parallel = omp_in_parallel()
 
       if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
          !$omp parallel if(.false.)
+#endif
          !$omp master
          node => this%get_root_node()
          iter = node%begin()
@@ -447,7 +477,9 @@ contains
             call iter%next()
          end do
          !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
          !$omp end parallel
+#endif
       else
          !$omp master
          node => this%get_root_node()
@@ -478,7 +510,9 @@ contains
       !$ already_parallel = omp_in_parallel()
 
       if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
          !$omp parallel if(.false.)
+#endif
          !$omp master
          node_ptr => a%stack%back()
          node_a => node_ptr%ptr
@@ -487,7 +521,9 @@ contains
 
          call node_a%accumulate(node_b)
          !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
          !$omp end parallel
+#endif
       else
          !$omp master
          node_ptr => a%stack%back()
@@ -615,7 +651,9 @@ contains
        !$ already_parallel = omp_in_parallel()
 
        if (.not. already_parallel) then
+#ifdef __NAG_COMPILER_RELEASE
           !$omp parallel if(.false.)
+#endif
           !$omp master
           if(present(comm_world)) then
             this%comm_world = comm_world
@@ -623,7 +661,9 @@ contains
             this%comm_world =  MPI_COMM_WORLD
           endif
           !$omp end master
+#ifdef __NAG_COMPILER_RELEASE
           !$omp end parallel
+#endif
        else
           !$omp master
           if(present(comm_world)) then
