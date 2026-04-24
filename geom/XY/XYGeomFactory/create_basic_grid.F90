@@ -4,7 +4,7 @@ submodule (mapl3g_XYGeomFactory) create_basic_grid_smod
    use mapl_ErrorHandlingMod
    use mapl_InternalConstants
    use esmf
-   implicit none (type, external)
+   implicit none
 
 contains
 

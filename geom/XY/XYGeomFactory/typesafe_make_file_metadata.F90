@@ -5,7 +5,7 @@ submodule (mapl3g_XYGeomFactory) typesafe_make_file_metadata_smod
    use pfio
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL64
-   implicit none (type, external)
+   implicit none
 
 contains
 

@@ -3,7 +3,7 @@
 submodule (mapl3g_XYGeomSpec) supports_hconfig_smod
    use mapl_ErrorHandlingMod
    use esmf
-   implicit none (type, external)
+   implicit none
 
 contains
 

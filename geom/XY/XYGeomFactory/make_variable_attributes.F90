@@ -3,7 +3,7 @@
 submodule (mapl3g_XYGeomFactory) make_variable_attributes_smod
    use mapl_ErrorHandlingMod
    use mapl3g_StringDictionary
-   implicit none (type, external)
+   implicit none
 
 contains
 

@@ -17,7 +17,7 @@ submodule (mapl3g_XYGeomFactory) fill_coordinates_smod
    use NetCDF
    use esmf
    use mpi
-   implicit none (type, external)
+   implicit none
 
 contains
 

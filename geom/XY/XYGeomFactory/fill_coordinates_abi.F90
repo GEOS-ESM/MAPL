@@ -19,7 +19,7 @@ submodule (mapl3g_XYGeomFactory) fill_coordinates_abi_smod
    use esmf
    use mpi
    use, intrinsic :: iso_fortran_env, only: REAL64
-   implicit none (type, external)
+   implicit none
 
    real(REAL64), parameter :: E2 = 1.0_REAL64 - (R_POL/R_EQ)**2
 

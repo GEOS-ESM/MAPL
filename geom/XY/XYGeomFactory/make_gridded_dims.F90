@@ -3,7 +3,7 @@
 submodule (mapl3g_XYGeomFactory) make_gridded_dims_smod
    use mapl_ErrorHandlingMod
    use gftl2_StringVector
-   implicit none (type, external)
+   implicit none
 
 contains
 

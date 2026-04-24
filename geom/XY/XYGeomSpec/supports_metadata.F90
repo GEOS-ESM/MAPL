@@ -3,7 +3,7 @@
 submodule (mapl3g_XYGeomSpec) supports_metadata_smod
    use mapl_ErrorHandlingMod
    use pfio, only: FileMetadata, Attribute
-   implicit none (type, external)
+   implicit none
 
 contains
 

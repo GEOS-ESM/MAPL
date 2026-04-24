@@ -2,7 +2,7 @@
 
 submodule (mapl3g_XYGeomSpec) get_horz_ij_index_smod
    use mapl_ErrorHandlingMod
-   implicit none (type, external)
+   implicit none
 
 contains
 

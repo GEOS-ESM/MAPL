@@ -3,7 +3,7 @@
 submodule (mapl3g_XYGeomFactory) make_geom_smod
    use mapl_ErrorHandlingMod
    use esmf
-   implicit none (type, external)
+   implicit none
 
 contains
 

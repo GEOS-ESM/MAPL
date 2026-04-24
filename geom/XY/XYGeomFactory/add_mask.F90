@@ -5,7 +5,7 @@ submodule (mapl3g_XYGeomFactory) add_mask_smod
    use mapl_InternalConstants, only: MAPL_UNDEFINED_REAL64, MAPL_MASK_IN, MAPL_MASK_OUT, &
         MAPL_DESTINATIONMASK
    use esmf
-   implicit none (type, external)
+   implicit none
 
 contains
 
