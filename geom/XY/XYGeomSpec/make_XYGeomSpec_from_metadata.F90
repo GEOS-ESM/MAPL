@@ -7,7 +7,7 @@ submodule (mapl3g_XYGeomSpec) make_XYGeomSpec_from_metadata_smod
    use NetCDF
    use pfio, only: FileMetadata
    use esmf
-   implicit none (type, external)
+   implicit none
 
 contains
 
@@ -70,11 +70,7 @@ contains
       base      = n / k
       remainder = mod(n, k)
       do i = 1, k
-         if (i <= remainder) then
-            counts(i) = base + 1
-         else
-            counts(i) = base
-         end if
+         counts(i) = base + merge(1, 0, i <= remainder)
       end do
    end subroutine distribute_dim
 

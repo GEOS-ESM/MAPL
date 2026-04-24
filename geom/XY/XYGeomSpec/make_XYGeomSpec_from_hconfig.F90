@@ -6,7 +6,7 @@ submodule (mapl3g_XYGeomSpec) make_XYGeomSpec_from_hconfig_smod
    use mapl3g_Comms, only: am_i_root, ROOT_PROCESS_ID
    use NetCDF
    use esmf
-   implicit none (type, external)
+   implicit none
 
 contains
 
@@ -139,11 +139,7 @@ contains
          status = nf90_open(filename, NF90_NOWRITE, ncid)
          _VERIFY(status)
          status = NF90_inq_varid(ncid, 'corner_lons', varid)
-         if (status == NF90_NOERR) then
-            log_array(1) = 1
-         else
-            log_array(1) = 0
-         end if
+         log_array(1) = merge(1, 0, status == NF90_NOERR)
          status = nf90_close(ncid)
          _VERIFY(status)
       end if
@@ -191,11 +187,7 @@ contains
       base      = n / k
       remainder = mod(n, k)
       do i = 1, k
-         if (i <= remainder) then
-            counts(i) = base + 1
-         else
-            counts(i) = base
-         end if
+         counts(i) = base + merge(1, 0, i <= remainder)
       end do
    end subroutine distribute_dim
 
