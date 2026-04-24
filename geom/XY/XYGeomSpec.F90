@@ -31,6 +31,8 @@ module mapl3g_XYGeomSpec
       integer, allocatable :: jms(:)   ! length ny
       ! Whether the file contains corner coordinates
       logical :: has_corners = .false.
+      ! Number of periodic dimensions (0=none, 1=periodic in X for tripolar)
+      integer :: n_peri_dim  = 0
       ! Coordinate mode
       integer :: coord_mode = XY_COORD_STANDARD
       ! ABI-specific metadata
@@ -62,6 +64,7 @@ module mapl3g_XYGeomSpec
       procedure :: get_jms
       procedure :: get_grid_file_name
       procedure :: get_has_corners
+      procedure :: get_n_peri_dim
       procedure :: get_coord_mode
       procedure :: get_thin_factor
       procedure :: get_xdim_true
@@ -142,7 +145,7 @@ contains
 
    function new_XYGeomSpec( &
         grid_file_name, im_world, jm_world, lm, ims, jms, &
-        has_corners, coord_mode, thin_factor, xdim_true, ydim_true, &
+        has_corners, n_peri_dim, coord_mode, thin_factor, xdim_true, ydim_true, &
         index_name_x, index_name_y, &
         var_name_x, var_name_y, var_name_proj, att_name_proj) result(spec)
       type(XYGeomSpec) :: spec
@@ -153,6 +156,7 @@ contains
       integer,          optional, intent(in) :: ims(:)
       integer,          optional, intent(in) :: jms(:)
       logical,          optional, intent(in) :: has_corners
+      integer,          optional, intent(in) :: n_peri_dim
       integer,          optional, intent(in) :: coord_mode
       integer,          optional, intent(in) :: thin_factor
       integer,          optional, intent(in) :: xdim_true
@@ -171,6 +175,7 @@ contains
       if (present(ims))         spec%ims         = ims
       if (present(jms))         spec%jms         = jms
       if (present(has_corners)) spec%has_corners  = has_corners
+      if (present(n_peri_dim))  spec%n_peri_dim   = n_peri_dim
       if (present(coord_mode))  spec%coord_mode   = coord_mode
       if (present(thin_factor)) spec%thin_factor  = thin_factor
       if (present(xdim_true))   spec%xdim_true    = xdim_true
@@ -223,6 +228,11 @@ contains
       class(XYGeomSpec), intent(in) :: this
       v = this%has_corners
    end function get_has_corners
+
+   integer function get_n_peri_dim(this) result(v)
+      class(XYGeomSpec), intent(in) :: this
+      v = this%n_peri_dim
+   end function get_n_peri_dim
 
    integer function get_coord_mode(this) result(v)
       class(XYGeomSpec), intent(in) :: this

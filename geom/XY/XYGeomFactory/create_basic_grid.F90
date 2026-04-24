@@ -17,15 +17,28 @@ contains
       integer :: status
       type(ESMF_Info) :: infoh
 
-      grid = ESMF_GridCreateNoPeriDim( &
-           countsPerDEDim1=spec%get_ims(), &
-           countsPerDEDim2=spec%get_jms(), &
-           indexFlag=ESMF_INDEX_DELOCAL, &
-           gridEdgeLWidth=[0,0], &
-           gridEdgeUWidth=[0,1], &
-           coordDep1=[1,2], &
-           coordDep2=[1,2], &
-           coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
+      if (spec%get_n_peri_dim() == 0) then
+         grid = ESMF_GridCreateNoPeriDim( &
+              countsPerDEDim1=spec%get_ims(), &
+              countsPerDEDim2=spec%get_jms(), &
+              indexFlag=ESMF_INDEX_DELOCAL, &
+              gridEdgeLWidth=[0,0], &
+              gridEdgeUWidth=[0,1], &
+              coordDep1=[1,2], &
+              coordDep2=[1,2], &
+              coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
+      else
+         grid = ESMF_GridCreate1PeriDim( &
+              countsPerDEDim1=spec%get_ims(), &
+              countsPerDEDim2=spec%get_jms(), &
+              poleKindFlag=[ESMF_POLEKIND_MONOPOLE, ESMF_POLEKIND_BIPOLE], &
+              indexFlag=ESMF_INDEX_DELOCAL, &
+              gridEdgeLWidth=[0,0], &
+              gridEdgeUWidth=[0,1], &
+              coordDep1=[1,2], &
+              coordDep2=[1,2], &
+              coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
+      end if
 
       ! Allocate centre coordinates
       call ESMF_GridAddCoord(grid, _RC)

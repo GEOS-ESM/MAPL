@@ -26,10 +26,17 @@ contains
       character(len=:), allocatable :: var_name_x, var_name_y
       character(len=:), allocatable :: var_name_proj, att_name_proj
       integer :: coord_mode
+      integer :: n_peri_dim
 
       ! Required: grid_file_name
       grid_file_name = ESMF_HConfigAsString(hconfig, keyString='grid_file_name', _RC)
       spec%grid_file_name = grid_file_name
+
+      ! Optional: n_peri_dim (0=non-periodic, 1=periodic in X for tripolar)
+      n_peri_dim = 0
+      found = ESMF_HConfigIsDefined(hconfig, keyString='n_peri_dim', _RC)
+      if (found) n_peri_dim = ESMF_HConfigAsI4(hconfig, keyString='n_peri_dim', _RC)
+      spec%n_peri_dim = n_peri_dim
 
       ! Optional vertical extent
       has_lm = ESMF_HConfigIsDefined(hconfig, keystring='LM', _RC)
