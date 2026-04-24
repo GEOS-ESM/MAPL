@@ -161,6 +161,63 @@ contains
    end subroutine test_make_geom_adds_mask
 
    ! -----------------------------------------------------------------------
+   ! make_geom: n_peri_dim=1 (tripolar) — exercises ESMF_GridCreate1PeriDim path
+   ! -----------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_tripolar(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 8, JM = 4
+      type(XYGeomFactory) :: factory
+      class(GeomSpec), allocatable :: spec
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_GeomType_Flag) :: geomtype
+      real(ESMF_KIND_R8), pointer :: fptr(:,:)
+      integer :: status
+      real(ESMF_KIND_R8), parameter :: PI = acos(-1.0_ESMF_KIND_R8)
+
+      _UNUSED_DUMMY(this)
+
+      call create_xy_file('test_xy_tripolar.nc', IM, JM, rc=status)
+      @assert_that(status, is(0))
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_tripolar.nc, n_peri_dim: 1}', rc=status)
+      @assert_that(status, is(0))
+
+      spec = factory%make_spec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      geom = factory%make_geom(spec, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(geomtype == ESMF_GEOMTYPE_GRID)
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify centre coordinates are populated and in radians
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(all(fptr >= -PI))
+      @assertTrue(all(fptr <=  PI))
+
+      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(all(fptr >= -PI/2.0_ESMF_KIND_R8))
+      @assertTrue(all(fptr <=  PI/2.0_ESMF_KIND_R8))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_geom_tripolar
+
+   ! -----------------------------------------------------------------------
    ! make_file_metadata round-trip: metadata produced is recognized by supports_metadata
    ! -----------------------------------------------------------------------
 
