@@ -13,6 +13,15 @@ macro(run_case CASE)
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E cat ${tempdir}/PET0.ESMF_LogFile
       )
+    if(NOT CMD_RESULT AND "${CASE}" STREQUAL "cap_restart_tests")
+      set(EXPECTED "cap_restart_expected.yaml")
+      set(ACTUAL "cap_restart.yaml")
+      execute_process(
+        COMMAND ${CMAKE_COMMAND} -E compare_files --ignore-eol "${EXPECTED}" "${ACTUAL}"
+        WORKING_DIRECTORY "${tempdir}"
+        RESULT_VARIABLE CMD_RESULT
+        )
+    endif()
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E rm -rf ${tempdir}
       )

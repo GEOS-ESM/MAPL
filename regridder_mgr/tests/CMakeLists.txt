@@ -4,6 +4,7 @@ set(this MAPL.regridder_mgr.tests)
 set (TEST_SRCS
   Test_RouteHandleManager.pf
   Test_RegridderManager.pf
+  Test_RegridderArrayOverloads.pf
   )
 
 add_pfunit_ctest(${this}
