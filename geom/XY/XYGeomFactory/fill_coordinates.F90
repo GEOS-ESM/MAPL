@@ -48,7 +48,12 @@ contains
       call get_interior_bounds(grid, i1, in, j1, jn, _RC)
       ! corner bounds: last PE row owns the extra corner row
       ic1 = i1 ;  icn = in
-      jc1 = j1 ;  jcn = merge(jn+1, jn, jn == jm_world)
+      jc1 = j1
+      if (jn == jm_world) then
+         jcn = jn + 1
+      else
+         jcn = jn
+      end if
 
       ! longitudes
       if (am_i_root()) then

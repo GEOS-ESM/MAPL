@@ -70,7 +70,11 @@ contains
       base      = n / k
       remainder = mod(n, k)
       do i = 1, k
-         counts(i) = base + merge(1, 0, i <= remainder)
+         if (i <= remainder) then
+            counts(i) = base + 1
+         else
+            counts(i) = base
+         end if
       end do
    end subroutine distribute_dim
 

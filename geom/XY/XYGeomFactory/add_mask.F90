@@ -29,9 +29,11 @@ contains
       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr_lat, _RC)
 
-      local_has_undef = merge(1, 0, &
-           any(fptr_lon == MAPL_UNDEFINED_REAL64) .or. &
-           any(fptr_lat == MAPL_UNDEFINED_REAL64))
+       if (any(fptr_lon == MAPL_UNDEFINED_REAL64) .or. any(fptr_lat == MAPL_UNDEFINED_REAL64)) then
+         local_has_undef = 1
+      else
+         local_has_undef = 0
+      end if
 
       call ESMF_VMGetCurrent(vm, _RC)
       call ESMF_VMAllFullReduce(vm, [local_has_undef], has_undef, 1, ESMF_REDUCE_MAX, _RC)
