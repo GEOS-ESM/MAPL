@@ -113,7 +113,7 @@ contains
       @assertEqual(0, status)
 
       call StateGetGeom(state, geom, rc=status)
-      @assertTrue(status /= 0, 'StateGetGeom should fail for an empty state')
+      @assertExceptionRaised('StateGetGeom should fail for an empty state')
 
       call ESMF_StateDestroy(state, rc=status)
       @assertEqual(0, status)
@@ -162,7 +162,7 @@ contains
       @assertEqual(0, status)
 
       call StateGetGeom(state, result_geom, rc=status)
-      @assertTrue(status /= 0, 'StateGetGeom should fail when fields have different geoms')
+      @assertExceptionRaised('StateGetGeom should fail when fields have different geoms')
 
       call ESMF_FieldDestroy(field1, rc=status)
       @assertEqual(0, status)
