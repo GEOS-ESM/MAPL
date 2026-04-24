@@ -109,7 +109,11 @@ contains
     logical :: SEND, RECV
     integer, pointer :: NOP(:,:)
 
-    Jdim = size(A)/Idim
+    if (Idim == 0) then
+       Jdim = 1
+    else
+       Jdim = size(A)/Idim
+    end if
 
     if(present(Handle)) then
        ISTRAT = Handle
@@ -213,7 +217,11 @@ contains
     logical :: SEND, RECV
     integer, pointer :: NOP(:,:)
 
-    Jdim = size(A)/Idim
+    if (Idim == 0) then
+       Jdim = 1
+    else
+       Jdim = size(A)/Idim
+    end if
 
     if(present(Handle)) then
        ISTRAT = Handle
