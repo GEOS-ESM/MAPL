@@ -3,7 +3,7 @@
 
 module Test_StateGetGeom
    use mapl3g_StateGetGeom
-   use mapl3g_Geom_API, only: geom_manager, GeomManager, MaplGeom
+   use mapl3g_Geom_API, only: get_geom_manager, GeomManager, MaplGeom
    use pfunit
    use ESMF_TestMethod_mod
    use esmf
@@ -22,6 +22,7 @@ contains
       type(ESMF_Geom) :: geom, result_geom
       type(ESMF_Field) :: field
       type(ESMF_State) :: state
+      type(GeomManager), pointer :: mgr
       integer :: status
 
       hconfig = ESMF_HConfigCreate( &
@@ -29,7 +30,8 @@ contains
            rc=status)
       @assertEqual(0, status)
 
-      mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
+      mgr => get_geom_manager()
+      mapl_geom => mgr%get_mapl_geom(hconfig, rc=status)
       @assertEqual(0, status)
 
       geom = mapl_geom%get_geom()
@@ -62,6 +64,7 @@ contains
       type(ESMF_Geom) :: geom, result_geom
       type(ESMF_Field) :: field1, field2
       type(ESMF_State) :: state
+      type(GeomManager), pointer :: mgr
       integer :: status
 
       hconfig = ESMF_HConfigCreate( &
@@ -69,7 +72,8 @@ contains
            rc=status)
       @assertEqual(0, status)
 
-      mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
+      mgr => get_geom_manager()
+      mapl_geom => mgr%get_mapl_geom(hconfig, rc=status)
       @assertEqual(0, status)
 
       geom = mapl_geom%get_geom()
@@ -109,7 +113,7 @@ contains
       @assertEqual(0, status)
 
       call StateGetGeom(state, geom, rc=status)
-      @assertNotEqual(0, status, 'StateGetGeom should fail for an empty state')
+      @assertTrue(status /= 0, 'StateGetGeom should fail for an empty state')
 
       call ESMF_StateDestroy(state, rc=status)
       @assertEqual(0, status)
@@ -127,6 +131,7 @@ contains
       type(ESMF_Geom) :: geom1, geom2, result_geom
       type(ESMF_Field) :: field1, field2
       type(ESMF_State) :: state
+      type(GeomManager), pointer :: mgr
       integer :: status
 
       hconfig1 = ESMF_HConfigCreate( &
@@ -139,9 +144,10 @@ contains
            rc=status)
       @assertEqual(0, status)
 
-      mapl_geom1 => geom_manager%get_mapl_geom(hconfig1, rc=status)
+      mgr => get_geom_manager()
+      mapl_geom1 => mgr%get_mapl_geom(hconfig1, rc=status)
       @assertEqual(0, status)
-      mapl_geom2 => geom_manager%get_mapl_geom(hconfig2, rc=status)
+      mapl_geom2 => mgr%get_mapl_geom(hconfig2, rc=status)
       @assertEqual(0, status)
 
       geom1 = mapl_geom1%get_geom()
@@ -156,7 +162,7 @@ contains
       @assertEqual(0, status)
 
       call StateGetGeom(state, result_geom, rc=status)
-      @assertNotEqual(0, status, 'StateGetGeom should fail when fields have different geoms')
+      @assertTrue(status /= 0, 'StateGetGeom should fail when fields have different geoms')
 
       call ESMF_FieldDestroy(field1, rc=status)
       @assertEqual(0, status)
