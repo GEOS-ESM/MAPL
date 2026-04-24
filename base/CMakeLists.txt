@@ -2,35 +2,24 @@ esma_set_this (OVERRIDE MAPL.base)
 
 set (srcs
   MAPL_Profiler.F90
-  MAPL_RegridderManager.F90
-  NewRegridderManager.F90
-  RegridderTypeSpec.F90                 RegridderSpec.F90                   RegridderSpecRouteHandleMap.F90
-  RegridMethods.F90                     HorizontalFluxRegridder.F90
-  MAPL_FractionalRegridder.F90          MAPL_RegridderTypeSpecRegridderMap.F90
-  MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_SatVapor.F90
-  FileMetadataUtilities.F90             MAPL_GetLatLonCoord.F90             MAPL_SimpleAlarm.F90
+  FileMetadataUtilities.F90             MAPL_SimpleAlarm.F90
   FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90
-  MAPL_AbstractGridFactory.F90          MAPL_GridSpec.F90                   MAPL_StringGridFactoryMap.F90
-  MAPL_GridType.F90                     MAPL_StringGridMap.F90              MaplGrid.F90
-  MAPL_AbstractRegridder.F90
-  MAPL_StringRouteHandleMap.F90
-  MAPL_IdentityRegridder.F90            MAPL_stubs.F90
+  MAPL_AbstractGridFactory.F90          MAPL_StringGridFactoryMap.F90
+  MaplGrid.F90
+  MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
-  MAPL_TilingRegridder.F90
   MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
-  MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
-  MAPL_Comms.F90                        MAPL_LatLonToLatLonRegridder.F90    MAPL_TripolarGridFactory.F90
+  MAPL_LatLonGridFactory.F90
+  MAPL_Comms.F90                        MAPL_TripolarGridFactory.F90
   MAPL_LlcGridFactory.F90               MAPL_SwathGridFactory.F90
   MAPL_Config.F90                       MAPL_LocStreamMod.F90
-  MAPL_ConservativeRegridder.F90        MAPL_MaxMinMod.F90                  MAPL_VerticalInterpMod.F90
+  MAPL_MaxMinMod.F90                    MAPL_VerticalInterpMod.F90
   MAPL_CubedSphereGridFactory.F90       MAPL_MemUtils.F90                   MAPL_VerticalMethods.F90
-  MAPL_DefGridName.F90                  Base.F90                        MAPL_VotingRegridder.F90
-  MAPL_EsmfRegridder.F90
+  MAPL_DefGridName.F90                  Base.F90
   MAPL_ESMFTimeVectorMod.F90            Regrid_Functions_Mod.F90
-  MAPL_EtaHybridVerticalCoordinate.F90
   MAPL_NominalOrbitsMod.F90
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   MAPL_ExternalGridFactory.F90
@@ -85,10 +74,6 @@ target_include_directories (${this} PUBLIC
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PUBLIC "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
-
-ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS ESMF::ESMF MAPL.shared)
-target_link_libraries (cub2latlon.x PRIVATE ${this} MAPL.pfio MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
-set_target_properties(cub2latlon.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 if (EXTENDED_SOURCE)
   esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
