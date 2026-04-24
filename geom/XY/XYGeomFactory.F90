@@ -97,11 +97,10 @@ module mapl3g_XYGeomFactory
       end function make_variable_attributes
 
       module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
-         use mapl_KeywordEnforcerMod
          type(FileMetadata) :: file_metadata
          class(XYGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function make_file_metadata

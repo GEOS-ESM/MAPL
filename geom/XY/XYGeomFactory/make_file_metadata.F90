@@ -2,6 +2,7 @@
 
 submodule (mapl3g_XYGeomFactory) make_file_metadata_smod
    use mapl_ErrorHandlingMod
+   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    use pfio
    use esmf
    implicit none
@@ -12,7 +13,7 @@ contains
       type(FileMetadata) :: file_metadata
       class(XYGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 
