@@ -20,7 +20,9 @@ contains
       type(Attribute), pointer :: attr
 
       supports = file_metadata%has_attribute('grid_type')
-      if (.not. supports) return
+      if (.not. supports) then
+         _RETURN(_SUCCESS)
+      end if
 
       attr => file_metadata%get_attribute('grid_type', _RC)
       grid_type = attr%get_string(_RC)
