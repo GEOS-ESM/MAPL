@@ -21,13 +21,11 @@ contains
       character(len=:), allocatable :: grid_file_name
       character(len=:), allocatable :: coord_class
       integer :: thin_factor, n1, n2, ncid, dimid
-      integer :: lm
       logical :: has_lm, found
       character(len=:), allocatable :: index_name_x, index_name_y
       character(len=:), allocatable :: var_name_x, var_name_y
       character(len=:), allocatable :: var_name_proj, att_name_proj
       integer :: coord_mode
-      integer, allocatable :: ims(:), jms(:)
 
       ! Required: grid_file_name
       grid_file_name = ESMF_HConfigAsString(hconfig, keyString='grid_file_name', _RC)
@@ -136,6 +134,8 @@ contains
 
       integer :: status, ncid, varid
       integer :: log_array(1)
+      intrinsic :: merge
+      intrinsic :: merge
 
       if (am_i_root()) then
          status = nf90_open(filename, NF90_NOWRITE, ncid)
@@ -186,6 +186,8 @@ contains
       integer, intent(in)  :: n, k
       integer, intent(out) :: counts(k)
       integer :: base, remainder, i
+      intrinsic :: merge
+      intrinsic :: merge
       base      = n / k
       remainder = mod(n, k)
       do i = 1, k
