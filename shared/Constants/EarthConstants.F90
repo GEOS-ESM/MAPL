@@ -20,7 +20,9 @@ module MAPL_EarthConstants
         2.0*MAPL_PI/MAPL_SECONDS_PER_SIDEREAL_DAY                                    ! rotation rate (REAL32)  1/s
    real(kind=REAL64), parameter :: MAPL_ECCENTRICITY              = &
         8.181919084262200d-2                                                          ! WGS84 first eccentricity  --
-   real(kind=REAL64), parameter :: MAPL_SEMIMAJOR_AXIS            = 6378137.0_REAL64 ! WGS84 semi-major axis  m
+   real(kind=REAL64), parameter :: MAPL_SEMIMAJOR_AXIS            = 6378137.0_REAL64    ! WGS84 semi-major axis  m
+   real(kind=REAL64), parameter :: MAPL_SEMIMINOR_AXIS            = 6356752.3142_REAL64 ! WGS84 semi-minor axis  m
+   real(kind=REAL64), parameter :: MAPL_GEO_ORBIT_RADIUS          = 42164160.0_REAL64   ! mean GEO orbital radius  m
    real(kind=REAL64), parameter :: MAPL_KM_PER_DEGREE             = &
         (1.0_REAL64 / (MAPL_RADIUS / 1000.0_REAL64)) * MAPL_RADIANS_TO_DEGREES      ! km per degree of arc  km/deg
    real(kind=REAL64), parameter :: MAPL_DEGREE_PER_KM             = &
