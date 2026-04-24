@@ -300,10 +300,17 @@ contains
       character(*), intent(in) :: name
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      integer :: status, slash_pos
       type(VariableSpec) :: varspec
+      character(len=:), allocatable :: just_name
 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'temp_min'//name, _RC)
+      slash_pos = index(name, "/")
+      just_name = name
+      if (slash_pos > 0) then
+         just_name = name(slash_pos+1:)
+      end if
+
+      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'temp_min'//just_name, _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
 
       _RETURN(_SUCCESS)

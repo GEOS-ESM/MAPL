@@ -1,0 +1,176 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_StateGetGeom
+   use mapl3g_StateGetGeom
+   use mapl3g_Geom_API, only: geom_manager, GeomManager, MaplGeom
+   use pfunit
+   use ESMF_TestMethod_mod
+   use esmf
+   use MAPL_ExceptionHandling
+
+   implicit none(type, external)
+
+contains
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_single_field_returns_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom, result_geom
+      type(ESMF_Field) :: field
+      type(ESMF_State) :: state
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate( &
+           content="{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assertEqual(0, status)
+
+      mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      geom = mapl_geom%get_geom()
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, rc=status)
+      @assertEqual(0, status)
+
+      state = ESMF_StateCreate(fieldList=[field], rc=status)
+      @assertEqual(0, status)
+
+      call StateGetGeom(state, result_geom, rc=status)
+      @assertEqual(0, status, 'StateGetGeom should succeed for a state with one field')
+
+      call ESMF_FieldDestroy(field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateDestroy(state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_single_field_returns_geom
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_multiple_fields_same_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom, result_geom
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_State) :: state
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate( &
+           content="{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assertEqual(0, status)
+
+      mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      geom = mapl_geom%get_geom()
+      field1 = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, name='field1', rc=status)
+      @assertEqual(0, status)
+      field2 = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, name='field2', rc=status)
+      @assertEqual(0, status)
+
+      state = ESMF_StateCreate(fieldList=[field1, field2], rc=status)
+      @assertEqual(0, status)
+
+      call StateGetGeom(state, result_geom, rc=status)
+      @assertEqual(0, status, 'StateGetGeom should succeed when all fields share the same geom')
+
+      call ESMF_FieldDestroy(field1, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field2, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateDestroy(state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_multiple_fields_same_geom
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_empty_state_fails(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_State) :: state
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      state = ESMF_StateCreate(rc=status)
+      @assertEqual(0, status)
+
+      call StateGetGeom(state, geom, rc=status)
+      @assertNotEqual(0, status, 'StateGetGeom should fail for an empty state')
+
+      call ESMF_StateDestroy(state, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_empty_state_fails
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_mismatched_geoms_fails(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig1, hconfig2
+      type(MaplGeom), pointer :: mapl_geom1, mapl_geom2
+      type(ESMF_Geom) :: geom1, geom2, result_geom
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_State) :: state
+      integer :: status
+
+      hconfig1 = ESMF_HConfigCreate( &
+           content="{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assertEqual(0, status)
+
+      hconfig2 = ESMF_HConfigCreate( &
+           content="{class: latlon, im_world: 8, jm_world: 8, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assertEqual(0, status)
+
+      mapl_geom1 => geom_manager%get_mapl_geom(hconfig1, rc=status)
+      @assertEqual(0, status)
+      mapl_geom2 => geom_manager%get_mapl_geom(hconfig2, rc=status)
+      @assertEqual(0, status)
+
+      geom1 = mapl_geom1%get_geom()
+      geom2 = mapl_geom2%get_geom()
+
+      field1 = ESMF_FieldCreate(geom=geom1, typekind=ESMF_TYPEKIND_R4, name='field1', rc=status)
+      @assertEqual(0, status)
+      field2 = ESMF_FieldCreate(geom=geom2, typekind=ESMF_TYPEKIND_R4, name='field2', rc=status)
+      @assertEqual(0, status)
+
+      state = ESMF_StateCreate(fieldList=[field1, field2], rc=status)
+      @assertEqual(0, status)
+
+      call StateGetGeom(state, result_geom, rc=status)
+      @assertNotEqual(0, status, 'StateGetGeom should fail when fields have different geoms')
+
+      call ESMF_FieldDestroy(field1, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field2, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateDestroy(state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_HConfigDestroy(hconfig1, rc=status)
+      @assertEqual(0, status)
+      call ESMF_HConfigDestroy(hconfig2, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_mismatched_geoms_fails
+
+end module Test_StateGetGeom
