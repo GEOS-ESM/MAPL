@@ -111,11 +111,11 @@ variables:
     double nodeCoords(coordDim, nodeCount)
         nodeCoords:units = "degrees"
         nodeCoords:long_name = "Node coordinates (longitude, latitude)"
-    
+
     int elementConn(connectionCount)
         elementConn:long_name = "Node indices that define the element connectivity"
         elementConn:start_index = 1
-    
+
     int numElementConn(elementCount)
         numElementConn:long_name = "Number of nodes per element"
 
@@ -250,7 +250,7 @@ variable_attributes = factory%make_variable_attributes(geom_spec, rc)
 
 **Element Type Tests:**
 - Triangles ✅
-- Quadrilaterals ✅  
+- Quadrilaterals ✅
 - Hexagons ✅
 - Octagons ✅
 - Mixed element types ✅
@@ -342,7 +342,7 @@ nodes(1, 8:13) = [5.0d0, 4.5d0, 3.5d0, 3.0d0, 3.5d0, 4.5d0]
 nodes(2, 8:13) = [0.0d0, 0.866d0, 0.866d0, 0.0d0, -0.866d0, -0.866d0]
 
 connectivity = [1, 2, 3,           & ! Triangle
-                4, 5, 6, 7,        & ! Quad  
+                4, 5, 6, 7,        & ! Quad
                 8, 9, 10, 11, 12, 13]  ! Hexagon
 num_conn = [3, 4, 6]
 
@@ -372,8 +372,6 @@ call spec%set_mesh_data(nodes, connectivity, num_conn)
 
 ## See Also
 
-- [CubedSphere Documentation](../CubedSphere/README.md)
-- [LatLon Documentation](../LatLon/README.md)
 - [ESMF Mesh Documentation](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node5.html#SECTION05030000000000000000)
 
 ## Version History
@@ -393,6 +391,6 @@ call spec%set_mesh_data(nodes, connectivity, num_conn)
 
 ---
 
-**Author:** OpenCode Implementation  
-**Date:** March 2026  
+**Author:** OpenCode Implementation
+**Date:** March 2026
 **Status:** Production Ready ✅

@@ -1,0 +1,215 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_XYGeomSpec
+
+   use pfunit
+   use esmf_TestMethod_mod
+   use mapl3g_XYGeomSpec
+   use mapl3g_XYTestHelper
+   use mapl_ErrorHandlingMod
+   use pfio, only: FileMetadata, Attribute
+   use esmf
+   implicit none
+
+contains
+
+   ! -----------------------------------------------------------------------
+   ! supports_hconfig
+   ! -----------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_hconfig_xy(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_HConfig) :: hconfig
+      type(XYGeomSpec) :: spec
+      logical :: supports
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: dummy.nc}', rc=status)
+      @assert_that(status, is(0))
+
+      supports = spec%supports_hconfig(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(supports)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_supports_hconfig_xy
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_hconfig_rejects_latlon(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_HConfig) :: hconfig
+      type(XYGeomSpec) :: spec
+      logical :: supports
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC}', &
+           rc=status)
+      @assert_that(status, is(0))
+
+      supports = spec%supports_hconfig(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assertFalse(supports)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_supports_hconfig_rejects_latlon
+
+   ! -----------------------------------------------------------------------
+   ! supports_metadata
+   ! -----------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_metadata_xy(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(XYGeomSpec) :: spec
+      type(FileMetadata) :: file_metadata
+      logical :: supports
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      file_metadata = FileMetadata()
+      call file_metadata%add_attribute('grid_type', Attribute('XY'))
+
+      supports = spec%supports_metadata(file_metadata, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(supports)
+   end subroutine test_supports_metadata_xy
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_metadata_rejects_latlon(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(XYGeomSpec) :: spec
+      type(FileMetadata) :: file_metadata
+      logical :: supports
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      file_metadata = FileMetadata()
+      call file_metadata%add_attribute('grid_type', Attribute('LatLon'))
+
+      supports = spec%supports_metadata(file_metadata, rc=status)
+      @assert_that(status, is(0))
+      @assertFalse(supports)
+   end subroutine test_supports_metadata_rejects_latlon
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_metadata_no_attribute(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(XYGeomSpec) :: spec
+      type(FileMetadata) :: file_metadata
+      logical :: supports
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      file_metadata = FileMetadata()
+
+      supports = spec%supports_metadata(file_metadata, rc=status)
+      @assert_that(status, is(0))
+      @assertFalse(supports)
+   end subroutine test_supports_metadata_no_attribute
+
+   ! -----------------------------------------------------------------------
+   ! equal_to: build specs from hconfig+file, test via generic ==
+   ! -----------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_equal_to_same_spec(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(XYGeomSpec) :: a, b
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      call create_xy_file('test_xy_eq1.nc', 4, 4, rc=status)
+      @assert_that(status, is(0))
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_eq1.nc}', rc=status)
+      @assert_that(status, is(0))
+
+      a = make_XYGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+      b = make_XYGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      @assertTrue(a == b)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_equal_to_same_spec
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_equal_to_different_dims(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(XYGeomSpec) :: a, b
+      type(ESMF_HConfig) :: hconfig_a, hconfig_b
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      call create_xy_file('test_xy_eq4.nc', 4, 4, rc=status)
+      @assert_that(status, is(0))
+      call create_xy_file('test_xy_eq8.nc', 8, 4, rc=status)
+      @assert_that(status, is(0))
+
+      hconfig_a = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_eq4.nc}', rc=status)
+      @assert_that(status, is(0))
+      hconfig_b = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_eq8.nc}', rc=status)
+      @assert_that(status, is(0))
+
+      a = make_XYGeomSpec(hconfig_a, rc=status)
+      @assert_that(status, is(0))
+      b = make_XYGeomSpec(hconfig_b, rc=status)
+      @assert_that(status, is(0))
+
+      @assertFalse(a == b)
+
+      call ESMF_HConfigDestroy(hconfig_a, rc=status)
+      call ESMF_HConfigDestroy(hconfig_b, rc=status)
+   end subroutine test_equal_to_different_dims
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_equal_to_different_file(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(XYGeomSpec) :: a, b
+      type(ESMF_HConfig) :: hconfig_a, hconfig_b
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      call create_xy_file('test_xy_eqA.nc', 4, 4, rc=status)
+      @assert_that(status, is(0))
+      call create_xy_file('test_xy_eqB.nc', 4, 4, rc=status)
+      @assert_that(status, is(0))
+
+      hconfig_a = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_eqA.nc}', rc=status)
+      @assert_that(status, is(0))
+      hconfig_b = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_eqB.nc}', rc=status)
+      @assert_that(status, is(0))
+
+      a = make_XYGeomSpec(hconfig_a, rc=status)
+      @assert_that(status, is(0))
+      b = make_XYGeomSpec(hconfig_b, rc=status)
+      @assert_that(status, is(0))
+
+      @assertFalse(a == b)
+
+      call ESMF_HConfigDestroy(hconfig_a, rc=status)
+      call ESMF_HConfigDestroy(hconfig_b, rc=status)
+   end subroutine test_equal_to_different_file
+
+end module Test_XYGeomSpec
