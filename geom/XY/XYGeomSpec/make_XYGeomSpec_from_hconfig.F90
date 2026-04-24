@@ -134,14 +134,16 @@ contains
 
       integer :: status, ncid, varid
       integer :: log_array(1)
-      intrinsic :: merge
-      intrinsic :: merge
 
       if (am_i_root()) then
          status = nf90_open(filename, NF90_NOWRITE, ncid)
          _VERIFY(status)
          status = NF90_inq_varid(ncid, 'corner_lons', varid)
-         log_array(1) = merge(1, 0, status == NF90_NOERR)
+         if (status == NF90_NOERR) then
+            log_array(1) = 1
+         else
+            log_array(1) = 0
+         end if
          status = nf90_close(ncid)
          _VERIFY(status)
       end if
@@ -186,12 +188,14 @@ contains
       integer, intent(in)  :: n, k
       integer, intent(out) :: counts(k)
       integer :: base, remainder, i
-      intrinsic :: merge
-      intrinsic :: merge
       base      = n / k
       remainder = mod(n, k)
       do i = 1, k
-         counts(i) = base + merge(1, 0, i <= remainder)
+         if (i <= remainder) then
+            counts(i) = base + 1
+         else
+            counts(i) = base
+         end if
       end do
    end subroutine distribute_dim
 
