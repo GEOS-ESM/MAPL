@@ -12,10 +12,11 @@ contains
 
       select type (b)
       type is (XYGeomSpec)
-         equal_to = (a%im_world   == b%im_world)   .and. &
-                    (a%jm_world   == b%jm_world)    .and. &
-                    (a%lm         == b%lm)           .and. &
-                    (a%coord_mode == b%coord_mode)   .and. &
+         equal_to = (a%im_world    == b%im_world)    .and. &
+                    (a%jm_world    == b%jm_world)    .and. &
+                    (a%lm          == b%lm)          .and. &
+                    (a%n_peri_dim  == b%n_peri_dim)  .and. &
+                    (a%coord_mode  == b%coord_mode)  .and. &
                     (a%thin_factor == b%thin_factor) .and. &
                     (a%grid_file_name == b%grid_file_name)
       class default
