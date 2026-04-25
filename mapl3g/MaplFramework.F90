@@ -722,16 +722,12 @@ contains
       has_r8 = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_default_fill_value_r8', _RC)
 
       ! Disallow simultaneous use of generic and specific YAML keys
-      _ASSERT(.not. (has_generic .and. has_r4), &
-           "'field_default_fill_value' and 'field_default_fill_value_r4' cannot both be set in YAML config")
-      _ASSERT(.not. (has_generic .and. has_r8), &
-           "'field_default_fill_value' and 'field_default_fill_value_r8' cannot both be set in YAML config")
+      _ASSERT(.not. (has_generic .and. has_r4), "'field_default_fill_value' and 'field_default_fill_value_r4' cannot both be set in YAML config")
+      _ASSERT(.not. (has_generic .and. has_r8), "'field_default_fill_value' and 'field_default_fill_value_r8' cannot both be set in YAML config")
 
       ! Disallow simultaneous Fortran argument and YAML key for the same typekind
-      _ASSERT(.not. (present(field_default_fill_value_r4) .and. (has_r4 .or. has_generic)), &
-           "field_default_fill_value_r4 specified both as Fortran argument and in YAML config")
-      _ASSERT(.not. (present(field_default_fill_value_r8) .and. (has_r8 .or. has_generic)), &
-           "field_default_fill_value_r8 specified both as Fortran argument and in YAML config")
+      _ASSERT(.not. (present(field_default_fill_value_r4) .and. (has_r4 .or. has_generic)), "field_default_fill_value_r4 specified both as Fortran argument and in YAML config")
+      _ASSERT(.not. (present(field_default_fill_value_r8) .and. (has_r8 .or. has_generic)), "field_default_fill_value_r8 specified both as Fortran argument and in YAML config")
 
       ! Apply Fortran arguments (if present)
       if (present(field_default_fill_value_r4)) allocate(fill_value_from_yaml_r4, source=field_default_fill_value_r4)
