@@ -750,6 +750,32 @@ resolution-dependent parameters without relying on global counts:
 > [#4570](https://github.com/GEOS-ESM/MAPL/issues/4570).  This section
 > should be updated with the final call signatures once they land.
 
+### Grid Classes: `tripolar` Subsumed into `xy`
+
+In MAPL2, tripolar ocean grids were handled by a dedicated
+`TripolarGridFactory` with its own factory class name (`class: tripolar`
+in grid configurations).
+
+In MAPL3, **tripolar grids are a subcase of the `xy` grid class** —
+there is no separate `class: tripolar`.  The `XYGeomSpec`/`XYGeomFactory`
+handle tripolar grids via an optional `n_peri_dim` field (see issue
+[#4691](https://github.com/GEOS-ESM/MAPL/issues/4691)):
+
+```yaml
+class: xy
+grid_file_name: tripolar_grid.nc
+n_peri_dim: 1        # 1 = one periodic dimension with bipole at north
+```
+
+| `n_peri_dim` value | Meaning |
+|--------------------|---------|
+| `0` (default) | No periodic dimensions — standard XY curvilinear grid |
+| `1` | One periodic dimension; north pole treated as bipole (tripolar) |
+
+The `GridType` metadata remains `'XY'` for all XY-family grids,
+including tripolar.  Because hconfig is new to MAPL3, there are no
+legacy `class: tripolar` configs to migrate.
+
 ### Migration Guidance
 
 - Replace any use of `MAPL_GetGlobalHorzIJIndex` or
