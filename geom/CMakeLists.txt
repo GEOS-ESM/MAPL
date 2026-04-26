@@ -46,6 +46,7 @@ add_subdirectory(CubedSphere)
 add_subdirectory(LocStream)
 add_subdirectory(Mesh)
 add_subdirectory(XY)
+add_subdirectory(EASE)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
