@@ -54,6 +54,7 @@ module mapl3g_EASEGeomFactory
       end function create_basic_grid
 
       module subroutine fill_coordinates(spec, grid, unusable, rc)
+         use mapl_KeywordEnforcer
          type(EASEGeomSpec), intent(in) :: spec
          type(ESMF_Grid), intent(inout) :: grid
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -75,11 +76,10 @@ module mapl3g_EASEGeomFactory
       end function make_variable_attributes
 
       module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
-         use mapl_KeywordEnforcerMod
          type(FileMetadata) :: file_metadata
          class(EASEGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function make_file_metadata
