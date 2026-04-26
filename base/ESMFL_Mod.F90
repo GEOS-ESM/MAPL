@@ -3730,10 +3730,8 @@ CONTAINS
    end subroutine ESMFL_FailedRC
 
 !-------------------------------------------------------------------------
-  SUBROUTINE ESMFL_HALO_R4_2D(GRID, INPUT, RC)
+   SUBROUTINE ESMFL_HALO_R4_2D(GRID, INPUT, RC)
 !-------------------------------------------------------------------------
-     use MAPL_GridManagerMod, only: get_factory
-     use MAPL_AbstractGridFactoryMod
      TYPE(ESMF_Grid),         INTENT(INout) :: GRID
      REAL,                    INTENT(INOUT) :: INPUT(:,:)
      integer, optional,       intent(OUT)   :: RC
@@ -3761,7 +3759,6 @@ CONTAINS
      integer, pointer                         :: jms(:) => null()
      type (ESMF_VM)                           :: VM
      type (ESMF_DistGrid)                     :: distGrid
-     integer                                  :: IM, JM, DIMS(3)
 
 #define MAX_HALOTYPES 8
      type HaloType
@@ -3771,7 +3768,6 @@ CONTAINS
         integer                               :: NY = -1
         integer                               :: domainIdx = -1
         integer                               :: myId
-        logical                               :: isCube = .false.
         logical                               :: inUse = .false.
      end type HaloType
 
@@ -3779,10 +3775,7 @@ CONTAINS
      type(HaloType)                           :: thisHaloType
      logical                                  :: found
      integer                                  :: I
-     integer                                  :: isd, ied
-     integer                                  :: jsd, jed
      character(len=ESMF_MAXSTR)               :: gridname
-     class (AbstractGridFactory), pointer :: factory
      call ESMF_GridGet    (GRID,   name=gridname, RC=STATUS)
      _VERIFY(STATUS)
 
@@ -3854,36 +3847,8 @@ CONTAINS
         thisHaloType%NY = NY
         thisHaloType%layout = layout
 
-        call MAPL_GridGet(grid, globalCellCountPerDim=DIMS, RC=status)
-        _VERIFY(STATUS)
-        IM = DIMS(1)
-        JM = DIMS(2)
-        if (JM == 6*IM) then
-           thisHaloType%isCube = .true.
-        else
-           thisHaloType%isCube = .false.
-        end if
-
         myHaloTypes(thisHaloType%domainIdx) = thisHaloType
 
-     end if
-
-     if (thisHaloType%isCube) then
-        factory => get_factory(grid, rc=status)
-        _VERIFY(status)
-        isd = lbound(input,1)
-        ied = ubound(input,1)
-        jsd = lbound(input,2)
-        jed = ubound(input,2)
-        ! fill the corners with MAPL_UNDEF, they will be overwritten
-        ! by the CubeHalo, unless these are the actual cube corners
-        input(isd,jsd) = MAPL_UNDEF
-        input(ied,jsd) = MAPL_UNDEF
-        input(isd,jed) = MAPL_UNDEF
-        input(ied,jed) = MAPL_UNDEF
-        call factory%halo(input, rc=status)
-        _VERIFY(status)
-        _RETURN(ESMF_SUCCESS)
      end if
 
 ! This is section of the code is valid ONLY for rectilinear grids!

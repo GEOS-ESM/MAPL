@@ -4,38 +4,31 @@ set (srcs
   MAPL_Profiler.F90
   ESMFL_Mod.F90                         MAPL_SatVapor.F90
   FileMetadataUtilities.F90             MAPL_SimpleAlarm.F90
-  FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90
-  MAPL_AbstractGridFactory.F90          MAPL_StringGridFactoryMap.F90
+  FileMetadataUtilitiesVector.F90       MAPL_SimpleBundleMod.F90
   MaplGrid.F90
   MAPL_stubs.F90
-  MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
+  MAPL_sun_uc.F90
   MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
-  MAPL_LatLonGridFactory.F90
-  MAPL_Comms.F90                        MAPL_TripolarGridFactory.F90
-  MAPL_LlcGridFactory.F90               MAPL_SwathGridFactory.F90
+  MAPL_Comms.F90
   MAPL_Config.F90                       MAPL_LocStreamMod.F90
   MAPL_MaxMinMod.F90                    MAPL_VerticalInterpMod.F90
-  MAPL_CubedSphereGridFactory.F90       MAPL_MemUtils.F90                   MAPL_VerticalMethods.F90
-  MAPL_DefGridName.F90                  Base.F90
-  MAPL_ESMFTimeVectorMod.F90            Regrid_Functions_Mod.F90
+  MAPL_MemUtils.F90                     MAPL_VerticalMethods.F90
+  Base.F90
+  MAPL_ESMFTimeVectorMod.F90
   MAPL_NominalOrbitsMod.F90
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
-  MAPL_ExternalGridFactory.F90
   ServerManager.F90 ApplicationSupport.F90
   regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90
-  regex_F.c  MAPL_ObsUtil.c
+  regex_F.c
   c_mapl_locstream_F.c  getrss.c  memuse.c
   Base/Base_Base.F90 Base/Base_Base_implementation.F90
   TimeStringConversion.F90
   MAPL_ISO8601_DateTime_ESMF.F90
   MAPL_Resource.F90
-  MAPL_XYGridFactory.F90
-  MAPL_NetCDF.F90                       Plain_netCDF_Time.F90
-  MAPL_DateTime_Parsing_ESMF.F90	MAPL_ObsUtil.F90
+  MAPL_DateTime_Parsing_ESMF.F90
   MAPL_EASEConversion.F90
-  MAPL_EASEGridFactory.F90
   LDE.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
