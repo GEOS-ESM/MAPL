@@ -20,14 +20,18 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      integer :: im, jm
       type(Variable) :: v
       real(kind=REAL64), allocatable :: lon_cen(:), lat_cen(:)
 
       call compute_lons(geom_spec, centers=lon_cen, _RC)
       call compute_lats(geom_spec, centers=lat_cen, _RC)
 
-      call file_metadata%add_dimension('lon', geom_spec%get_im_world(_RC))
-      call file_metadata%add_dimension('lat', geom_spec%get_jm_world(_RC))
+      im = geom_spec%get_im_world(_RC)
+      jm = geom_spec%get_jm_world(_RC)
+
+      call file_metadata%add_dimension('lon', im)
+      call file_metadata%add_dimension('lat', jm)
 
       ! Longitude coordinate variable
       v = Variable(type=PFIO_REAL64, dimensions='lon', chunksizes=chunksizes)
