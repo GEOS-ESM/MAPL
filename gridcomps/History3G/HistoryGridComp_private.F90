@@ -106,7 +106,7 @@ contains
       _RETURN_IF(mode == 'instantaneous')
       _ASSERT(has_frequency, 'requested statitics performed on collection: '//child_name//' but did not provide frequency of the collection')
 
-      stats_hconfig = ESMF_HConfigCreate(_RC)
+      stats_hconfig = ESMF_HConfigCreate(content='{}',_RC)
       ref_datetime = "'YYYY-MM-DDTHH:NN:SS'"
       has_ref_datetime = ESMF_HConfigIsDefined(child_hconfig, keyString='ref_datetime', _RC)
       if (has_ref_datetime) then
@@ -115,8 +115,8 @@ contains
       end if
 
       stats_list = ESMF_HConfigCreate(_RC)
-      !stats_mapl_section = create_stats_mapl_section(_RC)
-      !call ESMF_HConfigAdd(stats_hconfig, stats_mapl_section, _RC)
+      stats_mapl_section = create_stats_mapl_section(_RC)
+      call ESMF_HConfigAdd(stats_hconfig, stats_mapl_section, addKeyString='mapl', _RC)
       frequency = ESMF_HConfigAsString(time_hconfig, keyString='frequency', _RC)
       var_list = ESMF_HConfigCreateAt(child_hconfig, keyString=VAR_LIST_KEY, _RC)
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
@@ -143,7 +143,7 @@ contains
 
       integer :: status
 
-      stats_mapl_section = ESMF_HConfigCreate(content='{mapl: {checkpoint: {import: True, internal: True}, restart: {import: True, internal: True}}}', _RC)
+      stats_mapl_section = ESMF_HConfigCreate(content='{misc: {checkpoint: {import: False, internal: True}, restart: {import: False, internal: True}}}', _RC)
       _RETURN(_SUCCESS)
    end function create_stats_mapl_section
       

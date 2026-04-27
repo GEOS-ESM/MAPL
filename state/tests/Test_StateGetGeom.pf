@@ -113,7 +113,7 @@ contains
       @assertEqual(0, status)
 
       call StateGetGeom(state, geom, rc=status)
-      @assertExceptionRaised('StateGetGeom should fail for an empty state')
+      @assertExceptionRaised('state must contain at least one item')
 
       call ESMF_StateDestroy(state, rc=status)
       @assertEqual(0, status)
@@ -133,6 +133,7 @@ contains
       type(ESMF_State) :: state
       type(GeomManager), pointer :: mgr
       integer :: status
+      logical :: ignore
 
       hconfig1 = ESMF_HConfigCreate( &
            content="{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC, nx: 1, ny: 1}", &
@@ -162,7 +163,7 @@ contains
       @assertEqual(0, status)
 
       call StateGetGeom(state, result_geom, rc=status)
-      @assertExceptionRaised('StateGetGeom should fail when fields have different geoms')
+      @assertExceptionRaised('all fields must share the same geom')
 
       call ESMF_FieldDestroy(field1, rc=status)
       @assertEqual(0, status)

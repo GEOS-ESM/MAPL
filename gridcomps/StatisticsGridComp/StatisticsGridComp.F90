@@ -13,8 +13,10 @@ module mapl3g_StatisticsGridComp
    use mapl3g_TimeAverage
    use mapl3g_TimeMin
    use mapl3g_TimeMax
+   use mapl3g_State_API
    use pflogger, only: Logger
-   use MAPL_StringTemplate, only: fill_grads_template_esmf
+   use mapl_OS
+   use mapl3g_Utilities, only: MAPL_GetCheckpointSubdir
 
    implicit none(type,external)
    private
@@ -40,8 +42,8 @@ contains
       type(esmf_HConfigIter) :: iter, b, e
 
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
+      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize, phase_name='GENERIC::INIT_REALIZE', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_READRESTART, custom_read_restart, phase_name='GENERIC::INIT_READ_RESTART', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_WRITERESTART, custom_write_restart, phase_name='GENERIC::WRITE_RESTART', _RC)
 
       ! Attach private state
@@ -124,6 +126,7 @@ contains
       type(Statistics), pointer :: stats
       type(esmf_HConfig) :: hconfig, items_hconfig
       class(AbstractTimeStatistic), allocatable :: item
+      !type(ESMF_Geom) :: geom
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
       call mapl_GridCompGet(gridcomp, hconfig=hconfig, _RC)
@@ -276,6 +279,23 @@ contains
 
    end subroutine modify_advertise
 
+   subroutine realize(gridcomp, importState, exportState, clock, rc)
+
+      type(esmf_GridComp) :: gridcomp
+      type(esmf_State) :: importState
+      type(esmf_State) :: exportState
+      type(esmf_Clock) :: clock
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Geom) :: geom
+
+      call MAPL_StateGetGeom(importState, geom, _RC)
+      call MAPL_GridCompSetGeom(gridcomp, geom, _RC) 
+      _RETURN(_SUCCESS)
+
+   end subroutine realize
+
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(esmf_GridComp) :: gridcomp
       type(esmf_State) :: importState
@@ -306,40 +326,6 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine run
 
-   subroutine custom_read_restart(gridcomp, importState, exportState, clock, rc)
-      type(esmf_GridComp) :: gridcomp
-      type(esmf_State) :: importState
-      type(esmf_State) :: exportState
-      type(esmf_Clock) :: clock
-      integer, intent(out) :: rc
-
-      integer :: status
-      type(esmf_State) :: state
-      type(RestartHandler) :: restart_handler
-      type(esmf_Time) :: currTime
-      class(Logger), pointer :: lgr
-      type(esmf_Geom) :: geom
-      character(:), allocatable :: name, template
-      character(len=ESMF_MAXPATHLEN) :: filename
-
-      call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
-      call mapl_GridCompGet(gridcomp, logger=lgr, name=name, _RC)
-
-      call MAPL_StateGetGeom(state, geom, _RC)
-      call esmf_ClockGet(clock, currTime=currTime, _RC)
-      restart_handler = RestartHandler(geom, currTime, lgr)
-
-      template = name // '_custom_internal_%y4%m2%d2T%h2%n2.nc4'
-      call fill_grads_template_esmf(filename, template, time=currTime, _RC) 
-      template = name // '_custom_internal_%y4%m2%d2T%h2%n2.nc4'
-      call restart_handler%read(state, filename, _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(gridcomp)
-      _UNUSED_DUMMY(importState)
-      _UNUSED_DUMMY(exportState)
-   end subroutine custom_read_restart
-
    subroutine custom_write_restart(gridcomp, importState, exportState, clock, rc)
       type(esmf_GridComp) :: gridComp
       type(esmf_State) :: importState
@@ -353,18 +339,18 @@ contains
       type(esmf_Time) :: currTime
       class(Logger), pointer :: lgr
       type(esmf_Geom) :: geom
-      character(:), allocatable :: name, template
-      character(len=ESMF_MAXPATHLEN) :: filename
+      character(:), allocatable :: subdir, filename, name
+      type(ESMF_HConfig) :: hconfig
 
       call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
-       call mapl_GridCompGet(gridcomp, logger=lgr, name=name, _RC)
+      call mapl_GridCompGet(gridcomp, logger=lgr, name=name, hconfig=hconfig, _RC)
 
-       call MAPL_StateGetGeom(state, geom, _RC)
-       call esmf_ClockGet(clock, currTime=currTime, _RC)
-       restart_handler = RestartHandler(geom, currTime, lgr)
+      call MAPL_StateGetGeom(state, geom, _RC)
+      call esmf_ClockGet(clock, currTime=currTime, _RC)
+      restart_handler = RestartHandler(geom, currTime, lgr)
 
-       template = name // '_custom_internal_%y4%m2%d2T%h2%n2.nc4'
-       call fill_grads_template_esmf(filename, template, time=currTime, _RC) 
+      subdir = MAPL_GetCheckpointSubdir(hconfig, currTime, _RC)
+      filename = mapl_PathJoin(subdir, name//'_internal.nc')
 
       call restart_handler%write(state, filename, _RC)
 
@@ -372,6 +358,40 @@ contains
       _UNUSED_DUMMY(importState)
       _UNUSED_DUMMY(exportState)
    end subroutine custom_write_restart
+
+   !function get_checkpoint_subdir(hconfig, currTime, rc) result(subdir)
+      !character(:), allocatable :: subdir
+      !type(esmf_HConfig), intent(in) :: hconfig
+      !type(esmf_Time), intent(in) :: currTime
+      !integer, optional, intent(out) :: rc
+
+      !integer :: status
+      !character(ESMF_MAXSTR) :: iso_time
+      !logical :: has_checkpointing, has_path
+      !character(:), allocatable :: checkpoint_dir
+      !character(:), allocatable :: timestamp_dir
+      !type(esmf_HConfig) :: checkpointing_cfg
+
+      !subdir = ''
+
+      !call esmf_TimeGet(currTime, timeStringISOFrac=iso_time, _RC)
+      !timestamp_dir = trim(iso_time)
+
+      !checkpoint_dir = 'checkpoint'
+      !has_checkpointing = esmf_HConfigIsDefined(hconfig, keystring='checkpointing', _RC)
+      !if (has_checkpointing) then
+         !checkpointing_cfg = esmf_HConfigCreateAt(hconfig, keystring='checkpointing', _RC)
+         !has_path = esmf_HConfigIsDefined(checkpointing_cfg, keystring='path', _RC)
+         !if (has_path) then
+            !checkpoint_dir = esmf_HConfigAsString(checkpointing_cfg, keystring='path', _RC)
+         !end if
+         !call esmf_HConfigDestroy(checkpointing_cfg, _RC)
+      !end if
+
+      !subdir = mapl_PathJoin(checkpoint_dir, iso_time)
+
+      !_RETURN(_SUCCESS)
+   !end function get_checkpoint_subdir
 
 end module mapl3g_StatisticsGridComp
 

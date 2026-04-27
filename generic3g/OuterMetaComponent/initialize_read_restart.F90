@@ -7,6 +7,7 @@ submodule (mapl3g_OuterMetaComponent) initialize_read_restart_smod
    use mapl3g_MultiState
    use mapl3g_RestartHandler, only: RestartHandler
    use mapl_OS
+   use mapl3g_Utilities, only: MAPL_GetCheckpointSubdir
 
    implicit none(type,external)
 
@@ -40,7 +41,7 @@ contains
       user_logger => this%get_logger()
       restart_handler = RestartHandler(this%get_geom(), currTime, user_logger)
 
-      subdir = get_checkpoint_subdir(this%hconfig, currTime, _RC)
+      subdir = MAPL_GetCheckpointSubdir(this%hconfig, currTime, _RC)
 
       if (this%component_spec%misc%restart_controls%import) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_import.nc')
@@ -48,7 +49,7 @@ contains
          call restart_handler%read(states%importState, filename, _RC)
          call this%stop_timer("ReadImportRestart", _RC)
       end if
-      
+     
       if (this%component_spec%misc%restart_controls%internal) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_internal.nc')
          call this%start_timer("ReadInternalRestart", _RC)
