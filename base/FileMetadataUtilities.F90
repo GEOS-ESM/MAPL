@@ -2,8 +2,6 @@
 
 module MAPL_FileMetadataUtilsMod
    use pFIO
-   use MAPL_GridManagerMod
-   use MAPL_AbstractGridFactoryMod
    use Mapl_keywordenforcermod
    use gFTL2_StringIntegerMap
    use ESMF
