@@ -1,0 +1,263 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_XYGeomFactory
+
+   use pfunit
+   use esmf_TestMethod_mod
+   use mapl3g_XYGeomFactory
+   use mapl3g_GeomSpec
+   use mapl3g_XYTestHelper
+   use mapl_ErrorHandlingMod
+   use pfio, only: FileMetadata
+   use esmf
+   implicit none
+
+contains
+
+   ! -----------------------------------------------------------------------
+   ! make_geom: standard mode, centre coordinates only
+   ! -----------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_standard(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 8, JM = 4
+      type(XYGeomFactory) :: factory
+      class(GeomSpec), allocatable :: spec
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_GeomType_Flag) :: geomtype
+      real(ESMF_KIND_R8), pointer :: fptr(:,:)
+      integer :: status
+      real(ESMF_KIND_R8), parameter :: PI = acos(-1.0_ESMF_KIND_R8)
+
+      _UNUSED_DUMMY(this)
+
+      call create_xy_file('test_xy_standard.nc', IM, JM, rc=status)
+      @assert_that(status, is(0))
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_standard.nc}', rc=status)
+      @assert_that(status, is(0))
+
+      spec = factory%make_spec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      geom = factory%make_geom(spec, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(geomtype == ESMF_GEOMTYPE_GRID)
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify coordinate range is in radians
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(all(fptr >= -PI))
+      @assertTrue(all(fptr <=  PI))
+
+      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(all(fptr >= -PI/2.0_ESMF_KIND_R8))
+      @assertTrue(all(fptr <=  PI/2.0_ESMF_KIND_R8))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_geom_standard
+
+   ! -----------------------------------------------------------------------
+   ! make_geom: with corners
+   ! -----------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_with_corners(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 6, JM = 4
+      type(XYGeomFactory) :: factory
+      class(GeomSpec), allocatable :: spec
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      real(ESMF_KIND_R8), pointer :: fptr(:,:)
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      call create_xy_file_with_corners('test_xy_corners.nc', IM, JM, rc=status)
+      @assert_that(status, is(0))
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_corners.nc}', rc=status)
+      @assert_that(status, is(0))
+
+      spec = factory%make_spec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      geom = factory%make_geom(spec, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      ! Corner stagger should be populated
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CORNER, farrayPtr=fptr, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(associated(fptr))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_geom_with_corners
+
+   ! -----------------------------------------------------------------------
+   ! make_geom: undef values trigger mask
+   ! -----------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_adds_mask(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 8, JM = 4
+      type(XYGeomFactory) :: factory
+      class(GeomSpec), allocatable :: spec
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      integer(ESMF_KIND_I4), pointer :: mask(:,:)
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      call create_xy_file_with_undef('test_xy_undef.nc', IM, JM, rc=status)
+      @assert_that(status, is(0))
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_undef.nc}', rc=status)
+      @assert_that(status, is(0))
+
+      spec = factory%make_spec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      geom = factory%make_geom(spec, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridGetItem(grid, localDE=0, staggerLoc=ESMF_STAGGERLOC_CENTER, &
+           itemflag=ESMF_GRIDITEM_MASK, farrayPtr=mask, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(associated(mask))
+      @assertTrue(any(mask == 0))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_geom_adds_mask
+
+   ! -----------------------------------------------------------------------
+   ! make_geom: n_peri_dim=1 (tripolar) — exercises ESMF_GridCreate1PeriDim path
+   ! -----------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_tripolar(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 8, JM = 4
+      type(XYGeomFactory) :: factory
+      class(GeomSpec), allocatable :: spec
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_GeomType_Flag) :: geomtype
+      real(ESMF_KIND_R8), pointer :: fptr(:,:)
+      integer :: status
+      real(ESMF_KIND_R8), parameter :: PI = acos(-1.0_ESMF_KIND_R8)
+
+      _UNUSED_DUMMY(this)
+
+      call create_xy_file('test_xy_tripolar.nc', IM, JM, rc=status)
+      @assert_that(status, is(0))
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_tripolar.nc, n_peri_dim: 1}', rc=status)
+      @assert_that(status, is(0))
+
+      spec = factory%make_spec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      geom = factory%make_geom(spec, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(geomtype == ESMF_GEOMTYPE_GRID)
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify centre coordinates are populated and in radians
+      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(all(fptr >= -PI))
+      @assertTrue(all(fptr <=  PI))
+
+      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(all(fptr >= -PI/2.0_ESMF_KIND_R8))
+      @assertTrue(all(fptr <=  PI/2.0_ESMF_KIND_R8))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_geom_tripolar
+
+   ! -----------------------------------------------------------------------
+   ! make_file_metadata round-trip: metadata produced is recognized by supports_metadata
+   ! -----------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_file_metadata_round_trip(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 4, JM = 4
+      type(XYGeomFactory) :: factory
+      class(GeomSpec), allocatable :: spec
+      type(ESMF_HConfig) :: hconfig
+      type(FileMetadata) :: file_metadata
+      logical :: supports
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      call create_xy_file('test_xy_meta.nc', IM, JM, rc=status)
+      @assert_that(status, is(0))
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: xy, grid_file_name: test_xy_meta.nc}', rc=status)
+      @assert_that(status, is(0))
+
+      spec = factory%make_spec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      file_metadata = factory%make_file_metadata(spec, rc=status)
+      @assert_that(status, is(0))
+
+      ! Metadata produced should be recognized as XY by supports_metadata
+      supports = factory%supports_metadata(file_metadata, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(supports)
+
+      ! Correct dimensions
+      @assert_that(file_metadata%get_dimension('Xdim'), is(IM))
+      @assert_that(file_metadata%get_dimension('Ydim'), is(JM))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_file_metadata_round_trip
+
+end module Test_XYGeomFactory
