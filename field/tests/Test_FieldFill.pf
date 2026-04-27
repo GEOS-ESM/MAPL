@@ -1,0 +1,222 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_FieldFill
+   use mapl3g_FieldFillDefault
+   use mapl3g_FieldCreate, only: MAPL_FieldEmptyComplete
+   use mapl_FieldPointerUtilities, only: assign_fptr
+   use funit
+   use ESMF_TestMethod_mod
+   use esmf
+   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
+
+   implicit none(type, external)
+
+contains
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      ! Ensure singletons are set to sNaN before each test.
+      call initialize_field_fill_defaults()
+      _UNUSED_DUMMY(this)
+   end subroutine setUp
+
+   @After
+   subroutine tearDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      ! Restore sNaN after each test to avoid cross-test contamination.
+      call reset_field_fill_defaults()
+      _UNUSED_DUMMY(this)
+   end subroutine tearDown
+
+   ! Helper: create a simple 2D R4 field and return a pointer to its data.
+   subroutine make_r4_field(field, ptr, rc)
+      type(ESMF_Field), intent(out) :: field
+      real(ESMF_KIND_R4), pointer, intent(out) :: ptr(:)
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4, 4], _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+      field = ESMF_FieldEmptyCreate(_RC)
+      call ESMF_FieldEmptySet(field, geom=geom, _RC)
+      call MAPL_FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R4, _RC)
+      call assign_fptr(field, ptr, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine make_r4_field
+
+   ! Helper: create a simple 2D R8 field and return a pointer to its data.
+   subroutine make_r8_field(field, ptr, rc)
+      type(ESMF_Field), intent(out) :: field
+      real(ESMF_KIND_R8), pointer, intent(out) :: ptr(:)
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4, 4], _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+      field = ESMF_FieldEmptyCreate(_RC)
+      call ESMF_FieldEmptySet(field, geom=geom, _RC)
+      call MAPL_FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R8, _RC)
+      call assign_fptr(field, ptr, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine make_r8_field
+
+   ! Without any global override, R4 fields must be filled with sNaN.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_default_fill_r4_is_nan(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4), pointer :: ptr(:)
+      integer :: status
+
+      call make_r4_field(field, ptr, _RC)
+      @assertTrue(all(ieee_is_nan(ptr)), "R4 field should be filled with NaN by default")
+
+      call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_default_fill_r4_is_nan
+
+   ! Without any global override, R8 fields must be filled with sNaN.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_default_fill_r8_is_nan(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R8), pointer :: ptr(:)
+      integer :: status
+
+      call make_r8_field(field, ptr, _RC)
+      @assertTrue(all(ieee_is_nan(ptr)), "R8 field should be filled with NaN by default")
+
+      call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_default_fill_r8_is_nan
+
+   ! After setting a global R4 override, new R4 fields get that value instead of sNaN.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_override_fill_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4), pointer :: ptr(:)
+      real(ESMF_KIND_R4), parameter :: FILL = 0.0_ESMF_KIND_R4
+      real(ESMF_KIND_R4), allocatable :: fill_r4
+      integer :: status
+
+      allocate(fill_r4, source=FILL)
+      call set_field_fill_defaults(r4=fill_r4)
+      call make_r4_field(field, ptr, _RC)
+      @assertTrue(all(ptr == FILL), "R4 field should be filled with override value")
+
+      call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_override_fill_r4
+
+   ! After setting a global R8 override, new R8 fields get that value instead of sNaN.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_override_fill_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R8), pointer :: ptr(:)
+      real(ESMF_KIND_R8), parameter :: FILL = 0.0_ESMF_KIND_R8
+      real(ESMF_KIND_R8), allocatable :: fill_r8
+      integer :: status
+
+      allocate(fill_r8, source=FILL)
+      call set_field_fill_defaults(r8=fill_r8)
+      call make_r8_field(field, ptr, _RC)
+      @assertTrue(all(ptr == FILL), "R8 field should be filled with override value")
+
+      call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_override_fill_r8
+
+   ! After reset, fills return to sNaN.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_reset_restores_nan(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4), pointer :: ptr(:)
+      real(ESMF_KIND_R4), allocatable :: fill_r4
+      integer :: status
+
+      allocate(fill_r4, source=0.0_ESMF_KIND_R4)
+      call set_field_fill_defaults(r4=fill_r4)
+      call reset_field_fill_defaults()
+      call make_r4_field(field, ptr, _RC)
+      @assertTrue(all(ieee_is_nan(ptr)), "R4 field should revert to NaN after reset")
+
+      call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_reset_restores_nan
+
+   ! Getters return NaN when no override has been set.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_getter_returns_nan_when_unset(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      @assertTrue(ieee_is_nan(get_field_fill_default_r4()), "R4 getter should return NaN when no override is set")
+      @assertTrue(ieee_is_nan(get_field_fill_default_r8()), "R8 getter should return NaN when no override is set")
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_getter_returns_nan_when_unset
+
+   ! Getters return the override value after set_field_fill_defaults() is called.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_getter_returns_override_value(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      real(ESMF_KIND_R4), allocatable :: fill_r4
+      real(ESMF_KIND_R8), allocatable :: fill_r8
+
+      allocate(fill_r4, source=42.0_ESMF_KIND_R4)
+      allocate(fill_r8, source=99.0_ESMF_KIND_R8)
+      call set_field_fill_defaults(r4=fill_r4, r8=fill_r8)
+
+      @assertEqual(get_field_fill_default_r4(), 42.0_ESMF_KIND_R4, "R4 getter should return the set value")
+      @assertEqual(get_field_fill_default_r8(), 99.0_ESMF_KIND_R8, "R8 getter should return the set value")
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_getter_returns_override_value
+
+   ! R4 and R8 overrides are independent — setting one does not affect the other.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_r4_and_r8_overrides_are_independent(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field_r4, field_r8
+      real(ESMF_KIND_R4), pointer :: ptr_r4(:)
+      real(ESMF_KIND_R8), pointer :: ptr_r8(:)
+      real(ESMF_KIND_R4), allocatable :: fill_r4
+      integer :: status
+
+      ! Only set R4 override; R8 should still be sNaN.
+      allocate(fill_r4, source=1.0_ESMF_KIND_R4)
+      call set_field_fill_defaults(r4=fill_r4)
+
+      call make_r4_field(field_r4, ptr_r4, _RC)
+      @assertTrue(all(ptr_r4 == 1.0_ESMF_KIND_R4), "R4 field should use override")
+
+      call make_r8_field(field_r8, ptr_r8, _RC)
+      @assertTrue(all(ieee_is_nan(ptr_r8)), "R8 field should still be NaN when only R4 override is set")
+
+      call ESMF_FieldDestroy(field_r4, nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(field_r8, nogarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_r4_and_r8_overrides_are_independent
+
+end module Test_FieldFill
