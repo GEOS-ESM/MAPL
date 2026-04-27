@@ -23,12 +23,7 @@ module MAPLBase_Mod
   use MAPL_MemUtilsMod
   use MAPL_HashMod
   use MAPL_LoadBalanceMod
-  use MAPL_AbstractGridFactoryMod
-  use MAPL_GridManagerMod
-  use MAPL_LatLonGridFactoryMod
-  use MAPL_EASEGridFactoryMod
-  use MAPL_CubedSphereGridFactoryMod
-  use MAPL_ExternalGridFactoryMod
+
   use MAPL_ShmemMod
   use MAPL_MaxMinMod
   use MAPL_SimpleBundleMod
