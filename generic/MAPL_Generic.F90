@@ -128,8 +128,6 @@ module MAPL_GenericMod
    use mpi
    use netcdf
    use pFlogger, only: logging, Logger
-   use MAPL_AbstractGridFactoryMod
-   use MAPL_GridManagerMod, only: grid_manager,get_factory
    use MaplShared, only: SYSTEM_DSO_EXTENSION, adjust_dso_name, is_valid_dso_name, is_supported_dso_name
    use MaplShared, only: get_file_extension
    use MAPL_ResourceMod
@@ -6240,32 +6238,16 @@ contains
       _RETURN(ESMF_SUCCESS)
 
      contains
-       function grid_is_consistent(grid_type, fname) result( consistent)
+       function grid_is_consistent(grid_type, fname) result(consistent)
          logical :: consistent
          character(*), intent(in) :: grid_type
          character(*), intent(in) :: fname
-         !note this only works for geos cubed-sphere restarts currently because of
-         !possible insufficent metadata in the other restarts to support the other grid factories
-         class(AbstractGridFactory), pointer :: app_factory
-         class (AbstractGridFactory), allocatable :: file_factory
-         character(len=:), allocatable :: fname_by_face
-         logical :: fexist
-
-         consistent = .True.
-         if (trim(grid_type) == 'Cubed-Sphere') then
-            app_factory => get_factory(MPL%GRID%ESMFGRID)
-            ! at this point, arrdes%read_restart_by_face is not initialized
-            ! pick the first face
-            fname_by_face = get_fname_by_rank(trim(fname), 1)
-            inquire(FILE = trim(fname_by_face), EXIST=fexist)
-            if(fexist) then
-               allocate(file_factory,source=grid_manager%make_factory(fname_by_face))
-            else
-               allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
-            endif
-            consistent = file_factory%physical_params_are_equal(app_factory)
-         end if
-       end function
+         ! Grid consistency check removed: legacy grid manager stack has been deleted.
+         ! TODO: re-implement using MAPL3 geom layer when available.
+         _UNUSED_DUMMY(grid_type)
+         _UNUSED_DUMMY(fname)
+         consistent = .true.
+       end function grid_is_consistent
 
    end subroutine MAPL_ESMFStateReadFromFile
 

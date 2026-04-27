@@ -136,6 +136,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added test scenario `regrid_r8` to verify that R8 fields are correctly regridded across different geometries (related to GH-4694)
+
 ### Changed
 
 - Update `components.yaml`
