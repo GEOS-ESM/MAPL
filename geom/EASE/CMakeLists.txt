@@ -1,6 +1,7 @@
 target_sources(MAPL.geom PRIVATE
 
   EASEConversion.F90
+  EASECoords.F90
   EASEGeomSpec.F90
   EASEGeomFactory.F90
 

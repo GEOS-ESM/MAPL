@@ -3,7 +3,7 @@
 submodule (mapl3g_EASEGeomFactory) fill_coordinates_smod
    use mapl3g_GeomSpec
    use mapl3g_EASEGeomSpec
-   use mapl3g_EASEConversion
+   use mapl3g_EASECoords
    use mapl_ErrorHandlingMod
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    use esmf
@@ -28,11 +28,11 @@ contains
       integer :: ic1, icn, jc1, jcn
       real(kind=ESMF_KIND_R8), pointer :: centers(:,:)
       real(kind=ESMF_KIND_R8), pointer :: corners(:,:)
-      real(kind=REAL64), allocatable :: lon_cen(:), lat_cen(:)
-      real(kind=REAL64), allocatable :: lon_cor(:), lat_cor(:)
+      real(kind=REAL64), allocatable :: lon_cen(:), lon_cor(:)
+      real(kind=REAL64), allocatable :: lat_cen(:), lat_cor(:)
 
-      call compute_lon_coords_(spec, lon_cen, lon_cor)
-      call compute_lat_coords_(spec, lat_cen, lat_cor)
+      call compute_lons(spec, centers=lon_cen, corners=lon_cor, _RC)
+      call compute_lats(spec, centers=lat_cen, corners=lat_cor, _RC)
 
       ! Query local DE bounds
       call ESMF_GridGet(grid, localDE=0, staggerloc=ESMF_STAGGERLOC_CENTER, &
@@ -76,57 +76,5 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine fill_coordinates
-
-   ! Compute 1-D longitude center and corner arrays for an EASE grid.
-   ! Longitudes are uniformly spaced from -180+delta/2 to +180-delta/2.
-   subroutine compute_lon_coords_(spec, centers, corners)
-      type(EASEGeomSpec), intent(in) :: spec
-      real(kind=REAL64), allocatable, intent(out) :: centers(:)
-      real(kind=REAL64), allocatable, intent(out) :: corners(:)
-
-      integer :: cols, i
-      real(kind=REAL64) :: delta
-
-      cols  = spec%get_im_world()
-      delta = 360.0_REAL64 / cols
-
-      allocate(centers(cols), corners(cols+1))
-      do i = 1, cols
-         centers(i) = -180.0_REAL64 + (i - 0.5_REAL64)*delta
-      end do
-      do i = 1, cols+1
-         corners(i) = -180.0_REAL64 + (i - 1)*delta
-      end do
-   end subroutine compute_lon_coords_
-
-   ! Compute 1-D latitude center and corner arrays for an EASE grid.
-   ! Uses ease_inverse for the EASE-specific projection.
-   ! Index 1 = southernmost row.
-   subroutine compute_lat_coords_(spec, centers, corners)
-      type(EASEGeomSpec), intent(in) :: spec
-      real(kind=REAL64), allocatable, intent(out) :: centers(:)
-      real(kind=REAL64), allocatable, intent(out) :: corners(:)
-
-      integer :: rows, row
-      real :: lat, tmplon, s
-      character(len=:), allocatable :: grid_name
-
-      grid_name = spec%get_grid_name()
-      rows      = spec%get_jm_world()
-
-      allocate(centers(rows), corners(rows+1))
-
-      do row = 0, rows-1
-         s = real(row)
-         call ease_inverse(grid_name, 0., s, lat, tmplon)
-         centers(rows - row) = real(lat, kind=REAL64)
-      end do
-
-      do row = 0, rows
-         s = real(row) - 0.5
-         call ease_inverse(grid_name, 0., s, lat, tmplon)
-         corners(rows + 1 - row) = real(lat, kind=REAL64)
-      end do
-   end subroutine compute_lat_coords_
 
 end submodule fill_coordinates_smod

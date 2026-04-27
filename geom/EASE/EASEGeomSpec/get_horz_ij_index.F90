@@ -54,10 +54,14 @@ contains
       integer, optional,   intent(out) :: rc
 
       integer :: k, npts, status
+      integer :: im, jm
       real :: r, s, lat_deg, lon_deg
 
       npts = size(lon)
       _ASSERT(size(lat) == npts, 'lon/lat size mismatch')
+
+      im = this%get_im_world(_RC)
+      jm = this%get_jm_world(_RC)
 
       allocate(ii(npts), jj(npts))
       ii = -1
@@ -76,14 +80,12 @@ contains
          call ease_convert(this%grid_name, lat_deg, lon_deg, r, s)
 
          ! Convert 0-based (r=col, s=row from N) to 1-based (ii=col, jj=row from S)
-         ! r is 0-based column index; ii is 1-based
          ii(k) = nint(r) + 1
-         ! s is 0-based row index from North; jj counts from South
-         jj(k) = this%jm_world - nint(s)
+         jj(k) = jm - nint(s)
 
          ! Clamp to valid range
-         if (ii(k) < 1 .or. ii(k) > this%im_world) ii(k) = -1
-         if (jj(k) < 1 .or. jj(k) > this%jm_world) jj(k) = -1
+         if (ii(k) < 1 .or. ii(k) > im) ii(k) = -1
+         if (jj(k) < 1 .or. jj(k) > jm) jj(k) = -1
       end do
 
       _RETURN(_SUCCESS)

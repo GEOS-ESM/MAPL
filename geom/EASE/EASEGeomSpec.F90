@@ -13,20 +13,13 @@ module mapl3g_EASEGeomSpec
    public :: EASEGeomSpec
    public :: make_EASEGeomSpec
 
-   ! EASEGeomSpec holds the grid name (e.g. 'EASEv2_M09') and the global
-   ! grid dimensions derived from it.  Coordinate arrays are computed by
-   ! the factory (EASEGeomFactory) and are not stored here.
-   !
-   ! Convention (matching legacy EASEGridFactory):
-   !   - Longitude runs -180 to +180 with the dateline at the grid edge ('DE')
-   !   - Latitude runs south to north (index 1 = southernmost row)
-   !   - No poles are included ('XY')
+   ! EASEGeomSpec holds only the grid name (e.g. 'EASEv2_M09').
+   ! Grid dimensions are derived on demand from the grid name via ease_extent.
+   ! Coordinate arrays are computed by the factory and not stored here.
    !
    type, extends(GeomSpec) :: EASEGeomSpec
       private
       character(len=:), allocatable :: grid_name   ! e.g. 'EASEv2_M09'
-      integer :: im_world = 0                       ! number of columns (lons)
-      integer :: jm_world = 0                       ! number of rows    (lats)
    contains
       ! Mandatory GeomSpec interface
       procedure :: equal_to
@@ -38,7 +31,7 @@ module mapl3g_EASEGeomSpec
       procedure :: supports_metadata => supports_metadata_
       generic :: supports => supports_hconfig, supports_metadata
 
-      ! Accessors
+      ! Methods (compute from grid_name on demand)
       procedure :: get_grid_name
       procedure :: get_im_world
       procedure :: get_jm_world
@@ -120,31 +113,38 @@ contains
 
       integer :: status, cols, rows
 
+      ! Validate grid_name by calling ease_extent
       call ease_extent(grid_name, cols, rows, rc=status)
       _VERIFY(status)
 
       spec%grid_name = grid_name
-      spec%im_world  = cols
-      spec%jm_world  = rows
-
       _RETURN(_SUCCESS)
    end function new_EASEGeomSpec
 
-   ! Accessors
    pure function get_grid_name(this) result(name)
       class(EASEGeomSpec), intent(in) :: this
       character(len=:), allocatable :: name
       name = this%grid_name
    end function get_grid_name
 
-   pure integer function get_im_world(this)
+   integer function get_im_world(this, rc)
       class(EASEGeomSpec), intent(in) :: this
-      get_im_world = this%im_world
+      integer, optional, intent(out) :: rc
+      integer :: status, cols, rows
+      call ease_extent(this%grid_name, cols, rows, rc=status)
+      _VERIFY(status)
+      get_im_world = cols
+      _RETURN(_SUCCESS)
    end function get_im_world
 
-   pure integer function get_jm_world(this)
+   integer function get_jm_world(this, rc)
       class(EASEGeomSpec), intent(in) :: this
-      get_jm_world = this%jm_world
+      integer, optional, intent(out) :: rc
+      integer :: status, cols, rows
+      call ease_extent(this%grid_name, cols, rows, rc=status)
+      _VERIFY(status)
+      get_jm_world = rows
+      _RETURN(_SUCCESS)
    end function get_jm_world
 
 end module mapl3g_EASEGeomSpec

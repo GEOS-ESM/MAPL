@@ -3,7 +3,7 @@
 submodule (mapl3g_EASEGeomFactory) typesafe_make_file_metadata_smod
    use mapl3g_GeomSpec
    use mapl3g_EASEGeomSpec
-   use mapl3g_EASEConversion
+   use mapl3g_EASECoords
    use mapl_ErrorHandlingMod
    use pfio
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
@@ -19,14 +19,15 @@ contains
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 
+      integer :: status
       type(Variable) :: v
       real(kind=REAL64), allocatable :: lon_cen(:), lat_cen(:)
 
-      call compute_lon_centers_(geom_spec, lon_cen)
-      call compute_lat_centers_(geom_spec, lat_cen)
+      call compute_lons(geom_spec, centers=lon_cen, _RC)
+      call compute_lats(geom_spec, centers=lat_cen, _RC)
 
-      call file_metadata%add_dimension('lon', geom_spec%get_im_world())
-      call file_metadata%add_dimension('lat', geom_spec%get_jm_world())
+      call file_metadata%add_dimension('lon', geom_spec%get_im_world(_RC))
+      call file_metadata%add_dimension('lat', geom_spec%get_jm_world(_RC))
 
       ! Longitude coordinate variable
       v = Variable(type=PFIO_REAL64, dimensions='lon', chunksizes=chunksizes)
@@ -45,38 +46,5 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function typesafe_make_file_metadata
-
-   subroutine compute_lon_centers_(spec, centers)
-      type(EASEGeomSpec), intent(in) :: spec
-      real(kind=REAL64), allocatable, intent(out) :: centers(:)
-
-      integer :: cols, i
-      real(kind=REAL64) :: delta
-
-      cols  = spec%get_im_world()
-      delta = 360.0_REAL64 / cols
-      allocate(centers(cols))
-      do i = 1, cols
-         centers(i) = -180.0_REAL64 + (i - 0.5_REAL64)*delta
-      end do
-   end subroutine compute_lon_centers_
-
-   subroutine compute_lat_centers_(spec, centers)
-      type(EASEGeomSpec), intent(in) :: spec
-      real(kind=REAL64), allocatable, intent(out) :: centers(:)
-
-      integer :: rows, row
-      real :: lat, tmplon, s
-      character(len=:), allocatable :: grid_name
-
-      grid_name = spec%get_grid_name()
-      rows      = spec%get_jm_world()
-      allocate(centers(rows))
-      do row = 0, rows-1
-         s = real(row)
-         call ease_inverse(grid_name, 0., s, lat, tmplon)
-         centers(rows - row) = real(lat, kind=REAL64)
-      end do
-   end subroutine compute_lat_centers_
 
 end submodule typesafe_make_file_metadata_smod
