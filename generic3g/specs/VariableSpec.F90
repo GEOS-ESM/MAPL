@@ -84,7 +84,7 @@ module mapl3g_VariableSpec
       !---------------------
       type(StringVector) :: vector_component_names ! default empty
       type(VectorBasisKind), allocatable :: vector_basis_kind
-      real(kind=ESMF_KIND_R4), allocatable :: default_value
+      real(kind=ESMF_KIND_R4), allocatable :: fill_value
       !---------------------
       ! Bracket
       !---------------------
@@ -182,7 +182,7 @@ contains
         vertical_stagger, &
         vertical_alignment, &
         ungridded_dims, &
-        default_value, &
+        fill_value, &
         service_items, &
         attributes, &
         bracket_size, &
@@ -216,7 +216,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       character(*), optional, intent(in) :: vertical_alignment
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
-      real, optional, intent(in) :: default_value
+      real, optional, intent(in) :: fill_value
       type(StringVector), optional :: service_items
       type(StringVector), optional, intent(in) :: attributes
       integer, optional, intent(in) :: bracket_size
@@ -256,7 +256,7 @@ contains
       _SET_OPTIONAL(vertical_stagger)
       _SET_OPTIONAL(vertical_alignment)
       _SET_OPTIONAL(ungridded_dims)
-      _SET_OPTIONAL(default_value)
+      _SET_OPTIONAL(fill_value)
       _SET_OPTIONAL(service_items)
       _SET_OPTIONAL(attributes)
       _SET_OPTIONAL(bracket_size)
@@ -608,7 +608,7 @@ contains
       type(QuantityTypeAspect) :: aspect
       class(VariableSpec), intent(in) :: this
       integer, optional, intent(out) :: rc
-      
+
       ! Create with default (QUANTITY_UNKNOWN) and explicit non-mirror behavior
       aspect = QuantityTypeAspect()
       call aspect%set_mirror(.false.)
@@ -619,7 +619,7 @@ contains
       type(ConservationAspect) :: aspect
       class(VariableSpec), intent(in) :: this
       integer, optional, intent(out) :: rc
-      
+
       ! Create default ConservationAspect (will infer from QuantityType)
       aspect = ConservationAspect()
       _RETURN(_SUCCESS)
@@ -629,7 +629,7 @@ contains
       type(NormalizationAspect) :: aspect
       class(VariableSpec), intent(in) :: this
       integer, optional, intent(out) :: rc
-      
+
       ! Create with explicit NORMALIZE_NONE (non-mirror, no normalization needed)
       aspect = NormalizationAspect(normalization_type=NORMALIZE_NONE, scale_factor=1.0)
       _RETURN(_SUCCESS)
@@ -695,7 +695,7 @@ contains
       case (MAPL_STATEITEM_FIELD%ot)
          aspect = FieldClassAspect( &
               standard_name=this%standard_name, &
-              default_value=this%default_value, &
+              fill_value=this%fill_value, &
               restart_mode=this%restart_mode)
       case (MAPL_STATEITEM_FIELDBUNDLE%ot)
          aspect = FieldBundleClassAspect(standard_name=this%standard_name)
@@ -721,17 +721,17 @@ contains
           end if
           aspect = VectorClassAspect(this%vector_component_names, &
                [ &
-               FieldClassAspect(standard_name=std_name_1, default_value=this%default_value), &
-               FieldClassAspect(standard_name=std_name_2, default_value=this%default_value) &
+               FieldClassAspect(standard_name=std_name_1, fill_value=this%fill_value), &
+               FieldClassAspect(standard_name=std_name_2, fill_value=this%fill_value) &
                ], &
                basis_kind)
       case (MAPL_STATEITEM_BRACKET%ot)
-         aspect = BracketClassAspect(this%bracket_size, this%standard_name, default_value=this%default_value)
+         aspect = BracketClassAspect(this%bracket_size, this%standard_name, fill_value=this%fill_value)
       case (MAPL_STATEITEM_VECTORBRACKET%ot)
          if (allocated(this%vector_basis_kind)) then
-            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, vector_basis_kind=this%vector_basis_kind, default_value=this%default_value)
+            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, vector_basis_kind=this%vector_basis_kind, fill_value=this%fill_value)
          else
-            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, default_value=this%default_value)
+            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, fill_value=this%fill_value)
          end if
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(aspect,source=WildcardClassAspect())
@@ -765,7 +765,7 @@ contains
       call verify_short_name(spec%short_name, _RC)
       call verify_regrid(spec%regrid_param, spec%regrid_method, _RC)
       call verify_deferred_items_have_export_intent(spec%has_deferred_aspects, spec%state_intent, _RC)
-      
+
       _RETURN(_SUCCESS)
 
    contains
