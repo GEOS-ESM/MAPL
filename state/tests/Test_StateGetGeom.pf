@@ -180,4 +180,114 @@ contains
 
    end subroutine test_mismatched_geoms_fails
 
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_nested_state_returns_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom, result_geom
+      type(ESMF_Field) :: field
+      type(ESMF_State) :: parent_state, nested_state
+      type(GeomManager), pointer :: mgr
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate( &
+           content="{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assertEqual(0, status)
+
+      mgr => get_geom_manager()
+      mapl_geom => mgr%get_mapl_geom(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      geom = mapl_geom%get_geom()
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, rc=status)
+      @assertEqual(0, status)
+
+      nested_state = ESMF_StateCreate(fieldList=[field], rc=status)
+      @assertEqual(0, status)
+
+      parent_state = ESMF_StateCreate(nestedStateList=[nested_state], rc=status)
+      @assertEqual(0, status)
+
+      call StateGetGeom(parent_state, result_geom, rc=status)
+      @assertEqual(0, status, 'StateGetGeom should succeed when field is in a nested state')
+
+      call ESMF_FieldDestroy(field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateDestroy(nested_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateDestroy(parent_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_nested_state_returns_geom
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_nested_state_mismatched_geoms_fails(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig1, hconfig2
+      type(MaplGeom), pointer :: mapl_geom1, mapl_geom2
+      type(ESMF_Geom) :: geom1, geom2, result_geom
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_State) :: parent_state, nested_state
+      type(GeomManager), pointer :: mgr
+      integer :: status
+
+      hconfig1 = ESMF_HConfigCreate( &
+           content="{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assertEqual(0, status)
+
+      hconfig2 = ESMF_HConfigCreate( &
+           content="{class: latlon, im_world: 8, jm_world: 8, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assertEqual(0, status)
+
+      mgr => get_geom_manager()
+      mapl_geom1 => mgr%get_mapl_geom(hconfig1, rc=status)
+      @assertEqual(0, status)
+      mapl_geom2 => mgr%get_mapl_geom(hconfig2, rc=status)
+      @assertEqual(0, status)
+
+      geom1 = mapl_geom1%get_geom()
+      geom2 = mapl_geom2%get_geom()
+
+      ! field1 lives in the parent state; field2 (different geom) lives in a nested state
+      field1 = ESMF_FieldCreate(geom=geom1, typekind=ESMF_TYPEKIND_R4, name='field1', rc=status)
+      @assertEqual(0, status)
+      field2 = ESMF_FieldCreate(geom=geom2, typekind=ESMF_TYPEKIND_R4, name='field2', rc=status)
+      @assertEqual(0, status)
+
+      nested_state = ESMF_StateCreate(fieldList=[field2], rc=status)
+      @assertEqual(0, status)
+
+      parent_state = ESMF_StateCreate(fieldList=[field1], nestedStateList=[nested_state], rc=status)
+      @assertEqual(0, status)
+
+      call StateGetGeom(parent_state, result_geom, rc=status)
+      @assertExceptionRaised('all fields must share the same geom')
+
+      call ESMF_FieldDestroy(field1, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field2, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateDestroy(nested_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateDestroy(parent_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_HConfigDestroy(hconfig1, rc=status)
+      @assertEqual(0, status)
+      call ESMF_HConfigDestroy(hconfig2, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_nested_state_mismatched_geoms_fails
+
 end module Test_StateGetGeom
