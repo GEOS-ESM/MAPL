@@ -6,7 +6,6 @@ module Test_EASEGeomSpec
    use funit
    use esmf_TestMethod_mod
    use mapl3g_EASEGeomSpec
-   use mapl3g_EASEConversion
    use esmf
    implicit none
 
@@ -116,36 +115,5 @@ contains
 
       call ESMF_HConfigDestroy(hconfig, rc=status)
    end subroutine test_make_from_hconfig
-
-   ! ------------------------------------------------------------------
-   ! Test coordinate array sizes
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_coordinate_sizes(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-
-      type(EASEGeomSpec) :: spec
-      real(kind=ESMF_KIND_R8), allocatable :: lons(:), lats(:)
-      real(kind=ESMF_KIND_R8), allocatable :: lon_cor(:), lat_cor(:)
-      integer :: status
-
-      spec = EASEGeomSpec('EASEv2_M09', rc=status)
-      @assert_that(status, is(0))
-
-      lons    = spec%get_lon_centers()
-      lats    = spec%get_lat_centers()
-      lon_cor = spec%get_lon_corners()
-      lat_cor = spec%get_lat_corners()
-
-      @assert_that(size(lons),    is(3856))
-      @assert_that(size(lats),    is(1624))
-      @assert_that(size(lon_cor), is(3857))
-      @assert_that(size(lat_cor), is(1625))
-
-      ! Longitude range should be [-180, 180) for centers and [-180, 180] for corners
-      @assertTrue(abs(lons(1)       - (-180.0d0 + 360.0d0/3856/2)) < 1.0d-6)
-      @assertTrue(abs(lon_cor(1)    - (-180.0d0))                   < 1.0d-10)
-      @assertTrue(abs(lon_cor(3857) - ( 180.0d0))                   < 1.0d-10)
-
-   end subroutine test_coordinate_sizes
 
 end module Test_EASEGeomSpec

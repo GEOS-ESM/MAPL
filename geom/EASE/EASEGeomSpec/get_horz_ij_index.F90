@@ -55,7 +55,6 @@ contains
 
       integer :: k, npts, status
       real :: r, s, lat_deg, lon_deg
-      real(kind=R8), allocatable :: lon_corners(:), lat_corners(:)
 
       npts = size(lon)
       _ASSERT(size(lat) == npts, 'lon/lat size mismatch')
@@ -63,9 +62,6 @@ contains
       allocate(ii(npts), jj(npts))
       ii = -1
       jj = -1
-
-      lon_corners = this%lon_corners
-      lat_corners = this%lat_corners
 
       do k = 1, npts
          ! Inputs are in radians; convert to degrees for ease_convert
