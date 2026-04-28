@@ -617,7 +617,6 @@ contains
       restart_is_defined = ESMF_HConfigIsDefined(hconfig, keyString=KEY_RESTART, _RC)
       _ASSERT(restart_is_defined, 'Unable to get restart filename')
       cap_restart_file = ESMF_HConfigAsString(hconfig, keyString=KEY_RESTART, _RC)
-!      restart_cfg = ESMF_HConfigCreate(filename=cap_restart_file, _RC)
       restart_cfg = ESMF_HConfigCreate(_RC)
       call ESMF_HConfigAdd(restart_cfg, content=timeString, addKeyString=KEY_CURRTIME, _RC)
       call ESMF_HConfigAdd(restart_cfg, content=repeatCount, addKeyString=KEY_REPEATCOUNT, _RC)
