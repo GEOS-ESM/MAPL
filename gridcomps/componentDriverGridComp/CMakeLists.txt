@@ -5,3 +5,6 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.generic3g MAPL
   NOINSTALL
   TYPE SHARED)
+
+# Ensure this library is built when running 'make tests'
+add_dependencies(build-tests ${this})
