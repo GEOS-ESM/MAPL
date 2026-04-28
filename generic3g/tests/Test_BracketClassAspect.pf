@@ -56,10 +56,10 @@ contains
       type(ESMF_Field), allocatable :: fieldList(:)
 
       type(BasicVerticalGridFactory) :: factory
-      
+
       var_spec = make_VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
            short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, &
-           default_value=17.0, _RC)
+           fill_value=17.0, _RC)
 
       vspec = BasicVerticalGridSpec(num_levels=5)
       vgrid = factory%create_grid_from_spec(vspec, _RC)
@@ -78,7 +78,7 @@ contains
 
       call MAPL_FieldBundleGet(field_bundle, fieldList=fieldList, _RC)
       do i=1,fieldCount
-         call assign_fptr(fieldList(i), ptr, _RC)   
+         call assign_fptr(fieldList(i), ptr, _RC)
          allocate(expected_value(size(ptr)))
          expected_value = 17.0
          @assertEqual(ptr, expected_value)
@@ -88,6 +88,6 @@ contains
       call bracket_aspect%destroy(_RC)
 
    end subroutine test_allocate
-      
+
 
 end module Test_BracketClassAspect
