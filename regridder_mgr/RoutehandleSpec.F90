@@ -20,6 +20,8 @@ module mapl3g_RoutehandleSpec
       type(ESMF_Geom) :: geom_in
       type(ESMF_Geom) :: geom_out
       type(RoutehandleParam) :: rh_param
+      type(ESMF_TypeKind_Flag) :: typekind_in  = ESMF_TYPEKIND_R4
+      type(ESMF_TypeKind_Flag) :: typekind_out = ESMF_TYPEKIND_R4
    end type RoutehandleSpec
 
 
@@ -37,15 +39,21 @@ module mapl3g_RoutehandleSpec
 
 contains
 
-   function new_RoutehandleSpec( geom_in, geom_out, rh_param) result(spec)
+   function new_RoutehandleSpec(rh_param, geom_in, geom_out, typekind_in, typekind_out) result(spec)
       type(RoutehandleSpec) :: spec
+      type(RoutehandleParam), intent(in) :: rh_param
       type(ESMF_Geom), intent(in) :: geom_in
       type(ESMF_Geom), intent(in) :: geom_out
-      type(RoutehandleParam), intent(in) :: rh_param
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind_in
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind_out
 
-      spec%geom_in = geom_in
-      spec%geom_out = geom_out
-      spec%rh_param = rh_param
+      spec%rh_param     = rh_param
+      spec%geom_in      = geom_in
+      spec%geom_out     = geom_out
+      spec%typekind_in  = ESMF_TYPEKIND_R4
+      spec%typekind_out = ESMF_TYPEKIND_R4
+      if (present(typekind_in))  spec%typekind_in  = typekind_in
+      if (present(typekind_out)) spec%typekind_out = typekind_out
 
    end function new_RoutehandleSpec
 
@@ -56,7 +64,8 @@ contains
 
       integer :: status
 
-      routehandle = make_routehandle(spec%geom_in, spec%geom_out, spec%rh_param, _RC)
+      routehandle = make_routehandle(spec%rh_param, spec%geom_in, spec%geom_out, &
+           typekind_in=spec%typekind_in, typekind_out=spec%typekind_out, _RC)
       
       _RETURN(_SUCCESS)
    end function make_routehandle_from_spec
@@ -66,6 +75,12 @@ contains
       type(RoutehandleSpec), intent(in) :: b
 
       eq = a%rh_param == b%rh_param
+      if (.not. eq) return
+
+      eq = (a%typekind_in  == b%typekind_in)
+      if (.not. eq) return
+
+      eq = (a%typekind_out == b%typekind_out)
       if (.not. eq) return
 
       eq = MAPL_SameGeom(a%geom_in, b%geom_in)

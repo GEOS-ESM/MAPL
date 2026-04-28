@@ -1,0 +1,372 @@
+#include "MAPL_TestErr.h"
+
+module Test_RegridderArrayOverloads
+   use pfunit
+   use mapl3g_regridder_mgr
+   use mapl3g_Geom_API
+   use esmf_TestMethod_mod ! mapl
+   use esmf
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   implicit none(type, external)
+
+   ! Grid dimensions used throughout; small enough for fast tests.
+   ! pole: PE (excluded) is used throughout to avoid floating overflow in
+   ! ESMF_FieldRegridStore with pole: PC on older ESMF/BaseLibs (see GH issue #4672).
+   ! dateline: DE used (DC triggers a crash in ESMF_FieldRegridStore - see GH issue #4672).
+   ! src: 8×6 coarse grid; dst: 16×12 fine grid.
+   ! Using distinct resolutions ensures the regrid route-handle is exercised
+   ! rather than any identity short-circuit.
+   integer, parameter :: IM_SRC = 8,  JM_SRC = 6
+   integer, parameter :: IM_DST = 16, JM_DST = 12
+   integer, parameter :: LM = 4    ! ungridded (vertical) levels
+
+contains
+
+   ! ---------------------------------------------------------------------------
+   ! Helper: build an ESMF_Geom via GeomManager from an inline HConfig string.
+   ! ---------------------------------------------------------------------------
+   function make_geom(geom_mgr, content, rc) result(geom)
+      type(ESMF_Geom) :: geom
+      type(GeomManager), intent(inout) :: geom_mgr
+      character(len=*), intent(in) :: content
+      integer, optional, intent(out) :: rc
+
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content=content, _RC)
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+
+      _RETURN(_SUCCESS)
+   end function make_geom
+
+   ! ---------------------------------------------------------------------------
+   ! Helper: standard single-PE source geom (IM_SRC x JM_SRC).
+   ! ---------------------------------------------------------------------------
+   function src_geom_content() result(content)
+      character(len=:), allocatable :: content
+      content = "{class: latlon, im_world: 8, jm_world: 6, " // &
+                "pole: PE, dateline: DE, nx: 1, ny: 1}"
+   end function src_geom_content
+
+   ! ---------------------------------------------------------------------------
+   ! Helper: standard single-PE destination geom (IM_DST x JM_DST).
+   ! ---------------------------------------------------------------------------
+   function dst_geom_content() result(content)
+      character(len=:), allocatable :: content
+      content = "{class: latlon, im_world: 16, jm_world: 12, " // &
+                "pole: PE, dateline: DE, nx: 1, ny: 1}"
+   end function dst_geom_content
+
+   ! ===========================================================================
+   ! Test 1: basic 2-D R4 round-trip, coarse → fine grid.
+   !
+   ! A uniform constant field bilinearly interpolated to a finer grid must
+   ! reproduce the input value exactly.  Using distinct src/dst resolutions
+   ! ensures the route-handle is exercised rather than any identity path.
+   ! ===========================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_array_regrid_2d_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager)    :: geom_mgr
+      type(RegridderManager) :: regridder_mgr
+      type(RegridderSpec)  :: spec
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_src, geom_dst
+      integer :: status
+
+      real(REAL32) :: q_in(IM_SRC, JM_SRC)
+      real(REAL32) :: q_out(IM_DST, JM_DST)
+
+      geom_mgr      = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+      geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
+      geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
+      spec = RegridderSpec(EsmfRegridderParam(), geom_src, geom_dst)
+
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      q_in  = 3.0_REAL32
+      q_out = 0.0_REAL32
+      call my_regridder%regrid(q_in, q_out, _RC)
+
+      @assertEqual(3.0_REAL32, q_out, 1.e-5_REAL32)
+
+   end subroutine test_array_regrid_2d_r4
+
+   ! ===========================================================================
+   ! Test 2: 3-D R4 array with one ungridded (vertical) dimension.
+   !
+   ! Coarse → fine, dimCount == 2; the third dimension is ungridded.
+   ! Each level carries a distinct constant value so level mix-up is caught.
+   ! ===========================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_array_regrid_3d_r4_ungridded(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager)    :: geom_mgr
+      type(RegridderManager) :: regridder_mgr
+      type(RegridderSpec)  :: spec
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_src, geom_dst
+      integer :: status, k
+
+      real(REAL32) :: q_in(IM_SRC, JM_SRC, LM)
+      real(REAL32) :: q_out(IM_DST, JM_DST, LM)
+
+      geom_mgr      = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+      geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
+      geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
+      spec = RegridderSpec(EsmfRegridderParam(), geom_src, geom_dst)
+
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      do k = 1, LM
+         q_in(:, :, k) = real(k, REAL32)
+      end do
+      q_out = 0.0_REAL32
+      call my_regridder%regrid(q_in, q_out, _RC)
+
+      do k = 1, LM
+         @assertEqual(real(k, REAL32), q_out(:, :, k), 1.e-5_REAL32)
+      end do
+
+   end subroutine test_array_regrid_3d_r4_ungridded
+
+   ! ===========================================================================
+   ! Test 3: two-PE balanced decomposition, coarse → fine.
+   !
+   ! src uses jms=[3,3]; dst uses jms=[6,6].  Each PE allocates a local array
+   ! whose size matches its partition of the distributed grid, which is the
+   ! correct API contract for the array overloads.  Local sizes are queried by
+   ! creating a temporary ESMF_Field and inspecting the farrayPtr shape.
+   !
+   ! NOTE: zero-extent partitions (jms=[5,0]) trigger a pre-existing bug in
+   ! LatLonGeomFactory/fill_coordinates (corner-count mismatch) and cannot be
+   ! tested here until that is fixed.
+   ! ===========================================================================
+   @test(type=ESMF_TestMethod, npes=[2])
+   subroutine test_array_regrid_2pe(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager)    :: geom_mgr
+      type(RegridderManager) :: regridder_mgr
+      type(RegridderSpec)  :: spec
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_src, geom_dst
+      type(ESMF_Field) :: tmp_field
+      real(REAL32), pointer     :: tmp_ptr(:,:)
+      real(REAL32), allocatable :: q_in(:,:), q_out(:,:)
+      integer :: local_im_src, local_jm_src, local_im_dst, local_jm_dst
+      integer :: status
+
+      character(len=*), parameter :: src_content = &
+        "{class: latlon, im_world: 8, jm_world: 6, " // &
+        "pole: PE, dateline: DE, ims: [8], jms: [3, 3]}"
+      character(len=*), parameter :: dst_content = &
+        "{class: latlon, im_world: 16, jm_world: 12, " // &
+        "pole: PE, dateline: DE, ims: [16], jms: [6, 6]}"
+
+      geom_mgr      = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+      geom_src = make_geom(geom_mgr, src_content, _RC)
+      geom_dst = make_geom(geom_mgr, dst_content, _RC)
+      spec = RegridderSpec(EsmfRegridderParam(), geom_src, geom_dst)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! Query local extents by creating a temporary field and reading back the ptr.
+      tmp_field = ESMF_FieldCreate(geom_src, typekind=ESMF_TYPEKIND_R4, _RC)
+      call ESMF_FieldGet(tmp_field, farrayPtr=tmp_ptr, _RC)
+      local_im_src = size(tmp_ptr, 1); local_jm_src = size(tmp_ptr, 2)
+      call ESMF_FieldDestroy(tmp_field, noGarbage=.true., _RC)
+
+      tmp_field = ESMF_FieldCreate(geom_dst, typekind=ESMF_TYPEKIND_R4, _RC)
+      call ESMF_FieldGet(tmp_field, farrayPtr=tmp_ptr, _RC)
+      local_im_dst = size(tmp_ptr, 1); local_jm_dst = size(tmp_ptr, 2)
+      call ESMF_FieldDestroy(tmp_field, noGarbage=.true., _RC)
+
+      allocate(q_in(local_im_src, local_jm_src), q_out(local_im_dst, local_jm_dst))
+      q_in  = 5.0_REAL32
+      q_out = 0.0_REAL32
+      call my_regridder%regrid(q_in, q_out, _RC)
+
+      @assertEqual(5.0_REAL32, q_out, 1.e-5_REAL32)
+
+   end subroutine test_array_regrid_2pe
+
+   ! ===========================================================================
+   ! Test 4: rank/dimCount mismatch triggers a non-success return code.
+   !
+   ! The 1-D overload asserts geom dimCount == 1.  A 2-D LatLon geom
+   ! (dimCount == 2) must return a non-zero rc rather than silently misbehave.
+   ! ===========================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_array_regrid_rank_mismatch(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager)    :: geom_mgr
+      type(RegridderManager) :: regridder_mgr
+      type(RegridderSpec)  :: spec
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_src, geom_dst
+      integer :: status
+
+      real(REAL32) :: q_in(IM_SRC * JM_SRC)
+      real(REAL32) :: q_out(IM_DST * JM_DST)
+
+      geom_mgr      = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+      geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
+      geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
+      ! Both geoms have dimCount == 2; the 1-D overload requires dimCount == 1.
+      spec = RegridderSpec(EsmfRegridderParam(), geom_src, geom_dst)
+
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      q_in  = 1.0_REAL32
+      q_out = 0.0_REAL32
+      ! Do NOT use _VERIFY — we expect a non-zero status.
+      call my_regridder%regrid(q_in, q_out, rc=status)
+
+      @assertExceptionRaised('geom dimCount must be 1 for 1-D array overload')
+
+   end subroutine test_array_regrid_rank_mismatch
+
+   ! ===========================================================================
+   ! Test 4b: typekind mismatch triggers an assertion.
+   !
+   ! Build an R4 regridder (default typekind), then pass an R8 array.
+   ! The typekind check in regrid_field must fire before ESMF silently
+   ! produces wrong numbers.
+   ! ===========================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_array_regrid_typekind_mismatch(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager)    :: geom_mgr
+      type(RegridderManager) :: regridder_mgr
+      type(RegridderSpec)  :: spec
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_src, geom_dst
+      integer :: status
+
+      real(REAL64) :: q_in(IM_SRC, JM_SRC)
+      real(REAL64) :: q_out(IM_DST, JM_DST)
+
+      geom_mgr      = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+      geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
+      geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
+      ! Default typekind is R4; passing R8 arrays must trigger an assertion.
+      spec = RegridderSpec(EsmfRegridderParam(), geom_src, geom_dst)
+
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      q_in  = 7.0_REAL64
+      q_out = 0.0_REAL64
+      call my_regridder%regrid(q_in, q_out, rc=status)
+
+      block
+        logical :: ignore
+        ignore = catch('status=1') ! uninteresting secondary error
+      end block
+      @assertExceptionRaised('f_in typekind does not match route handle; set typekind_in in RegridderSpec')
+
+
+   end subroutine test_array_regrid_typekind_mismatch
+
+   ! ===========================================================================
+   ! Test 5: basic 2-D R8 round-trip, coarse → fine grid.
+   !
+   ! Mirrors test 1 for REAL64 to exercise the R8 generic resolution and the
+   ! ESMF_TYPEKIND_R8 path inside ESMF_FieldCreate.
+   ! ===========================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_array_regrid_2d_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager)    :: geom_mgr
+      type(RegridderManager) :: regridder_mgr
+      type(RegridderSpec)  :: spec
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_src, geom_dst
+      integer :: status
+
+      real(REAL64) :: q_in(IM_SRC, JM_SRC)
+      real(REAL64) :: q_out(IM_DST, JM_DST)
+
+      geom_mgr      = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+      geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
+      geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
+      spec = RegridderSpec(EsmfRegridderParam(), geom_src, geom_dst, &
+           typekind_in=ESMF_TYPEKIND_R8, typekind_out=ESMF_TYPEKIND_R8)
+
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      q_in  = 7.0_REAL64
+      q_out = 0.0_REAL64
+      call my_regridder%regrid(q_in, q_out, _RC)
+
+      @assertEqual(7.0_REAL64, q_out, 1.e-10_REAL64)
+
+   end subroutine test_array_regrid_2d_r8
+
+   ! ===========================================================================
+   ! Test 6: pass the interior of a larger halo-padded array, coarse → fine.
+   !
+   ! Allocates q_big_in(IM_SRC + 2*NHALO, JM_SRC + 2*NHALO) with halo cells
+   ! on all four sides.  Only the interior slice is passed to the regridder.
+   ! With the copy-pattern implementation (plain assumed-shape dummies), the
+   ! compiler copies any non-contiguous section into a contiguous temporary
+   ! before the call, so ESMF_FieldGet always receives well-formed data.
+   ! ===========================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_array_regrid_interior_slice(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager)    :: geom_mgr
+      type(RegridderManager) :: regridder_mgr
+      type(RegridderSpec)  :: spec
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_src, geom_dst
+      integer :: status
+
+      integer, parameter :: NHALO = 2
+
+      ! Large buffer with halo cells on all four sides.
+      real(REAL32) :: q_big_in(IM_SRC + 2*NHALO, JM_SRC + 2*NHALO)
+      real(REAL32) :: q_out(IM_DST, JM_DST)
+
+      geom_mgr      = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+      geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
+      geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
+      spec = RegridderSpec(EsmfRegridderParam(), geom_src, geom_dst)
+
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! Fill entire buffer with the interior value, then poison halo cells.
+      q_big_in                        = 9.0_REAL32
+      q_big_in(1:NHALO, :)           = -1.0_REAL32   ! west halo
+      q_big_in(IM_SRC+NHALO+1:, :)  = -1.0_REAL32   ! east halo
+      q_big_in(:, 1:NHALO)           = -1.0_REAL32   ! south halo
+      q_big_in(:, JM_SRC+NHALO+1:)  = -1.0_REAL32   ! north halo
+
+      q_out = 0.0_REAL32
+
+      ! Non-contiguous in leading dim; plain assumed-shape dummy guarantees
+      ! the compiler produces a contiguous copy before the call.
+      call my_regridder%regrid( &
+           q_big_in(NHALO+1 : IM_SRC+NHALO, NHALO+1 : JM_SRC+NHALO), &
+           q_out, _RC)
+
+      @assertEqual(9.0_REAL32, q_out, 1.e-5_REAL32)
+
+   end subroutine test_array_regrid_interior_slice
+
+end module Test_RegridderArrayOverloads

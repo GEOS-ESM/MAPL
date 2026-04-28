@@ -3,7 +3,7 @@
 submodule (mapl3g_ComponentSpecParser) parse_var_specs_smod
    use mapl3g_VerticalGrid
    implicit none(type,external)
-   
+
 contains
 
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
@@ -51,7 +51,7 @@ contains
          character(:), allocatable :: short_name
          type(ESMF_HConfig) :: attributes
          type(ESMF_TypeKind_Flag) :: typekind
-         real, allocatable :: default_value
+         real, allocatable :: fill_value
          type(VerticalStaggerLoc) :: vertical_stagger
          type(UngriddedDims) :: ungridded_dims
          character(:), allocatable :: standard_name
@@ -93,7 +93,7 @@ contains
             short_name = name
 
             typekind = to_typekind(attributes, _RC)
-            call val_to_float(default_value, attributes, KEY_DEFAULT_VALUE, _RC)
+            call val_to_float(fill_value, attributes, KEY_FILL_VALUE, _RC)
             vertical_stagger = to_VerticalStaggerLoc(attributes,_RC)
             ungridded_dims = to_UngriddedDims(attributes, _RC)
 
@@ -142,7 +142,7 @@ contains
                  typekind=typekind, &
                  vertical_stagger=vertical_stagger, &
                  ungridded_dims=ungridded_dims, &
-                 default_value=default_value, &
+                 fill_value=fill_value, &
                  service_items=service_items, &
                  standard_name=standard_name, &
                  dependencies=dependencies, &
@@ -175,13 +175,13 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         logical :: has_default_value
+         logical :: has_fill_value
 
-         has_default_value = ESMF_HConfigIsDefined(attributes, keyString=key, _RC)
-         _RETURN_UNLESS(has_default_value)
+         has_fill_value = ESMF_HConfigIsDefined(attributes, keyString=key, _RC)
+         _RETURN_UNLESS(has_fill_value)
 
          allocate(x)
-         x = ESMF_HConfigAsR4(attributes, keyString=KEY_DEFAULT_VALUE, _RC)
+         x = ESMF_HConfigAsR4(attributes, keyString=KEY_FILL_VALUE, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float

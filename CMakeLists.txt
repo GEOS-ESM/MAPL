@@ -209,10 +209,6 @@ add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 include(mapl_acg)
 include(mapl_create_stub_component)
 
-# Special case - MAPL_cfio is built twice with two different precisions.
-add_subdirectory (MAPL_cfio MAPL_cfio_r4)
-add_subdirectory (MAPL_cfio MAPL_cfio_r8)
-
 # This tests for various capabilities of the compiler
 # We mainly use it for MPICH issues
 include(CheckCompilerCapabilities)
@@ -243,7 +239,6 @@ add_subdirectory (MAPL)
 add_subdirectory (mapl3g)
 add_subdirectory (utilities)
 add_subdirectory (gridcomps)
-add_subdirectory (griddedio)
 add_subdirectory (GeomIO)
 add_subdirectory (esmf_utils)
 add_subdirectory (vertical)

@@ -338,10 +338,10 @@ contains
       if (slash_pos > 0) then
          just_name = name(slash_pos+1:)
       end if
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'sum_'//just_name, default_value=0.0, _RC)
+      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'sum_'//just_name, fill_value=0.0, _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'counts_'//just_name, default_value=0.0, _RC)
+      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'counts_'//just_name, fill_value=0.0, _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
 
       _RETURN(_SUCCESS)
