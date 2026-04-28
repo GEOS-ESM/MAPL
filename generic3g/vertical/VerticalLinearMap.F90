@@ -74,26 +74,21 @@ contains
       real(REAL32), intent(in) :: array(:)
       Type(IndexValuePair), intent(out) :: pair(2)
 
-      integer :: ndx1, ndx2
+      integer :: ndx1, ndx2, n, nearest
 
-      ! Clamp out-of-range requests to the nearest endpoint to avoid invalid indices.
-      if (val >= array(1)) then
-         ndx1 = 1
-         ndx2 = 1
-      else if (val <= array(size(array))) then
-         ndx1 = size(array)
-         ndx2 = size(array)
+      n = size(array)
+      nearest = minloc(abs(array - val), 1)
+      if (array(nearest) < val) then
+         ndx1 = max(1,nearest - 1)
+         ndx2 = min(n,nearest)
       else
-         ndx1 = minloc(abs(array - val), 1)
-         if (array(ndx1) < val) then
-            ndx1 = max(1, ndx1 - 1)
-         end if
-         ndx2 = ndx1
-         if (array(ndx1) /= val) then
-            ndx2 = min(size(array), ndx1 + 1)
-         end if
-      end if
-
+         ndx1 = nearest
+         if (array(nearest) == val) then
+            ndx2 = nearest  ! Exact match
+         else
+            ndx2 = min(n,nearest+1)
+         endif
+      endif
       pair(1) = IndexValuePair(ndx1, array(ndx1))
       pair(2) = IndexValuePair(ndx2, array(ndx2))
    end subroutine find_bracket_
