@@ -4,6 +4,7 @@ module mapl3g_EASEGeomSpec
 
    use mapl3g_GeomSpec
    use mapl3g_EASEConversion
+   use mapl3g_EASEDecomposition
    use mapl_ErrorHandlingMod
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8
 
@@ -20,6 +21,7 @@ module mapl3g_EASEGeomSpec
    type, extends(GeomSpec) :: EASEGeomSpec
       private
       character(len=:), allocatable :: grid_name   ! e.g. 'EASEv2_M09'
+      type(EASEDecomposition) :: decomposition
    contains
       ! Mandatory GeomSpec interface
       procedure :: equal_to
@@ -35,6 +37,7 @@ module mapl3g_EASEGeomSpec
       procedure :: get_grid_name
       procedure :: get_im_world
       procedure :: get_jm_world
+      procedure :: get_decomposition
    end type EASEGeomSpec
 
    interface EASEGeomSpec
@@ -106,9 +109,10 @@ end interface
 
 contains
 
-   function new_EASEGeomSpec(grid_name, rc) result(spec)
+   function new_EASEGeomSpec(grid_name, decomposition, rc) result(spec)
       type(EASEGeomSpec) :: spec
       character(len=*), intent(in) :: grid_name
+      type(EASEDecomposition), intent(in) :: decomposition
       integer, optional, intent(out) :: rc
 
       integer :: status, cols, rows
@@ -117,7 +121,8 @@ contains
       call ease_extent(grid_name, cols, rows, rc=status)
       _VERIFY(status)
 
-      spec%grid_name = grid_name
+      spec%grid_name    = grid_name
+      spec%decomposition = decomposition
       _RETURN(_SUCCESS)
    end function new_EASEGeomSpec
 
@@ -126,6 +131,12 @@ contains
       character(len=:), allocatable :: name
       name = this%grid_name
    end function get_grid_name
+
+   pure function get_decomposition(this) result(decomposition)
+      class(EASEGeomSpec), intent(in) :: this
+      type(EASEDecomposition) :: decomposition
+      decomposition = this%decomposition
+   end function get_decomposition
 
    integer function get_im_world(this, rc)
       class(EASEGeomSpec), intent(in) :: this

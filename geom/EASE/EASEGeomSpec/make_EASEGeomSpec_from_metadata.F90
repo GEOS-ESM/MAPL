@@ -3,8 +3,10 @@
 submodule (mapl3g_EASEGeomSpec) make_EASEGeomSpec_from_metadata_smod
    use mapl3g_GeomSpec
    use mapl3g_EASEConversion
+   use mapl3g_EASEDecomposition
    use pfio
    use mapl_ErrorHandling
+   use esmf
    implicit none (type, external)
 
 contains
@@ -14,8 +16,9 @@ contains
       type(FileMetadata), intent(in) :: file_metadata
       integer, optional, intent(out) :: rc
 
-      integer :: status, im
+      integer :: status, im, cols, rows
       character(:), allocatable :: grid_name
+      type(EASEDecomposition) :: decomposition
 
       if (file_metadata%has_dimension('lon')) then
          im = file_metadata%get_dimension('lon', _RC)
@@ -26,7 +29,9 @@ contains
       end if
 
       grid_name = get_ease_gridname_by_cols(im, _RC)
-      spec = EASEGeomSpec(grid_name, _RC)
+      call ease_extent(grid_name, cols, rows, _RC)
+      decomposition = make_EASEDecomposition([cols, rows], _RC)
+      spec = EASEGeomSpec(grid_name, decomposition, _RC)
 
       _RETURN(_SUCCESS)
    end function make_EASEGeomSpec_from_metadata

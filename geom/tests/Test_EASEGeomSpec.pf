@@ -6,6 +6,7 @@ module Test_EASEGeomSpec
    use funit
    use esmf_TestMethod_mod
    use mapl3g_EASEGeomSpec
+   use mapl3g_EASEDecomposition
    use esmf
    implicit none
 
@@ -19,9 +20,13 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(EASEGeomSpec) :: spec
+      type(EASEDecomposition) :: decomp
       integer :: status
 
-      spec = EASEGeomSpec('EASEv2_M09', rc=status)
+      decomp = make_EASEDecomposition([3856, 1624], rc=status)
+      @assert_that(status, is(0))
+
+      spec = EASEGeomSpec('EASEv2_M09', decomp, rc=status)
       @assert_that(status, is(0))
 
       @assert_that(spec%get_im_world(), is(3856))
@@ -34,9 +39,13 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(EASEGeomSpec) :: spec
+      type(EASEDecomposition) :: decomp
       integer :: status
 
-      spec = EASEGeomSpec('EASEv1_M36', rc=status)
+      decomp = make_EASEDecomposition([963, 408], rc=status)
+      @assert_that(status, is(0))
+
+      spec = EASEGeomSpec('EASEv1_M36', decomp, rc=status)
       @assert_that(status, is(0))
 
       @assert_that(spec%get_im_world(), is(963))
@@ -50,13 +59,19 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(EASEGeomSpec) :: spec1, spec2, spec3
+      type(EASEDecomposition) :: decomp09, decomp36
       integer :: status
 
-      spec1 = EASEGeomSpec('EASEv2_M09', rc=status)
+      decomp09 = make_EASEDecomposition([3856, 1624], rc=status)
       @assert_that(status, is(0))
-      spec2 = EASEGeomSpec('EASEv2_M09', rc=status)
+      decomp36 = make_EASEDecomposition([964, 406], rc=status)
       @assert_that(status, is(0))
-      spec3 = EASEGeomSpec('EASEv2_M36', rc=status)
+
+      spec1 = EASEGeomSpec('EASEv2_M09', decomp09, rc=status)
+      @assert_that(status, is(0))
+      spec2 = EASEGeomSpec('EASEv2_M09', decomp09, rc=status)
+      @assert_that(status, is(0))
+      spec3 = EASEGeomSpec('EASEv2_M36', decomp36, rc=status)
       @assert_that(status, is(0))
 
       @assert_that(spec1 == spec2, is(.true.))

@@ -3,6 +3,7 @@
 submodule (mapl3g_EASEGeomFactory) create_basic_grid_smod
    use mapl3g_GeomSpec
    use mapl3g_EASEGeomSpec
+   use mapl3g_EASEDecomposition
    use mapl_ErrorHandlingMod
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
@@ -24,16 +25,16 @@ contains
 
       integer :: status
       integer, allocatable :: ims(:), jms(:)
+      type(EASEDecomposition) :: decomposition
       type(ESMF_PoleKind_Flag) :: polekindflag(2)
 
       ! No poles
       polekindflag = ESMF_POLEKIND_NONE
 
-      ! Default 1-PE decomposition: single DE covers the whole grid.
-      ! Actual decomposition is supplied externally in production use.
-      allocate(ims(1), jms(1))
-      ims(1) = spec%get_im_world()
-      jms(1) = spec%get_jm_world()
+      ! Use the decomposition stored in the spec.
+      decomposition = spec%get_decomposition()
+      ims = decomposition%get_lon_distribution()
+      jms = decomposition%get_lat_distribution()
 
       grid = ESMF_GridCreate1PeriDim( &
            & name            = name,              &
