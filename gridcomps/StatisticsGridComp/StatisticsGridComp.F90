@@ -273,7 +273,7 @@ contains
           call esmf_ClockGet(clock, currTime=currTime, _RC)
           ringTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
 
-          alarm = esmf_AlarmCreate(clock, ringTime=ringTime, ringInterval=period, _RC)
+          alarm = esmf_AlarmCreate(clock, ringTime=ringTime, ringInterval=period, sticky=.false.,  _RC)
            _RETURN(_SUCCESS)
         end function make_alarm
 
@@ -341,6 +341,38 @@ contains
       type(esmf_Geom) :: geom
       character(:), allocatable :: subdir, filename, name
       type(ESMF_HConfig) :: hconfig
+      type(Statistics), pointer :: stats
+      type(StatisticsVectorIterator) :: iter
+      class(AbstractTimeStatistic), pointer :: stat
+      type(esmf_Alarm) :: alarm
+      logical :: is_ringing, first_ringing
+      logical :: first_item
+
+      ! Verify all alarms share the same ringing status; skip write if all are ringing
+      _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
+
+      first_item = .true.
+      first_ringing = .false.
+      iter = stats%items%ftn_begin()
+      associate (e => stats%items%ftn_end())
+         do while (iter /= e)
+            call iter%next()
+            stat => iter%of()
+            alarm = stat%get_alarm()
+            is_ringing = esmf_AlarmIsRinging(alarm, _RC)
+            if (first_item) then
+               first_ringing = is_ringing
+               first_item = .false.
+            else
+               _ASSERT(is_ringing .eqv. first_ringing, &
+                    'Inconsistent alarm state: not all statistics alarms have the same ringing status')
+            end if
+         end do
+      end associate
+
+      if (first_ringing) then
+         _RETURN(_SUCCESS)
+      end if
 
       call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
       call mapl_GridCompGet(gridcomp, logger=lgr, name=name, hconfig=hconfig, _RC)

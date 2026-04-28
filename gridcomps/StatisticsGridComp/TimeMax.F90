@@ -25,6 +25,7 @@ module mapl3g_TimeMax
       procedure :: update
       procedure :: compute_result
       procedure :: add_to_state
+      procedure :: get_alarm
    end type TimeMax
 
    interface TimeMax
@@ -294,6 +295,13 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
+
+   function get_alarm(this) result(alarm)
+      class(TimeMax), intent(in) :: this
+      type(esmf_Alarm) :: alarm
+
+      alarm = this%alarm
+   end function get_alarm
 
    subroutine advertise_time_max_internal_fields(gridcomp, name, rc)
       type(esmf_GridComp), intent(inout) :: gridcomp

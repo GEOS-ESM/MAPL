@@ -4,7 +4,7 @@ module mapl3g_NullStatistic
 
    use mapl3g_AbstractTimeStatistic
    use mapl_ErrorHandling
-   use esmf, only: esmf_State, esmf_GridComp
+   use esmf, only: esmf_State, esmf_GridComp, esmf_Alarm
 
    implicit none(type,external)
    private
@@ -19,6 +19,7 @@ module mapl3g_NullStatistic
       procedure :: reset => noop_with_gridcomp
       procedure :: compute_result => noop_with_gridcomp
       procedure :: add_to_state
+      procedure :: get_alarm => noop_get_alarm
    end type NullStatistic
 
 contains
@@ -50,5 +51,14 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(state)
    end subroutine add_to_state
+
+   function noop_get_alarm(this) result(alarm)
+      class(NullStatistic), intent(in) :: this
+      type(esmf_Alarm) :: alarm
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(alarm)
+      error stop 'NullStatistic does not have an alarm'
+   end function noop_get_alarm
 
 end module mapl3g_NullStatistic
