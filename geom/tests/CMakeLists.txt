@@ -20,10 +20,13 @@ set (TEST_SRCS
   Test_MeshGeomFactory_Metadata.pf
   Test_MeshGeomFactory_File.pf
   Test_MeshGeomFactory_Distribution.pf
+  Test_XYGeomSpec.pf
+  Test_XYGeomFactory.pf
 )
 
 set (OTHER_SRCS
   MeshTestHelper.F90
+  XYTestHelper.F90
 )
 
 add_pfunit_ctest(MAPL.geom.tests
