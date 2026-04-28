@@ -174,8 +174,11 @@ module mapl3g_Generic
 
    interface MAPL_GridCompSetGeometry
       procedure :: gridcomp_set_geometry
-      procedure :: gridcomp_set_geometry_from_hconfig
    end interface MAPL_GridCompSetGeometry
+
+   interface MAPL_GridCompStateItemSetGeometry
+      procedure :: gridcomp_state_item_set_geometry
+   end interface MAPL_GridCompStateItemSetGeometry
 
    interface MAPL_GridCompSetEntryPoint
       procedure gridcomp_set_entry_point
@@ -1030,7 +1033,7 @@ contains
       _RETURN(_SUCCESS)
    end function gridcomp_is_user
 
-   subroutine gridcomp_set_geometry(gridcomp, state_intent, short_name, geom, vertical_grid, rc)
+   subroutine gridcomp_state_item_set_geometry(gridcomp, state_intent, short_name, geom, vertical_grid, rc)
       use mapl3g_VirtualConnectionPt
       use mapl3g_ExtensionFamily
       use mapl3g_StateItemSpec
@@ -1063,9 +1066,9 @@ contains
       call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine gridcomp_set_geometry
+   end subroutine gridcomp_state_item_set_geometry
 
-   subroutine gridcomp_set_geometry_from_hconfig(gridcomp, rc)
+   subroutine gridcomp_set_geometry(gridcomp, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       integer, optional, intent(out) :: rc
 
@@ -1083,7 +1086,7 @@ contains
       component_spec%geometry_spec = parse_geometry_spec(hconfig, registry, component_name, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine gridcomp_set_geometry_from_hconfig
+   end subroutine gridcomp_set_geometry
 
    ! Use "<SELF>" to indicate connection to gridcomp.
    ! src_name and dst_name can be comma-delimited strings for multiple connection
