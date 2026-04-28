@@ -7,6 +7,7 @@ module mapl3g_TimeAverage
    use ESMF
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+   use mapl3g_SimpleAlarm, only: SimpleAlarm
 
    implicit none(type,external)
    private
@@ -16,8 +17,8 @@ module mapl3g_TimeAverage
 
    type, extends(AbstractTimeStatistic) :: TimeAverage
       private
-      type(esmf_Alarm) :: alarm
-      type(esmf_Field) :: f      ! input
+       type(SimpleAlarm) :: alarm
+       type(esmf_Field) :: f      ! input
       type(esmf_Field) :: avg_f  ! output
    contains
       procedure :: destroy
@@ -40,7 +41,7 @@ contains
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: avg_f
-      type(esmf_Alarm), intent(in) :: alarm
+       type(SimpleAlarm), intent(in) :: alarm
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -139,24 +140,27 @@ contains
       _RETURN(_SUCCESS)
    end subroutine reset
 
-   subroutine update(this, gridcomp, rc)
+   subroutine update(this, gridcomp, clock, rc)
       class(TimeAverage), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
+      type(esmf_Clock), intent(in) :: clock
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(esmf_TypeKind_Flag) :: typekind
-      logical :: is_ringing
+       integer :: status
+       type(esmf_TypeKind_Flag) :: typekind
+       logical :: is_ringing
+       type(esmf_Time) :: nextTime
 
-      call mapl_FieldGet(this%f, typekind=typekind, _RC)
+       call mapl_FieldGet(this%f, typekind=typekind, _RC)
 
-      if (typekind == ESMF_TYPEKIND_R4) then
-         call update_r4(this, gridcomp, _RC)
-      else if (typekind == ESMF_TYPEKIND_R8) then
-         call update_r8(this, gridcomp, _RC)
-      end if
+       if (typekind == ESMF_TYPEKIND_R4) then
+          call update_r4(this, gridcomp, _RC)
+       else if (typekind == ESMF_TYPEKIND_R8) then
+          call update_r8(this, gridcomp, _RC)
+       end if
 
-      is_ringing = esmf_AlarmWillRingNext(this%alarm, _RC)
+       call ESMF_ClockGetNextTime(clock, nextTime=nextTime, _RC)
+       is_ringing = this%alarm%is_ringing(nextTime, _RC)
       _RETURN_UNLESS(is_ringing)
 
       call this%compute_result(gridcomp, _RC)
@@ -317,9 +321,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-   function get_alarm(this) result(alarm)
-      class(TimeAverage), intent(in) :: this
-      type(esmf_Alarm) :: alarm
+    function get_alarm(this) result(alarm)
+       class(TimeAverage), intent(in) :: this
+       type(SimpleAlarm) :: alarm
 
       alarm = this%alarm
    end function get_alarm

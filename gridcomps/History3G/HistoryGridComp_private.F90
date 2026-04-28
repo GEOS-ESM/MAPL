@@ -143,7 +143,7 @@ contains
 
       integer :: status
 
-      stats_mapl_section = ESMF_HConfigCreate(content='{misc: {checkpoint: {import: False, internal: True}, restart: {import: False, internal: True}}}', _RC)
+      stats_mapl_section = ESMF_HConfigCreate(content='{misc: {checkpoint: {import: False, internal: False}, restart: {bootstrap: True, import: False, internal: True}}}', _RC)
       _RETURN(_SUCCESS)
    end function create_stats_mapl_section
       

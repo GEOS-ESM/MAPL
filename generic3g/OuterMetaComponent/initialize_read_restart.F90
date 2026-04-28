@@ -28,6 +28,7 @@ contains
       type(esmf_Time) :: currTime
       integer :: status
       class(Logger), pointer :: user_logger
+      logical :: bootstrap
 
       call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
       call this%run_custom(ESMF_METHOD_READRESTART, PHASE_NAME, _RC)
@@ -43,17 +44,21 @@ contains
 
       subdir = MAPL_GetCheckpointSubdir(this%hconfig, currTime, _RC)
 
+      ! if I try to pass this derived type in to read in folowing code nag crashes
+      bootstrap = this%component_spec%misc%restart_controls%bootstrap
       if (this%component_spec%misc%restart_controls%import) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_import.nc')
          call this%start_timer("ReadImportRestart", _RC)
-         call restart_handler%read(states%importState, filename, _RC)
+         call restart_handler%read(states%importState, filename, &
+              bootstrap, _RC)
          call this%stop_timer("ReadImportRestart", _RC)
       end if
      
       if (this%component_spec%misc%restart_controls%internal) then
          filename = mapl_PathJoin(subdir, driver%get_name() // '_internal.nc')
          call this%start_timer("ReadInternalRestart", _RC)
-         call restart_handler%read(states%internalState, filename, _RC)
+         call restart_handler%read(states%internalState, filename, &
+              bootstrap, _RC)
          call this%stop_timer("ReadInternalRestart", _RC)
       end if
       

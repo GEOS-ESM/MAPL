@@ -17,6 +17,7 @@ module mapl3g_StatisticsGridComp
    use pflogger, only: Logger
    use mapl_OS
    use mapl3g_Utilities, only: MAPL_GetCheckpointSubdir
+   use mapl3g_SimpleAlarm, only: SimpleAlarm
 
    implicit none(type,external)
    private
@@ -126,7 +127,6 @@ contains
       type(Statistics), pointer :: stats
       type(esmf_HConfig) :: hconfig, items_hconfig
       class(AbstractTimeStatistic), allocatable :: item
-      !type(ESMF_Geom) :: geom
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
       call mapl_GridCompGet(gridcomp, hconfig=hconfig, _RC)
@@ -179,7 +179,7 @@ contains
 
          integer :: status
          character(:), allocatable :: action
-         type(esmf_Alarm) :: alarm
+         type(SimpleAlarm) :: alarm
 
          stat = NullStatistic() ! just in case
          action = esmf_HConfigAsString(iter, keystring='action', _RC)
@@ -205,77 +205,77 @@ contains
       function make_average_stat(name, iter, alarm, rc) result(average)
          type(TimeAverage) :: average
          character(*), intent(in) :: name
-         type(esmf_HConfigIter), intent(in) :: iter
-         type(esmf_Alarm), intent(in) :: alarm
-         integer, optional, intent(out) :: rc
+          type(esmf_HConfigIter), intent(in) :: iter
+          type(SimpleAlarm), intent(in) :: alarm
+          integer, optional, intent(out) :: rc
 
-         integer :: status
-         type(esmf_Field) :: f_in, f_out
+          integer :: status
+          type(esmf_Field) :: f_in, f_out
 
-         call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
-         call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
-         average = TimeAverage(gridcomp=gridcomp, f=f_in, avg_f=f_out, alarm=alarm, _RC)
+          average = TimeAverage(gridcomp=gridcomp, f=f_in, avg_f=f_out, alarm=alarm, _RC)
 
          _RETURN(_SUCCESS)
        end function make_average_stat
 
        function make_min_stat(name, iter, alarm, rc) result(min_stat)
-          type(TimeMin) :: min_stat
-          character(*), intent(in) :: name
-          type(esmf_HConfigIter), intent(in) :: iter
-          type(esmf_Alarm), intent(in) :: alarm
-          integer, optional, intent(out) :: rc
+           type(TimeMin) :: min_stat
+           character(*), intent(in) :: name
+           type(esmf_HConfigIter), intent(in) :: iter
+           type(SimpleAlarm), intent(in) :: alarm
+           integer, optional, intent(out) :: rc
 
-          integer :: status
-          type(esmf_Field) :: f_in, f_out
+           integer :: status
+           type(esmf_Field) :: f_in, f_out
 
-          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
-          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+           call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+           call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
-          min_stat = TimeMin(gridcomp=gridcomp, f=f_in, min_f=f_out, alarm=alarm, _RC)
+           min_stat = TimeMin(gridcomp=gridcomp, f=f_in, min_f=f_out, alarm=alarm, _RC)
 
-          _RETURN(_SUCCESS)
-       end function make_min_stat
+           _RETURN(_SUCCESS)
+        end function make_min_stat
 
        function make_max_stat(name, iter, alarm, rc) result(max_stat)
-          type(TimeMax) :: max_stat
-          character(*), intent(in) :: name
-          type(esmf_HConfigIter), intent(in) :: iter
-          type(esmf_Alarm), intent(in) :: alarm
-          integer, optional, intent(out) :: rc
+           type(TimeMax) :: max_stat
+           character(*), intent(in) :: name
+           type(esmf_HConfigIter), intent(in) :: iter
+           type(SimpleAlarm), intent(in) :: alarm
+           integer, optional, intent(out) :: rc
 
-          integer :: status
-          type(esmf_Field) :: f_in, f_out
+           integer :: status
+           type(esmf_Field) :: f_in, f_out
 
-          call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
-          call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+           call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+           call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
-          max_stat = TimeMax(gridcomp=gridcomp, f=f_in, max_f=f_out, alarm=alarm, _RC)
+           max_stat = TimeMax(gridcomp=gridcomp, f=f_in, max_f=f_out, alarm=alarm, _RC)
 
-          _RETURN(_SUCCESS)
-       end function make_max_stat
+           _RETURN(_SUCCESS)
+        end function make_max_stat
 
        function make_alarm(clock, iter, rc) result(alarm)
-          type(ESMF_Alarm) :: alarm
-          type(esmf_Clock), intent(in) :: clock
-          type(esmf_HConfigIter), intent(in) :: iter
-          integer, optional, intent(out) :: rc
+           type(SimpleAlarm) :: alarm
+           type(esmf_Clock), intent(in) :: clock
+           type(esmf_HConfigIter), intent(in) :: iter
+           integer, optional, intent(out) :: rc
 
-          integer :: status
-          type(esmf_TimeInterval) :: period
-          type(esmf_Time) :: ringTime, currTime
-          character(:), allocatable :: ref_datetime
+           integer :: status
+           type(esmf_TimeInterval) :: period
+           type(esmf_Time) :: ringTime, currTime
+           character(:), allocatable :: ref_datetime
 
-          period = mapl_HConfigAsTimeInterval(iter, keystring='period', _RC)
-          ref_datetime = esmf_HConfigAsString(iter, keystring='ref_datetime', _RC)
+           period = mapl_HConfigAsTimeInterval(iter, keystring='period', _RC)
+           ref_datetime = esmf_HConfigAsString(iter, keystring='ref_datetime', _RC)
 
-          call esmf_ClockGet(clock, currTime=currTime, _RC)
-          ringTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
+           call esmf_ClockGet(clock, currTime=currTime, _RC)
+           ringTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
 
-          alarm = esmf_AlarmCreate(clock, ringTime=ringTime, ringInterval=period, sticky=.false.,  _RC)
-           _RETURN(_SUCCESS)
-        end function make_alarm
+           alarm = SimpleAlarm(initial_ring_time=ringTime, ring_interval=period, _RC)
+            _RETURN(_SUCCESS)
+         end function make_alarm
 
    end subroutine modify_advertise
 
@@ -316,14 +316,13 @@ contains
         do while (iter /= e)
            call iter%next()
            stat => iter%of()
-            call stat%update(gridcomp, _RC)
-        end do
-      end associate
+             call stat%update(gridcomp, clock, _RC)
+         end do
+       end associate
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(importState)
-      _UNUSED_DUMMY(exportState)
-      _UNUSED_DUMMY(clock)
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(importState)
+       _UNUSED_DUMMY(exportState)
    end subroutine run
 
    subroutine custom_write_restart(gridcomp, importState, exportState, clock, rc)
@@ -344,22 +343,24 @@ contains
       type(Statistics), pointer :: stats
       type(StatisticsVectorIterator) :: iter
       class(AbstractTimeStatistic), pointer :: stat
-      type(esmf_Alarm) :: alarm
-      logical :: is_ringing, first_ringing
-      logical :: first_item
+       type(SimpleAlarm) :: alarm
+       logical :: is_ringing, first_ringing
+       logical :: first_item
 
-      ! Verify all alarms share the same ringing status; skip write if all are ringing
-      _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
+       ! Verify all alarms share the same ringing status; skip write if all are ringing
+       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
 
-      first_item = .true.
-      first_ringing = .false.
-      iter = stats%items%ftn_begin()
-      associate (e => stats%items%ftn_end())
-         do while (iter /= e)
-            call iter%next()
-            stat => iter%of()
-            alarm = stat%get_alarm()
-            is_ringing = esmf_AlarmIsRinging(alarm, _RC)
+       call esmf_ClockGet(clock, currTime=currTime, _RC)
+
+       first_item = .true.
+       first_ringing = .false.
+       iter = stats%items%ftn_begin()
+       associate (e => stats%items%ftn_end())
+          do while (iter /= e)
+             call iter%next()
+             stat => iter%of()
+             alarm = stat%get_alarm()
+             is_ringing = alarm%is_ringing(currTime, _RC)
             if (first_item) then
                first_ringing = is_ringing
                first_item = .false.
@@ -377,9 +378,8 @@ contains
       call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
       call mapl_GridCompGet(gridcomp, logger=lgr, name=name, hconfig=hconfig, _RC)
 
-      call MAPL_StateGetGeom(state, geom, _RC)
-      call esmf_ClockGet(clock, currTime=currTime, _RC)
-      restart_handler = RestartHandler(geom, currTime, lgr)
+       call MAPL_StateGetGeom(state, geom, _RC)
+       restart_handler = RestartHandler(geom, currTime, lgr)
 
       subdir = MAPL_GetCheckpointSubdir(hconfig, currTime, _RC)
       filename = mapl_PathJoin(subdir, name//'_internal.nc')
