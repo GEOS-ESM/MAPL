@@ -51,7 +51,7 @@ module mapl3g_FieldClassAspect
       type(ESMF_Field) :: payload
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
-      real(kind=ESMF_KIND_R4), allocatable :: default_value
+      real(kind=ESMF_KIND_R4), allocatable :: fill_value
       type(RestartMode), allocatable :: restart_mode
    contains
       procedure :: get_aspect_order
@@ -91,12 +91,12 @@ contains
    function new_FieldClassAspect( &
         standard_name, &
         long_name, &
-        default_value, &
+        fill_value, &
         restart_mode) result(aspect)
       type(FieldClassAspect) :: aspect
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: fill_value
       type(RestartMode), optional, intent(in) :: restart_mode
 
       aspect%standard_name = 'unknown'
@@ -109,8 +109,8 @@ contains
          aspect%long_name = long_name
       end if
 
-      if (present(default_value)) then
-         aspect%default_value = default_value
+      if (present(fill_value)) then
+         aspect%fill_value = fill_value
       end if
 
       if (present(restart_mode)) then
@@ -190,8 +190,8 @@ contains
 
       call mapl_FieldEmptyComplete(this%payload, _RC)
 
-      if (allocated(this%default_value)) then
-         call FieldSet(this%payload, this%default_value, _RC)
+      if (allocated(this%fill_value)) then
+         call FieldSet(this%payload, this%fill_value, _RC)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -218,11 +218,11 @@ contains
       type(FieldClassAspect) :: import_
       integer :: status
 
-      _RETURN_IF(allocated(this%default_value))
+      _RETURN_IF(allocated(this%fill_value))
 
       import_ = to_FieldClassAspect(import, _RC)
-      if (allocated(import_%default_value)) then ! import wins (for now)
-         this%default_value = import_%default_value
+      if (allocated(import_%fill_value)) then ! import wins (for now)
+         this%fill_value = import_%fill_value
       end if
 
       _RETURN(_SUCCESS)
@@ -242,7 +242,7 @@ contains
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
 
-      call mirror(this%default_value, export_%default_value)
+      call mirror(this%fill_value, export_%fill_value)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CONNECTED, _RC)

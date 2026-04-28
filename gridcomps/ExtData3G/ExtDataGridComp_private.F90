@@ -70,14 +70,14 @@ contains
                   item_type = get_maplitem_type(temp_config, _RC)
                   bracket_size = get_bracket_size(item_type)
                   varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
-                  itemType=item_type, bracket_size = bracket_size, default_value=0.0, &
+                  itemType=item_type, bracket_size = bracket_size, fill_value=0.0, &
                   _RC)
                end if
             else
                item_type = get_maplitem_type(temp_config, _RC)
                bracket_size = get_bracket_size(item_type)
                varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
-               itemType=item_type, bracket_size = bracket_size, default_value=0.0, &
+               itemType=item_type, bracket_size = bracket_size, fill_value=0.0, &
                _RC)
             end if
             call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
