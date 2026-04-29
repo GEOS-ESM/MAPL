@@ -85,8 +85,7 @@ contains
       _RETURN_UNLESS(item_count>0)
 
       inquire(file=filename, exist=file_exists)
-      if ((.not. file_exists ) .and. bootstrap) then
-         _RETURN(_SUCCESS)
+_RETURN_IF(bootstrap .and. (.not. file_exists))
       end if
       _ASSERT(file_exists, "Restart file " // trim(filename) // " does not exist")
       call this%lgr%info("Reading restart: %a", trim(filename))
