@@ -63,6 +63,7 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_IMPORT = 'import'
    character(*), parameter :: KEY_EXPORT = 'export'
    character(*), parameter :: KEY_INTERNAL = 'internal'
+   character(*), parameter :: KEY_BOOTSTRAP = 'bootstrap'
 
    character(*), parameter :: KEY_FILL_VALUE = 'fill_value'
    character(*), parameter :: KEY_UNGRIDDED_DIMS = 'ungridded_dims'

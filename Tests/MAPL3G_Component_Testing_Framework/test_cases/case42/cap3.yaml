@@ -15,7 +15,7 @@ mapl:
 
 cap:
   name: cap
-  restart: cap_restart1.yaml
+  restart: cap_restart3.yaml
 
   checkpointing:
      enabled: true
@@ -24,38 +24,24 @@ cap:
      alarms: {}
 
   clock:
-    dt: PT8H
-    start: 2004-07-01T00:00:00
+    dt: PT24H
+    start: 2004-12-01T00:00:00
     stop: 2999-03-02T21:00:00
-    segment_duration: P1D
+    segment_duration: P192D
 
   extdata_name: EXTDATA
   history_name: HIST
   root_name: GCM
-
-  #run_times:
-    #- '2004-01-15T21:00:00'
-    #- '2004-02-15T21:00:00'
-    #- '2004-03-15T21:00:00'
-    #- '2004-04-15T21:00:00'
-    #- '2004-05-15T21:00:00'
-    #- '2004-06-15T21:00:00'
-    #- '2004-07-15T21:00:00'
-    #- '2004-08-15T21:00:00'
-    #- '2004-09-15T21:00:00'
-    #- '2004-10-15T21:00:00'
-    #- '2004-11-15T21:00:00'
-    #- '2004-12-15T21:00:00'
 
   mapl:
     children:
       GCM:
         dso: libMAPL.componentDriverGridComp
         setServices: setservices_
-        config_file: GCM1.yaml
+        config_file: GCM3.yaml
       EXTDATA:
         dso: libMAPL.extdata3g
-        config_file: extdata1.yaml
+        config_file: extdata3.yaml
       HIST:
         dso: libMAPL.history3g
-        config_file: history1.yaml
+        config_file: history3.yaml

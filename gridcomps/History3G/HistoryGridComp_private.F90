@@ -93,7 +93,7 @@ contains
       logical :: has_mode, has_frequency, has_ref_datetime
       character(len=:), allocatable :: mode, ref_datetime, frequency, short_name, name_in_comp
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
-      type(ESMF_HConfig) :: stat_item, stats_list
+      type(ESMF_HConfig) :: stat_item, stats_list, stats_mapl_section
       type(ChildSpec) :: child_spec
 
       time_hconfig = ESMF_HConfigCreateAt(child_hconfig, keyString='time_spec', _RC)
@@ -106,7 +106,7 @@ contains
       _RETURN_IF(mode == 'instantaneous')
       _ASSERT(has_frequency, 'requested statitics performed on collection: '//child_name//' but did not provide frequency of the collection')
 
-      stats_hconfig = ESMF_HConfigCreate(_RC)
+      stats_hconfig = ESMF_HConfigCreate(content='{}',_RC)
       ref_datetime = "'YYYY-MM-DDTHH:NN:SS'"
       has_ref_datetime = ESMF_HConfigIsDefined(child_hconfig, keyString='ref_datetime', _RC)
       if (has_ref_datetime) then
@@ -115,6 +115,8 @@ contains
       end if
 
       stats_list = ESMF_HConfigCreate(_RC)
+      stats_mapl_section = create_stats_mapl_section(_RC)
+      call ESMF_HConfigAdd(stats_hconfig, stats_mapl_section, addKeyString='mapl', _RC)
       frequency = ESMF_HConfigAsString(time_hconfig, keyString='frequency', _RC)
       var_list = ESMF_HConfigCreateAt(child_hconfig, keyString=VAR_LIST_KEY, _RC)
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
@@ -135,6 +137,16 @@ contains
 
    end subroutine add_stats_gc
 
+   function create_stats_mapl_section(rc) result(stats_mapl_section)
+      type(ESMF_HConfig) :: stats_mapl_section
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      stats_mapl_section = ESMF_HConfigCreate(content='{misc: {checkpoint: {import: False, internal: False}, restart: {bootstrap: True, import: False, internal: True}}}', _RC)
+      _RETURN(_SUCCESS)
+   end function create_stats_mapl_section
+      
    function create_stats_entry(name, action, period, ref_datetime, rc) result(stat_item)
        type(ESMF_HConfig) :: stat_item 
        ! Input arguments

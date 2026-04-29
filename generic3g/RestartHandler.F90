@@ -64,16 +64,17 @@ contains
       call this%lgr%info("Writing checkpoint: %a", filename)
       bundle = this%get_field_bundle_from_state_(state, _RC)
       call filter_fields_incomplete_(bundle, _RC)
-      call this%write_bundle_(bundle, filename, rc)
+      call this%write_bundle_(bundle, filename, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine write
 
-   subroutine read(this, state, filename, rc)
+   subroutine read(this, state, filename, bootstrap, rc)
       class(RestartHandler), intent(inout) :: this
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: filename
+      logical, intent(in) :: bootstrap
       integer, optional, intent(out) :: rc
 
       logical :: file_exists
@@ -84,9 +85,8 @@ contains
       _RETURN_UNLESS(item_count>0)
 
       inquire(file=filename, exist=file_exists)
-      if (.not. file_exists) then
-         _FAIL("Restart file " // trim(filename) // " does not exist")
-      end if
+      _RETURN_IF(bootstrap .and. (.not. file_exists))
+      _ASSERT(file_exists, "Restart file " // trim(filename) // " does not exist")
       call this%lgr%info("Reading restart: %a", trim(filename))
       bundle = this%get_field_bundle_from_state_(state, _RC)
       call filter_fields_skip_restart_(bundle, _RC)
@@ -116,6 +116,7 @@ contains
       call o_Clients%post_wait()
 
       _RETURN(_SUCCESS)
+  
    end subroutine write_bundle_
 
    subroutine read_bundle_(this, filename, bundle, rc)

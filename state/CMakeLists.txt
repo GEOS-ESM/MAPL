@@ -5,6 +5,7 @@ set(srcs
   StateGet.F90
   StateSet.F90
   StateGetPointer.F90
+  StateGetGeom.F90
   StateAddMethod.F90
 
   StateUtils.F90
@@ -24,7 +25,7 @@ find_package (GFTL REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.vertical_grid MAPL.base MAPL.field MAPL.field_bundle MAPL.shared MAPL.esmf_utils ESMF::ESMF PFLOGGER::pflogger GFTL::gftl-v2
+  DEPENDENCIES MAPL.vertical_grid MAPL.base MAPL.field MAPL.field_bundle MAPL.shared MAPL.esmf_utils MAPL.geom ESMF::ESMF PFLOGGER::pflogger GFTL::gftl-v2
   TYPE SHARED
 )
 
