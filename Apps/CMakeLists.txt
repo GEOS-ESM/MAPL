@@ -3,11 +3,16 @@
 # We could leave these in the source directory, and just broaden the search path
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
+#
+# Note: We use configure_file(... COPYONLY) instead of file(COPY ...) here
+# so that CMake registers these scripts as dependencies. If you edit the source 
+# scripts, the build system will automatically detect the change and re-copy 
+# them to the build/install directories without needing a manual re-run of CMake.
 
-file (COPY MAPL_GridCompSpecs_ACG.py DESTINATION ${esma_etc}/MAPL)
-file (COPY MAPL_GridCompSpecs_ACGv3.py DESTINATION ${esma_etc}/MAPL)
-file (COPY mapl_acg.pl DESTINATION ${esma_etc}/MAPL)
-file (COPY mapl_stub.pl DESTINATION ${esma_etc}/MAPL)
+configure_file (MAPL_GridCompSpecs_ACG.py ${esma_etc}/MAPL/MAPL_GridCompSpecs_ACG.py COPYONLY)
+configure_file (MAPL_GridCompSpecs_ACGv3.py ${esma_etc}/MAPL/MAPL_GridCompSpecs_ACGv3.py COPYONLY)
+configure_file (mapl_acg.pl ${esma_etc}/MAPL/mapl_acg.pl COPYONLY)
+configure_file (mapl_stub.pl ${esma_etc}/MAPL/mapl_stub.pl COPYONLY)
 
 install (PROGRAMS
   MAPL_GridCompSpecs_ACG.py

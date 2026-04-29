@@ -7,6 +7,7 @@ module mapl3g_State_API
    use mapl3g_StateAddMethod, only: CallbackMapIterator
    use mapl3g_StateAddMethod, only: CallbackMethodWrapper
    use mapl3g_StateAddMethod, only: get_callbacks
+   use mapl3g_StateGetGeom, only: MAPL_StateGetGeom => StateGetGeom
    implicit none
    private
 
@@ -19,5 +20,6 @@ module mapl3g_State_API
    public :: CallbackMapIterator
    public :: CallbackMethodWrapper
    public :: get_callbacks
+   public :: MAPL_StateGetGeom
 
 end module mapl3g_State_API

@@ -7,7 +7,7 @@ module mapl3g_SharedIO
    use mapl3g_Field_API
    use mapl3g_VerticalStaggerLoc
    use pfio, only: FileMetaData, Variable, UnlimitedEntity
-   use pfio, only: PFIO_UNLIMITED, PFIO_REAL32, PFIO_REAL64
+   use pfio, only: PFIO_UNLIMITED, PFIO_REAL32, PFIO_REAL64, PFIO_INT32, PFIO_INT64
    use gFTL2_StringVector
    use mapl3g_StringDictionary
    use gFTL2_StringSet
@@ -67,6 +67,7 @@ contains
       call add_variables(metadata, bundle, _RC)
 
       _RETURN(_SUCCESS)
+
    end function bundle_to_metadata
 
    subroutine add_variables(metadata, bundle, rc)
@@ -76,7 +77,7 @@ contains
 
       integer :: status, i
       type(ESMF_Field), allocatable :: fieldList(:)
-
+ 
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
       do i = 1, size(fieldList)
          call add_variable(metadata, fieldList(i), _RC)
@@ -112,7 +113,8 @@ contains
       variable_dim_names = get_variable_dim_names(field, _RC)
       call ESMF_FieldGet(field, geom=esmfgeom, _RC)
       mapl_geom => get_mapl_geom(esmfgeom, _RC)
-      call MAPL_FieldGet(field, short_name=short_name, typekind=typekind, _RC)
+      call MAPL_FieldGet(field, short_name=short_name, _RC)
+      call ESMF_FieldGet(field, typekind=typekind, _RC)
       pfio_type = esmf_to_pfio_type(typekind ,_RC)
       call ESMF_InfoGetFromHost(field, infoh, _RC)
       call compression_settings%update_from_info(infoh, _RC)
@@ -192,6 +194,10 @@ contains
          pfio_type = PFIO_REAL32
       else if (esmf_type == ESMF_TYPEKIND_R8) then
          pfio_type = PFIO_REAL64
+      else if (esmf_type == ESMF_TYPEKIND_I4) then
+         pfio_type = PFIO_INT32
+      else if (esmf_type == ESMF_TYPEKIND_I8) then
+         pfio_type = PFIO_INT64
       else
          _FAIL("Unsupported ESMF field typekind for output")
       end if
