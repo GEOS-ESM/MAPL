@@ -48,16 +48,14 @@ contains
       character(ESMF_MAXSTR), allocatable :: item_names(:)
       type(ESMF_StateItem_Flag), allocatable :: item_types(:)
       type(ESMF_Field) :: field
-      type(ESMF_Geom)  :: field_geom
+      type(ESMF_Geom)  :: trial_geom
       type(ESMF_State) :: nested_state
       type(MaplGeom), pointer :: mapl_geom
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
 
       ! An empty (nested) state is allowed — nothing to check here.
-      if (item_count == 0) then
-         _RETURN(_SUCCESS)
-      end if
+      _RETURN_UNLESS(item_count > 0)
 
       allocate(item_names(item_count), item_types(item_count))
       call ESMF_StateGet(state, itemNameList=item_names, itemTypeList=item_types, _RC)
@@ -67,24 +65,20 @@ contains
          if (item_types(i) == ESMF_STATEITEM_FIELD) then
 
             call ESMF_StateGet(state, itemName=item_names(i), field=field, _RC)
-            call ESMF_FieldGet(field, geom=field_geom, _RC)
-            mapl_geom => get_mapl_geom(field_geom, _RC)
+            call ESMF_FieldGet(field, geom=trial_geom, _RC)
+            mapl_geom => get_mapl_geom(trial_geom, _RC)
 
-            if (.not. found) then
-               geom  = field_geom
-               found = .true.
+            if (found) then
+                _ASSERT(MAPL_SameGeom(trial_geom, geom), 'all fields must share the same geom')
             else
-               _ASSERT(MAPL_SameGeom(field_geom, geom), 'all fields must share the same geom')
+               geom  = trial_geom
+               found = .true.
             end if
 
          else if (item_types(i) == ESMF_STATEITEM_STATE) then
 
             call ESMF_StateGet(state, itemName=item_names(i), nestedState=nested_state, _RC)
-             call collect_geom(nested_state, geom, found, rc=status)
-             if (status /= _SUCCESS) then
-                if (present(rc)) rc = status
-                return
-             end if
+            call collect_geom(nested_state, geom, found, _RC)
 
          else
             _ASSERT(.false., 'state items must be fields or nested states')
