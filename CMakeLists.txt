@@ -31,7 +31,7 @@ foreach (dir IN LISTS ESMA_CMAKE_DIRS)
   endif ()
 endforeach ()
 
-# build as standalone project
+# Build as standalone project
 if (NOT COMMAND esma)
   include (esma OPTIONAL)
 endif ()
