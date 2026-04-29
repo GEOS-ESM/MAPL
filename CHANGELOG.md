@@ -89,6 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tests of update_payload and update_from_payload for VerticalGridAspect
 - Add `use_field_dictionary` column to ACG3 with new unit tests.
 - Update cap restart file with current time at end of run.
+- Read/write repeatCount from/to cap restart file at beginning/end of run.
+
 
 ### Changed
 
