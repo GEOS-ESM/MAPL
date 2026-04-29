@@ -366,7 +366,7 @@ contains
                first_item = .false.
                cycle
             endif
-            _FAIL(is_ringing .eqv. first_ringing, 'Inconsistent alarm state: not all statistics alarms have the same ringing status')
+            _ASSERT(is_ringing .eqv. first_ringing, 'Inconsistent alarm state: not all statistics alarms have the same ringing status')
          end do
       end associate
 

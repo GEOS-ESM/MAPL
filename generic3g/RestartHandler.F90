@@ -85,8 +85,7 @@ contains
       _RETURN_UNLESS(item_count>0)
 
       inquire(file=filename, exist=file_exists)
-_RETURN_IF(bootstrap .and. (.not. file_exists))
-      end if
+      _RETURN_IF(bootstrap .and. (.not. file_exists))
       _ASSERT(file_exists, "Restart file " // trim(filename) // " does not exist")
       call this%lgr%info("Reading restart: %a", trim(filename))
       bundle = this%get_field_bundle_from_state_(state, _RC)
