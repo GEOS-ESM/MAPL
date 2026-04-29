@@ -82,7 +82,7 @@ contains
            standard_name="air_pressure " // var_name, &
            units="hPa", &
            vertical_stagger=vertical_stagger, &
-           default_value=3., _RC)
+           fill_value=3., _RC)
       fld_spec = var_spec%make_StateItemSpec(r, component_geom=geom, vertical_grid=vgrid, rc=status); _VERIFY(status)
       call fld_spec%create(_RC)
 
@@ -213,7 +213,7 @@ contains
       call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("hPa"))
-      
+
       vcoord = vgrid%get_coordinate_field( &
            physical_dimension="pressure", &
            aspects=aspects, &
@@ -221,7 +221,7 @@ contains
            _RC)
       @assert_that(associated(coupler), is(false()))
       call r%allocate()
-      
+
       call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
       @assert_that(a, every_item(is(equal_to(3.))))
 
@@ -257,7 +257,7 @@ contains
       call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("Pa"))
-      
+
        vcoord = vgrid%get_coordinate_field( &
            physical_dimension="pressure", &
            aspects=aspects, &

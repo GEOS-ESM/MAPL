@@ -3,7 +3,7 @@
 module MAPL_FieldPointerUtilities
    use ESMF
    use MAPL_ExceptionHandling
-   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated
    implicit none
    private
 
@@ -788,19 +788,20 @@ contains
       logical :: conformable
       logical :: x_is_double
       logical :: y_is_double
-      character(len=*), parameter :: UNSUPPORTED_TK = &
-         'Unsupported typekind in FieldCOPY() for '
+      character(len=*), parameter :: UNSUPPORTED_TK = 'Unsupported typekind in FieldCOPY() for '
 
       conformable = FieldsAreConformable(x, y)
       !wdb fixme need to pass RC
       _ASSERT(conformable, 'FieldCopy() - fields not conformable.')
+
       call FieldGetCptr(x, cptr_x, _RC)
+      call FieldGetCptr(y, cptr_y, _RC)
+      _RETURN_IF(c_associated(cptr_x, cptr_y)) ! nothing to copy if both point to the same data
+
       call ESMF_FieldGet(x, typekind = tk_x, _RC)
+      call ESMF_FieldGet(y, typekind = tk_y, _RC)
 
       n  = FieldGetLocalSize(x, _RC)
-
-      call FieldGetCptr(y, cptr_y, _RC)
-      call ESMF_FieldGet(y, typekind = tk_y, _RC)
 
       !wdb  fixme convert between precisions ? get rid of extra cases
       y_is_double = (tk_y == ESMF_TYPEKIND_R8)
@@ -919,7 +920,7 @@ contains
          end select
          _RETURN(_SUCCESS)
       end if
-      
+
       if (tk == ESMF_TypeKind_R8) then
          select case(rank)
          case(1)
