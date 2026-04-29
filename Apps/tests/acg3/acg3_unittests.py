@@ -88,7 +88,7 @@ class TestMappings(unittest.TestCase):
             return general_msg(a, e)
         test_params = (
                 TestParams(value, equal_test(expected), partial(message, expected)) for value, expected in
-                ((None, None), ('XX', r"'XX'"), ('*XX', f"'{INTERLUDE}XX'"))
+                ((None, None), ('XX', r" 'XX' "), ('*XX', " ''//trim(comp_name)//'XX' "))
         )
         for value, test, msg in test_params:
             a = mangle(value)
