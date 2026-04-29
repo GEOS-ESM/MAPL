@@ -7,25 +7,26 @@ module mapl3g_TimeMax
    use ESMF
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+   use mapl3g_SimpleAlarm, only: SimpleAlarm
 
    implicit none(type,external)
    private
 
    public :: TimeMax
+   public :: advertise_time_max_internal_fields
 
    type, extends(AbstractTimeStatistic) :: TimeMax
       private
-      type(esmf_Alarm) :: alarm
-      type(esmf_Field) :: f      ! input
+       type(SimpleAlarm) :: alarm
+       type(esmf_Field) :: f      ! input
       type(esmf_Field) :: max_f  ! output
-      type(esmf_Field) :: temp_max_f
    contains
-      procedure :: initialize
       procedure :: destroy
       procedure :: reset
       procedure :: update
       procedure :: compute_result
       procedure :: add_to_state
+      procedure :: get_alarm
    end type TimeMax
 
    interface TimeMax
@@ -34,36 +35,65 @@ module mapl3g_TimeMax
 
 contains
 
-   function new_TimeMax(unusable, f, max_f, alarm) result(stat)
+   function new_TimeMax(unusable, gridcomp, f, max_f, alarm, rc) result(stat)
       type(TimeMax) :: stat
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
-      type(esmf_Field), intent(in) :: max_f
-      type(esmf_Alarm), intent(in) :: alarm
+      type(esmf_Field), intent(inout) :: max_f
+       type(SimpleAlarm), intent(in) :: alarm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_State) :: internal_state
+      type(esmf_Geom), allocatable :: geom
+      type(UngriddedDims) :: ungridded_dims
+      character(:), allocatable :: units, name
+      type(esmf_TypeKind_Flag) :: typekind
+      class(VerticalGrid), pointer :: vertical_grid
+      type(VerticalStaggerLoc) :: vstagger
+      type(esmf_Field) :: temp_max_f
 
       stat%f = f
       stat%max_f = max_f
       stat%alarm = alarm
 
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldGet(f, short_name=name, _RC)
+      call mapl_FieldGet(f, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           _RC)
+
+      call mapl_FieldSet(max_f, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           standard_name='foo', &
+           has_deferred_aspects=.false., &
+           _RC)
+
+      call esmf_StateGet(internal_state, 'temp_max'//name, field=temp_max_f, _RC)
+      call mapl_FieldSet(temp_max_f, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           has_deferred_aspects=.false., &
+           _RC)
+
       _UNUSED_DUMMY(unusable)
-   end function new_TimeMax
-
-   subroutine initialize(this, rc)
-      class(TimeMax), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(len=:), allocatable :: name
-
-      call mapl_FieldGet(this%f, short_name=name, _RC)
-      call mapl_FieldClone(this%f, this%temp_max_f, _RC)
-
-      call esmf_FieldSet(this%temp_max_f, name='temp_max'//name, _RC)
-
-      call this%reset(_RC)
-
       _RETURN(_SUCCESS)
-   end subroutine initialize
+   end function new_TimeMax
 
    subroutine destroy(this, rc)
       class(TimeMax), intent(inout) :: this
@@ -76,96 +106,125 @@ contains
       _RETURN(_SUCCESS)
    end subroutine destroy
 
-   subroutine reset(this, rc)
+   subroutine reset(this, gridcomp, rc)
       class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(esmf_State) :: internal_state
+      type(esmf_Field) :: temp_max_f
+      character(:), allocatable :: name
       type(esmf_TypeKind_Flag) :: typekind
       real(kind=ESMF_KIND_R4), pointer :: f4(:)
       real(kind=ESMF_KIND_R8), pointer :: f8(:)
 
-      call mapl_FieldGet(this%temp_max_f, typekind=typekind, _RC)
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldGet(this%f, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, field=temp_max_f, _RC)
+
+      call mapl_FieldGet(temp_max_f, typekind=typekind, _RC)
       if (typekind == ESMF_TYPEKIND_R4) then
-         call MAPL_AssignFptr(this%temp_max_f, f4,  _RC)
+         call MAPL_AssignFptr(temp_max_f, f4, _RC)
          f4 = MAPL_UNDEF
       else if (typekind == ESMF_TYPEKIND_R8) then
-         call MAPL_AssignFptr(this%temp_max_f, f8,  _RC)
+         call MAPL_AssignFptr(temp_max_f, f8, _RC)
          f8 = MAPL_UNDEF
       end if
 
       _RETURN(_SUCCESS)
    end subroutine reset
 
-   subroutine update(this, rc)
+   subroutine update(this, gridcomp, clock, rc)
       class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      type(esmf_Clock), intent(in) :: clock
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(esmf_TypeKind_Flag) :: typekind
-      logical :: is_ringing
+       integer :: status
+       type(esmf_TypeKind_Flag) :: typekind
+       logical :: is_ringing
+       type(esmf_Time) :: nextTime
 
-      call mapl_FieldGet(this%f, typekind=typekind, _RC)
+       call mapl_FieldGet(this%f, typekind=typekind, _RC)
 
-      if (typekind == ESMF_TYPEKIND_R4) then
-         call update_r4(this, _RC)
-      else if (typekind == ESMF_TYPEKIND_R8) then
-         call update_r8(this, _RC)
-      end if
+       if (typekind == ESMF_TYPEKIND_R4) then
+          call update_r4(this, gridcomp, _RC)
+       else if (typekind == ESMF_TYPEKIND_R8) then
+          call update_r8(this, gridcomp, _RC)
+       end if
 
-      is_ringing = esmf_AlarmWillRingNext(this%alarm, _RC)
+       call ESMF_ClockGetNextTime(clock, nextTime=nextTime, _RC)
+       is_ringing = this%alarm%is_ringing(nextTime, _RC)
       _RETURN_UNLESS(is_ringing)
 
-      call this%compute_result(_RC)
-      call this%reset(_RC)
+      call this%compute_result(gridcomp, _RC)
+      call this%reset(gridcomp, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine update
 
-   subroutine update_r4(this, rc)
+   subroutine update_r4(this, gridcomp, rc)
       class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
       integer, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: f(:), temp_max_f(:)
+      type(esmf_State) :: internal_state
+      type(esmf_Field) :: temp_max_f
+      character(:), allocatable :: name
+      real(kind=ESMF_KIND_R4), pointer :: f(:), temp_max_f_ptr(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldGet(this%f, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, field=temp_max_f, _RC)
 
       call MAPL_AssignFptr(this%f, f, _RC)
-      call MAPL_AssignFptr(this%temp_max_f, temp_max_f, _RC)
+      call MAPL_AssignFptr(temp_max_f, temp_max_f_ptr, _RC)
 
       where (f /= MAPL_UNDEF)
-         where (temp_max_f == MAPL_UNDEF)
-            temp_max_f = f
+         where (temp_max_f_ptr == MAPL_UNDEF)
+            temp_max_f_ptr = f
          elsewhere
-            temp_max_f = max(temp_max_f, f)
+            temp_max_f_ptr = max(temp_max_f_ptr, f)
          end where
       end where
 
       _RETURN(_SUCCESS)
    end subroutine update_r4
 
-   subroutine update_r8(this, rc)
+   subroutine update_r8(this, gridcomp, rc)
       class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
       integer, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R8), pointer :: f(:), temp_max_f(:)
+      type(esmf_State) :: internal_state
+      type(esmf_Field) :: temp_max_f
+      character(:), allocatable :: name
+      real(kind=ESMF_KIND_R8), pointer :: f(:), temp_max_f_ptr(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldGet(this%f, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, field=temp_max_f, _RC)
 
       call MAPL_AssignFptr(this%f, f, _RC)
-      call MAPL_AssignFptr(this%temp_max_f, temp_max_f, _RC)
+      call MAPL_AssignFptr(temp_max_f, temp_max_f_ptr, _RC)
 
       where (f /= MAPL_UNDEF)
-         where (temp_max_f == MAPL_UNDEF)
-            temp_max_f = f
+         where (temp_max_f_ptr == MAPL_UNDEF)
+            temp_max_f_ptr = f
          elsewhere
-            temp_max_f = max(temp_max_f, f)
+            temp_max_f_ptr = max(temp_max_f_ptr, f)
          end where
       end where
 
       _RETURN(_SUCCESS)
    end subroutine update_r8
 
-   subroutine compute_result(this, rc)
+   subroutine compute_result(this, gridcomp, rc)
       class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -174,40 +233,56 @@ contains
       call mapl_FieldGet(this%f, typekind=typekind, _RC)
 
       if (typekind == ESMF_TYPEKIND_R4) then
-         call compute_result_r4(this, _RC)
+         call compute_result_r4(this, gridcomp, _RC)
       else if (typekind == ESMF_TYPEKIND_R8) then
-         call compute_result_r8(this, _RC)
+         call compute_result_r8(this, gridcomp, _RC)
       end if
-      _UNUSED_DUMMY(this)
+
       _RETURN(_SUCCESS)
    end subroutine compute_result
 
-   subroutine compute_result_r4(this, rc)
+   subroutine compute_result_r4(this, gridcomp, rc)
       class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: temp_max_f(:), max_f(:)
+      type(esmf_State) :: internal_state
+      type(esmf_Field) :: temp_max_f
+      character(:), allocatable :: name
+      real(kind=ESMF_KIND_R4), pointer :: temp_max_f_ptr(:), max_f(:)
 
-      call MAPL_AssignFptr(this%temp_max_f, temp_max_f, _RC)
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldGet(this%f, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, field=temp_max_f, _RC)
+
+      call MAPL_AssignFptr(temp_max_f, temp_max_f_ptr, _RC)
       call MAPL_AssignFptr(this%max_f, max_f, _RC)
 
-      max_f = temp_max_f
+      max_f = temp_max_f_ptr
 
       _RETURN(_SUCCESS)
    end subroutine compute_result_r4
 
-   subroutine compute_result_r8(this, rc)
+   subroutine compute_result_r8(this, gridcomp, rc)
       class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R8), pointer :: temp_max_f(:), max_f(:)
+      type(esmf_State) :: internal_state
+      type(esmf_Field) :: temp_max_f
+      character(:), allocatable :: name
+      real(kind=ESMF_KIND_R8), pointer :: temp_max_f_ptr(:), max_f(:)
 
-      call MAPL_AssignFptr(this%temp_max_f, temp_max_f, _RC)
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldGet(this%f, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, field=temp_max_f, _RC)
+
+      call MAPL_AssignFptr(temp_max_f, temp_max_f_ptr, _RC)
       call MAPL_AssignFptr(this%max_f, max_f, _RC)
 
-      max_f = temp_max_f
+      max_f = temp_max_f_ptr
 
       _RETURN(_SUCCESS)
    end subroutine compute_result_r8
@@ -218,14 +293,39 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: was_ringing
 
-      was_ringing = ESMF_AlarmWasPrevRinging(this%alarm, _RC)
-      _RETURN_UNLESS(was_ringing)
-
-      call esmf_StateAdd(state, [this%max_f], _RC)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(state)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
+
+    function get_alarm(this) result(alarm)
+       class(TimeMax), intent(in) :: this
+       type(SimpleAlarm) :: alarm
+
+      alarm = this%alarm
+   end function get_alarm
+
+   subroutine advertise_time_max_internal_fields(gridcomp, name, rc)
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      character(*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      integer :: status, slash_pos
+      type(VariableSpec) :: varspec
+      character(len=:), allocatable :: just_name
+
+      slash_pos = index(name, "/")
+      just_name = name
+      if (slash_pos > 0) then
+         just_name = name(slash_pos+1:)
+      end if
+
+      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'temp_max'//just_name, fill_value=0.0, _RC)
+      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine advertise_time_max_internal_fields
 
 end module mapl3g_TimeMax

@@ -77,6 +77,7 @@ contains
 
       call parse_item(controls_cfg, key=KEY_IMPORT, value=controls%import, _RC)
       call parse_item(controls_cfg, key=KEY_INTERNAL, value=controls%internal, _RC)
+      call parse_item(controls_cfg, key=KEY_BOOTSTRAP, value=controls%bootstrap, _RC)
 
       ! We allow checkpointing of exports for testing, but restarting
       ! from exports is nonsensical.

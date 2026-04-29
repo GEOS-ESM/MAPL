@@ -96,6 +96,7 @@ contains
       type(ESMF_TYPEKIND_FLAG) :: type_kind
       real(kind=ESMF_KIND_R4), pointer :: f_ptr_r4(:)
       real(kind=ESMF_KIND_R8), pointer :: f_ptr_r8(:)
+      integer(kind=ESMF_KIND_I4), pointer :: f_ptr_i4(:)
       integer :: status
 
       call ESMF_FieldGet(field,typekind=type_kind,_RC)
@@ -105,6 +106,9 @@ contains
       else if (type_kind == ESMF_TYPEKIND_R8) then
          call assign_fptr(field,f_ptr_r8,_RC)
          f_ptr_r8 = constant_val
+      else if (type_kind == ESMF_TYPEKIND_I4) then
+         call assign_fptr(field,f_ptr_i4,_RC)
+         f_ptr_i4 = constant_val
       else
          _FAIL('unsupported typekind')
       end if
@@ -119,6 +123,7 @@ contains
       type(ESMF_TYPEKIND_FLAG) :: type_kind
       real(kind=ESMF_KIND_R4), pointer :: f_ptr_r4(:)
       real(kind=ESMF_KIND_R8), pointer :: f_ptr_r8(:)
+      integer(kind=ESMF_KIND_I4), pointer :: f_ptr_i4(:)
       integer :: status
 
       call ESMF_FieldGet(field,typekind=type_kind,_RC)
@@ -128,6 +133,9 @@ contains
       else if (type_kind == ESMF_TYPEKIND_R8) then
          call assign_fptr(field,f_ptr_r8,_RC)
          f_ptr_r8 = constant_val
+      else if (type_kind == ESMF_TYPEKIND_I4) then
+         call assign_fptr(field,f_ptr_i4,_RC)
+         f_ptr_i4 = constant_val
       else
          _FAIL('unsupported typekind')
       end if
