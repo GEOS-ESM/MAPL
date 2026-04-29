@@ -251,4 +251,60 @@ contains
 
    end subroutine test_make_from_hconfig_file_ims_jms
 
+   ! ------------------------------------------------------------------
+   ! Verify the 1D default decomposition on multiple PEs:
+   ! all PEs should stripe along longitude (size(ims)==npes, size(jms)==1).
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_auto_decomp_is_1d(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEDecomposition) :: decomp
+      integer, allocatable :: ims(:), jms(:)
+      integer :: status
+
+      decomp = make_EASEDecomposition([964, 406], rc=status)
+      @assert_that(status, is(0))
+
+      ims = decomp%get_lon_distribution()
+      jms = decomp%get_lat_distribution()
+
+      ! 1D decomposition: 4 lon tiles, 1 lat tile
+      @assert_that(size(ims), is(4))
+      @assert_that(size(jms), is(1))
+      @assert_that(sum(ims), is(964))
+      @assert_that(sum(jms), is(406))
+   end subroutine test_auto_decomp_is_1d
+
+   ! ------------------------------------------------------------------
+   ! Same check through the hconfig path with no decomp keys.
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_make_from_hconfig_auto_is_1d(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEGeomSpec) :: spec
+      type(EASEDecomposition) :: decomp
+      type(ESMF_HConfig) :: hconfig
+      integer, allocatable :: ims(:), jms(:)
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate( &
+           & content='{class: ease, grid_name: EASEv2_M36}', rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_EASEGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      decomp = spec%get_decomposition()
+      ims = decomp%get_lon_distribution()
+      jms = decomp%get_lat_distribution()
+
+      ! Auto decomposition with 4 PEs must be 1D: [4, 1]
+      @assert_that(size(ims), is(4))
+      @assert_that(size(jms), is(1))
+      @assert_that(sum(ims), is(964))
+      @assert_that(sum(jms), is(406))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_from_hconfig_auto_is_1d
+
 end module Test_EASEGeomSpec
