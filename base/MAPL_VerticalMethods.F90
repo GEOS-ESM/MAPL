@@ -5,7 +5,6 @@ module MAPL_VerticalDataMod
   use MAPL_BaseMod
   use MAPL_Profiler
   use pFIO
-  use MAPL_AbstractRegridderMod
   use MAPL_ExceptionHandling
   use MAPL_Constants
   use, intrinsic :: ISO_C_BINDING
@@ -185,9 +184,8 @@ module MAPL_VerticalDataMod
         skip = trim(name)==trim(this%vvar)
      end function skip_var
 
-     subroutine setup_eta_to_pressure(this,regrid_handle,output_grid,rc)
+     subroutine setup_eta_to_pressure(this,output_grid,rc)
         class(verticaldata), intent(inout) :: this
-        class(abstractRegridder), optional, intent(inout) :: regrid_handle
         type(ESMF_Grid), optional, intent(inout) :: output_grid
         integer, optional, intent(out) :: rc
 
@@ -254,15 +252,11 @@ module MAPL_VerticalDataMod
           deallocate(ptrx)
        end if
        if (present(output_grid)) then
-          _ASSERT(present(regrid_handle),"Must provide regridding handle")
           call MAPL_GridGet(output_grid,localCellCountPerDim=counts,_RC)
           if (.not.allocated(this%surface_level)) then
               allocate(this%surface_level(counts(1),counts(2)),stat=status)
              _VERIFY(status)
           end if
-       end if
-       if (present(regrid_handle)) then
-          call regrid_handle%regrid(orig_surface_level,this%surface_level,_RC)
        end if
        deallocate(orig_surface_level)
 

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added MAPL.componentDriverGridComp to build-tests dependency to ensure library is built with 'make tests'
 - Added ESMF_Mesh and Locstream to geom 
 - Added CDash nightly submission workflow (`.github/workflows/cdash-nightly.yml`),
   `CTestConfig.cmake`, `CTestDashboard.cmake`, and `CTestCustom.cmake` to support
@@ -81,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Workaround to satisfy NAG's lazy initialization of openmp region
 - Workaround to pass ifx 2025.1 tests in debug mode
 - Profile reporting has been relocated into the `./profile` directory.
 - Improved diagnostic message for profiler imbalances at end of run.
@@ -120,10 +122,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug in WireComponent affecting TerminateImport
+- Removed unnecessary _ASSERT in MAPL_TerminateImportAllBut
 - Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
 - Fixed SIGFPE (integer divide by zero) in `MAPL_LoadBalanceMod` when load balancing algorithm evaluates maximum differences to zero.
 
 ### Added
+
+- Added test scenario `regrid_r8` to verify that R8 fields are correctly regridded across different geometries (related to GH-4694)
 
 ### Changed
 

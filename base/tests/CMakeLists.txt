@@ -6,15 +6,9 @@ set (TEST_SRCS
     test_sort.pf
 #    Test_CFIO_Bundle.pf
     Test_SimpleMAPLcomp.pf
-    Test_StringGridFactoryMap.pf
-    Test_GridManager.pf
-    Test_LatLon_GridFactory.pf
-    Test_SphericalToCartesian.pf
-    Test_LatLon_Corners.pf
     Test_MAPL_Config.pf
     test_DirPath.pf
     test_TimeStringConversion.pf
-    test_MAPL_NetCDF.pf
     Test_MAPL_Resource.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
 #    test_MAPL_DateTime_Parsing_ESMF.pf
@@ -22,8 +16,6 @@ set (TEST_SRCS
 
 # SRCS are mostly mocks to facilitate tests
 set (SRCS
-  MockGridFactory.F90
-  MockRegridder.F90
   )
 
 # This file needs to be in a library because CMake cannot detect the
