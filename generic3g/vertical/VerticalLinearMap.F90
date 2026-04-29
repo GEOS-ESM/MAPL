@@ -11,6 +11,9 @@ module mapl3g_VerticalLinearMap
    private
 
    public :: compute_linear_map
+   public :: find_bracket
+   public :: compute_weights
+   public :: IndexValuePair
 
    type IndexValuePair
       integer :: index
@@ -50,26 +53,26 @@ contains
       ! allocate(matrix(size(dst), size(src)), source=0., _STAT)
       ! Expected 2 non zero entries in each row
       matrix = SparseMatrix_sp(size(dst), size(src), 2*size(dst))
-      do ndx = 1, size(dst)
-         val = dst(ndx)
-         call find_bracket_(val, src, pair)
-         if (pair(1)%index == pair(2)%index) then
-            ! matrix(ndx, pair(1)%index) = weight(1)
-            call add_row(matrix, ndx, pair(1)%index, [1.0_REAL32])
-         else
-            call compute_weights_(val, pair%value_, weight)
-            ! matrix(ndx, pair(1)%index) = weight(1)
-            ! matrix(ndx, pair(2)%index) = weight(2)
-            call add_row(matrix, ndx, pair(1)%index, [weight(1), weight(2)])
-         end if
-      end do
+       do ndx = 1, size(dst)
+          val = dst(ndx)
+          call find_bracket(val, src, pair)
+          if (pair(1)%index == pair(2)%index) then
+             ! matrix(ndx, pair(1)%index) = weight(1)
+             call add_row(matrix, ndx, pair(1)%index, [1.0_REAL32])
+          else
+             call compute_weights(val, pair%value_, weight)
+             ! matrix(ndx, pair(1)%index) = weight(1)
+             ! matrix(ndx, pair(2)%index) = weight(2)
+             call add_row(matrix, ndx, pair(1)%index, [weight(1), weight(2)])
+          end if
+       end do
 
       _RETURN(_SUCCESS)
    end subroutine compute_linear_map
 
    ! Find array bracket [pair_1, pair_2] containing val
    ! ASSUME: array is monotonic and decreasing
-   subroutine find_bracket_(val, array, pair)
+   subroutine find_bracket(val, array, pair)
       real(REAL32), intent(in) :: val
       real(REAL32), intent(in) :: array(:)
       Type(IndexValuePair), intent(out) :: pair(2)
@@ -89,12 +92,12 @@ contains
             ndx2 = min(n,nearest+1)
          endif
       endif
-      pair(1) = IndexValuePair(ndx1, array(ndx1))
-      pair(2) = IndexValuePair(ndx2, array(ndx2))
-   end subroutine find_bracket_
+       pair(1) = IndexValuePair(ndx1, array(ndx1))
+       pair(2) = IndexValuePair(ndx2, array(ndx2))
+    end subroutine find_bracket
 
    ! Compute linear interpolation weights
-   subroutine compute_weights_(val, value_, weight)
+   subroutine compute_weights(val, value_, weight)
       real(REAL32), intent(in) :: val
       real(REAL32), intent(in) :: value_(2)
       real(REAL32), intent(out) :: weight(2)
@@ -108,10 +111,10 @@ contains
          weight(2) = 0.0_REAL32
       else
          t = (val - value_(1))/denominator
-         weight(2) = max(0.0_REAL32, min(1.0_REAL32, t))
-         weight(1) = 1.0_REAL32 - weight(2)
-      end if
-   end subroutine compute_weights_
+          weight(2) = max(0.0_REAL32, min(1.0_REAL32, t))
+          weight(1) = 1.0_REAL32 - weight(2)
+       end if
+    end subroutine compute_weights
 
    elemental logical function equal_to(a, b)
       type(IndexValuePair), intent(in) :: a, b
