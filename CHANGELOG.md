@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `MAPL.base` from the `DEPENDENCIES` of `MAPL.geom` in `geom/CMakeLists.txt`;
   all modules used by `geom/` are available via `MAPL.shared`.
 
+- Added MAPL.componentDriverGridComp to build-tests dependency to ensure library is built with 'make tests'
 - Added ESMF_Mesh and Locstream to geom 
 - Added CDash nightly submission workflow (`.github/workflows/cdash-nightly.yml`),
   `CTestConfig.cmake`, `CTestDashboard.cmake`, and `CTestCustom.cmake` to support
