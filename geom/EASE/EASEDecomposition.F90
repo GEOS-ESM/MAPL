@@ -66,23 +66,15 @@ contains
    end function new_EASEDecomposition_topology
 
    ! Constructor from (im_world, jm_world) and a total petcount.
-   ! Chooses nx to minimise aspect ratio distortion.
+   ! EASE grids use a 1D decomposition: all PEs are assigned along
+   ! the longitude axis (topology = [petCount, 1]).
    function new_EASEDecomposition_petcount(dims, unusable, petCount) result(decomp)
       type(EASEDecomposition) :: decomp
       integer, intent(in) :: dims(2)
       class(KE), optional, intent(in) :: unusable
       integer, intent(in) :: petCount
 
-      integer :: nx, nx_start
-
-      associate (aspect_ratio => real(dims(1))/dims(2))
-         nx_start = max(1, floor(sqrt(petCount * aspect_ratio)))
-         do nx = nx_start, 1, -1
-            if (mod(petCount, nx) == 0) exit
-         end do
-      end associate
-
-      decomp = EASEDecomposition(dims, topology=[nx, petCount/nx])
+      decomp = EASEDecomposition(dims, topology=[petCount, 1])
       _UNUSED_DUMMY(unusable)
    end function new_EASEDecomposition_petcount
 
