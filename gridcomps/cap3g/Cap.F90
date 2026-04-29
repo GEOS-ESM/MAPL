@@ -342,15 +342,21 @@ contains
       type(ESMF_Time) :: end_of_segment
       type(ESMF_TimeInterval) :: timeStep, segment_duration
       type(ESMF_TimeInterval), allocatable :: repeatDuration
-      logical :: has_repeatDuration
+      logical :: has_repeatDuration, has_repeatCount
       character(:), allocatable :: cap_restart_file
       character(ESMF_MAXSTR) :: iso_time
+      integer(kind=ESMF_KIND_I8) :: repeatCount
 
+      repeatCount = 0
       cap_restart_file = esmf_HConfigAsString(hconfig, keyString=KEY_RESTART, _RC)
       restart_cfg = esmf_HConfigCreate(filename=cap_restart_file, _RC)
       currTime = mapl_HConfigAsTime(restart_cfg, keyString='currTime', _RC)
       iso_time = esmf_HConfigAsString(restart_cfg, keystring='currTime', _RC)
       call lgr%info('current time: %a', trim(iso_time))
+      has_repeatDuration = ESMF_HConfigIsDefined(restart_cfg, keyString=KEY_REPEATCOUNT, _RC)
+      if(has_repeatCount) then
+         repeatCount = ESMF_HConfigAsI8(restart_cfg, keyString=KEY_REPEATCOUNT, _RC)
+      end if
       call esmf_HConfigDestroy(restart_cfg, _RC)
 
       clock_cfg = esmf_HConfigCreateAt(hconfig, keystring=KEY_CLOCK, _RC)
@@ -382,6 +388,8 @@ contains
          call lgr%info('repeat duration: %a', trim(iso_time))
       end if
 
+      ! Currently, repeatCount is not an argument for ESMF_ClockCreate or ESMF_ClockSet.
+      ! Once it is added, it should be included in the create/set below.
       clock = esmf_ClockCreate(timeStep=timeStep, &
            startTime=startTime, stopTime=end_of_segment, &
            refTime=startTime, &
