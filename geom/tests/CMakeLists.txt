@@ -22,6 +22,8 @@ set (TEST_SRCS
   Test_MeshGeomFactory_Distribution.pf
   Test_XYGeomSpec.pf
   Test_XYGeomFactory.pf
+  Test_EASEGeomSpec.pf
+  Test_EASEGeomFactory.pf
 )
 
 set (OTHER_SRCS
