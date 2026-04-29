@@ -50,8 +50,7 @@ contains
       ! --- 1. File-based ims/jms ---
       has_ims_file = ESMF_HConfigIsDefined(hconfig, keyString='ims_file', _RC)
       has_jms_file = ESMF_HConfigIsDefined(hconfig, keyString='jms_file', _RC)
-      _ASSERT(has_ims_file .eqv. has_jms_file, &
-           'ims_file and jms_file must both be defined or both be absent')
+      _ASSERT(has_ims_file .eqv. has_jms_file, 'ims_file and jms_file must both be defined or both be absent')
 
       if (has_ims_file) then
          ims = read_distribution_file_('ims_file', hconfig, _RC)
@@ -63,8 +62,7 @@ contains
       ! --- 2. Inline ims/jms sequences ---
       has_ims = ESMF_HConfigIsDefined(hconfig, keyString='ims', _RC)
       has_jms = ESMF_HConfigIsDefined(hconfig, keyString='jms', _RC)
-      _ASSERT(has_ims .eqv. has_jms, &
-           'ims and jms must both be defined or both be absent')
+      _ASSERT(has_ims .eqv. has_jms, 'ims and jms must both be defined or both be absent')
 
       if (has_ims) then
          ims = ESMF_HConfigAsI4Seq(hconfig, keyString='ims', _RC)
@@ -76,8 +74,7 @@ contains
       ! --- 3. Explicit tile-count topology nx/ny ---
       has_nx = ESMF_HConfigIsDefined(hconfig, keyString='nx', _RC)
       has_ny = ESMF_HConfigIsDefined(hconfig, keyString='ny', _RC)
-      _ASSERT(has_nx .eqv. has_ny, &
-           'nx and ny must both be defined or both be absent')
+      _ASSERT(has_nx .eqv. has_ny, 'nx and ny must both be defined or both be absent')
 
       if (has_nx) then
          nx = ESMF_HConfigAsI4(hconfig, keyString='nx', _RC)
