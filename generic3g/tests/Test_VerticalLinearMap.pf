@@ -280,20 +280,28 @@ contains
 
    @test
    subroutine test_compute_weights_clamping()
-      ! Test that weights are clamped to [0, 1] range
+      ! Test that weights are clamped to [0, 1] range when val is outside bracket
       real(REAL32) :: val
       real(REAL32) :: value_(2)
       real(REAL32) :: weight(2)
 
       value_ = [40., 20.]
       
-      ! Value beyond the bracket (should clamp to 1.0)
+      ! Value beyond lower bound: val < value_(2)
+      ! t = (10 - 40)/(20 - 40) = -30/-20 = 1.5, clamped to 1.0
+      ! weight(2) = 1.0, weight(1) = 0.0
       val = 10.
       call compute_weights(val, value_, weight)
       @assertEqual(0.0, weight(1), tolerance=1e-6)
       @assertEqual(1.0, weight(2), tolerance=1e-6)
-      @assertTrue(weight(1) >= 0.0)
-      @assertTrue(weight(2) <= 1.0)
+      
+      ! Value beyond upper bound: val > value_(1)
+      ! t = (50 - 40)/(20 - 40) = 10/-20 = -0.5, clamped to 0.0
+      ! weight(2) = 0.0, weight(1) = 1.0
+      val = 50.
+      call compute_weights(val, value_, weight)
+      @assertEqual(1.0, weight(1), tolerance=1e-6)
+      @assertEqual(0.0, weight(2), tolerance=1e-6)
    end subroutine test_compute_weights_clamping
 
 end module Test_VerticalLinearMap
