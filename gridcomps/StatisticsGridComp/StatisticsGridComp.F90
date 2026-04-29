@@ -364,10 +364,9 @@ contains
             if (first_item) then
                first_ringing = is_ringing
                first_item = .false.
-            else
-               _ASSERT(is_ringing .eqv. first_ringing, &
-                    'Inconsistent alarm state: not all statistics alarms have the same ringing status')
-            end if
+               cycle
+            endif
+            _FAIL(is_ringing .eqv. first_ringing, 'Inconsistent alarm state: not all statistics alarms have the same ringing status')
          end do
       end associate
 
