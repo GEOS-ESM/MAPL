@@ -23,6 +23,7 @@ UNIT = ()
 INDENT = SPACE * SIZE_INDENT
 DIMSTR = ':'
 DIMDELIM = ','
+DEFAULT_TYPEKIND = 'ESMF_TYPEKIND_R4'
 
 # str flags
 AS = 'as'
@@ -79,6 +80,7 @@ STATES = 'states'
 STATE_ARG = 'state_arg'
 STATE_INTENT = 'state_intent'
 STRINGVECTOR = 'string_vector'
+TYPEKIND = 'typekind'
 UNGRIDDED_DIMS = 'ungridded_dims'
 USE_FIELD_DICTIONARY = 'use_field_dictionary'
 VSTAGGER = 'vstagger'
@@ -182,8 +184,8 @@ def get_options(args):
             'REQUIRED': 'MAPL_RESTART_REQUIRED',
             'BOOT': 'MAPL_RESTART_BOOT',
             'SKIP_INITIAL': 'MAPL_RESTART_SKIP_INITIAL'}},
-        STATE: {FLAGS: {MANDATORY, STORE}},
-        'typekind': {MAPPING: {
+        STATE: {FLAGS: {MANDATORY, STORE}}, 
+        TYPEKIND: {MAPPING: { 
             'R4': 'ESMF_Typekind_R4',
             'R8': 'ESMF_Typekind_R8',
             'I4': 'ESMF_Typekind_I4',
@@ -264,17 +266,28 @@ def emit_declare_pointers(specs, states=None):
     """Emit pointer declarations from Iterable of spec instances."""
     # filter on state
     f = state_filter(states)
-    return DECLARE, [emit_declare_pointer(spec) for spec in specs if f(spec)]
+    declarations = []
+    for spec in specs:
+        if not f(spec):
+            continue
+        try:
+            declaration = emit_declare_pointer(spec)
+        except RuntimeError as ex:
+            raise RuntimeError(f'Error pointer declaration for spec {spec}: {str(ex)')
+        declarations.append(declaration)
+    return DECLARE, declarations
 
 def emit_declare_pointer(spec):
     """Emit individual pointer declartion."""
-    # get precision of pointer
-    precision = spec.get(PRECISION)
-    # declaration preamble
-    decl = 'real{}, pointer'.format('(kind={})'.format(precision) if precision else EMPTY)
+    # get fortran type and kind of pointer
+    typekind = spec.get(TYPEKIND, DEFAULT_TYPEKIND)
+    try:
+        ftypekind = fortran_type_esmf_kind(typekind)
+    except RuntimeError as ex:
+        raise RuntimeError(f'Error in pointer declaration for typekind {typekind}: {str(ex)}')
     # pointer variable
     var = f'{spec[INTERNAL_NAME]}({DIMDELIM.join(DIMSTR*spec[RANK])})'
-    return ' :: '.join([decl, var])
+    return ' :: '.join([ftypekind, var])
 
 def emit_get_pointers(specs, states=None):
     """Emit pointer get statements from an Iterable of spec instances."""
@@ -401,7 +414,7 @@ def get_from_values(keys, values, args):
 
 def digest_spec(spec, options):
     """Process an individual spec."""
-    # Get the key/value pairs that have a matching option key and a value that evaluates False.
+    # Get the key/value pairs that have a matching option key and a value that evaluates True.
     tuples = [(k, spec[k]) for k, v in spec.items() if k in options and spec[k]]
     # Get the options corresponding to the spec keys.
     spec_options = [options[k] for k, _ in tuples]
@@ -574,6 +587,21 @@ def compute_rank(dims, ungridded):
             return None
         extra_rank = r0
     return base_rank + extra_rank
+
+def fortran_type_esmf_kind(typekind):
+    match (typekind.upper() if typekind else None):
+        case None:
+            raise RuntimeError('typekind has no value.')
+        case 'ESMF_TYPEKIND_R4':
+            return 'real(kind=ESMF_KIND_R4)'
+        case 'ESMF_TYPEKIND_R8':
+            return 'real(kind=ESMF_KIND_R8)'
+        case 'ESMF_TYPEKIND_I4':
+            return 'integer(kind=ESMF_KIND_I4)'
+        case 'ESMF_TYPEKIND_I8':
+            return 'integer(kind=ESMF_KIND_I4)'
+        case _:
+            raise RuntimeError('Unrecognized typekind: {}'.format(typekind))
 
 def header():
     """
