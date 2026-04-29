@@ -137,11 +137,11 @@ contains
       val = 60.  ! Above maximum value
       call find_bracket(val, array, pair)
       
-      ! Should return bracket near the upper boundary
+      ! Both indices should be the same when outside bounds (clamped to boundary)
       @assertEqual(1, pair(1)%index)
       @assertEqual(50., pair(1)%value_)
-      ! pair(2) should be either index 1 or 2, depending on implementation
-      @assertTrue(pair(2)%index >= 1 .and. pair(2)%index <= 2)
+      @assertEqual(1, pair(2)%index)
+      @assertEqual(50., pair(2)%value_)
    end subroutine test_find_bracket_outside_upper_bound
 
    @test
@@ -155,11 +155,11 @@ contains
       val = 5.  ! Below minimum value
       call find_bracket(val, array, pair)
       
-      ! Should return bracket near the lower boundary
+      ! Both indices should be the same when outside bounds (clamped to boundary)
+      @assertEqual(5, pair(1)%index)
+      @assertEqual(10., pair(1)%value_)
       @assertEqual(5, pair(2)%index)
       @assertEqual(10., pair(2)%value_)
-      ! pair(1) should be either index 4 or 5, depending on implementation
-      @assertTrue(pair(1)%index >= 4 .and. pair(1)%index <= 5)
    end subroutine test_find_bracket_outside_lower_bound
 
    @test
@@ -171,15 +171,19 @@ contains
 
       array = [100., 50., 0.]
       
-      ! Test far above upper bound
+      ! Test far above upper bound - both indices should be same
       val = 200.
       call find_bracket(val, array, pair)
       @assertEqual(1, pair(1)%index)
       @assertEqual(100., pair(1)%value_)
+      @assertEqual(1, pair(2)%index)
+      @assertEqual(100., pair(2)%value_)
       
-      ! Test far below lower bound
+      ! Test far below lower bound - both indices should be same
       val = -50.
       call find_bracket(val, array, pair)
+      @assertEqual(3, pair(1)%index)
+      @assertEqual(0., pair(1)%value_)
       @assertEqual(3, pair(2)%index)
       @assertEqual(0., pair(2)%value_)
    end subroutine test_find_bracket_far_outside_bounds
@@ -193,19 +197,21 @@ contains
 
       array = [40., 30., 20., 10.]
       
-      ! Slightly above maximum (should clamp to nearest boundary)
+      ! Slightly above maximum - both indices should be same (clamped)
       val = 42.
       call find_bracket(val, array, pair)
-      ! Should find bracket at or near upper boundary
-      @assertTrue(pair(1)%index == 1)
-      @assertTrue(pair(2)%index <= 2)
+      @assertEqual(1, pair(1)%index)
+      @assertEqual(40., pair(1)%value_)
+      @assertEqual(1, pair(2)%index)
+      @assertEqual(40., pair(2)%value_)
       
-      ! Slightly below minimum (should clamp to nearest boundary)  
+      ! Slightly below minimum - both indices should be same (clamped)
       val = 8.
       call find_bracket(val, array, pair)
-      ! Should find bracket at or near lower boundary
-      @assertTrue(pair(2)%index == 4)
-      @assertTrue(pair(1)%index >= 3)
+      @assertEqual(4, pair(1)%index)
+      @assertEqual(10., pair(1)%value_)
+      @assertEqual(4, pair(2)%index)
+      @assertEqual(10., pair(2)%value_)
    end subroutine test_find_bracket_slightly_outside
 
    @test
