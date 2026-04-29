@@ -7,16 +7,29 @@ geoms:
     dateline: DC
 
 active_collections:
-  #- coll1
+  - monthly_startstop
+  - djf_startstop
 
 time_specs:
-  three_hour: &one_hour
-    frequency: PT1H
+  monthly_output: &monthly_output
+    frequency: P1M
+    mode: average
+    ref_datetime: "YYYY-MM-01T00:00:00"
+  djf_output: &djf_output
+    frequency: P3M
+    mode: average
+    ref_datetime: "YYYY-12-01T00:00:00"
 
 collections:
-  coll1:
-    template: "%c_%y4%m2%d2.nc4"
-    geom: *geom1
-    time_spec: *one_hour
+  monthly_startstop:
+    template: "%c_%y4%m2%d2_%h2%n2.nc4"
+    #geom: *geom1
+    time_spec: *monthly_output
     var_list:
-      E1: {source: E_1}
+      monthly_avg: {source: E_1}
+  djf_startstop:
+    template: "%c_%y4%m2%d2_%h2%n2.nc4"
+    #geom: *geom1
+    time_spec: *djf_output
+    var_list:
+      djf_avg: {source: E_1}

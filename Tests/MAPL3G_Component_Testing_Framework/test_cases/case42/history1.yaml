@@ -1,7 +1,14 @@
+geoms:
+  geom1: &geom1
+    class: latlon
+    im_world: 20
+    jm_world: 15
+    pole: PC
+    dateline: DC
 
 active_collections:
-  - monthly
-  - djf
+  - monthly_startstop
+  - djf_startstop
 
 time_specs:
   monthly_output: &monthly_output
@@ -14,13 +21,15 @@ time_specs:
     ref_datetime: "YYYY-12-01T00:00:00"
 
 collections:
-  monthly:
+  monthly_startstop:
     template: "%c_%y4%m2%d2_%h2%n2.nc4"
+    #geom: *geom1
     time_spec: *monthly_output
     var_list:
       monthly_avg: {source: E_1}
-  djf:
+  djf_startstop:
     template: "%c_%y4%m2%d2_%h2%n2.nc4"
+    #geom: *geom1
     time_spec: *djf_output
     var_list:
       djf_avg: {source: E_1}

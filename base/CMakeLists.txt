@@ -41,7 +41,7 @@ endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL.field udunits2f PFLOGGER::pflogger
+  DEPENDENCIES MAPL.geom MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL.field udunits2f PFLOGGER::pflogger
                GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED)

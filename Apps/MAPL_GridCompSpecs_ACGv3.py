@@ -32,7 +32,7 @@ FLAGS = 'flags'
 MANDATORY = 'mandatory'
 
 # additional str constants including keys
-ARGS = 'args' 
+ARGS = 'args'
 CONSTANTS = 'constants'
 CONTROL = 'control'
 CONTROLS = 'controls'
@@ -43,7 +43,7 @@ GC_ARGNAME = 'gridcomp'
 GET = 'get'
 MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
-MAPPED = 'mapped' 
+MAPPED = 'mapped'
 MAPPING = 'mapping'
 MISSING_MANDATORY = 'missing_mandatory'
 NONES = 'nones'
@@ -65,7 +65,7 @@ ARRAY = 'array'
 CONDITION = 'condition'
 DIMS = 'dims'
 EXPORT_NAME = 'export_name'
-INTENT_ARG = 'intent_arg' 
+INTENT_ARG = 'intent_arg'
 INTERNAL_NAME = 'internal_name'
 MANGLED = 'mangled'
 STANDARD_NAME_ARG = 'standard_name_arg'
@@ -149,8 +149,8 @@ def get_options(args):
     intents = [f"{INTENT_PREFIX}{state.upper()}" for state in states]
     options = {}
     # spec columns
-    options[SPECIFICATIONS] = { 
-        DIMS: {FLAGS: {MANDATORY}, MAPPING: { 
+    options[SPECIFICATIONS] = {
+        DIMS: {FLAGS: {MANDATORY}, MAPPING: {
             'z': "'z'",
             'xy': "'xy'",
             'xyz': "'xyz'",
@@ -158,42 +158,42 @@ def get_options(args):
             'MAPL_DimsHorzOnly': "'xy'",
             'MAPL_DimsHorzVert': "'xyz'"}},
         SHORT_NAME: {MAPPING: MANGLED, FLAGS: MANDATORY},
-        STATE_INTENT: {FLAGS: {MANDATORY}}, 
-        STANDARD_NAME: {FLAGS: MANDATORY}, 
-        PRECISION: {}, 
-        UNGRIDDED_DIMS: {MAPPING: ARRAY}, 
-        VSTAGGER: {FLAGS: MANDATORY, MAPPING: { 
+        STATE_INTENT: {FLAGS: {MANDATORY}},
+        STANDARD_NAME: {FLAGS: MANDATORY},
+        PRECISION: {},
+        UNGRIDDED_DIMS: {MAPPING: ARRAY},
+        VSTAGGER: {FLAGS: MANDATORY, MAPPING: {
              'C': 'VERTICAL_STAGGER_CENTER',
              'E': 'VERTICAL_STAGGER_EDGE',
              'N': 'VERTICAL_STAGGER_NONE'}},
-        ALIAS: {FLAGS: {STORE}}, 
-        ALLOC: {FLAGS: {STORE}}, 
+        ALIAS: {FLAGS: {STORE}},
+        ALLOC: {FLAGS: {STORE}},
         ADD_TO_EXPORT: {MAPPING: STRLOGICAL},
-        'attributes' : {MAPPING: STRINGVECTOR}, 
-        CONDITION: {FLAGS: {STORE}}, 
-        'dependencies': {MAPPING: STRINGVECTOR}, 
+        'attributes' : {MAPPING: STRINGVECTOR},
+        CONDITION: {FLAGS: {STORE}},
+        'dependencies': {MAPPING: STRINGVECTOR},
         EXPORT_NAME: {MAPPING: STRING},
-        'itemtype': {}, 
-        'orientation': {}, 
-        'regrid_method': {}, 
+        'itemtype': {},
+        'orientation': {},
+        'regrid_method': {},
         'restart': {MAPPING: {
             'OPTIONAL': 'MAPL_RESTART_OPTIONAL',
             'SKIP': 'MAPL_RESTART_SKIP',
             'REQUIRED': 'MAPL_RESTART_REQUIRED',
             'BOOT': 'MAPL_RESTART_BOOT',
             'SKIP_INITIAL': 'MAPL_RESTART_SKIP_INITIAL'}},
-        STATE: {FLAGS: {MANDATORY, STORE}}, 
-        'typekind': {MAPPING: { 
+        STATE: {FLAGS: {MANDATORY, STORE}},
+        'typekind': {MAPPING: {
             'R4': 'ESMF_Typekind_R4',
             'R8': 'ESMF_Typekind_R8',
             'I4': 'ESMF_Typekind_I4',
             'I8': 'ESMF_Typekind_I8'}},
-        'units': {MAPPING: STRING}, 
+        'units': {MAPPING: STRING},
         USE_FIELD_DICTIONARY: {MAPPING: (partial(convert_to_logical, none_on_false=True), convert_to_bool), FLAGS: COMPOSE},
-        'vector_pair': {MAPPING: STRING} 
+        'vector_pair': {MAPPING: STRING}
         }
     # spec column aliases
-    options[SPEC_ALIASES] = { 
+    options[SPEC_ALIASES] = {
         'ungrid': UNGRIDDED_DIMS,
         'ungridded': UNGRIDDED_DIMS,
         'cond': CONDITION,
@@ -209,17 +209,17 @@ def get_options(args):
     }
 
     # flow control
-    options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: CONTROL, FROM: CONDITION}} 
+    options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: CONTROL, FROM: CONDITION}}
 
     # command line arguments
     options[ARGS] = args
 
     # mappings from columns to new column
-    options[MAPPED] = { 
-        STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, STANDARD_NAME_PREFIX), AS: STANDARD_NAME}, 
+    options[MAPPED] = {
+        STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, STANDARD_NAME_PREFIX), AS: STANDARD_NAME},
         INTENT_ARG: {FROM: (STATE_INTENT, STATE), MAPPING: (ID, dict(zip(states, intents))), FLAGS: AS},
-        RANK: {MAPPING: RANK, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)}, 
-        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS} 
+        RANK: {MAPPING: RANK, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)},
+        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS}
     }
 
     # internal constants
@@ -322,7 +322,7 @@ def get_args():
                     "--longname-glob-prefix", "--longname_glob_prefix",
                     action="store", nargs='?', default=None, dest=STANDARD_NAME_PREFIX,
                     help="alternative prefix for long_name substitution")
-    parser.add_argument(f"--{GC_VARIABLE}", dest=GC_VARIABLE, action="store", 
+    parser.add_argument(f"--{GC_VARIABLE}", dest=GC_VARIABLE, action="store",
                     nargs='?', default=GC_VARIABLE_DEFAULT, help="ESMF_GridComp variable name")
     return parser.parse_args()
 
@@ -423,7 +423,7 @@ def map_spec_values(values, options):
         # Get the FROM keys.
         (first, *tail) = get_from_keys(option)
         # Adjust name if applicable.
-        name = option.get(AS, first if has_as_flag(option) else option_name) 
+        name = option.get(AS, first if has_as_flag(option) else option_name)
         # Apply mappings. The empty list is for future troubleshooting.
         values[name] = m(*get_from_values((first, *tail), values, options[ARGS]))
     return values, []
@@ -491,13 +491,13 @@ def flatten_specs(specs):
         case dict():
             flat_specs = reduce(concat, specs.values(), [])
     return flat_specs
-    
+
 def flatten_options(o):
     """Remove top level of o dict."""
     flat = {}
     for v in o.values():
         flat.update(v)
-    return flat 
+    return flat
 
 def open_file(component, filename, name, suffix=''):
     """Construct filename from component, name, suffix if filename is not present. Then open output file."""
@@ -623,7 +623,7 @@ def isiterable(o, exclude_string = True):
         return False
     else:
         return True
-    
+
 def make_block(condition, text, else_block=[]):
     """Create an if-then-else block if there is a Fortran logical-valued condition. Add else block if present."""
     t = mkiterable(text)
@@ -634,7 +634,7 @@ def make_block(condition, text, else_block=[]):
     lines = [f"{INDENT}{l}" for l in t] + else_block
     # Add condition and end if.
     return [f"if ({condition}) then", *lines, f"end if"]
-    
+
 def make_else_block(name=None):
     """Make else block to nullify a pointer variable."""
     lines = []
@@ -648,9 +648,9 @@ NAMED_MAPPINGS = {
         STRING: lambda value: add_quotes(value),
         STRINGVECTOR: lambda value: construct_string_vector(value),
         ARRAY: lambda value: mk_array(value),
-        MANGLED: lambda name: f"'{rm_quotes(name).replace("*","'//trim(comp_name)//'")}'" if name else None,
+        MANGLED: lambda name: f''' '{rm_quotes(name).replace("*", "'//trim(comp_name)//'")}' ''' if name else None,
         STANDARD_NAME: mangle_standard_name,
-        RANK: compute_rank, 
+        RANK: compute_rank,
         MAKE_BLOCK: lambda value: partial(make_block, value),
         BOOL: convert_to_bool,
         STRLOGICAL: lambda s: convert_to_logical(convert_to_bool(s))
@@ -700,13 +700,13 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
                 return reduce(lambda a, c: c(a), funcs, *args)
             return inner
         # Return a mapping of multiple values with a sequence of functions. The number of args should match the number of mappings.
-        case tuple() | list(): 
+        case tuple() | list():
             funcs = tuple(make_mapping(sm, func_sequence=None, func_dict=None, flags=flags) for sm in m)
             def inner(*args):
                 for f, arg in zip(funcs, args):
                     if arg is None:
                         continue
-                    return f(arg)                                                                         
+                    return f(arg)
                 return None
             return inner
 
