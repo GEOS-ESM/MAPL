@@ -16,6 +16,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `EASEGeomSpec` and `EASEGeomFactory` to `MAPL.geom` (`geom/EASE/`),
+  porting the legacy EASE (Equal-Area Scalable Earth) grid from `MAPL.base`.
+  Supports EASEv1 and EASEv2 cylindrical ('M') grids for all standard resolutions
+  (M01, M03, M09, M25, M36). Registers with `GeomManager` alongside the existing
+  LatLon, CubedSphere, and XY factories.
+- Moved EASE coordinate math into `mapl3g_EASEConversion` (`geom/EASE/EASEConversion.F90`);
+  `MAPL_EASEConversion` in `MAPL.base` is now a thin backward-compatibility re-export wrapper.
+- Removed `MAPL.base` from the `DEPENDENCIES` of `MAPL.geom` in `geom/CMakeLists.txt`;
+  all modules used by `geom/` are available via `MAPL.shared`.
+
 - Added MAPL.componentDriverGridComp to build-tests dependency to ensure library is built with 'make tests'
 - Added ESMF_Mesh and Locstream to geom 
 - Added CDash nightly submission workflow (`.github/workflows/cdash-nightly.yml`),
@@ -82,6 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Workaround to satisfy NAG's lazy initialization of openmp region
 - Workaround to pass ifx 2025.1 tests in debug mode
 - Profile reporting has been relocated into the `./profile` directory.
 - Improved diagnostic message for profiler imbalances at end of run.

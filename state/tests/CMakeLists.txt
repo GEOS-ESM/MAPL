@@ -5,12 +5,13 @@ set (test_srcs
   Test_StateFilter.pf
   Test_StateArithmetic.pf
   Test_StateDestroy.pf
+  Test_StateGetGeom.pf
   )
 
 
 add_pfunit_ctest(MAPL.state.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.state MAPL.pfunit
+                LINK_LIBRARIES MAPL.state MAPL.geom MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 OTHER_SOURCES state_utils_setup.F90

@@ -29,6 +29,7 @@ module mapl3g_ComponentSpec
       logical :: import = .false.
       logical :: export = .false.
       logical :: internal = .false.
+      logical :: bootstrap = .false.
    end type CheckpointControls
 
    type :: MiscellaneousComponentSpec
