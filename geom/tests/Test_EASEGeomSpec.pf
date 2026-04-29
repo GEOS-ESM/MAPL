@@ -110,9 +110,9 @@ contains
    end subroutine test_supports_hconfig
 
    ! ------------------------------------------------------------------
-   ! Test make_EASEGeomSpec from HConfig
+   ! Test make_EASEGeomSpec from HConfig — auto VM decomposition
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_make_from_hconfig(this)
+   subroutine test_make_from_hconfig_auto(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(EASEGeomSpec) :: spec
@@ -129,6 +129,126 @@ contains
       @assert_that(spec%get_jm_world(), is(406))
 
       call ESMF_HConfigDestroy(hconfig, rc=status)
-   end subroutine test_make_from_hconfig
+   end subroutine test_make_from_hconfig_auto
+
+   ! ------------------------------------------------------------------
+   ! Test make_EASEGeomSpec from HConfig — inline ims/jms sequences
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_from_hconfig_inline_ims_jms(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEGeomSpec) :: spec
+      type(EASEDecomposition) :: decomp
+      type(ESMF_HConfig) :: hconfig
+      integer, allocatable :: ims(:), jms(:)
+      integer :: status
+
+      ! Use a tiny 4-column x 3-row toy grid (EASEv2_M36 is 964x406;
+      ! we pass explicit ims/jms so the actual values don't need to
+      ! sum to 964/406 — the spec only checks grid_name via ease_extent.)
+      hconfig = ESMF_HConfigCreate( &
+           & content='{class: ease, grid_name: EASEv2_M36, ims: [482, 482], jms: [203, 203]}', &
+           & rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_EASEGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      decomp = spec%get_decomposition()
+      ims = decomp%get_lon_distribution()
+      jms = decomp%get_lat_distribution()
+
+      @assert_that(size(ims), is(2))
+      @assert_that(ims(1), is(482))
+      @assert_that(ims(2), is(482))
+      @assert_that(size(jms), is(2))
+      @assert_that(jms(1), is(203))
+      @assert_that(jms(2), is(203))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_from_hconfig_inline_ims_jms
+
+   ! ------------------------------------------------------------------
+   ! Test make_EASEGeomSpec from HConfig — nx/ny topology
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_from_hconfig_topology(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEGeomSpec) :: spec
+      type(EASEDecomposition) :: decomp
+      type(ESMF_HConfig) :: hconfig
+      integer, allocatable :: ims(:), jms(:)
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate( &
+           & content='{class: ease, grid_name: EASEv2_M36, nx: 2, ny: 2}', &
+           & rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_EASEGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      decomp = spec%get_decomposition()
+      ims = decomp%get_lon_distribution()
+      jms = decomp%get_lat_distribution()
+
+      ! nx=2 => 2 lon tiles; ny=2 => 2 lat tiles
+      @assert_that(size(ims), is(2))
+      @assert_that(size(jms), is(2))
+      @assert_that(sum(ims), is(964))
+      @assert_that(sum(jms), is(406))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_from_hconfig_topology
+
+   ! ------------------------------------------------------------------
+   ! Test make_EASEGeomSpec from HConfig — file-based ims/jms
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_from_hconfig_file_ims_jms(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEGeomSpec) :: spec
+      type(EASEDecomposition) :: decomp
+      type(ESMF_HConfig) :: hconfig
+      integer, allocatable :: ims(:), jms(:)
+      integer :: status, unit
+
+      ! Write temporary YAML distribution files
+      open(newunit=unit, file='test_ims.yaml', status='replace', action='write')
+      write(unit, '(a)') 'ims: [482, 482]'
+      close(unit)
+
+      open(newunit=unit, file='test_jms.yaml', status='replace', action='write')
+      write(unit, '(a)') 'jms: [203, 203]'
+      close(unit)
+
+      hconfig = ESMF_HConfigCreate( &
+           & content='{class: ease, grid_name: EASEv2_M36, ims_file: test_ims.yaml, jms_file: test_jms.yaml}', &
+           & rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_EASEGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      decomp = spec%get_decomposition()
+      ims = decomp%get_lon_distribution()
+      jms = decomp%get_lat_distribution()
+
+      @assert_that(size(ims), is(2))
+      @assert_that(ims(1), is(482))
+      @assert_that(ims(2), is(482))
+      @assert_that(size(jms), is(2))
+      @assert_that(jms(1), is(203))
+      @assert_that(jms(2), is(203))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+
+      ! Clean up temporary files
+      open(newunit=unit, file='test_ims.yaml', status='old')
+      close(unit, status='delete')
+      open(newunit=unit, file='test_jms.yaml', status='old')
+      close(unit, status='delete')
+
+   end subroutine test_make_from_hconfig_file_ims_jms
 
 end module Test_EASEGeomSpec
