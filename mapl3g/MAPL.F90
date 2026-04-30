@@ -11,6 +11,7 @@ module MAPL
    use mapl3g_VerticalGrid_API
    use mapl3g_UngriddedDims, only: UngriddedDims
    use mapl3g_FieldBundle_API
+   use MAPL_PythonBridge
    
 
    ! We use default PUBLIC to avoid explicitly listing exports from
