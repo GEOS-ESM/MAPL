@@ -353,7 +353,7 @@ contains
       currTime = mapl_HConfigAsTime(restart_cfg, keyString='currTime', _RC)
       iso_time = esmf_HConfigAsString(restart_cfg, keystring='currTime', _RC)
       call lgr%info('current time: %a', trim(iso_time))
-      has_repeatDuration = ESMF_HConfigIsDefined(restart_cfg, keyString=KEY_REPEATCOUNT, _RC)
+      has_repeatCount = ESMF_HConfigIsDefined(restart_cfg, keyString=KEY_REPEATCOUNT, _RC)
       if(has_repeatCount) then
          repeatCount = ESMF_HConfigAsI8(restart_cfg, keyString=KEY_REPEATCOUNT, _RC)
       end if
