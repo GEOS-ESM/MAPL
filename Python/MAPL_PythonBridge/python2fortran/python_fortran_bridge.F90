@@ -3,7 +3,7 @@
 module mapl_python_fortran_bridge
 
     use ESMF
-    use MAPL
+    use Generic3g
     use iso_c_binding
 
     implicit NONE
