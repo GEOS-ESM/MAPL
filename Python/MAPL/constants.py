@@ -6,7 +6,7 @@ MAPL_PI     = 3.14159265358979323846
 MAPL_DEGREES_TO_RADIANS = MAPL_PI / 180.0
 MAPL_RADIANS_TO_DEGREES = 180.0 / MAPL_PI
 
-MAPL_UNDEF   = 1.0e15
+MAPL_UNDEF   = -3.4028235e+38         # matches Fortran -huge(1.) sentinel
 
 MAPL_PSDRY   = 98305.0                # dry surface pressure [Pa]
 MAPL_SECONDS_PER_SIDEREAL_DAY = 86164.0 #s
@@ -91,7 +91,7 @@ MAPL_DimTopoCenter = 1
 MAPL_CplUNKNOWN = 0
 MAPL_CplSATISFIED = 1
 MAPL_CplNEEDED = 2
-MAPL_Cpl_NOTNEEDED = 4
+MAPL_CplNOTNEEDED = 4
 MAPL_FriendlyVariable = 8
 MAPL_FieldItem = 8
 MAPL_BundleItem = 16
@@ -123,7 +123,7 @@ MAPL_CplAccumulate = 3
 MAPL_MinMaxUnknown = 4
 
 MAPL_AttrGrid = 1
-MAPl_AttrTile = 2
+MAPL_AttrTile = 2
 
 MAPL_Uninitialized = 0
 MAPL_InitialDefault = 1
@@ -163,5 +163,5 @@ MAPL_HorzTransOrderSample = 99
 MAPL_RestartOptional = 0
 MAPL_RestartSkip = 1
 MAPL_RestartRequired = 2
-MAPL_Restart_Bootstrap = 3
+MAPL_RestartBootstrap = 3
 MAPL_RestartSkipInitial = 4

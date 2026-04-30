@@ -106,4 +106,7 @@ install (
   USE_SOURCE_PERMISSIONS
 )
 
+# Python unit tests (no MPI, no build dependency — runs with ctest)
+add_subdirectory(MAPL/tests)
+
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES ${dependencies} TYPE SHARED)

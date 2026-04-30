@@ -1,0 +1,334 @@
+# constants_registry.yaml
+#
+# Single source of truth for the Python ↔ Fortran constants consistency tests.
+#
+# SECTIONS
+# --------
+# shared_numeric:
+#   Constants that must exist in BOTH Python/MAPL/constants.py AND the Fortran
+#   source files under shared/Constants/, and whose values must agree.
+#   Each entry is either:
+#     - a bare name (python name == fortran name), or
+#     - a mapping  python_name: fortran_name  (when names differ)
+#
+# shared_string:
+#   Same as shared_numeric but for string/character constants.
+#
+# fortran_only:
+#   Constants that exist in Fortran but are deliberately NOT exposed in Python.
+#   Each entry is a name with a mandatory 'reason' comment.
+#   Any Fortran constant absent from shared_* AND absent from this list will
+#   cause TestCoverage to fail.
+
+# ---------------------------------------------------------------------------
+# Shared numeric / integer constants
+# ---------------------------------------------------------------------------
+shared_numeric:
+  # Math
+  - MAPL_PI
+  - MAPL_DEGREES_TO_RADIANS
+  - MAPL_RADIANS_TO_DEGREES
+  # Physical
+  - MAPL_STFBOL
+  - MAPL_AVOGAD
+  - MAPL_RUNIV
+  # Earth geometry
+  - MAPL_PSDRY
+  - MAPL_SECONDS_PER_SIDEREAL_DAY
+  - MAPL_GRAV
+  - MAPL_RADIUS
+  - MAPL_EARTH_ECCENTRICITY
+  - MAPL_EARTH_SEMIMAJOR_AXIS
+  # Atmospheric / thermodynamic
+  - MAPL_AIRMW
+  - MAPL_H2OMW
+  - MAPL_O3MW
+  - MAPL_RDRY
+  - MAPL_RVAP
+  - MAPL_CPDRY
+  - MAPL_CVDRY
+  - MAPL_CPVAP
+  - MAPL_CVVAP
+  - MAPL_KAPPA
+  - MAPL_EPSILON
+  - MAPL_DELTAP
+  - MAPL_DELTAV
+  - MAPL_GAMMAD
+  - MAPL_ALHL
+  - MAPL_ALHF
+  - MAPL_ALHS
+  - MAPL_P00
+  - MAPL_SRFPRS
+  - MAPL_TICE
+  - MAPL_CELSIUS_TO_KELVIN
+  - MAPL_CAPICE
+  - MAPL_CAPWTR
+  - MAPL_RHOWTR
+  - MAPL_RHO_SEAWATER
+  - MAPL_RHO_SEAICE
+  - MAPL_RHO_SNOW
+  - MAPL_NUAIR
+  - MAPL_KARMAN
+  - MAPL_USMIN
+  # Internal / infrastructure integer flags
+  - MAPL_TileNameLength
+  - MAPL_NoShm
+  - MAPL_SUCCESS
+  - MAPL_FILE_NOT_FOUND
+  - MAPL_DimTopoEdge
+  - MAPL_DimTopoCyclic
+  - MAPL_DimTopoCenter
+  - MAPL_CplUNKNOWN
+  - MAPL_CplSATISFIED
+  - MAPL_CplNEEDED
+  - MAPL_CplNOTNEEDED
+  - MAPL_FriendlyVariable
+  - MAPL_FieldItem
+  - MAPL_BundleItem
+  - MAPL_StateItem
+  - MAPL_NoRestart
+  - MAPL_UseStarrQsat
+  - MAPL_UseGoffGratchQsat
+  - MAPL_UseMurphyKoopQsat
+  - MAPL_UseCAMQsat
+  - MAPL_Unknown
+  - MAPL_IsGather
+  - MAPL_IsScatter
+  - MAPL_Write2Disk
+  - MAPL_Write2RAM
+  - MAPL_VLocationNone
+  - MAPL_VLocationEdge
+  - MAPL_VLocationCenter
+  - MAPL_DimsUnknown
+  - MAPL_DimsVertOnly
+  - MAPL_DimsHorzOnly
+  - MAPL_DimsHorzVert
+  - MAPL_DimsTileOnly
+  - MAPL_DimsTileTile
+  - MAPL_DimsNone
+  - MAPL_ScalarField
+  - MAPL_VectorField
+  - MAPL_CplAverage
+  - MAPL_CplMin
+  - MAPL_CplMax
+  - MAPL_CplAccumulate
+  - MAPL_MinMaxUnknown
+  - MAPL_AttrGrid
+  - MAPL_AttrTile
+  - MAPL_Uninitialized
+  - MAPL_InitialDefault
+  - MAPL_InitialRestart
+  - MAPL_DuplicateEntry
+  - MAPL_ConnUnknown
+  - MAPL_Self
+  - MAPL_Import
+  - MAPL_Export
+  - MAPL_FirstPhase
+  - MAPL_SecondPhase
+  - MAPL_ThirdPhase
+  - MAPL_FourthPhase
+  - MAPL_FifthPhase
+  - MAPL_Ocean
+  - MAPL_Lake
+  - MAPL_LandIce
+  - MAPL_Land
+  - MAPL_Vegetated
+  - MAPL_NumVegTypes
+  - MAPL_AGrid
+  - MAPL_CGrid
+  - MAPL_DGrid
+  - MAPL_RotateLL
+  - MAPL_RotateCube
+  - MAPL_HorzTransOrderBinning
+  - MAPL_HorzTransOrderBilinear
+  - MAPL_HorzTransOrderFraction
+  - MAPL_HorzTransOrderSample
+  - MAPL_RestartOptional
+  - MAPL_RestartSkip
+  - MAPL_RestartRequired
+  - MAPL_RestartBootstrap
+  - MAPL_RestartSkipInitial
+
+# ---------------------------------------------------------------------------
+# Shared string constants
+# ---------------------------------------------------------------------------
+shared_string:
+  - MAPL_GRID_NAME_DEFAULT
+  - MAPL_GRID_FILE_NAME_DEFAULT
+  - MAPL_CF_COMPONENT_SEPARATOR
+
+# ---------------------------------------------------------------------------
+# Fortran-only constants (intentionally NOT in Python)
+# ---------------------------------------------------------------------------
+fortran_only:
+  # Fortran kind/precision selectors — meaningless in Python
+  - name: MAPL_R8
+    reason: Fortran kind selector
+  - name: MAPL_R4
+    reason: Fortran kind selector
+  - name: MAPL_RN
+    reason: Fortran kind selector
+  - name: MAPL_I8
+    reason: Fortran kind selector
+  - name: MAPL_I4
+    reason: Fortran kind selector
+  - name: MAPL_IN
+    reason: Fortran kind selector
+
+  # Typed undefined sentinels — Python exposes only MAPL_UNDEF
+  - name: MAPL_UNDEFINED_REAL32
+    reason: Typed Fortran sentinel; Python uses MAPL_UNDEF
+  - name: MAPL_UNDEFINED_REAL64
+    reason: Typed Fortran sentinel; Python uses MAPL_UNDEF
+  - name: MAPL_UNDEFINED_REAL
+    reason: Typed Fortran sentinel; Python uses MAPL_UNDEF
+  - name: MAPL_UNDEFINED_INTEGER
+    reason: Typed Fortran sentinel; no Python equivalent needed
+  - name: MAPL_UNDEFINED_CHAR
+    reason: Typed Fortran sentinel; no Python equivalent needed
+
+  # Fortran GridComp infrastructure internals
+  - name: MAPL_DESTINATIONMASK
+    reason: Internal Fortran GridComp string; not used in Python
+
+  # REAL64 variants — Python uses the single-precision alias or derives the value
+  - name: MAPL_PI_R8
+    reason: REAL64 variant; Python has MAPL_PI (REAL32 alias)
+  - name: MAPL_DEGREES_TO_RADIANS_R8
+    reason: REAL64 variant; Python has MAPL_DEGREES_TO_RADIANS
+  - name: MAPL_ROTATION_RATE_R8
+    reason: REAL64 variant of rotation rate
+  - name: MAPL_OMEGA_R8
+    reason: REAL64 variant; Python derives MAPL_OMEGA from MAPL_PI and MAPL_SECONDS_PER_SIDEREAL_DAY
+
+  # New canonical names — Python exposes these only via deprecated aliases (backward compat)
+  - name: MAPL_STEFAN_BOLTZMANN
+    reason: Canonical name; Python exposes deprecated alias MAPL_STFBOL
+  - name: MAPL_AVOGADRO
+    reason: Canonical name; Python exposes deprecated alias MAPL_AVOGAD
+  - name: MAPL_UNIVERSAL_GAS_CONSTANT
+    reason: Canonical name; Python exposes deprecated alias MAPL_RUNIV
+  - name: MAPL_MEAN_DRY_SURFACE_PRESSURE
+    reason: Canonical name; Python exposes deprecated alias MAPL_PSDRY
+  - name: MAPL_GRAVITY
+    reason: Canonical name; Python exposes deprecated alias MAPL_GRAV
+  - name: MAPL_ROTATION_RATE
+    reason: Canonical name; Python derives MAPL_OMEGA
+  - name: MAPL_ECCENTRICITY
+    reason: Canonical name; Python exposes MAPL_EARTH_ECCENTRICITY
+  - name: MAPL_SEMIMAJOR_AXIS
+    reason: Canonical name; Python exposes MAPL_EARTH_SEMIMAJOR_AXIS
+  - name: MAPL_SEMIMINOR_AXIS
+    reason: Canonical name; no Python equivalent (not commonly needed)
+  - name: MAPL_GEO_ORBIT_RADIUS
+    reason: Canonical name; no Python equivalent
+  - name: MAPL_KM_PER_DEGREE
+    reason: Canonical name; Python exposes MAPL_KM_PER_DEG
+  - name: MAPL_DEGREE_PER_KM
+    reason: Canonical name; Python exposes MAPL_DEG_PER_KM
+  - name: MAPL_MOLECULAR_WEIGHT_DRY_AIR
+    reason: Canonical name; Python exposes deprecated alias MAPL_AIRMW
+  - name: MAPL_MOLECULAR_WEIGHT_WATER
+    reason: Canonical name; Python exposes deprecated alias MAPL_H2OMW
+  - name: MAPL_MOLECULAR_WEIGHT_OZONE
+    reason: Canonical name; Python exposes deprecated alias MAPL_O3MW
+  - name: MAPL_GAS_CONSTANT_DRY_AIR
+    reason: Canonical name; Python exposes deprecated alias MAPL_RDRY
+  - name: MAPL_GAS_CONSTANT_WATER_VAPOR
+    reason: Canonical name; Python exposes deprecated alias MAPL_RVAP
+  - name: MAPL_SPECIFIC_HEAT_DRY_AIR_CONST_PRESSURE
+    reason: Canonical name; Python exposes deprecated alias MAPL_CPDRY
+  - name: MAPL_SPECIFIC_HEAT_DRY_AIR_CONST_VOLUME
+    reason: Canonical name; Python exposes deprecated alias MAPL_CVDRY
+  - name: MAPL_SPECIFIC_HEAT_WATER_VAPOR_CONST_PRESSURE
+    reason: Canonical name; Python exposes deprecated alias MAPL_CPVAP
+  - name: MAPL_SPECIFIC_HEAT_WATER_VAPOR_CONST_VOLUME
+    reason: Canonical name; Python exposes deprecated alias MAPL_CVVAP
+  - name: MAPL_ADIABATIC_INDEX
+    reason: Canonical name; Python exposes deprecated alias MAPL_GAMMAD
+  - name: MAPL_MOLECULAR_WEIGHT_RATIO
+    reason: Canonical name; Python exposes deprecated alias MAPL_EPSILON
+  - name: MAPL_CP_VAPOR_OVER_DRY_AIR
+    reason: Canonical name; Python exposes deprecated alias MAPL_DELTAP
+  - name: MAPL_CV_VAPOR_OVER_DRY_AIR
+    reason: Canonical name; Python exposes deprecated alias MAPL_DELTAV
+  - name: MAPL_LATENT_HEAT_VAPORIZATION
+    reason: Canonical name; Python exposes deprecated alias MAPL_ALHL
+  - name: MAPL_LATENT_HEAT_FUSION
+    reason: Canonical name; Python exposes deprecated alias MAPL_ALHF
+  - name: MAPL_LATENT_HEAT_SUBLIMATION
+    reason: Canonical name; Python exposes deprecated alias MAPL_ALHS
+  - name: MAPL_REFERENCE_PRESSURE
+    reason: Canonical name; Python exposes deprecated alias MAPL_P00
+  - name: MAPL_MEAN_SURFACE_PRESSURE
+    reason: Canonical name; Python exposes deprecated alias MAPL_SRFPRS
+  - name: MAPL_FREEZING_POINT
+    reason: Canonical name; Python exposes deprecated alias MAPL_TICE
+  - name: MAPL_SPECIFIC_HEAT_ICE
+    reason: Canonical name; Python exposes deprecated alias MAPL_CAPICE
+  - name: MAPL_SPECIFIC_HEAT_WATER
+    reason: Canonical name; Python exposes deprecated alias MAPL_CAPWTR
+  - name: MAPL_DENSITY_LIQUID_WATER
+    reason: Canonical name; Python exposes deprecated alias MAPL_RHOWTR
+  - name: MAPL_DENSITY_SEAWATER
+    reason: Canonical name; Python exposes MAPL_RHO_SEAWATER
+  - name: MAPL_DENSITY_SEAICE
+    reason: Canonical name; Python exposes MAPL_RHO_SEAICE
+  - name: MAPL_DENSITY_SNOW
+    reason: Canonical name; Python exposes MAPL_RHO_SNOW
+  - name: MAPL_KINEMATIC_VISCOSITY_AIR
+    reason: Canonical name; Python exposes deprecated alias MAPL_NUAIR
+  - name: MAPL_VON_KARMAN
+    reason: Canonical name; Python exposes deprecated alias MAPL_KARMAN
+  - name: MAPL_MINIMUM_WIND_SPEED
+    reason: Canonical name; Python exposes deprecated alias MAPL_USMIN
+
+  # Deprecated Fortran aliases already covered via their canonical Python counterparts
+  - name: MAPL_OMEGA
+    reason: Deprecated alias; Python derives MAPL_OMEGA from MAPL_PI and MAPL_SECONDS_PER_SIDEREAL_DAY
+  - name: MAPL_RGAS
+    reason: Deprecated alias for MAPL_RDRY; covered
+  - name: MAPL_CP
+    reason: Deprecated alias for MAPL_CPDRY; covered
+  - name: MAPL_VIREPS
+    reason: Deprecated alias; Python exposes directly
+  - name: MAPL_KM_PER_DEG
+    reason: Deprecated alias for MAPL_KM_PER_DEGREE; covered
+  - name: MAPL_DEG_PER_KM
+    reason: Deprecated alias for MAPL_DEGREE_PER_KM; covered
+
+  # Fortran-internal flags not needed in Python
+  - name: MAPL_UnitsRadians
+    reason: Fortran coupling flag not used in Python
+  - name: MAPL_FILETYPE_UNK
+    reason: Fortran I/O file type code; not needed in Python
+  - name: MAPL_FILETYPE_BIN
+    reason: Fortran I/O file type code; not needed in Python
+  - name: MAPL_FILETYPE_TXT
+    reason: Fortran I/O file type code; not needed in Python
+  - name: MAPL_FILETYPE_NC4
+    reason: Fortran I/O file type code; not needed in Python
+  - name: MAPL_MASK_IN
+    reason: Internal Fortran field masking flag
+  - name: MAPL_MASK_OUT
+    reason: Internal Fortran field masking flag
+  - name: MAPL_NOQUANTIZE
+    reason: Fortran NetCDF quantization flag; not needed in Python
+  - name: MAPL_QUANTIZE_BITGROOM
+    reason: Fortran NetCDF quantization flag; not needed in Python
+  - name: MAPL_QUANTIZE_BITROUND
+    reason: Fortran NetCDF quantization flag; not needed in Python
+  - name: MAPL_QUANTIZE_GRANULAR_BITROUND
+    reason: Fortran NetCDF quantization flag; not needed in Python
+  - name: MAPL_QUANTIZE_MAX_NSB
+    reason: Fortran NetCDF quantization limit; not needed in Python
+  - name: MAPL_QUANTIZE_MAX_NSD
+    reason: Fortran NetCDF quantization limit; not needed in Python
+  - name: MAPL_NBITS_NOT_SET
+    reason: Fortran NetCDF quantization sentinel; not needed in Python
+  - name: MAPL_NBITS_UPPER_LIMIT
+    reason: Fortran NetCDF quantization limit; not needed in Python
+
+  # MAPL_UNDEF is tested separately in TestKnownIssues (value differs by design from REAL32/REAL64 typed variants)
+  - name: MAPL_UNDEF
+    reason: Tested separately in TestKnownIssues; value is the REAL32 -huge() sentinel
