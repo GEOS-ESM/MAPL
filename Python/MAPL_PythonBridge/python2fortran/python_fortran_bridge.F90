@@ -1,14 +1,9 @@
-#include "MAPL_Generic.h"
-#include "MAPL_Exceptions.h"
-#include "MAPL_ErrLogMain.h"
+#include "MAPL.h"
 
 module mapl_python_fortran_bridge
     
-    use ESMFL_Mod
     use ESMF
-    use MAPL_BaseMod
-    use MAPL_GenericMod
-    use MaplShared
+    use MAPL
     use iso_c_binding
 
     implicit NONE
@@ -42,8 +37,7 @@ module mapl_python_fortran_bridge
         call c_f_pointer(esmf_state_c_ptr, state)
 
         ! Call function
-        call ESMF_AttributeGet(state, name=varname, value=return_value, RC=STATUS)
-        VERIFY_(STATUS)
+        call ESMF_AttributeGet(state, name=varname, value=return_value, _RC)
     
     end function MAPLPy_ESMF_AttributeGet_1D_int
 
@@ -63,8 +57,7 @@ module mapl_python_fortran_bridge
         ! Turn the ESMF State C pointer to a Fortran pointer
         call c_f_pointer(esmf_state_c_ptr, state)
 
-        call ESMF_MethodExecute(state, label=label, RC=STATUS)
-        VERIFY_(STATUS)
+        call ESMF_MethodExecute(state, label=label, _RC)
 
     end subroutine MAPLPy_ESMF_MethodExecute
 
@@ -89,10 +82,8 @@ module mapl_python_fortran_bridge
         ! Turn the ESMF State C pointer to a Fortran pointer
         call c_f_pointer(esmf_state_c_ptr, state)        
 
-        call ESMF_AttributeGet(state, name=name, value=field_name_from_esmf, RC=STATUS)
-        VERIFY_(STATUS)
-        call MAPL_GetPointer(state, f_ptr, trim(field_name_from_esmf), RC=STATUS)
-        VERIFY_(STATUS)
+        call ESMF_AttributeGet(state, name=name, value=field_name_from_esmf, _RC)
+        call MAPL_StateGetPointer(state, f_ptr, trim(field_name_from_esmf), _RC)
         c_data_ptr=c_loc(f_ptr)
     
     end function    
@@ -118,11 +109,8 @@ module mapl_python_fortran_bridge
         ! Turn the ESMF State C pointer to a Fortran pointer
         call c_f_pointer(esmf_state_c_ptr, state)        
         
-        call MAPL_GetPointer(state, f_ptr, trim(name), alloc=logical(alloc), RC=STATUS)
-        VERIFY_(STATUS)
-        ! if (associated(f_ptr)) then
+        call MAPL_StateGetPointer(state, f_ptr, trim(name), alloc=logical(alloc), _RC)
         c_data_ptr=c_loc(f_ptr)
-        ! endif
 
     end function
 
@@ -150,8 +138,7 @@ module mapl_python_fortran_bridge
         ! Turn the ESMF State C pointer to a Fortran pointer
         call c_f_pointer(state_c_ptr, state)        
         
-        call MAPL_GetPointer(state, f_ptr, trim(name), alloc=logical(alloc), RC=STATUS)
-        VERIFY_(STATUS)
+        call MAPL_StateGetPointer(state, f_ptr, trim(name), alloc=logical(alloc), _RC)
         is_associated_as_integer = merge(1, 0, associated(f_ptr))
     
     end function
@@ -177,8 +164,7 @@ module mapl_python_fortran_bridge
         ! Turn the ESMF State C pointer to a Fortran pointer
         call c_f_pointer(esmf_state_c_ptr, state)    
 
-        call MAPL_GetPointer(state, f_ptr, trim(name), alloc=logical(alloc), RC=STATUS)
-        VERIFY_(STATUS)
+        call MAPL_StateGetPointer(state, f_ptr, trim(name), alloc=logical(alloc), _RC)
 
         c_data_ptr=c_loc(f_ptr)
     
@@ -207,16 +193,15 @@ module mapl_python_fortran_bridge
         ! Turn the ESMF State C pointer to a Fortran pointer
         call c_f_pointer(state_c_ptr, state)        
         
-        call MAPL_GetPointer(state, f_ptr, trim(name), alloc=logical(alloc), RC=STATUS)
-        VERIFY_(STATUS)
+        call MAPL_StateGetPointer(state, f_ptr, trim(name), alloc=logical(alloc), _RC)
         is_associated_as_integer = merge(1, 0, associated(f_ptr))
     
     end function
 
     function MAPLpy_GetResource_Float(state_c_ptr, name_c_ptr, name_len, default) result(result) bind(c, name="MAPLpy_GetResource_Float")
-        ! Read in STATE
+        ! Read in GridComp
         type(c_ptr), intent(in), value :: state_c_ptr
-        type(MAPL_MetaComp), pointer :: state
+        type(ESMF_GridComp), pointer :: gridcomp
 
         ! Read in name
         type(c_ptr), intent(in), value :: name_c_ptr
@@ -230,19 +215,18 @@ module mapl_python_fortran_bridge
 
         ! Make pointer & string fortran from C
         call c_f_pointer(name_c_ptr, name)
-        call c_f_pointer(state_c_ptr, state)        
+        call c_f_pointer(state_c_ptr, gridcomp)
 
         ! Use fortran type & cast back to C types
         local_d = default
-        call MAPL_GetResource(state, local_r, label=trim(name), default=local_d, RC=STATUS)
-        VERIFY_(STATUS)
+        call MAPL_GridCompGetResource(gridcomp, trim(name), local_r, default=local_d, _RC)
         result = local_r
     end function
 
     function MAPLpy_GetResource_Bool(mapl_metacomp_c_ptr, name_c_ptr, name_len, default) result(result) bind(c, name="MAPLpy_GetResource_Bool")
-        ! Read in STATE
+        ! Read in GridComp
         type(c_ptr), intent(in), value :: mapl_metacomp_c_ptr
-        type(MAPL_MetaComp), pointer :: state
+        type(ESMF_GridComp), pointer :: gridcomp
 
         ! Read in name
         type(c_ptr), intent(in), value :: name_c_ptr
@@ -257,20 +241,19 @@ module mapl_python_fortran_bridge
         ! Turn the C string into a Fortran string
         call c_f_pointer(name_c_ptr, name)
 
-        ! Turn the ESMF State C pointer to a Fortran pointer
-        call c_f_pointer(mapl_metacomp_c_ptr, state)        
+        ! Turn the GridComp C pointer to a Fortran pointer
+        call c_f_pointer(mapl_metacomp_c_ptr, gridcomp)
 
         local_d = default
-        call MAPL_GetResource(state, local_r, label=trim(name), default=local_d, RC=STATUS)
-        VERIFY_(STATUS)
+        call MAPL_GridCompGetResource(gridcomp, trim(name), local_r, default=local_d, _RC)
         result = local_r
     
     end function
 
     function MAPLpy_GetResource_Int32(state_c_ptr, name_c_ptr, name_len, default) result(result) bind(c, name="MAPLpy_GetResource_Int32")
-        ! Read in STATE
+        ! Read in GridComp
         type(c_ptr), intent(in), value :: state_c_ptr
-        type(MAPL_MetaComp), pointer :: state
+        type(ESMF_GridComp), pointer :: gridcomp
 
         ! Read in name
         type(c_ptr), intent(in), value :: name_c_ptr
@@ -284,11 +267,10 @@ module mapl_python_fortran_bridge
 
         ! Make pointer & string fortran from C
         call c_f_pointer(name_c_ptr, name)
-        call c_f_pointer(state_c_ptr, state)              
+        call c_f_pointer(state_c_ptr, gridcomp)
 
         local_d = default
-        call MAPL_GetResource(state, local_r, label=trim(name), default=local_d, RC=STATUS)
-        VERIFY_(STATUS)
+        call MAPL_GridCompGetResource(gridcomp, trim(name), local_r, default=local_d, _RC)
         result = local_r
     
     end function
@@ -360,108 +342,90 @@ module mapl_python_fortran_bridge
         
         type(c_ptr), intent(in), value     :: c_grid_comp
 
-        type(ESMF_GridComp), pointer       :: f90_state
+        type(ESMF_GridComp), pointer       :: gridcomp
         type(c_ptr)                        :: c_string
 
-        call c_f_pointer(c_grid_comp, f90_state)
+        call c_f_pointer(c_grid_comp, gridcomp)
 
-        call ESMF_GridCompGet(f90_state, name=F90_STRING_BUFFER, RC=STATUS)
+        call ESMF_GridCompGet(gridcomp, name=F90_STRING_BUFFER, _RC)
         c_string = c_loc(F90_STRING_BUFFER)
 
     end function MAPLpy_ESMF_GridCompGetName
 
     function MAPLPy_MAPL_GetIM(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetIM")
-        ! Read in STATE
+        ! Read in GridComp
         type(c_ptr), intent(in), value :: c_mapl_state
-        type(MAPL_MetaComp), pointer :: state
+        type(ESMF_GridComp), pointer :: gridcomp
 
         ! Results
         integer(C_INT32_T) :: result
-        integer(kind=4) :: local_r
 
-        ! Make pointer & string fortran from C
-        call c_f_pointer(c_mapl_state, state)              
+        ! Make pointer from C
+        call c_f_pointer(c_mapl_state, gridcomp)
 
-        call MAPL_Get(state, IM=local_r, RC=STATUS)
-        
-        VERIFY_(STATUS)
-        result = local_r
+        _FAIL("MAPL_Get IM not available in MAPL3 - port python bridge to use geom API")
     
     end function
 
     function MAPLPy_MAPL_GetJM(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetJM")
-        ! Read in STATE
+        ! Read in GridComp
         type(c_ptr), intent(in), value :: c_mapl_state
-        type(MAPL_MetaComp), pointer :: state
+        type(ESMF_GridComp), pointer :: gridcomp
 
         ! Results
         integer(C_INT32_T) :: result
-        integer(kind=4) :: local_r
 
-        ! Make pointer & string fortran from C
-        call c_f_pointer(c_mapl_state, state)              
+        ! Make pointer from C
+        call c_f_pointer(c_mapl_state, gridcomp)
 
-        call MAPL_Get(state, JM=local_r, RC=STATUS)
-
-        VERIFY_(STATUS)
-        result = local_r
+        _FAIL("MAPL_Get JM not available in MAPL3 - port python bridge to use geom API")
     
     end function
 
     function MAPLPy_MAPL_GetLM(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetLM")
-        ! Read in STATE
+        ! Read in GridComp
         type(c_ptr), intent(in), value :: c_mapl_state
-        type(MAPL_MetaComp), pointer :: state
+        type(ESMF_GridComp), pointer :: gridcomp
 
         ! Results
         integer(C_INT32_T) :: result
         integer(kind=4) :: local_r
 
-        ! Make pointer & string fortran from C
-        call c_f_pointer(c_mapl_state, state)              
+        ! Make pointer from C
+        call c_f_pointer(c_mapl_state, gridcomp)
 
-        call MAPL_Get(state, LM=local_r, RC=STATUS)
-
-        VERIFY_(STATUS)
+        call MAPL_GridCompGet(gridcomp, num_levels=local_r, _RC)
         result = local_r
     
     end function
 
     function MAPLPy_MAPL_GetNX(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetNX")
-        ! Read in STATE
+        ! Read in GridComp
         type(c_ptr), intent(in), value :: c_mapl_state
-        type(MAPL_MetaComp), pointer :: state
+        type(ESMF_GridComp), pointer :: gridcomp
 
         ! Results
         integer(C_INT32_T) :: result
-        integer(kind=4) :: local_r
 
-        ! Make pointer & string fortran from C
-        call c_f_pointer(c_mapl_state, state)              
+        ! Make pointer from C
+        call c_f_pointer(c_mapl_state, gridcomp)
 
-        call MAPL_Get(state, NX=local_r, RC=STATUS)
-
-        VERIFY_(STATUS)
-        result = local_r
+        _FAIL("MAPL_Get NX not available in MAPL3 - port python bridge to use geom API")
     
     end function
 
     function MAPLPy_MAPL_GetNY(c_mapl_state) result(result) bind(c, name="MAPLPy_MAPL_GetNY")
-        ! Read in STATE
+        ! Read in GridComp
         type(c_ptr), intent(in), value :: c_mapl_state
-        type(MAPL_MetaComp), pointer :: state
+        type(ESMF_GridComp), pointer :: gridcomp
 
         ! Results
         integer(C_INT32_T) :: result
-        integer(kind=4) :: local_r
 
-        ! Make pointer & string fortran from C
-        call c_f_pointer(c_mapl_state, state)              
+        ! Make pointer from C
+        call c_f_pointer(c_mapl_state, gridcomp)
 
-        call MAPL_Get(state, NY=local_r, RC=STATUS)
-
-        VERIFY_(STATUS)
-        result = local_r
+        _FAIL("MAPL_Get NY not available in MAPL3 - port python bridge to use geom API")
     
     end function
 

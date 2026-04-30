@@ -87,9 +87,9 @@ if (BUILD_PYTHONBRIDGE)
 endif ()
 
 if (BUILD_PYTHONBRIDGE)
-  set(dependencies MAPL.base MAPL.generic MAPL.shared ESMF::ESMF PythonBridge_interface_py )
+  set(dependencies MAPL PythonBridge_interface_py )
 else ()
-  set(dependencies MAPL.base MAPL.generic MAPL.shared ESMF::ESMF)
+  set(dependencies MAPL)
 endif()
 
 # Install the Python/MAPL directory
