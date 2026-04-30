@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 module MAPL_PythonBridge
 
@@ -10,9 +10,7 @@ module MAPL_PythonBridge
    !
    ! -----------------------------
    use ESMF
-   use MAPL_BaseMod
-   use MAPL_GenericMod
-   use MaplShared
+   use Generic3g
 #ifdef PYTHONBRIDGE_INTEGRATION
    use mapl_fortran_python_bridge, only: mapl_fortran_python_bridge_global_initialize
    use mapl_fortran_python_bridge, only: mapl_fortran_python_bridge_user_init
@@ -86,7 +84,7 @@ contains
       ! Will trigger the `GEOSInterfaceCode.init` python function on the user code
       ! -----------------------------
       character(len=*), intent(in) :: pypkg_name
-      type(MAPL_MetaComp), intent(inout), target :: mapl ! MAPL state
+      type(ESMF_GridComp), intent(inout), target :: mapl ! MAPL state
       type(ESMF_State), intent(inout), target :: import ! Import state
       type(ESMF_State), intent(inout), target :: export ! Export state
 
@@ -105,7 +103,7 @@ contains
       ! Will trigger the `GEOSInterfaceCode.run` python function on the user code
       ! -----------------------------
       character(len=*), intent(in) :: pypkg_name
-      type(MAPL_MetaComp), intent(inout), target :: mapl ! MAPL state
+      type(ESMF_GridComp), intent(inout), target :: mapl ! MAPL state
       type(ESMF_State), intent(inout), target :: import ! Import state
       type(ESMF_State), intent(inout), target :: export ! Export state
 
@@ -124,7 +122,7 @@ contains
       ! Will trigger the `GEOSInterfaceCode.run_with_internal` python function on the user code
       ! -----------------------------
       character(len=*), intent(in) :: pypkg_name
-      type(MAPL_MetaComp), intent(inout), target :: mapl ! MAPL state
+      type(ESMF_GridComp), intent(inout), target :: mapl ! MAPL state
       type(ESMF_State), intent(inout), target :: import ! Import state
       type(ESMF_State), intent(inout), target :: export ! Export state
       type(ESMF_State), intent(inout), target :: internal ! Internal state
@@ -144,7 +142,7 @@ contains
       ! Will trigger the `GEOSInterfaceCode.finalize` python function on the user code
       ! -----------------------------
       character(len=*), intent(in) :: pypkg_name
-      type(MAPL_MetaComp), intent(inout), target :: mapl ! MAPL state
+      type(ESMF_GridComp), intent(inout), target :: mapl ! MAPL state
       type(ESMF_State), intent(inout), target :: import ! Import state
       type(ESMF_State), intent(inout), target :: export ! Export state
 
