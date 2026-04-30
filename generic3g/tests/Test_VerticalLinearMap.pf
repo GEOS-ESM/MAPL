@@ -3,7 +3,8 @@
 module Test_VerticalLinearMap
 
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
-   use mapl3g_VerticalLinearMap, only: compute_linear_map
+   use mapl3g_VerticalLinearMap, only: compute_linear_map, find_bracket, compute_weights
+   use mapl3g_VerticalLinearMap, only: IndexValuePair
    use funit
    use, intrinsic :: iso_fortran_env, only: REAL32
 
@@ -41,5 +42,266 @@ contains
       @assertEqual([18., 6.], matmul(matrix, fin))
 
    end subroutine test_compute_linear_map
+
+   @test
+   subroutine test_find_bracket_exact_match()
+      ! Test when val exactly matches an element in array
+      real(REAL32) :: array(5)
+      real(REAL32) :: val
+      type(IndexValuePair) :: pair(2)
+
+      array = [50., 40., 30., 20., 10.]
+      val = 30.
+      call find_bracket(val, array, pair)
+      @assertEqual(3, pair(1)%index)
+      @assertEqual(30., pair(1)%value_)
+      @assertEqual(3, pair(2)%index)
+      @assertEqual(30., pair(2)%value_)
+   end subroutine test_find_bracket_exact_match
+
+   @test
+   subroutine test_find_bracket_between_elements()
+      ! Test when val is between two elements
+      real(REAL32) :: array(5)
+      real(REAL32) :: val
+      type(IndexValuePair) :: pair(2)
+
+      array = [50., 40., 30., 20., 10.]
+      val = 35.
+      call find_bracket(val, array, pair)
+      @assertEqual(2, pair(1)%index)
+      @assertEqual(40., pair(1)%value_)
+      @assertEqual(3, pair(2)%index)
+      @assertEqual(30., pair(2)%value_)
+   end subroutine test_find_bracket_between_elements
+
+   @test
+   subroutine test_find_bracket_near_boundaries()
+      ! Test when val is near the boundaries of the array
+      real(REAL32) :: array(5)
+      real(REAL32) :: val
+      type(IndexValuePair) :: pair(2)
+
+      ! Test near upper boundary
+      array = [50., 40., 30., 20., 10.]
+      val = 48.
+      call find_bracket(val, array, pair)
+      @assertEqual(1, pair(1)%index)
+      @assertEqual(50., pair(1)%value_)
+      @assertEqual(2, pair(2)%index)
+      @assertEqual(40., pair(2)%value_)
+
+      ! Test near lower boundary
+      val = 12.
+      call find_bracket(val, array, pair)
+      @assertEqual(4, pair(1)%index)
+      @assertEqual(20., pair(1)%value_)
+      @assertEqual(5, pair(2)%index)
+      @assertEqual(10., pair(2)%value_)
+   end subroutine test_find_bracket_near_boundaries
+
+   @test
+   subroutine test_find_bracket_at_boundaries()
+      ! Test when val is exactly at the boundaries
+      real(REAL32) :: array(5)
+      real(REAL32) :: val
+      type(IndexValuePair) :: pair(2)
+
+      array = [50., 40., 30., 20., 10.]
+      
+      ! Test at upper boundary
+      val = 50.
+      call find_bracket(val, array, pair)
+      @assertEqual(1, pair(1)%index)
+      @assertEqual(50., pair(1)%value_)
+      @assertEqual(1, pair(2)%index)
+      @assertEqual(50., pair(2)%value_)
+
+      ! Test at lower boundary
+      val = 10.
+      call find_bracket(val, array, pair)
+      @assertEqual(5, pair(1)%index)
+      @assertEqual(10., pair(1)%value_)
+      @assertEqual(5, pair(2)%index)
+      @assertEqual(10., pair(2)%value_)
+   end subroutine test_find_bracket_at_boundaries
+
+   @test
+   subroutine test_find_bracket_outside_upper_bound()
+      ! Test when val is above the upper bound (array is decreasing)
+      real(REAL32) :: array(5)
+      real(REAL32) :: val
+      type(IndexValuePair) :: pair(2)
+
+      array = [50., 40., 30., 20., 10.]
+      val = 60.  ! Above maximum value
+      call find_bracket(val, array, pair)
+      
+      ! Both indices should be the same when outside bounds (clamped to boundary)
+      @assertEqual(1, pair(1)%index)
+      @assertEqual(50., pair(1)%value_)
+      @assertEqual(1, pair(2)%index)
+      @assertEqual(50., pair(2)%value_)
+   end subroutine test_find_bracket_outside_upper_bound
+
+   @test
+   subroutine test_find_bracket_outside_lower_bound()
+      ! Test when val is below the lower bound (array is decreasing)
+      real(REAL32) :: array(5)
+      real(REAL32) :: val
+      type(IndexValuePair) :: pair(2)
+
+      array = [50., 40., 30., 20., 10.]
+      val = 5.  ! Below minimum value
+      call find_bracket(val, array, pair)
+      
+      ! Both indices should be the same when outside bounds (clamped to boundary)
+      @assertEqual(5, pair(1)%index)
+      @assertEqual(10., pair(1)%value_)
+      @assertEqual(5, pair(2)%index)
+      @assertEqual(10., pair(2)%value_)
+   end subroutine test_find_bracket_outside_lower_bound
+
+   @test
+   subroutine test_find_bracket_far_outside_bounds()
+      ! Test when val is far outside the array bounds
+      real(REAL32) :: array(3)
+      real(REAL32) :: val
+      type(IndexValuePair) :: pair(2)
+
+      array = [100., 50., 0.]
+      
+      ! Test far above upper bound - both indices should be same
+      val = 200.
+      call find_bracket(val, array, pair)
+      @assertEqual(1, pair(1)%index)
+      @assertEqual(100., pair(1)%value_)
+      @assertEqual(1, pair(2)%index)
+      @assertEqual(100., pair(2)%value_)
+      
+      ! Test far below lower bound - both indices should be same
+      val = -50.
+      call find_bracket(val, array, pair)
+      @assertEqual(3, pair(1)%index)
+      @assertEqual(0., pair(1)%value_)
+      @assertEqual(3, pair(2)%index)
+      @assertEqual(0., pair(2)%value_)
+   end subroutine test_find_bracket_far_outside_bounds
+
+   @test
+   subroutine test_find_bracket_slightly_outside()
+      ! Test when val is slightly outside bounds to verify clamping behavior
+      real(REAL32) :: array(4)
+      real(REAL32) :: val
+      type(IndexValuePair) :: pair(2)
+
+      array = [40., 30., 20., 10.]
+      
+      ! Slightly above maximum - both indices should be same (clamped)
+      val = 42.
+      call find_bracket(val, array, pair)
+      @assertEqual(1, pair(1)%index)
+      @assertEqual(40., pair(1)%value_)
+      @assertEqual(1, pair(2)%index)
+      @assertEqual(40., pair(2)%value_)
+      
+      ! Slightly below minimum - both indices should be same (clamped)
+      val = 8.
+      call find_bracket(val, array, pair)
+      @assertEqual(4, pair(1)%index)
+      @assertEqual(10., pair(1)%value_)
+      @assertEqual(4, pair(2)%index)
+      @assertEqual(10., pair(2)%value_)
+   end subroutine test_find_bracket_slightly_outside
+
+   @test
+   subroutine test_compute_weights_midpoint()
+      ! Test when val is at the midpoint between two values
+      real(REAL32) :: val
+      real(REAL32) :: value_(2)
+      real(REAL32) :: weight(2)
+
+      value_ = [40., 20.]
+      val = 30.
+      call compute_weights(val, value_, weight)
+      @assertEqual(0.5, weight(1), tolerance=1e-6)
+      @assertEqual(0.5, weight(2), tolerance=1e-6)
+   end subroutine test_compute_weights_midpoint
+
+   @test
+   subroutine test_compute_weights_at_boundaries()
+      ! Test when val is at the boundary values
+      real(REAL32) :: val
+      real(REAL32) :: value_(2)
+      real(REAL32) :: weight(2)
+
+      value_ = [40., 20.]
+      
+      ! At first boundary
+      val = 40.
+      call compute_weights(val, value_, weight)
+      @assertEqual(1.0, weight(1), tolerance=1e-6)
+      @assertEqual(0.0, weight(2), tolerance=1e-6)
+
+      ! At second boundary
+      val = 20.
+      call compute_weights(val, value_, weight)
+      @assertEqual(0.0, weight(1), tolerance=1e-6)
+      @assertEqual(1.0, weight(2), tolerance=1e-6)
+   end subroutine test_compute_weights_at_boundaries
+
+   @test
+   subroutine test_compute_weights_one_third()
+      ! Test when val is one-third of the way from first to second value
+      real(REAL32) :: val
+      real(REAL32) :: value_(2)
+      real(REAL32) :: weight(2)
+
+      value_ = [30., 0.]
+      val = 20.
+      call compute_weights(val, value_, weight)
+      @assertEqual(2.0/3.0, weight(1), tolerance=1e-6)
+      @assertEqual(1.0/3.0, weight(2), tolerance=1e-6)
+   end subroutine test_compute_weights_one_third
+
+   @test
+   subroutine test_compute_weights_identical_values()
+      ! Test when both values are identical (degenerate case)
+      real(REAL32) :: val
+      real(REAL32) :: value_(2)
+      real(REAL32) :: weight(2)
+
+      value_ = [30., 30.]
+      val = 30.
+      call compute_weights(val, value_, weight)
+      @assertEqual(1.0, weight(1), tolerance=1e-6)
+      @assertEqual(0.0, weight(2), tolerance=1e-6)
+   end subroutine test_compute_weights_identical_values
+
+   @test
+   subroutine test_compute_weights_clamping()
+      ! Test that weights are clamped to [0, 1] range when val is outside bracket
+      real(REAL32) :: val
+      real(REAL32) :: value_(2)
+      real(REAL32) :: weight(2)
+
+      value_ = [40., 20.]
+      
+      ! Value beyond lower bound: val < value_(2)
+      ! t = (10 - 40)/(20 - 40) = -30/-20 = 1.5, clamped to 1.0
+      ! weight(2) = 1.0, weight(1) = 0.0
+      val = 10.
+      call compute_weights(val, value_, weight)
+      @assertEqual(0.0, weight(1), tolerance=1e-6)
+      @assertEqual(1.0, weight(2), tolerance=1e-6)
+      
+      ! Value beyond upper bound: val > value_(1)
+      ! t = (50 - 40)/(20 - 40) = 10/-20 = -0.5, clamped to 0.0
+      ! weight(2) = 0.0, weight(1) = 1.0
+      val = 50.
+      call compute_weights(val, value_, weight)
+      @assertEqual(1.0, weight(1), tolerance=1e-6)
+      @assertEqual(0.0, weight(2), tolerance=1e-6)
+   end subroutine test_compute_weights_clamping
 
 end module Test_VerticalLinearMap
