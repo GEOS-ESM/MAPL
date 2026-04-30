@@ -113,6 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed vertical integration bug. It shows when using nag compiler
 - Fixed failures to fully trap errors in
   - History GC
   - MemUtils
