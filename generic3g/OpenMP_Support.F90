@@ -15,6 +15,7 @@ module mapl3g_OpenMP_Support
 
     public :: Interval
     public :: make_subgrids
+    public :: find_bounds
     public :: make_subfields
     public :: make_subFieldBundles
     public :: make_substates
