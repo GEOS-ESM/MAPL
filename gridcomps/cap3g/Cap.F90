@@ -19,6 +19,7 @@ module mapl3g_Cap
    character(len=*), parameter :: KEY_RESTART = 'restart'
    character(len=*), parameter :: KEY_CLOCK = 'clock'
    character(len=*), parameter :: KEY_CURRTIME = 'currTime'
+   character(len=*), parameter :: KEY_REPEATCOUNT = 'repeatCount'
 
    type CheckpointOptions
       logical :: is_enabled = .false.
@@ -59,7 +60,7 @@ contains
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
-      call update_restart_currTime(hconfig, clock, _RC)
+      call update_restart(hconfig, clock, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -341,15 +342,21 @@ contains
       type(ESMF_Time) :: end_of_segment
       type(ESMF_TimeInterval) :: timeStep, segment_duration
       type(ESMF_TimeInterval), allocatable :: repeatDuration
-      logical :: has_repeatDuration
+      logical :: has_repeatDuration, has_repeatCount
       character(:), allocatable :: cap_restart_file
       character(ESMF_MAXSTR) :: iso_time
+      integer(kind=ESMF_KIND_I8) :: repeatCount
 
+      repeatCount = 0
       cap_restart_file = esmf_HConfigAsString(hconfig, keyString=KEY_RESTART, _RC)
       restart_cfg = esmf_HConfigCreate(filename=cap_restart_file, _RC)
       currTime = mapl_HConfigAsTime(restart_cfg, keyString='currTime', _RC)
       iso_time = esmf_HConfigAsString(restart_cfg, keystring='currTime', _RC)
       call lgr%info('current time: %a', trim(iso_time))
+      has_repeatCount = ESMF_HConfigIsDefined(restart_cfg, keyString=KEY_REPEATCOUNT, _RC)
+      if(has_repeatCount) then
+         repeatCount = ESMF_HConfigAsI8(restart_cfg, keyString=KEY_REPEATCOUNT, _RC)
+      end if
       call esmf_HConfigDestroy(restart_cfg, _RC)
 
       clock_cfg = esmf_HConfigCreateAt(hconfig, keystring=KEY_CLOCK, _RC)
@@ -381,6 +388,8 @@ contains
          call lgr%info('repeat duration: %a', trim(iso_time))
       end if
 
+      ! Currently, repeatCount is not an argument for ESMF_ClockCreate or ESMF_ClockSet.
+      ! Once it is added, it should be included in the create/set below.
       clock = esmf_ClockCreate(timeStep=timeStep, &
            startTime=startTime, stopTime=end_of_segment, &
            refTime=startTime, &
@@ -598,32 +607,31 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_symlink
 
-   subroutine update_restart_currTime(hconfig, clock, rc)
+   subroutine update_restart(hconfig, clock, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_Clock), intent(inout) :: clock
       integer, optional, intent(out) :: rc
       integer :: status
-      character(len=:), allocatable :: currTimeString
       type(ESMF_Time) :: currTime
+      integer(kind=ESMF_KIND_I8) :: repeatCount
       logical :: restart_is_defined
       character(:), allocatable :: cap_restart_file
       type(ESMF_HConfig) :: restart_cfg
-      integer, parameter :: ISOSTRING_LENGTH=20
+      integer, parameter :: ISOSTRING_LENGTH = 20
       character(len=ISOSTRING_LENGTH) :: timeString
 
-
-      call ESMF_ClockGet(clock, currTime=currTime, _RC)
+      call ESMF_ClockGet(clock, currTime=currTime, repeatCount=repeatCount, _RC)
       call ESMF_TimeGet(currTime, timeString=timeString, _RC)
-      currTimeString = trim(timeString)
       restart_is_defined = ESMF_HConfigIsDefined(hconfig, keyString=KEY_RESTART, _RC)
       _ASSERT(restart_is_defined, 'Unable to get restart filename')
       cap_restart_file = ESMF_HConfigAsString(hconfig, keyString=KEY_RESTART, _RC)
-      restart_cfg = ESMF_HConfigCreate(filename=cap_restart_file, _RC)
-      call ESMF_HConfigSet(restart_cfg, content=timeString, keyString=KEY_CURRTIME, _RC)
+      restart_cfg = ESMF_HConfigCreate(_RC)
+      call ESMF_HConfigAdd(restart_cfg, content=timeString, addKeyString=KEY_CURRTIME, _RC)
+      call ESMF_HConfigAdd(restart_cfg, content=repeatCount, addKeyString=KEY_REPEATCOUNT, _RC)
       call ESMF_HConfigFileSave(restart_cfg, cap_restart_file, _RC)
       call ESMF_HConfigDestroy(restart_cfg, _RC)
       _RETURN(_SUCCESS)
 
-   end subroutine update_restart_currTime
+   end subroutine update_restart
 
 end module mapl3g_Cap
