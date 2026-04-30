@@ -6,10 +6,10 @@ module MAPL2
    use MAPL_VarSpecMiscMod
    use pFIO
    use MAPL_GridCompsMod
-   use MAPL_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
-   use MAPL_OpenMP_Support, only : MAPL_get_num_threads => get_num_threads
-   use MAPL_OpenMP_Support, only : MAPL_find_bounds => find_bounds
-   use MAPL_OpenMP_Support, only : MAPL_Interval => Interval
+   use mapl3g_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
+   use mapl3g_OpenMP_Support, only : MAPL_get_num_threads => get_num_threads
+   use mapl3g_OpenMP_Support, only : MAPL_find_bounds => find_bounds
+   use mapl3g_OpenMP_Support, only : MAPL_Interval => Interval
    use MAPL_Profiler, initialize_profiler => initialize, finalize_profiler => finalize
    use MAPL_FieldUtils
    use MAPL_StateUtils
