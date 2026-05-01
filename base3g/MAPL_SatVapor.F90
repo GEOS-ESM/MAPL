@@ -247,9 +247,7 @@ contains
     endif
 
     if (TYPE/=Starr .and. TYPE/=GoffGratch .and. TYPE/=MurphyKoop) then
-       print *, 'Bad argument to MAPL_EQsatSET: FORMULATION=',TYPE
-       print *, 'Must be one of: ', Starr, GoffGratch, MurphyKoop
-       stop 999
+       error stop 'Bad argument to MAPL_EQsatSET: Formulation must be one of MAPL_UseStarrQsat, MAPL_UseGoffGratchQsat, or MAPL_UseMurphyKoopQsat'
     end if
 
 ! Set the formulation dependent limits
