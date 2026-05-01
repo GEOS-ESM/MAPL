@@ -1,9 +1,11 @@
 #include "MAPL_Exceptions.h"
 #include "unused_dummy.H"
 module MAPL_StringTemplate
-use ESMF
-use MAPL_ExceptionHandling
-use MAPL_KeywordEnforcerMod
+use ESMF, only: ESMF_Calendar, ESMF_CalendarCreate, ESMF_CalendarDestroy, &
+                ESMF_CALKIND_GREGORIAN, ESMF_KIND_I4, &
+                ESMF_Time, ESMF_TimeGet, ESMF_TimeSet
+use MAPL_ExceptionHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+use MAPL_KeywordEnforcerMod, only: KeywordEnforcer
 
 
 implicit none(type,external)

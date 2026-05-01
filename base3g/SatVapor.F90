@@ -36,7 +36,9 @@ module MAPL_SatVaporMod
 ! !USES:
 !
 #ifdef MAPL_MODE
-  use MAPL_Constants
+  use MAPL_Constants, only: MAPL_H2OMW, MAPL_AIRMW, MAPL_TICE, &
+                            MAPL_UseStarrQsat, MAPL_UseGoffGratchQsat, &
+                            MAPL_UseMurphyKoopQsat
 #endif
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 !
@@ -271,8 +273,6 @@ contains
 
     call ESINIT
 
-    return
-
   contains
 !=======================================================================================
 
@@ -486,7 +486,6 @@ contains
       end if
    end if
 
-    return
   end function QSAT0
 
 #undef  KIND_
@@ -537,7 +536,6 @@ contains
       end if
    end if
 
-    return
   end function QSATD0
 
 #undef  DX
@@ -601,7 +599,6 @@ contains
       end if
     end do
 
-    return
   end function QSAT1
 
 #undef  KIND_
@@ -655,7 +652,6 @@ contains
       end if
     end do
 
-    return
   end function QSATD1
 
 #undef  DX
@@ -721,7 +717,6 @@ contains
        end do
     end do
 
-    return
   end function QSAT2
 
 #undef  KIND_
@@ -777,7 +772,6 @@ contains
        end do
     end do
 
-    return
   end function QSATD2
 
 #undef  DX
@@ -845,7 +839,6 @@ contains
        end do
     end do
 
-    return
   end function QSAT3
 
 #undef  KIND_
@@ -903,7 +896,6 @@ contains
        end do
     end do
 
-    return
   end function QSATD3
 
 #undef  DX

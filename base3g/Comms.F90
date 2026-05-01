@@ -11,12 +11,22 @@
 
 module MAPL_CommsMod
 
-  use ESMF
-  use MAPL_ShmemMod
+  use ESMF, only: ESMF_DELayout, ESMF_DELayoutGet, &
+                  ESMF_DistGrid, ESMF_DistGridGet, &
+                  ESMF_Grid, ESMF_GridGet, &
+                  ESMF_MAXSTR, ESMF_SUCCESS, &
+                  ESMF_VM, ESMF_VMGet, ESMF_VMGetCurrent, &
+                  ESMF_VmBarrier, ESMF_VmGet
+  use MAPL_ShmemMod, only: MAPL_ShmInitialized, MAPL_SyncSharedMemory, &
+                           MAPL_BroadcastToNodes, MAPL_NodeRankList, &
+                           MAPL_GetNewRank
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter, MAPL_UNDEF
-  use MAPL_ExceptionHandling
+  use MAPL_ExceptionHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
   use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
-  use mpi
+  use mpi, only: MPI_Bcast, MPI_BYTE, MPI_INTEGER, MPI_IRecv, MPI_ISend, &
+                 MPI_MAX, MPI_MIN, MPI_REAL, MPI_Recv, MPI_Send, &
+                 MPI_SendRecv, MPI_STATUS_IGNORE, MPI_STATUS_SIZE, &
+                 MPI_SUM, MPI_Wait, MPI_DOUBLE_PRECISION, MPI_LOGICAL
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
   private
@@ -980,7 +990,6 @@ module MAPL_CommsMod
     call ESMF_VMGet(vm, petCount=petCnt, rc=status)
     R = petCnt
 
-    return
   end function mapl_NPES_Vm
 
   function mapl_NPES_Layout(layout) result(R)
@@ -993,7 +1002,6 @@ module MAPL_CommsMod
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
     R = mapl_NPES_Vm(vm)
 
-    return
   end function mapl_NPES_Layout
 
 
