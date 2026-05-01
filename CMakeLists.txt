@@ -234,6 +234,7 @@ add_subdirectory (state)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
+add_subdirectory (base3g)
 add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (mapl3g)
