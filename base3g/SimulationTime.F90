@@ -6,7 +6,7 @@
 module mapl_SimulationTime
    use gFTL2_StringUnlimitedMap, only: StringUnlimitedMap
    use ESMF
-   implicit none
+   implicit none(type,external)
    private
 
    public :: set_reference_clock
