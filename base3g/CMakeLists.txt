@@ -2,8 +2,8 @@ esma_set_this (OVERRIDE MAPL.base3g)
 
 set (srcs
   SimulationTime.F90
-  MAPL_Comms.F90
-  MAPL_SatVapor.F90
+  Comms.F90
+  SatVapor.F90
   StringTemplate.F90
   API.F90
 )
