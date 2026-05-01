@@ -101,8 +101,8 @@
     _VERIFY(STATUS)
     allocate (sendcounts(0:nDEs-1), stat=status)
     _VERIFY(STATUS)
-    call MAPL_DistGridGet(distgrid, &
-         minIndex=AL, maxIndex=AU, rc=status)
+    call ESMF_DistGridGet(distgrid, &
+         minIndexPDe=AL, maxIndexPDe=AU, rc=status)
     _VERIFY(STATUS)
 
 ! Compute count to be sent to each PE

@@ -2,7 +2,7 @@ esma_set_this (OVERRIDE MAPL.base)
 
 set (srcs
   MAPL_Profiler.F90
-  ESMFL_Mod.F90                         MAPL_SatVapor.F90
+  ESMFL_Mod.F90
   FileMetadataUtilities.F90
   FileMetadataUtilitiesVector.F90       MAPL_SimpleBundleMod.F90
   MaplGrid.F90
@@ -11,7 +11,6 @@ set (srcs
   MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
-  MAPL_Comms.F90
   MAPL_Config.F90                       MAPL_LocStreamMod.F90
   MAPL_MaxMinMod.F90                    MAPL_VerticalInterpMod.F90
   MAPL_MemUtils.F90                     MAPL_VerticalMethods.F90
@@ -20,7 +19,7 @@ set (srcs
   MAPL_NominalOrbitsMod.F90
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   ServerManager.F90 ApplicationSupport.F90
-  StringTemplate.F90 MAPL_SphericalGeometry.F90
+  MAPL_SphericalGeometry.F90
   c_mapl_locstream_F.c  getrss.c  memuse.c
   Base/Base_Base.F90 Base/Base_Base_implementation.F90
   TimeStringConversion.F90
@@ -32,6 +31,8 @@ set (srcs
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
+
+# MAPL_Comms.F90, StringTemplate.F90, MAPL_SatVapor.F90 have been moved to base3g/
 
 # SimulationTime.F90 has been moved to base3g/
 
@@ -45,7 +46,7 @@ esma_add_library(
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
 # interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
 if (DUSTY)
-  set_property( SOURCE MAPL_Comms.F90 FileIOShared.F90 BinIO.F90 NCIO.F90
+  set_property( SOURCE FileIOShared.F90 BinIO.F90 NCIO.F90
                 PROPERTY COMPILE_FLAGS ${DUSTY})
 endif ()
 

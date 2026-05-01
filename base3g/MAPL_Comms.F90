@@ -12,11 +12,12 @@
 module MAPL_CommsMod
 
   use ESMF
-  use MAPL_BaseMod
   use MAPL_ShmemMod
-  use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter
+  use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter, MAPL_UNDEF
   use MAPL_ExceptionHandling
+  use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
   use mpi
+  use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
   private
 
@@ -391,7 +392,7 @@ module MAPL_CommsMod
     allocate (AU(gridRank,0:nDEs-1), stat=STATUS)
     _VERIFY(STATUS)
 
-    call MAPL_DistGridGet (distgrid, minIndex=AL, maxIndex=AU, RC=STATUS); _VERIFY(STATUS)
+    call ESMF_DistGridGet(distgrid, minIndexPDe=AL, maxIndexPDe=AU, RC=STATUS); _VERIFY(STATUS)
 
 ! Allocate space for request variables
 !-------------------------------------
@@ -752,6 +753,7 @@ module MAPL_CommsMod
     integer                       :: Nnodes
     integer                       :: nn
     integer                       :: LM, L, nc, npes, mype, dims(5)
+    integer, allocatable          :: dims_alloc(:)
     type(ESMF_VM)                 :: VM
     integer                       :: comm
 
@@ -773,7 +775,9 @@ module MAPL_CommsMod
     _VERIFY(STATUS)
 
     if(any(root==mype)) then
-       call MAPL_GridGet ( grid, globalCellCountPerDim=DIMS, RC=STATUS)
+       call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=dims_alloc, RC=STATUS)
+       _VERIFY(STATUS)
+       dims(1:size(dims_alloc)) = dims_alloc
        _VERIFY(STATUS)
        nc = count(Root==mype)
        allocate(GlobArray(dims(1),dims(2),nc),stat=STATUS)
