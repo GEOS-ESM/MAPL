@@ -14,5 +14,7 @@ esma_add_library (${this}
   TYPE SHARED
 )
 
+target_compile_definitions (${this} PRIVATE MAPL_MODE)
+
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
