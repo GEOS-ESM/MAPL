@@ -32,7 +32,7 @@ set (srcs
   # tstqsat.F90
   )
 
-# MAPL_Comms.F90, StringTemplate.F90, MAPL_SatVapor.F90 have been moved to base3g/
+# Comms.F90, StringTemplate.F90, SatVapor.F90 have been moved to base3g/
 
 # SimulationTime.F90 has been moved to base3g/
 

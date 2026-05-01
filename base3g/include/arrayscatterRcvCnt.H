@@ -43,13 +43,11 @@
       srcDE = MAPL_Root
     end if
 
-    call ESMF_VMGet(vm, localPet=deId, petCount=ndes, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_VMGet(vm, localPet=deId, petCount=ndes, _RC)
 
     _ASSERT(size(sendCounts) == nDEs, 'sendcounts must match nDEs')
 
-    allocate (displs(0:nDEs), stat=status)
-    _VERIFY(STATUS)
+    allocate (displs(0:nDEs), _STAT)
 
     displs(0) = 0
     do I = 1,nDEs
@@ -62,11 +60,9 @@
     recvcount = sendcounts(deId+1)
 
     call ESMF_VMScatterV(vm, global_array, sendcounts, displs, &
-                         local_array, recvcount, srcDE, rc=status)
-    _VERIFY(STATUS)
+                         local_array, recvcount, srcDE, _RC)
 
-    deallocate(displs, stat=status)
-    _VERIFY(STATUS)
+    deallocate(displs, _STAT)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine SUB_

@@ -25,8 +25,7 @@
     integer                               :: status
     integer                               :: comm
 
-    call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_VMGet(vm, mpiCommunicator=COMM, _RC)
 
     call mpi_allgather ( sendbuf, sendcnt, MPITYPE_, &
                          recvbuf, recvcnt, MPITYPE_, &

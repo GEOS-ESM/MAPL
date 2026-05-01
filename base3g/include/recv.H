@@ -32,11 +32,9 @@
     integer                               :: comm
     type(ESMF_VM)                         :: vm
 
-    call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_DELayoutGet(layout, vm=vm, _RC)
 
-    call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_VMGet(vm, mpiCommunicator=COMM, _RC)
 
     call MPI_Recv(DATA, count, MPITYPE_, source, msg_tag, COMM, MPSTATUS, IERR)
     _VERIFY(IERR)

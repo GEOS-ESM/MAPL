@@ -76,24 +76,19 @@
     call ESMF_DELayoutGet(layout, vm=vm, rc=status);_VERIFY(STATUS)
     call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_VERIFY(STATUS)
 
-    allocate (AL(gridRank,0:nDEs-1),  stat=status)
-    _VERIFY(STATUS)
-    allocate (AU(gridRank,0:nDEs-1),  stat=status)
-    _VERIFY(STATUS)
+    allocate (AL(gridRank,0:nDEs-1), _STAT)
+    allocate (AU(gridRank,0:nDEs-1), _STAT)
 
     call ESMF_DistGridGet(distgrid, &
          minIndexPDe=AL, maxIndexPDe=AU, rc=status)
     _VERIFY(STATUS)
 
-    allocate (recvcounts(nDEs), displs(0:nDEs), stat=status)
-    _VERIFY(STATUS)
+    allocate (recvcounts(nDEs), displs(0:nDEs), _STAT)
 
     if (deId == destPE) then
-       allocate(VAR(0:size(GLOBAL_ARRAY)-1), stat=status)
-       _VERIFY(STATUS)
+       allocate(VAR(0:size(GLOBAL_ARRAY)-1), _STAT)
     else
-       allocate(VAR(0), stat=status)
-       _VERIFY(STATUS)
+       allocate(VAR(0), _STAT)
     end if
 
     displs(0) = 0
@@ -152,8 +147,7 @@
           JSZ = size(GLOBAL_ARRAY,2)
 #endif
 
-          allocate(KK (0:nDEs-1        ), stat=status)
-          _VERIFY(STATUS)
+          allocate(KK (0:nDEs-1        ), _STAT)
           KK = DISPLS(0:nDEs-1)
 
           do I=1,ISZ
@@ -170,8 +164,7 @@
              KK(MASK(I)) = KK(MASK(I)) + 1 
           end do
 
-          deallocate(KK, stat=status)
-          _VERIFY(STATUS)
+          deallocate(KK, _STAT)
        else
 #if (RANK_ == 1)
           global_array = var ! ALT: I am not sure if this is correct
@@ -194,13 +187,10 @@
        end if ! if (present(mask))
     end if
 
-    deallocate(VAR, stat=status)
-    _VERIFY(STATUS)
-    deallocate(recvcounts, displs, AU, AL, stat=status)
-    _VERIFY(STATUS)
+    deallocate(VAR, _STAT)
+    deallocate(recvcounts, displs, AU, AL, _STAT)
 
-    call ESMF_VmBarrier(vm, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_VmBarrier(vm, _RC)
     _RETURN(ESMF_SUCCESS)
   end subroutine SUB_
 

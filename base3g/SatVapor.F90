@@ -36,7 +36,9 @@ module MAPL_SatVaporMod
 ! !USES:
 !
 #ifdef MAPL_MODE
-  use MAPL_Constants
+  use MAPL_Constants, only: MAPL_H2OMW, MAPL_AIRMW, MAPL_TICE, &
+                            MAPL_UseStarrQsat, MAPL_UseGoffGratchQsat, &
+                            MAPL_UseMurphyKoopQsat
 #endif
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 !
@@ -160,7 +162,7 @@ module MAPL_SatVaporMod
   logical, save :: TableReady = .false.
 
   integer, save :: DEGSUBS    =  DEFAULT_SUBS ! subdivisions per deg K
-  integer, save :: TABLESIZE  =  nint(TMAXTBL-TMINTBL)*DEFAULT_SUBS + 1
+  integer, save :: TABLESIZE  =  int(TMAXTBL-TMINTBL)*DEFAULT_SUBS + 1
   real(kind=REAL64), save :: DELTA_T    =  1.0 / DEFAULT_SUBS
 
   real(kind=REAL64), save :: ESTFRZ
@@ -247,9 +249,7 @@ contains
     endif
 
     if (TYPE/=Starr .and. TYPE/=GoffGratch .and. TYPE/=MurphyKoop) then
-       print *, 'Bad argument to MAPL_EQsatSET: FORMULATION=',TYPE
-       print *, 'Must be one of: ', Starr, GoffGratch, MurphyKoop
-       stop 999
+       error stop 'Bad argument to MAPL_EQsatSET: Formulation must be one of MAPL_UseStarrQsat, MAPL_UseGoffGratchQsat, or MAPL_UseMurphyKoopQsat'
     end if
 
 ! Set the formulation dependent limits
@@ -272,8 +272,6 @@ contains
     allocate(ESTBLX(TABLESIZE))
 
     call ESINIT
-
-    return
 
   contains
 !=======================================================================================
@@ -488,7 +486,6 @@ contains
       end if
    end if
 
-    return
   end function QSAT0
 
 #undef  KIND_
@@ -539,7 +536,6 @@ contains
       end if
    end if
 
-    return
   end function QSATD0
 
 #undef  DX
@@ -603,7 +599,6 @@ contains
       end if
     end do
 
-    return
   end function QSAT1
 
 #undef  KIND_
@@ -657,7 +652,6 @@ contains
       end if
     end do
 
-    return
   end function QSATD1
 
 #undef  DX
@@ -723,7 +717,6 @@ contains
        end do
     end do
 
-    return
   end function QSAT2
 
 #undef  KIND_
@@ -779,7 +772,6 @@ contains
        end do
     end do
 
-    return
   end function QSATD2
 
 #undef  DX
@@ -847,7 +839,6 @@ contains
        end do
     end do
 
-    return
   end function QSAT3
 
 #undef  KIND_
@@ -905,7 +896,6 @@ contains
        end do
     end do
 
-    return
   end function QSATD3
 
 #undef  DX
