@@ -4,7 +4,7 @@
 
 !BOP
 
-! !MODULE: MAPL_Comms -- A Module to parallel comunications until ESMF fully supports it
+! !MODULE: mapl_Comms -- A Module to parallel comunications until ESMF fully supports it
 
 
 ! !INTERFACE:
@@ -21,33 +21,33 @@ module MAPL_CommsMod
   implicit none
   private
 
-  public MAPL_CommsBcast
-  public MAPL_CommsScatterV
-  public MAPL_CommsGatherV
-  public MAPL_CommsAllGather
-  public MAPL_CommsAllGatherV
-  public MAPL_CommsAllReduceMin
-  public MAPL_CommsAllReduceMax
-  public MAPL_CommsAllReduceSum
-  public MAPL_CommsSend
-  public MAPL_CommsRecv
-  public MAPL_CommsSendRecv
-  public MAPL_AM_I_ROOT
-  public MAPL_AM_I_RANK
-  public MAPL_NPES
+  public mapl_CommsBcast
+  public mapl_CommsScatterV
+  public mapl_CommsGatherV
+  public mapl_CommsAllGather
+  public mapl_CommsAllGatherV
+  public mapl_CommsAllReduceMin
+  public mapl_CommsAllReduceMax
+  public mapl_CommsAllReduceSum
+  public mapl_CommsSend
+  public mapl_CommsRecv
+  public mapl_CommsSendRecv
+  public mapl_AM_I_ROOT
+  public mapl_AM_I_RANK
+  public mapl_NPES
   public ArrayGather
   public ArrayScatter
-  public MAPL_root
+  public mapl_root
 
-  public MAPL_CreateRequest
-  public MAPL_CommRequest
-  public MAPL_ArrayIGather
-  public MAPL_ArrayIScatter
-  public MAPL_CollectiveWait
-  public MAPL_CollectiveScatter3D
-  public MAPL_CollectiveGather3D
-  public MAPL_RoundRobinPEList
-  public MAPL_BcastShared
+  public mapl_CreateRequest
+  public mapl_CommRequest
+  public mapl_ArrayIGather
+  public mapl_ArrayIScatter
+  public mapl_CollectiveWait
+  public mapl_CollectiveScatter3D
+  public mapl_CollectiveGather3D
+  public mapl_RoundRobinPEList
+  public mapl_BcastShared
 
   type ArrPtr
      real, pointer :: A(:,:)
@@ -55,7 +55,7 @@ module MAPL_CommsMod
 
   public ArrPtr
 
-  type MAPL_CommRequest
+  type mapl_CommRequest
      integer, pointer :: i1(:),in(:),j1(:),jn(:),im(:),jm(:)
      integer          :: im_world, jm_world, im0, jm0
      integer, pointer :: recv(:)=>null()
@@ -71,153 +71,153 @@ module MAPL_CommsMod
      logical          :: IsPrePosted
      integer          :: RequestType=MAPL_Unknown
      integer          :: tag, s_rqst
-  end type MAPL_CommRequest
+  end type mapl_CommRequest
 
-  interface MAPL_Am_I_Root
-     module procedure MAPL_Am_I_Root_Layout
-     module procedure MAPL_Am_I_Root_Vm
+  interface mapl_Am_I_Root
+     module procedure mapl_Am_I_Root_Layout
+     module procedure mapl_Am_I_Root_Vm
   end interface
 
-  interface MAPL_Am_I_Rank
-     module procedure MAPL_Am_I_Rank_Only
-     module procedure MAPL_Am_I_Rank_Layout
-     module procedure MAPL_Am_I_Rank_Vm
+  interface mapl_Am_I_Rank
+     module procedure mapl_Am_I_Rank_Only
+     module procedure mapl_Am_I_Rank_Layout
+     module procedure mapl_Am_I_Rank_Vm
   end interface
 
-  interface MAPL_NPES
-     module procedure MAPL_NPES_Layout
-     module procedure MAPL_NPES_Vm
+  interface mapl_NPES
+     module procedure mapl_NPES_Layout
+     module procedure mapl_NPES_Vm
   end interface
 
-  interface MAPL_CommsBcast
-     module procedure MAPL_CommsBcast_STRING_0
-     module procedure MAPL_CommsBcast_L4_0
-     module procedure MAPL_CommsBcast_I4_0
-     module procedure MAPL_CommsBcast_R4_0
-     module procedure MAPL_CommsBcast_R8_0
-     module procedure MAPL_CommsBcast_I4_1
-     module procedure MAPL_CommsBcast_R4_1
-     module procedure MAPL_CommsBcast_R8_1
-     module procedure MAPL_CommsBcast_I4_2
-     module procedure MAPL_CommsBcast_R4_2
-     module procedure MAPL_CommsBcast_R8_2
-     module procedure MAPL_CommsBcastVm_STRING_0
-     module procedure MAPL_CommsBcastVm_L4_0
-     module procedure MAPL_CommsBcastVm_I4_0
-     module procedure MAPL_CommsBcastVm_R4_0
-     module procedure MAPL_CommsBcastVm_R8_0
-     module procedure MAPL_CommsBcastVm_I4_1
-     module procedure MAPL_CommsBcastVm_R4_1
-     module procedure MAPL_CommsBcastVm_R8_1
-     module procedure MAPL_CommsBcastVm_I4_2
-     module procedure MAPL_CommsBcastVm_R4_2
-     module procedure MAPL_CommsBcastVm_R8_2
+  interface mapl_CommsBcast
+     module procedure mapl_CommsBcast_STRING_0
+     module procedure mapl_CommsBcast_L4_0
+     module procedure mapl_CommsBcast_I4_0
+     module procedure mapl_CommsBcast_R4_0
+     module procedure mapl_CommsBcast_R8_0
+     module procedure mapl_CommsBcast_I4_1
+     module procedure mapl_CommsBcast_R4_1
+     module procedure mapl_CommsBcast_R8_1
+     module procedure mapl_CommsBcast_I4_2
+     module procedure mapl_CommsBcast_R4_2
+     module procedure mapl_CommsBcast_R8_2
+     module procedure mapl_CommsBcastVm_STRING_0
+     module procedure mapl_CommsBcastVm_L4_0
+     module procedure mapl_CommsBcastVm_I4_0
+     module procedure mapl_CommsBcastVm_R4_0
+     module procedure mapl_CommsBcastVm_R8_0
+     module procedure mapl_CommsBcastVm_I4_1
+     module procedure mapl_CommsBcastVm_R4_1
+     module procedure mapl_CommsBcastVm_R8_1
+     module procedure mapl_CommsBcastVm_I4_2
+     module procedure mapl_CommsBcastVm_R4_2
+     module procedure mapl_CommsBcastVm_R8_2
   end interface
 
-  interface MAPL_BcastShared
-     module procedure MAPL_BcastShared_1DR4
-     module procedure MAPL_BcastShared_1DR8
-     module procedure MAPL_BcastShared_2DI4     
-     module procedure MAPL_BcastShared_2DR4
-     module procedure MAPL_BcastShared_2DR8     
+  interface mapl_BcastShared
+     module procedure mapl_BcastShared_1DR4
+     module procedure mapl_BcastShared_1DR8
+     module procedure mapl_BcastShared_2DI4     
+     module procedure mapl_BcastShared_2DR4
+     module procedure mapl_BcastShared_2DR8     
   end interface
 
-  interface MAPL_CommsScatterV
-     module procedure MAPL_CommsScatterV_I4_1
-     module procedure MAPL_CommsScatterV_R4_1
-     module procedure MAPL_CommsScatterV_R4_2
-     module procedure MAPL_CommsScatterV_R8_1
-     module procedure MAPL_CommsScatterV_R8_2
+  interface mapl_CommsScatterV
+     module procedure mapl_CommsScatterV_I4_1
+     module procedure mapl_CommsScatterV_R4_1
+     module procedure mapl_CommsScatterV_R4_2
+     module procedure mapl_CommsScatterV_R8_1
+     module procedure mapl_CommsScatterV_R8_2
   end interface
 
-  interface MAPL_CommsGatherV
-     module procedure MAPL_CommsGatherV_I4_1
-     module procedure MAPL_CommsGatherV_R4_1
-     module procedure MAPL_CommsGatherV_R4_2
-     module procedure MAPL_CommsGatherV_R8_1
-     module procedure MAPL_CommsGatherV_R8_2
+  interface mapl_CommsGatherV
+     module procedure mapl_CommsGatherV_I4_1
+     module procedure mapl_CommsGatherV_R4_1
+     module procedure mapl_CommsGatherV_R4_2
+     module procedure mapl_CommsGatherV_R8_1
+     module procedure mapl_CommsGatherV_R8_2
   end interface
 
-  interface MAPL_CommsAllGather
-     module procedure MAPL_CommsAllGather_I4_1
-     module procedure MAPL_CommsAllGather_L4_1
+  interface mapl_CommsAllGather
+     module procedure mapl_CommsAllGather_I4_1
+     module procedure mapl_CommsAllGather_L4_1
   end interface
 
-  interface MAPL_ArrayIGather
-     module procedure MAPL_ArrayIGather_R4_2
+  interface mapl_ArrayIGather
+     module procedure mapl_ArrayIGather_R4_2
   end interface
 
-  interface MAPL_ArrayIScatter
-     module procedure MAPL_ArrayIScatter_R4_2
+  interface mapl_ArrayIScatter
+     module procedure mapl_ArrayIScatter_R4_2
   end interface
 
-  interface MAPL_CommsAllGatherV
-     module procedure MAPL_CommsAllGatherV_I4_1
-     module procedure MAPL_CommsAllGatherV_R4_1
-     module procedure MAPL_CommsAllGatherV_R8_1
+  interface mapl_CommsAllGatherV
+     module procedure mapl_CommsAllGatherV_I4_1
+     module procedure mapl_CommsAllGatherV_R4_1
+     module procedure mapl_CommsAllGatherV_R8_1
   end interface
 
-  interface MAPL_CommsAllReduceMin
-     module procedure MAPL_CommsAllReduceMin_I4_0
-     module procedure MAPL_CommsAllReduceMin_R4_0
-     module procedure MAPL_CommsAllReduceMin_R8_0
-     module procedure MAPL_CommsAllReduceMin_I4_1
-     module procedure MAPL_CommsAllReduceMin_R4_1
-     module procedure MAPL_CommsAllReduceMin_R8_1
-     module procedure MAPL_CommsAllReduceMin_I4_2
-     module procedure MAPL_CommsAllReduceMin_R4_2
-     module procedure MAPL_CommsAllReduceMin_R8_2
+  interface mapl_CommsAllReduceMin
+     module procedure mapl_CommsAllReduceMin_I4_0
+     module procedure mapl_CommsAllReduceMin_R4_0
+     module procedure mapl_CommsAllReduceMin_R8_0
+     module procedure mapl_CommsAllReduceMin_I4_1
+     module procedure mapl_CommsAllReduceMin_R4_1
+     module procedure mapl_CommsAllReduceMin_R8_1
+     module procedure mapl_CommsAllReduceMin_I4_2
+     module procedure mapl_CommsAllReduceMin_R4_2
+     module procedure mapl_CommsAllReduceMin_R8_2
   end interface
 
-  interface MAPL_CommsAllReduceMax
-     module procedure MAPL_CommsAllReduceMax_I4_0
-     module procedure MAPL_CommsAllReduceMax_R4_0
-     module procedure MAPL_CommsAllReduceMax_R8_0
-     module procedure MAPL_CommsAllReduceMax_I4_1
-     module procedure MAPL_CommsAllReduceMax_R4_1
-     module procedure MAPL_CommsAllReduceMax_R8_1
-     module procedure MAPL_CommsAllReduceMax_I4_2
-     module procedure MAPL_CommsAllReduceMax_R4_2
-     module procedure MAPL_CommsAllReduceMax_R8_2
+  interface mapl_CommsAllReduceMax
+     module procedure mapl_CommsAllReduceMax_I4_0
+     module procedure mapl_CommsAllReduceMax_R4_0
+     module procedure mapl_CommsAllReduceMax_R8_0
+     module procedure mapl_CommsAllReduceMax_I4_1
+     module procedure mapl_CommsAllReduceMax_R4_1
+     module procedure mapl_CommsAllReduceMax_R8_1
+     module procedure mapl_CommsAllReduceMax_I4_2
+     module procedure mapl_CommsAllReduceMax_R4_2
+     module procedure mapl_CommsAllReduceMax_R8_2
   end interface
 
-  interface MAPL_CommsAllReduceSum
-     module procedure MAPL_CommsAllReduceSum_I4_0
-     module procedure MAPL_CommsAllReduceSum_R4_0
-     module procedure MAPL_CommsAllReduceSum_R8_0
-     module procedure MAPL_CommsAllReduceSum_I4_1
-     module procedure MAPL_CommsAllReduceSum_R4_1
-     module procedure MAPL_CommsAllReduceSum_R8_1
-     module procedure MAPL_CommsAllReduceSum_I4_2
-     module procedure MAPL_CommsAllReduceSum_R4_2
-     module procedure MAPL_CommsAllReduceSum_R8_2
+  interface mapl_CommsAllReduceSum
+     module procedure mapl_CommsAllReduceSum_I4_0
+     module procedure mapl_CommsAllReduceSum_R4_0
+     module procedure mapl_CommsAllReduceSum_R8_0
+     module procedure mapl_CommsAllReduceSum_I4_1
+     module procedure mapl_CommsAllReduceSum_R4_1
+     module procedure mapl_CommsAllReduceSum_R8_1
+     module procedure mapl_CommsAllReduceSum_I4_2
+     module procedure mapl_CommsAllReduceSum_R4_2
+     module procedure mapl_CommsAllReduceSum_R8_2
   end interface
 
-  interface MAPL_CommsSend
-     module procedure MAPL_CommsSend_I4_0
-     module procedure MAPL_CommsSend_I4_1
-     module procedure MAPL_CommsSend_R4_1
-     module procedure MAPL_CommsSend_R4_2
-     module procedure MAPL_CommsSend_R8_1
-     module procedure MAPL_CommsSend_R8_2
+  interface mapl_CommsSend
+     module procedure mapl_CommsSend_I4_0
+     module procedure mapl_CommsSend_I4_1
+     module procedure mapl_CommsSend_R4_1
+     module procedure mapl_CommsSend_R4_2
+     module procedure mapl_CommsSend_R8_1
+     module procedure mapl_CommsSend_R8_2
   end interface
 
-  interface MAPL_CommsRecv
-     module procedure MAPL_CommsRecv_I4_0
-     module procedure MAPL_CommsRecv_I4_1
-     module procedure MAPL_CommsRecv_R4_1
-     module procedure MAPL_CommsRecv_R4_2
-     module procedure MAPL_CommsRecv_R8_1
-     module procedure MAPL_CommsRecv_R8_2
+  interface mapl_CommsRecv
+     module procedure mapl_CommsRecv_I4_0
+     module procedure mapl_CommsRecv_I4_1
+     module procedure mapl_CommsRecv_R4_1
+     module procedure mapl_CommsRecv_R4_2
+     module procedure mapl_CommsRecv_R8_1
+     module procedure mapl_CommsRecv_R8_2
   end interface
 
-  interface MAPL_CommsSendRecv
-     module procedure MAPL_CommsSendRecv_I4_0
-     module procedure MAPL_CommsSendRecv_R4_0
-     module procedure MAPL_CommsSendRecv_R4_1
-     module procedure MAPL_CommsSendRecv_R4_2
-     module procedure MAPL_CommsSendRecv_R8_1
-     module procedure MAPL_CommsSendRecv_R8_2
+  interface mapl_CommsSendRecv
+     module procedure mapl_CommsSendRecv_I4_0
+     module procedure mapl_CommsSendRecv_R4_0
+     module procedure mapl_CommsSendRecv_R4_1
+     module procedure mapl_CommsSendRecv_R4_2
+     module procedure mapl_CommsSendRecv_R8_1
+     module procedure mapl_CommsSendRecv_R8_2
   end interface
 
   interface ArrayScatter
@@ -239,7 +239,7 @@ module MAPL_CommsMod
      module procedure ArrayGatherRcvCnt_R4_1
   end interface
 
-  integer, parameter :: MAPL_root=0
+  integer, parameter :: MAPL_ROOT=0
   integer, parameter :: msg_tag=11
 
   contains
@@ -249,28 +249,28 @@ module MAPL_CommsMod
 !---------------------------
 !---------------------------
 !---------------------------
-  function MAPL_Am_I_Root_Vm(VM) result(R)
+  function mapl_Am_I_Root_Vm(VM) result(R)
     type (ESMF_VM), optional :: VM
     logical                  :: R
 
     if (present(VM)) then
-       R = MAPL_Am_I_Rank(VM)
+       R = mapl_Am_I_Rank(VM)
     else
-       R = MAPL_Am_I_Rank()
+       R = mapl_Am_I_Rank()
     end if
 
-  end function MAPL_Am_I_Root_Vm
+  end function mapl_Am_I_Root_Vm
 
-  function MAPL_Am_I_Root_Layout(layout) result(R)
+  function mapl_Am_I_Root_Layout(layout) result(R)
     type (ESMF_DELayout) :: layout
     logical              :: R
 
-    R = MAPL_Am_I_Rank(layout)
+    R = mapl_Am_I_Rank(layout)
 
-  end function MAPL_Am_I_Root_Layout
+  end function mapl_Am_I_Root_Layout
 
 
-  function MAPL_Am_I_Rank_Vm(VM, rank) result(R)
+  function mapl_Am_I_Rank_Vm(VM, rank) result(R)
     type (ESMF_VM)    :: VM
     integer, optional :: rank
     logical           :: R
@@ -279,16 +279,16 @@ module MAPL_CommsMod
     integer        :: status
     integer        :: rank_
 
-    rank_ = MAPL_Root
+    rank_ = mapl_Root
     if (present(rank)) rank_ = rank
 
     call ESMF_VMGet(VM, localPet=deId, rc=status)
     R = .false.
     if (deId == rank_) R = .true.
 
-  end function MAPL_Am_I_Rank_Vm
+  end function mapl_Am_I_Rank_Vm
 
-  function MAPL_Am_I_Rank_Layout(layout, rank) result(R)
+  function mapl_Am_I_Rank_Layout(layout, rank) result(R)
     type (ESMF_DELayout) :: layout
     integer, optional    :: rank
     logical              :: R
@@ -299,14 +299,14 @@ module MAPL_CommsMod
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
 
     if (present(rank)) then
-        R = MAPL_Am_I_Rank(vm, rank)
+        R = mapl_Am_I_Rank(vm, rank)
     else
-        R = MAPL_Am_I_Rank(vm)
+        R = mapl_Am_I_Rank(vm)
     end if
 
-  end function MAPL_Am_I_Rank_Layout
+  end function mapl_Am_I_Rank_Layout
 
-  function MAPL_Am_I_Rank_Only(rank) result(R)
+  function mapl_Am_I_Rank_Only(rank) result(R)
     integer, optional :: rank
     logical           :: R
 
@@ -315,19 +315,19 @@ module MAPL_CommsMod
 
     call ESMF_VMGetCurrent(vm, rc=status)
     if (present(rank)) then
-       R = MAPL_Am_I_Rank(vm, rank)
+       R = mapl_Am_I_Rank(vm, rank)
     else
-       R = MAPL_Am_I_Rank(vm)
+       R = mapl_Am_I_Rank(vm)
     end if
 
   end function
 
 
-  subroutine MAPL_CreateRequest(grid, Root, request, tag, RequestType, &
+  subroutine mapl_CreateRequest(grid, Root, request, tag, RequestType, &
                                 DstArray, PrePost, hw, rc)
     type (ESMF_Grid),        intent(IN   ) :: grid
     integer,                 intent(IN   ) :: Root
-    type (MAPL_CommRequest), intent(INOUT) :: request
+    type (mapl_CommRequest), intent(INOUT) :: request
     integer,                 intent(IN   ) :: tag, RequestType
     real, target, optional,  intent(IN   ) :: DstArray(:,:)
     logical,      optional,  intent(IN   ) :: PrePost
@@ -513,13 +513,13 @@ module MAPL_CommsMod
     end if POST_REQUEST
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_CreateRequest
+  end subroutine mapl_CreateRequest
 
 !===================================================================
 
-  subroutine MAPL_ArrayIGather_R4_2(local_array, request, rc)
+  subroutine mapl_ArrayIGather_R4_2(local_array, request, rc)
     real,                    intent(IN   ) :: local_array (:,:)
-    type (MAPL_CommRequest), intent(INOUT) :: request
+    type (mapl_CommRequest), intent(INOUT) :: request
     integer, optional,       intent(  OUT) :: rc
 
 ! Local variables
@@ -550,13 +550,13 @@ module MAPL_CommsMod
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_ArrayIGather_R4_2
+  end subroutine mapl_ArrayIGather_R4_2
 
 !===================================================================
 
-  subroutine MAPL_ArrayIScatter_R4_2(global_array, request, hw, rc)
+  subroutine mapl_ArrayIScatter_R4_2(global_array, request, hw, rc)
     real,                    intent(IN   ) :: global_array (:,:)
-    type (MAPL_CommRequest), intent(INOUT) :: request
+    type (mapl_CommRequest), intent(INOUT) :: request
     integer, optional,       intent(   IN) :: hw
     integer, optional,       intent(  OUT) :: rc
 
@@ -622,12 +622,12 @@ module MAPL_CommsMod
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_ArrayIScatter_R4_2
+  end subroutine mapl_ArrayIScatter_R4_2
 
 !=========================================================
 
-  subroutine MAPL_CollectiveWait(request, DstArray, rc)
-    type (MAPL_COMMRequest), intent(INOUT) :: request
+  subroutine mapl_CollectiveWait(request, DstArray, rc)
+    type (mapl_COMMRequest), intent(INOUT) :: request
     real, pointer, optional                :: DstArray(:,:)
     integer, optional,       intent(  OUT) :: rc
 
@@ -726,14 +726,14 @@ module MAPL_CommsMod
     request%active = .false.
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_CollectiveWait
+  end subroutine mapl_CollectiveWait
 
 !---------------------------
 !---------------------------
 !---------------------------
 
 
-  subroutine MAPL_CollectiveGather3D(Grid, LocArray, GlobArray, &
+  subroutine mapl_CollectiveGather3D(Grid, LocArray, GlobArray, &
                                      CoresPerNode, rc)
 
     type (ESMF_Grid),        intent(INout) :: Grid
@@ -748,7 +748,7 @@ module MAPL_CommsMod
     integer                       :: status
 
 
-    type (MAPL_CommRequest)       :: reqs(size(LocArray,3))
+    type (mapl_CommRequest)       :: reqs(size(LocArray,3))
     integer                       :: root(size(LocArray,3))
     integer                       :: Nnodes
     integer                       :: nn
@@ -771,7 +771,7 @@ module MAPL_CommsMod
     LM     = size(LocArray,3)
 
     nNodes = size(MAPL_NodeRankList)
-    call MAPL_RoundRobinPEList(Root, nNodes, RC=STATUS)
+    call mapl_RoundRobinPEList(Root, nNodes, RC=STATUS)
     _VERIFY(STATUS)
 
     if(any(root==mype)) then
@@ -792,13 +792,13 @@ module MAPL_CommsMod
     do L=1,LM
        if(root(L) == mype) then
           nn = nn + 1
-          call MAPL_CreateRequest(GRID, Root(L), reqs(L), tag=L,    &
+          call mapl_CreateRequest(GRID, Root(L), reqs(L), tag=L,    &
                                RequestType=MAPL_IsGather,           &
                                DstArray=GlobArray(:,:,nn),          &
                                PrePost=.true.,             RC=STATUS)
           _VERIFY(STATUS)
        else
-          call MAPL_CreateRequest(GRID, Root(L), reqs(L), tag=L,    &
+          call mapl_CreateRequest(GRID, Root(L), reqs(L), tag=L,    &
                                RequestType=MAPL_IsGather,           &
                                DstArray=GlobArray(:,:,1),           &
                                PrePost=.true.,             RC=STATUS)
@@ -807,21 +807,21 @@ module MAPL_CommsMod
     enddo  ! Do not fuse with next
 
     do L=1,LM
-       call MAPL_ArrayIGather (LocArray(:,:,L), reqs(L),  RC=STATUS)
+       call mapl_ArrayIGather (LocArray(:,:,L), reqs(L),  RC=STATUS)
        _VERIFY(STATUS)
     enddo  ! Do not fuse with next
 
     do L=1,LM
-       call MAPL_CollectiveWait(reqs(L), rc=status)
+       call mapl_CollectiveWait(reqs(L), rc=status)
        _VERIFY(STATUS)
     end do
 
     _RETURN(ESMF_SUCCESS)
      _UNUSED_DUMMY(corespernode)
- end subroutine MAPL_CollectiveGather3D
+ end subroutine mapl_CollectiveGather3D
 
 
-  subroutine MAPL_CollectiveScatter3D(Grid, GlobArray, LocArray, hw, rc)
+  subroutine mapl_CollectiveScatter3D(Grid, GlobArray, LocArray, hw, rc)
 
     type (ESMF_Grid),        intent(IN   ) :: Grid
     real, target,            intent(INOUT) :: LocArray(:,:,:)
@@ -835,7 +835,7 @@ module MAPL_CommsMod
     integer                       :: status
 
 
-    type (MAPL_CommRequest)       :: reqs(size(LocArray,3))
+    type (mapl_CommRequest)       :: reqs(size(LocArray,3))
     integer                       :: root(size(LocArray,3))
     integer                       :: nNodes
     integer                       :: LM, L, nc, npes, mype
@@ -860,7 +860,7 @@ module MAPL_CommsMod
     endif
 
     nNodes = size(MAPL_NodeRankList)
-    call MAPL_RoundRobinPEList(Root, nNodes, RC=STATUS)
+    call mapl_RoundRobinPEList(Root, nNodes, RC=STATUS)
     _VERIFY(STATUS)
 
     LM = size(LocArray,3)
@@ -869,7 +869,7 @@ module MAPL_CommsMod
     HaveGlobal = NC>0
 
     do L=1,LM
-       call MAPL_CreateRequest(GRID, Root(L), reqs(L), tag=L,       &
+       call mapl_CreateRequest(GRID, Root(L), reqs(L), tag=L,       &
                                RequestType=MAPL_IsScatter,          &
                                DstArray=LocArray(:,:,L),            &
                                PrePost=.true., hw=hw_, RC=STATUS)
@@ -884,7 +884,7 @@ module MAPL_CommsMod
           if(Root(L)==mype) then
 
              nn = nn + 1
-             call MAPL_ArrayIScatter (GlobArray(:,:,nn), reqs(L), hw=hw_, RC=STATUS)
+             call mapl_ArrayIScatter (GlobArray(:,:,nn), reqs(L), hw=hw_, RC=STATUS)
              _VERIFY(STATUS)
              if(nn==NC) exit
           endif
@@ -892,14 +892,14 @@ module MAPL_CommsMod
     end if
 
     do L=1,LM
-       call MAPL_CollectiveWait(reqs(L), rc=status)
+       call mapl_CollectiveWait(reqs(L), rc=status)
        _VERIFY(STATUS)
     end do
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_CollectiveScatter3D
+  end subroutine mapl_CollectiveScatter3D
 
-  subroutine MAPL_RoundRobinPEList(List,nNodes,Root,UseFirstRank,FirstRank,RC)
+  subroutine mapl_RoundRobinPEList(List,nNodes,Root,UseFirstRank,FirstRank,RC)
     integer,           intent(  OUT) :: List(:)
     integer,           intent(IN   ) :: nNodes
     integer, optional, intent(IN   ) :: Root
@@ -965,12 +965,12 @@ module MAPL_CommsMod
     deallocate(filled,nPerNode)
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_RoundRobinPEList
+  end subroutine mapl_RoundRobinPEList
 
 !---------------------------
 !---------------------------
 !---------------------------
-  function MAPL_NPES_Vm(VM) result(R)
+  function mapl_NPES_Vm(VM) result(R)
     type (ESMF_VM) :: VM
     integer        :: R
 
@@ -981,9 +981,9 @@ module MAPL_CommsMod
     R = petCnt
 
     return
-  end function MAPL_NPES_Vm
+  end function mapl_NPES_Vm
 
-  function MAPL_NPES_Layout(layout) result(R)
+  function mapl_NPES_Layout(layout) result(R)
     type (ESMF_DELayout), optional :: layout
     integer                        :: R
 
@@ -991,16 +991,16 @@ module MAPL_CommsMod
     type(ESMF_VM) :: vm
 
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    R = MAPL_NPES_Vm(vm)
+    R = mapl_NPES_Vm(vm)
 
     return
-  end function MAPL_NPES_Layout
+  end function mapl_NPES_Layout
 
 
 
 !--BCAST -----------------
 
-  subroutine MAPL_CommsBcast_STRING_0( layout, data, N, ROOT, RC)
+  subroutine mapl_CommsBcast_STRING_0( layout, data, N, ROOT, RC)
     type (ESMF_DELayout)                         :: layout
     character(len=*),   intent(INOUT)            :: data
 
@@ -1016,14 +1016,14 @@ module MAPL_CommsMod
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
     _VERIFY(STATUS)
 
-    call MAPL_CommsBcast(vm, data=data, N=N, Root=Root, RC=status)
+    call mapl_CommsBcast(vm, data=data, N=N, Root=Root, RC=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
 
-  END SUBROUTINE MAPL_CommsBcast_STRING_0
+  END SUBROUTINE mapl_CommsBcast_STRING_0
 
-  subroutine MAPL_CommsBcastVM_STRING_0( vm, data, N, ROOT,RC)
+  subroutine mapl_CommsBcastVM_STRING_0( vm, data, N, ROOT,RC)
     type (ESMF_VM)                               :: vm
     character(len=*),   intent(INOUT)            :: data
 
@@ -1059,9 +1059,9 @@ module MAPL_CommsMod
 
     _RETURN(ESMF_SUCCESS)
 
-  END SUBROUTINE MAPL_CommsBcastVM_STRING_0
+  END SUBROUTINE mapl_CommsBcastVM_STRING_0
 
-  subroutine MAPL_BcastShared_1DR4(VM, Data, N, Root, RootOnly, rc)
+  subroutine mapl_BcastShared_1DR4(VM, Data, N, Root, RootOnly, rc)
     type(ESMF_VM) :: VM
     real,    pointer,  intent(INOUT) :: Data(:)
     integer,           intent(IN   ) :: N
@@ -1078,7 +1078,7 @@ module MAPL_CommsMod
        if (RootOnly) then
           _RETURN(ESMF_SUCCESS)
        end if
-       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
+       call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
        _RETURN(STATUS)
     else
        call MAPL_SyncSharedMemory(RC=STATUS)
@@ -1091,9 +1091,9 @@ module MAPL_CommsMod
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_BcastShared_1DR4
+  end subroutine mapl_BcastShared_1DR4
 
-  subroutine MAPL_BcastShared_1DR8(VM, Data, N, Root, RootOnly, rc)
+  subroutine mapl_BcastShared_1DR8(VM, Data, N, Root, RootOnly, rc)
     type(ESMF_VM) :: VM
     real(kind=REAL64), pointer,  intent(INOUT) :: Data(:)
     integer,           intent(IN   ) :: N
@@ -1106,7 +1106,7 @@ module MAPL_CommsMod
        if (RootOnly) then
           _RETURN(ESMF_SUCCESS)
        end if
-       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
+       call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
     else
        call MAPL_SyncSharedMemory(_RC)
        call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
@@ -1115,9 +1115,9 @@ module MAPL_CommsMod
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_BcastShared_1DR8
+  end subroutine mapl_BcastShared_1DR8
 
-  subroutine MAPL_BcastShared_2DR4(VM, Data, N, Root, RootOnly, rc)
+  subroutine mapl_BcastShared_2DR4(VM, Data, N, Root, RootOnly, rc)
     type(ESMF_VM) :: VM
     real,    pointer,  intent(INOUT) :: Data(:,:)
     integer,           intent(IN   ) :: N
@@ -1134,7 +1134,7 @@ module MAPL_CommsMod
        if (RootOnly) then
           _RETURN(ESMF_SUCCESS)
        end if
-       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
+       call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
        _RETURN(STATUS)
     else
        call MAPL_SyncSharedMemory(RC=STATUS)
@@ -1147,10 +1147,10 @@ module MAPL_CommsMod
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_BcastShared_2DR4
+  end subroutine mapl_BcastShared_2DR4
 
 
-  subroutine MAPL_BcastShared_2DR8(VM, Data, N, Root, RootOnly, rc)
+  subroutine mapl_BcastShared_2DR8(VM, Data, N, Root, RootOnly, rc)
     type(ESMF_VM) :: VM
     real(kind=REAL64),  pointer,  intent(INOUT) :: Data(:,:)
     integer,           intent(IN   ) :: N
@@ -1163,7 +1163,7 @@ module MAPL_CommsMod
        if (RootOnly) then
           _RETURN(ESMF_SUCCESS)
        end if
-       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
+       call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
     else
        call MAPL_SyncSharedMemory(_RC)
        call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
@@ -1172,9 +1172,9 @@ module MAPL_CommsMod
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_BcastShared_2DR8
+  end subroutine mapl_BcastShared_2DR8
 
-  subroutine MAPL_BcastShared_2DI4(VM, Data, N, Root, RootOnly, rc)
+  subroutine mapl_BcastShared_2DI4(VM, Data, N, Root, RootOnly, rc)
     type(ESMF_VM) :: VM
     integer, pointer,  intent(INOUT) :: Data(:,:)
     integer,           intent(IN   ) :: N
@@ -1187,7 +1187,7 @@ module MAPL_CommsMod
        if (RootOnly) then
           _RETURN(ESMF_SUCCESS)
        end if
-       call MAPL_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
+       call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
     else
        call MAPL_SyncSharedMemory(_RC)
        call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
@@ -1196,7 +1196,7 @@ module MAPL_CommsMod
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_BcastShared_2DI4
+  end subroutine mapl_BcastShared_2DI4
   
 ! Rank 0
 !---------------------------
