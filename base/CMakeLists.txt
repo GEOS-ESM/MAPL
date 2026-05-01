@@ -20,8 +20,7 @@ set (srcs
   MAPL_NominalOrbitsMod.F90
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   ServerManager.F90 ApplicationSupport.F90
-  regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90
-  regex_F.c
+  StringTemplate.F90 MAPL_SphericalGeometry.F90
   c_mapl_locstream_F.c  getrss.c  memuse.c
   Base/Base_Base.F90 Base/Base_Base_implementation.F90
   TimeStringConversion.F90
