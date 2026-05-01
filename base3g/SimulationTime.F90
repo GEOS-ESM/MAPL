@@ -4,7 +4,7 @@
 ! of the clock in CapGridComp.
 
 module mapl_SimulationTime
-   use gFTL_StringUnlimitedMap, only: StringUnlimitedMap
+   use gFTL2_StringUnlimitedMap, only: StringUnlimitedMap
    use ESMF
    implicit none
    private
