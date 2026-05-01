@@ -11,6 +11,7 @@ set(srcs
   FieldBundleCopy.F90
   FieldBundleDestroy.F90
   FieldBundleGetPointer.F90
+  FieldBundleMatch.F90
 )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
@@ -24,7 +25,7 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.vertical_grid MAPL.field MAPL.shared MAPL.esmf_utils ESMF::ESMF
   TYPE SHARED
   )
-  
+
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()

@@ -1,9 +1,11 @@
 #include "MAPL.h"
 
 module MAPL_FieldPointerUtilities
+
    use ESMF
    use MAPL_ExceptionHandling
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated
+
    implicit none
    private
 
@@ -20,6 +22,7 @@ module MAPL_FieldPointerUtilities
    public :: FieldCopy
    public :: MAPL_FieldDestroy
    public :: FieldCopyBroadcast
+   public :: FieldSameData
 
    interface GetFieldsUndef
       module procedure GetFieldsUndef_r4
@@ -83,6 +86,10 @@ module MAPL_FieldPointerUtilities
    interface MAPL_FieldDestroy
       procedure destroy
    end interface
+
+   interface FieldSameData
+      procedure same_data
+   end interface FieldSameData
 
 contains
 
@@ -1143,5 +1150,24 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine check_typekind
+
+   function same_data(x, y, rc) result(match)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+      logical :: match
+
+      type(c_ptr) :: cptr_x, cptr_y
+      integer :: status
+
+      match = .false.
+      call FieldGetCptr(x, cptr_x, _RC)
+      call FieldGetCptr(y, cptr_y, _RC)
+      if (c_associated(cptr_x, cptr_y)) then
+         match = .true.
+      end if
+
+      _RETURN(_SUCCESS)
+   end function same_data
 
 end module MAPL_FieldPointerUtilities
