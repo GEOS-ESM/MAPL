@@ -24,10 +24,7 @@ module MAPL_CommsMod
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter, MAPL_UNDEF
   use MAPL_ExceptionHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
   use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
-  use mpi, only: MPI_BCAST, MPI_BYTE, MPI_INTEGER, MPI_IRECV, MPI_ISEND, &
-                 MPI_MAX, MPI_MIN, MPI_REAL, MPI_RECV, MPI_SEND, &
-                 MPI_SENDRECV, MPI_STATUS_IGNORE, MPI_STATUS_SIZE, &
-                 MPI_SUM, MPI_WAIT, MPI_DOUBLE_PRECISION, MPI_LOGICAL
+  use mpi
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
   private
