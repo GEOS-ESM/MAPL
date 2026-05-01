@@ -48,7 +48,7 @@ module MAPL_CommsMod
   public mapl_NPES
   public ArrayGather
   public ArrayScatter
-  public mapl_root
+  public MAPL_ROOT
 
   public mapl_CreateRequest
   public mapl_CommRequest

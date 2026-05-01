@@ -23,8 +23,7 @@
     integer                               :: status
     integer                               :: comm
 
-    call ESMF_VMGet(vm, mpiCommunicator=COMM, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_VMGet(vm, mpiCommunicator=COMM, _RC)
 
     call mpi_allreduce ( sendbuf, recvbuf, cnt, MPITYPE_, &
                          MPI_SUM, comm, status )

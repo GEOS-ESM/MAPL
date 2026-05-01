@@ -241,8 +241,7 @@
                   if (ORBIT%EOT) &
                     ET = ORBIT%ET(IDAYP1)*FAC + ORBIT%ET(IDAY)*(1.-FAC)
                else
-                  call GETIDAY(IDAY,TIME_,ORBIT,RC=STATUS)
-                  _VERIFY(STATUS)
+                  call GETIDAY(IDAY,TIME_,ORBIT, _RC)
 
                   ZS = ORBIT%ZS(IDAY)
                   ZC = ORBIT%ZC(IDAY)
@@ -331,8 +330,7 @@
 
        else ! Return Time-Interval-Mean present(INTV)
 
-         call ESMF_TimeIntervalGet (INTV, S_R8=SECS, rc=STATUS)
-         _VERIFY(STATUS)
+         call ESMF_TimeIntervalGet (INTV, S_R8=SECS, _RC)
 
          if(present(STEPSIZE)) then ! interval for integration
             NT = nint(SECS/STEPSIZE)
@@ -430,8 +428,7 @@
 
          if(present(DIST)) DIST = DIST/dble(NT)
 
-         call ESMF_ClockDestroy(myclock, rc=STATUS)
-         _VERIFY(STATUS)
+         call ESMF_ClockDestroy(myclock, _RC)
 
       endif MEAN_OR_INST
 

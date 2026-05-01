@@ -199,8 +199,7 @@
     deallocate(recvcounts, displs, AU, AL, stat=status)
     _VERIFY(STATUS)
 
-    call ESMF_VmBarrier(vm, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_VmBarrier(vm, _RC)
     _RETURN(ESMF_SUCCESS)
   end subroutine SUB_
 

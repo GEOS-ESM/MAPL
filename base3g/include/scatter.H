@@ -28,11 +28,9 @@
     type(ESMF_VM)                         :: vm
     integer                               :: comm
 
-    call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_DELayoutGet(layout, vm=vm, _RC)
 #if 1
-    call ESMF_VMGet(vm, mpiCommunicator = comm, rc=status)
-    _VERIFY(STATUS)
+    call ESMF_VMGet(vm, mpiCommunicator = comm, _RC)
 
     call mpi_scatterv( sendbuf, sendcnts, displs,  MPITYPE_, &
                        recvbuf, recvcnt, MPITYPE_,           &
