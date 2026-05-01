@@ -16,8 +16,8 @@ module MAPL_CommsMod
                   ESMF_Grid, ESMF_GridGet, &
                   ESMF_KIND_I4, ESMF_KIND_R4, ESMF_KIND_R8, &
                   ESMF_MAXSTR, ESMF_SUCCESS, &
-                  ESMF_VM, ESMF_VMGet, ESMF_VMGetCurrent, &
-                  ESMF_VmBarrier, ESMF_VmGet
+                  ESMF_VM, ESMF_VMGatherV, ESMF_VMGet, ESMF_VMGetCurrent, &
+                  ESMF_VMScatterV, ESMF_VmBarrier, ESMF_VmGet
   use MAPL_ShmemMod, only: MAPL_ShmInitialized, MAPL_SyncSharedMemory, &
                            MAPL_BroadcastToNodes, MAPL_NodeRankList, &
                            MAPL_GetNewRank
