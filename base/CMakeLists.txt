@@ -3,7 +3,7 @@ esma_set_this (OVERRIDE MAPL.base)
 set (srcs
   MAPL_Profiler.F90
   ESMFL_Mod.F90                         MAPL_SatVapor.F90
-  FileMetadataUtilities.F90             MAPL_SimpleAlarm.F90
+  FileMetadataUtilities.F90
   FileMetadataUtilitiesVector.F90       MAPL_SimpleBundleMod.F90
   MaplGrid.F90
   MAPL_stubs.F90
