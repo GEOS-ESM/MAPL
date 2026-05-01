@@ -8,6 +8,30 @@ from collections.abc import Sequence
 from functools import partial, reduce
 from operator import concat
 from re import compile
+from enum import Enum
+import logging
+import io
+
+# ESMF_TYPEKIND enum
+class TYPEKIND_Type:
+    __slots__=('type', 'kind', 'variable_type')
+    def __init__(self, ftype: str, kind: str):
+        self.type = ftype
+        self.kind = kind
+        self.variable_type = '{}(kind={})'.format(ftype, kind)
+    
+class ESMF_Typekind(TYPEKIND_Type, Enum):
+    R4 = ('real', 'ESMF_KIND_R4')
+    R8 = ('real', 'ESMF_KIND_R8')
+    I4 = ('integer', 'ESMF_KIND_I4')
+    I8 = ('integer', 'ESMF_KIND_I8')
+    ESMF_TYPEKIND_R4 = R4
+    ESMF_TYPEKIND_R8 = R8
+    ESMF_TYPEKIND_I4 = I4
+    ESMF_TYPEKIND_I8 = I8
+
+    def __str__(self):
+        return self.variable_type
 
 ################################# CONSTANTS ####################################
 # str constants internal to script
@@ -44,7 +68,8 @@ GC_ARGNAME = 'gridcomp'
 GET = 'get'
 MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
-MAPPED = 'mapped'
+KIND = 'kind'
+MAPPED = 'mapped' 
 MAPPING = 'mapping'
 MISSING_MANDATORY = 'missing_mandatory'
 NONES = 'nones'
@@ -55,6 +80,7 @@ SPEC_ALIASES = 'spec_aliases'
 STORE = 'store'
 STRING = 'string'
 STRLOGICAL = 'strlogical'
+TYPE = 'type'
 VALUES_NOT_FOUND = 'values_not_found'
 
 # These are column names. A few are "special" column names used internally.
@@ -273,7 +299,7 @@ def emit_declare_pointers(specs, states=None):
         try:
             declaration = emit_declare_pointer(spec)
         except RuntimeError as ex:
-            raise RuntimeError(f'Error pointer declaration for spec {spec}: {str(ex)')
+            raise RuntimeError(f'Error pointer declaration for spec {spec}: {str(ex)}')
         declarations.append(declaration)
     return DECLARE, declarations
 
@@ -281,13 +307,12 @@ def emit_declare_pointer(spec):
     """Emit individual pointer declartion."""
     # get fortran type and kind of pointer
     typekind = spec.get(TYPEKIND, DEFAULT_TYPEKIND)
-    try:
-        ftypekind = fortran_type_esmf_kind(typekind)
-    except RuntimeError as ex:
-        raise RuntimeError(f'Error in pointer declaration for typekind {typekind}: {str(ex)}')
+    if not hasattr(ESMF_Typekind, typekind):
+        raise RuntimeError(f'Unsupported typekind: {typekind}')
+    ftypekind = "{}, pointer".format(str(ESMF_Typekind[typekind]))
     # pointer variable
     var = f'{spec[INTERNAL_NAME]}({DIMDELIM.join(DIMSTR*spec[RANK])})'
-    return ' :: '.join([ftypekind, var])
+    return f'{ftypekind} :: {var}'
 
 def emit_get_pointers(specs, states=None):
     """Emit pointer get statements from an Iterable of spec instances."""
@@ -543,7 +568,10 @@ def emit_values(specs, options):
     # Emit all get_pointer calls and pointer declartions.
     emitters = {DECLARE: emit_declare_pointers, GET: emit_get_pointers}
     for key in set(emitters) & set(args):
-        _, emitted = emitters[key](specs, states)
+        try:
+            _, emitted = emitters[key](specs, states)
+        except Exception as ex:
+            raise RuntimeError
         with open_file(component, args[key], key, 'pointer') as f:
             f.writelines(add_newlines(emitted))
 
@@ -587,21 +615,6 @@ def compute_rank(dims, ungridded):
             return None
         extra_rank = r0
     return base_rank + extra_rank
-
-def fortran_type_esmf_kind(typekind):
-    match (typekind.upper() if typekind else None):
-        case None:
-            raise RuntimeError('typekind has no value.')
-        case 'ESMF_TYPEKIND_R4':
-            return 'real(kind=ESMF_KIND_R4)'
-        case 'ESMF_TYPEKIND_R8':
-            return 'real(kind=ESMF_KIND_R8)'
-        case 'ESMF_TYPEKIND_I4':
-            return 'integer(kind=ESMF_KIND_I4)'
-        case 'ESMF_TYPEKIND_I8':
-            return 'integer(kind=ESMF_KIND_I4)'
-        case _:
-            raise RuntimeError('Unrecognized typekind: {}'.format(typekind))
 
 def header():
     """
@@ -739,7 +752,7 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
             return inner
 
 # Main Procedure (Added to facilitate testing.)
-def main():
+def main(logger):
     exit_code = ERROR
 
 # Process command line arguments
@@ -774,6 +787,12 @@ def main():
 #############################################
 
 if __name__ == "__main__":
-    main()
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.WARNING)
+    log_stream = io.StringIO()
+    streamHandler = logging.StreamHandler(log_stream)
+    logger.addHandler(streamHandler)
+    main(logger)
+    messages = log_stream.getvalue().splitlines()
 # FIN
     sys.exit(SUCCESS)
