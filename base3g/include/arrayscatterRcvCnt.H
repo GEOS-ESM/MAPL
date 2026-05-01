@@ -47,8 +47,7 @@
 
     _ASSERT(size(sendCounts) == nDEs, 'sendcounts must match nDEs')
 
-    allocate (displs(0:nDEs), stat=status)
-    _VERIFY(STATUS)
+    allocate (displs(0:nDEs), _STAT)
 
     displs(0) = 0
     do I = 1,nDEs
@@ -63,8 +62,7 @@
     call ESMF_VMScatterV(vm, global_array, sendcounts, displs, &
                          local_array, recvcount, srcDE, _RC)
 
-    deallocate(displs, stat=status)
-    _VERIFY(STATUS)
+    deallocate(displs, _STAT)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine SUB_

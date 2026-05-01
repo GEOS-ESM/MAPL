@@ -395,32 +395,22 @@ module MAPL_CommsMod
 
     call ESMF_GridGet(GRID, distGrid=distGrid, RC=STATUS); _VERIFY(STATUS)
 
-    allocate (AL(gridRank,0:nDEs-1), stat=STATUS)
-    _VERIFY(STATUS)
-    allocate (AU(gridRank,0:nDEs-1), stat=STATUS)
-    _VERIFY(STATUS)
+    allocate (AL(gridRank,0:nDEs-1), _STAT)
+    allocate (AU(gridRank,0:nDEs-1), _STAT)
 
     call ESMF_DistGridGet(distgrid, minIndexPDe=AL, maxIndexPDe=AU, RC=STATUS); _VERIFY(STATUS)
 
 ! Allocate space for request variables
 !-------------------------------------
 
-    allocate (request%i1(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
-    allocate (request%in(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
-    allocate (request%j1(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
-    allocate (request%jn(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
-    allocate (request%im(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
-    allocate (request%jm(0:nDEs-1),  stat=STATUS)
-    _VERIFY(STATUS)
-    allocate (request%RECV (0:nDEs-1         ),        stat=STATUS)
-    _VERIFY(STATUS)
-    allocate (request%SEND (0:nDEs-1         ),        stat=STATUS)
-    _VERIFY(STATUS)
+    allocate (request%i1(0:nDEs-1), _STAT)
+    allocate (request%in(0:nDEs-1), _STAT)
+    allocate (request%j1(0:nDEs-1), _STAT)
+    allocate (request%jn(0:nDEs-1), _STAT)
+    allocate (request%im(0:nDEs-1), _STAT)
+    allocate (request%jm(0:nDEs-1), _STAT)
+    allocate (request%RECV (0:nDEs-1         ), _STAT)
+    allocate (request%SEND (0:nDEs-1         ), _STAT)
 
 ! Fill the request variables
 !---------------------------
@@ -463,8 +453,7 @@ module MAPL_CommsMod
              request%DstArray => DstArray
              _ASSERT(all(shape(DstArray)==(/ request%IM_WORLD, request%JM_WORLD/)), 'inconsistent shape')
           else
-             allocate(request%DstArray(request%IM_WORLD, request%JM_WORLD),stat=STATUS)
-             _VERIFY(STATUS)
+             allocate(request%DstArray(request%IM_WORLD, request%JM_WORLD), _STAT)
           end if
        endif
     elseif(requestType==MAPL_IsScatter) then
@@ -472,8 +461,7 @@ module MAPL_CommsMod
           request%DstArray => DstArray
           _ASSERT(all(shape(DstArray)==(/ request%IM0     , request%JM0     /)), 'inconsistent shape')
        else
-          allocate(request%DstArray(request%IM0 , request%JM0 ),stat=STATUS)
-          _VERIFY(STATUS)
+          allocate(request%DstArray(request%IM0 , request%JM0 ), _STAT)
        end if
     else
        _FAIL( 'unsupported action')
@@ -483,14 +471,11 @@ module MAPL_CommsMod
 !-----------------------------------------------
 
     if(requestType==MAPL_IsGather .and. request%amRoot) then
-       allocate (request%Var(0:request%IM_WORLD*request%JM_WORLD-1),      stat=STATUS)
-       _VERIFY(STATUS)
+       allocate (request%Var(0:request%IM_WORLD*request%JM_WORLD-1), _STAT)
     elseif(requestType==MAPL_IsScatter) then
-       allocate (request%Var(0:request%IM0*request%JM0-1),      stat=STATUS)
-       _VERIFY(STATUS)
+       allocate (request%Var(0:request%IM0*request%JM0-1), _STAT)
     else
-       allocate (request%Var(1),      stat=STATUS)
-       _VERIFY(STATUS)
+       allocate (request%Var(1), _STAT)
     endif
 
 ! We also PrePost the request here
@@ -537,8 +522,7 @@ module MAPL_CommsMod
 
     integer  :: i1, in, j1, jn
 
-    allocate(request%local_array(size(LOCAL_ARRAY,1),size(LOCAL_ARRAY,2)), stat=STATUS)
-    _VERIFY(STATUS)
+    allocate(request%local_array(size(LOCAL_ARRAY,1),size(LOCAL_ARRAY,2)), _STAT)
 
 ! In senders, copy input to contiguous buffer for safety
 !-------------------------------------------------------
@@ -788,11 +772,9 @@ module MAPL_CommsMod
        dims(1:size(dims_alloc)) = dims_alloc
        _VERIFY(STATUS)
        nc = count(Root==mype)
-       allocate(GlobArray(dims(1),dims(2),nc),stat=STATUS)
-       _VERIFY(STATUS)
+       allocate(GlobArray(dims(1),dims(2),nc), _STAT)
     else
-       allocate(GlobArray(1,1,1)             ,stat=STATUS)
-       _VERIFY(STATUS)
+       allocate(GlobArray(1,1,1)             , _STAT)
     endif
 
     nn = 0
@@ -938,8 +920,7 @@ module MAPL_CommsMod
        lUseFirstRank=.true.
     end if
 
-    allocate(filled(nNodes),nPerNode(nNodes),stat=status)
-    _VERIFY(STATUS)
+    allocate(filled(nNodes),nPerNode(nNodes), _STAT)
     do i=1,nNodes
        nPerNode(i) = size(MAPL_NodeRankList(locRoot+i-1)%rank)
        if (lUseFirstRank) then

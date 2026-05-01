@@ -95,12 +95,9 @@
     call ESMF_DELayoutGet(layout, vm=vm, rc=status);_VERIFY(STATUS)
     call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_VERIFY(STATUS)
 
-    allocate (AL(gridRank,0:nDEs-1),  stat=status)
-    _VERIFY(STATUS)
-    allocate (AU(gridRank,0:nDEs-1),  stat=status)
-    _VERIFY(STATUS)
-    allocate (sendcounts(0:nDEs-1), stat=status)
-    _VERIFY(STATUS)
+    allocate (AL(gridRank,0:nDEs-1), _STAT)
+    allocate (AU(gridRank,0:nDEs-1), _STAT)
+    allocate (sendcounts(0:nDEs-1), _STAT)
     call ESMF_DistGridGet(distgrid, &
          minIndexPDe=AL, maxIndexPDe=AU, rc=status)
     _VERIFY(STATUS)
@@ -142,8 +139,7 @@
 
     if (deId == srcPE) then
 
-       allocate(DISPLS(0:nDEs          ), stat=status)
-       _VERIFY(STATUS)
+       allocate(DISPLS(0:nDEs          ), _STAT)
 
 ! Compute displacements into the VAR vector
 
@@ -162,8 +158,7 @@
        if (myhw > 0) then
           ISZ = size(GLOBAL_ARRAY,1)
           JSZ = size(GLOBAL_ARRAY,2)
-          allocate(myglob(1-myhw:isz+myhw,1-myhw:jsz+myhw), stat=status)
-          _VERIFY(STATUS)
+          allocate(myglob(1-myhw:isz+myhw,1-myhw:jsz+myhw), _STAT)
           myglob(1:isz,1:jsz) = GLOBAL_ARRAY
 
 ! Fill the halo (I is cyclic)
@@ -181,10 +176,8 @@
 
        if (present(mask)) then
           alloc_var = .true.
-          allocate(VAR(0:displs(nDEs)-1), stat=status)
-          _VERIFY(STATUS)
-          allocate(KK (0:nDEs-1        ), stat=status)
-          _VERIFY(STATUS)
+          allocate(VAR(0:displs(nDEs)-1), _STAT)
+          allocate(KK (0:nDEs-1        ), _STAT)
           KK = DISPLS(0:nDEs-1)
 
           do I=1,ISZ
@@ -201,8 +194,7 @@
              KK(MASK(I)) = KK(MASK(I)) + 1
           end do
 
-          deallocate(KK, stat=status)
-          _VERIFY(STATUS)
+          deallocate(KK, _STAT)
 
        else
 
@@ -211,8 +203,7 @@
           var => myglob
 #else
           alloc_var = .true.
-          allocate(VAR(0:displs(nDEs)-1), stat=status)
-          _VERIFY(STATUS)
+          allocate(VAR(0:displs(nDEs)-1), _STAT)
 
           if (gridRank == 1) then
              J1 = lbound(local_array,2)
@@ -239,16 +230,13 @@
        endif !  present(mask)
 
        if (myhw > 0) then
-          deallocate(myglob, stat=status)
-          _VERIFY(STATUS)
+          deallocate(myglob, _STAT)
        end if
 
      else
         alloc_var = .true.
-        allocate(var(0:1), stat=status)
-        _VERIFY(STATUS)
-        allocate(DISPLS(0:nDEs), stat=status)
-        _VERIFY(STATUS)
+        allocate(var(0:1), _STAT)
+        allocate(DISPLS(0:nDEs), _STAT)
      end if !  I am srcPEa
 
 
@@ -260,19 +248,14 @@
 
 ! Clean-up
 
-    deallocate(displs, stat=status)
-    _VERIFY(STATUS)
+    deallocate(displs, _STAT)
     if(alloc_var) then
-       deallocate(VAR, stat=status)
-       _VERIFY(STATUS)
+       deallocate(VAR, _STAT)
     end if
 
-    deallocate(sendcounts, stat=status)
-    _VERIFY(STATUS)
-    deallocate(AU,         stat=status)
-    _VERIFY(STATUS)
-    deallocate(AL,         stat=status)
-    _VERIFY(STATUS)
+    deallocate(sendcounts, _STAT)
+    deallocate(AU, _STAT)
+    deallocate(AL, _STAT)
 
 ! All done
 
