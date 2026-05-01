@@ -5,6 +5,7 @@ set(SRCS
   Test_FieldBundlesAreAliased.pf
   Test_FieldBundleDestroy.pf
   Test_FieldBundleGetPointer.pf
+  Test_FieldBundleMatch.pf
 )
 
 add_pfunit_ctest(MAPL.field_bundle.tests

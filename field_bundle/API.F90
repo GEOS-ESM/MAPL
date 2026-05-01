@@ -11,6 +11,7 @@ module mapl3g_FieldBundle_API
    use mapl3g_FieldBundleInfo, only: MAPL_FieldBundleInfoSetInternal => FieldBundleInfoSetInternal
    use mapl3g_FieldBundleGetPointer, only: MAPL_FieldBundleGetPointer => FieldBundleGetPointerToData
    use mapl3g_FieldBundleCopy, only: MAPL_FieldBundleCopy => FieldBundleCopy
+   use mapl3g_FieldBundleMatch, only: MAPL_FieldBundleSameData => FieldBundleSameData
 
    implicit none
 
@@ -24,6 +25,7 @@ module mapl3g_FieldBundle_API
    public :: MAPL_FieldBundleAdd
    public :: MAPL_FieldBundleGetPointer
    public :: MAPL_FieldBundleCopy
+   public :: MAPL_FieldBundleSameData
    ! Maybe these should be private?
    public :: MAPL_FieldBundleInfoGetInternal
    public :: MAPL_FieldBundleInfoSetInternal

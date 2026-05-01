@@ -1,0 +1,191 @@
+#include "MAPL_TestErr.h"
+module Test_FieldBundleMatch
+   use mapl3g_FieldBundleMatch, only: FieldBundleSameData
+   use esmf
+   use funit
+   use ESMF_TestMethod_mod
+   implicit none(type, external)
+
+   integer, parameter :: IM = 10
+
+contains
+
+   ! Two empty bundles have 0 fields each: counts match, loop is vacuous → true
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_empty_bundles_match(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle1, bundle2
+      logical :: match
+      integer :: status
+
+      bundle1 = ESMF_FieldBundleCreate(_RC)
+      bundle2 = ESMF_FieldBundleCreate(_RC)
+
+      match = FieldBundleSameData(bundle1, bundle2, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle1, _RC)
+      call ESMF_FieldBundleDestroy(bundle2, _RC)
+
+   end subroutine test_empty_bundles_match
+
+   ! A bundle aliased via ESMF_NamedAlias shares the same underlying field data
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_aliased_bundle_matches(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle, alias
+      logical :: match
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle, [field], _RC)
+
+      alias = ESMF_NamedAlias(bundle, name='alias', _RC)
+
+      match = FieldBundleSameData(bundle, alias, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+   end subroutine test_aliased_bundle_matches
+
+   ! Two independently allocated fields have different C pointers → false
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_independent_fields_no_match(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_FieldBundle) :: bundle1, bundle2
+      logical :: match
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      field1 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      field2 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+
+      bundle1 = ESMF_FieldBundleCreate(_RC)
+      bundle2 = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle1, [field1], _RC)
+      call ESMF_FieldBundleAdd(bundle2, [field2], _RC)
+
+      match = FieldBundleSameData(bundle1, bundle2, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_FieldBundleDestroy(bundle1, _RC)
+      call ESMF_FieldBundleDestroy(bundle2, _RC)
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+   end subroutine test_independent_fields_no_match
+
+   ! Different field counts trigger early return → false
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_count_mismatch_no_match(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: field1, field2, field3
+      type(ESMF_FieldBundle) :: bundle1, bundle2
+      logical :: match
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      field1 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      field2 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      field3 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+
+      bundle1 = ESMF_FieldBundleCreate(_RC)
+      bundle2 = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle1, [field1], _RC)
+      call ESMF_FieldBundleAdd(bundle2, [field2, field3], _RC)
+
+      match = FieldBundleSameData(bundle1, bundle2, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_FieldBundleDestroy(bundle1, _RC)
+      call ESMF_FieldBundleDestroy(bundle2, _RC)
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      call ESMF_FieldDestroy(field3, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+   end subroutine test_count_mismatch_no_match
+
+   ! Multi-field bundle aliased: all fields share the same data pointers → true
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_multi_field_alias_matches(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: field1, field2, field3
+      type(ESMF_FieldBundle) :: bundle, alias
+      logical :: match
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      field1 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      field2 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      field3 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle, [field1, field2, field3], _RC)
+
+      alias = ESMF_NamedAlias(bundle, name='alias', _RC)
+
+      match = FieldBundleSameData(bundle, alias, _RC)
+      @assert_that(match, is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      call ESMF_FieldDestroy(field3, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+   end subroutine test_multi_field_alias_matches
+
+   ! First field matches but second doesn't: loop exits early → false
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_partial_mismatch_no_match(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: shared_field, field_a, field_b
+      type(ESMF_FieldBundle) :: bundle1, bundle2
+      logical :: match
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      shared_field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      field_a = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+      field_b = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
+
+      bundle1 = ESMF_FieldBundleCreate(_RC)
+      bundle2 = ESMF_FieldBundleCreate(_RC)
+      ! First field is shared; second differs
+      call ESMF_FieldBundleAdd(bundle1, [shared_field, field_a], _RC)
+      call ESMF_FieldBundleAdd(bundle2, [shared_field, field_b], _RC)
+
+      match = FieldBundleSameData(bundle1, bundle2, _RC)
+      @assert_that(match, is(false()))
+
+      call ESMF_FieldBundleDestroy(bundle1, _RC)
+      call ESMF_FieldBundleDestroy(bundle2, _RC)
+      call ESMF_FieldDestroy(shared_field, _RC)
+      call ESMF_FieldDestroy(field_a, _RC)
+      call ESMF_FieldDestroy(field_b, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+   end subroutine test_partial_mismatch_no_match
+
+end module Test_FieldBundleMatch
