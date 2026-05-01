@@ -12,10 +12,7 @@ module MAPL
    use mapl3g_UngriddedDims, only: UngriddedDims
    use mapl3g_FieldBundle_API
    use MAPL_PythonBridge
-   use mapl_SimulationTime
-   use MAPL_CommsMod
-   use MAPL_SatVaporMod
-   use MAPL_StringTemplate
+   use mapl_base3g
    
 
    ! We use default PUBLIC to avoid explicitly listing exports from

@@ -1,0 +1,6 @@
+module mapl_base3g
+   use mapl_SimulationTime
+   use MAPL_CommsMod
+   use MAPL_SatVaporMod
+   use MAPL_StringTemplate
+end module mapl_base3g

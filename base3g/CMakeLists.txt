@@ -5,6 +5,7 @@ set (srcs
   MAPL_Comms.F90
   MAPL_SatVapor.F90
   StringTemplate.F90
+  API.F90
 )
 
 esma_add_library (${this}
