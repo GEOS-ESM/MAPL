@@ -13,6 +13,9 @@ module MAPL
    use mapl3g_FieldBundle_API
    use MAPL_PythonBridge
    use mapl_SimulationTime
+   use MAPL_CommsMod
+   use MAPL_SatVaporMod
+   use MAPL_StringTemplate
    
 
    ! We use default PUBLIC to avoid explicitly listing exports from

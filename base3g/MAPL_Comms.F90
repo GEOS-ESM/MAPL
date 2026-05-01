@@ -12,7 +12,6 @@
 module MAPL_CommsMod
 
   use ESMF
-  use MAPL_BaseMod
   use MAPL_ShmemMod
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter
   use MAPL_ExceptionHandling
