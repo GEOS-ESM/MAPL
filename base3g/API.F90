@@ -3,6 +3,6 @@ module mapl_base3g
    use MAPL_CommsMod
    use MAPL_SatVaporMod
    use MAPL_StringTemplate
-   implicit none(type,external)
+   implicit none
    private
 end module mapl_base3g
