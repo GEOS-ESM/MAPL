@@ -33,14 +33,11 @@ set (srcs
   # tstqsat.F90
   )
 
-# Add SimulationTime.F90 to srcs if we are building with pflogger
-if (BUILD_WITH_PFLOGGER)
-  list(APPEND srcs SimulationTime.F90)
-endif()
+# SimulationTime.F90 has been moved to base3g/
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.geom MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL.field udunits2f PFLOGGER::pflogger
+  DEPENDENCIES MAPL.geom MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL.field MAPL.base3g udunits2f PFLOGGER::pflogger
                GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED)

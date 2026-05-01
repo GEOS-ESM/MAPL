@@ -7,7 +7,7 @@ set (srcs
 
 esma_add_library (${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.generic3g MAPL.pfio MAPL.hconfig MAPL.vm MAPL.field MAPL.python_bridge ${EXTDATA_TARGET}
+  DEPENDENCIES MAPL.generic3g MAPL.pfio MAPL.hconfig MAPL.vm MAPL.field MAPL.python_bridge MAPL.base3g ${EXTDATA_TARGET}
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran PFLOGGER::pflogger
   TYPE SHARED
   )
