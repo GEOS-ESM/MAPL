@@ -162,7 +162,7 @@ module MAPL_SatVaporMod
   logical, save :: TableReady = .false.
 
   integer, save :: DEGSUBS    =  DEFAULT_SUBS ! subdivisions per deg K
-  integer, save :: TABLESIZE  =  nint(TMAXTBL-TMINTBL)*DEFAULT_SUBS + 1
+  integer, save :: TABLESIZE  =  int(TMAXTBL-TMINTBL)*DEFAULT_SUBS + 1
   real(kind=REAL64), save :: DELTA_T    =  1.0 / DEFAULT_SUBS
 
   real(kind=REAL64), save :: ESTFRZ
