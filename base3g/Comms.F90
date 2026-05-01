@@ -14,6 +14,7 @@ module MAPL_CommsMod
   use ESMF, only: ESMF_DELayout, ESMF_DELayoutGet, &
                   ESMF_DistGrid, ESMF_DistGridGet, &
                   ESMF_Grid, ESMF_GridGet, &
+                  ESMF_KIND_I4, ESMF_KIND_R4, ESMF_KIND_R8, &
                   ESMF_MAXSTR, ESMF_SUCCESS, &
                   ESMF_VM, ESMF_VMGet, ESMF_VMGetCurrent, &
                   ESMF_VmBarrier, ESMF_VmGet
