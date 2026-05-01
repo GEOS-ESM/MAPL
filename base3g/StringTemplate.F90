@@ -6,7 +6,7 @@ use MAPL_ExceptionHandling
 use MAPL_KeywordEnforcerMod
 
 
-implicit none(type,external)
+implicit none
 private
 
 public fill_grads_template

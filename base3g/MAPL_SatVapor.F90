@@ -40,7 +40,7 @@ module MAPL_SatVaporMod
 #endif
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 !
-  implicit none(type,external)
+  implicit none
   private
 !
 ! !PUBLIC MEMBER FUNCTIONS:

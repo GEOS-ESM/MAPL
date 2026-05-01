@@ -18,7 +18,7 @@ module MAPL_CommsMod
   use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
   use mpi
   use, intrinsic :: iso_fortran_env, only: REAL64
-  implicit none(type,external)
+  implicit none
   private
 
   public MAPL_CommsBcast
