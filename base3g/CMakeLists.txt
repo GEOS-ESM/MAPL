@@ -10,7 +10,7 @@ set (srcs
 
 esma_add_library (${this}
   SRCS ${srcs}
-  DEPENDENCIES ESMF::ESMF PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 MAPL.shared MPI::MPI_Fortran
+  DEPENDENCIES ESMF::ESMF PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 MAPL.shared MAPL.geom MPI::MPI_Fortran
   TYPE SHARED
 )
 

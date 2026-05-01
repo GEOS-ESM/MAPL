@@ -81,8 +81,8 @@
     allocate (AU(gridRank,0:nDEs-1),  stat=status)
     _VERIFY(STATUS)
 
-    call MAPL_DistGridGet(distgrid, &
-         minIndex=AL, maxIndex=AU, rc=status)
+    call ESMF_DistGridGet(distgrid, &
+         minIndexPDe=AL, maxIndexPDe=AU, rc=status)
     _VERIFY(STATUS)
 
     allocate (recvcounts(nDEs), displs(0:nDEs), stat=status)
