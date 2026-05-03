@@ -9427,8 +9427,10 @@ contains
       if(USE_INIT_ONLY) then
          FAC=1.0
       else
-         call MAPL_Interp_Fac (CurrentTime,MIDT1,MIDT2,FAC,RC=status )
-         _VERIFY(status)
+         ! MAPL_Interp_Fac moved to MAPL_TimeInterpolation in base3g; generic/ is being retired
+         !call MAPL_Interp_Fac (CurrentTime,MIDT1,MIDT2,FAC,RC=status )
+         !_VERIFY(status)
+         FAC=1.0
       end if
 
       _ASSERT(FAC >= 0.0,'needs informative message')

@@ -4,7 +4,7 @@
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
 !
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 !
 !>
 !### MODULE: `MAPL_SunMod`
@@ -23,10 +23,8 @@ module MAPL_SunMod
 
   use ESMF
   use MAPL_Constants
-  use MAPL_BaseMod
-  use MAPL_IOMod
   use MAPL_CommsMod
-  use MAPL_ExceptionHandling
+  use MAPL_ExceptionHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
   use netcdf
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: logging, Logger

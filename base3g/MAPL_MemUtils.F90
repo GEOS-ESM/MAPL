@@ -3,7 +3,7 @@
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 !>
 !### MODULE: `MAPL_MemUtilsMod`
@@ -15,9 +15,7 @@
 module MAPL_MemUtilsMod
 
   use ESMF
-  use MAPL_BaseMod
   use MAPL_CommsMod
-  use MAPL_IOMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: INT64

@@ -1,10 +1,7 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl_LocalDisplacementEnsemble
-!   use mapl_ErrorHandling
    use mpi
-   use MAPL_maplGrid
-   use MAPL_ExceptionHandling
    use esmf
    use gftl2_integer64Set
    implicit none !(type,external)
@@ -47,6 +44,8 @@ contains
       type(Integer64Set) :: set
 !      type(IntegerSet) :: set
       integer, allocatable :: minIndex(:,:), maxIndex(:,:)
+      integer, allocatable :: tileMinIndex(:,:), tileMaxIndex(:,:)
+      integer :: tileCount
       integer(kind=ESMF_KIND_I8) :: NI_GLOB, NJ_GLOB, global_index
       integer :: NI_LOC, NJ_LOC
       integer :: i, j, comm, mpierr, count
@@ -78,10 +77,15 @@ contains
       allocate(maxIndex(2,petCount))
 
       call esmf_GridGet(grid, distGrid=distgrid, _RC)
-      call mapl_DistGridGet(distgrid, minIndex=minIndex, maxIndex=maxIndex, _RC)
+      call ESMF_DistGridGet(distgrid, tileCount=tileCount, _RC)
+      allocate(tileMinIndex(2, tileCount))
+      allocate(tileMaxIndex(2, tileCount))
+      call ESMF_DistGridGet(distgrid, &
+           minIndexPDe=minIndex, maxIndexPDe=maxIndex, &
+           minIndexPTile=tileMinIndex, maxIndexPTile=tileMaxIndex, _RC)
 
-      NI_GLOB = maxval(maxIndex(1,:)-minIndex(1,:)) + 1
-      NJ_GLOB = maxval(maxIndex(2,:)-minIndex(2,:)) + 1
+      NI_GLOB = maxval(tileMaxIndex(1,:) - tileMinIndex(1,:)) + 1
+      NJ_GLOB = maxval(tileMaxIndex(2,:) - tileMinIndex(2,:)) + 1
       NI_LOC = maxIndex(1,lp) - minIndex(1,lp) + 1
       NJ_LOC = maxIndex(2,lp) - minIndex(2,lp) + 1
 
