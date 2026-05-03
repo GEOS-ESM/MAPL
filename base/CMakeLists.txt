@@ -7,13 +7,12 @@ set (srcs
   FileMetadataUtilitiesVector.F90       MAPL_SimpleBundleMod.F90
   MaplGrid.F90
   MAPL_stubs.F90
-  MAPL_sun_uc.F90
   MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
   MAPL_Config.F90                       MAPL_LocStreamMod.F90
   MAPL_MaxMinMod.F90                    MAPL_VerticalInterpMod.F90
-  MAPL_MemUtils.F90                     MAPL_VerticalMethods.F90
+                                        MAPL_VerticalMethods.F90
   Base.F90
   MAPL_ESMFTimeVectorMod.F90
   MAPL_NominalOrbitsMod.F90
@@ -27,14 +26,13 @@ set (srcs
   MAPL_Resource.F90
   MAPL_DateTime_Parsing_ESMF.F90
   MAPL_EASEConversion.F90
-  LDE.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
 
 # Comms.F90, StringTemplate.F90, SatVapor.F90 have been moved to base3g/
 
-# SimulationTime.F90 has been moved to base3g/
+# SimulationTime.F90, LDE.F90 have been moved to base3g/
 
 esma_add_library(
   ${this} SRCS ${srcs}

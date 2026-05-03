@@ -1,5 +1,4 @@
-#include "MAPL_Exceptions.h"
-#include "unused_dummy.H"
+#include "MAPL.h"
 module MAPL_StringTemplate
 use ESMF, only: ESMF_Calendar, ESMF_CalendarCreate, ESMF_CalendarDestroy, &
                 ESMF_CALKIND_GREGORIAN, ESMF_KIND_I4, &

@@ -21,6 +21,7 @@ module MAPL_Base
   !
   use ESMF, only: ESMF_MAXSTR, ESMF_PIN_FLAG, ESMF_PIN_DE_TO_SSI_CONTIG
   use MAPL_Constants, only: MAPL_UNDEF
+  use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit NONE
   private
@@ -32,7 +33,7 @@ module MAPL_Base
   public MAPL_AllocateCoupling    ! Atanas: please provide 1-line for each
   public MAPL_FieldAllocCommit
   !public MAPL_FieldF90Deallocate
-  public MAPL_ClimInterpFac
+  public MAPL_ClimInterpFac       ! re-exported from MAPL_TimeInterpolation (base3g)
   !public MAPL_ConnectCoupling
   public MAPL_DecomposeDim
   public MAPL_MakeDecomposition
@@ -42,7 +43,7 @@ module MAPL_Base
   public MAPL_FieldSetTime
   public MAPL_GRID_INTERIOR
   public MAPL_IncYMD
-  public MAPL_Interp_Fac
+  public MAPL_Interp_Fac   ! re-exported from MAPL_TimeInterpolation (base3g)
   public MAPL_LatLonGridCreate   ! Creates regular Lat/Lon ESMF Grids
   public MAPL_Nhmsf
   public MAPL_NSECF
@@ -208,55 +209,7 @@ module MAPL_Base
        integer, optional, intent(out) :: rc
      end subroutine MAPL_MakeDecomposition
 
-     module subroutine MAPL_Interp_Fac (TIME0, TIME1, TIME2, FAC1, FAC2, RC)
-       use ESMF, only: ESMF_Time
-       !------------------------------------------------------------
-
-       !  PURPOSE:
-       !  ========
-       !
-       !    Compute interpolation factors, fac, to be used
-       !    in the calculation of the instantaneous boundary
-       !    conditions, ie:
-       !
-       !     q(i,j) = fac1*q1(i,j) + (1.-fac1)*q2(i,j)
-       !
-       !    where:
-       !     q(i,j)  => Boundary Data valid    at time0
-       !     q1(i,j) => Boundary Data centered at time1
-       !     q2(i,j) => Boundary Data centered at time2
-
-       !  INPUT:
-       !  ======
-       !    time0    : Time of current timestep
-       !    time1    : Time of boundary data 1
-       !    time2    : Time of boundary data 2
-
-       !  OUTPUT:
-       !  =======
-       !     fac1    : Interpolation factor for Boundary Data 1
-       !
-       ! ------------------------------------------------------------
-       !               GODDARD LABORATORY FOR ATMOSPHERES
-       ! ------------------------------------------------------------
-
-       type(ESMF_Time),   intent(in ) :: TIME0, TIME1, TIME2
-       real,              intent(out) :: FAC1
-       real,    optional, intent(out) :: FAC2
-       integer, optional, intent(out) :: RC
-     end subroutine MAPL_Interp_Fac
-
-     module subroutine MAPL_ClimInterpFac (CLOCK,I1,I2,FAC, RC)
-       use ESMF, only: ESMF_Clock
-
-       !------------------------------------------------------------
-
-       type(ESMF_CLOCK),  intent(in ) :: CLOCK
-       integer,           intent(OUT) :: I1, I2
-       real,              intent(out) :: FAC
-       integer, optional, intent(out) :: RC
-     end subroutine MAPL_ClimInterpFac
-
+     ! MAPL_Interp_Fac and MAPL_ClimInterpFac moved to MAPL_TimeInterpolation (base3g)
 
      module subroutine MAPL_TimeStringGet(TIMESTRING,YY,MM,DD,H,M,S)
        character(len=*),  intent (IN ) :: TIMESTRING
