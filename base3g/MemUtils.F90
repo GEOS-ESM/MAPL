@@ -17,7 +17,7 @@ module MAPL_MemUtilsMod
   use ESMF
   use MAPL_CommsMod
   use MAPL_ShmemMod
-  use MAPL_ExceptionHandling
+  use mapl_ErrorHandling
   use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL64
   use mpi
