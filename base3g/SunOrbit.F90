@@ -24,7 +24,7 @@ module MAPL_SunMod
   use ESMF
   use MAPL_Constants
   use MAPL_CommsMod
-  use MAPL_ExceptionHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+  use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
   use netcdf
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: logging, Logger

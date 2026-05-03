@@ -2,7 +2,7 @@
 
 module MAPL_TimeInterpolation
    use ESMF
-   use MAPL_ExceptionHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+   use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
    implicit none
    private
 
