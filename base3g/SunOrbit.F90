@@ -25,6 +25,8 @@ module MAPL_SunMod
   use MAPL_Constants
   use MAPL_CommsMod
   use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+  use MAPL_TimeInterpolation, only: MAPL_ClimInterpFac
+  use mapl3g_FileIO, only: WRITE_PARALLEL
   use netcdf
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: logging, Logger
