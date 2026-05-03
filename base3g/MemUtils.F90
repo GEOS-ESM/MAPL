@@ -18,6 +18,7 @@ module MAPL_MemUtilsMod
   use MAPL_CommsMod
   use MAPL_ShmemMod
   use mapl_ErrorHandling
+  use mapl3g_FileIO, only: WRITE_PARALLEL
   use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL64
   use mpi
