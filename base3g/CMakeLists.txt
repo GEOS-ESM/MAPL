@@ -6,10 +6,10 @@ set (srcs
   SatVapor.F90
   StringTemplate.F90
   LocalDisplacementEnsemble.F90
-  MAPL_MemUtils.F90
+  MemUtils.F90
   FileIO.F90
   TimeInterpolation.F90
-  MAPL_sun_uc.F90
+  SunOrbit.F90
   API.F90
 )
 
