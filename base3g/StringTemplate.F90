@@ -3,7 +3,7 @@ module MAPL_StringTemplate
 use ESMF, only: ESMF_Calendar, ESMF_CalendarCreate, ESMF_CalendarDestroy, &
                 ESMF_CALKIND_GREGORIAN, ESMF_KIND_I4, &
                 ESMF_Time, ESMF_TimeGet, ESMF_TimeSet
-use MAPL_ExceptionHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
 use MAPL_KeywordEnforcerMod, only: KeywordEnforcer
 
 
