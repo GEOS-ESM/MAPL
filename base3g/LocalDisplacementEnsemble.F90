@@ -2,6 +2,7 @@
 
 module mapl_LocalDisplacementEnsemble
    use mpi
+   use MAPL_ExceptionHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
    use esmf
    use gftl2_integer64Set
    implicit none !(type,external)
