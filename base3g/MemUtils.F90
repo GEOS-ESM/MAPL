@@ -30,10 +30,6 @@ module MAPL_MemUtilsMod
 !also various memory and cache inquiry operators
   implicit none
   private
-#ifdef _CRAYT3E
-  integer :: pe, shmem_my_pe
-#endif
-
   integer(kind=INT64) :: l1_cache_line_size, l1_cache_size, l1_associativity
   integer(kind=INT64) :: l2_cache_line_size, l2_cache_size, l2_associativity
 
@@ -60,12 +56,6 @@ module MAPL_MemUtilsMod
   public MAPL_MemUsed
   public MAPL_MemReport
 
-#ifdef _CRAY
-  public :: hplen
-#endif
-#ifdef _CRAYT90
-  public :: stklen
-#endif
 
 #ifdef sysDarwin
   logical,    save :: DISABLED  = .true.
@@ -112,27 +102,12 @@ module MAPL_MemUtilsMod
 !initialize memutils module
 !currently sets default cache characteristics
 !(will provide overrides later)
-!also sets pe to my_pe on t3e
-#ifdef _CRAYT3E
-!all sizes in bytes
-      l1_cache_line_size = 32
-      l1_cache_size = 8192
-      l1_associativity = 1
-      l2_cache_line_size = 64
-      l2_cache_size = 98304
-      l2_associativity = 3
-#else
-!defaults
       l1_cache_line_size = 1
       l1_cache_size = 1
       l1_associativity = 1
       l2_cache_line_size = 1
       l2_cache_size = 1
       l2_associativity = 1
-#endif
-#ifdef _CRAYT3E
-      pe = SHMEM_MY_PE()
-#endif
       memutils_initialized = .TRUE.
 
       gmax_save = 0.0
@@ -150,8 +125,7 @@ module MAPL_MemUtilsMod
 !MEMCPY routines: <nelems> real*8 words are copied from RHS to LHS     !
 !  Either side can have constant stride (lhs_stride, rhs_stride)       !
 !      or indexed by a gather/scatter array (lhs_indx, rhs_indx)       !
-! index arrays are 0-based (i.e C-like not fortran-like: this is       !
-! for compatibility with the SHMEM_IXGET/PUT routines)                 !
+! index arrays are 0-based (i.e C-like not fortran-like)                !
 !                                                                      !
 ! EXAMPLES:                                                            !
 !                                                                      !
@@ -185,9 +159,6 @@ module MAPL_MemUtilsMod
 !  indexing causes you to exceed <dim> you will have done a            !
 !  potentially unsafe memory load                                      !
 !                                                                      !
-!T3E: we use the shmem routines on-processor to effect the transfer    !
-!     via the (faster) E-registers                                     !
-!                                                                      !
 !-----------------------------------------------------------------------
     subroutine memcpy_r8( lhs, rhs, dim, nelems, lhs_stride, rhs_stride )
 !base routine: handles constant stride memcpy
@@ -209,17 +180,9 @@ module MAPL_MemUtilsMod
           if( PRESENT(rhs_stride) )rs = rhs_stride
       endif
       if( ls.EQ.1 .AND. rs.EQ.1 )then
-#ifdef _CRAYT3E
-          call SHMEM_GET( lhs(0), rhs(0), n, pe )
-#else
           lhs(0:n-1) = rhs(0:n-1)
-#endif
       else
-#ifdef _CRAYT3E
-          call SHMEM_IGET( lhs(0), rhs(0), ls, rs, n, pe )
-#else
           lhs(0:n*ls-1:ls) = rhs(0:n*rs-1:rs)
-#endif
       endif
       return
     end subroutine memcpy_r8
@@ -230,19 +193,7 @@ module MAPL_MemUtilsMod
       real(kind=REAL64), dimension(0:dim-1), intent(in)  :: rhs
       real(kind=REAL64), dimension(0:dim-1), intent(out) :: lhs
       integer, intent(in), dimension(nelems) :: rhs_indx
-#ifdef _CRAYT3E
-!dir$ CACHE_BYPASS lhs, rhs, rhs_indx
-      real(kind=REAL64), dimension(nelems) :: tmp
-
-      if( lhs_stride.EQ.1 )then
-          call SHMEM_IXGET( lhs(0), rhs(0), rhs_indx, nelems, pe )
-      else
-          call SHMEM_IXGET( tmp, rhs(0), rhs_indx, nelems, pe )
-          call SHMEM_IGET( lhs(0), tmp, lhs_stride, 1, nelems, pe )
-      endif
-#else
       lhs(0:nelems*lhs_stride-1:lhs_stride) = rhs(rhs_indx(1:nelems))
-#endif
       return
     end subroutine memcpy_r8_gather
 
@@ -252,20 +203,7 @@ module MAPL_MemUtilsMod
       real(kind=REAL64), dimension(0:dim-1), intent(in)  :: rhs
       real(kind=REAL64), dimension(0:dim-1), intent(out) :: lhs
       integer, intent(in), dimension(nelems) :: lhs_indx
-#ifdef _CRAYT3E
-!dir$ CACHE_BYPASS lhs, rhs, lhs_indx
-      real(kind=REAL64), dimension(nelems) :: tmp
-
-      if( rhs_stride.EQ.1 )then
-          call SHMEM_IXPUT( lhs(0), rhs(0), lhs_indx, nelems, pe )
-      else
-          call SHMEM_IGET( tmp, rhs(0), rhs_stride, 1, nelems, pe )
-          call SHMEM_IXPUT( lhs(0), tmp, lhs_indx, nelems, pe )
-      endif
-      call SHMEM_QUIET          !required to ensure completion of put
-#else
       lhs(lhs_indx(1:nelems)) = rhs(0:nelems*rhs_stride-1:rhs_stride)
-#endif
       return
     end subroutine memcpy_r8_scatter
 
@@ -275,54 +213,10 @@ module MAPL_MemUtilsMod
       real(kind=REAL64), dimension(0:dim-1), intent(in)  :: rhs
       real(kind=REAL64), dimension(0:dim-1), intent(out) :: lhs
       integer, intent(in), dimension(nelems) :: lhs_indx, rhs_indx
-#ifdef _CRAYT3E
-!dir$ CACHE_BYPASS lhs, rhs, lhs_indx, rhs_indx
-      real(kind=REAL64), dimension(nelems) :: tmp
-
-      call SHMEM_IXGET( tmp, rhs(0), rhs_indx, nelems, pe )
-      call SHMEM_IXPUT( lhs(0), tmp, lhs_indx, nelems, pe )
-      call SHMEM_QUIET          !required to ensure completion of put
-#else
       lhs(lhs_indx(1:nelems)) = rhs(rhs_indx(1:nelems))
-#endif
       return
     end subroutine memcpy_r8_gather_scatter
 
-#ifdef _CRAY
-  integer function hplen(             hpalloc, hplargest, hpshrink, hpgrow, hpfirst, hplast )
-!using IHPSTAT calls from SR-2165 v2.0 p535
-!with no arguments returns heap length (in words on PVP, bytes on t3e)
-    integer, intent(out), optional :: hpalloc, hplargest, hpshrink, hpgrow, hpfirst, hplast
-    integer :: IHPSTAT
-
-    hplen = IHPSTAT(1)                              !Heap length
-    if( present(hpalloc  ) )hpalloc   = IHPSTAT( 4) !Blocks allocated
-    if( present(hplargest) )hplargest = IHPSTAT(10) !Largest free block size
-    if( present(hpshrink ) )hpshrink  = IHPSTAT(11) !Amount heap can shrink
-    if( present(hpgrow   ) )hpgrow    = IHPSTAT(12) !Amount heap can grow
-    if( present(hpfirst  ) )hpfirst   = IHPSTAT(13) !First word address
-    if( present(hplast   ) )hplast    = IHPSTAT(14) !Last word address
-    return
-  end function hplen
-#endif /* _CRAY */
-
-#ifdef _CRAYT90
-  integer function stklen(            stkhiwm, stknumber, stktotal, stkmost, stkgrew, stkgtimes )
-!using STKSTAT(3C) struct
-    integer, optional, intent(out) :: stkhiwm, stknumber, stktotal, stkmost, stkgrew, stkgtimes
-    integer :: istat(20)
-
-    call STKSTAT(istat)
-    stklen = istat(1)                            !Stack length
-    if( present(stkhiwm  ) )stkhiwm   = istat(2) !stack hiwatermark
-    if( present(stknumber) )stknumber = istat(3) !current #stacks
-    if( present(stktotal ) )stktotal  = istat(4) !total #stacks
-    if( present(stkmost  ) )stkmost   = istat(5) !most #stacks at one time
-    if( present(stkgrew  ) )stkgrew   = istat(6) !#stacks that grew
-    if( present(stkgtimes) )stkgtimes = istat(7) !#times stack grew
-    return
-  end function stklen
-#endif /* _CRAYT90 */
 
   subroutine MAPL_MemUtilsWriteVM( vm, text, always, RC )
     type(ESMF_VM) :: vm
