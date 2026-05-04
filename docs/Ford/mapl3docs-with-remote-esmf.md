@@ -62,6 +62,7 @@ exclude_dir: ../../docs
              ../../pFUnit
              ../../fArgParse
              ../../pFlogger
+             ../../Apps/tests
 macro: USE_MPI=1
        BUILD_WITH_PFLOGGER=1
        BUILD_WITH_EXTDATA2G=1
