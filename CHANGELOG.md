@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add simplified build system with wrapper scripts (`build.sh` and `test.sh`) for easier compilation with different compilers
+  - Uses modern CMake syntax (`-B`, `-S`, `--install-prefix`, `--test-dir`)
+  - Supports NAG, gfortran, and Intel compilers via meta-module stacks
+  - Compiler-specific build and install directories
+  - Full path handling for improved safety
+
 ### Changed
 
 - Update `components.yaml`
