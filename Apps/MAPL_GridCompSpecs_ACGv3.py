@@ -8,6 +8,30 @@ from collections.abc import Sequence
 from functools import partial, reduce
 from operator import concat
 from re import compile
+from enum import Enum
+import logging
+import io
+
+# ESMF_TYPEKIND enum
+class TYPEKIND_Type:
+    __slots__=('type', 'kind', 'variable_type')
+    def __init__(self, ftype: str, kind: str):
+        self.type = ftype
+        self.kind = kind
+        self.variable_type = '{}(kind={})'.format(ftype, kind)
+    
+class ESMF_Typekind(TYPEKIND_Type, Enum):
+    R4 = ('real', 'ESMF_KIND_R4')
+    R8 = ('real', 'ESMF_KIND_R8')
+    I4 = ('integer', 'ESMF_KIND_I4')
+    I8 = ('integer', 'ESMF_KIND_I8')
+    ESMF_TYPEKIND_R4 = R4
+    ESMF_TYPEKIND_R8 = R8
+    ESMF_TYPEKIND_I4 = I4
+    ESMF_TYPEKIND_I8 = I8
+
+    def __str__(self):
+        return self.variable_type
 
 ################################# CONSTANTS ####################################
 # str constants internal to script
@@ -23,6 +47,7 @@ UNIT = ()
 INDENT = SPACE * SIZE_INDENT
 DIMSTR = ':'
 DIMDELIM = ','
+DEFAULT_TYPEKIND = 'ESMF_TYPEKIND_R4'
 
 # str flags
 AS = 'as'
@@ -43,7 +68,8 @@ GC_ARGNAME = 'gridcomp'
 GET = 'get'
 MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
-MAPPED = 'mapped'
+KIND = 'kind'
+MAPPED = 'mapped' 
 MAPPING = 'mapping'
 MISSING_MANDATORY = 'missing_mandatory'
 NONES = 'nones'
@@ -54,6 +80,7 @@ SPEC_ALIASES = 'spec_aliases'
 STORE = 'store'
 STRING = 'string'
 STRLOGICAL = 'strlogical'
+TYPE = 'type'
 VALUES_NOT_FOUND = 'values_not_found'
 
 # These are column names. A few are "special" column names used internally.
@@ -79,6 +106,7 @@ STATES = 'states'
 STATE_ARG = 'state_arg'
 STATE_INTENT = 'state_intent'
 STRINGVECTOR = 'string_vector'
+TYPEKIND = 'typekind'
 UNGRIDDED_DIMS = 'ungridded_dims'
 USE_FIELD_DICTIONARY = 'use_field_dictionary'
 VSTAGGER = 'vstagger'
@@ -182,8 +210,8 @@ def get_options(args):
             'REQUIRED': 'MAPL_RESTART_REQUIRED',
             'BOOT': 'MAPL_RESTART_BOOT',
             'SKIP_INITIAL': 'MAPL_RESTART_SKIP_INITIAL'}},
-        STATE: {FLAGS: {MANDATORY, STORE}},
-        'typekind': {MAPPING: {
+        STATE: {FLAGS: {MANDATORY, STORE}}, 
+        TYPEKIND: {MAPPING: { 
             'R4': 'ESMF_Typekind_R4',
             'R8': 'ESMF_Typekind_R8',
             'I4': 'ESMF_Typekind_I4',
@@ -264,17 +292,27 @@ def emit_declare_pointers(specs, states=None):
     """Emit pointer declarations from Iterable of spec instances."""
     # filter on state
     f = state_filter(states)
-    return DECLARE, [emit_declare_pointer(spec) for spec in specs if f(spec)]
+    declarations = []
+    for spec in specs:
+        if not f(spec):
+            continue
+        try:
+            declaration = emit_declare_pointer(spec)
+        except RuntimeError as ex:
+            raise RuntimeError(f'Error pointer declaration for spec {spec}: {str(ex)}')
+        declarations.append(declaration)
+    return DECLARE, declarations
 
 def emit_declare_pointer(spec):
     """Emit individual pointer declartion."""
-    # get precision of pointer
-    precision = spec.get(PRECISION)
-    # declaration preamble
-    decl = 'real{}, pointer'.format('(kind={})'.format(precision) if precision else EMPTY)
+    # get fortran type and kind of pointer
+    typekind = spec.get(TYPEKIND, DEFAULT_TYPEKIND)
+    if not hasattr(ESMF_Typekind, typekind):
+        raise RuntimeError(f'Unsupported typekind: {typekind}')
+    ftypekind = "{}, pointer".format(str(ESMF_Typekind[typekind]))
     # pointer variable
     var = f'{spec[INTERNAL_NAME]}({DIMDELIM.join(DIMSTR*spec[RANK])})'
-    return ' :: '.join([decl, var])
+    return f'{ftypekind} :: {var}'
 
 def emit_get_pointers(specs, states=None):
     """Emit pointer get statements from an Iterable of spec instances."""
@@ -401,7 +439,7 @@ def get_from_values(keys, values, args):
 
 def digest_spec(spec, options):
     """Process an individual spec."""
-    # Get the key/value pairs that have a matching option key and a value that evaluates False.
+    # Get the key/value pairs that have a matching option key and a value that evaluates True.
     tuples = [(k, spec[k]) for k, v in spec.items() if k in options and spec[k]]
     # Get the options corresponding to the spec keys.
     spec_options = [options[k] for k, _ in tuples]
@@ -530,7 +568,10 @@ def emit_values(specs, options):
     # Emit all get_pointer calls and pointer declartions.
     emitters = {DECLARE: emit_declare_pointers, GET: emit_get_pointers}
     for key in set(emitters) & set(args):
-        _, emitted = emitters[key](specs, states)
+        try:
+            _, emitted = emitters[key](specs, states)
+        except Exception as ex:
+            raise RuntimeError
         with open_file(component, args[key], key, 'pointer') as f:
             f.writelines(add_newlines(emitted))
 
@@ -711,7 +752,7 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
             return inner
 
 # Main Procedure (Added to facilitate testing.)
-def main():
+def main(logger):
     exit_code = ERROR
 
 # Process command line arguments
@@ -746,6 +787,12 @@ def main():
 #############################################
 
 if __name__ == "__main__":
-    main()
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.WARNING)
+    log_stream = io.StringIO()
+    streamHandler = logging.StreamHandler(log_stream)
+    logger.addHandler(streamHandler)
+    main(logger)
+    messages = log_stream.getvalue().splitlines()
 # FIN
     sys.exit(SUCCESS)
