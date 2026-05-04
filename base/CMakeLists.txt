@@ -7,6 +7,7 @@ set (srcs
   FileMetadataUtilitiesVector.F90       MAPL_SimpleBundleMod.F90
   MaplGrid.F90
   MAPL_stubs.F90
+  MAPL_ESMFTimeVectorMod.F90
   MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
