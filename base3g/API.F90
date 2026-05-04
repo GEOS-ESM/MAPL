@@ -14,20 +14,14 @@ module mapl_base3g
    use MAPL_StringTemplate, only: fill_grads_template, StrTemplate, fill_grads_template_esmf
    use mapl_LocalDisplacementEnsemble, only: LocalDisplacementEnsemble
    use MAPL_MemUtilsMod, only: MAPL_MemUtilsInit, MAPL_MemUtilsDisable, &
-        MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree, &
-        MAPL_MemCommited, MAPL_MemUsed, MAPL_MemReport
+         MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree, &
+         MAPL_MemCommited, MAPL_MemUsed, MAPL_MemReport
    use MAPL_SunMod, only: MAPL_SunOrbitCreate, MAPL_SunOrbitCreateFromConfig, &
-        MAPL_SunOrbitCreated, MAPL_SunOrbitDestroy, MAPL_SunOrbitQuery, &
-        MAPL_SunGetInsolation, MAPL_SunGetSolarConstant, &
-         MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax, &
-         MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
+         MAPL_SunOrbitCreated, MAPL_SunOrbitDestroy, MAPL_SunOrbitQuery, &
+         MAPL_SunGetInsolation, MAPL_SunGetSolarConstant, &
+          MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax, &
+          MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
-#ifdef _CRAY
-   use MAPL_MemUtilsMod, only: hplen
-#endif
-#ifdef _CRAYT90
-   use MAPL_MemUtilsMod, only: stklen
-#endif
    implicit none(type,external)
    private
 
@@ -54,11 +48,5 @@ module mapl_base3g
    public :: MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax
    public :: MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    public :: MAPL_Interp_Fac, MAPL_ClimInterpFac
-#ifdef _CRAY
-   public :: hplen
-#endif
-#ifdef _CRAYT90
-   public :: stklen
-#endif
 
 end module mapl_base3g
