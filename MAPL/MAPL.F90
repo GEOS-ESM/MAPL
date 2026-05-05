@@ -2,8 +2,6 @@
 ! of the legacy (MAPL2) underlying packages.
 module MAPL2
    use MAPLBase_mod
-   use MAPL_GenericMod
-   use MAPL_VarSpecMiscMod
    use pFIO
    use MAPL_GridCompsMod
    use mapl3g_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
