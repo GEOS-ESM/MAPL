@@ -1,4 +1,4 @@
-set(MODULE_DIRECTORY "${esma_include}/MAPL.base/tests")
+set(MODULE_DIRECTORY "${esma_include}/${MAPL_TARGET_PREFIX}.base/tests")
 
 add_definitions(-DUSE_MPI)
 set (TEST_SRCS
@@ -35,34 +35,37 @@ set (SRCS
 #target_link_libraries (base_extras MAPL.shared MAPL.pfunit
 #                                   ESMF::ESMF NetCDF::NetCDF_Fortran)
 
-add_pfunit_ctest(MAPL.base.tests
-                TEST_SOURCES ${TEST_SRCS}
-                OTHER_SOURCES ${SRCS}
-#                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.pfio base_extras MAPL.pfunit
-                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.constants MAPL.generic MAPL.pfio MAPL.pfunit
-                EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUnit_Initialize
-                MAX_PES 8
-                )
-set_target_properties(MAPL.base.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-set_tests_properties(MAPL.base.tests PROPERTIES LABELS "ESSENTIAL")
+if (NOT MAPL_SUPPORT_MAPL3)
+  add_pfunit_ctest(${MAPL_TARGET_PREFIX}.base.tests
+                  TEST_SOURCES ${TEST_SRCS}
+                  OTHER_SOURCES ${SRCS}
+  #                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.pfio base_extras MAPL.pfunit
+                  LINK_LIBRARIES ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.constants MAPL.generic ${MAPL_TARGET_PREFIX}.pfio ${MAPL_TARGET_PREFIX}.pfunit
+                  EXTRA_INITIALIZE Initialize
+                  EXTRA_USE MAPL_pFUnit_Initialize
+                  MAX_PES 8
+                  )
+  set_target_properties(${MAPL_TARGET_PREFIX}.base.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+  set_tests_properties(${MAPL_TARGET_PREFIX}.base.tests PROPERTIES LABELS "ESSENTIAL")
+  add_dependencies(build-tests ${MAPL_TARGET_PREFIX}.base.tests)
+endif ()
 
-add_dependencies(build-tests MAPL.base.tests)
+if (NOT MAPL_SUPPORT_MAPL3)
+  set(TESTIO mapl_bundleio_test.x)
+  ecbuild_add_executable (
+    TARGET ${TESTIO}
+    NOINSTALL
+    SOURCES mapl_bundleio_test.F90
+    LIBS ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.constants ${MAPL_TARGET_PREFIX}.pfio ${MAPL_TARGET_PREFIX}.griddedio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
+    DEFINITIONS USE_MPI)
+  set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
-set(TESTIO mapl_bundleio_test.x)
-ecbuild_add_executable (
-  TARGET ${TESTIO}
-  NOINSTALL
-  SOURCES mapl_bundleio_test.F90
-  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.griddedio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
-  DEFINITIONS USE_MPI)
-set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+  add_test(NAME bundleio_tests_latlon
+    COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 2 -ny 1 -ogrid PC90x47-DE -o file1_ll.nc4)
 
-add_test(NAME bundleio_tests_latlon
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 2 -ny 1 -ogrid PC90x47-DE -o file1_ll.nc4)
+  add_test(NAME bundleio_tests_cube
+    COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF -o file_cs.nc4)
 
-add_test(NAME bundleio_tests_cube
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF -o file_cs.nc4)
-
-add_dependencies(build-tests ${TESTIO})
+  add_dependencies(build-tests ${TESTIO})
+endif ()
 

@@ -46,6 +46,8 @@
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use mapl_RegridMethods
+  use MAPL_GriddedIOMod
+  use MAPL_TileGridIOMod
   use MAPL_GriddedIOitemVectorMod
   use MAPL_GriddedIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
@@ -289,7 +291,7 @@ contains
     character(len=ESMF_MAXSTR)     :: string
     character(len=ESMF_MAXSTR)     :: tmpstring
     character(len=ESMF_MAXSTR)     :: tilefile
-    character(len=ESMF_MAXSTR)     :: gridname
+    character(len=ESMF_MAXSTR)     :: gridname, gname_tmp
     character(len=MAPL_TileNameLength), pointer :: gnames(:)
     integer                        :: L, LM
     integer                        :: NG
@@ -558,12 +560,14 @@ contains
 
     call ESMF_ConfigGetAttribute(config, value=snglcol,          &
                                          label='SINGLE_COLUMN:', default=0, _RC)
+
+    ! NOTE: prior versions of GCHP used a MAPL version with default=0
     call ESMF_ConfigGetAttribute(config, value=intstate%version,          &
-                                         label='VERSION:', default=0, _RC)
+         label='VERSION:', default=1, _RC)
 
     ! Added for GCHP adjoint
     call ESMF_ConfigGetAttribute(config, value=reverseTime,                    &
-                                         label="REVERSE_TIME:", default=0, _RC)
+         label="REVERSE_TIME:", default=0, _RC)
 
     if( MAPL_AM_I_ROOT() ) then
        print *
@@ -1209,7 +1213,7 @@ contains
 
        if (list(n)%extrap_below_surf) then
           phis_in_collection = .false.
-          do i=1,list(n)%field_set%nfields 
+          do i=1,list(n)%field_set%nfields
              if (trim(fields(1,i)) == 'PHIS') phis_in_collection = .true.
           enddo
 
@@ -1233,7 +1237,7 @@ contains
           end if
 
           ts_in_collection = .false.
-          do i=1,list(n)%field_set%nfields 
+          do i=1,list(n)%field_set%nfields
              if (trim(fields(1,i)) == 'TS') ts_in_collection = .true.
           enddo
 
@@ -1713,7 +1717,7 @@ contains
        enddo
     else
        do n=1,nstatelist
-          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n),_RC )
+          call MAPL_ExportStateGet ( exptmp,statelist(n),export(n), rc=status)
           call ESMF_VMAllReduce(vm, sendData=status, recvData=globalStatus, &
                reduceflag=ESMF_REDUCE_MAX, rc=localStatus)
 
@@ -2693,6 +2697,14 @@ ENDDO PARSER
              call list(n)%xsampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
              call Hsampler%verify_epoch_equals_freq (list(n)%frequency, list(n)%output_grid_label, _RC)
           endif
+          call ESMF_FieldBundleGet(list(n)%bundle, grid=grid_In, _RC)
+          call ESMF_GridGet(grid_In, name=gname_tmp, _RC)
+          ! for tilegrid, do not assign label
+          if (index(gname_tmp, 'tile_grid') /=0 .and. list(n)%output_grid_label =='' ) then
+            allocate(list(n)%mGriddedIO, source = MAPL_TileGridIO())
+          else
+            allocate(list(n)%mGriddedIO, source = MAPL_GriddedIO())
+          endif
 
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
           call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
@@ -2762,6 +2774,36 @@ ENDDO PARSER
        end if
        call ESMF_ConfigDestroy(cfg, _RC)
    end do
+
+
+   ! Sanity check for averaged collection
+   block
+     integer :: ncpls
+     logical :: alarmsAgree
+     logical :: errorsFound
+     type(ESMF_Alarm), allocatable :: cplAlarms(:)
+     
+     if( MAPL_AM_I_ROOT() ) then
+        errorsFound = .false.
+        do n=1, nlist
+           if (list(n)%disabled) cycle
+           if (.not. IntState%average(n)) cycle
+           ncpls = size(IntState%srcs(n)%spec)
+           allocate(cplAlarms(ncpls))
+           call MAPL_CplGetAlarms(IntState%ccs(n), cplAlarms, _RC) 
+           ! assert that his_alarm and coupler's alarms agree
+           alarmsAgree = checkAlarms(list(n)%his_alarm, cplAlarms, _RC)
+           deallocate(cplAlarms)
+           if (.not. alarmsAgree) then
+              errorsFound = .true.
+              print *, 'ERROR: History and Averaging coupler alarms disagree.' // &
+                   'Check REF_TIME for '//trim(list(n)%collection)
+           end if
+        end do
+
+        _ASSERT(.not.errorsFound, "Errors in collections REF_TIME. For details, see above.")
+     end if
+   end block
 
 ! Echo History List Data Structure
 ! --------------------------------
@@ -2885,6 +2927,33 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
 
   contains
+
+    function checkAlarms(alarm, cplalarms, rc) result(agree)
+      logical :: agree
+      type(ESMF_Alarm), intent(IN) :: alarm
+      type(ESMF_Alarm), intent(IN) :: cplalarms(:)
+      integer, optional, intent(OUT) :: rc
+
+      integer :: status
+      integer :: i, n  
+      type(ESMF_Time) :: ringTime, rt
+      type(ESMF_TimeInterval) :: ringInterval, ri
+      
+      n = size(cplalarms)
+      agree = .false.
+
+      call ESMF_AlarmGet(alarm, ringTime=ringTime, ringInterval=ringInterval, _RC)
+      call ESMF_AlarmGet(alarm, ringTime=ringTime, ringInterval=ringInterval, _RC)
+      do i = 1, n
+         call ESMF_AlarmGet(cplalarms(i), ringTime=rt, ringInterval=ri, _RC)
+         if (ringTime /= rt .or. ringInterval /= ri) then
+            _RETURN(ESMF_SUCCESS)
+         end if
+      end do
+      agree = .true.
+
+      _RETURN(ESMF_SUCCESS)
+    end function checkAlarms
 
     subroutine wildCardExpand(rc)
       integer, optional, intent(out) :: rc
@@ -3565,7 +3634,6 @@ ENDDO PARSER
 
        end subroutine parse_fields
 
-
  end subroutine Initialize
 
 !======================================================
@@ -3841,7 +3909,7 @@ ENDDO PARSER
    epoch_swath_grid_case: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
       if (trim(list(n)%sampler_type) == 'swath' ) then
-         call MAPL_TimerOn(GENSTATE,"Swath")
+         call MAPL_TimerOn(GENSTATE,"swath")
          call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
          call MAPL_TimerOff(GENSTATE,"RegridAccum")
@@ -3869,7 +3937,7 @@ ENDDO PARSER
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
             call MAPL_TimerOff(GENSTATE,"RegenGriddedio")
          endif
-         call MAPL_TimerOff(GENSTATE,"Swath")
+         call MAPL_TimerOff(GENSTATE,"swath")
       end if
 
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
@@ -3938,7 +4006,7 @@ ENDDO PARSER
          elseif (list(n)%sampler_type == 'station') then
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
-                    "Station_data output to new file:",trim(filename(n)))
+                    "station_data output to new file:",trim(filename(n)))
                call list(n)%station_sampler%close_file_handle(_RC)
                call list(n)%station_sampler%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
@@ -4093,20 +4161,20 @@ ENDDO PARSER
 
          if (list(n)%sampler_type == 'station') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
-            call MAPL_TimerOn(GENSTATE,"Station")
+            call MAPL_TimerOn(GENSTATE,"station")
             call MAPL_TimerOn(GENSTATE,"AppendFile")
             call list(n)%station_sampler%append_file(current_time,_RC)
             call MAPL_TimerOff(GENSTATE,"AppendFile")
-            call MAPL_TimerOff(GENSTATE,"Station")
+            call MAPL_TimerOff(GENSTATE,"station")
          elseif (list(n)%sampler_type == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
-            call MAPL_TimerOn(GENSTATE,"Mask_append")
+            call MAPL_TimerOn(GENSTATE,"mask_append")
             if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mask_sampler%regrid_append_file(current_time,&
                     list(n)%currentFile,oClients=o_Clients,_RC)
                call lgr%debug('%a %a', 'mask sampler list(n)%currentFile: ', trim(list(n)%currentFile))
             end if
-            call MAPL_TimerOff(GENSTATE,"Mask_append")
+            call MAPL_TimerOff(GENSTATE,"mask_append")
          endif
 
       endif OUTTIME
@@ -4136,7 +4204,7 @@ ENDDO PARSER
    epoch_swath_regen_grid: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
       if (trim(list(n)%sampler_type) == 'swath' ) then
-         call MAPL_TimerOn(GENSTATE,"Swath")
+         call MAPL_TimerOn(GENSTATE,"swath")
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
             call MAPL_TimerOn(GENSTATE,"RegenGrid")
             key_grid_label = list(n)%output_grid_label
@@ -4147,7 +4215,7 @@ ENDDO PARSER
             if( MAPL_AM_I_ROOT() )  write(6,'(//)')
             call MAPL_TimerOff(GENSTATE,"RegenGrid")
          endif
-         call MAPL_TimerOff(GENSTATE,"Swath")
+         call MAPL_TimerOff(GENSTATE,"swath")
       end if
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_regen_grid
@@ -4167,7 +4235,7 @@ ENDDO PARSER
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
 
       if (list(n)%timeseries_output) then
-         call MAPL_TimerOn(GENSTATE,"Trajectory")
+         call MAPL_TimerOn(GENSTATE,"trajectory")
          call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call list(n)%trajectory%regrid_accumulate(_RC)
          call MAPL_TimerOff(GENSTATE,"RegridAccum")
@@ -4182,7 +4250,7 @@ ENDDO PARSER
                call MAPL_TimerOff(GENSTATE,"RegenLS")
             end if
          end if
-         call MAPL_TimerOff(GENSTATE,"Trajectory")
+         call MAPL_TimerOff(GENSTATE,"trajectory")
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
@@ -4241,6 +4309,8 @@ ENDDO PARSER
     do n=1,nlist
        if (list(n)%sampler_type == 'mask') then
           call list(n)%mask_sampler%finalize(_RC)
+       elseif (list(n)%sampler_type == 'station') then
+          call list(n)%station_sampler%finalize(_RC)
        end if
     end do
 
@@ -4254,6 +4324,10 @@ ENDDO PARSER
          if( MAPL_CFIOIsCreated(list(n)%mcfio) ) then
             CALL MAPL_CFIOdestroy (list(n)%mcfio, _RC)
          end if
+         if (allocated(list(n)%mGriddedIO)) then
+            call list(n)%mGriddedIO%destroy()
+            deallocate(list(n)%mGriddedIO)
+         endif
       ELSE
          if( list(n)%unit.ne.0 ) call FREE_FILE( list(n)%unit )
       END if

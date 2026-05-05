@@ -74,7 +74,8 @@ contains
       inquire(file=trim(config_file),exist=file_found)
       _ASSERT(file_found,"could not find: "//trim(config_file))
 
-      input_config = ESMF_HConfigCreate(filename=trim(config_file),_RC)
+      input_config = ESMF_HConfigCreate(filename=trim(config_file),rc=status)
+      _ASSERT(status==ESMF_SUCCESS,'FAILED on ESMF_HConfigCreate for '//trim(config_file))
 
       if (ESMF_HConfigIsDefined(input_config,keyString="subconfigs")) then
          is_right_type = ESMF_HConfigIsSequence(input_config,keyString='subconfigs',_RC)
@@ -330,8 +331,7 @@ contains
             stripped_name=full_name(:plus_sign-1)
          end if
       end function
-
-    end function get_item_type
+   end function get_item_type
 
    subroutine add_new_rule(this,key,export_rule,multi_rule,rc)
       class(ExtDataConfig), intent(inout) :: this

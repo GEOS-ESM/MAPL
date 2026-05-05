@@ -51,6 +51,7 @@ module MAPL_GenericCplCompMod
   public GenericCplSetServices
   public MAPL_CplCompSetVarSpecs
   public MAPL_CplCompSetAlarm
+  public MAPL_CplGetAlarms
 
 !EOP
 
@@ -1701,4 +1702,29 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CplCompSetAlarm
 
+  subroutine MAPL_CplGetAlarms(cc, cplAlarms, rc)
+    type (ESMF_CplComp  ),           intent(INOUT) :: CC  
+    type (ESMF_Alarm),               intent(  OUT)    :: cplAlarms(:)  
+    integer, optional,               intent(  OUT) :: RC
+
+! Locals
+
+    type (MAPL_GenericCplState), pointer :: STATE
+    type (MAPL_GenericCplWrap )          :: WRAP
+    integer :: status
+
+    ! Retrieve the pointer to the internal state. It comes in a wrapper.
+    ! ------------------------------------------------------------------
+
+    call ESMF_CplCompGetInternalState ( CC, WRAP, STATUS )
+    _VERIFY(STATUS)
+
+    STATE  =>  WRAP%INTERNAL_STATE
+
+    _ASSERT(size(STATE%TIME_TO_COUPLE) == size(cplAlarms), "Wrong size for cplArray")
+
+    cplAlarms = state%time_to_couple
+    
+    _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_CplGetAlarms
 end module MAPL_GenericCplCompMod

@@ -1,10 +1,11 @@
 # Comment out for GCHP
-
-#name: Enforce PR Labels
-#
 #on:
 #  pull_request:
 #    types: [opened, labeled, unlabeled, edited, synchronize]
+#
+#concurrency:
+#  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+#  cancel-in-progress: true
 #
 #jobs:
 #  require-label:

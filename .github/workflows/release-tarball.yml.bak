@@ -1,0 +1,86 @@
+# Comment out for GCHP
+
+<<<<<<< HEAD
+#name: Create Complete Release Tarball
+#
+#on:
+#  release:
+#    types: [published]
+#
+#jobs:
+#  release:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#        with:
+#          path: ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}
+#
+#      - name: Setup Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: '3.11'
+#
+#      - name: Pip install mepo
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install mepo
+#
+#      - name: Run mepo
+#        run : |
+#          cd ${GITHUB_WORKSPACE}/${{ github.event.repository.name }}-${{ github.event.release.tag_name }}
+#          mepo clone
+#
+#      - name: Create tarball
+#        run: |
+#          tar --exclude-vcs --exclude=.mepo -cf ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}.COMPLETE.tar ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}
+#          xz -T6 ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}.COMPLETE.tar
+#
+#      - name: Upload tarball
+#        run: |
+#          gh release upload ${{ github.event.release.tag_name }} ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}.COMPLETE.tar.xz -R ${{ github.repository_owner }}/${{ github.event.repository.name }}
+#        env:
+#          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+=======
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          path: ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Pip install mepo
+        run: |
+          python -m pip install --upgrade pip
+          pip install mepo
+
+      - name: Run mepo
+        run : |
+          cd ${GITHUB_WORKSPACE}/${{ github.event.repository.name }}-${{ github.event.release.tag_name }}
+          mepo clone
+
+      - name: Create tarball
+        run: |
+          tar --exclude-vcs --exclude=.mepo -cf ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}.COMPLETE.tar ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}
+          xz -T6 ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}.COMPLETE.tar
+
+      - name: Upload tarball
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}.COMPLETE.tar.xz -R ${{ github.repository_owner }}/${{ github.event.repository.name }}
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+>>>>>>> mapl_2.68.0
+

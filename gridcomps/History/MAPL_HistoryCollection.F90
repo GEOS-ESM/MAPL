@@ -62,7 +62,7 @@ module MAPL_HistoryCollectionMod
      type(ESMF_FieldBundle)             :: bundle
      type(sampler)                      :: xsampler
      type(MAPL_CFIO)                    :: MCFIO
-     type(MAPL_GriddedIO)               :: mGriddedIO
+     class(MAPL_GriddedIO), allocatable :: mGriddedIO
      type(VerticalData) :: vdata
      type(TimeData) :: timeInfo
      real   , pointer                   :: levels(:)     => null()

@@ -1,0 +1,91 @@
+import importlib
+import sys
+from MAPL_PythonBridge import UserCode
+
+from MAPL_PythonBridge.types import FFI, CVoidPointer
+from MAPL_PythonBridge.memory import get_fortran_python_converter
+from MAPL_PythonBridge.python2fortran import set_MAPLPy
+
+# See file for explanation
+from MAPL_PythonBridge.ieee_import_bypass import *  # noqa: F403
+
+# - - - DSL Grid Comp Interfacing - - - #
+
+
+def global_initialize(IM, JM, LM):
+    """Initialize the global MAPLPy object"""
+    fpy_converter = get_fortran_python_converter(IM, JM, LM)
+    set_MAPLPy(fpy_converter)
+
+
+# - - - DSL Grid Comp Interfacing - - - #
+
+
+def _get_code_object_from_package_name(c_package_name: FFI.CData) -> UserCode:
+    """Dynamically load the user module and return the `CODE` variable.
+
+    Args:
+        c_package_name: Package name in the python format, e.g. `mypackage.module` which
+            _must_ contain a global `CODE` object
+    """
+    package_name = FFI.string(c_package_name).decode("utf-8").rstrip()
+
+    try:
+        user_module = importlib.import_module(package_name)
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError(f"Module {package_name} could not be found in any of the paths: {sys.path}")
+
+    try:
+        CODE = getattr(user_module, "CODE")
+    except AttributeError:
+        raise AttributeError(f"Module {package_name} doesn't have a CODE object")
+
+    if not isinstance(CODE, UserCode):
+        raise TypeError(f"CODE object from module {package_name} does not derive from GridCompInterface")
+
+    return CODE
+
+
+def named_init(
+    c_package_name: FFI.CData,
+    mapl_state: CVoidPointer,
+    import_state: CVoidPointer,
+    export_state: CVoidPointer,
+):
+    """Python hook for Fortran's `gc_init`."""
+    CODE = _get_code_object_from_package_name(c_package_name)
+    CODE.init(mapl_state, import_state, export_state)
+
+
+def named_run(
+    c_package_name: FFI.CData,
+    mapl_state: CVoidPointer,
+    import_state: CVoidPointer,
+    export_state: CVoidPointer,
+):
+    """Python hook for Fortran's `gc_run`."""
+    CODE = _get_code_object_from_package_name(c_package_name)
+    CODE.run(mapl_state, import_state, export_state)
+
+
+def named_run_with_internal(
+    c_package_name: FFI.CData,
+    mapl_state: CVoidPointer,
+    import_state: CVoidPointer,
+    export_state: CVoidPointer,
+    internal_state: CVoidPointer,
+):
+    """Python hook for Fortran's `gc_run`."""
+    CODE = _get_code_object_from_package_name(c_package_name)
+    CODE.run_with_internal(mapl_state, import_state, export_state, internal_state)
+
+
+def named_finalize(
+    c_package_name: FFI.CData,
+    mapl_state: CVoidPointer,
+    import_state: CVoidPointer,
+    export_state: CVoidPointer,
+):
+    """Python hook for Fortran's `gc_finalize`."""
+    CODE = _get_code_object_from_package_name(c_package_name)
+    CODE.finalize(mapl_state, import_state, export_state)

@@ -1,4 +1,4 @@
-set(MODULE_DIRECTORY "${esma_include}/MAPL.pfio/tests")
+set(MODULE_DIRECTORY "${esma_include}/${MAPL_TARGET_PREFIX}.pfio/tests")
 
 add_definitions(-DUSE_MPI)
 set (TEST_SRCS
@@ -36,16 +36,21 @@ set (SRCS
 #  )
 #target_link_libraries (pfio_extras PUBLIC MAPL.pfunit MAPL.shared)
 
-add_pfunit_ctest(MAPL.pfio.tests
+add_pfunit_ctest(${MAPL_TARGET_PREFIX}.pfio.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES MAPL.pfio MAPL.pfunit
+                LINK_LIBRARIES ${MAPL_TARGET_PREFIX}.pfio ${MAPL_TARGET_PREFIX}.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
                 )
-set_target_properties(MAPL.pfio.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-set_tests_properties(MAPL.pfio.tests PROPERTIES LABELS "ESSENTIAL")
+set_target_properties(${MAPL_TARGET_PREFIX}.pfio.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+target_include_directories(${MAPL_TARGET_PREFIX}.pfio.tests PRIVATE
+  ${esma_include}/${MAPL_TARGET_PREFIX}.pfunit
+  ${esma_include}/${MAPL_TARGET_PREFIX}.pfio
+  ${esma_include}/${MAPL_TARGET_PREFIX}.shared)
+set_tests_properties(${MAPL_TARGET_PREFIX}.pfio.tests PROPERTIES LABELS "ESSENTIAL")
+set_tests_properties(${MAPL_TARGET_PREFIX}.pfio.tests PROPERTIES PROCESSORS 8)
 
 include_directories(
    ${CMAKE_CURRENT_SOURCE_DIR}
@@ -53,7 +58,7 @@ include_directories(
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/..)
-include_directories(${include_MAPL.pfio})
+include_directories(${include_${MAPL_TARGET_PREFIX}.pfio})
 include_directories(${MAPL_SOURCE_DIR}/include)
 
 
@@ -62,9 +67,10 @@ ecbuild_add_executable (
   TARGET ${TESTO}
   NOINSTALL
   SOURCES pfio_ctest_io.F90
-  LIBS MAPL.shared MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
+  LIBS ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
+target_include_directories(${TESTO} PRIVATE ${esma_include}/${MAPL_TARGET_PREFIX}.shared ${esma_include}/${MAPL_TARGET_PREFIX}.pfio)
 set_target_properties(${TESTO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
 # Detect if we are using Open MPI and add oversubscribe
@@ -111,28 +117,17 @@ foreach (test ${pfio_tests})
   set_tests_properties (${test} PROPERTIES LABELS "PERFORMANCE")
 endforeach ()
 
+set_tests_properties(pFIO_tests_mpi PROPERTIES PROCESSORS 18 RESOURCE_LOCK pfio_ctest_io)
+set_tests_properties(pFIO_tests_simple PROPERTIES PROCESSORS 24 RESOURCE_LOCK pfio_ctest_io)
+set_tests_properties(pFIO_tests_hybrid PROPERTIES PROCESSORS 12 RESOURCE_LOCK pfio_ctest_io)
+set_tests_properties(pFIO_tests_mpi_2comm PROPERTIES PROCESSORS 18 RESOURCE_LOCK pfio_ctest_io)
+set_tests_properties(pFIO_tests_mpi_2group PROPERTIES PROCESSORS 18 RESOURCE_LOCK pfio_ctest_io)
+
 #if (APPLE)
 #  set_tests_properties (pFIO_tests_mpi_2layer PROPERTIES DISABLED True)
 #endif ()
 
-set(TESTPERF pfio_performance.x)
-
-ecbuild_add_executable (
-  TARGET ${TESTPERF}
-  NOINSTALL
-  SOURCES pfio_performance.F90
-  DEFINITIONS USE_MPI
-  LIBS MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
-target_link_libraries(${TESTPERF} MAPL.pfio NetCDF::NetCDF_Fortran OpenMP::OpenMP_Fortran)
-set_target_properties(${TESTPERF} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-
-add_test(NAME pFIO_performance
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
-  )
-set_tests_properties (pFIO_performance PROPERTIES LABELS "PERFORMANCE")
-
-add_dependencies(build-tests MAPL.pfio.tests)
+add_dependencies(build-tests ${MAPL_TARGET_PREFIX}.pfio.tests)
 add_dependencies(build-tests ${TESTO})
 add_dependencies(build-tests pfio_writer.x)
-add_dependencies(build-tests ${TESTPERF})
 

@@ -6,11 +6,12 @@ import csv
 from collections import namedtuple
 import operator
 from functools import partial
-
 from enum import Enum
+from os import linesep
 
-################################# CONSTANTS ####################################
+################################# CONSTANTS####################################
 SUCCESS = 0
+FAILURE = SUCCESS - 1
 CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 LONGNAME_GLOB_PREFIX = "longname_glob_prefix"
 # constants for logicals
@@ -22,7 +23,6 @@ FALSE_VALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
 # constants used for Option.DIMS and computing rank
 DIMS_OPTIONS = [('MAPL_DimsVertOnly', 1, 'z'), ('MAPL_DimsHorzOnly', 2, 'xy'), ('MAPL_DimsHorzVert', 3, 'xyz')]
 RANKS = dict([(entry, rank) for entry, rank, _ in DIMS_OPTIONS])
-
 
 ############################### HELPER FUNCTIONS ###############################
 def make_string_array(s):
@@ -40,9 +40,9 @@ def make_string_array(s):
     ss = ','.join([add_quotes(s) for s in ls])
     return f"[character(len={n}) :: {ss}]"
 
-def make_entry_emit(dictionary):
-    """ Returns a emit function that looks up the value in dictionary """
-    return lambda key: dictionary[key] if key in dictionary else None
+def make_entry_emit(d):
+    """ Returns a emit function that looks up the value in d """
+    return lambda k: d.get(k, k if k in d.values() else None)
 
 def mangle_name_prefix(name, parameters = None):
     pre = 'comp_name'
@@ -64,8 +64,8 @@ def get_fortran_logical(value_in):
             val_out = FALSE_VALUE
         else:
             raise ValueError("Unrecognized logical: " + value_in)
-    except Exception:
-        raise
+    except Exception as ex:
+        raise RuntimeError(ex)
 
     return val_out
 
@@ -437,8 +437,9 @@ def get_args():
     parser.add_argument("--" + LONGNAME_GLOB_PREFIX, dest=LONGNAME_GLOB_PREFIX,
                         action="store", nargs='?', default=None,
                         help="alternative prefix for long_name substitution")
+    parser.add_argument("--debug", action='store_true', help="report errors and exceptions")
+    parser.add_argument("--skip-checks", dest='run_checks', action='store_false', help="skip consistency checks")
     return parser.parse_args()
-    
 
 # READ_SPECS function
 def read_specs(specs_filename):
@@ -486,60 +487,77 @@ def read_specs(specs_filename):
 
 
 # DIGEST
-def digest(specs, args):
+def digest(specs, args, errors):
     """ Set Option values from parsed specs """
+
+    def digest_spec(spec, errs, run_checks=True):
+        """Set Option values for a single parsed specs"""
+        dims = None
+        ungridded = None
+        alias = None
+        option_values = dict() # dict of option values
+        option = Option.STATE
+        option_values[option] = option.emit(category)
+        for column in spec: # for spec emit value
+            column_value = spec[column]
+            option = Option[column.upper()] # use column name to find Option
+             # emit value
+            if type(option.emit) is ParameterizedEmitFunction:
+                option_value = option.emit(column_value, arg_dict)
+            else:
+                option_value = option.emit(column_value)
+            option_values[option] = option_value # add value to dict
+            if option == Option.SHORT_NAME:
+                option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
+                option_values[Option.INTERNAL_NAME] = Option.INTERNAL_NAME(column_value)
+            elif option == Option.DIMS:
+                dims = option_value
+            elif option == Option.UNGRIDDED:
+                ungridded = option_value
+            elif option == Option.ALIAS:
+                alias = Option.ALIAS(column_value)
+        if alias:
+            option_values[Option.INTERNAL_NAME] = alias
+        option = Option.CONFIG
+        option_values[option] = option.emit(option_values.get(Option.FILTER))
+        name = option_values.get(Option.SHORT_NAME, '[NAME UNKNOWN]')
+# MANDATORY
+        for option in mandatory_options:
+            option_value = option_values.get(option)
+            if option_value:
+                continue
+            errs.append(f'"{option.name}" for state "{category}" is missing from spec {name}')
+        if errs:
+            return {}
+# END MANDATORY
+
+        option_values[Option.RANK] = compute_rank(dims, ungridded)
+# CHECKS HERE
+        if arg_dict['run_checks']:
+            try:
+                check_option_values(option_values)
+            except RuntimeError as ex:
+                raise RuntimeError(f'{name} failed the value checks: {ex}')
+# END CHECKS
+        return option_values
+
     arg_dict = vars(args)
     mandatory_options = Option.get_mandatory_options()
     digested_specs = dict()
-
     for category in specs:
         category_specs = list() # All the specs for the category
         for spec in specs[category]: # spec from list
-            dims = None
-            ungridded = None
-            alias = None
-            option_values = dict() # dict of option values
-            option = Option.STATE
-            option_values[option] = option.emit(category)
-            for column in spec: # for spec emit value
-                column_value = spec[column]
-                option = Option[column.upper()] # use column name to find Option
-                 # emit value
-                if type(option.emit) is ParameterizedEmitFunction:
-                    option_value = option.emit(column_value, arg_dict)
-                else:
-                    option_value = option.emit(column_value)
-                option_values[option] = option_value # add value to dict
-                if option == Option.SHORT_NAME:
-                    option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
-                    option_values[Option.INTERNAL_NAME] = Option.INTERNAL_NAME(column_value)
-                elif option == Option.DIMS:
-                    dims = option_value
-                elif option == Option.UNGRIDDED:
-                    ungridded = option_value
-                elif option == Option.ALIAS:
-                    alias = Option.ALIAS(column_value)
-            if alias:
-                option_values[Option.INTERNAL_NAME] = alias
-            option = Option.CONFIG
-            option_values[option] = option.emit(option_values.get(Option.FILTER))
-# MANDATORY
-            for option in mandatory_options:
-                if option not in option_values:
-                    raise RuntimeError(option.name + " is missing from spec.")
-# END MANDATORY
-            option_values[Option.RANK] = compute_rank(dims, ungridded)
-# CHECKS HERE
+            errs = []
             try:
-                check_option_values(option_values)
-            except Exception:
-                raise
-# END CHECKS
-            category_specs.append(option_values)
+                option_values = digest_spec(spec, errs)
+            except RuntimeError as err:
+                raise RuntimeError(f'A RuntimeError occurred while processing state "{category}": {err}') from err
+            errors.extend(errs)
+            if option_values:
+                category_specs.append(option_values)
         digested_specs[category] = category_specs 
 
     return digested_specs
-    
 
 ################################# EMIT_VALUES ##################################
 def emit_values(specs, args):
@@ -591,12 +609,12 @@ def emit_values(specs, args):
     if f_get_pointers:
         f_get_pointers.close()
 
-
 #############################################
 # MAIN program begins here
 #############################################
 
 if __name__ == "__main__":
+    rc = FAILURE
 # Process command line arguments
     args = get_args()
 
@@ -604,14 +622,23 @@ if __name__ == "__main__":
     parsed_specs = read_specs(args.input)
 
 # Digest specs from file to output structure
+    errors = []
     try:
-        specs = digest(parsed_specs, args)
-
-    except Exception:
-        raise
+        specs = digest(parsed_specs, args, errors)
+    except RuntimeError as err:
+        print(err)
+        sys.exit(rc)
 
 # Emit values
-    emit_values(specs, args)
-
+    try:
+        emit_values(specs, args)
+    except Exception as ex:
+        print(f'An Exception occuring while emitting values: {ex}.')
+        sys.exit(rc)
+    else:
+        rc = FAILURE if errors else SUCCESS
 # FIN
-    sys.exit(SUCCESS)
+    if args.debug and errors:
+        print(linesep.join(errors))
+
+    sys.exit(rc)

@@ -1,13 +1,13 @@
-esma_set_this (OVERRIDE MAPL.griddedio)
+esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.griddedio)
 
 set (srcs
         DataCollection.F90
         DataCollectionManager.F90
         GriddedIOitem.F90
         GriddedIO.F90
+        TileGridIO.F90
         FieldBundleRead.F90
         FieldBundleWrite.F90
-        TileIO.F90
     )
 
 # Skip this for GCHP
@@ -17,7 +17,7 @@ set (srcs
 
 esma_add_library (${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.pfio MAPL_cfio_r4
+  DEPENDENCIES ${MAPL_TARGET_PREFIX}.shared ${MAPL_TARGET_PREFIX}.constants ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.pfio MAPL_cfio_r4
   TYPE ${MAPL_LIBRARY_TYPE})
 
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared PFLOGGER::pflogger ESMF::ESMF NetCDF::NetCDF_Fortran

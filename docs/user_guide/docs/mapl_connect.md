@@ -1,9 +1,9 @@
-MAPL adopts ESMF’s natural hierarchical topology for component connectivity, following the model illustrated in Figure ??. 
-The leaf components (no children: at the bot- tom of the figure) contain the bulk of the computational code. 
-These are things like physical parameterizations or dynamical cores, and they are grouped in composite com- ponents (their parents). 
-In a typical application, a composite component (parent) spawns other (children) components. 
-In our MAPL example (3.9), the parent gridded component GEOS_AgcmSimpleGridComp spawns two children components 
-FVdycore_GridCompMod and GEOS_hsGridCompMod. 
+MAPL adopts ESMF’s natural hierarchical topology for component connectivity, following the model illustrated in Figure ??.
+The leaf components (no children: at the bot- tom of the figure) contain the bulk of the computational code.
+These are things like physical parameterizations or dynamical cores, and they are grouped in composite com- ponents (their parents).
+In a typical application, a composite component (parent) spawns other (children) components.
+In our MAPL example (3.9), the parent gridded component GEOS_AgcmSimpleGridComp spawns two children components
+FVdycore_GridCompMod and GEOS_hsGridCompMod.
 The registration of the children with MAPL is accomplished by the following calls in the parent’s SetServices.
 
 ```fortran
@@ -73,11 +73,11 @@ state. This also continues recursively up the hierarchy.
    configuration. The $i^{th}$ child is named __GCNames(I)__.
 - Creates each child's Import and Export states. These are named
    __GCNames(I)//_"IMPORT"__ and __GCNames(I)//"_EXPORT"__
-- Invokes each child's SetServices. [These are chosen from the five possible
+- Invokes each child's SetServices. (These are chosen from the five possible
     externals specified, depending on the value of {\tt SSptr(I)}(!?!?!). By
     convention, if {\tt SSptr} is not present, there can be at most as many
     children as optional externals, and these are associated in the order
-    they appear in {\tt GCNames} and the argument list] - __EXPLAIN__.
+    they appear in {\tt GCNames} and the argument list) - __EXPLAIN__.
 - 'Wires' the children. This resolves all child \im s that are satisfied
    by siblings. All such connections must have been added explicitly
    in SetServices.
@@ -87,56 +87,56 @@ state. This also continues recursively up the hierarchy.
 
 #### Rules for MAPL Application
 
-- __Rule 25:__ Every MAPL application will have one and only one Root component, 
+- __Rule 25:__ Every MAPL application will have one and only one Root component,
   which will be an ancestor of every component except the History component.
-- __Rule 26:__ The Cap component is the main program; 
-  it has no parent and exactly three children: Root, ExtData, and History. 
+- __Rule 26:__ The Cap component is the main program;
+  it has no parent and exactly three children: Root, ExtData, and History.
   The application component creates and initializes the configuration.
 
 ### Configuration
 
 
-MAPL requires that the application’s configuration be propagated down from parents to children, 
-and that it be present in the component as soon as the component is created. 
+MAPL requires that the application’s configuration be propagated down from parents to children,
+and that it be present in the component as soon as the component is created.
 It effectively treats the configuration as though it was a UNIX environment available to all components in an application.
 
-The behavior of an application is controlled through three resource (or configuration) files. 
-The MAPL_Cap (main program) opens the configuration files for itself and its three children (Root and History). 
-These have the default names `CAP.rc`, `ROOT.rc`, `ExtData.rc`, and `HISTORY.rc`. 
-They must be present in the run directory at run time. 
-The name of MAPL_Cap’s own resource file is fixed as `Cap.rc`, since this is the resource from which the application ‘boots up’. 
+The behavior of an application is controlled through three resource (or configuration) files.
+The MAPL_Cap (main program) opens the configuration files for itself and its three children (Root and History).
+These have the default names `CAP.rc`, `ROOT.rc`, `ExtData.rc`, and `HISTORY.rc`.
+They must be present in the run directory at run time.
+The name of MAPL_Cap’s own resource file is fixed as `Cap.rc`, since this is the resource from which the application ‘boots up’.
 The other two may be renamed in `Cap.rc`. The table below lists the resources in the `Cap.rc`.
 
 
 | __Name__ | __Description__ | __Units__ | __Default__ |
 | ----  |  ---- |  ---- |  ---- |
-| CF_FILE:    |  Name of ROOT's config file             |  none    |  'Root.rc' | 
-| CF_FILE:    |  Name of HISTORY's config file          |  none   | 'HISTORY.rc' | 
-| TICK_FIRST: |  Determines when clock is advanced      |  1 or 0  |  none | 
-| BEG_YY:     |  Beginning year (integer)               |  year    |  1 | 
-| BEG_MM:     |  Beginning month (integer 1-12)         |  month   | 1 | 
-| BEG_DD:     |  Beginning day of month (integer 1-31)  |  day     |  1 | 
-| BEG_H:      |  Beginning hour of day (integer 0-23)   |  hour    |  0 | 
-| BEG_M:      |  Beginning minute (integer 0-59)        |  minute  |  0 | 
-| BEG_S:      |  Beginning second (integer 0-59)        |  second  |  0 | 
-| END_YY:     |  Ending year (integer)                  |  year    |  1 | 
-| END_MM:     |  Ending month (integer 1-12)            |  month   |  1 | 
-| END_DD:     |  Ending day of month (integer 1-31)     |  day     |  1 | 
-| END_H:      |  Ending hour of day (integer 0-23)      |  hour    |  0 | 
-| END_M:      |  Ending minute (integer 0-59)           |  minute  |  0 | 
-| END_S:      |  Ending second (integer 0-59)           |  second  |  0 | 
-| RUN_DT:     |  App Clock Interval (the Heartbeat)     |  second  |  none | 
-| LATLON:     |  1 -> regular lat-lon; 0 -> custom grid |  0 or 1  |  1 | 
-| NX:         |  Processing elements in 1st dimension   |  none    |  1 | 
-| NY:         |  Processing elements in 2nd dimension   |  none    |  1 | 
-| IM_WORLD:   |  Grid size in 1st dimension             |  none    |  none | 
-| JM_WORLD:   |  Grid size in 2nd dimension             |  none    |  none | 
-| LM:         |  Grid size in 3rd dimension             |  none    |  1 | 
-| GRIDNAME:   |  Optional grid name                     |  none    |  'APPGRID' | 
-| IMS:        |  Gridpoints in each PE along 1st dimension |  none |  IMS | 
-| JMS:        |  Gridpoints in each PE along 2nd dimension |  none |  JMS | 
-| POLEEDGE:   |  1->gridedge at pole; 0->gridpoint at pole |  0 or 1 |  0 | 
-| LON0:       |  Longituce of center of first gridbox      |  degree  |  -90. | 
+| CF_FILE:    |  Name of ROOT's config file             |  none    |  'Root.rc' |
+| CF_FILE:    |  Name of HISTORY's config file          |  none   | 'HISTORY.rc' |
+| TICK_FIRST: |  Determines when clock is advanced      |  1 or 0  |  none |
+| BEG_YY:     |  Beginning year (integer)               |  year    |  1 |
+| BEG_MM:     |  Beginning month (integer 1-12)         |  month   | 1 |
+| BEG_DD:     |  Beginning day of month (integer 1-31)  |  day     |  1 |
+| BEG_H:      |  Beginning hour of day (integer 0-23)   |  hour    |  0 |
+| BEG_M:      |  Beginning minute (integer 0-59)        |  minute  |  0 |
+| BEG_S:      |  Beginning second (integer 0-59)        |  second  |  0 |
+| END_YY:     |  Ending year (integer)                  |  year    |  1 |
+| END_MM:     |  Ending month (integer 1-12)            |  month   |  1 |
+| END_DD:     |  Ending day of month (integer 1-31)     |  day     |  1 |
+| END_H:      |  Ending hour of day (integer 0-23)      |  hour    |  0 |
+| END_M:      |  Ending minute (integer 0-59)           |  minute  |  0 |
+| END_S:      |  Ending second (integer 0-59)           |  second  |  0 |
+| RUN_DT:     |  App Clock Interval (the Heartbeat)     |  second  |  none |
+| LATLON:     |  1 -> regular lat-lon; 0 -> custom grid |  0 or 1  |  1 |
+| NX:         |  Processing elements in 1st dimension   |  none    |  1 |
+| NY:         |  Processing elements in 2nd dimension   |  none    |  1 |
+| IM_WORLD:   |  Grid size in 1st dimension             |  none    |  none |
+| JM_WORLD:   |  Grid size in 2nd dimension             |  none    |  none |
+| LM:         |  Grid size in 3rd dimension             |  none    |  1 |
+| GRIDNAME:   |  Optional grid name                     |  none    |  'APPGRID' |
+| IMS:        |  Gridpoints in each PE along 1st dimension |  none |  IMS |
+| JMS:        |  Gridpoints in each PE along 2nd dimension |  none |  JMS |
+| POLEEDGE:   |  1->gridedge at pole; 0->gridpoint at pole |  0 or 1 |  0 |
+| LON0:       |  Longituce of center of first gridbox      |  degree  |  -90. |
 
 An example configuration file  `CAP.rc`:
 
@@ -167,12 +167,12 @@ An example `HelloWorld.rc` configuration file is simply:
 This would perform a one day simulation with 30 minute time steps on a
 $4^o \times  5^o$ grid, using a $2 \times 2$ decomposition element layout.
 
-For an ESMF_GridComp, the configuration may be obtained by querying using the standard ESMF interface, 
-as shown in the run method of Example 2 (3.2.4.2). 
-It can also be queried through the MAPL object by calling MAPL_GetResource. 
-This is the preferred way. When the configuration is queried this way, MAPL first tries to match a label 
-that has been made instance-specific by prepending the instance’s full name and an underscore to the specified label; 
-in Example 2, MAPL would first look for `trim(COMP_NAME)//’_DT:’`. 
-If this is not found, it would then look for a type-specific label by prepending only the last name, 
-if the instance has one. If this fails, it would look for the unqualified label, `DT:`; finally, if this also fails, 
+For an ESMF_GridComp, the configuration may be obtained by querying using the standard ESMF interface,
+as shown in the run method of Example 2 (3.2.4.2).
+It can also be queried through the MAPL object by calling MAPL_GetResource.
+This is the preferred way. When the configuration is queried this way, MAPL first tries to match a label
+that has been made instance-specific by prepending the instance’s full name and an underscore to the specified label;
+in Example 2, MAPL would first look for `trim(COMP_NAME)//’_DT:’`.
+If this is not found, it would then look for a type-specific label by prepending only the last name,
+if the instance has one. If this fails, it would look for the unqualified label, `DT:`; finally, if this also fails,
 it would set it to the default value, which in the example is the application’s time step, `RUN_DT`.

@@ -50,6 +50,11 @@ module NCIOMod
   public MAPL_WriteTilingNC4
   public MAPL_ReadTilingASCII
 
+  interface MAPL_ReadTilingNC4
+     module procedure MAPL_ReadTilingNC4_serial
+     module procedure MAPL_ReadTilingNC4_par
+  end interface
+
   interface MAPL_VarReadNCPar
      module procedure MAPL_StateVarReadNCPar
      module procedure MAPL_BundleReadNCPar
@@ -5080,7 +5085,8 @@ contains
       _RETURN(_SUCCESS)
    end function create_flipped_field
 
-   subroutine MAPL_ReadTilingNC4(File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
+   ! Serial version - reads the file without MPI
+   subroutine MAPL_ReadTilingNC4_serial(File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
       character(*),                             intent(IN)  :: File
       character(*), optional,                   intent(out) :: GridName(:)
       integer,      optional,                   intent(out) :: IM(:), JM(:)
@@ -5241,6 +5247,7 @@ contains
         call formatter%get_var('max_lat', rTable_(:, 9), rc=status)
         call formatter%get_var('elev',    rTable_(:,10), rc=status)
       endif
+
       if (present(AVR)) then
         ! In GEOSgcm, it already assumes ng = 2, so NumCol = 10
          NumCol = NumGlobalVars+NumLocalVars*ng
@@ -5277,7 +5284,138 @@ contains
         enddo
       endif
       _RETURN(_SUCCESS)
-   end subroutine MAPL_ReadTilingNC4
+   end subroutine MAPL_ReadTilingNC4_serial
+
+   ! Parallel version - root calls serial version then broadcasts to all processes
+   subroutine MAPL_ReadTilingNC4_par(layout, File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
+      type(ESMF_DELayout),                      intent(IN)  :: layout
+      character(*),                             intent(IN)  :: File
+      character(*), optional,                   intent(out) :: GridName(:)
+      integer,      optional,                   intent(out) :: IM(:), JM(:)
+      integer,      optional,                   intent(out) :: nx, ny, n_Grids, n_tiles
+      integer,      optional, allocatable,      intent(out) :: iTable(:,:)
+      real(kind=REAL64), optional, allocatable, intent(out) :: rTable(:,:)
+      integer,      optional,              intent(out) :: N_PfafCat
+      real,         optional, pointer,     intent(out) :: AVR(:,:)      ! used by GEOSgcm
+      integer,      optional,              intent(out) :: rc
+
+      integer :: status, ll, ng, ntile, NumCol
+
+      ! Root process calls the serial version
+      if (MAPL_AM_I_ROOT(layout)) then
+         call MAPL_ReadTilingNC4_serial(File, GridName, IM, JM, nx, ny, n_Grids, n_tiles, &
+                                        iTable, rTable, N_PfafCat, AVR, rc=status)
+         _VERIFY(status)
+         ! Get ng and ntile for broadcasts
+         if (present(n_Grids)) then
+            ng = n_Grids
+         else
+            ! If n_Grids not requested, we need to determine it from other outputs
+            if (present(GridName)) then
+               ng = size(GridName)
+            else if (present(IM)) then
+               ng = size(IM)
+            else if (present(JM)) then
+               ng = size(JM)
+            else
+               ng = 1  ! default
+            endif
+         endif
+         if (present(n_tiles)) then
+            ntile = n_tiles
+         else if (present(iTable)) then
+            ntile = size(iTable, 1)
+         else if (present(rTable)) then
+            ntile = size(rTable, 1)
+         else if (present(AVR)) then
+            ntile = size(AVR, 1)
+         else
+            ntile = 0
+         endif
+      endif
+
+      ! Broadcast ng and ntile first so non-root processes know array sizes
+      call MAPL_CommsBcast(layout, ng, 1, MAPL_Root, status)
+      _VERIFY(status)
+      
+      call MAPL_CommsBcast(layout, ntile, 1, MAPL_Root, status)
+      _VERIFY(status)
+
+      ! Broadcast optional scalar outputs
+      if (present(n_Grids)) then
+         call MAPL_CommsBcast(layout, n_Grids, 1, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      if (present(n_tiles)) then
+         call MAPL_CommsBcast(layout, n_tiles, 1, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      if (present(nx)) then
+         call MAPL_CommsBcast(layout, nx, 1, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      if (present(ny)) then
+         call MAPL_CommsBcast(layout, ny, 1, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      if (present(N_PfafCat)) then
+         call MAPL_CommsBcast(layout, N_PfafCat, 1, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      ! Broadcast array outputs
+      if (present(GridName)) then
+         do ll = 1, ng
+            call MAPL_CommsBcast(layout, GridName(ll), len(GridName(ll)), MAPL_Root, status)
+            _VERIFY(status)
+         enddo
+      endif
+
+      if (present(IM)) then
+         call MAPL_CommsBcast(layout, IM, ng, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      if (present(JM)) then
+         call MAPL_CommsBcast(layout, JM, ng, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      if (present(iTable)) then
+         ! Non-root processes need to allocate iTable
+         if (.not. MAPL_AM_I_ROOT(layout)) then
+            allocate(iTable(ntile,0:7))
+         endif
+         call MAPL_CommsBcast(layout, iTable, ntile*8, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      if (present(rTable)) then
+         ! Non-root processes need to allocate rTable
+         if (.not. MAPL_AM_I_ROOT(layout)) then
+            allocate(rTable(ntile,10))
+         endif
+         call MAPL_CommsBcast(layout, rTable, ntile*10, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      if (present(AVR)) then
+         ! Determine NumCol
+         NumCol = NumGlobalVars + NumLocalVars*ng
+         ! Non-root processes need to allocate AVR
+         if (.not. MAPL_AM_I_ROOT(layout)) then
+            allocate(AVR(ntile, NumCol))
+         endif
+         call MAPL_CommsBcast(layout, AVR, ntile*NumCol, MAPL_Root, status)
+         _VERIFY(status)
+      endif
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_ReadTilingNC4_par
 
    subroutine MAPL_WriteTilingNC4(File, GridName, im, jm, nx, ny, iTable, rTable, N_PfafCat, rc)
 

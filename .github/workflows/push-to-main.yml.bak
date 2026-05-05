@@ -1,0 +1,64 @@
+# Comment out for GCHP
+
+<<<<<<< HEAD
+#name: Push to main
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#
+#jobs:
+#  pull_request:
+#    name: Create Pull Request
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#          filter: blob:none
+#      - name: Run the action
+#        uses: devops-infra/action-pull-request@v0.6.0
+#        with:
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          source_branch: main
+#          target_branch: develop
+#          label: ":wrench: Github Actions"
+#          template: .github/PULL_REQUEST_TEMPLATE/gitflow_main_develop.md
+#          get_diff: true
+#          assignee: ${{ github.actor }}
+#          old_string: "<!-- Write your description here -->"
+#          new_string: ${{ github.event.commits[0].message }}
+#          title: Auto GitFlow - main → develop
+=======
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pull_request:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - name: Run the action
+        uses: devops-infra/action-pull-request@v1.0.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: main
+          target_branch: develop
+          label: ":wrench: Github Actions"
+          template: .github/PULL_REQUEST_TEMPLATE/gitflow_main_develop.md
+          get_diff: true
+          assignee: ${{ github.actor }}
+          old_string: "<!-- Write your description here -->"
+          new_string: ${{ github.event.commits[0].message }}
+          title: Auto GitFlow - main → develop
+>>>>>>> mapl_2.68.0
+
