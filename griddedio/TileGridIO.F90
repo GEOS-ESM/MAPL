@@ -103,7 +103,8 @@ module MAPL_TileGridIOMod
         TileIO%read_collection_id = read_collection_id
      end function
 
-     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
+     ! Add option posDown for consistency with CreatFileMetaData in GriddedIO.F90 within GCHP
+     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,posDown,rc)
         class (MAPL_TileGridIO), target, intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
@@ -111,6 +112,7 @@ module MAPL_TileGridIOMod
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
         type(StringStringMap), target, intent(in), optional :: global_attributes
+        logical, intent(in), optional :: posDown ! Added for GCHP
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid, output_grid
