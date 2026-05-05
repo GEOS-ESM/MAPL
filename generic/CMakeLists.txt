@@ -4,13 +4,6 @@ set (srcs
   SurrogateFrameworkComponent.F90
   AbstractComponent.F90
 
-  # Specs
-  VarSpecType.F90
-  VarSpec.F90
-  VarSpecPtr.F90
-  VarSpecMiscMod.F90
-  VarSpecVector.F90
-
   MaplGeneric.F90
   MAPL_Generic_Stubs.F90
 
@@ -26,7 +19,7 @@ find_package(GFTL_SHARED REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.oomph MAPL.shared MAPL.profiler MAPL.base
+  DEPENDENCIES MAPL.shared MAPL.profiler MAPL.base
                PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
   TYPE SHARED
   )

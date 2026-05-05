@@ -1085,7 +1085,6 @@ contains
         NX, NY, NX0, NY0, LAYOUT, &
         GCNames, &
         LONS, LATS, grid, ORBIT, RUNALARM, &
-        IMPORTspec, EXPORTspec, INTERNALspec, &
         INTERNAL_ESMF_STATE, &
         TILETYPES, TILEKIND, &
         TILELATS, TILELONS, TILEAREA, LOCSTREAM, &
@@ -1109,9 +1108,6 @@ contains
       real, pointer, optional :: LATS(:, :)
       type(ESMF_Grid), optional :: grid
       integer, optional, intent(out) :: rc
-      type(MAPL_VarSpec), optional, pointer :: IMPORTspec(:)
-      type(MAPL_VarSpec), optional, pointer :: EXPORTspec(:)
-      type(MAPL_VarSpec), optional, pointer :: INTERNALspec(:)
       type(ESMF_State), optional, intent(out) :: INTERNAL_ESMF_STATE
       integer, optional, pointer :: TILETYPES(:)
       integer, optional, pointer :: TILEKIND(:)
