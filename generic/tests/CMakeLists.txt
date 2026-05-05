@@ -1,7 +1,8 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.generic/tests")
 
 set (test_srcs
-    Test_VarSpec.pf
+    Test_CompositeComponent.pf
+    Test_ConcreteComposite.pf
   )
 
 
