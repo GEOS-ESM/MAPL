@@ -293,8 +293,55 @@ class TestHelpers(unittest.TestCase):
             r = acg3.make_else_block(name)
             with self.subTest(test=test, msg=msg):
                 test(r, msg)
-    
-test_cases = (TestMappings, TestHelpers, TestColumns)
+
+    def test_emit_declare_pointer(self):
+        INTERNAL_NAME = 'GX'
+        RANK = 4
+        make_spec = lambda tk: {acg3.TYPEKIND: tk, acg3.INTERNAL_NAME: INTERNAL_NAME,
+                acg3.RANK: RANK}
+        equal_test = lambda expected: make_equal_test(self, expected)
+        typekinds = ('ESMF_TYPEKIND_R4',)
+        expecteds = (f'real(kind=ESMF_KIND_R4), pointer :: {INTERNAL_NAME}(:,:,:,:)',)
+        params = zip(typekinds, expecteds)
+        for tk, ex in params:
+            spec = make_spec(tk)
+            msg = general_msg('Pointer declaration', ex)
+            test = equal_test(ex)
+            value = acg3.emit_declare_pointer(spec)
+            with self.subTest(value=value, test=test, msg=msg):
+                test(value, msg)
+
+    def test_emit_declare_pointer_unsupported_type(self):
+        spec = {acg3.TYPEKIND: 'X4', acg3.INTERNAL_NAME: 'GX', acg3.RANK: 4}
+        self.assertRaises(RuntimeError, acg3.emit_declare_pointer, spec)
+
+class TestTypes(unittest.TestCase):
+
+    def test_ESMF_Typekind(self):
+        ESMF_Typekind = acg3.ESMF_Typekind
+        equal_test = lambda expected: make_equal_test(self, expected)
+        params = zip(('R4 R8 I4 I8'
+                + ' ESMF_TYPEKIND_R4 ESMF_TYPEKIND_R8'
+                + ' ESMF_TYPEKIND_I4 ESMF_TYPEKIND_I8').split(),
+                (ESMF_Typekind.R4, ESMF_Typekind.R8, ESMF_Typekind.I4, ESMF_Typekind.I8,
+                ESMF_Typekind.R4, ESMF_Typekind.R8, ESMF_Typekind.I4, ESMF_Typekind.I8))
+        test_params = (TestParams(v, equal_test(e), general_msg('Enum member', e))
+                for v, e in params)
+
+        for value, test, msg in test_params:
+            with self.subTest(value=value, test=test, msg=msg):
+                test(ESMF_Typekind[value], msg)
+
+    def test_ESMF_Typekind_variable_type(self):
+        ESMF_Typekind = acg3.ESMF_Typekind
+        equal_test = lambda expected: make_equal_test(self, expected)
+        params = ((ESMF_Typekind[t], e) for t, e in (('R4', 'real(kind=ESMF_KIND_R4)'),))
+        for en, ex in params:
+            value, test, msg = str(en), equal_test(ex), general_msg('Variable type', ex)
+            with self.subTest(value=value, test=test, msg=msg):
+                test(value, msg)
+
+test_cases = (TestMappings, TestHelpers, TestColumns, TestTypes)
 
 def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()

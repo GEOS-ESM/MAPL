@@ -129,6 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workaround for GCC 15 bug (see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=120179)
 - Fixed handling of invalid value for RESTART column in ACG3
 - Fixed initialization of field in test_min_accumulate_R4` in `Test_MinTransform.pf`
+- Fixed the precision of the pointer variable in ACG3
 
 ## [Unreleased]
 

@@ -17,7 +17,6 @@ module mapl3g_ApplicationMode
           type(ESMF_HConfig), intent(in) :: config
           integer, optional, intent(out) :: rc
         end subroutine I_Run
-     end subroutine I_Run
   end interface
 
 end module mapl3g_ApplicationMode
