@@ -9,31 +9,17 @@ module MAPLBase_Mod
 ! For temporary backward compatibility after moving/renaming:
   use MAPL_BaseMod, only: ESMF_GRID_INTERIOR => MAPL_GRID_INTERIOR
    use MAPL_IOMod
-! For temporary backward compatibility after Constants Library
-  use MAPL_Constants
-  use MAPL_Constants, only: MAPL_PI_R8
   use MAPL_ConfigMod
-  use MAPL_SortMod
-  use MAPL_SunMod
   use MAPL_LocStreamMod
-  use MAPL_InterpMod
-  use MAPL_MemUtilsMod
-  use MAPL_HashMod
-  use MAPL_LoadBalanceMod
-
   use MAPL_ShmemMod
+  use MAPL_MemUtilsMod
   use MAPL_MaxMinMod
   use MAPL_SimpleBundleMod
-  use MAPL_DirPathMod
-  use MAPL_KeywordEnforcerMod
-  use MAPL_SimpleCommSplitterMod
-  use MAPL_SplitCommunicatorMod
   use MAPL_ApplicationSupport
   use MAPL_ServerManager
   use MAPL_FileMetadataUtilsMod
   use MAPL_VerticalDataMod
   use MAPL_SphericalGeometry
-  use mapl_LocalDisplacementEnsemble
 
   logical, save, private :: mapl_is_initialized = .false.
 
