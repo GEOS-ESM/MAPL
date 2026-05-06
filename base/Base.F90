@@ -9,7 +9,6 @@ module MAPLBase_Mod
 ! For temporary backward compatibility after moving/renaming:
   use MAPL_BaseMod, only: ESMF_GRID_INTERIOR => MAPL_GRID_INTERIOR
    use MAPL_IOMod
-  use MAPL_ConfigMod
   use MAPL_LocStreamMod
   use MAPL_ShmemMod
   use MAPL_MemUtilsMod
