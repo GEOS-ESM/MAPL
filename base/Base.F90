@@ -15,11 +15,9 @@ module MAPLBase_Mod
   use MAPL_MemUtilsMod
   use MAPL_MaxMinMod
   use MAPL_SimpleBundleMod
-  use MAPL_ApplicationSupport
   use MAPL_ServerManager
   use MAPL_FileMetadataUtilsMod
   use MAPL_VerticalDataMod
-  use MAPL_SphericalGeometry
 
   logical, save, private :: mapl_is_initialized = .false.
 

@@ -6,7 +6,6 @@ set (srcs
   FileMetadataUtilitiesVector.F90       MAPL_SimpleBundleMod.F90
   MaplGrid.F90
   MAPL_ESMFTimeVectorMod.F90
-  MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
   MAPL_Config.F90                       MAPL_LocStreamMod.F90
@@ -15,11 +14,9 @@ set (srcs
   Base.F90
   MAPL_NominalOrbitsMod.F90
   ServerManager.F90 ApplicationSupport.F90
-  MAPL_SphericalGeometry.F90
   c_mapl_locstream_F.c  getrss.c  memuse.c
   Base/Base_Base.F90 Base/Base_Base_implementation.F90
   TimeStringConversion.F90
-  MAPL_DateTime_Parsing_ESMF.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )

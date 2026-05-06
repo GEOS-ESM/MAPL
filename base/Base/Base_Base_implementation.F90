@@ -29,7 +29,6 @@ submodule (MAPL_Base) Base_Implementation
   use MAPL_FieldUtils
   use MAPL_Constants
   use MAPL_RangeMod
-  use MAPL_SphericalGeometry
   use mapl_MaplGrid, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use MAPL_ExceptionHandling
   use MAPL_Profiler
