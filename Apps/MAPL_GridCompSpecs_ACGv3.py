@@ -212,10 +212,10 @@ def get_options(args):
             'SKIP_INITIAL': 'MAPL_RESTART_SKIP_INITIAL'}},
         STATE: {FLAGS: {MANDATORY, STORE}}, 
         TYPEKIND: {MAPPING: { 
-            'R4': 'ESMF_Typekind_R4',
-            'R8': 'ESMF_Typekind_R8',
-            'I4': 'ESMF_Typekind_I4',
-            'I8': 'ESMF_Typekind_I8'}},
+            'R4': 'ESMF_TYPEKIND_R4',
+            'R8': 'ESMF_TYPEKIND_R8',
+            'I4': 'ESMF_TYPEKIND_I4',
+            'I8': 'ESMF_TYPEKIND_I8'}},
         'units': {MAPPING: STRING},
         USE_FIELD_DICTIONARY: {MAPPING: (partial(convert_to_logical, none_on_false=True), convert_to_bool), FLAGS: COMPOSE},
         'vector_pair': {MAPPING: STRING}
