@@ -167,6 +167,28 @@ class TestColumns(unittest.TestCase):
         values, missing_keys = digest_spec(s, options)
         assertFalse(use_field_dictionary in values, msg('use_field_dictionary should not be in values', s, values))
 
+    def test_fill_value(self):
+        # helpers
+        make_specs = lambda k, v: [{k: v, acg3.SHORT_NAME: 'FXX'}]
+        def get_value(key, field_value, final_key=None):
+            values, _ = acg3.get_values(make_specs(key, field_value), acg3.get_options({}))
+            return values[0][final_key if final_key else key]
+
+        # test for different types
+        for fv in '4.0 4.0D0 4 "4.0"'.split():
+            test = make_equal_test(self, fv)
+            actual = get_value(acg3.FILL_VALUE, fv)
+            msg = general_msg(variable='Field value', value=fv)
+            with self.subTest(test=test, actual=actual, msg=msg):
+                test(actual, msg)
+
+        # make sure results are the same for the key and the alias
+        fv = '4.0'
+        test = make_equal_test(self, get_value(acg3.FILL_VALUE, fv))
+        actual = get_value('fill', fv, final_key=acg3.FILL_VALUE)
+        msg = general_msg(variable='Field value', value=fv)
+        test(actual, msg)
+
 class TestHelpers(unittest.TestCase):
 
     def test_isiterable(self):
