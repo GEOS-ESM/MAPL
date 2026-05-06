@@ -38,7 +38,6 @@ module mapl3g_Cap
 contains
 
    subroutine mapl_run_driver(hconfig, is_model_pet, unusable, servers, rc)
-      USE mapl_ApplicationSupport
       type(esmf_HConfig), intent(inout) :: hconfig
       logical, intent(in) :: is_model_pet
       class(KeywordEnforcer), optional, intent(in) :: unusable
