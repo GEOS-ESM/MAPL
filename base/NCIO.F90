@@ -17,7 +17,7 @@ module NCIOMod
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_SortMod
-  use MAPL_EASEConversion, only:  MAPL_get_ease_gridname_by_cols
+  use mapl3g_EASEConversion, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
   !use MAPL_RangeMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling

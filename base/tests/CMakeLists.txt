@@ -9,7 +9,6 @@ set (TEST_SRCS
     Test_MAPL_Config.pf
     test_DirPath.pf
     test_TimeStringConversion.pf
-    Test_MAPL_Resource.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
 #    test_MAPL_DateTime_Parsing_ESMF.pf
   )

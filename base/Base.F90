@@ -14,7 +14,6 @@ module MAPLBase_Mod
   use MAPL_Constants, only: MAPL_PI_R8
   use MAPL_ConfigMod
   use MAPL_SortMod
-  use MAPL_ProfMod
   use MAPL_SunMod
   use MAPL_LocStreamMod
   use MAPL_InterpMod
@@ -34,7 +33,6 @@ module MAPLBase_Mod
   use MAPL_FileMetadataUtilsMod
   use MAPL_VerticalDataMod
   use MAPL_SphericalGeometry
-  use MAPL_EASEConversion
   use mapl_LocalDisplacementEnsemble
 
   logical, save, private :: mapl_is_initialized = .false.
