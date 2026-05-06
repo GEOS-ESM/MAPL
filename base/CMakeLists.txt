@@ -8,7 +8,7 @@ set (srcs
   MAPL_ESMFTimeVectorMod.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
-  MAPL_Config.F90                       MAPL_LocStreamMod.F90
+  MAPL_LocStreamMod.F90
   MAPL_MaxMinMod.F90                    MAPL_VerticalInterpMod.F90
                                         MAPL_VerticalMethods.F90
   Base.F90

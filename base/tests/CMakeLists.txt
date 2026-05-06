@@ -6,7 +6,6 @@ set (TEST_SRCS
     test_sort.pf
 #    Test_CFIO_Bundle.pf
     Test_SimpleMAPLcomp.pf
-    Test_MAPL_Config.pf
     test_DirPath.pf
     test_TimeStringConversion.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
