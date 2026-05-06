@@ -11,6 +11,8 @@ module MAPLBase_Mod
    use MAPL_IOMod
   use MAPL_ConfigMod
   use MAPL_LocStreamMod
+  use MAPL_ShmemMod
+  use MAPL_MemUtilsMod
   use MAPL_MaxMinMod
   use MAPL_SimpleBundleMod
   use MAPL_ApplicationSupport
