@@ -22,6 +22,7 @@ module mapl_base3g
           MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax, &
           MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
+   use mapl3g_FileIO, only: WRITE_PARALLEL
    implicit none(type,external)
    private
 
@@ -48,5 +49,6 @@ module mapl_base3g
    public :: MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax
    public :: MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    public :: MAPL_Interp_Fac, MAPL_ClimInterpFac
+   public :: WRITE_PARALLEL
 
 end module mapl_base3g
