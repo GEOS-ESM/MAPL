@@ -31,7 +31,7 @@ use MAPL_CommsMod
 use MAPL_HashMod
 use MAPL_ShmemMod
 use MAPL_ExceptionHandling
-use MAPL_EASEConversion
+use mapl3g_EASEConversion, only: MAPL_ease_extent => ease_extent
 use, intrinsic :: iso_fortran_env, only: REAL64, INT64
 use mpi
 

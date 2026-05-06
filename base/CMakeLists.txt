@@ -1,12 +1,10 @@
 esma_set_this (OVERRIDE MAPL.base)
 
 set (srcs
-  MAPL_Profiler.F90
   ESMFL_Mod.F90
   FileMetadataUtilities.F90
   FileMetadataUtilitiesVector.F90       MAPL_SimpleBundleMod.F90
   MaplGrid.F90
-  MAPL_stubs.F90
   MAPL_ESMFTimeVectorMod.F90
   MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
@@ -21,9 +19,7 @@ set (srcs
   c_mapl_locstream_F.c  getrss.c  memuse.c
   Base/Base_Base.F90 Base/Base_Base_implementation.F90
   TimeStringConversion.F90
-  MAPL_Resource.F90
   MAPL_DateTime_Parsing_ESMF.F90
-  MAPL_EASEConversion.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
