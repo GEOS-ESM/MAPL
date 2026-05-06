@@ -92,11 +92,11 @@ ARRAY = 'array'
 CONDITION = 'condition'
 DIMS = 'dims'
 EXPORT_NAME = 'export_name'
+FILL_VALUE = 'fill_value'
 INTENT_ARG = 'intent_arg'
 INTERNAL_NAME = 'internal_name'
 MANGLED = 'mangled'
 STANDARD_NAME_ARG = 'standard_name_arg'
-PRECISION = 'precision'
 RANK = 'rank'
 SHORT_NAME = 'short_name'
 SHORT_NAME_ARG = 'short_name_arg'
@@ -188,7 +188,6 @@ def get_options(args):
         SHORT_NAME: {MAPPING: MANGLED, FLAGS: MANDATORY},
         STATE_INTENT: {FLAGS: {MANDATORY}},
         STANDARD_NAME: {FLAGS: MANDATORY},
-        PRECISION: {},
         UNGRIDDED_DIMS: {MAPPING: ARRAY},
         VSTAGGER: {FLAGS: MANDATORY, MAPPING: {
              'C': 'VERTICAL_STAGGER_CENTER',
@@ -201,6 +200,7 @@ def get_options(args):
         CONDITION: {FLAGS: {STORE}},
         'dependencies': {MAPPING: STRINGVECTOR},
         EXPORT_NAME: {MAPPING: STRING},
+        FILL_VALUE: {},
         'itemtype': {},
         'orientation': {},
         'regrid_method': {},
@@ -228,12 +228,12 @@ def get_options(args):
         'long name': STANDARD_NAME,
         'long_name': STANDARD_NAME,
         'name': SHORT_NAME,
-        'prec': PRECISION,
         'vloc': VSTAGGER,
         'vlocation': VSTAGGER,
         'add2export': ADD_TO_EXPORT,
         'field dictionary': USE_FIELD_DICTIONARY,
-        'field_dictionary': USE_FIELD_DICTIONARY
+        'field_dictionary': USE_FIELD_DICTIONARY,
+        'fill': FILL_VALUE
     }
 
     # flow control
