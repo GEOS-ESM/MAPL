@@ -3,13 +3,13 @@ esma_set_this (OVERRIDE MAPL.base)
 set (srcs
   ESMFL_Mod.F90
   FileMetadataUtilities.F90
-  FileMetadataUtilitiesVector.F90       MAPL_SimpleBundleMod.F90
+  FileMetadataUtilitiesVector.F90       SimpleBundleMod.F90
   MaplGrid.F90
   MAPL_ESMFTimeVectorMod.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
   MAPL_LocStreamMod.F90
-  MAPL_MaxMinMod.F90                    MAPL_VerticalInterpMod.F90
+                                        MAPL_VerticalInterpMod.F90
                                         MAPL_VerticalMethods.F90
   Base.F90
   MAPL_NominalOrbitsMod.F90
@@ -27,7 +27,7 @@ set (srcs
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.geom MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL.field MAPL.base3g udunits2f PFLOGGER::pflogger
+  DEPENDENCIES MAPL.geom MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL.field MAPL.base3g MAPL.utilities udunits2f PFLOGGER::pflogger
                GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1  GFTL::gftl-v2 GFTL::gftl-v1
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED)
