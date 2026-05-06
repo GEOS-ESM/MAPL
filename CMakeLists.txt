@@ -269,9 +269,10 @@ if (BUILD_WITH_FARGPARSE AND NOT MAPL_SUPPORT_MAPL3)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
 endif()
-if (NOT MAPL_SUPPORT_MAPL3)
-  add_subdirectory(Python)
-endif ()
+# Comment out for GCHP
+#if (NOT MAPL_SUPPORT_MAPL3)
+#  add_subdirectory(Python)
+#endif ()
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)

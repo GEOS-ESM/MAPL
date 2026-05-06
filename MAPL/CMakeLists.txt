@@ -21,12 +21,21 @@ set (mapl_dependencies
   )
 
 # Full-MAPL mode adds the generic layer, gridcomps, and Python bridge
+# GCHP: exclude python_bridge
+#if (NOT MAPL_SUPPORT_MAPL3)
+#  list (APPEND mapl_dependencies
+#    MAPL.generic
+#    MAPL.gridcomps
+#    MAPL.orbit
+#    MAPL.python_bridge
+#    ${EXTDATA_TARGET}
+#    )
+#endif ()
 if (NOT MAPL_SUPPORT_MAPL3)
   list (APPEND mapl_dependencies
     MAPL.generic
     MAPL.gridcomps
     MAPL.orbit
-    MAPL.python_bridge
     ${EXTDATA_TARGET}
     )
 endif ()

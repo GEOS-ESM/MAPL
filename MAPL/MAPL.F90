@@ -27,9 +27,10 @@ module MAPL
    use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
    use MAPL_FieldUtils
    use MAPL_StateUtils
-#ifndef MAPL_SUPPORT_MAPL3
-   use MAPL_PythonBridge
-#endif
+! Comment out for GCHP
+!#ifndef MAPL_SUPPORT_MAPL3
+!   use MAPL_PythonBridge
+!#endif
    implicit none
 #ifdef MAPL_SUPPORT_MAPL3
 end module MAPL2
