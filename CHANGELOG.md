@@ -147,6 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Convert `base/orbit.tex` to `docs/equation_of_time.md` (Markdown with GitHub-rendered math), resolving disposition of the Equation of Time derivation document from the MAPL3 base cleanup (#4788)
 - Update `components.yaml`
   - ESMA_cmake v4.37.0
     - Add `Coverage` CMake build type

@@ -17,6 +17,9 @@
 ! The Orbit object defines this class and has public opaque type `GEOS_SunOrbit`.
 ! Methods are provided for creating it, destroying it, and making various queries.
 !
+! The mathematical derivation of the Equation of Time underlying this module
+! is documented in docs/equation_of_time.md.
+!
 module MAPL_SunMod
 
 ! !USES:
