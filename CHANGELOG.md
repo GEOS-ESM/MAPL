@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unnecessary _ASSERT in MAPL_TerminateImportAllBut
 - Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
 - Fixed SIGFPE (integer divide by zero) in `MAPL_LoadBalanceMod` when load balancing algorithm evaluates maximum differences to zero.
+- Python bridge: remove odd 3rd party dependency due to importing no_type_check outside of the standard library
 
 ### Added
 
