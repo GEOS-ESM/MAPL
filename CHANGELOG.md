@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v4.37.0
     - Add `Coverage` CMake build type
 - Update CTest configuration for Coverage tests
+- Changed standard_name to long_name in handling of non-CF dimensionless vertical coordinate in ExtData2G
 
 ### Removed
 
