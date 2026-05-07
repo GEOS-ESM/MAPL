@@ -14,7 +14,7 @@ slightly shorter than the so-called *mean solar day*, or clock day, of duration 
 the same sense (counterclockwise looking down on the North Pole) as it orbits the sun. Specifically,
 say the sun crosses the meridian of some location at a particular time. And imagine there is a
 distant star directly behind the sun at that moment. After one sidereal day the location will rotate
-360$^\circ$ about the earth's axis and the distant star will again cross its meridian. But during
+360° about the earth's axis and the distant star will again cross its meridian. But during
 that time the earth will have moved a small counterclockwise distance around its orbit and so it will
 take a small additional rotation of the earth for the sun to also cross the meridian and thereby
 complete a *solar day*.
