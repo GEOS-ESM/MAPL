@@ -42,8 +42,9 @@ as described earlier. Hence $T_{\mathcal{M}} - T_\ast = T_\ast / Y$ and so
 
 ```math
 T_{\mathcal{M}} = T_\ast \frac{Y+1}{Y},
-\tag{1}
 ```
+
+<div align="right">(1)</div>
 
 
 a constant (near unity) multiple of the fixed sidereal day. $T_{\mathcal{M}}$ is the length of the
@@ -62,8 +63,9 @@ mean sun
 
 ```math
 H_{\mathcal{M}} = 2\pi(u - 1/2),
-\tag{2}
 ```
+
+<div align="right">(2)</div>
 
 
 where $u$ is UTC time (in days) and the offset is needed because the mean solar hour angle is zero at
@@ -72,8 +74,9 @@ correction to $H_{\mathcal{M}}$ called the Equation of time, $EOT$:
 
 ```math
 H_{\mathcal{S}} = H_{\mathcal{M}} + EOT,  \quad\text{where}\quad  EOT = H_{\mathcal{S}} - H_{\mathcal{M}}.
-\tag{3}
 ```
+
+<div align="right">(3)</div>
 
 
 As discussed above, EOT corrects for two factors:
@@ -99,8 +102,9 @@ any object is just the difference between the hour angles of $\Upsilon$ and the 
 
 ```math
 EOT = H_{\Upsilon} - H_{\mathcal{M}} - \alpha_{\mathcal{S}}.
-\tag{4}
 ```
+
+<div align="right">(4)</div>
 
 
 All three terms on the right of (4) are time variable: $\alpha_{\mathcal{S}}$ changes slowly
@@ -123,16 +127,18 @@ H_{\Upsilon}(u) - H_{\mathcal{M}}(u)
 & = 2\pi(u - u_R) / Y \\
 & = \mathrm{MA}(u) - \mathrm{MA}(u_R),
 \end{split}
-\tag{5}
 ```
+
+<div align="right">(5)</div>
 
 
 where
 
 ```math
 \mathrm{MA}(u) \equiv 2\pi(u - u_{\mathcal{P}}) / Y
-\tag{6}
 ```
+
+<div align="right">(6)</div>
 
 
 is the so-called "mean anomaly", known from the earth-sun two-body orbital solution, and
@@ -177,8 +183,9 @@ With this background, we can understand the quantity $\mathrm{MA}(u_R)$ we are t
 
 ```math
 \mathrm{MA}(u_R) = - \lambda_{\mathcal{P}} = \angle{\mathcal{P}}{\mathcal{S}}\Upsilon \iff \angle{\mathcal{P}}{\mathcal{O}}{\mathcal{Q}}(u_R) = \angle{\mathcal{P}}{\mathcal{S}}\Upsilon,
-\tag{7}
 ```
+
+<div align="right">(7)</div>
 
 
 then at $u_R$, viewed from the mean earth ${\mathcal{Q}}$, the second (ecliptic) mean sun ${\mathcal{O}}$ is in direction of $\Upsilon$. And at that same time, by definition of $u_R$, the first (equatorial) mean sun ${\mathcal{M}}$, as seen from the real earth ${\mathcal{E}}$, is also in direction of $\Upsilon$.
@@ -200,16 +207,18 @@ since $\mathrm{MA}$ is a linear function of $u$. In particular, let
 
 ```math
 {\langle f \rangle}_X \equiv Y^{-1} \int_{X-Y/2}^{X+Y/2} f(u) \,\mathrm{d}u,
-\tag{8}
 ```
+
+<div align="right">(8)</div>
 
 
 whence
 
 ```math
 \langle EOT \rangle_{u_X} = \mathrm{MA}(u_X) + \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle_{u_X}.
-\tag{9}
 ```
+
+<div align="right">(9)</div>
 
 
 For example,
@@ -217,8 +226,9 @@ For example,
 ```math
 \langle EOT \rangle_{u_{\mathcal{P}}} = \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle_{u_{\mathcal{P}}}, \quad\text{and}\quad
 \langle EOT \rangle_{u_\Upsilon} = \mathrm{MA}(u_\Upsilon) + \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle_{u_\Upsilon}.
-\tag{10}
 ```
+
+<div align="right">(10)</div>
 
 
 The right ascension of the true sun, $\alpha_{\mathcal{S}} \in (-\pi,+\pi]$, is given by
@@ -506,8 +516,9 @@ and so
 \frac{\mathrm{d}\alpha_{\mathcal{S}}}{\mathrm{d}\lambda}
 = \frac{\mathrm{d}}{\mathrm{d}\lambda} \text{atan2}(\sin\lambda\,\cos\varepsilon,\; \cos\lambda)
 = \frac{\cos\varepsilon}{1 - \sin^2\lambda\,\sin^2\varepsilon}.
-\tag{11}
 ```
+
+<div align="right">(11)</div>
 
 
 Hence, before making any approximation in the order of $e$, we have
@@ -618,8 +629,9 @@ Hence,
 & \quad - \frac{e(1+A)}{2\pi} \sum_{k=1}^{\infty} \binom{-1}{k} e^k
     \int_{-\pi}^{+\pi} \frac{\cos^k(\lambda-\lambda_{\mathcal{P}})\sin(\lambda-\lambda_{\mathcal{P}})\,\cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon}.
 \end{split}
-\tag{12}
 ```
+
+<div align="right">(12)</div>
 
 
 First look at the $\cos^k(\lambda-\lambda_{\mathcal{P}}) \sin(\lambda-\lambda_{\mathcal{P}})$ terms:
@@ -649,8 +661,9 @@ not be zero! So perhaps our result is only good to first order in $e$? The order
     \Big[ (\cos(2\varepsilon) + 3) \arctan(\cos\varepsilon\tan\lambda) - 4\lambda\cos\varepsilon \Big]_{-\pi}^{+\pi} \\
 & \quad = -e^2 \cot\varepsilon \csc\varepsilon \sin(2\lambda_{\mathcal{P}}).
 \end{split}
-\tag{13}
 ```
+
+<div align="right">(13)</div>
 
 
 Likewise, the derivatives of $\arctan$ term of (12) for order $e^2$ is:
@@ -667,8 +680,9 @@ Likewise, the derivatives of $\arctan$ term of (12) for order $e^2$ is:
 & = \frac{e^2}{2} \cdot \frac{1}{2\pi} \int_{-\pi}^{+\pi}
     \frac{\sin(\lambda-\lambda_{\mathcal{P}})\cos(\lambda-\lambda_{\mathcal{P}})\,\cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon},
 \end{split}
-\tag{14}
 ```
+
+<div align="right">(14)</div>
 
 
 which is exactly half of (13). So, we conclude that to second order in $e$,
