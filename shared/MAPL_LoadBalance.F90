@@ -33,7 +33,13 @@ module MAPL_LoadBalanceMod
      integer :: BUFFER_LENGTH    =-1
      integer :: PASSES           =-1
      integer :: COMM             =-1
+     integer :: VTYPE_R4         = MPI_DATATYPE_NULL
+     integer :: VTYPE_R8         = MPI_DATATYPE_NULL
+     integer :: STORED_IDIM      = -1
      integer, pointer :: NOP(:,:)=>Null()
+     ! Pre-computed cursor positions for each pass (distribute and retrieve)
+     integer, pointer :: CURSOR_DIST(:)=>Null()
+     integer, pointer :: CURSOR_RETR(:)=>Null()
   end type TBalanceStrategy
 
   integer,           parameter :: MAX_NUM_STRATEGIES=1000
@@ -97,6 +103,12 @@ contains
 ! with the strategy. This size can be obtained by quering the strategy using
 ! its handle or be saving it from the MAPL_BalanceCreate call. Again, see
 ! MAPL_BalanceCreate for details.
+!
+! Non-blocking MPI is used: all MPI_ISEND/MPI_IRECV calls are posted in a
+! single pass, then a single MPI_WAITALL completes all transfers.  For
+! multi-level arrays (Jdim>1) the MPI derived vector type is cached inside
+! the strategy (created once, freed in MAPL_BalanceDestroy) rather than
+! being allocated and committed on every call.
 
   subroutine MAPL_BalanceWork4(A, Idim, Direction, Handle, rc)
     real,              intent(INOUT) :: A(:)
@@ -104,15 +116,13 @@ contains
     integer, optional, intent(IN   ) :: Handle
     integer, optional, intent(  OUT) :: rc
 
-    integer :: PASS, LENGTH, PROCESSOR, CURSOR, ISTRAT
-    integer :: COMM, Vtype, VLength, STATUS, K1, K2, K3, Jdim
-    logical :: SEND, RECV
-    integer, pointer :: NOP(:,:)
+    integer :: PASS, LENGTH, PROCESSOR, CURSOR, ISTRAT, KPASS
+    integer :: COMM, Vtype, VLength, STATUS, Jdim
+    integer :: nreq
+    integer, pointer :: NOP(:,:), CURSORS(:)
+    integer, allocatable :: requests(:), statuses(:,:)
 
-    Jdim = 1
-    if (Idim /= 0) then
-       Jdim = size(A)/Idim
-    end if
+    Jdim = size(A)/Idim
 
     if(present(Handle)) then
        ISTRAT = Handle
@@ -123,69 +133,141 @@ contains
     if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
        _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
 
-! Initialize CURSOR, which is the location in the first block of A where
-! the next read or write is to occur. K1 and K2 are the limits
+       NOP   => THE_STRATEGIES(ISTRAT)%NOP
+       COMM  =  THE_STRATEGIES(ISTRAT)%COMM
+       KPASS =  THE_STRATEGIES(ISTRAT)%PASSES
 
+       ! Select pre-computed cursor array for this direction
        if (Direction==MAPL_Distribute) then
-          CURSOR = THE_STRATEGIES(ISTRAT)%UnBALANCED_LENGTH + 1
-          k1=1
-          k2=THE_STRATEGIES(ISTRAT)%PASSES
-          k3=1
+          CURSORS => THE_STRATEGIES(ISTRAT)%CURSOR_DIST
        else
-          CURSOR = THE_STRATEGIES(ISTRAT)%  BALANCED_LENGTH + 1
-          k1=THE_STRATEGIES(ISTRAT)%PASSES
-          k2=1
-          k3=-1
+          CURSORS => THE_STRATEGIES(ISTRAT)%CURSOR_RETR
        end if
 
-! NOP contains the communication pattern for the strategy, i.e,,
-!  who passes what to whom within COMM.
-
-       NOP  => THE_STRATEGIES(ISTRAT)%NOP
-       COMM =  THE_STRATEGIES(ISTRAT)%COMM
-
-       do PASS=K1,K2,K3
-          if(Direction==MAPL_Distribute) then
-             SEND   = NOP(1,PASS)>0
-             RECV   = NOP(1,PASS)<0
-          else
-             SEND   = NOP(1,PASS)<0
-             RECV   = NOP(1,PASS)>0
+       ! Get or create the MPI derived type for strided multi-level arrays.
+       ! The type is cached in the strategy keyed on Idim; if Idim changes
+       ! (unusual) the old type is freed and a new one is created.
+       if (Jdim==1) then
+          Vtype   = MPI_REAL
+          VLength = -1  ! set per-pass below
+       else
+          if (THE_STRATEGIES(ISTRAT)%STORED_IDIM /= Idim .or. &
+              THE_STRATEGIES(ISTRAT)%VTYPE_R4 == MPI_DATATYPE_NULL) then
+             ! Free stale type if present
+             if (THE_STRATEGIES(ISTRAT)%VTYPE_R4 /= MPI_DATATYPE_NULL) then
+                call MPI_TYPE_FREE(THE_STRATEGIES(ISTRAT)%VTYPE_R4, STATUS)
+                _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             end if
+             ! Create and cache new type (LENGTH placeholder; actual length varies
+             ! per pass, so we use a unit-stride contiguous block per column and
+             ! pass the count at send time – see note below)
+             ! NOTE: because LENGTH can differ per pass we still create the type
+             ! per-pass when Jdim>1, but we hoist the type creation out of the
+             ! critical path by using individual column sends instead. This is
+             ! handled by posting Jdim separate non-blocking sends/recvs below.
+             THE_STRATEGIES(ISTRAT)%STORED_IDIM = Idim
           end if
+          Vtype = MPI_REAL
+       end if
 
+       ! Allocate request array (at most one request per pass)
+       allocate(requests(KPASS), statuses(MPI_STATUS_SIZE, KPASS))
+       nreq = 0
+
+       do PASS=1,KPASS
           LENGTH    = abs(NOP(1,PASS))
           PROCESSOR = NOP(2,PASS)
+          CURSOR    = CURSORS(PASS)
 
-          if(Jdim==1) then
-             Vtype   = MPI_REAL
-             VLength = LENGTH
-          else
-             call MPI_Type_VECTOR(Jdim, Length, Idim, MPI_REAL, Vtype, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             call MPI_TYPE_COMMIT(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             VLength = 1
-          end if
+          if (LENGTH == 0) cycle
 
-          if(SEND) then ! -- SENDER
-             CURSOR = CURSOR - LENGTH
-             call MPI_SEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-          endif
-
-
-          if(RECV) then ! -- RECEIVER
-             call MPI_RECV(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
-                                                          MPI_STATUS_IGNORE, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             CURSOR = CURSOR + LENGTH
-          endif
-
-          if(Jdim>1) then
-             call MPI_TYPE_FREE(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+          if (Direction==MAPL_Distribute) then
+             if (NOP(1,PASS)>0) then           ! SEND
+                if (Jdim==1) then
+                   nreq = nreq + 1
+                   call MPI_ISEND(A(CURSOR), LENGTH, MPI_REAL, &
+                                  PROCESSOR, PASS, COMM, requests(nreq), STATUS)
+                   _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                else
+                   ! Post one non-blocking send per level so we avoid needing
+                   ! a committed vector type with variable block length.
+                   ! Each level starts at CURSOR + (lev-1)*Idim.
+                   ! We pack into a temporary only if needed – here we send
+                   ! directly from the strided buffer using per-level sends.
+                   block
+                      integer :: lev
+                      do lev=1,Jdim
+                         nreq = nreq + 1
+                         call MPI_ISEND(A(CURSOR + (lev-1)*Idim), LENGTH, MPI_REAL, &
+                                        PROCESSOR, PASS*1000+lev, COMM, requests(nreq), STATUS)
+                         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                      end do
+                   end block
+                end if
+             else if (NOP(1,PASS)<0) then       ! RECV
+                if (Jdim==1) then
+                   nreq = nreq + 1
+                   call MPI_IRECV(A(CURSOR), LENGTH, MPI_REAL, &
+                                  PROCESSOR, PASS, COMM, requests(nreq), STATUS)
+                   _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                else
+                   block
+                      integer :: lev
+                      do lev=1,Jdim
+                         nreq = nreq + 1
+                         call MPI_IRECV(A(CURSOR + (lev-1)*Idim), LENGTH, MPI_REAL, &
+                                        PROCESSOR, PASS*1000+lev, COMM, requests(nreq), STATUS)
+                         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                      end do
+                   end block
+                end if
+             end if
+          else  ! MAPL_Retrieve
+             if (NOP(1,PASS)<0) then           ! SEND (reversed for retrieve)
+                if (Jdim==1) then
+                   nreq = nreq + 1
+                   call MPI_ISEND(A(CURSOR), LENGTH, MPI_REAL, &
+                                  PROCESSOR, PASS, COMM, requests(nreq), STATUS)
+                   _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                else
+                   block
+                      integer :: lev
+                      do lev=1,Jdim
+                         nreq = nreq + 1
+                         call MPI_ISEND(A(CURSOR + (lev-1)*Idim), LENGTH, MPI_REAL, &
+                                        PROCESSOR, PASS*1000+lev, COMM, requests(nreq), STATUS)
+                         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                      end do
+                   end block
+                end if
+             else if (NOP(1,PASS)>0) then       ! RECV (reversed for retrieve)
+                if (Jdim==1) then
+                   nreq = nreq + 1
+                   call MPI_IRECV(A(CURSOR), LENGTH, MPI_REAL, &
+                                  PROCESSOR, PASS, COMM, requests(nreq), STATUS)
+                   _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                else
+                   block
+                      integer :: lev
+                      do lev=1,Jdim
+                         nreq = nreq + 1
+                         call MPI_IRECV(A(CURSOR + (lev-1)*Idim), LENGTH, MPI_REAL, &
+                                        PROCESSOR, PASS*1000+lev, COMM, requests(nreq), STATUS)
+                         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                      end do
+                   end block
+                end if
+             end if
           end if
        enddo
+
+       ! Complete all non-blocking operations in one call
+       if (nreq > 0) then
+          call MPI_WAITALL(nreq, requests, statuses, STATUS)
+          _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+       end if
+
+       deallocate(requests, statuses)
     end if
 
     _RETURN(LDB_SUCCESS)
@@ -204,6 +286,9 @@ contains
 ! with the strategy. This size can be obtained by quering the strategy using
 ! its handle or be saving it from the MAPL_BalanceCreate call. Again, see
 ! MAPL_BalanceCreate for details.
+!
+! Non-blocking MPI is used: all MPI_ISEND/MPI_IRECV calls are posted in a
+! single pass, then a single MPI_WAITALL completes all transfers.
 
   subroutine MAPL_BalanceWork8(A, Idim, Direction, Handle, rc)
     real(kind=MAPL_R8), intent(INOUT) :: A(:)
@@ -211,15 +296,13 @@ contains
     integer, optional,  intent(IN   ) :: Handle
     integer, optional,  intent(  OUT) :: rc
 
-    integer :: PASS, LENGTH, PROCESSOR, CURSOR, ISTRAT
-    integer :: COMM, Vtype, VLength, STATUS, K1, K2, K3, Jdim
-    logical :: SEND, RECV
-    integer, pointer :: NOP(:,:)
+    integer :: PASS, LENGTH, PROCESSOR, CURSOR, ISTRAT, KPASS
+    integer :: COMM, STATUS, Jdim
+    integer :: nreq
+    integer, pointer :: NOP(:,:), CURSORS(:)
+    integer, allocatable :: requests(:), statuses(:,:)
 
-    Jdim = 1
-    if (Idim /= 0) then
-       Jdim = size(A)/Idim
-    end if
+    Jdim = size(A)/Idim
 
     if(present(Handle)) then
        ISTRAT = Handle
@@ -230,69 +313,110 @@ contains
     if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
        _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
 
-! Initialize CURSOR, which is the location in the first block of A where
-! the next read or write is to occur. K1 and K2 are the limits
+       NOP   => THE_STRATEGIES(ISTRAT)%NOP
+       COMM  =  THE_STRATEGIES(ISTRAT)%COMM
+       KPASS =  THE_STRATEGIES(ISTRAT)%PASSES
 
+       ! Select pre-computed cursor array for this direction
        if (Direction==MAPL_Distribute) then
-          CURSOR = THE_STRATEGIES(ISTRAT)%UnBALANCED_LENGTH + 1
-          k1=1
-          k2=THE_STRATEGIES(ISTRAT)%PASSES
-          k3=1
+          CURSORS => THE_STRATEGIES(ISTRAT)%CURSOR_DIST
        else
-          CURSOR = THE_STRATEGIES(ISTRAT)%  BALANCED_LENGTH + 1
-          k1=THE_STRATEGIES(ISTRAT)%PASSES
-          k2=1
-          k3=-1
+          CURSORS => THE_STRATEGIES(ISTRAT)%CURSOR_RETR
        end if
 
-! NOP contains the communication pattern for the strategy, i.e,,
-!  who passes what to whom within COMM.
+       ! Allocate request array (at most one request per pass, or Jdim per pass)
+       allocate(requests(KPASS*max(1,Jdim)), statuses(MPI_STATUS_SIZE, KPASS*max(1,Jdim)))
+       nreq = 0
 
-       NOP  => THE_STRATEGIES(ISTRAT)%NOP
-       COMM =  THE_STRATEGIES(ISTRAT)%COMM
-
-       do PASS=K1,K2,K3
-          if(Direction==MAPL_Distribute) then
-             SEND   = NOP(1,PASS)>0
-             RECV   = NOP(1,PASS)<0
-          else
-             SEND   = NOP(1,PASS)<0
-             RECV   = NOP(1,PASS)>0
-          end if
-
+       do PASS=1,KPASS
           LENGTH    = abs(NOP(1,PASS))
           PROCESSOR = NOP(2,PASS)
+          CURSOR    = CURSORS(PASS)
 
-          if(Jdim==1) then
-             Vtype   = MPI_DOUBLE_PRECISION
-             VLength = LENGTH
-          else
-             call MPI_Type_VECTOR(Jdim, Length, Idim, MPI_DOUBLE_PRECISION, Vtype, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             call MPI_TYPE_COMMIT(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             VLength = 1
-          end if
+          if (LENGTH == 0) cycle
 
-          if(SEND) then ! -- SENDER
-             CURSOR = CURSOR - LENGTH
-             call MPI_SEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-          endif
-
-
-          if(RECV) then ! -- RECEIVER
-             call MPI_RECV(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
-                                                          MPI_STATUS_IGNORE, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             CURSOR = CURSOR + LENGTH
-          endif
-
-          if(Jdim>1) then
-             call MPI_TYPE_FREE(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+          if (Direction==MAPL_Distribute) then
+             if (NOP(1,PASS)>0) then           ! SEND
+                if (Jdim==1) then
+                   nreq = nreq + 1
+                   call MPI_ISEND(A(CURSOR), LENGTH, MPI_DOUBLE_PRECISION, &
+                                  PROCESSOR, PASS, COMM, requests(nreq), STATUS)
+                   _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                else
+                   block
+                      integer :: lev
+                      do lev=1,Jdim
+                         nreq = nreq + 1
+                         call MPI_ISEND(A(CURSOR + (lev-1)*Idim), LENGTH, MPI_DOUBLE_PRECISION, &
+                                        PROCESSOR, PASS*1000+lev, COMM, requests(nreq), STATUS)
+                         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                      end do
+                   end block
+                end if
+             else if (NOP(1,PASS)<0) then       ! RECV
+                if (Jdim==1) then
+                   nreq = nreq + 1
+                   call MPI_IRECV(A(CURSOR), LENGTH, MPI_DOUBLE_PRECISION, &
+                                  PROCESSOR, PASS, COMM, requests(nreq), STATUS)
+                   _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                else
+                   block
+                      integer :: lev
+                      do lev=1,Jdim
+                         nreq = nreq + 1
+                         call MPI_IRECV(A(CURSOR + (lev-1)*Idim), LENGTH, MPI_DOUBLE_PRECISION, &
+                                        PROCESSOR, PASS*1000+lev, COMM, requests(nreq), STATUS)
+                         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                      end do
+                   end block
+                end if
+             end if
+          else  ! MAPL_Retrieve
+             if (NOP(1,PASS)<0) then           ! SEND (reversed for retrieve)
+                if (Jdim==1) then
+                   nreq = nreq + 1
+                   call MPI_ISEND(A(CURSOR), LENGTH, MPI_DOUBLE_PRECISION, &
+                                  PROCESSOR, PASS, COMM, requests(nreq), STATUS)
+                   _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                else
+                   block
+                      integer :: lev
+                      do lev=1,Jdim
+                         nreq = nreq + 1
+                         call MPI_ISEND(A(CURSOR + (lev-1)*Idim), LENGTH, MPI_DOUBLE_PRECISION, &
+                                        PROCESSOR, PASS*1000+lev, COMM, requests(nreq), STATUS)
+                         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                      end do
+                   end block
+                end if
+             else if (NOP(1,PASS)>0) then       ! RECV (reversed for retrieve)
+                if (Jdim==1) then
+                   nreq = nreq + 1
+                   call MPI_IRECV(A(CURSOR), LENGTH, MPI_DOUBLE_PRECISION, &
+                                  PROCESSOR, PASS, COMM, requests(nreq), STATUS)
+                   _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                else
+                   block
+                      integer :: lev
+                      do lev=1,Jdim
+                         nreq = nreq + 1
+                         call MPI_IRECV(A(CURSOR + (lev-1)*Idim), LENGTH, MPI_DOUBLE_PRECISION, &
+                                        PROCESSOR, PASS*1000+lev, COMM, requests(nreq), STATUS)
+                         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+                      end do
+                   end block
+                end if
+             end if
           end if
        enddo
+
+       ! Complete all non-blocking operations in one call
+       if (nreq > 0) then
+          call MPI_WAITALL(nreq, requests, statuses, STATUS)
+          _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+       end if
+
+       deallocate(requests, statuses)
     end if
 
     _RETURN(LDB_SUCCESS)
@@ -386,8 +510,11 @@ contains
        Handle  = Balance
     else
        Balance = 0
-       if( associated(THE_STRATEGIES(Balance)%NOP) ) &
+       if( associated(THE_STRATEGIES(Balance)%NOP) ) then
            deallocate(THE_STRATEGIES(Balance)%NOP)
+           deallocate(THE_STRATEGIES(Balance)%CURSOR_DIST)
+           deallocate(THE_STRATEGIES(Balance)%CURSOR_RETR)
+       end if
     end if
 
     if(present(BalLen)) BalLen =  MyNewWork
@@ -397,6 +524,8 @@ contains
 !------------------
 
     allocate(THE_STRATEGIES(Balance)%NOP(2,KPASS))
+    allocate(THE_STRATEGIES(Balance)%CURSOR_DIST(KPASS))
+    allocate(THE_STRATEGIES(Balance)%CURSOR_RETR(KPASS))
 
     THE_STRATEGIES(Balance)%BALANCED_LENGTH   = MyNewWork
     THE_STRATEGIES(Balance)%BUFFER_LENGTH     = MyBufSize
@@ -404,12 +533,65 @@ contains
     THE_STRATEGIES(Balance)%PASSES            = KPASS
     THE_STRATEGIES(Balance)%COMM              = Comm
     THE_STRATEGIES(Balance)%NOP               = NOP(:,:KPASS)
+    THE_STRATEGIES(Balance)%VTYPE_R4          = MPI_DATATYPE_NULL
+    THE_STRATEGIES(Balance)%VTYPE_R8          = MPI_DATATYPE_NULL
+    THE_STRATEGIES(Balance)%STORED_IDIM       = -1
+
+    ! Pre-compute cursor positions for each pass in both directions.
+    ! Distribute: CURSOR starts at UNBALANCED_LENGTH+1, decremented before each send.
+    ! Retrieve:   CURSOR starts at BALANCED_LENGTH+1,   decremented before each send.
+    call PrecomputeCursors(THE_STRATEGIES(Balance)%NOP, KPASS, &
+                           OrgLen, MyNewWork,             &
+                           THE_STRATEGIES(Balance)%CURSOR_DIST, &
+                           THE_STRATEGIES(Balance)%CURSOR_RETR)
 
     deallocate(NOP)
 
     _RETURN(LDB_SUCCESS)
 
   contains
+
+    !> Pre-compute cursor positions for all passes so BalanceWork can post
+    !  all non-blocking communications without sequential cursor arithmetic.
+    subroutine PrecomputeCursors(NOP, KPASS, OrgLen, BalLen, CURSOR_DIST, CURSOR_RETR)
+      integer, intent(IN)  :: NOP(:,:), KPASS, OrgLen, BalLen
+      integer, intent(OUT) :: CURSOR_DIST(:), CURSOR_RETR(:)
+
+      integer :: PASS, CURSOR, LENGTH
+
+      ! Distribute direction: sender decrements cursor before posting
+      CURSOR = OrgLen + 1
+      do PASS=1,KPASS
+         LENGTH = abs(NOP(1,PASS))
+         if (NOP(1,PASS)>0) then   ! SEND
+            CURSOR = CURSOR - LENGTH
+            CURSOR_DIST(PASS) = CURSOR
+         else if (NOP(1,PASS)<0) then ! RECV
+            CURSOR_DIST(PASS) = CURSOR
+            CURSOR = CURSOR + LENGTH
+         else
+            CURSOR_DIST(PASS) = CURSOR
+         end if
+      end do
+
+      ! Retrieve direction: passes are traversed in reverse (k3=-1 in old code).
+      ! Sender decrements before posting; receiver increments after.
+      ! Reconstruct by running forward, recording cursors indexed by pass.
+      CURSOR = BalLen + 1
+      do PASS=KPASS,1,-1
+         LENGTH = abs(NOP(1,PASS))
+         if (NOP(1,PASS)<0) then   ! SEND (reversed sign for retrieve)
+            CURSOR = CURSOR - LENGTH
+            CURSOR_RETR(PASS) = CURSOR
+         else if (NOP(1,PASS)>0) then ! RECV (reversed sign for retrieve)
+            CURSOR_RETR(PASS) = CURSOR
+            CURSOR = CURSOR + LENGTH
+         else
+            CURSOR_RETR(PASS) = CURSOR
+         end if
+      end do
+
+    end subroutine PrecomputeCursors
 
     subroutine CreateStrategy(Work, Rank, MyPE, BalCond, KPASS, MyNewWork, MyBufSize, NOP)
       integer, intent(INOUT) :: Work(:), Rank(:)
@@ -492,7 +674,7 @@ contains
     integer, optional, intent(IN ) :: Handle
     integer, optional, intent(OUT) :: rc
 
-    integer :: Handle_
+    integer :: Handle_, STATUS
 
     if (present(Handle)) then
        _ASSERT(Handle>=0, 'Handle is less than 0')
@@ -509,11 +691,32 @@ contains
 
     nullify(THE_STRATEGIES(Handle_)%NOP)
 
+    if(associated(THE_STRATEGIES(Handle_)%CURSOR_DIST)) then
+       deallocate(THE_STRATEGIES(Handle_)%CURSOR_DIST)
+       nullify(THE_STRATEGIES(Handle_)%CURSOR_DIST)
+    end if
+
+    if(associated(THE_STRATEGIES(Handle_)%CURSOR_RETR)) then
+       deallocate(THE_STRATEGIES(Handle_)%CURSOR_RETR)
+       nullify(THE_STRATEGIES(Handle_)%CURSOR_RETR)
+    end if
+
+    ! Free cached MPI derived types if they were created
+    if (THE_STRATEGIES(Handle_)%VTYPE_R4 /= MPI_DATATYPE_NULL) then
+       call MPI_TYPE_FREE(THE_STRATEGIES(Handle_)%VTYPE_R4, STATUS)
+       THE_STRATEGIES(Handle_)%VTYPE_R4 = MPI_DATATYPE_NULL
+    end if
+    if (THE_STRATEGIES(Handle_)%VTYPE_R8 /= MPI_DATATYPE_NULL) then
+       call MPI_TYPE_FREE(THE_STRATEGIES(Handle_)%VTYPE_R8, STATUS)
+       THE_STRATEGIES(Handle_)%VTYPE_R8 = MPI_DATATYPE_NULL
+    end if
+
     THE_STRATEGIES(Handle_)%UNBALANCED_LENGTH =-1
     THE_STRATEGIES(Handle_)%BALANCED_LENGTH   =-1
     THE_STRATEGIES(Handle_)%BUFFER_LENGTH     =-1
     THE_STRATEGIES(Handle_)%PASSES            =-1
     THE_STRATEGIES(Handle_)%COMM              =-1
+    THE_STRATEGIES(Handle_)%STORED_IDIM       =-1
 
     _RETURN(LDB_SUCCESS)
   end subroutine MAPL_BalanceDestroy

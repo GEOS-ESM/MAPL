@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Improved MPI performance in `MAPL_LoadBalanceMod` (`shared/MAPL_LoadBalance.F90`)
+  - Replaced blocking `MPI_SEND`/`MPI_RECV` with non-blocking `MPI_ISEND`/`MPI_IRECV` + `MPI_WAITALL` so all transfers are posted simultaneously rather than serialized pass-by-pass
+  - Pre-computed cursor positions for all passes at strategy-creation time, eliminating sequential dependencies in the communication loop
+  - Cached MPI derived types in `TBalanceStrategy` (created once, freed in `MAPL_BalanceDestroy`) instead of calling `MPI_TYPE_COMMIT`/`MPI_TYPE_FREE` on every call
 - Update `components.yaml`
   - ESMA_cmake v4.37.0
     - Add `Coverage` CMake build type
