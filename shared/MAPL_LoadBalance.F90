@@ -27,30 +27,17 @@ module MAPL_LoadBalanceMod
   integer, public, parameter :: MAPL_Distribute = 1
   integer, public, parameter :: MAPL_Retrieve   = 2
 
-  !> Precomputed Alltoallv communication pattern for one direction.
-  !  sendcounts/recvcounts are element counts; senddispls/recvdispls are
-  !  0-based element displacements into the caller's buffer A.
-  type TAlltoallvPlan
-     integer, pointer :: sendcounts(:) => Null()
-     integer, pointer :: senddispls(:) => Null()
-     integer, pointer :: recvcounts(:) => Null()
-     integer, pointer :: recvdispls(:) => Null()
-  end type TAlltoallvPlan
-
   type TBalanceStrategy
      integer :: UNBALANCED_LENGTH=-1
      integer :: BALANCED_LENGTH  =-1
      integer :: BUFFER_LENGTH    =-1
      integer :: PASSES           =-1
      integer :: COMM             =-1
-     integer :: NPES             =-1
      integer, pointer :: NOP(:,:)=>Null()
-     type(TAlltoallvPlan) :: dist_plan  ! plan for MAPL_Distribute
-     type(TAlltoallvPlan) :: retr_plan  ! plan for MAPL_Retrieve
   end type TBalanceStrategy
 
   integer,           parameter :: MAX_NUM_STRATEGIES=1000
-  type(TBalanceStrategy), save, target :: THE_STRATEGIES(0:MAX_NUM_STRATEGIES)
+  type(TBalanceStrategy), save :: THE_STRATEGIES(0:MAX_NUM_STRATEGIES)
 
 !---------------------------------------------------------------------------
 !>
@@ -111,12 +98,9 @@ contains
 ! its handle or be saving it from the MAPL_BalanceCreate call. Again, see
 ! MAPL_BalanceCreate for details.
 !
-! The redistribution is performed with a single MPI_Alltoallv call rather
-! than a sequential loop of log2(N) point-to-point passes. The communication
-! pattern is precomputed once in MAPL_BalanceCreate and stored in the
-! strategy, so this routine is a thin wrapper around a single collective.
-! Received data lands in a temporary buffer and is then copied into the
-! correct positions of A (MPI_Alltoallv requires non-aliased send/recv buffers).
+! Non-blocking MPI is used within each pass: MPI_ISEND or MPI_IRECV is posted
+! and immediately completed with MPI_WAIT, eliminating the deadlock risk of
+! paired MPI_SEND calls while preserving correct sequential buffer semantics.
 
   subroutine MAPL_BalanceWork4(A, Idim, Direction, Handle, rc)
     real,              intent(INOUT) :: A(:)
@@ -124,149 +108,90 @@ contains
     integer, optional, intent(IN   ) :: Handle
     integer, optional, intent(  OUT) :: rc
 
-    integer :: ISTRAT, STATUS, NPES
-    integer :: Jdim, lev, r, cnt, sdisp, rdisp_flat
-    integer :: total_recv, vtype
-    type(TAlltoallvPlan), pointer :: plan
-    integer, allocatable :: recvdispls_compact(:), rcounts_flat(:)
-    integer, allocatable :: send_vtypes(:), scounts_w(:), sdispls_bytes(:)
-    integer, allocatable :: rtypes(:), rdispls_bytes_w(:), rcounts_w(:)
-    real,    allocatable :: recvbuf(:)
-    integer(kind=MPI_ADDRESS_KIND) :: lb, extent
+    integer :: PASS, LENGTH, PROCESSOR, CURSOR, ISTRAT
+    integer :: COMM, Vtype, VLength, STATUS, K1, K2, K3, Jdim
+    logical :: SEND, RECV
+    integer :: request
+    integer, pointer :: NOP(:,:)
 
     Jdim = size(A)/Idim
 
-    if (present(Handle)) then
+    if(present(Handle)) then
        ISTRAT = Handle
     else
        ISTRAT = 0
     endif
 
-    if (THE_STRATEGIES(ISTRAT)%PASSES <= 0) then
-       _RETURN(LDB_SUCCESS)
-    end if
+    if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
+       _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
 
-    NPES = THE_STRATEGIES(ISTRAT)%NPES
+! Initialize CURSOR, which is the location in the first block of A where
+! the next read or write is to occur. K1 and K2 are the limits
 
-    if (Direction==MAPL_Distribute) then
-       plan => THE_STRATEGIES(ISTRAT)%dist_plan
-    else
-       plan => THE_STRATEGIES(ISTRAT)%retr_plan
-    end if
+       if (Direction==MAPL_Distribute) then
+          CURSOR = THE_STRATEGIES(ISTRAT)%UnBALANCED_LENGTH + 1
+          k1=1
+          k2=THE_STRATEGIES(ISTRAT)%PASSES
+          k3=1
+       else
+          CURSOR = THE_STRATEGIES(ISTRAT)%  BALANCED_LENGTH + 1
+          k1=THE_STRATEGIES(ISTRAT)%PASSES
+          k2=1
+          k3=-1
+       end if
 
-    ! Total number of elements this rank will receive
-    total_recv = sum(plan%recvcounts)
+! NOP contains the communication pattern for the strategy, i.e,,
+!  who passes what to whom within COMM.
 
-    if (Jdim==1) then
+       NOP  => THE_STRATEGIES(ISTRAT)%NOP
+       COMM =  THE_STRATEGIES(ISTRAT)%COMM
 
-       ! ------------------------------------------------------------------
-       ! 1-D case: simple MPI_Alltoallv into a compact temporary buffer,
-       ! then scatter back into A at the precomputed displacements.
-       ! ------------------------------------------------------------------
-       allocate(recvbuf(total_recv))
-       allocate(recvdispls_compact(0:NPES-1))
-       allocate(rcounts_flat(0:NPES-1))
-
-       ! Build compact (0-based) recv displacements into recvbuf
-       rdisp_flat = 0
-       do r=0,NPES-1
-          recvdispls_compact(r) = rdisp_flat
-          rcounts_flat(r)       = plan%recvcounts(r)
-          rdisp_flat = rdisp_flat + rcounts_flat(r)
-       end do
-
-       call MPI_Alltoallv( &
-            A,       plan%sendcounts, plan%senddispls,   MPI_REAL, &
-            recvbuf, rcounts_flat,    recvdispls_compact, MPI_REAL, &
-            THE_STRATEGIES(ISTRAT)%COMM, STATUS)
-       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-
-       ! Scatter recvbuf back into the correct positions of A
-       rdisp_flat = 0
-       do r=0,NPES-1
-          cnt = plan%recvcounts(r)
-          if (cnt > 0) then
-             sdisp = plan%recvdispls(r) + 1  ! convert to 1-based
-             A(sdisp:sdisp+cnt-1) = recvbuf(rdisp_flat+1:rdisp_flat+cnt)
-             rdisp_flat = rdisp_flat + cnt
+       do PASS=K1,K2,K3
+          if(Direction==MAPL_Distribute) then
+             SEND   = NOP(1,PASS)>0
+             RECV   = NOP(1,PASS)<0
+          else
+             SEND   = NOP(1,PASS)<0
+             RECV   = NOP(1,PASS)>0
           end if
-       end do
 
-       deallocate(recvbuf, recvdispls_compact, rcounts_flat)
+          LENGTH    = abs(NOP(1,PASS))
+          PROCESSOR = NOP(2,PASS)
 
-    else
-
-       ! ------------------------------------------------------------------
-       ! Multi-level case (Jdim>1): send using MPI_Type_vector (strided)
-       ! per partner rank, receive into a flat temporary buffer (one block
-       ! per level per partner), then scatter back into strided positions.
-       ! Uses MPI_Alltoallw so send and recv types can differ.
-       ! ------------------------------------------------------------------
-       call MPI_TYPE_GET_EXTENT(MPI_REAL, lb, extent, STATUS)
-       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-
-       allocate(send_vtypes(0:NPES-1), source=MPI_DATATYPE_NULL)
-       allocate(scounts_w(0:NPES-1),   source=0)
-       allocate(sdispls_bytes(0:NPES-1), source=0)
-       ! Receive flat: Jdim*count reals per partner
-       allocate(rtypes(0:NPES-1),        source=MPI_REAL)
-       allocate(rcounts_w(0:NPES-1),     source=0)
-       allocate(rdispls_bytes_w(0:NPES-1), source=0)
-       allocate(recvbuf(Jdim * total_recv))
-
-       rdisp_flat = 0
-       do r=0,NPES-1
-          cnt = plan%sendcounts(r)
-          if (cnt > 0) then
-             call MPI_Type_VECTOR(Jdim, cnt, Idim, MPI_REAL, vtype, STATUS)
+          if(Jdim==1) then
+             Vtype   = MPI_REAL
+             VLength = LENGTH
+          else
+             call MPI_Type_VECTOR(Jdim, Length, Idim, MPI_REAL, Vtype, STATUS)
              _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             call MPI_TYPE_COMMIT(vtype, STATUS)
+             call MPI_TYPE_COMMIT(Vtype,STATUS)
              _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             send_vtypes(r)    = vtype
-             scounts_w(r)      = 1
-             sdispls_bytes(r)  = plan%senddispls(r) * int(extent)
+             VLength = 1
           end if
-          cnt = plan%recvcounts(r)
-          if (cnt > 0) then
-             rcounts_w(r)        = Jdim * cnt
-             rdispls_bytes_w(r)  = rdisp_flat * int(extent)
-             rdisp_flat          = rdisp_flat + Jdim * cnt
-          end if
-       end do
 
-       call MPI_Alltoallw( &
-            A,       scounts_w, sdispls_bytes,   send_vtypes, &
-            recvbuf, rcounts_w, rdispls_bytes_w, rtypes,      &
-            THE_STRATEGIES(ISTRAT)%COMM, STATUS)
-       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+          if(SEND) then ! -- SENDER
+             CURSOR = CURSOR - LENGTH
+             call MPI_ISEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
+                            request, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             call MPI_WAIT(request, MPI_STATUS_IGNORE, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+          endif
 
-       ! Scatter flat recvbuf back into strided positions of A
-       ! recvbuf layout: for each partner r with recvcounts(r)>0,
-       !   Jdim blocks of recvcounts(r) elements (level-major order)
-       rdisp_flat = 0
-       do r=0,NPES-1
-          cnt = plan%recvcounts(r)
-          if (cnt > 0) then
-             sdisp = plan%recvdispls(r) + 1  ! 1-based column offset in A
-             do lev=1,Jdim
-                A(sdisp+(lev-1)*Idim : sdisp+(lev-1)*Idim+cnt-1) = &
-                     recvbuf(rdisp_flat + (lev-1)*cnt + 1 : &
-                             rdisp_flat + lev*cnt)
-             end do
-             rdisp_flat = rdisp_flat + Jdim * cnt
-          end if
-       end do
+          if(RECV) then ! -- RECEIVER
+             call MPI_IRECV(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
+                            request, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             call MPI_WAIT(request, MPI_STATUS_IGNORE, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             CURSOR = CURSOR + LENGTH
+          endif
 
-       do r=0,NPES-1
-          if (send_vtypes(r) /= MPI_DATATYPE_NULL) then
-             call MPI_TYPE_FREE(send_vtypes(r), STATUS)
+          if(Jdim>1) then
+             call MPI_TYPE_FREE(Vtype,STATUS)
              _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
           end if
-       end do
-
-       deallocate(send_vtypes, scounts_w, sdispls_bytes)
-       deallocate(rtypes, rcounts_w, rdispls_bytes_w, recvbuf)
-
+       enddo
     end if
 
     _RETURN(LDB_SUCCESS)
@@ -274,8 +199,21 @@ contains
 
 !---------------------------------------------------------------------------
 !>
-! See MAPL_BalanceWork4 for full documentation. This variant operates on
-! double-precision (real*8) arrays.
+! Depending on the argument "Direction", this performs the actual distribution
+! of work or the gathering of results for a given strategy. The strategy has to
+! have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
+! obtained from that call can be optionally used to specify the strategy. Otherwise,
+! a default strategy is assumed (see MAPL_BalanceCreate for details).
+! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
+! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
+! The blocksize of A (Idim) must be at least as large as the BufLen associated
+! with the strategy. This size can be obtained by quering the strategy using
+! its handle or be saving it from the MAPL_BalanceCreate call. Again, see
+! MAPL_BalanceCreate for details.
+!
+! Non-blocking MPI is used within each pass: MPI_ISEND or MPI_IRECV is posted
+! and immediately completed with MPI_WAIT, eliminating the deadlock risk of
+! paired MPI_SEND calls while preserving correct sequential buffer semantics.
 
   subroutine MAPL_BalanceWork8(A, Idim, Direction, Handle, rc)
     real(kind=MAPL_R8), intent(INOUT) :: A(:)
@@ -283,132 +221,90 @@ contains
     integer, optional,  intent(IN   ) :: Handle
     integer, optional,  intent(  OUT) :: rc
 
-    integer :: ISTRAT, STATUS, NPES
-    integer :: Jdim, lev, r, cnt, sdisp, rdisp_flat
-    integer :: total_recv, vtype
-    type(TAlltoallvPlan), pointer :: plan
-    integer, allocatable :: recvdispls_compact(:), rcounts_flat(:)
-    integer, allocatable :: send_vtypes(:), scounts_w(:), sdispls_bytes(:)
-    integer, allocatable :: rtypes(:), rdispls_bytes_w(:), rcounts_w(:)
-    real(kind=MAPL_R8), allocatable :: recvbuf(:)
-    integer(kind=MPI_ADDRESS_KIND) :: lb, extent
+    integer :: PASS, LENGTH, PROCESSOR, CURSOR, ISTRAT
+    integer :: COMM, Vtype, VLength, STATUS, K1, K2, K3, Jdim
+    logical :: SEND, RECV
+    integer :: request
+    integer, pointer :: NOP(:,:)
 
     Jdim = size(A)/Idim
 
-    if (present(Handle)) then
+    if(present(Handle)) then
        ISTRAT = Handle
     else
        ISTRAT = 0
     endif
 
-    if (THE_STRATEGIES(ISTRAT)%PASSES <= 0) then
-       _RETURN(LDB_SUCCESS)
-    end if
+    if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
+       _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
 
-    NPES = THE_STRATEGIES(ISTRAT)%NPES
+! Initialize CURSOR, which is the location in the first block of A where
+! the next read or write is to occur. K1 and K2 are the limits
 
-    if (Direction==MAPL_Distribute) then
-       plan => THE_STRATEGIES(ISTRAT)%dist_plan
-    else
-       plan => THE_STRATEGIES(ISTRAT)%retr_plan
-    end if
+       if (Direction==MAPL_Distribute) then
+          CURSOR = THE_STRATEGIES(ISTRAT)%UnBALANCED_LENGTH + 1
+          k1=1
+          k2=THE_STRATEGIES(ISTRAT)%PASSES
+          k3=1
+       else
+          CURSOR = THE_STRATEGIES(ISTRAT)%  BALANCED_LENGTH + 1
+          k1=THE_STRATEGIES(ISTRAT)%PASSES
+          k2=1
+          k3=-1
+       end if
 
-    total_recv = sum(plan%recvcounts)
+! NOP contains the communication pattern for the strategy, i.e,,
+!  who passes what to whom within COMM.
 
-    if (Jdim==1) then
+       NOP  => THE_STRATEGIES(ISTRAT)%NOP
+       COMM =  THE_STRATEGIES(ISTRAT)%COMM
 
-       allocate(recvbuf(total_recv))
-       allocate(recvdispls_compact(0:NPES-1))
-       allocate(rcounts_flat(0:NPES-1))
-
-       rdisp_flat = 0
-       do r=0,NPES-1
-          recvdispls_compact(r) = rdisp_flat
-          rcounts_flat(r)       = plan%recvcounts(r)
-          rdisp_flat = rdisp_flat + rcounts_flat(r)
-       end do
-
-       call MPI_Alltoallv( &
-            A,       plan%sendcounts, plan%senddispls,    MPI_DOUBLE_PRECISION, &
-            recvbuf, rcounts_flat,    recvdispls_compact, MPI_DOUBLE_PRECISION, &
-            THE_STRATEGIES(ISTRAT)%COMM, STATUS)
-       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-
-       rdisp_flat = 0
-       do r=0,NPES-1
-          cnt = plan%recvcounts(r)
-          if (cnt > 0) then
-             sdisp = plan%recvdispls(r) + 1
-             A(sdisp:sdisp+cnt-1) = recvbuf(rdisp_flat+1:rdisp_flat+cnt)
-             rdisp_flat = rdisp_flat + cnt
+       do PASS=K1,K2,K3
+          if(Direction==MAPL_Distribute) then
+             SEND   = NOP(1,PASS)>0
+             RECV   = NOP(1,PASS)<0
+          else
+             SEND   = NOP(1,PASS)<0
+             RECV   = NOP(1,PASS)>0
           end if
-       end do
 
-       deallocate(recvbuf, recvdispls_compact, rcounts_flat)
+          LENGTH    = abs(NOP(1,PASS))
+          PROCESSOR = NOP(2,PASS)
 
-    else
-
-       call MPI_TYPE_GET_EXTENT(MPI_DOUBLE_PRECISION, lb, extent, STATUS)
-       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-
-       allocate(send_vtypes(0:NPES-1), source=MPI_DATATYPE_NULL)
-       allocate(scounts_w(0:NPES-1),   source=0)
-       allocate(sdispls_bytes(0:NPES-1), source=0)
-       allocate(rtypes(0:NPES-1),        source=MPI_DOUBLE_PRECISION)
-       allocate(rcounts_w(0:NPES-1),     source=0)
-       allocate(rdispls_bytes_w(0:NPES-1), source=0)
-       allocate(recvbuf(Jdim * total_recv))
-
-       rdisp_flat = 0
-       do r=0,NPES-1
-          cnt = plan%sendcounts(r)
-          if (cnt > 0) then
-             call MPI_Type_VECTOR(Jdim, cnt, Idim, MPI_DOUBLE_PRECISION, vtype, STATUS)
+          if(Jdim==1) then
+             Vtype   = MPI_DOUBLE_PRECISION
+             VLength = LENGTH
+          else
+             call MPI_Type_VECTOR(Jdim, Length, Idim, MPI_DOUBLE_PRECISION, Vtype, STATUS)
              _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             call MPI_TYPE_COMMIT(vtype, STATUS)
+             call MPI_TYPE_COMMIT(Vtype,STATUS)
              _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
-             send_vtypes(r)    = vtype
-             scounts_w(r)      = 1
-             sdispls_bytes(r)  = plan%senddispls(r) * int(extent)
+             VLength = 1
           end if
-          cnt = plan%recvcounts(r)
-          if (cnt > 0) then
-             rcounts_w(r)        = Jdim * cnt
-             rdispls_bytes_w(r)  = rdisp_flat * int(extent)
-             rdisp_flat          = rdisp_flat + Jdim * cnt
-          end if
-       end do
 
-       call MPI_Alltoallw( &
-            A,       scounts_w, sdispls_bytes,   send_vtypes, &
-            recvbuf, rcounts_w, rdispls_bytes_w, rtypes,      &
-            THE_STRATEGIES(ISTRAT)%COMM, STATUS)
-       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+          if(SEND) then ! -- SENDER
+             CURSOR = CURSOR - LENGTH
+             call MPI_ISEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
+                            request, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             call MPI_WAIT(request, MPI_STATUS_IGNORE, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+          endif
 
-       rdisp_flat = 0
-       do r=0,NPES-1
-          cnt = plan%recvcounts(r)
-          if (cnt > 0) then
-             sdisp = plan%recvdispls(r) + 1
-             do lev=1,Jdim
-                A(sdisp+(lev-1)*Idim : sdisp+(lev-1)*Idim+cnt-1) = &
-                     recvbuf(rdisp_flat + (lev-1)*cnt + 1 : &
-                             rdisp_flat + lev*cnt)
-             end do
-             rdisp_flat = rdisp_flat + Jdim * cnt
-          end if
-       end do
+          if(RECV) then ! -- RECEIVER
+             call MPI_IRECV(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
+                            request, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             call MPI_WAIT(request, MPI_STATUS_IGNORE, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             CURSOR = CURSOR + LENGTH
+          endif
 
-       do r=0,NPES-1
-          if (send_vtypes(r) /= MPI_DATATYPE_NULL) then
-             call MPI_TYPE_FREE(send_vtypes(r), STATUS)
+          if(Jdim>1) then
+             call MPI_TYPE_FREE(Vtype,STATUS)
              _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
           end if
-       end do
-
-       deallocate(send_vtypes, scounts_w, sdispls_bytes)
-       deallocate(rtypes, rcounts_w, rdispls_bytes_w, recvbuf)
-
+       enddo
     end if
 
     _RETURN(LDB_SUCCESS)
@@ -417,7 +313,7 @@ contains
 !---------------------------------------------------------------------------
 !>
 ! This routine creates a balancing strategy over an MPI communicator (Comm)
-! given the work in the local rank (OrgLen). The strategy can be committed
+! given the work in the local rank (OrgLen). The startegy can be committed
 ! and used later through Handle. If a handle is not requested, the latest
 ! non-committed strategy is kept at Handle=0, which will be the default strategy
 ! for the other methods. The number of passes may be optionally controlled
@@ -504,11 +400,8 @@ contains
        Handle  = Balance
     else
        Balance = 0
-       if( associated(THE_STRATEGIES(Balance)%NOP) ) then
-           call DestroyPlan(THE_STRATEGIES(Balance)%dist_plan)
-           call DestroyPlan(THE_STRATEGIES(Balance)%retr_plan)
+       if( associated(THE_STRATEGIES(Balance)%NOP) ) &
            deallocate(THE_STRATEGIES(Balance)%NOP)
-       end if
     end if
 
     if(present(BalLen)) BalLen =  MyNewWork
@@ -524,88 +417,13 @@ contains
     THE_STRATEGIES(Balance)%UNBALANCED_LENGTH = OrgLen
     THE_STRATEGIES(Balance)%PASSES            = KPASS
     THE_STRATEGIES(Balance)%COMM              = Comm
-    THE_STRATEGIES(Balance)%NPES              = NPES
     THE_STRATEGIES(Balance)%NOP               = NOP(:,:KPASS)
-
-! Build the Alltoallv plans for both directions from the NOP table.
-!------------------------------------------------------------------
-
-    call BuildAlltoallvPlans(THE_STRATEGIES(Balance)%NOP, KPASS, NPES, &
-                             OrgLen, MyNewWork,                         &
-                             THE_STRATEGIES(Balance)%dist_plan,         &
-                             THE_STRATEGIES(Balance)%retr_plan)
 
     deallocate(NOP)
 
     _RETURN(LDB_SUCCESS)
 
   contains
-
-    !> Simulate the sequential cursor walk for both Distribute and Retrieve
-    !  directions over the NOP table to build Alltoallv send/recv count and
-    !  displacement arrays (0-based element indices into buffer A).
-    !
-    !  Each rank sends to at most one partner and receives from at most one
-    !  partner per pass. Across all passes a rank may communicate with
-    !  multiple distinct partners; those are accumulated here.
-    subroutine BuildAlltoallvPlans(NOP, KPASS, NPES, OrgLen, BalLen, &
-                                   dist_plan, retr_plan)
-      integer,             intent(IN)    :: NOP(:,:), KPASS, NPES, OrgLen, BalLen
-      type(TAlltoallvPlan),intent(INOUT) :: dist_plan, retr_plan
-
-      integer :: PASS, CURSOR, LENGTH, PARTNER
-
-      allocate(dist_plan%sendcounts(0:NPES-1), source=0)
-      allocate(dist_plan%senddispls(0:NPES-1), source=0)
-      allocate(dist_plan%recvcounts(0:NPES-1), source=0)
-      allocate(dist_plan%recvdispls(0:NPES-1), source=0)
-      allocate(retr_plan%sendcounts(0:NPES-1), source=0)
-      allocate(retr_plan%senddispls(0:NPES-1), source=0)
-      allocate(retr_plan%recvcounts(0:NPES-1), source=0)
-      allocate(retr_plan%recvdispls(0:NPES-1), source=0)
-
-      ! -- Distribute direction (forward pass) --
-      CURSOR = OrgLen + 1
-      do PASS=1,KPASS
-         LENGTH  = abs(NOP(1,PASS))
-         PARTNER = NOP(2,PASS)
-         if (NOP(1,PASS) > 0) then          ! SEND: cursor decrements first
-            CURSOR = CURSOR - LENGTH
-            dist_plan%sendcounts(PARTNER) = dist_plan%sendcounts(PARTNER) + LENGTH
-            dist_plan%senddispls(PARTNER) = CURSOR - 1  ! 0-based
-         else if (NOP(1,PASS) < 0) then     ! RECV: cursor increments after
-            dist_plan%recvcounts(PARTNER) = dist_plan%recvcounts(PARTNER) + LENGTH
-            dist_plan%recvdispls(PARTNER) = CURSOR - 1  ! 0-based
-            CURSOR = CURSOR + LENGTH
-         end if
-      end do
-
-      ! -- Retrieve direction (reverse pass, signs swapped) --
-      CURSOR = BalLen + 1
-      do PASS=KPASS,1,-1
-         LENGTH  = abs(NOP(1,PASS))
-         PARTNER = NOP(2,PASS)
-         if (NOP(1,PASS) < 0) then          ! SEND (sign reversed)
-            CURSOR = CURSOR - LENGTH
-            retr_plan%sendcounts(PARTNER) = retr_plan%sendcounts(PARTNER) + LENGTH
-            retr_plan%senddispls(PARTNER) = CURSOR - 1
-         else if (NOP(1,PASS) > 0) then     ! RECV (sign reversed)
-            retr_plan%recvcounts(PARTNER) = retr_plan%recvcounts(PARTNER) + LENGTH
-            retr_plan%recvdispls(PARTNER) = CURSOR - 1
-            CURSOR = CURSOR + LENGTH
-         end if
-      end do
-
-    end subroutine BuildAlltoallvPlans
-
-    subroutine DestroyPlan(plan)
-      type(TAlltoallvPlan), intent(INOUT) :: plan
-      if (associated(plan%sendcounts)) deallocate(plan%sendcounts)
-      if (associated(plan%senddispls)) deallocate(plan%senddispls)
-      if (associated(plan%recvcounts)) deallocate(plan%recvcounts)
-      if (associated(plan%recvdispls)) deallocate(plan%recvdispls)
-      nullify(plan%sendcounts, plan%senddispls, plan%recvcounts, plan%recvdispls)
-    end subroutine DestroyPlan
 
     subroutine CreateStrategy(Work, Rank, MyPE, BalCond, KPASS, MyNewWork, MyBufSize, NOP)
       integer, intent(INOUT) :: Work(:), Rank(:)
@@ -700,11 +518,8 @@ contains
        Handle_ = 0
     end if
 
-    if (associated(THE_STRATEGIES(Handle_)%NOP)) then
-       call DestroyPlan(THE_STRATEGIES(Handle_)%dist_plan)
-       call DestroyPlan(THE_STRATEGIES(Handle_)%retr_plan)
-       deallocate(THE_STRATEGIES(Handle_)%NOP)
-    end if
+    if(associated(THE_STRATEGIES(Handle_)%NOP)) &
+         deallocate(THE_STRATEGIES(Handle_)%NOP)
 
     nullify(THE_STRATEGIES(Handle_)%NOP)
 
@@ -713,21 +528,8 @@ contains
     THE_STRATEGIES(Handle_)%BUFFER_LENGTH     =-1
     THE_STRATEGIES(Handle_)%PASSES            =-1
     THE_STRATEGIES(Handle_)%COMM              =-1
-    THE_STRATEGIES(Handle_)%NPES              =-1
 
     _RETURN(LDB_SUCCESS)
-
-  contains
-
-    subroutine DestroyPlan(plan)
-      type(TAlltoallvPlan), intent(INOUT) :: plan
-      if (associated(plan%sendcounts)) deallocate(plan%sendcounts)
-      if (associated(plan%senddispls)) deallocate(plan%senddispls)
-      if (associated(plan%recvcounts)) deallocate(plan%recvcounts)
-      if (associated(plan%recvdispls)) deallocate(plan%recvdispls)
-      nullify(plan%sendcounts, plan%senddispls, plan%recvcounts, plan%recvdispls)
-    end subroutine DestroyPlan
-
   end subroutine MAPL_BalanceDestroy
 
 !---------------------------------------------------------------------------

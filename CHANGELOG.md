@@ -16,8 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Replaced sequential MPI point-to-point passes in `MAPL_LoadBalanceMod` with a single `MPI_Alltoallv` (1-D) or `MPI_Alltoallw` (multi-level) collective. The communication plan is precomputed once in `MAPL_BalanceCreate` and stored in the strategy, reducing O(log₂ N) sequential rounds to a single collective call at high node counts.
-
 ### Changed
 
 - Update `components.yaml`
