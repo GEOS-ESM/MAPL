@@ -50,7 +50,7 @@ module MAPL_LoadBalanceMod
   end type TBalanceStrategy
 
   integer,           parameter :: MAX_NUM_STRATEGIES=1000
-  type(TBalanceStrategy), save :: THE_STRATEGIES(0:MAX_NUM_STRATEGIES)
+  type(TBalanceStrategy), save, target :: THE_STRATEGIES(0:MAX_NUM_STRATEGIES)
 
 !---------------------------------------------------------------------------
 !>
