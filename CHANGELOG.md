@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v3.0.0 - Development]
 
+### Changed
+
+- Convert `base/orbit.tex` to `docs/equation_of_time.md` (Markdown with GitHub-rendered math), resolving disposition of the Equation of Time derivation document from the MAPL3 base cleanup (#4788)
+
 ### Removed
 
 - Removes backward compatibility for `MAPL_FargparseCLI` functions. Only accepts function usage in which the result is of
@@ -140,6 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unnecessary _ASSERT in MAPL_TerminateImportAllBut
 - Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
 - Fixed SIGFPE (integer divide by zero) in `MAPL_LoadBalanceMod` when load balancing algorithm evaluates maximum differences to zero.
+- Python bridge: remove odd 3rd party dependency due to importing no_type_check outside of the standard library
 
 ### Added
 
