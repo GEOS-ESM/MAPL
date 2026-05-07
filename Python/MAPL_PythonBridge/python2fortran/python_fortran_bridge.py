@@ -1,8 +1,7 @@
-from gt4py.eve.extended_typing import no_type_check
 import cffi
 import os
 from MAPL_PythonBridge.types import CVoidPointer, FFI
-from typing import Any
+from typing import Any, no_type_check
 import numpy as np
 import numpy.typing as npt
 import platform
