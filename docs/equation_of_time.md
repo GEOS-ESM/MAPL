@@ -40,10 +40,10 @@ revolution, period $T_\ast$, an additional earth rotation of
 $(T_{\mathcal{M}}-T_\ast) \cdot 2\pi/T_\ast = 2\pi/Y$ is required to "catch up with the moving sun",
 as described earlier. Hence $T_{\mathcal{M}} - T_\ast = T_\ast / Y$ and so
 
-$$
+```math
 T_{\mathcal{M}} = T_\ast \frac{Y+1}{Y},
 \tag{1}
-$$
+```
 
 
 a constant (near unity) multiple of the fixed sidereal day. $T_{\mathcal{M}}$ is the length of the
@@ -60,20 +60,20 @@ we will henceforth work exclusively with Greenwich hour angles. We should use th
 true sun, $H_{\mathcal{S}}$, but a common approximation replaces this with the hour angle of the
 mean sun
 
-$$
+```math
 H_{\mathcal{M}} = 2\pi(u - 1/2),
 \tag{2}
-$$
+```
 
 
 where $u$ is UTC time (in days) and the offset is needed because the mean solar hour angle is zero at
 "noon". If more accuracy is required, the hour angle of the true sun is typically obtained as a small
 correction to $H_{\mathcal{M}}$ called the Equation of time, $EOT$:
 
-$$
+```math
 H_{\mathcal{S}} = H_{\mathcal{M}} + EOT,  \quad\text{where}\quad  EOT = H_{\mathcal{S}} - H_{\mathcal{M}}.
 \tag{3}
-$$
+```
 
 
 As discussed above, EOT corrects for two factors:
@@ -87,9 +87,9 @@ As discussed above, EOT corrects for two factors:
 
 We can write
 
-$$
+```math
 H_{\mathcal{S}} = H_{\Upsilon} - (H_{\Upsilon} - H_{\mathcal{S}}) = H_{\Upsilon} - \alpha_{\mathcal{S}},
-$$
+```
 
 
 where $H_{\Upsilon}$ is the Greenwich hour angle of the First Point of Aries (the location of the
@@ -97,10 +97,10 @@ vernal equinox, denoted $\Upsilon$) and is also known as the Greenwich sidereal 
 where $\alpha_{\mathcal{S}}$ is the right ascension of the true sun (since the right ascension of
 any object is just the difference between the hour angles of $\Upsilon$ and the object). Hence,
 
-$$
+```math
 EOT = H_{\Upsilon} - H_{\mathcal{M}} - \alpha_{\mathcal{S}}.
 \tag{4}
-$$
+```
 
 
 All three terms on the right of (4) are time variable: $\alpha_{\mathcal{S}}$ changes slowly
@@ -116,7 +116,7 @@ are still at liberty to do is specify the phasing of the mean sun in its equator
 specifying the time $u_R$ at which the mean sun passes through $\Upsilon$ (both on the equator). At
 this time, $H_{\Upsilon}(u_R) = H_{\mathcal{M}}(u_R)$, and so
 
-$$
+```math
 \begin{split}
 H_{\Upsilon}(u) - H_{\mathcal{M}}(u)
 & = 2\pi (u - u_R)(Y+1)/Y - 2\pi(u - u_R) \\
@@ -124,15 +124,15 @@ H_{\Upsilon}(u) - H_{\mathcal{M}}(u)
 & = \mathrm{MA}(u) - \mathrm{MA}(u_R),
 \end{split}
 \tag{5}
-$$
+```
 
 
 where
 
-$$
+```math
 \mathrm{MA}(u) \equiv 2\pi(u - u_{\mathcal{P}}) / Y
 \tag{6}
-$$
+```
 
 
 is the so-called "mean anomaly", known from the earth-sun two-body orbital solution, and
@@ -166,19 +166,19 @@ and will be discussed later. Finally, the *ecliptic longitude of the earth*,
 $\lambda \equiv \angle\Upsilon{\mathcal{S}}{\mathcal{E}}$ is the angle at the sun, measured in the
 same direction as the earth's motion, from the First Point of Aries $\Upsilon$ to the earth. Then
 
-$$
+```math
 \mathrm{TA}(u) \equiv \angle{\mathcal{P}}{\mathcal{S}}{\mathcal{E}}(u) = \angle{\mathcal{P}}{\mathcal{S}}\Upsilon + \angle\Upsilon{\mathcal{S}}{\mathcal{E}}(u) = \lambda(u) - \lambda_{\mathcal{P}},
-$$
+```
 
 
 where $\lambda_{\mathcal{P}} = \lambda(u_{\mathcal{P}}) \equiv \angle\Upsilon{\mathcal{S}}{\mathcal{P}} = -\angle{\mathcal{P}}{\mathcal{S}}\Upsilon$ is known as the *longitude of perihelion*, and is currently about $283^\circ$, or equivalently $-77^\circ$.
 
 With this background, we can understand the quantity $\mathrm{MA}(u_R)$ we are trying to specify. If we ***choose***
 
-$$
+```math
 \mathrm{MA}(u_R) = - \lambda_{\mathcal{P}} = \angle{\mathcal{P}}{\mathcal{S}}\Upsilon \iff \angle{\mathcal{P}}{\mathcal{O}}{\mathcal{Q}}(u_R) = \angle{\mathcal{P}}{\mathcal{S}}\Upsilon,
 \tag{7}
-$$
+```
 
 
 then at $u_R$, viewed from the mean earth ${\mathcal{Q}}$, the second (ecliptic) mean sun ${\mathcal{O}}$ is in direction of $\Upsilon$. And at that same time, by definition of $u_R$, the first (equatorial) mean sun ${\mathcal{M}}$, as seen from the real earth ${\mathcal{E}}$, is also in direction of $\Upsilon$.
@@ -189,63 +189,63 @@ Does this particular choice of $u_R$ give zero mean $EOT$, as required for a *me
 Let $\langle\cdot\rangle$ denote a time average over one orbit (one year), so that (4), (5) and (7)
 yield
 
-$$
+```math
 \langle EOT \rangle
 = \langle \mathrm{MA}(u) \rangle + \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle
 = \mathrm{MA}(\langle u \rangle) + \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle,
-$$
+```
 
 
 since $\mathrm{MA}$ is a linear function of $u$. In particular, let
 
-$$
+```math
 {\langle f \rangle}_X \equiv Y^{-1} \int_{X-Y/2}^{X+Y/2} f(u) \,\mathrm{d}u,
 \tag{8}
-$$
+```
 
 
 whence
 
-$$
+```math
 \langle EOT \rangle_{u_X} = \mathrm{MA}(u_X) + \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle_{u_X}.
 \tag{9}
-$$
+```
 
 
 For example,
 
-$$
+```math
 \langle EOT \rangle_{u_{\mathcal{P}}} = \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle_{u_{\mathcal{P}}}, \quad\text{and}\quad
 \langle EOT \rangle_{u_\Upsilon} = \mathrm{MA}(u_\Upsilon) + \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle_{u_\Upsilon}.
 \tag{10}
-$$
+```
 
 
 The right ascension of the true sun, $\alpha_{\mathcal{S}} \in (-\pi,+\pi]$, is given by
 
-$$
+```math
 \alpha_{\mathcal{S}} = \text{atan2}(\sin\lambda\,\cos\varepsilon,\; \cos\lambda),
-$$
+```
 
 
 where $\varepsilon$ is the earth's obliquity ($\approx 23.5^\circ$). Both $\lambda$ and
 $\alpha_{\mathcal{S}}$ are zero at $\Upsilon$. To proceed, we will use the following rate of change
 of $\lambda$ from the two-body theory:
 
-$$
+```math
 \frac{\mathrm{d}\lambda}{\mathrm{d}u} = \frac{\mathrm{d}\nu}{\mathrm{d}u}
   = \frac{2\pi}{Y}(1-e^2)^{-3/2}(1 + e\cos\nu)^2,
-$$
+```
 
 
 where $e$ is the eccentricity and $\nu \equiv \lambda(u) - \lambda_{\mathcal{P}}$ is shorthand for
 the true anomaly of the earth, $\mathrm{TA}(u)$. Then, without being precise on limits for now,
 
-$$
+```math
 \langle \alpha_{\mathcal{S}} \rangle
 = Y^{-1} \int \frac{\alpha_{\mathcal{S}} \,\mathrm{d}\lambda}{\mathrm{d}\lambda / \mathrm{d}u}
 = \int \frac{\text{atan2}(\sin\lambda\,\cos\varepsilon,\; \cos\lambda)}{(1-e^2)^{-3/2}[1+e\cos(\lambda-\lambda_{\mathcal{P}})]^2} \frac{\mathrm{d}\lambda}{2\pi}.
-$$
+```
 
 
 Finally, just as $\Upsilon$ denotes the location of the vernal equinox, $\lambda = \alpha_{\mathcal{S}} = 0$, we will also use $\Upsilon'$ to denote the location of the autumnal equinox, $\lambda = \alpha_{\mathcal{S}} = \pm \pi$. In general, $u_\Upsilon - u_{\Upsilon'}$ is not exactly half a year.
@@ -254,47 +254,47 @@ Finally, just as $\Upsilon$ denotes the location of the vernal equinox, $\lambda
 
 For the simple case where the obliquity is zero, $\cos\varepsilon=1$ and $\alpha_{\mathcal{S}} = \lambda = \nu + \lambda_{\mathcal{P}}$, and so
 
-$$
+```math
 \begin{split}
 \langle \alpha_{\mathcal{S}} \rangle_{u_{\mathcal{P}}}
 = & \int_{-\pi}^{+\pi} \frac{\nu+\lambda_{\mathcal{P}}}{(1-e^2)^{-3/2}[1+e\cos\nu]^2} \frac{\mathrm{d}\nu}{2\pi} \\
 = & \frac{\lambda_{\mathcal{P}}}{2\pi} \int_{-\pi}^{+\pi} \frac{\mathrm{d}\nu}{(1-e^2)^{-3/2}[1+e\cos\nu]^2},
 \end{split}
-$$
+```
 
 
 since perihelion and aphelion are half a year apart by symmetry and since the $\nu$ term is odd. The
 true anomaly can be expressed in terms of the *eccentric anomaly* $E \in (-\pi,+\pi]$:
 
-$$
+```math
 \cos\nu = \frac{\cos E - e}{1 - e \cos E}
 \quad\text{and}\quad
 \sin\nu = \frac{\sqrt{1 - e^2} \sin E}{1 - e \cos E},
-$$
+```
 
 
 whence
 
-$$
+```math
 1 + e\cos\nu = \frac{1 - e^2}{1 - e \cos E}.
-$$
+```
 
 
 and
 
-$$
+```math
 -\sin\nu \frac{\mathrm{d}\nu}{\mathrm{d}E} = -\sin E \frac{1 - e^2}{(1 - e \cos E)^2}
 \implies \frac{\mathrm{d}\nu}{\mathrm{d}E} = \frac{\sqrt{1 - e^2}}{1 - e \cos E}.
-$$
+```
 
 
 Hence,
 
-$$
+```math
 \langle \alpha_{\mathcal{S}} \rangle_{u_{\mathcal{P}}}
 = \frac{\lambda_{\mathcal{P}}}{2\pi} \int_{-\pi}^{+\pi} (1 - e \cos E) \,\mathrm{d}E = \frac{\lambda_{\mathcal{P}}}{2\pi} \int_{-\pi}^{+\pi} \mathrm{d}M
 = \lambda_{\mathcal{P}},
-$$
+```
 
 
 where $M \equiv E - e \sin E$. Hence, as required, $\langle EOT \rangle_{u_{\mathcal{P}}} = 0$ by
@@ -305,33 +305,33 @@ two-body solution.
 
 For zero eccentricity, $e=0$, we get the simple form
 
-$$
+```math
 \langle \alpha_{\mathcal{S}} \rangle = \int \text{atan2}(\sin\lambda\,\cos\varepsilon,\; \cos\lambda) \frac{\mathrm{d}\lambda}{2\pi},
-$$
+```
 
 
 and, in particular,
 
-$$
+```math
 \langle\alpha_{\mathcal{S}}\rangle_{u_{\Upsilon'}+Y/2}
 = \int_{u_{\Upsilon'}}^{u_{\Upsilon'}+Y} \alpha_{\mathcal{S}}(u) \frac{\mathrm{d}u}{Y}
 = \int_{-\pi}^{+\pi} \text{atan2}(\sin\lambda\,\cos\varepsilon,\; \cos\lambda) \frac{\mathrm{d}\lambda}{2\pi}
 = 0,
-$$
+```
 
 
 since $\text{atan2}$ is odd in $\lambda$. Then, by (9),
 
-$$
+```math
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2} = \mathrm{MA}(u_{\Upsilon'}+Y/2) + \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle_{u_{\Upsilon'}+Y/2} = \mathrm{MA}(u_\Upsilon) + \lambda_{\mathcal{P}},
-$$
+```
 
 
 since $\Upsilon'$ and $\Upsilon$ *are* a half year apart for a circular ($e=0$) orbit. But also for a circular orbit, $\mathrm{MA}(u) = \mathrm{TA}(u) = \lambda(u) - \lambda_{\mathcal{P}}$, so
 
-$$
+```math
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2} = (\lambda(u_\Upsilon) - \lambda_{\mathcal{P}}) + \lambda_{\mathcal{P}} = \lambda(u_\Upsilon) \equiv 0,
-$$
+```
 
 
 as required.
@@ -340,19 +340,19 @@ as required.
 
 For the general case,
 
-$$
+```math
 \begin{split}
 \langle\alpha_{\mathcal{S}}\rangle_{u_{\Upsilon'}+Y/2}
 & = \int_{u_{\Upsilon'}}^{u_{\Upsilon'}+Y} \alpha_{\mathcal{S}} \frac{\mathrm{d}u}{Y}
   = \int_{-\pi}^{+\pi} \frac{\text{atan2}(\sin\lambda\,\cos\varepsilon,\; \cos\lambda)}{(1-e^2)^{-3/2}[1+e\cos(\lambda-\lambda_{\mathcal{P}})]^2} \frac{\mathrm{d}\lambda}{2\pi} \\
 & = \int_0^{\pi} \frac{\text{atan2}(\sin\lambda\,\cos\varepsilon,\; \cos\lambda)}{(1-e^2)^{-3/2}} D(\lambda; \lambda_{\mathcal{P}}) \frac{\mathrm{d}\lambda}{2\pi},
 \end{split}
-$$
+```
 
 
 since $\text{atan2}$ is odd in $\lambda$, where
 
-$$
+```math
 \begin{split}
 D(\lambda; \lambda_{\mathcal{P}})
 & \equiv \frac{1}{[1+e\cos(\lambda - \lambda_{\mathcal{P}})]^2} - \frac{1}{[1+e\cos(\lambda + \lambda_{\mathcal{P}})]^2} \\
@@ -361,12 +361,12 @@ D(\lambda; \lambda_{\mathcal{P}})
 & = \frac{-4e\sin\lambda\sin\lambda_{\mathcal{P}} - 4 e^2\cos\lambda\cos\lambda_{\mathcal{P}}\sin\lambda\sin\lambda_{\mathcal{P}}}{[1 + 2e\cos\lambda\cos\lambda_{\mathcal{P}} + e^2 (\cos^2\lambda\cos^2\lambda_{\mathcal{P}} - \sin^2\lambda\sin^2\lambda_{\mathcal{P}})]^2} \\
 & = \frac{-4 e \sin\lambda\sin\lambda_{\mathcal{P}} (1 + e\cos\lambda\cos\lambda_{\mathcal{P}})}{[(1 + e\cos\lambda\cos\lambda_{\mathcal{P}})^2 - e^2 \sin^2\lambda\sin^2\lambda_{\mathcal{P}}]^2}.
 \end{split}
-$$
+```
 
 
 Continuing with the reduction,
 
-$$
+```math
 \begin{split}
 \langle \alpha_{\mathcal{S}}\rangle_{u_{\Upsilon'}+Y/2}
 &= \int_0^{\pi/2} \Bigl[
@@ -378,14 +378,14 @@ $$
 &\hspace{2cm} + [\pi-\arctan(\cot\lambda\,\cos\varepsilon)]\,\frac{D(\lambda+\pi/2; \lambda_{\mathcal{P}})}{(1-e^2)^{-3/2}}
   \Bigr]\frac{\mathrm{d}\lambda}{2\pi},
 \end{split}
-$$
+```
 
 
 where
 
-$$
+```math
 D(\lambda+\pi/2; \lambda_{\mathcal{P}}) = \frac{-4 e \cos\lambda\sin\lambda_{\mathcal{P}} (1 - e\sin\lambda\cos\lambda_{\mathcal{P}})}{[(1 - e\sin\lambda\cos\lambda_{\mathcal{P}})^2 - e^2 \cos^2\lambda\sin^2\lambda_{\mathcal{P}}]^2}.
-$$
+```
 
 
 We will attempt a solution by expanding in powers of $e$, since $e \approx 0.0167 \ll 1$. Clearly
@@ -395,15 +395,15 @@ for $e=0$ both $D$ terms are zero and we get our earlier special case result.
 
 To *first* order in $e$:
 
-$$
+```math
 \frac{D(\lambda; \lambda_{\mathcal{P}})}{(1-e^2)^{-3/2}} \approx -4 e \sin\lambda\sin\lambda_{\mathcal{P}}, \quad
 \frac{D(\lambda+\pi/2; \lambda_{\mathcal{P}})}{(1-e^2)^{-3/2}} \approx -4 e \cos\lambda\sin\lambda_{\mathcal{P}},
-$$
+```
 
 
 and so
 
-$$
+```math
 \begin{split}
 \langle \alpha_{\mathcal{S}}\rangle_{u_{\Upsilon'}+Y/2}
 & \approx -4 e \sin\lambda_{\mathcal{P}} \int_0^{\pi/2} \bigl[
@@ -423,12 +423,12 @@ $$
     - [\arctan(0) - 0 \cdot \arctan(\infty)] + \pi \Big] \\
 & = -2e \sin\lambda_{\mathcal{P}}.
 \end{split}
-$$
+```
 
 
 Now, by (9),
 
-$$
+```math
 \begin{split}
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2}
 & = \mathrm{MA}(u_{\Upsilon'}+Y/2) + \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle_{u_{\Upsilon'}+Y/2} \\
@@ -444,21 +444,21 @@ $$
     - \frac{e\sqrt{1-e^2}\sin\lambda_{\mathcal{P}}}{1 - e\cos\lambda_{\mathcal{P}}}
     + \pi + \lambda_{\mathcal{P}} + 2e \sin\lambda_{\mathcal{P}},
 \end{split}
-$$
+```
 
 
 since $\mathrm{MA} = E - e\sin E$ and since the eccentric anomaly $E$ obeys the following relations
 from the two-body solution,
 
-$$
+```math
 \sin E = \frac{\sqrt{1-e^2}\sin\nu}{1 + e\cos\nu}, \quad
 \tan(E/2) = \sqrt{\frac{1-e}{1+e}}\tan(\nu/2),
-$$
+```
 
 
 with $\nu = \lambda - \lambda_{\mathcal{P}}$, and since $\nu(u_{\Upsilon'}) = \lambda(u_{\Upsilon'}) - \lambda_{\mathcal{P}} = -(\lambda_{\mathcal{P}} + \pi)$. Hence, to our first order in $e$ approximation,
 
-$$
+```math
 \begin{split}
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2}
 & \approx -2\arctan\!\left[ (1-e)\tan\!\left(\frac{\lambda_{\mathcal{P}} + \pi}{2}\right) \right]
@@ -469,7 +469,7 @@ $$
 & = e\sin\!\left(\lambda_{\mathcal{P}} + \pi\right) + e \sin\lambda_{\mathcal{P}}
   = e [ \sin(\lambda_{\mathcal{P}} + \pi) + \sin\lambda_{\mathcal{P}} ] = 0,
 \end{split}
-$$
+```
 
 
 as required.
@@ -481,7 +481,7 @@ approach, using integration by parts, which will turn out to be easier.
 
 Alternatively, we can integrate by parts:
 
-$$
+```math
 \begin{split}
 \langle\alpha_{\mathcal{S}}\rangle_{u_{\Upsilon'}+Y/2}
 & = \int_{M(u_{\Upsilon'})}^{M(u_{\Upsilon'})+2\pi} \alpha_{\mathcal{S}} \frac{\mathrm{d}M}{2\pi}
@@ -489,30 +489,30 @@ $$
 & = M(u_{\Upsilon'})+\pi - \frac{1}{2\pi} \int_{-\pi}^{+\pi} M \frac{\mathrm{d}\alpha_{\mathcal{S}}}{\mathrm{d}\lambda} \,\mathrm{d}\lambda \\
 & = M(u_{\Upsilon'})+\pi - \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{(E - e \sin E)\cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda \sin^2\varepsilon},
 \end{split}
-$$
+```
 
 
 where (again) $M \equiv \mathrm{MA} = E - e \sin E$, and since $\alpha_{\mathcal{S}}(u_{\Upsilon'}) = \pm \pi$ and
 
-$$
+```math
 \frac{\partial}{\partial x} \text{atan2}(y,x) = \frac{-y}{x^2 + y^2} \quad\text{and}\quad
 \frac{\partial}{\partial y} \text{atan2}(y,x) = \frac{x}{x^2 + y^2},
-$$
+```
 
 
 and so
 
-$$
+```math
 \frac{\mathrm{d}\alpha_{\mathcal{S}}}{\mathrm{d}\lambda}
 = \frac{\mathrm{d}}{\mathrm{d}\lambda} \text{atan2}(\sin\lambda\,\cos\varepsilon,\; \cos\lambda)
 = \frac{\cos\varepsilon}{1 - \sin^2\lambda\,\sin^2\varepsilon}.
 \tag{11}
-$$
+```
 
 
 Hence, before making any approximation in the order of $e$, we have
 
-$$
+```math
 \begin{split}
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2}
 & = \mathrm{MA}(u_{\Upsilon'}) + \pi + \lambda_{\mathcal{P}} - \langle \alpha_{\mathcal{S}} \rangle_{u_{\Upsilon'}+Y/2} \\
@@ -520,7 +520,7 @@ $$
 & = \lambda_{\mathcal{P}} + \frac{1}{2\pi} \int_{-\pi}^{+\pi}
 \frac{\left[2\arctan\!\left( \sqrt{\frac{1-e}{1+e}}\tan\!\left(\frac{\nu}{2}\right) \right) - \frac{e\sqrt{1-e^2}\sin\nu}{1 + e\cos\nu} \right] \cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon},
 \end{split}
-$$
+```
 
 
 with $\nu = \lambda - \lambda_{\mathcal{P}}$. Clearly this method avoids explicit calculation of $\mathrm{MA}(u_{\Upsilon'})$.
@@ -529,7 +529,7 @@ with $\nu = \lambda - \lambda_{\mathcal{P}}$. Clearly this method avoids explici
 
 To *first* order in $e$:
 
-$$
+```math
 \begin{split}
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2}
 & \approx \lambda_{\mathcal{P}} + \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\left[2\arctan\!\left( (1-e)\tan\!\left(\frac{\lambda - \lambda_{\mathcal{P}}}{2}\right) \right) - e\sin(\lambda - \lambda_{\mathcal{P}}) \right] \cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon} \\
@@ -538,12 +538,12 @@ $$
 & = \lambda_{\mathcal{P}} + \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\left[\lambda - \lambda_{\mathcal{P}} - 2e(\sin\lambda\cos\lambda_{\mathcal{P}} - \cos\lambda\sin\lambda_{\mathcal{P}}) \right] \cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon} \\
 & = \lambda_{\mathcal{P}} - \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\left[\lambda_{\mathcal{P}} - 2e\sin\lambda_{\mathcal{P}}\cos\lambda \right] \cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon},
 \end{split}
-$$
+```
 
 
 after removing odd functions of $\lambda$ in the last line. By (11) we can simplify this to
 
-$$
+```math
 \begin{split}
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2}
 & = \lambda_{\mathcal{P}} - \frac{\lambda_{\mathcal{P}}}{2\pi} \int_{-\pi}^{+\pi} \mathrm{d}\alpha_{\mathcal{S}}
@@ -551,7 +551,7 @@ $$
 & = \frac{2e\sin\lambda_{\mathcal{P}}}{2\pi} \int_0^0 \frac{\cos\varepsilon \;\mathrm{d}Y'}{1 - Y'^2\sin^2\varepsilon} = 0,
 \quad \text{where } Y' \equiv \sin\lambda,
 \end{split}
-$$
+```
 
 
 so again we have our required result to first order in $e$.
@@ -564,51 +564,51 @@ suggests that the mean $EOT$ is only zero to first order.
 
 The following binomial series converge absolutely since $e \ll 1$:
 
-$$
+```math
 (1-e^2)^{1/2} = 1 + A, \quad A \equiv \sum_{k=1}^{\infty} \binom{1/2}{k} (-1)^k e^{2k} \sim O(e^2),
-$$
+```
 
-$$
+```math
 (1-e^2)^{-1/2} = 1 + B, \quad B \equiv \sum_{k=1}^{\infty} \binom{-1/2}{k} (-1)^k e^{2k} \sim O(e^2),
-$$
+```
 
 
 and
 
-$$
+```math
 (1 + e\cos\nu)^{-1} = 1 + C, \quad C \equiv \sum_{k=1}^{\infty} \binom{-1}{k} e^k\cos^k\nu \sim O(e).
-$$
+```
 
 
 Then
 
-$$
+```math
 \sqrt{\frac{1-e}{1+e}} = (1-e)(1 + B) = 1 - e + D, \quad D \equiv (1-e) B \sim O(e^2),
-$$
+```
 
 
 and
 
-$$
+```math
 \frac{\sqrt{1-e^2}}{1 + e\cos\nu} = (1 + A)(1 + C) = 1 + C + A + AC.
-$$
+```
 
 
 So, to general order in $e$,
 
-$$
+```math
 \begin{split}
 Q &\equiv 2\arctan\!\left( \sqrt{\frac{1-e}{1+e}}\tan\!\left(\frac{\nu}{2}\right) \right) - \frac{e\sqrt{1-e^2}\sin\nu}{1 + e\cos\nu} \\
 & = 2\arctan\!\left( \tan\!\left(\frac{\nu}{2}\right) + (D - e)\tan\!\left(\frac{\nu}{2}\right) \right) - e(1 + C + A + AC)\sin\nu \\
 & = \nu + (D - 2e - eA)\sin\nu - e(1 + A)C\sin\nu \\
 & \quad + 2\sum_{n=2}^{\infty} \arctan^{(n)}\!\left( \tan\!\left(\frac{\nu}{2}\right) \right) \frac{(D - e)^n}{n!} \tan^n\!\left(\frac{\nu}{2}\right).
 \end{split}
-$$
+```
 
 
 Hence,
 
-$$
+```math
 \begin{split}
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2}
 & = \lambda_{\mathcal{P}} + \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{Q\,\cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon} \\
@@ -619,29 +619,29 @@ $$
     \int_{-\pi}^{+\pi} \frac{\cos^k(\lambda-\lambda_{\mathcal{P}})\sin(\lambda-\lambda_{\mathcal{P}})\,\cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon}.
 \end{split}
 \tag{12}
-$$
+```
 
 
 First look at the $\cos^k(\lambda-\lambda_{\mathcal{P}}) \sin(\lambda-\lambda_{\mathcal{P}})$ terms:
 
-$$
+```math
 \cos^k(\lambda-\lambda_{\mathcal{P}}) \sin(\lambda-\lambda_{\mathcal{P}}) = (C_1 C_{1p} + S_1 S_{1p})^k (S_1 C_{1p} - C_1 S_{1p}),
-$$
+```
 
 
 where $C_n \equiv \cos(n\lambda)$, $S_n \equiv \sin(n\lambda)$ and the $p$ subscripts denote
 evaluation at $\lambda_{\mathcal{P}}$. For $k=1$,
 
-$$
+```math
 (C_1 C_{1p} + S_1 S_{1p})(S_1 C_{1p} - C_1 S_{1p}) = (S_2 C_{2p} - C_2 S_{2p}) / 2.
-$$
+```
 
 
 The first term is odd in $\lambda$ and will integrate to zero, but the second term is even and will
 not be zero! So perhaps our result is only good to first order in $e$? The order $e^2$ component from
 (12) for these terms is then:
 
-$$
+```math
 \begin{split}
 & \frac{e^2}{2\pi} \int_{-\pi}^{+\pi} \frac{\cos(\lambda-\lambda_{\mathcal{P}}) \sin(\lambda-\lambda_{\mathcal{P}})\,\cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon} \\
 & = -\frac{e^2\sin(2\lambda_{\mathcal{P}})}{4\pi} \int_{-\pi}^{+\pi} \frac{\cos(2\lambda)\,\cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon} \\
@@ -650,12 +650,12 @@ $$
 & \quad = -e^2 \cot\varepsilon \csc\varepsilon \sin(2\lambda_{\mathcal{P}}).
 \end{split}
 \tag{13}
-$$
+```
 
 
 Likewise, the derivatives of $\arctan$ term of (12) for order $e^2$ is:
 
-$$
+```math
 \begin{split}
 & \frac{e^2}{2} \cdot \frac{1}{2\pi} \int_{-\pi}^{+\pi}
     \frac{2\arctan^{(2)}\!\left(\tan\!\left(\frac{\lambda-\lambda_{\mathcal{P}}}{2}\right)\right)
@@ -668,23 +668,23 @@ $$
     \frac{\sin(\lambda-\lambda_{\mathcal{P}})\cos(\lambda-\lambda_{\mathcal{P}})\,\cos\varepsilon \;\mathrm{d}\lambda}{1 - \sin^2\lambda\,\sin^2\varepsilon},
 \end{split}
 \tag{14}
-$$
+```
 
 
 which is exactly half of (13). So, we conclude that to second order in $e$,
 
-$$
+```math
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2} = -\tfrac{3}{2} e^2 \cot\varepsilon \csc\varepsilon \sin(2\lambda_{\mathcal{P}}).
-$$
+```
 
 
 We will not pursue any higher order terms. For typical J2000 values $e \approx 0.0167$,
 $\varepsilon \approx 23.44^\circ$, and $\lambda_{\mathcal{P}} \approx 102.95^\circ - 180^\circ = -77.05^\circ$,
 the above formula gives
 
-$$
+```math
 \langle EOT \rangle_{u_{\Upsilon'}+Y/2} \approx 0.00106\,\text{rad} \approx 15\,\text{sec}.
-$$
+```
 
 
 Thus, we conclude that our simple choice of $u_R$ in (7) leads to zero mean $EOT$ only to first order in $e$.
