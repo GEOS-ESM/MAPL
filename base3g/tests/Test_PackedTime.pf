@@ -3,7 +3,8 @@
 module Test_PackedTime
 
    use MAPL_PackedTimeMod, only: PackedDateCreate, PackedTimeCreate, &
-                                  PackedDateTimeCreate, ESMFTimeFromPacked
+                                   PackedDateTimeCreate, ESMFTimeFromPacked, &
+                                   UnpackDate, UnpackTime, UnpackDateTime
    use ESMF
    use funit
 
@@ -152,5 +153,89 @@ contains
       @assertEqual(ESMF_SUCCESS, status)
       @assertEqual(time_in, time_out)
    end subroutine test_round_trip
+
+   ! ---------------------------------------------------------------------------
+   ! UnpackDate
+   ! ---------------------------------------------------------------------------
+
+   @test
+   subroutine test_unpack_date()
+      integer :: yy, mm, dd
+
+      call UnpackDate(20050215, yy, mm, dd)
+      @assertEqual(2005, yy)
+      @assertEqual(2,    mm)
+      @assertEqual(15,   dd)
+   end subroutine test_unpack_date
+
+   @test
+   subroutine test_unpack_date_epoch()
+      integer :: yy, mm, dd
+
+      call UnpackDate(19000101, yy, mm, dd)
+      @assertEqual(1900, yy)
+      @assertEqual(1,    mm)
+      @assertEqual(1,    dd)
+   end subroutine test_unpack_date_epoch
+
+   ! ---------------------------------------------------------------------------
+   ! UnpackTime
+   ! ---------------------------------------------------------------------------
+
+   @test
+   subroutine test_unpack_time()
+      integer :: h, m, s
+
+      call UnpackTime(133045, h, m, s)
+      @assertEqual(13, h)
+      @assertEqual(30, m)
+      @assertEqual(45, s)
+   end subroutine test_unpack_time
+
+   @test
+   subroutine test_unpack_time_midnight()
+      integer :: h, m, s
+
+      call UnpackTime(0, h, m, s)
+      @assertEqual(0, h)
+      @assertEqual(0, m)
+      @assertEqual(0, s)
+   end subroutine test_unpack_time_midnight
+
+   ! ---------------------------------------------------------------------------
+   ! UnpackDateTime
+   ! ---------------------------------------------------------------------------
+
+   @test
+   subroutine test_unpack_datetime()
+      integer :: yy, mm, dd, h, m, s
+      integer :: date_time(2)
+
+      date_time = [20050215, 133045]
+      call UnpackDateTime(date_time, yy, mm, dd, h, m, s)
+      @assertEqual(2005, yy)
+      @assertEqual(2,    mm)
+      @assertEqual(15,   dd)
+      @assertEqual(13,   h)
+      @assertEqual(30,   m)
+      @assertEqual(45,   s)
+   end subroutine test_unpack_datetime
+
+   ! ---------------------------------------------------------------------------
+   ! Round-trip: pack -> unpack -> pack
+   ! ---------------------------------------------------------------------------
+
+   @test
+   subroutine test_pack_unpack_round_trip()
+      integer :: yy, mm, dd, h, m, s
+      integer :: nymd, nhms
+
+      nymd = PackedDateCreate(2005, 2, 15)
+      nhms = PackedTimeCreate(13, 30, 45)
+      call UnpackDate(nymd, yy, mm, dd)
+      call UnpackTime(nhms, h,  m,  s)
+      @assertEqual(2005, yy); @assertEqual(2,  mm); @assertEqual(15, dd)
+      @assertEqual(13,   h);  @assertEqual(30, m);  @assertEqual(45, s)
+   end subroutine test_pack_unpack_round_trip
 
 end module Test_PackedTime
