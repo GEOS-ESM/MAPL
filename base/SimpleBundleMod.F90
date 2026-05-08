@@ -219,7 +219,7 @@ contains
 
          do i = 1, size(var_list)
             isPresent = .false.
-            do n = 1, NumVars
+             do n = 1, NumVars
                call MAPL_FieldBundleGet(Bundle, n, field, _RC)
                call ESMF_FieldGet(field, name=fieldName, _RC)
                if (fieldName == var_list(i)) then

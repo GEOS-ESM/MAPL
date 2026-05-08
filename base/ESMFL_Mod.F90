@@ -3547,9 +3547,13 @@ CONTAINS
       if (itemType /= ESMF_STATEITEM_FIELD) then
          cycle
       end if
-      if (NotInState) then
-         call MAPL_StateAdd (STA, FLD, rc=status)
-         _VERIFY(STATUS)
+       if (NotInState) then
+          block
+            type(ESMF_Field) :: fields(1)
+            fields(1) = FLD
+            call ESMF_StateAdd (STA, fields, rc=status)
+          end block
+          _VERIFY(STATUS)
       else
          ! copy content to StateField
          call ESMF_FieldGet(stateFIELD, &
@@ -3991,7 +3995,7 @@ CONTAINS
 
 !   Loop over each item on STATE
 !   ----------------------------
-    attrName = MAPL_StateItemOrderList
+    attrName = 'MAPL_StateItemOrderList'
     call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
     _VERIFY(STATUS)
     call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)

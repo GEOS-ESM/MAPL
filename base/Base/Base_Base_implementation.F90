@@ -105,7 +105,7 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_AllocateCoupling
 
-  module subroutine MAPL_FieldAllocCommit(field, dims, location, typekind, &
+  subroutine MAPL_FieldAllocCommit(field, dims, location, typekind, &
        hw, ungrid, default_value, rc)
     type(ESMF_Field),               intent(INOUT) :: field
     integer,                        intent(IN   ) :: dims
@@ -517,19 +517,8 @@ contains
     end select Dimensionality
 
     if (present(default_value)) then
-       block
-         type(ESMF_Info) :: attr_infoh
-         type(ESMF_Array) :: attr_array
-         type(ESMF_FieldStatus_Flag) :: attr_fieldStatus
-         call ESMF_InfoGetFromHost(field, attr_infoh, _RC)
-         call ESMF_InfoSet(attr_infoh, "MAPL_InitStatus", int(MAPL_InitialDefault), _RC)
-         call ESMF_FieldGet(field, status=attr_fieldStatus, _RC)
-         if (attr_fieldStatus == ESMF_FIELDSTATUS_COMPLETE) then
-            call ESMF_FieldGet(field, Array=attr_array, _RC)
-            call ESMF_InfoGetFromHost(attr_array, attr_infoh, _RC)
-            call ESMF_InfoSet(attr_infoh, "MAPL_InitStatus", int(MAPL_InitialDefault), _RC)
-         end if
-       end block
+       call MAPL_FieldAttSetI4(field, NAME="MAPL_InitStatus", &
+            VALUE=MAPL_InitialDefault, _RC)
     end if
 
     ! Clean up
@@ -540,126 +529,409 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldAllocCommit
 
+  module subroutine MAPL_FieldF90Deallocate(field, rc)
+    type(ESMF_Field),  intent(INOUT) :: field
+    integer, optional, intent(  OUT) :: rc
 
+    integer                                 :: status
+    character(len=ESMF_MAXSTR), parameter   :: IAm='MAPL_FieldF90Deallocate'
 
+    type(ESMF_Array)                        :: array
+    type(ESMF_FieldStatus_Flag)             :: fieldStatus
+    type (ESMF_LocalArray), target          :: larrayList(1)
+    type (ESMF_LocalArray), pointer         :: larray
+    integer                                 :: localDeCount
+    integer                                 :: rank
+    type(ESMF_TypeKind_Flag)                :: tk
 
-  module subroutine MAPL_TimeStringGet(TIMESTRING,YY,MM,DD,H,M,S)
-    character(len=*),  intent (IN ) :: TIMESTRING
-    integer, optional, intent (OUT) :: YY
-    integer, optional, intent (OUT) :: MM
-    integer, optional, intent (OUT) :: DD
-    integer, optional, intent (OUT) :: H
-    integer, optional, intent (OUT) :: M
-    integer, optional, intent (OUT) :: S
+    call ESMF_FieldGet(field, status=fieldStatus, _RC)
 
-    integer :: IYY, IMM, IDD, IHH, IMN, ISS
+    if (fieldStatus == ESMF_FIELDSTATUS_COMPLETE) then
+       call ESMF_FieldGet(field, Array=array, _RC)
 
-    read(TIMESTRING,'(I4,1X,I2,1X,I2,1X,I2,1X,I2,1X,I2)') IYY,IMM,IDD,IHH,IMN,ISS
+       call ESMF_ArrayGet(array, localDeCount=localDeCount, _RC)
+       _ASSERT(localDeCount == 1, 'currently MAPL supports only 1 local array')
+       call ESMF_ArrayGet(array, localarrayList=larrayList, _RC)
+       larray => lArrayList(1) ! alias
 
-    !ALT: SGI compiler does not like this format  read(TIMESTRING,'(I4,"-",I2,"-",I2,"T",I2,":",I2,":",I2)') IYY,IMM,IDD,IHH,IMN,ISS
-    if(present(YY)) YY = IYY
-    if(present(MM)) MM = IMM
-    if(present(DD)) DD = IDD
-    if(present(H )) H  = IHH
-    if(present(M )) M  = IMN
-    if(present(S )) S  = ISS
-
-    return
-  end subroutine MAPL_TimeStringGet
-
-
-
-
-
-
-
-  module subroutine MAPL_GetFieldTimeFromField ( FIELD, TIME, RC )
-    type(ESMF_Field),        intent(INOUT) :: FIELD ! ALT: IN
-    type(ESMF_Time),         intent(  OUT) :: TIME
-    integer, optional,       intent(  OUT) :: RC
-
-    character(len=ESMF_MAXSTR),parameter   :: IAm=" MAPL_GetFieldTimeFromField"
-    integer                                :: STATUS
-
-    integer                                :: YEAR, MONTH, DAY
-    integer                                :: HOUR, MINUTE, SCND
-    character(len=ESMF_MAXSTR)             :: TIMESTAMP
-    logical                                :: isPresent
-    type(ESMF_Info)                        :: infoh
-
-    call ESMF_InfoGetFromHost(FIELD,infoh,_RC)
-    isPresent = ESMF_InfoIsPresent(infoh,'TimeStamp',_RC)
-    if(.not. isPresent) then
-       call ESMF_TimeSet          (TIME,      YY=0,                _RC)
-    else
-       call ESMF_InfoGet(infoh,'TimeStamp',TIMESTAMP,_RC)
-
-       call MAPL_TimeStringGet    (TIMESTAMP, YY=YEAR, MM=MONTH,  DD=DAY,   &
-            H =HOUR, M =MINUTE, S =SCND   )
-       call ESMF_TimeSet          (TIME,      YY=YEAR, MM=MONTH,  DD=DAY,   &
-            H =HOUR, M =MINUTE, S =SCND,  &
+       call ESMF_LocalArrayGet(larray, rank=rank, typekind=tk, &
             _RC)
+
+       call ESMF_LocalArrayF90Deallocate(larray, typekind=tk, rank=rank, _RC)
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_GetFieldTimeFromField
+  end subroutine MAPL_FieldF90Deallocate
 
-  ! ------------------------------------------------------------------------------
+  module subroutine MAPL_SetPointer2DR4(state, ptr, name, rc)
+    type(ESMF_State),               intent(INOUT) :: state
+    real,                           pointer       :: ptr(:,:)
+    character(len=*),               intent(IN   ) :: name
+    integer,              optional, intent(  OUT) :: rc
 
-  module subroutine  MAPL_SetFieldTimeFromField (FIELD, TIME, RC )
-    type(ESMF_FIELD),        intent(INOUT) :: FIELD
-    type(ESMF_TIME),         intent(INOUT) :: TIME !ALT: IN
-    integer, optional,       intent(  OUT) :: RC
 
-    character(len=ESMF_MAXSTR),parameter   :: IAm=" MAPL_SetFieldTimeFromField"
-    integer                                :: STATUS
+    integer                               :: status
+    character(len=ESMF_MAXSTR), parameter :: IAm='MAPL_SetPointer2DR4'
 
-    character(len=ESMF_MAXSTR)             :: TIMESTAMP
-    type(ESMF_Info)                        :: infoh
+    type(ESMF_Field)                      :: field
+    type(ESMF_FieldBundle)                :: bundle
+    type(ESMF_Grid)                       :: GRID
+    integer                               :: COUNTS(ESMF_MAXDIM)
+    integer                               :: gridRank
+    integer                               :: I
+    integer                               :: loc
+    integer, allocatable                  :: gridToFieldMap(:)
+    type(ESMF_FieldStatus_Flag)           :: fieldStatus
 
-    call ESMF_TimeGet(TIME,timeString=TIMESTAMP,_RC)
-    call ESMF_InfoGetFromHost(FIELD,infoh,_RC)
-    call ESMF_InfoSet(infoh,'TimeStamp',TIMESTAMP,_RC)
+    _ASSERT(associated(ptr), 'unassociated pointer')
+
+    ! Get Field from state
+
+    loc = index(name,';;')
+
+    if(loc/=0) then
+       call ESMF_StateGet(state, name(:loc-1), Bundle, _RC)
+       call ESMF_StateGet(state, name(loc+2:), Field, _RC)
+    else
+       call ESMF_StateGet(state, name, Field, _RC)
+    end if
+
+    call ESMF_FieldGet(field, status=fieldStatus, _RC)
+    _ASSERT(fieldStatus /= ESMF_FIELDSTATUS_COMPLETE, 'fieldStatus == ESMF_FIELDSTATUS_COMPLETE')
+
+    call ESMF_FieldGet(field, grid=GRID, _RC)
+    call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, _RC)
+
+    _ASSERT(size(ptr,1) == COUNTS(1), 'shape mismatch dim=1')
+    _ASSERT(size(ptr,2) == COUNTS(2), 'shape mismatch dim=2')
+    call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
+    ! MAPL restriction (actually only the first 2 dims are distributted)
+    _ASSERT(gridRank <= 3, 'gridRank > 3 not supported')
+    allocate(gridToFieldMap(gridRank), _STAT)
+    do I = 1, gridRank
+       gridToFieldMap(I) = I
+    end do
+
+    ! this is 2d case
+    if (gridRank == 3) gridToFieldMap(3) = 0
+
+    call ESMF_FieldEmptyComplete(FIELD, farrayPtr=ptr, &
+         datacopyFlag = ESMF_DATACOPY_REFERENCE,       &
+         gridToFieldMap=gridToFieldMap,                &
+         _RC)
+
+    ! Clean up
+    deallocate(gridToFieldMap)
+
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine  MAPL_SetFieldTimeFromField
+  end subroutine MAPL_SetPointer2DR4
+
+  module subroutine MAPL_SetPointer3DR4(state, ptr, name, rc)
+    type(ESMF_State),               intent(INOUT) :: state
+    real,                           pointer       :: ptr(:,:,:)
+    character(len=*),               intent(IN   ) :: name
+    integer,              optional, intent(  OUT) :: rc
 
 
-  module subroutine  MAPL_GetFieldTimeFromState ( STATE, Fieldname, TIME, RC )
-    type(ESMF_STATE),        intent(IN   ) :: STATE
-    character(len=*),        intent(IN   ) :: Fieldname
-    type(ESMF_Time),         intent(  OUT) :: TIME
-    integer, optional,       intent(  OUT) :: RC
+    integer                               :: status
+    character(len=ESMF_MAXSTR), parameter :: IAm='MAPL_SetPointer3DR4'
 
-    character(len=ESMF_MAXSTR),parameter   :: IAm=" MAPL_GetFieldTimeFromState"
-    integer                                :: STATUS
+    type(ESMF_Field)                      :: field
+    type(ESMF_FieldBundle)                :: bundle
+    type(ESMF_Grid)                       :: GRID
+    integer                               :: COUNTS(ESMF_MAXDIM)
+    integer                               :: gridRank
+    integer                               :: I
+    integer                               :: loc
+    integer, allocatable                  :: gridToFieldMap(:)
+    type(ESMF_FieldStatus_Flag)             :: fieldStatus
 
-    type(ESMF_FIELD)                       :: FIELD
+    _ASSERT(associated(ptr), 'unassociated pointer')
 
-    call ESMF_StateGet (STATE, FIELDNAME, FIELD, _RC )
-    call MAPL_FieldGetTime  (FIELD, TIME,             _RC)
+    ! Get Field from state
+
+    loc = index(name,';;')
+
+    if(loc/=0) then
+       call ESMF_StateGet(state, name(:loc-1), Bundle, _RC)
+       call ESMF_StateGet(state, name(loc+2:), Field, _RC)
+    else
+       call ESMF_StateGet(state, name, Field, _RC)
+    end if
+
+    call ESMF_FieldGet(field, status=fieldStatus, _RC)
+    _ASSERT(fieldStatus /= ESMF_FIELDSTATUS_COMPLETE, 'fieldStatus == ESMF_FIELDSTATUS_COMPLETE')
+
+    call ESMF_FieldGet(field, grid=GRID, _RC)
+    call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, _RC)
+
+    _ASSERT(size(ptr,1) == COUNTS(1), 'shape mismatch dim=1')
+    _ASSERT(size(ptr,2) == COUNTS(2), 'shape mismatch dim=2')
+    call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
+    ! MAPL restriction (actually only the first 2 dims are distributted)
+    _ASSERT(gridRank <= 3, 'gridRank > 3 not supported')
+    allocate(gridToFieldMap(gridRank), _STAT)
+    do I = 1, gridRank
+       gridToFieldMap(I) = I
+    end do
+
+    call ESMF_FieldEmptyComplete(FIELD, farrayPtr=ptr, &
+         datacopyFlag = ESMF_DATACOPY_REFERENCE,       &
+         gridToFieldMap=gridToFieldMap,                &
+         _RC)
+
+    ! Clean up
+    deallocate(gridToFieldMap)
+
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine  MAPL_GetFieldTimeFromState
+  end subroutine MAPL_SetPointer3DR4
 
-  ! ------------------------------------------------------------------------------
+  pure subroutine MAPL_DecomposeDim ( dim_world,dim,NDEs, unusable, symmetric, min_DE_extent )
+    use MAPL_KeywordEnforcerMod
 
-  module subroutine  MAPL_SetFieldTimeFromState ( STATE, Fieldname, TIME, RC )
-    type(ESMF_STATE),        intent(INOUT) :: STATE
-    character(len=*),        intent(IN   ) :: Fieldname
-    type(ESMF_Time),         intent(INOUT) :: TIME !ALT: IN
-    integer, optional,       intent(  OUT) :: RC
+    integer, intent(in) :: dim_world, NDEs
+    integer, intent(out) :: dim(0:NDEs-1)
+    class (KeywordEnforcer), optional, intent(in) :: unusable
+    logical, intent(in), optional :: symmetric
+    integer, optional, intent(in) :: min_DE_extent
 
-    character(len=ESMF_MAXSTR),parameter   :: IAm=" MAPL_SetFieldTimeFromState"
-    integer                                :: STATUS
+    integer    im,rm
+    logical :: do_symmetric
+    integer :: is,ie,isg,ieg
+    integer :: ndiv,ndivs,imax,ndmax,ndmirror,n
+    integer :: ibegin(0:NDEs-1)
+    integer :: iend(0:NDEs-1)
+    logical :: symmetrize
+    integer :: NDEs_used
 
-    type(ESMF_FIELD)                       :: FIELD
+    if (present(symmetric)) then
+       do_symmetric=symmetric
+    else
+       do_symmetric=.false.
+    end if
 
-    call ESMF_StateGet (STATE, FIELDNAME, FIELD, _RC)
-    call MAPL_FieldSetTime  (FIELD, TIME,             _RC)
+    if (present(min_DE_extent)) then
+       NDEs_used = min(NDEs, dim_world / min_DE_extent)
+    else
+       NDEs_used = NDEs
+    end if
 
-    _RETURN(ESMF_SUCCESS)
-  end subroutine  MAPL_SetFieldTimeFromState
+    if (do_symmetric) then
+
+       isg = 1
+       ieg = dim_world
+       ndivs = NDEs_used
+
+       is = isg
+       n = 0
+       do ndiv=0,ndivs-1
+          !modified for mirror-symmetry
+          !original line
+          !                 ie = is + CEILING( real(ieg-is+1)/(ndivs-ndiv) ) - 1
+
+          !problem of dividing nx points into n domains maintaining symmetry
+          !i.e nx=18 n=4 4554 and 5445 are solutions but 4455 is not.
+          !this will always work for nx even n even or odd
+          !this will always work for nx odd, n odd
+          !this will never  work for nx odd, n even: for this case we supersede the mirror calculation
+          !                 symmetrize = .NOT. ( mod(ndivs,2).EQ.0 .AND. mod(ieg-isg+1,2).EQ.1 )
+          !nx even n odd fails if n>nx/2
+          symmetrize = ( even(ndivs) .AND. even(ieg-isg+1) ) .OR. &
+               (  odd(ndivs) .AND.  odd(ieg-isg+1) ) .OR. &
+               (  odd(ndivs) .AND. even(ieg-isg+1) .AND. ndivs.LT.(ieg-isg+1)/2 )
+
+          !mirror domains are stored in the list and retrieved if required.
+          if( ndiv.EQ.0 )then
+             !initialize max points and max domains
+             imax = ieg
+             ndmax = ndivs
+          end if
+          !do bottom half of decomposition, going over the midpoint for odd ndivs
+          if( ndiv.LT.(ndivs-1)/2+1 )then
+             !domain is sized by dividing remaining points by remaining domains
+             ie = is + CEILING( REAL(imax-is+1)/(ndmax-ndiv) ) - 1
+             ndmirror = (ndivs-1) - ndiv !mirror domain
+             if( ndmirror.GT.ndiv .AND. symmetrize )then !only for domains over the midpoint
+                !mirror extents, the max(,) is to eliminate overlaps
+                ibegin(ndmirror) = max( isg+ieg-ie, ie+1 )
+                iend(ndmirror)   = max( isg+ieg-is, ie+1 )
+                imax = ibegin(ndmirror) - 1
+                ndmax = ndmax - 1
+             end if
+          else
+             if( symmetrize )then
+                !do top half of decomposition by retrieving saved values
+                is = ibegin(ndiv)
+                ie = iend(ndiv)
+             else
+                ie = is + CEILING( REAL(imax-is+1)/(ndmax-ndiv) ) - 1
+             end if
+          end if
+          dim(ndiv) = ie-is+1
+          is = ie + 1
+       end do
+    else
+       im = dim_world/NDEs_used
+       rm = dim_world-NDEs_used*im
+       do n = 0,NDEs_used-1
+          dim(n) = im
+          if( n.le.rm-1 ) dim(n) = im+1
+       enddo
+    end if
+
+    dim(NDEs_used:) = 0
+
+  contains
+
+    pure logical function even(n)
+      integer, intent(in) :: n
+      even = mod(n,2).EQ.0
+    end function even
+
+    pure logical function odd(n)
+      integer, intent(in) :: n
+      odd = mod(n,2).EQ.1
+    end function odd
+
+  end subroutine MAPL_DecomposeDim
+
+  ! MAPL_Interp_Fac and MAPL_ClimInterpFac moved to MAPL_TimeInterpolation (base3g)
+
+  module subroutine MAPL_UnpackTime(TIME,IYY,IMM,IDD)
+    integer, intent (IN ) :: TIME
+    integer, intent (OUT) :: IYY
+    integer, intent (OUT) :: IMM
+    integer, intent (OUT) :: IDD
+    IYY = TIME/10000
+    IMM = mod(TIME/100,100)
+    IDD = mod(TIME,100)
+  end subroutine MAPL_UnpackTime
+
+
+  module subroutine MAPL_PackTime(TIME,IYY,IMM,IDD)
+    integer, intent (OUT) :: TIME
+    integer, intent (IN ) :: IYY
+    integer, intent (IN ) :: IMM
+    integer, intent (IN ) :: IDD
+    TIME=IYY*10000+IMM*100+IDD
+  end subroutine MAPL_PackTime
+
+
+  module subroutine MAPL_PackDateTime(date_time, yy, mm, dd, h, m, s)
+    integer, intent(in) :: yy, mm, dd, h, m, s
+    integer, intent(out) :: date_time(:)
+
+    date_time(1) = (10000 * yy) + (100 * mm) + dd
+    date_time(2) = (10000 * h) + (100 * m) + s
+  end subroutine MAPL_PackDateTime
+
+
+  module subroutine MAPL_UnpackDateTime(date_time, yy, mm, dd, h, m, s)
+    integer, intent(in) :: date_time(:)
+    integer, intent(out) :: yy, mm, dd, h, m, s
+
+    yy =     date_time(1) / 10000
+    mm = mod(date_time(1), 10000) / 100
+    dd = mod(date_time(1), 100)
+    h  =     date_time(2) / 10000
+    m  = mod(date_time(2), 10000) / 100
+    s  = mod(date_time(2), 100)
+  end subroutine MAPL_UnpackDateTime
+
+
+  ! A year is a leap year if
+  ! 1) it is divible by 4, and
+  ! 2) it is not divisible by 100, unless
+  ! 3) it is also divisible by 400.
+  logical function MAPL_LEAP(NY)
+    integer, intent(in) :: NY
+
+    MAPL_LEAP = mod(NY,4)==0 .and. (mod(NY,100)/=0 .or. mod(NY,400)==0)
+
+  end function MAPL_LEAP
+
+
+  integer module function MAPL_incymd (NYMD,M)
+    integer nymd,ny,nm,nd,m
+    INTEGER NDPM(12)
+    DATA    NDPM /31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31/
+    NY = NYMD / 10000
+    NM = MOD(NYMD,10000) / 100
+    ND = MOD(NYMD,100) + M
+    IF (ND.EQ.0) THEN
+       NM = NM - 1
+       IF (NM.EQ.0) THEN
+          NM = 12
+          NY = NY - 1
+       ENDIF
+       ND = NDPM(NM)
+       IF (NM.EQ.2 .AND. MAPL_LEAP(NY))  ND = 29
+    ENDIF
+    IF (ND.EQ.29 .AND. NM.EQ.2 .AND. MAPL_LEAP(NY))  GO TO 20
+    IF (ND.GT.NDPM(NM)) THEN
+       ND = 1
+       NM = NM + 1
+       IF (NM.GT.12) THEN
+          NM = 1
+          NY = NY + 1
+       ENDIF
+    ENDIF
+20  CONTINUE
+    MAPL_INCYMD = NY*10000 + NM*100 + ND
+    RETURN
+  end function MAPL_incymd
+
+
+  module subroutine MAPL_PICKEM(II,JJ,IM,JM,COUNT)
+    integer, intent(IN ) :: IM, JM, COUNT
+    integer, intent(OUT) :: II(COUNT), JJ(COUNT)
+
+    integer, parameter :: NT=3
+
+    logical :: MASK(IM,JM)
+    integer :: L, NN, IX, JX
+    real    :: IIR(NT*COUNT), JJR(NT*COUNT)
+
+    MASK=.true.
+
+    NN=1
+
+    call RANDOM_NUMBER(IIR)
+    call RANDOM_NUMBER(JJR)
+
+
+    do L=1, COUNT
+
+       do
+          IX=IIR(NN)*(IM-1)+2
+          JX=JJR(NN)*(JM-2)+2
+
+          NN = NN + 1
+
+          if(MASK(IX,JX)) then
+             II(L) = IX
+             JJ(L) = JX
+             MASK(IX-1:IX+1,JX-1:JX+1) = .false.
+             exit
+          endif
+
+          if(NN>NT*COUNT) stop 222
+
+       enddo
+    enddo
+
+!!$   DO L=1,JM
+!!$      PRINT '(144L1)',MASK(:,L)
+!!$   ENDDO
+!!$
+!!$   PRINT *, COUNT, NN
+
+    return
+  end subroutine MAPL_PICKEM
+
+
 
 
   module function MAPL_FieldCreateRename(FIELD, NAME, DoCopy, RC) RESULT(F)
@@ -911,7 +1183,7 @@ contains
     _RETURN(ESMF_SUCCESS)
   end function MAPL_FieldCreateR4
 
-  module function MAPL_FieldCreateEmpty(NAME, GRID, RC) RESULT(FIELD)
+  function MAPL_FieldCreateEmpty(NAME, GRID, RC) RESULT(FIELD)
     character(len=*),  intent(IN   ) :: NAME
     type (ESMF_Grid),  intent(INout) :: GRID
     integer, optional, intent(  OUT) :: RC
@@ -931,7 +1203,7 @@ contains
 
   end function MAPL_FieldCreateEmpty
 
-  module subroutine MAPL_FieldCopyAttributes(FIELD_IN, FIELD_OUT, RC)
+  subroutine MAPL_FieldCopyAttributes(FIELD_IN, FIELD_OUT, RC)
     type (ESMF_Field), intent(INOUT) :: FIELD_IN !ALT: intent(in)
     type (ESMF_Field), intent(INOUT) :: FIELD_OUT
     integer, optional, intent(  OUT) :: RC
@@ -945,64 +1217,26 @@ contains
 
     call ESMF_InfoSet(info_out, key="", value=info_in, _RC)
 
-    _RETURN(ESMF_SUCCESS)
+     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldCopyAttributes
 
-  module subroutine MAPL_FieldCopy(from, to, RC)
-    type (ESMF_Field), intent(INOUT) :: FROM !ALT: IN
-    type (ESMF_Field), intent(INOUT) :: TO !ALT: OUT
-    integer, optional, intent(  OUT) :: RC
+  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  module function MAPL_RemapBounds_3dr4(A, LB1, LB2, LB3) result(ptr)
+    integer,      intent(IN) :: LB1, LB2, LB3
+    real, target, intent(IN) :: A(LB1:,LB2:,LB3:)
+    real, pointer            :: ptr(:,:,:)
 
-    !   we are creating new field so that we can change the name of the field;
-    !   the important thing is that the data (ESMF_Array) and the grid (ESMF_Grid)
-    !   are the SAME as the one in the original Field, if DoCopy flag is present
-    !   and set to true we create a new array and copy the data, not just reference it
+    ptr => A
+  end function MAPL_RemapBounds_3dr4
 
-    integer                 :: fieldRank
-    integer                 :: status
-    character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_FieldCopy'
-    real, pointer           :: var_1d(:)
-    real, pointer           :: var_2d(:,:)
-    real, pointer           :: var_3d(:,:,:)
-    real(kind=REAL64), pointer :: vr8_1d(:)
-    real(kind=REAL64), pointer :: vr8_2d(:,:)
-    real(kind=REAL64), pointer :: vr8_3d(:,:,:)
-    type(ESMF_TypeKind_Flag)  :: tk
+  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  module function MAPL_RemapBounds_3dr8(A, LB1, LB2, LB3) result(ptr)
+    integer,      intent(IN) :: LB1, LB2, LB3
+    real(kind=REAL64), target, intent(IN) :: A(LB1:,LB2:,LB3:)
+    real(kind=REAL64), pointer            :: ptr(:,:,:)
 
-    call ESMF_FieldGet(from, dimCount=fieldRank, &
-         typekind=tk, _RC)
-    _ASSERT(tk == ESMF_TypeKind_R8, 'inconsistent typekind (should be ESMF_TypeKind_R8)')
-
-    select case (fieldRank)
-    case (1)
-       call ESMF_FieldGet(from, farrayPtr=vr8_1d, _RC)
-       call ESMF_FieldGet(to, dimCount=fieldRank, typekind=tk, _RC)
-       _ASSERT(tk == ESMF_TypeKind_R4, 'inconsistent typekind (should be ESMF_TypeKind_R4)')
-       _ASSERT(fieldRank==1, 'inconsistent fieldrank (should be 1)')
-       call ESMF_FieldGet(to, farrayPtr=var_1d, _RC)
-       var_1d = vr8_1d
-    case (2)
-       call ESMF_FieldGet(from, farrayPtr=vr8_2d, _RC)
-       call ESMF_FieldGet(to, dimCount=fieldRank, typekind=tk, _RC)
-       _ASSERT(tk == ESMF_TypeKind_R4, 'inconsistent typekind (should be ESMF_TypeKind_R4)')
-       _ASSERT(fieldRank==2, 'inconsistent fieldRank (should be 2)')
-       call ESMF_FieldGet(to, farrayPtr=var_2d, _RC)
-       var_2d = vr8_2d
-    case (3)
-       call ESMF_FieldGet(from, farrayPtr=vr8_3d, _RC)
-       call ESMF_FieldGet(to, dimCount=fieldRank, typekind=tk, _RC)
-       _ASSERT(tk == ESMF_TypeKind_R4, 'inconsistent typekind (should be ESMF_TypeKind_R4)')
-       _ASSERT(fieldRank==3,'inconsistent fieldRank (should be 3)')
-       call ESMF_FieldGet(to, farrayPtr=var_3d, _RC)
-       var_3d = vr8_3d
-    case default
-       _FAIL( 'unsupported fieldRank (> 3)')
-    end select
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_FieldCopy
-
-
+    ptr => A
+  end function MAPL_RemapBounds_3dr8
 
   module subroutine MAPL_GRID_INTERIOR(GRID,I1,IN,J1,JN)
     type (ESMF_Grid), intent(IN) :: grid
@@ -1071,6 +1305,425 @@ contains
 
   end subroutine MAPL_GRID_INTERIOR
 
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!>
+! `MAPL_LatLonGridCreate` creates regular Lat/Lon Grid.
+!
+! This routine creates a distributed ESMF grid where the horizontal
+!  coordinates are regular longitudes and latitudes. The grid is
+!  created on the user specified  **VM**, or on the current VM if the user
+!  does not specify one. The layout and the coordinate information can
+!  be provided with a `ESMF_Config attribute`, a resource file name
+!  or specified through the argument list.
+!
+!### Using resource files
+! The {\bf resource file} {\tt ConfigFile} has a syntax similar to a GrADS
+! control file.  Here is an example defining a typical GEOS-5 1x1.25
+! grid with 72 layers:
+!%
+!```
+!    GDEF: LatLon
+!    IDEF: 32
+!    JDEF: 16
+!    LDEF:  1
+!    XDEF: 288 LINEAR -180. 1.25
+!    YDEF: 181 LINEAR -90. 1.
+!    ZDEF:  72 LINEAR 1 1
+!```
+!
+! More generally,
+!```
+!    GDEF: LatLon
+!    IDEF: Nx
+!    JDEF: Ny
+!    LDEF: Nz
+!    XDEF: IM_World XCoordType BegLon, DelLon
+!    YDEF: JM_World YCoordType BegLat, DelLat
+!    ZDEF: LM_World ZCoordType 1        1
+!```
+!
+! The attribute **GDEF** must always be *LatLon* for  Lat/Lon grids.
+! The remaining parameters are:
+!
+!- **Nx** is the number of processors used to decompose the X dimension
+!- **Ny** is the number of processors used to decompose the Y dimension
+!- **Nz** is the number of processors used to decompose the Z dimension;  must be 1 for now.
+!- **IM_World** is the number of longitudinal grid points; if `IM_World=0` then the
+!   grid has no zonal dimension.
+!- **XCoordType** must be set to LINEAR
+!- **BegLon** is the longitude (in degrees) of the *center* of the first
+!   gridbox
+!- **DelLon** is the constant mesh size (in degrees); if `DelLon<1` then a
+!   global grid is assumed.
+!- **JM_World** is the number of meridional grid points if `JM_World=0` then
+!   the grid has no meridional dimension.
+!- **YCoordType** must be set to LINEAR
+!- **BegLat** is the latitude (in degrees) of the *center* of the first
+!   gridbox
+!- **DelLat** is the constant mesh size (in degrees); if `DelLat<1` then a
+!   global grid is assumed.
+!- **LM_World** is the number of vertical grid points; if `LM_World=0` then the
+!   grid has no vertical dimension.
+!
+! As of this writing, only the size of the vertical grid ({\tt LM\_World})
+! needs to be specified.
+!
+!### Passing an ESMF Config
+!
+! The **ESMF_Config** object `Config`, when specified, must
+! contain the same information as the resource file above.
+!
+!### Providing parameters explicitly through the argument list
+!
+! Alternatively, one can specify coordinate information in the argument
+! list; their units and meaning is as in the resource file above. In
+! this case you must specify at least `Nx, Ny, IM_World, JM_World`, and
+! `LM\_World`. The other parameters have default values
+!- **BegLon** defaults to -180. (the date line)
+!- **DelLon** defaults to -1. (meaning a global grid)
+!- **BegLat** defaults to -90. (the south pole)
+!- **DelLat** deaults to -1. (meaning a global grid)
+!
+!### Restrictions
+! The current implementation imposes the following restrictions:
+!1. Only uniform longitude/latitude grids are supported (no Gaussian grids).
+!2. Only 2D Lon-Lat or 3D Lon-Lat-Lev grids are currently supported
+!   (no Lat-Lev or Lon-Lev grids supprted yet).
+!3. No vertical decomposition yet (`Nz=1`).
+!
+!### Future enhancements
+! The `IDEF/JDEF/LDEF` records in the resource file should be
+! extended as to allow specification of a more general distribution.
+! For consistency with the `XDEF/YDEF/ZDEF` records a similar
+! syntax could be adopted. For example,
+!
+!```
+! IDEF 4   LEVELS  22 50 50 22
+! XDEF 144 LINEAR -180 2.5
+!```
+! would indicate that longitudes would be decomposed in 4 PETs,
+! with the first PET having 22 grid points, the second 50 gridpoints,
+! and so on.
+!
+  module function MAPL_LatLonGridCreate (Name, vm,                 &
+       Config, ConfigFile,       &
+       Nx, Ny,                   &
+       IM_World, BegLon, DelLon, &
+       JM_World, BegLat, DelLat, &
+       LM_World,                 &
+       rc)                       &
+       result(Grid)
+
+    ! !INPUT PARAMETERS:
+
+    character(len=*),            intent(in)  :: Name
+    type (ESMF_VM),    OPTIONAL, target,     &
+         intent(in)  :: VM
+
+
+    !   There are 3 possibilities to provide the coordinate information:
+
+    ! 1) Thru Config object:
+    type(ESMF_Config), OPTIONAL, target,     &
+         intent(in)  :: Config
+
+    ! 2) Thru a resource file:
+    character(len=*),  OPTIONAL, intent(in)  :: ConfigFile
+
+
+    ! 3) Thru argument list:
+    integer,           OPTIONAL, intent(in)  :: Nx, Ny          ! Layout
+    integer,           OPTIONAL, intent(in)  :: IM_World        ! Zonal
+    real,              OPTIONAL, intent(in)  :: BegLon, DelLon  ! in degrees
+
+    integer,           OPTIONAL, intent(in)  :: JM_World        ! Meridional
+    real,              OPTIONAL, intent(in)  :: BegLat, DelLat  ! in degrees
+
+    integer,           OPTIONAL, intent(in)  :: LM_World        ! Vertical
+
+    ! !OUTPUT PARAMETERS:
+
+    type (ESMF_Grid)                         :: Grid  ! Distributed grid
+    integer,           OPTIONAL, intent(out) :: rc    ! return code
+
+    !   Internal version of the input arguments
+    !   ---------------------------------------
+    type(ESMF_Config), pointer :: Config_
+    integer           :: IM_World_
+    real(kind=REAL64) :: BegLon_
+    real(kind=REAL64) :: DelLon_
+    integer           :: JM_World_
+    real(kind=REAL64) :: BegLat_
+    real(kind=REAL64) :: DelLat_
+    integer           :: LM_World_
+    integer           :: Nx_, Ny_, Nz_
+
+    integer, allocatable            :: IMs(:), JMs(:), LMs(:)
+    real(ESMF_KIND_R8)              :: minCoord(3)
+    real(ESMF_KIND_R8)              :: deltaX, deltaY
+    type (ESMF_VM), pointer         :: VM_
+    integer                         :: I, J, I1, IN, J1, JN
+    type(ESMF_Info)                 :: infoh
+
+    real(ESMF_KIND_R8), pointer     :: centerX(:,:)
+    real(ESMF_KIND_R8), pointer     :: centerY(:,:)
+    real(ESMF_KIND_R8), allocatable :: cornerX(:)
+    real(ESMF_KIND_R8), allocatable :: cornerY(:)
+
+    real                            :: FirstOut(2)
+    real                            :: LastOut(2)
+
+    integer                         :: STATUS
+
+    !                                ------
+
+    !  Defaults
+    !  --------
+    BegLon_ = -180.0  ! centered at date line
+    DelLon_ =   -1.0  ! means global grid
+    BegLat_ =  -90.0  ! centered at south pole
+    DelLat_ =   -1.0  ! means global grid
+    Nz_     =  1      ! place holder for now
+
+    !  Either user specified VM or current one
+    !  ---------------------------------------
+    if ( present(vm) ) then
+       vm_ => vm
+    else
+       allocate(vm_, _STAT)
+       call ESMF_VMGetCurrent(vm_, _RC)
+    end if
+
+    ! Grid info via resources
+    ! -----------------------
+    if ( present(Config) .or. present(ConfigFile) ) then
+
+       !    Either use supplied Config or load resource file
+       !    ------------------------------------------------
+       if ( present(ConfigFile) ) then
+          allocate(Config_,_STAT)
+          Config_ = ESMF_ConfigCreate (_RC )
+          call ESMF_ConfigLoadFile (Config_, ConfigFile, _RC )
+       else if ( present(Config) ) then
+          Config_ => Config
+       else
+          STATUS = 100
+       end if
+
+       !    Get relevant parameters from Config
+       !    -----------------------------------
+       call parseConfig_()                            ! internal routine
+
+       !  Grid info thru argument list
+       !  ----------------------------
+    else if ( present(IM_World) .AND. &
+         present(JM_World) .AND. &
+         present(LM_World) .AND. &
+         present(Nx)       .AND. &
+         present(Ny)             ) then
+
+       IM_World_ = IM_World
+       JM_World_ = JM_World
+       LM_World_ = LM_World
+
+       Nx_ = Nx
+       Ny_ = Ny
+
+       if ( present(BegLon) ) BegLon_ = BegLon
+       if ( present(DelLon) ) DelLon_ = DelLon
+       if ( present(BegLat) ) BegLat_ = BegLat
+       if ( present(DelLat) ) DelLat_ = DelLat
+
+       continue  ! all is well
+
+       !  Something is missing
+       !  --------------------
+    else
+
+       STATUS = 300
+
+    end if
+
+    !  Global grids
+    !  ------------
+    if ( IM_World_ < 1 .OR. JM_World_ < 1 ) then
+       STATUS = 400
+    end if
+    if ( DelLon_ < 0.0 ) then  ! convention for global grids
+       if ( IM_World_ == 1 ) then
+          DelLon_ = 0.0
+       else
+          DelLon_ = 360.d0 / IM_World_
+       end if
+    end if
+    if ( DelLat_ < 0.0 ) then  ! convention for global grids
+       if ( JM_World_ == 1 ) then
+          DelLat_ = 0.0
+       else
+          DelLat_ = 180.d0 / ( JM_World_ - 1)
+       end if
+    end if
+
+    !  Give the IMs, JMs and LMs the MAPL default distribution
+    !  -------------------------------------------------------
+    allocate( IMs(0:Nx_-1), JMs(0:Ny_-1), LMs(0:Nz_-1), _STAT)
+    call MAPL_DecomposeDim ( IM_World_, IMs, Nx_ )
+    call MAPL_DecomposeDim ( JM_World_, JMs, Ny_ )
+    call MAPL_DecomposeDim ( LM_World_, LMs, Nz_ )
+
+    !  ------------------------------------------------------------
+    !  TO DO: implement IMs/JMs/LMs as part of the IDEF/JDEF record
+    !         our thru command line
+    !  ------------------------------------------------------------
+
+    !  3D Lat-Lon-Lev Grid
+    !  -------------------
+    if ( LM_World_>0 .AND. IM_World_>0 .AND. JM_World_>0 ) then
+       !ALT creat actually 2-d grid the SAME way MAPL_GridCreate
+#if 0
+       Grid = ESMF_GridCreateShapeTile (     &
+            name=Name,                     &
+            countsPerDEDim1=IMs,           &
+            countsPerDEDim2=JMs,           &
+            countsPerDEDim3=LMs,           &
+            coordDep1 = (/1,2/),           &
+            coordDep2 = (/1,2/),           &
+            coordDep3 = (/3/),             &
+            gridEdgeLWidth = (/0,0,0/),    &
+            gridEdgeUWidth = (/0,0,0/),    &
+            _RC)
+#else
+       Grid = ESMF_GridCreate(             &
+            name=Name,                     &
+            countsPerDEDim1=IMs,           &
+            countsPerDEDim2=JMs,           &
+            indexFlag = ESMF_INDEX_DELOCAL,&
+            gridEdgeLWidth = (/0,0/),      &
+            gridEdgeUWidth = (/0,0/),      &
+            coordDep1 = (/1,2/),           &
+            coordDep2 = (/1,2/),           &
+            _RC)
+
+       call ESMF_InfoGetFromHost(grid,infoh,_RC)
+       call ESMF_InfoSet(infoh,'GRID_LM',LM_World,_RC)
+
+#endif
+
+       !  2D Lat-Lon Grid
+       !  ---------------
+    else if ( LM_World_==0 .AND. IM_World_>0 .AND. JM_World>0 ) then
+       Grid = ESMF_GridCreate(             &
+            name=Name,                     &
+            countsPerDEDim1=IMs,           &
+            countsPerDEDim2=JMs,           &
+            coordDep1 = (/1,2/),           &
+            coordDep2 = (/1,2/),           &
+            gridEdgeLWidth = (/0,0/),      &
+            gridEdgeUWidth = (/0,0/),      &
+            _RC)
+
+       !  Other possibilities not implemented yet
+       !  ---------------------------------------
+    else
+
+       STATUS = 300
+
+    endif
+
+    !  -------------------------------------------------------------------
+    !  NOTE: In the remaining part of this routine it is assumed that the
+    !        1st and 2nd axes correspond to lat/lon; revise this for other
+    !        arrangements (say, YZ grids)
+    !  -------------------------------------------------------------------
+
+    !  Allocate coords at default stagger location
+    !  -------------------------------------------
+    call ESMF_GridAddCoord(Grid, _RC)
+
+    !  Compute the coordinates (the corner/center is for backward compatibility)
+    !  -------------------------------------------------------------------------
+    deltaX      = MAPL_DEGREES_TO_RADIANS_R8 * DelLon_
+    deltaY      = MAPL_DEGREES_TO_RADIANS_R8 * DelLat_
+    minCoord(1) = MAPL_DEGREES_TO_RADIANS_R8 * BegLon_ - deltaX/2
+    minCoord(2) = MAPL_DEGREES_TO_RADIANS_R8 * BegLat_ - deltaY/2
+
+    allocate(cornerX(IM_World_+1),cornerY(JM_World_+1), _STAT)
+
+    cornerX(1) = minCoord(1)
+    do i = 1,IM_World_
+       cornerX(i+1) = cornerX(1) + deltaX * i
+    enddo
+
+    cornerY(1) = minCoord(2)
+    do j = 1,JM_World_
+       cornerY(j+1) = cornerY(1) + deltaY * j
+    enddo
+
+    !  Retrieve the coordinates so we can set them
+    !  -------------------------------------------
+    call ESMF_GridGetCoord (Grid, coordDim=1, localDE=0, &
+         staggerloc=ESMF_STAGGERLOC_CENTER, &
+         farrayPtr=centerX, _RC)
+
+    call ESMF_GridGetCoord (Grid, coordDim=2, localDE=0, &
+         staggerloc=ESMF_STAGGERLOC_CENTER, &
+         farrayPtr=centerY, _RC)
+
+    FirstOut(1)=BegLon_
+    FirstOut(2)=-90.
+    LastOut(1)=360.+BegLon_ - 360./im_world_
+    LastOut(2)=90.
+
+    block
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
+      use iso_fortran_env, only: REAL64
+      real(kind=REAL64), allocatable :: lons(:)
+      real(kind=REAL64), allocatable :: lats(:)
+
+      lons = MAPL_Range(FirstOut(1), LastOut(1), im_world_, &
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
+      lats = MAPL_Range(FirstOut(2), LastOut(2), JM_WORLD, &
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
+
+      call MAPL_GRID_INTERIOR(grid, i1, in, j1, jn)
+
+      do i = 1,size(centerX,1)
+         centerX(I,:) = lons(i1+i-1)
+      end do
+
+      do j = 1,size(centerY,2)
+         centerY(:,J) = lats(j1+j-1)
+      enddo
+
+    end block
+
+
+    !  Make sure we've got it right
+    !  ----------------------------
+    call ESMF_GridValidate(Grid,_RC)
+
+    !  Clean up
+    !  --------
+    deallocate(cornerY,cornerX)
+    deallocate(IMs,JMs,LMs)
+    if ( present(ConfigFile) ) deallocate(Config_)
+    if ( .not. present(vm) )   deallocate(vm_)
+
+    !  All Done
+    !  --------
+    _RETURN(STATUS)
+
+  Contains
+
+    subroutine parseConfig_()
+      !
+      !    Internal routine to parse the ESMF_Config.
+      !
+      STATUS = 200     ! not implemented yet
+
+    end subroutine parseConfig_
+
+  end function MAPL_LatLonGridCreate
 
   !............................................................................
 
@@ -1177,161 +1830,153 @@ contains
 
   end subroutine MAPL_GridGetCorners
 
-  !.......................................................................
+  module function MAPL_StrUpCase(str) result(new)
+    character(len=*), intent(IN) :: str
+    character(len=len(str))      :: new
+
+    integer, parameter :: a = iachar('a')
+    integer, parameter :: z = iachar('z')
+    integer, parameter :: dd = iachar('z') - iachar('Z')
+
+    integer i,c
+
+    new = str
+    do i=1,len(new)
+       c = iachar(new(i:i))
+       if( c >= a .and. c <= z ) new(i:i) = achar(c-dd)
+    enddo
+
+    return
+  end function MAPL_StrUpCase
+
+  module function MAPL_StrDnCase(str) result(new)
+    character(len=*), intent(IN) :: str
+    character(len=len(str))      :: new
+
+    integer, parameter :: A = iachar('A')
+    integer, parameter :: Z = iachar('Z')
+    integer, parameter :: dd = iachar('z') - iachar('Z')
+
+    integer i,c
+
+    new = str
+    do i=1,len(new)
+       c = iachar(new(i:i))
+       if( c >= A .and. c <= Z ) new(i:i) = achar(c+dd)
+    enddo
+
+    return
+  end function MAPL_StrDnCase
 
 
+  ! ========================================
+  recursive subroutine MAPL_StateAttSetI4(STATE, NAME, VALUE, RC)
+    type(ESMF_State),                 intent(INOUT) :: STATE
+    character(len=*),                 intent(IN   ) :: NAME
+    integer,                          intent(IN   ) :: VALUE
+    integer, optional,                intent(  OUT) :: RC
 
+    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAttSet"
+    integer                               :: STATUS
 
-  module subroutine MAPL_FieldBundleDestroy(Bundle,NoGarbage,RC)
-    type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
-    logical, optional,         intent(IN   ) :: NoGarbage
-    integer, optional,         intent(OUT  ) :: RC
-
+    type(ESMF_State)                      :: nestedSTATE
+    type(ESMF_Field)                      :: FIELD
+    type(ESMF_FieldBundle)                :: BUNDLE
+    type(ESMF_Info)                       :: infoh
+    type (ESMF_StateItem_Flag), pointer   :: ITEMTYPES(:)
+    character(len=ESMF_MAXSTR ), pointer  :: ITEMNAMES(:)
+    integer                               :: ITEMCOUNT
     integer                               :: I
-    integer                               :: FieldCount
-    type(ESMF_Field)                      :: Field
-    logical                               :: isCreated
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_FieldBundleDestroy"
-    integer                               :: STATUS
+    call ESMF_InfoGetFromHost(STATE,infoh,_RC)
+    call ESMF_InfoSet(infoh,NAME,VALUE,_RC)
 
+    call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,_RC)
 
-    isCreated = ESMF_FieldBundleIsCreated(bundle,_RC)
-    if(isCreated) then
-       call ESMF_FieldBundleGet(BUNDLE, FieldCount=FIELDCOUNT, _RC)
+    IF (ITEMCOUNT>0) then
+       allocate(ITEMNAMES(ITEMCOUNT),_STAT)
+       allocate(ITEMTYPES(ITEMCOUNT),_STAT)
+       call ESMF_StateGet(STATE, ITEMNAMELIST=ITEMNAMES, &
+            ITEMTYPELIST=ITEMTYPES, _RC)
 
-       do I = 1, FIELDCOUNT
-          call ESMF_FieldBundleGet(BUNDLE, I, FIELD, _RC)
-          call MAPL_FieldDestroy(FIELD, _RC)
+       do I = 1, ITEMCOUNT
+          if(itemtypes(I)==ESMF_StateItem_State) then
+             call ESMF_StateGet(STATE, itemNames(I), nestedState, _RC)
+             call MAPL_StateAttSetI4(nestedState, NAME, VALUE, _RC)
+          else if(itemtypes(I)==ESMF_StateItem_FieldBundle) then
+             call ESMF_StateGet(STATE, itemNames(I), BUNDLE, _RC)
+             call MAPL_BundleAttSetI4(BUNDLE, NAME, VALUE, _RC)
+          else if(itemtypes(I)==ESMF_StateItem_Field) then
+             call ESMF_StateGet(STATE, itemNames(I), FIELD, _RC)
+             call MAPL_FieldAttSetI4(FIELD, NAME, VALUE, _RC)
+          end if
        end do
-       call ESMF_FieldBundleDestroy(bundle, NoGarbage=NoGarbage, _RC)
+
+       deallocate(ITEMNAMES)
+       deallocate(ITEMTYPES)
     end if
 
     _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_StateAttSetI4
 
-  end subroutine MAPL_FieldBundleDestroy
+  ! ========================================
+  subroutine MAPL_BundleAttSetI4(BUNDLE, NAME, VALUE, RC)
+    type(ESMF_FieldBundle),           intent(INOUT) :: BUNDLE
+    character(len=*),                 intent(IN   ) :: NAME
+    integer,                          intent(IN   ) :: VALUE
+    integer, optional,                intent(  OUT) :: RC
 
-  module subroutine MAPL_StateAddField(State, Field, RC)
-    type(ESMF_State),  intent(inout) :: State
-    type(ESMF_Field),  intent(in   ) :: Field
-    integer, optional, intent(  out) :: rc
-
-    ! ErrLog vars
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddField"
+    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_BundleAttSet"
     integer                               :: STATUS
 
-    ! Local var
-    character(len=ESMF_MAXSTR), parameter   :: attrName = MAPL_StateItemOrderList
-    character(len=ESMF_MAXSTR)              :: name
-    character(len=ESMF_MAXSTR), allocatable :: currList(:)
-    character(len=ESMF_MAXSTR), allocatable :: thisList(:)
-    integer                                 :: natt
-    integer                                 :: na
-    type(ESMF_Field)                        :: Fields(1)
-    logical                                 :: haveAttr
-    type(ESMF_Info)                         :: infoh
+    type(ESMF_Field)                      :: FIELD
+    type(ESMF_Info)                       :: infoh
+    integer                               :: FIELDCOUNT
+    integer                               :: I
 
-    fields(1) = field
-    call ESMF_StateAdd(state, fields, _RC)
-    !=================
-!!!ALT Example to add one field at the time (not used anymore)
-!!!      call ESMF_StateAdd(STATE, FIELD, proxyflag=.false., &
-!!!           addflag=.true., replaceflag=.false., _RC )
-    !=================
+    call ESMF_InfoGetFromHost(BUNDLE,infoh,_RC)
+    call ESMF_InfoSet(infoh,NAME,VALUE,_RC)
 
-    ! check for attribute
+    call ESMF_FieldBundleGet(BUNDLE, FieldCount=FIELDCOUNT, _RC)
 
-    call ESMF_InfoGetFromHost(state,infoh,_RC)
-    haveAttr = ESMF_InfoIsPresent(infoh,attrName,_RC)
-    if (haveAttr) then
-       call ESMF_InfoGet(infoh,key=attrName,size=natt,_RC)
-    else
-       natt = 0
-    end if
-    allocate(currList(natt), _STAT)
-
-    if (natt > 0) then
-       ! get the current list
-       call ESMF_InfoGet(infoh,key=attrName,values=currList,_RC)
-       !ALT delete/destroy this attribute to prevent memory leaks
-       call ESMF_InfoRemove(infoh,attrName,_RC)
-    end if
-
-    na = natt+1
-    allocate(thisList(na), _STAT)
-
-    thisList(1:natt) = currList
-
-    call ESMF_FieldGet(field, name=name, _RC)
-
-    thisList(na) = name
-
-    call ESMF_InfoSet(infoh,key=attrName,values=thisList,_RC)
-
-    deallocate(thisList)
-    deallocate(currList)
+    do I = 1, FIELDCOUNT
+       call ESMF_FieldBundleGet(BUNDLE, I, FIELD, _RC)
+       call ESMF_InfoGetFromHost(FIELD,infoh,_RC)
+       call ESMF_InfoSet(infoh,NAME,VALUE,_RC)
+    end do
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_StateAddField
+  end subroutine MAPL_BundleAttSetI4
 
-  module subroutine MAPL_StateAddBundle(State, Bundle, RC)
-    type(ESMF_State),  intent(inout) :: State
-    type(ESMF_FieldBundle),  intent(in   ) :: Bundle
-    integer, optional, intent(  out) :: rc
+  ! ========================================
+  subroutine MAPL_FieldAttSetI4(FIELD, NAME, VALUE, RC)
+    type(ESMF_Field),                 intent(INOUT) :: FIELD
+    character(len=*),                 intent(IN   ) :: NAME
+    integer,                          intent(IN   ) :: VALUE
+    integer, optional,                intent(  OUT) :: RC
 
-
-    ! ErrLog vars
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddBundles"
+    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_FieldAttSet"
     integer                               :: STATUS
 
-    ! Local var
-    character(len=ESMF_MAXSTR), parameter   :: attrName = MAPL_StateItemOrderList
-    character(len=ESMF_MAXSTR)              :: name
-    character(len=ESMF_MAXSTR), allocatable :: currList(:)
-    character(len=ESMF_MAXSTR), allocatable :: thisList(:)
-    integer                                 :: natt
-    integer                                 :: na
-    type(ESMF_FieldBundle)                  :: Bundles(1)
-    logical                                 :: haveAttr
+    type(ESMF_Array)                        :: array
+    type(ESMF_FieldStatus_Flag)             :: fieldStatus
     type(ESMF_Info)                         :: infoh
 
-    bundles(1) = bundle
-    call ESMF_StateAdd(state, Bundles, _RC)
 
-    ! check for attribute
+    call ESMF_InfoGetFromHost(FIELD,infoh,_RC)
+    call ESMF_InfoSet(infoh,NAME,VALUE,_RC)
 
-    call ESMF_InfoGetFromHost(state,infoh,_RC)
-    haveAttr = ESMF_InfoIsPresent(infoh,attrName,_RC)
-    if (haveAttr) then
-       call ESMF_InfoGet(infoh,key=attrName,size=natt,_RC)
-    else
-       natt = 0
-    end if
-    allocate(currList(natt), _STAT)
+    call ESMF_FieldGet(field, status=fieldStatus, _RC)
 
-    if (natt > 0) then
-       ! get the current list
-       call ESMF_InfoGet(infoh,key=attrName,values=currList,_RC)
-       !ALT delete/destroy this attribute to prevent memory leaks
-       call ESMF_InfoRemove(infoh,attrName,_RC)
+    if(fieldStatus == ESMF_FIELDSTATUS_COMPLETE) then
+       call ESMF_FieldGet(field, Array=array, _RC)
+       call ESMF_InfoGetFromHost(array,infoh,_RC)
+       call ESMF_InfoSet(infoh,NAME,VALUE,_RC)
     end if
 
-    na = natt+1
-    allocate(thisList(na), _STAT)
-
-    thisList(1:natt) = currList
-
-    call ESMF_FieldBundleGet(bundle, name=name, _RC)
-
-    thisList(na) = name
-
-    call ESMF_InfoSet(infoh,key=attrName,values=thisList,_RC)
-
-    deallocate(thisList)
-    deallocate(currList)
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_StateAddBundle
+     _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_FieldAttSetI4
+  ! ========================================
 
   module subroutine MAPL_FieldBundleAddField(Bundle, Field, multiflag, RC)
     type(ESMF_FieldBundle),  intent(inout) :: Bundle
@@ -1344,7 +1989,7 @@ contains
     integer                               :: STATUS
 
     ! Local var
-    character(len=ESMF_MAXSTR), parameter   :: attrName = MAPL_BundleItemOrderList
+    character(len=ESMF_MAXSTR), parameter   :: attrName = 'MAPL_BundleItemOrderList'
     character(len=ESMF_MAXSTR)              :: name
     character(len=ESMF_MAXSTR), allocatable :: currList(:)
     character(len=ESMF_MAXSTR), allocatable :: thisList(:)
@@ -1390,40 +2035,59 @@ contains
     deallocate(currList)
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_FieldBundleAddField
+   end subroutine MAPL_FieldBundleAddField
+
+!-----------------------------------------------------------------------
+! Private helpers retained for SimpleBundleMod pending migration (issue #4809)
+!-----------------------------------------------------------------------
+
+  module subroutine MAPL_FieldBundleDestroy(Bundle, NoGarbage, RC)
+    type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
+    logical, optional,         intent(IN   ) :: NoGarbage
+    integer, optional,         intent(OUT  ) :: RC
+
+    integer                               :: I
+    integer                               :: FieldCount
+    type(ESMF_Field)                      :: Field
+    logical                               :: isCreated
+
+    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_FieldBundleDestroy"
+    integer                               :: STATUS
+
+    isCreated = ESMF_FieldBundleIsCreated(bundle,_RC)
+    if(isCreated) then
+       call ESMF_FieldBundleGet(BUNDLE, FieldCount=FIELDCOUNT, _RC)
+       do I = 1, FIELDCOUNT
+          call ESMF_FieldBundleGet(BUNDLE, I, FIELD, _RC)
+          call MAPL_FieldDestroy(FIELD, _RC)
+       end do
+       call ESMF_FieldBundleDestroy(bundle, NoGarbage=NoGarbage, _RC)
+    end if
+    _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_FieldBundleDestroy
 
   module subroutine MAPL_FieldBundleGetByIndex(Bundle, fieldIndex, Field, RC)
     type(ESMF_FieldBundle),  intent(INout) :: Bundle
-    integer,           intent(in   ) :: fieldIndex
-    type(ESMF_Field),  intent(INout   ) :: Field
-    integer, optional, intent(  out) :: rc
+    integer,                 intent(in   ) :: fieldIndex
+    type(ESMF_Field),        intent(INout) :: Field
+    integer, optional,       intent(  out) :: rc
 
-    ! ErrLog vars
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_FieldBundleGetByIndex"
     integer                               :: STATUS
 
-    ! Local var
     character(len=ESMF_MAXSTR), parameter   :: attrName = MAPL_BundleItemOrderList
     character(len=ESMF_MAXSTR)              :: name
     character(len=ESMF_MAXSTR), allocatable :: currList(:)
     integer                                 :: natt
     type(ESMF_Info)                         :: infoh
 
-
-    ! check for attribute
-
-    call ESMF_InfoGetFromHost(Bundle,infoh,_RC)
-    call ESMF_InfoGet(infoh,key=attrName,size=natt,_RC)
+    call ESMF_InfoGetFromHost(Bundle, infoh, _RC)
+    call ESMF_InfoGet(infoh, key=attrName, size=natt, _RC)
     allocate(currList(natt), stat=status)
-
-    ! get the current list
-    call ESMF_InfoGet(infoh,key=attrName,values=currList,_RC)
-
+    call ESMF_InfoGet(infoh, key=attrName, values=currList, _RC)
     name = currList(fieldIndex)
-    call ESMF_FieldBundleGet(Bundle, fieldName = name, field=field, _RC)
-
+    call ESMF_FieldBundleGet(Bundle, fieldName=name, field=field, _RC)
     deallocate(currList)
-
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldBundleGetByIndex
 
@@ -1863,6 +2527,34 @@ contains
 
   end subroutine MAPL_GenGridName
 
+  module function MAPL_GenXYOffset(lon, lat) result(xy)
+    real        :: lon(:), lat(:)
+    integer     :: xy
+
+    integer           :: I
+    integer           :: p, d
+    real, parameter   :: eps=1.0e-4
+
+    p = 0 ! default
+    d = 0 ! default
+
+    if(abs(LAT(1) + 90.0) < eps) then
+       p=0 ! 'PC'
+    else if (abs(LAT(1) + 90.0 - 0.5*(LAT(2)-LAT(1))) < eps) then
+       p=1 ! 'PE'
+    end if
+    do I=0,1
+       if(abs(LON(1) + 180.0*I) < eps) then
+          d=0 ! 'DC'
+          exit
+       else if (abs(LON(1) + 180.0*I - 0.5*(LON(2)-LON(1))) < eps) then
+          d=1 ! 'DE'
+          exit
+       end if
+    end do
+    xy = 2*p + d
+     return
+  end function MAPL_GenXYOffset
 
   module subroutine MAPL_FieldSplit(field, fields, aliasName, rc)
     type(ESMF_Field),          intent(IN   ) :: field
@@ -2043,9 +2735,8 @@ contains
       end do
 
       _RETURN(ESMF_SUCCESS)
-    end subroutine GenAlias
+         end subroutine GenAlias
   end subroutine MAPL_FieldSplit
-
 
   module subroutine MAPL_Reverse_Schmidt(Grid, stretched, npts, lon, lat, lonR8, latR8, lonRe, latRe, rc)
      type(ESMF_Grid), intent(inout) :: Grid

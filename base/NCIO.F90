@@ -5135,10 +5135,17 @@ contains
          if (vloc==MAPL_VLocationCenter .or. vloc==MAPL_VLocationEdge) then
             call ESMF_FieldGet(Field,grid=grid,ungriddedLbound=lb,ungriddedUBound=ub,typekind=tk,rc=status)
             _VERIFY(status)
-            flipped_field = ESMF_FieldCreate(grid,tk,name=trim(fname),ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
-            _VERIFY(status)
-            call MAPL_FieldCopyAttributes(field_in=field,field_out=flipped_field,rc=status)
-            _VERIFY(status)
+             flipped_field = ESMF_FieldCreate(grid,tk,name=trim(fname),ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
+             _VERIFY(status)
+             block
+               type(ESMF_Info) :: info_in, info_out
+               call ESMF_InfoGetFromHost(field, info_in, rc=status)
+               _VERIFY(status)
+               call ESMF_InfoGetFromHost(flipped_field, info_out, rc=status)
+               _VERIFY(status)
+               call ESMF_InfoSet(info_out, key="", value=info_in, rc=status)
+               _VERIFY(status)
+             end block
             if (tk==ESMF_TYPEKIND_R4) then
                call ESMF_FieldGet(field,farrayptr=ptr_r4_in,rc=status)
                _VERIFY(status)
