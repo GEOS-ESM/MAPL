@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Removed "Remove"-disposition public interfaces from `MAPL_Base` / `Base_Base.F90` (#4805):
+  `MAPL_Tick`, `MAPL_Nsecf`, `MAPL_Nsecf2`, `MAPL_Nhmsf`, `MAPL_Leap`, `MAPL_TimeStringGet`,
+  `MAPL_TrimString`, `MAPL_RmQualifier`, `MAPL_GeosNameNew`, `MAPL_GetCorrectedPhase`,
+  `MAPL_BundleItemOrderList`, `MAPL_StateItemOrderList`, `MAPL_FieldCopy`,
+  `MAPL_FieldGetTime`, `MAPL_FieldSetTime`, `MAPL_BundleCreate`, `MAPL_Communicator`,
+  `MAPL_MakeDecomposition`, `MAPL_FieldBundleDestroy`, `MAPL_AttributeSet`,
+  `MAPL_StateAdd`, `MAPL_FieldCopyAttributes`, `MAPL_FieldBundleGet` (by-index).
+  Internal callers updated; `SimpleBundleMod` now uses `ESMF_FieldBundleGet` for
+  field-list retrieval and `mapl3g_FieldBundleDestroy` for bundle destruction.
 - Removes backward compatibility for `MAPL_FargparseCLI` functions. Only accepts function usage in which the result is of
   MAPL_CapOptions type.
 - Remove FLAP support.
