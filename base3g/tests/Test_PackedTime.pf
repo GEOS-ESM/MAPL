@@ -1,0 +1,156 @@
+#include "MAPL_TestErr.h"
+
+module Test_PackedTime
+
+   use MAPL_PackedTimeMod, only: PackedDateCreate, PackedTimeCreate, &
+                                  PackedDateTimeCreate, ESMFTimeFromPacked
+   use ESMF
+   use funit
+
+   implicit none(type, external)
+
+contains
+
+   ! ---------------------------------------------------------------------------
+   ! PackedDateCreate
+   ! ---------------------------------------------------------------------------
+
+   @test
+   subroutine test_packed_date_from_integers()
+      integer :: nymd
+      integer :: status
+
+      nymd = PackedDateCreate(2005, 2, 15, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(20050215, nymd)
+   end subroutine test_packed_date_from_integers
+
+   @test
+   subroutine test_packed_date_from_esmf()
+      type(ESMF_Time) :: time
+      integer :: nymd
+      integer :: status
+
+      call ESMF_TimeSet(time, yy=2005, mm=2, dd=15, h=0, m=0, s=0, _RC)
+      nymd = PackedDateCreate(time, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(20050215, nymd)
+   end subroutine test_packed_date_from_esmf
+
+   ! ---------------------------------------------------------------------------
+   ! PackedTimeCreate
+   ! ---------------------------------------------------------------------------
+
+   @test
+   subroutine test_packed_time_from_integers()
+      integer :: nhms
+      integer :: status
+
+      nhms = PackedTimeCreate(13, 30, 45, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(133045, nhms)
+   end subroutine test_packed_time_from_integers
+
+   @test
+   subroutine test_packed_time_from_esmf()
+      type(ESMF_Time) :: time
+      integer :: nhms
+      integer :: status
+
+      call ESMF_TimeSet(time, yy=2005, mm=2, dd=15, h=13, m=30, s=45, _RC)
+      nhms = PackedTimeCreate(time, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(133045, nhms)
+   end subroutine test_packed_time_from_esmf
+
+   @test
+   subroutine test_packed_time_midnight()
+      integer :: nhms
+      integer :: status
+
+      nhms = PackedTimeCreate(0, 0, 0, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(0, nhms)
+   end subroutine test_packed_time_midnight
+
+   ! ---------------------------------------------------------------------------
+   ! PackedDateTimeCreate
+   ! ---------------------------------------------------------------------------
+
+   @test
+   subroutine test_packed_datetime_from_integers()
+      integer :: date_time(2)
+      integer :: status
+
+      date_time = PackedDateTimeCreate(2005, 2, 15, 13, 30, 45, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(20050215, date_time(1))
+      @assertEqual(133045,   date_time(2))
+   end subroutine test_packed_datetime_from_integers
+
+   @test
+   subroutine test_packed_datetime_from_packed()
+      integer :: date_time(2)
+      integer :: status
+
+      date_time = PackedDateTimeCreate(nymd=20050215, nhms=133045, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(20050215, date_time(1))
+      @assertEqual(133045,   date_time(2))
+   end subroutine test_packed_datetime_from_packed
+
+   @test
+   subroutine test_packed_datetime_from_esmf()
+      type(ESMF_Time) :: time
+      integer :: date_time(2)
+      integer :: status
+
+      call ESMF_TimeSet(time, yy=2005, mm=2, dd=15, h=13, m=30, s=45, _RC)
+      date_time = PackedDateTimeCreate(time, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(20050215, date_time(1))
+      @assertEqual(133045,   date_time(2))
+   end subroutine test_packed_datetime_from_esmf
+
+   ! ---------------------------------------------------------------------------
+   ! ESMFTimeFromPacked
+   ! ---------------------------------------------------------------------------
+
+   @test
+   subroutine test_esmf_time_from_packed()
+      type(ESMF_Time) :: time
+      integer :: yy, mm, dd, h, m, s
+      integer :: status
+
+      time = ESMFTimeFromPacked(20050215, 133045, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      call ESMF_TimeGet(time, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+      @assertEqual(2005, yy)
+      @assertEqual(2,    mm)
+      @assertEqual(15,   dd)
+      @assertEqual(13,   h)
+      @assertEqual(30,   m)
+      @assertEqual(45,   s)
+   end subroutine test_esmf_time_from_packed
+
+   ! ---------------------------------------------------------------------------
+   ! Round-trip: ESMF_Time -> packed -> ESMF_Time
+   ! ---------------------------------------------------------------------------
+
+   @test
+   subroutine test_round_trip()
+      type(ESMF_Time) :: time_in, time_out
+      integer :: date_time(2)
+      integer :: status
+
+      call ESMF_TimeSet(time_in, yy=2024, mm=11, dd=3, h=6, m=0, s=0, _RC)
+      date_time = PackedDateTimeCreate(time_in, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+
+      time_out = ESMFTimeFromPacked(date_time(1), date_time(2), rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(time_in, time_out)
+   end subroutine test_round_trip
+
+end module Test_PackedTime
