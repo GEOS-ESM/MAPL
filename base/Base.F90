@@ -8,6 +8,8 @@ module MAPLBase_Mod
   use MAPL_BaseMod, only: MAPL_GRID_INTERIOR
 ! For temporary backward compatibility after moving/renaming:
   use MAPL_BaseMod, only: ESMF_GRID_INTERIOR => MAPL_GRID_INTERIOR
+! PackTime/UnpackTime removed from Base_Base but still have external callers:
+  use mapl3g_TimeUtilities, only: MAPL_PackTime => PackTime, MAPL_UnpackTime => UnpackTime
    use NCIOMod
   use MAPL_LocStreamMod
   use MAPL_ShmemMod
