@@ -6,8 +6,7 @@ set (srcs
   FileMetadataUtilitiesVector.F90       SimpleBundleMod.F90
   MaplGrid.F90
   MAPL_ESMFTimeVectorMod.F90
-  FileIOShared.F90                      BinIO.F90                           NCIO.F90
-  MAPL_IO.F90
+  FileIOShared.F90                                                          NCIO.F90
   MAPL_LocStreamMod.F90
                                         MAPL_VerticalInterpMod.F90
                                         MAPL_VerticalMethods.F90
@@ -35,7 +34,7 @@ esma_add_library(
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
 # interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
 if (DUSTY)
-  set_property( SOURCE FileIOShared.F90 BinIO.F90 NCIO.F90
+  set_property( SOURCE FileIOShared.F90 NCIO.F90
                 PROPERTY COMPILE_FLAGS ${DUSTY})
 endif ()
 
