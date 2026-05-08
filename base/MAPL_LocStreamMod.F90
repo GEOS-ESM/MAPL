@@ -361,7 +361,7 @@ contains
     integer(kind=1)                   :: byte(4)
     integer                           :: I1, IN, J1, JN, N_Grids, N_PfafCat
     integer                           :: iostat, filetype
-    logical                           :: isascii, isnc4, isbinary, isEASE
+    logical                           :: isnc4, isbinary, isEASE
     logical                           :: read_always
     logical, pointer                  :: ISMINE(:)
     type(MAPL_Tiling       ), pointer :: TILING
@@ -410,7 +410,6 @@ contains
     call MAPL_NCIOGetFileType(FILENAME, filetype, _RC)
 
     isnc4   = (filetype == MAPL_FILETYPE_NC4)
-    isascii = (filetype == MAPL_FILETYPE_TXT)
     isbinary= (filetype == MAPL_FILETYPE_BIN)
 
     if ( .not. isbinary) then
@@ -437,9 +436,6 @@ contains
           call MAPL_CommsBcast(layout, AVR, NT*(NumGlobalVars+NumLocalVars*N_GRIDS), MAPL_Root, status)
        endif
 
-       if (isascii) then
-          call MAPL_ReadTilingASCII(layout, FILENAME, GridNames, NT, IMs, JMs, N_Grids, N_PfafCat, AVR, _RC)
-       endif
 
        STREAM%N_GRIDS = N_Grids
        allocate(STREAM%TILING(STREAM%N_GRIDS), STAT=STATUS)

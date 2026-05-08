@@ -23,7 +23,6 @@ module NCIOMod
   use MAPL_ExceptionHandling
   use netcdf
   use pFIO
-  use BinIOMod, only: GETFILE, READ_PARALLEL, FREE_FILE
   use MAPL_Constants
   !use pFIO_ClientManagerMod
   use gFTL2_StringIntegerMap
@@ -48,7 +47,6 @@ module NCIOMod
   public MAPL_VarWriteNCPar
   public MAPL_ReadTilingNC4
   public MAPL_WriteTilingNC4
-  public MAPL_ReadTilingASCII
 
   interface MAPL_ReadTilingNC4
      module procedure MAPL_ReadTilingNC4_serial
@@ -5750,67 +5748,5 @@ contains
      call formatter%close(rc=status)
      _RETURN(_SUCCESS)
    end subroutine MAPL_WriteTilingNC4
-
-   subroutine MAPL_ReadTilingASCII(layout, FileName, GridName, NT, im, jm, n_Grids, N_PfafCat, AVR,rc)
-      type(ESMF_DELayout), intent(IN)  :: LAYOUT
-      character(*),        intent(IN)  :: FileName
-      character(*),        intent(out) :: GridName(:)
-      integer,             intent(out) :: NT
-      integer,             intent(out) :: IM(:), JM(:)
-      integer,             intent(out) :: n_Grids
-      integer,             intent(out) :: N_PfafCat
-      real,  pointer,      intent(out) :: AVR(:,:)      ! used by GEOSgcm
-      integer, optional,   intent(out) :: rc
-
-      integer :: unit, status, hdr(2), N
-      real, pointer :: AVR_Transpose(:,:)
-      character(len=:), allocatable :: Correct_ease_name
-
-      UNIT = GETFILE(FILENAME, form='FORMATTED', RC=status)
-      _VERIFY(STATUS)
-
-! Total number of tiles in exchange grid
-!---------------------------------------
-
-      call READ_PARALLEL(layout, hdr, UNIT=UNIT, rc=status)
-       _VERIFY(STATUS)
-       NT        = hdr(1)
-       N_PfafCat = hdr(2)
-
-      call READ_PARALLEL(layout, N_GRIDS, unit=UNIT, rc=status)
-      _VERIFY(STATUS)
-
-      do N = 1, N_GRIDS
-         call READ_PARALLEL(layout, GridName(N), unit=UNIT, rc=status)
-         _VERIFY(STATUS)
-         call READ_PARALLEL(layout, IM(N), unit=UNIT, rc=status)
-         _VERIFY(STATUS)
-         call READ_PARALLEL(layout, JM(N), unit=UNIT, rc=status)
-         _VERIFY(STATUS)
-      enddo
-
-      if(index(GridNAME(1),'EASE') /=0 ) then
-          allocate(AVR(NT,9), STAT=STATUS) ! 9 columns for EASE grid
-          _VERIFY(STATUS)
-          allocate(AVR_transpose(9,NT))
-          ! In older tile files, EASE grid name convention is "SMAP-EASEvx-Mxx".
-          ! Change her to revised convention "EASEvx_Mxx":
-          Correct_ease_name = MAPL_get_ease_gridname_by_cols(IM(1))
-          GridNAME(1) = Correct_ease_name
-      else
-         allocate(AVR(NT,NumGlobalVars+NumLocalVars*N_GRIDS), STAT=STATUS)
-         _VERIFY(STATUS)
-         allocate(AVR_transpose(NumGlobalVars+NumLocalVars*N_GRIDS,NT), STAT=STATUS)
-         _VERIFY(STATUS)
-      endif
-
-      call READ_PARALLEL(layout, AVR_transpose(:,:), unit=UNIT, rc=status)
-      AVR = transpose(AVR_transpose)
-      deallocate(AVR_transpose)
-      call FREE_FILE(UNIT)
-
-      _RETURN(ESMF_SUCCESS)
-
-   end subroutine MAPL_ReadTilingASCII
 
 end module NCIOMod
