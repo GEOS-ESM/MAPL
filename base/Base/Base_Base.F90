@@ -39,9 +39,11 @@ module MAPL_Base
   public MAPL_IncYMD
   public MAPL_Interp_Fac   ! re-exported from MAPL_TimeInterpolation (base3g)
   public MAPL_LatLonGridCreate   ! Creates regular Lat/Lon ESMF Grids
-   public MAPL_PackDateTime
-   public MAPL_RemapBounds
-
+  public MAPL_PackTime
+  public MAPL_PackDateTime
+  public MAPL_RemapBounds
+  public MAPL_UnpackTime
+  public MAPL_UnpackDateTime
   public MAPL_SetPointer
   public MAPL_FieldBundleAdd
   public MAPL_GetHorzIJIndex
@@ -116,13 +118,35 @@ module MAPL_Base
      end subroutine MAPL_SetPointer3DR4
 
 
-      module subroutine MAPL_PackDateTime(date_time, yy, mm, dd, h, m, s)
+     module subroutine MAPL_UnpackTime(TIME,IYY,IMM,IDD)
+       integer, intent (IN ) :: TIME
+       integer, intent (OUT) :: IYY
+       integer, intent (OUT) :: IMM
+       integer, intent (OUT) :: IDD
+     end subroutine MAPL_UnpackTime
+
+
+     module subroutine MAPL_PackTime(TIME,IYY,IMM,IDD)
+       integer, intent (OUT) :: TIME
+       integer, intent (IN ) :: IYY
+       integer, intent (IN ) :: IMM
+       integer, intent (IN ) :: IDD
+     end subroutine MAPL_PackTime
+
+
+     module subroutine MAPL_PackDateTime(date_time, yy, mm, dd, h, m, s)
        integer, intent(in) :: yy, mm, dd, h, m, s
        integer, intent(out) :: date_time(:)
-      end subroutine MAPL_PackDateTime
+     end subroutine MAPL_PackDateTime
 
 
-      integer module function MAPL_incymd (NYMD,M)
+     module subroutine MAPL_UnpackDateTime(date_time, yy, mm, dd, h, m, s)
+       integer, intent(in) :: date_time(:)
+       integer, intent(out) :: yy, mm, dd, h, m, s
+     end subroutine MAPL_UnpackDateTime
+
+
+     integer module function MAPL_incymd (NYMD,M)
        integer nymd,m
      end function MAPL_incymd
 

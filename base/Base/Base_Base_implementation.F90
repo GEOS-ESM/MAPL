@@ -797,18 +797,51 @@ contains
 
   end subroutine MAPL_DecomposeDim
 
-   ! MAPL_Interp_Fac and MAPL_ClimInterpFac moved to MAPL_TimeInterpolation (base3g)
+  ! MAPL_Interp_Fac and MAPL_ClimInterpFac moved to MAPL_TimeInterpolation (base3g)
 
-   module subroutine MAPL_PackDateTime(date_time, yy, mm, dd, h, m, s)
+  module subroutine MAPL_UnpackTime(TIME,IYY,IMM,IDD)
+    integer, intent (IN ) :: TIME
+    integer, intent (OUT) :: IYY
+    integer, intent (OUT) :: IMM
+    integer, intent (OUT) :: IDD
+    IYY = TIME/10000
+    IMM = mod(TIME/100,100)
+    IDD = mod(TIME,100)
+  end subroutine MAPL_UnpackTime
+
+
+  module subroutine MAPL_PackTime(TIME,IYY,IMM,IDD)
+    integer, intent (OUT) :: TIME
+    integer, intent (IN ) :: IYY
+    integer, intent (IN ) :: IMM
+    integer, intent (IN ) :: IDD
+    TIME=IYY*10000+IMM*100+IDD
+  end subroutine MAPL_PackTime
+
+
+  module subroutine MAPL_PackDateTime(date_time, yy, mm, dd, h, m, s)
     integer, intent(in) :: yy, mm, dd, h, m, s
     integer, intent(out) :: date_time(:)
 
     date_time(1) = (10000 * yy) + (100 * mm) + dd
     date_time(2) = (10000 * h) + (100 * m) + s
-   end subroutine MAPL_PackDateTime
+  end subroutine MAPL_PackDateTime
 
 
-   ! A year is a leap year if
+  module subroutine MAPL_UnpackDateTime(date_time, yy, mm, dd, h, m, s)
+    integer, intent(in) :: date_time(:)
+    integer, intent(out) :: yy, mm, dd, h, m, s
+
+    yy =     date_time(1) / 10000
+    mm = mod(date_time(1), 10000) / 100
+    dd = mod(date_time(1), 100)
+    h  =     date_time(2) / 10000
+    m  = mod(date_time(2), 10000) / 100
+    s  = mod(date_time(2), 100)
+  end subroutine MAPL_UnpackDateTime
+
+
+  ! A year is a leap year if
   ! 1) it is divible by 4, and
   ! 2) it is not divisible by 100, unless
   ! 3) it is also divisible by 400.
