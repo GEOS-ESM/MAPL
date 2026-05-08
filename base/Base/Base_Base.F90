@@ -262,6 +262,58 @@ module MAPL_Base
        integer, optional,         intent(  out) :: rc
      end subroutine MAPL_FieldSplit
 
+     module subroutine MAPL_FieldAllocCommit(field, dims, location, typekind, &
+          hw, ungrid, default_value, rc)
+       use ESMF, only: ESMF_Field
+       type(ESMF_Field),               intent(INOUT) :: field
+       integer,                        intent(IN   ) :: dims
+       integer,                        intent(IN   ) :: location
+       integer,                        intent(IN   ) :: typekind
+       integer,                        intent(IN   ) :: hw
+       integer,              optional, intent(IN   ) :: ungrid(:)
+       real,                 optional, intent(IN   ) :: default_value
+       integer,              optional, intent(  OUT) :: rc
+     end subroutine MAPL_FieldAllocCommit
+
+     module subroutine MAPL_TimeStringGet(TIMESTRING,YY,MM,DD,H,M,S)
+       character(len=*),  intent(IN ) :: TIMESTRING
+       integer, optional, intent(OUT) :: YY
+       integer, optional, intent(OUT) :: MM
+       integer, optional, intent(OUT) :: DD
+       integer, optional, intent(OUT) :: H
+       integer, optional, intent(OUT) :: M
+       integer, optional, intent(OUT) :: S
+     end subroutine MAPL_TimeStringGet
+
+     module function MAPL_FieldCreateEmpty(NAME, GRID, RC) RESULT(FIELD)
+       use ESMF, only: ESMF_Field, ESMF_Grid
+       character(len=*),  intent(IN   ) :: NAME
+       type(ESMF_Grid),   intent(INout) :: GRID
+       integer, optional, intent(  OUT) :: RC
+       type(ESMF_Field)                 :: FIELD
+     end function MAPL_FieldCreateEmpty
+
+     module subroutine MAPL_FieldCopy(from, to, RC)
+       use ESMF, only: ESMF_Field
+       type(ESMF_Field), intent(INOUT) :: from
+       type(ESMF_Field), intent(INOUT) :: to
+       integer, optional, intent(  OUT) :: RC
+     end subroutine MAPL_FieldCopy
+
+     module subroutine MAPL_GetGlobalHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
+       use ESMF, only: ESMF_KIND_R8, ESMF_Grid
+       implicit none
+       integer,                      intent(in   ) :: npts
+       integer,                      intent(inout) :: II(npts)
+       integer,                      intent(inout) :: JJ(npts)
+       real, optional,               intent(in   ) :: lon(npts)
+       real, optional,               intent(in   ) :: lat(npts)
+       real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts)
+       real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts)
+       type(ESMF_Grid),    optional, intent(inout) :: Grid
+       integer,            optional, intent(out  ) :: rc
+     end subroutine MAPL_GetGlobalHorzIJIndex
+
   end interface
 
   type(ESMF_Pin_Flag), protected :: pinflag_global = ESMF_PIN_DE_TO_SSI_CONTIG
