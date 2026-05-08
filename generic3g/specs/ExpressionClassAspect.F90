@@ -119,6 +119,7 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(name='expression', _RC)
+      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
