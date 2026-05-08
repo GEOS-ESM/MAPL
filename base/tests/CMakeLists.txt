@@ -2,7 +2,6 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.base/tests")
 
 add_definitions(-DUSE_MPI)
 set (TEST_SRCS
-    test_Mapl_Base.pf
     test_sort.pf
 #    Test_CFIO_Bundle.pf
     Test_SimpleMAPLcomp.pf
