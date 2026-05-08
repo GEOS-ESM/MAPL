@@ -2,7 +2,10 @@ module mapl_base3g
    use MAPL_PackedTimeMod, only: MAPL_PackedDateCreate => PackedDateCreate, &
                                    MAPL_PackedTimeCreate => PackedTimeCreate, &
                                    MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &
-                                   MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked
+                                   MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
+                                   MAPL_UnpackDate => UnpackDate, &
+                                   MAPL_UnpackTime => UnpackTime, &
+                                   MAPL_UnpackDateTime => UnpackDateTime
    use mapl_SimulationTime, only: set_reference_clock, fill_time_dict
    use MAPL_CommsMod, only: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV, &
                             mapl_CommsAllGather, mapl_CommsAllGatherV, &
@@ -31,7 +34,8 @@ module mapl_base3g
    private
 
    public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, &
-             MAPL_PackedDateTimeCreate, MAPL_ESMFTimeFromPacked
+             MAPL_PackedDateTimeCreate, MAPL_ESMFTimeFromPacked, &
+             MAPL_UnpackDate, MAPL_UnpackTime, MAPL_UnpackDateTime
    public :: set_reference_clock, fill_time_dict
    public :: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV
    public :: mapl_CommsAllGather, mapl_CommsAllGatherV
