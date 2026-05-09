@@ -105,6 +105,7 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_AllocateCoupling
 
+
   subroutine MAPL_FieldAllocCommit(field, dims, location, typekind, &
        hw, ungrid, default_value, rc)
     type(ESMF_Field),               intent(INOUT) :: field
@@ -172,8 +173,8 @@ contains
 
     call ESMF_VMGet(vm, ssiSharedMemoryEnabledFlag=ssiSharedMemoryEnabled, _RC)
 
-    ! call pinflag getter
-    pinflag = MAPL_PinFlagGet()
+     ! call pinflag getter
+     pinflag = ESMF_PIN_DE_TO_SSI_CONTIG
 
     if (any(pinflag == [ESMF_PIN_DE_TO_SSI,ESMF_PIN_DE_TO_SSI_CONTIG])) then
        _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
@@ -562,131 +563,6 @@ contains
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldF90Deallocate
-
-  module subroutine MAPL_SetPointer2DR4(state, ptr, name, rc)
-    type(ESMF_State),               intent(INOUT) :: state
-    real,                           pointer       :: ptr(:,:)
-    character(len=*),               intent(IN   ) :: name
-    integer,              optional, intent(  OUT) :: rc
-
-
-    integer                               :: status
-    character(len=ESMF_MAXSTR), parameter :: IAm='MAPL_SetPointer2DR4'
-
-    type(ESMF_Field)                      :: field
-    type(ESMF_FieldBundle)                :: bundle
-    type(ESMF_Grid)                       :: GRID
-    integer                               :: COUNTS(ESMF_MAXDIM)
-    integer                               :: gridRank
-    integer                               :: I
-    integer                               :: loc
-    integer, allocatable                  :: gridToFieldMap(:)
-    type(ESMF_FieldStatus_Flag)           :: fieldStatus
-
-    _ASSERT(associated(ptr), 'unassociated pointer')
-
-    ! Get Field from state
-
-    loc = index(name,';;')
-
-    if(loc/=0) then
-       call ESMF_StateGet(state, name(:loc-1), Bundle, _RC)
-       call ESMF_StateGet(state, name(loc+2:), Field, _RC)
-    else
-       call ESMF_StateGet(state, name, Field, _RC)
-    end if
-
-    call ESMF_FieldGet(field, status=fieldStatus, _RC)
-    _ASSERT(fieldStatus /= ESMF_FIELDSTATUS_COMPLETE, 'fieldStatus == ESMF_FIELDSTATUS_COMPLETE')
-
-    call ESMF_FieldGet(field, grid=GRID, _RC)
-    call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, _RC)
-
-    _ASSERT(size(ptr,1) == COUNTS(1), 'shape mismatch dim=1')
-    _ASSERT(size(ptr,2) == COUNTS(2), 'shape mismatch dim=2')
-    call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
-    ! MAPL restriction (actually only the first 2 dims are distributted)
-    _ASSERT(gridRank <= 3, 'gridRank > 3 not supported')
-    allocate(gridToFieldMap(gridRank), _STAT)
-    do I = 1, gridRank
-       gridToFieldMap(I) = I
-    end do
-
-    ! this is 2d case
-    if (gridRank == 3) gridToFieldMap(3) = 0
-
-    call ESMF_FieldEmptyComplete(FIELD, farrayPtr=ptr, &
-         datacopyFlag = ESMF_DATACOPY_REFERENCE,       &
-         gridToFieldMap=gridToFieldMap,                &
-         _RC)
-
-    ! Clean up
-    deallocate(gridToFieldMap)
-
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_SetPointer2DR4
-
-  module subroutine MAPL_SetPointer3DR4(state, ptr, name, rc)
-    type(ESMF_State),               intent(INOUT) :: state
-    real,                           pointer       :: ptr(:,:,:)
-    character(len=*),               intent(IN   ) :: name
-    integer,              optional, intent(  OUT) :: rc
-
-
-    integer                               :: status
-    character(len=ESMF_MAXSTR), parameter :: IAm='MAPL_SetPointer3DR4'
-
-    type(ESMF_Field)                      :: field
-    type(ESMF_FieldBundle)                :: bundle
-    type(ESMF_Grid)                       :: GRID
-    integer                               :: COUNTS(ESMF_MAXDIM)
-    integer                               :: gridRank
-    integer                               :: I
-    integer                               :: loc
-    integer, allocatable                  :: gridToFieldMap(:)
-    type(ESMF_FieldStatus_Flag)             :: fieldStatus
-
-    _ASSERT(associated(ptr), 'unassociated pointer')
-
-    ! Get Field from state
-
-    loc = index(name,';;')
-
-    if(loc/=0) then
-       call ESMF_StateGet(state, name(:loc-1), Bundle, _RC)
-       call ESMF_StateGet(state, name(loc+2:), Field, _RC)
-    else
-       call ESMF_StateGet(state, name, Field, _RC)
-    end if
-
-    call ESMF_FieldGet(field, status=fieldStatus, _RC)
-    _ASSERT(fieldStatus /= ESMF_FIELDSTATUS_COMPLETE, 'fieldStatus == ESMF_FIELDSTATUS_COMPLETE')
-
-    call ESMF_FieldGet(field, grid=GRID, _RC)
-    call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, _RC)
-
-    _ASSERT(size(ptr,1) == COUNTS(1), 'shape mismatch dim=1')
-    _ASSERT(size(ptr,2) == COUNTS(2), 'shape mismatch dim=2')
-    call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
-    ! MAPL restriction (actually only the first 2 dims are distributted)
-    _ASSERT(gridRank <= 3, 'gridRank > 3 not supported')
-    allocate(gridToFieldMap(gridRank), _STAT)
-    do I = 1, gridRank
-       gridToFieldMap(I) = I
-    end do
-
-    call ESMF_FieldEmptyComplete(FIELD, farrayPtr=ptr, &
-         datacopyFlag = ESMF_DATACOPY_REFERENCE,       &
-         gridToFieldMap=gridToFieldMap,                &
-         _RC)
-
-    ! Clean up
-    deallocate(gridToFieldMap)
-
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_SetPointer3DR4
 
   pure subroutine MAPL_DecomposeDim ( dim_world,dim,NDEs, unusable, symmetric, min_DE_extent )
     use MAPL_KeywordEnforcerMod
@@ -1146,24 +1022,6 @@ contains
 
      _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldCopyAttributes
-
-  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  module function MAPL_RemapBounds_3dr4(A, LB1, LB2, LB3) result(ptr)
-    integer,      intent(IN) :: LB1, LB2, LB3
-    real, target, intent(IN) :: A(LB1:,LB2:,LB3:)
-    real, pointer            :: ptr(:,:,:)
-
-    ptr => A
-  end function MAPL_RemapBounds_3dr4
-
-  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  module function MAPL_RemapBounds_3dr8(A, LB1, LB2, LB3) result(ptr)
-    integer,      intent(IN) :: LB1, LB2, LB3
-    real(kind=REAL64), target, intent(IN) :: A(LB1:,LB2:,LB3:)
-    real(kind=REAL64), pointer            :: ptr(:,:,:)
-
-    ptr => A
-  end function MAPL_RemapBounds_3dr8
 
   module subroutine MAPL_GRID_INTERIOR(GRID,I1,IN,J1,JN)
     type (ESMF_Grid), intent(IN) :: grid
@@ -2453,35 +2311,6 @@ contains
     end if
 
   end subroutine MAPL_GenGridName
-
-  module function MAPL_GenXYOffset(lon, lat) result(xy)
-    real        :: lon(:), lat(:)
-    integer     :: xy
-
-    integer           :: I
-    integer           :: p, d
-    real, parameter   :: eps=1.0e-4
-
-    p = 0 ! default
-    d = 0 ! default
-
-    if(abs(LAT(1) + 90.0) < eps) then
-       p=0 ! 'PC'
-    else if (abs(LAT(1) + 90.0 - 0.5*(LAT(2)-LAT(1))) < eps) then
-       p=1 ! 'PE'
-    end if
-    do I=0,1
-       if(abs(LON(1) + 180.0*I) < eps) then
-          d=0 ! 'DC'
-          exit
-       else if (abs(LON(1) + 180.0*I - 0.5*(LON(2)-LON(1))) < eps) then
-          d=1 ! 'DE'
-          exit
-       end if
-    end do
-    xy = 2*p + d
-     return
-  end function MAPL_GenXYOffset
 
   module subroutine MAPL_FieldSplit(field, fields, aliasName, rc)
     type(ESMF_Field),          intent(IN   ) :: field
