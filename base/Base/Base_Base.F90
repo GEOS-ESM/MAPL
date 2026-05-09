@@ -36,10 +36,8 @@ module MAPL_Base
   !public MAPL_ConnectCoupling
   public MAPL_FieldCreate
   public MAPL_GRID_INTERIOR
-  public MAPL_IncYMD
   public MAPL_Interp_Fac   ! re-exported from MAPL_TimeInterpolation (base3g)
   public MAPL_LatLonGridCreate   ! Creates regular Lat/Lon ESMF Grids
-   public MAPL_PackDateTime
    public MAPL_RemapBounds
   public MAPL_SetPointer
   public MAPL_FieldBundleAdd
@@ -113,17 +111,6 @@ module MAPL_Base
        character(len=*),               intent(IN   ) :: name
        integer,              optional, intent(  OUT) :: rc
      end subroutine MAPL_SetPointer3DR4
-
-
-      module subroutine MAPL_PackDateTime(date_time, yy, mm, dd, h, m, s)
-       integer, intent(in) :: yy, mm, dd, h, m, s
-       integer, intent(out) :: date_time(:)
-      end subroutine MAPL_PackDateTime
-
-
-      integer module function MAPL_incymd (NYMD,M)
-       integer nymd,m
-     end function MAPL_incymd
 
 
      module subroutine MAPL_PICKEM(II,JJ,IM,JM,COUNT)
