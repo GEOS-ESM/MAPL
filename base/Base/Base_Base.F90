@@ -19,7 +19,7 @@ module MAPL_Base
 
   ! !USES:
   !
-  use ESMF, only: ESMF_MAXSTR, ESMF_PIN_FLAG, ESMF_PIN_DE_TO_SSI_CONTIG
+  use ESMF, only: ESMF_MAXSTR
   use MAPL_Constants, only: MAPL_UNDEF
   use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
   use, intrinsic :: iso_fortran_env, only: REAL64
@@ -38,19 +38,14 @@ module MAPL_Base
   public MAPL_GRID_INTERIOR
   public MAPL_Interp_Fac   ! re-exported from MAPL_TimeInterpolation (base3g)
   public MAPL_LatLonGridCreate   ! Creates regular Lat/Lon ESMF Grids
-   public MAPL_RemapBounds
-  public MAPL_SetPointer
-  public MAPL_FieldBundleAdd
+   public MAPL_FieldBundleAdd
   public MAPL_GetHorzIJIndex
   public MAPL_GetGlobalHorzIJIndex
   public MAPL_Reverse_Schmidt
   public MAPL_GenGridName
-  public MAPL_GenXYOffset
   public MAPL_GridGetCorners
   public MAPL_GridGetInterior
   public MAPL_FieldSplit
-  public MAPL_PinFlagSet
-  public MAPL_PinFlagGet
 
 
   !----------------------------------------------------------------------
@@ -60,17 +55,6 @@ module MAPL_Base
      module procedure MAPL_FieldCreateNewgrid
      module procedure MAPL_FieldCreateR4
   end interface MAPL_FieldCreate
-
-  interface MAPL_RemapBounds
-     module procedure MAPL_RemapBoundsFull_3dr4
-     module procedure MAPL_RemapBounds_3dr4
-     module procedure MAPL_RemapBounds_3dr8
-  end interface MAPL_RemapBounds
-
-  interface MAPL_SetPointer
-     module procedure MAPL_SetPointer2DR4
-     module procedure MAPL_SetPointer3DR4
-  end interface MAPL_SetPointer
 
   interface MAPL_FieldBundleAdd
      module procedure MAPL_FieldBundleAddField
@@ -95,23 +79,6 @@ module MAPL_Base
        type(ESMF_Field),  intent(INOUT) :: field
        integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_FieldF90Deallocate
-
-     module subroutine MAPL_SetPointer2DR4(state, ptr, name, rc)
-       use ESMF, only: ESMF_State
-       type(ESMF_State),               intent(INOUT) :: state
-       real,                           pointer       :: ptr(:,:)
-       character(len=*),               intent(IN   ) :: name
-       integer,              optional, intent(  OUT) :: rc
-     end subroutine MAPL_SetPointer2DR4
-
-     module subroutine MAPL_SetPointer3DR4(state, ptr, name, rc)
-       use ESMF, only: ESMF_State
-       type(ESMF_State),               intent(INOUT) :: state
-       real,                           pointer       :: ptr(:,:,:)
-       character(len=*),               intent(IN   ) :: name
-       integer,              optional, intent(  OUT) :: rc
-     end subroutine MAPL_SetPointer3DR4
-
 
      module subroutine MAPL_PICKEM(II,JJ,IM,JM,COUNT)
        integer, intent(IN ) :: IM, JM, COUNT
@@ -144,20 +111,6 @@ module MAPL_Base
        integer, optional, intent(  OUT) :: RC
        type (ESMF_Field)                :: F
      end function MAPL_FieldCreateR4
-
-     !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-     module function MAPL_RemapBounds_3dr4(A, LB1, LB2, LB3) result(ptr)
-       integer,      intent(IN) :: LB1, LB2, LB3
-       real, target, intent(IN) :: A(LB1:,LB2:,LB3:)
-       real, pointer            :: ptr(:,:,:)
-     end function MAPL_RemapBounds_3dr4
-
-     !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-     module function MAPL_RemapBounds_3dr8(A, LB1, LB2, LB3) result(ptr)
-       integer,      intent(IN) :: LB1, LB2, LB3
-       real(kind=REAL64), target, intent(IN) :: A(LB1:,LB2:,LB3:)
-       real(kind=REAL64), pointer            :: ptr(:,:,:)
-     end function MAPL_RemapBounds_3dr8
 
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !>
@@ -379,11 +332,6 @@ module MAPL_Base
        logical,  optional :: geos_style
      end subroutine MAPL_GenGridName
 
-     module function MAPL_GenXYOffset(lon, lat) result(xy)
-       real        :: lon(:), lat(:)
-       integer     :: xy
-     end function MAPL_GenXYOffset
-
       module subroutine MAPL_FieldSplit(field, fields, aliasName, rc)
         use ESMF, only: ESMF_Field
         type(ESMF_Field),          intent(IN   ) :: field
@@ -431,32 +379,8 @@ module MAPL_Base
       module procedure MAPL_FieldBundleGetByIndex
    end interface MAPL_FieldBundleGet
 
-   type(ESMF_Pin_Flag), protected :: pinflag_global = ESMF_PIN_DE_TO_SSI_CONTIG
-
 contains
 
-  ! NAG and Intel need inconsistent workarounds for this function if moved
-  ! into the submodule.  So keeping it here.
-
-  function MAPL_RemapBoundsFull_3dr4(A,I1,IM,J1,JM,L1,LM)
-    integer,      intent(IN) :: I1,IM,J1,JM,L1,LM
-    real, target, intent(IN) :: A(I1:IM,J1:JM,L1:LM)
-    real, pointer            :: MAPL_RemapBoundsFull_3dr4(:,:,:)
-
-    MAPL_RemapBoundsFull_3dr4 => A
-  end function MAPL_RemapBoundsFull_3dr4
-
-  subroutine MAPL_PinFlagSet(pinflag)
-    type(ESMF_PIN_FLAG), intent(in) :: pinflag
-    pinflag_global = pinflag
-  end subroutine MAPL_PinFlagSet
-
-  function MAPL_PinFlagGet() result(pinflag)
-    type(ESMF_PIN_FLAG) :: pinflag
-
-    pinflag = pinflag_global
-  end function MAPL_PinFlagGet
-  
 end module MAPL_Base
 
 module MAPL_BaseMod
