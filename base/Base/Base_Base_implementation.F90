@@ -799,15 +799,6 @@ contains
 
    ! MAPL_Interp_Fac and MAPL_ClimInterpFac moved to MAPL_TimeInterpolation (base3g)
 
-   module subroutine MAPL_PackDateTime(date_time, yy, mm, dd, h, m, s)
-    integer, intent(in) :: yy, mm, dd, h, m, s
-    integer, intent(out) :: date_time(:)
-
-    date_time(1) = (10000 * yy) + (100 * mm) + dd
-    date_time(2) = (10000 * h) + (100 * m) + s
-   end subroutine MAPL_PackDateTime
-
-
    ! A year is a leap year if
   ! 1) it is divible by 4, and
   ! 2) it is not divisible by 100, unless
@@ -818,37 +809,6 @@ contains
     MAPL_LEAP = mod(NY,4)==0 .and. (mod(NY,100)/=0 .or. mod(NY,400)==0)
 
   end function MAPL_LEAP
-
-
-  integer module function MAPL_incymd (NYMD,M)
-    integer nymd,ny,nm,nd,m
-    INTEGER NDPM(12)
-    DATA    NDPM /31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31/
-    NY = NYMD / 10000
-    NM = MOD(NYMD,10000) / 100
-    ND = MOD(NYMD,100) + M
-    IF (ND.EQ.0) THEN
-       NM = NM - 1
-       IF (NM.EQ.0) THEN
-          NM = 12
-          NY = NY - 1
-       ENDIF
-       ND = NDPM(NM)
-       IF (NM.EQ.2 .AND. MAPL_LEAP(NY))  ND = 29
-    ENDIF
-    IF (ND.EQ.29 .AND. NM.EQ.2 .AND. MAPL_LEAP(NY))  GO TO 20
-    IF (ND.GT.NDPM(NM)) THEN
-       ND = 1
-       NM = NM + 1
-       IF (NM.GT.12) THEN
-          NM = 1
-          NY = NY + 1
-       ENDIF
-    ENDIF
-20  CONTINUE
-    MAPL_INCYMD = NY*10000 + NM*100 + ND
-    RETURN
-  end function MAPL_incymd
 
 
   module subroutine MAPL_PICKEM(II,JJ,IM,JM,COUNT)
