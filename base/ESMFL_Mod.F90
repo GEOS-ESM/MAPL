@@ -34,7 +34,7 @@ module ESMFL_MOD
   use MAPL_Constants
   use MAPL_BaseMod
   use MAPL_CommsMod
-  use mapl3g_Field_API, only: MAPL_FieldEmptyComplete
+   use mapl3g_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
   use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
@@ -268,7 +268,7 @@ contains
          else
 
             ! Use the grid and array in the State Field, just rename it
-            BundleField = MAPL_FieldCreate(stateField, name=NameInBundle, RC=STATUS)
+            call MAPL_FieldClone(stateField, BundleField, name=NameInBundle, RC=STATUS)
             _VERIFY(STATUS)
          end if
 
@@ -278,7 +278,7 @@ contains
 
       end if
 
-      call MAPL_FieldBundleAdd(BUNDLE, bundleField, rc=STATUS)
+      call ESMF_FieldBundleAdd(BUNDLE, [bundleField], rc=STATUS)
       _VERIFY(STATUS)
 
    end do RequestedFields
@@ -735,10 +735,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
      integer          :: status
 
-     FIELD1 = MAPL_FieldCreate(FIELD, name = name, RC=STATUS )
+     call MAPL_FieldClone(FIELD, FIELD1, name=name, RC=STATUS )
      _VERIFY(STATUS)
 
-     call MAPL_FieldBundleAdd (BUNDLE, FIELD1, RC=STATUS )
+     call ESMF_FieldBundleAdd (BUNDLE, [FIELD1], RC=STATUS )
      _VERIFY(STATUS)
 
      _RETURN(ESMF_SUCCESS)
@@ -3429,7 +3429,7 @@ CONTAINS
          _VERIFY(STATUS)
          if(.not. check_list_(fldname,usrfldlist)) cycle
      endif
-     call MAPL_FieldBundleAdd (BUN, FLD, rc=status)
+     call ESMF_FieldBundleAdd (BUN, [FLD], rc=status)
      _VERIFY(STATUS)
 
    end do
@@ -3609,7 +3609,7 @@ CONTAINS
    do L=1,NumVars1
      call ESMF_FieldBundleGet (BUN1, L, FLD, RC=STATUS)
      _VERIFY(STATUS)
-     call MAPL_FieldBundleAdd (mergedBUN, FLD, rc=status)
+     call ESMF_FieldBundleAdd (mergedBUN, [FLD], rc=status)
      _VERIFY(STATUS)
    end do ! L
    if(verbose .and. MAPL_AM_I_ROOT()) &
@@ -3618,7 +3618,7 @@ CONTAINS
    do L=1,NumVars2
      call ESMF_FieldBundleGet (BUN2, L, FLD, RC=STATUS)
      _VERIFY(STATUS)
-     call MAPL_FieldBundleAdd (mergedBUN, FLD, rc=status)
+     call ESMF_FieldBundleAdd (mergedBUN, [FLD], rc=status)
      _VERIFY(STATUS)
    end do ! L
 
@@ -3654,7 +3654,7 @@ CONTAINS
    do L=1,NumVars1
      call ESMF_FieldBundleGet (BUN, L, FLD, RC=STATUS)
      _VERIFY(STATUS)
-     call MAPL_FieldBundleAdd (mergedBUN, FLD, rc=status)
+     call ESMF_FieldBundleAdd (mergedBUN, [FLD], rc=status)
      _VERIFY(STATUS)
    end do ! L
    call ESMF_FieldBundleGet (mergedBUN, name=name2, FieldCount=NumVars2, RC=STATUS)
@@ -4075,7 +4075,7 @@ CONTAINS
 
     subroutine AddThisField_()
 
-      call MAPL_FieldBundleAdd ( BUNDLE, tField, rc=STATUS )
+      call ESMF_FieldBundleAdd ( BUNDLE, [tField], rc=STATUS )
       _VERIFY(STATUS)
       if ( needGrid ) then
          call ESMF_FieldGet ( tFIELD, grid=tGRID, rc=STATUS )

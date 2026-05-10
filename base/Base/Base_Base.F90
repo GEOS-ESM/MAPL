@@ -33,11 +33,9 @@ module MAPL_Base
   !public MAPL_FieldF90Deallocate
   public MAPL_ClimInterpFac       ! re-exported from MAPL_TimeInterpolation (base3g)
   !public MAPL_ConnectCoupling
-  public MAPL_FieldCreate
-  public MAPL_GRID_INTERIOR
-  public MAPL_Interp_Fac   ! re-exported from MAPL_TimeInterpolation (base3g)
-  public MAPL_LatLonGridCreate   ! Creates regular Lat/Lon ESMF Grids
-   public MAPL_FieldBundleAdd
+   public MAPL_GRID_INTERIOR
+   public MAPL_Interp_Fac   ! re-exported from MAPL_TimeInterpolation (base3g)
+   public MAPL_LatLonGridCreate   ! Creates regular Lat/Lon ESMF Grids
   public MAPL_GetHorzIJIndex
   public MAPL_GetGlobalHorzIJIndex
   public MAPL_Reverse_Schmidt
@@ -48,16 +46,6 @@ module MAPL_Base
 
 
   !----------------------------------------------------------------------
-
-  interface MAPL_FieldCreate
-     module procedure MAPL_FieldCreateRename
-     module procedure MAPL_FieldCreateNewgrid
-     module procedure MAPL_FieldCreateR4
-  end interface MAPL_FieldCreate
-
-  interface MAPL_FieldBundleAdd
-     module procedure MAPL_FieldBundleAddField
-  end interface MAPL_FieldBundleAdd
 
   ! Note: The routine below came from ESMFL; it has been moved here to
   !       avoid circular dependencies (Arlindo).
@@ -78,32 +66,6 @@ module MAPL_Base
        integer, intent(OUT) :: II(COUNT), JJ(COUNT)
      end subroutine MAPL_PICKEM
 
-
-     module function MAPL_FieldCreateRename(FIELD, NAME, DoCopy, RC) RESULT(F)
-       use ESMF, only: ESMF_Field
-       type (ESMF_Field), intent(INOUT) :: FIELD !ALT: IN
-       character(len=*),  intent(IN   ) :: NAME
-       logical, optional, intent(IN   ) :: DoCopy
-       integer, optional, intent(  OUT) :: RC
-       type (ESMF_Field)                :: F
-     end function MAPL_FieldCreateRename
-
-     module function MAPL_FieldCreateNewgrid(FIELD, GRID, LM, NEWNAME, RC) RESULT(F)
-       use ESMF, only: ESMF_Field, ESMF_Grid
-       type (ESMF_Field), intent(INOUT) :: FIELD !ALT: intent(IN)
-       type (ESMF_Grid),  intent(INout) :: GRID
-       integer, optional, intent(IN   ) :: lm
-       character(len=*), optional, intent(IN) :: newName
-       integer, optional, intent(  OUT) :: RC
-       type (ESMF_Field)                :: F
-     end function MAPL_FieldCreateNewgrid
-
-     module function MAPL_FieldCreateR4(FIELD, RC) RESULT(F)
-       use ESMF, only: ESMF_Field
-       type (ESMF_Field), intent(INOUT) :: FIELD !ALT: IN
-       integer, optional, intent(  OUT) :: RC
-       type (ESMF_Field)                :: F
-     end function MAPL_FieldCreateR4
 
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !>
@@ -259,14 +221,6 @@ module MAPL_Base
 
      end subroutine MAPL_GridGetCorners
 
-     module subroutine MAPL_FieldBundleAddField(Bundle, Field, multiflag, RC)
-       use ESMF, only: ESMF_Field, ESMF_FieldBundle
-       type(ESMF_FieldBundle),  intent(inout) :: Bundle
-       type(ESMF_Field),  intent(in   ) :: Field
-       logical, optional, intent(in   ) :: multiflag
-       integer, optional, intent(  out) :: rc
-     end subroutine MAPL_FieldBundleAddField
-
      !BOPI
      !  !IROUTINE: MAPL_GetHorzIJIndex -- Get indexes on destributed ESMF grid for an arbitary lat and lon
 
@@ -333,22 +287,6 @@ module MAPL_Base
         integer, optional,         intent(  out) :: rc
       end subroutine MAPL_FieldSplit
 
-      ! Private helpers retained for SimpleBundleMod (see issue #4809)
-      module subroutine MAPL_FieldBundleDestroy(Bundle, NoGarbage, RC)
-        use ESMF, only: ESMF_FieldBundle
-        type(ESMF_FieldBundle), intent(INOUT) :: Bundle
-        logical, optional,      intent(IN   ) :: NoGarbage
-        integer, optional,      intent(  OUT) :: RC
-      end subroutine MAPL_FieldBundleDestroy
-
-      module subroutine MAPL_FieldBundleGetByIndex(Bundle, fieldIndex, Field, RC)
-        use ESMF, only: ESMF_FieldBundle, ESMF_Field
-        type(ESMF_FieldBundle), intent(INout) :: Bundle
-        integer,                intent(in   ) :: fieldIndex
-        type(ESMF_Field),       intent(INout) :: Field
-        integer, optional,      intent(  out) :: rc
-       end subroutine MAPL_FieldBundleGetByIndex
-
        module function MAPL_StrUpCase(str) result(new)
          character(len=*), intent(IN) :: str
          character(len=len(str))      :: new
@@ -360,17 +298,6 @@ module MAPL_Base
        end function MAPL_StrDnCase
 
    end interface
-
-   ! Retained for SimpleBundleMod pending migration to base3g (issue #4809)
-   public :: MAPL_FieldBundleGet
-   public :: MAPL_FieldBundleDestroy
-   public :: MAPL_BundleItemOrderList
-
-   character(len=*), parameter :: MAPL_BundleItemOrderList = 'MAPL_BundleItemOrderList'
-
-   interface MAPL_FieldBundleGet
-      module procedure MAPL_FieldBundleGetByIndex
-   end interface MAPL_FieldBundleGet
 
 contains
 
