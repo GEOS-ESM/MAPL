@@ -21,7 +21,8 @@ module MAPL_SimpleBundleMod
 
    use ESMF
    use ESMFL_Mod
-   use MAPL_BaseMod
+   use mapl_MaplGrid, only: MAPL_GridGet
+   use mapl3g_FieldBundle_API, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
    use mapl3g_MaxMin, only: MaxMin
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    use MAPL_Constants, only: MAPL_PI
@@ -220,7 +221,7 @@ contains
          do i = 1, size(var_list)
             isPresent = .false.
              do n = 1, NumVars
-               call MAPL_FieldBundleGet(Bundle, n, field, _RC)
+               call MAPL_FieldBundleGetByIndex(Bundle, n, field, _RC)
                call ESMF_FieldGet(field, name=fieldName, _RC)
                if (fieldName == var_list(i)) then
                   isPresent = .true.
@@ -297,7 +298,7 @@ contains
       n1d = 0; n2d = 0; n3d = 0
       do i = 1, NumVars
 
-         call MAPL_FieldBundleGet(Bundle, i, field, _RC)
+         call MAPL_FieldBundleGetByIndex(Bundle, i, field, _RC)
          call ESMF_FieldGet(field, name=fieldName, status=fieldStatus, _RC)
 
          if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE .or. .not. isRequested(i)) cycle

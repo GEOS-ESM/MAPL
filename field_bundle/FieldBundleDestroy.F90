@@ -29,9 +29,9 @@ contains
       logical :: destroying_contents
 
       destroying_contents = .FALSE.
-      if(present(destroy_contents)) destroying_contents = destroy_contents
-      if(destroying_contents) then
-         call remove_bundle_fields(bundle, fieldList, _RC)
+      if (present(destroy_contents)) destroying_contents = destroy_contents
+      if (destroying_contents) then
+         call ESMF_FieldBundleGet(bundle, fieldList=fieldList, _RC)
          call FieldsDestroy(fieldList, _RC)
       end if
       call ESMF_FieldBundleGet(bundle, name=name, _RC)
@@ -42,23 +42,5 @@ contains
       _UNUSED_DUMMY(unusable)
 
    end subroutine destroy_bundle
-
-   subroutine remove_bundle_fields(bundle, fields, rc)
-      type(ESMF_FieldBundle), intent(inout) :: bundle
-      type(ESMF_Field), allocatable, intent(inout) :: fields(:)
-      integer, optional, intent(out) :: rc
-      integer :: status, fieldCount
-      character(len=ESMF_MAXSTR), allocatable :: fieldNameList(:)
-
-      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
-      allocate(fields(fieldCount))
-      allocate(fieldNameList(fieldCount))
-      call ESMF_FieldBundleGet(bundle, fieldList=fields, fieldNameList=fieldNameList, _RC)
-      call ESMF_FieldBundleRemove(bundle, fieldNameList=fieldNameList, _RC)
-      call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
-      _ASSERT(fieldCount == 0, 'Some fields were not removed.')
-      _RETURN(_SUCCESS)
-
-   end subroutine remove_bundle_fields
 
 end module mapl3g_FieldBundleDestroy
