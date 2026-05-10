@@ -30,7 +30,6 @@ module MAPL_Base
 
   ! !PUBLIC MEMBER FUNCTIONS:
   !
-  public MAPL_AllocateCoupling    ! Atanas: please provide 1-line for each
   !public MAPL_FieldF90Deallocate
   public MAPL_ClimInterpFac       ! re-exported from MAPL_TimeInterpolation (base3g)
   !public MAPL_ConnectCoupling
@@ -68,12 +67,6 @@ module MAPL_Base
 
 
   interface
-     module subroutine MAPL_AllocateCoupling(field, rc)
-       use ESMF, only: ESMF_Field
-       type(ESMF_Field),  intent(INOUT) :: field
-       integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocateCoupling
-
      module subroutine MAPL_FieldF90Deallocate(field, rc)
        use ESMF, only: ESMF_Field
        type(ESMF_Field),  intent(INOUT) :: field
