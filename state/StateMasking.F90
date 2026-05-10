@@ -10,6 +10,7 @@ module MAPL_StateMaskMod
    use gFTL2_StringVector
    use MAPL_StateArithmeticParserMod
    use MAPL_Constants
+   use mapl3g_State_API, only: MAPL_StateGetPointer
    implicit none
    private
 
@@ -137,13 +138,13 @@ module MAPL_StateMaskMod
        vartomask = this%mask_arguments(:ib-1)
        maskname = this%mask_arguments(ib+1:ie-1)
 
-       call MAPL_GetPointer(state,rmask,maskName,_RC)
+       call MAPL_StateGetPointer(state,rmask,maskName,_RC)
        if (rank == 2) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
-          call MAPL_GetPointer(state,var2d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var2d, vartomask, _RC)
        else if (rank == 3) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
-          call MAPL_GetPointer(state,var3d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var3d, vartomask, _RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -227,10 +228,10 @@ module MAPL_StateMaskMod
 
        if (rank == 2) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
-          call MAPL_GetPointer(state,var2d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var2d, vartomask, _RC)
        else if (rank == 3) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
-          call MAPL_GetPointer(state,var3d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var3d, vartomask, _RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -374,10 +375,10 @@ module MAPL_StateMaskMod
 
        if (rank == 2) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
-          call MAPL_GetPointer(state,var2d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var2d, vartomask, _RC)
        else if (rank == 3) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
-          call MAPL_GetPointer(state,var3d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var3d, vartomask, _RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
