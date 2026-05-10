@@ -6,6 +6,7 @@ module mapl3g_FieldBundleDestroy
    use MAPL_ExceptionHandling
    use mapl_KeywordEnforcer
    use MAPL_FieldUtils, only : FieldsDestroy
+   use mapl3g_FieldBundleGet, only: MAPL_FieldBundleGet => FieldBundleGet
 
    implicit none(type, external)
 
@@ -27,14 +28,11 @@ contains
       type(ESMF_Field), allocatable :: fieldList(:)
       character(len=ESMF_MAXSTR) :: name
       logical :: destroying_contents
-      integer :: fieldCount
 
       destroying_contents = .FALSE.
       if (present(destroy_contents)) destroying_contents = destroy_contents
       if (destroying_contents) then
-         call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
-         allocate(fieldList(fieldCount))
-         call ESMF_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+         call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
          call FieldsDestroy(fieldList, _RC)
       end if
       call ESMF_FieldBundleGet(bundle, name=name, _RC)
