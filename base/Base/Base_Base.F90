@@ -40,9 +40,8 @@ module MAPL_Base
   public MAPL_GetGlobalHorzIJIndex
   public MAPL_Reverse_Schmidt
   public MAPL_GenGridName
-  public MAPL_GridGetCorners
-  public MAPL_GridGetInterior
-  public MAPL_FieldSplit
+   public MAPL_GridGetCorners
+   public MAPL_GridGetInterior
 
 
   !----------------------------------------------------------------------
@@ -278,14 +277,6 @@ module MAPL_Base
        integer, optional :: xyoffset
        logical,  optional :: geos_style
      end subroutine MAPL_GenGridName
-
-      module subroutine MAPL_FieldSplit(field, fields, aliasName, rc)
-        use ESMF, only: ESMF_Field
-        type(ESMF_Field),          intent(IN   ) :: field
-        type(ESMF_Field), pointer, intent(  out) :: fields(:)
-        character(len=*), optional, intent(in  ) :: aliasName
-        integer, optional,         intent(  out) :: rc
-      end subroutine MAPL_FieldSplit
 
        module function MAPL_StrUpCase(str) result(new)
          character(len=*), intent(IN) :: str
