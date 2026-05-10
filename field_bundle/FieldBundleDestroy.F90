@@ -27,10 +27,13 @@ contains
       type(ESMF_Field), allocatable :: fieldList(:)
       character(len=ESMF_MAXSTR) :: name
       logical :: destroying_contents
+      integer :: fieldCount
 
       destroying_contents = .FALSE.
       if (present(destroy_contents)) destroying_contents = destroy_contents
       if (destroying_contents) then
+         call ESMF_FieldBundleGet(bundle, fieldCount=fieldCount, _RC)
+         allocate(fieldList(fieldCount))
          call ESMF_FieldBundleGet(bundle, fieldList=fieldList, _RC)
          call FieldsDestroy(fieldList, _RC)
       end if
