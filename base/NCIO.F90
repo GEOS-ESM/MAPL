@@ -16,7 +16,7 @@ module NCIOMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_CommsMod
-  use mapl3g_Field_API, only: MAPL_FieldEmptyComplete
+   use mapl3g_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
   use MAPL_SortMod
   use mapl3g_EASEConversion, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
   !use MAPL_RangeMod
@@ -3308,9 +3308,9 @@ contains
                end do
 
                if (foundInFile) then
-                  new_field = MAPL_FieldCreate(Field,FieldName,rc=status)
-                  _VERIFY(STATUS)
-                  call MAPL_FieldBundleAdd(bundle_read,new_field,rc=status)
+                  call MAPL_FieldClone(Field, new_field, name=FieldName, rc=status)
+                   _VERIFY(STATUS)
+                   call ESMF_FieldBundleAdd(bundle_read,[new_field],rc=status)
                   _VERIFY(STATUS)
                else
                   if (bootStrapable_ .and. (RST == MAPL_RestartOptional)) then
@@ -3392,7 +3392,7 @@ contains
              end do
 
              if (foundInFile) then
-                call MAPL_FieldBundleAdd(bundle_read,field,rc=status)
+                 call ESMF_FieldBundleAdd(bundle_read,[field],rc=status)
                 _VERIFY(STATUS)
              else
                 if (bootStrapable .and. (RST == MAPL_RestartOptional)) then
@@ -3468,7 +3468,7 @@ contains
   _VERIFY(STATUS)
   call ESMF_FieldBundleSet ( bundle, grid=arrDes%grid, rc=STATUS )
   _VERIFY(STATUS)
-  call MAPL_FieldBundleAdd(BUNDLE, FIELD, rc=STATUS)
+  call ESMF_FieldBundleAdd(BUNDLE, [FIELD], rc=STATUS)
   _VERIFY(STATUS)
 
   call MAPL_VarReadNCPar(Bundle, arrdes, filename, rc=status)
@@ -3511,7 +3511,7 @@ contains
   _VERIFY(STATUS)
   call ESMF_FieldBundleSet ( bundle, grid=arrDes%grid, rc=STATUS )
   _VERIFY(STATUS)
-  call MAPL_FieldBundleAdd(BUNDLE, FIELD, rc=STATUS)
+  call ESMF_FieldBundleAdd(BUNDLE, [FIELD], rc=STATUS)
   _VERIFY(STATUS)
 
   call MAPL_VarReadNCPar(Bundle, arrdes, filename, rc=status)
@@ -3549,7 +3549,7 @@ contains
   _VERIFY(STATUS)
   call ESMF_FieldBundleSet ( bundle, grid=arrDes%grid, rc=STATUS )
   _VERIFY(STATUS)
-  call MAPL_FieldBundleAdd(BUNDLE, FIELD, rc=STATUS)
+  call ESMF_FieldBundleAdd(BUNDLE, [FIELD], rc=STATUS)
   _VERIFY(STATUS)
 
   call MAPL_VarReadNCPar(Bundle, arrdes, filename, rc=status)
@@ -4501,9 +4501,9 @@ contains
                _VERIFY(STATUS)
                ! Tack on BundleName to distiguish duplicate FieldNames in different Bundles (PCHEM for instance)
                FieldName = trim(BundleName) //'_'// trim(FieldName)
-               new_field = MAPL_FieldCreate(Field,FieldName,rc=status)
+               call MAPL_FieldClone(Field, new_field, name=FieldName, rc=status)
                _VERIFY(STATUS)
-               call MAPL_FieldBundleAdd(bundle_write,new_field,rc=status)
+               call ESMF_FieldBundleAdd(bundle_write,[new_field],rc=status)
                _VERIFY(STATUS)
              ENDDO
 
@@ -4561,7 +4561,7 @@ contains
                 else
                    added_field = field
                 end if
-                call MAPL_FieldBundleAdd(bundle_write,added_field,rc=status)
+                 call ESMF_FieldBundleAdd(bundle_write,[added_field],rc=status)
                 _VERIFY(STATUS)
              end if
 

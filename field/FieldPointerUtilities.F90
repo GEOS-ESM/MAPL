@@ -420,9 +420,10 @@ contains
 
    ! Use Field x as an archetype and create a field y with same
    ! geom, shape, etc. But separate allocation.
-   subroutine clone(x, y, rc)
+   subroutine clone(x, y, name, rc)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y
+      character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: CLONE_TAG = '_clone'
@@ -433,7 +434,7 @@ contains
       integer, allocatable :: ungriddedLBound(:)
       integer, allocatable :: ungriddedUBound(:)
       type(ESMF_TypeKind_Flag) :: tk
-      character(len=ESMF_MAXSTR) :: name
+      character(len=ESMF_MAXSTR) :: clone_name
       integer :: status
       integer :: field_rank, grid_rank,ungrid_size
       type(ESMF_Index_Flag) :: index_flag
@@ -448,44 +449,48 @@ contains
       ungrid_size = field_rank-grid_rank
       allocate(gridToFieldMap(grid_rank))
       allocate(ungriddedLBound(ungrid_size),ungriddedUBound(ungrid_size))
-      call ESMF_FieldGet(x, typekind=tk, name = name, &
+      call ESMF_FieldGet(x, typekind=tk, name=clone_name, &
          staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
          ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound,  _RC)
 
-      name = trim(name) // CLONE_TAG
+      if (present(name)) then
+         clone_name = name
+      else
+         clone_name = trim(clone_name) // CLONE_TAG
+      end if
 
       if (index_flag == ESMF_INDEX_USER) then
          if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 1) then
             allocate(VR4_1d(lc(1)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_1d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR4_1d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 1) then
             allocate(VR8_1d(lc(1)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_1d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR8_1d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 2) then
             allocate(VR4_2d(lc(1),lc(2)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_2d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR4_2d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 2) then
             allocate(VR8_2d(lc(1),lc(2)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_2d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR8_2d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 3) then
             allocate(VR4_3d(lc(1),lc(2),lc(3)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_3d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR4_3d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 3) then
             allocate(VR8_3d(lc(1),lc(2),lc(3)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_3d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR8_3d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 4) then
             allocate(VR4_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_4d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR4_4d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 4) then
             allocate(VR8_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_4d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR8_4d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else
             _FAIL( 'unsupported typekind+field_rank')
          end if
       else
          y = ESMF_FieldCreate(grid, tk, staggerloc=staggerloc, &
             gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
-            ungriddedUBound=ungriddedUBound, name=name, _RC)
+            ungriddedUBound=ungriddedUBound, name=clone_name, _RC)
       end if
 
       ! clone metadata
