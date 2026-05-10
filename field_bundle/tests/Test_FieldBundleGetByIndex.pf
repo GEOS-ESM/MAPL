@@ -117,7 +117,7 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_add_order_preserved
 
-   ! Out-of-range index should fail with non-SUCCESS rc
+   ! Out-of-range index should raise an exception
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_out_of_range_index(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -129,10 +129,10 @@ contains
       bundle = ESMF_FieldBundleCreate(fieldList=[f1], _RC)
 
       call FieldBundleGetByIndex(bundle, 2, retrieved, rc=status)
-      @assertFalse(status == _SUCCESS, 'Index beyond fieldCount should fail')
+      @assertExceptionRaised('fieldIndex out of range')
 
       call FieldBundleGetByIndex(bundle, 0, retrieved, rc=status)
-      @assertFalse(status == _SUCCESS, 'Index 0 should fail')
+      @assertExceptionRaised('fieldIndex out of range')
 
       call ESMF_FieldDestroy(f1, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
