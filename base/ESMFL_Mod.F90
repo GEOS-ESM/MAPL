@@ -48,8 +48,6 @@ module ESMFL_MOD
   !PUBLIC MEMBER FUNCTIONS:
   public ESMFL_StateGetField
   public ESMFL_StateGetFieldArray
-  public ESMFL_StateGetPointerToData
-  public ESMFL_FieldGetPointerToData
   public ESMFL_BundleGetPointerToData
   public ESMFL_BundleCpyField
   public ESMFL_GridCoordGet
@@ -118,28 +116,6 @@ module ESMFL_MOD
 
   interface ESMFL_BundleAddState
     module procedure BundleAddState_
-  end interface
-
-  interface ESMFL_StateGetPointerToData
-     module procedure ESMFL_StateGetPtrToDataR4_1
-     module procedure ESMFL_StateGetPtrToDataR4_2
-     module procedure ESMFL_StateGetPtrToDataR4_3
-     module procedure ESMFL_StateGetPtrToDataR4_4
-     module procedure ESMFL_StateGetPtrToDataR8_1
-     module procedure ESMFL_StateGetPtrToDataR8_2
-     module procedure ESMFL_StateGetPtrToDataR8_3
-     module procedure ESMFL_StateGetPtrToDataR8_4
-  end interface
-
-  interface ESMFL_FieldGetPointerToData
-     module procedure ESMFL_FieldGetPtrToDataR4_1
-     module procedure ESMFL_FieldGetPtrToDataR4_2
-     module procedure ESMFL_FieldGetPtrToDataR4_3
-     module procedure ESMFL_FieldGetPtrToDataR4_4
-     module procedure ESMFL_FieldGetPtrToDataR8_1
-     module procedure ESMFL_FieldGetPtrToDataR8_2
-     module procedure ESMFL_FieldGetPtrToDataR8_3
-     module procedure ESMFL_FieldGetPtrToDataR8_4
   end interface
 
   interface ESMFL_BundleGetPointerToData
@@ -606,32 +582,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 #undef VARTYPE_
 
-
-#define VARTYPE_ 3
-
-#define RANK_ 1
-#include "GetPointer.H"
-#define RANK_ 2
-#include "GetPointer.H"
-#define RANK_ 3
-#include "GetPointer.H"
-#define RANK_ 4
-#include "GetPointer.H"
-
-#undef VARTYPE_
-
-#define VARTYPE_ 4
-
-#define RANK_ 1
-#include "GetPointer.H"
-#define RANK_ 2
-#include "GetPointer.H"
-#define RANK_ 3
-#include "GetPointer.H"
-#define RANK_ 4
-#include "GetPointer.H"
-
-#undef VARTYPE_
 
  subroutine AdjustPtrBounds1dr4(PTR, A, I1, IN)
    real(KIND=ESMF_KIND_R4), pointer :: PTR(:)
