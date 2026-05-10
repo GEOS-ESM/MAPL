@@ -9,21 +9,18 @@ module Test_FieldBundleGetByIndex
 
    implicit none(type, external)
 
-   ! A simple 2D field reused across tests
-   type(ESMF_Field) :: template_field
+   type(ESMF_Grid) :: test_grid
 
 contains
 
    @Before
    subroutine setUp(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_Grid) :: grid
       integer :: status
       integer, parameter :: MAX_INDEX(2) = [4, 4]
       integer, parameter :: REG_DECOMP(2) = [1, 1]
 
-      grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
-      template_field = ESMF_FieldCreate(grid=grid, typekind=ESMF_TYPEKIND_R4, _RC)
+      test_grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
 
       _UNUSED_DUMMY(this)
    end subroutine setUp
@@ -31,12 +28,9 @@ contains
    @After
    subroutine shutDown(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_Grid) :: grid
       integer :: status
 
-      call ESMF_FieldGet(template_field, grid=grid, _RC)
-      call ESMF_FieldDestroy(template_field, _RC)
-      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GridDestroy(test_grid, _RC)
 
       _UNUSED_DUMMY(this)
    end subroutine shutDown
@@ -50,8 +44,8 @@ contains
       character(len=ESMF_MAXSTR) :: name
       integer :: status
 
-      f1 = ESMF_FieldCreate(template_field, name='alpha', _RC)
-      f2 = ESMF_FieldCreate(template_field, name='beta',  _RC)
+      f1 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='alpha', _RC)
+      f2 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='beta', _RC)
       bundle = ESMF_FieldBundleCreate(fieldList=[f1, f2], _RC)
 
       call FieldBundleGetByIndex(bundle, 1, retrieved, rc=status)
@@ -74,9 +68,9 @@ contains
       character(len=ESMF_MAXSTR) :: name
       integer :: status
 
-      f1 = ESMF_FieldCreate(template_field, name='one',   _RC)
-      f2 = ESMF_FieldCreate(template_field, name='two',   _RC)
-      f3 = ESMF_FieldCreate(template_field, name='three', _RC)
+      f1 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='one', _RC)
+      f2 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='two', _RC)
+      f3 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='three', _RC)
       bundle = ESMF_FieldBundleCreate(fieldList=[f1, f2, f3], _RC)
 
       call FieldBundleGetByIndex(bundle, 2, retrieved, rc=status)
@@ -101,9 +95,9 @@ contains
       integer :: status
 
       ! Add in reverse-alphabetical order: z, a, m
-      fz = ESMF_FieldCreate(template_field, name='zebra',  _RC)
-      fa = ESMF_FieldCreate(template_field, name='alpha',  _RC)
-      fm = ESMF_FieldCreate(template_field, name='middle', _RC)
+      fz = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='zebra', _RC)
+      fa = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='alpha', _RC)
+      fm = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='middle', _RC)
       bundle = ESMF_FieldBundleCreate(fieldList=[fz, fa, fm], _RC)
 
       call FieldBundleGetByIndex(bundle, 1, retrieved, rc=status)
@@ -131,7 +125,7 @@ contains
       type(ESMF_Field) :: f1, retrieved
       integer :: status
 
-      f1 = ESMF_FieldCreate(template_field, name='solo', _RC)
+      f1 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='solo', _RC)
       bundle = ESMF_FieldBundleCreate(fieldList=[f1], _RC)
 
       call FieldBundleGetByIndex(bundle, 2, retrieved, rc=status)
@@ -157,7 +151,9 @@ contains
 
       expected_names = ['field_1', 'field_2', 'field_3', 'field_4', 'field_5']
       do i = 1, N
-         fields(i) = ESMF_FieldCreate(template_field, name=trim(expected_names(i)), _RC)
+         fields(i) = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, &
+              name=trim(expected_names(i)), rc=status)
+         _VERIFY(status)
       end do
       bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
 
