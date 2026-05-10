@@ -78,7 +78,7 @@
 
    if (present(alloc)) then
       if (alloc .and. (.not. associated(PTR))) then
-         call MAPL_AllocateCoupling(Field, rc=STATUS)
+         call MAPL_FieldEmptyComplete(Field, rc=STATUS)
          _VERIFY(STATUS)
          call ESMF_FieldGet(field, 0, Ptr, rc=status)
          _VERIFY(STATUS)

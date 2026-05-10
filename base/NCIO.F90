@@ -16,6 +16,7 @@ module NCIOMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_CommsMod
+  use mapl3g_Field_API, only: MAPL_FieldEmptyComplete
   use MAPL_SortMod
   use mapl3g_EASEConversion, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
   !use MAPL_RangeMod
@@ -3056,7 +3057,7 @@ contains
          call ESMF_InfoGet(infoh, key='MAPL_RestoreExport', value=restore_export, _RC)
       end if
       if (restore_export) then
-         call MAPL_AllocateCoupling(field, _RC)
+         call MAPL_FieldEmptyComplete(field, _RC)
       end if
 
       call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)

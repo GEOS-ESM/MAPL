@@ -34,6 +34,7 @@ module ESMFL_MOD
   use MAPL_Constants
   use MAPL_BaseMod
   use MAPL_CommsMod
+  use mapl3g_Field_API, only: MAPL_FieldEmptyComplete
   use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
@@ -274,7 +275,7 @@ contains
       NeedNewField = NotInState .or. (NameInState/=NameInBundle)
 
       if (.not. NotInState) then
-         call MAPL_AllocateCoupling(stateField, rc=status)
+         call MAPL_FieldEmptyComplete(stateField, rc=status)
          _VERIFY(STATUS)
       end if
 
