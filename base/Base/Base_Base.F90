@@ -333,22 +333,6 @@ module MAPL_Base
         integer, optional,         intent(  out) :: rc
       end subroutine MAPL_FieldSplit
 
-      ! Private helpers retained for SimpleBundleMod (see issue #4809)
-      module subroutine MAPL_FieldBundleDestroy(Bundle, NoGarbage, RC)
-        use ESMF, only: ESMF_FieldBundle
-        type(ESMF_FieldBundle), intent(INOUT) :: Bundle
-        logical, optional,      intent(IN   ) :: NoGarbage
-        integer, optional,      intent(  OUT) :: RC
-      end subroutine MAPL_FieldBundleDestroy
-
-      module subroutine MAPL_FieldBundleGetByIndex(Bundle, fieldIndex, Field, RC)
-        use ESMF, only: ESMF_FieldBundle, ESMF_Field
-        type(ESMF_FieldBundle), intent(INout) :: Bundle
-        integer,                intent(in   ) :: fieldIndex
-        type(ESMF_Field),       intent(INout) :: Field
-        integer, optional,      intent(  out) :: rc
-       end subroutine MAPL_FieldBundleGetByIndex
-
        module function MAPL_StrUpCase(str) result(new)
          character(len=*), intent(IN) :: str
          character(len=len(str))      :: new
@@ -360,17 +344,6 @@ module MAPL_Base
        end function MAPL_StrDnCase
 
    end interface
-
-   ! Retained for SimpleBundleMod pending migration to base3g (issue #4809)
-   public :: MAPL_FieldBundleGet
-   public :: MAPL_FieldBundleDestroy
-   public :: MAPL_BundleItemOrderList
-
-   character(len=*), parameter :: MAPL_BundleItemOrderList = 'MAPL_BundleItemOrderList'
-
-   interface MAPL_FieldBundleGet
-      module procedure MAPL_FieldBundleGetByIndex
-   end interface MAPL_FieldBundleGet
 
 contains
 

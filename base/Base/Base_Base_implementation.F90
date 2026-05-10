@@ -1753,60 +1753,6 @@ contains
    end subroutine MAPL_FieldBundleAddField
 
 !-----------------------------------------------------------------------
-! Private helpers retained for SimpleBundleMod pending migration (issue #4809)
-!-----------------------------------------------------------------------
-
-  module subroutine MAPL_FieldBundleDestroy(Bundle, NoGarbage, RC)
-    type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
-    logical, optional,         intent(IN   ) :: NoGarbage
-    integer, optional,         intent(OUT  ) :: RC
-
-    integer                               :: I
-    integer                               :: FieldCount
-    type(ESMF_Field)                      :: Field
-    logical                               :: isCreated
-
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_FieldBundleDestroy"
-    integer                               :: STATUS
-
-    isCreated = ESMF_FieldBundleIsCreated(bundle,_RC)
-    if(isCreated) then
-       call ESMF_FieldBundleGet(BUNDLE, FieldCount=FIELDCOUNT, _RC)
-       do I = 1, FIELDCOUNT
-          call ESMF_FieldBundleGet(BUNDLE, I, FIELD, _RC)
-          call MAPL_FieldDestroy(FIELD, _RC)
-       end do
-       call ESMF_FieldBundleDestroy(bundle, NoGarbage=NoGarbage, _RC)
-    end if
-    _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_FieldBundleDestroy
-
-  module subroutine MAPL_FieldBundleGetByIndex(Bundle, fieldIndex, Field, RC)
-    type(ESMF_FieldBundle),  intent(INout) :: Bundle
-    integer,                 intent(in   ) :: fieldIndex
-    type(ESMF_Field),        intent(INout) :: Field
-    integer, optional,       intent(  out) :: rc
-
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_FieldBundleGetByIndex"
-    integer                               :: STATUS
-
-    character(len=ESMF_MAXSTR), parameter   :: attrName = MAPL_BundleItemOrderList
-    character(len=ESMF_MAXSTR)              :: name
-    character(len=ESMF_MAXSTR), allocatable :: currList(:)
-    integer                                 :: natt
-    type(ESMF_Info)                         :: infoh
-
-    call ESMF_InfoGetFromHost(Bundle, infoh, _RC)
-    call ESMF_InfoGet(infoh, key=attrName, size=natt, _RC)
-    allocate(currList(natt), stat=status)
-    call ESMF_InfoGet(infoh, key=attrName, values=currList, _RC)
-    name = currList(fieldIndex)
-    call ESMF_FieldBundleGet(Bundle, fieldName=name, field=field, _RC)
-    deallocate(currList)
-    _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_FieldBundleGetByIndex
-
-!-----------------------------------------------------------------------
 !>
 ! `MAPL_GetHorzIJIndex` -- Get indexes on destributed ESMF grid for an arbitary lat and lon
 !
