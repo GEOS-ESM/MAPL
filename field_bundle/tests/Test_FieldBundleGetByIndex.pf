@@ -1,4 +1,4 @@
-#include "MAPL.h"
+#include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
 module Test_FieldBundleGetByIndex
@@ -20,8 +20,7 @@ contains
       integer, parameter :: MAX_INDEX(2) = [4, 4]
       integer, parameter :: REG_DECOMP(2) = [1, 1]
 
-      test_grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, rc=status)
-      _VERIFY(status)
+      test_grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
 
       _UNUSED_DUMMY(this)
    end subroutine setUp
@@ -31,8 +30,7 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
       integer :: status
 
-      call ESMF_GridDestroy(test_grid, rc=status)
-      _VERIFY(status)
+      call ESMF_GridDestroy(test_grid, _RC)
 
       _UNUSED_DUMMY(this)
    end subroutine shutDown
@@ -46,25 +44,18 @@ contains
       character(len=ESMF_MAXSTR) :: name
       integer :: status
 
-      f1 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='alpha', rc=status)
-      _VERIFY(status)
-      f2 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='beta', rc=status)
-      _VERIFY(status)
-      bundle = ESMF_FieldBundleCreate(fieldList=[f1, f2], rc=status)
-      _VERIFY(status)
+      f1 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='alpha', _RC)
+      f2 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='beta', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[f1, f2], _RC)
 
       call FieldBundleGetByIndex(bundle, 1, retrieved, rc=status)
       @assertEqual(_SUCCESS, status, 'FieldBundleGetByIndex(1) failed')
-      call ESMF_FieldGet(retrieved, name=name, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldGet(retrieved, name=name, _RC)
       @assertEqual('alpha', trim(name), 'Index 1 should return first field added')
 
-      call ESMF_FieldDestroy(f1, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldDestroy(f2, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldBundleDestroy(bundle, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldDestroy(f1, _RC)
+      call ESMF_FieldDestroy(f2, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_get_first_field
 
@@ -77,29 +68,20 @@ contains
       character(len=ESMF_MAXSTR) :: name
       integer :: status
 
-      f1 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='one', rc=status)
-      _VERIFY(status)
-      f2 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='two', rc=status)
-      _VERIFY(status)
-      f3 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='three', rc=status)
-      _VERIFY(status)
-      bundle = ESMF_FieldBundleCreate(fieldList=[f1, f2, f3], rc=status)
-      _VERIFY(status)
+      f1 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='one', _RC)
+      f2 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='two', _RC)
+      f3 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='three', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[f1, f2, f3], _RC)
 
       call FieldBundleGetByIndex(bundle, 2, retrieved, rc=status)
       @assertEqual(_SUCCESS, status, 'FieldBundleGetByIndex(2) failed')
-      call ESMF_FieldGet(retrieved, name=name, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldGet(retrieved, name=name, _RC)
       @assertEqual('two', trim(name), 'Index 2 should return second field added')
 
-      call ESMF_FieldDestroy(f1, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldDestroy(f2, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldDestroy(f3, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldBundleDestroy(bundle, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldDestroy(f1, _RC)
+      call ESMF_FieldDestroy(f2, _RC)
+      call ESMF_FieldDestroy(f3, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_get_second_field
 
@@ -113,35 +95,25 @@ contains
       integer :: status
 
       ! Add in reverse-alphabetical order: z, a, m
-      fz = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='zebra', rc=status)
-      _VERIFY(status)
-      fa = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='alpha', rc=status)
-      _VERIFY(status)
-      fm = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='middle', rc=status)
-      _VERIFY(status)
-      bundle = ESMF_FieldBundleCreate(fieldList=[fz, fa, fm], rc=status)
-      _VERIFY(status)
+      fz = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='zebra', _RC)
+      fa = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='alpha', _RC)
+      fm = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='middle', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[fz, fa, fm], _RC)
 
       call FieldBundleGetByIndex(bundle, 1, retrieved, rc=status)
       @assertEqual(_SUCCESS, status)
-      call ESMF_FieldGet(retrieved, name=name, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldGet(retrieved, name=name, _RC)
       @assertEqual('zebra', trim(name), 'Index 1 should be first field added (zebra)')
 
       call FieldBundleGetByIndex(bundle, 3, retrieved, rc=status)
       @assertEqual(_SUCCESS, status)
-      call ESMF_FieldGet(retrieved, name=name, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldGet(retrieved, name=name, _RC)
       @assertEqual('middle', trim(name), 'Index 3 should be third field added (middle)')
 
-      call ESMF_FieldDestroy(fz, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldDestroy(fa, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldDestroy(fm, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldBundleDestroy(bundle, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldDestroy(fz, _RC)
+      call ESMF_FieldDestroy(fa, _RC)
+      call ESMF_FieldDestroy(fm, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_add_order_preserved
 
@@ -153,10 +125,8 @@ contains
       type(ESMF_Field) :: f1, retrieved
       integer :: status
 
-      f1 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='solo', rc=status)
-      _VERIFY(status)
-      bundle = ESMF_FieldBundleCreate(fieldList=[f1], rc=status)
-      _VERIFY(status)
+      f1 = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, name='solo', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[f1], _RC)
 
       call FieldBundleGetByIndex(bundle, 2, retrieved, rc=status)
       @assertFalse(status == _SUCCESS, 'Index beyond fieldCount should fail')
@@ -164,10 +134,8 @@ contains
       call FieldBundleGetByIndex(bundle, 0, retrieved, rc=status)
       @assertFalse(status == _SUCCESS, 'Index 0 should fail')
 
-      call ESMF_FieldDestroy(f1, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldBundleDestroy(bundle, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldDestroy(f1, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_out_of_range_index
 
@@ -184,26 +152,21 @@ contains
       expected_names = ['field_1', 'field_2', 'field_3', 'field_4', 'field_5']
       do i = 1, N
          fields(i) = ESMF_FieldCreate(grid=test_grid, typekind=ESMF_TYPEKIND_R4, &
-              name=trim(expected_names(i)), rc=status)
-         _VERIFY(status)
+              name=trim(expected_names(i)), _RC)
       end do
-      bundle = ESMF_FieldBundleCreate(fieldList=fields, rc=status)
-      _VERIFY(status)
+      bundle = ESMF_FieldBundleCreate(fieldList=fields, _RC)
 
       do i = 1, N
          call FieldBundleGetByIndex(bundle, i, retrieved, rc=status)
          @assertEqual(_SUCCESS, status, 'FieldBundleGetByIndex failed for index '//trim(expected_names(i)))
-         call ESMF_FieldGet(retrieved, name=name, rc=status)
-         _VERIFY(status)
+         call ESMF_FieldGet(retrieved, name=name, _RC)
          @assertEqual(trim(expected_names(i)), trim(name), 'Wrong field at index')
       end do
 
       do i = 1, N
-         call ESMF_FieldDestroy(fields(i), rc=status)
-         _VERIFY(status)
+         call ESMF_FieldDestroy(fields(i), _RC)
       end do
-      call ESMF_FieldBundleDestroy(bundle, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_iterate_all_fields
 
