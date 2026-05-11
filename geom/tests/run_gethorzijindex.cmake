@@ -2,7 +2,7 @@ macro(run_case CASE)
     string(RANDOM LENGTH 24 tempdir)
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E make_directory ${tempdir}
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/test_cases/${CASE} ${tempdir}
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${TEST_CASES_DIR}/${CASE} ${tempdir}
       )
     if ("${CASE}" STREQUAL "OMP_4_thread")
        set(ENV{OMP_NUM_THREADS} "4")

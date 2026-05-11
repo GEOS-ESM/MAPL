@@ -4,7 +4,7 @@
 
 program driver_GetHorzIJIndex
    use MAPL2
-   use GridComp, only: SetServices
+   use GetHorzIJIndexGridComp, only: SetServices
    implicit none
 
    type (MAPL_Cap) :: cap
