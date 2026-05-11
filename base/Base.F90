@@ -5,9 +5,6 @@ module MAPLBase_Mod
   use ESMFL_Mod         !  Stopgap
   use MAPL_ExceptionHandling
   use MAPL_BaseMod
-  use MAPL_BaseMod, only: MAPL_GRID_INTERIOR
-! For temporary backward compatibility after moving/renaming:
-  use MAPL_BaseMod, only: ESMF_GRID_INTERIOR => MAPL_GRID_INTERIOR
    use NCIOMod
   use MAPL_LocStreamMod
   use MAPL_ShmemMod

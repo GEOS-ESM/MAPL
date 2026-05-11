@@ -14,8 +14,8 @@ set (srcs
   MAPL_NominalOrbitsMod.F90
   ServerManager.F90
   c_mapl_locstream_F.c  getrss.c  memuse.c
-  Base/Base_Base.F90 Base/Base_Base_implementation.F90
   TimeStringConversion.F90
+  Base/Base_Base.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
