@@ -11,8 +11,6 @@ module mapl3g_GridGet
 
    public :: GridGet
    public :: GridGetCoordinates
-   public :: grid_get_interior
-   public :: grid_get_corners
 
    interface GridGet
       procedure :: grid_get
