@@ -2631,7 +2631,12 @@ subroutine MAPL_LocstreamCreateSimple(Locstream, grid, local_id, tilelons, tilel
        
    stream => LocStream%Ptr
    stream%grid      = grid
-   call MAPL_grid_interior(grid, i1, i2, j1, j2)
+    block
+      integer, allocatable :: interior_(:)
+      call geom_GridGet(grid, interior=interior_, rc=status)
+      _VERIFY(status)
+      i1=interior_(1); i2=interior_(2); j1=interior_(3); j2=interior_(4)
+    end block
    _ASSERT( j1 == 1 .and. j2 ==1, "This simple Locstream is for Nx1 grid")
 
    nt_local         = i2 - i1 + 1
