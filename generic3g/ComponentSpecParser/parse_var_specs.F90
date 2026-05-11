@@ -57,7 +57,6 @@ contains
          character(:), allocatable :: standard_name
          character(:), allocatable :: units
          character(:), allocatable :: expression
-         character(len=:), allocatable :: accumulation_type
          type(ESMF_StateItem_Flag) :: itemtype
          type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
@@ -67,7 +66,6 @@ contains
          logical :: has_standard_name
          logical :: has_units
          logical :: has_expression
-         logical :: has_accumulation_type
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
          type(StringVector) :: vector_component_names
@@ -112,11 +110,6 @@ contains
                expression = ESMF_HConfigAsString(attributes,keyString='expression', _RC)
             end if
 
-            has_accumulation_type = ESMF_HConfigIsDefined(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
-            if(has_accumulation_type) then
-               accumulation_type = ESMF_HConfigAsString(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
-            end if
-
             vector_component_names = get_vector_component_names(attributes, _RC)
 
             itemtype = to_itemtype(attributes, _RC)
@@ -149,14 +142,12 @@ contains
                  expression=expression, &
                  geom=geom, &
                  vertical_grid=vertical_grid, &
-                 accumulation_type=accumulation_type, &
                  timeStep=timeStep, &
                  vector_component_names=vector_component_names, &
                  offset=offset, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
-            if (allocated(accumulation_type)) deallocate(accumulation_type)
             call var_specs%push_back(var_spec)
 
             call ESMF_HConfigDestroy(attributes, _RC)

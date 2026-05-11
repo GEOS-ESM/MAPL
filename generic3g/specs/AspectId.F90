@@ -15,7 +15,6 @@ module mapl3g_AspectId
    public :: ATTRIBUTES_ASPECT_ID
    public :: UNGRIDDED_DIMS_ASPECT_ID
    public :: VERTICAL_GRID_ASPECT_ID
-   public :: FREQUENCY_ASPECT_ID
    public :: TYPEKIND_ASPECT_ID
    public :: QUANTITY_TYPE_ASPECT_ID
    public :: CONSERVATION_ASPECT_ID
@@ -37,7 +36,6 @@ module mapl3g_AspectId
    type(AspectId), parameter :: ATTRIBUTES_ASPECT_ID = AspectId(4)
    type(AspectId), parameter :: UNGRIDDED_DIMS_ASPECT_ID = AspectId(5)
    type(AspectId), parameter :: VERTICAL_GRID_ASPECT_ID = AspectId(6)
-   type(AspectId), parameter :: FREQUENCY_ASPECT_ID = AspectId(7)
    type(AspectId), parameter :: TYPEKIND_ASPECT_ID = AspectId(8)
    type(AspectId), parameter :: QUANTITY_TYPE_ASPECT_ID = AspectId(9)
    type(AspectId), parameter :: CONSERVATION_ASPECT_ID = AspectId(10)
@@ -79,8 +77,6 @@ contains
          s = "UNGRIDDED_DIMS"
       case (VERTICAL_GRID_ASPECT_ID%id)
          s = "VERTICAL_GRID"
-      case (FREQUENCY_ASPECT_ID%id)
-         s = "FREQUENCY"
       case (TYPEKIND_ASPECT_ID%id)
          s = "TYPEKIND"
       case (QUANTITY_TYPE_ASPECT_ID%id)

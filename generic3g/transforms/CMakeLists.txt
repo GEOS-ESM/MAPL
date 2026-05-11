@@ -13,11 +13,6 @@ target_sources(MAPL.generic3g PRIVATE
   NormalizationTransform.F90
 
   TimeInterpolateTransform.F90
-  AccumulatorTransform.F90
-  MeanTransform.F90
-  MaxTransform.F90
-  MinTransform.F90
-  AccumulatorTransformInterface.F90
 
   EvalTransform.F90
   ExtensionTransformUtils.F90

@@ -22,7 +22,6 @@ configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
 # they can conflict during parallel builds
 add_library(MAPL.generic3g.test_common SHARED
   MockUserGridComp.F90
-  accumulator_transform_test_common.F90
   MockAspect.F90
 )
 target_link_libraries(MAPL.generic3g.test_common PUBLIC MAPL.generic3g MAPL.shared MAPL.pfunit)
@@ -51,10 +50,6 @@ add_dependencies(MAPL.generic3g.scenarios proto_extdata_gc proto_stat_gc copy_sc
 
 # 2. MAPL.generic3g.transforms - Data transformation tests
 set(transforms_test_srcs
-  Test_AccumulatorTransform.pf
-  Test_MeanTransform.pf
-  Test_MaxTransform.pf
-  Test_MinTransform.pf
   Test_TimeInterpolateTransform.pf
   Test_ConvertUnitsTransform.pf
   Test_CopyTransform.pf

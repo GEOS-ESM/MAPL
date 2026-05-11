@@ -23,7 +23,6 @@ module mapl3g_VariableSpec
    use mapl3g_VerticalGridAspect
    use mapl3g_VerticalAlignment
    use mapl3g_VerticalRegridMethod
-   use mapl3g_FrequencyAspect
    use mapl3g_TypekindAspect
    use mapl3g_QuantityTypeAspect
    use mapl3g_ConservationAspect
@@ -129,7 +128,6 @@ module mapl3g_VariableSpec
       ! frequency aspect
       !=====================
       ! TODO: Should be an enum
-      character(:), allocatable :: accumulation_type
       type(ESMF_TimeInterval), allocatable :: timeStep
       type(ESMF_TimeInterval), allocatable :: offset
 
@@ -164,7 +162,6 @@ module mapl3g_VariableSpec
       procedure :: make_ConservationAspect
       procedure :: make_NormalizationAspect
       procedure :: make_VerticalGridAspect
-      procedure :: make_FrequencyAspect
       procedure :: make_ClassAspect
    end type VariableSpec
 
@@ -190,7 +187,6 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
-        accumulation_type, &
         timeStep, &
         offset, &
         vector_component_names, &
@@ -223,7 +219,6 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
-      character(len=*), optional, intent(in) :: accumulation_type
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
@@ -263,7 +258,6 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
-      _SET_OPTIONAL(accumulation_type)
       _SET_OPTIONAL(timeStep)
       _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
@@ -458,8 +452,6 @@ contains
          call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, aspect)
       type is (VerticalGridAspect)
          call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
-      type is (FrequencyAspect)
-         call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
       type is (TypekindAspect)
          call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
       type is (QuantityTypeAspect)
@@ -539,9 +531,6 @@ contains
       aspect = this%make_VerticalGridAspect(vertical_grid, &
            component_geom=component_geom, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
-
-      aspect = this%make_FrequencyAspect(timestep, offset, _RC)
-      call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
 
       aspect = this%make_ClassAspect(registry, _RC)
       call aspects%insert(CLASS_ASPECT_ID, aspect)
@@ -668,17 +657,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(time_dependent)
    end function make_VerticalGridAspect
-
-   function make_FrequencyAspect(this, timestep, offset, rc) result(aspect)
-      type(FrequencyAspect) :: aspect
-      class(VariableSpec), intent(in) :: this
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
-      integer, optional, intent(out) :: rc
-
-      aspect = FrequencyAspect(timestep, offset, this%accumulation_type)
-      _RETURN(_SUCCESS)
-   end function make_FrequencyAspect
 
    function make_ClassAspect(this, registry, rc) result(aspect)
       class(ClassAspect), allocatable :: aspect

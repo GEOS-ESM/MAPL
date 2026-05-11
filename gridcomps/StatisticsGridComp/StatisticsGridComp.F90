@@ -262,6 +262,7 @@ contains
            _RETURN(_SUCCESS)
         end function make_max_stat
 
+
        function make_alarm(clock, iter, rc) result(alarm)
            type(SimpleAlarm) :: alarm
            type(esmf_Clock), intent(in) :: clock
