@@ -18,7 +18,8 @@
 module FileIOSharedMod
 
   use ESMF
-  use mapl_MaplGrid, only: MAPL_DistGridGet_impl => MAPL_DistGridGet, MAPL_GridHasDE
+  use mapl3g_DistGridGet, only: MAPL_DistGridGet_impl => DistGridGet
+  use mapl3g_GridGet, only: GridGet
   use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
   use MAPL_SortMod
   use MAPL_CommsMod
@@ -317,8 +318,7 @@ module FileIOSharedMod
     gcount(1:min(2,size(global_dims))) = global_dims(1:min(2,size(global_dims)))
 
     lcount = 1
-    hasDE = MAPL_GridHasDE(grid, rc=status)
-    _VERIFY(status)
+    call GridGet(grid, has_de=hasDE, _RC)
     if (hasDE) then
        call ESMF_GridGet(grid, localDE=0, staggerloc=ESMF_STAGGERLOC_CENTER, &
             exclusiveCount=lcount, _RC)
@@ -352,7 +352,7 @@ module FileIOSharedMod
     allocate (AU(gridRank,0:nDEs-1),  _STAT)
 
     call MAPL_DistGridGet_impl(distgrid, &
-         minIndex=AL, maxIndex=AU, _RC)
+         min_index=AL, max_index=AU, _RC)
 
     allocate (recvcounts(0:nDEs-1), displs(0:nDEs), _STAT)
 
@@ -786,7 +786,7 @@ module FileIOSharedMod
     allocate (sendcounts(0:nDEs-1), stat=status)
     _VERIFY(STATUS)
      call MAPL_DistGridGet_impl(distgrid, &
-          minIndex=AL, maxIndex=AU, rc=status)
+          min_index=AL, max_index=AU, rc=status)
     _VERIFY(STATUS)
 
     ISZ = size(GLOBAL_ARRAY,1)
