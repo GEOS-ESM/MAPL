@@ -30,18 +30,6 @@ module mapl3g_GridGet
          integer, optional, intent(out) :: rc
       end subroutine grid_get_centers
 
-      module subroutine grid_get_corners(grid, corners, rc)
-         type(ESMF_Grid), intent(in) :: grid
-         real(kind=ESMF_KIND_R8), allocatable, intent(out) :: corners(:, :, :)
-         integer, optional, intent(out) :: rc
-      end subroutine grid_get_corners
-
-      module subroutine grid_get_interior(grid, interior, rc)
-         type(ESMF_Grid), intent(in) :: grid
-         integer, allocatable, intent(out) :: interior(:)
-         integer, optional, intent(out) :: rc
-      end subroutine grid_get_interior
-
    end interface
 
 contains
@@ -86,14 +74,6 @@ contains
 
       if (present(centers)) then
          call grid_get_centers(grid, centers, _RC)
-      end if
-
-      if (present(corners)) then
-         call grid_get_corners(grid, corners, _RC)
-      end if
-
-      if (present(interior)) then
-         call grid_get_interior(grid, interior, _RC)
       end if
 
       _RETURN(_SUCCESS)
