@@ -17,63 +17,55 @@
 !
 module MAPL_Base
 
-  ! !USES:
-  !
-  use ESMF, only: ESMF_MAXSTR
   use MAPL_Constants, only: MAPL_UNDEF
+  use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit NONE
   private
 
   public :: MAPL_UNDEF
+  public :: MAPL_GRID_INTERIOR
+  public :: MAPL_GridGetInterior
+  public :: MAPL_GridGetCorners
 
-  ! !PUBLIC MEMBER FUNCTIONS:
-  !
-   public MAPL_GRID_INTERIOR
-   public MAPL_GridGetCorners
-   public MAPL_GridGetInterior
-
-
-  !----------------------------------------------------------------------
-
-  ! Note: The routine below came from ESMFL; it has been moved here to
-  !       avoid circular dependencies (Arlindo).
-  interface  MAPL_GridGetInterior
-    module procedure MAPL_Grid_Interior
-  end interface 
-
-
-  interface
-     module subroutine MAPL_GRID_INTERIOR(GRID,I1,IN,J1,JN)
-       use ESMF, only: ESMF_Grid
-       type (ESMF_Grid), intent(IN) :: grid
-       integer, intent(OUT)         :: I1, IN, J1, JN
-     end subroutine MAPL_GRID_INTERIOR
-
-     module subroutine MAPL_GridGetCorners(grid,gridCornerLons, gridCornerLats, RC)
-       use ESMF, only: ESMF_Grid, ESMF_KIND_R8
-       type (ESMF_Grid), intent(INOUT) :: GRID
-       real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLons(:,:)
-       real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLats(:,:)
-       integer, optional, intent(  OUT) :: RC
-
-     end subroutine MAPL_GridGetCorners
-
-   end interface
+  interface MAPL_GridGetInterior
+    module procedure MAPL_GRID_INTERIOR
+  end interface
 
 contains
+
+  subroutine MAPL_GRID_INTERIOR(grid, i1, in, j1, jn)
+    use ESMF, only: ESMF_Grid
+    use mapl3g_GridGet, only: grid_get_interior
+    type(ESMF_Grid), intent(in) :: grid
+    integer, intent(out) :: i1, in, j1, jn
+    integer, allocatable :: interior(:)
+    call grid_get_interior(grid, interior)
+    i1=interior(1); in=interior(2); j1=interior(3); jn=interior(4)
+  end subroutine MAPL_GRID_INTERIOR
+
+  subroutine MAPL_GridGetCorners(grid, gridCornerLons, gridCornerLats, rc)
+    use ESMF, only: ESMF_Grid, ESMF_KIND_R8
+    use mapl3g_GridGet, only: grid_get_corners
+    type(ESMF_Grid), intent(inout) :: grid
+    real(ESMF_KIND_R8), intent(inout) :: gridCornerLons(:,:)
+    real(ESMF_KIND_R8), intent(inout) :: gridCornerLats(:,:)
+    integer, optional, intent(out) :: rc
+    integer :: status
+    real(ESMF_KIND_R8), allocatable :: corners(:,:,:)
+    call grid_get_corners(grid, corners, rc=status)
+    _VERIFY(status)
+    gridCornerLons = corners(:,:,1)
+    gridCornerLats = corners(:,:,2)
+    _RETURN(_SUCCESS)
+  end subroutine MAPL_GridGetCorners
 
 end module MAPL_Base
 
 module MAPL_BaseMod
   use MAPL_Base
-  use MAPL_RangeMod, only:   MAPL_Range
+  use MAPL_RangeMod, only: MAPL_Range
   use mapl_MaplGrid, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use MAPL_Constants
 
-
-
-
 end module MAPL_BaseMod
-
-

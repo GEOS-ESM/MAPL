@@ -26,6 +26,7 @@ use ESMF
 use ESMFL_Mod
 use MAPL_BaseMod
 use MAPL_Constants
+use mapl3g_GridGet, only: grid_get_interior
 use NCIOMod, only: MAPL_ReadTilingNC4
 use MAPL_CommsMod
 use MAPL_HashMod
@@ -480,9 +481,14 @@ contains
        if (present(GRID)) then
           allocate(ISMINE(STREAM%NT_GLOBAL), STAT=STATUS)
           _VERIFY(STATUS)
-          ISMINE = .false.
-          call MAPL_GRID_INTERIOR  (GRID, I1,IN,J1,JN)
-          call ESMF_GridGet(grid, name=gname, rc=status)
+           ISMINE = .false.
+           block
+             integer, allocatable :: interior_(:)
+             call grid_get_interior(GRID, interior_, rc=status)
+             _VERIFY(STATUS)
+             I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
+           end block
+           call ESMF_GridGet(grid, name=gname, rc=status)
           _VERIFY(STATUS)
           read_always = .false.
        else
@@ -690,9 +696,14 @@ contains
           call ESMFL_Halo(grid, hlons, rc=status)
           _VERIFY(STATUS)
 #else
-          call MAPL_GRID_INTERIOR  (GRID, I1,IN,J1,JN)
+          block
+            integer, allocatable :: interior_(:)
+            call grid_get_interior(GRID, interior_, rc=status)
+            _VERIFY(STATUS)
+            I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
+          end block
 #endif
-          do I = 1, size(STREAM%LOCAL_IndexLocation)
+           do I = 1, size(STREAM%LOCAL_IndexLocation)
 #ifdef NEW_INTERP_CODE
              lon  = STREAM%LOCAL_GeoLocation(I)%X
              lat  = STREAM%LOCAL_GeoLocation(I)%Y
@@ -1171,7 +1182,12 @@ contains
 ! Find out which tiles are in local PE
 !-------------------------------------
 
-    call MAPL_GRID_INTERIOR  (GRID, I1,IN,J1,JN)
+    block
+      integer, allocatable :: interior_(:)
+      call grid_get_interior(GRID, interior_, rc=status)
+      _VERIFY(STATUS)
+      I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
+    end block
 
 ! Local location uses local indexing
 !-----------------------------------
@@ -1490,7 +1506,12 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
 ! that's the size of the output array
 !------------------------------------
 
-  call MAPL_GRID_INTERIOR  (LocStream%Ptr%GRID, I1,IN,J1,JN)
+  block
+    integer, allocatable :: interior_(:)
+    call grid_get_interior(LocStream%Ptr%GRID, interior_, rc=status)
+    _VERIFY(STATUS)
+    I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
+  end block
 
   _ASSERT(IN-I1+1==size(OUTPUT,1),'needs informative message')
   _ASSERT(JN-J1+1==size(OUTPUT,2),'needs informative message')
@@ -1706,7 +1727,12 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 ! that's the size of the output array
 !------------------------------------
 
-     call MAPL_GRID_INTERIOR  (LocStream%Ptr%GRID, I1,IN,J1,JN)
+     block
+       integer, allocatable :: interior_(:)
+       call grid_get_interior(LocStream%Ptr%GRID, interior_, rc=status)
+       _VERIFY(STATUS)
+       I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
+     end block
 
      _ASSERT(IN-I1+1==IM,'needs informative message')
      _ASSERT(JN-J1+1==JM,'needs informative message')
