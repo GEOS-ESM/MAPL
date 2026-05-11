@@ -26,7 +26,6 @@ module NCIOMod
   use netcdf
   use pFIO
   use MAPL_Constants
-  !use pFIO_ClientManagerMod
   use gFTL2_StringIntegerMap
   use gFTL2_StringVector
   use, intrinsic :: ISO_C_BINDING
@@ -289,13 +288,12 @@ contains
 ! Write routines
 !---------------------------
 
-  subroutine MAPL_FieldWriteNCPar(formatter, name, FIELD, ARRDES, HomePE, oClients, RC)
+  subroutine MAPL_FieldWriteNCPar(formatter, name, FIELD, ARRDES, HomePE, RC)
     type(Netcdf4_fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     type (ESMF_Field)           , intent(INOUT) :: field  !ALT: intent(in)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     integer, target,   optional , intent(IN   ) :: HomePE(:)
-    type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
 ! Local vars
@@ -327,10 +325,7 @@ contains
     integer, pointer                   :: mask(:)
     integer                            :: J,K
     type (ESMF_DistGrid)               :: distGrid
-    type (LocalMemReference) :: lMemRef
-    type (LocalMemReference), allocatable :: lMemRef_vec(:)
     integer :: size_1d
-    logical :: have_oclients
     character(len=:), allocatable :: fname_by_writer
     type (ESMF_Info)                   :: infoh
 
@@ -341,7 +336,6 @@ contains
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
     _VERIFY(STATUS)
 
-    have_oclients = present(oClients)
 
 
     call ESMF_InfoGetFromHost(field,infoh,rc=status)
@@ -377,38 +371,6 @@ contains
                 size_1d = size(var_1d,1)
              endif
 
-             if (have_oclients) then
-                if( MAPL_AM_I_ROOT())  then
-                   lMemRef = LocalMemReference(pFIO_REAL32,[size_1d])
-                   call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[size_1d])
-                   if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) gvar_1d = var_1d
-                else
-                   lMemRef = LocalMemReference(pFIO_REAL32,[0])
-                   call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[0])
-                endif
-                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                   call ArrayGather(var_1d, gvar_1d, grid, mask=mask, rc=status)
-                endif
-                if (dims == MAPL_DimsVertOnly .and. arrdes%split_checkpoint) then
-                   allocate(lMemRef_vec(arrdes%num_writers))
-                   do j=1,arrdes%num_writers
-                      fname_by_writer = get_fname_by_rank(trim(arrdes%filename),j-1)
-                      if (mapl_am_i_root()) then
-                         lMemRef_vec(j) = LocalMemReference(pFIO_REAL32,[size_1d])
-                         call c_f_pointer(lMemRef_vec(j)%base_address, gvar_1d, shape=[size_1d])
-                         gvar_1d = var_1d
-                      else
-                         lMemRef_vec(j) = LocalMemReference(pFIO_REAL32,[0])
-                         call c_f_pointer(lMemRef_vec(j)%base_address, gvar_1d, shape=[0])
-                      end if
-                      call oClients%collective_stage_data(arrdes%collection_id(j), trim(fname_by_writer), name, lMemRef_vec(j), start=[1], &
-                                   global_start=[1], global_count=[size_1d])
-                   enddo
-                else
-                   call oClients%collective_stage_data(arrdes%collection_id(1), trim(arrdes%filename), name, lMemRef, start=[1], &
-                                global_start=[1], global_count=[size_1d])
-                end if
-             else
 
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
@@ -418,8 +380,7 @@ contains
                    _RETURN(ESMF_FAILURE)
                 end if
 
-             endif
-          else
+           else
              _FAIL( "Cannot write unassociated var-1d")
           end if
        else
@@ -433,40 +394,6 @@ contains
                 size_1d = size(vr8_1d,1)
              endif
 
-             if (have_oclients) then
-                if(MAPL_AM_I_ROOT()) then
-                   lMemRef = LocalMemReference(pFIO_REAL64,[size_1d])
-                   call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[size_1d])
-                   if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) gvr8_1d = vr8_1d
-                else
-                   lMemRef = LocalMemReference(pFIO_REAL64,[0])
-                   call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[0])
-                endif
-
-                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                   call ArrayGather(vr8_1d, gvr8_1d, grid, mask=mask, rc=status)
-                endif
-                if (dims == MAPL_DimsVertOnly .and. arrdes%split_checkpoint) then
-                   allocate(lMemRef_vec(arrdes%num_writers))
-                   do j=1,arrdes%num_writers
-                      fname_by_writer = get_fname_by_rank(trim(arrdes%filename),j-1)
-                      if (mapl_am_i_root()) then
-                         lMemRef_vec(j) = LocalMemReference(pFIO_REAL64,[size_1d])
-                         call c_f_pointer(lMemRef_vec(j)%base_address, gvr8_1d, shape=[size_1d])
-                         gvr8_1d = vr8_1d
-                      else
-                         lMemRef_vec(j) = LocalMemReference(pFIO_REAL64,[0])
-                         call c_f_pointer(lMemRef_vec(j)%base_address, gvr8_1d, shape=[0])
-                      end if
-                      call oClients%collective_stage_data(arrdes%collection_id(j), trim(fname_by_writer), name, lMemRef_vec(j), start=[1], &
-                                   global_start=[1], global_count=[size_1d])
-                   enddo
-                else
-                   call oClients%collective_stage_data(arrdes%collection_id(1), trim(arrdes%filename), name, lMemRef, start=[1], &
-                                global_start=[1], global_count=[size_1d])
-                end if
-
-             else
 
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
@@ -476,8 +403,7 @@ contains
                    _RETURN(ESMF_FAILURE)
                 end if
 
-             endif
-          else
+           else
              _FAIL( "Cannot write unassociated var8-1d")
           end if
        endif
@@ -488,30 +414,14 @@ contains
           if (associated(var_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
 
-                if (have_oclients) then
-                   if(MAPL_AM_I_ROOT()) then
-                      lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_2d,2)])
-                      call c_f_pointer(lMemRef%base_address, gvar_2d, shape=[arrdes%im_world, size(var_2d,2)])
-                   else
-                      lMemRef = LocalMemReference(pFIO_REAL32,[0,size(var_2d,2)])
-                      call c_f_pointer(lMemRef%base_address, gvar_2d, shape=[0, size(var_2d,2)])
-                   endif
-                   do J = 1,size(var_2d,2)
-                      call ArrayGather(var_2d(:,J), gvar_2d(:,J), grid, mask=mask, rc=status)
-                   enddo
-                   call oClients%collective_stage_data(arrdes%collection_id(1), trim(arrdes%filename), name, lMemRef, start=[1,1], &
-                                global_start=[1,1], global_count=[arrdes%im_world,size(var_2d,2)])
-
-                else
 
                    do J = 1,size(var_2d,2)
                       call MAPL_VarWrite(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                    end do
 
-                endif
 
              else
-               call MAPL_VarWrite(formatter, name, var_2d, arrdes=arrdes, oClients=oClients, rc=status)
+               call MAPL_VarWrite(formatter, name, var_2d, arrdes=arrdes, rc=status)
              endif ! dims
           else
              _FAIL( "Cannot write unassociated var-2d")
@@ -522,29 +432,14 @@ contains
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
 
-                if (have_oclients) then
-                   if( MAPL_AM_I_ROOT() ) then
-                      lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
-                      call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[arrdes%im_world,size(vr8_2d,2)])
-                   else
-                      lMemRef = LocalMemReference(pFIO_REAL64,[0,size(vr8_2d,2)])
-                      call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[0,size(vr8_2d,2)])
-                   endif
-                   do J = 1,size(vr8_2d,2)
-                      call ArrayGather(vr8_2d(:,J), gvr8_2d(:,J), grid, mask=mask, rc=status)
-                   enddo
-                   call oClients%collective_stage_data(arrdes%collection_id(1), trim(arrdes%filename), name, lMemRef, start=[1,1], &
-                                 global_start=[1,1], global_count=[arrdes%im_world,size(vr8_2d,2)])
-                else
 
                    do J = 1,size(vr8_2d,2)
                       call MAPL_VarWrite(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                    end do
 
-                endif
 
              else
-                call MAPL_VarWrite(formatter, name, vr8_2d, arrdes=arrdes, oClients=oClients, rc=status)
+                call MAPL_VarWrite(formatter, name, vr8_2d, arrdes=arrdes, rc=status)
              end if
           else
              _FAIL( "Cannot write unassociated var8-2d")
@@ -557,23 +452,6 @@ contains
           if (associated(var_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
 
-                if (have_oclients) then
-                   if( MAPL_Am_I_Root() ) then
-                      lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
-                      call c_f_pointer(lMemRef%base_address, gvar_3d, shape=[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
-                   else
-                      lMemRef = LocalMemReference(pFIO_REAL32,[0,size(var_3d,2), size(var_3d,3)])
-                      call c_f_pointer(lMemRef%base_address, gvar_3d, shape=[0, size(var_3d,2), size(var_3d,3)])
-                   endif
-                   do K = 1, size(var_3d,3)
-                      do J = 1,size(var_3d,2)
-                         call ArrayGather(var_3d(:,J,K), gvar_3d(:,J,K), grid, mask=mask, rc=status)
-                      enddo
-                   enddo
-
-                   call oClients%collective_stage_data(arrdes%collection_id(1), trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
-                                 global_start=[1,1,1], global_count=[arrdes%im_world,size(var_3d,2),size(var_3d,3)])
-                else
 
                    do J = 1,size(var_3d,2)
                       do K = 1,size(var_3d,3)
@@ -582,10 +460,9 @@ contains
                       end do
                    end do
 
-                endif
 
              else
-                call MAPL_VarWrite(formatter, name, var_3d, arrdes=arrdes, oClients=oClients, rc=status)
+                call MAPL_VarWrite(formatter, name, var_3d, arrdes=arrdes, rc=status)
              endif
           else
              _FAIL( "Cannot write unassociated var-3d")
@@ -596,22 +473,6 @@ contains
           if (associated(vr8_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
 
-                if (have_oclients) then
-                   if( MAPL_Am_I_Root() ) then
-                      lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
-                      call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
-                   else
-                      lMemRef = LocalMemReference(pFIO_REAL64,[0,size(vr8_3d,2), size(vr8_3d,3)])
-                      call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[0,size(vr8_3d,2), size(vr8_3d,3)])
-                   endif
-                   do K = 1, size(vr8_3d,3)
-                      do J = 1, size(vr8_3d,2)
-                         call ArrayGather(vr8_3d(:,J,K), gvr8_3d(:,J,K), grid, mask=mask, rc=status)
-                      enddo
-                   enddo
-                   call oClients%collective_stage_data(arrdes%collection_id(1), trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
-                                 global_start=[1,1,1], global_count=[arrdes%im_world, size(vr8_3d,2), size(vr8_3d,3)])
-                else
 
                    do J = 1,size(vr8_3d,2)
                       do K = 1,size(vr8_3d,3)
@@ -620,10 +481,9 @@ contains
                       end do
                    end do
 
-                endif
 
              else
-                call MAPL_VarWrite(formatter, name, vr8_3d, arrdes=arrdes, oClients=oClients, rc=status)
+                call MAPL_VarWrite(formatter, name, vr8_3d, arrdes=arrdes, rc=status)
              end if
           else
              _FAIL( "Cannot write unassociated var8-3d")
@@ -639,14 +499,14 @@ contains
           if (.not.associated(var_4d)) then
              _FAIL( "Cannot write unassociated vars")
           end if
-          call MAPL_VarWrite(formatter, name, var_4d, arrdes=arrdes, oClients=oClients, rc=status)
+          call MAPL_VarWrite(formatter, name, var_4d, arrdes=arrdes, rc=status)
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(vr8_4d)) then
              _FAIL( "Cannot write unassociated vars")
           end if
-          call MAPL_VarWrite(formatter, name, vr8_4d, arrdes=arrdes, oClients=oClients, rc=status)
+          call MAPL_VarWrite(formatter, name, vr8_4d, arrdes=arrdes, rc=status)
        endif
     else
        print *, "ERROR: unsupported RANK"
@@ -664,82 +524,28 @@ contains
   end subroutine MAPL_FieldWriteNCPar
 
 !---------------------------
-  subroutine MAPL_VarWriteNCpar_R4_4d(formatter, name, A, ARRDES, oClients, RC)
+  subroutine MAPL_VarWriteNCpar_R4_4d(formatter, name, A, ARRDES, RC)
 
     type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:,:,:,:)
     type(ArrDescr), optional    , intent(INOUT) :: ARRDES
-    type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
     integer                               :: status
     integer :: K, L
     integer ::  i1, j1, in, jn,  global_dim(3), dim3, dim4,i
-    type(ArrayReference)     :: ref
     integer :: start_bound,end_bound,counts_per_writer
     logical :: in_bounds
     real(kind=ESMF_KIND_R4), pointer :: a_temp(:,:,:,:)
     character(len=:), allocatable :: writer_filename
 
     if (present(arrdes)) then
-       if (present(oClients)) then
-          if (arrdes%split_checkpoint) then
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             counts_per_writer = global_dim(2)/arrdes%num_writers
-             allocate(a_temp(0,0,0,0))
-             do i=1,arrdes%num_writers
-                start_bound = (i-1)*counts_per_writer+1
-                end_bound   = i*counts_per_writer
-                in_bounds = (j1 .ge. start_bound) .and. (jn .le. end_bound)
-                dim3 = size(a,3)
-                dim4 = size(a,4)
-                if (in_bounds) then
-                   ref = ArrayReference(A)
-                else
-                   ref = ArrayReference(a_temp)
-                end if
-                writer_filename = get_fname_by_rank(trim(arrdes%filename),i-1)
-                call oClients%collective_stage_data(arrdes%collection_id(i),trim(writer_filename),trim(name), &
-                            ref,start=[i1,j1-(i-1)*counts_per_writer,1,1], &
-                            global_start=[1,1,1,1], global_count=[global_dim(1),global_dim(2)/arrdes%num_writers,dim3,dim4])
-             enddo
-             _RETURN(_SUCCESS)
-          else
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-
-             ref = ArrayReference(A)
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             call oClients%collective_stage_data(arrdes%collection_id(1),trim(arrdes%filename),trim(name), &
-                         ref,start=[i1,j1,1,1], &
-                         global_start=[1,1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3),size(a,4)])
-             _RETURN(_SUCCESS)
-          end if
-       else
-          do K = 1,size(A,4)
-             do L = 1,size(A,3)
-                call MAPL_VarWrite(formatter, name, A(:,:,L,K), arrdes=arrdes, &
-                     & oClients=oClients, lev=l, offset2=k, rc=status)
-                _VERIFY(status)
-             end do
-          end do
-       end if
     else
        do K = 1,size(A,4)
           do L = 1,size(A,3)
              call MAPL_VarWrite(formatter, name, A(:,:,L,K), &
-                  & oClients=oClients, lev=l, offset2=k, rc=status)
+                  & lev=l, offset2=k, rc=status)
              _VERIFY(status)
           end do
        enddo
@@ -749,96 +555,39 @@ contains
 
   end subroutine MAPL_VarWriteNCpar_R4_4d
 !---------------------------
-  subroutine MAPL_VarWriteNCpar_R8_4d(formatter, name, A, ARRDES, oClients, RC)
+  subroutine MAPL_VarWriteNCpar_R8_4d(formatter, name, A, ARRDES, RC)
 
     type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:,:,:)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
-    type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
     integer                               :: status
 
     integer :: K, L
     integer ::  i1, j1, in, jn,  global_dim(3), dim3, dim4, i
-    type(ArrayReference)     :: ref
     integer :: start_bound,end_bound,counts_per_writer
     logical :: in_bounds
     real(kind=ESMF_KIND_R8), pointer :: a_temp(:,:,:,:)
     character(len=:), allocatable :: writer_filename
 
-    if (present(oClients)) then
-
-       if (arrdes%split_checkpoint) then
-          call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-           _VERIFY(status)
-          block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-          _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-          _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-          _ASSERT( size(a,1) == in-i1+1, "size not match")
-          _ASSERT( size(a,2) == jn-j1+1, "size not match")
-          counts_per_writer = global_dim(2)/arrdes%num_writers
-          allocate(a_temp(0,0,0,0))
-          do i=1,arrdes%num_writers
-             start_bound = (i-1)*counts_per_writer+1
-             end_bound   = i*counts_per_writer
-             in_bounds = (j1 .ge. start_bound) .and. (jn .le. end_bound)
-             dim3 = size(a,3)
-             dim4 = size(a,4)
-             if (in_bounds) then
-                ref = ArrayReference(A)
-             else
-                ref = ArrayReference(a_temp)
-             end if
-             writer_filename = get_fname_by_rank(trim(arrdes%filename),i-1)
-             call oClients%collective_stage_data(arrdes%collection_id(i),trim(writer_filename),trim(name), &
-                         ref,start=[i1,j1-(i-1)*counts_per_writer,1,1], &
-                         global_start=[1,1,1,1], global_count=[global_dim(1),global_dim(2)/arrdes%num_writers,dim3,dim4])
-          enddo
-          _RETURN(_SUCCESS)
-       else
-          call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-           _VERIFY(status)
-          block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-          _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-          _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-
-          ref = ArrayReference(A)
-          _ASSERT( size(a,1) == in-i1+1, "size not match")
-          _ASSERT( size(a,2) == jn-j1+1, "size not match")
-          call oClients%collective_stage_data(arrdes%collection_id(1),trim(arrdes%filename),trim(name), &
-                      ref,start=[i1,j1,1,1], &
-                      global_start=[1,1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3),size(a,4)])
-          _RETURN(_SUCCESS)
-      end if
-    else
-       do K = 1,size(A,4)
-          do L = 1,size(A,3)
-             call MAPL_VarWrite(formatter, name, A(:,:,L,K), arrdes=arrdes, &
-                  & oClients=oClients, lev=l, offset2=k, rc=status)
-             _VERIFY(status)
-          end do
-       end do
-    end if
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_VarWriteNCpar_R8_4d
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_3d(formatter, name, A, ARRDES, oClients, RC)
+  subroutine MAPL_VarWriteNCpar_R4_3d(formatter, name, A, ARRDES, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:,:,:)
     type(ArrDescr), optional    , intent(INOUT) :: ARRDES
-    type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
     integer                               :: status
     integer :: l
     integer ::  i1, j1, in, jn,  global_dim(3), dim3, i, j1p
-    type(ArrayReference)     :: ref
     integer :: start_bound,end_bound,counts_per_writer
     logical :: in_bounds
     real(kind=ESMF_KIND_R4), pointer :: a_temp(:,:,:)
@@ -850,58 +599,6 @@ contains
     call ESMF_VMGet(vm,localPet=mypet)
 
     if (present(arrdes)) then
-       if (present(oclients)) then
-          if (arrdes%split_checkpoint) then
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             counts_per_writer = global_dim(2)/arrdes%num_writers
-             allocate(a_temp(0,0,0))
-             do i=1,arrdes%num_writers
-                start_bound = (i-1)*counts_per_writer+1
-                end_bound   = i*counts_per_writer
-                in_bounds = (j1 .ge. start_bound) .and. (jn .le. end_bound)
-                dim3 = size(a,3)
-                if (in_bounds) then
-                   ref = ArrayReference(A)
-                   j1p = j1-(i-1)*counts_per_writer
-                else
-                   ref = ArrayReference(a_temp)
-                   j1p = 1
-                end if
-                writer_filename = get_fname_by_rank(trim(arrdes%filename),i-1)
-                call oClients%collective_stage_data(arrdes%collection_id(i),trim(writer_filename),trim(name), &
-                            ref,start=[i1,j1p,1], &
-                            global_start=[1,1,1], global_count=[global_dim(1),global_dim(2)/arrdes%num_writers,dim3])
-             enddo
-             _RETURN(_SUCCESS)
-          else
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-
-             ref = ArrayReference(A)
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             call oClients%collective_stage_data(arrdes%collection_id(1),trim(arrdes%filename),trim(name), &
-                         ref,start=[i1,j1,1], &
-                         global_start=[1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3)])
-             _RETURN(_SUCCESS)
-          end if
-
-       else
-          do l=1,size(a,3)
-             call MAPL_VarWrite(formatter,name,A(:,:,l), arrdes=arrdes,lev=l, rc=status)
-             _VERIFY(status)
-          enddo
-       endif
     else
        do l=1,size(a,3)
           call MAPL_VarWrite(formatter,name,A(:,:,l), lev=l, rc=status)
@@ -934,13 +631,12 @@ contains
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R8_3d(formatter, name, A, ARRDES, oClients, RC)
+  subroutine MAPL_VarWriteNCpar_R8_3d(formatter, name, A, ARRDES, RC)
 
     type (Netcdf4_Fileformatter), intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:,:)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
-    type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
     integer                               :: status
@@ -948,59 +644,10 @@ contains
     integer :: l
 
     integer ::  i1, j1, in, jn,  global_dim(3), dim3, i
-    type(ArrayReference)     :: ref
     integer :: start_bound,end_bound,counts_per_writer
     logical :: in_bounds
     real(kind=ESMF_KIND_R8), pointer :: a_temp(:,:,:)
     character(len=:), allocatable :: writer_filename
-    if (present(oclients)) then
-          if (arrdes%split_checkpoint) then
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             counts_per_writer = global_dim(2)/arrdes%num_writers
-             allocate(a_temp(0,0,0))
-             do i=1,arrdes%num_writers
-                start_bound = (i-1)*counts_per_writer+1
-                end_bound   = i*counts_per_writer
-                in_bounds = (j1 .ge. start_bound) .and. (jn .le. end_bound)
-                dim3 = size(a,3)
-                if (in_bounds) then
-                   ref = ArrayReference(A)
-                else
-                   ref = ArrayReference(a_temp)
-                end if
-                writer_filename = get_fname_by_rank(trim(arrdes%filename),i-1)
-                call oClients%collective_stage_data(arrdes%collection_id(i),trim(writer_filename),trim(name), &
-                            ref,start=[i1,j1-(i-1)*counts_per_writer,1], &
-                            global_start=[1,1,1], global_count=[global_dim(1),global_dim(2)/arrdes%num_writers,dim3])
-             enddo
-             _RETURN(_SUCCESS)
-          else
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-
-             ref = ArrayReference(A)
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             call oClients%collective_stage_data(arrdes%collection_id(1),trim(arrdes%filename),trim(name), &
-                         ref,start=[i1,j1,1], &
-                         global_start=[1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3)])
-             _RETURN(_SUCCESS)
-          end if
-    else
-       do l=1,size(a,3)
-          call MAPL_VarWrite(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
-          _VERIFY(status)
-       enddo
-    end if
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_VarWriteNCpar_R8_3d
@@ -1028,7 +675,7 @@ contains
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, oClients, RC)
+  subroutine MAPL_VarWriteNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -1036,7 +683,6 @@ contains
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
     integer,           optional , intent(IN   ) :: offset2
-    type (ClientManager), optional, intent(inout) :: oClients
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
@@ -1050,7 +696,6 @@ contains
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: recvcounts(:), displs(:)
 
-    type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3), jp1
     integer :: start_bound,end_bound,counts_per_writer
     logical :: in_bounds
@@ -1058,50 +703,6 @@ contains
     character(len=:), allocatable :: writer_filename
 
     if (present(arrdes)) then
-       if(present(oClients)) then
-          if (arrdes%split_checkpoint) then
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             counts_per_writer = global_dim(2)/arrdes%num_writers
-             allocate(a_temp(0,0))
-             do i=1,arrdes%num_writers
-                start_bound = (i-1)*counts_per_writer+1
-                end_bound   = i*counts_per_writer
-                in_bounds = (j1 .ge. start_bound) .and. (jn .le. end_bound)
-                if (in_bounds) then
-                   ref = ArrayReference(A)
-                   jp1 = j1 - (i-1)*counts_per_writer
-                else
-                   ref = ArrayReference(a_temp)
-                   jp1 = 1
-                end if
-                writer_filename = get_fname_by_rank(trim(arrdes%filename),i-1)
-                call oClients%collective_stage_data(arrdes%collection_id(i),trim(writer_filename),trim(name), &
-                            ref,start=[i1,jp1], &
-                            global_start=[1,1], global_count=[global_dim(1),global_dim(2)/arrdes%num_writers])
-             enddo
-             _RETURN(_SUCCESS)
-          else
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-
-             ref = ArrayReference(A)
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             call oClients%collective_stage_data(arrdes%collection_id(1),trim(arrdes%filename),trim(name), &
-                         ref,start=[i1,j1], &
-                         global_start=[1,1], global_count=[global_dim(1),global_dim(2)])
-             _RETURN(_SUCCESS)
-          end if
-       end if
     endif
 
 
@@ -2591,7 +2192,7 @@ contains
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, oClients, RC)
+  subroutine MAPL_VarWriteNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -2599,7 +2200,6 @@ contains
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
     integer,           optional , intent(IN   ) :: offset2
-    type (ClientManager), optional, intent(inout) :: oClients
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
@@ -2613,7 +2213,6 @@ contains
     integer                               :: start(4), cnt(4)
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: recvcounts(:), displs(:)
-    type (ArrayReference) :: ref
     integer ::  i1, j1, in, jn,  global_dim(3)
     integer :: start_bound,end_bound,counts_per_writer
     logical :: in_bounds
@@ -2621,64 +2220,8 @@ contains
     character(len=:), allocatable :: writer_filename
 
     if (present(arrdes)) then
-       if(present(oClients)) then
-          if (arrdes%split_checkpoint) then
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             counts_per_writer = global_dim(2)/arrdes%num_writers
-             allocate(a_temp(0,0))
-             do i=1,arrdes%num_writers
-                start_bound = (i-1)*counts_per_writer+1
-                end_bound   = i*counts_per_writer
-                in_bounds = (j1 .ge. start_bound) .and. (jn .le. end_bound)
-                if (in_bounds) then
-                   ref = ArrayReference(A)
-                else
-                   ref = ArrayReference(a_temp)
-                end if
-                writer_filename = get_fname_by_rank(trim(arrdes%filename),i-1)
-                call oClients%collective_stage_data(arrdes%collection_id(i),trim(writer_filename),trim(name), &
-                            ref,start=[i1,j1-(i-1)*counts_per_writer], &
-                            global_start=[1,1], global_count=[global_dim(1),global_dim(2)/arrdes%num_writers])
-             enddo
-             _RETURN(_SUCCESS)
-          else
-             call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-              _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-             _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
-             _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-
-             ref = ArrayReference(A)
-             _ASSERT( size(a,1) == in-i1+1, "size not match")
-             _ASSERT( size(a,2) == jn-j1+1, "size not match")
-             call oClients%collective_stage_data(arrdes%collection_id(1),trim(arrdes%filename),trim(name), &
-                         ref,start=[i1,j1], &
-                         global_start=[1,1], global_count=[global_dim(1),global_dim(2)])
-             _RETURN(_SUCCESS)
-          end if
-       end if
     endif
     if (present(arrdes)) then
-       if(present(oClients)) then
-          call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-           _VERIFY(status)
-          block; integer, allocatable :: interior_(:); call geom_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
-          _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting not match")
-          _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting not match")
-          ref = ArrayReference(A)
-          _ASSERT( size(a,1) == in-i1+1, "size not match")
-          _ASSERT( size(a,2) == jn-j1+1, "size not match")
-          call oClients%collective_stage_data(arrdes%collection_id(1),trim(arrdes%filename),trim(name), &
-                      ref,start=[i1,j1], &
-                      global_start=[1,1], global_count=[global_dim(1),global_dim(2)])
-          _RETURN(_SUCCESS)
-       endif
     endif
 
     if (present(arrdes)) then
@@ -3564,13 +3107,12 @@ contains
   _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ArrayReadNCpar_3d
 
-  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, clobber, oClients, rc)
+  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, clobber, rc)
     type(ESMF_FieldBundle), intent(inout)   :: Bundle
     type(ArrDescr), intent(inout)           :: arrdes
     type(ESMF_Clock), intent(in)            :: CLOCK
     character(len=*), intent(in  )         :: filename
     logical, intent(in)                    :: clobber
-    type (ClientManager), optional, intent(inout) :: oClients
     integer, optional, intent(out)          :: rc
 
 
@@ -3634,11 +3176,10 @@ contains
     type(StringVector) :: flip_vars
     type(ESMF_Info) :: infoh, infoh_bundle, infoh_field
     type(ESMF_Field) :: lons_field, lats_field
-    logical :: isGridCapture, have_oclients
+    logical :: isGridCapture
     real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
     integer :: pfio_mode
 
-    have_oclients = present(oClients)
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
@@ -3840,7 +3381,6 @@ contains
     ndims = ndims + 1
 
     !WJ note: if arrdes%write_restart_by_oserver is true, all processors will participate
-    !if (arrdes%writers_comm/=MPI_COMM_NULL .or. have_oclients ) then !bmaa
 
        ! Create dimensions as needed
        if (Have_HorzVert .or. Have_HorzOnly) then
@@ -4205,39 +3745,6 @@ contains
 
 !   now write the files
 
-    if (have_oclients) then
-       call oClients%set_optimal_server(1)
-       if (arrdes%split_checkpoint) then
-          if (.not.allocated(arrdes%collection_id)) allocate(arrdes%collection_id(arrdes%num_writers))
-          do i=1,arrdes%num_writers
-             fname_by_writer = get_fname_by_rank(trim(filename),i-1)
-             iter = RstCollections%find(trim(fname_by_writer))
-             if (iter == RstCollections%end()) then
-                call cf%add_attribute("Split_Cubed_Sphere", i, _RC)
-                arrdes%collection_id(i) = oClients%add_data_collection(cf)
-                call RstCollections%insert(trim(fname_by_writer), arrdes%collection_id(i))
-             else
-                arrdes%collection_id(i) = iter%second()
-                call oClients%modify_metadata(arrdes%collection_id(i), var_map = var_map, rc=status)
-                _VERIFY(status)
-             endif
-             arrdes%filename = trim(filename)
-          enddo
-       else
-          if (.not.allocated(arrdes%collection_id)) allocate(arrdes%collection_id(1))
-          iter = RstCollections%find(trim(BundleName))
-          if (iter == RstCollections%end()) then
-             arrdes%collection_id(1) = oClients%add_data_collection(cf)
-             call RstCollections%insert(trim(BundleName), arrdes%collection_id(1))
-          else
-             arrdes%collection_id(1) = iter%second()
-             call oClients%modify_metadata(arrdes%collection_id(1), var_map = var_map, rc=status)
-             _VERIFY(status)
-          endif
-          arrdes%filename = trim(filename)
-       end if
-
-    else
 
        pfio_mode = PFIO_NOCLOBBER
        if (clobber) pfio_mode = PFIO_CLOBBER
@@ -4263,7 +3770,6 @@ contains
              _VERIFY(STATUS)
           end if
        end if
-    endif ! write_restart_by_oserver
 
     do l=1,nVars
        call ESMF_FieldBundleGet(bundle, fieldIndex=l, field=field, rc=status)
@@ -4290,7 +3796,7 @@ contains
           endif
        endif
 
-       call MAPL_FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, oClients=oClients, rc=status)
+       call MAPL_FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, rc=status)
        _VERIFY(STATUS)
 
        isPresent = ESMF_InfoIsPresent(infoh,key='FLIPPED',rc=status)
@@ -4333,21 +3839,10 @@ contains
        call ESMF_InfoGetFromHost(lats_field, infoh_field, _RC)
        call ESMF_InfoSet(infoh_field, key="DIMS", value=MAPL_DimsHorzOnly, _RC)
 
-       call MAPL_FieldWriteNCPar(formatter, 'lons', lons_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
-       call MAPL_FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, oClients=oClients, rc=status)
+       call MAPL_FieldWriteNCPar(formatter, 'lons', lons_field, arrdes, HomePE=mask, rc=status)
+       call MAPL_FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, rc=status)
     end if
 
-    if (have_oclients) then
-       call oClients%done_collective_stage(_RC)
-       call oClients%post_wait()
-       call MPI_Info_free(info, status)
-       _VERIFY(STATUS)
-    elseif (arrdes%writers_comm/=MPI_COMM_NULL) then
-       call formatter%close(rc=status)
-       _VERIFY(STATUS)
-       call MPI_Info_free(info, status)
-       _VERIFY(STATUS)
-    end if
 
     if(associated(MASK)) then
        DEALOC_(MASK)
@@ -4380,7 +3875,7 @@ contains
 
   end subroutine MAPL_BundleWriteNCPar
 
-  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, clobber, oClients, RC)
+  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, clobber, RC)
     character(len=*)            , intent(IN   ) :: filename
     type (ESMF_State)           , intent(IN   ) :: STATE
     type(ArrDescr)              , intent(INOUT) :: ARRDES
@@ -4388,7 +3883,6 @@ contains
     character(len=*),   optional, intent(IN   ) :: NAME
     logical,            optional, intent(IN   ) :: forceWriteNoRestart
     logical,            optional, intent(in  ) :: clobber
-    type (ClientManager), optional, intent(inout) :: oClients
     integer,            optional, intent(  OUT) :: RC
 
 ! Local vars
@@ -4583,7 +4077,7 @@ contains
        call ESMF_InfoSet(infoh_bundle, key="MAPL_GridCapture", value=isGridCapture, _RC)
     end if
 
-    call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, clobber=local_clobber, oClients=oClients, rc=status)
+    call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, clobber=local_clobber, rc=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
