@@ -161,6 +161,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Strip server I/O path from `NCIOMod`; remove `MAPL_BaseMod` dependency from `NCIOMod` and `FileIOSharedMod` (#4783)
+- Add `has_de` optional argument to `GridGet` in `mapl3g_GridGet`; make `grid_has_DE` public
+
 - Switch 6 lightweight CI workflows to `ubuntu-slim` runner to reduce concurrency pressure on `ubuntu-latest` (#4841)
 
 - Update `components.yaml`
