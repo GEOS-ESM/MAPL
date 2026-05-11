@@ -38,7 +38,6 @@ module MAPL_Base
   public MAPL_GetHorzIJIndex
   public MAPL_GetGlobalHorzIJIndex
   public MAPL_Reverse_Schmidt
-  public MAPL_GenGridName
    public MAPL_GridGetCorners
    public MAPL_GridGetInterior
 
@@ -133,13 +132,6 @@ module MAPL_Base
        integer,            optional, intent(out  ) :: rc  ! return code
      end subroutine MAPL_Reverse_Schmidt
 
-     module subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
-       integer :: im, jm
-       character (len=*) :: gridname
-       real, optional    :: lon(:), lat(:)
-       integer, optional :: xyoffset
-       logical,  optional :: geos_style
-     end subroutine MAPL_GenGridName
 
        module function MAPL_StrUpCase(str) result(new)
          character(len=*), intent(IN) :: str
