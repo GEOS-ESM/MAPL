@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   MAPL_CapOptions type.
 - Remove FLAP support.
 - Remove `BUILD_SHARED_MAPL` CMake option. MAPL3 is now always built as a shared library.
+- Remove FrequencyAspect, the transforms for time-based statistics, and the references to them in other source or tests.
 
 ### Added
 
@@ -104,7 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update cap restart file with current time at end of run.
 - Read/write repeatCount from/to cap restart file at beginning/end of run.
 - Added FILL_VALUE with alias to ACG3
-
+- TimeAccumulate to StatisticsGridComp
 
 ### Changed
 

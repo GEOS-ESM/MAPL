@@ -125,13 +125,6 @@ module mapl3g_VariableSpec
       character(:), allocatable :: units ! from FieldDictionary or override
 
       !=====================
-      ! frequency aspect
-      !=====================
-      ! TODO: Should be an enum
-      type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_TimeInterval), allocatable :: offset
-
-      !=====================
       ! ungridded_dims aspect
       !=====================
       type(UngriddedDims) :: ungridded_dims ! default no ungridded
@@ -187,8 +180,6 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
-        timeStep, &
-        offset, &
         vector_component_names, &
         vector_basis_kind, &
         has_deferred_aspects, &
@@ -219,8 +210,6 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
-      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
       character(*), optional, intent(in) :: vector_basis_kind
       logical, optional, intent(in) :: has_deferred_aspects
@@ -258,8 +247,6 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
-      _SET_OPTIONAL(timeStep)
-      _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
        _SET_OPTIONAL(has_deferred_aspects)
        _SET_OPTIONAL(use_field_dictionary)
@@ -467,22 +454,20 @@ contains
 
    end subroutine add_item
 
-   function make_StateitemSpec(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(spec)
+   function make_StateitemSpec(this, registry, component_geom, vertical_grid, unusable, rc) result(spec)
       type(StateItemSpec) :: spec
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, intent(in) :: registry
       type(ESMF_Geom), optional, intent(in) :: component_geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
       type(AspectMap) :: aspects
       type(VirtualConnectionPtVector) :: dependencies
       integer :: status
 
-      aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
+      aspects = this%make_aspects(registry, component_geom, vertical_grid, _RC)
       dependencies = this%make_dependencies(_RC)
       spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)
 
@@ -490,15 +475,13 @@ contains
       _UNUSED_DUMMY(unusable)
    end function make_StateitemSpec
 
-   function make_aspects(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(aspects)
+   function make_aspects(this, registry, component_geom, vertical_grid, unusable, rc) result(aspects)
       type(AspectMap) :: aspects
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, intent(in) :: registry
       type(ESMF_Geom), optional, intent(in) :: component_geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
       integer :: status
