@@ -303,31 +303,21 @@ contains
     integer                            :: rank
     integer                            :: status
     integer                            :: DIMS
-    real(KIND=ESMF_KIND_R4), pointer, dimension(:)        :: var_1d
-    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)      :: var_2d
-    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)    :: var_3d
-    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:,:)  :: var_4d
+     real(KIND=ESMF_KIND_R4), pointer, dimension(:)        :: var_1d
+     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)      :: var_2d
+     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)    :: var_3d
+     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:,:)  :: var_4d
 
-    real(KIND=ESMF_KIND_R4), pointer, dimension(:)        :: gvar_1d
-    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)      :: gvar_2d
-    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)    :: gvar_3d
+     real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: vr8_1d
+     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: vr8_2d
+     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)    :: vr8_3d
+     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:,:)  :: vr8_4d
 
-    real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: vr8_1d
-    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: vr8_2d
-    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)    :: vr8_3d
-    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:,:)  :: vr8_4d
-
-    real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: gvr8_1d
-    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: gvr8_2d
-    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)    :: gvr8_3d
-
-    type(ESMF_TypeKind_Flag)           :: tk
-    integer, pointer                   :: mask(:)
-    integer                            :: J,K
-    type (ESMF_DistGrid)               :: distGrid
-    integer :: size_1d
-    character(len=:), allocatable :: fname_by_writer
-    type (ESMF_Info)                   :: infoh
+     type(ESMF_TypeKind_Flag)           :: tk
+     integer, pointer                   :: mask(:)
+     integer                            :: J,K
+     type (ESMF_DistGrid)               :: distGrid
+     type (ESMF_Info)                   :: infoh
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
@@ -363,14 +353,7 @@ contains
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
           _VERIFY(STATUS)
-          if (associated(var_1d)) then
-
-             if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                size_1d = arrdes%im_world
-             else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                size_1d = size(var_1d,1)
-             endif
-
+           if (associated(var_1d)) then
 
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
@@ -386,14 +369,7 @@ contains
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
           _VERIFY(STATUS)
-          if (associated(vr8_1d)) then
-
-             if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                size_1d = arrdes%im_world
-             else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                size_1d = size(vr8_1d,1)
-             endif
-
+           if (associated(vr8_1d)) then
 
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
