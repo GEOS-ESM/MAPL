@@ -31,8 +31,8 @@ module ESMFL_MOD
 
   !USES:
   use ESMF
-  use MAPL_Constants
-  use MAPL_BaseMod
+   use MAPL_Constants
+   use mapl_MaplGrid,  only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use MAPL_CommsMod
    use mapl3g_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
   use MAPL_ExceptionHandling

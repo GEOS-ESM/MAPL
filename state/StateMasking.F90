@@ -5,7 +5,7 @@ module MAPL_StateMaskMod
    use ESMF
    use MAPL_KeywordEnforcerMod
    use ESMFL_Mod
-   use MAPL_BaseMod
+   use mapl_MaplGrid,   only: MAPL_GridGet
    use MAPL_ExceptionHandling
    use gFTL2_StringVector
    use MAPL_StateArithmeticParserMod
