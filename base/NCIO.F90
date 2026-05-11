@@ -14,13 +14,14 @@ module NCIOMod
   use FileIOSharedMod, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, MAPL_TileMaskGet
   use FileIOSharedMod, only: ArrayScatterShm
   use ESMF
-  use MAPL_BaseMod
+  use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
+  use MAPL_RangeMod, only: MAPL_Range
   use mapl3g_GridGet, only: geom_GridGet => GridGet
   use MAPL_CommsMod
    use mapl3g_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
   use MAPL_SortMod
   use mapl3g_EASEConversion, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
-  !use MAPL_RangeMod
+
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
   use netcdf
@@ -2614,10 +2615,13 @@ contains
 
      integer :: file_lev_size, file_lat_size, file_lon_size, file_tile_size
      integer :: grid_dims(3)
+     integer, allocatable :: global_dims(:)
 
      match = .false.
-     call MAPL_GridGet(grid,globalCellCountPerDim=grid_dims,rc=status)
+     call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=global_dims, rc=status)
      _VERIFY(status)
+     grid_dims = 1
+     grid_dims(1:min(3,size(global_dims))) = global_dims(1:min(3,size(global_dims)))
      file_lon_size = metadata%get_dimension("lon")
      file_lat_size = metadata%get_dimension("lat")
      if (metadata%has_attribute("Split_Cubed_Sphere")) file_lat_size = file_lat_size*6

@@ -18,7 +18,8 @@
 module FileIOSharedMod
 
   use ESMF
-  use MAPL_BaseMod
+  use mapl_MaplGrid, only: MAPL_DistGridGet_impl => MAPL_DistGridGet, MAPL_GridHasDE
+  use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
   use MAPL_SortMod
   use MAPL_CommsMod
   use MAPL_ShmemMod
@@ -286,7 +287,9 @@ module FileIOSharedMod
     integer                               :: STATUS
     integer, pointer                      :: tileIndex(:)
     integer                               :: gcount(2), lcount(2)
+    integer, allocatable                  :: global_dims(:)
     integer                               :: gsize, lsize
+    logical                               :: hasDE
     integer                               :: gridRank
     integer                               :: n
     type (ESMF_DistGrid)                  :: distGrid
@@ -309,8 +312,17 @@ module FileIOSharedMod
     call ESMF_GridGet(grid, dimCount=gridRank, distGrid=distGrid, _RC)
     _ASSERT(gridRank == 1, 'gridRank must be 1')
 
-    call MAPL_GridGet(grid, globalCellCountPerDim=gcount, &
-         localCellCountPerDim=lcount, _RC)
+    call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=global_dims, _RC)
+    gcount = 1
+    gcount(1:min(2,size(global_dims))) = global_dims(1:min(2,size(global_dims)))
+
+    lcount = 1
+    hasDE = MAPL_GridHasDE(grid, rc=status)
+    _VERIFY(status)
+    if (hasDE) then
+       call ESMF_GridGet(grid, localDE=0, staggerloc=ESMF_STAGGERLOC_CENTER, &
+            exclusiveCount=lcount, _RC)
+    end if
 
     gsize = gcount(1)
     lsize = lcount(1)
@@ -339,7 +351,7 @@ module FileIOSharedMod
     allocate (AL(gridRank,0:nDEs-1),  _STAT)
     allocate (AU(gridRank,0:nDEs-1),  _STAT)
 
-    call MAPL_DistGridGet(distgrid, &
+    call MAPL_DistGridGet_impl(distgrid, &
          minIndex=AL, maxIndex=AU, _RC)
 
     allocate (recvcounts(0:nDEs-1), displs(0:nDEs), _STAT)
@@ -773,8 +785,8 @@ module FileIOSharedMod
     _VERIFY(STATUS)
     allocate (sendcounts(0:nDEs-1), stat=status)
     _VERIFY(STATUS)
-    call MAPL_DistGridGet(distgrid, &
-         minIndex=AL, maxIndex=AU, rc=status)
+     call MAPL_DistGridGet_impl(distgrid, &
+          minIndex=AL, maxIndex=AU, rc=status)
     _VERIFY(STATUS)
 
     ISZ = size(GLOBAL_ARRAY,1)
