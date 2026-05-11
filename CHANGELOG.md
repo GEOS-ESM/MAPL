@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Switch 6 lightweight CI workflows to `ubuntu-slim` runner to reduce concurrency pressure on `ubuntu-latest` (#4841)
+
 - Update `components.yaml`
   - ESMA_cmake v4.37.0
     - Add `Coverage` CMake build type
