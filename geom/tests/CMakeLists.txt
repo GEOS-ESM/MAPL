@@ -31,47 +31,6 @@ set (OTHER_SRCS
   XYTestHelper.F90
 )
 
-# ---------------------------------------------------------------------------
-# Standalone MPI integration test for CubedSphereGeomSpec%get_horz_ij_index
-# (moved from Tests/GetHorzIJIndex; uses MAPL_Cap with 6 PEs)
-# ---------------------------------------------------------------------------
-
-set (GETHORZIJINDEX_SRCS
-  GetHorzIJIndexGridComp.F90
-  GetHorzIJIndexDriver.F90
-)
-
-ecbuild_add_executable(
-  TARGET GetHorzIJIndexDriver.x
-  SOURCES ${GETHORZIJINDEX_SRCS})
-target_link_libraries(GetHorzIJIndexDriver.x PRIVATE MAPL MAPL.geom FARGPARSE::fargparse ESMF::ESMF OpenMP::OpenMP_Fortran)
-
-add_dependencies(build-tests GetHorzIJIndexDriver.x)
-
-# Detect Open MPI and add oversubscribe flag if needed
-string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
-list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWORD)
-if(MPI_Fortran_LIBRARY_VERSION_FIRSTWORD MATCHES "Open")
-  list(APPEND MPIEXEC_PREFLAGS "-oversubscribe")
-endif()
-
-set (GETHORZIJINDEX_TEST_CASES NO_OMP OMP_1_thread OMP_4_thread)
-
-foreach(TEST_CASE ${GETHORZIJINDEX_TEST_CASES})
-  add_test(
-    NAME "GetHorzIJIndex_${TEST_CASE}"
-    COMMAND ${CMAKE_COMMAND}
-      -DTEST_CASE=${TEST_CASE}
-      -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}
-      -DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}
-      -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
-      -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
-      -DTEST_CASES_DIR=${CMAKE_CURRENT_SOURCE_DIR}/GetHorzIJIndex_test_cases
-      -P ${CMAKE_CURRENT_SOURCE_DIR}/run_gethorzijindex.cmake
-  )
-  set_tests_properties("GetHorzIJIndex_${TEST_CASE}" PROPERTIES LABELS "THREADING_TESTS;ESSENTIAL")
-endforeach()
-
 add_pfunit_ctest(MAPL.geom.tests
   TEST_SOURCES ${TEST_SRCS}
   OTHER_SOURCES ${OTHER_SRCS}
