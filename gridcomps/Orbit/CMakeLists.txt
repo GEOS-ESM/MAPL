@@ -1,6 +1,7 @@
 esma_set_this (OVERRIDE MAPL.orbit)
 
 set (srcs
+        MAPL_NominalOrbitsMod.F90
         MAPL_OrbGridCompMod.F90
     )
 
