@@ -11,7 +11,6 @@ set (srcs
                                         MAPL_VerticalInterpMod.F90
                                         MAPL_VerticalMethods.F90
   Base.F90
-  MAPL_NominalOrbitsMod.F90
   ServerManager.F90
   c_mapl_locstream_F.c  getrss.c  memuse.c
   TimeStringConversion.F90
