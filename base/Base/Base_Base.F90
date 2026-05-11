@@ -21,7 +21,6 @@ module MAPL_Base
   !
   use ESMF, only: ESMF_MAXSTR
   use MAPL_Constants, only: MAPL_UNDEF
-  use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit NONE
   private
@@ -30,11 +29,7 @@ module MAPL_Base
 
   ! !PUBLIC MEMBER FUNCTIONS:
   !
-  !public MAPL_FieldF90Deallocate
-  public MAPL_ClimInterpFac       ! re-exported from MAPL_TimeInterpolation (base3g)
-  !public MAPL_ConnectCoupling
    public MAPL_GRID_INTERIOR
-   public MAPL_Interp_Fac   ! re-exported from MAPL_TimeInterpolation (base3g)
    public MAPL_GridGetCorners
    public MAPL_GridGetInterior
 
@@ -49,21 +44,6 @@ module MAPL_Base
 
 
   interface
-     module subroutine MAPL_FieldF90Deallocate(field, rc)
-       use ESMF, only: ESMF_Field
-       type(ESMF_Field),  intent(INOUT) :: field
-       integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_FieldF90Deallocate
-
-     module subroutine MAPL_PICKEM(II,JJ,IM,JM,COUNT)
-       integer, intent(IN ) :: IM, JM, COUNT
-       integer, intent(OUT) :: II(COUNT), JJ(COUNT)
-     end subroutine MAPL_PICKEM
-
-
-
-     !............................................................................
-
      module subroutine MAPL_GRID_INTERIOR(GRID,I1,IN,J1,JN)
        use ESMF, only: ESMF_Grid
        type (ESMF_Grid), intent(IN) :: grid
@@ -78,17 +58,6 @@ module MAPL_Base
        integer, optional, intent(  OUT) :: RC
 
      end subroutine MAPL_GridGetCorners
-
-
-       module function MAPL_StrUpCase(str) result(new)
-         character(len=*), intent(IN) :: str
-         character(len=len(str))      :: new
-       end function MAPL_StrUpCase
-
-       module function MAPL_StrDnCase(str) result(new)
-         character(len=*), intent(IN) :: str
-         character(len=len(str))      :: new
-       end function MAPL_StrDnCase
 
    end interface
 
