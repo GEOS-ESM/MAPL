@@ -15,7 +15,7 @@ module NCIOMod
   use FileIOSharedMod, only: ArrayScatterShm
   use ESMF
   use MAPL_BaseMod
-  use mapl3g_GridGet, only: mapl_GridGet => GridGet
+  use mapl3g_GridGet, only: mapl3g_GridGet => GridGet
   use MAPL_CommsMod
    use mapl3g_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
   use MAPL_SortMod
@@ -687,7 +687,7 @@ contains
           if (arrdes%split_checkpoint) then
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
              _ASSERT( size(a,1) == in-i1+1, "size not match")
@@ -714,7 +714,7 @@ contains
           else
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
 
@@ -773,7 +773,7 @@ contains
        if (arrdes%split_checkpoint) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
            _VERIFY(status)
-          block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+          block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
           _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
           _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
           _ASSERT( size(a,1) == in-i1+1, "size not match")
@@ -800,7 +800,7 @@ contains
        else
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
            _VERIFY(status)
-          block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+          block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
           _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
           _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
 
@@ -854,7 +854,7 @@ contains
           if (arrdes%split_checkpoint) then
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
 
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
@@ -883,7 +883,7 @@ contains
           else
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
 
@@ -957,7 +957,7 @@ contains
           if (arrdes%split_checkpoint) then
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
              _ASSERT( size(a,1) == in-i1+1, "size not match")
@@ -983,7 +983,7 @@ contains
           else
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
 
@@ -1062,7 +1062,7 @@ contains
           if (arrdes%split_checkpoint) then
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
              _ASSERT( size(a,1) == in-i1+1, "size not match")
@@ -1089,7 +1089,7 @@ contains
           else
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
 
@@ -2625,7 +2625,7 @@ contains
           if (arrdes%split_checkpoint) then
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
              _ASSERT( size(a,1) == in-i1+1, "size not match")
@@ -2650,7 +2650,7 @@ contains
           else
              call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
               _VERIFY(status)
-             block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+             block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
              _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
              _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
 
@@ -2668,7 +2668,7 @@ contains
        if(present(oClients)) then
           call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
            _VERIFY(status)
-          block; integer, allocatable :: interior_(:); call mapl_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
+          block; integer, allocatable :: interior_(:); call mapl3g_GridGet(arrdes%grid, interior=interior_); i1=interior_(1); in=interior_(2); j1=interior_(3); jn=interior_(4); end block
           _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting not match")
           _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting not match")
           ref = ArrayReference(A)

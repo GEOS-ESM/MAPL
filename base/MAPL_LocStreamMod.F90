@@ -26,7 +26,7 @@ use ESMF
 use ESMFL_Mod
 use MAPL_BaseMod
 use MAPL_Constants
-use mapl3g_GridGet, only: mapl_GridGet => GridGet
+use mapl3g_GridGet, only: mapl3g_GridGet => GridGet
 use NCIOMod, only: MAPL_ReadTilingNC4
 use MAPL_CommsMod
 use MAPL_HashMod
@@ -484,7 +484,7 @@ contains
            ISMINE = .false.
            block
              integer, allocatable :: interior_(:)
-             call mapl_GridGet(GRID, interior=interior_, rc=status)
+             call mapl3g_GridGet(GRID, interior=interior_, rc=status)
              _VERIFY(STATUS)
              I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
            end block
@@ -698,7 +698,7 @@ contains
 #else
           block
             integer, allocatable :: interior_(:)
-            call mapl_GridGet(GRID, interior=interior_, rc=status)
+            call mapl3g_GridGet(GRID, interior=interior_, rc=status)
             _VERIFY(STATUS)
             I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
           end block
@@ -1184,7 +1184,7 @@ contains
 
     block
       integer, allocatable :: interior_(:)
-      call mapl_GridGet(GRID, interior=interior_, rc=status)
+      call mapl3g_GridGet(GRID, interior=interior_, rc=status)
       _VERIFY(STATUS)
       I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
     end block
@@ -1508,7 +1508,7 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
 
   block
     integer, allocatable :: interior_(:)
-    call mapl_GridGet(LocStream%Ptr%GRID, interior=interior_, rc=status)
+    call mapl3g_GridGet(LocStream%Ptr%GRID, interior=interior_, rc=status)
     _VERIFY(STATUS)
     I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
   end block
@@ -1729,7 +1729,7 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 
      block
        integer, allocatable :: interior_(:)
-       call mapl_GridGet(LocStream%Ptr%GRID, interior=interior_, rc=status)
+       call mapl3g_GridGet(LocStream%Ptr%GRID, interior=interior_, rc=status)
        _VERIFY(STATUS)
        I1=interior_(1); IN=interior_(2); J1=interior_(3); JN=interior_(4)
      end block
