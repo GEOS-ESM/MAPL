@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v3.0.0 - Development]
 
 ### Changed
+<!-- CI trigger -->
 
 - Convert `base/orbit.tex` to `docs/equation_of_time.md` (Markdown with GitHub-rendered math), resolving disposition of the Equation of Time derivation document from the MAPL3 base cleanup (#4788)
 
