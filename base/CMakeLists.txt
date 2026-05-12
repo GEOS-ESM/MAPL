@@ -14,7 +14,6 @@ set (srcs
   ServerManager.F90
   c_mapl_locstream_F.c  getrss.c  memuse.c
   TimeStringConversion.F90
-  Base/Base_Base.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
