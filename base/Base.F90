@@ -2,7 +2,6 @@
 
 module MAPLBase_Mod
 
-  use ESMFL_Mod         !  Stopgap
   use MAPL_ExceptionHandling
 
    use NCIOMod

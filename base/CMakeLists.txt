@@ -1,7 +1,6 @@
 esma_set_this (OVERRIDE MAPL.base)
 
 set (srcs
-  ESMFL_Mod.F90
   FileMetadataUtilities.F90
   FileMetadataUtilitiesVector.F90       SimpleBundleMod.F90
   MaplGrid.F90
