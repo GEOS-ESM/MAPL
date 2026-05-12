@@ -9,12 +9,9 @@ set (srcs
   MAPL_LocStreamMod.F90
                                         MAPL_VerticalInterpMod.F90
                                         MAPL_VerticalMethods.F90
-  Base.F90
   ServerManager.F90
   c_mapl_locstream_F.c  getrss.c  memuse.c
   TimeStringConversion.F90
-  # Orphaned program: should not be in this library.
-  # tstqsat.F90
   )
 
 # Comms.F90, StringTemplate.F90, SatVapor.F90 have been moved to base3g/
@@ -54,17 +51,8 @@ if (EXTENDED_SOURCE)
   esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()
 
-# Users guide
-if (LATEX_FOUND)
-  add_subdirectory (TeX)
-endif ()
-
 # Unit testing
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
-install (
-   PROGRAMS red_ma.pl
-   DESTINATION bin
-   )
