@@ -51,7 +51,7 @@ module GridComp
 
      call MAPL_GridCreate(gc, _RC)
      call MAPL_GetObjectFromGC (gc, MAPL, _RC)
-     print *, 'Num threads = ', MAPL_get_num_threads(), ' for this run'
+     print *, 'Num threads = ', MAPL%get_num_threads(), ' for this run'
      call MAPL_GenericInitialize(gc, import, export, clock, _RC)
 
      _RETURN(_SUCCESS)
