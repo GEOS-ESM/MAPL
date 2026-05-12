@@ -51,11 +51,6 @@ if (EXTENDED_SOURCE)
   esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()
 
-# Users guide
-if (LATEX_FOUND)
-  add_subdirectory (TeX)
-endif ()
-
 # Unit testing
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
