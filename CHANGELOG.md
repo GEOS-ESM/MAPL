@@ -113,6 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Relaxed the comparison standard for grid_is_ok_ subroutine
 - Workaround to satisfy NAG's lazy initialization of openmp region
 - Workaround to pass ifx 2025.1 tests in debug mode
 - Profile reporting has been relocated into the `./profile` directory.
