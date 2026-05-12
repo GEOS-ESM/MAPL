@@ -20,7 +20,7 @@ def get_vars_needed(input_file):
     lines = f.readlines()
     f.close()
     for line in lines:
-        temp = line.split() 
+        temp = line.split()
         output_list.append(temp[4])
 
     return output_list
@@ -35,7 +35,7 @@ def get_extdata_map(input_dir):
        f.close()
        for short_name in extdata_def["Exports"]:
            export_list.update({short_name:extdata_def["Exports"][short_name]})
-    return export_list    
+    return export_list
 
 def get_block(cvs_file):
 
@@ -48,7 +48,7 @@ def get_block(cvs_file):
             break
         i=i+1
     return component,state_type,i
-        
+
 
 def get_component_map(cvs_file):
 
@@ -78,7 +78,7 @@ def parse_args():
     p = argparse.ArgumentParser(description='Generarte input files for ExtDataDriver to simulate GEOS')
     p.add_argument('extdata_provided',type=str,help='a list of items ExtData should fill',default=None)
     p.add_argument('spec_def',type=str,help='the GEOS gcm import state from the printspec',default=None)
-    p.add_argument('extdata_dir',type=str,help='diretory with all the yaml imputs for extdata',default=None)
+    p.add_argument('extdata_dir',type=str,help='diretory with all the yaml inputs for extdata',default=None)
     p.add_argument('-e','--export',action='store_true',help='also include exports for corresponding imports')
 
     return vars(p.parse_args())
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
    extdata_directory = args['extdata_dir']
    extdata_def = get_extdata_map(extdata_directory)
-   
+
    f_agcm = open("AGCM.rc",'w')
 #  component
    component_map = {}
@@ -115,7 +115,7 @@ if __name__ == '__main__':
       if item in extdata_def:
          long_name = "NA"
          units = "NA"
-         dims = get_dims(component_map, item) 
+         dims = get_dims(component_map, item)
          cdims = dims_dict[dims]
 
          if item not in written:
@@ -132,7 +132,7 @@ if __name__ == '__main__':
           if item in extdata_def:
              long_name = "NA"
              units = "NA"
-             dims = get_dims(component_map, item) 
+             dims = get_dims(component_map, item)
              cdims = dims_dict[dims]
 
              if item not in written:
@@ -164,4 +164,3 @@ if __name__ == '__main__':
 
    f_hist.close()
    f_agcm.close()
-

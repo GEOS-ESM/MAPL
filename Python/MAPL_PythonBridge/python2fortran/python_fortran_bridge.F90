@@ -14,19 +14,7 @@ module mapl_python_fortran_bridge
     implicit NONE
     
     private
-    public :: MAPLPy_ESMF_AttributeGet_1D_int
-    public :: MAPLPy_ESMF_MethodExecute
-    public :: MAPLpy_GetPointer_via_ESMFAttr
-    public :: MAPLpy_GetPointer_2D
-    public :: MAPLpy_GetPointer_3D
-    public :: MAPLpy_GetResource_Bool
-    public :: MAPLpy_GetResource_Float
-    ! public :: MAPLpy_GetResource_Double ! No MAPL_GetResource for int 64?
-    public :: MAPLpy_GetResource_Int32
-    ! public :: MAPLpy_GetResource_Int64 ! No MAPL_GetResource for int 64?
-    public :: MAPLpy_ESMF_TimeIntervalGet
-    public :: MAPLpy_Associated
-
+    
     character(len=ESMF_MAXSTR) :: IAm
     integer :: STATUS
     integer :: RC  ! return code
@@ -138,9 +126,12 @@ module mapl_python_fortran_bridge
 
     end function
 
-    function MAPLpy_GetPointer_2D_associated(esmf_state_c_ptr, name_c_ptr, name_len, alloc) result(is_associated) bind(c, name="MAPLpy_GetPointer_2D_associated")
+    function MAPLpy_GetPointer_2D_associated(state_c_ptr, name_c_ptr, name_len, alloc) result(is_associated_as_integer) bind(c, name="MAPLpy_GetPointer_2D_associated")
+        ! We retrieve the associated state via an Int to circumvent disagreement in ICX about
+        ! the definition fo a Fortran/C boolean. Integer remains the most portable solution.
+
         ! Read in STATE
-        type(c_ptr), intent(in), value :: esmf_state_c_ptr
+        type(c_ptr), intent(in), value :: state_c_ptr
         type(ESMF_State), pointer :: state
 
         ! Read in name
@@ -151,17 +142,17 @@ module mapl_python_fortran_bridge
 
         ! Results
         real, pointer, dimension(:,:) :: f_ptr
-        logical(kind=c_bool):: is_associated
+        integer(kind=c_int):: is_associated_as_integer
 
         ! Turn the C string into a Fortran string
         call c_f_pointer(name_c_ptr, name)
 
         ! Turn the ESMF State C pointer to a Fortran pointer
-        call c_f_pointer(esmf_state_c_ptr, state)        
+        call c_f_pointer(state_c_ptr, state)        
         
         call MAPL_GetPointer(state, f_ptr, trim(name), alloc=logical(alloc), RC=STATUS)
         VERIFY_(STATUS)
-        is_associated = associated(f_ptr)
+        is_associated_as_integer = merge(1, 0, associated(f_ptr))
     
     end function
 
@@ -193,44 +184,33 @@ module mapl_python_fortran_bridge
     
     end function
 
-    function MAPLpy_GetPointer_3D_associated(esmf_state_c_ptr, name_c_ptr, name_len, alloc) result(is_associated) bind(c, name="MAPLpy_GetPointer_3D_associated")
+    function MAPLpy_GetPointer_associated(state_c_ptr, name_c_ptr, name_len, alloc) result(is_associated_as_integer) bind(c, name="MAPLpy_GetPointer_3D_associated")
+        ! We retrieve the associated state via an Int to circumvent disagreement in ICX about
+        ! the definition fo a Fortran/C boolean. Integer remains the most portable solution.
         ! Read in STATE
-        type(c_ptr), intent(in), value :: esmf_state_c_ptr
+        type(c_ptr), intent(in), value :: state_c_ptr
         type(ESMF_State), pointer :: state
 
         ! Read in name
         type(c_ptr), intent(in), value :: name_c_ptr
         integer(c_int), intent(in), value :: name_len
         character(len=name_len,kind=c_char), pointer :: name
-        logical(c_bool), intent(in), value :: alloc
+        logical, intent(in), value :: alloc
 
         ! Results
         real, pointer, dimension(:,:,:) :: f_ptr
-        logical(kind=c_bool):: is_associated
+        integer(kind=c_int):: is_associated_as_integer
 
         ! Turn the C string into a Fortran string
         call c_f_pointer(name_c_ptr, name)
 
         ! Turn the ESMF State C pointer to a Fortran pointer
-        call c_f_pointer(esmf_state_c_ptr, state)        
+        call c_f_pointer(state_c_ptr, state)        
         
         call MAPL_GetPointer(state, f_ptr, trim(name), alloc=logical(alloc), RC=STATUS)
         VERIFY_(STATUS)
-        is_associated = associated(f_ptr)
+        is_associated_as_integer = merge(1, 0, associated(f_ptr))
     
-    end function
-
-    function MAPLpy_Associated(pointer_to_test) result(result) bind(c, name="MAPLpy_Associated")
-
-        type(c_ptr), intent(in), value :: pointer_to_test
-        type(ESMF_TimeInterval), pointer :: state
-        logical(c_bool) :: result
-
-        real, pointer :: f_ptr
-
-        call c_f_pointer(pointer_to_test, f_ptr)
-        result = associated(f_ptr)
-
     end function
 
     function MAPLpy_GetResource_Float(state_c_ptr, name_c_ptr, name_len, default) result(result) bind(c, name="MAPLpy_GetResource_Float")
@@ -403,8 +383,7 @@ module mapl_python_fortran_bridge
         call c_f_pointer(c_mapl_state, state)              
 
         call MAPL_Get(state, IM=local_r, RC=STATUS)
-        print*, "MAPL_GetIM", result
-
+        
         VERIFY_(STATUS)
         result = local_r
     

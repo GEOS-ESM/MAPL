@@ -501,15 +501,21 @@ contains
          ! NOTE: The test is that with NAG on Arm macOS, halting is
          ! not supported properly, so we check if halting is allowed via
          ! set_halting_allowed constant defined above.
+         ! Flang on macOS lowers ieee_set/get_halting_mode to fe*except,
+         ! which are not available in the macOS C library.
+#if !((defined(__DARWIN) || defined(sysDarwin)) && defined(__flang__))
          if (set_halting_allowed) then
             call ieee_get_halting_mode(ieee_all, halting_mode)
             call ieee_set_halting_mode(ieee_all, .false.)
          end if
+#endif
          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
          _VERIFY(ierror)
+#if !((defined(__DARWIN) || defined(sysDarwin)) && defined(__flang__))
          if (set_halting_allowed) then
             call ieee_set_halting_mode(ieee_all, halting_mode)
          end if
+#endif
 
       else
          ! If we are here, then MPI has already been initialized by the user
@@ -637,4 +643,3 @@ contains
    end function GetPinFlagFromConfig
 
 end module MAPL_CapMod
-

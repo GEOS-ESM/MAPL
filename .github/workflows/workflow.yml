@@ -2,7 +2,7 @@ name: Build Tests
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
     # Do not run if the only files changed cannot affect the build
     paths-ignore:
       - "**.md"
@@ -12,9 +12,16 @@ on:
       - ".github/PULL_REQUEST_TEMPLATE.md"
       - ".editorconfig"
 
+concurrency:
+  # For PRs: one slot per PR number.
+  # For non-PR events (schedule, workflow_dispatch): one slot per ref.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check-ford-docs:
     name: Build Ford Docs
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,9 +43,10 @@ jobs:
 
   build_test_mapl_gnu:
     name: gfortran / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env-mkl:v8.24.0-openmpi_5.0.5-gcc_14.2.0
+      image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_14.2.0
     strategy:
       fail-fast: false
       matrix:
@@ -65,9 +73,10 @@ jobs:
 
   build_test_mapl_gnu15:
     name: gfortran-15 / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env-mkl:v8.24.0-openmpi_5.0.5-gcc_15.2.0
+      image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_15.2.0
     strategy:
       fail-fast: false
       matrix:
@@ -94,9 +103,10 @@ jobs:
 
   build_test_mapl_ifort:
     name: ifort / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.24.0-intelmpi_2021.13-ifort_2021.13
+      image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.13-ifort_2021.13
     strategy:
       fail-fast: false
       matrix:
@@ -118,9 +128,10 @@ jobs:
 
   build_test_mapl_ifx:
     name: ifx / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.24.0-intelmpi_2021.17-ifx_2025.3
+      image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.17-ifx_2025.3
     strategy:
       fail-fast: false
       matrix:
@@ -141,6 +152,7 @@ jobs:
           fortran-compiler: ifx
 
   build_gcm:
+    if: github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:

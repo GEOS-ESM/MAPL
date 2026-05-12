@@ -14,7 +14,7 @@ The main differences are:
 
 **ExtDataDriver.F90**: This is the top level program, not much here, looks like GEOSgcm.x
 
-**ExtDataDriverMod.F90**: This is basically a reimplementation of MAPL_Cap with some extra bells and whistles. It initializes MAPL, starts the output server and runs the "cap-like" grid comp which is the grid comp defined in ExtDataDriverGridComp.F90. The crucial difference is that it can run multiple instanciations of the GridComp defined in ExtDataDriverGridComp.F90 sequentially if desired. 
+**ExtDataDriverMod.F90**: This is basically a reimplementation of MAPL_Cap with some extra bells and whistles. It initializes MAPL, starts the output server and runs the "cap-like" grid comp which is the grid comp defined in ExtDataDriverGridComp.F90. The crucial difference is that it can run multiple instanciations of the GridComp defined in ExtDataDriverGridComp.F90 sequentially if desired.
 
 **ExtDataDriverGridComp.F90**: This is basically a reimplementation of MAPL_CapGridComp with a few more bells and whistles but at the end of the day runs ExtData, a root component, and History at one or more time steps and ticks a clock. It just allows more fine-grained control over when it's 3 child components run rather than just ticking a clock and running them at every step.
 
@@ -103,7 +103,7 @@ Lines 1 and 2 define the layout that will be used by component when making the g
 
 Lines 4 to 10 are defining a 90x45 lat-on grid. This can also be a cubed-sphere or tripolar. If you look in a GEOSgcm.x AGCM.rc this follows the same conventions for the grid definition used there.
 
-Line 12 defines what the root gridcomp will do. All options will be explained later. In this case we have set "GenerateExports", so all it will do is fill any exports using the definitions later on in the file. 
+Line 12 defines what the root gridcomp will do. All options will be explained later. In this case we have set "GenerateExports", so all it will do is fill any exports using the definitions later on in the file.
 
 Lines 14 to 17 defines the fields that will be added to the export state. **Note this is completely defined at run time, i.e you can change the export (and import state) of this component with no code recompilation!** The general syntax is:
 
@@ -113,7 +113,7 @@ and results in a MAPL_AddExportSpec being added with the SHORT_NAME, LONG_NAME, 
 
 You can have as many entries here as you want. In the AGCM1.rc example we add a single 2D and a single 3D variable. Note there are some limitations. In particular there is no mechanism now to add varspecs with ungridded dimensions.
 
-Finally lines 19 to 22 define what to fill the export variables with. You basically give it an expression that is a function of the allowed input variables. In this case we are filling them with a variable named time which is a constant field that is the delta relative to the reference time (defined on line 24). Another example to specify expressions for fields with spherical coordinates is 
+Finally lines 19 to 22 define what to fill the export variables with. You basically give it an expression that is a function of the allowed input variables. In this case we are filling them with a variable named time which is a constant field that is the delta relative to the reference time (defined on line 24). Another example to specify expressions for fields with spherical coordinates is
 ```
 FILL_DEF::
 VAR2D cos(lons)*cos(lats)
@@ -163,12 +163,12 @@ There is really nothing to say about these. They are just the input to History a
 ## Why Have a CAP1.rc and CAP2.rc and Run in One Execution
 So by now you are probably asking what's the point of of this. Why not just run ExtDataDriver.x twice and not bother with this CAP.rc file that itself specifies the individual RC files. You are right, you could do that but this way I can get away with one execution. But you will say, ok fine, but what is the point of this case?
 
-In this case and indeed all the test cases I have in MAPL I can do self consistent testing of both History AND ExtData. In one execution of ExtDataDriver.x I can have it generate output files via History, then read those files back in via ExtData, then test that what I read in were read in properly (since I know what I put out in the first place!). That's the point of these test cases. 
+In this case and indeed all the test cases I have in MAPL I can do self consistent testing of both History AND ExtData. In one execution of ExtDataDriver.x I can have it generate output files via History, then read those files back in via ExtData, then test that what I read in were read in properly (since I know what I put out in the first place!). That's the point of these test cases.
 
 So CAP1.rc defines a instantiation of ExtDataDriverGridComp that outputs some stuff in History from the exports of the root component which are filled with data by the root component. CAP2.rc defines an instantiation of ExtDataDriverGridComp that outputs nothing (since HISTORY2.rc), but now has some imports which get filled with ExtData using the files generated in the previous iteration, it has some exports that are filled by root component and it compares the states, field by field. If they don't match, something either in History or ExtData did not do something right!
 
 # All Options for Root Component RC File
-As you hopefully have seen, gridded component defined in the ExtDataRoot_GridComp.F90 basically allows one to specify the import and export fields of that grid comp maybe do a few things with them like fill the exports or compare the imports to the exports. 
+As you hopefully have seen, gridded component defined in the ExtDataRoot_GridComp.F90 basically allows one to specify the import and export fields of that grid comp maybe do a few things with them like fill the exports or compare the imports to the exports.
 
 ## Runtime Behavior
 To modify this behavior you use the RUN_MODE: option and it can be set to:
@@ -182,7 +182,7 @@ To modify this behavior you use the RUN_MODE: option and it can be set to:
 **FillImport** - this really does nothing, it add the import fields and that's it
 
 ## Specifying Import and Export State
-The import and export state of the root component is specified via a tables named `EXPORT_STATE` and `IMPORT_STATE`. Each table consists of multiple lines where each line is a comma separated list with the following values. 
+The import and export state of the root component is specified via a tables named `EXPORT_STATE` and `IMPORT_STATE`. Each table consists of multiple lines where each line is a comma separated list with the following values.
 
 `short_name , units , long_name , horiztonal_defintion , vertical_definition`
 
@@ -192,8 +192,8 @@ The `vertical_definition`, can be c or e (center or edge), if the `horizontal_de
 These are ultimately translated into the standard MAPL mechanism to add the fields via the MAPL AddSpec calls.
 
 ## Setting the Fill Definitions for Export Fields
-If the run mode is set to GenerateExports, each export state is filled using the supplied definition in the `FILL_DEF::` table. Each line of the table consists of the export name followed by an expression. The expression can be any valid expression understood by the MAPL arithemtic parser. The allowed variable names are any of the predefined variables 2D (or 1D if on tiles) in the internal state of the Root component. At this time the following variables are available:
-If the run mode is set to GenerateExports, each export state is filled using the supplied definition in the `FILL_DEF::` table. Each line of the table consists of the export name followed by an expression. The expression can be any valid expression understood by the MAPL arithemtic parser. Since the parser supports broadcasting these variables may be used to fill either 2D or 3D variables. The allowed variable names are any of the predefined variables in the internal state of the Root component. At this time the following variables are available:
+If the run mode is set to GenerateExports, each export state is filled using the supplied definition in the `FILL_DEF::` table. Each line of the table consists of the export name followed by an expression. The expression can be any valid expression understood by the MAPL arithmetic parser. The allowed variable names are any of the predefined variables 2D (or 1D if on tiles) in the internal state of the Root component. At this time the following variables are available:
+If the run mode is set to GenerateExports, each export state is filled using the supplied definition in the `FILL_DEF::` table. Each line of the table consists of the export name followed by an expression. The expression can be any valid expression understood by the MAPL arithmetic parser. Since the parser supports broadcasting these variables may be used to fill either 2D or 3D variables. The allowed variable names are any of the predefined variables in the internal state of the Root component. At this time the following variables are available:
 1. `time` - time relative to the reference time, if not specified this is the initialization time of the component. To specify a reference time add a `REF_TIME: integer_date integer_time` keyword to the resource file, where the value of the is two 8 digit integer encodings for the date and time
 2. `lats` - latitudes of the root component grid
 3. `lons` - longitude of the root component grid

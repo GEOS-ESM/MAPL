@@ -23,4 +23,3 @@ end module MAPL
 module MAPL_Mod
    use MAPL
 end module MAPL_Mod
-   

@@ -174,6 +174,8 @@ module MAPL_TileGridIOMod
            call v%add_attribute('long_name','latitude')
            call this%metadata%add_variable('lat',v,rc=status)
            _VERIFY(status)
+        endif
+        if (allocated(this%i_index)) then
            v = Variable(type=PFIO_INT32,dimensions='tile')
            call v%add_attribute('units','1')
            call v%add_attribute('long_name','i_index')
@@ -185,7 +187,6 @@ module MAPL_TileGridIOMod
            call this%metadata%add_variable('JG',v,rc=status)
            _VERIFY(status)
         endif
-
 
         if (this%itemOrderAlphabetical) then
            call this%alphabatize_variables(metadataVarsSize,rc=status)
@@ -255,7 +256,7 @@ module MAPL_TileGridIOMod
         endif
 
         if (this%timeInfo%is_initialized) then
-           
+
            if (fieldRank==1) then
               vdims = grid_dims//",time"
               call ESMF_FieldGet(field,farrayPtr=ptr1d, _RC)
@@ -265,7 +266,7 @@ module MAPL_TileGridIOMod
               vdims=grid_dims//",unknown_dim2,unknown_dim1,time"
            else if (fieldRank==4) then
               vdims=grid_dims//",unknown_dim3,unknown_dim2,unknown_dim1,time"
-           else 
+           else
               _FAIL( 'Unsupported field rank')
            end if
         else
@@ -371,7 +372,7 @@ module MAPL_TileGridIOMod
               !end if
               !call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
               !_VERIFY(status)
-              _FAIL('not yet implmented for tile vector')
+              _FAIL('not yet implemented for tile vector')
            end if
            call iter%next()
         enddo
@@ -405,7 +406,7 @@ module MAPL_TileGridIOMod
         call ESMF_FieldGet(field,rank=fieldRank,rc=status)
         _VERIFY(status)
 
-        
+
         if (fieldRank==1) then
            call ESMF_FieldRedist(field, outField, this%routeHandle, rc=status)
            _VERIFY(status)
@@ -470,11 +471,12 @@ module MAPL_TileGridIOMod
         ref = ArrayReference(this%tilelats)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lat', &
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-
+     endif
+     if (allocated(this%i_index)) then
         ref = ArrayReference(this%i_index)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'IG', &
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-        
+
         ref = ArrayReference(this%j_index)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'JG', &
              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
@@ -585,7 +587,7 @@ module MAPL_TileGridIOMod
         end if
      end do
 
-     _RETURN(_SUCCESS)   
+     _RETURN(_SUCCESS)
 
   end subroutine request_data_from_file
 
@@ -722,7 +724,7 @@ module MAPL_TileGridIOMod
      integer(kind=INT64)               :: ADDR
      type (MAPL_LocStream)             :: locstream
      character(len=ESMF_MAXSTR)        :: gname
-     type(ESMF_GRID)                   :: attachedgrid  
+     type(ESMF_GRID)                   :: attachedgrid
 
      call ESMF_FieldBundleGet(this%input_bundle,grid=tilegrid,rc=status)
      _VERIFY(status)
@@ -736,10 +738,10 @@ module MAPL_TileGridIOMod
      allocate(global_id(nt_global))
      call ESMFL_FCollect(tilegrid, global_id, local_id, _RC)
      call MAPL_grid_interior(tilegrid, i1, i2, j1, j2)
-     call MAPL_Sort(global_id)  
+     call MAPL_Sort(global_id)
      call ESMF_GridGet(tilegrid, name=gname, _RC)
 
-     distgrid = ESMF_DistGridCreate( & 
+     distgrid = ESMF_DistGridCreate( &
          arbSeqIndexList=global_id(i1:i2), rc=status)
      _VERIFY(STATUS)
 
@@ -760,26 +762,21 @@ module MAPL_TileGridIOMod
          maxIndex=(/NT_GLOBAL/), &
          rc=status)
      _VERIFY(STATUS)
-      
+
      call ESMF_GridCommit(ordered_tilegrid, rc=status)
-    _VERIFY(STATUS)   
+    _VERIFY(STATUS)
      this%field_in  = ESMF_FieldCreate(grid=tilegrid,  typekind=ESMF_TYPEKIND_R4, _RC)
      this%field_out = ESMF_FieldCreate(grid=ordered_tilegrid, typekind=ESMF_TYPEKIND_R4, _RC)
      this%output_grid = ordered_tilegrid
-   
+
      call ESMF_FieldRedistStore(srcField= this%field_in, dstField=this%field_out, &
                 routehandle=this%routehandle, _RC)
 
-     ! reordered lat-lon, II, and JJ
-     if (associated(tilelons) .and. associated(tilelats) .and. associated(local_i) .and. associated(local_j)) then 
+     call MAPL_FieldGetPointer(this%field_in, ptr1d,rc=status)
+     call MAPL_FieldGetPointer(this%field_out,outptr1d,rc=status)
+     ! reordered lat-lon
+     if (associated(tilelons) .and. associated(tilelats) ) then 
         allocate(this%tilelons(arbIndexCount), this%tilelats(arbIndexCount))
-        allocate(this%i_index(arbIndexCount),  this%j_index(arbIndexCount))
-        call MAPL_FieldGetPointer(this%field_in, ptr1d,rc=status)
-        call MAPL_FieldGetPointer(this%field_out,outptr1d,rc=status)
-
-        call MAPL_LocStreamGet(locstream, attachedgrid=attachedgrid, _RC)
-        call MAPL_grid_interior(attachedgrid, i1, i2, j1, j2)
-        call ESMF_GridGet(attachedgrid, name=gname, _RC)
 
         ptr1d(:) = tilelons(:)
         call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
@@ -788,6 +785,14 @@ module MAPL_TileGridIOMod
         ptr1d(:) = tilelats(:)
         call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
         this%tilelats = outptr1d*MAPL_RADIANS_TO_DEGREES
+     endif
+     ! reordered II, and JJ
+     if ( associated(local_i) .and. associated(local_j)) then 
+        allocate(this%i_index(arbIndexCount),  this%j_index(arbIndexCount))
+
+        call MAPL_LocStreamGet(locstream, attachedgrid=attachedgrid, _RC)
+        call MAPL_grid_interior(attachedgrid, i1, i2, j1, j2)
+        call ESMF_GridGet(attachedgrid, name=gname, _RC)
 
         ptr1d(:) = local_i(:) + i1 -1
         if (index(gname, 'EASE') /=0) ptr1d = ptr1d - 1
@@ -797,10 +802,11 @@ module MAPL_TileGridIOMod
         ptr1d(:) = local_j(:) + j1 -1
         if (index(gname, 'EASE') /=0) ptr1d = ptr1d - 1
         call ESMF_FieldRedist(this%field_in, this%field_out, this%routeHandle, rc=status)
-        this%j_index = nint(outptr1d) 
+        this%j_index = nint(outptr1d)
      endif
+
      _RETURN(_SUCCESS)
-     
-  end subroutine  
+
+  end subroutine
 
 end module MAPL_TileGridIOMod

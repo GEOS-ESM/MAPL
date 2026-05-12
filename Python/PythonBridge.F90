@@ -21,7 +21,7 @@ module MAPL_PythonBridge
    use mapl_fortran_python_bridge, only: mapl_fortran_python_bridge_user_finalize
    use mapl_fortran_python_bridge, only: pygeosbridge_name_buffer
    use ieee_exceptions, only: ieee_get_halting_mode, ieee_set_halting_mode
-   use ieee_exceptions, only: ieee_overflow, ieee_support_halting
+   use ieee_exceptions, only: ieee_overflow, ieee_invalid, ieee_support_halting
    use iso_c_binding, only: c_loc, C_NULL_CHAR
 #endif
 
@@ -53,22 +53,27 @@ contains
       integer :: RC
 
 #ifdef PYTHONBRIDGE_INTEGRATION
-      logical :: halting_mode(5)
+      logical :: halting_mode_overflow(5)
+      logical :: halting_mode_invalid(5)
       logical :: set_halting_allowed
 
       ! Spin the interface - we have to deactivate the ieee error
       ! to be able to load numpy, scipy and other numpy packages
-      ! that generate an overflow during init
+      ! that generate an overflow or invalid operation during init
 
-      set_halting_allowed = ieee_support_halting(ieee_overflow)
+      set_halting_allowed = ieee_support_halting(ieee_overflow) .and. &
+         ieee_support_halting(ieee_invalid)
 
       if (set_halting_allowed) then
-         call ieee_get_halting_mode(ieee_overflow, halting_mode)
+         call ieee_get_halting_mode(ieee_overflow, halting_mode_overflow)
          call ieee_set_halting_mode(ieee_overflow, .false.)
+         call ieee_get_halting_mode(ieee_invalid, halting_mode_invalid)
+         call ieee_set_halting_mode(ieee_invalid, .false.)
       end if
       call mapl_fortran_python_bridge_global_initialize(im, jm, lm)
       if (set_halting_allowed) then
-         call ieee_set_halting_mode(ieee_overflow, halting_mode)
+         call ieee_set_halting_mode(ieee_overflow, halting_mode_overflow)
+         call ieee_set_halting_mode(ieee_invalid, halting_mode_invalid)
       end if
 #endif
 
