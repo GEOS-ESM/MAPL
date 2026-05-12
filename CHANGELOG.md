@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Relaxed comparison standard for grid_is_ok. Added a test program to querry index
 - Fixed bug in WireComponent affecting TerminateImport
 - Removed unnecessary _ASSERT in MAPL_TerminateImportAllBut
 - Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
