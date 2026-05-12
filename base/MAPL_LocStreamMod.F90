@@ -23,8 +23,7 @@ module MAPL_LocStreamMod
   ! !USES:
 
 use ESMF
-use ESMFL_Mod
-use mapl_MaplGrid,  only: MAPL_GridGet
+use mapl_MaplGrid,  only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms
 use MAPL_Constants
 use mapl3g_GridGet, only: geom_GridGet => GridGet
 use NCIOMod, only: MAPL_ReadTilingNC4
@@ -156,6 +155,21 @@ interface MAPL_LocStreamTransform
    module procedure MAPL_LocStreamTransformT2TR4R8
    module procedure MAPL_LocStreamTransformT2TR8R4
 end interface
+
+! -----------------------------------------------------------------------
+! Private generic interfaces for routines moved here from ESMFL_Mod
+! as part of MAPL3 cleanup (MAPL#4862). No callers outside this module.
+! -----------------------------------------------------------------------
+
+  interface ESMFL_FCOLLECT
+     module procedure ESMFL_FCOLLECT_I4
+     module procedure ESMFL_FCOLLECT_R4
+     module procedure ESMFL_FCOLLECT_R8
+  end interface ESMFL_FCOLLECT
+
+  interface ESMFL_HALO
+     module procedure ESMFL_HALO_R4_2D
+  end interface ESMFL_HALO
 
 contains
 
@@ -745,7 +759,7 @@ contains
 
 100 _RETURN(ESMF_FAILURE)
 
-  contains
+contains
 
 #ifndef NEW_INTERP_CODE
    subroutine GetBilinearCoeffs(X0,Y0,DX,DY,X,Y,II,JJ,D,RC)
@@ -2667,5 +2681,477 @@ subroutine MAPL_LocstreamCreateSimple(Locstream, grid, local_id, tilelons, tilel
     
   _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_LocStreamCreateSimple
+
+
+! -----------------------------------------------------------------------
+! Private subroutine bodies (moved from ESMFL_Mod, MAPL#4862).
+! These have no callers outside this module.
+! -----------------------------------------------------------------------
+
+subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
+   type(ESMF_Grid),   intent(INout ) :: GRID
+   real, dimension(:,:), pointer  :: coord
+   character (len=*) , intent(IN) :: name
+   type(ESMF_StaggerLoc)          :: location
+   integer                        :: units
+   integer, optional              :: rc
+
+   integer                   :: rank
+   type(ESMF_CoordSys_Flag)  :: crdSys
+   type(ESMF_TypeKind_Flag)  :: tk
+   integer                   :: counts(ESMF_MAXDIM)
+   integer                   :: crdOrder
+   real(ESMF_KIND_R4), pointer :: r4d2(:,:)
+   real(ESMF_KIND_R8), pointer :: r8d2(:,:)
+   real(ESMF_KIND_R8)        :: conv2rad
+   integer                   :: STATUS
+   integer                   :: i
+   integer                   :: j
+   integer                   :: coordDimCount(ESMF_MAXDIM)
+   character(len=ESMF_MAXSTR):: gridname
+
+   _UNUSED_DUMMY(Units)
+
+   call ESMF_GridGet(grid, coordSys=crdSys, coordTypeKind=tk, &
+           dimCount=rank, coordDimCount=coordDimCount, rc=status)
+   _VERIFY(STATUS)
+
+   if (name == "Longitude") then
+     crdOrder = 1
+   else if (name == "Latitude") then
+     crdOrder = 2
+   else
+    STATUS=ESMF_FAILURE
+    _VERIFY(STATUS)
+   endif
+
+   call ESMF_GridGet(grid, name=gridname, rc=status)
+   _VERIFY(STATUS)
+
+   if (gridname(1:10) == 'tile_grid_') then
+      call MAPL_GridGet(GRID, localCellCountPerDim=counts, rc=status)
+      _VERIFY(STATUS)
+      allocate(coord(counts(1), counts(2)), STAT=status)
+      _VERIFY(STATUS)
+      coord = 0.0
+      do I=1, counts(1)
+         do J=1, counts(2)
+            if (crdOrder == 1) then
+               coord(i,j) = i
+            else
+               coord(i,j) = j
+            end if
+         end do
+      end do
+      coord = coord * (MAPL_PI_R8 / 180.d+0)
+      _RETURN(ESMF_SUCCESS)
+   end if
+
+   if (crdSys == ESMF_COORDSYS_SPH_DEG) then
+      conv2rad = MAPL_PI_R8 / 180._ESMF_KIND_R8
+   else if (crdSys == ESMF_COORDSYS_SPH_RAD) then
+      conv2rad = 1._ESMF_KIND_R8
+   else
+      _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
+   end if
+
+   if (tk == ESMF_TYPEKIND_R4) then
+      if (coordDimCount(crdOrder)==2) then
+         call ESMF_GridGetCoord(grid, localDE=0, coordDim=crdOrder, &
+              staggerloc=location, &
+              computationalCount=COUNTS,  &
+              farrayPtr=R4D2, rc=status)
+         _VERIFY(STATUS)
+         allocate(coord(counts(1), counts(2)), STAT=status)
+         _VERIFY(STATUS)
+         coord = conv2rad * R4D2
+      else
+         _RETURN(ESMF_FAILURE)
+      endif
+   else if (tk == ESMF_TYPEKIND_R8) then
+      if (coordDimCount(crdOrder)==2) then
+         call ESMF_GridGetCoord(grid, localDE=0, coordDim=crdOrder, &
+              staggerloc=location, &
+              computationalCount=COUNTS,  &
+              farrayPtr=R8D2, rc=status)
+         _VERIFY(STATUS)
+         allocate(coord(counts(1), counts(2)), STAT=status)
+         _VERIFY(STATUS)
+         coord = conv2rad * R8D2
+      else
+         _RETURN(ESMF_FAILURE)
+      endif
+   else
+      _RETURN(ESMF_FAILURE)
+   endif
+   _RETURN(ESMF_SUCCESS)
+
+end subroutine ESMFL_GridCoordGet
+
+SUBROUTINE ESMFL_HALO_R4_2D(GRID, INPUT, RC)
+   TYPE(ESMF_Grid),         INTENT(INout) :: GRID
+   REAL,                    INTENT(INOUT) :: INPUT(:,:)
+   integer, optional,       intent(OUT)   :: RC
+
+   integer                    :: STATUS
+   INTEGER :: LAST, LEN1, LEN2
+   integer :: nn_north, nn_south, nn_east, nn_west
+   integer :: j_north, j_south, i_east, i_west
+   integer, save                            :: NX=-1
+   integer, save                            :: NY=-1
+   integer                                  :: NX0, NY0
+   type (ESMF_DELayout)                     :: layout
+   integer                                  :: myid
+   integer                                  :: ndes
+   integer                                  :: dimCount
+   integer, allocatable                     :: minindex(:,:)
+   integer, allocatable                     :: maxindex(:,:)
+   integer, pointer                         :: ims(:) => null()
+   integer, pointer                         :: jms(:) => null()
+   type (ESMF_VM)                           :: VM
+   type (ESMF_DistGrid)                     :: distGrid
+
+#define MAX_HALOTYPES 8
+   type HaloType
+      character(len=ESMF_MAXSTR)            :: gridname = ""
+      type(ESMF_DELayout)                   :: layout
+      integer                               :: NX = -1
+      integer                               :: NY = -1
+      integer                               :: domainIdx = -1
+      integer                               :: myId
+      logical                               :: inUse = .false.
+   end type HaloType
+
+   type(HaloType), save                     :: myHaloTypes(MAX_HALOTYPES)
+   type(HaloType)                           :: thisHaloType
+   logical                                  :: found
+   integer                                  :: I
+   character(len=ESMF_MAXSTR)               :: gridname
+   call ESMF_GridGet    (GRID,   name=gridname, RC=STATUS)
+   _VERIFY(STATUS)
+
+   found = .false.
+   DO I = 1, MAX_HALOTYPES
+      if (gridname == myHaloTypes(I)%gridname) then
+         found = .true.
+         thisHaloType = myHaloTypes(I)
+         exit
+      end if
+   END DO
+
+   if (.not. found) then
+      DO I = 1, MAX_HALOTYPES
+         if(.not.myHaloTypes(I)%inUse) then
+            found = .true.
+            thisHaloType%domainIdx = I
+            exit
+         end if
+      END DO
+
+      if (.not.found) then
+         print *, "Error: need bigger MAX_HALOTYPES value"
+         _FAIL( 'no unused slot for halo types')
+      end if
+
+      call ESMF_GridGet(GRID,   distGrid=distGrid, dimCount=dimCount, RC=STATUS)
+      _VERIFY(STATUS)
+      call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
+      _VERIFY(STATUS)
+      call ESMF_DELayoutGet (layout, VM=vm, RC=STATUS)
+      _VERIFY(STATUS)
+      call ESMF_VmGet(VM, localPet=MYID, petCount=ndes, rc=status)
+      _VERIFY(STATUS)
+
+      thisHaloType%myId = MyId
+
+      allocate(minindex(dimCount,ndes), maxindex(dimCount,ndes), stat=status)
+      _VERIFY(STATUS)
+
+      call MAPL_DistGridGet(distgrid, &
+           minIndex=minindex, &
+           maxIndex=maxindex, rc=status)
+      _VERIFY(STATUS)
+
+      call MAPL_GetImsJms(Imins=minindex(1,:),Imaxs=maxindex(1,:),&
+           Jmins=minindex(2,:),Jmaxs=maxindex(2,:),Ims=ims,Jms=jms,rc=status)
+      _VERIFY(STATUS)
+
+      NX = size(ims)
+      NY = size(jms)
+
+      deallocate(jms, ims)
+      deallocate(maxindex, minindex)
+
+      thisHaloType%gridname = gridname
+      thisHaloType%inUse    = .true.
+      thisHaloType%NX = NX
+      thisHaloType%NY = NY
+      thisHaloType%layout = layout
+
+      myHaloTypes(thisHaloType%domainIdx) = thisHaloType
+
+   end if
+
+   NX = thisHaloType%NX
+   NY = thisHaloType%NY
+   myId = thisHaloType%myId
+   layout = thisHaloType%layout
+
+   NX0 = mod(MYID,NX)
+   NY0 = MYID/NX
+
+   j_north = mod(NY0   +1,NY)
+   j_south = mod(NY0+NY-1,NY)
+   i_east  = MOD(NX0   +1,NX)
+   i_west  = MOD(NX0+NX-1,NX)
+
+   nn_north = NX0 + NX*j_north
+   nn_south = NX0 + NX*j_south
+   nn_west  = i_west + NX*NY0
+   nn_east  = i_east + NX*NY0
+
+   LAST = SIZE(INPUT,2)-1
+   LEN1 = SIZE(INPUT,1)
+
+   call MAPL_CommsSendRecv(LAYOUT, &
+        INPUT(:,2        ),  LEN1,  NN_SOUTH,  &
+        INPUT(:,last+1   ),  LEN1,  NN_NORTH,  &
+        RC=STATUS)
+   _VERIFY(STATUS)
+   if(NY0==NY-1) then
+      INPUT(:,last+1   ) = INPUT(:,last )
+   end if
+
+   CALL MAPL_CommsSendRecv(layout,             &
+        INPUT(:,last     ),  LEN1,  NN_NORTH,  &
+        INPUT(:,1        ),  LEN1,  NN_SOUTH,  &
+        RC=STATUS)
+   _VERIFY(STATUS)
+   if(NY0==0) then
+      INPUT(:,1   ) = INPUT(:,2 )
+   endif
+
+   LAST = SIZE(INPUT,1)-1
+   LEN2 = SIZE(INPUT,2)
+
+   CALL MAPL_CommsSendRecv(layout,           &
+        INPUT(2     , : ),  LEN2,  NN_WEST,  &
+        INPUT(last+1, : ),  LEN2,  NN_EAST,  &
+        RC=STATUS)
+   _VERIFY(STATUS)
+
+   CALL MAPL_CommsSendRecv(layout,           &
+        INPUT(last  , : ),  LEN2,  NN_EAST,  &
+        INPUT(1     , : ),  LEN2,  NN_WEST,  &
+        RC=STATUS)
+   _VERIFY(STATUS)
+
+   _RETURN(ESMF_SUCCESS)
+
+end SUBROUTINE ESMFL_HALO_R4_2D
+
+subroutine ESMFL_FCOLLECT_I4(GRID, FULLINPUT, INPUT, RC )
+   type(ESMF_GRID), intent(IN   )     :: GRID
+   integer,             intent(INOUT) :: FULLINPUT(:)
+   integer,             intent(IN   ) :: INPUT(:)
+   integer, optional,   intent(  OUT) :: rc
+
+   integer          :: status
+   type (ESMF_DistGrid)                  :: distGrid
+   type(ESMF_DELayout)                   :: LAYOUT
+   type (ESMF_VM)                        :: vm
+   integer,               allocatable    :: AL(:,:)
+   integer,               allocatable    :: AU(:,:)
+   integer, pointer, dimension(:)            :: recvcounts, displs
+   integer                                       :: nDEs
+   integer                                       :: sendcount
+   integer                                       :: I, J, de, deId
+   integer                                       :: I1, IN
+   integer                                       :: gridRank
+
+   call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_DELayoutGet(layout, vm=vm, rc=status)
+   _VERIFY(STATUS)
+   call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status)
+   _VERIFY(STATUS)
+
+   allocate (AL(gridRank,0:nDEs-1),  stat=status)
+   _VERIFY(STATUS)
+   allocate (AU(gridRank,0:nDEs-1),  stat=status)
+   _VERIFY(STATUS)
+
+   call MAPL_DistGridGet(distgrid, &
+        minIndex=AL, maxIndex=AU, rc=status)
+   _VERIFY(STATUS)
+
+   allocate (recvcounts(nDEs), displs(0:nDEs), stat=status)
+   _VERIFY(STATUS)
+
+   displs(0) = 0
+   do I = 1,nDEs
+      J = I - 1
+      de = J
+      I1 = AL(1,J)
+      IN = AU(1,J)
+      recvcounts(I) = (IN - I1 + 1)
+      if (de == deId) then
+         sendcount = recvcounts(I)
+      endif
+      displs(I) = displs(J) + recvcounts(I)
+   enddo
+
+   _ASSERT(sendcount == size(input), 'inconsistent sendcount')
+   _ASSERT(sum(recvcounts) == size(fullinput), 'inconsistent recvcount')
+
+   call MAPL_CommsAllGatherV(layout, input, sendcount, &
+                             fullinput, recvcounts, displs, rc=status)
+   _VERIFY(STATUS)
+
+   deallocate(recvcounts, displs, AU, AL, stat=status)
+   _VERIFY(STATUS)
+
+   _RETURN(ESMF_SUCCESS)
+end subroutine ESMFL_FCOLLECT_I4
+
+subroutine ESMFL_FCOLLECT_R4(GRID, FULLINPUT, INPUT, RC )
+   type(ESMF_GRID), intent(IN   )     :: GRID
+   real,             intent(INOUT) :: FULLINPUT(:)
+   real,             intent(IN   ) :: INPUT(:)
+   integer, optional,   intent(  OUT) :: rc
+
+   integer          :: status
+   type (ESMF_DistGrid)                  :: distGrid
+   type(ESMF_DELayout)                   :: LAYOUT
+   type (ESMF_VM)                        :: vm
+   integer,               allocatable    :: AL(:,:)
+   integer,               allocatable    :: AU(:,:)
+   integer, pointer, dimension(:)            :: recvcounts, displs
+   integer                                       :: nDEs
+   integer                                       :: sendcount
+   integer                                       :: I, J, de, deId
+   integer                                       :: I1, IN
+   integer                                       :: gridRank
+
+   call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_DELayoutGet(layout, vm=vm, rc=status)
+   _VERIFY(STATUS)
+   call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status)
+   _VERIFY(STATUS)
+
+   allocate (AL(gridRank,0:nDEs-1),  stat=status)
+   _VERIFY(STATUS)
+   allocate (AU(gridRank,0:nDEs-1),  stat=status)
+   _VERIFY(STATUS)
+
+   call MAPL_DistGridGet(distgrid, &
+        minIndex=AL, maxIndex=AU, rc=status)
+   _VERIFY(STATUS)
+
+   allocate (recvcounts(nDEs), displs(0:nDEs), stat=status)
+   _VERIFY(STATUS)
+
+   displs(0) = 0
+   do I = 1,nDEs
+      J = I - 1
+      de = J
+      I1 = AL(1,J)
+      IN = AU(1,J)
+      recvcounts(I) = (IN - I1 + 1)
+      if (de == deId) then
+         sendcount = recvcounts(I)
+      endif
+      displs(I) = displs(J) + recvcounts(I)
+   enddo
+
+   _ASSERT(sendcount == size(input), 'inconsistent sendcount')
+   _ASSERT(sum(recvcounts) == size(fullinput), 'inconsistent recvcount')
+
+   call MAPL_CommsAllGatherV(layout, input, sendcount, &
+                             fullinput, recvcounts, displs, rc=status)
+   _VERIFY(STATUS)
+
+   deallocate(recvcounts, displs, AU, AL, stat=status)
+   _VERIFY(STATUS)
+
+   _RETURN(ESMF_SUCCESS)
+end subroutine ESMFL_FCOLLECT_R4
+
+subroutine ESMFL_FCOLLECT_R8(GRID, FULLINPUT, INPUT, RC )
+   type(ESMF_GRID), intent(IN   )     :: GRID
+   real(kind= ESMF_KIND_R8), intent(INOUT) :: FULLINPUT(:)
+   real(kind= ESMF_KIND_R8), intent(IN   ) :: INPUT(:)
+   integer, optional,   intent(  OUT) :: rc
+
+   integer          :: status
+   type (ESMF_DistGrid)                  :: distGrid
+   type(ESMF_DELayout)                   :: LAYOUT
+   type (ESMF_VM)                        :: vm
+   integer,               allocatable    :: AL(:,:)
+   integer,               allocatable    :: AU(:,:)
+   integer, pointer, dimension(:)            :: recvcounts, displs
+   integer                                       :: nDEs
+   integer                                       :: sendcount
+   integer                                       :: I, J, de, deId
+   integer                                       :: I1, IN
+   integer                                       :: gridRank
+
+   call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_DELayoutGet(layout, vm=vm, rc=status)
+   _VERIFY(STATUS)
+   call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status)
+   _VERIFY(STATUS)
+
+   allocate (AL(gridRank,0:nDEs-1),  stat=status)
+   _VERIFY(STATUS)
+   allocate (AU(gridRank,0:nDEs-1),  stat=status)
+   _VERIFY(STATUS)
+
+   call MAPL_DistGridGet(distgrid, &
+        minIndex=AL, maxIndex=AU, rc=status)
+   _VERIFY(STATUS)
+
+   allocate (recvcounts(nDEs), displs(0:nDEs), stat=status)
+   _VERIFY(STATUS)
+
+   displs(0) = 0
+   do I = 1,nDEs
+      J = I - 1
+      de = J
+      I1 = AL(1,J)
+      IN = AU(1,J)
+      recvcounts(I) = (IN - I1 + 1)
+      if (de == deId) then
+         sendcount = recvcounts(I)
+      endif
+      displs(I) = displs(J) + recvcounts(I)
+   enddo
+
+   _ASSERT(sendcount == size(input), 'inconsistent sendcount')
+   _ASSERT(sum(recvcounts) == size(fullinput), 'inconsistent recvcount')
+
+   call MAPL_CommsAllGatherV(layout, input, sendcount, &
+                             fullinput, recvcounts, displs, rc=status)
+   _VERIFY(STATUS)
+
+   deallocate(recvcounts, displs, AU, AL, stat=status)
+   _VERIFY(STATUS)
+
+   _RETURN(ESMF_SUCCESS)
+end subroutine ESMFL_FCOLLECT_R8
 
 end module MAPL_LocStreamMod

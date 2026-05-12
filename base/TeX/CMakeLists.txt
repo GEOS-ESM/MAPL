@@ -17,7 +17,7 @@ set (mapl_api_srcs)
 foreach(src
     MAPL_Cap.F90 MAPL_Generic.F90
     MAPL_LocStreamMod.F90 MAPL_Base.F90
-    ESMFL_Mod.F90 MAPL_HistoryGridComp.F90
+    MAPL_HistoryGridComp.F90
     MAPL_GenericCplComp.F90 MAPL_ExtDataGridCompMod.F90
     )
   LIST (APPEND mapl_api_srcs ${CMAKE_CURRENT_SOURCE_DIR}/../${src})
