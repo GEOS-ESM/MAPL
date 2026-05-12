@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "MAPL.h"
 
 module mapl3g_TimeAccumulate
