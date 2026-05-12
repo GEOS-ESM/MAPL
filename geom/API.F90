@@ -8,6 +8,7 @@ module mapl3g_Geom_API
    use mapl3g_GeomGet, only: mapl_GeomGet => GeomGet
    use mapl3g_GridGet, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates
    use mapl3g_GridGetHorzIJIndex, only: mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
+   use mapl3g_GridGetGlobal, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
    use mapl3g_GeomGetHorzIJIndex, only: mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex
    use mapl3g_Subgrid, only: mapl_Interval => Interval, mapl_make_subgrids => make_subgrids
    use mapl3g_XYGeomSpec,    only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
@@ -23,6 +24,7 @@ module mapl3g_Geom_API
    public :: mapl_GridGet
    public :: mapl_GridGetCoordinates
    public :: mapl_GridGetHorzIJIndex, mapl_GeomGetHorzIJIndex
+   public :: mapl_GridGetGlobalCellCountPerDim
 
    ! Used internally by MAPL
    ! Users shouldn't need these

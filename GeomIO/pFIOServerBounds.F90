@@ -7,7 +7,7 @@ module mapl3g_pFIOServerBounds
    use pfio
    use gFTL2_StringVector
    use mapl3g_Geom_API, only: MAPL_GridGet
-   use MAPL_BaseMod, only: MAPL2_GridGet => MAPL_GridGet
+   use mapl_MaplGrid, only: MAPL2_GridGet => MAPL_GridGet
 
    implicit none
    private

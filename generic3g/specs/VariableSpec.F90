@@ -23,7 +23,6 @@ module mapl3g_VariableSpec
    use mapl3g_VerticalGridAspect
    use mapl3g_VerticalAlignment
    use mapl3g_VerticalRegridMethod
-   use mapl3g_FrequencyAspect
    use mapl3g_TypekindAspect
    use mapl3g_QuantityTypeAspect
    use mapl3g_ConservationAspect
@@ -126,14 +125,6 @@ module mapl3g_VariableSpec
       character(:), allocatable :: units ! from FieldDictionary or override
 
       !=====================
-      ! frequency aspect
-      !=====================
-      ! TODO: Should be an enum
-      character(:), allocatable :: accumulation_type
-      type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_TimeInterval), allocatable :: offset
-
-      !=====================
       ! ungridded_dims aspect
       !=====================
       type(UngriddedDims) :: ungridded_dims ! default no ungridded
@@ -164,7 +155,6 @@ module mapl3g_VariableSpec
       procedure :: make_ConservationAspect
       procedure :: make_NormalizationAspect
       procedure :: make_VerticalGridAspect
-      procedure :: make_FrequencyAspect
       procedure :: make_ClassAspect
    end type VariableSpec
 
@@ -190,9 +180,6 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
-        accumulation_type, &
-        timeStep, &
-        offset, &
         vector_component_names, &
         vector_basis_kind, &
         has_deferred_aspects, &
@@ -223,9 +210,6 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
-      character(len=*), optional, intent(in) :: accumulation_type
-      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
       type(StringVector), optional, intent(in) :: vector_component_names
       character(*), optional, intent(in) :: vector_basis_kind
       logical, optional, intent(in) :: has_deferred_aspects
@@ -263,9 +247,6 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
-      _SET_OPTIONAL(accumulation_type)
-      _SET_OPTIONAL(timeStep)
-      _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
        _SET_OPTIONAL(has_deferred_aspects)
        _SET_OPTIONAL(use_field_dictionary)
@@ -458,8 +439,6 @@ contains
          call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, aspect)
       type is (VerticalGridAspect)
          call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
-      type is (FrequencyAspect)
-         call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
       type is (TypekindAspect)
          call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
       type is (QuantityTypeAspect)
@@ -475,22 +454,20 @@ contains
 
    end subroutine add_item
 
-   function make_StateitemSpec(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(spec)
+   function make_StateitemSpec(this, registry, component_geom, vertical_grid, unusable, rc) result(spec)
       type(StateItemSpec) :: spec
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, intent(in) :: registry
       type(ESMF_Geom), optional, intent(in) :: component_geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
       type(AspectMap) :: aspects
       type(VirtualConnectionPtVector) :: dependencies
       integer :: status
 
-      aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
+      aspects = this%make_aspects(registry, component_geom, vertical_grid, _RC)
       dependencies = this%make_dependencies(_RC)
       spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)
 
@@ -498,15 +475,13 @@ contains
       _UNUSED_DUMMY(unusable)
    end function make_StateitemSpec
 
-   function make_aspects(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(aspects)
+   function make_aspects(this, registry, component_geom, vertical_grid, unusable, rc) result(aspects)
       type(AspectMap) :: aspects
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, intent(in) :: registry
       type(ESMF_Geom), optional, intent(in) :: component_geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -539,9 +514,6 @@ contains
       aspect = this%make_VerticalGridAspect(vertical_grid, &
            component_geom=component_geom, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
-
-      aspect = this%make_FrequencyAspect(timestep, offset, _RC)
-      call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
 
       aspect = this%make_ClassAspect(registry, _RC)
       call aspects%insert(CLASS_ASPECT_ID, aspect)
@@ -668,17 +640,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(time_dependent)
    end function make_VerticalGridAspect
-
-   function make_FrequencyAspect(this, timestep, offset, rc) result(aspect)
-      type(FrequencyAspect) :: aspect
-      class(VariableSpec), intent(in) :: this
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
-      integer, optional, intent(out) :: rc
-
-      aspect = FrequencyAspect(timestep, offset, this%accumulation_type)
-      _RETURN(_SUCCESS)
-   end function make_FrequencyAspect
 
    function make_ClassAspect(this, registry, rc) result(aspect)
       class(ClassAspect), allocatable :: aspect

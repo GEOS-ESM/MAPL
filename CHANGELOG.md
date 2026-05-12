@@ -26,8 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   MAPL_CapOptions type.
 - Remove FLAP support.
 - Remove `BUILD_SHARED_MAPL` CMake option. MAPL3 is now always built as a shared library.
+- Remove FrequencyAspect, the transforms for time-based statistics, and the references to them in other source or tests.
 
 ### Added
+
+- Export `mapl_GridGetGlobalCellCountPerDim` from `mapl3g_Geom_API` (`geom/API.F90`) via `mapl3g_GridGetGlobal` (#4857)
+- Migrate internal MAPL callers of `MAPL_BaseMod` in `base/` and `GeomIO/` and `state/` to use source modules directly, as preparation for eventual deletion of `Base_Base.F90` (#4857)
 
 - Added `EASEGeomSpec` and `EASEGeomFactory` to `MAPL.geom` (`geom/EASE/`),
   porting the legacy EASE (Equal-Area Scalable Earth) grid from `MAPL.base`.
@@ -104,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update cap restart file with current time at end of run.
 - Read/write repeatCount from/to cap restart file at beginning/end of run.
 - Added FILL_VALUE with alias to ACG3
-
+- TimeAccumulate to StatisticsGridComp
 
 ### Changed
 
@@ -160,6 +164,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added test scenario `regrid_r8` to verify that R8 fields are correctly regridded across different geometries (related to GH-4694)
 
 ### Changed
+
+- Strip server I/O path from `NCIOMod`; remove `MAPL_BaseMod` dependency from `NCIOMod` and `FileIOSharedMod` (#4783)
+- Add `has_de` optional argument to `GridGet` in `mapl3g_GridGet`; make `grid_has_DE` public
 
 - Switch 6 lightweight CI workflows to `ubuntu-slim` runner to reduce concurrency pressure on `ubuntu-latest` (#4841)
 
