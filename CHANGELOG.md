@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Delete `base/Base/Base_Base.F90` and remove from `base/CMakeLists.txt`; all internal MAPL callers of `MAPL_BaseMod` were previously migrated to source modules (#4857)
 - Removed "Remove"-disposition public interfaces from `MAPL_Base` / `Base_Base.F90` (#4805):
   `MAPL_Tick`, `MAPL_Nsecf`, `MAPL_Nsecf2`, `MAPL_Nhmsf`, `MAPL_Leap`, `MAPL_TimeStringGet`,
   `MAPL_TrimString`, `MAPL_RmQualifier`, `MAPL_GeosNameNew`, `MAPL_GetCorrectedPhase`,
