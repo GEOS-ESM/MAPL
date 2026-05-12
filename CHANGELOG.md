@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Export `mapl_GridGetGlobalCellCountPerDim` from `mapl3g_Geom_API` (`geom/API.F90`) via `mapl3g_GridGetGlobal` (#4857)
+- Migrate internal MAPL callers of `MAPL_BaseMod` in `base/` and `GeomIO/` and `state/` to use source modules directly, as preparation for eventual deletion of `Base_Base.F90` (#4857)
+
 - Added `EASEGeomSpec` and `EASEGeomFactory` to `MAPL.geom` (`geom/EASE/`),
   porting the legacy EASE (Equal-Area Scalable Earth) grid from `MAPL.base`.
   Supports EASEv1 and EASEv2 cylindrical ('M') grids for all standard resolutions

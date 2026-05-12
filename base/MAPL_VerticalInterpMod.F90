@@ -17,8 +17,8 @@
       module linearVerticalInterpolation_mod
 
       use ESMF
-      use MAPL_BaseMod
       use MAPL_Constants, only: MAPL_KAPPA, MAPL_RGAS, MAPL_CP, MAPL_GRAV
+      use mapl_MaplGrid,  only: MAPL_GridGet
       use MAPL_ExceptionHandling
       use, intrinsic :: iso_fortran_env, only: REAL64
 !

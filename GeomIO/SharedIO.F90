@@ -12,8 +12,8 @@ module mapl3g_SharedIO
    use mapl3g_StringDictionary
    use gFTL2_StringSet
    use mapl3g_Geom_API
-   use MAPL_BaseMod
    use mapl3g_UngriddedDims
+   use, intrinsic :: iso_fortran_env, only: REAL64
    use mapl3g_UngriddedDim
    use mapl3g_CompressionSettings
    use esmf

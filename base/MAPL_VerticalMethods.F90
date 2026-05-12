@@ -2,8 +2,9 @@
 
 module MAPL_VerticalDataMod
   use ESMF
-  use MAPL_BaseMod
-  use MAPL_Profiler
+   use MAPL_Constants,  only: MAPL_UNDEF, MAPL_GRAV
+   use mapl_MaplGrid,   only: MAPL_GridGet, MAPL_GridHasDE
+   use MAPL_Profiler
   use pFIO
   use MAPL_ExceptionHandling
   use MAPL_Constants

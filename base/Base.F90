@@ -4,7 +4,7 @@ module MAPLBase_Mod
 
   use ESMFL_Mod         !  Stopgap
   use MAPL_ExceptionHandling
-  use MAPL_BaseMod
+
    use NCIOMod
   use MAPL_LocStreamMod
   use MAPL_ShmemMod
