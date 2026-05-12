@@ -9,12 +9,9 @@ set (srcs
   MAPL_LocStreamMod.F90
                                         MAPL_VerticalInterpMod.F90
                                         MAPL_VerticalMethods.F90
-  Base.F90
   ServerManager.F90
   c_mapl_locstream_F.c  getrss.c  memuse.c
   TimeStringConversion.F90
-  # Orphaned program: should not be in this library.
-  # tstqsat.F90
   )
 
 # Comms.F90, StringTemplate.F90, SatVapor.F90 have been moved to base3g/
