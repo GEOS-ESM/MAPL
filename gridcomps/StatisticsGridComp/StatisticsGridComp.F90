@@ -95,19 +95,19 @@ contains
        select case (action)
        case ('average')
           period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_average_internal_fields(gridcomp, name, _RC)
        case ('min')
           period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_min_internal_fields(gridcomp, name, _RC)
        case ('max')
           period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, timestep=period, &
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_max_internal_fields(gridcomp, name, _RC)
@@ -261,6 +261,7 @@ contains
 
            _RETURN(_SUCCESS)
         end function make_max_stat
+
 
        function make_alarm(clock, iter, rc) result(alarm)
            type(SimpleAlarm) :: alarm
