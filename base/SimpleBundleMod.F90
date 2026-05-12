@@ -20,7 +20,6 @@
 module MAPL_SimpleBundleMod
 
    use ESMF
-   use ESMFL_Mod
    use mapl_MaplGrid, only: MAPL_GridGet
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
    use mapl3g_MaxMin, only: MaxMin
@@ -439,7 +438,7 @@ contains
       if (present(name)) bundleName = trim(name)
 
       Bundle = ESMF_FieldBundleCreate(name=bundleName, _RC)
-      call ESMFL_BundleAddState(Bundle, State, _RC)
+      call BundleAddState_(Bundle, State, _RC)
       self = MAPL_SimpleBundleCreateFromBundle(Bundle, Levs=Levs, LevUnits=LevUnits, &
            ptop=ptop, delp=delp, only_vars=only_vars, strict=strict, name=name, _RC)
 
@@ -616,5 +615,171 @@ contains
       _RETURN(_SUCCESS)
 
    end function MAPL_SimpleBundleGetIndex
+
+! Moved here from ESMFL_Mod as part of MAPL3 cleanup (MAPL#4862).
+! Adds contents of an ESMF_State (fields, bundles, nested states) into
+! a pre-created ESMF_FieldBundle, preserving MAPL ordering metadata.
+    RECURSIVE subroutine BundleAddState_ ( BUNDLE, STATE, rc, &
+                                           GRID, VALIDATE )
+    implicit NONE
+    type(ESMF_FieldBundle), intent(inout)         :: BUNDLE
+    type(ESMF_State),  intent(INout)            :: STATE
+    integer, optional                        :: rc
+    type(ESMF_Grid),  optional, intent(in)   :: GRID
+    logical, optional, intent(in)            :: VALIDATE
+
+    character(len=*), parameter          :: Iam="ESMFL_StateSerialize"
+    integer                              :: STATUS
+
+    type(ESMF_State)                     :: tSTATE
+    type(ESMF_FieldBundle)                    :: tBUNDLE
+    type(ESMF_Field)                     :: tFIELD
+    type(ESMF_Grid)                      :: tGRID
+
+    integer                              :: I, J
+    integer                              :: ItemCount, FieldCount
+    type (ESMF_StateItem_Flag), pointer  :: ItemTypes(:)
+    character(len=ESMF_MAXSTR ), pointer :: ItemNames(:), FieldNames(:)
+    logical                              :: needGrid = .true.
+    logical                              :: validate_ = .false.
+    integer, allocatable :: orderlist(:)
+    integer :: jj
+    character(len=ESMF_MAXSTR)           :: attrName
+    character(len=ESMF_MAXSTR), allocatable :: currList(:)
+    integer                                 :: natt
+    type(ESMF_Info)                      :: infoh
+
+    if ( present(validate) ) validate_ = validate
+
+    call ESMF_StateGet(STATE,ItemCount=ItemCount,RC=STATUS)
+    _VERIFY(STATUS)
+    _ASSERT(ItemCount>0, 'itemCount should be > 0')
+    allocate ( ItemNames(ItemCount), stat=STATUS)
+    _VERIFY(STATUS)
+    allocate ( ItemTypes(ItemCount), stat=STATUS)
+    _VERIFY(STATUS)
+
+    call ESMF_StateGet ( STATE,      ItemNameList = ItemNames, &
+                                ItemtypeList = ItemTypes, &
+                                rc=STATUS)
+    _VERIFY(STATUS)
+
+    attrName = 'MAPL_StateItemOrderList'
+    call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
+    _VERIFY(STATUS)
+
+    _ASSERT(natt > 0, 'natt should be > 0')
+    allocate(orderlist(natt), stat=status)
+    _VERIFY(STATUS)
+    allocate(currList(natt), stat=status)
+    _VERIFY(STATUS)
+
+    call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
+    _VERIFY(STATUS)
+
+    orderList = -1
+    do i = 1, natt
+       do jj = 1, ITEMCOUNT
+          if (itemNames(jj) == currList(i)) then
+             orderList(i) = jj
+             exit
+          end if
+       end do
+    end do
+
+    deallocate(currList)
+
+    do JJ = 1, natt
+
+       I = ORDERLIST(JJ)
+
+          if (ItemTypes(I) == ESMF_StateItem_Field) THEN
+
+             call ESMF_StateGet ( STATE, ItemNames(i), tFIELD, rc=status)
+             _VERIFY(STATUS)
+             call AddThisField_()
+
+          else if (ItemTypes(I) == ESMF_StateItem_FieldBundle) then
+
+             call ESMF_StateGet(STATE, ItemNames(i), tBUNDLE, rc=STATUS)
+             _VERIFY(STATUS)
+             call ESMF_FieldBundleGet ( tBUNDLE, FieldCount = FieldCount, rc=STATUS)
+             _VERIFY(STATUS)
+             _ASSERT(FieldCount>0, 'FieldCount should be > 0')
+             do j = 1, FieldCount
+                call ESMF_FieldBundleGet ( tBUNDLE, j, tFIELD, rc=STATUS)
+                _VERIFY(STATUS)
+                call AddThisField_()
+             end do
+
+          else if (ItemTypes(I) == ESMF_StateItem_State) then
+
+             call ESMF_StateGet(STATE, ItemNames(i), tSTATE, rc=STATUS)
+             _VERIFY(STATUS)
+             call BundleAddState_ ( BUNDLE, tSTATE, rc=STATUS )
+             _VERIFY(STATUS)
+             if (needGrid) then
+                call ESMF_FieldBundleGet ( BUNDLE, GRID=tGRID, rc=STATUS )
+                _VERIFY(STATUS)
+                needGrid = .false.
+             end if
+
+          else
+             cycle
+          end IF
+
+    end do
+
+    deallocate(orderlist)
+
+    call ESMF_FieldBundleGet ( BUNDLE, FieldCount = FieldCount, rc=STATUS)
+    _VERIFY(STATUS)
+    _ASSERT(FieldCount>0, 'FieldCount should be > 0')
+
+    if ( present(GRID) ) then
+       call ESMF_FieldBundleSet ( BUNDLE, grid=GRID, rc=STATUS )
+       _VERIFY(STATUS)
+       needGrid = .false.
+    else
+       _ASSERT(.not. needGrid, 'could not find a grid')
+    end if
+
+    allocate ( FieldNames(FieldCount), stat=STATUS )
+    _VERIFY(STATUS)
+    call ESMF_FieldBundleGet ( BUNDLE, FieldNameList=FieldNames, rc=STATUS )
+    _VERIFY(STATUS)
+
+    if ( validate_ ) then
+       do j = 1, FieldCount
+          do i = j+1, FieldCount
+             if ( trim(FieldNames(i)) == trim(FieldNames(j)) ) then
+                STATUS = -1
+                _VERIFY(STATUS)
+             end if
+          end do
+       end do
+    end if
+
+    deallocate(ItemNames)
+    deallocate(ItemTypes)
+    deallocate(FieldNames)
+
+    _RETURN(ESMF_SUCCESS)
+
+CONTAINS
+
+    subroutine AddThisField_()
+      call ESMF_FieldBundleAdd ( BUNDLE, [tField], rc=STATUS )
+      _VERIFY(STATUS)
+      if ( needGrid ) then
+         call ESMF_FieldGet ( tFIELD, grid=tGRID, rc=STATUS )
+         _VERIFY(STATUS)
+         needGrid = .false.
+      end if
+    end subroutine AddThisField_
+
+  end subroutine BundleAddState_
 
 end module MAPL_SimpleBundleMod
