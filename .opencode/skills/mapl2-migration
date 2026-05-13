@@ -1,0 +1,161 @@
+# Skill: MAPL2 Module Migration
+
+## Purpose
+
+This skill guides the iterative process of migrating modules out of `base/`
+into `base3g/`, re-exporting their symbols through the `MAPL` umbrella module,
+and updating client code to `use MAPL` instead of legacy module names.
+
+**Critical rule**: All local build validation must converge before any GitHub
+PRs are opened. PRs are opened only after the full sequence builds cleanly
+end-to-end.
+
+---
+
+## Background and Architecture
+
+- `mapl3g/MAPL.F90` defines the `MAPL` module (the modern umbrella). It uses
+  `mapl_base3g`.
+- `MAPL/MAPL.F90` defines `MAPL2` (the legacy umbrella). Clients on `use MAPL2`
+  get the old symbols.
+- `base3g/API.F90` defines `mapl_base3g`. Symbols exported here become
+  available via `use MAPL`.
+- `base/` depends on `base3g/`, so modules moved to `base3g/` cannot depend on
+  `MAPL.base` (would be circular).
+- `MAPL2` should not re-export symbols that have been migrated — drop them from
+  `MAPL/MAPL.F90` once no clients need them there.
+
+---
+
+## Naming Conventions
+
+When moving a module `FOO_Mod` from `base/` to `base3g/`:
+
+- Give the `base3g/` implementation a **temporary internal name** that does not
+  conflict with any type or other identifier defined inside the module.
+  Convention: `mapl_FOO_impl` or `mapl_FooMod_impl`.
+  - Fortran identifiers are **case-insensitive** — `mapl_LocStream` conflicts
+    with type `MAPL_LocStream`. Always check for this.
+- The thin wrapper in `base/` **keeps the original module name** so existing
+  clients require no changes for PR 1.
+- The wrapper simply does:
+  ```fortran
+  module ORIGINAL_MOD_NAME
+     use mapl_FOO_impl
+     implicit none
+  end module ORIGINAL_MOD_NAME
+  ```
+
+---
+
+## PR Structure
+
+### PR 1 — MAPL internal (no client changes)
+
+Move one or more modules from `base/` to `base3g/`, re-export through
+`mapl_base3g`/`MAPL`, leave thin wrappers in `base/`.
+
+Steps:
+1. Copy the module source file to `base3g/`, rename the module to
+   `mapl_FOO_impl`.
+2. Update all `use` statements inside the moved file to reference other
+   `base3g` modules (e.g. `use mapl_NCIO` instead of `use NCIOMod`).
+3. Copy any required include files (`.H`) to `base3g/include/`.
+4. Copy any required C source files to `base3g/` and add to
+   `base3g/CMakeLists.txt`.
+5. Add the new source(s) to `base3g/CMakeLists.txt` (sources and dependencies).
+6. Add `use mapl_FOO_impl, only: ...` to `base3g/API.F90` and declare the
+   symbols `public`.
+7. Write a thin wrapper in `base/` keeping the original module name.
+8. Update `base/CMakeLists.txt` if DUSTY flags or other properties no longer
+   apply to the wrapper.
+9. **Build and verify** before committing.
+10. Commit on a feature branch (e.g. `feature/NNNN-description`).
+
+### PR 2a, 2b, 2c, ... — Client repos (one per repo)
+
+For each external repo that directly `use`s the migrated module(s):
+
+1. Identify all files using the old module name (grep for `use FOO_Mod`,
+   `use NCIOMod`, `use FileIOSharedMod`, etc.).
+2. Replace with `use MAPL` (or `use MAPL, only: ...` if preferred).
+3. Ensure the repo's CMake already depends on MAPL — usually it does.
+4. Switch the client repo to its feature branch, rebuild from the GEOSgcm
+   top-level, verify.
+5. Commit on a per-repo feature branch.
+
+**Do not make nontrivial changes in client code** — only `use` statement
+migrations. Do not change type names, procedure signatures, or logic.
+
+### PR 3 — MAPL cleanup (depends on PR 1 + all PR 2*)
+
+Remove the thin wrappers from `base/` and drop the migrated symbols from
+`MAPL2`.
+
+Steps:
+1. Create this branch **off the tip of PR 1's branch**.
+2. `git rm` the thin wrapper `.F90` files from `base/`.
+3. Move any C files that were referenced via relative path into `base3g/`
+   directly.
+4. Update `base/CMakeLists.txt` to remove deleted sources.
+5. Update `base3g/CMakeLists.txt` to reference the moved C file by local name.
+6. Edit `MAPL/MAPL.F90` (MAPL2): **drop** any `use` lines for the migrated
+   modules. Verify no active client uses MAPL2 to access these symbols first
+   (grep for `use MAPL2` in client files and check which symbols they actually
+   need).
+7. Build with **all client repos on their feature branches** (PR 2*).
+8. Verify clean build, then commit.
+
+---
+
+## Validation Sequence (before opening any PRs)
+
+```
+1. PR 1 branch only, all clients on release branches  →  build must pass
+2. PR 1 branch + all PR 2* feature branches           →  build must pass
+3. PR 3 branch + all PR 2* feature branches           →  build must pass
+```
+
+Only after step 3 passes do you open PRs, in dependency order:
+- Open PR 1 first.
+- Open PR 2a/2b/2c in parallel (they only depend on PR 1 being merged).
+- Open PR 3 last (depends on PR 1 + all PR 2* merged).
+
+---
+
+## Common Pitfalls
+
+- **Case-insensitive name conflicts**: `mapl_LocStream` == `MAPL_LocStream` to
+  the compiler. Always use a `_impl` or `_mod_impl` suffix for the `base3g`
+  internal module name.
+- **Missing C files**: If the moved Fortran module calls C routines, those C
+  sources must be added to `base3g/CMakeLists.txt`. Search for
+  `bind(C, name=...)` or lowercase `_` mangled names in the `.F90` file.
+- **Missing include files**: If the module uses `#include "foo.H"`, copy the
+  `.H` file to `base3g/include/` and ensure `target_include_directories` covers
+  it.
+- **MAPL2 still using old names**: After PR 3, `MAPL/MAPL.F90` must not `use`
+  the deleted wrappers. Drop those lines — but first confirm no client relies
+  on MAPL2 for those symbols.
+- **Circular dependencies**: `base3g` must not depend on `MAPL.base`. If the
+  module being moved uses something still in `base/`, that dependency must be
+  resolved first (move it too, or find the source module in `base3g/`).
+
+---
+
+## Useful Grep Commands
+
+```bash
+# Find all files using a legacy module
+grep -rn "use NCIOMod\|use FileIOSharedMod\|use MAPL_LocStreamMod" \
+  src/ --include="*.F90" --include="*.f90"
+
+# Find all files using MAPL2
+grep -rn "use MAPL2" src/ --include="*.F90" --include="*.f90"
+
+# Check what symbols a file actually uses from a module
+grep -A2 "use MAPL2" path/to/file.F90
+
+# Find C companion files for a Fortran module
+grep -n "bind(C\|c_\|_F\.c" base/SOME_MOD.F90
+```
