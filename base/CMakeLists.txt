@@ -3,7 +3,6 @@ esma_set_this (OVERRIDE MAPL.base)
 set (srcs
   FileMetadataUtilities.F90
   FileMetadataUtilitiesVector.F90       SimpleBundleMod.F90
-  MaplGrid.F90
   MAPL_ESMFTimeVectorMod.F90
   FileIOShared.F90                                                          NCIO.F90
   MAPL_LocStreamMod.F90

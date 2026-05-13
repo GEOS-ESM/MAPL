@@ -3,7 +3,7 @@
 module MAPL_VerticalDataMod
   use ESMF
    use MAPL_Constants,  only: MAPL_UNDEF, MAPL_GRAV
-   use mapl_MaplGrid,   only: MAPL_GridGet, MAPL_GridHasDE
+   use mapl3g_Geom_API, only: MAPL_GridGet => mapl_GridGet, MAPL_GridHasDE => mapl_GridHasDE
    use MAPL_Profiler
   use pFIO
   use MAPL_ExceptionHandling
@@ -253,7 +253,7 @@ module MAPL_VerticalDataMod
           deallocate(ptrx)
        end if
        if (present(output_grid)) then
-          call MAPL_GridGet(output_grid,localCellCountPerDim=counts,_RC)
+          call MAPL_GridGet(output_grid, im=counts(1), jm=counts(2), _RC)
           if (.not.allocated(this%surface_level)) then
               allocate(this%surface_level(counts(1),counts(2)),stat=status)
              _VERIFY(status)
