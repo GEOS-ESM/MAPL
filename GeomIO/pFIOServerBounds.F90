@@ -6,8 +6,7 @@ module mapl3g_pFIOServerBounds
    use esmf
    use pfio
    use gFTL2_StringVector
-   use mapl3g_Geom_API, only: MAPL_GridGet
-   use mapl_MaplGrid, only: MAPL2_GridGet => MAPL_GridGet
+   use mapl3g_Geom_API, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
 
    implicit none
    private
@@ -139,9 +138,9 @@ contains
       integer, intent(out), optional :: rc
       type(pFIOServerBounds) :: server_bounds ! field
 
-      integer :: status, tile_count, n_dims, tm, global_dim(3)
+      integer :: status, tile_count, n_dims, tm
       integer :: i1, in, j1, jn, tile, extra_file_dim, file_dims, new_grid_dims
-      integer, allocatable :: interior(:)
+      integer, allocatable :: interior(:), global_dim(:)
 
       call ESMF_GridGet(grid, tileCount=tile_count, _RC)
       call MAPL_GridGet(grid, interior=interior, _RC)
@@ -149,7 +148,7 @@ contains
       in = interior(2)
       j1 = interior(3)
       jn = interior(4)
-      call MAPL2_GridGet(grid, globalCellCountPerDim=global_dim, _RC)
+      call mapl_GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=global_dim, _RC)
       n_dims = size(field_shape)
 
       tm = 0

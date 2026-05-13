@@ -4,7 +4,7 @@
 module MAPL_StateMaskMod
    use ESMF
    use MAPL_KeywordEnforcerMod
-   use mapl_MaplGrid,   only: MAPL_GridGet
+   use mapl3g_Geom_API, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
    use MAPL_ExceptionHandling
    use gFTL2_StringVector
    use MAPL_StateArithmeticParserMod
@@ -269,7 +269,7 @@ module MAPL_StateMaskMod
        real(REAL64)         :: limitE2, limitW2
        type(ESMF_Grid)      :: grid
        integer              :: rank,is,nargs
-       integer              :: counts(3)
+       integer, allocatable :: counts(:)
        logical              :: isCube, twoBox
        real, allocatable    :: temp2d(:,:)
        character(len=ESMF_MAXSTR) :: args(5)
@@ -312,7 +312,7 @@ module MAPL_StateMaskMod
        _VERIFY(status)
 
        ! do some tests if cube goes from 0 to 360, lat-lon -180 to 180
-       call MAPL_GridGet(grid, globalCellCountPerDim=COUNTS,rc=status)
+       call mapl_GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=COUNTS,rc=status)
        _VERIFY(STATUS)
        if (counts(2)==6*counts(1)) then
           isCube=.true.

@@ -6,7 +6,8 @@ module mapl3g_Geom_API
    use mapl3g_GeomManager, only: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
    use mapl3g_GeomUtilities, only: mapl_SameGeom, mapl_GeomGetId
    use mapl3g_GeomGet, only: mapl_GeomGet => GeomGet
-   use mapl3g_GridGet, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates
+   use mapl3g_GridGet, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates, &
+        mapl_GridHasDE => grid_has_DE
    use mapl3g_GridGetHorzIJIndex, only: mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
    use mapl3g_GridGetGlobal, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
    use mapl3g_GeomGetHorzIJIndex, only: mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex
@@ -25,6 +26,7 @@ module mapl3g_Geom_API
    public :: mapl_GridGetCoordinates
    public :: mapl_GridGetHorzIJIndex, mapl_GeomGetHorzIJIndex
    public :: mapl_GridGetGlobalCellCountPerDim
+   public :: mapl_GridHasDE
 
    ! Used internally by MAPL
    ! Users shouldn't need these
