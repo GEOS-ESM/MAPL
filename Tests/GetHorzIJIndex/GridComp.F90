@@ -29,6 +29,8 @@ module GridComp
      call ESMF_GridCompGet(gc, config=cf, _RC)
      call ESMF_ConfigGetAttribute(cf, use_threads, label='use_threads:', default=.FALSE., _RC)
      call MAPL%set_use_threads(use_threads)
+     call ESMF_ConfigGetAttribute(cf, num_threads, label='num_threads:', default=1, _RC)
+     call MAPL%set_num_threads(num_threads)
 
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run, _RC)
