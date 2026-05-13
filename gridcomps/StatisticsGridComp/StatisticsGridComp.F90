@@ -80,7 +80,6 @@ contains
       type(esmf_HConfigIter), intent(in) :: iter
       integer, optional, intent(out) :: rc
 
-      type(esmf_TimeInterval) :: period
       character(:), allocatable :: action, name
       type(esmf_StateItem_Flag) :: itemtype
       integer :: status
