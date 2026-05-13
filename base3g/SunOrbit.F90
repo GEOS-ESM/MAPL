@@ -342,7 +342,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 ! =======================================
 ! PMN Dec 2019: Notes on Equation of Time
 ! =======================================
-! (Part of a more complete analysis available in orbit.pdf)
+! (A more complete analysis was available in base/orbit.pdf in MAPL 2.x)
 !
 ! @ Introduction:
 !

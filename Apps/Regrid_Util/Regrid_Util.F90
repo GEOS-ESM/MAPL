@@ -376,7 +376,7 @@
 
    use ESMF
    use MAPL
-   use MAPLBase_Mod, only: FileMetadataUtils
+   use MAPL_FileMetadataUtilsMod, only: FileMetadataUtils
    use mapl_Profiler
    use regrid_util_support_mod
    use mpi

@@ -1,7 +1,15 @@
 ! This module re-exports the public entities
 ! of the legacy (MAPL2) underlying packages.
 module MAPL2
-   use MAPLBase_mod
+   use MAPL_ExceptionHandling
+   use NCIOMod
+   use MAPL_LocStreamMod
+   use MAPL_ShmemMod
+   use MAPL_MemUtilsMod
+   use MAPL_SimpleBundleMod
+   use MAPL_ServerManager
+   use MAPL_FileMetadataUtilsMod
+   use MAPL_VerticalDataMod
    use pFIO
    use MAPL_GridCompsMod
    use mapl3g_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
