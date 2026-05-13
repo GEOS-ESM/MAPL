@@ -6,7 +6,6 @@ module MAPL2
    use MAPL_MemUtilsMod
    use MAPL_SimpleBundleMod
    use MAPL_FileMetadataUtilsMod
-   use MAPL_VerticalDataMod
    use pFIO
    use MAPL_GridCompsMod
    use mapl3g_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
