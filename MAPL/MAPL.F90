@@ -2,8 +2,6 @@
 ! of the legacy (MAPL2) underlying packages.
 module MAPL2
    use MAPL_ExceptionHandling
-   use NCIOMod
-   use MAPL_LocStreamMod
    use MAPL_ShmemMod
    use MAPL_MemUtilsMod
    use MAPL_SimpleBundleMod
