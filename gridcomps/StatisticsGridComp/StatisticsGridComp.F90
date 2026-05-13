@@ -80,7 +80,6 @@ contains
       type(esmf_HConfigIter), intent(in) :: iter
       integer, optional, intent(out) :: rc
 
-      type(esmf_TimeInterval) :: period
       character(:), allocatable :: action, name
       type(esmf_StateItem_Flag) :: itemtype
       integer :: status
@@ -95,25 +94,21 @@ contains
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
        select case (action)
        case ('average')
-          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
           varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_average_internal_fields(gridcomp, name, _RC)
        case ('min')
-          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
           varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_min_internal_fields(gridcomp, name, _RC)
        case ('max')
-          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
           varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_max_internal_fields(gridcomp, name, _RC)
        case ('accumulate')
-          period = mapl_HConfigAsTimeInterval(hconfig, keystring='period', _RC)
           varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
