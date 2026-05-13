@@ -20,7 +20,7 @@
 module MAPL_SimpleBundleMod
 
    use ESMF
-   use mapl_MaplGrid, only: MAPL_GridGet
+   use mapl3g_Geom_API, only: MAPL_GridGet
    use mapl3g_FieldBundle_API, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
    use mapl3g_MaxMin, only: MaxMin
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
@@ -111,7 +111,7 @@ contains
       real(ESMF_KIND_R4), optional, pointer,  intent(in)    :: delp(:,:,:) !! layer thickness (Pa)
       character(len=*),             optional, intent(in)    :: name
 
-      integer :: im, jm, km, dims(3), i, status
+      integer :: im, jm, km, i, status
       real(ESMF_KIND_R8), pointer :: LonsRad(:,:), LatsRad(:,:)
 
       self%Bundle => null()
@@ -123,8 +123,12 @@ contains
       end if
 
       self%grid = grid
-      call MAPL_GridGet(self%grid, localCellCountPerDim=dims, _RC)
-      im = dims(1); jm = dims(2); km = dims(3)
+      call MAPL_GridGet(self%grid, im=im, jm=jm, _RC)
+      if (present(Levs)) then
+         km = size(Levs)
+      else
+         km = 0
+      end if
       allocate(self%coords%Lons(im,jm), self%coords%Lats(im,jm), self%coords%Levs(km), __STAT__)
 
       call ESMF_GridGetCoord(self%grid, coordDim=1, localDE=0, &
@@ -135,7 +139,6 @@ contains
       self%coords%Lats(:,:) = (180. / MAPL_PI) * LatsRad(:,:)
 
       if (present(Levs)) then
-         _ASSERT(size(Levs) == km, 'size of Levs does not match grid km')
          self%coords%Levs(:) = Levs(:)
       else
          self%coords%Levs(:) = [(i, i=1, km)]
@@ -186,7 +189,8 @@ contains
       real(ESMF_KIND_R8), pointer :: LonsRad(:,:), LatsRad(:,:)
 
       integer :: arrayRank, i, n, n1d, n2d, n3d, NumVars
-      integer :: im, jm, km, dims(3), status
+      integer :: im, jm, km, status
+      real(ESMF_KIND_R4), pointer :: tmp3d(:,:,:)
       logical :: strict_match, isPresent, isPresentBundle, haveDelp
       integer :: n_vars
       logical, allocatable :: isRequested(:)
@@ -240,8 +244,24 @@ contains
          isRequested = .true.
       end if
 
-      call MAPL_GridGet(self%grid, localCellCountPerDim=dims, _RC)
-      im = dims(1); jm = dims(2); km = dims(3)
+      call MAPL_GridGet(self%grid, im=im, jm=jm, _RC)
+      if (present(Levs)) then
+         km = size(Levs)
+      else
+         km = 0
+         do n = 1, NumVars
+            call MAPL_FieldBundleGetByIndex(Bundle, n, field, _RC)
+            call ESMF_FieldGet(field, status=fieldStatus, _RC)
+            if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) cycle
+            call ESMF_FieldGet(field, array=array, _RC)
+            call ESMF_ArrayGet(array, rank=arrayRank, typeKind=typeKind, _RC)
+            if (arrayRank == 3 .and. typeKind == ESMF_TYPEKIND_R4) then
+               call ESMF_FieldGet(field, localDE=0, farrayPtr=tmp3d, _RC)
+               km = size(tmp3d, 3)
+               exit
+            end if
+         end do
+      end if
       allocate(self%coords%Lons(im,jm), self%coords%Lats(im,jm), self%coords%Levs(km), __STAT__)
 
       call ESMF_GridGetCoord(self%grid, coordDim=1, localDE=0, &
@@ -252,7 +272,6 @@ contains
       self%coords%Lats(:,:) = (180. / MAPL_PI) * LatsRad(:,:)
 
       if (present(Levs)) then
-         _ASSERT(size(Levs) == km, 'size of Levs does not match grid km')
          self%coords%Levs(:) = Levs(:)
       else
          self%coords%Levs(:) = [(i, i=1, km)]

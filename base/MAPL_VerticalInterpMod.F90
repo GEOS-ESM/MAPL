@@ -18,7 +18,7 @@
 
       use ESMF
       use MAPL_Constants, only: MAPL_KAPPA, MAPL_RGAS, MAPL_CP, MAPL_GRAV
-      use mapl_MaplGrid,  only: MAPL_GridGet
+      use mapl3g_Geom_API, only: MAPL_GridGet
       use MAPL_ExceptionHandling
       use, intrinsic :: iso_fortran_env, only: REAL64
 !
@@ -50,7 +50,7 @@ CONTAINS
       integer, optional,          intent(OUT)   :: rc
 !
       integer :: im, jm, lmMod, lmPres
-      integer :: i, j, L, k, k2, k3, dims(3)
+      integer :: i, j, L, k, k2, k3
       integer, allocatable :: kbeg(:,:),kend(:,:)
       real    :: vdef, vsurf, TH
       real,allocatable :: pl_mod(:,:,:),ple_mod(:,:,:)
@@ -74,11 +74,11 @@ CONTAINS
       call ESMF_InfoGet(infoh,'LONG_NAME',vname,rc=status)
       _VERIFY(STATUS)
       vname = ESMF_UtilStringLowerCase(vname,rc=status)
-      call MAPL_GridGet(grid, localCellCountPerDim=dims,rc=status)
+      call MAPL_GridGet(grid, im=im, jm=jm, rc=status)
       _VERIFY(STATUS)
-      im = dims(1)
-      jm = dims(2)
-      lmMod = dims(3)
+      call ESMF_FieldGet(fModel, 0, farrayPtr=vMod, rc=status)
+      _VERIFY(STATUS)
+      lmMod = size(vMod, 3)
       allocate(ak(lmMod+1),stat=status)
       _VERIFY(STATUS)
       allocate(bk(lmMod+1),stat=status)
@@ -92,11 +92,9 @@ CONTAINS
       allocate(kend(im,jm),stat=status)
       _VERIFY(STATUS)
 
-      call ESMF_FieldGet(fPres,grid=grid,rc=status)
+      call ESMF_FieldGet(fPres, 0, farrayPtr=vPres, rc=status)
       _VERIFY(STATUS)
-      call MAPL_GridGet(grid, localCellCountPerDim=dims,rc=status)
-      _VERIFY(STATUS)
-      lmPres = dims(3)
+      lmPres = size(vPres, 3)
 
       ! given PS, get AK, BK from the grid to get ple
       call ESMF_FieldGet(PS,0,farrayPtr=vPS,rc=status)
@@ -116,11 +114,6 @@ CONTAINS
          pl_mod(:,:,i)=(ple_mod(:,:,i)+ple_mod(:,:,i+1))/2.0
       enddo
       
-      call ESMF_FieldGet(fModel,0,farrayPtr=vMod,rc=status)
-      _VERIFY(STATUS)
-      call ESMF_FieldGet(fPres,0,farrayPtr=vPres,rc=status)
-      _VERIFY(STATUS)
-
       !---------------------------------------------------------------
       ! For each grid point (i,j), determine the range of model levels
       ! (kbeg to kend) that will be used for the main interpolation
