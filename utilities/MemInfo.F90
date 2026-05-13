@@ -86,7 +86,7 @@ contains
       real :: hwm, rss
       integer :: unit, status
 
-      open(newunit=unit, file=process_mem_file, form='formatted', iostat=status)
+      open(newunit=unit, file=process_mem_file, form='formatted', action='READ', iostat=status)
       _VERIFY(status)
       do; read (unit, '(a)', end=10) line
          if (index(line, 'VmHWM:') == 1) then  ! High Water Mark
@@ -124,7 +124,7 @@ contains
       integer :: unit, status
 
       ! Read local memory information
-      open(newunit=unit, file=system_mem_file, form='formatted', iostat=status)
+      open(newunit=unit, file=system_mem_file, form='formatted', action='READ', iostat=status)
       _VERIFY(STATUS)
       do; read (unit, '(a)', end=20) line
          if (index(line, 'MemTotal:') == 1) then  ! High Water Mark
