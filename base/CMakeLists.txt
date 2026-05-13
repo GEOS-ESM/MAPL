@@ -3,18 +3,12 @@ esma_set_this (OVERRIDE MAPL.base)
 set (srcs
   FileMetadataUtilities.F90
   FileMetadataUtilitiesVector.F90       SimpleBundleMod.F90
-  MaplGrid.F90
   MAPL_ESMFTimeVectorMod.F90
-  FileIOShared.F90                                                          NCIO.F90
-  MAPL_LocStreamMod.F90
                                         MAPL_VerticalInterpMod.F90
                                         MAPL_VerticalMethods.F90
-  Base.F90
   ServerManager.F90
-  c_mapl_locstream_F.c  getrss.c  memuse.c
+  getrss.c  memuse.c
   TimeStringConversion.F90
-  # Orphaned program: should not be in this library.
-  # tstqsat.F90
   )
 
 # Comms.F90, StringTemplate.F90, SatVapor.F90 have been moved to base3g/
@@ -30,11 +24,6 @@ esma_add_library(
 
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
 # interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
-if (DUSTY)
-  set_property( SOURCE FileIOShared.F90 NCIO.F90
-                PROPERTY COMPILE_FLAGS ${DUSTY})
-endif ()
-
 target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
 if(DISABLE_GLOBAL_NAME_WARNING)
@@ -54,17 +43,8 @@ if (EXTENDED_SOURCE)
   esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()
 
-# Users guide
-if (LATEX_FOUND)
-  add_subdirectory (TeX)
-endif ()
-
 # Unit testing
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
-install (
-   PROGRAMS red_ma.pl
-   DESTINATION bin
-   )

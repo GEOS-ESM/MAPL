@@ -30,6 +30,10 @@ module mapl_base3g
           MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
    use mapl3g_FileIO, only: WRITE_PARALLEL
+   use mapl_FileIOShared, only: ArrDescr, ArrDescrInit, ArrDescrSet
+   use mapl_NCIO, only: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType, &
+                        MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars, &
+                        MAPL_IOChangeRes, MAPL_IOCountLevels
    implicit none(type,external)
    private
 
@@ -60,5 +64,9 @@ module mapl_base3g
    public :: MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    public :: MAPL_Interp_Fac, MAPL_ClimInterpFac
    public :: WRITE_PARALLEL
+   public :: ArrDescr, ArrDescrInit, ArrDescrSet
+   public :: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType
+   public :: MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars
+   public :: MAPL_IOChangeRes, MAPL_IOCountLevels
 
 end module mapl_base3g

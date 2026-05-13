@@ -18,15 +18,15 @@
 !
 ! The module `MAPL_LocStreamMod` manipulates location streams.
 !
-module MAPL_LocStreamMod
+module mapl_LocStreamMod_impl
 
   ! !USES:
 
 use ESMF
-use mapl_MaplGrid,  only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms
+use mapl3g_Geom_API, only: MAPL_GridGet
 use MAPL_Constants
 use mapl3g_GridGet, only: geom_GridGet => GridGet
-use NCIOMod, only: MAPL_ReadTilingNC4
+use mapl_NCIO, only: MAPL_ReadTilingNC4
 use MAPL_CommsMod
 use MAPL_HashMod
 use MAPL_ShmemMod
@@ -1181,11 +1181,8 @@ contains
 
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
     _VERIFY(STATUS)
-    call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
+    call MAPL_GridGet(GRID, im=IM_WORLD, jm=JM_WORLD, RC=STATUS)
     _VERIFY(STATUS)
-
-    IM_WORLD = DIMS(1)
-    JM_WORLD = DIMS(2)
 
     _ASSERT(IM_WORLD==TILING%IM,'needs informative message')
     if (JM_WORLD /= TILING%JM) then
@@ -2556,11 +2553,8 @@ subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
   _ASSERT(IG == LocStream%Ptr%Current_Tiling,'needs informative message')
 
 ! get IM, JM and IM_WORLD, JM_WORLD
-  call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, RC=STATUS)
+  call MAPL_GridGet(GRID, im=IM, jm=JM, RC=STATUS)
   _VERIFY(STATUS)
-
-  IM = COUNTS(1)
-  JM = COUNTS(2)
 
 ! Retrieve the coordinates so we can set them
   call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
@@ -2673,9 +2667,8 @@ subroutine MAPL_LocstreamCreateSimple(Locstream, grid, local_id, tilelons, tilel
      stream%Local_GeoLocation(:)%y = tilelats
    endif
 
-   call MAPL_GridGet(grid,globalCellCountPerDim=globalCount,rc=status)
-    _VERIFY(STATUS) 
-   stream%nt_global = globalCount(1)
+   call MAPL_GridGet(grid, im=stream%nt_global, rc=status)
+    _VERIFY(STATUS)
    call MAPL_LocStreamCreateTileGrid(LocStream, grid, RC=status)
     _VERIFY(STATUS) 
     
@@ -2729,7 +2722,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
    _VERIFY(STATUS)
 
    if (gridname(1:10) == 'tile_grid_') then
-      call MAPL_GridGet(GRID, localCellCountPerDim=counts, rc=status)
+       call MAPL_GridGet(GRID, im=counts(1), jm=counts(2), rc=status)
       _VERIFY(STATUS)
       allocate(coord(counts(1), counts(2)), STAT=status)
       _VERIFY(STATUS)
@@ -3154,4 +3147,142 @@ subroutine ESMFL_FCOLLECT_R8(GRID, FULLINPUT, INPUT, RC )
    _RETURN(ESMF_SUCCESS)
 end subroutine ESMFL_FCOLLECT_R8
 
-end module MAPL_LocStreamMod
+subroutine MAPL_DistGridGet(distGrid, minIndex, maxIndex, rc)
+   use ESMF, only: ESMF_DistGrid, ESMF_DistGridGet, ESMF_SUCCESS
+   type(ESMF_DistGrid), intent(inout)      :: distGrid
+   integer,             intent(inout)      :: minIndex(:,:)
+   integer,             intent(inout)      :: maxIndex(:,:)
+   integer, optional,   intent(out)        :: rc
+
+   integer :: i, tileSize, tileCount, tile, deCount, status
+   logical :: ESMFCubeSphere
+   integer, allocatable :: elementCountPTile(:)
+   integer, allocatable :: deToTileMap(:)
+   integer, allocatable :: oldMinIndex(:,:), oldMaxIndex(:,:)
+
+   ESMFCubeSphere = .false.
+   call ESMF_DistGridGet(distGrid, tileCount=tileCount, rc=status)
+   _VERIFY(status)
+   if (tileCount == 6) ESMFCubeSphere = .true.
+
+   if (ESMFCubeSphere) then
+      allocate(elementCountPTile(tileCount), stat=status)
+      _VERIFY(status)
+      call ESMF_DistGridGet(distGrid, elementCountPTile=elementCountPTile, rc=status)
+      _VERIFY(status)
+      tileSize = elementCountPTile(1)
+      tileSize = int(sqrt(real(tileSize)))
+      deallocate(elementCountPTile)
+      deCount = size(minIndex, 2)
+      allocate(deToTileMap(deCount), stat=status)
+      _VERIFY(status)
+      allocate(oldMinIndex(2,deCount), oldMaxIndex(2,deCount), stat=status)
+      _VERIFY(status)
+      call ESMF_DistGridGet(distGrid, maxIndexPDe=oldMaxIndex, minIndexPDe=oldMinIndex, &
+           deToTileMap=deToTileMap, rc=status)
+      _VERIFY(status)
+      do i = 1, deCount
+         tile = deToTileMap(i)
+         select case (tile)
+         case (1)
+            minIndex(:,i) = oldMinIndex(:,i)
+            maxIndex(:,i) = oldMaxIndex(:,i)
+         case (2)
+            minIndex(1,i) = oldMinIndex(1,i) -   tileSize
+            minIndex(2,i) = oldMinIndex(2,i) +   tileSize
+            maxIndex(1,i) = oldMaxIndex(1,i) -   tileSize
+            maxIndex(2,i) = oldMaxIndex(2,i) +   tileSize
+         case (3)
+            minIndex(1,i) = oldMinIndex(1,i) -   tileSize
+            minIndex(2,i) = oldMinIndex(2,i) +   tileSize
+            maxIndex(1,i) = oldMaxIndex(1,i) -   tileSize
+            maxIndex(2,i) = oldMaxIndex(2,i) +   tileSize
+         case (4)
+            minIndex(1,i) = oldMinIndex(1,i) - 2*tileSize
+            minIndex(2,i) = oldMinIndex(2,i) + 2*tileSize
+            maxIndex(1,i) = oldMaxIndex(1,i) - 2*tileSize
+            maxIndex(2,i) = oldMaxIndex(2,i) + 2*tileSize
+         case (5)
+            minIndex(1,i) = oldMinIndex(1,i) - 2*tileSize
+            minIndex(2,i) = oldMinIndex(2,i) + 2*tileSize
+            maxIndex(1,i) = oldMaxIndex(1,i) - 2*tileSize
+            maxIndex(2,i) = oldMaxIndex(2,i) + 2*tileSize
+         case (6)
+            minIndex(1,i) = oldMinIndex(1,i) - 3*tileSize
+            minIndex(2,i) = oldMinIndex(2,i) + 3*tileSize
+            maxIndex(1,i) = oldMaxIndex(1,i) - 3*tileSize
+            maxIndex(2,i) = oldMaxIndex(2,i) + 3*tileSize
+         end select
+      end do
+      deallocate(deToTileMap, oldMinIndex, oldMaxIndex)
+   else
+      call ESMF_DistGridGet(distGrid, minIndexPDe=minIndex, maxIndexPDe=maxIndex, rc=status)
+      _VERIFY(status)
+   end if
+
+   _RETURN(ESMF_SUCCESS)
+end subroutine MAPL_DistGridGet
+
+subroutine MAPL_GetImsJms(Imins, Imaxs, Jmins, Jmaxs, Ims, Jms, rc)
+   use MAPL_SortMod
+   use ESMF, only: ESMF_SUCCESS
+   integer, dimension(:), intent(in)  :: Imins, Imaxs, Jmins, Jmaxs
+   integer, pointer                   :: Ims(:), Jms(:)
+   integer, optional,   intent(out)   :: rc
+
+   integer              :: nx, ny, nx0, ny0, nde, k
+   integer, allocatable :: Im0(:), Jm0(:)
+   integer              :: minI, minJ
+   integer              :: status
+
+   _ASSERT(.not.associated(Ims), 'Ims is associated and should not be.')
+   _ASSERT(.not.associated(Jms), 'Jms is associated and should not be.')
+
+   minI = minval(Imins, DIM=1)
+   minJ = minval(Jmins, DIM=1)
+   nx = count(Jmins==minJ)
+   ny = count(Imins==minI)
+
+   allocate(Ims(nx), Jms(ny), stat=status)
+   _VERIFY(status)
+   allocate(Im0(nx), Jm0(ny), stat=status)
+   _VERIFY(status)
+
+   nde = size(Imins)
+   nx0 = 1
+   ny0 = 1
+
+   do k = 1, nde
+      if (Imins(k)==minI) then
+         Jms(ny0) = Jmaxs(k)-Jmins(k) + 1
+         Jm0(ny0) = Jmins(k)
+         if (ny0==ny) then
+            exit
+         else
+            ny0 = ny0 + 1
+         end if
+      end if
+   end do
+
+   do k = 1, nde
+      if (Jmins(k)==minJ) then
+         Ims(nx0) = Imaxs(k)-Imins(k) + 1
+         Im0(nx0) = Imins(k)
+         if (nx0==nx) then
+            exit
+         else
+            nx0 = nx0 + 1
+         end if
+      end if
+   end do
+
+   call MAPL_Sort(Im0, Ims)
+   call MAPL_Sort(Jm0, Jms)
+
+   deallocate(Im0, Jm0, stat=status)
+   _VERIFY(status)
+
+   _RETURN(ESMF_SUCCESS)
+end subroutine MAPL_GetImsJms
+
+end module mapl_LocStreamMod_impl

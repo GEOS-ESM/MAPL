@@ -383,7 +383,7 @@ module MAPL_MemUtilsMod
 
 
      call get_unit(mem_unit)
-     open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
+     open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',ACTION='READ',IOSTAT=STATUS)
      !_VERIFY(STATUS)
 
      ! Note: On at least one CircleCI compute machine, this was returning IOSTAT=9, with an IOMSG of:
@@ -454,7 +454,7 @@ integer :: status
   multiplier = 1.0
 
   call get_unit(mem_unit)
-  open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
+  open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',ACTION='READ',IOSTAT=STATUS)
   !_VERIFY(STATUS)
 
   ! Note: On at least one CircleCI compute machine, this was returning IOSTAT=9, with an IOMSG of:
@@ -513,7 +513,7 @@ integer :: status
   multiplier = 1.0
 
   call get_unit(mem_unit)
-  open(UNIT=mem_unit,FILE=proc_self,FORM='formatted',IOSTAT=STATUS)
+  open(UNIT=mem_unit,FILE=proc_self,FORM='formatted',ACTION='READ',IOSTAT=STATUS)
   _VERIFY(STATUS)
   do; read (mem_unit,'(a)', end=10) string
     if ( INDEX ( string, 'VmHWM:' ) == 1 ) then  ! High Water Mark
@@ -532,7 +532,7 @@ integer :: status
 10 close(mem_unit)
 
   call get_unit(mem_unit)
-  open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
+  open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',ACTION='READ',IOSTAT=STATUS)
   _VERIFY(STATUS)
   do; read (mem_unit,'(a)', end=20) string
     if ( INDEX ( string, 'MemTotal:' ) == 1 ) then  ! High Water Mark
@@ -604,7 +604,7 @@ integer :: status
   multiplier = 1.0
 
   call get_unit(mem_unit)
-  open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
+  open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',ACTION='READ',IOSTAT=STATUS)
   _VERIFY(STATUS)
   do; read (mem_unit,'(a)', end=20) string
     if ( INDEX ( string, 'MemFree:' ) == 1 ) then  ! Free memory

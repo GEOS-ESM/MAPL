@@ -9,10 +9,10 @@
 
 ! !INTERFACE:
 
-module NCIOMod
+module mapl_NCIO
 
-  use FileIOSharedMod, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, MAPL_TileMaskGet
-  use FileIOSharedMod, only: ArrayScatterShm
+  use mapl_FileIOShared, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, MAPL_TileMaskGet
+  use mapl_FileIOShared, only: ArrayScatterShm
   use ESMF
   use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
   use MAPL_RangeMod, only: MAPL_Range
@@ -5232,4 +5232,4 @@ contains
      _RETURN(_SUCCESS)
    end subroutine MAPL_WriteTilingNC4
 
-end module NCIOMod
+end module mapl_NCIO

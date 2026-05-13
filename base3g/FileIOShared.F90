@@ -15,7 +15,7 @@
 !
 ! `FileIO_Shared` -- A Module that contains shared subroutines/functions needed by NetCDF and Binary IO
 !
-module FileIOSharedMod
+module mapl_FileIOShared
 
   use ESMF
   use mapl3g_DistGridGet, only: MAPL_DistGridGet_impl => DistGridGet
@@ -944,4 +944,4 @@ module FileIOSharedMod
     end if
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Comm_Dup
-end module FileIOSharedMod
+end module mapl_FileIOShared
