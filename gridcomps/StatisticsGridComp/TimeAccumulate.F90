@@ -172,8 +172,12 @@ contains
       call MAPL_AssignFptr(this%f, f, _RC)
       call MAPL_AssignFptr(sum_f, sum_f_ptr, _RC)
 
-      where (f /= MAPL_UNDEF)
-         sum_f_ptr = sum_f_ptr + f
+      where (sum_f_ptr /= MAPL_UNDEF)
+         where (f == MAPL_UNDEF)
+            sum_f_ptr = MAPL_UNDEF
+         elsewhere
+            sum_f_ptr = sum_f_ptr + f
+         end where
       end where
 
       _RETURN(_SUCCESS)
@@ -197,8 +201,12 @@ contains
       call MAPL_AssignFptr(this%f, f, _RC)
       call MAPL_AssignFptr(sum_f, sum_f_ptr, _RC)
 
-      where (f /= MAPL_UNDEF)
-         sum_f_ptr = sum_f_ptr + f
+      where (sum_f_ptr /= MAPL_UNDEF)
+         where (f == MAPL_UNDEF)
+            sum_f_ptr = MAPL_UNDEF
+         elsewhere
+            sum_f_ptr = sum_f_ptr + f
+         end where
       end where
 
       _RETURN(_SUCCESS)
