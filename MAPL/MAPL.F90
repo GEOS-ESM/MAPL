@@ -2,6 +2,7 @@
 ! of the legacy (MAPL2) underlying packages.
 module MAPL2
    use MAPL_ExceptionHandling
+   use FileIOSharedMod
    use NCIOMod
    use MAPL_LocStreamMod
    use MAPL_ShmemMod
