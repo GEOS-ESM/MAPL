@@ -4,12 +4,10 @@ set (srcs
   FileMetadataUtilities.F90
   FileMetadataUtilitiesVector.F90       SimpleBundleMod.F90
   MAPL_ESMFTimeVectorMod.F90
-  FileIOShared.F90                                                          NCIO.F90
-  MAPL_LocStreamMod.F90
                                         MAPL_VerticalInterpMod.F90
                                         MAPL_VerticalMethods.F90
   ServerManager.F90
-  c_mapl_locstream_F.c  getrss.c  memuse.c
+  getrss.c  memuse.c
   TimeStringConversion.F90
   )
 
@@ -26,10 +24,6 @@ esma_add_library(
 
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
 # interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
-if (DUSTY)
-  # FileIOShared.F90 and NCIO.F90 are now thin wrappers; no DUSTY flags needed
-endif ()
-
 target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
 if(DISABLE_GLOBAL_NAME_WARNING)

@@ -3,7 +3,7 @@ esma_set_this (OVERRIDE MAPL.base3g)
 set (srcs
   FileIOShared.F90
   NCIO.F90
-  ../base/c_mapl_locstream_F.c
+  c_mapl_locstream_F.c
   MAPL_LocStreamMod.F90
   PackedTime.F90
   SimulationTime.F90
