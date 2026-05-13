@@ -3,7 +3,6 @@ module mapl3g_ExtDataRule
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use MAPL_TimeStringConversion
    use mapl3g_ExtDataSample
    use mapl3g_ExtDataSampleMap
    use gFTL2_StringVector

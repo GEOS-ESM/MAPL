@@ -8,7 +8,6 @@ set (srcs
                                         MAPL_VerticalMethods.F90
   ServerManager.F90
   getrss.c  memuse.c
-  TimeStringConversion.F90
   )
 
 # Comms.F90, StringTemplate.F90, SatVapor.F90 have been moved to base3g/

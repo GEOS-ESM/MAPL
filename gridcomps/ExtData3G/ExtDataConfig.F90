@@ -16,7 +16,6 @@ module mapl3g_ExtDataConfig
    use mapl3g_ExtDataConstants
    use mapl3g_ExtDataSample
    use mapl3g_ExtDataSampleMap
-   use MAPL_TimeStringConversion
    use mapl3g_PrimaryExport
    use mapl3g_geomio
    use mapl3g_AbstractDataSetFileSelector
@@ -234,11 +233,11 @@ contains
          allocate(time_range(0))
          _RETURN(_SUCCESS)
       end if
-      start_time = string_to_esmf_time(char_start_time)
+      call ESMF_TimeSet(start_time, timeString=char_start_time, _RC)
 
       allocate(full_time_range(num_rules+1))
       do i=1,num_rules
-         full_time_range(i) = string_to_esmf_time(start_times%at(i))
+         call ESMF_TimeSet(full_time_range(i), timeString=start_times%at(i), _RC)
       enddo
       call ESMF_TimeSet(very_future_time,yy=2365,mm=1,dd=1,_RC)
       full_time_range(num_rules+1) = very_future_time
@@ -276,7 +275,7 @@ contains
          found_start = ESMF_HConfigIsDefined(hconfig_dict,keyString="starting")
          _ASSERT(found_start,"no start key in multirule export of extdata")
          start_time = ESMF_HConfigAsString(hconfig_dict,keyString="starting",_RC)
-         start_times(i) = string_to_esmf_time(start_time)
+         call ESMF_TimeSet(start_times(i), timeString=start_time, _RC)
       enddo
 
       do i=1,num_rules-1

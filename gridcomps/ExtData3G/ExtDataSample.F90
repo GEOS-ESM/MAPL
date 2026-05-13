@@ -3,7 +3,6 @@ module mapl3g_ExtDataSample
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use MAPL_TimeStringConversion
    implicit none
    private
 
@@ -72,8 +71,8 @@ contains
          idx = index(source_str,'/')
          _ASSERT(idx/=0,'invalid specification of source_time')
          allocate(TimeSample%source_time(2))
-         TimeSample%source_time(1)=string_to_esmf_time(source_str(:idx-1))
-         TimeSample%source_time(2)=string_to_esmf_time(source_str(idx+1:))
+         call ESMF_TimeSet(TimeSample%source_time(1), timeString=source_str(:idx-1), _RC)
+         call ESMF_TimeSet(TimeSample%source_time(2), timeString=source_str(idx+1:), _RC)
       else
          if (.not.allocated(TimeSample%source_time)) allocate(TimeSample%source_time(0))
       end if

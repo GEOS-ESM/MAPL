@@ -3,8 +3,8 @@ module mapl3g_ExtDataCollection
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use MAPL_TimeStringConversion
    use MAPL_StringTemplate
+   use mapl3g_HConfigAs, only: mapl_HConfigAsTimeInterval => HConfigAsTimeInterval
    use pfio_FileMetadataMod
    use mapl3g_AbstractDataSetFileSelector
    use mapl3g_NonClimDataSetFileSelector
@@ -55,7 +55,7 @@ contains
       range_str = get_string_with_default(config,"valid_range")
 
       if (file_frequency /= '') then
-         data_set%frequency = string_to_esmf_timeinterval(file_frequency)
+         data_set%frequency = mapl_HConfigAsTimeInterval(config, keyString="freq", _RC)
       else
          last_token = index(data_set%file_template,'%',back=.true.)
          if (last_token.gt.0) then
@@ -81,7 +81,8 @@ contains
       end if
 
       if (file_reff_time /= '') then
-         data_set%reff_time = string_to_esmf_time(file_reff_time)
+         allocate(data_set%reff_time)
+         call ESMF_TimeSet(data_set%reff_time, timeString=file_reff_time, _RC)
       else
          last_token = index(data_set%file_template,'%',back=.true.)
          allocate(data_set%reff_time)
@@ -112,8 +113,8 @@ contains
          _ASSERT(idx/=0,'invalid specification of time range')
          if (allocated(data_set%valid_range)) deallocate(data_set%valid_range)
          allocate(data_set%valid_range(2))
-         data_set%valid_range(1)=string_to_esmf_time(range_str(:idx-1))
-         data_set%valid_range(2)=string_to_esmf_time(range_str(idx+1:))
+         call ESMF_TimeSet(data_set%valid_range(1), timeString=range_str(:idx-1), _RC)
+         call ESMF_TimeSet(data_set%valid_range(2), timeString=range_str(idx+1:), _RC)
 
          last_token = index(data_set%file_template,'%',back=.true.)
          if (last_token.gt.0) then

@@ -3,7 +3,6 @@
 module mapl3g_Cap
    use MAPL
    use mapl3g_CapGridComp, only: cap_setservices => setServices
-   use mapl_TimeStringConversion, only: string_to_esmf_time
    use mapl_os
    use mapl_ErrorHandling, only: MAPL_Assert
    use pflogger
@@ -123,7 +122,7 @@ contains
       num_times = size(temp_str)
       allocate(time_vector(num_times), _STAT)
       do i=1,num_times
-         time_vector(i) = string_to_esmf_time(temp_str(i), _RC)
+         call ESMF_TimeSet(time_vector(i), timeString=temp_str(i), _RC)
       enddo
       _RETURN(_SUCCESS)
    end subroutine fill_time_vector
