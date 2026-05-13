@@ -121,6 +121,18 @@ Only after step 3 passes do you open PRs, in dependency order:
 - Open PR 2a/2b/2c in parallel (they only depend on PR 1 being merged).
 - Open PR 3 last (depends on PR 1 + all PR 2* merged).
 
+**Before pushing any branch and opening a PR, always rebase it onto the current
+tip of the target branch (`release/MAPL-v3` or equivalent):**
+
+```bash
+git fetch origin
+git rebase origin/release/MAPL-v3
+git push -u origin <branch>   # or --force-with-lease if already pushed
+```
+
+This ensures CI runs against the latest code and avoids unnecessary merge
+conflicts after approval.
+
 ---
 
 ## Common Pitfalls
