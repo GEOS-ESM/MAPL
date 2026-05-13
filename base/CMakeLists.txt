@@ -1,8 +1,7 @@
 esma_set_this (OVERRIDE MAPL.base)
 
 set (srcs
-  FileMetadataUtilities.F90
-  FileMetadataUtilitiesVector.F90       SimpleBundleMod.F90
+  SimpleBundleMod.F90
   )
 
 # Comms.F90, StringTemplate.F90, SatVapor.F90 have been moved to base3g/
