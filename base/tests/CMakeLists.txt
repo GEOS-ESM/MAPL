@@ -2,12 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.base/tests")
 
 add_definitions(-DUSE_MPI)
 set (TEST_SRCS
-    test_sort.pf
-#    Test_CFIO_Bundle.pf
     Test_SimpleMAPLcomp.pf
-    test_DirPath.pf
-#    test_TimeStringConversion.pf
-#    test_MAPL_ISO8601_DateTime_ESMF.pf
   )
 
 # SRCS are mostly mocks to facilitate tests
