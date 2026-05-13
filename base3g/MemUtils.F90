@@ -262,12 +262,9 @@ module MAPL_MemUtilsMod
     real :: lhwm, ghwm
     real :: lmem, gmem, lswap, gswap
     real :: commitlimit, committed_as
-    real :: lcommitlimit, lcommitted_as
+     real :: lcommitlimit, lcommitted_as
     real :: gcommitlimit, gcommitted_as
     integer :: npes
-
-!memuse is an external function: works on SGI
-!use #ifdef to generate equivalent on other platforms.
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtilsWriteComm"
     integer :: status
@@ -290,11 +287,7 @@ module MAPL_MemUtilsMod
             _RETURN(ESMF_SUCCESS)
         endif
     end if
-#if defined(__sgi) || defined(__aix) || defined(__SX)
-    m = memuse()*1e-3
-#else
     call mem_dump(mhwm, mrss, memused, swapused, commitlimit, committed_as, _RC)
-#endif
     call MPI_Comm_Size(comm_,npes,status)
     _VERIFY(status)
     if (MAPL_MemUtilsMode == MAPL_MemUtilsModeFull) then

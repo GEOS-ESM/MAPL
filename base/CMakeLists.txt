@@ -6,8 +6,6 @@ set (srcs
   MAPL_ESMFTimeVectorMod.F90
                                         MAPL_VerticalInterpMod.F90
                                         MAPL_VerticalMethods.F90
-  ServerManager.F90
-  getrss.c  memuse.c
   )
 
 # Comms.F90, StringTemplate.F90, SatVapor.F90 have been moved to base3g/

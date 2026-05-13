@@ -5,7 +5,6 @@ module MAPL2
    use MAPL_ShmemMod
    use MAPL_MemUtilsMod
    use MAPL_SimpleBundleMod
-   use MAPL_ServerManager
    use MAPL_FileMetadataUtilsMod
    use MAPL_VerticalDataMod
    use pFIO
