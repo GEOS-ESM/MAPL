@@ -36,6 +36,7 @@ module ExtData_DriverGridCompMod
      type(ESMF_VM) :: vm
      type(ESMF_Time), allocatable :: times(:)
      logical :: run_fbf = .false.
+     logical :: run_like_model = .false.
    contains
      procedure :: set_services
      procedure :: initialize
@@ -45,6 +46,8 @@ module ExtData_DriverGridCompMod
      procedure :: get_am_i_root
      procedure :: parseTimes
      procedure :: advanceClockToTime
+     procedure :: run_extdata_root
+     procedure :: run_history
   end type ExtData_DriverGridComp
 
   type :: ExtData_DriverGridComp_Wrapper
@@ -194,6 +197,7 @@ contains
     end if
 
     call ESMF_ConfigGetAttribute(cap%config,cap%run_fbf,label="RUN_FBF:",default=.false.)
+    call ESMF_ConfigGetAttribute(cap%config,cap%run_like_model,label="RUN_LIKE_MODEL:",default=.false.)
     call ESMF_ConfigGetAttribute(cap%config,cap%run_hist,label="RUN_HISTORY:",default=.true.)
     call ESMF_ConfigGetAttribute(cap%config,cap%run_extdata,label="RUN_EXTDATA:",default=.true.)
 
@@ -443,12 +447,18 @@ contains
     integer, intent(out) :: RC     ! Error code:
 
     integer :: status
+    type(ExtData_DriverGridComp), pointer :: cap
 
     _UNUSED_DUMMY(import)
     _UNUSED_DUMMY(export)
     _UNUSED_DUMMY(clock)
 
-    call run_MultipleTimes(gc, rc=status)
+    cap => get_CapGridComp_from_gc(gc)
+    if (cap%run_like_model) then
+       call run_MultipleTimes_like_cap(gc, rc=status)
+    else
+       call run_MultipleTimes_extdata_hist_sametime(gc, rc=status)
+    end if
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
 
@@ -603,7 +613,7 @@ contains
   end function get_MetaComp_from_gc
 
 
-  subroutine run_MultipleTimes(gc, rc)
+  subroutine run_MultipleTimes_extdata_hist_sametime(gc, rc)
     type (ESMF_Gridcomp) :: gc
     integer, optional, intent(out) :: rc
 
@@ -652,8 +662,33 @@ contains
     endif
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine run_MultipleTimes
+  end subroutine run_MultipleTimes_extdata_hist_sametime
 
+  subroutine run_MultipleTimes_like_cap(gc, rc)
+    type (ESMF_Gridcomp) :: gc
+    integer, optional, intent(out) :: rc
+
+    integer :: n, status
+
+    type(ExtData_DriverGridComp), pointer :: cap
+    type (MAPL_MetaComp), pointer :: MAPLOBJ
+    procedure(), pointer :: root_set_services
+
+    cap => get_CapGridComp_from_gc(gc)
+    MAPLOBJ => get_MetaComp_from_gc(gc)
+    
+    _ASSERT(cap%run_fbf.eqv. .false., "Running fgf not supported in this mode")
+    do n=1,cap%nsteps
+       call cap%run_extdata_root(status)
+       _VERIFY(status)
+       call ESMF_ClockAdvance(cap%clock,rc=status)
+       _VERIFY(status)
+       call cap%run_history(status)
+       _VERIFY(status)
+    enddo
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine run_MultipleTimes_like_cap
 
   subroutine run_one_step(this, rc)
     class(ExtData_DriverGridComp), intent(inout) :: this
@@ -708,6 +743,83 @@ contains
 
     _RETURN(ESMF_SUCCESS)
   end subroutine run_one_step
+
+  subroutine run_extdata_root(this, rc)
+    class(ExtData_DriverGridComp), intent(inout) :: this
+    integer, intent(out) :: rc
+    integer :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
+    integer :: status
+
+    type(ESMF_Time) :: currTime
+    real            :: mem_total, mem_commit, mem_percent
+
+    call ESMF_ClockGet(this%clock, CurrTime = currTime, rc = status)
+    _VERIFY(status)
+    call ESMF_TimeGet(CurrTime, YY = AGCM_YY, &
+         MM = AGCM_MM, &
+         DD = AGCM_DD, &
+         H  = AGCM_H , &
+         M  = AGCM_M , &
+         S  = AGCM_S, rc=status)
+    _VERIFY(status)
+
+    call ESMF_GridCompGet(this%gc, vm = this%vm)
+    ! Run the ExtData Component
+    ! --------------------------
+
+    if (this%run_extdata) then
+       call ESMF_GridCompRun(this%gcs(this%extdata_id), importState = this%imports(this%extdata_id), &
+            exportState = this%exports(this%extdata_id), &
+            clock = this%clock, userrc = status)
+       _VERIFY(status)
+    end if
+
+    ! Run the Gridded Component
+    ! --------------------------
+    call ESMF_GridCompRun(this%gcs(this%root_id), importstate = this%imports(this%root_id), &
+         exportstate = this%exports(this%root_id), &
+         clock = this%clock, userrc = status)
+    _VERIFY(status)
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine run_extdata_root
+
+  subroutine run_history(this, rc)
+    class(ExtData_DriverGridComp), intent(inout) :: this
+    integer, intent(out) :: rc
+    integer :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
+    integer :: status
+
+    type(ESMF_Time) :: currTime
+    real            :: mem_total, mem_commit, mem_percent
+
+    call ESMF_ClockGet(this%clock, CurrTime = currTime, rc = status)
+    _VERIFY(status)
+    call ESMF_TimeGet(CurrTime, YY = AGCM_YY, &
+         MM = AGCM_MM, &
+         DD = AGCM_DD, &
+         H  = AGCM_H , &
+         M  = AGCM_M , &
+         S  = AGCM_S, rc=status)
+    _VERIFY(status)
+
+    call ESMF_GridCompGet(this%gc, vm = this%vm)
+    ! Call History Run for Output
+    ! ---------------------------
+
+    if (this%run_hist) then
+       call ESMF_GridCompRun(this%gcs(this%history_id), importstate=this%imports(this%history_id), &
+            exportstate = this%exports(this%history_id), &
+            clock = this%clock, userrc = status)
+       _VERIFY(status)
+    end if
+    call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
+    if (this%AmIRoot) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,mem_percent
+1000 format(1x,'TestDriver Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2,2x,f5.1,'%Memory Committed')
+
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine run_history
 
 
   ! !IROUTINE: MAPL_ClockInit -- Sets the clock
