@@ -1,6 +1,8 @@
 esma_set_this (OVERRIDE MAPL.base3g)
 
 set (srcs
+  FileIOShared.F90
+  NCIO.F90
   PackedTime.F90
   SimulationTime.F90
   Comms.F90
@@ -16,9 +18,16 @@ set (srcs
 
 esma_add_library (${this}
   SRCS ${srcs}
-  DEPENDENCIES ESMF::ESMF PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 MAPL.shared MAPL.geom MPI::MPI_Fortran NetCDF::NetCDF_Fortran
+  DEPENDENCIES ESMF::ESMF PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 MAPL.shared MAPL.geom MAPL.esmf_utils MAPL.pfio MPI::MPI_Fortran NetCDF::NetCDF_Fortran
   TYPE SHARED
 )
+
+# We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
+# interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
+if (DUSTY)
+  set_property( SOURCE FileIOShared.F90 NCIO.F90
+                PROPERTY COMPILE_FLAGS ${DUSTY})
+endif ()
 
 target_compile_definitions (${this} PRIVATE MAPL_MODE)
 
