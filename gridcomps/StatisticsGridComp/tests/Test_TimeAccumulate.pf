@@ -6,6 +6,7 @@ module Test_TimeAccumulate
    use mapl3g_SimpleAlarm, only: SimpleAlarm
    use MAPL
    use ESMF
+   use ESMF_TestMethod_mod
    implicit none
 
    ! Minimal size for the test grid
@@ -112,9 +113,9 @@ contains
       integer, intent(in) :: ring_hours
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_TimeInterval) :: interval
-      call ESMF_TimeIntervalSet(interval, h=ring_hours, _RC)
-      alarm = SimpleAlarm(ring_time, interval)
+      type(ESMF_TimeInterval) :: time_interval
+      call ESMF_TimeIntervalSet(time_interval, h=ring_hours, _RC)
+      alarm = SimpleAlarm(ring_time, time_interval)
       _RETURN(_SUCCESS)
    end function make_alarm_hourly
 
@@ -192,8 +193,9 @@ contains
    !         constructing a full MAPL GridComp for get_alarm() is
    !         unnecessary to exercise the alarm wiring logic.
    ! ===================================================================
-   @test
-   subroutine test_alarm_rings_at_correct_times()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alarm_rings_at_correct_times(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Time) :: ring_time, t
       type(SimpleAlarm) :: alarm
       integer :: status
@@ -233,8 +235,9 @@ contains
    !   step 3: input = 3.0   sum after = 6.0
    !   compute_result copies sum → output  →  output = 6.0
    ! ===================================================================
-   @test
-   subroutine test_accumulate_r4_three_steps()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_r4_three_steps(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: f_in, f_out, f_sum
       real(ESMF_KIND_R4) :: result_val
@@ -259,8 +262,7 @@ contains
       call copy_r4(f_sum, f_out, _RC)
 
       result_val = get_r4_scalar(f_out, _RC)
-      @assertEqual(6.0_ESMF_KIND_R4, result_val, tolerance=1.0e-5_ESMF_KIND_R4, &
-           message='R4 accumulation of 1+2+3 must equal 6')
+      @assertEqual(6.0_ESMF_KIND_R4, result_val, 1.0e-5_ESMF_KIND_R4, 'R4 accumulation of 1+2+3 must equal 6')
 
       call ESMF_FieldDestroy(f_in,  nogarbage=.true., _RC)
       call ESMF_FieldDestroy(f_out, nogarbage=.true., _RC)
@@ -272,8 +274,9 @@ contains
    ! ===================================================================
    ! TEST 3: 24 R8 steps of 1.0 give sum = 24.0.
    ! ===================================================================
-   @test
-   subroutine test_accumulate_r8_24_steps()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_r8_24_steps(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: f_in, f_out, f_sum
       real(ESMF_KIND_R8) :: result_val
@@ -292,8 +295,7 @@ contains
       call copy_r8(f_sum, f_out, _RC)
 
       result_val = get_r8_scalar(f_out, _RC)
-      @assertEqual(24.0_ESMF_KIND_R8, result_val, tolerance=1.0e-12_ESMF_KIND_R8, &
-           message='R8 accumulation of 24 ones must equal 24')
+      @assertEqual(24.0_ESMF_KIND_R8, result_val, 1.0e-12_ESMF_KIND_R8, 'R8 accumulation of 24 ones must equal 24')
 
       call ESMF_FieldDestroy(f_in,  nogarbage=.true., _RC)
       call ESMF_FieldDestroy(f_out, nogarbage=.true., _RC)
@@ -310,8 +312,9 @@ contains
    !     odd  indices → sum = 2.0
    !     even indices → sum = 0.0   (unchanged)
    ! ===================================================================
-   @test
-   subroutine test_undef_excluded_r4()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_undef_excluded_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: f_in, f_sum
       real(ESMF_KIND_R4), pointer :: in_ptr(:), sum_ptr(:)
@@ -339,11 +342,9 @@ contains
 
       do i = 1, n
          if (mod(i, 2) == 0) then
-            @assertEqual(0.0_ESMF_KIND_R4, sum_ptr(i), tolerance=1.0e-5_ESMF_KIND_R4, &
-                 message='UNDEF grid points must remain zero in the accumulator')
+            @assertEqual(0.0_ESMF_KIND_R4, sum_ptr(i), 1.0e-5_ESMF_KIND_R4, 'UNDEF grid points must remain zero in the accumulator')
          else
-            @assertEqual(2.0_ESMF_KIND_R4, sum_ptr(i), tolerance=1.0e-5_ESMF_KIND_R4, &
-                 message='Valid grid points must be added to the accumulator')
+            @assertEqual(2.0_ESMF_KIND_R4, sum_ptr(i), 1.0e-5_ESMF_KIND_R4, 'Valid grid points must be added to the accumulator')
          end if
       end do
 
@@ -356,8 +357,9 @@ contains
    ! ===================================================================
    ! TEST 5: reset() sets every accumulator point to zero (R4).
    ! ===================================================================
-   @test
-   subroutine test_reset_zeros_accumulator_r4()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_reset_zeros_accumulator_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: f_sum
       real(ESMF_KIND_R4), pointer :: sum_ptr(:)
@@ -372,8 +374,7 @@ contains
 
       call MAPL_AssignFptr(f_sum, sum_ptr, _RC)
       do i = 1, size(sum_ptr)
-         @assertEqual(0.0_ESMF_KIND_R4, sum_ptr(i), tolerance=1.0e-10_ESMF_KIND_R4, &
-              message='R4 accumulator must be zero after reset')
+         @assertEqual(0.0_ESMF_KIND_R4, sum_ptr(i), 1.0e-10_ESMF_KIND_R4, 'R4 accumulator must be zero after reset')
       end do
 
       call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
@@ -384,8 +385,9 @@ contains
    ! ===================================================================
    ! TEST 6: reset() sets every accumulator point to zero (R8).
    ! ===================================================================
-   @test
-   subroutine test_reset_zeros_accumulator_r8()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_reset_zeros_accumulator_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: f_sum
       real(ESMF_KIND_R8), pointer :: sum_ptr(:)
@@ -399,8 +401,7 @@ contains
 
       call MAPL_AssignFptr(f_sum, sum_ptr, _RC)
       do i = 1, size(sum_ptr)
-         @assertEqual(0.0_ESMF_KIND_R8, sum_ptr(i), tolerance=1.0e-14_ESMF_KIND_R8, &
-              message='R8 accumulator must be zero after reset')
+         @assertEqual(0.0_ESMF_KIND_R8, sum_ptr(i), 1.0e-14_ESMF_KIND_R8, 'R8 accumulator must be zero after reset')
       end do
 
       call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
@@ -414,8 +415,9 @@ contains
    !   Period 1 (3 steps × 5.0) → sum = 15.0  →  compute_result  →  reset
    !   Period 2 (1 step  × 7.0) → sum =  7.0  (not 22.0)
    ! ===================================================================
-   @test
-   subroutine test_accumulate_resets_between_periods_r4()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_resets_between_periods_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: f_in, f_out, f_sum
       real(ESMF_KIND_R4), pointer :: sum_ptr(:)
@@ -436,8 +438,7 @@ contains
       ! compute_result: copy sum → out
       call copy_r4(f_sum, f_out, _RC)
       result_val = get_r4_scalar(f_out, _RC)
-      @assertEqual(15.0_ESMF_KIND_R4, result_val, tolerance=1.0e-5_ESMF_KIND_R4, &
-           message='Period 1: 3 steps of 5.0 must sum to 15.0')
+      @assertEqual(15.0_ESMF_KIND_R4, result_val, 1.0e-5_ESMF_KIND_R4, 'Period 1: 3 steps of 5.0 must sum to 15.0')
 
       ! reset
       call ESMF_FieldFill(f_sum, dataFillScheme='const', const1=0.d0, _RC)
@@ -448,8 +449,7 @@ contains
 
       call MAPL_AssignFptr(f_sum, sum_ptr, _RC)
       result_val = sum_ptr(1)
-      @assertEqual(7.0_ESMF_KIND_R4, result_val, tolerance=1.0e-5_ESMF_KIND_R4, &
-           message='Period 2 after reset: 1 step of 7.0 must accumulate to 7.0, not 22.0')
+      @assertEqual(7.0_ESMF_KIND_R4, result_val, 1.0e-5_ESMF_KIND_R4, 'Period 2 after reset: 1 step of 7.0 must accumulate to 7.0, not 22.0')
 
       call ESMF_FieldDestroy(f_in,  nogarbage=.true., _RC)
       call ESMF_FieldDestroy(f_out, nogarbage=.true., _RC)
@@ -461,8 +461,9 @@ contains
    ! ===================================================================
    ! TEST 8: compute_result copies sum → output unchanged (R4).
    ! ===================================================================
-   @test
-   subroutine test_compute_result_copies_sum_to_output_r4()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_compute_result_copies_sum_to_output_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: f_sum, f_out
       real(ESMF_KIND_R4), pointer :: out_ptr(:)
@@ -478,8 +479,7 @@ contains
 
       call MAPL_AssignFptr(f_out, out_ptr, _RC)
       do i = 1, size(out_ptr)
-         @assertEqual(EXPECTED, out_ptr(i), tolerance=1.0e-5_ESMF_KIND_R4, &
-              message='R4 compute_result must copy sum to output unchanged')
+         @assertEqual(EXPECTED, out_ptr(i), 1.0e-5_ESMF_KIND_R4, 'R4 compute_result must copy sum to output unchanged')
       end do
 
       call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
@@ -491,8 +491,9 @@ contains
    ! ===================================================================
    ! TEST 9: compute_result copies sum → output unchanged (R8).
    ! ===================================================================
-   @test
-   subroutine test_compute_result_copies_sum_to_output_r8()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_compute_result_copies_sum_to_output_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: f_sum, f_out
       real(ESMF_KIND_R8), pointer :: out_ptr(:)
@@ -508,8 +509,7 @@ contains
 
       call MAPL_AssignFptr(f_out, out_ptr, _RC)
       do i = 1, size(out_ptr)
-         @assertEqual(EXPECTED, out_ptr(i), tolerance=1.0e-14_ESMF_KIND_R8, &
-              message='R8 compute_result must copy sum to output unchanged')
+         @assertEqual(EXPECTED, out_ptr(i), 1.0e-14_ESMF_KIND_R8, 'R8 compute_result must copy sum to output unchanged')
       end do
 
       call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
@@ -521,8 +521,9 @@ contains
    ! ===================================================================
    ! TEST 10: All-UNDEF input must leave the accumulator at zero (R4).
    ! ===================================================================
-   @test
-   subroutine test_all_undef_input_r4()
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_all_undef_input_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Grid) :: grid
       type(ESMF_Field) :: f_in, f_sum
       real(ESMF_KIND_R4), pointer :: in_ptr(:), sum_ptr(:)
@@ -543,8 +544,7 @@ contains
       end do
 
       do i = 1, size(sum_ptr)
-         @assertEqual(0.0_ESMF_KIND_R4, sum_ptr(i), tolerance=1.0e-5_ESMF_KIND_R4, &
-              message='All-UNDEF input must leave the accumulator at zero')
+         @assertEqual(0.0_ESMF_KIND_R4, sum_ptr(i), 1.0e-5_ESMF_KIND_R4, 'All-UNDEF input must leave the accumulator at zero')
       end do
 
       call ESMF_FieldDestroy(f_in,  nogarbage=.true., _RC)
