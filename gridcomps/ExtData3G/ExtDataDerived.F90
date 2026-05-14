@@ -4,7 +4,7 @@ module mapl3g_ExtDataDerived
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use gFTL2_StringVector
-   use MAPL_StateUtils
+   use MAPL
    implicit none
    private
 
