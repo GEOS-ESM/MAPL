@@ -6,6 +6,7 @@ module GridComp
 
   use ESMF
   use MAPL
+  !$ use omp_lib
 
   implicit none
   private
@@ -30,6 +31,8 @@ module GridComp
      call ESMF_ConfigGetAttribute(cf, use_threads, label='use_threads:', default=.FALSE., _RC)
      call MAPL%set_use_threads(use_threads)
      call ESMF_ConfigGetAttribute(cf, num_threads, label='num_threads:', default=1, _RC)
+     num_threads = 1
+     !$ if (use_threads) num_threads = omp_get_max_threads()
      call MAPL%set_num_threads(num_threads)
 
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, _RC)
