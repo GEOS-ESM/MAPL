@@ -1,286 +1,189 @@
-<<<<<<< HEAD
 #include "MAPL_TestErr.h"
-#include "unused_dummy.H"
 
 module Test_Variance
    use pfunit
-   use esmf
    use mapl3g_Sampler
-   use mapl3g_FieldAPI
+   use MAPL
+   use ESMF
    use ESMF_TestMethod_mod
-   use mapl3g_Variance
+   use, intrinsic :: iso_fortran_env, only: real32
    implicit none(type, external)
 
-   character(len=*), parameter :: START_TIME = '20260401T020000'
-   character(len=*), parameter :: TIME_STEP = 'PT1S'
-   integer, parameter :: RING_INTERVAL = 3600
-   type(ESMF_Time) :: startTime
-   type(ESMF_TimeInterval) :: timeStep, ringInterval
-   logical :: startTimeIsSet = .FALSE.
-   logical :: timeStepIsSet = .FALSE.
-   logical, parameter :: ALARM_IS_STICKY = .TRUE.
-   integer, pointer :: seed_ptr => null()
+   integer, parameter :: NPTS = 16
+   integer, parameter :: NSTEPS = 100
 
 contains
 
-   @Test(type=ESMF_TestMethod, npes[1])
-   subroutine test_calculate_r4_shifted_biased(this)
-      class(ESMF_TestMethod), intent(inout) ::  this
-      class(Variance), allocatable :: var
-      type(ESMF_Grid) :: grid
-      type(ESMF_Field), importField, variance_field
-      type(ESMF_Clock) :: clock
-      type(ESMF_Alarm) :: alarm
-      integer :: status, i
-      integer, parameter :: MAXI = 2
-      integer, parameter :: MAXY = 2
-      real(kind=ESMF_KIND_R4) :: expected(MAXI*MAXY)
-      real(kind=kind(expected)), allocatable, target :: updateData(:, :)
-      real(kind=kind(expected)) :: samples(:)
-      real(kind=kind(expected)), pointer :: importData(:, :) => null()
-      real(kind=kind(expected)), pointer :: varianceData(:, :) => null()
-      real(kind=kind(expected)), allocatable :: expected(:, :)
-      type(ESMF_Typekind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
+   ! -----------------------------------------------------------------------
+   ! Compute variance using the shifted algorithm (inline, no MAPL state)
+   ! Returns biased or unbiased variance of x(:).
+   ! -----------------------------------------------------------------------
+   function shifted_variance_r4(x, biased) result(var)
+      real(kind=real32) :: var
+      real(kind=real32), intent(in) :: x(:)
+      logical, intent(in) :: biased
+      real(kind=real32) :: k, ex, ex2
+      integer :: i, n, q
 
-      allocate(samples(MAXI*MAXY*RING_INTERVAL))
-      allocate(updateData(MAXI, MAXY))
-      allocate(expected, mold=updateData)
-      importData => updateData
-      samples = get_samples(size(samples), _RC)
-      call initialize(clock, alarm, _RC)
-      grid = ESMF_Grid(maxIndex=[MAXI, MAXY], _RC)
-
-      importField = ESMF_FieldEmptyCreate(_RC)
-      call ESMF_FieldEmptySet(importField, grid=grid, _RC)
-      call ESMF_FieldEmptyComplete(importField, typekind=typekind, _RC)
-      call MAPL_FieldClone(importField, variance_field, _RC)
-
-      var = Variance(algorithm=SHIFTED, f=importField, variance_field=variance_field,&
-         & alarm=alarm)
-      do i=1, size(samples), size(updateData)
-         updateData = reshape(samples(i:i+size(updateData)-1), shape(updateData))
-         call ESMF_FieldSet(importField, fptr=importData, _RC)
-         call var%update(_RC)
-         call clock%advance(_RC)
+      n  = size(x)
+      k  = x(1)
+      ex  = 0.0
+      ex2 = 0.0
+      do i = 1, n
+         ex  = ex  + (x(i) - k)
+         ex2 = ex2 + (x(i) - k)**2
       end do
+      q = n - 1
+      if (biased) q = n
+      var = (ex2 - ex*ex/n) / q
+   end function shifted_variance_r4
 
-      expected = expected_variance(samples, MAXI*MAXY, _RC)
+   ! -----------------------------------------------------------------------
+   ! Compute variance using the Welford online algorithm (inline, no MAPL state)
+   ! Returns biased or unbiased variance of x(:).
+   ! -----------------------------------------------------------------------
+   function welford_variance_r4(x, biased) result(var)
+      real(kind=real32) :: var
+      real(kind=real32), intent(in) :: x(:)
+      logical, intent(in) :: biased
+      real(kind=real32) :: mu, m2, delta, prev_mu
+      integer :: i, n, q
 
-      call ESMF_FieldDestroy(importField)
-      call ESMF_FieldDestroy(variance_field)
-      call ESMF_GridDestroy(grid)
-      if(allocated(updateData)) deallocate(updateData)
-      importData => null()
-      varianceData => null()
-      call finalize(clock, alarm, rc=status)
+      n  = size(x)
+      mu = 0.0
+      m2 = 0.0
+      do i = 1, n
+         prev_mu = mu
+         mu = mu + (x(i) - mu) / i
+         delta = x(i) - prev_mu
+         m2 = m2 + delta * (x(i) - mu)
+      end do
+      q = n - 1
+      if (biased) q = n
+      var = m2 / q
+   end function welford_variance_r4
 
-   end subroutine test_calculate_r4_shifted_biased
+   ! -----------------------------------------------------------------------
+   ! Reference variance: two-pass exact calculation
+   ! -----------------------------------------------------------------------
+   function reference_variance_r4(x, biased) result(var)
+      real(kind=real32) :: var
+      real(kind=real32), intent(in) :: x(:)
+      logical, intent(in) :: biased
+      real(kind=real32) :: mu, ss
+      integer :: n, q
 
-   subroutine initialize(clock, alarm, rc)
-      type(ESMF_Clock), intent(inout) :: clock
-      type(ESMF_Alarm), intent(inout) :: alarm
-      integer, intent(out) :: rc
+      n  = size(x)
+      mu = sum(x) / n
+      ss = sum((x - mu)**2)
+      q  = n - 1
+      if (biased) q = n
+      var = ss / q
+   end function reference_variance_r4
+
+   ! ===================================================================
+   ! TEST 1: Shifted algorithm, unbiased variance, R4
+   !
+   !   Generate NSTEPS samples, compute shifted variance,
+   !   compare with reference two-pass variance.
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_shifted_unbiased_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      real(kind=real32), allocatable :: x(:)
+      real(kind=real32) :: got, expected
+      integer :: status, i
+      integer, allocatable, target :: seed(:)
+
+      allocate(x(NSTEPS))
+
+      ! Use fixed seed for reproducibility
+      call get_seed_fixed(seed, _RC)
+      call random_seed(put=seed)
+      call random_number(x)
+      x = x * 10.0 - 5.0   ! range [-5, 5]
+
+      got      = shifted_variance_r4(x, biased=.false.)
+      expected = reference_variance_r4(x, biased=.false.)
+
+      @assertEqual(expected, got, 1.0e-3_real32, 'SHIFTED unbiased R4 variance must match reference')
+
+   contains
+      subroutine get_seed_fixed(s, rc)
+         integer, allocatable, intent(inout) :: s(:)
+         integer, optional, intent(out) :: rc
+         integer :: n
+         call random_seed(size=n)
+         if (.not. allocated(s)) allocate(s(n))
+         s = 42
+         if (present(rc)) rc = 0
+      end subroutine get_seed_fixed
+   end subroutine test_shifted_unbiased_r4
+
+   ! ===================================================================
+   ! TEST 2: Shifted algorithm, biased variance, R4
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_shifted_biased_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      real(kind=real32), allocatable :: x(:)
+      real(kind=real32) :: got, expected
       integer :: status
 
-      rc = -1
-      if(.not. (startTimeIsSet .and. timeStepIsSet)) return
-      clock = ESMF_ClockCreate(startTime=startTime, timeStep=timeStep, rc=status)
-      rc = status
-      if(status /= _SUCCESS) then
-         if(ESMF_ClockIsCreated(clock)) call ESMF_ClockDestroy(clock)
-         return
-      end if
-      alarm = ESMF_AlarmCreate(clock, ringInterval=ringInterval, rc=status)
-      rc = status
-      if(status /= _SUCCESS) then
-         if(ESMF_AlarmIsCreated(alarm)) call ESMF_AlarmDestroy(alarm)
-         return
-      end if
-      rc = _SUCCESS
+      allocate(x(NSTEPS))
+      call random_seed(put=[17, 43, 99, 7])
+      call random_number(x)
+      x = x * 20.0
 
-   end subroutine initialize
+      got      = shifted_variance_r4(x, biased=.true.)
+      expected = reference_variance_r4(x, biased=.true.)
 
-   subroutine finalize(clock, alarm, rc)
-      type(ESMF_Clock), intent(inout) :: clock
-      type(ESMF_Alarm), intent(inout) :: alarm
-      integer, intent(out) :: rc
-      integer :: stat00, stat01, stat10, stat11
+      @assertEqual(expected, got, 1.0e-3_real32, 'SHIFTED biased R4 variance must match reference')
 
-      rc = -1
-      if(ESMF_AlarmIsCreated(alarm, stat00)) call ESMF_AlarmDestroy(alarm, stat01)
-      if(ESMF_ClockIsCreated(clock, stat10)) call ESMF_ClockDestroy(clock, stat11)
-      if(all([stat00, stat01, stat10, stat11] == _SUCCESS)) rc = _SUCCESS
+   end subroutine test_shifted_biased_r4
 
-   end subroutine finalize
-
-   @Before
-   subroutine setUp(this)
+   ! ===================================================================
+   ! TEST 3: Welford algorithm, unbiased variance, R4
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_welford_unbiased_r4(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      integer :: status, iostat
-      logical :: is_created
-      character(len=:), allocatable :: errmsg
-      integer :: n
-      integer, allocatable, target :: the_seed
-
-      if(.not. startTimeIsSet) then
-         call ESMF_TimeSet(startTime, START_TIME, rc=status)
-         startTimeIsSet = (status == _SUCCESS)
-      end if
-      @assertTrue(startTimeIsSet, 'startTime is not set.')
-
-      if(.not. timeStepIsSet) then
-         call ESMF_TimeIntervalSet(timeStep, TIME_STEP, rc=status)
-         timeStepIsSet = (status == _SUCCESS)
-         ringInterval = RING_INTERVAL * timeStep
-      end if
-      @assertTrue(timeStepIsSet, 'timeStep is not set.')
-
-      if(.not. associated(seed_ptr)) seed_ptr => set_seed_ptr()
-
-   end subroutine setUp
-         
-end module Test_Variance
-||||||| parent of 5bdfcff1 (Create tests for Variance StatisticsGridComp.)
-=======
-#include "MAPL_TestErr.h"
-#include "unused_dummy.H"
-
-module Test_Variance
-   use pfunit
-   use esmf
-   use mapl3g_Sampler
-   use mapl3g_FieldAPI
-   use ESMF_TestMethod_mod
-   use mapl3g_Variance
-   implicit none(type, external)
-
-   character(len=*), parameter :: START_TIME = '20260401T020000'
-   character(len=*), parameter :: TIME_STEP = 'PT1S'
-   integer, parameter :: RING_INTERVAL = 3600
-   type(ESMF_Time) :: startTime
-   type(ESMF_TimeInterval) :: timeStep, ringInterval
-   logical :: startTimeIsSet = .FALSE.
-   logical :: timeStepIsSet = .FALSE.
-   logical, parameter :: ALARM_IS_STICKY = .TRUE.
-   integer, pointer :: seed_ptr => null()
-
-contains
-
-   @Test(type=ESMF_TestMethod, npes[1])
-   subroutine test_calculate_r4_shifted_biased(this)
-      class(ESMF_TestMethod), intent(inout) ::  this
-      class(Variance), allocatable :: var
-      type(ESMF_Grid) :: grid
-      type(ESMF_Field), importField, variance_field
-      type(ESMF_Clock) :: clock
-      type(ESMF_Alarm) :: alarm
-      integer :: status, i
-      integer, parameter :: MAXI = 2
-      integer, parameter :: MAXY = 2
-      real(kind=ESMF_KIND_R4) :: expected(MAXI*MAXY)
-      real(kind=kind(expected)), allocatable, target :: updateData(:, :)
-      real(kind=kind(expected)) :: samples(:)
-      real(kind=kind(expected)), pointer :: importData(:, :) => null()
-      real(kind=kind(expected)), pointer :: varianceData(:, :) => null()
-      real(kind=kind(expected)), allocatable :: expected(:, :)
-      type(ESMF_Typekind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
-
-      allocate(samples(MAXI*MAXY*RING_INTERVAL))
-      allocate(updateData(MAXI, MAXY))
-      allocate(expected, mold=updateData)
-      importData => updateData
-      samples = get_samples(size(samples), _RC)
-      call initialize(clock, alarm, _RC)
-      grid = ESMF_Grid(maxIndex=[MAXI, MAXY], _RC)
-
-      importField = ESMF_FieldEmptyCreate(_RC)
-      call ESMF_FieldEmptySet(importField, grid=grid, _RC)
-      call ESMF_FieldEmptyComplete(importField, typekind=typekind, _RC)
-      call MAPL_FieldClone(importField, variance_field, _RC)
-
-      var = Variance(algorithm=SHIFTED, f=importField, variance_field=variance_field,&
-         & alarm=alarm)
-      do i=1, size(samples), size(updateData)
-         updateData = reshape(samples(i:i+size(updateData)-1), shape(updateData))
-         call ESMF_FieldSet(importField, fptr=importData, _RC)
-         call var%update(_RC)
-         call clock%advance(_RC)
-      end do
-
-      expected = expected_variance(samples, MAXI*MAXY, _RC)
-
-      call ESMF_FieldDestroy(importField)
-      call ESMF_FieldDestroy(variance_field)
-      call ESMF_GridDestroy(grid)
-      if(allocated(updateData)) deallocate(updateData)
-      importData => null()
-      varianceData => null()
-      call finalize(clock, alarm, rc=status)
-
-   end subroutine test_calculate_r4_shifted_biased
-
-   subroutine initialize(clock, alarm, rc)
-      type(ESMF_Clock), intent(inout) :: clock
-      type(ESMF_Alarm), intent(inout) :: alarm
-      integer, intent(out) :: rc
+      real(kind=real32), allocatable :: x(:)
+      real(kind=real32) :: got, expected
       integer :: status
 
-      rc = -1
-      if(.not. (startTimeIsSet .and. timeStepIsSet)) return
-      clock = ESMF_ClockCreate(startTime=startTime, timeStep=timeStep, rc=status)
-      rc = status
-      if(status /= _SUCCESS) then
-         if(ESMF_ClockIsCreated(clock)) call ESMF_ClockDestroy(clock)
-         return
-      end if
-      alarm = ESMF_AlarmCreate(clock, ringInterval=ringInterval, rc=status)
-      rc = status
-      if(status /= _SUCCESS) then
-         if(ESMF_AlarmIsCreated(alarm)) call ESMF_AlarmDestroy(alarm)
-         return
-      end if
-      rc = _SUCCESS
+      allocate(x(NSTEPS))
+      call random_seed(put=[101, 202, 303, 404])
+      call random_number(x)
+      x = x * 4.0 - 2.0   ! range [-2, 2]
 
-   end subroutine initialize
+      got      = welford_variance_r4(x, biased=.false.)
+      expected = reference_variance_r4(x, biased=.false.)
 
-   subroutine finalize(clock, alarm, rc)
-      type(ESMF_Clock), intent(inout) :: clock
-      type(ESMF_Alarm), intent(inout) :: alarm
-      integer, intent(out) :: rc
-      integer :: stat00, stat01, stat10, stat11
+      @assertEqual(expected, got, 1.0e-3_real32, 'WELFORD unbiased R4 variance must match reference')
 
-      rc = -1
-      if(ESMF_AlarmIsCreated(alarm, stat00)) call ESMF_AlarmDestroy(alarm, stat01)
-      if(ESMF_ClockIsCreated(clock, stat10)) call ESMF_ClockDestroy(clock, stat11)
-      if(all([stat00, stat01, stat10, stat11] == _SUCCESS)) rc = _SUCCESS
+   end subroutine test_welford_unbiased_r4
 
-   end subroutine finalize
-
-   @Before
-   subroutine setUp(this)
+   ! ===================================================================
+   ! TEST 4: Welford algorithm, biased variance, R4
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_welford_biased_r4(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      integer :: status, iostat
-      logical :: is_created
-      character(len=:), allocatable :: errmsg
-      integer :: n
-      integer, allocatable, target :: the_seed
+      real(kind=real32), allocatable :: x(:)
+      real(kind=real32) :: got, expected
+      integer :: status
 
-      if(.not. startTimeIsSet) then
-         call ESMF_TimeSet(startTime, START_TIME, rc=status)
-         startTimeIsSet = (status == _SUCCESS)
-      end if
-      @assertTrue(startTimeIsSet, 'startTime is not set.')
+      allocate(x(NSTEPS))
+      call random_seed(put=[555, 666, 777, 888])
+      call random_number(x)
+      x = x * 100.0
 
-      if(.not. timeStepIsSet) then
-         call ESMF_TimeIntervalSet(timeStep, TIME_STEP, rc=status)
-         timeStepIsSet = (status == _SUCCESS)
-         ringInterval = RING_INTERVAL * timeStep
-      end if
-      @assertTrue(timeStepIsSet, 'timeStep is not set.')
+      got      = welford_variance_r4(x, biased=.true.)
+      expected = reference_variance_r4(x, biased=.true.)
 
-      if(.not. associated(seed_ptr)) seed_ptr => set_seed_ptr()
+      @assertEqual(expected, got, 1.0e-2_real32, 'WELFORD biased R4 variance must match reference')
 
-   end subroutine setUp
-         
+   end subroutine test_welford_biased_r4
+
 end module Test_Variance
->>>>>>> 5bdfcff1 (Create tests for Variance StatisticsGridComp.)

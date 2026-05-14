@@ -1,52 +1,30 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL_StatisticsGridComp.tests")
 
-<<<<<<< HEAD
 set (test_srcs
-  Test_ShiftedVariance.pf
-  Test_WelfordVariance.pf
-||||||| parent of ce12c039 (Initial test setup)
-set (test_srcs)
-=======
-set(test_srcs
->>>>>>> ce12c039 (Initial test setup)
+  Test_TimeAccumulate.pf
   Test_Variance.pf
 )
 
-add_library(MAPL.gridcomps.StatisticsGridComp.test_common SHARED
+add_library(MAPL_StatisticsGridComp.test_common SHARED
   Sampler.F90
 )
+target_link_libraries(MAPL_StatisticsGridComp.test_common
+  MAPL_StatisticsGridComp
+  MAPL
+  ESMF
+)
+
 add_pfunit_ctest(MAPL_StatisticsGridComp.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL_StatisticsGridComp MAPL.pfunit
-                EXTRA_INITIALIZE Initialize
-  Test_Variance.pf
-  )
-
-  )
-||||||| parent of 132f2edb (Initial test setup)
-  )
-=======
-)
->>>>>>> 132f2edb (Initial test setup)
-
-<<<<<<< HEAD
-add_pfunit_ctest(MAPL.statistics.tests
-||||||| parent of 132f2edb (Initial test setup)
-add_pfunit_ctest(MAPL_StatisticsGridComp.tests
-=======
-add_library(MAPL.gridcomps.StatisticsGridComp.test_common SHARED
-  Sampler.F90
-)
-add_pfunit_ctest(MAPL_StatisticsGridComp.tests
-                TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL_StatisticsGridComp MAPL.pfunit
+                LINK_LIBRARIES MAPL_StatisticsGridComp MAPL_StatisticsGridComp.test_common MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 MAX_PES 1
-                )
-set_target_properties(MAPL.statistics.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-set_tests_properties(MAPL.statistics.tests PROPERTIES LABELS "ESSENTIAL")
+  )
+
+set_target_properties(MAPL_StatisticsGridComp.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL_StatisticsGridComp.tests PROPERTIES LABELS "ESSENTIAL")
 
 if (APPLE)
   set(LD_PATH "DYLD_LIBRARY_PATH")
@@ -60,6 +38,6 @@ if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
   list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
 endif()
 
-set_property(TEST MAPL.statistics.tests PROPERTY ENVIRONMENT "${TEST_ENV}")
+set_property(TEST MAPL_StatisticsGridComp.tests PROPERTY ENVIRONMENT "${TEST_ENV}")
 
-add_dependencies(build-tests MAPL.statistics.tests)
+add_dependencies(build-tests MAPL_StatisticsGridComp.tests)

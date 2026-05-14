@@ -31,18 +31,17 @@ contains
 
    function get_seed(new_seed, rc) result(ptr)
       integer, pointer :: ptr(:)
-      integer, optional, target, intent(in) :: new_seed
+      integer, optional, target, intent(in) :: new_seed(:)
       integer, optional, intent(out) :: rc
       integer :: status, n
 
-      if(present(new_seed)) then
-         if(allocated(the_seed)) deallocate(the_seed)
+      if (present(new_seed)) then
+         if (allocated(the_seed)) deallocate(the_seed)
          allocate(the_seed(size(new_seed)))
          the_seed = new_seed
       end if
 
-      if(.not. allocated(the_seed))
-      real(kind=ESMF_KIND_R4) :: expected(MAXI*MAXY)
+      if (.not. allocated(the_seed)) then
          call random_seed(size=n)
          allocate(the_seed(n))
          call random_seed(get=the_seed)
@@ -55,27 +54,27 @@ contains
    subroutine get_uniform_array_real32(x)
       real(kind=real32), intent(inout) :: x(:)
       
-      if(size(x) > 0) call random_number(x)
+      if (size(x) > 0) call random_number(x)
 
    end subroutine get_uniform_array_real32
 
    subroutine get_closed_uniform_array_real32(x, rc)
-      real(kind=real32) intent(inout) :: x(:)
+      real(kind=real32), intent(inout) :: x(:)
       integer, optional, intent(out) :: rc
       integer, parameter :: MAX_TRIES = 1000
-      real(kind=kind(x)), paramter :: MAXIMUM = 1.0
+      real(kind=kind(x)), parameter :: MAXIMUM = 1.0
       real(kind=kind(x)), parameter :: INTVSZ = MAXIMUM + epsilon(MAXIMUM)
       integer :: i, status
 
       status = _FAILURE
-      if(size(x)==0) then
+      if (size(x) == 0) then
          _RETURN(status)
       end if
 
-      do i=0, MAX_TRIES-1
-         call get_uniform_array(x)
+      do i = 0, MAX_TRIES-1
+         call get_closed_uniform_array(x)
          x = INTVSZ * x
-         if(all(x <= 1.0)) then
+         if (all(x <= 1.0)) then
             status = _SUCCESS
             exit
          end if
@@ -90,40 +89,40 @@ contains
       integer, optional, intent(out) :: rc
       real(kind=kind(x)) :: s2
       integer, parameter :: MAX_TRIES = 1000
-      real(kind=kind(x)) :: SCALE = 2.0
-      real(kind=kind(x)) :: OFFSET = -1.0
+      real(kind=kind(x)), parameter :: SCALE = 2.0
+      real(kind=kind(x)), parameter :: OFFSET = -1.0
       logical, save :: use_real = .FALSE.
       integer :: i, status
       real(kind=kind(x)), allocatable :: u(:), v(:), s(:)
 
       status = _FAILURE
-      if(size(x)==0) then
+      if (size(x) == 0) then
          _RETURN(status)
       end if
 
       use_real = .not. use_real
       s2 = 1.0
-      if(present(var)) s2 = var
+      if (present(var)) s2 = var
       allocate(u(size(x)))
       allocate(v(size(u)))
       allocate(s(size(u)))
-      do i=0, MAX_TRIES-1
-         call get_closed_uniform(u, _RC)
+      do i = 0, MAX_TRIES-1
+         call get_closed_uniform_array(u, _RC)
          u = SCALE*u + OFFSET
-         call get_closed_uniform(v, _RC)
-         v = SCALE*v + OFFSET 
+         call get_closed_uniform_array(v, _RC)
+         v = SCALE*v + OFFSET
          s = u*u + v*v
-         if(all(s > 0.0D0 .and. s < 1.0D0)) then
+         if (all(s > 0.0D0 .and. s < 1.0D0)) then
             status = _SUCCESS
             exit
          end if
       end do
-      if(status /= _SUCCESS) then
+      if (status /= _SUCCESS) then
          _RETURN(status)
       end if
       s = sqrt(-2*log(s)/s)
       x = u * s
-      if(use_real) x = v * s
+      if (use_real) x = v * s
       _RETURN(status)
 
    end subroutine get_gaussian_array_real32
@@ -136,7 +135,7 @@ contains
       real(kind=kind(x)), allocatable :: s2(:), mu(:)
 
       status = _FAILURE
-      if(size(x) == 0) then
+      if (size(x) == 0) then
          _RETURN(status)
       end if
 
@@ -145,15 +144,15 @@ contains
       allocate(s2, mold=x)
       s2 = 1.0
 
-      if(present(mean)) then
-         if(size(mean) =/ size(x)) then
+      if (present(mean)) then
+         if (size(mean) /= size(x)) then
             _RETURN(status)
          end if
          mu = mean
       end if
 
-      if(present(var)) then
-         if(size(var) /= size(x)) then
+      if (present(var)) then
+         if (size(var) /= size(x)) then
             _RETURN(status)
          end if
          s2 = var
@@ -173,20 +172,21 @@ contains
       integer :: status, q, i, k
 
       status = _FAILURE
-      if(sample_size == 0) then
+      if (sample_size == 0) then
          _RETURN(status)
       end if
-      if(mod(size(samples), sample_size) /= 0 .or. size(samples)/sample_size < 2) then
+      if (mod(size(samples), sample_size) /= 0 .or. size(samples)/sample_size < 2) then
          _RETURN(status)
       end if
 
       q = size(samples)/sample_size
-      if(present_false(biased)) q = q - 1
+      if (present_false(biased)) q = q - 1
       k = 0
+      allocate(var(size(samples)/sample_size))
       associate(j => i+sample_size-1)
-         do i=1, size(samples), sample_size
+         do i = 1, size(samples), sample_size
             var(k+1) = scalar_variance(samples(i:j), q)
-            k = k+1
+            k = k + 1
          end do
       end associate
       status = _SUCCESS
@@ -208,12 +208,12 @@ contains
       function ksum(x) result(s)
          real(kind=ESMF_KIND_R4) :: s
          real(kind=ESMF_KIND_R4), intent(in) :: x(:)
-         real(kind=ESMF_KIND_R4) :: y, c, x
+         real(kind=ESMF_KIND_R4) :: y, c, t
          integer :: i
 
          s = 0.0
          c = 0.0
-         do i=1, size(x)
+         do i = 1, size(x)
             y = x(i) - c
             t = s + y
             c = (t - s) - y
@@ -228,7 +228,7 @@ contains
       logical, optional, intent(in) :: boolean
       
       pt = .FALSE.
-      if(present(boolean)) pt = boolean
+      if (present(boolean)) pt = boolean
 
    end function present_true
 
@@ -236,7 +236,7 @@ contains
       logical, optional, intent(in) :: boolean
 
       pf = .FALSE.
-      if(present(boolean)) pf = .not. boolean
+      if (present(boolean)) pf = .not. boolean
 
    end function present_false
 
@@ -245,28 +245,28 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer, parameter :: POOL(*) = [ &
-         & 174422082, 248368102, 5546868, 13223510 &
-         & 69239157, -504960142, 352309524, 285982958 &
-         & 339210231, 256832965, 273526521, -487943240 &
-         & -99015931, 60820363, -354380246, -531018616 &
-         & 249857145, 242114867, -160408736, 268002845 &
-         & 139768608, 213523110, 104930867, 20756874 &
-         & -436068496, -346949746, 505119149, -350625646 &
-         & -155092925, -358054893, 102523892, -283640932 &
-         & 466220225, 316558951, -155230622, -492624888 &
-         & -49464072, 62468300, -474078559, -435854165 &
-         & -104034128, -170677750, -287010342, 513472737 &
-         & -427992363, -205598612, -323341223, 517574197 &
-         & 531262359, -476477174, -56258037, 467965710 &
-         & 132154887, -525239696, -473534804, 359036732 &
-         & 310492721, -527230179, 274398411, 212322622 &
+         & 174422082, 248368102, 5546868, 13223510, &
+         & 69239157, -504960142, 352309524, 285982958, &
+         & 339210231, 256832965, 273526521, -487943240, &
+         & -99015931, 60820363, -354380246, -531018616, &
+         & 249857145, 242114867, -160408736, 268002845, &
+         & 139768608, 213523110, 104930867, 20756874, &
+         & -436068496, -346949746, 505119149, -350625646, &
+         & -155092925, -358054893, 102523892, -283640932, &
+         & 466220225, 316558951, -155230622, -492624888, &
+         & -49464072, 62468300, -474078559, -435854165, &
+         & -104034128, -170677750, -287010342, 513472737, &
+         & -427992363, -205598612, -323341223, 517574197, &
+         & 531262359, -476477174, -56258037, 467965710, &
+         & 132154887, -525239696, -473534804, 359036732, &
+         & 310492721, -527230179, 274398411, 212322622, &
          & 527456552, 480923727, -351477689, -117264530 ]
 
-      if(allocated(s)) then
-         if(size(s) > size(POOL)) deallocate(s)
+      if (allocated(s)) then
+         if (size(s) > size(POOL)) deallocate(s)
       end if
          
-      if(.not. allocated(s)) then
+      if (.not. allocated(s)) then
          allocate(s(size(POOL)))
          s = POOL
          _RETURN(_SUCCESS)
@@ -278,4 +278,3 @@ contains
    end subroutine get_seed_fixed
 
 end module mapl3g_Sampler
-
