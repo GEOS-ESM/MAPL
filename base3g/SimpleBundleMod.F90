@@ -17,7 +17,7 @@
 !
 #include "MAPL.h"
 
-module MAPL_SimpleBundleMod
+module mapl_SimpleBundleMod_impl
 
    use ESMF
    use mapl3g_Geom_API, only: MAPL_GridGet
@@ -801,4 +801,4 @@ CONTAINS
 
   end subroutine BundleAddState_
 
-end module MAPL_SimpleBundleMod
+end module mapl_SimpleBundleMod_impl

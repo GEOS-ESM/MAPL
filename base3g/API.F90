@@ -32,6 +32,8 @@ module mapl_base3g
           MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
    use mapl3g_FileIO, only: WRITE_PARALLEL
+   use mapl_SimpleBundleMod_impl, only: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint, &
+        MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
    use mapl_FileIOShared, only: ArrDescr, ArrDescrInit, ArrDescrSet
    use mapl_NCIO, only: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType, &
                         MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars, &
@@ -66,6 +68,8 @@ module mapl_base3g
    public :: MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    public :: MAPL_Interp_Fac, MAPL_ClimInterpFac
    public :: WRITE_PARALLEL
+   public :: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint
+   public :: MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
    public :: ArrDescr, ArrDescrInit, ArrDescrSet
    public :: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType
    public :: MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars

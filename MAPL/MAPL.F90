@@ -4,7 +4,6 @@ module MAPL2
    use MAPL_ExceptionHandling
    use MAPL_ShmemMod
    use mapl_base3g
-   use MAPL_SimpleBundleMod
    use pFIO
    use MAPL_GridCompsMod
    use mapl3g_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
