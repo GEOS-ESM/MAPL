@@ -14,7 +14,7 @@ module mapl3g_StatisticsGridComp
    use mapl3g_TimeMin
    use mapl3g_TimeMax
    use mapl3g_TimeAccumulate
-   use mapl3g_Variance
+   use mapl3g_TimeVariance
    use mapl3g_State_API
    use pflogger, only: Logger
    use mapl_OS
@@ -118,7 +118,7 @@ contains
           varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-          call advertise_variance_internal_fields(gridcomp, name, _RC)
+          call advertise_time_variance_internal_fields(gridcomp, name, _RC)
        case default
           _FAIL('unsupported action: '//action)
       end select
@@ -297,7 +297,7 @@ contains
         end function make_accumulate_stat
 
        function make_variance_stat(name, iter, alarm, rc) result(var_stat)
-           type(Variance) :: var_stat
+           type(TimeVariance) :: var_stat
            character(*), intent(in) :: name
            type(esmf_HConfigIter), intent(in) :: iter
            type(SimpleAlarm), intent(in) :: alarm
@@ -330,7 +330,7 @@ contains
               biased = esmf_HConfigAsLogical(iter, keystring='biased', _RC)
            end if
 
-           var_stat = Variance(gridcomp=gridcomp, f=f_in, var_f=f_out, alarm=alarm, &
+           var_stat = TimeVariance(gridcomp=gridcomp, f=f_in, var_f=f_out, alarm=alarm, &
                                algorithm=algorithm, biased=biased, _RC)
 
            _RETURN(_SUCCESS)

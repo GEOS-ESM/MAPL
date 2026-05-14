@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_Variance
+module mapl3g_TimeVariance
 
    use mapl3g_AbstractTimeStatistic
    use mapl3g_AbstractCovarianceKernel
@@ -15,8 +15,8 @@ module mapl3g_Variance
    implicit none(type, external)
    private
 
-   public :: Variance
-   public :: advertise_variance_internal_fields
+   public :: TimeVariance
+   public :: advertise_time_variance_internal_fields
    public :: WELFORD, SHIFTED
 
    enum, bind(c)
@@ -27,7 +27,7 @@ module mapl3g_Variance
 
    integer(kind=kind(VARIANCE_ALGORITHM)), parameter :: DEFAULT_ALGORITHM = WELFORD
 
-   type, extends(AbstractTimeStatistic) :: Variance
+   type, extends(AbstractTimeStatistic) :: TimeVariance
       private
       type(SimpleAlarm) :: alarm
       type(esmf_Field)  :: f       ! input field
@@ -41,16 +41,16 @@ module mapl3g_Variance
       procedure :: compute_result
       procedure :: add_to_state
       procedure :: get_alarm
-   end type Variance
+   end type TimeVariance
 
-   interface Variance
-      module procedure new_Variance
-   end interface Variance
+   interface TimeVariance
+      module procedure new_TimeVariance
+   end interface TimeVariance
 
 contains
 
-   function new_Variance(unusable, gridcomp, f, var_f, alarm, algorithm, biased, rc) result(stat)
-      type(Variance) :: stat
+   function new_TimeVariance(unusable, gridcomp, f, var_f, alarm, algorithm, biased, rc) result(stat)
+      type(TimeVariance) :: stat
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
@@ -129,10 +129,10 @@ contains
 
       _UNUSED_DUMMY(unusable)
       _RETURN(_SUCCESS)
-   end function new_Variance
+   end function new_TimeVariance
 
    subroutine destroy(this, rc)
-      class(Variance), intent(inout) :: this
+      class(TimeVariance), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -143,7 +143,7 @@ contains
    end subroutine destroy
 
    subroutine reset(this, gridcomp, rc)
-      class(Variance), intent(inout) :: this
+      class(TimeVariance), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       integer, optional, intent(out) :: rc
 
@@ -166,7 +166,7 @@ contains
    end subroutine reset
 
    subroutine update(this, gridcomp, clock, rc)
-      class(Variance), intent(inout) :: this
+      class(TimeVariance), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Clock), intent(in) :: clock
       integer, optional, intent(out) :: rc
@@ -201,7 +201,7 @@ contains
    end subroutine update
 
    subroutine compute_result(this, gridcomp, rc)
-      class(Variance), intent(inout) :: this
+      class(TimeVariance), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       integer, optional, intent(out) :: rc
 
@@ -226,7 +226,7 @@ contains
    end subroutine compute_result
 
    subroutine add_to_state(this, state, rc)
-      class(Variance), intent(inout) :: this
+      class(TimeVariance), intent(inout) :: this
       type(esmf_State), intent(inout) :: state
       integer, optional, intent(out) :: rc
 
@@ -236,14 +236,14 @@ contains
    end subroutine add_to_state
 
    function get_alarm(this) result(alarm)
-      class(Variance), intent(in) :: this
+      class(TimeVariance), intent(in) :: this
       type(SimpleAlarm) :: alarm
 
       alarm = this%alarm
    end function get_alarm
 
    ! Advertise union of all internal fields for both algorithms (Option B).
-   subroutine advertise_variance_internal_fields(gridcomp, name, rc)
+   subroutine advertise_time_variance_internal_fields(gridcomp, name, rc)
       type(esmf_GridComp), intent(inout) :: gridcomp
       character(*), intent(in) :: name
       integer, optional, intent(out) :: rc
@@ -269,6 +269,6 @@ contains
       call sk%advertise(gridcomp, just_name, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine advertise_variance_internal_fields
+   end subroutine advertise_time_variance_internal_fields
 
-end module mapl3g_Variance
+end module mapl3g_TimeVariance

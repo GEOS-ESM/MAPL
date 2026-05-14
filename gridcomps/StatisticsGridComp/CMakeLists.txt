@@ -11,7 +11,7 @@ set(srcs
   AbstractCovarianceKernel.F90
   ShiftedCovarianceKernel.F90
   WelfordCovarianceKernel.F90
-  Variance.F90
+  TimeVariance.F90
   StatisticsGridComp.F90
   )
 
