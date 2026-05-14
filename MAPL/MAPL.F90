@@ -1,19 +1,26 @@
 ! This module re-exports the public entities
-! of the legacy (MAPL2) underlying packages.
-module MAPL2
-   use MAPL_ExceptionHandling
-   use MAPL_ShmemMod
-   use mapl_base3g
+! of the underlying packages.
+module MAPL
+   use MAPLBase_mod
+   use MAPL_GenericMod
+   use MAPL_VarSpecMiscMod
+   use ESMF_CFIOMod
    use pFIO
    use MAPL_GridCompsMod
-   use mapl3g_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
-   use mapl3g_OpenMP_Support, only : MAPL_get_num_threads => get_num_threads
-   use mapl3g_OpenMP_Support, only : MAPL_find_bounds => find_bounds
-   use mapl3g_OpenMP_Support, only : MAPL_Interval => Interval
-   use MAPL_Profiler, initialize_profiler => initialize, finalize_profiler => finalize
+   use mapl_StubComponent
+   use MAPL_ESMFFieldBundleRead
+   use MAPL_ESMFFieldBundleWrite
+   use MAPL_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
+   use MAPL_OpenMP_Support, only : MAPL_get_num_threads => get_num_threads
+   use MAPL_OpenMP_Support, only : MAPL_find_bounds => find_bounds
+   use MAPL_OpenMP_Support, only : MAPL_Interval => Interval
+   use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
    use MAPL_FieldUtils
-   use MAPL_StateMaskMod
-   use MAPL_StateArithmeticParserMod
-   use MAPL_StateFilter
+   use MAPL_StateUtils
+   use MAPL_PythonBridge
    implicit none
-end module MAPL2
+end module MAPL
+
+module MAPL_Mod
+   use MAPL
+end module MAPL_Mod
