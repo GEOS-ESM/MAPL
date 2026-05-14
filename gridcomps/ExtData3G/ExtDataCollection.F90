@@ -5,6 +5,7 @@ module mapl3g_ExtDataCollection
    use MAPL_ExceptionHandling
    use MAPL_StringTemplate
    use mapl3g_HConfigAs, only: mapl_HConfigAsTimeInterval => HConfigAsTimeInterval
+   use mapl3g_HConfigAs, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
    use pfio_FileMetadataMod
    use mapl3g_AbstractDataSetFileSelector
    use mapl3g_NonClimDataSetFileSelector
@@ -41,7 +42,7 @@ contains
       type(ExtDataCollection) :: data_set
       integer :: status
       integer :: last_token
-      integer :: iyy,imm,idd,ihh,imn,isc,idx
+      integer :: iyy,imm,idd,ihh,imn,isc
       character(len=2) :: token
       character(len=:), allocatable :: file_frequency, file_reff_time,range_str
       logical :: is_present
@@ -109,12 +110,8 @@ contains
       end if
 
       if (range_str /= '') then
-         idx = index(range_str,'/')
-         _ASSERT(idx/=0,'invalid specification of time range')
          if (allocated(data_set%valid_range)) deallocate(data_set%valid_range)
-         allocate(data_set%valid_range(2))
-         call ESMF_TimeSet(data_set%valid_range(1), timeString=range_str(:idx-1), _RC)
-         call ESMF_TimeSet(data_set%valid_range(2), timeString=range_str(idx+1:), _RC)
+         data_set%valid_range = mapl_HConfigAsTimeRange(config, keyString="valid_range", _RC)
 
          last_token = index(data_set%file_template,'%',back=.true.)
          if (last_token.gt.0) then

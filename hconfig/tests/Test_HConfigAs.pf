@@ -26,4 +26,91 @@ contains
       call esmf_HConfigDestroy(hconfig, _RC)
       
    end subroutine test_as_stringvector
+
+   @test
+   subroutine test_as_time_with_T()
+      type(esmf_HConfig) :: hconfig
+      type(esmf_Time) :: t
+      integer :: status
+      integer :: yy, mm, dd, h, m, s
+
+      hconfig = esmf_HConfigCreate(content='{time: "2007-02-20T06:30:00"}', _RC)
+      t = HConfigAsTime(hconfig, keyString='time', _RC)
+      call esmf_TimeGet(t, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+
+      @assertEqual(yy, 2007)
+      @assertEqual(mm, 2)
+      @assertEqual(dd, 20)
+      @assertEqual(h,  6)
+      @assertEqual(m,  30)
+      @assertEqual(s,  0)
+
+      call esmf_HConfigDestroy(hconfig, _RC)
+   end subroutine test_as_time_with_T
+
+   @test
+   subroutine test_as_time_date_only()
+      type(esmf_HConfig) :: hconfig
+      type(esmf_Time) :: t
+      integer :: status
+      integer :: yy, mm, dd, h, m, s
+
+      hconfig = esmf_HConfigCreate(content='{time: "2008-01-01"}', _RC)
+      t = HConfigAsTime(hconfig, keyString='time', _RC)
+      call esmf_TimeGet(t, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+
+      @assertEqual(yy, 2008)
+      @assertEqual(mm, 1)
+      @assertEqual(dd, 1)
+      @assertEqual(h,  0)
+      @assertEqual(m,  0)
+      @assertEqual(s,  0)
+
+      call esmf_HConfigDestroy(hconfig, _RC)
+   end subroutine test_as_time_date_only
+
+   @test
+   subroutine test_as_timerange_with_T()
+      type(esmf_HConfig) :: hconfig
+      type(esmf_Time), allocatable :: tr(:)
+      integer :: status
+      integer :: yy, mm, dd
+
+      hconfig = esmf_HConfigCreate( &
+           content='{range: "2007-02-20T00:00:00/2007-03-05T00:00:00"}', _RC)
+      tr = HConfigAsTimeRange(hconfig, keyString='range', _RC)
+
+      @assertEqual(size(tr), 2)
+
+      call esmf_TimeGet(tr(1), yy=yy, mm=mm, dd=dd, _RC)
+      @assertEqual(yy, 2007); @assertEqual(mm, 2); @assertEqual(dd, 20)
+
+      call esmf_TimeGet(tr(2), yy=yy, mm=mm, dd=dd, _RC)
+      @assertEqual(yy, 2007); @assertEqual(mm, 3); @assertEqual(dd, 5)
+
+      call esmf_HConfigDestroy(hconfig, _RC)
+   end subroutine test_as_timerange_with_T
+
+   @test
+   subroutine test_as_timerange_date_only()
+      type(esmf_HConfig) :: hconfig
+      type(esmf_Time), allocatable :: tr(:)
+      integer :: status
+      integer :: yy, mm, dd
+
+      hconfig = esmf_HConfigCreate( &
+           content='{range: "2008-01-01/2009-01-01"}', _RC)
+      tr = HConfigAsTimeRange(hconfig, keyString='range', _RC)
+
+      @assertEqual(size(tr), 2)
+
+      call esmf_TimeGet(tr(1), yy=yy, mm=mm, dd=dd, _RC)
+      @assertEqual(yy, 2008); @assertEqual(mm, 1); @assertEqual(dd, 1)
+
+      call esmf_TimeGet(tr(2), yy=yy, mm=mm, dd=dd, _RC)
+      @assertEqual(yy, 2009); @assertEqual(mm, 1); @assertEqual(dd, 1)
+
+      call esmf_HConfigDestroy(hconfig, _RC)
+   end subroutine test_as_timerange_date_only
+
 end module Test_HConfigAs

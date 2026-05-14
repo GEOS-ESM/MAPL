@@ -3,6 +3,7 @@ module mapl3g_ExtDataSample
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
+   use mapl3g_HConfigAs, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
    implicit none
    private
 
@@ -31,8 +32,6 @@ contains
 
       type(ExtDataSample) :: TimeSample
       integer :: status
-      character(len=:), allocatable :: source_str
-      integer :: idx
       _UNUSED_DUMMY(unusable)
 
       call TimeSample%set_defaults()
@@ -66,13 +65,8 @@ contains
       end if
 
       if (ESMF_HConfigIsDefined(config,keyString="source_time")) then
-         source_str = ESMF_HConfigAsString(config,keyString="source_time",_RC)
          if (allocated(TimeSample%source_time)) deallocate(TimeSample%source_time)
-         idx = index(source_str,'/')
-         _ASSERT(idx/=0,'invalid specification of source_time')
-         allocate(TimeSample%source_time(2))
-         call ESMF_TimeSet(TimeSample%source_time(1), timeString=source_str(:idx-1), _RC)
-         call ESMF_TimeSet(TimeSample%source_time(2), timeString=source_str(idx+1:), _RC)
+         TimeSample%source_time = mapl_HConfigAsTimeRange(config, keyString="source_time", _RC)
       else
          if (.not.allocated(TimeSample%source_time)) allocate(TimeSample%source_time(0))
       end if
