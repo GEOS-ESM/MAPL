@@ -1,6 +1,7 @@
 #include "MAPL.h"
 module mapl3g_Sampler
-   use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64
+   use mapl_ErrorHandling
+   use, intrinsic :: iso_fortran_env, only: real32
    implicit none(type, external)
    private
    public :: get_samples, get_seed, expected_variance
@@ -164,8 +165,8 @@ contains
    end subroutine get_samples_real32
 
    function expected_variance_real32(samples, sample_size, biased, rc) result(var)
-      real(kind=kind(samples)), allocatable :: var(:)
-      real(kind=ESMF_KIND_R4), intent(in) :: samples(:)
+      real(kind=real32), allocatable :: var(:)
+      real(kind=real32), intent(in) :: samples(:)
       integer, intent(in) :: sample_size
       logical, optional, intent(in) :: biased
       integer, optional, intent(out) :: rc
@@ -195,10 +196,10 @@ contains
    contains
 
       function scalar_variance(ss, q) result(s2)
-         real(kind=ESMF_KIND_R4) :: s2
-         real(kind=ESMF_KIND_R4), intent(in) :: ss(:)
+         real(kind=real32) :: s2
+         real(kind=real32), intent(in) :: ss(:)
          integer, intent(in) :: q
-         real(kind=ESMF_KIND_R4) :: mu
+         real(kind=real32) :: mu
          
          mu = ksum(ss) / size(ss)
          s2 = ksum((ss-mu)**2) / q
@@ -206,9 +207,9 @@ contains
       end function scalar_variance
 
       function ksum(x) result(s)
-         real(kind=ESMF_KIND_R4) :: s
-         real(kind=ESMF_KIND_R4), intent(in) :: x(:)
-         real(kind=ESMF_KIND_R4) :: y, c, t
+         real(kind=real32) :: s
+         real(kind=real32), intent(in) :: x(:)
+         real(kind=real32) :: y, c, t
          integer :: i
 
          s = 0.0

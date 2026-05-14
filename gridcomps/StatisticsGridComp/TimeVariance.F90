@@ -70,7 +70,9 @@ contains
       class(VerticalGrid), pointer :: vertical_grid
       type(VerticalStaggerLoc) :: vstagger
       type(esmf_Field) :: counts_f
+      type(esmf_Field) :: f_local
 
+      f_local = f
       stat%f     = f
       stat%var_f = var_f
       stat%alarm = alarm
@@ -90,8 +92,8 @@ contains
 
       ! Realize internal state fields
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
-      call mapl_FieldGet(f, short_name=name, _RC)
-      call mapl_FieldGet(f, &
+      call mapl_FieldGet(f_local, short_name=name, _RC)
+      call mapl_FieldGet(f_local, &
            geom=geom, &
            ungridded_dims=ungridded_dims, &
            units=units, &
@@ -125,7 +127,7 @@ contains
            _RC)
 
       ! Variance passes f as both x and y: Cov(f, f) = Var(f)
-      call stat%kernel%initialize(gridcomp, f, f, counts_f, _RC)
+      call stat%kernel%initialize(gridcomp, f_local, f_local, counts_f, _RC)
 
       _UNUSED_DUMMY(unusable)
       _RETURN(_SUCCESS)

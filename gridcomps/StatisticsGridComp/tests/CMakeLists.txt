@@ -5,18 +5,9 @@ set (test_srcs
   Test_Variance.pf
 )
 
-add_library(MAPL_StatisticsGridComp.test_common SHARED
-  Sampler.F90
-)
-target_link_libraries(MAPL_StatisticsGridComp.test_common
-  MAPL_StatisticsGridComp
-  MAPL
-  ESMF
-)
-
 add_pfunit_ctest(MAPL_StatisticsGridComp.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL_StatisticsGridComp MAPL_StatisticsGridComp.test_common MAPL.pfunit
+                LINK_LIBRARIES MAPL_StatisticsGridComp MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -34,7 +25,7 @@ endif()
 
 set(TEST_ENV "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}}")
 
-if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+if("${GEOS_SITE}" STREQUAL "NCCS" AND "${MPI_STACK}" STREQUAL "intelmpi")
   list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
 endif()
 

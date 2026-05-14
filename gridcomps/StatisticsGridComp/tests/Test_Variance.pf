@@ -2,7 +2,6 @@
 
 module Test_Variance
    use pfunit
-   use mapl3g_Sampler
    use MAPL
    use ESMF
    use ESMF_TestMethod_mod
@@ -131,7 +130,7 @@ contains
       integer :: status
 
       allocate(x(NSTEPS))
-      call random_seed(put=[17, 43, 99, 7])
+      call random_seed()
       call random_number(x)
       x = x * 20.0
 
@@ -153,7 +152,7 @@ contains
       integer :: status
 
       allocate(x(NSTEPS))
-      call random_seed(put=[101, 202, 303, 404])
+      call random_seed()
       call random_number(x)
       x = x * 4.0 - 2.0   ! range [-2, 2]
 
@@ -175,7 +174,7 @@ contains
       integer :: status
 
       allocate(x(NSTEPS))
-      call random_seed(put=[555, 666, 777, 888])
+      call random_seed()
       call random_number(x)
       x = x * 100.0
 

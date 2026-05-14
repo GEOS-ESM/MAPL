@@ -313,7 +313,7 @@ contains
            call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
            algorithm = WELFORD
-           if (esmf_HConfigIsDefined(iter, keystring='algorithm', _RC)) then
+           if (esmf_HConfigIsDefined(iter, keystring='algorithm')) then
               algo_str = esmf_HConfigAsString(iter, keystring='algorithm', _RC)
               select case (algo_str)
               case ('welford')
@@ -326,7 +326,7 @@ contains
            end if
 
            biased = .false.
-           if (esmf_HConfigIsDefined(iter, keystring='biased', _RC)) then
+           if (esmf_HConfigIsDefined(iter, keystring='biased')) then
               biased = esmf_HConfigAsLogical(iter, keystring='biased', _RC)
            end if
 

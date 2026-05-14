@@ -41,9 +41,9 @@ module mapl3g_AbstractCovarianceKernel
          import esmf_Field
          class(AbstractCovarianceKernel), intent(inout) :: this
          type(esmf_GridComp), intent(inout) :: gridcomp
-         type(esmf_Field), intent(in) :: f_x
-         type(esmf_Field), intent(in) :: f_y
-         type(esmf_Field), intent(in) :: counts_f
+         type(esmf_Field), intent(inout) :: f_x
+         type(esmf_Field), intent(inout) :: f_y
+         type(esmf_Field), intent(inout) :: counts_f
          integer, optional, intent(out) :: rc
       end subroutine I_initialize
 
@@ -53,7 +53,7 @@ module mapl3g_AbstractCovarianceKernel
          import esmf_Field
          class(AbstractCovarianceKernel), intent(inout) :: this
          type(esmf_GridComp), intent(inout) :: gridcomp
-         type(esmf_Field), intent(in) :: f_x
+         type(esmf_Field), intent(inout) :: f_x
          integer, optional, intent(out) :: rc
       end subroutine I_action
 
@@ -63,9 +63,9 @@ module mapl3g_AbstractCovarianceKernel
          import esmf_Field
          class(AbstractCovarianceKernel), intent(inout) :: this
          type(esmf_GridComp), intent(inout) :: gridcomp
-         type(esmf_Field), intent(in) :: f_x
-         type(esmf_Field), intent(in) :: f_y
-         type(esmf_Field), intent(in) :: counts_f
+         type(esmf_Field), intent(inout) :: f_x
+         type(esmf_Field), intent(inout) :: f_y
+         type(esmf_Field), intent(inout) :: counts_f
          integer, optional, intent(out) :: rc
       end subroutine I_update
 
@@ -75,9 +75,9 @@ module mapl3g_AbstractCovarianceKernel
          import esmf_Field
          class(AbstractCovarianceKernel), intent(inout) :: this
          type(esmf_GridComp), intent(inout) :: gridcomp
-         type(esmf_Field), intent(in) :: f_x
-         type(esmf_Field), intent(in) :: f_y
-         type(esmf_Field), intent(in) :: counts_f
+         type(esmf_Field), intent(inout) :: f_x
+         type(esmf_Field), intent(inout) :: f_y
+         type(esmf_Field), intent(inout) :: counts_f
          type(esmf_Field), intent(inout) :: cov_f
          logical, intent(in) :: biased
          integer, optional, intent(out) :: rc
