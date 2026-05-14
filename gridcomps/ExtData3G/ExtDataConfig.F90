@@ -18,6 +18,7 @@ module mapl3g_ExtDataConfig
    use mapl3g_ExtDataSampleMap
    use mapl3g_PrimaryExport
    use mapl3g_geomio
+   use mapl3g_HConfig_API, only: mapl_HConfigAsTime
    use mapl3g_AbstractDataSetFileSelector
    use mapl3g_NonClimDataSetFileSelector
 
@@ -203,14 +204,17 @@ contains
 
       type(ExtDataRuleMapIterator) :: rule_iterator
       character(len=:), pointer :: key
-      type(StringVector), target :: start_times
+      type(ESMF_Time), allocatable :: start_times(:)
       integer :: num_rules
       type(ExtDataRule), pointer :: rule
       integer :: i,status,idx
       type(ESMF_Time) :: very_future_time
       type(ESMF_Time) :: start_time
-      character(len=:), allocatable :: char_start_time
       type(ESMF_Time), allocatable :: full_time_range(:)
+      logical :: found_full_name
+
+      allocate(start_times(0))
+      found_full_name = .false.
 
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
@@ -219,25 +223,27 @@ contains
          idx = index(key,rule_sep)
          if (idx > 0) then
             if (key(1:idx-1) == trim(base_name)) then
-               call start_times%push_back(rule%start_time)
+               _ASSERT(allocated(rule%start_time), 'multi-rule entry missing start_time: '//key)
+               start_times = [start_times, rule%start_time]
             end if
          end if
          if (key == full_name .and. allocated(rule%start_time)) then
-            char_start_time = rule%start_time
+            start_time = rule%start_time
+            found_full_name = .true.
          end if
          call rule_iterator%next()
       enddo
 
-      num_rules = start_times%size()
+      num_rules = size(start_times)
       if (num_rules == 0) then
          allocate(time_range(0))
          _RETURN(_SUCCESS)
       end if
-      call ESMF_TimeSet(start_time, timeString=char_start_time, _RC)
+      _ASSERT(found_full_name, 'could not find start_time for rule: '//full_name)
 
       allocate(full_time_range(num_rules+1))
       do i=1,num_rules
-         call ESMF_TimeSet(full_time_range(i), timeString=start_times%at(i), _RC)
+         full_time_range(i) = start_times(i)
       enddo
       call ESMF_TimeSet(very_future_time,yy=2365,mm=1,dd=1,_RC)
       full_time_range(num_rules+1) = very_future_time
@@ -261,7 +267,6 @@ contains
       integer :: num_rules,i,j,i_temp,imin
       logical :: found_start
       type(ESMF_HConfig) :: hconfig_dict
-      character(len=:), allocatable :: start_time
       type(ESMF_Time), allocatable :: start_times(:)
       type(ESMF_Time) :: temp_time
       integer :: status
@@ -274,8 +279,7 @@ contains
          hconfig_dict = ESMF_HConfigCreateAt(hconfig_sequence,index=i,_RC)
          found_start = ESMF_HConfigIsDefined(hconfig_dict,keyString="starting")
          _ASSERT(found_start,"no start key in multirule export of extdata")
-         start_time = ESMF_HConfigAsString(hconfig_dict,keyString="starting",_RC)
-         call ESMF_TimeSet(start_times(i), timeString=start_time, _RC)
+         start_times(i) = mapl_HConfigAsTime(hconfig_dict, keyString="starting", _RC)
       enddo
 
       do i=1,num_rules-1
