@@ -1,5 +1,5 @@
 # Detect if we are using Open MPI and add oversubscribe
-string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
+string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST "${MPI_Fortran_LIBRARY_VERSION_STRING}")
 list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWORD)
 
 file(STRINGS "cases.txt" TEST_CASES)

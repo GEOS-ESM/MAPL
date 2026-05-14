@@ -26,7 +26,7 @@ endif ()
 
 set(TEST_ENV "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/esmf_utils:$ENV{${LD_PATH}}")
 
-if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+if("${GEOS_SITE}" STREQUAL "NCCS" AND "${MPI_STACK}" STREQUAL "intelmpi")
   list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
 endif()
 

@@ -52,7 +52,7 @@ target_include_directories(MAPL.pfio.tests PRIVATE
 set_tests_properties(MAPL.pfio.tests PROPERTIES LABELS "ESSENTIAL")
 set_tests_properties(MAPL.pfio.tests PROPERTIES PROCESSORS 8)
 
-if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+if("${GEOS_SITE}" STREQUAL "NCCS" AND "${MPI_STACK}" STREQUAL "intelmpi")
   set_tests_properties(MAPL.pfio.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
 endif()
 
@@ -78,7 +78,7 @@ target_include_directories(${TESTO} PRIVATE ${esma_include}/MAPL.shared ${esma_i
 set_target_properties(${TESTO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
 # Detect if we are using Open MPI and add oversubscribe
-string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
+string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST "${MPI_Fortran_LIBRARY_VERSION_STRING}")
 list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWORD)
 if(MPI_Fortran_LIBRARY_VERSION_FIRSTWORD MATCHES "Open")
    list(APPEND MPIEXEC_PREFLAGS "-oversubscribe")

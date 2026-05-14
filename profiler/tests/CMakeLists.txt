@@ -29,7 +29,7 @@ target_include_directories(MAPL.profiler.tests PRIVATE
   ${esma_include}/MAPL.shared)
 set_tests_properties(MAPL.profiler.tests PROPERTIES LABELS "ESSENTIAL")
 
-if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+if("${GEOS_SITE}" STREQUAL "NCCS" AND "${MPI_STACK}" STREQUAL "intelmpi")
   set_tests_properties(MAPL.profiler.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
 endif()
 
