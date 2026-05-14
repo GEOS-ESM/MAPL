@@ -1,4 +1,6 @@
 module mapl_base3g
+   use MAPL_FileMetadataUtilsMod
+   use MAPL_FileMetadataUtilsVectorMod
    use MAPL_PackedTimeMod, only: MAPL_PackedDateCreate => PackedDateCreate, &
                                    MAPL_PackedTimeCreate => PackedTimeCreate, &
                                    MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &

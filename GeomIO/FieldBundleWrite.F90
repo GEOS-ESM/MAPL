@@ -2,7 +2,6 @@
 module mapl3g_FieldBundleWrite
    use ESMF
    use pFIO
-   use MAPL_VerticalDataMod
    use pFIO_ClientManagerMod, only: o_Clients
    use MAPL_ExceptionHandling
    use mapl3g_GeomPFIO

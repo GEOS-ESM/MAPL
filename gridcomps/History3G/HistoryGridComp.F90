@@ -6,7 +6,6 @@ module mapl3g_HistoryGridComp
    use ESMF
    use mapl3g_HistoryGridComp_private
    use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices
-   use MAPL_TimeStringConversion
    use mapl3g_StatisticsGridComp, only: statistics_setServices => setServices
    use pFlogger, only: logger
 
