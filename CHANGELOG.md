@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add new `RUN_LIKE_MODEL` options to ExtDataDriver.x to control whether clock ticks before (like model) or after (default and behaviour before this)
+
 ### Changed
 
 - Switch 6 lightweight CI workflows to `ubuntu-slim` runner to reduce concurrency pressure on `ubuntu-latest` (#4841)
