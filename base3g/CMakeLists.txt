@@ -1,6 +1,8 @@
 esma_set_this (OVERRIDE MAPL.base3g)
 
 set (srcs
+  FileMetadataUtilities.F90
+  FileMetadataUtilitiesVector.F90
   FileIOShared.F90
   NCIO.F90
   c_mapl_locstream_F.c

@@ -3,11 +3,8 @@
 module MAPL2
    use MAPL_ExceptionHandling
    use MAPL_ShmemMod
-   use MAPL_MemUtilsMod
+   use mapl_base3g
    use MAPL_SimpleBundleMod
-   use MAPL_ServerManager
-   use MAPL_FileMetadataUtilsMod
-   use MAPL_VerticalDataMod
    use pFIO
    use MAPL_GridCompsMod
    use mapl3g_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
