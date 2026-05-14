@@ -28,7 +28,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = 6
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -50,7 +51,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = 6
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -72,7 +74,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = 6
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -94,7 +97,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = 6
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -116,7 +120,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = 6
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -138,7 +143,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = 6
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -160,7 +166,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = 6
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
