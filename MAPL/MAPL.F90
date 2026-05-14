@@ -12,6 +12,8 @@ module MAPL2
    use mapl3g_OpenMP_Support, only : MAPL_Interval => Interval
    use MAPL_Profiler, initialize_profiler => initialize, finalize_profiler => finalize
    use MAPL_FieldUtils
-   use MAPL_StateUtils
+   use MAPL_StateMaskMod
+   use MAPL_StateArithmeticParserMod
+   use MAPL_StateFilter
    implicit none
 end module MAPL2

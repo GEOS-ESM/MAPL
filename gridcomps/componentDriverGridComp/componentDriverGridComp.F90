@@ -7,8 +7,6 @@ module mapl3g_ComponentDriverDriverGridComp
    use esmf
    use gFTL2_StringStringMap
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
-   use MAPL_StateUtils
-   use MAPL_FieldUtils
    use timeSupport
 
    implicit none

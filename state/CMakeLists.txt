@@ -8,7 +8,6 @@ set(srcs
   StateGetGeom.F90
   StateAddMethod.F90
 
-  StateUtils.F90
   StateArithmeticParser.F90
   StateMasking.F90
   StateFilter.F90
