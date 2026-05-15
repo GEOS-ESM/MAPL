@@ -1,6 +1,7 @@
 # Multi-Session Implementation Strategy
 
-**For:** MAPL3 Vertical Alignment Feature  
+<!-- mlc-disable -->
+**For:** MAPL3 Vertical Alignment Feature
 **Date:** February 13, 2026
 
 ---
@@ -165,13 +166,13 @@ Current Status:
 - Starting: Task 1
 
 Task 1: Add coordinate_direction to VerticalGrid
-Files: 
+Files:
 - vertical_grid/VerticalGrid.F90
 - vertical_grid/BasicVerticalGrid.F90
 - generic3g/vertical/FixedLevelsVerticalGrid.F90
 - generic3g/vertical/ModelVerticalGrid.F90
 
-Goal: Add coordinate_direction field to VerticalGrid base class and all 
+Goal: Add coordinate_direction field to VerticalGrid base class and all
 concrete implementations. Default value should be "downward" (GEOS convention).
 Need to add get/set methods and update constructors.
 ```
@@ -258,7 +259,7 @@ If you're working this holiday weekend, good starting point:
 - Delivers immediate value
 - Still relatively simple
 
-**Reassess next week:** 
+**Reassess next week:**
 - Continue with Session 3 (full regridding)
 - Or handle other MAPL3 priorities
 
@@ -270,7 +271,7 @@ If you're working this holiday weekend, good starting point:
 2. **Start new session** - Tell me:
    - "Working on Task X, ran into issue Y"
    - Show me the code/error
-3. **I can help:** 
+3. **I can help:**
    - Review your implementation
    - Suggest alternatives
    - Debug the issue
@@ -290,7 +291,7 @@ If you're working this holiday weekend, good starting point:
 ## Emergency: If You Lose This Document
 
 1. **Check:** `.opencode/plans/vertical-alignment-implementation.md`
-2. **Check:** `.opencode/plans/multi-session-strategy.md`  
+2. **Check:** `.opencode/plans/multi-session-strategy.md`
 3. **Git log:** Commit messages have task numbers
 4. **Start new session:** Tell me "I was working on vertical alignment, need to understand current state" - I can read the code and figure it out
 

@@ -1,7 +1,8 @@
 # MAPL3 Vertical Alignment Implementation Plan
+<!-- mlc-disable -->
 
-**Date:** February 13, 2026  
-**Priority:** HIGH - Required for MAPL3 release  
+**Date:** February 13, 2026
+**Priority:** HIGH - Required for MAPL3 release
 **Timeline:** ~2 months to MAPL3 release for GEOS integration
 
 ---
@@ -185,7 +186,7 @@ function matches(src, dst) result(match)
       match = .false.
       return
    end if
-   
+
    ! Same grid with different alignments still "matches"
    ! (handled by degenerate case in VerticalRegridTransform)
    match = .true.
@@ -214,19 +215,19 @@ if (is_degenerate_case) then
    // Task 3 logic
 else
    // Step 1: Get coords and data
-   
+
    // Step 2: Flip src if needed (to grid coordinates)
    if (src_alignment != grid_coordinate_direction) then
       src_coords_flipped = reverse(src)
       x_in_flipped = reverse_vertical(x_in)
    end if
-   
+
    // Step 3: Compute interpolation matrix (in grid coordinates)
    call compute_linear_map(src_coords_flipped, dst, matrix, _RC)
-   
+
    // Step 4: Apply matrix
    x_temp = matmul(matrix, x_in_flipped)
-   
+
    // Step 5: Flip dst if needed (from grid coords to dst alignment)
    if (dst_alignment != grid_coordinate_direction) then
       x_out = reverse_vertical(x_temp)
@@ -501,8 +502,8 @@ Break into discrete, self-contained sessions:
 
 7. [ ] **Confirm with user before proceeding with any work**
 
-**⚠️ DO NOT skip this checklist.**  
-**⚠️ DO NOT assume you're on the right branch.**  
+**⚠️ DO NOT skip this checklist.**
+**⚠️ DO NOT assume you're on the right branch.**
 **⚠️ DO NOT create commits until checklist is complete.**
 
 ### Pre-Session Verification Script

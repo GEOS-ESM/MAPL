@@ -88,11 +88,13 @@ MAPL Mesh uses the ESMF mesh file format:
 - `coordDim` - Coordinate dimension (always 2)
 - `connectionCount` - Total connectivity array size
 
+<!-- mlc-disable -->
 **Variables:**
 - `nodeCoords(coordDim, nodeCount)` - Node coordinates [lon, lat] in degrees
 - `elementConn(connectionCount)` - Flattened connectivity array (1-based indices)
 - `numElementConn(elementCount)` - Number of nodes per element
 - `elementMask(elementCount)` - Optional surface type masks
+<!-- mlc-enable -->
 
 **Global Attributes:**
 - `gridType` = "unstructured"
