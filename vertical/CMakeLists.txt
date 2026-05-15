@@ -9,7 +9,7 @@ set (srcs
 
 esma_add_library(${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.shared MAPL.base MAPL.pfio PFLOGGER::pflogger
+    DEPENDENCIES MAPL.shared MAPL.base3g MAPL.pfio PFLOGGER::pflogger
     TYPE SHARED
     )
 

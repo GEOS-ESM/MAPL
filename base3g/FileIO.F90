@@ -2,7 +2,7 @@
 
 module mapl3g_FileIO
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
-   use, intrinsic :: iso_fortran_env, only: INT32, REAL32, REAL64
+   use, intrinsic :: iso_fortran_env, only: INT32, REAL32, REAL64, OUTPUT_UNIT
    implicit none
    private
 
@@ -28,7 +28,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = OUTPUT_UNIT
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -50,7 +51,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = OUTPUT_UNIT
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -72,7 +74,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = OUTPUT_UNIT
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -94,7 +97,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = OUTPUT_UNIT
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -116,7 +120,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = OUTPUT_UNIT
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -138,7 +143,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = OUTPUT_UNIT
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then
@@ -160,7 +166,8 @@ contains
 
       integer :: unit_
 
-      unit_ = merge(unit, 6, present(unit))
+      unit_ = OUTPUT_UNIT
+      if (present(unit)) unit_ = unit
 
       if (MAPL_AM_I_ROOT()) then
          if (present(format)) then

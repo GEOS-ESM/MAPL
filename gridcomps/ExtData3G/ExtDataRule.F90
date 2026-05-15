@@ -3,15 +3,15 @@ module mapl3g_ExtDataRule
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use MAPL_TimeStringConversion
    use mapl3g_ExtDataSample
    use mapl3g_ExtDataSampleMap
+   use mapl3g_HConfig_API, only: mapl_HConfigAsTime
    use gFTL2_StringVector
    implicit none
    private
 
    type, public :: ExtDataRule
-      character(:), allocatable :: start_time
+      type(ESMF_Time), allocatable :: start_time
       character(:), allocatable :: collection
       !character(:), allocatable :: file_var
       type(StringVector) :: file_vars
@@ -106,8 +106,8 @@ contains
       end if
 
       if (ESMF_HConfigIsDefined(config,keyString="starting")) then
-         tempc = ESMF_HConfigAsString(config,keyString="starting",_RC)
-         rule%start_time = tempc
+         allocate(rule%start_time)
+         rule%start_time = mapl_HConfigAsTime(config, keyString="starting", _RC)
       end if
 
       if (ESMF_HConfigIsDefined(config,keyString="fail_on_missing_file")) then
