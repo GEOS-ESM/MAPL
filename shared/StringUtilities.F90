@@ -2,7 +2,7 @@
 ! potential error conditions.  These are function that we want to use
 ! in expressions and as actual arguments to other procedures.
 
-#include "unused_dummy.H"
+#include "MAPL.h"
 
 module mapl_StringUtilities
 

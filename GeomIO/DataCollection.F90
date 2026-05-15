@@ -1,11 +1,9 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl3g_DataCollection
   use pFIO
   use MAPL_FileMetadataUtilsVectorMod
   use MAPL_FileMetadataUtilsMod
-  use MAPL_GridManagerMod
-  use MAPL_AbstractGridFactoryMod
   use gFTL2_StringIntegerMap
   use esmf
   use mapl_ErrorHandlingMod

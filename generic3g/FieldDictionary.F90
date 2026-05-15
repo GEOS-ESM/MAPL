@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 ! The FieldDictionary serves as a central structure for both ensuring
 ! consistent standard names and units across GEOS as well as a convenient
@@ -16,15 +16,24 @@ module mapl3g_FieldDictionary
 
    use esmf
    use mapl_ErrorHandling
+   use pflogger, only: logging, logger_t => logger
    use gftl2_StringVector
    use gftl2_StringStringMap
    use mapl3g_FieldDictionaryItem
    use mapl3g_FieldDictionaryItemMap
+   use mapl3g_VerificationStatus
 
    implicit none(type,external)
    private
 
    public :: FieldDictionary
+   public :: get_field_dictionary
+   public :: load_field_dictionary
+
+   ! Sentinel stored in alias_map when a short name maps to more than one
+   ! standard name.  A lookup that resolves to this value is hard-failed
+   ! with a clear error message.
+   character(*), parameter :: ALIAS_AMBIGUOUS = '__ambiguous__'
 
    type :: FieldDictionary
       private
@@ -34,6 +43,7 @@ module mapl3g_FieldDictionary
       procedure :: add_item
       procedure :: add_aliases
       ! accessors
+      procedure :: has_item
       procedure :: get_item   ! returns a pointer
       procedure :: get_units
       procedure :: get_long_name
@@ -45,6 +55,11 @@ module mapl3g_FieldDictionary
    interface FieldDictionary
       module procedure new_from_yaml
    end interface FieldDictionary
+
+   ! Module-level singleton: loaded once via load_field_dictionary(), retrieved
+   ! via get_field_dictionary().  PROTECTED so external code can read through
+   ! the pointer but cannot re-seat or modify the variable itself.
+   type(FieldDictionary), protected, private, target, save :: the_field_dictionary
 
 contains
 
@@ -95,9 +110,13 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(ESMF_HConfig) :: aliases_node
+         type(ESMF_HConfig) :: aliases_node, provenance_node
          character(:), allocatable :: long_name, units, temp_string
+         character(:), allocatable :: physical_dimension, verified_by
+         logical :: conserved
          type(StringVector) :: aliases
+         type(VerificationStatus) :: vstatus
+         type(CF_Provenance) :: prov
          type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
 
          _ASSERT(ESMF_HConfigIsMap(item_node), 'Each node in FieldDictionary yaml must be a mapping node')
@@ -105,9 +124,10 @@ contains
          long_name = ESMF_HconfigAsString(item_node,keyString='long_name',_RC)
          units = ESMF_HConfigAsString(item_node,keyString='canonical_units',_RC)
 
+         ! --- optional: aliases ---
          if (ESMF_HConfigIsDefined(item_node,keyString='aliases')) then
-          
-            aliases_node = ESMF_HConfigCreateAt(item_node,keyString='aliases',_RC) 
+
+            aliases_node = ESMF_HConfigCreateAt(item_node,keyString='aliases',_RC)
             _ASSERT(ESMF_HConfigIsSequence(aliases_node), "'aliases' must be a sequence")
 
             hconfigIter = ESMF_HConfigIterBegin(aliases_node)
@@ -121,8 +141,43 @@ contains
 
          end if
 
-         item = FieldDictionaryItem(long_name, units, aliases)
-         
+         ! --- optional: physical_dimension ---
+         physical_dimension = ''
+         if (ESMF_HConfigIsDefined(item_node,keyString='physical_dimension')) then
+            physical_dimension = ESMF_HConfigAsString(item_node,keyString='physical_dimension',_RC)
+         end if
+
+         ! --- optional: conserved (default .false.) ---
+         conserved = .false.
+         if (ESMF_HConfigIsDefined(item_node,keyString='conserved')) then
+            conserved = ESMF_HConfigAsLogical(item_node,keyString='conserved',_RC)
+         end if
+
+         ! --- optional: verification_status (default unverified) ---
+         vstatus = VERIFICATION_STATUS_UNVERIFIED
+         if (ESMF_HConfigIsDefined(item_node,keyString='verification_status')) then
+            temp_string = ESMF_HConfigAsString(item_node,keyString='verification_status',_RC)
+            vstatus = VerificationStatus(temp_string)
+         end if
+
+         ! --- optional: provenance ---
+         if (ESMF_HConfigIsDefined(item_node,keyString='provenance')) then
+            provenance_node = ESMF_HConfigCreateAt(item_node,keyString='provenance',_RC)
+            if (ESMF_HConfigIsDefined(provenance_node,keyString='verified_by')) then
+               verified_by = ESMF_HConfigAsString(provenance_node,keyString='verified_by',_RC)
+               prov%verified_by = verified_by
+            end if
+         end if
+
+         item = FieldDictionaryItem( &
+              long_name=long_name, &
+              canonical_units=units, &
+              aliases=aliases, &
+              physical_dimension=physical_dimension, &
+              conserved=conserved, &
+              verification_status=vstatus, &
+              provenance=prov)
+
          _RETURN(_SUCCESS)
       end function to_item
 
@@ -150,13 +205,31 @@ contains
 
       type(StringVectorIterator) :: iter
       character(:), pointer :: alias
+      type(logger_t), pointer :: lgr
+      integer :: status
+
+      if (aliases%size() == 0) then
+         _RETURN(_SUCCESS)
+      end if
 
       associate (b => aliases%begin(), e => aliases%end())
         iter = b
         do while (iter /= e)
-           alias => iter%of()
-           _ASSERT(this%alias_map%count(alias) == 0, 'ambiguous short name references more than one item in dictionary')
-           call this%alias_map%insert(alias, standard_name)
+            alias => iter%of()
+            if (this%alias_map%count(alias) /= 0) then
+               ! Alias already registered for a different standard name.
+               ! Warn and mark as ambiguous so any lookup via this alias
+               ! will fail with a clear error rather than silently returning
+               ! the wrong entry.
+               lgr => logging%get_logger('FieldDictionary')
+               call lgr%warning( &
+                    'Short name "'//alias//'" is an alias for more than one standard name;' // &
+                    ' lookups via this short name will fail.')
+               status = this%alias_map%erase(alias)
+               call this%alias_map%insert(alias, ALIAS_AMBIGUOUS)
+           else
+              call this%alias_map%insert(alias, standard_name)
+           end if
            call iter%next()
         end do
       end associate
@@ -174,7 +247,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      character(:), allocatable :: msg
 
+      msg = 'FieldDictionary: no entry for standard_name "' // standard_name // '"'
+      _ASSERT(this%entries%count(standard_name) > 0, msg)
       item = this%entries%at(standard_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -216,10 +292,16 @@ contains
       character(*), intent(in) :: alias
       integer, optional, intent(out) :: rc
 
-      integer :: status
+       integer :: status
+       character(:), allocatable :: msg
 
-      standard_name = this%alias_map%at(alias, _RC)
-      
+       msg = 'FieldDictionary: short name "' // alias // '" not found in dictionary'
+       _ASSERT(this%alias_map%count(alias) /= 0, msg)
+       standard_name = this%alias_map%at(alias, _RC)
+       msg = 'FieldDictionary: short name "' // alias // &
+            '" is ambiguous (maps to multiple standard names); provide standard_name explicitly'
+       _ASSERT(standard_name /= ALIAS_AMBIGUOUS, msg)
+
       _RETURN(_SUCCESS)
    end function get_standard_name
 
@@ -238,9 +320,31 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method
 
+   logical function has_item(this, standard_name)
+      class(FieldDictionary), intent(in) :: this
+      character(*), intent(in) :: standard_name
+      has_item = this%entries%count(standard_name) > 0
+   end function has_item
+
    integer function size(this)
       class(FieldDictionary), intent(in) :: this
       size = this%entries%size()
    end function size
-   
+
+   subroutine load_field_dictionary(filename, rc)
+      character(*), intent(in) :: filename
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      the_field_dictionary = FieldDictionary(filename=filename, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine load_field_dictionary
+
+   function get_field_dictionary() result(ptr)
+      type(FieldDictionary), pointer :: ptr
+      ptr => the_field_dictionary
+   end function get_field_dictionary
+
 end module mapl3g_FieldDictionary

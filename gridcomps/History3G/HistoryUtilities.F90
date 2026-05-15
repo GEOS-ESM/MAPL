@@ -1,6 +1,6 @@
 #include "MAPL.h"
 module mapl3g_HistoryUtilities
-   use mapl3
+   use MAPL
    use esmf
    use mapl3g_HistoryConstants
    !use gFTL2_StringVector
@@ -60,12 +60,12 @@ contains
       end if
       if (present(short_name)) then
          value = ESMF_HConfigCreateAtMapVal(item, _RC)
-         short_name = ESMF_HConfigAsString(value, keyString=KEY_EXPRESSION, _RC)
+         short_name = ESMF_HConfigAsString(value, keyString=KEY_SOURCE, _RC)
          short_name = replace_delimiter(short_name)
       end if
       if (present(name_in_comp)) then
          value = ESMF_HConfigCreateAtMapVal(item, _RC)
-         temp_string = ESMF_HConfigAsString(value, keyString=KEY_EXPRESSION, _RC)
+         temp_string = ESMF_HConfigAsString(value, keyString=KEY_SOURCE, _RC)
          temp_string = replace_delimiter(short_name)
          slash_loc = index(temp_string, '/')
          name_in_comp = temp_string

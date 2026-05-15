@@ -44,7 +44,7 @@ module mapl3g_VectorBracketClassAspect
       procedure :: to_VectorBracketClassAspect_from_poly
       procedure :: to_VectorBracketClassAspect_from_map
    end interface to_VectorBracketClassAspect
-   
+
    type, extends(ClassAspect) :: VectorBracketClassAspect
       private
       type(ESMF_FieldBundle) :: payload
@@ -54,7 +54,7 @@ module mapl3g_VectorBracketClassAspect
        character(:), allocatable :: standard_name
        character(:), allocatable :: long_name
        type(VectorBasisKind) :: vector_basis_kind
-       real(kind=ESMF_KIND_R4) :: default_value
+       real(kind=ESMF_KIND_R4) :: fill_value
 
    contains
       procedure :: get_aspect_order
@@ -71,7 +71,7 @@ module mapl3g_VectorBracketClassAspect
       procedure :: add_to_state
 
       procedure :: get_payload
-      
+
    end type VectorBracketClassAspect
 
    interface VectorBracketClassAspect
@@ -80,15 +80,15 @@ module mapl3g_VectorBracketClassAspect
 
 contains
 
-   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name, vector_basis_kind, default_value) result(aspect)
+   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name, vector_basis_kind, fill_value) result(aspect)
       type(VectorBracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
-      real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: fill_value
 
-       aspect%field_aspect = FieldClassAspect(standard_name, long_name, default_value)
+       aspect%field_aspect = FieldClassAspect(standard_name, long_name, fill_value)
        aspect%bracket_size = bracket_size
        if (present(standard_name)) then
           aspect%standard_name = standard_name
@@ -96,15 +96,15 @@ contains
        if (present(long_name)) then
           aspect%long_name = long_name
        end if
-       
+
        aspect%vector_basis_kind = VECTOR_BASIS_KIND_NS
        if (present(vector_basis_kind)) then
           aspect%vector_basis_kind = vector_basis_kind
        end if
-       if (present(default_value)) then
-          aspect%default_value = default_value
+       if (present(fill_value)) then
+          aspect%fill_value = fill_value
        end if
-      
+
    end function new_VectorBracketClassAspect
 
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
@@ -184,7 +184,7 @@ contains
       type(FieldClassAspect) :: tmp
 
       associate (n => this%bracket_size)
-        
+
         do i = 1, n
            tmp = this%field_aspect
            call tmp%create(other_aspects, _RC)
@@ -220,7 +220,7 @@ contains
       type(esmf_Field), allocatable :: field
 
       call field_aspect%get_payload(field=field, _RC)
-      
+
       associate(e => other_aspects%ftn_end())
         iter = other_aspects%ftn_begin()
         do while (iter /= e)
@@ -265,7 +265,7 @@ contains
       _UNUSED_DUMMY(export)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
-   
+
 
    function to_VectorBracketClassAspect_from_poly(aspect, rc) result(bracket_aspect)
       type(VectorBracketClassAspect) :: bracket_aspect
@@ -295,7 +295,7 @@ contains
 
       _RETURN(_SUCCESS)
    end function to_VectorBracketClassAspect_from_map
-   
+
 
    function make_transform(src, dst, other_aspects, rc) result(transform)
       class(ExtensionTransform), allocatable :: transform

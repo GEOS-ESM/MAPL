@@ -26,6 +26,8 @@ module mapl3g_RegridTransform
       type(ESMF_Geom) :: src_geom
       type(ESMF_Geom) :: dst_geom
       type(EsmfRegridderParam) :: dst_param
+      type(ESMF_TypeKind_Flag) :: typekind_in  = ESMF_TYPEKIND_R4
+      type(ESMF_TypeKind_Flag) :: typekind_out = ESMF_TYPEKIND_R4
 
       class(Regridder), pointer :: regrdr
 
@@ -53,11 +55,14 @@ module mapl3g_RegridTransform
 contains
 
    function new_ScalarRegridTransform(src_geom, dst_geom, dst_param, &
-        vcoord_field, vcoord_coupler, norm_metadata) result(transform)
+         typekind_in, typekind_out, &
+         vcoord_field, vcoord_coupler, norm_metadata) result(transform)
       type(ScalarRegridTransform) :: transform
       type(ESMF_Geom), intent(in) :: src_geom
       type(ESMF_Geom), intent(in) :: dst_geom
       type(EsmfRegridderParam), intent(in) :: dst_param
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind_in
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind_out
       type(ESMF_Field), optional, intent(in) :: vcoord_field
       class(ComponentDriver), optional, pointer, intent(in) :: vcoord_coupler
       type(NormalizationMetadata), optional, intent(in) :: norm_metadata
@@ -65,6 +70,8 @@ contains
       transform%src_geom = src_geom
       transform%dst_geom = dst_geom
       transform%dst_param = dst_param
+      if (present(typekind_in))  transform%typekind_in  = typekind_in
+      if (present(typekind_out)) transform%typekind_out = typekind_out
 
       ! Store normalization info if all three are provided
       if (present(vcoord_field) .and. present(vcoord_coupler) .and. present(norm_metadata)) then
@@ -100,7 +107,10 @@ contains
 
       this%src_geom = get_geom(importState, COUPLER_IMPORT_NAME)
       this%dst_geom = get_geom(exportState, COUPLER_EXPORT_NAME)
-      spec = RegridderSpec(this%dst_param, this%src_geom, this%dst_geom)
+      this%typekind_in  = get_typekind(importState, COUPLER_IMPORT_NAME)
+      this%typekind_out = get_typekind(exportState, COUPLER_EXPORT_NAME)
+      spec = RegridderSpec(this%dst_param, this%src_geom, this%dst_geom, &
+           typekind_in=this%typekind_in, typekind_out=this%typekind_out)
       this%regrdr => regridder_manager%get_regridder(spec, _RC)
 
       _RETURN(_SUCCESS)
@@ -139,6 +149,32 @@ contains
 
          _RETURN(_SUCCESS)
       end function get_geom
+
+      function get_typekind(state, itemName, rc) result(typekind)
+         type(ESMF_State), intent(inout) :: state
+         character(*), intent(in) :: itemName
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ESMF_StateItem_Flag) :: itemType
+         type(ESMF_Field) :: f
+         type(ESMF_FieldBundle) :: fb
+         type(ESMF_TypeKind_Flag) :: typekind
+
+         call ESMF_StateGet(state, itemName, itemType=itemType, _RC)
+         if (itemType == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(state, itemName, field=f, _RC)
+            call ESMF_FieldGet(f, typekind=typekind, _RC)
+         elseif (itemType == ESMF_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(state, itemName, fieldBundle=fb, _RC)
+            call MAPL_FieldBundleGet(fb, typekind=typekind, _RC)
+         else
+            _FAIL('unsupported itemType')
+         end if
+
+         _RETURN(_SUCCESS)
+      end function get_typekind
+
    end subroutine initialize
 
 
@@ -166,8 +202,8 @@ contains
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=f_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f_out, _RC)
          allocate(geom_in, geom_out)
-         call ESMF_FieldGet(f_in, geom=geom_in, _RC)
-         call ESMF_FieldGet(f_out, geom=geom_out, _RC)
+         call ESMF_FieldGet(f_in, geom=geom_in, typekind=this%typekind_in, _RC)
+         call ESMF_FieldGet(f_out, geom=geom_out, typekind=this%typekind_out, _RC)
          call this%update_transform(geom_in, geom_out)
 
          ! Perform regrid with integrated normalization if needed. The
@@ -183,8 +219,8 @@ contains
          call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, fieldBundle=fb_out, _RC)
          call bundle_types_valid(fb_in, fb_out, _RC)
-         call MAPL_FieldBundleGet(fb_in, geom=geom_in, _RC)
-         call MAPL_FieldBundleGet(fb_out, geom=geom_out, _RC)
+         call MAPL_FieldBundleGet(fb_in, geom=geom_in, typekind=this%typekind_in, _RC)
+         call MAPL_FieldBundleGet(fb_out, geom=geom_out, typekind=this%typekind_out, _RC)
          _ASSERT(allocated(geom_in), 'should be allocated by here')
          _ASSERT(allocated(geom_out), 'should be allocated by here')
 
@@ -408,7 +444,8 @@ contains
       if (dst_geom_changed) call this%change_geoms(dst_geom=dst_geom)
       if (scr_geom_changed .or. dst_geom_changed) then
          regridder_manager => get_regridder_manager()
-         spec = RegridderSpec(this%dst_param, this%src_geom, this%dst_geom)
+         spec = RegridderSpec(this%dst_param, this%src_geom, this%dst_geom, &
+              typekind_in=this%typekind_in, typekind_out=this%typekind_out)
          this%regrdr => regridder_manager%get_regridder(spec, _RC)
       end if
       _RETURN(_SUCCESS)

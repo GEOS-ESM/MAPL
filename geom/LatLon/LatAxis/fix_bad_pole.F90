@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_LatAxis) fix_bad_pole_smod
    use mapl_RangeMod

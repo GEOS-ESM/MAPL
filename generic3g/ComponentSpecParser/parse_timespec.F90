@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_timespec_smod
    use mapl3g_HConfig_API

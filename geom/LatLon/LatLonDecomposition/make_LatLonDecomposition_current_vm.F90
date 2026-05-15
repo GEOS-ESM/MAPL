@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_LatLonDecomposition) make_LatLonDecomposition_current_vm_smod
    use mapl_ErrorHandlingMod

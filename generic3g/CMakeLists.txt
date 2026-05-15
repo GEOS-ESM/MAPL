@@ -4,15 +4,17 @@ set(srcs
   ESMF_Subset.F90
   Generic3g.F90
 
+  VerificationStatus.F90
+  ValidationMode.F90
   FieldDictionaryItem.F90
   FieldDictionaryItemMap.F90
   FieldDictionary.F90
+  FieldDictionaryConfig.F90
 
   GenericGrid.F90
 
   ComponentSpecParser.F90
 
-  ESMF_Interfaces.F90
   UserSetServices.F90
   MethodPhasesMap.F90
 
@@ -29,6 +31,10 @@ set(srcs
 
   ESMF_HConfigUtilities.F90
   RestartHandler.F90
+
+  RunEntryPoint.F90
+  EntryPointVector.F90
+  OpenMP_Support.F90
   )
 
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
@@ -50,7 +56,7 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
     MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared
     MAPL.profiler MAPL.hconfig_utils MAPL.vertical MAPL.component MAPL.field_bundle
-  ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm
+  ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm MAPL.utilities
   TYPE SHARED
   )
 

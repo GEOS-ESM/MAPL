@@ -53,7 +53,7 @@ module mapl3g_BracketClassAspect
       integer :: bracket_size   ! allocate only if not time dependent
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
-      real(kind=ESMF_KIND_R4), allocatable :: default_value
+      real(kind=ESMF_KIND_R4), allocatable :: fill_value
 
    contains
       procedure :: get_aspect_order
@@ -79,14 +79,14 @@ module mapl3g_BracketClassAspect
 
 contains
 
-   function new_BracketClassAspect(bracket_size, standard_name, long_name, default_value) result(aspect)
+   function new_BracketClassAspect(bracket_size, standard_name, long_name, fill_value) result(aspect)
       type(BracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      real(kind=ESMF_KIND_R4), optional, intent(in) :: default_value
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: fill_value
 
-      aspect%field_aspect = FieldClassAspect(standard_name, long_name, default_value)
+      aspect%field_aspect = FieldClassAspect(standard_name, long_name, fill_value)
       aspect%bracket_size = bracket_size
       if (present(standard_name)) then
          aspect%standard_name = standard_name
@@ -94,8 +94,8 @@ contains
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
-      if (present(default_value)) then
-         aspect%default_value = default_value
+      if (present(fill_value)) then
+         aspect%fill_value = fill_value
       end if
 
    end function new_BracketClassAspect

@@ -9,9 +9,13 @@ module mapl3g_MaplFramework
 
    use mapl_ErrorHandling
    use mapl_KeywordEnforcerMod
+   use mapl3g_FieldFillDefault, only: &
+        field_fill_defaults_init => initialize_field_fill_defaults, &
+        set_field_fill_defaults
    use mapl3g_VerticalGrid_API
    use mapl3g_FixedLevelsVerticalGrid
    use mapl3g_ModelVerticalGrid
+   use mapl3g_FieldDictionary, only: load_field_dictionary
    use mapl_profiler, only: profiler_initialize => initialize, profiler_finalize => finalize
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod
@@ -53,6 +57,8 @@ module mapl3g_MaplFramework
       procedure :: initialize_udunits
       procedure :: initialize_servers
       procedure :: initialize_simple_servers
+      procedure :: initialize_field_dictionary
+      procedure :: initialize_field_fill_defaults
 
       procedure :: finalize
       procedure :: finalize_servers
@@ -80,7 +86,8 @@ contains
    ! Type-bound procedures
 
    ! Note: HConfig is an output if ESMF is not already initialized.  Otherwise it is an input.
-   subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, configFilenameFromArgNum, rc)
+   subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, configFilenameFromArgNum, &
+        field_default_fill_value_r4, field_default_fill_value_r8, rc)
       class(MaplFramework), intent(inout) :: this
       type(ESMF_HConfig), optional, intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -89,6 +96,8 @@ contains
       integer, optional, intent(in) :: mpiCommunicator
       character(*), optional, intent(in) :: level_name
       integer, optional, intent(in) :: configFilenameFromArgNum
+      real(ESMF_KIND_R4), optional, intent(in) :: field_default_fill_value_r4
+      real(ESMF_KIND_R8), optional, intent(in) :: field_default_fill_value_r8
       integer, optional, intent(out) :: rc
       type(VerticalGridManager), pointer :: vgrid_manager
 
@@ -111,6 +120,11 @@ contains
       call this%initialize_profilers(_RC)
       call this%initialize_servers(is_model_pet=is_model_pet, servers=servers, _RC)
       call this%initialize_udunits(_RC)
+      call this%initialize_field_dictionary(_RC)
+      call this%initialize_field_fill_defaults( &
+           field_default_fill_value_r4=field_default_fill_value_r4, &
+           field_default_fill_value_r8=field_default_fill_value_r8, &
+           _RC)
 
       vgrid_manager => get_vertical_grid_manager(_RC)
       call vgrid_manager%initialize(_RC)
@@ -573,7 +587,8 @@ contains
    end subroutine mapl_get_mapl
 
 
-   subroutine mapl_initialize(hconfig, unusable, is_model_pet, servers, mpiCommunicator, configFilenameFromArgNum, level_name, rc)
+   subroutine mapl_initialize(hconfig, unusable, is_model_pet, servers, mpiCommunicator, configFilenameFromArgNum, level_name, &
+        field_default_fill_value_r4, field_default_fill_value_r8, rc)
       type(ESMF_HConfig), optional, intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: is_model_pet
@@ -581,12 +596,17 @@ contains
       integer, optional, intent(in) :: mpiCommunicator
       integer, optional, intent(in) :: configFilenameFromArgNum
       character(*), optional, intent(in) :: level_name
+      real(ESMF_KIND_R4), optional, intent(in) :: field_default_fill_value_r4
+      real(ESMF_KIND_R8), optional, intent(in) :: field_default_fill_value_r8
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       call the_mapl_object%initialize(hconfig=hconfig, is_model_pet=is_model_pet, servers=servers, mpiCommunicator=mpiCommunicator, &
-           configFilenameFromArgNum=configFilenameFromArgNum, level_name=level_name, _RC)
+           configFilenameFromArgNum=configFilenameFromArgNum, level_name=level_name, &
+           field_default_fill_value_r4=field_default_fill_value_r4, &
+           field_default_fill_value_r8=field_default_fill_value_r8, &
+           _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -682,6 +702,55 @@ contains
       _RETURN(_SUCCESS)
    end function get_num_ssis
 
+   subroutine initialize_field_fill_defaults(this, unusable, field_default_fill_value_r4, field_default_fill_value_r8, rc)
+      class(MaplFramework), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      real(ESMF_KIND_R4), optional, intent(in) :: field_default_fill_value_r4
+      real(ESMF_KIND_R8), optional, intent(in) :: field_default_fill_value_r8
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_generic, has_r4, has_r8
+      real(ESMF_KIND_R4), allocatable :: fill_value_from_yaml_r4
+      real(ESMF_KIND_R8), allocatable :: fill_value_from_yaml_r8
+
+      ! Set module singleton defaults to sNaN before applying any overrides.
+      call field_fill_defaults_init()
+
+      has_generic = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_default_fill_value', _RC)
+      has_r4 = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_default_fill_value_r4', _RC)
+      has_r8 = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_default_fill_value_r8', _RC)
+
+      ! Disallow simultaneous use of generic and specific YAML keys
+      _ASSERT(.not. (has_generic .and. has_r4), "'field_default_fill_value' and 'field_default_fill_value_r4' cannot both be set in YAML config")
+      _ASSERT(.not. (has_generic .and. has_r8), "'field_default_fill_value' and 'field_default_fill_value_r8' cannot both be set in YAML config")
+
+      ! Disallow simultaneous Fortran argument and YAML key for the same typekind
+      _ASSERT(.not. (present(field_default_fill_value_r4) .and. (has_r4 .or. has_generic)), "field_default_fill_value_r4 specified both as Fortran argument and in YAML config")
+      _ASSERT(.not. (present(field_default_fill_value_r8) .and. (has_r8 .or. has_generic)), "field_default_fill_value_r8 specified both as Fortran argument and in YAML config")
+
+      ! Apply Fortran arguments (if present)
+      if (present(field_default_fill_value_r4)) allocate(fill_value_from_yaml_r4, source=field_default_fill_value_r4)
+      if (present(field_default_fill_value_r8)) allocate(fill_value_from_yaml_r8, source=field_default_fill_value_r8)
+
+      ! Apply YAML generic key (sets both R4 and R8)
+      if (has_generic) then
+         fill_value_from_yaml_r4 = ESMF_HConfigAsR4(this%mapl_hconfig, keystring='field_default_fill_value', _RC)
+         fill_value_from_yaml_r8 = ESMF_HConfigAsR8(this%mapl_hconfig, keystring='field_default_fill_value', _RC)
+      end if
+
+      ! Apply YAML typekind-specific keys
+      if (has_r4) fill_value_from_yaml_r4 = &
+           ESMF_HConfigAsR4(this%mapl_hconfig, keystring='field_default_fill_value_r4', _RC)
+      if (has_r8) fill_value_from_yaml_r8 = &
+           ESMF_HConfigAsR8(this%mapl_hconfig, keystring='field_default_fill_value_r8', _RC)
+
+      call set_field_fill_defaults(r4=fill_value_from_yaml_r4, r8=fill_value_from_yaml_r8)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine initialize_field_fill_defaults
+
    subroutine initialize_udunits(this, rc)
       class(MaplFramework), intent(in) :: this
       integer, optional, intent(out) :: rc
@@ -693,6 +762,38 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end subroutine initialize_udunits
+
+   subroutine initialize_field_dictionary(this, rc)
+      class(MaplFramework), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_path, file_exists
+      character(:), allocatable :: path
+      type(Logger), pointer :: lgr
+
+      has_path = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_dictionary', _RC)
+      if (has_path) then
+         path = ESMF_HConfigAsString(this%mapl_hconfig, keystring='field_dictionary', _RC)
+      else
+         path = 'geos_field_dictionary.yaml'
+      end if
+
+      inquire(file=path, exist=file_exists)
+      if (file_exists) then
+         call load_field_dictionary(path, _RC)
+      else if (has_path) then
+         ! Explicitly configured path must exist — fail hard.
+         _ASSERT(.false., 'Field dictionary not found at configured path: "'//path//'"')
+      else
+         ! Default path absent — warn and proceed without the dictionary.
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning('Field dictionary not loaded: "'//path//'" not found. ' // &
+              'Dictionary defaults (units, long_name) will not be applied.')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine initialize_field_dictionary
 
 end module mapl3g_MaplFramework
 

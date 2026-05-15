@@ -2,7 +2,7 @@
 
 module mapl3g_HistoryCollectionGridComp_private
 
-   use mapl3
+   use MAPL
    use esmf
    use gFTL2_StringVector
    use gFTL2_StringSet
@@ -272,8 +272,6 @@ contains
       end if 
       varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, varspec_short_name, &
            units=opts%units, typekind=opts%typekind, &
-           !accumulation_type=opts%accumulation_type, timestep = opts%timestep, &
-           timestep = opts%timestep, &
            regrid_param = opts%regrid_param, &
            itemtype=item_type, &
            _RC)

@@ -1,5 +1,4 @@
-#include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module MAPL_CF_Time
 
    use, intrinsic :: iso_fortran_env, only : R64 => real64

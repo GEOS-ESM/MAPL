@@ -43,6 +43,8 @@ It:
 
 ### 3.10 [Conservative Vertical Regridding](docs/conservative_regridding.md)
 
+### 3.11 [Field Dictionary](docs/field_dictionary.md)
+
 <!--
 ## 4 [Demos](../tutorial/README.md)
 -->

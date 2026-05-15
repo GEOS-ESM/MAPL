@@ -1,7 +1,7 @@
 
 
 #define LDB_SUCCESS  0
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 !------------------------------------------------------------------------------
 !>
 !### MODULE: `MAPL_LoadBalanceMod`
@@ -109,7 +109,10 @@ contains
     logical :: SEND, RECV
     integer, pointer :: NOP(:,:)
 
-    Jdim = size(A)/Idim
+    Jdim = 1
+    if (Idim /= 0) then
+       Jdim = size(A)/Idim
+    end if
 
     if(present(Handle)) then
        ISTRAT = Handle
@@ -213,7 +216,10 @@ contains
     logical :: SEND, RECV
     integer, pointer :: NOP(:,:)
 
-    Jdim = size(A)/Idim
+    Jdim = 1
+    if (Idim /= 0) then
+       Jdim = size(A)/Idim
+    end if
 
     if(present(Handle)) then
        ISTRAT = Handle

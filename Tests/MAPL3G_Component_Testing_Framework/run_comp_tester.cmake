@@ -17,7 +17,7 @@ macro(run_case CASE DESCRIPTION)
     foreach(line IN LISTS file_lines)
 			 message(STATUS "${CASE} (${DESCRIPTION}): Running step ${step_num}/${total_steps}: ${line}")
 			 execute_process(
-				COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MPIEXEC_PREFLAGS} ${MY_BINARY_DIR}/MAPL_Component_Driver.x ${line}
+				COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MPIEXEC_PREFLAGS} ${MY_BINARY_DIR}/GEOS.x ${line}
 				RESULT_VARIABLE CMD_RESULT
 				WORKING_DIRECTORY ${tempdir}
 				)

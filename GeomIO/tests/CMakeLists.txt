@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.GeomIO/tests")
 
 set (test_srcs
   Test_SharedIO.pf
+  Test_FieldBundleIO.pf
   )
 
 add_pfunit_ctest(MAPL.GeomIO.tests

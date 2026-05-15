@@ -51,9 +51,8 @@
 MODULE MAPL_StateArithmeticParserMod
 
   use ESMF
-  use MAPL_BaseMod
-  use MAPL_FieldUtils
-  use MAPL_CommsMod
+   use MAPL_Constants,  only: MAPL_UNDEF
+   use MAPL_FieldUtils
   use MAPL_ExceptionHandling
   use gFTL2_StringVector
 

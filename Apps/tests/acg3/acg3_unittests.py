@@ -6,6 +6,7 @@ from functools import reduce, partial
 from operator import concat
 from collections import namedtuple
 from collections.abc import Sequence
+from copy import deepcopy
 import sys
 import MAPL_GridCompSpecs_ACGv3 as acg3
 
@@ -15,6 +16,8 @@ def general_msg(variable='EXPECTED VARIABLE', value=None):
     return f"{variable} should be {'None' if value is None else value}."
 
 make_equal_test = lambda self, expected: partial(self.assertEqual, expected)
+
+SPECIFICATIONS = acg3.SPECIFICATIONS
 
 class TestMappings(unittest.TestCase):
 
@@ -85,7 +88,7 @@ class TestMappings(unittest.TestCase):
             return general_msg(a, e)
         test_params = (
                 TestParams(value, equal_test(expected), partial(message, expected)) for value, expected in
-                ((None, None), ('XX', r"'XX'"), ('*XX', f"'{INTERLUDE}XX'"))
+                ((None, None), ('XX', r" 'XX' "), ('*XX', " ''//trim(comp_name)//'XX' "))
         )
         for value, test, msg in test_params:
             a = mangle(value)
@@ -134,6 +137,57 @@ class TestMappings(unittest.TestCase):
         self.assertIn(first, r'\'"')
         middle = ''.join(middle)
         self.assertEqual(middle, column_value)
+
+class TestColumns(unittest.TestCase):
+
+    def test_use_field_dictionary(self):
+        assertTrue = self.assertTrue
+        assertFalse = self.assertFalse
+        assertIsNone = self.assertIsNone
+        digest_spec = acg3.digest_spec
+        options = acg3.get_options({})[SPECIFICATIONS]
+        use_field_dictionary = acg3.USE_FIELD_DICTIONARY
+        BASE_SPEC = {}
+        make_spec = lambda v: deepcopy(BASE_SPEC) | ({use_field_dictionary: v} if v else {})
+        params = [(acg3.TRUE_VALUE, assertTrue, 'use_field_dictionary should be True'),
+            (acg3.FALSE_VALUE, assertIsNone, 'use_field_dictionary should be None'),
+            (None, assertIsNone, 'use_field_dictionary should not be found')]
+        msg = lambda m, s, v: f'{m}: specs={s}, values={v}'
+
+        s = make_spec(acg3.TRUE_VALUE)
+        values, missing_keys = digest_spec(s, options)
+        assertTrue(values.get(use_field_dictionary), msg('use_field_dictionary should be True', s, values))
+        assertFalse(use_field_dictionary in missing_keys, msg('use_field_dictionary should not be in missing_keys.', s, missing_keys))
+
+        s = make_spec(acg3.FALSE_VALUE)
+        values, missing_keys = digest_spec(s, options)
+        assertFalse(values.get(use_field_dictionary), msg('use_field_dictionary should be False', s, values))
+
+        s = make_spec(None)
+        values, missing_keys = digest_spec(s, options)
+        assertFalse(use_field_dictionary in values, msg('use_field_dictionary should not be in values', s, values))
+
+    def test_fill_value(self):
+        # helpers
+        make_specs = lambda k, v: [{k: v, acg3.SHORT_NAME: 'FXX'}]
+        def get_value(key, field_value, final_key=None):
+            values, _ = acg3.get_values(make_specs(key, field_value), acg3.get_options({}))
+            return values[0][final_key if final_key else key]
+
+        # test for different types
+        for fv in '4.0 4.0D0 4 "4.0"'.split():
+            test = make_equal_test(self, fv)
+            actual = get_value(acg3.FILL_VALUE, fv)
+            msg = general_msg(variable='Field value', value=fv)
+            with self.subTest(test=test, actual=actual, msg=msg):
+                test(actual, msg)
+
+        # make sure results are the same for the key and the alias
+        fv = '4.0'
+        test = make_equal_test(self, get_value(acg3.FILL_VALUE, fv))
+        actual = get_value('fill', fv, final_key=acg3.FILL_VALUE)
+        msg = general_msg(variable='Field value', value=fv)
+        test(actual, msg)
 
 class TestHelpers(unittest.TestCase):
 
@@ -262,7 +316,54 @@ class TestHelpers(unittest.TestCase):
             with self.subTest(test=test, msg=msg):
                 test(r, msg)
 
-test_cases = (TestMappings, TestHelpers)
+    def test_emit_declare_pointer(self):
+        INTERNAL_NAME = 'GX'
+        RANK = 4
+        make_spec = lambda tk: {acg3.TYPEKIND: tk, acg3.INTERNAL_NAME: INTERNAL_NAME,
+                acg3.RANK: RANK}
+        equal_test = lambda expected: make_equal_test(self, expected)
+        typekinds = ('ESMF_TYPEKIND_R4',)
+        expecteds = (f'real(kind=ESMF_KIND_R4), pointer :: {INTERNAL_NAME}(:,:,:,:)',)
+        params = zip(typekinds, expecteds)
+        for tk, ex in params:
+            spec = make_spec(tk)
+            msg = general_msg('Pointer declaration', ex)
+            test = equal_test(ex)
+            value = acg3.emit_declare_pointer(spec)
+            with self.subTest(value=value, test=test, msg=msg):
+                test(value, msg)
+
+    def test_emit_declare_pointer_unsupported_type(self):
+        spec = {acg3.TYPEKIND: 'X4', acg3.INTERNAL_NAME: 'GX', acg3.RANK: 4}
+        self.assertRaises(RuntimeError, acg3.emit_declare_pointer, spec)
+
+class TestTypes(unittest.TestCase):
+
+    def test_ESMF_Typekind(self):
+        ESMF_Typekind = acg3.ESMF_Typekind
+        equal_test = lambda expected: make_equal_test(self, expected)
+        params = zip(('R4 R8 I4 I8'
+                + ' ESMF_TYPEKIND_R4 ESMF_TYPEKIND_R8'
+                + ' ESMF_TYPEKIND_I4 ESMF_TYPEKIND_I8').split(),
+                (ESMF_Typekind.R4, ESMF_Typekind.R8, ESMF_Typekind.I4, ESMF_Typekind.I8,
+                ESMF_Typekind.R4, ESMF_Typekind.R8, ESMF_Typekind.I4, ESMF_Typekind.I8))
+        test_params = (TestParams(v, equal_test(e), general_msg('Enum member', e))
+                for v, e in params)
+
+        for value, test, msg in test_params:
+            with self.subTest(value=value, test=test, msg=msg):
+                test(ESMF_Typekind[value], msg)
+
+    def test_ESMF_Typekind_variable_type(self):
+        ESMF_Typekind = acg3.ESMF_Typekind
+        equal_test = lambda expected: make_equal_test(self, expected)
+        params = ((ESMF_Typekind[t], e) for t, e in (('R4', 'real(kind=ESMF_KIND_R4)'),))
+        for en, ex in params:
+            value, test, msg = str(en), equal_test(ex), general_msg('Variable type', ex)
+            with self.subTest(value=value, test=test, msg=msg):
+                test(value, msg)
+
+test_cases = (TestMappings, TestHelpers, TestColumns, TestTypes)
 
 def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()

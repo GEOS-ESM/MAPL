@@ -1,9 +1,11 @@
 #include "MAPL.h"
 
 module MAPL_FieldPointerUtilities
+
    use ESMF
    use MAPL_ExceptionHandling
-   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated
+
    implicit none
    private
 
@@ -20,6 +22,7 @@ module MAPL_FieldPointerUtilities
    public :: FieldCopy
    public :: MAPL_FieldDestroy
    public :: FieldCopyBroadcast
+   public :: FieldSameData
 
    interface GetFieldsUndef
       module procedure GetFieldsUndef_r4
@@ -83,6 +86,10 @@ module MAPL_FieldPointerUtilities
    interface MAPL_FieldDestroy
       procedure destroy
    end interface
+
+   interface FieldSameData
+      procedure same_data
+   end interface FieldSameData
 
 contains
 
@@ -413,9 +420,10 @@ contains
 
    ! Use Field x as an archetype and create a field y with same
    ! geom, shape, etc. But separate allocation.
-   subroutine clone(x, y, rc)
+   subroutine clone(x, y, name, rc)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y
+      character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: CLONE_TAG = '_clone'
@@ -426,7 +434,7 @@ contains
       integer, allocatable :: ungriddedLBound(:)
       integer, allocatable :: ungriddedUBound(:)
       type(ESMF_TypeKind_Flag) :: tk
-      character(len=ESMF_MAXSTR) :: name
+      character(len=ESMF_MAXSTR) :: clone_name
       integer :: status
       integer :: field_rank, grid_rank,ungrid_size
       type(ESMF_Index_Flag) :: index_flag
@@ -441,44 +449,48 @@ contains
       ungrid_size = field_rank-grid_rank
       allocate(gridToFieldMap(grid_rank))
       allocate(ungriddedLBound(ungrid_size),ungriddedUBound(ungrid_size))
-      call ESMF_FieldGet(x, typekind=tk, name = name, &
+      call ESMF_FieldGet(x, typekind=tk, name=clone_name, &
          staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
          ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound,  _RC)
 
-      name = trim(name) // CLONE_TAG
+      if (present(name)) then
+         clone_name = name
+      else
+         clone_name = trim(clone_name) // CLONE_TAG
+      end if
 
       if (index_flag == ESMF_INDEX_USER) then
          if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 1) then
             allocate(VR4_1d(lc(1)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_1d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR4_1d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 1) then
             allocate(VR8_1d(lc(1)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_1d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR8_1d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 2) then
             allocate(VR4_2d(lc(1),lc(2)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_2d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR4_2d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 2) then
             allocate(VR8_2d(lc(1),lc(2)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_2d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR8_2d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 3) then
             allocate(VR4_3d(lc(1),lc(2),lc(3)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_3d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR4_3d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 3) then
             allocate(VR8_3d(lc(1),lc(2),lc(3)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_3d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR8_3d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 4) then
             allocate(VR4_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_4d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR4_4d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 4) then
             allocate(VR8_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_4d,gridToFieldMap=gridToFieldMap,name=name,_RC)
+            y = ESMF_FieldCreate(grid,VR8_4d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else
             _FAIL( 'unsupported typekind+field_rank')
          end if
       else
          y = ESMF_FieldCreate(grid, tk, staggerloc=staggerloc, &
             gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
-            ungriddedUBound=ungriddedUBound, name=name, _RC)
+            ungriddedUBound=ungriddedUBound, name=clone_name, _RC)
       end if
 
       ! clone metadata
@@ -788,19 +800,20 @@ contains
       logical :: conformable
       logical :: x_is_double
       logical :: y_is_double
-      character(len=*), parameter :: UNSUPPORTED_TK = &
-         'Unsupported typekind in FieldCOPY() for '
+      character(len=*), parameter :: UNSUPPORTED_TK = 'Unsupported typekind in FieldCOPY() for '
 
       conformable = FieldsAreConformable(x, y)
       !wdb fixme need to pass RC
       _ASSERT(conformable, 'FieldCopy() - fields not conformable.')
+
       call FieldGetCptr(x, cptr_x, _RC)
+      call FieldGetCptr(y, cptr_y, _RC)
+      _RETURN_IF(c_associated(cptr_x, cptr_y)) ! nothing to copy if both point to the same data
+
       call ESMF_FieldGet(x, typekind = tk_x, _RC)
+      call ESMF_FieldGet(y, typekind = tk_y, _RC)
 
       n  = FieldGetLocalSize(x, _RC)
-
-      call FieldGetCptr(y, cptr_y, _RC)
-      call ESMF_FieldGet(y, typekind = tk_y, _RC)
 
       !wdb  fixme convert between precisions ? get rid of extra cases
       y_is_double = (tk_y == ESMF_TYPEKIND_R8)
@@ -919,7 +932,7 @@ contains
          end select
          _RETURN(_SUCCESS)
       end if
-      
+
       if (tk == ESMF_TypeKind_R8) then
          select case(rank)
          case(1)
@@ -1142,5 +1155,24 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine check_typekind
+
+   function same_data(x, y, rc) result(match)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y
+      integer, optional, intent(out) :: rc
+      logical :: match
+
+      type(c_ptr) :: cptr_x, cptr_y
+      integer :: status
+
+      match = .false.
+      call FieldGetCptr(x, cptr_x, _RC)
+      call FieldGetCptr(y, cptr_y, _RC)
+      if (c_associated(cptr_x, cptr_y)) then
+         match = .true.
+      end if
+
+      _RETURN(_SUCCESS)
+   end function same_data
 
 end module MAPL_FieldPointerUtilities

@@ -3,7 +3,7 @@
 #if defined(_FAILURE)
 #  undef _FAILURE
 #endif
-#define _FAILURE _SUCCESS-1
+#define _FAILURE 1
 
 #define _VERIFY(status) \
    if(status /= 0) then; \

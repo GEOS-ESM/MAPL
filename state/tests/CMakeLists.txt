@@ -5,18 +5,23 @@ set (test_srcs
   Test_StateFilter.pf
   Test_StateArithmetic.pf
   Test_StateDestroy.pf
+  Test_StateGetGeom.pf
   )
 
 
 add_pfunit_ctest(MAPL.state.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.state MAPL.pfunit
+                LINK_LIBRARIES MAPL.state MAPL.geom MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 OTHER_SOURCES state_utils_setup.F90
                 MAX_PES 1
                 )
 set_target_properties(MAPL.state.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+target_include_directories(MAPL.state.tests PRIVATE
+  ${esma_include}/MAPL.pfunit
+  ${esma_include}/MAPL.state_utils
+  ${esma_include}/MAPL.shared)
 set_tests_properties(MAPL.state.tests PROPERTIES LABELS "ESSENTIAL")
 
 if (APPLE)

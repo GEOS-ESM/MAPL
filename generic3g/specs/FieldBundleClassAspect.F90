@@ -158,11 +158,11 @@ contains
    !    type(FieldClassAspect) :: import_
    !    integer :: status
 
-   !    _RETURN_IF(allocated(this%default_value))
+   !    _RETURN_IF(allocated(this%fill_value))
 
    !    import_ = to_FieldClassAspect(import, _RC)
-   !    if (allocated(import_%default_value)) then ! import wins (for now)
-   !       this%default_value = import_%default_value
+   !    if (allocated(import_%fill_value)) then ! import wins (for now)
+   !       this%fill_value = import_%fill_value
    !    end if
 
    !    _RETURN(_SUCCESS)

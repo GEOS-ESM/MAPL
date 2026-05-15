@@ -33,13 +33,13 @@ module mapl3g_Generic
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use mapl3g_UngriddedDim, only: UngriddedDim
    use mapl3g_UngriddedDims, only: UngriddedDims
-   use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE
    use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
    use mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl3g_hconfig_get
    use mapl3g_RestartModes, only: RestartMode
    use mapl3g_ComponentSpecParser, only: parse_geometry_spec
-   use mapl_InternalConstantsMod
+   use mapl_InternalConstants
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
@@ -56,6 +56,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_TypeKind_Flag
    use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
+   use gftl2_StringVector, only: StringVector
 
    implicit none(type,external)
    private
@@ -107,7 +108,7 @@ module mapl3g_Generic
    public :: MAPL_GridCompTimerStop
 
    ! Spec types
-   public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE
 
    public :: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
 
@@ -230,6 +231,10 @@ module mapl3g_Generic
    interface MAPL_ClockGet
       procedure :: clock_get_dt
    end interface MAPL_ClockGet
+
+   interface MAPL_MethodAdd
+      procedure :: method_add
+   end interface MAPL_MethodAdd
 
 contains
 
@@ -550,8 +555,10 @@ contains
         typekind, &
         itemType, &
         add_to_export, &
+        fill_value, &
         export_name, &
         has_deferred_aspects, &
+        service_items, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -567,8 +574,10 @@ contains
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
       logical, optional, intent(in) :: add_to_export
+      real, optional, intent(in) :: fill_value
       character(*), optional, intent(in) :: export_name
       logical, optional, intent(in) :: has_deferred_aspects
+      type(StringVector), optional, intent(in) :: service_items
       integer, optional, intent(out) :: rc
 
       type(VariableSpec) :: var_spec
@@ -598,7 +607,9 @@ contains
            vertical_stagger=vstagger, &
            ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
+           fill_value=fill_value, &
            has_deferred_aspects=has_deferred_aspects, &
+           service_items=service_items, &
            restart_mode=restart, &
            _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
@@ -1159,7 +1170,28 @@ contains
       call ESMF_TimeIntervalGet(timestep, s=seconds, _RC)
       dt = real(seconds, kind=ESMF_KIND_R4)
 
-      _RETURN(_SUCCESS)
+       _RETURN(_SUCCESS)
    end subroutine clock_get_dt
+
+   subroutine method_add(state, label, userRoutine, rc)
+      use esmf, only: ESMF_State, ESMF_MethodAdd
+      use mapl3g_ESMF_Interfaces, only: I_CallBackMethod
+      use mapl3g_StateAddMethod, only: CallbackMap, CallbackMethodWrapper, get_callbacks
+      type(ESMF_State), intent(inout) :: state
+      character(len=*), intent(in) :: label
+      procedure(I_CallBackMethod) :: userRoutine
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(CallbackMap), pointer :: callbacks
+      type(CallbackMethodWrapper) :: wrapper
+
+      call get_callbacks(state, callbacks, _RC)
+      wrapper%userRoutine => userRoutine
+      call callbacks%insert(label, wrapper)
+      call ESMF_MethodAdd(state, label=label, userRoutine=userRoutine, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine method_add
 
 end module mapl3g_Generic

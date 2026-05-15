@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_FieldFill
+   use mapl3g_FieldFillDefault
    use mapl_FieldPointerUtilities, only: assign_fptr
    use mapl_ErrorHandling
    use esmf
@@ -16,18 +17,15 @@ module mapl3g_FieldFill
 contains
 
    subroutine field_fill(field, rc)
-      use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_signaling_nan
-      use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
+      use, intrinsic :: iso_fortran_env, only: INT32, INT64
       type(ESMF_Field), intent(inout) :: field
       integer, optional, intent(out) :: rc
 
-      real(REAL32), pointer :: ptr_r4(:)
-      real(REAL64), pointer :: ptr_r8(:)
+      real(ESMF_KIND_R4), pointer :: ptr_r4(:)
+      real(ESMF_KIND_R8), pointer :: ptr_r8(:)
       integer(INT32), pointer :: ptr_i4(:)
       integer(INT64), pointer :: ptr_i8(:)
       integer :: status
-      real(REAL32) :: snan_r4
-      real(REAL64) :: snan_r8
       type(ESMF_FieldStatus_Flag) :: field_status
       type(ESMF_TypeKind_Flag) :: typekind
 
@@ -39,13 +37,11 @@ contains
        call ESMF_FieldGet(field, typekind=typekind, _RC)
 
       if (typekind == ESMF_TYPEKIND_R4) then
-         snan_r4 = ieee_value(snan_r4, ieee_signaling_nan)
          call assign_fptr(field, ptr_r4, _RC)
-         ptr_r4 = snan_r4
+         ptr_r4 = get_field_fill_default_r4()
       else if (typekind == ESMF_TYPEKIND_R8) then
-         snan_r8 = ieee_value(snan_r8, ieee_signaling_nan)
          call assign_fptr(field, ptr_r8, _RC)
-         ptr_r8 = snan_r8
+         ptr_r8 = get_field_fill_default_r8()
       else if (typekind == ESMF_TYPEKIND_I4) then
          call assign_fptr(field, ptr_i4, _RC)
          ptr_i4 = -huge(1_INT32)

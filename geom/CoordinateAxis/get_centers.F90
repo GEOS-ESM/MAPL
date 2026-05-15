@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_CoordinateAxis) get_centers_smod
    use mapl_ErrorHandling

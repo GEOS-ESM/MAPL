@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 ! NullGeomSpec is used to return a concrete object fore failing
 ! factory methods that return GeomSpec objects.

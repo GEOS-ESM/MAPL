@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_CoordinateAxis) is_periodic_smod
    use mapl_ErrorHandling

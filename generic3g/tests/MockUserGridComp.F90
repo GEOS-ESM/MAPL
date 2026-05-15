@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module MockUserGridComp
    use esmf, only: ESMF_GridComp

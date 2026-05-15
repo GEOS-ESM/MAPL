@@ -1,17 +1,15 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_component_spec_smod
    implicit none(type,external)
 
 contains
 
-   module function parse_component_spec(hconfig, registry, component_name, timeStep, offset, rc) result(spec)
+   module function parse_component_spec(hconfig, registry, component_name, rc) result(spec)
       type(ComponentSpec) :: spec
       type(ESMF_HConfig), target, intent(inout) :: hconfig
       type(StateRegistry), target, intent(in) :: registry
       character(*), intent(in) :: component_name
-      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -23,7 +21,7 @@ contains
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
 
       spec%geometry_spec = parse_geometry_spec(mapl_cfg, registry, component_name, _RC)
-      spec%var_specs = parse_var_specs(mapl_cfg, timeStep, offset, registry, component_name, _RC)
+      spec%var_specs = parse_var_specs(mapl_cfg, registry, component_name, _RC)
       spec%connections = parse_connections(mapl_cfg, _RC)
       spec%children = parse_children(mapl_cfg, _RC)
 
@@ -77,6 +75,7 @@ contains
 
       call parse_item(controls_cfg, key=KEY_IMPORT, value=controls%import, _RC)
       call parse_item(controls_cfg, key=KEY_INTERNAL, value=controls%internal, _RC)
+      call parse_item(controls_cfg, key=KEY_BOOTSTRAP, value=controls%bootstrap, _RC)
 
       ! We allow checkpointing of exports for testing, but restarting
       ! from exports is nonsensical.

@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_LonAxis) supports_metadata_smod
    use mapl_RangeMod

@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: write(formatted)

@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_LatLonGeomSpec) equal_to_smod
    use mapl3g_CoordinateAxis

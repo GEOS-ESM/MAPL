@@ -1,14 +1,14 @@
 # MAPL3 Conservative Regridding - Detailed Implementation Plan
 
-**Document Version:** 2.3  
-**Date:** 2026-03-23  
+**Document Version:** 2.3
+**Date:** 2026-03-23
 **Status:** Phase 2 - Completed (with modifications)
 
 ---
 
 ## ⚠️ SUPERSEDED - Normalization Aspects Replaced
 
-**Important:** The normalization aspects of this plan (originally Phases 2-3) have been **superseded** by the [Integrated Normalization Architecture](../docs/integrated_normalization.md).
+**Important:** The normalization aspects of this plan (originally Phases 2-3) have been **superseded** by the [Integrated Normalization Architecture](../../docs/integrated_normalization.md).
 
 ### What Changed
 
@@ -19,7 +19,7 @@ The original plan proposed separate `ExportNormalization` and `ImportNormalizati
 - ✅ **New:** Single NormalizationAspect + integrated normalization in transforms → 1 extension (regrid with internal norm)
 - **Memory savings:** 50% reduction in extension fields for common cases
 
-**See:** [Integrated Normalization Architecture Documentation](../docs/integrated_normalization.md) for complete details.
+**See:** [Integrated Normalization Architecture Documentation](../../docs/integrated_normalization.md) for complete details.
 
 ### Implementation Status
 
@@ -251,7 +251,7 @@ Field [kg/kg] on new grids
 ### Phase 1: Infrastructure + 2D Conservative
 
 #### Task 1.1: Create Enum Types for Quantity Classification
-**File:** `generic3g/specs/QuantityType.F90`  
+**File:** `generic3g/specs/QuantityType.F90`
 **Effort:** 4 hours
 
 **Description:**
@@ -262,7 +262,7 @@ Create pseudo-enum types for quantity classification with proper validation and 
 module mapl3g_QuantityType
    implicit none
    private
-   
+
    ! Quantity type classification
    type, public :: QuantityType
       integer :: value = QUANTITY_UNKNOWN
@@ -271,14 +271,14 @@ module mapl3g_QuantityType
       procedure :: from_string => quantity_type_from_string
       procedure :: is_valid => quantity_type_is_valid
    end type
-   
+
    integer, parameter, public :: QUANTITY_UNKNOWN = 0
    integer, parameter, public :: QUANTITY_MIXING_RATIO = 1
    integer, parameter, public :: QUANTITY_CONCENTRATION = 2
    integer, parameter, public :: QUANTITY_TEMPERATURE = 3
    integer, parameter, public :: QUANTITY_PRESSURE = 4
    integer, parameter, public :: QUANTITY_EXTENSIVE = 5
-   
+
    ! Mixing ratio basis
    type, public :: MixingRatioBasis
       integer :: value = BASIS_NONE
@@ -286,21 +286,21 @@ module mapl3g_QuantityType
       procedure :: to_string => basis_to_string
       procedure :: from_string => basis_from_string
    end type
-   
+
    integer, parameter, public :: BASIS_NONE = 0
    integer, parameter, public :: BASIS_WET_MASS = 1
    integer, parameter, public :: BASIS_DRY_MASS = 2
    integer, parameter, public :: BASIS_VOLUME = 3
-   
+
    ! Normalization type (internal use)
    type, public :: NormalizationType
       integer :: value = NORMALIZE_NONE
    end type
-   
+
    integer, parameter, public :: NORMALIZE_NONE = 0
    integer, parameter, public :: NORMALIZE_DELP = 1
    integer, parameter, public :: NORMALIZE_DZ = 2
-   
+
 contains
    ! Implementation of to_string, from_string, validation methods
 end module mapl3g_QuantityType
@@ -317,7 +317,7 @@ end module mapl3g_QuantityType
 ---
 
 #### Task 1.2: Create QuantityTypeAspect
-**File:** `generic3g/specs/QuantityTypeAspect.F90`  
+**File:** `generic3g/specs/QuantityTypeAspect.F90`
 **Effort:** 12 hours
 
 **Description:**
@@ -327,24 +327,24 @@ Create metadata aspect that describes the physical nature of a field and derives
 ```fortran
 type, extends(StateItemAspect) :: QuantityTypeAspect
    private
-   
+
    ! User-specified (semantic)
    type(QuantityType) :: quantity_type
    character(:), allocatable :: dimensions          ! e.g., "kg/kg", "kg/m3"
    type(MixingRatioBasis) :: basis
    real, allocatable :: molecular_weight            ! For volume mixing ratios
-   
+
    ! Framework-derived (operational)
    logical :: conservative_regridable = .false.     ! Computed during initialize
    type(NormalizationType) :: normalization_type
    real :: normalization_scale = 1.0                ! e.g., 1/g for delp
    character(:), allocatable :: aux_field_name      ! e.g., "DELP", "DZ"
-   
+
 contains
    procedure :: initialize_derived_properties       ! Computes derived from user-specified
    procedure :: validate_conservative_regrid        ! Checks if conservative possible
    procedure :: get_normalization_info              ! Returns normalization parameters
-   
+
    ! StateItemAspect interface
    procedure :: matches
    procedure :: make_transform                      ! Returns NullTransform (metadata only)
@@ -366,24 +366,24 @@ subroutine initialize_derived_properties(this, rc)
       this%normalization_type%value = NORMALIZE_DELP
       this%normalization_scale = 1.0 / MAPL_GRAV
       this%aux_field_name = "DELP"
-      
+
    else if (this%quantity_type%value == QUANTITY_CONCENTRATION) then
       this%conservative_regridable = .true.
       this%normalization_type%value = NORMALIZE_DZ
       this%normalization_scale = 1.0
       this%aux_field_name = "DZ"
-      
+
    else if (this%quantity_type%value == QUANTITY_TEMPERATURE) then
       this%conservative_regridable = .false.  ! Temperatures don't conserve
       this%normalization_type%value = NORMALIZE_NONE
-      
+
    ! ... other quantity types
    end if
 end subroutine
 ```
 
 **Tests:**
-- `Test_QuantityTypeAspect.pf`: 
+- `Test_QuantityTypeAspect.pf`:
   - User creates aspect with semantic info
   - Framework correctly derives operational parameters
   - Validation catches unsupported combinations
@@ -397,7 +397,7 @@ end subroutine
 ---
 
 #### Task 1.3: Update ESMF Info Keys
-**File:** `shared/MAPL_ESMF_InfoKeys.F90`  
+**File:** `shared/MAPL_ESMF_InfoKeys.F90`
 **Effort:** 2 hours
 
 **Description:**
@@ -423,7 +423,7 @@ character(*), parameter :: KEY_AUX_FIELD_NAME = "aux_field_name"
 ---
 
 #### Task 1.4: Add QuantityTypeAspect to Aspect Registry
-**File:** `generic3g/specs/StateItemAspect_registry.F90`  
+**File:** `generic3g/specs/StateItemAspect_registry.F90`
 **Effort:** 2 hours
 
 **Description:**
@@ -450,8 +450,8 @@ type(AspectId), parameter :: DEFAULT_ASPECT_ORDER(*) = [ &
 ---
 
 #### Task 1.5: Add Validation for Conservative Regridding
-**File:** `generic3g/specs/GeomAspect.F90` (modify)  
-**File:** `generic3g/specs/VerticalGridAspect.F90` (modify)  
+**File:** `generic3g/specs/GeomAspect.F90` (modify)
+**File:** `generic3g/specs/VerticalGridAspect.F90` (modify)
 **Effort:** 6 hours
 
 **Description:**
@@ -461,24 +461,24 @@ Add validation that conservative regridding is only used with appropriate field 
 ```fortran
 function make_transform(src, dst, other_aspects, rc) result(transform)
    ! ... existing code ...
-   
+
    ! If conservative regridding requested, validate
    if (regridder_param%is_conservative()) then
       call validate_conservative_regrid(other_aspects, "horizontal", _RC)
    end if
-   
+
    ! ... create transform ...
 end function
 
 subroutine validate_conservative_regrid(aspects, regrid_type, rc)
    type(AspectMap), intent(in) :: aspects
    character(*), intent(in) :: regrid_type
-   
+
    type(QuantityTypeAspect) :: qty_aspect
-   
+
    ! Get QuantityTypeAspect
    qty_aspect = to_QuantityTypeAspect(aspects, _RC)
-   
+
    ! Check if conservative regridding is supported
    if (.not. qty_aspect%conservative_regridable) then
       _FAIL("Conservative " // regrid_type // " regridding not supported for quantity type: " // &
@@ -495,7 +495,7 @@ end subroutine
 ---
 
 #### Task 1.6: Update delp and Surface Pressure to Use Conservative Regridding
-**File:** Multiple (ExtData configuration, field specs)  
+**File:** Multiple (ExtData configuration, field specs)
 **Effort:** 8 hours
 
 **Description:**
@@ -520,7 +520,7 @@ Change existing delp and surface pressure fields to use conservative rather than
 ---
 
 #### Task 1.7: Implement 2D Conservative Regridding Tests
-**File:** `generic3g/tests/Test_2DConservative.pf`  
+**File:** `generic3g/tests/Test_2DConservative.pf`
 **Effort:** 8 hours
 
 **Description:**
@@ -549,7 +549,7 @@ Create comprehensive tests for 2D conservative regridding (baseline before 3D).
 ---
 
 #### Task 1.8: Documentation - Phase 1
-**File:** `docs/conservative_regridding.md`  
+**File:** `docs/conservative_regridding.md`
 **Effort:** 6 hours
 
 **Description:**
@@ -568,7 +568,7 @@ Document the infrastructure and 2D conservative regridding capability.
 ### Phase 2: 3D Wet Mass Mixing Ratio
 
 #### Task 2.1: Create NormalizationAspect
-**File:** `generic3g/specs/NormalizationAspect.F90`  
+**File:** `generic3g/specs/NormalizationAspect.F90`
 **Effort:** 16 hours
 
 **Description:**
@@ -578,12 +578,12 @@ Create aspect that normalizes fields before horizontal conservative regridding.
 ```fortran
 type, extends(StateItemAspect) :: NormalizationAspect
    private
-   
+
    character(:), allocatable :: aux_field_name     ! "DELP" or "DZ"
    real :: scale_factor                            ! e.g., 1/g
    character(:), allocatable :: source_units       ! e.g., "kg/kg"
    character(:), allocatable :: target_units       ! e.g., "kg/m2"
-   
+
 contains
    procedure :: matches
    procedure :: make_transform                     ! Creates NormalizationTransform
@@ -602,10 +602,10 @@ subroutine update_payload(this, field, bundle, state, rc)
    ! Write normalization metadata
    call ESMF_AttributeSet(field, "normalization_field", this%aux_field_name, _RC)
    call ESMF_AttributeSet(field, "normalization_scale", this%scale_factor, _RC)
-   
+
    ! CRITICAL: Update units in Info
    call ESMF_AttributeSet(field, "units", this%target_units, _RC)
-   
+
    ! This allows UnitsAspect to see correct units when it calls update_from_payload()
 end subroutine
 ```
@@ -614,16 +614,16 @@ end subroutine
 ```fortran
 subroutine update_from_payload(this, field, bundle, state, rc)
    type(QuantityTypeAspect) :: qty_aspect
-   
+
    ! Get normalization info from QuantityTypeAspect
    qty_aspect = get_quantity_type_aspect(field, _RC)
-   
+
    this%aux_field_name = qty_aspect%aux_field_name
    this%scale_factor = qty_aspect%normalization_scale
-   
+
    ! Get source units
    call ESMF_AttributeGet(field, "units", this%source_units, _RC)
-   
+
    ! Compute target units using UDUNITS
    this%target_units = compute_target_units(this%source_units, &
                                              this%aux_field_name, &
@@ -634,7 +634,7 @@ function compute_target_units(source_units, aux_field, scale, rc) result(target_
    ! Use UDUNITS to compute:
    ! source_units × (aux_field_units × scale) = target_units
    ! e.g., "kg/kg" × ("Pa" × 1/g) = "kg/m2"
-   
+
    ! UDUNITS logic here...
 end function
 ```
@@ -649,7 +649,7 @@ end function
 ---
 
 #### Task 2.2: Create NormalizationTransform
-**File:** `generic3g/transforms/NormalizationTransform.F90`  
+**File:** `generic3g/transforms/NormalizationTransform.F90`
 **Effort:** 12 hours
 
 **Description:**
@@ -671,15 +671,15 @@ subroutine update(this, importState, exportState, clock, rc)
    ! Get the field to normalize
    call ESMF_StateGet(importState, COUPLER_IMPORT_NAME, field=f_in, _RC)
    call ESMF_StateGet(exportState, COUPLER_EXPORT_NAME, field=f_out, _RC)
-   
+
    ! Get the auxiliary field (e.g., DELP)
    call ESMF_StateGet(importState, this%aux_field_name, field=f_aux, _RC)
-   
+
    ! Get data pointers
    call ESMF_FieldGet(f_in, farrayPtr=data_in, _RC)
    call ESMF_FieldGet(f_out, farrayPtr=data_out, _RC)
    call ESMF_FieldGet(f_aux, farrayPtr=aux_data, _RC)
-   
+
    ! Perform normalization: out = in × (aux × scale)
    data_out = data_in * aux_data * this%scale_factor
 end subroutine
@@ -700,8 +700,8 @@ end subroutine
 ---
 
 #### Task 2.2b: Refactor NormalizationTransform Auxiliary Field Access
-**File:** `generic3g/transforms/NormalizationTransform.F90` (modify)  
-**File:** `generic3g/specs/NormalizationAspect.F90` (modify)  
+**File:** `generic3g/transforms/NormalizationTransform.F90` (modify)
+**File:** `generic3g/specs/NormalizationAspect.F90` (modify)
 **Effort:** 16 hours
 
 **Description:**
@@ -710,7 +710,7 @@ following the VerticalRegridTransform pattern. The current implementation violat
 the design constraint that couplers have ONE item in import and ONE item in export.
 
 **Problem:**
-Current implementation attempts to get auxiliary field (DELP/DZ) directly from 
+Current implementation attempts to get auxiliary field (DELP/DZ) directly from
 importState, but coupler states are tightly constrained to have exactly one item
 in import and one item in export.
 
@@ -726,16 +726,16 @@ Follow VerticalGridAspect/VerticalRegridTransform pattern:
 ```fortran
 function make_transform(src, dst, other_aspects, rc) result(transform)
    ! Similar to VerticalGridAspect::make_transform (lines 260-263)
-   
+
    class(ComponentDriver), pointer :: aux_field_coupler
    type(ESMF_Field) :: aux_field
-   
+
    ! Get auxiliary field from vertical grid (or other source)
    ! Example: get DELP field with its coupler
    aux_field = get_auxiliary_field(aux_field_name, geom_aspect%get_geom(), &
                                    typekind_aspect%get_typekind(), &
                                    coupler=aux_field_coupler, _RC)
-   
+
    ! Create transform with coupler
    transform = NormalizationTransform(aux_field_name, scale_factor, &
                                       aux_field, aux_field_coupler)
@@ -761,14 +761,14 @@ subroutine update(this, importState, exportState, clock, rc)
    if (associated(this%aux_coupler)) then
       call this%aux_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
    end if
-   
+
    ! Get the field to normalize (from coupler states)
    call ESMF_StateGet(importState, COUPLER_IMPORT_NAME, field=f_in, _RC)
    call ESMF_StateGet(exportState, COUPLER_EXPORT_NAME, field=f_out, _RC)
-   
+
    ! Use stored auxiliary field (not from state)
    f_aux = this%aux_field
-   
+
    ! Get data pointers and perform normalization
    ! ... rest of implementation ...
 end subroutine
@@ -801,7 +801,7 @@ Update `Test_NormalizationTransform.pf`:
 ---
 
 #### Task 2.3: Create InverseNormalizationAspect
-**File:** `generic3g/specs/InverseNormalizationAspect.F90`  
+**File:** `generic3g/specs/InverseNormalizationAspect.F90`
 **Effort:** 12 hours
 
 **Description:**
@@ -830,7 +830,7 @@ call ESMF_StateGet(importState, this%aux_field_name, field=f_aux, _RC)
 ---
 
 #### Task 2.4: Create InverseNormalizationTransform
-**File:** `generic3g/transforms/InverseNormalizationTransform.F90`  
+**File:** `generic3g/transforms/InverseNormalizationTransform.F90`
 **Effort:** 10 hours
 
 **Description:**
@@ -841,7 +841,7 @@ Transform that divides field by auxiliary field.
 subroutine update(this, importState, exportState, clock, rc)
    ! Similar to NormalizationTransform but:
    data_out = data_in / (aux_data * this%scale_factor)
-   
+
    ! Handle division by zero
    where (abs(aux_data) < epsilon(aux_data))
       data_out = 0.0  ! or MAPL_UNDEF?
@@ -860,7 +860,7 @@ end subroutine
 ---
 
 #### Task 2.5: Add Primary Vertical Coordinate to Vertical Grid
-**File:** `gridcomps/VerticalGrid/VerticalGridSpec.F90` (or equivalent)  
+**File:** `gridcomps/VerticalGrid/VerticalGridSpec.F90` (or equivalent)
 **Effort:** 8 hours
 
 **Description:**
@@ -892,7 +892,7 @@ call vert_grid%set_primary_coordinate("pressure", _RC)
 ---
 
 #### Task 2.6: Enhance VerticalRegridTransform for Fused Normalization
-**File:** `generic3g/transforms/VerticalRegridTransform.F90` (modify existing)  
+**File:** `generic3g/transforms/VerticalRegridTransform.F90` (modify existing)
 **Effort:** 24 hours
 
 **Description:**
@@ -916,31 +916,31 @@ subroutine update(this, importState, exportState, clock, rc)
    ! Get fields
    call ESMF_StateGet(importState, COUPLER_IMPORT_NAME, field=f_in, _RC)
    call ESMF_StateGet(exportState, COUPLER_EXPORT_NAME, field=f_out, _RC)
-   
+
    ! Get QuantityTypeAspect from field metadata
    qty_aspect = get_quantity_type_aspect(f_in, _RC)
-   
+
    if (qty_aspect%conservative_regridable .and. &
        qty_aspect%normalization_type%value == NORMALIZE_DELP) then
-      
+
       ! Get vertical grids
       src_vert = get_vertical_grid(f_in, _RC)
       dst_vert = get_vertical_grid(f_out, _RC)
-      
+
       ! Get dp arrays from grids
       dp_src = src_vert%get_layer_thickness(_RC)
       dp_dst = dst_vert%get_layer_thickness(_RC)
-      
+
       ! Step 1: Convert to [kg/(m²·Pa)]
       data_temp = data_in / dp_src
-      
+
       ! Step 2: Conservative vertical regrid
       call this%regridder%regrid_vertical(data_temp, data_out_temp, &
                                            src_vert, dst_vert, _RC)
-      
+
       ! Step 3: Convert back to [kg/m²]
       data_out = data_out_temp * dp_dst
-      
+
    else
       ! Regular vertical regridding (no normalization)
       call this%regridder%regrid_vertical(data_in, data_out, &
@@ -959,7 +959,7 @@ end subroutine
 ---
 
 #### Task 2.6b: Conservative Vertical Regridding Matrix Construction
-**File:** `generic3g/vertical/VerticalLinearMap.F90` (add new function)  
+**File:** `generic3g/vertical/VerticalLinearMap.F90` (add new function)
 **Effort:** 20 hours
 
 **Description:**
@@ -978,10 +978,10 @@ For each destination layer, compute weights from overlapping source layers:
 function compute_conservative_map(z_src_interfaces, z_dst_interfaces, &
                                   coord_direction) result(matrix)
    real, intent(in) :: z_src_interfaces(:)  ! nlev_src + 1
-   real, intent(in) :: z_dst_interfaces(:)  ! nlev_dst + 1  
+   real, intent(in) :: z_dst_interfaces(:)  ! nlev_dst + 1
    type(VerticalCoordinateDirection), intent(in) :: coord_direction
    type(SparseMatrix_sp) :: matrix
-   
+
    ! For each destination layer j
    do j = 1, nlev_dst
       ! Find source layers that overlap with dst layer j
@@ -989,19 +989,19 @@ function compute_conservative_map(z_src_interfaces, z_dst_interfaces, &
          ! Compute overlap interval
          overlap_bot = max(z_dst_interfaces(j), z_src_interfaces(k))
          overlap_top = min(z_dst_interfaces(j+1), z_src_interfaces(k+1))
-         
+
          if (overlap_top > overlap_bot) then
             ! Compute weight: overlap fraction of source layer
             overlap_thickness = overlap_top - overlap_bot
             source_thickness = z_src_interfaces(k+1) - z_src_interfaces(k)
             weight = overlap_thickness / source_thickness
-            
+
             ! Add to sparse matrix: matrix(j, k) = weight
             call matrix%add_element(j, k, weight)
          end if
       end do
    end do
-   
+
    ! Validate: sum of weights for each row should = 1.0
    call validate_conservative_weights(matrix)
 end function
@@ -1057,7 +1057,7 @@ end function
 ---
 
 #### Task 2.7: Update Aspect Ordering for Normalization
-**File:** `generic3g/specs/FieldClassAspect.F90`, `FieldBundleClassAspect.F90`  
+**File:** `generic3g/specs/FieldClassAspect.F90`, `FieldBundleClassAspect.F90`
 **Effort:** 4 hours
 
 **Description:**
@@ -1082,7 +1082,7 @@ type(AspectId), parameter :: FIELD_ASPECT_ORDER(*) = [ &
 ---
 
 #### Task 2.8: Integration Test - 3D Conservative Regridding
-**File:** `generic3g/tests/Test_3DConservativeMixingRatio.pf`  
+**File:** `generic3g/tests/Test_3DConservativeMixingRatio.pf`
 **Effort:** 16 hours
 
 **Description:**
@@ -1125,7 +1125,7 @@ Comprehensive integration test for 3D conservative regridding of wet mass mixing
 ---
 
 #### Task 2.9: User Guide - Phase 2
-**File:** `docs/conservative_regridding_user_guide.md`  
+**File:** `docs/conservative_regridding_user_guide.md`
 **Effort:** 8 hours
 
 **Description:**
@@ -1199,7 +1199,7 @@ Create pseudo-enum for conservation types:
 module mapl3g_ConservationType
    implicit none
    private
-   
+
    type, public :: ConservationType
       integer :: value = CONSERVE_NONE
    contains
@@ -1207,20 +1207,20 @@ module mapl3g_ConservationType
       procedure :: from_string => conservation_type_from_string
       procedure :: is_valid => conservation_type_is_valid
    end type
-   
+
    ! Conservation type values
    integer, parameter, public :: CONSERVE_NONE = 0      ! Non-conservable (temperature, pressure as field)
    integer, parameter, public :: CONSERVE_MASS = 1      ! Mass conservation
-   integer, parameter, public :: CONSERVE_ENERGY = 2    ! Energy conservation  
+   integer, parameter, public :: CONSERVE_ENERGY = 2    ! Energy conservation
    integer, parameter, public :: CONSERVE_MOMENTUM = 3  ! Momentum conservation
-   
+
    ! Public constructor
    public :: ConservationType
    interface ConservationType
       module procedure new_ConservationType
       module procedure new_ConservationType_from_string
    end interface
-   
+
 contains
    ! Implementation of to_string, from_string, validation
 end module
@@ -1239,10 +1239,10 @@ end module
 module mapl3g_ConservationAspect
    type, extends(StateItemAspect) :: ConservationAspect
       private
-      
+
       type(ConservationType) :: conserved_quantity = CONSERVE_NONE
       logical :: is_conservable = .false.  ! Can this field use conservative regridding?
-      
+
    contains
       ! StateItemAspect interface
       procedure :: matches
@@ -1253,13 +1253,13 @@ module mapl3g_ConservationAspect
       procedure, nopass :: get_aspect_id
       procedure :: update_from_payload
       procedure :: update_payload
-      
+
       ! Getters/setters
       procedure :: get_conserved_quantity
       procedure :: set_conserved_quantity
       procedure :: get_is_conservable
       procedure :: set_is_conservable
-      
+
       procedure :: print_aspect
    end type ConservationAspect
 end module
@@ -1270,7 +1270,7 @@ end module
 logical function matches(src, dst)
    class(ConservationAspect), intent(in) :: src
    class(StateItemAspect), intent(in) :: dst
-   
+
    select type(dst)
    class is (ConservationAspect)
       ! Must have same conserved quantity type to connect
@@ -1296,16 +1296,16 @@ Refactor NormalizationAspect to:
 ```fortran
 type, extends(StateItemAspect) :: NormalizationAspect
    private
-   
+
    ! Duplicated with NormalizationMetadata:
    character(:), allocatable :: aux_field_name
    real :: scale_factor = 1.0
-   
+
    ! Aspect-specific:
    character(:), allocatable :: source_units
    character(:), allocatable :: target_units
    logical :: is_inverse = .false.
-   
+
 contains
    procedure :: update_from_payload  ! Derives from QuantityTypeAspect
 end type
@@ -1315,24 +1315,24 @@ end type
 ```fortran
 type, extends(StateItemAspect) :: NormalizationAspect
    private
-   
+
    ! Use composition for shared fields (eliminates duplication)
    type(NormalizationMetadata) :: metadata
-   
+
    ! Aspect-specific fields only
    character(:), allocatable :: source_units
    character(:), allocatable :: target_units
    logical :: is_inverse = .false.
-   
+
 contains
    ! Delegate shared getters to metadata
    procedure :: get_aux_field_name     ! Returns metadata%get_aux_field_name()
    procedure :: get_scale_factor       ! Returns metadata%get_normalization_scale()
-   
+
    ! Setters update metadata (not individual fields)
    procedure :: set_aux_field_name
    procedure :: set_scale_factor
-   
+
    ! No more automatic derivation - parameters must be explicit
 end type
 ```
@@ -1364,17 +1364,17 @@ if (.not. explicitly_set) then
    if (has_quantity_type_aspect(other_aspects)) then
       qty_aspect = to_QuantityTypeAspect(other_aspects, _RC)
       qty_type = qty_aspect%get_quantity_type()
-      
+
       select case (qty_type%to_string())
       case ('QUANTITY_MIXING_RATIO', 'QUANTITY_CONCENTRATION', &
             'QUANTITY_EXTENSIVE', 'QUANTITY_PRESSURE')
          this%conserved_quantity = CONSERVE_MASS
          this%is_conservable = .true.
-         
+
       case ('QUANTITY_TEMPERATURE', 'QUANTITY_UNKNOWN')
          this%conserved_quantity = CONSERVE_NONE
          this%is_conservable = .false.
-         
+
       case default
          this%conserved_quantity = CONSERVE_NONE
          this%is_conservable = .false.
@@ -1448,7 +1448,7 @@ type(AspectId), parameter :: DEFAULT_ASPECT_ORDER(*) = [ &
    - Enum creation, validation
    - String conversion (to/from)
    - Equality operators
-   
+
 2. **Test_ConservationAspect.pf** (new):
    - Create aspect with explicit values
    - Default inference from QuantityTypeAspect
@@ -1479,7 +1479,7 @@ type(AspectId), parameter :: DEFAULT_ASPECT_ORDER(*) = [ &
 ---
 
 #### Task 3.1: Add dz-based Normalization
-**Files:** `NormalizationAspect.F90`, `InverseNormalizationAspect.F90` (modify)  
+**Files:** `NormalizationAspect.F90`, `InverseNormalizationAspect.F90` (modify)
 **Effort:** 8 hours
 
 **Description:**
@@ -1498,7 +1498,7 @@ Extend normalization aspects to support dz (geometric thickness) in addition to 
 ---
 
 #### Task 3.2: dz Auxiliary Field Handling
-**File:** `generic3g/specs/AuxiliaryFieldReference.F90` (if not yet created)  
+**File:** `generic3g/specs/AuxiliaryFieldReference.F90` (if not yet created)
 **Effort:** 8 hours
 
 **Description:**
@@ -1512,7 +1512,7 @@ Ensure dz fields can be specified, exported, and regridded.
 ---
 
 #### Task 3.3: Integration Tests - Concentration Fields
-**File:** `generic3g/tests/Test_ConcentrationRegrid.pf`  
+**File:** `generic3g/tests/Test_ConcentrationRegrid.pf`
 **Effort:** 10 hours
 
 **Test Cases:**
@@ -1557,7 +1557,7 @@ Document concentration field support, ConservationAspect architecture, and dz re
 ---
 
 #### Task 4.0: Refactor QuantityTypeAspect to Use Composition
-**File:** `generic3g/specs/QuantityTypeAspect.F90` (modify)  
+**File:** `generic3g/specs/QuantityTypeAspect.F90` (modify)
 **Effort:** 8 hours
 
 **Description:**
@@ -1576,12 +1576,12 @@ This duplication requires maintaining getters/setters in both places and risks d
 ```fortran
 type, extends(StateItemAspect) :: QuantityTypeAspect
    private
-   
+
    ! Primary data: contained metadata object
    type(QuantityTypeMetadata) :: metadata
-   
+
    ! No duplication of quantity_type, dimensions, basis, molecular_weight
-   
+
 contains
    ! Delegate getters to metadata
    procedure :: get_quantity_type
@@ -1589,14 +1589,14 @@ contains
    procedure :: get_basis
    procedure :: get_molecular_weight
    procedure :: has_molecular_weight
-   
+
    ! Setters update metadata and mirror flag
    procedure :: set_quantity_type
    procedure :: set_dimensions
    procedure :: set_basis
    procedure :: set_molecular_weight
    procedure :: set_from_metadata
-   
+
    ! StateItemAspect interface (unchanged)
    procedure :: validate
    procedure :: matches
@@ -1614,7 +1614,7 @@ end type
    character(:), allocatable :: dimensions
    type(MixingRatioBasis) :: basis = BASIS_NONE
    real, allocatable :: molecular_weight
-   
+
    ! New (composition):
    type(QuantityTypeMetadata) :: metadata
    ```
@@ -1625,7 +1625,7 @@ end type
       type(QuantityType) :: quantity_type
       class(QuantityTypeAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
-      
+
       quantity_type = this%metadata%get_quantity_type()
       _RETURN(_SUCCESS)
    end function
@@ -1637,7 +1637,7 @@ end type
       class(QuantityTypeAspect), intent(inout) :: this
       type(QuantityType), intent(in) :: quantity_type
       integer, optional, intent(out) :: rc
-      
+
       ! Create new metadata with updated quantity_type
       this%metadata = QuantityTypeMetadata( &
          quantity_type = quantity_type, &
@@ -1646,7 +1646,7 @@ end type
          molecular_weight = this%metadata%get_molecular_weight() &
       )
       call this%set_mirror(.false.)
-      
+
       _RETURN(_SUCCESS)
    end subroutine
    ```
@@ -1657,11 +1657,11 @@ end type
       class(QuantityTypeAspect), intent(inout) :: this
       type(QuantityTypeMetadata), intent(in) :: metadata
       integer, optional, intent(out) :: rc
-      
+
       ! Direct assignment (no more copying individual fields!)
       this%metadata = metadata
       call this%set_mirror(.false.)
-      
+
       _RETURN(_SUCCESS)
    end subroutine
    ```
@@ -1699,7 +1699,7 @@ Defer final decision to implementation, but document the consideration.
 ---
 
 #### Task 4.1: Create MixingRatioBasisAspect
-**File:** `generic3g/specs/MixingRatioBasisAspect.F90`  
+**File:** `generic3g/specs/MixingRatioBasisAspect.F90`
 **Effort:** 16 hours
 
 **Description:**
@@ -1709,17 +1709,17 @@ Aspect that converts between different mixing ratio bases (wet↔dry, mass↔vol
 ```fortran
 type, extends(StateItemAspect) :: MixingRatioBasisAspect
    private
-   
+
    type(MixingRatioBasis) :: source_basis
    type(MixingRatioBasis) :: target_basis
-   
+
    ! For volume conversions
    real, allocatable :: molecular_weight
    real :: molecular_weight_air  ! Could be constant or computed
-   
+
    ! For dry/wet conversions
    character(:), allocatable, dimension(:) :: moisture_constituents
-   
+
 contains
    procedure :: make_transform  ! Creates appropriate conversion transform
    ! ... other StateItemAspect methods ...
@@ -1740,7 +1740,7 @@ end type
 ---
 
 #### Task 4.2: Create Basis Conversion Transforms
-**Files:** 
+**Files:**
 - `generic3g/transforms/WetToDryTransform.F90`
 - `generic3g/transforms/DryToWetTransform.F90`
 - `generic3g/transforms/VolumeToMassTransform.F90`
@@ -1777,7 +1777,7 @@ end subroutine
 ---
 
 #### Task 4.3: Moisture Field Summation Logic
-**File:** `generic3g/transforms/MoistureSum.F90` (utility)  
+**File:** `generic3g/transforms/MoistureSum.F90` (utility)
 **Effort:** 8 hours
 
 **Description:**
@@ -1789,7 +1789,7 @@ function compute_total_moisture(state, constituent_names, rc) result(q_total)
    type(ESMF_State), intent(in) :: state
    character(:), allocatable, dimension(:), intent(in) :: constituent_names
    real, allocatable :: q_total(:,:,:)
-   
+
    ! Loop through constituent names
    ! Fetch each field from state
    ! Sum to get total moisture
@@ -1804,7 +1804,7 @@ end function
 ---
 
 #### Task 4.4: Update Aspect Ordering for Basis Conversion
-**File:** `generic3g/specs/FieldClassAspect.F90`  
+**File:** `generic3g/specs/FieldClassAspect.F90`
 **Effort:** 2 hours
 
 **Description:**
@@ -1826,7 +1826,7 @@ TYPEKIND_ASPECT_ID
 ---
 
 #### Task 4.5: Integration Tests - Dry and Volume Mixing Ratios
-**File:** `generic3g/tests/Test_DryMixingRatio.pf`, `Test_VolumeMixingRatio.pf`  
+**File:** `generic3g/tests/Test_DryMixingRatio.pf`, `Test_VolumeMixingRatio.pf`
 **Effort:** 12 hours
 
 **Test Cases:**
@@ -1838,7 +1838,7 @@ TYPEKIND_ASPECT_ID
 ---
 
 #### Task 4.6: Documentation - Phase 4
-**File:** `docs/conservative_regridding_user_guide.md` (update)  
+**File:** `docs/conservative_regridding_user_guide.md` (update)
 **Effort:** 6 hours
 
 **New sections:**
@@ -2220,20 +2220,20 @@ Before beginning implementation, please confirm:
   - Backward compatibility: Infer conservation_type from QuantityType when not explicitly set
   - Fixed magic number issue: Use `==` for scale_factor comparison (discrete choice, not tolerance)
   - Updated effort estimates: Phase 3 = 46h, Phase 4 = 72h, Total = 334h for Phases 1-4
-  
+
 - **v2.1 (2026-03-10):** Added refactoring tasks to reduce code duplication
   - Added Task 3.0: Refactor QuantityTypeAspect to use composition (Phase 3)
   - Added Task 4.0: Refactor NormalizationAspect to use composition + fix magic number (Phase 4)
   - Updated effort estimates: Phase 3 from 80h to 88h, Phase 4 from 60h to 68h
   - Total effort: 372 hours for Phases 1-4
-  
+
 - **v2.0 (2026-02-20):** Complete rewrite based on dimensional analysis session
   - Changed PhysicalProperty to QuantityTypeAspect (extends StateItemAspect)
   - Clarified fused vertical regridding approach
   - Resolved units orthogonality (Option B)
   - Added pseudo-enum types
   - Detailed task specifications with code examples
-  
+
 - **v1.0 (Previous):** Initial plan (superseded)
 
 ---

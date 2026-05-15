@@ -13,7 +13,7 @@ find_package (MPI REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES mapl3g MAPL_StatisticsGridComp PFLOGGER::pflogger TYPE SHARED)
+  DEPENDENCIES MAPL MAPL_StatisticsGridComp PFLOGGER::pflogger TYPE SHARED)
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)

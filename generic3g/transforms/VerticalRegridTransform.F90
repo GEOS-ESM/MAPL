@@ -384,6 +384,7 @@ contains
        integer :: horz, ungrd, status
        type(VerticalStaggerLoc) :: grid_stagger
        real(ESMF_KIND_R4), allocatable :: vv_in(:, :, :), vv_out(:, :, :)
+      real(ESMF_KIND_R4), allocatable :: src_levels(:), dst_levels(:)
 
        call assign_fptr_condensed_array(v_in_coord, v_in, _RC)
        shape_in = shape(v_in)
@@ -414,19 +415,21 @@ contains
         end if
 
        allocate(matrix(n_horz))
+       allocate(src_levels(shape_in(2)))
+       allocate(dst_levels(shape_out(2)))
 
        ! TODO: Convert to a `do concurrent` loop
        do horz = 1, n_horz
           do ungrd = 1, n_ungridded
-             associate(src => vv_in(horz, :, ungrd), dst => vv_out(horz, :, ungrd))
-               if (method == VERTICAL_REGRID_LINEAR) then
-                  call compute_linear_map(src, dst, matrix(horz), _RC)
-               else if (method == VERTICAL_REGRID_CONSERVATIVE) then
-                  call compute_conservative_map(src, dst, matrix(horz), _RC)
-               else
-                  _FAIL("Unknown vertical regridding method")
-               end if
-             end associate
+             src_levels = vv_in(horz, :, ungrd)
+             dst_levels = vv_out(horz, :, ungrd)
+             if (method == VERTICAL_REGRID_LINEAR) then
+                call compute_linear_map(src_levels, dst_levels, matrix(horz), _RC)
+             else if (method == VERTICAL_REGRID_CONSERVATIVE) then
+                call compute_conservative_map(src_levels, dst_levels, matrix(horz), _RC)
+             else
+                _FAIL("Unknown vertical regridding method")
+             end if
           end do
        end do
 

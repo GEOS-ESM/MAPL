@@ -11,6 +11,9 @@ module mapl3g_GridGet
 
    public :: GridGet
    public :: GridGetCoordinates
+   public :: grid_get_interior
+   public :: grid_get_corners
+   public :: grid_has_DE
 
    interface GridGet
       procedure :: grid_get
@@ -46,7 +49,7 @@ module mapl3g_GridGet
 
 contains
 
-   subroutine grid_get(grid, unusable, name, dimCount, coordDimCount, im, jm, centers, corners, interior, rc)
+   subroutine grid_get(grid, unusable, name, dimCount, coordDimCount, im, jm, centers, corners, interior, has_de, rc)
       type(ESMF_Grid), intent(in) :: grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(:), optional, allocatable, intent(out) :: name
@@ -56,6 +59,7 @@ contains
       real(kind=ESMF_KIND_R8), optional, allocatable, intent(out) :: centers(:, :, :)
       real(kind=ESMF_KIND_R8), optional, allocatable, intent(out) :: corners(:, :, :)
       integer, optional, allocatable, intent(out) :: interior(:)
+      logical, optional, intent(out) :: has_de
       integer, optional, intent(out) :: rc
 
       integer :: dimCount_
@@ -94,6 +98,10 @@ contains
 
       if (present(interior)) then
          call grid_get_interior(grid, interior, _RC)
+      end if
+
+      if (present(has_de)) then
+         has_de = grid_has_DE(grid, _RC)
       end if
 
       _RETURN(_SUCCESS)

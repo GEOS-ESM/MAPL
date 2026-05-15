@@ -4,7 +4,7 @@
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
 !
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 !
 !>
 !### MODULE: `MAPL_SortMod`

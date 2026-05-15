@@ -1,0 +1,674 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_MeshGeomFactory_File
+   use pfunit
+   use esmf_TestMethod_mod ! mapl
+   use mapl3g_MeshGeomFactory
+   use mapl3g_MeshGeomSpec
+   use mapl3g_MeshDecomposition
+   use mapl3g_GeomSpec
+   use mapl3g_MeshTestHelper
+   use mapl_ErrorHandlingMod
+   use pfio
+   use esmf
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   implicit none
+
+contains
+
+   ! Test make_geom with data read from file via filename in spec
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_from_file_simple_quad(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_GeomType_Flag) :: geomtype
+      character(len=:), allocatable :: filename
+      integer :: status
+      integer :: nodeCount, elementCount
+
+      _UNUSED_DUMMY(this)
+
+      ! Create test mesh file
+      filename = 'test_quad_mesh.nc'
+      call create_simple_quad_file(filename, rc=status)
+
+      ! Create MeshGeomSpec from file with explicit decomposition
+      decomp = MeshDecomposition([1])  ! Single element on one PE
+      mesh_spec = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
+
+      ! Create the ESMF geometry - this should read data from file
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify it's a mesh geometry
+      call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(geomtype == ESMF_GEOMTYPE_MESH)
+
+      ! Get the mesh and verify node/element counts
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nodeCount, is(4))
+      @assert_that(elementCount, is(1))
+
+      ! Cleanup
+      call ESMF_GeomDestroy(geom, rc=status)
+      call cleanup_test_file(filename, rc=status)
+
+   end subroutine test_make_geom_from_file_simple_quad
+
+
+   ! Test make_geom with triangle mesh from file
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_from_file_triangle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      character(len=:), allocatable :: filename
+      integer :: status
+      integer :: nodeCount, elementCount
+
+      _UNUSED_DUMMY(this)
+
+      ! Create test mesh file
+      filename = 'test_triangle_mesh.nc'
+      call create_simple_triangle_file(filename, rc=status)
+
+      ! Create MeshGeomSpec from file
+      decomp = MeshDecomposition([1])
+      mesh_spec = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
+
+      ! Create the ESMF geometry
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify mesh properties
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nodeCount, is(3))
+      @assert_that(elementCount, is(1))
+
+      ! Cleanup
+      call ESMF_GeomDestroy(geom, rc=status)
+      call cleanup_test_file(filename, rc=status)
+
+   end subroutine test_make_geom_from_file_triangle
+
+
+   ! Test make_geom_spec_from_hconfig and then make_geom
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_from_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      class(GeomSpec), allocatable :: geom_spec
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_HConfig) :: hconfig
+      character(len=:), allocatable :: filename
+      character(len=256) :: yaml_string
+      integer :: status
+      integer :: nodeCount, elementCount
+
+      _UNUSED_DUMMY(this)
+
+      ! Create test mesh file
+      filename = 'test_hconfig_mesh.nc'
+      call create_simple_quad_file(filename, rc=status)
+
+      ! Create HConfig with mesh specification
+      yaml_string = &
+         'class: mesh' // new_line('A') // &
+         'file: ' // trim(filename)
+      
+      hconfig = ESMF_HConfigCreate(content=trim(yaml_string), rc=status)
+
+      ! Create GeomSpec from HConfig
+      geom_spec = factory%make_geom_spec_from_hconfig(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(allocated(geom_spec))
+
+      ! Create ESMF geometry from spec
+      geom = factory%make_geom(geom_spec, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify mesh properties
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nodeCount, is(4))
+      @assert_that(elementCount, is(1))
+
+      ! Cleanup
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      call ESMF_GeomDestroy(geom, rc=status)
+      call cleanup_test_file(filename, rc=status)
+
+   end subroutine test_make_geom_from_hconfig
+
+
+   ! Test make_geom_spec_from_metadata with filename and then make_geom
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_from_metadata_with_filename(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(FileMetadata) :: file_metadata
+      type(NetCDF4_FileFormatter) :: formatter
+      character(len=:), allocatable :: filename
+      character(len=:), allocatable :: retrieved_filename
+      integer :: status
+      integer :: nodeCount, elementCount
+
+      _UNUSED_DUMMY(this)
+
+      ! Create test mesh file
+      filename = 'test_metadata_mesh.nc'
+      call create_simple_quad_file(filename, rc=status)
+
+      ! Read metadata from file
+      call formatter%open(filename, pFIO_READ, rc=status)
+      file_metadata = formatter%read(rc=status)
+      call formatter%close(rc=status)
+
+      ! Create MeshGeomSpec from metadata with filename
+      mesh_spec = make_MeshGeomSpec(file_metadata, filename=filename, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify filename is stored
+      retrieved_filename = mesh_spec%get_filename()
+      @assertTrue(allocated(retrieved_filename))
+      @assert_that(trim(retrieved_filename), is(trim(filename)))
+
+      ! Create ESMF geometry - should read data from file
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify mesh properties
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_MeshGet(mesh, nodeCount=nodeCount, elementCount=elementCount, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nodeCount, is(4))
+      @assert_that(elementCount, is(1))
+
+      ! Cleanup
+      call ESMF_GeomDestroy(geom, rc=status)
+      call cleanup_test_file(filename, rc=status)
+
+   end subroutine test_make_geom_from_metadata_with_filename
+
+    ! Test make_geom verifies filename is stored correctly
+    @test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_filename_accessor(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       
+       type(MeshGeomSpec) :: mesh_spec
+       type(MeshDecomposition) :: decomp
+       character(len=:), allocatable :: filename
+       character(len=:), allocatable :: retrieved_filename
+       integer :: status
+
+       _UNUSED_DUMMY(this)
+
+       filename = 'test_accessor.nc'
+       call create_simple_quad_file(filename, rc=status)
+       @assert_that(status, is(0))
+
+       ! Create spec with filename
+       decomp = MeshDecomposition([1])
+       mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+       @assert_that(status, is(0))
+
+       ! Retrieve filename
+       retrieved_filename = mesh_spec%get_filename()
+
+       ! Verify
+       @assertTrue(allocated(retrieved_filename))
+       @assert_that(trim(retrieved_filename), is(trim(filename)))
+
+       ! Cleanup
+       call cleanup_test_file(filename, rc=status)
+
+    end subroutine test_filename_accessor
+
+
+   !===========================================================================
+   ! 4-PE Decomposition Tests
+   !===========================================================================
+
+   ! Test make_geom with 4 quads distributed across 4 PEs (1 element per PE)
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_make_geom_4pe_four_quads(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_VM) :: vm
+      character(len=:), allocatable :: filename
+      integer :: status
+      integer :: nodeCount, elementCount
+      integer :: localPet, petCount
+      integer :: local_element_count
+
+      _UNUSED_DUMMY(this)
+
+      ! Get VM info
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
+      @assert_that(petCount, is(4))
+
+      ! Create test mesh file with 4 quads
+      filename = 'test_4pe_four_quads.nc'
+      if (localPet == 0) then
+         call create_four_quad_mesh_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+      ! Create MeshGeomSpec with decomposition for 4 elements on 4 PEs
+      decomp = MeshDecomposition(4, 9, petCount=4)  ! 4 elements, 9 nodes, 4 PEs
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
+
+       ! Create the ESMF geometry
+       geom = factory%make_geom(mesh_spec, rc=status)
+       @assert_that(status, is(0))
+
+       ! Get the mesh
+       call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+       @assert_that(status, is(0))
+
+       ! NOTE: For distributed meshes, ESMF_MeshGet returns LOCAL counts, not global
+       ! Skipping global count verification for now
+       
+       ! Each PE should have local elements
+       call ESMF_MeshGet(mesh, elementCount=local_element_count, rc=status)
+       @assert_that(status, is(0))
+       ! 1 element per PE
+       @assert_that(local_element_count, is(1))
+
+       ! Cleanup
+       call ESMF_VMBarrier(vm, rc=status)
+       call ESMF_GeomDestroy(geom, rc=status)
+       call ESMF_VMBarrier(vm, rc=status)
+       if (localPet == 0) then
+          call cleanup_test_file(filename, rc=status)
+       end if
+       call ESMF_VMBarrier(vm, rc=status)
+
+    end subroutine test_make_geom_4pe_four_quads
+
+
+   ! Test make_geom with 8 elements distributed across 4 PEs (2 elements per PE)
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_make_geom_4pe_eight_elements(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_VM) :: vm
+      character(len=:), allocatable :: filename
+      integer :: status
+      integer :: nodeCount, elementCount
+      integer :: localPet, petCount
+      integer :: local_element_count
+
+      _UNUSED_DUMMY(this)
+
+      ! Get VM info
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
+      @assert_that(petCount, is(4))
+
+      ! Create test mesh file with 8 elements
+      filename = 'test_4pe_eight_elements.nc'
+      if (localPet == 0) then
+         call create_eight_element_mesh_file(filename,rc=status) 
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+      ! Create MeshGeomSpec with decomposition for 8 elements on 4 PEs
+      decomp = MeshDecomposition(8, 15, petCount=4)  ! 8 elements, 15 nodes, 4 PEs
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
+
+      ! Create the ESMF geometry
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+
+      ! Get the mesh
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+
+      ! NOTE: For distributed meshes, ESMF_MeshGet returns LOCAL counts, not global
+      ! Skipping global count verification
+      
+      ! Each PE should have 2 local elements
+      call ESMF_MeshGet(mesh, elementCount=local_element_count, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(local_element_count, is(2))
+
+      ! Cleanup
+      call ESMF_VMBarrier(vm, rc=status)
+      call ESMF_GeomDestroy(geom, rc=status)
+      call ESMF_VMBarrier(vm, rc=status)
+      if (localPet == 0) then
+         call cleanup_test_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+   end subroutine test_make_geom_4pe_eight_elements
+
+
+   ! Test make_geom with uneven distribution across 4 PEs
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_make_geom_4pe_uneven_distribution(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_VM) :: vm
+      character(len=:), allocatable :: filename
+      integer :: status
+      integer :: localPet, petCount
+      integer :: local_element_count
+      integer :: expected_local_elements
+
+      _UNUSED_DUMMY(this)
+
+      ! Get VM info
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
+      @assert_that(petCount, is(4))
+
+      ! Create test mesh file with 8 elements
+      filename = 'test_4pe_uneven.nc'
+      if (localPet == 0) then
+         call create_eight_element_mesh_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+      ! Create MeshGeomSpec with uneven decomposition: PE0=3, PE1=2, PE2=2, PE3=1
+      ! Element distribution: uneven [3,2,2,1]
+      ! Node distribution: even distribution of 15 nodes across 4 PEs: [4,4,4,3]
+      decomp = MeshDecomposition([3, 2, 2, 1], node_distribution=[4, 4, 4, 3])
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
+
+      ! Create the ESMF geometry
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+
+      ! Get the mesh
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify local element counts match decomposition
+      call ESMF_MeshGet(mesh, elementCount=local_element_count, rc=status)
+      @assert_that(status, is(0))
+      
+      select case (localPet)
+      case (0)
+         expected_local_elements = 3
+      case (1)
+         expected_local_elements = 2
+      case (2)
+         expected_local_elements = 2
+      case (3)
+         expected_local_elements = 1
+      end select
+      @assert_that(local_element_count, is(expected_local_elements))
+
+      ! Cleanup
+      call ESMF_VMBarrier(vm, rc=status)
+      call ESMF_GeomDestroy(geom, rc=status)
+      call ESMF_VMBarrier(vm, rc=status)
+      if (localPet == 0) then
+         call cleanup_test_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+   end subroutine test_make_geom_4pe_uneven_distribution
+
+
+   ! Test make_geom with HConfig on 4 PEs
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_make_geom_4pe_from_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      class(GeomSpec), allocatable :: geom_spec
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_VM) :: vm
+      character(len=:), allocatable :: filename
+      character(len=256) :: yaml_string
+      integer :: status
+      integer :: localPet, petCount
+      integer :: local_element_count
+
+      _UNUSED_DUMMY(this)
+
+      ! Get VM info
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
+      @assert_that(petCount, is(4))
+
+      ! Create test mesh file
+      filename = 'test_4pe_hconfig.nc'
+      if (localPet == 0) then
+         call create_four_quad_mesh_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+      ! Create HConfig
+      yaml_string = &
+         'class: mesh' // new_line('A') // &
+         'file: ' // trim(filename)
+      
+      hconfig = ESMF_HConfigCreate(content=trim(yaml_string), rc=status)
+
+      ! Create GeomSpec from HConfig
+      geom_spec = factory%make_geom_spec_from_hconfig(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      ! Create ESMF geometry
+      geom = factory%make_geom(geom_spec, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify mesh is distributed
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_MeshGet(mesh, elementCount=local_element_count, rc=status)
+      @assert_that(status, is(0))
+      ! Each PE should have 1 element
+      @assert_that(local_element_count, is(1))
+
+      ! Cleanup
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      call ESMF_VMBarrier(vm, rc=status)
+      call ESMF_GeomDestroy(geom, rc=status)
+      call ESMF_VMBarrier(vm, rc=status)
+      if (localPet == 0) then
+         call cleanup_test_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+   end subroutine test_make_geom_4pe_from_hconfig
+
+
+   ! Test make_geom with mixed element types on 4 PEs
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_make_geom_4pe_mixed_elements(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_VM) :: vm
+      character(len=:), allocatable :: filename
+      integer :: status
+      integer :: localPet, petCount
+      integer :: local_element_count
+
+      _UNUSED_DUMMY(this)
+
+      ! Get VM info
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
+      @assert_that(petCount, is(4))
+
+      ! Create test mesh file with mixed elements
+      filename = 'test_4pe_mixed.nc'
+      if (localPet == 0) then
+         call create_mixed_element_mesh_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+      ! Create MeshGeomSpec with 4 elements on 4 PEs
+      decomp = MeshDecomposition(4, 7, petCount=4)  ! 4 elements, 7 nodes, 4 PEs
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
+
+      ! Create the ESMF geometry
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+
+      ! Get the mesh
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify each PE has 1 element
+      call ESMF_MeshGet(mesh, elementCount=local_element_count, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(local_element_count, is(1))
+
+      ! Cleanup
+      call ESMF_VMBarrier(vm, rc=status)
+      call ESMF_GeomDestroy(geom, rc=status)
+      call ESMF_VMBarrier(vm, rc=status)
+      if (localPet == 0) then
+         call cleanup_test_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+   end subroutine test_make_geom_4pe_mixed_elements
+
+
+   ! Test element distribution verification on 4 PEs
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_make_geom_4pe_element_distribution(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      
+      type(MeshGeomFactory) :: factory
+      type(MeshGeomSpec) :: mesh_spec
+      type(MeshDecomposition) :: decomp
+      type(ESMF_Geom) :: geom
+      type(ESMF_Mesh) :: mesh
+      type(ESMF_VM) :: vm
+      character(len=:), allocatable :: filename
+      integer :: status
+      integer :: localPet, petCount
+      integer :: local_element_count, total_element_count
+      integer :: i_start, i_end
+
+      _UNUSED_DUMMY(this)
+
+      ! Get VM info
+      call ESMF_VMGetCurrent(vm, rc=status)
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount, rc=status)
+      @assert_that(petCount, is(4))
+
+      ! Create test mesh file
+      filename = 'test_4pe_elem_dist.nc'
+      if (localPet == 0) then
+         call create_eight_element_mesh_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+      ! Create MeshGeomSpec
+      decomp = MeshDecomposition(8, 15, petCount=4)  ! 8 elements, 15 nodes, 4 PEs
+      mesh_spec  = MeshGeomSpec(filename, decomposition=decomp, rc=status)
+      @assert_that(status, is(0))
+
+      ! Verify decomposition gives correct local indices
+      call decomp%get_local_indices(localPet, i_start, i_end)
+      total_element_count = i_end - i_start + 1
+      @assert_that(total_element_count, is(2))
+
+      ! Verify element indices are correct for each PE
+      select case (localPet)
+      case (0)
+         @assert_that(i_start, is(1))
+         @assert_that(i_end, is(2))
+      case (1)
+         @assert_that(i_start, is(3))
+         @assert_that(i_end, is(4))
+      case (2)
+         @assert_that(i_start, is(5))
+         @assert_that(i_end, is(6))
+      case (3)
+         @assert_that(i_start, is(7))
+         @assert_that(i_end, is(8))
+      end select
+
+      ! Create geometry and verify distribution matches
+      geom = factory%make_geom(mesh_spec, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GeomGet(geom, mesh=mesh, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_MeshGet(mesh, elementCount=local_element_count, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(local_element_count, is(2))
+
+      ! Cleanup
+      call ESMF_VMBarrier(vm, rc=status)
+      call ESMF_GeomDestroy(geom, rc=status)
+      call ESMF_VMBarrier(vm, rc=status)
+      if (localPet == 0) then
+         call cleanup_test_file(filename, rc=status)
+      end if
+      call ESMF_VMBarrier(vm, rc=status)
+
+   end subroutine test_make_geom_4pe_element_distribution
+
+end module Test_MeshGeomFactory_File

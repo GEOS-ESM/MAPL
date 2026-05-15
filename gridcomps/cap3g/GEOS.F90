@@ -2,7 +2,7 @@
 #include "MAPL.h"
 
 program geos
-   use mapl3
+   use MAPL
    use mapl3g_Cap
    use esmf
    implicit none

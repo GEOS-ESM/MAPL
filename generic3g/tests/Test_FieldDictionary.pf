@@ -1,10 +1,20 @@
+#include "MAPL_TestErr.h"
 module Test_FieldDictionary
    use funit
+   use esmf
    use mapl3g_FieldDictionary
    use mapl3g_FieldDictionaryItem
+   use mapl3g_FieldDictionaryConfig
+   use mapl3g_ValidationMode
+   use mapl3g_VerificationStatus
+   use mapl3g_StateItem
    implicit none
 
 contains
+
+   ! ---------------------------------------------------------------
+   ! Legacy tests (backward compatibility)
+   ! ---------------------------------------------------------------
 
    @test
    ! Sanity test - just exercise interfaces
@@ -41,14 +51,14 @@ contains
       type(FieldDictionaryItem) :: item
 
       integer :: status
-      
+
       fd = FieldDictionary(stream='{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}')
 
       item = fd%get_item('X_Y_Z', rc=status)
       @assert_that(status, is(0))
       @assertEqual('m', item%get_units())
       @assertEqual('X Y Z', item%get_long_name())
-      
+
    end subroutine test_get_field_item
 
    @test
@@ -66,7 +76,7 @@ contains
       units = fd%get_units('A_B_C', rc=status)
       @assert_that(status, is(0))
       @assertEqual('s', units)
-      
+
       units = fd%get_units('X_Y_Z', rc=status)
       @assert_that(status, is(0))
       @assertEqual('m', units)
@@ -80,7 +90,7 @@ contains
       type(FieldDictionary) :: fd
       character(:), allocatable :: long_name
       integer :: status
-      
+
       fd = FieldDictionary(stream = '{' // &
            'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
            'A_B_C: {canonical_units: s, long_name: "A B C"} }')
@@ -88,7 +98,7 @@ contains
       long_name = fd%get_long_name('A_B_C', rc=status)
       @assert_that(status, is(0))
       @assertEqual('A B C', long_name)
-      
+
       long_name = fd%get_long_name('X_Y_Z', rc=status)
       @assert_that(status, is(0))
       @assertEqual('X Y Z', long_name)
@@ -103,7 +113,7 @@ contains
       type(FieldDictionary) :: fd
       character(:), allocatable :: standard_name
       integer :: status
-      
+
       fd = FieldDictionary(stream= '{' // &
            'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x]},' //  &
            'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a]} }')
@@ -126,7 +136,7 @@ contains
       type(FieldDictionary) :: fd
       character(:), allocatable :: standard_name
       integer :: status
-      
+
       fd = FieldDictionary(stream = '{' // &
            'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x, y]},' //  &
            'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a, b, c]} }')
@@ -144,5 +154,407 @@ contains
       @assertEqual('A_B_C', standard_name)
 
    end subroutine test_get_standard_name_from_alias_multi
+
+   @test
+   ! Verify that loading a dictionary where the same short name appears as
+   ! an alias for two different entries does NOT abort at load time — it
+   ! should only warn.  A subsequent lookup via the ambiguous alias must
+   ! fail (non-zero rc) rather than silently returning the wrong entry.
+   subroutine test_ambiguous_alias_fails_at_lookup()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      ! Both X_Y_Z and A_B_C claim alias 'x' — this should warn but not abort.
+      fd = FieldDictionary(stream = '{' // &
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x]},' // &
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [x]} }')
+
+      ! Lookup via the ambiguous alias must return a non-zero rc.
+      standard_name = fd%get_standard_name('x', rc=status)
+      @assertExceptionRaised('FieldDictionary: short name "x" is ambiguous (maps to multiple standard names); provide standard_name explicitly')
+      @assert_that(status, is(not(equal_to(0))))
+
+   end subroutine test_ambiguous_alias_fails_at_lookup
+
+   @test
+   ! Verify that a non-ambiguous alias in the same dictionary as an
+   ! ambiguous one still resolves correctly.
+   subroutine test_unambiguous_alias_still_works_alongside_ambiguous()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      fd = FieldDictionary(stream = '{' // &
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x, unique_x]},' // &
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [x, unique_a]} }')
+
+      ! Ambiguous alias fails.
+      standard_name = fd%get_standard_name('x', rc=status)
+      @assertExceptionRaised('FieldDictionary: short name "x" is ambiguous (maps to multiple standard names); provide standard_name explicitly')
+      @assert_that(status, is(not(equal_to(0))))
+
+      ! Unique aliases still resolve correctly.
+      standard_name = fd%get_standard_name('unique_x', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('X_Y_Z', standard_name)
+
+      standard_name = fd%get_standard_name('unique_a', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A_B_C', standard_name)
+
+   end subroutine test_unambiguous_alias_still_works_alongside_ambiguous
+
+   ! ---------------------------------------------------------------
+   ! New schema: defaults when optional fields are absent
+   ! ---------------------------------------------------------------
+
+   @test
+   ! Entry with only required fields: new optional fields should have
+   ! sensible defaults.
+   subroutine test_new_fields_default_when_absent()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+      type(VerificationStatus) :: vstatus
+      integer :: status
+
+      fd = FieldDictionary(stream= &
+           '{minimal: {canonical_units: K, long_name: "Minimal Field"}}')
+
+      item = fd%get_item('minimal', rc=status)
+      @assert_that(status, is(0))
+
+      ! physical_dimension defaults to empty string
+      @assertEqual('', item%get_physical_dimension())
+
+      ! conserved defaults to false
+      @assertFalse(item%is_conserved())
+
+      ! verification_status defaults to unverified
+      vstatus = item%get_verification_status()
+      @assertTrue(vstatus == VERIFICATION_STATUS_UNVERIFIED)
+
+      ! regrid_method defaults to BILINEAR (conserved=false)
+      @assertTrue(item%get_regrid_method() == ESMF_REGRIDMETHOD_BILINEAR)
+
+   end subroutine test_new_fields_default_when_absent
+
+   ! ---------------------------------------------------------------
+   ! New schema: physical_dimension
+   ! ---------------------------------------------------------------
+
+   @test
+   subroutine test_physical_dimension_parsed()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+      integer :: status
+
+      fd = FieldDictionary(stream= &
+           '{wind_speed: {canonical_units: "m s-1", long_name: "Wind Speed",' // &
+           ' physical_dimension: velocity}}')
+
+      item = fd%get_item('wind_speed', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('velocity', item%get_physical_dimension())
+
+   end subroutine test_physical_dimension_parsed
+
+   ! ---------------------------------------------------------------
+   ! New schema: conserved flag and regrid method
+   ! ---------------------------------------------------------------
+
+   @test
+   subroutine test_conserved_false_gives_bilinear()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+      integer :: status
+
+      fd = FieldDictionary(stream= &
+           '{surface_flux: {canonical_units: "W m-2", long_name: "Surface Flux",' // &
+           ' conserved: false}}')
+
+      item = fd%get_item('surface_flux', rc=status)
+      @assert_that(status, is(0))
+      @assertFalse(item%is_conserved())
+      @assertTrue(item%get_regrid_method() == ESMF_REGRIDMETHOD_BILINEAR)
+
+   end subroutine test_conserved_false_gives_bilinear
+
+   @test
+   subroutine test_conserved_true_gives_conserve()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+      integer :: status
+
+      fd = FieldDictionary(stream= &
+           '{water_vapor: {canonical_units: "kg kg-1", long_name: "Water Vapor",' // &
+           ' conserved: true}}')
+
+      item = fd%get_item('water_vapor', rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(item%is_conserved())
+      @assertTrue(item%get_regrid_method() == ESMF_REGRIDMETHOD_CONSERVE)
+
+   end subroutine test_conserved_true_gives_conserve
+
+   @test
+   subroutine test_get_regrid_method_from_dictionary()
+      type(FieldDictionary) :: fd
+      type(ESMF_RegridMethod_Flag) :: regrid_method
+      integer :: status
+
+      fd = FieldDictionary(stream= '{' // &
+           'conserved_field: {canonical_units: "kg kg-1", long_name: "Conserved",' // &
+           ' conserved: true},' // &
+           'nonconserved_field: {canonical_units: K, long_name: "Not Conserved",' // &
+           ' conserved: false} }')
+
+      regrid_method = fd%get_regrid_method('conserved_field', rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(regrid_method == ESMF_REGRIDMETHOD_CONSERVE)
+
+      regrid_method = fd%get_regrid_method('nonconserved_field', rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(regrid_method == ESMF_REGRIDMETHOD_BILINEAR)
+
+   end subroutine test_get_regrid_method_from_dictionary
+
+   ! ---------------------------------------------------------------
+   ! New schema: verification_status
+   ! ---------------------------------------------------------------
+
+   @test
+   subroutine test_verification_status_unverified()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+      integer :: status
+
+      fd = FieldDictionary(stream= &
+           '{some_field: {canonical_units: K, long_name: "Some Field",' // &
+           ' verification_status: unverified}}')
+
+      item = fd%get_item('some_field', rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(item%get_verification_status() == VERIFICATION_STATUS_UNVERIFIED)
+
+   end subroutine test_verification_status_unverified
+
+   @test
+   subroutine test_verification_status_verified()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+      integer :: status
+
+      fd = FieldDictionary(stream= &
+           '{some_field: {canonical_units: K, long_name: "Some Field",' // &
+           ' verification_status: verified}}')
+
+      item = fd%get_item('some_field', rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(item%get_verification_status() == VERIFICATION_STATUS_VERIFIED)
+
+   end subroutine test_verification_status_verified
+
+   @test
+   subroutine test_verification_status_cf_compliant()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+      integer :: status
+
+      fd = FieldDictionary(stream= &
+           '{air_temp: {canonical_units: K, long_name: "Air Temperature",' // &
+           ' verification_status: cf_compliant}}')
+
+      item = fd%get_item('air_temp', rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(item%get_verification_status() == VERIFICATION_STATUS_CF_COMPLIANT)
+
+   end subroutine test_verification_status_cf_compliant
+
+   ! ---------------------------------------------------------------
+   ! New schema: provenance
+   ! ---------------------------------------------------------------
+
+   @test
+   subroutine test_provenance_verified_by()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+      type(CF_Provenance) :: prov
+      integer :: status
+
+      fd = FieldDictionary(stream= &
+           '{air_temp: {canonical_units: K, long_name: "Air Temperature",' // &
+           ' verification_status: verified,' // &
+           ' provenance: {verified_by: "Jane Doe"}}}')
+
+      item = fd%get_item('air_temp', rc=status)
+      @assert_that(status, is(0))
+      prov = item%get_provenance()
+      @assertEqual('Jane Doe', prov%verified_by)
+
+   end subroutine test_provenance_verified_by
+
+   ! ---------------------------------------------------------------
+   ! New schema: VerificationStatus typed enum
+   ! ---------------------------------------------------------------
+
+   @test
+   subroutine test_verification_status_to_string()
+      @assertEqual('unverified',  VERIFICATION_STATUS_UNVERIFIED%to_string())
+      @assertEqual('verified',    VERIFICATION_STATUS_VERIFIED%to_string())
+      @assertEqual('cf_compliant', VERIFICATION_STATUS_CF_COMPLIANT%to_string())
+   end subroutine test_verification_status_to_string
+
+   @test
+   subroutine test_verification_status_from_string()
+      type(VerificationStatus) :: vs
+
+      vs = VerificationStatus('unverified')
+      @assertTrue(vs == VERIFICATION_STATUS_UNVERIFIED)
+
+      vs = VerificationStatus('verified')
+      @assertTrue(vs == VERIFICATION_STATUS_VERIFIED)
+
+      vs = VerificationStatus('cf_compliant')
+      @assertTrue(vs == VERIFICATION_STATUS_CF_COMPLIANT)
+
+      ! Unknown string defaults to unverified
+      vs = VerificationStatus('unknown_value')
+      @assertTrue(vs == VERIFICATION_STATUS_UNVERIFIED)
+
+   end subroutine test_verification_status_from_string
+
+   @test
+   subroutine test_verification_status_operators()
+      @assertTrue(VERIFICATION_STATUS_UNVERIFIED   == VERIFICATION_STATUS_UNVERIFIED)
+      @assertTrue(VERIFICATION_STATUS_VERIFIED     == VERIFICATION_STATUS_VERIFIED)
+      @assertTrue(VERIFICATION_STATUS_CF_COMPLIANT == VERIFICATION_STATUS_CF_COMPLIANT)
+
+      @assertTrue(VERIFICATION_STATUS_UNVERIFIED   /= VERIFICATION_STATUS_VERIFIED)
+      @assertTrue(VERIFICATION_STATUS_VERIFIED     /= VERIFICATION_STATUS_CF_COMPLIANT)
+      @assertTrue(VERIFICATION_STATUS_UNVERIFIED   /= VERIFICATION_STATUS_CF_COMPLIANT)
+
+   end subroutine test_verification_status_operators
+
+   ! ---------------------------------------------------------------
+   ! ValidationMode typed enum
+   ! ---------------------------------------------------------------
+
+   @test
+   subroutine test_validation_mode_to_string()
+      @assertEqual('permissive', VALIDATION_MODE_PERMISSIVE%to_string())
+      @assertEqual('strict',     VALIDATION_MODE_STRICT%to_string())
+   end subroutine test_validation_mode_to_string
+
+   @test
+   subroutine test_validation_mode_from_string()
+      type(ValidationMode) :: mode
+
+      mode = ValidationMode('permissive')
+      @assertTrue(mode == VALIDATION_MODE_PERMISSIVE)
+
+      mode = ValidationMode('strict')
+      @assertTrue(mode == VALIDATION_MODE_STRICT)
+
+      ! Unknown string defaults to permissive
+      mode = ValidationMode('unknown')
+      @assertTrue(mode == VALIDATION_MODE_PERMISSIVE)
+
+   end subroutine test_validation_mode_from_string
+
+   @test
+   subroutine test_validation_mode_operators()
+      @assertTrue(VALIDATION_MODE_PERMISSIVE == VALIDATION_MODE_PERMISSIVE)
+      @assertTrue(VALIDATION_MODE_STRICT     == VALIDATION_MODE_STRICT)
+      @assertTrue(VALIDATION_MODE_PERMISSIVE /= VALIDATION_MODE_STRICT)
+   end subroutine test_validation_mode_operators
+
+   ! ---------------------------------------------------------------
+   ! FieldDictionaryConfig
+   ! ---------------------------------------------------------------
+
+   @test
+   subroutine test_config_defaults()
+      type(FieldDictionaryConfig) :: config
+
+      config = FieldDictionaryConfig()
+
+      ! Default path is 'field_dictionary.yaml' in CWD
+      @assertEqual('field_dictionary.yaml', config%get_dictionary_path())
+      @assertTrue(config%has_dictionary_path())
+      @assertTrue(config%get_validation_mode() == VALIDATION_MODE_PERMISSIVE)
+
+   end subroutine test_config_defaults
+
+   @test
+   subroutine test_config_is_exempt_service_types()
+      type(FieldDictionaryConfig) :: config
+
+      config = FieldDictionaryConfig()
+
+      ! Service types are exempt
+      @assertTrue(config%is_exempt(MAPL_STATEITEM_SERVICE))
+      @assertTrue(config%is_exempt(MAPL_STATEITEM_SERVICE_PROVIDER))
+      @assertTrue(config%is_exempt(MAPL_STATEITEM_SERVICE_SUBSCRIBER))
+      @assertTrue(config%is_exempt(MAPL_STATEITEM_FIELDBUNDLE))
+      @assertTrue(config%is_exempt(MAPL_STATEITEM_STATE))
+      @assertTrue(config%is_exempt(MAPL_STATEITEM_WILDCARD))
+      @assertTrue(config%is_exempt(MAPL_STATEITEM_EXPRESSION))
+
+   end subroutine test_config_is_exempt_service_types
+
+   @test
+   subroutine test_config_not_exempt_field_types()
+      type(FieldDictionaryConfig) :: config
+
+      config = FieldDictionaryConfig()
+
+      ! Field-like types require dictionary entries
+      @assertFalse(config%is_exempt(MAPL_STATEITEM_FIELD))
+      @assertFalse(config%is_exempt(MAPL_STATEITEM_VECTOR))
+      @assertFalse(config%is_exempt(MAPL_STATEITEM_BRACKET))
+      @assertFalse(config%is_exempt(MAPL_STATEITEM_VECTORBRACKET))
+
+   end subroutine test_config_not_exempt_field_types
+
+   ! ---------------------------------------------------------------
+   ! Full round-trip through test YAML file
+   ! ---------------------------------------------------------------
+
+   @test
+   subroutine test_full_entry_all_fields()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+      type(CF_Provenance) :: prov
+      integer :: status
+
+      fd = FieldDictionary(stream= &
+           '{ozone_mixing_ratio: {' // &
+           'canonical_units: "mol mol-1",' // &
+           'long_name: "Ozone Mixing Ratio",' // &
+           'physical_dimension: mole_fraction,' // &
+           'conserved: true,' // &
+           'verification_status: verified,' // &
+           'provenance: {verified_by: "Test Scientist"},' // &
+           'aliases: [O3, ozone]}}')
+
+      item = fd%get_item('ozone_mixing_ratio', rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual('mol mol-1', item%get_units())
+      @assertEqual('Ozone Mixing Ratio', item%get_long_name())
+      @assertEqual('mole_fraction', item%get_physical_dimension())
+      @assertTrue(item%is_conserved())
+      @assertTrue(item%get_regrid_method() == ESMF_REGRIDMETHOD_CONSERVE)
+      @assertTrue(item%get_verification_status() == VERIFICATION_STATUS_VERIFIED)
+
+      prov = item%get_provenance()
+      @assertEqual('Test Scientist', prov%verified_by)
+
+      ! Aliases resolve to standard name
+      @assertEqual('ozone_mixing_ratio', fd%get_standard_name('O3', rc=status))
+      @assertEqual('ozone_mixing_ratio', fd%get_standard_name('ozone', rc=status))
+
+   end subroutine test_full_entry_all_fields
 
 end module Test_FieldDictionary

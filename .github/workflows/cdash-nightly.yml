@@ -1,0 +1,141 @@
+name: CDash Nightly
+
+on:
+  # Run nightly at 06:00 UTC
+  schedule:
+    - cron: '0 6 * * *'
+  # Allow manual runs from the Actions tab
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to test'
+        required: false
+        default: 'release/MAPL-v3'
+        type: string
+      build_type:
+        description: 'CMake build type (workflow_dispatch only; ignored for gfortran-15-coverage)'
+        required: false
+        default: 'Debug'
+        type: choice
+        options:
+          - Debug
+          - Release
+          - Coverage
+      compiler:
+        description: 'Compiler to test'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - gfortran-15
+          - gfortran-15-coverage
+          - ifort
+          - ifx
+      model:
+        description: 'CTest dashboard model'
+        required: false
+        default: 'Nightly'
+        type: choice
+        options:
+          - Nightly
+          - Experimental
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cdash:
+    name: CDash / ${{ matrix.compiler }} / ${{ matrix.cmake-build-type }}
+    runs-on: ubuntu-latest
+
+    container:
+      image: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: ${{ fromJSON(github.event_name == 'schedule' && '["gfortran-15", "gfortran-15-coverage", "ifort", "ifx"]' || inputs.compiler == 'all' && '["gfortran-15", "gfortran-15-coverage", "ifort", "ifx"]' || format('["{0}"]', inputs.compiler || 'gfortran-15')) }}
+        include:
+          - compiler: gfortran-15
+            cmake-build-type: ${{ inputs.build_type || 'Debug' }}
+            image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_15.2.0
+            fc: gfortran
+            extra-cmake-args: >-
+              -DUSE_F2PY=OFF
+              -DMPIEXEC_PREFLAGS=--oversubscribe
+          - compiler: gfortran-15-coverage
+            cmake-build-type: Coverage
+            image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_15.2.0
+            fc: gfortran
+            extra-cmake-args: >-
+              -DUSE_F2PY=OFF
+              -DMPIEXEC_PREFLAGS=--oversubscribe
+          - compiler: ifort
+            cmake-build-type: ${{ inputs.build_type || 'Debug' }}
+            image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.13-ifort_2021.13
+            fc: ifort
+            extra-cmake-args: -DUSE_F2PY=OFF
+          - compiler: ifx
+            cmake-build-type: ${{ inputs.build_type || 'Debug' }}
+            image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.17-ifx_2025.3
+            fc: ifx
+            extra-cmake-args: -DUSE_F2PY=OFF
+    env:
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      # Tell the dashboard script which build type and model to use
+      CTEST_MODEL: ${{ inputs.model || 'Nightly' }}
+      CTEST_BUILD_TYPE: ${{ matrix.cmake-build-type }}
+      # Extra cmake args picked up by CTestDashboard.cmake
+      CTEST_EXTRA_CMAKE_ARGS: >-
+        -DCMAKE_Fortran_COMPILER=${{ matrix.fc }}
+        ${{ matrix.extra-cmake-args }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || 'release/MAPL-v3' }}
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: Set all directories as git safe
+        shell: bash
+        run: git config --global --add safe.directory '*'
+
+      - name: Install CMake 4.3
+        shell: bash
+        run: |
+          cmake_version=4.3.1
+          wget -q "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-linux-x86_64.sh" \
+            -O /tmp/cmake-install.sh
+          chmod +x /tmp/cmake-install.sh
+          /tmp/cmake-install.sh --skip-license --prefix=/usr/local
+          cmake --version
+
+      - name: Mepo clone external repos
+        shell: bash
+        run: |
+          mepo clone --partial blobless
+          mepo status
+
+      - name: Run CDash dashboard
+        shell: bash
+        env:
+          CDASH_AUTH_TOKEN: ${{ secrets.CDASH_AUTH_TOKEN }}
+          TESTED_BRANCH: ${{ inputs.branch || 'release/MAPL-v3' }}
+        run: |
+          # Replace slashes with dashes to ensure the CDash build name is safe/clean
+          SAFE_BRANCH=$(echo "${TESTED_BRANCH}" | tr '/' '-')
+
+          ctest \
+            -D model=${CTEST_MODEL} \
+            -D build_type=${CTEST_BUILD_TYPE} \
+            -D generator="Unix Makefiles" \
+            -D jobs=4 \
+            -D site="GitHub-Actions" \
+            -D build_name="GHA-${SAFE_BRANCH}-ubuntu24-${{ matrix.compiler }}-${CTEST_BUILD_TYPE}" \
+            -S CTestDashboard.cmake \
+            -V

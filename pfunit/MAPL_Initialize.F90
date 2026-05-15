@@ -4,7 +4,7 @@ module MAPL_pFUnit_Initialize
 
 contains
    subroutine Initialize()
-      use mapl3
+      use MAPL
       use fArgParse
       use MAPL_ThrowMod, only: MAPL_set_throw_method
       use MAPL_pFUnit_ThrowMod

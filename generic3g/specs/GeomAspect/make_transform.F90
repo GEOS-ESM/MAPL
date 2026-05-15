@@ -141,7 +141,9 @@ contains
 
       ! Create transform with integrated normalization support
       allocate(transform, source=RegridTransform(src_geom, dst_geom, regridder_param, &
-                                                 vcoord_field, vcoord_coupler, norm_metadata))
+                                                 vcoord_field=vcoord_field, &
+                                                 vcoord_coupler=vcoord_coupler, &
+                                                 norm_metadata=norm_metadata))
 
       _RETURN(_SUCCESS)
    end function build_normalized_regrid_transform

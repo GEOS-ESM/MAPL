@@ -6,7 +6,8 @@ module mapl3g_BasicVerticalGrid
    use mapl3g_VerticalGridSpec, only: VerticalGridSpec
    use mapl3g_VerticalGridFactory, only: VerticalGridFactory
    use mapl3g_ComponentDriver, only: ComponentDriver
-   use pfio, only: FileMetadata
+   !use pfio, only: FileMetadata
+   use pfio
    use esmf
    use mapl3g_VerticalStaggerLoc, only: VerticalStaggerLoc
    use gftl2_StringVector, only: StringVector
@@ -217,10 +218,13 @@ contains
       local_spec%num_levels = -1
       allocate(spec, source=local_Spec)
 
-      lev_name = find_lev_name(_RC)
-      local_spec%num_levels = file_metadata%get_dimension(lev_name)
+      lev_name = find_lev_name()
+      local_spec%num_levels = file_metadata%get_dimension(lev_name,rc=status)
 
-      allocate(spec, source=local_spec)
+      if (status /= pFIO_DIMENSION_NOT_FOUND) then
+         deallocate(spec)
+         allocate(spec, source=local_spec)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
@@ -236,10 +240,11 @@ contains
          if (file_metadata%has_dimension('lev')) then
             lev_name = 'lev'
             _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
+            _UNUSED_DUMMY(this)
          end if
 
-         _FAIL('no vertical dim in file')
+         lev_name = ''
+         _RETURN(_SUCCESS)
       end function find_lev_name
 
    end function create_spec_from_file_metadata

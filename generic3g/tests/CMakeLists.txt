@@ -13,12 +13,15 @@ add_custom_target(copy_scenarios ALL
   VERBATIM
 )
 
+# Copy field_dictionary_test.yaml to the binary dir so tests that call
+# load_field_dictionary can find it by relative path at runtime.
+configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
+
 # Create a shared library for common test sources to avoid parallel build race conditions
 # When multiple test suites compile the same OTHER_SOURCES files to the same MODULE_DIRECTORY,
 # they can conflict during parallel builds
 add_library(MAPL.generic3g.test_common SHARED
   MockUserGridComp.F90
-  accumulator_transform_test_common.F90
   MockAspect.F90
 )
 target_link_libraries(MAPL.generic3g.test_common PUBLIC MAPL.generic3g MAPL.shared MAPL.pfunit)
@@ -47,10 +50,6 @@ add_dependencies(MAPL.generic3g.scenarios proto_extdata_gc proto_stat_gc copy_sc
 
 # 2. MAPL.generic3g.transforms - Data transformation tests
 set(transforms_test_srcs
-  Test_AccumulatorTransform.pf
-  Test_MeanTransform.pf
-  Test_MaxTransform.pf
-  Test_MinTransform.pf
   Test_TimeInterpolateTransform.pf
   Test_ConvertUnitsTransform.pf
   Test_CopyTransform.pf
@@ -60,6 +59,7 @@ set(transforms_test_srcs
   Test_NormalizationTransform.pf
   Test_3DConservativeMixingRatio.pf
   Test_IntegratedNormalization.pf
+  Test_RegridTransform.pf
 )
 
 add_pfunit_ctest(
@@ -150,6 +150,7 @@ set(core_test_srcs
   Test_VirtualConnectionPt.pf
   Test_ConnectionPt.pf
   Test_FieldDictionary.pf
+  Test_FieldDictIntegration.pf
   Test_StateRegistry.pf
   Test_Couplers.pf
   Test_CSR_SparseMatrix.pf

@@ -23,6 +23,6 @@ foreach(TEST_CASE ${TEST_CASES})
      )
    set_tests_properties("${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
    set_tests_properties("${TEST_CASE}"
-     PROPERTIES ENVIRONMENT "${LD_PATH}=${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}"
+     PROPERTIES ENVIRONMENT "${LD_PATH}=$<TARGET_FILE_DIR:configurable_gridcomp>:$<TARGET_FILE_DIR:MAPL.componentDriverGridComp>:${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}"
      )
 endforeach()

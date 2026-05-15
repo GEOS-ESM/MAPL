@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
 module mapl3g_Cap
-   use mapl3
+   use MAPL
    use mapl3g_CapGridComp, only: cap_setservices => setServices
    use mapl_os
    use mapl_ErrorHandling, only: MAPL_Assert
    use pflogger
-!#   use esmf
+   use esmf
    implicit none(type,external)
    private
 
@@ -15,6 +15,10 @@ module mapl3g_Cap
    character(*), parameter :: LAST_CHECKPOINT = 'last'
    character(*), parameter :: RECURRING_ALARM_TYPE = 'recurring'
    character(*), parameter :: RING_ONCE_ALARM_TYPE = 'once'
+   character(len=*), parameter :: KEY_RESTART = 'restart'
+   character(len=*), parameter :: KEY_CLOCK = 'clock'
+   character(len=*), parameter :: KEY_CURRTIME = 'currTime'
+   character(len=*), parameter :: KEY_REPEATCOUNT = 'repeatCount'
 
    type CheckpointOptions
       logical :: is_enabled = .false.
@@ -33,7 +37,6 @@ module mapl3g_Cap
 contains
 
    subroutine mapl_run_driver(hconfig, is_model_pet, unusable, servers, rc)
-      USE mapl_ApplicationSupport
       type(esmf_HConfig), intent(inout) :: hconfig
       logical, intent(in) :: is_model_pet
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -53,16 +56,18 @@ contains
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, options%checkpointing, options%lgr, _RC)
+      call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
+      call update_restart(hconfig, clock, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(servers)
    end subroutine mapl_run_driver
 
-   subroutine integrate(driver, checkpointing, lgr, rc)
+   subroutine integrate(driver, hconfig, checkpointing, lgr, rc)
       type(GriddedComponentDriver), intent(inout) :: driver
+      type(ESMF_HConfig), intent(in) :: hconfig
       type(CheckpointOptions), intent(in) :: checkpointing
       class(Logger), intent(inout) :: lgr
       integer, optional, intent(out) :: rc
@@ -71,22 +76,84 @@ contains
       type(esmf_Time) :: currTime, stopTime
       integer :: status
       character(ESMF_MAXSTR) :: iso_time
+      type(ESMF_Time), allocatable :: time_vector(:)
+      logical :: do_run
 
       clock = driver%get_clock()
       call esmf_ClockGet(clock, currTime=currTime, stopTime=stopTime, _RC)
 
+      call fill_time_vector(hconfig, time_vector, _RC)
       time: do while (currTime < stopTime)
          ! TODO:  include Bill's monitoring log messages here
-         call ESMF_TimeGet(currTime, timeString=iso_time, _RC)
-         call lgr%info('cap time: %a', trim(iso_time))
-         call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+         do_run = time_in_vector(currTime, time_vector)
+
+         if (do_run) then
+            call ESMF_TimeGet(currTime, timeString=iso_time, _RC)
+            call lgr%info('cap time: %a', trim(iso_time))
+            call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+         end if
          currTime = advance_clock(driver, _RC)
-         call checkpoint(driver, checkpointing, final=.false., _RC)
+         if (do_run) then
+            call checkpoint(driver, checkpointing, final=.false., _RC)
+         end if
       end do time
       call checkpoint(driver, checkpointing, final=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine integrate
+
+   subroutine fill_time_vector(hconfig, time_vector, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      type(ESMF_Time), intent(inout), allocatable :: time_vector(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status, num_times, i
+      character(len=:), allocatable :: temp_str(:)
+      logical :: has_time_vector
+      
+      has_time_vector = esmf_HConfigIsDefined(hconfig, keyString='run_times', _RC)
+
+      if (.not. has_time_vector) then
+         allocate(time_vector(0), _STAT)
+         _RETURN(_SUCCESS)
+      end if
+
+      temp_str = ESMF_HConfigAsStringSeq(hconfig, stringLen=25, keyString='run_times', _RC)
+      num_times = size(temp_str)
+      allocate(time_vector(num_times), _STAT)
+      do i=1,num_times
+         call ESMF_TimeSet(time_vector(i), timeString=temp_str(i), _RC)
+      enddo
+      _RETURN(_SUCCESS)
+   end subroutine fill_time_vector
+
+   function time_in_vector(target_time, time_vector) result(in_vector)
+      logical :: in_vector
+      type(ESMF_Time), intent(in) :: target_time
+      type(ESMF_Time), intent(in) :: time_vector(:)
+
+      integer :: left, right, mid
+
+      in_vector = .false.
+      if (size(time_vector) == 0) then
+         in_vector = .true.
+         return
+      end if
+
+      left = 1
+      right = size(time_vector)
+      do while (left <= right)
+         mid = left + (right - left) / 2
+         if (time_vector(mid) == target_time) then
+            in_vector = .true.
+            return
+         else if (time_vector(mid) < target_time) then
+            left = mid + 1
+         else
+            right = mid - 1
+         end if
+      enddo
+   end function time_in_vector
 
    function advance_clock(driver, rc) result(new_time)
       type(esmf_Time) :: new_time
@@ -273,18 +340,24 @@ contains
       type(ESMF_Time) :: end_of_segment
       type(ESMF_TimeInterval) :: timeStep, segment_duration
       type(ESMF_TimeInterval), allocatable :: repeatDuration
-      logical :: has_repeatDuration
+      logical :: has_repeatDuration, has_repeatCount
       character(:), allocatable :: cap_restart_file
       character(ESMF_MAXSTR) :: iso_time
+      integer(kind=ESMF_KIND_I8) :: repeatCount
 
-      cap_restart_file = esmf_HConfigAsString(hconfig, keyString='restart', _RC)
+      repeatCount = 0
+      cap_restart_file = esmf_HConfigAsString(hconfig, keyString=KEY_RESTART, _RC)
       restart_cfg = esmf_HConfigCreate(filename=cap_restart_file, _RC)
       currTime = mapl_HConfigAsTime(restart_cfg, keyString='currTime', _RC)
       iso_time = esmf_HConfigAsString(restart_cfg, keystring='currTime', _RC)
       call lgr%info('current time: %a', trim(iso_time))
+      has_repeatCount = ESMF_HConfigIsDefined(restart_cfg, keyString=KEY_REPEATCOUNT, _RC)
+      if(has_repeatCount) then
+         repeatCount = ESMF_HConfigAsI8(restart_cfg, keyString=KEY_REPEATCOUNT, _RC)
+      end if
       call esmf_HConfigDestroy(restart_cfg, _RC)
 
-      clock_cfg = esmf_HConfigCreateAt(hconfig, keystring='clock', _RC)
+      clock_cfg = esmf_HConfigCreateAt(hconfig, keystring=KEY_CLOCK, _RC)
 
       startTime = mapl_HConfigAsTime(clock_cfg, keystring='start', _RC)
       _ASSERT(currTime >= startTime, "current time should be >= start time")
@@ -313,6 +386,8 @@ contains
          call lgr%info('repeat duration: %a', trim(iso_time))
       end if
 
+      ! Currently, repeatCount is not an argument for ESMF_ClockCreate or ESMF_ClockSet.
+      ! Once it is added, it should be included in the create/set below.
       clock = esmf_ClockCreate(timeStep=timeStep, &
            startTime=startTime, stopTime=end_of_segment, &
            refTime=startTime, &
@@ -529,5 +604,32 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_symlink
+
+   subroutine update_restart(hconfig, clock, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Time) :: currTime
+      integer(kind=ESMF_KIND_I8) :: repeatCount
+      logical :: restart_is_defined
+      character(:), allocatable :: cap_restart_file
+      type(ESMF_HConfig) :: restart_cfg
+      integer, parameter :: ISOSTRING_LENGTH = 20
+      character(len=ISOSTRING_LENGTH) :: timeString
+
+      call ESMF_ClockGet(clock, currTime=currTime, repeatCount=repeatCount, _RC)
+      call ESMF_TimeGet(currTime, timeString=timeString, _RC)
+      restart_is_defined = ESMF_HConfigIsDefined(hconfig, keyString=KEY_RESTART, _RC)
+      _ASSERT(restart_is_defined, 'Unable to get restart filename')
+      cap_restart_file = ESMF_HConfigAsString(hconfig, keyString=KEY_RESTART, _RC)
+      restart_cfg = ESMF_HConfigCreate(_RC)
+      call ESMF_HConfigAdd(restart_cfg, content=timeString, addKeyString=KEY_CURRTIME, _RC)
+      call ESMF_HConfigAdd(restart_cfg, content=repeatCount, addKeyString=KEY_REPEATCOUNT, _RC)
+      call ESMF_HConfigFileSave(restart_cfg, cap_restart_file, _RC)
+      call ESMF_HConfigDestroy(restart_cfg, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine update_restart
 
 end module mapl3g_Cap

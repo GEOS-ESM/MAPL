@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_MaplGeom) get_variable_attributes_smod
    use mapl3g_GeomSpec

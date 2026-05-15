@@ -6,7 +6,7 @@
 !
 #define INT_MAX 2147483647
 
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 !
 !>
 !### MODULE: `MAPL_HashMod`

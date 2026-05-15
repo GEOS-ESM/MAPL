@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 ! This module provides a family of classes that encapsulate variant
 ! methods of specifying/running SetServices on a user gridcomp.

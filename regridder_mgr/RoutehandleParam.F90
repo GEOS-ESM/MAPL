@@ -152,26 +152,34 @@ contains
 
    end function new_RoutehandleParam
 
-   function make_routehandle_from_param(geom_in, geom_out, param, rc) result(routehandle)
+    function make_routehandle_from_param(param, geom_in, geom_out, typekind_in, typekind_out, rc) result(routehandle)
       type(ESMF_Routehandle) :: routehandle
+      type(RoutehandleParam), intent(in) :: param
       type(ESMF_Geom), intent(in) :: geom_in
       type(ESMF_Geom), intent(in) :: geom_out
-      type(RoutehandleParam), intent(in) :: param
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind_in
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind_out
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Field) :: field_in
       type(ESMF_Field) :: field_out
+      type(ESMF_TypeKind_Flag) :: tk_in, tk_out
 
       integer :: srcTermProcessing=0
 
+      tk_in  = ESMF_TYPEKIND_R4
+      tk_out = ESMF_TYPEKIND_R4
+      if (present(typekind_in))  tk_in  = typekind_in
+      if (present(typekind_out)) tk_out = typekind_out
+
       field_in = ESMF_FieldEmptyCreate(name='tmp', _RC)
       call ESMF_FieldEmptySet(field_in, geom_in, _RC)
-      call ESMF_FieldEmptyComplete(field_in, typekind=ESMF_TypeKind_R4, _RC)
+      call ESMF_FieldEmptyComplete(field_in, typekind=tk_in, _RC)
 
       field_out = ESMF_FieldEmptyCreate(name='tmp', _RC)
       call ESMF_FieldEmptySet(field_out, geom_out, _RC)
-      call ESMF_FieldEmptyComplete(field_out, typekind=ESMF_TypeKind_R4, _RC)
+      call ESMF_FieldEmptyComplete(field_out, typekind=tk_out, _RC)
 
       call ESMF_FieldRegridStore(field_in, field_out, &
            srcMaskValues=param%srcMaskValues, &

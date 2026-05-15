@@ -4,6 +4,8 @@ set (srcs
     InternalConstants.F90
     MathConstants.F90
     PhysicalConstants.F90
+    EarthConstants.F90
+    EarthAtmosphericConstants.F90
     Constants.F90
     )
 

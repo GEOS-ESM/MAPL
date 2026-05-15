@@ -17,11 +17,17 @@ cap:
   name: cap
   restart: cap_restart2.yaml
 
+  checkpointing:
+     enabled: true
+     final: true
+     path: checkpoints
+     alarms: {}
+
   clock:
-    dt: PT3H
-    start: 2004-10-20T00:00:00
+    dt: PT24H
+    start: 2005-03-07T00:00:00
     stop: 2999-03-02T21:00:00
-    segment_duration: P1D
+    segment_duration: P96D
 
   extdata_name: EXTDATA
   history_name: HIST
@@ -30,12 +36,12 @@ cap:
   mapl:
     children:
       GCM:
-        dso: libMAPL.componentDriverGridComp.dylib
+        dso: libMAPL.componentDriverGridComp
         setServices: setservices_
         config_file: GCM2.yaml
       EXTDATA:
-        dso: libMAPL.extdata3g.dylib
+        dso: libMAPL.extdata3g
         config_file: extdata2.yaml
       HIST:
-        dso: libMAPL.history3g.dylib
+        dso: libMAPL.history3g
         config_file: history2.yaml

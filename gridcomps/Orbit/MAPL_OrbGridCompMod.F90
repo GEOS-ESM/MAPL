@@ -23,9 +23,9 @@
 ! !USES:
 !
    Use ESMF
-   use MAPL_MathConstantsMod, only: MAPL_PI, MAPL_DEGREES_TO_RADIANS_R8, &
+   use MAPL_MathConstants, only: MAPL_PI, MAPL_DEGREES_TO_RADIANS_R8, &
        MAPL_RADIANS_TO_DEGREES
-   use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_R4, MAPL_DimsHorzOnly, &
+   use MAPL_InternalConstants, only: MAPL_UNDEFINED_REAL, MAPL_R4, MAPL_DimsHorzOnly, &
        MAPL_VLocationCenter
    use MAPL_ISO8601_DateTime, only: convert_ISO8601_to_integer_date, &
        convert_ISO8601_to_integer_time

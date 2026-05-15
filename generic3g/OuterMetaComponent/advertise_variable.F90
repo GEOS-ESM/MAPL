@@ -21,7 +21,7 @@ contains
       type(VirtualConnectionPt) :: virtual_pt
       
       item_spec = var_spec%make_StateItemSpec(this%registry, &
-           this%geom, this%vertical_grid, timestep=this%user_timestep, offset=this%user_offset, _RC)
+           this%geom, this%vertical_grid, _RC)
       virtual_pt = var_spec%make_virtualPt()
       call this%registry%add_primary_spec(virtual_pt, item_spec)
       

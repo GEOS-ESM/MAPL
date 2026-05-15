@@ -1,13 +1,13 @@
-esma_set_this()
+esma_set_this(OVERRIDE MAPL)
 
 set (srcs
-  mapl3g.F90
+  MAPL.F90
   MaplFramework.F90
   )
 
 esma_add_library (${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.generic3g MAPL.pfio MAPL.hconfig MAPL.griddedio MAPL.vm MAPL.field ${EXTDATA_TARGET}
+  DEPENDENCIES MAPL.generic3g MAPL.pfio MAPL.hconfig MAPL.vm MAPL.field MAPL.state MAPL.python_bridge MAPL.base3g MAPL.profiler ${EXTDATA_TARGET}
                ESMF::ESMF NetCDF::NetCDF_Fortran MPI::MPI_Fortran PFLOGGER::pflogger
   TYPE SHARED
   )

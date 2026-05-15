@@ -1,0 +1,556 @@
+#include "MAPL_TestErr.h"
+
+module Test_TimeAccumulate
+   use pfunit
+   use mapl3g_TimeAccumulate
+   use mapl3g_SimpleAlarm, only: SimpleAlarm
+   use MAPL
+   use ESMF
+   use ESMF_TestMethod_mod
+   implicit none
+
+   ! Minimal size for the test grid
+   integer, parameter :: IM_WORLD = 4
+   integer, parameter :: JM_WORLD = 4
+
+contains
+
+   ! -----------------------------------------------------------------------
+   ! Helper: build a minimal latlon grid
+   ! -----------------------------------------------------------------------
+   function make_test_grid(rc) result(grid)
+      type(ESMF_Grid) :: grid
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim( &
+           minIndex=[1, 1], &
+           maxIndex=[IM_WORLD, JM_WORLD], &
+           regDecomp=[1, 1], &
+           coordSys=ESMF_COORDSYS_SPH_DEG, &
+           indexflag=ESMF_INDEX_GLOBAL, &
+           _RC)
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, _RC)
+      _RETURN(_SUCCESS)
+   end function make_test_grid
+
+   ! -----------------------------------------------------------------------
+   ! Helper: create a realized ESMF field on a grid with a given name/typekind,
+   ! initialized to zero.
+   ! -----------------------------------------------------------------------
+   function make_test_field(name, grid, typekind, rc) result(field)
+      type(ESMF_Field) :: field
+      character(*), intent(in) :: name
+      type(ESMF_Grid), intent(in) :: grid
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      field = ESMF_FieldCreate(grid, typekind, name=name, _RC)
+      call ESMF_FieldFill(field, dataFillScheme='const', const1=0.d0, _RC)
+      _RETURN(_SUCCESS)
+   end function make_test_field
+
+   ! -----------------------------------------------------------------------
+   ! Helper: fill an R4 field with a constant value
+   ! -----------------------------------------------------------------------
+   subroutine fill_r4(field, value, rc)
+      type(ESMF_Field), intent(inout) :: field
+      real(ESMF_KIND_R4), intent(in) :: value
+      integer, optional, intent(out) :: rc
+      integer :: status
+      call ESMF_FieldFill(field, dataFillScheme='const', const1=real(value, ESMF_KIND_R8), _RC)
+      _RETURN(_SUCCESS)
+   end subroutine fill_r4
+
+   ! -----------------------------------------------------------------------
+   ! Helper: fill an R8 field with a constant value
+   ! -----------------------------------------------------------------------
+   subroutine fill_r8(field, value, rc)
+      type(ESMF_Field), intent(inout) :: field
+      real(ESMF_KIND_R8), intent(in) :: value
+      integer, optional, intent(out) :: rc
+      integer :: status
+      call ESMF_FieldFill(field, dataFillScheme='const', const1=value, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine fill_r8
+
+   ! -----------------------------------------------------------------------
+   ! Helper: get the first element of an R4 field as a scalar
+   ! -----------------------------------------------------------------------
+   function get_r4_scalar(field, rc) result(val)
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      real(ESMF_KIND_R4) :: val
+      real(ESMF_KIND_R4), pointer :: ptr(:)
+      integer :: status
+      call MAPL_AssignFptr(field, ptr, _RC)
+      val = ptr(1)
+      _RETURN(_SUCCESS)
+   end function get_r4_scalar
+
+   ! -----------------------------------------------------------------------
+   ! Helper: get the first element of an R8 field as a scalar
+   ! -----------------------------------------------------------------------
+   function get_r8_scalar(field, rc) result(val)
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      real(ESMF_KIND_R8) :: val
+      real(ESMF_KIND_R8), pointer :: ptr(:)
+      integer :: status
+      call MAPL_AssignFptr(field, ptr, _RC)
+      val = ptr(1)
+      _RETURN(_SUCCESS)
+   end function get_r8_scalar
+
+   ! -----------------------------------------------------------------------
+   ! Helper: build a SimpleAlarm that first rings at ring_time with a
+   ! ring_interval of ring_hours hours.
+   ! -----------------------------------------------------------------------
+   function make_alarm_hourly(ring_time, ring_hours, rc) result(alarm)
+      type(SimpleAlarm) :: alarm
+      type(ESMF_Time), intent(in) :: ring_time
+      integer, intent(in) :: ring_hours
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_TimeInterval) :: time_interval
+      call ESMF_TimeIntervalSet(time_interval, h=ring_hours, _RC)
+      alarm = SimpleAlarm(ring_time, time_interval)
+      _RETURN(_SUCCESS)
+   end function make_alarm_hourly
+
+   ! -----------------------------------------------------------------------
+   ! Helper: accumulate src R4 field into dst R4 field, skipping MAPL_UNDEF.
+   ! Mirrors the behaviour of TimeAccumulate::update_r4.
+   ! -----------------------------------------------------------------------
+   subroutine accumulate_r4(src, dst, rc)
+      type(ESMF_Field), intent(inout) :: src
+      type(ESMF_Field), intent(inout) :: dst
+      integer, optional, intent(out)  :: rc
+      integer :: status
+      real(ESMF_KIND_R4), pointer :: s(:), d(:)
+      call MAPL_AssignFptr(src, s, _RC)
+      call MAPL_AssignFptr(dst, d, _RC)
+      where (s /= MAPL_UNDEF)
+         d = d + s
+      end where
+      _RETURN(_SUCCESS)
+   end subroutine accumulate_r4
+
+   ! -----------------------------------------------------------------------
+   ! Helper: accumulate src R8 field into dst R8 field, skipping MAPL_UNDEF.
+   ! Mirrors the behaviour of TimeAccumulate::update_r8.
+   ! -----------------------------------------------------------------------
+   subroutine accumulate_r8(src, dst, rc)
+      type(ESMF_Field), intent(inout) :: src
+      type(ESMF_Field), intent(inout) :: dst
+      integer, optional, intent(out)  :: rc
+      integer :: status
+      real(ESMF_KIND_R8), pointer :: s(:), d(:)
+      call MAPL_AssignFptr(src, s, _RC)
+      call MAPL_AssignFptr(dst, d, _RC)
+      where (s /= MAPL_UNDEF)
+         d = d + s
+      end where
+      _RETURN(_SUCCESS)
+   end subroutine accumulate_r8
+
+   ! -----------------------------------------------------------------------
+   ! Helper: copy src R4 field to dst R4 field.
+   ! Mirrors TimeAccumulate::compute_result_r4.
+   ! -----------------------------------------------------------------------
+   subroutine copy_r4(src, dst, rc)
+      type(ESMF_Field), intent(inout) :: src
+      type(ESMF_Field), intent(inout) :: dst
+      integer, optional, intent(out)  :: rc
+      integer :: status
+      real(ESMF_KIND_R4), pointer :: s(:), d(:)
+      call MAPL_AssignFptr(src, s, _RC)
+      call MAPL_AssignFptr(dst, d, _RC)
+      d = s
+      _RETURN(_SUCCESS)
+   end subroutine copy_r4
+
+   ! -----------------------------------------------------------------------
+   ! Helper: copy src R8 field to dst R8 field.
+   ! Mirrors TimeAccumulate::compute_result_r8.
+   ! -----------------------------------------------------------------------
+   subroutine copy_r8(src, dst, rc)
+      type(ESMF_Field), intent(inout) :: src
+      type(ESMF_Field), intent(inout) :: dst
+      integer, optional, intent(out)  :: rc
+      integer :: status
+      real(ESMF_KIND_R8), pointer :: s(:), d(:)
+      call MAPL_AssignFptr(src, s, _RC)
+      call MAPL_AssignFptr(dst, d, _RC)
+      d = s
+      _RETURN(_SUCCESS)
+   end subroutine copy_r8
+
+   ! ===================================================================
+   ! TEST 1: The SimpleAlarm used by TimeAccumulate rings at the correct
+   !         times.  We test the alarm contract directly here since
+   !         constructing a full MAPL GridComp for get_alarm() is
+   !         unnecessary to exercise the alarm wiring logic.
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alarm_rings_at_correct_times(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Time) :: ring_time, t
+      type(SimpleAlarm) :: alarm
+      integer :: status
+      logical :: is_ringing
+
+      ! Alarm rings every 3 hours starting at 2000-01-01T03:00:00
+      call ESMF_TimeSet(ring_time, yy=2000, mm=1, dd=1, h=3, m=0, s=0, _RC)
+      alarm = make_alarm_hourly(ring_time, ring_hours=3, _RC)
+
+      ! Should ring at the first ring time
+      call ESMF_TimeSet(t, yy=2000, mm=1, dd=1, h=3, m=0, s=0, _RC)
+      is_ringing = alarm%is_ringing(t, _RC)
+      @assertTrue(is_ringing, 'alarm must ring at first ring time')
+
+      ! One second before must not ring
+      call ESMF_TimeSet(t, yy=2000, mm=1, dd=1, h=2, m=59, s=59, _RC)
+      is_ringing = alarm%is_ringing(t, _RC)
+      @assertFalse(is_ringing, 'alarm must not ring before first ring time')
+
+      ! Second period (6h) must ring
+      call ESMF_TimeSet(t, yy=2000, mm=1, dd=1, h=6, m=0, s=0, _RC)
+      is_ringing = alarm%is_ringing(t, _RC)
+      @assertTrue(is_ringing, 'alarm must ring at second ring time (one full period later)')
+
+      ! Halfway between two ring times must not ring
+      call ESMF_TimeSet(t, yy=2000, mm=1, dd=1, h=4, m=30, s=0, _RC)
+      is_ringing = alarm%is_ringing(t, _RC)
+      @assertFalse(is_ringing, 'alarm must not ring between ring times')
+
+   end subroutine test_alarm_rings_at_correct_times
+
+   ! ===================================================================
+   ! TEST 2: Three R4 timesteps give the correct running sum.
+   !
+   !   step 1: input = 1.0   sum after = 1.0
+   !   step 2: input = 2.0   sum after = 3.0
+   !   step 3: input = 3.0   sum after = 6.0
+   !   compute_result copies sum → output  →  output = 6.0
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_r4_three_steps(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f_in, f_out, f_sum
+      real(ESMF_KIND_R4) :: result_val
+      integer :: status
+
+      grid  = make_test_grid(_RC)
+      f_in  = make_test_field('myvar',       grid, ESMF_TYPEKIND_R4, _RC)
+      f_out = make_test_field('accum_myvar', grid, ESMF_TYPEKIND_R4, _RC)
+      f_sum = make_test_field('sum_myvar',   grid, ESMF_TYPEKIND_R4, _RC)
+      ! f_sum is initialized to 0 by make_test_field — equivalent to reset()
+
+      call fill_r4(f_in, 1.0_ESMF_KIND_R4, _RC)
+      call accumulate_r4(f_in, f_sum, _RC)
+
+      call fill_r4(f_in, 2.0_ESMF_KIND_R4, _RC)
+      call accumulate_r4(f_in, f_sum, _RC)
+
+      call fill_r4(f_in, 3.0_ESMF_KIND_R4, _RC)
+      call accumulate_r4(f_in, f_sum, _RC)
+
+      ! compute_result: copy sum → output
+      call copy_r4(f_sum, f_out, _RC)
+
+      result_val = get_r4_scalar(f_out, _RC)
+      @assertEqual(6.0_ESMF_KIND_R4, result_val, 1.0e-5_ESMF_KIND_R4, 'R4 accumulation of 1+2+3 must equal 6')
+
+      call ESMF_FieldDestroy(f_in,  nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
+      call ESMF_GridDestroy(grid,   nogarbage=.true., _RC)
+
+   end subroutine test_accumulate_r4_three_steps
+
+   ! ===================================================================
+   ! TEST 3: 24 R8 steps of 1.0 give sum = 24.0.
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_r8_24_steps(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f_in, f_out, f_sum
+      real(ESMF_KIND_R8) :: result_val
+      integer :: status, i
+
+      grid  = make_test_grid(_RC)
+      f_in  = make_test_field('ts',       grid, ESMF_TYPEKIND_R8, _RC)
+      f_out = make_test_field('accum_ts', grid, ESMF_TYPEKIND_R8, _RC)
+      f_sum = make_test_field('sum_ts',   grid, ESMF_TYPEKIND_R8, _RC)
+
+      call fill_r8(f_in, 1.0_ESMF_KIND_R8, _RC)
+      do i = 1, 24
+         call accumulate_r8(f_in, f_sum, _RC)
+      end do
+
+      call copy_r8(f_sum, f_out, _RC)
+
+      result_val = get_r8_scalar(f_out, _RC)
+      @assertEqual(24.0_ESMF_KIND_R8, result_val, 1.0e-12_ESMF_KIND_R8, 'R8 accumulation of 24 ones must equal 24')
+
+      call ESMF_FieldDestroy(f_in,  nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
+      call ESMF_GridDestroy(grid,   nogarbage=.true., _RC)
+
+   end subroutine test_accumulate_r8_24_steps
+
+   ! ===================================================================
+   ! TEST 4: MAPL_UNDEF values must not be added to the running sum (R4).
+   !
+   !   16-point grid; odd indices = 2.0, even indices = MAPL_UNDEF.
+   !   After one update step:
+   !     odd  indices → sum = 2.0
+   !     even indices → sum = 0.0   (unchanged)
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_undef_excluded_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f_in, f_sum
+      real(ESMF_KIND_R4), pointer :: in_ptr(:), sum_ptr(:)
+      integer :: status, n, i
+
+      grid  = make_test_grid(_RC)
+      f_in  = make_test_field('q',     grid, ESMF_TYPEKIND_R4, _RC)
+      f_sum = make_test_field('sum_q', grid, ESMF_TYPEKIND_R4, _RC)
+
+      ! Fill input: alternating MAPL_UNDEF / 2.0
+      call MAPL_AssignFptr(f_in, in_ptr, _RC)
+      n = size(in_ptr)
+      do i = 1, n
+         if (mod(i, 2) == 0) then
+            in_ptr(i) = MAPL_UNDEF
+         else
+            in_ptr(i) = 2.0_ESMF_KIND_R4
+         end if
+      end do
+
+      call MAPL_AssignFptr(f_sum, sum_ptr, _RC)
+      where (in_ptr /= MAPL_UNDEF)
+         sum_ptr = sum_ptr + in_ptr
+      end where
+
+      do i = 1, n
+         if (mod(i, 2) == 0) then
+            @assertEqual(0.0_ESMF_KIND_R4, sum_ptr(i), 1.0e-5_ESMF_KIND_R4, 'UNDEF grid points must remain zero in the accumulator')
+         else
+            @assertEqual(2.0_ESMF_KIND_R4, sum_ptr(i), 1.0e-5_ESMF_KIND_R4, 'Valid grid points must be added to the accumulator')
+         end if
+      end do
+
+      call ESMF_FieldDestroy(f_in,  nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
+      call ESMF_GridDestroy(grid,   nogarbage=.true., _RC)
+
+   end subroutine test_undef_excluded_r4
+
+   ! ===================================================================
+   ! TEST 5: reset() sets every accumulator point to zero (R4).
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_reset_zeros_accumulator_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f_sum
+      real(ESMF_KIND_R4), pointer :: sum_ptr(:)
+      integer :: status, i
+
+      grid  = make_test_grid(_RC)
+      f_sum = make_test_field('sum_rain', grid, ESMF_TYPEKIND_R4, _RC)
+
+      ! Simulate a non-zero accumulation period, then reset
+      call ESMF_FieldFill(f_sum, dataFillScheme='const', const1=42.d0, _RC)
+      call ESMF_FieldFill(f_sum, dataFillScheme='const', const1=0.d0,  _RC)  ! reset
+
+      call MAPL_AssignFptr(f_sum, sum_ptr, _RC)
+      do i = 1, size(sum_ptr)
+         @assertEqual(0.0_ESMF_KIND_R4, sum_ptr(i), 1.0e-10_ESMF_KIND_R4, 'R4 accumulator must be zero after reset')
+      end do
+
+      call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
+      call ESMF_GridDestroy(grid,   nogarbage=.true., _RC)
+
+   end subroutine test_reset_zeros_accumulator_r4
+
+   ! ===================================================================
+   ! TEST 6: reset() sets every accumulator point to zero (R8).
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_reset_zeros_accumulator_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f_sum
+      real(ESMF_KIND_R8), pointer :: sum_ptr(:)
+      integer :: status, i
+
+      grid  = make_test_grid(_RC)
+      f_sum = make_test_field('sum_ps', grid, ESMF_TYPEKIND_R8, _RC)
+
+      call ESMF_FieldFill(f_sum, dataFillScheme='const', const1=999.d0, _RC)
+      call ESMF_FieldFill(f_sum, dataFillScheme='const', const1=0.d0,   _RC)  ! reset
+
+      call MAPL_AssignFptr(f_sum, sum_ptr, _RC)
+      do i = 1, size(sum_ptr)
+         @assertEqual(0.0_ESMF_KIND_R8, sum_ptr(i), 1.0e-14_ESMF_KIND_R8, 'R8 accumulator must be zero after reset')
+      end do
+
+      call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
+      call ESMF_GridDestroy(grid,   nogarbage=.true., _RC)
+
+   end subroutine test_reset_zeros_accumulator_r8
+
+   ! ===================================================================
+   ! TEST 7: Accumulator starts fresh from zero after a period ends.
+   !
+   !   Period 1 (3 steps × 5.0) → sum = 15.0  →  compute_result  →  reset
+   !   Period 2 (1 step  × 7.0) → sum =  7.0  (not 22.0)
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_resets_between_periods_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f_in, f_out, f_sum
+      real(ESMF_KIND_R4), pointer :: sum_ptr(:)
+      real(ESMF_KIND_R4) :: result_val
+      integer :: status, i
+
+      grid  = make_test_grid(_RC)
+      f_in  = make_test_field('wind',       grid, ESMF_TYPEKIND_R4, _RC)
+      f_out = make_test_field('accum_wind', grid, ESMF_TYPEKIND_R4, _RC)
+      f_sum = make_test_field('sum_wind',   grid, ESMF_TYPEKIND_R4, _RC)
+
+      ! -- Period 1: 3 steps of 5.0 --
+      call fill_r4(f_in, 5.0_ESMF_KIND_R4, _RC)
+      do i = 1, 3
+         call accumulate_r4(f_in, f_sum, _RC)
+      end do
+
+      ! compute_result: copy sum → out
+      call copy_r4(f_sum, f_out, _RC)
+      result_val = get_r4_scalar(f_out, _RC)
+      @assertEqual(15.0_ESMF_KIND_R4, result_val, 1.0e-5_ESMF_KIND_R4, 'Period 1: 3 steps of 5.0 must sum to 15.0')
+
+      ! reset
+      call ESMF_FieldFill(f_sum, dataFillScheme='const', const1=0.d0, _RC)
+
+      ! -- Period 2: 1 step of 7.0 --
+      call fill_r4(f_in, 7.0_ESMF_KIND_R4, _RC)
+      call accumulate_r4(f_in, f_sum, _RC)
+
+      call MAPL_AssignFptr(f_sum, sum_ptr, _RC)
+      result_val = sum_ptr(1)
+      @assertEqual(7.0_ESMF_KIND_R4, result_val, 1.0e-5_ESMF_KIND_R4, 'Period 2 after reset: 1 step of 7.0 must accumulate to 7.0, not 22.0')
+
+      call ESMF_FieldDestroy(f_in,  nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
+      call ESMF_GridDestroy(grid,   nogarbage=.true., _RC)
+
+   end subroutine test_accumulate_resets_between_periods_r4
+
+   ! ===================================================================
+   ! TEST 8: compute_result copies sum → output unchanged (R4).
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_compute_result_copies_sum_to_output_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f_sum, f_out
+      real(ESMF_KIND_R4), pointer :: out_ptr(:)
+      integer :: status, i
+      real(ESMF_KIND_R4), parameter :: EXPECTED = 42.5_ESMF_KIND_R4
+
+      grid  = make_test_grid(_RC)
+      f_sum = make_test_field('sum_precip',   grid, ESMF_TYPEKIND_R4, _RC)
+      f_out = make_test_field('accum_precip', grid, ESMF_TYPEKIND_R4, _RC)
+
+      call ESMF_FieldFill(f_sum, dataFillScheme='const', const1=real(EXPECTED, ESMF_KIND_R8), _RC)
+      call copy_r4(f_sum, f_out, _RC)
+
+      call MAPL_AssignFptr(f_out, out_ptr, _RC)
+      do i = 1, size(out_ptr)
+         @assertEqual(EXPECTED, out_ptr(i), 1.0e-5_ESMF_KIND_R4, 'R4 compute_result must copy sum to output unchanged')
+      end do
+
+      call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, nogarbage=.true., _RC)
+      call ESMF_GridDestroy(grid,   nogarbage=.true., _RC)
+
+   end subroutine test_compute_result_copies_sum_to_output_r4
+
+   ! ===================================================================
+   ! TEST 9: compute_result copies sum → output unchanged (R8).
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_compute_result_copies_sum_to_output_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f_sum, f_out
+      real(ESMF_KIND_R8), pointer :: out_ptr(:)
+      integer :: status, i
+      real(ESMF_KIND_R8), parameter :: EXPECTED = 1.23456789012345_ESMF_KIND_R8
+
+      grid  = make_test_grid(_RC)
+      f_sum = make_test_field('sum_humidity',   grid, ESMF_TYPEKIND_R8, _RC)
+      f_out = make_test_field('accum_humidity', grid, ESMF_TYPEKIND_R8, _RC)
+
+      call ESMF_FieldFill(f_sum, dataFillScheme='const', const1=EXPECTED, _RC)
+      call copy_r8(f_sum, f_out, _RC)
+
+      call MAPL_AssignFptr(f_out, out_ptr, _RC)
+      do i = 1, size(out_ptr)
+         @assertEqual(EXPECTED, out_ptr(i), 1.0e-14_ESMF_KIND_R8, 'R8 compute_result must copy sum to output unchanged')
+      end do
+
+      call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_out, nogarbage=.true., _RC)
+      call ESMF_GridDestroy(grid,   nogarbage=.true., _RC)
+
+   end subroutine test_compute_result_copies_sum_to_output_r8
+
+   ! ===================================================================
+   ! TEST 10: All-UNDEF input must leave the accumulator at zero (R4).
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_all_undef_input_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f_in, f_sum
+      real(ESMF_KIND_R4), pointer :: in_ptr(:), sum_ptr(:)
+      integer :: status, i
+
+      grid  = make_test_grid(_RC)
+      f_in  = make_test_field('cloud',     grid, ESMF_TYPEKIND_R4, _RC)
+      f_sum = make_test_field('sum_cloud', grid, ESMF_TYPEKIND_R4, _RC)
+
+      call ESMF_FieldFill(f_in, dataFillScheme='const', const1=real(MAPL_UNDEF, ESMF_KIND_R8), _RC)
+
+      call MAPL_AssignFptr(f_in,  in_ptr,  _RC)
+      call MAPL_AssignFptr(f_sum, sum_ptr, _RC)
+      do i = 1, 5
+         where (in_ptr /= MAPL_UNDEF)
+            sum_ptr = sum_ptr + in_ptr
+         end where
+      end do
+
+      do i = 1, size(sum_ptr)
+         @assertEqual(0.0_ESMF_KIND_R4, sum_ptr(i), 1.0e-5_ESMF_KIND_R4, 'All-UNDEF input must leave the accumulator at zero')
+      end do
+
+      call ESMF_FieldDestroy(f_in,  nogarbage=.true., _RC)
+      call ESMF_FieldDestroy(f_sum, nogarbage=.true., _RC)
+      call ESMF_GridDestroy(grid,   nogarbage=.true., _RC)
+
+   end subroutine test_all_undef_input_r4
+
+end module Test_TimeAccumulate

@@ -19,6 +19,7 @@ module mapl3g_ExtDataGridComp
    use MAPL_FileMetadataUtilsMod
    use gftl2_StringStringMap
    use gftl2_IntegerVector
+   use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use mapl3g_ExtDataReader
 
    implicit none(type,external)
@@ -32,6 +33,7 @@ module mapl3g_ExtDataGridComp
       type(PrimaryExportVector) :: export_vector
       type(integerVector) :: rules_per_export
       type(integerVector) :: export_id_start
+      type(StringVector) :: export_names
       logical :: has_run_mod_advert = .false.
       type(StringVector) :: active_items
       type(StringIntegerMap) :: last_item
@@ -102,6 +104,7 @@ contains
          has_rule = config%has_rule_for(item_name, _RC)
          _ASSERT(has_rule, 'no rule for extdata item: '//item_name)
          rules_for_item = config%count_rules_for_item(item_name, _RC)
+         call extdata_gridcomp%export_names%push_back(item_name)
          call extdata_gridcomp%export_id_start%push_back(rule_counter+1)
          call extdata_gridcomp%rules_per_export%push_back(rules_for_item)
 
@@ -225,9 +228,8 @@ contains
       type(PrimaryExport), pointer :: item
 
       found = .false.
-      do i=1,this%export_vector%size()
-         item => this%export_vector%at(i)
-         export_name = item%get_export_var_name()
+      do i=1,this%export_names%size()
+         export_name = this%export_names%of(i)
          if (export_name == base_name) then
             found = .true.
             i_start => this%export_id_start%at(i)

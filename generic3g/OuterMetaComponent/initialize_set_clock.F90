@@ -35,19 +35,13 @@ contains
 
       user_offset = this%user_offset
 
-      !call check_compatibility(user_timestep, timeStep, compatible, offset=user_offset, _RC)
-      !_ASSERT(compatible, 'The user timestep and offset are not compatible with the outer timestep.')
+      call check_compatibility(user_timestep, timeStep, compatible, offset=user_offset, _RC)
+      _ASSERT(compatible, 'The user timestep and offset are not compatible with the outer timestep.')
 
       user_clock = ESMF_ClockCreate(outer_clock, _RC)
       call ESMF_ClockSet(user_clock, timestep=user_timeStep, _RC)
       call set_run_user_alarm(this, outer_clock, user_clock, _RC)
 
-      block
-         type(ESMF_Time) :: current_time
-         character(len=ESMF_MAXSTR) :: time_string
-         call ESMF_ClockGet(user_clock, currTime=current_time, _RC)
-         call ESMF_TimeGet(current_time, timeString=time_string, _RC)
-      end block
       call this%user_gc_driver%set_clock(user_clock)
 
       call set_children_outer_clock(this%children, user_clock, _RC)
@@ -158,84 +152,5 @@ contains
          _RETURN(_SUCCESS)
 
    end subroutine reset_user_time
-
-   function sub_time_in_datetime(time, ref_datetime, rc) result(new_time)
-      type(ESMF_Time) :: new_time
-      type(ESMF_Time), intent(in) :: time
-      character(len=*), intent(in) :: ref_datetime
-      integer, optional, intent(out) :: rc
-
-      integer :: status, year, month, day, hour, minute
-      integer :: pos
-
-      call ESMF_TimeGet(time, yy=year, mm=month, dd=day, h=hour, m=minute, _RC)
-
-      ! Parse template left-to-right. Format: %y4%m2%d2_%h2%n2
-      ! Tokens starting with % are substituted from current time.
-      ! Literal digits replace the corresponding time component.
-      pos = 1
-
-      ! Year: either %y4 (3 chars, use current year) or 4 literal digits
-      if (ref_datetime(pos:pos) == '%') then
-         _ASSERT(ref_datetime(pos:pos+2) == '%y4', 'Invalid token in ref_datetime at year position, expected %y4')
-         ! year stays as current time year
-         pos = pos + 3
-      else
-         read(ref_datetime(pos:pos+3), '(I4)') year
-         pos = pos + 4
-      end if
-
-      ! Month: either %m2 (3 chars, use current month) or 2 literal digits
-      if (ref_datetime(pos:pos) == '%') then
-         _ASSERT(ref_datetime(pos:pos+2) == '%m2', 'Invalid token in ref_datetime at month position, expected %m2')
-         ! month stays as current time month
-         pos = pos + 3
-      else
-         read(ref_datetime(pos:pos+1), '(I2)') month
-         _ASSERT(month >= 1 .and. month <= 12, 'ref_datetime month must be between 1 and 12')
-         pos = pos + 2
-      end if
-
-      ! Day: either %d2 (3 chars, use current day) or 2 literal digits
-      if (ref_datetime(pos:pos) == '%') then
-         _ASSERT(ref_datetime(pos:pos+2) == '%d2', 'Invalid token in ref_datetime at day position, expected %d2')
-         ! day stays as current time day
-         pos = pos + 3
-      else
-         read(ref_datetime(pos:pos+1), '(I2)') day
-         _ASSERT(day >= 1 .and. day <= 28, 'ref_datetime day must be between 1 and 28')
-         pos = pos + 2
-      end if
-
-      ! Separator: underscore
-      _ASSERT(ref_datetime(pos:pos) == '_', 'Expected underscore separator in ref_datetime')
-      pos = pos + 1
-
-      ! Hour: either %h2 (3 chars, use current hour) or 2 literal digits
-      if (ref_datetime(pos:pos) == '%') then
-         _ASSERT(ref_datetime(pos:pos+2) == '%h2', 'Invalid token in ref_datetime at hour position, expected %h2')
-         ! hour stays as current time hour
-         pos = pos + 3
-      else
-         read(ref_datetime(pos:pos+1), '(I2)') hour
-         _ASSERT(hour >= 0 .and. hour <= 23, 'ref_datetime hour must be between 0 and 23')
-         pos = pos + 2
-      end if
-
-      ! Minute: either %n2 (3 chars, use current minute) or 2 literal digits
-      if (ref_datetime(pos:pos) == '%') then
-         _ASSERT(ref_datetime(pos:pos+2) == '%n2', 'Invalid token in ref_datetime at minute position, expected %n2')
-         ! minute stays as current time minute
-         pos = pos + 3
-      else
-         read(ref_datetime(pos:pos+1), '(I2)') minute
-         _ASSERT(minute >= 0 .and. minute <= 59, 'ref_datetime minute must be between 0 and 59')
-         pos = pos + 2
-      end if
-
-      call ESMF_TimeSet(new_time, yy=year, mm=month, dd=day, h=hour, m=minute, s=0, _RC)
-
-      _RETURN(_SUCCESS)
-   end function sub_time_in_datetime
 
 end submodule initialize_set_clock_smod

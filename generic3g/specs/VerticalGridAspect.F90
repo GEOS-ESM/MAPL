@@ -22,6 +22,7 @@ module mapl3g_VerticalGridAspect
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalRegridMethod
    use mapl3g_ComponentDriver
+   use mapl3g_MirrorVerticalGrid, only: MirrorVerticalGrid
    use mapl_ErrorHandling
    use esmf
    use gftl2_StringVector
@@ -358,6 +359,7 @@ contains
       integer :: status
 
       export_ = to_VerticalGridAspect(export, _RC)
+      !wdb fixme deleteme Should this use set_vertical_grid to set mirror?
       this%vertical_grid = export_%vertical_grid
 
       _RETURN(_SUCCESS)
@@ -443,6 +445,7 @@ contains
       
       type(VerticalCoordinateDirection) :: grid_direction
       
+      !wdb fixme deleteme Should this use is_mirror()?
       if (.not. allocated(this%vertical_grid)) then
          direction = VCOORD_DIRECTION_INVALID
          return
@@ -489,7 +492,7 @@ contains
       end if
       call this%set_mirror(is_mirror)
 
-      if (allocated(this%vertical_grid))  deallocate(this%vertical_grid)
+      if (allocated(this%vertical_grid)) deallocate(this%vertical_grid)
       if (associated(vgrid)) then
          this%vertical_grid = vgrid
       end if
@@ -504,15 +507,25 @@ contains
       type(esmf_FieldBundle), optional, intent(inout) :: bundle
       type(esmf_State), optional, intent(inout) :: state
       integer, optional, intent(out) :: rc
-
       integer :: status
+      type(MirrorVerticalGrid) :: mirror_grid
+      class(VerticalGrid), allocatable :: vgrid
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
+      mirror_grid = MirrorVerticalGrid()
+      vgrid = mirror_grid
+      if(.not. this%is_mirror()) then
+         deallocate(vgrid)      
+         if (allocated(this%vertical_grid)) then
+            vgrid = this%vertical_grid
+         end if
+      end if
+
       if (present(field)) then
-         call mapl_FieldSet(field, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, vert_alignment=this%vertical_alignment, _RC)
+         call mapl_FieldSet(field, vgrid=vgrid, vert_staggerloc=this%vertical_stagger, vert_alignment=this%vertical_alignment, _RC)
       else if (present(bundle)) then
-         call mapl_FieldBundleSet(bundle, vgrid=this%vertical_grid, vert_staggerloc=this%vertical_stagger, _RC)
+         call mapl_FieldBundleSet(bundle, vgrid=vgrid, vert_staggerloc=this%vertical_stagger, _RC)
       end if
 
       _RETURN(_SUCCESS)

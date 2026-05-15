@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (mapl3g_MaplGeom) get_gridded_dims_smod
    use mapl3g_GeomSpec

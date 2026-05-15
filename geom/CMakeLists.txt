@@ -26,11 +26,13 @@ set(srcs
   IntegerMaplGeomMap.F90
 
   VectorBasis.F90
+
+  Subgrid.F90
 )
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.base MAPL.pfio MAPL.shared MAPL.hconfig_utils MAPL.field MAPL.esmf_utils GFTL::gftl-v2
+  DEPENDENCIES MAPL.pfio MAPL.shared MAPL.hconfig_utils MAPL.field MAPL.esmf_utils GFTL::gftl-v2
   TYPE SHARED
 )
 
@@ -42,6 +44,9 @@ add_subdirectory(GeomManager)
 add_subdirectory(VectorBasis)
 add_subdirectory(CubedSphere)
 add_subdirectory(LocStream)
+add_subdirectory(Mesh)
+add_subdirectory(XY)
+add_subdirectory(EASE)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
