@@ -252,11 +252,14 @@ contains
 !     to make sure this works.
     if (present(tilelons)) then
 #ifdef __GFORTRAN__
-       allocate(tmp_rptr(lbound(locstream%Ptr%Local_GeoLocation,1):ubound(locstream%Ptr%Local_GeoLocation,1)))
-       do i = lbound(locstream%Ptr%Local_GeoLocation,1), ubound(locstream%Ptr%Local_GeoLocation,1)
-         tmp_rptr(i) = locstream%Ptr%Local_GeoLocation(i)%x
-       enddo
-       tilelons => tmp_rptr
+       tilelons => null()
+       if (associated(locstream%Ptr%Local_GeoLocation)) then
+          allocate(tmp_rptr(lbound(locstream%Ptr%Local_GeoLocation,1):ubound(locstream%Ptr%Local_GeoLocation,1)))
+          do i = lbound(locstream%Ptr%Local_GeoLocation,1), ubound(locstream%Ptr%Local_GeoLocation,1)
+             tmp_rptr(i) = locstream%Ptr%Local_GeoLocation(i)%x
+          enddo
+          tilelons => tmp_rptr
+       endif
 #else
        tilelons => locstream%Ptr%Local_GeoLocation(:)%x
 #endif
@@ -264,11 +267,14 @@ contains
 
     if (present(tilelats)) then
 #ifdef __GFORTRAN__
-       allocate(tmp_rptr(lbound(locstream%Ptr%Local_GeoLocation,1):ubound(locstream%Ptr%Local_GeoLocation,1)))
-       do i = lbound(locstream%Ptr%Local_GeoLocation,1), ubound(locstream%Ptr%Local_GeoLocation,1)
-         tmp_rptr(i) = locstream%Ptr%Local_GeoLocation(i)%y
-       enddo
-       tilelats => tmp_rptr
+       tilelats => null()
+       if (associated(locstream%Ptr%Local_GeoLocation)) then
+          allocate(tmp_rptr(lbound(locstream%Ptr%Local_GeoLocation,1):ubound(locstream%Ptr%Local_GeoLocation,1)))
+          do i = lbound(locstream%Ptr%Local_GeoLocation,1), ubound(locstream%Ptr%Local_GeoLocation,1)
+            tmp_rptr(i) = locstream%Ptr%Local_GeoLocation(i)%y
+          enddo
+          tilelats => tmp_rptr
+       endif
 #else
        tilelats => locstream%Ptr%Local_GeoLocation(:)%y
 #endif
