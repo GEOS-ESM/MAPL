@@ -110,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Read/write repeatCount from/to cap restart file at beginning/end of run.
 - Added FILL_VALUE with alias to ACG3
 - TimeAccumulate to StatisticsGridComp
+- Added test scenario `regrid_r8` to verify that R8 fields are correctly regridded across different geometries (related to GH-4694)
 
 ### Changed
 
@@ -131,6 +132,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactor ACG to produce MAPL3 procedures
 - Pulled destroy_bundle and destroy_fields from MAPL_StateDestroy into MAPL_FieldBundleDestroy and FieldsDestroy
 - Added checks for bundle type in ExtensionTransform subtypes
+- Strip server I/O path from `NCIOMod`; remove `MAPL_BaseMod` dependency from `NCIOMod` and `FileIOSharedMod` (#4783)
+- Add `has_de` optional argument to `GridGet` in `mapl3g_GridGet`; make `grid_has_DE` public
+- Switch 6 lightweight CI workflows to `ubuntu-slim` runner to reduce concurrency pressure on `ubuntu-latest` (#4841)
 
 ### Fixed
 
@@ -154,24 +158,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Relaxed comparison standard for grid_is_ok. Added a test program to querry index
-- Fixed bug in WireComponent affecting TerminateImport
-- Removed unnecessary _ASSERT in MAPL_TerminateImportAllBut
-- Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
-- Fixed SIGFPE (integer divide by zero) in `MAPL_LoadBalanceMod` when load balancing algorithm evaluates maximum differences to zero.
-- Python bridge: remove odd 3rd party dependency due to importing no_type_check outside of the standard library
-
 ### Added
-
-- Added test scenario `regrid_r8` to verify that R8 fields are correctly regridded across different geometries (related to GH-4694)
 
 ### Changed
 
-- Strip server I/O path from `NCIOMod`; remove `MAPL_BaseMod` dependency from `NCIOMod` and `FileIOSharedMod` (#4783)
-- Add `has_de` optional argument to `GridGet` in `mapl3g_GridGet`; make `grid_has_DE` public
+### Removed
+
+### Deprecated
+
+## [2.69.0] - 2026-05-15
+
+### Fixed
+
+- Relaxed comparison standard for `grid_is_ok`. Added a test program to querry index
+- Fixed bug in WireComponent affecting TerminateImport
+- Removed unnecessary `_ASSERT` in `MAPL_TerminateImportAllBut`
+- Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
+- Fixed SIGFPE (integer divide by zero) in `MAPL_LoadBalanceMod` when load balancing algorithm evaluates maximum differences to zero.
+- Python bridge: remove odd 3rd party dependency due to importing `no_type_check` outside of the standard library
+
+### Added
+
+- Add new `RUN_LIKE_MODEL` options to ExtDataDriver.x to control whether clock ticks before (like model) or after (default and behaviour before this)
+
+### Changed
 
 - Switch 6 lightweight CI workflows to `ubuntu-slim` runner to reduce concurrency pressure on `ubuntu-latest` (#4841)
-
 - Update `components.yaml`
   - ESMA_cmake v4.37.0
     - Add `Coverage` CMake build type
@@ -181,8 +193,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed `MAPL_SUPPORT_MAPL3` CMake build option and all associated `MAPL_TARGET_PREFIX` variable logic (GH-4633). The dual-mount MAPL2+MAPL3 approach has been abandoned in favour of a single-mount MAPL3-only strategy.
-
-### Deprecated
 
 ## [2.68.0] - 2026-04-06
 
