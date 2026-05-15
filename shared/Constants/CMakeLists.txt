@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.constants)
+esma_set_this (OVERRIDE MAPL.constants)
 
 set (srcs
     InternalConstants.F90

@@ -177,7 +177,7 @@ contains
 
       collection => DataCollections%at(this%collection_id)
       if (get_range_ .and. (.not.allocated(this%valid_range))) then
-         if (index('%',this%file_template) == 0) then
+         if (index(this%file_template, '%') == 0) then
             metadata => collection%find(this%file_template)
             call metadata%get_time_info(timeVector=time_series,_RC)
             allocate(this%valid_range(2))

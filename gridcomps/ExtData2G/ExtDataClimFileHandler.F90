@@ -53,7 +53,7 @@ contains
       end if
 
       target_time=input_time
-      _ASSERT(size(this%valid_range) == 2, 'Valid time is not defined so can not do any extrapolation or climatology')
+      _ASSERT(size(this%valid_range) == 2, 'Valid time is not defined for template '//trim(this%file_template)//' so can not do any extrapolation or climatology')
       call ESMF_TimeGet(this%valid_range(1),yy=valid_years(1),_RC)
       call ESMF_TimeGet(this%valid_range(2),yy=valid_years(2),_RC)
       if (size(source_time)==2) then

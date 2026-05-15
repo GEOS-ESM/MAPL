@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.field_utils)
+esma_set_this (OVERRIDE MAPL.field_utils)
 
 set(srcs
   FieldUtils.F90
@@ -21,7 +21,7 @@ list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES ${MAPL_TARGET_PREFIX}.shared PFLOGGER::pflogger
+  DEPENDENCIES MAPL.shared PFLOGGER::pflogger
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 

@@ -64,7 +64,7 @@ contains
       class(CoordinateVariable), pointer :: coord_var
       character(len=:), pointer :: dim_name
       logical :: is_vertical_coord_var, has_pressure_units, has_height_units
-      character(len=:), allocatable :: lev_name, temp_units, formula_terms, standard_name, bounds_var, ak_name, bk_name, ps_name, source_file
+      character(len=:), allocatable :: lev_name, temp_units, formula_terms, standard_name, long_name, bounds_var, ak_name, bk_name, ps_name, source_file
       type(NETCDF4_FileFormatter) :: file_formatter
       real, allocatable :: temp_ak(:,:), temp_bk(:,:)
    
@@ -109,16 +109,16 @@ contains
          ! for backwards compatibility with non-cf files
          if ((.not. coord_var%is_attribute_present("positive")) .and. &
               (.not. has_pressure_units)) then
-            standard_name = coord_var%get_attribute_string("standard_name")
+            long_name = coord_var%get_attribute_string("long_name")
             ! metadata combinations that imply integer levels
-            if ( any(standard_name == ["level ", "levels"])  .and. &
+            if ( any(long_name == ["level ", "levels"])  .and. &
                  any(temp_units == ["1    ", "level"])) then
                vertical_coord%positive = "up"
                if (vertical_coord%levels(1) >= vertical_coord%levels(2)) then
                   vertical_coord%positive = "down"
                endif
             else
-               _FAIL('lev positive attribute not in file and no rule defined for setting it from standard_name and units')
+               _FAIL('lev positive attribute not in file and no rule defined for setting it from long_name and units')
             endif
          endif
 

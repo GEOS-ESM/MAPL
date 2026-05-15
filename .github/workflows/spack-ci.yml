@@ -1,4 +1,6 @@
 # Comment out for GCHP
+#name: Spack CI GCC Build
+#
 #on:
 #  pull_request:
 #    types: [opened, synchronize, reopened, ready_for_review]
@@ -21,6 +23,7 @@
 #  spack_builds:
 #    if: github.event.pull_request.draft == false
 #    strategy:
+#      fail-fast: false
 #      matrix:
 #        include:
 #          - name: "stable"
@@ -38,3 +41,4 @@
 #      use-esmf-develop: ${{ matrix.use-esmf-develop }}
 #      run-tests: ${{ matrix.run-tests }}
 #      run-mepo-develop: false
+#      patch-esmf: true

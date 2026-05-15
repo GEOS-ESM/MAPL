@@ -25,3 +25,29 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # Apple ld: gfortran Cellar path mismatch (15.2.0 vs 15.2.0_1 Homebrew suffix)
   "ld: warning: search path.*not found"
 )
+
+## ---------------------------------------------------------------------------
+## Coverage exclusions: restrict gcov/lcov reporting to MAPL source only.
+##
+## CTEST_CUSTOM_COVERAGE_EXCLUDE is a list of regexes matched against the
+## full path of each source file.  Files matching any pattern are excluded
+## from the CDash coverage report.
+##
+## We exclude:
+##   - System / compiler headers          (/usr/*)
+##   - Baselibs installs (any prefix)     (*/installed/*)
+##   - pFUnit framework internals         (*/pfunit/*)
+##   - ESMF library sources               (*/ESMF/*)
+##   - The MAPL install trees             (*/install-*/*)
+##     (installed headers duplicated from build tree)
+## ---------------------------------------------------------------------------
+list(APPEND CTEST_CUSTOM_COVERAGE_EXCLUDE
+  "/usr/"
+  ".*/installed/.*"
+  ".*/pfunit/.*"
+  ".*/ESMF/.*"
+  ".*/install-Coverage/.*"
+  ".*/install-Coverage-Ninja/.*"
+  ".*/install-Debug/.*"
+  ".*/install-Release/.*"
+)
