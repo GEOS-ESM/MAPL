@@ -1,7 +1,6 @@
 esma_set_this (OVERRIDE MAPL.component)
 
 set (srcs
-  CouplerPhases.F90
   ComponentDriver.F90
   ComponentDriverVector.F90
   ComponentDriverPtrVector.F90
@@ -13,7 +12,7 @@ set (srcs
 
 esma_add_library(${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.esmf_utils MAPL.shared
+    DEPENDENCIES MAPL.enums MAPL.esmf_utils MAPL.shared
     TYPE SHARED
     )
 

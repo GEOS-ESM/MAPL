@@ -2,9 +2,9 @@
 
 module mapl3g_NormalizationMetadata
    use mapl3g_NormalizationType
-   use mapl3g_InfoUtilities
    use mapl_ErrorHandling
-   use esmf
+   use esmf, only: ESMF_Info, ESMF_InfoCreate, ESMF_InfoIsPresent
+   use esmf, only: ESMF_InfoSet, ESMF_InfoGet, ESMF_InfoGetCharAlloc
    
    implicit none(type, external)
    private
@@ -91,12 +91,12 @@ contains
       
       info = ESMF_InfoCreate(_RC)
       
-      call MAPL_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirror(), _RC)
+      call ESMF_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirror(), _RC)
       _RETURN_IF(this%is_mirror())
       
       ! Write normalization properties
-      call MAPL_InfoSet(info, KEY_NORMALIZATION_TYPE, this%normalization_type%to_string(), _RC)
-      call MAPL_InfoSet(info, KEY_NORMALIZATION_SCALE, this%normalization_scale, _RC)
+      call ESMF_InfoSet(info, KEY_NORMALIZATION_TYPE, this%normalization_type%to_string(), _RC)
+      call ESMF_InfoSet(info, KEY_NORMALIZATION_SCALE, this%normalization_scale, _RC)
       
       _RETURN(_SUCCESS)
    end function make_info
@@ -118,7 +118,7 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, key=full_key, value=is_mirror, _RC)
+         call ESMF_InfoGet(info, key=full_key, value=is_mirror, _RC)
       end if
       
       if (is_mirror) then
@@ -131,7 +131,7 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, full_key, str_value, _RC)
+         call ESMF_InfoGetCharAlloc(info, full_key, str_value, _RC)
          metadata%normalization_type = NormalizationType(str_value)
       end if
       
@@ -140,7 +140,7 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, full_key, normalization_scale_buffer, _RC)
+         call ESMF_InfoGet(info, full_key, normalization_scale_buffer, _RC)
          metadata%normalization_scale = normalization_scale_buffer
       end if
       

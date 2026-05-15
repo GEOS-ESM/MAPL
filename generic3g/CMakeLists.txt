@@ -4,8 +4,6 @@ set(srcs
   ESMF_Subset.F90
   Generic3g.F90
 
-  VerificationStatus.F90
-  ValidationMode.F90
   FieldDictionaryItem.F90
   FieldDictionaryItemMap.F90
   FieldDictionary.F90
@@ -20,7 +18,6 @@ set(srcs
 
   InnerMetaComponent.F90
   OuterMetaComponent.F90
-  GenericPhases.F90
   GenericGridComp.F90
 
   MAPL_Generic.F90
@@ -53,7 +50,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
+  DEPENDENCIES MAPL.enums MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
     MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared
     MAPL.profiler MAPL.hconfig_utils MAPL.vertical MAPL.component MAPL.field_bundle
   ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm MAPL.utilities
