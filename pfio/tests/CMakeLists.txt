@@ -52,6 +52,10 @@ target_include_directories(MAPL.pfio.tests PRIVATE
 set_tests_properties(MAPL.pfio.tests PROPERTIES LABELS "ESSENTIAL")
 set_tests_properties(MAPL.pfio.tests PROPERTIES PROCESSORS 8)
 
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  set_tests_properties(MAPL.pfio.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+endif()
+
 include_directories(
    ${CMAKE_CURRENT_SOURCE_DIR}
 )

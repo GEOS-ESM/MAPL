@@ -15,6 +15,10 @@ inputs:
   extra-cmake-args:
     description: "Extra CMake arguments"
     required: false
+  skip-tests:
+    description: "Skip running tests (useful when test frameworks are disabled)"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -55,6 +59,7 @@ runs:
         cmake --install build
 
     - name: Run MAPL Tests
+      if: inputs.skip-tests != 'true'
       shell: bash
       run: |
         cmake --build build --target build-tests --parallel 4

@@ -7,8 +7,8 @@
 module ctest_io_CLI
    use MAPL_ExceptionHandling
    use pFIO
-   use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringVector
+   use gFTL2_StringIntegerMap
    implicit none
    private
 
@@ -147,8 +147,8 @@ module FakeHistData0Mod
    use MAPL_ExceptionHandling
    use ctest_io_CLI
    use pFIO
-   use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringVector
+   use gFTL2_StringIntegerMap
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
@@ -261,7 +261,7 @@ contains
             _VERIFY(status)
          enddo
 
-         call test_formatter%create('test_in.nc4', rc=status)
+         call test_formatter%create('test_in.nc4', mode=pFIO_CLOBBER, rc=status)
          _VERIFY(status)
          call test_formatter%write(test_metadata, rc=status)
          _VERIFY(status)
@@ -344,8 +344,8 @@ contains
       ! get the input first
 
       icPtr => this%ic_vec%at(1)
-      collection_id = icPtr%add_ext_collection('collection-i')
-      !collection_id = this%i_c%add_ext_collection('collection-i')
+      collection_id = icPtr%add_data_collection('collection-i')
+      !collection_id = this%i_c%add_data_collection('collection-i')
 
       allocate(prefetch_ids(this%vars%size()))
 
@@ -388,10 +388,10 @@ contains
          enddo
 
          ocPtr=> this%oc_vec%at(1)
-         this%hist_collection_ids(1) = ocPtr%add_hist_collection(fmd)
-         this%hist_collection_ids(2) = ocPtr%add_hist_collection(fmd)
+         this%hist_collection_ids(1) = ocPtr%add_data_collection(fmd)
+         this%hist_collection_ids(2) = ocPtr%add_data_collection(fmd)
 
-         !this%hist_collection_ids(1) = this%o_c%add_hist_collection(fmd)
+         !this%hist_collection_ids(1) = this%o_c%add_data_collection(fmd)
          collection_num = 2
          allocate(stage_ids(this%vars%size(),collection_num))
 
@@ -571,7 +571,7 @@ program main
       endif
 
    enddo
- 
+
    ! app + ocilent comm
    my_ocomm = MPI_COMM_NULL
    do k = 1, N_oclient_group

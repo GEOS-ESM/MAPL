@@ -1,0 +1,12 @@
+# Scenario: Different vertical grids with different field alignments
+# Component A exports field E_A with 3 levels, downward alignment
+# Component B imports field I_B with 4 levels, upward alignment
+# Expected: Full vertical regridding with appropriate flips
+
+- component: A
+  export:
+    E_A: {status: complete, typekind: R4, rank: 3, value: 15.}
+
+- component: B
+  import:
+    I_B: {status: complete, typekind: R4, rank: 3, value: 15.}

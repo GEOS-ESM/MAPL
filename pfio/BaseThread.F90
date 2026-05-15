@@ -63,7 +63,8 @@ contains
 
       iter = this%open_requests%find(request_id)
       _ASSERT( iter /= this%open_requests%end(), "could not find the request handle id")
-      rh_Ptr => iter%value()
+      rh_Ptr => iter%second()
+
       _RETURN(_SUCCESS)
    end function get_RequestHandle
 
@@ -96,7 +97,7 @@ contains
       type(IntegerRequestMapIterator) :: iter
 
       iter = this%open_requests%find(request_id)
-      call  this%open_requests%erase(iter)
+      iter = this%open_requests%erase(iter)
 
       _RETURN(_SUCCESS)
    end subroutine erase_RequestHandle
@@ -111,13 +112,12 @@ contains
 
       iter = this%open_requests%begin()
       do while (iter /= this%open_requests%end())
-        rh_ptr => iter%value()
-        call rh_ptr%wait()
-        call rh_ptr%data_reference%deallocate(status)
-        _VERIFY(status)
+         rh_ptr => iter%second()
+         call rh_ptr%wait()
+         call rh_ptr%data_reference%deallocate(status)
+         _VERIFY(status)
 
-        call this%open_requests%erase(iter)
-        iter = this%open_requests%begin()
+         iter = this%open_requests%erase(iter)
       enddo
 
       _RETURN(_SUCCESS)

@@ -9,13 +9,13 @@
 !
 module server_demo_CLI
    use MAPL_ExceptionHandling
-   use gFTL_StringVector
+   use gFTL2_StringVector
    implicit none
    private
 
    public :: CommandLineOptions
    public :: process_command_line
-   
+
    type CommandLineOptions
       character(len=:), allocatable :: file_1, file_2
       type (StringVector) :: requested_variables
@@ -79,18 +79,18 @@ contains
       end do
 
    contains
-      
+
       function get_next_argument() result(argument)
          character(len=:), allocatable :: argument
-         
+
          integer :: length
-         
+
          i_arg = i_arg + 1
-         
+
          call get_command_argument(i_arg, length=length)
          allocate(character(len=length) :: argument)
          call get_command_argument(i_arg, value=argument)
-         
+
       end function get_next_argument
 
       function parse_vars(buffer) result(vars)
@@ -113,7 +113,7 @@ contains
 
 
    end subroutine process_command_line
-   
+
 
 end module server_demo_CLI
 
@@ -123,7 +123,7 @@ module FakeExtDataMod_server
    use MAPL_ExceptionHandling
    use server_demo_CLI
    use pFIO
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
@@ -159,16 +159,16 @@ module FakeExtDataMod_server
    end type FakeExtData
 
 contains
-   
+
 
    subroutine init(this, options, comm, d_s)
-      use gFTL_StringIntegerMap
+      use gFTL2_StringIntegerMap
       class (FakeExtData), intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm
       class (AbstractDirectoryService), target,intent(inout) :: d_s
 
-      integer :: ierror, rc, status
+      integer :: ierror, rc
       type (FileMetadata) :: file_metadata
       type (NetCDF4_FileFormatter) :: formatter
       type (StringIntegerMap) :: dims
@@ -195,21 +195,21 @@ contains
       dims = file_metadata%get_dimensions()
       this%nlat = dims%at('lat')
       this%nlon = dims%at('lon')
-      
+
    end subroutine init
 
    subroutine run(this, step)
       class (FakeExtData), target, intent(inout) :: this
       integer, intent(in) :: step
-      
+
       type (ArrayReference) :: ref
 
       integer :: i_var
       !integer :: i
       integer :: lat0, lat1
       integer :: collection_id
-      !character(len=4) :: tmp    
- 
+      !character(len=4) :: tmp
+
       lat0 = 1 + (this%rank*this%nlat)/this%npes
       lat1 = (this%rank+1)*this%nlat/this%npes
 
@@ -220,9 +220,9 @@ contains
       !do i = 1,9999
       !   tmp= ''
       !   write(tmp,'(I4.4)') i
-      !collection_id = this%c%add_ext_collection('collection-name'//tmp)
+      !collection_id = this%c%add_data_collection('collection-name'//tmp)
       !enddo
-      collection_id = this%c%add_ext_collection('collection-name')
+      collection_id = this%c%add_data_collection('collection-name')
 
       select case (step)
       case (1) ! read 1st file; prefetch 2nd
@@ -255,7 +255,7 @@ contains
          end do
 
       end select
-      
+
    end subroutine run
 
 
@@ -327,7 +327,7 @@ program main
       else
          print*, options%server_type // '  not implemented'
          stop
-      endif    
+      endif
       call s%start()
    else ! client
       call extData%init(options, comm, d_s)
@@ -342,4 +342,4 @@ program main
    call MPI_finalize(ierror)
 
 end program main
-   
+

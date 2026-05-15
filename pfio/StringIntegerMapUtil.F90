@@ -3,7 +3,7 @@
 
 module pFIO_StringIntegerMapUtilMod
    use pFIO_UtilitiesMod
-   use gFTL_StringIntegerMap
+   use gFTL2_StringIntegerMap
    use MAPL_ExceptionHandling
    implicit none
    private
@@ -24,9 +24,9 @@ contains
        allocate(buffer(0))
        iter = map%begin()
        do while (iter /= map%end())
-          key => iter%key()
+          key => iter%first()
           buffer=[buffer,serialize_intrinsic(key)]
-          value => iter%value()
+          value => iter%second()
           buffer = [buffer, serialize_intrinsic(value)]
           call iter%next() 
        enddo

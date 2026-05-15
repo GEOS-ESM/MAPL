@@ -1,0 +1,110 @@
+module Test_ConnectionPt
+   use funit
+   use mapl3g_ConnectionPt
+   use mapl3g_VirtualConnectionPt
+   implicit none
+
+contains
+
+   @test
+   ! This should already be covered by gFTL tests, but am troubleshooting
+   ! problem with ordering of ConnectionPt
+   subroutine test_relative_less()
+      type(VirtualConnectionPt) :: rcp_1, rcp_2
+
+      rcp_1 = VirtualConnectionPt(state_intent='import', short_name='A')
+      rcp_2 = VirtualConnectionPt(state_intent='import', short_name='B')
+
+      ! Identical
+        @assert_that((rcp_1 < rcp_1), is(false()))
+        @assert_that((rcp_2 < rcp_2), is(false()))
+        ! Different
+        @assert_that((rcp_1 < rcp_2), is(true()))
+        @assert_that((rcp_2 < rcp_1), is(false()))
+
+   end subroutine test_relative_less
+   
+   @test
+   subroutine test_connectionpt_less()
+      type(ConnectionPt) :: cp_1, cp_2
+
+      cp_1 = ConnectionPt('A', state_intent='import', short_name='A')
+      cp_2 = ConnectionPt('B', state_intent='export', short_name='B')
+        ! Identical
+        @assert_that((cp_1 < cp_1), is(false()))
+        @assert_that((cp_2 < cp_2), is(false()))
+        ! Different
+        @assert_that((cp_1 < cp_2), is(true()))
+        @assert_that((cp_2 < cp_1), is(false()))
+
+   end subroutine test_connectionpt_less
+   
+   @test
+   subroutine test_connectionpt_less_full()
+      type(ConnectionPt) :: cp(2,2,2)
+      integer :: i, j, k
+
+      cp(1,1,1) = ConnectionPt('A', state_intent='import', short_name='A')
+      cp(2,1,1) = ConnectionPt('A', state_intent='import', short_name='B')
+      cp(1,2,1) = ConnectionPt('A',state_intent='export', short_name='A')
+      cp(2,2,1) = ConnectionPt('A',state_intent='export', short_name='B')
+      cp(1,1,2) = ConnectionPt('B', state_intent='import', short_name='A')
+      cp(2,1,2) = ConnectionPt('B', state_intent='import', short_name='B')
+      cp(1,2,2) = ConnectionPt('B',state_intent='export', short_name='A')
+      cp(2,2,2) = ConnectionPt('B',state_intent='export', short_name='B')
+        ! Identical pts are neither less nor greater
+        do k = 1, 2
+           do j = 1, 2
+              do i = 1, 2
+                 @assert_that((cp(i,j,k) < cp(i,j,k)), is(false()))
+              end do
+           end do
+        end do
+
+        ! Pairwise
+        do j = 1, 2
+           do i = 1, 2
+              @assert_that(cp(i,j,1) < cp(i,j,2), is(true()))
+              @assert_that(cp(i,j,2) < cp(i,j,1), is(false()))
+           end do
+        end do
+
+        do k = 1, 2
+           do i = 1, 2
+              @assert_that(cp(i,1,k) < cp(i,2,k), is(true()))
+              @assert_that(cp(i,2,k) < cp(i,1,k), is(false()))
+           end do
+        end do
+
+        do k = 1, 2
+           do j = 1, 2
+              @assert_that(cp(1,j,k) < cp(2,j,k), is(true()))
+              @assert_that(cp(2,j,k) < cp(1,j,k), is(false()))
+           end do
+        end do
+
+   end subroutine test_connectionpt_less_full
+   
+   @test
+   ! Reproducer from failing registry test
+   subroutine test_connectionpt_less_registry()
+
+      type(ConnectionPt) :: cp_1, cp_2, cp_3
+      cp_1 = ConnectionPt('grandchild_A',state_intent='export',short_name='ae1')
+      cp_2 = ConnectionPt('child_A',state_intent='export',short_name='ae2')
+      cp_3 = ConnectionPt('child_B',  state_intent='import', short_name='ai')
+
+        ! Identical
+        @assert_that((cp_1 < cp_1), is(false()))
+        @assert_that((cp_2 < cp_2), is(false()))
+        @assert_that((cp_3 < cp_3), is(false()))
+
+        ! Different
+        @assert_that((cp_2 < cp_1), is(true()))
+        @assert_that((cp_2 < cp_3), is(true()))
+        @assert_that((cp_3 < cp_1), is(true()))
+
+      
+   end subroutine test_connectionpt_less_registry
+   
+end module Test_ConnectionPt

@@ -1,15 +1,15 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module MAPL_StateMaskMod
    use ESMF
    use MAPL_KeywordEnforcerMod
-   use ESMFL_Mod
-   use MAPL_BaseMod
+   use mapl3g_Geom_API, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
    use MAPL_ExceptionHandling
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use MAPL_StateArithmeticParserMod
    use MAPL_Constants
+   use mapl3g_State_API, only: MAPL_StateGetPointer
    implicit none
    private
 
@@ -137,13 +137,13 @@ module MAPL_StateMaskMod
        vartomask = this%mask_arguments(:ib-1)
        maskname = this%mask_arguments(ib+1:ie-1)
 
-       call MAPL_GetPointer(state,rmask,maskName,_RC)
+       call MAPL_StateGetPointer(state,rmask,maskName,_RC)
        if (rank == 2) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
-          call MAPL_GetPointer(state,var2d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var2d, vartomask, _RC)
        else if (rank == 3) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
-          call MAPL_GetPointer(state,var3d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var3d, vartomask, _RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -227,10 +227,10 @@ module MAPL_StateMaskMod
 
        if (rank == 2) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
-          call MAPL_GetPointer(state,var2d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var2d, vartomask, _RC)
        else if (rank == 3) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
-          call MAPL_GetPointer(state,var3d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var3d, vartomask, _RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -269,7 +269,7 @@ module MAPL_StateMaskMod
        real(REAL64)         :: limitE2, limitW2
        type(ESMF_Grid)      :: grid
        integer              :: rank,is,nargs
-       integer              :: counts(3)
+       integer, allocatable :: counts(:)
        logical              :: isCube, twoBox
        real, allocatable    :: temp2d(:,:)
        character(len=ESMF_MAXSTR) :: args(5)
@@ -312,7 +312,7 @@ module MAPL_StateMaskMod
        _VERIFY(status)
 
        ! do some tests if cube goes from 0 to 360, lat-lon -180 to 180
-       call MAPL_GridGet(grid, globalCellCountPerDim=COUNTS,rc=status)
+       call mapl_GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=COUNTS,rc=status)
        _VERIFY(STATUS)
        if (counts(2)==6*counts(1)) then
           isCube=.true.
@@ -374,10 +374,10 @@ module MAPL_StateMaskMod
 
        if (rank == 2) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
-          call MAPL_GetPointer(state,var2d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var2d, vartomask, _RC)
        else if (rank == 3) then
           call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
-          call MAPL_GetPointer(state,var3d, vartomask, _RC)
+          call MAPL_StateGetPointer(state,var3d, vartomask, _RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if

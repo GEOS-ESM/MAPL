@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 module mapl_ComboSpec
    use mapl_GathervKernel
    use mapl_BW_Benchmark

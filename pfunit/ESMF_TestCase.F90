@@ -1,17 +1,17 @@
 module ESMF_TestCase_mod
+
    use ESMF
    use ESMF_TestParameter_mod
    use pfunit, only: MpiTestCase, anyExceptions, catch
    use pfunit, only: throw
    use pf_exceptionlist, only: gatherExceptions
+
    implicit none
 
    private
 
    public :: InternalState
    public :: ESMF_TestCase
-
-
 
    type Wrapper
       class (ESMF_TestCase), pointer :: testPtr => null()
@@ -38,7 +38,6 @@ module ESMF_TestCase_mod
 
 contains
 
-
    recursive subroutine runBare(this)
       class (ESMF_TestCase), intent(inout) :: this
 
@@ -48,16 +47,16 @@ contains
       ! a copy-in/copy-out which leaves a dangling pointer in the self reference.
       call runbare_inner(this)
    end subroutine runBare
-      
+
    subroutine runbare_inner(this)
       class (ESMF_TestCase), target, intent(inout) :: this
-         
+
       logical :: discard
       type (ESMF_GridComp), target :: gc
       integer :: rc, userRc
       integer :: pet
 
-      ! Gridded component 
+      ! Gridded component
       gc = ESMF_GridCompCreate(petList=[(pet,pet=0,this%getNumPETsRequested()-1)], rc=rc)
       if (rc /= ESMF_SUCCESS) call throw('Insufficient PETs for request')
 
@@ -97,7 +96,6 @@ contains
 
       call this%clearInternalState(gc, rc=rc)
       if (rc /= ESMF_SUCCESS) call throw('Failure clearing internal state')
-
    end subroutine runbare_inner
 
    subroutine setInternalState(this, gc, rc)
@@ -132,8 +130,6 @@ contains
       type (ESMF_GridComp), intent(inout) :: gc
       integer, intent(out) :: rc
 
-      integer :: status
-
       deallocate(this%wrapped%wrapped)
       deallocate(this%wrapped)
 
@@ -142,6 +138,7 @@ contains
 !!$         rc = status
 !!$         return
 !!$      end if
+
       rc = ESMF_SUCCESS
 
    end subroutine clearInternalState
@@ -172,9 +169,9 @@ contains
 
       ! Access private data block and verify data
       testPtr => wrap%wrapped%testPtr
-      
+
       call testPtr%setUp()
-   
+
       rc = finalrc
 
    end subroutine initialize
@@ -205,7 +202,7 @@ contains
       end if
 
       ! Access private data block and verify data
-      testPtr => wrap%wrapped%testPtr 
+      testPtr => wrap%wrapped%testPtr
       call testPtr%runMethod()
 
       rc = finalRc
@@ -240,7 +237,7 @@ contains
       end if
 
       ! Access private data block and verify data
-      testPtr => wrap%wrapped%testPtr 
+      testPtr => wrap%wrapped%testPtr
       call testPtr%tearDown()
 
       rc = finalRc
@@ -275,7 +272,7 @@ contains
       class (ESMF_TestCase), intent(in) :: this
 
       type (ESMF_VM) :: vm
-      
+
       vm = this%getVM()
       call ESMF_VMGet(vm, petCount=petCount)
 
@@ -285,7 +282,7 @@ contains
       class (ESMF_TestCase), intent(in) :: this
 
       type (ESMF_VM) :: vm
-      
+
       vm = this%getVM()
       call ESMF_VMGet(vm, localPET=localPET)
 
@@ -296,13 +293,13 @@ contains
       class (ESMF_TestCase), intent(in) :: this
 
       type (ESMF_VM) :: vm
-      
+
       vm = this%getVM()
       call ESMF_VMBarrier(vm)
 
    end subroutine barrier
 
-   
+
    integer function getNumPETsRequested(this) result(numPETsRequested)
       class (ESMF_TestCase), intent(in) :: this
       select type (p => this%testParameter)

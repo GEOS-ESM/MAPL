@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_NetCDF4_FileFormatterMod
-   use, intrinsic :: iso_fortran_env, only: INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: INT16, INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use, intrinsic :: iso_fortran_env, only: error_unit
    use MAPL_ExceptionHandling
@@ -13,8 +13,8 @@ module pFIO_NetCDF4_FileFormatterMod
    use pFIO_CoordinateVariableMod
    use pFIO_FileMetadataMod
    use mapl_KeywordEnforcerMod
-   use gFTL_StringVector
-   use gFTL_StringIntegerMap
+   use gFTL2_StringVector
+   use gFTL2_StringIntegerMap
    use pFIO_StringVariableMapMod
    use pFIO_StringAttributeMapMod
    use pfio_NetCDF_Supplement
@@ -47,6 +47,11 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,string,0)
       procedure :: ___SUB(get_var,string,1)
 
+      procedure :: ___SUB(get_var,int16,0)
+      procedure :: ___SUB(get_var,int16,1)
+      procedure :: ___SUB(get_var,int16,2)
+      procedure :: ___SUB(get_var,int16,3)
+      procedure :: ___SUB(get_var,int16,4)
       procedure :: ___SUB(get_var,int32,0)
       procedure :: ___SUB(get_var,int32,1)
       procedure :: ___SUB(get_var,int32,2)
@@ -70,6 +75,11 @@ module pFIO_NetCDF4_FileFormatterMod
 
       procedure :: ___SUB(put_var,string,0)
       procedure :: ___SUB(put_var,string,1)
+      procedure :: ___SUB(put_var,int16,0)
+      procedure :: ___SUB(put_var,int16,1)
+      procedure :: ___SUB(put_var,int16,2)
+      procedure :: ___SUB(put_var,int16,3)
+      procedure :: ___SUB(put_var,int16,4)
       procedure :: ___SUB(put_var,int32,0)
       procedure :: ___SUB(put_var,int32,1)
       procedure :: ___SUB(put_var,int32,2)
@@ -94,6 +104,11 @@ module pFIO_NetCDF4_FileFormatterMod
 
       generic :: get_var => ___SUB(get_var,string,0)
       generic :: get_var => ___SUB(get_var,string,1)
+      generic :: get_var => ___SUB(get_var,int16,0)
+      generic :: get_var => ___SUB(get_var,int16,1)
+      generic :: get_var => ___SUB(get_var,int16,2)
+      generic :: get_var => ___SUB(get_var,int16,3)
+      generic :: get_var => ___SUB(get_var,int16,4)
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
       generic :: get_var => ___SUB(get_var,int32,2)
@@ -117,6 +132,11 @@ module pFIO_NetCDF4_FileFormatterMod
 
       generic :: put_var => ___SUB(put_var,string,0)
       generic :: put_var => ___SUB(put_var,string,1)
+      generic :: put_var => ___SUB(put_var,int16,0)
+      generic :: put_var => ___SUB(put_var,int16,1)
+      generic :: put_var => ___SUB(put_var,int16,2)
+      generic :: put_var => ___SUB(put_var,int16,3)
+      generic :: put_var => ___SUB(put_var,int16,4)
       generic :: put_var => ___SUB(put_var,int32,0)
       generic :: put_var => ___SUB(put_var,int32,1)
       generic :: put_var => ___SUB(put_var,int32,2)
@@ -327,24 +347,17 @@ contains
 
       integer :: status
 
-      call this%def_dimensions(cf, rc=status)
-      _VERIFY(status)
-
-      call this%def_variables(cf, rc=status)
-      _VERIFY(status)
-
-      call this%put_attributes(cf, NF90_GLOBAL, rc=status)
-      _VERIFY(status)
+      call this%def_dimensions(cf, _RC)
+      call this%def_variables(cf, _RC)
+      call this%put_attributes(cf, NF90_GLOBAL, _RC)
 
       !$omp critical
       status= nf90_enddef(this%ncid)
       !$omp end critical
       _VERIFY(status)
 
-      call this%write_coordinate_variables(cf, rc=status)
-      _VERIFY(status)
-      call this%write_const_variables(cf, rc=status)
-      _VERIFY(status)
+      call this%write_coordinate_variables(cf, _RC)
+      call this%write_const_variables(cf, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -368,8 +381,8 @@ contains
       dims => cf%get_dimensions()
       iter = dims%begin()
       do while (iter /= dims%end())
-         dim_name => iter%key()
-         dim_len => iter%value()
+         dim_name => iter%first()
+         dim_len => iter%second()
          select case (dim_len)
          case (pFIO_UNLIMITED)
             nf90_len = NF90_UNLIMITED
@@ -418,6 +431,10 @@ contains
            _ASSERT(associated(attr_values), "should have values")
 
            select type (q => attr_values)
+           type is (integer(INT16))
+              !$omp critical
+              status = nf90_put_att(this%ncid, varid, attr_name, q)
+             !$omp end critical
            type is (integer(INT32))
               !$omp critical
               status = nf90_put_att(this%ncid, varid, attr_name, q)
@@ -446,6 +463,10 @@ contains
            attr_value => p_attribute%get_value()
            _ASSERT(associated(attr_value), "should have value")
            select type (q => attr_value)
+           type is (integer(INT16))
+              !$omp critical
+              status = nf90_put_att(this%ncid, varid, attr_name, q)
+              !$omp end critical
            type is (integer(INT32))
               !$omp critical
               status = nf90_put_att(this%ncid, varid, attr_name, q)
@@ -498,15 +519,20 @@ contains
 
       vars => cf%get_variables()
 
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
-         var_name => var_iter%key()
-         var => var_iter%value()
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
+         var => var_iter%second()
          const_value_ptr => var%get_const_value()
          if ( .not. const_value_ptr%is_empty()) then
             shp = const_value_ptr%get_shape()
             var_values => const_value_ptr%get_values()
             select type(q => var_values)
+            type is (integer(INT16))
+               call this%put_var(trim(var_name), q, count=shp, rc=status)
+               _VERIFY(status)
             type is (integer(INT32))
                call this%put_var(trim(var_name), q, count=shp, rc=status)
                _VERIFY(status)
@@ -524,7 +550,6 @@ contains
                _VERIFY(status)
             end select
          end if
-         call var_iter%next()
       enddo
 
       _UNUSED_DUMMY(unusable)
@@ -551,14 +576,19 @@ contains
 
       vars => cf%get_variables()
 
-      var_iter = vars%begin()
-      do while (var_iter /= vars%end())
-         var_name => var_iter%key()
+      var_iter = vars%ftn_begin()
+      do while (var_iter /= vars%ftn_end())
+         call var_iter%next()
+
+         var_name => var_iter%first()
          var => cf%get_coordinate_variable(trim(var_name),rc=status)
          _VERIFY(status)
          if (associated(var))  then ! is a coordinate variable
             dim_var_values => var%get_coordinate_data()
             select type(q => dim_var_values)
+            type is (integer(INT16))
+               call this%put_var(trim(var_name),q,rc=status)
+               _VERIFY(status)
             type is (integer(INT32))
                call this%put_var(trim(var_name),q,rc=status)
                _VERIFY(status)
@@ -575,7 +605,6 @@ contains
                status = _FAILURE
             end select
          end if
-         call var_iter%next()
 
       enddo
 
@@ -610,6 +639,10 @@ contains
          if (size(shp) == 0) then ! scalar
             attr_value => p_attribute%get_value()
             select type (q => attr_value)
+            type is (integer(INT16))
+               !$omp critical
+               status = nf90_put_att(this%ncid, varid, attr_name, q)
+               !$omp end critical
             type is (integer(INT32))
                !$omp critical
                status = nf90_put_att(this%ncid, varid, attr_name, q)
@@ -640,6 +673,10 @@ contains
          else
             attr_values => p_attribute%get_values()
             select type (q => attr_values)
+            type is (integer(INT16))
+               !$omp critical
+               status = nf90_put_att(this%ncid, varid, attr_name, q)
+               !$omp end critical
             type is (integer(INT32))
                !$omp critical
                status = nf90_put_att(this%ncid, varid, attr_name, q)
@@ -725,7 +762,7 @@ contains
       order = cf%get_order()
       var_iter = order%begin()
       do while (var_iter /= order%end())
-         var_name => var_iter%get()
+         var_name => var_iter%of()
          if ( present (varname)) then
            if (var_name /= varname) then
              call var_iter%next()
@@ -741,7 +778,7 @@ contains
          dim_iter = var_dims%begin()
          idim = 1
          do while (dim_iter /= var_dims%end())
-            dim_name => dim_iter%get()
+            dim_name => dim_iter%of()
             !$omp critical
             status = nf90_inq_dimid(this%ncid, dim_name, dimids(idim))
             !$omp end critical
@@ -822,6 +859,8 @@ contains
       rc = _SUCCESS
 
       select case (fio_type)
+      case (pFIO_INT16)
+         xtype = NF90_SHORT
       case (pFIO_INT32)
          xtype = NF90_INT
       case (pFIO_INT64)
@@ -849,6 +888,8 @@ contains
       rc = _SUCCESS
 
       select case (xtype)
+      case (NF90_SHORT)
+         fio_type = pFIO_INT16
       case (NF90_INT)
          fio_type = pFIO_INT32
       case (NF90_INT64)
@@ -1132,6 +1173,7 @@ contains
       status = pfio_nf90_get_var_string_len(this%ncid, varid, length)
       _VERIFY(status)
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine inq_var_string_length
 
    subroutine inq_variables(this, cf, unusable, rc)
@@ -1256,6 +1298,30 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine inq_variables
+
+   ! INT16
+#define _VARTYPE 6
+#  define _RANK 0
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 1
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 2
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 3
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 4
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#undef _VARTYPE
 
    ! INT32
 #define _VARTYPE 1

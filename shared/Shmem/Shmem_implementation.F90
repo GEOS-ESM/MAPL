@@ -1,6 +1,5 @@
 #define SHM_SUCCESS  0
-#include "unused_dummy.H"
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 submodule (MAPL_Shmem) Shmem_implementation
   use pflogger, only: logging, Logger

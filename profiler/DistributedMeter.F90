@@ -1,13 +1,14 @@
-#include "unused_dummy.H"
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module MAPL_DistributedMeter
+
    use, intrinsic :: iso_fortran_env, only: REAL64
    use MAPL_ErrorHandlingMod
    use MAPL_AbstractMeter
    use MAPL_AdvancedMeter
    use MAPL_AbstractGauge
    use MPI
+
    implicit none
    private
 
@@ -78,7 +79,6 @@ module MAPL_DistributedMeter
       generic :: make_mpi_type => make_mpi_type_distributed_integer
    end type DistributedMeter
 
-
    interface DistributedReal64
       module procedure :: new_DistributedReal64
    end interface DistributedReal64
@@ -90,7 +90,6 @@ module MAPL_DistributedMeter
    interface DistributedMeter
       module procedure :: new_DistributedMeter
    end interface DistributedMeter
-
 
 contains
 
@@ -105,7 +104,6 @@ contains
       distributed_real64%min_pe = rank
       distributed_real64%max_pe = rank
       distributed_real64%num_pes = 1
-
    end function new_DistributedReal64
 
    function new_DistributedInteger(value, rank) result(distributed_integer)
@@ -121,20 +119,18 @@ contains
       distributed_integer%num_pes = 1
    end function new_DistributedInteger
 
-
    function new_DistributedMeter(gauge) result(distributed_meter)
       type(DistributedMeter) :: distributed_meter
       class(AbstractGauge), intent(in) :: gauge
 
       integer :: ierror
-   
+
       if (.not. dist_initialized) then
          call initialize(ierror)
          dist_initialized = .true.
       end if
 
       distributed_meter%AdvancedMeter = AdvancedMeter(gauge)
-
    end function new_DistributedMeter
 
    subroutine initialize(ierror)
@@ -142,8 +138,8 @@ contains
 
       type (DistributedMeter) :: dummy
       logical :: commute
-      integer :: rc, status
-      
+      integer :: rc
+
       call dummy%make_mpi_type(dummy%statistics, type_dist_struct, ierror)
       call MPI_Type_commit(type_dist_struct, ierror)
       _VERIFY(ierror)
@@ -151,7 +147,6 @@ contains
       commute = .true.
       call MPI_Op_create(true_reduce, commute, dist_reduce_op, ierror)
       _VERIFY(ierror)
-
    end subroutine initialize
 
    function get_statistics(this) result(statistics)
@@ -166,7 +161,7 @@ contains
       type(DistributedReal64), intent(in) :: b
 
       c%total = a%total + b%total
-      
+
       if (b%min < a%min) then
          c%min_pe = b%min_pe
       elseif (a%min < b%min) then
@@ -175,7 +170,7 @@ contains
          c%min_pe = min(a%min_pe, b%min_pe)
       end if
       c%min = min(a%min, b%min)
-      
+
       if (b%max > a%max) then
          c%max_pe = b%max_pe
       elseif (a%max > b%max) then
@@ -186,9 +181,7 @@ contains
       c%max = max(a%max, b%max)
 
       c%num_pes = a%num_pes + b%num_pes
-
    end function reduce_distributed_real64
-      
 
    function reduce_distributed_integer(a, b) result(c)
       type(DistributedInteger) :: c
@@ -205,7 +198,7 @@ contains
          c%min_pe = min(a%min_pe, b%min_pe)
       end if
       c%min = min(a%min, b%min)
-      
+
       if (b%max > a%max) then
          c%max_pe = b%max_pe
       elseif (a%max > b%max) then
@@ -216,9 +209,7 @@ contains
       c%max = max(a%max, b%max)
 
       c%num_pes = a%num_pes + b%num_pes
-
    end function reduce_distributed_integer
-      
 
    function reduce_distributed_data(a, b) result(c)
       type(DistributedStatistics) :: c
@@ -228,13 +219,11 @@ contains
       c%total = a%total .reduce. b%total
       c%exclusive = a%exclusive .reduce. b%exclusive
       c%min_cycle = a%min_cycle .reduce. b%min_cycle
-      
+
       c%max_cycle = a%max_cycle .reduce. b%max_cycle
       c%sum_square_deviation = a%sum_square_deviation .reduce. b%sum_square_deviation
       c%num_cycles = a%num_cycles .reduce. b%num_cycles
-      
    end function reduce_distributed_data
-
 
    function get_stats_total(this) result(total)
       type(DistributedReal64) :: total
@@ -242,21 +231,21 @@ contains
 
       total = this%statistics%total
    end function get_stats_total
-   
+
    function get_stats_min_cycle(this) result(min_cycle)
       type(DistributedReal64) :: min_cycle
       class(DistributedMeter), intent(in) :: this
 
       min_cycle = this%statistics%min_cycle
    end function get_stats_min_cycle
-   
+
    function get_stats_max_cycle(this) result(max_cycle)
       type(DistributedReal64) :: max_cycle
       class(DistributedMeter), intent(in) :: this
 
       max_cycle = this%statistics%max_cycle
    end function get_stats_max_cycle
-   
+
    function get_stats_num_cycles(this) result(num_cycles)
       type(DistributedInteger) :: num_cycles
       class(DistributedMeter), intent(in) :: this
@@ -264,13 +253,11 @@ contains
       num_cycles = this%statistics%num_cycles
    end function get_stats_num_cycles
 
-   
    subroutine reduce_global(this, exclusive)
       class(DistributedMeter), intent(inout) :: this
       real(kind=REAL64), intent(in) :: exclusive
       call this%reduce(MPI_COMM_WORLD, exclusive)
    end subroutine reduce_global
-   
 
    subroutine reduce_mpi(this, comm, exclusive)
       class(DistributedMeter), intent(inout) :: this
@@ -281,7 +268,7 @@ contains
 
       integer :: rank
       type(DistributedStatistics) :: tmp
-      integer :: rc, status
+      integer :: rc
 
       call MPI_Comm_rank(comm, rank, ierror)
       _VERIFY(ierror)
@@ -296,9 +283,7 @@ contains
       tmp = this%statistics
       call MPI_Reduce(tmp, this%statistics, 1, type_dist_struct, dist_reduce_op, 0, comm, ierror)
       _VERIFY(ierror)
-
    end subroutine reduce_mpi
-
 
    subroutine make_mpi_type_distributed_real64(this, r64, new_type, ierror)
       class (DistributedMeter), intent(in) :: this
@@ -308,7 +293,7 @@ contains
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(2)
       integer(kind=MPI_ADDRESS_KIND) :: lb, sz
-      integer :: rc, status
+      integer :: rc
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(r64)
@@ -318,9 +303,7 @@ contains
 
       call MPI_Type_create_struct(2, [3,4], displacements, [MPI_REAL8, MPI_INTEGER], new_type, ierror)
       _VERIFY(ierror)
-
    end subroutine make_mpi_type_distributed_real64
-
 
    subroutine make_mpi_type_distributed_integer(this, int, new_type, ierror)
       class (DistributedMeter), intent(in) :: this
@@ -329,16 +312,14 @@ contains
       integer, intent(out) :: ierror
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(1)
-      integer :: rc, status
+      integer :: rc
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(int)
       displacements = [0_MPI_ADDRESS_KIND]
       call MPI_Type_create_struct(1, [6], displacements, [MPI_INTEGER], new_type, ierror)
       _VERIFY(ierror)
-
    end subroutine make_mpi_type_distributed_integer
-
 
    subroutine make_mpi_type_distributed_data(this, d, new_type, ierror)
       class (DistributedMeter), intent(in) :: this
@@ -348,7 +329,7 @@ contains
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(2)
       integer(kind=MPI_ADDRESS_KIND) :: lb, sz, sz2
-      integer :: rc, status
+      integer :: rc
 
       _UNUSED_DUMMY(d)
       call this%make_mpi_type(this%statistics%total, type_dist_real64, ierror)
@@ -361,10 +342,7 @@ contains
       _VERIFY(ierror)
       call MPI_Type_get_extent_x(new_type, lb, sz2, ierror)
       _VERIFY(ierror)
-
    end subroutine make_mpi_type_distributed_data
-
-
 
    subroutine true_reduce(invec, inoutvec, len, type)
       integer, intent(in) :: len
@@ -375,13 +353,10 @@ contains
       integer :: i
 
       _UNUSED_DUMMY(type)
-      
+
       do i = 1, len
          inoutvec(i) = invec(i) .reduce. inoutvec(i)
       end do
-   
    end subroutine true_reduce
-   
+
 end module MAPL_DistributedMeter
-
-

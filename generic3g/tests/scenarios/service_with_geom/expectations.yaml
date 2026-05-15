@@ -1,0 +1,82 @@
+# For each component:
+#   - provide a path to the outer/user component in the hierarchy
+#   - list the fields expected in each import/export/internal states
+#   - annotate whether field is "complete"
+
+- component: subscriber_A/<user>
+  import:
+    S:
+      class: bundle
+      fieldcount: 2
+  export:
+    S:
+      class: bundle
+      fieldcount: 2
+  internal:
+    Z_A1: {status: complete, geom_name: ROOT}
+    Z_A2: {status: complete, geom_name: ROOT}
+
+- component: subscriber_A
+  import:
+    S:
+      class: bundle
+      fieldcount: 2
+  export:
+    S:
+      class: bundle
+      fieldcount: 2
+
+- component: subscriber_B/<user>
+  import:
+    S1:
+      class: bundle
+      fieldcount: 1
+  export:
+    S1:
+      class: bundle
+      fieldcount: 1
+  internal:
+    W: {status: complete, geom_name: ROOT}
+
+- component: subscriber_B
+  import:
+    S1:
+      class: bundle
+      fieldcount: 1
+  export:
+    S1:
+      class: bundle
+      fieldcount: 1
+
+- component: provider/<user>
+  import:
+    S:
+      class: bundle
+      fieldcount: 3
+  export:
+    S:
+      class: bundle
+      fieldcount: 3
+
+- component: provider
+  import:
+    S:
+      class: bundle
+      fieldcount: 3
+  export:
+    S:
+      class: bundle
+      fieldcount: 3
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  import: {}
+  export:
+    "provider/S":
+      class: bundle
+      fieldcount: 3
+

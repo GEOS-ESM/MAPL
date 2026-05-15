@@ -1,0 +1,643 @@
+#include "MAPL.h"
+
+! This module provides a wrapper for ESMF_DynamicMask
+! to enable equality checking between instances.
+
+module mapl3g_DynamicMask
+   use esmf
+   use mapl_ErrorHandlingMod
+   implicit none
+   private
+
+
+   public :: DynamicMask
+   public :: DynamicMask_R4
+   public :: DynamicMask_R8
+
+   public :: operator(==)
+   public :: operator(/=)
+
+   type :: DynamicMask_R4
+      real(kind=ESMF_KIND_R4) :: src_mask_value
+      real(kind=ESMF_KIND_R4), allocatable :: dst_mask_value
+      type(ESMF_DynamicMask), allocatable :: esmf_mask
+   end type DynamicMask_R4
+
+   type :: DynamicMask_R8
+      real(kind=ESMF_KIND_R8) :: src_mask_value
+      real(kind=ESMF_KIND_R8), allocatable :: dst_mask_value
+      type(ESMF_DynamicMask), allocatable :: esmf_mask
+   end type DynamicMask_R8
+
+   type DynamicMask
+      character(:), allocatable :: mask_type
+      logical :: handleAllElements = .false.
+      type(DynamicMask_R4), allocatable :: mask_r4
+      type(DynamicMask_R8), allocatable :: mask_r8
+   end type DynamicMask
+
+   interface operator(==)
+      procedure :: equal_to
+      procedure :: equal_to_r4
+      procedure :: equal_to_r8
+   end interface operator(==)
+
+   interface operator(/=)
+      procedure :: not_equal_to
+      procedure :: not_equal_to_r4
+      procedure :: not_equal_to_r8
+   end interface operator(/=)
+
+   interface match
+      procedure match_r4
+      procedure match_r8
+   end interface match
+
+   interface DynamicMask
+      procedure :: new_DynamicMask_r4
+      procedure :: new_DynamicMask_r8
+   end interface DynamicMask
+
+   abstract interface
+
+      subroutine I_r4r8r4(dynamicMaskList, dynamicSrcMaskValue, dynamicDstMaskValue, rc)
+         use esmf
+         type(ESMF_DynamicMaskElementR4R8R4V), pointer        :: dynamicMaskList(:)
+         real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
+         real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
+         integer,                       intent(out)  :: rc
+      end subroutine I_r4r8r4
+
+      subroutine I_r8r8r8(dynamicMaskList, dynamicSrcMaskValue, dynamicDstMaskValue, rc)
+         use esmf
+         type(ESMF_DynamicMaskElementR8R8R8V), pointer        :: dynamicMaskList(:)
+         real(ESMF_KIND_R8),            intent(in), optional :: dynamicSrcMaskValue
+         real(ESMF_KIND_R8),            intent(in), optional :: dynamicDstMaskValue
+         integer,                       intent(out)  :: rc
+      end subroutine I_r8r8r8
+   end interface
+
+contains
+
+   function new_DynamicMask_r4(mask_type, src_mask_value, dst_mask_value, handleAllElements, rc) result(mask)
+      type(DynamicMask) :: mask
+      character(*), intent(in) :: mask_type
+      real(kind=ESMF_KIND_R4), intent(in) :: src_mask_value
+      real(kind=ESMF_KIND_R4), optional, intent(in) :: dst_mask_value
+      logical, optional :: handleAllElements
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      procedure(I_r4r8r4), pointer :: mask_routine_r4
+
+      mask%mask_type = mask_type
+      if (present(handleAllElements)) mask%handleAllElements = handleAllElements
+
+      allocate(mask%mask_r4)
+      mask%mask_r4%src_mask_value = src_mask_value
+      if (present(dst_mask_value)) mask%mask_r4%dst_mask_value = dst_mask_value
+
+      allocate(mask%mask_r4%esmf_mask)
+      mask_routine_r4 => get_mask_routine_r4(mask_type, _RC)
+      call ESMF_DynamicMaskSetR4R8R4V(mask%mask_r4%esmf_mask, mask_routine_r4, &
+           dynamicSrcMaskValue=mask%mask_r4%src_mask_value, &
+           dynamicDstMaskValue=mask%mask_r4%dst_mask_value, &
+           handleAllElements=mask%handleAllElements, &
+           _RC)
+
+      _RETURN(_SUCCESS)
+   end function new_DynamicMask_r4
+
+   function new_DynamicMask_r8(mask_type, src_mask_value, dst_mask_value, handleAllElements, rc) result(mask)
+      type(DynamicMask) :: mask
+      character(*), intent(in) :: mask_type
+      real(kind=ESMF_KIND_R8), intent(in) :: src_mask_value
+      real(kind=ESMF_KIND_R8), optional, intent(in) :: dst_mask_value
+      logical, optional :: handleAllElements
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      procedure(I_r8r8r8), pointer :: mask_routine_r8
+
+      mask%mask_type = mask_type
+      if (present(handleAllElements)) mask%handleAllElements = handleAllElements
+
+      allocate(mask%mask_r8)
+      mask%mask_r8%src_mask_value = src_mask_value
+      if (present(dst_mask_value)) mask%mask_r8%dst_mask_value = dst_mask_value
+
+      allocate(mask%mask_r8%esmf_mask)
+      mask_routine_r8 => get_mask_routine_r8(mask_type, _RC)
+      call ESMF_DynamicMaskSetR8R8R8V(mask%mask_r8%esmf_mask, mask_routine_r8, &
+           dynamicSrcMaskValue=mask%mask_r8%src_mask_value, &
+           dynamicDstMaskValue=mask%mask_r8%dst_mask_value, &
+           handleAllElements=mask%handleAllElements, &
+           _RC)
+
+      _RETURN(_SUCCESS)
+   end function new_DynamicMask_r8
+
+   function get_mask_routine_r4(mask_type, rc) result(mask_routine)
+      procedure(I_r4r8r4), pointer :: mask_routine
+      character(*), intent(in) :: mask_type
+      integer, intent(out), optional :: rc
+
+      select case (mask_type)
+      case ('missing_value')
+         mask_routine => missing_r4r8r4v
+      case ('monotonic')
+         mask_routine => monotonic_r4r8r4v
+      case ('vote')
+         mask_routine => vote_r4r8r4v
+      case ('fraction')
+         mask_routine => fraction_r4r8r4v
+      case default
+         mask_routine => null()
+         _FAIL("Unsupported mask type: "//mask_type)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_mask_routine_r4
+
+   function get_mask_routine_r8(mask_type, rc) result(mask_routine)
+      procedure(I_r8r8r8), pointer :: mask_routine
+      character(*), intent(in) :: mask_type
+      integer, intent(out), optional :: rc
+
+      select case (mask_type)
+      case ('missing_value')
+         mask_routine => missing_r8r8r8v
+      case ('monotonic')
+         mask_routine => monotonic_r8r8r8v
+      case ('vote')
+         mask_routine => vote_r8r8r8v
+      case ('fraction')
+         mask_routine => fraction_r8r8r8v
+      case default
+         mask_routine => null()
+         _FAIL("Unsupported mask type: "//mask_type)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_mask_routine_r8
+
+   subroutine missing_r8r8r8v(dynamicMaskList, dynamicSrcMaskValue, dynamicDstMaskValue, rc)
+      type(ESMF_DynamicMaskElementR8R8R8V), pointer        :: dynamicMaskList(:)
+      real(ESMF_KIND_R8),            intent(in), optional :: dynamicSrcMaskValue
+      real(ESMF_KIND_R8),            intent(in), optional :: dynamicDstMaskValue
+      integer,                       intent(out)  :: rc
+
+      integer :: i, j, k, n
+      real(ESMF_KIND_R8) :: dst_fill
+      real(ESMF_KIND_R8), allocatable  :: renorm(:)
+
+      if (present(dynamicDstMaskValue)) then
+         dst_fill = dynamicDstMaskValue
+      else if (present(dynamicSrcMaskValue)) then
+         dst_fill = dynamicSrcMaskValue
+      end if
+
+      if (associated(dynamicMaskList)) then
+         n = size(dynamicMaskList(1)%srcElement(1)%ptr)
+         allocate(renorm(n))
+
+         do i=1, size(dynamicMaskList)
+            dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+            renorm = 0.d0 ! reset
+            do j=1, size(dynamicMaskList(i)%factor)
+               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
+                          + dynamicMaskList(i)%factor(j) &
+                          * dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
+                  endif
+               end do
+            end do
+            where (renorm > 0.d0)
+               dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
+            elsewhere
+               dynamicMaskList(i)%dstElement = dst_fill
+            end where
+         enddo
+      endif
+
+      _RETURN(_SUCCESS)
+   end subroutine missing_r8r8r8v
+
+   subroutine missing_r4r8r4v(dynamicMaskList, dynamicSrcMaskValue, dynamicDstMaskValue, rc)
+      type(ESMF_DynamicMaskElementR4R8R4V), pointer        :: dynamicMaskList(:)
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
+      integer,                       intent(out)  :: rc
+
+      integer :: i, j, k, n
+      real(ESMF_KIND_R4) :: dst_fill
+      real(ESMF_KIND_R4), allocatable  :: renorm(:)
+
+      if (present(dynamicDstMaskValue)) then
+         dst_fill = dynamicDstMaskValue
+      else if (present(dynamicSrcMaskValue)) then
+         dst_fill = dynamicSrcMaskValue
+      end if
+
+      if (associated(dynamicMaskList)) then
+         n = size(dynamicMaskList(1)%srcElement(1)%ptr)
+         allocate(renorm(n))
+
+         do i=1, size(dynamicMaskList)
+            dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+            renorm = 0.d0 ! reset
+            do j=1, size(dynamicMaskList(i)%factor)
+               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
+                          + dynamicMaskList(i)%factor(j) &
+                          * dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
+                  endif
+               end do
+            end do
+            where (renorm > 0.d0)
+               dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
+            elsewhere
+               dynamicMaskList(i)%dstElement = dst_fill
+            end where
+         enddo
+      endif
+
+      _RETURN(_SUCCESS)
+   end subroutine missing_r4r8r4v
+
+   subroutine monotonic_r8r8r8V(dynamicMaskList, dynamicSrcMaskValue, &
+         dynamicDstMaskValue, rc)
+      use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_positive_inf, ieee_negative_inf
+      type(ESMF_DynamicMaskElementR8R8R8V), pointer              :: dynamicMaskList(:)
+      real(ESMF_KIND_R8),            intent(in), optional :: dynamicSrcMaskValue
+      real(ESMF_KIND_R8),            intent(in), optional :: dynamicDstMaskValue
+      integer,                       intent(out)          :: rc
+
+      integer :: i, j, k, n
+      real(ESMF_KIND_R8) :: dst_fill
+      real(ESMF_KIND_R8), allocatable  :: renorm(:),max_input(:),min_input(:)
+
+      if (present(dynamicDstMaskValue)) then
+         dst_fill = dynamicDstMaskValue
+      else if (present(dynamicSrcMaskValue)) then
+         dst_fill = dynamicSrcMaskValue
+      end if
+
+      if (associated(dynamicMaskList)) then
+         n = size(dynamicMaskList(1)%srcElement(1)%ptr)
+         allocate(renorm(n),max_input(n),min_input(n))
+
+         do i=1, size(dynamicMaskList)
+            dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+            renorm = 0.d0 ! reset
+            max_input = ieee_value(max_input, ieee_negative_inf)
+            min_input = ieee_value(min_input, ieee_positive_inf)
+            do j=1, size(dynamicMaskList(i)%factor)
+               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
+                          + dynamicMaskList(i)%factor(j) &
+                          * dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
+                     if (dynamicMaskList(i)%srcElement(j)%ptr(k) > max_input(k)) max_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     if (dynamicMaskList(i)%srcElement(j)%ptr(k) < min_input(k)) min_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                  endif
+               end do
+            end do
+            where (renorm > 0.d0)
+               dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
+            elsewhere
+               dynamicMaskList(i)%dstElement = dst_fill
+            end where
+            where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement > max_input)
+               dynamicMaskList(i)%dstElement = max_input
+            end where
+            where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement < min_input)
+               dynamicMaskList(i)%dstElement = min_input
+            end where
+         enddo
+      endif
+
+      _RETURN(_SUCCESS)
+   end subroutine monotonic_r8r8r8V
+
+   subroutine monotonic_r4r8r4V(dynamicMaskList, dynamicSrcMaskValue, &
+         dynamicDstMaskValue, rc)
+      use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_positive_inf, ieee_negative_inf
+      type(ESMF_DynamicMaskElementR4R8R4V), pointer              :: dynamicMaskList(:)
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
+      integer,                       intent(out)          :: rc
+
+      integer :: i, j, k, n
+      real(ESMF_KIND_R4) :: dst_fill
+      real(ESMF_KIND_R4), allocatable  :: renorm(:),max_input(:),min_input(:)
+
+      if (present(dynamicDstMaskValue)) then
+         dst_fill = dynamicDstMaskValue
+      else if (present(dynamicSrcMaskValue)) then
+         dst_fill = dynamicSrcMaskValue
+      end if
+
+      if (associated(dynamicMaskList)) then
+         n = size(dynamicMaskList(1)%srcElement(1)%ptr)
+         allocate(renorm(n),max_input(n),min_input(n))
+
+         do i=1, size(dynamicMaskList)
+            dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+            renorm = 0.d0 ! reset
+            max_input = ieee_value(max_input, ieee_negative_inf)
+            min_input = ieee_value(min_input, ieee_positive_inf)
+            do j=1, size(dynamicMaskList(i)%factor)
+               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
+                          + dynamicMaskList(i)%factor(j) &
+                          * dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
+                     if (dynamicMaskList(i)%srcElement(j)%ptr(k) > max_input(k)) max_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     if (dynamicMaskList(i)%srcElement(j)%ptr(k) < min_input(k)) min_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                  endif
+               end do
+            end do
+            where (renorm > 0.d0)
+               dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
+            elsewhere
+               dynamicMaskList(i)%dstElement = dst_fill
+            end where
+            where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement > max_input)
+               dynamicMaskList(i)%dstElement = max_input
+            end where
+            where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement < min_input)
+               dynamicMaskList(i)%dstElement = min_input
+            end where
+         enddo
+      endif
+
+      _RETURN(_SUCCESS)
+   end subroutine monotonic_r4r8r4V
+
+   subroutine vote_r8r8r8v(dynamicMaskList, dynamicSrcMaskValue, &
+        dynamicDstMaskValue, rc)
+      type(ESMF_DynamicMaskElementR8R8R8V), pointer       :: dynamicMaskList(:)
+      real(ESMF_KIND_R8),            intent(in), optional :: dynamicSrcMaskValue
+      real(ESMF_KIND_R8),            intent(in), optional :: dynamicDstMaskValue
+      integer,                       intent(out)          :: rc
+
+      integer :: i, j, k, n
+      real(ESMF_KIND_R8) :: dst_fill
+      real(ESMF_KIND_R8), allocatable  :: renorm(:)
+
+      if (present(dynamicDstMaskValue)) then
+         dst_fill = dynamicDstMaskValue
+      else if (present(dynamicSrcMaskValue)) then
+         dst_fill = dynamicSrcMaskValue
+      end if
+
+      if (associated(dynamicMaskList)) then
+         n = size(dynamicMaskList(1)%srcElement(1)%ptr)
+         allocate(renorm(n))
+
+         do i=1, size(dynamicMaskList)
+            dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+            renorm = 0.d0 ! reset
+            do j=1, size(dynamicMaskList(i)%factor)
+               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                     if (dynamicMaskList(i)%factor(j) > renorm(k)) then
+                        renorm(k) = dynamicMaskList(i)%factor(j)
+                        dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     end if
+                  endif
+               end do
+            end do
+            where (renorm > 0.d0)
+            elsewhere
+               dynamicMaskList(i)%dstElement = dst_fill
+            end where
+         enddo
+      endif
+
+      _RETURN(_SUCCESS)
+   end subroutine vote_r8r8r8v
+
+   subroutine vote_r4r8r4v(dynamicMaskList, dynamicSrcMaskValue, &
+        dynamicDstMaskValue, rc)
+      type(ESMF_DynamicMaskElementR4R8R4V), pointer       :: dynamicMaskList(:)
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
+      integer,                       intent(out)          :: rc
+
+      integer :: i, j, k, n
+      real(ESMF_KIND_R4) :: dst_fill
+      real(ESMF_KIND_R4), allocatable  :: renorm(:)
+
+      if (present(dynamicDstMaskValue)) then
+         dst_fill = dynamicDstMaskValue
+      else if (present(dynamicSrcMaskValue)) then
+         dst_fill = dynamicSrcMaskValue
+      end if
+
+      if (associated(dynamicMaskList)) then
+         n = size(dynamicMaskList(1)%srcElement(1)%ptr)
+         allocate(renorm(n))
+
+         do i=1, size(dynamicMaskList)
+            dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+            renorm = 0.d0 ! reset
+            do j=1, size(dynamicMaskList(i)%factor)
+               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                     if (dynamicMaskList(i)%factor(j) > renorm(k)) then
+                        renorm(k) = dynamicMaskList(i)%factor(j)
+                        dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     end if
+                  endif
+               end do
+            end do
+            where (renorm > 0.d0)
+            elsewhere
+               dynamicMaskList(i)%dstElement = dst_fill
+            end where
+         enddo
+      endif
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(dynamicDstMaskValue)
+   end subroutine vote_r4r8r4v
+
+   subroutine fraction_r8r8r8v(dynamicMaskList, dynamicSrcMaskValue, &
+         dynamicDstMaskValue, rc)
+      type(ESMF_DynamicMaskElementR8R8R8V), pointer              :: dynamicMaskList(:)
+      real(ESMF_KIND_R8),            intent(in), optional :: dynamicSrcMaskValue
+      real(ESMF_KIND_R8),            intent(in), optional :: dynamicDstMaskValue
+      integer,                       intent(out)          :: rc
+
+      integer :: i, j, k
+
+      if (associated(dynamicMaskList)) then
+
+         do i=1, size(dynamicMaskList)
+            dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+            do j=1, size(dynamicMaskList(i)%factor)
+               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                     if (nint(dynamicMaskList(i)%srcElement(j)%ptr(k)) == 0) then
+                        dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) + &
+                             & dynamicMaskList(i)%factor(j)
+                     end if
+                  endif
+               end do
+            end do
+         enddo
+      endif
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(dynamicDstMaskValue)
+   end subroutine fraction_r8r8r8v
+
+   subroutine fraction_r4r8r4v(dynamicMaskList, dynamicSrcMaskValue, &
+         dynamicDstMaskValue, rc)
+      type(ESMF_DynamicMaskElementR4R8R4V), pointer              :: dynamicMaskList(:)
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
+      integer,                       intent(out)          :: rc
+
+      integer :: i, j, k
+
+      if (associated(dynamicMaskList)) then
+
+         do i=1, size(dynamicMaskList)
+            dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+            do j=1, size(dynamicMaskList(i)%factor)
+               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                  if (.not. match(dynamicSrcMaskValue, dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                     if (nint(dynamicMaskList(i)%srcElement(j)%ptr(k)) == 0) then
+                        dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) + &
+                             & dynamicMaskList(i)%factor(j)
+                     end if
+                  endif
+               end do
+            end do
+         enddo
+      endif
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(dynamicDstMaskValue)
+   end subroutine fraction_r4r8r4v
+
+   impure elemental logical function equal_to(a, b)
+      type(DynamicMask), intent(in) :: a
+      type(DynamicMask), intent(in) :: b
+
+      equal_to = allocated(a%mask_type) .eqv. allocated(b%mask_type)
+      if (.not. equal_to) return
+
+      if (.not. allocated(a%mask_type)) then
+         equal_to = .true.
+         return
+      end if
+
+      equal_to = a%mask_type == b%mask_type
+      if (.not. equal_to) return
+
+      equal_to = a%handleAllElements .eqv. b%handleAllElements
+      if (.not. equal_to) return
+
+      equal_to = allocated(a%mask_r4) .eqv. allocated(b%mask_r4)
+      if (.not. equal_to) return
+      if (allocated(a%mask_r4)) then
+         equal_to = a%mask_r4 == b%mask_r4
+         if (.not. equal_to) return
+      end if
+
+      equal_to = allocated(a%mask_r8) .eqv. allocated(b%mask_r8)
+      if (.not. equal_to) return
+      if (allocated(a%mask_r8)) then
+         equal_to = a%mask_r8 == b%mask_r8
+      end if
+
+   end function equal_to
+
+   impure elemental logical function not_equal_to(a, b)
+      type(DynamicMask), intent(in) :: a
+      type(DynamicMask), intent(in) :: b
+
+      not_equal_to = .not. (a == b)
+   end function not_equal_to
+
+   logical function equal_to_r4(a, b) result(equal_to)
+      type(DynamicMask_R4), intent(in) :: a
+      type(DynamicMask_R4), intent(in) :: b
+
+      equal_to = a%src_mask_value == b%src_mask_value
+      if (.not. equal_to) return
+
+      equal_to = allocated(a%dst_mask_value) .eqv. allocated(b%dst_mask_value)
+      if (.not. equal_to) return
+      if (allocated(a%dst_mask_value)) then
+         equal_to = a%dst_mask_value == b%dst_mask_value
+      end if
+   end function equal_to_r4
+
+   logical function not_equal_to_r4(a, b) result(not_equal_to)
+      type(DynamicMask_R4), intent(in) :: a
+      type(DynamicMask_R4), intent(in) :: b
+
+      not_equal_to = .not. (a == b)
+   end function not_equal_to_r4
+
+   logical function equal_to_r8(a, b) result(equal_to)
+      type(DynamicMask_R8), intent(in) :: a
+      type(DynamicMask_R8), intent(in) :: b
+
+      equal_to = a%src_mask_value == b%src_mask_value
+      if (.not. equal_to) return
+
+      equal_to = allocated(a%dst_mask_value) .eqv. allocated(b%dst_mask_value)
+      if (.not. equal_to) return
+      if (allocated(a%dst_mask_value)) then
+         equal_to = a%dst_mask_value == b%dst_mask_value
+      end if
+   end function equal_to_r8
+
+   logical function not_equal_to_r8(a, b) result(not_equal_to)
+      type(DynamicMask_R8), intent(in) :: a
+      type(DynamicMask_R8), intent(in) :: b
+
+      not_equal_to = .not. (a == b)
+   end function not_equal_to_r8
+
+   logical function match_r4(missing, b)
+      real(kind=ESMF_KIND_R4), intent(in), optional :: missing
+      real(kind=ESMF_KIND_R4), intent(in) :: b
+      if (present(missing)) then
+         match_r4 = (missing == b)
+      else
+         match_r4 = .false.
+      end if
+   end function match_r4
+
+   logical function match_r8(missing, b)
+      real(kind=ESMF_KIND_R8), intent(in), optional :: missing
+      real(kind=ESMF_KIND_R8), intent(in) :: b
+      if (present(missing)) then
+         match_r8 = (missing == b)
+      else
+         match_r8 = .false.
+      end if
+   end function match_r8
+
+end module mapl3g_DynamicMask

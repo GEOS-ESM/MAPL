@@ -1,9 +1,10 @@
-#include "MAPL_Exceptions.h"
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 
 module mapl_Partition
+
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
+
    implicit none(type,external)
    private
 
@@ -13,12 +14,11 @@ module mapl_Partition
       procedure :: get_partition
    end interface
 
-
 contains
 
    ! Return a partition of n items split among k bins. Typically to
    ! support balannced domain decomposition.
-   ! 
+   !
    ! Options:
    !
    !    symmetric (logical) - attempt to impose mirror symmetry on the
@@ -30,6 +30,7 @@ contains
    !                 at least an extent of 2.
    !
    recursive function get_partition(n, k, unusable, symmetric, min_extent, rc) result(partition)
+
       integer, intent(in) :: n
       integer, intent(in) :: k
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -103,6 +104,7 @@ contains
       partition = [sub_partition_a, i_mid, sub_partition_a((k-1)/2:1:-1) ]
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    contains
 
@@ -122,5 +124,5 @@ contains
       end function make_odd
 
    end function get_partition
-   
+
 end module mapl_Partition

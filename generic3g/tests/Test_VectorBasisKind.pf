@@ -1,0 +1,212 @@
+#include "MAPL_TestErr.h"
+module Test_VectorBasisKind
+   use mapl3g_VectorBasisKind
+   use mapl3g_VariableSpec
+   use mapl3g_StateItemSpec
+   use mapl3g_StateItem
+   use mapl3g_StateRegistry
+   use mapl3g_Geom_API
+   use mapl3g_VerticalGrid_API
+   use mapl3g_StateItemAspect
+   use mapl3g_FieldBundle_API
+   use esmf
+   use funit
+   implicit none
+
+   type(ESMF_Geom) :: geom
+
+contains
+
+   @before
+   subroutine setup()
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom) :: mapl_geom
+      type(GeomManager), pointer :: geom_mgr
+      integer :: status
+
+      geom_mgr => get_geom_manager()
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig)
+
+   end subroutine setup
+
+
+   @test
+   subroutine test_to_string_grid()
+      character(:), allocatable :: str
+      
+      str = VECTOR_BASIS_KIND_GRID%to_string()
+      @assertEqual('GRID', str)
+      
+   end subroutine test_to_string_grid
+
+
+   @test
+   subroutine test_to_string_ns()
+      character(:), allocatable :: str
+      
+      str = VECTOR_BASIS_KIND_NS%to_string()
+      @assertEqual('NS', str)
+      
+   end subroutine test_to_string_ns
+
+
+   @test
+   subroutine test_to_string_invalid()
+      character(:), allocatable :: str
+      
+      str = VECTOR_BASIS_KIND_INVALID%to_string()
+      @assertEqual('INVALID', str)
+      
+   end subroutine test_to_string_invalid
+
+
+   @test
+   subroutine test_constructor_from_string_grid()
+      type(VectorBasisKind) :: basis_kind
+      
+      basis_kind = VectorBasisKind('GRID')
+      @assertTrue(basis_kind == VECTOR_BASIS_KIND_GRID)
+      
+      basis_kind = VectorBasisKind('grid')
+      @assertTrue(basis_kind == VECTOR_BASIS_KIND_GRID)
+      
+   end subroutine test_constructor_from_string_grid
+
+
+   @test
+   subroutine test_constructor_from_string_ns()
+      type(VectorBasisKind) :: basis_kind
+      
+      basis_kind = VectorBasisKind('NS')
+      @assertTrue(basis_kind == VECTOR_BASIS_KIND_NS)
+      
+      basis_kind = VectorBasisKind('ns')
+      @assertTrue(basis_kind == VECTOR_BASIS_KIND_NS)
+      
+   end subroutine test_constructor_from_string_ns
+
+
+   @test
+   subroutine test_constructor_invalid_string()
+      type(VectorBasisKind) :: basis_kind
+      
+      basis_kind = VectorBasisKind('invalid_value')
+      @assertTrue(basis_kind == VECTOR_BASIS_KIND_INVALID)
+      
+   end subroutine test_constructor_invalid_string
+
+
+   @test
+   subroutine test_equality_operator()
+      @assertTrue(VECTOR_BASIS_KIND_GRID == VECTOR_BASIS_KIND_GRID)
+      @assertTrue(VECTOR_BASIS_KIND_NS == VECTOR_BASIS_KIND_NS)
+      @assertTrue(VECTOR_BASIS_KIND_INVALID == VECTOR_BASIS_KIND_INVALID)
+      
+      @assertFalse(VECTOR_BASIS_KIND_GRID == VECTOR_BASIS_KIND_NS)
+      @assertFalse(VECTOR_BASIS_KIND_NS == VECTOR_BASIS_KIND_GRID)
+      
+   end subroutine test_equality_operator
+
+
+   @test
+   subroutine test_inequality_operator()
+      @assertTrue(VECTOR_BASIS_KIND_GRID /= VECTOR_BASIS_KIND_NS)
+      @assertTrue(VECTOR_BASIS_KIND_NS /= VECTOR_BASIS_KIND_GRID)
+      
+      @assertFalse(VECTOR_BASIS_KIND_GRID /= VECTOR_BASIS_KIND_GRID)
+      @assertFalse(VECTOR_BASIS_KIND_NS /= VECTOR_BASIS_KIND_NS)
+      
+   end subroutine test_inequality_operator
+
+
+   @test
+   subroutine test_vector_default_basis_is_ns()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      ! Create a vector spec without explicitly setting vector_basis_kind
+      ! This should succeed and default to NS (validated at construction time)
+      var_spec = make_VariableSpec( &
+           state_intent=ESMF_STATEINTENT_EXPORT, &
+           short_name='uv', &
+           itemtype=MAPL_STATEITEM_VECTOR, &
+           standard_name='(eastward_wind,northward_wind)', &
+           geom=geom, &
+           units='m s-1', &
+           _RC)
+
+      ! If we get here without exception, the test passed
+      @assertTrue(.true.)
+
+   end subroutine test_vector_default_basis_is_ns
+
+
+   @test
+   subroutine test_vector_explicit_ns_basis()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      ! Create a vector spec with explicit NS basis
+      var_spec = make_VariableSpec( &
+           state_intent=ESMF_STATEINTENT_EXPORT, &
+           short_name='uv', &
+           itemtype=MAPL_STATEITEM_VECTOR, &
+           standard_name='(eastward_wind,northward_wind)', &
+           geom=geom, &
+           units='m s-1', &
+           vector_basis_kind='NS', &
+           _RC)
+
+      ! If we get here without exception, the test passed
+      @assertTrue(.true.)
+
+   end subroutine test_vector_explicit_ns_basis
+
+
+   @test
+   subroutine test_vector_explicit_grid_basis()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      ! Create a vector spec with explicit GRID basis
+      var_spec = make_VariableSpec( &
+           state_intent=ESMF_STATEINTENT_EXPORT, &
+           short_name='uv', &
+           itemtype=MAPL_STATEITEM_VECTOR, &
+           standard_name='(eastward_wind,northward_wind)', &
+           geom=geom, &
+           units='m s-1', &
+           vector_basis_kind='GRID', &
+           _RC)
+
+      ! If we get here without exception, the test passed
+      @assertTrue(.true.)
+
+   end subroutine test_vector_explicit_grid_basis
+
+
+   @test
+   subroutine test_non_vector_cannot_have_basis_kind()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      ! Try to create a field (non-vector) with vector_basis_kind - should fail
+      var_spec = make_VariableSpec( &
+           state_intent=ESMF_STATEINTENT_EXPORT, &
+           short_name='temp', &
+           standard_name='air_temperature', &
+           geom=geom, &
+           units='K', &
+           vector_basis_kind='NS', &
+           rc=status)
+
+      @assertExceptionRaised('vector_basis_kind can only be specified for vectors')
+
+   end subroutine test_non_vector_cannot_have_basis_kind
+
+
+end module Test_VectorBasisKind

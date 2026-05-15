@@ -1,7 +1,7 @@
 
 
 #define LDB_SUCCESS  0
-#include "MAPL_ErrLog.h"
+#include "MAPL.h"
 !------------------------------------------------------------------------------
 !>
 !### MODULE: `MAPL_LoadBalanceMod`

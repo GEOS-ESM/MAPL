@@ -1,4 +1,4 @@
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 module MAPL_DownbitMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc, c_ptr
    use mpi

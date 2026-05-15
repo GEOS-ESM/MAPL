@@ -1,0 +1,251 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_ConservationAspect
+   use funit
+   use mapl3g_ConservationAspect
+   use mapl3g_ConservationType
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
+   use mapl3g_ActualConnectionPt
+   use mapl_ErrorHandling
+   use esmf
+   use ESMF_TestMethod_mod
+   implicit none
+
+contains
+
+   ! Helper function to create a test field
+   function create_test_field() result(field)
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='test_field', _RC)
+
+   end function create_test_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_new_conservation_aspect_mass(this)
+      ! Test creating a mass conservation aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect
+
+      aspect = ConservationAspect(conservation_type=CONSERVE_MASS, &
+                                  is_conservable=.true.)
+
+      @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
+      @assertTrue(aspect%get_conservation_type() == CONSERVE_MASS, 'conservation type should be CONSERVE_MASS')
+      @assertTrue(aspect%get_is_conservable(), 'should be conservable')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_new_conservation_aspect_mass
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_new_conservation_aspect_energy(this)
+      ! Test creating an energy conservation aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect
+
+      aspect = ConservationAspect(conservation_type=CONSERVE_ENERGY, &
+                                  is_conservable=.true.)
+
+      @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
+      @assertTrue(aspect%get_conservation_type() == CONSERVE_ENERGY, 'conservation type should be CONSERVE_ENERGY')
+      @assertTrue(aspect%get_is_conservable(), 'should be conservable')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_new_conservation_aspect_energy
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_new_conservation_aspect_none(this)
+      ! Test creating a non-conservable aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect
+
+      aspect = ConservationAspect(conservation_type=CONSERVE_NONE, &
+                                  is_conservable=.false.)
+
+      @assertFalse(aspect%is_mirror(), 'aspect should not be mirror')
+      @assertTrue(aspect%get_conservation_type() == CONSERVE_NONE, 'conservation type should be CONSERVE_NONE')
+      @assertFalse(aspect%get_is_conservable(), 'should not be conservable')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_new_conservation_aspect_none
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_default_aspect_is_not_mirror(this)
+      ! Test that default constructor creates concrete aspect with CONSERVE_NONE
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect
+
+      aspect = ConservationAspect()
+
+      @assertFalse(aspect%is_mirror(), 'default aspect should not be mirror')
+      @assertTrue(aspect%get_conservation_type() == CONSERVE_NONE, 'default should be CONSERVE_NONE')
+      @assertFalse(aspect%get_is_conservable(), 'default should not be conservable')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_default_aspect_is_not_mirror
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_same_conservation_type(this)
+      ! Test that matching conservation types return true
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect1, aspect2
+
+      aspect1 = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
+      aspect2 = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
+
+      @assertTrue(aspect1%matches(aspect2), 'same conservation types should match')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_matches_same_conservation_type
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_does_not_match_different_conservation_type(this)
+      ! Test that different conservation types don't match
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect1, aspect2
+
+      aspect1 = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
+      aspect2 = ConservationAspect(conservation_type=CONSERVE_ENERGY, is_conservable=.true.)
+
+      @assertFalse(aspect1%matches(aspect2), 'different conservation types should not match')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_does_not_match_different_conservation_type
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_mirror_matches_any(this)
+      ! Test that mirror aspect matches any conservation type
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: mirror_aspect, mass_aspect
+
+      mirror_aspect = ConservationAspect(is_mirror=.true.)  ! Explicit mirror
+      mass_aspect = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
+
+      @assertTrue(mirror_aspect%matches(mass_aspect), 'mirror should match any type')
+      @assertTrue(mass_aspect%matches(mirror_aspect), 'any type should match mirror')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_mirror_matches_any
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update_payload_field(this)
+      ! Test writing aspect to field info
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect_out, aspect_in
+      type(ESMF_Field) :: field
+      integer :: status
+
+      aspect_out = ConservationAspect(conservation_type=CONSERVE_MASS, &
+                                      is_conservable=.true.)
+      field = create_test_field()
+      
+      call aspect_out%update_payload(field=field, _RC)
+      call aspect_in%update_from_payload(field=field, _RC)
+
+      @assertFalse(aspect_in%is_mirror(), 'read aspect should not be mirror')
+      @assertTrue(aspect_in%get_conservation_type() == CONSERVE_MASS, 'conservation type should match')
+      @assertTrue(aspect_in%get_is_conservable(), 'conservable flag should match')
+
+      call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_update_payload_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_connect_to_export(this)
+      ! Test mirroring from export aspect
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: import_aspect, export_aspect
+      type(ActualConnectionPt) :: actual_pt
+      integer :: status
+
+      export_aspect = ConservationAspect(conservation_type=CONSERVE_ENERGY, &
+                                         is_conservable=.true.)
+      import_aspect = ConservationAspect(is_mirror=.true.)  ! Explicit mirror
+
+      call import_aspect%connect_to_export(export_aspect, actual_pt, _RC)
+
+      @assertTrue(import_aspect%get_conservation_type() == CONSERVE_ENERGY)
+      @assertTrue(import_aspect%get_is_conservable())
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_connect_to_export
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_getters_and_setters(this)
+      ! Test all getters and setters
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect
+      integer :: status
+
+      aspect = ConservationAspect()  ! Default: CONSERVE_NONE
+
+      call aspect%set_conservation_type(CONSERVE_MOMENTUM, _RC)
+      @assertTrue(aspect%get_conservation_type() == CONSERVE_MOMENTUM)
+
+      call aspect%set_is_conservable(.true., _RC)
+      @assertTrue(aspect%get_is_conservable(), 'conservable flag should be set')
+
+      call aspect%set_is_conservable(.false., _RC)
+      @assertFalse(aspect%get_is_conservable(), 'conservable flag should be updated')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_getters_and_setters
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_conversion_same_type(this)
+      ! Test that conversion is supported for same conservation type
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect1, aspect2
+
+      aspect1 = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
+      aspect2 = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
+
+      @assertTrue(aspect1%supports_conversion_specific(aspect2))
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_supports_conversion_same_type
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_does_not_support_conversion_different_type(this)
+      ! Test that conversion is not supported for different conservation types
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect1, aspect2
+
+      aspect1 = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
+      aspect2 = ConservationAspect(conservation_type=CONSERVE_ENERGY, is_conservable=.true.)
+
+      @assertFalse(aspect1%supports_conversion_specific(aspect2))
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_does_not_support_conversion_different_type
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_conversion_general(this)
+      ! Test that general conversion is supported
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ConservationAspect) :: aspect
+
+      aspect = ConservationAspect(conservation_type=CONSERVE_MASS, is_conservable=.true.)
+
+      @assertTrue(aspect%supports_conversion_general(), 'should support general conversion')
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine test_supports_conversion_general
+
+end module Test_ConservationAspect

@@ -1,0 +1,126 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_RegridTransform
+   use mapl3g_RegridTransform
+   use mapl3g_ExtensionTransform, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME, ExtensionTransform
+   use mapl3g_FieldCreate, only: MAPL_FieldCreate
+   use mapl3g_regridder_mgr, only: EsmfRegridderParam
+   use mapl3g_RoutehandleParam, only: RoutehandleParam
+   use mapl3g_Geom_API
+   use mapl_ErrorHandling
+   use esmf
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none(type,external)
+
+   type(ESMF_State) :: importState
+   type(ESMF_State) :: exportState
+   type(ESMF_Geom)  :: geom_coarse, geom_fine
+   type(ESMF_Clock) :: clock
+   type(GeomManager), pointer :: geom_mgr
+
+   integer, parameter :: NX_COARSE = 8
+   integer, parameter :: NY_COARSE = 9
+   integer, parameter :: NX_FINE   = 16
+   integer, parameter :: NY_FINE   = 18
+
+contains
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(ESMF_Time) :: startTime, stopTime
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom) :: mapl_geom
+      character(len=256) :: config_str
+
+      _UNUSED_DUMMY(this)
+
+      geom_mgr => get_geom_manager()
+
+      write(config_str, '(A,I0,A,I0,A)') &
+           '{class: latlon, im_world: ', NX_COARSE, ', jm_world: ', NY_COARSE, ', pole: PE, dateline: DE}'
+      hconfig = ESMF_HConfigCreate(content=trim(config_str), _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom_coarse = mapl_geom%get_geom()
+
+      write(config_str, '(A,I0,A,I0,A)') &
+           '{class: latlon, im_world: ', NX_FINE, ', jm_world: ', NY_FINE, ', pole: PE, dateline: DE}'
+      hconfig = ESMF_HConfigCreate(content=trim(config_str), _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom_fine = mapl_geom%get_geom()
+
+      importState = ESMF_StateCreate(name='import', stateintent=ESMF_STATEINTENT_IMPORT, _RC)
+      exportState = ESMF_StateCreate(name='export', stateintent=ESMF_STATEINTENT_EXPORT, _RC)
+
+      call ESMF_TimeSet(startTime, yy=2000, mm=1, dd=1, h=0, m=0, s=0, _RC)
+      call ESMF_TimeSet(stopTime,  yy=2000, mm=1, dd=2, h=0, m=0, s=0, _RC)
+      call ESMF_TimeIntervalSet(timeStep, h=6, _RC)
+      clock = ESMF_ClockCreate(name='clock', timeStep=timeStep, &
+           startTime=startTime, stopTime=stopTime, _RC)
+
+   end subroutine setUp
+
+   @After
+   subroutine tearDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      call ESMF_StateDestroy(importState, _RC)
+      call ESMF_StateDestroy(exportState, _RC)
+      call ESMF_ClockDestroy(clock, _RC)
+
+   end subroutine tearDown
+
+   ! Regrid an R8 field between two different geometries.  Before the fix,
+   ! RegridTransform%initialize always built a RegridderSpec with the default
+   ! typekind (R4), so the route handle was wired for R4.  At update time
+   ! EsmfRegridder asserted that the field typekind matched the route handle
+   ! typekind and failed with:
+   !   "f_in typekind does not match route handle; set typekind_in in RegridderSpec"
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_r8_cross_geom_regrid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      class(ExtensionTransform), allocatable :: transform
+      type(ESMF_Field) :: field_in, field_out
+      type(ESMF_Field) :: alias_in, alias_out
+      real(ESMF_KIND_R8), pointer :: data_in(:,:), data_out(:,:)
+      real(ESMF_KIND_R8), parameter :: FILL = 42.0_ESMF_KIND_R8
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      field_in  = MAPL_FieldCreate(geom_coarse, typekind=ESMF_TYPEKIND_R8, _RC)
+      field_out = MAPL_FieldCreate(geom_fine,   typekind=ESMF_TYPEKIND_R8, _RC)
+
+      call ESMF_FieldGet(field_in,  farrayPtr=data_in,  _RC)
+      call ESMF_FieldGet(field_out, farrayPtr=data_out, _RC)
+      data_in  = FILL
+      data_out = 0.0_ESMF_KIND_R8
+
+      alias_in  = ESMF_NamedAlias(field_in,  name=COUPLER_IMPORT_NAME, _RC)
+      alias_out = ESMF_NamedAlias(field_out, name=COUPLER_EXPORT_NAME,  _RC)
+      call ESMF_StateAdd(importState, [alias_in],  _RC)
+      call ESMF_StateAdd(exportState, [alias_out], _RC)
+
+      allocate(transform, source=RegridTransform(geom_coarse, geom_fine, EsmfRegridderParam()))
+
+      call transform%initialize(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
+
+      ! A uniform field regridded bilinearly should remain uniform to roundoff.
+      @assertRelativelyEqual(FILL, minval(data_out), 1.e-10_ESMF_KIND_R8, 'min of output should equal fill value')
+      @assertRelativelyEqual(FILL, maxval(data_out), 1.e-10_ESMF_KIND_R8, 'max of output should equal fill value')
+
+      call ESMF_FieldDestroy(field_in,  _RC)
+      call ESMF_FieldDestroy(field_out, _RC)
+
+   end subroutine test_r8_cross_geom_regrid
+
+end module Test_RegridTransform

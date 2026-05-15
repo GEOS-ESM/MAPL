@@ -1,0 +1,47 @@
+#include "MAPL_TestErr.h"
+
+module Test_Ungridded
+   use mapl3g_UngriddedDim
+   use mapl3g_UngriddedDims
+   use funit
+   use esmf
+   implicit none
+
+contains
+
+   @test
+   subroutine test_make_ungridded_dim()
+      type(UngriddedDim) :: a, b
+      type(ESMF_Info) :: info
+
+      integer :: status
+      
+      a = UngriddedDim(name='a', units='m', coordinates=[2.,3.,5.])
+      info = a%make_info(_RC)
+
+      b = make_UngriddedDim(info, _RC)
+
+      @assert_that(a == b, is(true()))
+      
+   end subroutine test_make_ungridded_dim
+
+   @test
+   subroutine test_make_ungridded_dims()
+      type(UngriddedDims) :: a, b
+      type(ESMF_Info) :: info
+
+      integer :: status
+
+      a = UngriddedDims()
+      call a%add_dim(UngriddedDim(name='a1', units='m', coordinates=[2.,3.,5.]))
+      call a%add_dim(UngriddedDim(name='a2', units='cm', extent=5))
+
+      info = a%make_info(_RC)
+
+      b = make_UngriddedDims(info, _RC)
+
+      @assert_that(a == b, is(true()))
+      
+   end subroutine test_make_ungridded_dims
+
+end module Test_Ungridded

@@ -1,6 +1,8 @@
 module test_ProfileReporter
    use funit
    use MAPL_Profiler
+   use gFTL2_StringVector
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
    implicit none
 
    character(1) :: empty(0)
@@ -13,7 +15,7 @@ contains
       type (TimeProfiler), target :: prof
       type (ProfileReporter), target :: reporter
 
-      character(:), allocatable :: report_lines(:)
+      type(StringVector) :: report_lines
 
       prof = TimeProfiler('top')   ! timer 1
       call prof%start()
@@ -45,19 +47,19 @@ contains
       reporter = ProfileReporter(empty)
       call reporter%add_column(NameColumn(20))
       call reporter%add_column(FormattedTextColumn('# cycles','(i8.0)', 8, NumCyclesColumn()))
-      allocate(report_lines, source=reporter%generate_report(prof))
+      report_lines = reporter%generate_report(prof)
 
-      @assertEqual(1 + 7, size(report_lines))
-      @assertEqual(20 + 1 + 8, len(report_lines(1)))
+      @assertEqual(1 + 7, report_lines%size())
+      @assertEqual(20 + 1 + 8, len(report_lines%at(1)))
 
-      @assertEqual('Name                 # cycles', report_lines(1))
-      @assertEqual('top                         1', report_lines(2))
-      @assertEqual('--timer_1                   2', report_lines(3))
-      @assertEqual('----timer_1a                2', report_lines(4))
-      @assertEqual('----timer_1b                1', report_lines(5))
-      @assertEqual('------timer_1b1             1', report_lines(6))
-      @assertEqual('--timer_2                   3', report_lines(7))
-      @assertEqual('----timer_2b                1', report_lines(8))
+      @assertEqual('Name                 # cycles', report_lines%at(1))
+      @assertEqual('top                         1', report_lines%at(2))
+      @assertEqual('--timer_1                   2', report_lines%at(3))
+      @assertEqual('----timer_1a                2', report_lines%at(4))
+      @assertEqual('----timer_1b                1', report_lines%at(5))
+      @assertEqual('------timer_1b1             1', report_lines%at(6))
+      @assertEqual('--timer_2                   3', report_lines%at(7))
+      @assertEqual('----timer_2b                1', report_lines%at(8))
 
    end subroutine test_simple_report_timer
 
@@ -66,8 +68,8 @@ contains
    subroutine test_simple_report_timer_b()
       type (TimeProfiler), target :: prof
       type (ProfileReporter) :: reporter
-      
-      character(:), allocatable :: report_lines(:)
+      character(:), allocatable :: line
+      type(StringVector) :: report_lines
 
       prof = TimeProfiler('top')   ! timer 1
       call prof%start()
@@ -103,20 +105,106 @@ contains
       call reporter%add_column(FormattedTextColumn('T(incl)','(f15.6)', 15, InclusiveColumn()))
       report_lines = reporter%generate_report(prof)
 
-      @assertEqual(1 + 7, size(report_lines))
-      @assertEqual(20 + 1 + 8 + 1 + 15, len(report_lines(1)))
+      @assertEqual(1 + 7, report_lines%size())
+      line = report_lines%at(1)
+      @assertEqual(20 + 1 + 8 + 1 + 15, len(line))
 
-      @assertEqual('Name                 # cycles', report_lines(1)(1:29))
-      @assertEqual('top                         1', report_lines(2)(1:29))
-      @assertEqual('--timer_1                   2', report_lines(3)(1:29))
-      @assertEqual('----timer_1a                2', report_lines(4)(1:29))
-      @assertEqual('----timer_1b                1', report_lines(5)(1:29))
-      @assertEqual('------timer_1b1             1', report_lines(6)(1:29))
-      @assertEqual('--timer_2                   3', report_lines(7)(1:29))
-      @assertEqual('----timer_2b                1', report_lines(8)(1:29))
+      @assertEqual('Name                 # cycles', line(1:29))
+      line = report_lines%at(2)
+      @assertEqual('top                         1', line(1:29))
+      line = report_lines%at(3)
+      @assertEqual('--timer_1                   2', line(1:29))
+      line = report_lines%at(4)
+      @assertEqual('----timer_1a                2', line(1:29))
+      line = report_lines%at(5)
+      @assertEqual('----timer_1b                1', line(1:29))
+      line = report_lines%at(6)
+      @assertEqual('------timer_1b1             1', line(1:29))
+      line = report_lines%at(7)
+      @assertEqual('--timer_2                   3', line(1:29))
+      line = report_lines%at(8)
+      @assertEqual('----timer_2b                1', line(1:29))
 
    end subroutine test_simple_report_timer_b
 
+
+   @test
+   subroutine test_config_report()
+      type (TimeProfiler), target :: prof
+      type (ProfileReporter) :: reporter
+      type(ESMF_HConfig) :: config
+      type(StringVector) :: report_lines
+      character(:), allocatable :: line
+
+      ! Create a simple profiler
+      prof = TimeProfiler('top')
+      call prof%start()
+      call prof%start('timer_1')
+      call prof%stop('timer_1')
+      call prof%stop()
+      call prof%finalize()
+
+      ! Create config with custom columns
+      config = ESMF_HConfigCreate(content='{ &
+         &columns: [ &
+         &  {type: name, width: 15}, &
+         &  {type: num_cycles, name: "cycles", format: "(i6.0)", width: 6}, &
+         &  {type: inclusive, name: "Time", format: "(f10.6)", width: 10} &
+         &]}')
+
+      reporter = ProfileReporter(empty, config)
+      report_lines = reporter%generate_report(prof)
+
+      ! Should have header + 2 rows (top, timer_1)
+      @assertEqual(1 + 2, report_lines%size())
+      
+      ! Check header line
+      line = report_lines%at(1)
+      @assertEqual(15 + 1 + 6 + 1 + 10, len(line))
+      @assertEqual('Name            cycles    Time', line)
+
+      call ESMF_HConfigDestroy(config)
+
+   end subroutine test_config_report
+
+
+   @test
+   subroutine test_config_multi_column()
+      type (TimeProfiler), target :: prof
+      type (ProfileReporter) :: reporter
+      type(ESMF_HConfig) :: config
+      type(StringVector) :: report_lines
+      character(:), allocatable :: line
+
+      ! Create a simple profiler
+      prof = TimeProfiler('top')
+      call prof%start()
+      call prof%start('timer_1')
+      call prof%stop('timer_1')
+      call prof%stop()
+      call prof%finalize()
+
+      ! Create config with multi-column grouping
+      config = ESMF_HConfigCreate(content='{ &
+         &columns: [ &
+         &  {type: name, width: 15}, &
+         &  {type: separator, char: "|"}, &
+         &  {type: multi, name: "Timing", separator: "=", &
+         &   columns: [ &
+         &     {type: inclusive, name: "inc", format: "(f8.4)", width: 8, separator: "-"}, &
+         &     {type: exclusive, name: "exc", format: "(f8.4)", width: 8, separator: "-"} &
+         &   ]} &
+         &]}')
+
+      reporter = ProfileReporter(empty, config)
+      report_lines = reporter%generate_report(prof)
+
+      ! Should have header rows + 2 data rows
+      @assert_that(report_lines%size() >= 3, is(.true.))
+
+      call ESMF_HConfigDestroy(config)
+
+   end subroutine test_config_multi_column
 
 
 end module test_ProfileReporter

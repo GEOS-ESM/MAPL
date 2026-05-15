@@ -17,6 +17,7 @@ module MAPL_MultiColumn
       procedure :: add_column
       procedure :: get_header
       procedure :: get_num_rows_header
+      procedure :: get_num_columns
       procedure :: get_rows
    end type MultiColumn
 
@@ -82,12 +83,13 @@ contains
 
       integer :: total_width, height
       character(:), allocatable :: column(:)
-      
+
       total_width = this%get_width()
       height = node%get_num_nodes()
       
       allocate(character(total_width) :: rows(height))
-
+      if (height == 0) return
+      
       w0 = 1
       do i = 1, this%columns%size()
          
@@ -115,6 +117,13 @@ contains
       class(TextColumn), pointer :: c
       character(:), allocatable :: column_header(:)
       integer :: n_shared
+
+      ! MultiColumn must have at least one column
+      if (this%get_num_columns() == 0) then
+         ! Return empty header - this can happen during error handling
+         allocate(character(0) :: header(0))
+         return
+      end if
 
       total_width = this%get_width()
       total_height = this%num_rows_header
@@ -161,5 +170,10 @@ contains
       class(MultiColumn), intent(in) :: this
       num_rows = this%num_rows_header
    end function get_num_rows_header
+
+   integer function get_num_columns(this) result(num_cols)
+      class(MultiColumn), intent(in) :: this
+      num_cols = this%columns%size()
+   end function get_num_columns
 
 end module MAPL_MultiColumn

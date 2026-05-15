@@ -1,0 +1,27 @@
+mapl:
+
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      grid_type: model
+      fields: {pressure: PLE}
+      num_levels: 4
+
+  states:
+    import: {}
+    export:
+      PLE:
+        standard_name: air_pressure_dyn_center
+        units: hPa
+        default_vertical_profile: [50., 40., 30., 20., 10.]
+        vertical_dim_spec: edge
+      T_DYN:
+        standard_name: temperature_dyn_center
+        units: K
+        default_vertical_profile: [40., 20., 10., 5.]
+        vertical_dim_spec: center

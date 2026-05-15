@@ -1,8 +1,11 @@
 #include "unused_dummy.H"
 #include "MAPL_ErrLog.h"
+
 module MAPL_AbstractMeter
+
    use MAPL_ErrorHandlingMod
    use, intrinsic :: iso_fortran_env, only: REAL64
+
    implicit none
    private
 
@@ -24,9 +27,7 @@ module MAPL_AbstractMeter
       procedure(i_get), deferred :: get_total
       procedure(i_accumulate), deferred :: accumulate
       procedure :: finalize
-
    end type AbstractMeter
-
 
    abstract interface
 
@@ -57,27 +58,27 @@ module MAPL_AbstractMeter
 
    end interface
 
-   contains
+contains
 
-      subroutine finalize(this, rc)
-        class(AbstractMeter), intent(in) :: this
-        integer, optional, intent(out) :: rc
-        integer :: ierror, status
+   subroutine finalize(this, rc)
+      class(AbstractMeter), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      integer :: ierror
 
-        ierror = 0
-        if (dist_initialized) then
-           call MPI_type_free(type_dist_struct, ierror)
-           _VERIFY(ierror)
-           call MPI_type_free(type_dist_real64, ierror)
-           _VERIFY(ierror)
-           call MPI_type_free(type_dist_integer, ierror)
-           _VERIFY(ierror)
-           call MPI_Op_free(dist_reduce_op,ierror)
-           _VERIFY(ierror)
-           dist_initialized = .false.
-        endif
-        if (present(rc)) rc = ierror
-        _UNUSED_DUMMY(this)
-      end subroutine
+      ierror = 0
+      if (dist_initialized) then
+         call MPI_type_free(type_dist_struct, ierror)
+         _VERIFY(ierror)
+         call MPI_type_free(type_dist_real64, ierror)
+         _VERIFY(ierror)
+         call MPI_type_free(type_dist_integer, ierror)
+         _VERIFY(ierror)
+         call MPI_Op_free(dist_reduce_op,ierror)
+         _VERIFY(ierror)
+         dist_initialized = .false.
+      endif
+      if (present(rc)) rc = ierror
+      _UNUSED_DUMMY(this)
+   end subroutine finalize
 
 end module MAPL_AbstractMeter

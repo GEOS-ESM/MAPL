@@ -1,0 +1,545 @@
+#include "MAPL.h"
+
+module mapl3g_NormalizationAspect
+
+   use mapl3g_ActualConnectionPt
+   use mapl3g_AspectId
+   use mapl3g_StateItemAspect
+   use mapl3g_ExtensionTransform
+   use mapl3g_NullTransform
+   use mapl3g_QuantityTypeAspect
+   use mapl3g_NormalizationType
+   use mapl3g_NormalizationMetadata
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
+   use mapl_KeywordEnforcer
+   use mapl_ErrorHandling
+   use esmf
+
+   implicit none
+   private
+
+   public :: NormalizationAspect
+   public :: to_NormalizationAspect
+
+   interface to_NormalizationAspect
+      procedure :: to_normalization_from_poly
+      procedure :: to_normalization_from_map
+   end interface to_NormalizationAspect
+
+   type, extends(StateItemAspect) :: NormalizationAspect
+      private
+      
+      ! Use composition for shared fields (eliminates duplication with NormalizationMetadata)
+      type(NormalizationMetadata) :: metadata
+      
+      ! Aspect-specific fields only
+      character(:), allocatable :: source_units       ! e.g., "kg/kg"
+      character(:), allocatable :: target_units       ! e.g., "kg/m2"
+      
+   contains
+      ! StateItemAspect interface
+      procedure :: matches
+      procedure :: make_transform
+      procedure :: connect_to_export
+       procedure :: supports_conversion_general
+       procedure :: supports_conversion_specific
+       procedure, nopass :: get_aspect_id
+
+      ! Getters/setters
+      procedure :: get_normalization_type
+      procedure :: set_normalization_type
+      procedure :: get_scale_factor
+      procedure :: set_scale_factor
+      procedure :: get_source_units
+      procedure :: set_source_units
+       procedure :: get_target_units
+       procedure :: set_target_units
+
+      procedure :: update_from_payload
+      procedure :: update_payload
+      procedure :: print_aspect
+   end type NormalizationAspect
+
+   interface NormalizationAspect
+      procedure new_NormalizationAspect
+   end interface
+
+contains
+
+   function new_NormalizationAspect(normalization_type, scale_factor, source_units, target_units, is_time_dependent) result(aspect)
+      type(NormalizationAspect) :: aspect
+      type(NormalizationType), optional, intent(in) :: normalization_type
+      real, optional, intent(in) :: scale_factor
+      character(*), optional, intent(in) :: source_units
+      character(*), optional, intent(in) :: target_units
+      logical, optional, intent(in) :: is_time_dependent
+
+      call aspect%set_mirror(.true.)
+      
+      if (present(normalization_type) .and. present(scale_factor)) then
+         ! Create metadata with normalization parameters
+         aspect%metadata = NormalizationMetadata( &
+              normalization_type=normalization_type, &
+              normalization_scale=scale_factor)
+         call aspect%set_mirror(.false.)
+      else if (present(normalization_type) .or. present(scale_factor)) then
+         ! If only one is provided, use default for the other
+         if (present(normalization_type)) then
+            aspect%metadata = NormalizationMetadata( &
+                 normalization_type=normalization_type, &
+                 normalization_scale=1.0)
+         else
+            aspect%metadata = NormalizationMetadata( &
+                 normalization_type=NORMALIZE_NONE, &
+                 normalization_scale=scale_factor)
+         end if
+         call aspect%set_mirror(.false.)
+      else
+         ! No normalization parameters provided - create mirror metadata
+         aspect%metadata = NormalizationMetadata()  ! Creates mirror
+      end if
+      
+      if (present(source_units)) then
+         aspect%source_units = source_units
+      end if
+      
+      if (present(target_units)) then
+         aspect%target_units = target_units
+      end if
+
+      call aspect%set_time_dependent(is_time_dependent)
+
+   end function new_NormalizationAspect
+
+   logical function supports_conversion_general(src)
+      class(NormalizationAspect), intent(in) :: src
+
+      ! NormalizationAspect supports conversion (normalization is a transformation)
+      supports_conversion_general = .true.
+
+      _UNUSED_DUMMY(src)
+   end function supports_conversion_general
+
+   logical function supports_conversion_specific(src, dst)
+      class(NormalizationAspect), intent(in) :: src
+      class(StateItemAspect), intent(in) :: dst
+
+      select type (dst)
+      class is (NormalizationAspect)
+         ! Match if either is a mirror or if metadata matches
+         if (src%is_mirror() .or. dst%is_mirror()) then
+            supports_conversion_specific = .true.
+         else
+            ! For now, only support exact metadata match
+            supports_conversion_specific = (src%metadata == dst%metadata)
+         end if
+      class default
+         supports_conversion_specific = .false.
+      end select
+
+   end function supports_conversion_specific
+
+   logical function matches(src, dst)
+      class(NormalizationAspect), intent(in) :: src
+      class(StateItemAspect), intent(in) :: dst
+
+      select type(dst)
+      class is (NormalizationAspect)
+         ! Match if normalization parameters match or if either is a mirror
+         if (src%is_mirror() .or. dst%is_mirror()) then
+            matches = .true.
+         else
+            ! Use metadata equality (includes aux_field_name and scale_factor comparison)
+            matches = (src%metadata == dst%metadata)
+         end if
+      class default
+         matches = .false.
+      end select
+
+   end function matches
+
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
+      class(NormalizationAspect), intent(in) :: src
+      class(StateItemAspect), intent(in)  :: dst
+      type(AspectMap), target, intent(in)  :: other_aspects
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! For Phase 2, Task 2.1, we return NullTransform
+      ! Task 2.2 will create the actual NormalizationTransform
+      ! For now, normalization is handled by other mechanisms
+      allocate(transform, source=NullTransform())
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
+      _UNUSED_DUMMY(other_aspects)
+   end function make_transform
+
+   subroutine connect_to_export(this, export, actual_pt, rc)
+      class(NormalizationAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+
+      type(NormalizationAspect) :: export_
+      integer :: status
+
+      export_ = to_NormalizationAspect(export, _RC)
+      
+      ! Copy metadata
+      this%metadata = export_%metadata
+      
+      ! Copy aspect-specific fields
+      if (allocated(export_%source_units)) this%source_units = export_%source_units
+      if (allocated(export_%target_units)) this%target_units = export_%target_units
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
+   end subroutine connect_to_export
+
+   function to_normalization_from_poly(aspect, rc) result(normalization_aspect)
+      type(NormalizationAspect) :: normalization_aspect
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+
+      select type(aspect)
+      class is (NormalizationAspect)
+         normalization_aspect = aspect
+      class default
+         _FAIL('aspect is not NormalizationAspect')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function to_normalization_from_poly
+
+   function to_normalization_from_map(map, aspect_id, rc) result(normalization_aspect)
+      type(NormalizationAspect) :: normalization_aspect
+      type(AspectMap), target, intent(in) :: map
+      type(AspectId), optional, intent(in) :: aspect_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemAspect), pointer :: poly
+      type(AspectId) :: id_to_use
+
+      ! Use provided aspect_id or default to NORMALIZATION_ASPECT_ID
+      if (present(aspect_id)) then
+         id_to_use = aspect_id
+      else
+         id_to_use = NORMALIZATION_ASPECT_ID
+      end if
+
+      poly => map%at(id_to_use, _RC)
+      normalization_aspect = to_NormalizationAspect(poly, _RC)
+
+      _RETURN(_SUCCESS)
+   end function to_normalization_from_map
+
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = NORMALIZATION_ASPECT_ID
+   end function get_aspect_id
+
+   ! Getters/Setters
+   
+   function get_normalization_type(this, rc) result(normalization_type)
+      type(NormalizationType) :: normalization_type
+      class(NormalizationAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      ! Delegate to metadata
+      normalization_type = this%metadata%get_normalization_type()
+
+      _RETURN(_SUCCESS)
+   end function get_normalization_type
+
+   subroutine set_normalization_type(this, normalization_type, rc)
+      class(NormalizationAspect), intent(inout) :: this
+      type(NormalizationType), intent(in) :: normalization_type
+      integer, optional, intent(out) :: rc
+
+      real :: scale
+
+      ! Get current scale or use default
+      scale = this%metadata%get_normalization_scale()
+      
+      ! Update metadata with new normalization_type
+      this%metadata = NormalizationMetadata( &
+           normalization_type=normalization_type, &
+           normalization_scale=scale)
+      call this%set_mirror(.false.)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_normalization_type
+
+   function get_scale_factor(this, rc) result(scale_factor)
+      real :: scale_factor
+      class(NormalizationAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      ! Delegate to metadata
+      scale_factor = this%metadata%get_normalization_scale()
+
+      _RETURN(_SUCCESS)
+   end function get_scale_factor
+
+   subroutine set_scale_factor(this, scale_factor, rc)
+      class(NormalizationAspect), intent(inout) :: this
+      real, intent(in) :: scale_factor
+      integer, optional, intent(out) :: rc
+
+      type(NormalizationType) :: norm_type
+
+      ! Get current normalization type from metadata
+      norm_type = this%metadata%get_normalization_type()
+      
+      ! Update metadata with new scale_factor (aux_field_name not stored)
+      this%metadata = NormalizationMetadata( &
+           normalization_type=norm_type, &
+           normalization_scale=scale_factor)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_scale_factor
+
+   function get_source_units(this, rc) result(source_units)
+      character(:), allocatable :: source_units
+      class(NormalizationAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      if (allocated(this%source_units)) then
+         source_units = this%source_units
+      else
+         source_units = ''
+      end if
+
+      _RETURN(_SUCCESS)
+   end function get_source_units
+
+   subroutine set_source_units(this, source_units, rc)
+      class(NormalizationAspect), intent(inout) :: this
+      character(*), intent(in) :: source_units
+      integer, optional, intent(out) :: rc
+
+      this%source_units = source_units
+
+      _RETURN(_SUCCESS)
+   end subroutine set_source_units
+
+   function get_target_units(this, rc) result(target_units)
+      character(:), allocatable :: target_units
+      class(NormalizationAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      if (allocated(this%target_units)) then
+         target_units = this%target_units
+      else
+         target_units = ''
+      end if
+
+      _RETURN(_SUCCESS)
+   end function get_target_units
+
+   subroutine set_target_units(this, target_units, rc)
+      class(NormalizationAspect), intent(inout) :: this
+      character(*), intent(in) :: target_units
+      integer, optional, intent(out) :: rc
+
+      this%target_units = target_units
+
+      _RETURN(_SUCCESS)
+   end subroutine set_target_units
+
+    subroutine update_from_payload(this, field, bundle, state, rc)
+       class(NormalizationAspect), intent(inout) :: this
+       type(esmf_Field), optional, intent(in) :: field
+       type(esmf_FieldBundle), optional, intent(in) :: bundle
+       type(esmf_State), optional, intent(in) :: state
+       integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(NormalizationMetadata) :: norm_metadata
+      type(NormalizationType) :: norm_type
+      character(:), allocatable :: units
+
+       _RETURN_UNLESS(present(field) .or. present(bundle))
+
+       ! Get NormalizationMetadata from field/bundle
+       if (present(field)) then
+          call MAPL_FieldGet(field, normalization_metadata=norm_metadata, _RC)
+       else if (present(bundle)) then
+          call MAPL_FieldBundleGet(bundle, normalization_metadata=norm_metadata, _RC)
+       end if
+
+       ! Store metadata directly (composition pattern)
+       this%metadata = norm_metadata
+       
+       ! Copy mirror flag from metadata to aspect (following UngriddedDimsAspect pattern)
+       call this%set_mirror(norm_metadata%is_mirror())
+       
+       ! If metadata is mirror, we're done (no parameters to extract)
+       _RETURN_IF(norm_metadata%is_mirror())
+
+       ! Get normalization parameters from metadata
+       norm_type = norm_metadata%get_normalization_type()
+       
+       if (norm_type /= NORMALIZE_NONE) then
+          ! Field needs normalization - extract units and compute target units
+          
+           ! Get source units
+           if (present(field)) then
+              call MAPL_FieldGet(field, units=units, _RC)
+           else if (present(bundle)) then
+              call MAPL_FieldBundleGet(bundle, units=units, _RC)
+           end if
+           if (allocated(units)) then
+              this%source_units = units
+         else
+            this%source_units = ''  ! Default to empty string if units not set
+         end if
+        
+        ! Compute target units (always normalize, not denormalize)
+        call compute_normalized_units(this%source_units, norm_type, &
+                                    norm_metadata%get_normalization_scale(), this%target_units, _RC)
+     end if
+       ! Note: If norm_type == NORMALIZE_NONE and metadata is not mirror,
+       ! then mirror flag is already set to false above
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(state)
+   end subroutine update_from_payload
+
+    subroutine update_payload(this, field, bundle, state, rc)
+       class(NormalizationAspect), intent(in) :: this
+       type(esmf_Field), optional, intent(inout) :: field
+       type(esmf_FieldBundle), optional, intent(inout) :: bundle
+       type(esmf_State), optional, intent(inout) :: state
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       type(NormalizationMetadata) :: metadata, existing_metadata
+       logical :: should_write
+
+       _RETURN_UNLESS(present(field) .or. present(bundle))
+
+       should_write = .false.
+       
+       ! Determine what to write based on aspect state
+       if (this%is_mirror()) then
+          ! Mirror aspect: always write mirror metadata
+          metadata = NormalizationMetadata()  ! Creates mirror metadata
+          should_write = .true.
+       else if (.not. this%metadata%is_mirror()) then
+          ! Non-mirror with explicit metadata: write it directly (overrides QuantityTypeAspect)
+          metadata = this%metadata
+          should_write = .true.
+       else
+          ! Non-mirror aspect but metadata is still mirror (default Category 1 state)
+          ! Check if QuantityTypeAspect already wrote non-mirror metadata
+          if (present(field)) then
+             call MAPL_FieldGet(field, normalization_metadata=existing_metadata, _RC)
+          else if (present(bundle)) then
+             call MAPL_FieldBundleGet(bundle, normalization_metadata=existing_metadata, _RC)
+          end if
+          
+          ! If existing metadata is mirror, we must write non-mirror NORMALIZE_NONE
+          ! Otherwise, leave it as-is (QuantityTypeAspect may have set it)
+          if (existing_metadata%is_mirror()) then
+             metadata = NormalizationMetadata(NORMALIZE_NONE)
+             should_write = .true.
+          end if
+       end if
+
+       ! Write metadata if needed
+       if (should_write) then
+          if (present(field)) then
+             call MAPL_FieldSet(field, normalization_metadata=metadata, _RC)
+          else if (present(bundle)) then
+             call MAPL_FieldBundleSet(bundle, normalization_metadata=metadata, _RC)
+          end if
+       end if
+
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(state)
+    end subroutine update_payload
+
+   subroutine print_aspect(this, file, line, rc)
+      class(NormalizationAspect), intent(in) :: this
+      character(*), intent(in) :: file
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: aux_field
+      type(NormalizationType) :: norm_type
+      integer :: status
+
+      _HERE, file, line, this%is_mirror()
+      
+      ! Print metadata fields
+      norm_type = this%metadata%get_normalization_type()
+      _HERE, file, line, 'normalization_type:', norm_type%to_string()
+      _HERE, file, line, 'scale_factor:', this%metadata%get_normalization_scale()
+      
+      ! Print aspect-specific fields
+      if (allocated(this%source_units)) then
+         _HERE, file, line, 'source_units:', this%source_units
+      end if
+      if (allocated(this%target_units)) then
+         _HERE, file, line, 'target_units:', this%target_units
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine print_aspect
+
+   ! Helper subroutine to compute normalized units
+   subroutine compute_normalized_units(source_units, normalization_type, scale, target_units, rc)
+      character(*), intent(in) :: source_units
+      type(NormalizationType), intent(in) :: normalization_type
+      real, intent(in) :: scale
+      character(:), allocatable, intent(out) :: target_units
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! TEMPORARY PLACEHOLDER: Hardcoded unit strings for specific cases
+      !
+      ! This implementation will be replaced with UDUNITS library integration.
+      !
+      ! NOTE: Current "/" notation (e.g., "kg/m2") can be problematic when composing
+      ! units. For example, multiplying "a/b" with "c/d" naively produces "a/b c/d"
+      ! which is ambiguous. Exponent notation (e.g., "kg m-2") handles composition
+      ! more naturally: "a b-1" with "c d-1" produces "a b-1 c d-1".
+      !
+      ! The UDUNITS implementation should use proper unit algebra and consider adopting
+      ! exponent notation for better composability.
+      !
+      ! Formula: source_units × (aux_field_units × scale) = target_units
+      
+      if (normalization_type == NORMALIZE_DELP) then
+         ! DELP is in Pa, with scale 1/g, result is kg/m^2
+         ! e.g., "kg/kg" × ("Pa" × 1/g) = "kg/m2"
+         if (trim(source_units) == 'kg/kg') then
+            target_units = 'kg/m2'
+         else
+            target_units = source_units  ! Fallback
+         end if
+      else if (normalization_type == NORMALIZE_DZ) then
+         ! DZ is in m, with scale 1.0
+         ! e.g., "kg/m3" × "m" = "kg/m2"
+         if (trim(source_units) == 'kg/m3') then
+            target_units = 'kg/m2'
+         else
+            target_units = source_units  ! Fallback
+         end if
+      else
+         target_units = source_units  ! No conversion for NORMALIZE_NONE
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(scale)
+   end subroutine compute_normalized_units
+
+end module mapl3g_NormalizationAspect

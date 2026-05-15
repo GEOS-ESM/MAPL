@@ -1,0 +1,141 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_EASEGeomFactory
+   use pfunit
+   use funit
+   use gftl2_StringVector
+   use esmf_TestMethod_mod
+   use mapl3g_GeomSpec
+   use mapl3g_EASEGeomSpec
+   use mapl3g_EASEGeomFactory
+   use esmf
+   implicit none
+
+contains
+
+   ! ------------------------------------------------------------------
+   ! Test factory dispatch: supports_hconfig
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_supports_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEGeomFactory) :: factory
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      logical :: supports
+
+      hconfig = ESMF_HConfigCreate( &
+           & content='{class: ease, grid_name: EASEv2_M09}', rc=status)
+      @assert_that(status, is(0))
+
+      supports = factory%supports(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(supports, is(.true.))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_supports_hconfig
+
+   ! ------------------------------------------------------------------
+   ! Test factory dispatch: does not claim a LatLon hconfig
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_does_not_support_latlon_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEGeomFactory) :: factory
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      logical :: supports
+
+      hconfig = ESMF_HConfigCreate( &
+           & content='{class: latlon, im_world: 12, jm_world: 6}', rc=status)
+      @assert_that(status, is(0))
+
+      supports = factory%supports(hconfig, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(supports, is(.false.))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_does_not_support_latlon_hconfig
+
+   ! ------------------------------------------------------------------
+   ! Test make_spec from hconfig
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_spec_from_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEGeomFactory) :: factory
+      type(ESMF_HConfig) :: hconfig
+      class(GeomSpec), allocatable :: geom_spec
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate( &
+           & content='{class: ease, grid_name: EASEv2_M36}', rc=status)
+      @assert_that(status, is(0))
+
+      allocate(geom_spec, source=factory%make_spec(hconfig, rc=status))
+      @assert_that(status, is(0))
+
+      select type (geom_spec)
+      type is (EASEGeomSpec)
+         @assert_that(geom_spec%get_im_world(), is(964))
+         @assert_that(geom_spec%get_jm_world(), is(406))
+      class default
+         @assertTrue(.false., 'geom_spec is not of dynamic type EASEGeomSpec')
+      end select
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_spec_from_hconfig
+
+   ! ------------------------------------------------------------------
+   ! Test make_geom from hconfig (end-to-end)
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_geom_from_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEGeomFactory) :: factory
+      type(ESMF_HConfig) :: hconfig
+      class(GeomSpec), allocatable :: geom_spec
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate( &
+           & content='{class: ease, grid_name: EASEv2_M36}', rc=status)
+      @assert_that(status, is(0))
+
+      allocate(geom_spec, source=factory%make_spec(hconfig, rc=status))
+      @assert_that(status, is(0))
+
+      geom = factory%make_geom(geom_spec, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_geom_from_hconfig
+
+   ! ------------------------------------------------------------------
+   ! Test make_gridded_dims
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_make_gridded_dims(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(EASEGeomFactory) :: factory
+      type(ESMF_HConfig) :: hconfig
+      class(GeomSpec), allocatable :: geom_spec
+      type(StringVector) :: dims
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate( &
+           & content='{class: ease, grid_name: EASEv2_M09}', rc=status)
+      @assert_that(status, is(0))
+
+      allocate(geom_spec, source=factory%make_spec(hconfig, rc=status))
+      @assert_that(status, is(0))
+
+      dims = factory%make_gridded_dims(geom_spec, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(int(dims%size()), is(2))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+   end subroutine test_make_gridded_dims
+
+end module Test_EASEGeomFactory

@@ -1037,7 +1037,7 @@ sub gcF90code {
 
     my @f90code = q {
 
-#include "MAPL_Generic.h"
+#include "MAPL.h"
 
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !

@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.69.0
+  VERSION 3.0.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -82,20 +82,20 @@ message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 # This would then populate the target already leading to find_package()
 # errors.
 if(NOT TARGET GFTL::gftl)
-  find_package(GFTL 1.10.0 REQUIRED)
+  find_package(GFTL 1.15.1 REQUIRED)
 else()
-  if (GFTL_VERSION VERSION_LESS 1.10.0)
-    message(FATAL_ERROR "gFTL must be at least 1.10.0")
+  if (GFTL_VERSION VERSION_LESS 1.15.1)
+    message(FATAL_ERROR "gFTL must be at least 1.15.1")
   endif ()
 endif()
 message (STATUS "Found gFTL: ${GFTL_DIR} (found version ${GFTL_VERSION})")
 
 if(NOT TARGET GFTL_SHARED::gftl-shared)
-  # MAPL currently requires at least gFTL-shared 1.6.1
-  find_package(GFTL_SHARED 1.6.1 REQUIRED)
+  # MAPL currently requires at least gFTL-shared 1.10.0
+  find_package(GFTL_SHARED 1.10.0 REQUIRED)
 else ()
-  if (GFTL_SHARED_VERSION VERSION_LESS 1.6.1)
-    message(FATAL_ERROR "gFTL-shared must be at least 1.6.1")
+  if (GFTL_SHARED_VERSION VERSION_LESS 1.10.0)
+    message(FATAL_ERROR "gFTL-shared must be at least 1.10.0")
   endif ()
 endif()
 message (STATUS "Found gFTL-shared: ${GFTL_DIR} (found version ${GFTL_SHARED_VERSION})")
@@ -103,41 +103,30 @@ message (STATUS "Found gFTL-shared: ${GFTL_DIR} (found version ${GFTL_SHARED_VER
 option(BUILD_WITH_FARGPARSE "Use fArgParse for command line processing" ON)
 if(BUILD_WITH_FARGPARSE)
   if(NOT TARGET FARGPARSE::fargparse)
-    find_package(FARGPARSE 1.5.0 REQUIRED)
+    find_package(FARGPARSE 1.9.0 REQUIRED)
   else()
-    if (FARGPARSE_VERSION VERSION_LESS 1.5.0)
-      message(FATAL_ERROR "fArgParse must be at least 1.5.0")
+    if (FARGPARSE_VERSION VERSION_LESS 1.9.0)
+      message(FATAL_ERROR "fArgParse must be at least 1.9.0")
     endif ()
   endif()
   message (STATUS "Building with fArgParse")
   message (STATUS "Found fArgParse: ${FARGPARSE_DIR} (found version ${FARGPARSE_VERSION})")
 endif()
 
-option(USE_EXTDATA2G "Use ExtData2G" ON)
-if(USE_EXTDATA2G)
-  set (EXTDATA2G_TARGET "MAPL.ExtData2G" CACHE STRING "ExtData2G Target")
-  message (STATUS "Building with ExtData2G")
-else()
-  set (EXTDATA2G_TARGET "" CACHE STRING "ExtData2G Target")
-endif()
+message (STATUS "Building with ExtData2G")
 
 option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
 if (BUILD_WITH_PFLOGGER)
   if(NOT TARGET PFLOGGER::pflogger)
-    find_package(PFLOGGER 1.9.5 REQUIRED)
+    find_package(PFLOGGER 1.15.0 REQUIRED)
   else()
-    if (PFLOGGER_VERSION VERSION_LESS 1.9.5)
-      message(FATAL_ERROR "pFlogger must be at least 1.9.5")
+    if (PFLOGGER_VERSION VERSION_LESS 1.15.0)
+      message(FATAL_ERROR "pFlogger must be at least 1.15.0")
     endif ()
   endif()
   message (STATUS "Building with pFlogger")
   message (STATUS "Found pFlogger: ${PFLOGGER_DIR} (found version ${PFLOGGER_VERSION})")
 endif()
-
-option(BUILD_WITH_FLAP "Use FLAP for command line processing" OFF)
-if (BUILD_WITH_FLAP)
-  find_package(FLAP REQUIRED)
-endif ()
 
 ecbuild_declare_project()
 
@@ -157,17 +146,29 @@ if (NOT Baselibs_FOUND)
   endif()
 
   if (NOT TARGET ESMF::ESMF)
-    find_package(ESMF 8.6.1 MODULE REQUIRED)
+    find_package(ESMF 9.0.0 MODULE REQUIRED)
     target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
   endif ()
 else ()
   # This is an ESMF version test when using Baselibs which doesn't use the
   # same find_package internally in ESMA_cmake as used above (with a version
   # number) so this lets us at least trap use of old Baselibs here.
-  if (ESMF_VERSION VERSION_LESS 8.6.1)
-    message(FATAL_ERROR "ESMF must be at least 8.6.1")
+  if (ESMF_VERSION VERSION_LESS 9.0.0)
+    message(FATAL_ERROR "ESMF must be at least 9.0.0")
   endif ()
 endif ()
+
+# There is an interface change in ESMF_HConfig in ESMF 8.9.0,
+# so we need to check the version and if it is 8.9.0 or later,
+# set a variable.
+# NOTE: When we move to requiring ESMF 8.9.0 we can
+#       remove all this code and use the updated interface!
+if(ESMF_VERSION VERSION_GREATER_EQUAL 8.9.0)
+  set (ESMF_HCONFIGSET_HAS_INTENT_INOUT TRUE)
+  message(STATUS "ESMF_HConfig has intent(inout) in ESMF 8.9.0 or later")
+else()
+  set (ESMF_HCONFIGSET_HAS_INTENT_INOUT FALSE)
+endif()
 
 # We wish to add extra flags when compiling as Debug. We should only
 # do this if we are using esma_cmake since the flags are defined
@@ -207,11 +208,6 @@ add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 # Support for automated code generation
 include(mapl_acg)
 include(mapl_create_stub_component)
-add_subdirectory (Apps)
-
-# Special case - MAPL_cfio is built twice with two different precisions.
-add_subdirectory (MAPL_cfio MAPL_cfio_r4)
-add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 
 # This tests for various capabilities of the compiler
 # We mainly use it for MPICH issues
@@ -229,21 +225,31 @@ endif()
 add_subdirectory (udunits2f)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
-add_subdirectory (generic)
-add_subdirectory (field_utils)
+add_subdirectory (generic3g)
+add_subdirectory (vm)
+add_subdirectory (field)
+add_subdirectory (field_bundle)
 add_subdirectory (state)
-add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
-add_subdirectory (base)
-add_subdirectory (MAPL)
+add_subdirectory (base3g)
+add_subdirectory (mapl3g)
+add_subdirectory (utilities)
 add_subdirectory (gridcomps)
-add_subdirectory (griddedio)
+add_subdirectory (GeomIO)
+add_subdirectory (esmf_utils)
 add_subdirectory (vertical)
+add_subdirectory (component)
+add_subdirectory (alarm)
 if (BUILD_WITH_FARGPARSE)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
 endif()
+add_subdirectory (geom)
+add_subdirectory (vertical_grid)
+add_subdirectory (regridder_mgr)
+add_subdirectory (hconfig)
+add_subdirectory (hconfig_utils)
 add_subdirectory(Python)
 
 if (PFUNIT_FOUND)
@@ -251,6 +257,11 @@ if (PFUNIT_FOUND)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
 
+# Support for automated code generation
+include(mapl_acg)
+include(mapl_create_stub_component)
+
+add_subdirectory (Apps)
 add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
@@ -264,6 +275,23 @@ install (
 
 configure_file(BUILD_INFO.rc.in BUILD_INFO.rc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/BUILD_INFO.rc DESTINATION etc)
+
+# Install the canonical GEOS field dictionary so experiment scripts can
+# copy/link it as field_dictionary.yaml in the run directory.
+# mepo can clone subrepos in three styles (no prefix, @ prefix, @ suffix).
+set(FIELD_DICTIONARY_DIRS
+  GEOS_FieldDictionary
+  @GEOS_FieldDictionary
+  GEOS_FieldDictionary@
+)
+foreach(dir IN LISTS FIELD_DICTIONARY_DIRS)
+  if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/geos_field_dictionary.yaml)
+    install(
+      FILES ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/geos_field_dictionary.yaml
+      DESTINATION etc
+    )
+  endif()
+endforeach()
 
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/
 # --- auto-ignore build directory

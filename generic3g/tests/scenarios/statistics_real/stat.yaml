@@ -1,0 +1,42 @@
+# anchors for recurring cases
+monthly: &monthly
+  period: P1M
+  ref_datetime: 'YYYY-MM-01T00:00:00' # + 2000-01-01T00:00:00
+
+daily: &daily
+  period: PT24H
+  ref_datetime: 'YYYY-MM-DDT21:00:00' # + 2000-01-01T00:00:00
+
+hourly: &hourly
+  period: P1H
+  ref_datetime: 'YYYY-MM-DDT03:00:00' # + 2000-01-01T00:00:00
+
+monthly_average: &monthly_average
+  action: average
+  <<: *monthly
+
+monthly_variance: &monthly_variance
+  action: variance
+  <<: *monthly
+
+monthly_covariance: &monthly_covariance
+  action: variance
+  <<: *monthly
+
+daily_min: &daily_min
+  action: min
+  <<: *daily
+
+daily_max: &daily_max
+  action: max
+  <<: *daily
+
+stats:
+  - name: A/TS
+    action: average
+    itemtype: field
+    <<: *daily
+  - name: A/PS
+    action: max
+    itemtype: field
+    <<: *daily

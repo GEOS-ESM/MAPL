@@ -1,0 +1,221 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_LocStreamDecomposition
+   use pfunit
+   use esmf_TestMethod_mod
+   use mapl3g_LocStreamDecomposition
+   use esmf
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_basic_constructor(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(LocStreamDecomposition) :: decomp
+      integer, allocatable :: dist(:)
+
+      _UNUSED_DUMMY(this)
+
+      decomp = LocStreamDecomposition([10, 20, 30])
+      dist = decomp%get_point_distribution()
+
+      @assert_that(size(dist), is(3))
+      @assert_that(dist(1), is(10))
+      @assert_that(dist(2), is(20))
+      @assert_that(dist(3), is(30))
+
+   end subroutine test_basic_constructor
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_petcount_constructor(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(LocStreamDecomposition) :: decomp
+      integer, allocatable :: dist(:)
+      integer :: total
+
+      _UNUSED_DUMMY(this)
+
+      ! Create decomposition for 100 points on 4 PETs
+      decomp = LocStreamDecomposition(100, petCount=4)
+      dist = decomp%get_point_distribution()
+
+      @assert_that(size(dist), is(4))
+      
+      ! Verify total points
+      total = sum(dist)
+      @assert_that(total, is(100))
+
+      ! All distributions should be non-zero
+      @assertTrue(all(dist > 0))
+
+   end subroutine test_petcount_constructor
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_local_indices(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(LocStreamDecomposition) :: decomp
+      integer :: i_0, i_1
+
+      _UNUSED_DUMMY(this)
+
+      ! Create decomposition: [25, 25, 25, 25]
+      decomp = LocStreamDecomposition(100, petCount=4)
+
+      ! Test PE 0
+      call decomp%get_local_indices(0, i_0, i_1)
+      @assert_that(i_0, is(1))
+      @assert_that(i_1, is(25))
+
+      ! Test PE 1
+      call decomp%get_local_indices(1, i_0, i_1)
+      @assert_that(i_0, is(26))
+      @assert_that(i_1, is(50))
+
+      ! Test PE 2
+      call decomp%get_local_indices(2, i_0, i_1)
+      @assert_that(i_0, is(51))
+      @assert_that(i_1, is(75))
+
+      ! Test PE 3
+      call decomp%get_local_indices(3, i_0, i_1)
+      @assert_that(i_0, is(76))
+      @assert_that(i_1, is(100))
+
+   end subroutine test_get_local_indices
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_equality(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(LocStreamDecomposition) :: decomp1, decomp2, decomp3
+
+      _UNUSED_DUMMY(this)
+
+      decomp1 = LocStreamDecomposition([10, 20, 30])
+      decomp2 = LocStreamDecomposition([10, 20, 30])
+      decomp3 = LocStreamDecomposition([10, 20, 31])
+
+      @assertTrue(decomp1 == decomp2)
+      @assertTrue(decomp1 /= decomp3)
+
+   end subroutine test_equality
+
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_make_decomposition_vm(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(LocStreamDecomposition) :: decomp
+      type(ESMF_VM) :: vm
+      integer, allocatable :: dist(:)
+      integer :: status, petCount, localPet
+
+      _UNUSED_DUMMY(this)
+
+      ! Get current VM and verify we're running on 4 PETs
+      call ESMF_VMGetCurrent(vm, rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_VMGet(vm, petCount=petCount, localPet=localPet, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(petCount, is(4))
+
+      ! Create decomposition using current VM (4 PETs)
+      decomp = make_LocStreamDecomposition(100, rc=status)
+      @assert_that(status, is(0))
+
+      dist = decomp%get_point_distribution()
+      @assert_that(size(dist), is(4))
+      @assert_that(sum(dist), is(100))
+
+      ! Verify each PE has roughly equal distribution
+      @assertTrue(all(dist >= 24))
+      @assertTrue(all(dist <= 26))
+
+   end subroutine test_make_decomposition_vm
+
+   @test(type=ESMF_TestMethod, npes=[1,2,4])
+   subroutine test_create_locstream_distributed(this)
+      use mapl3g_GeomManager, only: GeomManager
+      use mapl3g_MaplGeom, only: MaplGeom
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(GeomManager), target :: geom_manager
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      type(ESMF_LocStream) :: locstream
+      type(ESMF_VM) :: vm
+      real(kind=ESMF_KIND_R8), pointer :: lons(:) => null(), lats(:) => null()
+      integer :: status, petCount, localPet, localCount, globalCount
+      integer :: i_0, i_1, expected_count
+      type(LocStreamDecomposition) :: decomp
+
+      _UNUSED_DUMMY(this)
+
+      ! Get VM info
+      call ESMF_VMGetCurrent(vm, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_VMGet(vm, petCount=petCount, localPet=localPet, rc=status)
+      @assert_that(status, is(0))
+
+      ! Create LocStream with 8 points
+      globalCount = 8
+      hconfig = ESMF_HConfigCreate(content="{class: locstream, &
+         &lon: [0.0, 45.0, 90.0, 135.0, 180.0, 225.0, 270.0, 315.0], &
+         &lat: [-60.0, -30.0, 0.0, 30.0, 60.0, 30.0, 0.0, -30.0]}", rc=status)
+      @assert_that(status, is(0))
+
+      geom_manager = GeomManager()
+      mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      ! Get the ESMF geom and extract LocStream
+      geom = mapl_geom%get_geom()
+      call ESMF_GeomGet(geom, locstream=locstream, rc=status)
+      @assert_that(status, is(0))
+
+      ! Get local coordinates
+      call ESMF_LocStreamGetKey(locstream, keyName='ESMF:Lon', farray=lons, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_LocStreamGetKey(locstream, keyName='ESMF:Lat', farray=lats, rc=status)
+      @assert_that(status, is(0))
+
+      localCount = size(lons)
+
+      ! Verify decomposition is correct for this PE count
+      decomp = LocStreamDecomposition(globalCount, petCount=petCount)
+      call decomp%get_local_indices(localPet, i_0, i_1)
+      expected_count = i_1 - i_0 + 1
+      
+      @assert_that(localCount, is(expected_count))
+      @assert_that(size(lats), is(expected_count))
+
+      ! Verify coordinate values match expected subset (converted to radians)
+      block
+         real(kind=ESMF_KIND_R8) :: pi, tol
+         integer :: i, global_idx
+         real(kind=ESMF_KIND_R8) :: expected_lons(8), expected_lats(8)
+         pi = acos(-1.0_ESMF_KIND_R8)
+         tol = 1.0e-12_ESMF_KIND_R8
+
+         expected_lons = [0.0, 45.0, 90.0, 135.0, 180.0, 225.0, 270.0, 315.0] * pi / 180.0_ESMF_KIND_R8
+         expected_lats = [-60.0, -30.0, 0.0, 30.0, 60.0, 30.0, 0.0, -30.0] * pi / 180.0_ESMF_KIND_R8
+
+         do i = 1, localCount
+            global_idx = i_0 + i - 1
+            @assertTrue(abs(lons(i) - expected_lons(global_idx)) < tol)
+            @assertTrue(abs(lats(i) - expected_lats(global_idx)) < tol)
+         end do
+      end block
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+   end subroutine test_create_locstream_distributed
+
+end module Test_LocStreamDecomposition

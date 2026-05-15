@@ -130,7 +130,7 @@ contains
 #if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
       integer(kind=MPI_ADDRESS_KIND) :: baseaddr
 #endif
-      integer :: ierror, rank, rc, status
+      integer :: ierror, rank, rc
 
       call MPI_Comm_Rank(comm, rank, ierror)
       _VERIFY(ierror)
@@ -256,7 +256,7 @@ contains
 
       end if
 
-      ! complete handshake
+     ! complete handshake
       if (rank_in_client == 0) then
          call MPI_Comm_size(client_comm, client_npes, ierror)
          _VERIFY(ierror)

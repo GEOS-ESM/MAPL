@@ -1,0 +1,31 @@
+#include "MAPL_TestErr.h"
+
+module Test_ClockGet
+
+   use esmf
+   use mapl3g_generic, only: MAPL_ClockGet
+   use pfunit
+
+   implicit none
+
+contains
+
+   @test
+   subroutine test_timestep()
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: start_time
+      type(ESMF_TimeInterval) :: timestep
+      real(kind=ESMF_KIND_R4) :: dt
+      integer :: status
+
+      call ESMF_TimeSet(start_time, h=0, _RC)
+      call ESMF_TimeIntervalSet(timestep, h=1, m=5, s=3, _RC)
+
+      clock = ESMF_ClockCreate(timestep, start_time, _RC)
+
+      call MAPL_ClockGet(clock, dt=dt, _RC)
+      @assert_that(dt, is(3903.))
+
+   end subroutine test_timestep
+
+end module Test_ClockGet

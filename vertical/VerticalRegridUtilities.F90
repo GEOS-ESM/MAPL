@@ -1,9 +1,11 @@
 #include "MAPL_Exceptions.h"
+
 module VerticalRegridUtilitiesMod
+
    use PFIO
    use MAPL_ExceptionHandling
    use MAPL_CommsMod
-   use MAPL_ConstantsMod, only: MAPL_GRAV
+   use MAPL_Constants, only: MAPL_GRAV
 
    implicit none
    private
@@ -37,6 +39,8 @@ contains
       _HERE, src_mass,dst_mass
       _HERE,(dst_mass-src_mass)/src_mass
       end if
+
+      _UNUSED_DUMMY(constituent_type)
    end subroutine check_conservation
 
 end module VerticalRegridUtilitiesMod

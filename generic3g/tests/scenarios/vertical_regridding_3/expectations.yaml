@@ -1,0 +1,17 @@
+# For each component:
+#   - provide a path to the outer/user componen in the hierarchy
+#   - list the fields expected in each import/export/internal states
+#   - annotate whether field is "complete"
+
+- component: DYN
+  export:
+    PLE: {status: complete}
+    T_DYN: {status: complete, typekind: R4, rank: 3, vertical_profile: [40., 20., 10., 5.]}
+
+- component: PHYS
+  import:
+    T_PHYS: {status: complete, typekind: R4, rank: 3, vertical_profile: [20., 10.]}
+
+- component: C
+  import:
+    I_C: {status: complete, typekind: R4, rank: 3, vertical_profile: [40., 20., 10.]}

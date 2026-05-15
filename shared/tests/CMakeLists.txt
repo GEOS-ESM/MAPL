@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.shared/tests")
 
 set (test_srcs
     test_String.pf
+    test_StringUtilities.pf
     test_TimeUtils.pf
     test_DSO_Utilities.pf
     test_FileSystemUtilities.pf
@@ -9,12 +10,15 @@ set (test_srcs
     test_MAPL_DateTime_Parsing.pf
     test_MAPL_CF_Time.pf
     Test_Partition.pf
+    test_OS.pf
+    test_sort.pf
+    test_DirPath.pf
   )
 
 
 add_pfunit_ctest(MAPL.shared.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.shared
+                LINK_LIBRARIES MAPL.shared MAPL.constants
                 )
 set_target_properties(MAPL.shared.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 target_include_directories(MAPL.shared.tests PRIVATE ${esma_include}/MAPL.shared)

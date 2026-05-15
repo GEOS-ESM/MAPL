@@ -1,0 +1,20 @@
+#include "MAPL_TestErr.h"
+module Test_ExtensionTransform
+   use mapl3g_ExtensionTransform
+   use mapl3g_NullTransform
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none
+
+contains
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_runs_invalidate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NullTransform) :: transform
+
+      @assert_that(transform%runs_invalidate(), is(false()))
+
+   end subroutine test_runs_invalidate
+
+end module Test_ExtensionTransform

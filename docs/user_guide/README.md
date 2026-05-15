@@ -1,6 +1,6 @@
 # MAPL User's Guide
 
-This document describes the Modeling Analysis and Prediction Layer (MAPL), a software layer and set of conventions standardize the use of [ESMF](http://www.earthsystemmodeling.org). 
+This document describes the Modeling Analysis and Prediction Layer (MAPL), a software layer and set of conventions standardize the use of [ESMF](http://www.earthsystemmodeling.org).
 MAPL seats on to of ESMF to simplify the creation and use of ESMF gridded components
 in a hierarchical architecture.
 It:
@@ -8,7 +8,7 @@ It:
 1. Facilitates the porting of existing codes to ESMF.
 2. Provides tools and a straightforward recipe for building
    new ESMF components.
-3. Provides much greater interoperability between compliant components 
+3. Provides much greater interoperability between compliant components
    than between current ESMF compliant components.
 
 ## 1 [Introduction](docs/mapl_Introduction.md)
@@ -23,11 +23,17 @@ It:
 
 ### 3.3 [Building complex applications: MAPL_Connect](docs/mapl_connect.md)
 
+<!--
 ### 3.4 [Doing Diagnostics: History](../../gridcomps/History/HistoryGridComp.md)
 
 ### 3.5 [Connecting Import Fields to Data on File: ExtData](../../gridcomps/ExtData2G/ExtDataGridComp.md)
+-->
 
-### 3.6 [Performing Arithmetic Operations on Fields](../../base/ArthParser.md)
+### 3.4 Doing Diagnostics: History (needs updating for MAPL3)
+
+### 3.5 Connecting Import Fields to Data on File: ExtData (needs updating for MAPL3)
+
+### 3.6 [Performing Arithmetic Operations on Fields](../../state/ArthParser.md)
 
 ### 3.7 [Doing I/O: PFIO](../../pfio/pfio.md)
 
@@ -35,4 +41,10 @@ It:
 
 ### 3.9 [Automatic Code Generator](docs/mapl_code_generator.md)
 
+### 3.10 [Conservative Vertical Regridding](docs/conservative_regridding.md)
+
+### 3.11 [Field Dictionary](docs/field_dictionary.md)
+
+<!--
 ## 4 [Demos](../tutorial/README.md)
+-->

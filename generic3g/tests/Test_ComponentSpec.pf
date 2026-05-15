@@ -1,0 +1,70 @@
+module Test_ComponentSpec
+   use pfunit
+   use mapl3g_ComponentSpec
+   use mapl3g_ChildSpec
+   use mapl3g_ChildSpecMap
+   implicit none (type,external)
+
+contains
+
+   @test
+   ! This is a simple test that ensures that the order of a components
+   ! children is preserved in the spec.  OuterMetaComponent properly uses
+   ! an "ordered" map container to hold children, but the ComponentSpecMap is
+   ! a simple map.   Unfortunately, the existing unit tests did not detect this
+   ! discrepancy.  (Which will not usually matter.)
+
+   subroutine test_child_order()
+
+      type(ComponentSpec), target :: parent_spec
+      type(ChildSpec) :: child
+      type(ChildSpecMapIterator) :: iter
+      character(:), pointer :: p_name
+      
+      call parent_spec%children%insert('a', child)
+      call parent_spec%children%insert('b', child)
+      call parent_spec%children%insert('c', child)
+
+      iter = parent_spec%children%begin()
+      p_name => iter%first()
+      @assertEqual('a', p_name)
+
+      call iter%next()
+      p_name => iter%first()
+      @assertEqual('b', p_name)
+
+      call iter%next()
+      p_name => iter%first()
+      @assertEqual('c', p_name)
+
+   end subroutine test_child_order
+
+   @test
+   ! The "hard" case is when children are inserted in reverse
+   ! alphabetic order.
+   subroutine test_child_order_reverse()
+
+      type(ComponentSpec), target :: parent_spec
+      type(ChildSpec) :: child
+      type(ChildSpecMapIterator) :: iter
+      character(:), pointer :: p_name
+      
+      call parent_spec%children%insert('c', child)
+      call parent_spec%children%insert('b', child)
+      call parent_spec%children%insert('a', child)
+
+      iter = parent_spec%children%begin()
+      p_name => iter%first()
+      @assertEqual('c', p_name)
+
+      call iter%next()
+      p_name => iter%first()
+      @assertEqual('b', p_name)
+
+      call iter%next()
+      p_name => iter%first()
+      @assertEqual('a', p_name)
+
+   end subroutine test_child_order_reverse
+      
+end module Test_ComponentSpec

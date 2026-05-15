@@ -273,7 +273,7 @@ contains
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       character(len=*),parameter :: Iam = 'create_remote_win'
       class (ServerThread),pointer :: thread_ptr
-      integer :: bsize, ierr, status
+      integer :: bsize, ierr
       integer :: cmd = 1
       integer, allocatable :: buffer(:)
 
@@ -407,7 +407,7 @@ contains
      class (AbstractDataReference), pointer :: dataRefPtr
      type (LocalMemReference), pointer :: memdataPtr=>null()
      integer(kind=MPI_ADDRESS_KIND) :: msize
-     integer :: num_clients, l_rank, w_rank, ierr, empty(0), status
+     integer :: num_clients, l_rank, w_rank, ierr, empty(0)
      !real(KIND=REAL64) :: t0, t1
 
      !t0 = 0.0d0

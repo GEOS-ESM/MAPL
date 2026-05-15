@@ -1,0 +1,144 @@
+#include "MAPL_TestErr.h"
+
+module Test_VerticalConservativeMap
+
+   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
+   use mapl3g_VerticalConservativeMap, only: compute_conservative_map
+   use funit
+   use, intrinsic :: iso_fortran_env, only: REAL32
+
+   implicit none
+
+contains
+
+   @test
+   subroutine test_conservative_map_identity()
+      ! Test that same grid produces identity mapping
+      real(REAL32) :: src_interfaces(4), dst_interfaces(4)
+      real(REAL32) :: fin(3), fout(3)
+      type(SparseMatrix_sp) :: matrix
+      integer :: status
+      
+      ! 3 layers with interfaces at [0, 10, 20, 30]
+      src_interfaces = [0., 10., 20., 30.]
+      dst_interfaces = [0., 10., 20., 30.]
+      
+      call compute_conservative_map(src_interfaces, dst_interfaces, matrix, _RC)
+      
+      ! Identity map should preserve field values
+      fin = [1., 2., 3.]
+      fout = matmul(matrix, fin)
+      @assertEqual(fin, fout, tolerance=1.0e-6)
+   end subroutine test_conservative_map_identity
+
+
+   @test
+   subroutine test_conservative_map_coarse_to_fine()
+      ! Test coarse (2 layers) to fine (4 layers)
+      real(REAL32) :: src_interfaces(3), dst_interfaces(5)
+      real(REAL32) :: fin(2), fout(4)
+      type(SparseMatrix_sp) :: matrix
+      integer :: status
+      
+      ! Source: 2 layers [0-10], [10-20]
+      src_interfaces = [0., 10., 20.]
+      ! Destination: 4 layers [0-5], [5-10], [10-15], [15-20]
+      dst_interfaces = [0., 5., 10., 15., 20.]
+      
+      call compute_conservative_map(src_interfaces, dst_interfaces, matrix, _RC)
+      
+       ! Each source layer splits into 2 destination layers
+       ! Conservative regridding preserves averages (intensive conservation)
+       ! Source layer 1 (value=10) → dest layers 1 & 2
+       ! Source layer 2 (value=20) → dest layers 3 & 4
+       fin = [10., 20.]
+       fout = matmul(matrix, fin)
+       
+       ! Each dest layer gets full overlap with one source layer
+       ! Dest layer 1 [0-5]:   5/5 * fin(1) = 1.0 * 10 = 10
+       ! Dest layer 2 [5-10]:  5/5 * fin(1) = 1.0 * 10 = 10
+       ! Dest layer 3 [10-15]: 5/5 * fin(2) = 1.0 * 20 = 20
+       ! Dest layer 4 [15-20]: 5/5 * fin(2) = 1.0 * 20 = 20
+       @assertEqual([10., 10., 20., 20.], fout, tolerance=1.0e-6)
+   end subroutine test_conservative_map_coarse_to_fine
+
+
+   @test
+   subroutine test_conservative_map_fine_to_coarse()
+      ! Test fine (4 layers) to coarse (2 layers)
+      real(REAL32) :: src_interfaces(5), dst_interfaces(3)
+      real(REAL32) :: fin(4), fout(2)
+      type(SparseMatrix_sp) :: matrix
+      integer :: status
+      
+      ! Source: 4 layers [0-5], [5-10], [10-15], [15-20]
+      src_interfaces = [0., 5., 10., 15., 20.]
+      ! Destination: 2 layers [0-10], [10-20]
+      dst_interfaces = [0., 10., 20.]
+      
+      call compute_conservative_map(src_interfaces, dst_interfaces, matrix, _RC)
+      
+       ! Each dest layer combines 2 source layers
+       ! Conservative regridding preserves averages (intensive conservation)
+       ! Dest layer 1: weighted average of src(1) + src(2)
+       ! Dest layer 2: weighted average of src(3) + src(4)
+       fin = [1., 2., 3., 4.]
+       fout = matmul(matrix, fin)
+       
+       ! Dest layer 1 [0-10]: 5/10 * src(1) + 5/10 * src(2) = 0.5*1 + 0.5*2 = 1.5
+       ! Dest layer 2 [10-20]: 5/10 * src(3) + 5/10 * src(4) = 0.5*3 + 0.5*4 = 3.5
+       @assertEqual([1.5, 3.5], fout, tolerance=1.0e-6)
+   end subroutine test_conservative_map_fine_to_coarse
+
+
+   @test
+   subroutine test_conservative_map_decreasing_coords()
+      ! Test with decreasing coordinates (pressure-like)
+      real(REAL32) :: src_interfaces(4), dst_interfaces(4)
+      real(REAL32) :: fin(3), fout(3)
+      type(SparseMatrix_sp) :: matrix
+      integer :: status
+      
+      ! Interfaces decreasing (like pressure: surface to TOA)
+      src_interfaces = [1000., 700., 400., 100.]
+      dst_interfaces = [1000., 700., 400., 100.]
+      
+      call compute_conservative_map(src_interfaces, dst_interfaces, matrix, _RC)
+      
+      ! Identity map should preserve field values
+      fin = [10., 20., 30.]
+      fout = matmul(matrix, fin)
+      @assertEqual(fin, fout, tolerance=1.0e-6)
+   end subroutine test_conservative_map_decreasing_coords
+
+
+   @test
+   subroutine test_conservative_map_partial_overlap()
+      ! Test with non-aligned grids (partial overlaps)
+      real(REAL32) :: src_interfaces(4), dst_interfaces(4)
+      real(REAL32) :: fin(3), fout(3)
+      type(SparseMatrix_sp) :: matrix
+      integer :: status
+      
+      ! Source: 3 layers [0-10], [10-20], [20-30]
+      src_interfaces = [0., 10., 20., 30.]
+      ! Destination: 3 layers [0-8], [8-18], [18-30] (offset)
+      dst_interfaces = [0., 8., 18., 30.]
+      
+       call compute_conservative_map(src_interfaces, dst_interfaces, matrix, _RC)
+       
+       ! Conservative regridding preserves averages (intensive conservation)
+       ! Weights are overlap_thickness / dest_layer_thickness
+       ! Dest layer 1 [0-8] (thick=8):   8/8 from src(1)
+       ! Dest layer 2 [8-18] (thick=10): 2/10 from src(1) + 8/10 from src(2)
+       ! Dest layer 3 [18-30] (thick=12): 2/12 from src(2) + 10/12 from src(3)
+       fin = [10., 20., 30.]
+       fout = matmul(matrix, fin)
+       
+       ! Dest(1) = 1.0*10 = 10
+       ! Dest(2) = 0.2*10 + 0.8*20 = 2 + 16 = 18
+       ! Dest(3) = (2/12)*20 + (10/12)*30 = 3.3333 + 25 = 28.3333
+       @assertEqual([10., 18., 28.333333], fout, tolerance=1.0e-5)
+   end subroutine test_conservative_map_partial_overlap
+
+end module Test_VerticalConservativeMap

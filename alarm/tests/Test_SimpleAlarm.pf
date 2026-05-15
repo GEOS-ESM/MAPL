@@ -1,0 +1,106 @@
+#include "MAPL_TestErr.h"
+
+module Test_SimpleAlarm
+   use pfunit
+   use mapl3g_SimpleAlarm
+   use esmf
+   implicit none
+
+contains
+
+   @test
+   subroutine test_3hourly_alarm()
+      type(ESMF_Time) :: ring_time, time
+      type(ESMF_TimeInterval) :: ring_interval
+      integer :: status
+      logical :: is_ringing
+      type(SimpleAlarm) :: alarm
+
+      call ESMF_TimeSet(ring_time,yy=2004,mm=4,dd=14,h=21,m=0,s=0,_RC)
+      call ESMF_TimeIntervalSet(ring_interval, h=3, _RC)
+      alarm = SimpleAlarm(ring_time, ring_interval)
+
+      call ESMF_TimeSet(time,yy=2004,mm=4,dd=16,h=18,m=0,s=0,_RC)
+      is_ringing = alarm%is_ringing(time, _RC)
+      @assertTrue(is_ringing)
+
+      call ESMF_TimeSet(time,yy=2004,mm=4,dd=16,h=19,m=0,s=0,_RC)
+      is_ringing = alarm%is_ringing(time, _RC)
+      @assertFalse(is_ringing)
+
+
+   end subroutine
+
+   @test
+   subroutine test_monthly_alarm1()
+      type(ESMF_Time) :: ring_time, time
+      type(ESMF_TimeInterval) :: ring_interval
+      integer :: status
+      logical :: is_ringing
+      type(SimpleAlarm) :: alarm
+
+      call ESMF_TimeSet(ring_time,yy=2004,mm=4,dd=1,h=0,m=0,s=0,_RC)
+      call ESMF_TimeIntervalSet(ring_interval,mm=1 , _RC)
+      alarm = SimpleAlarm(ring_time, ring_interval)
+
+      call ESMF_TimeSet(time,yy=2004,mm=5,dd=1,h=0,m=0,s=0,_RC)
+      is_ringing = alarm%is_ringing(time, _RC)
+      @assertTrue(is_ringing)
+
+      call ESMF_TimeSet(time,yy=2004,mm=4,dd=16,h=19,m=0,s=0,_RC)
+      is_ringing = alarm%is_ringing(time, _RC)
+      @assertFalse(is_ringing)
+
+
+   end subroutine
+
+   @test
+   subroutine test_monthly_alarm2()
+      type(ESMF_Time) :: ring_time, time
+      type(ESMF_TimeInterval) :: ring_interval
+      integer :: status
+      logical :: is_ringing
+      type(SimpleAlarm) :: alarm
+
+      call ESMF_TimeSet(ring_time,yy=2004,mm=4,dd=15,h=0,m=0,s=0,_RC)
+      call ESMF_TimeIntervalSet(ring_interval,mm=1 , _RC)
+      alarm = SimpleAlarm(ring_time, ring_interval)
+
+      call ESMF_TimeSet(time,yy=2004,mm=5,dd=15,h=0,m=0,s=0,_RC)
+      is_ringing = alarm%is_ringing(time, _RC)
+      @assertTrue(is_ringing)
+
+      call ESMF_TimeSet(time,yy=2004,mm=4,dd=16,h=19,m=0,s=0,_RC)
+      is_ringing = alarm%is_ringing(time, _RC)
+      @assertFalse(is_ringing)
+
+      call ESMF_TimeSet(time,yy=2005,mm=2,dd=15,h=0,m=0,s=0,_RC)
+      is_ringing = alarm%is_ringing(time, _RC)
+      @assertTrue(is_ringing)
+
+   end subroutine
+
+   @test
+   subroutine test_daily_alarm()
+      type(ESMF_Time) :: ring_time, time
+      type(ESMF_TimeInterval) :: ring_interval
+      integer :: status
+      logical :: is_ringing
+      type(SimpleAlarm) :: alarm
+
+      call ESMF_TimeSet(ring_time,yy=2004,mm=4,dd=14,h=20,m=45,s=0,_RC)
+      call ESMF_TimeIntervalSet(ring_interval,d=1 , _RC)
+      alarm = SimpleAlarm(ring_time, ring_interval)
+
+      call ESMF_TimeSet(time,yy=2004,mm=4,dd=16,h=20,m=45,s=0,_RC)
+      is_ringing = alarm%is_ringing(time, _RC)
+      @assertTrue(is_ringing)
+
+      call ESMF_TimeSet(time,yy=2004,mm=4,dd=16,h=19,m=0,s=0,_RC)
+      is_ringing = alarm%is_ringing(time, _RC)
+      @assertFalse(is_ringing)
+
+
+   end subroutine
+
+end module Test_SimpleAlarm

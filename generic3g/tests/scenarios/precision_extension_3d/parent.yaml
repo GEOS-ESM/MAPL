@@ -1,0 +1,36 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+
+    vertical_grid:
+      class: basic
+      num_levels: 5
+
+  children:
+    A:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/precision_extension_3d/A.yaml
+    B:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/precision_extension_3d/B.yaml
+  states: {}
+
+  connections:
+    - src_name: E_A1
+      dst_name: I_B1
+      src_comp: A
+      dst_comp: B
+    - src_name: E_A3
+      dst_name: I_B3
+      src_comp: A
+      dst_comp: B
+    - src_name: E_B2
+      dst_name: I_A2
+      src_comp: B
+      dst_comp: A
+

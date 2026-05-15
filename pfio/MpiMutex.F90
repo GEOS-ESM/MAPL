@@ -2,10 +2,13 @@
 ! brought over, but was tested using MockMpi prototype.
 
 #include "MAPL_ErrLog.h"
+
 module pFIO_MpiMutexMod
+
    use mpi
    use MAPL_ErrorHandlingMod
    use iso_c_binding, only: c_ptr, c_f_pointer
+
    implicit none
    private
 
@@ -34,12 +37,11 @@ module pFIO_MpiMutexMod
 
 contains
 
-
    function new_MpiMutex(comm) result(lock)
       type (MpiMutex) :: lock
       integer, intent(in) :: comm
 
-      integer :: ierror,rc,status
+      integer :: ierror, rc
       integer(kind=MPI_ADDRESS_KIND) :: sz
 #if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
       integer(kind=MPI_ADDRESS_KIND) :: baseaddr
@@ -105,12 +107,10 @@ contains
 
    end function new_MpiMutex
 
-
-
    subroutine acquire(this)
       class (MpiMutex), intent(inout) :: this
 
-      integer :: ierror,rc,status
+      integer :: ierror, rc
 
       call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, this%window, ierror)
       _VERIFY(ierror)
@@ -136,12 +136,10 @@ contains
 
    end subroutine acquire
 
-
-
    subroutine release(this)
       class (MpiMutex), intent(inout) :: this
 
-      integer :: ierror,rc,status
+      integer :: ierror, rc
 
       call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, this%window, ierror)
       _VERIFY(ierror)
@@ -187,7 +185,7 @@ contains
       class (MpiMutex), intent(inout) :: this
 
       logical, pointer :: scratchpad(:)
-      integer :: ierror,rc,status
+      integer :: ierror, rc
 
       ! Release resources
       call MPI_Type_free(this%pe_locks_type, ierror)

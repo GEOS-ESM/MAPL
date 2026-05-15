@@ -1,5 +1,4 @@
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
+#include "MAPL.h"
 
 module MAPL_AbstractCommSplitterMod
    use MPI

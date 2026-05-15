@@ -900,7 +900,7 @@ contains
       class (MultiGroupServer), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: terminate
-      integer :: ierr, i, status
+      integer :: ierr, i
       integer :: MPI_STAT(MPI_STATUS_SIZE)
 
       terminate = -1

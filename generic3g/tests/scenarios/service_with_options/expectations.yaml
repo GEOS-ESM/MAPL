@@ -1,0 +1,62 @@
+# Provider expectations
+- component: provider_a
+  export:
+    S:
+      class: bundle
+      fieldcount: 2
+
+- component: provider_b
+  export:
+    S:
+      class: bundle
+      fieldcount: 1
+
+# For each component:
+#   - provide a path to the outer/user component in the hierarchy
+#   - list the fields expected in each import/export/internal states
+#   - annotate whether field is "complete"
+
+- component: subscriber_A/<user>
+  import:
+    S:
+      class: bundle
+      fieldcount: 2
+  export:
+    S:
+      class: bundle
+      fieldcount: 2
+  internal:
+    Z_A1: {status: complete}
+    Z_A2: {status: complete}
+
+- component: subscriber_A
+  import:
+    S:
+      class: bundle
+      fieldcount: 2
+  export:
+    S:
+      class: bundle
+      fieldcount: 2
+
+- component: subscriber_B/<user>
+  import:
+    S:
+      class: bundle
+      fieldcount: 1
+  export:
+    S:
+      class: bundle
+      fieldcount: 1
+  internal:
+    W: {status: complete}
+
+- component: subscriber_B
+  import:
+    S:
+      class: bundle
+      fieldcount: 1
+  export:
+    S:
+      class: bundle
+      fieldcount: 1

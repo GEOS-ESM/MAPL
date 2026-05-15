@@ -1,0 +1,747 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_NormalizationTransform
+   use mapl3g_NormalizationTransform
+   use mapl3g_ExtensionTransform
+   use mapl3g_StateItem
+   use esmf
+   use MAPL_FieldUtils
+   use mapl3g_FieldBundle_API
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none
+
+   interface destroy
+      procedure :: destroy_states
+      procedure :: destroy_state
+      procedure :: destroy_fields
+      procedure :: destroy_bundles
+   end interface
+
+   type(ESMF_Clock) :: clock
+   type(ESMF_State) :: importState, exportState
+   type(ESMF_State), allocatable :: states(:)
+   type(ESMF_Grid) :: grid
+   character(len=*), parameter :: AUX_FIELD_NAME = 'DELP'
+   real, parameter :: SCALE_FACTOR = 0.102_ESMF_KIND_R4  ! 1/g (approximately)
+   integer, parameter :: R4 = ESMF_KIND_R4
+   integer, parameter :: R8 = ESMF_KIND_R8
+
+    character(len=*), parameter :: ESMF_NAMES(*) = &
+       & [character(len=ESMF_MAXSTR) :: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME]
+
+contains
+
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_normalize_field_R4(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       integer :: status
+       type(ESMF_Field) :: field_in, field_out, field_aux
+       real(kind=ESMF_KIND_R4), pointer :: fptr_in(:), fptr_out(:), fptr_aux(:)
+       real(kind=ESMF_KIND_R4), parameter :: INPUT_VALUE = 1.0e-3_R4  ! kg/kg
+       real(kind=ESMF_KIND_R4), parameter :: DELP_VALUE = 1000.0_R4   ! Pa
+       real(kind=ESMF_KIND_R4) :: expected_value
+       integer :: i
+       type(NormalizationTransform) :: local_transform
+
+       _UNUSED_DUMMY(this)
+       
+       ! Expected: input × (delp × scale) = 1.0e-3 × (1000.0 × 0.102) = 0.102 kg/m²
+       expected_value = INPUT_VALUE * DELP_VALUE * SCALE_FACTOR
+       
+       call initialize_states(states, grid, [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4],&
+          & ESMF_NAMES, rc=status)
+       @assertEqual(0, status, "Unable to initialize ESMF_State's")
+       
+       ! Get fields and set input values
+       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field_in, _RC)
+       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field_out, _RC)
+       call assign_fptr(field_in, fptr_in, _RC)
+       call assign_fptr(field_out, fptr_out, _RC)
+       fptr_in = INPUT_VALUE
+       fptr_out = 0.0
+       
+       ! Create auxiliary field (DELP)
+       field_aux = ESMF_FieldCreate(grid=grid, name=AUX_FIELD_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+       call assign_fptr(field_aux, fptr_aux, _RC)
+       fptr_aux = DELP_VALUE
+       
+       ! Create transform with auxiliary field
+       local_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux)
+       call local_transform%initialize(importState, exportState, clock, rc=status)
+       @assertEqual(_SUCCESS, status, 'Failed to initialize transform')
+       
+       ! Apply normalization transform
+       call local_transform%update(importState, exportState, clock, rc=status)
+       @assertEqual(_SUCCESS, status, 'Failed to update transform')
+       
+       ! Verify output
+       do i=1, size(fptr_out)
+          @assertEqual(expected_value, fptr_out(i), tolerance=1.0e-6_R4)
+       end do
+       
+       call ESMF_FieldDestroy(field_aux, _RC)
+
+    end subroutine test_normalize_field_R4
+
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_normalize_field_R8(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       integer :: status
+       type(ESMF_Field) :: field_in, field_out, field_aux
+       real(kind=ESMF_KIND_R8), pointer :: fptr_in(:), fptr_out(:), fptr_aux(:)
+       real(kind=ESMF_KIND_R8), parameter :: INPUT_VALUE = 1.0e-3_R8  ! kg/kg
+       real(kind=ESMF_KIND_R8), parameter :: DELP_VALUE = 1000.0_R8   ! Pa
+       real(kind=ESMF_KIND_R8) :: expected_value, scale_R8
+       integer :: i
+       type(NormalizationTransform) :: local_transform
+
+       _UNUSED_DUMMY(this)
+       
+       scale_R8 = real(SCALE_FACTOR, kind=ESMF_KIND_R8)
+       expected_value = INPUT_VALUE * DELP_VALUE * scale_R8
+       
+       call initialize_states(states, grid, [ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R8],&
+          & ESMF_NAMES, rc=status)
+       @assertEqual(0, status, "Unable to initialize ESMF_State's")
+       
+       ! Get fields and set input values
+       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field_in, _RC)
+       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field_out, _RC)
+       call assign_fptr(field_in, fptr_in, _RC)
+       call assign_fptr(field_out, fptr_out, _RC)
+       fptr_in = INPUT_VALUE
+       fptr_out = 0.0
+       
+       ! Create auxiliary field (DELP)
+       field_aux = ESMF_FieldCreate(grid=grid, name=AUX_FIELD_NAME, typekind=ESMF_TYPEKIND_R8, _RC)
+       call assign_fptr(field_aux, fptr_aux, _RC)
+       fptr_aux = DELP_VALUE
+       
+       ! Create transform with auxiliary field
+       local_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux)
+       call local_transform%initialize(importState, exportState, clock, rc=status)
+       @assertEqual(_SUCCESS, status, 'Failed to initialize transform')
+       
+       ! Apply normalization transform
+       call local_transform%update(importState, exportState, clock, rc=status)
+       @assertEqual(_SUCCESS, status, 'Failed to update transform')
+       
+       ! Verify output
+       do i=1, size(fptr_out)
+          @assertEqual(expected_value, fptr_out(i), tolerance=1.0e-12_R8)
+       end do
+       
+       call ESMF_FieldDestroy(field_aux, _RC)
+
+    end subroutine test_normalize_field_R8
+
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_normalize_bundle_R4(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       integer :: status
+       type(ESMF_Field), allocatable :: fields_in(:), fields_out(:)
+       type(ESMF_Field) :: field_aux
+       real(kind=ESMF_KIND_R4), pointer :: fptr_in(:), fptr_out(:), fptr_aux(:)
+       real(kind=ESMF_KIND_R4), parameter :: INPUT_VALUE = 2.0e-3_R4
+       real(kind=ESMF_KIND_R4), parameter :: DELP_VALUE = 500.0_R4
+       real(kind=ESMF_KIND_R4) :: expected_value
+       integer :: i, j
+       type(NormalizationTransform) :: local_transform
+
+       _UNUSED_DUMMY(this)
+       
+       expected_value = INPUT_VALUE * DELP_VALUE * SCALE_FACTOR
+       
+       call initialize_states(states, grid, [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4],&
+          & ESMF_NAMES, [2, 2], rc=status)
+       @assertEqual(0, status, "Unable to initialize ESMF_State's")
+       
+       ! Get bundle fields and set input values
+       call get_bundle_fields(importState, COUPLER_IMPORT_NAME, fields_in, rc=status)
+       call get_bundle_fields(exportState, COUPLER_EXPORT_NAME, fields_out, rc=status)
+       do i=1, size(fields_in)
+          call assign_fptr(fields_in(i), fptr_in, _RC)
+          call assign_fptr(fields_out(i), fptr_out, _RC)
+          fptr_in = INPUT_VALUE
+          fptr_out = 0.0
+       end do
+       
+       ! Create auxiliary field (DELP)
+       field_aux = ESMF_FieldCreate(grid=grid, name=AUX_FIELD_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+       call assign_fptr(field_aux, fptr_aux, _RC)
+       fptr_aux = DELP_VALUE
+       
+       ! Create transform with auxiliary field
+       local_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux)
+       call local_transform%initialize(importState, exportState, clock, rc=status)
+       @assertEqual(_SUCCESS, status, 'Failed to initialize transform')
+       
+       ! Apply normalization transform
+       call local_transform%update(importState, exportState, clock, rc=status)
+       @assertEqual(_SUCCESS, status, 'Failed to update transform')
+       
+       ! Verify all fields in bundle are normalized
+       do i=1, size(fields_out)
+          call assign_fptr(fields_out(i), fptr_out, _RC)
+          do j=1, size(fptr_out)
+             @assertEqual(expected_value, fptr_out(j), tolerance=1.0e-6_R4)
+          end do
+       end do
+       
+       call ESMF_FieldDestroy(field_aux, _RC)
+
+    end subroutine test_normalize_bundle_R4
+
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_zero_normalization(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       integer :: status
+       type(ESMF_Field) :: field_in, field_out, field_aux
+       real(kind=ESMF_KIND_R4), pointer :: fptr_in(:), fptr_out(:), fptr_aux(:)
+       real(kind=ESMF_KIND_R4), parameter :: INPUT_VALUE = 0.0_R4
+       real(kind=ESMF_KIND_R4), parameter :: DELP_VALUE = 1000.0_R4
+       type(NormalizationTransform) :: local_transform
+
+       _UNUSED_DUMMY(this)
+       
+       call initialize_states(states, grid, [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4],&
+          & ESMF_NAMES, rc=status)
+       
+       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field_in, _RC)
+       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field_out, _RC)
+       call assign_fptr(field_in, fptr_in, _RC)
+       call assign_fptr(field_out, fptr_out, _RC)
+       fptr_in = INPUT_VALUE
+       
+       field_aux = ESMF_FieldCreate(grid=grid, name=AUX_FIELD_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+       call assign_fptr(field_aux, fptr_aux, _RC)
+       fptr_aux = DELP_VALUE
+       
+       ! Create transform with auxiliary field
+       local_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux)
+       call local_transform%initialize(importState, exportState, clock, rc=status)
+       @assertEqual(_SUCCESS, status, 'Failed to initialize transform')
+       
+       call local_transform%update(importState, exportState, clock, rc=status)
+       @assertEqual(_SUCCESS, status, 'Failed to update transform')
+       
+       ! Output should be zero
+       @assertEqual(0.0_R4, fptr_out(1), tolerance=1.0e-10_R4)
+       
+       call ESMF_FieldDestroy(field_aux, _RC)
+
+    end subroutine test_zero_normalization
+
+    @Before
+    subroutine set_up(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       integer :: status 
+       integer(kind=ESMF_KIND_I4), parameter :: DTS = 1, YEAR=2025, MONTH=1, DAY=1, HOUR=9, MINUTE=30
+       type(ESMF_Time) :: start_time
+       type(ESMF_TimeInterval) :: timestep
+
+       _UNUSED_DUMMY(this)
+       call ESMF_TimeIntervalSet(TIMESTEP, s=DTS, rc=status)
+       @assertEqual(0, status, 'Unable to set timeStep')
+       call ESMF_TimeSet(START_TIME, yy=YEAR, mm=MONTH, dd=DAY, h=HOUR, m=MINUTE, _RC)
+       @assertEqual(0, status, 'Unable to set startTime')
+       clock = ESMF_ClockCreate(timeStep=TIMESTEP, startTime=START_TIME, _RC)
+       @assertEqual(0, status, 'Unable to create ESMF_Clock')
+       call create_grid(grid, _RC)
+       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, name='import', _RC)
+       exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, name='export', _RC)
+       if(allocated(states)) deallocate(states)
+       states = [importState, exportState]
+       ! Note: transform is now created in each test with the auxiliary field
+
+    end subroutine set_up
+
+   subroutine initialize_states(states, grid, typekinds, names, num_fields, rc)
+      type(ESMF_State), intent(inout) :: states(:)
+      type(ESMF_Grid), intent(in) :: grid
+      type(ESMF_TypeKind_Flag), intent(in) :: typekinds(:)
+      character(len=*), intent(in) :: names(:)
+      integer, optional, intent(in) :: num_fields(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: field_bundle
+      integer :: i, j, n
+      type(ESMF_StateItem_Flag) :: itemtype
+      character(len=:), allocatable :: bundle_name
+      type(FieldBundleType_Flag), parameter :: BUNDLE_TYPE = FIELDBUNDLETYPE_BASIC
+      type(ESMF_Field), allocatable :: field_list(:)
+
+      status = _FAILURE
+      n = size(states)
+      if(.not. (size(typekinds) == n .and. size(names) == n)) then
+         _RETURN(status)
+      end if
+
+      itemtype = MAPL_STATEITEM_FIELD
+      if(present(num_fields)) then
+         itemtype = MAPL_STATEITEM_FIELDBUNDLE
+         if(size(num_fields) /= n) then
+            _RETURN(status)
+         end if
+      end if
+
+      if(itemtype == MAPL_STATEITEM_FIELD) then
+         do i=1, n
+            field = ESMF_FieldCreate(grid=grid, name=trim(names(i)), typekind=typekinds(i), _RC)
+            call ESMF_StateAdd(states(i), fieldList=[field], _RC)
+         end do
+         _RETURN(_SUCCESS)
+      end if
+
+      if(itemtype /= MAPL_STATEITEM_FIELDBUNDLE) then
+         _RETURN(_FAILURE)
+      end if
+
+      do i = 1, n
+         bundle_name = trim(names(i))
+         field_bundle = ESMF_FieldBundleCreate(name=bundle_name, _RC)
+         call MAPL_FieldBundleSet(field_bundle, fieldBundleType=BUNDLE_TYPE, _RC)
+         if(allocated(field_list)) deallocate(field_list)
+         allocate(field_list(num_fields(i)))
+         do j = 1, size(field_list)
+            field = ESMF_FieldCreate(grid=grid, name=bundle_name//integer_to_character(j),&
+            & typekind=typekinds(i), _RC)
+            field_list(j) = field
+         end do
+         call ESMF_FieldBundleAdd(field_bundle, fieldList=field_list, _RC)
+         call ESMF_StateAdd(states(i), fieldbundleList=[field_bundle], _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_states
+
+   subroutine get_items(state, fields, bundles, rc)
+      type(ESMF_State), intent(inout) :: state
+      type(ESMF_Field), optional, allocatable, intent(out) :: fields(:)
+      type(ESMF_FieldBundle), optional, allocatable, intent(out) :: bundles(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: itemcount
+      type(ESMF_StateItem_Flag), allocatable :: itemtypes(:)
+      character(len=ESMF_MAXSTR), allocatable :: itemnames(:)
+      character(len=ESMF_MAXSTR), allocatable :: packed_names(:)
+
+      if(.not. (present(fields) .or. present(bundles))) then
+         _RETURN(_SUCCESS)
+      end if
+
+      call ESMF_StateGet(state, itemCount=itemcount, _RC)
+      allocate(itemtypes(itemcount))
+      allocate(itemnames(itemcount))
+      call ESMF_StateGet(state, itemTypeList=itemtypes, itemNameList=itemnames, _RC)
+
+      if(present(fields)) then
+         allocate(fields(0))
+         packed_names = pack(itemnames, itemtypes == MAPL_STATEITEM_FIELD)
+         if(size(packed_names) > 0) then
+            fields = get_fields(state, packed_names, _RC)
+         end if
+      end if
+
+      if(present(bundles)) then
+         allocate(bundles(0))
+         packed_names = pack(itemnames, itemtypes == MAPL_STATEITEM_FIELDBUNDLE)
+         if(size(packed_names) > 0) then
+            bundles = get_bundles(state, packed_names, _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+
+   contains
+
+      function get_fields(state, names, rc) result(f)
+         type(ESMF_Field), allocatable :: f(:)
+         type(ESMF_State), intent(inout) :: state
+         character(len=*), intent(in) :: names(:)
+         integer, optional, intent(out) :: rc
+         integer :: status
+         integer :: i
+
+         allocate(f(size(names)))
+         do i=1, size(f)
+            call ESMF_StateGet(state, itemName=names(i), field=f(i), _RC)
+         end do
+         _RETURN(_SUCCESS)
+
+      end function get_fields
+
+      function get_bundles(state, names, rc) result(fb)
+         type(ESMF_FieldBundle), allocatable :: fb(:)
+         type(ESMF_State), intent(inout) :: state
+         character(len=*), intent(in) :: names(:)
+         integer, optional, intent(out) :: rc
+         integer :: status
+         integer :: i
+
+         allocate(fb(size(names)))
+         do i=1, size(fb)
+            call ESMF_StateGet(state, itemName=names(i), fieldbundle=fb(i), _RC)
+         end do
+         _RETURN(_SUCCESS)
+
+      end function get_bundles
+
+   end subroutine get_items
+
+   subroutine destroy_states(states, rc)
+      type(ESMF_State), intent(inout) :: states(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i
+
+      do i=1, size(states)
+         call destroy(states(i), _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_states
+
+   subroutine destroy_state(state, rc)
+      type(ESMF_State), intent(inout) :: state
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Field), allocatable :: fields(:)
+      type(ESMF_FieldBundle), allocatable :: bundles(:)
+      integer :: sz_fields, sz_bundles
+
+      sz_fields = 0
+      sz_bundles = 0
+      call get_items(state, fields=fields, bundles=bundles, _RC)
+      if(allocated(fields)) sz_fields = size(fields) 
+      if(allocated(bundles)) sz_bundles = size(bundles) 
+      call ESMF_StateDestroy(state, _RC)
+      if(sz_fields > 0) then
+         call destroy(fields, _RC)
+      end if
+      if(sz_bundles > 0) then
+         call destroy(bundles, _RC)
+      end if
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_state
+
+   subroutine destroy_fields(fields, rc)
+      type(ESMF_Field), intent(inout) :: fields(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i
+
+      do i=1, size(fields)
+         call ESMF_FieldDestroy(fields(i), _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_fields
+
+   subroutine destroy_bundles(bundles, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundles(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Field), allocatable :: fields(:)
+      integer :: fieldcount, i
+
+      do i=1, size(bundles)
+         call ESMF_FieldBundleGet(bundles(i), fieldCount=fieldcount, _RC)
+         allocate(fields(fieldcount))
+         call ESMF_FieldBundleGet(bundles(i), fieldList=fields, _RC)
+         call ESMF_FieldBundleDestroy(bundles(i), _RC)
+         call destroy(fields, _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine destroy_bundles
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_denormalize_field_R4(this)
+      ! Test inverse normalization (denormalization) with R4
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(ESMF_Field) :: field_in, field_out, field_aux
+      real(kind=ESMF_KIND_R4), pointer :: fptr_in(:), fptr_out(:), fptr_aux(:)
+      real(kind=ESMF_KIND_R4), parameter :: INPUT_VALUE = 0.102_R4    ! kg/m² (normalized)
+      real(kind=ESMF_KIND_R4), parameter :: DELP_VALUE = 1000.0_R4   ! Pa
+      real(kind=ESMF_KIND_R4) :: expected_value
+      integer :: i
+      type(NormalizationTransform) :: local_transform
+
+      _UNUSED_DUMMY(this)
+      
+      ! Expected: input ÷ (delp × scale) = 0.102 ÷ (1000.0 × 0.102) = 1.0e-3 kg/kg
+      expected_value = INPUT_VALUE / (DELP_VALUE * SCALE_FACTOR)
+      
+      call initialize_states(states, grid, [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4],&
+         & ESMF_NAMES, rc=status)
+      @assertEqual(0, status, "Unable to initialize ESMF_State's")
+      
+      ! Get fields and set input values
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field_out, _RC)
+      call assign_fptr(field_in, fptr_in, _RC)
+      call assign_fptr(field_out, fptr_out, _RC)
+      fptr_in = INPUT_VALUE
+      fptr_out = 0.0
+      
+      ! Create auxiliary field (DELP)
+      field_aux = ESMF_FieldCreate(grid=grid, name=AUX_FIELD_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+      call assign_fptr(field_aux, fptr_aux, _RC)
+      fptr_aux = DELP_VALUE
+      
+      ! Create transform with is_inverse=true
+      local_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux, .true.)
+      call local_transform%initialize(importState, exportState, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize transform')
+      
+      ! Apply denormalization transform
+      call local_transform%update(importState, exportState, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to update transform')
+      
+      ! Verify output
+      do i=1, size(fptr_out)
+         @assertEqual(expected_value, fptr_out(i), tolerance=1.0e-6_R4)
+      end do
+      
+      call ESMF_FieldDestroy(field_aux, _RC)
+
+   end subroutine test_denormalize_field_R4
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_denormalize_field_R8(this)
+      ! Test inverse normalization (denormalization) with R8
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(ESMF_Field) :: field_in, field_out, field_aux
+      real(kind=ESMF_KIND_R8), pointer :: fptr_in(:), fptr_out(:), fptr_aux(:)
+      real(kind=ESMF_KIND_R8), parameter :: INPUT_VALUE = 0.102_R8    ! kg/m² (normalized)
+      real(kind=ESMF_KIND_R8), parameter :: DELP_VALUE = 1000.0_R8   ! Pa
+      real(kind=ESMF_KIND_R8) :: expected_value, scale_R8
+      integer :: i
+      type(NormalizationTransform) :: local_transform
+
+      _UNUSED_DUMMY(this)
+      
+      ! Expected: input ÷ (delp × scale) = 0.102 ÷ (1000.0 × 0.102) = 1.0e-3 kg/kg
+      scale_R8 = real(SCALE_FACTOR, R8)
+      expected_value = INPUT_VALUE / (DELP_VALUE * scale_R8)
+      
+      call initialize_states(states, grid, [ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R8],&
+         & ESMF_NAMES, rc=status)
+      @assertEqual(0, status, "Unable to initialize ESMF_State's")
+      
+      ! Get fields and set input values
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field_out, _RC)
+      call assign_fptr(field_in, fptr_in, _RC)
+      call assign_fptr(field_out, fptr_out, _RC)
+      fptr_in = INPUT_VALUE
+      fptr_out = 0.0
+      
+      ! Create auxiliary field (DELP)
+      field_aux = ESMF_FieldCreate(grid=grid, name=AUX_FIELD_NAME, typekind=ESMF_TYPEKIND_R8, _RC)
+      call assign_fptr(field_aux, fptr_aux, _RC)
+      fptr_aux = DELP_VALUE
+      
+      ! Create transform with is_inverse=true
+      local_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux, .true.)
+      call local_transform%initialize(importState, exportState, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize transform')
+      
+      ! Apply denormalization transform
+      call local_transform%update(importState, exportState, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to update transform')
+      
+      ! Verify output
+      do i=1, size(fptr_out)
+         @assertEqual(expected_value, fptr_out(i), tolerance=1.0e-10_R8)
+      end do
+      
+      call ESMF_FieldDestroy(field_aux, _RC)
+
+   end subroutine test_denormalize_field_R8
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_division_by_zero_R4(this)
+      ! Test division by zero handling in inverse mode
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(ESMF_Field) :: field_in, field_out, field_aux
+      real(kind=ESMF_KIND_R4), pointer :: fptr_in(:), fptr_out(:), fptr_aux(:)
+      real(kind=ESMF_KIND_R4), parameter :: INPUT_VALUE = 0.102_R4
+      integer :: i
+      type(NormalizationTransform) :: local_transform
+
+      _UNUSED_DUMMY(this)
+      
+      call initialize_states(states, grid, [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4],&
+         & ESMF_NAMES, rc=status)
+      @assertEqual(0, status, "Unable to initialize ESMF_State's")
+      
+      ! Get fields and set input values
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field_out, _RC)
+      call assign_fptr(field_in, fptr_in, _RC)
+      call assign_fptr(field_out, fptr_out, _RC)
+      fptr_in = INPUT_VALUE
+      fptr_out = 999.0  ! Should be overwritten with 0.0
+      
+      ! Create auxiliary field with zero values (will cause division by zero)
+      field_aux = ESMF_FieldCreate(grid=grid, name=AUX_FIELD_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+      call assign_fptr(field_aux, fptr_aux, _RC)
+      fptr_aux = 0.0_R4  ! Zero auxiliary field
+      
+      ! Create transform with is_inverse=true
+      local_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux, .true.)
+      call local_transform%initialize(importState, exportState, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize transform')
+      
+      ! Apply denormalization transform - should handle division by zero
+      call local_transform%update(importState, exportState, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to update transform')
+      
+       ! Verify output is zero (not NaN or Inf)
+       do i=1, size(fptr_out)
+          @assertEqual(0.0_R4, fptr_out(i), tolerance=1.0e-10_R4, message='Output should be 0 when dividing by zero')
+       end do
+      
+      call ESMF_FieldDestroy(field_aux, _RC)
+
+   end subroutine test_division_by_zero_R4
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_roundtrip_R4(this)
+      ! Test that normalize → denormalize recovers original value
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(ESMF_Field) :: field_in, field_mid_export, field_mid_import, field_out, field_aux
+      type(ESMF_State) :: midState_export, midState_import
+      real(kind=ESMF_KIND_R4), pointer :: fptr_in(:), fptr_mid_exp(:), fptr_mid_imp(:), fptr_out(:), fptr_aux(:)
+      real(kind=ESMF_KIND_R4), parameter :: INPUT_VALUE = 1.0e-3_R4  ! kg/kg (original)
+      real(kind=ESMF_KIND_R4), parameter :: DELP_VALUE = 1000.0_R4   ! Pa
+      integer :: i
+      type(NormalizationTransform) :: normalize_transform, denormalize_transform
+
+      _UNUSED_DUMMY(this)
+      
+      call initialize_states(states, grid, [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4],&
+         & ESMF_NAMES, rc=status)
+      @assertEqual(0, status, "Unable to initialize ESMF_State's")
+      
+      ! Create middle states for normalized value
+      ! Export state for normalize transform (has COUPLER_EXPORT_NAME)
+      midState_export = ESMF_StateCreate(name='midState_export', stateIntent=ESMF_STATEINTENT_EXPORT, _RC)
+      field_mid_export = ESMF_FieldCreate(grid=grid, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+      call ESMF_StateAdd(midState_export, [field_mid_export], _RC)
+      ! Import state for denormalize transform (has COUPLER_IMPORT_NAME)
+      midState_import = ESMF_StateCreate(name='midState_import', stateIntent=ESMF_STATEINTENT_IMPORT, _RC)
+      field_mid_import = ESMF_FieldCreate(grid=grid, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+      call ESMF_StateAdd(midState_import, [field_mid_import], _RC)
+      
+      ! Get fields and set input values
+      call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, field=field_in, _RC)
+      call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=field_out, _RC)
+      call assign_fptr(field_in, fptr_in, _RC)
+      call assign_fptr(field_mid_export, fptr_mid_exp, _RC)
+      call assign_fptr(field_mid_import, fptr_mid_imp, _RC)
+      call assign_fptr(field_out, fptr_out, _RC)
+      fptr_in = INPUT_VALUE
+      fptr_mid_exp = 0.0
+      fptr_mid_imp = 0.0
+      fptr_out = 0.0
+      
+      ! Create auxiliary field (DELP)
+      field_aux = ESMF_FieldCreate(grid=grid, name=AUX_FIELD_NAME, typekind=ESMF_TYPEKIND_R4, _RC)
+      call assign_fptr(field_aux, fptr_aux, _RC)
+      fptr_aux = DELP_VALUE
+      
+      ! Step 1: Normalize (forward)
+      normalize_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux, .false.)
+      call normalize_transform%initialize(importState, midState_export, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize normalize transform')
+      call normalize_transform%update(importState, midState_export, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to normalize')
+      
+      ! Copy normalized data from export field to import field
+      ! (In production, a coupler would handle this)
+      fptr_mid_imp = fptr_mid_exp
+      
+      ! Step 2: Denormalize (inverse)
+      denormalize_transform = new_NormalizationTransform(AUX_FIELD_NAME, SCALE_FACTOR, field_aux, .true.)
+      call denormalize_transform%initialize(midState_import, exportState, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to initialize denormalize transform')
+      call denormalize_transform%update(midState_import, exportState, clock, rc=status)
+      @assertEqual(_SUCCESS, status, 'Failed to denormalize')
+      
+       ! Verify round-trip: output should match original input
+       do i=1, size(fptr_out)
+          @assertEqual(INPUT_VALUE, fptr_out(i), tolerance=1.0e-6_R4, message='Round-trip should recover original value')
+       end do
+      
+       call ESMF_FieldDestroy(field_aux, _RC)
+       call ESMF_FieldDestroy(field_mid_export, _RC)
+       call ESMF_FieldDestroy(field_mid_import, _RC)
+       call ESMF_StateDestroy(midState_export, _RC)
+       call ESMF_StateDestroy(midState_import, _RC)
+
+   end subroutine test_roundtrip_R4
+
+   @After
+   subroutine tear_down(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+      call destroy(states, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_ClockDestroy(clock, rc=status)
+
+   end subroutine tear_down
+
+   subroutine create_grid(grid, rc)
+      type(ESMF_Grid), intent(inout) :: grid
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer, parameter :: MAX_INDEX(2) = [4, 4]
+      integer, parameter :: REG_DECOMP(2) = [1, 1]
+
+      grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine create_grid
+
+   subroutine get_bundle_fields(state, bundle_name, fields, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(len=*), intent(in) :: bundle_name
+      type(ESMF_Field), allocatable, intent(inout) :: fields(:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_FieldBundle) :: fb
+      integer :: fieldcount
+
+      call ESMF_StateGet(state, itemName=bundle_name, fieldbundle=fb, _RC)
+      call ESMF_FieldBundleGet(fb, fieldCount=fieldcount, _RC)
+      allocate(fields(fieldcount))
+      call ESMF_FieldBundleGet(fb, fieldList=fields, _RC)
+      _RETURN(_SUCCESS)
+      
+   end subroutine get_bundle_fields
+
+   function integer_to_character(i) result(s)
+      character(len=:), allocatable :: s
+      integer,  intent(in) :: i
+      character(len=20) :: s_
+
+      write(s_, '(G0)') abs(i)
+      s = trim(adjustl(s_))
+
+   end function integer_to_character
+
+end module Test_NormalizationTransform

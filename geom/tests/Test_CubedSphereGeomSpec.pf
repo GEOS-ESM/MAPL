@@ -1,0 +1,222 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+module Test_CubedSphereGeomSpec
+
+   use pfunit
+   use esmf_TestMethod_mod ! mapl
+   use mapl3g_CubedSphereGeomSpec
+   use MAPL_Constants, only: MAPL_PI, MAPL_PI_R8
+   use esmf
+
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_get_horz_ij_index_double_precision(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(CubedSphereGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_CubedSphereGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      lonR8 = [0.0d0, MAPL_PI_R8 / 2.0d0, MAPL_PI_R8, -MAPL_PI_R8 / 2.0d0, 0.0d0, 0.0d0]
+      latR8 = [0.0d0, 0.0d0, 0.0d0, 0.0d0, MAPL_PI_R8 / 2.0d0, -MAPL_PI_R8 / 2.0d0]
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assert_that(status, is(0))
+
+      @assertTrue(all(ii >= 1))
+      @assertTrue(all(ii <= 12))
+      @assertTrue(all(jj >= 1))
+      @assertTrue(all(jj <= 72))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_horz_ij_index_double_precision
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_get_horz_ij_index_single_precision(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(CubedSphereGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real, allocatable :: lon(:), lat(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_CubedSphereGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      lon = [0.0, MAPL_PI / 2.0, MAPL_PI, -MAPL_PI / 2.0, 0.0, 0.0]
+      lat = [0.0, 0.0, 0.0, 0.0, MAPL_PI / 2.0, -MAPL_PI / 2.0]
+
+      call spec%get_horz_ij_index(lon=lon, lat=lat, ii=ii, jj=jj, rc=status)
+      @assert_that(status, is(0))
+
+      @assertTrue(all(ii >= 1))
+      @assertTrue(all(ii <= 12))
+      @assertTrue(all(jj >= 1))
+      @assertTrue(all(jj <= 72))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_horz_ij_index_single_precision
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_get_horz_ij_index_single_point(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(CubedSphereGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: CubedSphere, im_world: 10, nx_face: 1, ny_face: 1}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_CubedSphereGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      lonR8 = [0.0d0]
+      latR8 = [0.0d0]
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assert_that(status, is(0))
+
+      @assertTrue(ii(1) >= 1)
+      @assertTrue(ii(1) <= 10)
+      @assertTrue(jj(1) >= 1)
+      @assertTrue(jj(1) <= 60)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_horz_ij_index_single_point
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_get_horz_ij_index_dateline_crossing(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(CubedSphereGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_CubedSphereGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      lonR8 = [3.0d0, -3.0d0]
+      latR8 = [0.0d0, 0.0d0]
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assert_that(status, is(0))
+
+      @assertTrue(all(ii >= 1))
+      @assertTrue(all(ii <= 12))
+      @assertTrue(all(jj >= 1))
+      @assertTrue(all(jj <= 72))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_horz_ij_index_dateline_crossing
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_get_horz_ij_index_out_of_bounds(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(CubedSphereGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_CubedSphereGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      lonR8 = [0.0d0, 0.0d0]
+      latR8 = [2.0d0, -2.0d0]
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assert_that(status, is(0))
+
+      @assertTrue(all(ii >= 1))
+      @assertTrue(all(ii <= 12))
+      @assertTrue(all(jj >= 1))
+      @assertTrue(all(jj <= 72))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_horz_ij_index_out_of_bounds
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_get_horz_ij_index_zero_points(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(CubedSphereGeomSpec) :: spec
+      integer, allocatable :: ii(:), jj(:)
+      real(kind=ESMF_KIND_R8), allocatable :: lonR8(:), latR8(:)
+      character(len=:), allocatable :: content
+      integer :: status
+
+      content = '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}'
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_CubedSphereGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      allocate(lonR8(0), latR8(0))
+
+      call spec%get_horz_ij_index(lon=lonR8, lat=latR8, ii=ii, jj=jj, rc=status)
+      @assert_that(status, is(0))
+      @assertFalse(allocated(ii))
+      @assertFalse(allocated(jj))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_horz_ij_index_zero_points
+
+end module Test_CubedSphereGeomSpec

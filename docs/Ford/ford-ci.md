@@ -8,14 +8,14 @@ coloured_edges: true
 graph_maxdepth: 4
 graph_maxnodes: 32
 include: ../../include/
+         ../../base3g/include/
          ../../gFTL/install/GFTL-1.17/include/v1
          ../../gFTL/install/GFTL-1.17/include/v2
-exclude: **/EsmfRegridder.F90
-         **/FieldBLAS_IntrinsicFunctions.F90
-         **/GeomManager.F90
-         **/MaplGeom.F90
-         **/Regridder.F90
-         **/StateSupplement.F90
+exclude: **/*.pf
+         **/generic3g/specs/ServiceProviderSpec.F90
+         **/generic3g/GenericCouplerComponent.F90
+         **/gridcomps/cap3g/ServerMode.F90
+         **/gridcomps/cap3g/mit.F90
 exclude_dir: ../../docs
              ../../Doxygen
              ../../ESMA_cmake
@@ -26,10 +26,10 @@ exclude_dir: ../../docs
              ../../pFUnit
              ../../fArgParse
              ../../pFlogger
+             ../../Apps/tests
 macro: USE_MPI=1
        BUILD_WITH_PFLOGGER=1
        BUILD_WITH_EXTDATA2G=1
-       USE_FLAP=1
        H5_HAVE_PARALLEL=1
        TWO_SIDED_COMM=1
        MAPL_MODE=1

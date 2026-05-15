@@ -119,7 +119,7 @@ contains
    subroutine terminate_writers(this)
       class (MultiLayerServer), intent(inout) :: this
       integer :: terminate = -1
-      integer :: ierr, status, rc
+      integer :: ierr, rc
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       ! The root rank sends termination signal to the root of the spawned children which would
       ! send terminate back for synchronization

@@ -1,11 +1,14 @@
 #define I_AM_MAIN
 #include "MAPL_ErrLog.h"
+
 program main
+
    use MPI
    use MAPL_Profiler
    use MAPL_ErrorHandlingMod
-   implicit none
+   use gFTL2_StringVector
 
+   implicit none
 
    !type (MemoryProfiler), target :: mem_prof
    type (TimeProfiler), target :: main_prof
@@ -13,9 +16,10 @@ program main
    type (ProfileReporter) :: reporter
    !type (ProfileReporter) :: mem_reporter
 
-   character(:), allocatable :: report_lines(:)
-   integer :: i
-   integer :: ierror, rc, status
+   type(StringVector) :: report_lines
+   type(StringVectorIterator) :: iter
+   integer :: ierror
+   character(1) :: empty(0)
 
    call MPI_Init(ierror)
    _VERIFY(ierror)
@@ -26,6 +30,7 @@ program main
    !mem_prof = MemoryProfiler('TOTAL')
 
    call main_prof%start('init reporter')
+   reporter = ProfileReporter(empty)
    call reporter%add_column(NameColumn(20))
    call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn()))
    call reporter%add_column(FormattedTextColumn(' T(inc)','(f9.6)', 9, InclusiveColumn()))
@@ -45,20 +50,20 @@ program main
 
    call main_prof%stop('init reporter')
 
-
    !call mem_prof%start('lap')
    call do_lap(lap_prof) ! lap 1
    call lap_prof%stop()
    call main_prof%accumulate(lap_prof)
    !call mem_prof%stop('lap')
 
-
    call main_prof%start('use reporter')
    report_lines = reporter%generate_report(lap_prof)
    write(*,'(a)')'Lap 1'
    write(*,'(a)')'====='
-   do i = 1, size(report_lines)
-      write(*,'(a)') report_lines(i)
+   iter = report_lines%begin()
+   do while (iter /= report_lines%end())
+      write(*,'(a)') iter%of()
+      call iter%next()
    end do
    write(*,'(a)')''
    call main_prof%stop('use reporter')
@@ -72,8 +77,10 @@ program main
    report_lines = reporter%generate_report(lap_prof)
    write(*,'(a)')'Lap 2'
    write(*,'(a)')'====='
-   do i = 1, size(report_lines)
-      write(*,'(a)') report_lines(i)
+   iter = report_lines%begin()
+   do while (iter /= report_lines%end())
+      write(*,'(a)') iter%of()
+      call iter%next()
    end do
    write(*,'(a)') ''
    call main_prof%stop('use reporter')
@@ -83,11 +90,12 @@ program main
    report_lines = reporter%generate_report(main_prof)
    write(*,'(a)')'Final profile'
    write(*,'(a)')'============='
-   do i = 1, size(report_lines)
-      write(*,'(a)') report_lines(i)
+   iter = report_lines%begin()
+   do while (iter /= report_lines%end())
+      write(*,'(a)') iter%of()
+      call iter%next()
    end do
    write(*,'(a)') ''
-
 
    call MPI_Finalize(ierror)
 
@@ -133,7 +141,6 @@ contains
       call prof%start('timer_2') ! 6
       call prof%stop('timer_2')
    end subroutine do_lap
-
 
 end program main
 
