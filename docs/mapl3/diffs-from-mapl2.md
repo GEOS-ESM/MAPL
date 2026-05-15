@@ -6,9 +6,11 @@ reference for developers and users migrating from MAPL2 to MAPL3, and
 as an overview of the architectural goals and design decisions behind
 MAPL3.
 
+<!-- mlc-disable -->
 > **Note:** This is a living document.  Sections marked with
 > **[REVIEW NEEDED]** require additional input from subject-matter
 > experts before they should be considered authoritative.
+<!-- mlc-enable -->
 
 ---
 
@@ -348,10 +350,12 @@ advection: various physics components declare their constituents as
 friendly to advection, and `PHYS` aggregates them into the bundle that
 the dynamical core imports.
 
+<!-- mlc-disable -->
 > **[REVIEW NEEDED — Atanas Trayanov]:** Please verify and expand the
 > description of the MAPL2 "friendly" mechanism and document how
 > `MAPL_STATEITEM_SERVICE` / `SERVICE_PROVIDER` / `SERVICE_SUBSCRIBER`
 > replace it in MAPL3.
+<!-- mlc-enable -->
 
 ---
 
@@ -538,9 +542,11 @@ applications, GEOS and non-GEOS alike.
   collections to automatically adapt as components add or remove
   exported fields.
 
+<!-- mlc-disable -->
 > **[REVIEW NEEDED — Ben Auer]:** Please provide a reference example
 > of the History3G YAML configuration (equivalent to `HISTORY.rc`) and
 > document any breaking changes from the MAPL2 History format.
+<!-- mlc-enable -->
 
 ---
 
@@ -560,9 +566,11 @@ handled internally by ExtData have shifted to the framework:
 regridding, time interpolation, and unit conversion are now handled
 by the MAPL3 connection mechanism rather than within ExtData.
 
+<!-- mlc-disable -->
 > **[REVIEW NEEDED — Ben Auer]:** Please document any breaking changes
 > in the ExtData YAML configuration format between MAPL2 (ExtData2G)
 > and MAPL3 ExtData.
+<!-- mlc-enable -->
 
 ---
 
@@ -745,10 +753,12 @@ resolution-dependent parameters without relying on global counts:
 | `min_area` | Minimum cell area on the local domain |
 | `max_area` | Maximum cell area on the local domain |
 
+<!-- mlc-disable -->
 > **[REVIEW NEEDED]** The `min_spacing`, `max_spacing`, `min_area`, and
 > `max_area` accessors are not yet implemented — see issue
 > [#4570](https://github.com/GEOS-ESM/MAPL/issues/4570).  This section
 > should be updated with the final call signatures once they land.
+<!-- mlc-enable -->
 
 ### Grid Classes: `tripolar` Subsumed into `xy`
 

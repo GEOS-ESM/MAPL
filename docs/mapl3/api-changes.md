@@ -206,8 +206,10 @@ MAPL3.
 The MAPL3 equivalents are accessed through the `OuterMetaComponent`
 object.  The specific replacement API is still stabilizing.
 
+<!-- mlc-disable -->
 > **[REVIEW NEEDED]:** Document the MAPL3 replacement for `MAPL_Get`
 > and `MAPL_Set` once the `OuterMetaComponent` accessor API stabilizes.
+<!-- mlc-enable -->
 
 ---
 
@@ -278,16 +280,20 @@ in the HConfig YAML.  The framework supports connections between
 mismatched fields (regridding, unit conversion, precision conversion)
 automatically.
 
+<!-- mlc-disable -->
 > **[REVIEW NEEDED]:** Document the MAPL3 YAML connectivity syntax
 > once it stabilizes.
+<!-- mlc-enable -->
 
 ### `MAPL_TerminateImport`
 
 Stubbed in MAPL3.  Unsatisfied imports are handled by the framework
 connection rules.  The MAPL3 equivalent mechanism is under development.
 
+<!-- mlc-disable -->
 > **[REVIEW NEEDED]:** Document the MAPL3 equivalent for suppressing
 > unsatisfied import warnings/errors.
+<!-- mlc-enable -->
 
 ---
 

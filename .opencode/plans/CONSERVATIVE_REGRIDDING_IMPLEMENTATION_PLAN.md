@@ -1,5 +1,7 @@
 # MAPL3 Conservative Regridding - Detailed Implementation Plan
 
+<!-- mlc-disable -->
+
 **Document Version:** 2.3
 **Date:** 2026-03-23
 **Status:** Phase 2 - Completed (with modifications)
