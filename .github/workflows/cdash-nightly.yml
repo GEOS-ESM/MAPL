@@ -10,7 +10,7 @@ on:
       branch:
         description: 'Branch to test'
         required: false
-        default: 'release/MAPL-v3'
+        default: 'develop'
         type: string
       build_type:
         description: 'CMake build type (workflow_dispatch only; ignored for gfortran-15-coverage)'
@@ -97,7 +97,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.branch || 'release/MAPL-v3' }}
+          ref: ${{ inputs.branch || 'develop' }}
           fetch-depth: 0
           filter: blob:none
 
@@ -125,7 +125,7 @@ jobs:
         shell: bash
         env:
           CDASH_AUTH_TOKEN: ${{ secrets.CDASH_AUTH_TOKEN }}
-          TESTED_BRANCH: ${{ inputs.branch || 'release/MAPL-v3' }}
+          TESTED_BRANCH: ${{ inputs.branch || 'develop' }}
         run: |
           # Replace slashes with dashes to ensure the CDash build name is safe/clean
           SAFE_BRANCH=$(echo "${TESTED_BRANCH}" | tr '/' '-')
