@@ -2,7 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL_StatisticsGridComp.tests")
 
 set (test_srcs
   Test_TimeAccumulate.pf
-  Test_Variance.pf
+  Test_TimeVariance.pf
 )
 
 add_pfunit_ctest(MAPL_StatisticsGridComp.tests
