@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- check before assign tilelons and tilelats in MAPL_Locstreamget
+
 ### Added
 
 ### Changed
