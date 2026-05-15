@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add [`docs/mapl3/diffs-from-mapl2.md`](docs/mapl3/diffs-from-mapl2.md) — a comprehensive
-  overview of the architectural and user-facing differences between MAPL3 and MAPL2.
+  overview of the architectural and user-facing differences between MAPL v3 and MAPL v2.
   This document covers component structure, connections, field specifications, resource
   files, Cap/time-loop changes, History3G, ExtData, the new Statistics component,
   clocks, and build system changes.  It is intended as the primary migration reference
