@@ -1,7 +1,7 @@
 # MAPL3 Integrated Normalization Architecture
 
-**Version:** 1.0  
-**Date:** March 2026  
+**Version:** 1.0
+**Date:** March 2026
 **Status:** Implemented
 
 ---
@@ -24,6 +24,7 @@
 
 The original design treated normalization as separate aspect transforms that would create extension fields for each normalization operation:
 
+<!-- mlc-disable -->
 ```
 Field [kg/kg]
   ↓ ExportNormalizationAspect → Extension 1
@@ -33,6 +34,7 @@ Field [kg/m²] (new grid)
   ↓ ImportNormalizationAspect → Extension 2
 Field [kg/kg] (new grid)
 ```
+<!-- mlc-enable -->
 
 **Critical Inefficiency:** Even when import and export grids exactly match but normalization is required, the system would create two extension fields:
 
@@ -141,11 +143,11 @@ subroutine update(this, importState, exportState, clock, rc)
    if (this%has_normalization) then
       ! 1. Denormalize using export coord field
       call denormalize(export_field, export_coord_field, norm_metadata)
-      
+
       ! 2. Regrid in canonical units [kg/m²]
       call ESMF_FieldRegrid(denorm_field, regridded_field, routehandle)
-      
-      ! 3. Renormalize using import coord field  
+
+      ! 3. Renormalize using import coord field
       call renormalize(regridded_field, import_coord_field, norm_metadata)
    else
       ! Direct regrid, no normalization
@@ -173,21 +175,21 @@ function make_transform(src_geom, dst_geom, other_aspects, rc)
    ! Query if normalization needed
    norm_aspect = to_NormalizationAspect(other_aspects, status)
    needs_norm = (status == SUCCESS) .and. (norm_type /= NORMALIZE_NONE)
-   
+
    ! Conservative method?
    is_conservative = (regrid_method == REGRID_METHOD_CONSERVE)
-   
+
    if (needs_norm .and. is_conservative) then
       ! Get vertical grid and coordinate field
       vert_aspect = to_VerticalGridAspect(other_aspects, _RC)
       vert_grid => vert_aspect%get_vertical_grid(_RC)
-      
+
       ! Get PLE or ZLE coordinate field with coupler
       physical_dim = get_physical_dimension(norm_type)
       coord_field = vert_grid%get_coordinate_field(physical_dim, &
                                                     other_aspects, &
                                                     coord_coupler, _RC)
-      
+
       ! Create transform with normalization support
       transform = RegridTransform(src_geom, dst_geom, regridder_param, &
                                   coord_field, coord_coupler, &
@@ -215,7 +217,7 @@ Result: 1 field in memory
 #### Scenario 2: Different Grids, No Normalization
 
 ```
-Export: Field [kg/kg] on 4x4 grid, NORMALIZE_NONE  
+Export: Field [kg/kg] on 4x4 grid, NORMALIZE_NONE
 Import: Field [kg/kg] on 8x8 grid, NORMALIZE_NONE
 
 GeomAspect::matches() → FALSE (grids differ)
@@ -324,7 +326,7 @@ norm_aspect = to_NormalizationAspect(spec%get_aspects(), status)
 
 if (status == SUCCESS) then
    norm_type = norm_aspect%get_normalization_type()
-   
+
    select case (norm_type)
    case (NORMALIZE_DELP)
       ! Need pressure thickness (DELP)
@@ -366,16 +368,16 @@ subroutine update(this, importState, exportState, clock, rc)
    if (this%has_normalization) then
       ! 1. Get export coordinate field
       export_coord = this%coord_field
-      
+
       ! 2. Denormalize export field
       call denormalize(export_field, export_coord, this%norm_metadata, _RC)
-      
+
       ! 3. Perform main operation on canonical field
       call my_operation(denormalized_field, result_field, _RC)
-      
+
       ! 4. Get import coordinate field (possibly different grid)
       import_coord = this%coord_coupler%couple(export_coord, _RC)
-      
+
       ! 5. Renormalize to maintain export normalization
       call renormalize(result_field, import_coord, this%norm_metadata, _RC)
    else
@@ -547,7 +549,7 @@ export_norm = ExportNormalization( &
    scale_factor=1.0_REAL64)
 call export_spec%set_aspect(export_norm, _RC)
 
-! Import side  
+! Import side
 import_norm = ImportNormalization( &
    normalization_type=NORMALIZE_DELP, &
    scale_factor=1.0_REAL64, &
@@ -605,16 +607,18 @@ transform = GeomAspect%make_transform(src_spec, dst_spec, other_aspects, _RC)
 
 #### Extension Field Creation
 
+<!-- mlc-disable -->
 **Old behavior** (theoretical):
 - Grid mismatch + conservative + DELP normalization → 3 extensions
 - Extension 1: normalized field [kg/m²]
-- Extension 2: regridded field [kg/m²]  
+- Extension 2: regridded field [kg/m²]
 - Extension 3: denormalized field [kg/kg]
 
 **New behavior** (implemented):
 - Grid mismatch + conservative + DELP normalization → 1 extension
 - Extension 1: regridded field [kg/kg] with same normalization
 - Internal temporary fields not kept in memory
+<!-- mlc-enable -->
 
 #### Normalization Transparency
 
@@ -646,9 +650,9 @@ subroutine test_export_normalization()
    ! Verify field [kg/kg] → [kg/m²]
 end subroutine
 
-@Test  
+@Test
 subroutine test_import_denormalization()
-   ! Create ImportNormalization transform  
+   ! Create ImportNormalization transform
    ! Verify field [kg/m²] → [kg/kg]
 end subroutine
 ```
@@ -682,7 +686,7 @@ function calculate_total_mass(data, delp, area) result(total_mass)
    real(ESMF_KIND_R4), intent(in) :: delp(:,:,:)
    real(ESMF_KIND_R4), intent(in) :: area(:,:)
    real(ESMF_KIND_R8) :: total_mass
-   
+
    ! mass = sum(q * Δp * area) / g
    total_mass = sum(real(data, ESMF_KIND_R8) * &
                     real(delp, ESMF_KIND_R8) * &
@@ -805,7 +809,7 @@ Normalization operations are uniformly distributed:
 
 For a 3D field (nx × ny × nz):
 - Denorm: Read field + coord, write denorm field = 3 arrays
-- Regrid: Read denorm, write regrid = 2 arrays  
+- Regrid: Read denorm, write regrid = 2 arrays
 - Renorm: Read regrid + coord, write final = 3 arrays
 - **Total: 8 array passes**
 
@@ -872,7 +876,7 @@ rel_error = abs(mass_out - mass_in) / mass_in
 
 **Setup:**
 - Source: 4×4 grid
-- Target: 8×8 grid  
+- Target: 8×8 grid
 - Method: Bilinear
 - Normalization: NORMALIZE_NONE
 
@@ -944,6 +948,7 @@ num_variants = family%num_variants()
 
 ### Mass Conservation Verification
 
+<!-- mlc-disable -->
 #### Formula
 
 For a mixing ratio field `q` [kg/kg] with pressure normalization:
@@ -957,6 +962,7 @@ Where:
 - `Δp`: Pressure thickness [Pa] (from DELP)
 - `Area`: Grid cell area [m²]
 - `g`: Gravitational acceleration [m/s²]
+<!-- mlc-enable -->
 
 #### Helper Function
 
@@ -966,7 +972,7 @@ function calculate_total_mass(data, delp, area) result(total_mass)
    real(ESMF_KIND_R4), intent(in) :: delp(:,:,:)   ! Pressure thickness [Pa]
    real(ESMF_KIND_R4), intent(in) :: area(:,:)     ! Grid cell area [m²]
    real(ESMF_KIND_R8) :: total_mass
-   
+
    total_mass = sum(real(data, ESMF_KIND_R8) * &
                     real(delp, ESMF_KIND_R8) * &
                     spread(real(area, ESMF_KIND_R8), 3, size(data,3))) / GRAVITY
@@ -994,13 +1000,13 @@ end function
 subroutine test_normalization_transparency()
    ! Get normalization before transform
    norm_before = get_normalization_aspect(export_spec, _RC)
-   
+
    ! Apply transform
    call transform%update(importState, exportState, clock, _RC)
-   
+
    ! Get normalization after transform
    norm_after = get_normalization_aspect(import_spec, _RC)
-   
+
    ! Should match
    @assertEqual(norm_before%get_normalization_type(), &
                 norm_after%get_normalization_type())
@@ -1035,7 +1041,7 @@ call get_memory_usage(mem_before, _RC)
 ! Create connection and transform
 call connection%connect(registry, _RC)
 
-! After connection  
+! After connection
 call get_memory_usage(mem_after, _RC)
 
 ! Calculate memory increase per field
@@ -1140,6 +1146,6 @@ Potential enhancements (not currently planned):
 
 ---
 
-**Document Maintained By:** MAPL3 Development Team  
-**Last Updated:** March 2026  
+**Document Maintained By:** MAPL3 Development Team
+**Last Updated:** March 2026
 **Version:** 1.0

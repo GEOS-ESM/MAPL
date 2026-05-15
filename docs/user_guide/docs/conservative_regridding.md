@@ -611,7 +611,9 @@ Conservative vertical regridding in MAPL3:
 For more information, see:
 - Source code: `generic3g/transforms/VerticalRegridTransform.F90`
 - Tests: `generic3g/tests/Test_3DConservativeMixingRatio.pf`
+<!-- mlc-disable -->
 - API docs: [MAPL3 API Documentation](https://geos-esm.github.io/MAPL-docs/mapl3-doc/)
+<!-- mlc-enable -->
 
 ---
 
