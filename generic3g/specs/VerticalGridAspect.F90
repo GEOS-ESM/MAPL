@@ -17,7 +17,7 @@ module mapl3g_VerticalGridAspect
    use mapl3g_TypekindAspect
    use mapl3g_UnitsAspect
    use mapl3g_NormalizationAspect
-   use mapl3g_NormalizationType
+   use mapl_NormalizationType
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalRegridMethod

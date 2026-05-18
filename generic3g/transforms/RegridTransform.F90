@@ -9,10 +9,10 @@ module mapl3g_RegridTransform
    use mapl3g_regridder_mgr
    use mapl3g_StateItem
    use mapl3g_ExtensionTransformUtils, only: bundle_types_valid
-   use mapl3g_NormalizationMetadata
-   use mapl3g_NormalizationType
+   use mapl_NormalizationMetadata
+   use mapl_NormalizationType
    use mapl3g_ComponentDriver, only: ComponentDriver
-   use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
+   use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use esmf

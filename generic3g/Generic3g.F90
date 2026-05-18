@@ -3,7 +3,7 @@ module Generic3g
    use mapl3g_Generic
    use mapl3g_Field_API
    use mapl3g_VariableSpec
-   use mapl3g_GenericPhases
+   use mapl_GenericPhases
    use mapl3g_OuterMetaComponent
    use mapl3g_GenericGridComp, only: MAPL_GridCompCreate
    use mapl3g_VerticalGrid

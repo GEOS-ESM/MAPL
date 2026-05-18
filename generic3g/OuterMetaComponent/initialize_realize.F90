@@ -2,7 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) initialize_realize_smod
    use mapl3g_Multistate
-   use mapl3g_GenericPhases
+   use mapl_GenericPhases
    use mapl_ErrorHandling
    implicit none(type,external)
 

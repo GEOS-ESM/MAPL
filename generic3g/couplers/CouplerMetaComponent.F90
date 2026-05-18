@@ -4,7 +4,7 @@ module mapl3g_CouplerMetaComponent
 
    use mapl3g_TransformId
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
-   use mapl3g_CouplerPhases
+   use mapl_CouplerPhases
    use mapl3g_ComponentDriver, only: ComponentDriver, ComponentDriverPtr
    use mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
    use mapl3g_ComponentDriverVector, only: ComponentDriverVector

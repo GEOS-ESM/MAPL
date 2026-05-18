@@ -1,4 +1,4 @@
-module mapl3g_NormalizationType
+module mapl_NormalizationType
    implicit none(type, external)
    private
    
@@ -114,4 +114,4 @@ contains
       if (present(rc)) rc = 0
    end function normalization_type_from_string
 
-end module mapl3g_NormalizationType
+end module mapl_NormalizationType

@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_GenericCoupler
-   use mapl3g_CouplerPhases
+   use mapl_CouplerPhases
    use mapl3g_CouplerMetaComponent
    use mapl3g_ExtensionTransform
    use mapl3g_TransformId

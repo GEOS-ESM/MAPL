@@ -4,7 +4,7 @@ module mapl3g_Regridder
    use esmf
    use mapl_FieldUtils
    use mapl3g_FieldBundle_API
-   use mapl3g_VectorBasisKind
+   use mapl_VectorBasisKind
    use mapl_ErrorHandlingMod
    use mapl3g_Geom_API
    use mapl3g_RegridderSpec

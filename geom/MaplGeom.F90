@@ -99,7 +99,7 @@ module mapl3g_MaplGeom
       end function get_variable_attributes
 
       recursive module function get_basis(this, basis_kind, rc) result(basis)
-         use mapl3g_VectorBasisKind
+         use mapl_VectorBasisKind
          type(VectorBasis), pointer :: basis
          class(MaplGeom), target, intent(inout) :: this
          type(VectorBasisKind), optional, intent(in) :: basis_kind

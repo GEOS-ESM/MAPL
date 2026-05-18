@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl3g_NormalizationMetadata
-   use mapl3g_NormalizationType
+module mapl_NormalizationMetadata
+   use mapl_NormalizationType
    use mapl_ErrorHandling
    use esmf, only: ESMF_Info, ESMF_InfoCreate, ESMF_InfoIsPresent
    use esmf, only: ESMF_InfoSet, ESMF_InfoGet, ESMF_InfoGetCharAlloc
@@ -171,4 +171,4 @@ contains
       not_equals = .not. (lhs == rhs)
    end function not_equal_to
 
-end module mapl3g_NormalizationMetadata
+end module mapl_NormalizationMetadata

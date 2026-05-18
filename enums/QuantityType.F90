@@ -1,4 +1,4 @@
-module mapl3g_QuantityType
+module mapl_QuantityType
    implicit none(type, external)
    private
    
@@ -193,4 +193,4 @@ contains
        if (present(rc)) rc = 0
     end function mixing_ratio_basis_from_string
     
-end module mapl3g_QuantityType
+end module mapl_QuantityType
