@@ -222,7 +222,7 @@ contains
 
       integer :: status
 
-       var_spec%short_name = short_name
+      var_spec%short_name = short_name
       var_spec%state_intent = state_intent
 
 #if defined(_SET_OPTIONAL)
@@ -248,15 +248,15 @@ contains
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
       _SET_OPTIONAL(vector_component_names)
-       _SET_OPTIONAL(has_deferred_aspects)
-       _SET_OPTIONAL(use_field_dictionary)
-       _SET_OPTIONAL(restart_mode)
+      _SET_OPTIONAL(has_deferred_aspects)
+      _SET_OPTIONAL(use_field_dictionary)
+      _SET_OPTIONAL(restart_mode)
 
-       var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
-       if (present(vector_basis_kind)) then
-          _ASSERT(any(var_spec%itemType == [MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET]), 'vector_basis_kind can only be specified for vectors')
-          var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
-       end if
+      var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
+      if (present(vector_basis_kind)) then
+         _ASSERT(any(var_spec%itemType == [MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET]), 'vector_basis_kind can only be specified for vectors')
+         var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
+      end if
 
       if (var_spec%use_field_dictionary) then
          call apply_field_dictionary_defaults_(var_spec, short_name, standard_name, units, long_name, _RC)
@@ -647,10 +647,11 @@ contains
       type(StateRegistry), pointer, optional, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
-       integer :: status
-       character(:), allocatable :: std_name_1, std_name_2
-       type(StringVector) :: vector_component_names
-       type(VectorBasisKind) :: basis_kind
+      integer :: status
+      character(:), allocatable :: std_name_1, std_name_2
+      character(:), allocatable :: short_name_1, short_name_2
+      type(StringVector) :: vector_component_names
+      type(VectorBasisKind) :: basis_kind
 
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
@@ -662,30 +663,30 @@ contains
          aspect = FieldBundleClassAspect(standard_name=this%standard_name)
       case (MAPL_STATEITEM_STATE%ot)
          aspect = StateClassAspect(state_intent=this%state_intent, standard_name=this%standard_name)
-       case (MAPL_STATEITEM_VECTOR%ot)
-          std_name_1 = 'unknown'
-          std_name_2 = 'unknown'
-          if (allocated(this%standard_name)) then
-             call split_name(this%standard_name, std_name_1, std_name_2, _RC)
-          end if
-          if (this%vector_component_names%size() == 0) then
-             call vector_component_names%push_back('unknown')
-             call vector_component_names%push_back('unknown')
-          else
-             vector_component_names = this%vector_component_names
-          end if
-
-          if (allocated(this%vector_basis_kind)) then
-             basis_kind = this%vector_basis_kind
-          else
-             basis_kind = VECTOR_BASIS_KIND_NS
-          end if
-          aspect = VectorClassAspect(this%vector_component_names, &
-               [ &
-               FieldClassAspect(standard_name=std_name_1, fill_value=this%fill_value), &
-               FieldClassAspect(standard_name=std_name_2, fill_value=this%fill_value) &
-               ], &
-               basis_kind)
+      case (MAPL_STATEITEM_VECTOR%ot)
+         std_name_1 = 'unknown'
+         std_name_2 = 'unknown'
+         if (allocated(this%standard_name)) then
+            call split_name(this%standard_name, std_name_1, std_name_2, _RC)
+         end if
+         if (this%vector_component_names%size() == 0) then
+            call split_name(this%short_name, short_name_1, short_name_2, _RC)
+            call vector_component_names%push_back(short_name_1)
+            call vector_component_names%push_back(short_name_2)
+         else
+            vector_component_names = this%vector_component_names
+         end if
+         if (allocated(this%vector_basis_kind)) then
+            basis_kind = this%vector_basis_kind
+         else
+            basis_kind = VECTOR_BASIS_KIND_NS
+         end if
+         aspect = VectorClassAspect(this%vector_component_names, &
+              [ &
+              FieldClassAspect(standard_name=std_name_1, fill_value=this%fill_value), &
+              FieldClassAspect(standard_name=std_name_2, fill_value=this%fill_value) &
+              ], &
+              basis_kind)
       case (MAPL_STATEITEM_BRACKET%ot)
          aspect = BracketClassAspect(this%bracket_size, this%standard_name, fill_value=this%fill_value)
       case (MAPL_STATEITEM_VECTORBRACKET%ot)
@@ -707,7 +708,6 @@ contains
       end select
 
       _RETURN(_SUCCESS)
-
    end function make_ClassAspect
 
    subroutine verify_variable_spec(spec, rc)

@@ -33,7 +33,8 @@ module mapl3g_Generic
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use mapl3g_UngriddedDim, only: UngriddedDim
    use mapl3g_UngriddedDims, only: UngriddedDims
-   use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE
+   use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl3g_StateItem, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
    use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
    use mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl3g_hconfig_get
@@ -108,7 +109,8 @@ module mapl3g_Generic
    public :: MAPL_GridCompTimerStop
 
    ! Spec types
-   public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE
+   public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   public :: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
 
    public :: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
 
