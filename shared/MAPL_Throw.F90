@@ -25,7 +25,7 @@ contains
    end subroutine MAPL_set_throw_method
 
    subroutine initialize()
-      throw_method => MAPL_Fail
+      throw_method => MAPL_serial_fail
       initialized = .true.
    end subroutine initialize
 
@@ -44,23 +44,17 @@ contains
    end subroutine MAPL_throw_exception
 
 
-   subroutine MAPL_Fail(filename, line, message)
-      use MPI
+   subroutine MAPL_serial_fail(filename, line, message)
       use, intrinsic :: iso_fortran_env, only: ERROR_UNIT
       character(*), intent(in) :: filename
       integer, intent(in) :: line
       character(*), optional, intent(in) :: message
 
-      integer, parameter :: FIELD_WIDTH=40
+      integer, parameter :: FIELD_WIDTH = 40
       character(FIELD_WIDTH) :: use_name
       character(3) :: prefix
       character(:), allocatable :: base_name
-      
-      integer :: rank, ierror
-      logical :: is_mpi_initialized
 
-      call MPI_Initialized(is_mpi_initialized,ierror)
-  
       base_name = get_base_name(filename)
       if (len(base_name) > FIELD_WIDTH) then
          prefix = '...'
@@ -70,27 +64,15 @@ contains
          use_name = base_name
       end if
 
-      ! Could use ADVANCE='no', but this may increase the chance
-      ! that the output lines are not interrupted by messages from
-      ! other PEs
-      if (is_mpi_initialized) then
-         call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
-         !$omp critical (MAPL_Throw1)
-         write(ERROR_UNIT,'(a,i5.5,1x,a,i5.5,1x,a3,a40,1x,a)') &
-              & 'pe=', rank, 'FAIL at line=', line, prefix, use_name, &
-              & '<'//adjustl(trim(message))//'>'
-         !$omp end critical (MAPL_Throw1)
-      else
-         !$omp critical (MAPL_Throw1)
-         write(ERROR_UNIT,'(a,i5.5,1x,a3,a40,1x,a)') &
-              & 'FAIL at line=', line, prefix, use_name, &
-              & '<'//adjustl(trim(message))//'>'
-         !$omp end critical (MAPL_Throw1)
-      end if
+      !$omp critical (MAPL_Throw1)
+      write(ERROR_UNIT,'(a,i5.5,1x,a3,a40,1x,a)') &
+           & 'FAIL at line=', line, prefix, use_name, &
+           & '<'//adjustl(trim(message))//'>'
+      !$omp end critical (MAPL_Throw1)
 
+      error stop 1
 
-      
-   end subroutine MAPL_Fail
+   end subroutine MAPL_serial_fail
 
 
 
