@@ -88,7 +88,3 @@ set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${t
 add_library (MAPL.profiler INTERFACE)
 target_link_libraries (MAPL.profiler INTERFACE MAPL.mp_utils)
 install (TARGETS MAPL.profiler EXPORT MAPL-targets)
-
-if (PFUNIT_FOUND)
-  add_subdirectory (tests EXCLUDE_FROM_ALL)
-endif ()
