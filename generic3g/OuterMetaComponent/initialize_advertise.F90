@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_advertise_smod
-   use mapl3g_GenericPhases, only: GENERIC_INIT_ADVERTISE
+   use mapl_GenericPhases, only: GENERIC_INIT_ADVERTISE
    use mapl3g_VirtualConnectionPt
    use mapl3g_StateItem
    use mapl3g_VariableSpec

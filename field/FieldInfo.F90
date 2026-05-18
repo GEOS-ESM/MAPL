@@ -9,9 +9,9 @@ module mapl3g_FieldInfo
    use mapl3g_InfoUtilities
    use mapl3g_VerticalGrid_API
    use mapl3g_UngriddedDims
-   use mapl3g_QuantityTypeMetadata
-   use mapl3g_NormalizationMetadata
-   use mapl3g_ConservationMetadata
+   use mapl_QuantityTypeMetadata
+   use mapl_NormalizationMetadata
+   use mapl_ConservationMetadata
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalAlignment
    use mapl3g_StateItemAllocation

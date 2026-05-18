@@ -14,7 +14,7 @@ module mapl3g_FieldDictionaryConfig
 
    use esmf
    use mapl_ErrorHandling
-   use mapl3g_ValidationMode
+   use mapl_ValidationMode
    use mapl3g_StateItem
 
    implicit none(type, external)

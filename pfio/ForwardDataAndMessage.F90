@@ -2,7 +2,6 @@
 #include "unused_dummy.H"
 
 module pFIO_ForwardDataAndMessageMod
-   use mpi
    use MAPL_ExceptionHandling
    use pFIO_AbstractMessageMod
    use pFIO_UtilitiesMod

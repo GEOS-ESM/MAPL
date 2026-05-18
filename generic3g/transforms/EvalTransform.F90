@@ -6,7 +6,7 @@ module mapl3g_EvalTransform
    use mapl3g_StateItem
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverVector
-   use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE, GENERIC_COUPLER_INITIALIZE
+   use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE, GENERIC_COUPLER_INITIALIZE
    use mapl_ErrorHandling
    use MAPL_StateArithmeticParserMod
    use esmf
