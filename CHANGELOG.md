@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Relaxed the comparison standard for grid_is_ok in case a grid is r4
 
 ### Added
+- variance to StatisticsGridComp
 
 ### Changed
 
