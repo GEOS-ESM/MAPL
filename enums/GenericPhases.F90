@@ -1,7 +1,11 @@
-module mapl3g_GenericPhases
+module mapl_GenericPhases
    implicit none(type,external)
    private
    
+   ! enum, bind(c) is used (rather than integer parameters) so that
+   ! ESMF/NUOPC SetPhase routines receive C-interoperable integer kinds
+   ! without requiring an explicit kind= argument at every call site.
+
    ! Named constants
    ! Init phases
    public :: GENERIC_INIT_PHASE_SEQUENCE
@@ -64,4 +68,4 @@ module mapl3g_GenericPhases
         GENERIC_INIT_USER &
         ]
 
-end module mapl3g_GenericPhases
+end module mapl_GenericPhases

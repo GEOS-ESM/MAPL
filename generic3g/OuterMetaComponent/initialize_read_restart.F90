@@ -2,7 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) initialize_read_restart_smod
 
-   use mapl3g_GenericPhases
+   use mapl_GenericPhases
    use mapl_ErrorHandling
    use mapl3g_MultiState
    use mapl3g_RestartHandler, only: RestartHandler

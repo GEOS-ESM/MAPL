@@ -7,10 +7,10 @@ module mapl3g_ConservationAspect
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionTransform
    use mapl3g_NullTransform
-   use mapl3g_ConservationType
-   use mapl3g_ConservationMetadata
-   use mapl3g_QuantityType
-   use mapl3g_QuantityTypeMetadata
+   use mapl_ConservationType
+   use mapl_ConservationMetadata
+   use mapl_QuantityType
+   use mapl_QuantityTypeMetadata
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl_KeywordEnforcer

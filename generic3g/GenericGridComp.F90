@@ -13,7 +13,7 @@ module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
-   use :: mapl3g_GenericPhases
+   use :: mapl_GenericPhases
    use :: mapl3g_GriddedComponentDriver
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer

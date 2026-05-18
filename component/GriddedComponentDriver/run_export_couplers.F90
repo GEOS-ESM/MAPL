@@ -2,7 +2,7 @@
 
 submodule(mapl3g_GriddedComponentDriver) run_export_couplers_smod
 
-   use mapl3g_CouplerPhases
+   use mapl_CouplerPhases
    use mapl_ErrorHandling
    implicit none(type,external)
 

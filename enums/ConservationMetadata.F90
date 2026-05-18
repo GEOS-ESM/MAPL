@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl3g_ConservationMetadata
-   use mapl3g_ConservationType
+module mapl_ConservationMetadata
+   use mapl_ConservationType
    use mapl_ErrorHandling
    use esmf, only: ESMF_Info, ESMF_InfoCreate, ESMF_InfoIsPresent
    use esmf, only: ESMF_InfoSet, ESMF_InfoGet, ESMF_InfoGetCharAlloc
@@ -173,4 +173,4 @@ contains
       not_equals = .not. (lhs == rhs)
    end function not_equal_to
 
-end module mapl3g_ConservationMetadata
+end module mapl_ConservationMetadata

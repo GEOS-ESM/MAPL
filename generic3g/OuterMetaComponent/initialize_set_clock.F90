@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_set_clock_smod
-   use mapl3g_GenericPhases, only: GENERIC_INIT_SET_CLOCK
+   use mapl_GenericPhases, only: GENERIC_INIT_SET_CLOCK
    use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriverMap
    use mapl3g_ESMF_Time_Utilities

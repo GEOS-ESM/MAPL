@@ -1,4 +1,4 @@
-module mapl3g_VerificationStatus
+module mapl_VerificationStatus
    use mapl_StringUtilities, only: to_lower
    implicit none(type, external)
    private
@@ -82,4 +82,4 @@ contains
       not_equal = .not. (a%id == b%id)
    end function not_equal
 
-end module mapl3g_VerificationStatus
+end module mapl_VerificationStatus

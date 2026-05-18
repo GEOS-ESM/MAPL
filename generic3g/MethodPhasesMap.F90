@@ -65,7 +65,7 @@ end module mapl3g_MethodPhasesMap_private
 module mapl3g_MethodPhasesMapUtils
    use mapl3g_MethodPhasesMap_private
    use mapl_ErrorHandling
-   use :: mapl3g_GenericPhases, only: GENERIC_RUN_OFFSET
+   use :: mapl_GenericPhases, only: GENERIC_RUN_OFFSET
    use :: mapl_KeywordEnforcer
    use :: esmf, only: ESMF_Method_Flag, operator(==)
    use :: esmf, only: ESMF_METHOD_INITIALIZE

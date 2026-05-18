@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) run_clock_advance_smod
-   use mapl3g_GenericPhases
+   use mapl_GenericPhases
    use mapl3g_GriddedComponentDriverMap
    use mapl_ErrorHandling
    implicit none(type,external)

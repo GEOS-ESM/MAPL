@@ -2,7 +2,7 @@ module mapl3g_FieldDictionaryItem
 
    use gftl2_StringVector
    use esmf
-   use mapl3g_VerificationStatus
+   use mapl_VerificationStatus
 
    implicit none(type,external)
    private

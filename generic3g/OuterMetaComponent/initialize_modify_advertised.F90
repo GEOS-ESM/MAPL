@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_modify_advertised_smod
-   use mapl3g_GenericPhases
+   use mapl_GenericPhases
    use mapl3g_MultiState
    use mapl3g_Connection
    use mapl3g_ConnectionVector, only: ConnectionVectorIterator

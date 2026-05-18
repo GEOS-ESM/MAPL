@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl3g_QuantityTypeMetadata
-   use mapl3g_QuantityType
+module mapl_QuantityTypeMetadata
+   use mapl_QuantityType
    use mapl_ErrorHandling
    use mapl_Constants, only: MAPL_UNDEF => MAPL_UNDEFINED_REAL
    use esmf, only: ESMF_Info, ESMF_InfoCreate, ESMF_InfoIsPresent
@@ -244,4 +244,4 @@ contains
       not_equal_to = .not. (a == b)
    end function not_equal_to
    
-end module mapl3g_QuantityTypeMetadata
+end module mapl_QuantityTypeMetadata

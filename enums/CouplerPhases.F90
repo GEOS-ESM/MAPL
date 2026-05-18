@@ -1,9 +1,11 @@
-#include "MAPL.h"
+module mapl_CouplerPhases
 
-module mapl3g_CouplerPhases
-
-   implicit none
+   implicit none(type,external)
    private
+
+   ! enum, bind(c) is used (rather than integer parameters) so that
+   ! ESMF/NUOPC SetPhase routines receive C-interoperable integer kinds
+   ! without requiring an explicit kind= argument at every call site.
 
    ! Phase indices
    public :: GENERIC_COUPLER_INITIALIZE
@@ -18,4 +20,4 @@ module mapl3g_CouplerPhases
       enumerator :: GENERIC_COUPLER_CLOCK_ADVANCE
    end enum
 
-end module mapl3g_CouplerPhases
+end module mapl_CouplerPhases
