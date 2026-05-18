@@ -1,0 +1,188 @@
+#include "MAPL_TestErr.h"
+
+module Test_TimeVariance
+   use pfunit
+   use MAPL
+   use ESMF
+   use ESMF_TestMethod_mod
+   use, intrinsic :: iso_fortran_env, only: real32
+   implicit none(type, external)
+
+   integer, parameter :: NPTS = 16
+   integer, parameter :: NSTEPS = 100
+
+contains
+
+   ! -----------------------------------------------------------------------
+   ! Compute variance using the shifted algorithm (inline, no MAPL state)
+   ! Returns biased or unbiased variance of x(:).
+   ! -----------------------------------------------------------------------
+   function shifted_variance_r4(x, biased) result(var)
+      real(kind=real32) :: var
+      real(kind=real32), intent(in) :: x(:)
+      logical, intent(in) :: biased
+      real(kind=real32) :: k, ex, ex2
+      integer :: i, n, q
+
+      n  = size(x)
+      k  = x(1)
+      ex  = 0.0
+      ex2 = 0.0
+      do i = 1, n
+         ex  = ex  + (x(i) - k)
+         ex2 = ex2 + (x(i) - k)**2
+      end do
+      q = n - 1
+      if (biased) q = n
+      var = (ex2 - ex*ex/n) / q
+   end function shifted_variance_r4
+
+   ! -----------------------------------------------------------------------
+   ! Compute variance using the Welford online algorithm (inline, no MAPL state)
+   ! Returns biased or unbiased variance of x(:).
+   ! -----------------------------------------------------------------------
+   function welford_variance_r4(x, biased) result(var)
+      real(kind=real32) :: var
+      real(kind=real32), intent(in) :: x(:)
+      logical, intent(in) :: biased
+      real(kind=real32) :: mu, m2, delta, prev_mu
+      integer :: i, n, q
+
+      n  = size(x)
+      mu = 0.0
+      m2 = 0.0
+      do i = 1, n
+         prev_mu = mu
+         mu = mu + (x(i) - mu) / i
+         delta = x(i) - prev_mu
+         m2 = m2 + delta * (x(i) - mu)
+      end do
+      q = n - 1
+      if (biased) q = n
+      var = m2 / q
+   end function welford_variance_r4
+
+   ! -----------------------------------------------------------------------
+   ! Reference variance: two-pass exact calculation
+   ! -----------------------------------------------------------------------
+   function reference_variance_r4(x, biased) result(var)
+      real(kind=real32) :: var
+      real(kind=real32), intent(in) :: x(:)
+      logical, intent(in) :: biased
+      real(kind=real32) :: mu, ss
+      integer :: n, q
+
+      n  = size(x)
+      mu = sum(x) / n
+      ss = sum((x - mu)**2)
+      q  = n - 1
+      if (biased) q = n
+      var = ss / q
+   end function reference_variance_r4
+
+   ! ===================================================================
+   ! TEST 1: Shifted algorithm, unbiased variance, R4
+   !
+   !   Generate NSTEPS samples, compute shifted variance,
+   !   compare with reference two-pass variance.
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_shifted_unbiased_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      real(kind=real32), allocatable :: x(:)
+      real(kind=real32) :: got, expected
+      integer :: status, i
+      integer, allocatable, target :: seed(:)
+
+      allocate(x(NSTEPS))
+
+      ! Use fixed seed for reproducibility
+      call get_seed_fixed(seed, _RC)
+      call random_seed(put=seed)
+      call random_number(x)
+      x = x * 10.0 - 5.0   ! range [-5, 5]
+
+      got      = shifted_variance_r4(x, biased=.false.)
+      expected = reference_variance_r4(x, biased=.false.)
+
+      @assertEqual(expected, got, 1.0e-3_real32, 'SHIFTED unbiased R4 variance must match reference')
+
+   contains
+      subroutine get_seed_fixed(s, rc)
+         integer, allocatable, intent(inout) :: s(:)
+         integer, optional, intent(out) :: rc
+         integer :: n
+         call random_seed(size=n)
+         if (.not. allocated(s)) allocate(s(n))
+         s = 42
+         if (present(rc)) rc = 0
+      end subroutine get_seed_fixed
+   end subroutine test_shifted_unbiased_r4
+
+   ! ===================================================================
+   ! TEST 2: Shifted algorithm, biased variance, R4
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_shifted_biased_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      real(kind=real32), allocatable :: x(:)
+      real(kind=real32) :: got, expected
+      integer :: status
+
+      allocate(x(NSTEPS))
+      call random_seed()
+      call random_number(x)
+      x = x * 20.0
+
+      got      = shifted_variance_r4(x, biased=.true.)
+      expected = reference_variance_r4(x, biased=.true.)
+
+      @assertEqual(expected, got, 1.0e-3_real32, 'SHIFTED biased R4 variance must match reference')
+
+   end subroutine test_shifted_biased_r4
+
+   ! ===================================================================
+   ! TEST 3: Welford algorithm, unbiased variance, R4
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_welford_unbiased_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      real(kind=real32), allocatable :: x(:)
+      real(kind=real32) :: got, expected
+      integer :: status
+
+      allocate(x(NSTEPS))
+      call random_seed()
+      call random_number(x)
+      x = x * 4.0 - 2.0   ! range [-2, 2]
+
+      got      = welford_variance_r4(x, biased=.false.)
+      expected = reference_variance_r4(x, biased=.false.)
+
+      @assertEqual(expected, got, 1.0e-3_real32, 'WELFORD unbiased R4 variance must match reference')
+
+   end subroutine test_welford_unbiased_r4
+
+   ! ===================================================================
+   ! TEST 4: Welford algorithm, biased variance, R4
+   ! ===================================================================
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_welford_biased_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      real(kind=real32), allocatable :: x(:)
+      real(kind=real32) :: got, expected
+      integer :: status
+
+      allocate(x(NSTEPS))
+      call random_seed()
+      call random_number(x)
+      x = x * 100.0
+
+      got      = welford_variance_r4(x, biased=.true.)
+      expected = reference_variance_r4(x, biased=.true.)
+
+      @assertEqual(expected, got, 1.0e-2_real32, 'WELFORD biased R4 variance must match reference')
+
+   end subroutine test_welford_biased_r4
+
+end module Test_TimeVariance
