@@ -6,9 +6,9 @@ module mapl3g_FieldGet
    use mapl3g_VerticalAlignment
    use mapl3g_FieldInfo
    use mapl3g_StateItemAllocation
-   use mapl3g_QuantityTypeMetadata
-   use mapl3g_NormalizationMetadata
-   use mapl3g_ConservationMetadata
+   use mapl_QuantityTypeMetadata
+   use mapl_NormalizationMetadata
+   use mapl_ConservationMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims

@@ -3,7 +3,7 @@
 submodule (mapl3g_OuterMetaComponent) finalize_smod
 
    use mapl3g_GriddedComponentDriverMap
-   use mapl3g_GenericPhases
+   use mapl_GenericPhases
    use mapl_ErrorHandling
    use MAPL_Profiler, only: ProfileReporter
    use MAPL_Profiler, only: MultiColumn, NameColumn, FormattedTextColumn, PercentageColumn

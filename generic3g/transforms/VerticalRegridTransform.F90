@@ -8,7 +8,7 @@ module mapl3g_VerticalRegridTransform
    use mapl3g_StateItem
    use mapl3g_ExtensionTransform
    use mapl3g_ComponentDriver
-   use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
+   use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalLinearMap, only: compute_linear_map

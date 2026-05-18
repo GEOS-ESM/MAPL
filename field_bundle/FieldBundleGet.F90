@@ -7,11 +7,11 @@ module mapl3g_FieldBundleGet
    use mapl_ErrorHandling
    use mapl3g_Field_API
    use mapl3g_UngriddedDims
-   use mapl3g_QuantityTypeMetadata
-   use mapl3g_NormalizationMetadata
-   use mapl3g_ConservationMetadata
+   use mapl_QuantityTypeMetadata
+   use mapl_NormalizationMetadata
+   use mapl_ConservationMetadata
    use mapl3g_FieldBundleType_Flag
-   use mapl3g_VectorBasisKind
+   use mapl_VectorBasisKind
    use mapl3g_FieldBundleInfo
    use mapl3g_InfoUtilities
    use mapl3g_LU_Bound

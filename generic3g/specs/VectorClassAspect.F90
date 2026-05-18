@@ -14,7 +14,7 @@ module mapl3g_VectorClassAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
-   use mapl3g_VectorBasisKind
+   use mapl_VectorBasisKind
    use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
 
    use mapl3g_VerticalGrid

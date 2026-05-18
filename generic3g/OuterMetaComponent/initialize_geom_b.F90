@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_geom_b_smod
-   use mapl3g_GenericPhases
+   use mapl_GenericPhases
    use mapl3g_GeometrySpec
    use mapl_ErrorHandling
    implicit none(type,external)

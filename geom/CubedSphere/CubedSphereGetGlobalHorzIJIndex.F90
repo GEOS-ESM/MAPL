@@ -295,8 +295,8 @@ contains
       accurate_lon = 1.750d0*MAPL_PI_R8 - shift0
       accurate_lat = [(-alpha + (j-1)*dalpha, j = J1, J2)]
 
-      if (any(abs(accurate_lon - lonRe) > 2.0*tolerance) .or. &
-          any(abs(accurate_lat - latRe) > 2.0*tolerance)) then
+      if (any(abs(accurate_lon - lonRe) > 20.0*tolerance) .or. &
+          any(abs(accurate_lat - latRe) > 20.0*tolerance)) then
         print*, "Error in grid_is_ok_: grid may not have pi/18 Japan mountain shift,"
         print*, "  may not be gnomonic_ed, or corners are not accurate enough."
         ok = .false.

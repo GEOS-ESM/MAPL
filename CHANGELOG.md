@@ -11,10 +11,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Relaxed the comparison standard for grid_is_ok in case a grid is r4
+
 ### Added
 
 ### Changed
 
+- Create `mp_utils/` directory (`MAPL.mp_utils`, Tier 2) as an MPI-dependent,
+  ESMF-free library. Absorbs comm-splitter and load-balance sources from
+  `shared/`, and the entire `profiler/` library (sources + reporting).
+  `MAPL.profiler` and `MAPL.shared` remain as backward-compatible targets.
+  Part of the MAPL v3 directory restructuring (#4905, phase 3, closes #4923).
+
+- Create `utils/` directory (`MAPL.utils`, Tier 1) as an MPI-free library
+  consolidating serial-only sources from `shared/`, `utilities/`, `udunits2f/`,
+  and `generic3g/`. `MAPL.utils` depends only on ESMF and OpenMP — no MPI.
+  Part of the MAPL v3 directory restructuring (#4905, phase 2a, closes #4915).
+
+- Remove direct MPI dependencies from `ErrorHandling.F90` and `MAPL_Throw.F90`
+  using a lazy-init procedure pointer pattern. Both modules now default to serial
+  `error stop` behavior and are fully MPI-free. MPI-aware error handling (rank in
+  error messages, `MPI_Abort`) is provided by the new `MAPL_MpiErrorHandling.F90`
+  module; call `MAPL_initialize_error_handling()` once after `MPI_Init` to
+  register MPI-aware handlers. Serial and pFUnit programs require no changes.
+  `MAPL_ExceptionHandling` is now an alias defined in `ErrorHandling.F90` rather
+  than a separate file. Closes #4917, part of #4905.
+
+- Create `enums/` directory (`MAPL.enums`, Tier 0) and relocate 11 enum-like
+  type definitions into it from `esmf_utils/`, `generic3g/`, and `component/`.
+  No module names or interfaces changed; this is a pure file relocation.
+  Part of the MAPL v3 directory restructuring (#4905, phase 1a, closes #4907).
+
+Several files were renamed, MAPL_InfoSet was replaced with ESMF_InfoSet.
 ### Removed
 
 ### Deprecated

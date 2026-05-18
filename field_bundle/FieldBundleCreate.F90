@@ -4,7 +4,7 @@ module mapl3g_FieldBundleCreate
 
    use mapl3g_FieldBundleType_Flag
    use mapl3g_FieldBundleSet
-   use mapl3g_VectorBasisKind
+   use mapl_VectorBasisKind
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf

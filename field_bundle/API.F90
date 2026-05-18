@@ -2,7 +2,7 @@ module mapl3g_FieldBundle_API
 
    use ESMF, only: MAPL_FieldBundleAdd => ESMF_FieldBundleAdd
    use mapl3g_FieldBundleType_Flag
-   use mapl3g_VectorBasisKind
+   use mapl_VectorBasisKind
    use mapl3g_FieldBundleCreate, only: MAPL_FieldBundleCreate => FieldBundleCreate
    use mapl3g_FieldBundleCreate, only: MAPL_FieldBundlesAreAliased => FieldBundlesAreAliased
    use mapl3g_FieldBundleDestroy, only: MAPL_FieldBundleDestroy

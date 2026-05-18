@@ -27,10 +27,10 @@ module mapl3g_VariableSpec
    use mapl3g_QuantityTypeAspect
    use mapl3g_ConservationAspect
    use mapl3g_NormalizationAspect
-   use mapl3g_NormalizationType
+   use mapl_NormalizationType
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
-   use mapl3g_VectorBasisKind
+   use mapl_VectorBasisKind
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt

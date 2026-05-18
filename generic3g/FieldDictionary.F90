@@ -21,7 +21,7 @@ module mapl3g_FieldDictionary
    use gftl2_StringStringMap
    use mapl3g_FieldDictionaryItem
    use mapl3g_FieldDictionaryItemMap
-   use mapl3g_VerificationStatus
+   use mapl_VerificationStatus
 
    implicit none(type,external)
    private
