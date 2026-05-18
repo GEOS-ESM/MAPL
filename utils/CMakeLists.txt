@@ -58,6 +58,9 @@ else()
   target_compile_definitions(${this} PRIVATE SYSTEM_DSO_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 endif()
 
+# Backward-compatibility alias for consumers that still link MAPL.utilities
+add_library(MAPL.utilities ALIAS MAPL.utils)
+
 add_subdirectory(Constants)
 add_subdirectory(arrays)
 add_subdirectory(regex)
