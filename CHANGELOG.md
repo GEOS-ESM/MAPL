@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Create `utils/` directory (`MAPL.utils`, Tier 1) as an MPI-free library
+  consolidating serial-only sources from `shared/`, `utilities/`, `udunits2f/`,
+  and `generic3g/`. `MAPL.utils` depends only on ESMF and OpenMP — no MPI.
+  Part of the MAPL v3 directory restructuring (#4905, phase 2a, closes #4915).
+
 - Remove direct MPI dependencies from `ErrorHandling.F90` and `MAPL_Throw.F90`
   using a lazy-init procedure pointer pattern. Both modules now default to serial
   `error stop` behavior and are fully MPI-free. MPI-aware error handling (rank in
