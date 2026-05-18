@@ -223,7 +223,7 @@ if (APPLE)
 endif()
 
 add_subdirectory (enums)
-add_subdirectory (utils)
+add_subdirectory (udunits2f)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic3g)
