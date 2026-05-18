@@ -1,33 +1,36 @@
 esma_set_this (OVERRIDE MAPL.geom)
 
+# Top-level .F90 files moved to infrastructure/geom/geom/ (in-progress migration).
+set(geom_dir ${CMAKE_CURRENT_SOURCE_DIR}/../infrastructure/geom/geom)
+
 set(srcs
-  API.F90 # package
-  GeomUtilities.F90
+  ${geom_dir}/API.F90
+  ${geom_dir}/GeomUtilities.F90
 
-  GeomSpec.F90
-  NullGeomSpec.F90
-  MaplGeom.F90
+  ${geom_dir}/GeomSpec.F90
+  ${geom_dir}/NullGeomSpec.F90
+  ${geom_dir}/MaplGeom.F90
 
-  GeomFactory.F90
+  ${geom_dir}/GeomFactory.F90
 
-  CoordinateAxis.F90
+  ${geom_dir}/CoordinateAxis.F90
 
-  GeomManager.F90
+  ${geom_dir}/GeomManager.F90
 
-  GeomGet.F90
-  GridGet.F90
-  GridGetGlobal.F90
-  GridGetHorzIJIndex.F90
-  GeomGetHorzIJIndex.F90
+  ${geom_dir}/GeomGet.F90
+  ${geom_dir}/GridGet.F90
+  ${geom_dir}/GridGetGlobal.F90
+  ${geom_dir}/GridGetHorzIJIndex.F90
+  ${geom_dir}/GeomGetHorzIJIndex.F90
 
   # gFTL containers
-  GeomFactoryVector.F90
-  GeomSpecVector.F90
-  IntegerMaplGeomMap.F90
+  ${geom_dir}/GeomFactoryVector.F90
+  ${geom_dir}/GeomSpecVector.F90
+  ${geom_dir}/IntegerMaplGeomMap.F90
 
-  VectorBasis.F90
+  ${geom_dir}/VectorBasis.F90
 
-  Subgrid.F90
+  ${geom_dir}/Subgrid.F90
 )
 
 esma_add_library(${this}
