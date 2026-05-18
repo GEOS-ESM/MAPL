@@ -5,6 +5,11 @@ set (srcs
   VerticalCoordinate.F90
   VerticalRegridConserveInterface.F90
   VerticalRegridUtilities.F90
+  # From generic3g/vertical/ (no generic3g dependencies)
+  CSR_SparseMatrix.F90
+  VerticalConservativeMap.F90
+  VerticalLinearMap.F90
+  VerticalRegridMethod.F90
 )
 
 if (BUILD_WITH_PFLOGGER)
@@ -13,7 +18,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.base3g MAPL.pfio PFLOGGER::pflogger
+  DEPENDENCIES MAPL.utils MAPL.shared MAPL.base3g MAPL.pfio PFLOGGER::pflogger
   TYPE SHARED
 )
 

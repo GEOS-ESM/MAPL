@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `esmf_utils/`, `vm/`, `alarm/`, `hconfig/`, `hconfig_utils/`, and
   ESMF-related files from `generic3g/`. Backward-compatibility INTERFACE
   aliases provided for all five former library names.
+- Phase 5 of MAPL v3 directory restructuring (#4905, closes #4930): consolidate
+  `component/` and the remainder of `generic3g/` (after Phase 4 extractions)
+  into `superstructure/component/` and `superstructure/generic/` respectively.
+  Old top-level directories retained as stubs for backward compatibility.
 - Phase 4 of MAPL v3 directory restructuring (#4905, closes #4925): consolidate
   `geom/`, `GeomIO/`, `regridder_mgr/`, `field/`, `field_bundle/`, `state/`,
   `vertical/`, `vertical_grid/`, and ESMF-related sources into `infrastructure/`
