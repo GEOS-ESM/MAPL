@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Create `mp_utils/` directory (`MAPL.mp_utils`, Tier 2) as an MPI-dependent,
+  ESMF-free library. Absorbs comm-splitter and load-balance sources from
+  `shared/`, and the entire `profiler/` library (sources + reporting).
+  `MAPL.profiler` and `MAPL.shared` remain as backward-compatible targets.
+  Part of the MAPL v3 directory restructuring (#4905, phase 3, closes #4923).
+
 - Create `utils/` directory (`MAPL.utils`, Tier 1) as an MPI-free library
   consolidating serial-only sources from `shared/`, `utilities/`, `udunits2f/`,
   and `generic3g/`. `MAPL.utils` depends only on ESMF and OpenMP — no MPI.
