@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Create `infrastructure/esmf/` (`MAPL.esmf`, Tier 3) consolidating
+  `esmf_utils/`, `vm/`, `alarm/`, `hconfig/`, `hconfig_utils/`, and
+  ESMF-related files from `generic3g/`. Backward-compatibility INTERFACE
+  aliases provided for all five former library names.
 - Create `mp_utils/` directory (`MAPL.mp_utils`, Tier 2) as an MPI-dependent,
   ESMF-free library. Absorbs comm-splitter and load-balance sources from
   `shared/`, and the entire `profiler/` library (sources + reporting).
