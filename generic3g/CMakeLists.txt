@@ -1,12 +1,8 @@
 esma_set_this (OVERRIDE MAPL.generic3g)
 
 set(srcs
+  # FieldDictionary* moved to infrastructure/field_dictionary/
   Generic3g.F90
-
-  FieldDictionaryItem.F90
-  FieldDictionaryItemMap.F90
-  FieldDictionary.F90
-  FieldDictionaryConfig.F90
 
   GenericGrid.F90
 
@@ -54,6 +50,7 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.enums MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
     MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared
     MAPL.profiler MAPL.hconfig_utils MAPL.vertical MAPL.component MAPL.field_bundle
+    MAPL.field_dictionary
   ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm MAPL.utils
   TYPE SHARED
   )
