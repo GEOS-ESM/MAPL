@@ -17,11 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Create `mp_utils/` directory (`MAPL.mp_utils`, Tier 2) as an MPI-dependent,
-  ESMF-free library. Absorbs comm-splitter and load-balance sources from
-  `shared/`, and the entire `profiler/` library (sources + reporting).
-  `MAPL.profiler` and `MAPL.shared` remain as backward-compatible targets.
-  Part of the MAPL v3 directory restructuring (#4905, phase 3, closes #4923).
+- Create `infrastructure/esmf/` (`MAPL.esmf`, Tier 3) consolidating
+  `esmf_utils/`, `vm/`, `alarm/`, `hconfig/`, `hconfig_utils/`, and
+  ESMF-related files from `generic3g/`. Backward-compatibility INTERFACE
+  aliases provided for all five former library names.
+- Phase 4 of MAPL v3 directory restructuring (#4905, closes #4925): consolidate
+  `geom/`, `GeomIO/`, `regridder_mgr/`, `field/`, `field_bundle/`, `state/`,
+  `vertical/`, `vertical_grid/`, and ESMF-related sources into `infrastructure/`
+  subdirectories. Several files from `base3g/` moved to `mp_utils/`. Old
+  top-level directories retained as stubs for backward compatibility.
 
 - Create `utils/` directory (`MAPL.utils`, Tier 1) as an MPI-free library
   consolidating serial-only sources from `shared/`, `utilities/`, `udunits2f/`,

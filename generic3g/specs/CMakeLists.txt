@@ -28,7 +28,7 @@ target_sources(MAPL.generic3g PRIVATE
   NormalizationAspect.F90
 
   VariableSpec.F90
-  StateItem.F90
+  # StateItem.F90 moved to infrastructure/esmf/
   VariableSpecVector.F90
 
   GeometrySpec.F90

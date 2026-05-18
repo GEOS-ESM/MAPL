@@ -1,7 +1,7 @@
 esma_set_this (OVERRIDE MAPL.mp_utils)
 
 # MPI-dependent utilities (Tier 2 in MAPL v3 restructuring).
-# Depends on MAPL.utils + MPI. No ESMF.
+# Depends on MAPL.utils + MPI. ESMF-dependent files absorbed from base3g/.
 
 set (srcs
     # MPI error handling
@@ -16,6 +16,15 @@ set (srcs
     Partition.F90
     # Shared memory
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
+    # From base3g/ (ESMF/MPI-dependent, no geom or pfio dependency)
+    PackedTime.F90
+    SimulationTime.F90
+    TimeInterpolation.F90
+    LocalDisplacementEnsemble.F90
+    SatVapor.F90
+    StringTemplate.F90
+    # Moved back to base3g/ (pfio/header dependencies):
+    #   FileMetadataUtilities.F90, FileMetadataUtilitiesVector.F90, FileIO.F90
     # Profiler (absorbed from profiler/)
     profiler/AbstractGauge.F90
     profiler/AbstractMeter.F90
@@ -68,7 +77,9 @@ set (srcs
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.utils MPI::MPI_Fortran GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 PFLOGGER::pflogger
+    DEPENDENCIES MAPL.utils MAPL.constants MPI::MPI_Fortran ESMF::ESMF
+                 GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2
+                 PFLOGGER::pflogger
     TYPE SHARED
 )
 
@@ -80,7 +91,10 @@ endif ()
 
 target_link_libraries (${this} PRIVATE OpenMP::OpenMP_Fortran)
 
+target_compile_definitions (${this} PRIVATE MAPL_MODE)
+
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+target_include_directories (${this} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
