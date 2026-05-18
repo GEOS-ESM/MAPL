@@ -224,6 +224,7 @@ endif()
 
 add_subdirectory (enums)
 add_subdirectory (utils)
+add_subdirectory (mp_utils)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic3g)
