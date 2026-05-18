@@ -2,9 +2,9 @@
 
 module mapl3g_ConservationMetadata
    use mapl3g_ConservationType
-   use mapl3g_InfoUtilities
    use mapl_ErrorHandling
-   use esmf
+   use esmf, only: ESMF_Info, ESMF_InfoCreate, ESMF_InfoIsPresent
+   use esmf, only: ESMF_InfoSet, ESMF_InfoGet, ESMF_InfoGetCharAlloc
    
    implicit none(type, external)
    private
@@ -90,12 +90,12 @@ contains
       
       info = ESMF_InfoCreate(_RC)
       
-      call MAPL_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirror(), _RC)
+      call ESMF_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirror(), _RC)
       _RETURN_IF(this%is_mirror())
       
       ! Write conservation properties
-      call MAPL_InfoSet(info, KEY_CONSERVATION_TYPE, this%conservation_type%to_string(), _RC)
-      call MAPL_InfoSet(info, KEY_IS_CONSERVABLE, this%is_conservable, _RC)
+      call ESMF_InfoSet(info, KEY_CONSERVATION_TYPE, this%conservation_type%to_string(), _RC)
+      call ESMF_InfoSet(info, KEY_IS_CONSERVABLE, this%is_conservable, _RC)
       
       _RETURN(_SUCCESS)
    end function make_info
@@ -117,7 +117,7 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, key=full_key, value=is_mirror, _RC)
+         call ESMF_InfoGet(info, key=full_key, value=is_mirror, _RC)
       end if
       
       if (is_mirror) then
@@ -133,7 +133,7 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, full_key, str_value, _RC)
+         call ESMF_InfoGetCharAlloc(info, full_key, str_value, _RC)
          metadata%conservation_type = ConservationType(str_value)
       end if
       
@@ -142,7 +142,7 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, full_key, is_conservable_buffer, _RC)
+         call ESMF_InfoGet(info, full_key, is_conservable_buffer, _RC)
          metadata%is_conservable = is_conservable_buffer
       end if
       

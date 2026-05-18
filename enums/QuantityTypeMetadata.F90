@@ -2,10 +2,10 @@
 
 module mapl3g_QuantityTypeMetadata
    use mapl3g_QuantityType
-   use mapl3g_InfoUtilities
    use mapl_ErrorHandling
    use mapl_Constants, only: MAPL_UNDEF => MAPL_UNDEFINED_REAL
-   use esmf
+   use esmf, only: ESMF_Info, ESMF_InfoCreate, ESMF_InfoIsPresent
+   use esmf, only: ESMF_InfoSet, ESMF_InfoGet, ESMF_InfoGetCharAlloc
    
    implicit none(type, external)
    private
@@ -132,23 +132,23 @@ contains
       
       info = ESMF_InfoCreate(_RC)
       
-      call MAPL_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirror(), _RC)
+      call ESMF_InfoSet(info, key=KEY_IS_MIRROR, value=this%is_mirror(), _RC)
       _RETURN_IF(this%is_mirror())
       
       ! Write quantity_type
-      call MAPL_InfoSet(info, KEY_QUANTITY_TYPE, this%quantity_type%to_string(), _RC)
+      call ESMF_InfoSet(info, KEY_QUANTITY_TYPE, this%quantity_type%to_string(), _RC)
       
       ! Write dimensions (optional)
       if (allocated(this%dimensions)) then
-         call MAPL_InfoSet(info, KEY_DIMENSIONS, this%dimensions, _RC)
+         call ESMF_InfoSet(info, KEY_DIMENSIONS, this%dimensions, _RC)
       end if
       
       ! Write basis
-      call MAPL_InfoSet(info, KEY_MIXING_RATIO_BASIS, this%basis%to_string(), _RC)
+      call ESMF_InfoSet(info, KEY_MIXING_RATIO_BASIS, this%basis%to_string(), _RC)
       
       ! Write molecular_weight (optional)
       if (allocated(this%molecular_weight)) then
-         call MAPL_InfoSet(info, KEY_MOLECULAR_WEIGHT, this%molecular_weight, _RC)
+         call ESMF_InfoSet(info, KEY_MOLECULAR_WEIGHT, this%molecular_weight, _RC)
       end if
       
       _RETURN(_SUCCESS)
@@ -172,7 +172,7 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, key=full_key, value=is_mirror, _RC)
+         call ESMF_InfoGet(info, key=full_key, value=is_mirror, _RC)
       end if
       
       if (is_mirror) then
@@ -183,7 +183,7 @@ contains
       ! Read quantity_type
       full_key = KEY_QUANTITY_TYPE
       if (present(key)) full_key = key // full_key
-      call MAPL_InfoGet(info, full_key, str_value, _RC)
+      call ESMF_InfoGetCharAlloc(info, full_key, str_value, _RC)
       metadata%quantity_type = QuantityType(str_value)
       
       ! Read dimensions (optional)
@@ -191,14 +191,14 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, full_key, dims_buffer, _RC)
+         call ESMF_InfoGetCharAlloc(info, full_key, dims_buffer, _RC)
          metadata%dimensions = dims_buffer
       end if
       
       ! Read basis
       full_key = KEY_MIXING_RATIO_BASIS
       if (present(key)) full_key = key // full_key
-      call MAPL_InfoGet(info, full_key, str_value, _RC)
+      call ESMF_InfoGetCharAlloc(info, full_key, str_value, _RC)
       metadata%basis = MixingRatioBasis(str_value)
       
       ! Read molecular_weight (optional)
@@ -206,7 +206,7 @@ contains
       if (present(key)) full_key = key // full_key
       is_present = ESMF_InfoIsPresent(info, key=full_key, _RC)
       if (is_present) then
-         call MAPL_InfoGet(info, full_key, mw_buffer, _RC)
+         call ESMF_InfoGet(info, full_key, mw_buffer, _RC)
          allocate(metadata%molecular_weight)
          metadata%molecular_weight = mw_buffer
       end if
