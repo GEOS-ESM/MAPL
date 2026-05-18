@@ -8,7 +8,6 @@ set (srcs
     field/API.F90
     field/FieldUtils.F90
     field/FieldBLAS.F90
-    field/FieldPointerUtilities.F90
     field/FieldUtilities.F90
     field/FieldUnaryFunctions.F90
     field/FieldBinaryOperations.F90
@@ -42,7 +41,7 @@ set (srcs
     state/StateGet.F90
     state/StateSet.F90
     state/StateGetPointer.F90
-    # StateGetGeom.F90 moved to geom/ (avoids cycle with MAPL.geom)
+    state/StateGetGeom.F90
     state/StateAddMethod.F90
     state/StateUtils.F90
     state/StateArithmeticParser.F90
@@ -60,7 +59,7 @@ find_package (GFTL REQUIRED)
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.vertical_grid MAPL.shared MAPL.esmf
+    DEPENDENCIES MAPL.vertical_grid MAPL.shared MAPL.esmf MAPL.geom
                  PFLOGGER::pflogger ESMF::ESMF udunits2f GFTL::gftl-v2
     TYPE SHARED
 )
