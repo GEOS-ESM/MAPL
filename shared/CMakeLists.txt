@@ -13,12 +13,12 @@ set (srcs
     MAPL_Range.F90
     MAPL_Sort.F90
     MAPL_Throw.F90
+    MAPL_MpiErrorHandling.F90
     AbstractCommSplitter.F90
     CommGroupDescription.F90
     SplitCommunicator.F90
     SimpleCommSplitter.F90
     sort.c
-    MAPL_ExceptionHandling.F90
     String.F90
     StringUtilities.F90
     MaplShared.F90

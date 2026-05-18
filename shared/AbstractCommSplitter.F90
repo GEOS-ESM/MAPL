@@ -1,7 +1,6 @@
 #include "MAPL.h"
 
 module MAPL_AbstractCommSplitterMod
-   use MPI
    implicit none
    private
 

@@ -2,7 +2,6 @@
 
 module mapl_ErrorHandling
    use MAPL_ThrowMod
-   use MPI
    implicit none
    private
 
@@ -16,6 +15,14 @@ module mapl_ErrorHandling
    public :: MAPL_Vrfy
    public :: MAPL_ASRT
    public :: MAPL_abort
+   public :: MAPL_set_abort_handler
+
+   abstract interface
+      subroutine abort_handler_interface()
+      end subroutine abort_handler_interface
+   end interface
+
+   procedure(abort_handler_interface), pointer :: abort_handler => null()
 
 
    public :: MAPL_SUCCESS
@@ -277,11 +284,18 @@ contains
         !$omp end critical (MAPL_ErrorHandling10)
    end function MAPL_VRFYT
 
+   subroutine MAPL_set_abort_handler(handler)
+      procedure(abort_handler_interface) :: handler
+      abort_handler => handler
+   end subroutine MAPL_set_abort_handler
+
    subroutine MAPL_abort()
-      integer :: status
-      integer :: error_code = -1
-      call MPI_Abort(MPI_COMM_WORLD,error_code,status)
-  end subroutine MAPL_abort
+      if (associated(abort_handler)) then
+         call abort_handler()
+      else
+         error stop 'MAPL_abort: fatal error'
+      end if
+   end subroutine MAPL_abort
 
   function get_error_message(error_code) result(description)
      use gFTL_IntegerStringMap
@@ -328,3 +342,6 @@ end module mapl_ErrorHandling
 module mapl_ErrorHandlingMod
    use mapl_ErrorHandling
 end module mapl_ErrorHandlingMod
+module MAPL_ExceptionHandling
+   use mapl_ErrorHandling
+end module MAPL_ExceptionHandling

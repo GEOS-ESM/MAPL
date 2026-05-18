@@ -8,7 +8,6 @@ module pFIO_BaseThreadMod
    use pFIO_IntegerRequestMapMod
    use pFIO_MessageVisitorMod
    use pfio_base
-   use mpi
 
    implicit none
    private
