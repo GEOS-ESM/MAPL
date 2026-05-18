@@ -16,6 +16,7 @@ set (srcs
     ESMF_Time_Utilities.F90
     HorizontalDimsSpec.F90
     DistGridGet.F90
+    FieldPointerUtilities.F90
     # From vm/
     API.F90
     vm.F90

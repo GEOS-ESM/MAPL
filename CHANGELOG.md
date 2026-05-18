@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `esmf_utils/`, `vm/`, `alarm/`, `hconfig/`, `hconfig_utils/`, and
   ESMF-related files from `generic3g/`. Backward-compatibility INTERFACE
   aliases provided for all five former library names.
+- Create `infrastructure/fields/` (`MAPL.fields`, Tier 3) consolidating
+  `field/`, `field_bundle/`, and `state/`. Backward-compatibility INTERFACE
+  aliases provided for all three former library names. `FieldPointerUtilities`
+  moved to `MAPL.esmf` (no field dependencies); spurious `MAPL.field`
+  dependency removed from `MAPL.geom`.
 - Create `mp_utils/` directory (`MAPL.mp_utils`, Tier 2) as an MPI-dependent,
   ESMF-free library. Absorbs comm-splitter and load-balance sources from
   `shared/`, and the entire `profiler/` library (sources + reporting).
