@@ -37,6 +37,7 @@ set (srcs
     ESMF_HConfigUtilities.F90
     ESMF_HConfigUtilities/MAPL_HConfigMatch.F90
     ESMF_HConfigUtilities/write_hconfig.F90
+    StateItem.F90
 )
 
 esma_add_library (${this}
