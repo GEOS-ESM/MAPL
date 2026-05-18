@@ -1,4 +1,4 @@
-target_sources(MAPL.esmf_utils PRIVATE
+target_sources(MAPL.esmf PRIVATE
   API.F90
   MAPL_Comms.F90
 )

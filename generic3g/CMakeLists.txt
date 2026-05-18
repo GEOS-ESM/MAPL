@@ -1,13 +1,8 @@
 esma_set_this (OVERRIDE MAPL.generic3g)
 
 set(srcs
-  ESMF_Subset.F90
+  # FieldDictionary* moved to infrastructure/field_dictionary/
   Generic3g.F90
-
-  FieldDictionaryItem.F90
-  FieldDictionaryItemMap.F90
-  FieldDictionary.F90
-  FieldDictionaryConfig.F90
 
   GenericGrid.F90
 
@@ -27,7 +22,8 @@ set(srcs
 
   # ComponentSpecBuilder.F90
 
-  ESMF_HConfigUtilities.F90
+  # Moved to infrastructure/esmf/
+  # ESMF_HConfigUtilities.F90
   RestartHandler.F90
 
   RunEntryPoint.F90
@@ -54,6 +50,7 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.enums MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
     MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared
     MAPL.profiler MAPL.hconfig_utils MAPL.vertical MAPL.component MAPL.field_bundle
+    MAPL.field_dictionary
   ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm MAPL.utils
   TYPE SHARED
   )
@@ -94,12 +91,6 @@ esma_add_fortran_submodules(
           parse_var_specs.F90 parse_geometry_spec.F90 parse_component_spec.F90
           parse_setservices.F90 parse_timespec.F90
 	  to_itemtype.F90)
-
-esma_add_fortran_submodules(
-  TARGET MAPL.generic3g
-  SUBDIRECTORY ESMF_HConfigUtilities
-  SOURCES MAPL_HConfigMatch.F90
-          write_hconfig.F90)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

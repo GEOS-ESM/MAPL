@@ -33,7 +33,7 @@ It:
 
 ### 3.5 Connecting Import Fields to Data on File: ExtData (needs updating for MAPL3)
 
-### 3.6 [Performing Arithmetic Operations on Fields](../../state/ArthParser.md)
+### 3.6 [Performing Arithmetic Operations on Fields](../../infrastructure/fields/state/ArthParser.md)
 
 ### 3.7 [Doing I/O: PFIO](../../pfio/pfio.md)
 
