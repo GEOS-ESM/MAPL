@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Remove direct MPI dependencies from `ErrorHandling.F90` and `MAPL_Throw.F90`
+  using a lazy-init procedure pointer pattern. Both modules now default to serial
+  `error stop` behavior and are fully MPI-free. MPI-aware error handling (rank in
+  error messages, `MPI_Abort`) is provided by the new `MAPL_MpiErrorHandling.F90`
+  module; call `MAPL_initialize_error_handling()` once after `MPI_Init` to
+  register MPI-aware handlers. Serial and pFUnit programs require no changes.
+  `MAPL_ExceptionHandling` is now an alias defined in `ErrorHandling.F90` rather
+  than a separate file. Closes #4917, part of #4905.
+
 - Create `enums/` directory (`MAPL.enums`, Tier 0) and relocate 11 enum-like
   type definitions into it from `esmf_utils/`, `generic3g/`, and `component/`.
   No module names or interfaces changed; this is a pure file relocation.
