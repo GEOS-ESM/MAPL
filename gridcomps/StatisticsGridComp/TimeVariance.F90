@@ -20,12 +20,11 @@ module mapl3g_TimeVariance
    public :: WELFORD, SHIFTED
 
    enum, bind(c)
-      enumerator :: VARIANCE_ALGORITHM = 0
       enumerator :: WELFORD
       enumerator :: SHIFTED
    end enum
 
-   integer(kind=kind(VARIANCE_ALGORITHM)), parameter :: DEFAULT_ALGORITHM = WELFORD
+   integer(kind=kind(WELFORD)), parameter :: DEFAULT_ALGORITHM = WELFORD
 
    type, extends(AbstractTimeStatistic) :: TimeVariance
       private
@@ -34,6 +33,7 @@ module mapl3g_TimeVariance
       type(esmf_Field)  :: var_f   ! output field
       logical           :: biased_ = .false.
       class(AbstractCovarianceKernel), allocatable :: kernel
+      integer(kind=kind(DEFAULT_ALGORITHM)) :: algorithm = DEFAULT_ALGORITHM
    contains
       procedure :: destroy
       procedure :: reset
@@ -49,88 +49,22 @@ module mapl3g_TimeVariance
 
 contains
 
-   function new_TimeVariance(unusable, gridcomp, f, var_f, alarm, algorithm, biased, rc) result(stat)
+   function new_TimeVariance(unusable, f, var_f, alarm, algorithm, biased) result(stat)
       type(TimeVariance) :: stat
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: var_f
       type(SimpleAlarm), intent(in) :: alarm
-      integer(kind=kind(VARIANCE_ALGORITHM)), optional, intent(in) :: algorithm
+      integer(kind=kind(DEFAULT_ALGORITHM)), optional, intent(in) :: algorithm
       logical, optional, intent(in) :: biased
-      integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer(kind=kind(VARIANCE_ALGORITHM)) :: algorithm_
-      type(esmf_State) :: internal_state
-      type(esmf_Geom), allocatable :: geom
-      type(UngriddedDims) :: ungridded_dims
-      character(:), allocatable :: units, name
-      type(esmf_TypeKind_Flag) :: typekind
-      class(VerticalGrid), pointer :: vertical_grid
-      type(VerticalStaggerLoc) :: vstagger
-      type(esmf_Field) :: counts_f
-      type(esmf_Field) :: f_local
-
-      f_local = f
       stat%f     = f
       stat%var_f = var_f
       stat%alarm = alarm
+      if (present(algorithm)) stat%algorithm = algorithm
       if (present(biased)) stat%biased_ = biased
-
-      algorithm_ = DEFAULT_ALGORITHM
-      if (present(algorithm)) algorithm_ = algorithm
-
-      select case (algorithm_)
-      case (WELFORD)
-         allocate(WelfordCovarianceKernel :: stat%kernel)
-      case (SHIFTED)
-         allocate(ShiftedCovarianceKernel :: stat%kernel)
-      case default
-         _FAIL("Unrecognized Variance algorithm")
-      end select
-
-      ! Realize internal state fields
-      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
-      call mapl_FieldGet(f_local, short_name=name, _RC)
-      call mapl_FieldGet(f_local, &
-           geom=geom, &
-           ungridded_dims=ungridded_dims, &
-           units=units, &
-           typekind=typekind, &
-           vgrid=vertical_grid, &
-           vert_staggerloc=vstagger, &
-           _RC)
-
-      ! Realize var_f output field
-      call mapl_FieldSet(var_f, &
-           geom=geom, &
-           ungridded_dims=ungridded_dims, &
-           units=units, &
-           typekind=typekind, &
-           vgrid=vertical_grid, &
-           vert_staggerloc=vstagger, &
-           standard_name='foo', &
-           has_deferred_aspects=.false., &
-           _RC)
-
-      ! Realize counts_ internal field
-      call esmf_StateGet(internal_state, 'counts_'//name, field=counts_f, _RC)
-      call mapl_FieldSet(counts_f, &
-           geom=geom, &
-           ungridded_dims=ungridded_dims, &
-           units='1', &
-           typekind=ESMF_TYPEKIND_I4, &
-           vgrid=vertical_grid, &
-           vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., &
-           _RC)
-
-      ! Variance passes f as both x and y: Cov(f, f) = Var(f)
-      call stat%kernel%initialize(gridcomp, f_local, f_local, counts_f, _RC)
-
       _UNUSED_DUMMY(unusable)
-      _RETURN(_SUCCESS)
+
    end function new_TimeVariance
 
    subroutine destroy(this, rc)
@@ -180,6 +114,10 @@ contains
       type(esmf_State) :: internal_state
       type(esmf_Field) :: counts_f
       character(:), allocatable :: name
+
+      if(needs_initialization(this)) then
+         call initialize(this, gridcomp, _RC)
+      end if
 
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
       call mapl_FieldGet(this%f, short_name=name, typekind=typekind, _RC)
@@ -272,5 +210,81 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine advertise_time_variance_internal_fields
+
+   subroutine initialize(stat, gridcomp, rc)
+      class(TimeVariance), intent(inout) :: stat
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(esmf_Field) :: f, var_f, counts_f
+      type(esmf_State) :: internal_state
+      type(esmf_Geom), allocatable :: geom
+      type(UngriddedDims) :: ungridded_dims
+      character(:), allocatable :: units, name
+      type(esmf_TypeKind_Flag) :: typekind
+      class(VerticalGrid), pointer :: vertical_grid
+      type(VerticalStaggerLoc) :: vstagger
+
+      f = stat%f
+      var_f = stat%var_f
+
+      select case (stat%algorithm)
+      case (WELFORD)
+         allocate(WelfordCovarianceKernel :: stat%kernel)
+      case (SHIFTED)
+         allocate(ShiftedCovarianceKernel :: stat%kernel)
+      case default
+         _FAIL("Unrecognized Variance algorithm")
+      end select
+
+      ! Realize internal state fields
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldGet(f, short_name=name, _RC)
+      call mapl_FieldGet(f, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           _RC)
+
+      ! Realize var_f output field
+      call mapl_FieldSet(var_f, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           standard_name='foo', &
+           has_deferred_aspects=.false., &
+           _RC)
+
+      ! Realize counts_ internal field
+      call esmf_StateGet(internal_state, 'counts_'//name, field=counts_f, _RC)
+      call mapl_FieldSet(counts_f, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units='1', &
+           typekind=ESMF_TYPEKIND_I4, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           has_deferred_aspects=.false., &
+           _RC)
+
+      ! Variance passes f as both x and y: Cov(f, f) = Var(f)
+      call stat%kernel%initialize(gridcomp, f, f, counts_f, _RC)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize
+
+   logical function needs_initialization(stat)
+      class(TimeVariance), intent(in) :: stat
+
+      needs_initialization = .not. allocated(stat%kernel)
+
+   end function needs_initialization
 
 end module mapl3g_TimeVariance

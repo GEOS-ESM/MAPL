@@ -48,7 +48,6 @@ contains
       integer :: status
       type(VariableSpec) :: varspec
 
-      _UNUSED_DUMMY(this)
       varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'mux_'//name, fill_value=0.0, _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'muy_'//name, fill_value=0.0, _RC)
@@ -56,7 +55,9 @@ contains
       varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'c_'//name,   fill_value=0.0, _RC)
       call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
 
+      _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
+
    end subroutine advertise
 
    subroutine initialize(this, gridcomp, f_x, f_y, counts_f, rc)
@@ -77,7 +78,6 @@ contains
       class(VerticalGrid), pointer :: vertical_grid
       type(VerticalStaggerLoc) :: vstagger
 
-      _UNUSED_DUMMY(this)
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
       call mapl_FieldGet(f_x, short_name=name, _RC)
       call mapl_FieldGet(f_x, &
@@ -99,7 +99,9 @@ contains
 
       _UNUSED_DUMMY(f_y)
       _UNUSED_DUMMY(counts_f)
+      _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
+
    end subroutine initialize
 
    subroutine destroy(this, gridcomp, f_x, rc)
@@ -111,6 +113,7 @@ contains
       _UNUSED_DUMMY(f_x)
       _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
+
    end subroutine destroy
 
    subroutine reset(this, gridcomp, f_x, rc)
@@ -124,7 +127,6 @@ contains
       type(esmf_Field) :: mux_f, muy_f, c_f
       character(:), allocatable :: name
 
-      _UNUSED_DUMMY(this)
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
       call mapl_FieldGet(f_x, short_name=name, _RC)
       call esmf_StateGet(internal_state, 'mux_'//name, field=mux_f, _RC)
@@ -135,7 +137,9 @@ contains
       call esmf_FieldFill(muy_f, dataFillScheme='const', const1=0.d0, _RC)
       call esmf_FieldFill(c_f,   dataFillScheme='const', const1=0.d0, _RC)
 
+      _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
+
    end subroutine reset
 
    subroutine update_r4(this, gridcomp, f_x, f_y, counts_f, rc)
@@ -154,7 +158,6 @@ contains
       integer(kind=ESMF_KIND_I4), pointer :: counts(:)
       real(kind=ESMF_KIND_R4), allocatable :: dx(:)
 
-      _UNUSED_DUMMY(this)
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
       call mapl_FieldGet(f_x, short_name=name, _RC)
       call esmf_StateGet(internal_state, 'mux_'//name, field=mux_f, _RC)
@@ -179,7 +182,9 @@ contains
          cp     = cp + dx * (yp - muyp)
       end where
 
+      _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
+
    end subroutine update_r4
 
    subroutine update_r8(this, gridcomp, f_x, f_y, counts_f, rc)
@@ -198,7 +203,6 @@ contains
       integer(kind=ESMF_KIND_I4), pointer :: counts(:)
       real(kind=ESMF_KIND_R8), allocatable :: dx(:)
 
-      _UNUSED_DUMMY(this)
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
       call mapl_FieldGet(f_x, short_name=name, _RC)
       call esmf_StateGet(internal_state, 'mux_'//name, field=mux_f, _RC)
@@ -223,7 +227,9 @@ contains
          cp     = cp + dx * (yp - muyp)
       end where
 
+      _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
+
    end subroutine update_r8
 
    subroutine compute_r4(this, gridcomp, f_x, f_y, counts_f, cov_f, biased, rc)
@@ -244,7 +250,6 @@ contains
       integer(kind=ESMF_KIND_I4), pointer :: counts(:)
       integer :: counts_offset
 
-      _UNUSED_DUMMY(this)
       counts_offset = 1
       if (biased) counts_offset = 0
 
@@ -262,8 +267,10 @@ contains
          covp = MAPL_UNDEF
       end where
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(f_y)
       _RETURN(_SUCCESS)
+
    end subroutine compute_r4
 
    subroutine compute_r8(this, gridcomp, f_x, f_y, counts_f, cov_f, biased, rc)
@@ -284,7 +291,6 @@ contains
       integer(kind=ESMF_KIND_I4), pointer :: counts(:)
       integer :: counts_offset
 
-      _UNUSED_DUMMY(this)
       counts_offset = 1
       if (biased) counts_offset = 0
 
@@ -302,8 +308,10 @@ contains
          covp = MAPL_UNDEF
       end where
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(f_y)
       _RETURN(_SUCCESS)
+
    end subroutine compute_r8
 
 end module mapl3g_WelfordCovarianceKernel

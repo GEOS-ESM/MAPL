@@ -330,8 +330,8 @@ contains
               biased = esmf_HConfigAsLogical(iter, keystring='biased', _RC)
            end if
 
-           var_stat = TimeVariance(gridcomp=gridcomp, f=f_in, var_f=f_out, alarm=alarm, &
-                               algorithm=algorithm, biased=biased, _RC)
+           var_stat = TimeVariance(f=f_in, var_f=f_out, alarm=alarm, &
+                               algorithm=algorithm, biased=biased)
 
            _RETURN(_SUCCESS)
         end function make_variance_stat
