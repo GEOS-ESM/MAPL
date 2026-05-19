@@ -6,6 +6,8 @@ esma_set_this (OVERRIDE MAPL.mp_utils)
 set (srcs
     # MPI error handling
     MAPL_MpiErrorHandling.F90
+    # Compression utilities (MPI-dependent reduction)
+    DownBit.F90
     # Comm splitters
     AbstractCommSplitter.F90
     CommGroupDescription.F90
@@ -102,6 +104,12 @@ set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${t
 add_library (MAPL.profiler INTERFACE)
 target_link_libraries (MAPL.profiler INTERFACE MAPL.mp_utils)
 install (TARGETS MAPL.profiler EXPORT MAPL-targets)
+
+# Backward-compatibility alias for consumers linking MAPL.shared
+# TODO: retire once all consumer repos link MAPL.utils or MAPL.mp_utils directly (#4942)
+add_library (MAPL.shared INTERFACE)
+target_link_libraries (MAPL.shared INTERFACE MAPL.mp_utils)
+install (TARGETS MAPL.shared EXPORT MAPL-targets)
 
 add_subdirectory (profiler/examples)
 if (PFUNIT_FOUND)

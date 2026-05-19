@@ -1,6 +1,6 @@
 esma_set_this (OVERRIDE MAPL.test_utilities)
 
-set(MODULE_DIRECTORY "${esma_include}/Tests")
+set(MODULE_DIRECTORY "${esma_include}/tests")
 
 if (BUILD_WITH_FARGPARSE)
 

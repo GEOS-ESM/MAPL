@@ -21,6 +21,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `esmf_utils/`, `vm/`, `alarm/`, `hconfig/`, `hconfig_utils/`, and
   ESMF-related files from `generic3g/`. Backward-compatibility INTERFACE
   aliases provided for all five former library names.
+- Phase 8 of MAPL v3 directory restructuring (#4905, closes #4942): lowercase
+  remaining top-level directories: `mapl3g/`→`mapl/`, `Python/`→`python/`,
+  `Tests/`→`tests/`. Install paths updated to match (`lib/Python`→`lib/python`,
+  `${esma_include}/Tests`→`${esma_include}/tests`).
+  Dissolve `shared/` directory entirely: `DownBit.F90` moved to `mp_utils/`,
+  `ShaveMantissa.c/.h` moved to `utils/`, `hinterp.F90` deleted (dead code),
+  `MaplShared.F90` deleted (umbrella module replaced by direct `use` of underlying
+  modules in three consumers). All `shared/tests/` pFUnit sources moved to
+  `utils/tests/` and merged into its `CMakeLists.txt`. A backward-compatibility
+  INTERFACE alias `MAPL.shared → MAPL.mp_utils` is provided pending retirement
+  of all internal consumers (tracked in #4942).
 - Phase 7 of MAPL v3 directory restructuring (#4905, closes #4940): rename
   `Apps/`→`apps/`; move pfio demo executables into `pfio/programs/`; rename
   `mp_utils/profiler/demo/`→`mp_utils/profiler/examples/`.
