@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Dissolve `geom/` stub: move `CMakeLists.txt` build logic into
+  `infrastructure/geom/geom/CMakeLists.txt`; remove `add_subdirectory(geom)`
+  from top-level `CMakeLists.txt`. `MAPL.geom` target is now built entirely
+  within `infrastructure/geom/`. Part of the MAPL v3 directory restructuring
+  (#4905).
 - Create `infrastructure/esmf/` (`MAPL.esmf`, Tier 3) consolidating
   `esmf_utils/`, `vm/`, `alarm/`, `hconfig/`, `hconfig_utils/`, and
   ESMF-related files from `generic3g/`. Backward-compatibility INTERFACE
