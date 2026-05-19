@@ -3,7 +3,7 @@
 module mapl3g_ComponentDriver
    use mapl3g_MultiState
    use mapl_ErrorHandlingMod
-   use :: MaplShared, only: KeywordEnforcer
+   use mapl_KeywordEnforcer, only: KeywordEnforcer
    use mapl3g_MultiState
    use :: esmf
    implicit none
@@ -32,7 +32,7 @@ module mapl3g_ComponentDriver
    abstract interface
 
       recursive subroutine I_run(this, unusable, phase_idx, rc)
-         use :: MaplShared, only: KeywordEnforcer
+   use mapl_KeywordEnforcer, only: KeywordEnforcer
          import ComponentDriver
          class(ComponentDriver), target, intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
