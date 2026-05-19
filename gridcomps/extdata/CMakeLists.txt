@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.extdata3g)
+esma_set_this (OVERRIDE MAPL.extdata)
 
 set(srcs
  ExtDataGridComp.F90
