@@ -224,7 +224,6 @@ contains
    end subroutine connect_to_import
 
    subroutine connect_to_export(this, export, actual_pt, rc)
-
       class(VectorClassAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
       type(ActualConnectionPt), intent(in) :: actual_pt
@@ -237,27 +236,11 @@ contains
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
 
+      ! mirror short names since they are required in add_to_state routine
+      this%short_names = export_%short_names
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
-
-   contains
-
-     subroutine mirror(dst, src)
-        real, allocatable, intent(inout) :: dst
-        real, allocatable, intent(in) :: src
-
-        if (.not. allocated(src)) return
-
-        if (.not. allocated(dst)) then
-           dst = src
-           return
-        end if
-
-         ! TODO: Problematic case: both allocated with different values.
-         if (dst /= src) then
-         end if
-      end subroutine mirror
-
    end subroutine connect_to_export
 
    function to_vectorclassaspect_from_poly(aspect, rc) result(vector_aspect)
