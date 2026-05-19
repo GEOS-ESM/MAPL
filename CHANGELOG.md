@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.69.1] - 2026-05-19
+
+### Fixed
+
+- Check before assigning tilelons and tilelats in `MAPL_Locstreamget`
+
 ## [2.69.0] - 2026-05-15
 
 ### Fixed
