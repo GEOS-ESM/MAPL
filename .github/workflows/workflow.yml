@@ -41,7 +41,7 @@ jobs:
           doc-folder: docs/Ford/ci-doc
           deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}
 
-  build_test_mapl_gnu:
+  build_test_mapl_gnu14:
     name: gfortran / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -151,12 +151,34 @@ jobs:
           cmake-generator: ${{ matrix.cmake-generator }}
           fortran-compiler: ifx
 
+  build_test_mapl_ifort_no_optional:
+    name: ifort / Debug / no pFlogger+fArgParse+pFUnit
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    container:
+      image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.13-ifort_2021.13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          filter: blob:none
+
+      - name: Build MAPL without optional packages
+        uses: ./.github/actions/ci-build-and-test-mapl
+        with:
+          cmake-build-type: Debug
+          cmake-generator: Unix Makefiles
+          fortran-compiler: ifort
+          extra-cmake-args: -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DBUILD_WITH_PFUNIT=OFF
+          skip-tests: "true"
+
   build_gcm:
     if: github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ifort, gfortran-14, gfortran-15]
+        compiler: [ifort, ifx, gfortran-14, gfortran-15]
         build-type: [Debug]
     uses: GEOS-ESM/CI-workflows/.github/workflows/geosgcm_build_tests.yml@project/geosgcm
     with:
