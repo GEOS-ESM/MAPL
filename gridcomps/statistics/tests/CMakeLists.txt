@@ -6,7 +6,7 @@ set(test_srcs
 
 add_pfunit_ctest(MAPL.statistics.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL_StatisticsGridComp MAPL.pfunit
+                LINK_LIBRARIES MAPL.statistics MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

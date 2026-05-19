@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `esmf_utils/`, `vm/`, `alarm/`, `hconfig/`, `hconfig_utils/`, and
   ESMF-related files from `generic3g/`. Backward-compatibility INTERFACE
   aliases provided for all five former library names.
+- Phase 6 of MAPL v3 directory restructuring (#4905, closes #4938): rename
+  `gridcomps/` subdirectories from legacy names to canonical lowercase names:
+  `cap3g/`→`cap/`, `History3G/`→`history/`, `ExtData3G/`→`extdata/`,
+  `StatisticsGridComp/`→`statistics/`, `Orbit/`→`orbit/`. CMake target names
+  updated throughout: `MAPL.cap3g`→`MAPL.cap`, `MAPL.history3g`→`MAPL.history`,
+  `MAPL.extdata3g`→`MAPL.extdata`, `MAPL_StatisticsGridComp`→`MAPL.statistics`.
 - Phase 5 of MAPL v3 directory restructuring (#4905, closes #4930): consolidate
   `component/` and the remainder of `generic3g/` (after Phase 4 extractions)
   into `superstructure/component/` and `superstructure/generic/` respectively.
