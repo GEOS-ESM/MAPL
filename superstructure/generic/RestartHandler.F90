@@ -116,7 +116,6 @@ contains
       call o_Clients%post_wait()
 
       _RETURN(_SUCCESS)
-  
    end subroutine write_bundle_
 
    subroutine read_bundle_(this, filename, bundle, rc)

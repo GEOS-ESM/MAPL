@@ -4,7 +4,7 @@ esma_set_this (OVERRIDE MAPL.utils)
 # This library must NOT depend on MPI.
 
 set (srcs
-    # Error handling (MPI-free; MPI handlers in MAPL.shared)
+    # Error handling (MPI-free; MPI handlers in MAPL.mp_utils)
     ErrorHandling.F90
     MAPL_Throw.F90
     hash.c
@@ -36,6 +36,8 @@ set (srcs
     OSUtilities.F90
     # From generic3g/
     Validation.F90
+    # Mantissa shaving (MPI-free compression utility)
+    ShaveMantissa.c
 )
 
 esma_add_library (${this}
