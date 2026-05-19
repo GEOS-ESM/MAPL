@@ -3,7 +3,7 @@ name: Push to main
 on:
   push:
     branches:
-      - main
+      - DO-NOT-USE-main  # Temporarily disabled: main->develop sync turned off
 
 jobs:
   pull_request:
@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
           filter: blob:none
       - name: Run the action
-        uses: devops-infra/action-pull-request@v1.0.2
+        uses: devops-infra/action-pull-request@v1.1.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: main
