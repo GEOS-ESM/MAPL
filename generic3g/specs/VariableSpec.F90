@@ -649,7 +649,6 @@ contains
 
       integer :: status
       character(:), allocatable :: std_name_1, std_name_2
-      character(:), allocatable :: short_name_1, short_name_2
       type(StringVector) :: vector_component_names
       type(VectorBasisKind) :: basis_kind
 
@@ -670,9 +669,8 @@ contains
             call split_name(this%standard_name, std_name_1, std_name_2, _RC)
          end if
          if (this%vector_component_names%size() == 0) then
-            call split_name(this%short_name, short_name_1, short_name_2, _RC)
-            call vector_component_names%push_back(short_name_1)
-            call vector_component_names%push_back(short_name_2)
+            call vector_component_names%push_back("unknown1")
+            call vector_component_names%push_back("unknown2")
          else
             vector_component_names = this%vector_component_names
          end if

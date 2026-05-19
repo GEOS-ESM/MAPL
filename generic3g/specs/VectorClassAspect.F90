@@ -333,7 +333,7 @@ contains
       type(ESMF_State) :: state, substate
       type(ESMF_Field), allocatable :: field_list(:)
       logical :: is_alias
-      character(:), allocatable :: full_name, inner_name, intent, short_name_1, short_name_2
+      character(:), allocatable :: full_name, inner_name, intent
       integer :: idx, status
 
       intent = actual_pt%get_state_intent()
@@ -358,9 +358,8 @@ contains
       ! Also update the names of the components
       call MAPL_FieldBundleGet(this%payload, fieldList=field_list, _RC)
       if (size(field_list) > 0) then ! might be empty if import item
-         call split_name(inner_name, short_name_1, short_name_2, _RC)
-         call ESMF_FieldSet(field_list(1), name=trim(short_name_1), _RC)
-         call ESMF_FieldSet(field_list(2), name=trim(short_name_2), _RC)
+         call ESMF_FieldSet(field_list(1), name=trim(this%short_names%at(1)), _RC)
+         call ESMF_FieldSet(field_list(2), name=trim(this%short_names%at(2)), _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -386,28 +385,5 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
-
-   subroutine split_name(encoded_name, name_1, name_2, rc)
-      character(*), intent(in) :: encoded_name
-      character(:), allocatable, intent(out) :: name_1
-      character(:), allocatable, intent(out) :: name_2
-      integer, optional, intent(out) :: rc
-
-      integer :: idx_open, idx_close, idx_comma
-
-      idx_open = index(encoded_name, '(')
-      idx_close = index(encoded_name, ')')
-      idx_comma = index(encoded_name, ',')
-
-      _ASSERT(idx_open > 0, 'VectorAspect requires standard name to have tuple for the names of the vector  components.')
-      _ASSERT(idx_close > 0, 'VectorAspect requires standard name to have tuple for the names of the vector components.')
-      _ASSERT(idx_comma > idx_open+1, 'VectorAspect requires standard name to have tuple for the names of the vector components.')
-      _ASSERT(idx_comma < idx_close-1, 'VectorAspect requires standard name to have tuple for the names of the vector components.')
-
-      name_1 = encoded_name(idx_open+1:idx_comma-1) // encoded_name(idx_close+1:)
-      name_2 = encoded_name(idx_comma+1:idx_close-1) // encoded_name(idx_close+1:)
-
-      _RETURN(_SUCCESS)
-   end subroutine split_name
 
 end module mapl3g_VectorClassAspect
