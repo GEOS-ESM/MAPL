@@ -1,6 +1,6 @@
-module mapl3g_EsmfUtils_API
-   use mapl3g_UngriddedDim, only: UngriddedDim, make_UngriddedDim => make_ungriddedDim
-   use mapl3g_UngriddedDims, only: UngriddedDims
+module mapl_EsmfUtils_API
+   use mapl_UngriddedDim, only: UngriddedDim, make_UngriddedDim => make_ungriddedDim
+   use mapl_UngriddedDims, only: UngriddedDims
 
    implicit none(type,external)
    private
@@ -8,4 +8,4 @@ module mapl3g_EsmfUtils_API
    public :: UngriddedDim, make_UngriddedDim
    public :: UngriddedDims
 
-end module mapl3g_EsmfUtils_API
+end module mapl_EsmfUtils_API

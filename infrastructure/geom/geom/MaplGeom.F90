@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module mapl3g_MaplGeom
-   use mapl3g_GeomSpec
-   use mapl3g_VectorBasis
-   use mapl3g_GeomFactory
+module mapl_MaplGeom
+   use mapl_GeomSpec
+   use mapl_VectorBasis
+   use mapl_GeomFactory
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
    use gftl2_StringVector
-   use mapl3g_StringDictionary
+   use mapl_StringDictionary
    implicit none
    private
 
@@ -108,6 +108,6 @@ module mapl3g_MaplGeom
 
    end interface
 
-end module mapl3g_MaplGeom
+end module mapl_MaplGeom
 
 

@@ -1,15 +1,15 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) add_child_by_spec_smod
+submodule (mapl_OuterMetaComponent) add_child_by_spec_smod
 
-   use mapl3g_ComponentSpecParser
-   use mapl3g_GenericGridComp
-   use mapl3g_ChildSpec
-   use mapl3g_ChildSpecMap
-   use mapl3g_GenericGridComp
-   use mapl3g_Validation
-   use mapl3g_Multistate
-   use mapl3g_HConfigUtilities, only: merge_hconfig
+   use mapl_ComponentSpecParser
+   use mapl_GenericGridComp
+   use mapl_ChildSpec
+   use mapl_ChildSpecMap
+   use mapl_GenericGridComp
+   use mapl_Validation
+   use mapl_Multistate
+   use mapl_HConfigUtilities, only: merge_hconfig
    use mapl_ErrorHandling
    use esmf
 

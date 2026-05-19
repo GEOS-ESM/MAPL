@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-submodule (mapl3g_MaplGeom) new_MaplGeom_smod
-   use mapl3g_GeomSpec
-   use mapl3g_VectorBasis
-   use mapl3g_GeomUtilities
+submodule (mapl_MaplGeom) new_MaplGeom_smod
+   use mapl_GeomSpec
+   use mapl_VectorBasis
+   use mapl_GeomUtilities
    use mapl_ErrorHandlingMod
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Info

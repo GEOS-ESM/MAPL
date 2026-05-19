@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GeomManager) get_mapl_geom_smod
+submodule (mapl_GeomManager) get_mapl_geom_smod
 
-   use mapl3g_GeomUtilities, only: MAPL_GeomGetId
+   use mapl_GeomUtilities, only: MAPL_GeomGetId
 
    implicit none
 

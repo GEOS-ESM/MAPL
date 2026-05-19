@@ -1,10 +1,10 @@
 #include "MAPL.h"
-module mapl3g_FieldCondensedArray
-   use mapl3g_FieldCondensedArray_private, only: ARRAY_RANK, get_fptr_shape_private
+module mapl_FieldCondensedArray
+   use mapl_FieldCondensedArray_private, only: ARRAY_RANK, get_fptr_shape_private
    use mapl_FieldPointerUtilities, only: FieldGetLocalElementCount, assign_fptr
-   use mapl3g_VerticalStaggerLoc
+   use mapl_VerticalStaggerLoc
    use mapl_ExceptionHandling
-   use mapl3g_FieldGet
+   use mapl_FieldGet
    use ESMF, only: ESMF_Field, ESMF_FieldGet
    use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I8
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer
@@ -74,4 +74,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_fptr_shape
 
-end module mapl3g_FieldCondensedArray
+end module mapl_FieldCondensedArray

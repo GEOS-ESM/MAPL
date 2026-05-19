@@ -9,7 +9,7 @@
 
 #include "MAPL.h"
 
-module mapl3g_GridGetHorzIJIndex
+module mapl_GridGetHorzIJIndex
 
    use ESMF, only: ESMF_KIND_R8, ESMF_Grid
    use MAPL_ErrorHandling, only: MAPL_Assert
@@ -47,4 +47,4 @@ contains
       _UNUSED_DUMMY(latR8)
    end subroutine get_horz_ij_index
 
-end module mapl3g_GridGetHorzIJIndex
+end module mapl_GridGetHorzIJIndex

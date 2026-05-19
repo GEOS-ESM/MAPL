@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl3g_CallbackMap_private
-   use mapl3g_ESMF_Interfaces, only: I_CallBackMethod
+module mapl_CallbackMap_private
+   use mapl_ESMF_Interfaces, only: I_CallBackMethod
    implicit none(type,external)
    private
 
@@ -11,10 +11,10 @@ module mapl3g_CallbackMap_private
       procedure(I_CallBackMethod), pointer, nopass :: userRoutine
    end type CallbackMethodWrapper
 
-end module mapl3g_CallbackMap_private
+end module mapl_CallbackMap_private
 
-module mapl3g_CallbackMap
-   use mapl3g_CallbackMap_private, only: CallbackMethodWrapper
+module mapl_CallbackMap
+   use mapl_CallbackMap_private, only: CallbackMethodWrapper
 
 #define Key __CHARACTER_DEFERRED
 #define T CallbackMethodWrapper
@@ -30,15 +30,15 @@ module mapl3g_CallbackMap
 #undef T
 #undef Key
 
-end module mapl3g_CallbackMap
+end module mapl_CallbackMap
 
-module mapl3g_StateAddMethod
+module mapl_StateAddMethod
    use ESMF, only: ESMF_State, ESMF_MethodAdd
    use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoIsPresent, ESMF_InfoSet, ESMF_InfoGet
    use ESMF, only: ESMF_KIND_I4
-   use mapl3g_CallbackMap
-   use mapl3g_ESMF_Interfaces, only: I_CallBackMethod
-   use mapl3g_CallbackMap_private, only: CallbackMethodWrapper
+   use mapl_CallbackMap
+   use mapl_ESMF_Interfaces, only: I_CallBackMethod
+   use mapl_CallbackMap_private, only: CallbackMethodWrapper
    use mapl_ErrorHandling
    implicit none(type,external)
    private
@@ -107,4 +107,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_callbacks
 
-end module mapl3g_StateAddMethod
+end module mapl_StateAddMethod

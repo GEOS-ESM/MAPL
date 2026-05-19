@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_LonAxis) get_lon_corners_smod
+submodule (mapl_LonAxis) get_lon_corners_smod
    use mapl_RangeMod
    use mapl_ErrorHandling
    use esmf

@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl3g_UngriddedDims
-   use mapl3g_InfoUtilities
-   use mapl3g_ESMF_Info_Keys
-   use mapl3g_UngriddedDimVector
-   use mapl3g_UngriddedDim
-   use mapl3g_LU_Bound
+module mapl_UngriddedDims
+   use mapl_InfoUtilities
+   use mapl_ESMF_Info_Keys
+   use mapl_UngriddedDimVector
+   use mapl_UngriddedDim
+   use mapl_LU_Bound
    use mapl_ErrorHandling
    use esmf, only: ESMF_Info
    use esmf, only: ESMF_InfoCreate
@@ -266,5 +266,5 @@ contains
       is_mirror = this%is_mirror_
    end function is_mirror
 
-end module mapl3g_UngriddedDims
+end module mapl_UngriddedDims
 

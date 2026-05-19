@@ -4,13 +4,13 @@
 
 #include "MAPL.h"
 
-module mapl3g_FieldDelta
+module mapl_FieldDelta
 
-   use mapl3g_FieldInfo
-   use mapl3g_FieldGet
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_InfoUtilities
-   use mapl3g_FieldFill, only: FieldFill
+   use mapl_FieldInfo
+   use mapl_FieldGet
+   use mapl_VerticalStaggerLoc
+   use mapl_InfoUtilities
+   use mapl_FieldFill, only: FieldFill
    use mapl_FieldPointerUtilities
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -382,4 +382,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine MAPL_EmptyField
 
-end module mapl3g_FieldDelta
+end module mapl_FieldDelta

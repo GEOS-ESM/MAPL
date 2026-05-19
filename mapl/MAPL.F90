@@ -1,9 +1,9 @@
 ! Public interface (package) to MAPL
 module MAPL
-   use mapl3g_VM_API
-   use mapl3g_MaplFramework
+   use mapl_VM_API
+   use mapl_MaplFramework
    use generic3g
-   use mapl3g_State_API
+   use mapl_State_API
    use mapl_String
    use mapl_StringUtilities
    use mapl_FileSystemUtilities
@@ -27,15 +27,15 @@ module MAPL
    use mapl_DownbitMod
    use mapl_sleepMod
    use pfio
-   use mapl3g_geom_API
-   use mapl3g_hconfig_API
-   use mapl3g_VerticalGrid_API
-   use mapl3g_EsmfUtils_API
-   use mapl3g_Field_API
-   use mapl3g_FieldBundle_API
-   use mapl3g_Utilities
-   use mapl3g_RegridderMgr_API
-   use mapl3g_Generic3g_API
+   use mapl_geom_API
+   use mapl_hconfig_API
+   use mapl_VerticalGrid_API
+   use mapl_EsmfUtils_API
+   use mapl_Field_API
+   use mapl_FieldBundle_API
+   use mapl_Utilities
+   use mapl_RegridderMgr_API
+   use mapl_Generic3g_API
    use MAPL_PythonBridge
    use mapl_base3g
    use mapl_Profiler, initialize_profiler => initialize, finalize_profiler => finalize

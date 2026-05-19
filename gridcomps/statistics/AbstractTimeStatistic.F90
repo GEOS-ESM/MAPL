@@ -1,7 +1,7 @@
-module mapl3g_AbstractTimeStatistic
+module mapl_AbstractTimeStatistic
    use MAPL
    use ESMF
-   use mapl3g_SimpleAlarm, only: SimpleAlarm
+   use mapl_SimpleAlarm, only: SimpleAlarm
    implicit none(type,external)
    private
 
@@ -59,4 +59,4 @@ module mapl3g_AbstractTimeStatistic
 
    end interface
 
-end module mapl3g_AbstractTimeStatistic
+end module mapl_AbstractTimeStatistic

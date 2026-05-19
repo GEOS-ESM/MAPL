@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_GridGet
+module mapl_GridGet
 
    use esmf
    use mapl_KeywordEnforcer
@@ -175,4 +175,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine grid_get_coordinates_r8ptr
 
-end module mapl3g_GridGet
+end module mapl_GridGet

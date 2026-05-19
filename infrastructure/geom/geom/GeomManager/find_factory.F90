@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GeomManager) find_factory_smod
+submodule (mapl_GeomManager) find_factory_smod
 
    implicit none
 

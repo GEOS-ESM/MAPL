@@ -1,4 +1,4 @@
-module mapl3g_CoordinateAxis
+module mapl_CoordinateAxis
    use mapl_RangeMod
    use esmf, only: ESMF_KIND_R8
    use pfio
@@ -106,5 +106,5 @@ module mapl3g_CoordinateAxis
 
    end interface
 
-end module mapl3g_CoordinateAxis
+end module mapl_CoordinateAxis
 

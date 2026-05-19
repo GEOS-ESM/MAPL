@@ -1,4 +1,4 @@
-module mapl3g_StateItem
+module mapl_StateItem
    use esmf
    implicit none
    private

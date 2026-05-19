@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GeomAspect) make_transform_smod
+submodule (mapl_GeomAspect) make_transform_smod
 
-   use mapl3g_VerticalGridAspect
-   use mapl3g_VerticalStaggerLoc
+   use mapl_VerticalGridAspect
+   use mapl_VerticalStaggerLoc
    use mapl_NormalizationType, only: NORMALIZE_NONE, operator(==)
 
    implicit none(type,external)

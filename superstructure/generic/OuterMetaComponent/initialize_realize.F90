@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) initialize_realize_smod
-   use mapl3g_Multistate
+submodule (mapl_OuterMetaComponent) initialize_realize_smod
+   use mapl_Multistate
    use mapl_GenericPhases
    use mapl_ErrorHandling
    implicit none(type,external)

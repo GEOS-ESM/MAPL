@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) get_hconfig_smod
+submodule (mapl_OuterMetaComponent) get_hconfig_smod
    implicit none(type,external)
 
 contains

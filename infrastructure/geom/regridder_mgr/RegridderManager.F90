@@ -1,16 +1,16 @@
 #include "MAPL.h"
 
-module mapl3g_RegridderManager
+module mapl_RegridderManager
 
-   use mapl3g_Geom_API, only: GeomManager, get_geom_manager
-   use mapl3g_RegridderSpec
-   use mapl3g_Regridder
-   use mapl3g_NullRegridder
-   use mapl3g_RegridderFactory
-   use mapl3g_RegridderFactoryVector
-   use mapl3g_RegridderSpecVector
-   use mapl3g_RegridderVector
-   use mapl3g_EsmfRegridderFactory
+   use mapl_Geom_API, only: GeomManager, get_geom_manager
+   use mapl_RegridderSpec
+   use mapl_Regridder
+   use mapl_NullRegridder
+   use mapl_RegridderFactory
+   use mapl_RegridderFactoryVector
+   use mapl_RegridderSpecVector
+   use mapl_RegridderVector
+   use mapl_EsmfRegridderFactory
    use ESMF, only: ESMF_GeomGet, ESMF_GeomType_Flag, ESMF_GEOMTYPE_LOCSTREAM
    use mapl_ErrorHandlingMod
 
@@ -172,4 +172,4 @@ contains
       regridder_mgr => regridder_manager
    end function get_regridder_manager
 
-end module mapl3g_RegridderManager
+end module mapl_RegridderManager

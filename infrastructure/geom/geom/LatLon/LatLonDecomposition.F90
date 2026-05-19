@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl3g_LatLonDecomposition
+module mapl_LatLonDecomposition
 
-   use mapl3g_LonAxis
-   use mapl3g_LatAxis
+   use mapl_LonAxis
+   use mapl_LatAxis
    use mapl_Partition
    use mapl_KeywordEnforcer
    use esmf
@@ -167,5 +167,5 @@ contains
       not_equal_to = .not. (decomp1 == decomp2)
    end function not_equal_to
 
-end module mapl3g_LatLonDecomposition
+end module mapl_LatLonDecomposition
 

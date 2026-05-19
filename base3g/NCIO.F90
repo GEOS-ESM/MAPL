@@ -14,13 +14,13 @@ module mapl_NCIO
   use mapl_FileIOShared, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, MAPL_TileMaskGet
   use mapl_FileIOShared, only: ArrayScatterShm
   use ESMF
-  use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
+  use mapl_GridGetGlobal, only: GridGetGlobalCellCountPerDim
   use MAPL_RangeMod, only: MAPL_Range
-  use mapl3g_GridGet, only: geom_GridGet => GridGet
+  use mapl_GridGet, only: geom_GridGet => GridGet
   use MAPL_CommsMod
-   use mapl3g_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
+   use mapl_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
   use MAPL_SortMod
-  use mapl3g_EASEConversion, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
+  use mapl_EASEConversion, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
 
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling

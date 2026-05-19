@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl3g_FieldBundleCreate
+module mapl_FieldBundleCreate
 
-   use mapl3g_FieldBundleType_Flag
-   use mapl3g_FieldBundleSet
+   use mapl_FieldBundleType_Flag
+   use mapl_FieldBundleSet
    use mapl_VectorBasisKind
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -122,4 +122,4 @@ contains
       _RETURN(_SUCCESS)
    end function bundles_are_aliased
 
-end module mapl3g_FieldBundleCreate
+end module mapl_FieldBundleCreate

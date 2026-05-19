@@ -4,18 +4,18 @@
 !                                 MAPL Component                              !
 !------------------------------------------------------------------------------
 !>
-!### MODULE: `mapl3g_MaxMin`
+!### MODULE: `mapl_MaxMin`
 !
 ! Author: GMAO SI-Team
 !
-! `mapl3g_MaxMin` --- Global Max/Min of Arrays
+! `mapl_MaxMin` --- Global Max/Min of Arrays
 !
 ! This module implements functions for calculating/printing out the global min/max
 ! of fortran arrays. Derived from GEOS-4 pmaxmin() functions.
 
 #include "MAPL.h"
 
-module mapl3g_MaxMin
+module mapl_MaxMin
 
    use mpi
    use, intrinsic :: iso_fortran_env, only: real32, real64
@@ -137,4 +137,4 @@ contains
       _RETURN(_SUCCESS)
    end function pmaxmin3d_r8
 
-end module mapl3g_MaxMin
+end module mapl_MaxMin

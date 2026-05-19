@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl3g_ConvertUnitsTransform
-   use mapl3g_TransformId
-   use mapl3g_StateItem
-   use mapl3g_ExtensionTransform
-   use mapl3g_ExtensionTransformUtils, only: bundle_types_valid
+module mapl_ConvertUnitsTransform
+   use mapl_TransformId
+   use mapl_StateItem
+   use mapl_ExtensionTransform
+   use mapl_ExtensionTransformUtils, only: bundle_types_valid
    use udunits2f, only: UDUNITS_Converter => Converter
    use udunits2f, only: UDUNITS_GetConverter => get_converter
    use udunits2f, only: UDUNITS_Initialize => Initialize
@@ -157,4 +157,4 @@ contains
 
    end function get_transformId
 
-end module mapl3g_ConvertUnitsTransform
+end module mapl_ConvertUnitsTransform

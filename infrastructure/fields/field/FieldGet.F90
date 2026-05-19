@@ -1,19 +1,19 @@
 #include "MAPL.h"
 
-module mapl3g_FieldGet
+module mapl_FieldGet
 
-   use mapl3g_VerticalGrid_API
-   use mapl3g_VerticalAlignment
-   use mapl3g_FieldInfo
-   use mapl3g_StateItemAllocation
+   use mapl_VerticalGrid_API
+   use mapl_VerticalAlignment
+   use mapl_FieldInfo
+   use mapl_StateItemAllocation
    use mapl_QuantityTypeMetadata
    use mapl_NormalizationMetadata
    use mapl_ConservationMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
-   use mapl3g_UngriddedDims
-   use mapl3g_VerticalGridManager
-   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec
+   use mapl_UngriddedDims
+   use mapl_VerticalGridManager
+   use mapl_HorizontalDimsSpec, only: HorizontalDimsSpec
    use esmf
 
    implicit none (type,external)
@@ -120,4 +120,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_get
 
-end module mapl3g_FieldGet
+end module mapl_FieldGet

@@ -2,11 +2,11 @@
 ! See external setservices() procedure at end of file
 
 module ProtoStatGridComp
-   use mapl3g_State_API
-   use mapl3g_Field_API
-   use mapl3g_Generic
-   use mapl3g_esmf_subset
-   use mapl3g_VerticalStaggerLoc
+   use mapl_State_API
+   use mapl_Field_API
+   use mapl_Generic
+   use mapl_esmf_subset
+   use mapl_VerticalStaggerLoc
    use mapl_ErrorHandling
    use esmf
    implicit none(type,external)
@@ -18,7 +18,7 @@ module ProtoStatGridComp
 contains
 
    subroutine setservices(gc, rc)
-      use mapl3g_Generic, only: MAPL_GridCompSetEntryPoint
+      use mapl_Generic, only: MAPL_GridCompSetEntryPoint
       type(ESMF_GridComp) :: gc
       integer, intent(out) :: rc
 

@@ -32,7 +32,7 @@ module mapl_base3g
           MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax, &
           MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
-   use mapl3g_FileIO, only: WRITE_PARALLEL
+   use mapl_FileIO, only: WRITE_PARALLEL
    use mapl_SimpleBundleMod_impl, only: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint, &
         MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
    use mapl_FileIOShared, only: ArrDescr, ArrDescrInit, ArrDescrSet

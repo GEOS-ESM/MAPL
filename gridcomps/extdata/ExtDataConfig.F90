@@ -1,26 +1,26 @@
 #include "MAPL.h"
 
-module mapl3g_ExtDataConfig
+module mapl_ExtDataConfig
 
    use ESMF
    use PFIO
    use gFTL2_StringVector
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use mapl3g_ExtDataCollection
-   use mapl3g_ExtDataCollectionMap
-   use mapl3g_ExtDataRule
-   use mapl3g_ExtDataRuleMap
-   use mapl3g_ExtDataDerived
-   use mapl3g_ExtDataDerivedMap
-   use mapl3g_ExtDataConstants
-   use mapl3g_ExtDataSample
-   use mapl3g_ExtDataSampleMap
-   use mapl3g_PrimaryExport
-   use mapl3g_geomio
-   use mapl3g_HConfig_API, only: mapl_HConfigAsTime
-   use mapl3g_AbstractDataSetFileSelector
-   use mapl3g_NonClimDataSetFileSelector
+   use mapl_ExtDataCollection
+   use mapl_ExtDataCollectionMap
+   use mapl_ExtDataRule
+   use mapl_ExtDataRuleMap
+   use mapl_ExtDataDerived
+   use mapl_ExtDataDerivedMap
+   use mapl_ExtDataConstants
+   use mapl_ExtDataSample
+   use mapl_ExtDataSampleMap
+   use mapl_PrimaryExport
+   use mapl_geomio
+   use mapl_HConfig_API, only: mapl_HConfigAsTime
+   use mapl_AbstractDataSetFileSelector
+   use mapl_NonClimDataSetFileSelector
 
    implicit none
    private
@@ -479,4 +479,4 @@ contains
       _RETURN(_SUCCESS)
    end function make_PrimaryExport
 
-end module mapl3g_ExtDataConfig
+end module mapl_ExtDataConfig

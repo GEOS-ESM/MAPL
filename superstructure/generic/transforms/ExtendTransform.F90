@@ -10,9 +10,9 @@
 ! extensions for each.
 
 
-module mapl3g_ExtendTransform
-   use mapl3g_TransformId
-   use mapl3g_ExtensionTransform
+module mapl_ExtendTransform
+   use mapl_TransformId
+   use mapl_ExtensionTransform
    use mapl_ErrorHandling
    implicit none(type,external)
    private
@@ -67,4 +67,4 @@ contains
       _UNUSED_DUMMY(this)
    end function get_transformId
 
-end module mapl3g_ExtendTransform
+end module mapl_ExtendTransform

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_EASEDecomposition
+module mapl_EASEDecomposition
 
    use mapl_Partition
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
@@ -137,4 +137,4 @@ contains
       neq = .not. (a == b)
    end function not_equal_to
 
-end module mapl3g_EASEDecomposition
+end module mapl_EASEDecomposition

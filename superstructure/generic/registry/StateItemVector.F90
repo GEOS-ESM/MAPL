@@ -1,5 +1,5 @@
-module mapl3g_StateItemVector
-   use mapl3g_StateItemSpec, only: StateItemSpec
+module mapl_StateItemVector
+   use mapl_StateItemSpec, only: StateItemSpec
   
 #define T StateItemSpec
 #define T_polymorphic
@@ -13,4 +13,4 @@ module mapl3g_StateItemVector
 #undef Vector
 #undef VectorIterator
   
-end module mapl3g_StateItemVector
+end module mapl_StateItemVector

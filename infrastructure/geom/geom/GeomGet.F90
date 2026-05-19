@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_GeomGet
+module mapl_GeomGet
 
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -49,4 +49,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine geom_get
 
-end module mapl3g_GeomGet
+end module mapl_GeomGet

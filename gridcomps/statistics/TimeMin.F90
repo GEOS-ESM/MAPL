@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module mapl3g_TimeMin
+module mapl_TimeMin
 
-   use mapl3g_AbstractTimeStatistic
+   use mapl_AbstractTimeStatistic
    use MAPL
    use ESMF
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
-   use mapl3g_SimpleAlarm, only: SimpleAlarm
+   use mapl_SimpleAlarm, only: SimpleAlarm
 
    implicit none(type,external)
    private
@@ -328,4 +328,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine advertise_time_min_internal_fields
 
-end module mapl3g_TimeMin
+end module mapl_TimeMin

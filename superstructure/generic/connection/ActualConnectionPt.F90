@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl3g_ActualConnectionPt
-   use mapl3g_VirtualConnectionPt
+module mapl_ActualConnectionPt
+   use mapl_VirtualConnectionPt
    use mapl_KeywordEnforcer
    implicit none(type,external)
    private
@@ -251,4 +251,4 @@ contains
       
    end function is_represented_in
 
-end module mapl3g_ActualConnectionPt
+end module mapl_ActualConnectionPt

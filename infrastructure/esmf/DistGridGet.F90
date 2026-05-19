@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_DistGridGet
+module mapl_DistGridGet
 
    use ESMF, only: ESMF_DistGrid, ESMF_DistGridGet
    use MAPL_ErrorHandlingMod
@@ -93,4 +93,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine dist_grid_get
 
-end module mapl3g_DistGridGet
+end module mapl_DistGridGet

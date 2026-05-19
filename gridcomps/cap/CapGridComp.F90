@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_CapGridComp
+module mapl_CapGridComp
 
    use :: generic3g
    use :: mapl_ErrorHandling
@@ -101,4 +101,4 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine run
 
-end module mapl3g_CapGridComp
+end module mapl_CapGridComp

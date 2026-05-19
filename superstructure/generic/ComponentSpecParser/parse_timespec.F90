@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl3g_ComponentSpecParser) parse_timespec_smod
-   use mapl3g_HConfig_API
+submodule (mapl_ComponentSpecParser) parse_timespec_smod
+   use mapl_HConfig_API
    implicit none(type,external)
    
 contains

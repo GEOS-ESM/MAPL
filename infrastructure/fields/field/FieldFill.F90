@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl3g_FieldFill
-   use mapl3g_FieldFillDefault
+module mapl_FieldFill
+   use mapl_FieldFillDefault
    use mapl_FieldPointerUtilities, only: assign_fptr
    use mapl_ErrorHandling
    use esmf
@@ -53,4 +53,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine field_fill
 
-end module mapl3g_FieldFill
+end module mapl_FieldFill

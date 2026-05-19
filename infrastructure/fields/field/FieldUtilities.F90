@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
 module MAPL_FieldUtilities
-   use mapl3g_FieldInfo
+   use mapl_FieldInfo
    use MAPL_ErrorHandlingMod
    use MAPL_FieldPointerUtilities
-   use mapl3g_InfoUtilities
-   use mapl3g_UngriddedDims
-   use mapl3g_LU_Bound
+   use mapl_InfoUtilities
+   use mapl_UngriddedDims
+   use mapl_LU_Bound
    use mapl_KeywordEnforcer
    use esmf
 

@@ -1,16 +1,16 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GeomManager) new_GeomManager_smod
+submodule (mapl_GeomManager) new_GeomManager_smod
 
    implicit none
 
 contains
 
    module function new_GeomManager() result(mgr)
-      use mapl3g_LatLonGeomFactory
-      use mapl3g_CubedSphereGeomFactory
-      use mapl3g_LocStreamGeomFactory
-      use mapl3g_XYGeomFactory
+      use mapl_LatLonGeomFactory
+      use mapl_CubedSphereGeomFactory
+      use mapl_LocStreamGeomFactory
+      use mapl_XYGeomFactory
       type(GeomManager) :: mgr
 
       type(LatLonGeomFactory)      :: latlon_factory

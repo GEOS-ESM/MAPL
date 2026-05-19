@@ -1,15 +1,15 @@
-module mapl3g_Field_API
-   use mapl3g_FieldGet, only: MAPL_FieldGet => FieldGet
-   use mapl3g_FieldSet, only: MAPL_FieldSet => FieldSet
-   use mapl3g_FieldFill, only: MAPL_FieldFill => FieldFill
-   use mapl3g_FieldCreate
-   use mapl3g_StateItemAllocation
-   use mapl3g_RestartModes
+module mapl_Field_API
+   use mapl_FieldGet, only: MAPL_FieldGet => FieldGet
+   use mapl_FieldSet, only: MAPL_FieldSet => FieldSet
+   use mapl_FieldFill, only: MAPL_FieldFill => FieldFill
+   use mapl_FieldCreate
+   use mapl_StateItemAllocation
+   use mapl_RestartModes
    use mapl_FieldPointerUtilities, only: MAPL_AssignFptr => assign_fptr
    use mapl_FieldPointerUtilities, only: MAPL_FieldClone => FieldClone
    ! Internal info should not be exposed to users
-   use mapl3g_FieldInfo
+   use mapl_FieldInfo
 
    public :: MAPL_FieldClone
 
-end module mapl3g_Field_API
+end module mapl_Field_API

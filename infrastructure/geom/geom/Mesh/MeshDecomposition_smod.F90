@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_MeshDecomposition) MeshDecomposition_smod
+submodule (mapl_MeshDecomposition) MeshDecomposition_smod
 
    use mapl_Partition
    use mapl_ErrorHandlingMod

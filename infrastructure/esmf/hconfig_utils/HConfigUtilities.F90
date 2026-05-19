@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_HConfigUtilities
+module mapl_HConfigUtilities
 
    use esmf, only: ESMF_HConfig, ESMF_HConfigIter, ESMF_HConfigIterBegin
    use esmf, only: ESMF_HConfigIterEnd, ESMF_HConfigIterLoop
@@ -62,5 +62,5 @@ contains
       _RETURN(_SUCCESS)
    end function merge_hconfig
 
-end module mapl3g_HConfigUtilities
+end module mapl_HConfigUtilities
 

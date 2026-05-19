@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GeomManager) make_mapl_geom_from_spec_smod
+submodule (mapl_GeomManager) make_mapl_geom_from_spec_smod
 
    implicit none
 
@@ -8,7 +8,7 @@ contains
    
    module function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)
       use gftl2_StringVector
-      use mapl3g_StringDictionary
+      use mapl_StringDictionary
       type(MaplGeom) :: mapl_geom
       class(GeomManager), target, intent(inout) :: this
       class(GeomSpec), intent(in) :: spec

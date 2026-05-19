@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) initialize_modify_advertised_smod
+submodule (mapl_OuterMetaComponent) initialize_modify_advertised_smod
    use mapl_GenericPhases
-   use mapl3g_MultiState
-   use mapl3g_Connection
-   use mapl3g_ConnectionVector, only: ConnectionVectorIterator
-   use mapl3g_ConnectionVector, only: operator(/=)
+   use mapl_MultiState
+   use mapl_Connection
+   use mapl_ConnectionVector, only: ConnectionVectorIterator
+   use mapl_ConnectionVector, only: operator(/=)
    use mapl_ErrorHandling
    implicit none(type,external)
 

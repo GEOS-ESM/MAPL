@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GridGet) grid_get_corners_smod
+submodule (mapl_GridGet) grid_get_corners_smod
 
    use mapl_Constants
    use esmf

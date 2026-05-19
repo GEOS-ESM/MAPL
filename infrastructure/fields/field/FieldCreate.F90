@@ -1,23 +1,23 @@
 #include "MAPL.h"
 
-module mapl3g_FieldCreate
+module mapl_FieldCreate
 
-   use mapl3g_VerticalGrid_API
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalAlignment
-   use mapl3g_FieldInfo
-   use mapl3g_FieldSet
-   use mapl3g_FieldGet
-   use mapl3g_UngriddedDims
-   use mapl3g_HorizontalDimsSpec
-   use mapl3g_StateItemAllocation
-   use mapl3g_LU_Bound
-   use mapl3g_FieldFill, only: FieldFill
+   use mapl_VerticalGrid_API
+   use mapl_VerticalStaggerLoc
+   use mapl_VerticalAlignment
+   use mapl_FieldInfo
+   use mapl_FieldSet
+   use mapl_FieldGet
+   use mapl_UngriddedDims
+   use mapl_HorizontalDimsSpec
+   use mapl_StateItemAllocation
+   use mapl_LU_Bound
+   use mapl_FieldFill, only: FieldFill
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl_InternalConstants, only: MAPL_UNDEFINED_REAL
    use esmf, MAPL_FieldEmptyCreate => ESMF_FieldEmptyCreate
-   use mapl3g_BasicVerticalGrid, only: BasicVerticalGrid, BasicVerticalGridSpec
+   use mapl_BasicVerticalGrid, only: BasicVerticalGrid, BasicVerticalGridSpec
 
    implicit none(type,external)
    private
@@ -366,4 +366,4 @@ contains
       _RETURN(_SUCCESS)
    end function fields_are_aliased
 
-end module mapl3g_FieldCreate
+end module mapl_FieldCreate

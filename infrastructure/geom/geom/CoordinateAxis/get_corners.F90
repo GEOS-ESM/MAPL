@@ -1,5 +1,5 @@
 #include "MAPL.h"
-submodule (mapl3g_CoordinateAxis) get_corners_smod
+submodule (mapl_CoordinateAxis) get_corners_smod
    implicit none(type,external)
    
 contains

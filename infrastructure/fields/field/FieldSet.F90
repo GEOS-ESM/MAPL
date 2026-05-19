@@ -1,22 +1,22 @@
 #include "MAPL.h"
 
-module mapl3g_FieldSet
+module mapl_FieldSet
 
-   use mapl3g_VerticalGrid_API
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalAlignment
-   use mapl3g_FieldInfo
-   use mapl3g_FieldGet
-   use mapl3g_FieldDelta
-   use mapl3g_StateItemAllocation
+   use mapl_VerticalGrid_API
+   use mapl_VerticalStaggerLoc
+   use mapl_VerticalAlignment
+   use mapl_FieldInfo
+   use mapl_FieldGet
+   use mapl_FieldDelta
+   use mapl_StateItemAllocation
    use mapl_QuantityTypeMetadata
    use mapl_NormalizationMetadata
    use mapl_ConservationMetadata
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl_FieldPointerUtilities, only: FieldGetLocalElementCount
-   use mapl3g_UngriddedDims
-   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec
+   use mapl_UngriddedDims
+   use mapl_HorizontalDimsSpec, only: HorizontalDimsSpec
    use esmf
    use gftl2_StringVector
 
@@ -148,4 +148,4 @@ contains
       _UNUSED_DUMMY(attributes)
    end subroutine field_set
 
-end module mapl3g_FieldSet
+end module mapl_FieldSet

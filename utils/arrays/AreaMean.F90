@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_AreaMean
+module mapl_AreaMean
 
    use mpi
    use, intrinsic :: iso_fortran_env, only: real32, real64
@@ -146,4 +146,4 @@ contains
       _RETURN(_SUCCESS)
    end function AreaMean_2d_r8
 
-end module mapl3g_AreaMean
+end module mapl_AreaMean

@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl3g_GeomGetHorzIJIndex
+module mapl_GeomGetHorzIJIndex
 
    use ESMF, only: ESMF_Geom, ESMF_KIND_R4, ESMF_KIND_R8
-   use mapl3g_MaplGeom, only: MaplGeom
-   use mapl3g_GeomSpec, only: GeomSpec
-   use mapl3g_GeomManager, only: get_mapl_geom
+   use mapl_MaplGeom, only: MaplGeom
+   use mapl_GeomSpec, only: GeomSpec
+   use mapl_GeomManager, only: get_mapl_geom
    use MAPL_ErrorHandling, only: MAPL_Verify, MAPL_Return
 
    implicit none(type, external)
@@ -60,4 +60,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_horz_ij_index_r8
 
-end module mapl3g_GeomGetHorzIJIndex
+end module mapl_GeomGetHorzIJIndex

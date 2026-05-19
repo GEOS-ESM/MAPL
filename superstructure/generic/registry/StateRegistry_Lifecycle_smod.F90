@@ -7,8 +7,8 @@
 ! - num_owned_items: Count owned items
 ! - write_formatted: Formatted output for debugging
 
-submodule (mapl3g_StateRegistry) StateRegistry_Lifecycle_smod
-   use mapl3g_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
+submodule (mapl_StateRegistry) StateRegistry_Lifecycle_smod
+   use mapl_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
    implicit none(type,external)
 
 contains

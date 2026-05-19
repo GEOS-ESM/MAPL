@@ -1,6 +1,6 @@
-module mapl3g_VirtualPtStateItemPtrMap
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_StateItemSpec
+module mapl_VirtualPtStateItemPtrMap
+   use mapl_VirtualConnectionPt
+   use mapl_StateItemSpec
 
 #define Key VirtualConnectionPt
 #define Key_LT(a,b) (a < b)
@@ -20,4 +20,4 @@ module mapl3g_VirtualPtStateItemPtrMap
 #undef T
 #undef Key
 
-end module mapl3g_VirtualPtStateItemPtrMap
+end module mapl_VirtualPtStateItemPtrMap

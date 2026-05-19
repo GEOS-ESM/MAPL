@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-module mapl3g_XYTestHelper
+module mapl_XYTestHelper
    use pfio
    use mapl_ErrorHandlingMod
    use, intrinsic :: iso_fortran_env, only: REAL64
@@ -190,4 +190,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine create_xy_file_with_undef
 
-end module mapl3g_XYTestHelper
+end module mapl_XYTestHelper

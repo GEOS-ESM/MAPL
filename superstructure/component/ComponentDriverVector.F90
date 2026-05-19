@@ -1,5 +1,5 @@
-module mapl3g_ComponentDriverVector
-   use mapl3g_ComponentDriver
+module mapl_ComponentDriverVector
+   use mapl_ComponentDriver
 
 #define T ComponentDriver
 #define T_polymorphic
@@ -13,4 +13,4 @@ module mapl3g_ComponentDriverVector
 #undef T_polymorphic
 #undef T
 
-end module mapl3g_ComponentDriverVector
+end module mapl_ComponentDriverVector

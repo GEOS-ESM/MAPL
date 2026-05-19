@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_ComponentSpecParser) parse_children_smod
+submodule (mapl_ComponentSpecParser) parse_children_smod
 
    implicit none(type,external)
    

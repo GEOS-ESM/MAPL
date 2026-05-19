@@ -1,18 +1,18 @@
 #include "MAPL.h"
 
-module mapl3g_HistoryCollectionGridComp_private
+module mapl_HistoryCollectionGridComp_private
 
    use MAPL
    use esmf
    use gFTL2_StringVector
    use gFTL2_StringSet
-   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
-   use mapl3g_RegridderMethods
-   use mapl3g_CompressionSettings
-   use mapl3g_StateItem
-   use mapl3g_State_API
-   use mapl3g_HistoryUtilities
-   use mapl3g_HistoryConstants
+   use mapl_EsmfRegridder, only: EsmfRegridderParam
+   use mapl_RegridderMethods
+   use mapl_CompressionSettings
+   use mapl_StateItem
+   use mapl_State_API
+   use mapl_HistoryUtilities
+   use mapl_HistoryConstants
 
    implicit none(type,external)
    private
@@ -552,4 +552,4 @@ contains
       _RETURN(_SUCCESS)
    end function compute_file_timestamp
          
-end module mapl3g_HistoryCollectionGridComp_private
+end module mapl_HistoryCollectionGridComp_private

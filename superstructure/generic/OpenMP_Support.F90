@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module mapl3g_OpenMP_Support
+module mapl_OpenMP_Support
     use ESMF
     use mapl_ErrorHandling
     use mapl_KeywordEnforcer
-    use mapl3g_GridGet, only: GridGet
-    use mapl3g_Subgrid, only: Interval, make_subgrids, find_bounds
-    use mapl3g_StateAddMethod, only: CallbackMap, CallbackMapIterator, CallbackMethodWrapper, get_callbacks
-    use mapl3g_StateAddMethod, only: operator(/=)
+    use mapl_GridGet, only: GridGet
+    use mapl_Subgrid, only: Interval, make_subgrids, find_bounds
+    use mapl_StateAddMethod, only: CallbackMap, CallbackMapIterator, CallbackMethodWrapper, get_callbacks
+    use mapl_StateAddMethod, only: operator(/=)
     !$ use omp_lib
 
     implicit none(type,external)
@@ -346,8 +346,8 @@ module mapl3g_OpenMP_Support
     end function make_substates_from_num_grids
 
     function make_subgridcomps(GridComp, run_entry_points, num_grids, unusable, rc) result(subgridcomps)
-        use mapl3g_RunEntryPoint
-        use mapl3g_EntryPointVector
+        use mapl_RunEntryPoint
+        use mapl_EntryPointVector
         type(ESMF_GridComp), allocatable :: subgridcomps(:)
         type(ESMF_GridComp), intent(in)  :: GridComp
         type(entryPointVector), intent(in) :: run_entry_points
@@ -455,4 +455,4 @@ module mapl3g_OpenMP_Support
 
      end subroutine copy_callbacks
 
- end module mapl3g_OpenMP_Support
+ end module mapl_OpenMP_Support

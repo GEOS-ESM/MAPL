@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-module mapl3g_FieldBundleGet
-   use mapl3g_VerticalGrid_API
-   use mapl3g_VerticalAlignment
+module mapl_FieldBundleGet
+   use mapl_VerticalGrid_API
+   use mapl_VerticalAlignment
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
-   use mapl3g_Field_API
-   use mapl3g_UngriddedDims
+   use mapl_Field_API
+   use mapl_UngriddedDims
    use mapl_QuantityTypeMetadata
    use mapl_NormalizationMetadata
    use mapl_ConservationMetadata
-   use mapl3g_FieldBundleType_Flag
+   use mapl_FieldBundleType_Flag
    use mapl_VectorBasisKind
-   use mapl3g_FieldBundleInfo
-   use mapl3g_InfoUtilities
-   use mapl3g_LU_Bound
+   use mapl_FieldBundleInfo
+   use mapl_InfoUtilities
+   use mapl_LU_Bound
    use esmf
    implicit none
    private
@@ -160,4 +160,4 @@ contains
 
    end subroutine bundle_get
 
-end module mapl3g_FieldBundleGet
+end module mapl_FieldBundleGet

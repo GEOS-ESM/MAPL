@@ -23,15 +23,15 @@ module mapl_LocStreamMod_impl
   ! !USES:
 
 use ESMF
-use mapl3g_Geom_API, only: MAPL_GridGet
+use mapl_Geom_API, only: MAPL_GridGet
 use MAPL_Constants
-use mapl3g_GridGet, only: geom_GridGet => GridGet
+use mapl_GridGet, only: geom_GridGet => GridGet
 use mapl_NCIO, only: MAPL_ReadTilingNC4
 use MAPL_CommsMod
 use MAPL_HashMod
 use MAPL_ShmemMod
 use MAPL_ExceptionHandling
-use mapl3g_EASEConversion, only: MAPL_ease_extent => ease_extent
+use mapl_EASEConversion, only: MAPL_ease_extent => ease_extent
 use, intrinsic :: iso_fortran_env, only: REAL64, INT64
 use mpi
 

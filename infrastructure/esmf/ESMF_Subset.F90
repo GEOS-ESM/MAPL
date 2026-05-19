@@ -1,9 +1,9 @@
 ! This module provides a limited subset of ESMF types, parameters, and
 ! procedures.  The intent is to enforce MAPL GridComps to use MAPL
 ! wrappers when appropriate.  Compliant MAPL components should not do
-! 'USE ESMF', but instead should have 'USE mapl3g_ESMF_SUBSET'.
+! 'USE ESMF', but instead should have 'USE mapl_ESMF_SUBSET'.
 
-module mapl3g_ESMF_Subset
+module mapl_ESMF_Subset
 
    ! Note: items should be listed in alphabetic order for easy human search.
    ! types
@@ -78,4 +78,4 @@ module mapl3g_ESMF_Subset
 
    implicit none(type,external)
    
-end module mapl3g_ESMF_Subset
+end module mapl_ESMF_Subset

@@ -12,15 +12,15 @@
 ! Note that each short name must be unique such that it is unambiguous
 ! as to which entry a short name is referring.
 
-module mapl3g_FieldDictionary
+module mapl_FieldDictionary
 
    use esmf
    use mapl_ErrorHandling
    use pflogger, only: logging, logger_t => logger
    use gftl2_StringVector
    use gftl2_StringStringMap
-   use mapl3g_FieldDictionaryItem
-   use mapl3g_FieldDictionaryItemMap
+   use mapl_FieldDictionaryItem
+   use mapl_FieldDictionaryItemMap
    use mapl_VerificationStatus
 
    implicit none(type,external)
@@ -347,4 +347,4 @@ contains
       ptr => the_field_dictionary
    end function get_field_dictionary
 
-end module mapl3g_FieldDictionary
+end module mapl_FieldDictionary

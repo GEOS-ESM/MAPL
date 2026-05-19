@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl3g_NullRegridder
+module mapl_NullRegridder
 
    use esmf
-   use mapl3g_Regridder
-   use mapl3g_RegridderSpec
+   use mapl_Regridder
+   use mapl_RegridderSpec
    use mapl_ErrorHandlingMod
 
    implicit none
@@ -37,5 +37,5 @@ contains
       _UNUSED_DUMMY(f_out)
    end subroutine regrid_field
 
-end module mapl3g_NullRegridder
+end module mapl_NullRegridder
 

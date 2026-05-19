@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_ESMF_Utilities
+module mapl_ESMF_Utilities
    use esmf
    use mapl_ErrorHandling
    implicit none
@@ -217,4 +217,4 @@ contains
       _RETURN(_SUCCESS)
    end function esmf_state_intent_to_string
 
-end module mapl3g_ESMF_Utilities
+end module mapl_ESMF_Utilities

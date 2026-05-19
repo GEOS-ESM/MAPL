@@ -28,6 +28,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Phase 9 of MAPL v3 directory restructuring (#4905, closes #4944): rename all
+  `mapl3g_` module/submodule name prefixes to `mapl_` throughout the codebase
+  (531 files, ~2400 substitutions). The `mapl3g_` prefix was a transitional
+  namespace used during the MAPL2→MAPL3 migration; the two namespaces are now
+  unified under `mapl_`. Client code should access all public symbols through
+  the top-level `MAPL` module rather than `use`-ing internal `mapl_*` modules
+  directly. User-facing documentation in `docs/` updated to match.
+
 - Dissolve `esmf_utils/` stub: move `comms/` (MAPL_Comms.F90, API.F90, and
   associated header files) into `infrastructure/esmf/comms/`; add sources to
   `MAPL.esmf` target; remove `add_subdirectory(esmf_utils)` from top-level

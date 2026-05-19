@@ -299,8 +299,8 @@ Total: 2 fields in memory (1 primary + 1 extension)
 #### Creating a Field with Normalization
 
 ```fortran
-use mapl3g_NormalizationAspect
-use mapl3g_NormalizationType
+use mapl_NormalizationAspect
+use mapl_NormalizationType
 
 type(StateItemSpec) :: spec
 type(NormalizationAspect) :: norm_aspect
@@ -525,8 +525,8 @@ The [Conservative Regridding Implementation Plan](../.opencode/plans/CONSERVATIV
 
 **Old:**
 ```fortran
-use mapl3g_ExportNormalization
-use mapl3g_ImportNormalization
+use mapl_ExportNormalization
+use mapl_ImportNormalization
 
 type(ExportNormalization) :: export_norm
 type(ImportNormalization) :: import_norm
@@ -534,7 +534,7 @@ type(ImportNormalization) :: import_norm
 
 **New:**
 ```fortran
-use mapl3g_NormalizationAspect
+use mapl_NormalizationAspect
 
 type(NormalizationAspect) :: norm_aspect
 ```

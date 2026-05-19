@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_EASEConversion
+module mapl_EASEConversion
 
   ! =====================================================================================
   ! Fortran routines for conversion of Equal-Area Scalable Earth (EASE) grid coordinates
@@ -373,4 +373,4 @@ contains
     _RETURN(_SUCCESS)
   end subroutine easeV2_get_params
 
-end module mapl3g_EASEConversion
+end module mapl_EASEConversion

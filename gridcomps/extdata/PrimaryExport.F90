@@ -1,29 +1,29 @@
 #include "MAPL.h"
-module mapl3g_PrimaryExport
+module mapl_PrimaryExport
    use ESMF
    use MAPL_ExceptionHandling
-   use mapl3g_AbstractDataSetFileSelector
-   use mapl3g_NonClimDataSetFileSelector
-   use mapl3g_ClimDataSetFileSelector
-   use mapl3g_Geom_API
-   use mapl3g_VerticalGrid_API
+   use mapl_AbstractDataSetFileSelector
+   use mapl_NonClimDataSetFileSelector
+   use mapl_ClimDataSetFileSelector
+   use mapl_Geom_API
+   use mapl_VerticalGrid_API
    use MAPL_FileMetadataUtilsMod
    use generic3g
-   use mapl3g_DataSetBracket
-   use mapl3g_DataSetNode
-   use mapl3g_ExtDataReader
+   use mapl_DataSetBracket
+   use mapl_DataSetNode
+   use mapl_ExtDataReader
    use gftl2_StringStringMap
    use gftl2_IntegerVector
    use gftl2_StringVector
-   use mapl3g_ExtDataRule
-   use mapl3g_ExtDataCollection
-   use mapl3g_ExtDataSample
+   use mapl_ExtDataRule
+   use mapl_ExtDataCollection
+   use mapl_ExtDataSample
    use pfio, only: i_clients
    use VerticalCoordinateMod
-   use mapl3g_FieldBundleSet
-   use mapl3g_FieldBundleGet
-   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
-   use mapl3g_RegridderMethods
+   use mapl_FieldBundleSet
+   use mapl_FieldBundleGet
+   use mapl_EsmfRegridder, only: EsmfRegridderParam
+   use mapl_RegridderMethods
    implicit none
    private
 
@@ -339,4 +339,4 @@ module mapl3g_PrimaryExport
 
    end subroutine set_fraction_values_to_zero
 
-end module mapl3g_PrimaryExport
+end module mapl_PrimaryExport

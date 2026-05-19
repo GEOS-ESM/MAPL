@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl3g_EvalTransform
-   use mapl3g_ExtensionTransform
-   use mapl3g_TransformId
-   use mapl3g_StateItem
-   use mapl3g_ComponentDriver
-   use mapl3g_ComponentDriverVector
+module mapl_EvalTransform
+   use mapl_ExtensionTransform
+   use mapl_TransformId
+   use mapl_StateItem
+   use mapl_ComponentDriver
+   use mapl_ComponentDriverVector
    use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE, GENERIC_COUPLER_INITIALIZE
    use mapl_ErrorHandling
    use MAPL_StateArithmeticParserMod
@@ -145,4 +145,4 @@ contains
       _UNUSED_DUMMY(this)
    end function get_transformId
 
-end module mapl3g_EvalTransform
+end module mapl_EvalTransform

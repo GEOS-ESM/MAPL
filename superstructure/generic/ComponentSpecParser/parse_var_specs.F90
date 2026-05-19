@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl3g_ComponentSpecParser) parse_var_specs_smod
-   use mapl3g_VerticalGrid
+submodule (mapl_ComponentSpecParser) parse_var_specs_smod
+   use mapl_VerticalGrid
    implicit none(type,external)
 
 contains
@@ -172,7 +172,7 @@ contains
       end subroutine val_to_float
 
       function to_typekind(attributes, rc) result(typekind)
-         use :: mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+         use :: mapl_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
          type(ESMF_TypeKind_Flag) :: typekind
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc

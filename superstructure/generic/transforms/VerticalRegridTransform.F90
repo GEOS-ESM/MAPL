@@ -1,21 +1,21 @@
 #include "MAPL.h"
 
-module mapl3g_VerticalRegridTransform
-   use mapl3g_TransformId
-   use mapl3g_Field_API
+module mapl_VerticalRegridTransform
+   use mapl_TransformId
+   use mapl_Field_API
    use mapl_ErrorHandling
-   use mapl3g_FieldBundle_API
-   use mapl3g_StateItem
-   use mapl3g_ExtensionTransform
-   use mapl3g_ComponentDriver
+   use mapl_FieldBundle_API
+   use mapl_StateItem
+   use mapl_ExtensionTransform
+   use mapl_ComponentDriver
    use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE
-   use mapl3g_VerticalRegridMethod
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalLinearMap, only: compute_linear_map
-   use mapl3g_VerticalConservativeMap, only: compute_conservative_map
-   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
-   use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
-   use mapl3g_VerticalCoordinateDirection
+   use mapl_VerticalRegridMethod
+   use mapl_VerticalStaggerLoc
+   use mapl_VerticalLinearMap, only: compute_linear_map
+   use mapl_VerticalConservativeMap, only: compute_conservative_map
+   use mapl_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
+   use mapl_FieldCondensedArray, only: assign_fptr_condensed_array
+   use mapl_VerticalCoordinateDirection
    use esmf
 
    implicit none(type,external)
@@ -675,4 +675,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine copy_field_flipped_
 
-end module mapl3g_VerticalRegridTransform
+end module mapl_VerticalRegridTransform

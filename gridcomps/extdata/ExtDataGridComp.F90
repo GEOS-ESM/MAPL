@@ -1,26 +1,26 @@
 #include "MAPL.h"
 
-module mapl3g_ExtDataGridComp
+module mapl_ExtDataGridComp
 
    use generic3g
    use mapl_ErrorHandling
    use esmf
    use pfio
-   use mapl3g_ExtDataGridComp_private
-   use mapl3g_Geom_API
+   use mapl_ExtDataGridComp_private
+   use mapl_Geom_API
    use MAPL_FieldUtils
-   use mapl3g_FieldBundle_API
-   use mapl3g_ExtDataConfig
-   use mapl3g_PrimaryExportVector
-   use mapl3g_PrimaryExport
-   use mapl3g_geomio
-   use mapl3g_Geom_API
-   use mapl3g_AbstractDataSetFileSelector
+   use mapl_FieldBundle_API
+   use mapl_ExtDataConfig
+   use mapl_PrimaryExportVector
+   use mapl_PrimaryExport
+   use mapl_geomio
+   use mapl_Geom_API
+   use mapl_AbstractDataSetFileSelector
    use MAPL_FileMetadataUtilsMod
    use gftl2_StringStringMap
    use gftl2_IntegerVector
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
-   use mapl3g_ExtDataReader
+   use mapl_ExtDataReader
 
    implicit none(type,external)
    private
@@ -257,12 +257,12 @@ contains
       _RETURN(_SUCCESS)
    end function get_item_index
 
-end module mapl3g_ExtDataGridComp
+end module mapl_ExtDataGridComp
 
 subroutine setServices(gridcomp,rc)
    use ESMF
    use MAPL_ErrorHandlingMod
-   use mapl3g_ExtDataGridComp, only: ExtData_setServices => SetServices
+   use mapl_ExtDataGridComp, only: ExtData_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 

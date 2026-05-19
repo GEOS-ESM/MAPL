@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl3g_MeshGeomFactory
-   use mapl3g_GeomSpec
-   use mapl3g_GeomFactory
-   use mapl3g_MeshGeomSpec
+module mapl_MeshGeomFactory
+   use mapl_GeomSpec
+   use mapl_GeomFactory
+   use mapl_MeshGeomSpec
    use mapl_KeywordEnforcerMod, only: KeywordEnforcer
    use gftl2_StringVector, only: StringVector
-   use mapl3g_StringDictionary, only: StringDictionary
+   use mapl_StringDictionary, only: StringDictionary
    use pfio_FileMetadataMod, only: FileMetadata
    use esmf
    implicit none
@@ -99,4 +99,4 @@ module mapl3g_MeshGeomFactory
 
    end interface
 
-end module mapl3g_MeshGeomFactory
+end module mapl_MeshGeomFactory
