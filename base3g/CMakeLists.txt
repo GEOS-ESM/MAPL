@@ -1,29 +1,30 @@
 esma_set_this (OVERRIDE MAPL.base3g)
 
 set (srcs
+  # Geom-dependent files (remaining after mp_utils split)
+  FileIO.F90
+  FileIOShared.F90
   FileMetadataUtilities.F90
   FileMetadataUtilitiesVector.F90
-  FileIOShared.F90
   NCIO.F90
   c_mapl_locstream_F.c
   MAPL_LocStreamMod.F90
-  PackedTime.F90
-  SimulationTime.F90
   Comms.F90
-  SatVapor.F90
-  StringTemplate.F90
-  LocalDisplacementEnsemble.F90
   MemUtils.F90
-  FileIO.F90
-  TimeInterpolation.F90
   SunOrbit.F90
   SimpleBundleMod.F90
   API.F90
+  # Moved to mp_utils/:
+  #   PackedTime.F90, SimulationTime.F90, TimeInterpolation.F90
+  #   LocalDisplacementEnsemble.F90, SatVapor.F90 (+ headers), StringTemplate.F90
 )
 
 esma_add_library (${this}
   SRCS ${srcs}
-  DEPENDENCIES ESMF::ESMF PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 MAPL.shared MAPL.geom MAPL.esmf_utils MAPL.pfio MAPL.field_bundle MAPL.utils MAPL.constants MPI::MPI_Fortran NetCDF::NetCDF_Fortran
+  DEPENDENCIES ESMF::ESMF PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2
+               MAPL.shared MAPL.geom MAPL.esmf_utils MAPL.pfio MAPL.mp_utils
+               MAPL.field_bundle MAPL.utils MAPL.constants
+               MPI::MPI_Fortran NetCDF::NetCDF_Fortran
   TYPE SHARED
 )
 

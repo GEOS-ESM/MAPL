@@ -2,8 +2,6 @@
 
 module mapl3g_VectorBasis
    use esmf
-   use mapl_FieldBLAS
-   use mapl_FieldPointerUtilities
    use mapl_ErrorHandlingMod
 
    implicit none(type, external)
