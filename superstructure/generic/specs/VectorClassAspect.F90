@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 module mapl3g_VectorClassAspect
+
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_ActualConnectionPt
@@ -33,6 +34,7 @@ module mapl3g_VectorClassAspect
    use mapl_ErrorHandling
    use gftl2_StringVector
    use esmf
+
    implicit none(type,external)
    private
 
@@ -74,7 +76,6 @@ module mapl3g_VectorClassAspect
       procedure :: new_VectorClassAspect_basic
    end interface VectorClassAspect
 
-
 contains
 
    function new_VectorClassAspect_basic(short_names, component_specs, basis_kind) result(aspect)
@@ -86,9 +87,7 @@ contains
       aspect%short_names = short_names
       aspect%component_specs = component_specs
       aspect%basis_kind = basis_kind
-      
    end function new_VectorClassAspect_basic
-
 
    ! Should always be the same as for Field
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
@@ -98,11 +97,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       aspect_ids = this%component_specs(1)%get_aspect_order(goal_aspects, _RC)
 
       _RETURN(_SUCCESS)
-
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
@@ -129,12 +127,12 @@ contains
       type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
-      
+
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
       call MAPL_FieldBundleSet(this%payload, &
-                               allocation_status=STATEITEM_ALLOCATION_CREATED, &
-                               vector_basis_kind=this%basis_kind, &
-                               _RC)
+           allocation_status=STATEITEM_ALLOCATION_CREATED, &
+           vector_basis_kind=this%basis_kind, &
+           _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
@@ -181,7 +179,7 @@ contains
       type(esmf_Field), allocatable :: field
 
       call field_aspect%get_payload(field=field, _RC)
-      
+
       associate(e => other_aspects%ftn_end())
         iter = other_aspects%ftn_begin()
         do while (iter /= e)
@@ -192,7 +190,6 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
-
    end subroutine update_payload
 
    subroutine destroy(this, rc)
@@ -239,27 +236,11 @@ contains
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
 
+      ! mirror short names since they are required in add_to_state routine
+      this%short_names = export_%short_names
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
-
-   contains
-
-     subroutine mirror(dst, src)
-        real, allocatable, intent(inout) :: dst
-        real, allocatable, intent(in) :: src
-
-        if (.not. allocated(src)) return
-
-        if (.not. allocated(dst)) then
-           dst = src
-           return
-        end if
-
-         ! TODO: Problematic case: both allocated with different values.
-         if (dst /= src) then
-         end if
-      end subroutine mirror
-      
    end subroutine connect_to_export
 
    function to_vectorclassaspect_from_poly(aspect, rc) result(vector_aspect)
@@ -297,7 +278,7 @@ contains
       class(StateItemAspect), intent(in) :: dst
       type(AspectMap), target, intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
-      
+
       transform = NullTransform()
 
       _RETURN(_SUCCESS)
@@ -332,13 +313,12 @@ contains
 
       type(ESMF_FieldBundle) :: alias, existing_bundle
       type(esmf_StateItem_Flag) :: itemType
-      logical :: is_alias
-      integer :: status
       type(ESMF_State) :: state, substate
-      character(:), allocatable :: full_name, inner_name
-      integer :: idx
-      character(:), allocatable :: intent
-      
+      type(ESMF_Field), allocatable :: field_list(:)
+      logical :: is_alias
+      character(:), allocatable :: full_name, inner_name, intent
+      integer :: idx, status
+
       intent = actual_pt%get_state_intent()
       call multi_state%get_state(state, intent, _RC)
 
@@ -358,6 +338,13 @@ contains
       end if
       call ESMF_StateAddReplace(substate, [alias], _RC)
 
+      ! Also update the names of the components
+      call MAPL_FieldBundleGet(this%payload, fieldList=field_list, _RC)
+      if (size(field_list) > 0) then ! might be empty if import item
+         call ESMF_FieldSet(field_list(1), name=trim(this%short_names%at(1)), _RC)
+         call ESMF_FieldSet(field_list(2), name=trim(this%short_names%at(2)), _RC)
+      end if
+
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
@@ -376,7 +363,7 @@ contains
       _UNUSED_DUMMY(field)
       _UNUSED_DUMMY(state)
    end subroutine get_payload
-   
+
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID

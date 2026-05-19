@@ -29,7 +29,7 @@ set_target_properties(MAPL.generic3g.test_common PROPERTIES Fortran_MODULE_DIREC
 target_include_directories(MAPL.generic3g.test_common PUBLIC $<BUILD_INTERFACE:${MODULE_DIRECTORY}>)
 
 # Common dependencies for all test suites
-set(COMMON_LINK_LIBRARIES MAPL.generic3g.test_common MAPL.pfunit configurable_gridcomp MAPL_StatisticsGridComp)
+set(COMMON_LINK_LIBRARIES MAPL.generic3g.test_common MAPL.pfunit configurable_gridcomp MAPL.statistics)
 
 # 1. MAPL.generic3g.scenarios - End-to-end integration test scenarios
 set(scenarios_test_srcs

@@ -29,7 +29,8 @@
 module mapl_FieldUnits
    use udunits2f, FieldUnitsConverter => Converter, &
       initialize_udunits => initialize, finalize_udunits => finalize
-   use MaplShared
+   use mapl_KeywordEnforcer, only: KeywordEnforcer
+   use mapl_ErrorHandlingMod
    use ESMF
 
    implicit none

@@ -33,7 +33,8 @@ module mapl3g_Generic
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use mapl3g_UngriddedDim, only: UngriddedDim
    use mapl3g_UngriddedDims, only: UngriddedDims
-   use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE
+   use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl3g_StateItem, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
    use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
    use mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl3g_hconfig_get
@@ -108,7 +109,8 @@ module mapl3g_Generic
    public :: MAPL_GridCompTimerStop
 
    ! Spec types
-   public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE
+   public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   public :: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
 
    public :: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
 
@@ -549,6 +551,7 @@ contains
         vstagger, &
         ! OPTIONAL
         unusable, &
+        vector_component_names, &
         ungridded_dims, &
         units, &
         restart, &
@@ -568,6 +571,7 @@ contains
       type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: vector_component_names(:)
       type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
       type(RestartMode), optional, intent(in) :: restart
@@ -586,6 +590,7 @@ contains
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
       type(UngriddedDims), allocatable :: dim_specs_vec
+      type(StringVector) :: vector_component_names_vec
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -597,6 +602,14 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
+      ! vector_component_names
+      if (present(vector_component_names)) then
+         _ASSERT(present(itemType), "itemType must be present if vector_component_names is present")
+         _ASSERT((itemType==MAPL_STATEITEM_VECTOR), "valid only for vector items")
+         _ASSERT((size(vector_component_names)==2), "vector_component_names must have 2 components")
+         call vector_component_names_vec%push_back(trim(vector_component_names(1)))
+         call vector_component_names_vec%push_back(trim(vector_component_names(2)))
+      end if
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
@@ -611,6 +624,7 @@ contains
            has_deferred_aspects=has_deferred_aspects, &
            service_items=service_items, &
            restart_mode=restart, &
+           vector_component_names=vector_component_names_vec, &
            _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
