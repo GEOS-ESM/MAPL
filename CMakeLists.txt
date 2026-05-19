@@ -240,7 +240,7 @@ add_subdirectory (mp_utils)
     add_subdirectory (docs)
     add_subdirectory (benchmarks)
  endif()
- add_subdirectory(Python)
+ add_subdirectory(python)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)

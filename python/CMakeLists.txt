@@ -95,14 +95,14 @@ endif()
 # Install the Python/MAPL directory
 install (
   DIRECTORY MAPL
-  DESTINATION lib/Python
+  DESTINATION lib/python
   USE_SOURCE_PERMISSIONS
   )
 
 # Install the Python/MAPL_PythonBridge directory
 install (
   DIRECTORY MAPL_PythonBridge
-  DESTINATION lib/Python
+  DESTINATION lib/python
   USE_SOURCE_PERMISSIONS
 )
 
