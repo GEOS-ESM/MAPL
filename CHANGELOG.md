@@ -31,9 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ESMF-related files from `generic3g/`. Backward-compatibility INTERFACE
   aliases provided for all five former library names.
 - Phase 8 of MAPL v3 directory restructuring (#4905, closes #4942): lowercase
-  remaining top-level directories: `mapl3g/`→`mapl/`, `Python/`→`python/`,
-  `Tests/`→`tests/`. Install paths updated to match (`lib/Python`→`lib/python`,
-  `${esma_include}/Tests`→`${esma_include}/tests`).
+  remaining top-level directories: `mapl3g/`→`mapl/`, `Tests/`→`tests/`.
+  Install paths updated to match (`${esma_include}/Tests`→`${esma_include}/tests`).
+  (`Python/` retained as-is per GEOS convention.)
   Dissolve `shared/` directory entirely: `DownBit.F90` moved to `mp_utils/`,
   `ShaveMantissa.c/.h` moved to `utils/`, `hinterp.F90` deleted (dead code),
   `MaplShared.F90` deleted (umbrella module replaced by direct `use` of underlying
