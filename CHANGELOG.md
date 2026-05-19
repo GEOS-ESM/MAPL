@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Dissolve `esmf_utils/` stub: move `comms/` (MAPL_Comms.F90, API.F90, and
+  associated header files) into `infrastructure/esmf/comms/`; add sources to
+  `MAPL.esmf` target; remove `add_subdirectory(esmf_utils)` from top-level
+  `CMakeLists.txt`. Part of the MAPL v3 directory restructuring (#4905).
 - Dissolve `geom/` stub: move `CMakeLists.txt` build logic into
   `infrastructure/geom/geom/CMakeLists.txt`; remove `add_subdirectory(geom)`
   from top-level `CMakeLists.txt`. `MAPL.geom` target is now built entirely
@@ -57,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   top-level directories retained as stubs for backward compatibility.
 
 - Create `utils/` directory (`MAPL.utils`, Tier 1) as an MPI-free library
-  consolidating serial-only sources from `shared/`, `utilities/`, `udunits2f/`,
+  consolidating serial-only sources from `shared/`, `utilities/`,
   and `generic3g/`. `MAPL.utils` depends only on ESMF and OpenMP — no MPI.
   Part of the MAPL v3 directory restructuring (#4905, phase 2a, closes #4915).
 

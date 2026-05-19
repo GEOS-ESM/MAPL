@@ -39,6 +39,9 @@ set (srcs
     ESMF_HConfigUtilities/MAPL_HConfigMatch.F90
     ESMF_HConfigUtilities/write_hconfig.F90
     StateItem.F90
+    # From esmf_utils/comms/
+    comms/MAPL_Comms.F90
+    comms/API.F90
 )
 
 esma_add_library (${this}
@@ -50,6 +53,7 @@ esma_add_library (${this}
 target_include_directories (${this} PUBLIC
     $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/hconfig_utils>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/comms>
 )
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
