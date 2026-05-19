@@ -53,6 +53,7 @@ module mapl_MaplGenericComponent
 
       logical :: threading_active = .FALSE.
       logical :: use_threads = .FALSE.
+      integer :: num_threads = 1
 
 
    contains
@@ -76,6 +77,8 @@ module mapl_MaplGenericComponent
       procedure :: set_logger
       procedure :: set_use_threads
       procedure :: get_use_threads
+      procedure :: set_num_threads
+      procedure :: get_num_threads
       procedure :: is_threading_active
       procedure :: get_internal_state
       procedure :: get_import_state
@@ -219,6 +222,14 @@ contains
 
    end subroutine set_use_threads
 
+   subroutine set_num_threads(this, num_threads)
+      class(MaplGenericComponent), intent(inout) :: this
+      integer, intent(in) :: num_threads
+
+      this%num_threads = num_threads
+
+   end subroutine set_num_threads
+
    function get_use_threads(this) result(use_threads)
       class(MaplGenericComponent), intent(in) :: this
       logical :: use_threads
@@ -226,6 +237,14 @@ contains
       use_threads = this%use_threads
 
    end function get_use_threads
+
+   function get_num_threads(this) result(num_threads)
+      class(MaplGenericComponent), intent(in) :: this
+      integer :: num_threads
+
+      num_threads = this%num_threads
+
+   end function get_num_threads
 
    function is_threading_active(this) result(threading_active)
      class(MaplGenericComponent), intent(in) :: this

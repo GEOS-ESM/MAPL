@@ -21,7 +21,6 @@ module MAPL_OpenMP_Support
     public :: find_bounds
     public :: subset_array
     public :: get_current_thread
-    public :: get_num_threads
     public :: get_callbacks
 
     type :: Interval
@@ -54,11 +53,6 @@ module MAPL_OpenMP_Support
         current_thread = 0  ! default if OpenMP is not used
         !$ current_thread = omp_get_thread_num() ! get the actual thread id if OpenMP is used
     end function get_current_thread
-
-    integer function get_num_threads() result(num_threads)
-        num_threads = 1  ! default if OpenMP is not used
-        !$ num_threads = omp_get_max_threads() ! get the actual number of threads if OpenMP is used
-    end function get_num_threads
 
     function make_subgrids_from_num_grids(primary_grid, num_grids, unusable, rc) result(subgrids)
         type(ESMF_Grid), allocatable :: subgrids(:)

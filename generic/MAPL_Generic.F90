@@ -2003,7 +2003,7 @@ contains
 
    ! !INTERFACE:
    subroutine omp_driver(GC, import, export, clock, RC)
-      use MAPL_OpenMP_Support, only : get_current_thread,  get_num_threads
+      use MAPL_OpenMP_Support, only : get_current_thread
 
       type (ESMF_GridComp), intent(inout) :: GC     ! Gridded component
       type (ESMF_State),    intent(inout) :: import ! Import state
@@ -2037,7 +2037,7 @@ contains
          _VERIFY(userRC)
       else
          !call start_global_time_profiler('activate_threads')
-         num_threads = get_num_threads()
+         num_threads = MAPL%get_num_threads()
          call MAPL%activate_threading(num_threads, _RC)
          !call stop_global_time_profiler('activate_threads')
          !call start_global_time_profiler('parallel')
@@ -2048,7 +2048,8 @@ contains
          user_statuses=0
          !$omp parallel default(none), &
          !$omp& private(thread, subimport, subexport, thread_gc), &
-         !$omp& shared(gc, statuses, user_statuses, clock, PHASE, MAPL)
+         !$omp& shared(gc, statuses, user_statuses, clock, PHASE, MAPL), &
+         !$omp& num_threads(num_threads)
 
          thread = get_current_thread()
 
