@@ -261,7 +261,7 @@ endif ()
 include(mapl_acg)
 include(mapl_create_stub_component)
 
-add_subdirectory (Apps)
+add_subdirectory (apps)
 add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm

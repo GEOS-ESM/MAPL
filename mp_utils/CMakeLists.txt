@@ -103,7 +103,7 @@ add_library (MAPL.profiler INTERFACE)
 target_link_libraries (MAPL.profiler INTERFACE MAPL.mp_utils)
 install (TARGETS MAPL.profiler EXPORT MAPL-targets)
 
-add_subdirectory (profiler/demo)
+add_subdirectory (profiler/examples)
 if (PFUNIT_FOUND)
   add_subdirectory (profiler/tests EXCLUDE_FROM_ALL)
 endif ()

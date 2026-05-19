@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `esmf_utils/`, `vm/`, `alarm/`, `hconfig/`, `hconfig_utils/`, and
   ESMF-related files from `generic3g/`. Backward-compatibility INTERFACE
   aliases provided for all five former library names.
+- Phase 7 of MAPL v3 directory restructuring (#4905, closes #4940): rename
+  `Apps/`→`apps/`; move pfio demo executables into `pfio/programs/`; rename
+  `mp_utils/profiler/demo/`→`mp_utils/profiler/examples/`.
 - Phase 6 of MAPL v3 directory restructuring (#4905, closes #4938): rename
   `gridcomps/` subdirectories from legacy names to canonical lowercase names:
   `cap3g/`→`cap/`, `History3G/`→`history/`, `ExtData3G/`→`extdata/`,
