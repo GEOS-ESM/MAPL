@@ -16,4 +16,8 @@ target_sources(MAPL.generic3g PRIVATE
 
   EvalTransform.F90
   ExtensionTransformUtils.F90
+
+  # Absorbed from couplers/
+  CouplerMetaComponent.F90
+  GenericCoupler.F90
 )
