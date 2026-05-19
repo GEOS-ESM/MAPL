@@ -56,7 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   No module names or interfaces changed; this is a pure file relocation.
   Part of the MAPL v3 directory restructuring (#4905, phase 1a, closes #4907).
 
-Several files were renamed, MAPL_InfoSet was replaced with ESMF_InfoSet.
+- Several files were renamed, MAPL_InfoSet was replaced with ESMF_InfoSet.
+- Update `.mlc.toml` to ignore directories either brought in by mepo or created
+by opencode
+
 ### Removed
 
 ### Deprecated
