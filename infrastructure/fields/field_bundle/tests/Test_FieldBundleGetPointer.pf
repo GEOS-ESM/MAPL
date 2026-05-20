@@ -332,4 +332,134 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_GetPointerByName3D_Actual3D
 
+   ! Test getting REAL64 pointer by index for 2D field
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_GetPointerByIndex2D_Real64(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: field1, field2
+      real(REAL64), pointer :: ptr(:,:)
+      integer :: rc, status
+
+      ! Create fields
+      field1 = ESMF_FieldCreate(original, _RC)
+      field2 = ESMF_FieldCreate(original, _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
+
+      ! Get pointer by index using REAL64
+      call FieldBundleGetPointerToData(bundle, 1, ptr, rc=status)
+      @assertEqual(status, _SUCCESS, 'Failed to get REAL64 pointer by index for 2D field')
+
+      ! Verify we got a pointer
+      @assertTrue(associated(ptr), 'REAL64 pointer should be associated')
+      nullify(ptr)
+
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_GetPointerByIndex2D_Real64
+
+   ! Test getting REAL64 pointer by index for 3D field
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_GetPointerByIndex3D_Real64(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_Grid) :: grid
+      type(ESMF_TypeKind_Flag) :: typekind
+      real(REAL64), pointer :: ptr(:,:,:)
+      integer :: rc, status
+
+      call ESMF_FieldGet(original, grid=grid, typekind=typekind, _RC)
+      ! Create actual 3D fields
+      field1 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[3], _RC)
+      field2 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[3], _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
+
+      ! Get REAL64 pointer by index
+      call FieldBundleGetPointerToData(bundle, 1, ptr, rc=status)
+      @assertEqual(status, _SUCCESS, 'Failed to get REAL64 pointer by index for 3D field')
+
+      ! Verify we got a pointer
+      @assertTrue(associated(ptr), 'REAL64 pointer should be associated')
+      nullify(ptr)
+
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_GetPointerByIndex3D_Real64
+
+   ! Test getting REAL64 pointer by name for 2D field
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_GetPointerByName2D_Real64(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: field1, field2
+      real(REAL64), pointer :: ptr(:,:)
+      integer :: rc, status
+
+      ! Create fields with names
+      field1 = ESMF_FieldCreate(original, _RC)
+      call ESMF_FieldSet(field1, name='temperature_r8', _RC)
+      field2 = ESMF_FieldCreate(original, _RC)
+      call ESMF_FieldSet(field2, name='pressure_r8', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
+
+      ! Get REAL64 pointer by name
+      call FieldBundleGetPointerToData(bundle, 'temperature_r8', ptr, rc=status)
+      @assertEqual(status, _SUCCESS, 'Failed to get REAL64 pointer by name for 2D field')
+
+      ! Verify we got a pointer
+      @assertTrue(associated(ptr), 'REAL64 pointer by name should be associated')
+      nullify(ptr)
+
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_GetPointerByName2D_Real64
+
+   ! Test getting REAL64 pointer by name for 3D field
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_GetPointerByName3D_Real64(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_Grid) :: grid
+      type(ESMF_TypeKind_Flag) :: typekind
+      real(REAL64), pointer :: ptr(:,:,:)
+      integer :: rc, status
+
+      call ESMF_FieldGet(original, grid=grid, typekind=typekind, _RC)
+      ! Create actual 3D fields with names
+      field1 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[2], _RC)
+      call ESMF_FieldSet(field1, name='velocity_r8', _RC)
+      field2 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[2], _RC)
+      call ESMF_FieldSet(field2, name='density_r8', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
+
+      ! Get REAL64 pointer by name
+      call FieldBundleGetPointerToData(bundle, 'velocity_r8', ptr, rc=status)
+      @assertEqual(status, _SUCCESS, 'Failed to get REAL64 pointer by name for 3D field')
+
+      ! Verify we got a pointer
+      @assertTrue(associated(ptr), 'REAL64 pointer by name should be associated')
+      nullify(ptr)
+
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_GetPointerByName3D_Real64
+
  end module Test_FieldBundleGetPointer
