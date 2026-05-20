@@ -22,6 +22,7 @@ set (ESMA_CMAKE_DIRS
   ESMA_cmake@
   )
 
+# This is a loop to find the ESMA_cmake code in the current directory or any of the possible mepo clone locations. If found, it adds it to the CMAKE_MODULE_PATH and includes esma.cmake which defines the esma function. This allows MAPL to be built as a standalone project without requiring the user to have already set up ESMA_cmake in their environment. If not found, we will try to clone it using mepo later on.
 foreach (dir IN LISTS ESMA_CMAKE_DIRS)
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/${dir})
     list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/${dir}")
