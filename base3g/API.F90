@@ -10,15 +10,16 @@ module mapl_base3g
                                    MAPL_UnpackDateTime => UnpackDateTime
    use mapl_SimulationTime, only: set_reference_clock, fill_time_dict
    use MAPL_CommsMod, only: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV, &
-                            mapl_CommsAllGather, mapl_CommsAllGatherV, &
-                            mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, &
-                            mapl_CommsAllReduceSum, mapl_CommsSend, mapl_CommsRecv, &
-                            mapl_CommsSendRecv, mapl_AM_I_ROOT, mapl_AM_I_RANK, &
-                            mapl_NPES, ArrayGather, ArrayScatter, MAPL_ROOT, &
-                            mapl_CreateRequest, mapl_CommRequest, mapl_ArrayIGather, &
-                            mapl_ArrayIScatter, mapl_CollectiveWait, &
-                            mapl_CollectiveScatter3D, mapl_CollectiveGather3D, &
-                            mapl_RoundRobinPEList, mapl_BcastShared, ArrPtr
+                             mapl_CommsAllGather, mapl_CommsAllGatherV, &
+                             mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, &
+                             mapl_CommsAllReduceSum, mapl_CommsSend, mapl_CommsRecv, &
+                             mapl_CommsSendRecv, mapl_AM_I_ROOT, mapl_AM_I_RANK, &
+                             mapl_NPES, ArrayGather, ArrayScatter, MAPL_ROOT, &
+                             MAPL_ArrayGather => ArrayGather, MAPL_ArrayScatter => ArrayScatter, &
+                             mapl_CreateRequest, mapl_CommRequest, mapl_ArrayIGather, &
+                             mapl_ArrayIScatter, mapl_CollectiveWait, &
+                             mapl_CollectiveScatter3D, mapl_CollectiveGather3D, &
+                             mapl_RoundRobinPEList, mapl_BcastShared, ArrPtr
    use MAPL_SatVaporMod, only: MAPL_EQsatSET, MAPL_EQsat
    use MAPL_StringTemplate, only: fill_grads_template, StrTemplate, fill_grads_template_esmf
    use mapl_LocalDisplacementEnsemble, only: LocalDisplacementEnsemble
@@ -31,6 +32,9 @@ module mapl_base3g
           MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax, &
           MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
+   use mapl3g_MaxMin, only: MAPL_MaxMin => MaxMin
+   use mapl3g_AreaMean, only: MAPL_AreaMean => AreaMean
+   use mapl3g_MemInfo, only: MAPL_MemInfoWrite => MemInfoWrite
    use mapl3g_FileIO, only: WRITE_PARALLEL
    use mapl_SimpleBundleMod_impl, only: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint, &
         MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
@@ -51,6 +55,7 @@ module mapl_base3g
    public :: mapl_CommsSend, mapl_CommsRecv, mapl_CommsSendRecv
    public :: mapl_AM_I_ROOT, mapl_AM_I_RANK, mapl_NPES
    public :: ArrayGather, ArrayScatter, MAPL_ROOT
+   public :: MAPL_ArrayGather, MAPL_ArrayScatter
    public :: mapl_CreateRequest, mapl_CommRequest
    public :: mapl_ArrayIGather, mapl_ArrayIScatter, mapl_CollectiveWait
    public :: mapl_CollectiveScatter3D, mapl_CollectiveGather3D
@@ -67,6 +72,7 @@ module mapl_base3g
    public :: MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax
    public :: MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    public :: MAPL_Interp_Fac, MAPL_ClimInterpFac
+   public :: MAPL_MaxMin, MAPL_AreaMean, MAPL_MemInfoWrite
    public :: WRITE_PARALLEL
    public :: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint
    public :: MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle

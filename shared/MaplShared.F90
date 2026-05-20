@@ -15,7 +15,7 @@ module MaplShared
    use mapl_KeywordEnforcerMod
    use mapl_InterpMod
    use mapl_HashMod
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling
    use mapl_DirPathMod
    use mapl_Constants
    use mapl_CommGroupDescriptionMod

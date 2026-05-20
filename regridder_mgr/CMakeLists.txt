@@ -26,6 +26,7 @@ set(srcs
   RegridderMethods.F90
 #HorzFluxRegridder.F90
 
+  API.F90
   )
 
 esma_add_library(${this}

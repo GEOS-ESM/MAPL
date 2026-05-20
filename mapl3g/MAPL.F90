@@ -19,6 +19,9 @@ module MAPL
    use MAPL_StateMaskMod
    use MAPL_StateArithmeticParserMod
    use MAPL_StateFilter
+   use mapl3g_EsmfUtils_API
+   use mapl3g_RegridderMgr_API
+   use mapl3g_Generic3g_API
    
 
    ! We use default PUBLIC to avoid explicitly listing exports from

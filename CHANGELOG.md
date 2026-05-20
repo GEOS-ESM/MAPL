@@ -11,7 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix `MaplShared` to use `mapl_ErrorHandling` directly (not via `mapl_ErrorHandlingMod`
+  wrapper) so that `ifx` correctly resolves `MAPL_Return` and `MAPL_Verify` to
+  module-qualified symbols throughout the umbrella chain.
+
 ### Added
+
+- Export additional symbols through the `MAPL` umbrella module to support client code
+  migrating off direct `mapl3g_*` internal module imports. New exports include:
+  `MAPL_MemInfoWrite`, `MAPL_MaxMin`, `MAPL_AreaMean` (via `base3g`);
+  `CubedSphereGeomSpec`, `make_CubedSphereGeomSpec`, `CubedSphereDecomposition`,
+  `make_CubedSphereDecomposition` (via `geom`);
+  `Regridder`, `RegridderManager`, `get_regridder_manager`, `RegridderSpec`,
+  all `REGRID_METHOD_*`/`REGRID_HINT_*` constants, `generate_esmf_regrid_param`
+  (via new `regridder_mgr/API.F90`);
+  `UngriddedDim`, `make_UngriddedDim` (via new `esmf_utils/API.F90`);
+  `user_setservices`, `AbstractUserSetServices`, `DSOSetServices`
+  (via new `generic3g/API.F90`);
+  `MAPL_ArrayGather`, `MAPL_ArrayScatter` (via `base3g`).
 
 ### Changed
 

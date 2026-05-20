@@ -18,6 +18,7 @@ set(srcs
   ConservationMetadata.F90
   DistGridGet.F90
   NormalizationMetadata.F90
+  API.F90
   )
 
 esma_add_library(${this}
