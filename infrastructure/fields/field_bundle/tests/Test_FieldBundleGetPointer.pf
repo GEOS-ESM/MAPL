@@ -8,6 +8,7 @@ module Test_FieldBundleGetPointer
    use mapl3g_FieldBundleGetPointer
    use MAPL_ErrorHandling, only: MAPL_Verify
    use ESMF
+   use, intrinsic :: iso_fortran_env, only: REAL64
    use pfunit
    use ESMF_TestMethod_mod
 
@@ -339,12 +340,15 @@ contains
 
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field1, field2
+      type(ESMF_Grid) :: grid
       real(REAL64), pointer :: ptr(:,:)
       integer :: rc, status
+      type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R8
 
       ! Create fields
-      field1 = ESMF_FieldCreate(original, _RC)
-      field2 = ESMF_FieldCreate(original, _RC)
+      call ESMF_FieldGet(original, grid=grid, _RC)
+      field1 = ESMF_FieldCreate(grid, typekind, _RC)
+      field2 = ESMF_FieldCreate(grid, typekind, _RC)
       bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
 
       ! Get pointer by index using REAL64
@@ -370,11 +374,11 @@ contains
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field1, field2
       type(ESMF_Grid) :: grid
-      type(ESMF_TypeKind_Flag) :: typekind
       real(REAL64), pointer :: ptr(:,:,:)
       integer :: rc, status
+      type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R8
 
-      call ESMF_FieldGet(original, grid=grid, typekind=typekind, _RC)
+      call ESMF_FieldGet(original, grid=grid, _RC)
       ! Create actual 3D fields
       field1 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[3], _RC)
       field2 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[3], _RC)
@@ -402,13 +406,16 @@ contains
 
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field1, field2
+      type(ESMF_Grid) :: grid
       real(REAL64), pointer :: ptr(:,:)
       integer :: rc, status
+      type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R8
 
       ! Create fields with names
-      field1 = ESMF_FieldCreate(original, _RC)
+      call ESMF_FieldGet(original, grid=grid, _RC)
+      field1 = ESMF_FieldCreate(grid, typekind, _RC)
       call ESMF_FieldSet(field1, name='temperature_r8', _RC)
-      field2 = ESMF_FieldCreate(original, _RC)
+      field2 = ESMF_FieldCreate(grid, typekind, _RC)
       call ESMF_FieldSet(field2, name='pressure_r8', _RC)
       bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
 
@@ -435,11 +442,11 @@ contains
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field1, field2
       type(ESMF_Grid) :: grid
-      type(ESMF_TypeKind_Flag) :: typekind
       real(REAL64), pointer :: ptr(:,:,:)
       integer :: rc, status
+      type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R8
 
-      call ESMF_FieldGet(original, grid=grid, typekind=typekind, _RC)
+      call ESMF_FieldGet(original, grid=grid, _RC)
       ! Create actual 3D fields with names
       field1 = ESMF_FieldCreate(grid, typekind, ungriddedLBound=[1], ungriddedUBound=[2], _RC)
       call ESMF_FieldSet(field1, name='velocity_r8', _RC)
