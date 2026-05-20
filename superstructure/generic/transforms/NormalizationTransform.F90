@@ -23,7 +23,7 @@
 !!
 module mapl_NormalizationTransform
    use mapl_TransformId
-   use mapl_StateItem
+   use mapl_StateItemImpl
    use mapl_ExtensionTransform
    use mapl_ExtensionTransformUtils, only: bundle_types_valid
    use MAPL_FieldUtils

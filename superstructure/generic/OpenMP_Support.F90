@@ -4,10 +4,10 @@ module mapl_OpenMP_Support
     use ESMF
     use mapl_ErrorHandling
     use mapl_KeywordEnforcer
-    use mapl_GridGet, only: GridGet
+    use mapl_GridAccessors, only: GridGet
     use mapl_Subgrid, only: Interval, make_subgrids, find_bounds
-    use mapl_StateAddMethod, only: CallbackMap, CallbackMapIterator, CallbackMethodWrapper, get_callbacks
-    use mapl_StateAddMethod, only: operator(/=)
+    use mapl_StateAddMethodImpl, only: CallbackMap, CallbackMapIterator, CallbackMethodWrapper, get_callbacks
+    use mapl_StateAddMethodImpl, only: operator(/=)
     !$ use omp_lib
 
     implicit none(type,external)

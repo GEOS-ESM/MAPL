@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_StateGet
+module mapl_StateGetImpl
    use mapl_VerticalGrid_API
    use mapl_Field_API
    use mapl_UngriddedDims
@@ -90,4 +90,4 @@ contains
       
       _RETURN(_SUCCESS)
    end subroutine state_get_status
-end module mapl_StateGet
+end module mapl_StateGetImpl

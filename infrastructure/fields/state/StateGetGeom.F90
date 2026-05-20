@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_StateGetGeom
+module mapl_StateGetGeomImpl
    use esmf
    use mapl_ErrorHandling
    use mapl_Geom_API
@@ -89,4 +89,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine collect_geom
 
-end module mapl_StateGetGeom
+end module mapl_StateGetGeomImpl

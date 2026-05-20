@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_FieldGet
+module mapl_FieldGetImpl
 
    use mapl_VerticalGrid_API
    use mapl_VerticalAlignment
@@ -120,4 +120,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_get
 
-end module mapl_FieldGet
+end module mapl_FieldGetImpl

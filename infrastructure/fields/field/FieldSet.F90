@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl_FieldSet
+module mapl_FieldSetImpl
 
    use mapl_VerticalGrid_API
    use mapl_VerticalStaggerLoc
    use mapl_VerticalAlignment
    use mapl_FieldInfo
-   use mapl_FieldGet
+   use mapl_FieldGetImpl
    use mapl_FieldDelta
    use mapl_StateItemAllocation
    use mapl_QuantityTypeMetadata
@@ -148,4 +148,4 @@ contains
       _UNUSED_DUMMY(attributes)
    end subroutine field_set
 
-end module mapl_FieldSet
+end module mapl_FieldSetImpl

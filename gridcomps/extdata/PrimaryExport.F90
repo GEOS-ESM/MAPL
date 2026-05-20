@@ -20,8 +20,7 @@ module mapl_PrimaryExport
    use mapl_ExtDataSample
    use pfio, only: i_clients
    use VerticalCoordinateMod
-   use mapl_FieldBundleSet
-   use mapl_FieldBundleGet
+   use mapl_FieldBundle_API
    use mapl_EsmfRegridder, only: EsmfRegridderParam
    use mapl_RegridderMethods
    implicit none
@@ -165,7 +164,7 @@ module mapl_PrimaryExport
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
-         call mapl_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=VERTICAL_STAGGER_NONE, regridder_param_info=regridder_param_info, _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
@@ -211,11 +210,11 @@ module mapl_PrimaryExport
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
-         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=VERTICAL_STAGGER_NONE,  _RC)
-      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
-         vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
-         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
+          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
                  vert_staggerloc=VERTICAL_STAGGER_CENTER,  _RC)
       else
@@ -322,7 +321,7 @@ module mapl_PrimaryExport
       real(ESMF_KIND_R4), pointer :: ptr_r4(:)
       real(ESMF_KIND_R8), pointer :: ptr_r8(:)
 
-      call FieldBundleGet(bundle, fieldList=field_list, _RC)
+      call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
       do i=1,size(field_list)
          call ESMF_FieldGet(field_list(i), typekind=tk, _RC)
          if (tk == ESMF_TYPEKIND_R4) then

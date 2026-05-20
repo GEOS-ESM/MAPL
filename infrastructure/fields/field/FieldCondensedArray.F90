@@ -4,7 +4,7 @@ module mapl_FieldCondensedArray
    use mapl_FieldPointerUtilities, only: FieldGetLocalElementCount, assign_fptr
    use mapl_VerticalStaggerLoc
    use mapl_ExceptionHandling
-   use mapl_FieldGet
+   use mapl_FieldGetImpl
    use ESMF, only: ESMF_Field, ESMF_FieldGet
    use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I8
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer

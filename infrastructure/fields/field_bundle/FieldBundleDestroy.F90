@@ -1,12 +1,12 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-module mapl_FieldBundleDestroy
+module mapl_FieldBundleDestroyImpl
    use esmf
    use MAPL_ExceptionHandling
    use mapl_KeywordEnforcer
    use MAPL_FieldUtils, only : FieldsDestroy
-   use mapl_FieldBundleGet, only: MAPL_FieldBundleGet => FieldBundleGet
+   use mapl_FieldBundleGetImpl, only: MAPL_FieldBundleGet => FieldBundleGet
 
    implicit none(type, external)
 
@@ -44,4 +44,4 @@ contains
 
    end subroutine destroy_bundle
 
-end module mapl_FieldBundleDestroy
+end module mapl_FieldBundleDestroyImpl

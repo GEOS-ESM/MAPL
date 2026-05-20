@@ -33,8 +33,8 @@ module mapl_Generic
    use mapl_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use mapl_UngriddedDim, only: UngriddedDim
    use mapl_UngriddedDims, only: UngriddedDims
-   use mapl_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
-   use mapl_StateItem, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
+   use mapl_StateItemImpl, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_StateItemImpl, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
    use mapl_ESMF_Utilities, only: esmf_state_intent_to_string
    use mapl_ESMF_Interfaces, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl_hconfig_get
@@ -1190,7 +1190,7 @@ contains
    subroutine method_add(state, label, userRoutine, rc)
       use esmf, only: ESMF_State, ESMF_MethodAdd
       use mapl_ESMF_Interfaces, only: I_CallBackMethod
-      use mapl_StateAddMethod, only: CallbackMap, CallbackMethodWrapper, get_callbacks
+      use mapl_StateAddMethodImpl, only: CallbackMap, CallbackMethodWrapper, get_callbacks
       type(ESMF_State), intent(inout) :: state
       character(len=*), intent(in) :: label
       procedure(I_CallBackMethod) :: userRoutine

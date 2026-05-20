@@ -5,7 +5,7 @@ module mapl_VerticalRegridTransform
    use mapl_Field_API
    use mapl_ErrorHandling
    use mapl_FieldBundle_API
-   use mapl_StateItem
+   use mapl_StateItemImpl
    use mapl_ExtensionTransform
    use mapl_ComponentDriver
    use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE

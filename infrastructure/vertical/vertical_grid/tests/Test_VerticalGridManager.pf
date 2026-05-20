@@ -1,9 +1,9 @@
 module Test_VerticalGridManager
    use pfunit
-   use mapl3g_VerticalGridManager, only: VerticalGridManager
-   use mapl3g_BasicVerticalGrid, only: BasicVerticalGridFactory
-   use mapl3g_VerticalGrid, only: VerticalGrid
-   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_CENTER, VerticalStaggerLoc
+   use mapl_VerticalGridManager, only: VerticalGridManager
+   use mapl_BasicVerticalGrid, only: BasicVerticalGridFactory
+   use mapl_VerticalGrid, only: VerticalGrid
+   use mapl_VerticalStaggerLoc, only: VERTICAL_STAGGER_CENTER, VerticalStaggerLoc
    use esmf, only: esmf_HConfig, esmf_Field, esmf_Geom
    use esmf, only: ESMF_TYPEKIND_R4
    use gftl2_StringVector
@@ -166,7 +166,7 @@ contains
 
    function mock_create_field(this, physical_dimension, aspects, coupler, rc) result(field)
       use esmf, only: esmf_Field, esmf_FieldEmptyCreate
-      use mapl3g_ComponentDriver, only: ComponentDriver
+      use mapl_ComponentDriver, only: ComponentDriver
       type(esmf_Field) :: field
       class(MockVerticalGrid), intent(in) :: this
       character(len=*), intent(in) :: physical_dimension

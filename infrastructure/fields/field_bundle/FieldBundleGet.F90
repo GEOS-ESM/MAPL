@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleGet
+module mapl_FieldBundleGetImpl
    use mapl_VerticalGrid_API
    use mapl_VerticalAlignment
    use mapl_KeywordEnforcer
@@ -160,4 +160,4 @@ contains
 
    end subroutine bundle_get
 
-end module mapl_FieldBundleGet
+end module mapl_FieldBundleGetImpl

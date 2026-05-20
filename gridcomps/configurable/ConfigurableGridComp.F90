@@ -136,7 +136,7 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine run
 
-end module Mapl3g_ConfigurableGridComp
+end module mapl_ConfigurableGridComp
 
 subroutine setServices(gridcomp, rc)
    use ESMF

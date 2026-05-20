@@ -1,7 +1,7 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-module mapl_FieldBundleCopy
+module mapl_FieldBundleCopyImpl
    use MAPL_FieldUtils, only: FieldCopy
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcer
@@ -56,4 +56,4 @@ contains
 
    end subroutine copy_bundle
 
-end module mapl_FieldBundleCopy
+end module mapl_FieldBundleCopyImpl

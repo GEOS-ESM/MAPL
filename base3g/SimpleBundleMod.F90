@@ -22,7 +22,7 @@ module mapl_SimpleBundleMod_impl
    use ESMF
    use mapl_Geom_API, only: MAPL_GridGet
    use mapl_FieldBundle_API, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
-   use mapl_MaxMin, only: MaxMin
+   use mapl_ArrayReductions, only: MaxMin => MAPL_MaxMin
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    use MAPL_Constants, only: MAPL_PI
    use MAPL_ExceptionHandling

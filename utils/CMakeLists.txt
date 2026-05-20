@@ -30,7 +30,7 @@ set (srcs
     # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     # From utilities/
-    utilities.F90
+    # utilities.F90 moved to mp_utils/API.F90 (MPI-dependent via mapl_ArrayReductions)
     MemInfo.F90
     TimeUtilities.F90
     OSUtilities.F90

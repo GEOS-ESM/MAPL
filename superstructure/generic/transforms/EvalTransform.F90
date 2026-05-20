@@ -3,7 +3,7 @@
 module mapl_EvalTransform
    use mapl_ExtensionTransform
    use mapl_TransformId
-   use mapl_StateItem
+   use mapl_StateItemImpl
    use mapl_ComponentDriver
    use mapl_ComponentDriverVector
    use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE, GENERIC_COUPLER_INITIALIZE

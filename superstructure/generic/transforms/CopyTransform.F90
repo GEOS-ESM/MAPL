@@ -6,11 +6,11 @@ module mapl_CopyTransform
    use mapl_TransformId
    use mapl_ExtensionTransform
    use mapl_ExtensionTransformUtils
-   use mapl_StateItem
+   use mapl_StateItemImpl
    use mapl_ErrorHandling
    use esmf
    use MAPL_FieldUtils
-   use mapl_FieldBundleCopy, only: FieldBundleCopy
+   use mapl_FieldBundleCopyImpl, only: FieldBundleCopy
    implicit none(type,external)
 
    private

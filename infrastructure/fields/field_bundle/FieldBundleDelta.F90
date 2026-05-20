@@ -6,8 +6,8 @@
 
 module mapl_FieldBundleDelta
 
-   use mapl_FieldBundleGet
-   use mapl_FieldBundleSet
+   use mapl_FieldBundleGetImpl
+   use mapl_FieldBundleSetImpl
    use mapl_FieldBundleType_Flag
    use mapl_LU_Bound
    use mapl_FieldDelta

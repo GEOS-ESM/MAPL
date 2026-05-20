@@ -32,7 +32,7 @@ module mapl_CallbackMap
 
 end module mapl_CallbackMap
 
-module mapl_StateAddMethod
+module mapl_StateAddMethodImpl
    use ESMF, only: ESMF_State, ESMF_MethodAdd
    use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoIsPresent, ESMF_InfoSet, ESMF_InfoGet
    use ESMF, only: ESMF_KIND_I4
@@ -107,4 +107,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_callbacks
 
-end module mapl_StateAddMethod
+end module mapl_StateAddMethodImpl

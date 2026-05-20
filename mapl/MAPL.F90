@@ -36,6 +36,7 @@ module MAPL
    use mapl_Utilities
    use mapl_RegridderMgr_API
    use mapl_Generic3g_API
+   use mapl_mp_utils
    use MAPL_PythonBridge
    use mapl_base3g
    use mapl_Profiler, initialize_profiler => initialize, finalize_profiler => finalize

@@ -21,7 +21,7 @@ module mapl_ComponentSpecParser
    use mapl_UngriddedDim
    use mapl_GeometrySpec
    use mapl_Geom_API
-   use mapl_Stateitem
+   use mapl_StateItemImpl
    use mapl_ESMF_Utilities
    use mapl_UserSetServices
    use mapl_StateRegistry

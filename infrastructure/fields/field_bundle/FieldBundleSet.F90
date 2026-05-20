@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleSet
+module mapl_FieldBundleSetImpl
    use mapl_VerticalGrid_API
    use mapl_Field_API
    use mapl_UngriddedDims
@@ -11,7 +11,7 @@ module mapl_FieldBundleSet
    use mapl_VectorBasisKind
    use mapl_FieldBundleInfo
    use mapl_InfoUtilities
-   use mapl_FieldBundleGet
+   use mapl_FieldBundleGetImpl
    use mapl_LU_Bound
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -180,4 +180,4 @@ contains
    end subroutine bundle_reset
 
 
-end module mapl_FieldBundleSet
+end module mapl_FieldBundleSetImpl

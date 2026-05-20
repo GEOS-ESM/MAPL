@@ -19,7 +19,7 @@ module mapl_FileIOShared
 
   use ESMF
   use mapl_DistGridGet, only: MAPL_DistGridGet_impl => DistGridGet
-  use mapl_GridGet, only: GridGet
+  use mapl_GridAccessors, only: GridGet
   use mapl_GridGetGlobal, only: GridGetGlobalCellCountPerDim
   use MAPL_SortMod
   use MAPL_CommsMod

@@ -15,7 +15,7 @@ module mapl_FieldDictionaryConfig
    use esmf
    use mapl_ErrorHandling
    use mapl_ValidationMode
-   use mapl_StateItem
+   use mapl_StateItemImpl
 
    implicit none(type, external)
    private

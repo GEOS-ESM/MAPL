@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_GridGet) grid_get_interior_smod
+submodule (mapl_GridAccessors) grid_get_interior_smod
 
    use mapl_DistGridGet, only: DistGridGet
 

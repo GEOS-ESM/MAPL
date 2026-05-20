@@ -2,7 +2,7 @@
 
 submodule (mapl_VectorBasis) new_GridVectorBasis_smod
 
-   use mapl_GridGet, only: GridGet
+   use mapl_GridAccessors, only: GridGet
    use mapl_FieldPointerUtilities, only: assign_fptr
 
    implicit none(type, external)

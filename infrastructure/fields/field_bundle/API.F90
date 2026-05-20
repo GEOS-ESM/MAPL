@@ -3,16 +3,16 @@ module mapl_FieldBundle_API
    use ESMF, only: MAPL_FieldBundleAdd => ESMF_FieldBundleAdd
    use mapl_FieldBundleType_Flag
    use mapl_VectorBasisKind
-   use mapl_FieldBundleCreate, only: MAPL_FieldBundleCreate => FieldBundleCreate
-   use mapl_FieldBundleCreate, only: MAPL_FieldBundlesAreAliased => FieldBundlesAreAliased
-   use mapl_FieldBundleDestroy, only: MAPL_FieldBundleDestroy
-   use mapl_FieldBundleGet, only: MAPL_FieldBundleGet => FieldBundleGet
-   use mapl_FieldBundleGetByIndex, only: MAPL_FieldBundleGetByIndex => FieldBundleGetByIndex
-   use mapl_FieldBundleSet, only: MAPL_FieldBundleSet => FieldBundleSet
+   use mapl_FieldBundleCreateImpl, only: MAPL_FieldBundleCreate => FieldBundleCreate
+   use mapl_FieldBundleCreateImpl, only: MAPL_FieldBundlesAreAliased => FieldBundlesAreAliased
+   use mapl_FieldBundleDestroyImpl, only: MAPL_FieldBundleDestroy
+   use mapl_FieldBundleGetImpl, only: MAPL_FieldBundleGet => FieldBundleGet
+   use mapl_FieldBundleGetByIndexImpl, only: MAPL_FieldBundleGetByIndex => FieldBundleGetByIndex
+   use mapl_FieldBundleSetImpl, only: MAPL_FieldBundleSet => FieldBundleSet
    use mapl_FieldBundleInfo, only: MAPL_FieldBundleInfoGetInternal => FieldBundleInfoGetInternal
    use mapl_FieldBundleInfo, only: MAPL_FieldBundleInfoSetInternal => FieldBundleInfoSetInternal
-   use mapl_FieldBundleGetPointer, only: MAPL_FieldBundleGetPointer => FieldBundleGetPointerToData
-   use mapl_FieldBundleCopy, only: MAPL_FieldBundleCopy => FieldBundleCopy
+   use mapl_FieldBundleGetPointerImpl, only: MAPL_FieldBundleGetPointer => FieldBundleGetPointerToData
+   use mapl_FieldBundleCopyImpl, only: MAPL_FieldBundleCopy => FieldBundleCopy
    use mapl_FieldBundleMatch, only: MAPL_FieldBundleSameData => FieldBundleSameData
 
    implicit none

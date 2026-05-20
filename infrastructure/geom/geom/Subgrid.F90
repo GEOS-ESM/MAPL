@@ -2,7 +2,7 @@
 
 module mapl_Subgrid
     use ESMF
-    use mapl_GridGet, only: GridGet, GridGetCoordinates
+    use mapl_GridAccessors, only: GridGet, GridGetCoordinates
     use mapl_ErrorHandling
     use mapl_KeywordEnforcer
 

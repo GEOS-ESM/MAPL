@@ -5,12 +5,12 @@ module mapl_Geom_API
    use mapl_GeomSpec, only: GeomSpec
    use mapl_GeomManager, only: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
    use mapl_GeomUtilities, only: mapl_SameGeom, mapl_GeomGetId
-   use mapl_GeomGet, only: mapl_GeomGet => GeomGet
-   use mapl_GridGet, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates, &
+   use mapl_GeomAccessors, only: mapl_GeomGet => GeomGet, &
+        mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex, &
+        mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
+   use mapl_GridAccessors, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates, &
         mapl_GridHasDE => grid_has_DE
-   use mapl_GridGetHorzIJIndex, only: mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
    use mapl_GridGetGlobal, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
-   use mapl_GeomGetHorzIJIndex, only: mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex
    use mapl_Subgrid, only: mapl_Interval => Interval, mapl_make_subgrids => make_subgrids
    use mapl_XYGeomSpec,    only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
    use mapl_XYGeomFactory, only: XYGeomFactory

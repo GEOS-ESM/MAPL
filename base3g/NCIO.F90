@@ -16,7 +16,7 @@ module mapl_NCIO
   use ESMF
   use mapl_GridGetGlobal, only: GridGetGlobalCellCountPerDim
   use MAPL_RangeMod, only: MAPL_Range
-  use mapl_GridGet, only: geom_GridGet => GridGet
+  use mapl_GridAccessors, only: geom_GridGet => GridGet
   use MAPL_CommsMod
    use mapl_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
   use MAPL_SortMod

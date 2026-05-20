@@ -7,7 +7,7 @@ module mapl_RegridTransform
    use mapl_ExtensionTransform
    use mapl_TransformId
    use mapl_regridder_mgr
-   use mapl_StateItem
+   use mapl_StateItemImpl
    use mapl_ExtensionTransformUtils, only: bundle_types_valid
    use mapl_NormalizationMetadata
    use mapl_NormalizationType

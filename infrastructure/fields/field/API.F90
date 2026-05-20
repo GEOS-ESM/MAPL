@@ -1,8 +1,8 @@
 module mapl_Field_API
-   use mapl_FieldGet, only: MAPL_FieldGet => FieldGet
-   use mapl_FieldSet, only: MAPL_FieldSet => FieldSet
-   use mapl_FieldFill, only: MAPL_FieldFill => FieldFill
-   use mapl_FieldCreate
+   use mapl_FieldGetImpl, only: MAPL_FieldGet => FieldGet
+   use mapl_FieldSetImpl, only: MAPL_FieldSet => FieldSet
+   use mapl_FieldFillImpl, only: MAPL_FieldFill => FieldFill
+   use mapl_FieldCreateImpl
    use mapl_StateItemAllocation
    use mapl_RestartModes
    use mapl_FieldPointerUtilities, only: MAPL_AssignFptr => assign_fptr

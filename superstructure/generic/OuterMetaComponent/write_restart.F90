@@ -4,7 +4,7 @@ submodule (mapl_OuterMetaComponent) write_restart_smod
    use mapl_MultiState
    use mapl_RestartHandler
    use mapl_OS
-   use mapl_Utilities, only: MAPL_GetCheckpointSubdir
+   use mapl_mp_utils, only: MAPL_GetCheckpointSubdir
    use mapl_ErrorHandling
    implicit none(type,external)
 

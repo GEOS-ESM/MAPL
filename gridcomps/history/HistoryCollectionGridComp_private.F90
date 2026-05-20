@@ -9,7 +9,7 @@ module mapl_HistoryCollectionGridComp_private
    use mapl_EsmfRegridder, only: EsmfRegridderParam
    use mapl_RegridderMethods
    use mapl_CompressionSettings
-   use mapl_StateItem
+   use mapl_StateItemImpl
    use mapl_State_API
    use mapl_HistoryUtilities
    use mapl_HistoryConstants

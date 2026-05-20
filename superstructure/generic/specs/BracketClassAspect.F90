@@ -27,7 +27,7 @@ module mapl_BracketClassAspect
    use mapl_MultiState
    use mapl_ESMF_Utilities, only: get_substate
 
-   use mapl_FieldCreate
+   use mapl_FieldCreateImpl
    use mapl_FieldUtilities
 
    use mapl_ErrorHandling

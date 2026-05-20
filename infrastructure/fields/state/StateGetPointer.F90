@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 
-module mapl_StateGetPointer
+module mapl_StateGetPointerImpl
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -84,4 +84,4 @@ contains
 
 #undef NAME_
 
-end module mapl_StateGetPointer
+end module mapl_StateGetPointerImpl
