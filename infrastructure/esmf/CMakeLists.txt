@@ -24,7 +24,7 @@ set (srcs
     # From alarm/
     alarm/SimpleAlarm.F90
     # From hconfig/
-    hconfig/API.F90
+    hconfig/HConfig_API.F90
     hconfig/HConfigAs.F90
     # From hconfig_utils/
     hconfig_utils/HConfig3G.F90
@@ -42,7 +42,7 @@ set (srcs
     StateItem.F90
     # From esmf_utils/comms/
     comms/MAPL_Comms.F90
-    comms/API.F90
+    comms/Comms_API.F90
 )
 
 esma_add_library (${this}
