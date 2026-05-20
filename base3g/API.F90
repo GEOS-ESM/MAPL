@@ -14,7 +14,7 @@ module mapl_base3g
                             mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, &
                             mapl_CommsAllReduceSum, mapl_CommsSend, mapl_CommsRecv, &
                             mapl_CommsSendRecv, mapl_AM_I_ROOT, mapl_AM_I_RANK, &
-                            mapl_NPES, ArrayGather, ArrayScatter, MAPL_ROOT, &
+                            mapl_NPES, MAPL_ROOT, &
                             MAPL_ArrayGather => ArrayGather, MAPL_ArrayScatter => ArrayScatter, &
                             mapl_CreateRequest, mapl_CommRequest, mapl_ArrayIGather, &
                             mapl_ArrayIScatter, mapl_CollectiveWait, &
@@ -51,7 +51,7 @@ module mapl_base3g
    public :: mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, mapl_CommsAllReduceSum
    public :: mapl_CommsSend, mapl_CommsRecv, mapl_CommsSendRecv
    public :: mapl_AM_I_ROOT, mapl_AM_I_RANK, mapl_NPES
-   public :: ArrayGather, ArrayScatter, MAPL_ROOT
+   public :: MAPL_ROOT
    public :: MAPL_ArrayGather, MAPL_ArrayScatter
    public :: mapl_CreateRequest, mapl_CommRequest
    public :: mapl_ArrayIGather, mapl_ArrayIScatter, mapl_CollectiveWait
