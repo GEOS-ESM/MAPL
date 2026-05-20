@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix NVHPC compiler build failure in `superstructure/generic/OpenMP_Support.F90`:
+  replace `ESMF_UserCompGetInternalState` and `ESMF_UserCompSetInternalState` with
+  their MAPL wrapper equivalents (`MAPL_UserCompGetInternalState` /
+  `MAPL_UserCompSetInternalState`).
 - Relaxed the comparison standard for grid_is_ok in case a grid is r4
 - Fix vector component naming lifecycle in `superstructure/generic/specs/VariableSpec.F90`
   and `superstructure/generic/specs/VectorClassAspect.F90` by using resolved
