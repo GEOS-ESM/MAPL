@@ -12,6 +12,7 @@ set (srcs
     UngriddedDim.F90
     UngriddedDims.F90
     UngriddedDimVector.F90
+    EsmfUtils_API.F90
     LU_Bound.F90
     ESMF_Time_Utilities.F90
     HorizontalDimsSpec.F90
