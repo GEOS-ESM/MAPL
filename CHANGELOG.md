@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Extended StatisticsGridComp to support variance of a single field.
+- Extended `FieldBundleGetPointerToData` interface with REAL64 pointer overloads
+  for index/name and 2D/3D variants (PR #4948).
 
 ### Changed
 
