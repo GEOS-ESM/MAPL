@@ -2,7 +2,7 @@
 
 module mapl3g_GeomSpec
 
-   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_Geom
 
    implicit none(type, external)
    private
@@ -32,23 +32,25 @@ module mapl3g_GeomSpec
          class(GeomSpec), intent(in) :: b
       end function I_equal_to
 
-      subroutine I_get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
-         import GeomSpec, ESMF_KIND_R4
+      subroutine I_get_horz_ij_index_r4(this, lon, lat, ii, jj, geom, rc)
+         import GeomSpec, ESMF_KIND_R4, ESMF_Geom
          class(GeomSpec), intent(in) :: this
          real(kind=ESMF_KIND_R4), intent(in) :: lon(:)
          real(kind=ESMF_KIND_R4), intent(in) :: lat(:)
          integer, allocatable, intent(out) :: ii(:)
          integer, allocatable, intent(out) :: jj(:)
+         type(ESMF_Geom), optional, intent(in) :: geom
          integer, optional, intent(out) :: rc
       end subroutine I_get_horz_ij_index_r4
 
-      subroutine I_get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
-         import GeomSpec, ESMF_KIND_R8
+      subroutine I_get_horz_ij_index_r8(this, lon, lat, ii, jj, geom, rc)
+         import GeomSpec, ESMF_KIND_R8, ESMF_Geom
          class(GeomSpec), intent(in) :: this
          real(kind=ESMF_KIND_R8), intent(in) :: lon(:)
          real(kind=ESMF_KIND_R8), intent(in) :: lat(:)
          integer, allocatable, intent(out) :: ii(:)
          integer, allocatable, intent(out) :: jj(:)
+         type(ESMF_Geom), optional, intent(in) :: geom
          integer, optional, intent(out) :: rc
       end subroutine I_get_horz_ij_index_r8
    end interface

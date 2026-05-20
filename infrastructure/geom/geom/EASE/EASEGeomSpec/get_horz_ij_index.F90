@@ -5,17 +5,19 @@ submodule (mapl3g_EASEGeomSpec) get_horz_ij_index_smod
    use mapl3g_EASEConversion
    use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
    use mapl_ErrorHandling
+   use ESMF, only: ESMF_Geom
 
    implicit none (type, external)
 
 contains
 
-   module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+   module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, geom, rc)
       class(EASEGeomSpec), intent(in)  :: this
       real(kind=R4),       intent(in)  :: lon(:)
       real(kind=R4),       intent(in)  :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional,   intent(out) :: rc
 
       integer :: status
@@ -29,12 +31,13 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_horz_ij_index_r4
 
-   module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+   module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, geom, rc)
       class(EASEGeomSpec), intent(in)  :: this
       real(kind=R8),       intent(in)  :: lon(:)
       real(kind=R8),       intent(in)  :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional,   intent(out) :: rc
 
       integer :: status

@@ -5,7 +5,7 @@ module mapl3g_MeshGeomSpec
    use mapl3g_MeshDecomposition
    use mapl_ErrorHandlingMod
    use mapl_KeywordEnforcer
-   use esmf, only: ESMF_KIND_R8, ESMF_HConfig, ESMF_KIND_R4
+   use esmf, only: ESMF_KIND_R8, ESMF_HConfig, ESMF_KIND_R4, ESMF_Geom
    use pfio, only: FileMetadata
    implicit none(type,external)
    private
@@ -162,12 +162,13 @@ contains
       decomposition = this%decomposition
    end function get_decomposition
 
-   subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+   subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, geom, rc)
       class(MeshGeomSpec), intent(in) :: this
       real(kind=ESMF_KIND_R4), intent(in) :: lon(:)
       real(kind=ESMF_KIND_R4), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -180,12 +181,13 @@ contains
       _UNUSED_DUMMY(lat)
    end subroutine get_horz_ij_index_r4
 
-   subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+   subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, geom, rc)
       class(MeshGeomSpec), intent(in) :: this
       real(kind=R8), intent(in) :: lon(:)
       real(kind=R8), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status

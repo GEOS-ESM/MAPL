@@ -4,7 +4,7 @@ module mapl3g_XYGeomSpec
 
    use mapl3g_GeomSpec
    use MAPL_InternalConstants
-   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_HConfig
+   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_HConfig, ESMF_Geom
 
    implicit none
    private
@@ -121,21 +121,23 @@ interface
       integer, optional, intent(out) :: rc
    end function supports_metadata_
 
-   module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+   module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, geom, rc)
       class(XYGeomSpec), intent(in) :: this
       real(R4), intent(in) :: lon(:)
       real(R4), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
    end subroutine get_horz_ij_index_r4
 
-   module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+   module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, geom, rc)
       class(XYGeomSpec), intent(in) :: this
       real(R8), intent(in) :: lon(:)
       real(R8), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
    end subroutine get_horz_ij_index_r8
 

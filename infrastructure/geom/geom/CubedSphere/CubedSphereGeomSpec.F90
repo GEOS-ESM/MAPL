@@ -3,7 +3,7 @@
 module mapl3g_CubedSphereGeomSpec
    use mapl3g_GeomSpec
    use mapl3g_CubedSphereDecomposition
-   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_CubedSphereTransform_Args
+   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_CubedSphereTransform_Args, ESMF_Geom
    implicit none
    real(kind=ESMF_KIND_R8) :: undef_schmidt = 1d15
    private
@@ -117,21 +117,23 @@ module mapl3g_CubedSphereGeomSpec
          class(CubedSphereGeomSpec), intent(in) :: spec
       end function get_schmidt_parameters
 
-      module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+      module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, geom, rc)
          class(CubedSphereGeomSpec), intent(in) :: this
          real(kind=R4), intent(in) :: lon(:)
          real(kind=R4), intent(in) :: lat(:)
          integer, allocatable, intent(out) :: ii(:)
          integer, allocatable, intent(out) :: jj(:)
+         type(ESMF_Geom), optional, intent(in) :: geom
          integer, optional, intent(out) :: rc
       end subroutine get_horz_ij_index_r4
 
-      module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+      module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, geom, rc)
          class(CubedSphereGeomSpec), intent(in) :: this
          real(kind=R8), intent(in) :: lon(:)
          real(kind=R8), intent(in) :: lat(:)
          integer, allocatable, intent(out) :: ii(:)
          integer, allocatable, intent(out) :: jj(:)
+         type(ESMF_Geom), optional, intent(in) :: geom
          integer, optional, intent(out) :: rc
       end subroutine get_horz_ij_index_r8
 
