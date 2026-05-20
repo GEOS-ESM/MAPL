@@ -679,7 +679,7 @@ contains
          else
             basis_kind = VECTOR_BASIS_KIND_NS
          end if
-         aspect = VectorClassAspect(this%vector_component_names, &
+         aspect = VectorClassAspect(vector_component_names, &
               [ &
               FieldClassAspect(standard_name=std_name_1, fill_value=this%fill_value), &
               FieldClassAspect(standard_name=std_name_2, fill_value=this%fill_value) &

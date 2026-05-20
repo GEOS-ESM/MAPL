@@ -155,14 +155,17 @@ contains
       type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: i
+      type(ESMF_Field), allocatable :: field
+      integer :: i, status
 
       do i = 1, NUM_COMPONENTS
          call this%component_specs(i)%create(other_aspects, _RC)
          call update_payload(this%component_specs(i), other_aspects, _RC)
          call this%component_specs(i)%allocate(other_aspects, _RC)
          call this%component_specs(i)%add_to_bundle(this%payload, _RC)
+         ! update the name of the component
+         call this%component_specs(i)%get_payload(field=field, _RC)
+         call ESMF_FieldSet(field, name=trim(this%short_names%at(i)), _RC)
       end do
 
       _RETURN(ESMF_SUCCESS)
@@ -337,13 +340,6 @@ contains
          end if
       end if
       call ESMF_StateAddReplace(substate, [alias], _RC)
-
-      ! Also update the names of the components
-      call MAPL_FieldBundleGet(this%payload, fieldList=field_list, _RC)
-      if (size(field_list) > 0) then ! might be empty if import item
-         call ESMF_FieldSet(field_list(1), name=trim(this%short_names%at(1)), _RC)
-         call ESMF_FieldSet(field_list(2), name=trim(this%short_names%at(2)), _RC)
-      end if
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
