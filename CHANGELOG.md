@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Relaxed the comparison standard for grid_is_ok in case a grid is r4
+- Fix `mapl/MAPL.F90` to use `mapl_ErrorHandling` directly instead of the thin
+  `mapl_ErrorHandlingMod` wrapper, resolving an `ifx` linker issue with bare
+  `mapl_return_` thunks in client code.
 - Fix vector component naming lifecycle in `superstructure/generic/specs/VariableSpec.F90`
   and `superstructure/generic/specs/VectorClassAspect.F90` by using resolved
   `vector_component_names` when constructing `VectorClassAspect` and setting
