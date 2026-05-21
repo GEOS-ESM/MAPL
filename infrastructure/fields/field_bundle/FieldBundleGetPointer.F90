@@ -1,7 +1,7 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-module mapl3g_FieldBundleGetPointer
+module mapl_FieldBundleGetPointerImpl
 
    use ESMF
    use MAPL_ErrorHandling
@@ -193,4 +193,4 @@ contains
      _RETURN(_SUCCESS)
    end subroutine FieldBundleGetPointerToR8DataByName3
 
-end module mapl3g_FieldBundleGetPointer
+end module mapl_FieldBundleGetPointerImpl

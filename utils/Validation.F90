@@ -1,4 +1,4 @@
-module mapl3g_Validation
+module mapl_Validation
    implicit none(type,external)
    private
   
@@ -31,4 +31,4 @@ contains
 
    end function is_valid_name
   
-end module mapl3g_Validation
+end module mapl_Validation

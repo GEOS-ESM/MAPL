@@ -1,21 +1,21 @@
 #include "MAPL.h"
 
-module mapl3g_OuterMetaComponent
+module mapl_OuterMetaComponent
 
-   use mapl3g_UserSetServices, only: AbstractUserSetServices
-   use mapl3g_ComponentSpec
-   use mapl3g_VariableSpec
-   use mapl3g_ChildSpec
-   use mapl3g_InnerMetaComponent
-   use mapl3g_MethodPhasesMap
-   use mapl3g_StateRegistry
-   use mapl3g_ESMF_Interfaces, only: I_Run
-   use mapl3g_GriddedComponentDriver
-   use mapl3g_ComponentDriverVector
-   use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
-   use mapl3g_GriddedComponentDriverMap, only: operator(/=)
-   use mapl3g_VerticalGrid
-   use mapl3g_SimpleAlarm
+   use mapl_UserSetServices, only: AbstractUserSetServices
+   use mapl_ComponentSpec
+   use mapl_VariableSpec
+   use mapl_ChildSpec
+   use mapl_InnerMetaComponent
+   use mapl_MethodPhasesMap
+   use mapl_StateRegistry
+   use mapl_ESMF_Interfaces, only: I_Run
+   use mapl_GriddedComponentDriver
+   use mapl_ComponentDriverVector
+   use mapl_GriddedComponentDriverMap, only: GriddedComponentDriverMap
+   use mapl_GriddedComponentDriverMap, only: operator(/=)
+   use mapl_VerticalGrid
+   use mapl_SimpleAlarm
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use MAPL_Profiler, only: DistributedProfiler
@@ -520,4 +520,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine set_misc
 
-end module mapl3g_OuterMetaComponent
+end module mapl_OuterMetaComponent

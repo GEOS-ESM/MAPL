@@ -1,29 +1,28 @@
 #include "MAPL.h"
-module mapl3g_PrimaryExport
+module mapl_PrimaryExport
    use ESMF
    use MAPL_ExceptionHandling
-   use mapl3g_AbstractDataSetFileSelector
-   use mapl3g_NonClimDataSetFileSelector
-   use mapl3g_ClimDataSetFileSelector
-   use mapl3g_Geom_API
-   use mapl3g_VerticalGrid_API
+   use mapl_AbstractDataSetFileSelector
+   use mapl_NonClimDataSetFileSelector
+   use mapl_ClimDataSetFileSelector
+   use mapl_Geom_API
+   use mapl_VerticalGrid_API
    use MAPL_FileMetadataUtilsMod
    use generic3g
-   use mapl3g_DataSetBracket
-   use mapl3g_DataSetNode
-   use mapl3g_ExtDataReader
+   use mapl_DataSetBracket
+   use mapl_DataSetNode
+   use mapl_ExtDataReader
    use gftl2_StringStringMap
    use gftl2_IntegerVector
    use gftl2_StringVector
-   use mapl3g_ExtDataRule
-   use mapl3g_ExtDataCollection
-   use mapl3g_ExtDataSample
+   use mapl_ExtDataRule
+   use mapl_ExtDataCollection
+   use mapl_ExtDataSample
    use pfio, only: i_clients
    use VerticalCoordinateMod
-   use mapl3g_FieldBundleSet
-   use mapl3g_FieldBundleGet
-   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
-   use mapl3g_RegridderMethods
+   use mapl_FieldBundle_API
+   use mapl_EsmfRegridder, only: EsmfRegridderParam
+   use mapl_RegridderMethods
    implicit none
    private
 
@@ -165,7 +164,7 @@ module mapl3g_PrimaryExport
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
-         call mapl_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=VERTICAL_STAGGER_NONE, regridder_param_info=regridder_param_info, _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
@@ -211,11 +210,11 @@ module mapl3g_PrimaryExport
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
-         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=VERTICAL_STAGGER_NONE,  _RC)
-      else if (this%vcoord%vertical_type == SIMPLE_COORD) then
-         vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
-         call FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
+          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
+          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
                  vert_staggerloc=VERTICAL_STAGGER_CENTER,  _RC)
       else
@@ -322,7 +321,7 @@ module mapl3g_PrimaryExport
       real(ESMF_KIND_R4), pointer :: ptr_r4(:)
       real(ESMF_KIND_R8), pointer :: ptr_r8(:)
 
-      call FieldBundleGet(bundle, fieldList=field_list, _RC)
+      call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
       do i=1,size(field_list)
          call ESMF_FieldGet(field_list(i), typekind=tk, _RC)
          if (tk == ESMF_TYPEKIND_R4) then
@@ -339,4 +338,4 @@ module mapl3g_PrimaryExport
 
    end subroutine set_fraction_values_to_zero
 
-end module mapl3g_PrimaryExport
+end module mapl_PrimaryExport

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule(mapl3g_GriddedComponentDriver) run_export_couplers_smod
+submodule(mapl_GriddedComponentDriver) run_export_couplers_smod
 
    use mapl_CouplerPhases
    use mapl_ErrorHandling

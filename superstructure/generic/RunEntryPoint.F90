@@ -1,4 +1,4 @@
-module mapl3g_RunEntryPoint
+module mapl_RunEntryPoint
    implicit none(type,external)
    private
 
@@ -8,4 +8,4 @@ module mapl3g_RunEntryPoint
       procedure(), pointer, nopass :: run_entry_point => null()
    end type runEntryPoint
 
-end module mapl3g_RunEntryPoint
+end module mapl_RunEntryPoint

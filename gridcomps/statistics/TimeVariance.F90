@@ -1,16 +1,16 @@
 #include "MAPL.h"
 
-module mapl3g_TimeVariance
+module mapl_TimeVariance
 
-   use mapl3g_AbstractTimeStatistic
-   use mapl3g_AbstractCovarianceKernel
-   use mapl3g_ShiftedCovarianceKernel
-   use mapl3g_WelfordCovarianceKernel
+   use mapl_AbstractTimeStatistic
+   use mapl_AbstractCovarianceKernel
+   use mapl_ShiftedCovarianceKernel
+   use mapl_WelfordCovarianceKernel
    use MAPL
    use ESMF
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
-   use mapl3g_SimpleAlarm, only: SimpleAlarm
+   use mapl_SimpleAlarm, only: SimpleAlarm
 
    implicit none(type, external)
    private
@@ -287,4 +287,4 @@ contains
 
    end function needs_initialization
 
-end module mapl3g_TimeVariance
+end module mapl_TimeVariance

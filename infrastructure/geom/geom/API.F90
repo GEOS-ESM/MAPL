@@ -1,21 +1,21 @@
-module mapl3g_Geom_API
+module mapl_Geom_API
 
    use mapl_KeywordEnforcer
-   use mapl3g_MaplGeom, only: MaplGeom
-   use mapl3g_GeomSpec, only: GeomSpec
-   use mapl3g_GeomManager, only: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
-   use mapl3g_GeomUtilities, only: mapl_SameGeom, mapl_GeomGetId
-   use mapl3g_GeomGet, only: mapl_GeomGet => GeomGet
-   use mapl3g_GridGet, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates, &
+   use mapl_MaplGeom, only: MaplGeom
+   use mapl_GeomSpec, only: GeomSpec
+   use mapl_GeomManager, only: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
+   use mapl_GeomUtilities, only: mapl_SameGeom, mapl_GeomGetId
+   use mapl_GeomAccessors, only: mapl_GeomGet => GeomGet, &
+        mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex, &
+        mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
+   use mapl_GridAccessors, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates, &
         mapl_GridHasDE => grid_has_DE
-   use mapl3g_GridGetHorzIJIndex, only: mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
-   use mapl3g_GridGetGlobal, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
-   use mapl3g_GeomGetHorzIJIndex, only: mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex
-   use mapl3g_Subgrid, only: mapl_Interval => Interval, mapl_make_subgrids => make_subgrids
-   use mapl3g_XYGeomSpec,    only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
-   use mapl3g_XYGeomFactory, only: XYGeomFactory
-   use mapl3g_CubedSphereGeomSpec, only: CubedSphereGeomSpec, make_CubedSphereGeomSpec
-   use mapl3g_CubedSphereDecomposition, only: CubedSphereDecomposition, make_CubedSphereDecomposition
+   use mapl_GridGetGlobal, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
+   use mapl_Subgrid, only: mapl_Interval => Interval, mapl_make_subgrids => make_subgrids
+   use mapl_XYGeomSpec,    only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
+   use mapl_XYGeomFactory, only: XYGeomFactory
+   use mapl_CubedSphereGeomSpec, only: CubedSphereGeomSpec, make_CubedSphereGeomSpec
+   use mapl_CubedSphereDecomposition, only: CubedSphereDecomposition, make_CubedSphereDecomposition
    use esmf, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4
 
    implicit none(type,external)
@@ -42,4 +42,4 @@ module mapl3g_Geom_API
    public :: CubedSphereGeomSpec, make_CubedSphereGeomSpec
    public :: CubedSphereDecomposition, make_CubedSphereDecomposition
 
-end module mapl3g_Geom_API
+end module mapl_Geom_API

@@ -1,15 +1,15 @@
 #include "MAPL.h"
 
-module mapl3g_LocStreamGeomFactory
-   use mapl3g_GeomSpec
-   use mapl3g_GeomFactory
-   use mapl3g_LocStreamGeomSpec
-   use mapl3g_LocStreamDecomposition
-   use mapl3g_CoordinateAxis, only: get_dim_name, get_coordinates
+module mapl_LocStreamGeomFactory
+   use mapl_GeomSpec
+   use mapl_GeomFactory
+   use mapl_LocStreamGeomSpec
+   use mapl_LocStreamDecomposition
+   use mapl_CoordinateAxis, only: get_dim_name, get_coordinates
    use mapl_ErrorHandlingMod
    use mapl_StringUtilities, only: to_lower
-   use mapl3g_get_hconfig, only: get_hconfig
-   use mapl3g_hconfig_params, only: HConfigParams
+   use mapl_get_hconfig, only: get_hconfig
+   use mapl_hconfig_params, only: HConfigParams
    use pfio_FileMetadataMod,   only: FileMetadata
    use pFIO_VariableMod,       only: Variable
    use pFIO_AttributeMod,      only: Attribute
@@ -17,7 +17,7 @@ module mapl3g_LocStreamGeomFactory
    use pFIO_NetCDF4_FileFormatterMod, only: NetCDF4_FileFormatter
    use pFIO_ConstantsMod,      only: pFIO_READ
    use gftl2_StringVector, only: StringVector
-   use mapl3g_StringDictionary, only: StringDictionary
+   use mapl_StringDictionary, only: StringDictionary
    use mapl_KeywordEnforcerMod, only: KeywordEnforcer
    use MAPL_Constants, only: MAPL_PI_R8
    use esmf
@@ -413,4 +413,4 @@ contains
       _RETURN(_SUCCESS)
    end function make_variable_attributes
 
-end module mapl3g_LocStreamGeomFactory
+end module mapl_LocStreamGeomFactory

@@ -5,12 +5,12 @@
 ! it should only be used with import stateIntent, and will be replaced
 ! by whatever source grid is connected to it.
 
-module mapl3g_MirrorVerticalGrid
+module mapl_MirrorVerticalGrid
 
    use mapl_ErrorHandling
-   use mapl3g_VerticalGrid
-   use mapl3g_ComponentDriver
-   use mapl3g_VerticalStaggerLoc
+   use mapl_VerticalGrid
+   use mapl_ComponentDriver
+   use mapl_VerticalStaggerLoc
    use mapl_ErrorHandling
    use gftl2_StringVector, only: StringVector
    use esmf, only: ESMF_TypeKind_Flag
@@ -100,4 +100,4 @@ contains
       _UNUSED_DUMMY(other)
    end function matches
 
-end module mapl3g_MirrorVerticalGrid
+end module mapl_MirrorVerticalGrid

@@ -1,6 +1,6 @@
-module mapl3g_ActualPtStateItemSpecMap
-   use mapl3g_ActualConnectionPt
-   use mapl3g_StateItemSpec, only: StateItemSpec
+module mapl_ActualPtStateItemSpecMap
+   use mapl_ActualConnectionPt
+   use mapl_StateItemSpec, only: StateItemSpec
 
 #define Key ActualConnectionPt
 #define Key_LT(a,b) (a < b)
@@ -20,4 +20,4 @@ module mapl3g_ActualPtStateItemSpecMap
 #undef T
 #undef Key
 
-end module mapl3g_ActualPtStateItemSpecMap
+end module mapl_ActualPtStateItemSpecMap

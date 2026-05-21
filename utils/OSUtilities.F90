@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_OSUtilities
+module mapl_OSUtilities
 
    use ESMF
    use mapl_OS
@@ -46,4 +46,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_checkpoint_subdir
 
-end module mapl3g_OSUtilities
+end module mapl_OSUtilities

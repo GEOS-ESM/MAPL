@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_ComponentSpecParser) to_itemtype_smod
+submodule (mapl_ComponentSpecParser) to_itemtype_smod
    implicit none(type,external)
 
 contains

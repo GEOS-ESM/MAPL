@@ -1,9 +1,9 @@
 #include "MAPL.h"
-module mapl3g_DataSetBracket
+module mapl_DataSetBracket
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use mapl3g_DataSetNode
+   use mapl_DataSetNode
    implicit none
    private
 
@@ -125,4 +125,4 @@ contains
 
    end function compute_bracket_weights 
 
-end module mapl3g_DataSetBracket
+end module mapl_DataSetBracket

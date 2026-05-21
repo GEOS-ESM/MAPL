@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-module mapl3g_FieldBundleRead
+module mapl_FieldBundleRead
 
    use ESMF
    use mapl_ErrorHandling
-   use mapl3g_GeomPFIO
-   use mapl3g_GeomCatagorizer
-   use mapl3g_Geom_API, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
-   use mapl3g_Field_API, only: MAPL_FieldCreate, MAPL_FieldGet
-   use mapl3g_FieldBundle_API
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalGrid_API
-   use mapl3g_RegridderManager, only: get_regridder_manager, RegridderManager
-   use mapl3g_RegridderSpec
-   use mapl3g_RegridderMethods
-   use mapl3g_Regridder, only: Regridder
+   use mapl_GeomPFIO
+   use mapl_GeomCatagorizer
+   use mapl_Geom_API, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
+   use mapl_Field_API, only: MAPL_FieldCreate, MAPL_FieldGet
+   use mapl_FieldBundle_API
+   use mapl_VerticalStaggerLoc
+   use mapl_VerticalGrid_API
+   use mapl_RegridderManager, only: get_regridder_manager, RegridderManager
+   use mapl_RegridderSpec
+   use mapl_RegridderMethods
+   use mapl_Regridder, only: Regridder
    use MAPL_FileMetadataUtilsMod
    use MAPL_StringTemplate, only: fill_grads_template
    use pFIO
@@ -390,4 +390,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine mapl_read_bundle
 
-end module mapl3g_FieldBundleRead
+end module mapl_FieldBundleRead

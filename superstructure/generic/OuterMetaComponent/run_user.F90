@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) run_user_smod
+submodule (mapl_OuterMetaComponent) run_user_smod
 
-   use mapl3g_ComponentDriver
-   use mapl3g_ComponentDriverPtrVector
+   use mapl_ComponentDriver
+   use mapl_ComponentDriverPtrVector
    use mapl_CouplerPhases, only: GENERIC_COUPLER_INVALIDATE, GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling
    use pflogger, only: logger_t => logger

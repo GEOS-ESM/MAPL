@@ -1,5 +1,5 @@
-module mapl3g_StateItemSpecVector
-   use mapl3g_StateItemSpec, only: StateItemSpec
+module mapl_StateItemSpecVector
+   use mapl_StateItemSpec, only: StateItemSpec
   
 #define T StateItemSpec
 #define T_deferred
@@ -13,4 +13,4 @@ module mapl3g_StateItemSpecVector
 #undef Vector
 #undef VectorIterator
   
-end module mapl3g_StateItemSpecVector
+end module mapl_StateItemSpecVector

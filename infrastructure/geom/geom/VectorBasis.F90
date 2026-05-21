@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_VectorBasis
+module mapl_VectorBasis
    use esmf
    use mapl_ErrorHandlingMod
 
@@ -117,6 +117,6 @@ module mapl3g_VectorBasis
 
    end interface
 
-end module mapl3g_VectorBasis
+end module mapl_VectorBasis
 
 

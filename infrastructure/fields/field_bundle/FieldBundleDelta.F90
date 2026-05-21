@@ -4,21 +4,21 @@
 
 #include "MAPL.h"
 
-module mapl3g_FieldBundleDelta
+module mapl_FieldBundleDelta
 
-   use mapl3g_FieldBundleGet
-   use mapl3g_FieldBundleSet
-   use mapl3g_FieldBundleType_Flag
-   use mapl3g_LU_Bound
-   use mapl3g_FieldDelta
-   use mapl3g_InfoUtilities
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalGrid_API
-   use mapl3g_Field_API
-   use mapl3g_FieldInfo
+   use mapl_FieldBundleGetImpl
+   use mapl_FieldBundleSetImpl
+   use mapl_FieldBundleType_Flag
+   use mapl_LU_Bound
+   use mapl_FieldDelta
+   use mapl_InfoUtilities
+   use mapl_VerticalStaggerLoc
+   use mapl_VerticalGrid_API
+   use mapl_Field_API
+   use mapl_FieldInfo
    use mapl_FieldUtilities
-   use mapl3g_UngriddedDims
-   use mapl3g_HorizontalDimsSpec
+   use mapl_UngriddedDims
+   use mapl_HorizontalDimsSpec
    use mapl_FieldPointerUtilities
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -299,4 +299,4 @@ contains
 
    end subroutine reallocate_bundle
 
-end module mapl3g_FieldBundleDelta
+end module mapl_FieldBundleDelta

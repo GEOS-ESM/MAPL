@@ -1,18 +1,18 @@
 #include "MAPL.h"
 
-module mapl3g_ConservationAspect
+module mapl_ConservationAspect
 
-   use mapl3g_ActualConnectionPt
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_ExtensionTransform
-   use mapl3g_NullTransform
+   use mapl_ActualConnectionPt
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_ExtensionTransform
+   use mapl_NullTransform
    use mapl_ConservationType
    use mapl_ConservationMetadata
    use mapl_QuantityType
    use mapl_QuantityTypeMetadata
-   use mapl3g_Field_API
-   use mapl3g_FieldBundle_API
+   use mapl_Field_API
+   use mapl_FieldBundle_API
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -336,4 +336,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine print_aspect
 
-end module mapl3g_ConservationAspect
+end module mapl_ConservationAspect

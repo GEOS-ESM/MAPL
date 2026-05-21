@@ -2,7 +2,7 @@
 
 ! From MAPL_MemUtils.F90
 
-module mapl3g_MemInfo
+module mapl_MemInfo
 
    use mpi
    use MAPL_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
@@ -211,4 +211,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_value
 
-end module mapl3g_MemInfo
+end module mapl_MemInfo

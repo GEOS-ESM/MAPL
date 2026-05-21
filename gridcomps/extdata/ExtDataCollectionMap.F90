@@ -1,5 +1,5 @@
-module mapl3g_ExtDataCollectionMap
-   use mapl3g_ExtDataCollection
+module mapl_ExtDataCollectionMap
+   use mapl_ExtDataCollection
 
 #define Key __CHARACTER_DEFERRED
 #define T ExtDataCollection
@@ -15,4 +15,4 @@ module mapl3g_ExtDataCollectionMap
 #undef T
 #undef Key
 
-end module mapl3g_ExtDataCollectionMap
+end module mapl_ExtDataCollectionMap

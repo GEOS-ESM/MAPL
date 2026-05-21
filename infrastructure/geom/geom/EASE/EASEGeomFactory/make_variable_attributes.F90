@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-submodule (mapl3g_EASEGeomFactory) make_variable_attributes_smod
-   use mapl3g_GeomSpec
-   use mapl3g_EASEGeomSpec
+submodule (mapl_EASEGeomFactory) make_variable_attributes_smod
+   use mapl_GeomSpec
+   use mapl_EASEGeomSpec
    use mapl_ErrorHandlingMod
-   use mapl3g_StringDictionary
+   use mapl_StringDictionary
    implicit none (type, external)
 
 contains

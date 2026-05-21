@@ -1,21 +1,21 @@
 #include "MAPL.h"
 
-module mapl3g_SharedIO
+module mapl_SharedIO
 
    use mapl_ErrorHandlingMod
-   use mapl3g_FieldBundle_API
-   use mapl3g_Field_API
-   use mapl3g_VerticalStaggerLoc
+   use mapl_FieldBundle_API
+   use mapl_Field_API
+   use mapl_VerticalStaggerLoc
    use pfio, only: FileMetaData, Variable, UnlimitedEntity
    use pfio, only: PFIO_UNLIMITED, PFIO_REAL32, PFIO_REAL64, PFIO_INT32, PFIO_INT64
    use gFTL2_StringVector
-   use mapl3g_StringDictionary
+   use mapl_StringDictionary
    use gFTL2_StringSet
-   use mapl3g_Geom_API
-   use mapl3g_UngriddedDims
+   use mapl_Geom_API
+   use mapl_UngriddedDims
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use mapl3g_UngriddedDim
-   use mapl3g_CompressionSettings
+   use mapl_UngriddedDim
+   use mapl_CompressionSettings
    use esmf
 
    implicit none(type,external)
@@ -372,4 +372,4 @@ contains
 #undef JOIN
    end function cat_ungridded_dim_names
 
-end module mapl3g_SharedIO
+end module mapl_SharedIO

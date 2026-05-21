@@ -1,5 +1,5 @@
-module mapl3g_RegistryPtrMap
-   use mapl3g_RegistryPtr
+module mapl_RegistryPtrMap
+   use mapl_RegistryPtr
    
 #define Key __CHARACTER_DEFERRED
 #define T RegistryPtr
@@ -16,4 +16,4 @@ module mapl3g_RegistryPtrMap
 #undef T
 #undef Key
 
-end module mapl3g_RegistryPtrMap
+end module mapl_RegistryPtrMap

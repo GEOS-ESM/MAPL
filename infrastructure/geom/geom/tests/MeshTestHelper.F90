@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-module mapl3g_MeshTestHelper
+module mapl_MeshTestHelper
    use pfio
    use mapl_ErrorHandlingMod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT32
@@ -710,4 +710,4 @@ contains
        _RETURN(_SUCCESS)
     end subroutine cleanup_test_file
 
-end module mapl3g_MeshTestHelper
+end module mapl_MeshTestHelper

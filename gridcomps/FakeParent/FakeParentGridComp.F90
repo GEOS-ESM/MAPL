@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl3g_FakeParentGridComp
+module mapl_FakeParentGridComp
 
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Assert, MAPL_Return
-   use mapl3g_generic, only: MAPL_GridCompSetEntryPoint
-   use mapl3g_generic, only: MAPL_GridCompGet
-   use mapl3g_generic, only: MAPL_GridCompRunChildren
+   use mapl_generic, only: MAPL_GridCompSetEntryPoint
+   use mapl_generic, only: MAPL_GridCompGet
+   use mapl_generic, only: MAPL_GridCompRunChildren
    use ESMF, only: ESMF_GridComp, ESMF_State, ESMF_Clock, ESMF_METHOD_RUN
    use ESMF, only: ESMF_HConfig, ESMF_HConfigIsDefined, ESMF_HConfigAsLogical
    use ESMF, only: ESMF_HConfigCreateAt, ESMF_HConfigDestroy
@@ -82,11 +82,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_run_phases_
 
-end module mapl3g_FakeParentGridComp
+end module mapl_FakeParentGridComp
 
 subroutine SetServices(gridcomp, rc)
    use MAPL_ErrorHandlingMod
-   use mapl3g_FakeParentGridComp, only: FakeParent_SetServices => SetServices
+   use mapl_FakeParentGridComp, only: FakeParent_SetServices => SetServices
    use esmf
 
    type(ESMF_GridComp), intent(inout)  :: gridcomp

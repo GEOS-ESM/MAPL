@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) initialize_read_restart_smod
+submodule (mapl_OuterMetaComponent) initialize_read_restart_smod
 
    use mapl_GenericPhases
    use mapl_ErrorHandling
-   use mapl3g_MultiState
-   use mapl3g_RestartHandler, only: RestartHandler
+   use mapl_MultiState
+   use mapl_RestartHandler, only: RestartHandler
    use mapl_OS
-   use mapl3g_Utilities, only: MAPL_GetCheckpointSubdir
+   use mapl_mp_utils, only: MAPL_GetCheckpointSubdir
 
    implicit none(type,external)
 

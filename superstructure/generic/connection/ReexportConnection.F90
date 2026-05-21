@@ -1,15 +1,15 @@
 #include "MAPL.h"
 
-module mapl3g_ReexportConnection
-   use mapl3g_StateItemSpec
-   use mapl3g_ExtensionFamily
-   use mapl3g_Connection
-   use mapl3g_ConnectionPt
-   use mapl3g_StateRegistry
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_ActualConnectionPt
-   use mapl3g_ActualPtVec_Map
-   use mapl3g_ActualPtVector
+module mapl_ReexportConnection
+   use mapl_StateItemSpec
+   use mapl_ExtensionFamily
+   use mapl_Connection
+   use mapl_ConnectionPt
+   use mapl_StateRegistry
+   use mapl_VirtualConnectionPt
+   use mapl_ActualConnectionPt
+   use mapl_ActualPtVec_Map
+   use mapl_ActualPtVector
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -93,7 +93,7 @@ contains
 
    ! Non-sibling connection: just propagate pointer "up"
    subroutine connect_export_to_export(this, dst_registry, src_registry, unusable, rc)
-      use mapl3g_ExtensionFamily
+      use mapl_ExtensionFamily
       class(ReexportConnection), intent(in) :: this
       type(StateRegistry), intent(inout) :: dst_registry
       type(StateRegistry), intent(in) :: src_registry
@@ -135,5 +135,5 @@ contains
 
    end subroutine connect_export_to_export
 
-  end module mapl3g_ReexportConnection
+  end module mapl_ReexportConnection
 

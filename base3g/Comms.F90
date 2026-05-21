@@ -23,7 +23,7 @@ module MAPL_CommsMod
                            MAPL_GetNewRank
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter, MAPL_UNDEF
   use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
-  use mapl3g_GridGetGlobal, only: GridGetGlobalCellCountPerDim
+  use mapl_GridGetGlobal, only: GridGetGlobalCellCountPerDim
   use mpi
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none

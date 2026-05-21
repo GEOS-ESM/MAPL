@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl3g_TypekindAspect
+module mapl_TypekindAspect
 
-   use mapl3g_ActualConnectionPt
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_CopyTransform
-   use mapl3g_ExtensionTransform
-   use mapl3g_NullTransform
-   use mapl3g_Field_API
-   use mapl3g_FieldBundle_API
+   use mapl_ActualConnectionPt
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_CopyTransform
+   use mapl_ExtensionTransform
+   use mapl_NullTransform
+   use mapl_Field_API
+   use mapl_FieldBundle_API
    use mapl_ErrorHandling
-   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use mapl_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use esmf
 
    implicit none(type,external)
@@ -220,4 +220,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine update_payload
 
-end module mapl3g_TypekindAspect
+end module mapl_TypekindAspect

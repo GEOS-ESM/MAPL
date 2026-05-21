@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) finalize_smod
+submodule (mapl_OuterMetaComponent) finalize_smod
 
-   use mapl3g_GriddedComponentDriverMap
+   use mapl_GriddedComponentDriverMap
    use mapl_GenericPhases
    use mapl_ErrorHandling
    use MAPL_Profiler, only: ProfileReporter

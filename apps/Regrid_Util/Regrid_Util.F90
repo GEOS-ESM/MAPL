@@ -5,7 +5,7 @@
    use ESMF
    use MAPL
    
-   use mapl3g_RegridderMethods
+   use mapl_RegridderMethods
    use gFTL2_StringVector
 
    implicit NONE

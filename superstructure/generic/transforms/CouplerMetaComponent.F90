@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-module mapl3g_CouplerMetaComponent
+module mapl_CouplerMetaComponent
 
-   use mapl3g_TransformId
-   use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
+   use mapl_TransformId
+   use mapl_esmf_info_keys, only: INFO_SHARED_NAMESPACE
    use mapl_CouplerPhases
-   use mapl3g_ComponentDriver, only: ComponentDriver, ComponentDriverPtr
-   use mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
-   use mapl3g_ComponentDriverVector, only: ComponentDriverVector
-   use mapl3g_ComponentDriverPtrVector, only: ComponentDriverPtrVector
-   use mapl3g_ExtensionTransform
-   use mapl3g_VerticalRegridTransform
+   use mapl_ComponentDriver, only: ComponentDriver, ComponentDriverPtr
+   use mapl_GriddedComponentDriver, only: GriddedComponentDriver
+   use mapl_ComponentDriverVector, only: ComponentDriverVector
+   use mapl_ComponentDriverPtrVector, only: ComponentDriverPtrVector
+   use mapl_ExtensionTransform
+   use mapl_VerticalRegridTransform
    use mapl_ErrorHandlingMod
-   use mapl3g_ESMF_Interfaces
-   use mapl3g_Field_API
-   use mapl3g_FieldBundle_API
+   use mapl_ESMF_Interfaces
+   use mapl_Field_API
+   use mapl_FieldBundle_API
    use esmf
 
    implicit none(type,external)
@@ -574,4 +574,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_info
 
-end module mapl3g_CouplerMetaComponent
+end module mapl_CouplerMetaComponent

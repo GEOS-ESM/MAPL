@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_VectorBasis) xyz2latlon_smod
+submodule (mapl_VectorBasis) xyz2latlon_smod
 contains
 
    pure module function xyz2latlon(xyz_coord) result(sph_coord)

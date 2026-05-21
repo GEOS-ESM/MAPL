@@ -1,4 +1,4 @@
-module mapl3g_StateItem
+module mapl_StateItemImpl
    use esmf
    implicit none
    private
@@ -33,4 +33,4 @@ module mapl3g_StateItem
         MAPL_STATEITEM_VECTORBRACKET = ESMF_StateItem_Flag(207), &
         MAPL_STATEITEM_EXPRESSION = ESMF_StateItem_Flag(208)
 
-end module Mapl3g_StateItem
+end module mapl_StateItemImpl

@@ -1,5 +1,5 @@
-module mapl3g_RoutehandleSpecVector
-   use mapl3g_RoutehandleSpec
+module mapl_RoutehandleSpecVector
+   use mapl_RoutehandleSpec
 
 #define T RoutehandleSpec
 #define T_EQ(a,b) a==b 
@@ -15,4 +15,4 @@ module mapl3g_RoutehandleSpecVector
 #undef VectorIterator
 #undef VectorRIterator
 
-end module mapl3g_RoutehandleSpecVector
+end module mapl_RoutehandleSpecVector
