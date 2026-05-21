@@ -14,7 +14,7 @@ module mapl_StatisticsGridComp
    use mapl_TimeMin
    use mapl_TimeMax
    use mapl_TimeAccumulate
-   use mapl3g_TimeVariance
+   use mapl_TimeVariance
    use mapl_State_API
    use pflogger, only: Logger
    use mapl_OS
