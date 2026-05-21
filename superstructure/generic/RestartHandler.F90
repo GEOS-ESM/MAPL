@@ -153,7 +153,8 @@ contains
       type(ESMF_FieldBundle) :: bundle2
       type (ESMF_StateItem_Flag), allocatable  :: item_types(:)
       character(len=ESMF_MAXSTR), allocatable :: item_names(:)
-      character(len=:), allocatable :: item_name, short_name
+      character(len=:), allocatable :: item_name
+      character(len=ESMF_MAXSTR) :: short_name
       integer :: idx, jdx, item_count, status
 
       bundle = ESMF_FieldBundleCreate(_RC)
@@ -169,9 +170,9 @@ contains
             call MAPL_FieldBundleAdd(bundle, [field], _RC)
          else if (item_types(idx) == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(state, item_name, bundle2, _RC)
-            call MAPL_FieldBundleGet(bundle2, fieldList=field_list, _RC)
+            call MAPL_FieldBundleGet(bundle2, fieldList=field_list, _RC) ! addorder
             do jdx = 1, size(field_list)
-               call MAPL_FieldGet(field_list(jdx), short_name=short_name, _RC)
+               write(short_name, '(I0)') jdx
                alias = ESMF_NamedAlias(field_list(jdx), name=item_name//"_"//short_name, _RC)
                call MAPL_FieldBundleAdd(bundle, [alias], _RC)
             end do

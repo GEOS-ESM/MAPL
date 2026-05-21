@@ -50,7 +50,6 @@ module mapl3g_VectorClassAspect
    type, extends(ClassAspect) :: VectorClassAspect
       private
       type(ESMF_FieldBundle) :: payload
-      type(StringVector) :: short_names
       type(FieldClassAspect) :: component_specs(2)
       type(VectorBasisKind) :: basis_kind
    contains
@@ -78,13 +77,11 @@ module mapl3g_VectorClassAspect
 
 contains
 
-   function new_VectorClassAspect_basic(short_names, component_specs, basis_kind) result(aspect)
+   function new_VectorClassAspect_basic(component_specs, basis_kind) result(aspect)
       type(VectorClassAspect) :: aspect
-      type(StringVector), intent(in) :: short_names
       type(FieldClassAspect), intent(in) :: component_specs(2)
       type(VectorBasisKind), intent(in) :: basis_kind
 
-      aspect%short_names = short_names
       aspect%component_specs = component_specs
       aspect%basis_kind = basis_kind
    end function new_VectorClassAspect_basic
@@ -163,9 +160,6 @@ contains
          call update_payload(this%component_specs(i), other_aspects, _RC)
          call this%component_specs(i)%allocate(other_aspects, _RC)
          call this%component_specs(i)%add_to_bundle(this%payload, _RC)
-         ! update the name of the component
-         call this%component_specs(i)%get_payload(field=field, _RC)
-         call ESMF_FieldSet(field, name=trim(this%short_names%at(i)), _RC)
       end do
 
       _RETURN(ESMF_SUCCESS)
@@ -238,9 +232,6 @@ contains
       export_ = to_VectorClassAspect(export, _RC)
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
-
-      ! mirror short names since they are required in add_to_state routine
-      this%short_names = export_%short_names
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)

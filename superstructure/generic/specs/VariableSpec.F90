@@ -81,7 +81,6 @@ module mapl3g_VariableSpec
       !---------------------
       ! Vector
       !---------------------
-      type(StringVector) :: vector_component_names ! default empty
       type(VectorBasisKind), allocatable :: vector_basis_kind
       real(kind=ESMF_KIND_R4), allocatable :: fill_value
       !---------------------
@@ -180,7 +179,6 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
-        vector_component_names, &
         vector_basis_kind, &
         has_deferred_aspects, &
         use_field_dictionary, &
@@ -210,7 +208,6 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
-      type(StringVector), optional, intent(in) :: vector_component_names
       character(*), optional, intent(in) :: vector_basis_kind
       logical, optional, intent(in) :: has_deferred_aspects
       logical, optional, intent(in) :: use_field_dictionary
@@ -247,7 +244,6 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
-      _SET_OPTIONAL(vector_component_names)
       _SET_OPTIONAL(has_deferred_aspects)
       _SET_OPTIONAL(use_field_dictionary)
       _SET_OPTIONAL(restart_mode)
@@ -649,7 +645,6 @@ contains
 
       integer :: status
       character(:), allocatable :: std_name_1, std_name_2
-      type(StringVector) :: vector_component_names
       type(VectorBasisKind) :: basis_kind
 
       select case (this%itemType%ot)
@@ -668,18 +663,12 @@ contains
          if (allocated(this%standard_name)) then
             call split_name(this%standard_name, std_name_1, std_name_2, _RC)
          end if
-         if (this%vector_component_names%size() == 0) then
-            call vector_component_names%push_back("unknown1")
-            call vector_component_names%push_back("unknown2")
-         else
-            vector_component_names = this%vector_component_names
-         end if
          if (allocated(this%vector_basis_kind)) then
             basis_kind = this%vector_basis_kind
          else
             basis_kind = VECTOR_BASIS_KIND_NS
          end if
-         aspect = VectorClassAspect(vector_component_names, &
+         aspect = VectorClassAspect( &
               [ &
               FieldClassAspect(standard_name=std_name_1, fill_value=this%fill_value), &
               FieldClassAspect(standard_name=std_name_2, fill_value=this%fill_value) &

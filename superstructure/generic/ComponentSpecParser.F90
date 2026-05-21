@@ -1,5 +1,5 @@
 #include "MAPL.h"
- 
+
 module mapl3g_ComponentSpecParser
 
    use mapl3g_ComponentSpec
@@ -74,7 +74,6 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_VERTICAL_STAGGER = 'vertical_dim_spec'
    character(*), parameter :: KEY_TIMESTEP = 'timestep'
    character(*), parameter :: KEY_RUN_TIME_OFFSET = 'run_time_offset'
-   character(*), parameter :: KEY_VECTOR_COMPONENT_NAMES = 'vector_component_names'
 
    !>
    ! Submodule declarations

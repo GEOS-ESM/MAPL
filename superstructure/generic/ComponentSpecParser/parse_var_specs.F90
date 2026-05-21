@@ -64,7 +64,6 @@ contains
          logical :: has_expression
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
-         type(StringVector) :: vector_component_names
 
          type(GeometrySpec) :: geometry_spec
          type(MaplGeom), pointer :: mapl_geom
@@ -106,8 +105,6 @@ contains
                expression = ESMF_HConfigAsString(attributes,keyString='expression', _RC)
             end if
 
-            vector_component_names = get_vector_component_names(attributes, _RC)
-
             itemtype = to_itemtype(attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
@@ -137,8 +134,7 @@ contains
                  dependencies=dependencies, &
                  expression=expression, &
                  geom=geom, &
-                 vertical_grid=vertical_grid, &
-                 vector_component_names=vector_component_names, _RC)
+                 vertical_grid=vertical_grid, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
@@ -339,35 +335,6 @@ contains
 
          _RETURN(_SUCCESS)
       end function to_dependencies
-
-      function get_vector_component_names(attributes, rc) result(names)
-         type(StringVector) :: names
-         type(ESMF_HConfig), intent(in) :: attributes
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         logical :: has_vector_components
-         type(ESMF_HConfig) :: names_cfg
-         type(ESMF_HConfigIter) :: b, e, iter
-         character(:), allocatable :: name
-
-         names = StringVector()
-         has_vector_components = ESMF_HConfigIsDefined(attributes, keyString=KEY_VECTOR_COMPONENT_NAMES, _RC)
-         _RETURN_UNLESS(has_vector_components)
-
-         names_cfg = ESMF_HConfigCreateAt(attributes, keyString=KEY_VECTOR_COMPONENT_NAMES, _RC)
-         b = ESMF_HConfigIterBegin(names_cfg, _RC)
-         e = ESMF_HConfigIterEnd(names_cfg, _RC)
-         iter = b
-         do while (ESMF_HConfigIterLoop(iter,b,e))
-            name = ESMF_HConfigAsString(iter, _RC)
-            call names%push_back(name)
-         end do
-         call ESMF_HConfigDestroy(names_cfg, _RC)
-
-         _RETURN(_SUCCESS)
-      end function get_vector_component_names
-
 
    end function parse_var_specs
 
