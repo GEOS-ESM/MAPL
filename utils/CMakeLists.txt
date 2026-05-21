@@ -66,7 +66,6 @@ target_link_libraries(MAPL.utilities INTERFACE MAPL.utils)
 install(TARGETS MAPL.utilities EXPORT MAPL-targets)
 
 add_subdirectory(Constants)
-add_subdirectory(arrays)
 add_subdirectory(regex)
 add_subdirectory(udunits2f)
 
