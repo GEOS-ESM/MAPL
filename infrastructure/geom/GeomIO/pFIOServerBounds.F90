@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl3g_pFIOServerBounds
+module mapl_pFIOServerBounds
 
    use mapl_ErrorHandlingMod
    use esmf
    use pfio
    use gFTL2_StringVector
-   use mapl3g_Geom_API, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
+   use mapl_Geom_API, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
 
    implicit none
    private
@@ -208,4 +208,4 @@ contains
       _RETURN(_SUCCESS)
    end function pFIOServerBounds_gridded_field
 
-end module mapl3g_pFIOServerBounds
+end module mapl_pFIOServerBounds

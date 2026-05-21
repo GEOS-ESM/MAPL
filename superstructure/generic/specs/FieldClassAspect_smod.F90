@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl3g_FieldClassAspect) FieldClassAspect_smod
-   use mapl3g_WildcardClassAspect
+submodule (mapl_FieldClassAspect) FieldClassAspect_smod
+   use mapl_WildcardClassAspect
    implicit none(type,external)
 
 contains

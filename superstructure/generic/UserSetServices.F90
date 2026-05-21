@@ -12,11 +12,11 @@
 !    ss = user_setservices(...)
 !
 
-module mapl3g_UserSetServices
+module mapl_UserSetServices
    use :: ESMF, only: ESMF_GridComp
    use :: ESMF, only: ESMF_GridCompSetServices
    use :: ESMF, only: ESMF_SUCCESS
-   use :: mapl3g_ESMF_Interfaces, only: I_SetServices
+   use :: mapl_ESMF_Interfaces, only: I_SetServices
    use :: mapl_ErrorHandling
    implicit none(type,external)
    private
@@ -232,4 +232,4 @@ contains
    
 
    
-end module mapl3g_UserSetServices
+end module mapl_UserSetServices

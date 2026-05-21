@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GriddedComponentDriver) get_name_smod
+submodule (mapl_GriddedComponentDriver) get_name_smod
    implicit none
 
 contains

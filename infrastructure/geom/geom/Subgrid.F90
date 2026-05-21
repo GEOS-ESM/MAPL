@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl3g_Subgrid
+module mapl_Subgrid
     use ESMF
-    use mapl3g_GridGet, only: GridGet, GridGetCoordinates
+    use mapl_GridAccessors, only: GridGet, GridGetCoordinates
     use mapl_ErrorHandling
     use mapl_KeywordEnforcer
 
@@ -231,4 +231,4 @@ CONTAINS
         _UNUSED_DUMMY(unusable)
     end function make_subgrids_from_bounds
 
-end module mapl3g_Subgrid
+end module mapl_Subgrid

@@ -4,12 +4,12 @@
 ! specifies as a shared attribute.  Some attributes of the export may
 ! be unused and/or correspond to attributes needed by other imports.
 
-module mapl3g_AttributesAspect
-   use mapl3g_ActualConnectionPt
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_ExtensionTransform
-   use mapl3g_NullTransform
+module mapl_AttributesAspect
+   use mapl_ActualConnectionPt
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_ExtensionTransform
+   use mapl_NullTransform
    use mapl_ErrorHandling
    use gftl2_StringVector
    use esmf, only: esmf_FIeld, esmf_FieldBundle, esmf_State
@@ -172,4 +172,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine update_payload
 
-end module mapl3g_AttributesAspect
+end module mapl_AttributesAspect

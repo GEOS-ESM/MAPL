@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl3g_MatchConnection
-   use mapl3g_StateItemSpec
-   use mapl3g_Connection
-   use mapl3g_ConnectionPt
-   use mapl3g_StateRegistry
-   use mapl3g_SimpleConnection
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_VirtualConnectionPtVector
-   use mapl3g_ActualConnectionPt
-   use mapl3g_ActualPtVec_Map
-   use mapl3g_ActualPtVector
-   use mapl3g_StateItemSpec
+module mapl_MatchConnection
+   use mapl_StateItemSpec
+   use mapl_Connection
+   use mapl_ConnectionPt
+   use mapl_StateRegistry
+   use mapl_SimpleConnection
+   use mapl_VirtualConnectionPt
+   use mapl_VirtualConnectionPtVector
+   use mapl_ActualConnectionPt
+   use mapl_ActualPtVec_Map
+   use mapl_ActualPtVector
+   use mapl_StateItemSpec
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -175,4 +175,4 @@ contains
    end subroutine connect
 
 
-end module mapl3g_MatchConnection
+end module mapl_MatchConnection

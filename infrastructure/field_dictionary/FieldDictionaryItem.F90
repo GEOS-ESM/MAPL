@@ -1,4 +1,4 @@
-module mapl3g_FieldDictionaryItem
+module mapl_FieldDictionaryItem
 
    use gftl2_StringVector
    use esmf
@@ -169,4 +169,4 @@ contains
       is_conserved = this%conserved
    end function is_conserved
 
-end module mapl3g_FieldDictionaryItem
+end module mapl_FieldDictionaryItem

@@ -1,30 +1,30 @@
 #include "MAPL.h"
+ 
+module mapl_ComponentSpecParser
 
-module mapl3g_ComponentSpecParser
-
-   use mapl3g_ComponentSpec
-   use mapl3g_ChildSpec
-   use mapl3g_ChildSpecMap
-   use mapl3g_UserSetServices
+   use mapl_ComponentSpec
+   use mapl_ChildSpec
+   use mapl_ChildSpecMap
+   use mapl_UserSetServices
    use mapl_ErrorHandling
-   use mapl3g_VariableSpec
-   use mapl3g_Connection
-   use mapl3g_ConnectionPt
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_VariableSpecVector
-   use mapl3g_SimpleConnection
-   use mapl3g_MatchConnection
-   use mapl3g_ReexportConnection
-   use mapl3g_ConnectionVector
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_UngriddedDims
-   use mapl3g_UngriddedDim
-   use mapl3g_GeometrySpec
-   use mapl3g_Geom_API
-   use mapl3g_Stateitem
-   use mapl3g_ESMF_Utilities
-   use mapl3g_UserSetServices
-   use mapl3g_StateRegistry
+   use mapl_VariableSpec
+   use mapl_Connection
+   use mapl_ConnectionPt
+   use mapl_VirtualConnectionPt
+   use mapl_VariableSpecVector
+   use mapl_SimpleConnection
+   use mapl_MatchConnection
+   use mapl_ReexportConnection
+   use mapl_ConnectionVector
+   use mapl_VerticalStaggerLoc
+   use mapl_UngriddedDims
+   use mapl_UngriddedDim
+   use mapl_GeometrySpec
+   use mapl_Geom_API
+   use mapl_StateItemImpl
+   use mapl_ESMF_Utilities
+   use mapl_UserSetServices
+   use mapl_StateRegistry
    use gftl2_StringVector, only: StringVector
    use esmf
 
@@ -141,4 +141,4 @@ module mapl3g_ComponentSpecParser
 
    END INTERFACE
 
-end module mapl3g_ComponentSpecParser
+end module mapl_ComponentSpecParser

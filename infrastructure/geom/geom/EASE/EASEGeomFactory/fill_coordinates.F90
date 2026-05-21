@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-submodule (mapl3g_EASEGeomFactory) fill_coordinates_smod
-   use mapl3g_GeomSpec
-   use mapl3g_EASEGeomSpec
-   use mapl3g_EASECoords
+submodule (mapl_EASEGeomFactory) fill_coordinates_smod
+   use mapl_GeomSpec
+   use mapl_EASEGeomSpec
+   use mapl_EASECoords
    use mapl_ErrorHandlingMod
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    use esmf

@@ -134,13 +134,12 @@ fields in the component spec are:
 The framework checks that `timestep` and `reference_time` are mutually
 compatible for both the `OuterMetaComponent` and the user component.
 
-#### generic3g and the `mapl3g_` Module Prefix
+#### The `mapl_` Module Prefix
 
-The new `generic3g` directory contains the MAPL3 reimplementation of
-the generic layer.  Modules in this directory temporarily carry the
-`mapl3g_` prefix to distinguish them from their MAPL2 counterparts
-while the transition is in progress.  `generic3g` is intended to fully
-replace the existing `generic` directory when complete.
+The MAPL3 reimplementation of the generic layer uses the `mapl_` module
+prefix throughout. (Modules previously carried a transitional `mapl3g_`
+prefix during the MAPL2→MAPL3 migration; this was unified to `mapl_` in
+Phase 9 of the v3 directory restructuring.)
 
 `generic3g` also uses `ESMF_CONTEXT_PARENT_VM` by default when creating
 `ESMF_GridComp` objects, which is the correct context for components

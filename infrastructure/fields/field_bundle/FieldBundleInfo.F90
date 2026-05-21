@@ -1,19 +1,19 @@
 #include "MAPL.h"
 
-module mapl3g_FieldBundleInfo
-   use mapl3g_esmf_info_keys
-   use mapl3g_InfoUtilities
-   use mapl3g_ESMF_Info_Keys
-   use mapl3g_Field_API
-   use mapl3g_FieldInfo
-   use mapl3g_UngriddedDims
+module mapl_FieldBundleInfo
+   use mapl_esmf_info_keys
+   use mapl_InfoUtilities
+   use mapl_ESMF_Info_Keys
+   use mapl_Field_API
+   use mapl_FieldInfo
+   use mapl_UngriddedDims
    use mapl_QuantityTypeMetadata
    use mapl_NormalizationMetadata
    use mapl_ConservationMetadata
-   use mapl3g_FieldBundleType_Flag
+   use mapl_FieldBundleType_Flag
    use mapl_VectorBasisKind
-   use mapl3g_VerticalAlignment
-   use mapl3g_VerticalGrid_API
+   use mapl_VerticalAlignment
+   use mapl_VerticalGrid_API
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -294,4 +294,4 @@ contains
 
    end subroutine fieldbundle_set_internal
 
-end module mapl3g_FieldBundleInfo
+end module mapl_FieldBundleInfo

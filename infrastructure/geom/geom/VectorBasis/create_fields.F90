@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_VectorBasis) create_fields_smod
+submodule (mapl_VectorBasis) create_fields_smod
 contains
 
 

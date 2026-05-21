@@ -5,17 +5,17 @@
 ! at some later date if justified.
 
 
-module mapl3g_MaplFramework
+module mapl_MaplFramework
 
    use mapl_ErrorHandling
    use mapl_KeywordEnforcerMod
-   use mapl3g_FieldFillDefault, only: &
+   use mapl_FieldFillDefault, only: &
         field_fill_defaults_init => initialize_field_fill_defaults, &
         set_field_fill_defaults
-   use mapl3g_VerticalGrid_API
-   use mapl3g_FixedLevelsVerticalGrid
-   use mapl3g_ModelVerticalGrid
-   use mapl3g_FieldDictionary, only: load_field_dictionary
+   use mapl_VerticalGrid_API
+   use mapl_FixedLevelsVerticalGrid
+   use mapl_ModelVerticalGrid
+   use mapl_FieldDictionary, only: load_field_dictionary
    use mapl_profiler, only: profiler_initialize => initialize, profiler_finalize => finalize
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod
@@ -795,5 +795,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize_field_dictionary
 
-end module mapl3g_MaplFramework
+end module mapl_MaplFramework
 

@@ -13,15 +13,15 @@ into `make_VariableSpec`.  For user-facing configuration, see
 
 | Module | File | Purpose |
 |--------|------|---------|
-| `mapl3g_VerificationStatus` | `generic3g/VerificationStatus.F90` | Typed enum: `unverified` / `verified` / `cf_compliant` |
-| `mapl3g_ValidationMode` | `generic3g/ValidationMode.F90` | Typed enum: `permissive` / `strict` |
-| `mapl3g_FieldDictionaryItem` | `generic3g/FieldDictionaryItem.F90` | Single dictionary entry with getters |
-| `mapl3g_FieldDictionary` | `generic3g/FieldDictionary.F90` | Dictionary container, YAML parser |
-| `mapl3g_FieldDictionaryConfig` | `generic3g/FieldDictionaryConfig.F90` | Runtime config, exemption predicate |
+| `mapl_VerificationStatus` | `generic3g/VerificationStatus.F90` | Typed enum: `unverified` / `verified` / `cf_compliant` |
+| `mapl_ValidationMode` | `generic3g/ValidationMode.F90` | Typed enum: `permissive` / `strict` |
+| `mapl_FieldDictionaryItem` | `generic3g/FieldDictionaryItem.F90` | Single dictionary entry with getters |
+| `mapl_FieldDictionary` | `generic3g/FieldDictionary.F90` | Dictionary container, YAML parser |
+| `mapl_FieldDictionaryConfig` | `generic3g/FieldDictionaryConfig.F90` | Runtime config, exemption predicate |
 
 ---
 
-## `mapl3g_VerificationStatus`
+## `mapl_VerificationStatus`
 
 A typed enum following the MAPL pattern (see `esmf_utils/VectorBasisKind.F90`
 for the reference pattern).
@@ -29,7 +29,7 @@ for the reference pattern).
 ### Public API
 
 ```fortran
-use mapl3g_VerificationStatus
+use mapl_VerificationStatus
 
 ! Parameter instances
 type(VerificationStatus) :: s
@@ -56,14 +56,14 @@ print *, s%to_string()   ! 'unverified', 'verified', or 'cf_compliant'
 
 ---
 
-## `mapl3g_ValidationMode`
+## `mapl_ValidationMode`
 
 A typed enum with two values.
 
 ### Public API
 
 ```fortran
-use mapl3g_ValidationMode
+use mapl_ValidationMode
 
 type(ValidationMode) :: m
 
@@ -79,7 +79,7 @@ if (m == VALIDATION_MODE_STRICT) ...
 
 ---
 
-## `mapl3g_FieldDictionaryItem`
+## `mapl_FieldDictionaryItem`
 
 Holds all metadata for a single dictionary entry.
 
@@ -138,7 +138,7 @@ The `regrid_method` member is set automatically in the constructor:
 
 ---
 
-## `mapl3g_FieldDictionary`
+## `mapl_FieldDictionary`
 
 Container for `FieldDictionaryItem` entries, keyed by CF standard name.  Also
 maintains an alias map for reverse lookup by short name.
@@ -146,7 +146,7 @@ maintains an alias map for reverse lookup by short name.
 ### Public API
 
 ```fortran
-use mapl3g_FieldDictionary
+use mapl_FieldDictionary
 
 type(FieldDictionary) :: dict
 
@@ -202,7 +202,7 @@ n = dict%size()
 
 ---
 
-## `mapl3g_FieldDictionaryConfig`
+## `mapl_FieldDictionaryConfig`
 
 Holds the runtime configuration for the dictionary subsystem, parsed from the
 `mapl/field_dictionary` section of `cap.yaml`.
@@ -210,7 +210,7 @@ Holds the runtime configuration for the dictionary subsystem, parsed from the
 ### Public API
 
 ```fortran
-use mapl3g_FieldDictionaryConfig
+use mapl_FieldDictionaryConfig
 
 type(FieldDictionaryConfig) :: cfg
 
@@ -404,8 +404,8 @@ standard names to avoid coupling tests to the production dictionary:
 
 ```fortran
 ! In a pFUnit test:
-use mapl3g_FieldDictionary
-use mapl3g_VariableSpec
+use mapl_FieldDictionary
+use mapl_VariableSpec
 
 type(VariableSpec) :: vs
 integer :: status

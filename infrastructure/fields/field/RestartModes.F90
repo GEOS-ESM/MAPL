@@ -1,4 +1,4 @@
-module mapl3g_RestartModes
+module mapl_RestartModes
 
    implicit none(type, external)
    private
@@ -56,4 +56,4 @@ contains
       not_equal = .not. (a == b)
    end function not_equal
 
-end module mapl3g_RestartModes
+end module mapl_RestartModes

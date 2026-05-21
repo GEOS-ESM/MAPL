@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) SetServices_smod
-   use mapl3g_ComponentSpecParser
-   use mapl3g_ChildSpec
-   use mapl3g_ChildSpecMap
-   use mapl3g_GenericGridComp
-   use mapl3g_BasicVerticalGrid
-   use mapl3g_GriddedComponentDriverMap
+submodule (mapl_OuterMetaComponent) SetServices_smod
+   use mapl_ComponentSpecParser
+   use mapl_ChildSpec
+   use mapl_ChildSpecMap
+   use mapl_GenericGridComp
+   use mapl_BasicVerticalGrid
+   use mapl_GriddedComponentDriverMap
    use mapl_ErrorHandling
    use pflogger, only: logger_t => logger
    implicit none(type,external)
@@ -27,7 +27,7 @@ contains
    !=========================================================================
    
    recursive module subroutine SetServices_(this, rc)
-      use mapl3g_GenericGridComp, only: generic_setservices => setservices
+      use mapl_GenericGridComp, only: generic_setservices => setservices
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, intent(out) :: rc
 

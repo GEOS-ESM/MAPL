@@ -1,6 +1,6 @@
-module mapl3g_ActualPtComponentDriverMap
-   use mapl3g_ActualConnectionPt
-   use mapl3g_GriddedComponentDriver
+module mapl_ActualPtComponentDriverMap
+   use mapl_ActualConnectionPt
+   use mapl_GriddedComponentDriver
    
 #define Key ActualConnectionPt
 #define Key_LT(a,b) (a < b)
@@ -19,4 +19,4 @@ module mapl3g_ActualPtComponentDriverMap
 #undef Key
 #undef Key_LT
 
-end module mapl3g_ActualPtComponentDriverMap
+end module mapl_ActualPtComponentDriverMap

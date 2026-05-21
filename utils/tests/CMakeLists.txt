@@ -24,7 +24,7 @@ endif()
 
 add_pfunit_ctest(MAPL.utils.tests
   TEST_SOURCES ${TEST_SRCS}
-  LINK_LIBRARIES MAPL.utils MAPL.constants MAPL.pfunit
+  LINK_LIBRARIES MAPL.utils MAPL.mp_utils MAPL.constants MAPL.pfunit
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
   MAX_PES 2

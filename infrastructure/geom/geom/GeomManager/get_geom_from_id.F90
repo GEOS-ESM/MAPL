@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GeomManager) get_geom_from_id_smod
+submodule (mapl_GeomManager) get_geom_from_id_smod
 
    implicit none
 

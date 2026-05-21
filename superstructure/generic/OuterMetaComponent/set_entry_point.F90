@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) set_entry_point_smod
+submodule (mapl_OuterMetaComponent) set_entry_point_smod
    use mapl_ErrorHandling
    implicit none(type,external)
 

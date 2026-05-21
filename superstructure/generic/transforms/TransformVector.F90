@@ -1,5 +1,5 @@
-module mapl3g_TransformVector
-   use mapl3g_ExtensionTransform
+module mapl_TransformVector
+   use mapl_ExtensionTransform
 
 #define T ExtensionTransform
 #define T_polymorphic
@@ -13,5 +13,5 @@ module mapl3g_TransformVector
 #undef Vector
 #undef VectorIterator
 
-end module mapl3g_TransformVector
+end module mapl_TransformVector
 

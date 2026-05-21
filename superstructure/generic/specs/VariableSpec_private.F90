@@ -1,12 +1,12 @@
 #include "MAPL.h"
-module mapl3g_VariableSpec_private
+module mapl_VariableSpec_private
 
    use esmf, only: ESMF_KIND_R4, ESMF_RegridMethod_Flag
    use esmf, only: ESMF_StateItem_Flag, ESMF_StateIntent_Flag
    use esmf, only: ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use esmf, only: ESMF_STATEINTENT_UNSPECIFIED
    use esmf, only: operator(==), operator(/=)
-   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
+   use mapl_EsmfRegridder, only: EsmfRegridderParam
    use gFTL2_StringVector
    use mapl_ErrorHandling
 
@@ -129,4 +129,4 @@ contains
 
    end subroutine verify_regrid
 
-end module mapl3g_VariableSpec_private
+end module mapl_VariableSpec_private

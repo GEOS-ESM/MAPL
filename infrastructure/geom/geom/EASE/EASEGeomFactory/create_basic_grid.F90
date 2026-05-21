@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-submodule (mapl3g_EASEGeomFactory) create_basic_grid_smod
-   use mapl3g_GeomSpec
-   use mapl3g_EASEGeomSpec
-   use mapl3g_EASEDecomposition
+submodule (mapl_EASEGeomFactory) create_basic_grid_smod
+   use mapl_GeomSpec
+   use mapl_EASEGeomSpec
+   use mapl_EASEDecomposition
    use mapl_ErrorHandlingMod
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer

@@ -8,7 +8,7 @@
 !-------
 
 
-module mapl3g_ESMF_Interfaces
+module mapl_ESMF_Interfaces
    implicit none(type,external)
    private
 
@@ -91,4 +91,4 @@ module mapl3g_ESMF_Interfaces
 
    end interface
 
-end module mapl3g_ESMF_Interfaces
+end module mapl_ESMF_Interfaces

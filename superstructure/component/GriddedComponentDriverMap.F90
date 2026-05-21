@@ -1,5 +1,5 @@
-module mapl3g_GriddedComponentDriverMap
-   use mapl3g_GriddedComponentDriver
+module mapl_GriddedComponentDriverMap
+   use mapl_GriddedComponentDriver
 
 #define Key __CHARACTER_DEFERRED
 #define T GriddedComponentDriver
@@ -15,4 +15,4 @@ module mapl3g_GriddedComponentDriverMap
 #undef T
 #undef Key
 
-end module mapl3g_GriddedComponentDriverMap
+end module mapl_GriddedComponentDriverMap

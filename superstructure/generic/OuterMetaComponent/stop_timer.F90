@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) stop_timer_smod
+submodule (mapl_OuterMetaComponent) stop_timer_smod
 
    use mapl_ErrorHandling
 

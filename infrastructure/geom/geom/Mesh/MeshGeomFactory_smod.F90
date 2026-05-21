@@ -1,18 +1,18 @@
 #include "MAPL.h"
 
-submodule (mapl3g_MeshGeomFactory) MeshGeomFactory_smod
+submodule (mapl_MeshGeomFactory) MeshGeomFactory_smod
 
-   use mapl3g_GeomSpec
-   use mapl3g_MeshGeomSpec
-   use mapl3g_MeshDecomposition
+   use mapl_GeomSpec
+   use mapl_MeshGeomSpec
+   use mapl_MeshDecomposition
    use mapl_ErrorHandlingMod
    use mapl_Constants, only: MAPL_PI_R8
    use mapl_StringUtilities, only: to_lower
-   use mapl3g_get_hconfig, only: get_hconfig
-   use mapl3g_hconfig_params, only: HConfigParams
+   use mapl_get_hconfig, only: get_hconfig
+   use mapl_hconfig_params, only: HConfigParams
    use pfio
    use gftl2_StringVector
-   use mapl3g_StringDictionary
+   use mapl_StringDictionary
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
 

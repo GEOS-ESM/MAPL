@@ -1,5 +1,5 @@
-module mapl3g_RegridderSpecVector
-   use mapl3g_RegridderSpec
+module mapl_RegridderSpecVector
+   use mapl_RegridderSpec
 
 #define T RegridderSpec
 #define T_EQ(a,b) a==b 
@@ -15,4 +15,4 @@ module mapl3g_RegridderSpecVector
 #undef VectorIterator
 #undef VectorRIterator
 
-end module mapl3g_RegridderSpecVector
+end module mapl_RegridderSpecVector

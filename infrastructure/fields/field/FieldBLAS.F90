@@ -5,7 +5,7 @@ module mapl_FieldBLAS
    use ESMF
    use mapl_Constants, only: MAPL_UNDEFINED_REAL32, MAPL_UNDEFINED_REAL64
    use MAPL_ExceptionHandling
-   use mapl3g_FieldCondensedArray
+   use mapl_FieldCondensedArray
    use MAPL_FieldPointerUtilities
 
    implicit none

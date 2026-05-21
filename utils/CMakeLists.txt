@@ -30,7 +30,7 @@ set (srcs
     # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     # From utilities/
-    utilities.F90
+    # utilities.F90 moved to mp_utils/API.F90 (MPI-dependent via mapl_ArrayReductions)
     MemInfo.F90
     TimeUtilities.F90
     OSUtilities.F90
@@ -66,7 +66,6 @@ target_link_libraries(MAPL.utilities INTERFACE MAPL.utils)
 install(TARGETS MAPL.utilities EXPORT MAPL-targets)
 
 add_subdirectory(Constants)
-add_subdirectory(arrays)
 add_subdirectory(regex)
 add_subdirectory(udunits2f)
 

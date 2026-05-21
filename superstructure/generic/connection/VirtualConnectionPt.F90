@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_VirtualConnectionPt
+module mapl_VirtualConnectionPt
    use mapl_KeywordEnforcer
    use esmf
    use, intrinsic :: iso_c_binding, only: C_NULL_CHAR
@@ -245,4 +245,4 @@ contains
 
    end function matches
 
-end module mapl3g_VirtualConnectionPt
+end module mapl_VirtualConnectionPt

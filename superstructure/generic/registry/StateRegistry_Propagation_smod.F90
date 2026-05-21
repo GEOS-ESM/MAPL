@@ -8,9 +8,9 @@
 ! - propagate_exports_subregistry: Propagate exports from one subregistry
 ! - propagate_exports_virtual_pt: Propagate exports for one virtual point
 
-submodule (mapl3g_StateRegistry) StateRegistry_Propagation_smod
-   use mapl3g_RegistryPtrMap, only: RegistryPtrMapIterator
-   use mapl3g_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
+submodule (mapl_StateRegistry) StateRegistry_Propagation_smod
+   use mapl_RegistryPtrMap, only: RegistryPtrMapIterator
+   use mapl_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
    implicit none(type,external)
 
 contains

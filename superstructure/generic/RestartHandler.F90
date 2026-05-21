@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-module mapl3g_RestartHandler
+module mapl_RestartHandler
 
    use esmf
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
-   use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio
-   use mapl3g_FieldInfo, only: FieldInfoGetInternal
-   use mapl3g_RestartModes, only: RestartMode, operator(==), MAPL_RESTART_SKIP
-   use mapl3g_Field_API, only: MAPL_FieldGet
-   use mapl3g_FieldBundle_API, only: MAPL_FieldBundleAdd, MAPL_FieldBundleGet
+   use mapl_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio
+   use mapl_FieldInfo, only: FieldInfoGetInternal
+   use mapl_RestartModes, only: RestartMode, operator(==), MAPL_RESTART_SKIP
+   use mapl_Field_API, only: MAPL_FieldGet
+   use mapl_FieldBundle_API, only: MAPL_FieldBundleAdd, MAPL_FieldBundleGet
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
@@ -228,4 +228,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine filter_fields_incomplete_
 
-end module mapl3g_RestartHandler
+end module mapl_RestartHandler

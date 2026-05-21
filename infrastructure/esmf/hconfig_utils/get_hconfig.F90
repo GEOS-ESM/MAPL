@@ -1,7 +1,7 @@
 #include "MAPL.h"
-module mapl3g_get_hconfig
+module mapl_get_hconfig
 
-   use mapl3g_hconfig_params
+   use mapl_hconfig_params
    use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I4, ESMF_KIND_I8
    use :: esmf, only: ESMF_HConfig, ESMF_HConfigAsString
    use :: esmf, only: ESMF_HConfigAsLogical, ESMF_HConfigAsLogicalSeq
@@ -153,4 +153,4 @@ contains
 
    end subroutine get_hconfig_as_logical_seq
 
-end module mapl3g_get_hconfig
+end module mapl_get_hconfig

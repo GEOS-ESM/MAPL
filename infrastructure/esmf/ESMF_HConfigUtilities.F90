@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_ESMF_HConfigUtilities
+module mapl_ESMF_HConfigUtilities
    use esmf
    use mapl_ErrorHandling
    implicit none(type,external)
@@ -36,4 +36,4 @@ module mapl3g_ESMF_HConfigUtilities
 
    END INTERFACE
 
-end module mapl3g_ESMF_HConfigUtilities
+end module mapl_ESMF_HConfigUtilities

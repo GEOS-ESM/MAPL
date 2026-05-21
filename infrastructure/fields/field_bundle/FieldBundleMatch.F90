@@ -1,7 +1,7 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-module mapl3g_FieldBundleMatch
+module mapl_FieldBundleMatch
 
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldBundleGet
    use ESMF, only: ESMF_ITEMORDER_ADDORDER
@@ -48,4 +48,4 @@ contains
       _RETURN(_SUCCESS)
    end function same_data_order_addorder
 
-end module mapl3g_FieldBundleMatch
+end module mapl_FieldBundleMatch

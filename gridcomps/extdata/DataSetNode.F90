@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-module mapl3g_DataSetNode
+module mapl_DataSetNode
 
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use pFIO
    use MAPL_FileMetadataUtilsMod
-   use mapl3g_geomio
-   use mapl3g_ExtDataUtilities
+   use mapl_geomio
+   use mapl_ExtDataUtilities
    use pFlogger, only: logger
 
    implicit none
@@ -256,4 +256,4 @@ contains
       call lgr%info('node status side %a at time %a time index %i0.5 updated %g0 enabled %g0', node_side, interp_time_string, this%time_index, this%update, this%enabled)
   end subroutine
 
-end module mapl3g_DataSetNode
+end module mapl_DataSetNode

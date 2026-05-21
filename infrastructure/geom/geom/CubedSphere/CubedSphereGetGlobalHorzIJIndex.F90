@@ -11,12 +11,12 @@
 
 #include "MAPL.h"
 
-module mapl3g_CubedSphereGetGlobalHorzIJIndex
+module mapl_CubedSphereGetGlobalHorzIJIndex
 
   use ESMF,             only: ESMF_Grid, ESMF_Info, ESMF_KIND_R8, &
                                ESMF_InfoGetFromHost, ESMF_InfoIsPresent, ESMF_InfoGet, &
                                ESMF_GridGet, ESMF_STAGGERLOC_CENTER, ESMF_MAXDIM
-  use mapl3g_GridGet,   only: GridGet
+  use mapl_GridAccessors,   only: GridGet
   use MAPL_Constants,   only: MAPL_PI_R8, MAPL_DEGREES_TO_RADIANS_R8
   use MAPL_ErrorHandling
 
@@ -305,4 +305,4 @@ contains
 
   end function grid_is_ok_
 
-end module mapl3g_CubedSphereGetGlobalHorzIJIndex
+end module mapl_CubedSphereGetGlobalHorzIJIndex

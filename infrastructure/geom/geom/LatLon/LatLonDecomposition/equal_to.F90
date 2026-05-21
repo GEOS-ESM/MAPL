@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_LatLonDecomposition) equal_to_smod
+submodule (mapl_LatLonDecomposition) equal_to_smod
    use mapl_ErrorHandlingMod
    implicit none (type, external)
 

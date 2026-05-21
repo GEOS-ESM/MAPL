@@ -1,6 +1,6 @@
-module mapl3g_ActualPtVec_Map
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_ActualPtVector
+module mapl_ActualPtVec_Map
+   use mapl_VirtualConnectionPt
+   use mapl_ActualPtVector
    
 #define Key VirtualConnectionPt
 #define Key_LT(a,b) (a < b)
@@ -19,4 +19,4 @@ module mapl3g_ActualPtVec_Map
 #undef Key
 #undef Key_LT
 
-end module mapl3g_ActualPtVec_Map
+end module mapl_ActualPtVec_Map

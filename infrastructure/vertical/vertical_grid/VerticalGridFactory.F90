@@ -1,9 +1,9 @@
 #include "MAPL.h"
-module mapl3g_VerticalGridFactory
+module mapl_VerticalGridFactory
    use pfio, only: FileMetadata
    use esmf, only: esmf_HConfig
-   use mapl3g_VerticalGrid, only: VerticalGrid
-   use mapl3g_VerticalGridSpec, only: VerticalGridSpec
+   use mapl_VerticalGrid, only: VerticalGrid
+   use mapl_VerticalGridSpec, only: VerticalGridSpec
    use mapl_ErrorHandling
    implicit none(type,external)
    private
@@ -69,7 +69,7 @@ module mapl3g_VerticalGridFactory
       
       function I_create_spec_from_config(this, config, rc) result(spec)
          use esmf, only: esmf_HConfig
-         use mapl3g_VerticalGridSpec, only: VerticalGridSpec
+         use mapl_VerticalGridSpec, only: VerticalGridSpec
          import VerticalGridFactory
          implicit none
          class(VerticalGridSpec), allocatable :: spec
@@ -80,7 +80,7 @@ module mapl3g_VerticalGridFactory
       
       function I_create_spec_from_file_metadata(this, file_metadata, rc) result(spec)
          use pfio, only: FileMetadata
-         use mapl3g_VerticalGridSpec, only: VerticalGridSpec
+         use mapl_VerticalGridSpec, only: VerticalGridSpec
          import VerticalGridFactory
          implicit none
          class(VerticalGridSpec), allocatable :: spec
@@ -90,8 +90,8 @@ module mapl3g_VerticalGridFactory
       end function I_create_spec_from_file_metadata
       
       function I_create_grid_from_spec(this, spec, rc) result(grid)
-         use mapl3g_VerticalGrid, only: VerticalGrid
-         use mapl3g_VerticalGridSpec, only: VerticalGridSpec
+         use mapl_VerticalGrid, only: VerticalGrid
+         use mapl_VerticalGridSpec, only: VerticalGridSpec
          import VerticalGridFactory
          implicit none
          class(VerticalGrid), allocatable :: grid
@@ -138,4 +138,4 @@ contains
       _RETURN(_SUCCESS)
    end function create_grid_from_file_metadata
 
-end module mapl3g_VerticalGridFactory
+end module mapl_VerticalGridFactory

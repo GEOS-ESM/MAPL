@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl3g_GeomPFIO
+module mapl_GeomPFIO
    use mapl_ErrorHandling
    use ESMF
    use pfio, only: i_Clients, o_Clients, StringVariableMap, ArrayReference, FileMetadata, Variable
-   use mapl3g_Geom_API
-   use mapl3g_SharedIO
+   use mapl_Geom_API
+   use mapl_SharedIO
    implicit none
    private
 
@@ -144,4 +144,4 @@ contains
       esmfgeom=this%esmfgeom
    end function get_esmf_geom
 
-end module mapl3g_GeomPFIO
+end module mapl_GeomPFIO

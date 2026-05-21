@@ -1,6 +1,6 @@
-module mapl3g_ActualPtFieldAspectMap
-   use mapl3g_FieldClassAspect
-   use mapl3g_ActualConnectionPt
+module mapl_ActualPtFieldAspectMap
+   use mapl_FieldClassAspect
+   use mapl_ActualConnectionPt
 
 #define MAPL_DEBUG
    
@@ -21,4 +21,4 @@ module mapl3g_ActualPtFieldAspectMap
 #undef T
 #undef Key
 #undef Key_LT
-end module mapl3g_ActualPtFieldAspectMap
+end module mapl_ActualPtFieldAspectMap

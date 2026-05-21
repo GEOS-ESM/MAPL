@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_DataCollection
+module mapl_DataCollection
   use pFIO
   use MAPL_FileMetadataUtilsVectorMod
   use MAPL_FileMetadataUtilsMod
@@ -98,6 +98,6 @@ contains
     _RETURN(_SUCCESS)
   end function find_
 
-end module mapl3g_DataCollection
+end module mapl_DataCollection
 
 

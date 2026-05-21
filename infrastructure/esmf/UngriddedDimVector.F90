@@ -1,5 +1,5 @@
-module mapl3g_UngriddedDimVector
-   use mapl3g_UngriddedDim
+module mapl_UngriddedDimVector
+   use mapl_UngriddedDim
 
 #define T UngriddedDim
 #define Vector UngriddedDimVector
@@ -11,4 +11,4 @@ module mapl3g_UngriddedDimVector
 #undef Vector
 #undef VectorIterator
   
-end module mapl3g_UngriddedDimVector
+end module mapl_UngriddedDimVector

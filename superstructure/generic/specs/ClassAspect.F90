@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl3g_ClassAspect
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_MultiState
+module mapl_ClassAspect
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_MultiState
    use mapl_ErrorHandling
-   use mapl3g_ActualConnectionPt
+   use mapl_ActualConnectionPt
    use esmf, only: esmf_FIeld, esmf_FieldBundle, esmf_State
    implicit none
    private
@@ -38,7 +38,7 @@ module mapl3g_ClassAspect
    abstract interface
 
       function I_get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
-         use mapl3g_StateItemAspect
+         use mapl_StateItemAspect
          import ClassAspect, AspectId
          type(AspectId), allocatable :: aspect_ids(:)
          class(ClassAspect), intent(in) :: this
@@ -48,7 +48,7 @@ module mapl3g_ClassAspect
 
       ! Will use ESMF so cannot be PURE
       subroutine I_create(this, other_aspects, rc)
-         use mapl3g_StateItemAspect
+         use mapl_StateItemAspect
          import ClassAspect
          class(ClassAspect), intent(inout) :: this
          type(AspectMap), intent(in) :: other_aspects
@@ -77,8 +77,8 @@ module mapl3g_ClassAspect
       end subroutine I_allocate
 
       subroutine I_add_to_state(this, multi_state, actual_pt, rc)
-         use mapl3g_MultiState
-         use mapl3g_ActualConnectionPt
+         use mapl_MultiState
+         use mapl_ActualConnectionPt
          import ClassAspect
          class(ClassAspect), intent(in) :: this
          type(MultiState), intent(inout) :: multi_state
@@ -171,4 +171,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine update_payload
 
-end module mapl3g_ClassAspect
+end module mapl_ClassAspect

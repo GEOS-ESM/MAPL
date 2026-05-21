@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) run_custom_smod
+submodule (mapl_OuterMetaComponent) run_custom_smod
    use mapl_ErrorHandling
    use esmf, only: operator(==)
    implicit none(type,external)

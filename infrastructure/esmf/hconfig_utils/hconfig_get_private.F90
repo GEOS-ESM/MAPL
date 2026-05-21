@@ -1,8 +1,8 @@
 #include "MAPL.h"
-module mapl3g_hconfig_get_private
-   use mapl3g_hconfig_params
-   use mapl3g_get_hconfig
-   use mapl3g_generalized_equality, only: are_equal
+module mapl_hconfig_get_private
+   use mapl_hconfig_params
+   use mapl_get_hconfig
+   use mapl_generalized_equality, only: are_equal
    use :: esmf, only: ESMF_MAXSTR
    use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I4, ESMF_KIND_I8
    use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined
@@ -265,4 +265,4 @@ contains
 
 #include "mapl_hconfig_macros_undef.h"
 
-end module mapl3g_hconfig_get_private
+end module mapl_hconfig_get_private

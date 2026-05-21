@@ -1,5 +1,5 @@
 #include "MAPL.h"
-module mapl3g_HConfigAs
+module mapl_HConfigAs
    use gftl2_StringVector
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -388,4 +388,4 @@ function iter_as_itemtype(hconfig_iter, unusable, keystring, index, rc) result(i
       _UNUSED_DUMMY(unusable)
    end function iter_as_stringvector
 
-end module mapl3g_HConfigAs
+end module mapl_HConfigAs

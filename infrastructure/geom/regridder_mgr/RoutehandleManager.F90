@@ -17,11 +17,11 @@
 ! object in that derived type rather than use a global object.
 
 
-module mapl3g_RoutehandleManager
+module mapl_RoutehandleManager
    use esmf
-   use mapl3g_RoutehandleSpec
-   use mapl3g_RoutehandleSpecVector
-   use mapl3g_RoutehandleVector
+   use mapl_RoutehandleSpec
+   use mapl_RoutehandleSpecVector
+   use mapl_RoutehandleVector
    use mapl_ErrorHandlingMod
    implicit none
 
@@ -116,4 +116,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine delete_routehandle
 
-end module mapl3g_RoutehandleManager
+end module mapl_RoutehandleManager

@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl3g_StateSet
+module mapl_StateSet
 
-   use mapl3g_Field_API
-   use mapl3g_UngriddedDims
-   use mapl3g_VerticalStaggerLoc
+   use mapl_Field_API
+   use mapl_UngriddedDims
+   use mapl_VerticalStaggerLoc
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -49,4 +49,4 @@ contains
       _UNUSED_DUMMY(num_vgrid_levels)
    end subroutine state_set
 
-end module mapl3g_StateSet
+end module mapl_StateSet

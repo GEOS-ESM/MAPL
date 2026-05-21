@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_GeomFactory
+module mapl_GeomFactory
    implicit none
    private
 
@@ -31,7 +31,7 @@ module mapl3g_GeomFactory
 
       function I_make_geom_spec_from_hconfig(this, hconfig, rc) result(spec)
          use esmf, only: ESMF_HConfig
-         use mapl3g_GeomSpec
+         use mapl_GeomSpec
          import GeomFactory
          implicit none
 
@@ -43,7 +43,7 @@ module mapl3g_GeomFactory
 
       function I_make_geom_spec_from_metadata(this, file_metadata, rc) result(spec)
          use pfio_FileMetadataMod
-         use mapl3g_GeomSpec
+         use mapl_GeomSpec
          import GeomFactory
          implicit none
 
@@ -55,7 +55,7 @@ module mapl3g_GeomFactory
 
       function I_make_geom(this, geom_spec, rc) result(geom)
          use esmf, only: ESMF_Geom
-         use mapl3g_GeomSpec
+         use mapl_GeomSpec
          import GeomFactory
          implicit none
 
@@ -66,7 +66,7 @@ module mapl3g_GeomFactory
       end function I_make_geom
 
       function I_make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
-         use mapl3g_GeomSpec
+         use mapl_GeomSpec
          use pfio_FileMetadataMod
          use mapl_KeywordEnforcerMod
          import GeomFactory
@@ -81,7 +81,7 @@ module mapl3g_GeomFactory
       end function I_make_file_metadata
 
       function I_make_gridded_dims(this, geom_spec, rc) result(gridded_dims)
-         use mapl3g_GeomSpec
+         use mapl_GeomSpec
          use gFTL2_StringVector
          import GeomFactory
          implicit none
@@ -93,8 +93,8 @@ module mapl3g_GeomFactory
       end function I_make_gridded_dims
 
       function I_make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
-         use mapl3g_GeomSpec
-         use mapl3g_StringDictionary
+         use mapl_GeomSpec
+         use mapl_StringDictionary
          import GeomFactory
          implicit none
 
@@ -105,7 +105,7 @@ module mapl3g_GeomFactory
       end function I_make_variable_attributes
 
       logical function I_supports_spec(this, geom_spec) result(supports)
-         use mapl3g_GeomSpec
+         use mapl_GeomSpec
          import GeomFactory
          class(GeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
@@ -129,5 +129,5 @@ module mapl3g_GeomFactory
 
    end interface
 
-end module mapl3g_GeomFactory
+end module mapl_GeomFactory
 
