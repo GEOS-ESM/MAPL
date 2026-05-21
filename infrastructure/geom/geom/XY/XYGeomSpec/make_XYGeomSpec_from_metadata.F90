@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-submodule (mapl3g_XYGeomSpec) make_XYGeomSpec_from_metadata_smod
+submodule (mapl_XYGeomSpec) make_XYGeomSpec_from_metadata_smod
    use mapl_ErrorHandlingMod
    use mapl_InternalConstants
-   use mapl3g_Comms, only: am_i_root, ROOT_PROCESS_ID
+   use mapl_Comms, only: am_i_root, ROOT_PROCESS_ID
    use NetCDF
    use pfio, only: FileMetadata
    use esmf

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GeomManager) delete_mapl_geom_smod
+submodule (mapl_GeomManager) delete_mapl_geom_smod
 
    implicit none
 

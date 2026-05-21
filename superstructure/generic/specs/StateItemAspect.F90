@@ -38,9 +38,9 @@
 !-------------------------------------------------
 
 
-module mapl3g_StateItemAspect
+module mapl_StateItemAspect
    use iso_fortran_env, only: INT64
-   use mapl3g_AspectId
+   use mapl_AspectId
    use mapl_ErrorHandling
    use esmf, only: esmf_Field, esmf_FieldBundle, esmf_State
 
@@ -119,7 +119,7 @@ module mapl3g_StateItemAspect
       end function I_get_aspect_id
 
       function I_make_transform(src, dst, other_aspects, rc) result(transform)
-         use mapl3g_ExtensionTransform
+         use mapl_ExtensionTransform
          import :: StateItemAspect
          import :: AspectMap
          class(ExtensionTransform), allocatable :: transform
@@ -130,7 +130,7 @@ module mapl3g_StateItemAspect
       end function I_make_transform
 
       subroutine I_connect_to_export(this, export, actual_pt, rc)
-         use mapl3g_ActualConnectionPt
+         use mapl_ActualConnectionPt
          import :: StateItemAspect
          class(StateItemAspect), intent(inout) :: this
          class(StateItemAspect), intent(in) :: export
@@ -291,7 +291,7 @@ contains
 #undef T
 #undef Key
 #undef KEY_LT
-end module mapl3g_StateItemAspect
+end module mapl_StateItemAspect
 
 
 

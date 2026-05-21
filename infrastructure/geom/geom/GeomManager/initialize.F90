@@ -1,16 +1,16 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GeomManager) initialize_smod
+submodule (mapl_GeomManager) initialize_smod
 
    implicit none
 
 contains
    
    module subroutine initialize(this)
-      use mapl3g_LatLonGeomFactory
-      use mapl3g_CubedSphereGeomFactory
-      use mapl3g_XYGeomFactory
-      use mapl3g_EASEGeomFactory
+      use mapl_LatLonGeomFactory
+      use mapl_CubedSphereGeomFactory
+      use mapl_XYGeomFactory
+      use mapl_EASEGeomFactory
       class(GeomManager), intent(inout) :: this
 
       ! Load default factories

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_GridGetGlobal
+module mapl_GridGetGlobal
 
    use esmf
    use mapl_ErrorHandling
@@ -46,4 +46,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine grid_get_global_cell_count_per_dim
 
-end module mapl3g_GridGetGlobal
+end module mapl_GridGetGlobal

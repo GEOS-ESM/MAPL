@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl3g_MeshGeomSpec
-   use mapl3g_GeomSpec
-   use mapl3g_MeshDecomposition
+module mapl_MeshGeomSpec
+   use mapl_GeomSpec
+   use mapl_MeshDecomposition
    use mapl_ErrorHandlingMod
    use mapl_KeywordEnforcer
    use esmf, only: ESMF_KIND_R8, ESMF_HConfig, ESMF_KIND_R4
@@ -198,4 +198,4 @@ contains
       _UNUSED_DUMMY(lat)
    end subroutine get_horz_ij_index_r8
 
-end module mapl3g_MeshGeomSpec
+end module mapl_MeshGeomSpec

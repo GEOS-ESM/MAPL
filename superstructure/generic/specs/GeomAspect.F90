@@ -1,25 +1,25 @@
 #include "MAPL.h"
 
-module mapl3g_GeomAspect
+module mapl_GeomAspect
 
-   use mapl3g_ActualConnectionPt
-   use mapl3g_AspectId
-   use mapl3g_HorizontalDimsSpec
-   use mapl3g_StateItemAspect
-   use mapl3g_Geom_API, only: MAPL_SameGeom
-   use mapl3g_regridder_mgr, only: EsmfRegridderParam
-   use mapl3g_ExtensionTransform
-   use mapl3g_ExtendTransform
-   use mapl3g_RegridTransform
-   use mapl3g_NullTransform
-   use mapl3g_Field_API
-   use mapl3g_FieldBundle_API
-   use mapl3g_EsmfRegridder
-   use mapl3g_NormalizationAspect, only: NormalizationAspect, to_NormalizationAspect
+   use mapl_ActualConnectionPt
+   use mapl_AspectId
+   use mapl_HorizontalDimsSpec
+   use mapl_StateItemAspect
+   use mapl_Geom_API, only: MAPL_SameGeom
+   use mapl_regridder_mgr, only: EsmfRegridderParam
+   use mapl_ExtensionTransform
+   use mapl_ExtendTransform
+   use mapl_RegridTransform
+   use mapl_NullTransform
+   use mapl_Field_API
+   use mapl_FieldBundle_API
+   use mapl_EsmfRegridder
+   use mapl_NormalizationAspect, only: NormalizationAspect, to_NormalizationAspect
    use mapl_NormalizationMetadata, only: NormalizationMetadata
    use mapl_NormalizationType, only: NormalizationType
-   use mapl3g_VerticalGrid
-   use mapl3g_ComponentDriver, only: ComponentDriver
+   use mapl_VerticalGrid
+   use mapl_ComponentDriver, only: ComponentDriver
    use mapl_ErrorHandling
    use ESMF, only: esmf_Geom
    use ESMF, only: esmf_Field, esmf_FieldBundle, esmf_State
@@ -327,4 +327,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine print_aspect
 
-end module mapl3g_GeomAspect
+end module mapl_GeomAspect

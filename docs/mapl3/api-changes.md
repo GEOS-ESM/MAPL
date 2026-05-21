@@ -145,7 +145,7 @@ YAML-based configuration:
 
 ```fortran
 ! MAPL3
-use mapl3g_MaplFramework, only: MAPL_initialize, MAPL_finalize
+use mapl_MaplFramework, only: MAPL_initialize, MAPL_finalize
 
 call MAPL_initialize(configFilenameFromArgNum=1, is_model_pet=is_model, rc=status)
 ! ... run model ...

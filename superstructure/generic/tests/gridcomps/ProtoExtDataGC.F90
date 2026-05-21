@@ -5,16 +5,16 @@
 
 module ProtoExtDataGC
    use mapl_ErrorHandling
-   use mapl3g_OuterMetaComponent
-   use mapl3g_Generic
-   use mapl3g_UserSetServices
-   use mapl3g_StateRegistry, only: StateRegistry
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_ActualConnectionPt
-   use mapl3g_ConnectionPt
-   use mapl3g_SimpleConnection
-   use mapl3g_StateItemSpec, only: StateItemSpec, StateItemSpecPtr
-   use mapl3g_ESMF_Subset
+   use mapl_OuterMetaComponent
+   use mapl_Generic
+   use mapl_UserSetServices
+   use mapl_StateRegistry, only: StateRegistry
+   use mapl_VirtualConnectionPt
+   use mapl_ActualConnectionPt
+   use mapl_ConnectionPt
+   use mapl_SimpleConnection
+   use mapl_StateItemSpec, only: StateItemSpec, StateItemSpecPtr
+   use mapl_ESMF_Subset
    use MAPL_FieldUtils
    use esmf, only: ESMF_StateGet, ESMF_FieldGet
 
@@ -27,7 +27,7 @@ module ProtoExtDataGC
 contains
 
    subroutine setservices(gc, rc)
-      use mapl3g_Generic, only: MAPL_GridCompSetEntryPoint
+      use mapl_Generic, only: MAPL_GridCompSetEntryPoint
       type(ESMF_GridComp) :: gc
       integer, intent(out) :: rc
 

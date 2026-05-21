@@ -1,11 +1,11 @@
 #include "MAPL.h"
-module mapl3g_ExtDataReader
+module mapl_ExtDataReader
    use esmf
    use MAPL_ExceptionHandling
    use gftl2_StringStringMap
    use gftl2_StringIntegerMap
-   use mapl3g_FieldBundle_API
-   use mapl3g_geomio
+   use mapl_FieldBundle_API
+   use mapl_geomio
    use PFIO
    use MAPL_FieldPointerUtilities
    use pFlogger, only: logger
@@ -128,4 +128,4 @@ module mapl3g_ExtDataReader
       _RETURN(_SUCCESS)
    end subroutine
 
-end module mapl3g_ExtDataReader
+end module mapl_ExtDataReader

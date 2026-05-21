@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl3g_InnerMetaComponent
+module mapl_InnerMetaComponent
    use :: mapl_ErrorHandling
    use :: mapl3_GenericGrid
-   use :: mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState
-   use :: mapl3g_ESMF_Interfaces, only: MAPL_UserCompSetInternalState
+   use :: mapl_ESMF_Interfaces, only: MAPL_UserCompGetInternalState
+   use :: mapl_ESMF_Interfaces, only: MAPL_UserCompSetInternalState
    use esmf
    implicit none(type,external)
    private
@@ -114,5 +114,5 @@ contains
    end subroutine set_outer_gridcomp
 
 
-end module mapl3g_InnerMetaComponent
+end module mapl_InnerMetaComponent
    

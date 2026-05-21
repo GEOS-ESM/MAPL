@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_VectorBasis) mid_pt_sphere_smod
+submodule (mapl_VectorBasis) mid_pt_sphere_smod
 contains
 
 

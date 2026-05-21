@@ -1,5 +1,5 @@
-module mapl3g_VerticalGridFactoryMap
-   use mapl3g_VerticalGridFactory
+module mapl_VerticalGridFactoryMap
+   use mapl_VerticalGridFactory
 
 #define Key __CHARACTER_DEFERRED
 #define T VerticalGridFactory
@@ -15,4 +15,4 @@ module mapl3g_VerticalGridFactoryMap
 #undef T_polymorphic
 #undef T
    
-end module mapl3g_VerticalGridFactoryMap
+end module mapl_VerticalGridFactoryMap

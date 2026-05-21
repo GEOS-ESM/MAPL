@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_LatLonGeomSpec) get_horz_ij_index_smod
+submodule (mapl_LatLonGeomSpec) get_horz_ij_index_smod
 
    use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
    use mapl_ErrorHandling

@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-submodule (mapl3g_ComponentSpecParser) parse_geometry_spec_smod
+submodule (mapl_ComponentSpecParser) parse_geometry_spec_smod
 
-   use mapl3g_VerticalGrid
-   use mapl3g_BasicVerticalGrid
-   use mapl3g_VerticalGrid_API
-   use mapl3g_ModelVerticalGrid
+   use mapl_VerticalGrid
+   use mapl_BasicVerticalGrid
+   use mapl_VerticalGrid_API
+   use mapl_ModelVerticalGrid
 
    implicit none(type,external)
 

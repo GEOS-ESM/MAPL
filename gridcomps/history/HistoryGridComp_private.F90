@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl3g_HistoryGridComp_private
+module mapl_HistoryGridComp_private
    use MAPL
    use mapl_ErrorHandlingMod
    use mapl_keywordenforcermod
-   use mapl3g_HistoryConstants
-   use mapl3g_HistoryUtilities
-   use mapl3g_StatisticsGridComp, only: statistics_setServices => setServices
+   use mapl_HistoryConstants
+   use mapl_HistoryUtilities
+   use mapl_StatisticsGridComp, only: statistics_setServices => setServices
    use esmf
 
    implicit none
@@ -158,4 +158,4 @@ contains
        
    end function create_stats_entry
 
-end module mapl3g_HistoryGridComp_private
+end module mapl_HistoryGridComp_private

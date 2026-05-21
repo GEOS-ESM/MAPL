@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) initialize_geom_a_smod
+submodule (mapl_OuterMetaComponent) initialize_geom_a_smod
 
    use mapl_GenericPhases
-   use mapl3g_GeometrySpec
-   use mapl3g_Geom_API
-   use mapl3g_GriddedComponentDriver
+   use mapl_GeometrySpec
+   use mapl_Geom_API
+   use mapl_GriddedComponentDriver
    use mapl_ErrorHandling
    use MAPL_MpiTimerGauge, only: MpiTimerGauge
 

@@ -1,15 +1,15 @@
 #include "MAPL.h"
 
-module mapl3g_UngriddedDimsAspect
+module mapl_UngriddedDimsAspect
 
-   use mapl3g_ActualConnectionPt
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_ExtensionTransform
-   use mapl3g_UngriddedDims
-   use mapl3g_NullTransform
-   use mapl3g_Field_Api
-   use mapl3g_FieldBundle_Api
+   use mapl_ActualConnectionPt
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_ExtensionTransform
+   use mapl_UngriddedDims
+   use mapl_NullTransform
+   use mapl_Field_Api
+   use mapl_FieldBundle_Api
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -222,4 +222,4 @@ contains
 
    end subroutine update_payload
 
-end module mapl3g_UngriddedDimsAspect
+end module mapl_UngriddedDimsAspect

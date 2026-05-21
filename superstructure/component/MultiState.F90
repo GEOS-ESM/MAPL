@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl3g_MultiState
-   use mapl3g_ESMF_Utilities, only: write(formatted)
+module mapl_MultiState
+   use mapl_ESMF_Utilities, only: write(formatted)
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -140,4 +140,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine destroy
 
- end module mapl3g_MultiState
+ end module mapl_MultiState

@@ -1,5 +1,5 @@
-module mapl3g_GriddedComponentDriverVector
-   use mapl3g_GriddedComponentDriver
+module mapl_GriddedComponentDriverVector
+   use mapl_GriddedComponentDriver
 
 #define T GriddedComponentDriver
 #define Vector GriddedComponentDriverVector
@@ -11,4 +11,4 @@ module mapl3g_GriddedComponentDriverVector
 #undef Vector
 #undef T
 
-end module mapl3g_GriddedComponentDriverVector
+end module mapl_GriddedComponentDriverVector

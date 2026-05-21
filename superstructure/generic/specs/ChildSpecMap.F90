@@ -1,5 +1,5 @@
-module mapl3g_ChildSpecMap
-   use mapl3g_ChildSpec
+module mapl_ChildSpecMap
+   use mapl_ChildSpec
 
 #define Key __CHARACTER_DEFERRED
 #define T ChildSpec
@@ -15,4 +15,4 @@ module mapl3g_ChildSpecMap
 #undef T
 #undef Key
 
-end module mapl3g_ChildSpecMap
+end module mapl_ChildSpecMap

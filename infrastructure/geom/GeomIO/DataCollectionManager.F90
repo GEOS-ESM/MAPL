@@ -1,17 +1,17 @@
-module mapl3g_DataCollectionManager
-use mapl3g_DataCollectionVector
-use mapl3g_DataCollection
+module mapl_DataCollectionManager
+use mapl_DataCollectionVector
+use mapl_DataCollection
 implicit none
 private
 
 type(DataCollectionVector), target :: DataCollections
 
 public DataCollections
-public mapl3g_AddDataCollection
+public mapl_AddDataCollection
 
 contains
 
-  function mapl3g_AddDataCollection(template) result(id)
+  function mapl_AddDataCollection(template) result(id)
      character(len=*), intent(in) :: template
       integer :: n
       logical :: found
@@ -42,6 +42,6 @@ contains
 
       id = n
 
-   end function mapl3g_AddDataCollection
+   end function mapl_AddDataCollection
 
 end module 

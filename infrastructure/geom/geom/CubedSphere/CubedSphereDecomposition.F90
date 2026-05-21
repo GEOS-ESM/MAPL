@@ -1,4 +1,4 @@
-module mapl3g_CubedSphereDecomposition
+module mapl_CubedSphereDecomposition
    use mapl_KeywordEnforcer
    use esmf
    implicit none
@@ -102,5 +102,5 @@ module mapl3g_CubedSphereDecomposition
       
    end interface
 
-end module mapl3g_CubedSphereDecomposition
+end module mapl_CubedSphereDecomposition
 

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_VectorBasis) new_NS_Basis_smod
+submodule (mapl_VectorBasis) new_NS_Basis_smod
 
    use mapl_FieldPointerUtilities, only: assign_fptr
 

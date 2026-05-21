@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl3g_ComponentDriver
-   use mapl3g_MultiState
+module mapl_ComponentDriver
+   use mapl_MultiState
    use mapl_ErrorHandlingMod
    use mapl_KeywordEnforcer, only: KeywordEnforcer
-   use mapl3g_MultiState
+   use mapl_MultiState
    use :: esmf
    implicit none
    private
@@ -72,4 +72,4 @@ contains
          _UNUSED_DUMMY(unusable)
       end subroutine initialize_phases
 
-end module mapl3g_ComponentDriver
+end module mapl_ComponentDriver

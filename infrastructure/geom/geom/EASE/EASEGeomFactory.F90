@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-module mapl3g_EASEGeomFactory
+module mapl_EASEGeomFactory
 
-   use mapl3g_GeomSpec
-   use mapl3g_GeomFactory
-   use mapl3g_EASEGeomSpec
+   use mapl_GeomSpec
+   use mapl_GeomFactory
+   use mapl_EASEGeomSpec
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use gftl2_StringVector
-   use mapl3g_StringDictionary
+   use mapl_StringDictionary
    use pfio
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
@@ -36,7 +36,7 @@ module mapl3g_EASEGeomFactory
    interface
 
       module function make_geom(this, geom_spec, rc) result(geom)
-         use mapl3g_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec, only: GeomSpec
          use esmf, only: ESMF_Geom
          type(ESMF_Geom) :: geom
          class(EASEGeomFactory), intent(in) :: this
@@ -169,4 +169,4 @@ contains
       _UNUSED_DUMMY(this)
    end function supports_spec
 
-end module mapl3g_EASEGeomFactory
+end module mapl_EASEGeomFactory

@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl3g_EASEGeomFactory) make_file_metadata_smod
-   use mapl3g_GeomSpec
-   use mapl3g_EASEGeomSpec
+submodule (mapl_EASEGeomFactory) make_file_metadata_smod
+   use mapl_GeomSpec
+   use mapl_EASEGeomSpec
    use mapl_ErrorHandlingMod
    use pfio
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer

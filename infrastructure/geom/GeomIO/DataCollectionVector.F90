@@ -1,6 +1,6 @@
-module mapl3g_DataCollectionVector
+module mapl_DataCollectionVector
    use pFIO
-   use mapl3g_DataCollection
+   use mapl_DataCollection
    
    ! Create a map (associative array) between names and pFIO_Attributes.
    
@@ -12,5 +12,5 @@ module mapl3g_DataCollectionVector
 
 #include "templates/vector.inc"
    
-end module mapl3g_DataCollectionVector
+end module mapl_DataCollectionVector
 

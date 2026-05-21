@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl3g_Cap
+module mapl_Cap
    use MAPL
-   use mapl3g_CapGridComp, only: cap_setservices => setServices
+   use mapl_CapGridComp, only: cap_setservices => setServices
    use mapl_os
    use mapl_ErrorHandling, only: MAPL_Assert
    use pflogger
@@ -221,7 +221,7 @@ contains
    end function get_timestamp
 
    function make_driver(clock, hconfig, options, rc) result(driver)
-      use mapl3g_GenericGridComp, only: generic_SetServices => setServices
+      use mapl_GenericGridComp, only: generic_SetServices => setServices
       type(GriddedComponentDriver) :: driver
       type(esmf_HConfig), intent(in) :: hconfig
       type(esmf_Clock), intent(in) :: clock
@@ -632,4 +632,4 @@ contains
 
    end subroutine update_restart
 
-end module mapl3g_Cap
+end module mapl_Cap

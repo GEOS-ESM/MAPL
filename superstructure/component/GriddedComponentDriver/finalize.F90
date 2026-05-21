@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule(mapl3g_GriddedComponentDriver) finalize_smod
+submodule(mapl_GriddedComponentDriver) finalize_smod
    use mapl_ErrorHandling
    implicit none(type,external)
 

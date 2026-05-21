@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl3g_RoutehandleSpec
+module mapl_RoutehandleSpec
    use esmf
-   use mapl3g_RoutehandleParam
+   use mapl_RoutehandleParam
    use mapl_ErrorHandlingMod
-   use mapl3g_Geom_API, only: MAPL_SameGeom
+   use mapl_Geom_API, only: MAPL_SameGeom
    implicit none
    private
 
@@ -92,4 +92,4 @@ contains
    end function equal_to
 
 
-end module mapl3g_RoutehandleSpec
+end module mapl_RoutehandleSpec

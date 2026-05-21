@@ -1,10 +1,10 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-module mapl3g_StateDestroy
+module mapl_StateDestroyImpl
    use esmf
    use MAPL_FieldUtils, only: FieldsDestroy
-   use mapl3g_FieldBundleDestroy
+   use mapl_FieldBundleDestroyImpl
    use MAPL_ExceptionHandling
    use mapl_KeywordEnforcer
    implicit none(type, external)
@@ -160,4 +160,4 @@ contains
      
    end subroutine destroy_bundles
 
-end module mapl3g_StateDestroy
+end module mapl_StateDestroyImpl

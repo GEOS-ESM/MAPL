@@ -1,6 +1,6 @@
- module mapl3g_VirtualPtFamilyMap
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_ExtensionFamily
+ module mapl_VirtualPtFamilyMap
+   use mapl_VirtualConnectionPt
+   use mapl_ExtensionFamily
 
 #define Key VirtualConnectionPt
 #define Key_LT(a,b) (a < b)
@@ -18,4 +18,4 @@
 #undef T
 #undef Key
 
-end module mapl3g_VirtualPtFamilyMap
+end module mapl_VirtualPtFamilyMap

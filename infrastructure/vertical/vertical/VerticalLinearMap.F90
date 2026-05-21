@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl3g_VerticalLinearMap
+module mapl_VerticalLinearMap
 
    use mapl_ErrorHandling
-   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp
-   use mapl3g_CSR_SparseMatrix, only: add_row
+   use mapl_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp
+   use mapl_CSR_SparseMatrix, only: add_row
    use, intrinsic :: iso_fortran_env, only: REAL32
 
    implicit none(type,external)
@@ -139,4 +139,4 @@ contains
       end do
    end function is_decreasing
 
-end module mapl3g_VerticalLinearMap
+end module mapl_VerticalLinearMap

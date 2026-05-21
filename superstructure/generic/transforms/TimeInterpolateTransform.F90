@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl3g_TimeInterpolateTransform
-   use mapl3g_TransformId
-   use mapl3g_ExtensionTransform
-   use mapl3g_regridder_mgr
-   use mapl3g_FieldBundle_API
-   use mapl3g_InfoUtilities
-   use mapl3g_StateItem
+module mapl_TimeInterpolateTransform
+   use mapl_TransformId
+   use mapl_ExtensionTransform
+   use mapl_regridder_mgr
+   use mapl_FieldBundle_API
+   use mapl_InfoUtilities
+   use mapl_StateItemImpl
    use MAPL_FieldUtils
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use mapl_ErrorHandling
@@ -248,4 +248,4 @@ contains
       _UNUSED_DUMMY(this)
    end function get_transformId
 
-end module mapl3g_TimeInterpolateTransform
+end module mapl_TimeInterpolateTransform

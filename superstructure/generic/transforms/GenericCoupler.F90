@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module mapl3g_GenericCoupler
+module mapl_GenericCoupler
    use mapl_CouplerPhases
-   use mapl3g_CouplerMetaComponent
-   use mapl3g_ExtensionTransform
-   use mapl3g_TransformId
-   use mapl3g_VerticalRegridTransform
-   use mapl3g_ComponentDriver
-   use mapl3g_GriddedComponentDriver
+   use mapl_CouplerMetaComponent
+   use mapl_ExtensionTransform
+   use mapl_TransformId
+   use mapl_VerticalRegridTransform
+   use mapl_ComponentDriver
+   use mapl_GriddedComponentDriver
    use mapl_ErrorHandlingMod
    use esmf
 
@@ -169,4 +169,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine mapl_CouplerAddConsumer
 
-end module mapl3g_GenericCoupler
+end module mapl_GenericCoupler

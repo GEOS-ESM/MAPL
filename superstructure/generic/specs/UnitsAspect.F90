@@ -1,15 +1,15 @@
 #include "MAPL.h"
 
-module mapl3g_UnitsAspect
+module mapl_UnitsAspect
 
-   use mapl3g_ActualConnectionPt
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_ExtensionTransform
-   use mapl3g_ConvertUnitsTransform
-   use mapl3g_NullTransform
-   use mapl3g_Field_API
-   use mapl3g_FieldBundle_API
+   use mapl_ActualConnectionPt
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_ExtensionTransform
+   use mapl_ConvertUnitsTransform
+   use mapl_NullTransform
+   use mapl_Field_API
+   use mapl_FieldBundle_API
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
@@ -263,4 +263,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine print_aspect
 
-end module mapl3g_UnitsAspect
+end module mapl_UnitsAspect

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_LatLonDecomposition) make_LatLonDecomposition_vm_smod
+submodule (mapl_LatLonDecomposition) make_LatLonDecomposition_vm_smod
    use mapl_ErrorHandlingMod
    implicit none (type, external)
 

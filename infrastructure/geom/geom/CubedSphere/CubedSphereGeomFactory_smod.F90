@@ -1,18 +1,18 @@
 #include "MAPL.h"
 
-submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
+submodule (mapl_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
 
-   use mapl3g_GeomSpec
-   use mapl3g_LonAxis
-   use mapl3g_LatAxis
-   use mapl3g_CubedSphereDecomposition
-   use mapl3g_CubedSphereGeomSpec
+   use mapl_GeomSpec
+   use mapl_LonAxis
+   use mapl_LatAxis
+   use mapl_CubedSphereDecomposition
+   use mapl_CubedSphereGeomSpec
    use mapl_MinMaxMod
    use mapl_ErrorHandlingMod
    use mapl_Constants
    use pFIO
    use gFTL2_StringVector
-   use mapl3g_StringDictionary
+   use mapl_StringDictionary
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
 

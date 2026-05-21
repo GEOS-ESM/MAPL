@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_XYGeomFactory) make_gridded_dims_smod
+submodule (mapl_XYGeomFactory) make_gridded_dims_smod
    use mapl_ErrorHandlingMod
    use gftl2_StringVector
    implicit none

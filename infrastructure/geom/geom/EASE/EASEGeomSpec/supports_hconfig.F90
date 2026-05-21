@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl3g_EASEGeomSpec) supports_hconfig_smod
-   use mapl3g_GeomSpec
+submodule (mapl_EASEGeomSpec) supports_hconfig_smod
+   use mapl_GeomSpec
    use mapl_ErrorHandling
    use esmf
    implicit none (type, external)

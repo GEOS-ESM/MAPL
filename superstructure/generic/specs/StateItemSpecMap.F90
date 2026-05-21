@@ -1,5 +1,5 @@
-module mapl3g_StateItemSpecMap
-   use mapl3g_StateItemSpec
+module mapl_StateItemSpecMap
+   use mapl_StateItemSpec
 
 #define MAPL_DEBUG
    
@@ -20,4 +20,4 @@ module mapl3g_StateItemSpecMap
 #undef T
 #undef Key
 
-end module mapl3g_StateItemSpecMap
+end module mapl_StateItemSpecMap

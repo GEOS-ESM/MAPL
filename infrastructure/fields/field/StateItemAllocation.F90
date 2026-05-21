@@ -1,4 +1,4 @@
-module mapl3g_StateItemAllocation
+module mapl_StateItemAllocation
    implicit none(type, external)
    private
 
@@ -124,4 +124,4 @@ contains
       greater_than_or_equal = .not. (a%id < b%id)
    end function greater_than_or_equal
 
-end module mapl3g_StateItemAllocation
+end module mapl_StateItemAllocation

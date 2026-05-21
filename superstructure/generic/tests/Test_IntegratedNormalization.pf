@@ -2,23 +2,23 @@
 #include "unused_dummy.H"
 
 module Test_IntegratedNormalization
-   use mapl3g_RegridTransform
-   use mapl3g_VerticalRegridTransform
-   use mapl3g_VerticalRegridMethod
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalCoordinateDirection
-   use mapl3g_VerticalAlignment
-   use mapl3g_VerticalGrid_API
-   use mapl3g_ExtensionTransform, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME, ExtensionTransform
-   use mapl3g_FieldCreate, only: MAPL_FieldCreate
+   use mapl_RegridTransform
+   use mapl_VerticalRegridTransform
+   use mapl_VerticalRegridMethod
+   use mapl_VerticalStaggerLoc
+   use mapl_VerticalCoordinateDirection
+   use mapl_VerticalAlignment
+   use mapl_VerticalGrid_API
+   use mapl_ExtensionTransform, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME, ExtensionTransform
+   use mapl_FieldCreateImpl, only: MAPL_FieldCreate
    use mapl_QuantityType
    use mapl_QuantityTypeMetadata
    use mapl_NormalizationType
    use mapl_NormalizationMetadata
-   use mapl3g_Field_API
-   use mapl3g_regridder_mgr, only: EsmfRegridderParam
-   use mapl3g_RoutehandleParam, only: RoutehandleParam
-   use mapl3g_Geom_API
+   use mapl_Field_API
+   use mapl_regridder_mgr, only: EsmfRegridderParam
+   use mapl_RoutehandleParam, only: RoutehandleParam
+   use mapl_Geom_API
    use mapl_ErrorHandling
    use esmf
    use pfunit
@@ -339,15 +339,15 @@ contains
    !===========================================================================
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_normalization_mismatch(this)
-      use mapl3g_StateRegistry
-      use mapl3g_StateItemSpec
-      use mapl3g_StateItemSpecPtrVector
-      use mapl3g_VirtualConnectionPt
-      use mapl3g_ConnectionPt
-      use mapl3g_ExtensionFamily
-      use mapl3g_SimpleConnection
-      use mapl3g_NormalizationAspect
-      use mapl3g_AspectId
+      use mapl_StateRegistry
+      use mapl_StateItemSpec
+      use mapl_StateItemSpecPtrVector
+      use mapl_VirtualConnectionPt
+      use mapl_ConnectionPt
+      use mapl_ExtensionFamily
+      use mapl_SimpleConnection
+      use mapl_NormalizationAspect
+      use mapl_AspectId
       use MockAspect_mod
       
       class(ESMF_TestMethod), intent(inout) :: this
@@ -407,13 +407,13 @@ contains
    !===========================================================================
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_memory_efficiency_matching_grids(this)
-      use mapl3g_StateRegistry
-      use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
-      use mapl3g_StateItemSpec
-      use mapl3g_VirtualConnectionPt
-      use mapl3g_ConnectionPt
-      use mapl3g_SimpleConnection
-      use mapl3g_ExtensionFamily
+      use mapl_StateRegistry
+      use mapl_VariableSpec, only: VariableSpec, make_VariableSpec
+      use mapl_StateItemSpec
+      use mapl_VirtualConnectionPt
+      use mapl_ConnectionPt
+      use mapl_SimpleConnection
+      use mapl_ExtensionFamily
       
       class(ESMF_TestMethod), intent(inout) :: this
       type(StateRegistry), target :: parent_registry, src_registry, dst_registry
@@ -479,13 +479,13 @@ contains
    !===========================================================================
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_memory_efficiency_different_grids(this)
-      use mapl3g_StateRegistry
-      use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
-      use mapl3g_StateItemSpec
-      use mapl3g_VirtualConnectionPt
-      use mapl3g_ConnectionPt
-      use mapl3g_SimpleConnection
-      use mapl3g_ExtensionFamily
+      use mapl_StateRegistry
+      use mapl_VariableSpec, only: VariableSpec, make_VariableSpec
+      use mapl_StateItemSpec
+      use mapl_VirtualConnectionPt
+      use mapl_ConnectionPt
+      use mapl_SimpleConnection
+      use mapl_ExtensionFamily
       
       class(ESMF_TestMethod), intent(inout) :: this
       type(StateRegistry), target :: parent_registry, src_registry, dst_registry

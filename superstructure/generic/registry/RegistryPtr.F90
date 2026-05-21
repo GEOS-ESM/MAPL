@@ -1,5 +1,5 @@
-module mapl3g_RegistryPtr
-   use mapl3g_AbstractRegistry
+module mapl_RegistryPtr
+   use mapl_AbstractRegistry
    implicit none(type,external)
    private
   
@@ -11,4 +11,4 @@ module mapl3g_RegistryPtr
   
 contains
   
-end module mapl3g_RegistryPtr
+end module mapl_RegistryPtr

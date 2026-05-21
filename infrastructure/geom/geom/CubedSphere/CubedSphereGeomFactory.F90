@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl3g_CubedSphereGeomFactory
-   use mapl3g_GeomSpec
-   use mapl3g_GeomFactory
-   use mapl3g_CubedSphereGeomSpec
+module mapl_CubedSphereGeomFactory
+   use mapl_GeomSpec
+   use mapl_GeomFactory
+   use mapl_CubedSphereGeomSpec
    use mapl_KeywordEnforcerMod
    use gftl2_StringVector
-   use mapl3g_StringDictionary
+   use mapl_StringDictionary
    use pfio
    use esmf
    implicit none
@@ -35,7 +35,7 @@ module mapl3g_CubedSphereGeomFactory
    interface
 
       module function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
-         use mapl3g_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec, only: GeomSpec
          use esmf, only: ESMF_HConfig
          class(GeomSpec), allocatable :: geom_spec
          class(CubedSphereGeomFactory), intent(in) :: this
@@ -45,7 +45,7 @@ module mapl3g_CubedSphereGeomFactory
 
 
       module function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
-         use mapl3g_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec, only: GeomSpec
          use pfio, only: FileMetadata
          class(GeomSpec), allocatable :: geom_spec
          class(CubedSphereGeomFactory), intent(in) :: this
@@ -55,7 +55,7 @@ module mapl3g_CubedSphereGeomFactory
 
 
       logical module function supports_spec(this, geom_spec) result(supports)
-         use mapl3g_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec, only: GeomSpec
          class(CubedSphereGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
       end function supports_spec
@@ -77,7 +77,7 @@ module mapl3g_CubedSphereGeomFactory
 
 
       module function make_geom(this, geom_spec, rc) result(geom)
-         use mapl3g_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec, only: GeomSpec
          use esmf, only: ESMF_Geom
          type(ESMF_Geom) :: geom
          class(CubedSphereGeomFactory), intent(in) :: this
@@ -120,5 +120,5 @@ module mapl3g_CubedSphereGeomFactory
       end function make_file_metadata
 
    end interface
-end module mapl3g_CubedSphereGeomFactory
+end module mapl_CubedSphereGeomFactory
 

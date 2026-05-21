@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl3g_WelfordCovarianceKernel
+module mapl_WelfordCovarianceKernel
 
-   use mapl3g_AbstractCovarianceKernel
+   use mapl_AbstractCovarianceKernel
    use MAPL
    use ESMF
    use mapl_ErrorHandling
@@ -314,4 +314,4 @@ contains
 
    end subroutine compute_r8
 
-end module mapl3g_WelfordCovarianceKernel
+end module mapl_WelfordCovarianceKernel

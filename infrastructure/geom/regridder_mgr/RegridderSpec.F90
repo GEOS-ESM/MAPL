@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl3g_RegridderSpec
+module mapl_RegridderSpec
    use esmf
-   use mapl3g_RegridderParam
-   use mapl3g_Geom_API, only: MAPL_SameGeom
+   use mapl_RegridderParam
+   use mapl_Geom_API, only: MAPL_SameGeom
    implicit none
    private
 
@@ -104,4 +104,4 @@ contains
    end function equal_to
 
    
-end module mapl3g_RegridderSpec
+end module mapl_RegridderSpec

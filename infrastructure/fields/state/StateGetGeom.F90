@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl3g_StateGetGeom
+module mapl_StateGetGeomImpl
    use esmf
    use mapl_ErrorHandling
-   use mapl3g_Geom_API
+   use mapl_Geom_API
    implicit none(type,external)
    private
 
@@ -89,4 +89,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine collect_geom
 
-end module mapl3g_StateGetGeom
+end module mapl_StateGetGeomImpl

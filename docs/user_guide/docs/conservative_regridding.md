@@ -107,8 +107,8 @@ exports:
 If you're working with legacy code, you can also set metadata programmatically:
 
 ```fortran
-use mapl3g_QuantityType
-use mapl3g_QuantityTypeMetadata
+use mapl_QuantityType
+use mapl_QuantityTypeMetadata
 
 type(ESMF_Field) :: field
 type(QuantityType) :: qtype
@@ -289,7 +289,7 @@ MAPL3 includes test infrastructure for conservation:
 ```fortran
 @Test
 subroutine test_conservation()
-   use mapl3g_VerticalRegridTransform
+   use mapl_VerticalRegridTransform
 
    ! Setup source and destination fields...
 
@@ -524,7 +524,7 @@ GEOS assimilation ingests satellite CO₂ column observations at observation loc
 
 ```fortran
 ! In observation operator
-use mapl3g_VerticalRegridTransform
+use mapl_VerticalRegridTransform
 
 ! Model CO2 at 72 levels
 real :: co2_model(NX, NY, 72)

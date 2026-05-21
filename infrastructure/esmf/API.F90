@@ -1,3 +1,3 @@
-module mapl3g_VM_API
-   use mapl3g_vm
-end module mapl3g_VM_API
+module mapl_VM_API
+   use mapl_vm
+end module mapl_VM_API

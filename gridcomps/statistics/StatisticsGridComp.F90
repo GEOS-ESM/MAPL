@@ -1,26 +1,26 @@
 #include "MAPL.h"
 
-module mapl3g_StatisticsGridComp
+module mapl_StatisticsGridComp
 
    use MAPL
    use ESMF
-   use mapl3g_RestartHandler
-   use mapl3g_ESMF_Time_Utilities, only: sub_time_in_datetime
+   use mapl_RestartHandler
+   use mapl_ESMF_Time_Utilities, only: sub_time_in_datetime
    ! local modules
-   use mapl3g_AbstractTimeStatistic
-   use mapl3g_StatisticsVector
-   use mapl3g_NullStatistic
-   use mapl3g_TimeAverage
-   use mapl3g_TimeMin
-   use mapl3g_TimeMax
-   use mapl3g_TimeAccumulate
-   use mapl3g_TimeVariance
-   use mapl3g_State_API
+   use mapl_AbstractTimeStatistic
+   use mapl_StatisticsVector
+   use mapl_NullStatistic
+   use mapl_TimeAverage
+   use mapl_TimeMin
+   use mapl_TimeMax
+   use mapl_TimeAccumulate
+   use mapl_TimeVariance
+   use mapl_State_API
    use pflogger, only: Logger
    use mapl_OS
-   use mapl3g_Utilities, only: MAPL_GetCheckpointSubdir
-   use mapl3g_SimpleAlarm, only: SimpleAlarm
-   use mapl3g_ComponentSpec, only: ComponentSpec, CheckpointControls
+   use mapl_mp_utils, only: MAPL_GetCheckpointSubdir
+   use mapl_SimpleAlarm, only: SimpleAlarm
+   use mapl_ComponentSpec, only: ComponentSpec, CheckpointControls
 
    implicit none(type,external)
    private
@@ -470,11 +470,11 @@ contains
       _UNUSED_DUMMY(exportState)
    end subroutine custom_write_restart
 
-end module mapl3g_StatisticsGridComp
+end module mapl_StatisticsGridComp
 
 subroutine setServices(gridComp, rc)
    use MAPL
-   use mapl3g_StatisticsGridComp, only: StatisticsSetServices => setServices
+   use mapl_StatisticsGridComp, only: StatisticsSetServices => setServices
    implicit none(type,external)
    type(esmf_GridComp), intent(inout) :: gridcomp
    integer, intent(out) :: rc
