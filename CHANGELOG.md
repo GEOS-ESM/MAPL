@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `FileIOShared.F90`, `MAPL_LocStreamMod.F90`, `NCIO.F90`,
   `SimpleBundleMod.F90`, `StateItem.F90`, `FieldDictionaryConfig.F90`,
   and associated test files in `gridcomps/` (#4944).
+- Rename `mapl3g_TimeVariance`, `mapl3g_AbstractCovarianceKernel`,
+  `mapl3g_ShiftedCovarianceKernel`, and `mapl3g_WelfordCovarianceKernel`
+  to `mapl_` prefix (modules added after Phase-9 branched from develop).
 
 ### Added
 - Extended StatisticsGridComp to support variance of a single field.
