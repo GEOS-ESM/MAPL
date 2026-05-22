@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Added
+
+- Re-export `PackedDateCreate`, `PackedTimeCreate`, `PackedDateTimeCreate` (from
+  `MAPL_PackedTimeMod`) and `StrTemplate` (from `MAPL_StringTemplate`) via the
+  `mapl_mp_utils` API so they are accessible through `USE MAPL` without client
+  code needing to reference internal submodules directly (fixes #4963).
+
 ### Fixed
 
 - Fix NVHPC compiler build failure in `superstructure/generic/OpenMP_Support.F90`:
