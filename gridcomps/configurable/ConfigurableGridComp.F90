@@ -2,10 +2,10 @@
 
 module mapl_ConfigurableGridComp
 
-   use mapl_ErrorHandling
+   use MAPL
    use mapl_Generic, only: MAPL_GridCompSetEntryPoint, MAPL_GridCompRunChildren
    use mapl_Generic, only: MAPL_GridCompGet
-   use mapl_State_API, only: MAPL_StateGetPointer
+   use MAPL, only: MAPL_StateGetPointer
    use MAPL_FieldPointerUtilities
    use esmf
 
@@ -140,7 +140,7 @@ end module mapl_ConfigurableGridComp
 
 subroutine setServices(gridcomp, rc)
    use ESMF
-   use MAPL_ErrorHandlingMod
+   use MAPL
    use mapl_ConfigurableGridComp, only: Configurable_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc

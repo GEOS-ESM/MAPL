@@ -3,18 +3,18 @@
 module mapl_ExtDataGridComp
 
    use generic3g
-   use mapl_ErrorHandling
+   use MAPL
    use esmf
    use pfio
    use mapl_ExtDataGridComp_private
-   use mapl_Geom_API
+   use MAPL
    use MAPL_FieldUtils
-   use mapl_FieldBundle_API
+   use MAPL
    use mapl_ExtDataConfig
    use mapl_PrimaryExportVector
    use mapl_PrimaryExport
    use mapl_geomio
-   use mapl_Geom_API
+   use MAPL
    use mapl_AbstractDataSetFileSelector
    use MAPL_FileMetadataUtilsMod
    use gftl2_StringStringMap
@@ -261,7 +261,7 @@ end module mapl_ExtDataGridComp
 
 subroutine setServices(gridcomp,rc)
    use ESMF
-   use MAPL_ErrorHandlingMod
+   use MAPL
    use mapl_ExtDataGridComp, only: ExtData_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc

@@ -4,7 +4,6 @@ module mapl_Cap
    use MAPL
    use mapl_CapGridComp, only: cap_setservices => setServices
    use mapl_os
-   use mapl_ErrorHandling, only: MAPL_Assert
    use pflogger
    use esmf
    implicit none(type,external)

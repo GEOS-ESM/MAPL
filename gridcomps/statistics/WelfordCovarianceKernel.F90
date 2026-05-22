@@ -5,7 +5,6 @@ module mapl_WelfordCovarianceKernel
    use mapl_AbstractCovarianceKernel
    use MAPL
    use ESMF
-   use mapl_ErrorHandling
 
    implicit none(type, external)
    private

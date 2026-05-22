@@ -10,7 +10,6 @@ module mapl_HistoryCollectionGridComp_private
    use mapl_RegridderMethods
    use mapl_CompressionSettings
    use mapl_StateItemImpl
-   use mapl_State_API
    use mapl_HistoryUtilities
    use mapl_HistoryConstants
 

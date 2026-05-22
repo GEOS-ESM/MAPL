@@ -4,7 +4,7 @@ module mapl_ExtDataReader
    use MAPL_ExceptionHandling
    use gftl2_StringStringMap
    use gftl2_StringIntegerMap
-   use mapl_FieldBundle_API
+   use MAPL
    use mapl_geomio
    use PFIO
    use MAPL_FieldPointerUtilities

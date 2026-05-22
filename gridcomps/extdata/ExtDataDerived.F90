@@ -1,7 +1,6 @@
 #include "MAPL.h"
 module mapl_ExtDataDerived
    use ESMF
-   use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use gFTL2_StringVector
    use MAPL

@@ -166,7 +166,7 @@ end module mapl_HistoryGridComp
 
 subroutine setServices(gridcomp,rc)
    use ESMF
-   use MAPL_ErrorHandlingMod
+   use MAPL
    use mapl_HistoryGridComp, only: History_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc

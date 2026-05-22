@@ -2,7 +2,6 @@
 
 module mapl_ComponentDriverDriverGridComp
 
-   use mapl_ErrorHandling
    use MAPL
    use esmf
    use gFTL2_StringStringMap
@@ -456,7 +455,7 @@ end module mapl_ComponentDriverDriverGridComp
 
 subroutine setServices(gridcomp, rc)
    use ESMF
-   use MAPL_ErrorHandlingMod
+   use MAPL
    use mapl_ComponentDriverDriverGridComp, only: Root_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc

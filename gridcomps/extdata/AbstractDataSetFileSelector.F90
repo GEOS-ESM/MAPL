@@ -3,7 +3,7 @@
 module mapl_AbstractDataSetFileSelector
 
    use ESMF
-   use MAPL_KeywordEnforcerMod
+   use MAPL
    use MAPL_ExceptionHandling
    use mapl_DataSetBracket
    use mapl_StringTemplate

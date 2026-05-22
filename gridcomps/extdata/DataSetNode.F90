@@ -3,7 +3,7 @@
 module mapl_DataSetNode
 
    use ESMF
-   use MAPL_KeywordEnforcerMod
+   use MAPL
    use MAPL_ExceptionHandling
    use pFIO
    use MAPL_FileMetadataUtilsMod

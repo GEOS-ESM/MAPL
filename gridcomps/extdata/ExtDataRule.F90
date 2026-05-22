@@ -1,11 +1,11 @@
 #include "MAPL.h"
 module mapl_ExtDataRule
    use ESMF
-   use MAPL_KeywordEnforcerMod
+   use MAPL
    use MAPL_ExceptionHandling
    use mapl_ExtDataSample
    use mapl_ExtDataSampleMap
-   use mapl_HConfig_API, only: mapl_HConfigAsTime
+   use MAPL, only: mapl_HConfigAsTime
    use gFTL2_StringVector
    implicit none
    private

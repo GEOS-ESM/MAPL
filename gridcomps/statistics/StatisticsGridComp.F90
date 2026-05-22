@@ -15,10 +15,8 @@ module mapl_StatisticsGridComp
    use mapl_TimeMax
    use mapl_TimeAccumulate
    use mapl_TimeVariance
-   use mapl_State_API
    use pflogger, only: Logger
    use mapl_OS
-   use mapl_mp_utils, only: MAPL_GetCheckpointSubdir
    use mapl_SimpleAlarm, only: SimpleAlarm
    use mapl_ComponentSpec, only: ComponentSpec, CheckpointControls
 

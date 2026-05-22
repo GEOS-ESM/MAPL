@@ -1,7 +1,5 @@
 #include "MAPL.h"
 module mapl_ExtDataGridComp_private
-   use mapl_ErrorHandlingMod
-   use mapl_keywordenforcermod
    use esmf
    use MAPL
    use mapl_StateItemImpl

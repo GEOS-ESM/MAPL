@@ -4,8 +4,6 @@ module mapl_AbstractCovarianceKernel
 
    use MAPL
    use ESMF
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
 
    implicit none(type, external)
    private

@@ -2,7 +2,7 @@
 
 module mapl_FakeParentGridComp
 
-   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Assert, MAPL_Return
+   use MAPL, only: MAPL_Verify, MAPL_Assert, MAPL_Return
    use mapl_generic, only: MAPL_GridCompSetEntryPoint
    use mapl_generic, only: MAPL_GridCompGet
    use mapl_generic, only: MAPL_GridCompRunChildren
@@ -85,7 +85,7 @@ contains
 end module mapl_FakeParentGridComp
 
 subroutine SetServices(gridcomp, rc)
-   use MAPL_ErrorHandlingMod
+   use MAPL
    use mapl_FakeParentGridComp, only: FakeParent_SetServices => SetServices
    use esmf
 

@@ -5,7 +5,7 @@ module mapl_ExtDataConfig
    use ESMF
    use PFIO
    use gFTL2_StringVector
-   use MAPL_KeywordEnforcerMod
+   use MAPL
    use MAPL_ExceptionHandling
    use mapl_ExtDataCollection
    use mapl_ExtDataCollectionMap
@@ -18,7 +18,7 @@ module mapl_ExtDataConfig
    use mapl_ExtDataSampleMap
    use mapl_PrimaryExport
    use mapl_geomio
-   use mapl_HConfig_API, only: mapl_HConfigAsTime
+   use MAPL, only: mapl_HConfigAsTime
    use mapl_AbstractDataSetFileSelector
    use mapl_NonClimDataSetFileSelector
 

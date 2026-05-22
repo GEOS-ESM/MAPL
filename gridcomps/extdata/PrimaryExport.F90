@@ -5,8 +5,8 @@ module mapl_PrimaryExport
    use mapl_AbstractDataSetFileSelector
    use mapl_NonClimDataSetFileSelector
    use mapl_ClimDataSetFileSelector
-   use mapl_Geom_API
-   use mapl_VerticalGrid_API
+   use MAPL
+   use MAPL
    use MAPL_FileMetadataUtilsMod
    use generic3g
    use mapl_DataSetBracket
@@ -20,7 +20,7 @@ module mapl_PrimaryExport
    use mapl_ExtDataSample
    use pfio, only: i_clients
    use VerticalCoordinateMod
-   use mapl_FieldBundle_API
+   use MAPL
    use mapl_EsmfRegridder, only: EsmfRegridderParam
    use mapl_RegridderMethods
    implicit none

@@ -1,7 +1,7 @@
 #include "MAPL.h"
 module mapl_ExtDataCollection
    use ESMF
-   use MAPL_KeywordEnforcerMod
+   use MAPL
    use MAPL_ExceptionHandling
    use MAPL_StringTemplate
    use mapl_HConfigAs, only: mapl_HConfigAsTimeInterval => HConfigAsTimeInterval

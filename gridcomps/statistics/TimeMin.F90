@@ -5,8 +5,6 @@ module mapl_TimeMin
    use mapl_AbstractTimeStatistic
    use MAPL
    use ESMF
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
    use mapl_SimpleAlarm, only: SimpleAlarm
 
    implicit none(type,external)

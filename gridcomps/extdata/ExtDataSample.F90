@@ -1,7 +1,7 @@
 #include "MAPL.h"
 module mapl_ExtDataSample
    use ESMF
-   use MAPL_KeywordEnforcerMod
+   use MAPL
    use MAPL_ExceptionHandling
    use mapl_HConfigAs, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
    implicit none

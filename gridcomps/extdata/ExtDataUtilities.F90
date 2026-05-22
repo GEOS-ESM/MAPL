@@ -1,7 +1,7 @@
 #include "MAPL.h"
 module mapl_ExtDataUtilities
    use ESMF
-   use MAPL_KeywordEnforcerMod
+   use MAPL
    use MAPL_ExceptionHandling
    implicit none
    private

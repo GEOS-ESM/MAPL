@@ -2,8 +2,6 @@
 
 module mapl_HistoryGridComp_private
    use MAPL
-   use mapl_ErrorHandlingMod
-   use mapl_keywordenforcermod
    use mapl_HistoryConstants
    use mapl_HistoryUtilities
    use mapl_StatisticsGridComp, only: statistics_setServices => setServices
