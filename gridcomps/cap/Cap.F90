@@ -3,7 +3,6 @@
 module mapl_Cap
    use MAPL
    use mapl_CapGridComp, only: cap_setservices => setServices
-   use mapl_os
    use pflogger
    use esmf
    implicit none(type,external)
@@ -220,7 +219,7 @@ contains
    end function get_timestamp
 
    function make_driver(clock, hconfig, options, rc) result(driver)
-      use mapl_GenericGridComp, only: generic_SetServices => setServices
+      use mapl_GenericGridComp, only: generic_setServices => setServices
       type(GriddedComponentDriver) :: driver
       type(esmf_HConfig), intent(in) :: hconfig
       type(esmf_Clock), intent(in) :: clock

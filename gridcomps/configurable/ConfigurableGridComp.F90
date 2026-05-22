@@ -3,10 +3,7 @@
 module mapl_ConfigurableGridComp
 
    use MAPL
-   use mapl_Generic, only: MAPL_GridCompSetEntryPoint, MAPL_GridCompRunChildren
-   use mapl_Generic, only: MAPL_GridCompGet
    use MAPL, only: MAPL_StateGetPointer
-   use MAPL_FieldPointerUtilities
    use esmf
 
    implicit none

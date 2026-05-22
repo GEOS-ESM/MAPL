@@ -2,7 +2,6 @@
 module mapl_ExtDataGridComp_private
    use esmf
    use MAPL
-   use mapl_StateItemImpl
    use mapl_PrimaryExportVector
    use mapl_PrimaryExport
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)

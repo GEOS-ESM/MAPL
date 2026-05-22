@@ -39,14 +39,42 @@ module MAPL
    use MAPL_PythonBridge
    use mapl_base3g
    use mapl_Profiler, initialize_profiler => initialize, finalize_profiler => finalize
-   use MAPL_FieldUtils
-   use MAPL_StateMaskMod
-   use MAPL_StateArithmeticParserMod
-   use MAPL_StateFilter
-   
+    use MAPL_FieldUtils
+    use MAPL_StateMaskMod
+    use MAPL_StateArithmeticParserMod
+    use MAPL_StateFilter
 
-   ! We use default PUBLIC to avoid explicitly listing exports from
-   ! the other layers.  When the dust settles and such micro
-   ! management become feasible, this can be reconsidered.
-   
+    ! Additional modules needed by gridcomps (issues #4958/#4959)
+    ! generic3g layer
+    use mapl_Generic
+    ! mapl_GenericGridComp excluded: its public setServices conflicts with
+    ! the standalone setServices subroutines defined in gridcomp files.
+    ! Cap.F90 still uses it directly; address in a later increment.
+    use mapl_ComponentSpec
+    use mapl_RestartHandler
+    ! esmf layer
+    use mapl_ESMF_Time_Utilities
+    use mapl_SimpleAlarm
+    use mapl_StateItemImpl
+    use MAPL_FieldPointerUtilities
+    use MAPL_ExceptionHandling
+    use MAPL_ISO8601_DateTime
+    ! regridder layer
+    use mapl_EsmfRegridder
+    use mapl_RegridderMethods
+    ! hconfig layer
+    use mapl_HConfigAs
+    ! mp_utils layer
+    use MAPL_StringTemplate
+    ! base3g layer
+    use MAPL_FileMetadataUtilsMod
+    ! utils layer
+    use mapl_OS
+    ! geom layer (transitively linked via regridder_mgr)
+    use mapl_GridGetGlobal
+
+    ! We use default PUBLIC to avoid explicitly listing exports from
+    ! the other layers.  When the dust settles and such micro
+    ! management become feasible, this can be reconsidered.
+
 end module MAPL

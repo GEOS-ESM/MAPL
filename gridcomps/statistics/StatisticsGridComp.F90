@@ -4,8 +4,6 @@ module mapl_StatisticsGridComp
 
    use MAPL
    use ESMF
-   use mapl_RestartHandler
-   use mapl_ESMF_Time_Utilities, only: sub_time_in_datetime
    ! local modules
    use mapl_AbstractTimeStatistic
    use mapl_StatisticsVector
@@ -16,9 +14,6 @@ module mapl_StatisticsGridComp
    use mapl_TimeAccumulate
    use mapl_TimeVariance
    use pflogger, only: Logger
-   use mapl_OS
-   use mapl_SimpleAlarm, only: SimpleAlarm
-   use mapl_ComponentSpec, only: ComponentSpec, CheckpointControls
 
    implicit none(type,external)
    private

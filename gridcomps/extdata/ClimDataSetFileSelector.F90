@@ -4,15 +4,12 @@ module mapl_ClimDataSetFileSelector
 
    use ESMF
    use MAPL
-   use MAPL_ExceptionHandling
    use mapl_DataSetBracket
    use mapl_DataSetNode
    use mapl_AbstractDataSetFileSelector
    use mapl_ExtdataUtilities
-   use mapl_StringTemplate
    use mapl_geomio
    use MAPL
-   use MAPL_FieldUtils
 
    implicit none
    private

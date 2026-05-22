@@ -8,7 +8,6 @@ module mapl_ExtDataGridComp
    use pfio
    use mapl_ExtDataGridComp_private
    use MAPL
-   use MAPL_FieldUtils
    use MAPL
    use mapl_ExtDataConfig
    use mapl_PrimaryExportVector
@@ -16,7 +15,6 @@ module mapl_ExtDataGridComp
    use mapl_geomio
    use MAPL
    use mapl_AbstractDataSetFileSelector
-   use MAPL_FileMetadataUtilsMod
    use gftl2_StringStringMap
    use gftl2_IntegerVector
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)

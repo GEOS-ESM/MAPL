@@ -6,7 +6,6 @@ module mapl_ExtDataConfig
    use PFIO
    use gFTL2_StringVector
    use MAPL
-   use MAPL_ExceptionHandling
    use mapl_ExtDataCollection
    use mapl_ExtDataCollectionMap
    use mapl_ExtDataRule

@@ -6,10 +6,7 @@ module mapl_HistoryCollectionGridComp_private
    use esmf
    use gFTL2_StringVector
    use gFTL2_StringSet
-   use mapl_EsmfRegridder, only: EsmfRegridderParam
-   use mapl_RegridderMethods
    use mapl_CompressionSettings
-   use mapl_StateItemImpl
    use mapl_HistoryUtilities
    use mapl_HistoryConstants
 

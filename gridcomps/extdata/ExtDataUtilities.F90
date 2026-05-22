@@ -2,7 +2,6 @@
 module mapl_ExtDataUtilities
    use ESMF
    use MAPL
-   use MAPL_ExceptionHandling
    implicit none
    private
 

@@ -2,8 +2,6 @@
 module mapl_ExtDataSample
    use ESMF
    use MAPL
-   use MAPL_ExceptionHandling
-   use mapl_HConfigAs, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
    implicit none
    private
 

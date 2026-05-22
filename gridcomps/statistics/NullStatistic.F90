@@ -5,7 +5,6 @@ module mapl_NullStatistic
    use mapl_AbstractTimeStatistic
    use MAPL
    use esmf, only: esmf_State, esmf_GridComp, esmf_Clock
-   use mapl_SimpleAlarm, only: SimpleAlarm
 
    implicit none(type,external)
    private

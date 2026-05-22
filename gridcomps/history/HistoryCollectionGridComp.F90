@@ -6,7 +6,6 @@ module mapl_HistoryCollectionGridComp
    use mapl_HistoryCollectionGridComp_private
    use mapl_HistoryConstants
    use esmf
-   use MAPL_StringTemplate, only: fill_grads_template_esmf
    use pFlogger, only: logger, logging
 
    implicit none

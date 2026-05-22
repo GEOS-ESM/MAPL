@@ -2,10 +2,6 @@
 module mapl_ExtDataCollection
    use ESMF
    use MAPL
-   use MAPL_ExceptionHandling
-   use MAPL_StringTemplate
-   use mapl_HConfigAs, only: mapl_HConfigAsTimeInterval => HConfigAsTimeInterval
-   use mapl_HConfigAs, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
    use pfio_FileMetadataMod
    use mapl_AbstractDataSetFileSelector
    use mapl_NonClimDataSetFileSelector

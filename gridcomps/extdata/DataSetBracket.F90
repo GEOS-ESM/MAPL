@@ -2,7 +2,6 @@
 module mapl_DataSetBracket
    use ESMF
    use MAPL
-   use MAPL_ExceptionHandling
    use mapl_DataSetNode
    implicit none
    private

@@ -4,9 +4,7 @@ module mapl_DataSetNode
 
    use ESMF
    use MAPL
-   use MAPL_ExceptionHandling
    use pFIO
-   use MAPL_FileMetadataUtilsMod
    use mapl_geomio
    use mapl_ExtDataUtilities
    use pFlogger, only: logger

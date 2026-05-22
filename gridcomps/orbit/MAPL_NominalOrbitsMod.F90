@@ -19,7 +19,7 @@
 !- 30Jul2009   Albayrak  Beta version 2 implemantation
 !
   MODULE MAPL_NominalOrbitsMod
-     use MAPL_Constants
+     use MAPL
      IMPLICIT NONE
 
       PRIVATE

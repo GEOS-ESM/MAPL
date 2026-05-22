@@ -3,9 +3,9 @@
 module mapl_FakeParentGridComp
 
    use MAPL, only: MAPL_Verify, MAPL_Assert, MAPL_Return
-   use mapl_generic, only: MAPL_GridCompSetEntryPoint
-   use mapl_generic, only: MAPL_GridCompGet
-   use mapl_generic, only: MAPL_GridCompRunChildren
+   use MAPL, only: MAPL_GridCompSetEntryPoint
+   use MAPL, only: MAPL_GridCompGet
+   use MAPL, only: MAPL_GridCompRunChildren
    use ESMF, only: ESMF_GridComp, ESMF_State, ESMF_Clock, ESMF_METHOD_RUN
    use ESMF, only: ESMF_HConfig, ESMF_HConfigIsDefined, ESMF_HConfigAsLogical
    use ESMF, only: ESMF_HConfigCreateAt, ESMF_HConfigDestroy

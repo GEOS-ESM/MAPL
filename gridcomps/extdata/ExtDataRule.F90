@@ -2,7 +2,6 @@
 module mapl_ExtDataRule
    use ESMF
    use MAPL
-   use MAPL_ExceptionHandling
    use mapl_ExtDataSample
    use mapl_ExtDataSampleMap
    use MAPL, only: mapl_HConfigAsTime

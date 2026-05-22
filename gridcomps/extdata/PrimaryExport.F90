@@ -1,13 +1,11 @@
 #include "MAPL.h"
 module mapl_PrimaryExport
    use ESMF
-   use MAPL_ExceptionHandling
    use mapl_AbstractDataSetFileSelector
    use mapl_NonClimDataSetFileSelector
    use mapl_ClimDataSetFileSelector
    use MAPL
    use MAPL
-   use MAPL_FileMetadataUtilsMod
    use generic3g
    use mapl_DataSetBracket
    use mapl_DataSetNode
@@ -21,8 +19,6 @@ module mapl_PrimaryExport
    use pfio, only: i_clients
    use VerticalCoordinateMod
    use MAPL
-   use mapl_EsmfRegridder, only: EsmfRegridderParam
-   use mapl_RegridderMethods
    implicit none
    private
 

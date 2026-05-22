@@ -23,27 +23,14 @@
 ! !USES:
 !
    Use ESMF
-   use MAPL_MathConstants, only: MAPL_PI, MAPL_DEGREES_TO_RADIANS_R8, &
-       MAPL_RADIANS_TO_DEGREES
-   use MAPL_InternalConstants, only: MAPL_UNDEFINED_REAL, MAPL_R4, MAPL_DimsHorzOnly, &
-       MAPL_VLocationCenter
-   use MAPL_ISO8601_DateTime, only: convert_ISO8601_to_integer_date, &
-       convert_ISO8601_to_integer_time
    use MAPL, only: MAPL_FieldCreate
    use MAPL, only: MAPL_FieldBundleAdd
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL
-   use mapl_generic, only: MAPL_GridCompGet
-   use mapl_generic, only: MAPL_UserCompSetInternalState, MAPL_UserCompGetInternalState
-   use mapl_generic, only: MAPL_GridCompAddSpec
    use MAPL, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
-   use mapl_generic, only: MAPL_STATEITEM_FIELDBUNDLE
-   use mapl_generic, only: MAPL_GridCompSetEntryPoint
    use MAPL, only: MAPL_GridGet, MAPL_GridGetCoordinates
-   use mapl_GridGetGlobal, only: GridGetGlobalCellCountPerDim
    use MAPL, only: MAPL_StateGetPointer
    use MAPL, only: MAPL_FieldBundleGetPointer
-   use mapl_generic, only: MAPL_GridCompGetResource
 
    IMPLICIT NONE
    PRIVATE
