@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl_GridPFIO
+module mapl_GridPFIO_mod
 
    use, intrinsic :: iso_c_binding, only: c_ptr, c_loc
 
-   use mapl_ErrorHandling
-   use mapl_GeomPFIO
-   use mapl_SharedIO
+   use mapl_ErrorHandling_mod
+   use mapl_GeomPFIO_mod
+   use mapl_SharedIO_mod
    use ESMF
    use PFIO
-   use MAPL_Constants,  only: MAPL_RADIANS_TO_DEGREES
-   use MAPL_FieldPointerUtilities
-   use mapl_pFIOServerBounds, only: pFIOServerBounds, PFIO_BOUNDS_WRITE, PFIO_BOUNDS_READ
+   use mapl_Constants_mod,  only: MAPL_RADIANS_TO_DEGREES
+   use mapl_FieldPointerUtilities_mod
+   use mapl_pFIOServerBounds_mod, only: pFIOServerBounds, PFIO_BOUNDS_WRITE, PFIO_BOUNDS_READ
 
    implicit none
    private
@@ -211,4 +211,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine request_data_from_file
 
-end module mapl_GridPFIO
+end module mapl_GridPFIO_mod

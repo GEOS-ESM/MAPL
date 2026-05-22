@@ -1,10 +1,10 @@
 #include "MAPL_ErrLog.h"
-module MAPL_StateFilter
+module mapl_StateFilter_mod
    use ESMF
-   use MAPL_ExceptionHandling
-   use MAPL_FieldUtils
-   use MAPL_StateArithmeticParserMod
-   use MAPL_StateMaskMod
+   use mapl_ExceptionHandling_mod
+   use mapl_FieldUtils_mod
+   use mapl_StateArithmeticParser_mod
+   use mapl_StateMask_mod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    private
@@ -143,4 +143,4 @@ module MAPL_StateFilter
       _RETURN(_SUCCESS)
    end function 
       
-end module MAPL_StateFilter
+end module mapl_StateFilter_mod

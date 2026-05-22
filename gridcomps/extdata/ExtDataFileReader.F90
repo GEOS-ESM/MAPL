@@ -1,5 +1,5 @@
 #include "MAPL.h"
-module mapl_ExtDataReader
+module mapl_ExtDataReader_mod
    use esmf
    use gftl2_StringStringMap
    use gftl2_StringIntegerMap
@@ -125,4 +125,4 @@ module mapl_ExtDataReader
       _RETURN(_SUCCESS)
    end subroutine
 
-end module mapl_ExtDataReader
+end module mapl_ExtDataReader_mod

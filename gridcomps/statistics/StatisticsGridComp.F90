@@ -1,18 +1,18 @@
 #include "MAPL.h"
 
-module mapl_StatisticsGridComp
+module mapl_StatisticsGridComp_mod
 
    use MAPL
    use ESMF
    ! local modules
-   use mapl_AbstractTimeStatistic
-   use mapl_StatisticsVector
-   use mapl_NullStatistic
-   use mapl_TimeAverage
-   use mapl_TimeMin
-   use mapl_TimeMax
-   use mapl_TimeAccumulate
-   use mapl_TimeVariance
+   use mapl_AbstractTimeStatistic_mod
+   use mapl_StatisticsVector_mod
+   use mapl_NullStatistic_mod
+   use mapl_TimeAverage_mod
+   use mapl_TimeMin_mod
+   use mapl_TimeMax_mod
+   use mapl_TimeAccumulate_mod
+   use mapl_TimeVariance_mod
    use pflogger, only: Logger
 
    implicit none(type,external)
@@ -463,11 +463,11 @@ contains
       _UNUSED_DUMMY(exportState)
    end subroutine custom_write_restart
 
-end module mapl_StatisticsGridComp
+end module mapl_StatisticsGridComp_mod
 
 subroutine setServices(gridComp, rc)
    use MAPL
-   use mapl_StatisticsGridComp, only: StatisticsSetServices => setServices
+   use mapl_StatisticsGridComp_mod, only: StatisticsSetServices => setServices
    implicit none(type,external)
    type(esmf_GridComp), intent(inout) :: gridcomp
    integer, intent(out) :: rc

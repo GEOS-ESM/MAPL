@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_TimeAverage
+module mapl_TimeAverage_mod
 
-   use mapl_AbstractTimeStatistic
+   use mapl_AbstractTimeStatistic_mod
    use MAPL
    use ESMF
 
@@ -348,4 +348,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine advertise_time_average_internal_fields
 
-end module mapl_TimeAverage
+end module mapl_TimeAverage_mod

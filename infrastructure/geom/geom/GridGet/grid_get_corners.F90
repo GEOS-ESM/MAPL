@@ -2,7 +2,7 @@
 
 submodule (mapl_GridAccessors) grid_get_corners_smod
 
-   use mapl_Constants
+   use mapl_Constants_mod
    use esmf
 
    implicit none(type, external)

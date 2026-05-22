@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl_LatLonGeomFactory
+module mapl_LatLonGeomFactory_mod
 
-   use mapl_GeomSpec
-   use mapl_GeomFactory
-   use mapl_LatLonGeomSpec
-   use mapl_KeywordEnforcerMod
-   use mapl_ErrorHandlingMod
+   use mapl_GeomSpec_mod
+   use mapl_GeomFactory_mod
+   use mapl_LatLonGeomSpec_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use gftl2_StringVector
-   use mapl_StringDictionary
+   use mapl_StringDictionary_mod
    use pfio
    use esmf
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
 
    implicit none
    private
@@ -37,7 +37,7 @@ module mapl_LatLonGeomFactory
    interface
 
       module function make_geom(this, geom_spec, rc) result(geom)
-         use mapl_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec_mod, only: GeomSpec
          use esmf, only: ESMF_Geom
          type(ESMF_Geom) :: geom
          class(LatLonGeomFactory), intent(in) :: this
@@ -46,7 +46,7 @@ module mapl_LatLonGeomFactory
       end function make_geom
 
       module function create_basic_grid(spec, unusable, name, rc) result(grid)
-         use mapl_KeywordEnforcer
+         use mapl_KeywordEnforcer_mod
          type(ESMF_Grid) :: grid
          type(LatLonGeomSpec), intent(in) :: spec
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -76,7 +76,7 @@ module mapl_LatLonGeomFactory
       end function make_variable_attributes
 
       module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
-         use mapl_KeywordEnforcerMod
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          class(LatLonGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
@@ -170,5 +170,5 @@ contains
       _UNUSED_DUMMY(this)
    end function supports_spec
 
-end module mapl_LatLonGeomFactory
+end module mapl_LatLonGeomFactory_mod
 

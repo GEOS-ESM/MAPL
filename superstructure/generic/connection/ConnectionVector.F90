@@ -1,5 +1,5 @@
-module mapl_ConnectionVector
-   use mapl_Connection
+module mapl_ConnectionVector_mod
+   use mapl_Connection_mod
 
 #define T Connection
 #define T_polymorphic
@@ -13,4 +13,4 @@ module mapl_ConnectionVector
 #undef Vector
 #undef VectorIterator
   
-end module mapl_ConnectionVector
+end module mapl_ConnectionVector_mod

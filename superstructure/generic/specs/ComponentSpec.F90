@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-module mapl_ComponentSpec
+module mapl_ComponentSpec_mod
 
-   use mapl_Connection
-   use mapl_SimpleConnection
-   use mapl_ReexportConnection
-   use mapl_ConnectionVector
-   use mapl_ConnectionPt
-   use mapl_VirtualConnectionPt
-   use mapl_VariableSpec
-   use mapl_VariableSpecVector
-   use mapl_ChildSpecMap
-   use mapl_GeometrySpec
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
-   use mapl_stringutilities
+   use mapl_Connection_mod
+   use mapl_SimpleConnection_mod
+   use mapl_ReexportConnection_mod
+   use mapl_ConnectionVector_mod
+   use mapl_ConnectionPt_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_VariableSpec_mod
+   use mapl_VariableSpecVector_mod
+   use mapl_ChildSpecMap_mod
+   use mapl_GeometrySpec_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_StringUtilities_mod
    use gftl2_StringVector
    use ESMF
 
@@ -162,4 +162,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine reexport
 
-end module mapl_ComponentSpec
+end module mapl_ComponentSpec_mod

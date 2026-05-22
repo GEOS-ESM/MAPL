@@ -1,5 +1,5 @@
-module mapl_LatAxis
-   use mapl_CoordinateAxis
+module mapl_LatAxis_mod
+   use mapl_CoordinateAxis_mod
    use pfio
    use esmf
    implicit none
@@ -107,4 +107,4 @@ module mapl_LatAxis
       not_equal_to = .not. (a == b)
    end function not_equal_to
    
-end module mapl_LatAxis
+end module mapl_LatAxis_mod

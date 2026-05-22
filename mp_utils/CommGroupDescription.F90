@@ -1,7 +1,7 @@
 #include "MAPL.h"
-module MAPL_CommGroupDescriptionMod
-   use MAPL_ExceptionHandling
-   use MAPL_KeywordEnforcerMod
+module mapl_CommGroupDescription_mod
+   use mapl_ExceptionHandling_mod
+   use mapl_KeywordEnforcer_mod
    implicit none
    private
 
@@ -134,10 +134,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine comm_group_range
  
-end module MAPL_CommGroupDescriptionMod
+end module mapl_CommGroupDescription_mod
 
-module MAPL_CommGroupDescriptionVectorMod
-   use MAPL_CommGroupDescriptionMod
+module mapl_CommGroupDescriptionVector_mod
+   use mapl_CommGroupDescription_mod
 
 #define _type type(CommGroupDescription)
 #define _vector CommGroupDescriptionVector
@@ -148,5 +148,5 @@ module MAPL_CommGroupDescriptionVectorMod
 #undef _iterator
 #undef _vector
 #undef _type
-end module MAPL_CommGroupDescriptionVectorMod
+end module mapl_CommGroupDescriptionVector_mod
 

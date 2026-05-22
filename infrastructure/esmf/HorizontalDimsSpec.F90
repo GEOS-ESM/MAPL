@@ -1,4 +1,4 @@
-module mapl_HorizontalDimsSpec
+module mapl_HorizontalDimsSpec_mod
 
    implicit none
    private
@@ -81,4 +81,4 @@ contains
       end select
    end function to_HorizontalDimsSpec
 
-end module mapl_HorizontalDimsSpec
+end module mapl_HorizontalDimsSpec_mod

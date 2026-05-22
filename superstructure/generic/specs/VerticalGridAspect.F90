@@ -1,29 +1,29 @@
 #include "MAPL.h"
 
-module mapl_VerticalGridAspect
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_Field_API
-   use mapl_FieldBundle_API
-   use mapl_StateItemAspect
-   use mapl_ExtensionTransform
-   use mapl_ExtendTransform
-   use mapl_VerticalGrid
-   use mapl_VerticalCoordinateDirection
-   use mapl_VerticalAlignment
-   use mapl_NullTransform
-   use mapl_VerticalRegridTransform
-   use mapl_GeomAspect
-   use mapl_TypekindAspect
-   use mapl_UnitsAspect
-   use mapl_NormalizationAspect
-   use mapl_NormalizationType
-   use mapl_VerticalRegridMethod
-   use mapl_VerticalStaggerLoc
-   use mapl_VerticalRegridMethod
-   use mapl_ComponentDriver
-   use mapl_MirrorVerticalGrid, only: MirrorVerticalGrid
-   use mapl_ErrorHandling
+module mapl_VerticalGridAspect_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_Field_API_mod
+   use mapl_FieldBundle_API_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_ExtendTransform_mod
+   use mapl_VerticalGrid_mod
+   use mapl_VerticalCoordinateDirection_mod
+   use mapl_VerticalAlignment_mod
+   use mapl_NullTransform_mod
+   use mapl_VerticalRegridTransform_mod
+   use mapl_GeomAspect_mod
+   use mapl_TypekindAspect_mod
+   use mapl_UnitsAspect_mod
+   use mapl_NormalizationAspect_mod
+   use mapl_NormalizationType_mod
+   use mapl_VerticalRegridMethod_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalRegridMethod_mod
+   use mapl_ComponentDriver_mod
+   use mapl_MirrorVerticalGrid_mod, only: MirrorVerticalGrid
+   use mapl_ErrorHandling_mod
    use esmf
    use gftl2_StringVector
    implicit none(type,external)
@@ -532,4 +532,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine update_payload
 
-end module mapl_VerticalGridAspect
+end module mapl_VerticalGridAspect_mod

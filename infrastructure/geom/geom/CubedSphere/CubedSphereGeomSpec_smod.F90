@@ -2,12 +2,12 @@
 
 submodule (mapl_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
 
-   use mapl_CoordinateAxis
-   use mapl_GeomSpec
+   use mapl_CoordinateAxis_mod
+   use mapl_GeomSpec_mod
    use pfio
-   use MAPL_RangeMod
-   use mapl_ErrorHandling
-   use mapl_Constants
+   use mapl_Range_mod
+   use mapl_ErrorHandling_mod
+   use mapl_Constants_mod
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 

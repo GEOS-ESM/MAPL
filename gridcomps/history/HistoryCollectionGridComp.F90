@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl_HistoryCollectionGridComp
+module mapl_HistoryCollectionGridComp_mod
 
    use MAPL
-   use mapl_HistoryCollectionGridComp_private
-   use mapl_HistoryConstants
+   use mapl_HistoryCollectionGridComp_private_mod
+   use mapl_HistoryConstants_mod
    use esmf
    use pFlogger, only: logger, logging
 
@@ -183,4 +183,4 @@ contains
       _UNUSED_DUMMY(exportState)
    end subroutine run
 
-end module mapl_HistoryCollectionGridComp
+end module mapl_HistoryCollectionGridComp_mod

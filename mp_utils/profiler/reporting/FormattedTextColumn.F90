@@ -1,8 +1,8 @@
-module MAPL_FormattedTextColumn
+module mapl_FormattedTextColumn_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use MAPL_AbstractColumn
-   use MAPL_AbstractMeterNode
-   use MAPL_TextColumn
+   use mapl_AbstractColumn_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_TextColumn_mod
    use GFTL_UnlimitedVector
    implicit none
    private
@@ -95,7 +95,7 @@ contains
 
 
    subroutine get_rows(this, node, rows)
-      use MAPL_AbstractMeterNode
+      use mapl_AbstractMeterNode_mod
       class (FormattedTextColumn), intent(in) :: this
       class (AbstractMeterNode), target, intent(in) :: node
       character(:), allocatable, intent(out) :: rows(:)
@@ -122,4 +122,4 @@ contains
    end subroutine get_rows
    
 
-end module MAPL_FormattedTextColumn
+end module mapl_FormattedTextColumn_mod

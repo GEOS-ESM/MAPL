@@ -1,11 +1,11 @@
 #define SHM_SUCCESS  0
 #include "MAPL.h"
 
-module MAPL_Shmem
+module mapl_Shmem_mod
 
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
-  use MAPL_Constants
+  use mapl_Constants_mod
   use mpi
 
   implicit none
@@ -542,9 +542,9 @@ module MAPL_Shmem
        integer, optional, intent(  OUT) :: RC
      end function MAPL_CoresPerNodeGet
   end interface
-end module MAPL_Shmem
+end module mapl_Shmem_mod
 
 ! For backwards compatibility
-module MAPL_ShmemMod
-  use MAPL_Shmem
-end module MAPL_ShmemMod
+module mapl_Shmem_mod
+  use mapl_Shmem_mod
+end module mapl_Shmem_mod

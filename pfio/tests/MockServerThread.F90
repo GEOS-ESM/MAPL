@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 module MockServerThreadMod
 
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_ServerThreadMod
    use pFIO_AbstractMessageMod
    use pFIO_MessageVisitorMod

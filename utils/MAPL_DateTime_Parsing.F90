@@ -35,9 +35,9 @@
 ! Fully-formed time with time zone. Local time not-supported
 !      <time>Z
 #include "MAPL.h"
-module MAPL_DateTime_Parsing
-   use MAPL_KeywordEnforcerMod
-   use MAPL_ExceptionHandling
+module mapl_DateTime_Parsing_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ExceptionHandling_mod
    use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: R64 => real64
 
@@ -1330,4 +1330,4 @@ contains
       is_time_unit = (get_time_unit(string) /= UNKNOWN_TIME_UNIT)
    end function is_time_unit
 
-end module MAPL_DateTime_Parsing
+end module mapl_DateTime_Parsing_mod

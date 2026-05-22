@@ -18,14 +18,14 @@
 !#### History
 !- 30Nov2010 da Silva  Initial version.
 !
-   MODULE MAPL_OrbGridCompMod
+   MODULE mapl_OrbGridComp_mod
 !
 ! !USES:
 !
    Use ESMF
    use MAPL, only: MAPL_FieldCreate
    use MAPL, only: MAPL_FieldBundleAdd
-   Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
+   Use mapl_Comms_mod, only: MAPL_AM_I_ROOT
    Use MAPL
    use MAPL, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
    use MAPL, only: MAPL_GridGet, MAPL_GridGetCoordinates
@@ -450,7 +450,7 @@ CONTAINS
                               sat_name, nymd, nhms, dt, swath,  &
                               ihalo, jhalo, rc )
 
-       use MAPL_NominalOrbitsMod
+       use mapl_NominalOrbits_mod
 
        implicit NONE
 
@@ -555,7 +555,7 @@ CONTAINS
                               sat_name, nymd, nhms, dt, swath,  &
                               ihalo, jhalo, face, rc )
 
-       use MAPL_NominalOrbitsMod
+       use mapl_NominalOrbits_mod
 
        implicit NONE
 
@@ -1490,4 +1490,4 @@ CONTAINS
 
       end subroutine orb_halo
 
-end module MAPL_OrbGridCompMod
+end module mapl_OrbGridComp_mod

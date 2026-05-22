@@ -17,15 +17,15 @@
 !
 #include "MAPL.h"
 
-module mapl_SimpleBundleMod_impl
+module mapl_SimpleBundleMod_impl_mod
 
    use ESMF
-   use mapl_Geom_API, only: MAPL_GridGet
-   use mapl_FieldBundle_API, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
-   use mapl_ArrayReductions, only: MaxMin => MAPL_MaxMin
-   use MAPL_CommsMod, only: MAPL_AM_I_ROOT
-   use MAPL_Constants, only: MAPL_PI
-   use MAPL_ExceptionHandling
+   use mapl_Geom_API_mod, only: MAPL_GridGet
+   use mapl_FieldBundle_API_mod, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
+   use mapl_ArrayReductions_mod, only: MaxMin => MAPL_MaxMin
+   use mapl_Comms_mod, only: MAPL_AM_I_ROOT
+   use mapl_Constants_mod, only: MAPL_PI
+   use mapl_ExceptionHandling_mod
 
    implicit none
    private
@@ -801,4 +801,4 @@ CONTAINS
 
   end subroutine BundleAddState_
 
-end module mapl_SimpleBundleMod_impl
+end module mapl_SimpleBundleMod_impl_mod

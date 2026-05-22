@@ -1,55 +1,55 @@
 #include "MAPL.h"
 
-module mapl_VariableSpec
+module mapl_VariableSpec_mod
 
-   use mapl_StateItemSpec
-   use mapl_StateItemAspect
-   use mapl_GeomAspect
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemAspect_mod
+   use mapl_GeomAspect_mod
 
-   use mapl_ClassAspect
-   use mapl_FieldClassAspect
-   use mapl_FieldBundleClassAspect
-   use mapl_StateClassAspect
-   use mapl_VectorClassAspect
-   use mapl_BracketClassAspect
-   use mapl_VectorBracketClassAspect
-   use mapl_WildcardClassAspect
-   use mapl_ServiceClassAspect
-   use mapl_ExpressionClassAspect
+   use mapl_ClassAspect_mod
+   use mapl_FieldClassAspect_mod
+   use mapl_FieldBundleClassAspect_mod
+   use mapl_StateClassAspect_mod
+   use mapl_VectorClassAspect_mod
+   use mapl_BracketClassAspect_mod
+   use mapl_VectorBracketClassAspect_mod
+   use mapl_WildcardClassAspect_mod
+   use mapl_ServiceClassAspect_mod
+   use mapl_ExpressionClassAspect_mod
 
-   use mapl_UnitsAspect
-   use mapl_AttributesAspect
-   use mapl_UngriddedDimsAspect
-   use mapl_VerticalGridAspect
-   use mapl_VerticalAlignment
-   use mapl_VerticalRegridMethod
-   use mapl_TypekindAspect
-   use mapl_QuantityTypeAspect
-   use mapl_ConservationAspect
-   use mapl_NormalizationAspect
-   use mapl_NormalizationType
-   use mapl_UngriddedDims
-   use mapl_VerticalStaggerLoc
-   use mapl_VectorBasisKind
-   use mapl_HorizontalDimsSpec
-   use mapl_VirtualConnectionPt
-   use mapl_ActualConnectionPt
-   use mapl_VerticalGrid
-   use mapl_VirtualConnectionPtVector
-   use mapl_ErrorHandling
+   use mapl_UnitsAspect_mod
+   use mapl_AttributesAspect_mod
+   use mapl_UngriddedDimsAspect_mod
+   use mapl_VerticalGridAspect_mod
+   use mapl_VerticalAlignment_mod
+   use mapl_VerticalRegridMethod_mod
+   use mapl_TypekindAspect_mod
+   use mapl_QuantityTypeAspect_mod
+   use mapl_ConservationAspect_mod
+   use mapl_NormalizationAspect_mod
+   use mapl_NormalizationType_mod
+   use mapl_UngriddedDims_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VectorBasisKind_mod
+   use mapl_HorizontalDimsSpec_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_VerticalGrid_mod
+   use mapl_VirtualConnectionPtVector_mod
+   use mapl_ErrorHandling_mod
    use pflogger, only: logging, logger_t => logger
-   use mapl_StateRegistry
-   use mapl_StateItemImpl
-   use mapl_AspectId
-   use mapl_EsmfRegridder, only: EsmfRegridderParam
-   use mapl_FieldDictionary
-   use mapl_FieldDictionaryItem, only: FieldDictionaryItem
-   use mapl_KeywordEnforcerMod
-   use mapl_RestartModes, only: RestartMode
+   use mapl_StateRegistry_mod
+   use mapl_StateItemImpl_mod
+   use mapl_AspectId_mod
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use mapl_FieldDictionary_mod
+   use mapl_FieldDictionaryItem_mod, only: FieldDictionaryItem
+   use mapl_KeywordEnforcer_mod
+   use mapl_RestartModes_mod, only: RestartMode
    use esmf
    use gFTL2_StringVector
    use nuopc
-   use mapl_VariableSpec_private
+   use mapl_VariableSpec_private_mod
 
    implicit none
    private
@@ -731,4 +731,4 @@ contains
 
    end subroutine verify_variable_spec
 
-end module mapl_VariableSpec
+end module mapl_VariableSpec_mod

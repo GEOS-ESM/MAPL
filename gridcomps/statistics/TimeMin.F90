@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_TimeMin
+module mapl_TimeMin_mod
 
-   use mapl_AbstractTimeStatistic
+   use mapl_AbstractTimeStatistic_mod
    use MAPL
    use ESMF
 
@@ -325,4 +325,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine advertise_time_min_internal_fields
 
-end module mapl_TimeMin
+end module mapl_TimeMin_mod

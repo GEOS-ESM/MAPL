@@ -2,18 +2,18 @@
 
 submodule (mapl_LatLonGeomFactory) make_variable_attributes_smod
 
-   use mapl_GeomSpec
-   use mapl_LonAxis
-   use mapl_LatAxis
-   use mapl_LatLonDecomposition
-   use mapl_LatLonGeomSpec
-   use mapl_MinMaxMod
-   use mapl_ErrorHandlingMod
-   use mapl_Constants
+   use mapl_GeomSpec_mod
+   use mapl_LonAxis_mod
+   use mapl_LatAxis_mod
+   use mapl_LatLonDecomposition_mod
+   use mapl_LatLonGeomSpec_mod
+   use mapl_MinMax_mod
+   use mapl_ErrorHandling_mod
+   use mapl_Constants_mod
    use pFIO
-   use mapl_StringDictionary
+   use mapl_StringDictionary_mod
    use esmf
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
 
    implicit none (type, external)
 

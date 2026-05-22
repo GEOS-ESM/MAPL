@@ -2,7 +2,7 @@
 
 submodule (mapl_OuterMetaComponent) get_geom_smod
 
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains

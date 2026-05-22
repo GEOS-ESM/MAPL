@@ -1,9 +1,9 @@
 #include "MAPL.h"
-module mapl_ExtDataGridComp_private
+module mapl_ExtDataGridComp_private_mod
    use esmf
    use MAPL
-   use mapl_PrimaryExportVector
-   use mapl_PrimaryExport
+   use mapl_PrimaryExportVector_mod
+   use mapl_PrimaryExport_mod
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use pflogger, only: logger
    implicit none
@@ -248,4 +248,4 @@ contains
          bracket_size = 4
       end if
     end function get_bracket_size
-end module mapl_ExtDataGridComp_private
+end module mapl_ExtDataGridComp_private_mod

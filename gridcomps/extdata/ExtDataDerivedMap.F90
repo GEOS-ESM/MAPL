@@ -1,5 +1,5 @@
-module mapl_ExtDataDerivedMap
-   use mapl_ExtDataDerived
+module mapl_ExtDataDerivedMap_mod
+   use mapl_ExtDataDerived_mod
 
 #define Key __CHARACTER_DEFERRED
 #define T ExtDataDerived
@@ -15,4 +15,4 @@ module mapl_ExtDataDerivedMap
 #undef T
 #undef Key
 
-end module mapl_ExtDataDerivedMap
+end module mapl_ExtDataDerivedMap_mod

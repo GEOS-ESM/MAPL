@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
 submodule (mapl_EASEGeomSpec) equal_to_smod
-   use mapl_GeomSpec
-   use mapl_EASEDecomposition
+   use mapl_GeomSpec_mod
+   use mapl_EASEDecomposition_mod
    implicit none (type, external)
 
 contains

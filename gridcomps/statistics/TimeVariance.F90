@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl_TimeVariance
+module mapl_TimeVariance_mod
 
-   use mapl_AbstractTimeStatistic
-   use mapl_AbstractCovarianceKernel
-   use mapl_ShiftedCovarianceKernel
-   use mapl_WelfordCovarianceKernel
+   use mapl_AbstractTimeStatistic_mod
+   use mapl_AbstractCovarianceKernel_mod
+   use mapl_ShiftedCovarianceKernel_mod
+   use mapl_WelfordCovarianceKernel_mod
    use MAPL
    use ESMF
 
@@ -284,4 +284,4 @@ contains
 
    end function needs_initialization
 
-end module mapl_TimeVariance
+end module mapl_TimeVariance_mod

@@ -1,9 +1,9 @@
 #include "MAPL.h"
-module mapl_CompressionSettings
+module mapl_CompressionSettings_mod
     use ESMF
-    use MAPL_ErrorHandling
-    use MAPL_Constants
-    use mapl_esmf_info_keys
+    use mapl_ErrorHandling_mod
+    use mapl_Constants_mod
+    use mapl_esmf_info_keys_mod
     implicit none
     private
 
@@ -277,4 +277,4 @@ contains
         this%nbits = nbits
     end subroutine set_all_levels
     
-end module mapl_CompressionSettings
+end module mapl_CompressionSettings_mod

@@ -31,12 +31,12 @@
 ! multiple threads. Most of these, however, will be benign.
 !@endbug
 !
-module MAPL_SatVaporMod
+module mapl_SatVapor_mod
 
 ! !USES:
 !
 #ifdef MAPL_MODE
-  use MAPL_Constants, only: MAPL_H2OMW, MAPL_AIRMW, MAPL_TICE, &
+  use mapl_Constants_mod, only: MAPL_H2OMW, MAPL_AIRMW, MAPL_TICE, &
                             MAPL_UseStarrQsat, MAPL_UseGoffGratchQsat, &
                             MAPL_UseMurphyKoopQsat
 #endif
@@ -905,5 +905,5 @@ contains
 
 #undef  KIND_
 
-end module MAPL_SatVaporMod
+end module mapl_SatVapor_mod
 

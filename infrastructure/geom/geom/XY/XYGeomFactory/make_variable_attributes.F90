@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
 submodule (mapl_XYGeomFactory) make_variable_attributes_smod
-   use mapl_ErrorHandlingMod
-   use mapl_StringDictionary
+   use mapl_ErrorHandling_mod
+   use mapl_StringDictionary_mod
    implicit none
 
 contains

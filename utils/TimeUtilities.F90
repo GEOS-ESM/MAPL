@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_TimeUtilities
+module mapl_TimeUtilities_mod
 
    implicit none
    private
@@ -50,4 +50,4 @@ contains
       s = mod(date_time(2), 100)
    end subroutine UnpackDateTime
 
-end module mapl_TimeUtilities
+end module mapl_TimeUtilities_mod

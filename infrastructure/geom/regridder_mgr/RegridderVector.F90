@@ -1,5 +1,5 @@
-module mapl_RegridderVector
-   use mapl_Regridder
+module mapl_RegridderVector_mod
+   use mapl_Regridder_mod
 
 #define T Regridder
 #define T_polymorphic
@@ -15,4 +15,4 @@ module mapl_RegridderVector
 #undef VectorIterator
 #undef VectorRIterator
 
-end module mapl_RegridderVector
+end module mapl_RegridderVector_mod

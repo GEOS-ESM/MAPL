@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_XYGeomSpec) supports_hconfig_smod
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none
 

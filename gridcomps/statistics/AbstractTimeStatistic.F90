@@ -1,4 +1,4 @@
-module mapl_AbstractTimeStatistic
+module mapl_AbstractTimeStatistic_mod
    use MAPL
    use ESMF
    implicit none(type,external)
@@ -58,4 +58,4 @@ module mapl_AbstractTimeStatistic
 
    end interface
 
-end module mapl_AbstractTimeStatistic
+end module mapl_AbstractTimeStatistic_mod

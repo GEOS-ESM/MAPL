@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl_EASEDecomposition
+module mapl_EASEDecomposition_mod
 
-   use mapl_Partition
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_Partition_mod
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none
@@ -137,4 +137,4 @@ contains
       neq = .not. (a == b)
    end function not_equal_to
 
-end module mapl_EASEDecomposition
+end module mapl_EASEDecomposition_mod

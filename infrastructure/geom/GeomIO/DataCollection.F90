@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl_DataCollection
+module mapl_DataCollection_mod
   use pFIO
-  use MAPL_FileMetadataUtilsVectorMod
-  use MAPL_FileMetadataUtilsMod
+  use mapl_FileMetadataUtilsVector_mod
+  use mapl_FileMetadataUtils_mod
   use gFTL2_StringIntegerMap
   use esmf
-  use mapl_ErrorHandlingMod
+  use mapl_ErrorHandling_mod
   implicit none
   private
 
@@ -98,6 +98,6 @@ contains
     _RETURN(_SUCCESS)
   end function find_
 
-end module mapl_DataCollection
+end module mapl_DataCollection_mod
 
 

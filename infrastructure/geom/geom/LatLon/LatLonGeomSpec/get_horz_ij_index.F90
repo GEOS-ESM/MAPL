@@ -2,8 +2,8 @@
 
 submodule (mapl_LatLonGeomSpec) get_horz_ij_index_smod
 
-   use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
-   use mapl_ErrorHandling
+   use mapl_Constants_mod, only: MAPL_RADIANS_TO_DEGREES
+   use mapl_ErrorHandling_mod
 
    implicit none (type, external)
 

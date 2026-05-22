@@ -1,8 +1,8 @@
-module mapl_FieldDictionaryItem
+module mapl_FieldDictionaryItem_mod
 
    use gftl2_StringVector
    use esmf
-   use mapl_VerificationStatus
+   use mapl_VerificationStatus_mod
 
    implicit none(type,external)
    private
@@ -169,4 +169,4 @@ contains
       is_conserved = this%conserved
    end function is_conserved
 
-end module mapl_FieldDictionaryItem
+end module mapl_FieldDictionaryItem_mod

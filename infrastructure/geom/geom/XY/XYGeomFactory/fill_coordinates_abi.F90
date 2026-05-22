@@ -9,10 +9,10 @@
 ! Shmem optimisation is intentionally omitted (see issue #4685).
 
 submodule (mapl_XYGeomFactory) fill_coordinates_abi_smod
-   use mapl_ErrorHandlingMod
-   use mapl_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
-   use mapl_Comms,   only: am_i_root, ROOT_PROCESS_ID
-   use MAPL_EarthConstants, only: R_EQ  => MAPL_SEMIMAJOR_AXIS, &
+   use mapl_ErrorHandling_mod
+   use mapl_Constants_mod, only: MAPL_DEGREES_TO_RADIANS_R8
+   use mapl_Comms_mod,   only: am_i_root, ROOT_PROCESS_ID
+   use mapl_EarthConstants_mod, only: R_EQ  => MAPL_SEMIMAJOR_AXIS, &
                                   R_POL => MAPL_SEMIMINOR_AXIS, &
                                   H_SAT => MAPL_GEO_ORBIT_RADIUS
    use NetCDF

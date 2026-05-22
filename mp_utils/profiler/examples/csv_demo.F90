@@ -1,5 +1,5 @@
 program csv_demo
-   use MAPL_Profiler
+   use mapl_Profiler_mod
    use gFTL2_StringVector
    use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
 

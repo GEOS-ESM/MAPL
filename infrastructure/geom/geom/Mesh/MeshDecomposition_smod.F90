@@ -2,8 +2,8 @@
 
 submodule (mapl_MeshDecomposition) MeshDecomposition_smod
 
-   use mapl_Partition
-   use mapl_ErrorHandlingMod
+   use mapl_Partition_mod
+   use mapl_ErrorHandling_mod
 
    implicit none
 

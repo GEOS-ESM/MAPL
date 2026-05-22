@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl_hconfig_params
+module mapl_hconfig_params_mod
 
    use :: esmf, only: ESMF_HConfig
    use :: pflogger, only: logger_t => logger
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
 
    implicit none
    private
@@ -61,4 +61,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine log_message
 
-end module mapl_hconfig_params
+end module mapl_hconfig_params_mod

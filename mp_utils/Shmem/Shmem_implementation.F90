@@ -3,8 +3,8 @@
 
 submodule (MAPL_Shmem) Shmem_implementation
   use pflogger, only: logging, Logger
-  use MAPL_ExceptionHandling
-  use MAPL_Constants
+  use mapl_ExceptionHandling_mod
+  use mapl_Constants_mod
   implicit none
 
   interface
@@ -1221,7 +1221,7 @@ contains
     end procedure MAPL_GetNewRank
 
     module procedure getNodeComm
-      use MAPL_SortMod
+      use mapl_Sort_mod
 
       integer, allocatable :: colors(:), ranks(:)
       integer :: last

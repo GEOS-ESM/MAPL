@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent) set_entry_point_smod
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains

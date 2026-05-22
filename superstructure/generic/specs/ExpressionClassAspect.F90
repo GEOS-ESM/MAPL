@@ -1,42 +1,42 @@
 #include "MAPL.h"
 
-module mapl_ExpressionClassAspect
+module mapl_ExpressionClassAspect_mod
 
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ClassAspect
-   use mapl_FieldClassAspect
-   use mapl_GeomAspect
-   use mapl_HorizontalDimsSpec
-   use mapl_VerticalGridAspect
-   use mapl_UnitsAspect
-   use mapl_TypekindAspect
-   use mapl_UngriddedDimsAspect
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ClassAspect_mod
+   use mapl_FieldClassAspect_mod
+   use mapl_GeomAspect_mod
+   use mapl_HorizontalDimsSpec_mod
+   use mapl_VerticalGridAspect_mod
+   use mapl_UnitsAspect_mod
+   use mapl_TypekindAspect_mod
+   use mapl_UngriddedDimsAspect_mod
 
-   use mapl_StateRegistry
-   use mapl_EvalTransform
-   use mapl_NullTransform
-   use mapl_ComponentDriver
-   use mapl_ComponentDriver
-   use mapl_ComponentDriverVector
-   use mapl_ExtensionTransform
-   use mapl_MultiState
-   use mapl_ESMF_Utilities, only: get_substate
+   use mapl_StateRegistry_mod
+   use mapl_EvalTransform_mod
+   use mapl_NullTransform_mod
+   use mapl_ComponentDriver_mod
+   use mapl_ComponentDriver_mod
+   use mapl_ComponentDriverVector_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_MultiState_mod
+   use mapl_ESMF_Utilities_mod, only: get_substate
 
-   use mapl_VirtualConnectionPt
-   use mapl_VirtualConnectionPtVector
-   use mapl_ActualConnectionPt
-   use mapl_StateItemSpec
-   use mapl_StateItemSpec
+   use mapl_VirtualConnectionPt_mod
+   use mapl_VirtualConnectionPtVector_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemSpec_mod
 
-   use mapl_Field_API
-   use mapl_FieldInfo
-   use mapl_FieldUtilities
-   use MAPL_StateArithmeticParserMod
+   use mapl_Field_API_mod
+   use mapl_FieldInfo_mod
+   use mapl_FieldUtilities_mod
+   use mapl_StateArithmeticParser_mod
    use gftl2_StringVector
 
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
 
    implicit none(type,external)
@@ -388,4 +388,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine get_payload
 
-end module mapl_ExpressionClassAspect
+end module mapl_ExpressionClassAspect_mod

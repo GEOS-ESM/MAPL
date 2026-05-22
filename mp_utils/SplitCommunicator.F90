@@ -1,4 +1,4 @@
-module MAPL_SplitCommunicatorMod
+module mapl_SplitCommunicator_mod
    implicit none
    private
 
@@ -55,6 +55,6 @@ contains
    end function get_name
 
    
-end module MAPL_SplitCommunicatorMod
+end module mapl_SplitCommunicator_mod
 
 

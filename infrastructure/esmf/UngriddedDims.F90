@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl_UngriddedDims
-   use mapl_InfoUtilities
-   use mapl_ESMF_Info_Keys
-   use mapl_UngriddedDimVector
-   use mapl_UngriddedDim
-   use mapl_LU_Bound
-   use mapl_ErrorHandling
+module mapl_UngriddedDims_mod
+   use mapl_InfoUtilities_mod
+   use mapl_esmf_info_keys_mod
+   use mapl_UngriddedDimVector_mod
+   use mapl_UngriddedDim_mod
+   use mapl_LU_Bound_mod
+   use mapl_ErrorHandling_mod
    use esmf, only: ESMF_Info
    use esmf, only: ESMF_InfoCreate
    use esmf, only: ESMF_InfoSet
@@ -266,5 +266,5 @@ contains
       is_mirror = this%is_mirror_
    end function is_mirror
 
-end module mapl_UngriddedDims
+end module mapl_UngriddedDims_mod
 

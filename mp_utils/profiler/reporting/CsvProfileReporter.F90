@@ -22,16 +22,16 @@
 !! Note: The 'width' parameter is ignored for CSV output. The 'format' parameter
 !! controls numeric precision and output format.
 
-module MAPL_CsvProfileReporter
+module mapl_CsvProfileReporter_mod
 
-   use MAPL_AbstractMeterNode
-   use MAPL_AbstractColumn
-   use MAPL_TextColumn
-   use MAPL_TextColumnVector
-   use MAPL_BaseProfiler
+   use mapl_AbstractMeterNode_mod
+   use mapl_AbstractColumn_mod
+   use mapl_TextColumn_mod
+   use mapl_TextColumnVector_mod
+   use mapl_BaseProfiler_mod
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf, only: ESMF_HConfig
    use esmf, only: ESMF_HConfigAsString, ESMF_HConfigAsI4
    use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigIsSequence, ESMF_HConfigGetSize
@@ -163,7 +163,7 @@ contains
 
    ! Helper to populate columns from config
    subroutine populate_columns(reporter, config, unusable, rc)
-      use MAPL_TextColumn
+      use mapl_TextColumn_mod
       type(CsvProfileReporter), intent(inout) :: reporter
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -265,17 +265,17 @@ contains
 
    ! Helper to create a column from config and extract its name
    subroutine column_from_config(column_config, col, column_name, unusable, rc)
-      use MAPL_PlainNameColumn
-      use MAPL_DepthColumn
-      use MAPL_NumCyclesColumn
-      use MAPL_InclusiveColumn
-      use MAPL_ExclusiveColumn
-      use MAPL_StdDevColumn
-      use MAPL_MinCycleColumn
-      use MAPL_MaxCycleColumn
-      use MAPL_MeanCycleColumn
-      use MAPL_PercentageColumn
-      use MAPL_FormattedTextColumn
+      use mapl_PlainNameColumn_mod
+      use mapl_DepthColumn_mod
+      use mapl_NumCyclesColumn_mod
+      use mapl_InclusiveColumn_mod
+      use mapl_ExclusiveColumn_mod
+      use mapl_StdDevColumn_mod
+      use mapl_MinCycleColumn_mod
+      use mapl_MaxCycleColumn_mod
+      use mapl_MeanCycleColumn_mod
+      use mapl_PercentageColumn_mod
+      use mapl_FormattedTextColumn_mod
       class(TextColumn), allocatable, intent(out) :: col
       character(:), allocatable, intent(out) :: column_name
       type(ESMF_HConfig), intent(in) :: column_config
@@ -481,4 +481,4 @@ contains
       escaped = escaped // '"'
    end function quote_and_escape
 
-end module MAPL_CsvProfileReporter
+end module mapl_CsvProfileReporter_mod

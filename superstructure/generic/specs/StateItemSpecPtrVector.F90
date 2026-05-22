@@ -1,5 +1,5 @@
-module mapl_StateItemSpecPtrVector
-   use mapl_StateItemSpec
+module mapl_StateItemSpecPtrVector_mod
+   use mapl_StateItemSpec_mod
   
 #define T StateItemSpecPtr
 #define Vector StateItemSpecPtrVector
@@ -11,4 +11,4 @@ module mapl_StateItemSpecPtrVector
 #undef Vector
 #undef VectorIterator
   
-end module mapl_StateItemSpecPtrVector
+end module mapl_StateItemSpecPtrVector_mod

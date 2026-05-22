@@ -1,5 +1,5 @@
-module MAPL_AbstractMeterNode
-   use MAPL_AbstractMeter
+module mapl_AbstractMeterNode_mod
+   use mapl_AbstractMeter_mod
    implicit none
    private
 
@@ -163,4 +163,4 @@ module MAPL_AbstractMeterNode
 
    end interface
 
-end module MAPL_AbstractMeterNode
+end module mapl_AbstractMeterNode_mod

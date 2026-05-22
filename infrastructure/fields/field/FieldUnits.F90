@@ -26,11 +26,11 @@
 ! and conv % convert cannot be called before calling GetFieldUnitsConverter for conv.
 #include "MAPL.h"
 #include "unused_dummy.H"
-module mapl_FieldUnits
+module mapl_FieldUnits_mod
    use udunits2f, FieldUnitsConverter => Converter, &
       initialize_udunits => initialize, finalize_udunits => finalize
-   use mapl_KeywordEnforcer, only: KeywordEnforcer
-   use mapl_ErrorHandlingMod
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_ErrorHandling_mod
    use ESMF
 
    implicit none
@@ -81,4 +81,4 @@ contains
 
    end subroutine FinalizeFieldUnits
 
- end module mapl_FieldUnits
+ end module mapl_FieldUnits_mod

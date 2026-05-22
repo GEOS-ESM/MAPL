@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl_EASEGeomSpec
+module mapl_EASEGeomSpec_mod
 
-   use mapl_GeomSpec
-   use mapl_EASEConversion
-   use mapl_EASEDecomposition
-   use mapl_ErrorHandlingMod
+   use mapl_GeomSpec_mod
+   use mapl_EASEConversion_mod
+   use mapl_EASEDecomposition_mod
+   use mapl_ErrorHandling_mod
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8
 
    implicit none
@@ -158,4 +158,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_jm_world
 
-end module mapl_EASEGeomSpec
+end module mapl_EASEGeomSpec_mod

@@ -1,16 +1,16 @@
-module mapl_VerticalGrid_API
-   use mapl_VerticalGrid, only: VerticalGrid
-   use mapl_VerticalGrid, only: VERTICAL_GRID_NOT_FOUND
-   use mapl_VerticalGridSpec, only: VerticalGridSpec
-   use mapl_VerticalGridFactory, only: VerticalGridFactory
-   use mapl_VerticalGridManager, only: VerticalGridManager
-   use mapl_VerticalGridManager, only: get_vertical_grid_manager
-   use mapl_IntegerPair, only: IntegerPair
-   use mapl_VerticalStaggerLoc
-   use mapl_VerticalAlignment
-   use mapl_BasicVerticalGrid, only: BasicVerticalGrid
-   use mapl_BasicVerticalGrid, only: BasicVerticalGridSpec
-   use mapl_BasicVerticalGrid, only: BasicVerticalGridFactory
+module mapl_VerticalGrid_API_mod
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_VerticalGrid_mod, only: VERTICAL_GRID_NOT_FOUND
+   use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
+   use mapl_VerticalGridFactory_mod, only: VerticalGridFactory
+   use mapl_VerticalGridManager_mod, only: VerticalGridManager
+   use mapl_VerticalGridManager_mod, only: get_vertical_grid_manager
+   use mapl_IntegerPair_mod, only: IntegerPair
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalAlignment_mod
+   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid
+   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGridSpec
+   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGridFactory
    implicit none(type,external)
    private
 
@@ -51,4 +51,4 @@ module mapl_VerticalGrid_API
    public :: VERTICAL_GRID_NOT_FOUND
   
    
-end module mapl_VerticalGrid_API
+end module mapl_VerticalGrid_API_mod

@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_vm
+module mapl_vm_mod
 
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use esmf, only: esmf_VM
    use esmf, only: esmf_VMGetCurrent
    use esmf, only: esmf_VMGet
@@ -88,4 +88,4 @@ contains
       _RETURN(_SUCCESS)
    end function current_vm
 
-end module mapl_vm
+end module mapl_vm_mod

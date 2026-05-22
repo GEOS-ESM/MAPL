@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
 submodule (mapl_XYGeomSpec) make_XYGeomSpec_from_hconfig_smod
-   use mapl_ErrorHandlingMod
-   use mapl_InternalConstants
-   use mapl_Comms, only: am_i_root, ROOT_PROCESS_ID
+   use mapl_ErrorHandling_mod
+   use mapl_InternalConstants_mod
+   use mapl_Comms_mod, only: am_i_root, ROOT_PROCESS_ID
    use NetCDF
    use esmf
    implicit none

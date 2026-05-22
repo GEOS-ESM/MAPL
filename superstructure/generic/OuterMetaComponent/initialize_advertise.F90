@@ -1,19 +1,19 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent) initialize_advertise_smod
-   use mapl_GenericPhases, only: GENERIC_INIT_ADVERTISE
-   use mapl_VirtualConnectionPt
-   use mapl_StateItemImpl
-   use mapl_VariableSpec
-   use mapl_VariableSpecVector, only: VariableSpecVectorIterator
+   use mapl_GenericPhases_mod, only: GENERIC_INIT_ADVERTISE
+   use mapl_VirtualConnectionPt_mod
+   use mapl_StateItemImpl_mod
+   use mapl_VariableSpec_mod
+   use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator
    use esmf, only: operator(==)
-   use mapl_Connection
-   use mapl_ConnectionVector, only: ConnectionVectorIterator
-   use mapl_ConnectionVector, only: operator(/=)
-   use mapl_VariableSpecVector, only: operator(/=)
-   use mapl_StateItemSpec
-   use mapl_Multistate
-   use mapl_ErrorHandling
+   use mapl_Connection_mod
+   use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
+   use mapl_ConnectionVector_mod, only: operator(/=)
+   use mapl_VariableSpecVector_mod, only: operator(/=)
+   use mapl_StateItemSpec_mod
+   use mapl_MultiState_mod
+   use mapl_ErrorHandling_mod
    implicit none (type, external)
 
 

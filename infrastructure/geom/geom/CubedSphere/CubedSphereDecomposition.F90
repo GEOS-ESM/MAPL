@@ -1,5 +1,5 @@
-module mapl_CubedSphereDecomposition
-   use mapl_KeywordEnforcer
+module mapl_CubedSphereDecomposition_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
    implicit none
    private
@@ -102,5 +102,5 @@ module mapl_CubedSphereDecomposition
       
    end interface
 
-end module mapl_CubedSphereDecomposition
+end module mapl_CubedSphereDecomposition_mod
 

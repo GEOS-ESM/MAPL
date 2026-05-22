@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module mapl_EASECoords
+module mapl_EASECoords_mod
    ! Private helper module: coordinate computation for EASE grids.
    ! Used by EASEGeomFactory submodules; not part of the public API.
 
-   use mapl_EASEConversion
-   use mapl_EASEGeomSpec
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
-   use mapl_ErrorHandlingMod
+   use mapl_EASEConversion_mod
+   use mapl_EASEGeomSpec_mod
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
 
    implicit none
@@ -89,4 +89,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine compute_lats
 
-end module mapl_EASECoords
+end module mapl_EASECoords_mod

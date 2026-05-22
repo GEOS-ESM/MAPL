@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl_FieldFillImpl
-   use mapl_FieldFillDefault
-   use mapl_FieldPointerUtilities, only: assign_fptr
-   use mapl_ErrorHandling
+module mapl_FieldFillImpl_mod
+   use mapl_FieldFillDefault_mod
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none(type,external)
    private
@@ -53,4 +53,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine field_fill
 
-end module mapl_FieldFillImpl
+end module mapl_FieldFillImpl_mod

@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl_UnitsAspect
+module mapl_UnitsAspect_mod
 
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ExtensionTransform
-   use mapl_ConvertUnitsTransform
-   use mapl_NullTransform
-   use mapl_Field_API
-   use mapl_FieldBundle_API
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_ConvertUnitsTransform_mod
+   use mapl_NullTransform_mod
+   use mapl_Field_API_mod
+   use mapl_FieldBundle_API_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use udunits2f, only: are_convertible
    use esmf
 
@@ -263,4 +263,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine print_aspect
 
-end module mapl_UnitsAspect
+end module mapl_UnitsAspect_mod

@@ -8,7 +8,7 @@
 ! - write_formatted: Formatted output for debugging
 
 submodule (mapl_StateRegistry) StateRegistry_Lifecycle_smod
-   use mapl_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
+   use mapl_VirtualPtFamilyMap_mod, only: VirtualPtFamilyMapIterator
    implicit none(type,external)
 
 contains

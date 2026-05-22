@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl_CubedSphereGeomFactory
-   use mapl_GeomSpec
-   use mapl_GeomFactory
-   use mapl_CubedSphereGeomSpec
-   use mapl_KeywordEnforcerMod
+module mapl_CubedSphereGeomFactory_mod
+   use mapl_GeomSpec_mod
+   use mapl_GeomFactory_mod
+   use mapl_CubedSphereGeomSpec_mod
+   use mapl_KeywordEnforcer_mod
    use gftl2_StringVector
-   use mapl_StringDictionary
+   use mapl_StringDictionary_mod
    use pfio
    use esmf
    implicit none
@@ -35,7 +35,7 @@ module mapl_CubedSphereGeomFactory
    interface
 
       module function make_geom_spec_from_hconfig(this, hconfig, rc) result(geom_spec)
-         use mapl_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec_mod, only: GeomSpec
          use esmf, only: ESMF_HConfig
          class(GeomSpec), allocatable :: geom_spec
          class(CubedSphereGeomFactory), intent(in) :: this
@@ -45,7 +45,7 @@ module mapl_CubedSphereGeomFactory
 
 
       module function make_geom_spec_from_metadata(this, file_metadata, rc) result(geom_spec)
-         use mapl_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec_mod, only: GeomSpec
          use pfio, only: FileMetadata
          class(GeomSpec), allocatable :: geom_spec
          class(CubedSphereGeomFactory), intent(in) :: this
@@ -55,7 +55,7 @@ module mapl_CubedSphereGeomFactory
 
 
       logical module function supports_spec(this, geom_spec) result(supports)
-         use mapl_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec_mod, only: GeomSpec
          class(CubedSphereGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
       end function supports_spec
@@ -77,7 +77,7 @@ module mapl_CubedSphereGeomFactory
 
 
       module function make_geom(this, geom_spec, rc) result(geom)
-         use mapl_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec_mod, only: GeomSpec
          use esmf, only: ESMF_Geom
          type(ESMF_Geom) :: geom
          class(CubedSphereGeomFactory), intent(in) :: this
@@ -87,7 +87,7 @@ module mapl_CubedSphereGeomFactory
 
 
       module function create_basic_grid(spec, unusable, name, rc) result(grid)
-         use mapl_KeywordEnforcer
+         use mapl_KeywordEnforcer_mod
          type(ESMF_Grid) :: grid
          type(CubedSphereGeomSpec), intent(in) :: spec
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -110,7 +110,7 @@ module mapl_CubedSphereGeomFactory
       end function make_variable_attributes
 
       module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
-         use mapl_KeywordEnforcerMod
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          class(CubedSphereGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
@@ -120,5 +120,5 @@ module mapl_CubedSphereGeomFactory
       end function make_file_metadata
 
    end interface
-end module mapl_CubedSphereGeomFactory
+end module mapl_CubedSphereGeomFactory_mod
 

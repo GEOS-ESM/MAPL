@@ -1,10 +1,10 @@
-module MAPL_Constants
+module mapl_Constants_mod
 
-   use MAPL_InternalConstants
-   use MAPL_MathConstants
-   use MAPL_PhysicalConstants
-   use MAPL_EarthConstants
-   use MAPL_EarthAtmosphericConstants
+   use mapl_InternalConstants_mod
+   use mapl_MathConstants_mod
+   use mapl_PhysicalConstants_mod
+   use mapl_EarthConstants_mod
+   use mapl_EarthAtmosphericConstants_mod
 
 contains
 
@@ -12,5 +12,5 @@ contains
       implicit none
    end subroutine initialize_constants
 
-end module MAPL_Constants
+end module mapl_Constants_mod
 

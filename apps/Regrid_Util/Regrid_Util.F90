@@ -5,7 +5,7 @@
    use ESMF
    use MAPL
    
-   use mapl_RegridderMethods
+   use mapl_RegridderMethods_mod
    use gFTL2_StringVector
 
    implicit NONE
@@ -376,8 +376,8 @@
 
    use ESMF
    use MAPL
-   use MAPL_FileMetadataUtilsMod, only: FileMetadataUtils
-   use mapl_Profiler
+   use mapl_FileMetadataUtils_mod, only: FileMetadataUtils
+   use mapl_Profiler_mod
    use regrid_util_support_mod
    use mpi
    use gFTL2_StringVector

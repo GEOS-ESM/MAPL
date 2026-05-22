@@ -2,10 +2,10 @@
 
 submodule (mapl_ComponentSpecParser) parse_geometry_spec_smod
 
-   use mapl_VerticalGrid
-   use mapl_BasicVerticalGrid
-   use mapl_VerticalGrid_API
-   use mapl_ModelVerticalGrid
+   use mapl_VerticalGrid_mod
+   use mapl_BasicVerticalGrid_mod
+   use mapl_VerticalGrid_API_mod
+   use mapl_ModelVerticalGrid_mod
 
    implicit none(type,external)
 

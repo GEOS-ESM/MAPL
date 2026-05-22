@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent) attach_outer_meta_smod
-   use mapl_ESMF_Interfaces, only: MAPL_UserCompSetInternalState
-   use mapl_ErrorHandling
+   use mapl_ESMF_Interfaces_mod, only: MAPL_UserCompSetInternalState
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains

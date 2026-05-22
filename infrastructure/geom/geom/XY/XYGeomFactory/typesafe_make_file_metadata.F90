@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_XYGeomFactory) typesafe_make_file_metadata_smod
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use pfio
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL64

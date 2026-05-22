@@ -1,26 +1,26 @@
 #include "MAPL.h"
 
-module mapl_GeomAspect
+module mapl_GeomAspect_mod
 
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_HorizontalDimsSpec
-   use mapl_StateItemAspect
-   use mapl_Geom_API, only: MAPL_SameGeom
-   use mapl_regridder_mgr, only: EsmfRegridderParam
-   use mapl_ExtensionTransform
-   use mapl_ExtendTransform
-   use mapl_RegridTransform
-   use mapl_NullTransform
-   use mapl_Field_API
-   use mapl_FieldBundle_API
-   use mapl_EsmfRegridder
-   use mapl_NormalizationAspect, only: NormalizationAspect, to_NormalizationAspect
-   use mapl_NormalizationMetadata, only: NormalizationMetadata
-   use mapl_NormalizationType, only: NormalizationType
-   use mapl_VerticalGrid
-   use mapl_ComponentDriver, only: ComponentDriver
-   use mapl_ErrorHandling
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_HorizontalDimsSpec_mod
+   use mapl_StateItemAspect_mod
+   use mapl_Geom_API_mod, only: MAPL_SameGeom
+   use mapl_regridder_mgr_mod, only: EsmfRegridderParam
+   use mapl_ExtensionTransform_mod
+   use mapl_ExtendTransform_mod
+   use mapl_RegridTransform_mod
+   use mapl_NullTransform_mod
+   use mapl_Field_API_mod
+   use mapl_FieldBundle_API_mod
+   use mapl_EsmfRegridder_mod
+   use mapl_NormalizationAspect_mod, only: NormalizationAspect, to_NormalizationAspect
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
+   use mapl_NormalizationType_mod, only: NormalizationType
+   use mapl_VerticalGrid_mod
+   use mapl_ComponentDriver_mod, only: ComponentDriver
+   use mapl_ErrorHandling_mod
    use ESMF, only: esmf_Geom
    use ESMF, only: esmf_Field, esmf_FieldBundle, esmf_State
    use ESMF, only: esmf_Info
@@ -327,4 +327,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine print_aspect
 
-end module mapl_GeomAspect
+end module mapl_GeomAspect_mod

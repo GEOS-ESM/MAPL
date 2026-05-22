@@ -4,16 +4,16 @@
 
 #include "MAPL.h"
 
-module mapl_FieldDelta
+module mapl_FieldDelta_mod
 
-   use mapl_FieldInfo
-   use mapl_FieldGetImpl
-   use mapl_VerticalStaggerLoc
-   use mapl_InfoUtilities
-   use mapl_FieldFillImpl, only: FieldFill
-   use mapl_FieldPointerUtilities
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
+   use mapl_FieldInfo_mod
+   use mapl_FieldGetImpl_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_InfoUtilities_mod
+   use mapl_FieldFillImpl_mod, only: FieldFill
+   use mapl_FieldPointerUtilities_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
    implicit none(type,external)
    private
@@ -382,4 +382,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine MAPL_EmptyField
 
-end module mapl_FieldDelta
+end module mapl_FieldDelta_mod

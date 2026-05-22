@@ -21,13 +21,13 @@
 !! - Handles case where auxiliary field is itself an extension (e.g., regridded)
 !! - See VerticalGridAspect::make_transform and VerticalRegridTransform pattern
 !!
-module mapl_NormalizationTransform
-   use mapl_TransformId
-   use mapl_StateItemImpl
-   use mapl_ExtensionTransform
-   use mapl_ExtensionTransformUtils, only: bundle_types_valid
-   use MAPL_FieldUtils
-   use mapl_ErrorHandling
+module mapl_NormalizationTransform_mod
+   use mapl_TransformId_mod
+   use mapl_StateItemImpl_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_ExtensionTransformUtils_mod, only: bundle_types_valid
+   use mapl_FieldUtils_mod
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none(type,external)
@@ -247,4 +247,4 @@ contains
 
     end function get_transformId
 
-end module mapl_NormalizationTransform
+end module mapl_NormalizationTransform_mod

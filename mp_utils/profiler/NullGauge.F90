@@ -1,9 +1,9 @@
 #include "unused_dummy.H"
 
-module MAPL_NullGauge
+module mapl_NullGauge_mod
 
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
-   use MAPL_AbstractGauge
+   use mapl_AbstractGauge_mod
 
    implicit none
    private
@@ -37,4 +37,4 @@ contains
       _UNUSED_DUMMY(this)
    end function get_measurement
 
-end module MAPL_NullGauge
+end module mapl_NullGauge_mod

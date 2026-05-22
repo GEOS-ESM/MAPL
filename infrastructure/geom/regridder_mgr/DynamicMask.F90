@@ -3,9 +3,9 @@
 ! This module provides a wrapper for ESMF_DynamicMask
 ! to enable equality checking between instances.
 
-module mapl_DynamicMask
+module mapl_DynamicMask_mod
    use esmf
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    implicit none
    private
 
@@ -640,4 +640,4 @@ contains
       end if
    end function match_r8
 
-end module mapl_DynamicMask
+end module mapl_DynamicMask_mod

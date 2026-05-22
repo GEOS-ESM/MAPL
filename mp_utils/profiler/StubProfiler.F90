@@ -1,16 +1,16 @@
 #include "MAPL.h"
 
-module MAPL_StubProfiler
+module mapl_StubProfiler_mod
 
-   use MAPL_BaseProfiler, only: BaseProfiler
-   use MAPL_DistributedProfiler
-   use mapl_KeywordEnforcerMod
-   use mapl_NullGauge
-   use MAPL_AbstractMeter
-   use MAPL_AdvancedMeter
-   use MAPL_AbstractMeterNode
-   use MAPL_MeterNode
-   use mapl_ErrorHandlingMod
+   use mapl_BaseProfiler_mod, only: BaseProfiler
+   use mapl_DistributedProfiler_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_NullGauge_mod
+   use mapl_AbstractMeter_mod
+   use mapl_AdvancedMeter_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_MeterNode_mod
+   use mapl_ErrorHandling_mod
 
    implicit none
    private
@@ -120,4 +120,4 @@ contains
       _UNUSED_DUMMY(this)
    end function get_num_nodes
 
-end module MAPL_StubProfiler
+end module mapl_StubProfiler_mod

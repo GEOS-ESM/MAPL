@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl_ComponentDriver
-   use mapl_MultiState
-   use mapl_ErrorHandlingMod
-   use mapl_KeywordEnforcer, only: KeywordEnforcer
-   use mapl_MultiState
+module mapl_ComponentDriver_mod
+   use mapl_MultiState_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_MultiState_mod
    use :: esmf
    implicit none
    private
@@ -32,7 +32,7 @@ module mapl_ComponentDriver
    abstract interface
 
       recursive subroutine I_run(this, unusable, phase_idx, rc)
-   use mapl_KeywordEnforcer, only: KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
          import ComponentDriver
          class(ComponentDriver), target, intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -72,4 +72,4 @@ contains
          _UNUSED_DUMMY(unusable)
       end subroutine initialize_phases
 
-end module mapl_ComponentDriver
+end module mapl_ComponentDriver_mod

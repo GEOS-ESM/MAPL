@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_AbstractCovarianceKernel
+module mapl_AbstractCovarianceKernel_mod
 
    use MAPL
    use ESMF
@@ -83,4 +83,4 @@ module mapl_AbstractCovarianceKernel
 
    end interface
 
-end module mapl_AbstractCovarianceKernel
+end module mapl_AbstractCovarianceKernel_mod

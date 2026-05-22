@@ -5,9 +5,9 @@
 ! and a frequency which defines an infinite number of times
 ! given an input time, you are either one of those or you aren't 
 
-module mapl_SimpleAlarm
+module mapl_SimpleAlarm_mod
    use esmf
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    implicit none
    private
 
@@ -98,4 +98,4 @@ module mapl_SimpleAlarm
       _RETURN(_SUCCESS)
    end function
 
-end module mapl_SimpleAlarm
+end module mapl_SimpleAlarm_mod

@@ -1,5 +1,5 @@
 #include "MAPL.h"
-module mapl_ExtDataDerived
+module mapl_ExtDataDerived_mod
    use ESMF
    use gFTL2_StringVector
    use MAPL
@@ -83,4 +83,4 @@ contains
       write(*,*)"function: ",trim(this%expression)
    end subroutine display
 
-end module mapl_ExtDataDerived
+end module mapl_ExtDataDerived_mod

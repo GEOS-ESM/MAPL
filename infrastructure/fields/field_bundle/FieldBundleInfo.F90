@@ -1,21 +1,21 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleInfo
-   use mapl_esmf_info_keys
-   use mapl_InfoUtilities
-   use mapl_ESMF_Info_Keys
-   use mapl_Field_API
-   use mapl_FieldInfo
-   use mapl_UngriddedDims
-   use mapl_QuantityTypeMetadata
-   use mapl_NormalizationMetadata
-   use mapl_ConservationMetadata
-   use mapl_FieldBundleType_Flag
-   use mapl_VectorBasisKind
-   use mapl_VerticalAlignment
-   use mapl_VerticalGrid_API
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+module mapl_FieldBundleInfo_mod
+   use mapl_esmf_info_keys_mod
+   use mapl_InfoUtilities_mod
+   use mapl_esmf_info_keys_mod
+   use mapl_Field_API_mod
+   use mapl_FieldInfo_mod
+   use mapl_UngriddedDims_mod
+   use mapl_QuantityTypeMetadata_mod
+   use mapl_NormalizationMetadata_mod
+   use mapl_ConservationMetadata_mod
+   use mapl_FieldBundleType_Flag_mod
+   use mapl_VectorBasisKind_mod
+   use mapl_VerticalAlignment_mod
+   use mapl_VerticalGrid_API_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none(type,external)
    private
@@ -294,4 +294,4 @@ contains
 
    end subroutine fieldbundle_set_internal
 
-end module mapl_FieldBundleInfo
+end module mapl_FieldBundleInfo_mod

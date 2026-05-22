@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module mapl_ClimDataSetFileSelector
+module mapl_ClimDataSetFileSelector_mod
 
    use ESMF
    use MAPL
-   use mapl_DataSetBracket
-   use mapl_DataSetNode
-   use mapl_AbstractDataSetFileSelector
-   use mapl_ExtdataUtilities
+   use mapl_DataSetBracket_mod
+   use mapl_DataSetNode_mod
+   use mapl_AbstractDataSetFileSelector_mod
+   use mapl_ExtDataUtilities_mod
    use MAPL
 
    implicit none
@@ -246,5 +246,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine swap_bracket_fields
 
-end module mapl_ClimDataSetFileSelector
+end module mapl_ClimDataSetFileSelector_mod
 

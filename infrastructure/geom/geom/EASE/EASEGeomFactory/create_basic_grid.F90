@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
 submodule (mapl_EASEGeomFactory) create_basic_grid_smod
-   use mapl_GeomSpec
-   use mapl_EASEGeomSpec
-   use mapl_EASEDecomposition
-   use mapl_ErrorHandlingMod
+   use mapl_GeomSpec_mod
+   use mapl_EASEGeomSpec_mod
+   use mapl_EASEDecomposition_mod
+   use mapl_ErrorHandling_mod
    use esmf
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    implicit none (type, external)
 
 contains

@@ -1,14 +1,14 @@
 #include "MAPL.h"
-module MAPL_DistributedProfiler
-   use MAPL_AbstractMeter
-   use MAPL_AbstractGauge
-   use MAPL_AbstractMeterNode
-   use MAPL_MeterNode
-   use MAPL_BaseProfiler
-   use Mapl_DistributedMeter
+module mapl_DistributedProfiler_mod
+   use mapl_AbstractMeter_mod
+   use mapl_AbstractGauge_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_MeterNode_mod
+   use mapl_BaseProfiler_mod
+   use mapl_DistributedMeter_mod
 
-   use MAPL_AdvancedMeter
-   use MAPL_MpiTimerGauge
+   use mapl_AdvancedMeter_mod
+   use mapl_MpiTimerGauge_mod
    implicit none
    private
 
@@ -92,4 +92,4 @@ contains
       
    end subroutine reduce
 
-end module MAPL_DistributedProfiler
+end module mapl_DistributedProfiler_mod

@@ -1,6 +1,6 @@
-module MAPL_DepthColumn
-   use MAPL_AbstractMeterNode
-   use MAPL_SimpleTextColumn
+module mapl_DepthColumn_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_SimpleTextColumn_mod
    implicit none
    private
 
@@ -70,4 +70,4 @@ contains
       num_rows = 1 + this%get_num_rows_separator()
    end function get_num_rows_header
 
-end module MAPL_DepthColumn
+end module mapl_DepthColumn_mod

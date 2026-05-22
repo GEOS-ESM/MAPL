@@ -1,24 +1,24 @@
 #include "MAPL.h"
 
-module mapl_ExtDataConfig
+module mapl_ExtDataConfig_mod
 
    use ESMF
    use PFIO
    use gFTL2_StringVector
    use MAPL
-   use mapl_ExtDataCollection
-   use mapl_ExtDataCollectionMap
-   use mapl_ExtDataRule
-   use mapl_ExtDataRuleMap
-   use mapl_ExtDataDerived
-   use mapl_ExtDataDerivedMap
-   use mapl_ExtDataConstants
-   use mapl_ExtDataSample
-   use mapl_ExtDataSampleMap
-   use mapl_PrimaryExport
+   use mapl_ExtDataCollection_mod
+   use mapl_ExtDataCollectionMap_mod
+   use mapl_ExtDataRule_mod
+   use mapl_ExtDataRuleMap_mod
+   use mapl_ExtDataDerived_mod
+   use mapl_ExtDataDerivedMap_mod
+   use mapl_ExtDataConstants_mod
+   use mapl_ExtDataSample_mod
+   use mapl_ExtDataSampleMap_mod
+   use mapl_PrimaryExport_mod
    use MAPL, only: mapl_HConfigAsTime
-   use mapl_AbstractDataSetFileSelector
-   use mapl_NonClimDataSetFileSelector
+   use mapl_AbstractDataSetFileSelector_mod
+   use mapl_NonClimDataSetFileSelector_mod
 
    implicit none
    private
@@ -477,4 +477,4 @@ contains
       _RETURN(_SUCCESS)
    end function make_PrimaryExport
 
-end module mapl_ExtDataConfig
+end module mapl_ExtDataConfig_mod

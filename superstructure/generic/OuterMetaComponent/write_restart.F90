@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent) write_restart_smod
-   use mapl_MultiState
-   use mapl_RestartHandler
-   use mapl_OS
-   use mapl_mp_utils, only: MAPL_GetCheckpointSubdir
-   use mapl_ErrorHandling
+   use mapl_MultiState_mod
+   use mapl_RestartHandler_mod
+   use mapl_os_mod
+   use mapl_mp_utils_mod, only: MAPL_GetCheckpointSubdir
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains

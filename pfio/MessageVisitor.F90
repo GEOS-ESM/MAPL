@@ -3,7 +3,7 @@
 
 module pFIO_MessageVisitorMod
 
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_AbstractMessageMod
    use pFIO_DoneMessageMod
    use pFIO_PrefetchDoneMessageMod

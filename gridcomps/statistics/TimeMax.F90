@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_TimeMax
+module mapl_TimeMax_mod
 
-   use mapl_AbstractTimeStatistic
+   use mapl_AbstractTimeStatistic_mod
    use MAPL
    use ESMF
 
@@ -325,4 +325,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine advertise_time_max_internal_fields
 
-end module mapl_TimeMax
+end module mapl_TimeMax_mod

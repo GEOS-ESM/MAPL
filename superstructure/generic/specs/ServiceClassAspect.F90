@@ -1,27 +1,27 @@
 #include "MAPL.h"
 
-module mapl_ServiceClassAspect
+module mapl_ServiceClassAspect_mod
 
-   use mapl_FieldBundle_API
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_StateItemAllocation
-   use mapl_ClassAspect
-   use mapl_FieldClassAspect
-   use mapl_StateRegistry
-   use mapl_StateItemSpec
-   use mapl_Multistate
-   use mapl_VirtualConnectionPt
-   use mapl_ActualConnectionPt
-   use mapl_ExtensionTransform
-   use mapl_StateItemSpec
-   use mapl_NullTransform
-   use mapl_ESMF_Utilities, only: get_substate
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_FieldBundle_API_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_StateItemAllocation_mod
+   use mapl_ClassAspect_mod
+   use mapl_FieldClassAspect_mod
+   use mapl_StateRegistry_mod
+   use mapl_StateItemSpec_mod
+   use mapl_MultiState_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_StateItemSpec_mod
+   use mapl_NullTransform_mod
+   use mapl_ESMF_Utilities_mod, only: get_substate
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use gftl2_StringVector
    use esmf
-   use mapl_FieldBundleType_Flag
+   use mapl_FieldBundleType_Flag_mod
 
    implicit none(type,external)
    private
@@ -325,4 +325,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine get_payload
  
-end module mapl_ServiceClassAspect
+end module mapl_ServiceClassAspect_mod

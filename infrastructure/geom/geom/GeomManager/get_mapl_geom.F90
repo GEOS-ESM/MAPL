@@ -2,7 +2,7 @@
 
 submodule (mapl_GeomManager) get_mapl_geom_smod
 
-   use mapl_GeomUtilities, only: MAPL_GeomGetId
+   use mapl_GeomUtilities_mod, only: MAPL_GeomGetId
 
    implicit none
 

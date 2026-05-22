@@ -2,10 +2,10 @@
 
 submodule (mapl_OuterMetaComponent) run_user_smod
 
-   use mapl_ComponentDriver
-   use mapl_ComponentDriverPtrVector
-   use mapl_CouplerPhases, only: GENERIC_COUPLER_INVALIDATE, GENERIC_COUPLER_UPDATE
-   use mapl_ErrorHandling
+   use mapl_ComponentDriver_mod
+   use mapl_ComponentDriverPtrVector_mod
+   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_INVALIDATE, GENERIC_COUPLER_UPDATE
+   use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger
 
    implicit none(type,external)

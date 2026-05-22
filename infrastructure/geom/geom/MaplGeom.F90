@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module mapl_MaplGeom
-   use mapl_GeomSpec
-   use mapl_VectorBasis
-   use mapl_GeomFactory
+module mapl_MaplGeom_mod
+   use mapl_GeomSpec_mod
+   use mapl_VectorBasis_mod
+   use mapl_GeomFactory_mod
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
    use gftl2_StringVector
-   use mapl_StringDictionary
+   use mapl_StringDictionary_mod
    implicit none
    private
 
@@ -99,7 +99,7 @@ module mapl_MaplGeom
       end function get_variable_attributes
 
       recursive module function get_basis(this, basis_kind, rc) result(basis)
-         use mapl_VectorBasisKind
+         use mapl_VectorBasisKind_mod
          type(VectorBasis), pointer :: basis
          class(MaplGeom), target, intent(inout) :: this
          type(VectorBasisKind), optional, intent(in) :: basis_kind
@@ -108,6 +108,6 @@ module mapl_MaplGeom
 
    end interface
 
-end module mapl_MaplGeom
+end module mapl_MaplGeom_mod
 
 

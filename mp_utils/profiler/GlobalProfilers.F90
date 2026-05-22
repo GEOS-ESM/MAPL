@@ -1,14 +1,14 @@
 #include "MAPL_ErrLog.h"
 
 !#include "unused_dummy.H"
-module mapl_GlobalProfilers
-   use mapl_AbstractGauge
-   use mapl_DistributedProfiler
-   use mapl_StubProfiler
-   use mapl_KeywordEnforcerMod
-   use mapl_ErrorHandlingMod
-   use mapl_MpiTimerGauge
-   use mapl_MallocGauge
+module mapl_GlobalProfilers_mod
+   use mapl_AbstractGauge_mod
+   use mapl_DistributedProfiler_mod
+   use mapl_StubProfiler_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
+   use mapl_MpiTimerGauge_mod
+   use mapl_MallocGauge_mod
    implicit none
    private
    
@@ -95,4 +95,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_global_profiler
 
-end module MAPL_GlobalProfilers
+end module mapl_GlobalProfilers_mod

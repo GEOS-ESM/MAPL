@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_XYGeomFactory) make_geom_smod
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none
 

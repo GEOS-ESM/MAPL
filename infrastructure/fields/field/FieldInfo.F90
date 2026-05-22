@@ -1,24 +1,24 @@
 #include "MAPL.h"
 
-module mapl_FieldInfo
+module mapl_FieldInfo_mod
 
-   use mapl_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
-   use mapl_esmf_info_keys, only: INFO_SHARED_NAMESPACE
-   use mapl_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
-   use mapl_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
-   use mapl_InfoUtilities
-   use mapl_VerticalGrid_API
-   use mapl_UngriddedDims
-   use mapl_QuantityTypeMetadata
-   use mapl_NormalizationMetadata
-   use mapl_ConservationMetadata
-   use mapl_VerticalStaggerLoc
-   use mapl_VerticalAlignment
-   use mapl_StateItemAllocation
-   use mapl_RestartModes, only: RestartMode, MAPL_RESTART_REQUIRED
-   use mapl_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_ESMF_Utilities_mod, only: MAPL_TYPEKIND_MIRROR
+   use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE
+   use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE
+   use mapl_esmf_info_keys_mod, only: INFO_PRIVATE_NAMESPACE
+   use mapl_InfoUtilities_mod
+   use mapl_VerticalGrid_API_mod
+   use mapl_UngriddedDims_mod
+   use mapl_QuantityTypeMetadata_mod
+   use mapl_NormalizationMetadata_mod
+   use mapl_ConservationMetadata_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalAlignment_mod
+   use mapl_StateItemAllocation_mod
+   use mapl_RestartModes_mod, only: RestartMode, MAPL_RESTART_REQUIRED
+   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
    use gftl2_StringVector
 
@@ -593,4 +593,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine derive_num_levels_from_vgrid
 
-end module mapl_FieldInfo
+end module mapl_FieldInfo_mod

@@ -2,15 +2,15 @@
 
 submodule (mapl_OuterMetaComponent) add_child_by_spec_smod
 
-   use mapl_ComponentSpecParser
-   use mapl_GenericGridComp
-   use mapl_ChildSpec
-   use mapl_ChildSpecMap
-   use mapl_GenericGridComp
-   use mapl_Validation
-   use mapl_Multistate
-   use mapl_HConfigUtilities, only: merge_hconfig
-   use mapl_ErrorHandling
+   use mapl_ComponentSpecParser_mod
+   use mapl_GenericGridComp_mod
+   use mapl_ChildSpec_mod
+   use mapl_ChildSpecMap_mod
+   use mapl_GenericGridComp_mod
+   use mapl_Validation_mod
+   use mapl_MultiState_mod
+   use mapl_HConfigUtilities_mod, only: merge_hconfig
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none(type,external)

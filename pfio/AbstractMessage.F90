@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_AbstractMessageMod
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    implicit none
    private
 

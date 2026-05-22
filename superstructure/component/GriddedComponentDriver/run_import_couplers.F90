@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
 submodule(mapl_GriddedComponentDriver) run_import_couplers_smod
-   use mapl_CouplerPhases
-   use mapl_ErrorHandling
+   use mapl_CouplerPhases_mod
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains

@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl_ErrorHandling
-   use MAPL_ThrowMod
+module mapl_ErrorHandling_mod
+   use mapl_Throw_mod
    implicit none
    private
 
@@ -338,10 +338,10 @@ contains
 
   end function get_error_message
 
-end module mapl_ErrorHandling
-module mapl_ErrorHandlingMod
-   use mapl_ErrorHandling
-end module mapl_ErrorHandlingMod
-module MAPL_ExceptionHandling
-   use mapl_ErrorHandling
-end module MAPL_ExceptionHandling
+end module mapl_ErrorHandling_mod
+module mapl_ErrorHandling_mod
+   use mapl_ErrorHandling_mod
+end module mapl_ErrorHandling_mod
+module mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
+end module mapl_ExceptionHandling_mod

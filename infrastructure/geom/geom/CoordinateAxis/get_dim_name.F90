@@ -2,7 +2,7 @@
 
 submodule (mapl_CoordinateAxis) get_dim_name_smod
    use esmf, only: ESMF_UtilStringLowerCase
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use gftl2_StringVector
    implicit none(type,external)
 

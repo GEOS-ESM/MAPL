@@ -42,11 +42,11 @@
 ! to a B ordered as B(size(A),:), whereas DIM=2 corresponds to B(:,size(A)).
 ! The default is DIM=2. The quicksort is coded in C and does not appear here.
 !
-module MAPL_SortMod
+module mapl_Sort_mod
    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL32, REAL64
    use, intrinsic :: ISO_FORTRAN_ENV, only: INT32, INT64
 
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
 
   implicit none
   private
@@ -320,4 +320,4 @@ subroutine SORT2AL(B,DIM)
   end if
 end subroutine SORT2AL
 
-end module MAPL_SortMod
+end module mapl_Sort_mod

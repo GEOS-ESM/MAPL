@@ -1,9 +1,9 @@
 #define I_AM_MAIN
 #include "MAPL.h"
 program main
-   use mapl_GathervSpec
-   use mapl_GathervKernel
-   use mapl_ErrorHandlingMod
+   use mapl_GathervSpec_mod
+   use mapl_GathervKernel_mod
+   use mapl_ErrorHandling_mod
    use mpi
    implicit none
 

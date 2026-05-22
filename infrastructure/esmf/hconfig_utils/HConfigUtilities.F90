@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module mapl_HConfigUtilities
+module mapl_HConfigUtilities_mod
 
    use esmf, only: ESMF_HConfig, ESMF_HConfigIter, ESMF_HConfigIterBegin
    use esmf, only: ESMF_HConfigIterEnd, ESMF_HConfigIterLoop
    use esmf, only: ESMF_HConfigCreate, ESMF_HConfigIsMap, ESMF_HConfigAsStringMapKey
    use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigCreateAtMapVal, ESMF_HConfigAdd
    use esmf, only: ESMF_HConfigLog
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
 
    implicit none(type,external)
    private
@@ -62,5 +62,5 @@ contains
       _RETURN(_SUCCESS)
    end function merge_hconfig
 
-end module mapl_HConfigUtilities
+end module mapl_HConfigUtilities_mod
 

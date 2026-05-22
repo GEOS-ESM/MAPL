@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl_DistGridGet
+module mapl_DistGridGet_mod
 
    use ESMF, only: ESMF_DistGrid, ESMF_DistGridGet
-   use MAPL_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
 
    implicit none
    private
@@ -93,4 +93,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine dist_grid_get
 
-end module mapl_DistGridGet
+end module mapl_DistGridGet_mod

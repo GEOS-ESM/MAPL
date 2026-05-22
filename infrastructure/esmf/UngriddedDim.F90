@@ -1,8 +1,8 @@
 #include "MAPL.h"
-module mapl_UngriddedDim
-   use mapl_InfoUtilities
-   use mapl_LU_Bound
-   use mapl_ErrorHandling
+module mapl_UngriddedDim_mod
+   use mapl_InfoUtilities_mod
+   use mapl_LU_Bound_mod
+   use mapl_ErrorHandling_mod
    use esmf, only: ESMF_Info
    use esmf, only: ESMF_InfoCreate
    use esmf, only: ESMF_InfoSet
@@ -185,5 +185,5 @@ contains
       _RETURN(_SUCCESS)
    end function make_ungriddedDim
 
-end module mapl_UngriddedDim
+end module mapl_UngriddedDim_mod
 

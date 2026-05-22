@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleCreateImpl
+module mapl_FieldBundleCreateImpl_mod
 
-   use mapl_FieldBundleType_Flag
-   use mapl_FieldBundleSetImpl
-   use mapl_VectorBasisKind
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
+   use mapl_FieldBundleType_Flag_mod
+   use mapl_FieldBundleSetImpl_mod
+   use mapl_VectorBasisKind_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
 
    implicit none(type,external)
@@ -122,4 +122,4 @@ contains
       _RETURN(_SUCCESS)
    end function bundles_are_aliased
 
-end module mapl_FieldBundleCreateImpl
+end module mapl_FieldBundleCreateImpl_mod

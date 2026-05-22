@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent) init_meta_smod
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use pFlogger, only: logging
    implicit none(type,external)
 

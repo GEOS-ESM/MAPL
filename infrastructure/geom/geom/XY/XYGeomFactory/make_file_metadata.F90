@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
 submodule (mapl_XYGeomFactory) make_file_metadata_smod
-   use mapl_ErrorHandlingMod
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use pfio
    use esmf
    implicit none

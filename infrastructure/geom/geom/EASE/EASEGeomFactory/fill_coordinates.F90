@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
 submodule (mapl_EASEGeomFactory) fill_coordinates_smod
-   use mapl_GeomSpec
-   use mapl_EASEGeomSpec
-   use mapl_EASECoords
-   use mapl_ErrorHandlingMod
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_GeomSpec_mod
+   use mapl_EASEGeomSpec_mod
+   use mapl_EASECoords_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none (type, external)

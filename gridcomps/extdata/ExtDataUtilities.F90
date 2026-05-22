@@ -1,5 +1,5 @@
 #include "MAPL.h"
-module mapl_ExtDataUtilities
+module mapl_ExtDataUtilities_mod
    use ESMF
    use MAPL
    implicit none

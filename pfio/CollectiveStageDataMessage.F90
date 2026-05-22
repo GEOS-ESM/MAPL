@@ -3,7 +3,7 @@ module pFIO_CollectiveStageDataMessageMod
    use pFIO_AbstractCollectiveDataMessageMod
    use pFIO_UtilitiesMod
    use pFIO_AbstractDataReferenceMod
-   use mapl_KeywordEnforcerMod
+   use mapl_KeywordEnforcer_mod
    implicit none
    private
 

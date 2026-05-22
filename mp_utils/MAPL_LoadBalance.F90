@@ -6,11 +6,11 @@
 !>
 !### MODULE: `MAPL_LoadBalanceMod`
 !
-module MAPL_LoadBalanceMod
+module mapl_LoadBalance_mod
 
-  use MAPL_Constants, only : MAPL_R8
-  use MAPL_SortMod
-  use MAPL_ExceptionHandling
+  use mapl_Constants_mod, only : MAPL_R8
+  use mapl_Sort_mod
+  use mapl_ExceptionHandling_mod
   use mpi
   implicit none
   private
@@ -542,4 +542,4 @@ contains
     _RETURN(LDB_SUCCESS)
   end subroutine MAPL_BalanceGet
 
-end module MAPL_LOADBALANCEMOD
+end module mapl_LoadBalance_mod

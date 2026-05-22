@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_FakeParentGridComp
+module mapl_FakeParentGridComp_mod
 
    use MAPL, only: MAPL_Verify, MAPL_Assert, MAPL_Return
    use MAPL, only: MAPL_GridCompSetEntryPoint
@@ -82,11 +82,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_run_phases_
 
-end module mapl_FakeParentGridComp
+end module mapl_FakeParentGridComp_mod
 
 subroutine SetServices(gridcomp, rc)
    use MAPL
-   use mapl_FakeParentGridComp, only: FakeParent_SetServices => SetServices
+   use mapl_FakeParentGridComp_mod, only: FakeParent_SetServices => SetServices
    use esmf
 
    type(ESMF_GridComp), intent(inout)  :: gridcomp

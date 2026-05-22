@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl_GeomCatagorizer
+module mapl_GeomCatagorizer_mod
 
-   use mapl_ErrorHandling
-   use mapl_GridPFIO
-   use mapl_GeomPFIO
+   use mapl_ErrorHandling_mod
+   use mapl_GridPFIO_mod
+   use mapl_GeomPFIO_mod
    use pfio
 
    implicit none
@@ -32,4 +32,4 @@ module mapl_GeomCatagorizer
       _UNUSED_DUMMY(metadata)
    end function make_geom_pfio
 
-end module mapl_GeomCatagorizer
+end module mapl_GeomCatagorizer_mod

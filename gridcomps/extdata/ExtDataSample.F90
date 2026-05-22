@@ -1,5 +1,5 @@
 #include "MAPL.h"
-module mapl_ExtDataSample
+module mapl_ExtDataSample_mod
    use ESMF
    use MAPL
    implicit none
@@ -95,4 +95,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_defaults
 
-end module mapl_ExtDataSample
+end module mapl_ExtDataSample_mod

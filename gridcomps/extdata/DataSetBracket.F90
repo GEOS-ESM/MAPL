@@ -1,8 +1,8 @@
 #include "MAPL.h"
-module mapl_DataSetBracket
+module mapl_DataSetBracket_mod
    use ESMF
    use MAPL
-   use mapl_DataSetNode
+   use mapl_DataSetNode_mod
    implicit none
    private
 
@@ -124,4 +124,4 @@ contains
 
    end function compute_bracket_weights 
 
-end module mapl_DataSetBracket
+end module mapl_DataSetBracket_mod

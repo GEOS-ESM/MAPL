@@ -1,19 +1,19 @@
 #include "MAPL.h"
-module mapl_FixedLevelsVerticalGrid
-   use mapl_Field_API
-   use mapl_VerticalGrid, only: VerticalGrid
-   use mapl_VerticalGridSpec, only: VerticalGridSpec
-   use mapl_VerticalGridFactory, only: VerticalGridFactory
-   use mapl_BasicVerticalGrid
-   use mapl_ComponentDriver
-   use mapl_FieldCondensedArray, only: assign_fptr_condensed_array
+module mapl_FixedLevelsVerticalGrid_mod
+   use mapl_Field_API_mod
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
+   use mapl_VerticalGridFactory_mod, only: VerticalGridFactory
+   use mapl_BasicVerticalGrid_mod
+   use mapl_ComponentDriver_mod
+   use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use pfio
    use esmf, only: esmf_HConfig, esmf_HConfigIsDefined, esmf_HConfigAsString, esmf_HConfigAsR4Seq
    use esmf, only: esmf_Field, esmf_Geom, esmf_TypeKind_Flag
    use esmf, only: ESMF_KIND_R4, ESMF_TYPEKIND_R4
-   use mapl_VerticalStaggerLoc
+   use mapl_VerticalStaggerLoc_mod
    use gftl2_StringVector, only: StringVector
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
    private
    
@@ -116,8 +116,8 @@ contains
    end function get_num_layers
 
    function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
-      use mapl_StateItemAspect, only: AspectMap
-      use mapl_GeomAspect, only: GeomAspect, to_GeomAspect
+      use mapl_StateItemAspect_mod, only: AspectMap
+      use mapl_GeomAspect_mod, only: GeomAspect, to_GeomAspect
       type(esmf_Field) :: field
       class(FixedLevelsVerticalGrid), intent(in) :: this
       character(len=*), intent(in) :: physical_dimension
@@ -340,5 +340,5 @@ contains
       end select
    end function get_default_units
 
-end module mapl_FixedLevelsVerticalGrid
+end module mapl_FixedLevelsVerticalGrid_mod
 

@@ -1,10 +1,10 @@
 #include "MAPL.h"
-module MAPL_CF_Time
+module mapl_CF_Time_mod
 
    use, intrinsic :: iso_fortran_env, only : R64 => real64
-   use MAPL_KeywordEnforcerMod
-   use MAPL_ExceptionHandling
-   use MAPL_DateTime_Parsing
+   use mapl_KeywordEnforcer_mod
+   use mapl_ExceptionHandling_mod
+   use mapl_DateTime_Parsing_mod
 
    implicit none
 
@@ -501,4 +501,4 @@ contains
 
    end function strip_zero
 
-end module MAPL_CF_Time
+end module mapl_CF_Time_mod

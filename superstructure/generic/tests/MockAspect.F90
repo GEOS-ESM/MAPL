@@ -1,24 +1,24 @@
 #include "MAPL.h"
 
 module MockAspect_mod
-   use mapl_AspectId
-   use mapl_VariableSpec
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_StateItemSpec
-   use mapl_StateItemAspect
-   use mapl_StateRegistry
-   use mapl_StateItemSpec
-   use mapl_StateItemAllocation
-   use mapl_ExtensionTransform
-   use mapl_FieldInfo, only: FieldInfoSetInternal
-   use mapl_Field_API, only: mapl_FieldSet, mapl_FieldGet
-   use mapl_ClassAspect
-   use mapl_NullTransform
-   use mapl_MultiState
-   use mapl_VirtualConnectionPtVector
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_AspectId_mod
+   use mapl_VariableSpec_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemAspect_mod
+   use mapl_StateRegistry_mod
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemAllocation_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_FieldInfo_mod, only: FieldInfoSetInternal
+   use mapl_Field_API_mod, only: mapl_FieldSet, mapl_FieldGet
+   use mapl_ClassAspect_mod
+   use mapl_NullTransform_mod
+   use mapl_MultiState_mod
+   use mapl_VirtualConnectionPtVector_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none
    private

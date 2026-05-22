@@ -8,9 +8,9 @@
 ! - get_import_couplers: Get couplers that consume imports
 
 submodule (mapl_StateRegistry) StateRegistry_Actions_smod
-   use mapl_MultiState
-   use mapl_ActualConnectionPt
-   use mapl_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
+   use mapl_MultiState_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_VirtualPtFamilyMap_mod, only: VirtualPtFamilyMapIterator
    use esmf
    implicit none(type,external)
 

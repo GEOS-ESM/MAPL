@@ -2,12 +2,12 @@
 
 submodule (mapl_OuterMetaComponent) initialize_geom_a_smod
 
-   use mapl_GenericPhases
-   use mapl_GeometrySpec
-   use mapl_Geom_API
-   use mapl_GriddedComponentDriver
-   use mapl_ErrorHandling
-   use MAPL_MpiTimerGauge, only: MpiTimerGauge
+   use mapl_GenericPhases_mod
+   use mapl_GeometrySpec_mod
+   use mapl_Geom_API_mod
+   use mapl_GriddedComponentDriver_mod
+   use mapl_ErrorHandling_mod
+   use mapl_MpiTimerGauge_mod, only: MpiTimerGauge
 
    implicit none(type,external)
 

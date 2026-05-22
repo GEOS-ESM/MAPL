@@ -3,12 +3,12 @@
 
 module pFIO_FileMetadataMod
 
-   use mapl_KeywordEnforcerMod
+   use mapl_KeywordEnforcer_mod
    use gFTL2_StringIntegerMap
    use pFIO_StringIntegerMapUtilMod
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod
    use pFIO_VariableMod

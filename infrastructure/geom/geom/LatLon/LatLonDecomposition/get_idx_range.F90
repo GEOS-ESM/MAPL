@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_LatLonDecomposition) get_idx_range_smod
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    implicit none
 
 contains

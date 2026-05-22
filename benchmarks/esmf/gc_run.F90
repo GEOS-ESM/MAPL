@@ -2,7 +2,7 @@
 
 module my_gc
    use esmf
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    implicit none
    private
 
@@ -92,7 +92,7 @@ end module my_gc
 program main
    use my_gc
    use esmf
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use iso_fortran_env, only: INT64
    implicit none
 

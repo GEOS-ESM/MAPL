@@ -2,7 +2,7 @@
 
 module mapl_XYTestHelper
    use pfio
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
    private
@@ -139,7 +139,7 @@ contains
    ! As create_xy_file but sets some lons/lats to MAPL_UNDEFINED_REAL64
    ! so that add_mask is exercised.
    subroutine create_xy_file_with_undef(filename, im, jm, rc)
-      use mapl_InternalConstants, only: MAPL_UNDEFINED_REAL64
+      use mapl_InternalConstants_mod, only: MAPL_UNDEFINED_REAL64
       character(len=*), intent(in)  :: filename
       integer,          intent(in)  :: im, jm
       integer, optional, intent(out) :: rc

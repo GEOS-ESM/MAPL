@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent) connect_all_smod
-   use mapl_Connection
-   use mapl_ConnectionPt
-   use mapl_VirtualConnectionPt
-   use mapl_MatchConnection
-   use mapl_ErrorHandling
+   use mapl_Connection_mod
+   use mapl_ConnectionPt_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_MatchConnection_mod
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains

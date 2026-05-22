@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent) initialize_modify_advertised_smod
-   use mapl_GenericPhases
-   use mapl_MultiState
-   use mapl_Connection
-   use mapl_ConnectionVector, only: ConnectionVectorIterator
-   use mapl_ConnectionVector, only: operator(/=)
-   use mapl_ErrorHandling
+   use mapl_GenericPhases_mod
+   use mapl_MultiState_mod
+   use mapl_Connection_mod
+   use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
+   use mapl_ConnectionVector_mod, only: operator(/=)
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains

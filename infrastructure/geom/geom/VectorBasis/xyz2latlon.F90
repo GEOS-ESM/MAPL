@@ -4,7 +4,7 @@ submodule (mapl_VectorBasis) xyz2latlon_smod
 contains
 
    pure module function xyz2latlon(xyz_coord) result(sph_coord)
-      use MAPL_Constants, only: PI => MAPL_PI_R8
+      use mapl_Constants_mod, only: PI => MAPL_PI_R8
       real(kind=ESMF_KIND_R8), intent(in):: xyz_coord(3)
       real(kind=ESMF_KIND_R8) :: sph_coord(2)
       real(kind=ESMF_KIND_R8), parameter:: esl=1.e-10

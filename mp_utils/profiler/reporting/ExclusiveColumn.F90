@@ -1,9 +1,9 @@
-module MAPL_ExclusiveColumn
-   use MAPL_AbstractColumn
-   use MAPL_SimpleColumn
-   use MAPL_AbstractMeterNode
-   use MAPL_AbstractMeter
-   use Mapl_DistributedMeter
+module mapl_ExclusiveColumn_mod
+   use mapl_AbstractColumn_mod
+   use mapl_SimpleColumn_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_AbstractMeter_mod
+   use mapl_DistributedMeter_mod
    implicit none
    private
 
@@ -67,6 +67,6 @@ contains
 
    end subroutine get_row_dist
 
-end module MAPL_ExclusiveColumn
+end module mapl_ExclusiveColumn_mod
 
 

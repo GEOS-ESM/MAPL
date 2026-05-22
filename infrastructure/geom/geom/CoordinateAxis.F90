@@ -1,5 +1,5 @@
-module mapl_CoordinateAxis
-   use mapl_RangeMod
+module mapl_CoordinateAxis_mod
+   use mapl_Range_mod
    use esmf, only: ESMF_KIND_R8
    use pfio
    implicit none(type,external)
@@ -106,5 +106,5 @@ module mapl_CoordinateAxis
 
    end interface
 
-end module mapl_CoordinateAxis
+end module mapl_CoordinateAxis_mod
 

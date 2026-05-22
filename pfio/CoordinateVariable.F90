@@ -26,10 +26,10 @@ module pFIO_CoordinateVariableMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    use pFIO_ConstantsMod
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_UtilitiesMod
    use pFIO_VariableMod
-   use mapl_KeywordEnforcerMod
+   use mapl_KeywordEnforcer_mod
    implicit none
    private
 

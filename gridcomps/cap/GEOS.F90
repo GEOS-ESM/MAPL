@@ -3,7 +3,7 @@
 
 program geos
    use MAPL
-   use mapl_Cap
+   use mapl_Cap_mod
    use esmf
    implicit none
 

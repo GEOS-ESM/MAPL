@@ -2,7 +2,7 @@
 
 submodule (mapl_OuterMetaComponent) stop_timer_smod
 
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
 
    implicit none(type,external)
 

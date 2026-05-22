@@ -2,7 +2,7 @@
 
 module mapl_MeshTestHelper
    use pfio
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT32
    implicit none
    private

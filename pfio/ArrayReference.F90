@@ -8,7 +8,7 @@ module pFIO_ArrayReferenceMod
    use, intrinsic :: iso_fortran_env, only: INT64
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_ConstantsMod
    use pFIO_AbstractDataReferenceMod
 

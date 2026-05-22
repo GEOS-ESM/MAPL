@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_VectorBasis
+module mapl_VectorBasis_mod
    use esmf
-   use mapl_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
 
    implicit none(type, external)
    private
@@ -117,6 +117,6 @@ module mapl_VectorBasis
 
    end interface
 
-end module mapl_VectorBasis
+end module mapl_VectorBasis_mod
 
 

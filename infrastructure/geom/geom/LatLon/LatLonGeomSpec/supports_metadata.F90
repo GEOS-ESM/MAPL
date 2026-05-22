@@ -2,10 +2,10 @@
 
 submodule (mapl_LatLonGeomSpec) supports_metadata_smod
 
-   use mapl_CoordinateAxis
-   use mapl_GeomSpec
+   use mapl_CoordinateAxis_mod
+   use mapl_GeomSpec_mod
    use pfio
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none (type, external)

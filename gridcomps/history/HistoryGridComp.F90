@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl_HistoryGridComp
+module mapl_HistoryGridComp_mod
 
    use MAPL
    use ESMF
-   use mapl_HistoryGridComp_private
-   use mapl_HistoryCollectionGridComp, only: collection_setServices => setServices
-   use mapl_StatisticsGridComp, only: statistics_setServices => setServices
+   use mapl_HistoryGridComp_private_mod
+   use mapl_HistoryCollectionGridComp_mod, only: collection_setServices => setServices
+   use mapl_StatisticsGridComp_mod, only: statistics_setServices => setServices
    use pFlogger, only: logger
 
    implicit none(type,external)
@@ -162,12 +162,12 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine run
 
-end module mapl_HistoryGridComp
+end module mapl_HistoryGridComp_mod
 
 subroutine setServices(gridcomp,rc)
    use ESMF
    use MAPL
-   use mapl_HistoryGridComp, only: History_setServices => SetServices
+   use mapl_HistoryGridComp_mod, only: History_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 

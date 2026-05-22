@@ -6,7 +6,7 @@
 module pFIO_MpiMutexMod
 
    use mpi
-   use MAPL_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use iso_c_binding, only: c_ptr, c_f_pointer
 
    implicit none

@@ -2,12 +2,12 @@
 
 submodule (mapl_OuterMetaComponent) finalize_smod
 
-   use mapl_GriddedComponentDriverMap
-   use mapl_GenericPhases
-   use mapl_ErrorHandling
-   use MAPL_Profiler, only: ProfileReporter
-   use MAPL_Profiler, only: MultiColumn, NameColumn, FormattedTextColumn, PercentageColumn
-   use MAPL_Profiler, only: InclusiveColumn, ExclusiveColumn, SeparatorColumn, NumCyclesColumn
+   use mapl_GriddedComponentDriverMap_mod
+   use mapl_GenericPhases_mod
+   use mapl_ErrorHandling_mod
+   use mapl_Profiler_mod, only: ProfileReporter
+   use mapl_Profiler_mod, only: MultiColumn, NameColumn, FormattedTextColumn, PercentageColumn
+   use mapl_Profiler_mod, only: InclusiveColumn, ExclusiveColumn, SeparatorColumn, NumCyclesColumn
    use pflogger, only: logger_t => logger, logging
    use gFTL2_StringVector
 

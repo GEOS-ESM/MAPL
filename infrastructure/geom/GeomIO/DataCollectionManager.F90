@@ -1,6 +1,6 @@
-module mapl_DataCollectionManager
-use mapl_DataCollectionVector
-use mapl_DataCollection
+module mapl_DataCollectionManager_mod
+use mapl_DataCollectionVector_mod
+use mapl_DataCollection_mod
 implicit none
 private
 

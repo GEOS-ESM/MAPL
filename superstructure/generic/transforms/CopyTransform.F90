@@ -2,15 +2,15 @@
 
 ! A copy might be between different kinds and precisions, so is really
 ! a converter.  But ... what is a better name.
-module mapl_CopyTransform
-   use mapl_TransformId
-   use mapl_ExtensionTransform
-   use mapl_ExtensionTransformUtils
-   use mapl_StateItemImpl
-   use mapl_ErrorHandling
+module mapl_CopyTransform_mod
+   use mapl_TransformId_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_ExtensionTransformUtils_mod
+   use mapl_StateItemImpl_mod
+   use mapl_ErrorHandling_mod
    use esmf
-   use MAPL_FieldUtils
-   use mapl_FieldBundleCopyImpl, only: FieldBundleCopy
+   use mapl_FieldUtils_mod
+   use mapl_FieldBundleCopyImpl_mod, only: FieldBundleCopy
    implicit none(type,external)
 
    private
@@ -108,4 +108,4 @@ contains
 
    end function get_transformId
 
-end module mapl_CopyTransform
+end module mapl_CopyTransform_mod

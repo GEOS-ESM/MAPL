@@ -4,13 +4,13 @@
 ! specifies as a shared attribute.  Some attributes of the export may
 ! be unused and/or correspond to attributes needed by other imports.
 
-module mapl_AttributesAspect
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ExtensionTransform
-   use mapl_NullTransform
-   use mapl_ErrorHandling
+module mapl_AttributesAspect_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_NullTransform_mod
+   use mapl_ErrorHandling_mod
    use gftl2_StringVector
    use esmf, only: esmf_FIeld, esmf_FieldBundle, esmf_State
    implicit none
@@ -172,4 +172,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine update_payload
 
-end module mapl_AttributesAspect
+end module mapl_AttributesAspect_mod

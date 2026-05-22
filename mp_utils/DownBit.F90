@@ -1,8 +1,8 @@
 #include "MAPL.h"
-module MAPL_DownbitMod
+module mapl_Downbit_mod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc, c_ptr
    use mpi
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
 
    implicit none
    private
@@ -251,4 +251,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine 
 
-end module MAPL_DownbitMod
+end module mapl_Downbit_mod

@@ -1,10 +1,10 @@
 #include "MAPL.h"
-module MAPL_StringTemplate
+module mapl_StringTemplate_mod
 use ESMF, only: ESMF_Calendar, ESMF_CalendarCreate, ESMF_CalendarDestroy, &
                 ESMF_CALKIND_GREGORIAN, ESMF_KIND_I4, &
                 ESMF_Time, ESMF_TimeGet, ESMF_TimeSet
-use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
-use MAPL_KeywordEnforcerMod, only: KeywordEnforcer
+use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
 
 
 implicit none(type,external)
@@ -314,4 +314,4 @@ contains
 
    end function skip_token
 
-end module MAPL_StringTemplate
+end module mapl_StringTemplate_mod

@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl_EASEGeomFactory
+module mapl_EASEGeomFactory_mod
 
-   use mapl_GeomSpec
-   use mapl_GeomFactory
-   use mapl_EASEGeomSpec
-   use mapl_KeywordEnforcerMod
-   use mapl_ErrorHandlingMod
+   use mapl_GeomSpec_mod
+   use mapl_GeomFactory_mod
+   use mapl_EASEGeomSpec_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use gftl2_StringVector
-   use mapl_StringDictionary
+   use mapl_StringDictionary_mod
    use pfio
    use esmf
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
 
    implicit none
    private
@@ -36,7 +36,7 @@ module mapl_EASEGeomFactory
    interface
 
       module function make_geom(this, geom_spec, rc) result(geom)
-         use mapl_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec_mod, only: GeomSpec
          use esmf, only: ESMF_Geom
          type(ESMF_Geom) :: geom
          class(EASEGeomFactory), intent(in) :: this
@@ -45,7 +45,7 @@ module mapl_EASEGeomFactory
       end function make_geom
 
       module function create_basic_grid(spec, unusable, name, rc) result(grid)
-         use mapl_KeywordEnforcer
+         use mapl_KeywordEnforcer_mod
          type(ESMF_Grid) :: grid
          type(EASEGeomSpec), intent(in) :: spec
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -54,7 +54,7 @@ module mapl_EASEGeomFactory
       end function create_basic_grid
 
       module subroutine fill_coordinates(spec, grid, unusable, rc)
-         use mapl_KeywordEnforcer
+         use mapl_KeywordEnforcer_mod
          type(EASEGeomSpec), intent(in) :: spec
          type(ESMF_Grid), intent(inout) :: grid
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -169,4 +169,4 @@ contains
       _UNUSED_DUMMY(this)
    end function supports_spec
 
-end module mapl_EASEGeomFactory
+end module mapl_EASEGeomFactory_mod
