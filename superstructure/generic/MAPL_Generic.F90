@@ -590,7 +590,6 @@ contains
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
       type(UngriddedDims), allocatable :: dim_specs_vec
-      type(StringVector) :: vector_component_names_vec
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -602,14 +601,6 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
-      ! vector_component_names
-      if (present(vector_component_names)) then
-         _ASSERT(present(itemType), "itemType must be present if vector_component_names is present")
-         _ASSERT((itemType==MAPL_STATEITEM_VECTOR), "valid only for vector items")
-         _ASSERT((size(vector_component_names)==2), "vector_component_names must have 2 components")
-         call vector_component_names_vec%push_back(trim(vector_component_names(1)))
-         call vector_component_names_vec%push_back(trim(vector_component_names(2)))
-      end if
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
@@ -624,7 +615,6 @@ contains
            has_deferred_aspects=has_deferred_aspects, &
            service_items=service_items, &
            restart_mode=restart, &
-           vector_component_names=vector_component_names_vec, &
            _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
@@ -645,6 +635,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(vector_component_names)
    end subroutine gridcomp_add_spec
 
    subroutine gridcomp_advertise_variable(gridcomp, var_spec, rc)
