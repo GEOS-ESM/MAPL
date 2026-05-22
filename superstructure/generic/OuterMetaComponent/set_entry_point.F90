@@ -1,12 +1,13 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) set_entry_point_smod
+submodule (mapl_OuterMetaComponent_mod) set_entry_point_smod
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains
 
    module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
+      use mapl_KeywordEnforcer_mod
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_Method_Flag), intent(in) :: method_flag
       procedure(I_Run) :: userProcedure

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) connect_all_smod
+submodule (mapl_OuterMetaComponent_mod) connect_all_smod
    use mapl_Connection_mod
    use mapl_ConnectionPt_mod
    use mapl_VirtualConnectionPt_mod

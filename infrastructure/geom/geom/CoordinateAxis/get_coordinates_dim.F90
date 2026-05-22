@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_CoordinateAxis) get_coordinates_dim_smod
+submodule (mapl_CoordinateAxis_mod) get_coordinates_dim_smod
    use mapl_ErrorHandling_mod
    use gftl2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64

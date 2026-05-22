@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) initialize_advertise_smod
+submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
    use mapl_GenericPhases_mod, only: GENERIC_INIT_ADVERTISE
    use mapl_VirtualConnectionPt_mod
    use mapl_StateItemImpl_mod

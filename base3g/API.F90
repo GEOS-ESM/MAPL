@@ -9,7 +9,7 @@ module mapl_base3g_mod
                                    MAPL_UnpackTime => UnpackTime, &
                                    MAPL_UnpackDateTime => UnpackDateTime
    use mapl_SimulationTime_mod, only: set_reference_clock, fill_time_dict
-   use mapl_Comms_mod, only: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV, &
+   use MAPL_CommsMod, only: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV, &
                             mapl_CommsAllGather, mapl_CommsAllGatherV, &
                             mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, &
                             mapl_CommsAllReduceSum, mapl_CommsSend, mapl_CommsRecv, &

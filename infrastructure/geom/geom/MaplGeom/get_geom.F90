@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_MaplGeom) get_geom_smod
+submodule (mapl_MaplGeom_mod) get_geom_smod
    use mapl_GeomSpec_mod
    use mapl_GeomUtilities_mod
    use mapl_ErrorHandling_mod

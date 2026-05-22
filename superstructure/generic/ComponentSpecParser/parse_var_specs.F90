@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_ComponentSpecParser) parse_var_specs_smod
+submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    use mapl_VerticalGrid_mod
    implicit none(type,external)
 

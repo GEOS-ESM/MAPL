@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonGeomSpec) supports_metadata_smod
+submodule (mapl_LatLonGeomSpec_mod) supports_metadata_smod
 
    use mapl_CoordinateAxis_mod
    use mapl_GeomSpec_mod

@@ -27,7 +27,7 @@ use mapl_Geom_API_mod, only: MAPL_GridGet
 use mapl_Constants_mod
 use mapl_GridAccessors_mod, only: geom_GridGet => GridGet
 use mapl_NCIO_mod, only: MAPL_ReadTilingNC4
-use mapl_Comms_mod
+use MAPL_CommsMod
 use mapl_Hash_mod
 use mapl_Shmem_mod
 use mapl_ExceptionHandling_mod

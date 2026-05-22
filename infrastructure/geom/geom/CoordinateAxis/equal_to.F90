@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_CoordinateAxis) equal_to_smod
+submodule (mapl_CoordinateAxis_mod) equal_to_smod
    use mapl_ErrorHandling_mod
    use gftl2_StringVector
    implicit none(type,external)

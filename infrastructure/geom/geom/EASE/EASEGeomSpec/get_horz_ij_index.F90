@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomSpec) get_horz_ij_index_smod
+submodule (mapl_EASEGeomSpec_mod) get_horz_ij_index_smod
 
    use mapl_EASEConversion_mod
    use mapl_Constants_mod, only: MAPL_RADIANS_TO_DEGREES

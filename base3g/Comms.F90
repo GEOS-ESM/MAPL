@@ -9,7 +9,7 @@
 
 ! !INTERFACE:
 
-module mapl_Comms_mod
+module MAPL_CommsMod
 
   use ESMF, only: ESMF_DELayout, ESMF_DELayoutGet, &
                   ESMF_DistGrid, ESMF_DistGridGet, &
@@ -1633,4 +1633,4 @@ module mapl_Comms_mod
 #include "arraygatherRcvCnt.H"
 
 !---------------------------
-end module mapl_Comms_mod
+end module MAPL_CommsMod

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonGeomSpec) make_LatLonGeomSpec_from_hconfig_smod
+submodule (mapl_LatLonGeomSpec_mod) make_LatLonGeomSpec_from_hconfig_smod
    use mapl_CoordinateAxis_mod
    use mapl_GeomSpec_mod
    use mapl_ErrorHandling_mod

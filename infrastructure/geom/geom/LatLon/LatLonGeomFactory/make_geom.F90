@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonGeomFactory) make_geom_smod
+submodule (mapl_LatLonGeomFactory_mod) make_geom_smod
 
    use mapl_GeomSpec_mod
    use mapl_LonAxis_mod

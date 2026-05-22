@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatAxis) get_lat_range_smod
+submodule (mapl_LatAxis_mod) get_lat_range_smod
    use mapl_Range_mod
 !   use hconfig3g
    use esmf

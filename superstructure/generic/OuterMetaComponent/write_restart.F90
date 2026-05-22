@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) write_restart_smod
+submodule (mapl_OuterMetaComponent_mod) write_restart_smod
    use mapl_MultiState_mod
    use mapl_RestartHandler_mod
    use mapl_os_mod

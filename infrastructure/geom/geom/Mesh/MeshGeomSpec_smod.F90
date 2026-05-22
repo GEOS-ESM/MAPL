@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_MeshGeomSpec) MeshGeomSpec_smod
+submodule (mapl_MeshGeomSpec_mod) MeshGeomSpec_smod
 
    use mapl_GeomSpec_mod
    use mapl_CoordinateAxis_mod, only: get_dim_name, get_coordinates

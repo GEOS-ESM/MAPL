@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonGeomFactory) make_variable_attributes_smod
+submodule (mapl_LatLonGeomFactory_mod) make_variable_attributes_smod
 
    use mapl_GeomSpec_mod
    use mapl_LonAxis_mod

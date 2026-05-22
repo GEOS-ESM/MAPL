@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomFactory) create_basic_grid_smod
+submodule (mapl_XYGeomFactory_mod) create_basic_grid_smod
    use mapl_ErrorHandling_mod
    use mapl_InternalConstants_mod
    use esmf
@@ -9,6 +9,7 @@ submodule (mapl_XYGeomFactory) create_basic_grid_smod
 contains
 
    module function create_basic_grid(spec, unusable, rc) result(grid)
+      use mapl_KeywordEnforcer_mod
       type(ESMF_Grid) :: grid
       type(XYGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable

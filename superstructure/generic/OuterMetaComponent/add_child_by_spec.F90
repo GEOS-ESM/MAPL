@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) add_child_by_spec_smod
+submodule (mapl_OuterMetaComponent_mod) add_child_by_spec_smod
 
    use mapl_ComponentSpecParser_mod
    use mapl_GenericGridComp_mod

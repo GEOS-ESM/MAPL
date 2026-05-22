@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory) typesafe_make_geom_smod
+submodule (mapl_EASEGeomFactory_mod) typesafe_make_geom_smod
    use mapl_GeomSpec_mod
    use mapl_EASEGeomSpec_mod
    use mapl_ErrorHandling_mod

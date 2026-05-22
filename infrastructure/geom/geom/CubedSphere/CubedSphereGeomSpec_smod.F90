@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
+submodule (mapl_CubedSphereGeomSpec_mod) CubedSphereGeomSpec_smod
 
    use mapl_CoordinateAxis_mod
    use mapl_GeomSpec_mod

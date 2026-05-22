@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomSpec) make_EASEGeomSpec_from_hconfig_smod
+submodule (mapl_EASEGeomSpec_mod) make_EASEGeomSpec_from_hconfig_smod
    use mapl_GeomSpec_mod
    use mapl_EASEConversion_mod
    use mapl_EASEDecomposition_mod

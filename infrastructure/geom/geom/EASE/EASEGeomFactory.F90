@@ -76,6 +76,7 @@ module mapl_EASEGeomFactory_mod
       end function make_variable_attributes
 
       module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          class(EASEGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
@@ -85,6 +86,7 @@ module mapl_EASEGeomFactory_mod
       end function make_file_metadata
 
       module function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          type(EASEGeomSpec), intent(in) :: geom_spec
          class(KE), optional, intent(in) :: unusable

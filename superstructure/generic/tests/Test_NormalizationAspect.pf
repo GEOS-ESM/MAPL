@@ -3,12 +3,12 @@
 
 module Test_NormalizationAspect
    use funit
-   use mapl_NormalizationAspect
-   use mapl_NormalizationType
-   use mapl_StateItemAspect
-   use mapl_ActualConnectionPt
-   use mapl_ExtensionTransform
-   use mapl_ErrorHandling
+   use mapl_NormalizationAspect_mod
+   use mapl_NormalizationType_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_ErrorHandling_mod
    use esmf
    use ESMF_TestMethod_mod
    implicit none
@@ -266,7 +266,7 @@ contains
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_payload_then_from_payload_mirror(this)
       ! Test roundtrip: mirror aspect -> field -> aspect (following UngriddedDimsAspect pattern)
-      use mapl_Field_API
+      use mapl_Field_API_mod
       class(ESMF_TestMethod), intent(inout) :: this
       type(NormalizationAspect) :: aspect1, aspect2
       type(ESMF_Field) :: field
@@ -302,7 +302,7 @@ contains
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_payload_then_from_payload_non_mirror_empty(this)
       ! Test roundtrip: non-mirror empty aspect -> field -> aspect
-      use mapl_Field_API
+      use mapl_Field_API_mod
       class(ESMF_TestMethod), intent(inout) :: this
       type(NormalizationAspect) :: aspect1, aspect2
       type(ESMF_Field) :: field
@@ -339,7 +339,7 @@ contains
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_payload_then_from_payload_with_normalization(this)
       ! Test roundtrip: aspect with normalization -> field -> aspect
-      use mapl_Field_API
+      use mapl_Field_API_mod
       class(ESMF_TestMethod), intent(inout) :: this
       type(NormalizationAspect) :: aspect1, aspect2
       type(ESMF_Field) :: field

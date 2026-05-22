@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) recurse_smod
+submodule (mapl_OuterMetaComponent_mod) recurse_smod
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ErrorHandling_mod
    implicit none(type,external)

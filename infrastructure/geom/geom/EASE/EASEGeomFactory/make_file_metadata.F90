@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory) make_file_metadata_smod
+submodule (mapl_EASEGeomFactory_mod) make_file_metadata_smod
    use mapl_GeomSpec_mod
    use mapl_EASEGeomSpec_mod
    use mapl_ErrorHandling_mod
@@ -11,6 +11,7 @@ submodule (mapl_EASEGeomFactory) make_file_metadata_smod
 contains
 
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       class(EASEGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec

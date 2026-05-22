@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomSpec) get_horz_ij_index_smod
+submodule (mapl_XYGeomSpec_mod) get_horz_ij_index_smod
    use mapl_ErrorHandling_mod
    implicit none
 

@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl_LocStreamDecomposition) make_LocStreamDecomposition_current_vm_smod
+submodule (mapl_LocStreamDecomposition_mod) make_LocStreamDecomposition_current_vm_smod
    use mapl_ErrorHandling_mod
    implicit none (type, external)
 

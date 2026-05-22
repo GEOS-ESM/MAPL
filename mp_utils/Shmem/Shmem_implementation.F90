@@ -1,7 +1,7 @@
 #define SHM_SUCCESS  0
 #include "MAPL.h"
 
-submodule (MAPL_Shmem) Shmem_implementation
+submodule (mapl_Shmem_mod) Shmem_implementation
   use pflogger, only: logging, Logger
   use mapl_ExceptionHandling_mod
   use mapl_Constants_mod

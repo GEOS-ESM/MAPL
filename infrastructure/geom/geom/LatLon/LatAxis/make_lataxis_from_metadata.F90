@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatAxis) make_lataxis_from_metadata_smod
+submodule (mapl_LatAxis_mod) make_lataxis_from_metadata_smod
    use mapl_Range_mod
 !   use hconfig3g
    use esmf

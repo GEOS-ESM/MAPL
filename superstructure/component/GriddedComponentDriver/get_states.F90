@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule(mapl_GriddedComponentDriver) get_states_smod
+submodule(mapl_GriddedComponentDriver_mod) get_states_smod
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 

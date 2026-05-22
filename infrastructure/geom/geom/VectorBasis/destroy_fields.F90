@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_VectorBasis) destroy_field_smod
+submodule (mapl_VectorBasis_mod) destroy_field_smod
 contains
 
    module subroutine destroy_fields(this)

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) get_gridcomp_smod
+submodule (mapl_OuterMetaComponent_mod) get_gridcomp_smod
    implicit none(type,external)
 
 contains

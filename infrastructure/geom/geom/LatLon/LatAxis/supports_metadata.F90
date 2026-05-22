@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatAxis) supports_metadata_smod
+submodule (mapl_LatAxis_mod) supports_metadata_smod
    use mapl_Range_mod
 !   use hconfig3g
    use esmf

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_GeomManager) get_mapl_geom_from_metadata_smod
+submodule (mapl_GeomManager_mod) get_mapl_geom_from_metadata_smod
    implicit none(type,external)
 
 contains

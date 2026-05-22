@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory) create_basic_grid_smod
+submodule (mapl_EASEGeomFactory_mod) create_basic_grid_smod
    use mapl_GeomSpec_mod
    use mapl_EASEGeomSpec_mod
    use mapl_EASEDecomposition_mod
@@ -17,6 +17,7 @@ contains
    !   - Have no poles ('XY': poles outside the grid domain)
    !   - Need 2D coordinate arrays (coordDep1/2 = [1,2])
    module function create_basic_grid(spec, unusable, name, rc) result(grid)
+      use mapl_KeywordEnforcer_mod
       type(ESMF_Grid) :: grid
       type(EASEGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable

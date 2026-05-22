@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory) make_variable_attributes_smod
+submodule (mapl_EASEGeomFactory_mod) make_variable_attributes_smod
    use mapl_GeomSpec_mod
    use mapl_EASEGeomSpec_mod
    use mapl_ErrorHandling_mod

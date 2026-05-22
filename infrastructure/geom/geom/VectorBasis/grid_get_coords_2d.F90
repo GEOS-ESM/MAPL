@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_VectorBasis) grid_get_coords_2d_smod
+submodule (mapl_VectorBasis_mod) grid_get_coords_2d_smod
 contains
 
    module subroutine grid_get_coords_2d(grid, longitudes, latitudes, rc)

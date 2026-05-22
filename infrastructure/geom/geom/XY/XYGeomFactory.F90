@@ -52,6 +52,7 @@ module mapl_XYGeomFactory_mod
       end function typesafe_make_geom
 
       module function create_basic_grid(spec, unusable, rc) result(grid)
+         use mapl_KeywordEnforcer_mod
          use esmf, only: ESMF_Grid
          type(ESMF_Grid) :: grid
          type(XYGeomSpec), intent(in) :: spec
@@ -60,6 +61,7 @@ module mapl_XYGeomFactory_mod
       end function create_basic_grid
 
       module subroutine fill_coordinates(spec, grid, unusable, rc)
+         use mapl_KeywordEnforcer_mod
          use esmf, only: ESMF_Grid
          type(XYGeomSpec), intent(in) :: spec
          type(ESMF_Grid),  intent(inout) :: grid
@@ -68,6 +70,7 @@ module mapl_XYGeomFactory_mod
       end subroutine fill_coordinates
 
       module subroutine fill_coordinates_abi(spec, grid, unusable, rc)
+         use mapl_KeywordEnforcer_mod
          use esmf, only: ESMF_Grid
          type(XYGeomSpec), intent(in) :: spec
          type(ESMF_Grid),  intent(inout) :: grid
@@ -97,6 +100,7 @@ module mapl_XYGeomFactory_mod
       end function make_variable_attributes
 
       module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          class(XYGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
@@ -106,6 +110,7 @@ module mapl_XYGeomFactory_mod
       end function make_file_metadata
 
       module function typesafe_make_file_metadata(spec, unusable, chunksizes, rc) result(file_metadata)
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          type(XYGeomSpec), intent(in) :: spec
          class(KE), optional, intent(in) :: unusable

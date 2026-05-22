@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_ComponentSpecParser) parse_geometry_spec_smod
+submodule (mapl_ComponentSpecParser_mod) parse_geometry_spec_smod
 
    use mapl_VerticalGrid_mod
    use mapl_BasicVerticalGrid_mod

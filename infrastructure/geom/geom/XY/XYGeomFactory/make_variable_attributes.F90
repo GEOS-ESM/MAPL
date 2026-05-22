@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomFactory) make_variable_attributes_smod
+submodule (mapl_XYGeomFactory_mod) make_variable_attributes_smod
    use mapl_ErrorHandling_mod
    use mapl_StringDictionary_mod
    implicit none

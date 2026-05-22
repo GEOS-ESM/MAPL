@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonGeomSpec) equal_to_smod
+submodule (mapl_LatLonGeomSpec_mod) equal_to_smod
    use mapl_CoordinateAxis_mod
    use mapl_GeomSpec_mod
    use pfio

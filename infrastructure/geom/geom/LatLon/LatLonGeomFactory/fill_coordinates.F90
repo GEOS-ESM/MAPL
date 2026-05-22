@@ -1,5 +1,5 @@
 #include "MAPL.h"
-submodule (mapl_LatLonGeomFactory) fill_coordinates_smod
+submodule (mapl_LatLonGeomFactory_mod) fill_coordinates_smod
    use mapl_GeomSpec_mod
    use mapl_LonAxis_mod
    use mapl_LatAxis_mod
@@ -18,6 +18,7 @@ submodule (mapl_LatLonGeomFactory) fill_coordinates_smod
 contains
 
    module subroutine fill_coordinates(spec, grid, unusable, rc)
+      use mapl_KeywordEnforcer_mod
       type(LatLonGeomSpec), intent(in) :: spec
       type(ESMF_Grid), intent(inout) :: grid
       class(KE), optional, intent(in) :: unusable

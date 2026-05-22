@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomSpec) supports_metadata_smod
+submodule (mapl_XYGeomSpec_mod) supports_metadata_smod
    use mapl_ErrorHandling_mod
    use pfio, only: FileMetadata, Attribute
    implicit none

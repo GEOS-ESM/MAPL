@@ -1,5 +1,5 @@
 #include "MAPL.h"
-submodule (mapl_LatLonGeomFactory) create_basic_grid_smod
+submodule (mapl_LatLonGeomFactory_mod) create_basic_grid_smod
    use mapl_GeomSpec_mod
    use mapl_LonAxis_mod
    use mapl_LatAxis_mod
@@ -18,6 +18,7 @@ submodule (mapl_LatLonGeomFactory) create_basic_grid_smod
 contains
 
    module function create_basic_grid(spec, unusable, name, rc) result(grid)
+      use mapl_KeywordEnforcer_mod
       type(ESMF_Grid) :: grid
       type(LatLonGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable

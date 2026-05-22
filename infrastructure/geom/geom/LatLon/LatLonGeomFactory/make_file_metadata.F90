@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonGeomFactory) make_file_metadata_smod
+submodule (mapl_LatLonGeomFactory_mod) make_file_metadata_smod
 
    use mapl_GeomSpec_mod
    use mapl_LonAxis_mod
@@ -20,6 +20,7 @@ submodule (mapl_LatLonGeomFactory) make_file_metadata_smod
 contains
 
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       class(LatLonGeomFactory), intent(in) :: this
       class(KE), optional, intent(in) :: unusable

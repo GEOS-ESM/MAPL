@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomSpec) make_XYGeomSpec_from_hconfig_smod
+submodule (mapl_XYGeomSpec_mod) make_XYGeomSpec_from_hconfig_smod
    use mapl_ErrorHandling_mod
    use mapl_InternalConstants_mod
    use mapl_Comms_mod, only: am_i_root, ROOT_PROCESS_ID

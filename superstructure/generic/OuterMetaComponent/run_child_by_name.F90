@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) run_child_by_name_smod
+submodule (mapl_OuterMetaComponent_mod) run_child_by_name_smod
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 

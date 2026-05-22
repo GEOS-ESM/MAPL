@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory) fill_coordinates_smod
+submodule (mapl_EASEGeomFactory_mod) fill_coordinates_smod
    use mapl_GeomSpec_mod
    use mapl_EASEGeomSpec_mod
    use mapl_EASECoords_mod
@@ -16,6 +16,7 @@ contains
    ! EASE grids store 2D coordinates (coordDep1/2 = [1,2]), so both
    ! lon and lat arrays are 2D even though they vary only along one axis.
    module subroutine fill_coordinates(spec, grid, unusable, rc)
+      use mapl_KeywordEnforcer_mod
       type(EASEGeomSpec), intent(in) :: spec
       type(ESMF_Grid), intent(inout) :: grid
       class(KE), optional, intent(in) :: unusable

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatAxis) fix_bad_pole_smod
+submodule (mapl_LatAxis_mod) fix_bad_pole_smod
    use mapl_Range_mod
 !   use hconfig3g
    use esmf

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonGeomFactory) make_gridded_dims_smod
+submodule (mapl_LatLonGeomFactory_mod) make_gridded_dims_smod
 
    use mapl_GeomSpec_mod
    use mapl_LonAxis_mod

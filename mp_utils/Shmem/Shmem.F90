@@ -543,8 +543,3 @@ module mapl_Shmem_mod
      end function MAPL_CoresPerNodeGet
   end interface
 end module mapl_Shmem_mod
-
-! For backwards compatibility
-module mapl_Shmem_mod
-  use mapl_Shmem_mod
-end module mapl_Shmem_mod

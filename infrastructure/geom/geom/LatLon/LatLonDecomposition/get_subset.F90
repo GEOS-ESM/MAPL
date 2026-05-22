@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonDecomposition) get_subset_smod
+submodule (mapl_LatLonDecomposition_mod) get_subset_smod
    use mapl_ErrorHandling_mod
    implicit none
 

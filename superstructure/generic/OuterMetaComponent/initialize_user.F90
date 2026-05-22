@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) initialize_user_smod
+submodule (mapl_OuterMetaComponent_mod) initialize_user_smod
 
    use mapl_GenericPhases_mod
    use mapl_ComponentDriver_mod

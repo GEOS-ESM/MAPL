@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule(mapl_GriddedComponentDriver) write_restart_smod
+submodule(mapl_GriddedComponentDriver_mod) write_restart_smod
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 

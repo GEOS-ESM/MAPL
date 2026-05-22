@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_GeomManager) initialize_smod
+submodule (mapl_GeomManager_mod) initialize_smod
 
    implicit none
 

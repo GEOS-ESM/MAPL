@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) SetServices_smod
+submodule (mapl_OuterMetaComponent_mod) SetServices_smod
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod

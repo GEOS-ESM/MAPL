@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) finalize_smod
+submodule (mapl_OuterMetaComponent_mod) finalize_smod
 
    use mapl_GriddedComponentDriverMap_mod
    use mapl_GenericPhases_mod

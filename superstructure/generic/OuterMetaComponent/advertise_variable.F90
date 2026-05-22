@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) advertise_var_spec_smod
+submodule (mapl_OuterMetaComponent_mod) advertise_var_spec_smod
    use mapl_Field_API_mod
    use mapl_VariableSpec_mod
    use mapl_StateItemSpec_mod

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_VectorBasis) get_unit_vector_smod
+submodule (mapl_VectorBasis_mod) get_unit_vector_smod
 contains
 
 

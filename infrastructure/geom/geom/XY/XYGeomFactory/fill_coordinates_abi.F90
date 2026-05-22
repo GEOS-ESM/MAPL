@@ -8,7 +8,7 @@
 !
 ! Shmem optimisation is intentionally omitted (see issue #4685).
 
-submodule (mapl_XYGeomFactory) fill_coordinates_abi_smod
+submodule (mapl_XYGeomFactory_mod) fill_coordinates_abi_smod
    use mapl_ErrorHandling_mod
    use mapl_Constants_mod, only: MAPL_DEGREES_TO_RADIANS_R8
    use mapl_Comms_mod,   only: am_i_root, ROOT_PROCESS_ID
@@ -26,6 +26,7 @@ submodule (mapl_XYGeomFactory) fill_coordinates_abi_smod
 contains
 
    module subroutine fill_coordinates_abi(spec, grid, unusable, rc)
+      use mapl_KeywordEnforcer_mod
       type(XYGeomSpec), intent(in) :: spec
       type(ESMF_Grid),  intent(inout) :: grid
       class(KE), optional, intent(in) :: unusable

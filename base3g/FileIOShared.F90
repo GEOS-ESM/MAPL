@@ -22,7 +22,7 @@ module mapl_FileIOShared_mod
   use mapl_GridAccessors_mod, only: GridGet
   use mapl_GridGetGlobal_mod, only: GridGetGlobalCellCountPerDim
   use mapl_Sort_mod
-  use mapl_Comms_mod
+  use MAPL_CommsMod
   use mapl_Shmem_mod
   use mapl_ExceptionHandling_mod
   use, intrinsic :: ISO_C_BINDING

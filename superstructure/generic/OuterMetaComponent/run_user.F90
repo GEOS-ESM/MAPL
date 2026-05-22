@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) run_user_smod
+submodule (mapl_OuterMetaComponent_mod) run_user_smod
 
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverPtrVector_mod

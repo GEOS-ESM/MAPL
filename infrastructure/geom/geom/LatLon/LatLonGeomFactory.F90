@@ -55,6 +55,7 @@ module mapl_LatLonGeomFactory_mod
       end function create_basic_grid
 
       module subroutine fill_coordinates(spec, grid, unusable, rc)
+         use mapl_KeywordEnforcer_mod
          type(LatLonGeomSpec), intent(in) :: spec
          type(ESMF_Grid), intent(inout) :: grid
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -86,6 +87,7 @@ module mapl_LatLonGeomFactory_mod
       end function make_file_metadata
 
       module function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          type(LatLonGeomSpec), intent(in) :: geom_spec
          class(KE), optional, intent(in) :: unusable

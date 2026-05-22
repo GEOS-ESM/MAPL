@@ -38,7 +38,3 @@ module mapl_KeywordEnforcer_mod
    end interface
 
 end module mapl_KeywordEnforcer_mod
-
-module mapl_KeywordEnforcer_mod
-   use mapl_KeywordEnforcer_mod
-end module mapl_KeywordEnforcer_mod

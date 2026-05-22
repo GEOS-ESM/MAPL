@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_MaplGeom) set_id_smod
+submodule (mapl_MaplGeom_mod) set_id_smod
    use mapl_GeomSpec_mod
    use mapl_VectorBasis_mod
    use mapl_GeomUtilities_mod

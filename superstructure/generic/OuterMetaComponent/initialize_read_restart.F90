@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) initialize_read_restart_smod
+submodule (mapl_OuterMetaComponent_mod) initialize_read_restart_smod
 
    use mapl_GenericPhases_mod
    use mapl_ErrorHandling_mod

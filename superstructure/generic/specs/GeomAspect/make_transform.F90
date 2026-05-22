@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_GeomAspect) make_transform_smod
+submodule (mapl_GeomAspect_mod) make_transform_smod
 
    use mapl_VerticalGridAspect_mod
    use mapl_VerticalStaggerLoc_mod

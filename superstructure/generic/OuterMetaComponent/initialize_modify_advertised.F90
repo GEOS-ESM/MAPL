@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) initialize_modify_advertised_smod
+submodule (mapl_OuterMetaComponent_mod) initialize_modify_advertised_smod
    use mapl_GenericPhases_mod
    use mapl_MultiState_mod
    use mapl_Connection_mod

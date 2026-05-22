@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_GeomManager) make_mapl_geom_from_spec_smod
+submodule (mapl_GeomManager_mod) make_mapl_geom_from_spec_smod
 
    implicit none
 

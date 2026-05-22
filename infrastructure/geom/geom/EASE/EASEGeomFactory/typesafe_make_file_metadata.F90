@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory) typesafe_make_file_metadata_smod
+submodule (mapl_EASEGeomFactory_mod) typesafe_make_file_metadata_smod
    use mapl_GeomSpec_mod
    use mapl_EASEGeomSpec_mod
    use mapl_EASECoords_mod
@@ -13,6 +13,7 @@ submodule (mapl_EASEGeomFactory) typesafe_make_file_metadata_smod
 contains
 
    module function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       type(EASEGeomSpec), intent(in) :: geom_spec
       class(KE), optional, intent(in) :: unusable

@@ -456,6 +456,7 @@ module mapl_OuterMetaComponent_mod
       end subroutine connect_all
 
       module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
+         use mapl_KeywordEnforcer_mod
          class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_Method_Flag), intent(in) :: method_flag
          procedure(I_Run) :: userProcedure

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_MeshGeomFactory) MeshGeomFactory_smod
+submodule (mapl_MeshGeomFactory_mod) MeshGeomFactory_smod
 
    use mapl_GeomSpec_mod
    use mapl_MeshGeomSpec_mod
@@ -296,6 +296,7 @@ contains
 
    ! Generate file metadata for mesh
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       class(MeshGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec

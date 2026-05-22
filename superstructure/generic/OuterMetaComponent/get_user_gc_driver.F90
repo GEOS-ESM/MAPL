@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) get_user_gc_driver_smod
+submodule (mapl_OuterMetaComponent_mod) get_user_gc_driver_smod
    implicit none(type,external)
 
 contains
