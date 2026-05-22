@@ -9,7 +9,7 @@ submodule (mapl_CubedSphereGeomFactory_mod) CubedSphereGeomFactory_smod
    use mapl_CubedSphereGeomSpec_mod
    use mapl_MinMax_mod
    use mapl_ErrorHandling_mod
-   use mapl_Constants_mod
+   use MAPL_Constants
    use pFIO
    use gFTL2_StringVector
    use mapl_StringDictionary_mod

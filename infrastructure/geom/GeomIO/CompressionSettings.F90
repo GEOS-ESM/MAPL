@@ -2,7 +2,7 @@
 module mapl_CompressionSettings_mod
     use ESMF
     use mapl_ErrorHandling_mod
-    use mapl_Constants_mod
+    use MAPL_Constants
     use mapl_esmf_info_keys_mod
     implicit none
     private

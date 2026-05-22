@@ -24,7 +24,7 @@ module mapl_SimpleBundleMod_impl_mod
    use mapl_FieldBundle_API_mod, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
    use mapl_ArrayReductions_mod, only: MaxMin => MAPL_MaxMin
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
-   use mapl_Constants_mod, only: MAPL_PI
+   use MAPL_Constants, only: MAPL_PI
    use mapl_ExceptionHandling_mod
 
    implicit none

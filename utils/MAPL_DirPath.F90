@@ -2,7 +2,7 @@
 
 module mapl_DirPath_mod
    use mapl_KeywordEnforcer_mod
-   use mapl_Constants_mod
+   use MAPL_Constants
    use gFTL2_StringVector
    private
 

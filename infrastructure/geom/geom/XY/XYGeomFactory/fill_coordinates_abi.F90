@@ -10,7 +10,7 @@
 
 submodule (mapl_XYGeomFactory_mod) fill_coordinates_abi_smod
    use mapl_ErrorHandling_mod
-   use mapl_Constants_mod, only: MAPL_DEGREES_TO_RADIANS_R8
+   use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
    use mapl_Comms_mod,   only: am_i_root, ROOT_PROCESS_ID
    use mapl_EarthConstants_mod, only: R_EQ  => MAPL_SEMIMAJOR_AXIS, &
                                   R_POL => MAPL_SEMIMINOR_AXIS, &

@@ -21,7 +21,7 @@ module MAPL
    use mapl_Hash_mod
    use mapl_ErrorHandling_mod
    use mapl_DirPath_mod
-   use mapl_Constants_mod
+   use MAPL_Constants
    use mapl_CommGroupDescription_mod
    use mapl_AbstractCommSplitter_mod
    use mapl_Downbit_mod

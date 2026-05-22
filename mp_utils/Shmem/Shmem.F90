@@ -5,7 +5,7 @@ module mapl_Shmem_mod
 
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
-  use mapl_Constants_mod
+  use MAPL_Constants
   use mpi
 
   implicit none

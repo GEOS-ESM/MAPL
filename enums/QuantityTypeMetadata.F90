@@ -3,7 +3,7 @@
 module mapl_QuantityTypeMetadata_mod
    use mapl_QuantityType_mod
    use mapl_ErrorHandling_mod
-   use mapl_Constants_mod, only: MAPL_UNDEF => MAPL_UNDEFINED_REAL
+   use MAPL_Constants, only: MAPL_UNDEF => MAPL_UNDEFINED_REAL
    use esmf, only: ESMF_Info, ESMF_InfoCreate, ESMF_InfoIsPresent
    use esmf, only: ESMF_InfoSet, ESMF_InfoGet, ESMF_InfoGetCharAlloc
    

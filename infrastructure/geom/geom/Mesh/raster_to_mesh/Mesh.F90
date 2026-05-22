@@ -6,8 +6,8 @@ module mapl_Mesh_mod
    use mapl_MeshElement_mod
    use mapl_MeshElementVector_mod
    use mapl_ErrorHandling_mod
-   use mapl_Constants_mod, only: MAPL_DEGREES_TO_RADIANS_R8, MAPL_PI_R8
-   use mapl_Constants_mod, only: MAPL_RADIANS_TO_DEGREES
+   use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8, MAPL_PI_R8
+   use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
    use gFTL2_Integer64Vector
    use esmf
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64

@@ -12,7 +12,7 @@
 submodule (mapl_XYGeomFactory_mod) fill_coordinates_smod
    use mapl_ErrorHandling_mod
    use mapl_InternalConstants_mod, only: MAPL_UNDEFINED_REAL64
-   use mapl_Constants_mod, only: MAPL_DEGREES_TO_RADIANS_R8
+   use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
    use mapl_Comms_mod,   only: am_i_root, ROOT_PROCESS_ID
    use NetCDF
    use esmf

@@ -6,7 +6,7 @@ module VerticalRegridConserveInterfaceMod
    use mapl_ExceptionHandling_mod
    use MAPL_CommsMod
    use mapl_Eta2Eta_mod
-   use mapl_Constants_mod, only: MAPL_GRAV,MAPL_AIRMW,MAPL_H2OMW
+   use MAPL_Constants, only: MAPL_GRAV,MAPL_AIRMW,MAPL_H2OMW
    use udunits2f, UDUNITS_are_convertible => are_convertible, &
       initialize_udunits => initialize, finalize_udunits => finalize
 

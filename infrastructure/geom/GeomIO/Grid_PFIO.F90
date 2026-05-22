@@ -9,7 +9,7 @@ module mapl_GridPFIO_mod
    use mapl_SharedIO_mod
    use ESMF
    use PFIO
-   use mapl_Constants_mod,  only: MAPL_RADIANS_TO_DEGREES
+   use MAPL_Constants,  only: MAPL_RADIANS_TO_DEGREES
    use mapl_FieldPointerUtilities_mod
    use mapl_pFIOServerBounds_mod, only: pFIOServerBounds, PFIO_BOUNDS_WRITE, PFIO_BOUNDS_READ
 

@@ -1,4 +1,4 @@
-module mapl_Constants_mod
+module MAPL_Constants
 
    use mapl_InternalConstants_mod
    use mapl_MathConstants_mod
@@ -12,5 +12,5 @@ contains
       implicit none
    end subroutine initialize_constants
 
-end module mapl_Constants_mod
+end module MAPL_Constants
 

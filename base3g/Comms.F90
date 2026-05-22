@@ -21,7 +21,7 @@ module MAPL_CommsMod
   use mapl_Shmem_mod, only: MAPL_ShmInitialized, MAPL_SyncSharedMemory, &
                            MAPL_BroadcastToNodes, MAPL_NodeRankList, &
                            MAPL_GetNewRank
-  use mapl_Constants_mod, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter, MAPL_UNDEF
+  use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter, MAPL_UNDEF
   use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
   use mapl_GridGetGlobal_mod, only: GridGetGlobalCellCountPerDim
   use mpi

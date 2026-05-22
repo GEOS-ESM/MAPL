@@ -8,7 +8,7 @@
 !
 module mapl_LoadBalance_mod
 
-  use mapl_Constants_mod, only : MAPL_R8
+  use MAPL_Constants, only : MAPL_R8
   use mapl_Sort_mod
   use mapl_ExceptionHandling_mod
   use mpi

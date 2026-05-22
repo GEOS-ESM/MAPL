@@ -19,7 +19,7 @@ module mapl_LocStreamGeomFactory_mod
    use gftl2_StringVector, only: StringVector
    use mapl_StringDictionary_mod, only: StringDictionary
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
-   use mapl_Constants_mod, only: MAPL_PI_R8
+   use MAPL_Constants, only: MAPL_PI_R8
    use esmf
    implicit none
    private

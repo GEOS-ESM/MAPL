@@ -58,7 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `mapl_KeywordEnforcerMod`, `MAPL_ShmemMod`). Duplicate `VerticalAlignment.F90`
   removed from `superstructure/generic/specs/` (canonical copy remains in
   `infrastructure/vertical/vertical_grid/`). Legacy `base3g/Comms.F90` retains
-  `MAPL_CommsMod` name pending resolution of #4961.
+  `MAPL_CommsMod` name pending resolution of #4961. `MAPL_Constants` retains its
+  name as it functions as an umbrella module.
 
 - Remove `MAPL_GridCompsMod` and enforce that `gridcomps/` modules `use MAPL`
   (the umbrella module) rather than internal modules directly (#4959).

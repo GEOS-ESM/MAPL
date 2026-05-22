@@ -36,7 +36,7 @@ module mapl_SatVapor_mod
 ! !USES:
 !
 #ifdef MAPL_MODE
-  use mapl_Constants_mod, only: MAPL_H2OMW, MAPL_AIRMW, MAPL_TICE, &
+  use MAPL_Constants, only: MAPL_H2OMW, MAPL_AIRMW, MAPL_TICE, &
                             MAPL_UseStarrQsat, MAPL_UseGoffGratchQsat, &
                             MAPL_UseMurphyKoopQsat
 #endif

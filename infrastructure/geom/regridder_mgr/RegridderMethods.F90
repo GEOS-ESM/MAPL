@@ -3,7 +3,7 @@ module mapl_RegridderMethods_mod
    use ESMF
    use mapl_DynamicMask_mod
    use mapl_ErrorHandling_mod
-   use mapl_Constants_mod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
+   use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    implicit none
    private

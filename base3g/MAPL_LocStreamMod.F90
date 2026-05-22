@@ -24,7 +24,7 @@ module mapl_LocStreamMod_impl_mod
 
 use ESMF
 use mapl_Geom_API_mod, only: MAPL_GridGet
-use mapl_Constants_mod
+use MAPL_Constants
 use mapl_GridAccessors_mod, only: geom_GridGet => GridGet
 use mapl_NCIO_mod, only: MAPL_ReadTilingNC4
 use MAPL_CommsMod

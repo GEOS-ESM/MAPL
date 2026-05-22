@@ -7,7 +7,7 @@ submodule (mapl_LatLonGeomFactory_mod) typesafe_make_geom_smod
    use mapl_LatLonGeomSpec_mod
    use mapl_MinMax_mod
    use mapl_ErrorHandling_mod
-   use mapl_Constants_mod
+   use MAPL_Constants
    use pFIO
    use gFTL2_StringVector
    use esmf

@@ -6,7 +6,7 @@ submodule (mapl_MeshGeomFactory_mod) MeshGeomFactory_smod
    use mapl_MeshGeomSpec_mod
    use mapl_MeshDecomposition_mod
    use mapl_ErrorHandling_mod
-   use mapl_Constants_mod, only: MAPL_PI_R8
+   use MAPL_Constants, only: MAPL_PI_R8
    use mapl_StringUtilities_mod, only: to_lower
    use mapl_get_hconfig_mod, only: get_hconfig
    use mapl_hconfig_params_mod, only: HConfigParams

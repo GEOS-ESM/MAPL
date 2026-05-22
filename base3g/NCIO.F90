@@ -26,7 +26,7 @@ module mapl_NCIO_mod
   use mapl_ExceptionHandling_mod
   use netcdf
   use pFIO
-  use mapl_Constants_mod
+  use MAPL_Constants
   use gFTL2_StringIntegerMap
   use gFTL2_StringVector
   use, intrinsic :: ISO_C_BINDING

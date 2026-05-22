@@ -7,7 +7,7 @@ submodule (mapl_CubedSphereGeomSpec_mod) CubedSphereGeomSpec_smod
    use pfio
    use mapl_Range_mod
    use mapl_ErrorHandling_mod
-   use mapl_Constants_mod
+   use MAPL_Constants
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 

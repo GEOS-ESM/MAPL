@@ -17,7 +17,7 @@ module mapl_CubedSphereGetGlobalHorzIJIndex_mod
                                ESMF_InfoGetFromHost, ESMF_InfoIsPresent, ESMF_InfoGet, &
                                ESMF_GridGet, ESMF_STAGGERLOC_CENTER, ESMF_MAXDIM
   use mapl_GridAccessors_mod,   only: GridGet
-  use mapl_Constants_mod,   only: MAPL_PI_R8, MAPL_DEGREES_TO_RADIANS_R8
+  use MAPL_Constants,   only: MAPL_PI_R8, MAPL_DEGREES_TO_RADIANS_R8
   use mapl_ErrorHandling_mod
 
   implicit none(type, external)

@@ -8,7 +8,7 @@ module mapl_TimeInterpolateTransform_mod
    use mapl_InfoUtilities_mod
    use mapl_StateItemImpl_mod
    use mapl_FieldUtils_mod
-   use mapl_Constants_mod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
+   use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use mapl_ErrorHandling_mod
    use esmf
 

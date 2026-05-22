@@ -8,7 +8,7 @@ module mapl_StateMask_mod
    use mapl_ExceptionHandling_mod
    use gFTL2_StringVector
    use mapl_StateArithmeticParser_mod
-   use mapl_Constants_mod
+   use MAPL_Constants
    use mapl_State_API_mod, only: MAPL_StateGetPointer
    implicit none
    private

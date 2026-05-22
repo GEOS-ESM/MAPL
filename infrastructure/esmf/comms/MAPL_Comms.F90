@@ -9,7 +9,7 @@
 module mapl_Comms_mod
 
    use ESMF
-   use mapl_Constants_mod, only: MAPL_UNDEFINED_REAL
+   use MAPL_Constants, only: MAPL_UNDEFINED_REAL
    use mapl_DistGridGet_mod, only: DistGridGet
    use mapl_ErrorHandling_mod
    use mpi

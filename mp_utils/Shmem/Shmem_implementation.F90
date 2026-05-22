@@ -4,7 +4,7 @@
 submodule (mapl_Shmem_mod) Shmem_implementation
   use pflogger, only: logging, Logger
   use mapl_ExceptionHandling_mod
-  use mapl_Constants_mod
+  use MAPL_Constants
   implicit none
 
   interface
