@@ -5,7 +5,6 @@ module mapl_AbstractDataSetFileSelector
    use ESMF
    use MAPL
    use mapl_DataSetBracket
-   use mapl_geomio
    use mapl_ExtDataConstants
 
    implicit none

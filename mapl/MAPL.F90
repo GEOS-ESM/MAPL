@@ -72,6 +72,9 @@ module MAPL
     use mapl_OS
     ! geom layer (transitively linked via regridder_mgr)
     use mapl_GridGetGlobal
+    ! GeomIO layer
+    use mapl_geomio
+    use mapl_CompressionSettings
 
     ! We use default PUBLIC to avoid explicitly listing exports from
     ! the other layers.  When the dust settles and such micro

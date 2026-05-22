@@ -12,7 +12,6 @@ module mapl_ExtDataGridComp
    use mapl_ExtDataConfig
    use mapl_PrimaryExportVector
    use mapl_PrimaryExport
-   use mapl_geomio
    use MAPL
    use mapl_AbstractDataSetFileSelector
    use gftl2_StringStringMap

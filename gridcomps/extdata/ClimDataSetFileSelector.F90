@@ -8,7 +8,6 @@ module mapl_ClimDataSetFileSelector
    use mapl_DataSetNode
    use mapl_AbstractDataSetFileSelector
    use mapl_ExtdataUtilities
-   use mapl_geomio
    use MAPL
 
    implicit none

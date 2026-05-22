@@ -4,7 +4,6 @@ module mapl_ExtDataReader
    use gftl2_StringStringMap
    use gftl2_StringIntegerMap
    use MAPL
-   use mapl_geomio
    use PFIO
    use pFlogger, only: logger
    use, intrinsic :: iso_c_binding, only: c_ptr

@@ -16,7 +16,6 @@ module mapl_ExtDataConfig
    use mapl_ExtDataSample
    use mapl_ExtDataSampleMap
    use mapl_PrimaryExport
-   use mapl_geomio
    use MAPL, only: mapl_HConfigAsTime
    use mapl_AbstractDataSetFileSelector
    use mapl_NonClimDataSetFileSelector
