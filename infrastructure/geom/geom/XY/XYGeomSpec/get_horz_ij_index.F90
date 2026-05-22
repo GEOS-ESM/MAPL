@@ -2,7 +2,6 @@
 
 submodule (mapl_XYGeomSpec) get_horz_ij_index_smod
    use mapl_ErrorHandlingMod
-   use ESMF, only: ESMF_Geom
    implicit none
 
 contains

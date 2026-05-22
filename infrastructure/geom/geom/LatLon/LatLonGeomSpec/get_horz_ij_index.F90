@@ -4,7 +4,7 @@ submodule (mapl_LatLonGeomSpec) get_horz_ij_index_smod
 
    use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES, MAPL_DEGREES_TO_RADIANS_R8
    use mapl_ErrorHandling
-   use ESMF, only: ESMF_Geom, ESMF_GeomGet, ESMF_GeomType_Flag, ESMF_GEOMTYPE_GRID, ESMF_Grid
+   use ESMF, only: ESMF_GeomGet, ESMF_GeomType_Flag, ESMF_GEOMTYPE_GRID, ESMF_Grid
    use mapl_Geom_API, only: mapl_GridGet
 
    implicit none (type, external)
