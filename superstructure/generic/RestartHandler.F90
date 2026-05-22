@@ -173,7 +173,7 @@ contains
             call MAPL_FieldBundleGet(bundle2, fieldList=field_list, _RC) ! addorder
             do jdx = 1, size(field_list)
                write(short_name, '(I0)') jdx
-               alias = ESMF_NamedAlias(field_list(jdx), name=item_name//"_"//short_name, _RC)
+               alias = ESMF_NamedAlias(field_list(jdx), name=item_name//"_"//trim(short_name), _RC)
                call MAPL_FieldBundleAdd(bundle, [alias], _RC)
             end do
          else
