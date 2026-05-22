@@ -6,7 +6,7 @@
 ! - get_subregistry_by_name: Retrieve subregistry by name
 ! - get_subregistry_by_conn_pt: Retrieve subregistry by connection point
 
-submodule (mapl3g_StateRegistry) StateRegistry_Hierarchy_smod
+submodule (mapl_StateRegistry) StateRegistry_Hierarchy_smod
    implicit none(type,external)
 
 contains

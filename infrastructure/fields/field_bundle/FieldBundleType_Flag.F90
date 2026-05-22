@@ -1,4 +1,4 @@
-module mapl3g_FieldBundleType_Flag
+module mapl_FieldBundleType_Flag
    implicit none
    private
 
@@ -90,4 +90,4 @@ contains
       not_equal_to = .not. (a%id == b%id)
    end function not_equal_to
    
-end module mapl3g_FieldBundleType_Flag
+end module mapl_FieldBundleType_Flag

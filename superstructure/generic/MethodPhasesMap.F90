@@ -2,7 +2,7 @@
 ! PhaseMethodMap?
 #include "MAPL.h"
 
-module mapl3g_MethodPhasesMap_private
+module mapl_MethodPhasesMap_private
    use :: gFTL2_StringVector, only: StringVector
    use :: esmf, only: ESMF_Method_Flag
 
@@ -60,10 +60,10 @@ module mapl3g_MethodPhasesMap_private
       
    end function method_less
 
-end module mapl3g_MethodPhasesMap_private
+end module mapl_MethodPhasesMap_private
 
-module mapl3g_MethodPhasesMapUtils
-   use mapl3g_MethodPhasesMap_private
+module mapl_MethodPhasesMapUtils
+   use mapl_MethodPhasesMap_private
    use mapl_ErrorHandling
    use :: mapl_GenericPhases, only: GENERIC_RUN_OFFSET
    use :: mapl_KeywordEnforcer
@@ -160,11 +160,11 @@ contains
       end if
    end function get_default_phase_name
 
-end module mapl3g_MethodPhasesMapUtils
+end module mapl_MethodPhasesMapUtils
 
-module mapl3g_MethodPhasesMap
-   use mapl3g_MethodPhasesMap_private
-   use mapl3g_MethodPhasesMapUtils
+module mapl_MethodPhasesMap
+   use mapl_MethodPhasesMap_private
+   use mapl_MethodPhasesMapUtils
    implicit none(type,external)
    private
    public :: initialize_phases_map
@@ -188,4 +188,4 @@ contains
 
    end subroutine initialize_phases_map
 
-end module mapl3g_MethodPhasesMap
+end module mapl_MethodPhasesMap

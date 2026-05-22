@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) advertise_var_spec_smod
-   use mapl3g_Field_API
-   use mapl3g_VariableSpec
-   use mapl3g_StateItemSpec
-   use mapl3g_VirtualConnectionPt
+submodule (mapl_OuterMetaComponent) advertise_var_spec_smod
+   use mapl_Field_API
+   use mapl_VariableSpec
+   use mapl_StateItemSpec
+   use mapl_VirtualConnectionPt
    use mapl_ErrorHandling
    implicit none(type,external)
 

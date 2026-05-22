@@ -1,4 +1,4 @@
-module mapl3g_Connection
+module mapl_Connection
    implicit none(type,external)
    private
 
@@ -17,14 +17,14 @@ module mapl3g_Connection
    abstract interface
 
       function I_get(this) result(source)
-         use mapl3g_ConnectionPt
+         use mapl_ConnectionPt
          import Connection
          type(ConnectionPt) :: source
          class(Connection), intent(in) :: this
       end function I_get
 
       subroutine I_activate(this, registry, rc)
-         use mapl3g_StateRegistry
+         use mapl_StateRegistry
          import Connection
          class(Connection), target, intent(in) :: this
          type(StateRegistry), target, intent(inout) :: registry
@@ -32,7 +32,7 @@ module mapl3g_Connection
       end subroutine I_activate
 
       subroutine I_connect(this, registry, rc)
-         use mapl3g_StateRegistry
+         use mapl_StateRegistry
          import Connection
          class(Connection), target, intent(inout) :: this
          type(StateRegistry), target, intent(inout) :: registry
@@ -42,4 +42,4 @@ module mapl3g_Connection
    end interface
 
 
-end module mapl3g_Connection
+end module mapl_Connection

@@ -1,36 +1,36 @@
 #include "MAPL.h"
 
-module mapl3g_ExpressionClassAspect
+module mapl_ExpressionClassAspect
 
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_ClassAspect
-   use mapl3g_FieldClassAspect
-   use mapl3g_GeomAspect
-   use mapl3g_HorizontalDimsSpec
-   use mapl3g_VerticalGridAspect
-   use mapl3g_UnitsAspect
-   use mapl3g_TypekindAspect
-   use mapl3g_UngriddedDimsAspect
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_ClassAspect
+   use mapl_FieldClassAspect
+   use mapl_GeomAspect
+   use mapl_HorizontalDimsSpec
+   use mapl_VerticalGridAspect
+   use mapl_UnitsAspect
+   use mapl_TypekindAspect
+   use mapl_UngriddedDimsAspect
 
-   use mapl3g_StateRegistry
-   use mapl3g_EvalTransform
-   use mapl3g_NullTransform
-   use mapl3g_ComponentDriver
-   use mapl3g_ComponentDriver
-   use mapl3g_ComponentDriverVector
-   use mapl3g_ExtensionTransform
-   use mapl3g_MultiState
-   use mapl3g_ESMF_Utilities, only: get_substate
+   use mapl_StateRegistry
+   use mapl_EvalTransform
+   use mapl_NullTransform
+   use mapl_ComponentDriver
+   use mapl_ComponentDriver
+   use mapl_ComponentDriverVector
+   use mapl_ExtensionTransform
+   use mapl_MultiState
+   use mapl_ESMF_Utilities, only: get_substate
 
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_VirtualConnectionPtVector
-   use mapl3g_ActualConnectionPt
-   use mapl3g_StateItemSpec
-   use mapl3g_StateItemSpec
+   use mapl_VirtualConnectionPt
+   use mapl_VirtualConnectionPtVector
+   use mapl_ActualConnectionPt
+   use mapl_StateItemSpec
+   use mapl_StateItemSpec
 
-   use mapl3g_Field_API
-   use mapl3g_FieldInfo
+   use mapl_Field_API
+   use mapl_FieldInfo
    use mapl_FieldUtilities
    use MAPL_StateArithmeticParserMod
    use gftl2_StringVector
@@ -388,4 +388,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine get_payload
 
-end module mapl3g_ExpressionClassAspect
+end module mapl_ExpressionClassAspect

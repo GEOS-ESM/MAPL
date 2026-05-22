@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_CoordinateAxis) get_extent_smod
+submodule (mapl_CoordinateAxis) get_extent_smod
    use mapl_ErrorHandling
    use gftl2_StringVector
    implicit none(type,external)

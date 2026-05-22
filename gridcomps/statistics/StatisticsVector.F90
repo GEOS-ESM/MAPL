@@ -1,5 +1,5 @@
-module mapl3g_StatisticsVector
-   use mapl3g_AbstractTimeStatistic
+module mapl_StatisticsVector
+   use mapl_AbstractTimeStatistic
 
 #define T AbstractTimeStatistic
 #define T_polymorphic
@@ -14,4 +14,4 @@ module mapl3g_StatisticsVector
 #undef T_polymorphic
 #undef T
    
-end module mapl3g_StatisticsVector
+end module mapl_StatisticsVector

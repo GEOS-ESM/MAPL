@@ -29,6 +29,7 @@ set(srcs
   RunEntryPoint.F90
   EntryPointVector.F90
   OpenMP_Support.F90
+  API.F90
   )
 
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.

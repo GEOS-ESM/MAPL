@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_CoordinateAxis) get_dim_name_smod
+submodule (mapl_CoordinateAxis) get_dim_name_smod
    use esmf, only: ESMF_UtilStringLowerCase
    use mapl_ErrorHandling
    use gftl2_StringVector

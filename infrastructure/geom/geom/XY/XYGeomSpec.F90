@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl3g_XYGeomSpec
+module mapl_XYGeomSpec
 
-   use mapl3g_GeomSpec
+   use mapl_GeomSpec
    use MAPL_InternalConstants
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_HConfig, ESMF_Geom
 
@@ -280,4 +280,4 @@ contains
       v = this%att_name_proj
    end function get_att_name_proj
 
-end module mapl3g_XYGeomSpec
+end module mapl_XYGeomSpec

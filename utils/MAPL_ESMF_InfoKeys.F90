@@ -1,5 +1,5 @@
 #include "MAPL.h"
-module mapl3g_esmf_info_keys
+module mapl_esmf_info_keys
 
    use MAPL_ErrorHandling
 
@@ -98,4 +98,4 @@ contains
 
    end function make_dim_key
 
-end module mapl3g_esmf_info_keys
+end module mapl_esmf_info_keys

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl3g_MeshDecomposition
+module mapl_MeshDecomposition
 
    use mapl_Partition
    use mapl_KeywordEnforcer
@@ -166,4 +166,4 @@ contains
       not_equal_to = .not. (decomp1 == decomp2)
    end function not_equal_to
 
-end module mapl3g_MeshDecomposition
+end module mapl_MeshDecomposition

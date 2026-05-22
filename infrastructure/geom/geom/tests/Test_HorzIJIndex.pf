@@ -4,7 +4,7 @@ module Test_HorzIJIndex
 
    use pfunit
    use esmf_TestMethod_mod ! mapl
-   use mapl3g_Geom_API
+   use mapl_Geom_API
    use MAPL_Constants, only: MAPL_PI_R8
    use esmf
 
@@ -79,7 +79,7 @@ contains
          end do
       end do
 
-      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_coordinates=.true., rc=status)
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
       @assert_that(status, is(0))
       @assert_that(size(ii), is(IM * JM))
       @assert_that(size(jj), is(IM * JM))
@@ -130,7 +130,7 @@ contains
          end do
       end do
 
-      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_coordinates=.true., rc=status)
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
       @assert_that(status, is(0))
       @assert_that(size(ii), is(IM * JM))
       @assert_that(size(jj), is(IM * JM))
@@ -191,7 +191,7 @@ contains
          end do
       end do
 
-      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_coordinates=.true., rc=status)
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
       @assert_that(status, is(0))
       @assert_that(size(ii), is(IM_LOCAL * JM))
       @assert_that(size(jj), is(IM_LOCAL * JM))
@@ -320,7 +320,7 @@ contains
          end do
       end do
 
-      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_coordinates=.true., rc=status)
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
       @assert_that(status, is(0))
       @assert_that(size(ii), is(NPTS))
       @assert_that(size(jj), is(NPTS))
@@ -379,7 +379,7 @@ contains
          end do
       end do
 
-      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_coordinates=.true., rc=status)
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
       @assert_that(status, is(0))
 
       ! All points are outside the local domain so every index must be -1

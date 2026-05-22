@@ -1,5 +1,5 @@
 #include "MAPL.h"
-module mapl3g_VerticalStaggerLoc
+module mapl_VerticalStaggerLoc
    implicit none
    private
 
@@ -167,4 +167,4 @@ contains
       end select
    end function get_num_layers
 
-end module mapl3g_VerticalStaggerLoc
+end module mapl_VerticalStaggerLoc

@@ -1,4 +1,4 @@
-module mapl3g_FieldFillDefault
+module mapl_FieldFillDefault
    use iso_fortran_env, only: REAL32, REAL64
    implicit none(type, external)
    private
@@ -60,4 +60,4 @@ contains
       call initialize_field_fill_defaults()
    end subroutine reset_field_fill_defaults
 
-end module mapl3g_FieldFillDefault
+end module mapl_FieldFillDefault

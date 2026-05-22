@@ -1,15 +1,15 @@
 #include "MAPL.h"
-module mapl3g_NonClimDataSetFileSelector
+module mapl_NonClimDataSetFileSelector
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use mapl3g_DataSetBracket
-   use mapl3g_DataSetNode
-   use mapl3g_AbstractDataSetFileSelector
-   use mapl3g_ExtdataUtilities
+   use mapl_DataSetBracket
+   use mapl_DataSetNode
+   use mapl_AbstractDataSetFileSelector
+   use mapl_ExtdataUtilities
    use mapl_StringTemplate
-   use mapl3g_geomio
-   use mapl3g_FieldBundle_API
+   use mapl_geomio
+   use mapl_FieldBundle_API
    use MAPL_FieldUtils
    implicit none
    private
@@ -46,7 +46,7 @@ module mapl3g_NonClimDataSetFileSelector
 
        file_handler%file_template = file_template
        if ( index(file_handler%file_template,'%') == 0 ) file_handler%single_file = .true.
-       file_handler%collection_id = mapl3g_AddDataCollection(file_handler%file_template)
+       file_handler%collection_id = mapl_AddDataCollection(file_handler%file_template)
        if (present(file_frequency)) file_handler%file_frequency = file_frequency
        if (present(ref_time)) file_handler%ref_time = ref_time
        if (present(valid_range)) then
@@ -260,5 +260,5 @@ module mapl3g_NonClimDataSetFileSelector
        _RETURN(_SUCCESS)
     end subroutine swap_bracket_fields
 
-end module mapl3g_NonClimDataSetFileSelector
+end module mapl_NonClimDataSetFileSelector
    

@@ -1,22 +1,22 @@
 #include "MAPL.h"
 
-module mapl3g_FieldInfo
+module mapl_FieldInfo
 
-   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
-   use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
-   use mapl3g_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
-   use mapl3g_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
-   use mapl3g_InfoUtilities
-   use mapl3g_VerticalGrid_API
-   use mapl3g_UngriddedDims
+   use mapl_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use mapl_esmf_info_keys, only: INFO_SHARED_NAMESPACE
+   use mapl_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
+   use mapl_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
+   use mapl_InfoUtilities
+   use mapl_VerticalGrid_API
+   use mapl_UngriddedDims
    use mapl_QuantityTypeMetadata
    use mapl_NormalizationMetadata
    use mapl_ConservationMetadata
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalAlignment
-   use mapl3g_StateItemAllocation
-   use mapl3g_RestartModes, only: RestartMode, MAPL_RESTART_REQUIRED
-   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
+   use mapl_VerticalStaggerLoc
+   use mapl_VerticalAlignment
+   use mapl_StateItemAllocation
+   use mapl_RestartModes, only: RestartMode, MAPL_RESTART_REQUIRED
+   use mapl_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -593,4 +593,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine derive_num_levels_from_vgrid
 
-end module mapl3g_FieldInfo
+end module mapl_FieldInfo

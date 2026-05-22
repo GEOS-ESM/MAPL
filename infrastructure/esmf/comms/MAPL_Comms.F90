@@ -6,11 +6,11 @@
 
 !INTERFACE:
 
-module mapl3g_Comms
+module mapl_Comms
 
    use ESMF
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL
-   use mapl3g_DistGridGet, only: DistGridGet
+   use mapl_DistGridGet, only: DistGridGet
    use MAPL_ErrorHandling
    use mpi
 
@@ -1524,4 +1524,4 @@ contains
 #define VARTYPE_ 3
 #include "arraygatherRcvCnt.H"
 
-end module mapl3g_Comms
+end module mapl_Comms

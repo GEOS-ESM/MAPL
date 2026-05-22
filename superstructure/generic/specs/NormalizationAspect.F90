@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl3g_NormalizationAspect
+module mapl_NormalizationAspect
 
-   use mapl3g_ActualConnectionPt
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_ExtensionTransform
-   use mapl3g_NullTransform
-   use mapl3g_QuantityTypeAspect
+   use mapl_ActualConnectionPt
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_ExtensionTransform
+   use mapl_NullTransform
+   use mapl_QuantityTypeAspect
    use mapl_NormalizationType
    use mapl_NormalizationMetadata
-   use mapl3g_Field_API
-   use mapl3g_FieldBundle_API
+   use mapl_Field_API
+   use mapl_FieldBundle_API
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -542,4 +542,4 @@ contains
       _UNUSED_DUMMY(scale)
    end subroutine compute_normalized_units
 
-end module mapl3g_NormalizationAspect
+end module mapl_NormalizationAspect

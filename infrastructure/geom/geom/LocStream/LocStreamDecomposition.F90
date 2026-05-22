@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-module mapl3g_LocStreamDecomposition
+module mapl_LocStreamDecomposition
 
    use mapl_Partition
    use mapl_KeywordEnforcer
@@ -109,4 +109,4 @@ contains
       not_equal_to = .not. (decomp1 == decomp2)
    end function not_equal_to
 
-end module mapl3g_LocStreamDecomposition
+end module mapl_LocStreamDecomposition

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_CubedSphereDecomposition) CubedSphereDecomposition_smod
+submodule (mapl_CubedSphereDecomposition) CubedSphereDecomposition_smod
 
    use mapl_Partition
    use mapl_ErrorHandlingMod

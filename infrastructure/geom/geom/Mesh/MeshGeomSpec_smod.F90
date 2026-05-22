@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-submodule (mapl3g_MeshGeomSpec) MeshGeomSpec_smod
+submodule (mapl_MeshGeomSpec) MeshGeomSpec_smod
 
-   use mapl3g_GeomSpec
-   use mapl3g_CoordinateAxis, only: get_dim_name, get_coordinates
-   use mapl3g_MeshDecomposition
+   use mapl_GeomSpec
+   use mapl_CoordinateAxis, only: get_dim_name, get_coordinates
+   use mapl_MeshDecomposition
    use mapl_ErrorHandlingMod
    use mapl_StringUtilities, only: to_lower
-   use mapl3g_get_hconfig, only: get_hconfig
-   use mapl3g_hconfig_params, only: HConfigParams
+   use mapl_get_hconfig, only: get_hconfig
+   use mapl_hconfig_params, only: HConfigParams
    use pfio
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL64, INT32

@@ -1,55 +1,55 @@
 #include "MAPL.h"
 
-module mapl3g_VariableSpec
+module mapl_VariableSpec
 
-   use mapl3g_StateItemSpec
-   use mapl3g_StateItemAspect
-   use mapl3g_GeomAspect
+   use mapl_StateItemSpec
+   use mapl_StateItemAspect
+   use mapl_GeomAspect
 
-   use mapl3g_ClassAspect
-   use mapl3g_FieldClassAspect
-   use mapl3g_FieldBundleClassAspect
-   use mapl3g_StateClassAspect
-   use mapl3g_VectorClassAspect
-   use mapl3g_BracketClassAspect
-   use mapl3g_VectorBracketClassAspect
-   use mapl3g_WildcardClassAspect
-   use mapl3g_ServiceClassAspect
-   use mapl3g_ExpressionClassAspect
+   use mapl_ClassAspect
+   use mapl_FieldClassAspect
+   use mapl_FieldBundleClassAspect
+   use mapl_StateClassAspect
+   use mapl_VectorClassAspect
+   use mapl_BracketClassAspect
+   use mapl_VectorBracketClassAspect
+   use mapl_WildcardClassAspect
+   use mapl_ServiceClassAspect
+   use mapl_ExpressionClassAspect
 
-   use mapl3g_UnitsAspect
-   use mapl3g_AttributesAspect
-   use mapl3g_UngriddedDimsAspect
-   use mapl3g_VerticalGridAspect
-   use mapl3g_VerticalAlignment
-   use mapl3g_VerticalRegridMethod
-   use mapl3g_TypekindAspect
-   use mapl3g_QuantityTypeAspect
-   use mapl3g_ConservationAspect
-   use mapl3g_NormalizationAspect
+   use mapl_UnitsAspect
+   use mapl_AttributesAspect
+   use mapl_UngriddedDimsAspect
+   use mapl_VerticalGridAspect
+   use mapl_VerticalAlignment
+   use mapl_VerticalRegridMethod
+   use mapl_TypekindAspect
+   use mapl_QuantityTypeAspect
+   use mapl_ConservationAspect
+   use mapl_NormalizationAspect
    use mapl_NormalizationType
-   use mapl3g_UngriddedDims
-   use mapl3g_VerticalStaggerLoc
+   use mapl_UngriddedDims
+   use mapl_VerticalStaggerLoc
    use mapl_VectorBasisKind
-   use mapl3g_HorizontalDimsSpec
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_ActualConnectionPt
-   use mapl3g_VerticalGrid
-   use mapl3g_VirtualConnectionPtVector
+   use mapl_HorizontalDimsSpec
+   use mapl_VirtualConnectionPt
+   use mapl_ActualConnectionPt
+   use mapl_VerticalGrid
+   use mapl_VirtualConnectionPtVector
    use mapl_ErrorHandling
    use pflogger, only: logging, logger_t => logger
-   use mapl3g_StateRegistry
-   use mapl3g_StateItem
-   use mapl3g_AspectId
-   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
-   use mapl3g_FieldDictionary
-   use mapl3g_FieldDictionaryItem, only: FieldDictionaryItem
+   use mapl_StateRegistry
+   use mapl_StateItemImpl
+   use mapl_AspectId
+   use mapl_EsmfRegridder, only: EsmfRegridderParam
+   use mapl_FieldDictionary
+   use mapl_FieldDictionaryItem, only: FieldDictionaryItem
    use mapl_KeywordEnforcerMod
-   use mapl3g_RestartModes, only: RestartMode
+   use mapl_RestartModes, only: RestartMode
    use esmf
    use gFTL2_StringVector
    use nuopc
-   use mapl3g_VariableSpec_private
+   use mapl_VariableSpec_private
 
    implicit none
    private
@@ -81,7 +81,6 @@ module mapl3g_VariableSpec
       !---------------------
       ! Vector
       !---------------------
-      type(StringVector) :: vector_component_names ! default empty
       type(VectorBasisKind), allocatable :: vector_basis_kind
       real(kind=ESMF_KIND_R4), allocatable :: fill_value
       !---------------------
@@ -180,7 +179,6 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
-        vector_component_names, &
         vector_basis_kind, &
         has_deferred_aspects, &
         use_field_dictionary, &
@@ -210,7 +208,6 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
-      type(StringVector), optional, intent(in) :: vector_component_names
       character(*), optional, intent(in) :: vector_basis_kind
       logical, optional, intent(in) :: has_deferred_aspects
       logical, optional, intent(in) :: use_field_dictionary
@@ -247,7 +244,6 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
-      _SET_OPTIONAL(vector_component_names)
       _SET_OPTIONAL(has_deferred_aspects)
       _SET_OPTIONAL(use_field_dictionary)
       _SET_OPTIONAL(restart_mode)
@@ -649,7 +645,6 @@ contains
 
       integer :: status
       character(:), allocatable :: std_name_1, std_name_2
-      type(StringVector) :: vector_component_names
       type(VectorBasisKind) :: basis_kind
 
       select case (this%itemType%ot)
@@ -668,18 +663,12 @@ contains
          if (allocated(this%standard_name)) then
             call split_name(this%standard_name, std_name_1, std_name_2, _RC)
          end if
-         if (this%vector_component_names%size() == 0) then
-            call vector_component_names%push_back("unknown1")
-            call vector_component_names%push_back("unknown2")
-         else
-            vector_component_names = this%vector_component_names
-         end if
          if (allocated(this%vector_basis_kind)) then
             basis_kind = this%vector_basis_kind
          else
             basis_kind = VECTOR_BASIS_KIND_NS
          end if
-         aspect = VectorClassAspect(this%vector_component_names, &
+         aspect = VectorClassAspect( &
               [ &
               FieldClassAspect(standard_name=std_name_1, fill_value=this%fill_value), &
               FieldClassAspect(standard_name=std_name_2, fill_value=this%fill_value) &
@@ -742,4 +731,4 @@ contains
 
    end subroutine verify_variable_spec
 
-end module mapl3g_VariableSpec
+end module mapl_VariableSpec

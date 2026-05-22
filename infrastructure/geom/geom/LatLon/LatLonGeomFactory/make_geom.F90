@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-submodule (mapl3g_LatLonGeomFactory) make_geom_smod
+submodule (mapl_LatLonGeomFactory) make_geom_smod
 
-   use mapl3g_GeomSpec
-   use mapl3g_LonAxis
-   use mapl3g_LatAxis
-   use mapl3g_LatLonDecomposition
-   use mapl3g_LatLonGeomSpec
+   use mapl_GeomSpec
+   use mapl_LonAxis
+   use mapl_LatAxis
+   use mapl_LatLonDecomposition
+   use mapl_LatLonGeomSpec
    use mapl_MinMaxMod
    use mapl_ErrorHandlingMod
    use mapl_Constants

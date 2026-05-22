@@ -1,5 +1,5 @@
-module mapl3g_VariableSpecVector
-   use mapl3g_VariableSpec
+module mapl_VariableSpecVector
+   use mapl_VariableSpec
 
 #define T VariableSpec
 #define Vector VariableSpecVector
@@ -11,4 +11,4 @@ module mapl3g_VariableSpecVector
 #undef Vector
 #undef VectorIterator
 
-end module mapl3g_VariableSpecVector
+end module mapl_VariableSpecVector

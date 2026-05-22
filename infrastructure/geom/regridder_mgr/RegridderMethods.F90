@@ -1,10 +1,10 @@
 #include "MAPL.h"
-module mapl3g_RegridderMethods
+module mapl_RegridderMethods
    use ESMF
-   use mapl3g_DynamicMask
+   use mapl_DynamicMask
    use mapl_ErrorHandlingMod
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
-   use mapl3g_EsmfRegridder, only: EsmfRegridderParam
+   use mapl_EsmfRegridder, only: EsmfRegridderParam
    implicit none
    private
 
@@ -211,4 +211,4 @@ module mapl3g_RegridderMethods
 
    end function
 
-end module mapl3g_RegridderMethods
+end module mapl_RegridderMethods

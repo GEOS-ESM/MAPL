@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl3g_LatLonGeomSpec
+module mapl_LatLonGeomSpec
 
-   use mapl3g_GeomSpec
-   use mapl3g_LatLonDecomposition
-   use mapl3g_LonAxis
-   use mapl3g_LatAxis
+   use mapl_GeomSpec
+   use mapl_LatLonDecomposition
+   use mapl_LonAxis
+   use mapl_LatAxis
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_HConfig, ESMF_Geom
 
    implicit none
@@ -171,6 +171,6 @@ contains
       axis = spec%lon_axis
    end function get_lon_axis
 
-end module mapl3g_LatLonGeomSpec
+end module mapl_LatLonGeomSpec
 
 

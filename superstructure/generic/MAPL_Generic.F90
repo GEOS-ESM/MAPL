@@ -15,31 +15,31 @@
 !
 !---------------------------------------------------------------------
 
-module mapl3g_Generic
+module mapl_Generic
 
-   use mapl3g_InnerMetaComponent, only: InnerMetaComponent
-   use mapl3g_InnerMetaComponent, only: get_inner_meta
-   use mapl3g_OuterMetaComponent, only: OuterMetaComponent
-   use mapl3g_OuterMetaComponent, only: get_outer_meta
-   use mapl3g_ChildSpec, only: ChildSpec
-   use mapl3g_ComponentSpec, only: ComponentSpec, CheckpointControls
-   use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
-   use mapl3g_Validation, only: is_valid_name
-   use mapl3g_ESMF_Interfaces, only: I_Run
-   use mapl3g_StateItemSpec
-   use mapl3g_VerticalGrid
-   use mapl3g_VerticalStaggerLoc, only: VerticalStaggerLoc
-   use mapl3g_StateRegistry, only: StateRegistry
-   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
-   use mapl3g_UngriddedDim, only: UngriddedDim
-   use mapl3g_UngriddedDims, only: UngriddedDims
-   use mapl3g_StateItem, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
-   use mapl3g_StateItem, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
-   use mapl3g_ESMF_Utilities, only: esmf_state_intent_to_string
-   use mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
-   use mapl3g_hconfig_get
-   use mapl3g_RestartModes, only: RestartMode
-   use mapl3g_ComponentSpecParser, only: parse_geometry_spec
+   use mapl_InnerMetaComponent, only: InnerMetaComponent
+   use mapl_InnerMetaComponent, only: get_inner_meta
+   use mapl_OuterMetaComponent, only: OuterMetaComponent
+   use mapl_OuterMetaComponent, only: get_outer_meta
+   use mapl_ChildSpec, only: ChildSpec
+   use mapl_ComponentSpec, only: ComponentSpec, CheckpointControls
+   use mapl_VariableSpec, only: VariableSpec, make_VariableSpec
+   use mapl_Validation, only: is_valid_name
+   use mapl_ESMF_Interfaces, only: I_Run
+   use mapl_StateItemSpec
+   use mapl_VerticalGrid
+   use mapl_VerticalStaggerLoc, only: VerticalStaggerLoc
+   use mapl_StateRegistry, only: StateRegistry
+   use mapl_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
+   use mapl_UngriddedDim, only: UngriddedDim
+   use mapl_UngriddedDims, only: UngriddedDims
+   use mapl_StateItemImpl, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_StateItemImpl, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
+   use mapl_ESMF_Utilities, only: esmf_state_intent_to_string
+   use mapl_ESMF_Interfaces, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
+   use mapl_hconfig_get
+   use mapl_RestartModes, only: RestartMode
+   use mapl_ComponentSpecParser, only: parse_geometry_spec
    use mapl_InternalConstants
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
@@ -387,7 +387,7 @@ contains
    end subroutine get_internal_state
 
    subroutine gridcomp_add_child_by_config_file(gridcomp, child_name, setservices, hconfig_file, unusable, timeStep, refTime_offset, rc)
-      use mapl3g_UserSetServices
+      use mapl_UserSetServices
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices
@@ -416,7 +416,7 @@ contains
    end subroutine gridcomp_add_child_by_config_file
 
    subroutine gridcomp_add_child_by_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime_offset, rc)
-      use mapl3g_UserSetServices
+      use mapl_UserSetServices
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices
@@ -590,7 +590,6 @@ contains
       type(ComponentSpec), pointer :: component_spec
       character(len=:), allocatable :: units_
       type(UngriddedDims), allocatable :: dim_specs_vec
-      type(StringVector) :: vector_component_names_vec
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -602,14 +601,6 @@ contains
       ! If input units is present, override using input values
       if (present(units)) units_ = units
       if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
-      ! vector_component_names
-      if (present(vector_component_names)) then
-         _ASSERT(present(itemType), "itemType must be present if vector_component_names is present")
-         _ASSERT((itemType==MAPL_STATEITEM_VECTOR), "valid only for vector items")
-         _ASSERT((size(vector_component_names)==2), "vector_component_names must have 2 components")
-         call vector_component_names_vec%push_back(trim(vector_component_names(1)))
-         call vector_component_names_vec%push_back(trim(vector_component_names(2)))
-      end if
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
@@ -624,7 +615,6 @@ contains
            has_deferred_aspects=has_deferred_aspects, &
            service_items=service_items, &
            restart_mode=restart, &
-           vector_component_names=vector_component_names_vec, &
            _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
@@ -645,6 +635,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(vector_component_names)
    end subroutine gridcomp_add_spec
 
    subroutine gridcomp_advertise_variable(gridcomp, var_spec, rc)
@@ -1045,9 +1036,9 @@ contains
    end function gridcomp_is_user
 
    subroutine gridcomp_set_geometry(gridcomp, state_intent, short_name, geom, vertical_grid, rc)
-      use mapl3g_VirtualConnectionPt
-      use mapl3g_ExtensionFamily
-      use mapl3g_StateItemSpec
+      use mapl_VirtualConnectionPt
+      use mapl_ExtensionFamily
+      use mapl_StateItemSpec
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(Esmf_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -1189,8 +1180,8 @@ contains
 
    subroutine method_add(state, label, userRoutine, rc)
       use esmf, only: ESMF_State, ESMF_MethodAdd
-      use mapl3g_ESMF_Interfaces, only: I_CallBackMethod
-      use mapl3g_StateAddMethod, only: CallbackMap, CallbackMethodWrapper, get_callbacks
+      use mapl_ESMF_Interfaces, only: I_CallBackMethod
+      use mapl_StateAddMethodImpl, only: CallbackMap, CallbackMethodWrapper, get_callbacks
       type(ESMF_State), intent(inout) :: state
       character(len=*), intent(in) :: label
       procedure(I_CallBackMethod) :: userRoutine
@@ -1208,4 +1199,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine method_add
 
-end module mapl3g_Generic
+end module mapl_Generic

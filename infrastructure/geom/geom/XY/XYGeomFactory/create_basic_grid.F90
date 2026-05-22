@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_XYGeomFactory) create_basic_grid_smod
+submodule (mapl_XYGeomFactory) create_basic_grid_smod
    use mapl_ErrorHandlingMod
    use mapl_InternalConstants
    use esmf

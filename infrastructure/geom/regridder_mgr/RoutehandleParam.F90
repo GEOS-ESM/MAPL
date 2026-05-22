@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl3g_RoutehandleParam
+module mapl_RoutehandleParam
 
    use esmf
-   use mapl3g_Geom_API, only: MaplGeom, geom_manager, MAPL_SameGeom
+   use mapl_Geom_API, only: MaplGeom, geom_manager, MAPL_SameGeom
    use mapl_ErrorHandlingMod
 
    implicit none
@@ -345,4 +345,4 @@ contains
        end do
     end function is_conservative
 
-end module mapl3g_RoutehandleParam
+end module mapl_RoutehandleParam

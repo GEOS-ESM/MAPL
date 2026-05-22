@@ -1,33 +1,33 @@
 #include "MAPL.h"
 
-module mapl3g_VectorClassAspect
+module mapl_VectorClassAspect
 
-   use mapl3g_Field_API
-   use mapl3g_FieldBundle_API
-   use mapl3g_ActualConnectionPt
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_ClassAspect
-   use mapl3g_FieldClassAspect
-   use mapl3g_GeomAspect
-   use mapl3g_VerticalGridAspect
-   use mapl3g_UnitsAspect
-   use mapl3g_TypekindAspect
-   use mapl3g_UngriddedDimsAspect
+   use mapl_Field_API
+   use mapl_FieldBundle_API
+   use mapl_ActualConnectionPt
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_ClassAspect
+   use mapl_FieldClassAspect
+   use mapl_GeomAspect
+   use mapl_VerticalGridAspect
+   use mapl_UnitsAspect
+   use mapl_TypekindAspect
+   use mapl_UngriddedDimsAspect
    use mapl_VectorBasisKind
-   use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
+   use mapl_FieldBundleInfo, only: FieldBundleInfoSetInternal
 
-   use mapl3g_VerticalGrid
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_VerticalStaggerLoc
-   use mapl3g_UngriddedDims
+   use mapl_VerticalGrid
+   use mapl_VerticalStaggerLoc
+   use mapl_VerticalStaggerLoc
+   use mapl_UngriddedDims
 
-   use mapl3g_NullTransform
-   use mapl3g_ExtensionTransform
-   use mapl3g_MultiState
-   use mapl3g_ESMF_Utilities, only: get_substate
+   use mapl_NullTransform
+   use mapl_ExtensionTransform
+   use mapl_MultiState
+   use mapl_ESMF_Utilities, only: get_substate
 
-   use mapl3g_FieldCreate
+   use mapl_FieldCreateImpl
    use mapl_FieldUtilities
 
    use mapl_KeywordEnforcer
@@ -50,7 +50,6 @@ module mapl3g_VectorClassAspect
    type, extends(ClassAspect) :: VectorClassAspect
       private
       type(ESMF_FieldBundle) :: payload
-      type(StringVector) :: short_names
       type(FieldClassAspect) :: component_specs(2)
       type(VectorBasisKind) :: basis_kind
    contains
@@ -78,13 +77,11 @@ module mapl3g_VectorClassAspect
 
 contains
 
-   function new_VectorClassAspect_basic(short_names, component_specs, basis_kind) result(aspect)
+   function new_VectorClassAspect_basic(component_specs, basis_kind) result(aspect)
       type(VectorClassAspect) :: aspect
-      type(StringVector), intent(in) :: short_names
       type(FieldClassAspect), intent(in) :: component_specs(2)
       type(VectorBasisKind), intent(in) :: basis_kind
 
-      aspect%short_names = short_names
       aspect%component_specs = component_specs
       aspect%basis_kind = basis_kind
    end function new_VectorClassAspect_basic
@@ -155,8 +152,8 @@ contains
       type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: i
+      type(ESMF_Field), allocatable :: field
+      integer :: i, status
 
       do i = 1, NUM_COMPONENTS
          call this%component_specs(i)%create(other_aspects, _RC)
@@ -235,9 +232,6 @@ contains
       export_ = to_VectorClassAspect(export, _RC)
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
-
-      ! mirror short names since they are required in add_to_state routine
-      this%short_names = export_%short_names
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
@@ -338,13 +332,6 @@ contains
       end if
       call ESMF_StateAddReplace(substate, [alias], _RC)
 
-      ! Also update the names of the components
-      call MAPL_FieldBundleGet(this%payload, fieldList=field_list, _RC)
-      if (size(field_list) > 0) then ! might be empty if import item
-         call ESMF_FieldSet(field_list(1), name=trim(this%short_names%at(1)), _RC)
-         call ESMF_FieldSet(field_list(2), name=trim(this%short_names%at(2)), _RC)
-      end if
-
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
@@ -369,4 +356,4 @@ contains
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
 
-end module mapl3g_VectorClassAspect
+end module mapl_VectorClassAspect

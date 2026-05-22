@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl3g_NullStatistic
+module mapl_NullStatistic
 
-   use mapl3g_AbstractTimeStatistic
+   use mapl_AbstractTimeStatistic
    use mapl_ErrorHandling
    use esmf, only: esmf_State, esmf_GridComp, esmf_Clock
-   use mapl3g_SimpleAlarm, only: SimpleAlarm
+   use mapl_SimpleAlarm, only: SimpleAlarm
 
    implicit none(type,external)
    private
@@ -74,4 +74,4 @@ contains
       error stop 'NullStatistic does not have an alarm'
    end function noop_get_alarm
 
-end module mapl3g_NullStatistic
+end module mapl_NullStatistic

@@ -1,8 +1,8 @@
 #include "MAPL.h"
-module mapl3g_HistoryUtilities
+module mapl_HistoryUtilities
    use MAPL
    use esmf
-   use mapl3g_HistoryConstants
+   use mapl_HistoryConstants
    !use gFTL2_StringVector
    !use gFTL2_StringSet
 
@@ -77,4 +77,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine parse_item
 
-end module mapl3g_HistoryUtilities
+end module mapl_HistoryUtilities

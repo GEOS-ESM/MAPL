@@ -15,6 +15,7 @@ module mapl_base3g
                             mapl_CommsAllReduceSum, mapl_CommsSend, mapl_CommsRecv, &
                             mapl_CommsSendRecv, mapl_AM_I_ROOT, mapl_AM_I_RANK, &
                             mapl_NPES, ArrayGather, ArrayScatter, MAPL_ROOT, &
+                            MAPL_ArrayGather => ArrayGather, MAPL_ArrayScatter => ArrayScatter, &
                             mapl_CreateRequest, mapl_CommRequest, mapl_ArrayIGather, &
                             mapl_ArrayIScatter, mapl_CollectiveWait, &
                             mapl_CollectiveScatter3D, mapl_CollectiveGather3D, &
@@ -31,7 +32,7 @@ module mapl_base3g
           MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax, &
           MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
    use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
-   use mapl3g_FileIO, only: WRITE_PARALLEL
+   use mapl_FileIO, only: WRITE_PARALLEL
    use mapl_SimpleBundleMod_impl, only: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint, &
         MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
    use mapl_FileIOShared, only: ArrDescr, ArrDescrInit, ArrDescrSet
@@ -51,6 +52,7 @@ module mapl_base3g
    public :: mapl_CommsSend, mapl_CommsRecv, mapl_CommsSendRecv
    public :: mapl_AM_I_ROOT, mapl_AM_I_RANK, mapl_NPES
    public :: ArrayGather, ArrayScatter, MAPL_ROOT
+   public :: MAPL_ArrayGather, MAPL_ArrayScatter
    public :: mapl_CreateRequest, mapl_CommRequest
    public :: mapl_ArrayIGather, mapl_ArrayIScatter, mapl_CollectiveWait
    public :: mapl_CollectiveScatter3D, mapl_CollectiveGather3D

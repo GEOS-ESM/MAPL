@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-module mapl3g_EsmfRegridder
+module mapl_EsmfRegridder
 
-   use mapl3g_RegridderParam
-   use mapl3g_RegridderSpec
-   use mapl3g_Regridder
-   use mapl3g_RoutehandleParam
-   use mapl3g_RoutehandleManager
-   use mapl3g_DynamicMask
-   use mapl3g_NullRegridder
+   use mapl_RegridderParam
+   use mapl_RegridderSpec
+   use mapl_Regridder
+   use mapl_RoutehandleParam
+   use mapl_RoutehandleManager
+   use mapl_DynamicMask
+   use mapl_NullRegridder
    use mapl_ErrorHandlingMod
    use esmf
 
@@ -312,4 +312,4 @@ contains
        is_conservative = this%routehandle_param%is_conservative()
     end function is_conservative
 
-end module mapl3g_EsmfRegridder
+end module mapl_EsmfRegridder

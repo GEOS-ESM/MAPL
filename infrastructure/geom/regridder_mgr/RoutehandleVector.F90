@@ -1,4 +1,4 @@
-module mapl3g_RoutehandleVector
+module mapl_RoutehandleVector
    use esmf, only: ESMF_Routehandle
 
 #define T ESMF_Routehandle
@@ -13,4 +13,4 @@ module mapl3g_RoutehandleVector
 #undef VectorIterator
 #undef VectorRIterator
 
-end module mapl3g_RoutehandleVector
+end module mapl_RoutehandleVector

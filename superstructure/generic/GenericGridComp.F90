@@ -9,12 +9,12 @@
 !     MAPL_ADVERTISE
 !     MAPL_REALIZE
 
-module mapl3g_GenericGridComp
-   use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
-   use :: mapl3g_OuterMetaComponent, only: get_outer_meta
-   use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
+module mapl_GenericGridComp
+   use :: mapl_OuterMetaComponent, only: OuterMetaComponent
+   use :: mapl_OuterMetaComponent, only: get_outer_meta
+   use :: mapl_OuterMetaComponent, only: attach_outer_meta
    use :: mapl_GenericPhases
-   use :: mapl3g_GriddedComponentDriver
+   use :: mapl_GriddedComponentDriver
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
    use :: mapl_ErrorHandling
@@ -86,7 +86,7 @@ contains
 
    recursive type(ESMF_GridComp) function create_grid_comp_primary( &
         name, set_services, config, unusable, petlist, rc) result(gridcomp)
-      use :: mapl3g_UserSetServices, only: AbstractUserSetServices
+      use :: mapl_UserSetServices, only: AbstractUserSetServices
 
       character(*), intent(in) :: name
       class(AbstractUserSetServices), intent(in) :: set_services
@@ -276,4 +276,4 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_is_generic
-end module mapl3g_GenericGridComp
+end module mapl_GenericGridComp

@@ -5,11 +5,11 @@
 ! in objects of type ExtensionFamily.
 
 
-module mapl3g_ExtensionFamily
-   use mapl3g_StateItemSpec
-   use mapl3g_StateItemSpecPtrVector
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
+module mapl_ExtensionFamily
+   use mapl_StateItemSpec
+   use mapl_StateItemSpecPtrVector
+   use mapl_AspectId
+   use mapl_StateItemAspect
    use mapl_ErrorHandling
    use gFTL2_StringVector
    implicit none(type,external)
@@ -212,5 +212,5 @@ contains
       _RETURN(_SUCCESS)
    end function get_primary_spec
 
-end module mapl3g_ExtensionFamily
+end module mapl_ExtensionFamily
 

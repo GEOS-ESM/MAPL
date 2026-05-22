@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) get_num_children_smod
+submodule (mapl_OuterMetaComponent) get_num_children_smod
 
-   use mapl3g_GriddedComponentDriverMap
+   use mapl_GriddedComponentDriverMap
    use mapl_ErrorHandling
 
    implicit none(type,external)

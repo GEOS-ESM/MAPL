@@ -1,15 +1,15 @@
-module mapl3g_geomio
+module mapl_geomio
 
-   use mapl3g_GeomCatagorizer
-   use mapl3g_GeomPFIO
-   use mapl3g_sharedIO
-   use mapl3g_DataCollection
-   use mapl3g_DataCollectionVector
-   use mapl3g_DataCollectionManager
-   use mapl3g_pFIOServerBounds
-   use mapl3g_FieldBundleWrite
-   use mapl3g_FieldBundleRead
-   use mapl3g_CompressionSettings
+   use mapl_GeomCatagorizer
+   use mapl_GeomPFIO
+   use mapl_sharedIO
+   use mapl_DataCollection
+   use mapl_DataCollectionVector
+   use mapl_DataCollectionManager
+   use mapl_pFIOServerBounds
+   use mapl_FieldBundleWrite
+   use mapl_FieldBundleRead
+   use mapl_CompressionSettings
    implicit none
 
-end module mapl3g_geomio
+end module mapl_geomio

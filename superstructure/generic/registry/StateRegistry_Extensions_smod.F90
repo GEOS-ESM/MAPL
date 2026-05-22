@@ -13,9 +13,9 @@
 ! - extend: Recursively extend family to match goal spec
 ! - item_is_deferred: Check if item is deferred
 
-submodule (mapl3g_StateRegistry) StateRegistry_Extensions_smod
-   use mapl3g_MultiState
-   use mapl3g_ActualConnectionPt, only: ActualConnectionPt
+submodule (mapl_StateRegistry) StateRegistry_Extensions_smod
+   use mapl_MultiState
+   use mapl_ActualConnectionPt, only: ActualConnectionPt
    implicit none(type,external)
 
 contains

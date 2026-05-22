@@ -14,11 +14,9 @@ set(srcs
 
   GeomManager.F90
 
-  GeomGet.F90
+  GeomGet.F90       # also contains GeomGetHorzIJIndex and GridGetHorzIJIndex (merged, #4944)
   GridGet.F90
   GridGetGlobal.F90
-  GridGetHorzIJIndex.F90
-  GeomGetHorzIJIndex.F90
 
   # gFTL containers
   GeomFactoryVector.F90

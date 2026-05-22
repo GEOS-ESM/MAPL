@@ -3,7 +3,7 @@
 ! This module provides a wrapper for ESMF_DynamicMask
 ! to enable equality checking between instances.
 
-module mapl3g_DynamicMask
+module mapl_DynamicMask
    use esmf
    use mapl_ErrorHandlingMod
    implicit none
@@ -640,4 +640,4 @@ contains
       end if
    end function match_r8
 
-end module mapl3g_DynamicMask
+end module mapl_DynamicMask

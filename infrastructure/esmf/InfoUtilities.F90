@@ -4,12 +4,12 @@
 ! objects and thereby ensure consistent support for namespace
 ! management and such.
 
-module mapl3g_InfoUtilities
+module mapl_InfoUtilities
 
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
 
-   use mapl3g_esmf_info_keys
+   use mapl_esmf_info_keys
    use esmf, only: ESMF_StateItem_Flag
    use esmf, only: ESMF_STATEITEM_FIELD
    use esmf, only: ESMF_STATEITEM_FIELDBundle
@@ -884,6 +884,6 @@ contains
 
    end function concat
 
-end module mapl3g_InfoUtilities
+end module mapl_InfoUtilities
 
 

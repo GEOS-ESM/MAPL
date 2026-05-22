@@ -2,9 +2,9 @@
 
 ! NullGeomSpec is used to return a concrete object fore failing
 ! factory methods that return GeomSpec objects.
-module mapl3g_NullGeomSpec
+module mapl_NullGeomSpec
 
-   use mapl3g_GeomSpec
+   use mapl_GeomSpec
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_Geom
    use mapl_ErrorHandling
 
@@ -72,4 +72,4 @@ contains
       _UNUSED_DUMMY(lat)
    end subroutine get_horz_ij_index_r8
 
-end module mapl3g_NullGeomSpec
+end module mapl_NullGeomSpec

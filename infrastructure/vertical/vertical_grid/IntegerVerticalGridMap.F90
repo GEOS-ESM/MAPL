@@ -1,5 +1,5 @@
-module mapl3g_IntegerVerticalGridMap
-   use mapl3g_VerticalGrid
+module mapl_IntegerVerticalGridMap
+   use mapl_VerticalGrid
 
 #define Key __INTEGER
 #define T VerticalGrid
@@ -15,4 +15,4 @@ module mapl3g_IntegerVerticalGridMap
 #undef T_polymorphic
 #undef T
    
-end module mapl3g_IntegerVerticalGridMap
+end module mapl_IntegerVerticalGridMap

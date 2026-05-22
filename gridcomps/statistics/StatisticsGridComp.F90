@@ -1,25 +1,26 @@
 #include "MAPL.h"
 
-module mapl3g_StatisticsGridComp
+module mapl_StatisticsGridComp
 
    use MAPL
    use ESMF
-   use mapl3g_RestartHandler
-   use mapl3g_ESMF_Time_Utilities, only: sub_time_in_datetime
+   use mapl_RestartHandler
+   use mapl_ESMF_Time_Utilities, only: sub_time_in_datetime
    ! local modules
-   use mapl3g_AbstractTimeStatistic
-   use mapl3g_StatisticsVector
-   use mapl3g_NullStatistic
-   use mapl3g_TimeAverage
-   use mapl3g_TimeMin
-   use mapl3g_TimeMax
-   use mapl3g_TimeAccumulate
-   use mapl3g_State_API
+   use mapl_AbstractTimeStatistic
+   use mapl_StatisticsVector
+   use mapl_NullStatistic
+   use mapl_TimeAverage
+   use mapl_TimeMin
+   use mapl_TimeMax
+   use mapl_TimeAccumulate
+   use mapl_TimeVariance
+   use mapl_State_API
    use pflogger, only: Logger
    use mapl_OS
-   use mapl3g_Utilities, only: MAPL_GetCheckpointSubdir
-   use mapl3g_SimpleAlarm, only: SimpleAlarm
-   use mapl3g_ComponentSpec, only: ComponentSpec, CheckpointControls
+   use mapl_mp_utils, only: MAPL_GetCheckpointSubdir
+   use mapl_SimpleAlarm, only: SimpleAlarm
+   use mapl_ComponentSpec, only: ComponentSpec, CheckpointControls
 
    implicit none(type,external)
    private
@@ -113,6 +114,11 @@ contains
                has_deferred_aspects=.true., _RC)
           call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_accumulate_internal_fields(gridcomp, name, _RC)
+       case ('variance')
+          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+          call advertise_time_variance_internal_fields(gridcomp, name, _RC)
        case default
           _FAIL('unsupported action: '//action)
       end select
@@ -206,6 +212,9 @@ contains
           case ('accumulate')
              deallocate(stat) ! gfortran workaround
              stat = make_accumulate_stat(name, iter, alarm, _RC)
+          case ('variance')
+             deallocate(stat) ! gfortran workaround
+             stat = make_variance_stat(name, iter, alarm, _RC)
           case default
              _FAIL('unsupported statistics class: '//action)
           end select
@@ -286,6 +295,46 @@ contains
            _RETURN(_SUCCESS)
            _UNUSED_DUMMY(iter)
         end function make_accumulate_stat
+
+       function make_variance_stat(name, iter, alarm, rc) result(var_stat)
+           type(TimeVariance) :: var_stat
+           character(*), intent(in) :: name
+           type(esmf_HConfigIter), intent(in) :: iter
+           type(SimpleAlarm), intent(in) :: alarm
+           integer, optional, intent(out) :: rc
+
+           integer :: status
+           type(esmf_Field) :: f_in, f_out
+           integer(kind=kind(WELFORD)) :: algorithm
+           logical :: biased
+           character(:), allocatable :: algo_str
+
+           call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+           call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+
+           algorithm = WELFORD
+           if (esmf_HConfigIsDefined(iter, keystring='algorithm')) then
+              algo_str = esmf_HConfigAsString(iter, keystring='algorithm', _RC)
+              select case (algo_str)
+              case ('welford')
+                 algorithm = WELFORD
+              case ('shifted')
+                 algorithm = SHIFTED
+              case default
+                 _FAIL('unsupported variance algorithm: '//algo_str)
+              end select
+           end if
+
+           biased = .false.
+           if (esmf_HConfigIsDefined(iter, keystring='biased')) then
+              biased = esmf_HConfigAsLogical(iter, keystring='biased', _RC)
+           end if
+
+           var_stat = TimeVariance(f=f_in, var_f=f_out, alarm=alarm, &
+                               algorithm=algorithm, biased=biased)
+
+           _RETURN(_SUCCESS)
+        end function make_variance_stat
 
        function make_alarm(clock, iter, rc) result(alarm)
            type(SimpleAlarm) :: alarm
@@ -421,11 +470,11 @@ contains
       _UNUSED_DUMMY(exportState)
    end subroutine custom_write_restart
 
-end module mapl3g_StatisticsGridComp
+end module mapl_StatisticsGridComp
 
 subroutine setServices(gridComp, rc)
    use MAPL
-   use mapl3g_StatisticsGridComp, only: StatisticsSetServices => setServices
+   use mapl_StatisticsGridComp, only: StatisticsSetServices => setServices
    implicit none(type,external)
    type(esmf_GridComp), intent(inout) :: gridcomp
    integer, intent(out) :: rc

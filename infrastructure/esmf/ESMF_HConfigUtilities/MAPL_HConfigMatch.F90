@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_ESMF_HConfigUtilities) MAPL_HConfigMatch_smod
+submodule (mapl_ESMF_HConfigUtilities) MAPL_HConfigMatch_smod
    implicit none(type,external)
 
 

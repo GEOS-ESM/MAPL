@@ -1,13 +1,13 @@
-module mapl3g_State_API
-   use mapl3g_StateGet, only: MAPL_StateGet => StateGet
-   use mapl3g_StateGetPointer, only: MAPL_StateGetPointer => StateGetPointer
+module mapl_State_API
+   use mapl_StateGetImpl, only: MAPL_StateGet => StateGet
+   use mapl_StateGetPointerImpl, only: MAPL_StateGetPointer => StateGetPointer
    use MAPL_StateArithmeticParserMod, only: MAPL_ParserVariablesInExpression => parser_variables_in_expression
-   use mapl3g_StateAddMethod, only: mapl_StateAddMethod
-   use mapl3g_StateAddMethod, only: CallbackMap
-   use mapl3g_StateAddMethod, only: CallbackMapIterator
-   use mapl3g_StateAddMethod, only: CallbackMethodWrapper
-   use mapl3g_StateAddMethod, only: get_callbacks
-   use mapl3g_StateGetGeom, only: MAPL_StateGetGeom => StateGetGeom
+   use mapl_StateAddMethodImpl, only: mapl_StateAddMethod
+   use mapl_StateAddMethodImpl, only: CallbackMap
+   use mapl_StateAddMethodImpl, only: CallbackMapIterator
+   use mapl_StateAddMethodImpl, only: CallbackMethodWrapper
+   use mapl_StateAddMethodImpl, only: get_callbacks
+   use mapl_StateGetGeomImpl, only: MAPL_StateGetGeom => StateGetGeom
    implicit none
    private
 
@@ -22,4 +22,4 @@ module mapl3g_State_API
    public :: get_callbacks
    public :: MAPL_StateGetGeom
 
-end module mapl3g_State_API
+end module mapl_State_API

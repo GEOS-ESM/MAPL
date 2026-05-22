@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-module mapl3g_FieldBundleClassAspect
+module mapl_FieldBundleClassAspect
 
-   use mapl3g_ActualConnectionPt
-   use mapl3g_AspectId
-   use mapl3g_StateItemAspect
-   use mapl3g_ClassAspect
-   use mapl3g_WildcardClassAspect
-   use mapl3g_NullTransform
-   use mapl3g_ExtensionTransform
-   use mapl3g_MultiState
-   use mapl3g_ESMF_Utilities, only: get_substate
-   use mapl3g_Field_API
-   use mapl3g_FieldBundle_API, only: MAPL_FieldBundleCreate, MAPL_FieldBundleInfoSetInternal
-   use mapl3g_FieldBundle_API, only: MAPL_FieldBundlesAreAliased
-   use mapl3g_FieldBundleInfo, only: FieldBundleInfoSetInternal
+   use mapl_ActualConnectionPt
+   use mapl_AspectId
+   use mapl_StateItemAspect
+   use mapl_ClassAspect
+   use mapl_WildcardClassAspect
+   use mapl_NullTransform
+   use mapl_ExtensionTransform
+   use mapl_MultiState
+   use mapl_ESMF_Utilities, only: get_substate
+   use mapl_Field_API
+   use mapl_FieldBundle_API, only: MAPL_FieldBundleCreate, MAPL_FieldBundleInfoSetInternal
+   use mapl_FieldBundle_API, only: MAPL_FieldBundlesAreAliased
+   use mapl_FieldBundleInfo, only: FieldBundleInfoSetInternal
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
@@ -310,4 +310,4 @@ contains
       _UNUSED_DUMMY(src)
    end function matches_a
 
-end module mapl3g_FieldBundleClassAspect
+end module mapl_FieldBundleClassAspect

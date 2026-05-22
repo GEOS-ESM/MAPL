@@ -3,11 +3,11 @@
 
 #include "MAPL.h"
 
-module mapl3g_Deprecated
-   use mapl3g_Generic, only: MAPL_Get => MAPL_GridCompGet
+module mapl_Deprecated
+   use mapl_Generic, only: MAPL_Get => MAPL_GridCompGet
    implicit none(type,external)
    private
 
    public :: MAPL_Get
    
-end module mapl3g_Deprecated
+end module mapl_Deprecated

@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl3g_ComponentSpec
+module mapl_ComponentSpec
 
-   use mapl3g_Connection
-   use mapl3g_SimpleConnection
-   use mapl3g_ReexportConnection
-   use mapl3g_ConnectionVector
-   use mapl3g_ConnectionPt
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_VariableSpec
-   use mapl3g_VariableSpecVector
-   use mapl3g_ChildSpecMap
-   use mapl3g_GeometrySpec
+   use mapl_Connection
+   use mapl_SimpleConnection
+   use mapl_ReexportConnection
+   use mapl_ConnectionVector
+   use mapl_ConnectionPt
+   use mapl_VirtualConnectionPt
+   use mapl_VariableSpec
+   use mapl_VariableSpecVector
+   use mapl_ChildSpecMap
+   use mapl_GeometrySpec
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl_stringutilities
@@ -162,4 +162,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine reexport
 
-end module mapl3g_ComponentSpec
+end module mapl_ComponentSpec

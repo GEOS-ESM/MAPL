@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl3g_GeomManager) make_geom_spec_from_metadata_smod
-   use mapl3g_NullGeomSpec, only: NULL_GEOM_SPEC
+submodule (mapl_GeomManager) make_geom_spec_from_metadata_smod
+   use mapl_NullGeomSpec, only: NULL_GEOM_SPEC
    implicit none(type,external)
 
 contains

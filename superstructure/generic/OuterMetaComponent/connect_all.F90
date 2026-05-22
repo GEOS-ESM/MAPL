@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-submodule (mapl3g_OuterMetaComponent) connect_all_smod
-   use mapl3g_Connection
-   use mapl3g_ConnectionPt
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_MatchConnection
+submodule (mapl_OuterMetaComponent) connect_all_smod
+   use mapl_Connection
+   use mapl_ConnectionPt
+   use mapl_VirtualConnectionPt
+   use mapl_MatchConnection
    use mapl_ErrorHandling
    implicit none(type,external)
 

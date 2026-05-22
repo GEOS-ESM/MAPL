@@ -1,5 +1,5 @@
 #include "MAPL.h"
-module mapl3g_ExtDataDerived
+module mapl_ExtDataDerived
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
@@ -85,4 +85,4 @@ contains
       write(*,*)"function: ",trim(this%expression)
    end subroutine display
 
-end module mapl3g_ExtDataDerived
+end module mapl_ExtDataDerived

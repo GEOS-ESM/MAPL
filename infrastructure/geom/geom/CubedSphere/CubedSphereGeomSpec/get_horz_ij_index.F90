@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_get_horz_ij_index_smod
+submodule (mapl_CubedSphereGeomSpec) CubedSphereGeomSpec_get_horz_ij_index_smod
 
    use MAPL_Constants, only: MAPL_PI_R8
    use mapl_ErrorHandling
    use ESMF, only: ESMF_Geom, ESMF_GeomGet, ESMF_GeomType_Flag, ESMF_GEOMTYPE_GRID, ESMF_Grid
-   use mapl3g_Geom_API, only: mapl_GridGet
+   use mapl_Geom_API, only: mapl_GridGet
 
    implicit none(type, external)
 
@@ -97,7 +97,7 @@ contains
       if (present(geom)) then
          call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
          _VERIFY(status)
-         _ASSERT(geomtype == ESMF_GEOMTYPE_GRID, 'local_coordinates=.true. is only supported for ESMF_Grid')
+         _ASSERT(geomtype == ESMF_GEOMTYPE_GRID, 'local_indices=.true. is only supported for ESMF_Grid')
          call ESMF_GeomGet(geom, grid=grid, rc=status)
          _VERIFY(status)
          call mapl_GridGet(grid, interior=interior, _RC)

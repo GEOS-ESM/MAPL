@@ -52,9 +52,9 @@ geometry:
 
 **Programmatic mesh creation:**
 ```fortran
-use mapl3g_MeshGeomSpec
-use mapl3g_MeshDecomposition
-use mapl3g_MeshGeomFactory
+use mapl_MeshGeomSpec
+use mapl_MeshDecomposition
+use mapl_MeshGeomFactory
 
 ! Define mesh data
 real(ESMF_KIND_R8) :: node_coords(2, 4)

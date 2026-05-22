@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl3g_LocStreamGeomSpec
+module mapl_LocStreamGeomSpec
 
-   use mapl3g_GeomSpec
-   use mapl3g_LocStreamDecomposition
+   use mapl_GeomSpec
+   use mapl_LocStreamDecomposition
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_Geom
    use mapl_ErrorHandling
 
@@ -149,4 +149,4 @@ contains
       _UNUSED_DUMMY(lat)
    end subroutine get_horz_ij_index_r8
 
-end module mapl3g_LocStreamGeomSpec
+end module mapl_LocStreamGeomSpec

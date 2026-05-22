@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl3g_VectorBasis) MAPL_GeomGetCoords_smod
+submodule (mapl_VectorBasis) MAPL_GeomGetCoords_smod
 contains
 
 

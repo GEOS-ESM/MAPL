@@ -12,10 +12,90 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Relaxed the comparison standard for grid_is_ok in case a grid is r4
+- Fix `mapl/MAPL.F90` to use `mapl_ErrorHandling` directly instead of the thin
+  `mapl_ErrorHandlingMod` wrapper, resolving an `ifx` linker issue with bare
+  `mapl_return_` thunks in client code.
+- Fix vector component naming lifecycle in `superstructure/generic/specs/VariableSpec.F90`
+  and `superstructure/generic/specs/VectorClassAspect.F90` by using resolved
+  `vector_component_names` when constructing `VectorClassAspect` and setting
+  component field names during create-time rather than deferring in add-to-state
+  (PR #4946).
+
+- Fix client code in `gridcomps/` and `base3g/` broken by the Phase 9
+  `mapl3g_` → `mapl_` rename: replace all `use mapl3g_*` statements with
+  `use MAPL` (umbrella) or `use mapl_*` (for symbols not yet re-exported by
+  the umbrella). Affected files: `ExtDataGridComp_private.F90`,
+  `PrimaryExport.F90`, `ConfigurableGridComp.F90`, `StatisticsGridComp.F90`,
+  `MAPL_OrbGridCompMod.F90`, `HistoryCollectionGridComp_private.F90`,
+  `FileIOShared.F90`, `MAPL_LocStreamMod.F90`, `NCIO.F90`,
+  `SimpleBundleMod.F90`, `StateItem.F90`, `FieldDictionaryConfig.F90`,
+  and associated test files in `gridcomps/` (#4944).
+- Rename `mapl3g_TimeVariance`, `mapl3g_AbstractCovarianceKernel`,
+  `mapl3g_ShiftedCovarianceKernel`, and `mapl3g_WelfordCovarianceKernel`
+  to `mapl_` prefix (modules added after Phase-9 branched from develop).
 
 ### Added
+- Extended StatisticsGridComp to support variance of a single field.
+- Extended `FieldBundleGetPointerToData` interface with REAL64 pointer overloads
+  for index/name and 2D/3D variants (PR #4948).
 
 ### Changed
+
+- Resolve Intel Fortran error #6450 (case-insensitive module/alias name
+  collision) for 13 modules in `infrastructure/fields/` whose module name
+  matched their sole public symbol when renamed via USE aliases in the layer
+  API modules. Fix: rename the internal module declarations by appending `Impl`
+  (e.g. `mapl_FieldGet` → `mapl_FieldGetImpl`, `mapl_StateGet` →
+  `mapl_StateGetImpl`, etc.). The public API symbols (`MAPL_FieldGet`,
+  `MAPL_StateGet`, etc.) and the API module names (`mapl_Field_API`,
+  `mapl_State_API`, etc.) are unchanged. All internal consumers updated
+  (#4944). Affected modules: `mapl_FieldGet`, `mapl_FieldSet`, `mapl_FieldFill`,
+  `mapl_FieldCreate`, `mapl_FieldBundleGet`, `mapl_FieldBundleSet`,
+  `mapl_FieldBundleCopy`, `mapl_FieldBundleCreate`, `mapl_FieldBundleGetByIndex`,
+  `mapl_FieldBundleGetPointer`, `mapl_StateGet`, `mapl_StateGetGeom`,
+  `mapl_StateGetPointer`, `mapl_FieldBundleDestroy`, `mapl_StateDestroy`,
+  `mapl_StateItem`, `mapl_StateAddMethod`.
+
+- Rename `mapl_GeomGet` → `mapl_GeomAccessors` and `mapl_GridGet` →
+  `mapl_GridAccessors` (previously named `mapl_GeomQueries`/`mapl_GridQueries`
+  in an earlier step) to resolve Intel Fortran error #6450. Also renamed
+  `mapl_GeomGetHorzIJIndex` and `mapl_GridGetHorzIJIndex` (deprecated stub)
+  into `mapl_GeomAccessors`. The `*Accessors` naming is consistent with
+  `mapl_FieldAccessors` and correctly describes modules that provide both
+  read and write access to ESMF objects. All internal consumers updated.
+  Public API symbols unchanged (#4944).
+
+- Merge `mapl_GeomGetHorzIJIndex` and `mapl_GridGetHorzIJIndex` (deprecated
+  stub) into `mapl_GeomGet` (`infrastructure/geom/geom/GeomGet.F90`). All three
+  were single-public-symbol modules causing Intel Fortran error #6450
+  (case-insensitive module/alias name collision in `geom/API.F90`). Public names
+  are now `mapl_GeomGet`, `mapl_GeomGetHorzIJIndex`, and `mapl_GridGetHorzIJIndex`
+  directly in `mapl_GeomGet`; unprefixed aliases retained for internal use.
+  `GeomGetHorzIJIndex.F90` and `GridGetHorzIJIndex.F90` deleted (#4944).
+
+- Consolidate `mapl_MaxMin` and `mapl_AreaMean` (formerly in `utils/arrays/`)
+  into a single module `mapl_ArrayReductions` in `mp_utils/`. Both are
+  MPI-dependent parallel collective reductions and belong in `MAPL.mp_utils`
+  rather than `MAPL.utils`. The public names are now `MAPL_MaxMin` and
+  `MAPL_AreaMean` (previously `MaxMin` and `AreaMean` exposed via renaming
+  aliases in `mapl_Utilities`). The old single-symbol modules caused Intel
+  Fortran error #6450 (case-insensitive module name collision with USE rename
+  aliases). Fixes build failure introduced in Phase 9 (#4944).
+
+- Introduce `mp_utils/API.F90` (`module mapl_mp_utils`) as the canonical
+  layer-level re-export module for `MAPL.mp_utils`, following the `API.F90`
+  pattern used by `base3g/`, `infrastructure/esmf/`, etc. Replaces
+  `utils/utilities.F90` (`module mapl_Utilities`) which was MPI-free in name
+  but MPI-dependent in practice. The top-level `MAPL` umbrella now uses
+  `mapl_mp_utils` instead of `mapl_Utilities`. Internal consumers updated.
+
+- Phase 9 of MAPL v3 directory restructuring (#4905, closes #4944): rename all
+  `mapl3g_` module/submodule name prefixes to `mapl_` throughout the codebase
+  (531 files, ~2400 substitutions). The `mapl3g_` prefix was a transitional
+  namespace used during the MAPL2→MAPL3 migration; the two namespaces are now
+  unified under `mapl_`. Client code should access all public symbols through
+  the top-level `MAPL` module rather than `use`-ing internal `mapl_*` modules
+  directly. User-facing documentation in `docs/` updated to match.
 
 - Dissolve `esmf_utils/` stub: move `comms/` (MAPL_Comms.F90, API.F90, and
   associated header files) into `infrastructure/esmf/comms/`; add sources to

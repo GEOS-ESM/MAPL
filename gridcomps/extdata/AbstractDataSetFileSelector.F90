@@ -1,15 +1,15 @@
 #include "MAPL.h"
 
-module mapl3g_AbstractDataSetFileSelector
+module mapl_AbstractDataSetFileSelector
 
    use ESMF
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use mapl3g_DataSetBracket
+   use mapl_DataSetBracket
    use mapl_StringTemplate
    use mapl_FileMetadataUtilsMod
-   use mapl3g_geomio
-   use mapl3g_ExtDataConstants
+   use mapl_geomio
+   use mapl_ExtDataConstants
 
    implicit none
    private
@@ -43,7 +43,7 @@ module mapl3g_AbstractDataSetFileSelector
    abstract interface
       subroutine I_update_file_bracket(this, bundle, current_time, bracket, rc)
          use ESMF, only: ESMF_Time, ESMF_FieldBundle
-         use mapl3g_DataSetBracket
+         use mapl_DataSetBracket
          import AbstractDataSetFileSelector
          class(AbstractDataSetFileSelector), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
@@ -188,4 +188,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_valid_range_single_file
 
-end module mapl3g_AbstractDataSetFileSelector
+end module mapl_AbstractDataSetFileSelector
