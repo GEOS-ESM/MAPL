@@ -3,7 +3,7 @@
 module mapl_VerticalGridAspect_mod
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_FieldBundle_API_mod
    use mapl_StateItemAspect_mod
    use mapl_ExtensionTransform_mod

@@ -12,7 +12,7 @@ module MockAspect_mod
    use mapl_StateItemAllocation_mod
    use mapl_ExtensionTransform_mod
    use mapl_FieldInfo_mod, only: FieldInfoSetInternal
-   use mapl_Field_API_mod, only: mapl_FieldSet, mapl_FieldGet
+   use mapl_Field_API, only: mapl_FieldSet, mapl_FieldGet
    use mapl_ClassAspect_mod
    use mapl_NullTransform_mod
    use mapl_MultiState_mod

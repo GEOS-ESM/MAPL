@@ -28,18 +28,18 @@ module MAPL
    use mapl_Sleep_mod
    use pfio
    use mapl_Geom_API_mod
-   use mapl_HConfig_API_mod
+   use mapl_HConfig_API
    use mapl_VerticalGrid_API_mod
    use mapl_EsmfUtils_API_mod
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_FieldBundle_API_mod
-   use mapl_mp_utils_mod
+   use mapl_mp_utils
    use mapl_RegridderMgr_API_mod
    use mapl_Generic3g_API_mod
    use mapl_PythonBridge_mod
    use mapl_base3g_mod
    use mapl_Profiler_mod, initialize_profiler => initialize, finalize_profiler => finalize
-    use mapl_FieldUtils_mod
+    use mapl_FieldUtils
     use mapl_StateMask_mod
     use mapl_StateArithmeticParser_mod
     use mapl_StateFilter_mod
@@ -73,7 +73,7 @@ module MAPL
     ! geom layer (transitively linked via regridder_mgr)
     use mapl_GridGetGlobal_mod
     ! GeomIO layer
-    use mapl_geomio_mod
+    use mapl_geomio
     use mapl_CompressionSettings_mod
 
     ! We use default PUBLIC to avoid explicitly listing exports from

@@ -2,7 +2,7 @@
 module mapl_StateFilter_mod
    use ESMF
    use mapl_ExceptionHandling_mod
-   use mapl_FieldUtils_mod
+   use mapl_FieldUtils
    use mapl_StateArithmeticParser_mod
    use mapl_StateMask_mod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64

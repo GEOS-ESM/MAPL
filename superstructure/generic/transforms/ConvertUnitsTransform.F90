@@ -8,7 +8,7 @@ module mapl_ConvertUnitsTransform_mod
    use udunits2f, only: UDUNITS_Converter => Converter
    use udunits2f, only: UDUNITS_GetConverter => get_converter
    use udunits2f, only: UDUNITS_Initialize => Initialize
-   use mapl_FieldUtils_mod
+   use mapl_FieldUtils
    use mapl_ErrorHandling_mod
    use esmf
 

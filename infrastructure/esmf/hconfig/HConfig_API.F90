@@ -1,4 +1,4 @@
-module mapl_HConfig_API_mod
+module mapl_HConfig_API
    use mapl_HConfigAs_mod, only: mapl_HConfigAsItemType => HConfigAsItemType
    use mapl_HConfigAs_mod, only: mapl_HConfigAsStateIntent => HConfigAsStateIntent
    use mapl_HConfigAs_mod, only: mapl_HConfigAsTime => HConfigAstime
@@ -6,5 +6,5 @@ module mapl_HConfig_API_mod
    use mapl_HConfigAs_mod, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
    use mapl_HConfigAs_mod, only: mapl_HConfigAsStringVector => HConfigAsStringVector
    implicit none(type,external)
-end module mapl_HConfig_API_mod
+end module mapl_HConfig_API
    

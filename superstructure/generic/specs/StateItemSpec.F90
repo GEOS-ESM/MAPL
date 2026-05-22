@@ -12,7 +12,7 @@ module mapl_StateItemSpec_mod
    use mapl_ClassAspect_mod
    use mapl_VerticalGrid_mod
    use mapl_ErrorHandling_mod
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_FieldBundle_API_mod
    use mapl_ComponentDriver_mod
    use mapl_GriddedComponentDriver_mod

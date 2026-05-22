@@ -4,10 +4,10 @@ module mapl_RestartHandler_mod
 
    use esmf
    use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Return, MAPL_Assert
-   use mapl_geomio_mod, only: bundle_to_metadata, GeomPFIO, make_geom_pfio
+   use mapl_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio
    use mapl_FieldInfo_mod, only: FieldInfoGetInternal
    use mapl_RestartModes_mod, only: RestartMode, operator(==), MAPL_RESTART_SKIP
-   use mapl_Field_API_mod, only: MAPL_FieldGet
+   use mapl_Field_API, only: MAPL_FieldGet
    use mapl_FieldBundle_API_mod, only: MAPL_FieldBundleAdd, MAPL_FieldBundleGet
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients

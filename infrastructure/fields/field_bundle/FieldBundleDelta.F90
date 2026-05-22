@@ -14,7 +14,7 @@ module mapl_FieldBundleDelta_mod
    use mapl_InfoUtilities_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalGrid_API_mod
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_FieldInfo_mod
    use mapl_FieldUtilities_mod
    use mapl_UngriddedDims_mod

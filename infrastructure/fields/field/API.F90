@@ -1,4 +1,4 @@
-module mapl_Field_API_mod
+module mapl_Field_API
    use mapl_FieldGetImpl_mod, only: MAPL_FieldGet => FieldGet
    use mapl_FieldSetImpl_mod, only: MAPL_FieldSet => FieldSet
    use mapl_FieldFillImpl_mod, only: MAPL_FieldFill => FieldFill
@@ -12,4 +12,4 @@ module mapl_Field_API_mod
 
    public :: MAPL_FieldClone
 
-end module mapl_Field_API_mod
+end module mapl_Field_API

@@ -2,7 +2,7 @@
 
 module mapl_Regridder_mod
    use esmf
-   use mapl_FieldUtils_mod
+   use mapl_FieldUtils
    use mapl_FieldBundle_API_mod
    use mapl_VectorBasisKind_mod
    use mapl_ErrorHandling_mod

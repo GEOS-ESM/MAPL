@@ -5,7 +5,7 @@ module mapl_ModelVerticalGrid_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use mapl_VerticalGrid_API_mod
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_StateRegistry_mod
    use mapl_VirtualConnectionPt_mod
    use mapl_StateItemSpec_mod

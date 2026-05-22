@@ -3,7 +3,7 @@
 
 module ProtoStatGridComp
    use mapl_State_API_mod
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_Generic_mod
    use mapl_ESMF_Subset_mod
    use mapl_VerticalStaggerLoc_mod

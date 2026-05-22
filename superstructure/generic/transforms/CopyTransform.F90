@@ -9,7 +9,7 @@ module mapl_CopyTransform_mod
    use mapl_StateItemImpl_mod
    use mapl_ErrorHandling_mod
    use esmf
-   use mapl_FieldUtils_mod
+   use mapl_FieldUtils
    use mapl_FieldBundleCopyImpl_mod, only: FieldBundleCopy
    implicit none(type,external)
 

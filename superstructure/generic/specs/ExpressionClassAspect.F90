@@ -29,7 +29,7 @@ module mapl_ExpressionClassAspect_mod
    use mapl_StateItemSpec_mod
    use mapl_StateItemSpec_mod
 
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_FieldInfo_mod
    use mapl_FieldUtilities_mod
    use mapl_StateArithmeticParser_mod

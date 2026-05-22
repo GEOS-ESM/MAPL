@@ -3,11 +3,11 @@
 module mapl_TimeInterpolateTransform_mod
    use mapl_TransformId_mod
    use mapl_ExtensionTransform_mod
-   use mapl_regridder_mgr_mod
+   use mapl_regridder_mgr
    use mapl_FieldBundle_API_mod
    use mapl_InfoUtilities_mod
    use mapl_StateItemImpl_mod
-   use mapl_FieldUtils_mod
+   use mapl_FieldUtils
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use mapl_ErrorHandling_mod
    use esmf

@@ -1,4 +1,4 @@
-module mapl_geomio_mod
+module mapl_geomio
 
    use mapl_GeomCatagorizer_mod
    use mapl_GeomPFIO_mod
@@ -12,4 +12,4 @@ module mapl_geomio_mod
    use mapl_CompressionSettings_mod
    implicit none
 
-end module mapl_geomio_mod
+end module mapl_geomio

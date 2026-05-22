@@ -7,7 +7,7 @@ module mapl_FieldBundleRead_mod
    use mapl_GeomPFIO_mod
    use mapl_GeomCatagorizer_mod
    use mapl_Geom_API_mod, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
-   use mapl_Field_API_mod, only: MAPL_FieldCreate, MAPL_FieldGet
+   use mapl_Field_API, only: MAPL_FieldCreate, MAPL_FieldGet
    use mapl_FieldBundle_API_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalGrid_API_mod

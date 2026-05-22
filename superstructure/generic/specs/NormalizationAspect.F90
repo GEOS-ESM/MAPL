@@ -10,7 +10,7 @@ module mapl_NormalizationAspect_mod
    use mapl_QuantityTypeAspect_mod
    use mapl_NormalizationType_mod
    use mapl_NormalizationMetadata_mod
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_FieldBundle_API_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod

@@ -3,7 +3,7 @@
 
 module mapl_StateDestroyImpl_mod
    use esmf
-   use mapl_FieldUtils_mod, only: FieldsDestroy
+   use mapl_FieldUtils, only: FieldsDestroy
    use mapl_FieldBundleDestroyImpl_mod
    use mapl_ExceptionHandling_mod
    use mapl_KeywordEnforcer_mod

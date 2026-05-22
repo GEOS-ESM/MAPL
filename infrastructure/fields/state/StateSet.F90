@@ -2,7 +2,7 @@
 
 module mapl_StateSet_mod
 
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_UngriddedDims_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_ErrorHandling_mod

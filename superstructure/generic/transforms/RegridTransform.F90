@@ -2,11 +2,11 @@
 
 module mapl_RegridTransform_mod
    use mapl_TransformId_mod
-   use mapl_Field_API_mod, only: MAPL_FieldClone, MAPL_FieldGet
+   use mapl_Field_API, only: MAPL_FieldClone, MAPL_FieldGet
    use mapl_FieldBundle_API_mod
    use mapl_ExtensionTransform_mod
    use mapl_TransformId_mod
-   use mapl_regridder_mgr_mod
+   use mapl_regridder_mgr
    use mapl_StateItemImpl_mod
    use mapl_ExtensionTransformUtils_mod, only: bundle_types_valid
    use mapl_NormalizationMetadata_mod

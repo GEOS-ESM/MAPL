@@ -5,7 +5,7 @@ module mapl_FieldBundleGetImpl_mod
    use mapl_VerticalAlignment_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
-   use mapl_Field_API_mod
+   use mapl_Field_API
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod

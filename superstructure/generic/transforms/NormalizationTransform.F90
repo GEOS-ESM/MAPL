@@ -26,7 +26,7 @@ module mapl_NormalizationTransform_mod
    use mapl_StateItemImpl_mod
    use mapl_ExtensionTransform_mod
    use mapl_ExtensionTransformUtils_mod, only: bundle_types_valid
-   use mapl_FieldUtils_mod
+   use mapl_FieldUtils
    use mapl_ErrorHandling_mod
    use esmf
 
