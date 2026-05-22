@@ -12,13 +12,13 @@
 !
 ! `MAPL_MemUtilsMod` -- A Module to query/print memory use per processor (Adapted by WMP from FMS memuse utility)
 !
-module MAPL_MemUtilsMod
+module mapl_MemUtils_mod
 
   use ESMF
   use MAPL_CommsMod
-  use MAPL_ShmemMod
-  use mapl_ErrorHandling
-  use mapl_FileIO, only: WRITE_PARALLEL
+  use mapl_Shmem_mod
+  use mapl_ErrorHandling_mod
+  use mapl_FileIO_mod, only: WRITE_PARALLEL
   use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL64
   use mpi
@@ -349,7 +349,7 @@ module MAPL_MemUtilsMod
 !#######################################################################
 
   subroutine MAPL_MemUsed ( memtotal, used, percent_used, RC )
-     use MAPL_ErrorHandlingMod, only: MAPL_RTRN
+     use mapl_ErrorHandling_mod, only: MAPL_RTRN
      real, intent(out) :: memtotal, used, percent_used
      integer, optional, intent(OUT  ) :: RC
 
@@ -686,4 +686,4 @@ subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
 
 end subroutine
 
-end module MAPL_MemUtilsMod
+end module mapl_MemUtils_mod

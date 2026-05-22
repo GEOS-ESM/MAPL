@@ -1,7 +1,7 @@
-module MAPL_AbstractColumn
+module mapl_AbstractColumn_mod
    use GFTL_UnlimitedVector
-   use MAPL_AbstractMeterNode
-   use MAPL_DistributedMeter
+   use mapl_AbstractMeterNode_mod
+   use mapl_DistributedMeter_mod
    implicit none
    private
 
@@ -86,4 +86,4 @@ contains
    end subroutine fill_row_integer_stats
 
 
-end module MAPL_AbstractColumn
+end module mapl_AbstractColumn_mod

@@ -1,23 +1,23 @@
 #include "MAPL.h"
 
-module mapl_StateItemSpec
-   use mapl_AspectId
-   use mapl_ActualConnectionPt
-   use mapl_VirtualConnectionPtVector
-   use mapl_ExtensionTransform
-   use mapl_MultiState
-   use mapl_StateItemAspect
-   use mapl_GeomAspect
-   use mapl_VerticalGridAspect
-   use mapl_ClassAspect
-   use mapl_VerticalGrid
-   use mapl_ErrorHandling
+module mapl_StateItemSpec_mod
+   use mapl_AspectId_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_VirtualConnectionPtVector_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_MultiState_mod
+   use mapl_StateItemAspect_mod
+   use mapl_GeomAspect_mod
+   use mapl_VerticalGridAspect_mod
+   use mapl_ClassAspect_mod
+   use mapl_VerticalGrid_mod
+   use mapl_ErrorHandling_mod
    use mapl_Field_API
-   use mapl_FieldBundle_API
-   use mapl_ComponentDriver
-   use mapl_GriddedComponentDriver
-   use mapl_ComponentDriverVector
-   use mapl_GenericCoupler
+   use mapl_FieldBundle_API_mod
+   use mapl_ComponentDriver_mod
+   use mapl_GriddedComponentDriver_mod
+   use mapl_ComponentDriverVector_mod
+   use mapl_GenericCoupler_mod
    use esmf
    use gftl2_stringvector
    implicit none
@@ -815,7 +815,7 @@ contains
    end function get_consumers
 
    function add_consumer(this, consumer, rc) result(reference)
-      use mapl_GenericCoupler
+      use mapl_GenericCoupler_mod
       class(ComponentDriver), pointer :: reference
       class(StateItemSpec), target, intent(inout) :: this
       type(GriddedComponentDriver), intent(in) :: consumer
@@ -832,4 +832,4 @@ contains
       _RETURN(_SUCCESS)
    end function add_consumer
 
-end module mapl_StateItemSpec
+end module mapl_StateItemSpec_mod

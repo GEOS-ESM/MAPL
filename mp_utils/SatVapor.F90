@@ -31,7 +31,7 @@
 ! multiple threads. Most of these, however, will be benign.
 !@endbug
 !
-module MAPL_SatVaporMod
+module mapl_SatVapor_mod
 
 ! !USES:
 !
@@ -905,5 +905,5 @@ contains
 
 #undef  KIND_
 
-end module MAPL_SatVaporMod
+end module mapl_SatVapor_mod
 

@@ -1,12 +1,9 @@
 #include "MAPL.h"
 
-module mapl_ConfigurableGridComp
+module mapl_ConfigurableGridComp_mod
 
-   use mapl_ErrorHandling
-   use mapl_Generic, only: MAPL_GridCompSetEntryPoint, MAPL_GridCompRunChildren
-   use mapl_Generic, only: MAPL_GridCompGet
-   use mapl_State_API, only: MAPL_StateGetPointer
-   use MAPL_FieldPointerUtilities
+   use MAPL
+   use MAPL, only: MAPL_StateGetPointer
    use esmf
 
    implicit none
@@ -136,12 +133,12 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine run
 
-end module mapl_ConfigurableGridComp
+end module mapl_ConfigurableGridComp_mod
 
 subroutine setServices(gridcomp, rc)
    use ESMF
-   use MAPL_ErrorHandlingMod
-   use mapl_ConfigurableGridComp, only: Configurable_setServices => SetServices
+   use MAPL
+   use mapl_ConfigurableGridComp_mod, only: Configurable_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 

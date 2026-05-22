@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonGeomSpec) supports_hconfig_smod
+submodule (mapl_LatLonGeomSpec_mod) supports_hconfig_smod
 
-   use mapl_CoordinateAxis
-   use mapl_GeomSpec
+   use mapl_CoordinateAxis_mod
+   use mapl_GeomSpec_mod
    use pfio
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none (type, external)

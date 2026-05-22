@@ -1,11 +1,11 @@
 #include "unused_dummy.H"
 
-module MAPL_NumCyclesColumn
-   use MAPL_AbstractColumn
-   use MAPL_SimpleColumn
-   use MAPL_AbstractMeterNode
-   use MAPL_AdvancedMeter
-   use MAPL_AbstractMeter
+module mapl_NumCyclesColumn_mod
+   use mapl_AbstractColumn_mod
+   use mapl_SimpleColumn_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_AdvancedMeter_mod
+   use mapl_AbstractMeter_mod
    implicit none
    private
 
@@ -41,4 +41,4 @@ contains
    end function get_row
 
 
-end module MAPL_NumCyclesColumn
+end module mapl_NumCyclesColumn_mod

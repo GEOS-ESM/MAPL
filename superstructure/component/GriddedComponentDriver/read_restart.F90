@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule(mapl_GriddedComponentDriver) read_restart_smod
-   use mapl_ErrorHandling
+submodule(mapl_GriddedComponentDriver_mod) read_restart_smod
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains

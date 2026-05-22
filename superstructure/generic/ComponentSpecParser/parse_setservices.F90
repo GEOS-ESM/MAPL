@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_ComponentSpecParser) parse_setservices_smod
+submodule (mapl_ComponentSpecParser_mod) parse_setservices_smod
 
    implicit none(type,external)
    

@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module MAPL_FieldUtilities
-   use mapl_FieldInfo
-   use MAPL_ErrorHandlingMod
-   use MAPL_FieldPointerUtilities
-   use mapl_InfoUtilities
-   use mapl_UngriddedDims
-   use mapl_LU_Bound
-   use mapl_KeywordEnforcer
+module mapl_FieldUtilities_mod
+   use mapl_FieldInfo_mod
+   use mapl_ErrorHandling_mod
+   use mapl_FieldPointerUtilities_mod
+   use mapl_InfoUtilities_mod
+   use mapl_UngriddedDims_mod
+   use mapl_LU_Bound_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
 
    implicit none (type, external)
@@ -258,4 +258,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine destroy_fields
 
-end module MAPL_FieldUtilities
+end module mapl_FieldUtilities_mod

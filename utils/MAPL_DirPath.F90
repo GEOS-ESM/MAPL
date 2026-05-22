@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module MAPL_DirPathMod
-   use MAPL_KeywordEnforcerMod
+module mapl_DirPath_mod
+   use mapl_KeywordEnforcer_mod
    use MAPL_Constants
    use gFTL2_StringVector
    private
@@ -72,4 +72,4 @@ contains
       
    end subroutine append
 
-end module MAPL_DirPathMod
+end module mapl_DirPath_mod

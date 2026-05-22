@@ -1,10 +1,10 @@
 #include "unused_dummy.H"
 
-module MAPL_MallocGauge
+module mapl_MallocGauge_mod
 
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    use, intrinsic :: iso_c_binding, only : C_INT
-   use MAPL_AbstractGauge
+   use mapl_AbstractGauge_mod
 
    implicit none
    private
@@ -70,5 +70,5 @@ contains
       info %uordblks = 0
    end function mallinfo
 #endif
-end module MAPL_MallocGauge
+end module mapl_MallocGauge_mod
 

@@ -9,21 +9,21 @@
 
 ! !INTERFACE:
 
-module mapl_NCIO
+module mapl_NCIO_mod
 
-  use mapl_FileIOShared, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, MAPL_TileMaskGet
-  use mapl_FileIOShared, only: ArrayScatterShm
+  use mapl_FileIOShared_mod, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, MAPL_TileMaskGet
+  use mapl_FileIOShared_mod, only: ArrayScatterShm
   use ESMF
-  use mapl_GridGetGlobal, only: GridGetGlobalCellCountPerDim
-  use MAPL_RangeMod, only: MAPL_Range
-  use mapl_GridAccessors, only: geom_GridGet => GridGet
+  use mapl_GridGetGlobal_mod, only: GridGetGlobalCellCountPerDim
+  use mapl_Range_mod, only: MAPL_Range
+  use mapl_GridAccessors_mod, only: geom_GridGet => GridGet
   use MAPL_CommsMod
    use mapl_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
-  use MAPL_SortMod
-  use mapl_EASEConversion, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
+  use mapl_Sort_mod
+  use mapl_EASEConversion_mod, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
 
-  use MAPL_ShmemMod
-  use MAPL_ExceptionHandling
+  use mapl_Shmem_mod
+  use mapl_ExceptionHandling_mod
   use netcdf
   use pFIO
   use MAPL_Constants
@@ -5232,4 +5232,4 @@ contains
      _RETURN(_SUCCESS)
    end subroutine MAPL_WriteTilingNC4
 
-end module mapl_NCIO
+end module mapl_NCIO_mod

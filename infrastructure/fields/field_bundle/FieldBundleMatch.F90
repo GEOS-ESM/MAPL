@@ -1,12 +1,12 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-module mapl_FieldBundleMatch
+module mapl_FieldBundleMatch_mod
 
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldBundleGet
    use ESMF, only: ESMF_ITEMORDER_ADDORDER
-   use MAPL_FieldPointerUtilities, only: FieldSameData
-   use MAPL_ExceptionHandling, only: MAPL_Verify, MAPL_Return
+   use mapl_FieldPointerUtilities_mod, only: FieldSameData
+   use mapl_ExceptionHandling_mod, only: MAPL_Verify, MAPL_Return
 
    implicit none(type, external)
    private
@@ -48,4 +48,4 @@ contains
       _RETURN(_SUCCESS)
    end function same_data_order_addorder
 
-end module mapl_FieldBundleMatch
+end module mapl_FieldBundleMatch_mod

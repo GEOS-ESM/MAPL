@@ -3,7 +3,7 @@
 ! wrappers when appropriate.  Compliant MAPL components should not do
 ! 'USE ESMF', but instead should have 'USE mapl_ESMF_SUBSET'.
 
-module mapl_ESMF_Subset
+module mapl_ESMF_Subset_mod
 
    ! Note: items should be listed in alphabetic order for easy human search.
    ! types
@@ -78,4 +78,4 @@ module mapl_ESMF_Subset
 
    implicit none(type,external)
    
-end module mapl_ESMF_Subset
+end module mapl_ESMF_Subset_mod

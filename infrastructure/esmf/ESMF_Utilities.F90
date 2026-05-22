@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_ESMF_Utilities
+module mapl_ESMF_Utilities_mod
    use esmf
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    implicit none
    private
 
@@ -135,7 +135,7 @@ contains
    ! Traverse nested states to return the innermost substate specified by path.
    ! Intermediate states are created if they do not exist.
    subroutine get_substate(state, path, substate, rc)
-      use mapl_ErrorHandling
+      use mapl_ErrorHandling_mod
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: path
       type(ESMF_State), intent(out) :: substate
@@ -217,4 +217,4 @@ contains
       _RETURN(_SUCCESS)
    end function esmf_state_intent_to_string
 
-end module mapl_ESMF_Utilities
+end module mapl_ESMF_Utilities_mod

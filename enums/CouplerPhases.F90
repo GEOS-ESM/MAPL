@@ -1,4 +1,4 @@
-module mapl_CouplerPhases
+module mapl_CouplerPhases_mod
 
    implicit none(type,external)
    private
@@ -20,4 +20,4 @@ module mapl_CouplerPhases
       enumerator :: GENERIC_COUPLER_CLOCK_ADVANCE
    end enum
 
-end module mapl_CouplerPhases
+end module mapl_CouplerPhases_mod

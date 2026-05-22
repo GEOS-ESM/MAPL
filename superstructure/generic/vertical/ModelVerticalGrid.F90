@@ -1,32 +1,32 @@
 #include "MAPL.h"
 
-module mapl_ModelVerticalGrid
+module mapl_ModelVerticalGrid_mod
 
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
-   use mapl_VerticalGrid_API
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_VerticalGrid_API_mod
    use mapl_Field_API
-   use mapl_StateRegistry
-   use mapl_VirtualConnectionPt
-   use mapl_StateItemSpec
-   use mapl_StateItemSpec
-   use mapl_UngriddedDims
-   use mapl_StateItemSpec
-   use mapl_ExtensionFamily
-   use mapl_ComponentDriver
-   use mapl_VerticalStaggerLoc
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ClassAspect
-   use mapl_FieldClassAspect
-   use mapl_GeomAspect
-   use mapl_UnitsAspect
-   use mapl_UngriddedDimsAspect
-   use mapl_AttributesAspect
-   use mapl_TypekindAspect
-   use mapl_QuantityTypeAspect
-   use mapl_NormalizationAspect
-   use mapl_VerticalGridAspect
+   use mapl_StateRegistry_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemSpec_mod
+   use mapl_UngriddedDims_mod
+   use mapl_StateItemSpec_mod
+   use mapl_ExtensionFamily_mod
+   use mapl_ComponentDriver_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ClassAspect_mod
+   use mapl_FieldClassAspect_mod
+   use mapl_GeomAspect_mod
+   use mapl_UnitsAspect_mod
+   use mapl_UngriddedDimsAspect_mod
+   use mapl_AttributesAspect_mod
+   use mapl_TypekindAspect_mod
+   use mapl_QuantityTypeAspect_mod
+   use mapl_NormalizationAspect_mod
+   use mapl_VerticalGridAspect_mod
    use pfio
    use esmf
    use gftl2_StringVector, only: StringVector
@@ -488,4 +488,4 @@ contains
       end select
    end function get_default_units
    
-end module mapl_ModelVerticalGrid
+end module mapl_ModelVerticalGrid_mod

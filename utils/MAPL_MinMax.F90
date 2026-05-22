@@ -1,4 +1,4 @@
-module MAPL_MinMaxMod
+module mapl_MinMax_mod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    private
@@ -46,4 +46,4 @@ contains
 
    end function not_equal_real
 
-end module MAPL_MinMaxMod
+end module mapl_MinMax_mod

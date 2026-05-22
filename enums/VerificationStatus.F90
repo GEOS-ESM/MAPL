@@ -1,5 +1,5 @@
-module mapl_VerificationStatus
-   use mapl_StringUtilities, only: to_lower
+module mapl_VerificationStatus_mod
+   use mapl_StringUtilities_mod, only: to_lower
    implicit none(type, external)
    private
 
@@ -82,4 +82,4 @@ contains
       not_equal = .not. (a%id == b%id)
    end function not_equal
 
-end module mapl_VerificationStatus
+end module mapl_VerificationStatus_mod

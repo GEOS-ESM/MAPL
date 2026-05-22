@@ -1,9 +1,9 @@
 #define SHM_SUCCESS  0
 #include "MAPL.h"
 
-submodule (MAPL_Shmem) Shmem_implementation
+submodule (mapl_Shmem_mod) Shmem_implementation
   use pflogger, only: logging, Logger
-  use MAPL_ExceptionHandling
+  use mapl_ExceptionHandling_mod
   use MAPL_Constants
   implicit none
 
@@ -1221,7 +1221,7 @@ contains
     end procedure MAPL_GetNewRank
 
     module procedure getNodeComm
-      use MAPL_SortMod
+      use mapl_Sort_mod
 
       integer, allocatable :: colors(:), ranks(:)
       integer :: last

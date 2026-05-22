@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleSetImpl
-   use mapl_VerticalGrid_API
+module mapl_FieldBundleSetImpl_mod
+   use mapl_VerticalGrid_API_mod
    use mapl_Field_API
-   use mapl_UngriddedDims
-   use mapl_QuantityTypeMetadata
-   use mapl_NormalizationMetadata
-   use mapl_ConservationMetadata
-   use mapl_FieldBundleType_Flag
-   use mapl_VectorBasisKind
-   use mapl_FieldBundleInfo
-   use mapl_InfoUtilities
-   use mapl_FieldBundleGetImpl
-   use mapl_LU_Bound
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_UngriddedDims_mod
+   use mapl_QuantityTypeMetadata_mod
+   use mapl_NormalizationMetadata_mod
+   use mapl_ConservationMetadata_mod
+   use mapl_FieldBundleType_Flag_mod
+   use mapl_VectorBasisKind_mod
+   use mapl_FieldBundleInfo_mod
+   use mapl_InfoUtilities_mod
+   use mapl_FieldBundleGetImpl_mod
+   use mapl_LU_Bound_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none(type,external)
    private
@@ -180,4 +180,4 @@ contains
    end subroutine bundle_reset
 
 
-end module mapl_FieldBundleSetImpl
+end module mapl_FieldBundleSetImpl_mod

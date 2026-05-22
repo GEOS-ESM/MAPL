@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_FileIO
+module mapl_FileIO_mod
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    use, intrinsic :: iso_fortran_env, only: INT32, REAL32, REAL64, OUTPUT_UNIT
    implicit none
@@ -181,4 +181,4 @@ contains
 
    end subroutine write_parallel_r64_1d
 
-end module mapl_FileIO
+end module mapl_FileIO_mod

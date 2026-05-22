@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) get_vertical_grid_smod
+submodule (mapl_OuterMetaComponent_mod) get_vertical_grid_smod
 
    implicit none(type,external)
 

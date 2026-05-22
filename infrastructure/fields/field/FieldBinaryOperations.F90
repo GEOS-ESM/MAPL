@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module MAPL_FieldBinaryOperations
+module mapl_FieldBinaryOperations_mod
    use ESMF
-   use MAPL_ExceptionHandling
-   use MAPL_FieldPointerUtilities
+   use mapl_ExceptionHandling_mod
+   use mapl_FieldPointerUtilities_mod
    implicit none
    private
 
@@ -45,4 +45,4 @@ module MAPL_FieldBinaryOperations
 #undef _OP
 #undef _FUNC
 
-end module MAPL_FieldBinaryOperations
+end module mapl_FieldBinaryOperations_mod

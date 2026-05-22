@@ -1,6 +1,6 @@
-module mapl_ActualPtSpecPtrMap
-   use mapl_ActualConnectionPt
-   use mapl_StateItemSpec
+module mapl_ActualPtSpecPtrMap_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_StateItemSpec_mod
 
 #define Key ActualConnectionPt
 #define Key_LT(a,b) (a < b)
@@ -20,4 +20,4 @@ module mapl_ActualPtSpecPtrMap
 #undef T
 #undef Key
 
-end module mapl_ActualPtSpecPtrMap
+end module mapl_ActualPtSpecPtrMap_mod

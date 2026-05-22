@@ -1,4 +1,4 @@
-module mapl_HistoryConstants
+module mapl_HistoryConstants_mod
 
    implicit none(type,external)
    private
@@ -25,4 +25,4 @@ module mapl_HistoryConstants
    character(len=*), parameter :: KEY_INSTANTANEOUS = 'instantaneous'
    character(len=*), parameter :: KEY_REGRID = 'regrid'
 
-end module mapl_HistoryConstants
+end module mapl_HistoryConstants_mod

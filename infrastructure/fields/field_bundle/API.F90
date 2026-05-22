@@ -1,19 +1,19 @@
-module mapl_FieldBundle_API
+module mapl_FieldBundle_API_mod
 
    use ESMF, only: MAPL_FieldBundleAdd => ESMF_FieldBundleAdd
-   use mapl_FieldBundleType_Flag
-   use mapl_VectorBasisKind
-   use mapl_FieldBundleCreateImpl, only: MAPL_FieldBundleCreate => FieldBundleCreate
-   use mapl_FieldBundleCreateImpl, only: MAPL_FieldBundlesAreAliased => FieldBundlesAreAliased
-   use mapl_FieldBundleDestroyImpl, only: MAPL_FieldBundleDestroy
-   use mapl_FieldBundleGetImpl, only: MAPL_FieldBundleGet => FieldBundleGet
-   use mapl_FieldBundleGetByIndexImpl, only: MAPL_FieldBundleGetByIndex => FieldBundleGetByIndex
-   use mapl_FieldBundleSetImpl, only: MAPL_FieldBundleSet => FieldBundleSet
-   use mapl_FieldBundleInfo, only: MAPL_FieldBundleInfoGetInternal => FieldBundleInfoGetInternal
-   use mapl_FieldBundleInfo, only: MAPL_FieldBundleInfoSetInternal => FieldBundleInfoSetInternal
-   use mapl_FieldBundleGetPointerImpl, only: MAPL_FieldBundleGetPointer => FieldBundleGetPointerToData
-   use mapl_FieldBundleCopyImpl, only: MAPL_FieldBundleCopy => FieldBundleCopy
-   use mapl_FieldBundleMatch, only: MAPL_FieldBundleSameData => FieldBundleSameData
+   use mapl_FieldBundleType_Flag_mod
+   use mapl_VectorBasisKind_mod
+   use mapl_FieldBundleCreateImpl_mod, only: MAPL_FieldBundleCreate => FieldBundleCreate
+   use mapl_FieldBundleCreateImpl_mod, only: MAPL_FieldBundlesAreAliased => FieldBundlesAreAliased
+   use mapl_FieldBundleDestroyImpl_mod, only: MAPL_FieldBundleDestroy
+   use mapl_FieldBundleGetImpl_mod, only: MAPL_FieldBundleGet => FieldBundleGet
+   use mapl_FieldBundleGetByIndexImpl_mod, only: MAPL_FieldBundleGetByIndex => FieldBundleGetByIndex
+   use mapl_FieldBundleSetImpl_mod, only: MAPL_FieldBundleSet => FieldBundleSet
+   use mapl_FieldBundleInfo_mod, only: MAPL_FieldBundleInfoGetInternal => FieldBundleInfoGetInternal
+   use mapl_FieldBundleInfo_mod, only: MAPL_FieldBundleInfoSetInternal => FieldBundleInfoSetInternal
+   use mapl_FieldBundleGetPointerImpl_mod, only: MAPL_FieldBundleGetPointer => FieldBundleGetPointerToData
+   use mapl_FieldBundleCopyImpl_mod, only: MAPL_FieldBundleCopy => FieldBundleCopy
+   use mapl_FieldBundleMatch_mod, only: MAPL_FieldBundleSameData => FieldBundleSameData
 
    implicit none
 
@@ -53,4 +53,4 @@ module mapl_FieldBundle_API
    ! Used internally by MAPL
    ! Users shouldn't need these
 
-end module mapl_FieldBundle_API
+end module mapl_FieldBundle_API_mod

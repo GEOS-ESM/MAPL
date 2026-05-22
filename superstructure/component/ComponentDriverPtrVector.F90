@@ -1,5 +1,5 @@
-module mapl_ComponentDriverPtrVector
-   use mapl_ComponentDriver
+module mapl_ComponentDriverPtrVector_mod
+   use mapl_ComponentDriver_mod
 
 #define T ComponentDriverPtr
 #define Vector ComponentDriverPtrVector
@@ -11,4 +11,4 @@ module mapl_ComponentDriverPtrVector
 #undef Vector
 #undef T
 
-end module mapl_ComponentDriverPtrVector
+end module mapl_ComponentDriverPtrVector_mod

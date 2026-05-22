@@ -1,10 +1,10 @@
 #include "MAPL.h"
-module mapl_VerticalGrid
+module mapl_VerticalGrid_mod
    use esmf, only: esmf_Field, esmf_Geom, esmf_TypeKind_Flag, ESMF_TYPEKIND_R4
-   use mapl_VerticalStaggerLoc, only: VerticalStaggerLoc
-   use mapl_VerticalCoordinateDirection
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
+   use mapl_VerticalCoordinateDirection_mod
    use gftl2_StringVector, only: StringVector
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
    private
    
@@ -34,7 +34,7 @@ module mapl_VerticalGrid
        ! Updated interface - accepts aspects as unlimited polymorphic to avoid circular dependencies
        ! Implementations should expect this to be type(AspectMap) from mapl_StateItemAspect
        function I_get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
-          use mapl_ComponentDriver, only: ComponentDriver
+          use mapl_ComponentDriver_mod, only: ComponentDriver
           use esmf, only: esmf_Field
           import VerticalGrid
           implicit none
@@ -138,5 +138,5 @@ contains
       
       this%primary_coordinate = primary_coordinate
    end subroutine set_primary_coordinate
-end module mapl_VerticalGrid
+end module mapl_VerticalGrid_mod
 

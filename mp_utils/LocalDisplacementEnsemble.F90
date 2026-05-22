@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_LocalDisplacementEnsemble
+module mapl_LocalDisplacementEnsemble_mod
    use mpi
-   use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+   use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
    use esmf
    use gftl2_integer64Set
    implicit none !(type,external)
@@ -232,7 +232,7 @@ contains
 
       _RETURN(_SUCCESS)
     end subroutine destroy
-end module mapl_LocalDisplacementEnsemble
+end module mapl_LocalDisplacementEnsemble_mod
 
 
    

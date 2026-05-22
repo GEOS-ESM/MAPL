@@ -37,17 +37,17 @@
 !!   - multi: Group columns together with shared header (supports nesting)
 !!
 !! See profiler/profiler_report_config.yaml for a complete configuration example.
-module MAPL_ProfileReporter
-   use MAPL_AbstractMeterNode
-   use MAPL_AbstractColumn
-   use MAPL_TextColumn
-   use MAPL_SeparatorColumn
-   use MAPL_TextColumnVector
-   use MAPL_MultiColumn
-   use MAPL_BaseProfiler
+module mapl_ProfileReporter_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_AbstractColumn_mod
+   use mapl_TextColumn_mod
+   use mapl_SeparatorColumn_mod
+   use mapl_TextColumnVector_mod
+   use mapl_MultiColumn_mod
+   use mapl_BaseProfiler_mod
    use gFTL2_StringVector
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf, only: ESMF_HConfig
    use esmf, only: ESMF_HConfigAsString, ESMF_HConfigAsI4
    use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigIsSequence, ESMF_HConfigGetSize
@@ -98,7 +98,7 @@ contains
 
    ! Helper to populate a MultiColumn from config
    subroutine populate_columns(multi_col, config, unusable, rc)
-      use MAPL_TextColumn
+      use mapl_TextColumn_mod
       class(MultiColumn), intent(inout) :: multi_col
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -180,19 +180,19 @@ contains
 
    ! Factory: create a single column from config
    function column_from_config(column_config, unusable, rc) result(col)
-      use MAPL_TextColumn
-      use MAPL_NameColumn
-      use MAPL_DepthColumn
-      use MAPL_NumCyclesColumn
-      use MAPL_InclusiveColumn
-      use MAPL_ExclusiveColumn
-      use MAPL_StdDevColumn
-      use MAPL_MinCycleColumn
-      use MAPL_MaxCycleColumn
-      use MAPL_MeanCycleColumn
-      use MAPL_PercentageColumn
-      use MAPL_FormattedTextColumn
-      use MAPL_SeparatorColumn
+      use mapl_TextColumn_mod
+      use mapl_NameColumn_mod
+      use mapl_DepthColumn_mod
+      use mapl_NumCyclesColumn_mod
+      use mapl_InclusiveColumn_mod
+      use mapl_ExclusiveColumn_mod
+      use mapl_StdDevColumn_mod
+      use mapl_MinCycleColumn_mod
+      use mapl_MaxCycleColumn_mod
+      use mapl_MeanCycleColumn_mod
+      use mapl_PercentageColumn_mod
+      use mapl_FormattedTextColumn_mod
+      use mapl_SeparatorColumn_mod
       class(TextColumn), allocatable :: col
       type(ESMF_HConfig), intent(in) :: column_config
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -332,4 +332,4 @@ contains
    
 
    
-end module MAPL_ProfileReporter
+end module mapl_ProfileReporter_mod

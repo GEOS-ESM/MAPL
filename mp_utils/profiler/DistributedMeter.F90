@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module MAPL_DistributedMeter
+module mapl_DistributedMeter_mod
 
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use MAPL_ErrorHandlingMod
-   use MAPL_AbstractMeter
-   use MAPL_AdvancedMeter
-   use MAPL_AbstractGauge
+   use mapl_ErrorHandling_mod
+   use mapl_AbstractMeter_mod
+   use mapl_AdvancedMeter_mod
+   use mapl_AbstractGauge_mod
    use MPI
 
    implicit none
@@ -359,4 +359,4 @@ contains
       end do
    end subroutine true_reduce
 
-end module MAPL_DistributedMeter
+end module mapl_DistributedMeter_mod

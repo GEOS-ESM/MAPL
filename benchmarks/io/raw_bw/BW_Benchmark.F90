@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl_BW_Benchmark
-   use mapl_ErrorHandlingMod
+module mapl_BW_Benchmark_mod
+   use mapl_ErrorHandling_mod
    use netcdf
    use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
@@ -148,5 +148,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine delete_netcdf_file
 
-end module mapl_BW_Benchmark
+end module mapl_BW_Benchmark_mod
 

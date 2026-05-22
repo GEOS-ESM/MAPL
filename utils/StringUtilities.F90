@@ -4,10 +4,10 @@
 
 #include "MAPL.h"
 
-module mapl_StringUtilities
+module mapl_StringUtilities_mod
 
    use gftl2_StringVector
-   use mapl_KeywordEnforcer
+   use mapl_KeywordEnforcer_mod
 
    implicit none(type,external)
    private
@@ -288,4 +288,4 @@ contains
 
    end function get_ascii_interval_string
 
-end module mapl_StringUtilities
+end module mapl_StringUtilities_mod

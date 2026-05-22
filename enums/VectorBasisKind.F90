@@ -1,4 +1,4 @@
-module mapl_VectorBasisKind
+module mapl_VectorBasisKind_mod
    implicit none(type, external)
    private
    
@@ -76,4 +76,4 @@ contains
       not_equal = .not. (a%id == b%id)
    end function not_equal
 
-end module mapl_VectorBasisKind
+end module mapl_VectorBasisKind_mod

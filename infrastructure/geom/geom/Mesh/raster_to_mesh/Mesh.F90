@@ -1,13 +1,13 @@
 #include "MAPL.h"
-module mapl_Mesh
-   use mapl_Direction
-   use mapl_MeshVertex
-   use mapl_MeshVertexVector
-   use mapl_MeshElement
-   use mapl_MeshElementVector
-   use mapl_ErrorHandling
-   use mapl_constants, only: MAPL_DEGREES_TO_RADIANS_R8, MAPL_PI_R8
-   use mapl_constants, only: MAPL_RADIANS_TO_DEGREES
+module mapl_Mesh_mod
+   use mapl_Direction_mod
+   use mapl_MeshVertex_mod
+   use mapl_MeshVertexVector_mod
+   use mapl_MeshElement_mod
+   use mapl_MeshElementVector_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8, MAPL_PI_R8
+   use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
    use gFTL2_Integer64Vector
    use esmf
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64
@@ -1300,5 +1300,5 @@ contains
 
    end subroutine reorder_elements
 
-end module mapl_Mesh
+end module mapl_Mesh_mod
 

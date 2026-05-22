@@ -1,23 +1,24 @@
 #include "MAPL.h"
-submodule (mapl_LatLonGeomFactory) typesafe_make_file_metadata_smod
-   use mapl_GeomSpec
-   use mapl_LonAxis
-   use mapl_LatAxis
-   use mapl_LatLonDecomposition
-   use mapl_LatLonGeomSpec
-   use mapl_MinMaxMod
-   use mapl_ErrorHandlingMod
-   use mapl_Constants
+submodule (mapl_LatLonGeomFactory_mod) typesafe_make_file_metadata_smod
+   use mapl_GeomSpec_mod
+   use mapl_LonAxis_mod
+   use mapl_LatAxis_mod
+   use mapl_LatLonDecomposition_mod
+   use mapl_LatLonGeomSpec_mod
+   use mapl_MinMax_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants
    use pFIO
    use gFTL2_StringVector
    use esmf
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    implicit none (type, external)
 
 
 contains
 
    module function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       type(LatLonGeomSpec), intent(in) :: geom_spec
       class(KE), optional, intent(in) :: unusable

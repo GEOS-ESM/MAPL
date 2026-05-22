@@ -1,15 +1,15 @@
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "MAPL.h"
-module MAPL_StateMaskMod
+module mapl_StateMask_mod
    use ESMF
-   use MAPL_KeywordEnforcerMod
-   use mapl_Geom_API, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
-   use MAPL_ExceptionHandling
+   use mapl_KeywordEnforcer_mod
+   use mapl_Geom_API_mod, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
+   use mapl_ExceptionHandling_mod
    use gFTL2_StringVector
-   use MAPL_StateArithmeticParserMod
+   use mapl_StateArithmeticParser_mod
    use MAPL_Constants
-   use mapl_State_API, only: MAPL_StateGetPointer
+   use mapl_State_API_mod, only: MAPL_StateGetPointer
    implicit none
    private
 
@@ -591,4 +591,4 @@ module MAPL_StateMaskMod
  _RETURN(ESMF_SUCCESS)
 
  END SUBROUTINE ExtDataExtractIntegers
-end module MAPL_StateMaskMod
+end module mapl_StateMask_mod

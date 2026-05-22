@@ -1,11 +1,11 @@
 #include "unused_dummy.H"
 #include "MAPL.h"
 
-module mapl_ESMF_Time_Utilities
+module mapl_ESMF_Time_Utilities_mod
 
    use esmf, I4 => ESMF_KIND_I4, I8 => ESMF_KIND_I8
-   use mapl_ErrorHandling
-   use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
 
    implicit none (type, external)
    private
@@ -285,4 +285,4 @@ contains
       _RETURN(_SUCCESS)
    end function sub_time_in_datetime
 
-end module mapl_ESMF_Time_Utilities
+end module mapl_ESMF_Time_Utilities_mod

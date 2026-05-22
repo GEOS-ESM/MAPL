@@ -1,5 +1,5 @@
-module mapl_VirtualConnectionPtVector
-   use mapl_VirtualConnectionPt
+module mapl_VirtualConnectionPtVector_mod
+   use mapl_VirtualConnectionPt_mod
 
 #define T VirtualConnectionPt
 #define Vector VirtualConnectionPtVector
@@ -11,4 +11,4 @@ module mapl_VirtualConnectionPtVector
 #undef Vector
 #undef VectorIterator
 
-end module mapl_VirtualConnectionPtVector
+end module mapl_VirtualConnectionPtVector_mod

@@ -2,12 +2,12 @@
 #include "unused_dummy.H"
 
 module pFIO_FastClientThreadMod
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_AbstractMessageMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_LocalMemReferenceMod
-   use mapl_KeywordEnforcerMod
+   use mapl_KeywordEnforcer_mod
    use pFIO_ClientThreadMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod

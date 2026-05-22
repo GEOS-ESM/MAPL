@@ -1,19 +1,19 @@
 #include "MAPL.h"
 
-module mapl_NormalizationAspect
+module mapl_NormalizationAspect_mod
 
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ExtensionTransform
-   use mapl_NullTransform
-   use mapl_QuantityTypeAspect
-   use mapl_NormalizationType
-   use mapl_NormalizationMetadata
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_NullTransform_mod
+   use mapl_QuantityTypeAspect_mod
+   use mapl_NormalizationType_mod
+   use mapl_NormalizationMetadata_mod
    use mapl_Field_API
-   use mapl_FieldBundle_API
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_FieldBundle_API_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none
@@ -542,4 +542,4 @@ contains
       _UNUSED_DUMMY(scale)
    end subroutine compute_normalized_units
 
-end module mapl_NormalizationAspect
+end module mapl_NormalizationAspect_mod

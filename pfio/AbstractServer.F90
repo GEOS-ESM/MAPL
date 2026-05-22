@@ -2,8 +2,8 @@
 #include "unused_dummy.H"
 
 module pFIO_AbstractServerMod
-   use MAPL_Profiler
-   use MAPL_ExceptionHandling
+   use mapl_Profiler_mod
+   use mapl_ExceptionHandling_mod
    use pFIO_ConstantsMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractDataReferenceVectorMod

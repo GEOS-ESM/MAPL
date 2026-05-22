@@ -1,4 +1,4 @@
-module MAPL_SleepMod
+module mapl_Sleep_mod
 
 use, intrinsic :: iso_fortran_env, only: REAL64,INT64
 implicit none
@@ -28,4 +28,4 @@ do
 enddo
 
 end subroutine
-end module MAPL_SleepMod
+end module mapl_Sleep_mod

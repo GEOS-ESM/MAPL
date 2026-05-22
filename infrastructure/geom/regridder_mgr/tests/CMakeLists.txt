@@ -12,7 +12,7 @@ add_pfunit_ctest(${this}
 #                OTHER_SOURCES ${SRCS}
                 LINK_LIBRARIES MAPL.regridder_mgr MAPL.geom MAPL.shared MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUnit_Initialize
+                EXTRA_USE mapl_pFUnit_Initialize_mod
                 MAX_PES 8
                 )
 set_target_properties(${this} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})

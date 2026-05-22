@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module MAPL_TimeInterpolation
+module mapl_TimeInterpolation_mod
    use ESMF
-   use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+   use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
    implicit none
    private
 
@@ -95,4 +95,4 @@ contains
 
    end subroutine MAPL_ClimInterpFac
 
-end module MAPL_TimeInterpolation
+end module mapl_TimeInterpolation_mod

@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-submodule (mapl_MeshGeomFactory) MeshGeomFactory_smod
+submodule (mapl_MeshGeomFactory_mod) MeshGeomFactory_smod
 
-   use mapl_GeomSpec
-   use mapl_MeshGeomSpec
-   use mapl_MeshDecomposition
-   use mapl_ErrorHandlingMod
-   use mapl_Constants, only: MAPL_PI_R8
-   use mapl_StringUtilities, only: to_lower
-   use mapl_get_hconfig, only: get_hconfig
-   use mapl_hconfig_params, only: HConfigParams
+   use mapl_GeomSpec_mod
+   use mapl_MeshGeomSpec_mod
+   use mapl_MeshDecomposition_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_PI_R8
+   use mapl_StringUtilities_mod, only: to_lower
+   use mapl_get_hconfig_mod, only: get_hconfig
+   use mapl_hconfig_params_mod, only: HConfigParams
    use pfio
    use gftl2_StringVector
-   use mapl_StringDictionary
+   use mapl_StringDictionary_mod
    use esmf
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
 
    implicit none
 
@@ -296,6 +296,7 @@ contains
 
    ! Generate file metadata for mesh
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       class(MeshGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec

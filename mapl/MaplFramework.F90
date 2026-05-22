@@ -5,18 +5,18 @@
 ! at some later date if justified.
 
 
-module mapl_MaplFramework
+module mapl_MaplFramework_mod
 
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcerMod
-   use mapl_FieldFillDefault, only: &
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_FieldFillDefault_mod, only: &
         field_fill_defaults_init => initialize_field_fill_defaults, &
         set_field_fill_defaults
-   use mapl_VerticalGrid_API
-   use mapl_FixedLevelsVerticalGrid
-   use mapl_ModelVerticalGrid
-   use mapl_FieldDictionary, only: load_field_dictionary
-   use mapl_profiler, only: profiler_initialize => initialize, profiler_finalize => finalize
+   use mapl_VerticalGrid_API_mod
+   use mapl_FixedLevelsVerticalGrid_mod
+   use mapl_ModelVerticalGrid_mod
+   use mapl_FieldDictionary_mod, only: load_field_dictionary
+   use mapl_Profiler_mod, only: profiler_initialize => initialize, profiler_finalize => finalize
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod
    use pfio_MpiServerMod, only: MpiServer
@@ -203,7 +203,7 @@ contains
    subroutine initialize_pflogger(this, unusable, level_name, rc)
       use PFL_Formatter, only: get_sim_time
       use pflogger, only: pfl_initialize => initialize
-      use mapl_SimulationTime, only: fill_time_dict
+      use mapl_SimulationTime_mod, only: fill_time_dict
 
       class(MaplFramework), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -345,7 +345,7 @@ contains
    end subroutine initialize_servers
 
    function make_server_gridcomp(hconfig, petList, comms, rc) result(gridcomp)
-      use mapl_DSO_Utilities
+      use mapl_DSO_Utilities_mod
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(in) :: petList(:)
@@ -795,5 +795,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize_field_dictionary
 
-end module mapl_MaplFramework
+end module mapl_MaplFramework_mod
 

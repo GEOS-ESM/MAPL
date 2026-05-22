@@ -1,9 +1,9 @@
-module MAPL_MinCycleColumn
-   use MAPL_SimpleColumn
-   use MAPL_AbstractMeterNode
-   use MAPL_AbstractMeter
-   use MAPL_AdvancedMeter
-   use Mapl_DistributedMeter
+module mapl_MinCycleColumn_mod
+   use mapl_SimpleColumn_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_AbstractMeter_mod
+   use mapl_AdvancedMeter_mod
+   use mapl_DistributedMeter_mod
    implicit none
    private
 
@@ -73,7 +73,7 @@ contains
 
    end subroutine get_row_dist
 
-end module MAPL_MinCycleColumn
+end module mapl_MinCycleColumn_mod
 
 
 

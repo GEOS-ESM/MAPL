@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl_GridAccessors
+module mapl_GridAccessors_mod
 
    use esmf
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
 
    implicit none(type, external)
    private
@@ -175,4 +175,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine grid_get_coordinates_r8ptr
 
-end module mapl_GridAccessors
+end module mapl_GridAccessors_mod

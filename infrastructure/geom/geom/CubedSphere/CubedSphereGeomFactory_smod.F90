@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-submodule (mapl_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
+submodule (mapl_CubedSphereGeomFactory_mod) CubedSphereGeomFactory_smod
 
-   use mapl_GeomSpec
-   use mapl_LonAxis
-   use mapl_LatAxis
-   use mapl_CubedSphereDecomposition
-   use mapl_CubedSphereGeomSpec
-   use mapl_MinMaxMod
-   use mapl_ErrorHandlingMod
-   use mapl_Constants
+   use mapl_GeomSpec_mod
+   use mapl_LonAxis_mod
+   use mapl_LatAxis_mod
+   use mapl_CubedSphereDecomposition_mod
+   use mapl_CubedSphereGeomSpec_mod
+   use mapl_MinMax_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants
    use pFIO
    use gFTL2_StringVector
-   use mapl_StringDictionary
+   use mapl_StringDictionary_mod
    use esmf
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
 
    implicit none(type,external)
 
@@ -125,6 +125,7 @@ contains
    end function typesafe_make_geom
 
    module function create_basic_grid(spec, unusable, name, rc) result(grid)
+      use mapl_KeywordEnforcer_mod
       type(ESMF_Grid) :: grid
       type(CubedSphereGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable
@@ -209,6 +210,7 @@ contains
    end function make_variable_attributes
 
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       class(CubedSphereGeomFactory), intent(in) :: this
       class(KE), optional, intent(in) :: unusable

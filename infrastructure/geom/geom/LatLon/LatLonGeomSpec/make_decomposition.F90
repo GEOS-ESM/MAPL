@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-submodule (mapl_LatLonGeomSpec) make_decomposition_smod
-   use mapl_CoordinateAxis
-   use mapl_GeomSpec
+submodule (mapl_LatLonGeomSpec_mod) make_decomposition_smod
+   use mapl_CoordinateAxis_mod
+   use mapl_GeomSpec_mod
    use pfio
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none (type, external)
    

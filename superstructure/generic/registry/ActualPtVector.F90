@@ -1,5 +1,5 @@
-module mapl_ActualPtVector
-   use mapl_ActualConnectionPt
+module mapl_ActualPtVector_mod
+   use mapl_ActualConnectionPt_mod
   
 #define T ActualConnectionPt
 #define Vector ActualPtVector
@@ -11,4 +11,4 @@ module mapl_ActualPtVector
 #undef Vector
 #undef VectorIterator
   
-end module mapl_ActualPtVector
+end module mapl_ActualPtVector_mod

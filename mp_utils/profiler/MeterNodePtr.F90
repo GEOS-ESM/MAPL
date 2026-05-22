@@ -1,5 +1,5 @@
-module mapl_MeterNodePtr
-   use mapl_AbstractMeterNode
+module mapl_MeterNodePtr_mod
+   use mapl_AbstractMeterNode_mod
    private
    public :: MeterNodePtr
 
@@ -7,4 +7,4 @@ module mapl_MeterNodePtr
       class(AbstractMeterNode), pointer :: ptr
    end type MeterNodePtr
 
-end module mapl_MeterNodePtr
+end module mapl_MeterNodePtr_mod

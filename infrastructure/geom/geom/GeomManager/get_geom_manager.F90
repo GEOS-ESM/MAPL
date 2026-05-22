@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_GeomManager) get_geom_manager_smod
+submodule (mapl_GeomManager_mod) get_geom_manager_smod
 
 contains
    

@@ -1,4 +1,4 @@
-module mapl_AbstractRegistry
+module mapl_AbstractRegistry_mod
    implicit none(type,external)
    private
   
@@ -8,4 +8,4 @@ module mapl_AbstractRegistry
       private
    end type AbstractRegistry
 
-end module mapl_AbstractRegistry
+end module mapl_AbstractRegistry_mod

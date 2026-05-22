@@ -12,12 +12,12 @@
 !    ss = user_setservices(...)
 !
 
-module mapl_UserSetServices
+module mapl_UserSetServices_mod
    use :: ESMF, only: ESMF_GridComp
    use :: ESMF, only: ESMF_GridCompSetServices
    use :: ESMF, only: ESMF_SUCCESS
-   use :: mapl_ESMF_Interfaces, only: I_SetServices
-   use :: mapl_ErrorHandling
+   use :: mapl_ESMF_Interfaces_mod, only: I_SetServices
+   use :: mapl_ErrorHandling_mod
    implicit none(type,external)
    private
 
@@ -133,7 +133,7 @@ contains
    
    ! Argument names correspond to ESMF arguments.
    function new_DSOSetServices(sharedObj, userRoutine) result(dso_setservices)
-      use mapl_DSO_Utilities
+      use mapl_DSO_Utilities_mod
       type(DSOSetServices) :: dso_setservices
       character(len=*), intent(in) :: sharedObj
       character(len=*), optional, intent(in) :: userRoutine
@@ -149,7 +149,7 @@ contains
    end function new_DSOSetServices
 
    subroutine run_DSOSetServices(this, gridcomp, rc)
-      use mapl_DSO_Utilities
+      use mapl_DSO_Utilities_mod
       class(DSOSetservices), intent(in) :: this
       type(ESMF_GridComp) :: GridComp
       integer, intent(out) :: rc
@@ -232,4 +232,4 @@ contains
    
 
    
-end module mapl_UserSetServices
+end module mapl_UserSetServices_mod

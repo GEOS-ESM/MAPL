@@ -81,9 +81,9 @@
 !       enddo
 !```
 !
-module MAPL_HashMod
+module mapl_Hash_mod
 
-  use MAPL_ExceptionHandling
+  use mapl_ExceptionHandling_mod
 
   implicit none
   private
@@ -179,4 +179,4 @@ end function MAPL_HashSize
 
 !----------------------------------------------
 
-end module MAPL_HashMod
+end module mapl_Hash_mod

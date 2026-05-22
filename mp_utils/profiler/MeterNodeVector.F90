@@ -1,5 +1,5 @@
-module MAPL_MeterNodeVector
-   use MAPL_AbstractMeterNode
+module mapl_MeterNodeVector_mod
+   use mapl_AbstractMeterNode_mod
 
 #define T AbstractMeterNode
 #define T_polymorphic
@@ -13,4 +13,4 @@ module MAPL_MeterNodeVector
 #undef T_polymorphic
 #undef T
    
-end module MAPL_MeterNodeVector
+end module mapl_MeterNodeVector_mod

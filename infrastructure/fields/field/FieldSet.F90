@@ -1,22 +1,22 @@
 #include "MAPL.h"
 
-module mapl_FieldSetImpl
+module mapl_FieldSetImpl_mod
 
-   use mapl_VerticalGrid_API
-   use mapl_VerticalStaggerLoc
-   use mapl_VerticalAlignment
-   use mapl_FieldInfo
-   use mapl_FieldGetImpl
-   use mapl_FieldDelta
-   use mapl_StateItemAllocation
-   use mapl_QuantityTypeMetadata
-   use mapl_NormalizationMetadata
-   use mapl_ConservationMetadata
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
-   use mapl_FieldPointerUtilities, only: FieldGetLocalElementCount
-   use mapl_UngriddedDims
-   use mapl_HorizontalDimsSpec, only: HorizontalDimsSpec
+   use mapl_VerticalGrid_API_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalAlignment_mod
+   use mapl_FieldInfo_mod
+   use mapl_FieldGetImpl_mod
+   use mapl_FieldDelta_mod
+   use mapl_StateItemAllocation_mod
+   use mapl_QuantityTypeMetadata_mod
+   use mapl_NormalizationMetadata_mod
+   use mapl_ConservationMetadata_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
+   use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
+   use mapl_UngriddedDims_mod
+   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec
    use esmf
    use gftl2_StringVector
 
@@ -148,4 +148,4 @@ contains
       _UNUSED_DUMMY(attributes)
    end subroutine field_set
 
-end module mapl_FieldSetImpl
+end module mapl_FieldSetImpl_mod

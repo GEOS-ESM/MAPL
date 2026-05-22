@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) get_internal_state_smod
-   use mapl_Multistate
+submodule (mapl_OuterMetaComponent_mod) get_internal_state_smod
+   use mapl_MultiState_mod
    implicit none(type,external)
 
 contains

@@ -2,12 +2,12 @@
 ! See external setservices() procedure at end of file
 
 module ProtoStatGridComp
-   use mapl_State_API
+   use mapl_State_API_mod
    use mapl_Field_API
-   use mapl_Generic
-   use mapl_esmf_subset
-   use mapl_VerticalStaggerLoc
-   use mapl_ErrorHandling
+   use mapl_Generic_mod
+   use mapl_ESMF_Subset_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none(type,external)
    private
@@ -18,7 +18,7 @@ module ProtoStatGridComp
 contains
 
    subroutine setservices(gc, rc)
-      use mapl_Generic, only: MAPL_GridCompSetEntryPoint
+      use mapl_Generic_mod, only: MAPL_GridCompSetEntryPoint
       type(ESMF_GridComp) :: gc
       integer, intent(out) :: rc
 
@@ -113,7 +113,7 @@ end module ProtoStatGridComp
 subroutine setServices(gc, rc)
    use esmf, only: ESMF_GridComp
    use esmf, only: ESMF_SUCCESS
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use ProtoStatGridComp, only: inner_setservices => setServices
    type(ESMF_GridComp) :: gc
    integer, intent(out) :: rc

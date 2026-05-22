@@ -1,19 +1,19 @@
 #include "MAPL.h"
 
-module mapl_MatchConnection
-   use mapl_StateItemSpec
-   use mapl_Connection
-   use mapl_ConnectionPt
-   use mapl_StateRegistry
-   use mapl_SimpleConnection
-   use mapl_VirtualConnectionPt
-   use mapl_VirtualConnectionPtVector
-   use mapl_ActualConnectionPt
-   use mapl_ActualPtVec_Map
-   use mapl_ActualPtVector
-   use mapl_StateItemSpec
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+module mapl_MatchConnection_mod
+   use mapl_StateItemSpec_mod
+   use mapl_Connection_mod
+   use mapl_ConnectionPt_mod
+   use mapl_StateRegistry_mod
+   use mapl_SimpleConnection_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_VirtualConnectionPtVector_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_ActualPtVec_Map_mod
+   use mapl_ActualPtVector_mod
+   use mapl_StateItemSpec_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none(type,external)
@@ -175,4 +175,4 @@ contains
    end subroutine connect
 
 
-end module mapl_MatchConnection
+end module mapl_MatchConnection_mod

@@ -52,6 +52,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Rename all internal MAPL modules from `mapl_<Name>[Mod]` to `mapl_<Name>_mod`
+  convention (#4958). Affects 446 module definitions across 695 source files.
+  Three thin-wrapper duplicate modules removed (`mapl_ErrorHandlingMod`,
+  `mapl_KeywordEnforcerMod`, `MAPL_ShmemMod`). Duplicate `VerticalAlignment.F90`
+  removed from `superstructure/generic/specs/` (canonical copy remains in
+  `infrastructure/vertical/vertical_grid/`). Legacy `base3g/Comms.F90` retains
+  `MAPL_CommsMod` name pending resolution of #4961. `MAPL_Constants` retains its
+  name as it functions as an umbrella module.
+
+- Remove `MAPL_GridCompsMod` and enforce that `gridcomps/` modules `use MAPL`
+  (the umbrella module) rather than internal modules directly (#4959).
+
 - Resolve Intel Fortran error #6450 (case-insensitive module/alias name
   collision) for 13 modules in `infrastructure/fields/` whose module name
   matched their sole public symbol when renamed via USE aliases in the layer

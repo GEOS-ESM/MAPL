@@ -36,7 +36,7 @@ add_pfunit_ctest(MAPL.geom.tests
   OTHER_SOURCES ${OTHER_SRCS}
   LINK_LIBRARIES MAPL.geom MAPL.shared MAPL.pfunit
   EXTRA_INITIALIZE Initialize
-  EXTRA_USE MAPL_pFUnit_Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
   MAX_PES 8
 )
 

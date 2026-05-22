@@ -1,38 +1,38 @@
 #include "MAPL.h"
 
-module mapl_VectorBracketClassAspect
+module mapl_VectorBracketClassAspect_mod
    use mapl_Field_API
-   use mapl_FieldBundle_API
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_GeomAspect
-   use mapl_ClassAspect
-   use mapl_FieldClassAspect
-   use mapl_VectorClassAspect
-   use mapl_GeomAspect
-   use mapl_VerticalGridAspect
-   use mapl_UnitsAspect
-   use mapl_TypekindAspect
-   use mapl_UngriddedDimsAspect
-   use mapl_FieldBundleInfo, only: FieldBundleInfoSetInternal
-   use mapl_VectorBasisKind
+   use mapl_FieldBundle_API_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_GeomAspect_mod
+   use mapl_ClassAspect_mod
+   use mapl_FieldClassAspect_mod
+   use mapl_VectorClassAspect_mod
+   use mapl_GeomAspect_mod
+   use mapl_VerticalGridAspect_mod
+   use mapl_UnitsAspect_mod
+   use mapl_TypekindAspect_mod
+   use mapl_UngriddedDimsAspect_mod
+   use mapl_FieldBundleInfo_mod, only: FieldBundleInfoSetInternal
+   use mapl_VectorBasisKind_mod
 
-   use mapl_VerticalGrid
-   use mapl_VerticalStaggerLoc
-   use mapl_UngriddedDims
+   use mapl_VerticalGrid_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_UngriddedDims_mod
 
-   use mapl_NullTransform
-   use mapl_TimeInterpolateTransform
-   use mapl_ExtensionTransform
-   use mapl_MultiState
-   use mapl_ESMF_Utilities, only: get_substate
+   use mapl_NullTransform_mod
+   use mapl_TimeInterpolateTransform_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_MultiState_mod
+   use mapl_ESMF_Utilities_mod, only: get_substate
 
-   use mapl_FieldCreateImpl
-   use mapl_FieldUtilities
+   use mapl_FieldCreateImpl_mod
+   use mapl_FieldUtilities_mod
 
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none(type,external)
    private
@@ -399,4 +399,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine get_payload
 
-end module mapl_VectorBracketClassAspect
+end module mapl_VectorBracketClassAspect_mod

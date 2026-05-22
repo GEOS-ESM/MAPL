@@ -1,4 +1,4 @@
-module MAPL_PhysicalConstants
+module mapl_PhysicalConstants_mod
 
    implicit none
 
@@ -25,4 +25,4 @@ module MAPL_PhysicalConstants
    real, parameter :: MAPL_AVOGAD = MAPL_AVOGADRO               ! DEPRECATED: use MAPL_AVOGADRO
    real, parameter :: MAPL_RUNIV  = MAPL_UNIVERSAL_GAS_CONSTANT  ! DEPRECATED: use MAPL_UNIVERSAL_GAS_CONSTANT
 
-end module MAPL_PhysicalConstants
+end module mapl_PhysicalConstants_mod

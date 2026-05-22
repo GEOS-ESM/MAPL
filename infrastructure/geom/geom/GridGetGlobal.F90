@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl_GridGetGlobal
+module mapl_GridGetGlobal_mod
 
    use esmf
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
 
    implicit none(type, external)
    private
@@ -46,4 +46,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine grid_get_global_cell_count_per_dim
 
-end module mapl_GridGetGlobal
+end module mapl_GridGetGlobal_mod

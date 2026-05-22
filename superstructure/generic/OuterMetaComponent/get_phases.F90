@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) get_phases_smod
+submodule (mapl_OuterMetaComponent_mod) get_phases_smod
    implicit none(type,external)
 
 contains

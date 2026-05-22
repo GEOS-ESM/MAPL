@@ -1,18 +1,18 @@
 #include "MAPL.h"
 
-module mapl_WildcardClassAspect
-   use mapl_ActualPtFieldAspectMap
-   use mapl_ActualConnectionPt
-   use mapl_StateItemSpec
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ClassAspect
-   use mapl_FieldClassAspect
-   use mapl_ExtensionTransform
-   use mapl_NullTransform
-   use mapl_MultiState
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
+module mapl_WildcardClassAspect_mod
+   use mapl_ActualPtFieldAspectMap_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_StateItemSpec_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ClassAspect_mod
+   use mapl_FieldClassAspect_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_NullTransform_mod
+   use mapl_MultiState_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
    implicit none(type,external)
    private
@@ -256,4 +256,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine get_payload
 
-end module mapl_WildcardClassAspect
+end module mapl_WildcardClassAspect_mod

@@ -1,10 +1,10 @@
 module MAPL_Constants
 
-   use MAPL_InternalConstants
-   use MAPL_MathConstants
-   use MAPL_PhysicalConstants
-   use MAPL_EarthConstants
-   use MAPL_EarthAtmosphericConstants
+   use mapl_InternalConstants_mod
+   use mapl_MathConstants_mod
+   use mapl_PhysicalConstants_mod
+   use mapl_EarthConstants_mod
+   use mapl_EarthAtmosphericConstants_mod
 
 contains
 

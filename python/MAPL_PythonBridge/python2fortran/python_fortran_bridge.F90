@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_python_fortran_bridge
+module mapl_python_fortran_bridge_mod
 
     use ESMF
     use Generic3g
@@ -433,4 +433,4 @@ module mapl_python_fortran_bridge
 
     end function
 
-end module mapl_python_fortran_bridge
+end module mapl_python_fortran_bridge_mod

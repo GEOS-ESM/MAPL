@@ -25,7 +25,7 @@ module pFIO_StringVariableMapMod
 end module pFIO_StringVariableMapMod
 
 module pFIO_StringVariableMapUtilMod
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_UtilitiesMod
    use pFIO_VariableMod
    use pFIO_CoordinateVariableMod

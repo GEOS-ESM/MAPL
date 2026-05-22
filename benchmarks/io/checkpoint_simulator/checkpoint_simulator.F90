@@ -5,7 +5,7 @@ module mapl_checkpoint_support_mod
    use ESMF
    use MPI
    use NetCDF
-   use MAPL_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use fargparse
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64, REAL32
    implicit none
@@ -906,7 +906,7 @@ end module
 #include "MAPL.h"
 program checkpoint_tester
    use ESMF
-   use MAPL_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use mapl_checkpoint_support_mod
    use MPI
    use NetCDF

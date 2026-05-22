@@ -1,7 +1,7 @@
 #undef I_AM_MAIN
 #include "MAPL_ErrLog.h"
 module pfio_base
-   use MAPL_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    integer, save :: debug_unit = 0
 contains
 

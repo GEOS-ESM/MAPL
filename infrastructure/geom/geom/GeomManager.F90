@@ -1,15 +1,15 @@
 #include "MAPL.h"
 
-module mapl_GeomManager
+module mapl_GeomManager_mod
 
-   use mapl_GeomSpec
-   use mapl_NullGeomSpec
-   use mapl_MaplGeom
-   use mapl_GeomFactory
-   use mapl_GeomFactoryVector
-   use mapl_GeomSpecVector
-   use mapl_IntegerMaplGeomMap
-   use mapl_ErrorHandlingMod
+   use mapl_GeomSpec_mod
+   use mapl_NullGeomSpec_mod
+   use mapl_MaplGeom_mod
+   use mapl_GeomFactory_mod
+   use mapl_GeomFactoryVector_mod
+   use mapl_GeomSpecVector_mod
+   use mapl_IntegerMaplGeomMap_mod
+   use mapl_ErrorHandling_mod
    use pfio_FileMetadataMod
    use esmf
    use gftl2_IntegerVector
@@ -160,7 +160,7 @@ module mapl_GeomManager
 
       module function make_mapl_geom_from_spec(this, spec, rc) result(mapl_geom)
          use gftl2_StringVector
-         use mapl_StringDictionary
+         use mapl_StringDictionary_mod
          type(MaplGeom) :: mapl_geom
          class(GeomManager), target, intent(inout) :: this
          class(GeomSpec), intent(in) :: spec
@@ -192,4 +192,4 @@ module mapl_GeomManager
       end function find_factory
    end interface
 
-end module mapl_GeomManager
+end module mapl_GeomManager_mod

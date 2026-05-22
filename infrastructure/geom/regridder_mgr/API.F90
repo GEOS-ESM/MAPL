@@ -1,8 +1,8 @@
-module mapl_RegridderMgr_API
-   use mapl_Regridder, only: Regridder
-   use mapl_RegridderManager, only: RegridderManager, regridder_manager, get_regridder_manager
-   use mapl_RegridderSpec, only: RegridderSpec
-   use mapl_RegridderMethods, only: &
+module mapl_RegridderMgr_API_mod
+   use mapl_Regridder_mod, only: Regridder
+   use mapl_RegridderManager_mod, only: RegridderManager, regridder_manager, get_regridder_manager
+   use mapl_RegridderSpec_mod, only: RegridderSpec
+   use mapl_RegridderMethods_mod, only: &
         REGRID_HINT_LOCAL, &
         REGRID_HINT_FILE_WEIGHTS, &
         REGRID_HINT_COMPUTE_TRANSPOSE, &
@@ -47,4 +47,4 @@ module mapl_RegridderMgr_API
    public :: regrid_method_int_to_string
    public :: generate_esmf_regrid_param
 
-end module mapl_RegridderMgr_API
+end module mapl_RegridderMgr_API_mod

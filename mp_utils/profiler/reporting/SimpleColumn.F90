@@ -1,8 +1,8 @@
-module MAPL_SimpleColumn
-   use MAPL_AbstractColumn
+module mapl_SimpleColumn_mod
+   use mapl_AbstractColumn_mod
    use GFTL_UnlimitedVector
-   use MAPL_AbstractMeterNode
-   use MAPL_DistributedMeter
+   use mapl_AbstractMeterNode_mod
+   use mapl_DistributedMeter_mod
    implicit none
    private
 
@@ -56,4 +56,4 @@ contains
    end function get_rows
 
 
-end module MAPL_SimpleColumn
+end module mapl_SimpleColumn_mod

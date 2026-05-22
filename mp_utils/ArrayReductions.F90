@@ -24,12 +24,12 @@
 
 #include "MAPL.h"
 
-module mapl_ArrayReductions
+module mapl_ArrayReductions_mod
 
    use mpi
    use, intrinsic :: iso_fortran_env, only: real32, real64
 
-   use MAPL_ErrorHandling, only: MAPL_Verify, MAPL_Assert, MAPL_Return
+   use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Assert, MAPL_Return
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
 
    implicit none
@@ -198,4 +198,4 @@ contains
       _RETURN(_SUCCESS)
    end function AreaMean_2d_r8
 
-end module mapl_ArrayReductions
+end module mapl_ArrayReductions_mod

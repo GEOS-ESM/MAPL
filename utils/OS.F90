@@ -2,9 +2,9 @@
 
 ! This module is a (poor) analog to the Python "os" package.
 
-module mapl_os
+module mapl_os_mod
    use gftl2_StringStack
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_c_binding
    implicit none(type,external)
    private
@@ -329,4 +329,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_symbolic_link
 
-end module mapl_os
+end module mapl_os_mod

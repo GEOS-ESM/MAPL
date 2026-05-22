@@ -1,5 +1,5 @@
-module mapl_MeterNodeStack
-   use mapl_MeterNodePtr
+module mapl_MeterNodeStack_mod
+   use mapl_MeterNodePtr_mod
 
 
 #define T MeterNodePtr
@@ -12,4 +12,4 @@ module mapl_MeterNodeStack
 #undef Vector
 #undef T
 
-end module mapl_MeterNodeStack
+end module mapl_MeterNodeStack_mod

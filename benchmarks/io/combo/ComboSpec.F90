@@ -1,8 +1,8 @@
 #include "MAPL.h"
-module mapl_ComboSpec
-   use mapl_GathervKernel
-   use mapl_BW_Benchmark
-   use mapl_ErrorHandlingMod
+module mapl_ComboSpec_mod
+   use mapl_GathervKernel_mod
+   use mapl_BW_Benchmark_mod
+   use mapl_ErrorHandling_mod
    use fArgParse
    use mpi
    use, intrinsic :: iso_fortran_env, only: INT64
@@ -150,4 +150,4 @@ contains
       _RETURN(_SUCCESS)
    end function make_filename
 
-end module mapl_ComboSpec
+end module mapl_ComboSpec_mod

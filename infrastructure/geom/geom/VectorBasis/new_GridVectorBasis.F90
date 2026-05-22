@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-submodule (mapl_VectorBasis) new_GridVectorBasis_smod
+submodule (mapl_VectorBasis_mod) new_GridVectorBasis_smod
 
-   use mapl_GridAccessors, only: GridGet
-   use mapl_FieldPointerUtilities, only: assign_fptr
+   use mapl_GridAccessors_mod, only: GridGet
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr
 
    implicit none(type, external)
 

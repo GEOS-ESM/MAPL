@@ -1,21 +1,21 @@
-module mapl_Geom_API
+module mapl_Geom_API_mod
 
-   use mapl_KeywordEnforcer
-   use mapl_MaplGeom, only: MaplGeom
-   use mapl_GeomSpec, only: GeomSpec
-   use mapl_GeomManager, only: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
-   use mapl_GeomUtilities, only: mapl_SameGeom, mapl_GeomGetId
-   use mapl_GeomAccessors, only: mapl_GeomGet => GeomGet, &
+   use mapl_KeywordEnforcer_mod
+   use mapl_MaplGeom_mod, only: MaplGeom
+   use mapl_GeomSpec_mod, only: GeomSpec
+   use mapl_GeomManager_mod, only: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
+   use mapl_GeomUtilities_mod, only: mapl_SameGeom, mapl_GeomGetId
+   use mapl_GeomAccessors_mod, only: mapl_GeomGet => GeomGet, &
         mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex, &
         mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
-   use mapl_GridAccessors, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates, &
+   use mapl_GridAccessors_mod, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates, &
         mapl_GridHasDE => grid_has_DE
-   use mapl_GridGetGlobal, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
-   use mapl_Subgrid, only: mapl_Interval => Interval, mapl_make_subgrids => make_subgrids
-   use mapl_XYGeomSpec,    only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
-   use mapl_XYGeomFactory, only: XYGeomFactory
-   use mapl_CubedSphereGeomSpec, only: CubedSphereGeomSpec, make_CubedSphereGeomSpec
-   use mapl_CubedSphereDecomposition, only: CubedSphereDecomposition, make_CubedSphereDecomposition
+   use mapl_GridGetGlobal_mod, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
+   use mapl_Subgrid_mod, only: mapl_Interval => Interval, mapl_make_subgrids => make_subgrids
+   use mapl_XYGeomSpec_mod,    only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
+   use mapl_XYGeomFactory_mod, only: XYGeomFactory
+   use mapl_CubedSphereGeomSpec_mod, only: CubedSphereGeomSpec, make_CubedSphereGeomSpec
+   use mapl_CubedSphereDecomposition_mod, only: CubedSphereDecomposition, make_CubedSphereDecomposition
    use esmf, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4
 
    implicit none(type,external)
@@ -42,4 +42,4 @@ module mapl_Geom_API
    public :: CubedSphereGeomSpec, make_CubedSphereGeomSpec
    public :: CubedSphereDecomposition, make_CubedSphereDecomposition
 
-end module mapl_Geom_API
+end module mapl_Geom_API_mod

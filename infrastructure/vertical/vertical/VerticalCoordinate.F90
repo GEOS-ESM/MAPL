@@ -3,8 +3,8 @@
 module VerticalCoordinateMod
 
    use PFIO
-   use MAPL_ExceptionHandling
-   use MAPL_FileMetadataUtilsMod
+   use mapl_ExceptionHandling_mod
+   use mapl_FileMetadataUtils_mod
    use MAPL_CommsMod
    use gFTL2_StringVector
    use udunits2f, UDUNITS_are_convertible => are_convertible, &

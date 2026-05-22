@@ -1,7 +1,7 @@
-module MAPL_EarthConstants
+module mapl_EarthConstants_mod
 
    use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
-   use MAPL_MathConstants, only: MAPL_PI_R8, MAPL_PI, &
+   use mapl_MathConstants_mod, only: MAPL_PI_R8, MAPL_PI, &
                                   MAPL_RADIANS_TO_DEGREES, MAPL_DEGREES_TO_RADIANS_R8
 
    implicit none
@@ -38,4 +38,4 @@ module MAPL_EarthConstants
    real(kind=REAL64), parameter :: MAPL_KM_PER_DEG         = MAPL_KM_PER_DEGREE            ! DEPRECATED
    real(kind=REAL64), parameter :: MAPL_DEG_PER_KM         = MAPL_DEGREE_PER_KM            ! DEPRECATED
 
-end module MAPL_EarthConstants
+end module mapl_EarthConstants_mod

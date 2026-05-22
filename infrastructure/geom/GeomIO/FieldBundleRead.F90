@@ -1,22 +1,22 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleRead
+module mapl_FieldBundleRead_mod
 
    use ESMF
-   use mapl_ErrorHandling
-   use mapl_GeomPFIO
-   use mapl_GeomCatagorizer
-   use mapl_Geom_API, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
+   use mapl_ErrorHandling_mod
+   use mapl_GeomPFIO_mod
+   use mapl_GeomCatagorizer_mod
+   use mapl_Geom_API_mod, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
    use mapl_Field_API, only: MAPL_FieldCreate, MAPL_FieldGet
-   use mapl_FieldBundle_API
-   use mapl_VerticalStaggerLoc
-   use mapl_VerticalGrid_API
-   use mapl_RegridderManager, only: get_regridder_manager, RegridderManager
-   use mapl_RegridderSpec
-   use mapl_RegridderMethods
-   use mapl_Regridder, only: Regridder
-   use MAPL_FileMetadataUtilsMod
-   use MAPL_StringTemplate, only: fill_grads_template
+   use mapl_FieldBundle_API_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalGrid_API_mod
+   use mapl_RegridderManager_mod, only: get_regridder_manager, RegridderManager
+   use mapl_RegridderSpec_mod
+   use mapl_RegridderMethods_mod
+   use mapl_Regridder_mod, only: Regridder
+   use mapl_FileMetadataUtils_mod
+   use mapl_StringTemplate_mod, only: fill_grads_template
    use pFIO
    use gFTL2_StringVector
 
@@ -390,4 +390,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine mapl_read_bundle
 
-end module mapl_FieldBundleRead
+end module mapl_FieldBundleRead_mod

@@ -4,10 +4,10 @@
 ! ExtensionTransform can allocate its return value in the presence of
 ! error conditions.
 
-module mapl_NullTransform
-   use mapl_TransformId
-   use mapl_ExtensionTransform
-   use mapl_ErrorHandling
+module mapl_NullTransform_mod
+   use mapl_TransformId_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
    private
 
@@ -59,4 +59,4 @@ contains
       _UNUSED_DUMMY(this)
    end function get_transformId
 
-end module mapl_NullTransform
+end module mapl_NullTransform_mod

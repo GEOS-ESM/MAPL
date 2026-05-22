@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomFactory) typesafe_make_geom_smod
-   use mapl_ErrorHandlingMod
-   use mapl_InternalConstants
+submodule (mapl_XYGeomFactory_mod) typesafe_make_geom_smod
+   use mapl_ErrorHandling_mod
+   use mapl_InternalConstants_mod
    use esmf
    implicit none
 

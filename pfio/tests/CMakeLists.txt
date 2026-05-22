@@ -41,7 +41,7 @@ add_pfunit_ctest(MAPL.pfio.tests
                 OTHER_SOURCES ${SRCS}
                 LINK_LIBRARIES MAPL.pfio MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUnit_Initialize
+                EXTRA_USE mapl_pFUnit_Initialize_mod
                 MAX_PES 8
                 )
 set_target_properties(MAPL.pfio.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})

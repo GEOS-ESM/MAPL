@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl_FieldBLAS
+module mapl_FieldBLAS_mod
 
    use ESMF
-   use mapl_Constants, only: MAPL_UNDEFINED_REAL32, MAPL_UNDEFINED_REAL64
-   use MAPL_ExceptionHandling
-   use mapl_FieldCondensedArray
-   use MAPL_FieldPointerUtilities
+   use MAPL_Constants, only: MAPL_UNDEFINED_REAL32, MAPL_UNDEFINED_REAL64
+   use mapl_ExceptionHandling_mod
+   use mapl_FieldCondensedArray_mod
+   use mapl_FieldPointerUtilities_mod
 
    implicit none
    private
@@ -467,4 +467,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine convert_prec_R8_to_R4
 
-end module mapl_FieldBLAS
+end module mapl_FieldBLAS_mod
