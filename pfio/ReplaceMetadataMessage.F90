@@ -2,13 +2,13 @@
 #include "unused_dummy.H"
 
 module pFIO_ReplaceMetadataMessageMod
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_UtilitiesMod
    use pFIO_FileMetadataMod
    use pFIO_AbstractMessageMod
    use pFIO_StringVariableMapMod
    use pFIO_StringVariableMapUtilMod
-   use mapl_KeywordEnforcerMod
+   use mapl_KeywordEnforcer_mod
    implicit none
    private
 

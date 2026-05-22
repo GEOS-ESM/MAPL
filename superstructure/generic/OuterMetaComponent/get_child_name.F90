@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) get_child_name_smod
+submodule (mapl_OuterMetaComponent_mod) get_child_name_smod
 
-   use mapl_GriddedComponentDriverMap
-   use mapl_ErrorHandling
+   use mapl_GriddedComponentDriverMap_mod
+   use mapl_ErrorHandling_mod
 
    implicit none(type,external)
 

@@ -1,10 +1,10 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-module mapl_FieldBundleGetPointerImpl
+module mapl_FieldBundleGetPointerImpl_mod
 
    use ESMF
-   use MAPL_ErrorHandling
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
 
    implicit none(type,external)
@@ -193,4 +193,4 @@ contains
      _RETURN(_SUCCESS)
    end subroutine FieldBundleGetPointerToR8DataByName3
 
-end module mapl_FieldBundleGetPointerImpl
+end module mapl_FieldBundleGetPointerImpl_mod

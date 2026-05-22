@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-module mapl_GathervKernel
-   use mapl_ErrorHandlingMod
+module mapl_GathervKernel_mod
+   use mapl_ErrorHandling_mod
    use Kernel_mod
    use mpi
    implicit none
@@ -93,4 +93,4 @@ contains
    end subroutine run
 
    
-end module mapl_GathervKernel
+end module mapl_GathervKernel_mod

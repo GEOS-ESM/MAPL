@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-module mapl_EvalTransform
-   use mapl_ExtensionTransform
-   use mapl_TransformId
-   use mapl_StateItemImpl
-   use mapl_ComponentDriver
-   use mapl_ComponentDriverVector
-   use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE, GENERIC_COUPLER_INITIALIZE
-   use mapl_ErrorHandling
-   use MAPL_StateArithmeticParserMod
+module mapl_EvalTransform_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_TransformId_mod
+   use mapl_StateItemImpl_mod
+   use mapl_ComponentDriver_mod
+   use mapl_ComponentDriverVector_mod
+   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_UPDATE, GENERIC_COUPLER_INITIALIZE
+   use mapl_ErrorHandling_mod
+   use mapl_StateArithmeticParser_mod
    use esmf
 
    implicit none(type,external)
@@ -145,4 +145,4 @@ contains
       _UNUSED_DUMMY(this)
    end function get_transformId
 
-end module mapl_EvalTransform
+end module mapl_EvalTransform_mod

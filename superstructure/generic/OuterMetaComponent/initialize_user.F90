@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) initialize_user_smod
+submodule (mapl_OuterMetaComponent_mod) initialize_user_smod
 
-   use mapl_GenericPhases
-   use mapl_ComponentDriver
-   use mapl_ComponentDriverPtrVector
-   use mapl_CouplerPhases, only: GENERIC_COUPLER_INITIALIZE
-   use mapl_ErrorHandling
+   use mapl_GenericPhases_mod
+   use mapl_ComponentDriver_mod
+   use mapl_ComponentDriverPtrVector_mod
+   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_INITIALIZE
+   use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger
 
    implicit none(type,external)

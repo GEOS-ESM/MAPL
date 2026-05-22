@@ -1,56 +1,56 @@
 #include "MAPL_ErrLog.h"
 
 ! Package exporter
-module mapl_Profiler
-   use mapl_AbstractMeter
-   use mapl_AbstractMeterNode
-   use mapl_AbstractMeterFactory
-   use mapl_MeterNodeVector
-   use mapl_MeterNode
-   use mapl_BaseProfiler
+module mapl_Profiler_mod
+   use mapl_AbstractMeter_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_AbstractMeterFactory_mod
+   use mapl_MeterNodeVector_mod
+   use mapl_MeterNode_mod
+   use mapl_BaseProfiler_mod
 
-   use mapl_AdvancedMeter
-   use mapl_MpiTimerGauge
-   use mapl_FortranTimerGauge
-   use mapl_RssMemoryGauge
-   use mapl_VmstatMemoryGauge
+   use mapl_AdvancedMeter_mod
+   use mapl_MpiTimerGauge_mod
+   use mapl_FortranTimerGauge_mod
+   use mapl_RssMemoryGauge_mod
+   use mapl_VmstatMemoryGauge_mod
 
-   use mapl_DistributedMeter
-   use mapl_DistributedProfiler
-   use mapl_TimeProfiler
-   use mapl_MemoryProfiler
+   use mapl_DistributedMeter_mod
+   use mapl_DistributedProfiler_mod
+   use mapl_TimeProfiler_mod
+   use mapl_MemoryProfiler_mod
 
-   use mapl_ProfileReporter
-   use mapl_CsvProfileReporter
-   use mapl_AbstractColumn
-   use mapl_SimpleColumn
-   use mapl_TextColumn
-   use mapl_SimpleTextColumn
-   use mapl_FormattedTextColumn
-   use mapl_MemoryTextColumn
-   use mapl_NameColumn
-   use mapl_PlainNameColumn
-   use mapl_DepthColumn
-   use mapl_NumCyclesColumn
-   use mapl_InclusiveColumn
-   use mapl_ExclusiveColumn
-   use mapl_StdDevColumn
-   use mapl_MinCycleColumn
-   use mapl_MaxCycleColumn
-   use mapl_MeanCycleColumn
-   use mapl_PercentageColumn
-   use mapl_TextColumnVector
-   use mapl_MultiColumn
-   use mapl_SeparatorColumn
-   use mapl_GlobalProfilers
+   use mapl_ProfileReporter_mod
+   use mapl_CsvProfileReporter_mod
+   use mapl_AbstractColumn_mod
+   use mapl_SimpleColumn_mod
+   use mapl_TextColumn_mod
+   use mapl_SimpleTextColumn_mod
+   use mapl_FormattedTextColumn_mod
+   use mapl_MemoryTextColumn_mod
+   use mapl_NameColumn_mod
+   use mapl_PlainNameColumn_mod
+   use mapl_DepthColumn_mod
+   use mapl_NumCyclesColumn_mod
+   use mapl_InclusiveColumn_mod
+   use mapl_ExclusiveColumn_mod
+   use mapl_StdDevColumn_mod
+   use mapl_MinCycleColumn_mod
+   use mapl_MaxCycleColumn_mod
+   use mapl_MeanCycleColumn_mod
+   use mapl_PercentageColumn_mod
+   use mapl_TextColumnVector_mod
+   use mapl_MultiColumn_mod
+   use mapl_SeparatorColumn_mod
+   use mapl_GlobalProfilers_mod
 
    implicit none
 
 contains
 
    subroutine initialize(comm, unusable, enable_global_timeprof, enable_global_memprof, rc)
-      use mapl_ErrorHandlingMod
-      use mapl_KeywordEnforcerMod
+      use mapl_ErrorHandling_mod
+      use mapl_KeywordEnforcer_mod
       integer, optional, intent(in) :: comm
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) ::  enable_global_timeprof
@@ -67,8 +67,8 @@ contains
    end subroutine initialize
 
    subroutine finalize(unusable, rc)
-      use mapl_KeywordEnforcerMod
-      use mapl_ErrorHandlingMod
+      use mapl_KeywordEnforcer_mod
+      use mapl_ErrorHandling_mod
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -89,8 +89,8 @@ contains
    end subroutine finalize
 
    subroutine report_global_profiler(unusable,comm,rc)
-      use mapl_KeywordEnforcerMod
-      use mapl_ErrorHandlingMod
+      use mapl_KeywordEnforcer_mod
+      use mapl_ErrorHandling_mod
       use mpi
       use pflogger, only: logging
       use pflogger, only: Logger
@@ -185,4 +185,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine report_global_profiler
 
-end module mapl_Profiler
+end module mapl_Profiler_mod

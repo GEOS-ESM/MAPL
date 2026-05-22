@@ -66,9 +66,9 @@
 
 !#define STRICT_ISO8601 !Uncomment for strict ISO8601 compliance
 #include "MAPL.h"
-module MAPL_ISO8601_DateTime
-   use MAPL_KeywordEnforcerMod
-   use MAPL_ExceptionHandling
+module mapl_ISO8601_DateTime_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ExceptionHandling_mod
    implicit none
 
 ! For testing private methods, leave the following line commented out.
@@ -1060,4 +1060,4 @@ contains
 
 ! END HIGH-LEVEL CONVERSION PROCEDURES
 
-end module MAPL_ISO8601_DateTime
+end module mapl_ISO8601_DateTime_mod

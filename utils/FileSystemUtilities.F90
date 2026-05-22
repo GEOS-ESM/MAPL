@@ -1,4 +1,4 @@
-module mapl_FileSystemUtilities
+module mapl_FileSystemUtilities_mod
    implicit none
    private
 
@@ -44,4 +44,4 @@ contains
       end if
    end function get_file_basename
 
-end module Mapl_FileSystemUtilities
+end module mapl_FileSystemUtilities_mod

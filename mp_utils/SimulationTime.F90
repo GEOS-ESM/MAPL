@@ -3,7 +3,7 @@
 ! time.  To accomplish this, the module hold a (shallow) copy
 ! of the clock in CapGridComp.
 
-module mapl_SimulationTime
+module mapl_SimulationTime_mod
    use gFTL2_StringUnlimitedMap, only: StringUnlimitedMap
    use ESMF
    implicit none(type,external)
@@ -48,5 +48,5 @@ contains
 
    end subroutine Fill_Time_Dict
 
-end module mapl_SimulationTime
+end module mapl_SimulationTime_mod
 

@@ -1,4 +1,4 @@
-module mapl_IntegerPair
+module mapl_IntegerPair_mod
    implicit none(type,external)
    private
    
@@ -32,4 +32,4 @@ contains
       end if
    end function integer_pair_less_than
 
-end module mapl_IntegerPair
+end module mapl_IntegerPair_mod

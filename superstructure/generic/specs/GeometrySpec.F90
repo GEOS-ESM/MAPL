@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_GeometrySpec
-   use mapl_Geom_API, only: GeomSpec
-   use mapl_VerticalGrid
+module mapl_GeometrySpec_mod
+   use mapl_Geom_API_mod, only: GeomSpec
+   use mapl_VerticalGrid_mod
    implicit none
    private
 
@@ -61,4 +61,4 @@ contains
 
 
 
-end module mapl_GeometrySpec
+end module mapl_GeometrySpec_mod

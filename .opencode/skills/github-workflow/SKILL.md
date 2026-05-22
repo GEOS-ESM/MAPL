@@ -40,23 +40,21 @@ These rules exist to maintain code quality and prevent accidental breaking chang
 
 #### develop
 
-**Purpose:** Legacy MAPL (MAPL 2.x) maintenance and development
+**Purpose:** Primary integration branch for both MAPL 2.x maintenance and MAPL v3 development
 
 **Use for:**
 - Bug fixes for MAPL 2.x
 - Features for current production version
 - Maintenance and stability improvements
+- **MAPL v3 restructuring and new features** (previously on release/MAPL-v3)
 
-**Status:** Stable, production-ready code
+**Status:** Active integration branch — all PRs (including MAPL v3 work) target here
 
 #### release/MAPL-v3
 
-**Purpose:** MAPL v3 pre-release development
+**Purpose:** No longer used for active development of MAPL (superseded by `develop`)
 
-**Use for:**
-- New features for MAPL v3
-- MAPL v3 specific improvements
-- Next major version development
+**Note:** MAPL v3 integration work has moved to `develop`.  External client repos are still using `release/MAPL-v3`
 
 **Status:** Active development, pre-release
 

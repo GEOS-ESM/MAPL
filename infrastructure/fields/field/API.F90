@@ -1,14 +1,14 @@
 module mapl_Field_API
-   use mapl_FieldGetImpl, only: MAPL_FieldGet => FieldGet
-   use mapl_FieldSetImpl, only: MAPL_FieldSet => FieldSet
-   use mapl_FieldFillImpl, only: MAPL_FieldFill => FieldFill
-   use mapl_FieldCreateImpl
-   use mapl_StateItemAllocation
-   use mapl_RestartModes
-   use mapl_FieldPointerUtilities, only: MAPL_AssignFptr => assign_fptr
-   use mapl_FieldPointerUtilities, only: MAPL_FieldClone => FieldClone
+   use mapl_FieldGetImpl_mod, only: MAPL_FieldGet => FieldGet
+   use mapl_FieldSetImpl_mod, only: MAPL_FieldSet => FieldSet
+   use mapl_FieldFillImpl_mod, only: MAPL_FieldFill => FieldFill
+   use mapl_FieldCreateImpl_mod
+   use mapl_StateItemAllocation_mod
+   use mapl_RestartModes_mod
+   use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
+   use mapl_FieldPointerUtilities_mod, only: MAPL_FieldClone => FieldClone
    ! Internal info should not be exposed to users
-   use mapl_FieldInfo
+   use mapl_FieldInfo_mod
 
    public :: MAPL_FieldClone
 

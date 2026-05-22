@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_GeomManager) get_mapl_geom_from_hconfig_smod
+submodule (mapl_GeomManager_mod) get_mapl_geom_from_hconfig_smod
 
    implicit none
 

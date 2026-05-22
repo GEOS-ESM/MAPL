@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module MAPL_FieldUnaryFunctions
+module mapl_FieldUnaryFunctions_mod
    use ESMF
-   use MAPL_ExceptionHandling
-   use MAPL_FieldPointerUtilities
+   use mapl_ExceptionHandling_mod
+   use mapl_FieldPointerUtilities_mod
    implicit none
    private
 
@@ -80,5 +80,5 @@ contains
 #include "FieldUnaryFunctionTemplate.H"
 #undef _FUNC
 
-end module MAPL_FieldUnaryFunctions
+end module mapl_FieldUnaryFunctions_mod
 

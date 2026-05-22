@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-submodule (mapl_MaplGeom) set_id_smod
-   use mapl_GeomSpec
-   use mapl_VectorBasis
-   use mapl_GeomUtilities
-   use mapl_ErrorHandlingMod
+submodule (mapl_MaplGeom_mod) set_id_smod
+   use mapl_GeomSpec_mod
+   use mapl_VectorBasis_mod
+   use mapl_GeomUtilities_mod
+   use mapl_ErrorHandling_mod
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Info
    use ESMF, only: ESMF_InfoGetFromHost

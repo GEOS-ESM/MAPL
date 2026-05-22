@@ -20,16 +20,16 @@
 ! The mathematical derivation of the Equation of Time underlying this module
 ! is documented in docs/equation_of_time.md.
 !
-module MAPL_SunMod
+module mapl_Sun_mod
 
 ! !USES:
 
   use ESMF
   use MAPL_Constants
   use MAPL_CommsMod
-  use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
-  use MAPL_TimeInterpolation, only: MAPL_ClimInterpFac
-  use mapl_FileIO, only: WRITE_PARALLEL
+  use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+  use mapl_TimeInterpolation_mod, only: MAPL_ClimInterpFac
+  use mapl_FileIO_mod, only: WRITE_PARALLEL
   use netcdf
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: logging, Logger
@@ -3188,4 +3188,4 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
 !==========================================================================
 
-end module MAPL_SunMod
+end module mapl_Sun_mod

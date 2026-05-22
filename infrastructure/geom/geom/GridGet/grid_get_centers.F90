@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl_GridAccessors) grid_get_centers_smod
+submodule (mapl_GridAccessors_mod) grid_get_centers_smod
 
-   use mapl_VectorBasis, only: GridGetCoords
+   use mapl_VectorBasis_mod, only: GridGetCoords
 
    implicit none(type, external)
 

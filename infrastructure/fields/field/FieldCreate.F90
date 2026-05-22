@@ -1,23 +1,23 @@
 #include "MAPL.h"
 
-module mapl_FieldCreateImpl
+module mapl_FieldCreateImpl_mod
 
-   use mapl_VerticalGrid_API
-   use mapl_VerticalStaggerLoc
-   use mapl_VerticalAlignment
-   use mapl_FieldInfo
-   use mapl_FieldSetImpl
-   use mapl_FieldGetImpl
-   use mapl_UngriddedDims
-   use mapl_HorizontalDimsSpec
-   use mapl_StateItemAllocation
-   use mapl_LU_Bound
-   use mapl_FieldFillImpl, only: FieldFill
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
-   use mapl_InternalConstants, only: MAPL_UNDEFINED_REAL
+   use mapl_VerticalGrid_API_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalAlignment_mod
+   use mapl_FieldInfo_mod
+   use mapl_FieldSetImpl_mod
+   use mapl_FieldGetImpl_mod
+   use mapl_UngriddedDims_mod
+   use mapl_HorizontalDimsSpec_mod
+   use mapl_StateItemAllocation_mod
+   use mapl_LU_Bound_mod
+   use mapl_FieldFillImpl_mod, only: FieldFill
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
+   use mapl_InternalConstants_mod, only: MAPL_UNDEFINED_REAL
    use esmf, MAPL_FieldEmptyCreate => ESMF_FieldEmptyCreate
-   use mapl_BasicVerticalGrid, only: BasicVerticalGrid, BasicVerticalGridSpec
+   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid, BasicVerticalGridSpec
 
    implicit none(type,external)
    private
@@ -366,4 +366,4 @@ contains
       _RETURN(_SUCCESS)
    end function fields_are_aliased
 
-end module mapl_FieldCreateImpl
+end module mapl_FieldCreateImpl_mod

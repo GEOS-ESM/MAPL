@@ -18,32 +18,19 @@
 !#### History
 !- 30Nov2010 da Silva  Initial version.
 !
-   MODULE MAPL_OrbGridCompMod
+   MODULE mapl_OrbGridComp_mod
 !
 ! !USES:
 !
    Use ESMF
-   use MAPL_MathConstants, only: MAPL_PI, MAPL_DEGREES_TO_RADIANS_R8, &
-       MAPL_RADIANS_TO_DEGREES
-   use MAPL_InternalConstants, only: MAPL_UNDEFINED_REAL, MAPL_R4, MAPL_DimsHorzOnly, &
-       MAPL_VLocationCenter
-   use MAPL_ISO8601_DateTime, only: convert_ISO8601_to_integer_date, &
-       convert_ISO8601_to_integer_time
-   use mapl_FieldCreateImpl, only: MAPL_FieldCreate
-   use mapl_FieldBundle_API, only: MAPL_FieldBundleAdd
+   use MAPL, only: MAPL_FieldCreate
+   use MAPL, only: MAPL_FieldBundleAdd
    Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
-   Use MAPL_ErrorHandlingMod
-   use mapl_generic, only: MAPL_GridCompGet
-   use mapl_generic, only: MAPL_UserCompSetInternalState, MAPL_UserCompGetInternalState
-   use mapl_generic, only: MAPL_GridCompAddSpec
-   use mapl_VerticalStaggerLoc, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
-   use mapl_generic, only: MAPL_STATEITEM_FIELDBUNDLE
-   use mapl_generic, only: MAPL_GridCompSetEntryPoint
-   use mapl_Geom_API, only: MAPL_GridGet, MAPL_GridGetCoordinates
-   use mapl_GridGetGlobal, only: GridGetGlobalCellCountPerDim
-   use mapl_State_API, only: MAPL_StateGetPointer
-   use mapl_FieldBundle_API, only: MAPL_FieldBundleGetPointer
-   use mapl_generic, only: MAPL_GridCompGetResource
+   Use MAPL
+   use MAPL, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
+   use MAPL, only: MAPL_GridGet, MAPL_GridGetCoordinates
+   use MAPL, only: MAPL_StateGetPointer
+   use MAPL, only: MAPL_FieldBundleGetPointer
 
    IMPLICIT NONE
    PRIVATE
@@ -463,7 +450,7 @@ CONTAINS
                               sat_name, nymd, nhms, dt, swath,  &
                               ihalo, jhalo, rc )
 
-       use MAPL_NominalOrbitsMod
+       use mapl_NominalOrbits_mod
 
        implicit NONE
 
@@ -568,7 +555,7 @@ CONTAINS
                               sat_name, nymd, nhms, dt, swath,  &
                               ihalo, jhalo, face, rc )
 
-       use MAPL_NominalOrbitsMod
+       use mapl_NominalOrbits_mod
 
        implicit NONE
 
@@ -1503,4 +1490,4 @@ CONTAINS
 
       end subroutine orb_halo
 
-end module MAPL_OrbGridCompMod
+end module mapl_OrbGridComp_mod

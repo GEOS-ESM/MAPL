@@ -9,11 +9,11 @@
 ! MPI_Bcast (ESMF_VMBroadcast has no R8 or 2-D interface), and each
 ! PET copies its local tile into the ESMF coordinate arrays.
 
-submodule (mapl_XYGeomFactory) fill_coordinates_smod
-   use mapl_ErrorHandlingMod
-   use mapl_InternalConstants, only: MAPL_UNDEFINED_REAL64
-   use mapl_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
-   use mapl_Comms,   only: am_i_root, ROOT_PROCESS_ID
+submodule (mapl_XYGeomFactory_mod) fill_coordinates_smod
+   use mapl_ErrorHandling_mod
+   use mapl_InternalConstants_mod, only: MAPL_UNDEFINED_REAL64
+   use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
+   use mapl_Comms_mod,   only: am_i_root, ROOT_PROCESS_ID
    use NetCDF
    use esmf
    use mpi
@@ -22,6 +22,7 @@ submodule (mapl_XYGeomFactory) fill_coordinates_smod
 contains
 
    module subroutine fill_coordinates(spec, grid, unusable, rc)
+      use mapl_KeywordEnforcer_mod
       type(XYGeomSpec), intent(in) :: spec
       type(ESMF_Grid),  intent(inout) :: grid
       class(KE), optional, intent(in) :: unusable

@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-module mapl_ConservationAspect
+module mapl_ConservationAspect_mod
 
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ExtensionTransform
-   use mapl_NullTransform
-   use mapl_ConservationType
-   use mapl_ConservationMetadata
-   use mapl_QuantityType
-   use mapl_QuantityTypeMetadata
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_NullTransform_mod
+   use mapl_ConservationType_mod
+   use mapl_ConservationMetadata_mod
+   use mapl_QuantityType_mod
+   use mapl_QuantityTypeMetadata_mod
    use mapl_Field_API
-   use mapl_FieldBundle_API
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_FieldBundle_API_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none
@@ -336,4 +336,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine print_aspect
 
-end module mapl_ConservationAspect
+end module mapl_ConservationAspect_mod

@@ -4,7 +4,7 @@ module field_utils_setup
 
    use ESMF
    use funit
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
 
    implicit none
 

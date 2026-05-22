@@ -1,4 +1,4 @@
-module MAPL_InternalConstants
+module mapl_InternalConstants_mod
 
    use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
 
@@ -204,5 +204,5 @@ module MAPL_InternalConstants
    integer, parameter :: MAPL_FILETYPE_BIN =  2
    integer, parameter :: MAPL_FILETYPE_UNK = -1
 
-end module MAPL_InternalConstants
+end module mapl_InternalConstants_mod
 

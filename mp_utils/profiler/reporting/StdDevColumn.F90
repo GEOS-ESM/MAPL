@@ -1,10 +1,10 @@
-module MAPL_StdDevColumn
-   use MAPL_AbstractColumn
-   use MAPL_SimpleColumn
-   use MAPL_AbstractMeterNode
-   use MAPL_AbstractMeter
-   use MAPL_AdvancedMeter
-   use Mapl_DistributedMeter
+module mapl_StdDevColumn_mod
+   use mapl_AbstractColumn_mod
+   use mapl_SimpleColumn_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_AbstractMeter_mod
+   use mapl_AdvancedMeter_mod
+   use mapl_DistributedMeter_mod
    implicit none
    private
 
@@ -85,6 +85,6 @@ contains
       end select
    end subroutine get_row_dist
 
-end module MAPL_StdDevColumn
+end module mapl_StdDevColumn_mod
 
 

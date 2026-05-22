@@ -41,7 +41,7 @@ add_pfunit_ctest(
   TEST_SOURCES ${scenarios_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
-  EXTRA_USE MAPL_pFUnit_Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -67,7 +67,7 @@ add_pfunit_ctest(
   TEST_SOURCES ${transforms_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
-  EXTRA_USE MAPL_pFUnit_Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -87,7 +87,7 @@ add_pfunit_ctest(
   TEST_SOURCES ${vertical_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
-  EXTRA_USE MAPL_pFUnit_Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -115,7 +115,7 @@ add_pfunit_ctest(
   TEST_SOURCES ${aspects_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
-  EXTRA_USE MAPL_pFUnit_Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -138,7 +138,7 @@ add_pfunit_ctest(
   TEST_SOURCES ${components_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
-  EXTRA_USE MAPL_pFUnit_Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
@@ -169,7 +169,7 @@ add_pfunit_ctest(
   TEST_SOURCES ${core_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
-  EXTRA_USE MAPL_pFUnit_Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )

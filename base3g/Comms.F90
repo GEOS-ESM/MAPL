@@ -18,12 +18,12 @@ module MAPL_CommsMod
                   ESMF_MAXSTR, ESMF_SUCCESS, &
                   ESMF_VM, ESMF_VMGatherV, ESMF_VMGet, ESMF_VMGetCurrent, &
                   ESMF_VMScatterV, ESMF_VmBarrier, ESMF_VmGet
-  use MAPL_ShmemMod, only: MAPL_ShmInitialized, MAPL_SyncSharedMemory, &
+  use mapl_Shmem_mod, only: MAPL_ShmInitialized, MAPL_SyncSharedMemory, &
                            MAPL_BroadcastToNodes, MAPL_NodeRankList, &
                            MAPL_GetNewRank
   use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter, MAPL_UNDEF
-  use mapl_ErrorHandling, only: MAPL_Assert, MAPL_Verify, MAPL_Return
-  use mapl_GridGetGlobal, only: GridGetGlobalCellCountPerDim
+  use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+  use mapl_GridGetGlobal_mod, only: GridGetGlobalCellCountPerDim
   use mpi
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none

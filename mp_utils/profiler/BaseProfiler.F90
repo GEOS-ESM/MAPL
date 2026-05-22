@@ -1,15 +1,15 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-module mapl_BaseProfiler
-   use mapl_AdvancedMeter
-   use mapl_AbstractMeter
-   use mapl_AbstractMeterNode
-   use mapl_MeterNode
-   use mapl_MeterNodePtr
-   use mapl_MeterNodeStack
-   use mapl_ErrorHandlingMod
-   use mapl_KeywordEnforcerMod
+module mapl_BaseProfiler_mod
+   use mapl_AdvancedMeter_mod
+   use mapl_AbstractMeter_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_MeterNode_mod
+   use mapl_MeterNodePtr_mod
+   use mapl_MeterNodeStack_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
    implicit none
    private
 
@@ -497,7 +497,7 @@ contains
 
    end subroutine print_stack
 
-end module mapl_BaseProfiler
+end module mapl_BaseProfiler_mod
 
 
 

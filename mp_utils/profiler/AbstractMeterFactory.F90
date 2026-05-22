@@ -1,5 +1,5 @@
-module MAPL_AbstractMeterFactory
-   use MAPL_AbstractMeter
+module mapl_AbstractMeterFactory_mod
+   use mapl_AbstractMeter_mod
    implicit none
    private
 
@@ -19,5 +19,5 @@ module MAPL_AbstractMeterFactory
       end function i_make_meter
    end interface
 
-end module MAPL_AbstractMeterFactory
+end module mapl_AbstractMeterFactory_mod
   

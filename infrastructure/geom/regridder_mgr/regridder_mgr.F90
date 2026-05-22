@@ -1,7 +1,7 @@
 module mapl_regridder_mgr
-   use mapl_RegridderManager
-   use mapl_RegridderSpec
-   use mapl_Regridder
-   use mapl_EsmfRegridder
-   use mapl_DynamicMask
+   use mapl_RegridderManager_mod
+   use mapl_RegridderSpec_mod
+   use mapl_Regridder_mod
+   use mapl_EsmfRegridder_mod
+   use mapl_DynamicMask_mod
 end module mapl_regridder_mgr

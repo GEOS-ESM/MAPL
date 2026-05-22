@@ -1,9 +1,9 @@
 #include "MAPL_ErrLog.h"
 
-module mapl_LocStreamDecomposition
+module mapl_LocStreamDecomposition_mod
 
-   use mapl_Partition
-   use mapl_KeywordEnforcer
+   use mapl_Partition_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
 
    implicit none
@@ -82,7 +82,7 @@ contains
    end function new_LocStreamDecomposition_basic
 
    function new_LocStreamDecomposition_petcount(npoints, unusable, petCount) result(decomp)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(LocStreamDecomposition) :: decomp
       integer, intent(in) :: npoints
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -109,4 +109,4 @@ contains
       not_equal_to = .not. (decomp1 == decomp2)
    end function not_equal_to
 
-end module mapl_LocStreamDecomposition
+end module mapl_LocStreamDecomposition_mod

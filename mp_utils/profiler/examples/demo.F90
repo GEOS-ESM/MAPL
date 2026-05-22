@@ -4,8 +4,8 @@
 program main
 
    use MPI
-   use MAPL_Profiler
-   use MAPL_ErrorHandlingMod
+   use mapl_Profiler_mod
+   use mapl_ErrorHandling_mod
    use gFTL2_StringVector
 
    implicit none

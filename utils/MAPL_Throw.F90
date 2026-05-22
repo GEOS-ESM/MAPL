@@ -1,4 +1,4 @@
-module MAPL_ThrowMod
+module mapl_Throw_mod
    implicit none
    private
 
@@ -128,4 +128,4 @@ contains
 !   end function get_base_name
 
 
-end module MAPL_ThrowMod
+end module mapl_Throw_mod

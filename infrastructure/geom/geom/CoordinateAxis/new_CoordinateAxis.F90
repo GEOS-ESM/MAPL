@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl_CoordinateAxis) new_CoordinateAxis_smod
-   use mapl_ErrorHandling
+submodule (mapl_CoordinateAxis_mod) new_CoordinateAxis_smod
+   use mapl_ErrorHandling_mod
    use gftl2_StringVector
    implicit none(type,external)
 

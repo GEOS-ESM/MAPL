@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl_GridAccessors) grid_get_corners_smod
+submodule (mapl_GridAccessors_mod) grid_get_corners_smod
 
-   use mapl_Constants
+   use MAPL_Constants
    use esmf
 
    implicit none(type, external)

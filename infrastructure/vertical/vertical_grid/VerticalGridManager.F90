@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-module mapl_VerticalGridManager
+module mapl_VerticalGridManager_mod
 
-   use mapl_IntegerVerticalGridMap
-   use mapl_VerticalGrid, only: VerticalGrid
-   use mapl_VerticalGridSpec, only: VerticalGridSpec
-   use mapl_VerticalGridFactory, only: VerticalGridFactory
-   use mapl_VerticalGridFactoryMap
+   use mapl_IntegerVerticalGridMap_mod
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
+   use mapl_VerticalGridFactory_mod, only: VerticalGridFactory
+   use mapl_VerticalGridFactoryMap_mod
    use pfio, only: FileMetadata
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use esmf, only: esmf_HConfig, esmf_HConfigLog
    use gfTL2_StringVector
 
@@ -65,7 +65,7 @@ contains
    end function get_vertical_grid_manager
 
    subroutine initialize(this, rc)
-      use mapl_BasicVerticalGrid, only: BasicVerticalGridFactory
+      use mapl_BasicVerticalGrid_mod, only: BasicVerticalGridFactory
 
       class(VerticalGridManager), target, intent(inout) :: this
       integer, intent(out), optional :: rc
@@ -398,4 +398,4 @@ contains
 
    end function list_factories
 
-end module mapl_VerticalGridManager
+end module mapl_VerticalGridManager_mod

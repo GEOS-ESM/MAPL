@@ -1,9 +1,9 @@
 #include "unused_dummy.H"
 
-module MAPL_MpiTimerGauge
+module mapl_MpiTimerGauge_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
    use MPI, only: MPI_Wtime
-   use MAPL_AbstractGauge
+   use mapl_AbstractGauge_mod
    implicit none
    private
 
@@ -28,4 +28,4 @@ contains
 
    end function get_measurement
 
-end module MAPL_MpiTimerGauge
+end module mapl_MpiTimerGauge_mod

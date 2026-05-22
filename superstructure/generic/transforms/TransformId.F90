@@ -1,4 +1,4 @@
-module mapl_TransformId
+module mapl_TransformId_mod
    implicit none(type,external)
    private
 
@@ -99,4 +99,4 @@ contains
       less_than = a%id < b%id
    end function less_than
 
-end module mapl_TransformId
+end module mapl_TransformId_mod

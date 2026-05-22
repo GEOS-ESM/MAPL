@@ -1,7 +1,7 @@
 #include "MAPL.h"
-module mapl_GathervSpec
-   use mapl_GathervKernel
-   use mapl_ErrorHandlingMod
+module mapl_GathervSpec_mod
+   use mapl_GathervKernel_mod
+   use mapl_ErrorHandling_mod
    use fArgParse
    use mpi
    use, intrinsic :: iso_fortran_env, only: INT64
@@ -105,4 +105,4 @@ contains
       _RETURN(_SUCCESS)
    end function make_GathervKernel
 
-end module mapl_GathervSpec
+end module mapl_GathervSpec_mod

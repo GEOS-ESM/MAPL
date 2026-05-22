@@ -1,20 +1,20 @@
 #include "MAPL.h"
 
-module mapl_RegridTransform
-   use mapl_TransformId
+module mapl_RegridTransform_mod
+   use mapl_TransformId_mod
    use mapl_Field_API, only: MAPL_FieldClone, MAPL_FieldGet
-   use mapl_FieldBundle_API
-   use mapl_ExtensionTransform
-   use mapl_TransformId
+   use mapl_FieldBundle_API_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_TransformId_mod
    use mapl_regridder_mgr
-   use mapl_StateItemImpl
-   use mapl_ExtensionTransformUtils, only: bundle_types_valid
-   use mapl_NormalizationMetadata
-   use mapl_NormalizationType
-   use mapl_ComponentDriver, only: ComponentDriver
-   use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE
-   use mapl_ErrorHandling
-   use mapl_FieldCondensedArray, only: assign_fptr_condensed_array
+   use mapl_StateItemImpl_mod
+   use mapl_ExtensionTransformUtils_mod, only: bundle_types_valid
+   use mapl_NormalizationMetadata_mod
+   use mapl_NormalizationType_mod
+   use mapl_ComponentDriver_mod, only: ComponentDriver
+   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_UPDATE
+   use mapl_ErrorHandling_mod
+   use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use esmf
 
    implicit none(type,external)
@@ -460,4 +460,4 @@ contains
       _UNUSED_DUMMY(this)
    end function get_transformId
 
-end module mapl_RegridTransform
+end module mapl_RegridTransform_mod

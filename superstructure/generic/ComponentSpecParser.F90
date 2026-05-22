@@ -1,30 +1,30 @@
 #include "MAPL.h"
  
-module mapl_ComponentSpecParser
+module mapl_ComponentSpecParser_mod
 
-   use mapl_ComponentSpec
-   use mapl_ChildSpec
-   use mapl_ChildSpecMap
-   use mapl_UserSetServices
-   use mapl_ErrorHandling
-   use mapl_VariableSpec
-   use mapl_Connection
-   use mapl_ConnectionPt
-   use mapl_VirtualConnectionPt
-   use mapl_VariableSpecVector
-   use mapl_SimpleConnection
-   use mapl_MatchConnection
-   use mapl_ReexportConnection
-   use mapl_ConnectionVector
-   use mapl_VerticalStaggerLoc
-   use mapl_UngriddedDims
-   use mapl_UngriddedDim
-   use mapl_GeometrySpec
-   use mapl_Geom_API
-   use mapl_StateItemImpl
-   use mapl_ESMF_Utilities
-   use mapl_UserSetServices
-   use mapl_StateRegistry
+   use mapl_ComponentSpec_mod
+   use mapl_ChildSpec_mod
+   use mapl_ChildSpecMap_mod
+   use mapl_UserSetServices_mod
+   use mapl_ErrorHandling_mod
+   use mapl_VariableSpec_mod
+   use mapl_Connection_mod
+   use mapl_ConnectionPt_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_VariableSpecVector_mod
+   use mapl_SimpleConnection_mod
+   use mapl_MatchConnection_mod
+   use mapl_ReexportConnection_mod
+   use mapl_ConnectionVector_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_UngriddedDims_mod
+   use mapl_UngriddedDim_mod
+   use mapl_GeometrySpec_mod
+   use mapl_Geom_API_mod
+   use mapl_StateItemImpl_mod
+   use mapl_ESMF_Utilities_mod
+   use mapl_UserSetServices_mod
+   use mapl_StateRegistry_mod
    use gftl2_StringVector, only: StringVector
    use esmf
 
@@ -141,4 +141,4 @@ module mapl_ComponentSpecParser
 
    END INTERFACE
 
-end module mapl_ComponentSpecParser
+end module mapl_ComponentSpecParser_mod

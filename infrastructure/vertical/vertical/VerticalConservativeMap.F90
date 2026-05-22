@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl_VerticalConservativeMap
+module mapl_VerticalConservativeMap_mod
 
-   use mapl_ErrorHandling
-   use mapl_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp
-   use mapl_CSR_SparseMatrix, only: add_row
+   use mapl_ErrorHandling_mod
+   use mapl_CSR_SparseMatrix_mod, only: SparseMatrix_sp => CSR_SparseMatrix_sp
+   use mapl_CSR_SparseMatrix_mod, only: add_row
    use, intrinsic :: iso_fortran_env, only: REAL32
 
    implicit none(type,external)
@@ -89,4 +89,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine compute_conservative_map
 
-end module mapl_VerticalConservativeMap
+end module mapl_VerticalConservativeMap_mod

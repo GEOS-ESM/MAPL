@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-module mapl_Regridder
+module mapl_Regridder_mod
    use esmf
    use mapl_FieldUtils
-   use mapl_FieldBundle_API
-   use mapl_VectorBasisKind
-   use mapl_ErrorHandlingMod
-   use mapl_Geom_API
-   use mapl_RegridderSpec
-   use mapl_VectorBasis
+   use mapl_FieldBundle_API_mod
+   use mapl_VectorBasisKind_mod
+   use mapl_ErrorHandling_mod
+   use mapl_Geom_API_mod
+   use mapl_RegridderSpec_mod
+   use mapl_VectorBasis_mod
    use iso_fortran_env, only: REAL32, REAL64
    implicit none(type,external)
    private
@@ -617,5 +617,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine regrid_array_4d_r8
 
-end module mapl_Regridder
+end module mapl_Regridder_mod
       

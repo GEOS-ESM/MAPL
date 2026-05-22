@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_ESMF_HConfigUtilities) write_hconfig_smod
+submodule (mapl_ESMF_HConfigUtilities_mod) write_hconfig_smod
    implicit none(type,external)
 
 contains

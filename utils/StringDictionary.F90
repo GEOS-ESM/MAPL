@@ -1,4 +1,4 @@
-module mapl_StringDictionary
+module mapl_StringDictionary_mod
     use gftl2_StringVector
     implicit none
     private
@@ -133,4 +133,4 @@ contains
         end do
     end function find_key_index
 
-end module mapl_StringDictionary
+end module mapl_StringDictionary_mod

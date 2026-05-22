@@ -1,4 +1,4 @@
-module mapl_LU_Bound
+module mapl_LU_Bound_mod
    implicit none
    private
 
@@ -9,4 +9,4 @@ module mapl_LU_Bound
       integer :: upper
    end type LU_Bound
 
-end module mapl_LU_Bound
+end module mapl_LU_Bound_mod

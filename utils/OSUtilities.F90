@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl_OSUtilities
+module mapl_OSUtilities_mod
 
    use ESMF
-   use mapl_OS
-   use mapl_ErrorHandlingMod
+   use mapl_os_mod
+   use mapl_ErrorHandling_mod
    implicit none
    private
 
@@ -46,4 +46,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_checkpoint_subdir
 
-end module mapl_OSUtilities
+end module mapl_OSUtilities_mod

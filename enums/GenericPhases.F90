@@ -1,4 +1,4 @@
-module mapl_GenericPhases
+module mapl_GenericPhases_mod
    implicit none(type,external)
    private
    
@@ -68,4 +68,4 @@ module mapl_GenericPhases
         GENERIC_INIT_USER &
         ]
 
-end module mapl_GenericPhases
+end module mapl_GenericPhases_mod

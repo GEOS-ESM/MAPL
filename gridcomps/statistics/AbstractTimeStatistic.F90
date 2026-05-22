@@ -1,7 +1,6 @@
-module mapl_AbstractTimeStatistic
+module mapl_AbstractTimeStatistic_mod
    use MAPL
    use ESMF
-   use mapl_SimpleAlarm, only: SimpleAlarm
    implicit none(type,external)
    private
 
@@ -59,4 +58,4 @@ module mapl_AbstractTimeStatistic
 
    end interface
 
-end module mapl_AbstractTimeStatistic
+end module mapl_AbstractTimeStatistic_mod

@@ -1,7 +1,7 @@
 #include "MAPL.h"
-module mapl_MeshElement
-   use mapl_Direction
-   use mapl_Errorhandling
+module mapl_MeshElement_mod
+   use mapl_Direction_mod
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
    implicit none(type,external)
    private
@@ -150,4 +150,4 @@ contains
       
    end function get_type
 
-end module mapl_MeshElement
+end module mapl_MeshElement_mod

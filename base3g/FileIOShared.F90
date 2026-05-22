@@ -15,16 +15,16 @@
 !
 ! `FileIO_Shared` -- A Module that contains shared subroutines/functions needed by NetCDF and Binary IO
 !
-module mapl_FileIOShared
+module mapl_FileIOShared_mod
 
   use ESMF
-  use mapl_DistGridGet, only: MAPL_DistGridGet_impl => DistGridGet
-  use mapl_GridAccessors, only: GridGet
-  use mapl_GridGetGlobal, only: GridGetGlobalCellCountPerDim
-  use MAPL_SortMod
+  use mapl_DistGridGet_mod, only: MAPL_DistGridGet_impl => DistGridGet
+  use mapl_GridAccessors_mod, only: GridGet
+  use mapl_GridGetGlobal_mod, only: GridGetGlobalCellCountPerDim
+  use mapl_Sort_mod
   use MAPL_CommsMod
-  use MAPL_ShmemMod
-  use MAPL_ExceptionHandling
+  use mapl_Shmem_mod
+  use mapl_ExceptionHandling_mod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi
@@ -944,4 +944,4 @@ module mapl_FileIOShared
     end if
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Comm_Dup
-end module mapl_FileIOShared
+end module mapl_FileIOShared_mod

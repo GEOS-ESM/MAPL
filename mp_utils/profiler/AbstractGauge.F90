@@ -1,6 +1,6 @@
-module MAPL_AbstractGauge
+module mapl_AbstractGauge_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use MAPL_AbstractMeter
+   use mapl_AbstractMeter_mod
    implicit none
    private
 
@@ -24,4 +24,4 @@ module MAPL_AbstractGauge
    end interface
 
 
-end module MAPL_AbstractGauge
+end module mapl_AbstractGauge_mod

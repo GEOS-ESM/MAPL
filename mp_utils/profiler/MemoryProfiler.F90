@@ -1,14 +1,14 @@
 #include "MAPL.h"
-module MAPL_MemoryProfiler_private
-   use MAPL_BaseProfiler, only: BaseProfiler
-   use MAPL_BaseProfiler, only: MemoryProfilerIterator => BaseProfilerIterator
+module mapl_MemoryProfiler_private_mod
+   use mapl_BaseProfiler_mod, only: BaseProfiler
+   use mapl_BaseProfiler_mod, only: MemoryProfilerIterator => BaseProfilerIterator
 
-   use MAPL_MallocGauge
-   use MAPL_RssMemoryGauge
-   use MAPL_VmstatMemoryGauge
-   use MAPL_AdvancedMeter
-   use MAPL_AbstractMeter
-   use MAPL_MeterNode
+   use mapl_MallocGauge_mod
+   use mapl_RssMemoryGauge_mod
+   use mapl_VmstatMemoryGauge_mod
+   use mapl_AdvancedMeter_mod
+   use mapl_AbstractMeter_mod
+   use mapl_MeterNode_mod
    implicit none
    private
 
@@ -58,15 +58,15 @@ contains
    end function make_meter
 
 
-end module MAPL_MemoryProfiler_private
+end module mapl_MemoryProfiler_private_mod
 
 
 
-module MAPL_MemoryProfiler
-   use MAPL_BaseProfiler
-   use MAPL_MemoryProfiler_private
-   use mapl_KeywordEnforcerMod
-   use mapl_ErrorHandlingMod
+module mapl_MemoryProfiler_mod
+   use mapl_BaseProfiler_mod
+   use mapl_MemoryProfiler_private_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    implicit none
    private
 
@@ -76,4 +76,4 @@ module MAPL_MemoryProfiler
 contains
 
 
-end module MAPL_MemoryProfiler
+end module mapl_MemoryProfiler_mod

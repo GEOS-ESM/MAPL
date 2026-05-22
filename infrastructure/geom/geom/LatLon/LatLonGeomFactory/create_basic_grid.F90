@@ -1,23 +1,24 @@
 #include "MAPL.h"
-submodule (mapl_LatLonGeomFactory) create_basic_grid_smod
-   use mapl_GeomSpec
-   use mapl_LonAxis
-   use mapl_LatAxis
-   use mapl_LatLonDecomposition
-   use mapl_LatLonGeomSpec
-   use mapl_MinMaxMod
-   use mapl_ErrorHandlingMod
-   use mapl_Constants
+submodule (mapl_LatLonGeomFactory_mod) create_basic_grid_smod
+   use mapl_GeomSpec_mod
+   use mapl_LonAxis_mod
+   use mapl_LatAxis_mod
+   use mapl_LatLonDecomposition_mod
+   use mapl_LatLonGeomSpec_mod
+   use mapl_MinMax_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants
    use pFIO
    use gFTL2_StringVector
    use esmf
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    implicit none (type, external)
 
 
 contains
 
    module function create_basic_grid(spec, unusable, name, rc) result(grid)
+      use mapl_KeywordEnforcer_mod
       type(ESMF_Grid) :: grid
       type(LatLonGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable

@@ -3,7 +3,7 @@
 
 module pFIO_AddWriteDataCollectionMessageMod
 
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_UtilitiesMod
    use pFIO_AbstractMessageMod
    use pFIO_FileMetadataMod

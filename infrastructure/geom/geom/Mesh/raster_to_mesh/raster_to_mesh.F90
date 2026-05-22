@@ -1,9 +1,9 @@
 #define I_AM_MAIN
 #include "MAPL.h"
 program main
-   use mapl_ErrorHandling
-   use mapl_Mesh
-   use mapl_MeshElement
+   use mapl_ErrorHandling_mod
+   use mapl_Mesh_mod
+   use mapl_MeshElement_mod
    use pfio
    use esmf
    use mpi

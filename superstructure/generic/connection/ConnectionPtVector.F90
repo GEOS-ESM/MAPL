@@ -1,5 +1,5 @@
-module mapl_ConnectionPtVector
-   use mapl_ConnectionPt
+module mapl_ConnectionPtVector_mod
+   use mapl_ConnectionPt_mod
 
 #define T ConnectionPt
 #define Vector ConnectionPtVector
@@ -11,4 +11,4 @@ module mapl_ConnectionPtVector
 #undef Vector
 #undef VectorIterator
   
-end module mapl_ConnectionPtVector
+end module mapl_ConnectionPtVector_mod

@@ -9,7 +9,7 @@ module Kernel_mod
 
    abstract interface
       subroutine I_Run(this, rc)
-         use mapl_ErrorHandlingMod
+         use mapl_ErrorHandling_mod
          import Kernel_T
          class(Kernel_T), intent(in) :: this
          integer, optional, intent(out) :: rc

@@ -1,8 +1,6 @@
 #include "MAPL.h"
-module mapl_ExtDataDerived
+module mapl_ExtDataDerived_mod
    use ESMF
-   use MAPL_KeywordEnforcerMod
-   use MAPL_ExceptionHandling
    use gFTL2_StringVector
    use MAPL
    implicit none
@@ -85,4 +83,4 @@ contains
       write(*,*)"function: ",trim(this%expression)
    end subroutine display
 
-end module mapl_ExtDataDerived
+end module mapl_ExtDataDerived_mod

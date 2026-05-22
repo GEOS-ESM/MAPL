@@ -2,18 +2,18 @@
 
 module Test_ConfigurableGridComp
 
-   use mapl_GenericPhases
-   use mapl_Generic
-   use mapl_UserSetServices
-   use mapl_GenericGridComp, only: MAPL_GridCompCreate
-   use mapl_GenericGridComp, only: setServices
-   use mapl_GriddedComponentDriver
-   use mapl_OuterMetaComponent, only: OuterMetaComponent
-   use mapl_OuterMetaComponent, only: get_outer_meta
-   use mapl_MultiState
-   use mapl_GriddedComponentDriver
-   use mapl_VerticalGrid_API
-   use mapl_KeywordEnforcer
+   use mapl_GenericPhases_mod
+   use mapl_Generic_mod
+   use mapl_UserSetServices_mod
+   use mapl_GenericGridComp_mod, only: MAPL_GridCompCreate
+   use mapl_GenericGridComp_mod, only: setServices
+   use mapl_GriddedComponentDriver_mod
+   use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
+   use mapl_OuterMetaComponent_mod, only: get_outer_meta
+   use mapl_MultiState_mod
+   use mapl_GriddedComponentDriver_mod
+   use mapl_VerticalGrid_API_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
    use nuopc
    use pFunit
@@ -370,7 +370,7 @@ contains
    end subroutine test_parent_outer_items_created
 
    subroutine get_child_user_states(states, outer_meta, child_name, rc)
-      use mapl_GriddedComponentDriver
+      use mapl_GriddedComponentDriver_mod
       type(MultiState), intent(out) :: states
       type(OuterMetaComponent), target, intent(in) :: outer_meta
       character(*), intent(in) :: child_name

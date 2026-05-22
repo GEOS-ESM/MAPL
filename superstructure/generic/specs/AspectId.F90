@@ -1,4 +1,4 @@
-module mapl_AspectId
+module mapl_AspectId_mod
    implicit none(type, external)
    private
 
@@ -106,4 +106,4 @@ contains
       less_than = a%id < b%id
    end function less_than
 
-end module mapl_AspectId
+end module mapl_AspectId_mod

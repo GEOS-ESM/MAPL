@@ -1,15 +1,15 @@
 #include "MAPL.h"
 
-module mapl_TimeInterpolateTransform
-   use mapl_TransformId
-   use mapl_ExtensionTransform
+module mapl_TimeInterpolateTransform_mod
+   use mapl_TransformId_mod
+   use mapl_ExtensionTransform_mod
    use mapl_regridder_mgr
-   use mapl_FieldBundle_API
-   use mapl_InfoUtilities
-   use mapl_StateItemImpl
-   use MAPL_FieldUtils
+   use mapl_FieldBundle_API_mod
+   use mapl_InfoUtilities_mod
+   use mapl_StateItemImpl_mod
+   use mapl_FieldUtils
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none(type,external)
@@ -248,4 +248,4 @@ contains
       _UNUSED_DUMMY(this)
    end function get_transformId
 
-end module mapl_TimeInterpolateTransform
+end module mapl_TimeInterpolateTransform_mod

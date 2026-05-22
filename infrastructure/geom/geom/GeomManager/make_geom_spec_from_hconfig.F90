@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl_GeomManager) make_geom_spec_from_hconfig_smod
-   use mapl_NullGeomSpec, only: NULL_GEOM_SPEC
+submodule (mapl_GeomManager_mod) make_geom_spec_from_hconfig_smod
+   use mapl_NullGeomSpec_mod, only: NULL_GEOM_SPEC
    implicit none(type,external)
 
 contains

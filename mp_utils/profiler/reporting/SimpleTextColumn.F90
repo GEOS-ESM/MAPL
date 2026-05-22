@@ -1,6 +1,6 @@
-module MAPL_SimpleTextColumn
-   use MAPL_TextColumn
-   use MAPL_AbstractMeterNode
+module mapl_SimpleTextColumn_mod
+   use mapl_TextColumn_mod
+   use mapl_AbstractMeterNode_mod
    implicit none
    private
 
@@ -17,7 +17,7 @@ module MAPL_SimpleTextColumn
    abstract interface
 
       function i_get_row(this, node) result(row)
-         use MAPL_AbstractMeterNode
+         use mapl_AbstractMeterNode_mod
          import SimpleTextColumn
          character(:), allocatable :: row
          class (SimpleTextColumn), intent(in) :: this
@@ -81,4 +81,4 @@ contains
 
    end subroutine get_rows
    
-end module MAPL_SimpleTextColumn
+end module mapl_SimpleTextColumn_mod

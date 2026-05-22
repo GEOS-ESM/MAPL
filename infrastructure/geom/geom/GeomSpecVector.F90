@@ -1,5 +1,5 @@
-module mapl_GeomSpecVector
-   use mapl_GeomSpec
+module mapl_GeomSpecVector_mod
+   use mapl_GeomSpec_mod
 
 #define T GeomSpec
 #define T_EQ(a,b) a==b 
@@ -14,4 +14,4 @@ module mapl_GeomSpecVector
 #undef T_polymorphic
 #undef T
 
-end module mapl_GeomSpecVector
+end module mapl_GeomSpecVector_mod

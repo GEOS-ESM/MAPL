@@ -1,52 +1,83 @@
 ! Public interface (package) to MAPL
 module MAPL
-   use mapl_VM_API
-   use mapl_MaplFramework
+   use mapl_VM_API_mod
+   use mapl_MaplFramework_mod
    use generic3g
-   use mapl_State_API
-   use mapl_String
-   use mapl_StringUtilities
-   use mapl_FileSystemUtilities
-   use mapl_DSO_Utilities
-   use mapl_SplitCommunicatorMod
-   use mapl_SimpleCommSplitterMod
-   use mapl_SortMod
-   use mapl_ShmemMod
-   use mapl_ThrowMod
-   use mapl_RangeMod
-   use mapl_MinMaxMod
-   use mapl_LoadBalanceMod
-   use mapl_KeywordEnforcerMod
-   use mapl_InterpMod
-   use mapl_HashMod
-   use mapl_ErrorHandling
-   use mapl_DirPathMod
-   use mapl_Constants
-   use mapl_CommGroupDescriptionMod
-   use mapl_AbstractCommSplitterMod
-   use mapl_DownbitMod
-   use mapl_sleepMod
+   use mapl_State_API_mod
+   use mapl_String_mod
+   use mapl_StringUtilities_mod
+   use mapl_FileSystemUtilities_mod
+   use mapl_DSO_Utilities_mod
+   use mapl_SplitCommunicator_mod
+   use mapl_SimpleCommSplitter_mod
+   use mapl_Sort_mod
+   use mapl_Shmem_mod
+   use mapl_Throw_mod
+   use mapl_Range_mod
+   use mapl_MinMax_mod
+   use mapl_LoadBalance_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_Interp_mod
+   use mapl_Hash_mod
+   use mapl_ErrorHandling_mod
+   use mapl_DirPath_mod
+   use MAPL_Constants
+   use mapl_CommGroupDescription_mod
+   use mapl_AbstractCommSplitter_mod
+   use mapl_Downbit_mod
+   use mapl_Sleep_mod
    use pfio
-   use mapl_geom_API
-   use mapl_hconfig_API
-   use mapl_VerticalGrid_API
-   use mapl_EsmfUtils_API
+   use mapl_Geom_API_mod
+   use mapl_HConfig_API
+   use mapl_VerticalGrid_API_mod
+   use mapl_EsmfUtils_API_mod
    use mapl_Field_API
-   use mapl_FieldBundle_API
+   use mapl_FieldBundle_API_mod
    use mapl_mp_utils
-   use mapl_RegridderMgr_API
-   use mapl_Generic3g_API
-   use MAPL_PythonBridge
-   use mapl_base3g
-   use mapl_Profiler, initialize_profiler => initialize, finalize_profiler => finalize
-   use MAPL_FieldUtils
-   use MAPL_StateMaskMod
-   use MAPL_StateArithmeticParserMod
-   use MAPL_StateFilter
-   
+   use mapl_RegridderMgr_API_mod
+   use mapl_Generic3g_API_mod
+   use mapl_PythonBridge_mod
+   use mapl_base3g_mod
+   use mapl_Profiler_mod, initialize_profiler => initialize, finalize_profiler => finalize
+    use mapl_FieldUtils
+    use mapl_StateMask_mod
+    use mapl_StateArithmeticParser_mod
+    use mapl_StateFilter_mod
 
-   ! We use default PUBLIC to avoid explicitly listing exports from
-   ! the other layers.  When the dust settles and such micro
-   ! management become feasible, this can be reconsidered.
-   
+    ! Additional modules needed by gridcomps (issues #4958/#4959)
+    ! generic3g layer
+    use mapl_Generic_mod
+    ! mapl_GenericGridComp excluded: its public setServices conflicts with
+    ! the standalone setServices subroutines defined in gridcomp files.
+    ! Cap.F90 still uses it directly; address in a later increment.
+    use mapl_ComponentSpec_mod
+    use mapl_RestartHandler_mod
+    ! esmf layer
+    use mapl_ESMF_Time_Utilities_mod
+    use mapl_SimpleAlarm_mod
+    use mapl_StateItemImpl_mod
+    use mapl_FieldPointerUtilities_mod
+    use mapl_ExceptionHandling_mod
+    use mapl_ISO8601_DateTime_mod
+    ! regridder layer
+    use mapl_EsmfRegridder_mod
+    use mapl_RegridderMethods_mod
+    ! hconfig layer
+    use mapl_HConfigAs_mod
+    ! mp_utils layer
+    use mapl_StringTemplate_mod
+    ! base3g layer
+    use mapl_FileMetadataUtils_mod
+    ! utils layer
+    use mapl_os_mod
+    ! geom layer (transitively linked via regridder_mgr)
+    use mapl_GridGetGlobal_mod
+    ! GeomIO layer
+    use mapl_geomio
+    use mapl_CompressionSettings_mod
+
+    ! We use default PUBLIC to avoid explicitly listing exports from
+    ! the other layers.  When the dust settles and such micro
+    ! management become feasible, this can be reconsidered.
+
 end module MAPL

@@ -1,4 +1,4 @@
-module  mapl_fortran_python_bridge
+module  mapl_fortran_python_bridge_mod
     
     ! - - - - - - - - - - - - - - -!
     !
@@ -61,4 +61,4 @@ module  mapl_fortran_python_bridge
 
     end interface
 
-end module mapl_fortran_python_bridge
+end module mapl_fortran_python_bridge_mod

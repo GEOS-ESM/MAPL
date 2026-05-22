@@ -1,5 +1,5 @@
 
-submodule (MAPL_InterpMod) Interp_implementation
+submodule (mapl_Interp_mod) Interp_implementation
 
   implicit none
 

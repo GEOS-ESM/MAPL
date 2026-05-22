@@ -2,10 +2,10 @@
 
 ! From MAPL_MemUtils.F90
 
-module mapl_MemInfo
+module mapl_MemInfo_mod
 
    use mpi
-   use MAPL_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
+   use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use pFlogger, only: logging, logger_t => logger
    use, intrinsic :: iso_fortran_env, only: int64
 
@@ -211,4 +211,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_value
 
-end module mapl_MemInfo
+end module mapl_MemInfo_mod

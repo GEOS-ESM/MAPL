@@ -1,9 +1,9 @@
 #include "unused_dummy.H"
 
-module MAPL_PercentageColumn
+module mapl_PercentageColumn_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use MAPL_AbstractMeterNode
-   use MAPL_AbstractColumn
+   use mapl_AbstractMeterNode_mod
+   use mapl_AbstractColumn_mod
    implicit none
    private
 
@@ -96,4 +96,4 @@ contains
       _UNUSED_DUMMY(node)
    end function get_row
    
-end module MAPL_PercentageColumn
+end module mapl_PercentageColumn_mod

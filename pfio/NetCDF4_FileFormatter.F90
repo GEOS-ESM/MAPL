@@ -5,14 +5,14 @@ module pFIO_NetCDF4_FileFormatterMod
    use, intrinsic :: iso_fortran_env, only: INT16, INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use, intrinsic :: iso_fortran_env, only: error_unit
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_ConstantsMod
    use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod
    use pFIO_VariableMod
    use pFIO_CoordinateVariableMod
    use pFIO_FileMetadataMod
-   use mapl_KeywordEnforcerMod
+   use mapl_KeywordEnforcer_mod
    use gFTL2_StringVector
    use gFTL2_StringIntegerMap
    use pFIO_StringVariableMapMod

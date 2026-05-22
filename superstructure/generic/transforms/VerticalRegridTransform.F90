@@ -1,21 +1,21 @@
 #include "MAPL.h"
 
-module mapl_VerticalRegridTransform
-   use mapl_TransformId
+module mapl_VerticalRegridTransform_mod
+   use mapl_TransformId_mod
    use mapl_Field_API
-   use mapl_ErrorHandling
-   use mapl_FieldBundle_API
-   use mapl_StateItemImpl
-   use mapl_ExtensionTransform
-   use mapl_ComponentDriver
-   use mapl_CouplerPhases, only: GENERIC_COUPLER_UPDATE
-   use mapl_VerticalRegridMethod
-   use mapl_VerticalStaggerLoc
-   use mapl_VerticalLinearMap, only: compute_linear_map
-   use mapl_VerticalConservativeMap, only: compute_conservative_map
-   use mapl_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
-   use mapl_FieldCondensedArray, only: assign_fptr_condensed_array
-   use mapl_VerticalCoordinateDirection
+   use mapl_ErrorHandling_mod
+   use mapl_FieldBundle_API_mod
+   use mapl_StateItemImpl_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_ComponentDriver_mod
+   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_UPDATE
+   use mapl_VerticalRegridMethod_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalLinearMap_mod, only: compute_linear_map
+   use mapl_VerticalConservativeMap_mod, only: compute_conservative_map
+   use mapl_CSR_SparseMatrix_mod, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
+   use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
+   use mapl_VerticalCoordinateDirection_mod
    use esmf
 
    implicit none(type,external)
@@ -675,4 +675,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine copy_field_flipped_
 
-end module mapl_VerticalRegridTransform
+end module mapl_VerticalRegridTransform_mod

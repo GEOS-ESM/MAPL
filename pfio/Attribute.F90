@@ -6,7 +6,7 @@ module pFIO_AttributeMod
 ! limit the dimesion to 0 or 1
 !
    use pFIO_UnlimitedEntityMod
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
 
    implicit none
    private
@@ -111,7 +111,7 @@ module pFIO_StringAttributeMapUtilMod
    use pFIO_UtilitiesMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    implicit none
    private
 

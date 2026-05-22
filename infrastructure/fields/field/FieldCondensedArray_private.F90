@@ -1,7 +1,7 @@
 #include "MAPL.h"
-module mapl_FieldCondensedArray_private
+module mapl_FieldCondensedArray_private_mod
 
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    implicit none
 
    private
@@ -41,4 +41,4 @@ contains
 
    end function get_fptr_shape_private
 
-end module mapl_FieldCondensedArray_private
+end module mapl_FieldCondensedArray_private_mod

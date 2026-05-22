@@ -2,8 +2,8 @@
 
 ! When generic procedures are available, this package should be
 ! redesigned.
-module mapl_CSR_SparseMatrix
-   use mapl_KeywordEnforcer
+module mapl_CSR_SparseMatrix_mod
+   use mapl_KeywordEnforcer_mod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none(type,external)
    private
@@ -159,4 +159,4 @@ contains
    MATMUL_MULTI_VEC(dp,dp)
 
 
-end module mapl_CSR_SparseMatrix
+end module mapl_CSR_SparseMatrix_mod

@@ -4,18 +4,18 @@
 
 
 module ProtoExtDataGC
-   use mapl_ErrorHandling
-   use mapl_OuterMetaComponent
-   use mapl_Generic
-   use mapl_UserSetServices
-   use mapl_StateRegistry, only: StateRegistry
-   use mapl_VirtualConnectionPt
-   use mapl_ActualConnectionPt
-   use mapl_ConnectionPt
-   use mapl_SimpleConnection
-   use mapl_StateItemSpec, only: StateItemSpec, StateItemSpecPtr
-   use mapl_ESMF_Subset
-   use MAPL_FieldUtils
+   use mapl_ErrorHandling_mod
+   use mapl_OuterMetaComponent_mod
+   use mapl_Generic_mod
+   use mapl_UserSetServices_mod
+   use mapl_StateRegistry_mod, only: StateRegistry
+   use mapl_VirtualConnectionPt_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_ConnectionPt_mod
+   use mapl_SimpleConnection_mod
+   use mapl_StateItemSpec_mod, only: StateItemSpec, StateItemSpecPtr
+   use mapl_ESMF_Subset_mod
+   use mapl_FieldUtils
    use esmf, only: ESMF_StateGet, ESMF_FieldGet
 
    implicit none(type,external)
@@ -27,7 +27,7 @@ module ProtoExtDataGC
 contains
 
    subroutine setservices(gc, rc)
-      use mapl_Generic, only: MAPL_GridCompSetEntryPoint
+      use mapl_Generic_mod, only: MAPL_GridCompSetEntryPoint
       type(ESMF_GridComp) :: gc
       integer, intent(out) :: rc
 
@@ -245,7 +245,7 @@ end module ProtoExtDataGC
 subroutine setServices(gc, rc)
    use esmf, only: ESMF_GridComp
    use esmf, only: ESMF_SUCCESS
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use ProtoExtDataGC, only: inner_setservices => setservices
    type(ESMF_GridComp) :: gc
    integer, intent(out) :: rc

@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomSpec) make_EASEGeomSpec_from_hconfig_smod
-   use mapl_GeomSpec
-   use mapl_EASEConversion
-   use mapl_EASEDecomposition
-   use mapl_ErrorHandling
+submodule (mapl_EASEGeomSpec_mod) make_EASEGeomSpec_from_hconfig_smod
+   use mapl_GeomSpec_mod
+   use mapl_EASEConversion_mod
+   use mapl_EASEDecomposition_mod
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none (type, external)
 

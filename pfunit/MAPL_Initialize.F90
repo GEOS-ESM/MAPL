@@ -1,12 +1,12 @@
 #include "MAPL.h"
-module MAPL_pFUnit_Initialize
+module mapl_pFUnit_Initialize_mod
    implicit none(type,external)
 
 contains
    subroutine Initialize()
       use MAPL
       use fArgParse
-      use MAPL_ThrowMod, only: MAPL_set_throw_method
+      use mapl_Throw_mod, only: MAPL_set_throw_method
       use MAPL_pFUnit_ThrowMod
       use pflogger, only: pfl_initialize => initialize, WARNING, DEBUG
       use gFTL2_StringUnlimitedMap
@@ -42,4 +42,4 @@ contains
       end subroutine set_command_line_options
  
    end subroutine Initialize
-end module MAPL_pFUnit_Initialize
+end module mapl_pFUnit_Initialize_mod

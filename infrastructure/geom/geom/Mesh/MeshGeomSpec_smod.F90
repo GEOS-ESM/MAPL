@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-submodule (mapl_MeshGeomSpec) MeshGeomSpec_smod
+submodule (mapl_MeshGeomSpec_mod) MeshGeomSpec_smod
 
-   use mapl_GeomSpec
-   use mapl_CoordinateAxis, only: get_dim_name, get_coordinates
-   use mapl_MeshDecomposition
-   use mapl_ErrorHandlingMod
-   use mapl_StringUtilities, only: to_lower
-   use mapl_get_hconfig, only: get_hconfig
-   use mapl_hconfig_params, only: HConfigParams
+   use mapl_GeomSpec_mod
+   use mapl_CoordinateAxis_mod, only: get_dim_name, get_coordinates
+   use mapl_MeshDecomposition_mod
+   use mapl_ErrorHandling_mod
+   use mapl_StringUtilities_mod, only: to_lower
+   use mapl_get_hconfig_mod, only: get_hconfig
+   use mapl_hconfig_params_mod, only: HConfigParams
    use pfio
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL64, INT32
@@ -19,7 +19,7 @@ contains
 
    ! New file-based constructor that reads nnodes/nelements from file
    module function new_MeshGeomSpec_from_file(filename, unusable, decomposition, rc) result(spec)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(MeshGeomSpec) :: spec
       character(len=*), intent(in) :: filename
       class(KeywordEnforcer), optional, intent(in) :: unusable

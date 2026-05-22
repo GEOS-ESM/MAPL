@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomFactory) make_file_metadata_smod
-   use mapl_ErrorHandlingMod
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+submodule (mapl_XYGeomFactory_mod) make_file_metadata_smod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use pfio
    use esmf
    implicit none
@@ -10,6 +10,7 @@ submodule (mapl_XYGeomFactory) make_file_metadata_smod
 contains
 
    module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       class(XYGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec

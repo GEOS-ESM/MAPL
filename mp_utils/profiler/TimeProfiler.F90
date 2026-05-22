@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
-module mapl_TimeProfiler_private
-   use mapl_BaseProfiler, only: BaseProfiler
-   use mapl_BaseProfiler, only: TimeProfilerIterator => BaseProfilerIterator
+module mapl_TimeProfiler_private_mod
+   use mapl_BaseProfiler_mod, only: BaseProfiler
+   use mapl_BaseProfiler_mod, only: TimeProfilerIterator => BaseProfilerIterator
 
-   use mapl_MpiTimerGauge
-   use mapl_AdvancedMeter
-   use mapl_AbstractMeter
-   use mapl_MeterNode
+   use mapl_MpiTimerGauge_mod
+   use mapl_AdvancedMeter_mod
+   use mapl_AbstractMeter_mod
+   use mapl_MeterNode_mod
    implicit none
    private
 
@@ -54,14 +54,14 @@ contains
       meter = AdvancedMeter(MpiTimerGauge())
    end function make_meter
 
-end module mapl_TimeProfiler_Private
+end module mapl_TimeProfiler_private_mod
 
-module mapl_TimeProfiler
+module mapl_TimeProfiler_mod
    use mpi
-   use mapl_BaseProfiler
-   use mapl_TimeProfiler_private
-   use mapl_KeywordEnforcerMod
-   use mapl_ErrorHandlingMod
+   use mapl_BaseProfiler_mod
+   use mapl_TimeProfiler_private_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
 
    implicit none
    private
@@ -71,4 +71,4 @@ module mapl_TimeProfiler
 
 contains
 
-end module mapl_TimeProfiler
+end module mapl_TimeProfiler_mod

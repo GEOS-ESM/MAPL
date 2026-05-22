@@ -1,5 +1,5 @@
-module mapl_DSO_Utilities
-   use mapl_FileSystemUtilities
+module mapl_DSO_Utilities_mod
+   use mapl_FileSystemUtilities_mod
    implicit none
 
    public :: is_valid_dso_name
@@ -95,4 +95,4 @@ contains
       end if
    end function get_dso_extension
 
-end module mapl_DSO_Utilities
+end module mapl_DSO_Utilities_mod

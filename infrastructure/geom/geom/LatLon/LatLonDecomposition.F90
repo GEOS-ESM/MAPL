@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl_LatLonDecomposition
+module mapl_LatLonDecomposition_mod
 
-   use mapl_LonAxis
-   use mapl_LatAxis
-   use mapl_Partition
-   use mapl_KeywordEnforcer
+   use mapl_LonAxis_mod
+   use mapl_LatAxis_mod
+   use mapl_Partition_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
 
    implicit none
@@ -101,7 +101,7 @@ module mapl_LatLonDecomposition
 contains
 
    function new_LatLonDecomposition_basic(lon_distribution, lat_distribution) result(decomp)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(LatLonDecomposition) :: decomp
       integer, intent(in) :: lon_distribution(:)
       integer, intent(in) :: lat_distribution(:)
@@ -111,7 +111,7 @@ contains
    end function new_LatLonDecomposition_basic
 
    function new_LatLonDecomposition_petcount(dims, unusable, petCount) result(decomp)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(LatLonDecomposition) :: decomp
       integer, intent(in) :: dims(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -134,7 +134,7 @@ contains
    end function new_LatLonDecomposition_petcount
 
    function new_LatLonDecomposition_topo(dims, unusable, topology) result(decomp)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(LatLonDecomposition) :: decomp
       integer, intent(in) :: dims(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -167,5 +167,5 @@ contains
       not_equal_to = .not. (decomp1 == decomp2)
    end function not_equal_to
 
-end module mapl_LatLonDecomposition
+end module mapl_LatLonDecomposition_mod
 

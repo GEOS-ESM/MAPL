@@ -1,8 +1,8 @@
-module MAPL_MeterNode
+module mapl_MeterNode_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use MAPL_AbstractMeter
-   use MAPL_AbstractMeterNode
-   use MAPL_MeterNodeVector
+   use mapl_AbstractMeter_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_MeterNodeVector_mod
    implicit none
    private
 
@@ -438,4 +438,4 @@ contains
    end subroutine accumulate
 
 
-end module MAPL_MeterNode
+end module mapl_MeterNode_mod

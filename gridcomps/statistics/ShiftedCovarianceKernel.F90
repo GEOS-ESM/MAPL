@@ -1,11 +1,10 @@
 #include "MAPL.h"
 
-module mapl_ShiftedCovarianceKernel
+module mapl_ShiftedCovarianceKernel_mod
 
-   use mapl_AbstractCovarianceKernel
+   use mapl_AbstractCovarianceKernel_mod
    use MAPL
    use ESMF
-   use mapl_ErrorHandling
 
    implicit none(type, external)
    private
@@ -341,4 +340,4 @@ contains
 
    end subroutine compute_r8
 
-end module mapl_ShiftedCovarianceKernel
+end module mapl_ShiftedCovarianceKernel_mod

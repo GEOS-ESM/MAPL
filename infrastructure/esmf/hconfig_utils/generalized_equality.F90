@@ -1,4 +1,4 @@
-module mapl_generalized_equality
+module mapl_generalized_equality_mod
 
    use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I4, ESMF_KIND_I8
    implicit none
@@ -105,4 +105,4 @@ contains
 
    end function equals_l_array
 
-end module mapl_generalized_equality
+end module mapl_generalized_equality_mod

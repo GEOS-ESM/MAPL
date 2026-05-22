@@ -1,5 +1,5 @@
-module MAPL_TextColumnVector
-   use MAPL_TextColumn
+module mapl_TextColumnVector_mod
+   use mapl_TextColumn_mod
 
 #define T TextColumn
 #define T_polymorphic
@@ -11,4 +11,4 @@ module MAPL_TextColumnVector
 #undef Vector
 #undef T_polymorphic
 #undef T
-end module MAPL_TextColumnVector
+end module mapl_TextColumnVector_mod

@@ -1,14 +1,10 @@
 #include "MAPL.h"
-module mapl_ExtDataCollection
+module mapl_ExtDataCollection_mod
    use ESMF
-   use MAPL_KeywordEnforcerMod
-   use MAPL_ExceptionHandling
-   use MAPL_StringTemplate
-   use mapl_HConfigAs, only: mapl_HConfigAsTimeInterval => HConfigAsTimeInterval
-   use mapl_HConfigAs, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
+   use MAPL
    use pfio_FileMetadataMod
-   use mapl_AbstractDataSetFileSelector
-   use mapl_NonClimDataSetFileSelector
+   use mapl_AbstractDataSetFileSelector_mod
+   use mapl_NonClimDataSetFileSelector_mod
    implicit none
    private
 
@@ -216,4 +212,4 @@ contains
       is_allocated = allocated(this%valid_range)
    end function is_valid_range_allocated
 
-end module mapl_ExtDataCollection
+end module mapl_ExtDataCollection_mod

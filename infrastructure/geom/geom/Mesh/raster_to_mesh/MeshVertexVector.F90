@@ -1,5 +1,5 @@
-module mapl_MeshVertexVector
-   use mapl_MeshVertex
+module mapl_MeshVertexVector_mod
+   use mapl_MeshVertex_mod
 
 #define T MeshVertex
 #define Vector MeshVertexVector
@@ -10,4 +10,4 @@ module mapl_MeshVertexVector
 #undef VectorIterator
 #undef Vector
 #undef T
-end module mapl_MeshVertexVector
+end module mapl_MeshVertexVector_mod

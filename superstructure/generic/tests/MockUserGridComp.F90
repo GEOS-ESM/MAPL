@@ -8,7 +8,7 @@ module MockUserGridComp
 !!$   use esmf, only: ESMF_METHOD_READRESTART
 !!$   use esmf, only: ESMF_METHOD_WRITERESTART
    use esmf, only: ESMF_SUCCESS
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
    private
    

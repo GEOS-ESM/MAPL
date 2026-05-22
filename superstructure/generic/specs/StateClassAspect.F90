@@ -1,19 +1,19 @@
 #include "MAPL.h"
 
-module mapl_StateClassAspect
+module mapl_StateClassAspect_mod
 
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ClassAspect
-   use mapl_WildcardClassAspect
-   use mapl_NullTransform
-   use mapl_ExtensionTransform
-   use mapl_MultiState
-   use mapl_ESMF_Utilities, only: get_substate
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ClassAspect_mod
+   use mapl_WildcardClassAspect_mod
+   use mapl_NullTransform_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_MultiState_mod
+   use mapl_ESMF_Utilities_mod, only: get_substate
    ! use mapl_State_API, only: MAPL_StateCreate, MAPL_StateInfoSetInternal
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none(type,external)
@@ -297,4 +297,4 @@ contains
       _UNUSED_DUMMY(src)
    end function matches_a
 
-end module mapl_StateClassAspect
+end module mapl_StateClassAspect_mod
