@@ -551,6 +551,7 @@ contains
         vstagger, &
         ! OPTIONAL
         unusable, &
+        vector_component_names, &
         ungridded_dims, &
         units, &
         restart, &
@@ -570,6 +571,7 @@ contains
       type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: vector_component_names(:)
       type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
       type(RestartMode), optional, intent(in) :: restart
@@ -633,6 +635,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(vector_component_names)
    end subroutine gridcomp_add_spec
 
    subroutine gridcomp_advertise_variable(gridcomp, var_spec, rc)
