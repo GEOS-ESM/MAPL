@@ -5,16 +5,48 @@
 
 version: 2
 updates:
-  # Enable daily updates for GitHub Actions
+  # Enable daily updates for GitHub Actions (main)
+  - package-ecosystem: "github-actions"
+    directory: "/" # Dependabot knows to look in .github/workflows for GitHub Actions
+    schedule:
+      interval: "daily"
+    target-branch: "main"
+    labels:
+      - "dependencies"
+      - "github_actions"
+      - "Changelog Skip"
+      - "0 Diff"
+
+  # Enable daily updates for GitHub Actions (develop)
   - package-ecosystem: "github-actions"
     directory: "/" # Dependabot knows to look in .github/workflows for GitHub Actions
     schedule:
       interval: "daily"
     target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "github_actions"
+      - "Changelog Skip"
+      - "0 Diff"
 
-  # Enable daily updates for Docker
+  # Enable daily updates for Docker (main)
+  - package-ecosystem: "docker"
+    directory: "/.docker" # Location of Dockerfile
+    schedule:
+      interval: "daily"
+    target-branch: "main"
+    labels:
+      - "dependencies"
+      - "Changelog Skip"
+      - "0 Diff"
+
+  # Enable daily updates for Docker (develop)
   - package-ecosystem: "docker"
     directory: "/.docker" # Location of Dockerfile
     schedule:
       interval: "daily"
     target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "Changelog Skip"
+      - "0 Diff"
