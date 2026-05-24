@@ -8,7 +8,9 @@ on:
 jobs:
   pull_request:
     name: Create Pull Request
-    runs-on: ubuntu-slim
+    # Must use ubuntu-latest (not ubuntu-slim) because devops-infra/action-pull-request
+    # is a Docker container action and ubuntu-slim does not have a Docker daemon.
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
