@@ -10,7 +10,7 @@ module mapl_PythonBridge_mod
    !
    ! -----------------------------
    use ESMF
-   use Generic3g
+   use mapl_Generic
 #ifdef PYTHONBRIDGE_INTEGRATION
    use mapl_fortran_python_bridge_mod, only: mapl_fortran_python_bridge_global_initialize
    use mapl_fortran_python_bridge_mod, only: mapl_fortran_python_bridge_user_init
