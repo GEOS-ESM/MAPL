@@ -1,4 +1,4 @@
-set(MODULE_DIRECTORY "${esma_include}/MAPL.generic3g/tests")
+set(MODULE_DIRECTORY "${esma_include}/MAPL.generic/tests")
 
 add_subdirectory(gridcomps)
 
@@ -20,24 +20,24 @@ configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
 # Create a shared library for common test sources to avoid parallel build race conditions
 # When multiple test suites compile the same OTHER_SOURCES files to the same MODULE_DIRECTORY,
 # they can conflict during parallel builds
-add_library(MAPL.generic3g.test_common SHARED
+add_library(MAPL.generic.test_common SHARED
   MockUserGridComp.F90
   MockAspect.F90
 )
-target_link_libraries(MAPL.generic3g.test_common PUBLIC MAPL.generic3g MAPL.shared MAPL.pfunit)
-set_target_properties(MAPL.generic3g.test_common PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-target_include_directories(MAPL.generic3g.test_common PUBLIC $<BUILD_INTERFACE:${MODULE_DIRECTORY}>)
+target_link_libraries(MAPL.generic.test_common PUBLIC MAPL.generic MAPL.shared MAPL.pfunit)
+set_target_properties(MAPL.generic.test_common PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+target_include_directories(MAPL.generic.test_common PUBLIC $<BUILD_INTERFACE:${MODULE_DIRECTORY}>)
 
 # Common dependencies for all test suites
-set(COMMON_LINK_LIBRARIES MAPL.generic3g.test_common MAPL.pfunit configurable_gridcomp MAPL.statistics)
+set(COMMON_LINK_LIBRARIES MAPL.generic.test_common MAPL.pfunit configurable_gridcomp MAPL.statistics)
 
-# 1. MAPL.generic3g.scenarios - End-to-end integration test scenarios
+# 1. MAPL.generic.scenarios - End-to-end integration test scenarios
 set(scenarios_test_srcs
   Test_Scenarios.pf
 )
 
 add_pfunit_ctest(
-  MAPL.generic3g.scenarios
+  MAPL.generic.scenarios
   TEST_SOURCES ${scenarios_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
@@ -45,10 +45,10 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_tests_properties(MAPL.generic3g.scenarios PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic3g.scenarios proto_extdata_gc proto_stat_gc copy_scenarios)
+set_tests_properties(MAPL.generic.scenarios PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios)
 
-# 2. MAPL.generic3g.transforms - Data transformation tests
+# 2. MAPL.generic.transforms - Data transformation tests
 set(transforms_test_srcs
   Test_TimeInterpolateTransform.pf
   Test_ConvertUnitsTransform.pf
@@ -63,7 +63,7 @@ set(transforms_test_srcs
 )
 
 add_pfunit_ctest(
-  MAPL.generic3g.transforms
+  MAPL.generic.transforms
   TEST_SOURCES ${transforms_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
@@ -71,10 +71,10 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_tests_properties(MAPL.generic3g.transforms PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic3g.transforms proto_extdata_gc proto_stat_gc)
+set_tests_properties(MAPL.generic.transforms PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.transforms proto_extdata_gc proto_stat_gc)
 
-# 3. MAPL.generic3g.vertical - Vertical regridding and grid tests
+# 3. MAPL.generic.vertical - Vertical regridding and grid tests
 set(vertical_test_srcs
   Test_VerticalRegridTransform.pf
   Test_ModelVerticalGrid.pf
@@ -83,7 +83,7 @@ set(vertical_test_srcs
 )
 
 add_pfunit_ctest(
-  MAPL.generic3g.vertical
+  MAPL.generic.vertical
   TEST_SOURCES ${vertical_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
@@ -91,10 +91,10 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_tests_properties(MAPL.generic3g.vertical PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic3g.vertical proto_extdata_gc proto_stat_gc)
+set_tests_properties(MAPL.generic.vertical PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.vertical proto_extdata_gc proto_stat_gc)
 
-# 4. MAPL.generic3g.aspects - Aspect system tests
+# 4. MAPL.generic.aspects - Aspect system tests
 set(aspects_test_srcs
   Test_BaseAspect.pf
   Test_AspectMap.pf
@@ -111,7 +111,7 @@ set(aspects_test_srcs
 )
 
 add_pfunit_ctest(
-  MAPL.generic3g.aspects
+  MAPL.generic.aspects
   TEST_SOURCES ${aspects_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
@@ -119,10 +119,10 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_tests_properties(MAPL.generic3g.aspects PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic3g.aspects proto_extdata_gc proto_stat_gc)
+set_tests_properties(MAPL.generic.aspects PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.aspects proto_extdata_gc proto_stat_gc)
 
-# 5. MAPL.generic3g.components - Component and specification tests
+# 5. MAPL.generic.components - Component and specification tests
 set(components_test_srcs
   Test_ConfigurableGridComp.pf
   Test_GenericGridComp.pf
@@ -134,7 +134,7 @@ set(components_test_srcs
 )
 
 add_pfunit_ctest(
-  MAPL.generic3g.components
+  MAPL.generic.components
   TEST_SOURCES ${components_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
@@ -142,10 +142,10 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_tests_properties(MAPL.generic3g.components PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic3g.components proto_extdata_gc proto_stat_gc)
+set_tests_properties(MAPL.generic.components PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
 
-# 6. MAPL.generic3g.core - Core functionality tests
+# 6. MAPL.generic.core - Core functionality tests
 set(core_test_srcs
   Test_VirtualConnectionPt.pf
   Test_ConnectionPt.pf
@@ -165,7 +165,7 @@ set(core_test_srcs
 )
 
 add_pfunit_ctest(
-  MAPL.generic3g.core
+  MAPL.generic.core
   TEST_SOURCES ${core_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
   EXTRA_INITIALIZE Initialize
@@ -173,8 +173,8 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
-set_tests_properties(MAPL.generic3g.core PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic3g.core proto_extdata_gc proto_stat_gc)
+set_tests_properties(MAPL.generic.core PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.core proto_extdata_gc proto_stat_gc)
 
 
 if (APPLE)
@@ -193,19 +193,19 @@ if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
 endif()
 
 # Apply environment settings to all test suites
-set_tests_properties(MAPL.generic3g.scenarios PROPERTIES ENVIRONMENT "${TEST_ENV}")
-set_tests_properties(MAPL.generic3g.transforms PROPERTIES ENVIRONMENT "${TEST_ENV}")
-set_tests_properties(MAPL.generic3g.vertical PROPERTIES ENVIRONMENT "${TEST_ENV}")
-set_tests_properties(MAPL.generic3g.aspects PROPERTIES ENVIRONMENT "${TEST_ENV}")
-set_tests_properties(MAPL.generic3g.components PROPERTIES ENVIRONMENT "${TEST_ENV}")
-set_tests_properties(MAPL.generic3g.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.scenarios PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.transforms PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.vertical PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.aspects PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.components PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
 
 # Add all test suites to build-tests target
 add_dependencies(build-tests 
-  MAPL.generic3g.scenarios
-  MAPL.generic3g.transforms
-  MAPL.generic3g.vertical
-  MAPL.generic3g.aspects
-  MAPL.generic3g.components
-  MAPL.generic3g.core
+  MAPL.generic.scenarios
+  MAPL.generic.transforms
+  MAPL.generic.vertical
+  MAPL.generic.aspects
+  MAPL.generic.components
+  MAPL.generic.core
 )
