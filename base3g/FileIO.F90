@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_FileIO_mod
-   use MAPL_CommsMod, only: MAPL_AM_I_ROOT
+   use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root
    use, intrinsic :: iso_fortran_env, only: INT32, REAL32, REAL64, OUTPUT_UNIT
    implicit none
    private

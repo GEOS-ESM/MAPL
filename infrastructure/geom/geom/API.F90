@@ -11,6 +11,8 @@ module mapl_Geom_API_mod
    use mapl_GridAccessors_mod, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates, &
         mapl_GridHasDE => grid_has_DE
    use mapl_GridGetGlobal_mod, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
+   use mapl_GridComms_mod, only: MAPL_CollectiveGather3D => mapl_CollectiveGather3D, &
+                                  MAPL_CollectiveScatter3D => mapl_CollectiveScatter3D
    use mapl_Subgrid_mod, only: mapl_Interval => Interval, mapl_make_subgrids => make_subgrids
    use mapl_XYGeomSpec_mod,    only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
    use mapl_XYGeomFactory_mod, only: XYGeomFactory
@@ -28,6 +30,7 @@ module mapl_Geom_API_mod
    public :: mapl_GridGetCoordinates
    public :: mapl_GridGetHorzIJIndex, mapl_GeomGetHorzIJIndex
    public :: mapl_GridGetGlobalCellCountPerDim
+   public :: MAPL_CollectiveGather3D, MAPL_CollectiveScatter3D
    public :: mapl_GridHasDE
 
    ! Used internally by MAPL

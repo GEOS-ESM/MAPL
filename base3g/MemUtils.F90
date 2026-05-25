@@ -15,7 +15,6 @@
 module mapl_MemUtils_mod
 
   use ESMF
-  use MAPL_CommsMod
   use mapl_Shmem_mod
   use mapl_ErrorHandling_mod
   use mapl_FileIO_mod, only: WRITE_PARALLEL

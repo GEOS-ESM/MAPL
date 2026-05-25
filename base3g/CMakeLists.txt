@@ -9,7 +9,6 @@ set (srcs
   NCIO.F90
   c_mapl_locstream_F.c
   MAPL_LocStreamMod.F90
-  Comms.F90
   MemUtils.F90
   SunOrbit.F90
   SimpleBundleMod.F90
@@ -36,6 +35,3 @@ if (DUSTY)
 endif ()
 
 target_compile_definitions (${this} PRIVATE MAPL_MODE)
-
-target_include_directories (${this} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)

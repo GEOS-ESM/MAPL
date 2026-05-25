@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Migrate `base3g/` comms code to the infrastructure layer (#4970, part of #4969).
+  Deletes `base3g/Comms.F90` (`MAPL_CommsMod`, 1636 lines) and the entire
+  `base3g/include/` directory (16 `.H` files). Introduces two new modules:
+  `mapl_ShmemComms_mod` (`infrastructure/esmf/comms/ShmemComms.F90`) for
+  shared-memory-aware broadcast operations, and `mapl_GridComms_mod`
+  (`infrastructure/geom/geom/GridComms.F90`) for 3-D collective scatter/gather.
+  `MAPL_CollectiveGather3D` and `MAPL_CollectiveScatter3D` remain accessible
+  via `USE MAPL` through re-export from `mapl_Geom_API_mod`. Zero-diff.
+
 ### Added
 
 - Re-export `PackedDateCreate`, `PackedTimeCreate`, `PackedDateTimeCreate` (from
