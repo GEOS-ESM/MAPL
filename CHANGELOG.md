@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Remove `3g` suffix from all module and directory names (#4971, part of #4969).
+  Renames `base3g/` → `base/`, `Generic3g.F90` → `Generic.F90`, module `generic3g`
+  → `mapl_Generic`, `mapl_Generic3g_API_mod` → `mapl_Generic_API_mod`,
+  `mapl_base3g_mod` → `mapl_base_mod`, and CMake targets `MAPL.generic3g` →
+  `MAPL.generic` and `MAPL.base3g` → `MAPL.base`. Downstream clients require only
+  recompilation; no source changes needed.
 - Migrate `base3g/` comms code to the infrastructure layer (#4970, part of #4969).
   Deletes `base3g/Comms.F90` (`MAPL_CommsMod`, 1636 lines) and the entire
   `base3g/include/` directory (16 `.H` files). Introduces two new modules:
