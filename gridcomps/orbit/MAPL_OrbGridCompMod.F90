@@ -25,7 +25,6 @@
    Use ESMF
    use MAPL, only: MAPL_FieldCreate
    use MAPL, only: MAPL_FieldBundleAdd
-   Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    Use MAPL
    use MAPL, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
    use MAPL, only: MAPL_GridGet, MAPL_GridGetCoordinates

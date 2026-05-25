@@ -9,17 +9,25 @@ module mapl_base3g_mod
                                    MAPL_UnpackTime => UnpackTime, &
                                    MAPL_UnpackDateTime => UnpackDateTime
    use mapl_SimulationTime_mod, only: set_reference_clock, fill_time_dict
-   use MAPL_CommsMod, only: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV, &
-                            mapl_CommsAllGather, mapl_CommsAllGatherV, &
-                            mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, &
-                            mapl_CommsAllReduceSum, mapl_CommsSend, mapl_CommsRecv, &
-                            mapl_CommsSendRecv, mapl_AM_I_ROOT, mapl_AM_I_RANK, &
-                            mapl_NPES, ArrayGather, ArrayScatter, MAPL_ROOT, &
-                            MAPL_ArrayGather => ArrayGather, MAPL_ArrayScatter => ArrayScatter, &
-                            mapl_CreateRequest, mapl_CommRequest, mapl_ArrayIGather, &
-                            mapl_ArrayIScatter, mapl_CollectiveWait, &
-                            mapl_CollectiveScatter3D, mapl_CollectiveGather3D, &
-                            mapl_RoundRobinPEList, mapl_BcastShared, ArrPtr
+   use mapl_Comms_mod, only: mapl_CommsScatterV => comms_scatterv, &
+                             mapl_CommsGatherV => comms_gatherv, &
+                             mapl_CommsAllGather => comms_allgather, &
+                             mapl_CommsAllGatherV => comms_allgatherv, &
+                             mapl_CommsAllReduceMin => comms_allreduce_min, &
+                             mapl_CommsAllReduceMax => comms_allreduce_max, &
+                             mapl_CommsAllReduceSum => comms_allreduce_sum, &
+                             mapl_CommsSend => comms_send, &
+                             mapl_CommsRecv => comms_recv, &
+                             mapl_CommsSendRecv => comms_sendrecv, &
+                             mapl_AM_I_ROOT => am_i_root, &
+                             mapl_AM_I_RANK => am_i_rank, &
+                             mapl_NPES => num_pes, &
+                             ArrayGather => array_gather, &
+                             ArrayScatter => array_scatter, &
+                             MAPL_ArrayGather => array_gather, &
+                             MAPL_ArrayScatter => array_scatter, &
+                             MAPL_ROOT => ROOT_PROCESS_ID
+   use mapl_ShmemComms_mod, only: mapl_CommsBcast, mapl_RoundRobinPEList, mapl_BcastShared
    use mapl_SatVapor_mod, only: MAPL_EQsatSET, MAPL_EQsat
    use mapl_StringTemplate_mod, only: fill_grads_template, StrTemplate, fill_grads_template_esmf
    use mapl_LocalDisplacementEnsemble_mod, only: LocalDisplacementEnsemble
@@ -53,10 +61,7 @@ module mapl_base3g_mod
    public :: mapl_AM_I_ROOT, mapl_AM_I_RANK, mapl_NPES
    public :: ArrayGather, ArrayScatter, MAPL_ROOT
    public :: MAPL_ArrayGather, MAPL_ArrayScatter
-   public :: mapl_CreateRequest, mapl_CommRequest
-   public :: mapl_ArrayIGather, mapl_ArrayIScatter, mapl_CollectiveWait
-   public :: mapl_CollectiveScatter3D, mapl_CollectiveGather3D
-   public :: mapl_RoundRobinPEList, mapl_BcastShared, ArrPtr
+   public :: mapl_RoundRobinPEList, mapl_BcastShared
    public :: MAPL_EQsatSET, MAPL_EQsat
    public :: fill_grads_template, StrTemplate, fill_grads_template_esmf
    public :: LocalDisplacementEnsemble
