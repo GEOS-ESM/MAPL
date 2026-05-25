@@ -6,7 +6,7 @@ module mapl_PrimaryExport_mod
    use mapl_ClimDataSetFileSelector_mod
    use MAPL
    use MAPL
-   use mapl_Generic
+   use MAPL
    use mapl_DataSetBracket_mod
    use mapl_DataSetNode_mod
    use mapl_ExtDataReader_mod
