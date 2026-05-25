@@ -78,6 +78,6 @@ endforeach ()
 
 if (PFUNIT_FOUND)
     add_subdirectory (tests)
-    add_subdirectory (../field_bundle/tests)
-    add_subdirectory (../state/tests)
+    add_subdirectory (../field_bundle/tests field_bundle_tests)
+    add_subdirectory (../state/tests state_tests)
 endif ()
