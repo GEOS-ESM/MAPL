@@ -31,7 +31,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.geom MAPL.field_bundle MAPL.shared GFTL::gftl-v2
+  DEPENDENCIES MAPL.geom MAPL.vector_basis MAPL.field_bundle MAPL.shared GFTL::gftl-v2
   TYPE SHARED
   )
 
