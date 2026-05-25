@@ -5,49 +5,49 @@ esma_set_this (OVERRIDE MAPL.fields)
 
 set (srcs
     # From field/
-    field/API.F90
-    field/FieldUtils.F90
-    field/FieldBLAS.F90
-    field/FieldUtilities.F90
-    field/FieldUnaryFunctions.F90
-    field/FieldBinaryOperations.F90
-    field/FieldUnits.F90
-    field/FieldCondensedArray.F90
-    field/FieldCondensedArray_private.F90
-    field/FieldFillDefault.F90
-    field/FieldFill.F90
-    field/FieldCreate.F90
-    field/FieldDelta.F90
-    field/FieldGet.F90
-    field/FieldSet.F90
-    field/FieldInfo.F90
-    field/StateItemAllocation.F90
-    field/RestartModes.F90
+    API.F90
+    FieldUtils.F90
+    FieldBLAS.F90
+    FieldUtilities.F90
+    FieldUnaryFunctions.F90
+    FieldBinaryOperations.F90
+    FieldUnits.F90
+    FieldCondensedArray.F90
+    FieldCondensedArray_private.F90
+    FieldFillDefault.F90
+    FieldFill.F90
+    FieldCreate.F90
+    FieldDelta.F90
+    FieldGet.F90
+    FieldSet.F90
+    FieldInfo.F90
+    StateItemAllocation.F90
+    RestartModes.F90
     # From field_bundle/
-    field_bundle/API.F90
-    field_bundle/FieldBundleType_Flag.F90
-    field_bundle/FieldBundleGet.F90
-    field_bundle/FieldBundleGetByIndex.F90
-    field_bundle/FieldBundleSet.F90
-    field_bundle/FieldBundleInfo.F90
-    field_bundle/FieldBundleDelta.F90
-    field_bundle/FieldBundleCreate.F90
-    field_bundle/FieldBundleCopy.F90
-    field_bundle/FieldBundleDestroy.F90
-    field_bundle/FieldBundleGetPointer.F90
-    field_bundle/FieldBundleMatch.F90
+    ../field_bundle/API.F90
+    ../field_bundle/FieldBundleType_Flag.F90
+    ../field_bundle/FieldBundleGet.F90
+    ../field_bundle/FieldBundleGetByIndex.F90
+    ../field_bundle/FieldBundleSet.F90
+    ../field_bundle/FieldBundleInfo.F90
+    ../field_bundle/FieldBundleDelta.F90
+    ../field_bundle/FieldBundleCreate.F90
+    ../field_bundle/FieldBundleCopy.F90
+    ../field_bundle/FieldBundleDestroy.F90
+    ../field_bundle/FieldBundleGetPointer.F90
+    ../field_bundle/FieldBundleMatch.F90
     # From state/
-    state/API.F90
-    state/StateGet.F90
-    state/StateSet.F90
-    state/StateGetPointer.F90
-    state/StateGetGeom.F90
-    state/StateAddMethod.F90
-    state/StateUtils.F90
-    state/StateArithmeticParser.F90
-    state/StateMasking.F90
-    state/StateFilter.F90
-    state/StateDestroy.F90
+    ../state/API.F90
+    ../state/StateGet.F90
+    ../state/StateSet.F90
+    ../state/StateGetPointer.F90
+    ../state/StateGetGeom.F90
+    ../state/StateAddMethod.F90
+    ../state/StateUtils.F90
+    ../state/StateArithmeticParser.F90
+    ../state/StateMasking.F90
+    ../state/StateFilter.F90
+    ../state/StateDestroy.F90
 )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
@@ -65,8 +65,8 @@ esma_add_library (${this}
 )
 
 target_include_directories (${this} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/field>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/state>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../state>
 )
 
 # Backward-compatibility aliases
