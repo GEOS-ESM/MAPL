@@ -1,9 +1,9 @@
 #include "unused_dummy.H"
 #include "MAPL_ErrLog.h"
-module MAPL_VmstatMemoryGauge
-   use MAPL_ErrorHandlingMod
+module mapl_VmstatMemoryGauge_mod
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
-   use MAPL_AbstractGauge
+   use mapl_AbstractGauge_mod
    implicit none
    private
 
@@ -65,7 +65,7 @@ contains
    end function get_measurement
 
 
-end module MAPL_VmstatMemoryGauge
+end module mapl_VmstatMemoryGauge_mod
 
    
    

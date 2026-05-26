@@ -1,6 +1,6 @@
-module MAPL_NameColumn
-   use MAPL_AbstractMeterNode
-   use MAPL_SimpleTextColumn
+module mapl_NameColumn_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_SimpleTextColumn_mod
    implicit none
    private
 
@@ -78,4 +78,4 @@ contains
    end function get_num_rows_header
 
 
-end module MAPL_NameColumn
+end module mapl_NameColumn_mod

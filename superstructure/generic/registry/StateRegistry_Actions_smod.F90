@@ -7,10 +7,10 @@
 ! - get_export_couplers: Get couplers that produce exports
 ! - get_import_couplers: Get couplers that consume imports
 
-submodule (mapl_StateRegistry) StateRegistry_Actions_smod
-   use mapl_MultiState
-   use mapl_ActualConnectionPt
-   use mapl_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
+submodule (mapl_StateRegistry_mod) StateRegistry_Actions_smod
+   use mapl_MultiState_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_VirtualPtFamilyMap_mod, only: VirtualPtFamilyMapIterator
    use esmf
    implicit none(type,external)
 

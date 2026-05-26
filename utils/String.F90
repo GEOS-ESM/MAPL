@@ -2,8 +2,8 @@
 ! improve usability of such strings in generic interfaces.
 
 #include "MAPL.h"
-module MAPL_String
-   use mapl_StringUtilities, only: to_upper, to_lower, capitalize_string => capitalize
+module mapl_String_mod
+   use mapl_StringUtilities_mod, only: to_upper, to_lower, capitalize_string => capitalize
 
    implicit none
    private
@@ -399,4 +399,4 @@ contains
    end function capitalize
 
    
-end module MAPL_String
+end module mapl_String_mod

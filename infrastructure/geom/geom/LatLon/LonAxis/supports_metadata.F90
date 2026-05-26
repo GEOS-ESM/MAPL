@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl_LonAxis) supports_metadata_smod
-   use mapl_RangeMod
-   use mapl_ErrorHandling
+submodule (mapl_LonAxis_mod) supports_metadata_smod
+   use mapl_Range_mod
+   use mapl_ErrorHandling_mod
    use esmf
    implicit none (type, external)
    integer, parameter :: R8 = ESMF_KIND_R8

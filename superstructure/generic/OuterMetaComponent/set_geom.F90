@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) set_geom_smod
+submodule (mapl_OuterMetaComponent_mod) set_geom_smod
    implicit none(type,external)
 
 contains

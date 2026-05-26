@@ -1,5 +1,5 @@
-module mapl_ExtDataSampleMap
-   use mapl_ExtDataSample
+module mapl_ExtDataSampleMap_mod
+   use mapl_ExtDataSample_mod
 
 #define Key __CHARACTER_DEFERRED
 #define T ExtDataSample
@@ -15,4 +15,4 @@ module mapl_ExtDataSampleMap
 #undef T
 #undef Key
 
-end module mapl_ExtDataSampleMap
+end module mapl_ExtDataSampleMap_mod

@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl_OuterMetaComponent) apply_to_children_custom_smod
-   use mapl_GriddedComponentDriverMap
-   use mapl_ErrorHandling
+submodule (mapl_OuterMetaComponent_mod) apply_to_children_custom_smod
+   use mapl_GriddedComponentDriverMap_mod
+   use mapl_ErrorHandling_mod
    implicit none(type,external)
 
 contains

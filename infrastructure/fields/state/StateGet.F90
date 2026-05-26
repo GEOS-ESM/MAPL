@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl_StateGetImpl
-   use mapl_VerticalGrid_API
+module mapl_StateGetImpl_mod
+   use mapl_VerticalGrid_API_mod
    use mapl_Field_API
-   use mapl_UngriddedDims
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
+   use mapl_UngriddedDims_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
    implicit none(type,external)
    private
@@ -90,4 +90,4 @@ contains
       
       _RETURN(_SUCCESS)
    end subroutine state_get_status
-end module mapl_StateGetImpl
+end module mapl_StateGetImpl_mod

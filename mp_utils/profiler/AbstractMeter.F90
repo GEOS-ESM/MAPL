@@ -1,9 +1,9 @@
 #include "unused_dummy.H"
 #include "MAPL_ErrLog.h"
 
-module MAPL_AbstractMeter
+module mapl_AbstractMeter_mod
 
-   use MAPL_ErrorHandlingMod
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
 
    implicit none
@@ -81,4 +81,4 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine finalize
 
-end module MAPL_AbstractMeter
+end module mapl_AbstractMeter_mod

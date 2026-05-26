@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl_LocStreamDecomposition) get_local_indices_smod
+submodule (mapl_LocStreamDecomposition_mod) get_local_indices_smod
    implicit none (type, external)
 
 contains

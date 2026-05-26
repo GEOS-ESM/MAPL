@@ -1,14 +1,14 @@
 #include "MAPL.h"
 
-module mapl_GenericCoupler
-   use mapl_CouplerPhases
-   use mapl_CouplerMetaComponent
-   use mapl_ExtensionTransform
-   use mapl_TransformId
-   use mapl_VerticalRegridTransform
-   use mapl_ComponentDriver
-   use mapl_GriddedComponentDriver
-   use mapl_ErrorHandlingMod
+module mapl_GenericCoupler_mod
+   use mapl_CouplerPhases_mod
+   use mapl_CouplerMetaComponent_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_TransformId_mod
+   use mapl_VerticalRegridTransform_mod
+   use mapl_ComponentDriver_mod
+   use mapl_GriddedComponentDriver_mod
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none(type,external)
@@ -169,4 +169,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine mapl_CouplerAddConsumer
 
-end module mapl_GenericCoupler
+end module mapl_GenericCoupler_mod

@@ -1,11 +1,11 @@
 #include "MAPL_ErrLog.h"
 
-module MAPL_FileMetadataUtilsMod
+module mapl_FileMetadataUtils_mod
    use pFIO
-   use Mapl_keywordenforcermod
+   use mapl_KeywordEnforcer_mod
    use gFTL2_StringIntegerMap
    use ESMF
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32,INT64,INT32
    implicit none
 
@@ -699,7 +699,7 @@ module MAPL_FileMetadataUtilsMod
       _RETURN(_SUCCESS)
    end function
 
-end module MAPL_FileMetadataUtilsMod
+end module mapl_FileMetadataUtils_mod
 
 
 

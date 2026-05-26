@@ -1,6 +1,6 @@
-module mapl_VirtualPtStateItemSpecMap
-   use mapl_VirtualConnectionPt
-   use mapl_StateItemSpec, only: StateItemSpec
+module mapl_VirtualPtStateItemSpecMap_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_StateItemSpec_mod, only: StateItemSpec
 
 #define Key VirtualConnectionPt
 #define Key_LT(a,b) (a < b)
@@ -20,4 +20,4 @@ module mapl_VirtualPtStateItemSpecMap
 #undef T
 #undef Key
 
-end module mapl_VirtualPtStateItemSpecMap
+end module mapl_VirtualPtStateItemSpecMap_mod

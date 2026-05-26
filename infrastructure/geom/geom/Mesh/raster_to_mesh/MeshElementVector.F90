@@ -1,5 +1,5 @@
-module mapl_MeshElementVector
-   use mapl_MeshElement
+module mapl_MeshElementVector_mod
+   use mapl_MeshElement_mod
 
 #define T MeshElement
 #define Vector MeshElementVector
@@ -10,4 +10,4 @@ module mapl_MeshElementVector
 #undef VectorIterator
 #undef Vector
 #undef T
-end module mapl_MeshElementVector
+end module mapl_MeshElementVector_mod

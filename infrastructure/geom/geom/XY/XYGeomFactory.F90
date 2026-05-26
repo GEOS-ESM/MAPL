@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl_XYGeomFactory
+module mapl_XYGeomFactory_mod
 
-   use mapl_GeomSpec
-   use mapl_GeomFactory
-   use mapl_XYGeomSpec
-   use mapl_KeywordEnforcerMod
-   use mapl_ErrorHandlingMod
+   use mapl_GeomSpec_mod
+   use mapl_GeomFactory_mod
+   use mapl_XYGeomSpec_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use gftl2_StringVector
-   use mapl_StringDictionary
+   use mapl_StringDictionary_mod
    use pfio
    use esmf
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
 
    implicit none
    private
@@ -36,7 +36,7 @@ module mapl_XYGeomFactory
    interface
 
       module function make_geom(this, geom_spec, rc) result(geom)
-         use mapl_GeomSpec, only: GeomSpec
+         use mapl_GeomSpec_mod, only: GeomSpec
          use esmf, only: ESMF_Geom
          type(ESMF_Geom) :: geom
          class(XYGeomFactory), intent(in) :: this
@@ -52,6 +52,7 @@ module mapl_XYGeomFactory
       end function typesafe_make_geom
 
       module function create_basic_grid(spec, unusable, rc) result(grid)
+         use mapl_KeywordEnforcer_mod
          use esmf, only: ESMF_Grid
          type(ESMF_Grid) :: grid
          type(XYGeomSpec), intent(in) :: spec
@@ -60,6 +61,7 @@ module mapl_XYGeomFactory
       end function create_basic_grid
 
       module subroutine fill_coordinates(spec, grid, unusable, rc)
+         use mapl_KeywordEnforcer_mod
          use esmf, only: ESMF_Grid
          type(XYGeomSpec), intent(in) :: spec
          type(ESMF_Grid),  intent(inout) :: grid
@@ -68,6 +70,7 @@ module mapl_XYGeomFactory
       end subroutine fill_coordinates
 
       module subroutine fill_coordinates_abi(spec, grid, unusable, rc)
+         use mapl_KeywordEnforcer_mod
          use esmf, only: ESMF_Grid
          type(XYGeomSpec), intent(in) :: spec
          type(ESMF_Grid),  intent(inout) :: grid
@@ -97,6 +100,7 @@ module mapl_XYGeomFactory
       end function make_variable_attributes
 
       module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          class(XYGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
@@ -106,6 +110,7 @@ module mapl_XYGeomFactory
       end function make_file_metadata
 
       module function typesafe_make_file_metadata(spec, unusable, chunksizes, rc) result(file_metadata)
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          type(XYGeomSpec), intent(in) :: spec
          class(KE), optional, intent(in) :: unusable
@@ -184,4 +189,4 @@ contains
       _UNUSED_DUMMY(this)
    end function supports_spec
 
-end module mapl_XYGeomFactory
+end module mapl_XYGeomFactory_mod

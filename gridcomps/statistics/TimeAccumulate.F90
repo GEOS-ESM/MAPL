@@ -1,13 +1,10 @@
 #include "MAPL.h"
 
-module mapl_TimeAccumulate
+module mapl_TimeAccumulate_mod
 
-   use mapl_AbstractTimeStatistic
+   use mapl_AbstractTimeStatistic_mod
    use MAPL
    use ESMF
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
-   use mapl_SimpleAlarm, only: SimpleAlarm
 
    implicit none(type,external)
    private
@@ -318,4 +315,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine advertise_time_accumulate_internal_fields
 
-end module mapl_TimeAccumulate
+end module mapl_TimeAccumulate_mod

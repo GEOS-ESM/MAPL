@@ -2,8 +2,8 @@
 #include "MAPL.h"
 
 program main
-   use mapl_Geom_API
-   use mapl_ErrorHandling
+   use mapl_Geom_API_mod
+   use mapl_ErrorHandling_mod
    use esmf
    use mpi
    use fargparse

@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl_GriddedComponentDriver
-   use mapl_MultiState
-   use mapl_ComponentDriver
-   use mapl_ComponentDriverVector
-   use mapl_ErrorHandlingMod
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+module mapl_GriddedComponentDriver_mod
+   use mapl_MultiState_mod
+   use mapl_ComponentDriver_mod
+   use mapl_ComponentDriverVector_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use :: esmf
    implicit none
    private
@@ -166,4 +166,4 @@ contains
    end function new_GriddedComponentDriver_all
 
 
-end module mapl_GriddedComponentDriver
+end module mapl_GriddedComponentDriver_mod

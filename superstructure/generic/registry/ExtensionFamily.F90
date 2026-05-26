@@ -5,12 +5,12 @@
 ! in objects of type ExtensionFamily.
 
 
-module mapl_ExtensionFamily
-   use mapl_StateItemSpec
-   use mapl_StateItemSpecPtrVector
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ErrorHandling
+module mapl_ExtensionFamily_mod
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemSpecPtrVector_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ErrorHandling_mod
    use gFTL2_StringVector
    implicit none(type,external)
    private
@@ -212,5 +212,5 @@ contains
       _RETURN(_SUCCESS)
    end function get_primary_spec
 
-end module mapl_ExtensionFamily
+end module mapl_ExtensionFamily_mod
 

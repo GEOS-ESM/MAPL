@@ -1,6 +1,6 @@
-module MAPL_EarthAtmosphericConstants
+module mapl_EarthAtmosphericConstants_mod
 
-   use MAPL_PhysicalConstants, only: MAPL_UNIVERSAL_GAS_CONSTANT
+   use mapl_PhysicalConstants_mod, only: MAPL_UNIVERSAL_GAS_CONSTANT
 
    implicit none
 
@@ -94,4 +94,4 @@ module MAPL_EarthAtmosphericConstants
    real, parameter :: MAPL_KARMAN  = MAPL_VON_KARMAN                                  ! DEPRECATED
    real, parameter :: MAPL_USMIN   = MAPL_MINIMUM_WIND_SPEED                          ! DEPRECATED
 
-end module MAPL_EarthAtmosphericConstants
+end module mapl_EarthAtmosphericConstants_mod

@@ -1,42 +1,50 @@
-module mapl_base3g
-   use MAPL_FileMetadataUtilsMod
-   use MAPL_FileMetadataUtilsVectorMod
-   use MAPL_PackedTimeMod, only: MAPL_PackedDateCreate => PackedDateCreate, &
+module mapl_base_mod
+   use mapl_FileMetadataUtils_mod
+   use mapl_FileMetadataUtilsVector_mod
+   use mapl_PackedTime_mod, only: MAPL_PackedDateCreate => PackedDateCreate, &
                                    MAPL_PackedTimeCreate => PackedTimeCreate, &
                                    MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &
                                    MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
                                    MAPL_UnpackDate => UnpackDate, &
                                    MAPL_UnpackTime => UnpackTime, &
                                    MAPL_UnpackDateTime => UnpackDateTime
-   use mapl_SimulationTime, only: set_reference_clock, fill_time_dict
-   use MAPL_CommsMod, only: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV, &
-                            mapl_CommsAllGather, mapl_CommsAllGatherV, &
-                            mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, &
-                            mapl_CommsAllReduceSum, mapl_CommsSend, mapl_CommsRecv, &
-                            mapl_CommsSendRecv, mapl_AM_I_ROOT, mapl_AM_I_RANK, &
-                            mapl_NPES, ArrayGather, ArrayScatter, MAPL_ROOT, &
-                            MAPL_ArrayGather => ArrayGather, MAPL_ArrayScatter => ArrayScatter, &
-                            mapl_CreateRequest, mapl_CommRequest, mapl_ArrayIGather, &
-                            mapl_ArrayIScatter, mapl_CollectiveWait, &
-                            mapl_CollectiveScatter3D, mapl_CollectiveGather3D, &
-                            mapl_RoundRobinPEList, mapl_BcastShared, ArrPtr
-   use MAPL_SatVaporMod, only: MAPL_EQsatSET, MAPL_EQsat
-   use MAPL_StringTemplate, only: fill_grads_template, StrTemplate, fill_grads_template_esmf
-   use mapl_LocalDisplacementEnsemble, only: LocalDisplacementEnsemble
-   use MAPL_MemUtilsMod, only: MAPL_MemUtilsInit, MAPL_MemUtilsDisable, &
+   use mapl_SimulationTime_mod, only: set_reference_clock, fill_time_dict
+   use mapl_Comms_mod, only: mapl_CommsScatterV => comms_scatterv, &
+                             mapl_CommsGatherV => comms_gatherv, &
+                             mapl_CommsAllGather => comms_allgather, &
+                             mapl_CommsAllGatherV => comms_allgatherv, &
+                             mapl_CommsAllReduceMin => comms_allreduce_min, &
+                             mapl_CommsAllReduceMax => comms_allreduce_max, &
+                             mapl_CommsAllReduceSum => comms_allreduce_sum, &
+                             mapl_CommsSend => comms_send, &
+                             mapl_CommsRecv => comms_recv, &
+                             mapl_CommsSendRecv => comms_sendrecv, &
+                             mapl_AM_I_ROOT => am_i_root, &
+                             mapl_AM_I_RANK => am_i_rank, &
+                             mapl_NPES => num_pes, &
+                             ArrayGather => array_gather, &
+                             ArrayScatter => array_scatter, &
+                             MAPL_ArrayGather => array_gather, &
+                             MAPL_ArrayScatter => array_scatter, &
+                             MAPL_ROOT => ROOT_PROCESS_ID
+   use mapl_ShmemComms_mod, only: mapl_CommsBcast, mapl_RoundRobinPEList, mapl_BcastShared
+   use mapl_SatVapor_mod, only: MAPL_EQsatSET, MAPL_EQsat
+   use mapl_StringTemplate_mod, only: fill_grads_template, StrTemplate, fill_grads_template_esmf
+   use mapl_LocalDisplacementEnsemble_mod, only: LocalDisplacementEnsemble
+   use mapl_MemUtils_mod, only: MAPL_MemUtilsInit, MAPL_MemUtilsDisable, &
          MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree, &
          MAPL_MemCommited, MAPL_MemUsed, MAPL_MemReport
-   use MAPL_SunMod, only: MAPL_SunOrbitCreate, MAPL_SunOrbitCreateFromConfig, &
+   use mapl_Sun_mod, only: MAPL_SunOrbitCreate, MAPL_SunOrbitCreateFromConfig, &
          MAPL_SunOrbitCreated, MAPL_SunOrbitDestroy, MAPL_SunOrbitQuery, &
          MAPL_SunGetInsolation, MAPL_SunGetSolarConstant, &
           MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax, &
           MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
-   use MAPL_TimeInterpolation, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
-   use mapl_FileIO, only: WRITE_PARALLEL
-   use mapl_SimpleBundleMod_impl, only: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint, &
+   use mapl_TimeInterpolation_mod, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
+   use mapl_FileIO_mod, only: WRITE_PARALLEL
+   use mapl_SimpleBundleMod_impl_mod, only: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint, &
         MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
-   use mapl_FileIOShared, only: ArrDescr, ArrDescrInit, ArrDescrSet
-   use mapl_NCIO, only: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType, &
+   use mapl_FileIOShared_mod, only: ArrDescr, ArrDescrInit, ArrDescrSet
+   use mapl_NCIO_mod, only: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType, &
                         MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars, &
                         MAPL_IOChangeRes, MAPL_IOCountLevels
    implicit none(type,external)
@@ -53,10 +61,7 @@ module mapl_base3g
    public :: mapl_AM_I_ROOT, mapl_AM_I_RANK, mapl_NPES
    public :: ArrayGather, ArrayScatter, MAPL_ROOT
    public :: MAPL_ArrayGather, MAPL_ArrayScatter
-   public :: mapl_CreateRequest, mapl_CommRequest
-   public :: mapl_ArrayIGather, mapl_ArrayIScatter, mapl_CollectiveWait
-   public :: mapl_CollectiveScatter3D, mapl_CollectiveGather3D
-   public :: mapl_RoundRobinPEList, mapl_BcastShared, ArrPtr
+   public :: mapl_RoundRobinPEList, mapl_BcastShared
    public :: MAPL_EQsatSET, MAPL_EQsat
    public :: fill_grads_template, StrTemplate, fill_grads_template_esmf
    public :: LocalDisplacementEnsemble
@@ -77,4 +82,4 @@ module mapl_base3g
    public :: MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars
    public :: MAPL_IOChangeRes, MAPL_IOCountLevels
 
-end module mapl_base3g
+end module mapl_base_mod

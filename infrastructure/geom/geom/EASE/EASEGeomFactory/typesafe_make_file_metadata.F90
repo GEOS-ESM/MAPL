@@ -1,18 +1,19 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory) typesafe_make_file_metadata_smod
-   use mapl_GeomSpec
-   use mapl_EASEGeomSpec
-   use mapl_EASECoords
-   use mapl_ErrorHandlingMod
+submodule (mapl_EASEGeomFactory_mod) typesafe_make_file_metadata_smod
+   use mapl_GeomSpec_mod
+   use mapl_EASEGeomSpec_mod
+   use mapl_EASECoords_mod
+   use mapl_ErrorHandling_mod
    use pfio
-   use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none (type, external)
 
 contains
 
    module function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       type(EASEGeomSpec), intent(in) :: geom_spec
       class(KE), optional, intent(in) :: unusable

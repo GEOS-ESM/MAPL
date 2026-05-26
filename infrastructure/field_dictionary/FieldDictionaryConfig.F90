@@ -10,12 +10,12 @@
 ! as 'field_dictionary.yaml' in the run directory.  Use has_dictionary_path()
 ! to distinguish a user-supplied explicit path from the default.
 
-module mapl_FieldDictionaryConfig
+module mapl_FieldDictionaryConfig_mod
 
    use esmf
-   use mapl_ErrorHandling
-   use mapl_ValidationMode
-   use mapl_StateItemImpl
+   use mapl_ErrorHandling_mod
+   use mapl_ValidationMode_mod
+   use mapl_StateItemImpl_mod
 
    implicit none(type, external)
    private
@@ -115,4 +115,4 @@ contains
       has_dictionary_path = len(this%dictionary_path) > 0
    end function has_dictionary_path
 
-end module mapl_FieldDictionaryConfig
+end module mapl_FieldDictionaryConfig_mod

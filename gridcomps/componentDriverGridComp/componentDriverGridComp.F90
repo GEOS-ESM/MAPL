@@ -1,8 +1,7 @@
 #include "MAPL.h"
 
-module mapl_ComponentDriverDriverGridComp
+module mapl_ComponentDriverDriverGridComp_mod
 
-   use mapl_ErrorHandling
    use MAPL
    use esmf
    use gFTL2_StringStringMap
@@ -452,12 +451,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine compare_states
 
-end module mapl_ComponentDriverDriverGridComp
+end module mapl_ComponentDriverDriverGridComp_mod
 
 subroutine setServices(gridcomp, rc)
    use ESMF
-   use MAPL_ErrorHandlingMod
-   use mapl_ComponentDriverDriverGridComp, only: Root_setServices => SetServices
+   use MAPL
+   use mapl_ComponentDriverDriverGridComp_mod, only: Root_setServices => SetServices
    type(ESMF_GridComp)  :: gridcomp
    integer, intent(out) :: rc
 

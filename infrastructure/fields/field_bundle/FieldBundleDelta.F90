@@ -4,24 +4,24 @@
 
 #include "MAPL.h"
 
-module mapl_FieldBundleDelta
+module mapl_FieldBundleDelta_mod
 
-   use mapl_FieldBundleGetImpl
-   use mapl_FieldBundleSetImpl
-   use mapl_FieldBundleType_Flag
-   use mapl_LU_Bound
-   use mapl_FieldDelta
-   use mapl_InfoUtilities
-   use mapl_VerticalStaggerLoc
-   use mapl_VerticalGrid_API
+   use mapl_FieldBundleGetImpl_mod
+   use mapl_FieldBundleSetImpl_mod
+   use mapl_FieldBundleType_Flag_mod
+   use mapl_LU_Bound_mod
+   use mapl_FieldDelta_mod
+   use mapl_InfoUtilities_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalGrid_API_mod
    use mapl_Field_API
-   use mapl_FieldInfo
-   use mapl_FieldUtilities
-   use mapl_UngriddedDims
-   use mapl_HorizontalDimsSpec
-   use mapl_FieldPointerUtilities
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
+   use mapl_FieldInfo_mod
+   use mapl_FieldUtilities_mod
+   use mapl_UngriddedDims_mod
+   use mapl_HorizontalDimsSpec_mod
+   use mapl_FieldPointerUtilities_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
 
    implicit none(type, external)
@@ -299,4 +299,4 @@ contains
 
    end subroutine reallocate_bundle
 
-end module mapl_FieldBundleDelta
+end module mapl_FieldBundleDelta_mod

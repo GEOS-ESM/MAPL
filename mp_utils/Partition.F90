@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl_Partition
+module mapl_Partition_mod
 
-   use mapl_KeywordEnforcerMod
-   use mapl_ErrorHandlingMod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
 
    implicit none(type,external)
    private
@@ -125,4 +125,4 @@ contains
 
    end function get_partition
 
-end module mapl_Partition
+end module mapl_Partition_mod

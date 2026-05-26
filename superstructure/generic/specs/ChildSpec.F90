@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_ChildSpec
-   use mapl_UserSetServices
-   use mapl_KeywordEnforcer
+module mapl_ChildSpec_mod
+   use mapl_UserSetServices_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
    implicit none
    private
@@ -142,4 +142,4 @@ contains
       
    end subroutine write_formatted
 
-end module mapl_ChildSpec
+end module mapl_ChildSpec_mod

@@ -7,7 +7,7 @@
 ! checking completion.
 
 module pFIO_SimpleSocketMod
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractMessageMod
    use pFIO_DummyMessageMod

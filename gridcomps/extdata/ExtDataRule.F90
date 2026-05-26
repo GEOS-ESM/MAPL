@@ -1,11 +1,10 @@
 #include "MAPL.h"
-module mapl_ExtDataRule
+module mapl_ExtDataRule_mod
    use ESMF
-   use MAPL_KeywordEnforcerMod
-   use MAPL_ExceptionHandling
-   use mapl_ExtDataSample
-   use mapl_ExtDataSampleMap
-   use mapl_HConfig_API, only: mapl_HConfigAsTime
+   use MAPL
+   use mapl_ExtDataSample_mod
+   use mapl_ExtDataSampleMap_mod
+   use MAPL, only: mapl_HConfigAsTime
    use gFTL2_StringVector
    implicit none
    private
@@ -155,4 +154,4 @@ contains
       end if
    end function
 
-end module mapl_ExtDataRule
+end module mapl_ExtDataRule_mod

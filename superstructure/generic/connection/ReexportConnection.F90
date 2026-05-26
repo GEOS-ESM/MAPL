@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl_ReexportConnection
-   use mapl_StateItemSpec
-   use mapl_ExtensionFamily
-   use mapl_Connection
-   use mapl_ConnectionPt
-   use mapl_StateRegistry
-   use mapl_VirtualConnectionPt
-   use mapl_ActualConnectionPt
-   use mapl_ActualPtVec_Map
-   use mapl_ActualPtVector
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+module mapl_ReexportConnection_mod
+   use mapl_StateItemSpec_mod
+   use mapl_ExtensionFamily_mod
+   use mapl_Connection_mod
+   use mapl_ConnectionPt_mod
+   use mapl_StateRegistry_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_ActualPtVec_Map_mod
+   use mapl_ActualPtVector_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use esmf
 
    implicit none(type,external)
@@ -93,7 +93,7 @@ contains
 
    ! Non-sibling connection: just propagate pointer "up"
    subroutine connect_export_to_export(this, dst_registry, src_registry, unusable, rc)
-      use mapl_ExtensionFamily
+      use mapl_ExtensionFamily_mod
       class(ReexportConnection), intent(in) :: this
       type(StateRegistry), intent(inout) :: dst_registry
       type(StateRegistry), intent(in) :: src_registry
@@ -135,5 +135,5 @@ contains
 
    end subroutine connect_export_to_export
 
-  end module mapl_ReexportConnection
+  end module mapl_ReexportConnection_mod
 

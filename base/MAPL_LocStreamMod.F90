@@ -18,20 +18,24 @@
 !
 ! The module `MAPL_LocStreamMod` manipulates location streams.
 !
-module mapl_LocStreamMod_impl
+module mapl_LocStreamMod_impl_mod
 
   ! !USES:
 
 use ESMF
-use mapl_Geom_API, only: MAPL_GridGet
+use mapl_Geom_API_mod, only: MAPL_GridGet
 use MAPL_Constants
-use mapl_GridAccessors, only: geom_GridGet => GridGet
-use mapl_NCIO, only: MAPL_ReadTilingNC4
-use MAPL_CommsMod
-use MAPL_HashMod
-use MAPL_ShmemMod
-use MAPL_ExceptionHandling
-use mapl_EASEConversion, only: MAPL_ease_extent => ease_extent
+use mapl_GridAccessors_mod, only: geom_GridGet => GridGet
+use mapl_NCIO_mod, only: MAPL_ReadTilingNC4
+use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root, MAPL_ROOT => ROOT_PROCESS_ID, &
+                          MAPL_CommsAllGather => comms_allgather, &
+                          MAPL_CommsSendRecv => comms_sendrecv, &
+                          MAPL_CommsAllGatherV => comms_allgatherv
+use mapl_ShmemComms_mod, only: MAPL_CommsBcast
+use mapl_Hash_mod
+use mapl_Shmem_mod
+use mapl_ExceptionHandling_mod
+use mapl_EASEConversion_mod, only: MAPL_ease_extent => ease_extent
 use, intrinsic :: iso_fortran_env, only: REAL64, INT64
 use mpi
 
@@ -3224,7 +3228,7 @@ subroutine MAPL_DistGridGet(distGrid, minIndex, maxIndex, rc)
 end subroutine MAPL_DistGridGet
 
 subroutine MAPL_GetImsJms(Imins, Imaxs, Jmins, Jmaxs, Ims, Jms, rc)
-   use MAPL_SortMod
+   use mapl_Sort_mod
    use ESMF, only: ESMF_SUCCESS
    integer, dimension(:), intent(in)  :: Imins, Imaxs, Jmins, Jmaxs
    integer, pointer                   :: Ims(:), Jms(:)
@@ -3285,4 +3289,4 @@ subroutine MAPL_GetImsJms(Imins, Imaxs, Jmins, Jmaxs, Ims, Jms, rc)
    _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_GetImsJms
 
-end module mapl_LocStreamMod_impl
+end module mapl_LocStreamMod_impl_mod

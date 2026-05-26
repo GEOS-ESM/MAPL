@@ -3,8 +3,8 @@
 
 program main
 
-   use mapl_Profiler
-   use MAPL_ErrorHandlingMod
+   use mapl_Profiler_mod
+   use mapl_ErrorHandling_mod
    use MPI
    use gFTL2_StringVector
 

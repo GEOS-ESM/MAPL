@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module MAPL_RangeMod
+module mapl_Range_mod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
-  use MAPL_ExceptionHandling
+  use mapl_ExceptionHandling_mod
   implicit none
   private
 
@@ -86,4 +86,4 @@ contains
         
   end function MAPL_Range_REAL32
 
-end module MAPL_RangeMod
+end module mapl_Range_mod

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module MAPL_AbstractCommSplitterMod
+module mapl_AbstractCommSplitter_mod
    implicit none
    private
 
@@ -19,8 +19,8 @@ module MAPL_AbstractCommSplitterMod
    abstract interface
 
       function split(this, unusable, rc) result(split_communicator)
-         use MAPL_KeywordEnforcerMod
-         use MAPL_SplitCommunicatorMod
+         use mapl_KeywordEnforcer_mod
+         use mapl_SplitCommunicator_mod
          import AbstractCommSplitter
          type (SplitCommunicator) :: split_communicator
          class (AbstractCommSplitter), intent(in) :: this
@@ -49,4 +49,4 @@ contains
 
    end subroutine set_shared_communicator
 
-end module MAPL_AbstractCommSplitterMod
+end module mapl_AbstractCommSplitter_mod

@@ -1,8 +1,8 @@
-module MAPL_MemoryTextColumn
+module mapl_MemoryTextColumn_mod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
-   use MAPL_AbstractColumn
-   use MAPL_AbstractMeterNode
-   use MAPL_TextColumn
+   use mapl_AbstractColumn_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_TextColumn_mod
    use GFTL_UnlimitedVector
    implicit none
    private
@@ -88,7 +88,7 @@ contains
 
 
    subroutine get_rows(this, node, rows)
-      use MAPL_AbstractMeterNode
+      use mapl_AbstractMeterNode_mod
       class (MemoryTextColumn), intent(in) :: this
       class (AbstractMeterNode), target, intent(in) :: node
       character(:), allocatable, intent(out) :: rows(:)
@@ -167,4 +167,4 @@ contains
    end subroutine get_rows
    
 
-end module MAPL_MemoryTextColumn
+end module mapl_MemoryTextColumn_mod

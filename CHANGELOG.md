@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Remove `3g` suffix from all module and directory names (#4971, part of #4969).
+  Renames `base3g/` → `base/`, `Generic3g.F90` → `Generic.F90`, module `generic3g`
+  → `mapl_Generic`, `mapl_Generic3g_API_mod` → `mapl_Generic_API_mod`,
+  `mapl_base3g_mod` → `mapl_base_mod`, and CMake targets `MAPL.generic3g` →
+  `MAPL.generic` and `MAPL.base3g` → `MAPL.base`. Downstream clients require only
+  recompilation; no source changes needed.
+- Migrate `base3g/` comms code to the infrastructure layer (#4970, part of #4969).
+  Deletes `base3g/Comms.F90` (`MAPL_CommsMod`, 1636 lines) and the entire
+  `base3g/include/` directory (16 `.H` files). Introduces two new modules:
+  `mapl_ShmemComms_mod` (`infrastructure/esmf/comms/ShmemComms.F90`) for
+  shared-memory-aware broadcast operations, and `mapl_GridComms_mod`
+  (`infrastructure/geom/geom/GridComms.F90`) for 3-D collective scatter/gather.
+  `MAPL_CollectiveGather3D` and `MAPL_CollectiveScatter3D` remain accessible
+  via `USE MAPL` through re-export from `mapl_Geom_API_mod`. Zero-diff.
+
+### Added
+
+- Re-export `PackedDateCreate`, `PackedTimeCreate`, `PackedDateTimeCreate` (from
+  `MAPL_PackedTimeMod`) and `StrTemplate` (from `MAPL_StringTemplate`) via the
+  `mapl_mp_utils` API so they are accessible through `USE MAPL` without client
+  code needing to reference internal submodules directly (fixes #4963).
+
 ### Fixed
 
 - Fix NVHPC compiler build failure in `superstructure/generic/OpenMP_Support.F90`:
@@ -44,6 +68,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for index/name and 2D/3D variants (PR #4948).
 
 ### Changed
+
+- Rename all internal MAPL modules from `mapl_<Name>[Mod]` to `mapl_<Name>_mod`
+  convention (#4958). Affects 446 module definitions across 695 source files.
+  Three thin-wrapper duplicate modules removed (`mapl_ErrorHandlingMod`,
+  `mapl_KeywordEnforcerMod`, `MAPL_ShmemMod`). Duplicate `VerticalAlignment.F90`
+  removed from `superstructure/generic/specs/` (canonical copy remains in
+  `infrastructure/vertical/vertical_grid/`). Legacy `base3g/Comms.F90` retains
+  `MAPL_CommsMod` name pending resolution of #4961. `MAPL_Constants` retains its
+  name as it functions as an umbrella module.
+
+- Remove `MAPL_GridCompsMod` and enforce that `gridcomps/` modules `use MAPL`
+  (the umbrella module) rather than internal modules directly (#4959).
 
 - Resolve Intel Fortran error #6450 (case-insensitive module/alias name
   collision) for 13 modules in `infrastructure/fields/` whose module name

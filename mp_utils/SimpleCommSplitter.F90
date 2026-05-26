@@ -5,13 +5,13 @@
 ! rank and npes in the shared communicator.  Its subclasses can be
 ! tested in a serial context by parameterizing rank and npes.
 
-module MAPL_SimpleCommSplitterMod
-   use MAPL_CommGroupDescriptionMod
-   use MAPL_CommGroupDescriptionVectorMod
-   use MAPL_ExceptionHandling
-   use MAPL_AbstractCommSplitterMod
-   use MAPL_KeywordEnforcerMod
-   use MAPL_SplitCommunicatorMod
+module mapl_SimpleCommSplitter_mod
+   use mapl_CommGroupDescription_mod
+   use mapl_CommGroupDescriptionVector_mod
+   use mapl_ExceptionHandling_mod
+   use mapl_AbstractCommSplitter_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_SplitCommunicator_mod
    use MPI
    implicit none
    
@@ -340,5 +340,5 @@ contains
 
   end subroutine assign 
 
-end module MAPL_SimpleCommSplitterMod
+end module mapl_SimpleCommSplitter_mod
 

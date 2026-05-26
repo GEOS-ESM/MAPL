@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_CubedSphereGeomSpec
-   use mapl_GeomSpec
-   use mapl_CubedSphereDecomposition
+module mapl_CubedSphereGeomSpec_mod
+   use mapl_GeomSpec_mod
+   use mapl_CubedSphereDecomposition_mod
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_CubedSphereTransform_Args, ESMF_Geom
    implicit none
    real(kind=ESMF_KIND_R8) :: undef_schmidt = 1d15
@@ -139,4 +139,4 @@ module mapl_CubedSphereGeomSpec
 
    end interface
 
-end module mapl_CubedSphereGeomSpec
+end module mapl_CubedSphereGeomSpec_mod

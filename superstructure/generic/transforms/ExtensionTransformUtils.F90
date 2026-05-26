@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
-module mapl_ExtensionTransformUtils
-   use mapl_FieldBundle_API
-   use mapl_ErrorHandling
+module mapl_ExtensionTransformUtils_mod
+   use mapl_FieldBundle_API_mod
+   use mapl_ErrorHandling_mod
    use esmf, only: ESMF_FieldBundle
    implicit none(type,external)
    private
@@ -34,4 +34,4 @@ contains
 
    end subroutine bundle_types_valid
 
-end module mapl_ExtensionTransformUtils
+end module mapl_ExtensionTransformUtils_mod

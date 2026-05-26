@@ -18,7 +18,7 @@
 !- 07Jul2009   Albayrak  Initial implementation.
 !- 30Jul2009   Albayrak  Beta version 2 implemantation
 !
-  MODULE MAPL_NominalOrbitsMod
+  MODULE mapl_NominalOrbits_mod
      use MAPL_Constants
      IMPLICIT NONE
 
@@ -1298,6 +1298,6 @@ SUBROUTINE orbits(lat, lon, iSat, nymd, nhms) ! for now time has to be after
                      ECEF_est(3,1), lat, lon, alt)
 END SUBROUTINE orbits
       
-END MODULE MAPL_NominalOrbitsMod
+END MODULE mapl_NominalOrbits_mod
 
 

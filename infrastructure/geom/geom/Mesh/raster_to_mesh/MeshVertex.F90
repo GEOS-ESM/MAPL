@@ -1,7 +1,7 @@
 #include "MAPL.h"
-module mapl_MeshVertex
-   use mapl_Direction
-   use mapl_ErrorHandling
+module mapl_MeshVertex_mod
+   use mapl_Direction_mod
+   use mapl_ErrorHandling_mod
    use gFTL2_IntegerVector
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64
    implicit none(type,external)
@@ -132,4 +132,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine replace_connection
 
-end module mapl_MeshVertex
+end module mapl_MeshVertex_mod

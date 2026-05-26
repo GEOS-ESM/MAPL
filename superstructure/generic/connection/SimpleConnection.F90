@@ -1,22 +1,22 @@
 #include "MAPL.h"
 
-module mapl_SimpleConnection
+module mapl_SimpleConnection_mod
 
-   use mapl_StateItemSpec
-   use mapl_Connection
-   use mapl_ConnectionPt
-   use mapl_StateRegistry
-   use mapl_VirtualConnectionPt
-   use mapl_VirtualConnectionPtVector
-   use mapl_ActualConnectionPt
-   use mapl_ActualPtVec_Map
-   use mapl_GriddedComponentDriver
-   use mapl_StateItemSpec
-   use mapl_StateItemSpecVector
-   use mapl_StateItemSpecPtrVector
-   use mapl_MultiState
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+   use mapl_StateItemSpec_mod
+   use mapl_Connection_mod
+   use mapl_ConnectionPt_mod
+   use mapl_StateRegistry_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_VirtualConnectionPtVector_mod
+   use mapl_ActualConnectionPt_mod
+   use mapl_ActualPtVec_Map_mod
+   use mapl_GriddedComponentDriver_mod
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemSpecVector_mod
+   use mapl_StateItemSpecPtrVector_mod
+   use mapl_MultiState_mod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use gFTL2_StringVector, only: StringVector
    use esmf
 
@@ -219,5 +219,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine activate_dependencies
 
-end module mapl_SimpleConnection
+end module mapl_SimpleConnection_mod
 

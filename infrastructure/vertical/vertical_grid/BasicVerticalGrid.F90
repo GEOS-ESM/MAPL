@@ -1,17 +1,17 @@
 #include "MAPL.h"
 
-module mapl_BasicVerticalGrid
+module mapl_BasicVerticalGrid_mod
 
-   use mapl_VerticalGrid, only: VerticalGrid
-   use mapl_VerticalGridSpec, only: VerticalGridSpec
-   use mapl_VerticalGridFactory, only: VerticalGridFactory
-   use mapl_ComponentDriver, only: ComponentDriver
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
+   use mapl_VerticalGridFactory_mod, only: VerticalGridFactory
+   use mapl_ComponentDriver_mod, only: ComponentDriver
    !use pfio, only: FileMetadata
    use pfio
    use esmf
-   use mapl_VerticalStaggerLoc, only: VerticalStaggerLoc
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
    use gftl2_StringVector, only: StringVector
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
 
    implicit none(type,external)
    private
@@ -269,5 +269,5 @@ contains
       _UNUSED_DUMMY(this)
    end function create_grid_from_spec
 
-end module mapl_BasicVerticalGrid
+end module mapl_BasicVerticalGrid_mod
 

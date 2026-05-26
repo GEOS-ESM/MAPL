@@ -2,9 +2,9 @@
 ! Call MAPL_initialize_error_handling() once after MPI_Init to replace the
 ! serial (error stop) defaults with MPI-aware implementations.
 ! Serial programs do not need to call this.
-module MAPL_MpiErrorHandlingMod
-   use MAPL_ThrowMod,       only: MAPL_set_throw_method
-   use mapl_ErrorHandling,  only: MAPL_set_abort_handler
+module mapl_MpiErrorHandling_mod
+   use mapl_Throw_mod,       only: MAPL_set_throw_method
+   use mapl_ErrorHandling_mod,  only: MAPL_set_abort_handler
    implicit none
    private
 
@@ -90,4 +90,4 @@ contains
 
    end function get_base_name
 
-end module MAPL_MpiErrorHandlingMod
+end module mapl_MpiErrorHandling_mod

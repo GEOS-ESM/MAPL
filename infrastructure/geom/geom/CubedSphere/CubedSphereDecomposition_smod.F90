@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-submodule (mapl_CubedSphereDecomposition) CubedSphereDecomposition_smod
+submodule (mapl_CubedSphereDecomposition_mod) CubedSphereDecomposition_smod
 
-   use mapl_Partition
-   use mapl_ErrorHandlingMod
+   use mapl_Partition_mod
+   use mapl_ErrorHandling_mod
 
    implicit none
 
@@ -19,7 +19,7 @@ contains
    end function new_CubedSphereDecomposition_basic
 
    module function new_CubedSphereDecomposition_petcount(dims, unusable, petCount) result(decomp)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(CubedSphereDecomposition) :: decomp
       integer, intent(in) :: dims(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -42,7 +42,7 @@ contains
    end function new_CubedSphereDecomposition_petcount
 
    module function new_CubedSphereDecomposition_topo(dims, unusable, topology) result(decomp)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(CubedSphereDecomposition) :: decomp
       integer, intent(in) :: dims(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable

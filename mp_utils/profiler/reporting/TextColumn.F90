@@ -1,5 +1,5 @@
-module MAPL_TextColumn
-   use MAPL_AbstractMeterNode
+module mapl_TextColumn_mod
+   use mapl_AbstractMeterNode_mod
    implicit none
    private
 
@@ -31,7 +31,7 @@ module MAPL_TextColumn
       end subroutine i_get_header
 
       subroutine i_get_rows(this, node, rows)
-         use MAPL_AbstractMeterNode
+         use mapl_AbstractMeterNode_mod
          import TextColumn
          class (TextColumn), intent(in) :: this
          class (AbstractMeterNode), target, intent(in) :: node
@@ -129,4 +129,4 @@ contains
 
    end function get_num_rows_separator
 
-end module MAPL_TextColumn
+end module mapl_TextColumn_mod

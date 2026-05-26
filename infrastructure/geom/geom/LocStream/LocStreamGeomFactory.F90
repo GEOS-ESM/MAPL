@@ -1,15 +1,15 @@
 #include "MAPL.h"
 
-module mapl_LocStreamGeomFactory
-   use mapl_GeomSpec
-   use mapl_GeomFactory
-   use mapl_LocStreamGeomSpec
-   use mapl_LocStreamDecomposition
-   use mapl_CoordinateAxis, only: get_dim_name, get_coordinates
-   use mapl_ErrorHandlingMod
-   use mapl_StringUtilities, only: to_lower
-   use mapl_get_hconfig, only: get_hconfig
-   use mapl_hconfig_params, only: HConfigParams
+module mapl_LocStreamGeomFactory_mod
+   use mapl_GeomSpec_mod
+   use mapl_GeomFactory_mod
+   use mapl_LocStreamGeomSpec_mod
+   use mapl_LocStreamDecomposition_mod
+   use mapl_CoordinateAxis_mod, only: get_dim_name, get_coordinates
+   use mapl_ErrorHandling_mod
+   use mapl_StringUtilities_mod, only: to_lower
+   use mapl_get_hconfig_mod, only: get_hconfig
+   use mapl_hconfig_params_mod, only: HConfigParams
    use pfio_FileMetadataMod,   only: FileMetadata
    use pFIO_VariableMod,       only: Variable
    use pFIO_AttributeMod,      only: Attribute
@@ -17,8 +17,8 @@ module mapl_LocStreamGeomFactory
    use pFIO_NetCDF4_FileFormatterMod, only: NetCDF4_FileFormatter
    use pFIO_ConstantsMod,      only: pFIO_READ
    use gftl2_StringVector, only: StringVector
-   use mapl_StringDictionary, only: StringDictionary
-   use mapl_KeywordEnforcerMod, only: KeywordEnforcer
+   use mapl_StringDictionary_mod, only: StringDictionary
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use MAPL_Constants, only: MAPL_PI_R8
    use esmf
    implicit none
@@ -413,4 +413,4 @@ contains
       _RETURN(_SUCCESS)
    end function make_variable_attributes
 
-end module mapl_LocStreamGeomFactory
+end module mapl_LocStreamGeomFactory_mod

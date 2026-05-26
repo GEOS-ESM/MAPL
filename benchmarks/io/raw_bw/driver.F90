@@ -1,9 +1,9 @@
 #define I_AM_MAIN
 #include "MAPL.h"
 program main
-   use mapl_BW_BenchmarkSpec
-   use mapl_BW_Benchmark
-   use mapl_ErrorHandlingMod
+   use mapl_BW_BenchmarkSpec_mod
+   use mapl_BW_Benchmark_mod
+   use mapl_ErrorHandling_mod
    use mpi
    use, intrinsic :: iso_fortran_env, only: INT64
    implicit none

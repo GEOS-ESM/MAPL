@@ -1,4 +1,4 @@
-module MAPL_TimeUtilsMod
+module mapl_TimeUtils_mod
 
    implicit none
    private
@@ -108,4 +108,4 @@ contains
 
    end function is_valid_datetime
 
-end module MAPL_TimeUtilsMod
+end module mapl_TimeUtils_mod

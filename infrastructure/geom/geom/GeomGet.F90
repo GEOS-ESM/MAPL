@@ -7,13 +7,13 @@
 ! because single-public-symbol modules whose name matches their sole public
 ! symbol trigger Intel Fortran error #6450 when renamed via USE aliases.
 !
-module mapl_GeomAccessors
+module mapl_GeomAccessors_mod
 
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
-   use mapl_MaplGeom, only: MaplGeom
-   use mapl_GeomSpec, only: GeomSpec
-   use mapl_GeomManager, only: get_mapl_geom
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
+   use mapl_MaplGeom_mod, only: MaplGeom
+   use mapl_GeomSpec_mod, only: GeomSpec
+   use mapl_GeomManager_mod, only: get_mapl_geom
    use esmf
 
    implicit none (type,external)
@@ -156,4 +156,4 @@ contains
       _UNUSED_DUMMY(grid)
    end subroutine grid_get_horz_ij_index_stub
 
-end module mapl_GeomAccessors
+end module mapl_GeomAccessors_mod

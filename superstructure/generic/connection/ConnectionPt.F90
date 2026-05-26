@@ -1,5 +1,5 @@
-module mapl_ConnectionPt
-   use mapl_VirtualConnectionPt
+module mapl_ConnectionPt_mod
+   use mapl_VirtualConnectionPt_mod
    implicit none(type,external)
    private
 
@@ -115,4 +115,4 @@ contains
       is_internal = (this%get_state_intent() == 'internal')
    end function is_internal
 
-end module mapl_ConnectionPt
+end module mapl_ConnectionPt_mod

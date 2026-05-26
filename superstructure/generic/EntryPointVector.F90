@@ -1,6 +1,6 @@
-module mapl_EntryPointVector
+module mapl_EntryPointVector_mod
 
-   use mapl_RunEntryPoint
+   use mapl_RunEntryPoint_mod
 
 #define T runEntryPoint
 #define Vector entryPointVector
@@ -12,4 +12,4 @@ module mapl_EntryPointVector
 #undef Vector
 #undef VectorIterator
 
-end module mapl_EntryPointVector
+end module mapl_EntryPointVector_mod

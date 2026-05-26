@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl_ClassAspect
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_MultiState
-   use mapl_ErrorHandling
-   use mapl_ActualConnectionPt
+module mapl_ClassAspect_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_MultiState_mod
+   use mapl_ErrorHandling_mod
+   use mapl_ActualConnectionPt_mod
    use esmf, only: esmf_FIeld, esmf_FieldBundle, esmf_State
    implicit none
    private
@@ -38,7 +38,7 @@ module mapl_ClassAspect
    abstract interface
 
       function I_get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
-         use mapl_StateItemAspect
+         use mapl_StateItemAspect_mod
          import ClassAspect, AspectId
          type(AspectId), allocatable :: aspect_ids(:)
          class(ClassAspect), intent(in) :: this
@@ -48,7 +48,7 @@ module mapl_ClassAspect
 
       ! Will use ESMF so cannot be PURE
       subroutine I_create(this, other_aspects, rc)
-         use mapl_StateItemAspect
+         use mapl_StateItemAspect_mod
          import ClassAspect
          class(ClassAspect), intent(inout) :: this
          type(AspectMap), intent(in) :: other_aspects
@@ -77,8 +77,8 @@ module mapl_ClassAspect
       end subroutine I_allocate
 
       subroutine I_add_to_state(this, multi_state, actual_pt, rc)
-         use mapl_MultiState
-         use mapl_ActualConnectionPt
+         use mapl_MultiState_mod
+         use mapl_ActualConnectionPt_mod
          import ClassAspect
          class(ClassAspect), intent(in) :: this
          type(MultiState), intent(inout) :: multi_state
@@ -87,7 +87,7 @@ module mapl_ClassAspect
       end subroutine I_add_to_state
 
       subroutine I_get_payload(this, unusable, field, bundle, state, rc)
-         use mapl_KeywordEnforcer
+         use mapl_KeywordEnforcer_mod
          use esmf
          import ClassAspect
          class(ClassAspect), intent(in) :: this
@@ -171,4 +171,4 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine update_payload
 
-end module mapl_ClassAspect
+end module mapl_ClassAspect_mod

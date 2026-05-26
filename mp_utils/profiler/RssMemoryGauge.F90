@@ -1,8 +1,8 @@
 #include "unused_dummy.H"
 
-module MAPL_RssMemoryGauge
+module mapl_RssMemoryGauge_mod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
-   use MAPL_AbstractGauge
+   use mapl_AbstractGauge_mod
    implicit none
    private
 
@@ -73,7 +73,7 @@ contains
    end function get_measurement
 
 
-end module MAPL_RssMemoryGauge
+end module mapl_RssMemoryGauge_mod
 
    
    

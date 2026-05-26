@@ -8,7 +8,8 @@ coloured_edges: true
 graph_maxdepth: 4
 graph_maxnodes: 32
 include: ../../include/
-         ../../base3g/include/
+         ../../infrastructure/esmf/comms/
+         ../../infrastructure/esmf/include/
          ../../gFTL/install/GFTL-1.17/include/v1
          ../../gFTL/install/GFTL-1.17/include/v2
 exclude: **/*.pf

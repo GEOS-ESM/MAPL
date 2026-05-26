@@ -48,12 +48,12 @@
 !----------------------------------------------------------------------
 ! End of original license
 
-MODULE MAPL_StateArithmeticParserMod
+MODULE mapl_StateArithmeticParser_mod
 
   use ESMF
    use MAPL_Constants,  only: MAPL_UNDEF
-   use MAPL_FieldUtils
-  use MAPL_ExceptionHandling
+   use mapl_FieldUtils
+  use mapl_ExceptionHandling_mod
   use gFTL2_StringVector
 
   IMPLICIT NONE
@@ -1118,4 +1118,4 @@ CONTAINS
     endwhere
   END FUNCTION Heav3D
 
-END MODULE MAPL_StateArithmeticParserMod
+END MODULE mapl_StateArithmeticParser_mod

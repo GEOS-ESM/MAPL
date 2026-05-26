@@ -1,12 +1,12 @@
 #include "MAPL.h"
-module mapl_FieldBundleWrite
+module mapl_FieldBundleWrite_mod
    use ESMF
    use pFIO
    use pFIO_ClientManagerMod, only: o_Clients
-   use MAPL_ExceptionHandling
-   use mapl_GeomPFIO
-   use mapl_SharedIO
-   use mapl_GeomCatagorizer
+   use mapl_ExceptionHandling_mod
+   use mapl_GeomPFIO_mod
+   use mapl_SharedIO_mod
+   use mapl_GeomCatagorizer_mod
    implicit none
    private
 
@@ -115,4 +115,4 @@ module mapl_FieldBundleWrite
          _RETURN(_SUCCESS)
       end subroutine start_new_file
 
-end module mapl_FieldBundleWrite
+end module mapl_FieldBundleWrite_mod

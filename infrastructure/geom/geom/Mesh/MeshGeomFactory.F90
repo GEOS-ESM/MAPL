@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-module mapl_MeshGeomFactory
-   use mapl_GeomSpec
-   use mapl_GeomFactory
-   use mapl_MeshGeomSpec
-   use mapl_KeywordEnforcerMod, only: KeywordEnforcer
+module mapl_MeshGeomFactory_mod
+   use mapl_GeomSpec_mod
+   use mapl_GeomFactory_mod
+   use mapl_MeshGeomSpec_mod
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use gftl2_StringVector, only: StringVector
-   use mapl_StringDictionary, only: StringDictionary
+   use mapl_StringDictionary_mod, only: StringDictionary
    use pfio_FileMetadataMod, only: FileMetadata
    use esmf
    implicit none
@@ -74,6 +74,7 @@ module mapl_MeshGeomFactory
 
       ! File metadata generation
       module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
+         use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          class(MeshGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
@@ -99,4 +100,4 @@ module mapl_MeshGeomFactory
 
    end interface
 
-end module mapl_MeshGeomFactory
+end module mapl_MeshGeomFactory_mod

@@ -6,9 +6,9 @@ module pFIO_MultiGroupServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use mapl_KeywordEnforcerMod
-   use MAPL_Profiler
-   use MAPL_ErrorHandlingMod
+   use mapl_KeywordEnforcer_mod
+   use mapl_Profiler_mod
+   use mapl_ErrorHandling_mod
    use pFIO_ConstantsMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_UtilitiesMod
@@ -37,8 +37,8 @@ module pFIO_MultiGroupServerMod
    use pFIO_BaseServerMod
    use pFIO_IntArrayMod
    use pFIO_StringIntArrayMapMod
-   use MAPL_SplitCommunicatorMod
-   use MAPL_SimpleCommSplitterMod
+   use mapl_SplitCommunicator_mod
+   use mapl_SimpleCommSplitter_mod
    use pFIO_MpiSocketMod
    use gFTL_IntegerVector
    use pFIO_AbstractRequestHandleMod

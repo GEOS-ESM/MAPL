@@ -1,5 +1,5 @@
-module mapl_CubedSphereDecomposition
-   use mapl_KeywordEnforcer
+module mapl_CubedSphereDecomposition_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
    implicit none
    private
@@ -49,6 +49,7 @@ module mapl_CubedSphereDecomposition
 
       ! Keyword enforced to avoid ambiguity with '_topo' interface
       module function new_CubedSphereDecomposition_petcount(dims, unusable, petCount) result(decomp)
+         use mapl_KeywordEnforcer_mod
          type(CubedSphereDecomposition) :: decomp
          integer, intent(in) :: dims(2)
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -57,6 +58,7 @@ module mapl_CubedSphereDecomposition
 
       ! Keyword enforced to avoid ambiguity with '_petcount' interface
       module function new_CubedSphereDecomposition_topo(dims, unusable, topology) result(decomp)
+         use mapl_KeywordEnforcer_mod
          type(CubedSphereDecomposition) :: decomp
          integer, intent(in) :: dims(2)
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -102,5 +104,5 @@ module mapl_CubedSphereDecomposition
       
    end interface
 
-end module mapl_CubedSphereDecomposition
+end module mapl_CubedSphereDecomposition_mod
 

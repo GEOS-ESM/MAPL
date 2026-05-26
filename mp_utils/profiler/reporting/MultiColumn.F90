@@ -1,8 +1,8 @@
-module MAPL_MultiColumn
-   use MAPL_TextColumn
-   use MAPL_TextColumnVector
-   use MAPL_AbstractMeterNode
-   use MAPL_SeparatorColumn
+module mapl_MultiColumn_mod
+   use mapl_TextColumn_mod
+   use mapl_TextColumnVector_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_SeparatorColumn_mod
    implicit none
    private
 
@@ -176,4 +176,4 @@ contains
       num_cols = this%columns%size()
    end function get_num_columns
 
-end module MAPL_MultiColumn
+end module mapl_MultiColumn_mod

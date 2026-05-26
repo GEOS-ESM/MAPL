@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-submodule (mapl_CubedSphereGeomSpec) CubedSphereGeomSpec_get_horz_ij_index_smod
+submodule (mapl_CubedSphereGeomSpec_mod) CubedSphereGeomSpec_get_horz_ij_index_smod
 
    use MAPL_Constants, only: MAPL_PI_R8
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    use ESMF, only: ESMF_GeomGet, ESMF_GeomType_Flag, ESMF_GEOMTYPE_GRID, ESMF_Grid
-   use mapl_Geom_API, only: mapl_GridGet
+   use mapl_Geom_API_mod, only: mapl_GridGet
 
    implicit none(type, external)
 

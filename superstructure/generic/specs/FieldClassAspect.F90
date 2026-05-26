@@ -1,36 +1,36 @@
 #include "MAPL.h"
 
-module mapl_FieldClassAspect
+module mapl_FieldClassAspect_mod
 
-   use mapl_ActualConnectionPt
-   use mapl_AspectId
-   use mapl_StateItemAspect
-   use mapl_ClassAspect
-   use mapl_GeomAspect
-   use mapl_HorizontalDimsSpec
-   use mapl_VerticalGridAspect
-   use mapl_UnitsAspect
-   use mapl_TypekindAspect
-   use mapl_UngriddedDimsAspect
+   use mapl_ActualConnectionPt_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ClassAspect_mod
+   use mapl_GeomAspect_mod
+   use mapl_HorizontalDimsSpec_mod
+   use mapl_VerticalGridAspect_mod
+   use mapl_UnitsAspect_mod
+   use mapl_TypekindAspect_mod
+   use mapl_UngriddedDimsAspect_mod
 
-   use mapl_VerticalGrid
-   use mapl_VerticalStaggerLoc
-   use mapl_VerticalStaggerLoc
-   use mapl_UngriddedDims
+   use mapl_VerticalGrid_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_UngriddedDims_mod
 
-   use mapl_NullTransform
-   use mapl_ExtensionTransform
-   use mapl_MultiState
-   use mapl_ESMF_Utilities, only: get_substate
+   use mapl_NullTransform_mod
+   use mapl_ExtensionTransform_mod
+   use mapl_MultiState_mod
+   use mapl_ESMF_Utilities_mod, only: get_substate
 
    use mapl_Field_API
-   use mapl_FieldBundle_API
-   use mapl_FieldInfo, only: FieldInfoSetInternal
-   use mapl_RestartModes, only: RestartMode
+   use mapl_FieldBundle_API_mod
+   use mapl_FieldInfo_mod, only: FieldInfoSetInternal
+   use mapl_RestartModes_mod, only: RestartMode
 
-   use mapl_FieldUtilities
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
+   use mapl_FieldUtilities_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
    use pflogger
 
@@ -416,4 +416,4 @@ contains
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
 
-end module mapl_FieldClassAspect
+end module mapl_FieldClassAspect_mod

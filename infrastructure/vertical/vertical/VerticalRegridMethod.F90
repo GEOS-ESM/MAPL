@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_VerticalRegridMethod
+module mapl_VerticalRegridMethod_mod
 
    use esmf, only: ESMF_MAXSTR
 
@@ -74,4 +74,4 @@ contains
       not_equal_to = .not. (a==b)
    end function not_equal_to
 
-end module mapl_VerticalRegridMethod
+end module mapl_VerticalRegridMethod_mod

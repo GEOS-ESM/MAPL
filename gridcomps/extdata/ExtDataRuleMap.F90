@@ -1,5 +1,5 @@
-module mapl_ExtDataRuleMap
-   use mapl_ExtDataRule
+module mapl_ExtDataRuleMap_mod
+   use mapl_ExtDataRule_mod
 
 #define Key __CHARACTER_DEFERRED
 #define T ExtDataRule
@@ -15,6 +15,6 @@ module mapl_ExtDataRuleMap
 #undef T
 #undef Key
 
-end module mapl_ExtDataRuleMap
+end module mapl_ExtDataRuleMap_mod
 
 

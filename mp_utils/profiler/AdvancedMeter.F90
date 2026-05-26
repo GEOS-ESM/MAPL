@@ -1,9 +1,9 @@
 #include "unused_dummy.H"
 
-module MAPL_AdvancedMeter
+module mapl_AdvancedMeter_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use MAPL_AbstractMeter
-   use MAPL_AbstractGauge
+   use mapl_AbstractMeter_mod
+   use mapl_AbstractGauge_mod
    implicit none
    private
 
@@ -292,4 +292,4 @@ contains
 
    end subroutine accumulate
 
-end module MAPL_AdvancedMeter
+end module mapl_AdvancedMeter_mod

@@ -2,15 +2,15 @@
 
 module Test_Scenarios
 
-   use mapl_Generic
-   use mapl_GenericPhases
-   use mapl_MultiState
-   use mapl_OuterMetaComponent
-   use mapl_GriddedComponentDriver
-   use mapl_GenericGridComp, generic_setservices => setservices
-   use mapl_UserSetServices
-   use mapl_ESMF_Utilities
-   use mapl_Geom_API, only: mapl_GeomGet
+   use mapl_Generic_mod
+   use mapl_GenericPhases_mod
+   use mapl_MultiState_mod
+   use mapl_OuterMetaComponent_mod
+   use mapl_GriddedComponentDriver_mod
+   use mapl_GenericGridComp_mod, generic_setservices => setservices
+   use mapl_UserSetServices_mod
+   use mapl_ESMF_Utilities_mod
+   use mapl_Geom_API_mod, only: mapl_GeomGet
    use esmf
    use nuopc
    ! testing framework
@@ -857,7 +857,7 @@ contains
    end subroutine check_fieldCount
 
    recursive subroutine get_substates(gc, states, component_path, substates, rc)
-      use mapl_GriddedComponentDriver
+      use mapl_GriddedComponentDriver_mod
       type(ESMF_GridComp), target, intent(inout) :: gc
       type(MultiState), intent(in) :: states
       character(*), intent(in) :: component_path

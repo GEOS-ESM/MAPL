@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module mapl_MeshDecomposition
+module mapl_MeshDecomposition_mod
 
-   use mapl_Partition
-   use mapl_KeywordEnforcer
+   use mapl_Partition_mod
+   use mapl_KeywordEnforcer_mod
    use esmf
 
    implicit none
@@ -95,7 +95,7 @@ contains
 
    ! Constructor with both element and node distribution arrays
    function new_MeshDecomposition_with_nodes(element_distribution, unusable, node_distribution) result(decomp)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(MeshDecomposition) :: decomp
       integer, intent(in) :: element_distribution(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -108,7 +108,7 @@ contains
    end function new_MeshDecomposition_with_nodes
 
    function new_MeshDecomposition_petcount(npoints, unusable, petCount) result(decomp)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(MeshDecomposition) :: decomp
       integer, intent(in) :: npoints
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -122,7 +122,7 @@ contains
 
    ! New constructor for Phase 3: support both element and node distribution
    function new_MeshDecomposition_full(nelements, nnodes, unusable, petCount) result(decomp)
-      use mapl_KeywordEnforcer
+      use mapl_KeywordEnforcer_mod
       type(MeshDecomposition) :: decomp
       integer, intent(in) :: nelements
       integer, intent(in) :: nnodes
@@ -166,4 +166,4 @@ contains
       not_equal_to = .not. (decomp1 == decomp2)
    end function not_equal_to
 
-end module mapl_MeshDecomposition
+end module mapl_MeshDecomposition_mod

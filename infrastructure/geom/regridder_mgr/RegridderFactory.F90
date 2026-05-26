@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_RegridderFactory
+module mapl_RegridderFactory_mod
    implicit none
    private
 
@@ -16,15 +16,15 @@ module mapl_RegridderFactory
    abstract interface
 
       logical function I_supports(this, param)
-         use mapl_RegridderParam
+         use mapl_RegridderParam_mod
          import :: RegridderFactory
          class(RegridderFactory), intent(in) :: this
          class(RegridderParam), intent(in) :: param
       end function I_supports
 
       function I_make_regridder_typesafe(this, spec, rc) result(regriddr)
-         use mapl_RegridderSpec
-         use mapl_Regridder
+         use mapl_RegridderSpec_mod
+         use mapl_Regridder_mod
          import :: RegridderFactory
          class(Regridder), allocatable :: regriddr
          class(RegridderFactory), intent(inout) :: this
@@ -34,5 +34,5 @@ module mapl_RegridderFactory
 
    end interface
 
-end module mapl_RegridderFactory
+end module mapl_RegridderFactory_mod
    

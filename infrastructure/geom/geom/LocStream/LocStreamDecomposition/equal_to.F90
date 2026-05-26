@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl_LocStreamDecomposition) equal_to_smod
+submodule (mapl_LocStreamDecomposition_mod) equal_to_smod
    implicit none (type, external)
 
 contains

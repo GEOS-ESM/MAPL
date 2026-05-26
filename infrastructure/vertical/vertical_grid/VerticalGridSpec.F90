@@ -1,4 +1,4 @@
-module mapl_VerticalGridSpec
+module mapl_VerticalGridSpec_mod
    implicit none(type,external)
    private
    
@@ -8,5 +8,5 @@ module mapl_VerticalGridSpec
       private
    end type VerticalGridSpec
 
-end module mapl_VerticalGridSpec
+end module mapl_VerticalGridSpec_mod
 

@@ -4,8 +4,8 @@ module mapl_restart_support_mod
    use ESMF
    use MPI
    use NetCDF
-   use MAPL_ErrorHandlingMod
-   use MAPL_MemUtilsMod
+   use mapl_ErrorHandling_mod
+   use mapl_MemUtils_mod
    use fargparse
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64, REAL32
    implicit none

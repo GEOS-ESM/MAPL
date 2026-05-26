@@ -1,7 +1,7 @@
 #include "MAPL.h"
-module mapl_BW_BenchmarkSpec
-   use mapl_BW_Benchmark
-   use mapl_ErrorHandlingMod
+module mapl_BW_BenchmarkSpec_mod
+   use mapl_BW_Benchmark_mod
+   use mapl_ErrorHandling_mod
    use fArgParse
    use mpi
    use, intrinsic :: iso_fortran_env, only: INT64
@@ -141,4 +141,4 @@ contains
       _RETURN(_SUCCESS)
    end function make_filename
 
-end module mapl_BW_BenchmarkSpec
+end module mapl_BW_BenchmarkSpec_mod

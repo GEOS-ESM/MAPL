@@ -1,9 +1,9 @@
 #include "MAPL.h"
 
-module MAPL_FieldPointerUtilities
+module mapl_FieldPointerUtilities_mod
 
    use ESMF
-   use MAPL_ExceptionHandling
+   use mapl_ExceptionHandling_mod
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated
 
    implicit none
@@ -1175,4 +1175,4 @@ contains
       _RETURN(_SUCCESS)
    end function same_data
 
-end module MAPL_FieldPointerUtilities
+end module mapl_FieldPointerUtilities_mod

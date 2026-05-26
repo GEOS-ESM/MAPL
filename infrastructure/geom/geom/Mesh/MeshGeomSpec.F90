@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-module mapl_MeshGeomSpec
-   use mapl_GeomSpec
-   use mapl_MeshDecomposition
-   use mapl_ErrorHandlingMod
-   use mapl_KeywordEnforcer
+module mapl_MeshGeomSpec_mod
+   use mapl_GeomSpec_mod
+   use mapl_MeshDecomposition_mod
+   use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod
    use esmf, only: ESMF_KIND_R8, ESMF_HConfig, ESMF_KIND_R4, ESMF_Geom
    use pfio, only: FileMetadata
    implicit none(type,external)
@@ -65,7 +65,7 @@ module mapl_MeshGeomSpec
 
       ! New file-based constructor (in submodule)
       module function new_MeshGeomSpec_from_file(filename, unusable, decomposition, rc) result(spec)
-         use mapl_KeywordEnforcer
+         use mapl_KeywordEnforcer_mod
          type(MeshGeomSpec) :: spec
          character(len=*), intent(in) :: filename
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -200,4 +200,4 @@ contains
       _UNUSED_DUMMY(lat)
    end subroutine get_horz_ij_index_r8
 
-end module mapl_MeshGeomSpec
+end module mapl_MeshGeomSpec_mod

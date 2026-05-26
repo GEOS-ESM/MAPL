@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomFactory) typesafe_make_file_metadata_smod
-   use mapl_ErrorHandlingMod
+submodule (mapl_XYGeomFactory_mod) typesafe_make_file_metadata_smod
+   use mapl_ErrorHandling_mod
    use pfio
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL64
@@ -10,6 +10,7 @@ submodule (mapl_XYGeomFactory) typesafe_make_file_metadata_smod
 contains
 
    module function typesafe_make_file_metadata(spec, unusable, chunksizes, rc) result(file_metadata)
+      use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       type(XYGeomSpec), intent(in) :: spec
       class(KE), optional, intent(in) :: unusable

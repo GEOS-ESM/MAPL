@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module MAPL_PythonBridge
+module mapl_PythonBridge_mod
 
    ! -----------------------------
    ! Generic bridge mechanism to pull MAPL down to the python level
@@ -10,14 +10,14 @@ module MAPL_PythonBridge
    !
    ! -----------------------------
    use ESMF
-   use Generic3g
+   use mapl_Generic
 #ifdef PYTHONBRIDGE_INTEGRATION
-   use mapl_fortran_python_bridge, only: mapl_fortran_python_bridge_global_initialize
-   use mapl_fortran_python_bridge, only: mapl_fortran_python_bridge_user_init
-   use mapl_fortran_python_bridge, only: mapl_fortran_python_bridge_user_run
-   use mapl_fortran_python_bridge, only: mapl_fortran_python_bridge_user_run_with_internal
-   use mapl_fortran_python_bridge, only: mapl_fortran_python_bridge_user_finalize
-   use mapl_fortran_python_bridge, only: pygeosbridge_name_buffer
+   use mapl_fortran_python_bridge_mod, only: mapl_fortran_python_bridge_global_initialize
+   use mapl_fortran_python_bridge_mod, only: mapl_fortran_python_bridge_user_init
+   use mapl_fortran_python_bridge_mod, only: mapl_fortran_python_bridge_user_run
+   use mapl_fortran_python_bridge_mod, only: mapl_fortran_python_bridge_user_run_with_internal
+   use mapl_fortran_python_bridge_mod, only: mapl_fortran_python_bridge_user_finalize
+   use mapl_fortran_python_bridge_mod, only: pygeosbridge_name_buffer
    use ieee_exceptions, only: ieee_get_halting_mode, ieee_set_halting_mode
    use ieee_exceptions, only: ieee_overflow, ieee_invalid, ieee_support_halting
    use iso_c_binding, only: c_loc, C_NULL_CHAR
@@ -154,4 +154,4 @@ contains
 #endif
    end subroutine MAPL_pybridge_gcfinalize
 
-end module MAPL_PythonBridge
+end module mapl_PythonBridge_mod

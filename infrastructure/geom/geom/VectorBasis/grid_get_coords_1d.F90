@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule (mapl_VectorBasis) grid_get_coords_1d_smod
+submodule (mapl_VectorBasis_mod) grid_get_coords_1d_smod
 
 contains
 

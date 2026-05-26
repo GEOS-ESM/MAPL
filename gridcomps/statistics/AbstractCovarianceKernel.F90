@@ -1,11 +1,9 @@
 #include "MAPL.h"
 
-module mapl_AbstractCovarianceKernel
+module mapl_AbstractCovarianceKernel_mod
 
    use MAPL
    use ESMF
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
 
    implicit none(type, external)
    private
@@ -85,4 +83,4 @@ module mapl_AbstractCovarianceKernel
 
    end interface
 
-end module mapl_AbstractCovarianceKernel
+end module mapl_AbstractCovarianceKernel_mod

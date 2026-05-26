@@ -1,5 +1,5 @@
-module mapl_PrimaryExportVector
-   use mapl_PrimaryExport
+module mapl_PrimaryExportVector_mod
+   use mapl_PrimaryExport_mod
 #define T PrimaryExport
 #define Vector PrimaryExportVector
 #define VectorIterator PrimaryExportVectorIterator
@@ -10,4 +10,4 @@ module mapl_PrimaryExportVector
 #undef Vector
 #undef VectorIterator
 
-end module mapl_PrimaryExportVector
+end module mapl_PrimaryExportVector_mod

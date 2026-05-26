@@ -1,5 +1,5 @@
-module MAPL_ColumnVector
-   use MAPL_AbstractColumn
+module mapl_ColumnVector_mod
+   use mapl_AbstractColumn_mod
 
 #define _type class(AbstractColumn)
 #define _allocatable
@@ -7,4 +7,4 @@ module MAPL_ColumnVector
 #define _iterator ColumnVectorIterator
 #include "templates/vector.inc"
    
-end module MAPL_ColumnVector
+end module mapl_ColumnVector_mod

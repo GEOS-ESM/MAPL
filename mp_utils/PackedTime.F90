@@ -13,9 +13,9 @@
 !> arithmetic.  The canonical representation of time in MAPL3 is ESMF_Time;
 !> the packed forms will be retired once all consumers have migrated.
 
-module MAPL_PackedTimeMod
+module mapl_PackedTime_mod
    use ESMF
-   use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return
+   use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Return
    implicit none(type, external)
    private
 
@@ -212,4 +212,4 @@ contains
        _RETURN(ESMF_SUCCESS)
    end function esmf_time_from_packed
 
-end module MAPL_PackedTimeMod
+end module mapl_PackedTime_mod

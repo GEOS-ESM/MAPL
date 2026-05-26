@@ -1,5 +1,5 @@
-module mapl_Generic3g_API
-   use mapl_UserSetServices, only: user_setservices, AbstractUserSetServices, DSOSetServices
+module mapl_Generic_API_mod
+   use mapl_UserSetServices_mod, only: user_setservices, AbstractUserSetServices, DSOSetServices
 
    implicit none(type,external)
    private
@@ -8,4 +8,4 @@ module mapl_Generic3g_API
    public :: AbstractUserSetServices
    public :: DSOSetServices
 
-end module mapl_Generic3g_API
+end module mapl_Generic_API_mod

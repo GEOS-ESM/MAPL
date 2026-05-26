@@ -1,9 +1,9 @@
 #include "unused_dummy.H"
 
-module MAPL_SeparatorColumn
-   use MAPL_AbstractColumn
-   use MAPL_AbstractMeterNode
-   use Mapl_SimpleTextColumn
+module mapl_SeparatorColumn_mod
+   use mapl_AbstractColumn_mod
+   use mapl_AbstractMeterNode_mod
+   use mapl_SimpleTextColumn_mod
    implicit none
    private
 
@@ -69,5 +69,5 @@ contains
       num_rows = 1
    end function get_num_rows_header
    
-end module MAPL_SeparatorColumn
+end module mapl_SeparatorColumn_mod
 

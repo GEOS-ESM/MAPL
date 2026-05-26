@@ -1,4 +1,4 @@
-module MAPL_MathConstants
+module mapl_MathConstants_mod
 
    use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
 
@@ -10,5 +10,5 @@ module MAPL_MathConstants
    real(kind=REAL32), parameter :: MAPL_DEGREES_TO_RADIANS    = MAPL_PI / 180.
    real(kind=REAL64), parameter :: MAPL_RADIANS_TO_DEGREES    = 180.d0 / MAPL_PI_R8
 
-end module MAPL_MathConstants
+end module mapl_MathConstants_mod
 

@@ -1,6 +1,6 @@
 #include "MAPL.h"
-module mapl_VerticalAlignment
-   use mapl_VerticalCoordinateDirection
+module mapl_VerticalAlignment_mod
+   use mapl_VerticalCoordinateDirection_mod
    implicit none
    private
 
@@ -134,4 +134,4 @@ contains
       are_not_equal = .not. (this == that)
    end function are_not_equal
 
-end module mapl_VerticalAlignment
+end module mapl_VerticalAlignment_mod

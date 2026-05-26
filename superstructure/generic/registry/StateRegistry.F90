@@ -1,25 +1,25 @@
 #include "MAPL.h"
 
-module mapl_StateRegistry
+module mapl_StateRegistry_mod
    use mapl_Field_API
-   use mapl_AbstractRegistry
-   use mapl_RegistryPtr
-   use mapl_RegistryPtrMap
-   use mapl_VirtualConnectionPt
-   use mapl_VirtualConnectionPtVector
-   use mapl_ConnectionPt
-   use mapl_StateItemSpec
-   use mapl_StateItemSpecVector
-   use mapl_StateItemSpecPtrVector
-   use mapl_ExtensionFamily
-   use mapl_VirtualPtFamilyMap
-   use mapl_StateItemVector
-   use mapl_ComponentDriver
-   use mapl_ComponentDriverVector
-   use mapl_ComponentDriverPtrVector
-   use mapl_GriddedComponentDriver
-   use mapl_VerticalGrid
-   use mapl_ErrorHandling
+   use mapl_AbstractRegistry_mod
+   use mapl_RegistryPtr_mod
+   use mapl_RegistryPtrMap_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_VirtualConnectionPtVector_mod
+   use mapl_ConnectionPt_mod
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemSpecVector_mod
+   use mapl_StateItemSpecPtrVector_mod
+   use mapl_ExtensionFamily_mod
+   use mapl_VirtualPtFamilyMap_mod
+   use mapl_StateItemVector_mod
+   use mapl_ComponentDriver_mod
+   use mapl_ComponentDriverVector_mod
+   use mapl_ComponentDriverPtrVector_mod
+   use mapl_GriddedComponentDriver_mod
+   use mapl_VerticalGrid_mod
+   use mapl_ErrorHandling_mod
    use esmf, only: ESMF_Geom, ESMF_TimeInterval
 
    implicit none(type,external)
@@ -262,7 +262,7 @@ module mapl_StateRegistry
       end subroutine propagate_exports_subregistry
 
       module subroutine propagate_exports_virtual_pt(this, subregistry_name, iter, rc)
-         use mapl_VirtualPtFamilyMap, only: VirtualPtFamilyMapIterator
+         use mapl_VirtualPtFamilyMap_mod, only: VirtualPtFamilyMapIterator
          class(StateRegistry), target, intent(inout) :: this
          character(*), intent(in) :: subregistry_name
          type(VirtualPtFamilyMapIterator), intent(in) :: iter
@@ -276,7 +276,7 @@ module mapl_StateRegistry
       end subroutine allocate_items
 
       module subroutine add_to_states(this, multi_state, mode, rc)
-         use mapl_MultiState
+         use mapl_MultiState_mod
          class(StateRegistry), target, intent(inout) :: this
          type(MultiState), intent(inout) :: multi_state
          character(*), intent(in) :: mode
@@ -301,4 +301,4 @@ module mapl_StateRegistry
 
    end interface
 
-end module mapl_StateRegistry
+end module mapl_StateRegistry_mod

@@ -1,10 +1,10 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-module mapl_FieldBundleCopyImpl
-   use MAPL_FieldUtils, only: FieldCopy
-   use MAPL_ExceptionHandling
-   use MAPL_KeywordEnforcer
+module mapl_FieldBundleCopyImpl_mod
+   use mapl_FieldUtils, only: FieldCopy
+   use mapl_ExceptionHandling_mod
+   use mapl_KeywordEnforcer_mod
 !   use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_MAXSTR
    use esmf
    implicit none(type, external)
@@ -56,4 +56,4 @@ contains
 
    end subroutine copy_bundle
 
-end module mapl_FieldBundleCopyImpl
+end module mapl_FieldBundleCopyImpl_mod

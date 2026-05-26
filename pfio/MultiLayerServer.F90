@@ -3,8 +3,8 @@
 
 module pFIO_MultiLayerServerMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use mapl_KeywordEnforcerMod
-   use MAPL_ErrorHandlingMod
+   use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    use pFIO_ConstantsMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_UtilitiesMod

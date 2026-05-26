@@ -1,4 +1,4 @@
-module mapl_GridSpec
+module mapl_GridSpec_mod
    implicit none
    private
 
@@ -38,4 +38,4 @@ contains
    end function GridSpec_simple
 
    
-end module mapl_GridSpec
+end module mapl_GridSpec_mod

@@ -1,24 +1,24 @@
 #include "MAPL.h"
 
-module mapl_OuterMetaComponent
+module mapl_OuterMetaComponent_mod
 
-   use mapl_UserSetServices, only: AbstractUserSetServices
-   use mapl_ComponentSpec
-   use mapl_VariableSpec
-   use mapl_ChildSpec
-   use mapl_InnerMetaComponent
-   use mapl_MethodPhasesMap
-   use mapl_StateRegistry
-   use mapl_ESMF_Interfaces, only: I_Run
-   use mapl_GriddedComponentDriver
-   use mapl_ComponentDriverVector
-   use mapl_GriddedComponentDriverMap, only: GriddedComponentDriverMap
-   use mapl_GriddedComponentDriverMap, only: operator(/=)
-   use mapl_VerticalGrid
-   use mapl_SimpleAlarm
+   use mapl_UserSetServices_mod, only: AbstractUserSetServices
+   use mapl_ComponentSpec_mod
+   use mapl_VariableSpec_mod
+   use mapl_ChildSpec_mod
+   use mapl_InnerMetaComponent_mod
+   use mapl_MethodPhasesMap_mod
+   use mapl_StateRegistry_mod
+   use mapl_ESMF_Interfaces_mod, only: I_Run
+   use mapl_GriddedComponentDriver_mod
+   use mapl_ComponentDriverVector_mod
+   use mapl_GriddedComponentDriverMap_mod, only: GriddedComponentDriverMap
+   use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
+   use mapl_VerticalGrid_mod
+   use mapl_SimpleAlarm_mod
    use gFTL2_StringVector
-   use mapl_keywordEnforcer, only: KE => KeywordEnforcer
-   use MAPL_Profiler, only: DistributedProfiler
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_Profiler_mod, only: DistributedProfiler
    use esmf
    use pflogger, only: Logger
 
@@ -456,6 +456,7 @@ module mapl_OuterMetaComponent
       end subroutine connect_all
 
       module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
+         use mapl_KeywordEnforcer_mod
          class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_Method_Flag), intent(in) :: method_flag
          procedure(I_Run) :: userProcedure
@@ -520,4 +521,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine set_misc
 
-end module mapl_OuterMetaComponent
+end module mapl_OuterMetaComponent_mod

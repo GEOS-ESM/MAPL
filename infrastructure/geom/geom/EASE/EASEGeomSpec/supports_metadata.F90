@@ -1,10 +1,10 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomSpec) supports_metadata_smod
-   use mapl_GeomSpec
-   use mapl_EASEConversion
+submodule (mapl_EASEGeomSpec_mod) supports_metadata_smod
+   use mapl_GeomSpec_mod
+   use mapl_EASEConversion_mod
    use pfio
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
    implicit none (type, external)
 
 contains

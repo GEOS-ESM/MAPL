@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-submodule(mapl_GriddedComponentDriver) set_clock_smod
+submodule(mapl_GriddedComponentDriver_mod) set_clock_smod
    implicit none(type,external)
 
 contains

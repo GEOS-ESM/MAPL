@@ -1,28 +1,24 @@
 #include "MAPL.h"
-module mapl_PrimaryExport
+module mapl_PrimaryExport_mod
    use ESMF
-   use MAPL_ExceptionHandling
-   use mapl_AbstractDataSetFileSelector
-   use mapl_NonClimDataSetFileSelector
-   use mapl_ClimDataSetFileSelector
-   use mapl_Geom_API
-   use mapl_VerticalGrid_API
-   use MAPL_FileMetadataUtilsMod
-   use generic3g
-   use mapl_DataSetBracket
-   use mapl_DataSetNode
-   use mapl_ExtDataReader
+   use mapl_AbstractDataSetFileSelector_mod
+   use mapl_NonClimDataSetFileSelector_mod
+   use mapl_ClimDataSetFileSelector_mod
+   use MAPL
+   use MAPL
+   use MAPL
+   use mapl_DataSetBracket_mod
+   use mapl_DataSetNode_mod
+   use mapl_ExtDataReader_mod
    use gftl2_StringStringMap
    use gftl2_IntegerVector
    use gftl2_StringVector
-   use mapl_ExtDataRule
-   use mapl_ExtDataCollection
-   use mapl_ExtDataSample
+   use mapl_ExtDataRule_mod
+   use mapl_ExtDataCollection_mod
+   use mapl_ExtDataSample_mod
    use pfio, only: i_clients
    use VerticalCoordinateMod
-   use mapl_FieldBundle_API
-   use mapl_EsmfRegridder, only: EsmfRegridderParam
-   use mapl_RegridderMethods
+   use MAPL
    implicit none
    private
 
@@ -338,4 +334,4 @@ module mapl_PrimaryExport
 
    end subroutine set_fraction_values_to_zero
 
-end module mapl_PrimaryExport
+end module mapl_PrimaryExport_mod

@@ -1,7 +1,7 @@
 #include "MAPL.h"
-module mapl_get_hconfig
+module mapl_get_hconfig_mod
 
-   use mapl_hconfig_params
+   use mapl_hconfig_params_mod
    use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I4, ESMF_KIND_I8
    use :: esmf, only: ESMF_HConfig, ESMF_HConfigAsString
    use :: esmf, only: ESMF_HConfigAsLogical, ESMF_HConfigAsLogicalSeq
@@ -9,7 +9,7 @@ module mapl_get_hconfig
    use :: esmf, only: ESMF_HConfigAsR4, ESMF_HConfigAsR4Seq
    use :: esmf, only: ESMF_HConfigAsI8, ESMF_HConfigAsI8Seq 
    use :: esmf, only: ESMF_HConfigAsR8, ESMF_HConfigAsR8Seq
-   use mapl_ErrorHandling
+   use mapl_ErrorHandling_mod
 
    implicit none
    private
@@ -153,4 +153,4 @@ contains
 
    end subroutine get_hconfig_as_logical_seq
 
-end module mapl_get_hconfig
+end module mapl_get_hconfig_mod

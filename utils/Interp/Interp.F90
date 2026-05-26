@@ -1,4 +1,4 @@
-module MAPL_InterpMod
+module mapl_Interp_mod
 
   use, intrinsic :: iso_fortran_env, only: REAL64
 
@@ -121,4 +121,4 @@ module MAPL_InterpMod
        real(kind=REAL64),     intent(IN ) :: IX(:)
      end subroutine INTERP_LIN_3321_2
   end interface
-end module MAPL_InterpMod
+end module mapl_Interp_mod

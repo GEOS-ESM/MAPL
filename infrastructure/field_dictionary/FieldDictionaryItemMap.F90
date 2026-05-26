@@ -1,5 +1,5 @@
-module mapl_FieldDictionaryItemMap
-   use mapl_FieldDictionaryItem
+module mapl_FieldDictionaryItemMap_mod
+   use mapl_FieldDictionaryItem_mod
 
 #define Key __CHARACTER_DEFERRED
 #define T FieldDictionaryItem
@@ -15,4 +15,4 @@ module mapl_FieldDictionaryItemMap
 #undef T
 #undef Key
 
-end module mapl_FieldDictionaryItemMap
+end module mapl_FieldDictionaryItemMap_mod

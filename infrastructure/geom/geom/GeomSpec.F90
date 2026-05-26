@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_GeomSpec
+module mapl_GeomSpec_mod
 
    use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_Geom
 
@@ -77,4 +77,4 @@ contains
       has_name = allocated(this%name)
    end function has_name
 
-end module mapl_GeomSpec
+end module mapl_GeomSpec_mod

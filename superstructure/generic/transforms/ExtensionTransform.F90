@@ -1,8 +1,8 @@
 #include "MAPL.h"
-module mapl_ExtensionTransform
-   use mapl_TransformId
-   use mapl_AspectId
-   use mapl_ErrorHandling
+module mapl_ExtensionTransform_mod
+   use mapl_TransformId_mod
+   use mapl_AspectId_mod
+   use mapl_ErrorHandling_mod
    use ESMF
    implicit none(type,external)
    private
@@ -71,4 +71,4 @@ contains
       _UNUSED_DUMMY(this)
    end function runs_invalidate
 
-end module mapl_ExtensionTransform
+end module mapl_ExtensionTransform_mod

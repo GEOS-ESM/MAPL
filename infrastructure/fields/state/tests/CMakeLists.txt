@@ -13,7 +13,7 @@ add_pfunit_ctest(MAPL.state.tests
                 TEST_SOURCES ${test_srcs}
                 LINK_LIBRARIES MAPL.state MAPL.geom MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUnit_Initialize
+                EXTRA_USE mapl_pFUnit_Initialize_mod
                 OTHER_SOURCES state_utils_setup.F90
                 MAX_PES 1
                 )

@@ -17,6 +17,7 @@ set(srcs
   GeomGet.F90       # also contains GeomGetHorzIJIndex and GridGetHorzIJIndex (merged, #4944)
   GridGet.F90
   GridGetGlobal.F90
+  GridComms.F90
 
   # gFTL containers
   GeomFactoryVector.F90
@@ -30,7 +31,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.pfio MAPL.shared MAPL.hconfig_utils MAPL.esmf_utils GFTL::gftl-v2
+  DEPENDENCIES MAPL.pfio MAPL.shared MAPL.mp_utils MAPL.hconfig_utils MAPL.esmf_utils GFTL::gftl-v2
   TYPE SHARED
 )
 

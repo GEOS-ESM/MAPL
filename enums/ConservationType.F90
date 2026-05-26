@@ -1,4 +1,4 @@
-module mapl_ConservationType
+module mapl_ConservationType_mod
    implicit none(type, external)
    private
    
@@ -103,4 +103,4 @@ contains
       if (present(rc)) rc = 0
    end function conservation_type_from_string
    
-end module mapl_ConservationType
+end module mapl_ConservationType_mod

@@ -4,7 +4,7 @@ add_pfunit_ctest(MAPL.field.test_fieldcreate
                 TEST_SOURCES Test_FieldCreate.pf Test_FieldFill.pf
                 LINK_LIBRARIES MAPL.field MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUnit_Initialize
+                EXTRA_USE mapl_pFUnit_Initialize_mod
                 MAX_PES 1
                 )
 set_target_properties(MAPL.field.test_fieldcreate PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/create")
@@ -15,7 +15,7 @@ add_pfunit_ctest(MAPL.field.test_utils
                                Test_FieldDelta.pf Test_FieldInfo.pf Test_FieldUtilities.pf
                 LINK_LIBRARIES MAPL.field MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUnit_Initialize
+                EXTRA_USE mapl_pFUnit_Initialize_mod
                 OTHER_SOURCES field_utils_setup.F90
                 MAX_PES 4
                 )

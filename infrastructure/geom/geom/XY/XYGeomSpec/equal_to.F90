@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomSpec) equal_to_smod
-   use mapl_ErrorHandlingMod
+submodule (mapl_XYGeomSpec_mod) equal_to_smod
+   use mapl_ErrorHandling_mod
    implicit none
 
 contains
