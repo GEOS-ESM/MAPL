@@ -43,11 +43,12 @@ set (srcs
     # From esmf_utils/comms/
     comms/MAPL_Comms.F90
     comms/Comms_API.F90
+    comms/ShmemComms.F90
 )
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.enums MAPL.shared ESMF::ESMF GFTL::gftl-v2 PFLOGGER::pflogger
+    DEPENDENCIES MAPL.enums MAPL.shared MAPL.mp_utils ESMF::ESMF GFTL::gftl-v2 PFLOGGER::pflogger MPI::MPI_Fortran
     TYPE SHARED
 )
 
@@ -55,6 +56,7 @@ target_include_directories (${this} PUBLIC
     $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/hconfig_utils>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/comms>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})

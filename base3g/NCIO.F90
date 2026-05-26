@@ -17,7 +17,9 @@ module mapl_NCIO_mod
   use mapl_GridGetGlobal_mod, only: GridGetGlobalCellCountPerDim
   use mapl_Range_mod, only: MAPL_Range
   use mapl_GridAccessors_mod, only: geom_GridGet => GridGet
-  use MAPL_CommsMod
+  use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root, MAPL_ROOT => ROOT_PROCESS_ID, &
+                            ArrayScatter => array_scatter
+  use mapl_ShmemComms_mod, only: MAPL_CommsBcast
    use mapl_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
   use mapl_Sort_mod
   use mapl_EASEConversion_mod, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols

@@ -18,11 +18,18 @@
 module mapl_FileIOShared_mod
 
   use ESMF
-  use mapl_DistGridGet_mod, only: MAPL_DistGridGet_impl => DistGridGet
+  use mapl_DistGridGet_mod, only: MAPL_DistGridGet_impl => DistGridGet, DistGridGet
   use mapl_GridAccessors_mod, only: GridGet
   use mapl_GridGetGlobal_mod, only: GridGetGlobalCellCountPerDim
   use mapl_Sort_mod
-  use MAPL_CommsMod
+  use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root, MAPL_ROOT => ROOT_PROCESS_ID, &
+                            ROOT_PROCESS_ID, &
+                            comms_gatherv, &
+                            comms_scatterv, &
+                            MAPL_CommsAllReduceMax => comms_allreduce_max, &
+                            MAPL_CommsGatherV => comms_gatherv, &
+                            MAPL_CommsAllGatherV => comms_allgatherv, &
+                            MAPL_CommsScatterV => comms_scatterv
   use mapl_Shmem_mod
   use mapl_ExceptionHandling_mod
   use, intrinsic :: ISO_C_BINDING
