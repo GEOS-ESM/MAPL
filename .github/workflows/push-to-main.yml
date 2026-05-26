@@ -29,6 +29,6 @@ jobs:
           get_diff: true
           assignee: ${{ github.actor }}
           old_string: "<!-- Write your description here -->"
-          new_string: ${{ github.event.commits[0].message }}
+          new_string: ${{ github.event.commits && github.event.commits[0].message || 'Manually triggered' }}
           title: Auto GitFlow - main → release/v2
 
