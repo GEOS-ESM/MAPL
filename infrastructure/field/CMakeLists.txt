@@ -21,11 +21,9 @@ set (srcs
     FieldGet.F90
     FieldSet.F90
     FieldInfo.F90
-    StateItemAllocation.F90
     RestartModes.F90
     # From field_bundle/
     ../field_bundle/API.F90
-    ../field_bundle/FieldBundleType_Flag.F90
     ../field_bundle/FieldBundleGet.F90
     ../field_bundle/FieldBundleGetByIndex.F90
     ../field_bundle/FieldBundleSet.F90
@@ -59,7 +57,7 @@ find_package (GFTL REQUIRED)
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.vertical_grid MAPL.shared MAPL.esmf MAPL.geom
+    DEPENDENCIES MAPL.enums MAPL.vertical_grid MAPL.shared MAPL.esmf MAPL.geom
                  PFLOGGER::pflogger ESMF::ESMF udunits2f GFTL::gftl-v2
     TYPE SHARED
 )
