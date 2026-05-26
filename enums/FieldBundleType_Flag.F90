@@ -1,5 +1,5 @@
 module mapl_FieldBundleType_Flag_mod
-   implicit none
+   implicit none(type, external)
    private
 
    public :: FieldBundleType_Flag
