@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.fields)
+esma_set_this (OVERRIDE MAPL.field)
 
 # Fields infrastructure layer (Tier 3 in MAPL v3 restructuring).
 # Consolidates: field/, field_bundle/, state/.
@@ -70,9 +70,9 @@ target_include_directories (${this} PUBLIC
 )
 
 # Backward-compatibility aliases
-foreach (alias MAPL.field MAPL.field_bundle MAPL.state)
+foreach (alias MAPL.fields MAPL.field_bundle MAPL.state)
     add_library (${alias} INTERFACE)
-    target_link_libraries (${alias} INTERFACE MAPL.fields)
+    target_link_libraries (${alias} INTERFACE MAPL.field)
     install (TARGETS ${alias} EXPORT MAPL-targets)
 endforeach ()
 
