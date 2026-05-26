@@ -15,10 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Moved `StateItemAllocation` and `FieldBundleType_Flag` from `infrastructure/field/` and 
   `infrastructure/field_bundle/` respectively into the `enums/` layer. Created `enums/API.F90` 
   that exports all enum constants with a `MAPL_` prefix (e.g., `MAPL_STATEITEM_ALLOCATION_ACTIVE`, 
-  `MAPL_FIELDBUNDLETYPE_BASIC`), establishing the public API pattern for MAPL enums. Includes 
-  temporary backwards-compatibility shim that also exports old unprefixed type names 
-  (`StateItemAllocation`, `FieldBundleType_Flag`); this shim will be removed in a future release. 
-  Zero-diff.
+  `MAPL_FIELDBUNDLETYPE_BASIC`), establishing the public API pattern for MAPL enums. Updated 
+  internal MAPL clients to use enum modules directly. Breaking change for external clients using 
+  unprefixed type names (`StateItemAllocation`, `FieldBundleType_Flag`) - these are no longer 
+  exported; use MAPL_-prefixed constants instead. Zero-diff.
 - Flatten `infrastructure/` directory tree (#4972, part of #4969).
   Removes one level of nesting from the fields and geom sublayers:
   `infrastructure/fields/field/` → `infrastructure/field/`,
