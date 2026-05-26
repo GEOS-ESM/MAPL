@@ -131,7 +131,7 @@ end subroutine setServices
 
 ### Background
 
-The ACG (`MAPL_GridCompSpecs_ACGv3.py`, located in `Apps/`) is not new
+The ACG (`MAPL_GridCompSpecs_ACG.py`, located in `Apps/`) is not new
 to MAPL3, but its use is now strongly encouraged — and in practice
 **required** — when porting GEOS components to MAPL3.  The explicit
 `MAPL_AddImportSpec` / `MAPL_AddExportSpec` / `MAPL_AddInternalSpec`
@@ -191,7 +191,7 @@ T          | K     | xyz  | C        | air_temperature | R32 | true
 ### Running the ACG
 
 ```sh
-MAPL_GridCompSpecs_ACGv3.py MyGridComp.acg
+MAPL_GridCompSpecs_ACG.py MyGridComp.acg
 ```
 
 This generates the `acg_*.h` files in the current directory.  In

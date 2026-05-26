@@ -10,13 +10,11 @@
 # them to the build/install directories without needing a manual re-run of CMake.
 
 configure_file (MAPL_GridCompSpecs_ACG.py ${esma_etc}/MAPL/MAPL_GridCompSpecs_ACG.py COPYONLY)
-configure_file (MAPL_GridCompSpecs_ACGv3.py ${esma_etc}/MAPL/MAPL_GridCompSpecs_ACGv3.py COPYONLY)
 configure_file (mapl_acg.pl ${esma_etc}/MAPL/mapl_acg.pl COPYONLY)
 configure_file (mapl_stub.pl ${esma_etc}/MAPL/mapl_stub.pl COPYONLY)
 
 install (PROGRAMS
   MAPL_GridCompSpecs_ACG.py
-  MAPL_GridCompSpecs_ACGv3.py
   combine_restarts.py
   split_restart.py
   mapl_acg.pl
