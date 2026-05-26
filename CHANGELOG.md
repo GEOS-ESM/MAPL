@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Flatten `infrastructure/` directory tree (#4972, part of #4969).
+  Removes one level of nesting from the fields and geom sublayers:
+  `infrastructure/fields/field/` → `infrastructure/field/`,
+  `infrastructure/fields/field_bundle/` → `infrastructure/field_bundle/`,
+  `infrastructure/fields/state/` → `infrastructure/state/`,
+  `infrastructure/geom/geom/` → `infrastructure/geom/`,
+  `infrastructure/geom/GeomIO/` → `infrastructure/geom_io/`,
+  `infrastructure/geom/regridder_mgr/` → `infrastructure/regridder_mgr/`.
+  No source changes; CMake targets (`MAPL.fields`, `MAPL.geom`, `MAPL.GeomIO`,
+  `MAPL.regridder_mgr`) are unchanged. Zero-diff.
 - Remove `3g` suffix from all module and directory names (#4971, part of #4969).
   Renames `base3g/` → `base/`, `Generic3g.F90` → `Generic.F90`, module `generic3g`
   → `mapl_Generic`, `mapl_Generic3g_API_mod` → `mapl_Generic_API_mod`,
