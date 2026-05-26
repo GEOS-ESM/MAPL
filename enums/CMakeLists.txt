@@ -12,6 +12,9 @@ set (srcs
   VerificationStatus.F90
   GenericPhases.F90
   CouplerPhases.F90
+  StateItemAllocation.F90
+  FieldBundleType_Flag.F90
+  API.F90
   )
 
 esma_add_library (${this}
