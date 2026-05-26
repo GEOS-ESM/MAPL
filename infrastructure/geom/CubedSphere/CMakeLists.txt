@@ -6,7 +6,6 @@ target_sources(MAPL.geom PRIVATE
   CubedSphereGeomFactory_smod.F90
   CubedSphereDecomposition.F90
   CubedSphereDecomposition_smod.F90
-  CubedSphereGetGlobalHorzIJIndex.F90
 )
 
 esma_add_fortran_submodules(

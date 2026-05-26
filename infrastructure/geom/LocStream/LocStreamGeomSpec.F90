@@ -4,7 +4,7 @@ module mapl_LocStreamGeomSpec_mod
 
    use mapl_GeomSpec_mod
    use mapl_LocStreamDecomposition_mod
-   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_Geom
    use mapl_ErrorHandling_mod
 
    implicit none(type, external)
@@ -111,12 +111,13 @@ contains
 
    end function equal_to
 
-   subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+   subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, geom, rc)
       class(LocStreamGeomSpec), intent(in) :: this
       real(kind=ESMF_KIND_R4), intent(in) :: lon(:)
       real(kind=ESMF_KIND_R4), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -129,12 +130,13 @@ contains
       _UNUSED_DUMMY(lat)
    end subroutine get_horz_ij_index_r4
 
-   subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+   subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, geom, rc)
       class(LocStreamGeomSpec), intent(in) :: this
       real(kind=R8), intent(in) :: lon(:)
       real(kind=R8), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
