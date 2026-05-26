@@ -317,6 +317,116 @@ class TestColumns(unittest.TestCase):
         msg = general_msg(variable='Field value', value=fv)
         test(actual, msg)
 
+    def test_itemtype_valid_aliases(self):
+        """Test itemtype mapping from aliases to MAPL constants."""
+        # Helper to create minimal valid specs with itemtype
+        make_specs = lambda v: [{
+            'itemtype': v,
+            acg3.SHORT_NAME: 'TEST_FIELD',
+            acg3.STATE: 'import',
+            acg3.STATE_INTENT: 'ESMF_STATEINTENT_IMPORT',
+            acg3.STANDARD_NAME: 'test_standard_name',
+            acg3.DIMS: "'xy'",
+            acg3.VSTAGGER: 'N'
+        }]
+        
+        def get_value(field_value):
+            values, _ = acg3.get_values(make_specs(field_value), acg3.get_options({}))
+            return values[0].get('itemtype')
+        
+        # Test alias mappings
+        test_cases = (
+            ('F', 'MAPL_STATEITEM_FIELD', 'F should map to MAPL_STATEITEM_FIELD'),
+            ('V', 'MAPL_STATEITEM_VECTOR', 'V should map to MAPL_STATEITEM_VECTOR'),
+        )
+        
+        for alias, expected, msg in test_cases:
+            with self.subTest(alias=alias, expected=expected):
+                actual = get_value(alias)
+                self.assertEqual(expected, actual, msg)
+
+    def test_itemtype_full_values(self):
+        """Test that full MAPL constant values are valid for itemtype."""
+        # Helper to create minimal valid specs with itemtype
+        make_specs = lambda v: [{
+            'itemtype': v,
+            acg3.SHORT_NAME: 'TEST_FIELD',
+            acg3.STATE: 'import',
+            acg3.STATE_INTENT: 'ESMF_STATEINTENT_IMPORT',
+            acg3.STANDARD_NAME: 'test_standard_name',
+            acg3.DIMS: "'xy'",
+            acg3.VSTAGGER: 'N'
+        }]
+        
+        def get_value(field_value):
+            values, _ = acg3.get_values(make_specs(field_value), acg3.get_options({}))
+            return values[0].get('itemtype')
+        
+        # Test full constant values (both dict keys and dict values should work)
+        full_values = (
+            ('MAPL_STATEITEM_FIELD', 'MAPL_STATEITEM_FIELD', 'Full value MAPL_STATEITEM_FIELD should be valid'),
+            ('MAPL_STATEITEM_VECTOR', 'MAPL_STATEITEM_VECTOR', 'Full value MAPL_STATEITEM_VECTOR should be valid'),
+        )
+        
+        for full_value, expected, msg in full_values:
+            with self.subTest(value=full_value, expected=expected):
+                actual = get_value(full_value)
+                self.assertEqual(expected, actual, msg)
+
+    def test_itemtype_absent(self):
+        """Test that itemtype is optional and absence is handled correctly."""
+        # Spec without itemtype field
+        make_specs = lambda: [{
+            acg3.SHORT_NAME: 'TEST_FIELD',
+            acg3.STATE: 'import',
+            acg3.STATE_INTENT: 'ESMF_STATEINTENT_IMPORT',
+            acg3.STANDARD_NAME: 'test_standard_name',
+            acg3.DIMS: "'xy'",
+            acg3.VSTAGGER: 'N'
+        }]
+        
+        specs = make_specs()
+        values, results = acg3.get_values(specs, acg3.get_options({}))
+        
+        # Verify processing succeeded
+        self.assertEqual(len(values), 1, 'Should process one spec')
+        
+        # Verify itemtype is not in values (wasn't provided)
+        self.assertNotIn('itemtype', values[0],
+                         'itemtype should not appear when absent from spec')
+        
+        # Verify it's not in missing_mandatory
+        result = results[0]
+        self.assertNotIn('itemtype', result[acg3.MISSING_MANDATORY],
+                         'itemtype should not be mandatory')
+
+    def test_itemtype_empty_string(self):
+        """Test that empty itemtype value is handled correctly (no lookup)."""
+        # Helper to create minimal valid specs with itemtype
+        make_specs = lambda v: [{
+            'itemtype': v,
+            acg3.SHORT_NAME: 'TEST_FIELD',
+            acg3.STATE: 'import',
+            acg3.STATE_INTENT: 'ESMF_STATEINTENT_IMPORT',
+            acg3.STANDARD_NAME: 'test_standard_name',
+            acg3.DIMS: "'xy'",
+            acg3.VSTAGGER: 'N'
+        }]
+        
+        # Empty string and whitespace should not trigger lookup
+        # Based on ACG logic, empty values result in no itemtype in final values
+        empty_values = ('', '   ')
+        
+        for empty_val in empty_values:
+            with self.subTest(value=repr(empty_val)):
+                values, _ = acg3.get_values(make_specs(empty_val), acg3.get_options({}))
+                result = values[0].get('itemtype')
+                
+                # Empty/whitespace values should not produce itemtype output
+                msg = f'Empty itemtype value {repr(empty_val)} should not produce output'
+                self.assertFalse(result, msg)
+
+
 class TestHelpers(unittest.TestCase):
 
     def test_isiterable(self):

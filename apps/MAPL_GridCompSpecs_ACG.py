@@ -201,7 +201,9 @@ def get_options(args):
         'dependencies': {MAPPING: STRINGVECTOR},
         EXPORT_NAME: {MAPPING: STRING},
         FILL_VALUE: {},
-        'itemtype': {},
+        'itemtype': {MAPPING: {
+            'F': 'MAPL_STATEITEM_FIELD',
+            'V': 'MAPL_STATEITEM_VECTOR'}},
         'orientation': {},
         'regrid_method': {},
         'restart': {MAPPING: {
