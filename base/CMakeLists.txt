@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.base3g)
+esma_set_this (OVERRIDE MAPL.base)
 
 set (srcs
   # Geom-dependent files (remaining after mp_utils split)

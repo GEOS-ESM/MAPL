@@ -1,4 +1,4 @@
-module Generic3g
+module mapl_Generic
    use mapl_ESMF_Subset_mod
    use mapl_Generic_mod
    use mapl_Field_API
@@ -19,4 +19,4 @@ module Generic3g
    use mapl_geomio
    use mapl_ESMF_Utilities_mod
    use mapl_OpenMP_Support_mod
-end module Generic3g
+end module mapl_Generic

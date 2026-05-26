@@ -1,4 +1,4 @@
-module mapl_base3g_mod
+module mapl_base_mod
    use mapl_FileMetadataUtils_mod
    use mapl_FileMetadataUtilsVector_mod
    use mapl_PackedTime_mod, only: MAPL_PackedDateCreate => PackedDateCreate, &
@@ -82,4 +82,4 @@ module mapl_base3g_mod
    public :: MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars
    public :: MAPL_IOChangeRes, MAPL_IOCountLevels
 
-end module mapl_base3g_mod
+end module mapl_base_mod
