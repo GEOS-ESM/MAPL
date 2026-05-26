@@ -2,7 +2,6 @@
 
 module mapl_ExtDataGridComp_mod
 
-   use generic3g
    use MAPL
    use esmf
    use pfio

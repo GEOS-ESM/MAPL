@@ -1,4 +1,4 @@
-target_sources(MAPL.generic3g PRIVATE
+target_sources(MAPL.generic PRIVATE
 
   # containers
   ActualPtSpecPtrMap.F90
