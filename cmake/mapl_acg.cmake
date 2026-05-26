@@ -85,11 +85,9 @@ function (mapl_acg target specs_file)
     set (_generator_dir ${esma_etc}/MAPL)
   endif ()
 
-  if (ARGS_3g)
-    set(generator ${_generator_dir}/MAPL_GridCompSpecs_ACGv3.py)
-  else ()
-    set(generator ${_generator_dir}/MAPL_GridCompSpecs_ACG.py)
-  endif ()
+  # NOTE: ACG changes significantly in MAPL 3. Downstream users do not need to
+  #       change their mapl_acg() calls when upgrading from MAPL v2 to v3.
+  set(generator ${_generator_dir}/MAPL_GridCompSpecs_ACG.py)
 
   add_custom_command(
     OUTPUT ${generated}

@@ -220,6 +220,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Several files were renamed, MAPL_InfoSet was replaced with ESMF_InfoSet.
 - Update `.mlc.toml` to ignore directories either brought in by mepo or created
 by opencode
+- Rename apps/MAPL_GridCompSpecs_ACGv3.py to MAPL_GridCompSpecs_ACG.py
 
 ### Removed
 
