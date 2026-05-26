@@ -69,7 +69,6 @@ module mapl_Enums_API_mod
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_ACTIVE    => STATEITEM_ALLOCATION_ACTIVE
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_CONNECTED => STATEITEM_ALLOCATION_CONNECTED
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED => STATEITEM_ALLOCATION_ALLOCATED
-   use mapl_StateItemAllocation_mod, only: MAPL_StateItemAllocation             => StateItemAllocation
 
    ! FieldBundleType_Flag
    use mapl_FieldBundleType_Flag_mod, only: MAPL_FIELDBUNDLETYPE_BASIC              => FIELDBUNDLETYPE_BASIC
@@ -80,7 +79,6 @@ module mapl_Enums_API_mod
    use mapl_FieldBundleType_Flag_mod, only: MAPL_FIELDBUNDLETYPE_SERVICE_AGGREGATE  => FIELDBUNDLETYPE_SERVICE_AGGREGATE
    use mapl_FieldBundleType_Flag_mod, only: MAPL_FIELDBUNDLETYPE_SERVICE_SEPARATE   => FIELDBUNDLETYPE_SERVICE_SEPARATE
    use mapl_FieldBundleType_Flag_mod, only: MAPL_FIELDBUNDLETYPE_INVALID            => FIELDBUNDLETYPE_INVALID
-   use mapl_FieldBundleType_Flag_mod, only: MAPL_FieldBundleType_Flag               => FieldBundleType_Flag
 
    implicit none(type, external)
    private
@@ -155,7 +153,6 @@ module mapl_Enums_API_mod
    public :: MAPL_STATEITEM_ALLOCATION_ACTIVE
    public :: MAPL_STATEITEM_ALLOCATION_CONNECTED
    public :: MAPL_STATEITEM_ALLOCATION_ALLOCATED
-   public :: MAPL_StateItemAllocation
 
    ! FieldBundleType_Flag
    public :: MAPL_FIELDBUNDLETYPE_BASIC
@@ -166,6 +163,5 @@ module mapl_Enums_API_mod
    public :: MAPL_FIELDBUNDLETYPE_SERVICE_AGGREGATE
    public :: MAPL_FIELDBUNDLETYPE_SERVICE_SEPARATE
    public :: MAPL_FIELDBUNDLETYPE_INVALID
-   public :: MAPL_FieldBundleType_Flag
 
 end module mapl_Enums_API_mod
