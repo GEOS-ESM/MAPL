@@ -4,13 +4,7 @@
 ! This is what mapl/MAPL.F90 imports from.
 ! For internal MAPL use, see mapl_mp_utils_internal.
 module mapl_mp_utils_export
-   use mapl_mp_utils_internal, only: &
-      MAPL_MaxMin,             &
-      MAPL_AreaMean,           &
-      MAPL_MemInfoWrite,       &
-      MAPL_PackTime,           &
-      MAPL_UnpackTime,         &
-      MAPL_GetCheckpointSubdir
+   use mapl_mp_utils_internal
    private
 
    public :: MAPL_MaxMin, MAPL_AreaMean

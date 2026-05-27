@@ -5,6 +5,7 @@ module MAPL
    use mapl_Generic
    use mapl_State_API_mod
    use mapl_Utils_API_mod
+   use mapl_Enums_export
    ! MP utils modules - no used public entities (#4999):
    ! SplitCommunicator_mod, SimpleCommSplitter_mod, CommGroupDescription_mod,
    ! AbstractCommSplitter_mod, Downbit_mod
