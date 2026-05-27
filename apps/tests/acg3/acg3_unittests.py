@@ -138,6 +138,134 @@ class TestMappings(unittest.TestCase):
         middle = ''.join(middle)
         self.assertEqual(middle, column_value)
 
+    def test_fetch_mapping_function_dict(self):
+        """Test fetch_mapping_function with dict MAPPING.
+        
+        Expected behavior: The mapping function should support bidirectional lookup:
+        1. If input is a key in the dict, return the corresponding value
+        2. If input is a value in the dict, return the value itself (identity mapping)
+        3. If input is neither a key nor value, return None
+        """
+        # Setup: Get vstagger option (has dict mapping: C/E/N -> VERTICAL_STAGGER_*)
+        options = acg3.get_options({})
+        vstagger_option = options[acg3.SPECIFICATIONS][acg3.VSTAGGER]
+        
+        # Assertions to verify test dict structure
+        self.assertIn(acg3.MAPPING, vstagger_option, 
+                      'vstagger option should have MAPPING key')
+        mapping_dict = vstagger_option[acg3.MAPPING]
+        self.assertIsInstance(mapping_dict, dict, 
+                              'vstagger MAPPING should be a dict')
+        self.assertIn('C', mapping_dict, 
+                      'vstagger mapping should contain key "C"')
+        self.assertIn('VERTICAL_STAGGER_CENTER', mapping_dict.values(),
+                      'vstagger mapping should contain value "VERTICAL_STAGGER_CENTER"')
+        
+        # Fetch the mapping function
+        mapping_func = acg3.fetch_mapping_function(vstagger_option)
+        
+        # Verify it's callable
+        self.assertTrue(callable(mapping_func), 
+                        'fetch_mapping_function should return callable')
+        
+        # Test Case 1: Input is a key in the dict (should return value)
+        test_cases_key = (
+            ('C', 'VERTICAL_STAGGER_CENTER', 'Key "C" should map to value'),
+            ('E', 'VERTICAL_STAGGER_EDGE', 'Key "E" should map to value'),
+            ('N', 'VERTICAL_STAGGER_NONE', 'Key "N" should map to value'),
+        )
+        
+        for input_str, expected, msg in test_cases_key:
+            with self.subTest(input=input_str, case='key'):
+                actual = mapping_func(input_str)
+                self.assertEqual(expected, actual, msg)
+        
+        # Test Case 2: Input is a value in the dict (should return itself)
+        test_cases_value = (
+            ('VERTICAL_STAGGER_CENTER', 'VERTICAL_STAGGER_CENTER', 
+             'Value should map to itself (identity)'),
+            ('VERTICAL_STAGGER_EDGE', 'VERTICAL_STAGGER_EDGE', 
+             'Value should map to itself (identity)'),
+            ('VERTICAL_STAGGER_NONE', 'VERTICAL_STAGGER_NONE', 
+             'Value should map to itself (identity)'),
+        )
+        
+        for input_str, expected, msg in test_cases_value:
+            with self.subTest(input=input_str, case='value'):
+                actual = mapping_func(input_str)
+                self.assertEqual(expected, actual, msg)
+        
+        # Test Case 3: Input is neither key nor value (should return None)
+        test_cases_neither = (
+            ('INVALID', None, 'Invalid input should return None'),
+            ('X', None, 'Non-existent key should return None'),
+            ('', None, 'Empty string should return None'),
+        )
+        
+        for input_str, expected, msg in test_cases_neither:
+            with self.subTest(input=input_str, case='neither'):
+                actual = mapping_func(input_str)
+                self.assertEqual(expected, actual, msg)
+
+    def test_make_mapping_dict_lookup(self):
+        """Test make_mapping with dict creates proper bidirectional lookup.
+        
+        Expected behavior: When make_mapping receives a dict, it should create
+        a function that supports bidirectional lookup:
+        1. If input is a key in the dict, return the corresponding value
+        2. If input is a value in the dict, return the value itself (identity mapping)
+        3. If input is neither a key nor value, return None
+        """
+        # Create a simple test dict
+        test_dict = {
+            'A': 'ALPHA',
+            'B': 'BETA',
+            'C': 'GAMMA'
+        }
+        
+        # Make the mapping function
+        mapping_func = acg3.make_mapping(test_dict)
+        
+        # Verify it's callable
+        self.assertTrue(callable(mapping_func), 
+                        'make_mapping should return callable')
+        
+        # Test Case 1: Keys should map to values
+        test_cases_key = (
+            ('A', 'ALPHA', 'Key "A" should map to "ALPHA"'),
+            ('B', 'BETA', 'Key "B" should map to "BETA"'),
+            ('C', 'GAMMA', 'Key "C" should map to "GAMMA"'),
+        )
+        
+        for input_str, expected, msg in test_cases_key:
+            with self.subTest(input=input_str, case='key'):
+                actual = mapping_func(input_str)
+                self.assertEqual(expected, actual, msg)
+        
+        # Test Case 2: Values should map to themselves
+        test_cases_value = (
+            ('ALPHA', 'ALPHA', 'Value "ALPHA" should map to itself'),
+            ('BETA', 'BETA', 'Value "BETA" should map to itself'),
+            ('GAMMA', 'GAMMA', 'Value "GAMMA" should map to itself'),
+        )
+        
+        for input_str, expected, msg in test_cases_value:
+            with self.subTest(input=input_str, case='value'):
+                actual = mapping_func(input_str)
+                self.assertEqual(expected, actual, msg)
+        
+        # Test Case 3: Neither key nor value should return None
+        test_cases_neither = (
+            ('DELTA', None, 'Non-existent value should return None'),
+            ('D', None, 'Non-existent key should return None'),
+            ('', None, 'Empty string should return None'),
+        )
+        
+        for input_str, expected, msg in test_cases_neither:
+            with self.subTest(input=input_str, case='neither'):
+                actual = mapping_func(input_str)
+                self.assertEqual(expected, actual, msg)
+
 class TestColumns(unittest.TestCase):
 
     def test_use_field_dictionary(self):
@@ -336,6 +464,36 @@ class TestHelpers(unittest.TestCase):
     def test_emit_declare_pointer_unsupported_type(self):
         spec = {acg3.TYPEKIND: 'X4', acg3.INTERNAL_NAME: 'GX', acg3.RANK: 4}
         self.assertRaises(RuntimeError, acg3.emit_declare_pointer, spec)
+
+    def test_dict_mapping_lambda(self):
+        """Test lambda function behavior for dict mappings.
+        
+        Expected behavior: The lambda created for dict mappings should support:
+        1. Key lookup: return the corresponding value
+        2. Value lookup: return the value itself (identity mapping)
+        3. Invalid lookup: return None
+        """
+        # Simple test dict
+        test_dict = {'key1': 'value1', 'key2': 'value2'}
+        
+        # Get the lambda from make_mapping
+        mapping_lambda = acg3.make_mapping(test_dict)
+        
+        # Test Case 1: Input is a key (should work)
+        result_key = mapping_lambda('key1')
+        self.assertEqual('value1', result_key, 
+                         'Lambda should return value for key')
+        
+        # Test Case 2: Input is a value (currently fails - returns None)
+        # Expected: should return the value itself
+        result_value = mapping_lambda('value1')
+        self.assertEqual('value1', result_value, 
+                         'Lambda should return value itself when input is a value')
+        
+        # Test Case 3: Input is neither (should work)
+        result_neither = mapping_lambda('invalid')
+        self.assertIsNone(result_neither, 
+                         'Lambda should return None for invalid input')
 
 class TestTypes(unittest.TestCase):
 
