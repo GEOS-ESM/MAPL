@@ -8,7 +8,10 @@ module mapl_base_mod
                                    MAPL_UnpackDate => UnpackDate, &
                                    MAPL_UnpackTime => UnpackTime, &
                                    MAPL_UnpackDateTime => UnpackDateTime
-   use mapl_SimulationTime_mod, only: set_reference_clock, fill_time_dict
+   ! Only export used entities from SimulationTime, StringTemplate, FileIOShared (#4999)
+   ! Unused: set_reference_clock, fill_time_dict, fill_grads_template,
+   !         fill_grads_template_esmf, LocalDisplacementEnsemble,
+   !         ArrDescr, ArrDescrInit, ArrDescrSet
    use mapl_Comms_mod, only: mapl_CommsScatterV => comms_scatterv, &
                              mapl_CommsGatherV => comms_gatherv, &
                              mapl_CommsAllGather => comms_allgather, &
@@ -29,8 +32,7 @@ module mapl_base_mod
                              MAPL_ROOT => ROOT_PROCESS_ID
    use mapl_ShmemComms_mod, only: mapl_CommsBcast, mapl_RoundRobinPEList, mapl_BcastShared
    use mapl_SatVapor_mod, only: MAPL_EQsatSET, MAPL_EQsat
-   use mapl_StringTemplate_mod, only: fill_grads_template, StrTemplate, fill_grads_template_esmf
-   use mapl_LocalDisplacementEnsemble_mod, only: LocalDisplacementEnsemble
+   use mapl_StringTemplate_mod, only: StrTemplate
    use mapl_MemUtils_mod, only: MAPL_MemUtilsInit, MAPL_MemUtilsDisable, &
          MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree, &
          MAPL_MemCommited, MAPL_MemUsed, MAPL_MemReport
@@ -43,7 +45,6 @@ module mapl_base_mod
    use mapl_FileIO_mod, only: WRITE_PARALLEL
    use mapl_SimpleBundleMod_impl_mod, only: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint, &
         MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
-   use mapl_FileIOShared_mod, only: ArrDescr, ArrDescrInit, ArrDescrSet
    use mapl_NCIO_mod, only: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType, &
                         MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars, &
                         MAPL_IOChangeRes, MAPL_IOCountLevels
@@ -53,7 +54,6 @@ module mapl_base_mod
    public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, &
               MAPL_PackedDateTimeCreate, MAPL_ESMFTimeFromPacked, &
               MAPL_UnpackDate, MAPL_UnpackTime, MAPL_UnpackDateTime
-   public :: set_reference_clock, fill_time_dict
    public :: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV
    public :: mapl_CommsAllGather, mapl_CommsAllGatherV
    public :: mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, mapl_CommsAllReduceSum
@@ -63,8 +63,7 @@ module mapl_base_mod
    public :: MAPL_ArrayGather, MAPL_ArrayScatter
    public :: mapl_RoundRobinPEList, mapl_BcastShared
    public :: MAPL_EQsatSET, MAPL_EQsat
-   public :: fill_grads_template, StrTemplate, fill_grads_template_esmf
-   public :: LocalDisplacementEnsemble
+   public :: StrTemplate
    public :: MAPL_MemUtilsInit, MAPL_MemUtilsDisable
    public :: MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree
    public :: MAPL_MemCommited, MAPL_MemUsed, MAPL_MemReport
@@ -77,7 +76,6 @@ module mapl_base_mod
    public :: WRITE_PARALLEL
    public :: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint
    public :: MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
-   public :: ArrDescr, ArrDescrInit, ArrDescrSet
    public :: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType
    public :: MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars
    public :: MAPL_IOChangeRes, MAPL_IOCountLevels
