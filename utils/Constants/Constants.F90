@@ -6,11 +6,13 @@ module MAPL_Constants
    use mapl_EarthConstants_mod
    use mapl_EarthAtmosphericConstants_mod
 
+   implicit none(type, external)
+
 contains
 
-   subroutine initialize_constants()
+   subroutine mapl_initialize_constants()
       implicit none
-   end subroutine initialize_constants
+   end subroutine mapl_initialize_constants
 
 end module MAPL_Constants
 

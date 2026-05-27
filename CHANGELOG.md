@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Add `mapl_` prefix to `initialize_constants` subroutine (#4976, part of #4975/#4969).
+  Renamed `initialize_constants()` → `mapl_initialize_constants()` in 
+  `utils/Constants/Constants.F90` to follow MAPL3 naming conventions (lowercase `mapl_` 
+  prefix for procedures). Breaking change if any external code was calling 
+  `initialize_constants` directly (unlikely as subroutine is currently empty/placeholder). 
+  All `MAPL_*` constants remain publicly accessible. Zero-diff.
 - Consolidate enums into `enums/` layer and introduce `MAPL_` API constants (#4973, part of #4969).
   Moved `StateItemAllocation` and `FieldBundleType_Flag` from `infrastructure/field/` and 
   `infrastructure/field_bundle/` respectively into the `enums/` layer. Created `enums/API.F90` 
