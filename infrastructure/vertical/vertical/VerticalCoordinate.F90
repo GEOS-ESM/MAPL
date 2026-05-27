@@ -5,7 +5,6 @@ module VerticalCoordinateMod
    use PFIO
    use mapl_ExceptionHandling_mod
    use mapl_FileMetadataUtils_mod
-   use MAPL_CommsMod
    use gFTL2_StringVector
    use udunits2f, UDUNITS_are_convertible => are_convertible, &
       initialize_udunits => initialize, finalize_udunits => finalize

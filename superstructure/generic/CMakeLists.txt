@@ -1,8 +1,8 @@
-esma_set_this (OVERRIDE MAPL.generic3g)
+esma_set_this (OVERRIDE MAPL.generic)
 
 set(srcs
   # FieldDictionary* moved to infrastructure/field_dictionary/
-  Generic3g.F90
+  Generic.F90
 
   GenericGrid.F90
 
@@ -64,7 +64,7 @@ add_subdirectory(couplers)
 add_subdirectory(vertical)
 
 esma_add_fortran_submodules(
-  TARGET MAPL.generic3g
+  TARGET MAPL.generic
   SUBDIRECTORY OuterMetaComponent
   SOURCES SetServices.F90 add_child_by_spec.F90 new_outer_meta.F90 init_meta.F90
           get_num_children.F90 get_child_name.F90 get_child_by_name.F90
@@ -86,7 +86,7 @@ esma_add_fortran_submodules(
           finalize.F90 start_timer.F90 stop_timer.F90)
 
 esma_add_fortran_submodules(
-  TARGET MAPL.generic3g
+  TARGET MAPL.generic
   SUBDIRECTORY ComponentSpecParser
   SOURCES parse_child.F90 parse_children.F90 parse_connections.F90
           parse_var_specs.F90 parse_geometry_spec.F90 parse_component_spec.F90

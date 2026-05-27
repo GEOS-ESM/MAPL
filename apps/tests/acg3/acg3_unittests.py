@@ -8,7 +8,7 @@ from collections import namedtuple
 from collections.abc import Sequence
 from copy import deepcopy
 import sys
-import MAPL_GridCompSpecs_ACGv3 as acg3
+import MAPL_GridCompSpecs_ACG as acg3
 
 TestParams = namedtuple('TestParams', 'value test msg'.split())
 

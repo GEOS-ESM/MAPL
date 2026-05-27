@@ -2,7 +2,7 @@
 module MAPL
    use mapl_VM_API_mod
    use mapl_MaplFramework_mod
-   use generic3g
+   use mapl_Generic
    use mapl_State_API_mod
    use mapl_String_mod
    use mapl_StringUtilities_mod
@@ -35,9 +35,9 @@ module MAPL
    use mapl_FieldBundle_API_mod
    use mapl_mp_utils
    use mapl_RegridderMgr_API_mod
-   use mapl_Generic3g_API_mod
+   use mapl_Generic_API_mod
    use mapl_PythonBridge_mod
-   use mapl_base3g_mod
+   use mapl_base_mod
    use mapl_Profiler_mod, initialize_profiler => initialize, finalize_profiler => finalize
     use mapl_FieldUtils
     use mapl_StateMask_mod
@@ -66,7 +66,7 @@ module MAPL
     use mapl_HConfigAs_mod
     ! mp_utils layer
     use mapl_StringTemplate_mod
-    ! base3g layer
+     ! base layer
     use mapl_FileMetadataUtils_mod
     ! utils layer
     use mapl_os_mod
