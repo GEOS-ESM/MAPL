@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Fixed uninitialized error in RoutehandleParam.F90 (fixes #5001)
 - Hide 30 unused entities from MAPL umbrella module (#4999, part of #4975/#4969).
   Removed unused public exports across 5 layers using 'only:' clauses:
   Utils layer (2): MAPL_ObjectWrite, MAPL_ObjectRead;
