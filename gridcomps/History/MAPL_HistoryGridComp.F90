@@ -2202,7 +2202,7 @@ ENDDO PARSER
                else if (special_name == 'ACCUMULATE') then
                   call ESMF_AttributeSet(f_extra, NAME='CPLFUNC', VALUE=MAPL_CplAccumulate, _RC)
                else
-                  call WRITE_PARALLEL("Functionality not supported yet")
+                  _FAIL(trim(special_name)//" functionality not supported for optional 4th column in history collection")
                end if
             end if
 
