@@ -4,23 +4,14 @@ module MAPL
    use mapl_MaplFramework_mod
    use mapl_Generic
    use mapl_State_API_mod
-   use mapl_Utils_API_mod
+   use mapl_utils_export
    use mapl_Enums_export
    ! MP utils modules - no used public entities (#4999):
    ! SplitCommunicator_mod, SimpleCommSplitter_mod, CommGroupDescription_mod,
    ! AbstractCommSplitter_mod, Downbit_mod
-   use mapl_Sort_mod
    use mapl_Shmem_mod
-   use mapl_Throw_mod
-   use mapl_Range_mod
-   use mapl_MinMax_mod
    use mapl_LoadBalance_mod
-   use mapl_KeywordEnforcer_mod
-   use mapl_Interp_mod
-   use mapl_Hash_mod
-   use mapl_ErrorHandling_mod
    use MAPL_Constants
-   use mapl_Sleep_mod
    use pfio
    use mapl_Geom_API_mod
    use mapl_HConfig_API
@@ -51,8 +42,6 @@ module MAPL
     use mapl_ESMF_Time_Utilities_mod
     use mapl_StateItemImpl_mod
     use mapl_SimpleAlarm_mod
-    use mapl_ExceptionHandling_mod
-    use mapl_ISO8601_DateTime_mod
     ! regridder layer
     use mapl_EsmfRegridder_mod
     use mapl_RegridderMethods_mod
