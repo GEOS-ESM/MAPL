@@ -11,6 +11,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Hide 30 unused entities from MAPL umbrella module (#4999, part of #4975/#4969).
+  Removed unused public exports across 5 layers using 'only:' clauses:
+  Utils layer (2): MAPL_ObjectWrite, MAPL_ObjectRead;
+  ESMF layer (6): ESMF_ConfigCopy{Logical,Integer,String,Real}, ESMF_FieldIsDone, ESMF_VmGetLocal;
+  HConfig layer (2): HConfigIterator, HConfig_2_ESMF_Config;
+  Base layer (9): MAPL_Var{Write,Read}, MAPL_VarWriteNCFileClose, MAPL_VarReadNCFileClose,
+  MAPL_NCIO{WriteToFile,ChangeRes,GetFileType}, SunOrbitCreated, MAPL_SunGet{LocalTime,DaylightDuration,Insolation};
+  Superstructure layer (3): CheckSyntax, RealNum, LowCase;
+  MP Utils layer (5+3 modules): Removed full module imports for mapl_SplitCommunicator_mod,
+  mapl_SimpleCommSplitter_mod, mapl_CommGroupDescription_mod, mapl_AbstractCommSplitter_mod,
+  mapl_Downbit_mod (entities: SplitCommunicator, NULL_SUBCOMMUNICATOR_NAME, SimpleCommSplitter,
+  CommGroupDescription, AbstractCommSplitter, DownBit).
+  All removed entities were unused in gridcomps. Breaking change for external code using removed
+  entities - must import leaf modules directly. Zero-diff for ported client repos.
+- Create utils API umbrella to limit exported unprefixed entities (#4999, part of #4975/#4969).
+  Created `utils/API.F90` that exports only used entities from String, StringUtilities, and OS 
+  utilities. Removed from public API: unused StringUtilities functions (to_lower, to_upper, 
+  capitalize, is_alpha, is_alpha_only, is_numeric, is_alphanumeric, to_string, to_character_array, 
+  is_digit, get_ascii_interval, is_alphanum_character, is_lower_character, is_upper_character), 
+  all FileSystemUtilities functions (get_file_extension, get_file_basename), all DSO_Utilities 
+  functions (is_valid_dso_name, is_valid_dso_extension, is_supported_dso_name, 
+  is_supported_dso_extension, adjust_dso_name, SYSTEM_DSO_EXTENSION), and all DirPath entities 
+  (DirPath type, dirpaths variable). Updated MAPL.F90 to use utils API umbrella instead of 
+  individual leaf modules. Breaking change for any external code using removed entities. 
+  Still exported: String (type), split, lowercase, uppercase, and all mapl_os_mod functions. 
+  Zero-diff for ported client repos (removed entities were unused).
+- Add `mapl_` prefix to `initialize_constants` subroutine (#4976, part of #4975/#4969).
+  Renamed `initialize_constants()` → `mapl_initialize_constants()` in 
+  `utils/Constants/Constants.F90` to follow MAPL3 naming conventions (lowercase `mapl_` 
+  prefix for procedures). Breaking change if any external code was calling 
+  `initialize_constants` directly (unlikely as subroutine is currently empty/placeholder). 
+  All `MAPL_*` constants remain publicly accessible. Zero-diff.
 - Consolidate enums into `enums/` layer and introduce `MAPL_` API constants (#4973, part of #4969).
   Moved `StateItemAllocation` and `FieldBundleType_Flag` from `infrastructure/field/` and 
   `infrastructure/field_bundle/` respectively into the `enums/` layer. Created `enums/API.F90` 
