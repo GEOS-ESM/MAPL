@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Create utils API umbrella to limit exported unprefixed entities (#4999, part of #4975/#4969).
+  Created `utils/API.F90` that exports only used entities from String, StringUtilities, and OS 
+  utilities. Removed from public API: unused StringUtilities functions (to_lower, to_upper, 
+  capitalize, is_alpha, is_alpha_only, is_numeric, is_alphanumeric, to_string, to_character_array, 
+  is_digit, get_ascii_interval, is_alphanum_character, is_lower_character, is_upper_character), 
+  all FileSystemUtilities functions (get_file_extension, get_file_basename), all DSO_Utilities 
+  functions (is_valid_dso_name, is_valid_dso_extension, is_supported_dso_name, 
+  is_supported_dso_extension, adjust_dso_name, SYSTEM_DSO_EXTENSION), and all DirPath entities 
+  (DirPath type, dirpaths variable). Updated MAPL.F90 to use utils API umbrella instead of 
+  individual leaf modules. Breaking change for any external code using removed entities. 
+  Still exported: String (type), split, lowercase, uppercase, and all mapl_os_mod functions. 
+  Zero-diff for ported client repos (removed entities were unused).
 - Consolidate enums into `enums/` layer and introduce `MAPL_` API constants (#4973, part of #4969).
   Moved `StateItemAllocation` and `FieldBundleType_Flag` from `infrastructure/field/` and 
   `infrastructure/field_bundle/` respectively into the `enums/` layer. Created `enums/API.F90` 

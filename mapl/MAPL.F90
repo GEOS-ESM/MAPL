@@ -4,10 +4,7 @@ module MAPL
    use mapl_MaplFramework_mod
    use mapl_Generic
    use mapl_State_API_mod
-   use mapl_String_mod
-   use mapl_StringUtilities_mod
-   use mapl_FileSystemUtilities_mod
-   use mapl_DSO_Utilities_mod
+   use mapl_Utils_API_mod
    use mapl_SplitCommunicator_mod
    use mapl_SimpleCommSplitter_mod
    use mapl_Sort_mod
@@ -20,7 +17,6 @@ module MAPL
    use mapl_Interp_mod
    use mapl_Hash_mod
    use mapl_ErrorHandling_mod
-   use mapl_DirPath_mod
    use MAPL_Constants
    use mapl_CommGroupDescription_mod
    use mapl_AbstractCommSplitter_mod
@@ -52,25 +48,21 @@ module MAPL
     ! Cap.F90 still uses it directly; address in a later increment.
     use mapl_ComponentSpec_mod
     use mapl_RestartHandler_mod
-    ! esmf layer
+    ! esmf layer - FieldPointerUtilities has no used public entities (#4999)
     use mapl_ESMF_Time_Utilities_mod
-    use mapl_SimpleAlarm_mod
     use mapl_StateItemImpl_mod
-    use mapl_FieldPointerUtilities_mod
+    use mapl_SimpleAlarm_mod
     use mapl_ExceptionHandling_mod
     use mapl_ISO8601_DateTime_mod
     ! regridder layer
     use mapl_EsmfRegridder_mod
     use mapl_RegridderMethods_mod
-    ! hconfig layer
-    use mapl_HConfigAs_mod
-    ! mp_utils layer
-    use mapl_StringTemplate_mod
-     ! base layer
-    use mapl_FileMetadataUtils_mod
-    ! utils layer
-    use mapl_os_mod
-    ! geom layer (transitively linked via regridder_mgr)
+    ! hconfig layer - HConfigAs has no used public entities (#4999)
+     ! mp_utils layer
+     use mapl_StringTemplate_mod
+      ! base layer
+      use mapl_FileMetadataUtils_mod
+     ! geom layer (transitively linked via regridder_mgr)
     use mapl_GridGetGlobal_mod
     ! GeomIO layer
     use mapl_geomio
