@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Hide 30 unused entities from MAPL umbrella module (#4999, part of #4975/#4969).
+  Removed unused public exports across 5 layers using 'only:' clauses:
+  Utils layer (2): MAPL_ObjectWrite, MAPL_ObjectRead;
+  ESMF layer (6): ESMF_ConfigCopy{Logical,Integer,String,Real}, ESMF_FieldIsDone, ESMF_VmGetLocal;
+  HConfig layer (2): HConfigIterator, HConfig_2_ESMF_Config;
+  Base layer (9): MAPL_Var{Write,Read}, MAPL_VarWriteNCFileClose, MAPL_VarReadNCFileClose,
+  MAPL_NCIO{WriteToFile,ChangeRes,GetFileType}, SunOrbitCreated, MAPL_SunGet{LocalTime,DaylightDuration,Insolation};
+  Superstructure layer (3): CheckSyntax, RealNum, LowCase;
+  MP Utils layer (5+3 modules): Removed full module imports for mapl_SplitCommunicator_mod,
+  mapl_SimpleCommSplitter_mod, mapl_CommGroupDescription_mod, mapl_AbstractCommSplitter_mod,
+  mapl_Downbit_mod (entities: SplitCommunicator, NULL_SUBCOMMUNICATOR_NAME, SimpleCommSplitter,
+  CommGroupDescription, AbstractCommSplitter, DownBit).
+  All removed entities were unused in gridcomps. Breaking change for external code using removed
+  entities - must import leaf modules directly. Zero-diff for ported client repos.
 - Create utils API umbrella to limit exported unprefixed entities (#4999, part of #4975/#4969).
   Created `utils/API.F90` that exports only used entities from String, StringUtilities, and OS 
   utilities. Removed from public API: unused StringUtilities functions (to_lower, to_upper, 
