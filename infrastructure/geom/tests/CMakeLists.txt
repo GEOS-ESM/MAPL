@@ -24,6 +24,7 @@ set (TEST_SRCS
   Test_XYGeomFactory.pf
   Test_EASEGeomSpec.pf
   Test_EASEGeomFactory.pf
+  Test_HorzIJIndex.pf
 )
 
 set (OTHER_SRCS

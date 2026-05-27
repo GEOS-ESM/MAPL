@@ -1,0 +1,391 @@
+#include "MAPL_TestErr.h"
+
+module Test_HorzIJIndex
+
+   use pfunit
+   use esmf_TestMethod_mod ! mapl
+   use mapl_Geom_API_mod
+   use MAPL_Constants, only: MAPL_PI_R8
+   use esmf
+
+   implicit none
+
+contains
+
+   ! -----------------------------------------------------------------------
+   ! Helper: build an ESMF_Geom from an inline YAML string
+   ! -----------------------------------------------------------------------
+   function make_geom_from_hconfig(content, rc) result(geom)
+      character(len=*), intent(in) :: content
+      integer, optional, intent(out) :: rc
+      type(ESMF_Geom) :: geom
+
+      type(ESMF_HConfig) :: hconfig
+      type(GeomManager), pointer :: geom_manager
+      type(MaplGeom), pointer :: mapl_geom
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      _VERIFY(status)
+
+      geom_manager => get_geom_manager()
+      mapl_geom => geom_manager%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+   end function make_geom_from_hconfig
+
+   ! -----------------------------------------------------------------------
+   ! Test GeomGetHorzIJIndex (R8) on a single-PE lat-lon grid.
+   !
+   ! Retrieve the cell-centre coordinates from the grid and pass them
+   ! back into GeomGetHorzIJIndex.  Every point should map to its own
+   ! (i,j) index.
+   ! -----------------------------------------------------------------------
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_geom_horz_ij_latlon_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 12, JM = 13
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      real(kind=ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lon_flat(:), lat_flat(:)
+      integer, allocatable :: ii(:), jj(:)
+      integer :: i, j, k, status
+      character(len=:), allocatable :: content
+
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      geom = make_geom_from_hconfig(content, _RC)
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(shape(lons), is(equal_to([IM, JM])))
+      @assert_that(shape(lats), is(equal_to([IM, JM])))
+
+      ! Flatten 2-D coordinate arrays to 1-D in column-major order
+      allocate(lon_flat(IM * JM), lat_flat(IM * JM))
+      do j = 1, JM
+         do i = 1, IM
+            k = (i - 1) * JM + j
+            lon_flat(k) = lons(i, j)
+            lat_flat(k) = lats(i, j)
+         end do
+      end do
+
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
+      @assert_that(status, is(0))
+      @assert_that(size(ii), is(IM * JM))
+      @assert_that(size(jj), is(IM * JM))
+
+      ! Every cell-centre coordinate must map back to its own (i,j)
+      do j = 1, JM
+         do i = 1, IM
+            k = (i - 1) * JM + j
+            @assert_that(ii(k), is(i))
+            @assert_that(jj(k), is(j))
+         end do
+      end do
+
+   end subroutine test_geom_horz_ij_latlon_r8
+
+   ! -----------------------------------------------------------------------
+   ! Same test using R4 coordinates.
+   ! -----------------------------------------------------------------------
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_geom_horz_ij_latlon_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 12, JM = 13
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      real(kind=ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: lon_flat(:), lat_flat(:)
+      integer, allocatable :: ii(:), jj(:)
+      integer :: i, j, k, status
+      character(len=:), allocatable :: content
+
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}"
+      geom = make_geom_from_hconfig(content, _RC)
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
+      @assert_that(status, is(0))
+
+      ! Flatten and downcast to R4
+      allocate(lon_flat(IM * JM), lat_flat(IM * JM))
+      do j = 1, JM
+         do i = 1, IM
+            k = (i - 1) * JM + j
+            lon_flat(k) = real(lons(i, j), kind=ESMF_KIND_R4)
+            lat_flat(k) = real(lats(i, j), kind=ESMF_KIND_R4)
+         end do
+      end do
+
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
+      @assert_that(status, is(0))
+      @assert_that(size(ii), is(IM * JM))
+      @assert_that(size(jj), is(IM * JM))
+
+      do j = 1, JM
+         do i = 1, IM
+            k = (i - 1) * JM + j
+            @assert_that(ii(k), is(i))
+            @assert_that(jj(k), is(j))
+         end do
+      end do
+
+   end subroutine test_geom_horz_ij_latlon_r4
+
+   ! -----------------------------------------------------------------------
+   ! Test GeomGetHorzIJIndex on a decomposed lat-lon grid (2 PEs, nx=2).
+   !
+   ! PE 0 owns i = 1..6, PE 1 owns i = 7..12.  Each PE queries only its
+   ! own local cell-centre coordinates and verifies the returned global
+   ! indices fall in the correct range and have the correct values.
+   ! -----------------------------------------------------------------------
+   @test(type=ESMF_TestMethod, npes=[2])
+   subroutine test_geom_horz_ij_local_latlon_multirank(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM_WORLD = 12, JM = 13, IM_LOCAL = 6
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      real(kind=ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lon_flat(:), lat_flat(:)
+      integer, allocatable :: ii(:), jj(:)
+      integer :: i, j, k, local_pet, status
+      character(len=:), allocatable :: content
+
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 2, ny: 1}"
+      geom = make_geom_from_hconfig(content, _RC)
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=local_pet, rc=status)
+      @assert_that(status, is(0))
+
+      !Each PE holds a [6, 13] local slab
+      call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(shape(lons), is(equal_to([IM_LOCAL, JM])))
+      @assert_that(shape(lats), is(equal_to([IM_LOCAL, JM])))
+
+      allocate(lon_flat(IM_LOCAL * JM), lat_flat(IM_LOCAL * JM))
+      do j = 1, JM
+         do i = 1, IM_LOCAL
+            k = (i - 1) * JM + j
+            lon_flat(k) = lons(i, j)
+            lat_flat(k) = lats(i, j)
+         end do
+      end do
+
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
+      @assert_that(status, is(0))
+      @assert_that(size(ii), is(IM_LOCAL * JM))
+      @assert_that(size(jj), is(IM_LOCAL * JM))
+
+
+      do j = 1, JM
+         do i = 1, IM_LOCAL
+            k = (i - 1) * JM + j
+            @assert_that(ii(k), is(i))
+            @assert_that(jj(k), is(j))
+         end do
+      end do
+
+   end subroutine test_geom_horz_ij_local_latlon_multirank
+
+   ! -----------------------------------------------------------------------
+   ! Test GeomGetHorzIJIndex on a decomposed lat-lon grid (2 PEs, nx=2).
+   !
+   ! PE 0 owns i = 1..6, PE 1 owns i = 7..12.  Each PE queries only its
+   ! own local cell-centre coordinates and verifies the returned global
+   ! indices fall in the correct range and have the correct values.
+   ! -----------------------------------------------------------------------
+   @test(type=ESMF_TestMethod, npes=[2])
+   subroutine test_geom_horz_ij_global_latlon_multirank(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM_WORLD = 12, JM = 13, IM_LOCAL = 6
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      real(kind=ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lon_flat(:), lat_flat(:)
+      integer, allocatable :: ii(:), jj(:)
+      integer :: i, j, k, local_pet, i_global_start, status
+      character(len=:), allocatable :: content
+
+      content = "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 2, ny: 1}"
+      geom = make_geom_from_hconfig(content, _RC)
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=local_pet, rc=status)
+      @assert_that(status, is(0))
+
+      ! Each PE holds a [6, 13] local slab
+      call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(shape(lons), is(equal_to([IM_LOCAL, JM])))
+      @assert_that(shape(lats), is(equal_to([IM_LOCAL, JM])))
+
+      allocate(lon_flat(IM_LOCAL * JM), lat_flat(IM_LOCAL * JM))
+      do j = 1, JM
+         do i = 1, IM_LOCAL
+            k = (i - 1) * JM + j
+            lon_flat(k) = lons(i, j)
+            lat_flat(k) = lats(i, j)
+         end do
+      end do
+
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(size(ii), is(IM_LOCAL * JM))
+      @assert_that(size(jj), is(IM_LOCAL * JM))
+
+      ! PE 0 owns global i = 1..6; PE 1 owns global i = 7..12
+      i_global_start = local_pet * IM_LOCAL + 1
+
+      do j = 1, JM
+         do i = 1, IM_LOCAL
+            k = (i - 1) * JM + j
+            @assert_that(ii(k), is(i_global_start + i - 1))
+            @assert_that(jj(k), is(j))
+         end do
+      end do
+
+   end subroutine test_geom_horz_ij_global_latlon_multirank
+
+   ! -----------------------------------------------------------------------
+   ! Test GeomGetHorzIJIndex on a cubed-sphere grid (6 PEs, one face each).
+   !
+   ! With nx_face=1 and ny_face=1 each of the 6 PEs owns one 12x12 face.
+   ! The global j-index range for face p (0-based) is [p*12+1, (p+1)*12].
+   ! Querying local cell-centre coordinates must return indices that lie
+   ! entirely within that face's range (no -1 values).
+   ! -----------------------------------------------------------------------
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_geom_horz_local_ij_cubed_sphere(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 12, JM_FACE = 12, NPTS = IM * JM_FACE
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      real(kind=ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lon_flat(:), lat_flat(:)
+      integer, allocatable :: ii(:), jj(:)
+      integer :: i, j, k, local_pet, j_global_min, j_global_max, status, im_local, jm_local
+      character(len=:), allocatable :: content
+
+      content = "{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}"
+      geom = make_geom_from_hconfig(content, _RC)
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=local_pet, rc=status)
+      @assert_that(status, is(0))
+
+      ! Each PE holds one 12x12 face
+      call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
+      im_local = size(lons,1)
+      jm_local = size(lons,2)
+      @assert_that(status, is(0))
+      @assert_that(shape(lons), is(equal_to([IM, JM_FACE])))
+      @assert_that(shape(lats), is(equal_to([IM, JM_FACE])))
+
+      allocate(lon_flat(NPTS), lat_flat(NPTS))
+      do j = 1, jm_local 
+         do i = 1, im_local
+            k = (i - 1) * JM_FACE + j
+            lon_flat(k) = lons(i, j)
+            lat_flat(k) = lats(i, j)
+         end do
+      end do
+
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
+      @assert_that(status, is(0))
+      @assert_that(size(ii), is(NPTS))
+      @assert_that(size(jj), is(NPTS))
+
+      ! No point should be missing
+      @assertTrue(all(ii /= -1))
+      @assertTrue(all(jj /= -1))
+      ! i index must be within face width
+      @assertTrue(all(ii >= 1))
+      @assertTrue(all(ii <= im_local))
+      @assertTrue(all(jj >= 1))
+      @assertTrue(all(jj <= jm_local))
+
+   end subroutine test_geom_horz_local_ij_cubed_sphere
+
+   ! -----------------------------------------------------------------------
+   ! Test GeomGetHorzIJIndex on a cubed-sphere grid (6 PEs) with points
+   ! shifted to the antipodal position.
+   !
+   ! Shifting each local cell-centre longitude by pi and negating its
+   ! latitude sends every point to the opposite side of the sphere,
+   ! guaranteed to lie on a different face.  Every returned ii and jj
+   ! must therefore be -1.
+   ! -----------------------------------------------------------------------
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_geom_horz_local_ij_cubed_sphere_out_of_domain(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer, parameter :: IM = 12, JM_FACE = 12, NPTS = IM * JM_FACE
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      real(kind=ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: lon_flat(:), lat_flat(:)
+      integer, allocatable :: ii(:), jj(:)
+      integer :: i, j, k, status, im_local, jm_local
+      character(len=:), allocatable :: content
+
+      content = "{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}"
+      geom = make_geom_from_hconfig(content, _RC)
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
+      @assert_that(status, is(0))
+      im_local = size(lons,1)
+      jm_local = size(lons,2)
+
+      ! Shift each point to its antipode: lon + pi, lat -> -lat
+      allocate(lon_flat(NPTS), lat_flat(NPTS))
+      do j = 1, jm_local
+         do i = 1, im_local
+            k = (i - 1) * JM_FACE + j
+            lon_flat(k) = lons(i, j) + MAPL_PI_R8
+            lat_flat(k) = -lats(i, j)
+         end do
+      end do
+
+      call mapl_GeomGetHorzIJIndex(geom, lon=lon_flat, lat=lat_flat, ii=ii, jj=jj, local_indices=.true., rc=status)
+      @assert_that(status, is(0))
+
+      ! All points are outside the local domain so every index must be -1
+      @assertTrue(all(ii == -1))
+      @assertTrue(all(jj == -1))
+
+   end subroutine test_geom_horz_local_ij_cubed_sphere_out_of_domain
+
+end module Test_HorzIJIndex

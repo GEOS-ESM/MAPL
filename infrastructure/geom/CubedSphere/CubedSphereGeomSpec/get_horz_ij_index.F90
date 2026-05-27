@@ -4,17 +4,20 @@ submodule (mapl_CubedSphereGeomSpec_mod) CubedSphereGeomSpec_get_horz_ij_index_s
 
    use MAPL_Constants, only: MAPL_PI_R8
    use mapl_ErrorHandling_mod
+   use ESMF, only: ESMF_GeomGet, ESMF_GeomType_Flag, ESMF_GEOMTYPE_GRID, ESMF_Grid
+   use mapl_Geom_API_mod, only: mapl_GridGet
 
    implicit none(type, external)
 
 contains
 
-   module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+   module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, geom, rc)
       class(CubedSphereGeomSpec), intent(in) :: this
       real(kind=R4), intent(in) :: lon(:)
       real(kind=R4), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -24,34 +27,36 @@ contains
       tmp_lons = real(lon, kind=R8)
       tmp_lats = real(lat, kind=R8)
 
-      call get_horz_ij_index_impl_(this, tmp_lons, tmp_lats, ii, jj, _RC)
+      call get_horz_ij_index_impl_(this, tmp_lons, tmp_lats, ii, jj, geom=geom, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine get_horz_ij_index_r4
 
-   module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+   module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, geom, rc)
       class(CubedSphereGeomSpec), intent(in) :: this
       real(kind=R8), intent(in) :: lon(:)
       real(kind=R8), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       _ASSERT(size(lat) == size(lon), 'lon/lat size mismatch')
 
-      call get_horz_ij_index_impl_(this, lon, lat, ii, jj, _RC)
+      call get_horz_ij_index_impl_(this, lon, lat, ii, jj, geom=geom, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine get_horz_ij_index_r8
 
-   subroutine get_horz_ij_index_impl_(this, lon, lat, ii, jj, rc)
+   subroutine get_horz_ij_index_impl_(this, lon, lat, ii, jj, geom, rc)
       class(CubedSphereGeomSpec), intent(in) :: this
       real(kind=R8), intent(in) :: lon(:)
       real(kind=R8), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: npts, status
@@ -59,6 +64,9 @@ contains
       real(kind=R8) :: shift0
       logical :: stretched
       real(kind=R8), parameter :: shift = 0.174532925199433d0
+      type(ESMF_GeomType_Flag) :: geomtype
+      type(ESMF_Grid) :: grid
+      integer, allocatable :: interior(:)
 
       npts = size(lon)
       _ASSERT(size(lat) == npts, 'lon/lat size mismatch')
@@ -85,6 +93,22 @@ contains
       ii = -1
       jj = -1
       call calculate_(xyz(1, :), xyz(2, :), xyz(3, :), this%im_world, ii, jj)
+
+      if (present(geom)) then
+         call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
+         _VERIFY(status)
+         _ASSERT(geomtype == ESMF_GEOMTYPE_GRID, 'local_indices=.true. is only supported for ESMF_Grid')
+         call ESMF_GeomGet(geom, grid=grid, rc=status)
+         _VERIFY(status)
+         call mapl_GridGet(grid, interior=interior, _RC)
+         where ( interior(1) <= ii .and. ii <= interior(2) .and. interior(3) <= jj .and. jj <= interior(4))
+            ii = ii - interior(1) + 1
+            jj = jj - interior(3) + 1
+         elsewhere
+            ii = -1
+            jj = -1
+         end where
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine get_horz_ij_index_impl_
