@@ -4,8 +4,9 @@ esma_set_this (OVERRIDE MAPL.mp_utils)
 # Depends on MAPL.utils + MPI. ESMF-dependent files absorbed from base3g/.
 
 set (srcs
-    # Layer API (re-exports all public mp_utils symbols)
-    API.F90
+    # Layer umbrellas (Internal must precede Export)
+    Internal.F90
+    Export.F90
     # MPI error handling
     MAPL_MpiErrorHandling.F90
     # Parallel collective array reductions (MaxMin, AreaMean)

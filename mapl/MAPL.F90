@@ -27,7 +27,7 @@ module MAPL
    use mapl_EsmfUtils_API_mod
    use mapl_Field_API
    use mapl_FieldBundle_API_mod
-   use mapl_mp_utils
+   use mapl_mp_utils_export
    use mapl_RegridderMgr_API_mod
    use mapl_Generic_API_mod
    use mapl_PythonBridge_mod

@@ -1,0 +1,21 @@
+! Public Export umbrella for the MAPL.mp_utils layer.
+! Re-exports only the symbols that are part of MAPL's public API
+! (i.e., entities carrying the MAPL_ prefix).
+! This is what mapl/MAPL.F90 imports from.
+! For internal MAPL use, see mapl_mp_utils_internal.
+module mapl_mp_utils_export
+   use mapl_mp_utils_internal, only: &
+      MAPL_MaxMin,             &
+      MAPL_AreaMean,           &
+      MAPL_MemInfoWrite,       &
+      MAPL_PackTime,           &
+      MAPL_UnpackTime,         &
+      MAPL_GetCheckpointSubdir
+   private
+
+   public :: MAPL_MaxMin, MAPL_AreaMean
+   public :: MAPL_MemInfoWrite
+   public :: MAPL_PackTime, MAPL_UnpackTime
+   public :: MAPL_GetCheckpointSubdir
+
+end module mapl_mp_utils_export
