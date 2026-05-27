@@ -10,7 +10,7 @@ module mapl_FieldCreateImpl_mod
    use mapl_FieldGetImpl_mod
    use mapl_UngriddedDims_mod
    use mapl_HorizontalDimsSpec_mod
-   use mapl_StateItemAllocation_mod
+   use mapl_Enums_internal, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_LU_Bound_mod
    use mapl_FieldFillImpl_mod, only: FieldFill
    use mapl_KeywordEnforcer_mod
@@ -328,7 +328,7 @@ contains
            units=units, &
            standard_name=standard_name, &
            long_name=long_name, &
-           allocation_status=STATEITEM_ALLOCATION_ALLOCATED, &
+           allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, &
            _RC)
 
       _RETURN(_SUCCESS)

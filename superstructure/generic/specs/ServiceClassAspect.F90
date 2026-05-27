@@ -5,7 +5,7 @@ module mapl_ServiceClassAspect_mod
    use mapl_FieldBundle_API_mod
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
-   use mapl_StateItemAllocation_mod
+   use mapl_Enums_internal, only: MAPL_STATEITEM_ALLOCATION_ACTIVE, MAPL_FIELDBUNDLETYPE_SERVICE
    use mapl_ClassAspect_mod
    use mapl_FieldClassAspect_mod
    use mapl_StateRegistry_mod
@@ -21,7 +21,7 @@ module mapl_ServiceClassAspect_mod
    use mapl_ErrorHandling_mod
    use gftl2_StringVector
    use esmf
-   use mapl_FieldBundleType_Flag_mod
+   ! (FieldBundleType_Flag symbols now from mapl_Enums_internal above)
 
    implicit none(type,external)
    private
@@ -104,7 +104,7 @@ contains
 
       integer :: status
 
-      this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_SERVICE, _RC)
+      this%payload = MAPL_FieldBundleCreate(fieldBundleType=MAPL_FIELDBUNDLETYPE_SERVICE, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
@@ -121,7 +121,7 @@ contains
       is_created = ESMF_FieldBundleIsCreated(this%payload, _RC)
       if (is_created) then
          call ESMF_InfoGetFromHost(this%payload, info, _RC)
-         call MAPL_FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+         call MAPL_FieldBundleInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_ACTIVE, _RC)
       end if
 
       _RETURN(_SUCCESS)

@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_GenericCoupler_mod
-   use mapl_CouplerPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_INITIALIZE, MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INVALIDATE, MAPL_GENERIC_COUPLER_CLOCK_ADVANCE
    use mapl_CouplerMetaComponent_mod
    use mapl_ExtensionTransform_mod
    use mapl_TransformId_mod
@@ -65,11 +65,11 @@ contains
 
       integer :: status
 
-      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_COUPLER_INITIALIZE, _RC)
+      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
 
-      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, update, phase=GENERIC_COUPLER_UPDATE, _RC)
-      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, invalidate, phase=GENERIC_COUPLER_INVALIDATE, _RC)
-      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, clock_advance, phase=GENERIC_COUPLER_CLOCK_ADVANCE, _RC)
+      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, update, phase=MAPL_GENERIC_COUPLER_UPDATE, _RC)
+      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, invalidate, phase=MAPL_GENERIC_COUPLER_INVALIDATE, _RC)
+      call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, clock_advance, phase=MAPL_GENERIC_COUPLER_CLOCK_ADVANCE, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine setServices

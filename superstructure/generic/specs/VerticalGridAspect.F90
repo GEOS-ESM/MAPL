@@ -17,7 +17,7 @@ module mapl_VerticalGridAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UnitsAspect_mod
    use mapl_NormalizationAspect_mod
-   use mapl_NormalizationType_mod
+   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE
    use mapl_VerticalRegridMethod_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalRegridMethod_mod
@@ -238,7 +238,7 @@ contains
        type(ESMF_Field) :: v_in_field, v_out_field
        type(VerticalGridAspect) :: dst_
        type(NormalizationAspect) :: norm_aspect
-       type(NormalizationType) :: norm_type
+       type(MAPL_NormalizationType) :: norm_type
        type(AspectMap) :: coord_aspects  ! Aspects for coordinate field creation
        character(:), allocatable :: units
        character(:), allocatable :: physical_dimension
@@ -264,7 +264,7 @@ contains
           norm_aspect = to_NormalizationAspect(other_aspects, rc=status)
           if (status == _SUCCESS) then
              norm_type = norm_aspect%get_normalization_type(_RC)
-             needs_normalization = (norm_type /= NORMALIZE_NONE)
+             needs_normalization = (norm_type /= MAPL_NORMALIZE_NONE)
           end if
        end if
 

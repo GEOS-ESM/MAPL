@@ -14,7 +14,7 @@ module mapl_VectorClassAspect_mod
    use mapl_UnitsAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UngriddedDimsAspect_mod
-   use mapl_VectorBasisKind_mod
+   use mapl_Enums_internal, only: MAPL_VectorBasisKind
    use mapl_FieldBundleInfo_mod, only: FieldBundleInfoSetInternal
 
    use mapl_VerticalGrid_mod
@@ -51,7 +51,7 @@ module mapl_VectorClassAspect_mod
       private
       type(ESMF_FieldBundle) :: payload
       type(FieldClassAspect) :: component_specs(2)
-      type(VectorBasisKind) :: basis_kind
+      type(MAPL_VectorBasisKind) :: basis_kind
    contains
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
@@ -80,7 +80,7 @@ contains
    function new_VectorClassAspect_basic(component_specs, basis_kind) result(aspect)
       type(VectorClassAspect) :: aspect
       type(FieldClassAspect), intent(in) :: component_specs(2)
-      type(VectorBasisKind), intent(in) :: basis_kind
+      type(MAPL_VectorBasisKind), intent(in) :: basis_kind
 
       aspect%component_specs = component_specs
       aspect%basis_kind = basis_kind

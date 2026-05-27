@@ -27,10 +27,10 @@ module mapl_VariableSpec_mod
    use mapl_QuantityTypeAspect_mod
    use mapl_ConservationAspect_mod
    use mapl_NormalizationAspect_mod
-   use mapl_NormalizationType_mod
+   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, &
+        MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
    use mapl_UngriddedDims_mod
    use mapl_VerticalStaggerLoc_mod
-   use mapl_VectorBasisKind_mod
    use mapl_HorizontalDimsSpec_mod
    use mapl_VirtualConnectionPt_mod
    use mapl_ActualConnectionPt_mod
@@ -81,7 +81,7 @@ module mapl_VariableSpec_mod
       !---------------------
       ! Vector
       !---------------------
-      type(VectorBasisKind), allocatable :: vector_basis_kind
+      type(MAPL_VectorBasisKind), allocatable :: vector_basis_kind
       real(kind=ESMF_KIND_R4), allocatable :: fill_value
       !---------------------
       ! Bracket
@@ -248,10 +248,10 @@ contains
       _SET_OPTIONAL(use_field_dictionary)
       _SET_OPTIONAL(restart_mode)
 
-      var_spec%vector_basis_kind = VECTOR_BASIS_KIND_NS
+      var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
       if (present(vector_basis_kind)) then
          _ASSERT(any(var_spec%itemType == [MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET]), 'vector_basis_kind can only be specified for vectors')
-         var_spec%vector_basis_kind = VectorBasisKind(vector_basis_kind)
+         var_spec%vector_basis_kind = MAPL_VectorBasisKind(vector_basis_kind)
       end if
 
       if (var_spec%use_field_dictionary) then
@@ -598,8 +598,8 @@ contains
       class(VariableSpec), intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      ! Create with explicit NORMALIZE_NONE (non-mirror, no normalization needed)
-      aspect = NormalizationAspect(normalization_type=NORMALIZE_NONE, scale_factor=1.0)
+      ! Create with explicit MAPL_NORMALIZE_NONE (non-mirror, no normalization needed)
+      aspect = NormalizationAspect(normalization_type=MAPL_NORMALIZE_NONE, scale_factor=1.0)
       _RETURN(_SUCCESS)
    end function make_NormalizationAspect
 
@@ -645,7 +645,7 @@ contains
 
       integer :: status
       character(:), allocatable :: std_name_1, std_name_2
-      type(VectorBasisKind) :: basis_kind
+      type(MAPL_VectorBasisKind) :: basis_kind
 
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
@@ -666,7 +666,7 @@ contains
          if (allocated(this%vector_basis_kind)) then
             basis_kind = this%vector_basis_kind
          else
-            basis_kind = VECTOR_BASIS_KIND_NS
+            basis_kind = MAPL_VECTOR_BASIS_KIND_NS
          end if
          aspect = VectorClassAspect( &
               [ &

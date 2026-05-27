@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) run_clock_advance_smod
-   use mapl_GenericPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_RUN_CLOCK_ADVANCE
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ErrorHandling_mod
    implicit none(type,external)
@@ -36,7 +36,7 @@ contains
         do while (iter /= e)
            call iter%next()
            child => iter%second()
-           call child%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+            call child%run(phase_idx=MAPL_GENERIC_RUN_CLOCK_ADVANCE, _RC)
            call child%clock_advance()
         end do
       end associate

@@ -2,7 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_read_restart_smod
 
-   use mapl_GenericPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_READ_RESTART
    use mapl_ErrorHandling_mod
    use mapl_MultiState_mod
    use mapl_RestartHandler_mod, only: RestartHandler
@@ -30,7 +30,7 @@ contains
       class(Logger), pointer :: user_logger
       logical :: bootstrap
 
-      call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_READ_RESTART, _RC)
       call this%run_custom(ESMF_METHOD_READRESTART, PHASE_NAME, _RC)
 
       _RETURN_UNLESS(this%has_geom())

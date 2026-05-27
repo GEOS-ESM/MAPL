@@ -99,10 +99,10 @@ module mapl_MaplGeom_mod
       end function get_variable_attributes
 
       recursive module function get_basis(this, basis_kind, rc) result(basis)
-         use mapl_VectorBasisKind_mod
+         use mapl_Enums_internal, only: MAPL_VectorBasisKind
          type(VectorBasis), pointer :: basis
          class(MaplGeom), target, intent(inout) :: this
-         type(VectorBasisKind), optional, intent(in) :: basis_kind
+         type(MAPL_VectorBasisKind), optional, intent(in) :: basis_kind
          integer, optional, intent(out) :: rc
       end function get_basis
 
