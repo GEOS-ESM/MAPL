@@ -8,10 +8,9 @@ module mapl_base_mod
                                    MAPL_UnpackDate => UnpackDate, &
                                    MAPL_UnpackTime => UnpackTime, &
                                    MAPL_UnpackDateTime => UnpackDateTime
-   ! Only export used entities from SimulationTime, StringTemplate, FileIOShared (#4999)
+   ! Only export used entities from SimulationTime, StringTemplate, LocalDisplacementEnsemble (#4999)
    ! Unused: set_reference_clock, fill_time_dict, fill_grads_template,
-   !         fill_grads_template_esmf, LocalDisplacementEnsemble,
-   !         ArrDescr, ArrDescrInit, ArrDescrSet
+   !         fill_grads_template_esmf, LocalDisplacementEnsemble
    use mapl_Comms_mod, only: mapl_CommsScatterV => comms_scatterv, &
                              mapl_CommsGatherV => comms_gatherv, &
                              mapl_CommsAllGather => comms_allgather, &
@@ -45,6 +44,7 @@ module mapl_base_mod
    use mapl_FileIO_mod, only: WRITE_PARALLEL
    use mapl_SimpleBundleMod_impl_mod, only: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint, &
         MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
+   use mapl_FileIOShared_mod, only: ArrDescr, ArrDescrInit, ArrDescrSet
    use mapl_NCIO_mod, only: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType, &
                         MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars, &
                         MAPL_IOChangeRes, MAPL_IOCountLevels
@@ -76,6 +76,7 @@ module mapl_base_mod
    public :: WRITE_PARALLEL
    public :: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint
    public :: MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
+   public :: ArrDescr, ArrDescrInit, ArrDescrSet
    public :: MAPL_VarRead, MAPL_VarWrite, MAPL_NCIOGetFileType
    public :: MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars
    public :: MAPL_IOChangeRes, MAPL_IOCountLevels

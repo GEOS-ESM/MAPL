@@ -37,7 +37,7 @@ module MAPL
    use mapl_Profiler_mod, initialize_profiler => initialize, finalize_profiler => finalize
     use mapl_FieldUtils
     use mapl_StateMask_mod
-    use mapl_StateArithmeticParser_mod
+    use mapl_StateArithmeticParser_mod, only: parser_variables_in_expression
     use mapl_StateFilter_mod
 
     ! Additional modules needed by gridcomps (issues #4958/#4959)
@@ -46,8 +46,8 @@ module MAPL
     ! mapl_GenericGridComp excluded: its public setServices conflicts with
     ! the standalone setServices subroutines defined in gridcomp files.
     ! Cap.F90 still uses it directly; address in a later increment.
-    use mapl_ComponentSpec_mod
-    use mapl_RestartHandler_mod
+    ! ComponentSpec has no used public entities (#4999)
+    use mapl_RestartHandler_mod, only: RestartHandler
     ! esmf layer - FieldPointerUtilities has no used public entities (#4999)
     use mapl_ESMF_Time_Utilities_mod
     use mapl_StateItemImpl_mod
