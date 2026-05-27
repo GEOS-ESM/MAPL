@@ -5,8 +5,9 @@ module MAPL
    use mapl_Generic
    use mapl_State_API_mod
    use mapl_Utils_API_mod
-   use mapl_SplitCommunicator_mod
-   use mapl_SimpleCommSplitter_mod
+   ! MP utils modules - no used public entities (#4999):
+   ! SplitCommunicator_mod, SimpleCommSplitter_mod, CommGroupDescription_mod,
+   ! AbstractCommSplitter_mod, Downbit_mod
    use mapl_Sort_mod
    use mapl_Shmem_mod
    use mapl_Throw_mod
@@ -18,9 +19,6 @@ module MAPL
    use mapl_Hash_mod
    use mapl_ErrorHandling_mod
    use MAPL_Constants
-   use mapl_CommGroupDescription_mod
-   use mapl_AbstractCommSplitter_mod
-   use mapl_Downbit_mod
    use mapl_Sleep_mod
    use pfio
    use mapl_Geom_API_mod
@@ -37,7 +35,7 @@ module MAPL
    use mapl_Profiler_mod, initialize_profiler => initialize, finalize_profiler => finalize
     use mapl_FieldUtils
     use mapl_StateMask_mod
-    use mapl_StateArithmeticParser_mod, only: parser_variables_in_expression
+    use mapl_StateArithmeticParser_mod, only: parser_variables_in_expression, MAPL_StateEval
     use mapl_StateFilter_mod
 
     ! Additional modules needed by gridcomps (issues #4958/#4959)
@@ -46,8 +44,8 @@ module MAPL
     ! mapl_GenericGridComp excluded: its public setServices conflicts with
     ! the standalone setServices subroutines defined in gridcomp files.
     ! Cap.F90 still uses it directly; address in a later increment.
-    ! ComponentSpec has no used public entities (#4999)
-    use mapl_RestartHandler_mod, only: RestartHandler
+    use mapl_ComponentSpec_mod
+    use mapl_RestartHandler_mod
     ! esmf layer - FieldPointerUtilities has no used public entities (#4999)
     use mapl_ESMF_Time_Utilities_mod
     use mapl_StateItemImpl_mod
