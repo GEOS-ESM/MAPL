@@ -8,7 +8,9 @@ on:
 jobs:
   pull_request:
     name: Create Pull Request
-    runs-on: ubuntu-slim
+    # Must use ubuntu-latest (not ubuntu-slim) because devops-infra/action-pull-request
+    # is a Docker container action and ubuntu-slim does not have a Docker daemon.
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
@@ -16,16 +18,16 @@ jobs:
           fetch-depth: 0
           filter: blob:none
       - name: Run the action
-        uses: devops-infra/action-pull-request@v1.2.1
+        uses: devops-infra/action-pull-request@v1.2.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: main
-          target_branch: develop
+          target_branch: release/v2
           label: ":wrench: Github Actions"
-          template: .github/PULL_REQUEST_TEMPLATE/gitflow_main_develop.md
+          template: .github/PULL_REQUEST_TEMPLATE/gitflow_main_releasev2.md
           get_diff: true
           assignee: ${{ github.actor }}
           old_string: "<!-- Write your description here -->"
           new_string: ${{ github.event.commits[0].message }}
-          title: Auto GitFlow - main → develop
+          title: Auto GitFlow - main → release/v2
 
