@@ -27,6 +27,10 @@ set(srcs
   VectorBasis.F90
 
   Subgrid.F90
+
+  # Umbrella modules
+  Internal.F90
+  Export.F90
 )
 
 esma_add_library(${this}
