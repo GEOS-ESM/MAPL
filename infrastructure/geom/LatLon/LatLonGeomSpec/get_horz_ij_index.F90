@@ -2,64 +2,83 @@
 
 submodule (mapl_LatLonGeomSpec_mod) get_horz_ij_index_smod
 
-   use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
+   use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES, MAPL_DEGREES_TO_RADIANS_R8
    use mapl_ErrorHandling_mod
+   use ESMF, only: ESMF_GeomGet, ESMF_GeomType_Flag, ESMF_GEOMTYPE_GRID, ESMF_Grid
+   use mapl_Geom_API_mod, only: mapl_GridGet
 
    implicit none (type, external)
 
 contains
 
-   module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, rc)
+   module subroutine get_horz_ij_index_r4(this, lon, lat, ii, jj, geom, rc)
 
       class(LatLonGeomSpec), intent(in) :: this
       real(kind=R4), intent(in) :: lon(:)
       real(kind=R4), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
       real(kind=R8), allocatable :: lon_r8(:), lat_r8(:)
+      real(kind=R8), allocatable :: lon_corners(:), lat_corners(:)
 
       _ASSERT(size(lat) == size(lon), 'lon/lat size mismatch')
       lon_r8 = real(lon, kind=R8)
       lat_r8 = real(lat, kind=R8)
 
-      call get_horz_ij_index_impl_(this, lon_r8, lat_r8, ii, jj, _RC)
+      ! Clamp to the axis domain to absorb R4->R8 rounding near boundaries.
+      ! A cell-centre coordinate at exactly +/-90 degrees in R4 may round to
+      ! a value slightly outside the R8 corner after promotion, causing a
+      ! false out-of-bounds result.  Corners are stored in degrees; convert
+      ! to radians before clamping to match the units of lon_r8/lat_r8.
+      lon_corners = this%lon_axis%get_corners() * MAPL_DEGREES_TO_RADIANS_R8
+      lat_corners = this%lat_axis%get_corners() * MAPL_DEGREES_TO_RADIANS_R8
+      lon_r8 = max(lon_corners(1), min(lon_corners(size(lon_corners)), lon_r8))
+      lat_r8 = max(lat_corners(1), min(lat_corners(size(lat_corners)), lat_r8))
+
+      call get_horz_ij_index_impl_(this, lon_r8, lat_r8, ii, jj, geom=geom, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine get_horz_ij_index_r4
 
-   module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, rc)
+   module subroutine get_horz_ij_index_r8(this, lon, lat, ii, jj, geom, rc)
 
       class(LatLonGeomSpec), intent(in) :: this
       real(kind=R8), intent(in) :: lon(:)
       real(kind=R8), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       _ASSERT(size(lat) == size(lon), 'lon/lat size mismatch')
 
-      call get_horz_ij_index_impl_(this, lon, lat, ii, jj, _RC)
+       call get_horz_ij_index_impl_(this, lon, lat, ii, jj, geom=geom, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine get_horz_ij_index_r8
 
-   subroutine get_horz_ij_index_impl_(this, lon, lat, ii, jj, rc)
+   subroutine get_horz_ij_index_impl_(this, lon, lat, ii, jj, geom, rc)
 
       class(LatLonGeomSpec), intent(in) :: this
       real(kind=R8), intent(in) :: lon(:)
       real(kind=R8), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: i, npts, status
       real(kind=R8), allocatable :: lon_corners(:), lat_corners(:)
       real(kind=R8) :: lon_value, lat_value
+      type(ESMF_GeomType_Flag) :: geomtype
+      type(ESMF_Grid) :: grid
+      integer, allocatable :: interior(:)
 
       npts = size(lon)
       _ASSERT(size(lat) == npts, 'lon/lat size mismatch')
@@ -78,6 +97,22 @@ contains
          ii(i) = search_axis_(lon_corners, lon_value, this%lon_axis%is_periodic())
          jj(i) = search_axis_(lat_corners, lat_value, this%lat_axis%is_periodic())
       end do
+
+      if (present(geom)) then
+         call ESMF_GeomGet(geom, geomtype=geomtype, rc=status)
+         _VERIFY(status)
+         _ASSERT(geomtype == ESMF_GEOMTYPE_GRID, 'local_indices=.true. is only supported for ESMF_Grid')
+         call ESMF_GeomGet(geom, grid=grid, rc=status)
+         _VERIFY(status)
+         call mapl_GridGet(grid, interior=interior, _RC)
+         where ( interior(1) <= ii .and. ii <= interior(2) .and. interior(3) <= jj .and. jj <= interior(4))
+            ii = ii - interior(1) + 1
+            jj = jj - interior(3) + 1
+         elsewhere
+            ii = -1
+            jj = -1
+         end where
+      end if
 
       _RETURN(_SUCCESS)
 

@@ -76,12 +76,13 @@ contains
    ! GeomGetHorzIJIndex
    ! ---------------------------------------------------------------------------
 
-   subroutine get_horz_ij_index_r4(geom, lon, lat, ii, jj, rc)
+   subroutine get_horz_ij_index_r4(geom, lon, lat, ii, jj, local_indices, rc)
       type(ESMF_Geom), intent(in) :: geom
       real(kind=ESMF_KIND_R4), intent(in) :: lon(:)
       real(kind=ESMF_KIND_R4), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      logical, optional, intent(in) :: local_indices
       integer, optional, intent(out) :: rc
 
       type(MaplGeom), pointer :: mapl_geom
@@ -90,17 +91,25 @@ contains
 
       mapl_geom => get_mapl_geom(geom, _RC)
       spec = mapl_geom%get_spec()
-      call spec%get_horz_ij_index(lon=lon, lat=lat, ii=ii, jj=jj, _RC)
+
+      if (present(local_indices)) then
+         if (local_indices) then
+            call spec%get_horz_ij_index(lon=lon, lat=lat, ii=ii, jj=jj, geom=geom, _RC)
+         end if
+      else
+         call spec%get_horz_ij_index(lon=lon, lat=lat, ii=ii, jj=jj, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine get_horz_ij_index_r4
 
-   subroutine get_horz_ij_index_r8(geom, lon, lat, ii, jj, rc)
+   subroutine get_horz_ij_index_r8(geom, lon, lat, ii, jj, local_indices, rc)
       type(ESMF_Geom), intent(in) :: geom
       real(kind=ESMF_KIND_R8), intent(in) :: lon(:)
       real(kind=ESMF_KIND_R8), intent(in) :: lat(:)
       integer, allocatable, intent(out) :: ii(:)
       integer, allocatable, intent(out) :: jj(:)
+      logical, optional, intent(in) :: local_indices
       integer, optional, intent(out) :: rc
 
       type(MaplGeom), pointer :: mapl_geom
@@ -109,7 +118,14 @@ contains
 
       mapl_geom => get_mapl_geom(geom, _RC)
       spec = mapl_geom%get_spec()
-      call spec%get_horz_ij_index(lon=lon, lat=lat, ii=ii, jj=jj, _RC)
+
+      if (present(local_indices)) then
+         if (local_indices) then
+            call spec%get_horz_ij_index(lon=lon, lat=lat, ii=ii, jj=jj, geom=geom, _RC)
+         end if
+      else
+         call spec%get_horz_ij_index(lon=lon, lat=lat, ii=ii, jj=jj, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine get_horz_ij_index_r8
