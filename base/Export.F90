@@ -9,7 +9,7 @@ module mapl_base_export
    private
 
    ! FileIO
-   public :: WRITE_PARALLEL
+   ! (WRITE_PARALLEL exported via mapl_base_mod to avoid conflict)
 
    ! FileIOShared
    public :: ArrDescr, ArrDescrInit, ArrDescrSet
