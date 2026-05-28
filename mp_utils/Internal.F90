@@ -7,7 +7,15 @@ module mapl_mp_utils_internal
    use mapl_MemInfo_mod,         only: MAPL_MemInfoWrite => MemInfoWrite
    use mapl_TimeUtilities_mod,   only: MAPL_PackTime => PackDate, MAPL_UnpackTime => UnpackDate
    use mapl_OSUtilities_mod,     only: MAPL_GetCheckpointSubdir => get_checkpoint_subdir
-   use mapl_PackedTime_mod,      only: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
+   ! Import all PackedTime functions (both prefixed and unprefixed)
+   use mapl_PackedTime_mod,      only: MAPL_PackedDateCreate => PackedDateCreate, &
+                                       MAPL_PackedTimeCreate => PackedTimeCreate, &
+                                       MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &
+                                       MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
+                                       MAPL_UnpackDate => UnpackDate, &
+                                       MAPL_UnpackDateTime => UnpackDateTime, &
+                                       PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate, &
+                                       ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
    use mapl_StringTemplate_mod,  only: StrTemplate
    private
 
@@ -15,7 +23,15 @@ module mapl_mp_utils_internal
    public :: MAPL_MemInfoWrite
    public :: MAPL_PackTime, MAPL_UnpackTime
    public :: MAPL_GetCheckpointSubdir
+   
+   ! PackedTime functions with MAPL_ prefix
+   public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, MAPL_PackedDateTimeCreate
+   public :: MAPL_ESMFTimeFromPacked
+   public :: MAPL_UnpackDate, MAPL_UnpackDateTime
+   
+   ! Unprefixed PackedTime functions
    public :: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
+   public :: ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
    public :: StrTemplate
 
 end module mapl_mp_utils_internal
