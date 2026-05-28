@@ -17,7 +17,7 @@ module mapl_mp_utils_export
                                    MAPL_UnpackDate => UnpackDate, &
                                    MAPL_UnpackDateTime => UnpackDateTime, &
                                    PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate, &
-                                   ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
+                                   ESMFTimeFromPacked, UnpackDate, UnpackTime
    use mapl_StringTemplate_mod, only: StrTemplate
    
    private
