@@ -9,12 +9,16 @@ module mapl_mp_utils_export
    ! Create MAPL_ prefixed aliases for PackedTime functions
    ! Note: Internal imports MAPL_PackTime/MAPL_UnpackTime from TimeUtilities (date functions Y/M/D)
    ! Here we import the time functions (H/M/S) and date/datetime functions from PackedTime_mod
+   ! We import both prefixed (MAPL_*) and unprefixed versions for backward compatibility
    use mapl_PackedTime_mod, only: MAPL_PackedDateCreate => PackedDateCreate, &
                                    MAPL_PackedTimeCreate => PackedTimeCreate, &
                                    MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &
                                    MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
                                    MAPL_UnpackDate => UnpackDate, &
-                                   MAPL_UnpackDateTime => UnpackDateTime
+                                   MAPL_UnpackDateTime => UnpackDateTime, &
+                                   PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate, &
+                                   ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
+   use mapl_StringTemplate_mod, only: StrTemplate
    
    private
 
