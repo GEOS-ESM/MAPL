@@ -10,8 +10,7 @@ module mapl_FieldBundleInfo_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
-   use mapl_FieldBundleType_Flag_mod
-   use mapl_VectorBasisKind_mod
+   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
    use mapl_VerticalAlignment_mod
    use mapl_VerticalGrid_API_mod
    use mapl_KeywordEnforcer_mod
@@ -31,7 +30,7 @@ module mapl_FieldBundleInfo_mod
       procedure fieldbundle_set_internal
    end interface
 
-   character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
+   character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/MAPL_FieldBundleType_Flag'
    character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
    character(*), parameter :: KEY_HAS_GEOM = "/has_geom"
    character(*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
@@ -62,7 +61,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: vgrid_id
       character(*), optional, intent(in) :: namespace
-      type(FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
+      type(MAPL_FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
@@ -78,7 +77,7 @@ contains
       logical, optional, intent(out) :: has_geom
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
-      type(VectorBasisKind), optional, intent(out) :: vector_basis_kind
+      type(MAPL_VectorBasisKind), optional, intent(out) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
       type(ConservationMetadata), optional, intent(out) :: conservation_metadata
@@ -96,7 +95,7 @@ contains
 
      if (present(fieldBundleType)) then
          call ESMF_InfoGetCharAlloc(info, key=namespace_//KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
-         fieldBundleType = FieldBundleType_Flag(fieldBundleType_str)
+         fieldBundleType = MAPL_FieldBundleType_Flag(fieldBundleType_str)
       end if
 
       if (present(interpolation_weights)) then
@@ -119,9 +118,9 @@ contains
       if (present(vector_basis_kind)) then
          if (ESMF_InfoIsPresent(info, key=namespace_//KEY_VECTOR_BASIS_KIND)) then
             call MAPL_InfoGet(info, key=namespace_//KEY_VECTOR_BASIS_KIND, value=basis_kind_str, _RC)
-            vector_basis_kind = VectorBasisKind(basis_kind_str)
+            vector_basis_kind = MAPL_VectorBasisKind(basis_kind_str)
          else
-            vector_basis_kind = VECTOR_BASIS_KIND_NS  ! Default
+            vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS  ! Default
          end if
       end if
 
@@ -195,7 +194,7 @@ contains
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
-      type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
+      type(MAPL_FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
@@ -211,7 +210,7 @@ contains
       logical, optional, intent(in) :: has_geom
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_info), optional, intent(in) :: regridder_param_info
-      type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
+      type(MAPL_VectorBasisKind), optional, intent(in) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
       type(ConservationMetadata), optional, intent(in) :: conservation_metadata

@@ -8,7 +8,7 @@ module mapl_VerticalRegridTransform_mod
    use mapl_StateItemImpl_mod
    use mapl_ExtensionTransform_mod
    use mapl_ComponentDriver_mod
-   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_UPDATE
+   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_UPDATE
    use mapl_VerticalRegridMethod_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalLinearMap_mod, only: compute_linear_map
@@ -196,11 +196,11 @@ contains
 
       ! Update vertical coordinates (time-varying)
       if (associated(this%v_in_coupler)) then
-         call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+         call this%v_in_coupler%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
       end if
 
       if (associated(this%v_out_coupler)) then
-         call this%v_out_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+         call this%v_out_coupler%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
       end if
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemtype=itemtype_in, _RC)

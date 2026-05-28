@@ -538,19 +538,6 @@ CONTAINS
 
    end subroutine get_file_times
 
-   subroutine UnpackDateTime(DATETIME, YY, MM, DD, H, M, S)
-     integer, intent(IN   ) :: DATETIME(:)
-     integer, intent(  OUT) :: YY, MM, DD, H, M, S
-
-     YY =     datetime(1)/10000
-     MM = mod(datetime(1),10000)/100
-     DD = mod(datetime(1),100)
-     H  =     datetime(2)/10000
-     M  = mod(datetime(2),10000)/100
-     S  = mod(datetime(2),100)
-     return
-   end subroutine UnpackDateTime
-
     subroutine generate_report()
 
          type(StringVector) :: report_lines

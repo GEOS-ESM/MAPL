@@ -2,7 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_realize_smod
    use mapl_MultiState_mod
-   use mapl_GenericPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_REALIZE
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -22,7 +22,7 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
       type(MultiState) :: outer_states, user_states, tmp_states
 
-      call recurse(this, phase_idx=GENERIC_INIT_REALIZE, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE, _RC)
 
       user_states = this%user_gc_driver%get_states()
       tmp_states = MultiState(importState=user_states%importState)

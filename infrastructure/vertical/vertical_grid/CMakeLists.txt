@@ -16,6 +16,10 @@ set(srcs
   # gftl containers
   IntegerVerticalGridMap.F90
   VerticalGridFactoryMap.F90
+
+  # Umbrella modules
+  Internal.F90
+  Export.F90
 )
 
 esma_add_library(${this}

@@ -3,7 +3,7 @@ module mapl_Generic
    use mapl_Generic_mod
    use mapl_Field_API
    use mapl_VariableSpec_mod
-   use mapl_GenericPhases_mod
+   use mapl_Enums_internal
    use mapl_OuterMetaComponent_mod
    use mapl_GenericGridComp_mod, only: MAPL_GridCompCreate
    use mapl_VerticalGrid_mod

@@ -53,7 +53,7 @@ contains
       _RETURN_UNLESS(is_model_pet)
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
-      call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call mapl_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
       call update_restart(hconfig, clock, _RC)
@@ -88,7 +88,7 @@ contains
          if (do_run) then
             call ESMF_TimeGet(currTime, timeString=iso_time, _RC)
             call lgr%info('cap time: %a', trim(iso_time))
-            call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+            call driver%run(phase_idx=MAPL_GENERIC_RUN_USER, _RC)
          end if
          currTime = advance_clock(driver, _RC)
          if (do_run) then
@@ -161,7 +161,7 @@ contains
       integer :: status
       type(esmf_Clock) :: clock
 
-      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      call driver%run(phase_idx=MAPL_GENERIC_RUN_CLOCK_ADVANCE, _RC)
       call driver%clock_advance(_RC)
 
       clock = driver%get_clock()

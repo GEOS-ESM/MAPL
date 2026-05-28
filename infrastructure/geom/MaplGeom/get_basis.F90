@@ -4,7 +4,7 @@ submodule (mapl_MaplGeom_mod) get_basis_smod
 
 use mapl_GeomSpec_mod
    use mapl_VectorBasis_mod
-   use mapl_VectorBasisKind_mod
+   use mapl_Enums_internal, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, MAPL_VECTOR_BASIS_KIND_GRID, operator(==)
    use mapl_GeomUtilities_mod
    use mapl_ErrorHandling_mod
    use pfio_FileMetadataMod, only: FileMetadata
@@ -21,12 +21,12 @@ contains
    recursive module function get_basis(this, basis_kind, rc) result(basis)
       type(VectorBasis), pointer :: basis
       class(MaplGeom), target, intent(inout) :: this
-      type(VectorBasisKind), optional, intent(in) :: basis_kind
+      type(MAPL_VectorBasisKind), optional, intent(in) :: basis_kind
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      if (basis_kind == VECTOR_BASIS_KIND_NS) then
+      if (basis_kind == MAPL_VECTOR_BASIS_KIND_NS) then
          if (allocated(this%bases%ns_basis)) then
             basis => this%bases%ns_basis
             _RETURN(_SUCCESS)
@@ -37,7 +37,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      if (basis_kind == VECTOR_BASIS_KIND_GRID) then
+      if (basis_kind == MAPL_VECTOR_BASIS_KIND_GRID) then
          if (allocated(this%bases%grid_basis)) then
             basis => this%bases%grid_basis
             _RETURN(_SUCCESS)

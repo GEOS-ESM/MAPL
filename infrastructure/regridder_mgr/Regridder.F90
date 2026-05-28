@@ -4,7 +4,7 @@ module mapl_Regridder_mod
    use esmf
    use mapl_FieldUtils
    use mapl_FieldBundle_API_mod
-   use mapl_VectorBasisKind_mod
+   use mapl_Enums_internal, only: MAPL_VectorBasisKind
    use mapl_ErrorHandling_mod
    use mapl_Geom_API_mod
    use mapl_RegridderSpec_mod
@@ -90,7 +90,7 @@ contains
 
          ! Get vector_basis_kind from parent bundle
          block
-            type(VectorBasisKind) :: basis_kind
+            type(MAPL_VectorBasisKind) :: basis_kind
             integer :: i, n_pairs
             call MAPL_FieldBundleGet(fb_in, vector_basis_kind=basis_kind, _RC)
 
@@ -150,7 +150,7 @@ contains
       type(VectorBasis), pointer :: basis
       type(GeomManager), pointer :: geom_mgr
       type(ESMF_Geom) :: geom_in, geom_out
-      type(VectorBasisKind) :: basis_kind
+      type(MAPL_VectorBasisKind) :: basis_kind
 
       call MAPL_FieldBundleGet(fb_in, fieldList=uv_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=uv_out, _RC)

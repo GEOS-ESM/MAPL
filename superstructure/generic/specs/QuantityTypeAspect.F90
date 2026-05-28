@@ -7,9 +7,11 @@ module mapl_QuantityTypeAspect_mod
    use mapl_StateItemAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_NullTransform_mod
-   use mapl_QuantityType_mod
+   use mapl_Enums_internal, only: MAPL_QuantityType, MAPL_MixingRatioBasis, &
+        MAPL_QUANTITY_UNKNOWN, MAPL_QUANTITY_MIXING_RATIO, &
+        MAPL_BASIS_NONE, MAPL_BASIS_WET_MASS, MAPL_BASIS_VOLUME, &
+        MAPL_NORMALIZE_DELP, MAPL_NORMALIZE_DZ
    use mapl_QuantityTypeMetadata_mod
-   use mapl_NormalizationType_mod
    use mapl_NormalizationMetadata_mod
    use mapl_Field_API
    use mapl_FieldBundle_API_mod
@@ -32,9 +34,9 @@ module mapl_QuantityTypeAspect_mod
       private
       
       ! Semantic properties (user-specified)
-      type(QuantityType) :: quantity_type = QUANTITY_UNKNOWN
+      type(MAPL_QuantityType) :: quantity_type = MAPL_QUANTITY_UNKNOWN
       character(:), allocatable :: dimensions          ! e.g., "kg/kg", "kg/m3"
-      type(MixingRatioBasis) :: basis = BASIS_NONE
+      type(MAPL_MixingRatioBasis) :: basis = MAPL_BASIS_NONE
       real, allocatable :: molecular_weight            ! For volume mixing ratios
       
    contains
@@ -78,9 +80,9 @@ contains
 
    function new_QuantityTypeAspect(quantity_type, dimensions, basis, molecular_weight, is_time_dependent) result(aspect)
        type(QuantityTypeAspect) :: aspect
-       type(QuantityType), optional, intent(in) :: quantity_type
+       type(MAPL_QuantityType), optional, intent(in) :: quantity_type
        character(*), optional, intent(in) :: dimensions
-       type(MixingRatioBasis), optional, intent(in) :: basis
+       type(MAPL_MixingRatioBasis), optional, intent(in) :: basis
        real, optional, intent(in) :: molecular_weight
        logical, optional, intent(in) :: is_time_dependent
 
@@ -120,14 +122,14 @@ contains
       _ASSERT(this%quantity_type%is_valid(), 'Invalid quantity type')
 
       ! Validate basis consistency
-      if (this%quantity_type == QUANTITY_MIXING_RATIO) then
-         _ASSERT(this%basis /= BASIS_NONE, 'Mixing ratio requires basis specification')
-         if (this%basis == BASIS_VOLUME) then
+      if (this%quantity_type == MAPL_QUANTITY_MIXING_RATIO) then
+         _ASSERT(this%basis /= MAPL_BASIS_NONE, 'Mixing ratio requires basis specification')
+         if (this%basis == MAPL_BASIS_VOLUME) then
             _ASSERT(allocated(this%molecular_weight), 'Volume mixing ratio requires molecular weight')
             _ASSERT(this%molecular_weight > 0.0, 'Molecular weight must be positive')
          end if
       else
-         if (this%basis /= BASIS_NONE) then
+         if (this%basis /= MAPL_BASIS_NONE) then
             _FAIL('Only mixing ratios can have basis specification')
          end if
       end if
@@ -138,7 +140,7 @@ contains
    logical function supports_conversion_general(src)
       class(QuantityTypeAspect), intent(in) :: src
 
-      ! QuantityType is metadata-only, always supports conversion (mirroring)
+      ! MAPL_QuantityType is metadata-only, always supports conversion (mirroring)
       supports_conversion_general = .true.
 
       _UNUSED_DUMMY(src)
@@ -168,11 +170,11 @@ contains
       class is (QuantityTypeAspect)
          ! Match if quantity types and basis match, or if either is unknown/none
          matches = (src%quantity_type == dst%quantity_type .or. &
-                   src%quantity_type == QUANTITY_UNKNOWN .or. &
-                   dst%quantity_type == QUANTITY_UNKNOWN) .and. &
+                   src%quantity_type == MAPL_QUANTITY_UNKNOWN .or. &
+                   dst%quantity_type == MAPL_QUANTITY_UNKNOWN) .and. &
                   (src%basis == dst%basis .or. &
-                   src%basis == BASIS_NONE .or. &
-                   dst%basis == BASIS_NONE)
+                   src%basis == MAPL_BASIS_NONE .or. &
+                   dst%basis == MAPL_BASIS_NONE)
       class default
          matches = .false.
       end select
@@ -255,7 +257,7 @@ contains
    ! Getters/Setters
    
    function get_quantity_type(this, rc) result(quantity_type)
-      type(QuantityType) :: quantity_type
+      type(MAPL_QuantityType) :: quantity_type
       class(QuantityTypeAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
@@ -266,7 +268,7 @@ contains
 
    subroutine set_quantity_type(this, quantity_type, rc)
       class(QuantityTypeAspect), intent(inout) :: this
-      type(QuantityType), intent(in) :: quantity_type
+      type(MAPL_QuantityType), intent(in) :: quantity_type
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -302,7 +304,7 @@ contains
    end subroutine set_dimensions
 
    function get_basis(this, rc) result(basis)
-      type(MixingRatioBasis) :: basis
+      type(MAPL_MixingRatioBasis) :: basis
       class(QuantityTypeAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
@@ -313,7 +315,7 @@ contains
 
    subroutine set_basis(this, basis, rc)
       class(QuantityTypeAspect), intent(inout) :: this
-      type(MixingRatioBasis), intent(in) :: basis
+      type(MAPL_MixingRatioBasis), intent(in) :: basis
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -356,7 +358,7 @@ contains
 
       ! Wet mass mixing ratios need normalization for conservative vertical regridding
       needs_vertical_normalization = &
-         (this%quantity_type == QUANTITY_MIXING_RATIO .and. this%basis == BASIS_WET_MASS)
+         (this%quantity_type == MAPL_QUANTITY_MIXING_RATIO .and. this%basis == MAPL_BASIS_WET_MASS)
 
    end function needs_vertical_normalization
 
@@ -452,26 +454,26 @@ contains
    end subroutine update_payload
 
    function derive_normalization_metadata(quantity_type) result(metadata)
-      type(QuantityType), intent(in) :: quantity_type
+      type(MAPL_QuantityType), intent(in) :: quantity_type
       type(NormalizationMetadata) :: metadata
 
       ! Derive normalization parameters from quantity_type
       select case (quantity_type%to_string())
-      case ('QUANTITY_MIXING_RATIO')
+      case ('MAPL_QUANTITY_MIXING_RATIO')
          metadata = NormalizationMetadata( &
-            normalization_type = NORMALIZE_DELP, &
+            normalization_type = MAPL_NORMALIZE_DELP, &
             normalization_scale = 1.0 / GRAV &
          )
          
       case ('QUANTITY_CONCENTRATION')
          metadata = NormalizationMetadata( &
-            normalization_type = NORMALIZE_DZ, &
+            normalization_type = MAPL_NORMALIZE_DZ, &
             normalization_scale = 1.0 &
          )
          
       case ('QUANTITY_DRY_MIXING_RATIO')
          metadata = NormalizationMetadata( &
-            normalization_type = NORMALIZE_DELP, &
+            normalization_type = MAPL_NORMALIZE_DELP, &
             normalization_scale = 1.0 / GRAV &
          )
          

@@ -2,7 +2,7 @@
 
 submodule(mapl_GriddedComponentDriver_mod) run_export_couplers_smod
 
-   use mapl_CouplerPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_INVALIDATE
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -23,7 +23,7 @@ contains
         do while (iter /= e)
            call iter%next()
            driver => iter%of()
-           call driver%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)
+            call driver%run(phase_idx=MAPL_GENERIC_COUPLER_INVALIDATE, _RC)
         end do
       end associate
 

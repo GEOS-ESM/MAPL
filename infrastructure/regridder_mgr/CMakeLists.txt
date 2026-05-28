@@ -27,6 +27,10 @@ set(srcs
 #HorzFluxRegridder.F90
 
   API.F90
+
+  # Umbrella modules
+  Internal.F90
+  Export.F90
   )
 
 esma_add_library(${this}

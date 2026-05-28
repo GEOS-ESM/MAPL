@@ -8,7 +8,7 @@ module mapl_FieldSetImpl_mod
    use mapl_FieldInfo_mod
    use mapl_FieldGetImpl_mod
    use mapl_FieldDelta_mod
-   use mapl_StateItemAllocation_mod
+   use mapl_Enums_internal, only: MAPL_StateItemAllocation
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
@@ -66,7 +66,7 @@ contains
        type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
        type(ConservationMetadata), optional, intent(in) :: conservation_metadata
        type(StringVector), optional, intent(in) :: attributes
-      type(StateItemAllocation), optional, intent(in) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_Info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc

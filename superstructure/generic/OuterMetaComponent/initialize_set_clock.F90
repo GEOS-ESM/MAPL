@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) initialize_set_clock_smod
-   use mapl_GenericPhases_mod, only: GENERIC_INIT_SET_CLOCK
+   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_SET_CLOCK
    use mapl_ComponentDriver_mod
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ESMF_Time_Utilities_mod
@@ -45,7 +45,7 @@ contains
       call this%user_gc_driver%set_clock(user_clock)
 
       call set_children_outer_clock(this%children, user_clock, _RC)
-      call recurse(this, phase_idx=GENERIC_INIT_SET_CLOCK, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_SET_CLOCK, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
