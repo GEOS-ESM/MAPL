@@ -1,13 +1,7 @@
 module mapl_base_mod
    use mapl_FileMetadataUtils_mod
    use mapl_FileMetadataUtilsVector_mod
-   use mapl_PackedTime_mod, only: MAPL_PackedDateCreate => PackedDateCreate, &
-                                   MAPL_PackedTimeCreate => PackedTimeCreate, &
-                                   MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &
-                                   MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
-                                   MAPL_UnpackDate => UnpackDate, &
-                                   MAPL_UnpackTime => UnpackTime, &
-                                   MAPL_UnpackDateTime => UnpackDateTime
+   ! PackedTime moved to mp_utils/ - should be exported from mapl_mp_utils_export
    ! Only export used entities from SimulationTime, StringTemplate, LocalDisplacementEnsemble (#4999)
    ! Unused: set_reference_clock, fill_time_dict, fill_grads_template,
    !         fill_grads_template_esmf, LocalDisplacementEnsemble
@@ -31,7 +25,7 @@ module mapl_base_mod
                              MAPL_ROOT => ROOT_PROCESS_ID
    use mapl_ShmemComms_mod, only: mapl_CommsBcast, mapl_RoundRobinPEList, mapl_BcastShared
    use mapl_SatVapor_mod, only: MAPL_EQsatSET, MAPL_EQsat
-   use mapl_StringTemplate_mod, only: StrTemplate
+   ! StringTemplate is in mp_utils/ - should be exported from mapl_mp_utils_export
    use mapl_MemUtils_mod, only: MAPL_MemUtilsInit, MAPL_MemUtilsDisable, &
          MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree, &
          MAPL_MemCommited, MAPL_MemUsed, MAPL_MemReport
@@ -51,9 +45,7 @@ module mapl_base_mod
    implicit none(type,external)
    private
 
-   public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, &
-              MAPL_PackedDateTimeCreate, MAPL_ESMFTimeFromPacked, &
-              MAPL_UnpackDate, MAPL_UnpackTime, MAPL_UnpackDateTime
+   ! PackedTime exports moved to mapl_mp_utils_export (proper home)
    public :: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV
    public :: mapl_CommsAllGather, mapl_CommsAllGatherV
    public :: mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, mapl_CommsAllReduceSum
@@ -63,7 +55,7 @@ module mapl_base_mod
    public :: MAPL_ArrayGather, MAPL_ArrayScatter
    public :: mapl_RoundRobinPEList, mapl_BcastShared
    public :: MAPL_EQsatSET, MAPL_EQsat
-   public :: StrTemplate
+   ! StrTemplate moved to mapl_mp_utils_export
    public :: MAPL_MemUtilsInit, MAPL_MemUtilsDisable
    public :: MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree
    public :: MAPL_MemCommited, MAPL_MemUsed, MAPL_MemReport

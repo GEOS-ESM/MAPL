@@ -11,6 +11,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standardize umbrella module filenames to `Internal_<subdir>.F90` / `Export_<subdir>.F90`
+  convention (#5010). Eliminates filename collisions when multiple subdirectories contribute
+  sources to a single CMake library target (fixes Intel CI failure). Affects all subdirectories
+  that previously used generic `Internal.F90` / `Export.F90` names, and renames the
+  `Field`-prefixed variants in `infrastructure/field/`, `field_bundle/`, and `state/` to match
+  the new convention. Fortran module names are unchanged.
+
+### Added
+
+- Implement two-tier umbrella module pattern across all MAPL subdirectories (#5004).
+  Created `Internal.F90` (internal MAPL API) and `Export.F90` (public external API) umbrella 
+  modules for 10 major subdirectories: `mp_utils/`, `enums/`, `utils/`, `base/`, 
+  `infrastructure/esmf/`, `infrastructure/field/` (aggregate of field/, field_bundle/, state/), 
+  `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`, 
+  `infrastructure/regridder_mgr/`, and `superstructure/generic/`. Each `Internal.F90` aggregates 
+  all leaf modules from its subdirectory with no `private` statement, allowing all symbols to 
+  flow through for use by MAPL sibling subdirectories. Each `Export.F90` selectively re-exports 
+  only MAPL-prefixed public API symbols, providing a clean interface for external consumers. 
+  Updated top-level `mapl/MAPL.F90` to import all new `*_export` modules alongside legacy API 
+  modules for backward compatibility. This establishes the foundation for future API cleanup 
+  and symbol namespace management. Sibling consumers of `enums/` leaf modules migrated to use 
+  `mapl_Enums_internal` with MAPL-prefixed names (~48 files across infrastructure/ and 
+  superstructure/). Cleaned up duplicate symbols: deleted unused `utils/TimeUtils.F90` module 
+  and its tests (had zero consumers), consolidated duplicate `is_digit` implementation, removed 
+  duplicate `UnpackDateTime` from `Regrid_Util.F90`, and resolved `KEY_UNITS`/`KEY_TYPEKIND` 
+  naming conflicts between esmf and history layers using selective `only:` imports. Created 
+  GitHub issue #5005 for deferred `utils/` sibling migration. Zero-diff for all passing tests.
+
+### Changed
+
 - Fixed uninitialized error in RoutehandleParam.F90 (fixes #5001)
 - Hide 30 unused entities from MAPL umbrella module (#4999, part of #4975/#4969).
   Removed unused public exports across 5 layers using 'only:' clauses:

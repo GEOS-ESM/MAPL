@@ -14,7 +14,7 @@ module mapl_FieldDictionaryConfig_mod
 
    use esmf
    use mapl_ErrorHandling_mod
-   use mapl_ValidationMode_mod
+   use mapl_Enums_internal, only: MAPL_ValidationMode, MAPL_VALIDATION_MODE_PERMISSIVE
    use mapl_StateItemImpl_mod
 
    implicit none(type, external)
@@ -25,7 +25,7 @@ module mapl_FieldDictionaryConfig_mod
    type :: FieldDictionaryConfig
       private
       character(:), allocatable :: dictionary_path
-      type(ValidationMode) :: validation_mode
+      type(MAPL_ValidationMode) :: validation_mode
    contains
       procedure :: get_dictionary_path
       procedure :: get_validation_mode
@@ -49,7 +49,7 @@ contains
       type(FieldDictionaryConfig) :: config
 
       config%dictionary_path   = 'field_dictionary.yaml'
-      config%validation_mode   = VALIDATION_MODE_PERMISSIVE
+      config%validation_mode   = MAPL_VALIDATION_MODE_PERMISSIVE
    end function new_default
 
    ! Construct from the mapl/field_dictionary YAML mapping node
@@ -71,7 +71,7 @@ contains
 
       if (ESMF_HConfigIsDefined(node, keyString='validation_mode')) then
          temp_string = ESMF_HConfigAsString(node, keyString='validation_mode', _RC)
-         config%validation_mode = ValidationMode(temp_string)
+         config%validation_mode = MAPL_ValidationMode(temp_string)
       end if
 
       _RETURN(_SUCCESS)
@@ -105,7 +105,7 @@ contains
    end function get_dictionary_path
 
    pure function get_validation_mode(this) result(mode)
-      type(ValidationMode) :: mode
+      type(MAPL_ValidationMode) :: mode
       class(FieldDictionaryConfig), intent(in) :: this
       mode = this%validation_mode
    end function get_validation_mode

@@ -16,7 +16,7 @@ module mapl_VectorBracketClassAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UngriddedDimsAspect_mod
    use mapl_FieldBundleInfo_mod, only: FieldBundleInfoSetInternal
-   use mapl_VectorBasisKind_mod
+   use mapl_Enums_internal, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
 
    use mapl_VerticalGrid_mod
    use mapl_VerticalStaggerLoc_mod
@@ -53,7 +53,7 @@ module mapl_VectorBracketClassAspect_mod
        integer :: bracket_size   ! allocate only if not time dependent
        character(:), allocatable :: standard_name
        character(:), allocatable :: long_name
-       type(VectorBasisKind) :: vector_basis_kind
+       type(MAPL_VectorBasisKind) :: vector_basis_kind
        real(kind=ESMF_KIND_R4) :: fill_value
 
    contains
@@ -85,7 +85,7 @@ contains
       integer, intent(in) :: bracket_size
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
+      type(MAPL_VectorBasisKind), optional, intent(in) :: vector_basis_kind
       real(kind=ESMF_KIND_R4), optional, intent(in) :: fill_value
 
        aspect%field_aspect = FieldClassAspect(standard_name, long_name, fill_value)
@@ -97,7 +97,7 @@ contains
           aspect%long_name = long_name
        end if
 
-       aspect%vector_basis_kind = VECTOR_BASIS_KIND_NS
+       aspect%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
        if (present(vector_basis_kind)) then
           aspect%vector_basis_kind = vector_basis_kind
        end if

@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) initialize_modify_advertised_smod
-   use mapl_GenericPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
    use mapl_MultiState_mod
    use mapl_Connection_mod
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
@@ -28,7 +28,7 @@ contains
       call this%registry%add_to_states(user_states, mode='user', _RC)
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call recurse(this, phase_idx=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_MODIFY_ADVERTISED, _RC)
 
       call process_connections(this, _RC)
       call this%registry%propagate_exports(_RC)

@@ -6,7 +6,7 @@ module mapl_EvalTransform_mod
    use mapl_StateItemImpl_mod
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverVector_mod
-   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_UPDATE, GENERIC_COUPLER_INITIALIZE
+   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INITIALIZE
    use mapl_ErrorHandling_mod
    use mapl_StateArithmeticParser_mod
    use esmf
@@ -81,7 +81,7 @@ contains
            do while (iter /= e)
               call iter%next()
               coupler => iter%of()
-              call coupler%initialize(phase_idx=GENERIC_COUPLER_INITIALIZE, _RC)
+              call coupler%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
            end do
          end associate
          _RETURN(_SUCCESS)
@@ -128,7 +128,7 @@ contains
            do while (iter /= e)
               call iter%next()
               coupler => iter%of()
-              call coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+              call coupler%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
            end do
          end associate
          

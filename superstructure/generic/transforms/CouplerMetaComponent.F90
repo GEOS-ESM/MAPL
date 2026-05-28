@@ -4,7 +4,7 @@ module mapl_CouplerMetaComponent_mod
 
    use mapl_TransformId_mod
    use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE
-   use mapl_CouplerPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_INITIALIZE, MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INVALIDATE
    use mapl_ComponentDriver_mod, only: ComponentDriver, ComponentDriverPtr
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ComponentDriverVector_mod, only: ComponentDriverVector
@@ -163,7 +163,7 @@ contains
 
       do i = 1, this%sources%size()
          source_wrapper => this%sources%of(i)
-         call source_wrapper%ptr%initialize(phase_idx=GENERIC_COUPLER_INITIALIZE, _RC)
+         call source_wrapper%ptr%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
       end do
 
       _RETURN(_SUCCESS)
@@ -360,7 +360,7 @@ contains
 
       do i = 1, this%sources%size()
          source_wrapper => this%sources%of(i)
-         call source_wrapper%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+         call source_wrapper%ptr%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
       end do
 
       _RETURN(_SUCCESS)
@@ -413,7 +413,7 @@ contains
 
       do i = 1, this%consumers%size()
          consumer => this%consumers%of(i)
-         call consumer%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)
+         call consumer%run(phase_idx=MAPL_GENERIC_COUPLER_INVALIDATE, _RC)
       end do
 
       _RETURN(_SUCCESS)

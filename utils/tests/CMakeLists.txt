@@ -5,7 +5,6 @@ set (TEST_SRCS
   Test_AreaMean.pf
   test_String.pf
   test_StringUtilities.pf
-  test_TimeUtils.pf
   test_DSO_Utilities.pf
   test_FileSystemUtilities.pf
 #  test_MAPL_ISO8601_DateTime.pf

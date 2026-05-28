@@ -1,8 +1,21 @@
 module mapl_FieldBundle_API_mod
 
    use ESMF, only: MAPL_FieldBundleAdd => ESMF_FieldBundleAdd
-   use mapl_FieldBundleType_Flag_mod
-   use mapl_VectorBasisKind_mod
+   use mapl_Enums_internal, only: &
+        FieldBundleType_Flag         => MAPL_FieldBundleType_Flag, &
+        FIELDBUNDLETYPE_INVALID      => MAPL_FIELDBUNDLETYPE_INVALID, &
+        FIELDBUNDLETYPE_BASIC        => MAPL_FIELDBUNDLETYPE_BASIC, &
+        FIELDBUNDLETYPE_VECTOR       => MAPL_FIELDBUNDLETYPE_VECTOR, &
+        FIELDBUNDLETYPE_BRACKET      => MAPL_FIELDBUNDLETYPE_BRACKET, &
+        FIELDBUNDLETYPE_VECTORBRACKET => MAPL_FIELDBUNDLETYPE_VECTORBRACKET, &
+        FIELDBUNDLETYPE_SERVICE          => MAPL_FIELDBUNDLETYPE_SERVICE, &
+        FIELDBUNDLETYPE_SERVICE_AGGREGATE => MAPL_FIELDBUNDLETYPE_SERVICE_AGGREGATE, &
+        FIELDBUNDLETYPE_SERVICE_SEPARATE  => MAPL_FIELDBUNDLETYPE_SERVICE_SEPARATE, &
+        VectorBasisKind              => MAPL_VectorBasisKind, &
+        VECTOR_BASIS_KIND_INVALID    => MAPL_VECTOR_BASIS_KIND_INVALID, &
+        VECTOR_BASIS_KIND_GRID       => MAPL_VECTOR_BASIS_KIND_GRID, &
+        VECTOR_BASIS_KIND_NS         => MAPL_VECTOR_BASIS_KIND_NS, &
+        operator(==), operator(/=)
    use mapl_FieldBundleCreateImpl_mod, only: MAPL_FieldBundleCreate => FieldBundleCreate
    use mapl_FieldBundleCreateImpl_mod, only: MAPL_FieldBundlesAreAliased => FieldBundlesAreAliased
    use mapl_FieldBundleDestroyImpl_mod, only: MAPL_FieldBundleDestroy

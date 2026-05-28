@@ -9,7 +9,7 @@ module MockAspect_mod
    use mapl_StateItemAspect_mod
    use mapl_StateRegistry_mod
    use mapl_StateItemSpec_mod
-   use mapl_StateItemAllocation_mod
+   use mapl_Enums_internal, only: MAPL_STATEITEM_ALLOCATION_CREATED, MAPL_STATEITEM_ALLOCATION_ACTIVE
    use mapl_ExtensionTransform_mod
    use mapl_FieldInfo_mod, only: FieldInfoSetInternal
    use mapl_Field_API, only: mapl_FieldSet, mapl_FieldGet
@@ -353,7 +353,7 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call mapl_FieldSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create_class
@@ -364,7 +364,7 @@ contains
 
       integer :: status
 
-      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+      call mapl_FieldSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine activate_class

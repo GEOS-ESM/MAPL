@@ -21,7 +21,7 @@ module mapl_FieldDictionary_mod
    use gftl2_StringStringMap
    use mapl_FieldDictionaryItem_mod
    use mapl_FieldDictionaryItemMap_mod
-   use mapl_VerificationStatus_mod
+   use mapl_Enums_internal, only: MAPL_VerificationStatus, MAPL_VERIFICATION_STATUS_UNVERIFIED
 
    implicit none(type,external)
    private
@@ -115,7 +115,7 @@ contains
          character(:), allocatable :: physical_dimension, verified_by
          logical :: conserved
          type(StringVector) :: aliases
-         type(VerificationStatus) :: vstatus
+         type(MAPL_VerificationStatus) :: vstatus
          type(CF_Provenance) :: prov
          type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
 
@@ -154,10 +154,10 @@ contains
          end if
 
          ! --- optional: verification_status (default unverified) ---
-         vstatus = VERIFICATION_STATUS_UNVERIFIED
+         vstatus = MAPL_VERIFICATION_STATUS_UNVERIFIED
          if (ESMF_HConfigIsDefined(item_node,keyString='verification_status')) then
             temp_string = ESMF_HConfigAsString(item_node,keyString='verification_status',_RC)
-            vstatus = VerificationStatus(temp_string)
+            vstatus = MAPL_VerificationStatus(temp_string)
          end if
 
          ! --- optional: provenance ---

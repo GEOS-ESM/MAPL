@@ -7,9 +7,8 @@ module mapl_ConservationAspect_mod
    use mapl_StateItemAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_NullTransform_mod
-   use mapl_ConservationType_mod
+   use mapl_Enums_internal, only: MAPL_ConservationType, MAPL_CONSERVE_NONE
    use mapl_ConservationMetadata_mod
-   use mapl_QuantityType_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_Field_API
    use mapl_FieldBundle_API_mod
@@ -62,12 +61,12 @@ contains
 
    function new_ConservationAspect(conservation_type, is_conservable, is_time_dependent, is_mirror) result(aspect)
       type(ConservationAspect) :: aspect
-      type(ConservationType), optional, intent(in) :: conservation_type
+      type(MAPL_ConservationType), optional, intent(in) :: conservation_type
       logical, optional, intent(in) :: is_conservable
       logical, optional, intent(in) :: is_time_dependent
       logical, optional, intent(in) :: is_mirror
 
-      type(ConservationType) :: ctype
+      type(MAPL_ConservationType) :: ctype
       
       ! Explicit mirror requested
       if (present(is_mirror)) then
@@ -80,11 +79,11 @@ contains
       end if
       
       ! Not a mirror - create concrete metadata
-      ! Default to CONSERVE_NONE if not specified
+      ! Default to MAPL_CONSERVE_NONE if not specified
       if (present(conservation_type)) then
          ctype = conservation_type
       else
-         ctype = CONSERVE_NONE
+         ctype = MAPL_CONSERVE_NONE
       end if
       
       aspect%metadata = ConservationMetadata( &
@@ -227,7 +226,7 @@ contains
    ! Getters/Setters
    
    function get_conservation_type(this, rc) result(conservation_type)
-      type(ConservationType) :: conservation_type
+      type(MAPL_ConservationType) :: conservation_type
       class(ConservationAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
@@ -238,7 +237,7 @@ contains
 
    subroutine set_conservation_type(this, conservation_type, rc)
       class(ConservationAspect), intent(inout) :: this
-      type(ConservationType), intent(in) :: conservation_type
+      type(MAPL_ConservationType), intent(in) :: conservation_type
       integer, optional, intent(out) :: rc
 
       ! Create a new metadata with the updated conservation_type
@@ -326,7 +325,7 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc
 
-      type(ConservationType) :: ctype
+      type(MAPL_ConservationType) :: ctype
 
       ctype = this%metadata%get_conservation_type()
       _HERE, file, line, this%is_mirror()

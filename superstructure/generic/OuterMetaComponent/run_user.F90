@@ -4,7 +4,7 @@ submodule (mapl_OuterMetaComponent_mod) run_user_smod
 
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverPtrVector_mod
-   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_INVALIDATE, GENERIC_COUPLER_UPDATE
+   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_INVALIDATE, MAPL_GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger
 
@@ -46,7 +46,7 @@ contains
       import_couplers = this%registry%get_import_couplers()
       do i = 1, import_couplers%size()
          drvr = import_couplers%of(i)
-         call drvr%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+          call drvr%ptr%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
       end do
 
       logger => this%get_logger()
@@ -59,7 +59,7 @@ contains
       export_couplers = this%registry%get_export_couplers()
       do i = 1, export_couplers%size()
          drvr = export_couplers%of(i)
-         call drvr%ptr%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)
+          call drvr%ptr%run(phase_idx=MAPL_GENERIC_COUPLER_INVALIDATE, _RC)
       end do
 
       _RETURN(ESMF_SUCCESS)

@@ -10,9 +10,8 @@ module mapl_RegridTransform_mod
    use mapl_StateItemImpl_mod
    use mapl_ExtensionTransformUtils_mod, only: bundle_types_valid
    use mapl_NormalizationMetadata_mod
-   use mapl_NormalizationType_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_UPDATE
    use mapl_ComponentDriver_mod, only: ComponentDriver
-   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling_mod
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use esmf
@@ -278,7 +277,7 @@ contains
 
       ! Run vertical coordinate coupler to update values if needed
       if (associated(this%vcoord_coupler)) then
-         call this%vcoord_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+         call this%vcoord_coupler%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
       end if
 
       ! Sanity check: main field and coord field must have same typekind
@@ -325,7 +324,7 @@ contains
 
       ! Run vertical coordinate coupler to update values if needed
       if (associated(this%vcoord_coupler)) then
-         call this%vcoord_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+         call this%vcoord_coupler%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
       end if
 
       ! Sanity check: main field and coord field must have same typekind

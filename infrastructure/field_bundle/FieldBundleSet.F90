@@ -7,8 +7,8 @@ module mapl_FieldBundleSetImpl_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
-   use mapl_FieldBundleType_Flag_mod
-   use mapl_VectorBasisKind_mod
+   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
+        MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_VECTORBRACKET
    use mapl_FieldBundleInfo_mod
    use mapl_InfoUtilities_mod
    use mapl_FieldBundleGetImpl_mod
@@ -53,7 +53,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vgrid
-      type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
+      type(MAPL_FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
@@ -67,7 +67,7 @@ contains
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_Info), optional, intent(in) :: regridder_param_info
-      type(VectorBasisKind), optional, intent(in) :: vector_basis_kind
+      type(MAPL_VectorBasisKind), optional, intent(in) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
       type(ConservationMetadata), optional, intent(in) :: conservation_metadata
@@ -81,7 +81,7 @@ contains
       type(ESMF_Field), allocatable :: fieldList(:)
       logical, allocatable :: has_geom
       integer, allocatable :: vgrid_id
-      type(FieldBundleType_Flag) :: bundle_type
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
       logical :: has_bundle_type
 
       if (present(geom)) then
@@ -136,8 +136,8 @@ contains
          end if
 
          if (has_bundle_type) then
-            if (bundle_type /= FIELDBUNDLETYPE_VECTOR .and. &
-                bundle_type /= FIELDBUNDLETYPE_VECTORBRACKET) then
+            if (bundle_type /= MAPL_FIELDBUNDLETYPE_VECTOR .and. &
+                bundle_type /= MAPL_FIELDBUNDLETYPE_VECTORBRACKET) then
                _FAIL('vector_basis_kind can only be set for vector field bundles')
             end if
          end if
