@@ -5,14 +5,14 @@ module mapl_TimeUtilities_mod
    implicit none
    private
 
-   public PackTime
+   public PackDate
    public PackDateTime
-   public UnpackTime
+   public UnpackDate
    public UnpackDateTime
 
 contains
 
-   subroutine UnpackTime(time, iyy, imm, idd)
+   subroutine UnpackDate(time, iyy, imm, idd)
       integer, intent(in) :: time
       integer, intent(out) :: iyy
       integer, intent(out) :: imm
@@ -20,15 +20,15 @@ contains
       iyy = time/10000
       imm = mod(time/100,100)
       idd = mod(time,100)
-   end subroutine UnpackTime
+   end subroutine UnpackDate
 
-   subroutine PackTime(time, iyy, imm, idd)
+   subroutine PackDate(time, iyy, imm, idd)
       integer, intent(out) :: time
       integer, intent(in) :: iyy
       integer, intent(in) :: imm
       integer, intent(in) :: idd
       time = iyy*10000 + imm*100 + idd
-   end subroutine PackTime
+   end subroutine PackDate
 
    subroutine PackDateTime(date_time, yy, mm, dd, h, m, s)
       integer, intent(in) :: yy, mm, dd, h, m, s

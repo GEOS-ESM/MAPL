@@ -7,12 +7,13 @@ module mapl_mp_utils_export
    use mapl_mp_utils_internal
    
    ! Create MAPL_ prefixed aliases for PackedTime functions
+   ! Note: Internal imports MAPL_PackTime/MAPL_UnpackTime from TimeUtilities (date functions Y/M/D)
+   ! Here we import the time functions (H/M/S) and date/datetime functions from PackedTime_mod
    use mapl_PackedTime_mod, only: MAPL_PackedDateCreate => PackedDateCreate, &
                                    MAPL_PackedTimeCreate => PackedTimeCreate, &
                                    MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &
                                    MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
                                    MAPL_UnpackDate => UnpackDate, &
-                                   MAPL_UnpackTime => UnpackTime, &
                                    MAPL_UnpackDateTime => UnpackDateTime
    
    private
@@ -25,7 +26,7 @@ module mapl_mp_utils_export
    ! PackedTime functions with MAPL_ prefix
    public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, MAPL_PackedDateTimeCreate
    public :: MAPL_ESMFTimeFromPacked
-   public :: MAPL_UnpackDate, MAPL_UnpackTime, MAPL_UnpackDateTime
+   public :: MAPL_UnpackDate, MAPL_UnpackDateTime
 
    ! Backward compatibility: Unprefixed names (TODO: remove after client repos migrated)
    ! See issue #5011 - these should be removed once GEOSgcm and other clients updated
