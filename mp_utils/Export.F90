@@ -17,7 +17,7 @@ module mapl_mp_utils_export
                                    MAPL_UnpackDate => UnpackDate, &
                                    MAPL_UnpackDateTime => UnpackDateTime, &
                                    PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate, &
-                                   ESMFTimeFromPacked, UnpackDate, UnpackTime
+                                   ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
    use mapl_StringTemplate_mod, only: StrTemplate
    
    private
@@ -35,9 +35,7 @@ module mapl_mp_utils_export
    ! Backward compatibility: Unprefixed names (TODO: remove after client repos migrated)
    ! See issue #5011 - these should be removed once GEOSgcm and other clients updated
    public :: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
-   public :: ESMFTimeFromPacked, UnpackDate, UnpackTime
-   ! UnpackDateTime temporarily removed - ambiguous reference issue #5011
-   ! public :: UnpackDateTime
+   public :: ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
    public :: StrTemplate
 
 end module mapl_mp_utils_export
