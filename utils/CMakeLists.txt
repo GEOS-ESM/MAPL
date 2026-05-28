@@ -27,8 +27,8 @@ set (srcs
     MAPL_CF_Time.F90
     MAPL_ESMF_InfoKeys.F90
     # Umbrella modules for the utils layer (#5004)
-    Internal.F90
-    Export.F90
+    Internal_utils.F90
+    Export_utils.F90
     # API umbrella for utils layer (#4999)
     API.F90
     # Fortran submodules

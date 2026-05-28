@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Standardize umbrella module filenames to `Internal_<subdir>.F90` / `Export_<subdir>.F90`
+  convention (#5010). Eliminates filename collisions when multiple subdirectories contribute
+  sources to a single CMake library target (fixes Intel CI failure). Affects all subdirectories
+  that previously used generic `Internal.F90` / `Export.F90` names, and renames the
+  `Field`-prefixed variants in `infrastructure/field/`, `field_bundle/`, and `state/` to match
+  the new convention. Fortran module names are unchanged.
+
 ### Added
 
 - Implement two-tier umbrella module pattern across all MAPL subdirectories (#5004).
