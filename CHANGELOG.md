@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Fixed
+
+- Wrap `ieee_is_nan` calls in `Test_FieldFill.pf` with `ieee_set_halting_mode`/`ieee_set_flag`
+  to suppress and clear the IEEE invalid-operation trap around sNaN queries. Without this,
+  `-Ktrap=fp` (nvfortran) causes SIGFPE when a signaling NaN is loaded for inspection.
+  Zero-diff for all non-test code.
+
 ### Changed
 
 - Fixed uninitialized error in RoutehandleParam.F90 (fixes #5001)

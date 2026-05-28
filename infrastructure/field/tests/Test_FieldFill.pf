@@ -9,6 +9,10 @@ module Test_FieldFill
    use ESMF_TestMethod_mod
    use esmf
    use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
+   use, intrinsic :: ieee_exceptions, only: ieee_set_halting_mode, &
+                                            ieee_get_halting_mode, &
+                                            ieee_set_flag, &
+                                            ieee_invalid
 
    implicit none(type, external)
 
@@ -79,10 +83,15 @@ contains
 
       type(ESMF_Field) :: field
       real(ESMF_KIND_R4), pointer :: ptr(:)
+      logical :: was_halting
       integer :: status
 
       call make_r4_field(field, ptr, _RC)
+      call ieee_get_halting_mode(ieee_invalid, was_halting)
+      call ieee_set_halting_mode(ieee_invalid, .false.)
       @assertTrue(all(ieee_is_nan(ptr)), "R4 field should be filled with NaN by default")
+      call ieee_set_flag(ieee_invalid, .false.)
+      call ieee_set_halting_mode(ieee_invalid, was_halting)
 
       call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -95,10 +104,15 @@ contains
 
       type(ESMF_Field) :: field
       real(ESMF_KIND_R8), pointer :: ptr(:)
+      logical :: was_halting
       integer :: status
 
       call make_r8_field(field, ptr, _RC)
+      call ieee_get_halting_mode(ieee_invalid, was_halting)
+      call ieee_set_halting_mode(ieee_invalid, .false.)
       @assertTrue(all(ieee_is_nan(ptr)), "R8 field should be filled with NaN by default")
+      call ieee_set_flag(ieee_invalid, .false.)
+      call ieee_set_halting_mode(ieee_invalid, was_halting)
 
       call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -152,13 +166,18 @@ contains
       type(ESMF_Field) :: field
       real(ESMF_KIND_R4), pointer :: ptr(:)
       real(ESMF_KIND_R4), allocatable :: fill_r4
+      logical :: was_halting
       integer :: status
 
       allocate(fill_r4, source=0.0_ESMF_KIND_R4)
       call set_field_fill_defaults(r4=fill_r4)
       call reset_field_fill_defaults()
       call make_r4_field(field, ptr, _RC)
+      call ieee_get_halting_mode(ieee_invalid, was_halting)
+      call ieee_set_halting_mode(ieee_invalid, .false.)
       @assertTrue(all(ieee_is_nan(ptr)), "R4 field should revert to NaN after reset")
+      call ieee_set_flag(ieee_invalid, .false.)
+      call ieee_set_halting_mode(ieee_invalid, was_halting)
 
       call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -169,8 +188,14 @@ contains
    subroutine test_getter_returns_nan_when_unset(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
+      logical :: was_halting
+
+      call ieee_get_halting_mode(ieee_invalid, was_halting)
+      call ieee_set_halting_mode(ieee_invalid, .false.)
       @assertTrue(ieee_is_nan(get_field_fill_default_r4()), "R4 getter should return NaN when no override is set")
       @assertTrue(ieee_is_nan(get_field_fill_default_r8()), "R8 getter should return NaN when no override is set")
+      call ieee_set_flag(ieee_invalid, .false.)
+      call ieee_set_halting_mode(ieee_invalid, was_halting)
 
       _UNUSED_DUMMY(this)
    end subroutine test_getter_returns_nan_when_unset
@@ -202,6 +227,7 @@ contains
       real(ESMF_KIND_R4), pointer :: ptr_r4(:)
       real(ESMF_KIND_R8), pointer :: ptr_r8(:)
       real(ESMF_KIND_R4), allocatable :: fill_r4
+      logical :: was_halting
       integer :: status
 
       ! Only set R4 override; R8 should still be sNaN.
@@ -212,7 +238,11 @@ contains
       @assertTrue(all(ptr_r4 == 1.0_ESMF_KIND_R4), "R4 field should use override")
 
       call make_r8_field(field_r8, ptr_r8, _RC)
+      call ieee_get_halting_mode(ieee_invalid, was_halting)
+      call ieee_set_halting_mode(ieee_invalid, .false.)
       @assertTrue(all(ieee_is_nan(ptr_r8)), "R8 field should still be NaN when only R4 override is set")
+      call ieee_set_flag(ieee_invalid, .false.)
+      call ieee_set_halting_mode(ieee_invalid, was_halting)
 
       call ESMF_FieldDestroy(field_r4, nogarbage=.true., _RC)
       call ESMF_FieldDestroy(field_r8, nogarbage=.true., _RC)
