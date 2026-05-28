@@ -49,7 +49,7 @@ module mapl_utils_export
    public :: MAPL_Interp
 
    ! Time utilities
-   public :: PackDate, PackDateTime, UnpackDate
+   ! public :: PackDate, PackDateTime, UnpackDate
    ! UnpackDateTime removed - conflicts with mp_utils version, see issue #5011
    ! public :: UnpackDateTime
    public :: ISO8601Date, ISO8601Time, ISO8601DateTime, ISO8601Duration, ISO8601Interval
