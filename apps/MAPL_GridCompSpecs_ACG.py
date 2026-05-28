@@ -726,7 +726,7 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
             return func_dict.get(m)
         # Make a function from a dict.
         case dict():
-            return lambda k: m.get(k)
+            return lambda k: m.get(k, k if k in m.values() else None)
         # Fetch mapping based on index if there is a sequence of functions.
         case int() if valid_index(func_sequence, m):
             return func_sequence[n]

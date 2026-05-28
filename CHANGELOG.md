@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Fixed uninitialized error in RoutehandleParam.F90 (fixes #5001)
 - Hide 30 unused entities from MAPL umbrella module (#4999, part of #4975/#4969).
   Removed unused public exports across 5 layers using 'only:' clauses:
   Utils layer (2): MAPL_ObjectWrite, MAPL_ObjectRead;
@@ -132,7 +133,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `mapl3g_TimeVariance`, `mapl3g_AbstractCovarianceKernel`,
   `mapl3g_ShiftedCovarianceKernel`, and `mapl3g_WelfordCovarianceKernel`
   to `mapl_` prefix (modules added after Phase-9 branched from develop).
-
+- *Fix lookup mappings in ACG to be bidirectional so users can use aliases or
+  actual values in columns in ACG spec files.
 ### Added
 - Extended StatisticsGridComp to support variance of a single field.
 - Extended `FieldBundleGetPointerToData` interface with REAL64 pointer overloads
