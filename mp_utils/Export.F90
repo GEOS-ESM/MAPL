@@ -35,7 +35,9 @@ module mapl_mp_utils_export
    ! Backward compatibility: Unprefixed names (TODO: remove after client repos migrated)
    ! See issue #5011 - these should be removed once GEOSgcm and other clients updated
    public :: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
-   public :: ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
+   public :: ESMFTimeFromPacked, UnpackDate, UnpackTime
+   ! UnpackDateTime temporarily removed - ambiguous reference issue #5011
+   ! public :: UnpackDateTime
    public :: StrTemplate
 
 end module mapl_mp_utils_export
