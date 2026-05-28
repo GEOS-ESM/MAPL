@@ -2,7 +2,7 @@ module mapl_FieldDictionaryItem_mod
 
    use gftl2_StringVector
    use esmf
-   use mapl_VerificationStatus_mod
+   use mapl_Enums_internal, only: MAPL_VerificationStatus, MAPL_VERIFICATION_STATUS_UNVERIFIED
 
    implicit none(type,external)
    private
@@ -21,7 +21,7 @@ module mapl_FieldDictionaryItem_mod
       character(:), allocatable :: canonical_units
       character(:), allocatable :: physical_dimension
       logical :: conserved = .false.
-      type(VerificationStatus) :: verification_status_
+      type(MAPL_VerificationStatus) :: verification_status_
       type(CF_Provenance) :: provenance_
       type(ESMF_RegridMethod_Flag) :: regrid_method
       type(StringVector) :: aliases
@@ -97,7 +97,7 @@ contains
       type(StringVector), intent(in) :: aliases
       character(*), optional, intent(in) :: physical_dimension
       logical, optional, intent(in) :: conserved
-      type(VerificationStatus), optional, intent(in) :: verification_status
+      type(MAPL_VerificationStatus), optional, intent(in) :: verification_status
       type(CF_Provenance), optional, intent(in) :: provenance
       item%long_name = long_name
       item%canonical_units = canonical_units
@@ -109,7 +109,7 @@ contains
       item%conserved = .false.
       if (present(conserved)) item%conserved = conserved
 
-       item%verification_status_ = VERIFICATION_STATUS_UNVERIFIED
+       item%verification_status_ = MAPL_VERIFICATION_STATUS_UNVERIFIED
       if (present(verification_status)) item%verification_status_ = verification_status
 
       if (present(provenance)) item%provenance_ = provenance
@@ -153,7 +153,7 @@ contains
    end function get_physical_dimension
 
    pure function get_verification_status(this) result(verification_status)
-      type(VerificationStatus) :: verification_status
+      type(MAPL_VerificationStatus) :: verification_status
       class(FieldDictionaryItem), intent(in) :: this
       verification_status = this%verification_status_
    end function get_verification_status

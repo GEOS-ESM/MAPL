@@ -38,6 +38,7 @@
 module mapl_DateTime_Parsing_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ExceptionHandling_mod
+   use mapl_StringUtilities_mod, only: is_digit
    use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: R64 => real64
 
@@ -266,12 +267,6 @@ contains
       integer, intent(in) :: opint(2)
       is_in_open_interval = (n > opint(1)) .and. (n < opint(2))
    end function is_in_open_interval
-
-   ! Check if c is a digit character
-   elemental pure logical function is_digit(c)
-      character, intent(in) :: c
-      is_digit = scan(c, DIGIT_CHARACTERS) > 0
-   end function is_digit
 
    ! Check is s is a digit-only string
    logical function is_digit_string(s)

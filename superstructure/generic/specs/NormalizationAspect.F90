@@ -8,7 +8,7 @@ module mapl_NormalizationAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_NullTransform_mod
    use mapl_QuantityTypeAspect_mod
-   use mapl_NormalizationType_mod
+   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, MAPL_NORMALIZE_DELP, MAPL_NORMALIZE_DZ
    use mapl_NormalizationMetadata_mod
    use mapl_Field_API
    use mapl_FieldBundle_API_mod
@@ -69,7 +69,7 @@ contains
 
    function new_NormalizationAspect(normalization_type, scale_factor, source_units, target_units, is_time_dependent) result(aspect)
       type(NormalizationAspect) :: aspect
-      type(NormalizationType), optional, intent(in) :: normalization_type
+      type(MAPL_NormalizationType), optional, intent(in) :: normalization_type
       real, optional, intent(in) :: scale_factor
       character(*), optional, intent(in) :: source_units
       character(*), optional, intent(in) :: target_units
@@ -91,7 +91,7 @@ contains
                  normalization_scale=1.0)
          else
             aspect%metadata = NormalizationMetadata( &
-                 normalization_type=NORMALIZE_NONE, &
+                 normalization_type=MAPL_NORMALIZE_NONE, &
                  normalization_scale=scale_factor)
          end if
          call aspect%set_mirror(.false.)
@@ -247,7 +247,7 @@ contains
    ! Getters/Setters
    
    function get_normalization_type(this, rc) result(normalization_type)
-      type(NormalizationType) :: normalization_type
+      type(MAPL_NormalizationType) :: normalization_type
       class(NormalizationAspect), intent(in) :: this
       integer, optional, intent(out) :: rc
 
@@ -259,7 +259,7 @@ contains
 
    subroutine set_normalization_type(this, normalization_type, rc)
       class(NormalizationAspect), intent(inout) :: this
-      type(NormalizationType), intent(in) :: normalization_type
+      type(MAPL_NormalizationType), intent(in) :: normalization_type
       integer, optional, intent(out) :: rc
 
       real :: scale
@@ -292,7 +292,7 @@ contains
       real, intent(in) :: scale_factor
       integer, optional, intent(out) :: rc
 
-      type(NormalizationType) :: norm_type
+      type(MAPL_NormalizationType) :: norm_type
 
       ! Get current normalization type from metadata
       norm_type = this%metadata%get_normalization_type()
@@ -362,7 +362,7 @@ contains
 
       integer :: status
       type(NormalizationMetadata) :: norm_metadata
-      type(NormalizationType) :: norm_type
+      type(MAPL_NormalizationType) :: norm_type
       character(:), allocatable :: units
 
        _RETURN_UNLESS(present(field) .or. present(bundle))
@@ -386,7 +386,7 @@ contains
        ! Get normalization parameters from metadata
        norm_type = norm_metadata%get_normalization_type()
        
-       if (norm_type /= NORMALIZE_NONE) then
+       if (norm_type /= MAPL_NORMALIZE_NONE) then
           ! Field needs normalization - extract units and compute target units
           
            ! Get source units
@@ -405,7 +405,7 @@ contains
         call compute_normalized_units(this%source_units, norm_type, &
                                     norm_metadata%get_normalization_scale(), this%target_units, _RC)
      end if
-       ! Note: If norm_type == NORMALIZE_NONE and metadata is not mirror,
+       ! Note: If norm_type == MAPL_NORMALIZE_NONE and metadata is not mirror,
        ! then mirror flag is already set to false above
 
       _RETURN(_SUCCESS)
@@ -445,10 +445,10 @@ contains
              call MAPL_FieldBundleGet(bundle, normalization_metadata=existing_metadata, _RC)
           end if
           
-          ! If existing metadata is mirror, we must write non-mirror NORMALIZE_NONE
+          ! If existing metadata is mirror, we must write non-mirror MAPL_NORMALIZE_NONE
           ! Otherwise, leave it as-is (QuantityTypeAspect may have set it)
           if (existing_metadata%is_mirror()) then
-             metadata = NormalizationMetadata(NORMALIZE_NONE)
+             metadata = NormalizationMetadata(MAPL_NORMALIZE_NONE)
              should_write = .true.
           end if
        end if
@@ -473,7 +473,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: aux_field
-      type(NormalizationType) :: norm_type
+      type(MAPL_NormalizationType) :: norm_type
       integer :: status
 
       _HERE, file, line, this%is_mirror()
@@ -497,7 +497,7 @@ contains
    ! Helper subroutine to compute normalized units
    subroutine compute_normalized_units(source_units, normalization_type, scale, target_units, rc)
       character(*), intent(in) :: source_units
-      type(NormalizationType), intent(in) :: normalization_type
+      type(MAPL_NormalizationType), intent(in) :: normalization_type
       real, intent(in) :: scale
       character(:), allocatable, intent(out) :: target_units
       integer, optional, intent(out) :: rc
@@ -518,7 +518,7 @@ contains
       !
       ! Formula: source_units × (aux_field_units × scale) = target_units
       
-      if (normalization_type == NORMALIZE_DELP) then
+      if (normalization_type == MAPL_NORMALIZE_DELP) then
          ! DELP is in Pa, with scale 1/g, result is kg/m^2
          ! e.g., "kg/kg" × ("Pa" × 1/g) = "kg/m2"
          if (trim(source_units) == 'kg/kg') then
@@ -526,7 +526,7 @@ contains
          else
             target_units = source_units  ! Fallback
          end if
-      else if (normalization_type == NORMALIZE_DZ) then
+      else if (normalization_type == MAPL_NORMALIZE_DZ) then
          ! DZ is in m, with scale 1.0
          ! e.g., "kg/m3" × "m" = "kg/m2"
          if (trim(source_units) == 'kg/m3') then
@@ -535,7 +535,7 @@ contains
             target_units = source_units  ! Fallback
          end if
       else
-         target_units = source_units  ! No conversion for NORMALIZE_NONE
+         target_units = source_units  ! No conversion for MAPL_NORMALIZE_NONE
       end if
 
       _RETURN(_SUCCESS)

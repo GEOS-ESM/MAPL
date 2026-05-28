@@ -2,9 +2,10 @@
 
 module mapl_FieldBundleCreateImpl_mod
 
-   use mapl_FieldBundleType_Flag_mod
-   use mapl_FieldBundleSetImpl_mod
-   use mapl_VectorBasisKind_mod
+   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, &
+        MAPL_FIELDBUNDLETYPE_BASIC, MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_VECTORBRACKET, &
+        MAPL_VECTOR_BASIS_KIND_NS, operator(==)
+   use mapl_FieldBundleSetImpl_mod, only: FieldBundleSet
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use esmf
@@ -30,22 +31,22 @@ contains
       type(ESMF_FieldBundle) :: bundle ! result
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: name
-      type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
+      type(MAPL_FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       integer, optional, intent(out) :: rc
 
-      type(FieldBundleType_Flag) :: fieldbundletype_
+      type(MAPL_FieldBundleType_Flag) :: fieldbundletype_
       integer :: status
 
       bundle = ESMF_FieldBundleCreate(name=name, _RC)
 
-      fieldBundleType_ = FIELDBUNDLETYPE_BASIC
+      fieldBundleType_ = MAPL_FIELDBUNDLETYPE_BASIC
       if (present(fieldBundleType)) fieldBundleType_ = fieldBundleType
       call FieldBundleSet(bundle, fieldBundleType=fieldBundleType_, _RC)
       
       ! Set default vector basis kind for vector bundles
-      if (fieldBundleType_ == FIELDBUNDLETYPE_VECTOR .or. &
-          fieldBundleType_ == FIELDBUNDLETYPE_VECTORBRACKET) then
-         call FieldBundleSet(bundle, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+      if (fieldBundleType_ == MAPL_FIELDBUNDLETYPE_VECTOR .or. &
+          fieldBundleType_ == MAPL_FIELDBUNDLETYPE_VECTORBRACKET) then
+         call FieldBundleSet(bundle, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_NS, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -57,7 +58,7 @@ contains
       type(ESMF_State), intent(in) :: state
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: name
-      type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
+      type(MAPL_FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       integer, optional, intent(out) :: rc
 
       character(len=ESMF_MAXSTR), allocatable :: item_name(:)
@@ -93,7 +94,7 @@ contains
       type(ESMF_Field), intent(in) :: fieldList(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: name
-      type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
+      type(MAPL_FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       integer, optional, intent(out) :: rc
 
       integer :: status

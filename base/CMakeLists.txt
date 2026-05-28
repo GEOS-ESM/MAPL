@@ -12,6 +12,9 @@ set (srcs
   MemUtils.F90
   SunOrbit.F90
   SimpleBundleMod.F90
+  # Umbrella modules (#5004)
+  Internal_base.F90
+  Export_base.F90
   API.F90
   # Moved to mp_utils/:
   #   PackedTime.F90, SimulationTime.F90, TimeInterpolation.F90

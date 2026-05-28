@@ -8,7 +8,7 @@ module mapl_FieldBundleDelta_mod
 
    use mapl_FieldBundleGetImpl_mod
    use mapl_FieldBundleSetImpl_mod
-   use mapl_FieldBundleType_Flag_mod
+   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_FIELDBUNDLETYPE_BRACKET
    use mapl_LU_Bound_mod
    use mapl_FieldDelta_mod
    use mapl_InfoUtilities_mod
@@ -121,15 +121,15 @@ contains
          integer :: status
          integer :: fieldCount_a, fieldCount_b
          type(ESMF_Field), allocatable :: fieldList_a(:), fieldList_b(:)
-         type(FieldBundleType_Flag) :: fieldBundleType_a, fieldBundleType_b
+         type(MAPL_FieldBundleType_Flag) :: fieldBundleType_a, fieldBundleType_b
 
          call FieldBundleGet(bundle_a, &
               fieldCount=fieldCount_a, fieldBundleType=fieldBundleType_a, fieldList=fieldList_a, _RC)
          call FieldBundleGet(bundle_b, &
               fieldCount=fieldCount_b, fieldBundleType=fieldBundleType_b, fieldList=fieldList_b, _RC)
 
-         _ASSERT(fieldBundleType_a == FIELDBUNDLETYPE_BRACKET, 'incorrect type of FieldBundle')
-         _ASSERT(fieldBundleType_b == FIELDBUNDLETYPE_BRACKET, 'incorrect type of FieldBundle')
+         _ASSERT(fieldBundleType_a == MAPL_FIELDBUNDLETYPE_BRACKET, 'incorrect type of FieldBundle')
+         _ASSERT(fieldBundleType_b == MAPL_FIELDBUNDLETYPE_BRACKET, 'incorrect type of FieldBundle')
 
          ! TODO: add check thta name of 1st field is "bracket-prototype" or similar.
          if (fieldCount_a > 0 .and. fieldCount_b > 0) then

@@ -14,7 +14,7 @@ module mapl_FieldInfo_mod
    use mapl_ConservationMetadata_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
-   use mapl_StateItemAllocation_mod
+   use mapl_Enums_internal, only: MAPL_StateItemAllocation
    use mapl_RestartModes_mod, only: RestartMode, MAPL_RESTART_REQUIRED
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
    use mapl_KeywordEnforcer_mod
@@ -111,7 +111,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
-      type(StateItemAllocation), optional, intent(in) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
@@ -234,7 +234,7 @@ contains
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
       type(ConservationMetadata), optional, intent(out) :: conservation_metadata
-      type(StateItemAllocation), optional, intent(out) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
@@ -353,7 +353,7 @@ contains
 
       if (present(allocation_status)) then
          call MAPL_InfoGet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status_str, _RC)
-         allocation_status = StateItemAllocation(allocation_status_str)
+         allocation_status = MAPL_StateItemAllocation(allocation_status_str)
       end if
 
       if (present(has_deferred_aspects)) then

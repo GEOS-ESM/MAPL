@@ -19,7 +19,6 @@ set (srcs
     String.F90
     StringUtilities.F90
     StringDictionary.F90
-    TimeUtils.F90
     FileSystemUtilities.F90
     DSO_Utilities.F90
     MAPL_ISO8601_DateTime.F90
@@ -27,6 +26,9 @@ set (srcs
     MAPL_Sleep.F90
     MAPL_CF_Time.F90
     MAPL_ESMF_InfoKeys.F90
+    # Umbrella modules for the utils layer (#5004)
+    Internal_utils.F90
+    Export_utils.F90
     # API umbrella for utils layer (#4999)
     API.F90
     # Fortran submodules

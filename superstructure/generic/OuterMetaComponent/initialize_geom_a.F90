@@ -2,7 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_geom_a_smod
 
-   use mapl_GenericPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_GEOM_A
    use mapl_GeometrySpec_mod
    use mapl_Geom_API_mod
    use mapl_GriddedComponentDriver_mod
@@ -48,7 +48,7 @@ contains
       call this%profiler%start(_RC)
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call recurse(this, phase_idx=GENERIC_INIT_GEOM_A, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_A, _RC)
 
       associate (geometry_spec => this%component_spec%geometry_spec)
         if (geometry_spec%kind == GEOMETRY_FROM_CHILD) then

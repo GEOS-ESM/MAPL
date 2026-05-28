@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) initialize_geom_b_smod
-   use mapl_GenericPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_GEOM_B
    use mapl_GeometrySpec_mod
    use mapl_ErrorHandling_mod
    implicit none(type,external)
@@ -19,7 +19,7 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM_B'
       
       call apply_to_children(this, set_child_geom, _RC)
-      call recurse(this, phase_idx=GENERIC_INIT_GEOM_B, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_B, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

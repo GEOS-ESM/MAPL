@@ -10,8 +10,7 @@ module mapl_FieldBundleGetImpl_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
-   use mapl_FieldBundleType_Flag_mod
-   use mapl_VectorBasisKind_mod
+   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind
    use mapl_FieldBundleInfo_mod
    use mapl_InfoUtilities_mod
    use mapl_LU_Bound_mod
@@ -56,7 +55,7 @@ contains
       type(ESMF_Field), optional, allocatable, intent(out) :: fieldList(:)
       type(ESMF_Geom), allocatable, optional, intent(out) :: geom
       class(VerticalGrid), pointer, optional, intent(out) :: vgrid
-      type(FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
+      type(MAPL_FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       real(ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
@@ -71,7 +70,7 @@ contains
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
-      type(VectorBasisKind), optional, intent(out) :: vector_basis_kind
+      type(MAPL_VectorBasisKind), optional, intent(out) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
       type(ConservationMetadata), optional, intent(out) :: conservation_metadata

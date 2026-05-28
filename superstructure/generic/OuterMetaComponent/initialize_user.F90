@@ -2,10 +2,9 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_user_smod
 
-   use mapl_GenericPhases_mod
+   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_USER, MAPL_GENERIC_COUPLER_INITIALIZE
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverPtrVector_mod
-   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_INITIALIZE
    use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger
 
@@ -25,12 +24,12 @@ contains
       class(logger_t), pointer :: logger
       integer :: i, status
 
-      call recurse(this, phase_idx=GENERIC_INIT_USER, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_USER, _RC)
 
       import_couplers = this%registry%get_import_couplers()
       do i = 1, import_couplers%size()
          drvr = import_couplers%of(i)
-         call drvr%ptr%initialize(phase_idx=GENERIC_COUPLER_INITIALIZE, _RC)
+          call drvr%ptr%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
       end do
 
       logger => this%get_logger()

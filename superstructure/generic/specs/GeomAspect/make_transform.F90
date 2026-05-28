@@ -4,7 +4,7 @@ submodule (mapl_GeomAspect_mod) make_transform_smod
 
    use mapl_VerticalGridAspect_mod
    use mapl_VerticalStaggerLoc_mod
-   use mapl_NormalizationType_mod, only: NORMALIZE_NONE, operator(==)
+   use mapl_Enums_internal, only: MAPL_NORMALIZE_NONE, operator(==)
 
    implicit none(type,external)
 contains
@@ -64,7 +64,7 @@ contains
 
       integer :: status
       type(NormalizationAspect) :: norm_aspect
-      type(NormalizationType) :: norm_type
+      type(MAPL_NormalizationType) :: norm_type
       real :: scale_factor
 
       use_it = .false.
@@ -78,7 +78,7 @@ contains
 
       ! Check if normalization is actually requested
       norm_type = norm_aspect%get_normalization_type(_RC)
-      _RETURN_IF(norm_type == NORMALIZE_NONE)
+      _RETURN_IF(norm_type == MAPL_NORMALIZE_NONE)
 
       ! Get scale factor and verify it succeeded
       scale_factor = norm_aspect%get_scale_factor(rc=status)
@@ -111,7 +111,7 @@ contains
       class(ComponentDriver), pointer :: vcoord_coupler
       character(:), allocatable :: physical_dimension
       type(AspectMap) :: coord_aspects
-      type(NormalizationType) :: norm_type
+      type(MAPL_NormalizationType) :: norm_type
       integer :: status
       type(VerticalStaggerLoc) :: vertical_stagger
       logical :: has_layers

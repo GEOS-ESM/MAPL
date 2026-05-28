@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
-   use mapl_GenericPhases_mod, only: GENERIC_INIT_ADVERTISE
+   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_ADVERTISE
    use mapl_VirtualConnectionPt_mod
    use mapl_StateItemImpl_mod
    use mapl_VariableSpec_mod
@@ -29,7 +29,7 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
-      call recurse(this, phase_idx=GENERIC_INIT_ADVERTISE, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
       call self_advertise(this, _RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
