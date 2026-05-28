@@ -5,15 +5,30 @@
 ! For internal MAPL use, see mapl_mp_utils_internal.
 module mapl_mp_utils_export
    use mapl_mp_utils_internal
+   
+   ! Create MAPL_ prefixed aliases for PackedTime functions
+   use mapl_PackedTime_mod, only: MAPL_PackedDateCreate => PackedDateCreate, &
+                                   MAPL_PackedTimeCreate => PackedTimeCreate, &
+                                   MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &
+                                   MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
+                                   MAPL_UnpackDate => UnpackDate, &
+                                   MAPL_UnpackTime => UnpackTime, &
+                                   MAPL_UnpackDateTime => UnpackDateTime
+   
    private
 
    public :: MAPL_MaxMin, MAPL_AreaMean
    public :: MAPL_MemInfoWrite
    public :: MAPL_PackTime, MAPL_UnpackTime
    public :: MAPL_GetCheckpointSubdir
+   
+   ! PackedTime functions with MAPL_ prefix
+   public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, MAPL_PackedDateTimeCreate
+   public :: MAPL_ESMFTimeFromPacked
+   public :: MAPL_UnpackDate, MAPL_UnpackTime, MAPL_UnpackDateTime
 
    ! Backward compatibility: Unprefixed names (TODO: remove after client repos migrated)
-   ! See issue #TBD - these should be removed once GEOSgcm and other clients updated
+   ! See issue #5011 - these should be removed once GEOSgcm and other clients updated
    public :: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
    public :: ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
    public :: StrTemplate
