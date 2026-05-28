@@ -12,4 +12,10 @@ module mapl_mp_utils_export
    public :: MAPL_PackTime, MAPL_UnpackTime
    public :: MAPL_GetCheckpointSubdir
 
+   ! Backward compatibility: Unprefixed names (TODO: remove after client repos migrated)
+   ! See issue #TBD - these should be removed once GEOSgcm and other clients updated
+   public :: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
+   public :: ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
+   public :: StrTemplate
+
 end module mapl_mp_utils_export
