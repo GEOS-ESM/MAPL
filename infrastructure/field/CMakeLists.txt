@@ -22,8 +22,8 @@ set (srcs
     FieldSet.F90
     FieldInfo.F90
     RestartModes.F90
-    Internal.F90
-    Export.F90
+    FieldInternal.F90
+    FieldExport.F90
     # From field_bundle/
     ../field_bundle/API.F90
     ../field_bundle/FieldBundleGet.F90
@@ -36,7 +36,7 @@ set (srcs
     ../field_bundle/FieldBundleDestroy.F90
     ../field_bundle/FieldBundleGetPointer.F90
     ../field_bundle/FieldBundleMatch.F90
-    ../field_bundle/Internal.F90
+    ../field_bundle/FieldBundleInternal.F90
     # From state/
     ../state/API.F90
     ../state/StateGet.F90
@@ -49,7 +49,7 @@ set (srcs
     ../state/StateMasking.F90
     ../state/StateFilter.F90
     ../state/StateDestroy.F90
-    ../state/Internal.F90
+    ../state/StateInternal.F90
 )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
