@@ -49,7 +49,7 @@ module mapl_utils_export
    public :: MAPL_Interp
 
    ! Time utilities
-   public :: PackTime, PackDateTime, UnpackTime, UnpackDateTime
+   public :: PackDate, PackDateTime, UnpackDate, UnpackDateTime
    public :: ISO8601Date, ISO8601Time, ISO8601DateTime, ISO8601Duration, ISO8601Interval
    public :: convert_ISO8601_to_integer_time, convert_ISO8601_to_integer_date
    public :: MAPL_Sleep
