@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Add failure if the optional 4th column in a History collection is not one of the supported operations, rather than just emitting a message
+
 ### Removed
 
 ### Deprecated
