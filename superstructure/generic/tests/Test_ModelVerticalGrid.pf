@@ -214,11 +214,16 @@ contains
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("hPa"))
 
-      vcoord = vgrid%get_coordinate_field( &
-           physical_dimension="pressure", &
-           aspects=aspects, &
-           coupler=coupler, &
-           _RC)
+       select type (vgrid)
+      type is (ModelVerticalGrid)
+         vcoord = vgrid%get_coordinate_field_with_coupler( &
+              physical_dimension="pressure", &
+              aspects=aspects, &
+              coupler=coupler, &
+              _RC)
+      class default
+         @assert_that(.false., is(true()))  ! should not reach here
+      end select
       @assert_that(associated(coupler), is(false()))
       call r%allocate()
 
@@ -258,11 +263,16 @@ contains
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("Pa"))
 
-       vcoord = vgrid%get_coordinate_field( &
-           physical_dimension="pressure", &
-           aspects=aspects, &
-           coupler=coupler, &
-           _RC)
+      select type (vgrid)
+      type is (ModelVerticalGrid)
+         vcoord = vgrid%get_coordinate_field_with_coupler( &
+              physical_dimension="pressure", &
+              aspects=aspects, &
+              coupler=coupler, &
+              _RC)
+      class default
+         @assert_that(.false., is(true()))  ! should not reach here
+      end select
       @assert_that(associated(coupler), is(true()))
       call r%allocate(_RC)
 
