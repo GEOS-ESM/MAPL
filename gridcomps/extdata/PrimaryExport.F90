@@ -153,7 +153,7 @@ module mapl_PrimaryExport_mod
       esmfgeom = geom%get_geom()
 
       variable_name => this%file_vars%of(1)
-      this%vcoord = verticalCoordinate(metadata, variable_name, _RC)
+      this%vcoord = verticalCoordinate(metadata%metadata, variable_name, _RC)
       regridder_param = generate_esmf_regrid_param(regrid_method_string_to_int(this%regridding_method), &
          ESMF_TYPEKIND_R4, _RC)
       regridder_param_info = regridder_param%make_info(_RC)
@@ -202,7 +202,7 @@ module mapl_PrimaryExport_mod
       esmfgeom = geom%get_geom()
 
       variable_name => this%file_vars%of(1)
-      this%vcoord = verticalCoordinate(metadata, variable_name, _RC)
+      this%vcoord = verticalCoordinate(metadata%metadata, variable_name, _RC)
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then

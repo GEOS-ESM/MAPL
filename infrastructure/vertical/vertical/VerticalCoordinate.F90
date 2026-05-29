@@ -4,7 +4,6 @@ module VerticalCoordinateMod
 
    use PFIO
    use mapl_ExceptionHandling_mod
-   use mapl_FileMetadataUtils_mod
    use gFTL2_StringVector
    use udunits2f, UDUNITS_are_convertible => are_convertible, &
       initialize_udunits => initialize, finalize_udunits => finalize
@@ -56,7 +55,7 @@ contains
 
    function new_verticalCoordinate(metadata, var_name, rc) result(vertical_coord)
       type(VerticalCoordinate) :: vertical_coord
-      type(FileMetaDataUtils), intent(in) :: metadata
+      type(FileMetaData), intent(in) :: metadata
       character(len=*), intent(in) :: var_name
       integer, optional, intent(out) :: rc
 
