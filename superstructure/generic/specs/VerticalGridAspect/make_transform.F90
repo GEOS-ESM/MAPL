@@ -108,4 +108,29 @@ contains
       _RETURN(_SUCCESS)
    end function make_transform
 
+   module function find_common_physical_dimension(src, dst, rc) result(physical_dimension)
+      character(:), allocatable :: physical_dimension
+      class(VerticalGridAspect), intent(in) :: src
+      class(VerticalGridAspect), intent(in) :: dst
+      integer, optional, intent(out) :: rc
+
+      type(StringVector) :: vec_in
+      type(StringVector) :: vec_out
+      integer :: i
+      integer :: status
+
+      physical_dimension = 'not found'
+      vec_in = src%vertical_grid%get_supported_physical_dimensions()
+      vec_out = dst%vertical_grid%get_supported_physical_dimensions()
+
+      do i = 1, vec_in%size()
+         if (find(vec_out%begin(), vec_out%end(), vec_in%of(i)) /= vec_out%end()) then
+            physical_dimension = vec_in%of(i)
+            _RETURN(_SUCCESS)
+         end if
+      end do
+
+      _FAIL('No common physical dimension found between source and destination VerticalGridAspect')
+   end function find_common_physical_dimension
+
 end submodule make_transform_smod
