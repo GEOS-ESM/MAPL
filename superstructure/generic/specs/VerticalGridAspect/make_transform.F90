@@ -4,16 +4,6 @@ submodule (mapl_VerticalGridAspect_mod) make_transform_smod
 
    use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
    use mapl_ComponentDriver_mod
-   use mapl_NormalizationAspect_mod
-   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE
-   use mapl_VerticalRegridTransform_mod
-   use mapl_VerticalRegridMethod_mod
-   use mapl_VerticalCoordinateDirection_mod
-   use mapl_UnitsAspect_mod
-   use mapl_ExtendTransform_mod
-   use mapl_NullTransform_mod
-   use mapl_StateItemAspect_mod
-   use esmf, only: ESMF_Field
 
    implicit none(type,external)
 
