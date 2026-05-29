@@ -22,15 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Break `vertical_grid` → `component` circular dependency (#5014).
-  Remove `coupler` (a `ComponentDriver`) from the `I_get_coordinate_field`
-  abstract interface. `BasicVerticalGrid`, `MirrorVerticalGrid`, and
-  `FixedLevelsVerticalGrid` stubs are simplified accordingly.
-  `ModelVerticalGrid` gains a new `get_coordinate_field_with_coupler` procedure
-  for callers that need the coupler. `VerticalGridAspect.make_transform` is
-  extracted into a submodule (mirroring `GeomAspect`) so it can `SELECT TYPE`
-  on `ModelVerticalGrid` without creating a circular `use` dependency.
-  `MAPL.component` is removed from `MAPL.vertical_grid` CMake dependencies.
+- Rename `Export_<subdir>.F90` and `Internal_<subdir>.F90` umbrella files to
+  `Export.F90` and `Internal.F90` in all in-scope subdirectories (#5021).
+  Affected: `enums/`, `infrastructure/field/`, `infrastructure/field_bundle/`,
+  `infrastructure/esmf/`, `infrastructure/geom/`, `infrastructure/regridder_mgr/`,
+  `infrastructure/vertical/vertical_grid/`, `mp_utils/`, `superstructure/generic/`,
+  `superstructure/state/`, `utils/`. Module names are unchanged. Legacy `API.F90`
+  files with active external consumers are preserved; unused ones (`enums/API.F90`,
+  `utils/API.F90`) are deleted. Superseded `MpUtilsExport/Internal.F90` and
+  `UtilsExport/Internal.F90` stubs are also removed.
+
 
 - Move `VerticalStaggerLoc` from `MAPL.vertical_grid` into `MAPL.enums` (#5014).
   `MAPL.enums` is now a dependency of `MAPL.vertical_grid`; backward-compatible

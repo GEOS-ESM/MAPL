@@ -32,8 +32,8 @@ set(srcs
   API.F90
 
   # Umbrella modules
-  Internal_generic.F90
-  Export_generic.F90
+  Internal.F90
+  Export.F90
   )
 
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.

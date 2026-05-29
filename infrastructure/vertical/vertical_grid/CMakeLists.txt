@@ -17,8 +17,8 @@ set(srcs
   VerticalGridFactoryMap.F90
 
   # Umbrella modules
-  Internal_vertical_grid.F90
-  Export_vertical_grid.F90
+  Internal.F90
+  Export.F90
 )
 
 esma_add_library(${this}

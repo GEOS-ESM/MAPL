@@ -29,8 +29,8 @@ set(srcs
   API.F90
 
   # Umbrella modules
-  Internal_regridder_mgr.F90
-  Export_regridder_mgr.F90
+  Internal.F90
+  Export.F90
   )
 
 esma_add_library(${this}

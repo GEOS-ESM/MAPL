@@ -18,8 +18,8 @@ set (srcs
     FieldSet.F90
     FieldInfo.F90
     RestartModes.F90
-    Internal_field.F90
-    Export_field.F90
+    Internal.F90
+    Export.F90
 )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
