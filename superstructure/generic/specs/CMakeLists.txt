@@ -51,3 +51,8 @@ esma_add_fortran_submodules(
   TARGET MAPL.generic
   SUBDIRECTORY GeomAspect
   SOURCES make_transform.F90)
+
+esma_add_fortran_submodules(
+  TARGET MAPL.generic
+  SUBDIRECTORY VerticalGridAspect
+  SOURCES make_transform.F90)

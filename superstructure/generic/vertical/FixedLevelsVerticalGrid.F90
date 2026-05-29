@@ -115,14 +115,13 @@ contains
       num_layers = size(this%spec%levels)
    end function get_num_layers
 
-   function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
+   function get_coordinate_field(this, physical_dimension, aspects, rc) result(field)
       use mapl_StateItemAspect_mod, only: AspectMap
       use mapl_GeomAspect_mod, only: GeomAspect, to_GeomAspect
       type(esmf_Field) :: field
       class(FixedLevelsVerticalGrid), intent(in) :: this
       character(len=*), intent(in) :: physical_dimension
       class(*), intent(in) :: aspects
-      class(ComponentDriver), pointer, intent(out) :: coupler
       integer, intent(out), optional :: rc
       
       integer :: status
@@ -132,8 +131,6 @@ contains
       type(esmf_Geom) :: geom
       type(AspectMap) :: aspects_
 
-      coupler => null()
-      
       ! Convert class(*) to AspectMap
       select type (aspects)
       type is (AspectMap)
