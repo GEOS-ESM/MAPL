@@ -12,7 +12,7 @@ contains
    ! unless otherwise specified.
    module recursive subroutine initialize_geom_b(this, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status

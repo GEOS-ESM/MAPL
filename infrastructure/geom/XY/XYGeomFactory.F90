@@ -11,7 +11,7 @@ module mapl_XYGeomFactory_mod
    use mapl_StringDictionary_mod
    use pfio
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
 
    implicit none
    private
@@ -56,7 +56,7 @@ module mapl_XYGeomFactory_mod
          use esmf, only: ESMF_Grid
          type(ESMF_Grid) :: grid
          type(XYGeomSpec), intent(in) :: spec
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end function create_basic_grid
 
@@ -65,7 +65,7 @@ module mapl_XYGeomFactory_mod
          use esmf, only: ESMF_Grid
          type(XYGeomSpec), intent(in) :: spec
          type(ESMF_Grid),  intent(inout) :: grid
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine fill_coordinates
 
@@ -74,7 +74,7 @@ module mapl_XYGeomFactory_mod
          use esmf, only: ESMF_Grid
          type(XYGeomSpec), intent(in) :: spec
          type(ESMF_Grid),  intent(inout) :: grid
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine fill_coordinates_abi
 
@@ -104,7 +104,7 @@ module mapl_XYGeomFactory_mod
          type(FileMetadata) :: file_metadata
          class(XYGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function make_file_metadata
@@ -113,7 +113,7 @@ module mapl_XYGeomFactory_mod
          use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          type(XYGeomSpec), intent(in) :: spec
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function typesafe_make_file_metadata

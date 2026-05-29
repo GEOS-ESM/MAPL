@@ -17,7 +17,7 @@ contains
       type(ESMF_Clock), intent(inout) :: clock
       ! optional arguments
       character(len=*), optional, intent(in) :: phase_name
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(StringVector), pointer :: run_phases

@@ -21,7 +21,7 @@ contains
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       ! optional arguments
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::FINALIZE_USER'

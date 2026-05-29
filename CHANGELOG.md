@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Remove `KE => KeywordEnforcer` alias workaround throughout `infrastructure/` and
+  `superstructure/`. Use `KeywordEnforcer` directly in all `class(KeywordEnforcer)`
+  dummy argument declarations. The alias was a workaround for an Intel compiler issue
+  with multiple import paths; cleaner module layering makes it unnecessary.
+
 - Rename `Export_<subdir>.F90` and `Internal_<subdir>.F90` umbrella files to
   `Export.F90` and `Internal.F90` in all in-scope subdirectories (#5021).
   Affected: `enums/`, `infrastructure/field/`, `infrastructure/field_bundle/`,

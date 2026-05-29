@@ -13,7 +13,7 @@ submodule (mapl_LatLonGeomFactory_mod) make_gridded_dims_smod
    use pFIO
    use gFTL2_StringVector
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
 
    implicit none (type, external)
 

@@ -12,7 +12,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(ESMF_Grid) :: grid
       type(XYGeomSpec), intent(in) :: spec
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status

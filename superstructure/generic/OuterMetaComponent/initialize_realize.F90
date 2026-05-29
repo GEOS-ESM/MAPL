@@ -14,7 +14,7 @@ contains
       type(esmf_State) :: exportState
       type(esmf_Clock) :: clock
       ! optional arguments
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       
       integer, optional, intent(out) :: rc
 

@@ -14,7 +14,7 @@ submodule (mapl_MeshGeomFactory_mod) MeshGeomFactory_smod
    use gftl2_StringVector
    use mapl_StringDictionary_mod
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
 
    implicit none
 
@@ -300,7 +300,7 @@ contains
       type(FileMetadata) :: file_metadata
       class(MeshGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 

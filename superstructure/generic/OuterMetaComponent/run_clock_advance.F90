@@ -12,7 +12,7 @@ contains
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       ! optional arguments
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status

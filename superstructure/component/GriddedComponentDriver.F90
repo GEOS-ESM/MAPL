@@ -5,7 +5,7 @@ module mapl_GriddedComponentDriver_mod
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverVector_mod
    use mapl_ErrorHandling_mod
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use :: esmf
    implicit none
    private
@@ -49,7 +49,7 @@ module mapl_GriddedComponentDriver_mod
 
       module recursive subroutine initialize(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), target, intent(inout) :: this
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine initialize
@@ -58,28 +58,28 @@ module mapl_GriddedComponentDriver_mod
       ! on OuterMetaComponent.
       module recursive subroutine run(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), target, intent(inout) :: this
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine
 
       module recursive subroutine finalize(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), target, intent(inout) :: this
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine finalize
 
       module recursive subroutine write_restart(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), target, intent(inout) :: this
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine write_restart
 
       module recursive subroutine read_restart(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), target, intent(inout) :: this
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine read_restart
@@ -103,7 +103,7 @@ module mapl_GriddedComponentDriver_mod
 
       recursive module subroutine run_export_couplers(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), intent(inout) :: this
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine run_export_couplers

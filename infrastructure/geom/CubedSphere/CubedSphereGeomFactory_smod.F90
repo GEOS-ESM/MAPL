@@ -14,7 +14,7 @@ submodule (mapl_CubedSphereGeomFactory_mod) CubedSphereGeomFactory_smod
    use gFTL2_StringVector
    use mapl_StringDictionary_mod
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
 
    implicit none(type,external)
 
@@ -128,7 +128,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(ESMF_Grid) :: grid
       type(CubedSphereGeomSpec), intent(in) :: spec
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
@@ -213,7 +213,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       class(CubedSphereGeomFactory), intent(in) :: this
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc
@@ -237,7 +237,7 @@ contains
    function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
       type(FileMetadata) :: file_metadata
       type(CubedSphereGeomSpec), intent(in) :: geom_spec
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 

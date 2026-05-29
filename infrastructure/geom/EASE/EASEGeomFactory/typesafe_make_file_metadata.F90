@@ -6,7 +6,7 @@ submodule (mapl_EASEGeomFactory_mod) typesafe_make_file_metadata_smod
    use mapl_EASECoords_mod
    use mapl_ErrorHandling_mod
    use pfio
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none (type, external)
 
@@ -16,7 +16,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       type(EASEGeomSpec), intent(in) :: geom_spec
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 

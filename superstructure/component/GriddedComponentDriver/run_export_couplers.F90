@@ -10,7 +10,7 @@ contains
 
    recursive module subroutine run_export_couplers(this, unusable, phase_idx, rc)
       class(GriddedComponentDriver), intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 

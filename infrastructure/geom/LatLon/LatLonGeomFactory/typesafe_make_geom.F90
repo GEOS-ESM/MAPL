@@ -11,7 +11,7 @@ submodule (mapl_LatLonGeomFactory_mod) typesafe_make_geom_smod
    use pFIO
    use gFTL2_StringVector
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    implicit none (type, external)
 
 

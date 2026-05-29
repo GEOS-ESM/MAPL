@@ -5,7 +5,7 @@ submodule (mapl_EASEGeomFactory_mod) make_file_metadata_smod
    use mapl_EASEGeomSpec_mod
    use mapl_ErrorHandling_mod
    use pfio
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    implicit none (type, external)
 
 contains
@@ -15,7 +15,7 @@ contains
       type(FileMetadata) :: file_metadata
       class(EASEGeomFactory), intent(in) :: this
       class(GeomSpec), intent(in) :: geom_spec
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 

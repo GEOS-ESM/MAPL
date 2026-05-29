@@ -13,7 +13,7 @@ submodule (mapl_LatLonGeomFactory_mod) make_file_metadata_smod
    use pFIO
    use gFTL2_StringVector
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
 
    implicit none (type, external)
 
@@ -23,7 +23,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       class(LatLonGeomFactory), intent(in) :: this
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       class(GeomSpec), intent(in) :: geom_spec
       integer, optional, intent(out) :: rc

@@ -11,7 +11,7 @@ module mapl_EASEGeomFactory_mod
    use mapl_StringDictionary_mod
    use pfio
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
 
    implicit none
    private
@@ -80,7 +80,7 @@ module mapl_EASEGeomFactory_mod
          type(FileMetadata) :: file_metadata
          class(EASEGeomFactory), intent(in) :: this
          class(GeomSpec), intent(in) :: geom_spec
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function make_file_metadata
@@ -89,7 +89,7 @@ module mapl_EASEGeomFactory_mod
          use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          type(EASEGeomSpec), intent(in) :: geom_spec
-         class(KE), optional, intent(in) :: unusable
+         class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function typesafe_make_file_metadata

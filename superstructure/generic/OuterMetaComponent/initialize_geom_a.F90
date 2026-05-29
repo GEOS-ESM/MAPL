@@ -17,7 +17,7 @@ contains
    ! the geometry of a designated child.
    module recursive subroutine initialize_geom_a(this, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM_A'

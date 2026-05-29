@@ -9,7 +9,7 @@ contains
 
    module recursive subroutine run_children_(this, unusable, phase_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
