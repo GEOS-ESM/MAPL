@@ -3,7 +3,6 @@
 module mapl_vertical_grid_internal
 
    use mapl_IntegerPair_mod
-   use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalCoordinateDirection_mod
    use mapl_VerticalAlignment_mod
    use mapl_VerticalGridSpec_mod

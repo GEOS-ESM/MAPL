@@ -3,7 +3,6 @@ esma_set_this (OVERRIDE MAPL.vertical_grid)
 set(srcs
   API.F90
   IntegerPair.F90
-  VerticalStaggerLoc.F90
   VerticalCoordinateDirection.F90
   VerticalAlignment.F90
   VerticalGridSpec.F90
@@ -24,7 +23,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.component MAPL.pfio MAPL.shared GFTL::gftl-v2
+  DEPENDENCIES MAPL.enums MAPL.component MAPL.pfio MAPL.shared GFTL::gftl-v2
   TYPE SHARED
 )
 
