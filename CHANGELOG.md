@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `MAPL.enums` is now a dependency of `MAPL.vertical_grid`; backward-compatible
   re-exports of the unqualified names are preserved in `Export_vertical_grid.F90`.
 
+- Restore `MAPL.field_bundle` and `MAPL.state` as proper separate CMake libraries
+  (#5014). A previous agent had consolidated `field/`, `field_bundle/`, and `state/`
+  sources into a single `MAPL.field` target using relative `../` paths and interface
+  shims. Each subdirectory now has its own `CMakeLists.txt`, its own
+  `Export_*.F90` umbrella module, and is built as an independent shared library.
+
 - Standardize umbrella module filenames to `Internal_<subdir>.F90` / `Export_<subdir>.F90`
   convention (#5010). Eliminates filename collisions when multiple subdirectories contribute
   sources to a single CMake library target (fixes Intel CI failure). Affects all subdirectories

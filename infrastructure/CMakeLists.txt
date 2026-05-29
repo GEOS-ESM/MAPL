@@ -24,5 +24,5 @@ esma_add_library (${this}
     TYPE SHARED
 )
 
-# Backward-compatibility alias
+# Backward-compatibility aliases
 add_library (MAPL.field_dictionary ALIAS MAPL.infrastructure)
