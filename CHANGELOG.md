@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Remove `FileMetadataUtils` dependency from `MAPL.vertical` (#5017). `VerticalCoordinate`
+  now takes `FileMetadata` (pfio) directly instead of the `FileMetadataUtils` wrapper.
+  `udunits2f` is now an explicit dependency of `MAPL.vertical`. Prerequisite for #5014.
+
 - Wrap `ieee_is_nan` calls in `Test_FieldFill.pf` with `ieee_set_halting_mode`/`ieee_set_flag`
   to suppress and clear the IEEE invalid-operation trap around sNaN queries. Without this,
   `-Ktrap=fp` (nvfortran) causes SIGFPE when a signaling NaN is loaded for inspection.
@@ -45,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   duplicate `UnpackDateTime` from `Regrid_Util.F90`, and resolved `KEY_UNITS`/`KEY_TYPEKIND` 
   naming conflicts between esmf and history layers using selective `only:` imports. Created 
   GitHub issue #5005 for deferred `utils/` sibling migration. Zero-diff for all passing tests.
+- Added support for MAPL_STATEITEM_VECTOR ITEMTYPE in ACG
 
 ### Changed
 
@@ -149,7 +154,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `mapl3g_TimeVariance`, `mapl3g_AbstractCovarianceKernel`,
   `mapl3g_ShiftedCovarianceKernel`, and `mapl3g_WelfordCovarianceKernel`
   to `mapl_` prefix (modules added after Phase-9 branched from develop).
-- *Fix lookup mappings in ACG to be bidirectional so users can use aliases or
+- Fix lookup mappings in ACG to be bidirectional so users can use aliases or
   actual values in columns in ACG spec files.
 ### Added
 - Extended StatisticsGridComp to support variance of a single field.
