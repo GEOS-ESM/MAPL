@@ -5,7 +5,7 @@ module mapl_BasicVerticalGrid_mod
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
    use mapl_VerticalGridFactory_mod, only: VerticalGridFactory
-   use mapl_ComponentDriver_mod, only: ComponentDriver
+
    !use pfio, only: FileMetadata
    use pfio
    use esmf
@@ -67,17 +67,15 @@ contains
       num_layers = this%spec%num_levels
    end function get_num_layers
 
-   function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
+   function get_coordinate_field(this, physical_dimension, aspects, rc) result(field)
       type(esmf_Field) :: field
       class(BasicVerticalGrid), intent(in) :: this
       character(len=*), intent(in) :: physical_dimension
       class(*), intent(in) :: aspects
-      class(ComponentDriver), pointer, intent(out) :: coupler
       integer, intent(out), optional :: rc
 
       integer :: status
 
-      coupler => null()
       field = ESMF_FieldEmptyCreate(_RC)
 
       _FAIL('BasicVerticalGrid should have been connected to a different subclass before this is called.')

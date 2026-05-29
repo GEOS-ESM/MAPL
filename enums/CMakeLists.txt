@@ -17,6 +17,7 @@ set (srcs
   CouplerPhases.F90
   StateItemAllocation.F90
   FieldBundleType_Flag.F90
+  VerticalStaggerLoc.F90
   API.F90
   )
 

@@ -92,6 +92,14 @@ module mapl_Enums_internal
    use mapl_FieldBundleType_Flag_mod, only: MAPL_FIELDBUNDLETYPE_INVALID            => FIELDBUNDLETYPE_INVALID
    use mapl_FieldBundleType_Flag_mod, only: operator(==), operator(/=)
 
+   ! VerticalStaggerLoc
+   use mapl_VerticalStaggerLoc_mod, only: MAPL_VerticalStaggerLoc       => VerticalStaggerLoc
+   use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_NONE    => VERTICAL_STAGGER_NONE
+   use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_EDGE    => VERTICAL_STAGGER_EDGE
+   use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_CENTER  => VERTICAL_STAGGER_CENTER
+   use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_MIRROR  => VERTICAL_STAGGER_MIRROR
+   use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_INVALID => VERTICAL_STAGGER_INVALID
+
    implicit none(type, external)
    private
 
@@ -149,6 +157,12 @@ module mapl_Enums_internal
    public :: MAPL_FIELDBUNDLETYPE_BRACKET, MAPL_FIELDBUNDLETYPE_VECTORBRACKET
    public :: MAPL_FIELDBUNDLETYPE_SERVICE, MAPL_FIELDBUNDLETYPE_SERVICE_AGGREGATE
    public :: MAPL_FIELDBUNDLETYPE_SERVICE_SEPARATE, MAPL_FIELDBUNDLETYPE_INVALID
+
+   ! VerticalStaggerLoc
+   public :: MAPL_VerticalStaggerLoc
+   public :: MAPL_VERTICAL_STAGGER_NONE, MAPL_VERTICAL_STAGGER_EDGE
+   public :: MAPL_VERTICAL_STAGGER_CENTER, MAPL_VERTICAL_STAGGER_MIRROR
+   public :: MAPL_VERTICAL_STAGGER_INVALID
 
    ! Operators (from all enum types)
    public :: operator(==), operator(/=), operator(<), operator(>=)

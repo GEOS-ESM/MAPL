@@ -9,7 +9,6 @@ module mapl_MirrorVerticalGrid_mod
 
    use mapl_ErrorHandling_mod
    use mapl_VerticalGrid_mod
-   use mapl_ComponentDriver_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_ErrorHandling_mod
    use gftl2_StringVector, only: StringVector
@@ -50,12 +49,11 @@ contains
       _UNUSED_DUMMY(this)
    end function get_num_layers
       
-   function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
+   function get_coordinate_field(this, physical_dimension, aspects, rc) result(field)
       type(ESMF_Field) :: field
       class(MirrorVerticalGrid), intent(in) :: this
       character(*), intent(in) :: physical_dimension
       class(*), intent(in) :: aspects
-      class(ComponentDriver), pointer, intent(out) :: coupler
       integer, optional, intent(out) :: rc
 
       _FAIL('MirrorVerticalGrid should have been replaced before this procedure was called.')
@@ -64,7 +62,6 @@ contains
       _UNUSED_DUMMY(field)
       _UNUSED_DUMMY(physical_dimension)
       _UNUSED_DUMMY(aspects)
-      _UNUSED_DUMMY(coupler)
    end function get_coordinate_field
 
    function get_supported_physical_dimensions(this) result(dimensions)

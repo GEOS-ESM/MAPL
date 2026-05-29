@@ -5,6 +5,7 @@ submodule (mapl_GeomAspect_mod) make_transform_smod
    use mapl_VerticalGridAspect_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_Enums_internal, only: MAPL_NORMALIZE_NONE, operator(==)
+   use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
 
    implicit none(type,external)
 contains
@@ -134,10 +135,17 @@ contains
       norm_type = norm_metadata%get_normalization_type()
       physical_dimension = norm_type%get_physical_dimension()
 
-      ! Get coordinate field with coupler
+      ! Get coordinate field, with coupler for ModelVerticalGrid case
       coord_aspects = other_aspects
-      vcoord_field = vert_grid%get_coordinate_field(physical_dimension, coord_aspects, &
-                                                     coupler=vcoord_coupler, _RC)
+      vcoord_field = vert_grid%get_coordinate_field(physical_dimension, coord_aspects, _RC)
+      select type (vert_grid)
+      type is (ModelVerticalGrid)
+         vcoord_field = vert_grid%get_coordinate_field_with_coupler(physical_dimension, &
+                                                                    coord_aspects, &
+                                                                    coupler=vcoord_coupler, _RC)
+      class default
+         vcoord_coupler => null()
+      end select
 
       ! Create transform with integrated normalization support
       allocate(transform, source=RegridTransform(src_geom, dst_geom, regridder_param, &

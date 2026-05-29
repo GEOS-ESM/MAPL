@@ -22,6 +22,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Break `vertical_grid` → `component` circular dependency (#5014).
+  Remove `coupler` (a `ComponentDriver`) from the `I_get_coordinate_field`
+  abstract interface. `BasicVerticalGrid`, `MirrorVerticalGrid`, and
+  `FixedLevelsVerticalGrid` stubs are simplified accordingly.
+  `ModelVerticalGrid` gains a new `get_coordinate_field_with_coupler` procedure
+  for callers that need the coupler. `VerticalGridAspect.make_transform` is
+  extracted into a submodule (mirroring `GeomAspect`) so it can `SELECT TYPE`
+  on `ModelVerticalGrid` without creating a circular `use` dependency.
+  `MAPL.component` is removed from `MAPL.vertical_grid` CMake dependencies.
+
+- Move `VerticalStaggerLoc` from `MAPL.vertical_grid` into `MAPL.enums` (#5014).
+  `MAPL.enums` is now a dependency of `MAPL.vertical_grid`; backward-compatible
+  re-exports of the unqualified names are preserved in `Export_vertical_grid.F90`.
+
+- Restore `MAPL.field_bundle` and `MAPL.state` as proper separate CMake libraries
+  (#5014). A previous agent had consolidated `field/`, `field_bundle/`, and `state/`
+  sources into a single `MAPL.field` target using relative `../` paths and interface
+  shims. Each subdirectory now has its own `CMakeLists.txt`, its own
+  `Export_*.F90` umbrella module, and is built as an independent shared library.
+
 - Standardize umbrella module filenames to `Internal_<subdir>.F90` / `Export_<subdir>.F90`
   convention (#5010). Eliminates filename collisions when multiple subdirectories contribute
   sources to a single CMake library target (fixes Intel CI failure). Affects all subdirectories
