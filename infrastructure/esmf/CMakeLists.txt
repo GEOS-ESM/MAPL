@@ -45,8 +45,8 @@ set (srcs
     comms/Comms_API.F90
     comms/ShmemComms.F90
     # Umbrella modules
-    Internal_esmf.F90
-    Export_esmf.F90
+    Internal.F90
+    Export.F90
 )
 
 esma_add_library (${this}

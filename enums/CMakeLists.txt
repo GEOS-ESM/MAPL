@@ -2,8 +2,8 @@ esma_set_this (OVERRIDE MAPL.enums)
 
 set (srcs
   # Layer umbrellas (Internal must precede Export)
-  Internal_enums.F90
-  Export_enums.F90
+  Internal.F90
+  Export.F90
   ConservationType.F90
   NormalizationType.F90
   QuantityType.F90
@@ -18,7 +18,6 @@ set (srcs
   StateItemAllocation.F90
   FieldBundleType_Flag.F90
   VerticalStaggerLoc.F90
-  API.F90
   )
 
 esma_add_library (${this}

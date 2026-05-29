@@ -12,8 +12,8 @@ set (srcs
     FieldBundleDestroy.F90
     FieldBundleGetPointer.F90
     FieldBundleMatch.F90
-    Internal_field_bundle.F90
-    Export_field_bundle.F90
+    Internal.F90
+    Export.F90
 )
 
 esma_add_library (${this}
