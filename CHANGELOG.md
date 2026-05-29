@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Remove `FileMetadataUtils` dependency from `MAPL.vertical` (#5017). `VerticalCoordinate`
+  now takes `FileMetadata` (pfio) directly instead of the `FileMetadataUtils` wrapper.
+  `udunits2f` is now an explicit dependency of `MAPL.vertical`. Prerequisite for #5014.
+
 - Wrap `ieee_is_nan` calls in `Test_FieldFill.pf` with `ieee_set_halting_mode`/`ieee_set_flag`
   to suppress and clear the IEEE invalid-operation trap around sNaN queries. Without this,
   `-Ktrap=fp` (nvfortran) causes SIGFPE when a signaling NaN is loaded for inspection.
