@@ -16,11 +16,11 @@ module mapl_ComponentDriver_mod
    type, abstract :: ComponentDriver
       private
    contains
-      procedure(I_driver_run), deferred :: run
-      procedure(I_driver_run), deferred :: initialize
-      procedure(I_driver_run), deferred :: finalize
-      procedure(I_driver_run), deferred :: write_restart
-      procedure(I_driver_run), deferred :: read_restart
+      procedure(I_run), deferred :: run
+      procedure(I_run), deferred :: initialize
+      procedure(I_run), deferred :: finalize
+      procedure(I_run), deferred :: write_restart
+      procedure(I_run), deferred :: read_restart
 
       procedure(I_get_states), deferred :: get_states
    end type ComponentDriver
@@ -31,14 +31,14 @@ module mapl_ComponentDriver_mod
 
    abstract interface
 
-      recursive subroutine I_driver_run(this, unusable, phase_idx, rc)
+      recursive subroutine I_run(this, unusable, phase_idx, rc)
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
          import ComponentDriver
          class(ComponentDriver), target, intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
-      end subroutine I_driver_run
+      end subroutine I_run
 
       function I_get_states(this) result(states)
          import ComponentDriver
