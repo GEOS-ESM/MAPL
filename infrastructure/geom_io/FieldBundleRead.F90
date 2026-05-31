@@ -3,6 +3,7 @@
 module mapl_FieldBundleRead_mod
 
    use ESMF
+   use mapl_Enums_export
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
    use mapl_GeomCatagorizer_mod
@@ -334,7 +335,7 @@ contains
          ! in the file field matches (horizontal regrid only; no vertical interp).
          call MAPL_FieldBundleGet(bundle, fieldList=bundle_fields, _RC)
          file_bundle = ESMF_FieldBundleCreate(_RC)
-         call MAPL_FieldBundleSet(file_bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+         call MAPL_FieldBundleSet(file_bundle, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
          do i = 1, size(bundle_fields)
             block
                character(len=ESMF_MAXSTR)  :: fname_
