@@ -18,6 +18,10 @@ module mapl_Enums_export
 
    ! VerificationStatus
 
+   ! CouplerPhases
+   public :: MAPL_GENERIC_COUPLER_INITIALIZE, MAPL_GENERIC_COUPLER_UPDATE
+   public :: MAPL_GENERIC_COUPLER_INVALIDATE, MAPL_GENERIC_COUPLER_CLOCK_ADVANCE
+
    ! GenericPhases
 
    ! CouplerPhases
