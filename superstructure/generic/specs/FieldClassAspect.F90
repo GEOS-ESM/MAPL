@@ -3,6 +3,7 @@
 module mapl_FieldClassAspect_mod
 
    use mapl_ActualConnectionPt_mod
+   use mapl_Enums_export
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
    use mapl_ClassAspect_mod
@@ -152,7 +153,7 @@ contains
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
 
-      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call mapl_FieldSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
@@ -166,7 +167,7 @@ contains
       type(ESMF_Info) :: info
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+      call FieldInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
@@ -245,7 +246,7 @@ contains
       call mirror(this%fill_value, export_%fill_value)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CONNECTED, _RC)
+      call FieldInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_CONNECTED, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
