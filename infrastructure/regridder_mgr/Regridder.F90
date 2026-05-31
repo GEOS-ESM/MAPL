@@ -4,7 +4,7 @@ module mapl_Regridder_mod
    use esmf
    use mapl_FieldUtils
    use mapl_field_bundle_export
-   use mapl_Enums_export, only: MAPL_VectorBasisKind
+   use mapl_Enums_export
    use mapl_ErrorHandling_mod
    use mapl_Geom_API_mod
    use mapl_RegridderSpec_mod
