@@ -13,7 +13,7 @@ module mapl_FieldBundleDelta_mod
    use mapl_FieldDelta_mod
    use mapl_InfoUtilities_mod
    use mapl_VerticalStaggerLoc_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export
    use mapl_field_export
    use mapl_FieldInfo_mod
    use mapl_FieldUtilities_mod

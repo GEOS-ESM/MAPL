@@ -7,7 +7,7 @@ module mapl_FieldInfo_mod
    use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE
    use mapl_esmf_info_keys_mod, only: INFO_PRIVATE_NAMESPACE
    use mapl_InfoUtilities_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod

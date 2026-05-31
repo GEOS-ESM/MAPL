@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_FieldBundleGetImpl_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export
    use mapl_VerticalAlignment_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod

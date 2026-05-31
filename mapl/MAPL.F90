@@ -24,7 +24,7 @@ module MAPL
    use pfio
    use mapl_Geom_API_mod
    use mapl_HConfig_API
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export
    use mapl_EsmfUtils_API_mod
    use mapl_field_export
    use mapl_field_bundle_export

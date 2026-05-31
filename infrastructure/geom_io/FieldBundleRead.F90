@@ -11,7 +11,7 @@ module mapl_FieldBundleRead_mod
    use mapl_field_export, only: MAPL_FieldCreate, MAPL_FieldGet, MAPL_FieldBundleAdd
    use mapl_field_bundle_export
    use mapl_VerticalStaggerLoc_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export
    use mapl_RegridderManager_mod, only: get_regridder_manager, RegridderManager
    use mapl_RegridderSpec_mod
    use mapl_RegridderMethods_mod

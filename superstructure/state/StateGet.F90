@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_StateGetImpl_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export
    use mapl_Enums_export
    use mapl_field_export
    use mapl_UngriddedDims_mod

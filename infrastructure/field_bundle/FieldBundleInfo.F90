@@ -16,7 +16,7 @@ module mapl_FieldBundleInfo_mod
         MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
         MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_VerticalAlignment_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use esmf
