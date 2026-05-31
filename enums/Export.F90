@@ -23,6 +23,11 @@ module mapl_Enums_export
    ! CouplerPhases
 
    ! StateItemAllocation
+   public :: MAPL_StateItemAllocation
+   public :: MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED
+   public :: MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE
+   public :: MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
+   public :: operator(==), operator(/=), operator(<), operator(>=)
 
    ! FieldBundleType_Flag
 

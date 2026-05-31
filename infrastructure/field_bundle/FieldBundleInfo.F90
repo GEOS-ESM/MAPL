@@ -10,7 +10,11 @@ module mapl_FieldBundleInfo_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
-   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
+   use mapl_Enums_export, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, &
+        MAPL_StateItemAllocation, &
+        MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED, &
+        MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
+        MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_VerticalAlignment_mod
    use mapl_VerticalGrid_API_mod
    use mapl_KeywordEnforcer_mod
@@ -72,7 +76,7 @@ contains
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
-      type(StateItemAllocation), optional, intent(out) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_geom
       logical, optional, intent(out) :: has_deferred_aspects
@@ -104,7 +108,7 @@ contains
 
       if (present(allocation_status)) then
          call MAPL_InfoGet(info, key=namespace_//KEY_ALLOCATION_STATUS, value=allocation_status_str, _RC)
-         allocation_status = StateItemAllocation(allocation_status_str)
+         allocation_status = MAPL_StateItemAllocation(allocation_status_str)
       end if
 
       if (present(bracket_updated)) then
@@ -204,7 +208,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      type(StateItemAllocation), optional, intent(in) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(in) :: vgrid_id
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_geom
