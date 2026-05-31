@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_ExtensionTransformUtils_mod
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_export
    use mapl_ErrorHandling_mod
    use esmf, only: ESMF_FieldBundle
    implicit none(type,external)

@@ -3,7 +3,7 @@
 module mapl_VectorClassAspect_mod
 
    use mapl_field_export
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_export
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod

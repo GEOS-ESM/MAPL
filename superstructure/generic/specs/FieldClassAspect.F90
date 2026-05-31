@@ -24,7 +24,7 @@ module mapl_FieldClassAspect_mod
    use mapl_ESMF_Utilities_mod, only: get_substate
 
    use mapl_field_export
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_export
    use mapl_FieldInfo_mod, only: FieldInfoSetInternal
    use mapl_RestartModes_mod, only: RestartMode
 

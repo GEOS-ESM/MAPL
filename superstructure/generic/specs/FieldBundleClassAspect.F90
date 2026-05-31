@@ -12,8 +12,8 @@ module mapl_FieldBundleClassAspect_mod
    use mapl_MultiState_mod
    use mapl_ESMF_Utilities_mod, only: get_substate
    use mapl_field_export
-   use mapl_FieldBundle_API_mod, only: MAPL_FieldBundleCreate, MAPL_FieldBundleInfoSetInternal
-   use mapl_FieldBundle_API_mod, only: MAPL_FieldBundlesAreAliased
+   use mapl_field_bundle_export, only: MAPL_FieldBundleCreate, MAPL_FieldBundleInfoSetInternal
+   use mapl_field_bundle_export, only: MAPL_FieldBundlesAreAliased
    use mapl_FieldBundleInfo_mod, only: FieldBundleInfoSetInternal
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod

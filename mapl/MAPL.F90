@@ -27,7 +27,7 @@ module MAPL
    use mapl_VerticalGrid_API_mod
    use mapl_EsmfUtils_API_mod
    use mapl_field_export
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_export
    use mapl_RegridderMgr_API_mod
    use mapl_Generic_API_mod
    use mapl_PythonBridge_mod

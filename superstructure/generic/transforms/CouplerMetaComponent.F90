@@ -14,7 +14,7 @@ module mapl_CouplerMetaComponent_mod
    use mapl_ErrorHandling_mod
    use mapl_ESMF_Interfaces_mod
    use mapl_field_export
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_export
    use esmf
 
    implicit none(type,external)

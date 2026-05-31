@@ -11,7 +11,7 @@ module mapl_ConservationAspect_mod
    use mapl_ConservationMetadata_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_field_export
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_export
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use esmf
