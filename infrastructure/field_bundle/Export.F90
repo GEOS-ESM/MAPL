@@ -16,16 +16,5 @@ module mapl_field_bundle_export
    implicit none
    private
 
-   public :: MAPL_FieldBundleCopy
-   public :: MAPL_FieldBundleCreate
-   public :: MAPL_FieldBundleDestroy
-   public :: MAPL_FieldBundleGet
-   public :: MAPL_FieldBundleGetByIndex
-   public :: MAPL_FieldBundleGetPointer
-   public :: MAPL_FieldBundleInfoGetInternal
-   public :: MAPL_FieldBundleInfoSetInternal
-   public :: MAPL_FieldBundleSameData
-   public :: MAPL_FieldBundlesAreAliased
-   public :: MAPL_FieldBundleSet
 
 end module mapl_field_bundle_export

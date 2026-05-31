@@ -28,28 +28,5 @@ module mapl_regridder_mgr_export
    implicit none
    private
 
-   public :: Regridder
-   public :: RegridderManager
-   public :: regridder_manager
-   public :: get_regridder_manager
-   public :: RegridderSpec
-   public :: REGRID_HINT_LOCAL
-   public :: REGRID_HINT_FILE_WEIGHTS
-   public :: REGRID_HINT_COMPUTE_TRANSPOSE
-   public :: REGRID_METHOD_BILINEAR
-   public :: REGRID_METHOD_BILINEAR_MONOTONIC
-   public :: REGRID_METHOD_BILINEAR_ROTATE
-   public :: REGRID_METHOD_CONSERVE
-   public :: REGRID_METHOD_CONSERVE_MONOTONIC
-   public :: REGRID_METHOD_VOTE
-   public :: REGRID_METHOD_FRACTION
-   public :: REGRID_METHOD_CONSERVE_2ND
-   public :: REGRID_METHOD_PATCH
-   public :: REGRID_METHOD_NEAREST_STOD
-   public :: REGRID_METHOD_CONSERVE_HFLUX
-   public :: UNSPECIFIED_REGRID_METHOD
-   public :: regrid_method_string_to_int
-   public :: regrid_method_int_to_string
-   public :: generate_esmf_regrid_param
 
 end module mapl_regridder_mgr_export

@@ -7,8 +7,5 @@ module mapl_generic_export
    implicit none
    private
 
-   public :: user_setservices
-   public :: AbstractUserSetServices
-   public :: DSOSetServices
 
 end module mapl_generic_export

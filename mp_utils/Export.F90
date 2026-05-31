@@ -8,20 +8,10 @@ module mapl_mp_utils_export
    
    private
 
-   public :: MAPL_MaxMin, MAPL_AreaMean
-   public :: MAPL_MemInfoWrite
-   public :: MAPL_PackTime, MAPL_UnpackTime
-   public :: MAPL_GetCheckpointSubdir
    
    ! PackedTime functions with MAPL_ prefix
-   public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, MAPL_PackedDateTimeCreate
-   public :: MAPL_ESMFTimeFromPacked
-   public :: MAPL_UnpackDate, MAPL_UnpackDateTime
 
    ! Backward compatibility: Unprefixed names (TODO: remove after client repos migrated)
    ! See issue #5011 - these should be removed once GEOSgcm and other clients updated
-   public :: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
-   public :: ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
-   public :: StrTemplate
 
 end module mapl_mp_utils_export

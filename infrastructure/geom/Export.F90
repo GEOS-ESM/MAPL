@@ -28,35 +28,7 @@ module mapl_geom_export
    private
 
    ! Available to users
-   public :: mapl_GeomGet
-   public :: mapl_GridGet
-   public :: mapl_GridGetCoordinates
-   public :: mapl_GridGetHorzIJIndex
-   public :: mapl_GeomGetHorzIJIndex
-   public :: mapl_GridGetGlobalCellCountPerDim
-   public :: MAPL_CollectiveGather3D
-   public :: MAPL_CollectiveScatter3D
-   public :: mapl_GridHasDE
 
    ! Used internally by MAPL
-   public :: MaplGeom
-   public :: mapl_SameGeom
-   public :: mapl_GeomGetId
-   public :: GeomManager
-   public :: geom_manager
-   public :: get_geom_manager
-   public :: get_mapl_geom
-   public :: GeomSpec
-   public :: mapl_Interval
-   public :: mapl_make_subgrids
-   public :: XYGeomSpec
-   public :: make_XYGeomSpec
-   public :: XY_COORD_STANDARD
-   public :: XY_COORD_ABI
-   public :: XYGeomFactory
-   public :: CubedSphereGeomSpec
-   public :: make_CubedSphereGeomSpec
-   public :: CubedSphereDecomposition
-   public :: make_CubedSphereDecomposition
 
 end module mapl_geom_export

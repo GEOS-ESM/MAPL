@@ -11,11 +11,5 @@ module mapl_state_export
    implicit none
    private
 
-   public :: MAPL_ParserVariablesInExpression
-   public :: mapl_StateAddMethod
-   public :: MAPL_StateDestroy
-   public :: MAPL_StateGet
-   public :: MAPL_StateGetGeom
-   public :: MAPL_StateGetPointer
 
 end module mapl_state_export

@@ -15,16 +15,5 @@ module mapl_field_export
    implicit none
    private
 
-   public :: MAPL_FieldBundleAdd
-   public :: MAPL_FieldClone
-   public :: MAPL_FieldCreate
-   public :: MAPL_FieldEmptyComplete
-   public :: MAPL_FieldsAreAliased
-   public :: MAPL_FieldGet
-   public :: MAPL_FieldSet
-   public :: MAPL_FieldFill
-   public :: MAPL_AssignFptr
-   public :: MAPL_RESTART_REQUIRED
-   public :: MAPL_RESTART_SKIP
 
 end module mapl_field_export
