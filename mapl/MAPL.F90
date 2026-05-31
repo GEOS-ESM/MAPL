@@ -26,7 +26,7 @@ module MAPL
    use mapl_HConfig_API
    use mapl_VerticalGrid_API_mod
    use mapl_EsmfUtils_API_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_FieldBundle_API_mod
    use mapl_RegridderMgr_API_mod
    use mapl_Generic_API_mod

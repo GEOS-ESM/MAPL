@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_VectorBracketClassAspect_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_FieldBundle_API_mod
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod

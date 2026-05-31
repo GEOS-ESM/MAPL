@@ -4,7 +4,7 @@ module mapl_SharedIO_mod
 
    use mapl_ErrorHandling_mod
    use mapl_FieldBundle_API_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_VerticalStaggerLoc_mod
    use pfio, only: FileMetaData, Variable, UnlimitedEntity
    use pfio, only: PFIO_UNLIMITED, PFIO_REAL32, PFIO_REAL64, PFIO_INT32, PFIO_INT64

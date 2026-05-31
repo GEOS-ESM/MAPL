@@ -1,7 +1,6 @@
 esma_set_this (OVERRIDE MAPL.field)
 
 set (srcs
-    API.F90
     FieldUtils.F90
     FieldBLAS.F90
     FieldUtilities.F90

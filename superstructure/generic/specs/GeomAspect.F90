@@ -12,7 +12,7 @@ module mapl_GeomAspect_mod
    use mapl_ExtendTransform_mod
    use mapl_RegridTransform_mod
    use mapl_NullTransform_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_FieldBundle_API_mod
    use mapl_EsmfRegridder_mod
    use mapl_NormalizationAspect_mod, only: NormalizationAspect, to_NormalizationAspect

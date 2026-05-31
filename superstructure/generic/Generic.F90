@@ -1,7 +1,7 @@
 module mapl_Generic
    use mapl_ESMF_Subset_mod
    use mapl_Generic_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_VariableSpec_mod
    use mapl_Enums_internal
    use mapl_OuterMetaComponent_mod

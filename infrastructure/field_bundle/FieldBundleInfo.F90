@@ -4,7 +4,7 @@ module mapl_FieldBundleInfo_mod
    use mapl_esmf_info_keys_mod
    use mapl_InfoUtilities_mod
    use mapl_esmf_info_keys_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_FieldInfo_mod
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod

@@ -2,7 +2,7 @@
 
 module mapl_FieldBundleSetImpl_mod
    use mapl_VerticalGrid_API_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod

@@ -13,7 +13,7 @@ module mapl_QuantityTypeAspect_mod
         MAPL_NORMALIZE_DELP, MAPL_NORMALIZE_DZ
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_FieldBundle_API_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod

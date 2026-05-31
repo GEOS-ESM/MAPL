@@ -11,9 +11,21 @@ module mapl_field_export
    use mapl_FieldFillImpl_mod, only: MAPL_FieldFill => FieldFill
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
    use mapl_RestartModes_mod, only: MAPL_RESTART_REQUIRED, MAPL_RESTART_SKIP
+   use mapl_FieldInfo_mod
 
    implicit none
    private
 
+   public :: MAPL_FieldBundleAdd
+   public :: MAPL_FieldClone
+   public :: MAPL_FieldCreate
+   public :: MAPL_FieldEmptyComplete
+   public :: MAPL_FieldsAreAliased
+   public :: MAPL_FieldGet
+   public :: MAPL_FieldSet
+   public :: MAPL_FieldFill
+   public :: MAPL_AssignFptr
+   public :: MAPL_RESTART_REQUIRED
+   public :: MAPL_RESTART_SKIP
 
 end module mapl_field_export
