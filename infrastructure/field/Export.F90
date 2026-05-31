@@ -11,7 +11,6 @@ module mapl_field_export
    use mapl_FieldFillImpl_mod, only: MAPL_FieldFill => FieldFill
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
    use mapl_RestartModes_mod, only: MAPL_RESTART_REQUIRED, MAPL_RESTART_SKIP
-   use mapl_FieldInfo_mod
 
    implicit none
    private
