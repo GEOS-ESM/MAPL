@@ -3,6 +3,7 @@
 module mapl_BracketClassAspect_mod
 
    use mapl_field_export
+   use mapl_Enums_export
    use mapl_field_bundle_export
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
@@ -142,10 +143,10 @@ contains
      integer :: status
      type(ESMF_Info) :: info
 
-      this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+      this%payload = MAPL_FieldBundleCreate(fieldBundleType=MAPL_FIELDBUNDLETYPE_BRACKET, _RC)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
+      call FieldBundleInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
@@ -157,7 +158,7 @@ contains
 
       integer :: status
 
-      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+      call MAPL_FieldBundleSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine activate
