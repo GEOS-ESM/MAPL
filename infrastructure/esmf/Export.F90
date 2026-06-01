@@ -8,6 +8,29 @@ module mapl_esmf_export
    private
 
    ! VM / comm utilities
+   public :: MAPL_ROOT
+   public :: mapl_AmIPet
+   public :: mapl_AmIRoot
+   public :: mapl_Barrier
+   public :: mapl_RoundRobinPEList
+   public :: mapl_BcastShared
+   public :: mapl_CommsBcast
+   public :: MAPL_Am_I_Root
+   public :: MAPL_Am_I_Rank
+   public :: MAPL_NPES
+   public :: ROOT_PROCESS_ID
+   public :: MAPL_CommsSend
+   public :: MAPL_CommsRecv
+   public :: MAPL_CommsSendRecv
+   public :: MAPL_CommsGatherV
+   public :: MAPL_CommsScatterV
+   public :: MAPL_CommsAllGather
+   public :: MAPL_CommsAllGatherV
+   public :: MAPL_ArrayGather
+   public :: MAPL_ArrayScatter
+   public :: MAPL_CommsAllReduceMin
+   public :: MAPL_CommsAllReduceMax
+   public :: MAPL_CommsAllReduceSum
 
    ! User comp internal state
 
@@ -26,6 +49,9 @@ module mapl_esmf_export
    ! Field utilities
 
    ! Ungridded dims
+   public :: UngriddedDim
+   public :: make_UngriddedDim
+   public :: UngriddedDims
 
    ! State item constants
 
