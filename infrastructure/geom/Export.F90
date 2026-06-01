@@ -19,6 +19,8 @@ module mapl_geom_export
    use mapl_GridComms_mod, only: MAPL_CollectiveScatter3D => mapl_CollectiveScatter3D
    use mapl_Subgrid_mod, only: mapl_Interval => Interval
    use mapl_Subgrid_mod, only: mapl_make_subgrids => make_subgrids
+   use mapl_CubedSphereGeomSpec_mod, only: CubedSphereGeomSpec, make_CubedSphereGeomSpec
+   use mapl_CubedSphereDecomposition_mod, only: CubedSphereDecomposition, make_CubedSphereDecomposition
 
    implicit none
    private
@@ -49,5 +51,11 @@ module mapl_geom_export
    ! Subgrid
    public :: mapl_Interval
    public :: mapl_make_subgrids
+
+   ! CubedSphere geom specs
+   public :: CubedSphereGeomSpec
+   public :: make_CubedSphereGeomSpec
+   public :: CubedSphereDecomposition
+   public :: make_CubedSphereDecomposition
 
 end module mapl_geom_export
