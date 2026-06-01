@@ -15,7 +15,7 @@ contains
    module recursive subroutine initialize_user(this, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'

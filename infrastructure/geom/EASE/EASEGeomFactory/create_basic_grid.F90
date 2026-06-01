@@ -6,7 +6,7 @@ submodule (mapl_EASEGeomFactory_mod) create_basic_grid_smod
    use mapl_EASEDecomposition_mod
    use mapl_ErrorHandling_mod
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    implicit none (type, external)
 
 contains
@@ -20,7 +20,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(ESMF_Grid) :: grid
       type(EASEGeomSpec), intent(in) :: spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 

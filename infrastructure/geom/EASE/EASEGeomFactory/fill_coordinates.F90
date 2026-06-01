@@ -5,7 +5,7 @@ submodule (mapl_EASEGeomFactory_mod) fill_coordinates_smod
    use mapl_EASEGeomSpec_mod
    use mapl_EASECoords_mod
    use mapl_ErrorHandling_mod
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none (type, external)
@@ -19,7 +19,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(EASEGeomSpec), intent(in) :: spec
       type(ESMF_Grid), intent(inout) :: grid
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status, i, j

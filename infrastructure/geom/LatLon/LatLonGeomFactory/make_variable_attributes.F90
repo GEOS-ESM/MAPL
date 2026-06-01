@@ -13,7 +13,7 @@ submodule (mapl_LatLonGeomFactory_mod) make_variable_attributes_smod
    use pFIO
    use mapl_StringDictionary_mod
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
 
    implicit none (type, external)
 

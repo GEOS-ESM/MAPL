@@ -6,7 +6,7 @@ module mapl_EASECoords_mod
 
    use mapl_EASEConversion_mod
    use mapl_EASEGeomSpec_mod
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64
 
@@ -22,7 +22,7 @@ contains
    ! At least one of centers or corners must be present (use keyword args).
    subroutine compute_lons(spec, unusable, centers, corners, rc)
       type(EASEGeomSpec),                        intent(in)  :: spec
-      class(KeywordEnforcer),                       optional, intent(in)  :: unusable
+      class(KE),                       optional, intent(in)  :: unusable
       real(kind=REAL64), allocatable,  optional, intent(out) :: centers(:)
       real(kind=REAL64), allocatable,  optional, intent(out) :: corners(:)
       integer,                         optional, intent(out) :: rc
@@ -55,7 +55,7 @@ contains
    ! At least one of centers or corners must be present (use keyword args).
    subroutine compute_lats(spec, unusable, centers, corners, rc)
       type(EASEGeomSpec),                        intent(in)  :: spec
-      class(KeywordEnforcer),                       optional, intent(in)  :: unusable
+      class(KE),                       optional, intent(in)  :: unusable
       real(kind=REAL64), allocatable,  optional, intent(out) :: centers(:)
       real(kind=REAL64), allocatable,  optional, intent(out) :: corners(:)
       integer,                         optional, intent(out) :: rc

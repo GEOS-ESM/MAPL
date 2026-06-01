@@ -11,7 +11,7 @@ submodule (mapl_LatLonGeomFactory_mod) create_basic_grid_smod
    use pFIO
    use gFTL2_StringVector
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    implicit none (type, external)
 
 
@@ -21,7 +21,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(ESMF_Grid) :: grid
       type(LatLonGeomSpec), intent(in) :: spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 

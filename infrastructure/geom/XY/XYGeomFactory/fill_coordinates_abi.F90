@@ -29,7 +29,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(XYGeomSpec), intent(in) :: spec
       type(ESMF_Grid),  intent(inout) :: grid
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status

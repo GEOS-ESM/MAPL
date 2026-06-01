@@ -16,7 +16,7 @@ contains
    module recursive subroutine initialize_read_restart(this, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       ! optional arguments
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_READ_RESTART'

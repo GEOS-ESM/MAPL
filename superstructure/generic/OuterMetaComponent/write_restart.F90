@@ -16,7 +16,7 @@ contains
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       ! optional arguments
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       ! Locals

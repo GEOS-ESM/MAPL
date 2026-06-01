@@ -3,7 +3,7 @@
 module mapl_EASEDecomposition_mod
 
    use mapl_Partition_mod
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_ErrorHandling_mod
    use esmf
 
@@ -58,7 +58,7 @@ contains
    function new_EASEDecomposition_topology(dims, unusable, topology) result(decomp)
       type(EASEDecomposition) :: decomp
       integer, intent(in) :: dims(2)
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, intent(in) :: topology(2)
       decomp%lon_distribution = mapl_GetPartition(dims(1), k=topology(1), min_extent=2)
       decomp%lat_distribution = mapl_GetPartition(dims(2), k=topology(2), min_extent=2)
@@ -71,7 +71,7 @@ contains
    function new_EASEDecomposition_petcount(dims, unusable, petCount) result(decomp)
       type(EASEDecomposition) :: decomp
       integer, intent(in) :: dims(2)
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, intent(in) :: petCount
 
       decomp = EASEDecomposition(dims, topology=[petCount, 1])

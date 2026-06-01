@@ -22,7 +22,7 @@ contains
    module recursive subroutine initialize_advertise(this, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       ! optional arguments
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(MultiState) :: user_states
@@ -46,7 +46,7 @@ contains
 
    subroutine self_advertise(this, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status

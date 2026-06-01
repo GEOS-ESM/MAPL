@@ -11,7 +11,7 @@ contains
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_Method_Flag), intent(in) :: method_flag
       procedure(I_Run) :: userProcedure
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) ::rc
 

@@ -8,7 +8,7 @@ contains
 
    module recursive subroutine write_restart(this, unusable, phase_idx, rc)
       class(GriddedComponentDriver), target, intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
 

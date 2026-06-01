@@ -13,7 +13,7 @@ contains
       use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
       type(XYGeomSpec), intent(in) :: spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
 

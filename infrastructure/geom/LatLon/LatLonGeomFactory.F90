@@ -11,7 +11,7 @@ module mapl_LatLonGeomFactory_mod
    use mapl_StringDictionary_mod
    use pfio
    use esmf
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
 
    implicit none
    private
@@ -90,7 +90,7 @@ module mapl_LatLonGeomFactory_mod
          use mapl_KeywordEnforcer_mod
          type(FileMetadata) :: file_metadata
          type(LatLonGeomSpec), intent(in) :: geom_spec
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(in) :: chunksizes(:)
          integer, optional, intent(out) :: rc
       end function typesafe_make_file_metadata

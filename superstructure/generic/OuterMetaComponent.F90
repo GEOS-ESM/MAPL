@@ -17,7 +17,7 @@ module mapl_OuterMetaComponent_mod
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
    use gFTL2_StringVector
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_Profiler_mod, only: DistributedProfiler
    use esmf
    use pflogger, only: Logger
@@ -188,14 +188,14 @@ module mapl_OuterMetaComponent_mod
       module recursive subroutine run_child_by_name(this, child_name, unusable, phase_name, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: child_name
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) :: rc
       end subroutine run_child_by_name
 
       module recursive subroutine run_children_(this, unusable, phase_name, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) :: rc
       end subroutine run_children_
@@ -259,21 +259,21 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_Clock), intent(in) :: outer_clock
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_set_clock
 
       module recursive subroutine initialize_geom_a(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_geom_a
 
       module recursive subroutine initialize_geom_b(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_geom_b
 
@@ -286,7 +286,7 @@ module mapl_OuterMetaComponent_mod
       module recursive subroutine initialize_advertise(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_advertise
 
@@ -296,7 +296,7 @@ module mapl_OuterMetaComponent_mod
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised
 
@@ -306,14 +306,14 @@ module mapl_OuterMetaComponent_mod
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
         ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_realize
 
       module recursive subroutine initialize_read_restart(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_read_restart
 
@@ -337,7 +337,7 @@ module mapl_OuterMetaComponent_mod
       module recursive subroutine initialize_user(this, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_user
 
@@ -353,7 +353,7 @@ module mapl_OuterMetaComponent_mod
          type(ESMF_Clock), intent(inout) :: clock
          ! optional arguments
          character(len=*), optional, intent(in) :: phase_name
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine run_user
 
@@ -361,7 +361,7 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine run_clock_advance
 
@@ -371,7 +371,7 @@ module mapl_OuterMetaComponent_mod
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine finalize
 
@@ -381,7 +381,7 @@ module mapl_OuterMetaComponent_mod
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
          ! optional arguments
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine write_restart
 
@@ -460,7 +460,7 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_Method_Flag), intent(in) :: method_flag
          procedure(I_Run) :: userProcedure
-         class(KeywordEnforcer), optional, intent(in) :: unusable
+         class(KE), optional, intent(in) :: unusable
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
@@ -499,7 +499,7 @@ contains
 
    subroutine set_misc(this, unusable, activate_all_exports, activate_all_imports, checkpoint_controls, restart_controls)
       class(OuterMetaComponent), intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(KE), optional, intent(in) :: unusable
       logical, optional, intent(in) :: activate_all_exports
       logical, optional, intent(in) :: activate_all_imports
       type(CheckpointControls), optional, intent(in) :: checkpoint_controls
