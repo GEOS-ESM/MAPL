@@ -73,7 +73,7 @@ contains
       type(ESMF_Field) :: field, new_field
       type(CompressionSettings) :: compression_settings
       type(ESMF_StateItem_Flag) :: item_type
-      type(FieldBundleType_Flag) :: bundle_type
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
       type(ESMF_FieldBundle) :: vector_bundle
       type(StringVector) :: alias_vector
       type(ESMF_Field), allocatable :: field_list(:)
@@ -98,7 +98,7 @@ contains
          else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(import_state, short_name, vector_bundle, _RC)
             call MAPL_FieldBundleGet(vector_bundle, fieldBundleType=bundle_type, fieldList=field_list, _RC)
-            _ASSERT(bundle_type == FIELDBUNDLETYPE_VECTOR, 'not vector type')
+            _ASSERT(bundle_type == MAPL_FIELDBUNDLETYPE_VECTOR, 'not vector type')
             alias_vector = split_alias(alias, _RC)
             new_field = create_alias_field(field_list(1), alias_vector%at(1), compression_settings, _RC)
             call ESMF_FieldBundleAdd(bundle, [new_field], _RC)

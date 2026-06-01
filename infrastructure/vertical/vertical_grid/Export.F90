@@ -5,11 +5,10 @@ module mapl_vertical_grid_export
    use mapl_VerticalGrid_mod, only: VerticalGrid, VERTICAL_GRID_NOT_FOUND
    use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
    use mapl_VerticalGridFactory_mod, only: VerticalGridFactory
+   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid, BasicVerticalGridSpec, BasicVerticalGridFactory
    use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
-   use mapl_IntegerPair_mod, only: IntegerPair
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
-   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid, BasicVerticalGridSpec, BasicVerticalGridFactory
 
    implicit none
    private
@@ -19,12 +18,14 @@ module mapl_vertical_grid_export
    public :: VerticalGridSpec
    public :: VerticalGridFactory
 
+   ! Concrete basic implementation
+   public :: BasicVerticalGrid
+   public :: BasicVerticalGridSpec
+   public :: BasicVerticalGridFactory
+
    ! Manager
    public :: VerticalGridManager
    public :: get_vertical_grid_manager
-
-   ! Utility types
-   public :: IntegerPair
 
    ! Vertical stagger locations
    public :: VerticalStaggerLoc
@@ -42,11 +43,6 @@ module mapl_vertical_grid_export
    public :: VALIGN_UP
    public :: VALIGN_DOWN
    public :: VALIGN_INVALID
-
-   ! Basic grid types
-   public :: BasicVerticalGrid
-   public :: BasicVerticalGridSpec
-   public :: BasicVerticalGridFactory
 
    ! Parameters
    public :: VERTICAL_GRID_NOT_FOUND

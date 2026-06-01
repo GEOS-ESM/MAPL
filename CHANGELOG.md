@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Lock down all Export umbrella modules to expose only their declared public API (#5026/#5029).
+  Added `private` statements and explicit `public ::` declarations to all 12 `Export.F90` files
+  (`enums/`, `utils/`, `mp_utils/`, `base/`, `infrastructure/esmf/`, `infrastructure/field/`,
+  `infrastructure/field_bundle/`, `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`,
+  `infrastructure/regridder_mgr/`, `superstructure/generic/`, `superstructure/state/`).
+  Dissolved all legacy `API.F90` shim files: `infrastructure/esmf/HConfig_API.F90`,
+  `infrastructure/esmf/API.F90`, `infrastructure/esmf/EsmfUtils_API.F90`,
+  `infrastructure/esmf/comms/Comms_API.F90`, `infrastructure/geom/API.F90`,
+  `infrastructure/regridder_mgr/API.F90`, `superstructure/generic/API.F90`,
+  `superstructure/state/API.F90` (plus the three already deleted in a prior increment).
+  Their symbols are now routed through the proper export umbrellas.
+  Added `mapl_state_export` and `mapl_field_bundle_export` to the top-level `MAPL` umbrella,
+  which were previously only reachable via the now-deleted API shims.
+  Removed from export umbrellas symbols confirmed to have no external consumers: `XYGeomSpec`,
+  `XYGeomFactory`, and `XY_COORD_*` from `geom/Export.F90`; `IntegerPair` from
+  `vertical_grid/Export.F90`.
+  Added to export umbrellas symbols confirmed to have external consumers: `CubedSphereGeomSpec`,
+  `CubedSphereDecomposition`, `AbstractUserSetServices`, `DSOSetServices`, VM/comms utilities,
+  and HConfig conversion functions.
+  Added `BasicVerticalGrid`, `BasicVerticalGridSpec`, `BasicVerticalGridFactory`, and
+  `VerticalGridManager`/`get_vertical_grid_manager` to `vertical_grid/Export.F90` as part
+  of the public vertical-grid API.
+  Renamed unprefixed enum constants and types to their `MAPL_`-prefixed equivalents across
+  ~35 source and test files: `FIELDBUNDLETYPE_*` → `MAPL_FIELDBUNDLETYPE_*`,
+  `STATEITEM_ALLOCATION_*` → `MAPL_STATEITEM_ALLOCATION_*`,
+  `GENERIC_COUPLER_*` → `MAPL_GENERIC_COUPLER_*`,
+  `VectorBasisKind`/`VECTOR_BASIS_KIND_*` → `MAPL_VectorBasisKind`/`MAPL_VECTOR_BASIS_KIND_*`,
+  `FieldBundleType_Flag` → `MAPL_FieldBundleType_Flag`.
+
 ### Fixed
 
 - Remove `FileMetadataUtils` dependency from `MAPL.vertical` (#5017). `VerticalCoordinate`

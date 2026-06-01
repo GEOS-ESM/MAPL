@@ -5,23 +5,41 @@
 ! For internal MAPL use, see mapl_mp_utils_internal.
 module mapl_mp_utils_export
    use mapl_mp_utils_internal
-   
+
+   implicit none
    private
 
-   public :: MAPL_MaxMin, MAPL_AreaMean
+   ! Statistics
+   public :: MAPL_MaxMin
+   public :: MAPL_AreaMean
+
+   ! Memory info
    public :: MAPL_MemInfoWrite
-   public :: MAPL_PackTime, MAPL_UnpackTime
+
+   ! Time packing
+   public :: MAPL_PackTime
+   public :: MAPL_UnpackTime
+   public :: MAPL_UnpackDate
+   public :: MAPL_UnpackDateTime
+
+   ! Checkpoint
    public :: MAPL_GetCheckpointSubdir
-   
+
    ! PackedTime functions with MAPL_ prefix
-   public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, MAPL_PackedDateTimeCreate
+   public :: MAPL_PackedDateCreate
+   public :: MAPL_PackedTimeCreate
+   public :: MAPL_PackedDateTimeCreate
    public :: MAPL_ESMFTimeFromPacked
-   public :: MAPL_UnpackDate, MAPL_UnpackDateTime
 
    ! Backward compatibility: Unprefixed names (TODO: remove after client repos migrated)
    ! See issue #5011 - these should be removed once GEOSgcm and other clients updated
-   public :: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
-   public :: ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
+   public :: PackedDateCreate
+   public :: PackedTimeCreate
+   public :: PackedDateTimeCreate
+   public :: ESMFTimeFromPacked
+   public :: UnpackDate
+   public :: UnpackTime
+   public :: UnpackDateTime
    public :: StrTemplate
 
 end module mapl_mp_utils_export

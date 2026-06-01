@@ -1,16 +1,20 @@
 #include "MAPL.h"
 
 module mapl_FieldBundleGetImpl_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export
    use mapl_VerticalAlignment_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
-   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind
+   use mapl_Enums_export, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
+        MAPL_StateItemAllocation, &
+        MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED, &
+        MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
+        MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_FieldBundleInfo_mod
    use mapl_InfoUtilities_mod
    use mapl_LU_Bound_mod
@@ -47,8 +51,7 @@ contains
         quantity_type_metadata, &
         normalization_metadata, &
         conservation_metadata, &
-        rc)
-
+         rc)
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: fieldCount
@@ -66,7 +69,7 @@ contains
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: standard_name
       character(:), optional, allocatable, intent(out) :: long_name
-      type(StateItemAllocation), optional, intent(out) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info

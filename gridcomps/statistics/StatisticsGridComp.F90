@@ -159,7 +159,7 @@ contains
           integer :: status
           character(:), allocatable :: name
           type(esmf_Field) :: f_in
-          type(StateItemAllocation) :: allocation_status
+          type(MAPL_StateItemAllocation) :: allocation_status
           type(esmf_StateItem_Flag) :: itemtype
 
          name = esmf_HConfigAsString(iter, keystring='name', _RC)
@@ -169,7 +169,7 @@ contains
 
           call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
           call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
-          _RETURN_UNLESS(allocation_status == STATEITEM_ALLOCATION_CONNECTED)
+          _RETURN_UNLESS(allocation_status == MAPL_STATEITEM_ALLOCATION_CONNECTED)
 
           item = make_item(name, iter, clock, _RC)
          call stats%items%push_back(item)

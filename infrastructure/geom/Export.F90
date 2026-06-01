@@ -19,41 +19,40 @@ module mapl_geom_export
    use mapl_GridComms_mod, only: MAPL_CollectiveScatter3D => mapl_CollectiveScatter3D
    use mapl_Subgrid_mod, only: mapl_Interval => Interval
    use mapl_Subgrid_mod, only: mapl_make_subgrids => make_subgrids
-   use mapl_XYGeomSpec_mod, only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
-   use mapl_XYGeomFactory_mod, only: XYGeomFactory
    use mapl_CubedSphereGeomSpec_mod, only: CubedSphereGeomSpec, make_CubedSphereGeomSpec
    use mapl_CubedSphereDecomposition_mod, only: CubedSphereDecomposition, make_CubedSphereDecomposition
 
    implicit none
    private
 
-   ! Available to users
-   public :: mapl_GeomGet
-   public :: mapl_GridGet
-   public :: mapl_GridGetCoordinates
-   public :: mapl_GridGetHorzIJIndex
-   public :: mapl_GeomGetHorzIJIndex
-   public :: mapl_GridGetGlobalCellCountPerDim
-   public :: MAPL_CollectiveGather3D
-   public :: MAPL_CollectiveScatter3D
-   public :: mapl_GridHasDE
-
-   ! Used internally by MAPL
+   ! Geom types and manager
    public :: MaplGeom
-   public :: mapl_SameGeom
-   public :: mapl_GeomGetId
+   public :: GeomSpec
    public :: GeomManager
    public :: geom_manager
    public :: get_geom_manager
    public :: get_mapl_geom
-   public :: GeomSpec
+
+   ! Geom utilities
+   public :: mapl_SameGeom
+   public :: mapl_GeomGetId
+   public :: mapl_GeomGet
+   public :: mapl_GeomGetHorzIJIndex
+   public :: mapl_GridGetHorzIJIndex
+   public :: mapl_GridGet
+   public :: mapl_GridGetCoordinates
+   public :: mapl_GridHasDE
+   public :: mapl_GridGetGlobalCellCountPerDim
+
+   ! Collective comms
+   public :: MAPL_CollectiveGather3D
+   public :: MAPL_CollectiveScatter3D
+
+   ! Subgrid
    public :: mapl_Interval
    public :: mapl_make_subgrids
-   public :: XYGeomSpec
-   public :: make_XYGeomSpec
-   public :: XY_COORD_STANDARD
-   public :: XY_COORD_ABI
-   public :: XYGeomFactory
+
+   ! CubedSphere geom specs
    public :: CubedSphereGeomSpec
    public :: make_CubedSphereGeomSpec
    public :: CubedSphereDecomposition

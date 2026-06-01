@@ -28,11 +28,14 @@ module mapl_regridder_mgr_export
    implicit none
    private
 
+   ! Regridder types
    public :: Regridder
    public :: RegridderManager
    public :: regridder_manager
    public :: get_regridder_manager
    public :: RegridderSpec
+
+   ! Regrid methods and hints
    public :: REGRID_HINT_LOCAL
    public :: REGRID_HINT_FILE_WEIGHTS
    public :: REGRID_HINT_COMPUTE_TRANSPOSE

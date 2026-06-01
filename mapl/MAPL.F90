@@ -9,27 +9,19 @@ module MAPL
    use mapl_base_export
    use mapl_esmf_export
    use mapl_field_export
+   use mapl_field_bundle_export
+   use mapl_state_export
    use mapl_geom_export
    use mapl_vertical_grid_export
    use mapl_regridder_mgr_export
    use mapl_generic_export
 
    ! Legacy API modules (to be phased out)
-   use mapl_VM_API_mod
    use mapl_Generic
-   use mapl_State_API_mod
    use mapl_Shmem_mod
    use mapl_LoadBalance_mod
    use MAPL_Constants
    use pfio
-   use mapl_Geom_API_mod
-   use mapl_HConfig_API
-   use mapl_VerticalGrid_API_mod
-   use mapl_EsmfUtils_API_mod
-   use mapl_Field_API
-   use mapl_FieldBundle_API_mod
-   use mapl_RegridderMgr_API_mod
-   use mapl_Generic_API_mod
    use mapl_PythonBridge_mod
    use mapl_base_mod
    use mapl_Profiler_mod, initialize_profiler => initialize, finalize_profiler => finalize
@@ -53,7 +45,7 @@ module MAPL
    ! regridder layer
    use mapl_EsmfRegridder_mod
    use mapl_RegridderMethods_mod
-   ! hconfig layer - HConfigAs has no used public entities (#4999)
+   ! hconfig layer
    ! mp_utils layer
    use mapl_StringTemplate_mod
    ! base layer

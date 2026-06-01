@@ -14,16 +14,25 @@ module mapl_esmf_export
    public :: mapl_Barrier
    public :: mapl_RoundRobinPEList
    public :: mapl_BcastShared
-   public :: mapl_CollectiveWait
-   public :: mapl_CommRequest
    public :: mapl_CommsBcast
-   public :: mapl_CreateRequest
-   public :: mapl_ArrayIGather
-   public :: mapl_ArrayIScatter
+   public :: MAPL_Am_I_Root
+   public :: MAPL_Am_I_Rank
+   public :: MAPL_NPES
+   public :: ROOT_PROCESS_ID
+   public :: MAPL_CommsSend
+   public :: MAPL_CommsRecv
+   public :: MAPL_CommsSendRecv
+   public :: MAPL_CommsGatherV
+   public :: MAPL_CommsScatterV
+   public :: MAPL_CommsAllGather
+   public :: MAPL_CommsAllGatherV
+   public :: MAPL_ArrayGather
+   public :: MAPL_ArrayScatter
+   public :: MAPL_CommsAllReduceMin
+   public :: MAPL_CommsAllReduceMax
+   public :: MAPL_CommsAllReduceSum
 
    ! User comp internal state
-   public :: MAPL_UserCompGetInternalState
-   public :: MAPL_UserCompSetInternalState
 
    ! HConfig
    public :: MAPL_HConfigGet
@@ -36,17 +45,8 @@ module mapl_esmf_export
    public :: mapl_HConfigAsStringVector
 
    ! Info / metadata
-   public :: MAPL_InfoCreateFromShared
-   public :: MAPL_InfoGet
-   public :: MAPL_InfoGetPrivate
-   public :: MAPL_InfoGetShared
-   public :: MAPL_InfoSet
-   public :: MAPL_InfoSetNamespace
-   public :: MAPL_InfoSetPrivate
-   public :: MAPL_InfoSetShared
 
    ! Field utilities
-   public :: MAPL_FieldDestroy
 
    ! Ungridded dims
    public :: UngriddedDim
@@ -54,20 +54,7 @@ module mapl_esmf_export
    public :: UngriddedDims
 
    ! State item constants
-   public :: MAPL_STATEITEM_BRACKET
-   public :: MAPL_STATEITEM_EXPRESSION
-   public :: MAPL_STATEITEM_FIELD
-   public :: MAPL_STATEITEM_FIELDBUNDLE
-   public :: MAPL_STATEITEM_SERVICE
-   public :: MAPL_STATEITEM_SERVICE_PROVIDER
-   public :: MAPL_STATEITEM_SERVICE_SUBSCRIBER
-   public :: MAPL_STATEITEM_STATE
-   public :: MAPL_STATEITEM_UNKNOWN
-   public :: MAPL_STATEITEM_VECTOR
-   public :: MAPL_STATEITEM_VECTORBRACKET
-   public :: MAPL_STATEITEM_WILDCARD
 
    ! TYPEKIND
-   public :: MAPL_TYPEKIND_MIRROR
 
 end module mapl_esmf_export

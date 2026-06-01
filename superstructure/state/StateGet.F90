@@ -1,8 +1,9 @@
 #include "MAPL.h"
 
 module mapl_StateGetImpl_mod
-   use mapl_VerticalGrid_API_mod
-   use mapl_Field_API
+   use mapl_vertical_grid_export
+   use mapl_Enums_export
+   use mapl_field_export
    use mapl_UngriddedDims_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
@@ -40,7 +41,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
-      type(StateItemAllocation), optional, intent(out) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       integer, optional, intenT(out) :: rc
 
       type(ESMF_Field) :: field_

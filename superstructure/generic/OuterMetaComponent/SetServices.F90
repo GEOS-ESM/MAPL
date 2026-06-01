@@ -5,7 +5,7 @@ submodule (mapl_OuterMetaComponent_mod) SetServices_smod
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
    use mapl_GenericGridComp_mod
-   use mapl_BasicVerticalGrid_mod
+   use mapl_vertical_grid_export
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger

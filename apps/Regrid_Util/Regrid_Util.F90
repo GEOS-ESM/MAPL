@@ -4,8 +4,6 @@
 
    use ESMF
    use MAPL
-   
-   use mapl_RegridderMethods_mod
    use gFTL2_StringVector
 
    implicit NONE
@@ -213,8 +211,8 @@
 
     end subroutine process_command_line
 
-    subroutine create_vgrid(this,rc)
-    class(regrid_support) :: this
+     subroutine create_vgrid(this,rc)
+     class(regrid_support) :: this
     integer, optional, intent(out) :: rc
 
     type(NetCDF4_FileFormatter)     :: file_formatter
@@ -376,8 +374,6 @@
 
    use ESMF
    use MAPL
-   use mapl_FileMetadataUtils_mod, only: FileMetadataUtils
-   use mapl_Profiler_mod
    use regrid_util_support_mod
    use mpi
    use gFTL2_StringVector
@@ -430,7 +426,7 @@ CONTAINS
                                startTime=tSeries(1), _RC )
 
    bundle=ESMF_FieldBundleCreate(name="cfio_bundle",_RC)
-   call MAPL_FieldBundleSet(bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+   call MAPL_FieldBundleSet(bundle, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
    call ESMF_FieldBundleSet(bundle,grid=support%new_grid,_RC)
    call MAPL_FieldBundleSet(bundle, vgrid=support%new_vgrid, _RC)
 

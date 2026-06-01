@@ -1,14 +1,19 @@
 #include "MAPL.h"
 
 module mapl_FieldBundleSetImpl_mod
-   use mapl_VerticalGrid_API_mod
-   use mapl_Field_API
+   use mapl_vertical_grid_export
+   use mapl_field_export
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
-   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
-        MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_VECTORBRACKET
+   use mapl_Enums_export, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
+        MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_VECTORBRACKET, &
+        MAPL_StateItemAllocation, &
+        MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED, &
+        MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
+        MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED, &
+        operator(==), operator(/=)
    use mapl_FieldBundleInfo_mod
    use mapl_InfoUtilities_mod
    use mapl_FieldBundleGetImpl_mod
@@ -63,7 +68,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      type(StateItemAllocation), optional, intent(in) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_Info), optional, intent(in) :: regridder_param_info

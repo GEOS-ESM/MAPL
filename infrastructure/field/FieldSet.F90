@@ -2,7 +2,7 @@
 
 module mapl_FieldSetImpl_mod
 
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
    use mapl_FieldInfo_mod
