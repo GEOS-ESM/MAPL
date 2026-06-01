@@ -16,12 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`enums/`, `utils/`, `mp_utils/`, `base/`, `infrastructure/esmf/`, `infrastructure/field/`,
   `infrastructure/field_bundle/`, `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`,
   `infrastructure/regridder_mgr/`, `superstructure/generic/`, `superstructure/state/`).
-  Deleted three now-redundant `API.F90` shim files (`infrastructure/field/API.F90`,
-  `infrastructure/field_bundle/API.F90`, `infrastructure/vertical/vertical_grid/API.F90`).
-  Removed from export umbrellas symbols with no external consumers: `XYGeomSpec`,
-  `XYGeomFactory`, `CubedSphereGeomSpec`, `CubedSphereDecomposition` and related helpers
-  from `geom/Export.F90`; `IntegerPair` from `vertical_grid/Export.F90`; and
-  `AbstractUserSetServices`/`DSOSetServices` from `generic/Export.F90`.
+  Dissolved all legacy `API.F90` shim files: `infrastructure/esmf/HConfig_API.F90`,
+  `infrastructure/esmf/API.F90`, `infrastructure/esmf/EsmfUtils_API.F90`,
+  `infrastructure/esmf/comms/Comms_API.F90`, `infrastructure/geom/API.F90`,
+  `infrastructure/regridder_mgr/API.F90`, `superstructure/generic/API.F90`,
+  `superstructure/state/API.F90` (plus the three already deleted in a prior increment).
+  Their symbols are now routed through the proper export umbrellas.
+  Added `mapl_state_export` and `mapl_field_bundle_export` to the top-level `MAPL` umbrella,
+  which were previously only reachable via the now-deleted API shims.
+  Removed from export umbrellas symbols confirmed to have no external consumers: `XYGeomSpec`,
+  `XYGeomFactory`, and `XY_COORD_*` from `geom/Export.F90`; `IntegerPair` from
+  `vertical_grid/Export.F90`.
+  Added to export umbrellas symbols confirmed to have external consumers: `CubedSphereGeomSpec`,
+  `CubedSphereDecomposition`, `AbstractUserSetServices`, `DSOSetServices`, VM/comms utilities,
+  and HConfig conversion functions.
   Added `BasicVerticalGrid`, `BasicVerticalGridSpec`, `BasicVerticalGridFactory`, and
   `VerticalGridManager`/`get_vertical_grid_manager` to `vertical_grid/Export.F90` as part
   of the public vertical-grid API.
