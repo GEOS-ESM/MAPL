@@ -7,7 +7,7 @@ module mapl_Generic
    use mapl_OuterMetaComponent_mod
    use mapl_GenericGridComp_mod, only: MAPL_GridCompCreate
    use mapl_VerticalGrid_mod
-   use mapl_BasicVerticalGrid_mod
+   use mapl_vertical_grid_export
    use mapl_ModelVerticalGrid_mod
    use mapl_ESMF_Interfaces_mod
    use mapl_ComponentDriver_mod

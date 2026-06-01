@@ -5,13 +5,10 @@ module mapl_vertical_grid_export
    use mapl_VerticalGrid_mod, only: VerticalGrid, VERTICAL_GRID_NOT_FOUND
    use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
    use mapl_VerticalGridFactory_mod, only: VerticalGridFactory
+   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid, BasicVerticalGridSpec, BasicVerticalGridFactory
+   use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
-   ! mapl_BasicVerticalGrid_mod is intentionally NOT used here at module level.
-   ! BasicVerticalGridFactory is a concrete subtype of VerticalGridFactory; using it here
-   ! at module level embeds its vtable in every consumer's .mod file, causing non-deterministic
-   ! GFortran vtable orderings.  Files that need BasicVerticalGrid* must use
-   ! mapl_BasicVerticalGrid_mod directly.
 
    implicit none
    private
@@ -21,8 +18,14 @@ module mapl_vertical_grid_export
    public :: VerticalGridSpec
    public :: VerticalGridFactory
 
+   ! Concrete basic implementation
+   public :: BasicVerticalGrid
+   public :: BasicVerticalGridSpec
+   public :: BasicVerticalGridFactory
+
    ! Manager
-   ! (VerticalGridManager is exposed via MAPL.F90 to avoid vtable pollution)
+   public :: VerticalGridManager
+   public :: get_vertical_grid_manager
 
    ! Vertical stagger locations
    public :: VerticalStaggerLoc

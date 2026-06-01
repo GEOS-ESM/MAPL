@@ -89,7 +89,6 @@ contains
    ! Note: HConfig is an output if ESMF is not already initialized.  Otherwise it is an input.
     subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, configFilenameFromArgNum, &
          field_default_fill_value_r4, field_default_fill_value_r8, rc)
-      use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
       class(MaplFramework), intent(inout) :: this
       type(ESMF_HConfig), optional, intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable

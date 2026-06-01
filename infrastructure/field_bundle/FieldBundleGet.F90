@@ -3,8 +3,6 @@
 module mapl_FieldBundleGetImpl_mod
    use mapl_vertical_grid_export
    use mapl_VerticalAlignment_mod
-   ! Note: mapl_VerticalGridManager_mod is NOT used at module level intentionally.
-   ! It is scoped inside bundle_get to avoid embedding gFTL vtable in this module's .mod file.
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use mapl_field_export
@@ -54,7 +52,6 @@ contains
         normalization_metadata, &
         conservation_metadata, &
          rc)
-      use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: fieldCount

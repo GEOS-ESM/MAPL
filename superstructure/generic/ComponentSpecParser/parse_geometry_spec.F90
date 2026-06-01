@@ -3,7 +3,6 @@
 submodule (mapl_ComponentSpecParser_mod) parse_geometry_spec_smod
 
    use mapl_VerticalGrid_mod
-   use mapl_BasicVerticalGrid_mod
    use mapl_vertical_grid_export
    ! Note: mapl_VerticalGridManager_mod used inside parse_vertical_grid_ only
    use mapl_ModelVerticalGrid_mod
@@ -104,7 +103,6 @@ contains
    end function parse_geometry_spec
 
     subroutine parse_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, rc)
-      use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
       type(ESMF_HConfig), intent(in) :: vertical_grid_cfg
       type(StateRegistry), target, intent(in) :: registry
       class(VerticalGrid), allocatable, intent(out) :: vertical_grid

@@ -12,8 +12,6 @@ module mapl_FieldGetImpl_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use mapl_UngriddedDims_mod
-   ! Note: mapl_VerticalGridManager_mod is used inside field_get, not here,
-   ! to avoid embedding its gFTL vtable in this module's .mod file.
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec
    use esmf
 
@@ -41,7 +39,6 @@ contains
         has_deferred_aspects, &
         regridder_param_info, &
          rc)
-      use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), allocatable, optional, intent(out) :: geom

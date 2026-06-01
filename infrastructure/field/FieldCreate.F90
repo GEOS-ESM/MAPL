@@ -2,14 +2,7 @@
 
 module mapl_FieldCreateImpl_mod
 
-   ! mapl_vertical_grid_export is intentionally NOT used here at module level.
-   ! It transitively pulls in mapl_VerticalGridFactory_mod, which causes GFortran to
-   ! embed BasicVerticalGridFactory's vtable in this .mod file.  Only VerticalGrid
-   ! (the abstract base) is needed here, imported directly from its source module.
-   use mapl_VerticalGrid_mod, only: VerticalGrid
-   ! mapl_BasicVerticalGrid_mod is intentionally NOT used here at module level.
-   ! BasicVerticalGrid* are only needed inside field_create_legacy; the use is
-   ! scoped there to avoid embedding the vtable in this module's .mod file.
+   use mapl_vertical_grid_export, only: VerticalGrid, BasicVerticalGrid, BasicVerticalGridSpec
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
    use mapl_FieldInfo_mod
@@ -127,7 +120,6 @@ contains
         vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
          rc) result(field)
-       use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid, BasicVerticalGridSpec
        type(ESMF_Field) :: field
        type(ESMF_Geom), intent(in) :: geom
        type(ESMF_TypeKind_Flag), intent(in) :: typekind

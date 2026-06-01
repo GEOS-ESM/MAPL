@@ -1,6 +1,5 @@
 ! Public interface (package) to MAPL
 module MAPL
-   use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
    use mapl_MaplFramework_mod
 
    ! Two-tier umbrella exports

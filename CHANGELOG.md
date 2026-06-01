@@ -18,18 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `infrastructure/regridder_mgr/`, `superstructure/generic/`, `superstructure/state/`).
   Deleted three now-redundant `API.F90` shim files (`infrastructure/field/API.F90`,
   `infrastructure/field_bundle/API.F90`, `infrastructure/vertical/vertical_grid/API.F90`).
-  Renamed unprefixed enum symbols to their `MAPL_`-prefixed equivalents across all consumers
-  (`ExpressionClassAspect.F90`, `FieldBundleClassAspect.F90`, `VectorClassAspect.F90`,
-  `VectorBracketClassAspect.F90`, `VerticalGridAspect.F90`, `StatisticsGridComp.F90`,
-  `ExtDataGridComp_private.F90`, `HistoryCollectionGridComp_private.F90`, `Regrid_Util.F90`).
-  Removed `VerticalGridManager` from the vertical-grid export umbrella and re-exposed it
-  directly from `MAPL.F90` to prevent GFortran vtable-embedding across sibling `.mod` files.
-  Scoped `use mapl_VerticalGridManager_mod` and `use mapl_BasicVerticalGrid_mod` inside
-  subroutines (rather than at module level) in `FieldCreate.F90`, `FieldInfo.F90`,
-  `FieldGet.F90`, `FieldBundleGet.F90`, `FieldBundleRead.F90`, `parse_geometry_spec.F90`,
-  and `MaplFramework.F90` for the same reason. Updated all affected test files to import
-  `VerticalGridManager`/`get_vertical_grid_manager` and `BasicVerticalGridSpec` directly
-  from their respective leaf modules.
+  Removed from export umbrellas symbols with no external consumers: `XYGeomSpec`,
+  `XYGeomFactory`, `CubedSphereGeomSpec`, `CubedSphereDecomposition` and related helpers
+  from `geom/Export.F90`; `IntegerPair` from `vertical_grid/Export.F90`; and
+  `AbstractUserSetServices`/`DSOSetServices` from `generic/Export.F90`.
+  Added `BasicVerticalGrid`, `BasicVerticalGridSpec`, `BasicVerticalGridFactory`, and
+  `VerticalGridManager`/`get_vertical_grid_manager` to `vertical_grid/Export.F90` as part
+  of the public vertical-grid API.
+  Renamed unprefixed enum constants and types to their `MAPL_`-prefixed equivalents across
+  ~35 source and test files: `FIELDBUNDLETYPE_*` → `MAPL_FIELDBUNDLETYPE_*`,
+  `STATEITEM_ALLOCATION_*` → `MAPL_STATEITEM_ALLOCATION_*`,
+  `GENERIC_COUPLER_*` → `MAPL_GENERIC_COUPLER_*`,
+  `VectorBasisKind`/`VECTOR_BASIS_KIND_*` → `MAPL_VectorBasisKind`/`MAPL_VECTOR_BASIS_KIND_*`,
+  `FieldBundleType_Flag` → `MAPL_FieldBundleType_Flag`.
 
 ### Fixed
 

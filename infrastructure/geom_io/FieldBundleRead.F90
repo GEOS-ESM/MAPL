@@ -231,7 +231,6 @@ contains
    !---------------------------------------------------------------------------
     subroutine MAPL_read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
          noread, file_override, rc)
-      use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
       type(ESMF_FieldBundle), intent(inout) :: bundle
       character(*),           intent(in)    :: file_tmpl
       type(ESMF_Time),        intent(in)    :: time
