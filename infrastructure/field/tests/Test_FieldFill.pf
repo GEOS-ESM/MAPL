@@ -110,7 +110,7 @@ contains
 
       type(ESMF_Field) :: field
       real(ESMF_KIND_R8), pointer :: ptr(:)
-logical :: was_halting
+      logical :: was_halting
       integer :: status
 
       call make_r8_field(field, ptr, _RC)
@@ -176,7 +176,7 @@ logical :: was_halting
       type(ESMF_Field) :: field
       real(ESMF_KIND_R4), pointer :: ptr(:)
       real(ESMF_KIND_R4), allocatable :: fill_r4
-logical :: was_halting
+      logical :: was_halting
       integer :: status
 
       allocate(fill_r4, source=0.0_ESMF_KIND_R4)
@@ -202,7 +202,7 @@ logical :: was_halting
    subroutine test_getter_returns_nan_when_unset(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-logical :: was_halting
+      logical :: was_halting
 
 #ifndef __DARWIN
       call ieee_get_halting_mode(ieee_invalid, was_halting)
@@ -245,7 +245,7 @@ logical :: was_halting
       real(ESMF_KIND_R4), pointer :: ptr_r4(:)
       real(ESMF_KIND_R8), pointer :: ptr_r8(:)
       real(ESMF_KIND_R4), allocatable :: fill_r4
-logical :: was_halting
+      logical :: was_halting
       integer :: status
 
       ! Only set R4 override; R8 should still be sNaN.
