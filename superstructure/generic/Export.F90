@@ -3,7 +3,7 @@
 module mapl_generic_export
 
    use mapl_UserSetServices_mod, only: user_setservices, AbstractUserSetServices, DSOSetServices
-   use mapl_OpenMP_Support_mod, only: mapl_find_bounds => find_bounds, mapl_get_num_threads => get_num_threads
+   use mapl_OpenMP_Support_mod, only: mapl_find_bounds => find_bounds
    use mapl_OpenMP_Support_mod, only: mapl_get_num_threads => get_num_threads
    use mapl_OpenMP_Support_mod, only: mapl_get_current_thread => get_current_thread
    
