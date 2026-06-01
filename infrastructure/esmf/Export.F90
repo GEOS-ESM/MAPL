@@ -12,6 +12,14 @@ module mapl_esmf_export
    ! User comp internal state
 
    ! HConfig
+   public :: MAPL_HConfigGet
+   public :: MAPL_HConfigMatch
+   public :: mapl_HConfigAsItemType
+   public :: mapl_HConfigAsStateIntent
+   public :: mapl_HConfigAsTime
+   public :: mapl_HConfigAsTimeInterval
+   public :: mapl_HConfigAsTimeRange
+   public :: mapl_HConfigAsStringVector
 
    ! Info / metadata
 

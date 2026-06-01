@@ -23,7 +23,6 @@ module MAPL
    use MAPL_Constants
    use pfio
    use mapl_Geom_API_mod
-   use mapl_HConfig_API
    use mapl_vertical_grid_export
    use mapl_EsmfUtils_API_mod
    use mapl_field_export
@@ -53,7 +52,7 @@ module MAPL
    ! regridder layer
    use mapl_EsmfRegridder_mod
    use mapl_RegridderMethods_mod
-   ! hconfig layer - HConfigAs has no used public entities (#4999)
+   ! hconfig layer
    ! mp_utils layer
    use mapl_StringTemplate_mod
    ! base layer

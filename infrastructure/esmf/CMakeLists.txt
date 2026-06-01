@@ -24,7 +24,6 @@ set (srcs
     # From alarm/
     alarm/SimpleAlarm.F90
     # From hconfig/
-    hconfig/HConfig_API.F90
     hconfig/HConfigAs.F90
     # From hconfig_utils/
     hconfig_utils/HConfig3G.F90

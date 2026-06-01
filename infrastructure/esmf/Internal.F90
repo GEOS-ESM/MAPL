@@ -28,7 +28,13 @@ module mapl_esmf_internal
    use mapl_FieldPointerUtilities_mod
 
    ! HConfig
-   use mapl_HConfig_API
+   use mapl_HConfigAs_mod, only: &
+        mapl_HConfigAsItemType => HConfigAsItemType, &
+        mapl_HConfigAsStateIntent => HConfigAsStateIntent, &
+        mapl_HConfigAsTime => HConfigAsTime, &
+        mapl_HConfigAsTimeInterval => HConfigAsTimeInterval, &
+        mapl_HConfigAsTimeRange => HConfigAsTimeRange, &
+        mapl_HConfigAsStringVector => HConfigAsStringVector
    use mapl_HConfigAs_mod
    use mapl_HConfigUtilities_mod
    use mapl_get_hconfig_mod
