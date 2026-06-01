@@ -5,10 +5,8 @@ module mapl_PrimaryExport_mod
    use mapl_NonClimDataSetFileSelector_mod
    use mapl_ClimDataSetFileSelector_mod
    use MAPL
-   use MAPL
-   use MAPL
-   use mapl_DataSetBracket_mod
    use mapl_DataSetNode_mod
+   use mapl_DataSetBracket_mod
    use mapl_ExtDataReader_mod
    use gftl2_StringStringMap
    use gftl2_IntegerVector
@@ -18,7 +16,6 @@ module mapl_PrimaryExport_mod
    use mapl_ExtDataSample_mod
    use pfio, only: i_clients
    use VerticalCoordinateMod
-   use MAPL
    implicit none
    private
 
@@ -122,7 +119,7 @@ module mapl_PrimaryExport_mod
       varname = this%export_var
    end function get_export_var_name
 
-   subroutine complete_export_spec(this, item_name, exportState, rc)
+    subroutine complete_export_spec(this, item_name, exportState, rc)
       class(PrimaryExport), intent(inout) :: this
       character(len=*), intent(in) :: item_name
       type(ESMF_State), intent(inout) :: exportState
@@ -174,7 +171,7 @@ module mapl_PrimaryExport_mod
       _RETURN(_SUCCESS)
    end subroutine complete_export_spec
 
-   subroutine update_export_spec(this, item_name, exportState, rc)
+    subroutine update_export_spec(this, item_name, exportState, rc)
       class(PrimaryExport), intent(inout) :: this
       character(len=*), intent(in) :: item_name
       type(ESMF_State), intent(inout) :: exportState

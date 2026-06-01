@@ -7,7 +7,16 @@ module mapl_FieldInfo_mod
    use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE
    use mapl_esmf_info_keys_mod, only: INFO_PRIVATE_NAMESPACE
    use mapl_InfoUtilities_mod
-   use mapl_vertical_grid_export
+   ! mapl_vertical_grid_export is intentionally NOT used here at module level.
+   ! It transitively pulls in mapl_VerticalGridFactory_mod, which causes GFortran to
+   ! embed BasicVerticalGridFactory's vtable in this .mod file, leading to
+   ! non-deterministic vtable orderings when the type is also seen via another chain.
+   ! Only the symbols actually needed here are imported directly from their source modules.
+   use mapl_VerticalGrid_mod, only: VerticalGrid, VERTICAL_GRID_NOT_FOUND
+   ! Note: mapl_VerticalGridManager_mod is NOT used at module level intentionally.
+   ! It pulls in mapl_VerticalGridFactoryMap_mod (a gFTL polymorphic map) which
+   ! causes non-deterministic GFortran vtable orderings when embedded in the .mod
+   ! file.  The VerticalGridManager use is scoped inside derive_num_levels_from_vgrid.
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
@@ -546,7 +555,8 @@ contains
 
    end function to_typekind
 
-     subroutine derive_num_levels_from_vgrid(info, namespace, num_levels, num_layers, num_vgrid_levels, rc)
+      subroutine derive_num_levels_from_vgrid(info, namespace, num_levels, num_layers, num_vgrid_levels, rc)
+         use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
         type(ESMF_Info), intent(in) :: info
         character(*), intent(in) :: namespace
         integer, optional, intent(out) :: num_levels

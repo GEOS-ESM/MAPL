@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Lock down all Export umbrella modules to expose only their declared public API (#5026/#5029).
+  Added `private` statements and explicit `public ::` declarations to all 12 `Export.F90` files
+  (`enums/`, `utils/`, `mp_utils/`, `base/`, `infrastructure/esmf/`, `infrastructure/field/`,
+  `infrastructure/field_bundle/`, `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`,
+  `infrastructure/regridder_mgr/`, `superstructure/generic/`, `superstructure/state/`).
+  Deleted three now-redundant `API.F90` shim files (`infrastructure/field/API.F90`,
+  `infrastructure/field_bundle/API.F90`, `infrastructure/vertical/vertical_grid/API.F90`).
+  Renamed unprefixed enum symbols to their `MAPL_`-prefixed equivalents across all consumers
+  (`ExpressionClassAspect.F90`, `FieldBundleClassAspect.F90`, `VectorClassAspect.F90`,
+  `VectorBracketClassAspect.F90`, `VerticalGridAspect.F90`, `StatisticsGridComp.F90`,
+  `ExtDataGridComp_private.F90`, `HistoryCollectionGridComp_private.F90`, `Regrid_Util.F90`).
+  Removed `VerticalGridManager` from the vertical-grid export umbrella and re-exposed it
+  directly from `MAPL.F90` to prevent GFortran vtable-embedding across sibling `.mod` files.
+  Scoped `use mapl_VerticalGridManager_mod` and `use mapl_BasicVerticalGrid_mod` inside
+  subroutines (rather than at module level) in `FieldCreate.F90`, `FieldInfo.F90`,
+  `FieldGet.F90`, `FieldBundleGet.F90`, `FieldBundleRead.F90`, `parse_geometry_spec.F90`,
+  and `MaplFramework.F90` for the same reason. Updated all affected test files to import
+  `VerticalGridManager`/`get_vertical_grid_manager` and `BasicVerticalGridSpec` directly
+  from their respective leaf modules.
+
 ### Fixed
 
 - Remove `FileMetadataUtils` dependency from `MAPL.vertical` (#5017). `VerticalCoordinate`

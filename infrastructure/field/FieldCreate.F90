@@ -2,7 +2,14 @@
 
 module mapl_FieldCreateImpl_mod
 
-   use mapl_vertical_grid_export
+   ! mapl_vertical_grid_export is intentionally NOT used here at module level.
+   ! It transitively pulls in mapl_VerticalGridFactory_mod, which causes GFortran to
+   ! embed BasicVerticalGridFactory's vtable in this .mod file.  Only VerticalGrid
+   ! (the abstract base) is needed here, imported directly from its source module.
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   ! mapl_BasicVerticalGrid_mod is intentionally NOT used here at module level.
+   ! BasicVerticalGrid* are only needed inside field_create_legacy; the use is
+   ! scoped there to avoid embedding the vtable in this module's .mod file.
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
    use mapl_FieldInfo_mod
@@ -17,7 +24,6 @@ module mapl_FieldCreateImpl_mod
    use mapl_ErrorHandling_mod
    use mapl_InternalConstants_mod, only: MAPL_UNDEFINED_REAL
    use esmf, MAPL_FieldEmptyCreate => ESMF_FieldEmptyCreate
-   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid, BasicVerticalGridSpec
 
    implicit none(type,external)
    private
@@ -120,13 +126,15 @@ contains
         ! Optional MAPL args
         vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
-        rc) result(field)
-      type(ESMF_Field) :: field
-      type(ESMF_Geom), intent(in) :: geom
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, intent(in) :: num_levels  ! REQUIRED - DEPRECATED, use vgrid instead
-      character(*), optional, intent(in) :: name
+         rc) result(field)
+       use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid, BasicVerticalGridSpec
+       type(ESMF_Field) :: field
+       type(ESMF_Geom), intent(in) :: geom
+       type(ESMF_TypeKind_Flag), intent(in) :: typekind
+       class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, intent(in) :: num_levels  ! REQUIRED - DEPRECATED, use vgrid instead
+
+       character(*), optional, intent(in) :: name
       integer, optional, intent(in) :: gridToFieldMap(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc

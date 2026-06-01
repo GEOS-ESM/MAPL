@@ -8,7 +8,10 @@ module Test_FieldBundleIO
    use mapl_Geom_API_mod, only: GeomManager, MaplGeom, get_geom_manager
    use mapl_field_export, only: MAPL_FieldCreate, MAPL_FieldGet
    use mapl_field_bundle_export
+   use mapl_Enums_export, only: MAPL_FieldBundleType_Flag, MAPL_FIELDBUNDLETYPE_BASIC
    use mapl_vertical_grid_export
+   use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
+   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGridSpec
    use mapl_geomio
 
    implicit none
@@ -129,7 +132,7 @@ contains
       ! Create write bundle and add all fields
       ! ------------------------------------------------------------------
       write_bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(write_bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call MAPL_FieldBundleSet(write_bundle, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
       call ESMF_FieldBundleAdd(write_bundle, [f_temp, f_humid], _RC)
 
       ! ------------------------------------------------------------------
@@ -143,7 +146,7 @@ contains
       ! Read bundle back from file
       ! ------------------------------------------------------------------
       read_bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
       call MAPL_read_bundle(read_bundle, OUTPUT_FILE_2D_3D, time, _RC)
 
       ! ------------------------------------------------------------------
@@ -230,7 +233,7 @@ contains
       ! Create write bundle and add all fields
       ! ------------------------------------------------------------------
       write_bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(write_bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call MAPL_FieldBundleSet(write_bundle, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
       call ESMF_FieldBundleAdd(write_bundle, [f_temp], _RC)
 
       ! ------------------------------------------------------------------
@@ -244,7 +247,7 @@ contains
       ! Read bundle back from file
       ! ------------------------------------------------------------------
       read_bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
       call MAPL_read_bundle(read_bundle, OUTPUT_FILE_2D, time, _RC)
 
       ! ------------------------------------------------------------------

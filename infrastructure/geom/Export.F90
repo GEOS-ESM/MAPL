@@ -19,16 +19,35 @@ module mapl_geom_export
    use mapl_GridComms_mod, only: MAPL_CollectiveScatter3D => mapl_CollectiveScatter3D
    use mapl_Subgrid_mod, only: mapl_Interval => Interval
    use mapl_Subgrid_mod, only: mapl_make_subgrids => make_subgrids
-   use mapl_XYGeomSpec_mod, only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
-   use mapl_XYGeomFactory_mod, only: XYGeomFactory
-   use mapl_CubedSphereGeomSpec_mod, only: CubedSphereGeomSpec, make_CubedSphereGeomSpec
-   use mapl_CubedSphereDecomposition_mod, only: CubedSphereDecomposition, make_CubedSphereDecomposition
 
    implicit none
    private
 
-   ! Available to users
+   ! Geom types and manager
+   public :: MaplGeom
+   public :: GeomSpec
+   public :: GeomManager
+   public :: geom_manager
+   public :: get_geom_manager
+   public :: get_mapl_geom
 
-   ! Used internally by MAPL
+   ! Geom utilities
+   public :: mapl_SameGeom
+   public :: mapl_GeomGetId
+   public :: mapl_GeomGet
+   public :: mapl_GeomGetHorzIJIndex
+   public :: mapl_GridGetHorzIJIndex
+   public :: mapl_GridGet
+   public :: mapl_GridGetCoordinates
+   public :: mapl_GridHasDE
+   public :: mapl_GridGetGlobalCellCountPerDim
+
+   ! Collective comms
+   public :: MAPL_CollectiveGather3D
+   public :: MAPL_CollectiveScatter3D
+
+   ! Subgrid
+   public :: mapl_Interval
+   public :: mapl_make_subgrids
 
 end module mapl_geom_export

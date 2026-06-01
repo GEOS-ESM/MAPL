@@ -12,7 +12,8 @@ module mapl_FieldGetImpl_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use mapl_UngriddedDims_mod
-   use mapl_VerticalGridManager_mod
+   ! Note: mapl_VerticalGridManager_mod is used inside field_get, not here,
+   ! to avoid embedding its gFTL vtable in this module's .mod file.
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec
    use esmf
 
@@ -28,18 +29,19 @@ module mapl_FieldGetImpl_mod
 contains
 
    subroutine field_get(field, unusable, &
-        short_name, typekind, &
-        geom, horizontal_dims_spec, &
-        vgrid, num_levels, num_layers, vert_staggerloc, vert_alignment, num_vgrid_levels, &
-        ungridded_dims, &
-        quantity_type_metadata, &
-        normalization_metadata, &
+         short_name, typekind, &
+         geom, horizontal_dims_spec, &
+         vgrid, num_levels, num_layers, vert_staggerloc, vert_alignment, num_vgrid_levels, &
+         ungridded_dims, &
+         quantity_type_metadata, &
+         normalization_metadata, &
         conservation_metadata, &
         units, standard_name, long_name, &
         allocation_status, &
         has_deferred_aspects, &
         regridder_param_info, &
-        rc)
+         rc)
+      use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), allocatable, optional, intent(out) :: geom
@@ -62,9 +64,9 @@ contains
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable,  intent(out) :: regridder_param_info
-      integer, optional, intent(out) :: rc
+       integer, optional, intent(out) :: rc
 
-      integer :: status
+       integer :: status
       type(ESMF_Info) :: field_info
       character(len=ESMF_MAXSTR) :: fname
       type(ESMF_FieldStatus_Flag) :: fstatus

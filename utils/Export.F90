@@ -9,26 +9,91 @@ module mapl_utils_export
    private
 
    ! Error handling
+   public :: MAPL_Assert
+   public :: MAPL_Verify
+   public :: MAPL_Return
+   public :: MAPL_Deprecated
+   public :: MAPL_SetFailOnDeprecated
+   public :: MAPL_RTRN
+   public :: MAPL_Vrfy
+   public :: MAPL_ASRT
+   public :: MAPL_abort
+   public :: MAPL_set_abort_handler
+   public :: MAPL_SUCCESS
+   public :: MAPL_UNKNOWN_ERROR
+   public :: MAPL_NO_SUCH_PROPERTY
+   public :: MAPL_NO_SUCH_VARIABLE
+   public :: MAPL_TYPE_MISMATCH
+   public :: MAPL_UNSUPPORTED_TYPE
+   public :: MAPL_VALUE_NOT_SUPPORTED
+   public :: MAPL_NO_DEFAULT_VALUE
+   public :: MAPL_DUPLICATE_KEY
+   public :: MAPL_STRING_TOO_SHORT
 
    ! Keyword enforcer
+   public :: KeywordEnforcer
 
    ! String types and utilities
+   public :: String
+   public :: split
+   public :: to_lower
+   public :: to_upper
+   public :: capitalize
+   public :: is_alpha
+   public :: is_alpha_only
+   public :: is_numeric
+   public :: is_alphanumeric
+   public :: to_string
+   public :: to_character_array
+   public :: lowercase
+   public :: uppercase
+   public :: is_digit
+   public :: get_ascii_interval
+   public :: is_alphanum_character
+   public :: is_lower_character
+   public :: is_upper_character
 
    ! OS / filesystem
+   public :: mapl_GetCurrentWorkingDirectory
+   public :: mapl_ChangeDirectory
+   public :: mapl_MakeDirectory
+   public :: mapl_DirectoryExists
+   public :: mapl_RemoveDirectory
+   public :: mapl_RemoveFile
+   public :: mapl_PushDirectory
+   public :: mapl_PopDirectory
+   public :: mapl_ClearDirectoryStack
+   public :: mapl_PathJoin
+   public :: mapl_MakeSymbolicLink
+   public :: get_checkpoint_subdir
+   public :: get_file_extension
+   public :: get_file_basename
 
-   ! Numeric utilities
+   ! Memory info
+   public :: MemInfo
+   public :: MemInfoWrite
 
    ! Time utilities
-   ! public :: PackDate, PackDateTime, UnpackDate
+   public :: PackDate
+   public :: PackDateTime
+   public :: UnpackDate
    ! UnpackDateTime removed - conflicts with mp_utils version, see issue #5011
    ! public :: UnpackDateTime
+
+   ! ISO8601 date/time conversion
+   public :: convert_ISO8601_to_integer_time
+   public :: convert_ISO8601_to_integer_date
+   public :: ISO8601Date
+   public :: ISO8601Time
+   public :: ISO8601DateTime
+   public :: ISO8601Duration
+   public :: ISO8601Interval
 
    ! ESMF info keys
    ! KEY_UNITS and KEY_TYPEKIND excluded: values differ from mapl_HistoryConstants_mod
    ! homonyms; consumers needing them should use mapl_esmf_info_keys_mod directly.
 
-   ! Memory info
-
    ! Validation
+   public :: is_valid_name
 
 end module mapl_utils_export

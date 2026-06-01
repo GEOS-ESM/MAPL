@@ -12,6 +12,7 @@ module mapl_FieldBundleRead_mod
    use mapl_field_bundle_export
    use mapl_VerticalStaggerLoc_mod
    use mapl_vertical_grid_export
+   ! Note: mapl_VerticalGridManager_mod used inside MAPL_read_bundle only
    use mapl_RegridderManager_mod, only: get_regridder_manager, RegridderManager
    use mapl_RegridderSpec_mod
    use mapl_RegridderMethods_mod
@@ -228,17 +229,17 @@ contains
    !                   share the same schema (optional)
    !   rc            - Return code (optional)
    !---------------------------------------------------------------------------
-   subroutine MAPL_read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
-        noread, file_override, rc)
+    subroutine MAPL_read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
+         noread, file_override, rc)
+      use mapl_VerticalGridManager_mod, only: VerticalGridManager, get_vertical_grid_manager
       type(ESMF_FieldBundle), intent(inout) :: bundle
       character(*),           intent(in)    :: file_tmpl
       type(ESMF_Time),        intent(in)    :: time
       character(*), optional, intent(in)    :: only_vars
       integer, optional,      intent(in)    :: regrid_method
       logical, optional,      intent(in)    :: noread
-      character(*), optional, intent(in)    :: file_override
-      integer, optional,      intent(out)   :: rc
-
+       character(*), optional, intent(in)    :: file_override
+       integer, optional,      intent(out)   :: rc
       integer :: status
       integer :: field_count, time_index, i, regrid_method_
 
