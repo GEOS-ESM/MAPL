@@ -29,7 +29,6 @@ set(srcs
   RunEntryPoint.F90
   EntryPointVector.F90
   OpenMP_Support.F90
-  API.F90
 
   # Umbrella modules
   Internal.F90

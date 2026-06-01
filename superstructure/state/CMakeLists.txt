@@ -1,7 +1,6 @@
 esma_set_this (OVERRIDE MAPL.state)
 
 set (srcs
-    API.F90
     StateGet.F90
     StateSet.F90
     StateGetPointer.F90

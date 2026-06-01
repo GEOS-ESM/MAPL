@@ -15,20 +15,11 @@ module MAPL
    use mapl_generic_export
 
    ! Legacy API modules (to be phased out)
-   use mapl_VM_API_mod
    use mapl_Generic
-   use mapl_State_API_mod
    use mapl_Shmem_mod
    use mapl_LoadBalance_mod
    use MAPL_Constants
    use pfio
-   use mapl_Geom_API_mod
-   use mapl_vertical_grid_export
-   use mapl_EsmfUtils_API_mod
-   use mapl_field_export
-   use mapl_field_bundle_export
-   use mapl_RegridderMgr_API_mod
-   use mapl_Generic_API_mod
    use mapl_PythonBridge_mod
    use mapl_base_mod
    use mapl_Profiler_mod, initialize_profiler => initialize, finalize_profiler => finalize

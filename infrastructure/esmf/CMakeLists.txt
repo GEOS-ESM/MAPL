@@ -12,14 +12,12 @@ set (srcs
     UngriddedDim.F90
     UngriddedDims.F90
     UngriddedDimVector.F90
-    EsmfUtils_API.F90
     LU_Bound.F90
     ESMF_Time_Utilities.F90
     HorizontalDimsSpec.F90
     DistGridGet.F90
     FieldPointerUtilities.F90
     # From vm/
-    API.F90
     vm.F90
     # From alarm/
     alarm/SimpleAlarm.F90
@@ -41,7 +39,6 @@ set (srcs
     StateItem.F90
     # From esmf_utils/comms/
     comms/MAPL_Comms.F90
-    comms/Comms_API.F90
     comms/ShmemComms.F90
     # Umbrella modules
     Internal.F90

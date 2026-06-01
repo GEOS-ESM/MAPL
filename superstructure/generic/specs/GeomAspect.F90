@@ -6,7 +6,7 @@ module mapl_GeomAspect_mod
    use mapl_AspectId_mod
    use mapl_HorizontalDimsSpec_mod
    use mapl_StateItemAspect_mod
-   use mapl_Geom_API_mod, only: MAPL_SameGeom
+   use mapl_geom_export, only: MAPL_SameGeom
    use mapl_regridder_mgr, only: EsmfRegridderParam
    use mapl_ExtensionTransform_mod
    use mapl_ExtendTransform_mod
