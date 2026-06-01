@@ -9,6 +9,8 @@ module MAPL
    use mapl_base_export
    use mapl_esmf_export
    use mapl_field_export
+   use mapl_field_bundle_export
+   use mapl_state_export
    use mapl_geom_export
    use mapl_vertical_grid_export
    use mapl_regridder_mgr_export
