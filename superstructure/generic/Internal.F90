@@ -2,7 +2,6 @@
 ! Aggregates leaf modules compiled into MAPL.generic for use by other MAPL subdirectories.
 module mapl_generic_internal
 
-   use mapl_Generic
    use mapl3_GenericGrid
    use mapl_ComponentSpecParser_mod
    use mapl_UserSetServices_mod

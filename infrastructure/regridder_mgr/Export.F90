@@ -25,6 +25,7 @@ module mapl_regridder_mgr_export
         regrid_method_int_to_string, &
         generate_esmf_regrid_param
 
+   use mapl_EsmfRegridder_mod
    implicit none
    private
 
@@ -34,6 +35,7 @@ module mapl_regridder_mgr_export
    public :: regridder_manager
    public :: get_regridder_manager
    public :: RegridderSpec
+   public :: esmfRegridderParam
 
    ! Regrid methods and hints
    public :: REGRID_HINT_LOCAL
@@ -54,5 +56,6 @@ module mapl_regridder_mgr_export
    public :: regrid_method_string_to_int
    public :: regrid_method_int_to_string
    public :: generate_esmf_regrid_param
+
 
 end module mapl_regridder_mgr_export

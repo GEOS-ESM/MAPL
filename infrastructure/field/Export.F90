@@ -10,6 +10,7 @@ module mapl_field_export
    use mapl_FieldSetImpl_mod, only: MAPL_FieldSet => FieldSet
    use mapl_FieldFillImpl_mod, only: MAPL_FieldFill => FieldFill
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
+   use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
    use mapl_RestartModes_mod, only: MAPL_RESTART_REQUIRED, MAPL_RESTART_SKIP
 
    implicit none
@@ -24,6 +25,7 @@ module mapl_field_export
    public :: MAPL_FieldSet
    public :: MAPL_FieldFill
    public :: MAPL_AssignFptr
+   public :: FieldGetLocalElementCount
    public :: MAPL_RESTART_REQUIRED
    public :: MAPL_RESTART_SKIP
 

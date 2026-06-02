@@ -8,6 +8,9 @@ module mapl_base_export
    implicit none
    private
 
+   public :: mapl_VarRead
+   public :: FileMetadataUtils
+   
    ! FileIO
    ! (WRITE_PARALLEL exported via mapl_base_mod to avoid conflict)
 

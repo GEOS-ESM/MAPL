@@ -2,8 +2,7 @@
 
 module mapl_CapGridComp_mod
 
-   use :: mapl_Generic
-   use :: mapl_ErrorHandling_mod
+  use mapl
 
    implicit none
 

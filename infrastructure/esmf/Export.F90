@@ -2,7 +2,8 @@
 ! Public API of esmf/ leaf modules exposed to external consumers.
 module mapl_esmf_export
 
-   use mapl_esmf_internal
+  use mapl_esmf_internal
+  use mapl_Shmem_mod
 
    implicit none
    private
@@ -56,5 +57,29 @@ module mapl_esmf_export
    ! State item constants
 
    ! TYPEKIND
+
+
+   public :: SimpleAlarm
+
+   public :: sub_time_in_datetime
+   public :: FieldGetCPtr
+   public :: FieldCopy
+
+   public :: mapl_ShmInitialized
+   public :: mapl_AllocNodeArray
+   public :: mapl_DeAllocNodeArray
+
+   public :: MAPL_STATEITEM_UNKNOWN
+   public :: MAPL_STATEITEM_FIELD
+   public :: MAPL_STATEITEM_FIELDBUNDLE
+   public :: MAPL_STATEITEM_STATE
+   public :: MAPL_STATEITEM_SERVICE
+   public :: MAPL_STATEITEM_SERVICE_PROVIDER
+   public :: MAPL_STATEITEM_SERVICE_SUBSCRIBER
+   public :: MAPL_STATEITEM_WILDCARD
+   public :: MAPL_STATEITEM_BRACKET
+   public :: MAPL_STATEITEM_VECTOR
+   public :: MAPL_STATEITEM_VECTORBRACKET
+   public :: MAPL_STATEITEM_EXPRESSION
 
 end module mapl_esmf_export
