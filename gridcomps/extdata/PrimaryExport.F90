@@ -318,10 +318,10 @@ module mapl_PrimaryExport_mod
       do i=1,size(field_list)
          call ESMF_FieldGet(field_list(i), typekind=tk, _RC)
          if (tk == ESMF_TYPEKIND_R4) then
-            call assign_fptr(field_list(i), ptr_r4, _RC)
+            call mapl_AssignFptr(field_list(i), ptr_r4, _RC)
             ptr_r4 = ptr_r4 - real(this%fraction_value, kind=ESMF_KIND_R4)
          else if (tk == ESMF_TYPEKIND_R8) then
-            call assign_fptr(field_list(i), ptr_r8, _RC)
+            call mapl_AssignFptr(field_list(i), ptr_r8, _RC)
             ptr_r8 = ptr_r8 - real(this%fraction_value, kind=ESMF_KIND_R8)
          else
             _FAIL('Unsupported typekind')

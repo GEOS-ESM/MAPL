@@ -23,8 +23,25 @@ module mapl_Enums_export
    public :: MAPL_GENERIC_COUPLER_INVALIDATE, MAPL_GENERIC_COUPLER_CLOCK_ADVANCE
 
    ! GenericPhases
+   public :: MAPL_GENERIC_INIT_PHASE_SEQUENCE
+   public :: MAPL_GENERIC_INIT_SET_CLOCK
+   public :: MAPL_GENERIC_INIT_GEOM_A
+   public :: MAPL_GENERIC_INIT_GEOM_B
+   public :: MAPL_GENERIC_INIT_ADVERTISE
+   public :: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
+   public :: MAPL_GENERIC_INIT_REALIZE
+   public :: MAPL_GENERIC_INIT_READ_RESTART
+   public :: MAPL_GENERIC_INIT_USER
 
-   ! CouplerPhases
+   ! Run phases
+   public :: MAPL_GENERIC_RUN_OFFSET
+   public :: MAPL_GENERIC_RUN_CLOCK_ADVANCE
+   public :: MAPL_GENERIC_RUN_USER
+
+   ! Finalize phases
+   public :: MAPL_GENERIC_FINALIZE_USER
+
+
 
    ! StateItemAllocation
    public :: MAPL_StateItemAllocation

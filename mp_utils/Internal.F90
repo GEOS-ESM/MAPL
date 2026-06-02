@@ -16,7 +16,8 @@ module mapl_mp_utils_internal
                                        MAPL_UnpackDateTime => UnpackDateTime, &
                                        PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate, &
                                        ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
-   use mapl_StringTemplate_mod,  only: StrTemplate
+   use mapl_StringTemplate_mod,  only: StrTemplate, fill_grads_template, fill_grads_template_esmf
+   use mapl_Shmem_mod
    private
 
    public :: MAPL_MaxMin, MAPL_AreaMean
@@ -33,5 +34,13 @@ module mapl_mp_utils_internal
    public :: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
    public :: ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
    public :: StrTemplate
+   public :: fill_grads_template
+   public :: fill_grads_template_esmf
+
+   public :: mapl_SyncSharedMemory
+
+   public :: mapl_GetNodeInfo
+   public :: mapl_InitializeShmem
+   public :: mapl_FinalizeShmem
 
 end module mapl_mp_utils_internal

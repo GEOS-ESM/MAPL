@@ -2,7 +2,7 @@ esma_set_this (OVERRIDE MAPL.generic)
 
 set(srcs
   # FieldDictionary* moved to infrastructure/field_dictionary/
-  Generic.F90
+  Export.F90
 
   GenericGrid.F90
 

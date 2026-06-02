@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Major cleanup of Export.F90 in various layers.  But not done yet.
 - Adding public items for generic layer.
 - Lock down all Export umbrella modules to expose only their declared public API (#5026/#5029).
   Added `private` statements and explicit `public ::` declarations to all 12 `Export.F90` files

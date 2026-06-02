@@ -73,4 +73,5 @@ module mapl_base_mod
    public :: MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars
    public :: MAPL_IOChangeRes, MAPL_IOCountLevels
 
+   public :: ArrDescr, ArrDescrInit, ArrDescrSet
 end module mapl_base_mod

@@ -338,7 +338,7 @@ CONTAINS
 
 !  set swath to zero for now
    swath=0.
-   call GridGetGlobalCellCountPerDim(GRID, globalCellCountPerDim=COUNTS, _RC)
+   call mapl_GridGetGlobalCellCountPerDim(GRID, globalCellCountPerDim=COUNTS, _RC)
    IM_world = counts(1)
    JM_world = counts(2)
    if (JM_world == 6*IM_world) then
