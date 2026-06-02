@@ -5,7 +5,7 @@ module Test_timestep_propagation
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
    use mapl_GenericPhases_mod
-   use mapl_GenericGridComp_mod, generic_setservices => setServices
+   use mapl_GenericGridComp_mod
    use mapl_ComponentDriver_mod
    use mapl_GriddedComponentDriver_mod
    use mapl_UserSetServices_mod
@@ -40,7 +40,7 @@ contains
       cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true, use_default_runTime: true}', _RC)
 
       cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
-      call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
+      call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
@@ -74,7 +74,7 @@ contains
       cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true, use_default_runTime: true}', _RC)
 
       cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
-      call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
+      call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
@@ -108,7 +108,7 @@ contains
 
 
       cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
-      call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
+      call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
@@ -152,7 +152,7 @@ contains
 
 
       cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
-      call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
+      call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
       call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)

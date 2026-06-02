@@ -31,7 +31,7 @@ module mapl_GenericGridComp_mod
 
 contains
 
-   recursive subroutine mapl_GenericsetServices(gridcomp, rc)
+   recursive subroutine mapl_GenericSetServices(gridcomp, rc)
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
@@ -79,7 +79,7 @@ contains
          _RETURN(ESMF_SUCCESS)
       end subroutine set_entry_points
 
-   end subroutine mapl_GenericsetServices
+   end subroutine mapl_GenericSetServices
 
 
 
