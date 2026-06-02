@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Major cleanup of Export.F90 in various layers.  But not done yet.
+- Adding public items for generic layer.
+- Lock down all Export umbrella modules to expose only their declared public API (#5026/#5029).
+  Added `private` statements and explicit `public ::` declarations to all 12 `Export.F90` files
+  (`enums/`, `utils/`, `mp_utils/`, `base/`, `infrastructure/esmf/`, `infrastructure/field/`,
+  `infrastructure/field_bundle/`, `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`,
+  `infrastructure/regridder_mgr/`, `superstructure/generic/`, `superstructure/state/`).
+  Dissolved all legacy `API.F90` shim files: `infrastructure/esmf/HConfig_API.F90`,
+  `infrastructure/esmf/API.F90`, `infrastructure/esmf/EsmfUtils_API.F90`,
+  `infrastructure/esmf/comms/Comms_API.F90`, `infrastructure/geom/API.F90`,
+  `infrastructure/regridder_mgr/API.F90`, `superstructure/generic/API.F90`,
+  `superstructure/state/API.F90` (plus the three already deleted in a prior increment).
+  Their symbols are now routed through the proper export umbrellas.
+  Added `mapl_state_export` and `mapl_field_bundle_export` to the top-level `MAPL` umbrella,
+  which were previously only reachable via the now-deleted API shims.
+  Removed from export umbrellas symbols confirmed to have no external consumers: `XYGeomSpec`,
+  `XYGeomFactory`, and `XY_COORD_*` from `geom/Export.F90`; `IntegerPair` from
+  `vertical_grid/Export.F90`.
+  Added to export umbrellas symbols confirmed to have external consumers: `CubedSphereGeomSpec`,
+  `CubedSphereDecomposition`, `AbstractUserSetServices`, `DSOSetServices`, VM/comms utilities,
+  and HConfig conversion functions.
+  Added `BasicVerticalGrid`, `BasicVerticalGridSpec`, `BasicVerticalGridFactory`, and
+  `VerticalGridManager`/`get_vertical_grid_manager` to `vertical_grid/Export.F90` as part
+  of the public vertical-grid API.
+  Renamed unprefixed enum constants and types to their `MAPL_`-prefixed equivalents across
+  ~35 source and test files: `FIELDBUNDLETYPE_*` → `MAPL_FIELDBUNDLETYPE_*`,
+  `STATEITEM_ALLOCATION_*` → `MAPL_STATEITEM_ALLOCATION_*`,
+  `GENERIC_COUPLER_*` → `MAPL_GENERIC_COUPLER_*`,
+  `VectorBasisKind`/`VECTOR_BASIS_KIND_*` → `MAPL_VectorBasisKind`/`MAPL_VECTOR_BASIS_KIND_*`,
+  `FieldBundleType_Flag` → `MAPL_FieldBundleType_Flag`.
+
 ### Fixed
 
 - Remove `FileMetadataUtils` dependency from `MAPL.vertical` (#5017). `VerticalCoordinate`
@@ -26,6 +59,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `__DARWIN` macro is already defined on Apple builds. Fixes #5023.
 
 ### Changed
+
+- Rename `Export_<subdir>.F90` and `Internal_<subdir>.F90` umbrella files to
+  `Export.F90` and `Internal.F90` in all in-scope subdirectories (#5021).
+  Affected: `enums/`, `infrastructure/field/`, `infrastructure/field_bundle/`,
+  `infrastructure/esmf/`, `infrastructure/geom/`, `infrastructure/regridder_mgr/`,
+  `infrastructure/vertical/vertical_grid/`, `mp_utils/`, `superstructure/generic/`,
+  `superstructure/state/`, `utils/`. Module names are unchanged. Legacy `API.F90`
+  files with active external consumers are preserved; unused ones (`enums/API.F90`,
+  `utils/API.F90`) are deleted. Superseded `MpUtilsExport/Internal.F90` and
+  `UtilsExport/Internal.F90` stubs are also removed.
+
+
+- Move `VerticalStaggerLoc` from `MAPL.vertical_grid` into `MAPL.enums` (#5014).
+  `MAPL.enums` is now a dependency of `MAPL.vertical_grid`; backward-compatible
+  re-exports of the unqualified names are preserved in `Export_vertical_grid.F90`.
+
+- Restore `MAPL.field_bundle` and `MAPL.state` as proper separate CMake libraries
+  (#5014). A previous agent had consolidated `field/`, `field_bundle/`, and `state/`
+  sources into a single `MAPL.field` target using relative `../` paths and interface
+  shims. Each subdirectory now has its own `CMakeLists.txt`, its own
+  `Export_*.F90` umbrella module, and is built as an independent shared library.
 
 - Standardize umbrella module filenames to `Internal_<subdir>.F90` / `Export_<subdir>.F90`
   convention (#5010). Eliminates filename collisions when multiple subdirectories contribute

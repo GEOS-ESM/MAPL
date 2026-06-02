@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
 module mapl_VectorBracketClassAspect_mod
-   use mapl_Field_API
-   use mapl_FieldBundle_API_mod
+   use mapl_field_export
+   use mapl_field_bundle_export
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
@@ -17,6 +17,8 @@ module mapl_VectorBracketClassAspect_mod
    use mapl_UngriddedDimsAspect_mod
    use mapl_FieldBundleInfo_mod, only: FieldBundleInfoSetInternal
    use mapl_Enums_internal, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
+   use mapl_Enums_export, only: MAPL_STATEITEM_ALLOCATION_CREATED, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
+        MAPL_FIELDBUNDLETYPE_VECTORBRACKET
 
    use mapl_VerticalGrid_mod
    use mapl_VerticalStaggerLoc_mod
@@ -149,12 +151,12 @@ contains
      integer :: status
      type(ESMF_Info) :: info
 
-      this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTORBRACKET, _RC)
+      this%payload = MAPL_FieldBundleCreate(fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTORBRACKET, _RC)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldBundleInfoSetInternal(info, allocation_status=STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
+      call FieldBundleInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, bracket_updated=.true.,  _RC)
       call MAPL_FieldBundleSet(this%payload, &
-                               allocation_status=STATEITEM_ALLOCATION_CREATED, &
+                               allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, &
                                vector_basis_kind=this%vector_basis_kind, &
                                _RC)
 
@@ -168,7 +170,7 @@ contains
 
       integer :: status
 
-      call MAPL_FieldBundleSet(this%payload, allocation_status=STATEITEM_ALLOCATION_ACTIVE, _RC)
+      call MAPL_FieldBundleSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine activate

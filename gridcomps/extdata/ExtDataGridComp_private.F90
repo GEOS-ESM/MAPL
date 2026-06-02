@@ -126,7 +126,7 @@ contains
       integer itemCount,i
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_Field) :: field
-      type(StateItemAllocation) :: allocation_status
+      type(MAPL_StateItemAllocation) :: allocation_status
 
       call ESMF_StateGet(state, itemCount=itemCount, _RC)
       allocate(itemNameList(itemCount), _STAT)
@@ -140,7 +140,7 @@ contains
             call ESMF_StateGet(state, trim(itemNameList(i)), field, _RC)
             call MAPL_FieldGet(field, allocation_status=allocation_status, _RC)
          end if
-         if (allocation_status >= STATEITEM_ALLOCATION_ACTIVE) call active_list%push_back(trim(itemNameList(i)))
+         if (allocation_status >= MAPL_STATEITEM_ALLOCATION_ACTIVE) call active_list%push_back(trim(itemNameList(i)))
       enddo
 
       _RETURN(_SUCCESS)

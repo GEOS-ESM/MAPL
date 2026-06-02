@@ -2,7 +2,7 @@
 
 module mapl_FieldCreateImpl_mod
 
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_export, only: VerticalGrid, BasicVerticalGrid, BasicVerticalGridSpec
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
    use mapl_FieldInfo_mod
@@ -17,7 +17,6 @@ module mapl_FieldCreateImpl_mod
    use mapl_ErrorHandling_mod
    use mapl_InternalConstants_mod, only: MAPL_UNDEFINED_REAL
    use esmf, MAPL_FieldEmptyCreate => ESMF_FieldEmptyCreate
-   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid, BasicVerticalGridSpec
 
    implicit none(type,external)
    private
@@ -120,13 +119,14 @@ contains
         ! Optional MAPL args
         vert_staggerloc, vert_alignment, &
         units, standard_name, long_name, &
-        rc) result(field)
-      type(ESMF_Field) :: field
-      type(ESMF_Geom), intent(in) :: geom
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, intent(in) :: num_levels  ! REQUIRED - DEPRECATED, use vgrid instead
-      character(*), optional, intent(in) :: name
+         rc) result(field)
+       type(ESMF_Field) :: field
+       type(ESMF_Geom), intent(in) :: geom
+       type(ESMF_TypeKind_Flag), intent(in) :: typekind
+       class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, intent(in) :: num_levels  ! REQUIRED - DEPRECATED, use vgrid instead
+
+       character(*), optional, intent(in) :: name
       integer, optional, intent(in) :: gridToFieldMap(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc

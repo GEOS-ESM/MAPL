@@ -1,10 +1,10 @@
 #include "MAPL.h"
 module mapl_FixedLevelsVerticalGrid_mod
-   use mapl_Field_API
+   use mapl_field_export
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
    use mapl_VerticalGridFactory_mod, only: VerticalGridFactory
-   use mapl_BasicVerticalGrid_mod
+   use mapl_vertical_grid_export
    use mapl_ComponentDriver_mod
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use pfio
@@ -115,14 +115,13 @@ contains
       num_layers = size(this%spec%levels)
    end function get_num_layers
 
-   function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
+   function get_coordinate_field(this, physical_dimension, aspects, rc) result(field)
       use mapl_StateItemAspect_mod, only: AspectMap
       use mapl_GeomAspect_mod, only: GeomAspect, to_GeomAspect
       type(esmf_Field) :: field
       class(FixedLevelsVerticalGrid), intent(in) :: this
       character(len=*), intent(in) :: physical_dimension
       class(*), intent(in) :: aspects
-      class(ComponentDriver), pointer, intent(out) :: coupler
       integer, intent(out), optional :: rc
       
       integer :: status
@@ -132,8 +131,6 @@ contains
       type(esmf_Geom) :: geom
       type(AspectMap) :: aspects_
 
-      coupler => null()
-      
       ! Convert class(*) to AspectMap
       select type (aspects)
       type is (AspectMap)

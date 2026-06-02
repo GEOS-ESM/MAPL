@@ -2,7 +2,7 @@ esma_set_this (OVERRIDE MAPL.generic)
 
 set(srcs
   # FieldDictionary* moved to infrastructure/field_dictionary/
-  Generic.F90
+  Export.F90
 
   GenericGrid.F90
 
@@ -29,11 +29,10 @@ set(srcs
   RunEntryPoint.F90
   EntryPointVector.F90
   OpenMP_Support.F90
-  API.F90
 
   # Umbrella modules
-  Internal_generic.F90
-  Export_generic.F90
+  Internal.F90
+  Export.F90
   )
 
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
@@ -55,7 +54,7 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.enums MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
     MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared
     MAPL.profiler MAPL.hconfig_utils MAPL.vertical MAPL.component MAPL.field_bundle
-    MAPL.field_dictionary
+    MAPL.infrastructure
   ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm MAPL.utils
   TYPE SHARED
   )

@@ -33,18 +33,16 @@ module mapl_VerticalGrid_mod
     abstract interface
        ! Updated interface - accepts aspects as unlimited polymorphic to avoid circular dependencies
        ! Implementations should expect this to be type(AspectMap) from mapl_StateItemAspect
-       function I_get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
-          use mapl_ComponentDriver_mod, only: ComponentDriver
-          use esmf, only: esmf_Field
-          import VerticalGrid
-          implicit none
-          type(esmf_Field) :: field
-          class(VerticalGrid), intent(in) :: this
-          character(len=*), intent(in) :: physical_dimension
-          class(*), intent(in) :: aspects
-          class(ComponentDriver), pointer, intent(out) :: coupler
-          integer, intent(out), optional :: rc
-       end function I_get_coordinate_field
+        function I_get_coordinate_field(this, physical_dimension, aspects, rc) result(field)
+           use esmf, only: esmf_Field
+           import VerticalGrid
+           implicit none
+           type(esmf_Field) :: field
+           class(VerticalGrid), intent(in) :: this
+           character(len=*), intent(in) :: physical_dimension
+           class(*), intent(in) :: aspects
+           integer, intent(out), optional :: rc
+        end function I_get_coordinate_field
       
       ! New interface for supported physical dimensions
       function I_get_supported_physical_dimensions(this) result(dimensions)

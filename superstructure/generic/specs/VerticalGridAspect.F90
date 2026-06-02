@@ -3,8 +3,8 @@
 module mapl_VerticalGridAspect_mod
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
-   use mapl_Field_API
-   use mapl_FieldBundle_API_mod
+   use mapl_field_export
+   use mapl_field_bundle_export
    use mapl_StateItemAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_ExtendTransform_mod
@@ -17,11 +17,10 @@ module mapl_VerticalGridAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UnitsAspect_mod
    use mapl_NormalizationAspect_mod
-   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE
+   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, operator(/=)
    use mapl_VerticalRegridMethod_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalRegridMethod_mod
-   use mapl_ComponentDriver_mod
    use mapl_MirrorVerticalGrid_mod, only: MirrorVerticalGrid
    use mapl_ErrorHandling_mod
    use esmf
@@ -68,6 +67,23 @@ module mapl_VerticalGridAspect_mod
 
    interface VerticalGridAspect
       procedure new_VerticalGridAspect_specific
+   end interface
+
+   interface
+      module function make_transform(src, dst, other_aspects, rc) result(transform)
+         class(ExtensionTransform), allocatable :: transform
+         class(VerticalGridAspect), intent(in) :: src
+         class(StateItemAspect), intent(in) :: dst
+         type(AspectMap), target, intent(in) :: other_aspects
+         integer, optional, intent(out) :: rc
+      end function make_transform
+
+      module function find_common_physical_dimension(src, dst, rc) result(physical_dimension)
+         character(:), allocatable :: physical_dimension
+         class(VerticalGridAspect), intent(in) :: src
+         class(VerticalGridAspect), intent(in) :: dst
+         integer, optional, intent(out) :: rc
+      end function find_common_physical_dimension
    end interface
 
 contains
@@ -202,136 +218,6 @@ contains
 
    end function typesafe_matches
 
-   function find_common_physical_dimension(src, dst, rc) result(physical_dimension)
-      character(:), allocatable :: physical_dimension
-      class(VerticalGridAspect), intent(in) :: src
-      class(VerticalGridAspect), intent(in) :: dst
-      integer, optional, intent(out) :: rc
-
-      type(StringVector) :: vec_in
-      type(StringVector) :: vec_out
-      integer :: i
-
-      physical_dimension = 'not found'
-      vec_in = src%vertical_grid%get_supported_physical_dimensions()
-      vec_out = dst%vertical_grid%get_supported_physical_dimensions()
-
-      do i = 1, vec_in%size()
-         if (find(vec_out%begin(), vec_out%end(), vec_in%of(i)) /= vec_out%end()) then
-            physical_dimension = vec_in%of(i)
-            _RETURN(_SUCCESS)
-         end if
-      end do
-
-      _FAIL('No common physical dimension found between source and destination VerticalGridAspect')
-   end function find_common_physical_dimension
-
-   function make_transform(src, dst, other_aspects, rc) result(transform)
-      class(ExtensionTransform), allocatable :: transform
-      class(VerticalGridAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      type(AspectMap), target, intent(in)  :: other_aspects
-      integer, optional, intent(out) :: rc
-
-       class(ComponentDriver), pointer :: v_in_coupler
-       class(ComponentDriver), pointer :: v_out_coupler
-       type(ESMF_Field) :: v_in_field, v_out_field
-       type(VerticalGridAspect) :: dst_
-       type(NormalizationAspect) :: norm_aspect
-       type(MAPL_NormalizationType) :: norm_type
-       type(AspectMap) :: coord_aspects  ! Aspects for coordinate field creation
-       character(:), allocatable :: units
-       character(:), allocatable :: physical_dimension
-        type(VerticalCoordinateDirection) :: src_alignment, dst_alignment
-        logical :: grids_match
-        logical :: needs_normalization
-        type(VerticalRegridParam) :: regrid_param
-        integer :: status
-
-      if (src%is_mirror()) then
-         allocate(transform, source=ExtendTransform())
-         _RETURN(_SUCCESS)
-      end if
-
-      allocate(transform,source=NullTransform()) ! just in case
-      dst_ = to_VerticalGridAspect(dst, _RC)
-
-       ! Query NormalizationAspect to determine if normalization is needed
-       ! for conservative vertical regridding. If NormalizationAspect is not present,
-       ! default to no normalization (status will be non-zero).
-       needs_normalization = .false.
-       if (dst_%regrid_method == VERTICAL_REGRID_CONSERVATIVE) then
-          norm_aspect = to_NormalizationAspect(other_aspects, rc=status)
-          if (status == _SUCCESS) then
-             norm_type = norm_aspect%get_normalization_type(_RC)
-             needs_normalization = (norm_type /= MAPL_NORMALIZE_NONE)
-          end if
-       end if
-
-
-      physical_dimension = find_common_physical_dimension(src, dst_, _RC)
-      units = dst_%vertical_grid%get_units(physical_dimension, _RC)
-      
-      ! Build aspect map for coordinate field creation
-      ! Copy other_aspects and ensure UNITS is set to the derived value
-      coord_aspects = other_aspects
-      call coord_aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
-      
-      v_in_field = src%vertical_grid%get_coordinate_field(physical_dimension, &
-           coord_aspects, coupler=v_in_coupler, _RC)
-      v_out_field = dst_%vertical_grid%get_coordinate_field(physical_dimension, &
-           coord_aspects, coupler=v_out_coupler, _RC)
-      
-      ! Get resolved alignments
-      src_alignment = src%get_resolved_alignment()
-      dst_alignment = dst_%get_resolved_alignment()
-      
-      !> Degenerate Case Detection
-      !! ------------------------
-      !! A "degenerate case" occurs when source and destination have the same vertical
-      !! grid but different coordinate alignments (e.g., both use 72-level grid but
-      !! one is UP and the other is DOWN).
-      !!
-      !! Detection logic:
-      !! 1. First check: Compare grid IDs (fast path for identical grid objects)
-      !! 2. Fallback: Use vertical_grid%matches() for structural equality
-      !!    - BasicVerticalGrid matches any grid with same number of levels
-      !!    - Allows flexibility for runtime-defined grids
-      !!
-      !! Special handling based on alignment:
-      !! - Same grid + same alignment → NullTransform (no operation needed)
-      !! - Same grid + different alignment → VerticalRegridTransform with is_degenerate_case=.true.
-      !!   (performs vertical flip without interpolation)
-      !! - Different grids → VerticalRegridTransform with is_degenerate_case=.false.
-      !!   (performs full regridding with alignment-aware coordinate canonicalization)
-      ! Check if grids are the same (degenerate case)
-      grids_match = dst_%vertical_grid%get_id() == src%vertical_grid%get_id()
-      if (.not. grids_match) then
-         ! The following allows Basic to match to grids that have the same number of levels
-         grids_match = src%vertical_grid%matches(dst_%vertical_grid)
-      end if
-      
-      ! If grids match AND alignments match, no transform needed
-      if (grids_match .and. (src_alignment == dst_alignment)) then
-         deallocate(transform)
-         allocate(transform, source=NullTransform())
-         _RETURN(_SUCCESS)
-      end if
-      
-       ! Build regrid parameters
-       regrid_param%stagger_in = src%vertical_stagger
-       regrid_param%stagger_out = dst_%vertical_stagger
-       regrid_param%method = dst_%regrid_method
-       regrid_param%src_alignment = src_alignment
-       regrid_param%dst_alignment = dst_alignment
-       regrid_param%is_degenerate_case = grids_match
-       regrid_param%needs_normalization = needs_normalization
-      
-      deallocate(transform)
-      transform = VerticalRegridTransform(v_in_field, v_in_coupler, v_out_field, v_out_coupler, regrid_param)
-
-      _RETURN(_SUCCESS)
-   end function make_transform
 
    subroutine set_vertical_grid(self, vertical_grid)
       class(VerticalGridAspect), intent(inout) :: self

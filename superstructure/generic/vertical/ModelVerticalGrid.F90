@@ -4,8 +4,8 @@ module mapl_ModelVerticalGrid_mod
 
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
-   use mapl_VerticalGrid_API_mod
-   use mapl_Field_API
+   use mapl_vertical_grid_export
+   use mapl_field_export
    use mapl_StateRegistry_mod
    use mapl_VirtualConnectionPt_mod
    use mapl_StateItemSpec_mod
@@ -54,6 +54,7 @@ module mapl_ModelVerticalGrid_mod
        procedure :: get_num_layers
        procedure :: get_units
        procedure :: get_coordinate_field
+       procedure :: get_coordinate_field_with_coupler
 !#      procedure :: is_identical_to
        procedure :: write_formatted
        procedure :: get_supported_physical_dimensions
@@ -195,7 +196,21 @@ contains
       registry => this%registry
    end function get_registry
 
-   function get_coordinate_field(this, physical_dimension, aspects, coupler, rc) result(field)
+   function get_coordinate_field(this, physical_dimension, aspects, rc) result(field)
+      type(ESMF_Field) :: field
+      class(ModelVerticalGrid), intent(in) :: this
+      character(*), intent(in) :: physical_dimension
+      class(*), intent(in) :: aspects
+      integer, optional, intent(out) :: rc
+
+      class(ComponentDriver), pointer :: coupler
+      integer :: status
+
+      field = this%get_coordinate_field_with_coupler(physical_dimension, aspects, coupler=coupler, _RC)
+      _RETURN(_SUCCESS)
+   end function get_coordinate_field
+
+   function get_coordinate_field_with_coupler(this, physical_dimension, aspects, coupler, rc) result(field)
       type(ESMF_Field) :: field
       class(ModelVerticalGrid), intent(in) :: this
       character(*), intent(in) :: physical_dimension
@@ -266,7 +281,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
-   end function get_coordinate_field
+   end function get_coordinate_field_with_coupler
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(ModelVerticalGrid), intent(in) :: this

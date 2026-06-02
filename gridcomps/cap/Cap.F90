@@ -219,7 +219,6 @@ contains
    end function get_timestamp
 
    function make_driver(clock, hconfig, options, rc) result(driver)
-      use mapl_GenericGridComp_mod, only: generic_setServices => setServices
       type(GriddedComponentDriver) :: driver
       type(esmf_HConfig), intent(in) :: hconfig
       type(esmf_Clock), intent(in) :: clock
@@ -233,7 +232,7 @@ contains
       petList = get_model_pets(options%is_model_pet, _RC)
 
       cap_gridcomp = mapl_GridCompCreate(options%name, user_setservices(cap_setservices), hconfig, petList=petList, _RC)
-      call esmf_GridCompSetServices(cap_gridcomp, generic_setServices, _USERRC)
+      call esmf_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, _USERRC)
 
       driver = GriddedComponentDriver(cap_gridcomp, clock=clock)
 
