@@ -3,7 +3,7 @@ esma_set_this (OVERRIDE MAPL.enums)
 set (srcs
   # Layer umbrellas (Internal must precede Export)
   Internal.F90
-  Export.F90
+  API.F90
   ConservationType.F90
   NormalizationType.F90
   QuantityType.F90

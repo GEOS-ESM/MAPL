@@ -4,7 +4,7 @@
 module mapl_StateMask_mod
    use ESMF
    use mapl_KeywordEnforcer_mod
-   use mapl_geom_export, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
+   use mapl_geom_api, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
    use mapl_ExceptionHandling_mod
    use gFTL2_StringVector
    use mapl_StateArithmeticParser_mod

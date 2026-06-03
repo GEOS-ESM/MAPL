@@ -3,7 +3,7 @@
 module mapl_FieldClassAspect_mod
 
    use mapl_ActualConnectionPt_mod
-   use mapl_Enums_export
+   use mapl_enums_api
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
    use mapl_ClassAspect_mod
@@ -24,8 +24,8 @@ module mapl_FieldClassAspect_mod
    use mapl_MultiState_mod
    use mapl_ESMF_Utilities_mod, only: get_substate
 
-   use mapl_field_export
-   use mapl_field_bundle_export
+   use mapl_field_api
+   use mapl_field_bundle_api
    use mapl_FieldInfo_mod, only: FieldInfoSetInternal
    use mapl_RestartModes_mod, only: RestartMode
 

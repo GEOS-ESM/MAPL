@@ -1,7 +1,7 @@
 ! Export umbrella for the MAPL utils layer.
 ! Defines the public API of utils/ for external consumers.
 ! Uses mapl_utils_internal and re-exports only the intended public symbols.
-module mapl_utils_export
+module mapl_utils_api
 
    use mapl_utils_internal
 
@@ -96,4 +96,4 @@ module mapl_utils_export
    ! Validation
    public :: is_valid_name
 
-end module mapl_utils_export
+end module mapl_utils_api

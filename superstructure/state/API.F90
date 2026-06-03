@@ -1,5 +1,5 @@
 ! Export umbrella for the MAPL.state library.
-module mapl_state_export
+module mapl_state_api
 
    use mapl_StateArithmeticParser_mod, only: MAPL_ParserVariablesInExpression => parser_variables_in_expression
    use mapl_StateArithmeticParser_mod, only: mapl_StateEval
@@ -23,4 +23,4 @@ module mapl_state_export
    public :: mapl_StateEval
 
    public :: StateMask
-end module mapl_state_export
+end module mapl_state_api

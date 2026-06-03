@@ -1,6 +1,6 @@
 ! Export umbrella for the MAPL infrastructure/esmf layer.
 ! Public API of esmf/ leaf modules exposed to external consumers.
-module mapl_esmf_export
+module mapl_esmf_api
 
   use mapl_esmf_internal
   use mapl_Shmem_mod
@@ -82,4 +82,4 @@ module mapl_esmf_export
    public :: MAPL_STATEITEM_VECTORBRACKET
    public :: MAPL_STATEITEM_EXPRESSION
 
-end module mapl_esmf_export
+end module mapl_esmf_api

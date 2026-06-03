@@ -3,7 +3,7 @@
 ! (i.e., entities carrying the MAPL_ prefix).
 ! This is what mapl/MAPL.F90 imports from.
 ! For internal MAPL use, see mapl_mp_utils_internal.
-module mapl_mp_utils_export
+module mapl_mp_utils_api
    use mapl_mp_utils_internal
    implicit none
    private
@@ -49,4 +49,4 @@ module mapl_mp_utils_export
    public :: mapl_InitializeShmem
    public :: mapl_FinalizeShmem
 
-end module mapl_mp_utils_export
+end module mapl_mp_utils_api

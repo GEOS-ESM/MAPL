@@ -3,7 +3,7 @@
 module mapl_StateGetGeomImpl_mod
    use esmf
    use mapl_ErrorHandling_mod
-   use mapl_geom_export
+   use mapl_geom_api
    implicit none(type,external)
    private
 
