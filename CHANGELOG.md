@@ -53,6 +53,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-Ktrap=fp` (nvfortran) causes SIGFPE when a signaling NaN is loaded for inspection.
   Zero-diff for all non-test code.
 
+- Guard `ieee_set/get_halting_mode` and `ieee_set_flag` calls in `Test_FieldFill.pf` with
+  `#ifndef __DARWIN` to fix a runtime error on macOS with NAG (`IEEE_SET_HALTING_MODE is not
+  supported`). IEEE halting mode is not supported on macOS/ARM regardless of compiler. The
+  `__DARWIN` macro is already defined on Apple builds. Fixes #5023.
+
 ### Changed
 
 - Rename `Export_<subdir>.F90` and `Internal_<subdir>.F90` umbrella files to
