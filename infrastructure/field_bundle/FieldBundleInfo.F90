@@ -10,11 +10,13 @@ module mapl_FieldBundleInfo_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
-   use mapl_Enums_export, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, &
-        MAPL_StateItemAllocation, &
-        MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED, &
-        MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
-        MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
+!!$   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, &
+!!$        MAPL_StateItemAllocation, &
+!!$        MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED, &
+!!$        MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
+!!$        MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, & 
+        MAPL_StateItemAllocation
    use mapl_VerticalAlignment_mod
    use mapl_vertical_grid_export
    use mapl_KeywordEnforcer_mod

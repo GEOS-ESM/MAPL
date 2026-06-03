@@ -3,7 +3,7 @@
 module mapl_FieldClassAspect_mod
 
    use mapl_ActualConnectionPt_mod
-   use mapl_Enums_export
+   use mapl_enums_api
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
    use mapl_ClassAspect_mod

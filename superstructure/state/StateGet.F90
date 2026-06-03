@@ -2,7 +2,7 @@
 
 module mapl_StateGetImpl_mod
    use mapl_vertical_grid_export
-   use mapl_Enums_export
+   use mapl_enums_api
    use mapl_field_export
    use mapl_UngriddedDims_mod
    use mapl_ErrorHandling_mod

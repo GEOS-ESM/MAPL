@@ -16,9 +16,8 @@ module mapl_VectorBracketClassAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UngriddedDimsAspect_mod
    use mapl_FieldBundleInfo_mod, only: FieldBundleInfoSetInternal
-   use mapl_Enums_internal, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
-   use mapl_Enums_export, only: MAPL_STATEITEM_ALLOCATION_CREATED, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
-        MAPL_FIELDBUNDLETYPE_VECTORBRACKET
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
+        MAPL_FIELDBUNDLETYPE_VECTORBRACKET, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
 
    use mapl_VerticalGrid_mod
    use mapl_VerticalStaggerLoc_mod

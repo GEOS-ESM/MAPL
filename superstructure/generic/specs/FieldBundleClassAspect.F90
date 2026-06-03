@@ -14,7 +14,7 @@ module mapl_FieldBundleClassAspect_mod
    use mapl_field_export
     use mapl_field_bundle_export, only: MAPL_FieldBundleCreate, MAPL_FieldBundleInfoSetInternal
     use mapl_field_bundle_export, only: MAPL_FieldBundlesAreAliased
-    use mapl_Enums_export, only: MAPL_STATEITEM_ALLOCATION_CREATED, MAPL_STATEITEM_ALLOCATION_ACTIVE
+    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED, MAPL_STATEITEM_ALLOCATION_ACTIVE
    use mapl_FieldBundleInfo_mod, only: FieldBundleInfoSetInternal
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod

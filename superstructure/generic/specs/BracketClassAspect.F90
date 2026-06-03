@@ -3,7 +3,7 @@
 module mapl_BracketClassAspect_mod
 
    use mapl_field_export
-   use mapl_Enums_export
+   use mapl_enums_api
    use mapl_field_bundle_export
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod

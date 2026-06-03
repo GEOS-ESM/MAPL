@@ -10,11 +10,8 @@ module mapl_FieldBundleGetImpl_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
-   use mapl_Enums_export, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
-        MAPL_StateItemAllocation, &
-        MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED, &
-        MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
-        MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
+   use mapl_Enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
+        MAPL_StateItemAllocation
    use mapl_FieldBundleInfo_mod
    use mapl_InfoUtilities_mod
    use mapl_LU_Bound_mod

@@ -2,7 +2,7 @@
 
 module mapl_StateItemSpec_mod
    use mapl_AspectId_mod
-   use mapl_Enums_export
+   use mapl_enums_api
    use mapl_ActualConnectionPt_mod
    use mapl_VirtualConnectionPtVector_mod
    use mapl_ExtensionTransform_mod

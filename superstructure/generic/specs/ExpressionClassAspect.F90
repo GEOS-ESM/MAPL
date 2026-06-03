@@ -31,7 +31,7 @@ module mapl_ExpressionClassAspect_mod
 
    use mapl_field_export
    use mapl_FieldUtilities_mod
-   use mapl_Enums_export, only: MAPL_STATEITEM_ALLOCATION_CREATED
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED
    use mapl_StateArithmeticParser_mod
    use gftl2_StringVector
 
