@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) advertise_var_spec_smod
-   use mapl_field_api
+    use mapl_field_api
    use mapl_VariableSpec_mod
    use mapl_StateItemSpec_mod
    use mapl_VirtualConnectionPt_mod
@@ -11,54 +11,54 @@ submodule (mapl_OuterMetaComponent_mod) advertise_var_spec_smod
 contains
 
    module subroutine advertise_variable(this, var_spec, rc)
-     class(OuterMetaComponent), target, intent(inout) :: this
-     type(VariableSpec), intent(in) :: var_spec
-     integer, optional, intent(out) :: rc
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      type(StateItemSpec), target :: item_spec
+      type(StateItemSpec), pointer :: item_primary
+      type(VirtualConnectionPt) :: virtual_pt
+      
+      item_spec = var_spec%make_StateItemSpec(this%registry, &
+           this%geom, this%vertical_grid, _RC)
+      virtual_pt = var_spec%make_virtualPt()
+      call this%registry%add_primary_spec(virtual_pt, item_spec)
+      
+      item_primary => this%registry%get_primary_spec(virtual_pt, _RC)
 
-     integer :: status
-     type(StateItemSpec), target :: item_spec
-     type(StateItemSpec), pointer :: item_primary
-     type(VirtualConnectionPt) :: virtual_pt
+      call item_primary%create(_RC)
+      call set_default_activation(item_primary, var_spec%state_intent, _RC)
 
-     item_spec = var_spec%make_StateItemSpec(this%registry, &
-          this%geom, this%vertical_grid, _RC)
-     virtual_pt = var_spec%make_virtualPt()
-     call this%registry%add_primary_spec(virtual_pt, item_spec)
-
-     item_primary => this%registry%get_primary_spec(virtual_pt, _RC)
-
-     call item_primary%create(_RC)
-     call set_default_activation(item_primary, var_spec%state_intent, _RC)
-
-     _RETURN(_SUCCESS)
+      _RETURN(_SUCCESS)
 
    contains
 
-     subroutine set_default_activation(item_spec, state_intent, rc)
-        type(StateItemSpec), intent(inout) :: item_spec
-        type(esmf_StateIntent_Flag), intent(in) :: state_intent
-        integer, optional, intent(out) :: rc
+      subroutine set_default_activation(item_spec, state_intent, rc)
+         type(StateItemSpec), intent(inout) :: item_spec
+         type(esmf_StateIntent_Flag), intent(in) :: state_intent
+         integer, optional, intent(out) :: rc
+         
+         integer :: status
 
-        integer :: status
-
-        if (state_intent == ESMF_STATEINTENT_EXPORT) then
-           if (this%component_spec%misc%activate_all_exports) then
-              call item_spec%activate(_RC)
-           end if
-        end if
-
-        if (state_intent == ESMF_STATEINTENT_IMPORT) then
-           if (this%component_spec%misc%activate_all_imports) then
-              call item_spec%activate(_RC)
-           end if
-        end if
-
-        if (state_intent == ESMF_STATEINTENT_INTERNAL) then
-           call item_spec%activate(_RC)
-        end if
-
-        _RETURN(_SUCCESS)
-     end subroutine set_default_activation
+         if (state_intent == ESMF_STATEINTENT_EXPORT) then
+            if (this%component_spec%misc%activate_all_exports) then
+               call item_spec%activate(_RC)
+            end if
+         end if
+         
+         if (state_intent == ESMF_STATEINTENT_IMPORT) then
+            if (this%component_spec%misc%activate_all_imports) then
+               call item_spec%activate(_RC)
+            end if
+         end if
+         
+         if (state_intent == ESMF_STATEINTENT_INTERNAL) then
+            call item_spec%activate(_RC)
+         end if
+         
+         _RETURN(_SUCCESS)
+      end subroutine set_default_activation
 
    end subroutine advertise_variable
 

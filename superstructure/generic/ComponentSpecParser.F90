@@ -1,5 +1,5 @@
 #include "MAPL.h"
-
+ 
 module mapl_ComponentSpecParser_mod
 
    use mapl_ComponentSpec_mod
@@ -20,7 +20,7 @@ module mapl_ComponentSpecParser_mod
    use mapl_UngriddedDims_mod
    use mapl_UngriddedDim_mod
    use mapl_GeometrySpec_mod
-   use mapl_geom_api
+    use mapl_geom_api
    use mapl_StateItemImpl_mod
    use mapl_ESMF_Utilities_mod
    use mapl_UserSetServices_mod
@@ -78,66 +78,66 @@ module mapl_ComponentSpecParser_mod
    !>
    ! Submodule declarations
    INTERFACE
-     module function parse_component_spec(hconfig, registry, component_name, rc) result(spec)
-        type(ComponentSpec) :: spec
-        type(ESMF_HConfig), target, intent(inout) :: hconfig
-        type(StateRegistry), target, intent(in) :: registry
-        character(*), intent(in) :: component_name
-        integer, optional, intent(out) :: rc
-     end function parse_component_spec
+      module function parse_component_spec(hconfig, registry, component_name, rc) result(spec)
+         type(ComponentSpec) :: spec
+         type(ESMF_HConfig), target, intent(inout) :: hconfig
+         type(StateRegistry), target, intent(in) :: registry
+         character(*), intent(in) :: component_name
+         integer, optional, intent(out) :: rc
+      end function parse_component_spec
 
-     module function parse_geometry_spec(mapl_cfg, registry, component_name, rc) result(geometry_spec)
-        type(GeometrySpec) :: geometry_spec
-        type(ESMF_HConfig), intent(in) :: mapl_cfg
-        type(StateRegistry), target, intent(in) :: registry
-        character(*), intent(in) :: component_name
-        integer, optional, intent(out) :: rc
-     end function parse_geometry_spec
+      module function parse_geometry_spec(mapl_cfg, registry, component_name, rc) result(geometry_spec)
+         type(GeometrySpec) :: geometry_spec
+         type(ESMF_HConfig), intent(in) :: mapl_cfg
+         type(StateRegistry), target, intent(in) :: registry
+         character(*), intent(in) :: component_name
+         integer, optional, intent(out) :: rc
+      end function parse_geometry_spec
 
-     module function parse_var_specs(hconfig, registry, component_name, rc) result(var_specs)
-        type(VariableSpecVector) :: var_specs
-        type(ESMF_HConfig), intent(in) :: hconfig
-        type(StateRegistry), target, intent(in) :: registry
-        character(*), intent(in) :: component_name
-        integer, optional, intent(out) :: rc
-     end function parse_var_specs
+      module function parse_var_specs(hconfig, registry, component_name, rc) result(var_specs)
+         type(VariableSpecVector) :: var_specs
+         type(ESMF_HConfig), intent(in) :: hconfig
+         type(StateRegistry), target, intent(in) :: registry
+         character(*), intent(in) :: component_name
+         integer, optional, intent(out) :: rc
+      end function parse_var_specs
 
-     module function parse_connections(hconfig, rc) result(connections)
-        type(ConnectionVector) :: connections
-        type(ESMF_HConfig), optional, intent(in) :: hconfig
-        integer, optional, intent(out) :: rc
-     end function parse_connections
+      module function parse_connections(hconfig, rc) result(connections)
+         type(ConnectionVector) :: connections
+         type(ESMF_HConfig), optional, intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function parse_connections
 
-     module function parse_setservices(config, rc) result(user_ss)
-        type(DSOSetServices) :: user_ss
-        type(ESMF_HConfig), target, intent(in) :: config
-        integer, optional, intent(out) :: rc
-     end function parse_setservices
+      module function parse_setservices(config, rc) result(user_ss)
+         type(DSOSetServices) :: user_ss
+         type(ESMF_HConfig), target, intent(in) :: config
+         integer, optional, intent(out) :: rc
+      end function parse_setservices
 
-     module function parse_children(hconfig, rc) result(children)
-        type(ChildSpecMap) :: children
-        type(ESMF_HConfig), intent(in) :: hconfig
-        integer, optional, intent(out) :: rc
-     end function parse_children
+      module function parse_children(hconfig, rc) result(children)
+         type(ChildSpecMap) :: children
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function parse_children
 
-     module function parse_child(hconfig, rc) result(child)
-        type(ChildSpec) :: child
-        type(ESMF_HConfig), intent(in) :: hconfig
-        integer, optional, intent(out) :: rc
-     end function parse_child
+      module function parse_child(hconfig, rc) result(child)
+         type(ChildSpec) :: child
+         type(ESMF_HConfig), intent(in) :: hconfig
+         integer, optional, intent(out) :: rc
+      end function parse_child
 
-     module subroutine parse_timespec(hconfig, timeStep, offset, rc)
-        type(ESMF_HConfig), intent(in) :: hconfig
-        type(ESMF_TimeInterval), allocatable, intent(out) :: timeStep
-        type(ESMF_TimeInterval), allocatable, intent(out) :: offset
-        integer, optional, intent(out) :: rc
-     end subroutine parse_timespec
+      module subroutine parse_timespec(hconfig, timeStep, offset, rc)
+         type(ESMF_HConfig), intent(in) :: hconfig
+         type(ESMF_TimeInterval), allocatable, intent(out) :: timeStep
+         type(ESMF_TimeInterval), allocatable, intent(out) :: offset
+         integer, optional, intent(out) :: rc
+      end subroutine parse_timespec
 
-     module function to_itemtype(attributes, rc) result(itemtype)
-        type(ESMF_StateItem_Flag) :: itemtype
-        type(ESMF_HConfig), target, intent(in) :: attributes
-        integer, optional, intent(out) :: rc
-     end function to_itemtype
+      module function to_itemtype(attributes, rc) result(itemtype)
+         type(ESMF_StateItem_Flag) :: itemtype
+         type(ESMF_HConfig), target, intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+      end function to_itemtype
 
    END INTERFACE
 

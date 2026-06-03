@@ -4,7 +4,7 @@ module mapl_FieldBundleInfo_mod
    use mapl_esmf_info_keys_mod
    use mapl_InfoUtilities_mod
    use mapl_esmf_info_keys_mod
-   use mapl_field_api
+    use mapl_field_api
    use mapl_FieldInfo_mod
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
@@ -15,10 +15,10 @@ module mapl_FieldBundleInfo_mod
 !!$        MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED, &
 !!$        MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE, &
 !!$        MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
-   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, &
-       MAPL_StateItemAllocation
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, & 
+        MAPL_StateItemAllocation
    use mapl_VerticalAlignment_mod
-   use mapl_vertical_grid_api
+    use mapl_vertical_grid_api
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use esmf
@@ -46,256 +46,256 @@ module mapl_FieldBundleInfo_mod
 contains
 
    subroutine fieldbundle_get_internal(info, unusable, &
-      namespace, &
-      vgrid_id, &
-      fieldBundleType, &
-      typekind, interpolation_weights, &
-      ungridded_dims, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
-      units, long_name, standard_name, &
-      allocation_status, &
-      bracket_updated, &
-      has_geom, &
-      has_deferred_aspects, &
-      regridder_param_info, &
-      vector_basis_kind, &
-      quantity_type_metadata, &
-      normalization_metadata, &
-      conservation_metadata, &
-      rc)
+        namespace, &
+        vgrid_id, &
+        fieldBundleType, &
+        typekind, interpolation_weights, &
+        ungridded_dims, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
+        units, long_name, standard_name, &
+        allocation_status, &
+        bracket_updated, &
+        has_geom, &
+        has_deferred_aspects, &
+       regridder_param_info, &
+       vector_basis_kind, &
+       quantity_type_metadata, &
+       normalization_metadata, &
+       conservation_metadata, &
+       rc)
 
-     type(ESMF_Info), intent(in) :: info
-     class(KeywordEnforcer), optional, intent(in) :: unusable
-     integer, optional, intent(out) :: vgrid_id
-     character(*), optional, intent(in) :: namespace
-     type(MAPL_FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
-     type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
-     real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
-     type(UngriddedDims), optional, intent(out) :: ungridded_dims
-     integer, optional, intent(out) :: num_levels
-     type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
-     type(VerticalAlignment), optional, intent(out) :: vert_alignment
-     integer, optional, intent(out) :: num_vgrid_levels
-     character(:), optional, allocatable, intent(out) :: units
-     character(:), optional, allocatable, intent(out) :: long_name
-     character(:), optional, allocatable, intent(out) :: standard_name
-     type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
-     logical, optional, intent(out) :: bracket_updated
-     logical, optional, intent(out) :: has_geom
-     logical, optional, intent(out) :: has_deferred_aspects
-     type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
-     type(MAPL_VectorBasisKind), optional, intent(out) :: vector_basis_kind
-     type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
-     type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
-     type(ConservationMetadata), optional, intent(out) :: conservation_metadata
-     integer, optional, intent(out) :: rc
+      type(ESMF_Info), intent(in) :: info
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: vgrid_id
+      character(*), optional, intent(in) :: namespace
+      type(MAPL_FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
+      type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
+      real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
+      type(UngriddedDims), optional, intent(out) :: ungridded_dims
+      integer, optional, intent(out) :: num_levels
+      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(out) :: vert_alignment
+      integer, optional, intent(out) :: num_vgrid_levels
+      character(:), optional, allocatable, intent(out) :: units
+      character(:), optional, allocatable, intent(out) :: long_name
+      character(:), optional, allocatable, intent(out) :: standard_name
+      type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
+      logical, optional, intent(out) :: bracket_updated
+      logical, optional, intent(out) :: has_geom
+      logical, optional, intent(out) :: has_deferred_aspects
+      type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
+      type(MAPL_VectorBasisKind), optional, intent(out) :: vector_basis_kind
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
+      type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(out) :: conservation_metadata
+      integer, optional, intent(out) :: rc
 
-     integer :: status
-     character(:), allocatable :: fieldBundleType_str, allocation_status_str
-     character(:), allocatable :: basis_kind_str
-     character(:), allocatable :: namespace_
+      integer :: status
+      character(:), allocatable :: fieldBundleType_str, allocation_status_str
+      character(:), allocatable :: basis_kind_str
+      character(:), allocatable :: namespace_
 
-     namespace_ = INFO_INTERNAL_NAMESPACE
-     if (present(namespace)) then
-        namespace_ = namespace
-     end if
+      namespace_ = INFO_INTERNAL_NAMESPACE
+      if (present(namespace)) then
+         namespace_ = namespace
+      end if
 
-   if (present(fieldBundleType)) then
-        call ESMF_InfoGetCharAlloc(info, key=namespace_//KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
-        fieldBundleType = MAPL_FieldBundleType_Flag(fieldBundleType_str)
-     end if
+     if (present(fieldBundleType)) then
+         call ESMF_InfoGetCharAlloc(info, key=namespace_//KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
+         fieldBundleType = MAPL_FieldBundleType_Flag(fieldBundleType_str)
+      end if
 
-     if (present(interpolation_weights)) then
-        call ESMF_InfoGetAlloc(info, key=namespace_//KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
-     end if
+      if (present(interpolation_weights)) then
+         call ESMF_InfoGetAlloc(info, key=namespace_//KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
+      end if
 
-     if (present(allocation_status)) then
-        call MAPL_InfoGet(info, key=namespace_//KEY_ALLOCATION_STATUS, value=allocation_status_str, _RC)
-        allocation_status = MAPL_StateItemAllocation(allocation_status_str)
-     end if
+      if (present(allocation_status)) then
+         call MAPL_InfoGet(info, key=namespace_//KEY_ALLOCATION_STATUS, value=allocation_status_str, _RC)
+         allocation_status = MAPL_StateItemAllocation(allocation_status_str)
+      end if
 
-     if (present(bracket_updated)) then
-        call ESMF_InfoGet(info, key=namespace_//KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
-     end if
+      if (present(bracket_updated)) then
+         call ESMF_InfoGet(info, key=namespace_//KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
+      end if
 
-     if (present(has_geom)) then
-        call ESMF_InfoGet(info, key=namespace_//KEY_HAS_GEOM, value=has_geom, default=.false., _RC)
-     end if
+      if (present(has_geom)) then
+         call ESMF_InfoGet(info, key=namespace_//KEY_HAS_GEOM, value=has_geom, default=.false., _RC)
+      end if
 
-     if (present(vector_basis_kind)) then
-        if (ESMF_InfoIsPresent(info, key=namespace_//KEY_VECTOR_BASIS_KIND)) then
-           call MAPL_InfoGet(info, key=namespace_//KEY_VECTOR_BASIS_KIND, value=basis_kind_str, _RC)
-           vector_basis_kind = MAPL_VectorBasisKind(basis_kind_str)
-        else
-           vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS  ! Default
-        end if
-     end if
+      if (present(vector_basis_kind)) then
+         if (ESMF_InfoIsPresent(info, key=namespace_//KEY_VECTOR_BASIS_KIND)) then
+            call MAPL_InfoGet(info, key=namespace_//KEY_VECTOR_BASIS_KIND, value=basis_kind_str, _RC)
+            vector_basis_kind = MAPL_VectorBasisKind(basis_kind_str)
+         else
+            vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS  ! Default
+         end if
+      end if
 
-     if (present(quantity_type_metadata)) then
-        if (ESMF_InfoIsPresent(info, key=namespace_//KEY_QUANTITY_TYPE_METADATA)) then
-           block
-              type(ESMF_Info) :: quantity_info
-              quantity_info = ESMF_InfoCreate(info, namespace_//KEY_QUANTITY_TYPE_METADATA, _RC)
-              quantity_type_metadata = make_QuantityTypeMetadata(quantity_info, _RC)
-              call ESMF_InfoDestroy(quantity_info, _RC)
-           end block
-        end if
-     end if
+      if (present(quantity_type_metadata)) then
+         if (ESMF_InfoIsPresent(info, key=namespace_//KEY_QUANTITY_TYPE_METADATA)) then
+            block
+               type(ESMF_Info) :: quantity_info
+               quantity_info = ESMF_InfoCreate(info, namespace_//KEY_QUANTITY_TYPE_METADATA, _RC)
+               quantity_type_metadata = make_QuantityTypeMetadata(quantity_info, _RC)
+               call ESMF_InfoDestroy(quantity_info, _RC)
+            end block
+         end if
+      end if
 
-     if (present(normalization_metadata)) then
-        if (ESMF_InfoIsPresent(info, key=namespace_//KEY_NORMALIZATION_METADATA)) then
-           block
-              type(ESMF_Info) :: normalization_info
-              normalization_info = ESMF_InfoCreate(info, namespace_//KEY_NORMALIZATION_METADATA, _RC)
-              normalization_metadata = make_NormalizationMetadata(normalization_info, _RC)
-              call ESMF_InfoDestroy(normalization_info, _RC)
-           end block
-        end if
-     end if
+      if (present(normalization_metadata)) then
+         if (ESMF_InfoIsPresent(info, key=namespace_//KEY_NORMALIZATION_METADATA)) then
+            block
+               type(ESMF_Info) :: normalization_info
+               normalization_info = ESMF_InfoCreate(info, namespace_//KEY_NORMALIZATION_METADATA, _RC)
+               normalization_metadata = make_NormalizationMetadata(normalization_info, _RC)
+               call ESMF_InfoDestroy(normalization_info, _RC)
+            end block
+         end if
+      end if
 
-     if (present(conservation_metadata)) then
-        if (ESMF_InfoIsPresent(info, key=namespace_//KEY_CONSERVATION_METADATA)) then
-           block
-              type(ESMF_Info) :: conservation_info
-              conservation_info = ESMF_InfoCreate(info, namespace_//KEY_CONSERVATION_METADATA, _RC)
-              conservation_metadata = make_ConservationMetadata(conservation_info, _RC)
-              call ESMF_InfoDestroy(conservation_info, _RC)
-           end block
-        end if
-     end if
+      if (present(conservation_metadata)) then
+         if (ESMF_InfoIsPresent(info, key=namespace_//KEY_CONSERVATION_METADATA)) then
+            block
+               type(ESMF_Info) :: conservation_info
+               conservation_info = ESMF_InfoCreate(info, namespace_//KEY_CONSERVATION_METADATA, _RC)
+               conservation_metadata = make_ConservationMetadata(conservation_info, _RC)
+               call ESMF_InfoDestroy(conservation_info, _RC)
+            end block
+         end if
+      end if
 
-     ! Field-prototype items that come from field-info (including typekind)
-     call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
-          typekind=typekind, &
-          ungridded_dims=ungridded_dims, &
-          num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, num_vgrid_levels=num_vgrid_levels, &
-          units=units, long_name=long_name, standard_name=standard_name, &
-          vgrid_id=vgrid_id, &
-          has_deferred_aspects=has_deferred_aspects, &
-          regridder_param_info=regridder_param_info, &
-          _RC)
+      ! Field-prototype items that come from field-info (including typekind)
+      call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
+           typekind=typekind, &
+           ungridded_dims=ungridded_dims, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, num_vgrid_levels=num_vgrid_levels, &
+           units=units, long_name=long_name, standard_name=standard_name, &
+           vgrid_id=vgrid_id, &
+           has_deferred_aspects=has_deferred_aspects, &
+           regridder_param_info=regridder_param_info, &
+           _RC)
 
-     _RETURN(_SUCCESS)
-     _UNUSED_DUMMY(unusable)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    end subroutine fieldbundle_get_internal
 
    subroutine fieldbundle_set_internal(info, unusable, &
-       namespace, &
-       fieldBundleType, typekind, interpolation_weights, &
-       ungridded_dims, &
-       num_levels, vert_staggerloc, vert_alignment, &
-       units, standard_name, long_name, &
-       allocation_status, &
-       vgrid_id, &
-       bracket_updated, &
-       has_geom, &
-       has_deferred_aspects, &
-      regridder_param_info, &
-      vector_basis_kind, &
-      quantity_type_metadata, &
-      normalization_metadata, &
-      conservation_metadata, &
-      rc)
+        namespace, &
+        fieldBundleType, typekind, interpolation_weights, &
+        ungridded_dims, &
+        num_levels, vert_staggerloc, vert_alignment, &
+        units, standard_name, long_name, &
+        allocation_status, &
+        vgrid_id, &
+        bracket_updated, &
+        has_geom, &
+        has_deferred_aspects, &
+       regridder_param_info, &
+       vector_basis_kind, &
+       quantity_type_metadata, &
+       normalization_metadata, &
+       conservation_metadata, &
+       rc)
 
-     type(ESMF_Info), intent(inout) :: info
-     class(KeywordEnforcer), optional, intent(in) :: unusable
-     character(*), optional, intent(in) :: namespace
-     type(MAPL_FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
-     type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-     real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
-     type(UngriddedDims), optional, intent(in) :: ungridded_dims
-     integer, optional, intent(in) :: num_levels
-     type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
-     type(VerticalAlignment), optional, intent(in) :: vert_alignment
-     character(*), optional, intent(in) :: units
-     character(*), optional, intent(in) :: standard_name
-     character(*), optional, intent(in) :: long_name
-     type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
-     integer, optional, intent(in) :: vgrid_id
-     logical, optional, intent(in) :: bracket_updated
-     logical, optional, intent(in) :: has_geom
-     logical, optional, intent(in) :: has_deferred_aspects
-     type(esmf_info), optional, intent(in) :: regridder_param_info
-     type(MAPL_VectorBasisKind), optional, intent(in) :: vector_basis_kind
-     type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
-     type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
-     type(ConservationMetadata), optional, intent(in) :: conservation_metadata
-     integer, optional, intent(out) :: rc
+      type(ESMF_Info), intent(inout) :: info
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: namespace
+      type(MAPL_FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      integer, optional, intent(in) :: num_levels
+      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(VerticalAlignment), optional, intent(in) :: vert_alignment
+      character(*), optional, intent(in) :: units
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: long_name
+      type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
+      integer, optional, intent(in) :: vgrid_id
+      logical, optional, intent(in) :: bracket_updated
+      logical, optional, intent(in) :: has_geom
+      logical, optional, intent(in) :: has_deferred_aspects
+      type(esmf_info), optional, intent(in) :: regridder_param_info
+      type(MAPL_VectorBasisKind), optional, intent(in) :: vector_basis_kind
+      type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
+      type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(in) :: conservation_metadata
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      character(:), allocatable :: fieldBundleType_str
+      character(:), allocatable :: namespace_
 
-     integer :: status
-     character(:), allocatable :: fieldBundleType_str
-     character(:), allocatable :: namespace_
+      namespace_ = INFO_INTERNAL_NAMESPACE
+      if (present(namespace)) then
+         namespace_ = namespace
+      end if
 
-     namespace_ = INFO_INTERNAL_NAMESPACE
-     if (present(namespace)) then
-        namespace_ = namespace
-     end if
+      if (present(allocation_status)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_ALLOCATION_STATUS, value=allocation_status%to_string(), _RC)
+      end if
 
-     if (present(allocation_status)) then
-        call ESMF_InfoSet(info, key=namespace_ // KEY_ALLOCATION_STATUS, value=allocation_status%to_string(), _RC)
-     end if
+      if (present(fieldBundleType)) then
+         fieldBundleType_str = fieldBundleType%to_string()
+         call ESMF_InfoSet(info, key=namespace_ // KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
+      end if
 
-     if (present(fieldBundleType)) then
-        fieldBundleType_str = fieldBundleType%to_string()
-        call ESMF_InfoSet(info, key=namespace_ // KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
-     end if
+      if (present(interpolation_weights)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
+      end if
 
-     if (present(interpolation_weights)) then
-        call ESMF_InfoSet(info, key=namespace_ // KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
-     end if
+      if (present(bracket_updated)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
+      end if
 
-     if (present(bracket_updated)) then
-        call ESMF_InfoSet(info, key=namespace_ // KEY_BRACKET_UPDATED, value=bracket_updated, _RC)
-     end if
+      if (present(has_geom)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_HAS_GEOM, value=has_geom, _RC)
+      end if
 
-     if (present(has_geom)) then
-        call ESMF_InfoSet(info, key=namespace_ // KEY_HAS_GEOM, value=has_geom, _RC)
-     end if
+      if (present(vector_basis_kind)) then
+         call ESMF_InfoSet(info, key=namespace_ // KEY_VECTOR_BASIS_KIND, &
+                           value=vector_basis_kind%to_string(), _RC)
+      end if
 
-     if (present(vector_basis_kind)) then
-        call ESMF_InfoSet(info, key=namespace_ // KEY_VECTOR_BASIS_KIND, &
-                          value=vector_basis_kind%to_string(), _RC)
-     end if
+      if (present(quantity_type_metadata)) then
+         block
+            type(ESMF_Info) :: quantity_info
+            quantity_info = quantity_type_metadata%make_info(_RC)
+            call MAPL_InfoSet(info, key=namespace_ // KEY_QUANTITY_TYPE_METADATA, value=quantity_info, _RC)
+            call ESMF_InfoDestroy(quantity_info, _RC)
+         end block
+      end if
 
-     if (present(quantity_type_metadata)) then
-        block
-           type(ESMF_Info) :: quantity_info
-           quantity_info = quantity_type_metadata%make_info(_RC)
-           call MAPL_InfoSet(info, key=namespace_ // KEY_QUANTITY_TYPE_METADATA, value=quantity_info, _RC)
-           call ESMF_InfoDestroy(quantity_info, _RC)
-        end block
-     end if
+      if (present(normalization_metadata)) then
+         block
+            type(ESMF_Info) :: normalization_info
+            normalization_info = normalization_metadata%make_info(_RC)
+            call MAPL_InfoSet(info, key=namespace_ // KEY_NORMALIZATION_METADATA, value=normalization_info, _RC)
+            call ESMF_InfoDestroy(normalization_info, _RC)
+         end block
+      end if
 
-     if (present(normalization_metadata)) then
-        block
-           type(ESMF_Info) :: normalization_info
-           normalization_info = normalization_metadata%make_info(_RC)
-           call MAPL_InfoSet(info, key=namespace_ // KEY_NORMALIZATION_METADATA, value=normalization_info, _RC)
-           call ESMF_InfoDestroy(normalization_info, _RC)
-        end block
-     end if
+      if (present(conservation_metadata)) then
+         block
+            type(ESMF_Info) :: conservation_info
+            conservation_info = conservation_metadata%make_info(_RC)
+            call MAPL_InfoSet(info, key=namespace_ // KEY_CONSERVATION_METADATA, value=conservation_info, _RC)
+            call ESMF_InfoDestroy(conservation_info, _RC)
+         end block
+      end if
 
-     if (present(conservation_metadata)) then
-        block
-           type(ESMF_Info) :: conservation_info
-           conservation_info = conservation_metadata%make_info(_RC)
-           call MAPL_InfoSet(info, key=namespace_ // KEY_CONSERVATION_METADATA, value=conservation_info, _RC)
-           call ESMF_InfoDestroy(conservation_info, _RC)
-        end block
-     end if
+       call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
+           typekind=typekind, &
+           ungridded_dims=ungridded_dims, &
+           vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
+           units=units, long_name=long_name, standard_name=standard_name, &
+           vgrid_id=vgrid_id, &
+           has_deferred_aspects=has_deferred_aspects, &
+           regridder_param_info=regridder_param_info, &
+           _RC)
 
-      call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
-          typekind=typekind, &
-          ungridded_dims=ungridded_dims, &
-          vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
-          units=units, long_name=long_name, standard_name=standard_name, &
-          vgrid_id=vgrid_id, &
-          has_deferred_aspects=has_deferred_aspects, &
-          regridder_param_info=regridder_param_info, &
-          _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(unusable)
 
    end subroutine fieldbundle_set_internal
 
