@@ -2,8 +2,8 @@
 
 module mapl_VectorClassAspect_mod
 
-    use mapl_field_api
-    use mapl_field_bundle_api
+   use mapl_field_api
+   use mapl_field_bundle_api
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
@@ -14,7 +14,7 @@ module mapl_VectorClassAspect_mod
    use mapl_UnitsAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UngriddedDimsAspect_mod
-    use mapl_enums_api, only: MAPL_VectorBasisKind, MAPL_STATEITEM_ALLOCATION_CREATED, &
+   use mapl_enums_api, only: MAPL_VectorBasisKind, MAPL_STATEITEM_ALLOCATION_CREATED, &
          MAPL_STATEITEM_ALLOCATION_ACTIVE, MAPL_FIELDBUNDLETYPE_VECTOR
    use mapl_FieldBundleInfo_mod, only: FieldBundleInfoSetInternal
 

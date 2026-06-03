@@ -3,7 +3,7 @@
 submodule (mapl_ComponentSpecParser_mod) parse_geometry_spec_smod
 
    use mapl_VerticalGrid_mod
-    use mapl_vertical_grid_api
+   use mapl_vertical_grid_api
    ! Note: mapl_VerticalGridManager_mod used inside parse_vertical_grid_ only
    use mapl_ModelVerticalGrid_mod
 
