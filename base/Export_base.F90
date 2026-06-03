@@ -10,7 +10,7 @@ module mapl_base_api
 
    public :: mapl_VarRead
    public :: FileMetadataUtils
-   
+
    ! FileIO
    ! (WRITE_PARALLEL exported via mapl_base_mod to avoid conflict)
 

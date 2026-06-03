@@ -5,7 +5,7 @@ module Test_2DConservativeRegrid
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationType_mod
    use mapl_NormalizationMetadata_mod
-    use mapl_field_api
+   use mapl_field_api
    use mapl_regridder_mgr, only: EsmfRegridderParam
    use mapl_RoutehandleParam_mod, only: RoutehandleParam
    use mapl_ErrorHandling_mod
@@ -21,16 +21,16 @@ contains
 
    @test
    subroutine test_regridder_param_is_conservative()
-      type(EsmfRegridderParam) :: conservative_param, bilinear_param
-      
-      ! Create conservative regridder param
-      conservative_param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
-      @assertTrue(conservative_param%is_conservative())
-      
-      ! Create bilinear regridder param
-      bilinear_param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR)
-      @assertFalse(bilinear_param%is_conservative())
-      
+     type(EsmfRegridderParam) :: conservative_param, bilinear_param
+
+     ! Create conservative regridder param
+     conservative_param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+     @assertTrue(conservative_param%is_conservative())
+
+     ! Create bilinear regridder param
+     bilinear_param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR)
+     @assertFalse(bilinear_param%is_conservative())
+
    end subroutine test_regridder_param_is_conservative
 
 
@@ -40,38 +40,38 @@ contains
 
    @test
    subroutine test_create_2d_extensive_field()
-      type(ESMF_Grid) :: grid
-      type(ESMF_Field) :: field
-      type(QuantityTypeMetadata) :: qty_metadata
-      integer :: rc, status
-      
-      ! Create simple 2D grid (10x10)
-      grid = ESMF_GridCreateNoPeriDim( &
-         maxIndex=[10, 10], &
-         name='test_grid', _RC)
-      
-      ! Create quantity type metadata for extensive quantity (already in per-area units)
-      qty_metadata = QuantityTypeMetadata( &
-         quantity_type=QUANTITY_EXTENSIVE, &
-         dimensions='kg/m2')
-      
-      ! Create field
-      field = ESMF_FieldCreate(grid, typekind=ESMF_TYPEKIND_R8, name='test_field', _RC)
-      
-      ! Set quantity type metadata
-      call mapl_FieldSet(field, quantity_type_metadata=qty_metadata, _RC)
-      
-      ! Verify we can get it back
-      block
-         type(QuantityTypeMetadata) :: retrieved_metadata
-         call mapl_FieldGet(field, quantity_type_metadata=retrieved_metadata, _RC)
-         @assertTrue(retrieved_metadata%get_quantity_type() == QUANTITY_EXTENSIVE)
-      end block
-      
-      ! Cleanup
-      call ESMF_FieldDestroy(field, _RC)
-      call ESMF_GridDestroy(grid, _RC)
-      
+     type(ESMF_Grid) :: grid
+     type(ESMF_Field) :: field
+     type(QuantityTypeMetadata) :: qty_metadata
+     integer :: rc, status
+
+     ! Create simple 2D grid (10x10)
+     grid = ESMF_GridCreateNoPeriDim( &
+        maxIndex=[10, 10], &
+        name='test_grid', _RC)
+
+     ! Create quantity type metadata for extensive quantity (already in per-area units)
+     qty_metadata = QuantityTypeMetadata( &
+        quantity_type=QUANTITY_EXTENSIVE, &
+        dimensions='kg/m2')
+
+     ! Create field
+     field = ESMF_FieldCreate(grid, typekind=ESMF_TYPEKIND_R8, name='test_field', _RC)
+
+     ! Set quantity type metadata
+     call mapl_FieldSet(field, quantity_type_metadata=qty_metadata, _RC)
+
+     ! Verify we can get it back
+     block
+        type(QuantityTypeMetadata) :: retrieved_metadata
+        call mapl_FieldGet(field, quantity_type_metadata=retrieved_metadata, _RC)
+        @assertTrue(retrieved_metadata%get_quantity_type() == QUANTITY_EXTENSIVE)
+     end block
+
+     ! Cleanup
+     call ESMF_FieldDestroy(field, _RC)
+     call ESMF_GridDestroy(grid, _RC)
+
    end subroutine test_create_2d_extensive_field
 
 
@@ -81,16 +81,16 @@ contains
 
    @test
    subroutine test_pressure_field_metadata()
-      type(NormalizationMetadata) :: normalization_metadata
-      
-      ! Create normalization metadata for surface pressure
-      ! (normalization parameters are derived from quantity type in QuantityTypeAspect)
-      normalization_metadata = NormalizationMetadata( &
-         normalization_type=NORMALIZE_DELP)
-      
-      ! Verify normalization type
-      @assertTrue(normalization_metadata%get_normalization_type() == NORMALIZE_DELP)
-      
+     type(NormalizationMetadata) :: normalization_metadata
+
+     ! Create normalization metadata for surface pressure
+     ! (normalization parameters are derived from quantity type in QuantityTypeAspect)
+     normalization_metadata = NormalizationMetadata( &
+        normalization_type=NORMALIZE_DELP)
+
+     ! Verify normalization type
+     @assertTrue(normalization_metadata%get_normalization_type() == NORMALIZE_DELP)
+
    end subroutine test_pressure_field_metadata
 
 
@@ -101,21 +101,21 @@ contains
 
    @test
    subroutine test_simple_2d_conservative_regrid()
-      type(EsmfRegridderParam) :: regrid_param
-      type(RoutehandleParam) :: rh_param
-      
-      ! Verify we can create conservative regridder parameters
-      rh_param = RoutehandleParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
-      regrid_param = EsmfRegridderParam(rh_param)
-      
-      ! Verify is_conservative() works
-      @assertTrue(regrid_param%is_conservative())
-      
-      ! For comparison, bilinear should not be conservative
-      rh_param = RoutehandleParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR)
-      regrid_param = EsmfRegridderParam(rh_param)
-      @assertFalse(regrid_param%is_conservative())
-      
+     type(EsmfRegridderParam) :: regrid_param
+     type(RoutehandleParam) :: rh_param
+
+     ! Verify we can create conservative regridder parameters
+     rh_param = RoutehandleParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+     regrid_param = EsmfRegridderParam(rh_param)
+
+     ! Verify is_conservative() works
+     @assertTrue(regrid_param%is_conservative())
+
+     ! For comparison, bilinear should not be conservative
+     rh_param = RoutehandleParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR)
+     regrid_param = EsmfRegridderParam(rh_param)
+     @assertFalse(regrid_param%is_conservative())
+
    end subroutine test_simple_2d_conservative_regrid
 
 end module Test_2DConservativeRegrid

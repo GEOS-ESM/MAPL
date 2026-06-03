@@ -4,7 +4,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_geom_a_smod
 
    use mapl_Enums_internal, only: MAPL_GENERIC_INIT_GEOM_A
    use mapl_GeometrySpec_mod
-    use mapl_geom_api
+   use mapl_geom_api
    use mapl_GriddedComponentDriver_mod
    use mapl_ErrorHandling_mod
    use mapl_MpiTimerGauge_mod, only: MpiTimerGauge
@@ -12,57 +12,57 @@ submodule (mapl_OuterMetaComponent_mod) initialize_geom_a_smod
    implicit none(type,external)
 
 contains
-   
+
    ! In this sweep, components can specify their own geometry or use
    ! the geometry of a designated child.
    module recursive subroutine initialize_geom_a(this, unusable, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+     class(OuterMetaComponent), target, intent(inout) :: this
+     class(KE), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
 
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM_A'
-      class(GriddedComponentDriver), pointer :: provider
-      type(ESMF_GridComp) :: provider_gc
-      type(OuterMetaComponent), pointer :: provider_meta
-      type(MaplGeom), pointer :: mapl_geom
-      type(GeomManager), pointer :: geom_mgr
-      type(ESMF_VM) :: vm
-      integer :: comm, status
+     character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM_A'
+     class(GriddedComponentDriver), pointer :: provider
+     type(ESMF_GridComp) :: provider_gc
+     type(OuterMetaComponent), pointer :: provider_meta
+     type(MaplGeom), pointer :: mapl_geom
+     type(GeomManager), pointer :: geom_mgr
+     type(ESMF_VM) :: vm
+     integer :: comm, status
 
-      ! Handle case where component provides its own geometry.
-       associate (geometry_spec => this%component_spec%geometry_spec)
-        if (allocated(geometry_spec%geom_spec)) then
-           geom_mgr => get_geom_manager()
-           mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
-           this%geom = mapl_geom%get_geom()
-        end if
-        if (allocated(geometry_spec%vertical_grid)) then
-           this%vertical_grid = geometry_spec%vertical_grid
-        end if
-      end associate
-
-      ! Initialize profiler
-      call ESMF_VMGetCurrent(vm, _RC)
-      call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
-      this%profiler = DistributedProfiler(this%user_gc_driver%get_name(), MpiTimerGauge(), comm=comm)
-      call this%profiler%start(_RC)
-
-      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_A, _RC)
-
+     ! Handle case where component provides its own geometry.
       associate (geometry_spec => this%component_spec%geometry_spec)
-        if (geometry_spec%kind == GEOMETRY_FROM_CHILD) then
-           provider => this%children%at(geometry_spec%provider, _RC)
-           provider_gc = provider%get_gridcomp()
-           provider_meta => get_outer_meta(provider_gc, _RC)
-           _ASSERT(allocated(provider_meta%geom), 'Specified child does not provide a geom.')
-           this%geom = provider_meta%geom
-           this%vertical_grid = provider_meta%vertical_grid
-        end if
-      end associate
+       if (allocated(geometry_spec%geom_spec)) then
+          geom_mgr => get_geom_manager()
+          mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+          this%geom = mapl_geom%get_geom()
+       end if
+       if (allocated(geometry_spec%vertical_grid)) then
+          this%vertical_grid = geometry_spec%vertical_grid
+       end if
+     end associate
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+     ! Initialize profiler
+     call ESMF_VMGetCurrent(vm, _RC)
+     call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
+     this%profiler = DistributedProfiler(this%user_gc_driver%get_name(), MpiTimerGauge(), comm=comm)
+     call this%profiler%start(_RC)
+
+     call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+     call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_A, _RC)
+
+     associate (geometry_spec => this%component_spec%geometry_spec)
+       if (geometry_spec%kind == GEOMETRY_FROM_CHILD) then
+          provider => this%children%at(geometry_spec%provider, _RC)
+          provider_gc = provider%get_gridcomp()
+          provider_meta => get_outer_meta(provider_gc, _RC)
+          _ASSERT(allocated(provider_meta%geom), 'Specified child does not provide a geom.')
+          this%geom = provider_meta%geom
+          this%vertical_grid = provider_meta%vertical_grid
+       end if
+     end associate
+
+     _RETURN(_SUCCESS)
+     _UNUSED_DUMMY(unusable)
    end subroutine initialize_geom_a
 
 end submodule initialize_geom_a_smod

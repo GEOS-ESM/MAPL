@@ -5,12 +5,12 @@ module Test_BracketClassAspect
    use mapl_StateItemSpec_mod
    use mapl_BracketClassAspect_mod
    use mapl_VerticalGridAspect_mod
-    use mapl_vertical_grid_api
+   use mapl_vertical_grid_api
    use mapl_VariableSpec_mod
    use mapl_StateItemAspect_mod
    use mapl_StateRegistry_mod
-    use mapl_geom_api
-    use mapl_field_bundle_api
+   use mapl_geom_api
+   use mapl_field_bundle_api
    use mapl_FieldUtils
    use funit
    use esmf
@@ -22,70 +22,70 @@ contains
 
    @before
    subroutine setup()
-      type(ESMF_HConfig) :: hconfig
-      type(MaplGeom) :: mapl_geom
-      type(GeomManager), pointer :: geom_mgr
-      integer :: status
+     type(ESMF_HConfig) :: hconfig
+     type(MaplGeom) :: mapl_geom
+     type(GeomManager), pointer :: geom_mgr
+     integer :: status
 
-      geom_mgr => get_geom_manager()
+     geom_mgr => get_geom_manager()
 
-      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
-      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
-      geom = mapl_geom%get_geom()
-      call ESMF_HConfigDestroy(hconfig)
+     hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+     mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+     geom = mapl_geom%get_geom()
+     call ESMF_HConfigDestroy(hconfig)
 
    end subroutine setup
 
 
    @test
    subroutine test_allocate()
-      type(VariableSpec) :: var_spec
-      type(StateItemSpec), target :: state_item_spec
-      type(ESMF_FieldBundle), allocatable :: field_bundle
+     type(VariableSpec) :: var_spec
+     type(StateItemSpec), target :: state_item_spec
+     type(ESMF_FieldBundle), allocatable :: field_bundle
 
-      integer :: status
-      integer :: fieldCount, i
-      type(AspectMap), pointer :: aspects
-      type(BracketClassAspect) :: bracket_aspect
-      integer, parameter :: BRACKET_SIZE = 2
-      type(StateRegistry), target :: registry
-      type(BasicVerticalGridSpec) :: vspec
-      class(VerticalGrid), allocatable :: vgrid
-      real(kind=ESMF_KIND_R4), pointer :: ptr(:)
-      real(kind=ESMF_KIND_R4), allocatable :: expected_value(:)
-      type(ESMF_Field), allocatable :: fieldList(:)
+     integer :: status
+     integer :: fieldCount, i
+     type(AspectMap), pointer :: aspects
+     type(BracketClassAspect) :: bracket_aspect
+     integer, parameter :: BRACKET_SIZE = 2
+     type(StateRegistry), target :: registry
+     type(BasicVerticalGridSpec) :: vspec
+     class(VerticalGrid), allocatable :: vgrid
+     real(kind=ESMF_KIND_R4), pointer :: ptr(:)
+     real(kind=ESMF_KIND_R4), allocatable :: expected_value(:)
+     type(ESMF_Field), allocatable :: fieldList(:)
 
-      type(BasicVerticalGridFactory) :: factory
+     type(BasicVerticalGridFactory) :: factory
 
-      var_spec = make_VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
-           short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, &
-           fill_value=17.0, _RC)
+     var_spec = make_VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
+          short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, &
+          fill_value=17.0, _RC)
 
-      vspec = BasicVerticalGridSpec(num_levels=5)
-      vgrid = factory%create_grid_from_spec(vspec, _RC)
-      state_item_spec = var_spec%make_StateItemSpec(registry, vertical_grid=vgrid, _RC)
+     vspec = BasicVerticalGridSpec(num_levels=5)
+     vgrid = factory%create_grid_from_spec(vspec, _RC)
+     state_item_spec = var_spec%make_StateItemSpec(registry, vertical_grid=vgrid, _RC)
 
-      call state_item_spec%create(_RC)
-      call state_item_spec%allocate(_RC)
+     call state_item_spec%create(_RC)
+     call state_item_spec%allocate(_RC)
 
-      aspects => state_item_spec%get_aspects()
-      bracket_aspect = to_BracketClassAspect(aspects, _RC)
-      call bracket_aspect%get_payload(bundle=field_bundle, _RC)
+     aspects => state_item_spec%get_aspects()
+     bracket_aspect = to_BracketClassAspect(aspects, _RC)
+     call bracket_aspect%get_payload(bundle=field_bundle, _RC)
 
-      call ESMF_FieldBundleValidate(field_bundle, _RC)
-      call ESMF_FieldBundleGet(field_bundle, fieldCount=fieldCount, _RC)
-      @assert_that(fieldCount, is(BRACKET_SIZE))
+     call ESMF_FieldBundleValidate(field_bundle, _RC)
+     call ESMF_FieldBundleGet(field_bundle, fieldCount=fieldCount, _RC)
+     @assert_that(fieldCount, is(BRACKET_SIZE))
 
-      call MAPL_FieldBundleGet(field_bundle, fieldList=fieldList, _RC)
-      do i=1,fieldCount
-         call assign_fptr(fieldList(i), ptr, _RC)
-         allocate(expected_value(size(ptr)))
-         expected_value = 17.0
-         @assertEqual(ptr, expected_value)
-         deallocate(expected_value)
-      enddo
+     call MAPL_FieldBundleGet(field_bundle, fieldList=fieldList, _RC)
+     do i=1,fieldCount
+        call assign_fptr(fieldList(i), ptr, _RC)
+        allocate(expected_value(size(ptr)))
+        expected_value = 17.0
+        @assertEqual(ptr, expected_value)
+        deallocate(expected_value)
+     enddo
 
-      call bracket_aspect%destroy(_RC)
+     call bracket_aspect%destroy(_RC)
 
    end subroutine test_allocate
 
