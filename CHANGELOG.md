@@ -42,6 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `GENERIC_COUPLER_*` → `MAPL_GENERIC_COUPLER_*`,
   `VectorBasisKind`/`VECTOR_BASIS_KIND_*` → `MAPL_VectorBasisKind`/`MAPL_VECTOR_BASIS_KIND_*`,
   `FieldBundleType_Flag` → `MAPL_FieldBundleType_Flag`.
+- Update CI to use Baselibs 8.32.0 and circleci-tools orb v5
+- Update `components.yaml`
+  - ESMA_env v5.22.0
+    - Update to GEOSpyD 26.3.2 Python 3.14
 
 ### Fixed
 
@@ -92,22 +96,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Implement two-tier umbrella module pattern across all MAPL subdirectories (#5004).
-  Created `Internal.F90` (internal MAPL API) and `Export.F90` (public external API) umbrella 
-  modules for 10 major subdirectories: `mp_utils/`, `enums/`, `utils/`, `base/`, 
-  `infrastructure/esmf/`, `infrastructure/field/` (aggregate of field/, field_bundle/, state/), 
-  `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`, 
-  `infrastructure/regridder_mgr/`, and `superstructure/generic/`. Each `Internal.F90` aggregates 
-  all leaf modules from its subdirectory with no `private` statement, allowing all symbols to 
-  flow through for use by MAPL sibling subdirectories. Each `Export.F90` selectively re-exports 
-  only MAPL-prefixed public API symbols, providing a clean interface for external consumers. 
-  Updated top-level `mapl/MAPL.F90` to import all new `*_export` modules alongside legacy API 
-  modules for backward compatibility. This establishes the foundation for future API cleanup 
-  and symbol namespace management. Sibling consumers of `enums/` leaf modules migrated to use 
-  `mapl_Enums_internal` with MAPL-prefixed names (~48 files across infrastructure/ and 
-  superstructure/). Cleaned up duplicate symbols: deleted unused `utils/TimeUtils.F90` module 
-  and its tests (had zero consumers), consolidated duplicate `is_digit` implementation, removed 
-  duplicate `UnpackDateTime` from `Regrid_Util.F90`, and resolved `KEY_UNITS`/`KEY_TYPEKIND` 
-  naming conflicts between esmf and history layers using selective `only:` imports. Created 
+  Created `Internal.F90` (internal MAPL API) and `Export.F90` (public external API) umbrella
+  modules for 10 major subdirectories: `mp_utils/`, `enums/`, `utils/`, `base/`,
+  `infrastructure/esmf/`, `infrastructure/field/` (aggregate of field/, field_bundle/, state/),
+  `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`,
+  `infrastructure/regridder_mgr/`, and `superstructure/generic/`. Each `Internal.F90` aggregates
+  all leaf modules from its subdirectory with no `private` statement, allowing all symbols to
+  flow through for use by MAPL sibling subdirectories. Each `Export.F90` selectively re-exports
+  only MAPL-prefixed public API symbols, providing a clean interface for external consumers.
+  Updated top-level `mapl/MAPL.F90` to import all new `*_export` modules alongside legacy API
+  modules for backward compatibility. This establishes the foundation for future API cleanup
+  and symbol namespace management. Sibling consumers of `enums/` leaf modules migrated to use
+  `mapl_Enums_internal` with MAPL-prefixed names (~48 files across infrastructure/ and
+  superstructure/). Cleaned up duplicate symbols: deleted unused `utils/TimeUtils.F90` module
+  and its tests (had zero consumers), consolidated duplicate `is_digit` implementation, removed
+  duplicate `UnpackDateTime` from `Regrid_Util.F90`, and resolved `KEY_UNITS`/`KEY_TYPEKIND`
+  naming conflicts between esmf and history layers using selective `only:` imports. Created
   GitHub issue #5005 for deferred `utils/` sibling migration. Zero-diff for all passing tests.
 - Added support for MAPL_STATEITEM_VECTOR ITEMTYPE in ACG
 
@@ -129,30 +133,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   All removed entities were unused in gridcomps. Breaking change for external code using removed
   entities - must import leaf modules directly. Zero-diff for ported client repos.
 - Create utils API umbrella to limit exported unprefixed entities (#4999, part of #4975/#4969).
-  Created `utils/API.F90` that exports only used entities from String, StringUtilities, and OS 
-  utilities. Removed from public API: unused StringUtilities functions (to_lower, to_upper, 
-  capitalize, is_alpha, is_alpha_only, is_numeric, is_alphanumeric, to_string, to_character_array, 
-  is_digit, get_ascii_interval, is_alphanum_character, is_lower_character, is_upper_character), 
-  all FileSystemUtilities functions (get_file_extension, get_file_basename), all DSO_Utilities 
-  functions (is_valid_dso_name, is_valid_dso_extension, is_supported_dso_name, 
-  is_supported_dso_extension, adjust_dso_name, SYSTEM_DSO_EXTENSION), and all DirPath entities 
-  (DirPath type, dirpaths variable). Updated MAPL.F90 to use utils API umbrella instead of 
-  individual leaf modules. Breaking change for any external code using removed entities. 
-  Still exported: String (type), split, lowercase, uppercase, and all mapl_os_mod functions. 
+  Created `utils/API.F90` that exports only used entities from String, StringUtilities, and OS
+  utilities. Removed from public API: unused StringUtilities functions (to_lower, to_upper,
+  capitalize, is_alpha, is_alpha_only, is_numeric, is_alphanumeric, to_string, to_character_array,
+  is_digit, get_ascii_interval, is_alphanum_character, is_lower_character, is_upper_character),
+  all FileSystemUtilities functions (get_file_extension, get_file_basename), all DSO_Utilities
+  functions (is_valid_dso_name, is_valid_dso_extension, is_supported_dso_name,
+  is_supported_dso_extension, adjust_dso_name, SYSTEM_DSO_EXTENSION), and all DirPath entities
+  (DirPath type, dirpaths variable). Updated MAPL.F90 to use utils API umbrella instead of
+  individual leaf modules. Breaking change for any external code using removed entities.
+  Still exported: String (type), split, lowercase, uppercase, and all mapl_os_mod functions.
   Zero-diff for ported client repos (removed entities were unused).
 - Add `mapl_` prefix to `initialize_constants` subroutine (#4976, part of #4975/#4969).
-  Renamed `initialize_constants()` → `mapl_initialize_constants()` in 
-  `utils/Constants/Constants.F90` to follow MAPL3 naming conventions (lowercase `mapl_` 
-  prefix for procedures). Breaking change if any external code was calling 
-  `initialize_constants` directly (unlikely as subroutine is currently empty/placeholder). 
+  Renamed `initialize_constants()` → `mapl_initialize_constants()` in
+  `utils/Constants/Constants.F90` to follow MAPL3 naming conventions (lowercase `mapl_`
+  prefix for procedures). Breaking change if any external code was calling
+  `initialize_constants` directly (unlikely as subroutine is currently empty/placeholder).
   All `MAPL_*` constants remain publicly accessible. Zero-diff.
 - Consolidate enums into `enums/` layer and introduce `MAPL_` API constants (#4973, part of #4969).
-  Moved `StateItemAllocation` and `FieldBundleType_Flag` from `infrastructure/field/` and 
-  `infrastructure/field_bundle/` respectively into the `enums/` layer. Created `enums/API.F90` 
-  that exports all enum constants with a `MAPL_` prefix (e.g., `MAPL_STATEITEM_ALLOCATION_ACTIVE`, 
-  `MAPL_FIELDBUNDLETYPE_BASIC`), establishing the public API pattern for MAPL enums. Updated 
-  internal MAPL clients to use enum modules directly. Breaking change for external clients using 
-  unprefixed type names (`StateItemAllocation`, `FieldBundleType_Flag`) - these are no longer 
+  Moved `StateItemAllocation` and `FieldBundleType_Flag` from `infrastructure/field/` and
+  `infrastructure/field_bundle/` respectively into the `enums/` layer. Created `enums/API.F90`
+  that exports all enum constants with a `MAPL_` prefix (e.g., `MAPL_STATEITEM_ALLOCATION_ACTIVE`,
+  `MAPL_FIELDBUNDLETYPE_BASIC`), establishing the public API pattern for MAPL enums. Updated
+  internal MAPL clients to use enum modules directly. Breaking change for external clients using
+  unprefixed type names (`StateItemAllocation`, `FieldBundleType_Flag`) - these are no longer
   exported; use MAPL_-prefixed constants instead. Zero-diff.
 - Flatten `infrastructure/` directory tree (#4972, part of #4969).
   Removes one level of nesting from the fields and geom sublayers:
