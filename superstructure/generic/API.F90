@@ -1,6 +1,6 @@
 ! Export umbrella for the MAPL superstructure/generic layer.
 ! Public API exposed to external consumers.
-module mapl_generic_export
+module mapl_generic_api
 
    use mapl_UserSetServices_mod, only: user_setservices, AbstractUserSetServices, DSOSetServices
 
@@ -85,4 +85,4 @@ module mapl_generic_export
    
    public :: CheckpointControls
    public :: RestartHandler
-end module mapl_generic_export
+end module mapl_generic_api
