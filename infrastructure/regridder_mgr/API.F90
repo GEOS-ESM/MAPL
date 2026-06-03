@@ -1,6 +1,6 @@
 ! Export umbrella for the MAPL infrastructure/regridder_mgr layer.
 ! Public API exposed to external consumers.
-module mapl_regridder_mgr_export
+module mapl_regridder_mgr_api
 
    use mapl_Regridder_mod, only: Regridder
    use mapl_RegridderManager_mod, only: RegridderManager, regridder_manager, get_regridder_manager
@@ -57,5 +57,5 @@ module mapl_regridder_mgr_export
    public :: regrid_method_int_to_string
    public :: generate_esmf_regrid_param
 
-
-end module mapl_regridder_mgr_export
+   
+end module mapl_regridder_mgr_api

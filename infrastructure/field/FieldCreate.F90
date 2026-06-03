@@ -2,7 +2,7 @@
 
 module mapl_FieldCreateImpl_mod
 
-   use mapl_vertical_grid_export, only: VerticalGrid, BasicVerticalGrid, BasicVerticalGridSpec
+    use mapl_vertical_grid_api, only: VerticalGrid, BasicVerticalGrid, BasicVerticalGridSpec
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
    use mapl_FieldInfo_mod

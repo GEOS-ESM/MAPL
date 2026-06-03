@@ -3,7 +3,7 @@
 module mapl_RoutehandleParam_mod
 
    use esmf
-   use mapl_geom_export, only: MaplGeom, geom_manager, MAPL_SameGeom
+   use mapl_geom_api, only: MaplGeom, geom_manager, MAPL_SameGeom
    use mapl_ErrorHandling_mod
 
    implicit none

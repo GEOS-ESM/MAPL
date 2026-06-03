@@ -4,7 +4,7 @@ module mapl_FieldBundleInfo_mod
    use mapl_esmf_info_keys_mod
    use mapl_InfoUtilities_mod
    use mapl_esmf_info_keys_mod
-   use mapl_field_export
+    use mapl_field_api
    use mapl_FieldInfo_mod
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
@@ -18,7 +18,7 @@ module mapl_FieldBundleInfo_mod
    use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, & 
         MAPL_StateItemAllocation
    use mapl_VerticalAlignment_mod
-   use mapl_vertical_grid_export
+    use mapl_vertical_grid_api
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use esmf

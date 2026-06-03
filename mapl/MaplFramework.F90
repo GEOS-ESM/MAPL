@@ -12,7 +12,7 @@ module mapl_MaplFramework_mod
    use mapl_FieldFillDefault_mod, only: &
         field_fill_defaults_init => initialize_field_fill_defaults, &
         set_field_fill_defaults
-   use mapl_vertical_grid_export
+    use mapl_vertical_grid_api
    ! Note: mapl_VerticalGridManager_mod used inside initialize() only
    use mapl_FixedLevelsVerticalGrid_mod
    use mapl_ModelVerticalGrid_mod

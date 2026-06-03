@@ -13,8 +13,8 @@ module mapl_CouplerMetaComponent_mod
    use mapl_VerticalRegridTransform_mod
    use mapl_ErrorHandling_mod
    use mapl_ESMF_Interfaces_mod
-   use mapl_field_export
-   use mapl_field_bundle_export
+    use mapl_field_api
+    use mapl_field_bundle_api
    use esmf
 
    implicit none(type,external)

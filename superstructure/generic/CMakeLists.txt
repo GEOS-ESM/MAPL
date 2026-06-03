@@ -2,7 +2,7 @@ esma_set_this (OVERRIDE MAPL.generic)
 
 set(srcs
   # FieldDictionary* moved to infrastructure/field_dictionary/
-  Export.F90
+  API.F90
 
   GenericGrid.F90
 
@@ -32,7 +32,7 @@ set(srcs
 
   # Umbrella modules
   Internal.F90
-  Export.F90
+  API.F90
   )
 
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.

@@ -2,9 +2,9 @@
 
 module mapl_VerticalRegridTransform_mod
    use mapl_TransformId_mod
-   use mapl_field_export
+    use mapl_field_api
    use mapl_ErrorHandling_mod
-   use mapl_field_bundle_export
+    use mapl_field_bundle_api
    use mapl_StateItemImpl_mod
    use mapl_ExtensionTransform_mod
    use mapl_ComponentDriver_mod

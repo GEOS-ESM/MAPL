@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
 module mapl_FieldBundleSetImpl_mod
-   use mapl_vertical_grid_export
-   use mapl_field_export
+    use mapl_vertical_grid_api
+    use mapl_field_api
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod

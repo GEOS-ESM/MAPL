@@ -2,8 +2,8 @@
 ! See external setservices() procedure at end of file
 
 module ProtoStatGridComp
-   use mapl_state_export
-   use mapl_field_export
+    use mapl_state_api
+    use mapl_field_api
    use mapl_Generic_mod
    use mapl_ESMF_Subset_mod
    use mapl_VerticalStaggerLoc_mod
