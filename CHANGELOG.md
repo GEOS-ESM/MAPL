@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Change AddChild interface in history to not expose ChildSpec derived type
+- Reverted to use API.F90 instead of Export.F90.  (Elimination of Internal.F90 is for later phase.)
 - Major cleanup of Export.F90 in various layers.  But not done yet.
 - Adding public items for generic layer.
 - Lock down all Export umbrella modules to expose only their declared public API (#5026/#5029).

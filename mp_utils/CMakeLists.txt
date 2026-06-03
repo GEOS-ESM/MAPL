@@ -6,7 +6,7 @@ esma_set_this (OVERRIDE MAPL.mp_utils)
 set (srcs
     # Layer umbrellas (Internal must precede Export)
     Internal.F90
-    Export.F90
+    API.F90
     # MPI error handling
     MAPL_MpiErrorHandling.F90
     # Parallel collective array reductions (MaxMin, AreaMean)

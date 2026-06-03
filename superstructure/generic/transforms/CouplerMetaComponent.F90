@@ -4,7 +4,7 @@ module mapl_CouplerMetaComponent_mod
 
    use mapl_TransformId_mod
    use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE
-   use mapl_Enums_export
+   use mapl_enums_api
    use mapl_ComponentDriver_mod, only: ComponentDriver, ComponentDriverPtr
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ComponentDriverVector_mod, only: ComponentDriverVector
@@ -13,8 +13,8 @@ module mapl_CouplerMetaComponent_mod
    use mapl_VerticalRegridTransform_mod
    use mapl_ErrorHandling_mod
    use mapl_ESMF_Interfaces_mod
-   use mapl_field_export
-   use mapl_field_bundle_export
+   use mapl_field_api
+   use mapl_field_bundle_api
    use esmf
 
    implicit none(type,external)

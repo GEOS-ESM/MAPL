@@ -1,7 +1,7 @@
 ! Public Export umbrella for the MAPL.enums layer.
 ! All enum entities carry the MAPL_ prefix, so Export = Internal.
 ! This is what mapl/MAPL.F90 imports from.
-module mapl_Enums_export
+module mapl_enums_api
    use mapl_Enums_internal
    implicit none(type, external)
    private
@@ -64,4 +64,4 @@ module mapl_Enums_export
 
    ! VerticalStaggerLoc
 
-end module mapl_Enums_export
+end module mapl_enums_api

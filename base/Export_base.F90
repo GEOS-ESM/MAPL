@@ -1,7 +1,7 @@
 ! Export umbrella for the MAPL base layer.
 ! Public API of base/ leaf modules. Cross-layer symbols (comms, mp_utils, etc.)
 ! are exposed via mapl_base_mod (API.F90) which remains the top-level umbrella.
-module mapl_base_export
+module mapl_base_api
 
    use mapl_base_internal
 
@@ -28,4 +28,4 @@ module mapl_base_export
 
    ! SimpleBundle
 
-end module mapl_base_export
+end module mapl_base_api
