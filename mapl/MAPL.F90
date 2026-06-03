@@ -5,7 +5,7 @@ module MAPL
    use mapl_Profiler_mod, profiler_initialize => initialize, profiler_finalize => finalize
 
    use mapl_enums_export
-   use mapl_utils_export
+   use mapl_utils_api
    use mapl_mp_utils_export
    use mapl_infrastructure_export
    use mapl_superstructure_export
