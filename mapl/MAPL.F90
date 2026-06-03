@@ -7,7 +7,7 @@ module MAPL
    use mapl_enums_api
    use mapl_utils_api
    use mapl_mp_utils_export
-   use mapl_infrastructure_export
+   use mapl_infrastructure_api
    use mapl_superstructure_export
    use mapl_base_export
    use mapl_base_mod

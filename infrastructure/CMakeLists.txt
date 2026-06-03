@@ -7,7 +7,7 @@ esma_set_this (OVERRIDE MAPL.infrastructure)
 
 # --- field_dictionary (absorbed from infrastructure/field_dictionary/) ---
 set (srcs
-    Export.F90
+    API.F90
     field_dictionary/FieldDictionaryItem.F90
     field_dictionary/FieldDictionaryItemMap.F90
     field_dictionary/FieldDictionary.F90
