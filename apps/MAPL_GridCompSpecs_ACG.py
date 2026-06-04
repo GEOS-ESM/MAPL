@@ -109,7 +109,7 @@ STRINGVECTOR = 'string_vector'
 TYPEKIND = 'typekind'
 UNGRIDDED_DIMS = 'ungridded_dims'
 USE_FIELD_DICTIONARY = 'use_field_dictionary'
-VSTAGGER = 'vstagger'
+VSTAGGER = 'vertical_stagger'
 
 # command-line option constants
 GC_VARIABLE = 'gridcomp_variable'

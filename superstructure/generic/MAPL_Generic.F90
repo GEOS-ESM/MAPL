@@ -43,19 +43,8 @@ module mapl_Generic_mod
    use mapl_InternalConstants_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
-   use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
-   use esmf, only: ESMF_GridComp, ESMF_GridCompGet
-   use esmf, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomGet
-   use esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
-   use esmf, only: ESMF_STAGGERLOC_INVALID
-   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
-   use esmf, only: ESMF_Method_Flag
-   use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
-   use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
-   use esmf, only: ESMF_MAXSTR
-   use esmf, only: ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
-   use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_TypeKind_Flag
-   use esmf, only: operator(==)
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use esmf
    use pflogger, only: logger_t => logger
    use gftl2_StringVector, only: StringVector
 
@@ -544,78 +533,113 @@ contains
 
    subroutine gridcomp_add_spec( &
         gridcomp, &
-        state_intent, &
-        short_name, &
+        state_intent, short_name, unusable, &
         standard_name, &
-        dims, &
-        vstagger, &
-        ! OPTIONAL
-        unusable, &
-        vector_component_names, &
-        ungridded_dims, &
+        long_name, &
+        geom, &
         units, &
-        restart, &
+        itemtype, &
         typekind, &
-        itemType, &
-        add_to_export, &
+        vertical_grid, &
+        vertical_stagger, &
+        vertical_alignment, &
+        ungridded_dims, &
         fill_value, &
-        export_name, &
-        has_deferred_aspects, &
         service_items, &
+        attributes, &
+        bracket_size, &
+        expression, &
+        dependencies, &
+        regrid_param, &
+        horizontal_dims_spec, &
+        vector_basis_kind, &
+        has_deferred_aspects, &
+        use_field_dictionary, &
+        restart_mode, &
+
+        dims, &
+        add_to_export, &
+        export_name, &
         rc)
+
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
-      character(*), intent(in) :: standard_name
-      character(*), intent(in) :: dims
-      type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: vector_component_names(:)
-      type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: long_name
+      type(ESMF_Geom), optional, intent(in) :: geom
       character(*), optional, intent(in) :: units
-      type(RestartMode), optional, intent(in) :: restart
+      character(*), optional, intent(in) :: expression
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
-      logical, optional, intent(in) :: add_to_export
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+      character(*), optional, intent(in) :: vertical_alignment
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: fill_value
-      character(*), optional, intent(in) :: export_name
+      type(StringVector), optional :: service_items
+      type(StringVector), optional, intent(in) :: attributes
+      integer, optional, intent(in) :: bracket_size
+      type(StringVector), optional, intent(in) :: dependencies
+      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+      type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      character(*), optional, intent(in) :: vector_basis_kind
       logical, optional, intent(in) :: has_deferred_aspects
-      type(StringVector), optional, intent(in) :: service_items
+      logical, optional, intent(in) :: use_field_dictionary
+      type(RestartMode), optional, intent(in) :: restart_mode
+
+      character(*), optional, intent(in) :: dims
+      logical, optional, intent(in) :: add_to_export
+      character(*), optional, intent(in) :: export_name
       integer, optional, intent(out) :: rc
 
       type(VariableSpec) :: var_spec
-      type(HorizontalDimsSpec) :: horizontal_dims_spec
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
-      character(len=:), allocatable :: units_
-      type(UngriddedDims), allocatable :: dim_specs_vec
+      type(HorizontalDimsSpec) :: horizontal_dims_spec_
       integer :: status
 
-      _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
-      horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
-      if (dims == "z") then
-         horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      _FAIL_IF(present(dims) .and. present(horizontal_dims_spec), "dims and horizontal_dims_spec passed")
+     
+      horizontal_dims_spec_ = HORIZONTAL_DIMS_GEOM
+      if (present(horizontal_dims_spec)) horizontal_dims_spec_ = horizontal_dims_spec 
+      if (present(dims)) then
+         _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
+         horizontal_dims_spec_ = HORIZONTAL_DIMS_GEOM
+         if (dims == "z") then
+            horizontal_dims_spec_ = HORIZONTAL_DIMS_NONE
+         end if
       end if
-      ! TODO: Using standard_name, look up field dictionary for units_
-      ! If input units is present, override using input values
-      if (present(units)) units_ = units
-      if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
+
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
            standard_name=standard_name, &
-           units=units_, &
-           itemType=itemType, &
+           long_name=long_name, &
+           geom=geom, &
+           units=units, &
+           expression=expression, &
+           itemtype=itemtype, &
            typekind=typekind, &
-           vertical_stagger=vstagger, &
-           ungridded_dims=dim_specs_vec, &
-           horizontal_dims_spec=horizontal_dims_spec, &
+           vertical_grid=vertical_grid, &
+           vertical_stagger=vertical_stagger, &
+           vertical_alignment=vertical_alignment, &
+           ungridded_dims=ungridded_dims, &
            fill_value=fill_value, &
-           has_deferred_aspects=has_deferred_aspects, &
            service_items=service_items, &
-           restart_mode=restart, &
+           attributes=attributes, &
+           bracket_size=bracket_size, &
+           dependencies=dependencies, &
+           regrid_param=regrid_param, &
+           horizontal_dims_spec=horizontal_dims_spec_, &
+           vector_basis_kind=vector_basis_kind, &
+           has_deferred_aspects=has_deferred_aspects, &
+           use_field_dictionary=use_field_dictionary, &
+           restart_mode=restart_mode, &
            _RC)
+
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(var_spec)
@@ -635,7 +659,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(vector_component_names)
    end subroutine gridcomp_add_spec
 
    subroutine gridcomp_advertise_variable(gridcomp, var_spec, rc)
