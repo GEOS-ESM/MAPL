@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Change all `MAPL_GridCompAddVarSpec` calls in Gridcomps with `MAPL_GridCompAddSpec` calls to avoid exposting VariableSpec in `use MAPL`. Required changes to interface for `MAPL_GridCompAddSpec` and acg
 - Major cleanup of Export.F90 in various layers.  But not done yet.
 - Adding public items for generic layer.
 - Lock down all Export umbrella modules to expose only their declared public API (#5026/#5029).
