@@ -10,7 +10,6 @@ module MAPL
    use mapl_infrastructure_api
    use mapl_superstructure_api
    use mapl_base_api
-   use mapl_base_mod
 
    use pfio
    use mapl_MaplFramework_mod
