@@ -65,7 +65,6 @@ module mapl_utils_api
    public :: mapl_ClearDirectoryStack
    public :: mapl_PathJoin
    public :: mapl_MakeSymbolicLink
-   public :: get_checkpoint_subdir
    public :: get_file_extension
    public :: get_file_basename
 

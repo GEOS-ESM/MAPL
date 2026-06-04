@@ -61,6 +61,9 @@ module mapl_generic_api
    public :: mapl_GridCompTimerStart
    public :: mapl_GridCompTimerStop
 
+   ! Checkpoint directory
+   public :: mapl_GridCompGetCheckpointDir
+
    ! Spec types
    public :: mapl_STATEITEM_STATE, mapl_STATEITEM_FIELDBUNDLE
    public :: mapl_STATEITEM_SERVICE, mapl_STATEITEM_VECTOR
@@ -82,7 +85,7 @@ module mapl_generic_api
    public :: make_VariableSpec
 
    public :: ChildSpec
-   
+
    public :: CheckpointControls
    public :: RestartHandler
 end module mapl_generic_api
