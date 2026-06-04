@@ -157,6 +157,7 @@ module mapl_Generic_mod
 
    interface MAPL_GridCompAddSpec
       procedure :: gridcomp_add_spec
+      procedure :: legacy_gridcomp_add_spec
    end interface MAPL_GridCompAddSpec
 
    interface mapl_GridCompAdvertiseVariable
@@ -530,6 +531,102 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_add_varspec_basic
+
+   subroutine legacy_gridcomp_add_spec( &
+        gridcomp, &
+        state_intent, &
+        short_name, &
+        standard_name, &
+        dims, &
+        vstagger, &
+        ! OPTIONAL
+        unusable, &
+        vector_component_names, &
+        ungridded_dims, &
+        units, &
+        restart, &
+        typekind, &
+        itemType, &
+        add_to_export, &
+        fill_value, &
+        export_name, &
+        has_deferred_aspects, &
+        service_items, &
+        rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      character(*), intent(in) :: standard_name
+      character(*), intent(in) :: dims
+      type(VerticalStaggerLoc), intent(in) :: vstagger
+      ! OPTIONAL
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: vector_component_names(:)
+      type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
+      character(*), optional, intent(in) :: units
+      type(RestartMode), optional, intent(in) :: restart
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
+      logical, optional, intent(in) :: add_to_export
+      real, optional, intent(in) :: fill_value
+      character(*), optional, intent(in) :: export_name
+      logical, optional, intent(in) :: has_deferred_aspects
+      type(StringVector), optional, intent(in) :: service_items
+      integer, optional, intent(out) :: rc
+
+      type(VariableSpec) :: var_spec
+      type(HorizontalDimsSpec) :: horizontal_dims_spec
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: component_spec
+      character(len=:), allocatable :: units_
+      type(UngriddedDims), allocatable :: dim_specs_vec
+      integer :: status
+
+      _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
+      horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
+      if (dims == "z") then
+         horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      end if
+      ! TODO: Using standard_name, look up field dictionary for units_
+      ! If input units is present, override using input values
+      if (present(units)) units_ = units
+      if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
+      var_spec = make_VariableSpec( &
+           state_intent, &
+           short_name, &
+           standard_name=standard_name, &
+           units=units_, &
+           itemType=itemType, &
+           typekind=typekind, &
+           vertical_stagger=vstagger, &
+           ungridded_dims=dim_specs_vec, &
+           horizontal_dims_spec=horizontal_dims_spec, &
+           fill_value=fill_value, &
+           has_deferred_aspects=has_deferred_aspects, &
+           service_items=service_items, &
+           restart_mode=restart, &
+           _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      component_spec => outer_meta%get_component_spec()
+      call component_spec%var_specs%push_back(var_spec)
+
+      if (present(add_to_export)) then
+         if (add_to_export) then
+            _ASSERT((state_intent==ESMF_STATEINTENT_INTERNAL), "cannot reexport a non-internal spec")
+            call gridcomp_reexport( &
+                 gridcomp=gridcomp, &
+                 src_comp="<self>", &
+                 src_name=short_name, &
+                 src_intent=esmf_state_intent_to_string(state_intent), &
+                 new_name=export_name, &
+                 _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(vector_component_names)
+   end subroutine legacy_gridcomp_add_spec
 
    subroutine gridcomp_add_spec( &
         gridcomp, &

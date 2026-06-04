@@ -110,6 +110,7 @@ TYPEKIND = 'typekind'
 UNGRIDDED_DIMS = 'ungridded_dim_array'
 USE_FIELD_DICTIONARY = 'use_field_dictionary'
 VSTAGGER = 'vertical_stagger'
+RESTART = 'restart_mode'
 
 # command-line option constants
 GC_VARIABLE = 'gridcomp_variable'
@@ -232,6 +233,7 @@ def get_options(args):
         'name': SHORT_NAME,
         'vloc': VSTAGGER,
         'vlocation': VSTAGGER,
+        'restart': RESTART,
         'add2export': ADD_TO_EXPORT,
         'field dictionary': USE_FIELD_DICTIONARY,
         'field_dictionary': USE_FIELD_DICTIONARY,
