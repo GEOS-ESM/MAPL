@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Change all `MAPL_GridCompAddVarSpec` calls in Gridcomps with `MAPL_GridCompAddSpec` calls to avoid exposting VariableSpec in `use MAPL`. Required changes to interface for `MAPL_GridCompAddSpec` and acg
+- Eliminate some items from public interface of MAPL.
 - Cleanup umbrella in ./base
 - Change AddChild interface in history to not expose ChildSpec derived type
 - Reverted to use API.F90 instead of Export.F90.  (Elimination of Internal.F90 is for later phase.)

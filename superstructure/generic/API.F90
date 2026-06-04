@@ -23,8 +23,6 @@ module mapl_generic_api
    public :: mapl_GridCompAddVarSpec
    public :: mapl_GridCompAddSpec
    public :: mapl_GridCompAdvertiseVariable
-   public :: mapl_GridCompIsGeneric
-   public :: mapl_GridCompIsUser
 
    public :: mapl_GridCompGet
    public :: mapl_GridCompSet
