@@ -608,7 +608,6 @@ contains
       _FAIL_IF(present(ungridded_dims) .and. present(ungridded_dim_array), "cannot specify both ungridded_dims and ungridded_dim_array")
 
       if (present(ungridded_dim_array)) dim_specs_vec = UngriddedDims(ungridded_dim_array)
-      if (present(Ungridded_dims)) allocate(dim_specs_vec, source=ungridded_dims, _STAT)
       horizontal_dims_spec_ = HORIZONTAL_DIMS_GEOM
       if (present(horizontal_dims_spec)) horizontal_dims_spec_ = horizontal_dims_spec 
       if (present(dims)) then
@@ -619,32 +618,61 @@ contains
          end if
       end if
 
-      var_spec = make_VariableSpec( &
-           state_intent, &
-           short_name, &
-           standard_name=standard_name, &
-           long_name=long_name, &
-           geom=geom, &
-           units=units, &
-           expression=expression, &
-           itemtype=itemtype, &
-           typekind=typekind, &
-           vertical_grid=vertical_grid, &
-           vertical_stagger=vertical_stagger, &
-           vertical_alignment=vertical_alignment, &
-           ungridded_dims=dim_specs_vec, &
-           fill_value=fill_value, &
-           service_items=service_items, &
-           attributes=attributes, &
-           bracket_size=bracket_size, &
-           dependencies=dependencies, &
-           regrid_param=regrid_param, &
-           horizontal_dims_spec=horizontal_dims_spec_, &
-           vector_basis_kind=vector_basis_kind, &
-           has_deferred_aspects=has_deferred_aspects, &
-           use_field_dictionary=use_field_dictionary, &
-           restart_mode=restart_mode, &
-           _RC)
+      if (present(ungridded_dim_array)) then
+         var_spec = make_VariableSpec( &
+              state_intent, &
+              short_name, &
+              standard_name=standard_name, &
+              long_name=long_name, &
+              geom=geom, &
+              units=units, &
+              expression=expression, &
+              itemtype=itemtype, &
+              typekind=typekind, &
+              vertical_grid=vertical_grid, &
+              vertical_stagger=vertical_stagger, &
+              vertical_alignment=vertical_alignment, &
+              ungridded_dims=dim_specs_vec, &
+              fill_value=fill_value, &
+              service_items=service_items, &
+              attributes=attributes, &
+              bracket_size=bracket_size, &
+              dependencies=dependencies, &
+              regrid_param=regrid_param, &
+              horizontal_dims_spec=horizontal_dims_spec_, &
+              vector_basis_kind=vector_basis_kind, &
+              has_deferred_aspects=has_deferred_aspects, &
+              use_field_dictionary=use_field_dictionary, &
+              restart_mode=restart_mode, &
+              _RC)
+      else
+         var_spec = make_VariableSpec( &
+              state_intent, &
+              short_name, &
+              standard_name=standard_name, &
+              long_name=long_name, &
+              geom=geom, &
+              units=units, &
+              expression=expression, &
+              itemtype=itemtype, &
+              typekind=typekind, &
+              vertical_grid=vertical_grid, &
+              vertical_stagger=vertical_stagger, &
+              vertical_alignment=vertical_alignment, &
+              ungridded_dims=ungridded_dims, &
+              fill_value=fill_value, &
+              service_items=service_items, &
+              attributes=attributes, &
+              bracket_size=bracket_size, &
+              dependencies=dependencies, &
+              regrid_param=regrid_param, &
+              horizontal_dims_spec=horizontal_dims_spec_, &
+              vector_basis_kind=vector_basis_kind, &
+              has_deferred_aspects=has_deferred_aspects, &
+              use_field_dictionary=use_field_dictionary, &
+              restart_mode=restart_mode, &
+              _RC)
+      endif
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
