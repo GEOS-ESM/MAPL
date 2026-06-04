@@ -560,6 +560,7 @@ contains
         dims, &
         add_to_export, &
         export_name, &
+        ungridded_dims_array, &
         rc)
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -593,16 +594,19 @@ contains
       character(*), optional, intent(in) :: dims
       logical, optional, intent(in) :: add_to_export
       character(*), optional, intent(in) :: export_name
+      type(UngriddedDim), optional, intent(in) :: ungridded_dims_array(:)
       integer, optional, intent(out) :: rc
 
       type(VariableSpec) :: var_spec
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
       type(HorizontalDimsSpec) :: horizontal_dims_spec_
+      type(UngriddedDims), allocatable :: dim_specs_vec 
       integer :: status
 
       _FAIL_IF(present(dims) .and. present(horizontal_dims_spec), "dims and horizontal_dims_spec passed")
-     
+
+      if (present(ungridded_dims_array)) dim_specs_vec = UngriddedDims(ungridded_dims_array) 
       horizontal_dims_spec_ = HORIZONTAL_DIMS_GEOM
       if (present(horizontal_dims_spec)) horizontal_dims_spec_ = horizontal_dims_spec 
       if (present(dims)) then
@@ -613,6 +617,34 @@ contains
          end if
       end if
 
+      if (present(ungridded_dims_array)) then
+      var_spec = make_VariableSpec( &
+           state_intent, &
+           short_name, &
+           standard_name=standard_name, &
+           long_name=long_name, &
+           geom=geom, &
+           units=units, &
+           expression=expression, &
+           itemtype=itemtype, &
+           typekind=typekind, &
+           vertical_grid=vertical_grid, &
+           vertical_stagger=vertical_stagger, &
+           vertical_alignment=vertical_alignment, &
+           ungridded_dims=dim_specs_vec, &
+           fill_value=fill_value, &
+           service_items=service_items, &
+           attributes=attributes, &
+           bracket_size=bracket_size, &
+           dependencies=dependencies, &
+           regrid_param=regrid_param, &
+           horizontal_dims_spec=horizontal_dims_spec_, &
+           vector_basis_kind=vector_basis_kind, &
+           has_deferred_aspects=has_deferred_aspects, &
+           use_field_dictionary=use_field_dictionary, &
+           restart_mode=restart_mode, &
+           _RC)
+      else
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
@@ -639,6 +671,7 @@ contains
            use_field_dictionary=use_field_dictionary, &
            restart_mode=restart_mode, &
            _RC)
+       end if
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
