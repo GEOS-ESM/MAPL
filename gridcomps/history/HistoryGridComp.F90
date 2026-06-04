@@ -25,7 +25,6 @@ contains
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       logical :: has_active_collections
       class(logger), pointer :: lgr
-      type(ChildSpec) :: child_spec
       integer :: num_collections, status
       type(ESMF_TimeInterval), allocatable :: timeStep
 
@@ -61,10 +60,8 @@ contains
          call add_run_next_step(child_hconfig, hconfig, _RC)
          call add_child_ref_datetime(child_hconfig, _RC)
 
-         child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep)
-
          call add_stats_gc(gridcomp, child_name, child_hconfig, _RC)
-         call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
+         call MAPL_GridCompAddChild(gridcomp, child_name, user_setservices(collection_setServices), child_hconfig, timeStep=timeStep, _RC)
       end do
 
       _RETURN(_SUCCESS)
