@@ -107,7 +107,7 @@ STATE_ARG = 'state_arg'
 STATE_INTENT = 'state_intent'
 STRINGVECTOR = 'string_vector'
 TYPEKIND = 'typekind'
-UNGRIDDED_DIMS = 'ungridded_dims_array'
+UNGRIDDED_DIMS = 'ungridded_dim_array'
 USE_FIELD_DICTIONARY = 'use_field_dictionary'
 VSTAGGER = 'vertical_stagger'
 
