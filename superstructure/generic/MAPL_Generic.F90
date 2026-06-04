@@ -44,7 +44,19 @@ module mapl_Generic_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
-   use esmf
+   use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
+   use esmf, only: ESMF_GridComp, ESMF_GridCompGet
+   use esmf, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomGet
+   use esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
+   use esmf, only: ESMF_STAGGERLOC_INVALID
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use esmf, only: ESMF_Method_Flag
+   use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
+   use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
+   use esmf, only: ESMF_MAXSTR
+   use esmf, only: ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
+   use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_TypeKind_Flag
+   use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
    use gftl2_StringVector, only: StringVector
 
