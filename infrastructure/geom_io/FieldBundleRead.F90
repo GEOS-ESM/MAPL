@@ -3,15 +3,15 @@
 module mapl_FieldBundleRead_mod
 
    use ESMF
-   use mapl_Enums_export
+   use mapl_enums_api
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
    use mapl_GeomCatagorizer_mod
-   use mapl_geom_export, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
-   use mapl_field_export, only: MAPL_FieldCreate, MAPL_FieldGet, MAPL_FieldBundleAdd
-   use mapl_field_bundle_export
+   use mapl_geom_api, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
+   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet, MAPL_FieldBundleAdd
+   use mapl_field_bundle_api
    use mapl_VerticalStaggerLoc_mod
-   use mapl_vertical_grid_export
+   use mapl_vertical_grid_api
    ! Note: mapl_VerticalGridManager_mod used inside MAPL_read_bundle only
    use mapl_RegridderManager_mod, only: get_regridder_manager, RegridderManager
    use mapl_RegridderSpec_mod

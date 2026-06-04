@@ -28,7 +28,7 @@ set (srcs
     MAPL_ESMF_InfoKeys.F90
     # Umbrella modules for the utils layer (#5004)
     Internal.F90
-    Export.F90
+    API.F90
     # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     # From utilities/

@@ -2,15 +2,15 @@
 
 module mapl_RegridTransform_mod
    use mapl_TransformId_mod
-   use mapl_field_export, only: MAPL_FieldClone, MAPL_FieldGet
-   use mapl_field_bundle_export
+   use mapl_field_api, only: MAPL_FieldClone, MAPL_FieldGet
+   use mapl_field_bundle_api
    use mapl_ExtensionTransform_mod
    use mapl_TransformId_mod
    use mapl_regridder_mgr
    use mapl_StateItemImpl_mod
    use mapl_ExtensionTransformUtils_mod, only: bundle_types_valid
    use mapl_NormalizationMetadata_mod
-   use mapl_Enums_export
+   use mapl_enums_api
    use mapl_ComponentDriver_mod, only: ComponentDriver
    use mapl_ErrorHandling_mod
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array

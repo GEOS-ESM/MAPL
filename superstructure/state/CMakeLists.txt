@@ -12,7 +12,7 @@ set (srcs
     StateFilter.F90
     StateDestroy.F90
     Internal.F90
-    Export.F90
+    API.F90
 )
 
 esma_add_library (${this}

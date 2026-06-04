@@ -92,7 +92,6 @@ contains
       character(len=:), allocatable :: mode, ref_datetime, frequency, short_name, name_in_comp
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: stat_item, stats_list, stats_mapl_section
-      type(ChildSpec) :: child_spec
 
       time_hconfig = ESMF_HConfigCreateAt(child_hconfig, keyString='time_spec', _RC)
       has_mode = ESMF_HConfigIsDefined(time_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
@@ -126,8 +125,7 @@ contains
          call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
       enddo
       call ESMF_HConfigAdd(stats_hconfig, stats_list, addKeyString='stats', _RC)
-      child_spec = ChildSpec(user_setservices(statistics_setServices),hconfig=stats_hconfig)
-      call MAPL_GridCompAddChild(gridcomp,'stats_'//child_name, child_spec, _RC)
+      call MAPL_GridCompAddChild(gridcomp,'stats_'//child_name, user_setservices(statistics_setServices), stats_hconfig, _RC)
 
       _RETURN(_SUCCESS)
 

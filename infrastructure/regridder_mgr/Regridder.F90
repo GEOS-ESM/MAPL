@@ -3,10 +3,10 @@
 module mapl_Regridder_mod
    use esmf
    use mapl_FieldUtils
-   use mapl_field_bundle_export
-   use mapl_Enums_export
+   use mapl_field_bundle_api
+   use mapl_enums_api
    use mapl_ErrorHandling_mod
-   use mapl_geom_export
+   use mapl_geom_api
    use mapl_RegridderSpec_mod
    use mapl_VectorBasis_mod
    use iso_fortran_env, only: REAL32, REAL64

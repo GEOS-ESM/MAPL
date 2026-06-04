@@ -1,5 +1,5 @@
 ! Export umbrella for the MAPL.field_bundle library.
-module mapl_field_bundle_export
+module mapl_field_bundle_api
 
    use mapl_FieldBundleCopyImpl_mod, only: MAPL_FieldBundleCopy => FieldBundleCopy
    use mapl_FieldBundleCreateImpl_mod, only: MAPL_FieldBundleCreate => FieldBundleCreate
@@ -28,4 +28,4 @@ module mapl_field_bundle_export
    public :: MAPL_FieldBundlesAreAliased
    public :: MAPL_FieldBundleSet
 
-end module mapl_field_bundle_export
+end module mapl_field_bundle_api
