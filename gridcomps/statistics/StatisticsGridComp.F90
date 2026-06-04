@@ -78,39 +78,32 @@ contains
       type(esmf_StateItem_Flag) :: itemtype
       integer :: status
       type(esmf_HConfig) :: hconfig
-      type(VariableSpec) :: varspec
 
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, name, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, _RC)
        select case (action)
        case ('average')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_average_internal_fields(gridcomp, name, _RC)
        case ('min')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_min_internal_fields(gridcomp, name, _RC)
        case ('max')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_max_internal_fields(gridcomp, name, _RC)
        case ('accumulate')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_accumulate_internal_fields(gridcomp, name, _RC)
        case ('variance')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_variance_internal_fields(gridcomp, name, _RC)
        case default
           _FAIL('unsupported action: '//action)

@@ -40,18 +40,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(VariableSpec) :: varspec
 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'kx_'//name,  fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'ky_'//name,  fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'ex_'//name,  fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'ey_'//name,  fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'exy_'//name, fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'kx_'//name,  fill_value=0.0, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'ky_'//name,  fill_value=0.0, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'ex_'//name,  fill_value=0.0, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'ey_'//name,  fill_value=0.0, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'exy_'//name, fill_value=0.0, _RC)
 
       _RETURN(_SUCCESS)
 

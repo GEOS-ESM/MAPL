@@ -331,19 +331,16 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, slash_pos
-      type(VariableSpec) :: varspec
-      character(len=:), allocatable :: just_name
+       character(len=:), allocatable :: just_name
 
-      slash_pos = index(name, "/")
-      just_name = name
-      if (slash_pos > 0) then
-         just_name = name(slash_pos+1:)
-      end if
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'sum_'//just_name, fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+       slash_pos = index(name, "/")
+       just_name = name
+       if (slash_pos > 0) then
+          just_name = name(slash_pos+1:)
+       end if
+       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'sum_'//just_name, fill_value=0.0, _RC)
 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'counts_'//just_name, fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'counts_'//just_name, fill_value=0.0, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine advertise_time_average_internal_fields

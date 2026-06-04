@@ -45,14 +45,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(VariableSpec) :: varspec
 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'mux_'//name, fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'muy_'//name, fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'c_'//name,   fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'mux_'//name, fill_value=0.0, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'muy_'//name, fill_value=0.0, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'c_'//name,   fill_value=0.0, _RC)
 
       _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)

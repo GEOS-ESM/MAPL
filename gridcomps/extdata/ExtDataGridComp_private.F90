@@ -33,7 +33,6 @@ contains
       type(ESMF_HConfig) :: sub_config, export_config, temp_config
       type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
       character(len=:), allocatable :: short_name, collection_name, str_const, expression
-      type(VariableSpec) :: varspec
       type(ESMF_StateItem_Flag) :: item_type
 
       if (ESMF_HConfigIsDefined(hconfig, keyString='subconfigs')) then
@@ -60,24 +59,23 @@ contains
                collection_name = ESMF_HConfigAsString(temp_config, keyString='collection', _RC)
                if (collection_name == "/dev/null") then
                   str_const = get_constant(temp_config, _RC)
-                  varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+                  call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, short_name, &
                   itemType=MAPL_STATEITEM_EXPRESSION, expression=str_const, units="<unknown>", &
                   _RC)
                else
                   item_type = get_maplitem_type(temp_config, _RC)
                   bracket_size = get_bracket_size(item_type)
-                  varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+                  call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, short_name, &
                   itemType=item_type, bracket_size = bracket_size, fill_value=0.0, &
                   _RC)
                end if
             else
                item_type = get_maplitem_type(temp_config, _RC)
                bracket_size = get_bracket_size(item_type)
-               varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+               call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, short_name, &
                itemType=item_type, bracket_size = bracket_size, fill_value=0.0, &
                _RC)
             end if
-            call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
          enddo
       end if
 
@@ -90,10 +88,9 @@ contains
          short_name = ESMF_HConfigAsStringMapKey(hconfigIter, _RC)
          temp_config = ESMF_HConfigCreateAtMapVal(hconfigIter, _RC)
          expression = ESMF_HConfigAsString(temp_config, keyString='function', _RC)
-         varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, short_name, &
                    itemType=MAPL_STATEITEM_EXPRESSION, expression=expression, &
                    units='<unknown>', _RC)
-         call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       enddo
 
       _RETURN(_SUCCESS)
