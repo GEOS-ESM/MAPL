@@ -13,7 +13,6 @@ module mapl_mp_utils_api
    public :: MAPL_AreaMean
 
    ! Time packing
-   public :: MAPL_PackTime
    public :: MAPL_UnpackTime
    public :: MAPL_UnpackDate
    public :: MAPL_UnpackDateTime
@@ -38,9 +37,26 @@ module mapl_mp_utils_api
    public :: fill_grads_template
    public :: fill_grads_template_esmf
    
-   public :: mapl_SyncSharedMemory
-   public :: mapl_GetNodeInfo
-   public :: mapl_InitializeShmem
-   public :: mapl_FinalizeShmem
+   public :: MAPL_GetNodeInfo
+   public :: MAPL_CoresPerNodeGet
+   public :: MAPL_InitializeShmem
+   public :: MAPL_FinalizeShmem
+   
+   public :: MAPL_AllocNodeArray
+   public :: MAPL_DeAllocNodeArray
+   public :: MAPL_ShmemAmOnFirstNode
+   public :: MAPL_SyncSharedMemory
+   public :: MAPL_BroadcastToNodes
+   
+   public :: MAPL_AllocateShared
+   public :: GetSharedMemory
+   public :: ReleaseSharedMemory
+
+   public :: MAPL_GetNewRank
+   public :: MAPL_NodeComm
+   public :: MAPL_NodeRootsComm
+   public :: MAPL_MyNodeNum
+   public :: MAPL_AmNodeRoot
+   public :: MAPL_ShmInitialized
 
 end module mapl_mp_utils_api
