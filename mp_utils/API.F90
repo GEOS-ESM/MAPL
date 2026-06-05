@@ -21,9 +21,6 @@ module mapl_mp_utils_api
    public :: MAPL_UnpackDate
    public :: MAPL_UnpackDateTime
 
-   ! Checkpoint
-   public :: MAPL_GetCheckpointSubdir
-
    ! PackedTime functions with MAPL_ prefix
    public :: MAPL_PackedDateCreate
    public :: MAPL_PackedTimeCreate

@@ -6,7 +6,6 @@ module mapl_mp_utils_internal
    use mapl_ArrayReductions_mod, only: MAPL_MaxMin, MAPL_AreaMean
    use mapl_MemInfo_mod,         only: MAPL_MemInfoWrite => MemInfoWrite
    use mapl_TimeUtilities_mod,   only: MAPL_PackTime => PackDate, MAPL_UnpackTime => UnpackDate
-   use mapl_OSUtilities_mod,     only: MAPL_GetCheckpointSubdir => get_checkpoint_subdir
    ! Import all PackedTime functions (both prefixed and unprefixed)
    use mapl_PackedTime_mod,      only: MAPL_PackedDateCreate => PackedDateCreate, &
                                        MAPL_PackedTimeCreate => PackedTimeCreate, &
@@ -23,7 +22,6 @@ module mapl_mp_utils_internal
    public :: MAPL_MaxMin, MAPL_AreaMean
    public :: MAPL_MemInfoWrite
    public :: MAPL_PackTime, MAPL_UnpackTime
-   public :: MAPL_GetCheckpointSubdir
    
    ! PackedTime functions with MAPL_ prefix
    public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, MAPL_PackedDateTimeCreate
