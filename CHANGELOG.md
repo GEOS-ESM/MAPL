@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Aligned API umbrellas with actual content.  Earlier refactoring had
+  done some weird indirect publishing.
 - Eliminate some items from public interface of MAPL.
 - Cleanup umbrella in ./base
 - Change AddChild interface in history to not expose ChildSpec derived type

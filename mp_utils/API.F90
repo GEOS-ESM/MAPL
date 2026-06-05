@@ -12,9 +12,6 @@ module mapl_mp_utils_api
    public :: MAPL_MaxMin
    public :: MAPL_AreaMean
 
-   ! Memory info
-   public :: MAPL_MemInfoWrite
-
    ! Time packing
    public :: MAPL_PackTime
    public :: MAPL_UnpackTime

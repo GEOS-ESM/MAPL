@@ -4,7 +4,6 @@
 ! External users should use mapl_mp_utils_export instead.
 module mapl_mp_utils_internal
    use mapl_ArrayReductions_mod, only: MAPL_MaxMin, MAPL_AreaMean
-   use mapl_MemInfo_mod,         only: MAPL_MemInfoWrite => MemInfoWrite
    use mapl_TimeUtilities_mod,   only: MAPL_PackTime => PackDate, MAPL_UnpackTime => UnpackDate
    ! Import all PackedTime functions (both prefixed and unprefixed)
    use mapl_PackedTime_mod,      only: MAPL_PackedDateCreate => PackedDateCreate, &
@@ -20,7 +19,6 @@ module mapl_mp_utils_internal
    private
 
    public :: MAPL_MaxMin, MAPL_AreaMean
-   public :: MAPL_MemInfoWrite
    public :: MAPL_PackTime, MAPL_UnpackTime
    
    ! PackedTime functions with MAPL_ prefix
