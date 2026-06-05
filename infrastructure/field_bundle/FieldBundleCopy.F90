@@ -3,7 +3,7 @@
 
 module mapl_FieldBundleCopyImpl_mod
    use mapl_FieldUtils, only: FieldCopy
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
 !   use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_MAXSTR
    use esmf

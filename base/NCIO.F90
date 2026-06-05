@@ -25,7 +25,7 @@ module mapl_NCIO_mod
   use mapl_EASEConversion_mod, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
 
   use mapl_Shmem_mod
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use netcdf
   use pFIO
   use MAPL_Constants

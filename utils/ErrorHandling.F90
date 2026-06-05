@@ -339,6 +339,6 @@ contains
   end function get_error_message
 
 end module mapl_ErrorHandling_mod
-module mapl_ExceptionHandling_mod
+module mapl_ErrorHandling_mod
    use mapl_ErrorHandling_mod
-end module mapl_ExceptionHandling_mod
+end module mapl_ErrorHandling_mod

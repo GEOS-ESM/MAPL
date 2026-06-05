@@ -1,5 +1,5 @@
 program main
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use pFIO
   use gFTL2_StringVector
   use gFTL_StringIntegerMap

@@ -17,7 +17,7 @@ module pFIO_IntArrayMod
 
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 

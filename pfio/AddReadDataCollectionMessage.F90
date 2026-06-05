@@ -3,7 +3,7 @@
 
 module pFIO_AddReadDataCollectionMessageMod
 
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_UtilitiesMod
    use pFIO_AbstractMessageMod
    implicit none

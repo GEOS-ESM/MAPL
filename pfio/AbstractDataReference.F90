@@ -12,7 +12,7 @@ module pFIO_AbstractDataReferenceMod
    use, intrinsic :: iso_fortran_env, only: REAL64
    use pFIO_UtilitiesMod, only: word_size
    use pFIO_ConstantsMod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    implicit none
    private
 

@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_BaseThreadMod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_IntegerRequestMapMod

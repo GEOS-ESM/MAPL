@@ -3,7 +3,7 @@
 
 module pFIO_ClientManagerMod
 
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_Sort_mod
    use mapl_KeywordEnforcer_mod
    use pFIO_AbstractDataReferenceMod

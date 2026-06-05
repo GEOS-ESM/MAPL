@@ -9,7 +9,7 @@ module mapl_utils_internal
 
    ! Error handling
    use mapl_ErrorHandling_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_Throw_mod
 
    ! Keyword enforcer (abstract sentinel type)
