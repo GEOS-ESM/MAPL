@@ -28,7 +28,7 @@ contains
 
    subroutine bundle_filter(bundle, predicate, rc)
       type(ESMF_FieldBundle), intent(inout) :: bundle
-      procedure(field_predicate) :: predicate
+      procedure(I_field_predicate) :: predicate
       integer, optional, intent(out) :: rc
 
       type(ESMF_Field), allocatable :: field_list(:)
