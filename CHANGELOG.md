@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Removed oldinterfaces MAPL_RTRN, MAPL_Vrfy, MAPL_ASRT, mapl_ExceptionHandling_mod
+- Removed old interfaces MAPL_RTRN, MAPL_Vrfy, MAPL_ASRT, mapl_ExceptionHandling_mod
 
 ### Changed
 
