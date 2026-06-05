@@ -4,6 +4,7 @@
 module mapl_enums_api
    use mapl_Enums_internal
    ! Vertical enums
+   use mapl_VerticalAlignment_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_QuantityTypeMetadata_mod, mapl_QuantityTypeMetadata => QuantityTypeMetadata, &
         mapl_MakeQuantityTypeMetadata => make_QuantityTypeMetadata
