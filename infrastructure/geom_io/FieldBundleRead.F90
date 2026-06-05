@@ -8,8 +8,8 @@ module mapl_FieldBundleRead_mod
    use mapl_GeomPFIO_mod
    use mapl_GeomCatagorizer_mod
    use mapl_geom_api, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
-   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet, MAPL_FieldBundleAdd
-   use mapl_field_bundle_api
+   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet, MAPL_FieldBundleAdd
    use mapl_VerticalStaggerLoc_mod
    use mapl_vertical_grid_api
    ! Note: mapl_VerticalGridManager_mod used inside MAPL_read_bundle only
@@ -196,7 +196,7 @@ contains
          block
             type(VerticalStaggerLoc) :: vloc_temp
             call MAPL_FieldGet(field, vert_staggerloc=vloc_temp, _RC)
-         end block 
+         end block
 
       end do
 
