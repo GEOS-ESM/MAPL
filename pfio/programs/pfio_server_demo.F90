@@ -120,10 +120,7 @@ end module server_demo_CLI
 !#undef I_AM_MAIN
 #include "MAPL_ErrLog.h"
 module FakeExtDataMod_server
-<<<<<<< Updated upstream
    use mapl_ErrorHandling_mod
-=======
->>>>>>> Stashed changes
    use server_demo_CLI
    use pFIO
    use gFTL2_StringVector
@@ -277,10 +274,7 @@ program main
    use pFIO
    use server_demo_CLI
    use FakeExtDataMod_server
-<<<<<<< Updated upstream
    use mapl_ErrorHandling_mod
-=======
->>>>>>> Stashed changes
    implicit none
 
    integer :: rank, npes, ierror, provided
