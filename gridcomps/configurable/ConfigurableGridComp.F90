@@ -3,7 +3,6 @@
 module mapl_ConfigurableGridComp_mod
 
    use MAPL
-   use MAPL, only: MAPL_StateGetPointer
    use esmf
 
    implicit none

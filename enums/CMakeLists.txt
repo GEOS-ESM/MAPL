@@ -18,6 +18,8 @@ set (srcs
   StateItemAllocation.F90
   FieldBundleType_Flag.F90
   VerticalStaggerLoc.F90
+  VerticalCoordinateDirection.F90
+  VerticalAlignment.F90
   )
 
 esma_add_library (${this}
