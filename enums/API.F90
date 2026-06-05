@@ -3,20 +3,17 @@
 ! This is what mapl/MAPL.F90 imports from.
 module mapl_enums_api
    use mapl_Enums_internal
+   ! Vertical enums
+   use mapl_VerticalAlignment_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_QuantityTypeMetadata_mod, mapl_QuantityTypeMetadata => QuantityTypeMetadata, &
+        mapl_MakeQuantityTypeMetadata => make_QuantityTypeMetadata
+   use mapl_NormalizationMetadata_mod, mapl_NormalizationMetadata => NormalizationMetadata, &
+        mapl_MakeNormalizationMetadata => make_NormalizationMetadata
+   use mapl_ConservationMetadata_mod, mapl_ConservationMetadata => ConservationMetadata, &
+        mapl_MakeConservationMetadata => make_ConservationMetadata
    implicit none(type, external)
    private
-
-   ! ConservationType
-
-   ! NormalizationType
-
-   ! QuantityType
-
-   ! VectorBasisKind
-
-   ! ValidationMode
-
-   ! VerificationStatus
 
    ! CouplerPhases
    public :: MAPL_GENERIC_COUPLER_INITIALIZE, MAPL_GENERIC_COUPLER_UPDATE
@@ -62,6 +59,43 @@ module mapl_enums_api
    public :: MAPL_VECTOR_BASIS_KIND_INVALID, MAPL_VECTOR_BASIS_KIND_GRID
    public :: MAPL_VECTOR_BASIS_KIND_NS
 
-   ! VerticalStaggerLoc
 
+   ! Vertical stagger locations
+   public :: MAPL_VerticalStaggerLoc
+   public :: MAPL_VERTICAL_STAGGER_NONE
+   public :: MAPL_VERTICAL_STAGGER_EDGE
+   public :: MAPL_VERTICAL_STAGGER_CENTER
+   public :: MAPL_VERTICAL_STAGGER_MIRROR
+   public :: MAPL_VERTICAL_STAGGER_INVALID
+
+   ! Vertical alignment
+   public :: VerticalAlignment
+   public :: VALIGN_WITH_GRID
+   public :: VALIGN_UP
+   public :: VALIGN_DOWN
+   public :: VALIGN_INVALID
+
+   ! ConservationType
+   public :: MAPL_ConservationType
+   public :: MAPL_CONSERVE_NONE, MAPL_CONSERVE_MASS
+   public :: MAPL_CONSERVE_ENERGY, MAPL_CONSERVE_MOMENTUM
+
+   ! NormalizationType
+   public :: MAPL_NormalizationType
+   public :: MAPL_NORMALIZE_NONE, MAPL_NORMALIZE_DELP, MAPL_NORMALIZE_DZ
+
+   ! QuantityType
+   public :: MAPL_QuantityType, MAPL_MixingRatioBasis
+   public :: MAPL_QUANTITY_UNKNOWN, MAPL_QUANTITY_MIXING_RATIO
+   public :: MAPL_QUANTITY_CONCENTRATION, MAPL_QUANTITY_TEMPERATURE
+   public :: MAPL_QUANTITY_PRESSURE, MAPL_QUANTITY_EXTENSIVE
+   public :: MAPL_BASIS_NONE, MAPL_BASIS_WET_MASS, MAPL_BASIS_DRY_MASS, MAPL_BASIS_VOLUME
+
+   public :: mapl_QuantityTypeMetadata
+   public :: mapl_MakeQuantityTypeMetadata
+
+   public :: mapl_NormalizationMetadata
+   public :: mapl_MakeNormalizationMetadata
+   public :: mapl_ConservationMetadata
+   public :: mapl_MakeConservationMetadata
 end module mapl_enums_api

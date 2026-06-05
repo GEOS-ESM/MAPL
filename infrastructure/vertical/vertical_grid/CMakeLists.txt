@@ -2,8 +2,6 @@ esma_set_this (OVERRIDE MAPL.vertical_grid)
 
 set(srcs
   IntegerPair.F90
-  VerticalCoordinateDirection.F90
-  VerticalAlignment.F90
   VerticalGridSpec.F90
   VerticalGrid.F90
   VerticalGridFactory.F90

@@ -4,6 +4,8 @@
 module mapl_utils_api
 
    use mapl_utils_internal
+   use mapl_MemInfo_mod, only: mapl_MemInfo => MemInfo
+   use mapl_MemInfo_mod, only: mapl_MemInfoWrite => MemInfoWrite
 
    implicit none
    private
@@ -46,8 +48,8 @@ module mapl_utils_api
    public :: get_file_basename
 
    ! Memory info
-   public :: MemInfo
-   public :: MemInfoWrite
+   public :: mapl_MemInfo
+   public :: mapl_MemInfoWrite
 
    ! Time utilities
    public :: PackDate

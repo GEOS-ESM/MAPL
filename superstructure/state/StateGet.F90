@@ -39,7 +39,7 @@ contains
       type(esmf_Field), optional, intent(out) :: field
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       integer, optional, intent(out) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(mapl_VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       character(len=:), optional, allocatable, intent(out) :: units

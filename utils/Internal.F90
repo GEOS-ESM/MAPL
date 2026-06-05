@@ -62,8 +62,6 @@ module mapl_utils_internal
         KEY_BRACKET_UPDATED, KEY_VECTOR_BASIS_KIND, &
         make_dim_key
 
-   ! Memory info
-   use mapl_MemInfo_mod
 
    ! Validation
    use mapl_Validation_mod
