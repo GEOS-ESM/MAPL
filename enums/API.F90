@@ -61,12 +61,12 @@ module mapl_enums_api
 
 
    ! Vertical stagger locations
-   public :: VerticalStaggerLoc
-   public :: VERTICAL_STAGGER_NONE
-   public :: VERTICAL_STAGGER_EDGE
-   public :: VERTICAL_STAGGER_CENTER
-   public :: VERTICAL_STAGGER_MIRROR
-   public :: VERTICAL_STAGGER_INVALID
+   public :: MAPL_VerticalStaggerLoc
+   public :: MAPL_VERTICAL_STAGGER_NONE
+   public :: MAPL_VERTICAL_STAGGER_EDGE
+   public :: MAPL_VERTICAL_STAGGER_CENTER
+   public :: MAPL_VERTICAL_STAGGER_MIRROR
+   public :: MAPL_VERTICAL_STAGGER_INVALID
 
    ! Vertical alignment
    public :: VerticalAlignment
