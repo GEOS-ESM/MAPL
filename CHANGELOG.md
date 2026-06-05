@@ -366,6 +366,7 @@ by opencode
 - Rename apps/MAPL_GridCompSpecs_ACGv3.py to MAPL_GridCompSpecs_ACG.py
 
 ### Removed
+- Remove `UnpackDateTime` from utils/TimeUtilities.F90
 
 ### Deprecated
 

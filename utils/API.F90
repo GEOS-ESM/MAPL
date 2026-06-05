@@ -56,8 +56,6 @@ module mapl_utils_api
    public :: PackDate
    public :: PackDateTime
    public :: UnpackDate
-   ! UnpackDateTime removed - conflicts with mp_utils version, see issue #5011
-   ! public :: UnpackDateTime
 
    ! ISO8601 date/time conversion
    public :: convert_ISO8601_to_integer_time
