@@ -14,6 +14,7 @@ module pFIO_SimpleSocketMod
    use pFIO_BaseThreadMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_AbstractDataReferenceMod
+   use mapl_ErrorHandling_mod
 
    implicit none
    private

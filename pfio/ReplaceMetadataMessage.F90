@@ -9,6 +9,7 @@ module pFIO_ReplaceMetadataMessageMod
    use pFIO_StringVariableMapMod
    use pFIO_StringVariableMapUtilMod
    use mapl_KeywordEnforcer_mod
+   use mapl_ErrorHandling_mod
    implicit none
    private
 

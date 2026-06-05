@@ -144,7 +144,10 @@ contains
 end module ctest_io_CLI
 
 module FakeHistData0Mod
+<<<<<<< Updated upstream
    use mapl_ErrorHandling_mod
+=======
+>>>>>>> Stashed changes
    use ctest_io_CLI
    use pFIO
    use gFTL2_StringVector
@@ -449,7 +452,10 @@ program main
    use mpi
    use pFIO
    use ctest_io_CLI
+<<<<<<< Updated upstream
    use mapl_ErrorHandling_mod
+=======
+>>>>>>> Stashed changes
    use FakeHistData0Mod
    use pFlogger, only: pflogger_init => initialize
    implicit none

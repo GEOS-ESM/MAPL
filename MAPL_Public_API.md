@@ -738,9 +738,6 @@ Also exports module-level variable: `debug_unit` (integer, save).
 | `MAPL_Return` | subroutine |
 | `MAPL_Deprecated` | subroutine |
 | `MAPL_SetFailOnDeprecated` | subroutine |
-| `MAPL_RTRN` | interface |
-| `MAPL_Vrfy` | interface |
-| `MAPL_ASRT` | interface |
 | `MAPL_abort` | subroutine |
 | `MAPL_set_abort_handler` | subroutine |
 | `MAPL_SUCCESS` | enumerator (= 0) |

@@ -118,7 +118,10 @@ end module collective_demo_CLI
 #include "MAPL_ErrLog.h"
 module FakeExtDataMod_collective
    use, intrinsic :: iso_fortran_env, only: INT64
+<<<<<<< Updated upstream
    use mapl_ErrorHandling_mod
+=======
+>>>>>>> Stashed changes
    use collective_demo_CLI
    use pFIO
    use gFTL2_StringVector
@@ -302,7 +305,10 @@ end module FakeExtDataMod_collective
 program main
    use mpi
    use pFIO
+<<<<<<< Updated upstream
    use mapl_ErrorHandling_mod
+=======
+>>>>>>> Stashed changes
    use collective_demo_CLI
    use FakeExtDataMod_collective
    implicit none

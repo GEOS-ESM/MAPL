@@ -6,6 +6,7 @@ module pFIO_ShmemReferenceMod
    use mapl_ErrorHandling_mod
    use pFIO_UtilitiesMod
    use pFIO_AbstractDataReferenceMod
+   use mapl_ErrorHandling_mod
    use mpi
 
    implicit none
