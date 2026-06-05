@@ -1,6 +1,6 @@
 ! Export umbrella for the MAPL infrastructure/geom layer.
 ! Public API exposed to external consumers.
-module mapl_geom_export
+module mapl_geom_api
 
    use ESMF, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4
    use mapl_KeywordEnforcer_mod
@@ -67,4 +67,4 @@ module mapl_geom_export
    ! Delete later
    public :: Interval
    public :: find_bounds
-end module mapl_geom_export
+end module mapl_geom_api

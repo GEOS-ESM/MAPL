@@ -24,7 +24,6 @@ module mapl_utils_internal
    use mapl_os_mod
    use mapl_DirPath_mod
    use mapl_FileSystemUtilities_mod
-   use mapl_OSUtilities_mod
    use mapl_DSO_Utilities_mod
 
    ! Numeric utilities

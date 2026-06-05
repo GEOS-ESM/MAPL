@@ -1,7 +1,7 @@
 ! Export umbrella for the MAPL utils layer.
 ! Defines the public API of utils/ for external consumers.
 ! Uses mapl_utils_internal and re-exports only the intended public symbols.
-module mapl_utils_export
+module mapl_utils_api
 
    use mapl_utils_internal
 
@@ -30,26 +30,6 @@ module mapl_utils_export
    ! Keyword enforcer
    public :: KeywordEnforcer
 
-   ! String types and utilities
-   public :: String
-   public :: split
-   public :: to_lower
-   public :: to_upper
-   public :: capitalize
-   public :: is_alpha
-   public :: is_alpha_only
-   public :: is_numeric
-   public :: is_alphanumeric
-   public :: to_string
-   public :: to_character_array
-   public :: lowercase
-   public :: uppercase
-   public :: is_digit
-   public :: get_ascii_interval
-   public :: is_alphanum_character
-   public :: is_lower_character
-   public :: is_upper_character
-
    ! OS / filesystem
    public :: mapl_GetCurrentWorkingDirectory
    public :: mapl_ChangeDirectory
@@ -62,7 +42,6 @@ module mapl_utils_export
    public :: mapl_ClearDirectoryStack
    public :: mapl_PathJoin
    public :: mapl_MakeSymbolicLink
-   public :: get_checkpoint_subdir
    public :: get_file_extension
    public :: get_file_basename
 
@@ -74,8 +53,6 @@ module mapl_utils_export
    public :: PackDate
    public :: PackDateTime
    public :: UnpackDate
-   ! UnpackDateTime removed - conflicts with mp_utils version, see issue #5011
-   ! public :: UnpackDateTime
 
    ! ISO8601 date/time conversion
    public :: convert_ISO8601_to_integer_time
@@ -93,4 +70,4 @@ module mapl_utils_export
    ! Validation
    public :: is_valid_name
 
-end module mapl_utils_export
+end module mapl_utils_api

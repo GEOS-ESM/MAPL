@@ -1,6 +1,6 @@
 ! Export umbrella for the MAPL infrastructure/vertical/vertical_grid layer.
 ! Public API exposed to external consumers.
-module mapl_vertical_grid_export
+module mapl_vertical_grid_api
 
    use mapl_VerticalGrid_mod, only: VerticalGrid, VERTICAL_GRID_NOT_FOUND
    use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
@@ -47,4 +47,4 @@ module mapl_vertical_grid_export
    ! Parameters
    public :: VERTICAL_GRID_NOT_FOUND
 
-end module mapl_vertical_grid_export
+end module mapl_vertical_grid_api

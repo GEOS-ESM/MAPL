@@ -28,14 +28,13 @@ set (srcs
     MAPL_ESMF_InfoKeys.F90
     # Umbrella modules for the utils layer (#5004)
     Internal.F90
-    Export.F90
+    API.F90
     # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     # From utilities/
     # utilities.F90 moved to mp_utils/API.F90 (MPI-dependent via mapl_ArrayReductions)
     MemInfo.F90
     TimeUtilities.F90
-    OSUtilities.F90
     # From generic3g/
     Validation.F90
     # Mantissa shaving (MPI-free compression utility)

@@ -1,6 +1,6 @@
 ! Export umbrella for the MAPL superstructure/generic layer.
 ! Public API exposed to external consumers.
-module mapl_generic_export
+module mapl_generic_api
 
    use mapl_UserSetServices_mod, only: user_setservices, AbstractUserSetServices, DSOSetServices
 
@@ -23,8 +23,6 @@ module mapl_generic_export
    public :: mapl_GridCompAddVarSpec
    public :: mapl_GridCompAddSpec
    public :: mapl_GridCompAdvertiseVariable
-   public :: mapl_GridCompIsGeneric
-   public :: mapl_GridCompIsUser
 
    public :: mapl_GridCompGet
    public :: mapl_GridCompSet
@@ -61,6 +59,9 @@ module mapl_generic_export
    public :: mapl_GridCompTimerStart
    public :: mapl_GridCompTimerStop
 
+   ! Checkpoint directory
+   public :: mapl_GridCompGetCheckpointDir
+
    ! Spec types
    public :: mapl_STATEITEM_STATE, mapl_STATEITEM_FIELDBUNDLE
    public :: mapl_STATEITEM_SERVICE, mapl_STATEITEM_VECTOR
@@ -82,7 +83,7 @@ module mapl_generic_export
    public :: make_VariableSpec
 
    public :: ChildSpec
-   
+
    public :: CheckpointControls
    public :: RestartHandler
-end module mapl_generic_export
+end module mapl_generic_api

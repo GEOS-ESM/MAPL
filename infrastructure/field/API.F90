@@ -1,7 +1,6 @@
 ! Export umbrella for the MAPL.field library.
-module mapl_field_export
+module mapl_field_api
 
-   use ESMF, only: MAPL_FieldBundleAdd => ESMF_FieldBundleAdd
    use mapl_FieldPointerUtilities_mod, only: MAPL_FieldClone => FieldClone
    use mapl_FieldCreateImpl_mod, only: MAPL_FieldCreate
    use mapl_FieldCreateImpl_mod, only: MAPL_FieldEmptyComplete
@@ -16,7 +15,6 @@ module mapl_field_export
    implicit none
    private
 
-   public :: MAPL_FieldBundleAdd
    public :: MAPL_FieldClone
    public :: MAPL_FieldCreate
    public :: MAPL_FieldEmptyComplete
@@ -29,4 +27,4 @@ module mapl_field_export
    public :: MAPL_RESTART_REQUIRED
    public :: MAPL_RESTART_SKIP
 
-end module mapl_field_export
+end module mapl_field_api

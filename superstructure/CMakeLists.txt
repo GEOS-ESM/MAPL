@@ -3,7 +3,7 @@ esma_set_this (OVERRIDE MAPL.superstructure)
 # Consolidates: component/, generic3g/, state/.
 
 set (srcs
-    Export.F90
+    API.F90
   )
 
 add_subdirectory (state)

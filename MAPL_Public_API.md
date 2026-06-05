@@ -267,7 +267,6 @@ No `private`; uses `only:` with renames — all resulting local names are public
 | `MAPL_MemInfoWrite` | subroutine | `MemInfoWrite` | `mapl_MemInfo_mod` |
 | `MAPL_PackTime` | subroutine | `PackTime` | `mapl_TimeUtilities_mod` |
 | `MAPL_UnpackTime` | subroutine | `UnpackTime` | `mapl_TimeUtilities_mod` |
-| `MAPL_GetCheckpointSubdir` | function | `get_checkpoint_subdir` | `mapl_OSUtilities_mod` |
 | `PackedDateCreate` | function | — | `mapl_PackedTime_mod` |
 | `PackedTimeCreate` | function | — | `mapl_PackedTime_mod` |
 | `PackedDateTimeCreate` | function | — | `mapl_PackedTime_mod` |

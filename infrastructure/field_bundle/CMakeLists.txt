@@ -9,10 +9,11 @@ set (srcs
     FieldBundleCreate.F90
     FieldBundleCopy.F90
     FieldBundleDestroy.F90
+    FieldBundleFilter.F90
     FieldBundleGetPointer.F90
     FieldBundleMatch.F90
     Internal.F90
-    Export.F90
+    API.F90
 )
 
 esma_add_library (${this}
