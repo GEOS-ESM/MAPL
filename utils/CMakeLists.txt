@@ -35,7 +35,6 @@ set (srcs
     # utilities.F90 moved to mp_utils/API.F90 (MPI-dependent via mapl_ArrayReductions)
     MemInfo.F90
     TimeUtilities.F90
-    OSUtilities.F90
     # From generic3g/
     Validation.F90
     # Mantissa shaving (MPI-free compression utility)
