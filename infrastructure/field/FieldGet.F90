@@ -43,7 +43,7 @@ contains
       class(VerticalGrid), pointer, optional, intent(out) :: vgrid
       integer, optional, intent(out) :: num_levels     ! Actual field levels (depends on vgrid + stagger)
       integer, optional, intent(out) :: num_layers     ! Number of layers from vgrid (CENTER levels)
-      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(mapl_VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels  ! Deprecated: use num_layers instead
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
