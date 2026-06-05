@@ -48,11 +48,9 @@ contains
       character(:), allocatable :: filename
 
       character(len=:), allocatable :: checkpoint_dir
-      type(GriddedComponentDriver), pointer :: driver
       integer :: status
 
-      driver => this%get_user_gc_driver()
-      filename = driver%get_name()
+      filename = this%get_name()
 
       select case (state_intent%state)
       case (ESMF_STATEINTENT_IMPORT%state)
