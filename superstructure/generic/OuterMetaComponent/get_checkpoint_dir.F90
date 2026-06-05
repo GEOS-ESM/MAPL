@@ -39,7 +39,7 @@ contains
    end function get_checkpoint_dir
 
    module function get_checkpoint_filename(this, current_time, state_intent, unusable, rc) result(filename)
-      class(OuterMetaComponent), intent(in) :: this
+      class(OuterMetaComponent), target, intent(in) :: this
       type(ESMF_Time), intent(in) :: current_time
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       ! optional arguments
@@ -48,9 +48,11 @@ contains
       character(:), allocatable :: filename
 
       character(len=:), allocatable :: checkpoint_dir
+      type(GriddedComponentDriver), pointer :: driver
       integer :: status
 
-      filename = this%get_name()
+      driver => this%get_user_gc_driver()
+      filename = driver%get_name()
 
       select case (state_intent%state)
       case (ESMF_STATEINTENT_IMPORT%state)

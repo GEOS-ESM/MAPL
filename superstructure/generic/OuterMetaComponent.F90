@@ -413,7 +413,7 @@ module mapl_OuterMetaComponent_mod
       end function get_checkpoint_dir
 
       module function get_checkpoint_filename(this, current_time, state_intent, unusable, rc) result(filename)
-         class(OuterMetaComponent), intent(in) :: this
+         class(OuterMetaComponent), target, intent(in) :: this
          type(ESMF_Time), intent(in) :: current_time
          type(ESMF_StateIntent_Flag), intent(in) :: state_intent
          ! optional arguments

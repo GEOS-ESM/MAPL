@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Different bug introduced when fixing bug just below this entry.
 - get_checkpoint_subdir() as causing dangling pointer for NAG compiler.
 - Remove `FileMetadataUtils` dependency from `MAPL.vertical` (#5017). `VerticalCoordinate`
   now takes `FileMetadata` (pfio) directly instead of the `FileMetadataUtils` wrapper.
