@@ -16,12 +16,12 @@ module mapl_FieldBundleFilter_mod
    end interface
 
    abstract interface
-      function field_predicate(field, rc) result(remove)
+      function I_field_predicate(field, rc) result(remove)
          use ESMF
          type(ESMF_Field), intent(in) :: field
          integer, optional, intent(out) :: rc
          logical :: remove
-      end function field_predicate
+      end function I_field_predicate
    end interface
 
 contains
