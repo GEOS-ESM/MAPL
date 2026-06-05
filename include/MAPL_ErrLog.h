@@ -85,6 +85,19 @@
 
 #    define _HERE print*,__FILE__,__LINE__
 
+#  ifdef ANSI_CPP
+
+#    define RETURN_(...)   if(MAPL_RTRN(__VA_ARGS__,Iam,__LINE__ __rc(rc))) __return
+#    define VERIFY_(...)   if(MAPL_VRFY(__VA_ARGS__,Iam,__LINE__ __rc(rc))) __return
+#    define ASSERT_(...)   if(MAPL_ASRT(__VA_ARGS__,Iam,__LINE__ __rc(rc))) __return
+
+#  else
+
+! Old
+#    define RETURN_(A)     if(MAPL_RTRN(A,Iam,__LINE__ __rc(rc))) __return
+#    define VERIFY_(A)     if(MAPL_VRFY(A,Iam,__LINE__ __rc(rc))) __return
+#    define ASSERT_(A)     if(MAPL_ASRT(A,Iam,__LINE__ __rc(rc))) __return
+
 ! New
 #    define _SUCCESS 0
 #    define _FAILURE 1
@@ -124,3 +137,8 @@
 #    define _ASSERT_RC(A,msg,stat) _ASSERT_MSG_AND_LOC(A,msg,stat,_FILE_,__LINE__)
 #    define _ASSERT_NOMSG(A) _ASSERT(A,'needs informative message')
 #    define _FAIL(msg) _ASSERT(.false.,msg)
+
+#  endif
+
+
+
