@@ -737,9 +737,6 @@ Also exports module-level variable: `debug_unit` (integer, save).
 | `MAPL_Return` | subroutine |
 | `MAPL_Deprecated` | subroutine |
 | `MAPL_SetFailOnDeprecated` | subroutine |
-| `MAPL_RTRN` | interface |
-| `MAPL_Vrfy` | interface |
-| `MAPL_ASRT` | interface |
 | `MAPL_abort` | subroutine |
 | `MAPL_set_abort_handler` | subroutine |
 | `MAPL_SUCCESS` | enumerator (= 0) |
@@ -1012,7 +1009,7 @@ No `private`; itself a package re-exporter of ~30 sub-modules. Two names are ren
 
 ---
 
-### `mapl_ExceptionHandling_mod` — `utils/ErrorHandling.F90`
+### `mapl_ErrorHandling_mod` — `utils/ErrorHandling.F90`
 
 Same file as `mapl_ErrorHandling_mod`; exports the identical set of entities (see `mapl_ErrorHandling_mod` above).
 

@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_PrefetchDoneMessageMod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_AbstractMessageMod
    use, intrinsic :: iso_fortran_env, only: INT32
    implicit none

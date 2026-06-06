@@ -348,7 +348,6 @@ module mapl_MemUtils_mod
 !#######################################################################
 
   subroutine MAPL_MemUsed ( memtotal, used, percent_used, RC )
-     use mapl_ErrorHandling_mod, only: MAPL_RTRN
      real, intent(out) :: memtotal, used, percent_used
      integer, optional, intent(OUT  ) :: RC
 
@@ -367,7 +366,7 @@ module mapl_MemUtils_mod
      memtotal = 0.0
      used = 0.0
      percent_used = 0.0
-     RETURN_(ESMF_SUCCESS)
+     _RETURN(_SUCCESS)
 #else
      available = -1
      memtotal = -1
@@ -386,7 +385,7 @@ module mapl_MemUtils_mod
         memtotal = 0.0
         used = 0.0
         percent_used = 0.0
-        RETURN_(ESMF_SUCCESS)
+        _RETURN(_SUCCESS)
      end if
 
      do
@@ -457,7 +456,7 @@ integer :: status
      memtotal = 0.0
      committed_as = 0.0
      percent_committed = 0.0
-     RETURN_(ESMF_SUCCESS)
+     _RETURN(_SUCCESS)
   end if
 
   do; read (mem_unit,'(a)', end=20) string

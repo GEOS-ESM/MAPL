@@ -5,7 +5,7 @@ module mapl_StateDestroyImpl_mod
    use esmf
    use mapl_FieldUtils, only: FieldsDestroy
    use mapl_FieldBundleDestroyImpl_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    implicit none(type, external)
 

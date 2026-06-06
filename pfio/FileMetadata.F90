@@ -8,7 +8,7 @@ module pFIO_FileMetadataMod
    use pFIO_StringIntegerMapUtilMod
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod
    use pFIO_VariableMod

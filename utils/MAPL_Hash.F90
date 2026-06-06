@@ -83,7 +83,7 @@
 !
 module mapl_Hash_mod
 
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
 
   implicit none
   private

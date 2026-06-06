@@ -34,7 +34,7 @@ use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root, MAPL_ROOT => ROOT_PROCESS
 use mapl_ShmemComms_mod, only: MAPL_CommsBcast
 use mapl_Hash_mod
 use mapl_Shmem_mod
-use mapl_ExceptionHandling_mod
+use mapl_ErrorHandling_mod
 use mapl_EASEConversion_mod, only: MAPL_ease_extent => ease_extent
 use, intrinsic :: iso_fortran_env, only: REAL64, INT64
 use mpi

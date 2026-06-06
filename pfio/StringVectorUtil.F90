@@ -5,7 +5,7 @@ module pFIO_StringVectorUtilMod
    use pFIO_UtilitiesMod
    use pFIO_AttributeMod
    use gFTL2_StringVector
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    implicit none
    private
    public :: StringVector_serialize

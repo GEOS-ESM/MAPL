@@ -68,7 +68,7 @@
 #include "MAPL.h"
 module mapl_ISO8601_DateTime_mod
    use mapl_KeywordEnforcer_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    implicit none
 
 ! For testing private methods, leave the following line commented out.

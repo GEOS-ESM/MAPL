@@ -3,7 +3,7 @@
 
 module mapl_FieldBundleDestroyImpl_mod
    use esmf
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use mapl_FieldUtils, only : FieldsDestroy
    use mapl_FieldBundleGetImpl_mod, only: MAPL_FieldBundleGet => FieldBundleGet

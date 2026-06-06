@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 module mapl_StateFilter_mod
    use ESMF
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_FieldUtils
    use mapl_StateArithmeticParser_mod
    use mapl_StateMask_mod
