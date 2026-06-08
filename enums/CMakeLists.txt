@@ -24,7 +24,7 @@ set (srcs
 
 esma_add_library (${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared ESMF::ESMF
+  DEPENDENCIES MAPL.utils ESMF::ESMF
   TYPE SHARED
   )
 

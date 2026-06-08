@@ -22,7 +22,7 @@ set (srcs
 esma_add_library (${this}
   SRCS ${srcs}
   DEPENDENCIES ESMF::ESMF PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2
-               MAPL.shared MAPL.geom MAPL.esmf_utils MAPL.pfio MAPL.mp_utils
+               MAPL.utils MAPL.geom MAPL.esmf MAPL.pfio MAPL.mp_utils
                MAPL.field_bundle MAPL.utils MAPL.constants
                MPI::MPI_Fortran NetCDF::NetCDF_Fortran
   TYPE SHARED

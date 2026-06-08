@@ -20,7 +20,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.enums MAPL.pfio MAPL.shared GFTL::gftl-v2
+  DEPENDENCIES MAPL.enums MAPL.pfio GFTL::gftl-v2
   TYPE SHARED
 )
 

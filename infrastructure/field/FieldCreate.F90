@@ -1,18 +1,18 @@
 #include "MAPL.h"
 
-module mapl_FieldCreateImpl_mod
+module mapl_FieldCreate_mod
 
    use mapl_vertical_grid_api, only: VerticalGrid, BasicVerticalGrid, BasicVerticalGridSpec
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
    use mapl_FieldInfo_mod
-   use mapl_FieldSetImpl_mod
-   use mapl_FieldGetImpl_mod
+   use mapl_FieldSet_mod
+   use mapl_FieldGet_mod
    use mapl_UngriddedDims_mod
    use mapl_HorizontalDimsSpec_mod
    use mapl_Enums_internal, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_LU_Bound_mod
-   use mapl_FieldFillImpl_mod, only: FieldFill
+   use mapl_FieldFill_mod, only: FieldFill
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use mapl_InternalConstants_mod, only: MAPL_UNDEFINED_REAL
@@ -366,4 +366,4 @@ contains
       _RETURN(_SUCCESS)
    end function fields_are_aliased
 
-end module mapl_FieldCreateImpl_mod
+end module mapl_FieldCreate_mod
