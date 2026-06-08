@@ -34,7 +34,7 @@ set (SRCS
 #add_library (pfio_extras
 #  pFIO_Initialize.F90
 #  )
-#target_link_libraries (pfio_extras PUBLIC MAPL.pfunit MAPL.shared)
+#target_link_libraries (pfio_extras PUBLIC MAPL.pfunit MAPL.utils)
 
 add_pfunit_ctest(MAPL.pfio.tests
                 TEST_SOURCES ${TEST_SRCS}
@@ -47,8 +47,7 @@ add_pfunit_ctest(MAPL.pfio.tests
 set_target_properties(MAPL.pfio.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 target_include_directories(MAPL.pfio.tests PRIVATE
   ${esma_include}/MAPL.pfunit
-  ${esma_include}/MAPL.pfio
-  ${esma_include}/MAPL.shared)
+  ${esma_include}/MAPL.pfio)
 set_tests_properties(MAPL.pfio.tests PROPERTIES LABELS "ESSENTIAL")
 set_tests_properties(MAPL.pfio.tests PROPERTIES PROCESSORS 8)
 
@@ -71,10 +70,10 @@ ecbuild_add_executable (
   TARGET ${TESTO}
   NOINSTALL
   SOURCES pfio_ctest_io.F90
-  LIBS MAPL.shared MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
+  LIBS MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
-target_include_directories(${TESTO} PRIVATE ${esma_include}/MAPL.shared ${esma_include}/MAPL.pfio)
+target_include_directories(${TESTO} PRIVATE ${esma_include}/MAPL.utils ${esma_include}/MAPL.pfio)
 set_target_properties(${TESTO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
 # Detect if we are using Open MPI and add oversubscribe

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleSetImpl_mod
+module mapl_FieldBundleSet_mod
    use mapl_vertical_grid_api
    use mapl_field_api
    use mapl_UngriddedDims_mod
@@ -14,7 +14,7 @@ module mapl_FieldBundleSetImpl_mod
         operator(==), operator(/=)
    use mapl_FieldBundleInfo_mod
    use mapl_InfoUtilities_mod
-   use mapl_FieldBundleGetImpl_mod
+   use mapl_FieldBundleGet_mod
    use mapl_LU_Bound_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
@@ -183,4 +183,4 @@ contains
    end subroutine bundle_reset
 
 
-end module mapl_FieldBundleSetImpl_mod
+end module mapl_FieldBundleSet_mod

@@ -28,7 +28,7 @@ module mapl_VectorClassAspect_mod
    use mapl_MultiState_mod
    use mapl_ESMF_Utilities_mod, only: get_substate
 
-   use mapl_FieldCreateImpl_mod
+   use mapl_FieldCreate_mod
    use mapl_FieldUtilities_mod
 
    use mapl_KeywordEnforcer_mod

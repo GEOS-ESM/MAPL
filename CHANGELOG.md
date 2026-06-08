@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Renamed modules with mapl_<name>Impl_mod to mapl_<name>_mod
+- Eliminitade "shim" interface libraries.
 - Aligned API umbrellas with actual content.  Earlier refactoring had
   done some weird indirect publishing.
 >>>>>>> develop

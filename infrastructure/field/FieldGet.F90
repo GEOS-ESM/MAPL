@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_FieldGetImpl_mod
+module mapl_FieldGet_mod
    use mapl_enums_api
    use mapl_vertical_grid_api
    use mapl_FieldInfo_mod
@@ -114,4 +114,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_get
 
-end module mapl_FieldGetImpl_mod
+end module mapl_FieldGet_mod

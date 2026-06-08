@@ -30,7 +30,7 @@ find_package (GFTL REQUIRED)
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.enums MAPL.vertical_grid MAPL.shared MAPL.esmf MAPL.geom
+    DEPENDENCIES MAPL.enums MAPL.vertical_grid MAPL.utils MAPL.esmf MAPL.geom
                  PFLOGGER::pflogger ESMF::ESMF udunits2f GFTL::gftl-v2
     TYPE SHARED
 )

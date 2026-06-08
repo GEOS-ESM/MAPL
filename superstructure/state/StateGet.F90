@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_StateGetImpl_mod
+module mapl_StateGet_mod
 
    use mapl_vertical_grid_api
    use mapl_enums_api
@@ -137,4 +137,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine state_get_bundle
 
-end module mapl_StateGetImpl_mod
+end module mapl_StateGet_mod
