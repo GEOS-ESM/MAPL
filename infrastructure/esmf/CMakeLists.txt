@@ -47,7 +47,7 @@ set (srcs
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.enums MAPL.shared MAPL.mp_utils ESMF::ESMF GFTL::gftl-v2 PFLOGGER::pflogger MPI::MPI_Fortran
+    DEPENDENCIES MAPL.enums MAPL.utils MAPL.mp_utils ESMF::ESMF GFTL::gftl-v2 PFLOGGER::pflogger MPI::MPI_Fortran
     TYPE SHARED
 )
 

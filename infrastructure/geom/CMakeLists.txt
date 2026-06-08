@@ -34,7 +34,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.pfio MAPL.shared MAPL.mp_utils MAPL.hconfig_utils MAPL.esmf_utils GFTL::gftl-v2
+  DEPENDENCIES MAPL.pfio MAPL.utils MAPL.mp_utils MAPL.hconfig_utils MAPL.esmf_utils GFTL::gftl-v2
   TYPE SHARED
 )
 

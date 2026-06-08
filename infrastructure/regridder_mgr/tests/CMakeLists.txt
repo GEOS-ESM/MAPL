@@ -10,7 +10,7 @@ set (TEST_SRCS
 add_pfunit_ctest(${this}
                 TEST_SOURCES ${TEST_SRCS}
 #                OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES MAPL.regridder_mgr MAPL.geom MAPL.shared MAPL.pfunit
+                LINK_LIBRARIES MAPL.regridder_mgr MAPL.geom MAPL.utils MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE mapl_pFUnit_Initialize_mod
                 MAX_PES 8
