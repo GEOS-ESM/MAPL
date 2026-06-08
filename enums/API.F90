@@ -188,15 +188,6 @@ module mapl_enums_api
    public :: MAPL_QUANTITY_PRESSURE, MAPL_QUANTITY_EXTENSIVE
    public :: MAPL_BASIS_NONE, MAPL_BASIS_WET_MASS, MAPL_BASIS_DRY_MASS, MAPL_BASIS_VOLUME
 
-   ! ValidationMode
-   public :: MAPL_ValidationMode
-   public :: MAPL_VALIDATION_MODE_PERMISSIVE, MAPL_VALIDATION_MODE_STRICT
-
-   ! VerificationStatus
-   public :: MAPL_VerificationStatus
-   public :: MAPL_VERIFICATION_STATUS_UNVERIFIED, MAPL_VERIFICATION_STATUS_VERIFIED
-   public :: MAPL_VERIFICATION_STATUS_CF_COMPLIANT
-
    public :: mapl_QuantityTypeMetadata
    public :: mapl_MakeQuantityTypeMetadata
 
