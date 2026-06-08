@@ -67,8 +67,8 @@ module mapl_esmf_api
         MAPL_CommsAllReduceSum => comms_allreduce_sum
    use mapl_ShmemComms_mod
 
-   use mapl_Comms_mod, only: arraygather => array_gather
-   use mapl_Comms_mod, only: arrayscatter => array_scatter
+   use mapl_Comms_mod, only: ArrayGather => array_gather
+   use mapl_Comms_mod, only: ArrayScatter => array_scatter
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
    use mapl_FieldPointerUtilities_mod, only: mapl_FieldClone => FieldClone
