@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Change all `MAPL_GridCompAddVarSpec` calls in Gridcomps with `MAPL_GridCompAddSpec` calls to avoid exposting VariableSpec in `use MAPL`. Required changes to interface for `MAPL_GridCompAddSpec` and acg
+- Removed old interfaces MAPL\_RTRN, MAPL\_Vrfy, MAPL\_ASRT, mapl\_ExceptionHandling\_mod
+
+### Changed
+
+- Aligned API umbrellas with actual content.  Earlier refactoring had
+  done some weird indirect publishing.
+>>>>>>> develop
 - Eliminate some items from public interface of MAPL.
 - Cleanup umbrella in ./base
 - Change AddChild interface in history to not expose ChildSpec derived type
@@ -53,6 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Different bug introduced when fixing bug just below this entry.
+- get_checkpoint_subdir() as causing dangling pointer for NAG compiler.
 - Remove `FileMetadataUtils` dependency from `MAPL.vertical` (#5017). `VerticalCoordinate`
   now takes `FileMetadata` (pfio) directly instead of the `FileMetadataUtils` wrapper.
   `udunits2f` is now an explicit dependency of `MAPL.vertical`. Prerequisite for #5014.
@@ -367,6 +376,7 @@ by opencode
 - Rename apps/MAPL_GridCompSpecs_ACGv3.py to MAPL_GridCompSpecs_ACG.py
 
 ### Removed
+- Remove `UnpackDateTime` from utils/TimeUtilities.F90
 
 ### Deprecated
 

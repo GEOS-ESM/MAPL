@@ -3,7 +3,7 @@ module mapl_FieldCondensedArray_mod
    use mapl_FieldCondensedArray_private_mod, only: ARRAY_RANK, get_fptr_shape_private
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount, assign_fptr
    use mapl_VerticalStaggerLoc_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_FieldGetImpl_mod
    use ESMF, only: ESMF_Field, ESMF_FieldGet
    use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I8

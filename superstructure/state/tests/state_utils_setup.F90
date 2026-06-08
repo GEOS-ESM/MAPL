@@ -2,7 +2,7 @@
 
 module state_utils_setup
    use ESMF
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
 
    implicit none
 

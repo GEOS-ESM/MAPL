@@ -4,6 +4,7 @@ set(SRCS
   Test_FieldBundleDelta.pf
   Test_FieldBundlesAreAliased.pf
   Test_FieldBundleDestroy.pf
+  Test_FieldBundleFilter.pf
   Test_FieldBundleGetByIndex.pf
   Test_FieldBundleGetPointer.pf
   Test_FieldBundleMatch.pf

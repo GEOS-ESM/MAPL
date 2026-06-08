@@ -53,7 +53,7 @@ MODULE mapl_StateArithmeticParser_mod
   use ESMF
    use MAPL_Constants,  only: MAPL_UNDEF
    use mapl_FieldUtils
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use gFTL2_StringVector
 
   IMPLICIT NONE

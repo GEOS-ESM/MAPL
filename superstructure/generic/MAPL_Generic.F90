@@ -54,7 +54,7 @@ module mapl_Generic_mod
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_MAXSTR
-   use esmf, only: ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
+   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_TypeKind_Flag
    use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
@@ -108,6 +108,9 @@ module mapl_Generic_mod
    ! Timers
    public :: MAPL_GridCompTimerStart
    public :: MAPL_GridCompTimerStop
+
+   ! Checkpoint directory
+   public :: MAPL_GridCompGetCheckpointDir
 
    ! Spec types
    public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
@@ -231,6 +234,10 @@ module mapl_Generic_mod
    interface MAPL_GridCompTimerStop
       procedure :: gridcomp_timer_stop
    end interface MAPL_GridCompTimerStop
+
+   interface MAPL_GridCompGetCheckpointDir
+      procedure :: gridcomp_get_checkpoint_dir
+   end interface MAPL_GridCompGetCheckpointDir
 
    interface MAPL_ClockGet
       procedure :: clock_get_dt
@@ -553,7 +560,6 @@ contains
         vstagger, &
         ! OPTIONAL
         unusable, &
-        vector_component_names, &
         ungridded_dims, &
         units, &
         restart, &
@@ -573,7 +579,6 @@ contains
       type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: vector_component_names(:)
       type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
       type(RestartMode), optional, intent(in) :: restart
@@ -637,7 +642,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(vector_component_names)
    end subroutine legacy_gridcomp_add_spec
 
    subroutine gridcomp_add_spec( &
@@ -717,7 +721,7 @@ contains
       _FAIL_IF(present(ungridded_dims) .and. present(ungridded_dim_array), "cannot specify both ungridded_dims and ungridded_dim_array")
 
       if (present(ungridded_dim_array)) then
-         allocate(dims_specs_vec)
+         allocate(dim_specs_vec)
          dim_specs_vec = UngriddedDims(ungridded_dim_array)
       else if (present(ungridded_dims)) then
          allocate(dim_specs_vec)
@@ -1305,6 +1309,24 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_timer_stop
+
+   function gridcomp_get_checkpoint_dir(gridcomp, current_time, unusable, is_private, rc) result(dir)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_Time), intent(in) :: current_time
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: is_private
+      integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: dir
+
+      type(OuterMetaComponent), pointer :: outer_meta
+      integer :: status
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      dir = outer_meta%get_checkpoint_dir(current_time, is_private=is_private, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function gridcomp_get_checkpoint_dir
 
    subroutine clock_get_dt(clock, dt, rc)
       type(ESMF_Clock), intent(in) :: clock

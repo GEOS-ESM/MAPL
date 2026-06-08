@@ -4,7 +4,6 @@ module mapl_ExtDataRule_mod
    use MAPL
    use mapl_ExtDataSample_mod
    use mapl_ExtDataSampleMap_mod
-   use MAPL, only: mapl_HConfigAsTime
    use gFTL2_StringVector
    implicit none
    private

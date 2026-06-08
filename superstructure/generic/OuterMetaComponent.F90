@@ -99,6 +99,9 @@ module mapl_OuterMetaComponent_mod
       procedure :: start_timer
       procedure :: stop_timer
 
+      procedure :: get_checkpoint_dir
+      procedure :: get_checkpoint_filename
+
       ! Hierarchy
       procedure, private :: add_child_by_spec
       procedure, private :: get_child_by_name
@@ -388,14 +391,36 @@ module mapl_OuterMetaComponent_mod
       module subroutine start_timer(this, name, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: name
+         ! optional arguments
          integer, optional, intent(out) :: rc
       end subroutine start_timer
 
       module subroutine stop_timer(this, name, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: name
+         ! optional arguments
          integer, optional, intent(out) :: rc
       end subroutine stop_timer
+
+      module function get_checkpoint_dir(this, current_time, unusable, is_private, rc) result(dir)
+         class(OuterMetaComponent), intent(in) :: this
+         type(ESMF_Time), intent(in) :: current_time
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         logical, optional, intent(in) :: is_private
+         integer, optional, intent(out) :: rc
+         character(:), allocatable :: dir
+      end function get_checkpoint_dir
+
+      module function get_checkpoint_filename(this, current_time, state_intent, unusable, rc) result(filename)
+         class(OuterMetaComponent), target, intent(in) :: this
+         type(ESMF_Time), intent(in) :: current_time
+         type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+         character(:), allocatable :: filename
+      end function get_checkpoint_filename
 
       module function get_name(this, rc) result(name)
          character(:), allocatable :: name
@@ -464,14 +489,6 @@ module mapl_OuterMetaComponent_mod
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
-
-      ! Currently resides in write_restart_smod
-      module function get_checkpoint_subdir(hconfig, currTime, rc) result(subdir)
-         character(:), allocatable :: subdir
-         type(esmf_HConfig), intent(in) :: hconfig
-         type(esmf_Time), intent(in) :: currTime
-         integer, optional, intent(out) :: rc
-      end function get_checkpoint_subdir
 
    end interface ! submodule interfaces
 

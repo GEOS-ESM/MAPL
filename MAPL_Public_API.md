@@ -267,7 +267,6 @@ No `private`; uses `only:` with renames — all resulting local names are public
 | `MAPL_MemInfoWrite` | subroutine | `MemInfoWrite` | `mapl_MemInfo_mod` |
 | `MAPL_PackTime` | subroutine | `PackTime` | `mapl_TimeUtilities_mod` |
 | `MAPL_UnpackTime` | subroutine | `UnpackTime` | `mapl_TimeUtilities_mod` |
-| `MAPL_GetCheckpointSubdir` | function | `get_checkpoint_subdir` | `mapl_OSUtilities_mod` |
 | `PackedDateCreate` | function | — | `mapl_PackedTime_mod` |
 | `PackedTimeCreate` | function | — | `mapl_PackedTime_mod` |
 | `PackedDateTimeCreate` | function | — | `mapl_PackedTime_mod` |
@@ -738,9 +737,6 @@ Also exports module-level variable: `debug_unit` (integer, save).
 | `MAPL_Return` | subroutine |
 | `MAPL_Deprecated` | subroutine |
 | `MAPL_SetFailOnDeprecated` | subroutine |
-| `MAPL_RTRN` | interface |
-| `MAPL_Vrfy` | interface |
-| `MAPL_ASRT` | interface |
 | `MAPL_abort` | subroutine |
 | `MAPL_set_abort_handler` | subroutine |
 | `MAPL_SUCCESS` | enumerator (= 0) |
@@ -1013,7 +1009,7 @@ No `private`; itself a package re-exporter of ~30 sub-modules. Two names are ren
 
 ---
 
-### `mapl_ExceptionHandling_mod` — `utils/ErrorHandling.F90`
+### `mapl_ErrorHandling_mod` — `utils/ErrorHandling.F90`
 
 Same file as `mapl_ErrorHandling_mod`; exports the identical set of entities (see `mapl_ErrorHandling_mod` above).
 

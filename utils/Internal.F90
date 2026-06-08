@@ -9,7 +9,7 @@ module mapl_utils_internal
 
    ! Error handling
    use mapl_ErrorHandling_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_Throw_mod
 
    ! Keyword enforcer (abstract sentinel type)
@@ -24,7 +24,6 @@ module mapl_utils_internal
    use mapl_os_mod
    use mapl_DirPath_mod
    use mapl_FileSystemUtilities_mod
-   use mapl_OSUtilities_mod
    use mapl_DSO_Utilities_mod
 
    ! Numeric utilities
@@ -63,8 +62,6 @@ module mapl_utils_internal
         KEY_BRACKET_UPDATED, KEY_VECTOR_BASIS_KIND, &
         make_dim_key
 
-   ! Memory info
-   use mapl_MemInfo_mod
 
    ! Validation
    use mapl_Validation_mod

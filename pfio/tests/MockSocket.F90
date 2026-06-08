@@ -4,7 +4,7 @@ module MockSocketMod
 
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_AbstractMessageMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_MessageVectorMod

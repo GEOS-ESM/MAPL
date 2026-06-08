@@ -93,11 +93,6 @@
 
 #  else
 
-! Old
-#    define RETURN_(A)     if(MAPL_RTRN(A,Iam,__LINE__ __rc(rc))) __return
-#    define VERIFY_(A)     if(MAPL_VRFY(A,Iam,__LINE__ __rc(rc))) __return
-#    define ASSERT_(A)     if(MAPL_ASRT(A,Iam,__LINE__ __rc(rc))) __return
-
 ! New
 #    define _SUCCESS 0
 #    define _FAILURE 1
@@ -138,6 +133,11 @@
 #    define _ASSERT_NOMSG(A) _ASSERT(A,'needs informative message')
 #    define _FAIL(msg) _ASSERT(.false.,msg)
 #    define _FAIL_IF(cond, msg)  if(cond)then;_FAIL(msg);endif
+
+! Old
+#    define RETURN_(A)   _RETURN(A)
+#    define VERIFY_(A)   _VERIFY(A)
+#    define ASSERT_(A)   _ASSERT(A, Iam) 
 
 #  endif
 

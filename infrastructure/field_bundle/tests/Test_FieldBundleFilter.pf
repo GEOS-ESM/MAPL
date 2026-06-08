@@ -1,0 +1,166 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_FieldBundleFilter
+
+   use mapl_FieldBundleFilter_mod, only: FieldBundleFilter
+   use esmf
+   use funit
+   use ESMF_TestMethod_mod
+
+   implicit none(type, external)
+
+   integer, parameter :: IM = 4
+
+contains
+
+   ! Helper: build a simple 2-D field on a small grid
+   function make_field(grid, name) result(field)
+      type(ESMF_Grid), intent(in) :: grid
+      character(len=*), intent(in) :: name
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name=name, _RC)
+   end function make_field
+
+   ! Predicate: remove every field (always returns .true.)
+   function always_remove(field, rc) result(remove)
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
+      logical :: remove
+      if (present(rc)) rc = 0
+      remove = .true.
+      _UNUSED_DUMMY(field)
+   end function always_remove
+
+   ! Predicate: keep every field (always returns .false.)
+   function never_remove(field, rc) result(remove)
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
+      logical :: remove
+      if (present(rc)) rc = 0
+      remove = .false.
+      _UNUSED_DUMMY(field)
+   end function never_remove
+
+   ! Predicate: remove only the field named "alpha"
+   function remove_alpha(field, rc) result(remove)
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
+      logical :: remove
+      character(len=ESMF_MAXSTR) :: name
+      integer :: status
+
+      call ESMF_FieldGet(field, name=name, _RC)
+      remove = (trim(name) == 'alpha')
+      if (present(rc)) rc = 0
+   end function remove_alpha
+
+   ! Filtering every field from a bundle produces an empty bundle
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_filter_all_removes_all(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fa, fb
+      type(ESMF_FieldBundle) :: bundle
+      integer :: field_count, status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fa = make_field(grid, 'alpha')
+      fb = make_field(grid, 'beta')
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle, [fa, fb], _RC)
+
+      call FieldBundleFilter(bundle, always_remove, _RC)
+
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(0)))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldDestroy(fa, _RC)
+      call ESMF_FieldDestroy(fb, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_filter_all_removes_all
+
+   ! Filtering with a "keep all" predicate leaves the bundle unchanged
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_filter_none_keeps_all(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fa, fb
+      type(ESMF_FieldBundle) :: bundle
+      integer :: field_count, status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fa = make_field(grid, 'alpha')
+      fb = make_field(grid, 'beta')
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle, [fa, fb], _RC)
+
+      call FieldBundleFilter(bundle, never_remove, _RC)
+
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(2)))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldDestroy(fa, _RC)
+      call ESMF_FieldDestroy(fb, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_filter_none_keeps_all
+
+   ! Selective predicate removes exactly the matching field by name
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_filter_selective_removes_named(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fa, fb
+      type(ESMF_FieldBundle) :: bundle
+      integer :: field_count, status
+      logical :: is_present
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fa = make_field(grid, 'alpha')
+      fb = make_field(grid, 'beta')
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle, [fa, fb], _RC)
+
+      call FieldBundleFilter(bundle, remove_alpha, _RC)
+
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(1)))
+
+      call ESMF_FieldBundleGet(bundle, 'alpha', isPresent=is_present, _RC)
+      @assert_that(is_present, is(false()))
+
+      call ESMF_FieldBundleGet(bundle, 'beta', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldDestroy(fa, _RC)
+      call ESMF_FieldDestroy(fb, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_filter_selective_removes_named
+
+   ! Filtering an empty bundle is a no-op and returns success
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_filter_empty_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle
+      integer :: field_count, status
+
+      bundle = ESMF_FieldBundleCreate(_RC)
+
+      call FieldBundleFilter(bundle, always_remove, _RC)
+
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(0)))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+   end subroutine test_filter_empty_bundle
+
+end module Test_FieldBundleFilter

@@ -1,6 +1,6 @@
 #include "MAPL.h"
 module mapl_CommGroupDescription_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    implicit none
    private

@@ -31,7 +31,7 @@ module mapl_FileIOShared_mod
                             MAPL_CommsAllGatherV => comms_allgatherv, &
                             MAPL_CommsScatterV => comms_scatterv
   use mapl_Shmem_mod
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi

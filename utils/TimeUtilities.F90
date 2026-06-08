@@ -8,7 +8,6 @@ module mapl_TimeUtilities_mod
    public PackDate
    public PackDateTime
    public UnpackDate
-   public UnpackDateTime
 
 contains
 
@@ -37,17 +36,5 @@ contains
       date_time(1) = (10000 * yy) + (100 * mm) + dd
       date_time(2) = (10000 * h) + (100 * m) + s
    end subroutine PackDateTime
-
-   subroutine UnpackDateTime(date_time, yy, mm, dd, h, m, s)
-      integer, intent(in) :: date_time(:)
-      integer, intent(out) :: yy, mm, dd, h, m, s
-
-      yy = date_time(1) / 10000
-      mm = mod(date_time(1), 10000) / 100
-      dd = mod(date_time(1), 100)
-      h = date_time(2) / 10000
-      m = mod(date_time(2), 10000) / 100
-      s = mod(date_time(2), 100)
-   end subroutine UnpackDateTime
 
 end module mapl_TimeUtilities_mod
