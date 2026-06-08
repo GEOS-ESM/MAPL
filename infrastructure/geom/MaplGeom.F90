@@ -8,6 +8,9 @@ module mapl_MaplGeom_mod
    use ESMF, only: ESMF_Geom
    use gftl2_StringVector
    use mapl_StringDictionary_mod
+   use mapl_enums_api, only: MAPL_VectorBasisKind, &
+        MAPL_VECTOR_BASIS_KIND_NS, MAPL_VECTOR_BASIS_KIND_GRID, &
+        operator(==), operator(/=)
    implicit none
    private
 
@@ -99,7 +102,6 @@ module mapl_MaplGeom_mod
       end function get_variable_attributes
 
       recursive module function get_basis(this, basis_kind, rc) result(basis)
-         use mapl_enums_api, only: MAPL_VectorBasisKind
          type(VectorBasis), pointer :: basis
          class(MaplGeom), target, intent(inout) :: this
          type(MAPL_VectorBasisKind), optional, intent(in) :: basis_kind
