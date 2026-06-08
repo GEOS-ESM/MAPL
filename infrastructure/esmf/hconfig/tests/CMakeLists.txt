@@ -6,7 +6,7 @@ set (TEST_SRCS
 
 add_pfunit_ctest(MAPL.hconfig.tests
                 TEST_SOURCES ${TEST_SRCS}
-                LINK_LIBRARIES MAPL.hconfig MAPL.shared MAPL.pfunit
+                LINK_LIBRARIES MAPL.utils MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE mapl_pFUnit_Initialize_mod
                 MAX_PES 1

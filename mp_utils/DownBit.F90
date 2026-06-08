@@ -2,7 +2,7 @@
 module mapl_Downbit_mod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc, c_ptr
    use mpi
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
 
    implicit none
    private

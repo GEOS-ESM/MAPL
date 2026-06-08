@@ -1,7 +1,7 @@
 #include "MAPL.h"
 module mapl_FieldCondensedArray_private_mod
 
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    implicit none
 
    private

@@ -6,7 +6,7 @@ module mapl_TimeInterpolateTransform_mod
    use mapl_regridder_mgr
    use mapl_field_bundle_api
    use mapl_InfoUtilities_mod
-   use mapl_StateItemImpl_mod
+   use mapl_StateItem_mod
    use mapl_FieldUtils
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use mapl_ErrorHandling_mod

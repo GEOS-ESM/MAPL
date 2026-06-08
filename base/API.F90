@@ -1,7 +1,6 @@
 module mapl_base_api
    use mapl_FileMetadataUtils_mod
    use mapl_FileMetadataUtilsVector_mod
-   use mapl_SatVapor_mod, only: MAPL_EQsatSET, MAPL_EQsat
    ! StringTemplate is in mp_utils/ - should be exported from mapl_mp_utils_export
    use mapl_MemUtils_mod, only: MAPL_MemUtilsInit, MAPL_MemUtilsDisable, &
          MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree, &
@@ -21,7 +20,6 @@ module mapl_base_api
    implicit none(type,external)
    private
 
-   public :: MAPL_EQsatSET, MAPL_EQsat
    ! StrTemplate moved to mapl_mp_utils_export
    public :: MAPL_MemUtilsInit, MAPL_MemUtilsDisable
    public :: MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree

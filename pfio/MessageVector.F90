@@ -14,7 +14,7 @@ module pFIO_MessageVectorMod
 end module pFIO_MessageVectorMod
 
 module pFIO_MessageVectorUtilMod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_AbstractMessageMod
    use pFIO_MessageVectorMod
    use pFIO_ProtocolParserMod

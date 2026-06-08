@@ -3,10 +3,13 @@
 module mapl_esmf_api
 
    use mapl_esmf_internal
-   use mapl_Shmem_mod
 
    use mapl_Comms_mod, only: arraygather => array_gather
    use mapl_Comms_mod, only: arrayscatter => array_scatter
+   use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
+   use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
+   use mapl_FieldPointerUtilities_mod, only: mapl_FieldClone => FieldClone
+
 
    implicit none
    private
@@ -70,10 +73,6 @@ module mapl_esmf_api
    public :: FieldGetCPtr
    public :: FieldCopy
 
-   public :: mapl_ShmInitialized
-   public :: mapl_AllocNodeArray
-   public :: mapl_DeAllocNodeArray
-
    public :: MAPL_STATEITEM_UNKNOWN
    public :: MAPL_STATEITEM_FIELD
    public :: MAPL_STATEITEM_FIELDBUNDLE
@@ -86,5 +85,9 @@ module mapl_esmf_api
    public :: MAPL_STATEITEM_VECTOR
    public :: MAPL_STATEITEM_VECTORBRACKET
    public :: MAPL_STATEITEM_EXPRESSION
+
+   public :: mapl_AssignFptr
+   public :: FieldGetLocalElementCount
+   public :: mapl_FieldClone
 
 end module mapl_esmf_api

@@ -4,7 +4,7 @@
 module pFIO_MpiSocketMod
    use iso_c_binding
    use, intrinsic :: iso_fortran_env, only: INT64
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_AbstractMessageMod

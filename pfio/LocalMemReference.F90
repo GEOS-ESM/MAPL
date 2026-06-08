@@ -9,7 +9,7 @@ module pFIO_LocalMemReferenceMod
    use, intrinsic :: iso_fortran_env, only: INT64
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_UtilitiesMod, only: word_size
    use pFIO_ConstantsMod
    use pFIO_AbstractDataReferenceMod

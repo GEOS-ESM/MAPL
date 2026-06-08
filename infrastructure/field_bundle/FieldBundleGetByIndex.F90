@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleGetByIndexImpl_mod
+module mapl_FieldBundleGetByIndex_mod
    use mapl_ErrorHandling_mod
    use esmf
    implicit none
@@ -42,4 +42,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine FieldBundleGetByIndex
 
-end module mapl_FieldBundleGetByIndexImpl_mod
+end module mapl_FieldBundleGetByIndex_mod

@@ -3,7 +3,6 @@
 module mapl_geom_api
 
    use ESMF, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4
-   use mapl_KeywordEnforcer_mod
    use mapl_MaplGeom_mod, only: MaplGeom
    use mapl_GeomSpec_mod, only: GeomSpec
    use mapl_GeomManager_mod, only: GeomManager, geom_manager, get_geom_manager, get_mapl_geom

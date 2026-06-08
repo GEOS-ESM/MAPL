@@ -3,7 +3,7 @@ module mapl_FieldBundleWrite_mod
    use ESMF
    use pFIO
    use pFIO_ClientManagerMod, only: o_Clients
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
    use mapl_SharedIO_mod
    use mapl_GeomCatagorizer_mod

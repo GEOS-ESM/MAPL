@@ -11,7 +11,7 @@ module mapl_FieldBundleInfo_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
    use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, &
-        MAPL_StateItemAllocation
+        MAPL_StateItemAllocation, mapl_VerticalStaggerLoc
    use mapl_VerticalAlignment_mod
    use mapl_vertical_grid_api
    use mapl_KeywordEnforcer_mod
@@ -67,7 +67,7 @@ contains
       real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       integer, optional, intent(out) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(mapl_VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
@@ -200,7 +200,7 @@ contains
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(mapl_VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name

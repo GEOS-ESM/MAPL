@@ -5,7 +5,7 @@
 #include "unused_dummy.H"
 
 module ctest_io_CLI
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO
    use gFTL2_StringVector
    use gFTL2_StringIntegerMap
@@ -144,7 +144,7 @@ contains
 end module ctest_io_CLI
 
 module FakeHistData0Mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use ctest_io_CLI
    use pFIO
    use gFTL2_StringVector
@@ -449,7 +449,7 @@ program main
    use mpi
    use pFIO
    use ctest_io_CLI
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use FakeHistData0Mod
    use pFlogger, only: pflogger_init => initialize
    implicit none

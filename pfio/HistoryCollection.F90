@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_HistoryCollectionMod
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
   use pFIO_StringNetCDF4_FileFormatterMapMod

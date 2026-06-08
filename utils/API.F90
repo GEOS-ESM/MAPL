@@ -4,6 +4,8 @@
 module mapl_utils_api
 
    use mapl_utils_internal
+   use mapl_MemInfo_mod, only: mapl_MemInfo => MemInfo
+   use mapl_MemInfo_mod, only: mapl_MemInfoWrite => MemInfoWrite
 
    implicit none
    private
@@ -14,9 +16,6 @@ module mapl_utils_api
    public :: MAPL_Return
    public :: MAPL_Deprecated
    public :: MAPL_SetFailOnDeprecated
-   public :: MAPL_RTRN
-   public :: MAPL_Vrfy
-   public :: MAPL_ASRT
    public :: MAPL_abort
    public :: MAPL_set_abort_handler
    public :: MAPL_SUCCESS
@@ -49,8 +48,8 @@ module mapl_utils_api
    public :: get_file_basename
 
    ! Memory info
-   public :: MemInfo
-   public :: MemInfoWrite
+   public :: mapl_MemInfo
+   public :: mapl_MemInfoWrite
 
    ! Time utilities
    public :: PackDate

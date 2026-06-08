@@ -5,7 +5,7 @@ module pFIO_ExtDataCollectionMod
   use pFIO_NetCDF4_FileFormatterMod
   use pFIO_FormatterPtrVectorMod
   use pFIO_ConstantsMod
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   implicit none
   private
 

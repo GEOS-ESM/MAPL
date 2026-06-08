@@ -17,7 +17,7 @@ program main
    use pFIO_StringAttributeMapUtilMod
    use pFIO_NetCDF4_FileFormatterMod
    use pFIO_StringNetCDF4_FileFormatterMapMod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_UtilitiesMod
    use mpi
 

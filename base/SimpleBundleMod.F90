@@ -25,7 +25,7 @@ module mapl_SimpleBundleMod_impl_mod
    use mapl_ArrayReductions_mod, only: MaxMin => MAPL_MaxMin
    use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root
    use MAPL_Constants, only: MAPL_PI
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
 
    implicit none
    private

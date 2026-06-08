@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed old interfaces MAPL_RTRN, MAPL_Vrfy, MAPL_ASRT, mapl_ExceptionHandling_mod
+
+### Changed
+
+- Renamed modules with mapl_<name>Impl_mod to mapl_<name>_mod
+- Eliminitade "shim" interface libraries.
+- Aligned API umbrellas with actual content.  Earlier refactoring had
+  done some weird indirect publishing.
 - Eliminate some items from public interface of MAPL.
 - Cleanup umbrella in ./base
 - Change AddChild interface in history to not expose ChildSpec derived type

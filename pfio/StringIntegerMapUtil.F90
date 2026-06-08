@@ -4,7 +4,7 @@
 module pFIO_StringIntegerMapUtilMod
    use pFIO_UtilitiesMod
    use gFTL2_StringIntegerMap
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    implicit none
    private
    public :: StringIntegerMap_serialize

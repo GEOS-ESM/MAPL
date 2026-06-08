@@ -3,7 +3,7 @@
 
 module pFIO_MockClientThreadMod
 
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_AbstractMessageMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractRequestHandleMod

@@ -3,7 +3,7 @@
 
 module pFIO_ForwardDataMessageMod
    use mpi
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_AbstractMessageMod
    use pFIO_UtilitiesMod
    use pFIO_AbstractDataReferenceMod
