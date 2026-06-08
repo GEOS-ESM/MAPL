@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Removed ESMF_Subset.F90 and ist dependencies.
+- Removed ESMF_Subset.F90 and its dependencies.
 
 ### Changed
 
