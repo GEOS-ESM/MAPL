@@ -14,7 +14,7 @@ module mapl_FieldDictionaryConfig_mod
 
    use esmf
    use mapl_ErrorHandling_mod
-   use mapl_Enums_internal, only: MAPL_ValidationMode, MAPL_VALIDATION_MODE_PERMISSIVE
+   use mapl_enums_api, only: MAPL_ValidationMode, MAPL_VALIDATION_MODE_PERMISSIVE
    use mapl_StateItem_mod
 
    implicit none(type, external)

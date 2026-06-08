@@ -9,7 +9,7 @@ module MockAspect_mod
    use mapl_StateItemAspect_mod
    use mapl_StateRegistry_mod
    use mapl_StateItemSpec_mod
-   use mapl_Enums_internal, only: MAPL_STATEITEM_ALLOCATION_CREATED, MAPL_STATEITEM_ALLOCATION_ACTIVE
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED, MAPL_STATEITEM_ALLOCATION_ACTIVE
    use mapl_ExtensionTransform_mod
    use mapl_FieldInfo_mod, only: FieldInfoSetInternal
    use mapl_field_api, only: mapl_FieldSet, mapl_FieldGet

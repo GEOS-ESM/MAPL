@@ -1,7 +1,7 @@
 ! Internal umbrella for the MAPL.enums layer.
 ! All enum entities carry the MAPL_ prefix, so this is identical
 ! to the Export umbrella. Both exist for consistency of the pattern.
-module mapl_Enums_internal
+module mapl_enums_api
    ! ConservationType
    use mapl_ConservationType_mod, only: MAPL_CONSERVE_NONE     => CONSERVE_NONE
    use mapl_ConservationType_mod, only: MAPL_CONSERVE_MASS     => CONSERVE_MASS
@@ -167,4 +167,4 @@ module mapl_Enums_internal
    ! Operators (from all enum types)
    public :: operator(==), operator(/=), operator(<), operator(>=)
 
-end module mapl_Enums_internal
+end module mapl_enums_api

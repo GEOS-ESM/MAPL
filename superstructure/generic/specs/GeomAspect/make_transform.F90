@@ -4,7 +4,7 @@ submodule (mapl_GeomAspect_mod) make_transform_smod
 
    use mapl_VerticalGridAspect_mod
    use mapl_VerticalStaggerLoc_mod
-   use mapl_Enums_internal, only: MAPL_NORMALIZE_NONE, operator(==)
+   use mapl_enums_api, only: MAPL_NORMALIZE_NONE, operator(==)
    use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
 
    implicit none(type,external)

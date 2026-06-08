@@ -14,7 +14,7 @@ module mapl_FieldInfo_mod
    use mapl_ConservationMetadata_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
-   use mapl_Enums_internal, only: MAPL_StateItemAllocation
+   use mapl_enums_api, only: MAPL_StateItemAllocation
    use mapl_RestartModes_mod, only: RestartMode, MAPL_RESTART_REQUIRED
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
    use mapl_KeywordEnforcer_mod

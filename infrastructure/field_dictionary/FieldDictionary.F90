@@ -21,7 +21,7 @@ module mapl_FieldDictionary_mod
    use gftl2_StringStringMap
    use mapl_FieldDictionaryItem_mod
    use mapl_FieldDictionaryItemMap_mod
-   use mapl_Enums_internal, only: MAPL_VerificationStatus, MAPL_VERIFICATION_STATUS_UNVERIFIED
+   use mapl_enums_api, only: MAPL_VerificationStatus, MAPL_VERIFICATION_STATUS_UNVERIFIED
 
    implicit none(type,external)
    private

@@ -4,7 +4,7 @@ submodule (mapl_MaplGeom_mod) get_basis_smod
 
 use mapl_GeomSpec_mod
    use mapl_VectorBasis_mod
-   use mapl_Enums_internal, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, MAPL_VECTOR_BASIS_KIND_GRID, operator(==)
+   use mapl_enums_api, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, MAPL_VECTOR_BASIS_KIND_GRID, operator(==)
    use mapl_GeomUtilities_mod
    use mapl_ErrorHandling_mod
    use pfio_FileMetadataMod, only: FileMetadata

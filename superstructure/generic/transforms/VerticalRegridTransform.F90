@@ -8,7 +8,7 @@ module mapl_VerticalRegridTransform_mod
    use mapl_StateItem_mod
    use mapl_ExtensionTransform_mod
    use mapl_ComponentDriver_mod
-   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_UPDATE
+   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_UPDATE
    use mapl_VerticalRegridMethod_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalLinearMap_mod, only: compute_linear_map

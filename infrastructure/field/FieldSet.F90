@@ -8,7 +8,7 @@ module mapl_FieldSet_mod
    use mapl_FieldInfo_mod
    use mapl_FieldGet_mod
    use mapl_FieldDelta_mod
-   use mapl_Enums_internal, only: MAPL_StateItemAllocation
+   use mapl_enums_api, only: MAPL_StateItemAllocation
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
