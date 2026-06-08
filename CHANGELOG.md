@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add release guide (`docs/releasing.md`) documenting the MAPL release process
+
 ### Changed
 
 - Update CI to use Baselibs 8.32.0 and circleci-tools orb v5
