@@ -207,7 +207,7 @@ def get_options(args):
             'V': 'MAPL_STATEITEM_VECTOR'}},
         'orientation': {},
         'regrid_method': {},
-        'restart': {MAPPING: {
+        'restart_mode': {MAPPING: {
             'OPTIONAL': 'MAPL_RESTART_OPTIONAL',
             'SKIP': 'MAPL_RESTART_SKIP',
             'REQUIRED': 'MAPL_RESTART_REQUIRED',
