@@ -18,7 +18,7 @@ module mapl_esmf_api
    use mapl_UngriddedDimVector_mod
 
    ! VM
-   use mapl_vm_mod
+   use mapl_vm_mod, only: mapl_AmIRoot, mapl_AmIPet, mapl_Barrier
 
    ! Bounds / grid utilities
    use mapl_LU_Bound_mod
@@ -48,7 +48,7 @@ module mapl_esmf_api
    use mapl_StateItem_mod
 
    ! Comms
-   use mapl_Comms_mod
+   use mapl_Comms_mod, only: ROOT_PROCESS_ID
    use mapl_Comms_mod, only: &
         MAPL_Am_I_Root => am_i_root, &
         MAPL_Am_I_Rank => am_i_rank, &
@@ -65,10 +65,8 @@ module mapl_esmf_api
         MAPL_CommsAllReduceMin => comms_allreduce_min, &
         MAPL_CommsAllReduceMax => comms_allreduce_max, &
         MAPL_CommsAllReduceSum => comms_allreduce_sum
+   use mapl_Comms_mod, only: arraygather => array_gather, arrayscatter => array_scatter
    use mapl_ShmemComms_mod
-
-   use mapl_Comms_mod, only: ArrayGather => array_gather
-   use mapl_Comms_mod, only: ArrayScatter => array_scatter
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
    use mapl_FieldPointerUtilities_mod, only: mapl_FieldClone => FieldClone
@@ -98,8 +96,8 @@ module mapl_esmf_api
    public :: MAPL_CommsAllGatherV
    public :: MAPL_ArrayGather
    public :: MAPL_ArrayScatter
-   public :: ArrayGather
-   public :: ArrayScatter
+   public :: arraygather
+   public :: arrayscatter
    public :: MAPL_CommsAllReduceMin
    public :: MAPL_CommsAllReduceMax
    public :: MAPL_CommsAllReduceSum
