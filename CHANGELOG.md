@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed ESMF_Subset.F90 and ist dependencies.
+
+### Changed
+
 - Removed old interfaces MAPL_RTRN, MAPL_Vrfy, MAPL_ASRT, mapl_ExceptionHandling_mod
 
 ### Changed
