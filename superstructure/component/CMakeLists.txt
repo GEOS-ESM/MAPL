@@ -12,7 +12,7 @@ set (srcs
 
 esma_add_library(${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.enums MAPL.esmf_utils
+    DEPENDENCIES MAPL.enums MAPL.esmf
     TYPE SHARED
     )
 

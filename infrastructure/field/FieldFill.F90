@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_FieldFillImpl_mod
+module mapl_FieldFill_mod
    use mapl_FieldFillDefault_mod
    use mapl_FieldPointerUtilities_mod, only: assign_fptr
    use mapl_ErrorHandling_mod
@@ -53,4 +53,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine field_fill
 
-end module mapl_FieldFillImpl_mod
+end module mapl_FieldFill_mod

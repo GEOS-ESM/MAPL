@@ -6,8 +6,8 @@ module mapl_OpenMP_Support_mod
     use mapl_KeywordEnforcer_mod
     use mapl_GridAccessors_mod, only: GridGet
     use mapl_Subgrid_mod, only: Interval, make_subgrids, find_bounds
-    use mapl_StateAddMethodImpl_mod, only: CallbackMap, CallbackMapIterator, CallbackMethodWrapper, get_callbacks
-    use mapl_StateAddMethodImpl_mod, only: operator(/=)
+    use mapl_StateAddMethod_mod, only: CallbackMap, CallbackMapIterator, CallbackMethodWrapper, get_callbacks
+    use mapl_StateAddMethod_mod, only: operator(/=)
     use mapl_ESMF_Interfaces_mod, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
     !$ use omp_lib
 

@@ -64,13 +64,6 @@ if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
     target_compile_definitions (${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)
 endif()
 
-# Backward-compatibility aliases
-foreach (alias MAPL.esmf_utils MAPL.vm MAPL.alarm MAPL.hconfig MAPL.hconfig_utils)
-    add_library (${alias} INTERFACE)
-    target_link_libraries (${alias} INTERFACE MAPL.esmf)
-    install (TARGETS ${alias} EXPORT MAPL-targets)
-endforeach ()
-
 if (PFUNIT_FOUND)
     add_subdirectory (tests)
     add_subdirectory (alarm/tests)
