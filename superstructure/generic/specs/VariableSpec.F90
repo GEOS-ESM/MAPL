@@ -27,7 +27,7 @@ module mapl_VariableSpec_mod
    use mapl_QuantityTypeAspect_mod
    use mapl_ConservationAspect_mod
    use mapl_NormalizationAspect_mod
-   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, &
+   use mapl_enums_api, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, &
         MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
    use mapl_UngriddedDims_mod
    use mapl_VerticalStaggerLoc_mod

@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_GenericCoupler_mod
-   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_INITIALIZE, MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INVALIDATE, MAPL_GENERIC_COUPLER_CLOCK_ADVANCE
+   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_INITIALIZE, MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INVALIDATE, MAPL_GENERIC_COUPLER_CLOCK_ADVANCE
    use mapl_CouplerMetaComponent_mod
    use mapl_ExtensionTransform_mod
    use mapl_TransformId_mod

@@ -2,7 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_user_smod
 
-   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_USER, MAPL_GENERIC_COUPLER_INITIALIZE
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_USER, MAPL_GENERIC_COUPLER_INITIALIZE
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverPtrVector_mod
    use mapl_ErrorHandling_mod

@@ -2,7 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_realize_smod
    use mapl_MultiState_mod
-   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_REALIZE
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_REALIZE
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 

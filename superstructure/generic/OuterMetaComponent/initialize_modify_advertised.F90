@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) initialize_modify_advertised_smod
-   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
    use mapl_MultiState_mod
    use mapl_Connection_mod
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator

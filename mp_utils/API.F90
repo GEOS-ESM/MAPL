@@ -2,9 +2,20 @@
 ! Re-exports only the symbols that are part of MAPL's public API
 ! (i.e., entities carrying the MAPL_ prefix).
 ! This is what mapl/MAPL.F90 imports from.
-! For internal MAPL use, see mapl_mp_utils_internal.
 module mapl_mp_utils_api
-   use mapl_mp_utils_internal
+   use mapl_ArrayReductions_mod, only: MAPL_MaxMin, MAPL_AreaMean
+   ! Import all PackedTime functions (both prefixed and unprefixed)
+   use mapl_PackedTime_mod,      only: MAPL_PackedDateCreate => PackedDateCreate, &
+                                       MAPL_PackedTimeCreate => PackedTimeCreate, &
+                                       MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &
+                                       MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
+                                       MAPL_UnpackDate => UnpackDate, &
+                                       MAPL_UnpackTime => UnpackTime, &
+                                       MAPL_UnpackDateTime => UnpackDateTime, &
+                                       PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate, &
+                                       ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
+   use mapl_StringTemplate_mod,  only: StrTemplate, fill_grads_template, fill_grads_template_esmf
+   use mapl_Shmem_mod
    implicit none
    private
 

@@ -2,7 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_read_restart_smod
 
-   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_READ_RESTART
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_READ_RESTART
    use mapl_ErrorHandling_mod
    use mapl_MultiState_mod
    use mapl_RestartHandler_mod, only: RestartHandler

@@ -10,7 +10,7 @@ module mapl_FieldCreate_mod
    use mapl_FieldGet_mod
    use mapl_UngriddedDims_mod
    use mapl_HorizontalDimsSpec_mod
-   use mapl_Enums_internal, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_LU_Bound_mod
    use mapl_FieldFill_mod, only: FieldFill
    use mapl_KeywordEnforcer_mod
