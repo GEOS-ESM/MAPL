@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule(mapl_GriddedComponentDriver_mod) run_import_couplers_smod
-   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_UPDATE
+   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 

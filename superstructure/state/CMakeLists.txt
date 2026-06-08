@@ -11,7 +11,6 @@ set (srcs
     StateMasking.F90
     StateFilter.F90
     StateDestroy.F90
-    Internal.F90
     API.F90
 )
 

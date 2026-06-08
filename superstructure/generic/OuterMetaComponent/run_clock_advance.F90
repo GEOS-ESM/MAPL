@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) run_clock_advance_smod
-   use mapl_Enums_internal, only: MAPL_GENERIC_RUN_CLOCK_ADVANCE
+   use mapl_enums_api, only: MAPL_GENERIC_RUN_CLOCK_ADVANCE
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ErrorHandling_mod
    implicit none(type,external)

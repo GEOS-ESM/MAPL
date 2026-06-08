@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Change all `MAPL_GridCompAddVarSpec` calls in Gridcomps with `MAPL_GridCompAddSpec` calls to avoid exposting VariableSpec in `use MAPL`. Required changes to interface for `MAPL_GridCompAddSpec` and acg
 - Removed old interfaces MAPL\_RTRN, MAPL\_Vrfy, MAPL\_ASRT, mapl\_ExceptionHandling\_mod
+- Removed old interfaces MAPL_RTRN, MAPL_Vrfy, MAPL_ASRT, mapl_ExceptionHandling_mod
+- Eliminated all Internal.F90 umbrella modules. API.F90 modules now import directly from leaf modules.
+  Removed Internal.F90 from: utils/, mp_utils/, infrastructure/esmf/, infrastructure/vertical/vertical_grid/,
+  infrastructure/geom/, infrastructure/field/, infrastructure/field_bundle/, infrastructure/regridder_mgr/,
+  enums/, superstructure/state/, superstructure/generic/. Updated 36 files to use mapl_enums_api instead
+  of mapl_Enums_internal. All public API exports remain unchanged.
 
 ### Changed
 
@@ -20,7 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Eliminitade "shim" interface libraries.
 - Aligned API umbrellas with actual content.  Earlier refactoring had
   done some weird indirect publishing.
->>>>>>> develop
 - Eliminate some items from public interface of MAPL.
 - Cleanup umbrella in ./base
 - Change AddChild interface in history to not expose ChildSpec derived type

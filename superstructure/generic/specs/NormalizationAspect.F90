@@ -8,7 +8,7 @@ module mapl_NormalizationAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_NullTransform_mod
    use mapl_QuantityTypeAspect_mod
-   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, MAPL_NORMALIZE_DELP, MAPL_NORMALIZE_DZ
+   use mapl_enums_api, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, MAPL_NORMALIZE_DELP, MAPL_NORMALIZE_DZ
    use mapl_NormalizationMetadata_mod
    use mapl_field_api
    use mapl_field_bundle_api

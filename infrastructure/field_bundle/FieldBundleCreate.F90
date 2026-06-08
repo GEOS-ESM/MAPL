@@ -2,7 +2,7 @@
 
 module mapl_FieldBundleCreate_mod
 
-   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, &
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, &
         MAPL_FIELDBUNDLETYPE_BASIC, MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_VECTORBRACKET, &
         MAPL_VECTOR_BASIS_KIND_NS, operator(==)
    use mapl_FieldBundleSet_mod, only: FieldBundleSet

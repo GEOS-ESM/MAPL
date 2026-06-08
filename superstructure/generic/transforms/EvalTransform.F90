@@ -6,7 +6,7 @@ module mapl_EvalTransform_mod
    use mapl_StateItem_mod
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverVector_mod
-   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INITIALIZE
+   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INITIALIZE
    use mapl_ErrorHandling_mod
    use mapl_StateArithmeticParser_mod
    use esmf

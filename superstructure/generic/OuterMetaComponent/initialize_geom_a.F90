@@ -2,7 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_geom_a_smod
 
-   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_GEOM_A
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_GEOM_A
    use mapl_GeometrySpec_mod
    use mapl_geom_api
    use mapl_GriddedComponentDriver_mod
