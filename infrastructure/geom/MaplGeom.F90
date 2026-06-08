@@ -8,8 +8,10 @@ module mapl_MaplGeom_mod
    use ESMF, only: ESMF_Geom
    use gftl2_StringVector
    use mapl_StringDictionary_mod
-   use mapl_enums_api, only: MAPL_VectorBasisKind, &
-        MAPL_VECTOR_BASIS_KIND_NS, MAPL_VECTOR_BASIS_KIND_GRID, &
+   use mapl_VectorBasisKind_mod, only: &
+        MAPL_VectorBasisKind => VectorBasisKind, &
+        MAPL_VECTOR_BASIS_KIND_NS => VECTOR_BASIS_KIND_NS, &
+        MAPL_VECTOR_BASIS_KIND_GRID => VECTOR_BASIS_KIND_GRID, &
         operator(==), operator(/=)
    implicit none
    private
