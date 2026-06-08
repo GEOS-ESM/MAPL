@@ -26,8 +26,7 @@ set (srcs
     MAPL_Sleep.F90
     MAPL_CF_Time.F90
     MAPL_ESMF_InfoKeys.F90
-    # Umbrella modules for the utils layer (#5004)
-    Internal.F90
+    # Umbrella module for the utils layer (#5004)
     API.F90
     # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
