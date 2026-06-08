@@ -1,30 +1,6 @@
-module mapl_base_mod
+module mapl_base_api
    use mapl_FileMetadataUtils_mod
    use mapl_FileMetadataUtilsVector_mod
-   ! PackedTime moved to mp_utils/ - should be exported from mapl_mp_utils_export
-   ! Only export used entities from SimulationTime, StringTemplate, LocalDisplacementEnsemble (#4999)
-   ! Unused: set_reference_clock, fill_time_dict, fill_grads_template,
-   !         fill_grads_template_esmf, LocalDisplacementEnsemble
-   use mapl_Comms_mod, only: mapl_CommsScatterV => comms_scatterv, &
-                             mapl_CommsGatherV => comms_gatherv, &
-                             mapl_CommsAllGather => comms_allgather, &
-                             mapl_CommsAllGatherV => comms_allgatherv, &
-                             mapl_CommsAllReduceMin => comms_allreduce_min, &
-                             mapl_CommsAllReduceMax => comms_allreduce_max, &
-                             mapl_CommsAllReduceSum => comms_allreduce_sum, &
-                             mapl_CommsSend => comms_send, &
-                             mapl_CommsRecv => comms_recv, &
-                             mapl_CommsSendRecv => comms_sendrecv, &
-                             mapl_AM_I_ROOT => am_i_root, &
-                             mapl_AM_I_RANK => am_i_rank, &
-                             mapl_NPES => num_pes, &
-                             ArrayGather => array_gather, &
-                             ArrayScatter => array_scatter, &
-                             MAPL_ArrayGather => array_gather, &
-                             MAPL_ArrayScatter => array_scatter, &
-                             MAPL_ROOT => ROOT_PROCESS_ID
-   use mapl_ShmemComms_mod, only: mapl_CommsBcast, mapl_RoundRobinPEList, mapl_BcastShared
-   use mapl_SatVapor_mod, only: MAPL_EQsatSET, MAPL_EQsat
    ! StringTemplate is in mp_utils/ - should be exported from mapl_mp_utils_export
    use mapl_MemUtils_mod, only: MAPL_MemUtilsInit, MAPL_MemUtilsDisable, &
          MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree, &
@@ -34,7 +10,6 @@ module mapl_base_mod
          MAPL_SunGetInsolation, MAPL_SunGetSolarConstant, &
           MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax, &
           MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
-   use mapl_TimeInterpolation_mod, only: MAPL_Interp_Fac, MAPL_ClimInterpFac
    use mapl_FileIO_mod, only: WRITE_PARALLEL
    use mapl_SimpleBundleMod_impl_mod, only: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint, &
         MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
@@ -45,16 +20,6 @@ module mapl_base_mod
    implicit none(type,external)
    private
 
-   ! PackedTime exports moved to mapl_mp_utils_export (proper home)
-   public :: mapl_CommsBcast, mapl_CommsScatterV, mapl_CommsGatherV
-   public :: mapl_CommsAllGather, mapl_CommsAllGatherV
-   public :: mapl_CommsAllReduceMin, mapl_CommsAllReduceMax, mapl_CommsAllReduceSum
-   public :: mapl_CommsSend, mapl_CommsRecv, mapl_CommsSendRecv
-   public :: mapl_AM_I_ROOT, mapl_AM_I_RANK, mapl_NPES
-   public :: ArrayGather, ArrayScatter, MAPL_ROOT
-   public :: MAPL_ArrayGather, MAPL_ArrayScatter
-   public :: mapl_RoundRobinPEList, mapl_BcastShared
-   public :: MAPL_EQsatSET, MAPL_EQsat
    ! StrTemplate moved to mapl_mp_utils_export
    public :: MAPL_MemUtilsInit, MAPL_MemUtilsDisable
    public :: MAPL_MemUtilsWrite, MAPL_MemUtilsIsDisabled, MAPL_MemUtilsFree
@@ -64,7 +29,6 @@ module mapl_base_mod
    public :: MAPL_SunGetInsolation, MAPL_SunGetSolarConstant
    public :: MAPL_SunGetDaylightDuration, MAPL_SunGetDaylightDurationMax
    public :: MAPL_SunGetLocalSolarHourAngle, MAPL_SunOrbit
-   public :: MAPL_Interp_Fac, MAPL_ClimInterpFac
    public :: WRITE_PARALLEL
    public :: MAPL_SimpleBundleCreate, MAPL_SimpleBundlePrint
    public :: MAPL_SimpleBundleGetIndex, MAPL_SimpleBundleDestroy, MAPL_SimpleBundle
@@ -73,4 +37,6 @@ module mapl_base_mod
    public :: MAPL_IOGetNonDimVars, MAPL_IOCountNonDimVars
    public :: MAPL_IOChangeRes, MAPL_IOCountLevels
 
-end module mapl_base_mod
+   public :: FileMetaDataUtils
+
+end module mapl_base_api

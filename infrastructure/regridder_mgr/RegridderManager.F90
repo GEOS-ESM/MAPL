@@ -2,7 +2,7 @@
 
 module mapl_RegridderManager_mod
 
-   use mapl_Geom_API_mod, only: GeomManager, get_geom_manager
+   use mapl_geom_api, only: GeomManager, get_geom_manager
    use mapl_RegridderSpec_mod
    use mapl_Regridder_mod
    use mapl_NullRegridder_mod

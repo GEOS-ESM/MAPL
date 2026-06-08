@@ -12,7 +12,8 @@ module mapl_MaplFramework_mod
    use mapl_FieldFillDefault_mod, only: &
         field_fill_defaults_init => initialize_field_fill_defaults, &
         set_field_fill_defaults
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_api
+   ! Note: mapl_VerticalGridManager_mod used inside initialize() only
    use mapl_FixedLevelsVerticalGrid_mod
    use mapl_ModelVerticalGrid_mod
    use mapl_FieldDictionary_mod, only: load_field_dictionary
@@ -86,8 +87,8 @@ contains
    ! Type-bound procedures
 
    ! Note: HConfig is an output if ESMF is not already initialized.  Otherwise it is an input.
-   subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, configFilenameFromArgNum, &
-        field_default_fill_value_r4, field_default_fill_value_r8, rc)
+    subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, configFilenameFromArgNum, &
+         field_default_fill_value_r4, field_default_fill_value_r8, rc)
       class(MaplFramework), intent(inout) :: this
       type(ESMF_HConfig), optional, intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable

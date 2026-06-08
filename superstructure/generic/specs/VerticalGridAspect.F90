@@ -3,8 +3,8 @@
 module mapl_VerticalGridAspect_mod
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
-   use mapl_Field_API
-   use mapl_FieldBundle_API_mod
+   use mapl_field_api
+   use mapl_field_bundle_api
    use mapl_StateItemAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_ExtendTransform_mod
@@ -17,7 +17,7 @@ module mapl_VerticalGridAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UnitsAspect_mod
    use mapl_NormalizationAspect_mod
-   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE
+   use mapl_Enums_internal, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, operator(/=)
    use mapl_VerticalRegridMethod_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalRegridMethod_mod

@@ -4,7 +4,7 @@ module mapl_CouplerMetaComponent_mod
 
    use mapl_TransformId_mod
    use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE
-   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_INITIALIZE, MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INVALIDATE
+   use mapl_enums_api
    use mapl_ComponentDriver_mod, only: ComponentDriver, ComponentDriverPtr
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ComponentDriverVector_mod, only: ComponentDriverVector
@@ -13,8 +13,8 @@ module mapl_CouplerMetaComponent_mod
    use mapl_VerticalRegridTransform_mod
    use mapl_ErrorHandling_mod
    use mapl_ESMF_Interfaces_mod
-   use mapl_Field_API
-   use mapl_FieldBundle_API_mod
+   use mapl_field_api
+   use mapl_field_bundle_api
    use esmf
 
    implicit none(type,external)
@@ -248,14 +248,14 @@ contains
          integer :: status
          type(ESMF_FieldBundle) :: fb_in, fb_out
          real, allocatable :: interpolation_weights(:)
-         type(FieldBundleType_Flag) :: fieldBundleType
+         type(MAPL_FieldBundleType_Flag) :: fieldBundleType
 
          call ESMF_StateGet(importState, itemName=IMPORT_NAME, fieldBundle=fb_in, _RC)
          call ESMF_StateGet(exportState, itemName=EXPORT_NAME, fieldBundle=fb_out, _RC)
 
          ! (1) Interpolation weights can only change on import side
          call MAPL_FieldBundleGet(fb_in, fieldBundleType=fieldBundleType, _RC)
-         if (fieldBundleType == FIELDBUNDLETYPE_BRACKET .or. FieldBundleType == FIELDBUNDLETYPE_VECTORBRACKET) then
+         if (fieldBundleType == MAPL_FIELDBUNDLETYPE_BRACKET .or. FieldBundleType == MAPL_FIELDBUNDLETYPE_VECTORBRACKET) then
             call MAPL_FieldBundleGet(fb_in, interpolation_weights=interpolation_weights, _RC)
             if (.not. same_weights(interpolation_weights, this%time_varying%interpolation_weights)) then
                call MAPL_FieldBundleSet(fb_out, interpolation_weights=interpolation_weights, _RC)

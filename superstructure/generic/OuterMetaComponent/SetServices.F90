@@ -5,7 +5,7 @@ submodule (mapl_OuterMetaComponent_mod) SetServices_smod
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
    use mapl_GenericGridComp_mod
-   use mapl_BasicVerticalGrid_mod
+   use mapl_vertical_grid_api
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger
@@ -27,7 +27,7 @@ contains
    !=========================================================================
    
    recursive module subroutine SetServices_(this, rc)
-      use mapl_GenericGridComp_mod, only: generic_setservices => setservices
+      use mapl_GenericGridComp_mod, only: mapl_GenericSetServices
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, intent(out) :: rc
 
@@ -90,7 +90,7 @@ contains
                call iter%next()
                child_comp => iter%second()
                child_outer_gc = child_comp%get_gridcomp()
-               call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _USERRC)
+               call ESMF_GridCompSetServices(child_outer_gc, mapl_GenericSetServices, _USERRC)
             end do
          end associate
 

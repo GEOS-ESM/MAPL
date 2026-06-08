@@ -3,7 +3,7 @@
 module mapl_RegridderSpec_mod
    use esmf
    use mapl_RegridderParam_mod
-   use mapl_Geom_API_mod, only: MAPL_SameGeom
+   use mapl_geom_api, only: MAPL_SameGeom
    implicit none
    private
 

@@ -3,11 +3,12 @@
 
 module Test_ConvertUnitsTransform
    use mapl_ConvertUnitsTransform_mod
+   use mapl_enums_api
    use mapl_ExtensionTransform_mod
-   use mapl_StateItemImpl_mod
+   use mapl_StateItem_mod
    use esmf
    use mapl_FieldUtils
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_api
    use pfunit
    use ESMF_TestMethod_mod
    implicit none
@@ -166,7 +167,7 @@ contains
       integer :: i, j, n
       type(ESMF_StateItem_Flag) :: itemtype
       character(len=:), allocatable :: bundle_name
-      type(FieldBundleType_Flag), parameter :: BUNDLE_TYPE = FIELDBUNDLETYPE_BASIC
+      type(MAPL_FieldBundleType_Flag), parameter :: BUNDLE_TYPE = MAPL_FIELDBUNDLETYPE_BASIC
       type(ESMF_Field), allocatable :: field_list(:)
 
       status = _FAILURE

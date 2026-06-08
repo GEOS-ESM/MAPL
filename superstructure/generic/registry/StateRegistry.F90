@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_StateRegistry_mod
-   use mapl_Field_API
+   use mapl_field_api
    use mapl_AbstractRegistry_mod
    use mapl_RegistryPtr_mod
    use mapl_RegistryPtrMap_mod

@@ -7,6 +7,7 @@ esma_set_this (OVERRIDE MAPL.infrastructure)
 
 # --- field_dictionary (absorbed from infrastructure/field_dictionary/) ---
 set (srcs
+    API.F90
     field_dictionary/FieldDictionaryItem.F90
     field_dictionary/FieldDictionaryItemMap.F90
     field_dictionary/FieldDictionary.F90
@@ -18,9 +19,17 @@ if (BUILD_WITH_PFLOGGER)
 endif ()
 find_package (GFTL_SHARED REQUIRED)
 
+add_subdirectory (esmf)
+add_subdirectory (field)
+add_subdirectory (field_bundle)
+add_subdirectory (geom)
+add_subdirectory (regridder_mgr)
+add_subdirectory (geom_io)
+add_subdirectory (vertical)
+
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.shared MAPL.esmf PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 ESMF::ESMF
+    DEPENDENCIES MAPL.esmf MAPL.field MAPL.field_bundle MAPL.geom MAPL.regridder_mgr MAPL.GeomIO MAPL.vertical PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 ESMF::ESMF
     TYPE SHARED
 )
 

@@ -5,7 +5,7 @@ module pFIO_UtilitiesMod
    use, intrinsic :: iso_c_binding, only: c_sizeof 
    use, intrinsic :: iso_fortran_env, only: INT32,REAL32,INT64,REAL64
    use pFIO_ConstantsMod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    implicit none
    private
 

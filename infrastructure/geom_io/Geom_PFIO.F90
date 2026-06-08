@@ -4,7 +4,7 @@ module mapl_GeomPFIO_mod
    use mapl_ErrorHandling_mod
    use ESMF
    use pfio, only: i_Clients, o_Clients, StringVariableMap, ArrayReference, FileMetadata, Variable
-   use mapl_Geom_API_mod
+   use mapl_geom_api
    use mapl_SharedIO_mod
    implicit none
    private

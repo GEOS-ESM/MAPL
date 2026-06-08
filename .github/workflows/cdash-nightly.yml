@@ -59,26 +59,26 @@ jobs:
         include:
           - compiler: gfortran-15
             cmake-build-type: ${{ inputs.build_type || 'Debug' }}
-            image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_15.2.0
+            image: gmao/ubuntu24-geos-env-mkl:v8.32.0-openmpi_5.0.5-gcc_15.2.0
             fc: gfortran
             extra-cmake-args: >-
               -DUSE_F2PY=OFF
               -DMPIEXEC_PREFLAGS=--oversubscribe
           - compiler: gfortran-15-coverage
             cmake-build-type: Coverage
-            image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_15.2.0
+            image: gmao/ubuntu24-geos-env-mkl:v8.32.0-openmpi_5.0.5-gcc_15.2.0
             fc: gfortran
             extra-cmake-args: >-
               -DUSE_F2PY=OFF
               -DMPIEXEC_PREFLAGS=--oversubscribe
           - compiler: ifort
             cmake-build-type: ${{ inputs.build_type || 'Debug' }}
-            image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.13-ifort_2021.13
+            image: gmao/ubuntu24-geos-env:v8.32.0-intelmpi_2021.13-ifort_2021.13
             fc: ifort
             extra-cmake-args: -DUSE_F2PY=OFF
           - compiler: ifx
             cmake-build-type: ${{ inputs.build_type || 'Debug' }}
-            image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.17-ifx_2025.3
+            image: gmao/ubuntu24-geos-env:v8.32.0-intelmpi_2021.17-ifx_2025.3
             fc: ifx
             extra-cmake-args: -DUSE_F2PY=OFF
     env:

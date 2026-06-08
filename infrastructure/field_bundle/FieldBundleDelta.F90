@@ -6,15 +6,15 @@
 
 module mapl_FieldBundleDelta_mod
 
-   use mapl_FieldBundleGetImpl_mod
-   use mapl_FieldBundleSetImpl_mod
-   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_FIELDBUNDLETYPE_BRACKET
+   use mapl_FieldBundleGet_mod
+   use mapl_FieldBundleSet_mod
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_FIELDBUNDLETYPE_BRACKET, operator(==)
    use mapl_LU_Bound_mod
    use mapl_FieldDelta_mod
    use mapl_InfoUtilities_mod
    use mapl_VerticalStaggerLoc_mod
-   use mapl_VerticalGrid_API_mod
-   use mapl_Field_API
+   use mapl_vertical_grid_api
+   use mapl_field_api
    use mapl_FieldInfo_mod
    use mapl_FieldUtilities_mod
    use mapl_UngriddedDims_mod

@@ -1,10 +1,10 @@
 #include "MAPL.h"
 module mapl_FixedLevelsVerticalGrid_mod
-   use mapl_Field_API
+   use mapl_field_api
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
    use mapl_VerticalGridFactory_mod, only: VerticalGridFactory
-   use mapl_BasicVerticalGrid_mod
+   use mapl_vertical_grid_api
    use mapl_ComponentDriver_mod
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use pfio

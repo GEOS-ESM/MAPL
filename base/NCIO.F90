@@ -20,15 +20,17 @@ module mapl_NCIO_mod
   use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root, MAPL_ROOT => ROOT_PROCESS_ID, &
                             ArrayScatter => array_scatter
   use mapl_ShmemComms_mod, only: MAPL_CommsBcast
-   use mapl_Field_API, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
+   use mapl_esmf_api, only: mapl_FieldClone
+   use mapl_field_api, only: MAPL_FieldEmptyComplete
   use mapl_Sort_mod
   use mapl_EASEConversion_mod, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
 
   use mapl_Shmem_mod
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use netcdf
   use pFIO
   use MAPL_Constants
+  use mapl_ErrorHandling_mod
   use gFTL2_StringIntegerMap
   use gFTL2_StringVector
   use, intrinsic :: ISO_C_BINDING

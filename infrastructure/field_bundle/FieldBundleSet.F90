@@ -1,17 +1,20 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleSetImpl_mod
-   use mapl_VerticalGrid_API_mod
-   use mapl_Field_API
+module mapl_FieldBundleSet_mod
+   use mapl_vertical_grid_api
+   use mapl_field_api
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
-   use mapl_ConservationMetadata_mod
-   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
-        MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_VECTORBRACKET
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
+        MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_VECTORBRACKET, &
+        MAPL_StateItemAllocation, &
+        mapl_VerticalStaggerLoc, VerticalAlignment, mapl_QuantityTypeMetadata, &
+        mapl_NormalizationMetadata, mapl_ConservationMetadata, &
+        operator(==), operator(/=)
    use mapl_FieldBundleInfo_mod
    use mapl_InfoUtilities_mod
-   use mapl_FieldBundleGetImpl_mod
+   use mapl_FieldBundleGet_mod
    use mapl_LU_Bound_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
@@ -58,19 +61,19 @@ contains
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(mapl_VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      type(StateItemAllocation), optional, intent(in) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_Info), optional, intent(in) :: regridder_param_info
       type(MAPL_VectorBasisKind), optional, intent(in) :: vector_basis_kind
-      type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
-      type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
-      type(ConservationMetadata), optional, intent(in) :: conservation_metadata
+      type(mapl_QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
+      type(mapl_NormalizationMetadata), optional, intent(in) :: normalization_metadata
+      type(mapl_ConservationMetadata), optional, intent(in) :: conservation_metadata
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -180,4 +183,4 @@ contains
    end subroutine bundle_reset
 
 
-end module mapl_FieldBundleSetImpl_mod
+end module mapl_FieldBundleSet_mod

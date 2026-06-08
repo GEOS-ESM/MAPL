@@ -64,7 +64,7 @@ contains
 
       restart_controls%bootstrap = .true.
       restart_controls%internal = .true.
-      call MAPL_GridCompSet(gridcomp, restart_controls=restart_controls, _RC) 
+      call MAPL_GridCompSet(gridcomp, restart_controls=restart_controls, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine setServices
@@ -159,7 +159,7 @@ contains
           integer :: status
           character(:), allocatable :: name
           type(esmf_Field) :: f_in
-          type(StateItemAllocation) :: allocation_status
+          type(MAPL_StateItemAllocation) :: allocation_status
           type(esmf_StateItem_Flag) :: itemtype
 
          name = esmf_HConfigAsString(iter, keystring='name', _RC)
@@ -169,7 +169,7 @@ contains
 
           call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
           call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
-          _RETURN_UNLESS(allocation_status == STATEITEM_ALLOCATION_CONNECTED)
+          _RETURN_UNLESS(allocation_status == MAPL_STATEITEM_ALLOCATION_CONNECTED)
 
           item = make_item(name, iter, clock, _RC)
          call stats%items%push_back(item)
@@ -364,7 +364,7 @@ contains
       type(ESMF_Geom) :: geom
 
       call MAPL_StateGetGeom(importState, geom, _RC)
-      call MAPL_GridCompSetGeom(gridcomp, geom, _RC) 
+      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine realize
@@ -411,29 +411,29 @@ contains
       type(esmf_Time) :: currTime
       class(Logger), pointer :: lgr
       type(esmf_Geom) :: geom
-      character(:), allocatable :: subdir, filename, name
+      character(:), allocatable :: checkpoint_dir, filename, name
       type(ESMF_HConfig) :: hconfig
       type(Statistics), pointer :: stats
       type(StatisticsVectorIterator) :: iter
       class(AbstractTimeStatistic), pointer :: stat
-       type(SimpleAlarm) :: alarm
-       logical :: is_ringing, first_ringing
-       logical :: first_item
+      type(SimpleAlarm) :: alarm
+      logical :: is_ringing, first_ringing
+      logical :: first_item
 
-       ! Verify all alarms share the same ringing status; skip write if all are ringing
-       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
+      ! Verify all alarms share the same ringing status; skip write if all are ringing
+      _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
 
-       call esmf_ClockGet(clock, currTime=currTime, _RC)
+      call esmf_ClockGet(clock, currTime=currTime, _RC)
 
-       first_item = .true.
-       first_ringing = .false.
-       iter = stats%items%ftn_begin()
-       associate (e => stats%items%ftn_end())
-          do while (iter /= e)
-             call iter%next()
-             stat => iter%of()
-             alarm = stat%get_alarm()
-             is_ringing = alarm%is_ringing(currTime, _RC)
+      first_item = .true.
+      first_ringing = .false.
+      iter = stats%items%ftn_begin()
+      associate (e => stats%items%ftn_end())
+         do while (iter /= e)
+            call iter%next()
+            stat => iter%of()
+            alarm = stat%get_alarm()
+            is_ringing = alarm%is_ringing(currTime, _RC)
             if (first_item) then
                first_ringing = is_ringing
                first_item = .false.
@@ -448,13 +448,13 @@ contains
       end if
 
       call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
-      call mapl_GridCompGet(gridcomp, logger=lgr, name=name, hconfig=hconfig, _RC)
+      call mapl_GridCompGet(gridcomp, logger=lgr, name=name, _RC)
 
-       call MAPL_StateGetGeom(state, geom, _RC)
-       restart_handler = RestartHandler(geom, currTime, lgr)
+      call MAPL_StateGetGeom(state, geom, _RC)
+      restart_handler = RestartHandler(geom, currTime, lgr)
 
-      subdir = MAPL_GetCheckpointSubdir(hconfig, currTime, _RC)
-      filename = mapl_PathJoin(subdir, name//'_internal.nc')
+      checkpoint_dir = MAPL_GridCompGetCheckpointDir(gridcomp, currTime, _RC)
+      filename = mapl_PathJoin(checkpoint_dir, name//'_internal.nc')
 
       call restart_handler%write(state, filename, _RC)
 

@@ -8,8 +8,8 @@ module mapl_UnitsAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_ConvertUnitsTransform_mod
    use mapl_NullTransform_mod
-   use mapl_Field_API
-   use mapl_FieldBundle_API_mod
+   use mapl_field_api
+   use mapl_field_bundle_api
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use udunits2f, only: are_convertible

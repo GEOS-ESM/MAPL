@@ -8,7 +8,7 @@
 ! The variable should be 4d with lavel>=20
 !
 module server_demo_CLI
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use gFTL2_StringVector
    implicit none
    private
@@ -120,7 +120,7 @@ end module server_demo_CLI
 !#undef I_AM_MAIN
 #include "MAPL_ErrLog.h"
 module FakeExtDataMod_server
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use server_demo_CLI
    use pFIO
    use gFTL2_StringVector
@@ -274,7 +274,7 @@ program main
    use pFIO
    use server_demo_CLI
    use FakeExtDataMod_server
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    implicit none
 
    integer :: rank, npes, ierror, provided

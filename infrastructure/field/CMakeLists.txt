@@ -1,7 +1,6 @@
 esma_set_this (OVERRIDE MAPL.field)
 
 set (srcs
-    API.F90
     FieldUtils.F90
     FieldBLAS.F90
     FieldUtilities.F90
@@ -19,7 +18,7 @@ set (srcs
     FieldInfo.F90
     RestartModes.F90
     Internal.F90
-    Export.F90
+    API.F90
 )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
@@ -31,7 +30,7 @@ find_package (GFTL REQUIRED)
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.enums MAPL.vertical_grid MAPL.shared MAPL.esmf MAPL.geom
+    DEPENDENCIES MAPL.enums MAPL.vertical_grid MAPL.utils MAPL.esmf MAPL.geom
                  PFLOGGER::pflogger ESMF::ESMF udunits2f GFTL::gftl-v2
     TYPE SHARED
 )

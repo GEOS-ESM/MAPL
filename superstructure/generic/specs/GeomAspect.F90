@@ -6,14 +6,14 @@ module mapl_GeomAspect_mod
    use mapl_AspectId_mod
    use mapl_HorizontalDimsSpec_mod
    use mapl_StateItemAspect_mod
-   use mapl_Geom_API_mod, only: MAPL_SameGeom
+   use mapl_geom_api, only: MAPL_SameGeom
    use mapl_regridder_mgr, only: EsmfRegridderParam
    use mapl_ExtensionTransform_mod
    use mapl_ExtendTransform_mod
    use mapl_RegridTransform_mod
    use mapl_NullTransform_mod
-   use mapl_Field_API
-   use mapl_FieldBundle_API_mod
+   use mapl_field_api
+   use mapl_field_bundle_api
    use mapl_EsmfRegridder_mod
    use mapl_NormalizationAspect_mod, only: NormalizationAspect, to_NormalizationAspect
    use mapl_NormalizationMetadata_mod, only: NormalizationMetadata

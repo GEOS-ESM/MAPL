@@ -1,48 +1,69 @@
-module mapl_Geom_API_mod
+! Export umbrella for the MAPL infrastructure/geom layer.
+! Public API exposed to external consumers.
+module mapl_geom_api
 
-   use mapl_KeywordEnforcer_mod
+   use ESMF, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4
    use mapl_MaplGeom_mod, only: MaplGeom
    use mapl_GeomSpec_mod, only: GeomSpec
    use mapl_GeomManager_mod, only: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
    use mapl_GeomUtilities_mod, only: mapl_SameGeom, mapl_GeomGetId
-   use mapl_GeomAccessors_mod, only: mapl_GeomGet => GeomGet, &
-        mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex, &
-        mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
-   use mapl_GridAccessors_mod, only: mapl_GridGet => GridGet, mapl_GridGetCoordinates => GridGetCoordinates, &
-        mapl_GridHasDE => grid_has_DE
+   use mapl_GeomAccessors_mod, only: mapl_GeomGet => GeomGet
+   use mapl_GeomAccessors_mod, only: mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex
+   use mapl_GeomAccessors_mod, only: mapl_GridGetHorzIJIndex => GridGetHorzIJIndex
+   use mapl_GridAccessors_mod, only: mapl_GridGet => GridGet
+   use mapl_GridAccessors_mod, only: mapl_GridGetCoordinates => GridGetCoordinates
+   use mapl_GridAccessors_mod, only: mapl_GridHasDE => grid_has_DE
    use mapl_GridGetGlobal_mod, only: mapl_GridGetGlobalCellCountPerDim => GridGetGlobalCellCountPerDim
-   use mapl_GridComms_mod, only: MAPL_CollectiveGather3D => mapl_CollectiveGather3D, &
-                                  MAPL_CollectiveScatter3D => mapl_CollectiveScatter3D
-   use mapl_Subgrid_mod, only: mapl_Interval => Interval, mapl_make_subgrids => make_subgrids
-   use mapl_XYGeomSpec_mod,    only: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
-   use mapl_XYGeomFactory_mod, only: XYGeomFactory
+   use mapl_GridComms_mod, only: MAPL_CollectiveGather3D => mapl_CollectiveGather3D
+   use mapl_GridComms_mod, only: MAPL_CollectiveScatter3D => mapl_CollectiveScatter3D
+   use mapl_Subgrid_mod, only: mapl_Interval => Interval
+   use mapl_Subgrid_mod, only: mapl_make_subgrids => make_subgrids
+   use mapl_Subgrid_mod, only: mapl_find_bounds => find_bounds
    use mapl_CubedSphereGeomSpec_mod, only: CubedSphereGeomSpec, make_CubedSphereGeomSpec
    use mapl_CubedSphereDecomposition_mod, only: CubedSphereDecomposition, make_CubedSphereDecomposition
-   use esmf, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4
 
-   implicit none(type,external)
+   ! need to delete
+   use mapl_Subgrid_mod, only: Interval
+   use mapl_Subgrid_mod, only: find_bounds
 
+   implicit none
    private
 
-   ! Available to users
+   ! Geom types and manager
+   public :: MaplGeom
+   public :: GeomSpec
+   public :: GeomManager
+   public :: geom_manager
+   public :: get_geom_manager
+   public :: get_mapl_geom
+
+   ! Geom utilities
+   public :: mapl_SameGeom
+   public :: mapl_GeomGetId
    public :: mapl_GeomGet
+   public :: mapl_GeomGetHorzIJIndex
+   public :: mapl_GridGetHorzIJIndex
    public :: mapl_GridGet
    public :: mapl_GridGetCoordinates
-   public :: mapl_GridGetHorzIJIndex, mapl_GeomGetHorzIJIndex
-   public :: mapl_GridGetGlobalCellCountPerDim
-   public :: MAPL_CollectiveGather3D, MAPL_CollectiveScatter3D
    public :: mapl_GridHasDE
+   public :: mapl_GridGetGlobalCellCountPerDim
 
-   ! Used internally by MAPL
-   ! Users shouldn't need these
-   public :: MaplGeom
-   public :: mapl_SameGeom, mapl_GeomGetId
-   public :: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
-   public :: GeomSpec
-   public :: mapl_Interval, mapl_make_subgrids
-   public :: XYGeomSpec, make_XYGeomSpec, XY_COORD_STANDARD, XY_COORD_ABI
-   public :: XYGeomFactory
-   public :: CubedSphereGeomSpec, make_CubedSphereGeomSpec
-   public :: CubedSphereDecomposition, make_CubedSphereDecomposition
+   ! Collective comms
+   public :: MAPL_CollectiveGather3D
+   public :: MAPL_CollectiveScatter3D
 
-end module mapl_Geom_API_mod
+   ! Subgrid
+   public :: mapl_Interval
+   public :: mapl_make_subgrids
+
+   ! CubedSphere geom specs
+   public :: CubedSphereGeomSpec
+   public :: make_CubedSphereGeomSpec
+   public :: CubedSphereDecomposition
+   public :: make_CubedSphereDecomposition
+
+
+   ! Delete later
+   public :: Interval
+   public :: find_bounds
+end module mapl_geom_api

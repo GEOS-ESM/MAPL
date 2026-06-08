@@ -5,7 +5,7 @@ module mapl_FileMetadataUtils_mod
    use mapl_KeywordEnforcer_mod
    use gFTL2_StringIntegerMap
    use ESMF
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32,INT64,INT32
    implicit none
 

@@ -5,7 +5,7 @@
 #include "unused_dummy.H"
 
 module collective_demo_CLI
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use gFTL2_StringVector
    implicit none
    private
@@ -118,7 +118,7 @@ end module collective_demo_CLI
 #include "MAPL_ErrLog.h"
 module FakeExtDataMod_collective
    use, intrinsic :: iso_fortran_env, only: INT64
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use collective_demo_CLI
    use pFIO
    use gFTL2_StringVector
@@ -302,7 +302,7 @@ end module FakeExtDataMod_collective
 program main
    use mpi
    use pFIO
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use collective_demo_CLI
    use FakeExtDataMod_collective
    implicit none

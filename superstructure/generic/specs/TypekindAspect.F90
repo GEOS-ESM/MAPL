@@ -8,8 +8,8 @@ module mapl_TypekindAspect_mod
    use mapl_CopyTransform_mod
    use mapl_ExtensionTransform_mod
    use mapl_NullTransform_mod
-   use mapl_Field_API
-   use mapl_FieldBundle_API_mod
+   use mapl_field_api
+   use mapl_field_bundle_api
    use mapl_ErrorHandling_mod
    use mapl_ESMF_Utilities_mod, only: MAPL_TYPEKIND_MIRROR
    use esmf

@@ -37,7 +37,7 @@
 #include "MAPL.h"
 module mapl_DateTime_Parsing_mod
    use mapl_KeywordEnforcer_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_StringUtilities_mod, only: is_digit
    use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: R64 => real64

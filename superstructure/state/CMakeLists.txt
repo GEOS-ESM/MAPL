@@ -1,7 +1,6 @@
 esma_set_this (OVERRIDE MAPL.state)
 
 set (srcs
-    API.F90
     StateGet.F90
     StateSet.F90
     StateGetPointer.F90
@@ -13,12 +12,12 @@ set (srcs
     StateFilter.F90
     StateDestroy.F90
     Internal.F90
-    Export.F90
+    API.F90
 )
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.field_bundle MAPL.shared MAPL.esmf MAPL.geom
+    DEPENDENCIES MAPL.field_bundle MAPL.utils MAPL.esmf MAPL.geom
                  PFLOGGER::pflogger ESMF::ESMF GFTL::gftl-v2
     TYPE SHARED
 )

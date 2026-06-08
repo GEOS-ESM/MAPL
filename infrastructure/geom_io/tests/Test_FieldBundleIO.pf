@@ -5,10 +5,12 @@ module Test_FieldBundleIO
    use pfunit
    use esmf
    use esmf_TestMethod_mod
-   use mapl_Geom_API_mod, only: GeomManager, MaplGeom, get_geom_manager
-   use mapl_Field_API, only: MAPL_FieldCreate, MAPL_FieldGet
-   use mapl_FieldBundle_API_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_geom_api, only: GeomManager, MaplGeom, get_geom_manager
+   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet
+   use mapl_field_bundle_api
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_FIELDBUNDLETYPE_BASIC
+   use mapl_enums_api, only: MAPL_VERTICAL_STAGGER_NONE, MAPL_VERTICAL_STAGGER_CENTER
+   use mapl_vertical_grid_api
    use mapl_geomio
 
    implicit none
@@ -111,7 +113,7 @@ contains
       ! Create 2D fields
       ! ------------------------------------------------------------------
       f_temp = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, &
-           vert_staggerloc=VERTICAL_STAGGER_NONE, &
+           vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE, &
            name='temperature', long_name='temperature', standard_name='temperature', units='K', _RC)
       call ESMF_FieldGet(f_temp, farrayPtr=ptr2d, _RC)
       ptr2d = TEMP_VALUE
@@ -120,7 +122,7 @@ contains
       ! Create 3D fields (center stagger, 3 vertical levels)
       ! ------------------------------------------------------------------
       f_humid = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, &
-           vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vgrid=vgrid, vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, &
            name='humidity', long_name='humidity', standard_name='humidity', units='kg kg-1', _RC)
       call ESMF_FieldGet(f_humid, farrayPtr=ptr3d, _RC)
       ptr3d = HUMID_VALUE
@@ -129,7 +131,7 @@ contains
       ! Create write bundle and add all fields
       ! ------------------------------------------------------------------
       write_bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(write_bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call MAPL_FieldBundleSet(write_bundle, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
       call ESMF_FieldBundleAdd(write_bundle, [f_temp, f_humid], _RC)
 
       ! ------------------------------------------------------------------
@@ -143,7 +145,7 @@ contains
       ! Read bundle back from file
       ! ------------------------------------------------------------------
       read_bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
       call MAPL_read_bundle(read_bundle, OUTPUT_FILE_2D_3D, time, _RC)
 
       ! ------------------------------------------------------------------
@@ -221,7 +223,7 @@ contains
       ! Create 2D fields
       ! ------------------------------------------------------------------
       f_temp = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, &
-           vert_staggerloc=VERTICAL_STAGGER_NONE, &
+           vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE, &
            name='temperature', long_name='temperature', standard_name='temperature', units='K', _RC)
       call ESMF_FieldGet(f_temp, farrayPtr=ptr2d, _RC)
       ptr2d = TEMP_VALUE
@@ -230,7 +232,7 @@ contains
       ! Create write bundle and add all fields
       ! ------------------------------------------------------------------
       write_bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(write_bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call MAPL_FieldBundleSet(write_bundle, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
       call ESMF_FieldBundleAdd(write_bundle, [f_temp], _RC)
 
       ! ------------------------------------------------------------------
@@ -244,7 +246,7 @@ contains
       ! Read bundle back from file
       ! ------------------------------------------------------------------
       read_bundle = ESMF_FieldBundleCreate(_RC)
-      call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+      call MAPL_FieldBundleSet(read_bundle, geom=geom, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
       call MAPL_read_bundle(read_bundle, OUTPUT_FILE_2D, time, _RC)
 
       ! ------------------------------------------------------------------

@@ -7,7 +7,7 @@ program create_stretched_cs_grid
    use MAPL_BaseMod,               only: MAPL_GetHorzIJIndex, MAPL_GridGetCorners
    use mapl_MaplGrid,              only: MAPL_GridGet
    use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use MAPL_Constants,             only: MAPL_DEGREES_TO_RADIANS_R8
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 

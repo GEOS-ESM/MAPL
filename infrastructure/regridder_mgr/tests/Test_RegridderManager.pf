@@ -2,12 +2,13 @@
 
 module Test_RegridderManager
    use pfunit
-   use mapl_FieldCreateImpl_mod
+   use mapl_FieldCreate_mod
    use mapl_VerticalStaggerLoc_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_api
+   use mapl_enums_api
    use mapl_regridder_mgr
-   use mapl_Geom_API_mod
-   use mapl_FieldBundle_API_mod
+   use mapl_geom_api
+   use mapl_field_bundle_api
    use MAPL_Constants, only: MAPL_UNDEF, MAPL_UNDEFINED_REAL64
    use esmf_TestMethod_mod ! mapl
    use esmf
@@ -310,7 +311,7 @@ contains
       ! onto tangent plane: u = -sin(lon), v = -sin(lat)*cos(lon)
       f1 = make_field(geom_1, 'u', value=0._ESMF_KIND_R4, _RC)
       f2 = make_field(geom_1, 'v', value=0._ESMF_KIND_R4, _RC)
-      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
 
       call ESMF_FieldGet(f1, farrayptr=u1, _RC)
       call ESMF_FieldGet(f2, farrayptr=v1, _RC)
@@ -319,7 +320,7 @@ contains
 
       f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
-      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
 
       call my_regridder%regrid(uv1, uv2, _RC)
 
@@ -387,7 +388,7 @@ contains
 
       f1 = make_field(geom_1, 'u', value=0._ESMF_KIND_R4, _RC)
       f2 = make_field(geom_1, 'v', value=0._ESMF_KIND_R4, _RC)
-      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
 
       call ESMF_FieldGet(f1, farrayptr=u1, _RC)
       call ESMF_FieldGet(f2, farrayptr=v1, _RC)
@@ -400,7 +401,7 @@ contains
 
       f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
-      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
 
       call my_regridder%regrid(uv1, uv2, _RC)
 
@@ -532,15 +533,15 @@ contains
       ! Create vector bundle with NS basis
       f1 = make_field(geom_1, 'u', value=2._ESMF_KIND_R4, _RC)
       f2 = make_field(geom_1, 'v', value=2._ESMF_KIND_R4, _RC)
-      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
       
       ! Explicitly set NS basis kind
-      call MAPL_FieldBundleSet(uv1, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+      call MAPL_FieldBundleSet(uv1, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_NS, _RC)
 
       f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
-      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
-      call MAPL_FieldBundleSet(uv2, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
+      call MAPL_FieldBundleSet(uv2, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_NS, _RC)
 
       call my_regridder%regrid(uv1, uv2, _RC)
 
@@ -586,15 +587,15 @@ contains
       ! Create vector bundle with GRID basis
       f1 = make_field(geom_1, 'u', value=2._ESMF_KIND_R4, _RC)
       f2 = make_field(geom_1, 'v', value=2._ESMF_KIND_R4, _RC)
-      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
       
       ! Explicitly set GRID basis kind
-      call MAPL_FieldBundleSet(uv1, vector_basis_kind=VECTOR_BASIS_KIND_GRID, _RC)
+      call MAPL_FieldBundleSet(uv1, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_GRID, _RC)
 
       f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
-      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
-      call MAPL_FieldBundleSet(uv2, vector_basis_kind=VECTOR_BASIS_KIND_GRID, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
+      call MAPL_FieldBundleSet(uv2, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_GRID, _RC)
 
       call my_regridder%regrid(uv1, uv2, _RC)
 
@@ -625,7 +626,7 @@ contains
       type(ESMF_Fieldbundle) :: uv1, uv2
       real(kind=ESMF_KIND_R4), pointer :: u2(:,:)
       real(kind=ESMF_KIND_R4), pointer :: v2(:,:)
-      type(VectorBasisKind) :: basis_retrieved
+      type(MAPL_VectorBasisKind) :: basis_retrieved
       
       geom_mgr = GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
@@ -642,16 +643,16 @@ contains
       ! Create vector bundle WITHOUT setting basis kind
       f1 = make_field(geom_1, 'u', value=2._ESMF_KIND_R4, _RC)
       f2 = make_field(geom_1, 'v', value=2._ESMF_KIND_R4, _RC)
-      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
       ! Do NOT set vector_basis_kind - rely on default
 
       f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
-      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
 
       ! Verify that the default basis is NS
       call MAPL_FieldBundleGet(uv1, vector_basis_kind=basis_retrieved, _RC)
-      @assertTrue(basis_retrieved == VECTOR_BASIS_KIND_NS)
+      @assertTrue(basis_retrieved == MAPL_VECTOR_BASIS_KIND_NS)
 
       call my_regridder%regrid(uv1, uv2, _RC)
 
@@ -699,18 +700,18 @@ contains
       f3 = make_field(geom_1, 'u', value=3._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_1, 'v', value=4._ESMF_KIND_R4, _RC)
       bracket1 = MAPL_FieldBundleCreate(name='[(x,y),(u,v)]', fieldList=[f1,f2,f3,f4], &
-           fieldBundleType=FIELDBUNDLETYPE_VECTORBRACKET, _RC)
+           fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTORBRACKET, _RC)
       
       ! Set NS basis for the bracket
-      call MAPL_FieldBundleSet(bracket1, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+      call MAPL_FieldBundleSet(bracket1, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_NS, _RC)
 
       f5 = make_field(geom_2, 'x', value=0._ESMF_KIND_R4, _RC)
       f6 = make_field(geom_2, 'y', value=0._ESMF_KIND_R4, _RC)
       f7 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
       f8 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
       bracket2 = MAPL_FieldBundleCreate(name='[(x,y),(u,v)]', fieldList=[f5,f6,f7,f8], &
-           fieldBundleType=FIELDBUNDLETYPE_VECTORBRACKET, _RC)
-      call MAPL_FieldBundleSet(bracket2, vector_basis_kind=VECTOR_BASIS_KIND_NS, _RC)
+           fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTORBRACKET, _RC)
+      call MAPL_FieldBundleSet(bracket2, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_NS, _RC)
 
       call my_regridder%regrid(bracket1, bracket2, _RC)
 
@@ -766,14 +767,14 @@ contains
       ! North-east field
       f1 = make_field(geom_1, 'x', value=1._ESMF_KIND_R4, _RC)
       f2 = make_field(geom_1, 'y', value=10._ESMF_KIND_R4, _RC)
-      xy1 = MAPL_FieldBundleCreate(name='[x,y]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+      xy1 = MAPL_FieldBundleCreate(name='[x,y]', fieldList=[f1,f2], fieldBundleType=MAPL_FIELDBUNDLETYPE_BRACKET, _RC)
 
       call ESMF_FieldGet(f1, farrayptr=x1, _RC)
       call ESMF_FieldGet(f2, farrayptr=y1, _RC)
       
       f3 = make_field(geom_2, 'x', value=0._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_2, 'y', value=0._ESMF_KIND_R4, _RC)
-      xy2 = MAPL_FieldBundleCreate(name='[x,y]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+      xy2 = MAPL_FieldBundleCreate(name='[x,y]', fieldList=[f3,f4], fieldBundleType=MAPL_FIELDBUNDLETYPE_BRACKET, _RC)
 
       call my_regridder%regrid(xy1, xy2, _RC)
 

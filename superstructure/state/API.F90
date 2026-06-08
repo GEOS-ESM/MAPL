@@ -1,25 +1,26 @@
-module mapl_State_API_mod
-   use mapl_StateGetImpl_mod, only: MAPL_StateGet => StateGet
-   use mapl_StateGetPointerImpl_mod, only: MAPL_StateGetPointer => StateGetPointer
+! Export umbrella for the MAPL.state library.
+module mapl_state_api
+
    use mapl_StateArithmeticParser_mod, only: MAPL_ParserVariablesInExpression => parser_variables_in_expression
-   use mapl_StateAddMethodImpl_mod, only: mapl_StateAddMethod
-   use mapl_StateAddMethodImpl_mod, only: CallbackMap
-   use mapl_StateAddMethodImpl_mod, only: CallbackMapIterator
-   use mapl_StateAddMethodImpl_mod, only: CallbackMethodWrapper
-   use mapl_StateAddMethodImpl_mod, only: get_callbacks
-   use mapl_StateGetGeomImpl_mod, only: MAPL_StateGetGeom => StateGetGeom
+   use mapl_StateArithmeticParser_mod, only: mapl_StateEval
+   use mapl_StateAddMethod_mod, only: mapl_StateAddMethod
+   use mapl_StateDestroy_mod, only: MAPL_StateDestroy
+   use mapl_StateGet_mod, only: MAPL_StateGet => StateGet
+   use mapl_StateGetGeom_mod, only: MAPL_StateGetGeom => StateGetGeom
+   use mapl_StateGetPointer_mod, only: MAPL_StateGetPointer => StateGetPointer
+   use mapl_StateMask_mod
+   
+
    implicit none
    private
 
-   ! Available to users
-   public :: MAPL_StateGet
-   public :: MAPL_StateGetPointer
    public :: MAPL_ParserVariablesInExpression
    public :: mapl_StateAddMethod
-   public :: CallbackMap
-   public :: CallbackMapIterator
-   public :: CallbackMethodWrapper
-   public :: get_callbacks
+   public :: MAPL_StateDestroy
+   public :: MAPL_StateGet
    public :: MAPL_StateGetGeom
+   public :: MAPL_StateGetPointer
+   public :: mapl_StateEval
 
-end module mapl_State_API_mod
+   public :: StateMask
+end module mapl_state_api

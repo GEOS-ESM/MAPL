@@ -1,4 +1,7 @@
-module mapl_RegridderMgr_API_mod
+! Export umbrella for the MAPL infrastructure/regridder_mgr layer.
+! Public API exposed to external consumers.
+module mapl_regridder_mgr_api
+
    use mapl_Regridder_mod, only: Regridder
    use mapl_RegridderManager_mod, only: RegridderManager, regridder_manager, get_regridder_manager
    use mapl_RegridderSpec_mod, only: RegridderSpec
@@ -22,12 +25,19 @@ module mapl_RegridderMgr_API_mod
         regrid_method_int_to_string, &
         generate_esmf_regrid_param
 
-   implicit none(type,external)
+   use mapl_EsmfRegridder_mod
+   implicit none
    private
 
+   ! Regridder types
    public :: Regridder
-   public :: RegridderManager, regridder_manager, get_regridder_manager
+   public :: RegridderManager
+   public :: regridder_manager
+   public :: get_regridder_manager
    public :: RegridderSpec
+   public :: esmfRegridderParam
+
+   ! Regrid methods and hints
    public :: REGRID_HINT_LOCAL
    public :: REGRID_HINT_FILE_WEIGHTS
    public :: REGRID_HINT_COMPUTE_TRANSPOSE
@@ -47,4 +57,5 @@ module mapl_RegridderMgr_API_mod
    public :: regrid_method_int_to_string
    public :: generate_esmf_regrid_param
 
-end module mapl_RegridderMgr_API_mod
+
+end module mapl_regridder_mgr_api

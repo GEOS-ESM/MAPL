@@ -2,7 +2,7 @@
 #include "MAPL.h"
 
 program main
-   use mapl_Geom_API_mod
+   use mapl_geom_internal
    use mapl_ErrorHandling_mod
    use esmf
    use mpi

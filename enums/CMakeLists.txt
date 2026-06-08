@@ -3,7 +3,7 @@ esma_set_this (OVERRIDE MAPL.enums)
 set (srcs
   # Layer umbrellas (Internal must precede Export)
   Internal.F90
-  Export.F90
+  API.F90
   ConservationType.F90
   NormalizationType.F90
   QuantityType.F90
@@ -18,11 +18,13 @@ set (srcs
   StateItemAllocation.F90
   FieldBundleType_Flag.F90
   VerticalStaggerLoc.F90
+  VerticalCoordinateDirection.F90
+  VerticalAlignment.F90
   )
 
 esma_add_library (${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared ESMF::ESMF
+  DEPENDENCIES MAPL.utils ESMF::ESMF
   TYPE SHARED
   )
 

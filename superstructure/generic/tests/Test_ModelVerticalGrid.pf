@@ -10,7 +10,9 @@ module Test_ModelVerticalGrid
 
    use mapl_ErrorHandling_mod
    use mapl_VerticalStaggerLoc_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_api
+   use mapl_enums_api
+
    use mapl_ModelVerticalGrid_mod
    use mapl_StateRegistry_mod
    use mapl_VariableSpec_mod
@@ -24,8 +26,7 @@ module Test_ModelVerticalGrid
    use mapl_ComponentDriverVector_mod
    use mapl_ComponentDriverPtrVector_mod
    use mapl_MultiState_mod
-   use mapl_Geom_API_mod
-   use mapl_CouplerPhases_mod, only: GENERIC_COUPLER_UPDATE
+   use mapl_geom_api
    use mapl_GeomAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UnitsAspect_mod
@@ -283,7 +284,7 @@ contains
       do i = 1, couplers%size()
          driver = couplers%of(i)
          call driver%ptr%initialize(_RC)
-         call driver%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+         call driver%ptr%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
       end do
       @assert_that(shape(a), is(equal_to([IM, JM, LM+1])))
       @assert_that(a, every_item(is(equal_to(300.))))

@@ -1,7 +1,6 @@
 set (this MAPL.geom)
 
 set(srcs
-  API.F90
   GeomUtilities.F90
 
   GeomSpec.F90
@@ -30,12 +29,12 @@ set(srcs
 
   # Umbrella modules
   Internal.F90
-  Export.F90
+  API.F90
 )
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.pfio MAPL.shared MAPL.mp_utils MAPL.hconfig_utils MAPL.esmf_utils GFTL::gftl-v2
+  DEPENDENCIES MAPL.pfio MAPL.enums MAPL.utils MAPL.esmf MAPL.mp_utils GFTL::gftl-v2
   TYPE SHARED
 )
 

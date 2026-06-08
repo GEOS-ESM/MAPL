@@ -3,9 +3,10 @@
 
 module Test_CopyTransform
    use mapl_CopyTransform_mod
-   use mapl_StateItemImpl_mod
+   use mapl_enums_api
+   use mapl_StateItem_mod
    use mapl_ExtensionTransform_mod, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_api
    use pfunit
    use esmf
    use ESMF_TestMethod_mod
@@ -150,7 +151,7 @@ contains
       type(ESMF_FieldBundle) :: bundle
       character(len=ESMF_MAXSTR) :: field_name
       logical :: make_bundle
-      type(FieldBundleType_Flag), parameter :: BUNDLE_TYPE = FIELDBUNDLETYPE_BASIC
+      type(MAPL_FieldBundleType_Flag), parameter :: BUNDLE_TYPE = MAPL_FIELDBUNDLETYPE_BASIC
 
       make_bundle = itemtype == MAPL_STATEITEM_FIELDBUNDLE
       field_name = name

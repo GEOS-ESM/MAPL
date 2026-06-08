@@ -3,16 +3,18 @@
 
 module Test_FieldFill
    use mapl_FieldFillDefault_mod
-   use mapl_FieldCreateImpl_mod, only: MAPL_FieldEmptyComplete
+   use mapl_FieldCreate_mod, only: MAPL_FieldEmptyComplete
    use mapl_FieldPointerUtilities_mod, only: assign_fptr
    use funit
    use ESMF_TestMethod_mod
    use esmf
    use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
+#ifndef __DARWIN
    use, intrinsic :: ieee_exceptions, only: ieee_set_halting_mode, &
-                                            ieee_get_halting_mode, &
-                                            ieee_set_flag, &
-                                            ieee_invalid
+                                             ieee_get_halting_mode, &
+                                             ieee_set_flag, &
+                                             ieee_invalid
+#endif
 
    implicit none(type, external)
 
@@ -87,11 +89,15 @@ contains
       integer :: status
 
       call make_r4_field(field, ptr, _RC)
+#ifndef __DARWIN
       call ieee_get_halting_mode(ieee_invalid, was_halting)
       call ieee_set_halting_mode(ieee_invalid, .false.)
+#endif
       @assertTrue(all(ieee_is_nan(ptr)), "R4 field should be filled with NaN by default")
+#ifndef __DARWIN
       call ieee_set_flag(ieee_invalid, .false.)
       call ieee_set_halting_mode(ieee_invalid, was_halting)
+#endif
 
       call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -108,11 +114,15 @@ contains
       integer :: status
 
       call make_r8_field(field, ptr, _RC)
+#ifndef __DARWIN
       call ieee_get_halting_mode(ieee_invalid, was_halting)
       call ieee_set_halting_mode(ieee_invalid, .false.)
+#endif
       @assertTrue(all(ieee_is_nan(ptr)), "R8 field should be filled with NaN by default")
+#ifndef __DARWIN
       call ieee_set_flag(ieee_invalid, .false.)
       call ieee_set_halting_mode(ieee_invalid, was_halting)
+#endif
 
       call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -173,11 +183,15 @@ contains
       call set_field_fill_defaults(r4=fill_r4)
       call reset_field_fill_defaults()
       call make_r4_field(field, ptr, _RC)
+#ifndef __DARWIN
       call ieee_get_halting_mode(ieee_invalid, was_halting)
       call ieee_set_halting_mode(ieee_invalid, .false.)
+#endif
       @assertTrue(all(ieee_is_nan(ptr)), "R4 field should revert to NaN after reset")
+#ifndef __DARWIN
       call ieee_set_flag(ieee_invalid, .false.)
       call ieee_set_halting_mode(ieee_invalid, was_halting)
+#endif
 
       call ESMF_FieldDestroy(field, nogarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -190,12 +204,16 @@ contains
 
       logical :: was_halting
 
+#ifndef __DARWIN
       call ieee_get_halting_mode(ieee_invalid, was_halting)
       call ieee_set_halting_mode(ieee_invalid, .false.)
+#endif
       @assertTrue(ieee_is_nan(get_field_fill_default_r4()), "R4 getter should return NaN when no override is set")
       @assertTrue(ieee_is_nan(get_field_fill_default_r8()), "R8 getter should return NaN when no override is set")
+#ifndef __DARWIN
       call ieee_set_flag(ieee_invalid, .false.)
       call ieee_set_halting_mode(ieee_invalid, was_halting)
+#endif
 
       _UNUSED_DUMMY(this)
    end subroutine test_getter_returns_nan_when_unset
@@ -238,11 +256,15 @@ contains
       @assertTrue(all(ptr_r4 == 1.0_ESMF_KIND_R4), "R4 field should use override")
 
       call make_r8_field(field_r8, ptr_r8, _RC)
+#ifndef __DARWIN
       call ieee_get_halting_mode(ieee_invalid, was_halting)
       call ieee_set_halting_mode(ieee_invalid, .false.)
+#endif
       @assertTrue(all(ieee_is_nan(ptr_r8)), "R8 field should still be NaN when only R4 override is set")
+#ifndef __DARWIN
       call ieee_set_flag(ieee_invalid, .false.)
       call ieee_set_halting_mode(ieee_invalid, was_halting)
+#endif
 
       call ESMF_FieldDestroy(field_r4, nogarbage=.true., _RC)
       call ESMF_FieldDestroy(field_r8, nogarbage=.true., _RC)

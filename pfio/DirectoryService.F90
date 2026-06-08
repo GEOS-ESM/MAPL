@@ -14,7 +14,7 @@
 
 module pFIO_DirectoryServiceMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_ptr, c_sizeof
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use pFIO_AbstractServerMod
    use pFIO_ServerThreadMod

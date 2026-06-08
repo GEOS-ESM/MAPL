@@ -1,12 +1,16 @@
 #include "MAPL.h"
 
-module mapl_StateGetImpl_mod
-   use mapl_VerticalGrid_API_mod
-   use mapl_Field_API
+module mapl_StateGet_mod
+
+   use mapl_vertical_grid_api
+   use mapl_enums_api
+   use mapl_field_api
    use mapl_UngriddedDims_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
+   use mapl_field_bundle_api, only: MAPL_FieldBundleAdd, MAPL_FieldBundleGet
    use esmf
+
    implicit none(type,external)
    private
 
@@ -15,6 +19,7 @@ module mapl_StateGetImpl_mod
    interface StateGet
       procedure state_get_status
       procedure state_get
+      procedure state_get_bundle
    end interface StateGet
 
 contains
@@ -34,14 +39,14 @@ contains
       type(esmf_Field), optional, intent(out) :: field
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       integer, optional, intent(out) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(mapl_VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
-      type(StateItemAllocation), optional, intent(out) :: allocation_status
-      integer, optional, intenT(out) :: rc
+      type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
+      integer, optional, intent(out) :: rc
 
       type(ESMF_Field) :: field_
       integer :: status
@@ -87,7 +92,49 @@ contains
       call esmf_StateGet(state, itemName=subname, nestedState=nestedState, _RC)
 
       call state_get_status(nestedState, itemName=itemName(idx+1:), itemType=itemType, _RC)
-      
+
       _RETURN(_SUCCESS)
    end subroutine state_get_status
-end module mapl_StateGetImpl_mod
+
+   ! Serialize a state into a bundle of fields; non-field/bundle items are ignored.
+   ! Fields from a contained FieldBundle are renamed <bundle_name>_<field_index>.
+   subroutine state_get_bundle(state, bundle, rc)
+      type(ESMF_State), intent(in) :: state
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_StateItem_Flag), allocatable :: item_types(:)
+      character(len=ESMF_MAXSTR), allocatable :: item_names(:)
+      type(ESMF_Field), allocatable :: field_list(:)
+      type(ESMF_Field) :: field, alias
+      type(ESMF_FieldBundle) :: bundle2
+      character(len=:), allocatable :: item_name
+      character(len=ESMF_MAXSTR) :: short_name
+      integer :: item_count, idx, jdx, status
+
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call ESMF_StateGet(state, itemCount=item_count, _RC)
+      allocate(item_names(item_count), _STAT)
+      allocate(item_types(item_count), _STAT)
+      call ESMF_StateGet(state, itemNameList=item_names, itemTypeList=item_types, _RC)
+      do idx = 1, item_count
+         if (allocated(field_list)) deallocate(field_list, _STAT)
+         item_name = trim(item_names(idx))
+         if (item_types(idx) == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(state, item_name, field, _RC)
+            call MAPL_FieldBundleAdd(bundle, [field], _RC)
+         else if (item_types(idx) == ESMF_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(state, item_name, bundle2, _RC)
+            call MAPL_FieldBundleGet(bundle2, fieldList=field_list, _RC) ! addorder
+            do jdx = 1, size(field_list)
+               write(short_name, '(I0)') jdx
+               alias = ESMF_NamedAlias(field_list(jdx), name=item_name//"_"//trim(short_name), _RC)
+               call MAPL_FieldBundleAdd(bundle, [alias], _RC)
+            end do
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine state_get_bundle
+
+end module mapl_StateGet_mod

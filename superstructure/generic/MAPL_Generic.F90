@@ -33,8 +33,8 @@ module mapl_Generic_mod
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use mapl_UngriddedDim_mod, only: UngriddedDim
    use mapl_UngriddedDims_mod, only: UngriddedDims
-   use mapl_StateItemImpl_mod, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
-   use mapl_StateItemImpl_mod, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
    use mapl_ESMF_Utilities_mod, only: esmf_state_intent_to_string
    use mapl_ESMF_Interfaces_mod, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl_hconfig_get_mod
@@ -53,7 +53,7 @@ module mapl_Generic_mod
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_MAXSTR
-   use esmf, only: ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
+   use esmf, only: ESMF_Time, ESMF_TimeInterval, ESMF_TimeIntervalGet, ESMF_Clock, ESMF_ClockGet
    use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_TypeKind_Flag
    use esmf, only: operator(==)
    use pflogger, only: logger_t => logger
@@ -107,6 +107,9 @@ module mapl_Generic_mod
    ! Timers
    public :: MAPL_GridCompTimerStart
    public :: MAPL_GridCompTimerStop
+
+   ! Checkpoint directory
+   public :: MAPL_GridCompGetCheckpointDir
 
    ! Spec types
    public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
@@ -229,6 +232,10 @@ module mapl_Generic_mod
    interface MAPL_GridCompTimerStop
       procedure :: gridcomp_timer_stop
    end interface MAPL_GridCompTimerStop
+
+   interface MAPL_GridCompGetCheckpointDir
+      procedure :: gridcomp_get_checkpoint_dir
+   end interface MAPL_GridCompGetCheckpointDir
 
    interface MAPL_ClockGet
       procedure :: clock_get_dt
@@ -551,7 +558,6 @@ contains
         vstagger, &
         ! OPTIONAL
         unusable, &
-        vector_component_names, &
         ungridded_dims, &
         units, &
         restart, &
@@ -571,7 +577,6 @@ contains
       type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: vector_component_names(:)
       type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
       character(*), optional, intent(in) :: units
       type(RestartMode), optional, intent(in) :: restart
@@ -635,7 +640,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(vector_component_names)
    end subroutine gridcomp_add_spec
 
    subroutine gridcomp_advertise_variable(gridcomp, var_spec, rc)
@@ -1163,6 +1167,24 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_timer_stop
 
+   function gridcomp_get_checkpoint_dir(gridcomp, current_time, unusable, is_private, rc) result(dir)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_Time), intent(in) :: current_time
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: is_private
+      integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: dir
+
+      type(OuterMetaComponent), pointer :: outer_meta
+      integer :: status
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      dir = outer_meta%get_checkpoint_dir(current_time, is_private=is_private, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function gridcomp_get_checkpoint_dir
+
    subroutine clock_get_dt(clock, dt, rc)
       type(ESMF_Clock), intent(in) :: clock
       real(ESMF_KIND_R4), intent(out) :: dt ! timestep in seconds
@@ -1181,7 +1203,7 @@ contains
    subroutine method_add(state, label, userRoutine, rc)
       use esmf, only: ESMF_State, ESMF_MethodAdd
       use mapl_ESMF_Interfaces_mod, only: I_CallBackMethod
-      use mapl_StateAddMethodImpl_mod, only: CallbackMap, CallbackMethodWrapper, get_callbacks
+      use mapl_StateAddMethod_mod, only: CallbackMap, CallbackMethodWrapper, get_callbacks
       type(ESMF_State), intent(inout) :: state
       character(len=*), intent(in) :: label
       procedure(I_CallBackMethod) :: userRoutine

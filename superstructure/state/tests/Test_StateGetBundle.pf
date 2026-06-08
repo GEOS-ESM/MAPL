@@ -1,0 +1,158 @@
+#include "MAPL_TestErr.h"
+
+module Test_StateGetBundle
+
+   use mapl_StateGet_mod, only: StateGet
+   use esmf
+   use funit
+   use ESMF_TestMethod_mod
+
+   implicit none(type, external)
+
+   integer, parameter :: IM = 4
+
+contains
+
+   ! A state containing only plain fields: each appears in the output
+   ! bundle under its own name; field count equals the state item count.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fields_only(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fa, fb
+      type(ESMF_State) :: state
+      type(ESMF_FieldBundle) :: bundle
+      integer :: field_count, status
+      logical :: is_present
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fa = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='alpha', _RC)
+      fb = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='beta', _RC)
+      state = ESMF_StateCreate(fieldList=[fa, fb], _RC)
+
+      call StateGet(state, bundle, _RC)
+
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(2)))
+
+      call ESMF_FieldBundleGet(bundle, 'alpha', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+
+      call ESMF_FieldBundleGet(bundle, 'beta', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(fa, _RC)
+      call ESMF_FieldDestroy(fb, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_fields_only
+
+   ! A state containing a FieldBundle: fields are renamed
+   ! <bundle_name>_1, <bundle_name>_2, … in the output bundle.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fieldbundle_in_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fu, fv
+      type(ESMF_FieldBundle) :: inner, bundle
+      type(ESMF_State) :: state
+      integer :: field_count, status
+      logical :: is_present
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fu = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='U', _RC)
+      fv = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='V', _RC)
+      inner = ESMF_FieldBundleCreate(name='UV', _RC)
+      call ESMF_FieldBundleAdd(inner, [fu, fv], _RC)
+
+      state = ESMF_StateCreate(_RC)
+      call ESMF_StateAdd(state, fieldbundleList=[inner], _RC)
+
+      call StateGet(state, bundle, _RC)
+
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(2)))
+
+      call ESMF_FieldBundleGet(bundle, 'UV_1', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+
+      call ESMF_FieldBundleGet(bundle, 'UV_2', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldBundleDestroy(inner, _RC)
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(fu, _RC)
+      call ESMF_FieldDestroy(fv, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_fieldbundle_in_state
+
+   ! A state with mixed items (plain field + FieldBundle): the output
+   ! bundle contains all of them flattened into a single namespace.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_mixed_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fscalar, fu, fv
+      type(ESMF_FieldBundle) :: inner, bundle
+      type(ESMF_State) :: state
+      integer :: field_count, status
+      logical :: is_present
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fscalar = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='T', _RC)
+      fu = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='U', _RC)
+      fv = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='V', _RC)
+      inner = ESMF_FieldBundleCreate(name='UV', _RC)
+      call ESMF_FieldBundleAdd(inner, [fu, fv], _RC)
+
+      state = ESMF_StateCreate(fieldList=[fscalar], _RC)
+      call ESMF_StateAdd(state, fieldbundleList=[inner], _RC)
+
+      call StateGet(state, bundle, _RC)
+
+      ! T + UV_1 + UV_2 = 3 fields total
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(3)))
+
+      call ESMF_FieldBundleGet(bundle, 'T', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+      call ESMF_FieldBundleGet(bundle, 'UV_1', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+      call ESMF_FieldBundleGet(bundle, 'UV_2', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldBundleDestroy(inner, _RC)
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(fscalar, _RC)
+      call ESMF_FieldDestroy(fu, _RC)
+      call ESMF_FieldDestroy(fv, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_mixed_state
+
+   ! An empty state produces an empty bundle with zero fields.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_empty_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_State) :: state
+      type(ESMF_FieldBundle) :: bundle
+      integer :: field_count, status
+
+      state = ESMF_StateCreate(_RC)
+
+      call StateGet(state, bundle, _RC)
+
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(0)))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_empty_state
+
+end module Test_StateGetBundle

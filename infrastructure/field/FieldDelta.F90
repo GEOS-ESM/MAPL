@@ -7,10 +7,10 @@
 module mapl_FieldDelta_mod
 
    use mapl_FieldInfo_mod
-   use mapl_FieldGetImpl_mod
+   use mapl_FieldGet_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_InfoUtilities_mod
-   use mapl_FieldFillImpl_mod, only: FieldFill
+   use mapl_FieldFill_mod, only: FieldFill
    use mapl_FieldPointerUtilities_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod

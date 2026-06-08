@@ -3,7 +3,7 @@ module mapl_CF_Time_mod
 
    use, intrinsic :: iso_fortran_env, only : R64 => real64
    use mapl_KeywordEnforcer_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_DateTime_Parsing_mod
 
    implicit none

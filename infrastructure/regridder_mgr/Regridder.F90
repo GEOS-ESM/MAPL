@@ -3,10 +3,10 @@
 module mapl_Regridder_mod
    use esmf
    use mapl_FieldUtils
-   use mapl_FieldBundle_API_mod
-   use mapl_Enums_internal, only: MAPL_VectorBasisKind
+   use mapl_field_bundle_api
+   use mapl_enums_api
    use mapl_ErrorHandling_mod
-   use mapl_Geom_API_mod
+   use mapl_geom_api
    use mapl_RegridderSpec_mod
    use mapl_VectorBasis_mod
    use iso_fortran_env, only: REAL32, REAL64
@@ -71,7 +71,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(FieldBundleType_Flag) :: bundleType_in, bundleType_out
+      type(MAPL_FieldBundleType_Flag) :: bundleType_in, bundleType_out
       type(ESMF_FieldBundle) :: tb_in, tb_out
       type(ESMF_Field), allocatable :: field_list_in(:), field_list_out(:)
 
@@ -79,10 +79,10 @@ contains
       call MAPL_FieldBundleGet(fb_out, fieldBundleType=bundleType_out, _RC)
       _ASSERT(bundleType_out == bundleType_in, 'Bundle types must match.')
 
-      if (bundleType_in == FIELDBUNDLETYPE_VECTOR) then
+      if (bundleType_in == MAPL_FIELDBUNDLETYPE_VECTOR) then
          call this%regrid_vector(fb_in, fb_out, _RC)
          _RETURN(_SUCCESS)
-      else if (bundleType_in == FIELDBUNDLETYPE_VECTORBRACKET) then
+      else if (bundleType_in == MAPL_FIELDBUNDLETYPE_VECTORBRACKET) then
          call MAPL_FieldBundleGet(fb_in, fieldList=field_list_in, _RC)
          call MAPL_FieldBundleGet(fb_out, fieldList=field_list_out, _RC)
          _ASSERT(mod(size(field_list_in), 2) == 0, 'VectorBracket must contain an even number of fields')
@@ -97,8 +97,8 @@ contains
             n_pairs = size(field_list_in) / 2
             ! Loop over all vector pairs
             do i = 1, n_pairs
-               tb_in = MAPL_FieldBundleCreate(fieldList=field_list_in(2*i-1:2*i), fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
-               tb_out = MAPL_FieldBundleCreate(fieldList=field_list_out(2*i-1:2*i), fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
+               tb_in = MAPL_FieldBundleCreate(fieldList=field_list_in(2*i-1:2*i), fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
+               tb_out = MAPL_FieldBundleCreate(fieldList=field_list_out(2*i-1:2*i), fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
                call MAPL_FieldBundleSet(tb_in, vector_basis_kind=basis_kind, _RC)
                call MAPL_FieldBundleSet(tb_out, vector_basis_kind=basis_kind, _RC)
                call this%regrid_vector(tb_in, tb_out, _RC)

@@ -4,7 +4,7 @@
 module pFIO_RDMAReferenceMod
    use, intrinsic :: iso_c_binding, only: c_sizeof
    use, intrinsic :: iso_fortran_env, only: INT64
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_UtilitiesMod
    use pFIO_AbstractDataReferenceMod
    use mpi

@@ -2,6 +2,7 @@
 
 module mapl_StateItemSpec_mod
    use mapl_AspectId_mod
+   use mapl_enums_api
    use mapl_ActualConnectionPt_mod
    use mapl_VirtualConnectionPtVector_mod
    use mapl_ExtensionTransform_mod
@@ -12,8 +13,8 @@ module mapl_StateItemSpec_mod
    use mapl_ClassAspect_mod
    use mapl_VerticalGrid_mod
    use mapl_ErrorHandling_mod
-   use mapl_Field_API
-   use mapl_FieldBundle_API_mod
+   use mapl_field_api
+   use mapl_field_bundle_api
    use mapl_ComponentDriver_mod
    use mapl_GriddedComponentDriver_mod
    use mapl_ComponentDriverVector_mod
@@ -131,10 +132,10 @@ contains
 
       integer :: status
       
-      call this%set_allocation_status(STATEITEM_ALLOCATION_ALLOCATED, _RC)
+      call this%set_allocation_status(MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
       if (present(allocated)) then
          if (allocated) then
-            call this%set_allocation_status(STATEITEM_ALLOCATION_ALLOCATED, _RC)
+            call this%set_allocation_status(MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
          end if
       end if
 
@@ -145,10 +146,10 @@ contains
       class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
       integer :: status
-      type(StateItemAllocation) :: allocation_status
+      type(MAPL_StateItemAllocation) :: allocation_status
       
       allocation_status = this%get_allocation_status(_RC)
-      is_allocated = (allocation_status >= STATEITEM_ALLOCATION_ALLOCATED)
+      is_allocated = (allocation_status >= MAPL_STATEITEM_ALLOCATION_ALLOCATED)
       _RETURN(_SUCCESS)
    end function is_allocated
 
@@ -159,7 +160,7 @@ contains
       integer :: status
       class(ClassAspect), pointer :: class_aspect
 
-      call this%set_allocation_status(STATEITEM_ALLOCATION_ACTIVE, _RC)
+      call this%set_allocation_status(MAPL_STATEITEM_ALLOCATION_ACTIVE, _RC)
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
       call class_aspect%activate(_RC)
@@ -171,10 +172,10 @@ contains
       class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
       integer :: status
-      type(StateItemAllocation) :: allocation_status
+      type(MAPL_StateItemAllocation) :: allocation_status
       
       allocation_status = this%get_allocation_status(_RC)
-      is_active = (allocation_status >= STATEITEM_ALLOCATION_ACTIVE)
+      is_active = (allocation_status >= MAPL_STATEITEM_ALLOCATION_ACTIVE)
       _RETURN(_SUCCESS)
    end function is_active
 
@@ -423,13 +424,13 @@ contains
       integer :: status
       class(ClassAspect), pointer :: class_aspect
       logical, allocatable :: active, not_connected
-      type(StateItemAllocation) :: allocation_status
+      type(MAPL_StateItemAllocation) :: allocation_status
 
       if (this%state_intent == ESMF_STATEINTENT_IMPORT) then
          ! Allow allocation of non-connected imports to support some testing modes
          allocation_status = this%get_allocation_status(_RC)
-         active = (allocation_status >= STATEITEM_ALLOCATION_ACTIVE)
-         not_connected = (allocation_status < STATEITEM_ALLOCATION_CONNECTED)
+         active = (allocation_status >= MAPL_STATEITEM_ALLOCATION_ACTIVE)
+         not_connected = (allocation_status < MAPL_STATEITEM_ALLOCATION_CONNECTED)
          _RETURN_UNLESS(active .and. not_connected)
       end if
 
@@ -490,8 +491,8 @@ contains
 
       call import%connect_to_export(export, actual_pt, _RC)
       call export%connect_to_import(import, _RC)
-      call import%set_allocation_status(STATEITEM_ALLOCATION_CONNECTED, _RC)
-      call export%set_allocation_status(STATEITEM_ALLOCATION_CONNECTED, _RC)
+      call import%set_allocation_status(MAPL_STATEITEM_ALLOCATION_CONNECTED, _RC)
+      call export%set_allocation_status(MAPL_STATEITEM_ALLOCATION_CONNECTED, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine connect
@@ -658,7 +659,7 @@ contains
 
    subroutine set_allocation_status(this, allocation_status, rc)
       class(StateItemSpec), target, intent(inout) :: this
-      type(StateItemAllocation), intent(in) :: allocation_status
+      type(MAPL_StateItemAllocation), intent(in) :: allocation_status
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -682,7 +683,7 @@ contains
    end subroutine set_allocation_status
 
    function get_allocation_status(this, rc) result(allocation_status)
-      type(StateItemAllocation) :: allocation_status
+      type(MAPL_StateItemAllocation) :: allocation_status
       class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
@@ -693,7 +694,7 @@ contains
       type(esmf_State), allocatable :: state
 
       ! Default to INVALID in case we can't get it from the payload
-      allocation_status = STATEITEM_ALLOCATION_INVALID
+      allocation_status = MAPL_STATEITEM_ALLOCATION_INVALID
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
       call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)

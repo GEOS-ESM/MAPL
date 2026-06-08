@@ -3,7 +3,8 @@
 
 module Test_ExtensionTransformUtils
    use mapl_ExtensionTransformUtils_mod
-   use mapl_FieldBundle_API_mod
+   use mapl_enums_api
+   use mapl_field_bundle_api
    use pfunit
    use esmf, only: ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy
    use ESMF_TestMethod_mod
@@ -16,10 +17,10 @@ contains
    subroutine test_bundle_types_valid_basic(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_FieldBundle) :: b1, b2
-      type(FieldBundleType_Flag) :: bt1, bt2
+      type(MAPL_FieldBundleType_Flag) :: bt1, bt2
       integer :: status
 
-      bt1 = FIELDBUNDLETYPE_BASIC
+      bt1 = MAPL_FIELDBUNDLETYPE_BASIC
       bt2 = bt1
       b1 = make_bundle(bt1, _RC)
       b2 = make_bundle(bt2, _RC)
@@ -35,10 +36,10 @@ contains
    subroutine test_bundle_types_valid_bracket(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_FieldBundle) :: b1, b2
-      type(FieldBundleType_Flag) :: bt1, bt2
+      type(MAPL_FieldBundleType_Flag) :: bt1, bt2
       integer :: status
 
-      bt1 = FIELDBUNDLETYPE_BRACKET
+      bt1 = MAPL_FIELDBUNDLETYPE_BRACKET
       bt2 = bt1
       b1 = make_bundle(bt1, _RC)
       b2 = make_bundle(bt2, _RC)
@@ -54,10 +55,10 @@ contains
    subroutine test_bundle_types_valid_vector(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_FieldBundle) :: b1, b2
-      type(FieldBundleType_Flag) :: bt1, bt2
+      type(MAPL_FieldBundleType_Flag) :: bt1, bt2
       integer :: status
 
-      bt1 = FIELDBUNDLETYPE_VECTOR
+      bt1 = MAPL_FIELDBUNDLETYPE_VECTOR
       bt2 = bt1
       b1 = make_bundle(bt1, _RC)
       b2 = make_bundle(bt2, _RC)
@@ -73,10 +74,10 @@ contains
    subroutine test_bundle_types_valid_vector_bracket(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_FieldBundle) :: b1, b2
-      type(FieldBundleType_Flag) :: bt1, bt2
+      type(MAPL_FieldBundleType_Flag) :: bt1, bt2
       integer :: status
 
-      bt1 = FIELDBUNDLETYPE_VECTORBRACKET
+      bt1 = MAPL_FIELDBUNDLETYPE_VECTORBRACKET
       bt2 = bt1
       b1 = make_bundle(bt1, _RC)
       b2 = make_bundle(bt2, _RC)
@@ -92,10 +93,10 @@ contains
    subroutine test_bundle_types_valid_invalid(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_FieldBundle) :: b1, b2
-      type(FieldBundleType_Flag) :: bt1, bt2
+      type(MAPL_FieldBundleType_Flag) :: bt1, bt2
       integer :: status
 
-      bt1 = FIELDBUNDLETYPE_INVALID
+      bt1 = MAPL_FIELDBUNDLETYPE_INVALID
       bt2 = bt1
       b1 = make_bundle(bt1, _RC)
       b2 = make_bundle(bt2, _RC)
@@ -111,11 +112,11 @@ contains
    subroutine test_bundle_types_valid_mismatch(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_FieldBundle) :: b1, b2
-      type(FieldBundleType_Flag) :: bt1, bt2
+      type(MAPL_FieldBundleType_Flag) :: bt1, bt2
       integer :: status
 
-      bt1 = FIELDBUNDLETYPE_BASIC
-      bt2 = FIELDBUNDLETYPE_BRACKET
+      bt1 = MAPL_FIELDBUNDLETYPE_BASIC
+      bt2 = MAPL_FIELDBUNDLETYPE_BRACKET
       b1 = make_bundle(bt1, _RC)
       b2 = make_bundle(bt2, _RC)
       call bundle_types_valid(b1, b2, rc=status)
@@ -128,7 +129,7 @@ contains
 
    function make_bundle(bundle_type, rc) result(bundle)
       type(ESMF_FieldBundle) :: bundle
-      class(FieldBundleType_Flag), intent(in) :: bundle_type
+      class(MAPL_FieldBundleType_Flag), intent(in) :: bundle_type
       integer, optional, intent(out) :: rc
       integer :: status
 

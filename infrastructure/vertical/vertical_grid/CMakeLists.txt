@@ -1,10 +1,7 @@
 esma_set_this (OVERRIDE MAPL.vertical_grid)
 
 set(srcs
-  API.F90
   IntegerPair.F90
-  VerticalCoordinateDirection.F90
-  VerticalAlignment.F90
   VerticalGridSpec.F90
   VerticalGrid.F90
   VerticalGridFactory.F90
@@ -18,12 +15,12 @@ set(srcs
 
   # Umbrella modules
   Internal.F90
-  Export.F90
+  API.F90
 )
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.enums MAPL.pfio MAPL.shared GFTL::gftl-v2
+  DEPENDENCIES MAPL.enums MAPL.pfio GFTL::gftl-v2
   TYPE SHARED
 )
 

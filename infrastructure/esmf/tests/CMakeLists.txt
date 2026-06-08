@@ -9,7 +9,7 @@ set (test_srcs
 
 add_pfunit_ctest(MAPL.esmf_utils.tests
   TEST_SOURCES ${test_srcs}
-  LINK_LIBRARIES MAPL.esmf_utils MAPL.pfunit
+  LINK_LIBRARIES MAPL.esmf MAPL.pfunit
   EXTRA_INITIALIZE Initialize
   EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

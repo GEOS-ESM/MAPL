@@ -23,7 +23,7 @@
 !!
 module mapl_NormalizationTransform_mod
    use mapl_TransformId_mod
-   use mapl_StateItemImpl_mod
+   use mapl_StateItem_mod
    use mapl_ExtensionTransform_mod
    use mapl_ExtensionTransformUtils_mod, only: bundle_types_valid
    use mapl_FieldUtils
@@ -212,7 +212,7 @@ contains
 
        ! TODO (future): When coupler support is added, run coupler to update aux field
        ! if (associated(this%aux_coupler)) then
-       !    call this%aux_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+       !    call this%aux_coupler%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
        ! end if
 
        ! Get the field or bundle to normalize

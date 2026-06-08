@@ -61,7 +61,7 @@ contains
          temp_mask = StateMask(this%expression)
          variables_in_expression = temp_mask%get_mask_variables(_RC)
       else
-         variables_in_expression = parser_variables_in_expression(this%expression,_RC)
+         variables_in_expression = mapl_ParserVariablesInExpression(this%expression,_RC)
       end if
       _RETURN(_SUCCESS)
 

@@ -2,7 +2,7 @@
 
 module mapl_ConvertUnitsTransform_mod
    use mapl_TransformId_mod
-   use mapl_StateItemImpl_mod
+   use mapl_StateItem_mod
    use mapl_ExtensionTransform_mod
    use mapl_ExtensionTransformUtils_mod, only: bundle_types_valid
    use udunits2f, only: UDUNITS_Converter => Converter

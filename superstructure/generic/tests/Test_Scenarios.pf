@@ -7,10 +7,10 @@ module Test_Scenarios
    use mapl_MultiState_mod
    use mapl_OuterMetaComponent_mod
    use mapl_GriddedComponentDriver_mod
-   use mapl_GenericGridComp_mod, generic_setservices => setservices
+   use mapl_GenericGridComp_mod
    use mapl_UserSetServices_mod
    use mapl_ESMF_Utilities_mod
-   use mapl_Geom_API_mod, only: mapl_GeomGet
+   use mapl_geom_api, only: mapl_GeomGet
    use esmf
    use nuopc
    ! testing framework
@@ -182,7 +182,7 @@ contains
         clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
 
         outer_gc = MAPL_GridCompCreate('ROOT', user_setservices('libconfigurable_gridcomp'), config, _RC)
-        call ESMF_GridCompSetServices(outer_gc, generic_setServices, userRC=user_status, _RC)
+        call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetservices, userRC=user_status, _RC)
         _VERIFY(user_status)
 
         importState = ESMF_StateCreate(_RC)

@@ -3,14 +3,16 @@
 module mapl_FieldBundleRead_mod
 
    use ESMF
+   use mapl_enums_api
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
    use mapl_GeomCatagorizer_mod
-   use mapl_Geom_API_mod, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
-   use mapl_Field_API, only: MAPL_FieldCreate, MAPL_FieldGet
-   use mapl_FieldBundle_API_mod
+   use mapl_geom_api, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
+   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet, MAPL_FieldBundleAdd
    use mapl_VerticalStaggerLoc_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_api
+   ! Note: mapl_VerticalGridManager_mod used inside MAPL_read_bundle only
    use mapl_RegridderManager_mod, only: get_regridder_manager, RegridderManager
    use mapl_RegridderSpec_mod
    use mapl_RegridderMethods_mod
@@ -194,7 +196,7 @@ contains
          block
             type(VerticalStaggerLoc) :: vloc_temp
             call MAPL_FieldGet(field, vert_staggerloc=vloc_temp, _RC)
-         end block 
+         end block
 
       end do
 
@@ -227,17 +229,16 @@ contains
    !                   share the same schema (optional)
    !   rc            - Return code (optional)
    !---------------------------------------------------------------------------
-   subroutine MAPL_read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
-        noread, file_override, rc)
+    subroutine MAPL_read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
+         noread, file_override, rc)
       type(ESMF_FieldBundle), intent(inout) :: bundle
       character(*),           intent(in)    :: file_tmpl
       type(ESMF_Time),        intent(in)    :: time
       character(*), optional, intent(in)    :: only_vars
       integer, optional,      intent(in)    :: regrid_method
       logical, optional,      intent(in)    :: noread
-      character(*), optional, intent(in)    :: file_override
-      integer, optional,      intent(out)   :: rc
-
+       character(*), optional, intent(in)    :: file_override
+       integer, optional,      intent(out)   :: rc
       integer :: status
       integer :: field_count, time_index, i, regrid_method_
 
@@ -334,7 +335,7 @@ contains
          ! in the file field matches (horizontal regrid only; no vertical interp).
          call MAPL_FieldBundleGet(bundle, fieldList=bundle_fields, _RC)
          file_bundle = ESMF_FieldBundleCreate(_RC)
-         call MAPL_FieldBundleSet(file_bundle, fieldBundleType=FIELDBUNDLETYPE_BASIC, _RC)
+         call MAPL_FieldBundleSet(file_bundle, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
          do i = 1, size(bundle_fields)
             block
                character(len=ESMF_MAXSTR)  :: fname_

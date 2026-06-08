@@ -6,7 +6,7 @@ module mapl_FieldBundleMatch_mod
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldBundleGet
    use ESMF, only: ESMF_ITEMORDER_ADDORDER
    use mapl_FieldPointerUtilities_mod, only: FieldSameData
-   use mapl_ExceptionHandling_mod, only: MAPL_Verify, MAPL_Return
+   use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Return
 
    implicit none(type, external)
    private

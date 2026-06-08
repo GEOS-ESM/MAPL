@@ -8,7 +8,7 @@
 module mapl_SimpleCommSplitter_mod
    use mapl_CommGroupDescription_mod
    use mapl_CommGroupDescriptionVector_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_AbstractCommSplitter_mod
    use mapl_KeywordEnforcer_mod
    use mapl_SplitCommunicator_mod

@@ -7,7 +7,7 @@ module mapl_FieldInfo_mod
    use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE
    use mapl_esmf_info_keys_mod, only: INFO_PRIVATE_NAMESPACE
    use mapl_InfoUtilities_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_api, only: VerticalGrid, VERTICAL_GRID_NOT_FOUND, VerticalGridManager, get_vertical_grid_manager
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
@@ -546,7 +546,7 @@ contains
 
    end function to_typekind
 
-     subroutine derive_num_levels_from_vgrid(info, namespace, num_levels, num_layers, num_vgrid_levels, rc)
+      subroutine derive_num_levels_from_vgrid(info, namespace, num_levels, num_layers, num_vgrid_levels, rc)
         type(ESMF_Info), intent(in) :: info
         character(*), intent(in) :: namespace
         integer, optional, intent(out) :: num_levels

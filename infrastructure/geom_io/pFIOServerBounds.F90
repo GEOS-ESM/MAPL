@@ -6,7 +6,7 @@ module mapl_pFIOServerBounds_mod
    use esmf
    use pfio
    use gFTL2_StringVector
-   use mapl_Geom_API_mod, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
+   use mapl_geom_api, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
 
    implicit none
    private

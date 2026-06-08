@@ -4,7 +4,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_geom_a_smod
 
    use mapl_Enums_internal, only: MAPL_GENERIC_INIT_GEOM_A
    use mapl_GeometrySpec_mod
-   use mapl_Geom_API_mod
+   use mapl_geom_api
    use mapl_GriddedComponentDriver_mod
    use mapl_ErrorHandling_mod
    use mapl_MpiTimerGauge_mod, only: MpiTimerGauge

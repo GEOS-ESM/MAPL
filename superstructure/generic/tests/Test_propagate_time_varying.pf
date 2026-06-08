@@ -2,6 +2,7 @@
 
 module Test_propagate_time_varying
    use mapl_regridder_mgr, only: EsmfRegridderParam
+   use mapl_enums_api
    use mapl_GriddedComponentDriver_mod
    use mapl_CouplerPhases_mod
    use mapl_ExtensionTransform_mod
@@ -9,11 +10,11 @@ module Test_propagate_time_varying
    use mapl_CopyTransform_mod
    use mapl_TimeInterpolateTransform_mod
    use mapl_MultiState_mod
-   use mapl_Geom_API_mod
-   use mapl_Field_API
+   use mapl_geom_api
+   use mapl_field_api
    use mapl_FieldInfo_mod
    use mapl_GenericCoupler_mod
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_api
    use funit
    use ESMF_TestMethod_mod
    use esmf
@@ -55,8 +56,8 @@ contains
        call MAPL_FieldBundleSet(fb0, interpolation_weights=weights1, _RC)
 
       ! Run
-      call driver%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC) ! probably not needed for test
-      call driver%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+      call driver%run(phase_idx=MAPL_GENERIC_COUPLER_INVALIDATE, _RC) ! probably not needed for test
+      call driver%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
 
       ! Check weights on fb1
       call MAPL_FieldBundleGet(fb1, interpolation_weights=weights_found, _RC)
@@ -95,7 +96,7 @@ contains
          call ESMF_FieldGet(bracket0(2), fArrayPtr=x, _RC)
          x = 3.
          
-         fb0 = MAPL_FieldBundleCreate(fieldList=bracket0, fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+         fb0 = MAPL_FieldBundleCreate(fieldList=bracket0, fieldBundleType=MAPL_FIELDBUNDLETYPE_BRACKET, _RC)
          call MAPL_FieldBundleSet(fb0, typekind=ESMF_TYPEKIND_R4, bracket_updated=.true., _RC)
          call MAPL_FieldBundleSet(fb0, geom=geom_0, interpolation_weights=weights0, _RC)
          fb0_alias = ESMF_NamedAlias(fb0, name='import[1]', _RC)
@@ -107,7 +108,7 @@ contains
          call ESMF_FieldGet(bracket1(2), fArrayPtr=x, _RC)
          x = 3.
          
-         fb1 = MAPL_FieldBundleCreate(fieldList=bracket1, fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+         fb1 = MAPL_FieldBundleCreate(fieldList=bracket1, fieldBundleType=MAPL_FIELDBUNDLETYPE_BRACKET, _RC)
          call MAPL_FieldBundleSet(fb1, typekind=ESMF_TYPEKIND_R4, bracket_updated=.true., _RC)
          call MAPL_FieldBundleSet(fb1, geom=geom_1, interpolation_weights=weights0, _RC)
          fb1_alias = ESMF_NamedAlias(fb1, name='export[1]', _RC)
@@ -165,8 +166,8 @@ contains
        end block
 
       ! Run
-      call driver%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC) ! probably not needed for test
-      call driver%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+      call driver%run(phase_idx=MAPL_GENERIC_COUPLER_INVALIDATE, _RC) ! probably not needed for test
+      call driver%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
 
       ! Check geom on f
       call MAPL_FieldGet(f, geom=geom, _RC)

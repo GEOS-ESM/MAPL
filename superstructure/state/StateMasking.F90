@@ -4,12 +4,12 @@
 module mapl_StateMask_mod
    use ESMF
    use mapl_KeywordEnforcer_mod
-   use mapl_Geom_API_mod, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
-   use mapl_ExceptionHandling_mod
+   use mapl_geom_api, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
+   use mapl_ErrorHandling_mod
    use gFTL2_StringVector
    use mapl_StateArithmeticParser_mod
    use MAPL_Constants
-   use mapl_State_API_mod, only: MAPL_StateGetPointer
+   use mapl_StateGetPointer_mod, only: MAPL_StateGetPointer => StateGetPointer
    implicit none
    private
 

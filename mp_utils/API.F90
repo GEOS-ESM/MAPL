@@ -1,0 +1,62 @@
+! Public Export umbrella for the MAPL.mp_utils layer.
+! Re-exports only the symbols that are part of MAPL's public API
+! (i.e., entities carrying the MAPL_ prefix).
+! This is what mapl/MAPL.F90 imports from.
+! For internal MAPL use, see mapl_mp_utils_internal.
+module mapl_mp_utils_api
+   use mapl_mp_utils_internal
+   implicit none
+   private
+
+   ! Statistics
+   public :: MAPL_MaxMin
+   public :: MAPL_AreaMean
+
+   ! Time packing
+   public :: MAPL_UnpackTime
+   public :: MAPL_UnpackDate
+   public :: MAPL_UnpackDateTime
+
+   ! PackedTime functions with MAPL_ prefix
+   public :: MAPL_PackedDateCreate
+   public :: MAPL_PackedTimeCreate
+   public :: MAPL_PackedDateTimeCreate
+   public :: MAPL_ESMFTimeFromPacked
+
+   ! Backward compatibility: Unprefixed names (TODO: remove after client repos migrated)
+   ! See issue #5011 - these should be removed once GEOSgcm and other clients updated
+   public :: PackedDateCreate
+   public :: PackedTimeCreate
+   public :: PackedDateTimeCreate
+   public :: ESMFTimeFromPacked
+   public :: UnpackDate
+   public :: UnpackTime
+   public :: UnpackDateTime
+   public :: StrTemplate
+
+   public :: fill_grads_template
+   public :: fill_grads_template_esmf
+   
+   public :: MAPL_GetNodeInfo
+   public :: MAPL_CoresPerNodeGet
+   public :: MAPL_InitializeShmem
+   public :: MAPL_FinalizeShmem
+   
+   public :: MAPL_AllocNodeArray
+   public :: MAPL_DeAllocNodeArray
+   public :: MAPL_ShmemAmOnFirstNode
+   public :: MAPL_SyncSharedMemory
+   public :: MAPL_BroadcastToNodes
+   
+   public :: MAPL_AllocateShared
+   public :: GetSharedMemory
+   public :: ReleaseSharedMemory
+
+   public :: MAPL_GetNewRank
+   public :: MAPL_NodeComm
+   public :: MAPL_NodeRootsComm
+   public :: MAPL_MyNodeNum
+   public :: MAPL_AmNodeRoot
+   public :: MAPL_ShmInitialized
+
+end module mapl_mp_utils_api

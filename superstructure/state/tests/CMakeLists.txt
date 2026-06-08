@@ -5,18 +5,17 @@ set (test_srcs
   Test_StateFilter.pf
   Test_StateArithmetic.pf
   Test_StateDestroy.pf
-  Test_StateGetGeom.pf
-  )
-
+  Test_StateGetBundle.pf
+  Test_StateGetGeom.pf)
 
 add_pfunit_ctest(MAPL.state.tests
-                TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.state MAPL.geom MAPL.pfunit
-                EXTRA_INITIALIZE Initialize
-                EXTRA_USE mapl_pFUnit_Initialize_mod
-                OTHER_SOURCES state_utils_setup.F90
-                MAX_PES 1
-                )
+  TEST_SOURCES ${test_srcs}
+  LINK_LIBRARIES MAPL.state MAPL.geom MAPL.pfunit
+  EXTRA_INITIALIZE Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
+  OTHER_SOURCES state_utils_setup.F90
+  MAX_PES 1)
+
 set_target_properties(MAPL.state.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 target_include_directories(MAPL.state.tests PRIVATE
   ${esma_include}/MAPL.pfunit

@@ -9,8 +9,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Removed old interfaces MAPL_RTRN, MAPL_Vrfy, MAPL_ASRT, mapl_ExceptionHandling_mod
+
+### Changed
+
+- Renamed modules with mapl_<name>Impl_mod to mapl_<name>_mod
+- Eliminitade "shim" interface libraries.
+- Aligned API umbrellas with actual content.  Earlier refactoring had
+  done some weird indirect publishing.
+- Eliminate some items from public interface of MAPL.
+- Cleanup umbrella in ./base
+- Change AddChild interface in history to not expose ChildSpec derived type
+- Reverted to use API.F90 instead of Export.F90.  (Elimination of Internal.F90 is for later phase.)
+- Major cleanup of Export.F90 in various layers.  But not done yet.
+- Adding public items for generic layer.
+- Lock down all Export umbrella modules to expose only their declared public API (#5026/#5029).
+  Added `private` statements and explicit `public ::` declarations to all 12 `Export.F90` files
+  (`enums/`, `utils/`, `mp_utils/`, `base/`, `infrastructure/esmf/`, `infrastructure/field/`,
+  `infrastructure/field_bundle/`, `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`,
+  `infrastructure/regridder_mgr/`, `superstructure/generic/`, `superstructure/state/`).
+  Dissolved all legacy `API.F90` shim files: `infrastructure/esmf/HConfig_API.F90`,
+  `infrastructure/esmf/API.F90`, `infrastructure/esmf/EsmfUtils_API.F90`,
+  `infrastructure/esmf/comms/Comms_API.F90`, `infrastructure/geom/API.F90`,
+  `infrastructure/regridder_mgr/API.F90`, `superstructure/generic/API.F90`,
+  `superstructure/state/API.F90` (plus the three already deleted in a prior increment).
+  Their symbols are now routed through the proper export umbrellas.
+  Added `mapl_state_export` and `mapl_field_bundle_export` to the top-level `MAPL` umbrella,
+  which were previously only reachable via the now-deleted API shims.
+  Removed from export umbrellas symbols confirmed to have no external consumers: `XYGeomSpec`,
+  `XYGeomFactory`, and `XY_COORD_*` from `geom/Export.F90`; `IntegerPair` from
+  `vertical_grid/Export.F90`.
+  Added to export umbrellas symbols confirmed to have external consumers: `CubedSphereGeomSpec`,
+  `CubedSphereDecomposition`, `AbstractUserSetServices`, `DSOSetServices`, VM/comms utilities,
+  and HConfig conversion functions.
+  Added `BasicVerticalGrid`, `BasicVerticalGridSpec`, `BasicVerticalGridFactory`, and
+  `VerticalGridManager`/`get_vertical_grid_manager` to `vertical_grid/Export.F90` as part
+  of the public vertical-grid API.
+  Renamed unprefixed enum constants and types to their `MAPL_`-prefixed equivalents across
+  ~35 source and test files: `FIELDBUNDLETYPE_*` → `MAPL_FIELDBUNDLETYPE_*`,
+  `STATEITEM_ALLOCATION_*` → `MAPL_STATEITEM_ALLOCATION_*`,
+  `GENERIC_COUPLER_*` → `MAPL_GENERIC_COUPLER_*`,
+  `VectorBasisKind`/`VECTOR_BASIS_KIND_*` → `MAPL_VectorBasisKind`/`MAPL_VECTOR_BASIS_KIND_*`,
+  `FieldBundleType_Flag` → `MAPL_FieldBundleType_Flag`.
+- Update CI to use Baselibs 8.32.0 and circleci-tools orb v5
+- Update `components.yaml`
+  - ESMA_env v5.22.0
+    - Update to GEOSpyD 26.3.2 Python 3.14
+
 ### Fixed
 
+- Different bug introduced when fixing bug just below this entry.
+- get_checkpoint_subdir() as causing dangling pointer for NAG compiler.
 - Remove `FileMetadataUtils` dependency from `MAPL.vertical` (#5017). `VerticalCoordinate`
   now takes `FileMetadata` (pfio) directly instead of the `FileMetadataUtils` wrapper.
   `udunits2f` is now an explicit dependency of `MAPL.vertical`. Prerequisite for #5014.
@@ -19,6 +70,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to suppress and clear the IEEE invalid-operation trap around sNaN queries. Without this,
   `-Ktrap=fp` (nvfortran) causes SIGFPE when a signaling NaN is loaded for inspection.
   Zero-diff for all non-test code.
+
+- Guard `ieee_set/get_halting_mode` and `ieee_set_flag` calls in `Test_FieldFill.pf` with
+  `#ifndef __DARWIN` to fix a runtime error on macOS with NAG (`IEEE_SET_HALTING_MODE is not
+  supported`). IEEE halting mode is not supported on macOS/ARM regardless of compiler. The
+  `__DARWIN` macro is already defined on Apple builds. Fixes #5023.
 
 ### Changed
 
@@ -53,22 +109,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Implement two-tier umbrella module pattern across all MAPL subdirectories (#5004).
-  Created `Internal.F90` (internal MAPL API) and `Export.F90` (public external API) umbrella 
-  modules for 10 major subdirectories: `mp_utils/`, `enums/`, `utils/`, `base/`, 
-  `infrastructure/esmf/`, `infrastructure/field/` (aggregate of field/, field_bundle/, state/), 
-  `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`, 
-  `infrastructure/regridder_mgr/`, and `superstructure/generic/`. Each `Internal.F90` aggregates 
-  all leaf modules from its subdirectory with no `private` statement, allowing all symbols to 
-  flow through for use by MAPL sibling subdirectories. Each `Export.F90` selectively re-exports 
-  only MAPL-prefixed public API symbols, providing a clean interface for external consumers. 
-  Updated top-level `mapl/MAPL.F90` to import all new `*_export` modules alongside legacy API 
-  modules for backward compatibility. This establishes the foundation for future API cleanup 
-  and symbol namespace management. Sibling consumers of `enums/` leaf modules migrated to use 
-  `mapl_Enums_internal` with MAPL-prefixed names (~48 files across infrastructure/ and 
-  superstructure/). Cleaned up duplicate symbols: deleted unused `utils/TimeUtils.F90` module 
-  and its tests (had zero consumers), consolidated duplicate `is_digit` implementation, removed 
-  duplicate `UnpackDateTime` from `Regrid_Util.F90`, and resolved `KEY_UNITS`/`KEY_TYPEKIND` 
-  naming conflicts between esmf and history layers using selective `only:` imports. Created 
+  Created `Internal.F90` (internal MAPL API) and `Export.F90` (public external API) umbrella
+  modules for 10 major subdirectories: `mp_utils/`, `enums/`, `utils/`, `base/`,
+  `infrastructure/esmf/`, `infrastructure/field/` (aggregate of field/, field_bundle/, state/),
+  `infrastructure/geom/`, `infrastructure/vertical/vertical_grid/`,
+  `infrastructure/regridder_mgr/`, and `superstructure/generic/`. Each `Internal.F90` aggregates
+  all leaf modules from its subdirectory with no `private` statement, allowing all symbols to
+  flow through for use by MAPL sibling subdirectories. Each `Export.F90` selectively re-exports
+  only MAPL-prefixed public API symbols, providing a clean interface for external consumers.
+  Updated top-level `mapl/MAPL.F90` to import all new `*_export` modules alongside legacy API
+  modules for backward compatibility. This establishes the foundation for future API cleanup
+  and symbol namespace management. Sibling consumers of `enums/` leaf modules migrated to use
+  `mapl_Enums_internal` with MAPL-prefixed names (~48 files across infrastructure/ and
+  superstructure/). Cleaned up duplicate symbols: deleted unused `utils/TimeUtils.F90` module
+  and its tests (had zero consumers), consolidated duplicate `is_digit` implementation, removed
+  duplicate `UnpackDateTime` from `Regrid_Util.F90`, and resolved `KEY_UNITS`/`KEY_TYPEKIND`
+  naming conflicts between esmf and history layers using selective `only:` imports. Created
   GitHub issue #5005 for deferred `utils/` sibling migration. Zero-diff for all passing tests.
 - Added support for MAPL_STATEITEM_VECTOR ITEMTYPE in ACG
 
@@ -90,30 +146,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   All removed entities were unused in gridcomps. Breaking change for external code using removed
   entities - must import leaf modules directly. Zero-diff for ported client repos.
 - Create utils API umbrella to limit exported unprefixed entities (#4999, part of #4975/#4969).
-  Created `utils/API.F90` that exports only used entities from String, StringUtilities, and OS 
-  utilities. Removed from public API: unused StringUtilities functions (to_lower, to_upper, 
-  capitalize, is_alpha, is_alpha_only, is_numeric, is_alphanumeric, to_string, to_character_array, 
-  is_digit, get_ascii_interval, is_alphanum_character, is_lower_character, is_upper_character), 
-  all FileSystemUtilities functions (get_file_extension, get_file_basename), all DSO_Utilities 
-  functions (is_valid_dso_name, is_valid_dso_extension, is_supported_dso_name, 
-  is_supported_dso_extension, adjust_dso_name, SYSTEM_DSO_EXTENSION), and all DirPath entities 
-  (DirPath type, dirpaths variable). Updated MAPL.F90 to use utils API umbrella instead of 
-  individual leaf modules. Breaking change for any external code using removed entities. 
-  Still exported: String (type), split, lowercase, uppercase, and all mapl_os_mod functions. 
+  Created `utils/API.F90` that exports only used entities from String, StringUtilities, and OS
+  utilities. Removed from public API: unused StringUtilities functions (to_lower, to_upper,
+  capitalize, is_alpha, is_alpha_only, is_numeric, is_alphanumeric, to_string, to_character_array,
+  is_digit, get_ascii_interval, is_alphanum_character, is_lower_character, is_upper_character),
+  all FileSystemUtilities functions (get_file_extension, get_file_basename), all DSO_Utilities
+  functions (is_valid_dso_name, is_valid_dso_extension, is_supported_dso_name,
+  is_supported_dso_extension, adjust_dso_name, SYSTEM_DSO_EXTENSION), and all DirPath entities
+  (DirPath type, dirpaths variable). Updated MAPL.F90 to use utils API umbrella instead of
+  individual leaf modules. Breaking change for any external code using removed entities.
+  Still exported: String (type), split, lowercase, uppercase, and all mapl_os_mod functions.
   Zero-diff for ported client repos (removed entities were unused).
 - Add `mapl_` prefix to `initialize_constants` subroutine (#4976, part of #4975/#4969).
-  Renamed `initialize_constants()` → `mapl_initialize_constants()` in 
-  `utils/Constants/Constants.F90` to follow MAPL3 naming conventions (lowercase `mapl_` 
-  prefix for procedures). Breaking change if any external code was calling 
-  `initialize_constants` directly (unlikely as subroutine is currently empty/placeholder). 
+  Renamed `initialize_constants()` → `mapl_initialize_constants()` in
+  `utils/Constants/Constants.F90` to follow MAPL3 naming conventions (lowercase `mapl_`
+  prefix for procedures). Breaking change if any external code was calling
+  `initialize_constants` directly (unlikely as subroutine is currently empty/placeholder).
   All `MAPL_*` constants remain publicly accessible. Zero-diff.
 - Consolidate enums into `enums/` layer and introduce `MAPL_` API constants (#4973, part of #4969).
-  Moved `StateItemAllocation` and `FieldBundleType_Flag` from `infrastructure/field/` and 
-  `infrastructure/field_bundle/` respectively into the `enums/` layer. Created `enums/API.F90` 
-  that exports all enum constants with a `MAPL_` prefix (e.g., `MAPL_STATEITEM_ALLOCATION_ACTIVE`, 
-  `MAPL_FIELDBUNDLETYPE_BASIC`), establishing the public API pattern for MAPL enums. Updated 
-  internal MAPL clients to use enum modules directly. Breaking change for external clients using 
-  unprefixed type names (`StateItemAllocation`, `FieldBundleType_Flag`) - these are no longer 
+  Moved `StateItemAllocation` and `FieldBundleType_Flag` from `infrastructure/field/` and
+  `infrastructure/field_bundle/` respectively into the `enums/` layer. Created `enums/API.F90`
+  that exports all enum constants with a `MAPL_` prefix (e.g., `MAPL_STATEITEM_ALLOCATION_ACTIVE`,
+  `MAPL_FIELDBUNDLETYPE_BASIC`), establishing the public API pattern for MAPL enums. Updated
+  internal MAPL clients to use enum modules directly. Breaking change for external clients using
+  unprefixed type names (`StateItemAllocation`, `FieldBundleType_Flag`) - these are no longer
   exported; use MAPL_-prefixed constants instead. Zero-diff.
 - Flatten `infrastructure/` directory tree (#4972, part of #4969).
   Removes one level of nesting from the fields and geom sublayers:
@@ -320,6 +376,7 @@ by opencode
 - Rename apps/MAPL_GridCompSpecs_ACGv3.py to MAPL_GridCompSpecs_ACG.py
 
 ### Removed
+- Remove `UnpackDateTime` from utils/TimeUtilities.F90
 
 ### Deprecated
 

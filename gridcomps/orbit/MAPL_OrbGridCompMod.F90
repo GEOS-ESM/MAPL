@@ -23,13 +23,7 @@
 ! !USES:
 !
    Use ESMF
-   use MAPL, only: MAPL_FieldCreate
-   use MAPL, only: MAPL_FieldBundleAdd
    Use MAPL
-   use MAPL, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
-   use MAPL, only: MAPL_GridGet, MAPL_GridGetCoordinates
-   use MAPL, only: MAPL_StateGetPointer
-   use MAPL, only: MAPL_FieldBundleGetPointer
 
    IMPLICIT NONE
    PRIVATE
@@ -338,7 +332,7 @@ CONTAINS
 
 !  set swath to zero for now
    swath=0.
-   call GridGetGlobalCellCountPerDim(GRID, globalCellCountPerDim=COUNTS, _RC)
+   call mapl_GridGetGlobalCellCountPerDim(GRID, globalCellCountPerDim=COUNTS, _RC)
    IM_world = counts(1)
    JM_world = counts(2)
    if (JM_world == 6*IM_world) then

@@ -2,15 +2,16 @@
 
 module mapl_RegridTransform_mod
    use mapl_TransformId_mod
-   use mapl_Field_API, only: MAPL_FieldClone, MAPL_FieldGet
-   use mapl_FieldBundle_API_mod
+   use mapl_esmf_api, only: MAPL_FieldClone
+   use mapl_field_api, only: MAPL_FieldGet
+   use mapl_field_bundle_api
    use mapl_ExtensionTransform_mod
    use mapl_TransformId_mod
    use mapl_regridder_mgr
-   use mapl_StateItemImpl_mod
+   use mapl_StateItem_mod
    use mapl_ExtensionTransformUtils_mod, only: bundle_types_valid
    use mapl_NormalizationMetadata_mod
-   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_UPDATE
+   use mapl_enums_api
    use mapl_ComponentDriver_mod, only: ComponentDriver
    use mapl_ErrorHandling_mod
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
@@ -190,7 +191,7 @@ contains
       type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
       type(ESMF_Geom), allocatable :: geom_in, geom_out
       logical :: do_transform
-      type(FieldBundleType_Flag) :: field_bundle_type
+      type(MAPL_FieldBundleType_Flag) :: field_bundle_type
 
       call ESMF_StateGet(importState, itemName=COUPLER_IMPORT_NAME, itemType=itemType_in, _RC)
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, itemType=itemType_out, _RC)
@@ -226,7 +227,7 @@ contains
          call this%update_transform(geom_in, geom_out)
          do_transform = .true.
          call MAPL_FieldBundleGet(fb_in, fieldBundleType= field_bundle_type, _RC)
-         if (field_bundle_type == FIELDBUNDLETYPE_BRACKET .or. field_bundle_type == FIELDBUNDLETYPE_VECTORBRACKET) then 
+         if (field_bundle_type == MAPL_FIELDBUNDLETYPE_BRACKET .or. field_bundle_type == MAPL_FIELDBUNDLETYPE_VECTORBRACKET) then 
             call MAPL_FieldBundleGet(fb_in, bracket_updated=do_transform, _RC)
          end if
          if (do_transform) then

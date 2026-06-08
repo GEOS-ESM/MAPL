@@ -5,7 +5,7 @@
 module mapl_acg3_mod
    use mapl_Generic_mod, only: MAPL_GridCompAddSpec
    use mapl_UngriddedDim_mod, only: UngriddedDim
-   use mapl_State_API_mod, only: MAPL_StateGetPointer
+   use mapl_state_api, only: MAPL_StateGetPointer
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use esmf, only: ESMF_STATEITEM_FIELD, ESMF_SUCCESS, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL

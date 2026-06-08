@@ -1,7 +1,8 @@
 #include "MAPL.h"
 
 module mapl_ExtensionTransformUtils_mod
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_api
+   use mapl_enums_api
    use mapl_ErrorHandling_mod
    use esmf, only: ESMF_FieldBundle
    implicit none(type,external)
@@ -15,12 +16,12 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: b1, b2
       integer, intent(out) :: rc
       integer :: status
-      type(FieldBundleType_Flag) :: bt1, bt2
-      type(FieldBundleType_Flag), parameter :: ALLOWED_BUNDLE_TYPES(*) = [&
-         & FIELDBUNDLETYPE_BASIC, &
-         & FIELDBUNDLETYPE_BRACKET, &
-         & FIELDBUNDLETYPE_VECTOR, &
-         & FIELDBUNDLETYPE_VECTORBRACKET&
+      type(MAPL_FieldBundleType_Flag) :: bt1, bt2
+      type(MAPL_FieldBundleType_Flag), parameter :: ALLOWED_BUNDLE_TYPES(*) = [&
+         & MAPL_FIELDBUNDLETYPE_BASIC, &
+         & MAPL_FIELDBUNDLETYPE_BRACKET, &
+         & MAPL_FIELDBUNDLETYPE_VECTOR, &
+         & MAPL_FIELDBUNDLETYPE_VECTORBRACKET&
          &]
       character(len=:), allocatable :: msg
 

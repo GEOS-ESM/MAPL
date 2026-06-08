@@ -3,7 +3,6 @@
 module mapl_ConfigurableGridComp_mod
 
    use MAPL
-   use MAPL, only: MAPL_StateGetPointer
    use esmf
 
    implicit none
@@ -115,10 +114,10 @@ contains
             call esmf_StateGet(exportState, itemName=field_name, field=field, _RC)
             call esmf_FieldGet(field, typekind=typekind, _RC)
             if (typekind == ESMF_TYPEKIND_R4) then
-               call assign_fptr(field, r4_ptr, _RC)
+               call mapl_AssignFptr(field, r4_ptr, _RC)
                r4_ptr = value
             else if (typekind == ESMF_TYPEKIND_R8) then
-               call assign_fptr(field, r8_ptr, _RC)
+               call mapl_AssignFptr(field, r8_ptr, _RC)
                r8_ptr = value
             end if
          end do

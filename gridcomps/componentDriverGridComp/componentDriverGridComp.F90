@@ -302,8 +302,8 @@ contains
          rhs = equality(equal_pos+1:)
          call MAPL_StateEval(state, lhs, field_lhs, _RC)
          call MAPL_StateEval(internal_state, rhs, field_rhs, _RC)
-         call assign_fptr(field_lhs, ptr_lhs, _RC)
-         call assign_fptr(field_rhs, ptr_rhs, _RC)
+         call mapl_assignFptr(field_lhs, ptr_lhs, _RC)
+         call mapl_assignFptr(field_rhs, ptr_rhs, _RC)
          if (any(abs(ptr_lhs-ptr_rhs) > threshold)) then
             _FAIL("state differs from reference state greater than allowed threshold")
          end if
@@ -425,8 +425,8 @@ contains
             call ESMF_StateGet(reference_state, trim(itemNameList(i)), source_type, _RC)
             _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
             call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_field, _RC)
-            call assign_fptr(field, ptr, _RC)
-            call assign_fptr(reference_field, reference_ptr, _RC)
+            call mapl_assignFptr(field, ptr, _RC)
+            call mapl_assignFptr(reference_field, reference_ptr, _RC)
             if (any(abs(ptr-reference_ptr) > threshold)) then
                _FAIL("state differs from reference state greater than allowed threshold")
             end if
@@ -439,8 +439,8 @@ contains
             call MAPL_FieldBundleGet(reference_bundle, fieldList=reference_field_list, _RC)
             _ASSERT(size(field_list) == size(reference_field_list), 'fields from vector bundle not same size')
             do j=1,size(field_list)
-               call assign_fptr(field_list(j), ptr, _RC)
-               call assign_fptr(reference_field_list(j), reference_ptr, _RC)
+               call mapl_assignFptr(field_list(j), ptr, _RC)
+               call mapl_assignFptr(reference_field_list(j), reference_ptr, _RC)
                if (any(abs(ptr-reference_ptr) > threshold)) then
                   _FAIL("state differs from reference state greater than allowed threshold")
                end if

@@ -29,9 +29,9 @@ module mapl_ExpressionClassAspect_mod
    use mapl_StateItemSpec_mod
    use mapl_StateItemSpec_mod
 
-   use mapl_Field_API
-   use mapl_FieldInfo_mod
+   use mapl_field_api
    use mapl_FieldUtilities_mod
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED
    use mapl_StateArithmeticParser_mod
    use gftl2_StringVector
 
@@ -119,7 +119,7 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(name='expression', _RC)
-      call mapl_FieldSet(this%payload, allocation_status=STATEITEM_ALLOCATION_CREATED, _RC)
+      call mapl_FieldSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(other_aspects)

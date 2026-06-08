@@ -4,9 +4,6 @@
 ! External users should use mapl_mp_utils_export instead.
 module mapl_mp_utils_internal
    use mapl_ArrayReductions_mod, only: MAPL_MaxMin, MAPL_AreaMean
-   use mapl_MemInfo_mod,         only: MAPL_MemInfoWrite => MemInfoWrite
-   use mapl_TimeUtilities_mod,   only: MAPL_PackTime => PackDate, MAPL_UnpackTime => UnpackDate
-   use mapl_OSUtilities_mod,     only: MAPL_GetCheckpointSubdir => get_checkpoint_subdir
    ! Import all PackedTime functions (both prefixed and unprefixed)
    use mapl_PackedTime_mod,      only: MAPL_PackedDateCreate => PackedDateCreate, &
                                        MAPL_PackedTimeCreate => PackedTimeCreate, &
@@ -16,13 +13,12 @@ module mapl_mp_utils_internal
                                        MAPL_UnpackDateTime => UnpackDateTime, &
                                        PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate, &
                                        ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
-   use mapl_StringTemplate_mod,  only: StrTemplate
+   use mapl_StringTemplate_mod,  only: StrTemplate, fill_grads_template, fill_grads_template_esmf
+   use mapl_Shmem_mod
    private
 
    public :: MAPL_MaxMin, MAPL_AreaMean
-   public :: MAPL_MemInfoWrite
-   public :: MAPL_PackTime, MAPL_UnpackTime
-   public :: MAPL_GetCheckpointSubdir
+   public :: MAPL_UnpackTime
    
    ! PackedTime functions with MAPL_ prefix
    public :: MAPL_PackedDateCreate, MAPL_PackedTimeCreate, MAPL_PackedDateTimeCreate
@@ -33,5 +29,29 @@ module mapl_mp_utils_internal
    public :: PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate
    public :: ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
    public :: StrTemplate
+   public :: fill_grads_template
+   public :: fill_grads_template_esmf
+
+   public :: MAPL_GetNodeInfo
+   public :: MAPL_CoresPerNodeGet
+   public :: MAPL_InitializeShmem
+   public :: MAPL_FinalizeShmem
+   
+   public :: MAPL_AllocNodeArray
+   public :: MAPL_DeAllocNodeArray
+   public :: MAPL_ShmemAmOnFirstNode
+   public :: MAPL_SyncSharedMemory
+   public :: MAPL_BroadcastToNodes
+   
+   public :: MAPL_AllocateShared
+   public :: GetSharedMemory
+   public :: ReleaseSharedMemory
+
+   public :: MAPL_GetNewRank
+   public :: MAPL_NodeComm
+   public :: MAPL_NodeRootsComm
+   public :: MAPL_MyNodeNum
+   public :: MAPL_AmNodeRoot
+   public :: MAPL_ShmInitialized
 
 end module mapl_mp_utils_internal

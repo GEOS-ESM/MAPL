@@ -3,7 +3,7 @@
 
 module pFIO_AbstractServerMod
    use mapl_Profiler_mod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_ConstantsMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractDataReferenceVectorMod

@@ -4,15 +4,16 @@ module mapl_FieldBundleInfo_mod
    use mapl_esmf_info_keys_mod
    use mapl_InfoUtilities_mod
    use mapl_esmf_info_keys_mod
-   use mapl_Field_API
+   use mapl_field_api
    use mapl_FieldInfo_mod
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
-   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, &
+        MAPL_StateItemAllocation, mapl_VerticalStaggerLoc
    use mapl_VerticalAlignment_mod
-   use mapl_VerticalGrid_API_mod
+   use mapl_vertical_grid_api
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use esmf
@@ -66,13 +67,13 @@ contains
       real(kind=ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       integer, optional, intent(out) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(mapl_VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
-      type(StateItemAllocation), optional, intent(out) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_geom
       logical, optional, intent(out) :: has_deferred_aspects
@@ -104,7 +105,7 @@ contains
 
       if (present(allocation_status)) then
          call MAPL_InfoGet(info, key=namespace_//KEY_ALLOCATION_STATUS, value=allocation_status_str, _RC)
-         allocation_status = StateItemAllocation(allocation_status_str)
+         allocation_status = MAPL_StateItemAllocation(allocation_status_str)
       end if
 
       if (present(bracket_updated)) then
@@ -199,12 +200,12 @@ contains
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(mapl_VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-      type(StateItemAllocation), optional, intent(in) :: allocation_status
+      type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       integer, optional, intent(in) :: vgrid_id
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_geom

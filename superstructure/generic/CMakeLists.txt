@@ -2,7 +2,7 @@ esma_set_this (OVERRIDE MAPL.generic)
 
 set(srcs
   # FieldDictionary* moved to infrastructure/field_dictionary/
-  Generic.F90
+  API.F90
 
   GenericGrid.F90
 
@@ -29,11 +29,10 @@ set(srcs
   RunEntryPoint.F90
   EntryPointVector.F90
   OpenMP_Support.F90
-  API.F90
 
   # Umbrella modules
   Internal.F90
-  Export.F90
+  API.F90
   )
 
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.
@@ -53,10 +52,10 @@ endif ()
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.enums MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
-    MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared
-    MAPL.profiler MAPL.hconfig_utils MAPL.vertical MAPL.component MAPL.field_bundle
+    MAPL.esmf MAPL.field MAPL.state MAPL.utils
+    MAPL.vertical MAPL.component MAPL.field_bundle MAPL.esmf MAPL.utils
     MAPL.infrastructure
-  ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm MAPL.utils
+  ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE SHARED
   )
 
@@ -75,19 +74,17 @@ esma_add_fortran_submodules(
           run_child_by_name.F90 run_children.F90
           get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
           get_phases.F90 set_hconfig.F90 get_hconfig.F90 has_geom.F90 get_geom.F90
-	  advertise_variable.F90
-          initialize_advertise.F90
-	  initialize_modify_advertised.F90
+	        advertise_variable.F90 initialize_advertise.F90 initialize_modify_advertised.F90
           initialize_realize.F90 initialize_read_restart.F90 recurse.F90
-	  apply_to_children_custom.F90
+	        apply_to_children_custom.F90
           initialize_user.F90 run_custom.F90 run_user.F90
-	  initialize_set_clock.F90 run_clock_advance.F90
-	  initialize_geom_a.F90 initialize_geom_b.F90
+	        initialize_set_clock.F90 run_clock_advance.F90
+	        initialize_geom_a.F90 initialize_geom_b.F90
           write_restart.F90 get_name.F90 get_gridcomp.F90
           set_geom.F90 set_vertical_grid.F90 get_vertical_grid.F90 get_registry.F90
           get_component_spec.F90 get_internal_state.F90 get_logger.F90
           get_user_gc_driver.F90 connect_all.F90 set_entry_point.F90
-          finalize.F90 start_timer.F90 stop_timer.F90)
+          finalize.F90 start_timer.F90 stop_timer.F90 get_checkpoint_dir.F90)
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic

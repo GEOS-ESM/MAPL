@@ -2,10 +2,10 @@
 
 module mapl_VerticalRegridTransform_mod
    use mapl_TransformId_mod
-   use mapl_Field_API
+   use mapl_field_api
    use mapl_ErrorHandling_mod
-   use mapl_FieldBundle_API_mod
-   use mapl_StateItemImpl_mod
+   use mapl_field_bundle_api
+   use mapl_StateItem_mod
    use mapl_ExtensionTransform_mod
    use mapl_ComponentDriver_mod
    use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_UPDATE

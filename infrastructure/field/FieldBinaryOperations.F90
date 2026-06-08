@@ -2,7 +2,7 @@
 
 module mapl_FieldBinaryOperations_mod
    use ESMF
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_FieldPointerUtilities_mod
    implicit none
    private

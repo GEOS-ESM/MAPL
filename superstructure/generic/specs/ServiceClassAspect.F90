@@ -2,7 +2,7 @@
 
 module mapl_ServiceClassAspect_mod
 
-   use mapl_FieldBundle_API_mod
+   use mapl_field_bundle_api
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
    use mapl_Enums_internal, only: MAPL_STATEITEM_ALLOCATION_ACTIVE, MAPL_FIELDBUNDLETYPE_SERVICE

@@ -1,13 +1,12 @@
 module mapl_Generic
    use mapl_ESMF_Subset_mod
-   use mapl_Generic_mod
-   use mapl_Field_API
+   use mapl_field_api
    use mapl_VariableSpec_mod
    use mapl_Enums_internal
    use mapl_OuterMetaComponent_mod
    use mapl_GenericGridComp_mod, only: MAPL_GridCompCreate
    use mapl_VerticalGrid_mod
-   use mapl_BasicVerticalGrid_mod
+   use mapl_vertical_grid_api
    use mapl_ModelVerticalGrid_mod
    use mapl_ESMF_Interfaces_mod
    use mapl_ComponentDriver_mod

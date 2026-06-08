@@ -3,7 +3,7 @@
 #include "unused_dummy.H"
 
 program main
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use pFIO
   implicit none
 
