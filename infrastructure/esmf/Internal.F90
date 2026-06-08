@@ -7,7 +7,6 @@ module mapl_esmf_internal
    use mapl_ESMF_Interfaces_mod
    use mapl_ESMF_Utilities_mod
    use mapl_ESMF_Time_Utilities_mod
-   use mapl_ESMF_Subset_mod
    use mapl_ESMF_HConfigUtilities_mod
 
    ! Info / metadata utilities

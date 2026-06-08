@@ -3,6 +3,8 @@
 module mapl_CapGridComp_mod
 
   use mapl
+  use esmf, only: ESMF_GridComp, ESMF_State, ESMF_Clock
+  use esmf, only: ESMF_METHOD_INITIALIZE, ESMF_METHOD_RUN, ESMF_SUCCESS
 
    implicit none
 
