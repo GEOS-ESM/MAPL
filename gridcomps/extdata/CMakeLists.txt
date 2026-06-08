@@ -28,7 +28,7 @@ find_package (MPI REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL MAPL.pfio MAPL.vertical MAPL.regridder_mgr MAPL.hconfig PFLOGGER::pflogger TYPE SHARED)
+  DEPENDENCIES MAPL ESMF::ESMF PFLOGGER::pflogger TYPE SHARED)
 
 if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
   target_compile_definitions(${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)

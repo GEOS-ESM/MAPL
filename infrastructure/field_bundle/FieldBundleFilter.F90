@@ -3,7 +3,7 @@
 module mapl_FieldBundleFilter_mod
 
    use ESMF
-   use mapl_FieldBundleGetImpl_mod, only: FieldBundleGet
+   use mapl_FieldBundleGet_mod, only: FieldBundleGet
    use mapl_ErrorHandling_mod, only: MAPL_Return, MAPL_Verify
 
    implicit none(type, external)

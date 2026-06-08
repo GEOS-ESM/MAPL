@@ -6,8 +6,8 @@
 
 module mapl_FieldBundleDelta_mod
 
-   use mapl_FieldBundleGetImpl_mod
-   use mapl_FieldBundleSetImpl_mod
+   use mapl_FieldBundleGet_mod
+   use mapl_FieldBundleSet_mod
    use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_FIELDBUNDLETYPE_BRACKET, operator(==)
    use mapl_LU_Bound_mod
    use mapl_FieldDelta_mod

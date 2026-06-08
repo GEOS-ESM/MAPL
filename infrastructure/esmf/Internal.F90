@@ -46,7 +46,7 @@ module mapl_esmf_internal
    use mapl_SimpleAlarm_mod
 
    ! State item
-   use mapl_StateItemImpl_mod
+   use mapl_StateItem_mod
 
    ! Comms
    use mapl_Comms_mod

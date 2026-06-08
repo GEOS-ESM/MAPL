@@ -39,7 +39,7 @@ module mapl_VariableSpec_mod
    use mapl_ErrorHandling_mod
    use pflogger, only: logging, logger_t => logger
    use mapl_StateRegistry_mod
-   use mapl_StateItemImpl_mod
+   use mapl_StateItem_mod
    use mapl_AspectId_mod
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    use mapl_FieldDictionary_mod

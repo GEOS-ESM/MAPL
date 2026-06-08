@@ -1,14 +1,14 @@
 add_executable(profiler_demo.x demo.F90)
-target_link_libraries(profiler_demo.x MAPL.profiler)
+target_link_libraries(profiler_demo.x MAPL.mp_utils)
 
 add_executable(mpi_demo.x mpi_demo.F90)
-target_link_libraries(mpi_demo.x MAPL.profiler MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
+target_link_libraries(mpi_demo.x MAPL.mp_utils MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 
 add_executable(hybrid_demo.x hybrid_demo.F90)
-target_link_libraries(hybrid_demo.x MAPL.profiler MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
+target_link_libraries(hybrid_demo.x MAPL.mp_utils MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 
 add_executable(csv_demo.x csv_demo.F90)
-target_link_libraries(csv_demo.x MAPL.profiler)
+target_link_libraries(csv_demo.x MAPL.mp_utils)
 
 install(TARGETS profiler_demo.x mpi_demo.x csv_demo.x hybrid_demo.x
         DESTINATION bin)

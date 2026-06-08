@@ -17,7 +17,7 @@ set (TEST_SRCS
 add_pfunit_ctest (
   MAPL.profiler.tests
   TEST_SOURCES ${TEST_SRCS}
-  LINK_LIBRARIES MAPL.profiler MAPL.pfunit
+  LINK_LIBRARIES MAPL.mp_utils MAPL.pfunit
   EXTRA_INITIALIZE Initialize
   EXTRA_USE mapl_pFUnit_Initialize_mod
   MAX_PES 8

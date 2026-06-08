@@ -19,7 +19,7 @@ find_package (MPI REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL MAPL.utilities TYPE SHARED)
+  DEPENDENCIES MAPL TYPE SHARED)
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests)

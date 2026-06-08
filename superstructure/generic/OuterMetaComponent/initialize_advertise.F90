@@ -3,7 +3,7 @@
 submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
    use mapl_Enums_internal, only: MAPL_GENERIC_INIT_ADVERTISE
    use mapl_VirtualConnectionPt_mod
-   use mapl_StateItemImpl_mod
+   use mapl_StateItem_mod
    use mapl_VariableSpec_mod
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator
    use esmf, only: operator(==)
