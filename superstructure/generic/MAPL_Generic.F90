@@ -764,7 +764,7 @@ contains
               restart_mode=restart_mode, &
               _RC)
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(var_spec)
 
