@@ -3,7 +3,7 @@
 submodule (mapl_OuterMetaComponent_mod) finalize_smod
 
    use mapl_GriddedComponentDriverMap_mod
-   use mapl_Enums_internal, only: MAPL_GENERIC_FINALIZE_USER
+   use mapl_enums_api, only: MAPL_GENERIC_FINALIZE_USER
    use mapl_ErrorHandling_mod
    use mapl_Profiler_mod, only: ProfileReporter
    use mapl_Profiler_mod, only: MultiColumn, NameColumn, FormattedTextColumn, PercentageColumn

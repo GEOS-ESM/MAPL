@@ -39,8 +39,7 @@ set (srcs
     # From esmf_utils/comms/
     comms/MAPL_Comms.F90
     comms/ShmemComms.F90
-    # Umbrella modules
-    Internal.F90
+    # Umbrella module
     API.F90
 )
 

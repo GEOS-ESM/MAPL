@@ -14,8 +14,8 @@ module mapl_FieldInfo_mod
    use mapl_ConservationMetadata_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
-   use mapl_Enums_internal, only: MAPL_StateItemAllocation
-   use mapl_RestartModes_mod, only: RestartMode, MAPL_RESTART_REQUIRED
+   use mapl_enums_api, only: MAPL_StateItemAllocation
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_UNKNOWN, to_HorizontalDimsSpec
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
@@ -397,7 +397,7 @@ contains
       ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
       namespace = INFO_INTERNAL_NAMESPACE // "/alias" // trim(id_str)
 
-      restart_mode = MAPL_RESTART_REQUIRED
+      restart_mode = RESTART_REQUIRED
       key = namespace // KEY_RESTART_MODE
       key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
       if (key_is_present) then

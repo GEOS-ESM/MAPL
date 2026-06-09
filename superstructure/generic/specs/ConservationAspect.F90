@@ -7,7 +7,7 @@ module mapl_ConservationAspect_mod
    use mapl_StateItemAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_NullTransform_mod
-   use mapl_Enums_internal, only: MAPL_ConservationType, MAPL_CONSERVE_NONE
+   use mapl_enums_api, only: MAPL_ConservationType, MAPL_CONSERVE_NONE
    use mapl_ConservationMetadata_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_field_api

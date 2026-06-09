@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
-   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_ADVERTISE
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_ADVERTISE
    use mapl_VirtualConnectionPt_mod
    use mapl_StateItem_mod
    use mapl_VariableSpec_mod

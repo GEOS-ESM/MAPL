@@ -17,7 +17,6 @@ set (srcs
     FieldSet.F90
     FieldInfo.F90
     RestartModes.F90
-    Internal.F90
     API.F90
 )
 

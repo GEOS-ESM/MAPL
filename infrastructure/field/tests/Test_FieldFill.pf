@@ -3,7 +3,7 @@
 
 module Test_FieldFill
    use mapl_FieldFillDefault_mod
-   use mapl_FieldCreate_mod, only: MAPL_FieldEmptyComplete
+   use mapl_FieldCreate_mod, only: FieldEmptyComplete
    use mapl_FieldPointerUtilities_mod, only: assign_fptr
    use funit
    use ESMF_TestMethod_mod
@@ -50,7 +50,7 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
       field = ESMF_FieldEmptyCreate(_RC)
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
-      call MAPL_FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R4, _RC)
+      call FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R4, _RC)
       call assign_fptr(field, ptr, _RC)
       call ESMF_GridDestroy(grid, _RC)
       call ESMF_GeomDestroy(geom, _RC)
@@ -71,7 +71,7 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
       field = ESMF_FieldEmptyCreate(_RC)
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
-      call MAPL_FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R8, _RC)
+      call FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R8, _RC)
       call assign_fptr(field, ptr, _RC)
       call ESMF_GridDestroy(grid, _RC)
       call ESMF_GeomDestroy(geom, _RC)
