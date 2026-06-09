@@ -16,7 +16,18 @@ module mapl_utils_api
    use mapl_StringDictionary_mod
 
    ! OS / filesystem
-   use mapl_os_mod
+   use mapl_os_mod, only: &
+      & mapl_GetCurrentWorkingDirectory => GetCurrentWorkingDirectory, &
+      & mapl_ChangeDirectory => ChangeDirectory, &
+      & mapl_MakeDirectory => MakeDirectory, &
+      & mapl_DirectoryExists => DirectoryExists, &
+      & mapl_RemoveDirectory => RemoveDirectory, &
+      & mapl_RemoveFile => RemoveFile, &
+      & mapl_PushDirectory => PushDirectory, &
+      & mapl_PopDirectory => PopDirectory, &
+      & mapl_ClearDirectoryStack => ClearDirectoryStack, &
+      & mapl_PathJoin => PathJoin, &
+      & mapl_MakeSymbolicLink => MakeSymbolicLink
    use mapl_DirPath_mod
    use mapl_FileSystemUtilities_mod
    use mapl_DSO_Utilities_mod
