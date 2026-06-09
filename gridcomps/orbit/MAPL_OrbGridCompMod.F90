@@ -132,7 +132,7 @@ CONTAINS
              short_name=trim(self%Instrument(i)%str) , &
              standard_name=trim(self%Instrument(i)%str) , &
              dims="xy", &
-             vstagger=VERTICAL_STAGGER_NONE, &
+             vertical_stagger=VERTICAL_STAGGER_NONE, &
              units="days" , &
                _RC)
     enddo
@@ -142,7 +142,7 @@ CONTAINS
          short_name="SATORB", &
          standard_name="Satellite_orbits", &
          dims="xy", &
-         vstagger=VERTICAL_STAGGER_NONE, &
+         vertical_stagger=VERTICAL_STAGGER_NONE, &
          units="days" , &
          itemtype=MAPL_STATEITEM_FIELDBUNDLE, _RC)
 

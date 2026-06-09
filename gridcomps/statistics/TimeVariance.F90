@@ -186,7 +186,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, slash_pos
-      type(VariableSpec) :: varspec
       character(len=:), allocatable :: just_name
       type(WelfordCovarianceKernel) :: wk
       type(ShiftedCovarianceKernel) :: sk
@@ -196,8 +195,7 @@ contains
       if (slash_pos > 0) just_name = name(slash_pos+1:)
 
       ! counts_ owned by Variance, common to both kernels
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'counts_'//just_name, fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'counts_'//just_name, fill_value=0.0, _RC)
 
       ! Welford fields: mux_, muy_, c_
       call wk%advertise(gridcomp, just_name, _RC)
