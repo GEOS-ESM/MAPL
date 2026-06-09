@@ -33,10 +33,10 @@ module mapl_Generic_mod
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use mapl_UngriddedDim_mod, only: UngriddedDim
    use mapl_UngriddedDims_mod, only: UngriddedDims
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
+   use mapl_StateItem_mod, only: mapl_STATEITEM_STATE, mapl_STATEITEM_FIELDBUNDLE
+   use mapl_StateItem_mod, only: mapl_STATEITEM_SERVICE, mapl_STATEITEM_VECTOR
    use mapl_ESMF_Utilities_mod, only: esmf_state_intent_to_string
-   use mapl_ESMF_Interfaces_mod, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
+   use mapl_ESMF_Interfaces_mod, only: mapl_UserCompGetInternalState, mapl_UserCompSetInternalState
    use mapl_hconfig_get_mod
    use mapl_RestartModes_mod, only: RestartMode
    use mapl_ComponentSpecParser_mod, only: parse_geometry_spec
@@ -63,130 +63,130 @@ module mapl_Generic_mod
    private
 
    ! These should not be needed by users
-   public :: MAPL_GridCompGetOuterMeta
-   public :: MAPL_GridCompGetRegistry
+   public :: GridCompGetOuterMeta
+   public :: GridCompGetRegistry
 
    ! These should be available to users
-   public :: MAPL_GridCompAddVarSpec
-   public :: MAPL_GridCompAddSpec
-   public :: MAPL_GridCompAdvertiseVariable
-   public :: MAPL_GridCompIsGeneric
-   public :: MAPL_GridCompIsUser
+   public :: GridCompAddVarSpec
+   public :: GridCompAddSpec
+   public :: GridCompAdvertiseVariable
+   public :: GridCompIsGeneric
+   public :: GridCompIsUser
 
-   public :: MAPL_GridCompGet
-   public :: MAPL_GridCompSet
-   public :: MAPL_GridCompSetEntryPoint
+   public :: GridCompGet
+   public :: GridCompSet
+   public :: GridCompSetEntryPoint
 
-   public :: MAPL_GridCompAddChild
-   public :: MAPL_GridCompGetChildName
-   public :: MAPL_GridCompRunChild
-   public :: MAPL_GridCompRunChildren
+   public :: GridCompAddChild
+   public :: GridCompGetChildName
+   public :: GridCompRunChild
+   public :: GridCompRunChildren
 
-   public :: MAPL_GridCompGetInternalState
+   public :: GridCompGetInternalState
 
-   public :: MAPL_GridCompSetGeometry
+   public :: GridCompSetGeometry
 
-   public :: MAPL_GridcompGetResource
+   public :: GridcompGetResource
 
-   public :: MAPL_ClockGet
+   public :: ClockGet
 
    ! Accessors
 !!$   public :: MAPL_GetOrbit
 !!$   public :: MAPL_GetCoordinates
 !!$   public :: MAPL_GetLayout
 
-   public :: MAPL_GridCompSetGeom
-   public :: MAPL_GridCompSetVerticalGrid
+   public :: GridCompSetGeom
+   public :: GridCompSetVerticalGrid
 
    ! Connections
-   public :: MAPL_GridCompAddConnection
-   public :: MAPL_GridCompAddConnectivity  ! Legacy name - temporary backward compatibility
-   public :: MAPL_GridCompReexport
-   public :: MAPL_GridCompConnectAll
+   public :: GridCompAddConnection
+   public :: GridCompAddConnectivity  ! Legacy name - temporary backward compatibility
+   public :: GridCompReexport
+   public :: GridCompConnectAll
 
    ! Timers
-   public :: MAPL_GridCompTimerStart
-   public :: MAPL_GridCompTimerStop
+   public :: GridCompTimerStart
+   public :: GridCompTimerStop
 
    ! Checkpoint directory
-   public :: MAPL_GridCompGetCheckpointDir
+   public :: GridCompGetCheckpointDir
 
    ! Spec types
-   public :: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
-   public :: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTOR
+   public :: mapl_STATEITEM_STATE, mapl_STATEITEM_FIELDBUNDLE
+   public :: mapl_STATEITEM_SERVICE, mapl_STATEITEM_VECTOR
 
-   public :: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
+   public :: mapl_UserCompGetInternalState, mapl_UserCompSetInternalState
 
    ! Interfaces
 
-   interface MAPL_GridCompGetOuterMeta
+   interface GridCompGetOuterMeta
       procedure :: gridcomp_get_outer_meta
-   end interface MAPL_GridCompGetOuterMeta
+   end interface GridCompGetOuterMeta
 
-   interface MAPL_GridCompGetRegistry
+   interface GridCompGetRegistry
       procedure :: gridcomp_get_registry
-   end interface MAPL_GridCompGetRegistry
+   end interface GridCompGetRegistry
 
-   interface MAPL_GridCompSetGeom
-      procedure MAPL_GridCompSetGeom
-      procedure MAPL_GridCompSetGeomGrid
-      procedure MAPL_GridCompSetGeomMesh
-      procedure MAPL_GridCompSetGeomXgrid
-      procedure MAPL_GridCompSetGeomLocStream
-   end interface MAPL_GridCompSetGeom
+   interface GridCompSetGeom
+      procedure GridCompSetGeom
+      procedure GridCompSetGeomGrid
+      procedure GridCompSetGeomMesh
+      procedure GridCompSetGeomXgrid
+      procedure GridCompSetGeomLocStream
+   end interface GridCompSetGeom
 
-   interface MAPL_GridCompGet
+   interface GridCompGet
       procedure :: gridcomp_get
-   end interface MAPL_GridCompGet
+   end interface GridCompGet
 
-   interface MAPL_GridCompSet
+   interface GridCompSet
       procedure :: gridcomp_set
-   end interface MAPL_GridCompSet
+   end interface GridCompSet
 
-   interface MAPL_GridCompGetInternalState
+   interface GridCompGetInternalState
       procedure :: get_internal_state
-   end interface MAPL_GridCompGetInternalState
+   end interface GridCompGetInternalState
 
-   interface MAPL_GridCompAddChild
+   interface GridCompAddChild
       procedure :: gridcomp_add_child_by_config_file
       procedure :: gridcomp_add_child_by_config
       procedure :: gridcomp_add_child_by_spec
-   end interface MAPL_GridCompAddChild
+   end interface GridCompAddChild
 
-   interface MAPL_GridCompGetChildName
+   interface GridCompGetChildName
       procedure :: gridcomp_get_child_name_by_index
-   end interface MAPL_GridCompGetChildName
+   end interface GridCompGetChildName
 
-   interface MAPL_GridCompRunChild
+   interface GridCompRunChild
       procedure :: gridcomp_run_child_by_name
-   end interface MAPL_GridCompRunChild
+   end interface GridCompRunChild
 
-   interface MAPL_GridCompRunChildren
+   interface GridCompRunChildren
       procedure :: gridcomp_run_children
-   end interface MAPL_GridCompRunChildren
+   end interface GridCompRunChildren
 
-   interface MAPL_GridCompAddVarSpec
+   interface GridCompAddVarSpec
       procedure :: gridcomp_add_varspec_basic
-   end interface MAPL_GridCompAddVarSpec
+   end interface GridCompAddVarSpec
 
-   interface MAPL_GridCompAddSpec
+   interface GridCompAddSpec
       procedure :: gridcomp_add_spec
-   end interface MAPL_GridCompAddSpec
+   end interface GridCompAddSpec
 
-   interface mapl_GridCompAdvertiseVariable
+   interface GridCompAdvertiseVariable
       procedure :: gridcomp_advertise_variable
-   end interface mapl_GridCompAdvertiseVariable
+   end interface GridCompAdvertiseVariable
 
-   interface MAPL_GridCompSetGeometry
+   interface GridCompSetGeometry
       procedure :: gridcomp_set_geometry
       procedure :: gridcomp_set_geometry_from_hconfig
-   end interface MAPL_GridCompSetGeometry
+   end interface GridCompSetGeometry
 
-   interface MAPL_GridCompSetEntryPoint
+   interface GridCompSetEntryPoint
       procedure gridcomp_set_entry_point
-   end interface MAPL_GridCompSetEntryPoint
+   end interface GridCompSetEntryPoint
 
-   interface MAPL_GridCompGetResource
+   interface GridCompGetResource
       procedure :: gridcomp_get_resource_i4
       procedure :: gridcomp_get_resource_i8
       procedure :: gridcomp_get_resource_r4
@@ -198,48 +198,48 @@ module mapl_Generic_mod
       procedure :: gridcomp_get_resource_r8seq
       procedure :: gridcomp_get_resource_logical_seq
       procedure :: gridcomp_get_resource_string
-   end interface MAPL_GridCompGetResource
+   end interface GridCompGetResource
 
-   interface MAPL_GridCompIsGeneric
+   interface GridCompIsGeneric
       procedure :: gridcomp_is_generic
-   end interface MAPL_GridCompIsGeneric
+   end interface GridCompIsGeneric
 
-   interface MAPL_GridCompIsUser
+   interface GridCompIsUser
       procedure :: gridcomp_is_user
-   end interface MAPL_GridCompIsUser
+   end interface GridCompIsUser
 
-   interface MAPL_GridCompAddConnection
+   interface GridCompAddConnection
       procedure :: gridcomp_add_simple_connection
-   end interface MAPL_GridCompAddConnection
+   end interface GridCompAddConnection
 
    ! Legacy interface - temporary backward compatibility
-   interface MAPL_GridCompAddConnectivity
+   interface GridCompAddConnectivity
       procedure :: gridcomp_add_simple_connection
-   end interface MAPL_GridCompAddConnectivity
+   end interface GridCompAddConnectivity
 
-   interface MAPL_GridCompReexport
+   interface GridCompReexport
       procedure :: gridcomp_reexport
-   end interface MAPL_GridCompReexport
+   end interface GridCompReexport
 
-   interface MAPL_GridCompConnectAll
+   interface GridCompConnectAll
       procedure :: gridcomp_connect_all
-   end interface MAPL_GridCompConnectAll
+   end interface GridCompConnectAll
 
-   interface MAPL_GridCompTimerStart
+   interface GridCompTimerStart
       procedure :: gridcomp_timer_start
-   end interface MAPL_GridCompTimerStart
+   end interface GridCompTimerStart
 
-   interface MAPL_GridCompTimerStop
+   interface GridCompTimerStop
       procedure :: gridcomp_timer_stop
-   end interface MAPL_GridCompTimerStop
+   end interface GridCompTimerStop
 
-   interface MAPL_GridCompGetCheckpointDir
+   interface GridCompGetCheckpointDir
       procedure :: gridcomp_get_checkpoint_dir
-   end interface MAPL_GridCompGetCheckpointDir
+   end interface GridCompGetCheckpointDir
 
-   interface MAPL_ClockGet
+   interface ClockGet
       procedure :: clock_get_dt
-   end interface MAPL_ClockGet
+   end interface ClockGet
 
    interface MAPL_MethodAdd
       procedure :: method_add
@@ -256,7 +256,7 @@ contains
       logical :: is_generic
       type(ESMF_GridComp) :: outer_gc
 
-      is_generic = MAPL_GridCompIsGeneric(gridcomp, _RC)
+      is_generic = GridCompIsGeneric(gridcomp, _RC)
 
       if (is_generic) then
          outer_meta => get_outer_meta(gridcomp, _RC)
@@ -265,7 +265,7 @@ contains
 
       ! is user gridcomp
       outer_gc = get_outer_gridcomp(gridcomp, _RC)
-      call MAPL_GridCompGetOuterMeta(outer_gc, outer_meta, _RC)
+      call GridCompGetOuterMeta(outer_gc, outer_meta, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -294,7 +294,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       registry => outer_meta%get_registry()
 
       _RETURN(_SUCCESS)
@@ -326,7 +326,7 @@ contains
       class(VerticalGrid), pointer :: vertical_grid_
       character(ESMF_MAXSTR) :: buffer
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
 
       if (present(hconfig)) hconfig = outer_meta_%get_hconfig()
       if (present(logger)) logger => outer_meta_%get_logger()
@@ -368,7 +368,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_misc( &
            activate_all_exports=activate_all_exports, &
            activate_all_imports=activate_all_imports, &
@@ -387,7 +387,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       internal_state = outer_meta%get_internal_state()
 
       _RETURN(_SUCCESS)
@@ -408,7 +408,7 @@ contains
       type(ESMF_HConfig) :: hconfig
 
       hconfig = ESMF_HConfigCreate(filename=hconfig_file, _RC)
-      call MAPL_GridCompAddChild( &
+      call GridCompAddChild( &
            gridcomp, &
            child_name, &
            setservices, &
@@ -439,7 +439,7 @@ contains
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
       child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
-      call MAPL_GridCompAddChild(gridcomp, child_name, child_spec, _RC)
+      call GridCompAddChild(gridcomp, child_name, child_spec, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -458,7 +458,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%add_child(child_name, child_spec, _RC)
 
       _RETURN(_SUCCESS)
@@ -476,7 +476,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%run_child(child_name, phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -492,7 +492,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%run_children(phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -508,7 +508,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       name = outer_meta%get_child_name(index, _RC)
 
       _RETURN(_SUCCESS)
@@ -525,7 +525,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -542,7 +542,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(variable_spec)
 
@@ -621,7 +621,7 @@ contains
            service_items=service_items, &
            restart_mode=restart, &
            _RC)
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(var_spec)
 
@@ -650,13 +650,13 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%advertise_variable(var_spec, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_advertise_variable
 
-   subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
+   subroutine GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(VerticalGrid), intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
@@ -664,13 +664,13 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_vertical_grid(vertical_grid)
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_GridCompSetVerticalGrid
+   end subroutine GridCompSetVerticalGrid
 
-   subroutine MAPL_GridCompSetGeom(gridcomp, geom, rc)
+   subroutine GridCompSetGeom(gridcomp, geom, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_Geom), intent(in) :: geom
       integer, optional, intent(out) :: rc
@@ -678,13 +678,13 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_geom(geom)
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_GridCompSetGeom
+   end subroutine GridCompSetGeom
 
-   subroutine MAPL_GridCompSetGeomGrid(gridcomp, grid, rc)
+   subroutine GridCompSetGeomGrid(gridcomp, grid, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_Grid), intent(in) :: grid
       integer, optional, intent(out) :: rc
@@ -693,13 +693,13 @@ contains
       type(ESMF_Geom) :: geom
 
       geom = ESMF_GeomCreate(grid, ESMF_STAGGERLOC_INVALID, _RC)
-      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      call GridCompSetGeom(gridcomp, geom, _RC)
 
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_GridCompSetGeomGrid
+   end subroutine GridCompSetGeomGrid
 
-   subroutine MAPL_GridCompSetGeomMesh(gridcomp, mesh, rc)
+   subroutine GridCompSetGeomMesh(gridcomp, mesh, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_Mesh), intent(in) :: mesh
       integer, optional, intent(out) :: rc
@@ -708,12 +708,12 @@ contains
       type(ESMF_Geom) :: geom
 
       geom = ESMF_GeomCreate(mesh, _RC)
-      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      call GridCompSetGeom(gridcomp, geom, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_GridCompSetGeomMesh
+   end subroutine GridCompSetGeomMesh
 
-   subroutine MAPL_GridCompSetGeomXGrid(gridcomp, xgrid, rc)
+   subroutine GridCompSetGeomXGrid(gridcomp, xgrid, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_XGrid), intent(in) :: xgrid
       integer, optional, intent(out) :: rc
@@ -722,12 +722,12 @@ contains
       type(ESMF_Geom) :: geom
 
       geom = ESMF_GeomCreate(xgrid, _RC)
-      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      call GridCompSetGeom(gridcomp, geom, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_GridCompSetGeomXGrid
+   end subroutine GridCompSetGeomXGrid
 
-   subroutine MAPL_GridCompSetGeomLocStream(gridcomp, locstream, rc)
+   subroutine GridCompSetGeomLocStream(gridcomp, locstream, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_LocStream), intent(in) :: locstream
       integer, optional, intent(out) :: rc
@@ -736,11 +736,11 @@ contains
       type(ESMF_Geom) :: geom
 
       geom = ESMF_GeomCreate(locstream, _RC)
-      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      call GridCompSetGeom(gridcomp, geom, _RC)
 
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_GridCompSetGeomLocStream
+   end subroutine GridCompSetGeomLocStream
 
    subroutine gridcomp_connect_all(gridcomp, src_comp, dst_comp, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -751,7 +751,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%connect_all(src_comp, dst_comp, _RC)
 
       _RETURN(_SUCCESS)
@@ -771,7 +771,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -794,7 +794,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -817,7 +817,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -840,7 +840,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -863,7 +863,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -886,7 +886,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger=logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -909,7 +909,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -932,7 +932,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -955,7 +955,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -978,7 +978,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -1001,7 +1001,7 @@ contains
       type(HConfigParams) :: params
       integer :: status
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
+      call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
       call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
@@ -1034,7 +1034,7 @@ contains
 
       integer :: status
 
-      gridcomp_is_user = .not. MAPL_GridCompIsGeneric(gridcomp, _RC)
+      gridcomp_is_user = .not. GridCompIsGeneric(gridcomp, _RC)
 
       _RETURN(_SUCCESS)
    end function gridcomp_is_user
@@ -1057,7 +1057,7 @@ contains
       class(StateItemSpec), pointer :: primary
       class(StateItemSpec), pointer :: spec
 
-      call MAPL_GridCompGetRegistry(gridcomp, registry=registry, _RC)
+      call GridCompGetRegistry(gridcomp, registry=registry, _RC)
       v_pt = VirtualConnectionPt(state_intent, short_name)
 
       family => registry%get_extension_family(v_pt, _RC)
@@ -1085,10 +1085,10 @@ contains
       character(:), allocatable :: component_name
       integer :: status
 
-      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, name=component_name, _RC)
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGet(gridcomp, hconfig=hconfig, name=component_name, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
-      call MAPL_GridCompGetRegistry(gridcomp, registry=registry, _RC)
+      call GridCompGetRegistry(gridcomp, registry=registry, _RC)
       component_spec%geometry_spec = parse_geometry_spec(hconfig, registry, component_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -1109,7 +1109,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%add_connection(src_comp=src_comp, src_names=src_names, dst_comp=dst_comp, dst_names=dst_names, _RC)
 
@@ -1130,7 +1130,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%reexport(src_comp=src_comp, src_name=src_name, src_intent=src_intent, &
            new_name=new_name, _RC)
@@ -1147,7 +1147,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%start_timer(name, _RC)
 
       _RETURN(_SUCCESS)
@@ -1161,7 +1161,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%stop_timer(name, _RC)
 
       _RETURN(_SUCCESS)
@@ -1178,7 +1178,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
 
-      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       dir = outer_meta%get_checkpoint_dir(current_time, is_private=is_private, _RC)
 
       _RETURN(_SUCCESS)
