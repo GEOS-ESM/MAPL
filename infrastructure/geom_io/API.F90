@@ -15,4 +15,4 @@ module mapl_geomio
    use mapl_CompressionSettings_mod
    implicit none
 
-end module mapl_geomio
+end module mapl_geomio_api
