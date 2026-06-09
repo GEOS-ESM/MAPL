@@ -13,11 +13,11 @@
 ! This module provides MPI-based global reduction operations over Fortran
 ! arrays:
 !
-!   - `MAPL_MaxMin`: global parallel max and min of an array
-!   - `MAPL_AreaMean`: global parallel area-weighted mean of a 2-D array
+!   - `MaxMin`: global parallel max and min of an array
+!   - `AreaMean`: global parallel area-weighted mean of a 2-D array
 !
-! Previously these lived in the single-entity modules `mapl_MaxMin` and
-! `mapl_AreaMean` (in `utils/arrays/`). They were consolidated here because
+! Previously these lived in the single-entity modules `MaxMin` and
+! `AreaMean` (in `utils/arrays/`). They were consolidated here because
 ! both are MPI-dependent parallel reductions and belong in `MAPL.mp_utils`,
 ! and because single-public-symbol modules create naming conflicts under
 ! Intel Fortran's case-insensitive module namespace rules (#4944).
@@ -35,29 +35,29 @@ module mapl_ArrayReductions_mod
    implicit none
    private
 
-   public :: MAPL_MaxMin
-   public :: MAPL_AreaMean
+   public :: MaxMin
+   public :: AreaMean
 
    !> Compute the global parallel max and min of a Fortran array.
    !! Returns a 2-element array [max, min].
-   interface MAPL_MaxMin
+   interface MaxMin
       module procedure pmaxmin1d_r4
       module procedure pmaxmin2d_r4
       module procedure pmaxmin3d_r4
       module procedure pmaxmin1d_r8
       module procedure pmaxmin2d_r8
       module procedure pmaxmin3d_r8
-   end interface MAPL_MaxMin
+   end interface MaxMin
 
    !> Compute the global parallel area-weighted mean of a 2-D array.
-   interface MAPL_AreaMean
+   interface AreaMean
       module procedure AreaMean_2d_r8
-   end interface MAPL_AreaMean
+   end interface AreaMean
 
 contains
 
    ! ---------------------------------------------------------------------------
-   ! MAPL_MaxMin implementations
+   ! MaxMin implementations
    ! ---------------------------------------------------------------------------
 
    function pmaxmin1d_r4(p, comm, rc) result(pmaxmin)
@@ -158,7 +158,7 @@ contains
    end function pmaxmin3d_r8
 
    ! ---------------------------------------------------------------------------
-   ! MAPL_AreaMean implementation
+   ! AreaMean implementation
    ! ---------------------------------------------------------------------------
 
    function AreaMean_2d_r8(q, area, comm, rc) result(qmean)
