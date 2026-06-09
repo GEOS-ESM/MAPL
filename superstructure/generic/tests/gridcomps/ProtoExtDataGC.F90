@@ -15,7 +15,7 @@ module ProtoExtDataGC
    use mapl_SimpleConnection_mod
    use mapl_StateItemSpec_mod, only: StateItemSpec, StateItemSpecPtr
    use mapl_FieldUtils
-   use esmf, only: ESMF_StateGet, ESMF_FieldGet
+   use esmf
 
    implicit none(type,external)
    private
