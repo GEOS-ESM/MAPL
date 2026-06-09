@@ -1,4 +1,4 @@
-module mapl_geomio
+module mapl_geomio_api
 
    use mapl_GeomCatagorizer_mod
    use mapl_GeomPFIO_mod
