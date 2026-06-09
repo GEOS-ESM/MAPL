@@ -6,8 +6,8 @@
 !
 #include "MAPL_ErrLog.h"
 
-#define DEALOC_(A) if(associated(A))then;A=0;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
-#define DEALOC__(A) if(associated(A))then;A=.false.;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
+#define DEALOC_(A) if(associated(A))then;A=0;if(MAPL_ShmInitialized)then; call DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
+#define DEALOC__(A) if(associated(A))then;A=.false.;if(MAPL_ShmInitialized)then; call DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
 #include "unused_dummy.H"
 
 !------------------------------------------------------------------------------
