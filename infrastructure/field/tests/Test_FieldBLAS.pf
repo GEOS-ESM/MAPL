@@ -409,7 +409,7 @@ contains
       vgrid_manager => get_vertical_grid_manager()
       vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=3), _RC)
 
-      x = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, units='m', standard_name='foo', _RC)
+      x = FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, units='m', standard_name='foo', _RC)
       call FieldClone(x, y, _RC)
 
       call ESMF_InfoGetFromHost(x, x_info, _RC)

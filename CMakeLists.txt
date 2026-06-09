@@ -158,6 +158,10 @@ else ()
   endif ()
 endif ()
 
+# This is a workaround for NAG issues with spack builds due to the way
+# spack sets modification times on files when using binary-caches
+include(cmake/NAGModtimeWorkaround.cmake)
+
 # There is an interface change in ESMF_HConfig in ESMF 8.9.0,
 # so we need to check the version and if it is 8.9.0 or later,
 # set a variable.
