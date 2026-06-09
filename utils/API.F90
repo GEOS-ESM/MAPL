@@ -61,6 +61,7 @@ module mapl_utils_api
    ! Memory info
    use mapl_MemInfo_mod, only: mapl_MemInfo => MemInfo
    use mapl_MemInfo_mod, only: mapl_MemInfoWrite => MemInfoWrite
+   use mapl_TimeUtilities_mod
 
    implicit none
    private
