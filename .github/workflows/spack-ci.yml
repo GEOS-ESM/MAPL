@@ -27,11 +27,9 @@ jobs:
         include:
           - name: "stable"
             use-esmf-develop: false
-            patch-esmf: false
             run-tests: true
           - name: "develop"
             use-esmf-develop: true
-            patch-esmf: true
             run-tests: true
     uses: GEOS-ESM/CI-workflows/.github/workflows/spack_gcc_build.yml@project/geosgcm
     name: Spack Build with ESMF (${{ matrix.name }})
@@ -42,4 +40,4 @@ jobs:
       use-esmf-develop: ${{ matrix.use-esmf-develop }}
       run-tests: ${{ matrix.run-tests }}
       run-mepo-develop: false
-      patch-esmf: ${{ matrix.patch-esmf }}
+      patch-esmf: true
