@@ -3,7 +3,8 @@
 ! (i.e., entities carrying the MAPL_ prefix).
 ! This is what mapl/MAPL.F90 imports from.
 module mapl_mp_utils_api
-   use mapl_ArrayReductions_mod, only: MAPL_MaxMin, MAPL_AreaMean
+   use mapl_ArrayReductions_mod, only: MAPL_AreaMean => AreaMean
+   use mapl_ArrayReductions_mod, only: MAPL_MaxMin => MaxMin
    ! Import all PackedTime functions (both prefixed and unprefixed)
    use mapl_PackedTime_mod,      only: MAPL_PackedDateCreate => PackedDateCreate, &
                                        MAPL_PackedTimeCreate => PackedTimeCreate, &
