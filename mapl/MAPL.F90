@@ -15,7 +15,7 @@ module MAPL
    use mapl_superstructure_api
    use mapl_base_api
 
-   use pfio
+   use mapl_pfio_api
    use mapl_MaplFramework_mod
 
 end module MAPL

@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed ESMF_Subset.F90 and its dependencies.
+- Added API for PFIO layer.
+  - Updated internal gridcomps to use the API.
 - Change where MAPL prefix is added in ./infrastructure/field
 - Change all `MAPL_GridCompAddVarSpec` calls in Gridcomps with `MAPL_GridCompAddSpec` calls to avoid exposting VariableSpec in `use MAPL`. Required changes to interface for `MAPL_GridCompAddSpec` and acg
 - Removed old interfaces MAPL\_RTRN, MAPL\_Vrfy, MAPL\_ASRT, mapl\_ExceptionHandling\_mod

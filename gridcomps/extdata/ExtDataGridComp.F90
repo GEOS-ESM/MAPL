@@ -4,7 +4,6 @@ module mapl_ExtDataGridComp_mod
 
    use MAPL
    use esmf
-   use pfio
    use mapl_ExtDataGridComp_private_mod
    use MAPL
    use MAPL

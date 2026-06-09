@@ -6,7 +6,7 @@
 !
 #include "MAPL_ErrLog.h"
 
-#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
+#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call SyncSharedMemory(rc=STATUS);call DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
 !
 !>
 !### MODULE: `FileIO_Shared`
@@ -352,7 +352,7 @@ module mapl_FileIOShared_mod
     if (.not. MAPL_ShmInitialized) then
        allocate(mask(gsize), _STAT)
     else
-       call MAPL_AllocNodeArray(mask,(/gsize/),_RC)
+       call AllocNodeArray(mask,(/gsize/),_RC)
     end if
 
     allocate (AL(gridRank,0:nDEs-1),  _STAT)
@@ -424,9 +424,9 @@ module mapl_FileIOShared_mod
     deallocate(tileIndex)
 
 ! mask is deallocated in the caller routine
-       call MAPL_BroadcastToNodes(MASK, N=gsize, ROOT=MAPL_Root, _RC)
+       call BroadcastToNodes(MASK, N=gsize, ROOT=MAPL_Root, _RC)
 
-    call MAPL_SyncSharedMemory(_RC)
+    call SyncSharedMemory(_RC)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_TileMaskGet
@@ -799,11 +799,11 @@ module mapl_FileIOShared_mod
     ISZ = size(GLOBAL_ARRAY,1)
 
     if (use_shmem) then
-       call MAPL_SyncSharedMemory(rc=STATUS)
+       call SyncSharedMemory(rc=STATUS)
        _VERIFY(STATUS)
-       call MAPL_BroadcastToNodes(global_array, N=ISZ, ROOT=MAPL_Root, rc=status)
+       call BroadcastToNodes(global_array, N=ISZ, ROOT=MAPL_Root, rc=status)
        _VERIFY(STATUS)
-       call MAPL_SyncSharedMemory(rc=STATUS)
+       call SyncSharedMemory(rc=STATUS)
        _VERIFY(STATUS)
     end if
 
@@ -875,10 +875,10 @@ module mapl_FileIOShared_mod
 ! Do the communications
     if (use_shmem) then
        ! copy my piece from var (var is local but was filled from shared array)
-       call MAPL_SyncSharedMemory(rc=STATUS)
+       call SyncSharedMemory(rc=STATUS)
        _VERIFY(STATUS)
        local_array = var(displs(deId):displs(deId+1)-1)
-       call MAPL_SyncSharedMemory(rc=STATUS)
+       call SyncSharedMemory(rc=STATUS)
        _VERIFY(STATUS)
     else
        call MAPL_CommsScatterV(layout, var, sendcounts, displs, &

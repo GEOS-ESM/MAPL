@@ -44,5 +44,5 @@ target_link_libraries (MAPL.fields INTERFACE MAPL.field)
 install (TARGETS MAPL.fields EXPORT MAPL-targets)
 
 if (PFUNIT_FOUND)
-    add_subdirectory (tests)
+    add_subdirectory (tests EXCLUDE_FROM_ALL)
 endif ()
