@@ -1,10 +1,12 @@
 #include "MAPL.h"
 
 module mapl_Cap_mod
+
    use MAPL
    use mapl_CapGridComp_mod, only: cap_setservices => setServices
    use pflogger
    use esmf
+
    implicit none(type,external)
    private
 
@@ -41,7 +43,7 @@ contains
       type(esmf_GridComp), optional, intent(in) :: servers(:)
       integer, optional, intent(out) :: rc
 
-      type(GriddedComponentDriver) :: driver
+      type(MAPL_GriddedComponentDriver) :: driver
       type(esmf_Clock) :: clock
       type(CapOptions) :: options
       integer :: status
@@ -53,7 +55,7 @@ contains
       _RETURN_UNLESS(is_model_pet)
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
-      call mapl_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
       call update_restart(hconfig, clock, _RC)
@@ -64,7 +66,7 @@ contains
    end subroutine mapl_run_driver
 
    subroutine integrate(driver, hconfig, checkpointing, lgr, rc)
-      type(GriddedComponentDriver), intent(inout) :: driver
+      type(MAPL_GriddedComponentDriver), intent(inout) :: driver
       type(ESMF_HConfig), intent(in) :: hconfig
       type(CheckpointOptions), intent(in) :: checkpointing
       class(Logger), intent(inout) :: lgr
@@ -108,7 +110,7 @@ contains
       integer :: status, num_times, i
       character(len=:), allocatable :: temp_str(:)
       logical :: has_time_vector
-      
+
       has_time_vector = esmf_HConfigIsDefined(hconfig, keyString='run_times', _RC)
 
       if (.not. has_time_vector) then
@@ -155,7 +157,7 @@ contains
 
    function advance_clock(driver, rc) result(new_time)
       type(esmf_Time) :: new_time
-      type(GriddedComponentDriver), intent(inout) :: driver
+      type(MAPL_GriddedComponentDriver), intent(inout) :: driver
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -171,7 +173,7 @@ contains
    end function advance_clock
 
    subroutine checkpoint(driver, checkpointing, final, rc)
-      type(GriddedComponentDriver), intent(inout) :: driver
+      type(MAPL_GriddedComponentDriver), intent(inout) :: driver
       type(CheckpointOptions), intent(in) :: checkpointing
       logical, intent(in) :: final
       integer, optional, intent(out) :: rc
@@ -219,7 +221,7 @@ contains
    end function get_timestamp
 
    function make_driver(clock, hconfig, options, rc) result(driver)
-      type(GriddedComponentDriver) :: driver
+      type(MAPL_GriddedComponentDriver) :: driver
       type(esmf_HConfig), intent(in) :: hconfig
       type(esmf_Clock), intent(in) :: clock
       type(CapOptions), intent(in) :: options
@@ -234,7 +236,7 @@ contains
       cap_gridcomp = mapl_GridCompCreate(options%name, user_setservices(cap_setservices), hconfig, petList=petList, _RC)
       call esmf_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, _USERRC)
 
-      driver = GriddedComponentDriver(cap_gridcomp, clock=clock)
+      driver = MAPL_GriddedComponentDriver(cap_gridcomp, clock=clock)
 
       _RETURN(_SUCCESS)
    end function make_driver
