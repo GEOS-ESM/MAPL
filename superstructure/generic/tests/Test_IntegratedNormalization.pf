@@ -11,7 +11,7 @@ module Test_IntegratedNormalization
    use mapl_vertical_grid_api
 
    use mapl_ExtensionTransform_mod, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME, ExtensionTransform
-   use mapl_FieldCreate_mod, only: MAPL_FieldCreate
+   use mapl_FieldCreate_mod, only: FieldCreate
    use mapl_QuantityType_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationType_mod
@@ -187,11 +187,11 @@ contains
       call ESMF_GeomGet(geom_fine, grid=grid_out, _RC)
       
       ! Create fields on different grids
-      field_in = MAPL_FieldCreate(geom_coarse, name=COUPLER_IMPORT_NAME, &
+      field_in = FieldCreate(geom_coarse, name=COUPLER_IMPORT_NAME, &
            typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      field_out = MAPL_FieldCreate(geom_fine, name=COUPLER_EXPORT_NAME, &
+      field_out = FieldCreate(geom_fine, name=COUPLER_EXPORT_NAME, &
            typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
@@ -279,11 +279,11 @@ contains
       _UNUSED_DUMMY(this)
      
       ! Create fields
-      field_in = MAPL_FieldCreate(geom_coarse, name=COUPLER_IMPORT_NAME, &
+      field_in = FieldCreate(geom_coarse, name=COUPLER_IMPORT_NAME, &
            typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      field_out = MAPL_FieldCreate(geom_fine, name=COUPLER_EXPORT_NAME, &
+      field_out = FieldCreate(geom_fine, name=COUPLER_EXPORT_NAME, &
            typekind=ESMF_TYPEKIND_R4, num_levels=NZ, &
            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
@@ -597,7 +597,7 @@ contains
       
       ! Create vertical coordinates (edge-staggered)
       ! Input: 10 layers
-      v_coord_in = MAPL_FieldCreate(geom_in, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_in = FieldCreate(geom_in, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
       do concurrent (k = 1:NZ_IN+1, j = 1:NY_IN, i = 1:NX_IN)
@@ -605,7 +605,7 @@ contains
       end do
       
       ! After horizontal regrid: 6×6, 10 layers
-      v_coord_horz = MAPL_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_horz = FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_horz, farrayPtr=v_horz, _RC)
       do concurrent (k = 1:NZ_IN+1, j = 1:NY_OUT, i = 1:NX_OUT)
@@ -613,7 +613,7 @@ contains
       end do
       
       ! Output: 6×6, 15 layers
-      v_coord_out = MAPL_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_out = FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
       do concurrent (k = 1:NZ_OUT+1, j = 1:NY_OUT, i = 1:NX_OUT)
@@ -621,13 +621,13 @@ contains
       end do
       
       ! Create data fields
-      f_in = MAPL_FieldCreate(geom_in, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_in = FieldCreate(geom_in, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      f_horz = MAPL_FieldCreate(geom_out, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_horz = FieldCreate(geom_out, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      f_out = MAPL_FieldCreate(geom_out, name='Q_FINAL', typekind=ESMF_TYPEKIND_R4, &
+      f_out = FieldCreate(geom_out, name='Q_FINAL', typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
       

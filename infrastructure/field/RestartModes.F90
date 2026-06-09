@@ -7,8 +7,8 @@ module mapl_RestartModes_mod
    public :: operator(==)
    public :: operator(/=)
 
-   public :: MAPL_RESTART_REQUIRED
-   public :: MAPL_RESTART_SKIP
+   public :: RESTART_REQUIRED
+   public :: RESTART_SKIP
 
    type :: RestartMode
       private
@@ -18,9 +18,9 @@ module mapl_RestartModes_mod
       procedure :: get_mode
    end type RestartMode
 
-   type(RestartMode), parameter :: MAPL_RESTART_INVALID = RestartMode(mode=-1)
-   type(RestartMode), parameter :: MAPL_RESTART_REQUIRED = RestartMode(mode=0)
-   type(RestartMode), parameter :: MAPL_RESTART_SKIP = RestartMode(mode=1)
+   type(RestartMode), parameter :: RESTART_INVALID = RestartMode(mode=-1)
+   type(RestartMode), parameter :: RESTART_REQUIRED = RestartMode(mode=0)
+   type(RestartMode), parameter :: RESTART_SKIP = RestartMode(mode=1)
 
    interface operator(==)
       procedure equal
