@@ -5,7 +5,7 @@ module mapl_infrastructure_api
    use mapl_geom_api
    use mapl_vertical_grid_api
    use mapl_regridder_mgr_api
-   use mapl_geomio
+   use mapl_geomio_api
 
    use mapl_ESMF_Subset_mod
 end module mapl_infrastructure_api

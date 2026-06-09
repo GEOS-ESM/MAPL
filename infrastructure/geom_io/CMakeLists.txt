@@ -1,7 +1,7 @@
 esma_set_this (OVERRIDE MAPL.GeomIO)
 
 set(srcs
-  GeomIO.F90 # package
+  API.F90 # package
   SharedIO.F90
   Geom_PFIO.F90
   Grid_PFIO.F90
