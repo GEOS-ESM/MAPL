@@ -3,7 +3,8 @@
 ! (i.e., entities carrying the MAPL_ prefix).
 ! This is what mapl/MAPL.F90 imports from.
 module mapl_mp_utils_api
-   use mapl_ArrayReductions_mod, only: MAPL_MaxMin, MAPL_AreaMean
+   use mapl_ArrayReductions_mod, only: MAPL_AreaMean => AreaMean
+   use mapl_ArrayReductions_mod, only: MAPL_MaxMin => MaxMin
    ! Import all PackedTime functions (both prefixed and unprefixed)
    use mapl_PackedTime_mod,      only: MAPL_PackedDateCreate => PackedDateCreate, &
                                        MAPL_PackedTimeCreate => PackedTimeCreate, &
@@ -15,7 +16,28 @@ module mapl_mp_utils_api
                                        PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate, &
                                        ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
    use mapl_StringTemplate_mod,  only: StrTemplate, fill_grads_template, fill_grads_template_esmf
-   use mapl_Shmem_mod
+    use mapl_Shmem_mod, only: MAPL_GetNodeInfo => GetNodeInfo
+    use mapl_Shmem_mod, only: MAPL_CoresPerNodeGet => CoresPerNodeGet
+    use mapl_Shmem_mod, only: MAPL_InitializeShmem => InitializeShmem
+    use mapl_Shmem_mod, only: MAPL_FinalizeShmem => FinalizeShmem
+    use mapl_Shmem_mod, only: MAPL_AllocNodeArray => AllocNodeArray
+    use mapl_Shmem_mod, only: MAPL_DeAllocNodeArray => DeAllocNodeArray
+    use mapl_Shmem_mod, only: MAPL_ShmemAmOnFirstNode => ShmemAmOnFirstNode
+    use mapl_Shmem_mod, only: MAPL_SyncSharedMemory => SyncSharedMemory
+    use mapl_Shmem_mod, only: MAPL_BroadcastToNodes => BroadcastToNodes
+    use mapl_Shmem_mod, only: MAPL_AllocateShared => AllocateShared
+    use mapl_Shmem_mod, only: GetSharedMemory
+    use mapl_Shmem_mod, only: ReleaseSharedMemory
+    use mapl_Shmem_mod, only: MAPL_GetNewRank => GetNewRank
+    use mapl_Shmem_mod, only: MAPL_NodeComm
+    use mapl_Shmem_mod, only: MAPL_NodeRootsComm
+    use mapl_Shmem_mod, only: MAPL_MyNodeNum
+    use mapl_Shmem_mod, only: MAPL_AmNodeRoot
+    use mapl_Shmem_mod, only: MAPL_ShmInitialized
+   use mapl_LoadBalance_mod, only: MAPL_BalanceWork => BalanceWork, &
+                                   MAPL_BalanceCreate => BalanceCreate, &
+                                   MAPL_BalanceDestroy => BalanceDestroy, &
+                                   MAPL_BalanceGet => BalanceGet
    implicit none
    private
 
@@ -69,5 +91,10 @@ module mapl_mp_utils_api
    public :: MAPL_MyNodeNum
    public :: MAPL_AmNodeRoot
    public :: MAPL_ShmInitialized
+
+   public MAPL_BalanceWork
+   public MAPL_BalanceCreate
+   public MAPL_BalanceDestroy
+   public MAPL_BalanceGet
 
 end module mapl_mp_utils_api
