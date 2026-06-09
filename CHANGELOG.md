@@ -69,6 +69,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Different bug introduced when fixing bug just below this entry.
 - get_checkpoint_subdir() as causing dangling pointer for NAG compiler.
+### Removed
+
+- Remove unused `utils/TimeUtilities.F90` (#5011). The `mapl_TimeUtilities_mod` module
+  (defining `PackDate`, `UnpackDate`, `PackDateTime`, `UnpackDateTime`) had zero call sites
+  in the MAPL3 codebase. Time packing/unpacking functionality remains available via
+  `MAPL_UnpackDateTime` and related functions from `mp_utils/PackedTime.F90`.
+
 - Remove `FileMetadataUtils` dependency from `MAPL.vertical` (#5017). `VerticalCoordinate`
   now takes `FileMetadata` (pfio) directly instead of the `FileMetadataUtils` wrapper.
   `udunits2f` is now an explicit dependency of `MAPL.vertical`. Prerequisite for #5014.
