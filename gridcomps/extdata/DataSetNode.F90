@@ -4,7 +4,6 @@ module mapl_DataSetNode_mod
 
    use ESMF
    use MAPL
-   use pFIO
    use mapl_ExtDataUtilities_mod
    use pFlogger, only: logger
 

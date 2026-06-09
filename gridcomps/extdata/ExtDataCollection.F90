@@ -2,7 +2,6 @@
 module mapl_ExtDataCollection_mod
    use ESMF
    use MAPL
-   use pfio_FileMetadataMod
    use mapl_AbstractDataSetFileSelector_mod
    use mapl_NonClimDataSetFileSelector_mod
    implicit none
