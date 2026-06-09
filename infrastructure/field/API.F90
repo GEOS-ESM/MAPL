@@ -4,7 +4,7 @@ module mapl_field_api
 
    use mapl_FieldCreate_mod, only: MAPL_FieldCreate => FieldCreate
    use mapl_FieldCreate_mod, only: MAPL_FieldEmptyComplete => FieldEmptyComplete
-   use mapl_FieldCreate_mod, only: MAPL_FieldsAreAliased => FieldsAreAliased&
+   use mapl_FieldCreate_mod, only: MAPL_FieldsAreAliased => FieldsAreAliased
    use mapl_FieldGet_mod, only: MAPL_FieldGet => FieldGet
    use mapl_FieldSet_mod, only: MAPL_FieldSet => FieldSet
    use mapl_FieldFill_mod, only: MAPL_FieldFill => FieldFill
