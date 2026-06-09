@@ -61,8 +61,13 @@ module mapl_generic_api
    public :: mapl_GridCompAdvertiseVariable
 
    public :: mapl_GridCompGet
+   public :: mapl_GridCompGetRegistry
    public :: mapl_GridCompSet
    public :: mapl_GridCompSetEntryPoint
+
+   public :: MAPL_GridCompIsGeneric
+   public :: MAPL_GridCompIsUser
+   public :: MAPL_GridCompGetOuterMeta
 
    public :: mapl_GridCompAddChild
    public :: mapl_GridCompGetChildName
