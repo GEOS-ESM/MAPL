@@ -1,7 +1,7 @@
 module Test_MaxMin
 
    use pfunit
-   use mapl_ArrayReductions_mod, only: MAPL_MaxMin
+   use mapl_ArrayReductions_mod, only: maxmin
 
    implicit none
 
@@ -15,7 +15,7 @@ contains
       integer :: rank, size, status
       real, parameter :: MAX_VALUE = 2.0, MIN_VALUE = -1.0
       real :: x(3, 4)
-      real :: maxmin(2)
+      real :: real_maxmin(2)
 
       call MPI_Comm_rank(this%getMpiCommunicator(), rank, status)
       @assert_that(status, is(0))
@@ -30,10 +30,10 @@ contains
          x(1, 1) = MAX_VALUE
       end if
 
-      maxmin = MAPL_MaxMin(x, this%getMpiCommunicator(), rc=status)
+      real_maxmin = maxmin(x, this%getMpiCommunicator(), rc=status)
       @assert_that(status, is(0))
-      @assert_that(maxmin(1), is(MAX_VALUE))
-      @assert_that(maxmin(2), is(MIN_VALUE))
+      @assert_that(real_maxmin(1), is(MAX_VALUE))
+      @assert_that(real_maxmin(2), is(MIN_VALUE))
    end subroutine test_max_min
 
 end module Test_MaxMin
