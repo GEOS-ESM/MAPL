@@ -2,7 +2,6 @@
 
 module mapl_ExtDataConfig_mod
    use ESMF
-   use PFIO
    use gFTL2_StringVector
    use MAPL
    use mapl_ExtDataCollection_mod
