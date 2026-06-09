@@ -17,6 +17,10 @@ module mapl_mp_utils_api
                                        ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
    use mapl_StringTemplate_mod,  only: StrTemplate, fill_grads_template, fill_grads_template_esmf
    use mapl_Shmem_mod
+   use mapl_LoadBalance_mod, only: MAPL_BalanceWork => BalanceWork, &
+                                   MAPL_BalanceCreate => BalanceCreate, &
+                                   MAPL_BalanceDestroy => BalanceDestroy, &
+                                   MAPL_BalanceGet => BalanceGet
    implicit none
    private
 
@@ -70,5 +74,10 @@ module mapl_mp_utils_api
    public :: MAPL_MyNodeNum
    public :: MAPL_AmNodeRoot
    public :: MAPL_ShmInitialized
+
+   public MAPL_BalanceWork
+   public MAPL_BalanceCreate
+   public MAPL_BalanceDestroy
+   public MAPL_BalanceGet
 
 end module mapl_mp_utils_api
