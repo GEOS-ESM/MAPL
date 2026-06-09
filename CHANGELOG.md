@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Remove Generic.F90 that is no longer needed
 - Change where MAPL prefix is removed from Generic leaf
 - Change where MAPL prefix is added in ./infrastructure/field
 - Change all `MAPL_GridCompAddVarSpec` calls in Gridcomps with `MAPL_GridCompAddSpec` calls to avoid exposting VariableSpec in `use MAPL`. Required changes to interface for `MAPL_GridCompAddSpec` and acg
