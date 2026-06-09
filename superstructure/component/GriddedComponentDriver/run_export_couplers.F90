@@ -2,7 +2,7 @@
 
 submodule(mapl_GriddedComponentDriver_mod) run_export_couplers_smod
 
-   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_INVALIDATE
+   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_INVALIDATE
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 

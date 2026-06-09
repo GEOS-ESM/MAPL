@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) initialize_geom_b_smod
-   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_GEOM_B
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_GEOM_B
    use mapl_GeometrySpec_mod
    use mapl_ErrorHandling_mod
    implicit none(type,external)

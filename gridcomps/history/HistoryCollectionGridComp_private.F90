@@ -254,7 +254,6 @@ contains
       type(HistoryOptions), intent(in) :: opts
       integer, optional, intent(out) :: rc
       integer :: status, slash_loc
-      type(VariableSpec) :: varspec
       type(ESMF_StateItem_Flag) :: item_type
       character(len=:), allocatable :: varspec_short_name
 
@@ -265,12 +264,9 @@ contains
          slash_loc = index(short_name, '/')
          varspec_short_name = short_name(slash_loc+1:)
       end if 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, varspec_short_name, &
-           units=opts%units, typekind=opts%typekind, &
-           regrid_param = opts%regrid_param, &
-           itemtype=item_type, &
-           _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, varspec_short_name,  &
+            units=opts%units, typekind=opts%typekind, regrid_param=opts%regrid_param, itemtype=item_type, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_var_specs

@@ -17,7 +17,7 @@ module mapl_GeomAspect_mod
    use mapl_EsmfRegridder_mod
    use mapl_NormalizationAspect_mod, only: NormalizationAspect, to_NormalizationAspect
    use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
-   use mapl_Enums_internal, only: MAPL_NormalizationType
+   use mapl_enums_api, only: MAPL_NormalizationType
    use mapl_VerticalGrid_mod
    use mapl_ComponentDriver_mod, only: ComponentDriver
    use mapl_ErrorHandling_mod

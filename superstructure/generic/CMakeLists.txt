@@ -30,8 +30,7 @@ set(srcs
   EntryPointVector.F90
   OpenMP_Support.F90
 
-  # Umbrella modules
-  Internal.F90
+  # Umbrella module
   API.F90
   )
 

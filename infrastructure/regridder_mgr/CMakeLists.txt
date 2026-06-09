@@ -27,8 +27,7 @@ set(srcs
 #HorzFluxRegridder.F90
 
 
-  # Umbrella modules
-  Internal.F90
+  # Umbrella module
   API.F90
   )
 

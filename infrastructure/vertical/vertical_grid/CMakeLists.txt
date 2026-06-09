@@ -13,8 +13,7 @@ set(srcs
   IntegerVerticalGridMap.F90
   VerticalGridFactoryMap.F90
 
-  # Umbrella modules
-  Internal.F90
+  # Umbrella module
   API.F90
 )
 

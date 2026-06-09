@@ -107,9 +107,10 @@ STATE_ARG = 'state_arg'
 STATE_INTENT = 'state_intent'
 STRINGVECTOR = 'string_vector'
 TYPEKIND = 'typekind'
-UNGRIDDED_DIMS = 'ungridded_dims'
+UNGRIDDED_DIMS = 'ungridded_dim_array'
 USE_FIELD_DICTIONARY = 'use_field_dictionary'
-VSTAGGER = 'vstagger'
+VSTAGGER = 'vertical_stagger'
+RESTART = 'restart_mode'
 
 # command-line option constants
 GC_VARIABLE = 'gridcomp_variable'
@@ -206,7 +207,7 @@ def get_options(args):
             'V': 'MAPL_STATEITEM_VECTOR'}},
         'orientation': {},
         'regrid_method': {},
-        'restart': {MAPPING: {
+        'restart_mode': {MAPPING: {
             'OPTIONAL': 'MAPL_RESTART_OPTIONAL',
             'SKIP': 'MAPL_RESTART_SKIP',
             'REQUIRED': 'MAPL_RESTART_REQUIRED',
@@ -232,6 +233,7 @@ def get_options(args):
         'name': SHORT_NAME,
         'vloc': VSTAGGER,
         'vlocation': VSTAGGER,
+        'restart': RESTART,
         'add2export': ADD_TO_EXPORT,
         'field dictionary': USE_FIELD_DICTIONARY,
         'field_dictionary': USE_FIELD_DICTIONARY,

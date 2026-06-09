@@ -310,7 +310,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, slash_pos
-      type(VariableSpec) :: varspec
       character(len=:), allocatable :: just_name
 
       slash_pos = index(name, "/")
@@ -319,8 +318,7 @@ contains
          just_name = name(slash_pos+1:)
       end if
 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'temp_max'//just_name, fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'temp_max'//just_name, fill_value=0.0, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine advertise_time_max_internal_fields
