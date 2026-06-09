@@ -54,5 +54,5 @@ add_subdirectory (XY)
 add_subdirectory (EASE)
 
 if (PFUNIT_FOUND)
-  add_subdirectory (tests)
+  add_subdirectory (tests EXCLUDE_FROM_ALL)
 endif ()

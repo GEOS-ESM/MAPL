@@ -22,5 +22,5 @@ esma_add_library(${this}
   DEPENDENCIES MAPL TYPE SHARED)
 
 if (PFUNIT_FOUND)
-  add_subdirectory(tests)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
