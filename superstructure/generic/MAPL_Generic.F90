@@ -43,6 +43,7 @@ module mapl_Generic_mod
    use mapl_InternalConstants_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
    use esmf, only: ESMF_GridComp, ESMF_GridCompGet
    use esmf, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomGet
@@ -171,6 +172,7 @@ module mapl_Generic_mod
 
    interface GridCompAddSpec
       procedure :: gridcomp_add_spec
+      procedure :: legacy_gridcomp_add_spec
    end interface GridCompAddSpec
 
    interface GridCompAdvertiseVariable
@@ -549,7 +551,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_add_varspec_basic
 
-   subroutine gridcomp_add_spec( &
+   subroutine legacy_gridcomp_add_spec( &
         gridcomp, &
         state_intent, &
         short_name, &
@@ -622,6 +624,147 @@ contains
            restart_mode=restart, &
            _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      component_spec => outer_meta%get_component_spec()
+      call component_spec%var_specs%push_back(var_spec)
+
+      if (present(add_to_export)) then
+         if (add_to_export) then
+            _ASSERT((state_intent==ESMF_STATEINTENT_INTERNAL), "cannot reexport a non-internal spec")
+            call gridcomp_reexport( &
+                 gridcomp=gridcomp, &
+                 src_comp="<self>", &
+                 src_name=short_name, &
+                 src_intent=esmf_state_intent_to_string(state_intent), &
+                 new_name=export_name, &
+                 _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine legacy_gridcomp_add_spec
+
+   subroutine gridcomp_add_spec( &
+        gridcomp, &
+        state_intent, short_name, unusable, &
+        standard_name, &
+        long_name, &
+        geom, &
+        units, &
+        itemtype, &
+        typekind, &
+        vertical_grid, &
+        vertical_stagger, &
+        vertical_alignment, &
+        ungridded_dims, &
+        fill_value, &
+        service_items, &
+        attributes, &
+        bracket_size, &
+        expression, &
+        dependencies, &
+        regrid_param, &
+        horizontal_dims_spec, &
+        vector_basis_kind, &
+        has_deferred_aspects, &
+        use_field_dictionary, &
+        restart_mode, &
+
+        dims, &
+        add_to_export, &
+        export_name, &
+        ungridded_dim_array, &
+        rc)
+
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      ! OPTIONAL
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: long_name
+      type(ESMF_Geom), optional, intent(in) :: geom
+      character(*), optional, intent(in) :: units
+      character(*), optional, intent(in) :: expression
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+      character(*), optional, intent(in) :: vertical_alignment
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      real, optional, intent(in) :: fill_value
+      type(StringVector), optional :: service_items
+      type(StringVector), optional, intent(in) :: attributes
+      integer, optional, intent(in) :: bracket_size
+      type(StringVector), optional, intent(in) :: dependencies
+      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+      type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      character(*), optional, intent(in) :: vector_basis_kind
+      logical, optional, intent(in) :: has_deferred_aspects
+      logical, optional, intent(in) :: use_field_dictionary
+      type(RestartMode), optional, intent(in) :: restart_mode
+
+      character(*), optional, intent(in) :: dims
+      logical, optional, intent(in) :: add_to_export
+      character(*), optional, intent(in) :: export_name
+      type(UngriddedDim), optional, intent(in) :: ungridded_dim_array(:)
+      integer, optional, intent(out) :: rc
+
+      type(VariableSpec) :: var_spec
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: component_spec
+      type(HorizontalDimsSpec) :: horizontal_dims_spec_
+      type(UngriddedDims), allocatable :: dim_specs_vec 
+      integer :: status
+
+      _FAIL_IF(present(dims) .and. present(horizontal_dims_spec), "dims and horizontal_dims_spec passed")
+      _FAIL_IF(present(ungridded_dims) .and. present(ungridded_dim_array), "cannot specify both ungridded_dims and ungridded_dim_array")
+
+      if (present(ungridded_dim_array)) then
+         allocate(dim_specs_vec)
+         dim_specs_vec = UngriddedDims(ungridded_dim_array)
+      else if (present(ungridded_dims)) then
+         allocate(dim_specs_vec)
+         dim_specs_vec = ungridded_dims
+      end if
+      horizontal_dims_spec_ = HORIZONTAL_DIMS_GEOM
+      if (present(horizontal_dims_spec)) horizontal_dims_spec_ = horizontal_dims_spec 
+      if (present(dims)) then
+         _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
+         horizontal_dims_spec_ = HORIZONTAL_DIMS_GEOM
+         if (dims == "z") then
+            horizontal_dims_spec_ = HORIZONTAL_DIMS_NONE
+         end if
+      end if
+
+         var_spec = make_VariableSpec( &
+              state_intent, &
+              short_name, &
+              standard_name=standard_name, &
+              long_name=long_name, &
+              geom=geom, &
+              units=units, &
+              expression=expression, &
+              itemtype=itemtype, &
+              typekind=typekind, &
+              vertical_grid=vertical_grid, &
+              vertical_stagger=vertical_stagger, &
+              vertical_alignment=vertical_alignment, &
+              ungridded_dims=dim_specs_vec, &
+              fill_value=fill_value, &
+              service_items=service_items, &
+              attributes=attributes, &
+              bracket_size=bracket_size, &
+              dependencies=dependencies, &
+              regrid_param=regrid_param, &
+              horizontal_dims_spec=horizontal_dims_spec_, &
+              vector_basis_kind=vector_basis_kind, &
+              has_deferred_aspects=has_deferred_aspects, &
+              use_field_dictionary=use_field_dictionary, &
+              restart_mode=restart_mode, &
+              _RC)
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%var_specs%push_back(var_spec)
 
