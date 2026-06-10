@@ -61,7 +61,7 @@ MODULE mapl_StateArithmeticParser_mod
   PRIVATE
 
   public                     :: parser_variables_in_expression
-  PUBLIC                     :: MAPL_StateEval
+  PUBLIC                     :: StateEval
   PUBLIC                     :: CheckSyntax
   PUBLIC                     :: RealNum
   PUBLIC                     :: LowCase
@@ -140,7 +140,7 @@ CONTAINS
 
   end subroutine bytecode_dealloc
 
-  subroutine MAPL_StateEval(state,expression,field,rc)
+  subroutine StateEval(state,expression,field,rc)
     type(ESMF_State),        intent(in   ) :: state
     character(len=*),        intent(in   ) :: expression
     type(ESMF_Field),        intent(inout) :: field
@@ -181,7 +181,7 @@ CONTAINS
     deallocate(fieldNames,needed)
 
 
-    end subroutine MAPL_StateEval
+    end subroutine StateEval
   !
   SUBROUTINE parsef (Comp, FuncStr, Var, field, rc)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
