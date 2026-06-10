@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed mapl_ prefix from leaf components in ./infrastucture/geom
 - Remove Generic.F90 that is no longer needed
 - Removed mapl_ prefix from leaf components in Generic
 - Removed mapl_ prefix from leaf components in ./infrastucture/geom_io

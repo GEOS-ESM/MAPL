@@ -6,19 +6,19 @@ module mapl_GeomUtilities_mod
    implicit none
    private
 
-   public :: MAPL_GeomSetId
-   public :: MAPL_GeomGetId
-   public :: MAPL_SameGeom
+   public :: GeomSetId
+   public :: GeomGetId
+   public :: SameGeom
 
    character(len=*), parameter :: ID_INFO_KEY = 'mapl/geom/id'
 
-   interface MAPL_SameGeom
+   interface SameGeom
       procedure :: same_geom
-   end interface MAPL_SameGeom
+   end interface SameGeom
 
 contains
    
-   subroutine MAPL_GeomSetId(geom, id, rc)
+   subroutine GeomSetId(geom, id, rc)
       type(ESMF_Geom), intent(inout) :: geom
       integer, intent(in) :: id
       integer, optional, intent(out) :: rc
@@ -30,9 +30,9 @@ contains
       call ESMF_InfoSet(info, ID_INFO_KEY, id, _RC)
       
       _RETURN(_SUCCESS)
-   end subroutine MAPL_GeomSetId
+   end subroutine GeomSetId
 
-   integer function MAPL_GeomGetId(geom, isPresent, rc) result(id)
+   integer function GeomGetId(geom, isPresent, rc) result(id)
       type(ESMF_Geom), intent(in) :: geom
       logical, optional, intent(out) :: isPresent
       integer, optional, intent(out) :: rc
@@ -47,7 +47,7 @@ contains
 
       
       _RETURN(_SUCCESS)
-   end function MAPL_GeomGetId
+   end function GeomGetId
 
    ! For now, a grid that lacks an id is treated as different than all
    ! other grids.
@@ -62,8 +62,8 @@ contains
 
       same_geom = .false. ! unless
 
-      id_a = MAPL_GeomGetId(geom_a, isPresent=has_id_a)
-      id_b = MAPL_GeomGetId(geom_b, isPresent=has_id_b)
+      id_a = GeomGetId(geom_a, isPresent=has_id_a)
+      id_b = GeomGetId(geom_b, isPresent=has_id_b)
 
       if (has_id_a .and. has_id_b) then
          same_geom = (id_a == id_b)
