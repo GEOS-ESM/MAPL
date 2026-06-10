@@ -43,16 +43,16 @@ module mapl_StateAddMethod_mod
    implicit none(type,external)
    private
 
-   public :: mapl_StateAddMethod
+   public :: StateAddMethod
    public :: CallbackMap
    public :: CallbackMapIterator
    public :: CallbackMethodWrapper
    public :: get_callbacks
    public :: operator(/=)
 
-   interface mapl_StateAddMethod
+   interface StateAddMethod
       procedure :: state_add_method
-   end interface mapl_StateAddMethod
+   end interface StateAddMethod
 
 contains
 
