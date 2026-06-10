@@ -125,7 +125,7 @@ contains
          call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
       enddo
       call ESMF_HConfigAdd(stats_hconfig, stats_list, addKeyString='stats', _RC)
-      call MAPL_GridCompAddChild(gridcomp,'stats_'//child_name, user_setservices(statistics_setServices), stats_hconfig, _RC)
+      call MAPL_GridCompAddChild(gridcomp,'stats_'//child_name, statistics_setServices, stats_hconfig, _RC)
 
       _RETURN(_SUCCESS)
 
