@@ -9,11 +9,11 @@ set (srcs
     MAPL_Throw.F90
     hash.c
     sort.c
-    MAPL_DirPath.F90
+    DirPath.F90
     MAPL_Hash.F90
     KeywordEnforcer.F90
     OS.F90
-    MAPL_MinMax.F90
+    MinMax.F90
     MAPL_Range.F90
     MAPL_Sort.F90
     String.F90
@@ -21,10 +21,10 @@ set (srcs
     StringDictionary.F90
     FileSystemUtilities.F90
     DSO_Utilities.F90
-    MAPL_ISO8601_DateTime.F90
-    MAPL_DateTime_Parsing.F90
+    ISO8601_DateTime.F90
+    DateTime_Parsing.F90
     MAPL_Sleep.F90
-    MAPL_CF_Time.F90
+    CF_Time.F90
     MAPL_ESMF_InfoKeys.F90
     # Umbrella module for the utils layer (#5004)
     API.F90

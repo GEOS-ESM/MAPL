@@ -3,7 +3,7 @@
 submodule (MAPL_OuterMetaComponent_mod) get_checkpoint_dir_smod
 
    use ESMF
-   use MAPL_OS_mod, only: MAPL_PathJoin
+   use MAPL_OS_mod, only: PathJoin
    use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Return, MAPL_Assert
 
    implicit none(type, external)
@@ -29,9 +29,9 @@ contains
 
       dir = get_checkpoint_path_base_(this%hconfig, _RC)
       call ESMF_TimeGet(current_time, timeStringISOFrac=iso_time_str, _RC)
-      dir = MAPL_PathJoin(dir, trim(iso_time_str))
+      dir = PathJoin(dir, trim(iso_time_str))
       if (is_private_) then
-         dir = MAPL_PathJoin(dir, this%get_name() // "_private")
+         dir = PathJoin(dir, this%get_name() // "_private")
       end if
 
       _RETURN(_SUCCESS)
@@ -66,7 +66,7 @@ contains
       end select
 
       checkpoint_dir = this%get_checkpoint_dir(current_time, _RC)
-      filename = MAPL_PathJoin(checkpoint_dir, filename)
+      filename = PathJoin(checkpoint_dir, filename)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

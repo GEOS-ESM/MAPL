@@ -1,9 +1,12 @@
 #include "MAPL.h"
 
 module mapl_DirPath_mod
+
    use mapl_KeywordEnforcer_mod
    use MAPL_Constants
    use gFTL2_StringVector
+
+   implicit none
    private
 
    public :: DirPath
@@ -51,10 +54,7 @@ contains
       if (present(rc)) then
          rc = MAPL_FILE_NOT_FOUND
       end if
-      
-      
    end function find_
-
 
    subroutine append(this, directory, unusable, rc)
       class (DirPath), intent(inout) :: this
@@ -69,7 +69,6 @@ contains
       if (present(rc)) then
          rc = MAPL_SUCCESS
       end if
-      
    end subroutine append
 
 end module mapl_DirPath_mod

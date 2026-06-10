@@ -14,7 +14,7 @@ module mapl_ComponentSpec_mod
    use mapl_GeometrySpec_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
-   use mapl_StringUtilities_mod
+   use mapl_StringUtilities_mod, only: split, to_lower
    use gftl2_StringVector
    use ESMF
 

@@ -2,7 +2,7 @@
    ! keyword association for dummy arguments in an interface.  The
    ! concept is to have a derived type for which no actual argument can
    ! ever be provided.
-   
+
    ! The original idea comes (AFAIK) from ESMF which uses a PUBLIC
    ! derived type that is simply not exported in the main ESMF
    ! package.  That approach has one weakness, which is that a clever
@@ -22,6 +22,7 @@
    ! keyword enforcement.
 
 module mapl_KeywordEnforcer_mod
+
    implicit none
    private
 

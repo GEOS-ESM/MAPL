@@ -1,7 +1,9 @@
 #include "MAPL.h"
 
 module mapl_ErrorHandling_mod
+
    use mapl_Throw_mod
+
    implicit none
    private
 
@@ -11,7 +13,7 @@ module mapl_ErrorHandling_mod
    public :: MAPL_Deprecated
    public :: MAPL_SetFailOnDeprecated
    ! Legacy
-   public :: MAPL_abort
+   public :: MAPL_Abort
    public :: MAPL_set_abort_handler
 
    abstract interface
@@ -20,7 +22,6 @@ module mapl_ErrorHandling_mod
    end interface
 
    procedure(abort_handler_interface), pointer :: abort_handler => null()
-
 
    public :: MAPL_SUCCESS
 
@@ -52,7 +53,6 @@ module mapl_ErrorHandling_mod
       enumerator :: MAPL_STRING_TOO_SHORT
    end enum
 
-
    interface MAPL_Assert
       module procedure MAPL_Assert_condition
       module procedure MAPL_Assert_return_code
@@ -78,9 +78,7 @@ contains
          !$omp end critical (MAPL_ErrorHandling1)
          if (present(rc)) rc = return_code
       end if
-
    end function MAPL_Assert_Condition
-
 
    logical function MAPL_Assert_return_code(condition, return_code, filename, line, rc) result(fail)
       logical, intent(in) :: condition
@@ -99,9 +97,7 @@ contains
          !$omp end critical (MAPL_ErrorHandling2)
          if (present(rc)) rc = return_code
       end if
-
    end function MAPL_Assert_return_code
-
 
    logical function MAPL_Verify(status, filename, line, rc) result(fail)
       integer, intent(in) :: status
@@ -124,7 +120,6 @@ contains
          !$omp end critical (MAPL_ErrorHandling3)
          if (present(rc)) rc = status
       end if
-
    end function MAPL_Verify
 
    subroutine MAPL_Return(status, filename, line, rc)
@@ -147,7 +142,6 @@ contains
       end if
       ! Regardless of error:
       if (present(rc)) rc = status
-
    end subroutine MAPL_Return
 
    subroutine MAPL_Deprecated(file_name, module_name, procedure_name, rc)
@@ -170,7 +164,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine MAPL_Deprecated
 
-
    subroutine MAPL_SetFailOnDeprecated(flag)
       logical, optional, intent(in) :: flag
 
@@ -180,7 +173,6 @@ contains
 
       FAIL_ON_DEPRECATED = flag_
    end subroutine MAPL_SetFailOnDeprecated
-
 
    subroutine MAPL_set_abort_handler(handler)
       procedure(abort_handler_interface) :: handler
@@ -195,45 +187,43 @@ contains
       end if
    end subroutine MAPL_abort
 
-  function get_error_message(error_code) result(description)
-     use gFTL_IntegerStringMap
-     character(:), allocatable :: description
-     integer, intent(in) :: error_code
+   function get_error_message(error_code) result(description)
 
-     type(IntegerStringMap), save :: error_messages
-     logical, save :: initialized = .false.
+      use gFTL_IntegerStringMap
+      character(:), allocatable :: description
+      integer, intent(in) :: error_code
 
+      type(IntegerStringMap), save :: error_messages
+      logical, save :: initialized = .false.
 
-     call initialize_err()
+      call initialize_err()
 
-     if (error_messages%count(error_code) > 0) then
-        description = error_messages%at(error_code)
-     else
-        description = error_messages%at(MAPL_UNKNOWN_ERROR)
-     end if
+      if (error_messages%count(error_code) > 0) then
+         description = error_messages%at(error_code)
+      else
+         description = error_messages%at(MAPL_UNKNOWN_ERROR)
+      end if
 
-  contains
+   contains
 
-     subroutine initialize_err()
+      subroutine initialize_err()
+         if (.not. initialized) then
+            initialized = .true.
+            call error_messages%insert(MAPL_UNKNOWN_ERROR, 'unknown error')
+            call error_messages%insert(MAPL_SUCCESS, 'success')
 
-        if (.not. initialized) then
-           initialized = .true.
-           call error_messages%insert(MAPL_UNKNOWN_ERROR, 'unknown error')
-           call error_messages%insert(MAPL_SUCCESS, 'success')
+            call error_messages%insert(MAPL_NO_SUCH_PROPERTY, 'no such property')
+            call error_messages%insert(MAPL_NO_SUCH_VARIABLE, 'no such variable')
+            call error_messages%insert(MAPL_TYPE_MISMATCH,    'passed argument does not match expected type')
+            call error_messages%insert(MAPL_UNSUPPORTED_TYPE, 'provided data type is not supported by this subclass')
+            call error_messages%insert(MAPL_VALUE_NOT_SUPPORTED, 'provided value is not supported by this subclass')
 
-           call error_messages%insert(MAPL_NO_SUCH_PROPERTY, 'no such property')
-           call error_messages%insert(MAPL_NO_SUCH_VARIABLE, 'no such variable')
-           call error_messages%insert(MAPL_TYPE_MISMATCH,    'passed argument does not match expected type')
-           call error_messages%insert(MAPL_UNSUPPORTED_TYPE, 'provided data type is not supported by this subclass')
-           call error_messages%insert(MAPL_VALUE_NOT_SUPPORTED, 'provided value is not supported by this subclass')
+            call error_messages%insert(MAPL_NO_DEFAULT_VALUE, 'no default value has been provided for this property')
+            call error_messages%insert(MAPL_DUPLICATE_KEY, 'map container already has the specified key')
+            call error_messages%insert(MAPL_STRING_TOO_SHORT, 'fixed length string is not long enough to contain requested data')
+         end if
+      end subroutine initialize_err
 
-           call error_messages%insert(MAPL_NO_DEFAULT_VALUE, 'no default value has been provided for this property')
-           call error_messages%insert(MAPL_DUPLICATE_KEY, 'map container already has the specified key')
-           call error_messages%insert(MAPL_STRING_TOO_SHORT, 'fixed length string is not long enough to contain requested data')
-        end if
-
-     end subroutine initialize_err
-
-  end function get_error_message
+   end function get_error_message
 
 end module mapl_ErrorHandling_mod

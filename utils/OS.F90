@@ -3,73 +3,74 @@
 ! This module is a (poor) analog to the Python "os" package.
 
 module mapl_os_mod
+
    use gftl2_StringStack
    use mapl_ErrorHandling_mod
    use, intrinsic :: iso_c_binding
+
    implicit none(type,external)
    private
 
-   public :: mapl_GetCurrentWorkingDirectory
-   public :: mapl_ChangeDirectory
-   public :: mapl_MakeDirectory
-   public :: mapl_DirectoryExists
-   public :: mapl_RemoveDirectory
-   public :: mapl_RemoveFile
-   public :: mapl_PushDirectory
-   public :: mapl_PopDirectory
-   public :: mapl_ClearDirectoryStack
-   public :: mapl_PathJoin
-   public :: mapl_MakeSymbolicLink
+   public :: GetCurrentWorkingDirectory
+   public :: ChangeDirectory
+   public :: MakeDirectory
+   public :: DirectoryExists
+   public :: RemoveDirectory
+   public :: RemoveFile
+   public :: PushDirectory
+   public :: PopDirectory
+   public :: ClearDirectoryStack
+   public :: PathJoin
+   public :: MakeSymbolicLink
 
-   interface mapl_GetCurrentWorkingDirectory
+   interface GetCurrentWorkingDirectory
       procedure :: get_current_working_directory
-   end interface mapl_GetCurrentWorkingDirectory
+   end interface GetCurrentWorkingDirectory
 
-   interface mapl_ChangeDirectory
+   interface ChangeDirectory
       procedure :: change_directory
-   end interface mapl_ChangeDirectory
+   end interface ChangeDirectory
 
-   interface mapl_MakeDirectory
+   interface MakeDirectory
       procedure :: make_directory
-   end interface mapl_MakeDirectory
+   end interface MakeDirectory
 
-   interface mapl_RemoveDirectory
+   interface RemoveDirectory
       procedure :: remove_directory
-   end interface mapl_RemoveDirectory
+   end interface RemoveDirectory
 
-   interface mapl_RemoveFile
+   interface RemoveFile
       procedure :: remove_file
-   end interface mapl_RemoveFile
+   end interface RemoveFile
 
-   interface mapl_DirectoryExists
+   interface DirectoryExists
       procedure directory_exists
-   end interface mapl_DirectoryExists
+   end interface DirectoryExists
 
-   interface mapl_Pushdirectory
+   interface PushDirectory
       procedure :: push_directory_default
       procedure :: push_directory
-   end interface mapl_Pushdirectory
+   end interface PushDirectory
 
-   interface mapl_PopDirectory
+   interface PopDirectory
       procedure :: pop_directory
-   end interface mapl_PopDirectory
+   end interface PopDirectory
 
-   interface mapl_ClearDirectoryStack
+   interface ClearDirectoryStack
       procedure :: clear_directory_stack
-   end interface mapl_ClearDirectoryStack
+   end interface ClearDirectoryStack
 
-   interface mapl_PathJoin
+   interface PathJoin
       module procedure :: path_join
-   end interface mapl_PathJoin
+   end interface PathJoin
 
-   interface mapl_MakeSymbolicLink
+   interface MakeSymbolicLink
       procedure :: make_symbolic_link
-   end interface mapl_MakeSymbolicLink
+   end interface MakeSymbolicLink
 
    type(StringStack), protected :: directory_stack
 
 contains
-
 
    function get_current_working_directory(rc) result(cwd)
       character(len=:), allocatable :: cwd
@@ -133,7 +134,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_current_working_directory
-
 
    subroutine change_directory(path, rc)
       use iso_c_binding
@@ -262,7 +262,7 @@ contains
       end if
 
       call change_directory(full_path, _RC)
-        
+
       _RETURN(_SUCCESS)
    end subroutine push_directory
 
@@ -304,7 +304,6 @@ contains
 
    end function path_join
 
-
    subroutine make_symbolic_link(src_path, link_path, rc)
       character(*), intent(in) :: src_path
       character(*), intent(in) :: link_path
@@ -321,7 +320,7 @@ contains
       end interface
 
       integer :: status
-      
+
       status = c_symlink(src_path // c_null_char, link_path // c_null_char)
 
       _ASSERT(status == 0, 'Error creating symbolic link from: ' // trim(src_path) // ' to: ' // trim(link_path))

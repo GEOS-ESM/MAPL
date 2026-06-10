@@ -1,4 +1,5 @@
 module mapl_DSO_Utilities_mod
+
    use mapl_FileSystemUtilities_mod
    implicit none
 
@@ -59,8 +60,7 @@ contains
       character(*), intent(in) :: guess
 
       adjust_dso_name = get_dso_basename(guess) // SYSTEM_DSO_EXTENSION
-
-  end function adjust_dso_name
+   end function adjust_dso_name
 
    ! Returns the basename of a DSO name, stripping only a known DSO extension
    ! (.so, .dylib, .dll).  Unlike get_file_basename, this does NOT strip on

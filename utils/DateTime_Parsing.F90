@@ -35,7 +35,9 @@
 ! Fully-formed time with time zone. Local time not-supported
 !      <time>Z
 #include "MAPL.h"
+
 module mapl_DateTime_Parsing_mod
+
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use mapl_StringUtilities_mod, only: is_digit
@@ -204,7 +206,6 @@ module mapl_DateTime_Parsing_mod
    end interface is_set
    ! END DATETIME_DURATION
 
-
    ! TIME_UNIT: enumerators for standard handling of time units (strings, etc)
 
    enum, bind(c)
@@ -237,10 +238,9 @@ module mapl_DateTime_Parsing_mod
 
    integer, parameter :: Z = 0
 
-
 contains
 
-! NUMBER HANDLING PROCEDURES
+   ! NUMBER HANDLING PROCEDURES
 
    ! Return true if factor divides dividend evenly, false otherwise
    pure logical function multipleof(dividend, factor)
@@ -253,7 +253,6 @@ contains
       else
           multipleof = .FALSE.
       endif
-
    end function multipleof
 
    pure logical function is_in_closed_interval(n, clint)
@@ -274,7 +273,6 @@ contains
 
       is_digit_string = (len_trim(s) > 0) .and. &
          (verify(s(:len_trim(s)), DIGIT_CHARACTERS) == 0)
-
    end function is_digit_string
 
    ! Check if c is a positive digit character
@@ -346,10 +344,9 @@ contains
       read_whole_number_indexed = n
    end function read_whole_number_indexed
 
-! END NUMBER HANDLING PROCEDURES
+   ! END NUMBER HANDLING PROCEDURES
 
-
-! LOW-LEVEL STRING PROCESSING PROCEDURES
+   ! LOW-LEVEL STRING PROCESSING PROCEDURES
 
    ! Strip delimiter from string
    pure function undelimit(string, delimiter) result(undelimited)
@@ -391,13 +388,11 @@ contains
             undelimited(pos:pos) = ch
          end if
       end do
-
    end function undelimit_all
 
-! END LOW-LEVEL STRING PROCESSING PROCEDURES
+   ! END LOW-LEVEL STRING PROCESSING PROCEDURES
 
-
-! LOW-LEVEL DATE & TIME PROCESSING PROCEDURES
+   ! LOW-LEVEL DATE & TIME PROCESSING PROCEDURES
 
    ! Return true if y is a leap year, false otherwise
    pure logical function is_leap_year(y)
@@ -433,7 +428,6 @@ contains
 
       month_ends = get_month_ends(y)
       get_month_end = month_ends(m)
-
    end function get_month_end
 
    ! Verify that y is a valid year
@@ -489,10 +483,9 @@ contains
       is_valid_timezone_offset = timezone_offset .in. [-MAX_OFFSET, MAX_OFFSET]
    end function is_valid_timezone_offset
 
-! END LOW-LEVEL DATE & TIME PROCESSING PROCEDURES
+   ! END LOW-LEVEL DATE & TIME PROCESSING PROCEDURES
 
-
-! DATE & TIME VERIFICATION
+   ! DATE & TIME VERIFICATION
 
    ! Verify all the date fields are valid
    pure logical function is_valid_date(date)
@@ -501,7 +494,6 @@ contains
       is_valid_date = is_valid_year(date%year()) .and. &
          is_valid_month(date%month()) .and. &
          is_valid_day(date%year(), date%month(), date%day())
-
    end function is_valid_date
 
    ! Verify all the time fields are valid
@@ -513,13 +505,11 @@ contains
          is_valid_second(time%second()) .and. &
          is_valid_millisecond(time%millisecond()) .and. &
          is_valid_timezone_offset(time%timezone_offset())
-
    end function is_valid_time
 
-! END DATE & TIME VERIFICATION
+   ! END DATE & TIME VERIFICATION
 
-
-! STRING PARSERS
+   ! STRING PARSERS
 
    ! parse string representing a timezone offset (absolute value)
    ! return integer offset in minutes, or on error return negative number
@@ -550,7 +540,6 @@ contains
       else
          tzo = INVALID
       end if
-
    end function parse_timezone_offset
 
    ! Parse ISO 8601 Date string into date fields, check if valid date
@@ -578,7 +567,6 @@ contains
       month = read_whole_number(undelimited(MONTH_POSITION:DAY_POSITION-1))
       day = read_whole_number(undelimited(DAY_POSITION:LENGTH))
       fields = date_fields(year, month, day)
-
    end function parse_date
 
    ! Parse ISO 8601 Time string into time fields, check if valid time
@@ -666,14 +654,13 @@ contains
       second = read_whole_number(undelimited(5:6))
 
       fields = time_fields(hour, minute, second, millisecond, timezone_offset)
-
    end function parse_time
-! END STRING PARSERS
 
+   ! END STRING PARSERS
 
-! CONSTRUCTORS
+   ! CONSTRUCTORS
 
-! DATE_FIELDS:
+   ! DATE_FIELDS:
 
    pure function construct_date_fields_default(year, month, day) result(fields)
       integer, intent(in) :: year
@@ -698,8 +685,7 @@ contains
       fields%is_valid_ = .FALSE.
    end function construct_date_fields_null
 
-
-! TIME_FIELDS:
+   ! TIME_FIELDS:
 
    pure function construct_time_fields_default(hour, minute, second, millisecond, &
       timezone_offset) result(fields)
@@ -729,7 +715,7 @@ contains
       fields%is_valid_ = .FALSE.
    end function construct_time_fields_null
 
-! DATETIME_FIELDS:
+   ! DATETIME_FIELDS:
 
 !   pure function construct_datetime_fields(yy, mm, dd, h, m, s, s8) result(fields)
 !      integer, optional, intent(in) :: yy, mm, dd, h, m, s
@@ -781,7 +767,7 @@ contains
 !
 !   end function datetime_fields_as_array
 
-! DATETIME_DURATION:
+   ! DATETIME_DURATION:
 
    function construct_datetime_duration() result(that)
       type(datetime_duration) :: that
@@ -796,15 +782,13 @@ contains
       call unset(that % hour_real)
       call unset(that % minute_real)
       call unset(that % second_real)
-
    end function construct_datetime_duration
 
-! END CONSTRUCTORS
+   ! END CONSTRUCTORS
 
+   ! TYPE-BOUND METHODS
 
-! TYPE-BOUND METHODS
-
-! DATE_FIELDS:
+   ! DATE_FIELDS:
 
    pure integer function get_year_field(this)
       class(date_fields), intent(in) :: this
@@ -826,8 +810,7 @@ contains
       are_valid_date_fields = this%is_valid_
    end function are_valid_date_fields
 
-
-! TIME_FIELDS:
+   ! TIME_FIELDS:
 
    pure integer function get_hour_field(this)
       class(time_fields), intent(in) :: this
@@ -858,7 +841,6 @@ contains
       class(time_fields), intent(in) :: this
       are_valid_time_fields = this%is_valid_
    end function are_valid_time_fields
-
 
    ! DATETIME_DURATION:
 
@@ -894,17 +876,17 @@ contains
 
    logical function hour_is_real(this)
       class(datetime_duration), intent(in) :: this
-      hour_is_real = this % hour_is_set() .and. is_set(this % hour_real) 
+      hour_is_real = this % hour_is_set() .and. is_set(this % hour_real)
    end function hour_is_real
 
    logical function minute_is_real(this)
       class(datetime_duration), intent(in) :: this
-      minute_is_real = this % minute_is_set() .and. is_set(this % minute_real) 
+      minute_is_real = this % minute_is_set() .and. is_set(this % minute_real)
    end function minute_is_real
 
    logical function second_is_real(this)
       class(datetime_duration), intent(in) :: this
-      second_is_real = this % second_is_set() .and. is_set(this % second_real) 
+      second_is_real = this % second_is_set() .and. is_set(this % second_real)
    end function second_is_real
 
    subroutine set_year_datetime_duration(this, val, rc)
@@ -915,7 +897,6 @@ contains
       this % year = val
 
       _RETURN(_SUCCESS)
-
    end subroutine set_year_datetime_duration
 
    subroutine set_month_datetime_duration(this, val, rc)
@@ -926,7 +907,6 @@ contains
       this % month = val
 
       _RETURN(_SUCCESS)
-
    end subroutine set_month_datetime_duration
 
    subroutine set_day_datetime_duration(this, val, rc)
@@ -937,7 +917,6 @@ contains
       this % day = val
 
       _RETURN(_SUCCESS)
-
    end subroutine set_day_datetime_duration
 
    subroutine set_hour_datetime_duration(this, val, rc)
@@ -948,7 +927,6 @@ contains
       call set_field_value(val, this % hour, this % hour_real)
 
       _RETURN(_SUCCESS)
-
    end subroutine set_hour_datetime_duration
 
    subroutine set_hour_real_datetime_duration(this, val, rc)
@@ -959,7 +937,6 @@ contains
       call set_field_value(val, this % hour_real, this % hour)
 
       _RETURN(_SUCCESS)
-
    end subroutine set_hour_real_datetime_duration
 
    subroutine set_minute_datetime_duration(this, val, rc)
@@ -970,7 +947,6 @@ contains
       call set_field_value(val, this % minute, this % minute_real)
 
       _RETURN(_SUCCESS)
-
    end subroutine set_minute_datetime_duration
 
    subroutine set_minute_real_datetime_duration(this, val, rc)
@@ -981,7 +957,6 @@ contains
       call set_field_value(val, this % minute_real, this % minute)
 
       _RETURN(_SUCCESS)
-
    end subroutine set_minute_real_datetime_duration
 
    subroutine set_second_datetime_duration(this, val, rc)
@@ -992,7 +967,6 @@ contains
       call set_field_value(val, this % second, this % second_real)
 
       _RETURN(_SUCCESS)
-
    end subroutine set_second_datetime_duration
 
    subroutine set_second_real_datetime_duration(this, val, rc)
@@ -1003,7 +977,6 @@ contains
       call set_field_value(val, this % second_real, this % second)
 
       _RETURN(_SUCCESS)
-
    end subroutine set_second_real_datetime_duration
 
    subroutine set_integer_value_datetime_duration(this, tunit, val, rc)
@@ -1030,7 +1003,6 @@ contains
       end select
 
       _RETURN(_SUCCESS)
-
    end subroutine set_integer_value_datetime_duration
 
    subroutine set_real_value_datetime_duration(this, tunit, val, rc)
@@ -1051,13 +1023,12 @@ contains
       end select
 
       _RETURN(_SUCCESS)
-
    end subroutine set_real_value_datetime_duration
 
    ! END CF Time: Type-bound procedues
 
 
-! END TYPE-BOUND METHODS
+   ! END TYPE-BOUND METHODS
 
    !wdb deleteme Not testing. May not be necessary.
    subroutine convert_to_ISO8601DateTime(datetime_string, iso_string, rc)
@@ -1099,9 +1070,7 @@ contains
       iso_string = intermediate
 
       _RETURN(_SUCCESS)
-
    end subroutine convert_to_ISO8601DateTime
-
 
    ! UTILITY PROCEDURES
 
@@ -1124,7 +1093,6 @@ contains
       end do
 
       tval = .true.
-
    end function is_valid_datestring
 
    logical function is_in_char_set(element, char_set)
@@ -1163,7 +1131,6 @@ contains
          if(next > len(string)) exit
          if(in_set .neqv. is_in_char_set(string(next:next), chars)) exit
       end do
-
    end function find_delta
 
    function find_delta_datestring(string, istart, istop) result(next)
@@ -1176,7 +1143,6 @@ contains
       istop_ = len(string)
       if(present(istop)) istop_ = istop
       next = find_delta(string, DIGIT_CHARACTERS, istart, istop)
-
    end function find_delta_datestring
 
    subroutine split_digit_string_delimited(string, parts, rc)
@@ -1204,7 +1170,6 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-
    end subroutine split_digit_string_delimited
 
    logical function valid_index(n, string)
@@ -1212,7 +1177,6 @@ contains
       character(len=*), intent(in) :: string
 
       valid_index = .not. (n < 1 .or. n > len(string))
-
    end function valid_index
 
    subroutine split_digit_string_indexed(string, length, parts, rc)
@@ -1232,7 +1196,6 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-
    end subroutine split_digit_string_indexed
 
    function convert_lengths_to_indices(length) result(indices)
@@ -1244,7 +1207,6 @@ contains
       do i = 2, size(indices, 2)
          indices(:, i) = indices(:,(i-1)) + [1, length(i)]
       end do
-
    end function convert_lengths_to_indices
 
    subroutine unset_integer(n)
@@ -1257,7 +1219,7 @@ contains
       t = real(UNSET_FIELD, kind=R64)
    end subroutine unset_real
 
-   logical function is_set_integer(n) 
+   logical function is_set_integer(n)
       integer, intent(in) :: n
       is_set_integer = (n /= UNSET_FIELD)
    end function is_set_integer
@@ -1274,7 +1236,6 @@ contains
 
       integer_value = new_value
       call unset(real_value)
-      
    end subroutine set_field_value_integer
 
    subroutine set_field_value_real(new_value, real_value, integer_value)
@@ -1284,10 +1245,9 @@ contains
 
       real_value = new_value
       call unset(integer_value)
-      
    end subroutine set_field_value_real
 
-! TIME_UNIT ====================================================================
+   ! TIME_UNIT ====================================================================
 
    function get_time_unit(unit_name, check_plural) result(unit_num)
       character(len=*), intent(in) :: unit_name
@@ -1317,7 +1277,6 @@ contains
             exit
          end if
       end do
-
    end function get_time_unit
 
    logical function is_time_unit(string)

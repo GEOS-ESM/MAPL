@@ -66,13 +66,14 @@
 
 !#define STRICT_ISO8601 !Uncomment for strict ISO8601 compliance
 #include "MAPL.h"
+
 module mapl_ISO8601_DateTime_mod
+
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
-   implicit none
 
-! For testing private methods, leave the following line commented out.
-!   private
+   implicit none
+   private
 
    public :: convert_ISO8601_to_integer_time
    public :: convert_ISO8601_to_integer_date
@@ -230,7 +231,7 @@ module mapl_ISO8601_DateTime_mod
 
 contains
 
-! NUMBER HANDLING PROCEDURES
+   ! NUMBER HANDLING PROCEDURES
 
    ! Return true if factor divides dividend evenly, false otherwise
    pure logical function divides(factor, dividend)
@@ -321,10 +322,9 @@ contains
       read_whole_number_indexed = n
    end function read_whole_number_indexed
 
-! END NUMBER HANDLING PROCEDURES
+   ! END NUMBER HANDLING PROCEDURES
 
-
-! LOW-LEVEL STRING PROCESSING PROCEDURES
+   ! LOW-LEVEL STRING PROCESSING PROCEDURES
 
    ! Strip delimiter from string
    pure function undelimit(string, delimiter) result(undelimited)
@@ -343,10 +343,9 @@ contains
       end do
    end function undelimit
 
-! END LOW-LEVEL STRING PROCESSING PROCEDURES
+   ! END LOW-LEVEL STRING PROCESSING PROCEDURES
 
-
-! LOW-LEVEL DATE & TIME PROCESSING PROCEDURES
+   ! LOW-LEVEL DATE & TIME PROCESSING PROCEDURES
 
    ! Return true if y is a leap year, false otherwise
    pure logical function is_leap_year(y)
@@ -450,10 +449,9 @@ contains
       is_valid_timezone_offset = (timezone_offset == Z)
    end function is_valid_timezone_offset
 
-! END LOW-LEVEL DATE & TIME PROCESSING PROCEDURES
+   ! END LOW-LEVEL DATE & TIME PROCESSING PROCEDURES
 
-
-! DATE & TIME VERIFICATION
+   ! DATE & TIME VERIFICATION
 
    ! Verify all the date fields are valid
    pure logical function is_valid_date(date)
@@ -478,10 +476,9 @@ contains
 
    end function is_valid_time
 
-! END DATE & TIME VERIFICATION
+   ! END DATE & TIME VERIFICATION
 
-
-! STRING PARSERS
+   ! STRING PARSERS
 
    ! parse string representing a timezone offset (absolute value)
    ! return integer offset in minutes, or on error return negative number
@@ -511,7 +508,6 @@ contains
       else
          tzo = INVALID
       end if
-
    end function parse_timezone_offset
 
    ! Parse ISO 8601 Date string into date fields, check if valid date
@@ -537,7 +533,6 @@ contains
       else
          fields%is_valid_ = .FALSE.
       end if
-
    end function parse_date
 
    ! Parse ISO 8601 Time string into time fields, check if valid time
@@ -650,10 +645,9 @@ contains
       fields%is_valid_ = is_valid_time(fields)
    end function parse_time
 
-! END STRING PARSERS
+   ! END STRING PARSERS
 
-
-! HIGH-LEVEL CONSTRUCTORS
+   ! HIGH-LEVEL CONSTRUCTORS
    function construct_ISO8601Date(isostring, rc) result(date)
       character(len=*), intent(in) :: isostring
       integer, intent(out) :: rc
@@ -669,7 +663,6 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-
    end function construct_ISO8601Date
 
    function construct_ISO8601Time(isostring, rc) result(time)
@@ -690,7 +683,6 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-
    end function construct_ISO8601Time
 
    function construct_ISO8601DateTime(isostring, rc) result(datetime)
@@ -839,10 +831,9 @@ contains
       end if
    end function construct_ISO8601Duration
 
-! END HIGH-LEVEL CONSTRUCTORS
+   ! END HIGH-LEVEL CONSTRUCTORS
 
-
-! LOW-LEVEL CONSTRUCTORS
+   ! LOW-LEVEL CONSTRUCTORS
 
    function construct_date_fields(year, month, day) result(fields)
       integer, intent(in) :: year
@@ -869,14 +860,13 @@ contains
       fields%timezone_offset_ = timezone_offset
    end function construct_time_fields
 
-! END LOW-LEVEL CONSTRUCTORS
+   ! END LOW-LEVEL CONSTRUCTORS
 
+   ! TYPE-BOUND METHODS
 
-! TYPE-BOUND METHODS
+   ! getters & setters
 
-! getters & setters
-
-! ISO8601Date
+   ! ISO8601Date
 
    integer function get_year(self)
       class(ISO8601Date), intent(in) :: self
@@ -893,7 +883,7 @@ contains
       get_day = self%day_
    end function get_day
 
-! ISO8601Time
+   ! ISO8601Time
    integer function get_hour(self)
       class(ISO8601Time), intent(in) :: self
       get_hour = self%hour_
@@ -919,7 +909,7 @@ contains
       get_timezone_offset = self%timezone_offset_
    end function get_timezone_offset
 
-! ISO8601DateTime
+   ! ISO8601DateTime
    integer function get_year_datetime(self)
       class(ISO8601DateTime), intent(in) :: self
       get_year_datetime= self%date_%get_year()
@@ -972,7 +962,7 @@ contains
       time = self%time_
    end function get_time
 
-! ISO8601Duration
+   ! ISO8601Duration
    integer function get_years(self)
       class(ISO8601Duration), intent(in) :: self
       get_years = self%years_
@@ -1003,7 +993,7 @@ contains
       get_seconds = self%seconds_
    end function get_seconds
 
-! ISO8601Interval
+   ! ISO8601Interval
    function get_start_datetime(self) result(datetime)
       class(ISO8601Interval), intent(in) :: self
       type(ISO8601DateTime) :: datetime
@@ -1021,10 +1011,9 @@ contains
       get_repetitions = self%repetitions_
    end function get_repetitions
 
-! END TYPE-BOUND METHODS
+   ! END TYPE-BOUND METHODS
 
-
-! HIGH-LEVEL CONVERSION PROCEDURES
+   ! HIGH-LEVEL CONVERSION PROCEDURES
 
    ! Convert ISO 8601 string to packed integer YYYYMMDD
    function convert_ISO8601_to_integer_date(isostring, rc) result(integer_date)
@@ -1058,6 +1047,6 @@ contains
       _RETURN(_SUCCESS)
    end function convert_ISO8601_to_integer_time
 
-! END HIGH-LEVEL CONVERSION PROCEDURES
+   ! END HIGH-LEVEL CONVERSION PROCEDURES
 
 end module mapl_ISO8601_DateTime_mod
