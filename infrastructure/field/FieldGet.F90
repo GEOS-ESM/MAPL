@@ -44,7 +44,7 @@ contains
       integer, optional, intent(out) :: num_levels     ! Actual field levels (depends on vgrid + stagger)
       integer, optional, intent(out) :: num_layers     ! Number of layers from vgrid (CENTER levels)
       type(mapl_VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
-      type(VerticalAlignment), optional, intent(out) :: vert_alignment
+      type(mapl_VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels  ! Deprecated: use num_layers instead
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(mapl_QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata

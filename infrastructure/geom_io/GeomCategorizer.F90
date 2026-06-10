@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_GeomCatagorizer_mod
+module mapl_GeomCategorizer_mod
 
    use mapl_ErrorHandling_mod
    use mapl_GridPFIO_mod
@@ -32,4 +32,4 @@ module mapl_GeomCatagorizer_mod
       _UNUSED_DUMMY(metadata)
    end function make_geom_pfio
 
-end module mapl_GeomCatagorizer_mod
+ end module mapl_GeomCategorizer_mod
