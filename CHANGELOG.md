@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed mapl_ prefix from leaf components in ./enums
 - Remove legacy interfaces to MAPL_GridCompAddSpec and MAPL_GridCompAddChild
 - Reduced set of published entities in ./infrastructure/geom_io/API.F90 (issue #5135)
 - Removed mapl_ prefix from leaf components in ./superstructure/state
