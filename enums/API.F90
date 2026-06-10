@@ -102,11 +102,11 @@ module mapl_enums_api
    use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_INVALID => VERTICAL_STAGGER_INVALID
 
    ! VerticalAlignment
-   use mapl_VerticalAlignment_mod, only: MAPL_VerticalAlignment       => VerticalAlignment
-   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_WITH_GRID    => VALIGN_WITH_GRID
-   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_UP    => VALIGN_UP
-   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_DOWN  => VALIGN_DOWN
-   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_INVALID  => VALIGN_INVALID
+   use mapl_VerticalAlignment_mod, only: MAPL_VerticalAlignment => VerticalAlignment
+   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_WITH_GRID => VALIGN_WITH_GRID
+   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_UP => VALIGN_UP
+   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_DOWN => VALIGN_DOWN
+   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_INVALID => VALIGN_INVALID
 
    use mapl_QuantityTypeMetadata_mod, mapl_QuantityTypeMetadata => QuantityTypeMetadata, &
         mapl_MakeQuantityTypeMetadata => make_QuantityTypeMetadata
