@@ -31,7 +31,7 @@ use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root, MAPL_ROOT => ROOT_PROCESS
                           MAPL_CommsAllGather => comms_allgather, &
                           MAPL_CommsSendRecv => comms_sendrecv, &
                           MAPL_CommsAllGatherV => comms_allgatherv
-use mapl_ShmemComms_mod, only: MAPL_CommsBcast
+use mapl_esmf_api, only: MAPL_CommsBcast
 use mapl_Hash_mod
 use mapl_Shmem_mod
 use mapl_ErrorHandling_mod
@@ -471,7 +471,7 @@ contains
          tile_area  = AVR(:,2)
          pfaf_index = int(AVR(:,9))
        endif
-     
+
 
 ! Allocate msk for which tiles to include in the stream being created.
 !--------------------------------------------------------------------
@@ -587,7 +587,7 @@ contains
              STREAM%GLOBAL_GeoLocation(K)%X =      AVR(I,3) * (MAPL_PI/180.)
              STREAM%GLOBAL_GeoLocation(K)%Y =      AVR(I,4) * (MAPL_PI/180.)
              global_pfaf_index(K)           =      pfaf_index(I)
-             
+
 !C             X = AVR(I,3)
 !C             Y = AVR(I,4)
 !C             do N=1,STREAM%N_GRIDS
@@ -2640,7 +2640,7 @@ subroutine MAPL_LocstreamCreateSimple(Locstream, grid, local_id, tilelons, tilel
    LocStream%Ptr => null()
    allocate(LocStream%Ptr, STAT=STATUS)
    _VERIFY(STATUS)
-       
+
    stream => LocStream%Ptr
    stream%grid      = grid
     block
@@ -2674,8 +2674,8 @@ subroutine MAPL_LocstreamCreateSimple(Locstream, grid, local_id, tilelons, tilel
    call MAPL_GridGet(grid, im=stream%nt_global, rc=status)
     _VERIFY(STATUS)
    call MAPL_LocStreamCreateTileGrid(LocStream, grid, RC=status)
-    _VERIFY(STATUS) 
-    
+    _VERIFY(STATUS)
+
   _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_LocStreamCreateSimple
 

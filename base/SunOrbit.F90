@@ -26,7 +26,7 @@ module mapl_Sun_mod
 
   use ESMF
   use MAPL_Constants
-  use mapl_ShmemComms_mod, only: MAPL_CommsBcast
+  use mapl_esmf_api, only: MAPL_CommsBcast
   use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
   use mapl_TimeInterpolation_mod, only: MAPL_ClimInterpFac
   use mapl_FileIO_mod, only: WRITE_PARALLEL

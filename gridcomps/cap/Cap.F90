@@ -560,7 +560,7 @@ contains
 
       integer :: status
 
-      if (mapl_AmIRoot()) then
+      if (MAPL_Am_I_Root()) then
          call mapl_MakeDirectory(path, force=force, _RC)
       end if
       call mapl_Barrier(_RC)
@@ -579,7 +579,7 @@ contains
       path = MAPL_PathJoin(checkpointing_path, LAST_CHECKPOINT)
       last_exists = MAPL_DirectoryExists(path, _RC)
       if (last_exists) then
-         if (MAPL_AmIRoot()) then
+         if (MAPL_Am_I_Root()) then
             call MAPL_RemoveFile(path, _RC)
          end if
       end if
@@ -595,7 +595,7 @@ contains
       character(len=:), allocatable :: path
       integer :: status
 
-      if (MAPL_AmIRoot()) then
+      if (MAPL_Am_I_Root()) then
          call MAPL_PushDirectory(checkpointing_path, _RC)
          call MAPL_MakeSymbolicLink(src_path=target_name, link_path=LAST_CHECKPOINT, _RC)
          path = MAPL_PopDirectory(_RC)

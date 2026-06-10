@@ -51,9 +51,9 @@ module mapl_AbstractTimeStatistic_mod
 
       function I_get_alarm(this) result(alarm)
          import AbstractTimeStatistic
-         import SimpleAlarm
+         import MAPL_SimpleAlarm
          class(AbstractTimeStatistic), intent(in) :: this
-         type(SimpleAlarm) :: alarm
+         type(MAPL_SimpleAlarm) :: alarm
       end function I_get_alarm
 
    end interface

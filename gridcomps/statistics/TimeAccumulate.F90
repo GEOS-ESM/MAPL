@@ -14,7 +14,7 @@ module mapl_TimeAccumulate_mod
 
    type, extends(AbstractTimeStatistic) :: TimeAccumulate
       private
-      type(SimpleAlarm) :: alarm
+      type(MAPL_SimpleAlarm) :: alarm
       type(esmf_Field) :: f       ! input
       type(esmf_Field) :: accum_f ! output
    contains
@@ -38,7 +38,7 @@ contains
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: accum_f
-      type(SimpleAlarm), intent(in) :: alarm
+      type(MAPL_SimpleAlarm), intent(in) :: alarm
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -289,7 +289,7 @@ contains
 
    function get_alarm(this) result(alarm)
       class(TimeAccumulate), intent(in) :: this
-      type(SimpleAlarm) :: alarm
+      type(MAPL_SimpleAlarm) :: alarm
 
       alarm = this%alarm
    end function get_alarm
