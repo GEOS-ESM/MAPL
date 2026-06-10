@@ -3,9 +3,9 @@ esma_set_this (OVERRIDE MAPL.GeomIO)
 set(srcs
   API.F90 # package
   SharedIO.F90
-  Geom_PFIO.F90
-  Grid_PFIO.F90
-  GeomCatagorizer.F90
+  GeomPFIO.F90
+  GridPFIO.F90
+  GeomCategorizer.F90
   pFIOServerBounds.F90
   DataCollection.F90
   DataCollectionVector.F90

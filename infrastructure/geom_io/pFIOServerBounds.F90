@@ -8,7 +8,7 @@ module mapl_pFIOServerBounds_mod
    use gFTL2_StringVector
    use mapl_geom_api, only: MAPL_GridGet, mapl_GridGetGlobalCellCountPerDim
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: pFIOServerBounds
@@ -21,7 +21,7 @@ module mapl_pFIOServerBounds_mod
 
    type :: pFIOServerBounds
       private
-      integer, allocatable :: local_start(:)
+      integer, allocatable :: local_start_(:)
       integer, allocatable :: global_start(:)
       integer, allocatable :: global_count(:)
       integer, allocatable :: corner_local_start(:)
@@ -47,7 +47,7 @@ contains
    function get_local_start(this) result(local_start)
       integer, allocatable :: local_start(:)
       class(pFIOServerBounds), intent(in) :: this
-      local_start = this%local_start
+      local_start = this%local_start_
    end function get_local_start
 
    function get_global_start(this) result(global_start)
@@ -122,7 +122,7 @@ contains
       if (present(time_index)) tm = 1
 
       allocate(server_bounds%file_shape(1), source=num_field_levels)
-      allocate(server_bounds%local_start(1 + tm), source=1)
+      allocate(server_bounds%local_start_(1 + tm), source=1)
       allocate(server_bounds%global_start(1 + tm), source=1)
       allocate(server_bounds%global_count(1 + tm), source=1)
       server_bounds%global_count(1) = num_field_levels
@@ -163,7 +163,7 @@ contains
       allocate(server_bounds%file_shape(file_dims))
       allocate(server_bounds%global_start(file_dims + tm))
       allocate(server_bounds%global_count(file_dims + tm))
-      allocate(server_bounds%local_start(file_dims + tm))
+      allocate(server_bounds%local_start_(file_dims + tm))
       allocate(server_bounds%corner_global_start(file_dims + tm))
       allocate(server_bounds%corner_global_count(file_dims + tm))
       allocate(server_bounds%corner_local_start(file_dims + tm))
@@ -177,9 +177,9 @@ contains
       server_bounds%global_count(new_grid_dims + 1:file_dims) = field_shape(grid_dims + 1:n_dims)
       if (present(time_index)) server_bounds%global_count(file_dims + 1) = 1
 
-      server_bounds%local_start = 1
+      server_bounds%local_start_ = 1
       if (read_or_write == PFIO_BOUNDS_READ) then
-         if (present(time_index)) server_bounds%local_start(file_dims + 1) = time_index
+         if (present(time_index)) server_bounds%local_start_(file_dims + 1) = time_index
       end if
 
       select case (tile_count)
@@ -188,7 +188,7 @@ contains
          tile = 1 + (j1 - 1) / global_dim(1)
          server_bounds%file_shape(1:new_grid_dims) = [field_shape(1), field_shape(2), 1]
          server_bounds%global_count(1:new_grid_dims) = [global_dim(1), global_dim(1), tile_count]
-         server_bounds%local_start(1:new_grid_dims) = [i1, j1 - (tile - 1) * global_dim(1), tile]
+         server_bounds%local_start_(1:new_grid_dims) = [i1, j1 - (tile - 1) * global_dim(1), tile]
 
          server_bounds%corner_global_count(1:new_grid_dims) = [global_dim(1) + 1, global_dim(1) + 1, tile_count]
          server_bounds%corner_local_start(1:new_grid_dims) = [i1, j1 - (tile - 1) * global_dim(1), tile]
@@ -197,7 +197,7 @@ contains
 
          server_bounds%file_shape(1:new_grid_dims) = [field_shape(1), field_shape(2)]
          server_bounds%global_count(1:new_grid_dims) = [global_dim(1), global_dim(2)]
-         server_bounds%local_start(1:new_grid_dims) = [i1, j1]
+         server_bounds%local_start_(1:new_grid_dims) = [i1, j1]
 
       case default
 
