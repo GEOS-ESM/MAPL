@@ -101,3 +101,17 @@ contains
    end subroutine run
 
 end module mapl_CapGridComp_mod
+
+subroutine setServices(gridcomp,rc)
+   use ESMF
+   use MAPL
+   use mapl_CapGridComp_mod, only: Cap_setServices => SetServices
+   type(ESMF_GridComp)  :: gridcomp
+   integer, intent(out) :: rc
+
+   integer :: status
+
+   call Cap_setServices(gridcomp,_RC)
+
+   _RETURN(_SUCCESS)
+end subroutine
