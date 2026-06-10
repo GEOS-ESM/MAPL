@@ -10,11 +10,11 @@ module mapl_StateDestroy_mod
    implicit none(type, external)
 
    private
-   public :: MAPL_StateDestroy
+   public :: StateDestroy
 
-   interface MAPL_StateDestroy
+   interface StateDestroy
       procedure :: destroy_state
-   end interface MAPL_StateDestroy
+   end interface StateDestroy
    
    logical, parameter :: NESTED = .TRUE.
 
