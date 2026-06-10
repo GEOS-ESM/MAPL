@@ -153,8 +153,6 @@ module mapl_Generic_mod
       procedure :: gridcomp_add_child_by_procedure_and_config_file
       procedure :: gridcomp_add_child_by_dso_and_config
       procedure :: gridcomp_add_child_by_dso_and_config_file
-      procedure :: gridcomp_add_child_by_config_file
-      procedure :: gridcomp_add_child_by_config
       procedure :: gridcomp_add_child_by_spec
    end interface GridCompAddChild
 
@@ -176,7 +174,6 @@ module mapl_Generic_mod
 
    interface GridCompAddSpec
       procedure :: gridcomp_add_spec
-      procedure :: legacy_gridcomp_add_spec
    end interface GridCompAddSpec
 
    interface GridCompAdvertiseVariable
@@ -510,58 +507,6 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_add_child_by_dso_and_config_file
 
-   subroutine gridcomp_add_child_by_config_file(gridcomp, child_name, setservices, hconfig_file, unusable, timeStep, refTime_offset, rc)
-      use mapl_UserSetServices_mod
-      type(ESMF_GridComp), intent(inout) :: gridcomp
-      character(len=*), intent(in) :: child_name
-      class(AbstractUserSetServices), intent(in) :: setservices
-      character(len=*), intent(in) :: hconfig_file
-      class(KeywordEnforcer), optional, intent(out) :: unusable
-      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_HConfig) :: hconfig
-
-      hconfig = ESMF_HConfigCreate(filename=hconfig_file, _RC)
-      call GridCompAddChild( &
-           gridcomp, &
-           child_name, &
-           setservices, &
-           hconfig, &
-           timeStep=timeStep, &
-           refTime_offset=refTime_offset, &
-           _RC)
-      call ESMF_HConfigDestroy(hconfig, _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine gridcomp_add_child_by_config_file
-
-   subroutine gridcomp_add_child_by_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime_offset, rc)
-      use mapl_UserSetServices_mod
-      type(ESMF_GridComp), intent(inout) :: gridcomp
-      character(len=*), intent(in) :: child_name
-      class(AbstractUserSetServices), intent(in) :: setservices
-      type(ESMF_HConfig), intent(in) :: hconfig
-      class(KeywordEnforcer), optional, intent(out) :: unusable
-      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ChildSpec) :: child_spec
-
-      _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
-
-      child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
-      call GridCompAddChild(gridcomp, child_name, child_spec, _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine gridcomp_add_child_by_config
-
    subroutine gridcomp_add_child_by_spec(gridcomp, child_name, child_spec, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
@@ -665,99 +610,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_add_varspec_basic
-
-   subroutine legacy_gridcomp_add_spec( &
-        gridcomp, &
-        state_intent, &
-        short_name, &
-        standard_name, &
-        dims, &
-        vstagger, &
-        ! OPTIONAL
-        unusable, &
-        ungridded_dims, &
-        units, &
-        restart, &
-        typekind, &
-        itemType, &
-        add_to_export, &
-        fill_value, &
-        export_name, &
-        has_deferred_aspects, &
-        service_items, &
-        rc)
-      type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-      character(*), intent(in) :: short_name
-      character(*), intent(in) :: standard_name
-      character(*), intent(in) :: dims
-      type(VerticalStaggerLoc), intent(in) :: vstagger
-      ! OPTIONAL
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(UngriddedDim), optional, intent(in) :: ungridded_dims(:)
-      character(*), optional, intent(in) :: units
-      type(RestartMode), optional, intent(in) :: restart
-      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
-      logical, optional, intent(in) :: add_to_export
-      real, optional, intent(in) :: fill_value
-      character(*), optional, intent(in) :: export_name
-      logical, optional, intent(in) :: has_deferred_aspects
-      type(StringVector), optional, intent(in) :: service_items
-      integer, optional, intent(out) :: rc
-
-      type(VariableSpec) :: var_spec
-      type(HorizontalDimsSpec) :: horizontal_dims_spec
-      type(OuterMetaComponent), pointer :: outer_meta
-      type(ComponentSpec), pointer :: component_spec
-      character(len=:), allocatable :: units_
-      type(UngriddedDims), allocatable :: dim_specs_vec
-      integer :: status
-
-      _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
-      horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
-      if (dims == "z") then
-         horizontal_dims_spec = HORIZONTAL_DIMS_NONE
-      end if
-      ! TODO: Using standard_name, look up field dictionary for units_
-      ! If input units is present, override using input values
-      if (present(units)) units_ = units
-      if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
-      var_spec = make_VariableSpec( &
-           state_intent, &
-           short_name, &
-           standard_name=standard_name, &
-           units=units_, &
-           itemType=itemType, &
-           typekind=typekind, &
-           vertical_stagger=vstagger, &
-           ungridded_dims=dim_specs_vec, &
-           horizontal_dims_spec=horizontal_dims_spec, &
-           fill_value=fill_value, &
-           has_deferred_aspects=has_deferred_aspects, &
-           service_items=service_items, &
-           restart_mode=restart, &
-           _RC)
-      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      component_spec => outer_meta%get_component_spec()
-      call component_spec%var_specs%push_back(var_spec)
-
-      if (present(add_to_export)) then
-         if (add_to_export) then
-            _ASSERT((state_intent==ESMF_STATEINTENT_INTERNAL), "cannot reexport a non-internal spec")
-            call gridcomp_reexport( &
-                 gridcomp=gridcomp, &
-                 src_comp="<self>", &
-                 src_name=short_name, &
-                 src_intent=esmf_state_intent_to_string(state_intent), &
-                 new_name=export_name, &
-                 _RC)
-         end if
-      end if
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine legacy_gridcomp_add_spec
 
    subroutine gridcomp_add_spec( &
         gridcomp, &
