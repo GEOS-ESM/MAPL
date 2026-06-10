@@ -22,16 +22,16 @@ module mapl_GenericGridComp_mod
    private
 
    ! Procedures
-   public :: mapl_GenericSetServices
-   public :: MAPL_GridCompCreate
+   public :: GenericSetServices
+   public :: GridCompCreate
 
-   interface mapl_GridCompCreate
+   interface GridCompCreate
       procedure create_grid_comp_primary
-   end interface mapl_GridCompCreate
+   end interface GridCompCreate
 
 contains
 
-   recursive subroutine mapl_GenericSetServices(gridcomp, rc)
+   recursive subroutine GenericSetServices(gridcomp, rc)
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
@@ -79,7 +79,7 @@ contains
          _RETURN(ESMF_SUCCESS)
       end subroutine set_entry_points
 
-   end subroutine mapl_GenericSetServices
+   end subroutine GenericSetServices
 
 
 
