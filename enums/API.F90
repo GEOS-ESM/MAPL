@@ -92,6 +92,7 @@ module mapl_enums_api
    use mapl_FieldBundleType_Flag_mod, only: MAPL_FIELDBUNDLETYPE_INVALID            => FIELDBUNDLETYPE_INVALID
    use mapl_FieldBundleType_Flag_mod, only: operator(==), operator(/=)
 
+   ! Vertical enums
    ! VerticalStaggerLoc
    use mapl_VerticalStaggerLoc_mod, only: MAPL_VerticalStaggerLoc       => VerticalStaggerLoc
    use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_NONE    => VERTICAL_STAGGER_NONE
@@ -100,9 +101,13 @@ module mapl_enums_api
    use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_MIRROR  => VERTICAL_STAGGER_MIRROR
    use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_INVALID => VERTICAL_STAGGER_INVALID
 
-   ! Vertical enums
-   use mapl_VerticalAlignment_mod
-   use mapl_VerticalStaggerLoc_mod
+   ! VerticalAlignment
+   use mapl_VerticalAlignment_mod, only: MAPL_VerticalAlignment       => VerticalAlignment
+   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_WITH_GRID    => VALIGN_WITH_GRID
+   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_UP    => VALIGN_UP
+   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_DOWN  => VALIGN_DOWN
+   use mapl_VerticalAlignment_mod, only: MAPL_VALIGN_INVALID  => VALIGN_INVALID
+
    use mapl_QuantityTypeMetadata_mod, mapl_QuantityTypeMetadata => QuantityTypeMetadata, &
         mapl_MakeQuantityTypeMetadata => make_QuantityTypeMetadata
    use mapl_NormalizationMetadata_mod, mapl_NormalizationMetadata => NormalizationMetadata, &
@@ -166,11 +171,11 @@ module mapl_enums_api
    public :: MAPL_VERTICAL_STAGGER_INVALID
 
    ! Vertical alignment
-   public :: VerticalAlignment
-   public :: VALIGN_WITH_GRID
-   public :: VALIGN_UP
-   public :: VALIGN_DOWN
-   public :: VALIGN_INVALID
+   public :: MAPL_VerticalAlignment
+   public :: MAPL_VALIGN_WITH_GRID
+   public :: MAPL_VALIGN_UP
+   public :: MAPL_VALIGN_DOWN
+   public :: MAPL_VALIGN_INVALID
 
    ! ConservationType
    public :: MAPL_ConservationType
