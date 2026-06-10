@@ -3,7 +3,7 @@
 submodule (MAPL_OuterMetaComponent_mod) get_checkpoint_dir_smod
 
    use ESMF
-   use MAPL_OS_mod, only: MAPL_PathJoin
+   use mapl_utils_api, only: MAPL_PathJoin
    use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Return, MAPL_Assert
 
    implicit none(type, external)
