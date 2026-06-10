@@ -178,11 +178,13 @@ contains
 
       integer :: status
       logical :: is_present
+      real(kind=ESMF_KIND_R8) :: value_r8
 
       is_present = ESMF_InfoIsPresent(info, key=key, _RC)
       _ASSERT(is_present,  "Key not found in info object: " // key)
 
-      call ESMF_InfoGet(info, key=key, value=value, _RC)
+      call ESMF_InfoGet(info, key=key, value=value_r8, _RC)
+      value = real(value_r8, kind=ESMF_KIND_R4)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -885,5 +887,4 @@ contains
    end function concat
 
 end module mapl_InfoUtilities_mod
-
 
