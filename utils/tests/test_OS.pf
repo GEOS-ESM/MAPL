@@ -12,11 +12,11 @@ contains
       character(*), parameter :: DIR = 'dir_a'
       integer :: status
 
-      call mapl_MakeDirectory(DIR, _RC)
-      @assert_that(mapl_DirectoryExists(DIR), is(true()))
+      call MakeDirectory(DIR, _RC)
+      @assert_that(DirectoryExists(DIR), is(true()))
 
       ! cleanup
-      call mapl_RemoveDirectory(DIR, _RC)
+      call RemoveDirectory(DIR, _RC)
 
    end subroutine test_make_directory
 
@@ -26,21 +26,21 @@ contains
       integer :: status
       character(:), allocatable :: dir, current_dir
 
-      current_dir = mapl_GetCurrentWorkingDirectory(_RC)
-      call mapl_MakeDirectory(SUBDIR, _RC)
-      call mapl_PushDirectory(SUBDIR, _RC)
+      current_dir = GetCurrentWorkingDirectory(_RC)
+      call MakeDirectory(SUBDIR, _RC)
+      call PushDirectory(SUBDIR, _RC)
 
-      dir = mapl_GetCurrentWorkingDirectory(_RC)
-      @assertEqual(mapl_PathJoin(current_dir, SUBDIR), dir)
+      dir = GetCurrentWorkingDirectory(_RC)
+      @assertEqual(PathJoin(current_dir, SUBDIR), dir)
 
-      dir = mapl_PopDirectory(_RC)
+      dir = PopDirectory(_RC)
       @assertEqual(current_dir, dir)
 
-      dir = mapl_GetCurrentWorkingDirectory(_RC)
+      dir = GetCurrentWorkingDirectory(_RC)
       @assertEqual(current_dir, dir)
 
       ! cleanup
-      call mapl_RemoveDirectory(SUBDIR, _RC)
+      call RemoveDirectory(SUBDIR, _RC)
    end subroutine test_push_directory
 
    @test
@@ -50,21 +50,21 @@ contains
       integer :: status
       character(:), allocatable :: dir, current_dir
 
-      current_dir = mapl_GetCurrentWorkingDirectory(_RC)
-      call mapl_MakeDirectory(SUBDIR_A, _RC)
-      call mapl_PushDirectory(SUBDIR_A, _RC)
+      current_dir = GetCurrentWorkingDirectory(_RC)
+      call MakeDirectory(SUBDIR_A, _RC)
+      call PushDirectory(SUBDIR_A, _RC)
 
-      call mapl_MakeDirectory(SUBDIR_B, _RC)
-      call mapl_PushDirectory(SUBDIR_B, _RC)
-      dir = mapl_PopDirectory(_RC)
-      @assertEqual(mapl_PathJoin(current_dir, SUBDIR_A), dir)
+      call MakeDirectory(SUBDIR_B, _RC)
+      call PushDirectory(SUBDIR_B, _RC)
+      dir = PopDirectory(_RC)
+      @assertEqual(PathJoin(current_dir, SUBDIR_A), dir)
 
-      dir = mapl_PopDirectory(_RC)
+      dir = PopDirectory(_RC)
       @assertEqual(current_dir, dir)
 
       ! cleanup
-      call mapl_RemoveDirectory(mapl_PathJoin(SUBDIR_A, SUBDIR_B), _RC)
-      call mapl_RemoveDirectory(SUBDIR_A, _RC)
+      call RemoveDirectory(PathJoin(SUBDIR_A, SUBDIR_B), _RC)
+      call RemoveDirectory(SUBDIR_A, _RC)
    end subroutine test_push_directory_sequence_a
 
    @test
@@ -73,26 +73,26 @@ contains
       integer :: status
       character(:), allocatable :: dir, current_dir
 
-      current_dir = mapl_GetCurrentWorkingDirectory(_RC)
-      call mapl_MakeDirectory(SUBDIR, _RC)
-      call mapl_PushDirectory(SUBDIR, _RC)
+      current_dir = GetCurrentWorkingDirectory(_RC)
+      call MakeDirectory(SUBDIR, _RC)
+      call PushDirectory(SUBDIR, _RC)
 
-      call mapl_PushDirectory(_RC) ! back to where we started?
-      dir = mapl_GetCurrentWorkingDirectory(_RC)
+      call PushDirectory(_RC) ! back to where we started?
+      dir = GetCurrentWorkingDirectory(_RC)
       @assertEqual(current_dir, dir)
 
-      call mapl_PushDirectory(_RC) ! back to SUBDIR
-      dir = mapl_GetCurrentWorkingDirectory(_RC)
-      @assertEqual(MAPL_PathJoin(current_dir,SUBDIR), dir)
+      call PushDirectory(_RC) ! back to SUBDIR
+      dir = GetCurrentWorkingDirectory(_RC)
+      @assertEqual(PathJoin(current_dir,SUBDIR), dir)
 
-      dir = mapl_PopDirectory(_RC)
+      dir = PopDirectory(_RC)
       @assertEqual(current_dir, dir)
 
-      dir = mapl_GetCurrentWorkingDirectory(_RC)
+      dir = GetCurrentWorkingDirectory(_RC)
       @assertEqual(current_dir, dir)
 
       ! cleanup
-      call mapl_RemoveDirectory(SUBDIR, _RC)
+      call RemoveDirectory(SUBDIR, _RC)
    end subroutine test_push_directory_sequence_b
 
    @test
@@ -102,13 +102,13 @@ contains
 
       integer :: status
 
-      call mapl_MakeDirectory(SUBDIR, _RC)
-      call mapl_MakeSymbolicLink(src_path=SUBDIR, link_path=SYMDIR, _RC)
+      call MakeDirectory(SUBDIR, _RC)
+      call MakeSymbolicLink(src_path=SUBDIR, link_path=SYMDIR, _RC)
 
-      @assert_that(mapl_DirectoryExists(SYMDIR), is(true()))
+      @assert_that(DirectoryExists(SYMDIR), is(true()))
 
-      call mapl_RemoveFile(SYMDIR, _RC)
-      call mapl_RemoveDirectory(SUBDIR, _RC)
+      call RemoveFile(SYMDIR, _RC)
+      call RemoveDirectory(SUBDIR, _RC)
       
    end subroutine test_symlink
    

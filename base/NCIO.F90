@@ -1,6 +1,6 @@
 
 #include "MAPL_Exceptions.h"
-#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
+#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call SyncSharedMemory(rc=STATUS);call DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
 
 !BOP
 
@@ -1816,7 +1816,7 @@ contains
              _VERIFY(STATUS)
           end if
        else
-          call MAPL_AllocNodeArray(vr,[IM_WORLD],_RC)
+          call AllocNodeArray(vr,[IM_WORLD],_RC)
        end if
 
        if (amIRoot) then
@@ -1847,7 +1847,7 @@ contains
        else
           call ArrayScatterShm(A, VR, arrdes%grid, mask=mask, rc=status)
           _VERIFY(STATUS)
-          call MAPL_DeAllocNodeArray(VR,rc=STATUS)
+          call DeAllocNodeArray(VR,rc=STATUS)
           _VERIFY(STATUS)
        end if
 #endif

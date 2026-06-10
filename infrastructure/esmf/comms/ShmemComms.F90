@@ -23,9 +23,9 @@ module mapl_ShmemComms_mod
                     ESMF_DistGrid, ESMF_DistGridGet, &
                     ESMF_KIND_I4, ESMF_KIND_R4, ESMF_KIND_R8
    use mapl_Comms_mod, only: comms_gatherv, comms_scatterv, ROOT_PROCESS_ID
-   use mapl_Shmem_mod, only: MAPL_ShmInitialized, MAPL_SyncSharedMemory, &
-                              MAPL_BroadcastToNodes, MAPL_NodeRankList, &
-                              MAPL_GetNewRank
+    use mapl_Shmem_mod, only: MAPL_ShmInitialized, SyncSharedMemory, &
+                               BroadcastToNodes, MAPL_NodeRankList, &
+                               GetNewRank
    use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter, MAPL_UNDEF
    use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
    use mpi
@@ -257,11 +257,11 @@ contains
          call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
          _RETURN(STATUS)
       else
-         call MAPL_SyncSharedMemory(RC=STATUS)
+         call SyncSharedMemory(RC=STATUS)
          _VERIFY(STATUS)
-         call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, rc=status)
+         call BroadcastToNodes(Data, N=N, ROOT=Root, rc=status)
          _VERIFY(STATUS)
-         call MAPL_SyncSharedMemory(RC=STATUS)
+         call SyncSharedMemory(RC=STATUS)
          _VERIFY(STATUS)
       end if
 
@@ -284,9 +284,9 @@ contains
          end if
          call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
       else
-         call MAPL_SyncSharedMemory(_RC)
-         call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
-         call MAPL_SyncSharedMemory(_RC)
+         call SyncSharedMemory(_RC)
+         call BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
+         call SyncSharedMemory(_RC)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -309,11 +309,11 @@ contains
          call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, RC=status)
          _RETURN(STATUS)
       else
-         call MAPL_SyncSharedMemory(RC=STATUS)
+         call SyncSharedMemory(RC=STATUS)
          _VERIFY(STATUS)
-         call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, rc=status)
+         call BroadcastToNodes(Data, N=N, ROOT=Root, rc=status)
          _VERIFY(STATUS)
-         call MAPL_SyncSharedMemory(RC=STATUS)
+         call SyncSharedMemory(RC=STATUS)
          _VERIFY(STATUS)
       end if
 
@@ -336,9 +336,9 @@ contains
          end if
          call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
       else
-         call MAPL_SyncSharedMemory(_RC)
-         call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
-         call MAPL_SyncSharedMemory(_RC)
+         call SyncSharedMemory(_RC)
+         call BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
+         call SyncSharedMemory(_RC)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -360,9 +360,9 @@ contains
          end if
          call mapl_CommsBcast(vm, DATA=Data, N=N, ROOT=Root, _RC)
       else
-         call MAPL_SyncSharedMemory(_RC)
-         call MAPL_BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
-         call MAPL_SyncSharedMemory(_RC)
+         call SyncSharedMemory(_RC)
+         call BroadcastToNodes(Data, N=N, ROOT=Root, _RC)
+         call SyncSharedMemory(_RC)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -399,7 +399,7 @@ contains
          if (lUseFirstRank) then
             filled(i) = 0
          else
-            filled(i) = MAPL_GetNewRank(locRoot+i-1, rc=status) - 1
+             filled(i) = GetNewRank(locRoot+i-1, rc=status) - 1
             _VERIFY(status)
          end if
       end do

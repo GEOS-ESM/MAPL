@@ -4,7 +4,7 @@
 #include "MAPL.h"
 
 module mapl_Deprecated_mod
-   use mapl_Generic_mod, only: MAPL_Get => MAPL_GridCompGet
+   use mapl_Generic_api, only: MAPL_Get => MAPL_GridCompGet
    implicit none(type,external)
    private
 
