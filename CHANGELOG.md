@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+
+- Reduced set of published entities in ./infrastructure/geom_io/API.F90 (issue #5135)
 - Removed mapl_ prefix from leaf components in ./superstructure/state
 - Add new overloads to MAPL\_GridCompAddChild that take either a setservices procedure or a DSO name and procedure name
 - Removed mapl_ prefix from leaf components in ./infrastucture/geom

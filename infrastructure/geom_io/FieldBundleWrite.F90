@@ -6,7 +6,7 @@ module mapl_FieldBundleWrite_mod
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
    use mapl_SharedIO_mod
-   use mapl_GeomCatagorizer_mod
+   use mapl_GeomCategorizer_mod
    implicit none
    private
 

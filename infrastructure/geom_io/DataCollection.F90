@@ -7,7 +7,7 @@ module mapl_DataCollection_mod
   use gFTL2_StringIntegerMap
   use esmf
   use mapl_ErrorHandling_mod
-  implicit none
+  implicit none(type,external)
   private
 
   public :: DataCollection
