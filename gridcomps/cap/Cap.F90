@@ -231,7 +231,7 @@ contains
 
       petList = get_model_pets(options%is_model_pet, _RC)
 
-      cap_gridcomp = mapl_GridCompCreate(options%name, user_setservices(cap_setservices), hconfig, petList=petList, _RC)
+      cap_gridcomp = mapl_GridCompCreate(options%name, cap_setservices, hconfig, petList=petList, _RC)
       call esmf_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, _USERRC)
 
       driver = GriddedComponentDriver(cap_gridcomp, clock=clock)

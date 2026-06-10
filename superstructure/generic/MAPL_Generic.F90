@@ -152,8 +152,10 @@ module mapl_Generic_mod
       procedure :: gridcomp_add_child_by_config_file
       procedure :: gridcomp_add_child_by_config
       procedure :: gridcomp_add_child_by_spec
-      procedure :: gridcomp_add_child_by_procedure
-      !procedure :: gridcomp_add_child_by_dso
+      procedure :: gridcomp_add_child_by_procedure_and_config
+      procedure :: gridcomp_add_child_by_procedure_and_config_file
+      procedure :: gridcomp_add_child_by_dso_and_config
+      procedure :: gridcomp_add_child_by_dso_and_config_file
    end interface MAPL_GridCompAddChild
 
    interface MAPL_GridCompGetChildName
@@ -397,7 +399,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_internal_state
 
-   subroutine gridcomp_add_child_by_procedure(gridcomp, child_name, ss_proc, hconfig, unusable, timeStep, refTime_offset, rc)
+   subroutine gridcomp_add_child_by_procedure_and_config(gridcomp, child_name, ss_proc, hconfig, unusable, timeStep, refTime_offset, rc)
       use mapl_UserSetServices_mod
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
@@ -408,53 +410,105 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
       integer, optional, intent(out) :: rc
 
+      integer :: status
       class(AbstractUserSetServices), allocatable :: setservices
+      type(ChildSpec) :: child_spec
+
+      _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
+      setservices = user_setservices(ss_proc)
+
+      child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
+      call MAPL_GridCompAddChild(gridcomp, child_name, child_spec, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_add_child_by_procedure_and_config
+
+   subroutine gridcomp_add_child_by_procedure_and_config_file(gridcomp, child_name, ss_proc, hconfig_file, unusable, timeStep, refTime_offset, rc)
+      use mapl_UserSetServices_mod
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: child_name
+      procedure() :: ss_proc
+      character(len=*), intent(in) :: hconfig_file
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_HConfig) :: hconfig
       integer :: status
 
-      setservices = user_setservices(ss_proc)
+      hconfig = ESMF_HConfigCreate(filename=hconfig_file, _RC)
       call MAPL_GridCompAddChild( &
            gridcomp, &
-           child_name, 
-           setservices, &
+           child_name, &
+           ss_proc, &
            hconfig, &
            timeStep=timeStep, &
            refTime_offset=refTime_offset, &
            _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine gridcomp_add_child_by_procedure
+   end subroutine gridcomp_add_child_by_procedure_and_config_file
 
-   !subroutine gridcomp_add_child_by_dso(gridcomp, child_name, ss_proc, hconfig_file, unusable, timeStep, refTime_offset, rc)
-      !use mapl_UserSetServices_mod
-      !type(ESMF_GridComp), intent(inout) :: gridcomp
-      !character(len=*), intent(in) :: child_name
-      !procedure() :: ss_proc
-      !character(len=*), intent(in) :: hconfig_file
-      !class(KeywordEnforcer), optional, intent(out) :: unusable
-      !type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      !type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
-      !integer, optional, intent(out) :: rc
+   subroutine gridcomp_add_child_by_dso_and_config(gridcomp, child_name, shared_obj, user_routine, hconfig, unusable, timeStep, refTime_offset, rc)
+      use mapl_UserSetServices_mod
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: child_name
+      character(len=*), intent(in) :: shared_obj
+      character(len=*), intent(in) :: user_routine
+      type(ESMF_HConfig), intent(in) :: hconfig
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
+      integer, optional, intent(out) :: rc
 
-      !class(AbstractUserSetServices) :: setservices
-      !integer :: status
-      !type(ESMF_HConfig) :: hconfig
+      integer :: status
+      class(AbstractUserSetServices), allocatable :: setservices
+      type(ChildSpec) :: child_spec
 
-      !setservices = user_setservices(ss_proc)
-      !hconfig = ESMF_HConfigCreate(filename=hconfig_file, _RC)
-      !call MAPL_GridCompAddChild( &
-           !gridcomp, &
-           !child_name, &
-           !setservices, &
-           !hconfig, &
-           !timeStep=timeStep, &
-           !refTime_offset=refTime_offset, &
-           !_RC)
-      !call ESMF_HConfigDestroy(hconfig, _RC)
+      _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
+      setservices = user_setservices(shared_obj, user_routine)
 
-      !_RETURN(_SUCCESS)
-      !_UNUSED_DUMMY(unusable)
-   !end subroutine gridcomp_add_child_by_dso
+      child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
+      call MAPL_GridCompAddChild(gridcomp, child_name, child_spec, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_add_child_by_dso_and_config
+
+   subroutine gridcomp_add_child_by_dso_and_config_file(gridcomp, child_name, shared_obj, user_routine, hconfig_file, unusable, timeStep, refTime_offset, rc)
+      use mapl_UserSetServices_mod
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: child_name
+      character(len=*), intent(in) :: shared_obj
+      character(len=*), intent(in) :: user_routine
+      character(len=*), intent(in) :: hconfig_file
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(filename=hconfig_file, _RC)
+      call MAPL_GridCompAddChild( &
+           gridcomp, &
+           child_name, &
+           shared_obj, &
+           user_routine, &
+           hconfig, &
+           timeStep=timeStep, &
+           refTime_offset=refTime_offset, &
+           _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_add_child_by_dso_and_config_file
 
    subroutine gridcomp_add_child_by_config_file(gridcomp, child_name, setservices, hconfig_file, unusable, timeStep, refTime_offset, rc)
       use mapl_UserSetServices_mod
