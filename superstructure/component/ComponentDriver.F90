@@ -1,17 +1,19 @@
 #include "MAPL.h"
 
 module mapl_ComponentDriver_mod
+
    use mapl_MultiState_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use mapl_MultiState_mod
-   use :: esmf
+   use esmf
+
    implicit none
    private
 
    public :: ComponentDriver
    public :: ComponentDriverPtr
-   public :: mapl_DriverInitializePhases
+   public :: DriverInitializePhases
 
    type, abstract :: ComponentDriver
       private
@@ -32,7 +34,7 @@ module mapl_ComponentDriver_mod
    abstract interface
 
       recursive subroutine I_run(this, unusable, phase_idx, rc)
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+         use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
          import ComponentDriver
          class(ComponentDriver), target, intent(inout) :: this
          class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -49,9 +51,9 @@ module mapl_ComponentDriver_mod
 
    end interface
 
-   interface mapl_DriverInitializePhases
+   interface DriverInitializePhases
       procedure :: initialize_phases
-   end interface mapl_DriverInitializePhases
+   end interface DriverInitializePhases
 
 contains
 
@@ -67,7 +69,7 @@ contains
          do i = 1, size(phases)
             call this % initialize(phase_idx=phases(i), _RC)
          end do
-         
+
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)
       end subroutine initialize_phases

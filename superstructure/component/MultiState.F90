@@ -1,10 +1,12 @@
 #include "MAPL.h"
 
 module mapl_MultiState_mod
+
    use mapl_ESMF_Utilities_mod, only: write(formatted)
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use esmf
+
    implicit none
    private
 
@@ -32,6 +34,7 @@ module mapl_MultiState_mod
 contains
 
    function new_MultiState_user(unusable, importState, exportState, internalState) result(multi_state)
+
       type(MultiState) :: multi_state
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_State), optional, intent(in) :: importState
@@ -43,7 +46,8 @@ contains
       multi_state%internalState = get_state('internal', internalState)
 
       _UNUSED_DUMMY(unusable)
-   contains
+
+      contains
 
       function get_state(name, state) result(new_state)
          type(ESMF_State) :: new_state
@@ -56,11 +60,9 @@ contains
          end if
 
          new_state = ESMF_StateCreate(name=name)
-
       end function get_state
 
    end function new_MultiState_user
-
 
    subroutine get_state_by_string_intent(this, state, state_intent, rc)
       class(MultiState), intent(in) :: this

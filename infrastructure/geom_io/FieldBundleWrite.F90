@@ -11,7 +11,7 @@ module mapl_FieldBundleWrite_mod
    private
 
    public :: FieldBundleWriter
-   public :: MAPL_write_bundle
+   public :: write_bundle
    type :: FieldBundleWriter
       private
       class(GeomPFIO), allocatable :: writer
@@ -23,7 +23,7 @@ module mapl_FieldBundleWrite_mod
          procedure :: write_to_file
          procedure :: start_new_file
    end type
-   interface MAPL_Write_Bundle
+   interface Write_Bundle
       module procedure Write_bundle_single_time
    end interface
 

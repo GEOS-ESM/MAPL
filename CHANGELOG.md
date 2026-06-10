@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Remove Generic.F90 that is no longer needed
-- Change where MAPL prefix is removed from Generic leaf
+- Removed mapl_ prefix from leaf components in Generic
+- Removed mapl_ prefix from leaf components in ./infrastucture/geom_io
 - Added API for PFIO layer.
   - Updated internal gridcomps to use the API.
 - Change where MAPL prefix is added in ./infrastructure/field
