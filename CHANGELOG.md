@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed ESMF_Subset.F90 and its dependencies.
+- Removed mapl_ prefix from leaf components in ./infrastucture/geom
+- Remove Generic.F90 that is no longer needed
+- Removed mapl_ prefix from leaf components in Generic
 - Removed mapl_ prefix from leaf components in ./infrastucture/geom_io
 - Added API for PFIO layer.
   - Updated internal gridcomps to use the API.

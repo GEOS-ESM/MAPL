@@ -6,7 +6,9 @@
 module ProtoExtDataGC
    use mapl_ErrorHandling_mod
    use mapl_OuterMetaComponent_mod
-   use mapl_Generic_mod
+   use mapl_Generic_api, only: MAPL_GridCompGet, &
+                               MAPL_GridCompGetRegistry, &
+                               MAPL_GridCompGetOuterMeta
    use mapl_UserSetServices_mod
    use mapl_StateRegistry_mod, only: StateRegistry
    use mapl_VirtualConnectionPt_mod
@@ -26,7 +28,7 @@ module ProtoExtDataGC
 contains
 
    subroutine setservices(gc, rc)
-      use mapl_Generic_mod, only: MAPL_GridCompSetEntryPoint
+      use mapl_Generic_api, only: MAPL_GridCompSetEntryPoint
       type(ESMF_GridComp) :: gc
       integer, intent(out) :: rc
 

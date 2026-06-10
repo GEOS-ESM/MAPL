@@ -4,7 +4,7 @@ submodule (mapl_OuterMetaComponent_mod) SetServices_smod
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
-   use mapl_GenericGridComp_mod
+   use mapl_Generic_api
    use mapl_vertical_grid_api
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ErrorHandling_mod
@@ -27,7 +27,7 @@ contains
    !=========================================================================
    
    recursive module subroutine SetServices_(this, rc)
-      use mapl_GenericGridComp_mod, only: mapl_GenericSetServices
+      use mapl_Generic_api, only: mapl_GenericSetServices
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, intent(out) :: rc
 

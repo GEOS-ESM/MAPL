@@ -9,62 +9,62 @@ module mapl_os_mod
    implicit none(type,external)
    private
 
-   public :: mapl_GetCurrentWorkingDirectory
-   public :: mapl_ChangeDirectory
-   public :: mapl_MakeDirectory
-   public :: mapl_DirectoryExists
-   public :: mapl_RemoveDirectory
-   public :: mapl_RemoveFile
-   public :: mapl_PushDirectory
-   public :: mapl_PopDirectory
-   public :: mapl_ClearDirectoryStack
-   public :: mapl_PathJoin
-   public :: mapl_MakeSymbolicLink
+   public :: GetCurrentWorkingDirectory
+   public :: ChangeDirectory
+   public :: MakeDirectory
+   public :: DirectoryExists
+   public :: RemoveDirectory
+   public :: RemoveFile
+   public :: PushDirectory
+   public :: PopDirectory
+   public :: ClearDirectoryStack
+   public :: PathJoin
+   public :: MakeSymbolicLink
 
-   interface mapl_GetCurrentWorkingDirectory
+   interface GetCurrentWorkingDirectory
       procedure :: get_current_working_directory
-   end interface mapl_GetCurrentWorkingDirectory
+   end interface GetCurrentWorkingDirectory
 
-   interface mapl_ChangeDirectory
+   interface ChangeDirectory
       procedure :: change_directory
-   end interface mapl_ChangeDirectory
+   end interface ChangeDirectory
 
-   interface mapl_MakeDirectory
+   interface MakeDirectory
       procedure :: make_directory
-   end interface mapl_MakeDirectory
+   end interface MakeDirectory
 
-   interface mapl_RemoveDirectory
+   interface RemoveDirectory
       procedure :: remove_directory
-   end interface mapl_RemoveDirectory
+   end interface RemoveDirectory
 
-   interface mapl_RemoveFile
+   interface RemoveFile
       procedure :: remove_file
-   end interface mapl_RemoveFile
+   end interface RemoveFile
 
-   interface mapl_DirectoryExists
+   interface DirectoryExists
       procedure directory_exists
-   end interface mapl_DirectoryExists
+   end interface DirectoryExists
 
-   interface mapl_Pushdirectory
+   interface Pushdirectory
       procedure :: push_directory_default
       procedure :: push_directory
-   end interface mapl_Pushdirectory
+   end interface Pushdirectory
 
-   interface mapl_PopDirectory
+   interface PopDirectory
       procedure :: pop_directory
-   end interface mapl_PopDirectory
+   end interface PopDirectory
 
-   interface mapl_ClearDirectoryStack
+   interface ClearDirectoryStack
       procedure :: clear_directory_stack
-   end interface mapl_ClearDirectoryStack
+   end interface ClearDirectoryStack
 
-   interface mapl_PathJoin
+   interface PathJoin
       module procedure :: path_join
-   end interface mapl_PathJoin
+   end interface PathJoin
 
-   interface mapl_MakeSymbolicLink
+   interface MakeSymbolicLink
       procedure :: make_symbolic_link
-   end interface mapl_MakeSymbolicLink
+   end interface MakeSymbolicLink
 
    type(StringStack), protected :: directory_stack
 
