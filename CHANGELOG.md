@@ -75,7 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `components.yaml`
   - ESMA_env v5.22.0
     - Update to GEOSpyD 26.3.2 Python 3.14
-
+- Move make_dim_key function to mapl_UngriddedDims
 ### Fixed
 
 - Different bug introduced when fixing bug just below this entry.
@@ -152,6 +152,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   naming conflicts between esmf and history layers using selective `only:` imports. Created
   GitHub issue #5005 for deferred `utils/` sibling migration. Zero-diff for all passing tests.
 - Added support for MAPL_STATEITEM_VECTOR ITEMTYPE in ACG
+- Added to_string (integer_to_string) utility function of mapl_StringUtilities
+  to convert an integer to a string with optional variable width
 
 ### Changed
 

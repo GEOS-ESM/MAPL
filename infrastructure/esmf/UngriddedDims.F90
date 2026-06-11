@@ -2,7 +2,8 @@
 
 module mapl_UngriddedDims_mod
    use mapl_InfoUtilities_mod
-   use mapl_esmf_info_keys_mod
+   use mapl_StringUtilities_mod, only: to_string
+   use mapl_esmf_info_keys_mod, only: KEYSTUB_DIM, KEY_NUM_UNGRIDDED_DIMS, KEY_DIM_STRINGS
    use mapl_UngriddedDimVector_mod
    use mapl_UngriddedDim_mod
    use mapl_LU_Bound_mod
@@ -266,5 +267,23 @@ contains
       is_mirror = this%is_mirror_
    end function is_mirror
 
-end module mapl_UngriddedDims_mod
+   function make_dim_key(n, rc) result(key)
+      character(len=:), allocatable :: key
+      integer, intent(in) :: n
+      integer, optional, intent(out) :: rc
+      integer :: status
+      character(len=32) :: raw
 
+      key = ''
+      _ASSERT(n > 0, 'Index must be positive.')
+      if(n <= size(KEY_DIM_STRINGS)) then
+         key = KEY_DIM_STRINGS(n)
+         _RETURN(_SUCCESS)
+      end if
+      raw = to_string(n)
+      key = KEYSTUB_DIM // raw
+      _RETURN(_SUCCESS)
+
+   end function make_dim_key
+   
+end module mapl_UngriddedDims_mod
