@@ -1,5 +1,4 @@
 module mapl_Generic
-   use mapl_ESMF_Subset_mod
    use mapl_field_api
    use mapl_VariableSpec_mod
    use mapl_enums_api

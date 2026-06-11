@@ -29,7 +29,6 @@ set (srcs
     hconfig_utils/get_hconfig.F90
     hconfig_utils/HConfigUtilities.F90
     # From generic3g/
-    ESMF_Subset.F90
     ESMF_HConfigUtilities.F90
     ESMF_HConfigUtilities/MAPL_HConfigMatch.F90
     ESMF_HConfigUtilities/write_hconfig.F90

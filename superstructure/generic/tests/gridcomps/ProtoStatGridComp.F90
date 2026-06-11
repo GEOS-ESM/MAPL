@@ -4,9 +4,11 @@
 module ProtoStatGridComp
    use mapl_state_api
    use mapl_field_api
+
+   use mapl_Generic_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_ErrorHandling_mod
    use mapl_Generic_api, only: mapl_GridCompAddSpec
-   use mapl_esmf_subset_mod
-   use mapl_verticalstaggerloc_mod
    use mapl_errorhandling_mod
    use esmf
    implicit none(type,external)
