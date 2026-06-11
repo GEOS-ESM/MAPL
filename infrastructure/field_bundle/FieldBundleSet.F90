@@ -9,7 +9,7 @@ module mapl_FieldBundleSet_mod
    use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
         MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_VECTORBRACKET, &
         MAPL_StateItemAllocation, &
-        mapl_VerticalStaggerLoc, VerticalAlignment, mapl_QuantityTypeMetadata, &
+        mapl_VerticalStaggerLoc, mapl_VerticalAlignment, mapl_QuantityTypeMetadata, &
         mapl_NormalizationMetadata, mapl_ConservationMetadata, &
         operator(==), operator(/=)
    use mapl_FieldBundleInfo_mod
@@ -62,7 +62,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
       type(mapl_VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
-      type(VerticalAlignment), optional, intent(in) :: vert_alignment
+      type(mapl_VerticalAlignment), optional, intent(in) :: vert_alignment
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name

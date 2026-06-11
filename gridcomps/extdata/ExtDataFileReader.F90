@@ -6,7 +6,11 @@ module mapl_ExtDataReader_mod
    use MAPL
    use pFlogger, only: logger
    use, intrinsic :: iso_c_binding, only: c_ptr
+   implicit none(type,external)
+   private
 
+   public :: ExtDataReader
+   
    type ExtDataReader
       type(ESMF_FieldBundle) :: accumulated_fields
       type(StringStringMap) :: alias_map
@@ -99,7 +103,11 @@ module mapl_ExtDataReader_mod
          time_index => this%time_index_map%at(trim(field_name))
          call ESMF_FieldGet(field_list(i), grid=grid, typekind=esmf_typekind, _RC)
          element_count = FieldGetLocalElementCount(field_list(i), _RC)
+
+
          server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_READ, time_index=time_index, _RC)
+
+
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
