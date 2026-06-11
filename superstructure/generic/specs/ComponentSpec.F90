@@ -2,6 +2,7 @@
 
 module mapl_ComponentSpec_mod
 
+   use mapl_CheckpointControls_mod
    use mapl_Connection_mod
    use mapl_SimpleConnection_mod
    use mapl_ReexportConnection_mod
@@ -23,14 +24,6 @@ module mapl_ComponentSpec_mod
 
    public :: ComponentSpec
    public :: MiscellaneousComponentSpec
-   public :: CheckpointControls
-
-   type :: CheckpointControls
-      logical :: import = .false.
-      logical :: export = .false.
-      logical :: internal = .false.
-      logical :: bootstrap = .false.
-   end type CheckpointControls
 
    type :: MiscellaneousComponentSpec
       ! misc bits

@@ -68,19 +68,30 @@ contains
       integer :: status
       logical :: has_controls_section
       type(ESMF_HConfig) :: controls_cfg
+      logical :: temp_value
 
       has_controls_section = ESMF_HConfigIsDefined(hconfig, keyString=key, _RC)
       _RETURN_UNLESS(has_controls_section)
       controls_cfg = ESMF_HConfigCreateAt(hconfig, keyString=key, _RC)
 
-      call parse_item(controls_cfg, key=KEY_IMPORT, value=controls%import, _RC)
-      call parse_item(controls_cfg, key=KEY_INTERNAL, value=controls%internal, _RC)
-      call parse_item(controls_cfg, key=KEY_BOOTSTRAP, value=controls%bootstrap, _RC)
+      temp_value = .false.
+      call parse_item(controls_cfg, key=KEY_IMPORT, value=temp_value, _RC)
+      call controls%set_import(temp_value)
+      
+      temp_value = .false.
+      call parse_item(controls_cfg, key=KEY_INTERNAL, value=temp_value, _RC)
+      call controls%set_internal(temp_value)
+      
+      temp_value = .false.
+      call parse_item(controls_cfg, key=KEY_BOOTSTRAP, value=temp_value, _RC)
+      call controls%set_bootstrap(temp_value)
 
       ! We allow checkpointing of exports for testing, but restarting
       ! from exports is nonsensical.
       _RETURN_IF (key == COMPONENT_RESTART)
-      call parse_item(controls_cfg, key=KEY_EXpORT, value=controls%export, _RC)
+      temp_value = .false.
+      call parse_item(controls_cfg, key=KEY_EXpORT, value=temp_value, _RC)
+      call controls%set_export(temp_value)
 
       _RETURN(_SUCCESS)
    end function parse_checkpoint_controls

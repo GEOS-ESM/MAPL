@@ -14,6 +14,7 @@ module mapl_generic_api
        mapl_GridCompAdvertiseVariable => GridCompAdvertiseVariable, &
        mapl_GridCompGet => GridCompGet, &
        mapl_GridCompSet => GridCompSet, &
+       mapl_GridCompSetCheckpointControls => GridCompSetCheckpointControls, &
        mapl_GridCompSetEntryPoint => GridCompSetEntryPoint, &
        mapl_GridCompAddChild => GridCompAddChild, &
        mapl_GridCompGetChildName => GridCompGetChildName, &
@@ -32,6 +33,7 @@ module mapl_generic_api
        mapl_GridCompTimerStart => GridCompTimerStart, &
        mapl_GridCompTimerStop => GridCompTimerStop, &
        mapl_GridCompGetCheckpointDir => GridCompGetCheckpointDir, &
+       mapl_GridCompSetCheckpointControls => GridCompSetCheckpointControls, &
    !    mapl_STATEITEM_STATE => STATEITEM_STATE, &
    !    mapl_STATEITEM_FIELDBUNDLE => STATEITEM_FIELDBUNDLE, &
    !    mapl_STATEITEM_SERVICE => STATEITEM_SERVICE, &
@@ -47,10 +49,11 @@ module mapl_generic_api
        mapl_GridCompCreate => GridCompCreate, &
        mapl_GenericSetServices => GenericSetServices
 
-   use mapl_VariableSpec_mod
-   use mapl_ComponentSpec_mod
-   use mapl_ChildSpec_mod
-   use mapl_RestartHandler_mod
+    use mapl_VariableSpec_mod
+    use mapl_ComponentSpec_mod
+    use mapl_CheckpointControls_mod
+    use mapl_ChildSpec_mod
+    use mapl_RestartHandler_mod
 
    implicit none
    private
@@ -63,6 +66,7 @@ module mapl_generic_api
    public :: mapl_GridCompGet
    public :: mapl_GridCompGetRegistry
    public :: mapl_GridCompSet
+   public :: mapl_GridCompSetCheckpointControls
    public :: mapl_GridCompSetEntryPoint
 
    public :: MAPL_GridCompIsGeneric
