@@ -8,6 +8,7 @@ set (srcs
     # From esmf_utils/
     ESMF_Interfaces.F90 # cannot move to MAPL.generic, causes circular dependency
     ESMF_Utilities.F90
+    TypeKind.F90
     InfoUtilities.F90
     UngriddedDim.F90
     UngriddedDims.F90

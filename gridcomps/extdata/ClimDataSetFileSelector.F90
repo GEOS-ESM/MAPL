@@ -241,7 +241,7 @@ contains
       type(ESMF_Field), allocatable :: field_list(:)
 
       call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
-      call FieldCopy(field_list(2), field_list(1), _RC)
+      call MAPL_FieldCopy(field_list(2), field_list(1), _RC)
 
       _RETURN(_SUCCESS)
    end subroutine swap_bracket_fields

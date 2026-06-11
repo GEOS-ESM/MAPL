@@ -10,11 +10,6 @@ module mapl_ESMF_Utilities_mod
    public :: get_substate
    public :: to_esmf_state_intent
    public :: esmf_state_intent_to_string
-   public :: MAPL_TYPEKIND_MIRROR
-
-   ! TODO: pchakrab - this should go somewhere else, but where?
-   type(ESMF_TypeKind_Flag), parameter :: MAPL_TYPEKIND_MIRROR = ESMF_TypeKind_Flag(200)
-
    interface write(formatted)
       procedure write_state
    end interface write(formatted)
