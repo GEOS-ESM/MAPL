@@ -17,7 +17,7 @@ contains
       a = ESMF_HConfigCreate(content='{a: 1}', _RC)
       b = ESMF_HConfigCreate(content='[b, c]', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -33,7 +33,7 @@ contains
       a = ESMF_HConfigCreate(content='a', _RC)
       b = ESMF_HConfigCreate(content='b', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -49,14 +49,14 @@ contains
       a = ESMF_HConfigCreate(content='a', _RC)
       b = ESMF_HConfigCreate(content='a', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(true()))
 
       call ESMF_HConfigDestroy(a, _RC)
       call ESMF_HConfigDestroy(b, _RC)
    end subroutine test_match_scalar_match
 
-   
+
    @test
    subroutine test_match_sequence_mismatch_size()
       type(ESMF_HConfig) :: a, b
@@ -66,7 +66,7 @@ contains
       a = ESMF_HConfigCreate(content='[1]', _RC)
       b = ESMF_HConfigCreate(content='[1, 2]', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -82,13 +82,13 @@ contains
       a = ESMF_HConfigCreate(content='[1, 3, 0]', _RC)
       b = ESMF_HConfigCreate(content='[1, 2, 0]', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
       call ESMF_HConfigDestroy(b, _RC)
    end subroutine test_match_sequence_mismatch_content
-   
+
    @test
    subroutine test_match_sequence_match()
       type(ESMF_HConfig) :: a, b
@@ -98,13 +98,13 @@ contains
       a = ESMF_HConfigCreate(content='[1, 2, 0]', _RC)
       b = ESMF_HConfigCreate(content='[1, 2, 0]', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(true()))
 
       call ESMF_HConfigDestroy(a, _RC)
       call ESMF_HConfigDestroy(b, _RC)
    end subroutine test_match_sequence_match
-   
+
    @test
    subroutine test_match_mapping_mismatch_size_1()
       type(ESMF_HConfig) :: a, b
@@ -114,7 +114,7 @@ contains
       a = ESMF_HConfigCreate(content='{a: 1}', _RC)
       b = ESMF_HConfigCreate(content='{a: 1, b: 2}', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -132,7 +132,7 @@ contains
       a = ESMF_HConfigCreate(content='{a: 1, b: 2}', _RC)
       b = ESMF_HConfigCreate(content='{a: 1}', _RC)
 
-      match = MAPL_HConfigMatch(b, a, _RC)
+      match = HConfigMatch(b, a, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -148,13 +148,13 @@ contains
       a = ESMF_HConfigCreate(content='{a: 1}', _RC)
       b = ESMF_HConfigCreate(content='{b: 1}', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
       call ESMF_HConfigDestroy(b, _RC)
    end subroutine test_match_mapping_mismatch_keys_1
-   
+
    @test
    ! several keys, only one differs
    subroutine test_match_mapping_mismatch_keys_2()
@@ -165,7 +165,7 @@ contains
       a = ESMF_HConfigCreate(content='{a: 1, b: 2, c: 3}', _RC)
       b = ESMF_HConfigCreate(content='{a: 1, e: 2, c: 3}', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -181,7 +181,7 @@ contains
       a = ESMF_HConfigCreate(content='{a: 1, b: 2, c: 3}', _RC)
       b = ESMF_HConfigCreate(content='{a: 1, b: x, c: 3}', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -198,7 +198,7 @@ contains
       a = ESMF_HConfigCreate(content='{a: 1, b: 2, c: 3}', _RC)
       b = ESMF_HConfigCreate(content='{a: 1, b: 2, c: 3}', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(true()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -214,13 +214,13 @@ contains
       a = ESMF_HConfigCreate(content='{geom: {class: latlon}, collection_name: c1}', _RC)
       b = ESMF_HConfigCreate(content='{geom: {class: latlon}, collection_name: c1}', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(true()))
 
       call ESMF_HConfigDestroy(a, _RC)
       call ESMF_HConfigDestroy(b, _RC)
    end subroutine test_reproducer_from_history
-      
+
    @test
    subroutine test_match_bool()
       type(ESMF_HConfig) :: a, b
@@ -230,7 +230,7 @@ contains
       a = ESMF_HConfigCreate(content='on', _RC)
       b = ESMF_HConfigCreate(content='true', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(true()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -246,7 +246,7 @@ contains
       a = ESMF_HConfigCreate(content='on', _RC)
       b = ESMF_HConfigCreate(content='false', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -262,7 +262,7 @@ contains
       a = ESMF_HConfigCreate(content='1', _RC)
       b = ESMF_HConfigCreate(content='+1', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(true()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -279,7 +279,7 @@ contains
       a = ESMF_HConfigCreate(content='on', _RC)
       b = ESMF_HConfigCreate(content='"on"', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)
@@ -295,7 +295,7 @@ contains
       a = ESMF_HConfigCreate(content='123', _RC)
       b = ESMF_HConfigCreate(content='"123"', _RC)
 
-      match = MAPL_HConfigMatch(a, b, _RC)
+      match = HConfigMatch(a, b, _RC)
       @assert_that(match, is(false()))
 
       call ESMF_HConfigDestroy(a, _RC)

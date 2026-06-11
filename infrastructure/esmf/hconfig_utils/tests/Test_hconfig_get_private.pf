@@ -4,7 +4,7 @@ module Test_hconfig_get_private
    use ESMF, R4 => ESMF_KIND_R4, R8 => ESMF_KIND_R8
    use ESMF, I4 => ESMF_KIND_I4, I8 => ESMF_KIND_I8
    use mapl_ErrorHandling_mod
-   
+
    use pfunit
    use ESMF_TestMethod_mod
 
@@ -35,7 +35,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -55,7 +55,7 @@ contains
       integer :: status
 
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -77,7 +77,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, default=EXPECTED, valuestring=valuestring, rc=status)
+      call HConfigGet(params, actual, default=EXPECTED, valuestring=valuestring, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -100,7 +100,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, actual, default=DEFAULT, valuestring=valuestring, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -118,7 +118,7 @@ contains
       integer :: status_
 
       params = HConfigParams(hconfig, LABEL)
-      call MAPL_HConfigGet(params, actual, rc=status_)
+      call HConfigGet(params, actual, rc=status_)
       found = params%value_set
       @assertFalse(found, 'get_value should have failed.')
 
@@ -136,14 +136,14 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
       @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
 
    end subroutine test_get_i8
-   
+
    @Test
    subroutine test_get_r4()
       character(len=*), parameter :: LABEL = 'plank_mass'
@@ -156,14 +156,14 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
       @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
 
    end subroutine test_get_r4
-   
+
    @Test
    subroutine test_get_r8()
       character(len=*), parameter :: LABEL = 'mu_mass'
@@ -176,7 +176,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -196,7 +196,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -216,7 +216,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -236,7 +236,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -256,7 +256,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -277,7 +277,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -298,7 +298,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -318,7 +318,7 @@ contains
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
       params = HConfigParams(hconfig, LABEL, check_value_set=.TRUE.)
-      call MAPL_HConfigGet(params, actual, rc=status)
+      call HConfigGet(params, actual, rc=status)
       found = params%value_set
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(found, ERROR_NOT_FOUND // LABEL)
@@ -337,7 +337,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -355,7 +355,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -373,7 +373,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -391,7 +391,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -409,7 +409,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -427,7 +427,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -445,7 +445,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -463,7 +463,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -481,7 +481,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -501,7 +501,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -519,7 +519,7 @@ contains
       character(len=:), allocatable :: error_message
 
       params = HConfigParams(hconfig, 'label')
-      call MAPL_HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
+      call HConfigGet(params, value, default=DEFAULT, valuestring=valuestring, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       if(EXPECTED /= valuestring) error_message = valuestring_mismatch(valuestring, EXPECTED)
       @assertEqual(EXPECTED, valuestring, error_message)
@@ -530,7 +530,7 @@ contains
       character(len=:), allocatable :: error_message
       character(len=*), intent(in) :: actual
       character(len=*), intent(in) :: expected
-      
+
       error_message = 'Actual valuestring, "' // actual // &
          '", does not match expected valuestring, "' // expected // '".'
 
@@ -538,7 +538,7 @@ contains
 
    @Before
    subroutine set_up()
-      
+
       integer :: status
 
       if(.not. hconfig_is_created) then
@@ -548,7 +548,7 @@ contains
          @assertEqual(0, status, 'Failed to add null value')
       end if
       @assertTrue(hconfig_is_created, 'HConfig was not created.')
-      
+
      end subroutine set_up
 
    @After
@@ -570,7 +570,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
 
@@ -584,7 +584,7 @@ contains
       integer(kind=I4) :: actual
       integer :: status
 
-      call MAPL_HConfigGet(hconfig, LABEL, actual, default=DEFAULT, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, default=DEFAULT, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertEqual(DEFAULT, actual, ERROR_MISMATCH)
 
@@ -598,7 +598,7 @@ contains
       integer :: status
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, default=EXPECTED, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, default=EXPECTED, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertEqual(EXPECTED, actual, ERROR_MISMATCH)
 
@@ -613,7 +613,7 @@ contains
       integer :: status
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, default=DEFAULT, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, default=DEFAULT, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertEqual(EXPECTED, actual, ERROR_MISMATCH)
 
@@ -625,7 +625,7 @@ contains
       integer(kind=I4) :: actual
       integer :: status
 
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertExceptionRaised()
 
    end subroutine test_mapl_get_i4_not_found_no_default
@@ -639,12 +639,12 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
 
    end subroutine test_mapl_get_i8
-   
+
    @Test
    subroutine test_mapl_get_r4()
       character(len=*), parameter :: LABEL = 'plank_mass'
@@ -654,12 +654,12 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
 
    end subroutine test_mapl_get_r4
-   
+
    @Test
    subroutine test_mapl_get_r8()
       character(len=*), parameter :: LABEL = 'mu_mass'
@@ -669,7 +669,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(actual == EXPECTED, ERROR_MISMATCH)
 
@@ -684,7 +684,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue((actual == EXPECTED), ERROR_MISMATCH)
 
@@ -699,7 +699,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue((actual .eqv. EXPECTED), ERROR_MISMATCH)
 
@@ -714,7 +714,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
 
@@ -729,7 +729,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
 
@@ -745,7 +745,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
 
@@ -761,7 +761,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(all(actual == EXPECTED), ERROR_MISMATCH)
 
@@ -776,7 +776,7 @@ contains
 
       call ESMF_HConfigAdd(hconfig, EXPECTED, addKeyString=LABEL, rc=status)
       @assertEqual(0, status, ERROR_ADD_FAIL)
-      call MAPL_HConfigGet(hconfig, LABEL, actual, rc=status)
+      call HConfigGet(hconfig, LABEL, actual, rc=status)
       @assertEqual(0, status, ERROR_GET_FAILED)
       @assertTrue(all(actual .eqv. EXPECTED), ERROR_MISMATCH)
 

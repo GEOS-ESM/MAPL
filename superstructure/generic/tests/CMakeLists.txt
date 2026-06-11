@@ -129,7 +129,6 @@ set(components_test_srcs
   Test_ComponentSpec.pf
   Test_ComponentSpecParser.pf
   Test_WriteYaml.pf
-  Test_HConfigMatch.pf
   Test_ExtensionFamily.pf
 )
 
@@ -201,7 +200,7 @@ set_tests_properties(MAPL.generic.components PROPERTIES ENVIRONMENT "${TEST_ENV}
 set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
 
 # Add all test suites to build-tests target
-add_dependencies(build-tests 
+add_dependencies(build-tests
   MAPL.generic.scenarios
   MAPL.generic.transforms
   MAPL.generic.vertical

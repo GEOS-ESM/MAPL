@@ -6,10 +6,7 @@ module mapl_esmf_api
    use mapl_SimpleAlarm_mod, only: MAPL_SimpleAlarm => SimpleAlarm
 
    ! Core ESMF utilities
-   use mapl_ESMF_Interfaces_mod
-   use mapl_ESMF_Utilities_mod
-   use mapl_ESMF_Time_Utilities_mod
-   use mapl_ESMF_HConfigUtilities_mod
+   use mapl_ESMF_Time_Utilities_mod, only: MAPL_SubTimeInDateTime => sub_time_in_datetime
 
    ! Comms
    use mapl_comms_mod, only: MAPL_ROOT => ROOT_PROCESS_ID
@@ -41,50 +38,57 @@ module mapl_esmf_api
    use mapl_ShmemComms_mod, only: MAPL_ArrayIScatter => ArrayIScatter
    use mapl_ShmemComms_mod, only: MAPL_CollectiveWait => CollectiveWait
 
+   ! HConfig
+   use mapl_hconfig_get_mod, only: MAPL_HConfigGet => HConfigGet
+   use mapl_ESMF_HConfigUtilities_mod, only: MAPL_HConfigMatch => HConfigMatch
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsItemType => HConfigAsItemType
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsStateIntent => HConfigAsStateIntent
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsTime => HConfigAsTime
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsTimeInterval => HConfigAsTimeInterval
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsStringVector => HConfigAsStringVector
+
    ! Info / metadata utilities
-   use mapl_InfoUtilities_mod
+   ! NOTE: MAPL_Info* from mapl_InfoUtilities_mod are widely used across the
+   ! MAPL codebase, so we are not removing the prefixes there
+   use mapl_InfoUtilities_mod, only: MAPL_InfoSet, MAPL_InfoGet
+   use mapl_InfoUtilities_mod, only: MAPL_InfoCreateFromShared
+   use mapl_InfoUtilities_mod, only: MAPL_InfoSetShared, MAPL_InfoGetShared
+   use mapl_InfoUtilities_mod, only: MAPL_InfoSetPrivate, MAPL_InfoGetPrivate
+   use mapl_InfoUtilities_mod, only: MAPL_InfoSetNamespace
 
    ! Ungridded dimensions
-   use mapl_UngriddedDim_mod
-   use mapl_UngriddedDims_mod
-   use mapl_UngriddedDimVector_mod
+   ! TODO: pchakrab - remove the non-prefixed names after updating GEOS
+   use mapl_UngriddedDim_mod, only: UngriddedDim, MAPL_UngriddedDim => UngriddedDim
+   use mapl_UngriddedDims_mod, only: UngriddedDims, MAPL_UngriddedDims => UngriddedDims
 
-   ! Bounds / grid utilities
-   use mapl_LU_Bound_mod
-   use mapl_HorizontalDimsSpec_mod
-   use mapl_DistGridGet_mod
-   use mapl_FieldPointerUtilities_mod
-
-   ! HConfig
-   use mapl_HConfigAs_mod, only: &
-        mapl_HConfigAsItemType => HConfigAsItemType, &
-        mapl_HConfigAsStateIntent => HConfigAsStateIntent, &
-        mapl_HConfigAsTime => HConfigAsTime, &
-        mapl_HConfigAsTimeInterval => HConfigAsTimeInterval, &
-        mapl_HConfigAsTimeRange => HConfigAsTimeRange, &
-        mapl_HConfigAsStringVector => HConfigAsStringVector
-   use mapl_HConfigAs_mod
-   use mapl_HConfigUtilities_mod
-   use mapl_get_hconfig_mod
-   use mapl_hconfig_get_mod
-   use mapl_hconfig_params_mod
-   use mapl_generalized_equality_mod
-
-
-   ! State item
-   use mapl_StateItem_mod
-
-
+   ! Field utilities
+   use mapl_FieldPointerUtilities_mod, only: MAPL_FieldGetCPtr => FieldGetCPtr
+   use mapl_FieldPointerUtilities_mod, only: MAPL_FieldCopy => FieldCopy
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
-   use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
-   use mapl_FieldPointerUtilities_mod, only: mapl_FieldClone => FieldClone
+   use mapl_FieldPointerUtilities_mod, only: MAPL_FieldGetLocalElementCount => FieldGetLocalElementCount
+   use mapl_FieldPointerUtilities_mod, only: MAPL_FieldClone => FieldClone
 
+   ! State item constants
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_UNKNOWN
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_STATE
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_SERVICE
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_BRACKET
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
+
+   ! Type kinds
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
 
    implicit none
    private
 
    ! Alarm
    public :: MAPL_SimpleAlarm
+
+   ! Core ESMF utilities
+   public :: MAPL_SubTimeInDateTime
 
    ! Comms
    public :: MAPL_ROOT
@@ -120,8 +124,8 @@ module mapl_esmf_api
    ! User comp internal state
 
    ! HConfig
-   public :: MAPL_HConfigGet
    public :: MAPL_HConfigMatch
+   public :: MAPL_HConfigGet
    public :: mapl_HConfigAsItemType
    public :: mapl_HConfigAsStateIntent
    public :: mapl_HConfigAsTime
@@ -129,23 +133,29 @@ module mapl_esmf_api
    public :: mapl_HConfigAsTimeRange
    public :: mapl_HConfigAsStringVector
 
-   ! Info / metadata
-
-   ! Field utilities
+   ! Info / metadata utilities
+   public :: MAPL_InfoSet
+   public :: MAPL_InfoGet
+   public :: MAPL_InfoCreateFromShared
+   public :: MAPL_InfoSetShared
+   public :: MAPL_InfoGetShared
+   public :: MAPL_InfoSetPrivate
+   public :: MAPL_InfoGetPrivate
+   public :: MAPL_InfoSetNamespace
 
    ! Ungridded dims
-   public :: UngriddedDim
-   public :: make_UngriddedDim
-   public :: UngriddedDims
+   ! TODO: pchakrab - remove the non-prefixed names after updating GEOS
+   public :: MAPL_UngriddedDim, UngriddedDim
+   public :: MAPL_UngriddedDims, UngriddedDims
+
+   ! Field utilities
+   public :: MAPL_FieldGetCPtr
+   public :: MAPL_FieldCopy
+   public :: MAPL_AssignFptr
+   public :: MAPL_FieldGetLocalElementCount
+   public :: MAPL_FieldClone
 
    ! State item constants
-
-   ! TYPEKIND
-
-   public :: sub_time_in_datetime
-   public :: FieldGetCPtr
-   public :: FieldCopy
-
    public :: MAPL_STATEITEM_UNKNOWN
    public :: MAPL_STATEITEM_FIELD
    public :: MAPL_STATEITEM_FIELDBUNDLE
@@ -159,8 +169,6 @@ module mapl_esmf_api
    public :: MAPL_STATEITEM_VECTORBRACKET
    public :: MAPL_STATEITEM_EXPRESSION
 
-   public :: mapl_AssignFptr
-   public :: FieldGetLocalElementCount
-   public :: mapl_FieldClone
+   ! TYPEKIND
 
 end module mapl_esmf_api

@@ -12,7 +12,7 @@ module mapl_Generic
    use mapl_GriddedComponentDriver_mod
    use mapl_ChildSpec_mod
    use mapl_UserSetServices_mod
-   use mapl_ESMF_HConfigUtilities_mod, only: MAPL_HConfigMatch
+   ! use mapl_esmf_api, only: MAPL_HConfigMatch
    use mapl_VerticalStaggerLoc_mod
    use mapl_geomio
    use mapl_ESMF_Utilities_mod

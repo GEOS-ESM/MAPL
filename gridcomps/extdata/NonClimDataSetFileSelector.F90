@@ -11,7 +11,7 @@ module mapl_NonClimDataSetFileSelector_mod
    private
 
    public NonClimDataSetFileSelector
- 
+
    type, extends(AbstractDataSetFileSelector):: NonClimDataSetFileSelector
       logical :: persist_closest = .false.
       contains
@@ -25,14 +25,14 @@ module mapl_NonClimDataSetFileSelector_mod
     interface NonClimDataSetFileSelector
        procedure new_NonClimDataSetFileSelector
     end interface
-       
+
     contains
 
     function new_NonClimDataSetFileSelector(file_template, file_frequency, ref_time, timeStep, valid_range, persist_closest, rc) result(file_handler)
        type(NonClimDataSetFileSelector) :: file_handler
        character(len=*), intent(in) :: file_template
        type(ESMF_TimeInterval), intent(in), optional :: file_frequency
-       type(ESMF_Time), intent(in), optional :: ref_time 
+       type(ESMF_Time), intent(in), optional :: ref_time
        type(ESMF_Time), intent(in), optional :: valid_range(:)
        type(ESMF_TimeInterval), intent(in), optional :: timeStep
        logical, intent(in), optional :: persist_closest
@@ -63,8 +63,8 @@ module mapl_NonClimDataSetFileSelector_mod
          file_handler%timeStep = timeStep
        end if
 
-       
-       _RETURN(_SUCCESS) 
+
+       _RETURN(_SUCCESS)
     end function
 
     subroutine update_file_bracket(this, bundle, current_time, bracket, rc)
@@ -80,7 +80,7 @@ module mapl_NonClimDataSetFileSelector_mod
        type(DataSetNode) :: left_node, right_node, test_node
        logical :: node_is_valid, both_valid, time_jumped, both_invalid
 
-       establish_both = .true. 
+       establish_both = .true.
        establish_single = .false.
        target_time = current_time
        if (this%persist_closest) then
@@ -89,12 +89,12 @@ module mapl_NonClimDataSetFileSelector_mod
              establish_both = .false.
              if (current_time < this%valid_range(1)) then
                 establish_single = .true.
-                node_side = NODE_LEFT 
-                target_time = this%valid_range(1)   
+                node_side = NODE_LEFT
+                target_time = this%valid_range(1)
              else if (current_time >= this%valid_range(2)) then
                 establish_single = .true.
                 node_side = NODE_LEFT
-                target_time = this%valid_range(2)       
+                target_time = this%valid_range(2)
              end if
           end if
        end if
@@ -108,7 +108,7 @@ module mapl_NonClimDataSetFileSelector_mod
 
        left_node = bracket%get_left_node(_RC)
        right_node = bracket%get_right_node(_RC)
-       both_valid = left_node%validate(target_time) .and. right_node%validate(target_time) 
+       both_valid = left_node%validate(target_time) .and. right_node%validate(target_time)
        time_jumped = this%detect_time_flow(current_time)
        both_invalid = (left_node%validate(target_time) .eqv. .false.) .and. &
                       (right_node%validate(target_time) .eqv. .false.)
@@ -125,13 +125,13 @@ module mapl_NonClimDataSetFileSelector_mod
           call test_node%set_node_side(NODE_LEFT)
           node_is_valid = test_node%validate(target_time)
           if (node_is_valid) then
-             left_node = test_node 
+             left_node = test_node
              call left_node%set_update(.false.)
              call bracket%set_parameters(left_node=left_node)
              call this%update_node(target_time, right_node, _RC)
              call bracket%set_parameters(right_node=right_node)
              call swap_bracket_fields(bundle, _RC)
-          else 
+          else
              call this%update_both_brackets(bracket, target_time, _RC)
           end if
        end if
@@ -144,14 +144,14 @@ module mapl_NonClimDataSetFileSelector_mod
        class(NonClimDataSetFileSelector), intent(inout) :: this
        type(DataSetBracket), intent(inout) :: bracket
        type(ESMF_Time), intent(in) :: target_time
-       type(ESMF_Time), intent(in) :: current_time 
+       type(ESMF_Time), intent(in) :: current_time
        integer, intent(in) :: node_side
        integer, optional, intent(out) :: rc
 
        type(DataSetNode) :: active_node, inactive_node
        integer :: status
        logical :: node_is_valid
-   
+
        select case(node_side)
        case(NODE_LEFT)
           active_node = bracket%get_left_node(_RC)
@@ -205,7 +205,7 @@ module mapl_NonClimDataSetFileSelector_mod
        type(ESMF_Time), intent(in) :: current_time
        type(DataSetNode), intent(inout) :: node
        integer, optional, intent(out) :: rc
-       
+
        integer :: status, local_search_stop, step,  node_side, i
        type(ESMF_Time) :: trial_time
        character(len=ESMF_MAXPATHLEN) :: trial_file
@@ -225,7 +225,7 @@ module mapl_NonClimDataSetFileSelector_mod
           trial_time = this%compute_trial_time(current_time, i, _RC)
           call fill_grads_template(trial_file, this%file_template, time=trial_time, _RC)
           inquire(file=trial_file, exist=file_found)
-          if (file_found) then 
+          if (file_found) then
              call node%invalidate()
              call node%update_node_from_file(trial_file, current_time, _RC)
              valid_node = node%validate(current_time, _RC)
@@ -239,22 +239,22 @@ module mapl_NonClimDataSetFileSelector_mod
        logical :: target_in_valid_range
        class(NonClimDataSetFileSelector), intent(inout) :: this
        type(ESMF_Time), intent(in) :: target_time
- 
-       target_in_valid_range = (this%valid_range(1) < target_time) .and. (target_time < this%valid_range(2)) 
+
+       target_in_valid_range = (this%valid_range(1) < target_time) .and. (target_time < this%valid_range(2))
     end function
-  
+
     subroutine swap_bracket_fields(bundle, rc)
        type(ESMF_FieldBundle), intent(inout) :: bundle
        integer, optional, intent(out) :: rc
 
        integer :: status
        type(ESMF_Field), allocatable :: field_list(:)
- 
+
        call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
-       call FieldCopy(field_list(2), field_list(1), _RC)
+       call MAPL_FieldCopy(field_list(2), field_list(1), _RC)
 
        _RETURN(_SUCCESS)
     end subroutine swap_bracket_fields
 
 end module mapl_NonClimDataSetFileSelector_mod
-   
+

@@ -336,7 +336,7 @@ contains
            ref_datetime = esmf_HConfigAsString(iter, keystring='ref_datetime', _RC)
 
            call esmf_ClockGet(clock, currTime=currTime, _RC)
-           ringTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
+           ringTime = MAPL_SubTimeInDateTime(currTime, ref_datetime, _RC)
 
            alarm = MAPL_SimpleAlarm(initial_ring_time=ringTime, ring_interval=period, _RC)
             _RETURN(_SUCCESS)
