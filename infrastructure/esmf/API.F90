@@ -2,11 +2,44 @@
 ! Public API of esmf/ leaf modules exposed to external consumers.
 module mapl_esmf_api
 
+   ! Alarm
+   use mapl_SimpleAlarm_mod, only: MAPL_SimpleAlarm => SimpleAlarm
+
    ! Core ESMF utilities
    use mapl_ESMF_Interfaces_mod
    use mapl_ESMF_Utilities_mod
    use mapl_ESMF_Time_Utilities_mod
    use mapl_ESMF_HConfigUtilities_mod
+
+   ! Comms
+   use mapl_comms_mod, only: MAPL_ROOT => ROOT_PROCESS_ID
+   use mapl_comms_mod, only: MAPL_Barrier => barrier
+   use mapl_comms_mod, only: MAPL_Am_I_Root => am_i_root
+   use mapl_comms_mod, only: MAPL_Am_I_Rank => am_i_rank
+   use mapl_comms_mod, only: MAPL_NPES => num_pes
+   use mapl_comms_mod, only: MAPL_CommsSend => comms_send, MAPL_CommsRecv => comms_recv
+   use mapl_comms_mod, only: MAPL_CommsSendRecv => comms_sendrecv
+   use mapl_comms_mod, only: MAPL_CommsGatherV => comms_gatherv
+   use mapl_comms_mod, only: MAPL_CommsScatterV => comms_scatterv
+   use mapl_comms_mod, only: MAPL_CommsAllGather => comms_allgather
+   use mapl_comms_mod, only: MAPL_CommsAllGatherV => comms_allgatherv
+   use mapl_comms_mod, only: MAPL_ArrayGather => array_gather
+   use mapl_comms_mod, only: MAPL_ArrayScatter => array_scatter
+   use mapl_comms_mod, only: ArrayGather => array_gather   ! TODO: pchakrab - remove after updating GEOS
+   use mapl_comms_mod, only: ArrayScatter => array_scatter ! -do-
+   use mapl_comms_mod, only: MAPL_CommsAllReduceMin => comms_allreduce_min
+   use mapl_comms_mod, only: MAPL_CommsAllReduceMax => comms_allreduce_max
+   use mapl_comms_mod, only: MAPL_CommsAllReduceSum => comms_allreduce_sum
+
+   ! ShmemComms
+   use mapl_ShmemComms_mod, only: MAPL_RoundRobinPEList => RoundRobinPEList
+   use mapl_ShmemComms_mod, only: MAPL_BcastShared => BcastShared
+   use mapl_ShmemComms_mod, only: MAPL_CommsBcast => CommsBcast
+   use mapl_ShmemComms_mod, only: MAPL_CommRequest => CommRequest
+   use mapl_ShmemComms_mod, only: MAPL_CreateRequest => CreateRequest
+   use mapl_ShmemComms_mod, only: MAPL_ArrayIGather => ArrayIGather
+   use mapl_ShmemComms_mod, only: MAPL_ArrayIScatter => ArrayIScatter
+   use mapl_ShmemComms_mod, only: MAPL_CollectiveWait => CollectiveWait
 
    ! Info / metadata utilities
    use mapl_InfoUtilities_mod
@@ -15,9 +48,6 @@ module mapl_esmf_api
    use mapl_UngriddedDim_mod
    use mapl_UngriddedDims_mod
    use mapl_UngriddedDimVector_mod
-
-   ! VM
-   use mapl_vm_mod, only: mapl_AmIRoot, mapl_AmIPet, mapl_Barrier
 
    ! Bounds / grid utilities
    use mapl_LU_Bound_mod
@@ -40,32 +70,11 @@ module mapl_esmf_api
    use mapl_hconfig_params_mod
    use mapl_generalized_equality_mod
 
-   ! Alarm
-   use mapl_SimpleAlarm_mod
 
    ! State item
    use mapl_StateItem_mod
 
-   ! Comms
-   use mapl_Comms_mod, only: ROOT_PROCESS_ID
-   use mapl_Comms_mod, only: &
-        MAPL_Am_I_Root => am_i_root, &
-        MAPL_Am_I_Rank => am_i_rank, &
-        MAPL_NPES => num_pes, &
-        MAPL_CommsSend => comms_send, &
-        MAPL_CommsRecv => comms_recv, &
-        MAPL_CommsSendRecv => comms_sendrecv, &
-        MAPL_CommsGatherV => comms_gatherv, &
-        MAPL_CommsScatterV => comms_scatterv, &
-        MAPL_CommsAllGather => comms_allgather, &
-        MAPL_CommsAllGatherV => comms_allgatherv, &
-        MAPL_ArrayGather => array_gather, &
-        MAPL_ArrayScatter => array_scatter, &
-        MAPL_CommsAllReduceMin => comms_allreduce_min, &
-        MAPL_CommsAllReduceMax => comms_allreduce_max, &
-        MAPL_CommsAllReduceSum => comms_allreduce_sum
-   use mapl_Comms_mod, only: arraygather => array_gather, arrayscatter => array_scatter
-   use mapl_ShmemComms_mod
+
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
    use mapl_FieldPointerUtilities_mod, only: mapl_FieldClone => FieldClone
@@ -74,18 +83,15 @@ module mapl_esmf_api
    implicit none
    private
 
-   ! VM / comm utilities
+   ! Alarm
+   public :: MAPL_SimpleAlarm
+
+   ! Comms
    public :: MAPL_ROOT
-   public :: mapl_AmIPet
-   public :: mapl_AmIRoot
-   public :: mapl_Barrier
-   public :: mapl_RoundRobinPEList
-   public :: mapl_BcastShared
-   public :: mapl_CommsBcast
+   public :: MAPL_NPES
+   public :: MAPL_Barrier
    public :: MAPL_Am_I_Root
    public :: MAPL_Am_I_Rank
-   public :: MAPL_NPES
-   public :: ROOT_PROCESS_ID
    public :: MAPL_CommsSend
    public :: MAPL_CommsRecv
    public :: MAPL_CommsSendRecv
@@ -95,11 +101,21 @@ module mapl_esmf_api
    public :: MAPL_CommsAllGatherV
    public :: MAPL_ArrayGather
    public :: MAPL_ArrayScatter
-   public :: arraygather
-   public :: arrayscatter
+   public :: ArrayGather  ! TODO: pchakrab - remove after updating GEOS
+   public :: ArrayScatter ! -do-
    public :: MAPL_CommsAllReduceMin
    public :: MAPL_CommsAllReduceMax
    public :: MAPL_CommsAllReduceSum
+
+   ! ShmemComms
+   public :: MAPL_RoundRobinPEList
+   public :: MAPL_BcastShared
+   public :: MAPL_CommsBcast
+   public :: MAPL_CommRequest
+   public :: MAPL_CreateRequest
+   public :: MAPL_CollectiveWait
+   public :: MAPL_ArrayIGather
+   public :: MAPL_ArrayIScatter
 
    ! User comp internal state
 
@@ -125,9 +141,6 @@ module mapl_esmf_api
    ! State item constants
 
    ! TYPEKIND
-
-
-   public :: SimpleAlarm
 
    public :: sub_time_in_datetime
    public :: FieldGetCPtr

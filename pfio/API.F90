@@ -7,6 +7,7 @@ module mapl_pfio_api
   use pfio, only: ArrayReference
   use pfio, only: string_in_stringvector
 
+  use pfio, only: Variable
   use pfio, only: StringVariableMap
   use pfio, only: StringVariableMapIterator
   use pfio, only: operator(==), operator(/=)
@@ -22,6 +23,7 @@ module mapl_pfio_api
   public :: ArrayReference
   public :: string_in_stringvector
 
+  public :: Variable
   public :: StringVariableMap
   public :: StringVariableMapIterator
   public :: operator(==), operator(/=)

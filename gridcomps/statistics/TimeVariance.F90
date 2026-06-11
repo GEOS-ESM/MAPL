@@ -25,7 +25,7 @@ module mapl_TimeVariance_mod
 
    type, extends(AbstractTimeStatistic) :: TimeVariance
       private
-      type(SimpleAlarm) :: alarm
+      type(MAPL_SimpleAlarm) :: alarm
       type(esmf_Field)  :: f       ! input field
       type(esmf_Field)  :: var_f   ! output field
       logical           :: biased_ = .false.
@@ -51,7 +51,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: var_f
-      type(SimpleAlarm), intent(in) :: alarm
+      type(MAPL_SimpleAlarm), intent(in) :: alarm
       integer(kind=kind(DEFAULT_ALGORITHM)), optional, intent(in) :: algorithm
       logical, optional, intent(in) :: biased
 
@@ -174,7 +174,7 @@ contains
 
    function get_alarm(this) result(alarm)
       class(TimeVariance), intent(in) :: this
-      type(SimpleAlarm) :: alarm
+      type(MAPL_SimpleAlarm) :: alarm
 
       alarm = this%alarm
    end function get_alarm

@@ -19,9 +19,9 @@ module mapl_NCIO_mod
   use mapl_GridAccessors_mod, only: geom_GridGet => GridGet
   use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root, MAPL_ROOT => ROOT_PROCESS_ID, &
                             ArrayScatter => array_scatter
-  use mapl_ShmemComms_mod, only: MAPL_CommsBcast
-   use mapl_esmf_api, only: mapl_FieldClone
-   use mapl_field_api, only: MAPL_FieldEmptyComplete
+  use mapl_esmf_api, only: MAPL_CommsBcast
+  use mapl_esmf_api, only: mapl_FieldClone
+  use mapl_field_api, only: MAPL_FieldEmptyComplete
   use mapl_Sort_mod
   use mapl_EASEConversion_mod, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
 
@@ -4906,7 +4906,7 @@ contains
       ! Broadcast ng and ntile first so non-root processes know array sizes
       call MAPL_CommsBcast(layout, ng, 1, MAPL_Root, status)
       _VERIFY(status)
-      
+
       call MAPL_CommsBcast(layout, ntile, 1, MAPL_Root, status)
       _VERIFY(status)
 

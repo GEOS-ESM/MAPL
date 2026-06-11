@@ -178,7 +178,7 @@ contains
 
          integer :: status
          character(:), allocatable :: action
-         type(SimpleAlarm) :: alarm
+         type(MAPL_SimpleAlarm) :: alarm
 
          stat = NullStatistic() ! just in case
          action = esmf_HConfigAsString(iter, keystring='action', _RC)
@@ -211,7 +211,7 @@ contains
          type(TimeAverage) :: average
          character(*), intent(in) :: name
           type(esmf_HConfigIter), intent(in) :: iter
-          type(SimpleAlarm), intent(in) :: alarm
+          type(MAPL_SimpleAlarm), intent(in) :: alarm
           integer, optional, intent(out) :: rc
 
           integer :: status
@@ -229,7 +229,7 @@ contains
            type(TimeMin) :: min_stat
            character(*), intent(in) :: name
            type(esmf_HConfigIter), intent(in) :: iter
-           type(SimpleAlarm), intent(in) :: alarm
+           type(MAPL_SimpleAlarm), intent(in) :: alarm
            integer, optional, intent(out) :: rc
 
            integer :: status
@@ -247,7 +247,7 @@ contains
            type(TimeMax) :: max_stat
            character(*), intent(in) :: name
            type(esmf_HConfigIter), intent(in) :: iter
-           type(SimpleAlarm), intent(in) :: alarm
+           type(MAPL_SimpleAlarm), intent(in) :: alarm
            integer, optional, intent(out) :: rc
 
            integer :: status
@@ -266,7 +266,7 @@ contains
            type(TimeAccumulate) :: accum_stat
            character(*), intent(in) :: name
            type(esmf_HConfigIter), intent(in) :: iter
-           type(SimpleAlarm), intent(in) :: alarm
+           type(MAPL_SimpleAlarm), intent(in) :: alarm
            integer, optional, intent(out) :: rc
 
            integer :: status
@@ -285,7 +285,7 @@ contains
            type(TimeVariance) :: var_stat
            character(*), intent(in) :: name
            type(esmf_HConfigIter), intent(in) :: iter
-           type(SimpleAlarm), intent(in) :: alarm
+           type(MAPL_SimpleAlarm), intent(in) :: alarm
            integer, optional, intent(out) :: rc
 
            integer :: status
@@ -322,7 +322,7 @@ contains
         end function make_variance_stat
 
        function make_alarm(clock, iter, rc) result(alarm)
-           type(SimpleAlarm) :: alarm
+           type(MAPL_SimpleAlarm) :: alarm
            type(esmf_Clock), intent(in) :: clock
            type(esmf_HConfigIter), intent(in) :: iter
            integer, optional, intent(out) :: rc
@@ -338,7 +338,7 @@ contains
            call esmf_ClockGet(clock, currTime=currTime, _RC)
            ringTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
 
-           alarm = SimpleAlarm(initial_ring_time=ringTime, ring_interval=period, _RC)
+           alarm = MAPL_SimpleAlarm(initial_ring_time=ringTime, ring_interval=period, _RC)
             _RETURN(_SUCCESS)
          end function make_alarm
 
@@ -402,7 +402,7 @@ contains
       type(Statistics), pointer :: stats
       type(StatisticsVectorIterator) :: iter
       class(AbstractTimeStatistic), pointer :: stat
-      type(SimpleAlarm) :: alarm
+      type(MAPL_SimpleAlarm) :: alarm
       logical :: is_ringing, first_ringing
       logical :: first_item
 
