@@ -39,6 +39,7 @@ module mapl_esmf_api
    use mapl_ShmemComms_mod, only: MAPL_CollectiveWait => CollectiveWait
 
    ! HConfig
+   use mapl_hconfig_get_mod, only: MAPL_HConfigGet => HConfigGet
    use mapl_ESMF_HConfigUtilities_mod, only: MAPL_HConfigMatch => HConfigMatch
    use mapl_HConfigAs_mod, only: mapl_HConfigAsItemType => HConfigAsItemType
    use mapl_HConfigAs_mod, only: mapl_HConfigAsStateIntent => HConfigAsStateIntent
@@ -46,10 +47,7 @@ module mapl_esmf_api
    use mapl_HConfigAs_mod, only: mapl_HConfigAsTimeInterval => HConfigAsTimeInterval
    use mapl_HConfigAs_mod, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
    use mapl_HConfigAs_mod, only: mapl_HConfigAsStringVector => HConfigAsStringVector
-   ! use mapl_HConfigAs_mod
-   ! use mapl_HConfigUtilities_mod
-   use mapl_get_hconfig_mod
-   use mapl_hconfig_get_mod
+   ! use mapl_get_hconfig_mod
    use mapl_hconfig_params_mod
    use mapl_generalized_equality_mod
 
@@ -117,8 +115,8 @@ module mapl_esmf_api
    ! User comp internal state
 
    ! HConfig
-   public :: MAPL_HConfigGet
    public :: MAPL_HConfigMatch
+   public :: MAPL_HConfigGet
    public :: mapl_HConfigAsItemType
    public :: mapl_HConfigAsStateIntent
    public :: mapl_HConfigAsTime
