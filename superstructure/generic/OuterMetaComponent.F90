@@ -20,7 +20,6 @@ module mapl_OuterMetaComponent_mod
    use gFTL2_StringVector
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_Profiler_mod, only: DistributedProfiler
-   use mapl_errorhandling_mod
    use esmf
    use pflogger, only: Logger
 
@@ -541,13 +540,12 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine set_misc
 
-   subroutine set_checkpoint_controls_flags(this, unusable, import, export, internal, rc)
+   subroutine set_checkpoint_controls_flags(this, unusable, import, export, internal)
       class(OuterMetaComponent), intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       logical, optional, intent(in) :: import
       logical, optional, intent(in) :: export
       logical, optional, intent(in) :: internal
-      integer, optional, intent(out) :: rc
 
       integer :: status
 
@@ -556,7 +554,6 @@ contains
       if (present(export)) call this%component_spec%misc%checkpoint_controls%set_export(export)
       if (present(internal)) call this%component_spec%misc%checkpoint_controls%set_internal(internal)
 
-      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine set_checkpoint_controls_flags
 

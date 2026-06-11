@@ -405,9 +405,7 @@ contains
       call outer_meta%set_checkpoint_controls_flags( &
            import=import, &
            export=export, &
-           internal=internal, &
-           rc=status)
-      _VERIFY(status)
+           internal=internal)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
