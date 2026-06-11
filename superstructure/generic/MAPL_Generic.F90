@@ -22,7 +22,8 @@ module mapl_Generic_mod
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
    use mapl_OuterMetaComponent_mod, only: get_outer_meta
    use mapl_ChildSpec_mod, only: ChildSpec
-   use mapl_ComponentSpec_mod, only: ComponentSpec, CheckpointControls
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_CheckpointControls_mod, only: CheckpointControls
    use mapl_VariableSpec_mod, only: VariableSpec, make_VariableSpec
    use mapl_Validation_mod, only: is_valid_name
    use mapl_ESMF_Interfaces_mod, only: I_Run
@@ -109,8 +110,9 @@ module mapl_Generic_mod
    public :: GridCompTimerStart
    public :: GridCompTimerStop
 
-   ! Checkpoint directory
+   ! Checkpoint related items
    public :: GridCompGetCheckpointDir
+   public :: GridCompSetCheckpointControls
 
    ! Spec types
    public :: mapl_STATEITEM_STATE, mapl_STATEITEM_FIELDBUNDLE
@@ -143,6 +145,10 @@ module mapl_Generic_mod
    interface GridCompSet
       procedure :: gridcomp_set
    end interface GridCompSet
+
+   interface GridCompSetCheckpointControls
+      procedure :: gridcomp_set_checkpoint_controls
+   end interface GridCompSetCheckpointControls
 
    interface GridCompGetInternalState
       procedure :: get_internal_state
@@ -381,6 +387,31 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_set
+
+   subroutine gridcomp_set_checkpoint_controls(gridcomp, unusable, import, export, internal, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: import
+      logical, optional, intent(in) :: export
+      logical, optional, intent(in) :: internal
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      
+      ! Call the new method on outer_meta to set checkpoint controls
+      call outer_meta%set_checkpoint_controls_flags( &
+           import=import, &
+           export=export, &
+           internal=internal, &
+           rc=status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_set_checkpoint_controls
 
    subroutine get_internal_state(gridcomp, internal_state, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp

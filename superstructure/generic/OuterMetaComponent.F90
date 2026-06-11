@@ -4,6 +4,7 @@ module mapl_OuterMetaComponent_mod
 
    use mapl_UserSetServices_mod, only: AbstractUserSetServices
    use mapl_ComponentSpec_mod
+   use mapl_CheckpointControls_mod
    use mapl_VariableSpec_mod
    use mapl_ChildSpec_mod
    use mapl_InnerMetaComponent_mod
@@ -19,6 +20,7 @@ module mapl_OuterMetaComponent_mod
    use gFTL2_StringVector
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_Profiler_mod, only: DistributedProfiler
+   use mapl_errorhandling_mod
    use esmf
    use pflogger, only: Logger
 
@@ -72,6 +74,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_registry
       procedure :: get_logger
       procedure :: set_misc
+      procedure :: set_checkpoint_controls_flags
 
       procedure :: get_phases
 
@@ -537,5 +540,24 @@ contains
 
       _UNUSED_DUMMY(unusable)
    end subroutine set_misc
+
+   subroutine set_checkpoint_controls_flags(this, unusable, import, export, internal, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      class(KE), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: import
+      logical, optional, intent(in) :: export
+      logical, optional, intent(in) :: internal
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! Update only the fields that are present using setter methods
+      if (present(import)) call this%component_spec%misc%checkpoint_controls%set_import(import)
+      if (present(export)) call this%component_spec%misc%checkpoint_controls%set_export(export)
+      if (present(internal)) call this%component_spec%misc%checkpoint_controls%set_internal(internal)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine set_checkpoint_controls_flags
 
 end module mapl_OuterMetaComponent_mod

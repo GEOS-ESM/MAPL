@@ -42,6 +42,7 @@ target_sources(MAPL.generic PRIVATE
   ChildSpec.F90
   ChildSpecMap.F90
 
+  CheckpointControls.F90
   ComponentSpec.F90
   is_in_set.h
   VariableSpec_private.F90
