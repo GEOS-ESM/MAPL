@@ -1,11 +1,13 @@
 #include "MAPL.h"
 
 submodule (mapl_ESMF_HConfigUtilities_mod) write_hconfig_smod
+
    implicit none(type,external)
 
 contains
 
    module subroutine write_hconfig(hconfig, unit, iotype, v_list, iostat, iomsg)
+
       type(ESMF_Hconfig), intent(in) :: hconfig
       integer, intent(in) :: unit
       character(*), intent(in) :: iotype
@@ -118,7 +120,6 @@ contains
          end do
          write(unit, '("}")', iostat=iostat, iomsg=iomsg)
          if (iostat /= 0) return
-
       end subroutine write_mapping
 
       recursive subroutine write_sequence(hconfig, unit, iotype, v_list, iostat, iomsg)
@@ -161,7 +162,6 @@ contains
 
          write(unit, '("]")', iostat=iostat, iomsg=iomsg)
          if (iostat /= 0) return
-
       end subroutine write_sequence
 
       recursive subroutine write_scalar(hconfig, unit, iotype, v_list, iostat, iomsg)

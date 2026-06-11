@@ -6,10 +6,7 @@ module mapl_esmf_api
    use mapl_SimpleAlarm_mod, only: MAPL_SimpleAlarm => SimpleAlarm
 
    ! Core ESMF utilities
-   use mapl_ESMF_Interfaces_mod
-   use mapl_ESMF_Utilities_mod
-   use mapl_ESMF_Time_Utilities_mod
-   use mapl_ESMF_HConfigUtilities_mod
+   use mapl_ESMF_Time_Utilities_mod, only: MAPL_SubTimeInDateTime => sub_time_in_datetime
 
    ! Comms
    use mapl_comms_mod, only: MAPL_ROOT => ROOT_PROCESS_ID
@@ -41,6 +38,21 @@ module mapl_esmf_api
    use mapl_ShmemComms_mod, only: MAPL_ArrayIScatter => ArrayIScatter
    use mapl_ShmemComms_mod, only: MAPL_CollectiveWait => CollectiveWait
 
+   ! HConfig
+   use mapl_ESMF_HConfigUtilities_mod, only: MAPL_HConfigMatch => HConfigMatch
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsItemType => HConfigAsItemType
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsStateIntent => HConfigAsStateIntent
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsTime => HConfigAsTime
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsTimeInterval => HConfigAsTimeInterval
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsTimeRange => HConfigAsTimeRange
+   use mapl_HConfigAs_mod, only: mapl_HConfigAsStringVector => HConfigAsStringVector
+   ! use mapl_HConfigAs_mod
+   ! use mapl_HConfigUtilities_mod
+   use mapl_get_hconfig_mod
+   use mapl_hconfig_get_mod
+   use mapl_hconfig_params_mod
+   use mapl_generalized_equality_mod
+
    ! Info / metadata utilities
    use mapl_InfoUtilities_mod
 
@@ -55,36 +67,21 @@ module mapl_esmf_api
    use mapl_DistGridGet_mod
    use mapl_FieldPointerUtilities_mod
 
-   ! HConfig
-   use mapl_HConfigAs_mod, only: &
-        mapl_HConfigAsItemType => HConfigAsItemType, &
-        mapl_HConfigAsStateIntent => HConfigAsStateIntent, &
-        mapl_HConfigAsTime => HConfigAsTime, &
-        mapl_HConfigAsTimeInterval => HConfigAsTimeInterval, &
-        mapl_HConfigAsTimeRange => HConfigAsTimeRange, &
-        mapl_HConfigAsStringVector => HConfigAsStringVector
-   use mapl_HConfigAs_mod
-   use mapl_HConfigUtilities_mod
-   use mapl_get_hconfig_mod
-   use mapl_hconfig_get_mod
-   use mapl_hconfig_params_mod
-   use mapl_generalized_equality_mod
-
-
    ! State item
    use mapl_StateItem_mod
-
 
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
    use mapl_FieldPointerUtilities_mod, only: mapl_FieldClone => FieldClone
-
 
    implicit none
    private
 
    ! Alarm
    public :: MAPL_SimpleAlarm
+
+   ! Core ESMF utilities
+   public :: MAPL_SubTimeInDateTime
 
    ! Comms
    public :: MAPL_ROOT
@@ -142,7 +139,6 @@ module mapl_esmf_api
 
    ! TYPEKIND
 
-   public :: sub_time_in_datetime
    public :: FieldGetCPtr
    public :: FieldCopy
 

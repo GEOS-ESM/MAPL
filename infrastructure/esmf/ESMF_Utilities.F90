@@ -12,6 +12,7 @@ module mapl_ESMF_Utilities_mod
    public :: esmf_state_intent_to_string
    public :: MAPL_TYPEKIND_MIRROR
 
+   ! TODO: pchakrab - this should go somewhere else, but where?
    type(ESMF_TypeKind_Flag), parameter :: MAPL_TYPEKIND_MIRROR = ESMF_TypeKind_Flag(200)
 
    interface write(formatted)
@@ -161,7 +162,7 @@ contains
          end if
 
          call ESMF_StateGet(substate, substate_name, itemType, _RC)
-         
+
          if (itemType == ESMF_STATEITEM_NOTFOUND) then ! New tmp_state
             tmp_state = ESMF_StateCreate(name=substate_name, _RC)
             call ESMF_StateAdd(substate, [tmp_state], _RC)
