@@ -14,7 +14,7 @@ module mapl_TimeMin_mod
 
    type, extends(AbstractTimeStatistic) :: TimeMin
       private
-       type(SimpleAlarm) :: alarm
+       type(MAPL_SimpleAlarm) :: alarm
        type(esmf_Field) :: f      ! input
       type(esmf_Field) :: min_f  ! output
    contains
@@ -38,7 +38,7 @@ contains
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: min_f
-       type(SimpleAlarm), intent(in) :: alarm
+       type(MAPL_SimpleAlarm), intent(in) :: alarm
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -299,7 +299,7 @@ contains
 
     function get_alarm(this) result(alarm)
        class(TimeMin), intent(in) :: this
-       type(SimpleAlarm) :: alarm
+       type(MAPL_SimpleAlarm) :: alarm
 
       alarm = this%alarm
    end function get_alarm

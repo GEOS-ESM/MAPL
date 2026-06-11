@@ -66,7 +66,7 @@ contains
 
     function noop_get_alarm(this) result(alarm)
        class(NullStatistic), intent(in) :: this
-       type(SimpleAlarm) :: alarm
+       type(MAPL_SimpleAlarm) :: alarm
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(alarm)

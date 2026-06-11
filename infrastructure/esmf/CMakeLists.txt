@@ -17,8 +17,6 @@ set (srcs
     HorizontalDimsSpec.F90
     DistGridGet.F90
     FieldPointerUtilities.F90
-    # From vm/
-    vm.F90
     # From alarm/
     alarm/SimpleAlarm.F90
     # From hconfig/
@@ -37,7 +35,7 @@ set (srcs
     ESMF_HConfigUtilities/write_hconfig.F90
     StateItem.F90
     # From esmf_utils/comms/
-    comms/MAPL_Comms.F90
+    comms/Comms.F90
     comms/ShmemComms.F90
     # Umbrella module
     API.F90

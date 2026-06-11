@@ -3,7 +3,6 @@
 module Test_TimeAccumulate
    use pfunit
    use mapl_TimeAccumulate_mod
-   use mapl_SimpleAlarm_mod, only: SimpleAlarm
    use MAPL
    use ESMF
    use ESMF_TestMethod_mod
@@ -108,14 +107,14 @@ contains
    ! ring_interval of ring_hours hours.
    ! -----------------------------------------------------------------------
    function make_alarm_hourly(ring_time, ring_hours, rc) result(alarm)
-      type(SimpleAlarm) :: alarm
+      type(MAPL_SimpleAlarm) :: alarm
       type(ESMF_Time), intent(in) :: ring_time
       integer, intent(in) :: ring_hours
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_TimeInterval) :: time_interval
       call ESMF_TimeIntervalSet(time_interval, h=ring_hours, _RC)
-      alarm = SimpleAlarm(ring_time, time_interval)
+      alarm = MAPL_SimpleAlarm(ring_time, time_interval)
       _RETURN(_SUCCESS)
    end function make_alarm_hourly
 
@@ -197,7 +196,7 @@ contains
    subroutine test_alarm_rings_at_correct_times(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Time) :: ring_time, t
-      type(SimpleAlarm) :: alarm
+      type(MAPL_SimpleAlarm) :: alarm
       integer :: status
       logical :: is_ringing
 

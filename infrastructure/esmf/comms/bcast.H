@@ -7,7 +7,7 @@
 #  undef NAMESTR_
 #endif
 
-#define NAME_ MAPL_CommsBcast_
+#define NAME_ comms_bcast_
 
 #include "overload.macro"
 
@@ -24,7 +24,7 @@
     integer,            intent(in   )            :: ROOT
     integer         ,   intent(  out),  optional :: RC
 
-    character(len=ESMF_MAXSTR), parameter :: IAM='MAPL_Bcast'
+    character(len=ESMF_MAXSTR), parameter :: IAM='Bcast'
     integer                               :: status
     integer                               :: comm
     type(ESMF_VM)                         :: vm
@@ -42,8 +42,8 @@
 #undef NAME_
 #undef NAMESTR_
 
-#define NAME_ MAPL_CommsBcastVm_
-#define NAMESTR_ 'MAPL_CommsBcastVm_'
+#define NAME_ comms_bcast_vm_
+#define NAMESTR_ 'comms_bcast_vm_'
 
   subroutine SUB_ ( vm, DATA, N, ROOT, RC)
 
@@ -58,7 +58,7 @@
     integer,            intent(in   )            :: ROOT
     integer         ,   intent(  out),  optional :: RC
 
-    character(len=ESMF_MAXSTR), parameter :: IAM='MAPL_BcastVm'
+    character(len=ESMF_MAXSTR), parameter :: IAM='BcastVm'
     integer                               :: status
     integer                               :: comm
 
