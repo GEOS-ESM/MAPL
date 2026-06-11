@@ -437,7 +437,7 @@ contains
    subroutine test_combined_horizontal_vertical_manual(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(mapl_GeomManager) :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
       type(mapl_MaplGeom) :: mapl_geom
       type(ESMF_HConfig) :: hconfig
       class(ExtensionTransform), allocatable :: horz_transform
@@ -466,7 +466,7 @@ contains
       integer :: i, j, k, status
       
       ! Get geometry manager
-      geom_mgr = mapl_GeomManager()
+      geom_mgr => mapl_get_geom_manager()
       
       ! Create input grid (4×4 horizontal) using mapl_GeomManager
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 4, jm_world: 4, pole: PC, dateline: DC}", _RC)
