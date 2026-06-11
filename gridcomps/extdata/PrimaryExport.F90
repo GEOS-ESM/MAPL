@@ -132,7 +132,7 @@ module mapl_PrimaryExport_mod
       type(ESMF_Geom) :: esmfgeom
       type(ESMF_FieldBundle) :: bundle
       type(mapl_GeomManager), pointer :: geom_mgr
-      type(EsmfRegridderParam) :: regridder_param
+      type(mapl_EsmfRegridderParam) :: regridder_param
       type(esmf_Info) :: regridder_param_info
       class(VerticalGrid), pointer :: vertical_grid
       type(VerticalGridManager), pointer :: vgrid_manager
@@ -151,7 +151,7 @@ module mapl_PrimaryExport_mod
 
       variable_name => this%file_vars%of(1)
       this%vcoord = verticalCoordinate(metadata%metadata, variable_name, _RC)
-      regridder_param = generate_esmf_regrid_param(regrid_method_string_to_int(this%regridding_method), &
+      regridder_param = mapl_generate_esmf_regrid_param(mapl_regrid_method_string_to_int(this%regridding_method), &
          ESMF_TYPEKIND_R4, _RC)
       regridder_param_info = regridder_param%make_info(_RC)
 

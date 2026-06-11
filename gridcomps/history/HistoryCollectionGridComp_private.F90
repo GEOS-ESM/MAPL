@@ -31,7 +31,7 @@ module mapl_HistoryCollectionGridComp_private_mod
       type(ESMF_TypeKind_Flag), allocatable :: typekind
       type(ESMF_TimeInterval), allocatable :: timeStep
       character(len=:), allocatable :: accumulation_type
-      type(EsmfRegridderParam) :: regrid_param
+      type(mapl_EsmfRegridderParam) :: regrid_param
    end type HistoryOptions
 
    interface parse_options
@@ -480,11 +480,11 @@ contains
       character(len=:), allocatable :: regrid_method_str
 
       is_defined = ESMF_HConfigIsDefined(hconfig, keyString=KEY_REGRID, _RC)
-      options%regrid_param = generate_esmf_regrid_param(REGRID_METHOD_BILINEAR, ESMF_TYPEKIND_R4, _RC)
+      options%regrid_param = mapl_generate_esmf_regrid_param(MAPL_REGRID_METHOD_BILINEAR, ESMF_TYPEKIND_R4, _RC)
       if (is_defined) then
          regrid_method_str = ESMF_HConfigAsString(hconfig, keyString=KEY_REGRID, _RC)
-         regrid_method_int = regrid_method_string_to_int(regrid_method_str)
-         options%regrid_param = generate_esmf_regrid_param(regrid_method_int, ESMF_TYPEKIND_R4, _RC)
+         regrid_method_int = mapl_regrid_method_string_to_int(regrid_method_str)
+         options%regrid_param = mapl_generate_esmf_regrid_param(regrid_method_int, ESMF_TYPEKIND_R4, _RC)
       end if
 
       _RETURN(_SUCCESS)
