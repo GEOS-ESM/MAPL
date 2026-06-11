@@ -461,6 +461,7 @@ end module mapl_StatisticsGridComp_mod
 subroutine setServices(gridComp, rc)
    use MAPL
    use mapl_StatisticsGridComp_mod, only: StatisticsSetServices => setServices
+   use esmf, only: esmf_GridComp
    implicit none(type,external)
    type(esmf_GridComp), intent(inout) :: gridcomp
    integer, intent(out) :: rc
