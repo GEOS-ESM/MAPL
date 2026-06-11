@@ -75,7 +75,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `components.yaml`
   - ESMA_env v5.22.0
     - Update to GEOSpyD 26.3.2 Python 3.14
-- Move make_dim_key function to mapl_UngriddedDims
 ### Fixed
 
 - Different bug introduced when fixing bug just below this entry.
@@ -100,6 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `#ifndef __DARWIN` to fix a runtime error on macOS with NAG (`IEEE_SET_HALTING_MODE is not
   supported`). IEEE halting mode is not supported on macOS/ARM regardless of compiler. The
   `__DARWIN` macro is already defined on Apple builds. Fixes #5023.
+- make_dim_key function from mapl_esmf_info_keys_mod
 
 ### Changed
 

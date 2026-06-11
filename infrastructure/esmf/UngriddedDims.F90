@@ -3,7 +3,7 @@
 module mapl_UngriddedDims_mod
    use mapl_InfoUtilities_mod
    use mapl_StringUtilities_mod, only: to_string
-   use mapl_esmf_info_keys_mod, only: KEYSTUB_DIM, KEY_NUM_UNGRIDDED_DIMS, KEY_DIM_STRINGS
+   use mapl_esmf_info_keys_mod, only: KEYSTUB_DIM, KEY_NUM_UNGRIDDED_DIMS
    use mapl_UngriddedDimVector_mod
    use mapl_UngriddedDim_mod
    use mapl_LU_Bound_mod
@@ -205,8 +205,7 @@ contains
       do i = 1, this%get_num_ungridded()
          dim_spec => this%get_ith_dim_spec(i, _RC)
          dim_info = dim_spec%make_info(_RC)
-
-         dim_key = make_dim_key(i)
+         dim_key = KEYSTUB_DIM // to_string(i)
          call ESMF_InfoSet(info, key=dim_key, value=dim_info, _RC)
          call ESMF_InfoDestroy(dim_info, _RC)
       end do
@@ -248,7 +247,7 @@ contains
       allocate(dim_specs(num_ungridded_dims))
 
       do i = 1, num_ungridded_dims
-         dim_key = make_dim_key(i, _RC)
+         dim_key = KEYSTUB_DIM // to_string(i)
          if (present(key)) then
             dim_key = key // dim_key
          end if
@@ -267,23 +266,4 @@ contains
       is_mirror = this%is_mirror_
    end function is_mirror
 
-   function make_dim_key(n, rc) result(key)
-      character(len=:), allocatable :: key
-      integer, intent(in) :: n
-      integer, optional, intent(out) :: rc
-      integer :: status
-      character(len=32) :: raw
-
-      key = ''
-      _ASSERT(n > 0, 'Index must be positive.')
-      if(n <= size(KEY_DIM_STRINGS)) then
-         key = KEY_DIM_STRINGS(n)
-         _RETURN(_SUCCESS)
-      end if
-      raw = to_string(n)
-      key = KEYSTUB_DIM // raw
-      _RETURN(_SUCCESS)
-
-   end function make_dim_key
-   
 end module mapl_UngriddedDims_mod
