@@ -42,7 +42,6 @@ contains
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize, phase_name='GENERIC::INIT_REALIZE', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_WRITERESTART, custom_write_restart, phase_name='GENERIC::WRITE_RESTART', _RC)
 
       ! Attach private state
       _SET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE)
@@ -62,8 +61,8 @@ contains
 
       call esmf_HConfigdestroy(items_hconfig, _RC)
 
-      restart_controls%bootstrap = .true.
-      restart_controls%internal = .true.
+      call restart_controls%set_bootstrap(.true.)
+      call restart_controls%set_internal(.true.)
       call MAPL_GridCompSet(gridcomp, restart_controls=restart_controls, _RC)
 
       _RETURN(_SUCCESS)
@@ -337,7 +336,7 @@ contains
            ref_datetime = esmf_HConfigAsString(iter, keystring='ref_datetime', _RC)
 
            call esmf_ClockGet(clock, currTime=currTime, _RC)
-           ringTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
+           ringTime = MAPL_SubTimeInDateTime(currTime, ref_datetime, _RC)
 
            alarm = MAPL_SimpleAlarm(initial_ring_time=ringTime, ring_interval=period, _RC)
             _RETURN(_SUCCESS)
@@ -386,32 +385,28 @@ contains
          end do
        end associate
 
+       call set_stats_checkpoint(gridcomp, clock, _RC)
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(importState)
        _UNUSED_DUMMY(exportState)
    end subroutine run
 
-   subroutine custom_write_restart(gridcomp, importState, exportState, clock, rc)
+   subroutine set_stats_checkpoint(gridcomp, clock, rc)
       type(esmf_GridComp) :: gridComp
-      type(esmf_State) :: importState
-      type(esmf_State) :: exportState
       type(esmf_Clock) :: clock
       integer, intent(out) :: rc
 
       integer :: status
       type(esmf_State) :: state
-      type(RestartHandler) :: restart_handler
       type(esmf_Time) :: currTime
-      class(Logger), pointer :: lgr
-      type(esmf_Geom) :: geom
-      character(:), allocatable :: checkpoint_dir, filename, name
-      type(ESMF_HConfig) :: hconfig
       type(Statistics), pointer :: stats
       type(StatisticsVectorIterator) :: iter
       class(AbstractTimeStatistic), pointer :: stat
       type(MAPL_SimpleAlarm) :: alarm
       logical :: is_ringing, first_ringing
       logical :: first_item
+
+      call MAPL_GridCompSetCheckpointControls(gridcomp, internal=.false., _RC)
 
       ! Verify all alarms share the same ringing status; skip write if all are ringing
       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
@@ -440,21 +435,10 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
-      call mapl_GridCompGet(gridcomp, logger=lgr, name=name, _RC)
-
-      call MAPL_StateGetGeom(state, geom, _RC)
-      restart_handler = RestartHandler(geom, currTime, lgr)
-
-      checkpoint_dir = MAPL_GridCompGetCheckpointDir(gridcomp, currTime, _RC)
-      filename = mapl_PathJoin(checkpoint_dir, name//'_internal.nc')
-
-      call restart_handler%write(state, filename, _RC)
+      call MAPL_GridCompSetCheckpointControls(gridcomp, internal=.true., _RC)
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(importState)
-      _UNUSED_DUMMY(exportState)
-   end subroutine custom_write_restart
+   end subroutine set_stats_checkpoint
 
 end module mapl_StatisticsGridComp_mod
 

@@ -40,21 +40,21 @@ contains
       restart_handler = RestartHandler(this%get_geom(), current_time, this%get_logger())
       states = driver%get_states()
 
-      if (this%component_spec%misc%checkpoint_controls%import) then
+      if (this%component_spec%misc%checkpoint_controls%get_import()) then
          filename = this%get_checkpoint_filename(current_time, ESMF_STATEINTENT_IMPORT, _RC)
          call this%start_timer("WriteImportCheckpoint", _RC)
          call restart_handler%write(states%importState, filename, _RC)
          call this%stop_timer("WriteImportCheckpoint", _RC)
       end if
 
-      if (this%component_spec%misc%checkpoint_controls%internal) then
+      if (this%component_spec%misc%checkpoint_controls%get_internal()) then
          filename = this%get_checkpoint_filename(current_time, ESMF_STATEINTENT_INTERNAL, _RC)
          call this%start_timer("WriteInternalCheckpoint", _RC)
          call restart_handler%write(states%internalState, filename, _RC)
          call this%stop_timer("WriteInternalCheckpoint", _RC)
       end if
 
-      if (this%component_spec%misc%checkpoint_controls%export) then
+      if (this%component_spec%misc%checkpoint_controls%get_export()) then
          filename = this%get_checkpoint_filename(current_time, ESMF_STATEINTENT_EXPORT, _RC)
          call this%start_timer("WriteExportCheckpoint", _RC)
          call restart_handler%write(states%exportState, filename, _RC)

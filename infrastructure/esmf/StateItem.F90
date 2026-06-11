@@ -1,5 +1,7 @@
 module mapl_StateItem_mod
+
    use esmf
+
    implicit none
    private
 
@@ -16,6 +18,7 @@ module mapl_StateItem_mod
    public :: MAPL_STATEITEM_VECTORBRACKET
    public :: MAPL_STATEITEM_EXPRESSION
 
+   ! TODO: pchakrab - the comment below is no longer accurate
    ! This following must be public for internal MAPL use, but should not be
    ! exported to the public API of MAPL
 

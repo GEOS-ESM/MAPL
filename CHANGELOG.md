@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed mapl_ prefix from leaf components in ./base, except SunOrbit.F90
+- Added MAPL_GridCompSetCheckpoint procedure in public API
+- Statistics gridcomp now goes through generic checkpointing
 - Removed ESMF_Subset.F90 and its dependencies.
 - Moved Cap.F90 and GEOS.F90 to mapl, now uses dso to call CapGridComp
 - Removed mapl_ prefix from leaf components in ./enums
@@ -76,7 +78,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `components.yaml`
   - ESMA_env v5.22.0
     - Update to GEOSpyD 26.3.2 Python 3.14
-
 ### Fixed
 
 - Different bug introduced when fixing bug just below this entry.
@@ -101,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `#ifndef __DARWIN` to fix a runtime error on macOS with NAG (`IEEE_SET_HALTING_MODE is not
   supported`). IEEE halting mode is not supported on macOS/ARM regardless of compiler. The
   `__DARWIN` macro is already defined on Apple builds. Fixes #5023.
+- make_dim_key function from mapl_esmf_info_keys_mod
 
 ### Changed
 
@@ -153,6 +155,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   naming conflicts between esmf and history layers using selective `only:` imports. Created
   GitHub issue #5005 for deferred `utils/` sibling migration. Zero-diff for all passing tests.
 - Added support for MAPL_STATEITEM_VECTOR ITEMTYPE in ACG
+- Added to_string (integer_to_string) utility function of mapl_StringUtilities
+  to convert an integer to a string with optional variable width
 
 ### Changed
 

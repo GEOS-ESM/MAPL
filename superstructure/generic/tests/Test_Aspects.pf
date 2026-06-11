@@ -15,7 +15,7 @@ module Test_Aspects
    use mapl_UngriddedDims_mod
    use mapl_UngriddedDim_mod
    use mapl_UngriddedDimVector_mod
-   use mapl_ESMF_Utilities_mod, only: MAPL_TYPEKIND_MIRROR
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use gftl2_StringVector
    use esmf
    implicit none
@@ -24,7 +24,7 @@ module Test_Aspects
 
 contains
 
-   
+
    @before
    subroutine setup()
       type(ESMF_HConfig) :: hconfig
@@ -45,7 +45,7 @@ contains
       call ESMF_HConfigDestroy(hconfig)
    end subroutine setup
 
-   
+
    @test
    subroutine test_can_connect_typekind()
       type(TypekindAspect) :: tk_r4, tk_r8, tk_mirror
@@ -82,7 +82,7 @@ contains
 
       export = AttributesAspect(export_attributes)
       import = AttributesAspect(import_attributes)
-      
+
       @assert_that(export%can_connect_to(import), is(false()))
 
    end subroutine test_mismatched_attribute
@@ -104,7 +104,7 @@ contains
 
       export = AttributesAspect(export_attributes)
       import = AttributesAspect(import_attributes)
-      
+
       @assert_that(export%can_connect_to(import), is(true()))
 
    end subroutine test_extra_attribute
@@ -191,7 +191,7 @@ contains
       @assert_that(export%can_connect_to(import), is(true()))
 
    end subroutine test_connect_geoms
-   
+
    @test
    subroutine test_mirror_geom()
       type(GeomAspect) :: import, export
@@ -272,7 +272,7 @@ contains
       ! cannot connect to another bracket
       @assert_that(export%can_connect_to(export), is(false()))
       @assert_that(export%can_connect_to(import), is(true()))
-      
+
    end subroutine test_can_connect_bracket_to_field
 
 end module Test_ASpects

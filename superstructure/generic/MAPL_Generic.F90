@@ -22,7 +22,8 @@ module mapl_Generic_mod
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
    use mapl_OuterMetaComponent_mod, only: get_outer_meta
    use mapl_ChildSpec_mod, only: ChildSpec
-   use mapl_ComponentSpec_mod, only: ComponentSpec, CheckpointControls
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_CheckpointControls_mod, only: CheckpointControls
    use mapl_VariableSpec_mod, only: VariableSpec, make_VariableSpec
    use mapl_Validation_mod, only: is_valid_name
    use mapl_ESMF_Interfaces_mod, only: I_Run
@@ -37,7 +38,8 @@ module mapl_Generic_mod
    use mapl_StateItem_mod, only: mapl_STATEITEM_SERVICE, mapl_STATEITEM_VECTOR
    use mapl_ESMF_Utilities_mod, only: esmf_state_intent_to_string
    use mapl_ESMF_Interfaces_mod, only: mapl_UserCompGetInternalState, mapl_UserCompSetInternalState
-   use mapl_hconfig_get_mod
+   use mapl_hconfig_get_mod, only: HConfigGet
+   use mapl_hconfig_params_mod, only: HConfigParams
    use mapl_RestartModes_mod, only: RestartMode
    use mapl_ComponentSpecParser_mod, only: parse_geometry_spec
    use mapl_InternalConstants_mod
@@ -109,8 +111,9 @@ module mapl_Generic_mod
    public :: GridCompTimerStart
    public :: GridCompTimerStop
 
-   ! Checkpoint directory
+   ! Checkpoint related items
    public :: GridCompGetCheckpointDir
+   public :: GridCompSetCheckpointControls
 
    ! Spec types
    public :: mapl_STATEITEM_STATE, mapl_STATEITEM_FIELDBUNDLE
@@ -143,6 +146,10 @@ module mapl_Generic_mod
    interface GridCompSet
       procedure :: gridcomp_set
    end interface GridCompSet
+
+   interface GridCompSetCheckpointControls
+      procedure :: gridcomp_set_checkpoint_controls
+   end interface GridCompSetCheckpointControls
 
    interface GridCompGetInternalState
       procedure :: get_internal_state
@@ -381,6 +388,29 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_set
+
+   subroutine gridcomp_set_checkpoint_controls(gridcomp, unusable, import, export, internal, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: import
+      logical, optional, intent(in) :: export
+      logical, optional, intent(in) :: internal
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      
+      ! Call the new method on outer_meta to set checkpoint controls
+      call outer_meta%set_checkpoint_controls_flags( &
+           import=import, &
+           export=export, &
+           internal=internal)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_set_checkpoint_controls
 
    subroutine get_internal_state(gridcomp, internal_state, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -681,7 +711,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
       type(HorizontalDimsSpec) :: horizontal_dims_spec_
-      type(UngriddedDims), allocatable :: dim_specs_vec 
+      type(UngriddedDims), allocatable :: dim_specs_vec
       integer :: status
 
       _FAIL_IF(present(dims) .and. present(horizontal_dims_spec), "dims and horizontal_dims_spec passed")
@@ -695,7 +725,7 @@ contains
          dim_specs_vec = ungridded_dims
       end if
       horizontal_dims_spec_ = HORIZONTAL_DIMS_GEOM
-      if (present(horizontal_dims_spec)) horizontal_dims_spec_ = horizontal_dims_spec 
+      if (present(horizontal_dims_spec)) horizontal_dims_spec_ = horizontal_dims_spec
       if (present(dims)) then
          _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
          horizontal_dims_spec_ = HORIZONTAL_DIMS_GEOM
@@ -883,7 +913,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -906,7 +936,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -929,7 +959,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -952,7 +982,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -975,7 +1005,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -998,7 +1028,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger=logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -1021,7 +1051,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -1044,7 +1074,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -1067,7 +1097,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -1090,7 +1120,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -1113,7 +1143,7 @@ contains
 
       call GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC)
+      call HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)

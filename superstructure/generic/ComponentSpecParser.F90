@@ -3,6 +3,7 @@
 module mapl_ComponentSpecParser_mod
 
    use mapl_ComponentSpec_mod
+   use mapl_CheckpointControls_mod
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
    use mapl_UserSetServices_mod

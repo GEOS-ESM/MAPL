@@ -20,6 +20,7 @@ module mapl_ESMF_Interfaces_mod
 
    public :: I_CallBackMethod
 
+   ! TODO: pchakrab - this should be in MAPL.generic, but that causes circular dependency issues
    public :: MAPL_UserCompGetInternalState
    public :: MAPL_UserCompSetInternalState
 

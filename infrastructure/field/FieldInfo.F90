@@ -2,7 +2,7 @@
 
 module mapl_FieldInfo_mod
 
-   use mapl_ESMF_Utilities_mod, only: MAPL_TYPEKIND_MIRROR
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE
    use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE
    use mapl_esmf_info_keys_mod, only: INFO_PRIVATE_NAMESPACE

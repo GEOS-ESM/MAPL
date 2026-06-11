@@ -42,15 +42,15 @@ contains
       restart_handler = RestartHandler(this%get_geom(), current_time, user_logger)
 
       ! if I try to pass this derived type in to read in folowing code nag crashes
-      bootstrap = this%component_spec%misc%restart_controls%bootstrap
-      if (this%component_spec%misc%restart_controls%import) then
+      bootstrap = this%component_spec%misc%restart_controls%get_bootstrap()
+      if (this%component_spec%misc%restart_controls%get_import()) then
          filename = this%get_checkpoint_filename(current_time, ESMF_STATEINTENT_IMPORT, _RC)
          call this%start_timer("ReadImportRestart", _RC)
          call restart_handler%read(states%importState, filename, bootstrap, _RC)
          call this%stop_timer("ReadImportRestart", _RC)
       end if
 
-      if (this%component_spec%misc%restart_controls%internal) then
+      if (this%component_spec%misc%restart_controls%get_internal()) then
          filename = this%get_checkpoint_filename(current_time, ESMF_STATEINTENT_INTERNAL, _RC)
          call this%start_timer("ReadInternalRestart", _RC)
          call restart_handler%read(states%internalState, filename, bootstrap, _RC)
