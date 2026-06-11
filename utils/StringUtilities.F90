@@ -46,6 +46,11 @@ module mapl_StringUtilities_mod
       module procedure :: capitalize_string
    end interface capitalize
 
+   interface to_string
+      module procedure :: array_to_string
+      module procedure :: integer_to_string
+   end interface to_string
+
    interface get_ascii_interval
       module procedure :: get_ascii_interval_array
       module procedure :: get_ascii_interval_string
@@ -118,7 +123,7 @@ contains
    ! Utility functions to convert strings (arbitrary character variables)
    !===============================================================================
 
-   function to_string(array) result(string)
+   function array_to_string(array) result(string)
       character(len=:), allocatable :: string
       character, intent(in) :: array(:)
       integer :: i
@@ -128,7 +133,7 @@ contains
          string(i:i) = array(i)
       end do
 
-   end function to_string
+   end function array_to_string
 
    function to_character_array(s) result(ch)
       character, allocatable :: ch(:)
@@ -141,6 +146,20 @@ contains
       end do
 
    end function to_character_array
+
+   function integer_to_string(n, w) result(s)
+      character(len=:), allocatable :: s
+      integer, intent(in) :: n
+      integer, optional, intent(in) :: w ! allow for zero padding
+
+      character(32) :: buf, fmt
+
+      fmt = '(I0)'
+      if(present(w)) write(fmt, "('(I',I0,')')") max(0, w)
+      write (buf, trim(fmt)) n
+      s = trim(buf)
+
+   end function integer_to_string
 
    !===============================================================================
    ! Inquiry functions - character
