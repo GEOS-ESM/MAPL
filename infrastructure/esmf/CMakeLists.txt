@@ -6,7 +6,6 @@ esma_set_this (OVERRIDE MAPL.esmf)
 
 set (srcs
     # From esmf_utils/
-    ESMF_Interfaces.F90
     ESMF_Utilities.F90
     InfoUtilities.F90
     UngriddedDim.F90
