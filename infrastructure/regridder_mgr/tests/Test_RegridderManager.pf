@@ -54,13 +54,13 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x(:,:)
       real(kind=ESMF_KIND_R4), pointer :: x_3d(:,:,:)
       integer :: status
-      type(VerticalGridManager), pointer :: vgrid_manager
-      class(VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid
 
       
       if (present(lm)) then
-         vgrid_manager => get_vertical_grid_manager()
-         vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=lm), _RC)
+         vgrid_manager => mapl_get_vertical_grid_manager()
+         vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=lm), _RC)
          field = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
          call ESMF_FieldGet(field, farrayptr=x_3d, _RC)
          x_3d = value

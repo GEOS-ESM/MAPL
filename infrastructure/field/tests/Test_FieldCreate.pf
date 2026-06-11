@@ -59,14 +59,14 @@ contains
       real, parameter :: levels(num_layers) = [100., 200., 300., 400., 500.]
       type(FixedLevelsVerticalGridSpec) :: vgrid_spec
       type(FixedLevelsVerticalGrid) :: vgrid_local
-      class(VerticalGrid), pointer :: vgrid
-      type(VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
       integer :: num_levels, status
 
       ! Create a FixedLevelsVerticalGrid with 5 layers
       vgrid_spec = FixedLevelsVerticalGridSpec(physical_dimension='air_pressure', levels=levels, units='Pa')
       call vgrid_local%initialize(vgrid_spec)
-      vgrid_manager => get_vertical_grid_manager()
+      vgrid_manager => mapl_get_vertical_grid_manager()
       vgrid => vgrid_manager%add_grid(vgrid_local, _RC)
 
       field = ESMF_FieldEmptyCreate(_RC)
@@ -108,14 +108,14 @@ contains
       real, parameter :: levels(num_layers) = [100., 200., 300., 400., 500.]
       type(FixedLevelsVerticalGridSpec) :: vgrid_spec
       type(FixedLevelsVerticalGrid) :: vgrid_local
-      class(VerticalGrid), pointer :: vgrid
-      type(VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
       integer :: num_levels, status
 
       ! Create a FixedLevelsVerticalGrid with 5 layers
       vgrid_spec = FixedLevelsVerticalGridSpec(physical_dimension='air_pressure', levels=levels, units='Pa')
       call vgrid_local%initialize(vgrid_spec)
-      vgrid_manager => get_vertical_grid_manager()
+      vgrid_manager => mapl_get_vertical_grid_manager()
       vgrid => vgrid_manager%add_grid(vgrid_local, _RC)
 
       field = ESMF_FieldEmptyCreate(_RC)

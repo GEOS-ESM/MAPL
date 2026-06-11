@@ -32,7 +32,7 @@ module Test_IntegratedNormalization
    type(ESMF_Geom) :: geom_coarse, geom_fine
    type(ESMF_Clock) :: clock
    type(mapl_GeomManager), pointer :: geom_mgr
-   class(VerticalGrid), pointer :: vertical_grid => null()
+   class(mapl_VerticalGrid), pointer :: vertical_grid => null()
    
    ! Grid dimensions
    integer, parameter :: NX_COARSE = 4
@@ -79,17 +79,17 @@ contains
    ! Helper: Create a simple vertical grid for testing
    !---------------------------------------------------------------------------
    function create_test_vertical_grid(rc) result(vgrid)
-      class(VerticalGrid), pointer :: vgrid
+      class(mapl_VerticalGrid), pointer :: vgrid
       integer, optional, intent(out) :: rc
       
-      type(VerticalGridManager), pointer :: vgrid_manager
-      type(BasicVerticalGridSpec) :: vspec
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      type(mapl_BasicVerticalGridSpec) :: vspec
       integer :: status
       
       ! Create a simple basic vertical grid with NZ levels
-      vspec = BasicVerticalGridSpec(num_levels=NZ)
+      vspec = mapl_BasicVerticalGridSpec(num_levels=NZ)
       
-      vgrid_manager => get_vertical_grid_manager(_RC)
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
       vgrid => vgrid_manager%create_grid(vspec, _RC)
       
       _RETURN(_SUCCESS)

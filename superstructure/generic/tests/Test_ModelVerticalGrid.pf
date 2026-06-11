@@ -56,7 +56,7 @@ contains
    subroutine setup_(var_name, geom, vgrid, registry, rc)
       character(*), intent(in) :: var_name
       type(ESMF_Geom), intent(in) :: geom
-      class(VerticalGrid), intent(in) :: vgrid
+      class(mapl_VerticalGrid), intent(in) :: vgrid
       type(StateRegistry), intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
@@ -98,11 +98,11 @@ contains
 
     subroutine setup(geom, vgrid, rc)
        type(ESMF_Geom), intent(out) :: geom
-       class(VerticalGrid), allocatable, intent(out) :: vgrid
+       class(mapl_VerticalGrid), allocatable, intent(out) :: vgrid
        integer, intent(out) :: rc
 
        integer :: status
-       type(VerticalGridManager), pointer :: vgrid_mgr
+       type(mapl_VerticalGridManager), pointer :: vgrid_mgr
        type(ModelVerticalGridSpec) :: vspec
        type(StringVector) :: names, dims
 
@@ -110,7 +110,7 @@ contains
       geom = make_geom(_RC)
       r = StateRegistry("dyn")
 
-      vgrid_mgr => get_vertical_grid_manager()
+      vgrid_mgr => mapl_get_vertical_grid_manager()
       names = StringVector()
       call names%push_back("PLE")
       call names%push_back("PL")
@@ -160,7 +160,7 @@ contains
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_created_fields_have_num_levels(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      class(VerticalGrid), allocatable :: vgrid
+      class(mapl_VerticalGrid), allocatable :: vgrid
       integer :: rank
       integer, allocatable :: localElementCount(:)
       type(VirtualConnectionPt) :: ple_pt
@@ -194,7 +194,7 @@ contains
    ! should force extensions.
    subroutine test_get_coordinate_field_simple(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      class(VerticalGrid), allocatable :: vgrid
+      class(mapl_VerticalGrid), allocatable :: vgrid
       class(ComponentDriver), pointer :: coupler
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
@@ -240,7 +240,7 @@ contains
    ! scaled by 100 (hPa = 100 Pa)
    subroutine test_get_coordinate_field_change_units_edge(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      class(VerticalGrid), allocatable :: vgrid
+      class(mapl_VerticalGrid), allocatable :: vgrid
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
       integer :: status

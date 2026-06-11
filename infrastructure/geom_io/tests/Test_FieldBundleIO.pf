@@ -73,8 +73,8 @@ contains
       type(ESMF_Time) :: time
 
       ! Vertical grid
-      type(VerticalGridManager), pointer :: vgrid_mgr
-      class(VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_mgr
+      class(mapl_VerticalGrid), pointer :: vgrid
 
       ! Write-side fields and bundle
       type(ESMF_Field) :: f_temp, f_humid
@@ -95,15 +95,15 @@ contains
 
       real(kind=ESMF_KIND_R4), parameter :: TEMP_VALUE = 1.5
       real(kind=ESMF_KIND_R4), parameter :: HUMID_VALUE = 3.5
-      type(BasicVerticalGridSpec) :: basic_vgrid
+      type(mapl_BasicVerticalGridSpec) :: basic_vgrid
 
       ! ------------------------------------------------------------------
       ! Setup: geometry, vertical grid, and clock
       ! ------------------------------------------------------------------
       geom = make_latlon_geom(4, 5, _RC)
 
-      basic_vgrid = BasicVerticalGridSpec(num_levels=3)
-      vgrid_mgr => get_vertical_grid_manager()
+      basic_vgrid = mapl_BasicVerticalGridSpec(num_levels=3)
+      vgrid_mgr => mapl_get_vertical_grid_manager()
       vgrid => vgrid_mgr%create_grid(basic_vgrid, _RC)
 
       clock = make_clock(_RC)
@@ -188,8 +188,8 @@ contains
       type(ESMF_Time) :: time
 
       ! Vertical grid
-      type(VerticalGridManager), pointer :: vgrid_mgr
-      class(VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_mgr
+      class(mapl_VerticalGrid), pointer :: vgrid
 
       ! Write-side fields and bundle
       type(ESMF_Field) :: f_temp
@@ -213,8 +213,8 @@ contains
       ! ------------------------------------------------------------------
       geom = make_latlon_geom(4, 5, _RC)
 
-      vgrid_mgr => get_vertical_grid_manager()
-      vgrid => vgrid_mgr%create_grid(BasicVerticalGridSpec(num_levels=3), _RC)
+      vgrid_mgr => mapl_get_vertical_grid_manager()
+      vgrid => vgrid_mgr%create_grid(mapl_BasicVerticalGridSpec(num_levels=3), _RC)
 
       clock = make_clock(_RC)
       call ESMF_ClockGet(clock, currTime=time, _RC)

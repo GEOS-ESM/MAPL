@@ -47,8 +47,8 @@ contains
       type(MAPL_UngriddedDims) :: ungridded_dims
       character(:), allocatable :: units, name
       type(esmf_TypeKind_Flag) :: typekind
-      class(VerticalGrid), pointer :: vertical_grid
       type(MAPL_VerticalStaggerLoc) :: vstagger
+      class(mapl_VerticalGrid), pointer :: vertical_grid
       type(esmf_Field) :: temp_min_f
 
       stat%f = f

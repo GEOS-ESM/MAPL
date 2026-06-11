@@ -41,14 +41,14 @@ contains
       type(ESMF_Geom) :: geom
       real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:), v_data(:,:,:)
       integer :: i, j, k, status
-      type(VerticalGridManager), pointer :: vgrid_manager
-      class(VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid
       
       ! Create ESMF_Geom from grid
       geom = ESMF_GeomCreate(grid, _RC)
       
-      vgrid_manager => get_vertical_grid_manager()
-      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+      vgrid_manager => mapl_get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ), _RC)
       
       ! Create vertical coordinate field (same for input and output)
       v_coord = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
@@ -129,14 +129,14 @@ contains
       type(ESMF_Geom) :: geom
       real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:), v_data(:,:,:)
       integer :: i, j, k, status
-      type(VerticalGridManager), pointer :: vgrid_manager
-      class(VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid
       
       ! Create ESMF_Geom from grid
       geom = ESMF_GeomCreate(grid, _RC)
       
-      vgrid_manager => get_vertical_grid_manager()
-      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+      vgrid_manager => mapl_get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ), _RC)
       
       ! Create vertical coordinate field (same for input and output)
       v_coord = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
@@ -220,14 +220,14 @@ contains
        real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
        real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
        integer :: i, j, k, status
-       type(VerticalGridManager), pointer :: vgrid_manager
-       class(VerticalGrid), pointer :: vgrid
+       type(mapl_VerticalGridManager), pointer :: vgrid_manager
+       class(mapl_VerticalGrid), pointer :: vgrid
        
        ! Create ESMF_Geom from grid
        geom = ESMF_GeomCreate(grid, _RC)
        
-       vgrid_manager => get_vertical_grid_manager()
-       vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+       vgrid_manager => mapl_get_vertical_grid_manager()
+       vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ), _RC)
        
         ! Create input vertical coordinate (DOWN aligned: decreasing values)
         ! E.g., pressure levels: 10mb at top (k=1) -> 1000mb at bottom (k=NZ)
@@ -328,14 +328,14 @@ contains
        real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
        real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
        integer :: i, j, k, status
-       type(VerticalGridManager), pointer :: vgrid_manager
-       class(VerticalGrid), pointer :: vgrid
+       type(mapl_VerticalGridManager), pointer :: vgrid_manager
+       class(mapl_VerticalGrid), pointer :: vgrid
        
        ! Create ESMF_Geom from grid
        geom = ESMF_GeomCreate(grid, _RC)
        
-       vgrid_manager => get_vertical_grid_manager()
-       vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+       vgrid_manager => mapl_get_vertical_grid_manager()
+       vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ), _RC)
        
         ! Create input vertical coordinate (DOWN aligned: pressure decreasing upward)
         ! 1000, 900, 800, ..., 100 mb (top = index 1 = 1000mb, bottom = index NZ = 100mb)
@@ -434,14 +434,14 @@ contains
        real(ESMF_KIND_R4), pointer :: data_in(:,:,:), data_out(:,:,:)
        real(ESMF_KIND_R4), pointer :: v_in(:,:,:), v_out(:,:,:)
        integer :: i, j, k, status
-       type(VerticalGridManager), pointer :: vgrid_manager
-       class(VerticalGrid), pointer :: vgrid
+       type(mapl_VerticalGridManager), pointer :: vgrid_manager
+       class(mapl_VerticalGrid), pointer :: vgrid
        
        ! Create ESMF_Geom from grid
        geom = ESMF_GeomCreate(grid, _RC)
        
-       vgrid_manager => get_vertical_grid_manager()
-       vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ), _RC)
+       vgrid_manager => mapl_get_vertical_grid_manager()
+       vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ), _RC)
        
         ! Create input vertical coordinate (DOWN aligned: height decreasing downward)
         ! 100, 90, 80, ..., 10 km (top = index 1 = 100km, bottom = index NZ = 10km)
@@ -542,15 +542,15 @@ contains
        integer :: i, j, k, status
        integer, parameter :: NZ_IN = 8
        integer, parameter :: NZ_OUT = 9
-       type(VerticalGridManager), pointer :: vgrid_manager
-       class(VerticalGrid), pointer :: vgrid_in, vgrid_out
+       type(mapl_VerticalGridManager), pointer :: vgrid_manager
+       class(mapl_VerticalGrid), pointer :: vgrid_in, vgrid_out
        
        ! Create ESMF_Geom from grid
        geom = ESMF_GeomCreate(grid, _RC)
        
-       vgrid_manager => get_vertical_grid_manager()
-       vgrid_in => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
-       vgrid_out => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
+       vgrid_manager => mapl_get_vertical_grid_manager()
+       vgrid_in => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
+       vgrid_out => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
        
         ! Create input vertical coordinate (DOWN aligned: pressure, 8 levels)
         ! 1000, 850, 700, 550, 400, 250, 100, 10 mb
@@ -653,16 +653,16 @@ contains
         integer :: i, j, k, status
         integer, parameter :: NZ_IN = 8
         integer, parameter :: NZ_OUT = 9
-        type(VerticalGridManager), pointer :: vgrid_manager
-        class(VerticalGrid), pointer :: vgrid_in, vgrid_out
+        type(mapl_VerticalGridManager), pointer :: vgrid_manager
+        class(mapl_VerticalGrid), pointer :: vgrid_in, vgrid_out
         
         ! Create ESMF_Geom from grid
         geom = ESMF_GeomCreate(grid, _RC)
         
         ! Create vertical grids
-        vgrid_manager => get_vertical_grid_manager()
-        vgrid_in => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
-        vgrid_out => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
+        vgrid_manager => mapl_get_vertical_grid_manager()
+        vgrid_in => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
+        vgrid_out => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
         
          ! Create input vertical coordinate (DOWN aligned: height, 8 levels)
          ! 100, 85, 70, 55, 40, 25, 10, 1 km (decreasing downward)
@@ -764,16 +764,16 @@ contains
          integer :: i, j, k, status
          integer, parameter :: NZ_IN = 8
          integer, parameter :: NZ_OUT = 9
-         type(VerticalGridManager), pointer :: vgrid_manager
-         class(VerticalGrid), pointer :: vgrid_in, vgrid_out
+         type(mapl_VerticalGridManager), pointer :: vgrid_manager
+         class(mapl_VerticalGrid), pointer :: vgrid_in, vgrid_out
          
          ! Create ESMF_Geom from grid
          geom = ESMF_GeomCreate(grid, _RC)
          
          ! Create vertical grids
-         vgrid_manager => get_vertical_grid_manager()
-         vgrid_in => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
-         vgrid_out => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
+         vgrid_manager => mapl_get_vertical_grid_manager()
+         vgrid_in => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
+         vgrid_out => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
          
          ! Create input vertical coordinate (DOWN aligned: pressure decreasing, 1000→10 mb)
          v_coord_in = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
@@ -865,16 +865,16 @@ contains
          integer :: i, j, k, status
          integer, parameter :: NZ_IN = 8
          integer, parameter :: NZ_OUT = 9
-         type(VerticalGridManager), pointer :: vgrid_manager
-         class(VerticalGrid), pointer :: vgrid_in, vgrid_out
+         type(mapl_VerticalGridManager), pointer :: vgrid_manager
+         class(mapl_VerticalGrid), pointer :: vgrid_in, vgrid_out
          
          ! Create ESMF_Geom from grid
          geom = ESMF_GeomCreate(grid, _RC)
          
          ! Create vertical grids
-         vgrid_manager => get_vertical_grid_manager()
-         vgrid_in => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
-         vgrid_out => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
+         vgrid_manager => mapl_get_vertical_grid_manager()
+         vgrid_in => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
+         vgrid_out => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
          
          ! Create input vertical coordinate (UP aligned: pressure increasing, 100→900 mb)
          v_coord_in = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
@@ -960,16 +960,16 @@ contains
          integer :: i, j, k, status
          integer, parameter :: NZ_IN = 8
          integer, parameter :: NZ_OUT = 9
-         type(VerticalGridManager), pointer :: vgrid_manager
-         class(VerticalGrid), pointer :: vgrid_in, vgrid_out
+         type(mapl_VerticalGridManager), pointer :: vgrid_manager
+         class(mapl_VerticalGrid), pointer :: vgrid_in, vgrid_out
          
          ! Create ESMF_Geom from grid
          geom = ESMF_GeomCreate(grid, _RC)
          
          ! Create vertical grids
-         vgrid_manager => get_vertical_grid_manager()
-         vgrid_in => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
-         vgrid_out => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
+         vgrid_manager => mapl_get_vertical_grid_manager()
+         vgrid_in => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
+         vgrid_out => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
          
          ! Create input vertical coordinate (DOWN aligned: height decreasing, 100→25 km)
          v_coord_in = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
@@ -1060,16 +1060,16 @@ contains
          integer :: i, j, k, status
          integer, parameter :: NZ_IN = 8
          integer, parameter :: NZ_OUT = 9
-         type(VerticalGridManager), pointer :: vgrid_manager
-         class(VerticalGrid), pointer :: vgrid_in, vgrid_out
+         type(mapl_VerticalGridManager), pointer :: vgrid_manager
+         class(mapl_VerticalGrid), pointer :: vgrid_in, vgrid_out
          
          ! Create ESMF_Geom from grid
          geom = ESMF_GeomCreate(grid, _RC)
          
          ! Create vertical grids
-         vgrid_manager => get_vertical_grid_manager()
-         vgrid_in => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
-         vgrid_out => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
+         vgrid_manager => mapl_get_vertical_grid_manager()
+         vgrid_in => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_IN), _RC)
+         vgrid_out => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=NZ_OUT), _RC)
          
          ! Create input vertical coordinate (UP aligned: height increasing, 10→80 km)
          v_coord_in = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &

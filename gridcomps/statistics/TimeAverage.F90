@@ -47,7 +47,7 @@ contains
       type(mapl_UngriddedDims) :: ungridded_dims
       character(:), allocatable :: units, name
       type(esmf_TypeKind_Flag) :: typekind
-      class(VerticalGrid), pointer :: vertical_grid
+      class(mapl_VerticalGrid), pointer :: vertical_grid
       type(VerticalStaggerLoc) :: vstagger
       type(esmf_Field) :: sum_f, counts_f
 

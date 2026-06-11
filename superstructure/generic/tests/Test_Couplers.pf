@@ -29,7 +29,7 @@ module Test_Couplers
    character(len=*), parameter :: IMPORT_UNITS = 'km s-1'
    character(len=*), parameter :: HCONFIG_CONTENT = &
       & "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}"
-   class(VerticalGrid), pointer :: vertical_grid => null()
+   class(mapl_VerticalGrid), pointer :: vertical_grid => null()
    type(mapl_MaplGeom), pointer :: mapl_geom => null()
    type(mapl_GeomManager), pointer :: geom_mgr => null()
 
@@ -138,15 +138,15 @@ contains
    @Before
    subroutine setUp(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(BasicVerticalGridSpec) :: vspec
-      type(VerticalGridManager), pointer :: vgrid_manager
+      type(mapl_BasicVerticalGridSpec) :: vspec
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
       type(ESMF_HConfig) :: hconfig
       integer :: status
 
       if(associated(vertical_grid)) vertical_grid => null()
       if(associated(mapl_geom)) mapl_geom => null()
-      vgrid_manager => get_vertical_grid_manager(_RC)
-      vspec = BasicVerticalGridSpec(num_levels=5)
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
+      vspec = mapl_BasicVerticalGridSpec(num_levels=5)
       vertical_grid => vgrid_manager%create_grid(vspec, _RC)
 
       if(.not. associated(mapl_geom)) then

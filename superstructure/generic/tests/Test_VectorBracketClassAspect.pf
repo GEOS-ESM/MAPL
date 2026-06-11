@@ -49,10 +49,10 @@ contains
       type(VectorBracketClassAspect) :: bracket_aspect
       integer, parameter :: BRACKET_SIZE = 4
       type(StateRegistry), target :: registry
-      type(BasicVerticalGridSpec) :: vspec
-      class(VerticalGrid), allocatable :: vgrid
+      type(mapl_BasicVerticalGridSpec) :: vspec
+      class(mapl_VerticalGrid), allocatable :: vgrid
 
-      type(BasicVerticalGridFactory) :: factory
+      type(mapl_BasicVerticalGridFactory) :: factory
       real(kind=ESMF_KIND_R4), pointer :: ptr(:)
       real(kind=ESMF_KIND_R4), allocatable :: expected_value(:)
       type(ESMF_Field), allocatable :: fieldList(:)
@@ -61,7 +61,7 @@ contains
            short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, &
            fill_value=17.0, _RC)
 
-      vspec = BasicVerticalGridSpec(num_levels=5)
+      vspec = mapl_BasicVerticalGridSpec(num_levels=5)
       vgrid = factory%create_grid_from_spec(vspec, _RC)
       state_item_spec = var_spec%make_StateItemSpec(registry, vertical_grid=vgrid, _RC)
 

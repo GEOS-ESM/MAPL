@@ -54,7 +54,7 @@ contains
       integer, optional, intent(out) :: fieldCount
       type(ESMF_Field), optional, allocatable, intent(out) :: fieldList(:)
       type(ESMF_Geom), allocatable, optional, intent(out) :: geom
-      class(VerticalGrid), pointer, optional, intent(out) :: vgrid
+      class(mapl_VerticalGrid), pointer, optional, intent(out) :: vgrid
       type(MAPL_FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       real(ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
@@ -81,7 +81,7 @@ contains
       type(ESMF_Info) :: bundle_info
       logical :: has_geom
       integer :: vgrid_id
-      type(VerticalGridManager), pointer :: vgrid_manager
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
 
       if (present(fieldCount) .or. present(fieldList)) then
          call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount_, _RC)
@@ -121,10 +121,10 @@ contains
       end if
 
       if (present(vgrid)) then
-         if (vgrid_id == VERTICAL_GRID_NOT_FOUND) then
+         if (vgrid_id == MAPL_VERTICAL_GRID_NOT_FOUND) then
             vgrid => null()
          else
-            vgrid_manager => get_vertical_grid_manager()
+            vgrid_manager => mapl_get_vertical_grid_manager()
             vgrid => vgrid_manager%get_grid(id=vgrid_id, _RC)
          end if
       end if

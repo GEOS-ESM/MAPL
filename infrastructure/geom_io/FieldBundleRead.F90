@@ -47,7 +47,7 @@ contains
    subroutine FieldBundlePopulate(bundle, geom, vgrid, metadata_utils, only_vars, rc)
       type(ESMF_FieldBundle),  intent(inout) :: bundle
       type(ESMF_Geom),         intent(in)    :: geom
-      class(VerticalGrid), pointer, intent(in)    :: vgrid
+      class(mapl_VerticalGrid), pointer, intent(in)    :: vgrid
       type(FileMetadataUtils), intent(inout), target :: metadata_utils
       character(*), optional,  intent(in)    :: only_vars
       integer, optional,       intent(out)   :: rc
@@ -264,8 +264,8 @@ contains
       type(ESMF_TypeKind_Flag)        :: typekind
       character(len=ESMF_MAXSTR)      :: timestring
 
-      class(VerticalGrid), pointer :: file_vgrid
-      class(VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: file_vgrid
+      class(mapl_VerticalGridManager), pointer :: vgrid_manager
       type(mapl_GeomManager), pointer :: geom_mgr
 
       !--- Resolve filename from template ---
@@ -296,7 +296,7 @@ contains
       file_mapl_geom => geom_mgr%get_mapl_geom(metadata, _RC)
       file_geom = file_mapl_geom%get_geom()
 
-      vgrid_manager => get_vertical_grid_manager(_RC)
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
       file_vgrid => vgrid_manager%create_grid_from_file_metadata(metadata, _RC)
 
       !--- Check whether file grid matches bundle grid ---

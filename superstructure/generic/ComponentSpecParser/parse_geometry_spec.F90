@@ -109,10 +109,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(VerticalGridManager), pointer :: vgrid_manager
-      class(VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid
 
-      vgrid_manager => get_vertical_grid_manager(_RC)
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
       vgrid => vgrid_manager%create_grid(vertical_grid_cfg, _RC)
 
       ! ModelVerticalGrid needs a registry which cannot be derived

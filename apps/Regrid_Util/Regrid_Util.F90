@@ -19,7 +19,7 @@
 
    type regrid_support
       type(ESMF_Grid)     :: new_grid
-      class(VerticalGrid), pointer :: new_vgrid ! same as old for now...
+      class(mapl_VerticalGrid), pointer :: new_vgrid ! same as old for now...
       type(StringVector) :: filenames,outputfiles
       type(mapl_CompressionSettings) :: compression_settings
       integer :: Nx,Ny
@@ -217,7 +217,7 @@
 
     type(mapl_NetCDF4_FileFormatter)     :: file_formatter
     type(mapl_FileMetaData)              :: metadata
-    class(VerticalGridManager), pointer :: vgrid_manager
+    class(mapl_VerticalGridManager), pointer :: vgrid_manager
     character(len=:), pointer :: file_name
     integer :: status
 
@@ -225,7 +225,7 @@
     call file_formatter%open(trim(file_name), MAPL_PFIO_READ, _RC)
     metadata = file_formatter%read(_RC)
     call file_formatter%close(_RC)
-    vgrid_manager => get_vertical_grid_manager(_RC)
+    vgrid_manager => mapl_get_vertical_grid_manager(_RC)
     this%new_vgrid => vgrid_manager%create_grid_from_file_metadata(metadata, _RC)
 
     _RETURN(_SUCCESS)

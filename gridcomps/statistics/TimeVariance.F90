@@ -217,8 +217,8 @@ contains
       type(MAPL_UngriddedDims) :: ungridded_dims
       character(:), allocatable :: units, name
       type(esmf_TypeKind_Flag) :: typekind
-      class(VerticalGrid), pointer :: vertical_grid
       type(MAPL_VerticalStaggerLoc) :: vstagger
+      class(mapl_VerticalGrid), pointer :: vertical_grid
 
       f = stat%f
       var_f = stat%var_f

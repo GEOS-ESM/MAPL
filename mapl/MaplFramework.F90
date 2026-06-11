@@ -100,7 +100,7 @@ contains
       real(ESMF_KIND_R4), optional, intent(in) :: field_default_fill_value_r4
       real(ESMF_KIND_R8), optional, intent(in) :: field_default_fill_value_r8
       integer, optional, intent(out) :: rc
-      type(VerticalGridManager), pointer :: vgrid_manager
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
 
       integer :: status
       type(FixedLevelsVerticalGridFactory) :: fixed_levels_vgrid_factory
@@ -127,7 +127,7 @@ contains
            field_default_fill_value_r8=field_default_fill_value_r8, &
            _RC)
 
-      vgrid_manager => get_vertical_grid_manager(_RC)
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
       call vgrid_manager%initialize(_RC)
       call vgrid_manager%register_factory("FixedLevels", fixed_levels_vgrid_factory, _RC)
       call vgrid_manager%register_factory("Model", model_vgrid_factory, _RC)
