@@ -34,7 +34,7 @@ contains
 
    function new_TimeAccumulate(unusable, gridcomp, f, accum_f, alarm, rc) result(stat)
       type(TimeAccumulate) :: stat
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: accum_f

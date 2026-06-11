@@ -48,7 +48,7 @@ contains
 
    function new_TimeVariance(unusable, f, var_f, alarm, algorithm, biased) result(stat)
       type(TimeVariance) :: stat
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: var_f
       type(MAPL_SimpleAlarm), intent(in) :: alarm

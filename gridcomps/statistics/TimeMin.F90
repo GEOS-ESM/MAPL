@@ -34,7 +34,7 @@ contains
 
    function new_TimeMin(unusable, gridcomp, f, min_f, alarm, rc) result(stat)
       type(TimeMin) :: stat
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: min_f

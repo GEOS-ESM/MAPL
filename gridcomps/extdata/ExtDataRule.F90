@@ -37,7 +37,7 @@ contains
       type(ESMF_HConfig), intent(in) :: config
       character(len=*), intent(in) :: key
       type(ExtDataSampleMap) :: sample_map
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: multi_rule
       integer, optional, intent(out) :: rc
 
@@ -129,7 +129,7 @@ contains
 
    subroutine set_defaults(this,unusable,rc)
       class(ExtDataRule), intent(inout), target :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(unusable)

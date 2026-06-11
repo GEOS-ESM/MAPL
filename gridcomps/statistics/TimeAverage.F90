@@ -34,7 +34,7 @@ contains
 
    function new_TimeAverage(unusable, gridcomp, f, avg_f, alarm, rc) result(stat)
       type(TimeAverage) :: stat
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: avg_f

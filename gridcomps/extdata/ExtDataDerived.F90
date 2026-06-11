@@ -23,7 +23,7 @@ contains
 
    function new_ExtDataDerived(config,unusable,rc) result(rule)
       type(ESMF_HConfig), intent(in) :: config
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(ExtDataDerived) :: rule
@@ -70,7 +70,7 @@ contains
 
    subroutine set_defaults(this,unusable,rc)
       class(ExtDataDerived), intent(inout), target :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       this%expression=''

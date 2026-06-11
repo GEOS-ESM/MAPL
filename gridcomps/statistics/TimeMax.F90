@@ -34,7 +34,7 @@ contains
 
    function new_TimeMax(unusable, gridcomp, f, max_f, alarm, rc) result(stat)
       type(TimeMax) :: stat
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: max_f

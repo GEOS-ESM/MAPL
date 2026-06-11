@@ -49,7 +49,7 @@ contains
       class(ExtDataConfig), intent(inout), target :: ext_config
       type(ESMF_HConfig), intent(in) :: input_config
       type(ESMF_TIme), intent(in) :: current_time
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(ESMF_HConfig) :: sub_config
@@ -297,7 +297,7 @@ contains
    function get_item_type(this,item_name,unusable,rc) result(item_type)
       class(ExtDataConfig), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: item_type
       type(ExtDataRule), pointer :: rule
