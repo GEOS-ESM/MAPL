@@ -63,8 +63,7 @@ module mapl_utils_api
         KEY_VLOC, KEY_NUM_UNGRIDDED_DIMS, KEYSTUB_DIM, &
         KEY_UNGRIDDED_NAME, KEY_UNGRIDDED_UNITS, KEY_UNGRIDDED_COORD, &
         KEY_DIM_STRINGS, KEY_VERT_STAGGERLOC, &
-        KEY_BRACKET_UPDATED, KEY_VECTOR_BASIS_KIND, &
-        make_dim_key
+        KEY_BRACKET_UPDATED, KEY_VECTOR_BASIS_KIND
 
    ! Validation
    use mapl_Validation_mod

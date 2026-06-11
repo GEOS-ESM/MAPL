@@ -26,7 +26,6 @@ module mapl_esmf_info_keys_mod
    public :: KEY_UNGRIDDED_UNITS
    public :: KEY_UNGRIDDED_COORD
    public :: KEY_DIM_STRINGS
-   public :: make_dim_key
    public :: KEY_VERT_STAGGERLOC
    public :: KEY_BRACKET_UPDATED
    public :: KEY_VECTOR_BASIS_KIND
@@ -75,27 +74,5 @@ module mapl_esmf_info_keys_mod
    character(len=*), parameter :: KEY_FIELD_PROTOTYPE = '/field_prototype'
    character(len=*), parameter :: KEY_INTERPOLATION_WEIGHTS = '/interpolation_weights'
    character(len=*), parameter :: KEY_FIELDBUNDLETYPE = '/fieldBundleType'
-
-contains
-
-   function make_dim_key(n, rc) result(key)
-      character(len=:), allocatable :: key
-      integer, intent(in) :: n
-      integer, optional, intent(out) :: rc
-      integer :: status
-      character(len=32) :: raw
-
-      key = ''
-      _ASSERT(n > 0, 'Index must be positive.')
-      if(n <= size(KEY_DIM_STRINGS)) then
-         key = KEY_DIM_STRINGS(n)
-         _RETURN(_SUCCESS)
-      end if
-      write(raw, fmt='(I0)', iostat=status) n
-      _ASSERT(status == 0, 'Write failed')
-      key = KEYSTUB_DIM // trim(raw)
-      _RETURN(_SUCCESS)
-
-   end function make_dim_key
 
 end module mapl_esmf_info_keys_mod
