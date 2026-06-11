@@ -30,11 +30,11 @@ module mapl_SimpleBundleMod_impl_mod
    implicit none
    private
 
-   public :: MAPL_SimpleBundleCreate
-   public :: MAPL_SimpleBundlePrint
-   public :: MAPL_SimpleBundleGetIndex
-   public :: MAPL_SimpleBundleDestroy
-   public :: MAPL_SimpleBundle
+   public :: SimpleBundleCreate
+   public :: SimpleBundlePrint
+   public :: SimpleBundleGetIndex
+   public :: SimpleBundleDestroy
+   public :: SimpleBundle
 
    type SimpleArray_1D
       character(len=ESMF_MAXSTR) :: name
@@ -73,7 +73,7 @@ module mapl_SimpleBundleMod_impl_mod
       type(LcvGrid)                    :: lcv                  !! Lagrangian Control Volume
    end type SimpleGrid
 
-   type MAPL_SimpleBundle
+   type SimpleBundle
       character(len=ESMF_MAXSTR)      :: name
       type(ESMF_FieldBundle), pointer :: Bundle  => null() !! Associated ESMF bundle
       type(ESMF_Grid)                 :: grid              !! Associated ESMF grid
@@ -85,13 +85,13 @@ module mapl_SimpleBundleMod_impl_mod
       type(SimpleArray_1D), pointer :: r1(:) => null()
       type(SimpleArray_2D), pointer :: r2(:) => null()
       type(SimpleArray_3D), pointer :: r3(:) => null()
-   end type MAPL_SimpleBundle
+   end type SimpleBundle
 
-   interface MAPL_SimpleBundleCreate
-      module procedure MAPL_SimpleBundleCreateEmpty
-      module procedure MAPL_SimpleBundleCreateFromBundle
-      module procedure MAPL_SimpleBundleCreateFromState
-   end interface MAPL_SimpleBundleCreate
+   interface SimpleBundleCreate
+      module procedure SimpleBundleCreateEmpty
+      module procedure SimpleBundleCreateFromBundle
+      module procedure SimpleBundleCreateFromState
+   end interface SimpleBundleCreate
 
 contains
 
@@ -100,9 +100,9 @@ contains
 ! Given inputs, create an empty SimpleBundle with coordinate arrays but no
 ! data fields.
 !
-   function MAPL_SimpleBundleCreateEmpty(grid, rc, Levs, LevUnits, ptop, delp, name) result(self)
+   function SimpleBundleCreateEmpty(grid, rc, Levs, LevUnits, ptop, delp, name) result(self)
 
-      type(MAPL_SimpleBundle)                                :: self
+      type(SimpleBundle)                                :: self
       type(ESMF_Grid),                        intent(in)    :: grid
       integer,                      optional, intent(out)   :: rc
       real(ESMF_KIND_R4),           optional, intent(in)    :: Levs(:)     !! Vertical coordinates
@@ -156,7 +156,7 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end function MAPL_SimpleBundleCreateEmpty
+   end function SimpleBundleCreateEmpty
 
 !-----------------------------------------------------------------------------
 !>
@@ -167,10 +167,10 @@ contains
 ! Lagrangian Control Volume Grid. When `delp` is not specified, variables
 ! `DELP` or `delp` are used if present inside the bundle.
 !
-   function MAPL_SimpleBundleCreateFromBundle(Bundle, rc, Levs, LevUnits, ptop, delp, &
+   function SimpleBundleCreateFromBundle(Bundle, rc, Levs, LevUnits, ptop, delp, &
         only_vars, strict, name) result(self)
 
-      type(MAPL_SimpleBundle)                                :: self
+      type(SimpleBundle)                                :: self
 
       type(ESMF_FieldBundle), target,         intent(inout) :: Bundle
       integer,                      optional, intent(out)   :: rc
@@ -426,17 +426,17 @@ contains
          if (present(rc)) rc = err
       end subroutine csv_tokens_get_
 
-   end function MAPL_SimpleBundleCreateFromBundle
+   end function SimpleBundleCreateFromBundle
 
 !-----------------------------------------------------------------------------
 !>
 ! Given an ESMF State, creates a corresponding Simple Bundle.
 ! It is assumed that the ESMF State has a single grid.
 !
-   function MAPL_SimpleBundleCreateFromState(State, rc, Levs, LevUnits, ptop, delp, &
+   function SimpleBundleCreateFromState(State, rc, Levs, LevUnits, ptop, delp, &
         only_vars, strict, name) result(self)
 
-      type(MAPL_SimpleBundle)                                :: self
+      type(SimpleBundle)                                :: self
 
       type(ESMF_State), target,               intent(inout) :: State
       integer,                      optional, intent(out)   :: rc
@@ -458,20 +458,20 @@ contains
 
       Bundle = ESMF_FieldBundleCreate(name=bundleName, _RC)
       call BundleAddState_(Bundle, State, _RC)
-      self = MAPL_SimpleBundleCreateFromBundle(Bundle, Levs=Levs, LevUnits=LevUnits, &
+      self = SimpleBundleCreateFromBundle(Bundle, Levs=Levs, LevUnits=LevUnits, &
            ptop=ptop, delp=delp, only_vars=only_vars, strict=strict, name=name, _RC)
 
       _RETURN(_SUCCESS)
 
-   end function MAPL_SimpleBundleCreateFromState
+   end function SimpleBundleCreateFromState
 
 !-----------------------------------------------------------------------------
 !>
 ! Destructor for the MAPL Simple Bundle.
 !
-   subroutine MAPL_SimpleBundleDestroy(self, rc)
+   subroutine SimpleBundleDestroy(self, rc)
 
-      type(MAPL_SimpleBundle),           intent(inout) :: self
+      type(SimpleBundle),           intent(inout) :: self
       integer,               optional,   intent(out)   :: rc
 
       integer :: status
@@ -491,15 +491,15 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end subroutine MAPL_SimpleBundleDestroy
+   end subroutine SimpleBundleDestroy
 
 !-----------------------------------------------------------------------------
 !>
 ! Prints the global max/min for each variable in the Simple Bundle.
 !
-   subroutine MAPL_SimpleBundlePrint(self, rc)
+   subroutine SimpleBundlePrint(self, rc)
 
-      type(MAPL_SimpleBundle), intent(in)    :: self
+      type(SimpleBundle), intent(in)    :: self
       integer,       optional, intent(out)   :: rc
 
       integer :: i, comm, status
@@ -577,17 +577,17 @@ contains
       if (MAPL_AM_I_ROOT()) print *
       _RETURN(_SUCCESS)
 
-   end subroutine MAPL_SimpleBundlePrint
+   end subroutine SimpleBundlePrint
 
 !-----------------------------------------------------------------------------
 !>
 ! Finds the index of the first variable with name `vname`.
 ! Note: comparison is case-sensitive (trim only).
 !
-   function MAPL_SimpleBundleGetIndex(self, name, rank, rc, quiet) result(iq)
+   function SimpleBundleGetIndex(self, name, rank, rc, quiet) result(iq)
 
       integer                                  :: iq
-      type(MAPL_SimpleBundle),   intent(in)    :: self
+      type(SimpleBundle),   intent(in)    :: self
       character(len=*),          intent(in)    :: name
       integer,                   intent(in)    :: rank
       integer,         optional, intent(out)   :: rc
@@ -633,7 +633,7 @@ contains
       end if
       _RETURN(_SUCCESS)
 
-   end function MAPL_SimpleBundleGetIndex
+   end function SimpleBundleGetIndex
 
 ! Moved here from ESMFL_Mod as part of MAPL3 cleanup (MAPL#4862).
 ! Adds contents of an ESMF_State (fields, bundles, nested states) into

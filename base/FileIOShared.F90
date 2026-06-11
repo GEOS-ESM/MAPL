@@ -46,7 +46,7 @@ module mapl_FileIOShared_mod
   public ArrayScatterShm
 
   ! public subroutines
-  public MAPL_TileMaskGet
+  public TileMaskGet
   public alloc_
   public dealloc_
   public ArrDescrSet
@@ -285,7 +285,7 @@ module mapl_FileIOShared_mod
     _RETURN(ESMF_SUCCESS)
   end subroutine dealloc_
 
-  subroutine MAPL_TileMaskGet(grid, mask, rc)
+  subroutine TileMaskGet(grid, mask, rc)
     type (ESMF_Grid),             intent(INout) :: GRID
     integer, pointer                            :: mask(:)
     integer,           optional , intent(  OUT) :: RC
@@ -429,7 +429,7 @@ module mapl_FileIOShared_mod
     call SyncSharedMemory(_RC)
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_TileMaskGet
+  end subroutine TileMaskGet
 
       subroutine ArrDescrInit(ArrDes,comm,im_world,jm_world,lm_world,nx,ny,num_readers,num_writers,is,ie,js,je,rc)
          type(ArrDescr), intent(INOUT) :: ArrDes

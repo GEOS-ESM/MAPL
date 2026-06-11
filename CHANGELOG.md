@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed mapl_ prefix from leaf components in ./base, except SunOrbit.F90
 - Added MAPL_GridCompSetCheckpoint procedure in public API
 - Statistics gridcomp now goes through generic checkpointing
 - Removed ESMF_Subset.F90 and its dependencies.

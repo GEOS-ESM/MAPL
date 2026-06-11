@@ -18,7 +18,7 @@
 !
 ! The module `MAPL_LocStreamMod` manipulates location streams.
 !
-module mapl_LocStreamMod_impl_mod
+module mapl_LocStreamMod
 
   ! !USES:
 
@@ -26,7 +26,7 @@ use ESMF
 use mapl_geom_api, only: MAPL_GridGet
 use MAPL_Constants
 use mapl_GridAccessors_mod, only: geom_GridGet => GridGet
-use mapl_NCIO_mod, only: MAPL_ReadTilingNC4
+use mapl_NCIO_mod, only:  ReadTilingNC4
 use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root, MAPL_ROOT => ROOT_PROCESS_ID, &
                           MAPL_CommsAllGather => comms_allgather, &
                           MAPL_CommsSendRecv => comms_sendrecv, &
@@ -44,16 +44,16 @@ private
 
 ! !PUBLIC MEMBER FUNCTIONS:
 
-public MAPL_LocStreamCreate
-public MAPL_LocStreamAdjustNsubtiles
-public MAPL_LocStreamTransform
-public MAPL_LocStreamIsAssociated
-public MAPL_LocStreamXformIsAssociated
-public MAPL_LocStreamGet
-public MAPL_LocStreamCreateXform
-public MAPL_LocStreamFracArea
-public MAPL_GridCoordAdjust
-public MAPL_LocStreamTileWeight
+public LocStreamCreate
+public LocStreamAdjustNsubtiles
+public LocStreamTransform
+public LocStreamIsAssociated
+public LocStreamXformIsAssociated
+public LocStreamGet
+public LocStreamCreateXform
+public LocStreamFracArea
+public GridCoordAdjust
+public LocStreamTileWeight
 
 #undef DO_NOT_USE_FCOLLECT
 #if defined(TWO_SIDED_COMM) || defined(ONE_SIDED_COMM)
@@ -145,19 +145,19 @@ end type MAPL_LocStreamXformType
 ! Overloads
 !----------
 
-interface MAPL_LocStreamCreate
-   module procedure MAPL_LocStreamCreateFromFile
-   module procedure MAPL_LocStreamCreateFromStream
-   module procedure MAPL_LocStreamCreateSimple
+interface LocStreamCreate
+   module procedure LocStreamCreateFromFile
+   module procedure LocStreamCreateFromStream
+   module procedure LocStreamCreateSimple
 end interface
 
-interface MAPL_LocStreamTransform
-   module procedure MAPL_LocStreamTransformField
-   module procedure MAPL_LocStreamTransformT2G
-   module procedure MAPL_LocStreamTransformG2T
-   module procedure MAPL_LocStreamTransformT2T
-   module procedure MAPL_LocStreamTransformT2TR4R8
-   module procedure MAPL_LocStreamTransformT2TR8R4
+interface LocStreamTransform
+   module procedure LocStreamTransformField
+   module procedure LocStreamTransformT2G
+   module procedure LocStreamTransformG2T
+   module procedure LocStreamTransformT2T
+   module procedure LocStreamTransformT2TR4R8
+   module procedure LocStreamTransformT2TR8R4
 end interface
 
 ! -----------------------------------------------------------------------
@@ -179,34 +179,34 @@ contains
 
 !===================================================================
 
-  logical function MAPL_LocStreamIsAssociated(LocStream, RC)
+  logical function LocStreamIsAssociated(LocStream, RC)
     type(MAPL_LocStream),                 intent(IN   ) :: LocStream
     integer, optional,                    intent(  OUT) :: RC
 
 
 
-    MAPL_LocStreamIsAssociated = associated(LocStream%Ptr)
+    LocStreamIsAssociated = associated(LocStream%Ptr)
 
     _RETURN(ESMF_SUCCESS)
-  end function MAPL_LocStreamIsAssociated
+  end function LocStreamIsAssociated
 
 !===================================================================
 
-  logical function MAPL_LocStreamXformIsAssociated(Xform, RC)
+  logical function LocStreamXformIsAssociated(Xform, RC)
     type(MAPL_LocStreamXform),            intent(IN   ) :: Xform
     integer, optional,                    intent(  OUT) :: RC
 
 
 
-    MAPL_LocStreamXformIsAssociated = associated(Xform%Ptr)
+    LocStreamXformIsAssociated = associated(Xform%Ptr)
 
     _RETURN(ESMF_SUCCESS)
-  end function MAPL_LocStreamXformIsAssociated
+  end function LocStreamXformIsAssociated
 
 !===================================================================
 
 
-  subroutine MAPL_LocStreamGet(LocStream, NT_LOCAL, nt_global, TILETYPE, TILEKIND, &
+  subroutine LocStreamGet(LocStream, NT_LOCAL, nt_global, TILETYPE, TILEKIND, &
                                TILELONS, TILELATS, TILEAREA, &
                                TILEGRID, &
                                GRIDIM, GRIDJM, GRIDNAMES, &
@@ -338,7 +338,7 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_LocStreamGet
+  end subroutine LocStreamGet
 
 !===================================================================
 !>
@@ -348,7 +348,7 @@ contains
 ! later in various ways. Currently we only decompose it by
 ! "attaching" it to a decomposed grid.
 !
-  subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, RC)
+  subroutine LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, RC)
 
     !ARGUMENTS:
     type(MAPL_LocStream),                 intent(  OUT) :: LocStream
@@ -424,7 +424,7 @@ contains
 !-------------------------------
 
      if (MAPL_AM_I_root()) then
-       call MAPL_ReadTilingNC4(FILENAME, GridName=GridNames, IM=IMs, JM=JMs, N_Grids=N_Grids, AVR=AVR, _RC)
+       call ReadTilingNC4(FILENAME, GridName=GridNames, IM=IMs, JM=JMs, N_Grids=N_Grids, AVR=AVR, _RC)
        NT = size(AVR,1)
      endif
      call MAPL_CommsBcast(layout, NT,        1,    MAPL_Root, status)
@@ -756,7 +756,7 @@ contains
 
 ! Create a tile grid
 !-------------------
-    call MAPL_LocStreamCreateTileGrid(LocStream, GRID, RC=status)
+    call LocStreamCreateTileGrid(LocStream, GRID, RC=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
@@ -979,13 +979,13 @@ contains
 
    end subroutine GenOldGridName_
 
-  end subroutine MAPL_LocStreamCreateFromFile
+  end subroutine LocStreamCreateFromFile
 
 !-------------------------------------------------------------------------------------
 !>
 ! Creates a location stream as a subset of another according to mask.
 !
-  subroutine MAPL_LocStreamCreateFromStream(LocStreamOut, LocStreamIn, NAME, MASK, RC)
+  subroutine LocStreamCreateFromStream(LocStreamOut, LocStreamIn, NAME, MASK, RC)
 
 ! !ARGUMENTS:
     type(MAPL_LocStream),                 intent(  OUT) :: LocStreamOut
@@ -1116,12 +1116,12 @@ contains
 
 ! Create a tile grid
 !-------------------
-    call MAPL_LocStreamCreateTileGrid(LocStreamOut, STREAMIN%GRID, RC=status)
+    call LocStreamCreateTileGrid(LocStreamOut, STREAMIN%GRID, RC=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_LocStreamCreateFromStream
+  end subroutine LocStreamCreateFromStream
 
 
 !======================================================
@@ -1216,7 +1216,7 @@ contains
 
 !======================================================
 
-  subroutine MAPL_LocStreamCreateTileGrid(LocStream, GRID, RC)
+  subroutine LocStreamCreateTileGrid(LocStream, GRID, RC)
 
     type(MAPL_LocStream),  intent(INOUT) :: LocStream
     type(ESMF_Grid),       intent(INout) :: Grid
@@ -1303,11 +1303,11 @@ contains
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_LocStreamCreateTileGrid
+  end subroutine LocStreamCreateTileGrid
 
 !======================================================
 
-  subroutine MAPL_LocStreamAdjustNsubtiles(LocStream, NSUBTILES, RC)
+  subroutine LocStreamAdjustNsubtiles(LocStream, NSUBTILES, RC)
 
     type(MAPL_LocStream),  intent(INOUT) :: LocStream
     integer,               intent(IN   ) :: NSUBTILES
@@ -1339,16 +1339,16 @@ contains
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_LocStreamAdjustNsubtiles
+  end subroutine LocStreamAdjustNsubtiles
 !======================================================
 
 
   !BOPI
-  ! !IROUTINE: MAPL_LocStreamTransform
-  ! !IIROUTINE: MAPL_LocStreamTransformField --- Transform field
+  ! !IROUTINE: LocStreamTransform
+  ! !IIROUTINE: LocStreamTransformField --- Transform field
 
   !INTERFACE:
-  subroutine MAPL_LocStreamTransformField (LocStream, OUTPUT, INPUT, MASK, &
+  subroutine LocStreamTransformField (LocStream, OUTPUT, INPUT, MASK, &
                                            GRID_ID, GLOBAL, ISMINE, INTERP, RC )
 
     !ARGUMENTS:
@@ -1415,7 +1415,7 @@ contains
 
      _ASSERT(size(TILEVAR)==NT,'needs informative message')
 
-     call MAPL_LocStreamTransformT2G (LOCSTREAM, GRIDVAR, TILEVAR, MASK=MSK, RC=STATUS)
+     call LocStreamTransformT2G (LOCSTREAM, GRIDVAR, TILEVAR, MASK=MSK, RC=STATUS)
      _VERIFY(STATUS)
 
    elseif( OUTRANK==1 .and. INRANK==2) then ! G2T
@@ -1426,7 +1426,7 @@ contains
 
      _ASSERT(size(TILEVAR)==NT,'needs informative message')
 
-     call MAPL_LocStreamTransformG2T(LOCSTREAM, TILEVAR, GRIDVAR, MSK, &
+     call LocStreamTransformG2T(LOCSTREAM, TILEVAR, GRIDVAR, MSK, &
           GRID_ID, GLOBAL, ISMINE, INTERP, RC=STATUS)
      _VERIFY(STATUS)
 
@@ -1438,9 +1438,9 @@ contains
 
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_LocStreamTransformField
+end subroutine LocStreamTransformField
 
-subroutine MAPL_LocStreamFracArea (LocStream, TYPE, AREA, RC )
+subroutine LocStreamFracArea (LocStream, TYPE, AREA, RC )
   type(MAPL_LocStream),      intent(IN ) :: LocStream
   integer,                   intent(IN ) :: TYPE
   real,                      intent(OUT) :: AREA(:,:)
@@ -1477,14 +1477,14 @@ subroutine MAPL_LocStreamFracArea (LocStream, TYPE, AREA, RC )
 
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_LocStreamFracArea
+end subroutine LocStreamFracArea
 
 
 !BOPI
-! !IIROUTINE: MAPL_LocStreamTransformT2G --- T2G
+! !IIROUTINE: LocStreamTransformT2G --- T2G
 
 !INTERFACE:
-subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, TRANSPOSE, variance, RC )
+subroutine LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, TRANSPOSE, variance, RC )
 
   !ARGUMENTS:
   type(MAPL_LocStream),      intent(IN ) :: LocStream
@@ -1659,14 +1659,14 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
 
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_LocStreamTransformT2G
+end subroutine LocStreamTransformT2G
 
 
 !BOPI
-! !IIROUTINE: MAPL_LocStreamTransformG2T --- G2T
+! !IIROUTINE: LocStreamTransformG2T --- G2T
 
 !INTERFACE:
-subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
+subroutine LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
                                         MASK, GRID_ID, GLOBAL, ISMINE, &
                                         INTERP, TRANSPOSE, RC )
 
@@ -1835,9 +1835,9 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_LocStreamTransformG2T
+end subroutine LocStreamTransformG2T
 
-subroutine MAPL_LocStreamTileWeight ( LocStream, OUTPUT, INPUT, RC )
+subroutine LocStreamTileWeight ( LocStream, OUTPUT, INPUT, RC )
   type(MAPL_LocStream),      intent(IN ) :: LocStream
   real,                      intent(OUT) :: OUTPUT(:)
   real,                      intent(IN ) :: INPUT(:,:)
@@ -1861,15 +1861,15 @@ subroutine MAPL_LocStreamTileWeight ( LocStream, OUTPUT, INPUT, RC )
 
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_LocStreamTileWeight
+end subroutine LocStreamTileWeight
 
 
 
 !BOPI
-! !IIROUTINE: MAPL_LocStreamTransformT2T --- T2T
+! !IIROUTINE: LocStreamTransformT2T --- T2T
 
 !INTERFACE:
-subroutine MAPL_LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
+subroutine LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
 
   !ARGUMENTS:
   real,                      intent(OUT) :: OUTPUT(:)
@@ -2013,15 +2013,15 @@ subroutine MAPL_LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
 
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_LocStreamTransformT2T
+end subroutine LocStreamTransformT2T
 
 
 
 !BOPI
-! !IIROUTINE: MAPL_LocStreamTransformT2TR4R8 --- T2TR4R8
+! !IIROUTINE: LocStreamTransformT2TR4R8 --- T2TR4R8
 
 !INTERFACE:
-subroutine MAPL_LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
+subroutine LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
 
   !ARGUMENTS:
   real(kind=ESMF_KIND_R8),   intent(OUT) :: OUTPUT(:)
@@ -2072,7 +2072,7 @@ subroutine MAPL_LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
 
   OUTPUTR4 = OUTPUT
 
-  call MAPL_LocStreamTransformT2T( OUTPUTR4, XFORM, INPUT, RC )
+  call LocStreamTransformT2T( OUTPUTR4, XFORM, INPUT, RC )
   OUTPUT = OUTPUTR4
   deallocate(OUTPUTR4)
 
@@ -2080,15 +2080,15 @@ subroutine MAPL_LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
 
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_LocStreamTransformT2TR4R8
+end subroutine LocStreamTransformT2TR4R8
 
 
 
 !BOPI
-! !IIROUTINE: MAPL_LocStreamTransformT2TR8R4 --- T2TR8R4
+! !IIROUTINE: LocStreamTransformT2TR8R4 --- T2TR8R4
 
 !INTERFACE:
-subroutine MAPL_LocStreamTransformT2TR8R4 ( OUTPUT, XFORM, INPUT, RC )
+subroutine LocStreamTransformT2TR8R4 ( OUTPUT, XFORM, INPUT, RC )
 
   !ARGUMENTS:
   real,                      intent(OUT) :: OUTPUT(:)
@@ -2139,16 +2139,16 @@ subroutine MAPL_LocStreamTransformT2TR8R4 ( OUTPUT, XFORM, INPUT, RC )
 
   INPUTR4 = INPUT
 
-  call MAPL_LocStreamTransformT2T( OUTPUT, XFORM, INPUTR4, RC )
+  call LocStreamTransformT2T( OUTPUT, XFORM, INPUTR4, RC )
   deallocate(INPUTR4)
 
 #endif
 
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_LocStreamTransformT2TR8R4
+end subroutine LocStreamTransformT2TR8R4
 
-subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, MASK_OUT, &
+subroutine LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, MASK_OUT, &
      UseFCollect, RC )
   type(MAPL_LocStreamXform), intent(OUT) :: Xform
   type(MAPL_LocStream),      intent(IN ) :: LocStreamOut
@@ -2473,7 +2473,7 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
 
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_LocStreamCreateXform
+end subroutine LocStreamCreateXform
 
 
 
@@ -2509,7 +2509,7 @@ integer function GRIDINDEX(STREAM,GRID,RC)
 
 end function GRIDINDEX
 
-subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
+subroutine GridCoordAdjust(GRID, LOCSTREAM, RC)
   type(ESMF_Grid),               intent(INout ) :: Grid
   type(MAPL_LocStream),          intent(IN ) :: Locstream
   integer, optional,             intent(OUT) :: RC
@@ -2536,7 +2536,7 @@ subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
   call ESMF_GridGet(grid, name=gridname, rc=status)
   _VERIFY(STATUS)
 
-  call MAPL_LocstreamGet(LOCSTREAM, GRIDNAMES = GNAMES, RC=STATUS)
+  call LocStreamGet(LOCSTREAM, GRIDNAMES = GNAMES, RC=STATUS)
   _VERIFY(STATUS)
 ! query loc_in for ngrids
   ngrids = size(gnames)
@@ -2622,11 +2622,11 @@ subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
 !---------
   _RETURN(ESMF_SUCCESS)
 
-end subroutine MAPL_GridCoordAdjust
+end subroutine GridCoordAdjust
 
 !A special subroutine for Nx1 Grid in river-routing grid comp
 !Some information in the locstream is not filled
-subroutine MAPL_LocstreamCreateSimple(Locstream, grid, local_id, tilelons, tilelats, rc)
+subroutine LocStreamCreateSimple(Locstream, grid, local_id, tilelons, tilelats, rc)
    type(MAPL_LocStream), intent(OUT) :: LocStream
    type(ESMF_Grid), intent(inout)    :: grid
    integer, optional, intent(in)     :: local_id(:)
@@ -2673,11 +2673,11 @@ subroutine MAPL_LocstreamCreateSimple(Locstream, grid, local_id, tilelons, tilel
 
    call MAPL_GridGet(grid, im=stream%nt_global, rc=status)
     _VERIFY(STATUS)
-   call MAPL_LocStreamCreateTileGrid(LocStream, grid, RC=status)
+   call LocStreamCreateTileGrid(LocStream, grid, RC=status)
     _VERIFY(STATUS)
 
   _RETURN(ESMF_SUCCESS)
-end subroutine MAPL_LocStreamCreateSimple
+end subroutine LocStreamCreateSimple
 
 
 ! -----------------------------------------------------------------------
@@ -3289,4 +3289,4 @@ subroutine MAPL_GetImsJms(Imins, Imaxs, Jmins, Jmaxs, Ims, Jms, rc)
    _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_GetImsJms
 
-end module mapl_LocStreamMod_impl_mod
+end module mapl_LocStreamMod
