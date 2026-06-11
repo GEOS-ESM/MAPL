@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_GeometrySpec_mod
-   use mapl_geom_api, only: GeomSpec
+   use mapl_geom_api, only: mapl_GeomSpec
    use mapl_VerticalGrid_mod
    implicit none
    private
@@ -23,7 +23,7 @@ module mapl_GeometrySpec_mod
    type GeometrySpec
       integer :: kind= GEOMETRY_FROM_PARENT
       character(len=:), allocatable :: provider ! name of child
-      class(GeomSpec), allocatable :: geom_spec
+      class(mapl_GeomSpec), allocatable :: geom_spec
       class(VerticalGrid), allocatable :: vertical_grid
    end type GeometrySpec
 
@@ -52,7 +52,7 @@ contains
 
    function new_GeometryProvider(geom_spec, vertical_grid) result(spec)
       type(GeometrySpec) :: spec
-      class(GeomSpec), optional, intent(in) :: geom_spec
+      class(mapl_GeomSpec), optional, intent(in) :: geom_spec
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       spec%kind = GEOMETRY_PROVIDER
       if (present(geom_spec)) spec%geom_spec = geom_spec

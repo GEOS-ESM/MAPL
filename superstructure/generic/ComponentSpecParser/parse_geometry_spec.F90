@@ -31,8 +31,8 @@ contains
       type(ESMF_HConfig) :: geometry_cfg
       type(ESMF_HConfig) :: esmf_geom_cfg
       type(ESMF_HConfig) :: vertical_grid_cfg
-      type(GeomManager), pointer :: geom_mgr
-      class(GeomSpec), allocatable :: geom_spec
+      type(mapl_GeomManager), pointer :: geom_mgr
+      class(mapl_GeomSpec), allocatable :: geom_spec
       class(VerticalGrid), allocatable :: vertical_grid
 
       has_geometry_section = ESMF_HConfigIsDefined(mapl_cfg,keyString=COMPONENT_GEOMETRY_SECTION, _RC)
@@ -87,7 +87,7 @@ contains
       end if
 
       if (has_esmf_geom) then
-         geom_mgr => get_geom_manager()
+         geom_mgr => mapl_get_geom_manager()
          allocate(geom_spec, source=geom_mgr%make_geom_spec(esmf_geom_cfg, rc=status))
          _VERIFY(status)
          call geom_spec%set_name(component_name)

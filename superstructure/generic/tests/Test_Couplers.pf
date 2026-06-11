@@ -30,8 +30,8 @@ module Test_Couplers
    character(len=*), parameter :: HCONFIG_CONTENT = &
       & "{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}"
    class(VerticalGrid), pointer :: vertical_grid => null()
-   type(MaplGeom), pointer :: mapl_geom => null()
-   type(GeomManager), pointer :: geom_mgr => null()
+   type(mapl_MaplGeom), pointer :: mapl_geom => null()
+   type(mapl_GeomManager), pointer :: geom_mgr => null()
 
 contains
 
@@ -171,11 +171,11 @@ contains
    end function get_geom
 
    function get_mapl_geom_ptr(hconfig) result(ptr)
-      type(MaplGeom), pointer :: ptr
+      type(mapl_MaplGeom), pointer :: ptr
       type(ESMF_HConfig), intent(inout) :: hconfig
       integer :: rc
 
-      if(.not. associated(geom_mgr)) geom_mgr => get_geom_manager()
+      if(.not. associated(geom_mgr)) geom_mgr => mapl_get_geom_manager()
       ptr => geom_mgr%get_mapl_geom(hconfig, rc=rc)
       if(rc /= _SUCCESS) ptr => null()
 

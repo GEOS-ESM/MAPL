@@ -7,7 +7,7 @@ module mapl_FieldBundleRead_mod
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
    use mapl_GeomCategorizer_mod
-   use mapl_geom_api, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
+   use mapl_geom_api, only: mapl_GeomManager, mapl_MaplGeom, mapl_get_geom_manager, mapl_get_mapl_geom, MAPL_SameGeom
    use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet, MAPL_FieldBundleAdd
    use mapl_VerticalStaggerLoc_mod
@@ -64,7 +64,7 @@ contains
       type(StringVector), pointer          :: dim_names
 
       ! Grid geometry info
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_MaplGeom), pointer :: mapl_geom
       type(StringVector)      :: gridded_dims
 
       ! Level info
@@ -96,7 +96,7 @@ contains
       ! Identify coordinate/dimension variable names to exclude.
       ! Use mapl_geom%get_gridded_dims() which returns the horizontal
       ! dimension names (e.g., "lon,lat" for LatLon or "Xdim,Ydim,nf" for CS).
-      mapl_geom => get_mapl_geom(geom, _RC)
+      mapl_geom => mapl_get_mapl_geom(geom, _RC)
       gridded_dims = mapl_geom%get_gridded_dims()
 
       ! Build comma-delimited exclude list: all horizontal coord names + lev/edge + time
@@ -248,7 +248,7 @@ contains
       type(FileMetadataUtils)         :: metadata_utils
       type(ESMF_Time), allocatable    :: time_series(:)
 
-      type(MaplGeom), pointer         :: file_mapl_geom
+      type(mapl_MaplGeom), pointer         :: file_mapl_geom
       type(ESMF_Geom)                 :: file_geom, bundle_geom
       logical                         :: same_grid
 
@@ -266,7 +266,7 @@ contains
 
       class(VerticalGrid), pointer :: file_vgrid
       class(VerticalGridManager), pointer :: vgrid_manager
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
 
       !--- Resolve filename from template ---
       call ESMF_TimeGet(time, timeString=timestring, _RC)
@@ -292,7 +292,7 @@ contains
       deallocate(time_series)
 
       !--- Get the file's geometry from the geom manager ---
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       file_mapl_geom => geom_mgr%get_mapl_geom(metadata, _RC)
       file_geom = file_mapl_geom%get_geom()
 

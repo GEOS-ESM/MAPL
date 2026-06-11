@@ -46,11 +46,11 @@ contains
       type(ESMF_HConfig), intent(inout) :: hconfig
       integer, optional, intent(out) :: rc
       integer :: status
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
       type(ESMF_HConfig) :: geom_hconfig
-      type(MaplGeom) :: mapl_geom
+      type(mapl_MaplGeom) :: mapl_geom
 
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       geom_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='geom', _RC)
       mapl_geom = geom_mgr%get_mapl_geom(geom_hconfig, _RC)
       geom = mapl_geom%get_geom()

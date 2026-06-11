@@ -50,7 +50,7 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Geom)  :: trial_geom
       type(ESMF_State) :: nested_state
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_MaplGeom), pointer :: mapl_geom
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
 
@@ -66,7 +66,7 @@ contains
 
             call ESMF_StateGet(state, itemName=item_names(i), field=field, _RC)
             call ESMF_FieldGet(field, geom=trial_geom, _RC)
-            mapl_geom => get_mapl_geom(trial_geom, _RC)
+            mapl_geom => mapl_get_mapl_geom(trial_geom, _RC)
 
             if (found) then
                 _ASSERT(MAPL_SameGeom(trial_geom, geom), 'all fields must share the same geom')

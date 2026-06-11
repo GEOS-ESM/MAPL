@@ -31,7 +31,7 @@ module Test_IntegratedNormalization
    type(ESMF_State) :: exportState
    type(ESMF_Geom) :: geom_coarse, geom_fine
    type(ESMF_Clock) :: clock
-   type(GeomManager), pointer :: geom_mgr
+   type(mapl_GeomManager) :: geom_mgr
    class(VerticalGrid), pointer :: vertical_grid => null()
    
    ! Grid dimensions
@@ -106,13 +106,13 @@ contains
       type(ESMF_Time) :: stopTime
       type(ESMF_TimeInterval) :: timeStep
       type(ESMF_HConfig) :: hconfig
-      type(MaplGeom) :: mapl_geom
+      type(mapl_MaplGeom) :: mapl_geom
       character(len=256) :: config_str
       
       _UNUSED_DUMMY(this)
       
       ! Get GeomManager
-      geom_mgr => get_geom_manager()
+      geom_mgr = mapl_GeomManager()
       
       ! Create coarse geometry (4x4) using GeomManager
       ! Use PE/DE (pole-edge/dateline-edge) to avoid ESMF floating overflow errors with bilinear
@@ -556,7 +556,7 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
       
       type(ESMF_HConfig) :: hconfig_in, hconfig_out
-      type(MaplGeom) :: mapl_geom_in, mapl_geom_out
+      type(mapl_MaplGeom) :: mapl_geom_in, mapl_geom_out
       type(ESMF_Geom) :: geom_in, geom_out
       class(ExtensionTransform), allocatable :: horz_transform
       type(VerticalRegridTransform) :: vert_transform

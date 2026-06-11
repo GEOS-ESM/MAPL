@@ -24,9 +24,9 @@ program main
    integer, allocatable :: elementMask(:)
    integer :: elementCount, localPet, petCount
    real(kind=ESMF_KIND_R8) :: start_time, end_time, elapsed_time
-   type(GeomManager) :: geom_mgr
+   type(mapl_GeomManager) :: geom_mgr
    type(ESMF_HConfig) :: hconfig
-   type(MaplGeom), pointer :: mapl_geom
+   type(mapl_MaplGeom), pointer :: mapl_geom
    type(ESMF_Geom) :: geom
 
    integer           :: i
@@ -77,7 +77,7 @@ program main
       print*, trim(infile)
    endif
 
-   geom_mgr = GeomManager()
+   geom_mgr = mapl_GeomManager()
    call geom_mgr%initialize()
 
    hconfig = ESMF_HConfigCreate(content=content, rc=status)

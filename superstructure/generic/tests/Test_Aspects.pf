@@ -28,11 +28,11 @@ contains
    @before
    subroutine setup()
       type(ESMF_HConfig) :: hconfig
-      type(MaplGeom) :: mapl_geom
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom) :: mapl_geom
+      type(mapl_GeomManager) :: geom_mgr
       integer :: status
 
-      geom_mgr => get_geom_manager()
+      geom_mgr = mapl_GeomManager()
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
       mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)

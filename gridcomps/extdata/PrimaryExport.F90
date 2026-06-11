@@ -128,10 +128,10 @@ module mapl_PrimaryExport_mod
       integer :: status
 
       type(FileMetaDataUtils), pointer :: metadata
-      type(MAPLGeom) :: geom
+      type(mapl_MAPLGeom) :: geom
       type(ESMF_Geom) :: esmfgeom
       type(ESMF_FieldBundle) :: bundle
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
       type(EsmfRegridderParam) :: regridder_param
       type(esmf_Info) :: regridder_param_info
       class(VerticalGrid), pointer :: vertical_grid
@@ -145,7 +145,7 @@ module mapl_PrimaryExport_mod
       vgrid_manager => get_vertical_grid_manager()
 
       metadata => this%file_selector%get_dataset_metadata(_RC)
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
 
@@ -180,10 +180,10 @@ module mapl_PrimaryExport_mod
       integer :: status
 
       type(FileMetaDataUtils), pointer :: metadata
-      type(MAPLGeom) :: geom
+      type(mapl_MAPLGeom) :: geom
       type(ESMF_Geom) :: esmfgeom
       type(ESMF_FieldBundle) :: bundle
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
       type(VerticalGridManager), pointer :: vgrid_manager
       class(VerticalGrid), pointer :: vertical_grid
       character(len=:), pointer :: variable_name
@@ -194,7 +194,7 @@ module mapl_PrimaryExport_mod
 
       vgrid_manager => get_vertical_grid_manager()
       metadata => this%file_selector%get_dataset_metadata(_RC)
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
 

@@ -66,8 +66,8 @@ contains
          type(StringVector) :: dependencies
 
          type(GeometrySpec) :: geometry_spec
-         type(MaplGeom), pointer :: mapl_geom
-         type(GeomManager), pointer :: geom_mgr
+         type(mapl_MaplGeom), pointer :: mapl_geom
+         type(mapl_GeomManager), pointer :: geom_mgr
          type(ESMF_Geom), allocatable :: geom
          class(VerticalGrid), allocatable :: vertical_grid
 
@@ -112,7 +112,7 @@ contains
 
             geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
             if (allocated(geometry_spec%geom_spec)) then
-               geom_mgr => get_geom_manager()
+               geom_mgr => mapl_get_geom_manager()
                mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
                geom = mapl_geom%get_geom()
             end if

@@ -137,11 +137,11 @@ contains
       type(ESMF_Geom) :: geom
       integer :: status
       type(ESMF_HConfig) :: hconfig
-      type(GeomManager), pointer :: geom_mgr
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
 
       rc = 0
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 7, pole: PC, dateline: DC}", _RC)
       mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
       geom = mapl_geom%get_geom()

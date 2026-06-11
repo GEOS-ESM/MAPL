@@ -43,11 +43,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer:: status
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_MaplGeom), pointer :: mapl_geom
       type(Variable) :: time_var
       type(ESMF_Time) :: fake_time
 
-      mapl_geom => get_mapl_geom(geom, _RC)
+      mapl_geom => mapl_get_mapl_geom(geom, _RC)
       metadata = mapl_geom%get_file_metadata()
 
       ! Add metadata for vertical geom, note could be both center and edge
@@ -102,7 +102,7 @@ contains
 
       type(ESMF_Geom) :: esmfgeom
       integer :: pfio_type, i, deflate_level, quantize_level, quantize_algorithm, zstandard_level
-      type(MAPLGeom), pointer :: mapl_geom
+      type(mapl_MAPLGeom), pointer :: mapl_geom
       type(StringDictionary) :: extra_attributes
       character(len=:), pointer :: attr_name
       character(len=:), allocatable :: attr_val
@@ -112,7 +112,7 @@ contains
 
       variable_dim_names = get_variable_dim_names(field, _RC)
       call ESMF_FieldGet(field, geom=esmfgeom, _RC)
-      mapl_geom => get_mapl_geom(esmfgeom, _RC)
+      mapl_geom => mapl_get_mapl_geom(esmfgeom, _RC)
       call MAPL_FieldGet(field, short_name=short_name, _RC)
       call ESMF_FieldGet(field, typekind=typekind, _RC)
       pfio_type = esmf_to_pfio_type(typekind ,_RC)
@@ -157,7 +157,7 @@ contains
       type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
 
-      type(MAPLGeom), pointer :: mapl_geom
+      type(mapl_MAPLGeom), pointer :: mapl_geom
       type(StringVector) :: grid_variables
       type(ESMF_Geom) :: esmfgeom
       character(len=:), allocatable :: vert_dim_name, ungridded_names
@@ -166,7 +166,7 @@ contains
 
       ! horizontal dimension
       call ESMF_FieldGet(field, geom=esmfgeom, _RC)
-      mapl_geom => get_mapl_geom(esmfgeom, _RC)
+      mapl_geom => mapl_get_mapl_geom(esmfgeom, _RC)
       grid_variables = mapl_geom%get_gridded_dims()
       call ESMF_FieldGet(field, gridToFieldMap=grid_to_field_map, _RC)
       vert_only = all(grid_to_field_map==0)

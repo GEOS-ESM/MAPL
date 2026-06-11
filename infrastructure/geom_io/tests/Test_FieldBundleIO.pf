@@ -5,7 +5,7 @@ module Test_FieldBundleIO
    use pfunit
    use esmf
    use esmf_TestMethod_mod
-   use mapl_geom_api, only: GeomManager, MaplGeom, get_geom_manager
+   use mapl_geom_api, only: mapl_GeomManager, mapl_MaplGeom, mapl_get_geom_manager
    use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet
    use mapl_field_bundle_api
    use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_FIELDBUNDLETYPE_BASIC
@@ -27,8 +27,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(GeomManager), pointer :: geom_mgr
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
       type(ESMF_HConfig) :: hconfig
       character(len=256) :: content
 
@@ -38,7 +38,7 @@ contains
            ', pole: PC, dateline: DC, nx: 1, ny: 1}'
 
       hconfig = ESMF_HConfigCreate(content=trim(content), _RC)
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
       geom = mapl_geom%get_geom()
       call ESMF_HConfigDestroy(hconfig, _RC)

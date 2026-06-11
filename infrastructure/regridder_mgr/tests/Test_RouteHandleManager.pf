@@ -18,12 +18,12 @@ contains
 
    function make_geom(geom_mgr, hconfig, rc) result(geom)
       type(ESMF_Geom) :: geom
-      type(GeomManager), intent(inout) :: geom_mgr
+      type(mapl_GeomManager), intent(inout) :: geom_mgr
       type(ESMF_HConfig), optional, intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      type(MaplGeom), pointer :: mapl_geom
-      class(GeomSpec), allocatable :: spec
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      class(mapl_GeomSpec), allocatable :: spec
       integer :: status
       type(ESMF_HConfig) :: hconfig_
 
@@ -61,7 +61,7 @@ contains
    ! geometry should not change any values.
    subroutine test_basic(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager) :: regridder_mgr
       type(RegridderSpec) :: regridder_spec
       integer :: status
@@ -71,7 +71,7 @@ contains
       type(ESMF_Field) :: f1, f2
       real(kind=ESMF_KIND_R4), pointer :: x(:,:)
 
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager()
 
       geom = make_geom(geom_mgr, _RC)
