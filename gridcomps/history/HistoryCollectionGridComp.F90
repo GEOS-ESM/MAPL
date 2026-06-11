@@ -8,7 +8,7 @@ module mapl_HistoryCollectionGridComp_mod
    use esmf
    use pFlogger, only: logger, logging
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: setServices
@@ -67,7 +67,7 @@ contains
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
       character(len=ESMF_MAXSTR) :: name
-      type(FileMetadata) :: metadata
+      type(mapl_FileMetadata) :: metadata
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
@@ -152,7 +152,7 @@ contains
 
       file_timestamp = compute_file_timestamp(collection_gridcomp%accumulation_mode, &
              current_time, collection_gridcomp%timeStep, _RC)
-      call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=file_timestamp, _RC)
+      call mapl_fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=file_timestamp, _RC)
 
       if (trim(current_file) /= collection_gridcomp%current_file) then
          collection_gridcomp%current_file = current_file

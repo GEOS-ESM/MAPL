@@ -403,7 +403,7 @@ contains
          ! wence to coppy them
          do i=1,variables_in_expression%size()
             sval => variables_in_expression%at(i)
-            in_primary = string_in_stringVector(sval,primary_items)
+            in_primary = mapl_string_in_stringVector(sval,primary_items)
             if (.not.in_primary) then
                found_rule = this%has_rule_for(sval,_RC)
                _ASSERT(found_rule,"no rule for "//trim(sval)//" needed by "//trim(derived_name))

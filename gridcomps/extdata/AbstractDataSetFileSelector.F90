@@ -7,7 +7,7 @@ module mapl_AbstractDataSetFileSelector_mod
    use mapl_DataSetBracket_mod
    use mapl_ExtDataConstants_mod
 
-   implicit none
+   implicit none(type,external)
    private
 
    public AbstractDataSetFileSelector
@@ -63,7 +63,7 @@ contains
 
       filename = file_not_found
       useable_time = this%ref_time
-      call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+      call mapl_fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
       inquire(file=trim(trial_file),exist=file_found)
       if (file_found) then
          filename = trial_file
@@ -71,7 +71,7 @@ contains
       end if
       do i=1, MAX_TRIALS
          useable_time = useable_time + this%file_frequency
-         call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+         call mapl_fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
          inquire(file=trim(trial_file),exist=file_found)
          if (file_found) then
             filename = trial_file

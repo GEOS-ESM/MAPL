@@ -22,8 +22,6 @@ module mapl_esmf_api
    use mapl_comms_mod, only: MAPL_CommsAllGatherV => comms_allgatherv
    use mapl_comms_mod, only: MAPL_ArrayGather => array_gather
    use mapl_comms_mod, only: MAPL_ArrayScatter => array_scatter
-   use mapl_comms_mod, only: ArrayGather => array_gather   ! TODO: pchakrab - remove after updating GEOS
-   use mapl_comms_mod, only: ArrayScatter => array_scatter ! -do-
    use mapl_comms_mod, only: MAPL_CommsAllReduceMin => comms_allreduce_min
    use mapl_comms_mod, only: MAPL_CommsAllReduceMax => comms_allreduce_max
    use mapl_comms_mod, only: MAPL_CommsAllReduceSum => comms_allreduce_sum
@@ -58,9 +56,14 @@ module mapl_esmf_api
    use mapl_InfoUtilities_mod, only: MAPL_InfoSetNamespace
 
    ! Ungridded dimensions
-   ! TODO: pchakrab - remove the non-prefixed names after updating GEOS
-   use mapl_UngriddedDim_mod, only: UngriddedDim, MAPL_UngriddedDim => UngriddedDim
-   use mapl_UngriddedDims_mod, only: UngriddedDims, MAPL_UngriddedDims => UngriddedDims
+   use mapl_UngriddedDim_mod, only: mapl_UngriddedDim => UngriddedDim
+   use mapl_UngriddedDim_mod, only: mapl_make_UngriddedDim => make_UngriddedDim
+   use mapl_UngriddedDims_mod, only: mapl_UngriddedDims => UngriddedDims
+
+   ! Bounds / grid utilities
+   use mapl_LU_Bound_mod
+   use mapl_HorizontalDimsSpec_mod
+   use mapl_DistGridGet_mod
 
    ! Field utilities
    use mapl_FieldPointerUtilities_mod, only: MAPL_FieldGetCPtr => FieldGetCPtr
@@ -68,6 +71,26 @@ module mapl_esmf_api
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
    use mapl_FieldPointerUtilities_mod, only: MAPL_FieldGetLocalElementCount => FieldGetLocalElementCount
    use mapl_FieldPointerUtilities_mod, only: MAPL_FieldClone => FieldClone
+
+
+   ! HConfig
+   use mapl_HConfigAs_mod, only: &
+        mapl_HConfigAsItemType => HConfigAsItemType, &
+        mapl_HConfigAsStateIntent => HConfigAsStateIntent, &
+        mapl_HConfigAsTime => HConfigAsTime, &
+        mapl_HConfigAsTimeInterval => HConfigAsTimeInterval, &
+        mapl_HConfigAsTimeRange => HConfigAsTimeRange, &
+        mapl_HConfigAsStringVector => HConfigAsStringVector
+   use mapl_HConfigAs_mod
+   use mapl_HConfigUtilities_mod
+   use mapl_get_hconfig_mod
+   use mapl_hconfig_get_mod
+   use mapl_hconfig_params_mod
+   use mapl_generalized_equality_mod
+
+
+   ! State item
+   use mapl_StateItem_mod
 
    ! State item constants
    use mapl_StateItem_mod, only: MAPL_STATEITEM_UNKNOWN
@@ -105,8 +128,6 @@ module mapl_esmf_api
    public :: MAPL_CommsAllGatherV
    public :: MAPL_ArrayGather
    public :: MAPL_ArrayScatter
-   public :: ArrayGather  ! TODO: pchakrab - remove after updating GEOS
-   public :: ArrayScatter ! -do-
    public :: MAPL_CommsAllReduceMin
    public :: MAPL_CommsAllReduceMax
    public :: MAPL_CommsAllReduceSum
@@ -143,10 +164,6 @@ module mapl_esmf_api
    public :: MAPL_InfoGetPrivate
    public :: MAPL_InfoSetNamespace
 
-   ! Ungridded dims
-   ! TODO: pchakrab - remove the non-prefixed names after updating GEOS
-   public :: MAPL_UngriddedDim, UngriddedDim
-   public :: MAPL_UngriddedDims, UngriddedDims
 
    ! Field utilities
    public :: MAPL_FieldGetCPtr
@@ -156,6 +173,14 @@ module mapl_esmf_api
    public :: MAPL_FieldClone
 
    ! State item constants
+   public :: mapl_UngriddedDim
+   public :: mapl_make_UngriddedDim
+   public :: mapl_UngriddedDims
+
+   ! State item constants
+
+   ! TYPEKIND
+
    public :: MAPL_STATEITEM_UNKNOWN
    public :: MAPL_STATEITEM_FIELD
    public :: MAPL_STATEITEM_FIELDBUNDLE
@@ -168,7 +193,5 @@ module mapl_esmf_api
    public :: MAPL_STATEITEM_VECTOR
    public :: MAPL_STATEITEM_VECTORBRACKET
    public :: MAPL_STATEITEM_EXPRESSION
-
-   ! TYPEKIND
 
 end module mapl_esmf_api

@@ -190,12 +190,12 @@ contains
 
       integer :: status, i
       type(FileMetaDataUtils) :: metadata
-      type(FileMetadata) :: basic_metadata
-      type(NetCDF4_FileFormatter) :: formatter
+      type(mapl_FileMetadata) :: basic_metadata
+      type(mapl_NetCDF4_FileFormatter) :: formatter
       type(ESMF_Time), allocatable :: time_vector(:)
 
       _ASSERT(this%node_side/=NODE_UNKNOWN, "node does not have a side")
-      call formatter%open(filename, pFIO_READ, _RC)
+      call formatter%open(filename, MAPL_PFIO_READ, _RC)
       basic_metadata = formatter%read(_RC)
       call formatter%close()
       metadata = FileMetadataUtils(basic_metadata, filename)

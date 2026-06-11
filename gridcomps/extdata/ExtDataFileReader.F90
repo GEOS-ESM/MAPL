@@ -87,7 +87,7 @@ module mapl_ExtDataReader_mod
       integer, allocatable :: local_start(:), global_start(:), global_count(:)
       type(pFIOServerBounds) :: server_bounds
       type(c_ptr) :: address
-      type(ArrayReference) :: ref
+      type(mapl_ArrayReference) :: ref
 
       call ESMF_FieldBundleGet(this%accumulated_fields, fieldCount=num_fields, _RC)
       if (num_fields == 0) then
@@ -114,8 +114,8 @@ module mapl_ExtDataReader_mod
          call MAPL_FieldGetCptr(field_list(i), address, _RC)
          pfio_typekind = esmf_to_pfio_type(esmf_typekind, _RC)
          new_element_count = server_bounds%get_file_shape()
-         ref = ArrayReference(address, pfio_typekind, new_element_count)
-         call i_Clients%collective_prefetch_data( &
+         ref = mapl_ArrayReference(address, pfio_typekind, new_element_count)
+         call mapl_i_Clients%collective_prefetch_data( &
               client_id, &
               filename, &
               alias, &
@@ -126,8 +126,8 @@ module mapl_ExtDataReader_mod
          deallocate(global_start, global_count, local_start, element_count, new_element_count)
          call lgr%info('reading %a from file %a at time index %i0.5', alias, filename, time_index)
       enddo
-      call i_Clients%done_collective_prefetch()
-      call i_Clients%wait()
+      call mapl_i_Clients%done_collective_prefetch()
+      call mapl_i_Clients%wait()
 
       _RETURN(_SUCCESS)
    end subroutine
