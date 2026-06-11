@@ -6,7 +6,8 @@ module mapl_esmf_api
    use mapl_SimpleAlarm_mod, only: MAPL_SimpleAlarm => SimpleAlarm
 
    ! Core ESMF utilities
-   ! use mapl_ESMF_Utilities_mod
+   use mapl_ESMF_Interfaces_mod
+   use mapl_ESMF_Utilities_mod
    use mapl_ESMF_Time_Utilities_mod
    use mapl_ESMF_HConfigUtilities_mod
 
@@ -85,10 +86,6 @@ module mapl_esmf_api
    ! Alarm
    public :: MAPL_SimpleAlarm
 
-   ! ! Core ESMF utilities - user comp internal state
-   ! public :: MAPL_UserCompGetInternalState
-   ! public :: MAPL_UserCompSetInternalState
-
    ! Comms
    public :: MAPL_ROOT
    public :: MAPL_NPES
@@ -119,6 +116,8 @@ module mapl_esmf_api
    public :: MAPL_CollectiveWait
    public :: MAPL_ArrayIGather
    public :: MAPL_ArrayIScatter
+
+   ! User comp internal state
 
    ! HConfig
    public :: MAPL_HConfigGet

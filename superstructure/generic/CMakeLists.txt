@@ -19,11 +19,11 @@ set(srcs
   MAPL3_Deprecated.F90
 
   # Validation.F90 moved to utils/
+
   # ComponentSpecBuilder.F90
+
   # Moved to infrastructure/esmf/
   # ESMF_HConfigUtilities.F90
-  ESMF_Interfaces.F90
-
   RestartHandler.F90
 
   RunEntryPoint.F90
