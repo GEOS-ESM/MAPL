@@ -29,10 +29,10 @@ contains
    subroutine setup()
       type(ESMF_HConfig) :: hconfig
       type(mapl_MaplGeom) :: mapl_geom
-      type(mapl_GeomManager) :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
       integer :: status
 
-      geom_mgr = mapl_GeomManager()
+      geom_mgr => mapl_get_geom_manager()
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
       mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
