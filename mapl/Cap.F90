@@ -3,6 +3,7 @@
 module mapl_Cap_mod
 
    use MAPL
+   use mapl_UserSetServices_mod
    use pflogger
    use esmf
 

@@ -51,9 +51,9 @@ module mapl_generic_api
 
     use mapl_VariableSpec_mod
     use mapl_ComponentSpec_mod
-    use mapl_CheckpointControls_mod
+    use mapl_CheckpointControls_mod, only: mapl_CheckpointControls => CheckpointControls
     use mapl_ChildSpec_mod
-    use mapl_RestartHandler_mod
+    use mapl_RestartHandler_mod, only: mapl_RestartHandler => RestartHandler
 
    implicit none
    private
@@ -120,4 +120,6 @@ module mapl_generic_api
    public :: mapl_GridCompCreate
    public :: mapl_GenericSetServices
 
+   public :: mapl_CheckpointControls
+   public :: mapl_RestartHandler
 end module mapl_generic_api

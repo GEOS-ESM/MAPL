@@ -37,7 +37,7 @@ contains
       type(Statistics), pointer :: stats
       type(esmf_HConfig) :: hconfig, items_hconfig
       type(esmf_HConfigIter) :: iter, b, e
-      type(CheckpointControls) :: restart_controls
+      type(mapl_CheckpointControls) :: restart_controls
 
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize, phase_name='GENERIC::INIT_REALIZE', _RC)
