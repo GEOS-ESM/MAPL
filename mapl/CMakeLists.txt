@@ -3,6 +3,7 @@ esma_set_this(OVERRIDE MAPL)
 set (srcs
   MAPL.F90
   MaplFramework.F90
+  Cap.F90
   )
 
 esma_add_library (${this}
@@ -16,4 +17,10 @@ target_compile_definitions (${this} PRIVATE $<$<BOOL:${USE_EXTDATA2G}>:BUILD_WIT
 
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+ecbuild_add_executable(TARGET GEOS.x SOURCES GEOS.F90 DEPENDS MAPL MAPL.cap ESMF::ESMF)
+target_link_libraries(GEOS.x PRIVATE ${this})
+
+# GEOS.x is needed for 'make tests'
+add_dependencies(build-tests GEOS.x)
 
