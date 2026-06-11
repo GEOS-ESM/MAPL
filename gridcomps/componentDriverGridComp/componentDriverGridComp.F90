@@ -377,7 +377,7 @@ contains
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
             _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_field, _RC)
-            call FieldCopy(source_field, dest_field, _RC)
+            call MAPL_FieldCopy(source_field, dest_field, _RC)
          else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(dest_state, trim(itemNameList(i)), dest_bundle, _RC)
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
@@ -386,7 +386,7 @@ contains
             call MAPL_FieldBundleGet(source_bundle, fieldList=source_field_list, _RC)
             call MAPL_FieldBundleGet(dest_bundle, fieldList=dest_field_list, _RC)
             do j=1,size(source_field_list)
-               call FieldCopy(source_field_list(j), dest_field_list(j), _RC)
+               call MAPL_FieldCopy(source_field_list(j), dest_field_list(j), _RC)
             enddo
          end if
       enddo

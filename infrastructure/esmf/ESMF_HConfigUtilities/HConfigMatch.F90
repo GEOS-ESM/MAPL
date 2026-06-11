@@ -1,12 +1,12 @@
 #include "MAPL.h"
 
-submodule (mapl_ESMF_HConfigUtilities_mod) MAPL_HConfigMatch_smod
-   implicit none(type,external)
+submodule (mapl_ESMF_HConfigUtilities_mod) HConfigMatch_smod
 
+   implicit none(type,external)
 
 contains
 
-   module function MAPL_HConfigMatch(a, b, rc) result(match)
+   module function HConfigMatch(a, b, rc) result(match)
       logical :: match
       type(ESMF_HConfig), intent(in) :: a, b
       integer, optional, intent(out) :: rc
@@ -32,7 +32,7 @@ contains
 
          match = .false. ! unless
          depth = depth + 1
-         _ASSERT(depth <= MAX_DEPTH, "Recursion limit execeeded in MAPL_HConfigMatch()")
+         _ASSERT(depth <= MAX_DEPTH, "Recursion limit execeeded in HConfigMatch()")
 
          a_type = get_hconfig_type(a, _RC)
          b_type = get_hconfig_type(b, _RC)
@@ -42,11 +42,11 @@ contains
          end if
 
          if (a_type == 'MAPPING') then
-            match = MAPL_HConfigMatchMapping(a, b, _RC)
+            match = HConfigMatchMapping(a, b, _RC)
          else if (a_type == 'SEQUENCE') then
-            match = MAPL_HConfigMatchSequence(a, b, _RC)
+            match = HConfigMatchSequence(a, b, _RC)
          else if (a_type == 'SCALAR') then
-            match = MAPL_HConfigMatchScalar(a, b, _RC)
+            match = HConfigMatchScalar(a, b, _RC)
          else
             _FAIL('unsupported HConfig type.')
          end if
@@ -89,7 +89,7 @@ contains
          _RETURN(_SUCCESS)
       end function get_hconfig_type
 
-      recursive logical function MAPL_HConfigMatchScalar(a, b, rc) result(match)
+      recursive logical function HConfigMatchScalar(a, b, rc) result(match)
          type(ESMF_HConfig), intent(in) :: a, b
          integer, optional, intent(out) :: rc
 
@@ -99,13 +99,13 @@ contains
          logical :: a_as_bool, b_as_bool
          integer(kind=ESMF_KIND_I8) :: a_as_int, b_as_int
          real(kind=ESMF_KIND_R8) :: a_as_float, b_as_float
-         
+
          match = .false. ! nless
 
          a_tag = ESMF_HConfigGetTag(a, _RC)
          b_tag = ESMF_HConfigGetTag(b, _RC)
          _RETURN_UNLESS(a_tag == b_tag)
- 
+
          select case(a_tag)
          case (CORE_SCHEMA_BOOL_TAG)
             a_as_bool  = ESMF_HConfigAsLogical(a, _RC)
@@ -133,10 +133,10 @@ contains
          end select
 
          _RETURN(_SUCCESS)
-      end function MAPL_HConfigMatchScalar
+      end function HConfigMatchScalar
 
 
-      recursive logical function MAPL_HConfigMatchSequence(a, b, rc) result(match)
+      recursive logical function HConfigMatchSequence(a, b, rc) result(match)
          type(ESMF_HConfig), intent(in) :: a, b
          integer, optional, intent(out) :: rc
 
@@ -167,9 +167,9 @@ contains
          match = .true.
 
          _RETURN(_SUCCESS)
-      end function MAPL_HConfigMatchSequence
+      end function HConfigMatchSequence
 
-      recursive logical function MAPL_HConfigMatchMapping(a, b, rc) result(match)
+      recursive logical function HConfigMatchMapping(a, b, rc) result(match)
          type(ESMF_HConfig), intent(in) :: a, b
          integer, optional, intent(out) :: rc
 
@@ -211,8 +211,8 @@ contains
 
 
          _RETURN(_SUCCESS)
-      end function MAPL_HConfigMatchMapping
+      end function HConfigMatchMapping
 
-   end function MAPL_HConfigMatch
-   
-end submodule MAPL_HConfigMatch_smod
+   end function HConfigMatch
+
+end submodule HConfigMatch_smod

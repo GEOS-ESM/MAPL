@@ -1,27 +1,29 @@
 #include "MAPL.h"
 module mapl_hconfig_get_private_mod
+
    use mapl_hconfig_params_mod
    use mapl_get_hconfig_mod
    use mapl_generalized_equality_mod, only: are_equal
-   use :: esmf, only: ESMF_MAXSTR
-   use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I4, ESMF_KIND_I8
-   use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined
-   use :: esmf, only: ESMF_HConfigAsI4, ESMF_HConfigAsI8
-   use :: esmf, only: ESMF_HConfigAsR4, ESMF_HConfigAsR8
-   use :: esmf, only: ESMF_HConfigAsLogical, ESMF_HConfigAsString
-   use :: esmf, only: ESMF_HConfigAsI4Seq, ESMF_HConfigAsI8Seq
-   use :: esmf, only: ESMF_HConfigAsR4Seq, ESMF_HConfigAsR8Seq
-   use :: esmf, only: ESMF_HConfigAsLogicalSeq
+   use esmf, only: ESMF_MAXSTR
+   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I4, ESMF_KIND_I8
+   use esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined
+   use esmf, only: ESMF_HConfigAsI4, ESMF_HConfigAsI8
+   use esmf, only: ESMF_HConfigAsR4, ESMF_HConfigAsR8
+   use esmf, only: ESMF_HConfigAsLogical, ESMF_HConfigAsString
+   use esmf, only: ESMF_HConfigAsI4Seq, ESMF_HConfigAsI8Seq
+   use esmf, only: ESMF_HConfigAsR4Seq, ESMF_HConfigAsR8Seq
+   use esmf, only: ESMF_HConfigAsLogicalSeq
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use pFlogger, only: logging, Logger
 
    implicit none
    private
-   public :: MAPL_HConfigGet
+
+   public :: HConfigGet
    public :: HConfigParams, DEFAULT_TAG, ELLIPSIS
 
-   interface MAPL_HConfigGet
+   interface HConfigGet
       procedure :: mapl_get_value_i4
       procedure :: mapl_get_value_i8
       procedure :: mapl_get_value_r4
@@ -44,7 +46,7 @@ module mapl_hconfig_get_private_mod
       procedure :: get_value_r4seq
       procedure :: get_value_r8seq
       procedure :: get_value_logical_seq
-   end interface MAPL_HConfigGet
+   end interface HConfigGet
    character(len=*), parameter :: DEFAULT_TAG = ' (default)'
    character(len=*), parameter :: ELLIPSIS = ', ...'
    integer, parameter :: MAX_NUM_ITEMS_OUTPUT = 3

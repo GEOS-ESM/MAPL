@@ -6,8 +6,9 @@ esma_set_this (OVERRIDE MAPL.esmf)
 
 set (srcs
     # From esmf_utils/
-    ESMF_Interfaces.F90
+    ESMF_Interfaces.F90 # cannot move to MAPL.generic, causes circular dependency
     ESMF_Utilities.F90
+    TypeKind.F90
     InfoUtilities.F90
     UngriddedDim.F90
     UngriddedDims.F90
@@ -29,9 +30,9 @@ set (srcs
     hconfig_utils/generalized_equality.F90
     hconfig_utils/get_hconfig.F90
     hconfig_utils/HConfigUtilities.F90
-    # From generic3g/
+    # ESMF_HConfigUtilities and its submodules
     ESMF_HConfigUtilities.F90
-    ESMF_HConfigUtilities/MAPL_HConfigMatch.F90
+    ESMF_HConfigUtilities/HConfigMatch.F90
     ESMF_HConfigUtilities/write_hconfig.F90
     StateItem.F90
     # From esmf_utils/comms/
