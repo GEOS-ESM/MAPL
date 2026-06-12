@@ -95,10 +95,6 @@ module mapl_enums_api
    ! Vertical enums
    ! VerticalStaggerLoc
    ! TODO: pchakrab - remove aliases once GEOS is updated to use the prefixed enums
-   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
-   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE
-   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_EDGE
-   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER
    use mapl_VerticalStaggerLoc_mod, only: MAPL_VerticalStaggerLoc       => VerticalStaggerLoc
    use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_NONE    => VERTICAL_STAGGER_NONE
    use mapl_VerticalStaggerLoc_mod, only: MAPL_VERTICAL_STAGGER_EDGE    => VERTICAL_STAGGER_EDGE
@@ -166,10 +162,6 @@ module mapl_enums_api
 
    ! Vertical stagger locations
    ! TODO: pchakrab - remove aliases once GEOS is updated to use the prefixed enums
-   public :: VerticalStaggerLoc
-   public :: VERTICAL_STAGGER_NONE
-   public :: VERTICAL_STAGGER_EDGE
-   public :: VERTICAL_STAGGER_CENTER
    public :: MAPL_VerticalStaggerLoc
    public :: MAPL_VERTICAL_STAGGER_NONE
    public :: MAPL_VERTICAL_STAGGER_EDGE

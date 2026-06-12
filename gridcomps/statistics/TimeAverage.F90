@@ -48,7 +48,7 @@ contains
       character(:), allocatable :: units, name
       type(esmf_TypeKind_Flag) :: typekind
       class(mapl_VerticalGrid), pointer :: vertical_grid
-      type(VerticalStaggerLoc) :: vstagger
+      type(mapl_VerticalStaggerLoc) :: vstagger
       type(esmf_Field) :: sum_f, counts_f
 
       stat%f = f
