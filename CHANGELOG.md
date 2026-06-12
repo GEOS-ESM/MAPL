@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+<!-- mlc-disable -->
+## [v3.0.0-alpha.1] - 2026-06-12
+<!-- mlc-enable -->
+
+### Added
+
 - `FieldBundleFilter` for filtering field bundles by predicate.
 - Generic checkpointing support: `MAPL_GridCompSetCheckpoint` added to public
   API; `StatisticsGridComp` and `GridComp` now use the generic checkpoint mechanism.
@@ -38,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   routed through proper export umbrellas.
 - **Namespace standardization**: all internal module names follow the
   `mapl_<Name>_mod` convention. Unprefixed enum constants and types renamed to
-  `MAPL_`-prefixed equivalents.   Temporary backward-compatible aliases for unprefixed
+  `MAPL_`-prefixed equivalents. Temporary backward-compatible aliases for unprefixed
   names are provided where needed (e.g. `VerticalStaggerLoc` enums) pending
   updates in downstream consumers.
 - `MAPL_GridCompAddVarSpec` replaced by `MAPL_GridCompAddSpec` (avoids exposing
