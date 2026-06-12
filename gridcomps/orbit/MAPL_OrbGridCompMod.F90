@@ -319,17 +319,17 @@ CONTAINS
    IntervalTime=time
    call ESMF_TimeGet(IntervalTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,_RC)
    write(date_str, '(i4.4,a,i2.2,a,i2.2)') iyr, '_', imm, '_', idd
-   nymd = convert_ISO8601_to_integer_date(trim(date_str), _RC)
+   nymd = mapl_convert_ISO8601_to_integer_date(trim(date_str), _RC)
    write(time_str, '(i2.2,a,i2.2,a,i2.2)') ihr, '_', imn, '_', isc
-   nhms = convert_ISO8601_to_integer_time(trim(time_str), _RC)
+   nhms = mapl_convert_ISO8601_to_integer_time(trim(time_str), _RC)
    interval_nymd(1)=nymd
    interval_nhms(1)=nhms
    IntervalTime=time+timeinterval
    call ESMF_TimeGet(IntervalTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,_RC)
    write(date_str, '(i4.4,a,i2.2,a,i2.2)') iyr, '_', imm, '_', idd
-   nymd = convert_ISO8601_to_integer_date(trim(date_str), _RC)
+   nymd = mapl_convert_ISO8601_to_integer_date(trim(date_str), _RC)
    write(time_str, '(i2.2,a,i2.2,a,i2.2)') ihr, '_', imn, '_', isc
-   nhms = convert_ISO8601_to_integer_time(trim(time_str), _RC)
+   nhms = mapl_convert_ISO8601_to_integer_time(trim(time_str), _RC)
    interval_nymd(2)=nymd
    interval_nhms(2)=nhms
 
@@ -426,9 +426,9 @@ CONTAINS
     call ESMF_ClockGet(CLOCK,currTIME=TIME,timeStep=TimeInterval,_RC)
     call ESMF_TimeGet(TIME ,yy=iyr, mm=imm, dd=idd, h=ihr, m=imn, s=isc, _RC)
     write(date_str, '(i4.4,a,i2.2,a,i2.2)') iyr, '_', imm, '_', idd
-    nymd = convert_ISO8601_to_integer_date(trim(date_str), _RC)
+    nymd = mapl_convert_ISO8601_to_integer_date(trim(date_str), _RC)
     write(time_str, '(i2.2,a,i2.2,a,i2.2)') ihr, '_', imn, '_', isc
-    nhms = convert_ISO8601_to_integer_time(trim(time_str), _RC)
+    nhms = mapl_convert_ISO8601_to_integer_time(trim(time_str), _RC)
 
 !   Extract the ESMF Grid
 !   ---------------------

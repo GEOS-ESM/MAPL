@@ -2,7 +2,7 @@
 
 module mapl_FieldCreate_mod
 
-   use mapl_vertical_grid_api, only: VerticalGrid, BasicVerticalGrid, BasicVerticalGridSpec
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid, mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
    use mapl_FieldInfo_mod
@@ -64,7 +64,7 @@ contains
       character(*), optional, intent(in) :: name
       integer, optional, intent(in) :: gridToFieldMap(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
-      class(VerticalGrid), optional, intent(in) :: vgrid
+      class(mapl_VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(in) :: vert_alignment
       character(len=*), optional, intent(in) :: units
@@ -135,8 +135,8 @@ contains
       character(len=*), optional, intent(in) :: long_name
       integer, optional, intent(out) :: rc
 
-      type(BasicVerticalGrid) :: vgrid_
-      type(BasicVerticalGridSpec) :: vgrid_spec
+      type(mapl_BasicVerticalGrid) :: vgrid_
+      type(mapl_BasicVerticalGridSpec) :: vgrid_spec
       integer :: status
 
       ! Convert num_levels to a BasicVerticalGrid for compatibility
@@ -148,10 +148,10 @@ contains
          ! - For EDGE stagger: num_layers = num_levels - 1
          ! - For MIRROR stagger: num_layers = num_levels - 1
          if (present(vert_staggerloc)) then
-            vgrid_spec = BasicVerticalGridSpec(num_levels=vert_staggerloc%get_num_layers(num_levels))
+            vgrid_spec = mapl_BasicVerticalGridSpec(num_levels=vert_staggerloc%get_num_layers(num_levels))
          else
             ! Default to CENTER stagger if not specified
-            vgrid_spec = BasicVerticalGridSpec(num_levels=num_levels)
+            vgrid_spec = mapl_BasicVerticalGridSpec(num_levels=num_levels)
          end if
          call vgrid_%initialize(vgrid_spec)
          
@@ -335,7 +335,7 @@ contains
    end subroutine field_empty_complete
 
    subroutine vertical_level_sanity_check(vgrid, vertical_stagger, rc)
-      class(VerticalGrid), optional, intent(in) :: vgrid
+      class(mapl_VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       integer, optional, intent(out) :: rc
 

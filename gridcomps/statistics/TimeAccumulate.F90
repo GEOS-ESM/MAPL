@@ -34,7 +34,7 @@ contains
 
    function new_TimeAccumulate(unusable, gridcomp, f, accum_f, alarm, rc) result(stat)
       type(TimeAccumulate) :: stat
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: accum_f
@@ -47,8 +47,8 @@ contains
       type(MAPL_UngriddedDims) :: ungridded_dims
       character(:), allocatable :: units, name
       type(esmf_TypeKind_Flag) :: typekind
-      class(VerticalGrid), pointer :: vertical_grid
       type(MAPL_VerticalStaggerLoc) :: vstagger
+      class(mapl_VerticalGrid), pointer :: vertical_grid
       type(esmf_Field) :: sum_f
 
       stat%f = f

@@ -53,7 +53,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
-      class(VerticalGrid), optional, intent(in) :: vgrid
+      class(mapl_VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(VerticalAlignment), optional, intent(in) :: vert_alignment
       type(esmf_TypeKind_Flag), optional, intent(in) :: typekind

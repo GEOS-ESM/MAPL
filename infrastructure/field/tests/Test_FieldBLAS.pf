@@ -398,16 +398,16 @@ contains
       type(ESMF_Info) :: x_info, y_info
       type(ESMF_Grid) :: grid
       type(ESMF_Geom) :: geom
-      type(VerticalGridManager), pointer :: vgrid_manager
-      class(VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid
 
       integer :: status, rc
 
       grid= mk_grid('a', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
 
-      vgrid_manager => get_vertical_grid_manager()
-      vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=3), _RC)
+      vgrid_manager => mapl_get_vertical_grid_manager()
+      vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=3), _RC)
 
       x = FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, units='m', standard_name='foo', _RC)
       call FieldClone(x, y, _RC)

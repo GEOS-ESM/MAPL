@@ -38,14 +38,14 @@ module mapl_ModelVerticalGrid_mod
    public :: ModelVerticalGrid
    public :: ModelVerticalGridFactory
 
-   type, extends(VerticalGridSpec) :: ModelVerticalGridSpec
+   type, extends(mapl_VerticalGridSpec) :: ModelVerticalGridSpec
       private
       type(StringVector) :: names
       type(StringVector) :: physical_dimensions
       integer :: num_levels = -1
    end type ModelVerticalGridSpec
 
-    type, extends(VerticalGrid) :: ModelVerticalGrid
+    type, extends(mapl_VerticalGrid) :: ModelVerticalGrid
        private
        type(ModelVerticalGridSpec) :: spec
        type(StateRegistry), pointer :: registry => null()
@@ -67,7 +67,7 @@ module mapl_ModelVerticalGrid_mod
     end type ModelVerticalGrid
 
    ! Factory type
-   type, extends(VerticalGridFactory) :: ModelVerticalGridFactory
+   type, extends(mapl_VerticalGridFactory) :: ModelVerticalGridFactory
    contains
       procedure :: get_name
       procedure :: supports_spec
@@ -328,13 +328,13 @@ contains
 
    logical function matches(this, other)
       class(ModelVerticalGrid), intent(in) :: this
-      class(VerticalGrid), intent(in) :: other
+      class(mapl_VerticalGrid), intent(in) :: other
 
       matches = this%get_num_layers() == other%get_num_layers()
       if (.not. matches) return
 
       select type (other)
-      type is (BasicVerticalGrid)
+      type is (mapl_BasicVerticalGrid)
          matches = .true.
          return
       class default
@@ -354,7 +354,7 @@ contains
    function supports_spec(this, spec, rc) result(is_supported)
       logical :: is_supported
       class(ModelVerticalGridFactory), intent(in) :: this
-      class(VerticalGridSpec), intent(in) :: spec
+      class(mapl_VerticalGridSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
       type(ModelVerticalGridSpec) :: fixed_spec
@@ -413,7 +413,7 @@ contains
    end function supports_config
 
    function create_spec_from_config(this, config, rc) result(spec)
-      class(VerticalGridSpec), allocatable :: spec
+      class(mapl_VerticalGridSpec), allocatable :: spec
       class(ModelVerticalGridFactory), intent(in) :: this
       type(esmf_HConfig), intent(in), target :: config
       integer, intent(out), optional :: rc
@@ -450,7 +450,7 @@ contains
    end function create_spec_from_config
 
    function create_spec_from_file_metadata(this, file_metadata, rc) result(spec)
-      class(VerticalGridSpec), allocatable :: spec
+      class(mapl_VerticalGridSpec), allocatable :: spec
       class(ModelVerticalGridFactory), intent(in) :: this
       type(FileMetadata), intent(in), target :: file_metadata
       integer, intent(out), optional :: rc
@@ -465,9 +465,9 @@ contains
    end function create_spec_from_file_metadata
 
    function create_grid_from_spec(this, spec, rc) result(grid)
-      class(VerticalGrid), allocatable :: grid
+      class(mapl_VerticalGrid), allocatable :: grid
       class(ModelVerticalGridFactory), intent(in) :: this
-      class(VerticalGridSpec), intent(in) :: spec
+      class(mapl_VerticalGridSpec), intent(in) :: spec
       integer, intent(out), optional :: rc
       
       type(ModelVerticalGrid) :: local_grid

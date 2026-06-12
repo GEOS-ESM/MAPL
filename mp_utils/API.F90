@@ -12,28 +12,30 @@ module mapl_mp_utils_api
                                        MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
                                        MAPL_UnpackDate => UnpackDate, &
                                        MAPL_UnpackTime => UnpackTime, &
-                                       MAPL_UnpackDateTime => UnpackDateTime, &
-                                       PackedDateCreate, PackedTimeCreate, PackedDateTimeCreate, &
-                                       ESMFTimeFromPacked, UnpackDate, UnpackTime, UnpackDateTime
-   use mapl_StringTemplate_mod,  only: StrTemplate, fill_grads_template, fill_grads_template_esmf
-    use mapl_Shmem_mod, only: MAPL_GetNodeInfo => GetNodeInfo
-    use mapl_Shmem_mod, only: MAPL_CoresPerNodeGet => CoresPerNodeGet
-    use mapl_Shmem_mod, only: MAPL_InitializeShmem => InitializeShmem
-    use mapl_Shmem_mod, only: MAPL_FinalizeShmem => FinalizeShmem
-    use mapl_Shmem_mod, only: MAPL_AllocNodeArray => AllocNodeArray
-    use mapl_Shmem_mod, only: MAPL_DeAllocNodeArray => DeAllocNodeArray
-    use mapl_Shmem_mod, only: MAPL_ShmemAmOnFirstNode => ShmemAmOnFirstNode
-    use mapl_Shmem_mod, only: MAPL_SyncSharedMemory => SyncSharedMemory
-    use mapl_Shmem_mod, only: MAPL_BroadcastToNodes => BroadcastToNodes
-    use mapl_Shmem_mod, only: MAPL_AllocateShared => AllocateShared
-    use mapl_Shmem_mod, only: GetSharedMemory
-    use mapl_Shmem_mod, only: ReleaseSharedMemory
-    use mapl_Shmem_mod, only: MAPL_GetNewRank => GetNewRank
-    use mapl_Shmem_mod, only: MAPL_NodeComm
-    use mapl_Shmem_mod, only: MAPL_NodeRootsComm
-    use mapl_Shmem_mod, only: MAPL_MyNodeNum
-    use mapl_Shmem_mod, only: MAPL_AmNodeRoot
-    use mapl_Shmem_mod, only: MAPL_ShmInitialized
+                                       MAPL_UnpackDateTime => UnpackDateTime
+
+   use mapl_StringTemplate_mod,  only: mapl_StrTemplate => StrTemplate
+   use mapl_StringTemplate_mod,  only: mapl_fill_grads_template => fill_grads_template
+   use mapl_StringTemplate_mod,  only: mapl_fill_grads_template_esmf => fill_grads_template_esmf
+
+   use mapl_Shmem_mod, only: MAPL_GetNodeInfo => GetNodeInfo
+   use mapl_Shmem_mod, only: MAPL_CoresPerNodeGet => CoresPerNodeGet
+   use mapl_Shmem_mod, only: MAPL_InitializeShmem => InitializeShmem
+   use mapl_Shmem_mod, only: MAPL_FinalizeShmem => FinalizeShmem
+   use mapl_Shmem_mod, only: MAPL_AllocNodeArray => AllocNodeArray
+   use mapl_Shmem_mod, only: MAPL_DeAllocNodeArray => DeAllocNodeArray
+   use mapl_Shmem_mod, only: MAPL_ShmemAmOnFirstNode => ShmemAmOnFirstNode
+   use mapl_Shmem_mod, only: MAPL_SyncSharedMemory => SyncSharedMemory
+   use mapl_Shmem_mod, only: MAPL_BroadcastToNodes => BroadcastToNodes
+   use mapl_Shmem_mod, only: MAPL_AllocateShared => AllocateShared
+   use mapl_Shmem_mod, only: mapl_GetSharedMemory => GetSharedMemory
+   use mapl_Shmem_mod, only: mapl_ReleaseSharedMemory => ReleaseSharedMemory
+   use mapl_Shmem_mod, only: MAPL_GetNewRank => GetNewRank
+   use mapl_Shmem_mod, only: MAPL_NodeComm
+   use mapl_Shmem_mod, only: MAPL_NodeRootsComm
+   use mapl_Shmem_mod, only: MAPL_MyNodeNum
+   use mapl_Shmem_mod, only: MAPL_AmNodeRoot
+   use mapl_Shmem_mod, only: MAPL_ShmInitialized
    use mapl_LoadBalance_mod, only: MAPL_BalanceWork => BalanceWork, &
                                    MAPL_BalanceCreate => BalanceCreate, &
                                    MAPL_BalanceDestroy => BalanceDestroy, &
@@ -56,19 +58,10 @@ module mapl_mp_utils_api
    public :: MAPL_PackedDateTimeCreate
    public :: MAPL_ESMFTimeFromPacked
 
-   ! Backward compatibility: Unprefixed names (TODO: remove after client repos migrated)
-   ! See issue #5011 - these should be removed once GEOSgcm and other clients updated
-   public :: PackedDateCreate
-   public :: PackedTimeCreate
-   public :: PackedDateTimeCreate
-   public :: ESMFTimeFromPacked
-   public :: UnpackDate
-   public :: UnpackTime
-   public :: UnpackDateTime
-   public :: StrTemplate
+   public :: mapl_StrTemplate
 
-   public :: fill_grads_template
-   public :: fill_grads_template_esmf
+   public :: mapl_fill_grads_template
+   public :: mapl_fill_grads_template_esmf
    
    public :: MAPL_GetNodeInfo
    public :: MAPL_CoresPerNodeGet
@@ -82,8 +75,8 @@ module mapl_mp_utils_api
    public :: MAPL_BroadcastToNodes
    
    public :: MAPL_AllocateShared
-   public :: GetSharedMemory
-   public :: ReleaseSharedMemory
+   public :: MAPL_GetSharedMemory
+   public :: MAPL_ReleaseSharedMemory
 
    public :: MAPL_GetNewRank
    public :: MAPL_NodeComm
@@ -92,9 +85,9 @@ module mapl_mp_utils_api
    public :: MAPL_AmNodeRoot
    public :: MAPL_ShmInitialized
 
-   public MAPL_BalanceWork
-   public MAPL_BalanceCreate
-   public MAPL_BalanceDestroy
-   public MAPL_BalanceGet
+   public :: MAPL_BalanceWork
+   public :: MAPL_BalanceCreate
+   public :: MAPL_BalanceDestroy
+   public :: MAPL_BalanceGet
 
 end module mapl_mp_utils_api

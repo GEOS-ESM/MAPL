@@ -35,7 +35,7 @@ contains
    subroutine test_propagate_interp_weights(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
       integer :: status
       type(ESMF_Field) :: bracket0(2), bracket1(2)
       type(ESMF_FieldBundle) :: fb0, fb0_alias
@@ -49,7 +49,7 @@ contains
       type(GriddedComponentDriver) :: driver
       type(ESMF_Geom) :: geom_0, geom_1
 
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       call setup(_RC)
 
       ! Change the weights
@@ -70,7 +70,7 @@ contains
          integer, optional, intent(out) :: rc
 
          type(ESMF_HConfig) :: hconfig
-         type(MaplGeom) :: mapl_geom
+         type(mapl_MaplGeom) :: mapl_geom
          type(ESMF_Clock) :: clock
 
          type(MultiState) :: states
@@ -136,7 +136,7 @@ contains
    subroutine test_propagate_geom(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
       integer :: status
       type(ESMF_Field) :: f, f_alias, bracket(2)
       type(ESMF_FieldBundle) :: fb, fb_alias
@@ -147,7 +147,7 @@ contains
       type(ESMF_GridComp) :: coupler
       type(GriddedComponentDriver) :: driver
 
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       call setup(_RC)
 
       ! Change the geom
@@ -183,7 +183,7 @@ contains
          integer, optional, intent(out) :: rc
 
          type(ESMF_HConfig) :: hconfig
-         type(MaplGeom) :: mapl_geom
+         type(mapl_MaplGeom) :: mapl_geom
 
          type(MultiState) :: states
          integer :: status
@@ -244,7 +244,7 @@ contains
    subroutine test_propagate_shared_attrs(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
       integer :: status
       type(ESMF_Field) :: f0, f1
       type(ESMF_Field) :: f0_alias, f1_alias
@@ -256,7 +256,7 @@ contains
       integer :: i
       real :: x
 
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       call setup(_RC)
 
       call driver%initialize(_RC)
@@ -272,7 +272,7 @@ contains
          integer, optional, intent(out) :: rc
 
          type(ESMF_HConfig) :: hconfig
-         type(MaplGeom) :: mapl_geom
+         type(mapl_MaplGeom) :: mapl_geom
          type(ESMF_Clock) :: clock
 
          type(MultiState) :: states

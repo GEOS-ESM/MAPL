@@ -24,15 +24,15 @@ contains
       class(GriddedComponentDriver), pointer :: provider
       type(ESMF_GridComp) :: provider_gc
       type(OuterMetaComponent), pointer :: provider_meta
-      type(MaplGeom), pointer :: mapl_geom
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(mapl_GeomManager), pointer :: geom_mgr
       type(ESMF_VM) :: vm
       integer :: comm, status
 
       ! Handle case where component provides its own geometry.
        associate (geometry_spec => this%component_spec%geometry_spec)
         if (allocated(geometry_spec%geom_spec)) then
-           geom_mgr => get_geom_manager()
+           geom_mgr => mapl_get_geom_manager()
            mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
            this%geom = mapl_geom%get_geom()
         end if

@@ -19,9 +19,9 @@
 
    type regrid_support
       type(ESMF_Grid)     :: new_grid
-      class(VerticalGrid), pointer :: new_vgrid ! same as old for now...
+      class(mapl_VerticalGrid), pointer :: new_vgrid ! same as old for now...
       type(StringVector) :: filenames,outputfiles
-      type(CompressionSettings) :: compression_settings
+      type(mapl_CompressionSettings) :: compression_settings
       integer :: Nx,Ny
       integer :: itime(2)
       logical :: onlyVars, allTimes
@@ -191,8 +191,8 @@
     if (.not.allocated(this%tripolar_file_out)) then
        this%tripolar_file_out = "empty"
     end if
-    this%regridMethod = regrid_method_string_to_int(regridMth)
-    _ASSERT(this%regridMethod/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
+    this%regridMethod = mapl_regrid_method_string_to_int(regridMth)
+    _ASSERT(this%regridMethod/=MAPL_UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
     this%filenames = split_string(cfilenames,',')
     this%outputfiles = split_string(coutputfiles,',')
@@ -206,7 +206,7 @@
     call this%create_grid(gridname,_RC)
     call this%create_vgrid(_RC)
     hconfig_compression = this%fill_in_compression_hconfig(_RC)
-    this%compression_settings = CompressionSettings(hconfig_compression, _RC)
+    this%compression_settings = mapl_CompressionSettings(hconfig_compression, _RC)
     _RETURN(_SUCCESS)
 
     end subroutine process_command_line
@@ -215,17 +215,17 @@
      class(regrid_support) :: this
     integer, optional, intent(out) :: rc
 
-    type(NetCDF4_FileFormatter)     :: file_formatter
-    type(FileMetaData)              :: metadata
-    class(VerticalGridManager), pointer :: vgrid_manager
+    type(mapl_NetCDF4_FileFormatter)     :: file_formatter
+    type(mapl_FileMetaData)              :: metadata
+    class(mapl_VerticalGridManager), pointer :: vgrid_manager
     character(len=:), pointer :: file_name
     integer :: status
 
     file_name => this%filenames%at(1)
-    call file_formatter%open(trim(file_name), PFIO_READ, _RC)
+    call file_formatter%open(trim(file_name), MAPL_PFIO_READ, _RC)
     metadata = file_formatter%read(_RC)
     call file_formatter%close(_RC)
-    vgrid_manager => get_vertical_grid_manager(_RC)
+    vgrid_manager => mapl_get_vertical_grid_manager(_RC)
     this%new_vgrid => vgrid_manager%create_grid_from_file_metadata(metadata, _RC)
 
     _RETURN(_SUCCESS)
@@ -241,14 +241,14 @@
     character(len=2) :: dateline,pole
     integer :: status
     type(ESMF_HConfig) :: geom_hconfig
-    type(MAPLGeom), pointer :: mapl_geom
+    type(mapl_MAPLGeom), pointer :: mapl_geom
     type(ESMF_Geom) :: geom
-    type(GeomManager), pointer :: geom_mgr
+    type(mapl_GeomManager), pointer :: geom_mgr
 
     call UnpackGridName(Grid_name,im_world,jm_world,dateline,pole)
 
     geom_hconfig = create_output_geom_hconfig(grid_name,im_world,jm_world,this%nx,this%ny,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
-    geom_mgr => get_geom_manager()
+    geom_mgr => mapl_get_geom_manager()
     mapl_geom => geom_mgr%get_mapl_geom(geom_hconfig, _RC)
     geom = mapl_geom%get_geom()
     call ESMF_GeomGet(geom, grid=this%new_grid, _RC)
@@ -406,7 +406,7 @@ CONTAINS
 
    integer :: tsteps,i,j,tint
 
-   type(FieldBundleWriter) :: newWriter
+   type(mapl_FieldBundleWriter) :: newWriter
    logical :: writer_created
 
 
@@ -502,11 +502,11 @@ CONTAINS
 
       integer :: status
       integer :: second,minute,hour,day,month,year
-      type(NetCDF4_fileFormatter) :: formatter
-      type(FileMetadata) :: basic_metadata
+      type(mapl_NetCDF4_fileFormatter) :: formatter
+      type(mapl_FileMetadata) :: basic_metadata
       type(FileMetadataUtils) :: metadata
 
-      call formatter%open(trim(filename),pFIO_Read,_RC)
+      call formatter%open(trim(filename),MAPL_PFIO_Read,_RC)
       basic_metadata=formatter%read(_RC)
       call metadata%create(basic_metadata,trim(filename))
 
@@ -517,7 +517,7 @@ CONTAINS
 
       if (.not.allTimes) then
          tSteps=1
-         call UnpackDateTIme(itime,year,month,day,hour,minute,second)
+         call mapl_UnpackDateTIme(itime,year,month,day,hour,minute,second)
          deallocate(tSeries)
          allocate(tSeries(1))
          call ESMF_TimeSet(tSeries(1), yy=year, mm=month, dd=day,  h=hour,  m=minute, s=second,_RC)

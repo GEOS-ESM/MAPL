@@ -7,7 +7,7 @@ module mapl_FieldInfo_mod
    use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE
    use mapl_esmf_info_keys_mod, only: INFO_PRIVATE_NAMESPACE
    use mapl_InfoUtilities_mod
-   use mapl_vertical_grid_api, only: VerticalGrid, VERTICAL_GRID_NOT_FOUND, VerticalGridManager, get_vertical_grid_manager
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid, MAPL_VERTICAL_GRID_NOT_FOUND, mapl_VerticalGridManager, mapl_get_vertical_grid_manager
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
@@ -265,7 +265,7 @@ contains
 
       if (present(vgrid_id)) then
          call esmf_InfoGet(info, key=namespace_ // KEY_VGRID_ID, &
-              value=vgrid_id, default=VERTICAL_GRID_NOT_FOUND, _RC)
+              value=vgrid_id, default=MAPL_VERTICAL_GRID_NOT_FOUND, _RC)
       end if
 
       if (present(ungridded_dims)) then
@@ -558,17 +558,17 @@ contains
       integer :: vgrid_id_local
       integer :: num_vgrid_levels_local
       integer :: num_levels_local
-      type(VerticalGridManager), pointer :: vgrid_manager
-      class(VerticalGrid), pointer :: vgrid_ptr
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid_ptr
       character(:), allocatable :: vert_staggerloc_str
       type(VerticalStaggerLoc) :: vert_staggerloc_local
 
       ! Get vgrid_id
       call esmf_InfoGet(info, namespace // KEY_VGRID_ID, &
-           vgrid_id_local, default=VERTICAL_GRID_NOT_FOUND, _RC)
+           vgrid_id_local, default=MAPL_VERTICAL_GRID_NOT_FOUND, _RC)
 
        ! Early return for no vertical grid
-       if (vgrid_id_local == VERTICAL_GRID_NOT_FOUND) then
+       if (vgrid_id_local == MAPL_VERTICAL_GRID_NOT_FOUND) then
           if (present(num_levels)) num_levels = 0
           if (present(num_layers)) num_layers = 0
           if (present(num_vgrid_levels)) num_vgrid_levels = 0
@@ -580,7 +580,7 @@ contains
       vert_staggerloc_local = VerticalStaggerLoc(vert_staggerloc_str)
 
       ! Derive num_levels from vgrid
-      vgrid_manager => get_vertical_grid_manager()
+      vgrid_manager => mapl_get_vertical_grid_manager()
       vgrid_ptr => vgrid_manager%get_grid(id=vgrid_id_local, _RC)
       num_vgrid_levels_local = vgrid_ptr%get_num_layers()
       num_levels_local = vert_staggerloc_local%get_num_levels(num_vgrid_levels_local)

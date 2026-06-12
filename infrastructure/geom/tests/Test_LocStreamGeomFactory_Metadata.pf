@@ -22,8 +22,8 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(FileMetadata), target :: metadata
-      type(GeomManager), target :: geom_manager
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_GeomManager), target :: geom_manager
+      type(mapl_MaplGeom), pointer :: mapl_geom
 
       type(Variable) :: lon_var, lat_var
       type(CoordinateVariable) :: lon_coord, lat_coord
@@ -63,7 +63,7 @@ contains
       call metadata%add_variable('lat', lat_coord, rc=status)
       @assertEqual(0, status)
 
-      geom_manager = GeomManager()
+      geom_manager = mapl_GeomManager()
 
       mapl_geom => geom_manager%get_mapl_geom_from_metadata(metadata, rc=status)
       @assertEqual(0, status)

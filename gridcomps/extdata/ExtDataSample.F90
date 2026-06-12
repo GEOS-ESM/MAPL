@@ -25,7 +25,7 @@ contains
 
    function new_ExtDataSample(config,unusable,rc) result(TimeSample)
       type(ESMF_HConfig), intent(in) :: config
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(ExtDataSample) :: TimeSample
@@ -76,7 +76,7 @@ contains
 
    subroutine set_defaults(this,unusable,rc)
       class(ExtDataSample), intent(inout), target :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: status

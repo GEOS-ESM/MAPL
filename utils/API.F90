@@ -5,15 +5,9 @@ module mapl_utils_api
 
    ! Error handling
    use mapl_ErrorHandling_mod
-   use mapl_Throw_mod
 
    ! Keyword enforcer (abstract sentinel type)
-   use mapl_KeywordEnforcer_mod
-
-   ! String types and utilities
-   use mapl_String_mod
-   use mapl_StringUtilities_mod
-   use mapl_StringDictionary_mod
+   use mapl_KeywordEnforcer_mod, only: mapl_KeywordEnforcer => KeywordEnforcer
 
    ! OS / filesystem
    use mapl_os_mod, only: &
@@ -40,12 +34,19 @@ module mapl_utils_api
    use mapl_Interp_mod
 
    ! Time utilities
-   use mapl_TimeUtilities_mod
+   use mapl_TimeUtilities_mod, only: mapl_PackDate => PackDate
+   use mapl_TimeUtilities_mod, only: mapl_PackDateTime => PackDateTime
+   use mapl_TimeUtilities_mod, only: mapl_UnpackDate => UnpackDate
+
    ! Use only the intended public API from ISO8601 to avoid conflicts
    ! with is_valid_date/is_valid_time already exported by mapl_TimeUtils_mod
-   use mapl_ISO8601_DateTime_mod, only: convert_ISO8601_to_integer_time, &
-        convert_ISO8601_to_integer_date, &
-        ISO8601Date, ISO8601Time, ISO8601DateTime, ISO8601Duration, ISO8601Interval
+   use mapl_ISO8601_DateTime_mod, only: mapl_convert_ISO8601_to_integer_time => convert_ISO8601_to_integer_time
+   use mapl_ISO8601_DateTime_mod, only: mapl_convert_ISO8601_to_integer_date => convert_ISO8601_to_integer_date
+   use mapl_ISO8601_DateTime_mod, only: mapl_ISO8601Date => ISO8601Date
+   use mapl_ISO8601_DateTime_mod, only: mapl_ISO8601Time => ISO8601Time
+   use mapl_ISO8601_DateTime_mod, only: mapl_ISO8601DateTime => ISO8601DateTime
+   use mapl_ISO8601_DateTime_mod, only: mapl_ISO8601Duration => ISO8601Duration
+   use mapl_ISO8601_DateTime_mod, only: mapl_ISO8601Interval => ISO8601Interval
    use mapl_DateTime_Parsing_mod
    use mapl_Sleep_mod
    use mapl_CF_Time_mod
@@ -96,7 +97,7 @@ module mapl_utils_api
    public :: MAPL_STRING_TOO_SHORT
 
    ! Keyword enforcer
-   public :: KeywordEnforcer
+   public :: mapl_KeywordEnforcer
 
    ! OS / filesystem
    public :: mapl_GetCurrentWorkingDirectory
@@ -118,24 +119,18 @@ module mapl_utils_api
    public :: mapl_MemInfoWrite
 
    ! Time utilities
-   public :: PackDate
-   public :: PackDateTime
-   public :: UnpackDate
+   public :: mapl_PackDate
+   public :: mapl_PackDateTime
+   public :: mapl_UnpackDate
 
    ! ISO8601 date/time conversion
-   public :: convert_ISO8601_to_integer_time
-   public :: convert_ISO8601_to_integer_date
-   public :: ISO8601Date
-   public :: ISO8601Time
-   public :: ISO8601DateTime
-   public :: ISO8601Duration
-   public :: ISO8601Interval
-
-   ! ESMF info keys
-   ! KEY_UNITS and KEY_TYPEKIND excluded: values differ from mapl_HistoryConstants_mod
-   ! homonyms; consumers needing them should use mapl_esmf_info_keys_mod directly.
-
-   ! Validation
-   public :: is_valid_name
+   public :: mapl_convert_ISO8601_to_integer_time
+   public :: mapl_convert_ISO8601_to_integer_date
+   ! ISO8601 date/time data types
+   public :: mapl_ISO8601Date
+   public :: mapl_ISO8601Time
+   public :: mapl_ISO8601DateTime
+   public :: mapl_ISO8601Duration
+   public :: mapl_ISO8601Interval
 
 end module mapl_utils_api

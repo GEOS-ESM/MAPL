@@ -16,12 +16,12 @@ contains
       integer, optional, intent(out) :: rc
       type(ESMF_Grid) :: grid
 
-      type(GeomManager), pointer :: geom_manager
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_GeomManager), pointer :: geom_manager
+      type(mapl_MaplGeom), pointer :: mapl_geom
       type(ESMF_Geom) :: geom
       integer :: status
 
-      geom_manager => get_geom_manager()
+      geom_manager => mapl_get_geom_manager()
       mapl_geom => geom_manager%get_mapl_geom(hconfig, _RC)
       geom = mapl_geom%get_geom()
       call ESMF_GeomGet(geom, grid=grid, _RC)

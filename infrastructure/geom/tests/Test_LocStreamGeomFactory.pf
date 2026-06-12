@@ -17,8 +17,8 @@ contains
 
       type(ESMF_HConfig) :: hconfig
       integer :: status
-      type(GeomManager), target :: geom_manager
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_GeomManager), target :: geom_manager
+      type(mapl_MaplGeom), pointer :: mapl_geom
       type(ESMF_Geom) :: geom
       type(ESMF_LocStream) :: locstream
       type(ESMF_GeomType_Flag) :: geomtype
@@ -30,7 +30,7 @@ contains
       hconfig = ESMF_HConfigCreate(content="{class: locstream, lon: [0.0, 1.0, 2.0], lat: [10.0, 20.0, 30.0]}", rc=status)
       @assert_that(status, is(0))
 
-      geom_manager = GeomManager()
+      geom_manager = mapl_GeomManager()
       mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
       @assert_that(status, is(0))
 

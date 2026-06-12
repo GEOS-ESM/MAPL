@@ -102,10 +102,10 @@ contains
       integer :: fieldCount
       type(UngriddedDims) :: ungridded_dims
       type(VerticalStaggerLoc) :: vert_staggerloc
-      type(BasicVerticalGrid) :: basic_vgrid
-      type(BasicVerticalGridSpec) :: vgrid_spec
-      class(VerticalGrid), pointer :: vgrid_ptr
-      type(VerticalGridManager), pointer :: vgrid_manager
+      type(mapl_BasicVerticalGrid) :: basic_vgrid
+      type(mapl_BasicVerticalGridSpec) :: vgrid_spec
+      class(mapl_VerticalGrid), pointer :: vgrid_ptr
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
 
       bundle = MAPL_FieldBundleCreate()
       call MAPL_FieldBundleSet(bundle, geom=geom)
@@ -125,7 +125,7 @@ contains
             ! Create a vertical grid with NUM_LEVELS_VGRID layers
             vgrid_spec%num_levels = NUM_LEVELS_VGRID
             call basic_vgrid%initialize(vgrid_spec)
-            vgrid_manager => get_vertical_grid_manager()
+            vgrid_manager => mapl_get_vertical_grid_manager()
             vgrid_ptr => vgrid_manager%add_grid(basic_vgrid)
             call MAPL_FieldBundleSet(bundle, vgrid=vgrid_ptr)
             call ungridded_dims%add_dim(UngriddedDim(NUM_RADII, "radius", 'nm'))
