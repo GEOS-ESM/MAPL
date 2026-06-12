@@ -53,13 +53,12 @@ MAPL is currently tested with the following library versions:
 | netCDF-C       | v4.9.2         |
 | netCDF-Fortran | v4.6.1         |
 | UDUNITS2       | v2.2.28        |
-| ESMF           | v8.9.0         |
+| ESMF           | v9.0.0         |
 | GFE            | v1.19.0        |
 
 #### ESMF Versions
 
-NOTE: MAPL only requires ESMF 8.6.1, but we currently build with
-ESMF 8.9.0 and have support for ESMF 9 betas.
+NOTE: MAPL requires ESMF 9.0.0 or later.
 
 #### ESMA Baselibs
 

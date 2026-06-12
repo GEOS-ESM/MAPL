@@ -57,9 +57,6 @@ target_include_directories (${this} PUBLIC
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
-if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
-    target_compile_definitions (${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)
-endif()
 
 if (PFUNIT_FOUND)
     add_subdirectory (tests EXCLUDE_FROM_ALL)

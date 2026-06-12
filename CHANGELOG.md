@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Removed `ESMF_HCONFIGSET_HAS_INTENT_INOUT` preprocessor conditionals now that
+  ESMF 9.0.0 is required (≥ 8.9.0, where `ESMF_HConfigSet` gained `intent(inout)`).
+  The `intent(inout)` declarations in `HConfigUtilities.F90`, `OuterMetaComponent.F90`,
+  `add_child_by_spec.F90`, and `MAPL_Generic.F90` are now unconditional.
+  Updated `INSTALL.md` to reflect the ESMF 9.0.0 minimum requirement.
+  Closes [#3477](https://github.com/GEOS-ESM/MAPL/issues/3477).
+
 <!-- mlc-disable -->
 ## [v3.0.0-alpha.2] - 2026-06-12
 <!-- mlc-enable -->

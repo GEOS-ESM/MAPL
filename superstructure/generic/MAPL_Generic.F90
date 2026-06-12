@@ -540,11 +540,7 @@ contains
    subroutine gridcomp_add_child_by_spec(gridcomp, child_name, child_spec, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
-#if defined(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
       type(ChildSpec), intent(inout) :: child_spec
-#else
-      type(ChildSpec), intent(in) :: child_spec
-#endif
       integer, optional, intent(out) :: rc
 
       integer :: status
