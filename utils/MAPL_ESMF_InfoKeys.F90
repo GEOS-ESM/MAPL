@@ -24,7 +24,6 @@ module mapl_esmf_info_keys_mod
    public :: KEY_UNGRIDDED_NAME
    public :: KEY_UNGRIDDED_UNITS
    public :: KEY_UNGRIDDED_COORD
-   public :: KEY_DIM_STRINGS
    public :: KEY_VERT_STAGGERLOC
    public :: KEY_BRACKET_UPDATED
    public :: KEY_VECTOR_BASIS_KIND
