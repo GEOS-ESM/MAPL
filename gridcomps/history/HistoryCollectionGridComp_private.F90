@@ -71,7 +71,7 @@ contains
       character(len=:), allocatable :: alias, short_name, name_in_comp
       character(len=:), allocatable :: comp1_name, comp2_name
       type(ESMF_Field) :: field, new_field
-      type(CompressionSettings) :: compression_settings
+      type(mapl_CompressionSettings) :: compression_settings
       type(ESMF_StateItem_Flag) :: item_type
       type(MAPL_FieldBundleType_Flag) :: bundle_type
       type(ESMF_FieldBundle) :: vector_bundle
@@ -116,7 +116,7 @@ contains
       type(ESMF_Field) :: new_field
       type(ESMF_Field), intent(in)  :: old_field
       character(len=*), intent(in) :: alias
-      type(CompressionSettings), intent(in) :: compression_settings
+      type(mapl_CompressionSettings), intent(in) :: compression_settings
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -460,12 +460,12 @@ contains
 
    subroutine parse_compression_options(hconfig, compression_settings, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
-      type(CompressionSettings), intent(out) :: compression_settings
+      type(mapl_CompressionSettings), intent(out) :: compression_settings
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      compression_settings = CompressionSettings(hconfig, _RC)
+      compression_settings = mapl_CompressionSettings(hconfig, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine parse_compression_options

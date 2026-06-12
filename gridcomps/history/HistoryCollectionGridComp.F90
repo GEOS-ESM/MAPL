@@ -16,7 +16,7 @@ module mapl_HistoryCollectionGridComp_mod
    ! Private state
    type :: HistoryCollectionGridComp
       type(ESMF_FieldBundle) :: output_bundle
-      class(GeomPFIO), allocatable :: writer
+      class(mapl_GeomPFIO), allocatable :: writer
       type(ESMF_Time) :: start_stop_times(2)
       type(ESMF_Time) :: initial_file_time
       type(ESMF_TimeInterval) :: timeStep
@@ -76,8 +76,8 @@ contains
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
 
       geom = detect_geom(collection_gridcomp%output_bundle, name, _RC)
-      metadata = bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
-      allocate(collection_gridcomp%writer, source=make_geom_pfio(metadata, rc=status))
+      metadata = mapl_bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
+      allocate(collection_gridcomp%writer, source=mapl_make_geom_pfio(metadata, rc=status))
       _VERIFY(STATUS)
       call collection_gridcomp%writer%initialize(metadata, geom, _RC)
 

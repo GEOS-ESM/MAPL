@@ -21,7 +21,7 @@
       type(ESMF_Grid)     :: new_grid
       class(VerticalGrid), pointer :: new_vgrid ! same as old for now...
       type(StringVector) :: filenames,outputfiles
-      type(CompressionSettings) :: compression_settings
+      type(mapl_CompressionSettings) :: compression_settings
       integer :: Nx,Ny
       integer :: itime(2)
       logical :: onlyVars, allTimes
@@ -206,7 +206,7 @@
     call this%create_grid(gridname,_RC)
     call this%create_vgrid(_RC)
     hconfig_compression = this%fill_in_compression_hconfig(_RC)
-    this%compression_settings = CompressionSettings(hconfig_compression, _RC)
+    this%compression_settings = mapl_CompressionSettings(hconfig_compression, _RC)
     _RETURN(_SUCCESS)
 
     end subroutine process_command_line
@@ -406,7 +406,7 @@ CONTAINS
 
    integer :: tsteps,i,j,tint
 
-   type(FieldBundleWriter) :: newWriter
+   type(mapl_FieldBundleWriter) :: newWriter
    logical :: writer_created
 
 

@@ -89,10 +89,10 @@ contains
 
       character(len=:), allocatable :: filename
       integer :: status
-      type(DataCollection), pointer :: collection
+      type(mapl_DataCollection), pointer :: collection
 
       filename = this%find_any_file(_RC)
-      collection => DataCollections%at(this%collection_id)
+      collection => mapl_DataCollections%at(this%collection_id)
       metadata => collection%find(filename, _RC)
 
       _RETURN(_SUCCESS)
@@ -169,13 +169,13 @@ contains
       class(AbstractDataSetFileSelector), intent(inout) :: this
       integer, intent(out), optional :: rc
 
-      type(DataCollection), pointer :: collection
+      type(mapl_DataCollection), pointer :: collection
       type(FileMetadataUtils), pointer :: metadata
       type(ESMF_Time), allocatable :: time_series(:)
       integer :: status
 
       allocate(this%valid_range(2), _STAT)
-      collection => DataCollections%at(this%collection_id)
+      collection => mapl_DataCollections%at(this%collection_id)
       metadata => collection%find(this%file_template)
       call metadata%get_time_info(timeVector=time_series, _RC)
       this%valid_range(1)=time_series(1)

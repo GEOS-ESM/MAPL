@@ -85,7 +85,7 @@ module mapl_ExtDataReader_mod
       type(ESMF_TypeKind_Flag) :: esmf_typekind
       integer, allocatable :: element_count(:), new_element_count(:)
       integer, allocatable :: local_start(:), global_start(:), global_count(:)
-      type(pFIOServerBounds) :: server_bounds
+      type(mapl_pFIOServerBounds) :: server_bounds
       type(c_ptr) :: address
       type(mapl_ArrayReference) :: ref
 
@@ -105,14 +105,15 @@ module mapl_ExtDataReader_mod
          element_count = MAPL_FieldGetLocalElementCount(field_list(i), _RC)
 
 
-         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_READ, time_index=time_index, _RC)
+         server_bounds = mapl_pFIOServerBounds(grid, element_count, MAPL_PFIO_BOUNDS_READ, time_index=time_index, _RC)
 
 
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
          call MAPL_FieldGetCptr(field_list(i), address, _RC)
-         pfio_typekind = esmf_to_pfio_type(esmf_typekind, _RC)
+
+         pfio_typekind = mapl_esmf_to_pfio_type(esmf_typekind, _RC)
          new_element_count = server_bounds%get_file_shape()
          ref = mapl_ArrayReference(address, pfio_typekind, new_element_count)
          call mapl_i_Clients%collective_prefetch_data( &
