@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- Consolidated MAPL ESMF_Info keys into mapl_esmf_info_keys_mod
 
 ### Fixed
 
