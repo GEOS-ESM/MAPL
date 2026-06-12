@@ -14,7 +14,7 @@ module mapl_TimeMin_mod
 
    type, extends(AbstractTimeStatistic) :: TimeMin
       private
-       type(SimpleAlarm) :: alarm
+       type(MAPL_SimpleAlarm) :: alarm
        type(esmf_Field) :: f      ! input
       type(esmf_Field) :: min_f  ! output
    contains
@@ -38,7 +38,7 @@ contains
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: min_f
-       type(SimpleAlarm), intent(in) :: alarm
+       type(MAPL_SimpleAlarm), intent(in) :: alarm
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -299,7 +299,7 @@ contains
 
     function get_alarm(this) result(alarm)
        class(TimeMin), intent(in) :: this
-       type(SimpleAlarm) :: alarm
+       type(MAPL_SimpleAlarm) :: alarm
 
       alarm = this%alarm
    end function get_alarm
@@ -310,7 +310,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, slash_pos
-      type(VariableSpec) :: varspec
       character(len=:), allocatable :: just_name
 
       slash_pos = index(name, "/")
@@ -319,8 +318,7 @@ contains
          just_name = name(slash_pos+1:)
       end if
 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, 'temp_min'//just_name, fill_value=0.0, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'temp_min'//just_name, fill_value=0.0, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine advertise_time_min_internal_fields

@@ -27,14 +27,13 @@ set(srcs
 
   Subgrid.F90
 
-  # Umbrella modules
-  Internal.F90
+  # Umbrella module
   API.F90
 )
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.pfio MAPL.shared MAPL.mp_utils MAPL.hconfig_utils MAPL.esmf_utils GFTL::gftl-v2
+  DEPENDENCIES MAPL.pfio MAPL.enums MAPL.utils MAPL.esmf MAPL.mp_utils GFTL::gftl-v2
   TYPE SHARED
 )
 
@@ -55,5 +54,5 @@ add_subdirectory (XY)
 add_subdirectory (EASE)
 
 if (PFUNIT_FOUND)
-  add_subdirectory (tests)
+  add_subdirectory (tests EXCLUDE_FROM_ALL)
 endif ()

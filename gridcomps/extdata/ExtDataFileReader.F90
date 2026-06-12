@@ -4,9 +4,12 @@ module mapl_ExtDataReader_mod
    use gftl2_StringStringMap
    use gftl2_StringIntegerMap
    use MAPL
-   use PFIO
    use pFlogger, only: logger
    use, intrinsic :: iso_c_binding, only: c_ptr
+   implicit none(type,external)
+   private
+
+   public :: ExtDataReader
 
    type ExtDataReader
       type(ESMF_FieldBundle) :: accumulated_fields
@@ -14,7 +17,7 @@ module mapl_ExtDataReader_mod
       type(StringStringMap) :: filename_map
       type(StringIntegerMap) :: time_index_map
       type(StringIntegerMap) :: client_id_map
-      contains 
+      contains
          procedure :: add_item
          procedure :: read_items
          procedure :: initialize_reader
@@ -99,12 +102,16 @@ module mapl_ExtDataReader_mod
          client_id => this%client_id_map%at(trim(field_name))
          time_index => this%time_index_map%at(trim(field_name))
          call ESMF_FieldGet(field_list(i), grid=grid, typekind=esmf_typekind, _RC)
-         element_count = FieldGetLocalElementCount(field_list(i), _RC)
+         element_count = MAPL_FieldGetLocalElementCount(field_list(i), _RC)
+
+
          server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_READ, time_index=time_index, _RC)
+
+
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
-         call FieldGetCptr(field_list(i), address, _RC)
+         call MAPL_FieldGetCptr(field_list(i), address, _RC)
          pfio_typekind = esmf_to_pfio_type(esmf_typekind, _RC)
          new_element_count = server_bounds%get_file_shape()
          ref = ArrayReference(address, pfio_typekind, new_element_count)
@@ -116,7 +123,7 @@ module mapl_ExtDataReader_mod
               start=local_start, &
               global_start=global_start, &
               global_count=global_count)
-         deallocate(global_start, global_count, local_start, element_count, new_element_count) 
+         deallocate(global_start, global_count, local_start, element_count, new_element_count)
          call lgr%info('reading %a from file %a at time index %i0.5', alias, filename, time_index)
       enddo
       call i_Clients%done_collective_prefetch()

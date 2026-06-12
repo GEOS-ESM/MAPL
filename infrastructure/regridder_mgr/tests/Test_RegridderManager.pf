@@ -2,7 +2,7 @@
 
 module Test_RegridderManager
    use pfunit
-   use mapl_FieldCreateImpl_mod
+   use mapl_FieldCreate_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_vertical_grid_api
    use mapl_enums_api
@@ -61,11 +61,11 @@ contains
       if (present(lm)) then
          vgrid_manager => get_vertical_grid_manager()
          vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=lm), _RC)
-         field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+         field = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
          call ESMF_FieldGet(field, farrayptr=x_3d, _RC)
          x_3d = value
       else
-         field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
+         field = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
          call ESMF_FieldGet(field, farrayptr=x, _RC)
          x = value
       end if

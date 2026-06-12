@@ -8,7 +8,7 @@ set (test_srcs
 
 add_pfunit_ctest(MAPL.hconfig_utils.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.hconfig_utils MAPL.shared MAPL.pfunit
+                LINK_LIBRARIES MAPL.utils MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE mapl_pFUnit_Initialize_mod
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

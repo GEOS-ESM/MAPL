@@ -2,11 +2,11 @@
 
 !BOP
 
-!MODULE: MAPL_Comms -- A Module to parallel comunications until ESMF fully supports it
+!MODULE: Comms -- A Module to parallel comunications until ESMF fully supports it
 
 !INTERFACE:
 
-module mapl_Comms_mod
+module mapl_comms_mod
 
    use ESMF
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL
@@ -20,6 +20,7 @@ module mapl_Comms_mod
    public am_i_root
    public am_i_rank
    public ROOT_PROCESS_ID
+   public barrier
 
    ! public MAPL_CommsBcast
    public comms_scatterv
@@ -240,6 +241,23 @@ module mapl_Comms_mod
    integer, parameter :: MSG_TAG = 11
 
 contains
+
+   subroutine barrier(vm, rc)
+      type(ESMF_VM), optional, intent(in) :: vm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_VM) :: current_vm
+
+      if (present(vm)) then
+         current_vm = vm
+      else
+         call ESMF_VMGetCurrent(current_vm, _RC)
+      end if
+      call esmf_VMBarrier(current_vm, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine barrier
 
    function am_i_root_Vm(vm, rc) result(R)
       type(ESMF_VM), intent(in), optional :: vm
@@ -1524,4 +1542,4 @@ contains
 #define VARTYPE_ 3
 #include "arraygatherRcvCnt.H"
 
-end module mapl_Comms_mod
+end module mapl_comms_mod

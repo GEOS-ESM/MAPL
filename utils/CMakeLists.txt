@@ -26,8 +26,7 @@ set (srcs
     MAPL_Sleep.F90
     MAPL_CF_Time.F90
     MAPL_ESMF_InfoKeys.F90
-    # Umbrella modules for the utils layer (#5004)
-    Internal.F90
+    # Umbrella module for the utils layer (#5004)
     API.F90
     # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
@@ -61,10 +60,6 @@ else()
   target_compile_definitions(${this} PRIVATE SYSTEM_DSO_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 endif()
 
-# Backward-compatibility shim for consumers that still link MAPL.utilities
-add_library(MAPL.utilities INTERFACE)
-target_link_libraries(MAPL.utilities INTERFACE MAPL.utils)
-install(TARGETS MAPL.utilities EXPORT MAPL-targets)
 
 add_subdirectory(Constants)
 add_subdirectory(regex)

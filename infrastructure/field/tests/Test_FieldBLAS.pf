@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module Test_FieldBLAS
-   use mapl_FieldCreateImpl_mod
+   use mapl_FieldCreate_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_vertical_grid_api
    use mapl_FieldBLAS_mod
@@ -9,7 +9,7 @@ module Test_FieldBLAS
    use mapl_FieldPointerUtilities_mod
    use ESMF
    use pfunit
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_c_binding, only: c_ptr
 
    implicit none
@@ -409,7 +409,7 @@ contains
       vgrid_manager => get_vertical_grid_manager()
       vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=3), _RC)
 
-      x = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, units='m', standard_name='foo', _RC)
+      x = FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, units='m', standard_name='foo', _RC)
       call FieldClone(x, y, _RC)
 
       call ESMF_InfoGetFromHost(x, x_info, _RC)

@@ -1,9 +1,7 @@
 #include "MAPL.h"
 
 module mapl_ExtDataConfig_mod
-
    use ESMF
-   use PFIO
    use gFTL2_StringVector
    use MAPL
    use mapl_ExtDataCollection_mod
@@ -16,7 +14,6 @@ module mapl_ExtDataConfig_mod
    use mapl_ExtDataSample_mod
    use mapl_ExtDataSampleMap_mod
    use mapl_PrimaryExport_mod
-   use MAPL, only: mapl_HConfigAsTime
    use mapl_AbstractDataSetFileSelector_mod
    use mapl_NonClimDataSetFileSelector_mod
 

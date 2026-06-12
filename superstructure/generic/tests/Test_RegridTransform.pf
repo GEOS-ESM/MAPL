@@ -4,7 +4,7 @@
 module Test_RegridTransform
    use mapl_RegridTransform_mod
    use mapl_ExtensionTransform_mod, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME, ExtensionTransform
-   use mapl_FieldCreateImpl_mod, only: MAPL_FieldCreate
+   use mapl_FieldCreate_mod, only: FieldCreate
    use mapl_regridder_mgr, only: EsmfRegridderParam
    use mapl_RoutehandleParam_mod, only: RoutehandleParam
    use mapl_geom_api
@@ -96,8 +96,8 @@ contains
 
       _UNUSED_DUMMY(this)
 
-      field_in  = MAPL_FieldCreate(geom_coarse, typekind=ESMF_TYPEKIND_R8, _RC)
-      field_out = MAPL_FieldCreate(geom_fine,   typekind=ESMF_TYPEKIND_R8, _RC)
+      field_in  = FieldCreate(geom_coarse, typekind=ESMF_TYPEKIND_R8, _RC)
+      field_out = FieldCreate(geom_fine,   typekind=ESMF_TYPEKIND_R8, _RC)
 
       call ESMF_FieldGet(field_in,  farrayPtr=data_in,  _RC)
       call ESMF_FieldGet(field_out, farrayPtr=data_out, _RC)

@@ -8,13 +8,52 @@ module mapl_generic_api
    use mapl_OpenMP_Support_mod, only: mapl_get_num_threads => get_num_threads
    use mapl_OpenMP_Support_mod, only: mapl_get_current_thread => get_current_thread
 
-   use mapl_Generic_mod
-   use mapl_GenericGridComp_mod
-   use mapl_VariableSpec_mod
+   use mapl_Generic_mod, &
+       mapl_GridCompAddVarSpec => GridCompAddVarSpec, &
+       mapl_GridCompAddSpec => GridCompAddSpec, &
+       mapl_GridCompAdvertiseVariable => GridCompAdvertiseVariable, &
+       mapl_GridCompGet => GridCompGet, &
+       mapl_GridCompSet => GridCompSet, &
+       mapl_GridCompSetCheckpointControls => GridCompSetCheckpointControls, &
+       mapl_GridCompSetEntryPoint => GridCompSetEntryPoint, &
+       mapl_GridCompAddChild => GridCompAddChild, &
+       mapl_GridCompGetChildName => GridCompGetChildName, &
+       mapl_GridCompRunChild => GridCompRunChild, &
+       mapl_GridCompRunChildren => GridCompRunChildren, &
+       mapl_GridCompGetInternalState => GridCompGetInternalState, &
+       mapl_GridCompSetGeometry => GridCompSetGeometry, &
+       mapl_GridcompGetResource => GridCompGetResource, &
+       mapl_ClockGet => ClockGet, &
+       mapl_GridCompSetGeom => GridCompSetGeom, &
+       mapl_GridCompSetVerticalGrid => GridCompSetVerticalGrid, &
+       mapl_GridCompAddConnection => GridCompAddConnection, &
+       mapl_GridCompAddConnectivity => GridCompAddConnectivity, &
+       mapl_GridCompReexport => GridCompReexport, &
+       mapl_GridCompConnectAll => GridCompConnectAll, &
+       mapl_GridCompTimerStart => GridCompTimerStart, &
+       mapl_GridCompTimerStop => GridCompTimerStop, &
+       mapl_GridCompGetCheckpointDir => GridCompGetCheckpointDir, &
+       mapl_GridCompSetCheckpointControls => GridCompSetCheckpointControls, &
+   !    mapl_STATEITEM_STATE => STATEITEM_STATE, &
+   !    mapl_STATEITEM_FIELDBUNDLE => STATEITEM_FIELDBUNDLE, &
+   !    mapl_STATEITEM_SERVICE => STATEITEM_SERVICE, &
+   !    mapl_STATEITEM_VECTOR => STATEITEM_VECTOR, &
+   !    mapl_UserCompGetInternalState => UserCompGetInternalState, &
+   !    MAPL_UserCompSetInternalState => UserCompSetInternalState, &
+       MAPL_GridCompGetOuterMeta => GridCompGetOuterMeta, &
+       MAPL_GridCompGetRegistry => GridCompGetRegistry, &
+       MAPL_GridCompIsGeneric => GridCompIsGeneric, &
+       MAPL_GridCompIsUser => GridCompIsUser
 
-   use mapl_ComponentSpec_mod
-   use mapl_ChildSpec_mod
-   use mapl_RestartHandler_mod
+   use mapl_GenericGridComp_mod,  &
+       mapl_GridCompCreate => GridCompCreate, &
+       mapl_GenericSetServices => GenericSetServices
+
+    use mapl_VariableSpec_mod
+    use mapl_ComponentSpec_mod
+    use mapl_CheckpointControls_mod
+    use mapl_ChildSpec_mod
+    use mapl_RestartHandler_mod
 
    implicit none
    private
@@ -25,8 +64,14 @@ module mapl_generic_api
    public :: mapl_GridCompAdvertiseVariable
 
    public :: mapl_GridCompGet
+   public :: mapl_GridCompGetRegistry
    public :: mapl_GridCompSet
+   public :: mapl_GridCompSetCheckpointControls
    public :: mapl_GridCompSetEntryPoint
+
+   public :: MAPL_GridCompIsGeneric
+   public :: MAPL_GridCompIsUser
+   public :: MAPL_GridCompGetOuterMeta
 
    public :: mapl_GridCompAddChild
    public :: mapl_GridCompGetChildName

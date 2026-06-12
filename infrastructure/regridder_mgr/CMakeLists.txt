@@ -27,14 +27,13 @@ set(srcs
 #HorzFluxRegridder.F90
 
 
-  # Umbrella modules
-  Internal.F90
+  # Umbrella module
   API.F90
   )
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.geom MAPL.field_bundle MAPL.shared GFTL::gftl-v2
+  DEPENDENCIES MAPL.geom MAPL.field_bundle MAPL.utils GFTL::gftl-v2
   TYPE SHARED
   )
 

@@ -3,7 +3,7 @@
 
 submodule (mapl_Shmem_mod) Shmem_implementation
   use pflogger, only: logging, Logger
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use MAPL_Constants
   implicit none
 
@@ -16,7 +16,7 @@ submodule (mapl_Shmem_mod) Shmem_implementation
 
 contains
 
-  module procedure MAPL_GetNodeInfo
+  module procedure GetNodeInfo
 
      integer :: STATUS
 
@@ -31,9 +31,9 @@ contains
      end if
 
      _RETURN(SHM_SUCCESS)
-  end procedure MAPL_GetNodeInfo
+  end procedure GetNodeInfo
 
-  module procedure MAPL_InitializeShmem
+  module procedure InitializeShmem
 
      integer :: STATUS
 
@@ -52,9 +52,9 @@ contains
 #endif
 
      _RETURN(SHM_SUCCESS)
-  end procedure MAPL_InitializeShmem
+  end procedure InitializeShmem
 
- module procedure MAPL_FinalizeShmem
+ module procedure FinalizeShmem
     integer      :: status, i
     type (c_ptr) :: buf
 
@@ -120,26 +120,9 @@ contains
       MAPL_NumNodes=-1
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_FinalizeShmem
+    end procedure FinalizeShmem
 
-    module procedure MAPL_DeAllocNodeArray_1DL4
-
-      type(c_ptr) :: Caddr
-      integer     :: STATUS
-
-      if(.not.MAPL_ShmInitialized) then
-         _RETURN(MAPL_NoShm)
-      endif
-
-      Caddr = C_Loc(Ptr(lbound(Ptr,1)))
-
-      call ReleaseSharedMemory(Caddr,rc=STATUS)
-      _VERIFY(STATUS)
-
-      _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_1DL4
-
-    module procedure MAPL_DeAllocNodeArray_1DI4
+    module procedure DeAllocNodeArray_1DL4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -154,9 +137,26 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_1DI4
+    end procedure DeAllocNodeArray_1DL4
 
-    module procedure MAPL_DeAllocNodeArray_2DI4
+    module procedure DeAllocNodeArray_1DI4
+
+      type(c_ptr) :: Caddr
+      integer     :: STATUS
+
+      if(.not.MAPL_ShmInitialized) then
+         _RETURN(MAPL_NoShm)
+      endif
+
+      Caddr = C_Loc(Ptr(lbound(Ptr,1)))
+
+      call ReleaseSharedMemory(Caddr,rc=STATUS)
+      _VERIFY(STATUS)
+
+      _RETURN(SHM_SUCCESS)
+    end procedure DeAllocNodeArray_1DI4
+
+    module procedure DeAllocNodeArray_2DI4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -171,9 +171,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_2DI4
+    end procedure DeAllocNodeArray_2DI4
 
-    module procedure MAPL_DeAllocNodeArray_3DI4
+    module procedure DeAllocNodeArray_3DI4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -188,9 +188,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_3DI4
+    end procedure DeAllocNodeArray_3DI4
 
-    module procedure MAPL_DeAllocNodeArray_4DI4
+    module procedure DeAllocNodeArray_4DI4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -205,10 +205,10 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_4DI4
+    end procedure DeAllocNodeArray_4DI4
 
 
-    module procedure MAPL_DeAllocNodeArray_1DR4
+    module procedure DeAllocNodeArray_1DR4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -223,9 +223,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_1DR4
+    end procedure DeAllocNodeArray_1DR4
 
-    module procedure MAPL_DeAllocNodeArray_2DR4
+    module procedure DeAllocNodeArray_2DR4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -240,9 +240,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_2DR4
+    end procedure DeAllocNodeArray_2DR4
 
-    module procedure MAPL_DeAllocNodeArray_3DR4
+    module procedure DeAllocNodeArray_3DR4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -257,9 +257,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_3DR4
+    end procedure DeAllocNodeArray_3DR4
 
-    module procedure MAPL_DeAllocNodeArray_4DR4
+    module procedure DeAllocNodeArray_4DR4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -273,10 +273,10 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_4DR4
+    end procedure DeAllocNodeArray_4DR4
 
 
-    module procedure MAPL_DeAllocNodeArray_1DR8
+    module procedure DeAllocNodeArray_1DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -291,9 +291,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_1DR8
+    end procedure DeAllocNodeArray_1DR8
 
-    module procedure MAPL_DeAllocNodeArray_2DR8
+    module procedure DeAllocNodeArray_2DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -308,9 +308,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_2DR8
+    end procedure DeAllocNodeArray_2DR8
 
-    module procedure MAPL_DeAllocNodeArray_3DR8
+    module procedure DeAllocNodeArray_3DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -325,9 +325,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_3DR8
+    end procedure DeAllocNodeArray_3DR8
 
-    module procedure MAPL_DeAllocNodeArray_4DR8
+    module procedure DeAllocNodeArray_4DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -341,9 +341,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_4DR8
+    end procedure DeAllocNodeArray_4DR8
 
-    module procedure MAPL_DeAllocNodeArray_5DR8
+    module procedure DeAllocNodeArray_5DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -357,9 +357,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_5DR8
+    end procedure DeAllocNodeArray_5DR8
 
-    module procedure MAPL_DeAllocNodeArray_6DR8
+    module procedure DeAllocNodeArray_6DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -373,9 +373,9 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_6DR8
+    end procedure DeAllocNodeArray_6DR8
 
-    module procedure MAPL_AllocNodeArray_1DL4
+    module procedure AllocNodeArray_1DL4
     implicit none
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -395,99 +395,9 @@ contains
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_1DL4
+    end procedure AllocNodeArray_1DL4
 
-    module procedure MAPL_AllocNodeArray_1DI4
-
-      type(c_ptr) :: Caddr
-      integer len, STATUS
-
-      if(.not.MAPL_ShmInitialized) then
-         _RETURN(MAPL_NoShm)
-      endif
-
-      len = shp(1)
-
-      call GetSharedMemory(Caddr, len, rc=STATUS)
-      _VERIFY(STATUS)
-
-      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      _ASSERT(size(Ptr)==len,'needs informative message')
-
-      if(present(lbd)) Ptr(lbd(1):) => Ptr
-
-      _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_1DI4
-
-
-    module procedure MAPL_AllocNodeArray_2DI4
-
-      type(c_ptr) :: Caddr
-      integer len, STATUS
-
-      if(.not.MAPL_ShmInitialized) then
-         _RETURN(MAPL_NoShm)
-      endif
-
-      len=product(Shp)
-
-      call GetSharedMemory(Caddr, len, rc=STATUS)
-      _VERIFY(STATUS)
-
-      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
-
-      if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
-
-      _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_2DI4
-
-    module procedure MAPL_AllocNodeArray_3DI4
-
-      type(c_ptr) :: Caddr
-      integer len, STATUS
-
-      if(.not.MAPL_ShmInitialized) then
-         _RETURN(MAPL_NoShm)
-      endif
-
-      len=product(Shp)
-
-      call GetSharedMemory(Caddr, len, rc=STATUS)
-      _VERIFY(STATUS)
-
-      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
-
-      if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
-
-      _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_3DI4
-
-    module procedure MAPL_AllocNodeArray_4DI4
-
-      type(c_ptr) :: Caddr
-      integer len, STATUS
-
-      if(.not.MAPL_ShmInitialized) then
-         _RETURN(MAPL_NoShm)
-      endif
-
-      len=product(Shp)
-
-      call GetSharedMemory(Caddr, len, rc=STATUS)
-      _VERIFY(STATUS)
-
-      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
-
-      if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
-
-      _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_4DI4
-
-
-    module procedure MAPL_AllocNodeArray_1DR4
+    module procedure AllocNodeArray_1DI4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -507,10 +417,10 @@ contains
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_1DR4
+    end procedure AllocNodeArray_1DI4
 
 
-    module procedure MAPL_AllocNodeArray_2DR4
+    module procedure AllocNodeArray_2DI4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -530,9 +440,9 @@ contains
       if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_2DR4
+    end procedure AllocNodeArray_2DI4
 
-    module procedure MAPL_AllocNodeArray_3DR4
+    module procedure AllocNodeArray_3DI4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -552,9 +462,9 @@ contains
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_3DR4
+    end procedure AllocNodeArray_3DI4
 
-    module procedure MAPL_AllocNodeArray_4DR4
+    module procedure AllocNodeArray_4DI4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -574,10 +484,100 @@ contains
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_4DR4
+    end procedure AllocNodeArray_4DI4
 
 
-    module procedure MAPL_AllocNodeArray_1DR8
+    module procedure AllocNodeArray_1DR4
+
+      type(c_ptr) :: Caddr
+      integer len, STATUS
+
+      if(.not.MAPL_ShmInitialized) then
+         _RETURN(MAPL_NoShm)
+      endif
+
+      len = shp(1)
+
+      call GetSharedMemory(Caddr, len, rc=STATUS)
+      _VERIFY(STATUS)
+
+      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
+      _ASSERT(size(Ptr)==len,'needs informative message')
+
+      if(present(lbd)) Ptr(lbd(1):) => Ptr
+
+      _RETURN(SHM_SUCCESS)
+    end procedure AllocNodeArray_1DR4
+
+
+    module procedure AllocNodeArray_2DR4
+
+      type(c_ptr) :: Caddr
+      integer len, STATUS
+
+      if(.not.MAPL_ShmInitialized) then
+         _RETURN(MAPL_NoShm)
+      endif
+
+      len=product(Shp)
+
+      call GetSharedMemory(Caddr, len, rc=STATUS)
+      _VERIFY(STATUS)
+
+      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
+
+      if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
+
+      _RETURN(SHM_SUCCESS)
+    end procedure AllocNodeArray_2DR4
+
+    module procedure AllocNodeArray_3DR4
+
+      type(c_ptr) :: Caddr
+      integer len, STATUS
+
+      if(.not.MAPL_ShmInitialized) then
+         _RETURN(MAPL_NoShm)
+      endif
+
+      len=product(Shp)
+
+      call GetSharedMemory(Caddr, len, rc=STATUS)
+      _VERIFY(STATUS)
+
+      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
+
+      if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
+
+      _RETURN(SHM_SUCCESS)
+    end procedure AllocNodeArray_3DR4
+
+    module procedure AllocNodeArray_4DR4
+
+      type(c_ptr) :: Caddr
+      integer len, STATUS
+
+      if(.not.MAPL_ShmInitialized) then
+         _RETURN(MAPL_NoShm)
+      endif
+
+      len=product(Shp)
+
+      call GetSharedMemory(Caddr, len, rc=STATUS)
+      _VERIFY(STATUS)
+
+      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
+
+      if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
+
+      _RETURN(SHM_SUCCESS)
+    end procedure AllocNodeArray_4DR4
+
+
+    module procedure AllocNodeArray_1DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -596,10 +596,10 @@ contains
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_1DR8
+    end procedure AllocNodeArray_1DR8
 
 
-    module procedure MAPL_AllocNodeArray_2DR8
+    module procedure AllocNodeArray_2DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -619,9 +619,9 @@ contains
       if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_2DR8
+    end procedure AllocNodeArray_2DR8
 
-    module procedure MAPL_AllocNodeArray_3DR8
+    module procedure AllocNodeArray_3DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -641,9 +641,9 @@ contains
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_3DR8
+    end procedure AllocNodeArray_3DR8
 
-    module procedure MAPL_AllocNodeArray_4DR8
+    module procedure AllocNodeArray_4DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -663,9 +663,9 @@ contains
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_4DR8
+    end procedure AllocNodeArray_4DR8
 
-    module procedure MAPL_AllocNodeArray_5DR8
+    module procedure AllocNodeArray_5DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -686,9 +686,9 @@ contains
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):,lbd(5):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_5DR8
+    end procedure AllocNodeArray_5DR8
 
-    module procedure MAPL_AllocNodeArray_6DR8
+    module procedure AllocNodeArray_6DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -709,15 +709,15 @@ contains
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):,lbd(5):,lbd(6):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_6DR8
+    end procedure AllocNodeArray_6DR8
 
 
-    module procedure MAPL_AllocateShared_1DL4
+    module procedure AllocateShared_1DL4
 
       integer :: status
 
       if(MAPL_ShmInitialized) then
-         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         call AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
          _VERIFY(STATUS)
       else
          if (TransRoot) then
@@ -730,15 +730,15 @@ contains
 
       _RETURN(STATUS)
 
-    end procedure MAPL_AllocateShared_1DL4
+    end procedure AllocateShared_1DL4
 
-    module procedure MAPL_AllocateShared_1DI4
+    module procedure AllocateShared_1DI4
 
 
       integer :: status
 
       if(MAPL_ShmInitialized) then
-         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         call AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
          _VERIFY(STATUS)
       else
          if (TransRoot) then
@@ -751,15 +751,15 @@ contains
 
       _RETURN(STATUS)
 
-    end procedure MAPL_AllocateShared_1DI4
+    end procedure AllocateShared_1DI4
 
-    module procedure MAPL_AllocateShared_1DR4
+    module procedure AllocateShared_1DR4
 
 
       integer :: status
 
       if(MAPL_ShmInitialized) then
-         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         call AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
          _VERIFY(STATUS)
       else
          if (TransRoot) then
@@ -772,15 +772,15 @@ contains
 
       _RETURN(STATUS)
 
-    end procedure MAPL_AllocateShared_1DR4
+    end procedure AllocateShared_1DR4
 
-    module procedure MAPL_AllocateShared_1DR8
+    module procedure AllocateShared_1DR8
 
 
       integer :: status
 
       if(MAPL_ShmInitialized) then
-         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         call AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
          _VERIFY(STATUS)
       else
          if (TransRoot) then
@@ -793,12 +793,12 @@ contains
 
       _RETURN(STATUS)
 
-    end procedure MAPL_AllocateShared_1DR8
+    end procedure AllocateShared_1DR8
 
-    module procedure MAPL_AllocateShared_2DI4
+    module procedure AllocateShared_2DI4
       integer :: status
       if(MAPL_ShmInitialized) then
-         call MAPL_AllocNodeArray(Ptr, Shp, lbd, _RC)
+         call AllocNodeArray(Ptr, Shp, lbd, _RC)
       else
          if (TransRoot) then
             allocate(Ptr(Shp(1),Shp(2)),stat=status)
@@ -810,36 +810,15 @@ contains
 
       _RETURN(STATUS)
 
-    end procedure MAPL_AllocateShared_2DI4
+    end procedure AllocateShared_2DI4
 
-    module procedure MAPL_AllocateShared_2DR4
-
-
-      integer :: status
-
-      if(MAPL_ShmInitialized) then
-         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
-         _VERIFY(STATUS)
-      else
-         if (TransRoot) then
-            allocate(Ptr(Shp(1),Shp(2)),stat=status)
-         else
-            allocate(Ptr(0,0),stat=status)
-         end if
-         _VERIFY(STATUS)
-      endif
-
-      _RETURN(STATUS)
-
-    end procedure MAPL_AllocateShared_2DR4
-
-    module procedure MAPL_AllocateShared_2DR8
+    module procedure AllocateShared_2DR4
 
 
       integer :: status
 
       if(MAPL_ShmInitialized) then
-         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         call AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
          _VERIFY(STATUS)
       else
          if (TransRoot) then
@@ -852,7 +831,28 @@ contains
 
       _RETURN(STATUS)
 
-    end procedure MAPL_AllocateShared_2DR8
+    end procedure AllocateShared_2DR4
+
+    module procedure AllocateShared_2DR8
+
+
+      integer :: status
+
+      if(MAPL_ShmInitialized) then
+         call AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         _VERIFY(STATUS)
+      else
+         if (TransRoot) then
+            allocate(Ptr(Shp(1),Shp(2)),stat=status)
+         else
+            allocate(Ptr(0,0),stat=status)
+         end if
+         _VERIFY(STATUS)
+      endif
+
+      _RETURN(STATUS)
+
+    end procedure AllocateShared_2DR8
 
     module procedure ReleaseSharedMemory
       integer        :: pos
@@ -1197,7 +1197,7 @@ contains
       _RETURN(SHM_SUCCESS)
     end procedure BroadcastToNodes_3DI4
 
-    module procedure MAPL_SyncSharedMemory
+    module procedure SyncSharedMemory
       integer :: STATUS
       if(.not.MAPL_ShmInitialized) then
          _RETURN(SHM_SUCCESS)
@@ -1206,9 +1206,9 @@ contains
       call MPI_Barrier(MAPL_NodeComm, STATUS)
       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_SyncSharedMemory
+    end procedure SyncSharedMemory
 
-    module procedure MAPL_GetNewRank
+    module procedure GetNewRank
 
       rank = MAPL_NodeRankList(node)%RankLastUsed+1
       if (rank > size(MAPL_NodeRankList(node)%rank)) then
@@ -1218,7 +1218,7 @@ contains
 
       _RETURN(SHM_SUCCESS)
 
-    end procedure MAPL_GetNewRank
+    end procedure GetNewRank
 
     module procedure getNodeComm
       use mapl_Sort_mod
@@ -1421,12 +1421,12 @@ contains
 
 
 
-    module procedure MAPL_ShmemAmOnFirstNode
+    module procedure ShmemAmOnFirstNode
 
       integer :: status, rank
 
       if ( MAPL_NodeComm == -1 ) then
-           call MAPL_GetNodeInfo(comm, rc=STATUS )
+           call GetNodeInfo(comm, rc=STATUS )
            _VERIFY(STATUS)
       end if
 
@@ -1442,20 +1442,20 @@ contains
       end if
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_ShmemAmOnFirstNode
+    end procedure ShmemAmOnFirstNode
 
-    module procedure MAPL_CoresPerNodeGet
+    module procedure CoresPerNodeGet
 
       integer :: status
 
       if ( MAPL_NodeComm == -1 ) then
-           call MAPL_GetNodeInfo(comm, rc=STATUS )
+           call GetNodeInfo(comm, rc=STATUS )
            _VERIFY(STATUS)
       end if
 
-      MAPL_CoresPerNodeGet = MAPL_CoresPerNodeUsed
+      CoresPerNodeGet = MAPL_CoresPerNodeUsed
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_CoresPerNodeGet
+    end procedure CoresPerNodeGet
 
   end submodule Shmem_implementation

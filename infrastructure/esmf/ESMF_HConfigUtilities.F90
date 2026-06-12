@@ -1,13 +1,15 @@
 #include "MAPL.h"
 
 module mapl_ESMF_HConfigUtilities_mod
+
    use esmf
    use mapl_ErrorHandling_mod
+
    implicit none(type,external)
    private
 
    public :: write(formatted)
-   public :: MAPL_HConfigMatch
+   public :: HConfigMatch
 
    character(*), parameter :: CORE_SCHEMA_INT_TAG = 'tag:yaml.org,2002:int'
    character(*), parameter :: CORE_SCHEMA_FLOAT_TAG = 'tag:yaml.org,2002:float'
@@ -24,15 +26,15 @@ module mapl_ESMF_HConfigUtilities_mod
          integer, intent(in) :: unit
          character(*), intent(in) :: iotype
          integer, intent(in) :: v_list(:)
-         integer, intent(out) :: iostat 
+         integer, intent(out) :: iostat
          character(*), intent(inout) :: iomsg
       end subroutine write_hconfig
 
-      module function MAPL_HConfigMatch(a, b, rc) result(match)
+      module function HConfigMatch(a, b, rc) result(match)
          logical :: match
          type(ESMF_HConfig), intent(in) :: a, b
          integer, optional, intent(out) :: rc
-      end function MAPL_HConfigMatch
+      end function HConfigMatch
 
    END INTERFACE
 

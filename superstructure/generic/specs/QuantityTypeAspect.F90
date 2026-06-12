@@ -7,7 +7,7 @@ module mapl_QuantityTypeAspect_mod
    use mapl_StateItemAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_NullTransform_mod
-   use mapl_Enums_internal, only: MAPL_QuantityType, MAPL_MixingRatioBasis, &
+   use mapl_enums_api, only: MAPL_QuantityType, MAPL_MixingRatioBasis, &
         MAPL_QUANTITY_UNKNOWN, MAPL_QUANTITY_MIXING_RATIO, &
         MAPL_BASIS_NONE, MAPL_BASIS_WET_MASS, MAPL_BASIS_VOLUME, &
         MAPL_NORMALIZE_DELP, MAPL_NORMALIZE_DZ

@@ -42,7 +42,6 @@ contains
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize, phase_name='GENERIC::INIT_REALIZE', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_WRITERESTART, custom_write_restart, phase_name='GENERIC::WRITE_RESTART', _RC)
 
       ! Attach private state
       _SET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE)
@@ -62,8 +61,8 @@ contains
 
       call esmf_HConfigdestroy(items_hconfig, _RC)
 
-      restart_controls%bootstrap = .true.
-      restart_controls%internal = .true.
+      call restart_controls%set_bootstrap(.true.)
+      call restart_controls%set_internal(.true.)
       call MAPL_GridCompSet(gridcomp, restart_controls=restart_controls, _RC)
 
       _RETURN(_SUCCESS)
@@ -78,39 +77,32 @@ contains
       type(esmf_StateItem_Flag) :: itemtype
       integer :: status
       type(esmf_HConfig) :: hconfig
-      type(VariableSpec) :: varspec
 
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
 
-      varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, name, _RC)
-      call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, _RC)
        select case (action)
        case ('average')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_average_internal_fields(gridcomp, name, _RC)
        case ('min')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_min_internal_fields(gridcomp, name, _RC)
        case ('max')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_max_internal_fields(gridcomp, name, _RC)
        case ('accumulate')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_accumulate_internal_fields(gridcomp, name, _RC)
        case ('variance')
-          varspec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, name, &
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
                has_deferred_aspects=.true., _RC)
-          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
           call advertise_time_variance_internal_fields(gridcomp, name, _RC)
        case default
           _FAIL('unsupported action: '//action)
@@ -186,7 +178,7 @@ contains
 
          integer :: status
          character(:), allocatable :: action
-         type(SimpleAlarm) :: alarm
+         type(MAPL_SimpleAlarm) :: alarm
 
          stat = NullStatistic() ! just in case
          action = esmf_HConfigAsString(iter, keystring='action', _RC)
@@ -219,7 +211,7 @@ contains
          type(TimeAverage) :: average
          character(*), intent(in) :: name
           type(esmf_HConfigIter), intent(in) :: iter
-          type(SimpleAlarm), intent(in) :: alarm
+          type(MAPL_SimpleAlarm), intent(in) :: alarm
           integer, optional, intent(out) :: rc
 
           integer :: status
@@ -237,7 +229,7 @@ contains
            type(TimeMin) :: min_stat
            character(*), intent(in) :: name
            type(esmf_HConfigIter), intent(in) :: iter
-           type(SimpleAlarm), intent(in) :: alarm
+           type(MAPL_SimpleAlarm), intent(in) :: alarm
            integer, optional, intent(out) :: rc
 
            integer :: status
@@ -255,7 +247,7 @@ contains
            type(TimeMax) :: max_stat
            character(*), intent(in) :: name
            type(esmf_HConfigIter), intent(in) :: iter
-           type(SimpleAlarm), intent(in) :: alarm
+           type(MAPL_SimpleAlarm), intent(in) :: alarm
            integer, optional, intent(out) :: rc
 
            integer :: status
@@ -274,7 +266,7 @@ contains
            type(TimeAccumulate) :: accum_stat
            character(*), intent(in) :: name
            type(esmf_HConfigIter), intent(in) :: iter
-           type(SimpleAlarm), intent(in) :: alarm
+           type(MAPL_SimpleAlarm), intent(in) :: alarm
            integer, optional, intent(out) :: rc
 
            integer :: status
@@ -293,7 +285,7 @@ contains
            type(TimeVariance) :: var_stat
            character(*), intent(in) :: name
            type(esmf_HConfigIter), intent(in) :: iter
-           type(SimpleAlarm), intent(in) :: alarm
+           type(MAPL_SimpleAlarm), intent(in) :: alarm
            integer, optional, intent(out) :: rc
 
            integer :: status
@@ -330,7 +322,7 @@ contains
         end function make_variance_stat
 
        function make_alarm(clock, iter, rc) result(alarm)
-           type(SimpleAlarm) :: alarm
+           type(MAPL_SimpleAlarm) :: alarm
            type(esmf_Clock), intent(in) :: clock
            type(esmf_HConfigIter), intent(in) :: iter
            integer, optional, intent(out) :: rc
@@ -344,9 +336,9 @@ contains
            ref_datetime = esmf_HConfigAsString(iter, keystring='ref_datetime', _RC)
 
            call esmf_ClockGet(clock, currTime=currTime, _RC)
-           ringTime = sub_time_in_datetime(currTime, ref_datetime, _RC)
+           ringTime = MAPL_SubTimeInDateTime(currTime, ref_datetime, _RC)
 
-           alarm = SimpleAlarm(initial_ring_time=ringTime, ring_interval=period, _RC)
+           alarm = MAPL_SimpleAlarm(initial_ring_time=ringTime, ring_interval=period, _RC)
             _RETURN(_SUCCESS)
          end function make_alarm
 
@@ -393,32 +385,28 @@ contains
          end do
        end associate
 
+       call set_stats_checkpoint(gridcomp, clock, _RC)
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(importState)
        _UNUSED_DUMMY(exportState)
    end subroutine run
 
-   subroutine custom_write_restart(gridcomp, importState, exportState, clock, rc)
+   subroutine set_stats_checkpoint(gridcomp, clock, rc)
       type(esmf_GridComp) :: gridComp
-      type(esmf_State) :: importState
-      type(esmf_State) :: exportState
       type(esmf_Clock) :: clock
       integer, intent(out) :: rc
 
       integer :: status
       type(esmf_State) :: state
-      type(RestartHandler) :: restart_handler
       type(esmf_Time) :: currTime
-      class(Logger), pointer :: lgr
-      type(esmf_Geom) :: geom
-      character(:), allocatable :: checkpoint_dir, filename, name
-      type(ESMF_HConfig) :: hconfig
       type(Statistics), pointer :: stats
       type(StatisticsVectorIterator) :: iter
       class(AbstractTimeStatistic), pointer :: stat
-      type(SimpleAlarm) :: alarm
+      type(MAPL_SimpleAlarm) :: alarm
       logical :: is_ringing, first_ringing
       logical :: first_item
+
+      call MAPL_GridCompSetCheckpointControls(gridcomp, internal=.false., _RC)
 
       ! Verify all alarms share the same ringing status; skip write if all are ringing
       _GET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE, stats)
@@ -447,27 +435,17 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      call MAPL_GridCompGetInternalState(gridcomp, state, _RC)
-      call mapl_GridCompGet(gridcomp, logger=lgr, name=name, _RC)
-
-      call MAPL_StateGetGeom(state, geom, _RC)
-      restart_handler = RestartHandler(geom, currTime, lgr)
-
-      checkpoint_dir = MAPL_GridCompGetCheckpointDir(gridcomp, currTime, _RC)
-      filename = mapl_PathJoin(checkpoint_dir, name//'_internal.nc')
-
-      call restart_handler%write(state, filename, _RC)
+      call MAPL_GridCompSetCheckpointControls(gridcomp, internal=.true., _RC)
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(importState)
-      _UNUSED_DUMMY(exportState)
-   end subroutine custom_write_restart
+   end subroutine set_stats_checkpoint
 
 end module mapl_StatisticsGridComp_mod
 
 subroutine setServices(gridComp, rc)
    use MAPL
    use mapl_StatisticsGridComp_mod, only: StatisticsSetServices => setServices
+   use esmf, only: esmf_GridComp
    implicit none(type,external)
    type(esmf_GridComp), intent(inout) :: gridcomp
    integer, intent(out) :: rc

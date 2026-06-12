@@ -3,10 +3,10 @@
 module mapl_EvalTransform_mod
    use mapl_ExtensionTransform_mod
    use mapl_TransformId_mod
-   use mapl_StateItemImpl_mod
+   use mapl_StateItem_mod
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverVector_mod
-   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INITIALIZE
+   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INITIALIZE
    use mapl_ErrorHandling_mod
    use mapl_StateArithmeticParser_mod
    use esmf
@@ -104,7 +104,7 @@ contains
 
       call ESMF_StateGet(exportState, itemName=COUPLER_EXPORT_NAME, field=f, _RC)
 
-      call MAPL_StateEval(this%input_state, this%expression, f, _RC)
+      call StateEval(this%input_state, this%expression, f, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)

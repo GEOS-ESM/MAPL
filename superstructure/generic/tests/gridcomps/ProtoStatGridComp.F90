@@ -4,10 +4,12 @@
 module ProtoStatGridComp
    use mapl_state_api
    use mapl_field_api
+
    use mapl_Generic_mod
-   use mapl_ESMF_Subset_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_ErrorHandling_mod
+   use mapl_Generic_api, only: mapl_GridCompAddSpec
+   use mapl_errorhandling_mod
    use esmf
    implicit none(type,external)
    private
@@ -18,7 +20,7 @@ module ProtoStatGridComp
 contains
 
    subroutine setservices(gc, rc)
-      use mapl_Generic_mod, only: MAPL_GridCompSetEntryPoint
+      use mapl_Generic_api, only: MAPL_GridCompSetEntryPoint
       type(ESMF_GridComp) :: gc
       integer, intent(out) :: rc
 
@@ -32,14 +34,14 @@ contains
            state_intent=ESMF_STATEINTENT_IMPORT, &
            standard_name='<unknown>', &
            dims='xy', &
-           vstagger=VERTICAL_STAGGER_NONE, &
+           vertical_stagger=VERTICAL_STAGGER_NONE, &
            units='K', _RC)
 
       call mapl_GridCompAddSpec(gc, short_name='avg_T', &
            state_intent=ESMF_STATEINTENT_EXPORT, &
            standard_name='<unknown>', &
            dims='xy', &
-           vstagger=VERTICAL_STAGGER_NONE, &
+           vertical_stagger=VERTICAL_STAGGER_NONE, &
            has_deferred_aspects=.true., &
            units='K', _RC)
 

@@ -6,7 +6,7 @@ set (test_srcs
 
 add_pfunit_ctest(MAPL.alarm.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.alarm MAPL.pfunit
+                LINK_LIBRARIES MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE mapl_pFUnit_Initialize_mod
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

@@ -24,7 +24,7 @@ add_library(MAPL.generic.test_common SHARED
   MockUserGridComp.F90
   MockAspect.F90
 )
-target_link_libraries(MAPL.generic.test_common PUBLIC MAPL.generic MAPL.shared MAPL.pfunit)
+target_link_libraries(MAPL.generic.test_common PUBLIC MAPL.generic MAPL.utils MAPL.pfunit)
 set_target_properties(MAPL.generic.test_common PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 target_include_directories(MAPL.generic.test_common PUBLIC $<BUILD_INTERFACE:${MODULE_DIRECTORY}>)
 
@@ -129,7 +129,6 @@ set(components_test_srcs
   Test_ComponentSpec.pf
   Test_ComponentSpecParser.pf
   Test_WriteYaml.pf
-  Test_HConfigMatch.pf
   Test_ExtensionFamily.pf
 )
 
@@ -201,7 +200,7 @@ set_tests_properties(MAPL.generic.components PROPERTIES ENVIRONMENT "${TEST_ENV}
 set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
 
 # Add all test suites to build-tests target
-add_dependencies(build-tests 
+add_dependencies(build-tests
   MAPL.generic.scenarios
   MAPL.generic.transforms
   MAPL.generic.vertical

@@ -17,7 +17,6 @@ set (srcs
     FieldSet.F90
     FieldInfo.F90
     RestartModes.F90
-    Internal.F90
     API.F90
 )
 
@@ -30,7 +29,7 @@ find_package (GFTL REQUIRED)
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.enums MAPL.vertical_grid MAPL.shared MAPL.esmf MAPL.geom
+    DEPENDENCIES MAPL.enums MAPL.vertical_grid MAPL.utils MAPL.esmf MAPL.geom
                  PFLOGGER::pflogger ESMF::ESMF udunits2f GFTL::gftl-v2
     TYPE SHARED
 )
@@ -45,5 +44,5 @@ target_link_libraries (MAPL.fields INTERFACE MAPL.field)
 install (TARGETS MAPL.fields EXPORT MAPL-targets)
 
 if (PFUNIT_FOUND)
-    add_subdirectory (tests)
+    add_subdirectory (tests EXCLUDE_FROM_ALL)
 endif ()

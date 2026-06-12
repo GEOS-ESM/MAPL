@@ -8,7 +8,7 @@ module Test_3DConservativeMixingRatio
    use mapl_VerticalCoordinateDirection_mod
    use mapl_VerticalAlignment_mod
    use mapl_ExtensionTransform_mod, only: COUPLER_IMPORT_NAME, COUPLER_EXPORT_NAME, ExtensionTransform
-   use mapl_FieldCreateImpl_mod, only: MAPL_FieldCreate
+   use mapl_FieldCreate_mod, only: FieldCreate
    use mapl_QuantityType_mod
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationType_mod
@@ -61,7 +61,7 @@ contains
       
       ! Create edge-staggered vertical coordinates (required for conservative method)
       ! Input: 10 layers = 11 edges (0, 10, 20, ..., 100 Pa)
-      v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_in = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
       do concurrent (k = 1:NZ_IN+1, j = 1:NY, i = 1:NX)
@@ -69,7 +69,7 @@ contains
          end do
       
       ! Output: 15 layers = 16 edges (0, 6.67, 13.33, ..., 100 Pa)
-      v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_out = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
       do concurrent (k = 1:NZ_OUT+1, j = 1:NY, i = 1:NX)
@@ -77,10 +77,10 @@ contains
          end do
       
       ! Create input and output data fields at CENTER (layer centers)
-      f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_in = FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_out = FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
       
@@ -161,7 +161,7 @@ contains
       
       ! Create input vertical coordinates (pressure levels, linearly decreasing)
       ! Surface (1000 hPa) to top (0 hPa) in 72 levels
-      v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_in = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
       do k = 1, NZ_IN+1
@@ -169,7 +169,7 @@ contains
       end do
       
       ! Create output vertical coordinates (different resolution)
-      v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_out = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
       do k = 1, NZ_OUT+1
@@ -177,10 +177,10 @@ contains
       end do
       
       ! Create data fields
-      f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_in = FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_out = FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
       
@@ -260,7 +260,7 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
       
       ! Coarse input grid (5 layers)
-      v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_in = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
       do k = 1, NZ_IN+1
@@ -268,17 +268,17 @@ contains
       end do
       
       ! Fine output grid (20 layers)
-      v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_out = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
       do k = 1, NZ_OUT+1
          v_out(:,:,k) = real(k-1, ESMF_KIND_R4) * 5.0  ! 0, 5, 10, ..., 100
       end do
       
-      f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_in = FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_out = FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
       
@@ -354,7 +354,7 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
       
       ! Fine input grid (30 layers)
-      v_coord_in = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_in = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
       do k = 1, NZ_IN+1
@@ -362,17 +362,17 @@ contains
       end do
       
       ! Coarse output grid (10 layers)
-      v_coord_out = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_out = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_out, farrayPtr=v_out, _RC)
       do k = 1, NZ_OUT+1
          v_out(:,:,k) = real(k-1, ESMF_KIND_R4) * 10.0  ! 0, 10, 20, ..., 100
       end do
       
-      f_in = MAPL_FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_in = FieldCreate(geom, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      f_out = MAPL_FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_out = FieldCreate(geom, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
       
@@ -479,8 +479,8 @@ contains
       geom_out = mapl_geom%get_geom()
       
       ! Create surface pressure fields (2D)
-      ps_in = MAPL_FieldCreate(geom=geom_in, typekind=ESMF_TYPEKIND_R4, name='PS_IN', _RC)
-      ps_out = MAPL_FieldCreate(geom=geom_out, typekind=ESMF_TYPEKIND_R4, name='PS_OUT', _RC)
+      ps_in = FieldCreate(geom=geom_in, typekind=ESMF_TYPEKIND_R4, name='PS_IN', _RC)
+      ps_out = FieldCreate(geom=geom_out, typekind=ESMF_TYPEKIND_R4, name='PS_OUT', _RC)
       
       ! Initialize surface pressure (varies spatially: ~1000 hPa at equator, ~900 hPa at poles)
       call ESMF_FieldGet(ps_in, farrayPtr=ps_in_ptr, _RC)
@@ -493,7 +493,7 @@ contains
       
       ! Create vertical coordinates (edge-staggered)
       ! Input: 10 layers with PTOP constant
-      v_coord_in = MAPL_FieldCreate(geom_in, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_in = FieldCreate(geom_in, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(v_coord_in, farrayPtr=v_in, _RC)
       do k = 1, NZ_IN+1
@@ -506,21 +506,21 @@ contains
       end do
       
       ! After horizontal regrid: 6×6, 10 layers
-      v_coord_horz = MAPL_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_horz = FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       
       ! Output: 6×6, 15 layers
-      v_coord_out = MAPL_FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
+      v_coord_out = FieldCreate(geom_out, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       
       ! Create data fields
-      f_in = MAPL_FieldCreate(geom_in, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_in = FieldCreate(geom_in, name=COUPLER_IMPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      f_horz = MAPL_FieldCreate(geom_out, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
+      f_horz = FieldCreate(geom_out, name=COUPLER_EXPORT_NAME, typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_IN, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
-      f_out = MAPL_FieldCreate(geom_out, name='Q_FINAL', typekind=ESMF_TYPEKIND_R4, &
+      f_out = FieldCreate(geom_out, name='Q_FINAL', typekind=ESMF_TYPEKIND_R4, &
            num_levels=NZ_OUT, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            vert_alignment=VALIGN_DOWN, _RC)
       

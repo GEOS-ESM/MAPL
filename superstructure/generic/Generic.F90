@@ -1,8 +1,7 @@
 module mapl_Generic
-   use mapl_ESMF_Subset_mod
    use mapl_field_api
    use mapl_VariableSpec_mod
-   use mapl_Enums_internal
+   use mapl_enums_api
    use mapl_OuterMetaComponent_mod
    use mapl_GenericGridComp_mod, only: MAPL_GridCompCreate
    use mapl_VerticalGrid_mod
@@ -13,7 +12,7 @@ module mapl_Generic
    use mapl_GriddedComponentDriver_mod
    use mapl_ChildSpec_mod
    use mapl_UserSetServices_mod
-   use mapl_ESMF_HConfigUtilities_mod, only: MAPL_HConfigMatch
+   ! use mapl_esmf_api, only: MAPL_HConfigMatch
    use mapl_VerticalStaggerLoc_mod
    use mapl_geomio
    use mapl_ESMF_Utilities_mod

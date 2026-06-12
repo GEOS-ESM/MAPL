@@ -12,9 +12,9 @@
 module mapl_GridComms_mod
 
    use ESMF, only: ESMF_Grid, ESMF_VM, ESMF_VMGet, ESMF_VMGetCurrent, ESMF_SUCCESS
-   use mapl_ShmemComms_mod, only: mapl_CommRequest, mapl_CreateRequest, &
-                                   mapl_ArrayIGather, mapl_ArrayIScatter, &
-                                   mapl_CollectiveWait, mapl_RoundRobinPEList
+   use mapl_esmf_api, only: mapl_CommRequest, mapl_CreateRequest
+   use mapl_esmf_api, only: mapl_ArrayIGather, mapl_ArrayIScatter
+   use mapl_esmf_api, only: mapl_CollectiveWait, mapl_RoundRobinPEList
    use mapl_GridGetGlobal_mod, only: GridGetGlobalCellCountPerDim
    use mapl_Shmem_mod, only: MAPL_NodeRankList
    use MAPL_Constants, only: MAPL_IsGather, MAPL_IsScatter

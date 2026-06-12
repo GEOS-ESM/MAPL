@@ -26,6 +26,7 @@ set (srcs
   NetCDF_Supplement.F90
   pFIO_Utilities.F90
   pFIO.F90
+  API.F90
 
   AbstractMessage.F90
   MessageVisitor.F90
@@ -95,7 +96,7 @@ if (BUILD_WITH_PFLOGGER)
   find_package (PFLOGGER REQUIRED)
 endif ()
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE SHARED)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.utils MAPL.mp_utils NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE SHARED)
 
 target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 target_include_directories (${this} PUBLIC

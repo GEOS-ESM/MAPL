@@ -53,43 +53,37 @@ contains
          subroutine add_internal_specs(gridcomp, rc)
             type(ESMF_GridComp), intent(inout) :: gridcomp
             integer, intent(out), optional :: rc
-            type(VariableSpec) :: varspec
             integer :: status
-            varspec = make_VariableSpec(state_intent=ESMF_STATEINTENT_INTERNAL, &
-                                        short_name='time_interval' , &
+            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+                                        'time_interval' , &
                                         standard_name='unknown', &
                                         units='unknown', &
                                         vertical_stagger=VERTICAL_STAGGER_NONE, &
                                         fill_value=0.0, _RC)
-            call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-            varspec = make_VariableSpec(state_intent=ESMF_STATEINTENT_INTERNAL, &
-                                        short_name='rand' , &
+            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+                                        'rand' , &
                                         standard_name='randomnumber', &
                                         units='unknown', &
                                         vertical_stagger=VERTICAL_STAGGER_NONE, &
                                         fill_value=0.0, _RC)
-            call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-            varspec = make_VariableSpec(state_intent=ESMF_STATEINTENT_INTERNAL, &
-                                        short_name='grid_lons' , &
+            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+                                        'grid_lons' , &
                                         standard_name='longitude', &
                                         units='degrees_east', &
                                         vertical_stagger=VERTICAL_STAGGER_NONE, &
                                         fill_value=0.0, _RC)
-            call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-            varspec = make_VariableSpec(state_intent=ESMF_STATEINTENT_INTERNAL, &
-                                        short_name='grid_lats' , &
+            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+                                        'grid_lats' , &
                                         standard_name='latitude', &
                                         units='degrees_north', &
                                         vertical_stagger=VERTICAL_STAGGER_NONE, &
                                         fill_value=0.0, _RC)
-            call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
-            varspec = make_VariableSpec(state_intent=ESMF_STATEINTENT_INTERNAL, &
-                                        short_name='quarter_grid' , &
+            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+                                        'quarter_grid' , &
                                         standard_name='quarter_grid', &
                                         units='NA', &
                                         vertical_stagger=VERTICAL_STAGGER_NONE, &
                                         fill_value=0.0, _RC)
-            call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
             _RETURN(_SUCCESS)
 
          end subroutine
@@ -383,7 +377,7 @@ contains
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
             _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_field, _RC)
-            call FieldCopy(source_field, dest_field, _RC)
+            call MAPL_FieldCopy(source_field, dest_field, _RC)
          else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(dest_state, trim(itemNameList(i)), dest_bundle, _RC)
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
@@ -392,7 +386,7 @@ contains
             call MAPL_FieldBundleGet(source_bundle, fieldList=source_field_list, _RC)
             call MAPL_FieldBundleGet(dest_bundle, fieldList=dest_field_list, _RC)
             do j=1,size(source_field_list)
-               call FieldCopy(source_field_list(j), dest_field_list(j), _RC)
+               call MAPL_FieldCopy(source_field_list(j), dest_field_list(j), _RC)
             enddo
          end if
       enddo

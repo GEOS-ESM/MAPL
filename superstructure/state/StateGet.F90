@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_StateGetImpl_mod
+module mapl_StateGet_mod
 
    use mapl_vertical_grid_api
    use mapl_enums_api
@@ -39,7 +39,7 @@ contains
       type(esmf_Field), optional, intent(out) :: field
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       integer, optional, intent(out) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(mapl_VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       character(len=:), optional, allocatable, intent(out) :: units
@@ -137,4 +137,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine state_get_bundle
 
-end module mapl_StateGetImpl_mod
+end module mapl_StateGet_mod

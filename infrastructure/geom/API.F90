@@ -2,12 +2,10 @@
 ! Public API exposed to external consumers.
 module mapl_geom_api
 
-   use ESMF, only: ESMF_Grid, ESMF_Geom, ESMF_KIND_R4
-   use mapl_KeywordEnforcer_mod
    use mapl_MaplGeom_mod, only: MaplGeom
    use mapl_GeomSpec_mod, only: GeomSpec
    use mapl_GeomManager_mod, only: GeomManager, geom_manager, get_geom_manager, get_mapl_geom
-   use mapl_GeomUtilities_mod, only: mapl_SameGeom, mapl_GeomGetId
+   use mapl_GeomUtilities_mod, only: mapl_SameGeom => SameGeom, mapl_GeomGetId => GeomGetId
    use mapl_GeomAccessors_mod, only: mapl_GeomGet => GeomGet
    use mapl_GeomAccessors_mod, only: mapl_GeomGetHorzIJIndex => GeomGetHorzIJIndex
    use mapl_GeomAccessors_mod, only: mapl_GridGetHorzIJIndex => GridGetHorzIJIndex

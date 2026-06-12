@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module Test_StateDestroy
-   use mapl_StateDestroyImpl_mod
+   use mapl_StateDestroy_mod
    use pfunit
    use ESMF_TestMethod_mod
    use esmf
@@ -51,7 +51,7 @@ contains
       _UNUSED_DUMMY(this)
 
       state = ESMF_StateCreate(_RC)
-      call MAPL_StateDestroy(state, destroy_contents=.FALSE., _RC)
+      call StateDestroy(state, destroy_contents=.FALSE., _RC)
       call ESMF_StateValidate(state, rc=status)
       @assertTrue(status /= ESMF_SUCCESS, 'state was not successfully destroyed.')
 
@@ -92,7 +92,7 @@ contains
       @assertEqual(expected_item_count, itemCount, 'The number of items was incorrect.') 
       call ESMF_StateValidate(state, nestedFlag=.TRUE., rc=status)
       @assertFalse(status /= ESMF_SUCCESS, 'The state is invalid.')
-      call MAPL_StateDestroy(state, destroy_contents=.TRUE., _RC)
+      call StateDestroy(state, destroy_contents=.TRUE., _RC)
       call ESMF_StateValidate(state, nestedFlag=.TRUE., rc=status)
       @assertTrue(status /= ESMF_SUCCESS, 'The state was not successfully destroyed.')
 

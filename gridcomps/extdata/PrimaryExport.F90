@@ -14,9 +14,9 @@ module mapl_PrimaryExport_mod
    use mapl_ExtDataRule_mod
    use mapl_ExtDataCollection_mod
    use mapl_ExtDataSample_mod
-   use pfio, only: i_clients
    use VerticalCoordinateMod
-   implicit none
+   use pflogger, only: logger
+   implicit none(type,external)
    private
 
    public PrimaryExport

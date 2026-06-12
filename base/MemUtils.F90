@@ -41,19 +41,19 @@ module mapl_MemUtils_mod
      module procedure memcpy_r8_gather_scatter
   end interface
 
-  interface MAPL_MemUtilsWrite
-     module procedure MAPL_MemUtilsWriteVM
-     module procedure MAPL_MemUtilsWriteComm
+  interface MemUtilsWrite
+     module procedure MemUtilsWriteVM
+     module procedure MemUtilsWriteComm
   end interface
 
-  public MAPL_MemUtilsInit
-  public MAPL_MemUtilsDisable
-  public MAPL_MemUtilsWrite
-  public MAPL_MemUtilsIsDisabled
-  public MAPL_MemUtilsFree
-  public MAPL_MemCommited
-  public MAPL_MemUsed
-  public MAPL_MemReport
+  public MemUtilsInit
+  public MemUtilsDisable
+  public MemUtilsWrite
+  public MemUtilsIsDisabled
+  public MemUtilsFree
+  public MemCommited
+  public MemUsed
+  public MemReport
 
 
 #ifdef sysDarwin
@@ -62,42 +62,39 @@ module mapl_MemUtils_mod
   logical,    save :: DISABLED  = .false.
 #endif
 
-  integer, public, parameter :: MAPL_MemUtilsModeNode = 2
-  integer, public, parameter :: MAPL_MemUtilsModeFull = 1
-  integer, public, parameter :: MAPL_MemUtilsModeBase = 0
-  integer, save      :: MAPL_MemUtilsMode
+  integer, public, parameter :: MemUtilsModeNode = 2
+  integer, public, parameter :: MemUtilsModeFull = 1
+  integer, public, parameter :: MemUtilsModeBase = 0
+  integer, save      :: MemUtilsMode
   real, save :: gmax_save
 
   contains
 
 !********************************************************
-    logical function MAPL_MemUtilsIsDisabled()
-      MAPL_MemUtilsIsDisabled = DISABLED
+    logical function MemUtilsIsDisabled()
+      MemUtilsIsDisabled = DISABLED
 
-    end function MAPL_MemUtilsIsDisabled
+    end function MemUtilsIsDisabled
 
 !********************************************************
 
-    subroutine MAPL_MemUtilsDisable(RC)
+    subroutine MemUtilsDisable(RC)
       integer, optional, intent(OUT)   :: RC
-
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtilsDisable"
 
       DISABLED = .true.
 
       _RETURN(ESMF_SUCCESS)
 
-    end subroutine MAPL_MemUtilsDisable
+    end subroutine MemUtilsDisable
 
 !********************************************************
 
 !********************************************************
 
-    subroutine MAPL_MemUtilsInit(mode,RC)
+    subroutine MemUtilsInit(mode,RC)
       integer, optional, intent(IN )   :: mode
       integer, optional, intent(OUT)   :: RC
 
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtilsInit"
 !initialize memutils module
 !currently sets default cache characteristics
 !(will provide overrides later)
@@ -111,13 +108,13 @@ module mapl_MemUtils_mod
 
       gmax_save = 0.0
       if (present(mode)) then
-         MAPL_MemUtilsMode=mode
+         MemUtilsMode=mode
       else
-         MAPL_memUtilsMode=MAPL_MemUtilsModeBase
+         memUtilsMode=MemUtilsModeBase
       endif
 
       _RETURN(ESMF_SUCCESS)
-    end subroutine MAPL_MemUtilsInit
+    end subroutine MemUtilsInit
 
 !-----------------------------------------------------------------------
 !                                                                      !
@@ -217,13 +214,12 @@ module mapl_MemUtils_mod
     end subroutine memcpy_r8_gather_scatter
 
 
-  subroutine MAPL_MemUtilsWriteVM( vm, text, always, RC )
+  subroutine MemUtilsWriteVM( vm, text, always, RC )
     type(ESMF_VM) :: vm
     character(len=*), intent(in) :: text
     logical, intent(in), optional :: always
     integer, optional, intent(OUT  ) :: RC
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtilsWriteVM"
     integer :: status
 
     integer :: comm
@@ -235,21 +231,21 @@ module mapl_MemUtils_mod
         if( .NOT.always ) then
             _RETURN(ESMF_SUCCESS)
         endif
-        call MAPL_MemUtilsWriteComm(text,comm=comm,always=always,rc=status)
+        call MemUtilsWriteComm(text,comm=comm,always=always,rc=status)
         _VERIFY(STATUS)
     else
         if( DISABLED ) then
             _RETURN(ESMF_SUCCESS)
         endif
-        call MAPL_MemUtilsWriteComm(text,comm=comm,rc=status)
+        call MemUtilsWriteComm(text,comm=comm,rc=status)
         _VERIFY(STATUS)
     end if
 
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_MemUtilsWriteVM
+  end subroutine MemUtilsWriteVM
 
-  subroutine MAPL_MemUtilsWriteComm( text, comm, always, RC )
+  subroutine MemUtilsWriteComm( text, comm, always, RC )
     character(len=*), intent(in) :: text
     integer, optional  :: Comm
     logical, intent(in), optional :: always
@@ -265,7 +261,6 @@ module mapl_MemUtils_mod
     real :: gcommitlimit, gcommitted_as
     integer :: npes
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtilsWriteComm"
     integer :: status
 
     character(len=ESMF_MAXSTR) :: outString
@@ -289,7 +284,7 @@ module mapl_MemUtils_mod
     call mem_dump(mhwm, mrss, memused, swapused, commitlimit, committed_as, _RC)
     call MPI_Comm_Size(comm_,npes,status)
     _VERIFY(status)
-    if (MAPL_MemUtilsMode == MAPL_MemUtilsModeFull) then
+    if (MemUtilsMode == MemUtilsModeFull) then
        lhwm = mhwm; call MPI_AllReduce(lhwm,ghwm,1,MPI_REAL,MPI_MAX,comm_,status)
        _VERIFY(STATUS)
        mmin = mrss; call MPI_AllReduce(mmin,gmin,1,MPI_REAL,MPI_MIN,comm_,status)
@@ -309,20 +304,20 @@ module mapl_MemUtils_mod
        _VERIFY(STATUS)
     end if
 
-    if (MAPL_MemUtilsMode == MAPL_MemUtilsModeFull .or. MAPL_MemUtilsMode == MAPL_MemUtilsModeBase) then
+    if (MemUtilsMode == MemUtilsModeFull .or. MemUtilsMode == MemUtilsModeBase) then
        lmem  = memused;  call MPI_AllReduce(lmem,gmem,1,MPI_REAL,MPI_MAX,comm_,status)
        _VERIFY(STATUS)
        lswap = swapused; call MPI_AllReduce(lswap,gswap,1,MPI_REAL,MPI_MAX,comm_,status)
        _VERIFY(STATUS)
     end if
 
-    if (MAPL_MemUtilsMode == MAPL_MemUtilsModeBase) then
+    if (MemUtilsMode == MemUtilsModeBase) then
        write(outString,'(a64,2es11.3)') &
             'Mem/Swap Used (MB) at '//trim(text)//'=', gmem, gswap
        call WRITE_PARALLEL(trim(outString),format='(a132)')
     end if
 
-    if (MAPL_MemUtilsMode == MAPL_MemUtilsModeFull) then
+    if (MemUtilsMode == MemUtilsModeFull) then
        write(outString,'(a64,5es11.3)') &
             'Memuse(MB) at '//trim(text)//'=', ghwm, gmax, gmin, gavg, gmax-gmax_save
        gmax_save = gmax
@@ -335,7 +330,7 @@ module mapl_MemUtils_mod
        call WRITE_PARALLEL(trim(outString),format='(a132)')
     end if
 
-    if (MAPL_MemUtilsMode == MAPL_MemUtilsModeNode) then
+    if (MemUtilsMode == MemUtilsModeNode) then
        if (MAPL_AmNodeRoot) then
           write(*,'(a64,i3,a2,es11.3)')'Memory use at '//trim(text)//' on node ',MAPL_MyNodeNum,': ',memused
        end if
@@ -343,12 +338,11 @@ module mapl_MemUtils_mod
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_MemUtilsWriteComm
+  end subroutine MemUtilsWriteComm
 
 !#######################################################################
 
-  subroutine MAPL_MemUsed ( memtotal, used, percent_used, RC )
-     use mapl_ErrorHandling_mod, only: MAPL_RTRN
+  subroutine MemUsed ( memtotal, used, percent_used, RC )
      real, intent(out) :: memtotal, used, percent_used
      integer, optional, intent(OUT  ) :: RC
 
@@ -360,14 +354,13 @@ module mapl_MemUtils_mod
      integer :: mem_unit
      real    :: multiplier, available
 
-     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtils:MAPL_MemUsed"
      integer :: status
 
 #ifdef sysDarwin
      memtotal = 0.0
      used = 0.0
      percent_used = 0.0
-     RETURN_(ESMF_SUCCESS)
+     _RETURN(_SUCCESS)
 #else
      available = -1
      memtotal = -1
@@ -386,7 +379,7 @@ module mapl_MemUtils_mod
         memtotal = 0.0
         used = 0.0
         percent_used = 0.0
-        RETURN_(ESMF_SUCCESS)
+        _RETURN(_SUCCESS)
      end if
 
      do
@@ -418,9 +411,9 @@ module mapl_MemUtils_mod
      end if
 
      _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_MemUsed
+  end subroutine MemUsed
 
-subroutine MAPL_MemCommited ( memtotal, committed_as, percent_committed, RC )
+subroutine MemCommited ( memtotal, committed_as, percent_committed, RC )
 
 real, intent(out) :: memtotal, committed_as, percent_committed
 integer, optional, intent(OUT  ) :: RC
@@ -433,7 +426,6 @@ character(len=32) :: string
 integer :: mem_unit
 real    :: multiplier
 
-character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtils:MAPL_MemCommited"
 integer :: status
 
 #ifdef sysDarwin
@@ -457,7 +449,7 @@ integer :: status
      memtotal = 0.0
      committed_as = 0.0
      percent_committed = 0.0
-     RETURN_(ESMF_SUCCESS)
+     _RETURN(_SUCCESS)
   end if
 
   do; read (mem_unit,'(a)', end=20) string
@@ -479,7 +471,7 @@ integer :: status
    percent_committed = 100.0*(committed_as/memtotal)
 
    _RETURN(ESMF_SUCCESS)
-end subroutine MAPL_MemCommited
+end subroutine MemCommited
 
 
 subroutine mem_dump ( memhwm, memrss, memused, swapused, commitlimit, committed_as, RC )
@@ -497,7 +489,6 @@ integer(kind=INT64) :: memtot, memfree, swaptot, swapfree
 integer :: mem_unit
 real    :: multiplier
 
-character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtils:mem_dump"
 integer :: status
 
   memhwm = 0.0
@@ -572,7 +563,7 @@ integer :: status
    _RETURN(ESMF_SUCCESS)
 end subroutine mem_dump
 
-subroutine MAPL_MemUtilsFree ( totmemfree, RC )
+subroutine MemUtilsFree ( totmemfree, RC )
 
 real, intent(out) :: totmemfree
 integer, optional, intent(OUT  ) :: RC
@@ -586,7 +577,6 @@ real    :: memfree, buffers, cached
 integer :: mem_unit
 real    :: multiplier
 
-character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtilsFree"
 integer :: status
 
   totmemfree = 0.0
@@ -623,7 +613,7 @@ integer :: status
   totmemfree = memfree + cached + buffers
 
    _RETURN(ESMF_SUCCESS)
-end subroutine MAPL_MemUtilsFree
+end subroutine MemUtilsFree
 
 subroutine get_unit ( iunit )
   implicit none
@@ -655,7 +645,7 @@ subroutine get_unit ( iunit )
   return
 end subroutine get_unit
 
-subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
+subroutine MemReport(comm,file_name,line,decorator,rc)
    integer, intent(in) :: comm
    character(len=*), intent(in) :: file_name
    integer, intent(in) :: line
@@ -677,12 +667,12 @@ subroutine MAPL_MemReport(comm,file_name,line,decorator,rc)
     else
        extra_message = ""
     end if
-    call MAPL_MemUsed(mem_total,mem_used,percent_used)
-    call MAPL_MemCommited(committed_total,committed,percent_committed)
+    call MemUsed(mem_total,mem_used,percent_used)
+    call MemCommited(committed_total,committed,percent_committed)
     call MPI_Comm_Rank(comm,rank,status)
     _VERIFY(status)
     if (rank == 0) write(*,'("Mem report ",A20," ",A30," ",i7," ",f5.1,"% : ",f5.1,"% Mem Comm:Used")')trim(extra_message),file_name,line,percent_committed,percent_used
 
 end subroutine
 
-end module mapl_MemUtils_mod
+end module MAPL_MemUtils_mod

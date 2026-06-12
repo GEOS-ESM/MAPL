@@ -4,9 +4,11 @@ module mapl_RestartHandler_mod
 
    use esmf
    use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Return, MAPL_Assert
-   use mapl_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio
+   use mapl_SharedIO_mod, only: bundle_to_metadata
+   use mapl_GeomPFIO_mod, only: GeomPFIO
+   use mapl_GeomCategorizer_mod, only: make_geom_pfio
    use mapl_FieldInfo_mod, only: FieldInfoGetInternal
-   use mapl_RestartModes_mod, only: RestartMode, operator(==), MAPL_RESTART_SKIP
+   use mapl_RestartModes_mod, only: RestartMode, operator(==), RESTART_SKIP
    use mapl_state_api, only: MAPL_StateGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleFilter
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
@@ -152,7 +154,7 @@ contains
       call ESMF_InfoGetFromHost(field, info, _RC)
       call ESMF_NamedAliasGet(field, id=alias_id, _RC)
       call FieldInfoGetInternal(info, alias_id, restart_mode, _RC)
-      remove = (restart_mode == MAPL_RESTART_SKIP)
+      remove = (restart_mode == RESTART_SKIP)
 
       _RETURN(_SUCCESS)
    end function predicate_skip_restart_

@@ -5,7 +5,7 @@ module mapl_ServiceClassAspect_mod
    use mapl_field_bundle_api
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
-   use mapl_Enums_internal, only: MAPL_STATEITEM_ALLOCATION_ACTIVE, MAPL_FIELDBUNDLETYPE_SERVICE
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ACTIVE, MAPL_FIELDBUNDLETYPE_SERVICE
    use mapl_ClassAspect_mod
    use mapl_FieldClassAspect_mod
    use mapl_StateRegistry_mod
@@ -21,7 +21,7 @@ module mapl_ServiceClassAspect_mod
    use mapl_ErrorHandling_mod
    use gftl2_StringVector
    use esmf
-   ! (FieldBundleType_Flag symbols now from mapl_Enums_internal above)
+   ! (FieldBundleType_Flag symbols now from mapl_enums_api above)
 
    implicit none(type,external)
    private

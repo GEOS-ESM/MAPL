@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 module pFIO_MpiServerMod
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_Profiler_mod
    use pFIO_AbstractDirectoryServiceMod
    use pFIO_ServerThreadMod

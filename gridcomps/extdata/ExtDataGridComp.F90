@@ -4,20 +4,17 @@ module mapl_ExtDataGridComp_mod
 
    use MAPL
    use esmf
-   use pfio
    use mapl_ExtDataGridComp_private_mod
-   use MAPL
-   use MAPL
    use mapl_ExtDataConfig_mod
    use mapl_PrimaryExportVector_mod
    use mapl_PrimaryExport_mod
-   use MAPL
    use mapl_AbstractDataSetFileSelector_mod
+   use mapl_ExtDataReader_mod
    use gftl2_StringStringMap
    use gftl2_IntegerVector
+   use gftl2_StringIntegerMap
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
-   use mapl_ExtDataReader_mod
-
+   use pflogger
    implicit none(type,external)
    private
 

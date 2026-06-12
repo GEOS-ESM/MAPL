@@ -56,7 +56,6 @@ Notable source modules and their key exported entities:
 
 | Source module | Key public entities |
 |---|---|
-| `mapl_ESMF_Subset_mod` | See **ESMF Subset** section below |
 | `mapl_Generic_mod` | `MAPL_GridCompGet`, `MAPL_GridCompSet`, `MAPL_GridCompAddChild`, `MAPL_GridCompAddVarSpec`, `MAPL_GridCompIsGeneric`, `MAPL_GridCompIsUser`, `MAPL_GridCompSetEntryPoint`, `MAPL_GridCompRunChild`, `MAPL_GridCompRunChildren`, `MAPL_GridCompGetInternalState`, `MAPL_GridCompSetGeometry`, `MAPL_GridCompSetGeom`, `MAPL_GridCompSetVerticalGrid`, `MAPL_GridCompAddConnection`, `MAPL_GridCompReexport`, `MAPL_GridCompConnectAll`, `MAPL_GridCompTimerStart`, `MAPL_GridCompTimerStop`, `MAPL_ClockGet`, `MAPL_UserCompGetInternalState`, `MAPL_UserCompSetInternalState` |
 | `mapl_VariableSpec_mod` | `VariableSpec` (type) |
 | `mapl_GenericPhases_mod` | phase constants/types |
@@ -737,9 +736,6 @@ Also exports module-level variable: `debug_unit` (integer, save).
 | `MAPL_Return` | subroutine |
 | `MAPL_Deprecated` | subroutine |
 | `MAPL_SetFailOnDeprecated` | subroutine |
-| `MAPL_RTRN` | interface |
-| `MAPL_Vrfy` | interface |
-| `MAPL_ASRT` | interface |
 | `MAPL_abort` | subroutine |
 | `MAPL_set_abort_handler` | subroutine |
 | `MAPL_SUCCESS` | enumerator (= 0) |
@@ -1012,7 +1008,7 @@ No `private`; itself a package re-exporter of ~30 sub-modules. Two names are ren
 
 ---
 
-### `mapl_ExceptionHandling_mod` — `utils/ErrorHandling.F90`
+### `mapl_ErrorHandling_mod` — `utils/ErrorHandling.F90`
 
 Same file as `mapl_ErrorHandling_mod`; exports the identical set of entities (see `mapl_ErrorHandling_mod` above).
 
@@ -1146,92 +1142,6 @@ Same file as `mapl_ErrorHandling_mod`; exports the identical set of entities (se
 | `MAPL_pybridge_gcrun_with_internal` | subroutine |
 | `MAPL_pybridge_gcinit` | subroutine |
 | `MAPL_pybridge_gcfinalize` | subroutine |
-
----
-
-## ESMF Subset: `mapl_ESMF_Subset_mod` — `infrastructure/esmf/ESMF_Subset.F90`
-
-This module provides a controlled, curated subset of ESMF entities so that MAPL components
-use MAPL wrappers instead of `use ESMF` directly. It is used by `generic3g`, which is used
-by the MAPL umbrella — all entities below are therefore visible through `use MAPL`.
-
-No renames — all entities are re-exported under their original ESMF names.
-
-### Types
-
-| Name |
-|---|
-| `ESMF_VM` |
-| `ESMF_Clock` |
-| `ESMF_Alarm` |
-| `ESMF_Time` |
-| `ESMF_TimeInterval` |
-| `ESMF_Config` |
-| `ESMF_Geom` |
-| `ESMF_Grid` |
-| `ESMF_Mesh` |
-| `ESMF_LocStream` |
-| `ESMF_Xgrid` |
-| `ESMF_Field` |
-| `ESMF_FieldBundle` |
-| `ESMF_State` |
-| `ESMF_HConfig` |
-| `ESMF_HConfigIter` |
-| `ESMF_GridComp` |
-| `ESMF_Info` |
-
-### Parameters / Constants
-
-| Name | Type |
-|---|---|
-| `ESMF_SUCCESS` | integer |
-| `ESMF_FAILURE` | integer |
-| `ESMF_METHOD_INITIALIZE` | integer |
-| `ESMF_METHOD_RUN` | integer |
-| `ESMF_METHOD_FINALIZE` | integer |
-| `ESMF_STATEINTENT_IMPORT` | `ESMF_StateIntent_Flag` |
-| `ESMF_STATEINTENT_EXPORT` | `ESMF_StateIntent_Flag` |
-| `ESMF_CALKIND_GREGORIAN` | `ESMF_CalKind_Flag` |
-
-### Subroutines / Functions
-
-| Name |
-|---|
-| `ESMF_TimePrint` |
-| `ESMF_TimeSet` |
-| `ESMF_CalendarSetDefault` |
-| `ESMF_HConfigAsStringMapKey` |
-| `ESMF_HConfigAsString` |
-| `ESMF_HConfigCreate` |
-| `ESMF_HConfigCreateAt` |
-| `ESMF_HConfigDestroy` |
-| `ESMF_HConfigIsDefined` |
-| `ESMF_HConfigIterBegin` |
-| `ESMF_HConfigIterEnd` |
-| `ESMF_HConfigIterLoop` |
-| `ESMF_HConfigGetSize` |
-| `ESMF_VMGet` |
-| `ESMF_VMGetCurrent` |
-| `ESMF_ClockCreate` |
-| `ESMF_ClockGet` |
-| `ESMF_InfoGetFromHost` |
-| `ESMF_InfoGet` |
-| `ESMF_InfoIsSet` |
-
-### Operators
-
-| Operator | Operand types |
-|---|---|
-| `operator(+)` | `ESMF_Time`, `ESMF_TimeInterval` arithmetic |
-| `operator(-)` | `ESMF_Time`, `ESMF_TimeInterval` arithmetic |
-| `operator(/)` | `ESMF_TimeInterval` arithmetic |
-| `operator(*)` | `ESMF_TimeInterval` arithmetic |
-| `operator(==)` | `ESMF_Time`, `ESMF_TimeInterval` comparison |
-| `operator(/=)` | `ESMF_Time`, `ESMF_TimeInterval` comparison |
-| `operator(<)` | `ESMF_Time`, `ESMF_TimeInterval` comparison |
-| `operator(<=)` | `ESMF_Time`, `ESMF_TimeInterval` comparison |
-| `operator(>)` | `ESMF_Time`, `ESMF_TimeInterval` comparison |
-| `operator(>=)` | `ESMF_Time`, `ESMF_TimeInterval` comparison |
 
 ---
 

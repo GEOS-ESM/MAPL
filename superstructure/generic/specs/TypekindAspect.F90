@@ -11,7 +11,7 @@ module mapl_TypekindAspect_mod
    use mapl_field_api
    use mapl_field_bundle_api
    use mapl_ErrorHandling_mod
-   use mapl_ESMF_Utilities_mod, only: MAPL_TYPEKIND_MIRROR
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use esmf
 
    implicit none(type,external)

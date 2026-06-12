@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 module mapl_StateFilter_mod
    use ESMF
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_FieldUtils
    use mapl_StateArithmeticParser_mod
    use mapl_StateMask_mod
@@ -38,8 +38,8 @@ module mapl_StateFilter_mod
 
       call ESMF_StateGet(state, itemName, old_field, _RC)
       call ESMF_FieldGet(old_field, typeKind=tk, rank=rank, _RC) 
-      _ASSERT(tk==ESMF_TYPEKIND_R4,"wrong typekind when call MAPL_StateFilter")
-      _ASSERT(rank==2,"wrong rank when call MAPL_StateFilter")
+      _ASSERT(tk==ESMF_TYPEKIND_R4,"wrong typekind when call StateFilter")
+      _ASSERT(rank==2,"wrong rank when call StateFilter")
 
       call ESMF_FieldGet(old_field, 0, farrayPtr=ptr2d_old, _RC)
       allocate(array( lbound(ptr2d_old,1):ubound(ptr2d_old,1) , lbound(ptr2d_old,2):ubound(ptr2d_old,2) ),  _STAT) 
@@ -64,7 +64,7 @@ module mapl_StateFilter_mod
          mask = StateMask(processed_expression)
          call mask%evaluate_mask(state, new_field, _RC)
       else
-         call MAPL_StateEval(state, processed_expression, new_field, _RC)
+         call StateEval(state, processed_expression, new_field, _RC)
       end if
       array = ptr2d_new
 
@@ -91,8 +91,8 @@ module mapl_StateFilter_mod
 
       call ESMF_StateGet(state, itemName, old_field, _RC)
       call ESMF_FieldGet(old_field, typeKind=tk, rank=rank, _RC) 
-      _ASSERT(tk==ESMF_TYPEKIND_R4,"wrong typekind when call MAPL_StateFilter")
-      _ASSERT(rank==3,"wrong rank when call MAPL_StateFilter")
+      _ASSERT(tk==ESMF_TYPEKIND_R4,"wrong typekind when call StateFilter")
+      _ASSERT(rank==3,"wrong rank when call StateFilter")
 
       call ESMF_FieldGet(old_field, 0, farrayPtr=ptr3d_old, _RC)
       allocate(array( lbound(ptr3d_old,1):ubound(ptr3d_old,1) , lbound(ptr3d_old,2):ubound(ptr3d_old,2), lbound(ptr3d_old,3):ubound(ptr3d_old,3) ),  _STAT) 
@@ -117,7 +117,7 @@ module mapl_StateFilter_mod
          mask = StateMask(processed_expression)
          call mask%evaluate_mask(state, new_field, _RC)
       else
-         call MAPL_StateEval(state, processed_expression, new_field, _RC)
+         call StateEval(state, processed_expression, new_field, _RC)
       end if
       array = ptr3d_new
 

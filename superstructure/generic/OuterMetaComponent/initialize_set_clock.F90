@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) initialize_set_clock_smod
-   use mapl_Enums_internal, only: MAPL_GENERIC_INIT_SET_CLOCK
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_SET_CLOCK
    use mapl_ComponentDriver_mod
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ESMF_Time_Utilities_mod

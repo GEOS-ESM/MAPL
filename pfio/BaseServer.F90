@@ -6,7 +6,7 @@ module pFIO_BaseServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use pFIO_UtilitiesMod, only: word_size, i_to_string
    use pFIO_ConstantsMod
    use pFIO_ServerThreadMod

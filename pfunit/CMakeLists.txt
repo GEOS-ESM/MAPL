@@ -11,7 +11,7 @@ set (srcs
 esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs} NOINSTALL TYPE SHARED)
 
 target_link_libraries (${this}
-  MAPL MAPL.shared
+  MAPL
   PFUNIT::pfunit
   ESMF::ESMF
   NetCDF::NetCDF_Fortran

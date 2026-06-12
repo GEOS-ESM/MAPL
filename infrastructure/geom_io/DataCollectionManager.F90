@@ -7,11 +7,11 @@ private
 type(DataCollectionVector), target :: DataCollections
 
 public DataCollections
-public mapl_AddDataCollection
+public AddDataCollection
 
 contains
 
-  function mapl_AddDataCollection(template) result(id)
+  function AddDataCollection(template) result(id)
      character(len=*), intent(in) :: template
       integer :: n
       logical :: found
@@ -42,6 +42,6 @@ contains
 
       id = n
 
-   end function mapl_AddDataCollection
+   end function AddDataCollection
 
 end module 

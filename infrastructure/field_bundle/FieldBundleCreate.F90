@@ -1,11 +1,11 @@
 #include "MAPL.h"
 
-module mapl_FieldBundleCreateImpl_mod
+module mapl_FieldBundleCreate_mod
 
-   use mapl_Enums_internal, only: MAPL_FieldBundleType_Flag, &
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, &
         MAPL_FIELDBUNDLETYPE_BASIC, MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_VECTORBRACKET, &
         MAPL_VECTOR_BASIS_KIND_NS, operator(==)
-   use mapl_FieldBundleSetImpl_mod, only: FieldBundleSet
+   use mapl_FieldBundleSet_mod, only: FieldBundleSet
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use esmf
@@ -123,4 +123,4 @@ contains
       _RETURN(_SUCCESS)
    end function bundles_are_aliased
 
-end module mapl_FieldBundleCreateImpl_mod
+end module mapl_FieldBundleCreate_mod

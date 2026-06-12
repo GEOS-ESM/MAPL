@@ -4,8 +4,7 @@ esma_set_this (OVERRIDE MAPL.mp_utils)
 # Depends on MAPL.utils + MPI. ESMF-dependent files absorbed from base3g/.
 
 set (srcs
-    # Layer umbrellas (Internal must precede Export)
-    Internal.F90
+    # Layer umbrella
     API.F90
     # MPI error handling
     MAPL_MpiErrorHandling.F90
@@ -104,17 +103,6 @@ target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/
 target_include_directories (${this} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-
-# Backward-compatibility alias for consumers linking MAPL.profiler
-add_library (MAPL.profiler INTERFACE)
-target_link_libraries (MAPL.profiler INTERFACE MAPL.mp_utils)
-install (TARGETS MAPL.profiler EXPORT MAPL-targets)
-
-# Backward-compatibility alias for consumers linking MAPL.shared
-# TODO: retire once all consumer repos link MAPL.utils or MAPL.mp_utils directly (#4942)
-add_library (MAPL.shared INTERFACE)
-target_link_libraries (MAPL.shared INTERFACE MAPL.mp_utils)
-install (TARGETS MAPL.shared EXPORT MAPL-targets)
 
 add_subdirectory (profiler/examples)
 if (PFUNIT_FOUND)

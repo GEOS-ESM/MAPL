@@ -1,11 +1,11 @@
 esma_set_this (OVERRIDE MAPL.GeomIO)
 
 set(srcs
-  GeomIO.F90 # package
+  API.F90 # package
   SharedIO.F90
-  Geom_PFIO.F90
-  Grid_PFIO.F90
-  GeomCatagorizer.F90
+  GeomPFIO.F90
+  GridPFIO.F90
+  GeomCategorizer.F90
   pFIOServerBounds.F90
   DataCollection.F90
   DataCollectionVector.F90
@@ -17,7 +17,7 @@ set(srcs
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.field MAPL.field_bundle MAPL.geom MAPL.pfio MAPL.base MAPL.shared MAPL.esmf_utils MAPL.hconfig_utils MAPL.regridder_mgr GFTL::gftl-v2
+  DEPENDENCIES MAPL.field MAPL.field_bundle MAPL.geom MAPL.pfio MAPL.base MAPL.utils MAPL.esmf MAPL.regridder_mgr GFTL::gftl-v2
   TYPE SHARED
   )
 

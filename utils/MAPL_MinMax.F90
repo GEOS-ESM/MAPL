@@ -10,7 +10,7 @@ module mapl_MinMax_mod
    type IntegerMinMax
       integer :: min
       integer :: max
-    end type IntegerMinMax
+   end type IntegerMinMax
 
    type RealMinMax
       real(kind=REAL32) :: min

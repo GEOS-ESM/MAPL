@@ -10,20 +10,20 @@ module mapl_LoadBalance_mod
 
   use MAPL_Constants, only : MAPL_R8
   use mapl_Sort_mod
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use mpi
   implicit none
   private
 
-  public MAPL_BalanceWork
-  public MAPL_BalanceCreate
-  public MAPL_BalanceDestroy
-  public MAPL_BalanceGet
+  public BalanceWork
+  public BalanceCreate
+  public BalanceDestroy
+  public BalanceGet
 
-  interface MAPL_BalanceWork
-     module procedure MAPL_BalanceWork4
-     module procedure MAPL_BalanceWork8
-  end interface MAPL_BalanceWork
+  interface BalanceWork
+     module procedure BalanceWork4
+     module procedure BalanceWork8
+  end interface BalanceWork
   integer, public, parameter :: MAPL_Distribute = 1
   integer, public, parameter :: MAPL_Retrieve   = 2
 
@@ -48,7 +48,7 @@ module mapl_LoadBalance_mod
 !      LOGICAL MASK(IM,JM)
 !      ...
 !      LENGTH = COUNT(MASK)
-!      IRUN   = MAPL_BalanceCreate(LENGTH)
+!      IRUN   = BalanceCreate(LENGTH)
 !      IDIM   = max(length,irun)
 !
 !      allocate(AT(IDIM,LM),BT(IDIM),CT(IDIM,LM)
@@ -61,8 +61,8 @@ module mapl_LoadBalance_mod
 !
 !!! DISTRIBUTE THE INPUTS
 !
-!      CALL MAPL_BalanceWork(AT,IDIM,LM,Direction=MAPL_Distribute)
-!      CALL MAPL_BalanceWork(BT,IDIM,1 ,Direction=MAPL_Distribute)
+!      CALL BalanceWork(AT,IDIM,LM,Direction=MAPL_Distribute)
+!      CALL BalanceWork(BT,IDIM,1 ,Direction=MAPL_Distribute)
 !
 !!! PLUG COMPATIBLE ROUTINE AT(IN), BT(INOUT), CT(OUT)
 !
@@ -70,8 +70,8 @@ module mapl_LoadBalance_mod
 !
 !!! RETRIEVE THE OUTPUTS
 !
-!      CALL MAPL_BalanceWork(CT,IDIM,LM,Direction=MAPL_Retrieve)
-!      CALL MAPL_BalanceWork(BT,IDIM, 1,Direction=MAPL_Retrieve)
+!      CALL BalanceWork(CT,IDIM,LM,Direction=MAPL_Retrieve)
+!      CALL BalanceWork(BT,IDIM, 1,Direction=MAPL_Retrieve)
 !
 !      B = UNPACK(BT(1:LENGTH),MASK,B)
 !
@@ -88,17 +88,17 @@ contains
 !>
 ! Depending on the argument "Direction", this performs the actual distribution
 ! of work or the gathering of results for a given strategy. The strategy has to
-! have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
+! have been predefined by a call to BalanceCreate. A strategy "Handle"
 ! obtained from that call can be optionally used to specify the strategy. Otherwise,
-! a default strategy is assumed (see MAPL_BalanceCreate for details).
+! a default strategy is assumed (see BalanceCreate for details).
 ! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
 ! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
 ! The blocksize of A (Idim) must be at least as large as the BufLen associated
 ! with the strategy. This size can be obtained by quering the strategy using
-! its handle or be saving it from the MAPL_BalanceCreate call. Again, see
-! MAPL_BalanceCreate for details.
+! its handle or be saving it from the BalanceCreate call. Again, see
+! BalanceCreate for details.
 
-  subroutine MAPL_BalanceWork4(A, Idim, Direction, Handle, rc)
+  subroutine BalanceWork4(A, Idim, Direction, Handle, rc)
     real,              intent(INOUT) :: A(:)
     integer,           intent(IN   ) :: Idim, Direction
     integer, optional, intent(IN   ) :: Handle
@@ -189,23 +189,23 @@ contains
     end if
 
     _RETURN(LDB_SUCCESS)
-  end subroutine MAPL_BalanceWork4
+  end subroutine BalanceWork4
 
 !---------------------------------------------------------------------------
 !>
 ! Depending on the argument "Direction", this performs the actual distribution
 ! of work or the gathering of results for a given strategy. The strategy has to
-! have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
+! have been predefined by a call to BalanceCreate. A strategy "Handle"
 ! obtained from that call can be optionally used to specify the strategy. Otherwise,
-! a default strategy is assumed (see MAPL_BalanceCreate for details).
+! a default strategy is assumed (see BalanceCreate for details).
 ! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
 ! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
 ! The blocksize of A (Idim) must be at least as large as the BufLen associated
 ! with the strategy. This size can be obtained by quering the strategy using
-! its handle or be saving it from the MAPL_BalanceCreate call. Again, see
-! MAPL_BalanceCreate for details.
+! its handle or be saving it from the BalanceCreate call. Again, see
+! BalanceCreate for details.
 
-  subroutine MAPL_BalanceWork8(A, Idim, Direction, Handle, rc)
+  subroutine BalanceWork8(A, Idim, Direction, Handle, rc)
     real(kind=MAPL_R8), intent(INOUT) :: A(:)
     integer,            intent(IN   ) :: Idim, Direction
     integer, optional,  intent(IN   ) :: Handle
@@ -296,7 +296,7 @@ contains
     end if
 
     _RETURN(LDB_SUCCESS)
-  end subroutine MAPL_BalanceWork8
+  end subroutine BalanceWork8
 
 !---------------------------------------------------------------------------
 !>
@@ -313,7 +313,7 @@ contains
 ! will most likely be the communicator from the ESMF VM.
 !@endnote
 !
-  subroutine MAPL_BalanceCreate(OrgLen, Comm, MaxPasses, BalCond, &
+  subroutine BalanceCreate(OrgLen, Comm, MaxPasses, BalCond, &
                                 Handle, BalLen, BufLen, rc)
 
     integer,           intent(IN)  :: OrgLen
@@ -484,11 +484,11 @@ contains
 
     end subroutine CreateStrategy
 
-  end subroutine MAPL_BalanceCreate
+  end subroutine BalanceCreate
 
 !---------------------------------------------------------------------------
 
-  subroutine MAPL_BalanceDestroy(Handle, rc)
+  subroutine BalanceDestroy(Handle, rc)
     integer, optional, intent(IN ) :: Handle
     integer, optional, intent(OUT) :: rc
 
@@ -516,11 +516,11 @@ contains
     THE_STRATEGIES(Handle_)%COMM              =-1
 
     _RETURN(LDB_SUCCESS)
-  end subroutine MAPL_BalanceDestroy
+  end subroutine BalanceDestroy
 
 !---------------------------------------------------------------------------
 
-  subroutine MAPL_BalanceGet(Handle, BalLen, BufLen, Passes, Comm, rc)
+  subroutine BalanceGet(Handle, BalLen, BufLen, Passes, Comm, rc)
     integer,           intent(IN ) :: Handle
     integer, optional, intent(OUT) :: BalLen, BufLen, Passes, Comm
     integer, optional, intent(OUT) :: rc
@@ -540,6 +540,6 @@ contains
          Comm   = THE_STRATEGIES(Handle)%COMM
 
     _RETURN(LDB_SUCCESS)
-  end subroutine MAPL_BalanceGet
+  end subroutine BalanceGet
 
 end module mapl_LoadBalance_mod

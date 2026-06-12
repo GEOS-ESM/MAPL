@@ -23,13 +23,7 @@
 ! !USES:
 !
    Use ESMF
-   use MAPL, only: MAPL_FieldCreate
-   use MAPL, only: MAPL_FieldBundleAdd
    Use MAPL
-   use MAPL, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
-   use MAPL, only: MAPL_GridGet, MAPL_GridGetCoordinates
-   use MAPL, only: MAPL_StateGetPointer
-   use MAPL, only: MAPL_FieldBundleGetPointer
 
    IMPLICIT NONE
    PRIVATE
@@ -138,7 +132,7 @@ CONTAINS
              short_name=trim(self%Instrument(i)%str) , &
              standard_name=trim(self%Instrument(i)%str) , &
              dims="xy", &
-             vstagger=VERTICAL_STAGGER_NONE, &
+             vertical_stagger=VERTICAL_STAGGER_NONE, &
              units="days" , &
                _RC)
     enddo
@@ -148,7 +142,7 @@ CONTAINS
          short_name="SATORB", &
          standard_name="Satellite_orbits", &
          dims="xy", &
-         vstagger=VERTICAL_STAGGER_NONE, &
+         vertical_stagger=VERTICAL_STAGGER_NONE, &
          units="days" , &
          itemtype=MAPL_STATEITEM_FIELDBUNDLE, _RC)
 

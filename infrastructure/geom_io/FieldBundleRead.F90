@@ -6,7 +6,7 @@ module mapl_FieldBundleRead_mod
    use mapl_enums_api
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
-   use mapl_GeomCatagorizer_mod
+   use mapl_GeomCategorizer_mod
    use mapl_geom_api, only: GeomManager, MaplGeom, get_geom_manager, get_mapl_geom, MAPL_SameGeom
    use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet, MAPL_FieldBundleAdd
@@ -25,7 +25,7 @@ module mapl_FieldBundleRead_mod
    implicit none(type, external)
    private
 
-   public :: MAPL_read_bundle
+   public :: read_bundle
    public :: FieldBundlePopulate
 
 contains
@@ -229,7 +229,7 @@ contains
    !                   share the same schema (optional)
    !   rc            - Return code (optional)
    !---------------------------------------------------------------------------
-    subroutine MAPL_read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
+    subroutine read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
          noread, file_override, rc)
       type(ESMF_FieldBundle), intent(inout) :: bundle
       character(*),           intent(in)    :: file_tmpl
@@ -389,6 +389,6 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine mapl_read_bundle
+   end subroutine read_bundle
 
 end module mapl_FieldBundleRead_mod

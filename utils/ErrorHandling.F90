@@ -11,9 +11,6 @@ module mapl_ErrorHandling_mod
    public :: MAPL_Deprecated
    public :: MAPL_SetFailOnDeprecated
    ! Legacy
-   public :: MAPL_RTRN
-   public :: MAPL_Vrfy
-   public :: MAPL_ASRT
    public :: MAPL_abort
    public :: MAPL_set_abort_handler
 
@@ -60,21 +57,6 @@ module mapl_ErrorHandling_mod
       module procedure MAPL_Assert_condition
       module procedure MAPL_Assert_return_code
    end interface MAPL_Assert
-
-   interface MAPL_VRFY
-      module procedure MAPL_VRFY
-      module procedure MAPL_VRFYt
-   end interface MAPL_VRFY
-
-   interface MAPL_ASRT
-      module procedure MAPL_ASRT
-      module procedure MAPL_ASRTt
-   end interface MAPL_ASRT
-
-   interface MAPL_RTRN
-      module procedure MAPL_RTRN
-      module procedure MAPL_RTRNt
-   end interface MAPL_RTRN
 
    logical, save :: FAIL_ON_DEPRECATED = .false.
 
@@ -200,90 +182,6 @@ contains
    end subroutine MAPL_SetFailOnDeprecated
 
 
-   logical function MAPL_RTRN(A,iam,line,rc)
-      integer,           intent(IN ) :: A
-      character(len=*),  intent(IN ) :: iam
-      integer,           intent(IN ) :: line
-      integer, optional, intent(OUT) :: RC
-
-        MAPL_RTRN = .true.
-        !$omp critical (MAPL_ErrorHandling5)
-        if(A/=0) print '(A40,I10)',Iam,line
-        !$omp end critical (MAPL_ErrorHandling5)
-        if(present(RC)) RC=A
-   end function MAPL_RTRN
-
-   logical function MAPL_VRFY(A,iam,line,rc)
-      integer,           intent(IN ) :: A
-      character(len=*),  intent(IN ) :: iam
-      integer,           intent(IN ) :: line
-      integer, optional, intent(OUT) :: RC
-        MAPL_VRFY = A/=0
-        if(MAPL_VRFY)then
-          if(present(RC)) then
-            !$omp critical (MAPL_ErrorHandling6)
-            print '(A40,I10)',Iam,line
-            !$omp end critical (MAPL_ErrorHandling6)
-            RC=A
-          endif
-        endif
-   end function MAPL_VRFY
-
-   logical function MAPL_ASRT(A,iam,line,rc)
-      logical,           intent(IN ) :: A
-      character(len=*),  intent(IN ) :: iam
-      integer,           intent(IN ) :: line
-      integer, optional, intent(OUT) :: RC
-        MAPL_ASRT = .not.A
-        if(MAPL_ASRT)then
-          if(present(RC))then
-            !$omp critical (MAPL_ErrorHandling7)
-            print '(A40,I10)',Iam,LINE
-            !$omp end critical (MAPL_ErrorHandling7)
-            RC=1
-          endif
-        endif
-   end function MAPL_ASRT
-
-   logical function MAPL_ASRTt(A,text,iam,line,rc)
-      logical,           intent(IN ) :: A
-      character(len=*),  intent(IN ) :: iam,text
-      integer,           intent(IN ) :: line
-      integer, optional, intent(OUT) :: RC
-        MAPL_ASRTt =   MAPL_ASRT(A,iam,line,rc)
-        !$omp critical (MAPL_ErrorHandling8)
-        if(MAPL_ASRTt) print *, text
-        !$omp end critical (MAPL_ErrorHandling8)
-   end function MAPL_ASRTT
-
-   logical function MAPL_RTRNt(A,text,iam,line,rc)
-      integer,           intent(IN ) :: A
-      character(len=*),  intent(IN ) :: text,iam
-      integer,           intent(IN ) :: line
-      integer, optional, intent(OUT) :: RC
-
-        MAPL_RTRNt = .true.
-        if(A/=0)then
-           !$omp critical (MAPL_ErrorHandling9)
-           print '(A40,I10)',Iam,line
-           print *, text
-           !$omp end critical (MAPL_ErrorHandling9)
-        end if
-        if(present(RC)) RC=A
-
-   end function MAPL_RTRNT
-
-   logical function MAPL_VRFYt(A,text,iam,line,rc)
-      integer,           intent(IN ) :: A
-      character(len=*),  intent(IN ) :: iam,text
-      integer,           intent(IN ) :: line
-      integer, optional, intent(OUT) :: RC
-        MAPL_VRFYt =  MAPL_VRFY(A,iam,line,rc)
-        !$omp critical (MAPL_ErrorHandling10)
-        if(MAPL_VRFYt) print *, text
-        !$omp end critical (MAPL_ErrorHandling10)
-   end function MAPL_VRFYT
-
    subroutine MAPL_set_abort_handler(handler)
       procedure(abort_handler_interface) :: handler
       abort_handler => handler
@@ -339,6 +237,3 @@ contains
   end function get_error_message
 
 end module mapl_ErrorHandling_mod
-module mapl_ExceptionHandling_mod
-   use mapl_ErrorHandling_mod
-end module mapl_ExceptionHandling_mod

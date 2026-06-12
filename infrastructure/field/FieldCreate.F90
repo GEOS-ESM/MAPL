@@ -1,43 +1,42 @@
 #include "MAPL.h"
 
-module mapl_FieldCreateImpl_mod
+module mapl_FieldCreate_mod
 
    use mapl_vertical_grid_api, only: VerticalGrid, BasicVerticalGrid, BasicVerticalGridSpec
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalAlignment_mod
    use mapl_FieldInfo_mod
-   use mapl_FieldSetImpl_mod
-   use mapl_FieldGetImpl_mod
+   use mapl_FieldSet_mod
+   use mapl_FieldGet_mod
    use mapl_UngriddedDims_mod
    use mapl_HorizontalDimsSpec_mod
-   use mapl_Enums_internal, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_LU_Bound_mod
-   use mapl_FieldFillImpl_mod, only: FieldFill
+   use mapl_FieldFill_mod, only: FieldFill
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
-   use mapl_InternalConstants_mod, only: MAPL_UNDEFINED_REAL
-   use esmf, MAPL_FieldEmptyCreate => ESMF_FieldEmptyCreate
+   use esmf, FieldEmptyCreate => ESMF_FieldEmptyCreate
 
    implicit none(type,external)
    private
 
-   public :: MAPL_FieldCreate
-   public :: MAPL_FieldEmptyComplete
-   public :: MAPL_FieldsAreAliased
+   public :: FieldCreate
+   public :: FieldEmptyComplete
+   public :: FieldsAreAliased
 
-   interface MAPL_FieldCreate
+   interface FieldCreate
       procedure :: field_create
       procedure :: field_create_legacy  ! DEPRECATED: Use vgrid parameter instead of num_levels
-   end interface MAPL_FieldCreate
+   end interface FieldCreate
 
-   interface MAPL_FieldEmptyComplete
+   interface FieldEmptyComplete
       procedure :: field_empty_complete_from_info
       procedure :: field_empty_complete
-   end interface MAPL_FieldEmptyComplete
+   end interface FieldEmptyComplete
 
-   interface MAPL_FieldsAreAliased
+   interface FieldsAreAliased
       procedure :: fields_are_aliased
-   end interface MAPL_FieldsAreAliased
+   end interface FieldsAreAliased
 
 
    ! internal
@@ -77,7 +76,7 @@ contains
       integer :: num_levels
       integer :: status
 
-      field = MAPL_FieldEmptyCreate(name=name, _RC)
+      field = FieldEmptyCreate(name=name, _RC)
       call vertical_level_sanity_check(vgrid, vert_staggerloc, _RC)
 
       ungrd = UngriddedDims()
@@ -90,7 +89,7 @@ contains
       end if
 
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
-      call MAPL_FieldEmptyComplete(field, &
+      call FieldEmptyComplete(field, &
            typekind=typekind, gridToFieldMap=gridToFieldMap, ungridded_dims=ungrd, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
            units=units, standard_name=standard_name, long_name=long_name, &
@@ -366,4 +365,4 @@ contains
       _RETURN(_SUCCESS)
    end function fields_are_aliased
 
-end module mapl_FieldCreateImpl_mod
+end module mapl_FieldCreate_mod

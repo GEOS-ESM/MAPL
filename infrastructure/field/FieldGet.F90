@@ -1,14 +1,9 @@
 #include "MAPL.h"
 
-module mapl_FieldGetImpl_mod
-
+module mapl_FieldGet_mod
+   use mapl_enums_api
    use mapl_vertical_grid_api
-   use mapl_VerticalAlignment_mod
    use mapl_FieldInfo_mod
-   use mapl_Enums_internal, only: MAPL_StateItemAllocation
-   use mapl_QuantityTypeMetadata_mod
-   use mapl_NormalizationMetadata_mod
-   use mapl_ConservationMetadata_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
    use mapl_UngriddedDims_mod
@@ -27,18 +22,18 @@ module mapl_FieldGetImpl_mod
 contains
 
    subroutine field_get(field, unusable, &
-         short_name, typekind, &
-         geom, horizontal_dims_spec, &
-         vgrid, num_levels, num_layers, vert_staggerloc, vert_alignment, num_vgrid_levels, &
-         ungridded_dims, &
-         quantity_type_metadata, &
-         normalization_metadata, &
+        short_name, typekind, &
+        geom, horizontal_dims_spec, &
+        vgrid, num_levels, num_layers, vert_staggerloc, vert_alignment, num_vgrid_levels, &
+        ungridded_dims, &
+        quantity_type_metadata, &
+        normalization_metadata, &
         conservation_metadata, &
         units, standard_name, long_name, &
         allocation_status, &
         has_deferred_aspects, &
         regridder_param_info, &
-         rc)
+        rc)
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), allocatable, optional, intent(out) :: geom
@@ -48,13 +43,13 @@ contains
       class(VerticalGrid), pointer, optional, intent(out) :: vgrid
       integer, optional, intent(out) :: num_levels     ! Actual field levels (depends on vgrid + stagger)
       integer, optional, intent(out) :: num_layers     ! Number of layers from vgrid (CENTER levels)
-      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
-      type(VerticalAlignment), optional, intent(out) :: vert_alignment
+      type(mapl_VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      type(mapl_VerticalAlignment), optional, intent(out) :: vert_alignment
       integer, optional, intent(out) :: num_vgrid_levels  ! Deprecated: use num_layers instead
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
-      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
-      type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
-      type(ConservationMetadata), optional, intent(out) :: conservation_metadata
+      type(mapl_QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
+      type(mapl_NormalizationMetadata), optional, intent(out) :: normalization_metadata
+      type(mapl_ConservationMetadata), optional, intent(out) :: conservation_metadata
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
@@ -119,4 +114,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_get
 
-end module mapl_FieldGetImpl_mod
+end module mapl_FieldGet_mod

@@ -1,6 +1,6 @@
 
 #include "MAPL_Exceptions.h"
-#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
+#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call SyncSharedMemory(rc=STATUS);call DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
 
 !BOP
 
@@ -11,7 +11,7 @@
 
 module mapl_NCIO_mod
 
-  use mapl_FileIOShared_mod, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, MAPL_TileMaskGet
+  use mapl_FileIOShared_mod, only: ArrDescr, ArrDescrSet, WRITE_PARALLEL, TileMaskGet
   use mapl_FileIOShared_mod, only: ArrayScatterShm
   use ESMF
   use mapl_GridGetGlobal_mod, only: GridGetGlobalCellCountPerDim
@@ -19,16 +19,18 @@ module mapl_NCIO_mod
   use mapl_GridAccessors_mod, only: geom_GridGet => GridGet
   use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root, MAPL_ROOT => ROOT_PROCESS_ID, &
                             ArrayScatter => array_scatter
-  use mapl_ShmemComms_mod, only: MAPL_CommsBcast
-   use mapl_field_api, only: MAPL_FieldEmptyComplete, MAPL_FieldClone
+  use mapl_esmf_api, only: MAPL_CommsBcast
+  use mapl_esmf_api, only: mapl_FieldClone
+  use mapl_field_api, only: MAPL_FieldEmptyComplete
   use mapl_Sort_mod
   use mapl_EASEConversion_mod, only: MAPL_get_ease_gridname_by_cols => get_ease_gridname_by_cols
 
   use mapl_Shmem_mod
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   use netcdf
   use pFIO
   use MAPL_Constants
+  use mapl_ErrorHandling_mod
   use gFTL2_StringIntegerMap
   use gFTL2_StringVector
   use, intrinsic :: ISO_C_BINDING
@@ -37,58 +39,58 @@ module mapl_NCIO_mod
   implicit none
   private
 
-  public MAPL_IOChangeRes
-  public MAPL_IOCountNonDimVars
-  public MAPL_IOGetNonDimVars
-  public MAPL_IOCountLevels
-  public MAPL_IOGetTime
-  public MAPL_NCIOParseTimeUnits
-  public MAPL_VarRead
-  public MAPL_VarWrite
+  public IOChangeRes
+  public IOCountNonDimVars
+  public IOGetNonDimVars
+  public IOCountLevels
+  public IOGetTime
+  public NCIOParseTimeUnits
+  public VarRead
+  public VarWrite
   public get_fname_by_rank
-  public MAPL_NCIOGetFileType
-  public MAPL_VarReadNCPar
-  public MAPL_VarWriteNCPar
-  public MAPL_ReadTilingNC4
-  public MAPL_WriteTilingNC4
+  public NCIOGetFileType
+  public VarReadNCPar
+  public VarWriteNCPar
+  public ReadTilingNC4
+  public WriteTilingNC4
 
-  interface MAPL_ReadTilingNC4
-     module procedure MAPL_ReadTilingNC4_serial
-     module procedure MAPL_ReadTilingNC4_par
+  interface ReadTilingNC4
+     module procedure ReadTilingNC4_serial
+     module procedure ReadTilingNC4_par
   end interface
 
-  interface MAPL_VarReadNCPar
-     module procedure MAPL_StateVarReadNCPar
-     module procedure MAPL_BundleReadNCPar
-     module procedure MAPL_ArrayReadNCpar_1d
-     module procedure MAPL_ArrayReadNCpar_2d
-     module procedure MAPL_ArrayReadNCpar_3d
+  interface VarReadNCPar
+     module procedure StateVarReadNCPar
+     module procedure BundleReadNCPar
+     module procedure ArrayReadNCpar_1d
+     module procedure ArrayReadNCpar_2d
+     module procedure ArrayReadNCpar_3d
   end interface
 
-  interface MAPL_VarWriteNCPar
-     module procedure MAPL_StateVarWriteNCPar
-     module procedure MAPL_BundleWriteNCPar
+  interface VarWriteNCPar
+     module procedure StateVarWriteNCPar
+     module procedure BundleWriteNCPar
   end interface
 
-  interface MAPL_VarRead
-     module procedure MAPL_VarReadNCpar_R4_1d
-     module procedure MAPL_VarReadNCpar_R4_2d
-     module procedure MAPL_VarReadNCpar_R4_3d
-     module procedure MAPL_VarReadNCpar_R8_1d
-     module procedure MAPL_VarReadNCpar_R8_2d
-     module procedure MAPL_VarReadNCpar_R8_3d
+  interface VarRead
+     module procedure VarReadNCpar_R4_1d
+     module procedure VarReadNCpar_R4_2d
+     module procedure VarReadNCpar_R4_3d
+     module procedure VarReadNCpar_R8_1d
+     module procedure VarReadNCpar_R8_2d
+     module procedure VarReadNCpar_R8_3d
   end interface
 
 
-  interface MAPL_VarWrite
-     module procedure MAPL_VarWriteNCpar_R4_1d
-     module procedure MAPL_VarWriteNCpar_R4_2d
-     module procedure MAPL_VarWriteNCpar_R4_3d
-     module procedure MAPL_VarWriteNCpar_R4_4d
-     module procedure MAPL_VarWriteNCpar_R8_1d
-     module procedure MAPL_VarWriteNCpar_R8_2d
-     module procedure MAPL_VarWriteNCpar_R8_3d
-     module procedure MAPL_VarWriteNCpar_R8_4d
+  interface VarWrite
+     module procedure VarWriteNCpar_R4_1d
+     module procedure VarWriteNCpar_R4_2d
+     module procedure VarWriteNCpar_R4_3d
+     module procedure VarWriteNCpar_R4_4d
+     module procedure VarWriteNCpar_R8_1d
+     module procedure VarWriteNCpar_R8_2d
+     module procedure VarWriteNCpar_R8_3d
+     module procedure VarWriteNCpar_R8_4d
   end interface
 
   integer, parameter, public :: NumGlobalVars=4
@@ -97,7 +99,7 @@ module mapl_NCIO_mod
 contains
 
 
-  subroutine MAPL_FieldReadNCPar(formatter,name,FIELD, ARRDES, HomePE, RC)
+  subroutine FieldReadNCPar(formatter,name,FIELD, ARRDES, HomePE, RC)
     type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     type (ESMF_Field)           , intent(INOUT) :: field
@@ -141,7 +143,7 @@ contains
        if(present(HomePE)) then
           mask => HomePE
        else
-          call MAPL_TileMaskGet(grid, mask, rc=status)
+          call TileMaskGet(grid, mask, rc=status)
           _VERIFY(STATUS)
        endif
     end if
@@ -157,10 +159,10 @@ contains
           _VERIFY(STATUS)
           if (associated(var_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                call VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
                 _VERIFY(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                call MAPL_VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
+                call VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
                 _VERIFY(STATUS)
              else
                 _RETURN(ESMF_FAILURE)
@@ -171,10 +173,10 @@ contains
           _VERIFY(STATUS)
           if (associated(vr8_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                call VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
                 _VERIFY(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                call MAPL_VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
+                call VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
                 _VERIFY(STATUS)
              else
                 _RETURN(ESMF_FAILURE)
@@ -188,16 +190,16 @@ contains
           if (associated(var_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
                 do J = 1,size(var_2d,2)
-                   call MAPL_VarRead(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   call VarRead(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                    _VERIFY(STATUS)
                 end do
              else if (DIMS == MAPL_DimsTileTile) then
                 do j=1,size(var_2d,2)
-                   call MAPL_VarRead(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   call VarRead(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                    _VERIFY(STATUS)
                 enddo
              else
-                call MAPL_VarRead(formatter, name, var_2d, arrdes=arrdes, rc=status)
+                call VarRead(formatter, name, var_2d, arrdes=arrdes, rc=status)
                 _VERIFY(STATUS)
              end if
           end if
@@ -207,15 +209,15 @@ contains
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
                 do J = 1,size(vr8_2d,2)
-                   call MAPL_VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   call VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                 end do
              else if (DIMS == MAPL_DimsTileTile) then
                 do j=1,size(vr8_2d,2)
-                   call MAPL_VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   call VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                    _VERIFY(STATUS)
                 enddo
              else
-                call MAPL_VarRead(formatter, name, vr8_2d, arrdes=arrdes, rc=status)
+                call VarRead(formatter, name, vr8_2d, arrdes=arrdes, rc=status)
                 _VERIFY(STATUS)
              end if
           end if
@@ -228,12 +230,12 @@ contains
              if (DIMS == MAPL_DimsTileOnly) then
                 do J = 1,size(var_3d,2)
                    do K = 1,size(var_3d,3)
-                      call MAPL_VarRead(formatter, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, offset1=j, &
+                      call VarRead(formatter, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, offset1=j, &
                            & offset2=k, rc=status)
                    end do
                 end do
              else
-                call MAPL_VarRead(formatter, name, var_3d, arrdes=arrdes, rc=status)
+                call VarRead(formatter, name, var_3d, arrdes=arrdes, rc=status)
              end if
           end if
        else
@@ -243,12 +245,12 @@ contains
              if (DIMS == MAPL_DimsTileOnly) then
                 do J = 1,size(vr8_3d,2)
                    do K = 1,size(vr8_3d,3)
-                      call MAPL_VarRead(formatter, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
+                      call VarRead(formatter, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
                            & offset1=j, offset2=k, rc=status)
                    end do
                 end do
              else
-                call MAPL_VarRead(formatter, name, vr8_3d, arrdes=arrdes, rc=status)
+                call VarRead(formatter, name, vr8_3d, arrdes=arrdes, rc=status)
              end if
           end if
        endif
@@ -263,7 +265,7 @@ contains
 
           do L = 1,size(var_4d,3)
              do K = 1,size(var_4d,4)
-                call MAPL_VarRead(formatter, name, var_4d(:,:,L,K), &
+                call VarRead(formatter, name, var_4d(:,:,L,K), &
                      arrdes=arrdes, lev=l, &
                      & offset2=k, rc=status)
                 _VERIFY(status)
@@ -284,14 +286,14 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_FieldReadNCPar
+  end subroutine FieldReadNCPar
 
 
 !---------------------------
 ! Write routines
 !---------------------------
 
-  subroutine MAPL_FieldWriteNCPar(formatter, name, FIELD, ARRDES, HomePE, RC)
+  subroutine FieldWriteNCPar(formatter, name, FIELD, ARRDES, HomePE, RC)
     type(Netcdf4_fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     type (ESMF_Field)           , intent(INOUT) :: field  !ALT: intent(in)
@@ -339,7 +341,7 @@ contains
        if(present(HomePE)) then
           mask => HomePE
        else
-          call MAPL_TileMaskGet(grid, mask, rc=status)
+          call TileMaskGet(grid, mask, rc=status)
           _VERIFY(STATUS)
        endif
     end if
@@ -359,9 +361,9 @@ contains
            if (associated(var_1d)) then
 
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                   call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                   call VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
                 else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                   call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
+                   call VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
                 else
                    _RETURN(ESMF_FAILURE)
                 end if
@@ -375,9 +377,9 @@ contains
            if (associated(vr8_1d)) then
 
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                   call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                   call VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
                 else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                   call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
+                   call VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
                 else
                    _RETURN(ESMF_FAILURE)
                 end if
@@ -395,12 +397,12 @@ contains
 
 
                    do J = 1,size(var_2d,2)
-                      call MAPL_VarWrite(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                      call VarWrite(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                    end do
 
 
              else
-               call MAPL_VarWrite(formatter, name, var_2d, arrdes=arrdes, rc=status)
+               call VarWrite(formatter, name, var_2d, arrdes=arrdes, rc=status)
              endif ! dims
           else
              _FAIL( "Cannot write unassociated var-2d")
@@ -413,12 +415,12 @@ contains
 
 
                    do J = 1,size(vr8_2d,2)
-                      call MAPL_VarWrite(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                      call VarWrite(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                    end do
 
 
              else
-                call MAPL_VarWrite(formatter, name, vr8_2d, arrdes=arrdes, rc=status)
+                call VarWrite(formatter, name, vr8_2d, arrdes=arrdes, rc=status)
              end if
           else
              _FAIL( "Cannot write unassociated var8-2d")
@@ -434,14 +436,14 @@ contains
 
                    do J = 1,size(var_3d,2)
                       do K = 1,size(var_3d,3)
-                         call MAPL_VarWrite(formatter, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
+                         call VarWrite(formatter, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
                            & offset1=j, offset2=k, rc=status)
                       end do
                    end do
 
 
              else
-                call MAPL_VarWrite(formatter, name, var_3d, arrdes=arrdes, rc=status)
+                call VarWrite(formatter, name, var_3d, arrdes=arrdes, rc=status)
              endif
           else
              _FAIL( "Cannot write unassociated var-3d")
@@ -455,14 +457,14 @@ contains
 
                    do J = 1,size(vr8_3d,2)
                       do K = 1,size(vr8_3d,3)
-                         call MAPL_VarWrite(formatter, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
+                         call VarWrite(formatter, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
                            & offset1=j, offset2=k, rc=status)
                       end do
                    end do
 
 
              else
-                call MAPL_VarWrite(formatter, name, vr8_3d, arrdes=arrdes, rc=status)
+                call VarWrite(formatter, name, vr8_3d, arrdes=arrdes, rc=status)
              end if
           else
              _FAIL( "Cannot write unassociated var8-3d")
@@ -478,14 +480,14 @@ contains
           if (.not.associated(var_4d)) then
              _FAIL( "Cannot write unassociated vars")
           end if
-          call MAPL_VarWrite(formatter, name, var_4d, arrdes=arrdes, rc=status)
+          call VarWrite(formatter, name, var_4d, arrdes=arrdes, rc=status)
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(vr8_4d)) then
              _FAIL( "Cannot write unassociated vars")
           end if
-          call MAPL_VarWrite(formatter, name, vr8_4d, arrdes=arrdes, rc=status)
+          call VarWrite(formatter, name, vr8_4d, arrdes=arrdes, rc=status)
        endif
     else
        print *, "ERROR: unsupported RANK"
@@ -500,10 +502,10 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_FieldWriteNCPar
+  end subroutine FieldWriteNCPar
 
 !---------------------------
-  subroutine MAPL_VarWriteNCpar_R4_4d(formatter, name, A, ARRDES, RC)
+  subroutine VarWriteNCpar_R4_4d(formatter, name, A, ARRDES, RC)
 
     type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -523,7 +525,7 @@ contains
     else
        do K = 1,size(A,4)
           do L = 1,size(A,3)
-             call MAPL_VarWrite(formatter, name, A(:,:,L,K), &
+             call VarWrite(formatter, name, A(:,:,L,K), &
                   & lev=l, offset2=k, rc=status)
              _VERIFY(status)
           end do
@@ -532,9 +534,9 @@ contains
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarWriteNCpar_R4_4d
+  end subroutine VarWriteNCpar_R4_4d
 !---------------------------
-  subroutine MAPL_VarWriteNCpar_R8_4d(formatter, name, A, ARRDES, RC)
+  subroutine VarWriteNCpar_R8_4d(formatter, name, A, ARRDES, RC)
 
     type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -553,10 +555,10 @@ contains
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarWriteNCpar_R8_4d
+  end subroutine VarWriteNCpar_R8_4d
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_3d(formatter, name, A, ARRDES, RC)
+  subroutine VarWriteNCpar_R4_3d(formatter, name, A, ARRDES, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -580,16 +582,16 @@ contains
     if (present(arrdes)) then
     else
        do l=1,size(a,3)
-          call MAPL_VarWrite(formatter,name,A(:,:,l), lev=l, rc=status)
+          call VarWrite(formatter,name,A(:,:,l), lev=l, rc=status)
           _VERIFY(status)
        enddo
     endif
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarWriteNCpar_R4_3d
+  end subroutine VarWriteNCpar_R4_3d
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R4_3d(formatter, name, A, ARRDES, RC)
+  subroutine VarReadNCpar_R4_3d(formatter, name, A, ARRDES, RC)
 
     type (Netcdf4_Fileformatter)          , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -601,16 +603,16 @@ contains
     integer :: l
 
     do l=1,size(a,3)
-       call MAPL_VarRead(formatter,name,A(:,:,l), arrdes=arrdes, lev=l, rc=status)
+       call VarRead(formatter,name,A(:,:,l), arrdes=arrdes, lev=l, rc=status)
        _VERIFY(status)
     enddo
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarReadNCpar_R4_3d
+  end subroutine VarReadNCpar_R4_3d
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R8_3d(formatter, name, A, ARRDES, RC)
+  subroutine VarWriteNCpar_R8_3d(formatter, name, A, ARRDES, RC)
 
     type (Netcdf4_Fileformatter), intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -629,11 +631,11 @@ contains
     character(len=:), allocatable :: writer_filename
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarWriteNCpar_R8_3d
+  end subroutine VarWriteNCpar_R8_3d
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R8_3d(formatter, name, A, ARRDES, RC)
+  subroutine VarReadNCpar_R8_3d(formatter, name, A, ARRDES, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -645,16 +647,16 @@ contains
     integer :: l
 
     do l=1,size(a,3)
-       call MAPL_VarRead(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
+       call VarRead(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
        _VERIFY(status)
     enddo
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarReadNCpar_R8_3d
+  end subroutine VarReadNCpar_R8_3d
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, RC)
+  subroutine VarWriteNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -804,11 +806,11 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarWriteNCpar_R4_2d
+  end subroutine VarWriteNCpar_R4_2d
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, RC)
+  subroutine VarReadNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -950,11 +952,11 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarReadNCpar_R4_2d
+  end subroutine VarReadNCpar_R4_2d
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
+  subroutine VarWriteNCpar_R4_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -1250,9 +1252,9 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarWriteNCpar_R4_1d
+  end subroutine VarWriteNCpar_R4_1d
 
-  subroutine MAPL_VarWriteNCpar_R8_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
+  subroutine VarWriteNCpar_R8_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -1552,11 +1554,11 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarWriteNCpar_R8_1d
+  end subroutine VarWriteNCpar_R8_1d
 
 !----------------------------------------------------------------------------
 
-  subroutine MAPL_VarReadNCpar_R4_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
+  subroutine VarReadNCpar_R4_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
 
     type(Netcdf4_Fileformatter)             , intent(in   ) :: formatter
     character(len=*)              , intent(in   ) :: name
@@ -1814,7 +1816,7 @@ contains
              _VERIFY(STATUS)
           end if
        else
-          call MAPL_AllocNodeArray(vr,[IM_WORLD],_RC)
+          call AllocNodeArray(vr,[IM_WORLD],_RC)
        end if
 
        if (amIRoot) then
@@ -1845,7 +1847,7 @@ contains
        else
           call ArrayScatterShm(A, VR, arrdes%grid, mask=mask, rc=status)
           _VERIFY(STATUS)
-          call MAPL_DeAllocNodeArray(VR,rc=STATUS)
+          call DeAllocNodeArray(VR,rc=STATUS)
           _VERIFY(STATUS)
        end if
 #endif
@@ -1886,9 +1888,9 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarReadNCpar_R4_1d
+  end subroutine VarReadNCpar_R4_1d
 
-  subroutine MAPL_VarReadNCpar_R8_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
+  subroutine VarReadNCpar_R8_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
 
     type(Netcdf4_Fileformatter)             , intent(IN   ) :: formatter
     character(len=*)              , intent(IN   ) :: name
@@ -2167,11 +2169,11 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarReadNCpar_R8_1d
+  end subroutine VarReadNCpar_R8_1d
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, RC)
+  subroutine VarWriteNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -2322,11 +2324,11 @@ contains
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarWriteNCpar_R8_2d
+  end subroutine VarWriteNCpar_R8_2d
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, RC)
+  subroutine VarReadNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -2468,13 +2470,13 @@ contains
     endif
 
   _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarReadNCpar_R8_2d
+  end subroutine VarReadNCpar_R8_2d
 
 !---------------------------
 
 
 
-  subroutine MAPL_BundleReadNCPar(Bundle, arrdes, filename, rc)
+  subroutine BundleReadNCPar(Bundle, arrdes, filename, rc)
     type(ESMF_FieldBundle), intent(inout)   :: Bundle
     type(ArrDescr), intent(inout)           :: arrdes
     character(len=*),   intent(in   )       :: filename
@@ -2566,7 +2568,7 @@ contains
          if (MAPL_DIMS == MAPL_DimsTileOnly .or. MAPL_DIMS == MAPL_DimsTileTile) then
             call ESMF_FieldGet   (field, grid=grid, rc=status)
             _VERIFY(STATUS)
-            call MAPL_TileMaskGet(grid,  mask, rc=status)
+            call TileMaskGet(grid,  mask, rc=status)
             _VERIFY(STATUS)
 !@         else
 !@            allocate(Mask(1))
@@ -2583,7 +2585,7 @@ contains
          call MAPL_FieldEmptyComplete(field, _RC)
       end if
 
-      call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
+      call FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
       _VERIFY(STATUS)
       if (flip) then
           call flip_field(field,rc=status)
@@ -2605,7 +2607,7 @@ contains
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_BundleReadNCPar
+  end subroutine BundleReadNCPar
 
   function compare_grid_file(metadata,grid,rc) result(match)
      type(FileMetaData), intent(in) :: metadata
@@ -2644,7 +2646,7 @@ contains
      _RETURN(_SUCCESS)
   end function compare_grid_file
 
-  subroutine MAPL_StateVarReadNCPar(filename, STATE, arrdes, bootstrapable, NAME, RC)
+  subroutine StateVarReadNCPar(filename, STATE, arrdes, bootstrapable, NAME, RC)
     character(len=*)            , intent(IN   ) :: filename
     type (ESMF_State)           , intent(INOUT) :: STATE
     type(ArrDescr)              , intent(INOUT) :: ARRDES
@@ -2956,7 +2958,7 @@ contains
        call ESMF_InfoGetFromHost(bundle_read, infoh_bundle, _RC)
        call ESMF_InfoSet(infoh_bundle, key="MAPL_RestoreExport", value=restore_export, _RC)
     end if
-    call MAPL_VarReadNCPar(Bundle_Read, arrdes, filename, rc=status)
+    call VarReadNCPar(Bundle_Read, arrdes, filename, rc=status)
     _VERIFY(STATUS)
 
     deallocate(ITEMNAMES)
@@ -2966,9 +2968,9 @@ contains
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_StateVarReadNCPar
+  end subroutine StateVarReadNCPar
 
-  subroutine MAPL_ArrayReadNCpar_1d(varn,filename,farrayPtr,arrDes,rc)
+  subroutine ArrayReadNCpar_1d(varn,filename,farrayPtr,arrDes,rc)
   character(len=*),      intent(IN   )  :: varn
   character(len=*),      intent(IN   )  :: filename
   real, pointer                         :: farrayPtr(:)
@@ -2997,7 +2999,7 @@ contains
   call ESMF_FieldBundleAdd(BUNDLE, [FIELD], rc=STATUS)
   _VERIFY(STATUS)
 
-  call MAPL_VarReadNCPar(Bundle, arrdes, filename, rc=status)
+  call VarReadNCPar(Bundle, arrdes, filename, rc=status)
   _VERIFY(STATUS)
 
   call ESMF_FieldBundleDestroy(bundle,rc=status)
@@ -3006,9 +3008,9 @@ contains
   _VERIFY(STATUS)
 
   _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_ArrayReadNCpar_1d
+  end subroutine ArrayReadNCpar_1d
 
-  subroutine MAPL_ArrayReadNCpar_2d(varn,filename,farrayPtr,arrDes,rc)
+  subroutine ArrayReadNCpar_2d(varn,filename,farrayPtr,arrDes,rc)
   character(len=*),      intent(IN   )  :: varn
   character(len=*),      intent(IN   )  :: filename
   real, pointer                         :: farrayPtr(:,:)
@@ -3040,7 +3042,7 @@ contains
   call ESMF_FieldBundleAdd(BUNDLE, [FIELD], rc=STATUS)
   _VERIFY(STATUS)
 
-  call MAPL_VarReadNCPar(Bundle, arrdes, filename, rc=status)
+  call VarReadNCPar(Bundle, arrdes, filename, rc=status)
   _VERIFY(STATUS)
 
   call ESMF_FieldBundleDestroy(bundle,rc=status)
@@ -3049,16 +3051,16 @@ contains
   _VERIFY(STATUS)
 
   _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_ArrayReadNCpar_2d
+  end subroutine ArrayReadNCpar_2d
 
-  subroutine MAPL_ArrayReadNCpar_3d(varn,filename,farrayPtr,arrDes,rc)
+  subroutine ArrayReadNCpar_3d(varn,filename,farrayPtr,arrDes,rc)
   character(len=*),      intent(IN   )  :: varn
   character(len=*),      intent(IN   )  :: filename
   real, pointer                         :: farrayPtr(:,:,:)
   type(arrDescr),        intent(INOUT)  :: arrDes
   integer, optional,     intent(OUT  )  :: rc
 
-  character(len=*), parameter           :: Iam="MAPL_ArrayReadNCpar_3d"
+  character(len=*), parameter           :: Iam="ArrayReadNCpar_3d"
   integer                               :: status
   type(ESMF_Field)                      :: field
   type(ESMF_FieldBundle)                :: bundle
@@ -3078,7 +3080,7 @@ contains
   call ESMF_FieldBundleAdd(BUNDLE, [FIELD], rc=STATUS)
   _VERIFY(STATUS)
 
-  call MAPL_VarReadNCPar(Bundle, arrdes, filename, rc=status)
+  call VarReadNCPar(Bundle, arrdes, filename, rc=status)
   _VERIFY(STATUS)
 
   call ESMF_FieldBundleDestroy(bundle,rc=status)
@@ -3087,9 +3089,9 @@ contains
   _VERIFY(STATUS)
 
   _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_ArrayReadNCpar_3d
+  end subroutine ArrayReadNCpar_3d
 
-  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, clobber, rc)
+  subroutine BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, clobber, rc)
     type(ESMF_FieldBundle), intent(inout)   :: Bundle
     type(ArrDescr), intent(inout)           :: arrdes
     type(ESMF_Clock), intent(in)            :: CLOCK
@@ -3773,12 +3775,12 @@ contains
           if (MAPL_DIMS == MAPL_DimsTileOnly .or. MAPL_DIMS == MAPL_DimsTileTile) then
              call ESMF_FieldGet   (field, grid=grid, rc=status)
              _VERIFY(STATUS)
-             call MAPL_TileMaskGet(grid,  mask, rc=status)
+             call TileMaskGet(grid,  mask, rc=status)
              _VERIFY(STATUS)
           endif
        endif
 
-       call MAPL_FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, rc=status)
+       call FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, rc=status)
        _VERIFY(STATUS)
 
        isPresent = ESMF_InfoIsPresent(infoh,key='FLIPPED',rc=status)
@@ -3821,8 +3823,8 @@ contains
        call ESMF_InfoGetFromHost(lats_field, infoh_field, _RC)
        call ESMF_InfoSet(infoh_field, key="DIMS", value=MAPL_DimsHorzOnly, _RC)
 
-       call MAPL_FieldWriteNCPar(formatter, 'lons', lons_field, arrdes, HomePE=mask, rc=status)
-       call MAPL_FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, rc=status)
+       call FieldWriteNCPar(formatter, 'lons', lons_field, arrdes, HomePE=mask, rc=status)
+       call FieldWriteNCPar(formatter, 'lats', lats_field, arrdes, HomePE=mask, rc=status)
     end if
 
 
@@ -3855,9 +3857,9 @@ contains
 
        end subroutine add_fvar
 
-  end subroutine MAPL_BundleWriteNCPar
+  end subroutine BundleWriteNCPar
 
-  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, clobber, RC)
+  subroutine StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, clobber, RC)
     character(len=*)            , intent(IN   ) :: filename
     type (ESMF_State)           , intent(IN   ) :: STATE
     type(ArrDescr)              , intent(INOUT) :: ARRDES
@@ -4059,14 +4061,14 @@ contains
        call ESMF_InfoSet(infoh_bundle, key="MAPL_GridCapture", value=isGridCapture, _RC)
     end if
 
-    call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, clobber=local_clobber, rc=status)
+    call BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, clobber=local_clobber, rc=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_StateVarWriteNCPar
+  end subroutine StateVarWriteNCPar
 
-  subroutine MAPL_NCIOGetFileType(filename,filetype,rc)
+  subroutine NCIOGetFileType(filename,filetype,rc)
    ! filetype = 0, hdf5
    ! filetype = 1, ascii
    ! filetype = 2, binary or unknown
@@ -4134,9 +4136,9 @@ contains
 100   continue
    _RETURN(ESMF_FAILURE)
 
-  end subroutine MAPL_NCIOGetFileType
+  end subroutine NCIOGetFileType
 
-  subroutine MAPL_IOChangeRes(cfIn,cfOut,dimNames,dimSizes,rc)
+  subroutine IOChangeRes(cfIn,cfOut,dimNames,dimSizes,rc)
   type(FileMetadata), intent(inout) :: cfIn
   type(Filemetadata), intent(inout) :: cfOut
   character(len=*) :: dimNames(:)
@@ -4242,9 +4244,9 @@ contains
 
       end subroutine modify_coordinate_vars
 
-  end subroutine MAPL_IOChangeRes
+  end subroutine IOChangeRes
 
-  subroutine MAPL_IOCountNonDimVars(cf,nvars,rc)
+  subroutine IOCountNonDimVars(cf,nvars,rc)
   type(FileMetadata), intent(inout) :: cf
   integer, intent(out) :: nvars
   integer, intent(out), optional :: rc
@@ -4273,9 +4275,9 @@ contains
 
   _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_IOCountNonDimVars
+  end subroutine IOCountNonDimVars
 
-  function MAPL_IOGetNonDimVars(cf,rc) result(nondim_vars)
+  function IOGetNonDimVars(cf,rc) result(nondim_vars)
   type(FileMetadata), intent(inout) :: cf
   integer, intent(out), optional :: rc
 
@@ -4302,9 +4304,9 @@ contains
 
   _RETURN(ESMF_SUCCESS)
 
-  end function MAPL_IOGetNonDimVars
+  end function IOGetNonDimVars
 
-  subroutine MAPL_IOCountLevels(cf,nlev,rc)
+  subroutine IOCountLevels(cf,nlev,rc)
   type(FileMetadata), target, intent(inout) :: cf
   integer, intent(out) :: nlev
   integer, intent(out), optional :: rc
@@ -4349,9 +4351,9 @@ contains
 
   _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_IOCountLevels
+  end subroutine IOCountLevels
 
-  subroutine MAPL_IOGetTime(cf,nymd,nhms,rc)
+  subroutine IOGetTime(cf,nymd,nhms,rc)
   type(FileMetadata), intent(inout) :: cf
   integer, intent(out) :: nymd,nhms
   integer, intent(out), optional :: rc
@@ -4369,7 +4371,7 @@ contains
   units => attr%get_value()
   select type(units)
   type is (character(*))
-     call MAPL_NCIOParseTimeUnits(units,year,month,day,hour,min,sec,status)
+     call NCIOParseTimeUnits(units,year,month,day,hour,min,sec,status)
   class default
      _FAIL( 'unsupported subclass for units')
   end select
@@ -4378,9 +4380,9 @@ contains
 
   _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_IOGetTime
+  end subroutine IOGetTime
 
-      subroutine MAPL_NCIOParseTimeUnits ( TimeUnits, year, month, day, hour, min, sec, rc )
+      subroutine NCIOParseTimeUnits ( TimeUnits, year, month, day, hour, min, sec, rc )
 
       implicit none
 !
@@ -4475,7 +4477,7 @@ contains
 
       rc = 0
       return
-      end subroutine MAPL_NCIOParseTimeUnits
+      end subroutine NCIOParseTimeUnits
 
    ! WJ notes: To avoid changing gcm_run.j script, insert "_split_x_", not append
    function get_fname_by_rank(fname, rank) result(name)
@@ -4653,7 +4655,7 @@ contains
    end function create_flipped_field
 
    ! Serial version - reads the file without MPI
-   subroutine MAPL_ReadTilingNC4_serial(File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
+   subroutine ReadTilingNC4_serial(File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
       character(*),                             intent(IN)  :: File
       character(*), optional,                   intent(out) :: GridName(:)
       integer,      optional,                   intent(out) :: IM(:), JM(:)
@@ -4851,10 +4853,10 @@ contains
         enddo
       endif
       _RETURN(_SUCCESS)
-   end subroutine MAPL_ReadTilingNC4_serial
+   end subroutine ReadTilingNC4_serial
 
    ! Parallel version - root calls serial version then broadcasts to all processes
-   subroutine MAPL_ReadTilingNC4_par(layout, File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
+   subroutine ReadTilingNC4_par(layout, File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
       type(ESMF_DELayout),                      intent(IN)  :: layout
       character(*),                             intent(IN)  :: File
       character(*), optional,                   intent(out) :: GridName(:)
@@ -4870,7 +4872,7 @@ contains
 
       ! Root process calls the serial version
       if (MAPL_AM_I_ROOT(layout)) then
-         call MAPL_ReadTilingNC4_serial(File, GridName, IM, JM, nx, ny, n_Grids, n_tiles, &
+         call ReadTilingNC4_serial(File, GridName, IM, JM, nx, ny, n_Grids, n_tiles, &
                                         iTable, rTable, N_PfafCat, AVR, rc=status)
          _VERIFY(status)
          ! Get ng and ntile for broadcasts
@@ -4904,7 +4906,7 @@ contains
       ! Broadcast ng and ntile first so non-root processes know array sizes
       call MAPL_CommsBcast(layout, ng, 1, MAPL_Root, status)
       _VERIFY(status)
-      
+
       call MAPL_CommsBcast(layout, ntile, 1, MAPL_Root, status)
       _VERIFY(status)
 
@@ -4982,9 +4984,9 @@ contains
       endif
 
       _RETURN(_SUCCESS)
-   end subroutine MAPL_ReadTilingNC4_par
+   end subroutine ReadTilingNC4_par
 
-   subroutine MAPL_WriteTilingNC4(File, GridName, im, jm, nx, ny, iTable, rTable, N_PfafCat, rc)
+   subroutine WriteTilingNC4(File, GridName, im, jm, nx, ny, iTable, rTable, N_PfafCat, rc)
 
      character(*),      intent(IN) :: File
      character(*),      intent(IN) :: GridName(:)
@@ -5232,6 +5234,6 @@ contains
 
      call formatter%close(rc=status)
      _RETURN(_SUCCESS)
-   end subroutine MAPL_WriteTilingNC4
+   end subroutine WriteTilingNC4
 
 end module mapl_NCIO_mod

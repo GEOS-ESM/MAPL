@@ -5,7 +5,7 @@ module Test_StateArithmetic
    use state_utils_setup
    use ESMF
    use pfunit
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_StateUtils
    use ESMF_TestMethod_mod
 
@@ -59,7 +59,7 @@ contains
       extra_ptr = rval
       allocate(expected_array(3,3),_STAT)
       expected_array = 17.0 + 2.0*sqrt(16.0) 
-      call  MAPL_StateEval(state, expr, field_2d, _RC)
+      call  StateEval(state, expr, field_2d, _RC)
       @assertEqual(expected_array, ptr2d)
       _RETURN(_SUCCESS)
 
@@ -84,7 +84,7 @@ contains
       extra_ptr = rval
       allocate(expected_array(3,3,2),_STAT)
       expected_array = 17.0 + 2.0*sqrt(16.0) 
-      call  MAPL_StateEval(state, expr, field_3d, _RC)
+      call  StateEval(state, expr, field_3d, _RC)
       @assertEqual(expected_array, ptr3d)
       _RETURN(_SUCCESS)
 
@@ -109,7 +109,7 @@ contains
       extra_ptr = rval
       allocate(expected_array(3,3,2),_STAT)
       expected_array = 15.0
-      call  MAPL_StateEval(state, expr, field_3d, _RC)
+      call  StateEval(state, expr, field_3d, _RC)
       @assertEqual(expected_array, ptr3d)
       _RETURN(_SUCCESS)
 

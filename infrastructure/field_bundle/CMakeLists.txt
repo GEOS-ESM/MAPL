@@ -12,17 +12,16 @@ set (srcs
     FieldBundleFilter.F90
     FieldBundleGetPointer.F90
     FieldBundleMatch.F90
-    Internal.F90
     API.F90
 )
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.field MAPL.shared MAPL.esmf
+    DEPENDENCIES MAPL.field MAPL.utils MAPL.esmf
                  PFLOGGER::pflogger ESMF::ESMF GFTL::gftl-v2
     TYPE SHARED
 )
 
 if (PFUNIT_FOUND)
-    add_subdirectory (tests)
+    add_subdirectory (tests EXCLUDE_FROM_ALL)
 endif ()

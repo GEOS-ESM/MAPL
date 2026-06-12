@@ -7,14 +7,15 @@ set (srcs
   GriddedComponentDriver.F90
   GriddedComponentDriverMap.F90
   GriddedComponentDriverVector.F90
-
-  MultiState.F90)
+  MultiState.F90
+  API.F90
+)
 
 esma_add_library(${this}
-    SRCS ${srcs}
-    DEPENDENCIES MAPL.enums MAPL.esmf_utils MAPL.shared
-    TYPE SHARED
-    )
+  SRCS ${srcs}
+  DEPENDENCIES MAPL.enums MAPL.esmf
+  TYPE SHARED
+)
 
 esma_add_fortran_submodules(
   TARGET MAPL.component
@@ -24,7 +25,6 @@ esma_add_fortran_submodules(
           run_import_couplers.F90 clock_advance.F90
           get_gridcomp.F90 get_name.F90 add_export_coupler.F90
           add_import_coupler.F90 write_restart.F90 read_restart.F90)
-
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

@@ -6,8 +6,9 @@ esma_set_this (OVERRIDE MAPL.esmf)
 
 set (srcs
     # From esmf_utils/
-    ESMF_Interfaces.F90
+    ESMF_Interfaces.F90 # cannot move to MAPL.generic, causes circular dependency
     ESMF_Utilities.F90
+    TypeKind.F90
     InfoUtilities.F90
     UngriddedDim.F90
     UngriddedDims.F90
@@ -17,8 +18,6 @@ set (srcs
     HorizontalDimsSpec.F90
     DistGridGet.F90
     FieldPointerUtilities.F90
-    # From vm/
-    vm.F90
     # From alarm/
     alarm/SimpleAlarm.F90
     # From hconfig/
@@ -31,23 +30,21 @@ set (srcs
     hconfig_utils/generalized_equality.F90
     hconfig_utils/get_hconfig.F90
     hconfig_utils/HConfigUtilities.F90
-    # From generic3g/
-    ESMF_Subset.F90
+    # ESMF_HConfigUtilities and its submodules
     ESMF_HConfigUtilities.F90
-    ESMF_HConfigUtilities/MAPL_HConfigMatch.F90
+    ESMF_HConfigUtilities/HConfigMatch.F90
     ESMF_HConfigUtilities/write_hconfig.F90
     StateItem.F90
     # From esmf_utils/comms/
-    comms/MAPL_Comms.F90
+    comms/Comms.F90
     comms/ShmemComms.F90
-    # Umbrella modules
-    Internal.F90
+    # Umbrella module
     API.F90
 )
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.enums MAPL.shared MAPL.mp_utils ESMF::ESMF GFTL::gftl-v2 PFLOGGER::pflogger MPI::MPI_Fortran
+    DEPENDENCIES MAPL.enums MAPL.utils MAPL.mp_utils ESMF::ESMF GFTL::gftl-v2 PFLOGGER::pflogger MPI::MPI_Fortran
     TYPE SHARED
 )
 
@@ -64,16 +61,9 @@ if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
     target_compile_definitions (${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)
 endif()
 
-# Backward-compatibility aliases
-foreach (alias MAPL.esmf_utils MAPL.vm MAPL.alarm MAPL.hconfig MAPL.hconfig_utils)
-    add_library (${alias} INTERFACE)
-    target_link_libraries (${alias} INTERFACE MAPL.esmf)
-    install (TARGETS ${alias} EXPORT MAPL-targets)
-endforeach ()
-
 if (PFUNIT_FOUND)
-    add_subdirectory (tests)
-    add_subdirectory (alarm/tests)
-    add_subdirectory (hconfig/tests)
-    add_subdirectory (hconfig_utils/tests)
+    add_subdirectory (tests EXCLUDE_FROM_ALL)
+    add_subdirectory (alarm/tests EXCLUDE_FROM_ALL)
+    add_subdirectory (hconfig/tests EXCLUDE_FROM_ALL)
+    add_subdirectory (hconfig_utils/tests EXCLUDE_FROM_ALL)
 endif ()

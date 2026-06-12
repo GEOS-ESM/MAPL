@@ -1,11 +1,18 @@
 #include "MAPL_TestErr.h"
 
 module Test_timestep_propagation
+
    use mapl_Generic_mod
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
    use mapl_GenericPhases_mod
-   use mapl_GenericGridComp_mod
+   use mapl_Generic_api, only: mapl_GridCompCreate, &
+                               mapl_GenericSetServices, &
+                               mapl_GridCompSetEntryPoint, &
+                               mapl_GridCompGet, &
+                               mapl_GridcompGetResource, &
+                               mapl_GridCompAddChild, &
+                               mapl_GridCompRunChild
    use mapl_ComponentDriver_mod
    use mapl_GriddedComponentDriver_mod
    use mapl_UserSetServices_mod
@@ -31,7 +38,7 @@ contains
       type(ESMF_HConfig) :: cap_hconfig
       type(ESMF_GridComp) :: cap_gridcomp
       type(GriddedComponentDriver) :: driver
-      
+
       call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
       call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
       call ESMF_TimeIntervalSet(timestep, s=900)
@@ -43,7 +50,7 @@ contains
       call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
-      call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
       call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
 
@@ -52,7 +59,7 @@ contains
 
       @assert_that(child_timestep == expected_timestep, is(true()))
       @assert_that(child_reftime == expected_reftime, is(true()))
-      
+
    end subroutine test_default_timeStep
 
    @test
@@ -65,7 +72,7 @@ contains
       type(ESMF_HConfig) :: cap_hconfig
       type(ESMF_GridComp) :: cap_gridcomp
       type(GriddedComponentDriver) :: driver
-      
+
       call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
       call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
       call ESMF_TimeIntervalSet(timestep, s=1800)
@@ -77,13 +84,13 @@ contains
       call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
-      call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
       call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
       call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
 
       call ESMF_TimeIntervalSet(expected_timeStep, s=1800)
       @assert_that(child_timestep == expected_timestep, is(true()))
-      
+
    end subroutine test_double_timeStep
 
    @test
@@ -98,7 +105,7 @@ contains
       type(ESMF_HConfig) :: cap_hconfig
       type(ESMF_GridComp) :: cap_gridcomp
       type(GriddedComponentDriver) :: driver
-      
+
       call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
       call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
       call ESMF_TimeIntervalSet(timestep, s=900)
@@ -111,7 +118,7 @@ contains
       call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
-      call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
 
       child_run_count = 0
 
@@ -127,7 +134,7 @@ contains
       call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
       call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
       @assert_that(child_run_count, is(equal_to(2)))
-      
+
    end subroutine test_child_call_frequency
 
   @test
@@ -142,7 +149,7 @@ contains
       type(ESMF_HConfig) :: cap_hconfig
       type(ESMF_GridComp) :: cap_gridcomp
       type(GriddedComponentDriver) :: driver
-      
+
       call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
       call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
       call ESMF_TimeIntervalSet(timestep, s=900)
@@ -155,7 +162,7 @@ contains
       call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
-      call mapl_DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call DriverInitializePhases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
 
       child_run_count = 0
 
@@ -170,15 +177,15 @@ contains
       call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
       call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
       @assert_that(child_run_count, is(equal_to(1)))
-      
+
       call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
       call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
       @assert_that(child_run_count, is(equal_to(2)))
- 
+
       call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
       call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
       @assert_that(child_run_count, is(equal_to(2)))
- 
+
  end subroutine test_child_call_frequency_with_offset
 
    !-------------------------------
@@ -218,18 +225,18 @@ contains
 
       child_spec = ChildSpec(user_SetServices(child_ss), timeStep=timeStep, offset=offset)
       call MAPL_GridCompAddChild(gridcomp, 'child', child_spec, _RC)
-      
+
    end subroutine parent_ss
-   
+
   subroutine run_parent(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
       integer :: status
-      
+
       rc=0
       call MAPL_GridCompRunChild(gridcomp, 'child', _RC)
 
@@ -243,18 +250,18 @@ contains
 
       rc=0
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run_child, _RC)
-      
+
    end subroutine child_ss
 
    subroutine run_child(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
       integer :: status
-      
+
       rc=0
       call ESMF_ClockGet(clock, timeStep=child_timeStep, refTime=child_refTime, _RC)
 

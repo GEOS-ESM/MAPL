@@ -3,7 +3,7 @@
 module mapl_Range_mod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
-  use mapl_ExceptionHandling_mod
+  use mapl_ErrorHandling_mod
   implicit none
   private
 

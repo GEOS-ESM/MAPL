@@ -54,11 +54,11 @@ contains
       integer, intent(out), optional :: rc
 
       integer :: status
-      type(StateMask), allocatable :: temp_mask
+      type(MAPL_StateMask), allocatable :: temp_mask
 
       if (index(this%expression,"mask")/=0) then
          allocate(temp_mask)
-         temp_mask = StateMask(this%expression)
+         temp_mask = MAPL_StateMask(this%expression)
          variables_in_expression = temp_mask%get_mask_variables(_RC)
       else
          variables_in_expression = mapl_ParserVariablesInExpression(this%expression,_RC)

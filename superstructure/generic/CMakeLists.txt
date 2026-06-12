@@ -30,8 +30,7 @@ set(srcs
   EntryPointVector.F90
   OpenMP_Support.F90
 
-  # Umbrella modules
-  Internal.F90
+  # Umbrella module
   API.F90
   )
 
@@ -52,10 +51,10 @@ endif ()
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.enums MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
-    MAPL.esmf_utils MAPL.field MAPL.state MAPL.hconfig MAPL.shared
-    MAPL.profiler MAPL.hconfig_utils MAPL.vertical MAPL.component MAPL.field_bundle
+    MAPL.esmf MAPL.field MAPL.state MAPL.utils
+    MAPL.vertical MAPL.component MAPL.field_bundle MAPL.esmf MAPL.utils
     MAPL.infrastructure
-  ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils MAPL.alarm MAPL.utils
+  ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE SHARED
   )
 

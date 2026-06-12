@@ -32,7 +32,7 @@ module mapl_CallbackMap_mod
 
 end module mapl_CallbackMap_mod
 
-module mapl_StateAddMethodImpl_mod
+module mapl_StateAddMethod_mod
    use ESMF, only: ESMF_State, ESMF_MethodAdd
    use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoIsPresent, ESMF_InfoSet, ESMF_InfoGet
    use ESMF, only: ESMF_KIND_I4
@@ -43,16 +43,16 @@ module mapl_StateAddMethodImpl_mod
    implicit none(type,external)
    private
 
-   public :: mapl_StateAddMethod
+   public :: StateAddMethod
    public :: CallbackMap
    public :: CallbackMapIterator
    public :: CallbackMethodWrapper
    public :: get_callbacks
    public :: operator(/=)
 
-   interface mapl_StateAddMethod
+   interface StateAddMethod
       procedure :: state_add_method
-   end interface mapl_StateAddMethod
+   end interface StateAddMethod
 
 contains
 
@@ -107,4 +107,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_callbacks
 
-end module mapl_StateAddMethodImpl_mod
+end module mapl_StateAddMethod_mod

@@ -4,7 +4,7 @@ submodule (mapl_OuterMetaComponent_mod) run_user_smod
 
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverPtrVector_mod
-   use mapl_Enums_internal, only: MAPL_GENERIC_COUPLER_INVALIDATE, MAPL_GENERIC_COUPLER_UPDATE
+   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_INVALIDATE, MAPL_GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger
 

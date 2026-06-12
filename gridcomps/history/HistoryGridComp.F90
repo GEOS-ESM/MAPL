@@ -61,7 +61,7 @@ contains
          call add_child_ref_datetime(child_hconfig, _RC)
 
          call add_stats_gc(gridcomp, child_name, child_hconfig, _RC)
-         call MAPL_GridCompAddChild(gridcomp, child_name, user_setservices(collection_setServices), child_hconfig, timeStep=timeStep, _RC)
+         call MAPL_GridCompAddChild(gridcomp, child_name, collection_setServices, child_hconfig, timeStep=timeStep, _RC)
       end do
 
       _RETURN(_SUCCESS)

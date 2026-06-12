@@ -168,7 +168,7 @@ contains
       end subroutine val_to_float
 
       function to_typekind(attributes, rc) result(typekind)
-         use :: mapl_ESMF_Utilities_mod, only: MAPL_TYPEKIND_MIRROR
+         use :: mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
          type(ESMF_TypeKind_Flag) :: typekind
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc

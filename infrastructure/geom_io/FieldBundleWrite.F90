@@ -3,15 +3,15 @@ module mapl_FieldBundleWrite_mod
    use ESMF
    use pFIO
    use pFIO_ClientManagerMod, only: o_Clients
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
    use mapl_SharedIO_mod
-   use mapl_GeomCatagorizer_mod
+   use mapl_GeomCategorizer_mod
    implicit none
    private
 
    public :: FieldBundleWriter
-   public :: MAPL_write_bundle
+   public :: write_bundle
    type :: FieldBundleWriter
       private
       class(GeomPFIO), allocatable :: writer
@@ -23,7 +23,7 @@ module mapl_FieldBundleWrite_mod
          procedure :: write_to_file
          procedure :: start_new_file
    end type
-   interface MAPL_Write_Bundle
+   interface Write_Bundle
       module procedure Write_bundle_single_time
    end interface
 

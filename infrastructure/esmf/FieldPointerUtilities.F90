@@ -3,7 +3,7 @@
 module mapl_FieldPointerUtilities_mod
 
    use ESMF
-   use mapl_ExceptionHandling_mod
+   use mapl_ErrorHandling_mod
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated
 
    implicit none

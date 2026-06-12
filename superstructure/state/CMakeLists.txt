@@ -11,13 +11,12 @@ set (srcs
     StateMasking.F90
     StateFilter.F90
     StateDestroy.F90
-    Internal.F90
     API.F90
 )
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.field_bundle MAPL.shared MAPL.esmf MAPL.geom
+    DEPENDENCIES MAPL.field_bundle MAPL.utils MAPL.esmf MAPL.geom
                  PFLOGGER::pflogger ESMF::ESMF GFTL::gftl-v2
     TYPE SHARED
 )
@@ -27,5 +26,5 @@ target_include_directories (${this} PUBLIC
 )
 
 if (PFUNIT_FOUND)
-    add_subdirectory (tests)
+    add_subdirectory (tests EXCLUDE_FROM_ALL)
 endif ()

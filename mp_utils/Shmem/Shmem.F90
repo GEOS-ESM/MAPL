@@ -11,22 +11,22 @@ module mapl_Shmem_mod
   implicit none
   private
 
-  public :: MAPL_GetNodeInfo
-  public :: MAPL_CoresPerNodeGet
-  public :: MAPL_InitializeShmem
-  public :: MAPL_FinalizeShmem
+  public :: GetNodeInfo
+  public :: CoresPerNodeGet
+  public :: InitializeShmem
+  public :: FinalizeShmem
 
-  public :: MAPL_AllocNodeArray
-  public :: MAPL_DeAllocNodeArray
-  public :: MAPL_ShmemAmOnFirstNode
-  public :: MAPL_SyncSharedMemory
-  public :: MAPL_BroadcastToNodes
+  public :: AllocNodeArray
+  public :: DeAllocNodeArray
+  public :: ShmemAmOnFirstNode
+  public :: SyncSharedMemory
+  public :: BroadcastToNodes
 
-  public :: MAPL_AllocateShared
+  public :: AllocateShared
   public :: GetSharedMemory
   public :: ReleaseSharedMemory
 
-  public :: MAPL_GetNewRank
+  public :: GetNewRank
 
   character(len=30) :: Iam="MAPL_ShmemMod in line "
 
@@ -99,43 +99,43 @@ module mapl_Shmem_mod
 
   end interface
 
-  interface MAPL_AllocNodeArray
-     module procedure MAPL_AllocNodeArray_1DL4
-     module procedure MAPL_AllocNodeArray_1DI4
-     module procedure MAPL_AllocNodeArray_2DI4
-     module procedure MAPL_AllocNodeArray_3DI4
-     module procedure MAPL_AllocNodeArray_4DI4
-     module procedure MAPL_AllocNodeArray_1DR4
-     module procedure MAPL_AllocNodeArray_2DR4
-     module procedure MAPL_AllocNodeArray_3DR4
-     module procedure MAPL_AllocNodeArray_4DR4
-     module procedure MAPL_AllocNodeArray_1DR8
-     module procedure MAPL_AllocNodeArray_2DR8
-     module procedure MAPL_AllocNodeArray_3DR8
-     module procedure MAPL_AllocNodeArray_4DR8
-     module procedure MAPL_AllocNodeArray_5DR8
-     module procedure MAPL_AllocNodeArray_6DR8
-  end interface MAPL_AllocNodeArray
+  interface AllocNodeArray
+     module procedure AllocNodeArray_1DL4
+     module procedure AllocNodeArray_1DI4
+     module procedure AllocNodeArray_2DI4
+     module procedure AllocNodeArray_3DI4
+     module procedure AllocNodeArray_4DI4
+     module procedure AllocNodeArray_1DR4
+     module procedure AllocNodeArray_2DR4
+     module procedure AllocNodeArray_3DR4
+     module procedure AllocNodeArray_4DR4
+     module procedure AllocNodeArray_1DR8
+     module procedure AllocNodeArray_2DR8
+     module procedure AllocNodeArray_3DR8
+     module procedure AllocNodeArray_4DR8
+     module procedure AllocNodeArray_5DR8
+     module procedure AllocNodeArray_6DR8
+  end interface AllocNodeArray
 
-  interface MAPL_DeAllocNodeArray
-     module procedure MAPL_DeAllocNodeArray_1DL4
-     module procedure MAPL_DeAllocNodeArray_1DI4
-     module procedure MAPL_DeAllocNodeArray_2DI4
-     module procedure MAPL_DeAllocNodeArray_3DI4
-     module procedure MAPL_DeAllocNodeArray_4DI4
-     module procedure MAPL_DeAllocNodeArray_1DR4
-     module procedure MAPL_DeAllocNodeArray_2DR4
-     module procedure MAPL_DeAllocNodeArray_3DR4
-     module procedure MAPL_DeAllocNodeArray_4DR4
-     module procedure MAPL_DeAllocNodeArray_1DR8
-     module procedure MAPL_DeAllocNodeArray_2DR8
-     module procedure MAPL_DeAllocNodeArray_3DR8
-     module procedure MAPL_DeAllocNodeArray_4DR8
-     module procedure MAPL_DeAllocNodeArray_5DR8
-     module procedure MAPL_DeAllocNodeArray_6DR8
-  end interface MAPL_DeAllocNodeArray
+  interface DeAllocNodeArray
+     module procedure DeAllocNodeArray_1DL4
+     module procedure DeAllocNodeArray_1DI4
+     module procedure DeAllocNodeArray_2DI4
+     module procedure DeAllocNodeArray_3DI4
+     module procedure DeAllocNodeArray_4DI4
+     module procedure DeAllocNodeArray_1DR4
+     module procedure DeAllocNodeArray_2DR4
+     module procedure DeAllocNodeArray_3DR4
+     module procedure DeAllocNodeArray_4DR4
+     module procedure DeAllocNodeArray_1DR8
+     module procedure DeAllocNodeArray_2DR8
+     module procedure DeAllocNodeArray_3DR8
+     module procedure DeAllocNodeArray_4DR8
+     module procedure DeAllocNodeArray_5DR8
+     module procedure DeAllocNodeArray_6DR8
+  end interface DeAllocNodeArray
 
-  interface MAPL_BroadcastToNodes
+  interface BroadcastToNodes
      module procedure BroadcastToNodes_1DI4
      module procedure BroadcastToNodes_2DI4
      module procedure BroadcastToNodes_3DI4
@@ -147,276 +147,276 @@ module mapl_Shmem_mod
      module procedure BroadcastToNodes_2DR8
      module procedure BroadcastToNodes_3DR8
      module procedure BroadcastToNodes_4DR8
-  end interface MAPL_BroadcastToNodes
+  end interface BroadcastToNodes
 
-  interface MAPL_AllocateShared
-     module procedure MAPL_AllocateShared_1DL4
-     module procedure MAPL_AllocateShared_1DI4
-     module procedure MAPL_AllocateShared_1DR4
-     module procedure MAPL_AllocateShared_1DR8
-     module procedure MAPL_AllocateShared_2DI4
-     module procedure MAPL_AllocateShared_2DR4
-     module procedure MAPL_AllocateShared_2DR8
-  end interface MAPL_AllocateShared
+  interface AllocateShared
+     module procedure AllocateShared_1DL4
+     module procedure AllocateShared_1DI4
+     module procedure AllocateShared_1DR4
+     module procedure AllocateShared_1DR8
+     module procedure AllocateShared_2DI4
+     module procedure AllocateShared_2DR4
+     module procedure AllocateShared_2DR8
+  end interface AllocateShared
 
   interface
 
-     module subroutine MAPL_GetNodeInfo(comm, rc)
+     module subroutine GetNodeInfo(comm, rc)
        integer,           intent(IN ) :: comm
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_GetNodeInfo
+     end subroutine GetNodeInfo
 
-     module subroutine MAPL_InitializeShmem(rc)
+     module subroutine InitializeShmem(rc)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_InitializeShmem
+     end subroutine InitializeShmem
 
-     module subroutine MAPL_FinalizeShmem(rc)
+     module subroutine FinalizeShmem(rc)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_FinalizeShmem
+     end subroutine FinalizeShmem
 
-     module subroutine MAPL_DeAllocNodeArray_1DL4(Ptr,rc)
+     module subroutine DeAllocNodeArray_1DL4(Ptr,rc)
        logical, pointer :: Ptr(:)
        integer, optional, intent(OUT) :: rc
 
-     end subroutine MAPL_DeAllocNodeArray_1DL4
+     end subroutine DeAllocNodeArray_1DL4
 
-     module subroutine MAPL_DeAllocNodeArray_1DI4(Ptr,rc)
+     module subroutine DeAllocNodeArray_1DI4(Ptr,rc)
        integer,  pointer              :: Ptr(:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_1DI4
+     end subroutine DeAllocNodeArray_1DI4
 
-     module subroutine MAPL_DeAllocNodeArray_2DI4(Ptr,rc)
+     module subroutine DeAllocNodeArray_2DI4(Ptr,rc)
        integer,  pointer              :: Ptr(:,:)
        integer, optional, intent(OUT) :: rc
 
-     end subroutine MAPL_DeAllocNodeArray_2DI4
+     end subroutine DeAllocNodeArray_2DI4
 
-     module subroutine MAPL_DeAllocNodeArray_3DI4(Ptr,rc)
+     module subroutine DeAllocNodeArray_3DI4(Ptr,rc)
        integer,  pointer              :: Ptr(:,:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_3DI4
+     end subroutine DeAllocNodeArray_3DI4
 
-     module subroutine MAPL_DeAllocNodeArray_4DI4(Ptr,rc)
+     module subroutine DeAllocNodeArray_4DI4(Ptr,rc)
        integer,  pointer              :: Ptr(:,:,:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_4DI4
+     end subroutine DeAllocNodeArray_4DI4
 
 
-     module subroutine MAPL_DeAllocNodeArray_1DR4(Ptr,rc)
+     module subroutine DeAllocNodeArray_1DR4(Ptr,rc)
        real(kind=REAL32),  pointer    :: Ptr(:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_1DR4
+     end subroutine DeAllocNodeArray_1DR4
 
-     module subroutine MAPL_DeAllocNodeArray_2DR4(Ptr,rc)
+     module subroutine DeAllocNodeArray_2DR4(Ptr,rc)
        real(kind=REAL32),  pointer    :: Ptr(:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_2DR4
+     end subroutine DeAllocNodeArray_2DR4
 
-     module subroutine MAPL_DeAllocNodeArray_3DR4(Ptr,rc)
+     module subroutine DeAllocNodeArray_3DR4(Ptr,rc)
        real(kind=REAL32),  pointer    :: Ptr(:,:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_3DR4
+     end subroutine DeAllocNodeArray_3DR4
 
-     module subroutine MAPL_DeAllocNodeArray_4DR4(Ptr,rc)
+     module subroutine DeAllocNodeArray_4DR4(Ptr,rc)
        real,  pointer                 :: Ptr(:,:,:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_4DR4
+     end subroutine DeAllocNodeArray_4DR4
 
 
-     module subroutine MAPL_DeAllocNodeArray_1DR8(Ptr,rc)
+     module subroutine DeAllocNodeArray_1DR8(Ptr,rc)
        real(kind=REAL64),  pointer    :: Ptr(:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_1DR8
+     end subroutine DeAllocNodeArray_1DR8
 
-     module subroutine MAPL_DeAllocNodeArray_2DR8(Ptr,rc)
+     module subroutine DeAllocNodeArray_2DR8(Ptr,rc)
        real(kind=REAL64),  pointer    :: Ptr(:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_2DR8
+     end subroutine DeAllocNodeArray_2DR8
 
-     module subroutine MAPL_DeAllocNodeArray_3DR8(Ptr,rc)
+     module subroutine DeAllocNodeArray_3DR8(Ptr,rc)
        real(kind=REAL64),  pointer    :: Ptr(:,:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_3DR8
+     end subroutine DeAllocNodeArray_3DR8
 
-     module subroutine MAPL_DeAllocNodeArray_4DR8(Ptr,rc)
+     module subroutine DeAllocNodeArray_4DR8(Ptr,rc)
        real(kind=REAL64),  pointer    :: Ptr(:,:,:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_4DR8
+     end subroutine DeAllocNodeArray_4DR8
 
-     module subroutine MAPL_DeAllocNodeArray_5DR8(Ptr,rc)
+     module subroutine DeAllocNodeArray_5DR8(Ptr,rc)
        real(kind=REAL64),  pointer    :: Ptr(:,:,:,:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_5DR8
+     end subroutine DeAllocNodeArray_5DR8
 
-     module subroutine MAPL_DeAllocNodeArray_6DR8(Ptr,rc)
+     module subroutine DeAllocNodeArray_6DR8(Ptr,rc)
        real(kind=REAL64),  pointer    :: Ptr(:,:,:,:,:,:)
        integer, optional, intent(OUT) :: rc
-     end subroutine MAPL_DeAllocNodeArray_6DR8
+     end subroutine DeAllocNodeArray_6DR8
 
-     module subroutine MAPL_AllocNodeArray_1DL4(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_1DL4(Ptr, Shp, lbd, rc)
        logical, pointer,  intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_1DL4
+     end subroutine AllocNodeArray_1DL4
 
-     module subroutine MAPL_AllocNodeArray_1DI4(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_1DI4(Ptr, Shp, lbd, rc)
        integer, pointer,  intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_1DI4
+     end subroutine AllocNodeArray_1DI4
 
 
-     module subroutine MAPL_AllocNodeArray_2DI4(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_2DI4(Ptr, Shp, lbd, rc)
        integer, pointer,  intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)
        integer, optional, intent(IN   ) :: lbd(2)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_2DI4
+     end subroutine AllocNodeArray_2DI4
 
-     module subroutine MAPL_AllocNodeArray_3DI4(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_3DI4(Ptr, Shp, lbd, rc)
        integer, pointer,  intent(INOUT) :: Ptr(:,:,:)
        integer,           intent(IN   ) :: Shp(3)
        integer, optional, intent(IN   ) :: lbd(3)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_3DI4
+     end subroutine AllocNodeArray_3DI4
 
-     module subroutine MAPL_AllocNodeArray_4DI4(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_4DI4(Ptr, Shp, lbd, rc)
        integer, pointer,  intent(INOUT) :: Ptr(:,:,:,:)
        integer,           intent(IN   ) :: Shp(4)
        integer, optional, intent(IN   ) :: lbd(4)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_4DI4
+     end subroutine AllocNodeArray_4DI4
 
-     module subroutine MAPL_AllocNodeArray_1DR4(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_1DR4(Ptr, Shp, lbd, rc)
        real(kind=REAL32), pointer,   intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_1DR4
+     end subroutine AllocNodeArray_1DR4
 
 
-     module subroutine MAPL_AllocNodeArray_2DR4(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_2DR4(Ptr, Shp, lbd, rc)
        real(kind=REAL32), pointer,   intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)
        integer, optional, intent(IN   ) :: lbd(2)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_2DR4
+     end subroutine AllocNodeArray_2DR4
 
-     module subroutine MAPL_AllocNodeArray_3DR4(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_3DR4(Ptr, Shp, lbd, rc)
        real(kind=REAL32), pointer,   intent(INOUT) :: Ptr(:,:,:)
        integer,           intent(IN   ) :: Shp(3)
        integer, optional, intent(IN   ) :: lbd(3)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_3DR4
+     end subroutine AllocNodeArray_3DR4
 
-     module subroutine MAPL_AllocNodeArray_4DR4(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_4DR4(Ptr, Shp, lbd, rc)
        real, pointer,     intent(INOUT) :: Ptr(:,:,:,:)
        integer,           intent(IN   ) :: Shp(4)
        integer, optional, intent(IN   ) :: lbd(4)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_4DR4
+     end subroutine AllocNodeArray_4DR4
 
 
-     module subroutine MAPL_AllocNodeArray_1DR8(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_1DR8(Ptr, Shp, lbd, rc)
        real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_1DR8
+     end subroutine AllocNodeArray_1DR8
 
 
-     module subroutine MAPL_AllocNodeArray_2DR8(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_2DR8(Ptr, Shp, lbd, rc)
        real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)
        integer, optional, intent(IN   ) :: lbd(2)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_2DR8
+     end subroutine AllocNodeArray_2DR8
 
-     module subroutine MAPL_AllocNodeArray_3DR8(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_3DR8(Ptr, Shp, lbd, rc)
        real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:)
        integer,           intent(IN   ) :: Shp(3)
        integer, optional, intent(IN   ) :: lbd(3)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_3DR8
+     end subroutine AllocNodeArray_3DR8
 
-     module subroutine MAPL_AllocNodeArray_4DR8(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_4DR8(Ptr, Shp, lbd, rc)
        real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:,:)
        integer,           intent(IN   ) :: Shp(4)
        integer, optional, intent(IN   ) :: lbd(4)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_4DR8
+     end subroutine AllocNodeArray_4DR8
 
-     module subroutine MAPL_AllocNodeArray_5DR8(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_5DR8(Ptr, Shp, lbd, rc)
        real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:,:,:)
        integer,           intent(IN   ) :: Shp(5)
        integer, optional, intent(IN   ) :: lbd(5)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_5DR8
+     end subroutine AllocNodeArray_5DR8
 
-     module subroutine MAPL_AllocNodeArray_6DR8(Ptr, Shp, lbd, rc)
+     module subroutine AllocNodeArray_6DR8(Ptr, Shp, lbd, rc)
        real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:,:,:,:)
        integer,           intent(IN   ) :: Shp(6)
        integer, optional, intent(IN   ) :: lbd(6)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocNodeArray_6DR8
+     end subroutine AllocNodeArray_6DR8
 
-     module subroutine MAPL_AllocateShared_1DL4(Ptr, Shp, lbd, TransRoot, rc)
+     module subroutine AllocateShared_1DL4(Ptr, Shp, lbd, TransRoot, rc)
        logical, pointer,  intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocateShared_1DL4
+     end subroutine AllocateShared_1DL4
 
-     module subroutine MAPL_AllocateShared_1DI4(Ptr, Shp, lbd, TransRoot, rc)
+     module subroutine AllocateShared_1DI4(Ptr, Shp, lbd, TransRoot, rc)
        integer, pointer,  intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocateShared_1DI4
+     end subroutine AllocateShared_1DI4
 
-     module subroutine MAPL_AllocateShared_1DR4(Ptr, Shp, lbd, TransRoot, rc)
+     module subroutine AllocateShared_1DR4(Ptr, Shp, lbd, TransRoot, rc)
        real, pointer,     intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocateShared_1DR4
+     end subroutine AllocateShared_1DR4
 
-     module subroutine MAPL_AllocateShared_1DR8(Ptr, Shp, lbd, TransRoot, rc)
+     module subroutine AllocateShared_1DR8(Ptr, Shp, lbd, TransRoot, rc)
        real(KIND=REAL64), pointer,     intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
        integer, optional, intent(IN   ) :: lbd(1)
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocateShared_1DR8
+     end subroutine AllocateShared_1DR8
 
-     module subroutine MAPL_AllocateShared_2DI4(Ptr, Shp, lbd, TransRoot, rc)
+     module subroutine AllocateShared_2DI4(Ptr, Shp, lbd, TransRoot, rc)
        integer, pointer,  intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)
        integer, optional, intent(IN   ) :: lbd(2)
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocateShared_2DI4
+     end subroutine AllocateShared_2DI4
 
-     module subroutine MAPL_AllocateShared_2DR4(Ptr, Shp, lbd, TransRoot, rc)
+     module subroutine AllocateShared_2DR4(Ptr, Shp, lbd, TransRoot, rc)
        real,    pointer,  intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)
        integer, optional, intent(IN   ) :: lbd(2)
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocateShared_2DR4
+     end subroutine AllocateShared_2DR4
      
-     module subroutine MAPL_AllocateShared_2DR8(Ptr, Shp, lbd, TransRoot, rc)
+     module subroutine AllocateShared_2DR8(Ptr, Shp, lbd, TransRoot, rc)
        real(KIND=REAL64), pointer, intent(INOUT) :: Ptr(:,:)
        integer,           intent(IN   ) :: Shp(2)
        integer, optional, intent(IN   ) :: lbd(2)
        logical,           intent(IN   ) :: TransRoot
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_AllocateShared_2DR8
+     end subroutine AllocateShared_2DR8
 
      module subroutine ReleaseSharedMemory(Caddr,rc)
        type(c_ptr),       intent(INOUT) :: Caddr
@@ -508,15 +508,15 @@ module mapl_Shmem_mod
        integer, optional, intent(  OUT) :: rc
      end subroutine BroadcastToNodes_3DI4
 
-     module subroutine MAPL_SyncSharedMemory(rc)
+     module subroutine SyncSharedMemory(rc)
        integer, optional, intent(  OUT) :: rc
-     end subroutine MAPL_SyncSharedMemory
+     end subroutine SyncSharedMemory
 
-     module function MAPL_GetNewRank(node,rc) result(rank)
+     module function GetNewRank(node,rc) result(rank)
        integer :: rank
        integer, intent(in) :: node
        integer, optional, intent(out) :: rc
-     end function MAPL_GetNewRank
+     end function GetNewRank
 
      module function getNodeComm(Comm, rc) result(NodeComm)
        integer,           intent( IN) :: Comm
@@ -531,15 +531,15 @@ module mapl_Shmem_mod
      end function getNodeRootsComm
 
 
-     module function MAPL_ShmemAmOnFirstNode(comm, rc) result(a)
+     module function ShmemAmOnFirstNode(comm, rc) result(a)
        integer,           intent(IN   ) :: comm
        integer, optional, intent(  OUT) :: RC
        logical                          :: a
-     end function MAPL_ShmemAmOnFirstNode
+     end function ShmemAmOnFirstNode
 
-     integer module function MAPL_CoresPerNodeGet(comm, rc)
+     integer module function CoresPerNodeGet(comm, rc)
        integer,           intent(IN   ) :: comm
        integer, optional, intent(  OUT) :: RC
-     end function MAPL_CoresPerNodeGet
+     end function CoresPerNodeGet
   end interface
 end module mapl_Shmem_mod
