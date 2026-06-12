@@ -79,7 +79,7 @@ contains
       metadata = mapl_bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
       allocate(collection_gridcomp%writer, source=mapl_make_geom_pfio(metadata, rc=status))
       _VERIFY(STATUS)
-      call collection_gridcomp%writer%initialize(metadata, geom, _RC)
+      call collection_gridcomp%writer%init_with_metadata(metadata, geom, _RC)
 
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
       collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
