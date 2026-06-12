@@ -11,14 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `FieldBundleFilter` for filtering field bundles by predicate; refactored
-  `StateGet` and `RestartHandler` accordingly.
-- `GridComp` checkpoint directory helper (`MAPL_GridCompCheckpointDir`).
+- `FieldBundleFilter` for filtering field bundles by predicate.
+- Generic checkpointing support: `MAPL_GridCompSetCheckpoint` added to public
+  API; `StatisticsGridComp` and `GridComp` now use the generic checkpoint mechanism.
+- `MAPL_GridCompAddChild`: new overloads accepting either a setservices procedure
+  or a DSO name + procedure name.
+- `MAPL_GriddedComponentDriver` and `MAPL_DriverInitializePhases` added to
+  public API.
 - `StatisticsGridComp`: extended to support variance of a single field.
 - `FieldBundleGetPointerToData`: added REAL64 overloads for 2D/3D index/name variants.
 - `MAPL_STATEITEM_VECTOR` item type support in ACG spec files.
+- `PFIO` layer now has a public API umbrella.
 - Re-export `PackedDateCreate`, `PackedTimeCreate`, `PackedDateTimeCreate`, and
   `StrTemplate` through the top-level `MAPL` umbrella module.
+- `to_string` (`integer_to_string`) added to `mapl_StringUtilities`.
 
 ### Changed
 
@@ -27,39 +33,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `base/`; renamed `gridcomps/` subdirectories to canonical lowercase names;
   removed all `3g` suffixes from module and directory names; unified the
   `mapl3g_` module namespace under `mapl_`.
-- **Public API lockdown**: all `Export.F90` umbrella modules now carry explicit
-  `private` + `public ::` declarations. Legacy `API.F90` shim files dissolved;
-  symbols routed through proper export umbrellas. Removed symbols with no
-  external consumers; added confirmed external-consumer symbols.
+- **Public API lockdown**: all layer umbrella modules now carry explicit
+  `private` + `public ::` declarations. Internal shim files dissolved; symbols
+  routed through proper export umbrellas.
 - **Namespace standardization**: all internal module names follow the
   `mapl_<Name>_mod` convention. Unprefixed enum constants and types renamed to
-  `MAPL_`-prefixed equivalents (`FIELDBUNDLETYPE_*`, `STATEITEM_ALLOCATION_*`,
-  `GENERIC_COUPLER_*`, `VectorBasisKind`, etc.).
-- `VerticalStaggerLoc` moved from `MAPL.vertical_grid` into `MAPL.enums`.
-- `VerticalCoordinate` now takes `FileMetadata` (pfio) directly instead of the
-  `FileMetadataUtils` wrapper; `udunits2f` is now an explicit dependency of
-  `MAPL.vertical`.
+  `MAPL_`-prefixed equivalents.
+- `MAPL_GridCompAddVarSpec` replaced by `MAPL_GridCompAddSpec` (avoids exposing
+  `VariableSpec` through `use MAPL`); old interface removed.
+- `Cap.F90` and `GEOS.F90` moved into `mapl/`; `CapGridComp` now invoked via DSO.
 - CI updated to Baselibs 8.32.0 and circleci-tools orb v5; `components.yaml`
   updated to ESMA_env v5.22.0 / GEOSpyD 26.3.2.
 
 ### Fixed
 
-- `RoutehandleParam.F90`: fixed uninitialized error variable.
+- Various compiler fixes: NVHPC build failure in `OpenMP_Support.F90`; `ifx`
+  linker issue with error-handling thunks; NAG dangling pointer in checkpoint
+  directory helper; IEEE trap suppression for sNaN on `-Ktrap=fp` builds.
 - `VariableSpec`/`VectorClassAspect`: fixed vector component naming lifecycle
   (names now resolved at create-time rather than deferred to add-to-state).
 - ACG lookup mappings made bidirectional so aliases and actual values are
   interchangeable in spec files.
-- `OpenMP_Support.F90`: fixed NVHPC build failure by using MAPL wrapper
-  equivalents for ESMF internal-state calls.
-- `Test_FieldFill.pf`: suppressed IEEE invalid-operation trap for sNaN queries
-  under `-Ktrap=fp`; guarded IEEE halting-mode calls on macOS/ARM (NAG) where
-  the feature is unsupported.
-- `grid_is_ok`: relaxed comparison to handle r4 grids.
-- `MAPL.F90`: fixed `ifx` linker issue with bare `mapl_return_` thunks by
-  using `mapl_ErrorHandling` directly.
+
+### Removed
+
+- Legacy error handling interfaces `MAPL_RTRN`, `MAPL_Vrfy`, `MAPL_ASRT`, and
+  `mapl_ExceptionHandling_mod`.
+- Dead code: `utils/TimeUtilities.F90`, `ESMF_Subset.F90`, and other unused modules.
 
 <!-- mlc-disable -->
-## [v3.0.0-alpha-0] - 2026-05-15
+## [v3.0.0-alpha.0] - 2026-05-15
 <!-- mlc-enable -->
 
 ### Added
