@@ -2,7 +2,7 @@
 
 module mapl_HistoryGridComp_private_mod
    use MAPL
-   use mapl_HistoryConstants_mod
+   use mapl_esmf_info_keys_mod, only: VAR_LIST_KEY, KEY_ACCUMULATION_TYPE
    use mapl_HistoryUtilities_mod
    use mapl_StatisticsGridComp_mod, only: statistics_setServices => setServices
    use esmf

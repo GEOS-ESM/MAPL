@@ -51,20 +51,8 @@ module mapl_utils_api
    use mapl_Sleep_mod
    use mapl_CF_Time_mod
 
-   ! ESMF info keys — KEY_UNITS and KEY_TYPEKIND excluded: their values
-   ! differ from the same-named constants in mapl_HistoryConstants_mod,
-   ! causing conflicts for files that use both. Use mapl_esmf_info_keys_mod
-   ! directly when the /units and /typekind ESMF-path variants are needed.
-   use mapl_esmf_info_keys_mod, only: &
-        INFO_SHARED_NAMESPACE, INFO_PRIVATE_NAMESPACE, INFO_INTERNAL_NAMESPACE, &
-        KEY_UNGRIDDED_DIMS, KEY_VERT_DIM, KEY_VERT_GRID, &
-        KEY_INTERPOLATION_WEIGHTS, KEY_FIELD_PROTOTYPE, &
-        KEY_FIELDBUNDLETYPE, KEY_LONG_NAME, &
-        KEY_STANDARD_NAME, KEY_NUM_LEVELS, &
-        KEY_VLOC, KEY_NUM_UNGRIDDED_DIMS, KEYSTUB_DIM, &
-        KEY_UNGRIDDED_NAME, KEY_UNGRIDDED_UNITS, KEY_UNGRIDDED_COORD, &
-        KEY_DIM_STRINGS, KEY_VERT_STAGGERLOC, &
-        KEY_BRACKET_UPDATED, KEY_VECTOR_BASIS_KIND
+   ! Keys for ESMF_Info objects used in MAPL. See module for keys.
+   use mapl_esmf_info_keys_mod
 
    ! Validation
    use mapl_Validation_mod
