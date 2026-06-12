@@ -38,7 +38,7 @@
     type :: string_type
         character(len=:), allocatable :: str
     end type string_type
-    
+
     type(string_type), allocatable :: string_array(:)
 
   character(*), parameter :: PRIVATE_STATE = "StateOrb"
@@ -132,7 +132,7 @@ CONTAINS
              short_name=trim(self%Instrument(i)%str) , &
              standard_name=trim(self%Instrument(i)%str) , &
              dims="xy", &
-             vertical_stagger=VERTICAL_STAGGER_NONE, &
+             vertical_stagger=MAPL_VERTICAL_STAGGER_NONE, &
              units="days" , &
                _RC)
     enddo
@@ -142,7 +142,7 @@ CONTAINS
          short_name="SATORB", &
          standard_name="Satellite_orbits", &
          dims="xy", &
-         vertical_stagger=VERTICAL_STAGGER_NONE, &
+         vertical_stagger=MAPL_VERTICAL_STAGGER_NONE, &
          units="days" , &
          itemtype=MAPL_STATEITEM_FIELDBUNDLE, _RC)
 
@@ -205,8 +205,11 @@ CONTAINS
     KND=MAPL_R4
     geom = ESMF_GeomCreate(grid, _RC)
     do i = 1, self%no
-     field=MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name=trim(self%Instrument(i)%str), vert_staggerloc=VERTICAL_STAGGER_CENTER)
-     call MAPL_FieldBundleAdd(Bundle,[Field],_RC)
+      field=MAPL_FieldCreate(geom, &
+           typekind=ESMF_TYPEKIND_R4, &
+           name=trim(self%Instrument(i)%str), &
+           vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER)
+      call MAPL_FieldBundleAdd(Bundle,[Field],_RC)
     enddo
 
     ! find out what type of grid we are on, if so
