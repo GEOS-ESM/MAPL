@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+<!-- mlc-disable -->
+## [v3.0.0-alpha-1] - 2026-06-12
+<!-- mlc-enable -->
+
+
 ### Changed
 
 - Removed mapl_ prefix from leaf components in ./base, except SunOrbit.F90
