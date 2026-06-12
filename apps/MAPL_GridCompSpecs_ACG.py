@@ -191,9 +191,9 @@ def get_options(args):
         STANDARD_NAME: {FLAGS: MANDATORY},
         UNGRIDDED_DIMS: {MAPPING: ARRAY},
         VSTAGGER: {FLAGS: MANDATORY, MAPPING: {
-             'C': 'VERTICAL_STAGGER_CENTER',
-             'E': 'VERTICAL_STAGGER_EDGE',
-             'N': 'VERTICAL_STAGGER_NONE'}},
+             'C': 'MAPL_VERTICAL_STAGGER_CENTER',
+             'E': 'MAPL_VERTICAL_STAGGER_EDGE',
+             'N': 'MAPL_VERTICAL_STAGGER_NONE'}},
         ALIAS: {FLAGS: {STORE}},
         ALLOC: {FLAGS: {STORE}},
         ADD_TO_EXPORT: {MAPPING: STRLOGICAL},
