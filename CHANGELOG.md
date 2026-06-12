@@ -38,7 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   routed through proper export umbrellas.
 - **Namespace standardization**: all internal module names follow the
   `mapl_<Name>_mod` convention. Unprefixed enum constants and types renamed to
-  `MAPL_`-prefixed equivalents.
+  `MAPL_`-prefixed equivalents.   Temporary backward-compatible aliases for unprefixed
+  names are provided where needed (e.g. `VerticalStaggerLoc` enums) pending
+  updates in downstream consumers.
 - `MAPL_GridCompAddVarSpec` replaced by `MAPL_GridCompAddSpec` (avoids exposing
   `VariableSpec` through `use MAPL`); old interface removed.
 - `Cap.F90` and `GEOS.F90` moved into `mapl/`; `CapGridComp` now invoked via DSO.
