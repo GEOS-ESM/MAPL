@@ -214,11 +214,11 @@ contains
       type(esmf_Field) :: f, var_f, counts_f
       type(esmf_State) :: internal_state
       type(esmf_Geom), allocatable :: geom
-      type(UngriddedDims) :: ungridded_dims
+      type(MAPL_UngriddedDims) :: ungridded_dims
       character(:), allocatable :: units, name
       type(esmf_TypeKind_Flag) :: typekind
       class(VerticalGrid), pointer :: vertical_grid
-      type(VerticalStaggerLoc) :: vstagger
+      type(MAPL_VerticalStaggerLoc) :: vstagger
 
       f = stat%f
       var_f = stat%var_f

@@ -158,12 +158,12 @@ module mapl_PrimaryExport_mod
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
-                 vert_staggerloc=VERTICAL_STAGGER_NONE, regridder_param_info=regridder_param_info, _RC)
+                 vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE, regridder_param_info=regridder_param_info, _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
-                 vert_staggerloc=VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
+                 vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
       else
          _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
       end if
@@ -204,12 +204,12 @@ module mapl_PrimaryExport_mod
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
-                 vert_staggerloc=VERTICAL_STAGGER_NONE,  _RC)
+                 vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE,  _RC)
        else if (this%vcoord%vertical_type == SIMPLE_COORD) then
           vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
           call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
-                 vert_staggerloc=VERTICAL_STAGGER_CENTER,  _RC)
+                 vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER,  _RC)
       else
          _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
       end if

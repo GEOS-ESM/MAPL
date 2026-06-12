@@ -44,11 +44,11 @@ contains
       integer :: status
       type(esmf_State) :: internal_state
       type(esmf_Geom), allocatable :: geom
-      type(UngriddedDims) :: ungridded_dims
+      type(MAPL_UngriddedDims) :: ungridded_dims
       character(:), allocatable :: units, name
       type(esmf_TypeKind_Flag) :: typekind
       class(VerticalGrid), pointer :: vertical_grid
-      type(VerticalStaggerLoc) :: vstagger
+      type(MAPL_VerticalStaggerLoc) :: vstagger
       type(esmf_Field) :: temp_max_f
 
       stat%f = f

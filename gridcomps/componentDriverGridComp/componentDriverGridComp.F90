@@ -35,58 +35,59 @@ module mapl_ComponentDriverDriverGridComp_mod
 contains
 
    subroutine setServices(gridcomp, rc)
+
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
       integer :: status
 
-
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name="run", _RC)
-            ! Attach private state
+      ! Attach private state
       _SET_NAMED_PRIVATE_STATE(gridcomp, Comp_Driver_Support, PRIVATE_STATE)
       call add_internal_specs(gridcomp, _RC)
 
       _RETURN(_SUCCESS)
-      contains
 
-         subroutine add_internal_specs(gridcomp, rc)
-            type(ESMF_GridComp), intent(inout) :: gridcomp
-            integer, intent(out), optional :: rc
-            integer :: status
-            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
-                                        'time_interval' , &
-                                        standard_name='unknown', &
-                                        units='unknown', &
-                                        vertical_stagger=VERTICAL_STAGGER_NONE, &
-                                        fill_value=0.0, _RC)
-            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
-                                        'rand' , &
-                                        standard_name='randomnumber', &
-                                        units='unknown', &
-                                        vertical_stagger=VERTICAL_STAGGER_NONE, &
-                                        fill_value=0.0, _RC)
-            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
-                                        'grid_lons' , &
-                                        standard_name='longitude', &
-                                        units='degrees_east', &
-                                        vertical_stagger=VERTICAL_STAGGER_NONE, &
-                                        fill_value=0.0, _RC)
-            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
-                                        'grid_lats' , &
-                                        standard_name='latitude', &
-                                        units='degrees_north', &
-                                        vertical_stagger=VERTICAL_STAGGER_NONE, &
-                                        fill_value=0.0, _RC)
-            call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
-                                        'quarter_grid' , &
-                                        standard_name='quarter_grid', &
-                                        units='NA', &
-                                        vertical_stagger=VERTICAL_STAGGER_NONE, &
-                                        fill_value=0.0, _RC)
-            _RETURN(_SUCCESS)
+   contains
 
-         end subroutine
+      subroutine add_internal_specs(gridcomp, rc)
+         type(ESMF_GridComp), intent(inout) :: gridcomp
+         integer, intent(out), optional :: rc
+         integer :: status
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+              'time_interval', &
+              standard_name='unknown', &
+              units='unknown', &
+              vertical_stagger=MAPL_VERTICAL_STAGGER_NONE, &
+              fill_value=0.0, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+              'rand', &
+              standard_name='randomnumber', &
+              units='unknown', &
+              vertical_stagger=MAPL_VERTICAL_STAGGER_NONE, &
+              fill_value=0.0, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+              'grid_lons', &
+              standard_name='longitude', &
+              units='degrees_east', &
+              vertical_stagger=MAPL_VERTICAL_STAGGER_NONE, &
+              fill_value=0.0, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+              'grid_lats', &
+              standard_name='latitude', &
+              units='degrees_north', &
+              vertical_stagger=MAPL_VERTICAL_STAGGER_NONE, &
+              fill_value=0.0, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+              'quarter_grid', &
+              standard_name='quarter_grid', &
+              units='NA', &
+              vertical_stagger=MAPL_VERTICAL_STAGGER_NONE, &
+              fill_value=0.0, _RC)
+         _RETURN(_SUCCESS)
+
+      end subroutine add_internal_specs
    end subroutine setServices
 
    subroutine init(gridcomp, importState, exportState, clock, rc)
@@ -128,9 +129,9 @@ contains
          key = ESMF_HConfigAsStringMapKey(iter, _RC)
          keyVal = ESMF_HConfigAsStringMapVal(iter, _RC)
          call support%fillDefs%insert(key, keyVal)
-      enddo
+      end do
 
-      is_present =  ESMF_HConfigIsDefined(hconfig, keyString='import_comparison_expressions', _RC)
+      is_present = ESMF_HConfigIsDefined(hconfig, keyString='import_comparison_expressions', _RC)
       if (is_present) then
          import_comp_expressions = ESMF_HConfigCreateAt(hconfig, keyString='import_comparison_expressions', _RC)
          b = ESMF_HConfigIterBegin(import_comp_expressions, _RC)
@@ -139,7 +140,7 @@ contains
          do while (ESMF_HConfigIterLoop(iter, b, e))
             vector_val = ESMF_HConfigAsString(iter, _RC)
             call support%import_testing_expressions%push_back(vector_val)
-         enddo
+         end do
       end if
 
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
@@ -199,8 +200,8 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      real, pointer :: ptr_2d(:,:)
-      real(ESMF_KIND_R8), pointer :: coords(:,:)
+      real, pointer :: ptr_2d(:, :)
+      real(kind=ESMF_KIND_R8), pointer :: coords(:, :)
       integer :: status, seed_size, mypet, i, j
       integer, allocatable :: seeds(:)
       type(ESMF_Field) :: field
@@ -223,32 +224,32 @@ contains
       call ESMF_StateGet(internal_state, 'grid_lons', field, _RC)
       call ESMF_FieldGet(field, grid=grid, _RC)
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-                             staggerloc=ESMF_STAGGERLOC_CENTER, &
-                             farrayPtr=coords, _RC)
+           staggerloc=ESMF_STAGGERLOC_CENTER, &
+           farrayPtr=coords, _RC)
       ptr_2d = coords
       call MAPL_StateGetPointer(internal_state, ptr_2d, 'grid_lats', _RC)
       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-                             staggerloc=ESMF_STAGGERLOC_CENTER, &
-                             farrayPtr=coords, _RC)
+           staggerloc=ESMF_STAGGERLOC_CENTER, &
+           farrayPtr=coords, _RC)
       ptr_2d = coords
 
       quarter_grid_fac1 = 1.0
       quarter_grid_fac2 = 2.0
-      is_present = ESMF_HConfigIsDefined(hconfig, keystring='quarter_grid_fac1', _RC)
+      is_present = ESMF_HConfigIsDefined(hconfig, keyString='quarter_grid_fac1', _RC)
       if (is_present) then
-         quarter_grid_fac1 = ESMF_HConfigAsR4(hconfig, keystring='quarter_grid_fac1', _RC)
+         quarter_grid_fac1 = ESMF_HConfigAsR4(hconfig, keyString='quarter_grid_fac1', _RC)
       end if
-      is_present = ESMF_HConfigIsDefined(hconfig, keystring='quarter_grid_fac2', _RC)
+      is_present = ESMF_HConfigIsDefined(hconfig, keyString='quarter_grid_fac2', _RC)
       if (is_present) then
-         quarter_grid_fac2 = ESMF_HConfigAsR4(hconfig, keystring='quarter_grid_fac2', _RC)
+         quarter_grid_fac2 = ESMF_HConfigAsR4(hconfig, keyString='quarter_grid_fac2', _RC)
       end if
       call MAPL_StateGetPointer(internal_state, ptr_2d, 'quarter_grid', _RC)
-      ptr_2d=quarter_grid_fac2
-      do i=1,size(ptr_2d,1),2
-         do j=1,size(ptr_2d,2),2
-            ptr_2d(i,j)=quarter_grid_fac1
-         enddo
-      enddo
+      ptr_2d = quarter_grid_fac2
+      do i = 1, size(ptr_2d, 1), 2
+         do j = 1, size(ptr_2d, 2), 2
+            ptr_2d(i, j) = quarter_grid_fac1
+         end do
+      end do
 
       _RETURN(_SUCCESS)
 
@@ -261,7 +262,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real, pointer :: ptr_2d(:,:)
+      real, pointer :: ptr_2d(:, :)
 
       call MAPL_StateGetPointer(internal_state, ptr_2d, 'time_interval', _RC)
       ptr_2d = support%tFunc%evaluate_time(current_time, _RC)
@@ -288,22 +289,22 @@ contains
       field_lhs = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
       field_rhs = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC)
       iter = support%import_testing_expressions%begin()
-      do while(iter /= support%import_testing_expressions%end() )
+      do while (iter /= support%import_testing_expressions%end())
          equality => iter%of()
-         equal_pos = index(equality,'=')
+         equal_pos = index(equality, '=')
          _ASSERT(equal_pos /= 0, 'comparison expression is invalid')
-         lhs = equality(:equal_pos-1)
-         rhs = equality(equal_pos+1:)
+         lhs = equality(:equal_pos - 1)
+         rhs = equality(equal_pos + 1:)
          call MAPL_StateEval(state, lhs, field_lhs, _RC)
          call MAPL_StateEval(internal_state, rhs, field_rhs, _RC)
          call mapl_assignFptr(field_lhs, ptr_lhs, _RC)
          call mapl_assignFptr(field_rhs, ptr_rhs, _RC)
-         if (any(abs(ptr_lhs-ptr_rhs) > threshold)) then
+         if (any(abs(ptr_lhs - ptr_rhs) > threshold)) then
             _FAIL("state differs from reference state greater than allowed threshold")
          end if
 
          call iter%next()
-      enddo
+      end do
       _RETURN(_SUCCESS)
    end subroutine compare_state_to_expressions
 
@@ -329,25 +330,25 @@ contains
       allocate(name_list(item_count), _STAT)
       allocate(itemTypeList(item_count), _STAT)
       call ESMF_StateGet(state, itemTypeList=itemTypeList, itemNameList=name_list, _RC)
-      do i=1,item_count
+      do i = 1, item_count
          if (itemTypeList(i) == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(state, trim(name_list(i)), field, _RC)
             expression => support%fillDefs%at(trim(name_list(i)))
-            _ASSERT(associated(expression), "no expression for item "//trim(name_list(i)))
+            _ASSERT(associated(expression), "no expression for item " // trim(name_list(i)))
             call MAPL_StateEval(internal_state, expression, field, _RC)
          else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(state, trim(name_list(i)), bundle, _RC)
             call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
-            do j=1,size(field_list)
+            do j = 1, size(field_list)
                call ESMF_FieldGet(field_list(j), name=component_name, _RC)
-               write(jc,'(I1)')j
-               composite_name = trim(name_list(i))//VECTOR_JOINTER//'comp_'//jc
+               write(jc, '(I1)')j
+               composite_name = trim(name_list(i)) // VECTOR_JOINTER // 'comp_' // jc
                expression => support%fillDefs%at(composite_name)
-               _ASSERT(associated(expression), "no expression for item "//composite_name)
+               _ASSERT(associated(expression), "no expression for item " // composite_name)
                call MAPL_StateEval(internal_state, expression, field_list(j), _RC)
-            enddo
+            end do
          end if
-      enddo
+      end do
 
       _RETURN(_SUCCESS)
 
@@ -371,28 +372,28 @@ contains
       allocate(itemNameList(itemCount), _STAT)
       allocate(itemTypeList(itemCount), _STAT)
       call ESMF_StateGet(dest_state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
-      do i=1,itemCount
+      do i = 1, itemCount
          if (itemTypeList(i) == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(dest_state, trim(itemNameList(i)), dest_field, _RC)
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
-            _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
+            _ASSERT(source_type == ESMF_STATEITEM_FIELD, 'source and destination are not both fields')
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_field, _RC)
             call MAPL_FieldCopy(source_field, dest_field, _RC)
          else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(dest_state, trim(itemNameList(i)), dest_bundle, _RC)
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_type, _RC)
-            _ASSERT(source_type == ESMF_StateItem_FieldBundle, 'source and destination are not both fieldbundles')
+            _ASSERT(source_type == ESMF_STATEITEM_FIELDBUNDLE, 'source and destination are not both fieldbundles')
             call ESMF_StateGet(source_state, trim(itemNameList(i)), source_bundle, _RC)
             call MAPL_FieldBundleGet(source_bundle, fieldList=source_field_list, _RC)
             call MAPL_FieldBundleGet(dest_bundle, fieldList=dest_field_list, _RC)
-            do j=1,size(source_field_list)
+            do j = 1, size(source_field_list)
                call MAPL_FieldCopy(source_field_list(j), dest_field_list(j), _RC)
-            enddo
+            end do
          end if
-      enddo
+      end do
 
       _RETURN(_SUCCESS)
-   end subroutine
+   end subroutine copy_state
 
    subroutine compare_states(state, reference_state, threshold, rc)
       type(ESMF_State), intent(inout) :: state
@@ -405,7 +406,7 @@ contains
       type(ESMF_StateItem_Flag) :: source_type
       character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
       type(ESMF_Field) :: field, reference_field
-      real(ESMF_KIND_R4), pointer :: ptr(:), reference_ptr(:)
+      real(kind=ESMF_KIND_R4), pointer :: ptr(:), reference_ptr(:)
       type(ESMF_FieldBundle) :: bundle, reference_bundle
       type(ESMF_Field), allocatable :: field_list(:), reference_field_list(:)
 
@@ -413,34 +414,34 @@ contains
       allocate(itemNameList(itemCount), _STAT)
       allocate(itemTypeList(itemCount), _STAT)
       call ESMF_StateGet(state, itemTypeList=itemTypeList, itemNameList=itemNameList, _RC)
-      do i=1,itemCount
+      do i = 1, itemCount
          if (itemTypeList(i) == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(state, trim(itemNameList(i)), field, _RC)
             call ESMF_StateGet(reference_state, trim(itemNameList(i)), source_type, _RC)
-            _ASSERT(source_type == ESMF_StateItem_Field, 'source and destination are not both fields')
+            _ASSERT(source_type == ESMF_STATEITEM_FIELD, 'source and destination are not both fields')
             call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_field, _RC)
             call mapl_assignFptr(field, ptr, _RC)
             call mapl_assignFptr(reference_field, reference_ptr, _RC)
-            if (any(abs(ptr-reference_ptr) > threshold)) then
+            if (any(abs(ptr - reference_ptr) > threshold)) then
                _FAIL("state differs from reference state greater than allowed threshold")
             end if
          else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_bundle, _RC)
             call ESMF_StateGet(state, trim(itemNameList(i)), source_type, _RC)
-            _ASSERT(source_type == ESMF_StateItem_FieldBundle, 'source and destination are not both fieldbundles')
+            _ASSERT(source_type == ESMF_STATEITEM_FIELDBUNDLE, 'source and destination are not both fieldbundles')
             call ESMF_StateGet(state, trim(itemNameList(i)), bundle, _RC)
             call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
             call MAPL_FieldBundleGet(reference_bundle, fieldList=reference_field_list, _RC)
             _ASSERT(size(field_list) == size(reference_field_list), 'fields from vector bundle not same size')
-            do j=1,size(field_list)
+            do j = 1, size(field_list)
                call mapl_assignFptr(field_list(j), ptr, _RC)
                call mapl_assignFptr(reference_field_list(j), reference_ptr, _RC)
-               if (any(abs(ptr-reference_ptr) > threshold)) then
+               if (any(abs(ptr - reference_ptr) > threshold)) then
                   _FAIL("state differs from reference state greater than allowed threshold")
                end if
-            enddo
+            end do
          end if
-      enddo
+      end do
 
       _RETURN(_SUCCESS)
    end subroutine compare_states
@@ -448,15 +449,12 @@ contains
 end module mapl_ComponentDriverDriverGridComp_mod
 
 subroutine setServices(gridcomp, rc)
-   use ESMF
+   use esmf
    use MAPL
-   use mapl_ComponentDriverDriverGridComp_mod, only: Root_setServices => SetServices
-   type(ESMF_GridComp)  :: gridcomp
+   use mapl_ComponentDriverDriverGridComp_mod, only: Root_setServices => setServices
+   type(ESMF_GridComp) :: gridcomp
    integer, intent(out) :: rc
-
    integer :: status
-
    call Root_setServices(gridcomp, _RC)
-
    _RETURN(_SUCCESS)
 end subroutine setServices
