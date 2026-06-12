@@ -8,7 +8,7 @@ module mapl_ComponentDriverDriverGridComp_mod
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use timeSupport
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: setServices

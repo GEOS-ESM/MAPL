@@ -15,17 +15,17 @@ contains
    subroutine test_make_from_hconfig(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager), target :: geom_manager
+      type(mapl_GeomManager), target :: geom_manager
       type(ESMF_HConfig) :: hconfig
       integer :: status
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_MaplGeom), pointer :: mapl_geom
       type(ESMF_Geom) :: geom
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
            rc=status)
       @assert_that(status, is(0))
 
-      geom_manager = GeomManager()
+      geom_manager = mapl_GeomManager()
       mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
       @assert_that(status, is(0))
 
@@ -44,11 +44,11 @@ contains
    subroutine test_reuse_geom(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager), target :: geom_manager
+      type(mapl_GeomManager), target :: geom_manager
       type(ESMF_HConfig) :: hconfig
       integer :: status
-      class(GeomSpec), allocatable :: spec
-      type(MaplGeom), pointer :: mapl_geom_a, mapl_geom_b
+      class(mapl_GeomSpec), allocatable :: spec
+      type(mapl_MaplGeom), pointer :: mapl_geom_a, mapl_geom_b
       type(ESMF_Geom) :: geom_a, geom_b
 
       type(ESMF_Info) :: infoh
@@ -58,7 +58,7 @@ contains
            rc=status)
       @assert_that(status, is(0))
 
-      geom_manager = GeomManager()
+      geom_manager = mapl_GeomManager()
       allocate(spec, source=geom_manager%make_geom_spec(hconfig, rc=status))
       @assert_that(status, is(0))
 
@@ -91,11 +91,11 @@ contains
    subroutine test_do_not_reuse_geom(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager), target :: geom_manager
+      type(mapl_GeomManager), target :: geom_manager
       type(ESMF_HConfig) :: hconfig
       integer :: status
-      class(GeomSpec), allocatable :: spec
-      type(MaplGeom), pointer :: mapl_geom_a, mapl_geom_b
+      class(mapl_GeomSpec), allocatable :: spec
+      type(mapl_MaplGeom), pointer :: mapl_geom_a, mapl_geom_b
       type(ESMF_Geom) :: geom_a, geom_b
 
       type(ESMF_Info) :: infoh
@@ -105,7 +105,7 @@ contains
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
            rc=status)
       @assert_that(status, is(0))
-      geom_manager = GeomManager()
+      geom_manager = mapl_GeomManager()
       allocate(spec, source=geom_manager%make_geom_spec(hconfig, rc=status))
       @assert_that(status, is(0))
       call ESMF_HConfigDestroy(hconfig, rc=status)

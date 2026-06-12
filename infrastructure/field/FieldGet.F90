@@ -40,7 +40,7 @@ contains
       type(HorizontalDimsSpec), optional, intent(out) :: horizontal_dims_spec
       character(len=:), optional, allocatable, intent(out) :: short_name
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
-      class(VerticalGrid), pointer, optional, intent(out) :: vgrid
+      class(mapl_VerticalGrid), pointer, optional, intent(out) :: vgrid
       integer, optional, intent(out) :: num_levels     ! Actual field levels (depends on vgrid + stagger)
       integer, optional, intent(out) :: num_layers     ! Number of layers from vgrid (CENTER levels)
       type(mapl_VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
@@ -63,7 +63,7 @@ contains
       character(len=ESMF_MAXSTR) :: fname
       type(ESMF_FieldStatus_Flag) :: fstatus
       integer :: vgrid_id
-      type(VerticalGridManager), pointer :: vgrid_manager
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
 
       if (present(short_name)) then
          call ESMF_FieldGet(field, name=fname, _RC)
@@ -102,10 +102,10 @@ contains
            _RC)
 
       if (present(vgrid)) then
-         if (vgrid_id == VERTICAL_GRID_NOT_FOUND) then
+         if (vgrid_id == MAPL_VERTICAL_GRID_NOT_FOUND) then
             vgrid => null()
          else
-            vgrid_manager => get_vertical_grid_manager()
+            vgrid_manager => mapl_get_vertical_grid_manager()
             vgrid => vgrid_manager%get_grid(id=vgrid_id, _RC)
          end if
       end if

@@ -49,7 +49,7 @@ contains
       class(ExtDataConfig), intent(inout), target :: ext_config
       type(ESMF_HConfig), intent(in) :: input_config
       type(ESMF_TIme), intent(in) :: current_time
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(ESMF_HConfig) :: sub_config
@@ -297,7 +297,7 @@ contains
    function get_item_type(this,item_name,unusable,rc) result(item_type)
       class(ExtDataConfig), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: item_type
       type(ExtDataRule), pointer :: rule
@@ -403,7 +403,7 @@ contains
          ! wence to coppy them
          do i=1,variables_in_expression%size()
             sval => variables_in_expression%at(i)
-            in_primary = string_in_stringVector(sval,primary_items)
+            in_primary = mapl_string_in_stringVector(sval,primary_items)
             if (.not.in_primary) then
                found_rule = this%has_rule_for(sval,_RC)
                _ASSERT(found_rule,"no rule for "//trim(sval)//" needed by "//trim(derived_name))

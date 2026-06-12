@@ -25,11 +25,11 @@ contains
    
    function make_geom(geom_mgr, hconfig, rc) result(geom)
       type(ESMF_Geom) :: geom
-      type(GeomManager), intent(inout) :: geom_mgr
+      type(mapl_GeomManager), intent(inout) :: geom_mgr
       type(ESMF_HConfig), optional, intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_MaplGeom), pointer :: mapl_geom
       integer :: status
       type(ESMF_HConfig) :: hconfig_
 
@@ -54,13 +54,13 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x(:,:)
       real(kind=ESMF_KIND_R4), pointer :: x_3d(:,:,:)
       integer :: status
-      type(VerticalGridManager), pointer :: vgrid_manager
-      class(VerticalGrid), pointer :: vgrid
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid
 
       
       if (present(lm)) then
-         vgrid_manager => get_vertical_grid_manager()
-         vgrid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=lm), _RC)
+         vgrid_manager => mapl_get_vertical_grid_manager()
+         vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=lm), _RC)
          field = FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
          call ESMF_FieldGet(field, farrayptr=x_3d, _RC)
          x_3d = value
@@ -79,7 +79,7 @@ contains
    ! geometry should not change any values.
    subroutine test_basic(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager) :: regridder_mgr
       type(RegridderSpec) :: regridder_spec
       integer :: status
@@ -90,7 +90,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x(:,:)
 
 
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       geom = make_geom(geom_mgr, _RC)
@@ -115,14 +115,14 @@ contains
    ! that the manager is properly caching.
    subroutine test_reuse_regridder(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: regridder_spec
       integer :: status
       class(Regridder), pointer :: regridder_1, regridder_2
       type(ESMF_Geom) :: geom
 
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       geom = make_geom(geom_mgr, _RC)
@@ -141,7 +141,7 @@ contains
    ! that the manager is properly caching.
    subroutine test_do_not_reuse_regridder(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec_1, spec_2
       integer :: status
@@ -149,7 +149,7 @@ contains
       type(ESMF_Geom) :: geom_1, geom_2
       type(ESMF_HConfig) :: hconfig
 
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       geom_1 = make_geom(geom_mgr, _RC)
@@ -173,7 +173,7 @@ contains
    ! grid with default bilinear regrid method.
    subroutine test_regrid_values(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -184,7 +184,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x1(:,:)
       real(kind=ESMF_KIND_R4), pointer :: x2(:,:)
 
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
@@ -217,7 +217,7 @@ contains
    ! creation of a wrapper layer in MAPL.
    subroutine test_regrid_3d(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -230,7 +230,7 @@ contains
 
       type(DynamicMask) :: dyn_mask
       
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 11, pole: PC, dateline: DE, nx: 1, ny: 1}", _RC)
@@ -273,7 +273,7 @@ contains
    ! much tighter tolerance than a constant-value test.
    subroutine test_regrid_2d_vector(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -291,7 +291,7 @@ contains
       real(kind=REAL64), parameter :: PI = acos(-1._REAL64)
       real(kind=REAL64), parameter :: DEG2RAD = PI / 180._REAL64
 
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 36, jm_world: 19, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
@@ -350,7 +350,7 @@ contains
     ! valid results rather than propagating the invalid value.
    subroutine test_regrid_2d_vector_masked(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -369,7 +369,7 @@ contains
       real(kind=REAL64), parameter :: DEG2RAD = PI / 180._REAL64
       type(DynamicMask) :: dyn_mask
 
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 17, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
@@ -436,7 +436,7 @@ contains
    ! error.
    subroutine test_locstream_as_destination(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -446,7 +446,7 @@ contains
       type(ESMF_Field) :: f_grid, f_loc
       real(kind=ESMF_KIND_R4), pointer :: x_loc(:)
 
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       ! Source: simple latlon grid
@@ -476,7 +476,7 @@ contains
    ! sources (they are destination-only).
    subroutine test_locstream_not_source(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -484,7 +484,7 @@ contains
       type(ESMF_Geom) :: geom_grid, geom_loc
       type(ESMF_HConfig) :: hconfig
 
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       ! Grid and LocStream geoms
@@ -506,7 +506,7 @@ contains
    ! Verifies that setting vector_basis_kind='NS' uses geographic coordinates.
    subroutine test_regrid_vector_with_ns_basis(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -518,7 +518,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: u2(:,:)
       real(kind=ESMF_KIND_R4), pointer :: v2(:,:)
       
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
@@ -560,7 +560,7 @@ contains
    ! Verifies that setting vector_basis_kind='GRID' uses grid-relative coordinates.
    subroutine test_regrid_vector_with_grid_basis(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -572,7 +572,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: u2(:,:)
       real(kind=ESMF_KIND_R4), pointer :: v2(:,:)
       
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
@@ -615,7 +615,7 @@ contains
    ! This verifies the default behavior from PR #4389.
    subroutine test_regrid_vector_default_basis(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -628,7 +628,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: v2(:,:)
       type(MAPL_VectorBasisKind) :: basis_retrieved
       
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
@@ -671,7 +671,7 @@ contains
    ! Verifies that all vector pairs in a bracket use the specified basis.
    subroutine test_regrid_vector_bracket_with_basis(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -682,7 +682,7 @@ contains
       type(ESMF_Fieldbundle) :: bracket1, bracket2
       real(kind=ESMF_KIND_R4), pointer :: x2(:,:), y2(:,:), u2(:,:), v2(:,:)
       
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
@@ -734,7 +734,7 @@ contains
    ! Test that regridder distinguishes flavors of FieldBundle
    subroutine test_regrid_bracket(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(GeomManager), target :: geom_mgr
+      type(mapl_GeomManager), target :: geom_mgr
       type(RegridderManager), target :: regridder_mgr
       type(RegridderSpec) :: spec
       integer :: status
@@ -750,7 +750,7 @@ contains
 
       type(DynamicMask) :: dyn_mask
       
-      geom_mgr = GeomManager()
+      geom_mgr = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
 
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)

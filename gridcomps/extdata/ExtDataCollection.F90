@@ -31,7 +31,7 @@ contains
    function new_ExtDataCollection(config,current_time, unusable,rc) result(data_set)
       type(ESMF_HConfig), intent(in) :: config
       type(ESMF_Time), intent(in) :: current_time
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(ExtDataCollection) :: data_set

@@ -3,6 +3,7 @@
 module mapl_Cap_mod
 
    use MAPL
+   use mapl_UserSetServices_mod
    use pflogger
    use esmf
 
@@ -38,7 +39,7 @@ contains
    subroutine mapl_run_driver(hconfig, is_model_pet, unusable, servers, rc)
       type(esmf_HConfig), intent(inout) :: hconfig
       logical, intent(in) :: is_model_pet
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), optional, intent(in) :: servers(:)
       integer, optional, intent(out) :: rc
 

@@ -146,7 +146,7 @@ class TestMappings(unittest.TestCase):
         2. If input is a value in the dict, return the value itself (identity mapping)
         3. If input is neither a key nor value, return None
         """
-        # Setup: Get vstagger option (has dict mapping: C/E/N -> VERTICAL_STAGGER_*)
+        # Setup: Get vstagger option (has dict mapping: C/E/N -> MAPL_VERTICAL_STAGGER_*)
         options = acg3.get_options({})
         vstagger_option = options[acg3.SPECIFICATIONS][acg3.VSTAGGER]
         
@@ -158,8 +158,8 @@ class TestMappings(unittest.TestCase):
                               'vstagger MAPPING should be a dict')
         self.assertIn('C', mapping_dict, 
                       'vstagger mapping should contain key "C"')
-        self.assertIn('VERTICAL_STAGGER_CENTER', mapping_dict.values(),
-                      'vstagger mapping should contain value "VERTICAL_STAGGER_CENTER"')
+        self.assertIn('MAPL_VERTICAL_STAGGER_CENTER', mapping_dict.values(),
+                      'vstagger mapping should contain value "MAPL_VERTICAL_STAGGER_CENTER"')
         
         # Fetch the mapping function
         mapping_func = acg3.fetch_mapping_function(vstagger_option)
@@ -170,9 +170,9 @@ class TestMappings(unittest.TestCase):
         
         # Test Case 1: Input is a key in the dict (should return value)
         test_cases_key = (
-            ('C', 'VERTICAL_STAGGER_CENTER', 'Key "C" should map to value'),
-            ('E', 'VERTICAL_STAGGER_EDGE', 'Key "E" should map to value'),
-            ('N', 'VERTICAL_STAGGER_NONE', 'Key "N" should map to value'),
+            ('C', 'MAPL_VERTICAL_STAGGER_CENTER', 'Key "C" should map to value'),
+            ('E', 'MAPL_VERTICAL_STAGGER_EDGE', 'Key "E" should map to value'),
+            ('N', 'MAPL_VERTICAL_STAGGER_NONE', 'Key "N" should map to value'),
         )
         
         for input_str, expected, msg in test_cases_key:
@@ -182,11 +182,11 @@ class TestMappings(unittest.TestCase):
         
         # Test Case 2: Input is a value in the dict (should return itself)
         test_cases_value = (
-            ('VERTICAL_STAGGER_CENTER', 'VERTICAL_STAGGER_CENTER', 
+            ('MAPL_VERTICAL_STAGGER_CENTER', 'MAPL_VERTICAL_STAGGER_CENTER', 
              'Value should map to itself (identity)'),
-            ('VERTICAL_STAGGER_EDGE', 'VERTICAL_STAGGER_EDGE', 
+            ('MAPL_VERTICAL_STAGGER_EDGE', 'MAPL_VERTICAL_STAGGER_EDGE', 
              'Value should map to itself (identity)'),
-            ('VERTICAL_STAGGER_NONE', 'VERTICAL_STAGGER_NONE', 
+            ('MAPL_VERTICAL_STAGGER_NONE', 'MAPL_VERTICAL_STAGGER_NONE', 
              'Value should map to itself (identity)'),
         )
         

@@ -7,7 +7,7 @@ module mapl_NonClimDataSetFileSelector_mod
    use mapl_AbstractDataSetFileSelector_mod
    use mapl_ExtDataUtilities_mod
    use MAPL
-   implicit none
+   implicit none(type,external)
    private
 
    public NonClimDataSetFileSelector
@@ -223,7 +223,7 @@ module mapl_NonClimDataSetFileSelector_mod
        valid_node = .false.
        do i=0,local_search_stop,step
           trial_time = this%compute_trial_time(current_time, i, _RC)
-          call fill_grads_template(trial_file, this%file_template, time=trial_time, _RC)
+          call mapl_fill_grads_template(trial_file, this%file_template, time=trial_time, _RC)
           inquire(file=trial_file, exist=file_found)
           if (file_found) then
              call node%invalidate()

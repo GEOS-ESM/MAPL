@@ -48,7 +48,7 @@ contains
 
    function new_TimeVariance(unusable, f, var_f, alarm, algorithm, biased) result(stat)
       type(TimeVariance) :: stat
-      class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_Field), intent(in) :: f
       type(esmf_Field), intent(inout) :: var_f
       type(MAPL_SimpleAlarm), intent(in) :: alarm
@@ -217,8 +217,8 @@ contains
       type(MAPL_UngriddedDims) :: ungridded_dims
       character(:), allocatable :: units, name
       type(esmf_TypeKind_Flag) :: typekind
-      class(VerticalGrid), pointer :: vertical_grid
       type(MAPL_VerticalStaggerLoc) :: vstagger
+      class(mapl_VerticalGrid), pointer :: vertical_grid
 
       f = stat%f
       var_f = stat%var_f

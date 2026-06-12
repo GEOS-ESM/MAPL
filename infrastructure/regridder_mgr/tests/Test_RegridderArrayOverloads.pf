@@ -23,15 +23,15 @@ module Test_RegridderArrayOverloads
 contains
 
    ! ---------------------------------------------------------------------------
-   ! Helper: build an ESMF_Geom via GeomManager from an inline HConfig string.
+   ! Helper: build an ESMF_Geom via mapl_GeomManager from an inline HConfig string.
    ! ---------------------------------------------------------------------------
    function make_geom(geom_mgr, content, rc) result(geom)
       type(ESMF_Geom) :: geom
-      type(GeomManager), intent(inout) :: geom_mgr
+      type(mapl_GeomManager), intent(inout) :: geom_mgr
       character(len=*), intent(in) :: content
       integer, optional, intent(out) :: rc
 
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_MaplGeom), pointer :: mapl_geom
       type(ESMF_HConfig) :: hconfig
       integer :: status
 
@@ -71,7 +71,7 @@ contains
    subroutine test_array_regrid_2d_r4(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager)    :: geom_mgr
+      type(mapl_GeomManager)    :: geom_mgr
       type(RegridderManager) :: regridder_mgr
       type(RegridderSpec)  :: spec
       class(Regridder), pointer :: my_regridder
@@ -81,7 +81,7 @@ contains
       real(REAL32) :: q_in(IM_SRC, JM_SRC)
       real(REAL32) :: q_out(IM_DST, JM_DST)
 
-      geom_mgr      = GeomManager()
+      geom_mgr      = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
       geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
       geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
@@ -107,7 +107,7 @@ contains
    subroutine test_array_regrid_3d_r4_ungridded(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager)    :: geom_mgr
+      type(mapl_GeomManager)    :: geom_mgr
       type(RegridderManager) :: regridder_mgr
       type(RegridderSpec)  :: spec
       class(Regridder), pointer :: my_regridder
@@ -117,7 +117,7 @@ contains
       real(REAL32) :: q_in(IM_SRC, JM_SRC, LM)
       real(REAL32) :: q_out(IM_DST, JM_DST, LM)
 
-      geom_mgr      = GeomManager()
+      geom_mgr      = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
       geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
       geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
@@ -153,7 +153,7 @@ contains
    subroutine test_array_regrid_2pe(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager)    :: geom_mgr
+      type(mapl_GeomManager)    :: geom_mgr
       type(RegridderManager) :: regridder_mgr
       type(RegridderSpec)  :: spec
       class(Regridder), pointer :: my_regridder
@@ -171,7 +171,7 @@ contains
         "{class: latlon, im_world: 16, jm_world: 12, " // &
         "pole: PE, dateline: DE, ims: [16], jms: [6, 6]}"
 
-      geom_mgr      = GeomManager()
+      geom_mgr      = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
       geom_src = make_geom(geom_mgr, src_content, _RC)
       geom_dst = make_geom(geom_mgr, dst_content, _RC)
@@ -208,7 +208,7 @@ contains
    subroutine test_array_regrid_rank_mismatch(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager)    :: geom_mgr
+      type(mapl_GeomManager)    :: geom_mgr
       type(RegridderManager) :: regridder_mgr
       type(RegridderSpec)  :: spec
       class(Regridder), pointer :: my_regridder
@@ -218,7 +218,7 @@ contains
       real(REAL32) :: q_in(IM_SRC * JM_SRC)
       real(REAL32) :: q_out(IM_DST * JM_DST)
 
-      geom_mgr      = GeomManager()
+      geom_mgr      = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
       geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
       geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
@@ -247,7 +247,7 @@ contains
    subroutine test_array_regrid_typekind_mismatch(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager)    :: geom_mgr
+      type(mapl_GeomManager)    :: geom_mgr
       type(RegridderManager) :: regridder_mgr
       type(RegridderSpec)  :: spec
       class(Regridder), pointer :: my_regridder
@@ -257,7 +257,7 @@ contains
       real(REAL64) :: q_in(IM_SRC, JM_SRC)
       real(REAL64) :: q_out(IM_DST, JM_DST)
 
-      geom_mgr      = GeomManager()
+      geom_mgr      = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
       geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
       geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
@@ -289,7 +289,7 @@ contains
    subroutine test_array_regrid_2d_r8(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager)    :: geom_mgr
+      type(mapl_GeomManager)    :: geom_mgr
       type(RegridderManager) :: regridder_mgr
       type(RegridderSpec)  :: spec
       class(Regridder), pointer :: my_regridder
@@ -299,7 +299,7 @@ contains
       real(REAL64) :: q_in(IM_SRC, JM_SRC)
       real(REAL64) :: q_out(IM_DST, JM_DST)
 
-      geom_mgr      = GeomManager()
+      geom_mgr      = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
       geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
       geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)
@@ -329,7 +329,7 @@ contains
    subroutine test_array_regrid_interior_slice(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
-      type(GeomManager)    :: geom_mgr
+      type(mapl_GeomManager)    :: geom_mgr
       type(RegridderManager) :: regridder_mgr
       type(RegridderSpec)  :: spec
       class(Regridder), pointer :: my_regridder
@@ -342,7 +342,7 @@ contains
       real(REAL32) :: q_big_in(IM_SRC + 2*NHALO, JM_SRC + 2*NHALO)
       real(REAL32) :: q_out(IM_DST, JM_DST)
 
-      geom_mgr      = GeomManager()
+      geom_mgr      = mapl_GeomManager()
       regridder_mgr = RegridderManager(geom_mgr)
       geom_src = make_geom(geom_mgr, src_geom_content(), _RC)
       geom_dst = make_geom(geom_mgr, dst_geom_content(), _RC)

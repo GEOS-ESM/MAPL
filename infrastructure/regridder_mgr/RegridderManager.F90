@@ -2,7 +2,7 @@
 
 module mapl_RegridderManager_mod
 
-   use mapl_geom_api, only: GeomManager, get_geom_manager
+   use mapl_geom_api, only: mapl_GeomManager, mapl_get_geom_manager
    use mapl_RegridderSpec_mod
    use mapl_Regridder_mod
    use mapl_NullRegridder_mod
@@ -27,7 +27,7 @@ module mapl_RegridderManager_mod
       ! Next two vectors grow together
       type(RegridderSpecVector) :: specs
       type(RegridderVector) :: regridders
-      type(GeomManager), pointer :: geom_manager => null()
+      type(mapl_GeomManager), pointer :: geom_manager => null()
    contains
       procedure :: get_regridder
       procedure :: add_factory
@@ -46,11 +46,11 @@ contains
 
    function new_RegridderManager(geom_manager) result(mgr)
       type(RegridderManager) :: mgr
-      type(GeomManager), target, optional, intent(in) :: geom_manager
+      type(mapl_GeomManager), target, optional, intent(in) :: geom_manager
 
       ! Load default factories
 
-      mgr%geom_manager => get_geom_manager()
+      mgr%geom_manager => mapl_get_geom_manager()
       if (present(geom_manager)) then
          mgr%geom_manager => geom_manager
       end if

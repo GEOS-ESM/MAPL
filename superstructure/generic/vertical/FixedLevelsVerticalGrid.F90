@@ -23,14 +23,14 @@ module mapl_FixedLevelsVerticalGrid_mod
    public :: get_default_units
    
    ! Spec type
-   type, extends(VerticalGridSpec) :: FixedLevelsVerticalGridSpec
+   type, extends(mapl_VerticalGridSpec) :: FixedLevelsVerticalGridSpec
       character(len=:), allocatable :: physical_dimension
       real, allocatable :: levels(:)
       character(len=:), allocatable :: units
    end type FixedLevelsVerticalGridSpec
    
    ! Grid type
-    type, extends(VerticalGrid) :: FixedLevelsVerticalGrid
+    type, extends(mapl_VerticalGrid) :: FixedLevelsVerticalGrid
        private
        type(FixedLevelsVerticalGridSpec) :: spec
     contains
@@ -176,7 +176,7 @@ contains
       if (.not. matches) return
 
       select type (other)
-      type is (BasicVerticalGrid)
+      type is (mapl_BasicVerticalGrid)
          matches = .true.
          return
       class default

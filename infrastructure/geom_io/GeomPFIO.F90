@@ -20,8 +20,8 @@ module mapl_GeomPFIO_mod
       procedure(I_stage_data_to_file), deferred :: stage_data_to_file
       procedure(I_stage_coordinates_to_file), deferred :: stage_coordinates_to_file
       procedure(I_request_data_from_file), deferred :: request_data_from_file
-      procedure, private :: init_with_metadata
-      procedure, private :: init_with_filename
+      procedure :: init_with_metadata
+      procedure :: init_with_filename
       generic :: initialize => init_with_metadata, init_with_filename
       procedure :: update_time_on_server
       procedure :: stage_time_to_file

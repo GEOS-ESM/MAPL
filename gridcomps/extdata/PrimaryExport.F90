@@ -93,7 +93,7 @@ module mapl_PrimaryExport_mod
          call primary_export%bracket%set_node(NODE_LEFT, left_node)
          call primary_export%bracket%set_node(NODE_RIGHT, right_node)
          call primary_export%file_selector%get_file_template(file_template)
-         primary_export%client_collection_id = i_clients%add_data_collection(file_template, _RC)
+         primary_export%client_collection_id = mapl_i_clients%add_data_collection(file_template, _RC)
          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
          allocate(primary_export%start_and_end, source=time_range)
       end if
@@ -128,30 +128,30 @@ module mapl_PrimaryExport_mod
       integer :: status
 
       type(FileMetaDataUtils), pointer :: metadata
-      type(MAPLGeom) :: geom
+      type(mapl_MAPLGeom) :: geom
       type(ESMF_Geom) :: esmfgeom
       type(ESMF_FieldBundle) :: bundle
-      type(GeomManager), pointer :: geom_mgr
-      type(EsmfRegridderParam) :: regridder_param
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_EsmfRegridderParam) :: regridder_param
       type(esmf_Info) :: regridder_param_info
-      class(VerticalGrid), pointer :: vertical_grid
-      type(VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vertical_grid
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
       character(len=:), pointer :: variable_name
 
       if (this%is_constant) then
          _RETURN(_SUCCESS)
       end if
 
-      vgrid_manager => get_vertical_grid_manager()
+      vgrid_manager => mapl_get_vertical_grid_manager()
 
       metadata => this%file_selector%get_dataset_metadata(_RC)
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
 
       variable_name => this%file_vars%of(1)
       this%vcoord = verticalCoordinate(metadata%metadata, variable_name, _RC)
-      regridder_param = generate_esmf_regrid_param(regrid_method_string_to_int(this%regridding_method), &
+      regridder_param = mapl_generate_esmf_regrid_param(mapl_regrid_method_string_to_int(this%regridding_method), &
          ESMF_TYPEKIND_R4, _RC)
       regridder_param_info = regridder_param%make_info(_RC)
 
@@ -160,7 +160,7 @@ module mapl_PrimaryExport_mod
          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE, regridder_param_info=regridder_param_info, _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
-         vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
+         vertical_grid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
@@ -180,21 +180,21 @@ module mapl_PrimaryExport_mod
       integer :: status
 
       type(FileMetaDataUtils), pointer :: metadata
-      type(MAPLGeom) :: geom
+      type(mapl_MAPLGeom) :: geom
       type(ESMF_Geom) :: esmfgeom
       type(ESMF_FieldBundle) :: bundle
-      type(GeomManager), pointer :: geom_mgr
-      type(VerticalGridManager), pointer :: vgrid_manager
-      class(VerticalGrid), pointer :: vertical_grid
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vertical_grid
       character(len=:), pointer :: variable_name
 
       if (this%is_constant) then
          _RETURN(_SUCCESS)
       end if
 
-      vgrid_manager => get_vertical_grid_manager()
+      vgrid_manager => mapl_get_vertical_grid_manager()
       metadata => this%file_selector%get_dataset_metadata(_RC)
-      geom_mgr => get_geom_manager()
+      geom_mgr => mapl_get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
 
@@ -206,7 +206,7 @@ module mapl_PrimaryExport_mod
          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE,  _RC)
        else if (this%vcoord%vertical_type == SIMPLE_COORD) then
-          vertical_grid => vgrid_manager%create_grid(BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
+          vertical_grid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
           call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER,  _RC)

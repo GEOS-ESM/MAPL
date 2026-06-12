@@ -7,7 +7,7 @@ module mapl_AbstractDataSetFileSelector_mod
    use mapl_DataSetBracket_mod
    use mapl_ExtDataConstants_mod
 
-   implicit none
+   implicit none(type,external)
    private
 
    public AbstractDataSetFileSelector
@@ -63,7 +63,7 @@ contains
 
       filename = file_not_found
       useable_time = this%ref_time
-      call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+      call mapl_fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
       inquire(file=trim(trial_file),exist=file_found)
       if (file_found) then
          filename = trial_file
@@ -71,7 +71,7 @@ contains
       end if
       do i=1, MAX_TRIALS
          useable_time = useable_time + this%file_frequency
-         call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+         call mapl_fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
          inquire(file=trim(trial_file),exist=file_found)
          if (file_found) then
             filename = trial_file
@@ -89,10 +89,10 @@ contains
 
       character(len=:), allocatable :: filename
       integer :: status
-      type(DataCollection), pointer :: collection
+      type(mapl_DataCollection), pointer :: collection
 
       filename = this%find_any_file(_RC)
-      collection => DataCollections%at(this%collection_id)
+      collection => mapl_DataCollections%at(this%collection_id)
       metadata => collection%find(filename, _RC)
 
       _RETURN(_SUCCESS)
@@ -169,13 +169,13 @@ contains
       class(AbstractDataSetFileSelector), intent(inout) :: this
       integer, intent(out), optional :: rc
 
-      type(DataCollection), pointer :: collection
+      type(mapl_DataCollection), pointer :: collection
       type(FileMetadataUtils), pointer :: metadata
       type(ESMF_Time), allocatable :: time_series(:)
       integer :: status
 
       allocate(this%valid_range(2), _STAT)
-      collection => DataCollections%at(this%collection_id)
+      collection => mapl_DataCollections%at(this%collection_id)
       metadata => collection%find(this%file_template)
       call metadata%get_time_info(timeVector=time_series, _RC)
       this%valid_range(1)=time_series(1)

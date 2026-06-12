@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 <!-- mlc-disable -->
+## [v3.0.0-alpha.2] - 2026-06-12
+<!-- mlc-enable -->
+
+### Changed
+
+- Renamed MAPL public exports to all have "MAPL_" prefix.
+
+<!-- mlc-disable -->
 ## [v3.0.0-alpha.1] - 2026-06-12
 <!-- mlc-enable -->
 

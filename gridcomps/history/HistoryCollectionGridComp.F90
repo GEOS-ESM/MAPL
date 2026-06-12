@@ -8,7 +8,7 @@ module mapl_HistoryCollectionGridComp_mod
    use esmf
    use pFlogger, only: logger, logging
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: setServices
@@ -16,7 +16,7 @@ module mapl_HistoryCollectionGridComp_mod
    ! Private state
    type :: HistoryCollectionGridComp
       type(ESMF_FieldBundle) :: output_bundle
-      class(GeomPFIO), allocatable :: writer
+      class(mapl_GeomPFIO), allocatable :: writer
       type(ESMF_Time) :: start_stop_times(2)
       type(ESMF_Time) :: initial_file_time
       type(ESMF_TimeInterval) :: timeStep
@@ -67,7 +67,7 @@ contains
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
       character(len=ESMF_MAXSTR) :: name
-      type(FileMetadata) :: metadata
+      type(mapl_FileMetadata) :: metadata
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
@@ -76,10 +76,10 @@ contains
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
 
       geom = detect_geom(collection_gridcomp%output_bundle, name, _RC)
-      metadata = bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
-      allocate(collection_gridcomp%writer, source=make_geom_pfio(metadata, rc=status))
+      metadata = mapl_bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
+      allocate(collection_gridcomp%writer, source=mapl_make_geom_pfio(metadata, rc=status))
       _VERIFY(STATUS)
-      call collection_gridcomp%writer%initialize(metadata, geom, _RC)
+      call collection_gridcomp%writer%init_with_metadata(metadata, geom, _RC)
 
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
       collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
@@ -152,7 +152,7 @@ contains
 
       file_timestamp = compute_file_timestamp(collection_gridcomp%accumulation_mode, &
              current_time, collection_gridcomp%timeStep, _RC)
-      call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=file_timestamp, _RC)
+      call mapl_fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=file_timestamp, _RC)
 
       if (trim(current_file) /= collection_gridcomp%current_file) then
          collection_gridcomp%current_file = current_file

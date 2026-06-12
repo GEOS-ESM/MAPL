@@ -17,7 +17,7 @@ module mapl_Regridder_mod
 
    type, abstract :: Regridder
       private
-      type(GeomManager), pointer :: geom_manager => null()
+      type(mapl_GeomManager), pointer :: geom_manager => null()
       type(RegridderSpec), allocatable :: spec
    contains
       procedure(I_regrid_field), deferred :: regrid_field
@@ -146,9 +146,9 @@ contains
       integer :: status
       integer :: i
       integer :: id_in, id_out
-      type(MaplGeom), pointer :: mapl_geom
+      type(mapl_MaplGeom), pointer :: mapl_geom
       type(VectorBasis), pointer :: basis
-      type(GeomManager), pointer :: geom_mgr
+      type(mapl_GeomManager), pointer :: geom_mgr
       type(ESMF_Geom) :: geom_in, geom_out
       type(MAPL_VectorBasisKind) :: basis_kind
 
@@ -227,12 +227,12 @@ contains
 
    subroutine set_geom_manager(this, geom_manager)
       class(Regridder), intent(inout) :: this
-      type(GeomManager), pointer, intent(in) :: geom_manager
+      type(mapl_GeomManager), pointer, intent(in) :: geom_manager
       this%geom_manager => geom_manager
    end subroutine set_geom_manager
 
    function get_geom_mgr(this) result(geom_manager)
-      type(GeomManager), pointer :: geom_manager
+      type(mapl_GeomManager), pointer :: geom_manager
       class(Regridder), intent(in) :: this
       geom_manager => this%geom_manager
    end function get_geom_mgr

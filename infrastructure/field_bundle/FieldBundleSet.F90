@@ -55,7 +55,7 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
-      class(VerticalGrid), optional, intent(in) :: vgrid
+      class(mapl_VerticalGrid), optional, intent(in) :: vgrid
       type(MAPL_FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)

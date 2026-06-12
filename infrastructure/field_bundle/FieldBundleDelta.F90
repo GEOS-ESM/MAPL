@@ -217,7 +217,7 @@ contains
       type(VerticalStaggerLoc) :: vert_staggerloc
       character(ESMF_MAXSTR), allocatable :: fieldNameList(:)
       type(UngriddedDims) :: ungridded_dims
-      class(VerticalGrid), pointer :: vgrid
+      class(mapl_VerticalGrid), pointer :: vgrid
 
       ! Easy case 1: field count unchanged
       call FieldBundleGet(bundle, fieldList=fieldList, _RC)
