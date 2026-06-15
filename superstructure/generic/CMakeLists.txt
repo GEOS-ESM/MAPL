@@ -96,9 +96,6 @@ esma_add_fortran_submodules(
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
-if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
-  target_compile_definitions(${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)
-endif()
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
