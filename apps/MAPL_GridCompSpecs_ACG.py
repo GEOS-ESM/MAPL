@@ -93,8 +93,10 @@ CONDITION = 'condition'
 DIMS = 'dims'
 EXPORT_NAME = 'export_name'
 FILL_VALUE = 'fill_value'
+HAS_POINTER = 'has_pointer'
 INTENT_ARG = 'intent_arg'
 INTERNAL_NAME = 'internal_name'
+ITEMTYPE = 'itemtype'
 MANGLED = 'mangled'
 STANDARD_NAME_ARG = 'standard_name_arg'
 RANK = 'rank'
@@ -111,6 +113,8 @@ UNGRIDDED_DIMS = 'ungridded_dim_array'
 USE_FIELD_DICTIONARY = 'use_field_dictionary'
 VSTAGGER = 'vertical_stagger'
 RESTART = 'restart_mode'
+MAPL_STATEITEM_FIELD = 'mapl_stateitem_field'
+MAPL_STATEITEM_VECTOR = 'mapl_stateitem_vector'
 
 # command-line option constants
 GC_VARIABLE = 'gridcomp_variable'
@@ -202,9 +206,9 @@ def get_options(args):
         'dependencies': {MAPPING: STRINGVECTOR},
         EXPORT_NAME: {MAPPING: STRING},
         FILL_VALUE: {},
-        'itemtype': {MAPPING: {
-            'F': 'MAPL_STATEITEM_FIELD',
-            'V': 'MAPL_STATEITEM_VECTOR'}},
+        ITEMTYPE: {MAPPING: {
+            'F': MAPL_STATEITEM_FIELD,
+            'V': MAPL_STATEITEM_VECTOR}},
         'orientation': {},
         'regrid_method': {},
         'restart_mode': {MAPPING: {
@@ -251,7 +255,8 @@ def get_options(args):
         STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, STANDARD_NAME_PREFIX), AS: STANDARD_NAME},
         INTENT_ARG: {FROM: (STATE_INTENT, STATE), MAPPING: (ID, dict(zip(states, intents))), FLAGS: AS},
         RANK: {MAPPING: RANK, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)},
-        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS}
+        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS},
+        HAS_POINTER: {FROM: ITEMTYPE, MAPPING: HAS_POINTER}
     }
 
     # internal constants
@@ -298,7 +303,7 @@ def emit_declare_pointers(specs, states=None):
     f = state_filter(states)
     declarations = []
     for spec in specs:
-        if not f(spec):
+        if not (f(spec) and spec[HAS_POINTER]):
             continue
         try:
             declaration = emit_declare_pointer(spec)
@@ -322,7 +327,7 @@ def emit_get_pointers(specs, states=None):
     """Emit pointer get statements from an Iterable of spec instances."""
     # filter of state
     f = state_filter(states)
-    return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec)))
+    return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec) and spec[HAS_POINTER]))
 
 def emit_get_pointer(spec):
     """Emit individual pointer statement from a spec instance."""
@@ -698,7 +703,8 @@ NAMED_MAPPINGS = {
         RANK: compute_rank,
         MAKE_BLOCK: lambda value: partial(make_block, value),
         BOOL: convert_to_bool,
-        STRLOGICAL: lambda s: convert_to_logical(convert_to_bool(s))
+        STRLOGICAL: lambda s: convert_to_logical(convert_to_bool(s)),
+        HAS_POINTER: lambda value: value == MAPL_STATEITEM_FIELD
         }
 
 
