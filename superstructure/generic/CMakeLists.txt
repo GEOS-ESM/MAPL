@@ -50,7 +50,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.enums MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
+  DEPENDENCIES MAPL.ESMF_Interfaces MAPL.enums MAPL.regridder_mgr MAPL.geom MAPL.vertical_grid MAPL.GeomIO
     MAPL.esmf MAPL.field MAPL.state MAPL.utils
     MAPL.vertical MAPL.component MAPL.field_bundle MAPL.esmf MAPL.utils
     MAPL.infrastructure

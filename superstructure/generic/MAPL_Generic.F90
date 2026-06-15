@@ -37,7 +37,6 @@ module mapl_Generic_mod
    use mapl_StateItem_mod, only: mapl_STATEITEM_STATE, mapl_STATEITEM_FIELDBUNDLE
    use mapl_StateItem_mod, only: mapl_STATEITEM_SERVICE, mapl_STATEITEM_VECTOR
    use mapl_ESMF_Utilities_mod, only: esmf_state_intent_to_string
-   use mapl_ESMF_Interfaces_mod, only: mapl_UserCompGetInternalState, mapl_UserCompSetInternalState
    use mapl_hconfig_get_mod, only: HConfigGet
    use mapl_hconfig_params_mod, only: HConfigParams
    use mapl_RestartModes_mod, only: RestartMode
@@ -118,8 +117,6 @@ module mapl_Generic_mod
    ! Spec types
    public :: mapl_STATEITEM_STATE, mapl_STATEITEM_FIELDBUNDLE
    public :: mapl_STATEITEM_SERVICE, mapl_STATEITEM_VECTOR
-
-   public :: mapl_UserCompGetInternalState, mapl_UserCompSetInternalState
 
    ! Interfaces
 
@@ -401,7 +398,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      
+
       ! Call the new method on outer_meta to set checkpoint controls
       call outer_meta%set_checkpoint_controls_flags( &
            import=import, &

@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) free_outer_meta_smod
-   use mapl_ESMF_Interfaces_mod, only: MAPL_UserCompGetInternalState
+   use mapl_ESMF_Interfaces_api, only: MAPL_UserCompGetInternalState
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 

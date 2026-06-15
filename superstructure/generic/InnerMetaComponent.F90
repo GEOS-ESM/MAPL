@@ -1,11 +1,13 @@
 #include "MAPL.h"
 
 module mapl_InnerMetaComponent_mod
+
    use :: mapl_ErrorHandling_mod
    use :: mapl3_GenericGrid
-   use :: mapl_ESMF_Interfaces_mod, only: MAPL_UserCompGetInternalState
-   use :: mapl_ESMF_Interfaces_mod, only: MAPL_UserCompSetInternalState
+   use :: mapl_ESMF_Interfaces_api, only: MAPL_UserCompGetInternalState
+   use :: mapl_ESMF_Interfaces_api, only: MAPL_UserCompSetInternalState
    use esmf
+
    implicit none(type,external)
    private
 
@@ -13,7 +15,7 @@ module mapl_InnerMetaComponent_mod
    public :: get_inner_meta
    public :: attach_inner_meta
    public :: free_inner_meta
-   
+
    type :: InnerMetaComponent
       private
       type(ESMF_GridComp) :: outer_gc
@@ -33,7 +35,7 @@ module mapl_InnerMetaComponent_mod
    contains
 
       procedure :: get_outer_gridcomp
-      
+
    end type InnerMetaComponent
 
    type :: InnerMetaWrapper
@@ -66,7 +68,7 @@ contains
       integer :: status
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, InnerMetaComponent, INNER_META_PRIVATE_STATE, inner_meta)
-      
+
       _RETURN(_SUCCESS)
    end function get_inner_meta
 
@@ -81,7 +83,7 @@ contains
       _SET_NAMED_PRIVATE_STATE(self_gc, InnerMetaComponent, INNER_META_PRIVATE_STATE)
       _GET_NAMED_PRIVATE_STATE(self_gc, InnerMetaComponent, INNER_META_PRIVATE_STATE, inner_meta)
       inner_meta = InnerMetaComponent(self_gc, outer_gc)
-      
+
       _RETURN(_SUCCESS)
    end subroutine attach_inner_meta
 
@@ -115,4 +117,4 @@ contains
 
 
 end module mapl_InnerMetaComponent_mod
-   
+
