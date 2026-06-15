@@ -264,6 +264,11 @@ CONTAINS
    logical, allocatable :: rules_with_ps(:), rules_with_q(:)
    !class(logger), pointer :: lgr
 
+   type(ESMF_Time) :: etime,stime,ctime
+   call ESMF_ClockGet(clock, starttime=stime, stoptime=etime, currTime=ctime, _RC)
+   call ESMF_TimePrint(ctime, options='string', prestring='bmaa curr time  ')
+   call ESMF_TimePrint(stime, options='string', prestring='bmaa start time ')
+   call ESMF_TimePrint(etime, options='string', prestring='bmaa end time   ')
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
    call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, vm=vm, _RC )
