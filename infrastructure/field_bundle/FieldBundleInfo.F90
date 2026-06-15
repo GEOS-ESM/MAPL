@@ -1,7 +1,9 @@
 #include "MAPL.h"
 
 module mapl_FieldBundleInfo_mod
-   use mapl_esmf_info_keys_mod
+   use mapl_esmf_info_keys_mod, only: KEY_FIELDBUNDLETYPE_FLAG, &
+      & KEY_ALLOCATION_STATUS, KEY_HAS_GEOM, KEY_QUANTITY_TYPE_METADATA, &
+      & KEY_NORMALIZATION_METADATA, KEY_CONSERVATION_METADATA
    use mapl_InfoUtilities_mod
    use mapl_esmf_info_keys_mod
    use mapl_field_api
@@ -31,12 +33,6 @@ module mapl_FieldBundleInfo_mod
       procedure fieldbundle_set_internal
    end interface
 
-   character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/MAPL_FieldBundleType_Flag'
-   character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
-   character(*), parameter :: KEY_HAS_GEOM = "/has_geom"
-   character(*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
-   character(*), parameter :: KEY_NORMALIZATION_METADATA = "/normalization_metadata"
-   character(*), parameter :: KEY_CONSERVATION_METADATA = "/conservation_metadata"
 
 contains
 

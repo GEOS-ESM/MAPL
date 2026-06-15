@@ -3,9 +3,15 @@
 module mapl_FieldInfo_mod
 
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
-   use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE
-   use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE
-   use mapl_esmf_info_keys_mod, only: INFO_PRIVATE_NAMESPACE
+   use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE, &
+      & INFO_INTERNAL_NAMESPACE, INFO_PRIVATE_NAMESPACE, KEY_TYPEKIND, &
+      & KEY_UNITS, KEY_ATTRIBUTES, KEY_LONG_NAME, KEY_STANDARD_NAME, &
+      & KEY_HORIZONTAL_DIMS_SPEC, KEY_VGRID_ID, KEY_VERT_STAGGERLOC, &
+      & KEY_VERT_ALIGNMENT, KEY_VERT_DIM, KEY_UNGRIDDED_DIMS, &
+      & KEY_ALLOCATION_STATUS, KEY_QUANTITY_TYPE_METADATA, &
+      & KEY_NORMALIZATION_METADATA, KEY_CONSERVATION_METADATA, &
+      & KEY_REGRIDDER_PARAM,  KEY_UNDEF_VALUE, KEY_MISSING_VALUE, &
+      & KEY_FILL_VALUE, KEY_RESTART_MODE, KEY_HAS_DEFERRED_ASPECTS, DELIMITER
    use mapl_InfoUtilities_mod
    use mapl_vertical_grid_api, only: mapl_VerticalGrid, MAPL_VERTICAL_GRID_NOT_FOUND, mapl_VerticalGridManager, mapl_get_vertical_grid_manager
    use mapl_UngriddedDims_mod
@@ -54,31 +60,6 @@ module mapl_FieldInfo_mod
    interface FieldInfoCopyShared
       procedure :: field_info_copy_shared
    end interface FieldInfoCopyShared
-
-   character(*), parameter :: KEY_TYPEKIND = "/typekind"
-   character(*), parameter :: KEY_UNITS = "/units"
-   character(*), parameter :: KEY_ATTRIBUTES = "/attributes"
-   character(*), parameter :: KEY_LONG_NAME = "/long_name"
-   character(*), parameter :: KEY_STANDARD_NAME = "/standard_name"
-   character(*), parameter :: KEY_HORIZONTAL_DIMS_SPEC = "/horizontal_dims_spec"
-   character(*), parameter :: KEY_VGRID_ID = "/vgrid_id"
-   character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
-   character(*), parameter :: KEY_VERT_ALIGNMENT = "/vert_alignment"
-   character(*), parameter :: KEY_VERT_DIM = "/vert_dim"
-   character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
-   character(*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
-   character(*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
-   character(*), parameter :: KEY_NORMALIZATION_METADATA = "/normalization_metadata"
-   character(*), parameter :: KEY_CONSERVATION_METADATA = "/conservation_metadata"
-   character(*), parameter :: KEY_REGRIDDER_PARAM = "/EsmfRegridderParam"
-
-   character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
-   character(*), parameter :: KEY_MISSING_VALUE = "/missing_value"
-   character(*), parameter :: KEY_FILL_VALUE = "/_FillValue"
-
-   character(*), parameter :: KEY_RESTART_MODE = "/restart_mode"
-   character(*), parameter :: KEY_HAS_DEFERRED_ASPECTS = "/has_deferred_aspects"
-   character(len=*), parameter :: DELIMITER = '/'
 
 contains
 

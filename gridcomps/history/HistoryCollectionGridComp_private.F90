@@ -7,7 +7,9 @@ module mapl_HistoryCollectionGridComp_private_mod
    use gFTL2_StringVector
    use gFTL2_StringSet
    use mapl_HistoryUtilities_mod
-   use mapl_HistoryConstants_mod
+   use mapl_esmf_info_keys_mod, only: VAR_LIST_KEY, KEY_TIMESTEP, &
+      & KEY_ACCUMULATION_TYPE, KEY_TIME_SPEC, KEY_TYPEKIND, KEY_UNITS, &
+      & KEY_INSTANTANEOUS, KEY_REGRID
 
    implicit none(type,external)
    private

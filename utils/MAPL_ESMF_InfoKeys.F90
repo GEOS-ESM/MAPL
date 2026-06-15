@@ -21,14 +21,38 @@ module mapl_esmf_info_keys_mod
    public :: KEY_NUM_LEVELS
    public :: KEY_VLOC
    public :: KEY_NUM_UNGRIDDED_DIMS
-   public :: KEYSTUB_DIM
    public :: KEY_UNGRIDDED_NAME
    public :: KEY_UNGRIDDED_UNITS
    public :: KEY_UNGRIDDED_COORD
-   public :: KEY_DIM_STRINGS
    public :: KEY_VERT_STAGGERLOC
    public :: KEY_BRACKET_UPDATED
    public :: KEY_VECTOR_BASIS_KIND
+   public :: KEY_ALLOCATION_STATUS
+   public :: KEY_CONSERVATION_METADATA
+   public :: KEY_FIELDBUNDLETYPE_FLAG
+   public :: KEY_HAS_GEOM
+   public :: KEY_NORMALIZATION_METADATA
+   public :: KEY_QUANTITY_TYPE_METADATA
+   public :: VAR_LIST_KEY
+   public :: KEY_TIMESTEP
+   public :: KEY_REF_DATETIME
+   public :: KEY_ACCUMULATION_TYPE
+   public :: KEY_TIME_SPEC
+   public :: KEY_SOURCE
+   public :: KEY_INSTANTANEOUS
+   public :: KEY_REGRID
+   public :: KEY_ATTRIBUTES
+   public :: DELIMITER
+   public :: KEY_FILL_VALUE
+   public :: KEY_HAS_DEFERRED_ASPECTS
+   public :: KEY_HORIZONTAL_DIMS_SPEC
+   public :: KEY_MISSING_VALUE
+   public :: KEY_REGRIDDER_PARAM
+   public :: KEY_RESTART_MODE
+   public :: KEY_UNDEF_VALUE
+   public :: KEY_VERT_ALIGNMENT
+   public :: KEY_VGRID_ID
+
    private
 
    ! FieldSpec info keys
@@ -51,10 +75,8 @@ module mapl_esmf_info_keys_mod
    character(len=*), parameter :: KEY_VLOC = KEY_VERT_DIM // '/vloc'
    character(len=*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
 
-
    ! UngriddedDims info keys
    character(len=*), parameter :: KEY_NUM_UNGRIDDED_DIMS = '/num_ungridded_dimensions'
-   character(len=*), parameter :: KEYSTUB_DIM = '/dim_'
 
    ! UngriddedDim info keys
    character(len=*), parameter :: KEY_UNGRIDDED_NAME = 'name'
@@ -65,10 +87,36 @@ module mapl_esmf_info_keys_mod
     character(len=*), parameter :: KEY_BRACKET_UPDATED = '/bracket_updated'
     character(len=*), parameter :: KEY_VECTOR_BASIS_KIND = '/vector_basis_kind'
 
-    character(len=*), parameter :: KEY_DIM_STRINGS(9) = [ &
-      KEYSTUB_DIM // '1', KEYSTUB_DIM // '2', KEYSTUB_DIM // '3', &
-      KEYSTUB_DIM // '4', KEYSTUB_DIM // '5', KEYSTUB_DIM // '6', &
-      KEYSTUB_DIM // '7', KEYSTUB_DIM // '8', KEYSTUB_DIM // '9']
+   ! FieldBundleSpec info keys
+   character(len=*), parameter :: KEY_ALLOCATION_STATUS = "/allocation_status"
+   character(len=*), parameter :: KEY_CONSERVATION_METADATA = "/conservation_metadata"
+   character(len=*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/MAPL_FieldBundleType_Flag'
+   character(len=*), parameter :: KEY_HAS_GEOM = "/has_geom"
+   character(len=*), parameter :: KEY_NORMALIZATION_METADATA = "/normalization_metadata"
+   character(len=*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
+
+   ! History Constants keys
+   character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
+   character(len=*), parameter :: KEY_TIMESTEP = 'frequency'
+   character(len=*), parameter :: KEY_REF_DATETIME = 'ref_datetime'
+   character(len=*), parameter :: KEY_ACCUMULATION_TYPE = 'mode'
+   character(len=*), parameter :: KEY_TIME_SPEC = 'time_spec'
+   character(len=*), parameter :: KEY_SOURCE = 'source'
+   character(len=*), parameter :: KEY_INSTANTANEOUS = 'instantaneous'
+   character(len=*), parameter :: KEY_REGRID = 'regrid'
+
+   ! FieldInfo keys
+   character(len=*), parameter :: KEY_ATTRIBUTES = '/attributes'
+   character(len=*), parameter :: DELIMITER = '/'
+   character(len=*), parameter :: KEY_FILL_VALUE = '/_FillValue'
+   character(len=*), parameter :: KEY_HAS_DEFERRED_ASPECTS = '/has_deferred_aspects'
+   character(len=*), parameter :: KEY_HORIZONTAL_DIMS_SPEC = '/horizontal_dims_spec'
+   character(len=*), parameter :: KEY_MISSING_VALUE = '/missing_value'
+   character(len=*), parameter :: KEY_REGRIDDER_PARAM = '/EsmfRegridderParam'
+   character(len=*), parameter :: KEY_RESTART_MODE = '/restart_mode'
+   character(len=*), parameter :: KEY_UNDEF_VALUE = '/undef_value'
+   character(len=*), parameter :: KEY_VERT_ALIGNMENT = '/vert_alignment'
+   character(len=*), parameter :: KEY_VGRID_ID = '/vgrid_id'
 
    character(len=*), parameter :: KEY_TYPEKIND = '/typekind'
    character(len=*), parameter :: KEY_FIELD_PROTOTYPE = '/field_prototype'

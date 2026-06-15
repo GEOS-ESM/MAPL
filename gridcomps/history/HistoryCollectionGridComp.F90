@@ -4,7 +4,6 @@ module mapl_HistoryCollectionGridComp_mod
 
    use MAPL
    use mapl_HistoryCollectionGridComp_private_mod
-   use mapl_HistoryConstants_mod
    use esmf
    use pFlogger, only: logger, logging
 

@@ -2,7 +2,7 @@
 module mapl_HistoryUtilities_mod
    use MAPL
    use esmf
-   use mapl_HistoryConstants_mod
+   use mapl_esmf_info_keys_mod, only: KEY_SOURCE
    !use gFTL2_StringVector
    !use gFTL2_StringSet
 

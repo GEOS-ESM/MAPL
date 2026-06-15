@@ -3,7 +3,7 @@
 module mapl_UngriddedDims_mod
    use mapl_InfoUtilities_mod
    use mapl_StringUtilities_mod, only: to_string
-   use mapl_esmf_info_keys_mod, only: KEYSTUB_DIM, KEY_NUM_UNGRIDDED_DIMS
+   use mapl_esmf_info_keys_mod, only: KEY_NUM_UNGRIDDED_DIMS
    use mapl_UngriddedDimVector_mod
    use mapl_UngriddedDim_mod
    use mapl_LU_Bound_mod
@@ -53,6 +53,7 @@ module mapl_UngriddedDims_mod
    end interface operator(/=)
 
    character(len=*), parameter :: KEY_IS_MIRROR = "/is_mirror"
+   character(len=*), parameter :: KEYSTUB_DIM = '/dim_'
 
 contains
 
