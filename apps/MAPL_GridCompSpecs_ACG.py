@@ -12,6 +12,61 @@ from enum import Enum
 import logging
 import io
 
+class SpecFilter:
+    """ Callable object to build a filter on a spec """
+    def __init__(self, conditions=None, forall=True, invert=False):
+        """ Create filter based on arguments. An invalid filter is indicated by self._condition is None """
+        match conditions:
+            # If there is no conditions argument, return invert (default False)
+            case None:
+                self._condition = lambda s: invert
+            # A str is not a valid condition, but it is a Sequence, so it needs to be explicitly added as a case
+            case str():
+                self._condition = None
+            # A simple pair (a condition on spec[key])
+            case [key, value]:
+                # value is a callable on spec[key]
+                if callable(value):
+                    def inner(s):
+                        return value(s.get(key))
+                # check if spec[key] is None
+                elif value is None:
+                    def inner(s):
+                        if key in s:
+                            return s[key] is None
+                        return False
+                # check equality
+                else:
+                    def inner(s):
+                        return s.get(key) == value
+                # negate function if invert
+                self._condition = negate(inner) if invert else inner
+            case Sequence() as seq:
+                # conditions is any other Sequence of sub filters
+                gen = (SpecFilter(condition) for condition in seq)
+                if forall:
+                    def inner(s):
+                        return all(gen(s))
+                else:
+                    def inner(s):
+                        return any(gen(s))
+                self._condition = negate(inner) if invert else inner
+            case _ as condition:
+                # Not Sequence
+                # default is None
+                inner = None
+                # condition is any other condition on the entire spec
+                if callable(condition):
+                    def inner(s):
+                        return condition(s)
+                # if inner and invert, negate it. Otherwise, leave it alone.
+                self._condition = negate(inner) if (invert and inner) else inner
+
+
+    def __call__(self, s):
+        """ apply condition to spec unless the condition is None (invalid) then return None """
+        return None if self._condition is None else self._condition(s)
+
 # ESMF_TYPEKIND enum
 class TYPEKIND_Type:
     __slots__=('type', 'kind', 'variable_type')
@@ -69,6 +124,8 @@ GET = 'get'
 MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
 KIND = 'kind'
+MAPL_STATEITEM_FIELD = 'MAPL_STATEITEM_FIELD'
+MAPL_STATEITEM_VECTOR = 'MAPL_STATEITEM_VECTOR'
 MAPPED = 'mapped' 
 MAPPING = 'mapping'
 MISSING_MANDATORY = 'missing_mandatory'
@@ -93,7 +150,6 @@ CONDITION = 'condition'
 DIMS = 'dims'
 EXPORT_NAME = 'export_name'
 FILL_VALUE = 'fill_value'
-HAS_POINTER = 'has_pointer'
 INTENT_ARG = 'intent_arg'
 INTERNAL_NAME = 'internal_name'
 ITEMTYPE = 'itemtype'
@@ -113,8 +169,6 @@ UNGRIDDED_DIMS = 'ungridded_dim_array'
 USE_FIELD_DICTIONARY = 'use_field_dictionary'
 VSTAGGER = 'vertical_stagger'
 RESTART = 'restart_mode'
-MAPL_STATEITEM_FIELD = 'mapl_stateitem_field'
-MAPL_STATEITEM_VECTOR = 'mapl_stateitem_vector'
 
 # command-line option constants
 GC_VARIABLE = 'gridcomp_variable'
@@ -255,8 +309,7 @@ def get_options(args):
         STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, STANDARD_NAME_PREFIX), AS: STANDARD_NAME},
         INTENT_ARG: {FROM: (STATE_INTENT, STATE), MAPPING: (ID, dict(zip(states, intents))), FLAGS: AS},
         RANK: {MAPPING: RANK, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)},
-        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS},
-        HAS_POINTER: {FROM: ITEMTYPE, MAPPING: HAS_POINTER}
+        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS}
     }
 
     # internal constants
@@ -265,7 +318,15 @@ def get_options(args):
     return options
 
 # Procedures for writing to files
+def negate(f):
+    def inner(*args, **kwargs):
+        return not f(*args, **kwargs)
+    return inner
 
+field_filter = SpecFilter([SpecFilter(lambda s: ITEMTYPE in s, invert=True), (ITEMTYPE, MAPL_STATEITEM_FIELD)], forall=False)
+
+def itemtype_filter(*itemtypes):
+    
 def state_filter(states=None):
     """Create a filter on state."""
     match states:
@@ -300,10 +361,10 @@ def emit_args(values, options):
 def emit_declare_pointers(specs, states=None):
     """Emit pointer declarations from Iterable of spec instances."""
     # filter on state
-    f = state_filter(states)
+    f = state_filter(states) and field_filter
     declarations = []
     for spec in specs:
-        if not (f(spec) and spec[HAS_POINTER]):
+        if not f(spec):
             continue
         try:
             declaration = emit_declare_pointer(spec)
@@ -326,8 +387,8 @@ def emit_declare_pointer(spec):
 def emit_get_pointers(specs, states=None):
     """Emit pointer get statements from an Iterable of spec instances."""
     # filter of state
-    f = state_filter(states)
-    return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec) and spec[HAS_POINTER]))
+    f = state_filter(states) and field_filter
+    return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec)))
 
 def emit_get_pointer(spec):
     """Emit individual pointer statement from a spec instance."""
@@ -703,10 +764,8 @@ NAMED_MAPPINGS = {
         RANK: compute_rank,
         MAKE_BLOCK: lambda value: partial(make_block, value),
         BOOL: convert_to_bool,
-        STRLOGICAL: lambda s: convert_to_logical(convert_to_bool(s)),
-        HAS_POINTER: lambda value: value == MAPL_STATEITEM_FIELD
+        STRLOGICAL: lambda s: convert_to_logical(convert_to_bool(s))
         }
-
 
 def fetch_mapping_function(o, func_dict=NAMED_MAPPINGS):
     """Get the mapping function for option o."""
@@ -726,20 +785,18 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
     # Default case: identity map
     if m is None or m is UNIT:
         return ID
-    # If m is already callable, return it.
-    elif callable(m):
-        return m
+    f = m
     # Otherwise
-    match m:
+    match f:
         # Retrieve mapping by key if there is a func_dict.
         case str() if func_dict:
-            return func_dict.get(m)
+            f = func_dict.get(m)
         # Make a function from a dict.
         case dict():
-            return lambda k: m.get(k, k if k in m.values() else None)
+            f = lambda k: m.get(k, k if k in m.values() else None)
         # Fetch mapping based on index if there is a sequence of functions.
         case int() if valid_index(func_sequence, m):
-            return func_sequence[n]
+            f = func_sequence[n]
         # Return None if m is empty list or tuple.
         case list() | tuple() if len(m) == 0:
             return None
@@ -749,7 +806,7 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
             funcs = tuple(make_mapping(sm, func_sequence=func_sequence, func_dict=func_dict, flags=flags) for sm in m[::-1])
             def inner(*args):
                 return reduce(lambda a, c: c(a), funcs, *args)
-            return inner
+            f = inner
         # Return a mapping of multiple values with a sequence of functions. The number of args should match the number of mappings.
         case tuple() | list():
             funcs = tuple(make_mapping(sm, func_sequence=None, func_dict=None, flags=flags) for sm in m)
@@ -759,7 +816,8 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
                         continue
                     return f(arg)
                 return None
-            return inner
+            f = inner
+    return f
 
 # Main Procedure (Added to facilitate testing.)
 def main(logger):

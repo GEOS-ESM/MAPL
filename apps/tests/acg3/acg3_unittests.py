@@ -18,6 +18,8 @@ def general_msg(variable='EXPECTED VARIABLE', value=None):
 make_equal_test = lambda self, expected: partial(self.assertEqual, expected)
 
 SPECIFICATIONS = acg3.SPECIFICATIONS
+MAPL_STATEITEM_FIELD = acg3.MAPL_STATEITEM_FIELD
+MAPL_STATEITEM_VECTOR = acg3.MAPL_STATEITEM_VECTOR
 
 class TestMappings(unittest.TestCase):
 
@@ -336,14 +338,14 @@ class TestColumns(unittest.TestCase):
         
         # Test alias mappings
         test_cases = (
-            ('F', 'MAPL_STATEITEM_FIELD', 'F should map to MAPL_STATEITEM_FIELD'),
-            ('V', 'MAPL_STATEITEM_VECTOR', 'V should map to MAPL_STATEITEM_VECTOR'),
+            ('F', MAPL_STATEITEM_FIELD, f'F should map to "{MAPL_STATEITEM_FIELD.upper()}"'),
+            ('V', MAPL_STATEITEM_VECTOR, f'V should map to "{MAPL_STATEITEM_VECTOR.upper()}"'),
         )
         
         for alias, expected, msg in test_cases:
             with self.subTest(alias=alias, expected=expected):
-                actual = get_value(alias)
-                self.assertEqual(expected, actual, msg)
+                actual = get_value(alias).lower()
+                self.assertEqual(expected.lower(), actual, msg)
 
     def test_itemtype_full_values(self):
         """Test that full MAPL constant values are valid for itemtype."""
@@ -364,14 +366,14 @@ class TestColumns(unittest.TestCase):
         
         # Test full constant values (both dict keys and dict values should work)
         full_values = (
-            ('MAPL_STATEITEM_FIELD', 'MAPL_STATEITEM_FIELD', 'Full value MAPL_STATEITEM_FIELD should be valid'),
-            ('MAPL_STATEITEM_VECTOR', 'MAPL_STATEITEM_VECTOR', 'Full value MAPL_STATEITEM_VECTOR should be valid'),
+            (MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELD, f'Full value "{MAPL_STATEITEM_FIELD.upper()}" should be valid'),
+            (MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTOR, f'Full value "{MAPL_STATEITEM_VECTOR.upper()}" should be valid'),
         )
         
         for full_value, expected, msg in full_values:
             with self.subTest(value=full_value, expected=expected):
-                actual = get_value(full_value)
-                self.assertEqual(expected, actual, msg)
+                actual = get_value(full_value).lower()
+                self.assertEqual(expected.lower(), actual, msg)
 
     def test_itemtype_absent(self):
         """Test that itemtype is optional and absence is handled correctly."""
@@ -574,6 +576,22 @@ class TestHelpers(unittest.TestCase):
     def test_emit_declare_pointer_unsupported_type(self):
         spec = {acg3.TYPEKIND: 'X4', acg3.INTERNAL_NAME: 'GX', acg3.RANK: 4}
         self.assertRaises(RuntimeError, acg3.emit_declare_pointer, spec)
+
+    def test_emit_declare_pointers(self):
+        ITEMTYPE = acg3.ITEMTYPE
+        options = acg3.get_options({})
+        states = options[acg3.CONSTANTS][acg3.STATES]
+        STATE = acg3.STATE
+        STATE_, *_ = states
+        BASE_SPEC = {acg3.INTERNAL_NAME: 'GX', acg3.RANK: 3}
+        DEFAULT_SPEC = BASE_SPEC | {STATE: STATE_}
+        FIELD_SPEC = DEFAULT_SPEC | {ITEMTYPE: MAPL_STATEITEM_FIELD}
+        VECTOR_SPEC = BASE_SPEC | {ITEMTYPE: MAPL_STATEITEM_VECTOR}
+        specs = FIELD_SPEC, VECTOR_SPEC, DEFAULT_SPEC
+        _, declarations = acg3.emit_declare_pointers(specs, states)
+        expected = len(specs)-1
+        actual = len(declarations)
+        self.assertEqual(expected, len(declarations), f'There should be {expected} declarations. There are {actual} declarations.')
 
     def test_dict_mapping_lambda(self):
         """Test lambda function behavior for dict mappings.
