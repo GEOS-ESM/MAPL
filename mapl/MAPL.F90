@@ -14,4 +14,6 @@ module MAPL
    use mapl_pfio_api
    use mapl_MaplFramework_mod
 
+   use mapl_PythonBridge_api
+
 end module MAPL
