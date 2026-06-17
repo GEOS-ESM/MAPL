@@ -11,7 +11,7 @@ project (
   VERSION 2.69.1
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
-# Set the possible values of build type for cmake-gui
+# Set the possible values of build type for cmake gui
 set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
   "Debug" "Release" "Aggressive")
 
