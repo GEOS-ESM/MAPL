@@ -3,7 +3,7 @@
 #endif
 
 #ifdef NAMESTR_
-#undef NAMESTr_
+#undef NAMESTR_
 #endif
 
 #define NAME_ comms_allreduce_sum_
