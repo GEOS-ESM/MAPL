@@ -9,6 +9,16 @@ set (test_srcs
 #  list(APPEND test_srcs Test_DataSetNode.pf)
 #endif ()
 
+# Copy scenarios directory to build directory at build time so tests can
+# reference scenario files via relative paths at runtime.
+add_custom_target(configurable_gridcomp_copy_scenarios
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/scenarios
+    ${CMAKE_CURRENT_BINARY_DIR}/scenarios
+  COMMENT "Copying configurable gridcomp test scenarios to build directory"
+  VERBATIM
+)
+
 add_pfunit_ctest(configurable_gridcomp.tests
                 TEST_SOURCES ${test_srcs}
                 LINK_LIBRARIES configurable_gridcomp MAPL.pfunit
@@ -19,6 +29,8 @@ add_pfunit_ctest(configurable_gridcomp.tests
                 )
 set_target_properties(configurable_gridcomp.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(configurable_gridcomp.tests PROPERTIES LABELS "ESSENTIAL")
+
+add_dependencies(configurable_gridcomp.tests configurable_gridcomp_copy_scenarios)
 
 if (APPLE)
   set(LD_PATH "DYLD_LIBRARY_PATH")
