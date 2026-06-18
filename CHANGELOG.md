@@ -12,7 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+
 - Consolidated MAPL ESMF_Info keys into mapl_esmf_info_keys_mod
+- Update `components.yaml`
+  - ESMA_env v5.24.0
+    - Update to GEOSpyD 26.3.2 Python 3.14
+    - Update GEOSgcm to use Baselibs 8.32.0
+    - Move NAS runs to use Intel MPI by default
+  - ESMA_cmake v4.40.0
+    - Update ifx and NVHPC flags
+    - Better detect FMS/yaml support (needed for spack)
+    - Add new `color_message` function
+    - Add helper script for regression test work
 
 ### Fixed
 
