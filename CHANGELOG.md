@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Moved configurable test from superstructure/generic
 - Consolidated MAPL ESMF_Info keys into mapl_esmf_info_keys_mod
+- Replaced legacy `sharedObj` key with canonical `dso` in all YAML test configuration files
+- Removed redundant `setServices: setservices_` entries from YAML config files (default value)
+- Updated `parse_setservices` to accept `dso` (canonical) in addition to `sharedObj` (legacy alias)
 
 ### Fixed
 

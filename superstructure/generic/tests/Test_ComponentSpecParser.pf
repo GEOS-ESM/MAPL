@@ -19,14 +19,14 @@ contains
 
 
    ! setServices:
-   !      sharedObj: <dso_name>
+   !      dso: <dso_name>
    !      userRoutine: <user_routine>  
    @test
    subroutine test_parse_setServices()
       type(ESMF_HConfig) :: config
       class(DSOSetServices), allocatable :: ss_expected
 
-      config = ESMF_HConfigCreate(content='{sharedObj: libA, userRoutine: procB}')
+      config = ESMF_HConfigCreate(content='{dso: libA, userRoutine: procB}')
 
       ss_expected = DSOSetServices('libA', 'procB')
       @assert_that(parse_setservices(config) == ss_expected, is(true()))
@@ -38,12 +38,25 @@ contains
       type(ESMF_HConfig) :: config
       class(DSOSetServices), allocatable :: ss_expected
 
-      config = ESMF_HConfigCreate(content='{sharedObj: libA}')
+      config = ESMF_HConfigCreate(content='{dso: libA}')
 
       ss_expected = DSOSetServices('libA', 'setservices_')
       @assert_that(parse_setservices(config) == ss_expected, is(true()))
       
    end subroutine test_parse_setServices_default
+
+   @test
+   subroutine test_parse_setServices_legacy_sharedObj()
+      type(ESMF_HConfig) :: config
+      class(DSOSetServices), allocatable :: ss_expected
+
+      ! sharedObj is a legacy alias for dso; still supported for backward compatibility
+      config = ESMF_HConfigCreate(content='{sharedObj: libA}')
+
+      ss_expected = DSOSetServices('libA', 'setservices_')
+      @assert_that(parse_setservices(config) == ss_expected, is(true()))
+      
+   end subroutine test_parse_setServices_legacy_sharedObj
 
    @test
    subroutine test_equal_child_spec_ss_differs()
@@ -107,7 +120,7 @@ contains
       integer :: rc, status
       type(ChildSpec) :: expected
 
-      config = ESMF_HConfigCreate(content='{sharedObj: libA, setServices: setservices_}')
+      config = ESMF_HConfigCreate(content='{dso: libA}')
 
       expected = ChildSpec(user_setservices('libA', 'setservices_'))
       found = parse_child(config, _RC)
@@ -131,7 +144,7 @@ contains
       write(unit,'(a)')CHILD_HCONFIG_CONTENT
       close(unit)
 
-      hconfig = ESMF_HConfigCreate(content='{setServices: setservices_, sharedObj: libA, config_file: a.yml}')
+      hconfig = ESMF_HConfigCreate(content='{dso: libA, config_file: a.yml}')
       child_hconfig = ESMF_HConfigCreate(content=CHILD_HCONFIG_CONTENT)
 
       ss = user_setservices('libA', 'setservices_')
@@ -171,7 +184,7 @@ contains
       type(ChildSpecMap) :: expected, found
       integer :: status, rc
 
-      config = ESMF_HConfigCreate(content='children: {A: {sharedObj: libA}}')
+      config = ESMF_HConfigCreate(content='children: {A: {dso: libA}}')
       config_ptr => config
       call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
       found = parse_children(config_ptr, _RC)
@@ -187,8 +200,8 @@ contains
       integer :: status, rc
 
       config = ESMF_HConfigCreate(content='children: {' // &
-           'A: {sharedObj: libA},' // &
-           'B: {sharedObj: libB}}')
+           'A: {dso: libA},' // &
+           'B: {dso: libB}}')
       config_ptr => config
 
       call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))

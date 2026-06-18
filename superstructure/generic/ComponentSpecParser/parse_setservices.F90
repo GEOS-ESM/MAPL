@@ -14,9 +14,20 @@ contains
 
       character(:), allocatable :: sharedObj, userRoutine
       integer :: status
+      logical :: dso_found
 
-      sharedObj = ESMF_HConfigAsString(config,keyString='sharedObj',rc=status)
-      _ASSERT(status == 0, 'setServices spec does not specify sharedObj')
+      ! Accept both 'dso' (canonical) and 'sharedObj' (legacy alias)
+      dso_found = .false.
+      if (ESMF_HConfigIsDefined(config, keyString='dso')) then
+        sharedObj = ESMF_HConfigAsString(config, keyString='dso', _RC)
+        dso_found = .true.
+      end if
+      if (ESMF_HConfigIsDefined(config, keyString='sharedObj')) then
+        _ASSERT(.not. dso_found, 'setServices spec specifies both dso and sharedObj')
+        sharedObj = ESMF_HConfigAsString(config, keyString='sharedObj', _RC)
+        dso_found = .true.
+      end if
+      _ASSERT(dso_found, 'setServices spec must specify dso (or legacy sharedObj)')
 
       if (ESMF_HConfigIsDefined(config,keyString='userRoutine')) then
          userRoutine = ESMF_HConfigAsString(config,keyString='userRoutine',_RC)
