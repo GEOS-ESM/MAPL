@@ -1,5 +1,4 @@
 esma_set_this (OVERRIDE configurable_gridcomp)
-#esma_set_this (OVERRIDE MAPL.cinfigurable)
 
 esma_add_library(${this}
   SRCS ConfigurableGridComp.F90
