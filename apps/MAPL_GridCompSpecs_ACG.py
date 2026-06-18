@@ -12,61 +12,6 @@ from enum import Enum
 import logging
 import io
 
-class SpecFilter:
-    """ Callable object to build a filter on a spec """
-    def __init__(self, conditions=None, forall=True, invert=False):
-        """ Create filter based on arguments. An invalid filter is indicated by self._condition is None """
-        match conditions:
-            # If there is no conditions argument, return invert (default False)
-            case None:
-                self._condition = lambda s: invert
-            # A str is not a valid condition, but it is a Sequence, so it needs to be explicitly added as a case
-            case str():
-                self._condition = None
-            # A simple pair (a condition on spec[key])
-            case [key, value]:
-                # value is a callable on spec[key]
-                if callable(value):
-                    def inner(s):
-                        return value(s.get(key))
-                # check if spec[key] is None
-                elif value is None:
-                    def inner(s):
-                        if key in s:
-                            return s[key] is None
-                        return False
-                # check equality
-                else:
-                    def inner(s):
-                        return s.get(key) == value
-                # negate function if invert
-                self._condition = negate(inner) if invert else inner
-            case Sequence() as seq:
-                # conditions is any other Sequence of sub filters
-                gen = (SpecFilter(condition) for condition in seq)
-                if forall:
-                    def inner(s):
-                        return all(gen(s))
-                else:
-                    def inner(s):
-                        return any(gen(s))
-                self._condition = negate(inner) if invert else inner
-            case _ as condition:
-                # Not Sequence
-                # default is None
-                inner = None
-                # condition is any other condition on the entire spec
-                if callable(condition):
-                    def inner(s):
-                        return condition(s)
-                # if inner and invert, negate it. Otherwise, leave it alone.
-                self._condition = negate(inner) if (invert and inner) else inner
-
-
-    def __call__(self, s):
-        """ apply condition to spec unless the condition is None (invalid) then return None """
-        return None if self._condition is None else self._condition(s)
-
 # ESMF_TYPEKIND enum
 class TYPEKIND_Type:
     __slots__=('type', 'kind', 'variable_type')
@@ -317,16 +262,48 @@ def get_options(args):
 
     return options
 
-# Procedures for writing to files
-def negate(f):
-    def inner(*args, **kwargs):
-        return not f(*args, **kwargs)
+#def specfilter(predicate, key=None):
+def specfilter(other=None, **kwargs):
+    s = (lambda s: s.get(kwargs['key'])) if 'key' in kwargs else (lambda x: x)
+    op = kwargs.get('boolean_operator')
+    if other and op:
+        def g(func, spec):
+            return op(func(s(spec)), other(s(spec)))
+    elif other:
+        def g(func, spec):
+            return func(s(spec)), other(s(spec))
+    elif op:
+        def g(func, spec):
+            return op(func(s(spec)))
+    else:
+        def g(func, spec):
+            return func(s(spec))
+    def h(func):
+        def f(spec):
+            return g(func, spec)
+        return f
+    return h
+
+andfilter = lambda other: specfilter(other, boolean_operator=lambda a, b: a and b)
+orfilter = lambda other: specfilter(other, boolean_operator=lambda a, b: a or b)
+notfilter = specfilter(boolean_operator=lambda a: not a)
+def allfilter(*filters):
+    return reduce(andfilter, filters) if filters else None
+def anyfilter(*filters):
+    return reduce(orfilter, filters) if filters else None
+
+#field_filter = SpecFilter([SpecFilter(lambda s: ITEMTYPE in s, invert=True), (ITEMTYPE, MAPL_STATEITEM_FIELD)], forall=False)
+
+@specfilter(key=ITEMTYPE)
+def field_filter(value):
+    return value is None or value == MAPL_STATEITEM_FIELD
+
+def make_state_filter(*states):
+    @specfilter(key=STATE)
+    def inner(value):
+        return value in states
     return inner
 
-field_filter = SpecFilter([SpecFilter(lambda s: ITEMTYPE in s, invert=True), (ITEMTYPE, MAPL_STATEITEM_FIELD)], forall=False)
-
-def itemtype_filter(*itemtypes):
-    
 def state_filter(states=None):
     """Create a filter on state."""
     match states:
@@ -360,8 +337,16 @@ def emit_args(values, options):
 
 def emit_declare_pointers(specs, states=None):
     """Emit pointer declarations from Iterable of spec instances."""
+#    @specfilter(key=ITEMTYPE)
+#    def field_filter(value):
+#        return value is None or value == MAPL_STATEITEM_FIELD
+
     # filter on state
-    f = state_filter(states) and field_filter
+#    f = state_filter(states) and field_filter
+    @andfilter(other=field_filter)
+    def f(value):
+        return value in states
+
     declarations = []
     for spec in specs:
         if not f(spec):
@@ -387,7 +372,10 @@ def emit_declare_pointer(spec):
 def emit_get_pointers(specs, states=None):
     """Emit pointer get statements from an Iterable of spec instances."""
     # filter of state
-    f = state_filter(states) and field_filter
+#    f = state_filter(states) and field_filter
+    @andfilter(other=field_filter)
+    def f(value):
+        return value in states
     return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec)))
 
 def emit_get_pointer(spec):
