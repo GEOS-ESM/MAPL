@@ -17,8 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update CI to use Baselibs 8.32.0 and circleci-tools orb v5
 - Update `components.yaml`
-  - ESMA_env v5.22.0
+  - ESMA_env v5.24.0
     - Update to GEOSpyD 26.3.2 Python 3.14
+    - Update GEOSgcm to use Baselibs 8.32.0
+    - Move NAS runs to use Intel MPI by default
+  - ESMA_cmake v4.40.0
+    - Update ifx and NVHPC flags
+    - Better detect FMS/yaml support (needed for spack)
+    - Add new `color_message` function
+    - Add helper script for regression test work
 
 ### Removed
 
