@@ -2,7 +2,10 @@
 
 submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    use mapl_VerticalGrid_mod
+   use mapl_HorizontalDimsSpec_mod
    implicit none(type,external)
+
+   character(*), parameter :: KEY_DIMS = 'dims'
 
 contains
 
@@ -62,6 +65,9 @@ contains
          logical :: has_standard_name
          logical :: has_units
          logical :: has_expression
+         logical :: has_dims
+         character(:), allocatable :: dims_str
+         type(HorizontalDimsSpec) :: horizontal_dims_spec
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
 
@@ -89,6 +95,16 @@ contains
             call val_to_float(fill_value, attributes, KEY_FILL_VALUE, _RC)
             vertical_stagger = to_VerticalStaggerLoc(attributes,_RC)
             ungridded_dims = to_UngriddedDims(attributes, _RC)
+
+            horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
+            has_dims = ESMF_HConfigIsDefined(attributes, keyString=KEY_DIMS, _RC)
+            if (has_dims) then
+               dims_str = ESMF_HConfigAsString(attributes, keyString=KEY_DIMS, _RC)
+               select case (ESMF_UtilStringLowerCase(dims_str))
+               case ('z')
+                  horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+               end select
+            end if
 
             has_standard_name = ESMF_HConfigIsDefined(attributes,keyString='standard_name', _RC)
             if (has_standard_name) then
@@ -134,7 +150,8 @@ contains
                  dependencies=dependencies, &
                  expression=expression, &
                  geom=geom, &
-                 vertical_grid=vertical_grid, _RC)
+                 vertical_grid=vertical_grid, &
+                 horizontal_dims_spec=horizontal_dims_spec, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
