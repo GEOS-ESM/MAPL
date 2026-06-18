@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix typo in `allreducesum.H`
+
 ### Added
 
 - Add release guide (`docs/releasing.md`) documenting the MAPL release process
