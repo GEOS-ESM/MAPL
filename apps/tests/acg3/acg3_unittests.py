@@ -623,6 +623,15 @@ class TestHelpers(unittest.TestCase):
         self.assertIsNone(result_neither, 
                          'Lambda should return None for invalid input')
 
+    def test_make_specfilter(self):
+        spec_keys = 'name age height'.split()
+        spec_values = [('Alice', 32, 67), ('Bob', 31, 70), ('Connie', 25, 60)]
+        specs = dict(name: zip(spec_keys, (name, age, height)) for name, age, height in spec_values)
+        test_params = (
+
+            [(key, default, func), spec, expected],
+        )
+
 class TestTypes(unittest.TestCase):
 
     def test_ESMF_Typekind(self):

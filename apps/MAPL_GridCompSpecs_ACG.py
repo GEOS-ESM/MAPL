@@ -262,39 +262,51 @@ def get_options(args):
 
     return options
 
-#def specfilter(predicate, key=None):
-def specfilter(other=None, **kwargs):
-    s = (lambda s: s.get(kwargs['key'])) if 'key' in kwargs else (lambda x: x)
-    op = kwargs.get('boolean_operator')
-    if other and op:
-        def g(func, spec):
-            return op(func(s(spec)), other(s(spec)))
-    elif other:
-        def g(func, spec):
-            return func(s(spec)), other(s(spec))
-    elif op:
-        def g(func, spec):
-            return op(func(s(spec)))
-    else:
-        def g(func, spec):
-            return func(s(spec))
-    def h(func):
-        def f(spec):
-            return g(func, spec)
-        return f
-    return h
+def make_specfilter(key=None, default=False, func=bool):
+    selector = (lambda s: s.get(key)) if key else (lambda s: s)
+    def inner(spec):
+        value = selector(spec)
+        return func(value) if value else default
+    return inner
 
-andfilter = lambda other: specfilter(other, boolean_operator=lambda a, b: a and b)
-orfilter = lambda other: specfilter(other, boolean_operator=lambda a, b: a or b)
-notfilter = specfilter(boolean_operator=lambda a: not a)
-def allfilter(*filters):
-    return reduce(andfilter, filters) if filters else None
-def anyfilter(*filters):
-    return reduce(orfilter, filters) if filters else None
+def specfilter(key=None, default=False):
+    f = partial(make_specfilter, key, default)
+    def inner(func):
+        return f(func)
+    return inner
+
+def make_andfilter(other, func):
+    def inner(spec):
+        return func(spec) and other(spec)
+    return inner
+
+def andfilter(other):
+    f = partial(make_andfilter, other)
+    def inner(func):
+        return f(func)
+    return inner
+
+def make_orfilter(other, func):
+    def inner(func):
+        def f(spec):
+            return func(spec) or other(spec)
+        return f
+    return inner
+
+def orfilter(other):
+    f = partial(make_orfilter, other)
+    def inner(func):
+        return f(func)
+    return inner
+
+def notfilter(func):
+    def inner(spec):
+        return not func(spec)
+    return inner
 
 #field_filter = SpecFilter([SpecFilter(lambda s: ITEMTYPE in s, invert=True), (ITEMTYPE, MAPL_STATEITEM_FIELD)], forall=False)
 
-@specfilter(key=ITEMTYPE)
+@specfilter(key=ITEMTYPE, default=True)
 def field_filter(value):
     return value is None or value == MAPL_STATEITEM_FIELD
 
@@ -335,28 +347,43 @@ def emit_args(values, options):
     return [f"{CALL} {ADDSPEC}({GC_ARGNAME}={options[GC_VARIABLE]}, &",
             *lines, f"{INDENT}& {TERMINATOR}"]
 
+
+def make_field_state_filter(states):
+    @andfilter(other=field_filter)
+    @specfilter(key=STATE)
+    def inner(value):
+        return value.lower() in states
+    return inner
+
 def emit_declare_pointers(specs, states=None):
     """Emit pointer declarations from Iterable of spec instances."""
-#    @specfilter(key=ITEMTYPE)
-#    def field_filter(value):
-#        return value is None or value == MAPL_STATEITEM_FIELD
-
-    # filter on state
-#    f = state_filter(states) and field_filter
-    @andfilter(other=field_filter)
-    def f(value):
-        return value in states
-
-    declarations = []
-    for spec in specs:
-        if not f(spec):
-            continue
+    def declaration(spec):
+        declaration = None
         try:
-            declaration = emit_declare_pointer(spec)
+            return 0, emit_declare_pointer(spec)
         except RuntimeError as ex:
-            raise RuntimeError(f'Error pointer declaration for spec {spec}: {str(ex)}')
-        declarations.append(declaration)
+            return ex, spec
+
+    f = make_field_state_filter(states)
+
+    pairs = [declaration(spec) for spec in specs if f(spec)]
+    declarations = [d for r, d in pairs if r == 0]
+    errors = [(spec, ex) for r, s in pairs if r != 0]
+    if errors:
+        raise RuntimeError(f'Error pointer claration for:{linesep}' +
+            linesep.join(f'spec {spec} => {str(ex)}' for spec, ex in error))
     return DECLARE, declarations
+        
+#    declarations = []
+#    for spec in specs:
+#        if not f(spec):
+#            continue
+#        try:
+#            declaration = emit_declare_pointer(spec)
+#        except RuntimeError as ex:
+#            raise RuntimeError(f'Error pointer declaration for spec {spec}: {str(ex)}')
+#        declarations.append(declaration)
+#    return DECLARE, declarations
 
 def emit_declare_pointer(spec):
     """Emit individual pointer declartion."""
@@ -371,11 +398,8 @@ def emit_declare_pointer(spec):
 
 def emit_get_pointers(specs, states=None):
     """Emit pointer get statements from an Iterable of spec instances."""
-    # filter of state
-#    f = state_filter(states) and field_filter
-    @andfilter(other=field_filter)
-    def f(value):
-        return value in states
+    f = make_field_state_filter(states)
+
     return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec)))
 
 def emit_get_pointer(spec):
