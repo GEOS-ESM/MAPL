@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add new `color_message` function
     - Add helper script for regression test work
 - For ACG, only declare pointer and get_pointer for MAPL_STATEITEM_FIELD
+- For ACG, add spec_filters to generalize testing specs
 
 ### Fixed
 

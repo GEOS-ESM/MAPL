@@ -263,6 +263,8 @@ def get_options(args):
     return options
 
 def make_specfilter(key=None, default=False, func=bool):
+    """Make a filter (bool valued) for spec based on key and a default if key is not found."""
+    # key is optional. If it is not present, the function will be called on the entire spec.
     selector = (lambda s: s.get(key)) if key else (lambda s: s)
     def inner(spec):
         value = selector(spec)
@@ -270,41 +272,46 @@ def make_specfilter(key=None, default=False, func=bool):
     return inner
 
 def specfilter(key=None, default=False):
+    """ Decorator to build spec filters with optional parameters """
     f = partial(make_specfilter, key, default)
+    # wrap the decorated function
     def inner(func):
         return f(func)
     return inner
 
 def make_andfilter(other, func):
+    """ Make a spec filter from a logical AND of two filters """
     def inner(spec):
         return func(spec) and other(spec)
     return inner
 
 def andfilter(other):
+    """ Decorator to build an AND filter from an existing spec filter and the decorated function. """
     f = partial(make_andfilter, other)
+    # wrap the decorated function
     def inner(func):
         return f(func)
     return inner
 
 def make_orfilter(other, func):
-    def inner(func):
-        def f(spec):
-            return func(spec) or other(spec)
-        return f
+    """ Make a spec filter from a logical OR of two filters """
+    def inner(spec):
+        return func(spec) or other(spec)
     return inner
 
 def orfilter(other):
+    """ Decorator to build an OR filter from an existing spec filter and the decorated function. """
     f = partial(make_orfilter, other)
+    # wrap the decorated function
     def inner(func):
         return f(func)
     return inner
 
 def notfilter(func):
+    """ Decorator to build a NOT filter from an existing spec filter. """
     def inner(spec):
         return not func(spec)
     return inner
-
-#field_filter = SpecFilter([SpecFilter(lambda s: ITEMTYPE in s, invert=True), (ITEMTYPE, MAPL_STATEITEM_FIELD)], forall=False)
 
 @specfilter(key=ITEMTYPE, default=True)
 def field_filter(value):
@@ -374,17 +381,6 @@ def emit_declare_pointers(specs, states=None):
             linesep.join(f'spec {spec} => {str(ex)}' for spec, ex in error))
     return DECLARE, declarations
         
-#    declarations = []
-#    for spec in specs:
-#        if not f(spec):
-#            continue
-#        try:
-#            declaration = emit_declare_pointer(spec)
-#        except RuntimeError as ex:
-#            raise RuntimeError(f'Error pointer declaration for spec {spec}: {str(ex)}')
-#        declarations.append(declaration)
-#    return DECLARE, declarations
-
 def emit_declare_pointer(spec):
     """Emit individual pointer declartion."""
     # get fortran type and kind of pointer

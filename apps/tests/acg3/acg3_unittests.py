@@ -623,14 +623,74 @@ class TestHelpers(unittest.TestCase):
         self.assertIsNone(result_neither, 
                          'Lambda should return None for invalid input')
 
-    def test_make_specfilter(self):
+    def test_specfilter(self):
+        specfilter = acg3.specfilter
         spec_keys = 'name age height'.split()
         spec_values = [('Alice', 32, 67), ('Bob', 31, 70), ('Connie', 25, 60)]
-        specs = dict(name: zip(spec_keys, (name, age, height)) for name, age, height in spec_values)
-        test_params = (
+        specs = dict((name, dict(zip(spec_keys, (name, age, height)))) for name, age, height in spec_values) 
+        @specfilter(key='age')
+        def sf(a):
+            return a > 30
+        expected = set(('Alice', 'Bob'))
+        filtered = set(key for key, spec in specs.items() if sf(spec))
+        self.assertEqual(filtered, expected)
 
-            [(key, default, func), spec, expected],
-        )
+        specs['Dave'] = {'name': 'Dave', 'height': 72}
+        @specfilter(key='age', default=True)
+        def sfd(a):
+            return a > 30
+        expected = set(('Alice', 'Bob', 'Dave'))
+        filtered = set(key for key, spec in specs.items() if sfd(spec))
+        self.assertEqual(filtered, expected)
+
+    def test_andfilter(self):
+        specfilter = acg3.specfilter
+        andfilter = acg3.andfilter
+        spec_keys = 'name age height'.split()
+        spec_values = [('Alice', 32, 67), ('Bob', 31, 70), ('Connie', 25, 60)]
+        specs = dict((name, dict(zip(spec_keys, (name, age, height)))) for name, age, height in spec_values) 
+        @specfilter(key='age')
+        def sf(a):
+            return a > 30
+        @andfilter(sf)
+        @specfilter(key='height')
+        def hf(height):
+            return height >= 70
+        expected = set(('Bob',))
+        filtered = set(key for key, spec in specs.items() if hf(spec))
+        self.assertEqual(filtered, expected)
+
+    def test_orfilter(self):
+        specfilter = acg3.specfilter
+        orfilter = acg3.orfilter
+        spec_keys = 'name age height'.split()
+        spec_values = [('Alice', 32, 67), ('Bob', 31, 70), ('Connie', 25, 60)]
+        specs = dict((name, dict(zip(spec_keys, (name, age, height)))) for name, age, height in spec_values) 
+        @specfilter(key='age')
+        def sf(a):
+            return a < 30
+        @orfilter(sf)
+        @specfilter(key='height')
+        def hf(height):
+            return height < 70
+        expected = set(('Alice','Connie'))
+        filtered = set(key for key, spec in specs.items() if hf(spec))
+        self.assertEqual(filtered, expected)
+
+    def test_notfilter(self):
+        specfilter = acg3.specfilter
+        notfilter = acg3.notfilter
+        spec_keys = 'name age height'.split()
+        spec_values = [('Alice', 32, 67), ('Bob', 31, 70), ('Connie', 25, 60)]
+        specs = dict((name, dict(zip(spec_keys, (name, age, height)))) for name, age, height in spec_values) 
+        @specfilter(key='age')
+        def sf(a):
+            return a > 30
+        yf = notfilter(sf)
+        expected = set(('Connie',))
+        filtered = set(key for key, spec in specs.items() if yf(spec))
+        self.assertEqual(filtered, expected)
+        
 
 class TestTypes(unittest.TestCase):
 
