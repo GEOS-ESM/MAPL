@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug that prevented R8 exports being written as R4 output in History
+
 ### Added
 
 ### Changed
