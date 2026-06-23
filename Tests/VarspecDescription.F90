@@ -8,6 +8,7 @@ module VarspecDescriptionMod
    use MAPL
    use ESMF
    use gFTL_StringVector
+   use MAPL_Constants, only: MAPL_R4, MAPL_R8
    implicit none
    private
 
@@ -48,12 +49,25 @@ contains
          call svec%push_back(trim(tmpstring))
       enddo
 
-      lcomp = (svec%size()==5 .or. svec%size()==6)
+      lcomp = (svec%size()==6 .or. svec%size()==7)
       _ASSERT(lcomp)
       VarspecDescr%short_name = svec%at(1)
-      VarspecDescr%long_name = svec%at(2)
-      VarspecDescr%units = svec%at(3)
-      tmpstring = svec%at(4)
+      
+      ! Parse and validate precision (column 2)
+      tmpstring = svec%at(2)
+      if (trim(tmpstring) == 'R4') then
+         VarspecDescr%precision = MAPL_R4
+      else if (trim(tmpstring) == 'R8') then
+         VarspecDescr%precision = MAPL_R8
+      else
+         PRINT *, Iam, ': Invalid precision "', trim(tmpstring), '"'
+         PRINT *, Iam, ': Must be either R4 or R8'
+         _ASSERT(.false.)
+      end if
+      
+      VarspecDescr%long_name = svec%at(3)
+      VarspecDescr%units = svec%at(4)
+      tmpstring = svec%at(5)
       if (trim(tmpstring) == 'xy') then
          VarspecDescr%dims = MAPL_DimsHorzOnly
       else if (trim(tmpstring) == 'xyz') then
@@ -61,7 +75,7 @@ contains
       else if (trim(tmpstring) == 'tileonly') then
          VarspecDescr%dims = MAPL_DimsTileOnly
       end if
-      tmpstring = svec%at(5)
+      tmpstring = svec%at(6)
       if (trim(tmpstring) == 'none') then
          VarspecDescr%location = MAPL_VLocationNone
       else if (trim(tmpstring) == 'c') then
@@ -69,8 +83,8 @@ contains
       else if (trim(tmpstring) == 'e') then
          VarspecDescr%location = MAPL_VLocationEdge
       end if
-      if (svec%size() == 6) then
-         tmpstring = svec%at(6)
+      if (svec%size() == 7) then
+         tmpstring = svec%at(7)
          allocate(ungrid_ptr(1))
          read(tmpstring,*)ungrid_ptr(1)
          if (ungrid_ptr(1) > 0) VarspecDescr%ungridded_dims => ungrid_ptr
@@ -95,6 +109,7 @@ contains
               UNITS = this%units, &
               DIMS = this%dims, &
               VLOCATION = this%location, &
+              PRECISION = this%precision, &
               !STAGGERING = this%staggering, &
               !ROTATION = this%rotation, &
               UNGRIDDED_DIMS = this%ungridded_dims, &
@@ -106,6 +121,7 @@ contains
               UNITS = this%units, &
               DIMS = this%dims, &
               VLOCATION = this%location, &
+              PRECISION = this%precision, &
               !STAGGERING = this%staggering, &
               !ROTATION = this%rotation, &
               UNGRIDDED_DIMS = this%ungridded_dims, &
