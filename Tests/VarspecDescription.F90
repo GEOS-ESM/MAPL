@@ -60,9 +60,8 @@ contains
       else if (trim(tmpstring) == 'R8') then
          VarspecDescr%precision = MAPL_R8
       else
-         PRINT *, Iam, ': Invalid precision "', trim(tmpstring), '"'
-         PRINT *, Iam, ': Must be either R4 or R8'
-         _ASSERT(.false.)
+        _FAIL('Invalid precision "'// trim(tmpstring) // '": Must be either R4 or R8')
+
       end if
       
       VarspecDescr%long_name = svec%at(3)
