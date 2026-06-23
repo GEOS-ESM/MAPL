@@ -1,8 +1,4 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#include "MAPL_Generic.h"
 
 module VarspecDescriptionMod
    use MAPL
@@ -34,7 +30,6 @@ contains
       logical :: lcomp
       integer, optional, intent(out) :: rc
 
-      character(len=*), parameter :: Iam = 'new_VarspecDescriptionFromConfig'
       integer :: status
 
       type(StringVector) :: svec
@@ -50,7 +45,7 @@ contains
       enddo
 
       lcomp = (svec%size()==6 .or. svec%size()==7)
-      _ASSERT(lcomp)
+      _ASSERT(lcomp, 'Wrong number of columns in state descriptor')
       VarspecDescr%short_name = svec%at(1)
       
       ! Parse and validate precision (column 2)
@@ -99,7 +94,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = "addNewSpec"
 
       if (specType == "IMPORT") then
          call MAPL_AddImportSpec(GC, &
@@ -112,7 +106,7 @@ contains
               !STAGGERING = this%staggering, &
               !ROTATION = this%rotation, &
               UNGRIDDED_DIMS = this%ungridded_dims, &
-              RC = status)
+              _RC)
       else if (specType == "EXPORT") then
          call MAPL_AddExportSpec(GC, &
               SHORT_NAME = this%short_name, &
@@ -124,11 +118,10 @@ contains
               !STAGGERING = this%staggering, &
               !ROTATION = this%rotation, &
               UNGRIDDED_DIMS = this%ungridded_dims, &
-              RC = status)
+              _RC)
       else
          _RETURN(_FAILURE)
       end if
-      _VERIFY(status)
 
    end subroutine AddNewSpec
 
