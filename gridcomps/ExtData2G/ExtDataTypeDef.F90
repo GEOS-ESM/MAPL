@@ -25,6 +25,7 @@ module MAPL_ExtDataTypeDef
   end type BracketingFields
 
   type PrimaryExport
+     logical                      :: in_range
      character(len=ESMF_MAXSTR)   :: name
      character(len=:), allocatable :: units
      integer                      :: Trans

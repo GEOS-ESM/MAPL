@@ -13,8 +13,6 @@ module MAPL_ExtDataFileStream
    implicit none
    private
 
-   public :: refine_valid_range
-
    type, public :: ExtDataFileStream
       character(len=:), allocatable :: file_template
       type(ESMF_TimeInterval) :: frequency
@@ -24,6 +22,8 @@ module MAPL_ExtDataFileStream
       type(FileMetaData) :: metadata
       contains
          procedure :: detect_metadata
+         procedure :: refine_valid_range
+         procedure :: check_in_run
    end type
 
     interface ExtDataFileStream
@@ -171,12 +171,6 @@ contains
          _ASSERT(allocated(this%valid_range),"must use a collection with valid range")
       end if
 
-      if (index(this%file_template,'%') .ne. 0 .and. allocated(this%valid_range)) then
-         call refine_valid_range(this%valid_range, this%file_template, this%reff_time, this%frequency, this%collection_id, _RC)
-         call ESMF_TimePrint(this%valid_range(1), options='string', prestring='bmaa vr1 ')
-         call ESMF_TimePrint(this%valid_range(2), options='string', prestring='bmaa vr2 ')
-      end if
-
       if (present(get_range)) then
          get_range_ = get_range
       else
@@ -192,7 +186,12 @@ contains
             this%valid_range(1)=time_series(1)
             this%valid_range(2)=time_series(size(time_series))
          end if
+      else if (get_range_ .and. (allocated(this%valid_range)) .and. &
+               (index(this%file_template,'%')/=0)) then
+         call this%refine_valid_range(_RC)
       end if
+      !call ESMF_TimePrint(this%valid_range(1), options='string', prestring='bmaa vr1 ')
+      !call ESMF_TimePrint(this%valid_range(2), options='string', prestring='bmaa vr2 ')
 
       _RETURN(_SUCCESS)
 
@@ -211,15 +210,10 @@ contains
    ! (any confirmed file position) is established, binary search on each
    ! monotone half gives O(log N) total filesystem probes for the common
    ! case, with linear fallback only for unusual narrow-block situations.
-   subroutine refine_valid_range(valid_range, file_template, reff_time, frequency, &
-                                 collection_id, unusable, rc)
-      type(ESMF_Time),         intent(inout) :: valid_range(2)
-      character(len=*),        intent(in)    :: file_template
-      type(ESMF_Time),         intent(in)    :: reff_time
-      type(ESMF_TimeInterval), intent(in)    :: frequency
-      integer,                 intent(in)    :: collection_id
-      class(KeywordEnforcer),  optional, intent(in)  :: unusable
-      integer,                 optional, intent(out) :: rc
+   subroutine refine_valid_range(this, unusable, rc)
+      class(ExtDataFileStream), intent(inout) :: this
+      class(KeywordEnforcer),   optional, intent(in)  :: unusable
+      integer,                  optional, intent(out) :: rc
 
       integer(ESMF_KIND_I8) :: interval_seconds
       integer :: n_lo, n_hi, n_first, n_last, n_mid, n_anchor, lo, hi, n
@@ -236,7 +230,7 @@ contains
       ! Determine if interval is absolute (representable in seconds) or
       ! relative (months/years).  Follows the same idiom as get_file in
       ! ExtDataSimpleFileHandler: a zero s_i8 result means relative.
-      call ESMF_TimeIntervalGet(frequency, s_i8=interval_seconds)
+      call ESMF_TimeIntervalGet(this%frequency, s_i8=interval_seconds)
 
       if (interval_seconds /= 0) then
 
@@ -247,12 +241,12 @@ contains
          ! ESMF division truncates toward zero, which is floor for positive
          ! differences but ceiling for negative; the guard below corrects the
          ! latter so both signs give the floor (i.e. the desired last n).
-         n_lo = (valid_range(1) - reff_time) / frequency
-         if (reff_time + n_lo * frequency > valid_range(1)) n_lo = n_lo - 1
+         n_lo = (this%valid_range(1) - this%reff_time) / this%frequency
+         if (this%reff_time + n_lo * this%frequency > this%valid_range(1)) n_lo = n_lo - 1
 
          ! n_hi: last integer n with reff_time + n*freq <= valid_range(2)
-         n_hi = (valid_range(2) - reff_time) / frequency
-         if (reff_time + n_hi * frequency > valid_range(2)) n_hi = n_hi - 1
+         n_hi = (this%valid_range(2) - this%reff_time) / this%frequency
+         if (this%reff_time + n_hi * this%frequency > this%valid_range(2)) n_hi = n_hi - 1
 
       else
 
@@ -263,12 +257,12 @@ contains
          ! (Using "first n >= valid_range(1)" would skip that file on any call
          ! where valid_range(1) has been refined to a sub-period timestamp.)
          n = 0
-         if (reff_time < valid_range(1)) then
-            do while (reff_time + (n + 1) * frequency <= valid_range(1))
+         if (this%reff_time < this%valid_range(1)) then
+            do while (this%reff_time + (n + 1) * this%frequency <= this%valid_range(1))
                n = n + 1
             end do
          else
-            do while (reff_time + n * frequency > valid_range(1))
+            do while (this%reff_time + n * this%frequency > this%valid_range(1))
                n = n - 1
             end do
          end if
@@ -276,7 +270,7 @@ contains
 
          ! Walk forward from n_lo to the last index within valid_range(2).
          n = n_lo
-         do while (reff_time + (n + 1) * frequency <= valid_range(2))
+         do while (this%reff_time + (n + 1) * this%frequency <= this%valid_range(2))
             n = n + 1
          end do
          n_hi = n
@@ -284,7 +278,7 @@ contains
       end if
 
       _ASSERT(n_lo <= n_hi, &
-         "no candidate file times found within guess valid range for: "//trim(file_template))
+         "no candidate file times found within guess valid range for: "//trim(this%file_template))
 
       ! === Phase 1: Find anchor — up to 2 probes, then linear scan fallback ===
       ! A contiguous block needs a confirmed anchor so that each directed binary
@@ -293,24 +287,24 @@ contains
 
       ! Probe 1: midpoint
       n_anchor = (n_lo + n_hi) / 2
-      t_mid = reff_time + n_anchor * frequency
-      call fill_grads_template(filename, file_template, time=t_mid, _RC)
+      t_mid = this%reff_time + n_anchor * this%frequency
+      call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
       inquire(file=trim(filename), exist=file_found)
 
       if (.not. file_found) then
          ! Probe 2: right-quarter point — covers the common case where data
          ! starts after the midpoint of the guess range.
          n_anchor = (n_anchor + n_hi) / 2
-         t_mid = reff_time + n_anchor * frequency
-         call fill_grads_template(filename, file_template, time=t_mid, _RC)
+         t_mid = this%reff_time + n_anchor * this%frequency
+         call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
          inquire(file=trim(filename), exist=file_found)
       end if
 
       if (.not. file_found) then
          ! Both probes missed; scan forward from n_lo to locate n_first.
          do n = n_lo, n_hi
-            t_mid = reff_time + n * frequency
-            call fill_grads_template(filename, file_template, time=t_mid, _RC)
+            t_mid = this%reff_time + n * this%frequency
+            call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
             inquire(file=trim(filename), exist=file_found)
             if (file_found) then
                n_first = n
@@ -320,7 +314,7 @@ contains
          if (.not.file_found) then
             _RETURN(_SUCCESS)
          end if
-         !_ASSERT(file_found, "no files found in guess valid range for: "//trim(file_template))
+         !_ASSERT(file_found, "no files found in guess valid range for: "//trim(this%file_template))
          n_anchor = n_first
       end if
 
@@ -330,8 +324,8 @@ contains
       hi = n_anchor
       do while (lo < hi)
          n_mid = (lo + hi) / 2
-         t_mid = reff_time + n_mid * frequency
-         call fill_grads_template(filename, file_template, time=t_mid, _RC)
+         t_mid = this%reff_time + n_mid * this%frequency
+         call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
          inquire(file=trim(filename), exist=file_found)
          if (file_found) then
             hi = n_mid       ! could be leftmost; search left half
@@ -347,8 +341,8 @@ contains
       hi = n_hi
       do while (lo < hi)
          n_mid = (lo + hi + 1) / 2   ! ceiling to avoid infinite loop when hi = lo+1
-         t_mid = reff_time + n_mid * frequency
-         call fill_grads_template(filename, file_template, time=t_mid, _RC)
+         t_mid = this%reff_time + n_mid * this%frequency
+         call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
          inquire(file=trim(filename), exist=file_found)
          if (file_found) then
             lo = n_mid       ! could be rightmost; search right half
@@ -359,25 +353,39 @@ contains
       n_last = lo
 
       ! Refine valid_range(1): open the first file and take its earliest time.
-      collection => DataCollections%at(collection_id)
+      collection => DataCollections%at(this%collection_id)
 
-      t_mid = reff_time + n_first * frequency
-      call fill_grads_template(filename, file_template, time=t_mid, _RC)
+      t_mid = this%reff_time + n_first * this%frequency
+      call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
       file_metadata => collection%find(trim(filename), _RC)
       call file_metadata%get_time_info(timeVector=time_series, _RC)
-      valid_range(1) = time_series(1)
+      this%valid_range(1) = time_series(1)
       deallocate(time_series)
 
       ! Refine valid_range(2): open the last file and take its latest time.
-      t_mid = reff_time + n_last * frequency
-      call fill_grads_template(filename, file_template, time=t_mid, _RC)
+      t_mid = this%reff_time + n_last * this%frequency
+      call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
       file_metadata => collection%find(trim(filename), _RC)
       call file_metadata%get_time_info(timeVector=time_series, _RC)
-      valid_range(2) = time_series(size(time_series))
+      this%valid_range(2) = time_series(size(time_series))
 
       _RETURN(_SUCCESS)
 
    end subroutine refine_valid_range
+
+   function check_in_run(this, run_range, rc) result(in_run)
+      logical :: in_run
+      class(ExtDataFileStream), intent(inout) :: this
+      type(ESMF_Time),          intent(in) :: run_range(2)
+      integer,                  optional, intent(out) :: rc
+
+      in_run = .true.
+      _RETURN_IF(.not.allocated(this%valid_range))
+
+      in_run = (this%valid_range(1) <= run_range(2) .and. run_range(1) <= this%valid_range(2))
+      _RETURN(_SUCCESS)
+
+   end function check_in_run
 
 end module MAPL_ExtDataFileStream
 

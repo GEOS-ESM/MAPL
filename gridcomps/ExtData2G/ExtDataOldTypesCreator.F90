@@ -56,13 +56,14 @@ module MAPL_ExtDataOldTypesCreator
       end subroutine new_ExtDataOldTypesCreator
 
 
-   subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,unusable,rc)
+   subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,run_range,unusable,rc)
       class(ExtDataOldTypesCreator), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       character(len=*), intent(in) :: base_name
       type(PrimaryExport), intent(inout) :: primary_item
       type(ESMF_Time), intent(inout) :: time
       type(ESMF_Clock), intent(inout) :: clock
+      type(ESMF_Time), intent(in) :: run_range(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -73,7 +74,7 @@ module MAPL_ExtDataOldTypesCreator
       type(ExtDataSimpleFileHandler) :: simple_handler
       type(ExtDataClimFileHandler) :: clim_handler
       integer :: status, semi_pos
-      logical :: disable_interpolation, get_range, exact
+      logical :: disable_interpolation, get_range, exact, in_range
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
@@ -145,6 +146,7 @@ module MAPL_ExtDataOldTypesCreator
          end if
 
          primary_item%file_template = dataset%file_template
+         primary_item%in_range = dataset%check_in_run(run_range, _RC)
          get_range = trim(time_sample%extrap_outside) /= "none"
          call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,_RC)
       else

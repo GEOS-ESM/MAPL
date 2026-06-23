@@ -262,13 +262,10 @@ CONTAINS
    integer, pointer :: i_start
    integer :: new_size
    logical, allocatable :: rules_with_ps(:), rules_with_q(:)
+   type(ESMF_Time) :: run_range(2)
    !class(logger), pointer :: lgr
 
-   type(ESMF_Time) :: etime,stime,ctime
-   call ESMF_ClockGet(clock, starttime=stime, stoptime=etime, currTime=ctime, _RC)
-   call ESMF_TimePrint(ctime, options='string', prestring='bmaa curr time  ')
-   call ESMF_TimePrint(stime, options='string', prestring='bmaa start time ')
-   call ESMF_TimePrint(etime, options='string', prestring='bmaa end time   ')
+   call ESMF_ClockGet(clock, starttime=run_range(1), stoptime=run_range(2), _RC)
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
    call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, vm=vm, _RC )
@@ -374,7 +371,7 @@ CONTAINS
             num_primary=num_primary+1
             write(sidx,'(I1)')j
             allocate(temp_item)
-            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,temp_item,time,clock,rc=status)
+            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,temp_item,time,clock,run_range, rc=status)
             _ASSERT(status==0, "ExtData multi-rule problem with BASE NAME "//TRIM(current_base_name))
             allocate(temp_item%start_end_time(2))
             temp_item%start_end_time(1)=time_ranges(j)
@@ -385,7 +382,7 @@ CONTAINS
       else
          num_primary=num_primary+1
          allocate(temp_item)
-         call config_yaml%fillin_primary(current_base_name,current_base_name,temp_item,time,clock,_RC)
+         call config_yaml%fillin_primary(current_base_name,current_base_name,temp_item,time,clock,run_range,_RC)
          call self%primary%item_vec%push_back(temp_item)
          deallocate(temp_item)
          _ASSERT(status==0, "ExtData single-rule problem with BASE NAME "//TRIM(current_base_name))
