@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Moved configurable test from superstructure/generic
 - Consolidated MAPL ESMF_Info keys into mapl_esmf_info_keys_mod
 - Update `components.yaml`
   - ESMA_env v5.24.0
