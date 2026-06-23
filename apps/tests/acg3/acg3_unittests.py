@@ -18,6 +18,8 @@ def general_msg(variable='EXPECTED VARIABLE', value=None):
 make_equal_test = lambda self, expected: partial(self.assertEqual, expected)
 
 SPECIFICATIONS = acg3.SPECIFICATIONS
+MAPL_STATEITEM_FIELD = acg3.MAPL_STATEITEM_FIELD
+MAPL_STATEITEM_VECTOR = acg3.MAPL_STATEITEM_VECTOR
 
 class TestMappings(unittest.TestCase):
 
@@ -336,14 +338,14 @@ class TestColumns(unittest.TestCase):
         
         # Test alias mappings
         test_cases = (
-            ('F', 'MAPL_STATEITEM_FIELD', 'F should map to MAPL_STATEITEM_FIELD'),
-            ('V', 'MAPL_STATEITEM_VECTOR', 'V should map to MAPL_STATEITEM_VECTOR'),
+            ('F', MAPL_STATEITEM_FIELD, f'F should map to "{MAPL_STATEITEM_FIELD.upper()}"'),
+            ('V', MAPL_STATEITEM_VECTOR, f'V should map to "{MAPL_STATEITEM_VECTOR.upper()}"'),
         )
         
         for alias, expected, msg in test_cases:
             with self.subTest(alias=alias, expected=expected):
-                actual = get_value(alias)
-                self.assertEqual(expected, actual, msg)
+                actual = get_value(alias).lower()
+                self.assertEqual(expected.lower(), actual, msg)
 
     def test_itemtype_full_values(self):
         """Test that full MAPL constant values are valid for itemtype."""
@@ -364,14 +366,14 @@ class TestColumns(unittest.TestCase):
         
         # Test full constant values (both dict keys and dict values should work)
         full_values = (
-            ('MAPL_STATEITEM_FIELD', 'MAPL_STATEITEM_FIELD', 'Full value MAPL_STATEITEM_FIELD should be valid'),
-            ('MAPL_STATEITEM_VECTOR', 'MAPL_STATEITEM_VECTOR', 'Full value MAPL_STATEITEM_VECTOR should be valid'),
+            (MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELD, f'Full value "{MAPL_STATEITEM_FIELD.upper()}" should be valid'),
+            (MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTOR, f'Full value "{MAPL_STATEITEM_VECTOR.upper()}" should be valid'),
         )
         
         for full_value, expected, msg in full_values:
             with self.subTest(value=full_value, expected=expected):
-                actual = get_value(full_value)
-                self.assertEqual(expected, actual, msg)
+                actual = get_value(full_value).lower()
+                self.assertEqual(expected.lower(), actual, msg)
 
     def test_itemtype_absent(self):
         """Test that itemtype is optional and absence is handled correctly."""
@@ -575,6 +577,22 @@ class TestHelpers(unittest.TestCase):
         spec = {acg3.TYPEKIND: 'X4', acg3.INTERNAL_NAME: 'GX', acg3.RANK: 4}
         self.assertRaises(RuntimeError, acg3.emit_declare_pointer, spec)
 
+    def test_emit_declare_pointers(self):
+        ITEMTYPE = acg3.ITEMTYPE
+        options = acg3.get_options({})
+        states = options[acg3.CONSTANTS][acg3.STATES]
+        STATE = acg3.STATE
+        STATE_, *_ = states
+        BASE_SPEC = {acg3.INTERNAL_NAME: 'GX', acg3.RANK: 3}
+        DEFAULT_SPEC = BASE_SPEC | {STATE: STATE_}
+        FIELD_SPEC = DEFAULT_SPEC | {ITEMTYPE: MAPL_STATEITEM_FIELD}
+        VECTOR_SPEC = BASE_SPEC | {ITEMTYPE: MAPL_STATEITEM_VECTOR}
+        specs = FIELD_SPEC, VECTOR_SPEC, DEFAULT_SPEC
+        _, declarations = acg3.emit_declare_pointers(specs, states)
+        expected = len(specs)-1
+        actual = len(declarations)
+        self.assertEqual(expected, len(declarations), f'There should be {expected} declarations. There are {actual} declarations.')
+
     def test_dict_mapping_lambda(self):
         """Test lambda function behavior for dict mappings.
         
@@ -604,6 +622,75 @@ class TestHelpers(unittest.TestCase):
         result_neither = mapping_lambda('invalid')
         self.assertIsNone(result_neither, 
                          'Lambda should return None for invalid input')
+
+    def test_specfilter(self):
+        specfilter = acg3.specfilter
+        spec_keys = 'name age height'.split()
+        spec_values = [('Alice', 32, 67), ('Bob', 31, 70), ('Connie', 25, 60)]
+        specs = dict((name, dict(zip(spec_keys, (name, age, height)))) for name, age, height in spec_values) 
+        @specfilter(key='age')
+        def sf(a):
+            return a > 30
+        expected = set(('Alice', 'Bob'))
+        filtered = set(key for key, spec in specs.items() if sf(spec))
+        self.assertEqual(filtered, expected)
+
+        specs['Dave'] = {'name': 'Dave', 'height': 72}
+        @specfilter(key='age', default=True)
+        def sfd(a):
+            return a > 30
+        expected = set(('Alice', 'Bob', 'Dave'))
+        filtered = set(key for key, spec in specs.items() if sfd(spec))
+        self.assertEqual(filtered, expected)
+
+    def test_andfilter(self):
+        specfilter = acg3.specfilter
+        andfilter = acg3.andfilter
+        spec_keys = 'name age height'.split()
+        spec_values = [('Alice', 32, 67), ('Bob', 31, 70), ('Connie', 25, 60)]
+        specs = dict((name, dict(zip(spec_keys, (name, age, height)))) for name, age, height in spec_values) 
+        @specfilter(key='age')
+        def sf(a):
+            return a > 30
+        @andfilter(sf)
+        @specfilter(key='height')
+        def hf(height):
+            return height >= 70
+        expected = set(('Bob',))
+        filtered = set(key for key, spec in specs.items() if hf(spec))
+        self.assertEqual(filtered, expected)
+
+    def test_orfilter(self):
+        specfilter = acg3.specfilter
+        orfilter = acg3.orfilter
+        spec_keys = 'name age height'.split()
+        spec_values = [('Alice', 32, 67), ('Bob', 31, 70), ('Connie', 25, 60)]
+        specs = dict((name, dict(zip(spec_keys, (name, age, height)))) for name, age, height in spec_values) 
+        @specfilter(key='age')
+        def sf(a):
+            return a < 30
+        @orfilter(sf)
+        @specfilter(key='height')
+        def hf(height):
+            return height < 70
+        expected = set(('Alice','Connie'))
+        filtered = set(key for key, spec in specs.items() if hf(spec))
+        self.assertEqual(filtered, expected)
+
+    def test_notfilter(self):
+        specfilter = acg3.specfilter
+        notfilter = acg3.notfilter
+        spec_keys = 'name age height'.split()
+        spec_values = [('Alice', 32, 67), ('Bob', 31, 70), ('Connie', 25, 60)]
+        specs = dict((name, dict(zip(spec_keys, (name, age, height)))) for name, age, height in spec_values) 
+        @specfilter(key='age')
+        def sf(a):
+            return a > 30
+        yf = notfilter(sf)
+        expected = set(('Connie',))
+        filtered = set(key for key, spec in specs.items() if yf(spec))
+        self.assertEqual(filtered, expected)
+        
 
 class TestTypes(unittest.TestCase):
 

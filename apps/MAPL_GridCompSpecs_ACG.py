@@ -69,6 +69,8 @@ GET = 'get'
 MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
 KIND = 'kind'
+MAPL_STATEITEM_FIELD = 'MAPL_STATEITEM_FIELD'
+MAPL_STATEITEM_VECTOR = 'MAPL_STATEITEM_VECTOR'
 MAPPED = 'mapped' 
 MAPPING = 'mapping'
 MISSING_MANDATORY = 'missing_mandatory'
@@ -95,6 +97,7 @@ EXPORT_NAME = 'export_name'
 FILL_VALUE = 'fill_value'
 INTENT_ARG = 'intent_arg'
 INTERNAL_NAME = 'internal_name'
+ITEMTYPE = 'itemtype'
 MANGLED = 'mangled'
 STANDARD_NAME_ARG = 'standard_name_arg'
 RANK = 'rank'
@@ -202,9 +205,9 @@ def get_options(args):
         'dependencies': {MAPPING: STRINGVECTOR},
         EXPORT_NAME: {MAPPING: STRING},
         FILL_VALUE: {},
-        'itemtype': {MAPPING: {
-            'F': 'MAPL_STATEITEM_FIELD',
-            'V': 'MAPL_STATEITEM_VECTOR'}},
+        ITEMTYPE: {MAPPING: {
+            'F': MAPL_STATEITEM_FIELD,
+            'V': MAPL_STATEITEM_VECTOR}},
         'orientation': {},
         'regrid_method': {},
         'restart_mode': {MAPPING: {
@@ -259,7 +262,66 @@ def get_options(args):
 
     return options
 
-# Procedures for writing to files
+def make_specfilter(key=None, default=False, func=bool):
+    """Make a filter (bool valued) for spec based on key and a default if key is not found."""
+    # key is optional. If it is not present, the function will be called on the entire spec.
+    selector = (lambda s: s.get(key)) if key else (lambda s: s)
+    def inner(spec):
+        value = selector(spec)
+        return func(value) if value else default
+    return inner
+
+def specfilter(key=None, default=False):
+    """ Decorator to build spec filters with optional parameters """
+    f = partial(make_specfilter, key, default)
+    # wrap the decorated function
+    def inner(func):
+        return f(func)
+    return inner
+
+def make_andfilter(other, func):
+    """ Make a spec filter from a logical AND of two filters """
+    def inner(spec):
+        return func(spec) and other(spec)
+    return inner
+
+def andfilter(other):
+    """ Decorator to build an AND filter from an existing spec filter and the decorated function. """
+    f = partial(make_andfilter, other)
+    # wrap the decorated function
+    def inner(func):
+        return f(func)
+    return inner
+
+def make_orfilter(other, func):
+    """ Make a spec filter from a logical OR of two filters """
+    def inner(spec):
+        return func(spec) or other(spec)
+    return inner
+
+def orfilter(other):
+    """ Decorator to build an OR filter from an existing spec filter and the decorated function. """
+    f = partial(make_orfilter, other)
+    # wrap the decorated function
+    def inner(func):
+        return f(func)
+    return inner
+
+def notfilter(func):
+    """ Decorator to build a NOT filter from an existing spec filter. """
+    def inner(spec):
+        return not func(spec)
+    return inner
+
+@specfilter(key=ITEMTYPE, default=True)
+def field_filter(value):
+    return value is None or value == MAPL_STATEITEM_FIELD
+
+def make_state_filter(*states):
+    @specfilter(key=STATE)
+    def inner(value):
+        return value in states
+    return inner
 
 def state_filter(states=None):
     """Create a filter on state."""
@@ -292,21 +354,33 @@ def emit_args(values, options):
     return [f"{CALL} {ADDSPEC}({GC_ARGNAME}={options[GC_VARIABLE]}, &",
             *lines, f"{INDENT}& {TERMINATOR}"]
 
+
+def make_field_state_filter(states):
+    @andfilter(other=field_filter)
+    @specfilter(key=STATE)
+    def inner(value):
+        return value.lower() in states
+    return inner
+
 def emit_declare_pointers(specs, states=None):
     """Emit pointer declarations from Iterable of spec instances."""
-    # filter on state
-    f = state_filter(states)
-    declarations = []
-    for spec in specs:
-        if not f(spec):
-            continue
+    def declaration(spec):
+        declaration = None
         try:
-            declaration = emit_declare_pointer(spec)
+            return 0, emit_declare_pointer(spec)
         except RuntimeError as ex:
-            raise RuntimeError(f'Error pointer declaration for spec {spec}: {str(ex)}')
-        declarations.append(declaration)
-    return DECLARE, declarations
+            return ex, spec
 
+    f = make_field_state_filter(states)
+
+    pairs = [declaration(spec) for spec in specs if f(spec)]
+    declarations = [d for r, d in pairs if r == 0]
+    errors = [(spec, ex) for r, s in pairs if r != 0]
+    if errors:
+        raise RuntimeError(f'Error pointer claration for:{linesep}' +
+            linesep.join(f'spec {spec} => {str(ex)}' for spec, ex in error))
+    return DECLARE, declarations
+        
 def emit_declare_pointer(spec):
     """Emit individual pointer declartion."""
     # get fortran type and kind of pointer
@@ -320,8 +394,8 @@ def emit_declare_pointer(spec):
 
 def emit_get_pointers(specs, states=None):
     """Emit pointer get statements from an Iterable of spec instances."""
-    # filter of state
-    f = state_filter(states)
+    f = make_field_state_filter(states)
+
     return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec)))
 
 def emit_get_pointer(spec):
@@ -701,7 +775,6 @@ NAMED_MAPPINGS = {
         STRLOGICAL: lambda s: convert_to_logical(convert_to_bool(s))
         }
 
-
 def fetch_mapping_function(o, func_dict=NAMED_MAPPINGS):
     """Get the mapping function for option o."""
     m = o.get(MAPPING)
@@ -720,20 +793,18 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
     # Default case: identity map
     if m is None or m is UNIT:
         return ID
-    # If m is already callable, return it.
-    elif callable(m):
-        return m
+    f = m
     # Otherwise
-    match m:
+    match f:
         # Retrieve mapping by key if there is a func_dict.
         case str() if func_dict:
-            return func_dict.get(m)
+            f = func_dict.get(m)
         # Make a function from a dict.
         case dict():
-            return lambda k: m.get(k, k if k in m.values() else None)
+            f = lambda k: m.get(k, k if k in m.values() else None)
         # Fetch mapping based on index if there is a sequence of functions.
         case int() if valid_index(func_sequence, m):
-            return func_sequence[n]
+            f = func_sequence[n]
         # Return None if m is empty list or tuple.
         case list() | tuple() if len(m) == 0:
             return None
@@ -743,7 +814,7 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
             funcs = tuple(make_mapping(sm, func_sequence=func_sequence, func_dict=func_dict, flags=flags) for sm in m[::-1])
             def inner(*args):
                 return reduce(lambda a, c: c(a), funcs, *args)
-            return inner
+            f = inner
         # Return a mapping of multiple values with a sequence of functions. The number of args should match the number of mappings.
         case tuple() | list():
             funcs = tuple(make_mapping(sm, func_sequence=None, func_dict=None, flags=flags) for sm in m)
@@ -753,7 +824,8 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
                         continue
                     return f(arg)
                 return None
-            return inner
+            f = inner
+    return f
 
 # Main Procedure (Added to facilitate testing.)
 def main(logger):
