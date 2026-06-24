@@ -16,7 +16,7 @@ set (srcs
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.field_bundle MAPL.utils MAPL.esmf MAPL.geom
+    DEPENDENCIES MAPL.ESMF_Interfaces MAPL.field_bundle MAPL.utils MAPL.esmf MAPL.geom
                  PFLOGGER::pflogger ESMF::ESMF GFTL::gftl-v2
     TYPE SHARED
 )

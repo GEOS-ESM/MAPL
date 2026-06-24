@@ -34,12 +34,6 @@ module mapl_generic_api
        mapl_GridCompTimerStop => GridCompTimerStop, &
        mapl_GridCompGetCheckpointDir => GridCompGetCheckpointDir, &
        mapl_GridCompSetCheckpointControls => GridCompSetCheckpointControls, &
-   !    mapl_STATEITEM_STATE => STATEITEM_STATE, &
-   !    mapl_STATEITEM_FIELDBUNDLE => STATEITEM_FIELDBUNDLE, &
-   !    mapl_STATEITEM_SERVICE => STATEITEM_SERVICE, &
-   !    mapl_STATEITEM_VECTOR => STATEITEM_VECTOR, &
-   !    mapl_UserCompGetInternalState => UserCompGetInternalState, &
-   !    MAPL_UserCompSetInternalState => UserCompSetInternalState, &
        MAPL_GridCompGetOuterMeta => GridCompGetOuterMeta, &
        MAPL_GridCompGetRegistry => GridCompGetRegistry, &
        MAPL_GridCompIsGeneric => GridCompIsGeneric, &
@@ -110,8 +104,6 @@ module mapl_generic_api
    ! Spec types
    public :: mapl_STATEITEM_STATE, mapl_STATEITEM_FIELDBUNDLE
    public :: mapl_STATEITEM_SERVICE, mapl_STATEITEM_VECTOR
-
-   public :: mapl_UserCompGetInternalState, MAPL_UserCompSetInternalState
 
    public :: mapl_find_bounds
    public :: mapl_get_num_threads

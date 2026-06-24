@@ -12,7 +12,7 @@ module mapl_CouplerMetaComponent_mod
    use mapl_ExtensionTransform_mod
    use mapl_VerticalRegridTransform_mod
    use mapl_ErrorHandling_mod
-   use mapl_ESMF_Interfaces_mod
+   use mapl_ESMF_Interfaces_api, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl_field_api
    use mapl_field_bundle_api
    use esmf

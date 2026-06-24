@@ -6,14 +6,13 @@ set (srcs
     API.F90
   )
 
+add_subdirectory (interfaces)
 add_subdirectory (state)
 add_subdirectory (component)
 add_subdirectory (generic)
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.state MAPL.component MAPL.generic PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 ESMF::ESMF
+    DEPENDENCIES MAPL.ESMF_Interfaces MAPL.state MAPL.component MAPL.generic PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 ESMF::ESMF
     TYPE SHARED
 )
-
-  
