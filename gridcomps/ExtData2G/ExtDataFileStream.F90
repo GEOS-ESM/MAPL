@@ -382,7 +382,7 @@ contains
       in_run = .true.
       _RETURN_IF(.not.allocated(this%valid_range))
 
-      in_run = (this%valid_range(1) <= run_range(2) .and. run_range(1) <= this%valid_range(2))
+      in_run = (this%valid_range(1) <= run_range(1) .and. run_range(2) <= this%valid_range(2))
       _RETURN(_SUCCESS)
 
    end function check_in_run
