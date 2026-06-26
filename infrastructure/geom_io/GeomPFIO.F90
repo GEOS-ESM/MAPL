@@ -33,8 +33,8 @@ module mapl_GeomPFIO_mod
    abstract interface
 
      subroutine I_stage_data_to_file(this, bundle, filename, time_index, rc)
-        use esmf
         import GeomPFIO
+        import ESMF_FieldBundle
         class(GeomPFIO), intent(inout) :: this
         type(ESMF_FieldBundle), intent(in) :: bundle
         character(len=*), intent(in) :: filename
@@ -43,7 +43,6 @@ module mapl_GeomPFIO_mod
      end subroutine I_stage_data_to_file
 
      subroutine I_stage_coordinates_to_file(this, filename, rc)
-        use esmf
         import GeomPFIO
         class(GeomPFIO), intent(inout) :: this
         character(len=*), intent(in) :: filename
@@ -51,8 +50,8 @@ module mapl_GeomPFIO_mod
      end subroutine I_stage_coordinates_to_file
 
      subroutine I_request_data_from_file(this, filename, bundle, rc)
-        use esmf
         import GeomPFIO
+        import ESMF_FieldBundle
         class(GeomPFIO), intent(inout) :: this
         character(len=*), intent(in) :: filename
         type(ESMF_FieldBundle), intent(inout) :: bundle
