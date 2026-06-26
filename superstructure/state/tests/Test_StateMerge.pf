@@ -82,10 +82,10 @@ contains
       merged = StateMerge(state_a, state_b, _RC)
 
       call ESMF_StateGet(merged, itemName='field_a1', itemType=item_type, _RC)
-      @assertEqual(ESMF_STATEITEM_FIELD, item_type, 'field_a1 should be in merged state')
+      @assertTrue(item_type == ESMF_STATEITEM_FIELD, 'field_a1 should be in merged state')
 
       call ESMF_StateGet(merged, itemName='field_a2', itemType=item_type, _RC)
-      @assertEqual(ESMF_STATEITEM_FIELD, item_type, 'field_a2 should be in merged state')
+      @assertTrue(item_type == ESMF_STATEITEM_FIELD, 'field_a2 should be in merged state')
 
       call ESMF_StateDestroy(merged, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -102,10 +102,10 @@ contains
       merged = StateMerge(state_a, state_b, _RC)
 
       call ESMF_StateGet(merged, itemName='field_b1', itemType=item_type, _RC)
-      @assertEqual(ESMF_STATEITEM_FIELD, item_type, 'field_b1 should be in merged state')
+      @assertTrue(item_type == ESMF_STATEITEM_FIELD, 'field_b1 should be in merged state')
 
       call ESMF_StateGet(merged, itemName='field_b2', itemType=item_type, _RC)
-      @assertEqual(ESMF_STATEITEM_FIELD, item_type, 'field_b2 should be in merged state')
+      @assertTrue(item_type == ESMF_STATEITEM_FIELD, 'field_b2 should be in merged state')
 
       call ESMF_StateDestroy(merged, noGarbage=.true., _RC)
       _UNUSED_DUMMY(this)
@@ -257,10 +257,10 @@ contains
       @assertEqual(2, item_count, 'merged state should have 2 bundles')
 
       call ESMF_StateGet(merged, itemName='bundle_a', itemType=item_type, _RC)
-      @assertEqual(ESMF_STATEITEM_FIELDBUNDLE, item_type, 'bundle_a should be in merged state')
+      @assertTrue(item_type == ESMF_STATEITEM_FIELDBUNDLE, 'bundle_a should be in merged state')
 
       call ESMF_StateGet(merged, itemName='bundle_b', itemType=item_type, _RC)
-      @assertEqual(ESMF_STATEITEM_FIELDBUNDLE, item_type, 'bundle_b should be in merged state')
+      @assertTrue(item_type == ESMF_STATEITEM_FIELDBUNDLE, 'bundle_b should be in merged state')
 
       call ESMF_StateDestroy(merged,   noGarbage=.true., _RC)
       call ESMF_StateDestroy(sa,       noGarbage=.true., _RC)
@@ -292,10 +292,10 @@ contains
       @assertEqual(2, item_count, 'merged state should have 2 nested states')
 
       call ESMF_StateGet(merged, itemName='nested_a', itemType=item_type, _RC)
-      @assertEqual(ESMF_STATEITEM_STATE, item_type, 'nested_a should be in merged state')
+      @assertTrue(item_type == ESMF_STATEITEM_STATE, 'nested_a should be in merged state')
 
       call ESMF_StateGet(merged, itemName='nested_b', itemType=item_type, _RC)
-      @assertEqual(ESMF_STATEITEM_STATE, item_type, 'nested_b should be in merged state')
+      @assertTrue(item_type == ESMF_STATEITEM_STATE, 'nested_b should be in merged state')
 
       call ESMF_StateDestroy(merged,   noGarbage=.true., _RC)
       call ESMF_StateDestroy(sa,       noGarbage=.true., _RC)
