@@ -10,6 +10,7 @@ module mapl_state_api
    use mapl_StateGetGeom_mod, only: MAPL_StateGetGeom => StateGetGeom
    use mapl_StateGetPointer_mod, only: MAPL_StateGetPointer => StateGetPointer
    use mapl_StateMask_mod, only: MAPL_StateMask => StateMask
+   use mapl_StateMerge_mod, only: MAPL_StateMerge => StateMerge
    
 
    implicit none
@@ -25,4 +26,5 @@ module mapl_state_api
    public :: mapl_StateEval
 
    public :: MAPL_StateMask
+   public :: MAPL_StateMerge
 end module mapl_state_api
