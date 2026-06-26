@@ -1,0 +1,309 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_StateMerge
+   use mapl_StateMerge_mod
+   use pfunit
+   use ESMF_TestMethod_mod
+   use esmf
+   use mapl_ErrorHandling_mod
+
+   implicit none(type, external)
+
+   integer, parameter :: MAX_INDEX(2) = [4, 4]
+   integer, parameter :: REG_DECOMP(2) = [1, 1]
+
+   ! Shared grid and fields created in setUp, destroyed in tearDown
+   type(ESMF_Grid)  :: grid
+   type(ESMF_Field) :: field_a1, field_a2
+   type(ESMF_Field) :: field_b1, field_b2
+   type(ESMF_State) :: state_a, state_b
+
+contains
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+
+      grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
+
+      field_a1 = ESMF_FieldCreate(grid=grid, typekind=ESMF_TYPEKIND_R4, name='field_a1', _RC)
+      field_a2 = ESMF_FieldCreate(grid=grid, typekind=ESMF_TYPEKIND_R4, name='field_a2', _RC)
+      field_b1 = ESMF_FieldCreate(grid=grid, typekind=ESMF_TYPEKIND_R4, name='field_b1', _RC)
+      field_b2 = ESMF_FieldCreate(grid=grid, typekind=ESMF_TYPEKIND_R4, name='field_b2', _RC)
+
+      state_a = ESMF_StateCreate(name='state_a', fieldList=[field_a1, field_a2], _RC)
+      state_b = ESMF_StateCreate(name='state_b', fieldList=[field_b1, field_b2], _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine setUp
+
+   @After
+   subroutine tearDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+
+      call ESMF_StateDestroy(state_a, noGarbage=.true., _RC)
+      call ESMF_StateDestroy(state_b, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(field_a1, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(field_a2, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(field_b1, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(field_b2, noGarbage=.true., _RC)
+      call ESMF_GridDestroy(grid, noGarbage=.true., _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine tearDown
+
+   ! The merged state should contain all items from both source states.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_merge_item_count(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: merged
+      integer :: status, item_count
+
+      merged = StateMerge(state_a, state_b, _RC)
+
+      call ESMF_StateGet(merged, itemCount=item_count, _RC)
+      @assertEqual(4, item_count, 'merged state should have 4 items')
+
+      call ESMF_StateDestroy(merged, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_merge_item_count
+
+   ! Items from state_a should be accessible by name in the merged state.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_merge_contains_state_a_items(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: merged
+      type(ESMF_StateItem_Flag) :: item_type
+      integer :: status
+
+      merged = StateMerge(state_a, state_b, _RC)
+
+      call ESMF_StateGet(merged, itemName='field_a1', itemType=item_type, _RC)
+      @assertEqual(ESMF_STATEITEM_FIELD, item_type, 'field_a1 should be in merged state')
+
+      call ESMF_StateGet(merged, itemName='field_a2', itemType=item_type, _RC)
+      @assertEqual(ESMF_STATEITEM_FIELD, item_type, 'field_a2 should be in merged state')
+
+      call ESMF_StateDestroy(merged, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_merge_contains_state_a_items
+
+   ! Items from state_b should be accessible by name in the merged state.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_merge_contains_state_b_items(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: merged
+      type(ESMF_StateItem_Flag) :: item_type
+      integer :: status
+
+      merged = StateMerge(state_a, state_b, _RC)
+
+      call ESMF_StateGet(merged, itemName='field_b1', itemType=item_type, _RC)
+      @assertEqual(ESMF_STATEITEM_FIELD, item_type, 'field_b1 should be in merged state')
+
+      call ESMF_StateGet(merged, itemName='field_b2', itemType=item_type, _RC)
+      @assertEqual(ESMF_STATEITEM_FIELD, item_type, 'field_b2 should be in merged state')
+
+      call ESMF_StateDestroy(merged, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_merge_contains_state_b_items
+
+   ! Fields in the merged state must be the same objects (same data pointer)
+   ! as in the source states -- no data allocation should occur.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_merge_no_data_copy(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: merged
+      type(ESMF_Field) :: retrieved
+      real(ESMF_KIND_R4), pointer :: ptr_orig(:,:), ptr_merged(:,:)
+      integer :: status
+      real(ESMF_KIND_R4), parameter :: SENTINEL = 42.0
+
+      ! Write a sentinel value into the original field data
+      call ESMF_FieldGet(field_a1, localDe=0, farrayPtr=ptr_orig, _RC)
+      ptr_orig = SENTINEL
+
+      merged = StateMerge(state_a, state_b, _RC)
+
+      ! Retrieve the field from merged and check it sees the same data
+      call ESMF_StateGet(merged, 'field_a1', retrieved, _RC)
+      call ESMF_FieldGet(retrieved, localDe=0, farrayPtr=ptr_merged, _RC)
+      @assertEqual(SENTINEL, ptr_merged(1,1), 'merged field should share data with original')
+
+      ! Mutate via the merged handle and verify the original sees the change
+      ptr_merged = SENTINEL * 2
+      @assertEqual(SENTINEL * 2, ptr_orig(1,1), 'original field data should reflect change via merged handle')
+
+      call ESMF_StateDestroy(merged, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_merge_no_data_copy
+
+   ! Destroying the merged state must not affect the source states or their fields.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_destroy_merged_leaves_sources_intact(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: merged
+      integer :: status, item_count
+
+      merged = StateMerge(state_a, state_b, _RC)
+      call ESMF_StateDestroy(merged, noGarbage=.true., _RC)
+
+      ! Source states must still be valid with their original item counts
+      call ESMF_StateGet(state_a, itemCount=item_count, _RC)
+      @assertEqual(2, item_count, 'state_a should still have 2 items after merged is destroyed')
+
+      call ESMF_StateGet(state_b, itemCount=item_count, _RC)
+      @assertEqual(2, item_count, 'state_b should still have 2 items after merged is destroyed')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_destroy_merged_leaves_sources_intact
+
+   ! When the same field name appears in both states, state_b wins.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_merge_conflict_state_b_wins(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: sa, sb, merged
+      type(ESMF_Field) :: fa, fb, retrieved
+      real(ESMF_KIND_R4), pointer :: ptr_a(:,:), ptr_b(:,:), ptr_merged(:,:)
+      integer :: status
+      real(ESMF_KIND_R4), parameter :: VAL_A = 1.0, VAL_B = 2.0
+
+      fa = ESMF_FieldCreate(grid=grid, typekind=ESMF_TYPEKIND_R4, name='conflict', _RC)
+      fb = ESMF_FieldCreate(grid=grid, typekind=ESMF_TYPEKIND_R4, name='conflict', _RC)
+
+      call ESMF_FieldGet(fa, localDe=0, farrayPtr=ptr_a, _RC)
+      call ESMF_FieldGet(fb, localDe=0, farrayPtr=ptr_b, _RC)
+      ptr_a = VAL_A
+      ptr_b = VAL_B
+
+      sa = ESMF_StateCreate(name='sa', fieldList=[fa], _RC)
+      sb = ESMF_StateCreate(name='sb', fieldList=[fb], _RC)
+
+      merged = StateMerge(sa, sb, _RC)
+
+      call ESMF_StateGet(merged, 'conflict', retrieved, _RC)
+      call ESMF_FieldGet(retrieved, localDe=0, farrayPtr=ptr_merged, _RC)
+      @assertEqual(VAL_B, ptr_merged(1,1), 'state_b item should win on name conflict')
+
+      call ESMF_StateDestroy(merged, noGarbage=.true., _RC)
+      call ESMF_StateDestroy(sa, noGarbage=.true., _RC)
+      call ESMF_StateDestroy(sb, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(fa, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(fb, noGarbage=.true., _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_merge_conflict_state_b_wins
+
+   ! Merging two empty states should produce an empty state without error.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_merge_empty_states(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: empty_a, empty_b, merged
+      integer :: status, item_count
+
+      empty_a = ESMF_StateCreate(name='empty_a', _RC)
+      empty_b = ESMF_StateCreate(name='empty_b', _RC)
+
+      merged = StateMerge(empty_a, empty_b, _RC)
+
+      call ESMF_StateGet(merged, itemCount=item_count, _RC)
+      @assertEqual(0, item_count, 'merging two empty states should yield an empty state')
+
+      call ESMF_StateDestroy(merged,  noGarbage=.true., _RC)
+      call ESMF_StateDestroy(empty_a, noGarbage=.true., _RC)
+      call ESMF_StateDestroy(empty_b, noGarbage=.true., _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_merge_empty_states
+
+   ! The optional name argument should set the name of the merged state.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_merge_custom_name(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: merged
+      character(len=ESMF_MAXSTR) :: state_name
+      integer :: status
+
+      merged = StateMerge(state_a, state_b, name='my_merged_state', _RC)
+
+      call ESMF_StateGet(merged, name=state_name, _RC)
+      @assertEqual('my_merged_state', trim(state_name), 'merged state should have the given name')
+
+      call ESMF_StateDestroy(merged, noGarbage=.true., _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_merge_custom_name
+
+   ! FieldBundles in source states should appear in the merged state.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_merge_field_bundles(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: sa, sb, merged
+      type(ESMF_FieldBundle) :: bundle_a, bundle_b
+      type(ESMF_StateItem_Flag) :: item_type
+      integer :: status, item_count
+
+      bundle_a = ESMF_FieldBundleCreate(name='bundle_a', fieldList=[field_a1], _RC)
+      bundle_b = ESMF_FieldBundleCreate(name='bundle_b', fieldList=[field_b1], _RC)
+
+      sa = ESMF_StateCreate(name='sa', fieldbundleList=[bundle_a], _RC)
+      sb = ESMF_StateCreate(name='sb', fieldbundleList=[bundle_b], _RC)
+
+      merged = StateMerge(sa, sb, _RC)
+
+      call ESMF_StateGet(merged, itemCount=item_count, _RC)
+      @assertEqual(2, item_count, 'merged state should have 2 bundles')
+
+      call ESMF_StateGet(merged, itemName='bundle_a', itemType=item_type, _RC)
+      @assertEqual(ESMF_STATEITEM_FIELDBUNDLE, item_type, 'bundle_a should be in merged state')
+
+      call ESMF_StateGet(merged, itemName='bundle_b', itemType=item_type, _RC)
+      @assertEqual(ESMF_STATEITEM_FIELDBUNDLE, item_type, 'bundle_b should be in merged state')
+
+      call ESMF_StateDestroy(merged,   noGarbage=.true., _RC)
+      call ESMF_StateDestroy(sa,       noGarbage=.true., _RC)
+      call ESMF_StateDestroy(sb,       noGarbage=.true., _RC)
+      call ESMF_FieldBundleDestroy(bundle_a, noGarbage=.true., _RC)
+      call ESMF_FieldBundleDestroy(bundle_b, noGarbage=.true., _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_merge_field_bundles
+
+   ! Nested states in source states should appear in the merged state.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_merge_nested_states(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: sa, sb, merged
+      type(ESMF_State) :: nested_a, nested_b
+      type(ESMF_StateItem_Flag) :: item_type
+      integer :: status, item_count
+
+      nested_a = ESMF_StateCreate(name='nested_a', fieldList=[field_a1], _RC)
+      nested_b = ESMF_StateCreate(name='nested_b', fieldList=[field_b1], _RC)
+
+      sa = ESMF_StateCreate(name='sa', nestedStateList=[nested_a], _RC)
+      sb = ESMF_StateCreate(name='sb', nestedStateList=[nested_b], _RC)
+
+      merged = StateMerge(sa, sb, _RC)
+
+      call ESMF_StateGet(merged, itemCount=item_count, _RC)
+      @assertEqual(2, item_count, 'merged state should have 2 nested states')
+
+      call ESMF_StateGet(merged, itemName='nested_a', itemType=item_type, _RC)
+      @assertEqual(ESMF_STATEITEM_STATE, item_type, 'nested_a should be in merged state')
+
+      call ESMF_StateGet(merged, itemName='nested_b', itemType=item_type, _RC)
+      @assertEqual(ESMF_STATEITEM_STATE, item_type, 'nested_b should be in merged state')
+
+      call ESMF_StateDestroy(merged,   noGarbage=.true., _RC)
+      call ESMF_StateDestroy(sa,       noGarbage=.true., _RC)
+      call ESMF_StateDestroy(sb,       noGarbage=.true., _RC)
+      call ESMF_StateDestroy(nested_a, noGarbage=.true., _RC)
+      call ESMF_StateDestroy(nested_b, noGarbage=.true., _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_merge_nested_states
+
+end module Test_StateMerge
