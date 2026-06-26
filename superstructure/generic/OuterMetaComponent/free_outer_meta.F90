@@ -1,7 +1,6 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) free_outer_meta_smod
-   use mapl_ESMF_Interfaces_mod, only: MAPL_UserCompGetInternalState
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -15,7 +14,7 @@ contains
       type(OuterMetaWrapper) :: wrapper
       type(ESMF_GridComp) :: user_gridcomp
 
-      call MAPL_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
+      call ESMF_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
 
       user_gridcomp = wrapper%outer_meta%user_gc_driver%get_gridcomp()
