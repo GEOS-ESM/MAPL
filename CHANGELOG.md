@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- If a 3D file does not have attribute "positive" DO NOT ASSUME BOTTOM-UP, instead just FAIL
+
 ### Added
 
 ### Changed
+
+- Print a better error message when an export cannot be found
 
 ### Removed
 
