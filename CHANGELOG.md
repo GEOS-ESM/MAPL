@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changed "use esmf" to "import <specifi ESMF objects>" in GeomPFI abstract interfaces
 - Added PythonBridge to MAPL interface
 - Moved configurable test from superstructure/generic
 - Consolidated MAPL ESMF_Info keys into mapl_esmf_info_keys_mod
