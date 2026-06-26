@@ -53,7 +53,7 @@ contains
 
    function new_verticalCoordinate(metadata, var_name, rc) result(vertical_coord)
       type(VerticalCoordinate) :: vertical_coord
-      type(FileMetaDataUtils), intent(in) :: metadata
+      type(FileMetaDataUtils), intent(inout) :: metadata
       character(len=*), intent(in) :: var_name
       integer, optional, intent(out) :: rc
 
@@ -63,6 +63,7 @@ contains
       type(Variable), pointer :: var, dim_var, ps_var
       class(CoordinateVariable), pointer :: coord_var
       character(len=:), pointer :: dim_name
+      character(len=120) :: file_name
       logical :: is_vertical_coord_var, has_pressure_units, has_height_units
       character(len=:), allocatable :: lev_name, temp_units, formula_terms, standard_name, long_name, bounds_var, ak_name, bk_name, ps_name, source_file
       type(NETCDF4_FileFormatter) :: file_formatter
@@ -70,6 +71,7 @@ contains
    
       vertical_coord%num_levels = 0 ! initialze
       var => metadata%get_variable(var_name, _RC)
+      file_name = metadata%get_file_name(_RC)
       dimensions => var%get_dimensions()
       lev_name = ''
       iter = dimensions%begin()
@@ -112,13 +114,16 @@ contains
               (.not. has_pressure_units)) then
             long_name = coord_var%get_attribute_string("long_name")
             ! metadata combinations that imply integer levels
-            if ( any(long_name == ["level ", "levels"])  .and. &
+            if ( any(long_name == ["level       ", "levels      ", "native level"])  .and. &
                  any(temp_units == ["1    ", "level"])) then
+!              PRINT*,'VERT SPECIAL CASE w/ fname '//TRIM(file_name)
+               _FAIL('lev positive attribute missing '//TRIM(file_name))
                vertical_coord%positive = "up"
-               if (vertical_coord%levels(1) >= vertical_coord%levels(2)) then
+               if (vertical_coord%levels(1) < vertical_coord%levels(2)) then
                   vertical_coord%positive = "down"
                endif
             else
+               PRINT*,'FAIL with filename '//TRIM(file_name)//' and LEV name '//TRIM(lev_name)
                _FAIL('lev positive attribute not in file and no rule defined for setting it from long_name and units')
             endif
          endif
