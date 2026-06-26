@@ -7241,8 +7241,12 @@ contains
                   if(N /= -1) then
                      _VERIFY(status)
                   else
-                     print *,'ERROR: cannot find export ',trim(ENAME)
+                   BLOCK
+                     type (MAPL_MetaComp), pointer :: cmeta
+                     call MAPL_InternalStateRetrieve(gridcomp, cmeta, _RC)
+                     print *,'ERROR: cannot find export '//trim(ENAME)//' from '//trim(cmeta%compname)
                      _RETURN(ESMF_FAILURE)
+                   END BLOCK
                   endif
                   !ALT: currently the function comparing the SPECS assumes SAME names;
                   !     so we temporarily change the SHORT_NAME, and restore the name after comparison
