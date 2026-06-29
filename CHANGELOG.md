@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Replaced MAPL_UserComp[Set,Get]InternalState with ESMF_UserComp[Set,Get]InternalState
+- Replaced MAPL_UserComp[Set , Get]InternalState with ESMF_UserComp[Set , Get]InternalState
 - Changed "use esmf" to "import <specifi ESMF objects>" in GeomPFI abstract interfaces
 - Added PythonBridge to MAPL interface
 - Moved configurable test from superstructure/generic
