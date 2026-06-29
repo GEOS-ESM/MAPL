@@ -43,7 +43,7 @@
     _DECLARE_WRAPPER(T);                               \
     type(PrivateWrapper) :: w;                         \
     allocate(w%ptr);                                           \
-    call ESMF_InternalStateAdd(gc, w, name, status);         \
+    call ESMF_UserCompSetInternalState(gc, name, w, status);         \
     _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> already created for this gridcomp?"); \
   end block
 
@@ -53,7 +53,7 @@
   block;                                                      \
     _DECLARE_WRAPPER(T);                                        \
     type(PrivateWrapper) :: w;                                  \
-    call ESMF_InternalStateGet(gc, w, name, status);         \
+    call ESMF_UserCompGetInternalState(gc, name, w, status);         \
     _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not found for this gridcomp."); \
     private_state => w%ptr;                         \
   end block
@@ -64,7 +64,7 @@
   block;                                                       \
     _DECLARE_WRAPPER(T);                                         \
     type(PrivateWrapper) :: w;                                   \
-    call ESMF_InternalStateGet(gc, w, name, rc=status);         \
+    call ESMF_UserCompGetInternalState(gc, name, w, rc=status);         \
     _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not found for this gridcomp."); \
     private_state => w%ptr; \
   end block
