@@ -88,10 +88,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(InnerMetaWrapper) :: wrapper
+      type(InnerMetaComponent), pointer :: inner_meta
 
-      _GET_NAMED_PRIVATE_STATE(gridcomp, InnerMetaComponent, INNER_META_PRIVATE_STATE, wrapper%inner_meta)
-      deallocate(wrapper%inner_meta)
+      _GET_NAMED_PRIVATE_STATE(gridcomp, InnerMetaComponent, INNER_META_PRIVATE_STATE, inner_meta)
 
       _RETURN(_SUCCESS)
    end subroutine free_inner_meta

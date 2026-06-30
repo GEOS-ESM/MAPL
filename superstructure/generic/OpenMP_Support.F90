@@ -366,6 +366,8 @@ module mapl_OpenMP_Support_mod
            type(ESMF_Clock), pointer :: dummy
         end type MAPL_GenericWrap
 
+        type(ESMF_Clock), pointer :: dummy
+
         type(MAPL_GenericWrap) :: wrap
         character(len=ESMF_MAXSTR) :: comp_name
         character(len=:), allocatable :: labels(:)
@@ -390,7 +392,9 @@ module mapl_OpenMP_Support_mod
         end do
 
         do ilabel = 1, size(labels)
-           _GET_NAMED_PRIVATE_STATE(GridComp, ESMF_Clock, trim(labels(ilabel)), wrap%dummy)
+           _GET_NAMED_PRIVATE_STATE(GridComp, ESMF_Clock, trim(labels(ilabel)), dummy)
+           wrap%dummy => dummy
+
            has_private_state = (status == ESMF_SUCCESS)
            do i = 1, num_grids
               associate (gc => subgridcomps(i) )
