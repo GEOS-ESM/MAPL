@@ -390,13 +390,12 @@ module mapl_OpenMP_Support_mod
         end do
 
         do ilabel = 1, size(labels)
-           call ESMF_InternalStateGet(GridComp, internalState=wrap, label=trim(labels(ilabel)), rc=status)
+           _GET_NAMED_PRIVATE_STATE(GridComp, ESMF_Clock, trim(labels(ilabel)), wrap%dummy)
            has_private_state = (status == ESMF_SUCCESS)
            do i = 1, num_grids
               associate (gc => subgridcomps(i) )
                 if (has_private_state) then
-                   call ESMF_InternalStateAdd(gc, internalState=wrap, label=trim(labels(ilabel)), rc=status)
-                   _VERIFY(status)
+                   _SET_NAMED_PRIVATE_STATE(gc, ESMF_Clock, trim(labels(ilabel)))
                 end if
               end associate
            end do

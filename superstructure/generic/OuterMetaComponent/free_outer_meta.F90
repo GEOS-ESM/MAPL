@@ -14,8 +14,7 @@ contains
       type(OuterMetaWrapper) :: wrapper
       type(ESMF_GridComp) :: user_gridcomp
 
-      call ESMF_InternalStateGet(gridcomp, internalState=wrapper, label=OUTER_META_PRIVATE_STATE, rc=status)
-      _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
+      _GET_NAMED_PRIVATE_STATE(gridcomp, OuterMetaComponent, OUTER_META_PRIVATE_STATE, wrapper%outer_meta)
 
       user_gridcomp = wrapper%outer_meta%user_gc_driver%get_gridcomp()
       call free_inner_meta(user_gridcomp, _RC)
