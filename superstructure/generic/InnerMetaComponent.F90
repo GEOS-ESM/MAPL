@@ -90,7 +90,7 @@ contains
       integer :: status
       type(InnerMetaWrapper) :: wrapper
 
-      call ESMF_UserCompGetInternalState(gridcomp, INNER_META_PRIVATE_STATE, wrapper, status)
+      call ESMF_InternalStateGet(gridcomp, internalState=wrapper, label=INNER_META_PRIVATE_STATE, rc=status)
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
       deallocate(wrapper%inner_meta)
 

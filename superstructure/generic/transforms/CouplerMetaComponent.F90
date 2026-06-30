@@ -493,7 +493,7 @@ contains
       integer :: status
       type(CouplerMetaWrapper) :: wrapper
 
-      call ESMF_UserCompGetInternalState(gridcomp, COUPLER_META_PRIVATE_STATE, wrapper, status)
+      call ESMF_InternalStateGet(gridcomp, internalState=wrapper, label=COUPLER_META_PRIVATE_STATE, rc=status)
       _ASSERT(status==ESMF_SUCCESS, "CouplerMetaComponent not created for this gridcomp")
 
       deallocate(wrapper%coupler_meta)

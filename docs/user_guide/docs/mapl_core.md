@@ -456,7 +456,7 @@ The following is a complete list in the order in which they would normally appea
 ```fortran
     allocate( dyn_internal_state, stat=status )
     wrap%dyn_state => dyn_internal_state
-    call ESMF_UserCompSetInternalState ( gc,'FVstate',wrap,status )
+    call ESMF_InternalStateAdd(gc, internalState=wrap, label='FVstate', rc=status)
 ```
 
 3. Register any custom __IRF__ methods with MAPL. 
@@ -633,7 +633,7 @@ The following is a complete recipe in the order they would normally appear. Add 
    _If you are writing your own Initialize you will almost certainly be using a private internal state._
 
 ```fortran
-      call ESMF_UserCompGetInternalState(GC, 'FVstate', wrap, status)
+      call ESMF_InternalStateGet(GC, internalState=wrap, label='FVstate', rc=status)
       state => wrap%dyn_state
 ```
 
