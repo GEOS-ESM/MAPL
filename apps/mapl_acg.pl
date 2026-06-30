@@ -1147,7 +1147,7 @@ CONTAINS
 
 !   Store internal state in GC
 !   --------------------------
-    call ESMF_UserCompSetInternalState ( GC, 'GCNAME_State', wrap, STATUS )
+    call ESMF_InternalStateAdd(GC, internalState=wrap, label='GCNAME_State', rc=STATUS)
     _VERIFY(STATUS)
 
 
@@ -1247,7 +1247,7 @@ CONTAINS
 
 !  Get my internal legacy state
 !  ----------------------------
-   call ESMF_UserCompGetInternalState (GC, 'GCNAME_State', WRAP, STATUS)
+   call ESMF_InternalStateGet(GC, internalState=WRAP, label='GCNAME_State', rc=STATUS)
    _VERIFY(STATUS)
    myState => wrap%ptr
 
@@ -1328,7 +1328,7 @@ CONTAINS
 
 !  Get my internal legacy state
 !  ----------------------------
-   call ESMF_UserCompGetInternalState (GC, 'GCNAME_State', WRAP, STATUS)
+   call ESMF_InternalStateGet(GC, internalState=WRAP, label='GCNAME_State', rc=STATUS)
    _VERIFY(STATUS)
    myState => wrap%ptr
 
@@ -1407,7 +1407,7 @@ CONTAINS
 
 !  Get my internal legacy state
 !  ----------------------------
-   call ESMF_UserCompGetInternalState (GC, 'GCNAME_State', WRAP, STATUS)
+   call ESMF_InternalStateGet(GC, internalState=WRAP, label='GCNAME_State', rc=STATUS)
    _VERIFY(STATUS)
    myState => wrap%ptr
 

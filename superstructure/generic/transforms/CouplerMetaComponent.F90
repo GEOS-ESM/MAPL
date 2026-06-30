@@ -491,12 +491,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(CouplerMetaWrapper) :: wrapper
+      type(CouplerMetaComponent), pointer :: coupler_meta
 
-      call MAPL_UserCompGetInternalState(gridcomp, COUPLER_META_PRIVATE_STATE, wrapper, status)
-      _ASSERT(status==ESMF_SUCCESS, "CouplerMetaComponent not created for this gridcomp")
-
-      deallocate(wrapper%coupler_meta)
+      _GET_NAMED_PRIVATE_STATE(gridcomp, CouplerMetaComponent, COUPLER_META_PRIVATE_STATE, coupler_meta)
 
       _RETURN(_SUCCESS)
    end subroutine free_coupler_meta
