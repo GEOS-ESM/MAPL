@@ -65,7 +65,7 @@ contains
          allocate(this%lons(size(coords,1), size(coords,2)), _STAT)
          this%lons = coords*MAPL_RADIANS_TO_DEGREES
          ref = ArrayReference(this%lons)
-         call o_clients%collective_stage_data(collection_id,filename, 'lons', &
+         call o_Client%collective_stage_data(collection_id,filename, 'lons', &
               ref, start=local_start, global_start=global_start, global_count=global_count)
 
          call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, _RC)
@@ -73,7 +73,7 @@ contains
          allocate(this%lats(size(coords,1), size(coords,2)), _STAT)
          this%lats = coords*MAPL_RADIANS_TO_DEGREES
          ref = ArrayReference(this%lats)
-         call o_clients%collective_stage_data(collection_id,filename, 'lats', &
+         call o_Client%collective_stage_data(collection_id,filename, 'lats', &
               ref, start=local_start, global_start=global_start, global_count=global_count)
 
          call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
@@ -97,7 +97,7 @@ contains
          allocate(this%corner_lons(size(coords,1), size(coords,2)), _STAT)
          this%corner_lons = coords*MAPL_RADIANS_TO_DEGREES
          ref = ArrayReference(this%corner_lons)
-         call o_clients%collective_stage_data(collection_id,filename, 'corner_lons', &
+          call o_Client%collective_stage_data(collection_id,filename, 'corner_lons', &
               ref, start=local_start, global_start=global_start, global_count=global_count)
 
          call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
@@ -105,7 +105,7 @@ contains
          allocate(this%corner_lats(size(coords,1), size(coords,2)), _STAT)
          this%corner_lats = coords*MAPL_RADIANS_TO_DEGREES
          ref = ArrayReference(this%corner_lats)
-         call o_clients%collective_stage_data(collection_id,filename, 'corner_lats', &
+          call o_Client%collective_stage_data(collection_id,filename, 'corner_lats', &
               ref, start=local_start, global_start=global_start, global_count=global_count)
 
          call ESMF_FieldDestroy(field, noGarbage=.true., _RC)
@@ -154,7 +154,7 @@ contains
          new_element_count = server_bounds%get_file_shape()
          ref = ArrayReference(address, type_kind, new_element_count)
 
-         call o_clients%collective_stage_data(collection_id,filename, trim(field_names(i)), &
+          call o_Client%collective_stage_data(collection_id,filename, trim(field_names(i)), &
               ref, start=local_start, global_start=global_start, global_count=global_count)
       enddo
 
@@ -198,7 +198,7 @@ contains
          pfio_typekind = esmf_to_pfio_type(esmf_typekind, _RC)
          new_element_count = server_bounds%get_file_shape()
          ref = ArrayReference(address, pfio_typekind, new_element_count)
-         call i_Clients%collective_prefetch_data( &
+          call i_Client%collective_prefetch_data( &
               collection_id, &
               filename, &
               field_names(idx), &

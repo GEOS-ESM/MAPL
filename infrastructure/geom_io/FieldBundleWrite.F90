@@ -2,7 +2,7 @@
 module mapl_FieldBundleWrite_mod
    use ESMF
    use pFIO
-   use pFIO_ClientManagerMod, only: o_Clients
+   use pFIO_ClientManagerMod, only: o_Client
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
    use mapl_SharedIO_mod
@@ -92,8 +92,8 @@ module mapl_FieldBundleWrite_mod
          call this%writer%stage_time_to_file(this%file_name, this%file_times, _RC)
          call this%writer%stage_data_to_file(bundle, this%file_name, time_index, _RC)
 
-         call o_Clients%done_collective_stage()
-         call o_Clients%post_wait()
+          call o_Client%done_collective_stage()
+          call o_Client%post_wait()
          _VERIFY(status)
          _RETURN(_SUCCESS)
 

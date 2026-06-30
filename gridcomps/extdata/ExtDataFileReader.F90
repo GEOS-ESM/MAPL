@@ -116,7 +116,7 @@ module mapl_ExtDataReader_mod
          pfio_typekind = mapl_esmf_to_pfio_type(esmf_typekind, _RC)
          new_element_count = server_bounds%get_file_shape()
          ref = mapl_ArrayReference(address, pfio_typekind, new_element_count)
-         call mapl_i_Clients%collective_prefetch_data( &
+          call mapl_i_Client%collective_prefetch_data( &
               client_id, &
               filename, &
               alias, &
@@ -127,8 +127,8 @@ module mapl_ExtDataReader_mod
          deallocate(global_start, global_count, local_start, element_count, new_element_count)
          call lgr%info('reading %a from file %a at time index %i0.5', alias, filename, time_index)
       enddo
-      call mapl_i_Clients%done_collective_prefetch()
-      call mapl_i_Clients%wait()
+       call mapl_i_Client%done_collective_prefetch()
+       call mapl_i_Client%wait()
 
       _RETURN(_SUCCESS)
    end subroutine
