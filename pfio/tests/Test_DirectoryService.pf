@@ -83,8 +83,8 @@ contains
          call ds%publish(PortInfo('input', mock_server), mock_server)
          call ds%connect_to_client('input', mock_server)
       case (1) ! client
-         mock_client = MockClient()
-         call ds%connect_to_server('input', mock_client, comm)
+         mock_client = MockClient(); call mock_client%set_client_comm(comm)
+         call ds%connect_to_server('input', mock_client)
       end select
 
 !C$      select type (s)
@@ -122,8 +122,8 @@ contains
          call ds%publish(PortInfo('input', mock_server), mock_server)
          call ds%connect_to_client('input', mock_server)
       case (0) ! client
-         mock_client = MockClient()
-         call ds%connect_to_server('input', mock_client, comm)
+         mock_client = MockClient(); call mock_client%set_client_comm(comm)
+         call ds%connect_to_server('input', mock_client)
       end select
 
 !C$      select type (s)
@@ -168,8 +168,8 @@ contains
             call ds%connect_to_client('input', mock_server)
          end select
       case (0) ! client
-         mock_client = MockClient()
-         call ds%connect_to_server('input', mock_client, comm)
+         mock_client = MockClient(); call mock_client%set_client_comm(comm)
+         call ds%connect_to_server('input', mock_client)
       end select
 
       call ds%free_directory_resources()
@@ -215,8 +215,8 @@ contains
             call ds%connect_to_client('input', mock_server)
          end select
       case (0) ! client
-         mock_client = MockClient()
-         call ds%connect_to_server('input', mock_client, comm)
+         mock_client = MockClient(); call mock_client%set_client_comm(comm)
+         call ds%connect_to_server('input', mock_client)
       end select
 
       call ds%free_directory_resources()
@@ -258,8 +258,8 @@ contains
          call ds%publish(portInfo('input', mock_server), mock_server)
          call ds%connect_to_client('input', mock_server)
       case (0) ! client
-         mock_client = MockClient()
-         call ds%connect_to_server('input', mock_client, comm)
+         mock_client = MockClient(); call mock_client%set_client_comm(comm)
+         call ds%connect_to_server('input', mock_client)
       end select
 
       call ds%free_directory_resources()

@@ -216,8 +216,9 @@ contains
       this%oc_vec = ClientThreadVector()
 
       do i = 1, N_iclient_g
-         allocate(threadPtr, source = ClientThread())
-         call app_ds%connect_to_server('iserver',threadPtr, comms(i), rc=status)
+         allocate(threadPtr, source = ClientThread(client_comm=comms(i), rc=status))
+         _VERIFY(status)
+         call app_ds%connect_to_server('iserver',threadPtr, rc=status)
          _VERIFY(status)
          !call threadPtr%init_connection(app_ds(i)%dsPtr, comms(i),'i_server')
          call this%ic_vec%push_back(threadPtr)
@@ -225,8 +226,9 @@ contains
       enddo
 
       do i = 1 + N_iclient_g, N_iclient_g + N_oclient_g
-         allocate(threadPtr, source = ClientThread())
-         call app_ds%connect_to_server('oserver',threadPtr, comms(i), rc=status)
+         allocate(threadPtr, source = ClientThread(client_comm=comms(i), rc=status))
+         _VERIFY(status)
+         call app_ds%connect_to_server('oserver',threadPtr, rc=status)
          _VERIFY(status)
          !call threadPtr%init_connection(app_ds(i)%dsPtr, comms(i),'o_server')
          call this%oc_vec%push_back(threadPtr)

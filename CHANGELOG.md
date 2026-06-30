@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+
+- Refactored `pFIO_ClientManagerMod`: replaced `ClientThreadVector` pool with a
+  single `class(ClientThread), allocatable` member; removed multi-client cycling
+  logic (`next`, `set_current`, `size`, `set_optimal_server`, `split_server_pools`,
+  `set_server_size`) and server-pool fields; renamed module-level singletons
+  `i_Clients`/`o_Clients` to `i_Client`/`o_Client` and the corresponding
+  `mapl_pfio_api` aliases to `mapl_i_client`/`mapl_o_client`.
+- Replaced MAPL_UserComp[Set , Get]InternalState with ESMF_InternalState[Set , Get]
 - Changed "use esmf" to "import <specifi ESMF objects>" in GeomPFI abstract interfaces
 - Added PythonBridge to MAPL interface
 - Moved configurable test from superstructure/generic
