@@ -454,7 +454,7 @@ contains
       _VERIFY(status)
       _VERIFY(stat_alloc)
       call this%directory_service%publish(PortInfo('o_server', this%o_server), this%o_server)
-      clientPtr => o_Clients%current()
+       clientPtr => o_Client%current()
       call this%directory_service%connect_to_server('o_server', clientPtr, this%model_comm)
 
       ! i server
@@ -462,7 +462,7 @@ contains
       _VERIFY(status)
       _VERIFY(stat_alloc)
       call this%directory_service%publish(PortInfo('i_server', this%i_server), this%i_server)
-      clientPtr => i_Clients%current()
+       clientPtr => i_Client%current()
       call this%directory_service%connect_to_server('i_server', clientPtr, this%model_comm)
 
       _RETURN(_SUCCESS)

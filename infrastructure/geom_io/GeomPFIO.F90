@@ -3,7 +3,7 @@
 module mapl_GeomPFIO_mod
    use mapl_ErrorHandling_mod
    use ESMF
-   use pfio, only: i_Clients, o_Clients, StringVariableMap, ArrayReference, FileMetadata, Variable
+   use pfio, only: i_Client, o_Client, StringVariableMap, ArrayReference, FileMetadata, Variable
    use mapl_geom_api
    use mapl_SharedIO_mod
    implicit none
@@ -73,7 +73,7 @@ contains
 
       time_var = create_time_variable(time, _RC)
       call var_map%insert('time',time_var)
-      call o_Clients%modify_metadata(this%collection_id, var_map=var_map, _RC)
+      call o_Client%modify_metadata(this%collection_id, var_map=var_map, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -89,7 +89,7 @@ contains
       type(ArrayReference) :: ref
 
       ref = ArrayReference(times)
-      call o_Clients%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
+      call o_Client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine
@@ -103,7 +103,7 @@ contains
       integer :: status
 
       this%esmfgeom = esmfgeom
-      this%collection_id = o_Clients%add_data_collection(metadata, _RC)
+      this%collection_id = o_Client%add_data_collection(metadata, _RC)
       this%file_metadata = metadata
 
       _RETURN(_SUCCESS)
@@ -118,7 +118,7 @@ contains
       integer :: status
 
       this%esmfgeom = esmfgeom
-      this%collection_id = i_Clients%add_data_collection(file_name, _RC)
+      this%collection_id = i_Client%add_data_collection(file_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init_with_filename
