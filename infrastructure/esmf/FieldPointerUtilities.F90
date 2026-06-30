@@ -678,12 +678,12 @@ contains
       character(len=*), parameter :: UNSUPPORTED_TK = &
          'Unsupported typekind in FieldCOPY() for '
 
-      conformable = FieldsAreConformable(x, y)
+      conformable = FieldsAreConformable(x, y, _RC)
       if (conformable) then
          call copy(x,y,_RC)
          _RETURN(_SUCCESS)
       end if
-      broadcast = FieldsAreBroadcastConformable(x,y)
+      broadcast = FieldsAreBroadcastConformable(x,y,_RC)
       _ASSERT(broadcast, 'FieldCopy() - field can not be broadcast.')
 
       call MAPL_FieldGetLocalElementCount(x,x_shape,_RC)
@@ -802,7 +802,7 @@ contains
       logical :: y_is_double
       character(len=*), parameter :: UNSUPPORTED_TK = 'Unsupported typekind in FieldCOPY() for '
 
-      conformable = FieldsAreConformable(x, y)
+      conformable = FieldsAreConformable(x, y, _RC)
       !wdb fixme need to pass RC
       _ASSERT(conformable, 'FieldCopy() - fields not conformable.')
 

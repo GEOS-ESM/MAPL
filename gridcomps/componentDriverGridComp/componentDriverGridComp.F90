@@ -407,6 +407,8 @@ contains
       character(len=ESMF_MAXSTR), allocatable :: itemNameList(:)
       type(ESMF_Field) :: field, reference_field
       real(kind=ESMF_KIND_R4), pointer :: ptr(:), reference_ptr(:)
+      real(kind=ESMF_KIND_R8), pointer :: ptr_r8(:), reference_ptr_r8(:)
+      type(ESMF_TypeKind_Flag) :: typekind
       type(ESMF_FieldBundle) :: bundle, reference_bundle
       type(ESMF_Field), allocatable :: field_list(:), reference_field_list(:)
 
@@ -420,10 +422,21 @@ contains
             call ESMF_StateGet(reference_state, trim(itemNameList(i)), source_type, _RC)
             _ASSERT(source_type == ESMF_STATEITEM_FIELD, 'source and destination are not both fields')
             call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_field, _RC)
-            call mapl_assignFptr(field, ptr, _RC)
-            call mapl_assignFptr(reference_field, reference_ptr, _RC)
-            if (any(abs(ptr - reference_ptr) > threshold)) then
-               _FAIL("state differs from reference state greater than allowed threshold")
+            call ESMF_FieldGet(field, typekind=typekind, _RC)
+            if (typekind == ESMF_TYPEKIND_R4) then
+               call mapl_assignFptr(field, ptr, _RC)
+               call mapl_assignFptr(reference_field, reference_ptr, _RC)
+               if (any(abs(ptr - reference_ptr) > threshold)) then
+                  _FAIL("state differs from reference state greater than allowed threshold")
+               end if
+            else if (typekind == ESMF_TYPEKIND_R8) then
+               call mapl_assignFptr(field, ptr_r8, _RC)
+               call mapl_assignFptr(reference_field, reference_ptr_r8, _RC)
+               if (any(abs(ptr_r8 - reference_ptr_r8) > real(threshold, ESMF_KIND_R8))) then
+                  _FAIL("state differs from reference state greater than allowed threshold")
+               end if
+            else
+               _FAIL("unsupported typekind in compare_states")
             end if
          else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(reference_state, trim(itemNameList(i)), reference_bundle, _RC)
@@ -434,10 +447,21 @@ contains
             call MAPL_FieldBundleGet(reference_bundle, fieldList=reference_field_list, _RC)
             _ASSERT(size(field_list) == size(reference_field_list), 'fields from vector bundle not same size')
             do j = 1, size(field_list)
-               call mapl_assignFptr(field_list(j), ptr, _RC)
-               call mapl_assignFptr(reference_field_list(j), reference_ptr, _RC)
-               if (any(abs(ptr - reference_ptr) > threshold)) then
-                  _FAIL("state differs from reference state greater than allowed threshold")
+               call ESMF_FieldGet(field_list(j), typekind=typekind, _RC)
+               if (typekind == ESMF_TYPEKIND_R4) then
+                  call mapl_assignFptr(field_list(j), ptr, _RC)
+                  call mapl_assignFptr(reference_field_list(j), reference_ptr, _RC)
+                  if (any(abs(ptr - reference_ptr) > threshold)) then
+                     _FAIL("state differs from reference state greater than allowed threshold")
+                  end if
+               else if (typekind == ESMF_TYPEKIND_R8) then
+                  call mapl_assignFptr(field_list(j), ptr_r8, _RC)
+                  call mapl_assignFptr(reference_field_list(j), reference_ptr_r8, _RC)
+                  if (any(abs(ptr_r8 - reference_ptr_r8) > real(threshold, ESMF_KIND_R8))) then
+                     _FAIL("state differs from reference state greater than allowed threshold")
+                  end if
+               else
+                  _FAIL("unsupported typekind in compare_states")
                end if
             end do
          end if

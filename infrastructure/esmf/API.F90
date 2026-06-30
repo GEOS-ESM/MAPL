@@ -180,6 +180,7 @@ module mapl_esmf_api
    ! State item constants
 
    ! TYPEKIND
+   public :: MAPL_TYPEKIND_MIRROR
 
    public :: MAPL_STATEITEM_UNKNOWN
    public :: MAPL_STATEITEM_FIELD
