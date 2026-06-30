@@ -21,7 +21,6 @@ module mapl_MaplFramework_mod
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod
    use pfio_MpiServerMod, only: MpiServer
-   use pfio_ClientThreadMod, only: ClientThread
    use pfio_AbstractDirectoryServiceMod, only: PortInfo
    use udunits2f, only: UDUNITS_Initialize => Initialize
    use pflogger, only: logging
@@ -445,7 +444,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, stat_alloc
-      type(ClientThread), pointer :: clientPtr
 
       call init_IO_ClientManager(this%model_comm, _RC)
 
@@ -454,16 +452,14 @@ contains
       _VERIFY(status)
       _VERIFY(stat_alloc)
       call this%directory_service%publish(PortInfo('o_server', this%o_server), this%o_server)
-       clientPtr => o_Client%get_client_thread()
-      call this%directory_service%connect_to_server('o_server', clientPtr, this%model_comm)
+      call this%directory_service%connect_to_server('o_server', o_Client)
 
       ! i server
       allocate(this%i_server, source=MpiServer(this%model_comm, 'i_server', rc=status), stat=stat_alloc)
       _VERIFY(status)
       _VERIFY(stat_alloc)
       call this%directory_service%publish(PortInfo('i_server', this%i_server), this%i_server)
-       clientPtr => i_Client%get_client_thread()
-      call this%directory_service%connect_to_server('i_server', clientPtr, this%model_comm)
+      call this%directory_service%connect_to_server('i_server', i_Client)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

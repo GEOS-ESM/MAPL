@@ -172,8 +172,8 @@ contains
       type (NetCDF4_FileFormatter) :: formatter
       type (StringIntegerMap) :: dims
 
-      this%c = ClientThread()
-      call d_s%connect_to_server(port_name, this%c, comm)
+      this%c = ClientThread(client_comm=comm)
+      call d_s%connect_to_server(port_name, this%c)
 
       this%file_1 = options%file_1
       this%file_2 = options%file_2

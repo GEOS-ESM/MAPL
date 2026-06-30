@@ -87,9 +87,10 @@ contains
 
       integer :: status
       type(ArrayReference) :: ref
+      integer :: request_id
 
       ref = ArrayReference(times)
-      call o_Client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
+      request_id = o_Client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine

@@ -93,7 +93,7 @@ module mapl_FieldBundleWrite_mod
          call this%writer%stage_data_to_file(bundle, this%file_name, time_index, _RC)
 
           call o_Client%done_collective_stage()
-          call o_Client%post_wait()
+          call o_Client%post_wait_all()
          _VERIFY(status)
          _RETURN(_SUCCESS)
 

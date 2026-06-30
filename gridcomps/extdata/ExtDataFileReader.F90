@@ -79,7 +79,7 @@ module mapl_ExtDataReader_mod
       character(len=ESMF_MAXSTR) :: field_name
       integer, pointer :: client_id, time_index
       character(len=:), pointer :: alias, filename
-      integer :: status, i, pfio_typekind, num_fields
+      integer :: status, i, pfio_typekind, num_fields, request_id
       type(ESMF_Field), allocatable :: field_list(:)
       type(ESMF_Grid) :: grid
       type(ESMF_TypeKind_Flag) :: esmf_typekind
@@ -116,19 +116,19 @@ module mapl_ExtDataReader_mod
          pfio_typekind = mapl_esmf_to_pfio_type(esmf_typekind, _RC)
          new_element_count = server_bounds%get_file_shape()
          ref = mapl_ArrayReference(address, pfio_typekind, new_element_count)
-          call mapl_i_Client%collective_prefetch_data( &
-              client_id, &
-              filename, &
-              alias, &
-              ref, &
-              start=local_start, &
-              global_start=global_start, &
-              global_count=global_count)
+          request_id = mapl_i_Client%collective_prefetch_data( &
+               client_id, &
+               filename, &
+               alias, &
+               ref, &
+               start=local_start, &
+               global_start=global_start, &
+               global_count=global_count)
          deallocate(global_start, global_count, local_start, element_count, new_element_count)
          call lgr%info('reading %a from file %a at time index %i0.5', alias, filename, time_index)
       enddo
        call mapl_i_Client%done_collective_prefetch()
-       call mapl_i_Client%wait()
+       call mapl_i_Client%wait_all()
 
       _RETURN(_SUCCESS)
    end subroutine
