@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Missing call to initialize error handling in MPI context
 - Fixed bug that prevented R8 exports from being written in R8 in History
 
 ### Removed

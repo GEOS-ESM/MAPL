@@ -8,6 +8,7 @@
 module mapl_MaplFramework_mod
 
    use mapl_ErrorHandling_mod
+   use mapl_MpiErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use mapl_FieldFillDefault_mod, only: &
         field_fill_defaults_init => initialize_field_fill_defaults, &
@@ -598,6 +599,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+
+      call mapl_initialize_error_handling()
 
       call the_mapl_object%initialize(hconfig=hconfig, is_model_pet=is_model_pet, servers=servers, mpiCommunicator=mpiCommunicator, &
            configFilenameFromArgNum=configFilenameFromArgNum, level_name=level_name, &
