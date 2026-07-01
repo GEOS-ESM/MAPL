@@ -59,7 +59,6 @@ contains
               & 'FAIL at line=', line, prefix, use_name, &
               & '<'//adjustl(trim(message))//'>'
          !$omp end critical (MAPL_MpiError1)
-         error stop 1
       end if
 
    end subroutine MAPL_mpi_fail
