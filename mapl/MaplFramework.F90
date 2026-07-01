@@ -8,6 +8,7 @@
 module mapl_MaplFramework_mod
 
    use mapl_ErrorHandling_mod
+   use mapl_MaplServerUtilities_mod
    use mapl_KeywordEnforcer_mod
    use mapl_FieldFillDefault_mod, only: &
         field_fill_defaults_init => initialize_field_fill_defaults, &
@@ -55,8 +56,10 @@ module mapl_MaplFramework_mod
 #endif
       procedure :: initialize_profilers
       procedure :: initialize_udunits
+      procedure :: get_vm_topology
       procedure :: initialize_servers
       procedure :: initialize_simple_servers
+      procedure :: initialize_complex_servers
       procedure :: initialize_field_dictionary
       procedure :: initialize_field_fill_defaults
 
@@ -86,8 +89,8 @@ contains
    ! Type-bound procedures
 
    ! Note: HConfig is an output if ESMF is not already initialized.  Otherwise it is an input.
-    subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, configFilenameFromArgNum, &
-         field_default_fill_value_r4, field_default_fill_value_r8, rc)
+   subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, configFilenameFromArgNum, &
+        field_default_fill_value_r4, field_default_fill_value_r8, rc)
       class(MaplFramework), intent(inout) :: this
       type(ESMF_HConfig), optional, intent(inout) :: hconfig
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -104,7 +107,7 @@ contains
       integer :: status
       type(FixedLevelsVerticalGridFactory) :: fixed_levels_vgrid_factory
       type(ModelVerticalGridFactory) :: model_vgrid_factory
-      
+
 
       _ASSERT(.not. this%mapl_initialized, "MaplFramework object is already initialized")
       this%mapl_initialized = .true.
@@ -150,7 +153,7 @@ contains
       type(ESMF_Config) :: config
       logical :: esmf_is_initialized
       integer :: argNum
-      
+
 
       esmf_is_initialized = ESMF_IsInitialized(_RC)
       _RETURN_IF(esmf_is_initialized)
@@ -248,6 +251,39 @@ contains
       ! _UNUSED_DUMMY(unusable)
    end subroutine initialize_profilers
 
+   ! Query the VM for the SSI map and apply the pet_as_ssi testing override.
+   ! pet_as_ssi: true in the MAPL hconfig treats every PET as its own SSI,
+   ! allowing multi-server partitioning logic to run on a single physical node.
+   subroutine get_vm_topology(this, ssiMap, ssiCount, world_comm, rc)
+      class(MaplFramework), intent(in) :: this
+      integer, allocatable, intent(out) :: ssiMap(:)
+      integer, intent(out) :: ssiCount
+      integer, intent(out) :: world_comm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: n
+      logical :: pet_as_ssi
+      ! petCount is required by the ESMF_VMGet interface but is not used here.
+      ! The dummy argument works around an ESMF v8.6.0 bug where omitting it
+      ! causes incorrect results for the other outputs.
+      integer :: petCount_unused
+
+      call ESMF_VMGet(this%mapl_vm, ssiMap=ssiMap, ssiCount=ssiCount, &
+           mpiCommunicator=world_comm, petCount=petCount_unused, _RC)
+
+      pet_as_ssi = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='pet_as_ssi', _RC)
+      if (pet_as_ssi) pet_as_ssi = ESMF_HConfigAsLogical(this%mapl_hconfig, keystring='pet_as_ssi', _RC)
+      if (pet_as_ssi) then
+         ssiCount = size(ssiMap)
+         ssiMap = [(n, n = 0, ssiCount - 1)]
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine get_vm_topology
+
+   ! Top-level dispatcher: routes to the simple (no servers: section) or
+   ! complex (explicit server topology) initialization path.
    subroutine initialize_servers(this, unusable, is_model_pet, servers, rc)
       class(MaplFramework), target, intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -256,187 +292,102 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_HConfig) :: servers_hconfig
       logical :: has_server_section
       integer :: model_petcount
-      integer :: world_group, model_group, server_group, model_server_group
-      integer :: world_comm, server_comm, model_server_comm
-      integer :: ssiCount ! total number of nodes participating
+      integer :: world_group, model_group
+      integer :: world_comm
+      integer :: ssiCount
       integer, allocatable :: ssiMap(:)
-      integer, allocatable :: model_pets(:), server_pets(:), model_server_pets(:)
-      integer, allocatable :: ssis_per_server(:)
-      integer :: required_ssis
-      integer :: num_model_ssis
-      type(ESMF_HConfig), allocatable :: server_hconfigs(:)
-      integer :: n
-      integer :: ssi_0, ssi_1, i_server
-      class(Logger), pointer :: lgr
-      integer :: ignore ! workaround for ESMF bug in  v8.6.0
 
-      call ESMF_VMGet(this%mapl_vm, ssiMap=ssiMap, ssiCount=ssiCount, mpiCommunicator=world_comm, petCount=ignore, _RC)
-      call MPI_Comm_group(world_comm, world_group, _IERROR)
+      call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
       model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
 
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
       if (.not. has_server_section) then
          ! Should only run on model PETs
+         call MPI_Comm_group(world_comm, world_group, _IERROR)
          call MPI_Group_range_incl(world_group, 1, reshape([0, model_petCount-1, 1], [3,1]), model_group, _IERROR)
          call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
          call MPI_Group_free(model_group, _IERROR)
-         if (present(is_model_pet)) then
-            is_model_pet = (this%model_comm /= MPI_COMM_NULL)
-         end if
+         call MPI_Group_free(world_group, _IERROR)
+         if (present(is_model_pet)) is_model_pet = (this%model_comm /= MPI_COMM_NULL)
          _RETURN_IF(this%model_comm == MPI_COMM_NULL)
          this%directory_service = DirectoryService(this%model_comm)
          call this%initialize_simple_servers(_RC)
          _RETURN(_SUCCESS)
       end if
 
-      if (.not. present(servers)) then
-         _RETURN(_SUCCESS)
-      end if
-
-      num_model_ssis = get_num_ssis(model_petCount, ssiCount, ssiMap, ssiOffset=0, _RC)
-
-      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
-      server_hconfigs = get_server_hconfigs(servers_hconfig, _RC)
-
-      ssis_per_server = get_ssis_per_server(server_hconfigs, _RC)
-      required_ssis =  num_model_ssis + sum(ssis_per_server)
-
-      _ASSERT(required_ssis <= ssiCount, "Insufficient resources for requested servers.")
-      if (required_ssis < ssiCount) then
-         call lgr%warning("Unused nodes.  Required %i0 nodes, but %i0 available.", required_ssis, ssicount)
-      end if
-
-      model_pets = pack([(n, n = 0, size(ssiMap)-1)], ssiMap <= num_model_ssis)
-      call MPI_Group_incl(world_group, model_petCount, model_pets, model_group, _IERROR)
-      call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
-      is_model_pet = (this%model_comm /= MPI_COMM_NULL)
-
-
-      ssi_0 = num_model_ssis
-      allocate(servers(size(server_hconfigs)))
-      do i_server = 1, size(server_hconfigs)
-         ssi_1 = ssi_0 + ssis_per_server(i_server)
-         server_pets = pack([(n, n = 0, size(ssiMap)-1)], ssiMap >= ssi_0 .and. ssiMap < ssi_1)
-
-         call MPI_Group_incl(world_group, size(server_pets), server_pets, server_group, _IERROR)
-         call MPI_Group_union(server_group, model_group, model_server_group, _IERROR)
-
-         call MPI_Comm_create_group(world_comm, server_group, 0, server_comm, _IERROR)
-         call MPI_Comm_create_group(world_comm, model_server_group, 0, model_server_comm, _IERROR)
-
-         call MPI_Group_Free(model_group, _IERROR)
-         call MPI_Group_Free(server_group, _IERROR)
-         call MPI_Group_Free(model_server_group, _IERROR)
-
-         model_server_pets = pack([(n, n = 0, size(ssiMap-1))], (model_server_comm /= MPI_COMM_NULL))
-         servers(i_server) = make_server_gridcomp(server_hconfigs(i_server), model_server_pets, [model_server_comm, this%model_comm, server_comm], _RC)
-
-         ssi_0 = ssi_1
-      end do
-
-      call MPI_Group_Free(world_group, _IERROR)
-      call ESMF_HConfigDestroy(servers_hconfig, _RC)
+      _RETURN_UNLESS(present(servers))
+      call this%initialize_complex_servers(servers, world_comm, model_petCount, ssiCount, ssiMap, &
+           is_model_pet=is_model_pet, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_servers
 
-   function make_server_gridcomp(hconfig, petList, comms, rc) result(gridcomp)
-      use mapl_DSO_Utilities_mod
-      type(ESMF_GridComp) :: gridcomp
-      type(ESMF_HConfig), intent(in) :: hconfig
-      integer, intent(in) :: petList(:)
-      integer, intent(in) :: comms(3) ! world, model, server
-      integer, optional, intent(out) :: rc
-
-      integer :: status, user_status
-      type(ESMF_HConfig) :: server_hconfig, comms_hconfig
-      character(:), allocatable :: sharedObj
-      character(:), allocatable :: userRoutine
-
-      server_hconfig = ESMF_HConfigCreateAt(hconfig, _RC)
-      comms_hconfig = ESMF_HConfigCreate(content='{}', _RC)
-      call ESMF_HConfigAdd(comms_hconfig, comms(1), addKeyString='world_comm', _RC)
-      call ESMF_HConfigAdd(comms_hconfig, comms(2), addKeyString='model_comm', _RC)
-      call ESMF_HConfigAdd(comms_hconfig, comms(3), addKeyString='server_comm', _RC)
-      call ESMF_HConfigAdd(server_hconfig, comms_hconfig, addKeyString='comms', _RC)
-
-      gridcomp = ESMF_GridCompCreate(petList=petList, _RC)
-      sharedObj = ESMF_HConfigAsString(server_hconfig, keystring='sharedOb', _RC)
-      userRoutine = ESMF_HConfigAsString(server_hconfig, keystring='userRoutine', _RC)
-      call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(sharedObj), userRoutine=userRoutine, _USERRC)
-
-      call ESMF_HConfigDestroy(comms_hconfig, _RC)
-      call ESMF_HConfigDestroy(server_hconfig, _RC)
-
-      _RETURN(_SUCCESS)
-   end function make_server_gridcomp
-
-   function get_server_hconfigs(servers_hconfig, rc) result(server_hconfigs)
-      type(ESMF_HConfig), allocatable :: server_hconfigs(:)
-      type(ESMF_HConfig), intent(in) :: servers_hconfig
+   ! Build MPI communicators and ESMF GridComps for an explicit servers: topology.
+   subroutine initialize_complex_servers(this, servers, world_comm, model_petCount, ssiCount, ssiMap, &
+        unusable, is_model_pet, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      type(ESMF_GridComp), allocatable, intent(out) :: servers(:)
+      integer, intent(in) :: world_comm
+      integer, intent(in) :: model_petCount
+      integer, intent(in) :: ssiCount
+      integer, intent(in) :: ssiMap(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(out) :: is_model_pet
       integer, optional, intent(out) :: rc
 
       integer :: status
-
-      integer :: n_servers, i_server
-      type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
-
-      n_servers = ESMF_HConfigGetSize(servers_hconfig, _RC)
-      allocate(server_hconfigs(n_servers))
-
-      iter_begin = ESMF_HConfigIterBegin(servers_hconfig,_RC)
-      iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
-      iter = iter_begin
-
-      i_server = 0
-      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-         i_server = i_server + 1
-         ! server_hconfigs(i_server) = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         server_hconfigs(i_server) = ESMF_HConfigCreateAt(iter, _RC)
-      end do
-
-      _RETURN(_SUCCESS)
-   end function get_server_hconfigs
-
-   function get_ssis_per_server(server_hconfigs, rc) result(ssis_per_server)
+      type(ESMF_HConfig) :: servers_hconfig
+      integer :: world_group, model_group
+      integer :: server_comm, model_server_comm
+      integer :: required_ssis, num_model_ssis
+      integer :: ssi_0, ssi_1, i_server
       integer, allocatable :: ssis_per_server(:)
-      type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
-      integer, optional, intent(out) :: rc
+      integer, allocatable :: model_pets(:), server_pets(:), model_server_pets(:)
+      type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+      class(Logger), pointer :: lgr
 
-      integer :: status
-      integer :: i_server
+      num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
 
-      associate (n_servers => size(server_hconfigs))
-        allocate(ssis_per_server(n_servers))
-        do i_server = 1, n_servers
-           ssis_per_server(i_server) = ESMF_HConfigAsI4(server_hconfigs(i_server), keystring='num_nodes', _RC)
-        end do
-      end associate
-      _RETURN(_SUCCESS)
-   end function get_ssis_per_server
+      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+      server_hconfigs = get_server_hconfigs(servers_hconfig, _RC)
 
+      ssis_per_server = get_ssis_per_server(server_hconfigs, _RC)
+      required_ssis = num_model_ssis + sum(ssis_per_server)
 
-   integer function get_model_petCount(vm, hconfig, rc) result(model_petCount)
-      type(ESMF_VM), intent(in) :: vm
-      type(ESMF_HConfig), intent(in) :: hconfig
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      logical :: has_model_petcount
-
-      call ESMF_VMGet(vm, petcount=model_petCount, _RC)
-
-      has_model_petcount = ESMF_HConfigIsDefined(hconfig, keystring='model_petcount', _RC)
-      if (has_model_petcount) then
-         model_petcount = ESMF_HConfigAsI4(hconfig, keystring='model_petcount', _RC)
+      _ASSERT(required_ssis <= ssiCount, "Insufficient resources for requested servers.")
+      if (required_ssis < ssiCount) then
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning("Unused nodes.  Required %i0 nodes, but %i0 available.", required_ssis, ssiCount)
       end if
 
+      call MPI_Comm_group(world_comm, world_group, _IERROR)
+      model_pets = pets_on_ssis(ssiMap, 0, num_model_ssis)
+      call MPI_Group_incl(world_group, size(model_pets), model_pets, model_group, _IERROR)
+      call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
+      if (present(is_model_pet)) is_model_pet = (this%model_comm /= MPI_COMM_NULL)
+
+      ssi_0 = num_model_ssis
+      allocate(servers(size(server_hconfigs)))
+      do i_server = 1, size(server_hconfigs)
+         ssi_1 = ssi_0 + ssis_per_server(i_server)
+         server_pets = pets_on_ssis(ssiMap, ssi_0, ssi_1)
+         call create_server_comms(world_comm, world_group, model_group, server_pets, server_comm, model_server_comm, _RC)
+         model_server_pets = [model_pets, server_pets]
+         servers(i_server) = make_server_gridcomp(server_hconfigs(i_server), &
+              model_server_pets, [model_server_comm, this%model_comm, server_comm], _RC)
+         ssi_0 = ssi_1
+      end do
+
+      call MPI_Group_Free(model_group, _IERROR)
+      call MPI_Group_Free(world_group, _IERROR)
+      call ESMF_HConfigDestroy(servers_hconfig, _RC)
+
       _RETURN(_SUCCESS)
-   end function get_model_petCount
+      _UNUSED_DUMMY(unusable)
+   end subroutine initialize_complex_servers
 
    subroutine initialize_simple_servers(this, unusable, rc)
       class(MaplFramework), target, intent(inout) :: this
@@ -495,13 +446,13 @@ contains
          call MPI_Comm_free(this%model_comm, _IERROR)
       end if
       call this%finalize_servers(_RC)
-!#         call server_comm%free_comms(_RC)
-!#         if (server_comm /= MPI_COMM_NULL) then
-!#            call MPI_Comm_free(server_comm, _IERROR)
-!#         end if
-!#         if (server_comm_model /= MPI_COMM_NULL) then
-!#            call MPI_Comm_free(server_comm_model, _IERROR)
-!#         end if
+      !#         call server_comm%free_comms(_RC)
+      !#         if (server_comm /= MPI_COMM_NULL) then
+      !#            call MPI_Comm_free(server_comm, _IERROR)
+      !#         end if
+      !#         if (server_comm_model /= MPI_COMM_NULL) then
+      !#            call MPI_Comm_free(server_comm_model, _IERROR)
+      !#         end if
 
       call this%finalize_profiler(_RC)
       call this%finalize_pflogger(_RC)
@@ -574,8 +525,8 @@ contains
       call the_mapl_object%get(directory_service=directory_service, _RC)
 
       _RETURN(_SUCCESS)
-       _UNUSED_DUMMY(unusable)
-  end subroutine mapl_get
+      _UNUSED_DUMMY(unusable)
+   end subroutine mapl_get
 
    subroutine mapl_get_mapl(mapl)
       type(MaplFramework), pointer, intent(out) :: mapl
@@ -674,31 +625,6 @@ contains
    end subroutine default_initialize_pflogger
 #endif
 
-
-   integer function get_num_ssis(petCount, ssiCount, ssiMap, ssiOffset, rc) result(num_ssis)
-      integer, intent(in) :: petCount
-      integer, intent(in) :: ssiCount
-      integer, intent(in) :: ssiMap(:)
-      integer, intent(in) :: ssiOffset
-      integer, optional, intent(out) :: rc
-
-      integer :: n
-      integer :: found
-
-      num_ssis = 0
-
-      found = 0
-      do n = ssiOffset, ssiCount - 1
-         found = found + count(ssiMap == n)
-         if (found >= petCount) exit
-      end do
-
-      _ASSERT(found >= petCount, 'Insufficient resources for running model.')
-      num_ssis = 1 + (n - ssiOffset)
-
-      _RETURN(_SUCCESS)
-   end function get_num_ssis
-
    subroutine initialize_field_fill_defaults(this, unusable, field_default_fill_value_r4, field_default_fill_value_r8, rc)
       class(MaplFramework), intent(in) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -793,4 +719,3 @@ contains
    end subroutine initialize_field_dictionary
 
 end module mapl_MaplFramework_mod
-
