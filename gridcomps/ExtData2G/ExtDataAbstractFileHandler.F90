@@ -181,16 +181,15 @@ contains
      character(len=ESMF_MAXPATHLEN) :: trial_file
      logical :: file_found
 
-     useable_time = current_time
-     if (allocated(this%valid_range)) then
-        useable_time = this%valid_range(1)
-     end if
-     call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+     call fill_grads_template(trial_file, this%file_template, time=current_time, _RC)
      inquire(file=trim(trial_file),exist=file_found)
 
      if (file_found) then
         filename = trial_file
         _RETURN(_SUCCESS)
+     end if
+     if (allocated(this%valid_range)) then
+        useable_time = this%valid_range(1)
      end if
      do i=1, MAX_TRIALS
         useable_time = useable_time + this%frequency

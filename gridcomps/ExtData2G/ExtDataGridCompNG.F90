@@ -262,8 +262,10 @@ CONTAINS
    integer, pointer :: i_start
    integer :: new_size
    logical, allocatable :: rules_with_ps(:), rules_with_q(:)
+   type(ESMF_Time) :: run_range(2)
    !class(logger), pointer :: lgr
 
+   call ESMF_ClockGet(clock, starttime=run_range(1), stoptime=run_range(2), _RC)
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
    call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, vm=vm, _RC )
@@ -405,7 +407,9 @@ CONTAINS
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
          item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
-         call GetLevs(item, time, _RC)
+         if (range_overlaps_item(run_range, item)) then
+            call GetLevs(item, time, _RC)
+         end if
       enddo
 
    enddo
@@ -1805,9 +1809,26 @@ CONTAINS
      end if
      _ASSERT(item_index/=-1,"ExtData did not find item index for basename "//TRIM(base_name))
      _RETURN(_SUCCESS)
-  end function get_item_index
+   end function get_item_index
 
-  subroutine get_global_options(yaml_file,am_running,use_file_weights,rc)
+   function range_overlaps_item(range, item) result(overlaps)
+      logical :: overlaps
+      type(ESMF_Time), intent(in) :: range(2)
+      type(PrimaryExport), intent(in) :: item
+
+      ! Single-rule items carry no start_end_time constraint
+      if (.not. allocated(item%start_end_time)) then
+         overlaps = .true.
+         return
+      end if
+
+      ! Half-open overlap: [A,B) and [C,D) overlap iff A<D and C<B
+      overlaps = (item%start_end_time(1) < range(2)) .and. &
+                 (range(1) < item%start_end_time(2))
+
+   end function range_overlaps_item
+
+   subroutine get_global_options(yaml_file,am_running,use_file_weights,rc)
      character(len=*), intent(in) :: yaml_file
      logical,intent(out) :: am_running
      logical,intent(out) :: use_file_weights
