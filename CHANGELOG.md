@@ -11,9 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- unit tests for server initialization logic (#5214)
+
 ### Changed
 
-
+- Refactored server initialization (#5214)
+  - added tests
 - Refactored `pFIO_ClientManagerMod`: replaced `ClientThreadVector` pool with a
   single `class(ClientThread), allocatable` member; removed multi-client cycling
   logic (`next`, `set_current`, `size`, `set_optimal_server`, `split_server_pools`,
@@ -39,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For ACG, add spec_filters to generalize testing specs
 
 ### Fixed
+
+- Buggy logic in server initialization (#5214)
 
 ### Removed
 
