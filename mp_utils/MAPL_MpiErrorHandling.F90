@@ -52,14 +52,12 @@ contains
               & 'pe=', rank, 'FAIL at line=', line, prefix, use_name, &
               & '<'//adjustl(trim(message))//'>'
          !$omp end critical (MAPL_MpiError1)
-         call MPI_Abort(MPI_COMM_WORLD, 1, ierror)
       else
          !$omp critical (MAPL_MpiError1)
          write(ERROR_UNIT,'(a,i5.5,1x,a3,a40,1x,a)') &
               & 'FAIL at line=', line, prefix, use_name, &
               & '<'//adjustl(trim(message))//'>'
          !$omp end critical (MAPL_MpiError1)
-         error stop 1
       end if
 
    end subroutine MAPL_mpi_fail
