@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug that prevented R8 exports from being written in R8 in History
+
 ### Removed
 
 - Removed `ESMF_HCONFIGSET_HAS_INTENT_INOUT` preprocessor conditionals now that
