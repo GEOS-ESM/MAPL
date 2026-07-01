@@ -32,9 +32,6 @@ contains
       character(:), allocatable :: base_name
 
       integer :: rank, ierror
-      logical :: is_mpi_initialized
-
-      call MPI_Initialized(is_mpi_initialized, ierror)
 
       base_name = get_base_name(filename)
       if (len(base_name) > FIELD_WIDTH) then
@@ -45,21 +42,12 @@ contains
          use_name = base_name
       end if
 
-      if (is_mpi_initialized) then
-         call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
-         !$omp critical (MAPL_MpiError1)
-         write(ERROR_UNIT,'(a,i5.5,1x,a,i5.5,1x,a3,a40,1x,a)') &
-              & 'pe=', rank, 'FAIL at line=', line, prefix, use_name, &
-              & '<'//adjustl(trim(message))//'>'
-         !$omp end critical (MAPL_MpiError1)
-         call MPI_Abort(MPI_COMM_WORLD, 1, ierror)
-      else
-         !$omp critical (MAPL_MpiError1)
-         write(ERROR_UNIT,'(a,i5.5,1x,a3,a40,1x,a)') &
-              & 'FAIL at line=', line, prefix, use_name, &
-              & '<'//adjustl(trim(message))//'>'
-         !$omp end critical (MAPL_MpiError1)
-      end if
+      call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+      !$omp critical (MAPL_MpiError1)
+      write(ERROR_UNIT,'(a,i5.5,1x,a,i5.5,1x,a3,a40,1x,a)') &
+           & 'pe=', rank, 'FAIL at line=', line, prefix, use_name, &
+           & '<'//adjustl(trim(message))//'>'
+      !$omp end critical (MAPL_MpiError1)
 
    end subroutine MAPL_mpi_fail
 
