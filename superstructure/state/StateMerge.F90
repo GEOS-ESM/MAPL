@@ -43,20 +43,20 @@ contains
    !   unusable -- keyword enforcer (forces keyword usage for subsequent args)
    !   rc       -- return code; ESMF_SUCCESS on success
    function merge_states(state_a, state_b, unusable, name, rc) result(merged)
-      type(ESMF_State), intent(inout) :: state_a
-      type(ESMF_State), intent(inout) :: state_b
+      type(ESMF_State), intent(in) :: state_a
+      type(ESMF_State), intent(in) :: state_b
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
       type(ESMF_State) :: merged
 
       integer :: status
-      character(len=ESMF_MAXSTR) :: merged_name
+      character(len=ESMF_MAXSTR) :: name_
 
-      merged_name = 'merged'
-      if (present(name)) merged_name = name
+      name_ = 'merged'
+      if (present(name)) name_ = name
 
-      merged = ESMF_StateCreate(name=trim(merged_name), _RC)
+      merged = ESMF_StateCreate(name=trim(name_), _RC)
 
       ! Add state_a items first (no replace needed — merged is empty)
       call add_items_to_state(merged, state_a, replace=.false., _RC)
@@ -77,7 +77,7 @@ contains
    ! duplicate name is encountered.
    subroutine add_items_to_state(dst, src, replace, rc)
       type(ESMF_State), intent(inout) :: dst
-      type(ESMF_State), intent(inout) :: src
+      type(ESMF_State), intent(in)    :: src
       logical, intent(in) :: replace
       integer, optional, intent(out) :: rc
 
