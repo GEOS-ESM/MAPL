@@ -451,15 +451,11 @@ contains
                if (typekind == ESMF_TYPEKIND_R4) then
                   call mapl_assignFptr(field_list(j), ptr, _RC)
                   call mapl_assignFptr(reference_field_list(j), reference_ptr, _RC)
-                  if (any(abs(ptr - reference_ptr) > threshold)) then
-                     _FAIL("state differs from reference state greater than allowed threshold")
-                  end if
+                  _ASSERT(.not.any(abs(ptr - reference_ptr) > threshold) , "state differs from reference state greater than allowed threshold")
                else if (typekind == ESMF_TYPEKIND_R8) then
                   call mapl_assignFptr(field_list(j), ptr_r8, _RC)
                   call mapl_assignFptr(reference_field_list(j), reference_ptr_r8, _RC)
-                  if (any(abs(ptr_r8 - reference_ptr_r8) > real(threshold, ESMF_KIND_R8))) then
-                     _FAIL("state differs from reference state greater than allowed threshold")
-                  end if
+                  _ASSERT(.not.any(abs(ptr_r8 - reference_ptr_r8) > threshold) , "state differs from reference state greater than allowed threshold")
                else
                   _FAIL("unsupported typekind in compare_states")
                end if

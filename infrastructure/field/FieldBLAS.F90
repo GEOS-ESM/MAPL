@@ -123,7 +123,7 @@ contains
       call verify_typekind(x, ESMF_TYPEKIND_R4)
       call verify_typekind(y, ESMF_TYPEKIND_R4)
 
-      conformable = FieldsAreConformable(x, y, _RC)
+      conformable = FieldsAreConformable(x, y)
       _ASSERT(conformable, 'FieldAXPY() - fields not conformable.')
 
       call assign_fptr(x, x_ptr, _RC)
@@ -151,7 +151,7 @@ contains
       call verify_typekind(x, ESMF_TYPEKIND_R8)
       call verify_typekind(y, ESMF_TYPEKIND_R8)
 
-      conformable = FieldsAreConformable(x, y, _RC)
+      conformable = FieldsAreConformable(x, y)
       _ASSERT(conformable, 'FieldAXPY() - fields not conformable.')
 
       call assign_fptr(x, x_ptr, _RC)
@@ -205,9 +205,9 @@ contains
       call verify_typekind(x, ESMF_TYPEKIND_R4)
       call verify_typekind(y, ESMF_TYPEKIND_R4)
 
-      conformable = FieldsAreConformable(x(1), x(2:),_RC)
+      conformable = FieldsAreConformable(x(1), x(2:))
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
-      conformable = FieldsAreConformable(x(1), y(:),_RC)
+      conformable = FieldsAreConformable(x(1), y(:))
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
 
       ! Reference dimensions
@@ -269,9 +269,9 @@ contains
       call verify_typekind(x, ESMF_TYPEKIND_R8)
       call verify_typekind(y, ESMF_TYPEKIND_R8)
 
-      conformable = FieldsAreConformable(x(1), x(2:),_RC)
+      conformable = FieldsAreConformable(x(1), x(2:))
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
-      conformable = FieldsAreConformable(x(1), y,_RC)
+      conformable = FieldsAreConformable(x(1), y)
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
 
       ! Reference dimensions
