@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Buggy logic in server initialization (#5214)
+- Fixed bug that prevented R8 exports from being written in R8 in History
 
 ### Removed
 
