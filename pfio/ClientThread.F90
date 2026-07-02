@@ -14,6 +14,7 @@ module pFIO_ClientThreadMod
    use mapl_KeywordEnforcer_mod
    use pFIO_SimpleSocketMod
    use pFIO_FileMetadataMod
+   use mpi
 
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
@@ -49,6 +50,9 @@ module pFIO_ClientThreadMod
    type, extends(BaseThread) :: ClientThread
       private
 
+      integer :: client_comm = MPI_COMM_NULL
+      integer :: rank = -1
+
       ! scratch pad for return values from application level interfaces
       integer :: collection_id      = -1
       integer :: request_counter    = MIN_ID
@@ -81,6 +85,9 @@ module pFIO_ClientThreadMod
 
       procedure :: get_unique_request_id
       procedure :: get_unique_collective_request_id
+      procedure :: get_client_comm
+      procedure :: get_rank
+      procedure :: set_client_comm
    end type ClientThread
 
 
@@ -90,11 +97,21 @@ module pFIO_ClientThreadMod
 
 contains
 
-   function new_ClientThread(sckt) result(c)
+   function new_ClientThread(sckt, client_comm, rc) result(c)
       type (ClientThread),target :: c
       class(AbstractSocket),optional,intent(in) :: sckt
+      integer, optional, intent(in) :: client_comm
+      integer, optional, intent(out) :: rc
+
+      integer :: ierror
 
       if(present(sckt)) call c%set_connection(sckt)
+      if (present(client_comm)) then
+         call c%set_client_comm(client_comm, rc=ierror)
+         if (present(rc)) rc = ierror
+      else
+         if (present(rc)) rc = 0
+      end if
 
    end function new_ClientThread
 
@@ -526,5 +543,25 @@ contains
       call connection%send(TerminateMessage(),_RC)
       _RETURN(_SUCCESS)
    end subroutine terminate
+
+   integer function get_client_comm(this) result(client_comm)
+      class (ClientThread), intent(in) :: this
+      client_comm = this%client_comm
+   end function get_client_comm
+
+   integer function get_rank(this) result(rank)
+      class (ClientThread), intent(in) :: this
+      rank = this%rank
+   end function get_rank
+
+   subroutine set_client_comm(this, client_comm, rc)
+      class (ClientThread), intent(inout) :: this
+      integer, intent(in) :: client_comm
+      integer, optional, intent(out) :: rc
+      integer :: ierror
+      this%client_comm = client_comm
+      call MPI_Comm_rank(client_comm, this%rank, ierror)
+      if (present(rc)) rc = ierror
+   end subroutine set_client_comm
 
 end module pFIO_ClientThreadMod

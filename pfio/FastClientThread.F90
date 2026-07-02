@@ -32,10 +32,19 @@ module pFIO_FastClientThreadMod
 
 contains
 
-   function new_FastClientThread(sckt) result(c)
+   function new_FastClientThread(sckt, client_comm, rc) result(c)
       class(AbstractSocket),optional,intent(in) :: sckt
+      integer, optional, intent(in) :: client_comm
+      integer, optional, intent(out) :: rc
       type (FastClientThread),target :: c
+      integer :: ierror
       if (present(sckt)) call c%set_connection(sckt)
+      if (present(client_comm)) then
+         call c%set_client_comm(client_comm, rc=ierror)
+         if (present(rc)) rc = ierror
+      else
+         if (present(rc)) rc = 0
+      end if
    end function new_FastClientThread
 
    function stage_data(this, collection_id, file_name, var_name, data_reference, &

@@ -258,6 +258,7 @@ contains
       integer :: status, slash_loc
       type(ESMF_StateItem_Flag) :: item_type
       character(len=:), allocatable :: varspec_short_name
+      type(ESMF_TYPEKIND_FLAG) :: local_tk
 
       item_type=MAPL_STATEITEM_FIELD
       if (index(alias,'[') /= 0 .and. index(alias,']') /= 0 .and. index(alias,',') /= 0) item_type = MAPL_STATEITEM_VECTOR
@@ -267,8 +268,10 @@ contains
          varspec_short_name = short_name(slash_loc+1:)
       end if 
 
+      local_tk=MAPL_TYPEKIND_MIRROR
+      if (allocated(opts%typekind)) local_tk=opts%typekind
       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, varspec_short_name,  &
-            units=opts%units, typekind=opts%typekind, regrid_param=opts%regrid_param, itemtype=item_type, _RC)
+            units=opts%units, typekind=local_tk, regrid_param=opts%regrid_param, itemtype=item_type, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_var_specs

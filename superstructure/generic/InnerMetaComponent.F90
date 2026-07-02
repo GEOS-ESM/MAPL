@@ -3,8 +3,6 @@
 module mapl_InnerMetaComponent_mod
    use :: mapl_ErrorHandling_mod
    use :: mapl3_GenericGrid
-   use :: mapl_ESMF_Interfaces_mod, only: MAPL_UserCompGetInternalState
-   use :: mapl_ESMF_Interfaces_mod, only: MAPL_UserCompSetInternalState
    use esmf
    implicit none(type,external)
    private
@@ -90,11 +88,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(InnerMetaWrapper) :: wrapper
+      type(InnerMetaComponent), pointer :: inner_meta
 
-      call MAPL_UserCompGetInternalState(gridcomp, INNER_META_PRIVATE_STATE, wrapper, status)
-      _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
-      deallocate(wrapper%inner_meta)
+      _GET_NAMED_PRIVATE_STATE(gridcomp, InnerMetaComponent, INNER_META_PRIVATE_STATE, inner_meta)
 
       _RETURN(_SUCCESS)
    end subroutine free_inner_meta

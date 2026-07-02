@@ -20,28 +20,6 @@ module mapl_ESMF_Interfaces_mod
 
    public :: I_CallBackMethod
 
-   ! TODO: pchakrab - this should be in MAPL.generic, but that causes circular dependency issues
-   public :: MAPL_UserCompGetInternalState
-   public :: MAPL_UserCompSetInternalState
-
-   interface MAPL_UserCompGetInternalState
-      subroutine ESMF_UserCompGetInternalState(gridcomp, name, wrapper, status)
-         type(*) :: gridcomp
-         character(*), optional :: name
-         type(*) :: wrapper
-         integer :: status
-      end subroutine ESMF_UserCompGetInternalState
-   end interface MAPL_UserCompGetInternalState
-
-   interface MAPL_UserCompSetInternalState
-      subroutine ESMF_UserCompSetInternalState(gridcomp, name, wrapper, status)
-         type(*) :: gridcomp
-         character(*), optional :: name
-         type(*) :: wrapper
-         integer :: status
-      end subroutine ESMF_UserCompSetInternalState
-   end interface MAPL_UserCompSetInternalState
-
    abstract interface
 
       subroutine I_CallBackMethod(state, rc)

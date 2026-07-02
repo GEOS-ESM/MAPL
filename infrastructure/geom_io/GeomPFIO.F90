@@ -3,7 +3,7 @@
 module mapl_GeomPFIO_mod
    use mapl_ErrorHandling_mod
    use ESMF
-   use pfio, only: i_Clients, o_Clients, StringVariableMap, ArrayReference, FileMetadata, Variable
+   use pfio, only: i_Client, o_Client, StringVariableMap, ArrayReference, FileMetadata, Variable
    use mapl_geom_api
    use mapl_SharedIO_mod
    implicit none
@@ -33,8 +33,8 @@ module mapl_GeomPFIO_mod
    abstract interface
 
      subroutine I_stage_data_to_file(this, bundle, filename, time_index, rc)
-        use esmf
         import GeomPFIO
+        import ESMF_FieldBundle
         class(GeomPFIO), intent(inout) :: this
         type(ESMF_FieldBundle), intent(in) :: bundle
         character(len=*), intent(in) :: filename
@@ -43,7 +43,6 @@ module mapl_GeomPFIO_mod
      end subroutine I_stage_data_to_file
 
      subroutine I_stage_coordinates_to_file(this, filename, rc)
-        use esmf
         import GeomPFIO
         class(GeomPFIO), intent(inout) :: this
         character(len=*), intent(in) :: filename
@@ -51,8 +50,8 @@ module mapl_GeomPFIO_mod
      end subroutine I_stage_coordinates_to_file
 
      subroutine I_request_data_from_file(this, filename, bundle, rc)
-        use esmf
         import GeomPFIO
+        import ESMF_FieldBundle
         class(GeomPFIO), intent(inout) :: this
         character(len=*), intent(in) :: filename
         type(ESMF_FieldBundle), intent(inout) :: bundle
@@ -74,7 +73,7 @@ contains
 
       time_var = create_time_variable(time, _RC)
       call var_map%insert('time',time_var)
-      call o_Clients%modify_metadata(this%collection_id, var_map=var_map, _RC)
+      call o_Client%modify_metadata(this%collection_id, var_map=var_map, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -88,9 +87,10 @@ contains
 
       integer :: status
       type(ArrayReference) :: ref
+      integer :: request_id
 
       ref = ArrayReference(times)
-      call o_Clients%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
+      request_id = o_Client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine
@@ -104,7 +104,7 @@ contains
       integer :: status
 
       this%esmfgeom = esmfgeom
-      this%collection_id = o_Clients%add_data_collection(metadata, _RC)
+      this%collection_id = o_Client%add_data_collection(metadata, _RC)
       this%file_metadata = metadata
 
       _RETURN(_SUCCESS)
@@ -119,7 +119,7 @@ contains
       integer :: status
 
       this%esmfgeom = esmfgeom
-      this%collection_id = i_Clients%add_data_collection(file_name, _RC)
+      this%collection_id = i_Client%add_data_collection(file_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init_with_filename

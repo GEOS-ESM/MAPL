@@ -150,8 +150,8 @@ contains
 
       call MAPL_GridCompRunChildren(gridcomp, phase_name='run', _RC)
 
-      call mapl_o_Clients%done_collective_stage()
-      call mapl_o_Clients%post_wait()
+       call mapl_o_Client%done_collective_stage()
+       call mapl_o_Client%post_wait_all()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)

@@ -156,17 +156,17 @@ contains
 
    end function make_directory_window
 
-   subroutine connect_to_server(this, port_name, client, client_comm, unusable, server_size, rc)
+   subroutine connect_to_server(this, port_name, client, unusable, server_size, rc)
       use pFIO_ClientThreadMod
       class (DirectoryService), target, intent(inout) :: this
       character(*), intent(in) :: port_name
       class (ClientThread), target, intent(inout) :: client
-      integer, intent(in) :: client_comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: server_size
       integer, optional, intent(out) :: rc
 
       class (AbstractSocket), pointer :: sckt
+      integer :: client_comm
       integer :: rank_in_client
       integer :: ierror
       integer :: status(MPI_STATUS_SIZE)
@@ -190,6 +190,8 @@ contains
       ! First, check ports to see if server is local, in which case
       ! a SimpleSocket is used for the connection.
       ! Note: In this scenario, the server _must_ always publish prior to this.
+
+      client_comm = client%get_client_comm()
 
       do n = 1, this%n_local_ports
          if (trim(this%local_ports(n)%port_name) == port_name) then

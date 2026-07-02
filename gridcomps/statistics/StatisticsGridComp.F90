@@ -82,7 +82,7 @@ contains
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
 
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR,  _RC)
        select case (action)
        case ('average')
           call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &

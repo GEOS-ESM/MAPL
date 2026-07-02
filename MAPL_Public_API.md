@@ -56,7 +56,7 @@ Notable source modules and their key exported entities:
 
 | Source module | Key public entities |
 |---|---|
-| `mapl_Generic_mod` | `MAPL_GridCompGet`, `MAPL_GridCompSet`, `MAPL_GridCompAddChild`, `MAPL_GridCompAddVarSpec`, `MAPL_GridCompIsGeneric`, `MAPL_GridCompIsUser`, `MAPL_GridCompSetEntryPoint`, `MAPL_GridCompRunChild`, `MAPL_GridCompRunChildren`, `MAPL_GridCompGetInternalState`, `MAPL_GridCompSetGeometry`, `MAPL_GridCompSetGeom`, `MAPL_GridCompSetVerticalGrid`, `MAPL_GridCompAddConnection`, `MAPL_GridCompReexport`, `MAPL_GridCompConnectAll`, `MAPL_GridCompTimerStart`, `MAPL_GridCompTimerStop`, `MAPL_ClockGet`, `MAPL_UserCompGetInternalState`, `MAPL_UserCompSetInternalState` |
+| `mapl_Generic_mod` | `MAPL_GridCompGet`, `MAPL_GridCompSet`, `MAPL_GridCompAddChild`, `MAPL_GridCompAddVarSpec`, `MAPL_GridCompIsGeneric`, `MAPL_GridCompIsUser`, `MAPL_GridCompSetEntryPoint`, `MAPL_GridCompRunChild`, `MAPL_GridCompRunChildren`, `MAPL_GridCompGetInternalState`, `MAPL_GridCompSetGeometry`, `MAPL_GridCompSetGeom`, `MAPL_GridCompSetVerticalGrid`, `MAPL_GridCompAddConnection`, `MAPL_GridCompReexport`, `MAPL_GridCompConnectAll`, `MAPL_GridCompTimerStart`, `MAPL_GridCompTimerStop`, `MAPL_ClockGet` |
 | `mapl_VariableSpec_mod` | `VariableSpec` (type) |
 | `mapl_GenericPhases_mod` | phase constants/types |
 | `mapl_OuterMetaComponent_mod` | `OuterMetaComponent` (type) |
@@ -927,8 +927,6 @@ No `private`; itself a package re-exporter of ~30 sub-modules. Two names are ren
 | `MAPL_STATEITEM_FIELDBUNDLE` | parameter |
 | `MAPL_STATEITEM_SERVICE` | parameter |
 | `MAPL_STATEITEM_VECTOR` | parameter |
-| `MAPL_UserCompGetInternalState` | subroutine |
-| `MAPL_UserCompSetInternalState` | subroutine |
 
 ---
 

@@ -8,7 +8,6 @@ module mapl_OpenMP_Support_mod
     use mapl_Subgrid_mod, only: Interval, make_subgrids, find_bounds
     use mapl_StateAddMethod_mod, only: CallbackMap, CallbackMapIterator, CallbackMethodWrapper, get_callbacks
     use mapl_StateAddMethod_mod, only: operator(/=)
-    use mapl_ESMF_Interfaces_mod, only: MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
     !$ use omp_lib
 
     implicit none(type,external)
@@ -367,6 +366,8 @@ module mapl_OpenMP_Support_mod
            type(ESMF_Clock), pointer :: dummy
         end type MAPL_GenericWrap
 
+        type(ESMF_Clock), pointer :: dummy
+
         type(MAPL_GenericWrap) :: wrap
         character(len=ESMF_MAXSTR) :: comp_name
         character(len=:), allocatable :: labels(:)
@@ -391,13 +392,14 @@ module mapl_OpenMP_Support_mod
         end do
 
         do ilabel = 1, size(labels)
-           call MAPL_UserCompGetInternalState(GridComp, trim(labels(ilabel)), wrap, status)
+           _GET_NAMED_PRIVATE_STATE(GridComp, ESMF_Clock, trim(labels(ilabel)), dummy)
+           wrap%dummy => dummy
+
            has_private_state = (status == ESMF_SUCCESS)
            do i = 1, num_grids
               associate (gc => subgridcomps(i) )
                 if (has_private_state) then
-                   call MAPL_UserCompSetInternalState(gc, trim(labels(ilabel)), wrap, status)
-                   _VERIFY(status)
+                   _SET_NAMED_PRIVATE_STATE(gc, ESMF_Clock, trim(labels(ilabel)))
                 end if
               end associate
            end do

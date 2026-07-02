@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+
+- Refactored `pFIO_ClientManagerMod`: replaced `ClientThreadVector` pool with a
+  single `class(ClientThread), allocatable` member; removed multi-client cycling
+  logic (`next`, `set_current`, `size`, `set_optimal_server`, `split_server_pools`,
+  `set_server_size`) and server-pool fields; renamed module-level singletons
+  `i_Clients`/`o_Clients` to `i_Client`/`o_Client` and the corresponding
+  `mapl_pfio_api` aliases to `mapl_i_client`/`mapl_o_client`.
+- Replaced MAPL_UserComp[Set , Get]InternalState with ESMF_InternalState[Set , Get]
+- Changed "use esmf" to "import <specifi ESMF objects>" in GeomPFI abstract interfaces
 - Added PythonBridge to MAPL interface
 - Moved configurable test from superstructure/generic
 - Consolidated MAPL ESMF_Info keys into mapl_esmf_info_keys_mod
@@ -32,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For ACG, add spec_filters to generalize testing specs
 
 ### Fixed
+
+- Missing call to initialize error handling in MPI context
+- Fixed bug that prevented R8 exports from being written in R8 in History
 
 ### Removed
 

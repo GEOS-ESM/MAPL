@@ -70,8 +70,6 @@ contains
            & '<'//adjustl(trim(message))//'>'
       !$omp end critical (MAPL_Throw1)
 
-      error stop 1
-
    end subroutine MAPL_serial_fail
 
 
