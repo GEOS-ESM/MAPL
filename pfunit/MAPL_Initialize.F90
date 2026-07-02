@@ -16,8 +16,6 @@ contains
       character(:), allocatable :: level_name
       class(*), pointer :: option
 
-      call MAPL_set_throw_method(throw)
-
       call set_command_line_options()
 
       option => options%at('level')
@@ -27,6 +25,7 @@ contains
 
       call MAPL_initialize(level_name=level_name)
 
+      call MAPL_set_throw_method(throw)
    contains
 
       subroutine set_command_line_options()

@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-
+- unit tests for server initialization logic (#5214)
+- Refactored server initialization (#5214)
+  - added tests
 - Refactored `pFIO_ClientManagerMod`: replaced `ClientThreadVector` pool with a
   single `class(ClientThread), allocatable` member; removed multi-client cycling
   logic (`next`, `set_current`, `size`, `set_optimal_server`, `split_server_pools`,
@@ -42,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Buggy logic in server initialization (#5214)
 - Missing call to initialize error handling in MPI context
 - Fixed bug that prevented R8 exports from being written in R8 in History
 
