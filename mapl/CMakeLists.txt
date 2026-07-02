@@ -2,6 +2,7 @@ esma_set_this(OVERRIDE MAPL)
 
 set (srcs
   MAPL.F90
+  MaplServerUtilities.F90
   MaplFramework.F90
   Cap.F90
   )
@@ -23,4 +24,6 @@ target_link_libraries(GEOS.x PRIVATE ${this})
 
 # GEOS.x is needed for 'make tests'
 add_dependencies(build-tests GEOS.x)
+
+add_subdirectory(tests EXCLUDE_FROM_ALL)
 
