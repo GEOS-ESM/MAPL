@@ -181,7 +181,8 @@ contains
      character(len=ESMF_MAXPATHLEN) :: trial_file
      logical :: file_found
 
-     call fill_grads_template(trial_file, this%file_template, time=current_time, _RC)
+     useable_time = current_time
+     call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
      inquire(file=trim(trial_file),exist=file_found)
 
      if (file_found) then
