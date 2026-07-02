@@ -7,7 +7,7 @@ module mapl_HistoryCollectionGridComp_private_mod
    use gFTL2_StringVector
    use gFTL2_StringSet
    use mapl_HistoryUtilities_mod
-   use mapl_esmf_info_keys_mod, only: VAR_LIST_KEY, KEY_TIMESTEP, &
+   use mapl_HistoryConstants_mod, only: VAR_LIST_KEY, KEY_TIMESTEP, &
       & KEY_ACCUMULATION_TYPE, KEY_TIME_SPEC, KEY_TYPEKIND, KEY_UNITS, &
       & KEY_INSTANTANEOUS, KEY_REGRID
 
@@ -28,18 +28,21 @@ module mapl_HistoryCollectionGridComp_private_mod
    !public :: parse_item
    public :: get_expression_variables
 
-   type :: HistoryOptions
-      character(len=:), allocatable :: units
+   ! Collection-level options, parsed once from the collection hconfig.
+   ! parse_typekind_aspect_options and parse_regridder_option operate on
+   ! CLASS(HistoryOptionsBase) so they work for both the collection struct and VarOptions.
+   type :: HistoryOptionsBase
       type(ESMF_TypeKind_Flag), allocatable :: typekind
-      type(ESMF_TimeInterval), allocatable :: timeStep
-      character(len=:), allocatable :: accumulation_type
-      type(mapl_EsmfRegridderParam) :: regrid_param
-   end type HistoryOptions
+      character(len=:),         allocatable :: accumulation_type
+      type(mapl_EsmfRegridderParam)         :: regrid_param
+   end type HistoryOptionsBase
 
-   interface parse_options
-      module procedure :: parse_options_hconfig
-      module procedure :: parse_options_iter
-   end interface parse_options
+   ! Effective per-variable options: seeded from collection defaults then
+   ! overridden by any keys present in the individual var_list entry.
+   ! units is per-variable only (no collection-level default).
+   type, extends(HistoryOptionsBase) :: VarOptions
+      character(len=:), allocatable :: units
+   end type VarOptions
 
 contains
 
@@ -215,17 +218,18 @@ contains
 
    subroutine register_imports(gridcomp, hconfig, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(ESMF_HConfig), intent(in) :: hconfig
-      integer, optional, intent(out) :: rc
+      type(ESMF_HConfig),  intent(in)    :: hconfig
+      integer, optional,   intent(out)   :: rc
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: var_list
       character(len=:), allocatable :: alias
       character(len=:), allocatable :: short_name
-      type(HistoryOptions) :: options
+      type(HistoryOptionsBase) :: coll_opts
+      type(VarOptions)        :: var_opts
       integer :: status
 
-      ! Get Options for collection
-      call parse_options(hconfig, options, _RC)
+      ! Parse collection-level options (typekind, timeStep, accumulation_type, regrid_param).
+      call parse_collection_options(hconfig, coll_opts, _RC)
 
       ! Get variable list
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, rc=status)
@@ -242,18 +246,45 @@ contains
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          _VERIFY(status)
          call parse_item(iter, short_name=short_name, alias=alias, _RC)
-         call parse_options(iter, options, _RC)
-         call add_var_specs(gridcomp, short_name, alias, options, _RC)
+
+         ! Seed var_opts fresh from collection defaults for every iteration so that
+         ! per-variable settings from one entry do not bleed into the next.
+         var_opts%accumulation_type = coll_opts%accumulation_type
+         var_opts%regrid_param      = coll_opts%regrid_param
+         if (allocated(var_opts%typekind)) deallocate(var_opts%typekind)
+         if (allocated(coll_opts%typekind)) var_opts%typekind = coll_opts%typekind
+         if (allocated(var_opts%units)) deallocate(var_opts%units)
+
+         ! Apply any per-variable overrides present in the YAML entry.
+         call parse_var_options(iter, var_opts, _RC)
+
+         ! Validate: a per-variable entry must not revert accumulation_type to
+         ! instantaneous when the collection-level mode is non-instantaneous,
+         ! because the entire collection's statistics machinery is set up for
+         ! the collection-level mode.
+         _ASSERT(coll_opts%accumulation_type == KEY_INSTANTANEOUS .or. &
+                 var_opts%accumulation_type /= KEY_INSTANTANEOUS, &
+                 'Cannot override accumulation_type to instantaneous for an individual ' // &
+                 'variable when the collection accumulation_type is non-instantaneous')
+
+         ! Validate: per-var cannot override typekind when collection specifies one.
+         if (allocated(coll_opts%typekind)) then
+            _ASSERT(var_opts%typekind == coll_opts%typekind, &
+                    'Cannot override typekind for an individual variable ' // &
+                    'when the collection specifies typekind')
+         end if
+
+         call add_var_specs(gridcomp, short_name, alias, var_opts, _RC)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine register_imports
 
    subroutine add_var_specs(gridcomp, short_name, alias, opts, rc)
-      type(ESMF_GridComp), intent(inout) :: gridcomp
-      character(len=*), intent(in) :: short_name
-      character(len=*), intent(in) :: alias
-      type(HistoryOptions), intent(in) :: opts
+      type(ESMF_GridComp),  intent(inout) :: gridcomp
+      character(len=*),     intent(in)    :: short_name
+      character(len=*),     intent(in)    :: alias
+      type(VarOptions),     intent(in)    :: opts
       integer, optional, intent(out) :: rc
       integer :: status, slash_loc
       type(ESMF_StateItem_Flag) :: item_type
@@ -276,43 +307,55 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_var_specs
 
-   subroutine parse_options_hconfig(hconfig, options, rc)
-      type(ESMF_HConfig), intent(in) :: hconfig
-      class(HistoryOptions), intent(inout) :: options
-      integer, optional, intent(out) :: rc
+   subroutine parse_collection_options(hconfig, coll_opts, rc)
+      type(ESMF_HConfig),      intent(in)  :: hconfig
+      type(HistoryOptionsBase), intent(out) :: coll_opts
+      integer, optional,       intent(out) :: rc
       integer :: status
 
-      call parse_frequency_aspect_options(hconfig, options, _RC)
-      call parse_units_aspect_options(hconfig, options, _RC)
-      call parse_typekind_aspect_options(hconfig, options, _RC)
-      call parse_regridder_option(hconfig, options, _RC)
+      ! Initialize defaults so callers always receive a fully-defined struct even
+      ! when optional YAML keys are absent.
+      coll_opts%accumulation_type = KEY_INSTANTANEOUS
+      coll_opts%regrid_param = mapl_generate_esmf_regrid_param(MAPL_REGRID_METHOD_BILINEAR, ESMF_TYPEKIND_R4, _RC)
+
+      call parse_accumulation_type_option(hconfig, coll_opts, _RC)
+      call parse_typekind_aspect_options(hconfig, coll_opts, _RC)
+      call parse_regridder_option(hconfig, coll_opts, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine parse_options_hconfig
+   end subroutine parse_collection_options
 
-   subroutine parse_options_iter(iter, options, rc)
-      type(ESMF_HConfigIter), intent(in) :: iter
-      class(HistoryOptions), intent(inout) :: options
-      integer, optional, intent(out) :: rc
+   subroutine parse_var_options(iter, var_opts, rc)
+      type(ESMF_HConfigIter), intent(in)    :: iter
+      type(VarOptions),       intent(inout) :: var_opts  ! inout: already seeded with collection defaults
+      integer, optional,      intent(out)   :: rc
       integer :: status
       type(ESMF_HConfig) :: hconfig
+      logical :: hasKey
 
       hconfig = ESMF_HConfigCreateAtMapVal(iter, _RC)
-      call parse_options(hconfig, options, _RC)
-      call ESMF_HConfigDestroy(hconfig)
+
+      call parse_units_aspect_options(hconfig, var_opts, _RC)
+      call parse_typekind_aspect_options(hconfig, var_opts, _RC)
+      call parse_regridder_option(hconfig, var_opts, _RC)
+
+      ! accumulation_type is parsed directly from the var map value (not nested under
+      ! time_spec as it is at the collection level).
+      hasKey = ESMF_HConfigIsDefined(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
+      if (hasKey) var_opts%accumulation_type = ESMF_HConfigAsString(hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
+
+      call ESMF_HConfigDestroy(hconfig, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine parse_options_iter
+   end subroutine parse_var_options
 
-   subroutine parse_frequency_aspect_options(hconfig, options, rc)
-      type(ESMF_HConfig), intent(in) :: hconfig
-      class(HistoryOptions), intent(inout) :: options
+   subroutine parse_accumulation_type_option(hconfig, options, rc)
+      type(ESMF_HConfig),        intent(in)    :: hconfig
+      class(HistoryOptionsBase), intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_HConfig) :: time_iter
       logical :: hasKey
-      character(len=:), allocatable :: mapVal
-      type(ESMF_TimeInterval) :: timeStep
 
       hasKey = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIME_SPEC, _RC)
       _RETURN_UNLESS(hasKey)
@@ -324,21 +367,14 @@ contains
          options%accumulation_type = ESMF_HConfigAsString(time_iter, keyString=KEY_ACCUMULATION_TYPE, _RC)
       end if
 
-      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_TIMESTEP, _RC)
-      if(hasKey) then
-         mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_TIMESTEP, _RC)
-         call ESMF_TimeIntervalSet(timeStep, timeIntervalString=mapVal, _RC)
-         options%timeStep = timeStep
-      end if
-
       call ESMF_HConfigDestroy(time_iter, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine parse_frequency_aspect_options
+   end subroutine parse_accumulation_type_option
 
    subroutine parse_units_aspect_options(hconfig, options, rc)
-      type(ESMF_HConfig), intent(in) :: hconfig
-      class(HistoryOptions), intent(inout) :: options
+      type(ESMF_HConfig), intent(in)    :: hconfig
+      type(VarOptions),   intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: hasKey
@@ -353,8 +389,8 @@ contains
    end subroutine parse_units_aspect_options
 
    subroutine parse_typekind_aspect_options(hconfig, options, rc)
-      type(ESMF_HConfig), intent(in) :: hconfig
-      class(HistoryOptions), intent(inout) :: options
+      type(ESMF_HConfig),         intent(in)    :: hconfig
+      class(HistoryOptionsBase),  intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: hasKey
@@ -390,8 +426,10 @@ contains
       _ASSERT(len(tk_string) >= ML, 'tk_string is too short.')
       do i=1, size(CODES)
          tk_found = index(tk_string, trim(CODES(i))) > 0
-         if(tk_found) typekind = TK(i)
-         exit
+         if(tk_found) then
+            typekind = TK(i)
+            exit
+         end if
       end do
 
       if(present(found)) then
@@ -476,16 +514,15 @@ contains
    end subroutine parse_compression_options
 
    subroutine parse_regridder_option(hconfig, options, rc)
-      type(ESMF_HConfig), intent(in) :: hconfig
-      class(HistoryOptions), intent(inout) :: options
-      integer, optional, intent(out) :: rc
+      type(ESMF_HConfig),        intent(in)    :: hconfig
+      class(HistoryOptionsBase), intent(inout) :: options
+      integer, optional,         intent(out)   :: rc
 
       integer :: status, regrid_method_int
       logical :: is_defined
       character(len=:), allocatable :: regrid_method_str
 
       is_defined = ESMF_HConfigIsDefined(hconfig, keyString=KEY_REGRID, _RC)
-      options%regrid_param = mapl_generate_esmf_regrid_param(MAPL_REGRID_METHOD_BILINEAR, ESMF_TYPEKIND_R4, _RC)
       if (is_defined) then
          regrid_method_str = ESMF_HConfigAsString(hconfig, keyString=KEY_REGRID, _RC)
          regrid_method_int = mapl_regrid_method_string_to_int(regrid_method_str)

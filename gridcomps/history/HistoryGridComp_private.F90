@@ -2,7 +2,7 @@
 
 module mapl_HistoryGridComp_private_mod
    use MAPL
-   use mapl_esmf_info_keys_mod, only: VAR_LIST_KEY, KEY_ACCUMULATION_TYPE
+   use mapl_esmf_info_keys_mod, only: VAR_LIST_KEY, KEY_ACCUMULATION_TYPE, KEY_INSTANTANEOUS
    use mapl_HistoryUtilities_mod
    use mapl_StatisticsGridComp_mod, only: statistics_setServices => setServices
    use esmf
@@ -86,10 +86,10 @@ contains
       type(ESMF_HConfig), intent(in) :: child_hconfig
       integer, intent(out) :: rc
 
-      integer :: status
-      type(ESMF_HConfig) :: time_hconfig, stats_hconfig, var_list
-      logical :: has_mode, has_frequency, has_ref_datetime
-      character(len=:), allocatable :: mode, ref_datetime, frequency, short_name, name_in_comp
+       integer :: status
+       type(ESMF_HConfig) :: time_hconfig, stats_hconfig, var_list, var_hconfig
+       logical :: has_mode, has_frequency, has_ref_datetime, has_var_mode
+       character(len=:), allocatable :: mode, effective_mode, var_mode, ref_datetime, frequency, short_name, name_in_comp
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: stat_item, stats_list
 
@@ -100,7 +100,7 @@ contains
       _RETURN_UNLESS(has_mode)
 
       mode = ESMF_HConfigAsString(time_hconfig, keyString='mode', _RC)
-      _RETURN_IF(mode == 'instantaneous')
+       _RETURN_IF(mode == KEY_INSTANTANEOUS)
       _ASSERT(has_frequency, 'requested statitics performed on collection: '//child_name//' but did not provide frequency of the collection')
 
       stats_hconfig = ESMF_HConfigCreate(content='{}',_RC)
@@ -117,13 +117,29 @@ contains
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
       iter_end = ESMF_HConfigIterEnd(var_list,_RC)
       iter = iter_begin
-      do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
-         _VERIFY(status)
-         call parse_item(iter, short_name=short_name, name_in_comp=name_in_comp, _RC)
-         stat_item = create_stats_entry(short_name, mode, frequency, ref_datetime, _RC)
-         call ESMF_HConfigAdd(stats_list, stat_item, _RC)
-         call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
-      enddo
+       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
+          _VERIFY(status)
+          call parse_item(iter, short_name=short_name, name_in_comp=name_in_comp, _RC)
+
+          ! Check for a per-variable mode override in the var_list entry.
+          ! Because we only reach this code path when the collection mode is
+          ! non-instantaneous, overriding to instantaneous is always an error.
+          effective_mode = mode
+          var_hconfig = ESMF_HConfigCreateAtMapVal(iter, _RC)
+          has_var_mode = ESMF_HConfigIsDefined(var_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
+          if (has_var_mode) then
+             var_mode = ESMF_HConfigAsString(var_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
+             _ASSERT(var_mode /= KEY_INSTANTANEOUS, &
+                     'Cannot override mode to instantaneous for an individual variable ' // &
+                     'when the collection mode is non-instantaneous')
+             effective_mode = var_mode
+          end if
+          call ESMF_HConfigDestroy(var_hconfig, _RC)
+
+          stat_item = create_stats_entry(short_name, effective_mode, frequency, ref_datetime, _RC)
+          call ESMF_HConfigAdd(stats_list, stat_item, _RC)
+          call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
+       enddo
       call ESMF_HConfigAdd(stats_hconfig, stats_list, addKeyString='stats', _RC)
       call MAPL_GridCompAddChild(gridcomp,'stats_'//child_name, statistics_setServices, stats_hconfig, _RC)
 
