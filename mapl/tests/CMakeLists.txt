@@ -5,7 +5,7 @@ add_pfunit_ctest(MAPL.mapl.server_utilities
   LINK_LIBRARIES MAPL MAPL.pfunit
   EXTRA_INITIALIZE Initialize
   EXTRA_USE mapl_pFUnit_Initialize_mod
-  MAX_PES 1
+  MAX_PES 8
 )
 set_target_properties(MAPL.mapl.server_utilities PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 target_include_directories(MAPL.mapl.server_utilities PRIVATE
