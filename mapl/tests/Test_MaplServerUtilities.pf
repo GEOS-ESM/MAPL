@@ -1,0 +1,103 @@
+#include "MAPL_TestErr.h"
+
+module Test_MaplServerUtilities
+   use mapl_MaplServerUtilities_mod
+   use pfunit
+   implicit none
+
+contains
+
+   !----------------------------------------------------------------------
+   ! pets_on_ssis — pure function, no MPI/ESMF dependency
+   !----------------------------------------------------------------------
+
+   @test
+   subroutine test_pets_on_ssis_single_ssi()
+      integer, allocatable :: pets(:)
+      pets = pets_on_ssis([0,0,0], ssi_lo=0, ssi_hi=1)
+      @assertEqual([0,1,2], pets)
+   end subroutine test_pets_on_ssis_single_ssi
+
+   @test
+   subroutine test_pets_on_ssis_second_ssi()
+      integer, allocatable :: pets(:)
+      pets = pets_on_ssis([0,0,1,1], ssi_lo=1, ssi_hi=2)
+      @assertEqual([2,3], pets)
+   end subroutine test_pets_on_ssis_second_ssi
+
+   @test
+   subroutine test_pets_on_ssis_middle_ssi()
+      integer, allocatable :: pets(:)
+      pets = pets_on_ssis([0,0,1,1,2,2], ssi_lo=1, ssi_hi=2)
+      @assertEqual([2,3], pets)
+   end subroutine test_pets_on_ssis_middle_ssi
+
+   @test
+   subroutine test_pets_on_ssis_empty_range()
+      integer, allocatable :: pets(:)
+      pets = pets_on_ssis([0,0,1,1], ssi_lo=2, ssi_hi=3)
+      @assertEqual(0, size(pets))
+   end subroutine test_pets_on_ssis_empty_range
+
+   @test
+   subroutine test_pets_on_ssis_full_range()
+      integer, allocatable :: pets(:)
+      pets = pets_on_ssis([0,0,1,1], ssi_lo=0, ssi_hi=2)
+      @assertEqual([0,1,2,3], pets)
+   end subroutine test_pets_on_ssis_full_range
+
+   !----------------------------------------------------------------------
+   ! get_num_ssis
+   !----------------------------------------------------------------------
+
+   @test
+   subroutine test_get_num_ssis_two_ssis()
+      integer :: n, rc
+      n = get_num_ssis(petCount=4, ssiMap=[0,0,1,1], ssiOffset=0, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual(2, n)
+   end subroutine test_get_num_ssis_two_ssis
+
+   @test
+   subroutine test_get_num_ssis_partial_ssi()
+      ! Only 2 of 4 PETs needed; all on ssi 0 — result is 1 SSI.
+      integer :: n, rc
+      n = get_num_ssis(petCount=2, ssiMap=[0,0,1,1], ssiOffset=0, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual(1, n)
+   end subroutine test_get_num_ssis_partial_ssi
+
+   @test
+   subroutine test_get_num_ssis_with_offset()
+      ! SSI 1 has 2 PETs; starting from ssiOffset=1, petCount=2 fits in 1 SSI.
+      integer :: n, rc
+      n = get_num_ssis(petCount=2, ssiMap=[0,0,1,1,2,2], ssiOffset=1, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual(1, n)
+   end subroutine test_get_num_ssis_with_offset
+
+   @test
+   subroutine test_get_num_ssis_one_per_ssi()
+      integer :: n, rc
+      n = get_num_ssis(petCount=1, ssiMap=[0,1,2,3], ssiOffset=0, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual(1, n)
+   end subroutine test_get_num_ssis_one_per_ssi
+
+   @test
+   subroutine test_get_num_ssis_all_unique_ssis()
+      integer :: n, rc
+      n = get_num_ssis(petCount=4, ssiMap=[0,1,2,3], ssiOffset=0, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual(4, n)
+   end subroutine test_get_num_ssis_all_unique_ssis
+
+   @test
+   subroutine test_get_num_ssis_error_insufficient_resources()
+      integer :: n, rc
+      ! Only 2 PETs available but petCount=5 requested.
+      n = get_num_ssis(petCount=5, ssiMap=[0,0], ssiOffset=0, rc=rc)
+      @assertExceptionRaised('Insufficient resources for running model.')
+   end subroutine test_get_num_ssis_error_insufficient_resources
+
+end module Test_MaplServerUtilities
