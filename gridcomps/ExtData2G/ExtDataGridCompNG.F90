@@ -265,7 +265,6 @@ CONTAINS
    type(ESMF_Time) :: run_range(2)
    !class(logger), pointer :: lgr
 
-   call ESMF_ClockGet(clock, starttime=run_range(1), stoptime=run_range(2), _RC)
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
    call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, vm=vm, _RC )
@@ -400,6 +399,7 @@ CONTAINS
       end if
    enddo
 
+   call ESMF_ClockGet(clock, currtime=run_range(1), stoptime=run_range(2), _RC)
 !  now lets establish the horizonal and vertical grid for each component, replaces getlevs
    do i=1,self%primary%import_names%size()
 
