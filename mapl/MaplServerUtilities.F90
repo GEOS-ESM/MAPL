@@ -51,6 +51,8 @@ contains
          if (found >= petCount) exit
       end do
 
+      print*, 'found: ',found, petcount
+
       _ASSERT(found >= petCount, 'Insufficient resources for running model.')
       num_ssis = 1 + (n - ssiOffset)
 
