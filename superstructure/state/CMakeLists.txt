@@ -6,6 +6,7 @@ set (srcs
     StateGetPointer.F90
     StateGetGeom.F90
     StateAddMethod.F90
+    StateMerge.F90
     StateUtils.F90
     StateArithmeticParser.F90
     StateMasking.F90

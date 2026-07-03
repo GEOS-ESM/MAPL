@@ -6,7 +6,8 @@ set (test_srcs
   Test_StateArithmetic.pf
   Test_StateDestroy.pf
   Test_StateGetBundle.pf
-  Test_StateGetGeom.pf)
+  Test_StateGetGeom.pf
+  Test_StateMerge.pf)
 
 add_pfunit_ctest(MAPL.state.tests
   TEST_SOURCES ${test_srcs}
