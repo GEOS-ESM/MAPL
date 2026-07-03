@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changed default to false for run_extdata and run_history in CapGridComp, and modified the necessary yaml files for all tests to pass
 - unit tests for server initialization logic (#5214)
 - Refactored server initialization (#5214)
   - added tests
