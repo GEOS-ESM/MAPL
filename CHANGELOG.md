@@ -11,10 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- unit tests for server initialization logic (#5214)
+- Added `MAPL_StateMerge` to combine two `ESMF_State` objects into one without allocating new field memory
 
 ### Changed
 
+- unit tests for server initialization logic (#5214)
 - Refactored server initialization (#5214)
   - added tests
 - Refactored `pFIO_ClientManagerMod`: replaced `ClientThreadVector` pool with a
