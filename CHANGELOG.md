@@ -11,11 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- unit tests for server initialization logic (#5214)
+- Added `MAPL_StateMerge` to combine two `ESMF_State` objects into one without allocating new field memory
 
 ### Changed
 
 - Added ability to specify per-variable units, precision, averaging type, and regridding method for fields in a history collection
+- Changed default to false for run_extdata and run_history in CapGridComp, and modified the necessary yaml files for all tests to pass
+- unit tests for server initialization logic (#5214)
 - Refactored server initialization (#5214)
   - added tests
 - Refactored `pFIO_ClientManagerMod`: replaced `ClientThreadVector` pool with a

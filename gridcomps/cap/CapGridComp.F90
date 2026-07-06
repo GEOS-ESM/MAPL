@@ -41,8 +41,8 @@ contains
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
       ! Disable extdata or history
-      call MAPL_GridCompGetResource(gridcomp, keystring='run_extdata', value=cap%run_extdata, default=.true., _RC)
-      call MAPL_GridCompGetResource(gridcomp, keystring='run_history', value=cap%run_history, default=.true., _RC)
+      call MAPL_GridCompGetResource(gridcomp, keystring='run_extdata', value=cap%run_extdata, default=.false., _RC)
+      call MAPL_GridCompGetResource(gridcomp, keystring='run_history', value=cap%run_history, default=.false., _RC)
 
       ! Get Names of children
       call MAPL_GridCompGetResource(gridcomp, keystring='extdata_name', value=cap%extdata_name, default='EXTDATA', _RC)
