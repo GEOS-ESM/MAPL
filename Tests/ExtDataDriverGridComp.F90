@@ -846,7 +846,7 @@ contains
     integer                  :: status
     integer        :: datetime(2)
     type(ESMF_Calendar) :: cal
-    type(ESMF_Time)          :: CurrTime
+    type(ESMF_Time)          :: CurrTime, StopTime
     type(ESMF_TimeInterval) :: timeInterval, duration
 
 
@@ -909,6 +909,9 @@ contains
          rc = STATUS  )
     _VERIFY(STATUS)
     nsteps = duration/timeInterval
+    StopTime = currTime+duration
+    call ESMF_ClockSet(clock, stopTime=stopTime, _RC)
+  
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ClockInit
