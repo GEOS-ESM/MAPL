@@ -262,16 +262,11 @@ contains
          ! instantaneous when the collection-level mode is non-instantaneous,
          ! because the entire collection's statistics machinery is set up for
          ! the collection-level mode.
-         _ASSERT(coll_opts%accumulation_type == KEY_INSTANTANEOUS .or. &
-                 var_opts%accumulation_type /= KEY_INSTANTANEOUS, &
-                 'Cannot override accumulation_type to instantaneous for an individual ' // &
-                 'variable when the collection accumulation_type is non-instantaneous')
+         _ASSERT(coll_opts%accumulation_type == KEY_INSTANTANEOUS .or. var_opts%accumulation_type /= KEY_INSTANTANEOUS, 'Cannot override accumulation_type to instantaneous for an individual variable when the collection accumulation_type is non-instantaneous')
 
          ! Validate: per-var cannot override typekind when collection specifies one.
          if (allocated(coll_opts%typekind)) then
-            _ASSERT(var_opts%typekind == coll_opts%typekind, &
-                    'Cannot override typekind for an individual variable ' // &
-                    'when the collection specifies typekind')
+            _ASSERT(var_opts%typekind == coll_opts%typekind, 'Cannot override typekind for an individual variable when the collection specifies typekind')
          end if
 
          call add_var_specs(gridcomp, short_name, alias, var_opts, _RC)

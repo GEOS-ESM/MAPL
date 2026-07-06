@@ -129,9 +129,7 @@ contains
           has_var_mode = ESMF_HConfigIsDefined(var_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
           if (has_var_mode) then
              var_mode = ESMF_HConfigAsString(var_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
-             _ASSERT(var_mode /= KEY_INSTANTANEOUS, &
-                     'Cannot override mode to instantaneous for an individual variable ' // &
-                     'when the collection mode is non-instantaneous')
+             _ASSERT(var_mode /= KEY_INSTANTANEOUS, 'Cannot override mode to instantaneous for an individual variable when the collection mode is non-instantaneous')
              effective_mode = var_mode
           end if
           call ESMF_HConfigDestroy(var_hconfig, _RC)
