@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added ability to specify per-variable units, precision, averaging type, and regridding method for fields in a history collection
 - Refactored server initialization (#5214)
   - added tests
 - Refactored `pFIO_ClientManagerMod`: replaced `ClientThreadVector` pool with a
