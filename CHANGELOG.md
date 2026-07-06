@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update ExtData to not initialize primary items in multi rule case when the use this rule range does not overlap execution range
 - Update CI to use Baselibs 8.32.0 and circleci-tools orb v5
 - Update `components.yaml`
   - ESMA_env v5.24.0
