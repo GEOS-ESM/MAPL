@@ -134,7 +134,7 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine run
 
-   subroutine run_children_phases_(gridcomp, hconfig, rc)
+   recursive subroutine run_children_phases_(gridcomp, hconfig, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(out) :: rc
