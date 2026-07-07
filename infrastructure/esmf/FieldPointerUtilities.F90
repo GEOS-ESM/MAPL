@@ -36,6 +36,8 @@ module mapl_FieldPointerUtilities_mod
       module procedure assign_fptr_r8_rank2
       module procedure assign_fptr_r4_rank3
       module procedure assign_fptr_r8_rank3
+      module procedure assign_fptr_r4_rank4
+      module procedure assign_fptr_r8_rank4
       module procedure assign_fptr_i4_rank1
       module procedure assign_fptr_i8_rank1
    end interface assign_fptr
@@ -204,6 +206,42 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_r8_rank3
+
+   subroutine assign_fptr_r4_rank4(x, fp_shape, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(ESMF_KIND_I8), intent(in) :: fp_shape(:)
+      real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:,:,:,:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer :: status
+
+      call check_typekind(x, ESMF_TYPEKIND_R4, _RC)
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r4_rank4
+
+   subroutine assign_fptr_r8_rank4(x, fp_shape, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(ESMF_KIND_I8), intent(in) :: fp_shape(:)
+      real(kind=ESMF_KIND_R8), pointer, intent(out) :: fptr(:,:,:,:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer :: status
+
+      call check_typekind(x, ESMF_TYPEKIND_R8, _RC)
+      _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_r8_rank4
 
    subroutine get_cptr(x, cptr, rc)
       type(ESMF_Field), intent(inout) :: x
