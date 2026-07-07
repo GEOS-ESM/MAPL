@@ -1,8 +1,8 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-module Test_FieldApply
-   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldApply
+module Test_FieldApplyUserRoutine
+   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldApplyUserRoutine
    use mapl_field_api, only: MAPL_FieldGetPointerToSlice
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use mapl_UngriddedDims_mod, only: UngriddedDims
@@ -72,7 +72,7 @@ contains
       field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
 
       g_call_count = 0
-      call MAPL_FieldApply(field, count_slices, _RC)
+      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(1, g_call_count, 'A 2D field should have exactly one slice.')
 
       call ESMF_FieldDestroy(field, _RC)
@@ -92,7 +92,7 @@ contains
            ungridded_dims=UngriddedDims([4]), _RC)
 
       g_call_count = 0
-      call MAPL_FieldApply(field, count_slices, _RC)
+      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(4, g_call_count, 'A field with ungridded extent 4 should have 4 slices.')
 
       call ESMF_FieldDestroy(field, _RC)
@@ -112,7 +112,7 @@ contains
            ungridded_dims=UngriddedDims([3, 4]), _RC)
 
       g_call_count = 0
-      call MAPL_FieldApply(field, count_slices, _RC)
+      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(12, g_call_count, 'A field with ungridded extents 3x4 should have 12 slices.')
 
       call ESMF_FieldDestroy(field, _RC)
@@ -133,7 +133,7 @@ contains
            ungridded_dims=UngriddedDims([2]), _RC)
 
       g_call_count = 0
-      call MAPL_FieldApply(field, count_slices, _RC)
+      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(2, g_call_count, 'R8 field with ungridded extent 2 should have 2 slices.')
 
       call ESMF_FieldDestroy(field, _RC)
@@ -182,7 +182,7 @@ contains
 
       g_call_count = 0
       userrc = 0
-      call MAPL_FieldApply(field, fail_on_second, userrc=userrc, _RC)
+      call MAPL_FieldApplyUserRoutine(field, fail_on_second, userrc=userrc, _RC)
       @assertEqual(USER_ERROR, userrc, 'User return code should be propagated.')
       @assertEqual(FAIL_SLICE, g_call_count, 'Iteration should stop at the failing slice.')
 
@@ -190,4 +190,4 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_userrc_propagation
 
-end module Test_FieldApply
+end module Test_FieldApplyUserRoutine

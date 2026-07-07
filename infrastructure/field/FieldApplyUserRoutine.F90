@@ -18,7 +18,7 @@
 !     field.  The slice is passed as an unlimited-polymorphic pointer so
 !     that a single interface handles both R4 and R8 fields; the user
 !     routine recovers the concrete kind with SELECT TYPE.
-module mapl_FieldApply_mod
+module mapl_FieldApplyUserRoutine_mod
 
    use ESMF, only: ESMF_Field, ESMF_FieldGet
    use ESMF, only: ESMF_FieldStatus_Flag, ESMF_FIELDSTATUS_COMPLETE
@@ -140,4 +140,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine FieldApplyUserRoutine
 
-end module mapl_FieldApply_mod
+end module mapl_FieldApplyUserRoutine_mod
