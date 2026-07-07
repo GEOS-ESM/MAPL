@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added ability to specify per-variable units, precision, averaging type, and regridding method for fields in a history collection
 - Changed default to false for run_extdata and run_history in CapGridComp, and modified the necessary yaml files for all tests to pass
 - unit tests for server initialization logic (#5214)
 - Refactored server initialization (#5214)
