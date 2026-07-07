@@ -159,14 +159,13 @@ contains
                child_name = ESMF_HConfigAsStringMapKey(iter, _RC)
                child_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
                has_run_phases = ESMF_HConfigIsDefined(child_cfg, keyString=KEY_RUN_PHASES, _RC)
+               phase_names = ['run']
                if (has_run_phases) then
                   phase_names = ESMF_HConfigAsStringSeq(child_cfg, keyString=KEY_RUN_PHASES, stringLen=ESMF_MAXSTR, _RC)
-                  do i = 1, size(phase_names)
-                     call MAPL_GridCompRunChild(gridcomp, child_name=trim(child_name), phase_name=trim(phase_names(i)), _RC)
-                  end do
-               else
-                  call MAPL_GridCompRunChild(gridcomp, child_name=trim(child_name), phase_name='run', _RC)
                end if
+               do i = 1, size(phase_names)
+                  call MAPL_GridCompRunChild(gridcomp, child_name=trim(child_name), phase_name=trim(phase_names(i)), _RC)
+               end do
             end do
             call ESMF_HConfigDestroy(mapl_cfg, _RC)
             _RETURN(_SUCCESS)
