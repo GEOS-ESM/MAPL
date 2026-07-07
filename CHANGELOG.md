@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Refactored `pFIO_ClientManagerMod` (#5234): replaced module-level `i_client`/`o_client`
+  variables with a `StringClientThreadMap` (public, PROTECTED, TARGET) and a
+  `get_client_thread(name)` accessor; updated all call sites in MAPL to use the
+  accessor; exposed `mapl_get_client_thread` through `mapl_pfio_api`.
 - Added ability to specify per-variable units, precision, averaging type, and regridding method for fields in a history collection
 - Changed default to false for run_extdata and run_history in CapGridComp, and modified the necessary yaml files for all tests to pass
 - unit tests for server initialization logic (#5214)

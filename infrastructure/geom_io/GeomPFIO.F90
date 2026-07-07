@@ -3,7 +3,7 @@
 module mapl_GeomPFIO_mod
    use mapl_ErrorHandling_mod
    use ESMF
-   use pfio, only: i_Client, o_Client, StringVariableMap, ArrayReference, FileMetadata, Variable
+   use pfio, only: get_client_thread, ClientThread, StringVariableMap, ArrayReference, FileMetadata, Variable
    use mapl_geom_api
    use mapl_SharedIO_mod
    implicit none
@@ -70,10 +70,12 @@ contains
       integer :: status
       type(StringVariableMap) :: var_map
       type(Variable) :: time_var
+      class(ClientThread), pointer :: client
 
       time_var = create_time_variable(time, _RC)
       call var_map%insert('time',time_var)
-      call o_Client%modify_metadata(this%collection_id, var_map=var_map, _RC)
+      client => get_client_thread('o_client', _RC)
+      call client%modify_metadata(this%collection_id, var_map=var_map, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -88,9 +90,11 @@ contains
       integer :: status
       type(ArrayReference) :: ref
       integer :: request_id
+      class(ClientThread), pointer :: client
 
       ref = ArrayReference(times)
-      request_id = o_Client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
+      client => get_client_thread('o_client', _RC)
+      request_id = client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine
@@ -102,9 +106,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(ClientThread), pointer :: client
 
       this%esmfgeom = esmfgeom
-      this%collection_id = o_Client%add_data_collection(metadata, _RC)
+      client => get_client_thread('o_client', _RC)
+      this%collection_id = client%add_data_collection(metadata, _RC)
       this%file_metadata = metadata
 
       _RETURN(_SUCCESS)
@@ -117,9 +123,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(ClientThread), pointer :: client
 
       this%esmfgeom = esmfgeom
-      this%collection_id = i_Client%add_data_collection(file_name, _RC)
+      client => get_client_thread('i_client', _RC)
+      this%collection_id = client%add_data_collection(file_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init_with_filename

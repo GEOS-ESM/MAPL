@@ -75,6 +75,7 @@ set (srcs
   ClientThread.F90
   FastClientThread.F90
   ClientThreadVector.F90
+  StringClientThreadMap.F90
   ClientManager.F90
   ExtDataCollection.F90
   HistoryCollection.F90

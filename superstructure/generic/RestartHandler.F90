@@ -12,7 +12,7 @@ module mapl_RestartHandler_mod
    use mapl_state_api, only: MAPL_StateGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleFilter
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
-   use pFIO, only: i_Client, o_Client
+   use pFIO, only: get_client_thread, ClientThread
    use pFlogger, only: logging, logger
 
    implicit none(type,external)
@@ -106,6 +106,7 @@ contains
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: writer
       integer :: status
+      class(ClientThread), pointer :: o_client
 
       metadata = bundle_to_metadata(bundle, this%gridcomp_geom, _RC)
       allocate(writer, source=make_geom_pfio(metadata), _STAT)
@@ -113,8 +114,9 @@ contains
       call writer%update_time_on_server(this%current_time, _RC)
       ! TODO: no-op if bundle is empty, or should we skip empty bundles?
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
-       call o_Client%done_collective_stage()
-       call o_Client%post_wait_all()
+      o_client => get_client_thread('o_client', _RC)
+      call o_client%done_collective_stage()
+      call o_client%post_wait_all()
 
       _RETURN(_SUCCESS)
    end subroutine write_bundle_
@@ -129,6 +131,7 @@ contains
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: reader
       integer :: status
+      class(ClientThread), pointer :: i_client
 
       call file_formatter%open(filename, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
@@ -136,8 +139,9 @@ contains
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
       call reader%initialize(filename, this%gridcomp_geom, _RC)
       call reader%request_data_from_file(filename, bundle, _RC)
-       call i_Client%done_collective_prefetch()
-       call i_Client%wait_all()
+      i_client => get_client_thread('i_client', _RC)
+      call i_client%done_collective_prefetch()
+      call i_client%wait_all()
 
       _RETURN(_SUCCESS)
    end subroutine read_bundle_
