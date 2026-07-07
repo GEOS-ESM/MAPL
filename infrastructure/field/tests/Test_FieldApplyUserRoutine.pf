@@ -91,9 +91,10 @@ contains
       class(mapl_VerticalGrid), pointer :: vgrid
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
       real, allocatable :: levels(:)
+      integer, parameter :: LEVEL_SPACING = 100  ! arbitrary distinct pressures (Pa) for the test vgrid
       integer :: i, status
 
-      levels = [(real(100*i), i=1, num_layers)]
+      levels = [(real(LEVEL_SPACING*i), i=1, num_layers)]
       vgrid_spec = FixedLevelsVerticalGridSpec(physical_dimension='air_pressure', levels=levels, units='Pa')
       call vgrid_local%initialize(vgrid_spec)
       vgrid_manager => mapl_get_vertical_grid_manager()

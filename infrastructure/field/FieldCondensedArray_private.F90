@@ -73,6 +73,12 @@ contains
 
       rank = size(localElementCount)
       grid_dims = pack(gridToFieldMap, gridToFieldMap /= 0)
+      ! Grid dims must map to the leading field dimensions (before any
+      ! ungridded dims); this is the same ordering check used by
+      ! get_fptr_shape_private.  Combined with the n_spatial == 3 check
+      ! below, it guarantees that field dimensions 1..3 are the (grid +
+      ! vertical) spatial dimensions, so they can be read directly from
+      ! localElementCount(1:3) regardless of the grid-dim ordering.
       _ASSERT(all(grid_dims <= size(grid_dims)), 'MAPL expects geom dims before ungridded.')
       if (has_vertical) vert_dim = 1
       if (size(grid_dims) > 0) vert_dim = maxval(grid_dims) + vert_dim
