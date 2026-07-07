@@ -1,0 +1,103 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_FieldBundleApply
+   use mapl_field_api, only: MAPL_FieldCreate
+   use mapl_field_bundle_api, only: MAPL_FieldBundleApply
+   use mapl_UngriddedDims_mod, only: UngriddedDims
+   use funit
+   use ESMF_TestMethod_mod
+   use esmf
+
+   implicit none(type,external)
+
+   integer :: g_call_count = 0
+   integer, parameter :: USER_ERROR = 23
+
+contains
+
+   subroutine count_slices(slice, rc)
+      class(*), pointer, intent(in) :: slice(:,:)
+      integer, optional, intent(out) :: rc
+      g_call_count = g_call_count + 1
+      select type (slice)
+      type is (real(kind=ESMF_KIND_R4))
+         slice = real(g_call_count, kind=ESMF_KIND_R4)
+      type is (real(kind=ESMF_KIND_R8))
+         slice = real(g_call_count, kind=ESMF_KIND_R8)
+      end select
+      if (present(rc)) rc = 0
+   end subroutine count_slices
+
+   subroutine fail_immediately(slice, rc)
+      class(*), pointer, intent(in) :: slice(:,:)
+      integer, optional, intent(out) :: rc
+      g_call_count = g_call_count + 1
+      if (present(rc)) rc = USER_ERROR
+      _UNUSED_DUMMY(slice)
+   end subroutine fail_immediately
+
+   function make_geom(rc) result(geom)
+      type(ESMF_Geom) :: geom
+      integer, optional, intent(out) :: rc
+      type(ESMF_Grid) :: grid
+      integer :: status
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[3,2], _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+      _RETURN(_SUCCESS)
+   end function make_geom
+
+   ! The user routine is applied to every slice of every field in the
+   ! bundle.  Here: a 2D field (1 slice) + a field with ungridded extent
+   ! 3 (3 slices) = 4 total invocations.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bundle_apply(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_geom(_RC)
+      field1 = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='f1', _RC)
+      field2 = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='f2', &
+           ungridded_dims=UngriddedDims([3]), _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
+
+      g_call_count = 0
+      call MAPL_FieldBundleApply(bundle, count_slices, _RC)
+      @assertEqual(4, g_call_count, 'Expected 1 + 3 = 4 slice invocations across the bundle.')
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_bundle_apply
+
+   ! A user error in the first field is propagated and stops iteration.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bundle_apply_userrc(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: field1, field2
+      type(ESMF_Geom) :: geom
+      integer :: status, userrc
+
+      geom = make_geom(_RC)
+      field1 = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='f1', _RC)
+      field2 = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='f2', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
+
+      g_call_count = 0
+      userrc = 0
+      call MAPL_FieldBundleApply(bundle, fail_immediately, userrc=userrc, _RC)
+      @assertEqual(USER_ERROR, userrc, 'User return code should be propagated from the bundle driver.')
+      @assertEqual(1, g_call_count, 'Iteration should stop at the first failing slice.')
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldDestroy(field1, _RC)
+      call ESMF_FieldDestroy(field2, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_bundle_apply_userrc
+
+end module Test_FieldBundleApply
