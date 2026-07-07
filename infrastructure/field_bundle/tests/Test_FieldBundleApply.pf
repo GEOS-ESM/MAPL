@@ -3,7 +3,7 @@
 
 module Test_FieldBundleApply
    use mapl_field_api, only: MAPL_FieldCreate
-   use mapl_field_bundle_api, only: MAPL_FieldBundleApply
+   use mapl_field_bundle_api, only: MAPL_FieldBundleApplyUserRoutine
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use funit
    use ESMF_TestMethod_mod
@@ -65,7 +65,7 @@ contains
       bundle = ESMF_FieldBundleCreate(fieldList=[field1, field2], _RC)
 
       g_call_count = 0
-      call MAPL_FieldBundleApply(bundle, count_slices, _RC)
+      call MAPL_FieldBundleApplyUserRoutine(bundle, count_slices, _RC)
       @assertEqual(4, g_call_count, 'Expected 1 + 3 = 4 slice invocations across the bundle.')
 
       call ESMF_FieldBundleDestroy(bundle, _RC)
@@ -90,7 +90,7 @@ contains
 
       g_call_count = 0
       userrc = 0
-      call MAPL_FieldBundleApply(bundle, fail_immediately, userrc=userrc, _RC)
+      call MAPL_FieldBundleApplyUserRoutine(bundle, fail_immediately, userrc=userrc, _RC)
       @assertEqual(USER_ERROR, userrc, 'User return code should be propagated from the bundle driver.')
       @assertEqual(1, g_call_count, 'Iteration should stop at the first failing slice.')
 

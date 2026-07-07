@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `MAPL_FieldApply`/`MAPL_FieldBundleApply` to apply a user routine to each 2D slice of a field (or every field in a bundle) with ungridded/vertical dimensions, plus `MAPL_FieldGetPointerToSlice` (overloaded for R4 and R8) for typed per-slice access
+- Added `MAPL_FieldApply`/`MAPL_FieldBundleApplyUserRoutine` to apply a user routine to each 2D slice of a field (or every field in a bundle) with ungridded/vertical dimensions, plus `MAPL_FieldGetPointerToSlice` (overloaded for R4 and R8) for typed per-slice access
 - Added `MAPL_StateMerge` to combine two `ESMF_State` objects into one without allocating new field memory
 
 ### Changed

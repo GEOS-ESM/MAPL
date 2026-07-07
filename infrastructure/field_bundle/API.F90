@@ -14,7 +14,7 @@ module mapl_field_bundle_api
    use mapl_FieldBundleMatch_mod, only: MAPL_FieldBundleSameData => FieldBundleSameData
    use mapl_FieldBundleSet_mod, only: MAPL_FieldBundleSet => FieldBundleSet
    use mapl_FieldBundleFilter_mod, only: MAPL_FieldBundleFilter => FieldBundleFilter
-   use mapl_FieldBundleApply_mod, only: MAPL_FieldBundleApply => FieldBundleApplyUserRoutine
+   use mapl_FieldBundleApply_mod, only: MAPL_FieldBundleApplyUserRoutine => FieldBundleApplyUserRoutine
 
    implicit none
    private
@@ -32,6 +32,6 @@ module mapl_field_bundle_api
    public :: MAPL_FieldBundlesAreAliased
    public :: MAPL_FieldBundleSet
    public :: MAPL_FieldBundleFilter
-   public :: MAPL_FieldBundleApply
+   public :: MAPL_FieldBundleApplyUserRoutine
 
 end module mapl_field_bundle_api
