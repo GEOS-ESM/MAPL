@@ -5,6 +5,7 @@ module mapl_pFUnit_Initialize_mod
 contains
    subroutine Initialize()
       use MAPL
+      use esmf, only: ESMF_GridComp
       use fArgParse
       use mapl_Throw_mod, only: MAPL_set_throw_method
       use MAPL_pFUnit_ThrowMod
@@ -15,6 +16,7 @@ contains
       type (StringUnlimitedMap), target :: options
       character(:), allocatable :: level_name
       class(*), pointer :: option
+      type(ESMF_GridComp), allocatable :: servers(:)
 
       call set_command_line_options()
 
@@ -24,6 +26,7 @@ contains
       end if
 
       call MAPL_initialize(level_name=level_name)
+      call MAPL_CreateServers(servers)
 
       call MAPL_set_throw_method(throw)
    contains
