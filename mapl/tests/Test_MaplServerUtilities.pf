@@ -2,6 +2,7 @@
 
 module Test_MaplServerUtilities
    use mapl_MaplServerUtilities_mod
+   use esmf
    use pfunit
    implicit none
 
@@ -99,5 +100,109 @@ contains
       n = get_num_ssis(petCount=5, ssiMap=[0,0], ssiOffset=0, rc=rc)
       @assertExceptionRaised('Insufficient resources for running model.')
    end subroutine test_get_num_ssis_error_insufficient_resources
+
+   !----------------------------------------------------------------------
+   ! get_ssis_per_server — wildcard '*' support (requires ESMF)
+   !----------------------------------------------------------------------
+
+   @test
+   subroutine test_ssis_per_server_single_integer()
+      type(ESMF_HConfig) :: hcfg(1)
+      integer, allocatable :: result(:)
+      integer :: rc
+
+      hcfg(1) = ESMF_HConfigCreate(content='num_nodes: 2', rc=rc)
+      @assertEqual(0, rc)
+
+      result = get_ssis_per_server(hcfg, ssiCount=4, num_model_ssis=1, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual([2], result)
+
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+   end subroutine test_ssis_per_server_single_integer
+
+   @test
+   subroutine test_ssis_per_server_two_integers()
+      type(ESMF_HConfig) :: hcfg(2)
+      integer, allocatable :: result(:)
+      integer :: rc
+
+      hcfg(1) = ESMF_HConfigCreate(content='num_nodes: 2', rc=rc)
+      @assertEqual(0, rc)
+      hcfg(2) = ESMF_HConfigCreate(content='num_nodes: 3', rc=rc)
+      @assertEqual(0, rc)
+
+      ! model=1, server1=2, server2=3 → fits in ssiCount=6
+      result = get_ssis_per_server(hcfg, ssiCount=6, num_model_ssis=1, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual([2, 3], result)
+
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+      call ESMF_HConfigDestroy(hcfg(2), rc=rc)
+   end subroutine test_ssis_per_server_two_integers
+
+   @test
+   subroutine test_ssis_per_server_wildcard_only()
+      type(ESMF_HConfig) :: hcfg(1)
+      integer, allocatable :: result(:)
+      integer :: rc
+
+      hcfg(1) = ESMF_HConfigCreate(content="num_nodes: '*'", rc=rc)
+      @assertEqual(0, rc)
+
+      ! model=1, wildcard claims ssiCount-1=3
+      result = get_ssis_per_server(hcfg, ssiCount=4, num_model_ssis=1, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual([3], result)
+
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+   end subroutine test_ssis_per_server_wildcard_only
+
+   @test
+   subroutine test_ssis_per_server_wildcard_last()
+      type(ESMF_HConfig) :: hcfg(2)
+      integer, allocatable :: result(:)
+      integer :: rc
+
+      hcfg(1) = ESMF_HConfigCreate(content='num_nodes: 2', rc=rc)
+      @assertEqual(0, rc)
+      hcfg(2) = ESMF_HConfigCreate(content="num_nodes: '*'", rc=rc)
+      @assertEqual(0, rc)
+
+      ! model=1, server1=2 used; wildcard claims 7-1-2=4
+      result = get_ssis_per_server(hcfg, ssiCount=7, num_model_ssis=1, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual([2, 4], result)
+
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+      call ESMF_HConfigDestroy(hcfg(2), rc=rc)
+   end subroutine test_ssis_per_server_wildcard_last
+
+   @test
+   subroutine test_ssis_per_server_wildcard_not_last()
+      ! '*' on first of two servers must fail.
+      type(ESMF_HConfig) :: hcfg(2)
+      integer, allocatable :: result(:)
+      integer :: rc
+
+      hcfg(1) = ESMF_HConfigCreate(content="num_nodes: '*'", rc=rc)
+      hcfg(2) = ESMF_HConfigCreate(content='num_nodes: 2', rc=rc)
+
+      result = get_ssis_per_server(hcfg, ssiCount=7, num_model_ssis=1, rc=rc)
+      @assertExceptionRaised("'*' for num_nodes is only valid for the last server")
+   end subroutine test_ssis_per_server_wildcard_not_last
+
+   @test
+   subroutine test_ssis_per_server_wildcard_oversubscribed()
+      ! model already uses all SSIs; wildcard gets zero → error.
+      type(ESMF_HConfig) :: hcfg(1)
+      integer, allocatable :: result(:)
+      integer :: rc
+
+      hcfg(1) = ESMF_HConfigCreate(content="num_nodes: '*'", rc=rc)
+
+      result = get_ssis_per_server(hcfg, ssiCount=2, num_model_ssis=2, rc=rc)
+      @assertExceptionRaised("PET resources oversubscribed: no SSIs remain for wildcard server")
+   end subroutine test_ssis_per_server_wildcard_oversubscribed
 
 end module Test_MaplServerUtilities

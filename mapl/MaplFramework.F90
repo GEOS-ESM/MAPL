@@ -38,6 +38,8 @@ module mapl_MaplFramework_mod
    public :: MAPL_initialize
    public :: MAPL_finalize
    public :: MAPL_Get
+   public :: MAPL_CreateServers
+   public :: MAPL_RunServers
 
    type :: MaplFramework
       private
@@ -46,10 +48,12 @@ module mapl_MaplFramework_mod
       type(ESMF_VM) :: mapl_vm
       integer :: model_comm
 
-      type(ESMF_HConfig) :: mapl_hconfig
+      type(ESMF_HConfig) :: hconfig       ! full top-level hconfig
+      type(ESMF_HConfig) :: mapl_hconfig  ! mapl: subsection
       type(DirectoryService) :: directory_service
       type(MpiServer), pointer :: o_server => null()
       type(MpiServer), pointer :: i_server => null()
+      logical :: is_model_pet = .false.
    contains
       procedure :: initialize
       procedure :: initialize_esmf
@@ -59,9 +63,11 @@ module mapl_MaplFramework_mod
       procedure :: initialize_profilers
       procedure :: initialize_udunits
       procedure :: get_vm_topology
-      procedure :: initialize_servers
+      procedure :: validate_resources
+      procedure :: create_servers
       procedure :: initialize_simple_servers
       procedure :: initialize_complex_servers
+      procedure :: run_servers
       procedure :: initialize_field_dictionary
       procedure :: initialize_field_fill_defaults
 
@@ -86,18 +92,25 @@ module mapl_MaplFramework_mod
       procedure :: mapl_initialize
    end interface MAPL_Initialize
 
+   interface MAPL_CreateServers
+      procedure :: mapl_create_servers
+   end interface MAPL_CreateServers
+
+   interface MAPL_RunServers
+      procedure :: mapl_run_servers
+   end interface MAPL_RunServers
+
 contains
 
    ! Type-bound procedures
 
-   ! Note: HConfig is an output if ESMF is not already initialized.  Otherwise it is an input.
-   subroutine initialize(this, hconfig, unusable, is_model_pet, servers, mpiCommunicator, level_name, configFilenameFromArgNum, &
+   ! Note: hconfig (path b) is intent(in) — ESMF is already initialized by caller.
+   !       configFilenameFromArgNum (path a) — MAPL initializes ESMF internally.
+   subroutine initialize(this, hconfig, unusable, mpiCommunicator, level_name, configFilenameFromArgNum, &
         field_default_fill_value_r4, field_default_fill_value_r8, rc)
       class(MaplFramework), intent(inout) :: this
-      type(ESMF_HConfig), optional, intent(inout) :: hconfig
+      type(ESMF_HConfig), optional, intent(in) :: hconfig  ! path (b): already-initialized ESMF
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(out) :: is_model_pet
-      type(ESMF_GridComp), optional, allocatable, intent(out) :: servers(:)
       integer, optional, intent(in) :: mpiCommunicator
       character(*), optional, intent(in) :: level_name
       integer, optional, intent(in) :: configFilenameFromArgNum
@@ -114,8 +127,6 @@ contains
       _ASSERT(.not. this%mapl_initialized, "MaplFramework object is already initialized")
       this%mapl_initialized = .true.
 
-      if (present(hconfig)) this%mapl_hconfig = hconfig
-
       call this%initialize_esmf(hconfig=hconfig, mpiCommunicator=mpiCommunicator, configFilenameFromArgNum=configFilenameFromArgNum, _RC)
       call ESMF_VMGetCurrent(this%mapl_vm, _RC)
 
@@ -123,7 +134,7 @@ contains
       call this%initialize_pflogger(level_name=level_name, _RC)
 #endif
       call this%initialize_profilers(_RC)
-      call this%initialize_servers(is_model_pet=is_model_pet, servers=servers, _RC)
+      call this%validate_resources(_RC)
       call this%initialize_udunits(_RC)
       call this%initialize_field_dictionary(_RC)
       call this%initialize_field_fill_defaults( &
@@ -140,12 +151,13 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize
 
-   ! If ESMF is already initialized, then we expect hconfig to be
-   ! externally provided.  Otherwise, we retrieve the top level
-   ! hconfig from ESMF_Initialize and return that.
+   ! Path (a) — standalone: MAPL calls ESMF_Initialize, derives hconfig from YAML file.
+   ! Path (b) — embedded: ESMF already initialized; hconfig passed in by caller.
+   ! In both cases this%hconfig holds the full top-level config and
+   ! this%mapl_hconfig holds the mapl: subsection (or an empty map).
    subroutine initialize_esmf(this, hconfig, unusable, mpiCommunicator, configFilenameFromArgNum, rc)
       class(MaplFramework), intent(inout) :: this
-      type(ESMF_HConfig), optional, intent(inout) :: hconfig
+      type(ESMF_HConfig), optional, intent(in) :: hconfig  ! path (b) only
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: mpiCommunicator
       integer, optional, intent(in) :: configFilenameFromArgNum
@@ -158,8 +170,16 @@ contains
 
 
       esmf_is_initialized = ESMF_IsInitialized(_RC)
-      _RETURN_IF(esmf_is_initialized)
 
+      if (esmf_is_initialized) then
+         ! Path (b): embedded / library mode — ESMF already initialized by caller.
+         _ASSERT(present(hconfig), "hconfig must be provided when ESMF is already initialized (path b)")
+         this%hconfig = hconfig
+         this%mapl_hconfig = get_subconfig(this%hconfig, keystring='mapl', _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Path (a): standalone — MAPL initializes ESMF, derives hconfig from YAML config file.
       this%esmf_internally_initialized = .true.
 
       argNum = 0
@@ -169,20 +189,20 @@ contains
          call ESMF_Initialize(configFilenameFromArgNum=argNum, configKey=['esmf'], config=config, &
               defaultDefaultCalKind=ESMF_CALKIND_GREGORIAN, &
               mpiCommunicator=mpiCommunicator, _RC)
-         call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
-         this%mapl_hconfig = get_subconfig(hconfig, keystring='mapl', _RC)
+         call ESMF_ConfigGet(config, hconfig=this%hconfig, _RC)
+         this%mapl_hconfig = get_subconfig(this%hconfig, keystring='mapl', _RC)
       else
          call ESMF_Initialize(mpiCommunicator=mpiCommunicator, defaultDefaultCalKind=ESMF_CALKIND_GREGORIAN, _RC)
+         this%hconfig = ESMF_HConfigCreate(content='{}', _RC)
          this%mapl_hconfig = ESMF_HConfigCreate(content='{}', _RC)
       end if
-
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
    contains
 
-      ! Return an empty mapping unless named dictionary is found.
+      ! Return an empty mapping unless named sub-section is found.
       function get_subconfig(hconfig, keystring, rc) result(subcfg)
          type(ESMF_HConfig) :: subcfg
          type(ESMF_HConfig), intent(in) :: hconfig
@@ -194,7 +214,7 @@ contains
 
          has_keystring = ESMF_HConfigIsDefined(hconfig, keystring=keystring, _RC)
          if (has_keystring) then
-            subcfg = ESMF_HConfigCreateAt(hconfig, keystring='mapl', _RC)
+            subcfg = ESMF_HConfigCreateAt(hconfig, keystring=keystring, _RC)
             _RETURN(_SUCCESS)
          end if
 
@@ -284,18 +304,62 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_vm_topology
 
-   ! Top-level dispatcher: routes to the simple (no servers: section) or
-   ! complex (explicit server topology) initialization path.
-   subroutine initialize_servers(this, unusable, is_model_pet, servers, rc)
-      class(MaplFramework), target, intent(inout) :: this
+   ! Fast-fail resource validation: check that model + server SSI allocations
+   ! do not exceed available SSIs.  Runs in MAPL_Initialize before any
+   ! collective server/cap creation so errors surface immediately.
+   subroutine validate_resources(this, unusable, rc)
+      class(MaplFramework), target, intent(in) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(out) :: is_model_pet
-      type(ESMF_GridComp), allocatable, optional, intent(out) :: servers(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: has_server_section
-      integer :: model_petcount
+      integer :: model_petCount
+      integer :: world_comm
+      integer :: ssiCount
+      integer, allocatable :: ssiMap(:)
+      integer :: num_model_ssis, required_ssis
+      type(ESMF_HConfig) :: servers_hconfig
+      type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+      integer, allocatable :: ssis_per_server(:)
+      class(Logger), pointer :: lgr
+
+      has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
+      _RETURN_UNLESS(has_server_section)
+
+      call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
+      model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
+      num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
+
+      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+      server_hconfigs = get_server_hconfigs(servers_hconfig, _RC)
+      ssis_per_server = get_ssis_per_server(server_hconfigs, ssiCount=ssiCount, num_model_ssis=num_model_ssis, _RC)
+
+      required_ssis = num_model_ssis + sum(ssis_per_server)
+      _ASSERT(required_ssis <= ssiCount, "Insufficient resources: PET allocations exceed available SSIs.")
+      if (required_ssis < ssiCount) then
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning("Unused nodes.  Required %i0 nodes, but %i0 available.", required_ssis, ssiCount)
+      end if
+
+      call ESMF_HConfigDestroy(servers_hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine validate_resources
+
+   ! Create server communicators and ESMF GridComps for any explicit servers:
+   ! section, or set up in-process simple servers if no servers: section exists.
+   ! Sets this%is_model_pet and returns server GridComps via servers(:).
+   subroutine create_servers(this, servers, unusable, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      type(ESMF_GridComp), allocatable, intent(out) :: servers(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_server_section
+      integer :: model_petCount
       integer :: world_group, model_group
       integer :: world_comm
       integer :: ssiCount
@@ -306,26 +370,27 @@ contains
 
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
       if (.not. has_server_section) then
-         ! Should only run on model PETs
+         ! Simple path: in-process servers; no ESMF GridComp servers returned.
+         allocate(servers(0))
          call MPI_Comm_group(world_comm, world_group, _IERROR)
          call MPI_Group_range_incl(world_group, 1, reshape([0, model_petCount-1, 1], [3,1]), model_group, _IERROR)
          call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
          call MPI_Group_free(model_group, _IERROR)
          call MPI_Group_free(world_group, _IERROR)
-         if (present(is_model_pet)) is_model_pet = (this%model_comm /= MPI_COMM_NULL)
-         _RETURN_IF(this%model_comm == MPI_COMM_NULL)
+         this%is_model_pet = (this%model_comm /= MPI_COMM_NULL)
+         _RETURN_UNLESS(this%is_model_pet)
          this%directory_service = DirectoryService(this%model_comm)
          call this%initialize_simple_servers(_RC)
          _RETURN(_SUCCESS)
       end if
 
-      _RETURN_UNLESS(present(servers))
+      ! Complex path: explicit server topology from servers: section.
       call this%initialize_complex_servers(servers, world_comm, model_petCount, ssiCount, ssiMap, &
-           is_model_pet=is_model_pet, _RC)
+           is_model_pet=this%is_model_pet, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine initialize_servers
+   end subroutine create_servers
 
    ! Build MPI communicators and ESMF GridComps for an explicit servers: topology.
    subroutine initialize_complex_servers(this, servers, world_comm, model_petCount, ssiCount, ssiMap, &
@@ -344,7 +409,7 @@ contains
       type(ESMF_HConfig) :: servers_hconfig
       integer :: world_group, model_group
       integer :: server_comm, model_server_comm
-      integer :: required_ssis, num_model_ssis
+      integer :: num_model_ssis
       integer :: ssi_0, ssi_1, i_server
       integer, allocatable :: ssis_per_server(:)
       integer, allocatable :: model_pets(:), server_pets(:), model_server_pets(:)
@@ -356,14 +421,9 @@ contains
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       server_hconfigs = get_server_hconfigs(servers_hconfig, _RC)
 
-      ssis_per_server = get_ssis_per_server(server_hconfigs, _RC)
-      required_ssis = num_model_ssis + sum(ssis_per_server)
-
-      _ASSERT(required_ssis <= ssiCount, "Insufficient resources for requested servers.")
-      if (required_ssis < ssiCount) then
-         lgr => logging%get_logger('MAPL')
-         call lgr%warning("Unused nodes.  Required %i0 nodes, but %i0 available.", required_ssis, ssiCount)
-      end if
+      ! get_ssis_per_server handles '*' wildcard for the last server.
+      ! Resource validation already ran in MAPL_Initialize; this is belt-and-suspenders.
+      ssis_per_server = get_ssis_per_server(server_hconfigs, ssiCount=ssiCount, num_model_ssis=num_model_ssis, _RC)
 
       call MPI_Comm_group(world_comm, world_group, _IERROR)
       model_pets = pets_on_ssis(ssiMap, 0, num_model_ssis)
@@ -421,14 +481,45 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_simple_servers
 
-   subroutine get(this, unusable, directory_service, rc)
+   ! Run servers on server PETs; model PETs return immediately.
+   ! ESMF_GridCompInitialize/Run/Finalize only require the petList PETs —
+   ! no global collective needed.
+   subroutine run_servers(this, servers, unusable, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      type(ESMF_GridComp), intent(inout) :: servers(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: i, status
+
+      ! Model PETs have nothing to do here.
+      _RETURN_IF(this%is_model_pet)
+
+      ! Server PETs run the lifecycle for each server GridComp.
+      ! ESMF only executes on PETs in the GridComp's petList; other
+      ! server PETs silently skip GridComps they don't belong to.
+      do i = 1, size(servers)
+         call ESMF_GridCompInitialize(servers(i), _RC)
+         call ESMF_GridCompRun(servers(i), _RC)
+         call ESMF_GridCompFinalize(servers(i), _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine run_servers
+
+   subroutine get(this, unusable, directory_service, is_model_pet, hconfig, rc)
       class(MaplFramework), target, intent(in) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(DirectoryService), pointer, optional, intent(out) :: directory_service
+      logical, optional, intent(out) :: is_model_pet
+      type(ESMF_HConfig), optional, intent(out) :: hconfig
       integer, optional, intent(out) :: rc
 
       _ASSERT(this%is_initialized(), "MaplFramework object is not initialized")
       if (present(directory_service)) directory_service => this%directory_service
+      if (present(is_model_pet)) is_model_pet = this%is_model_pet
+      if (present(hconfig)) hconfig = this%hconfig
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -513,6 +604,7 @@ contains
       _RETURN_UNLESS(this%esmf_internally_initialized)
 
       call ESMF_HConfigDestroy(this%mapl_hconfig, _RC)
+      call ESMF_HConfigDestroy(this%hconfig, _RC)
       call ESMF_Finalize(_RC)
 
       _RETURN(_SUCCESS)
@@ -520,14 +612,17 @@ contains
    end subroutine finalize_esmf
 
    ! Public interfaces that rely on the singleton object
-   subroutine mapl_get(unusable, directory_service, rc)
+   subroutine mapl_get(unusable, directory_service, is_model_pet, hconfig, rc)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(DirectoryService), pointer, optional, intent(out) :: directory_service
+      logical, optional, intent(out) :: is_model_pet
+      type(ESMF_HConfig), optional, intent(out) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call the_mapl_object%get(directory_service=directory_service, _RC)
+      call the_mapl_object%get(directory_service=directory_service, &
+           is_model_pet=is_model_pet, hconfig=hconfig, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -540,12 +635,10 @@ contains
    end subroutine mapl_get_mapl
 
 
-   subroutine mapl_initialize(hconfig, unusable, is_model_pet, servers, mpiCommunicator, configFilenameFromArgNum, level_name, &
+   subroutine mapl_initialize(hconfig, unusable, mpiCommunicator, configFilenameFromArgNum, level_name, &
         field_default_fill_value_r4, field_default_fill_value_r8, rc)
-      type(ESMF_HConfig), optional, intent(inout) :: hconfig
+      type(ESMF_HConfig), optional, intent(in) :: hconfig  ! path (b): already-initialized ESMF
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(out) :: is_model_pet
-      type(ESMF_GridComp), allocatable, optional, intent(out) :: servers(:)
       integer, optional, intent(in) :: mpiCommunicator
       integer, optional, intent(in) :: configFilenameFromArgNum
       character(*), optional, intent(in) :: level_name
@@ -557,7 +650,7 @@ contains
 
       call mapl_initialize_error_handling()
 
-      call the_mapl_object%initialize(hconfig=hconfig, is_model_pet=is_model_pet, servers=servers, mpiCommunicator=mpiCommunicator, &
+      call the_mapl_object%initialize(hconfig=hconfig, mpiCommunicator=mpiCommunicator, &
            configFilenameFromArgNum=configFilenameFromArgNum, level_name=level_name, &
            field_default_fill_value_r4=field_default_fill_value_r4, &
            field_default_fill_value_r8=field_default_fill_value_r8, &
@@ -576,6 +669,32 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine mapl_finalize
+
+   subroutine mapl_create_servers(servers, unusable, rc)
+      type(ESMF_GridComp), allocatable, intent(out) :: servers(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call the_mapl_object%create_servers(servers, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine mapl_create_servers
+
+   subroutine mapl_run_servers(servers, unusable, rc)
+      type(ESMF_GridComp), intent(inout) :: servers(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call the_mapl_object%run_servers(servers, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine mapl_run_servers
 
 #ifdef BUILD_WITH_PFLOGGER
    subroutine default_initialize_pflogger(world_comm, unusable, level_name, rc)

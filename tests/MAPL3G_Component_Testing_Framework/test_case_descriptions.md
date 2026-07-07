@@ -29,3 +29,4 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 40. Test fractional regridding, ensure fractions of c24 cells regridded to c12 add up to 1
 41. Test History for ability to output daily averages
 42. Test of Historys ability to output monthly and djf averages
+43. Test of Historys ability to output daily averge and modify on a per-variable basis the units, averaging type, and precision

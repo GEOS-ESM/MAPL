@@ -208,6 +208,7 @@ module mapl_RegridderMethods_mod
       case default
          _FAIL("unknown regrid method")
       end select
+      _RETURN(_SUCCESS)
 
    end function
 
