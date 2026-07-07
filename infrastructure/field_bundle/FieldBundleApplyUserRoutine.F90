@@ -9,12 +9,12 @@
 ! FieldApplyUserRoutine (see MAPL.field), which performs the per-slice
 ! iteration.  The user routine receives an unlimited-polymorphic slice
 ! pointer, so a single interface handles both R4 and R8 fields.
-module mapl_FieldBundleApply_mod
+module mapl_FieldBundleApplyUserRoutine_mod
 
    use ESMF, only: ESMF_FieldBundle, ESMF_FieldBundleGet
    use ESMF, only: ESMF_Field
-   use mapl_FieldApply_mod, only: FieldApplyUserRoutine
-   use mapl_FieldApply_mod, only: I_FieldSliceRoutine
+   use mapl_FieldApplyUserRoutine_mod, only: FieldApplyUserRoutine
+   use mapl_FieldApplyUserRoutine_mod, only: I_FieldSliceRoutine
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use mapl_ErrorHandling_mod
 
@@ -53,4 +53,4 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine FieldBundleApplyUserRoutine
 
-end module mapl_FieldBundleApply_mod
+end module mapl_FieldBundleApplyUserRoutine_mod

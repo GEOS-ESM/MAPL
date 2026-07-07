@@ -11,7 +11,7 @@ set (srcs
     FieldBundleDestroy.F90
     FieldBundleFilter.F90
     FieldBundleGetPointer.F90
-    FieldBundleApply.F90
+    FieldBundleApplyUserRoutine.F90
     FieldBundleMatch.F90
     API.F90
 )
