@@ -14,6 +14,8 @@ module mapl_ConfigurableGridComp_mod
    character(*), parameter :: COMPONENT_STATES_SECTION = "states"
    character(*), parameter :: COMPONENT_EXPORT_STATE_SECTION = "export"
    character(*), parameter :: KEY_DEFAULT_VERT_PROFILE = "default_vertical_profile"
+   character(*), parameter :: KEY_CHILDREN_SECTION = "children"
+   character(*), parameter :: KEY_RUN_PHASES = "run_phases"
 
 contains
 
@@ -124,13 +126,53 @@ contains
          call esmf_HConfigDestroy(run_cfg, _RC)
       endif
 
-      call MAPL_GridcompRunChildren(gridcomp, phase_name="run", _RC)
+      call run_children_phases_(gridcomp, hconfig, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(clock)
    end subroutine run
+
+   recursive subroutine run_children_phases_(gridcomp, hconfig, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, intent(out) :: rc
+
+      integer :: status, i
+      type(ESMF_HConfig) :: mapl_cfg, children_cfg, child_cfg
+      logical :: has_mapl, has_children, has_run_phases
+      character(ESMF_MAXSTR) :: child_name
+      character(ESMF_MAXSTR), allocatable :: phase_names(:)
+      type(ESMF_HConfigIter) :: iter, b, e
+
+      has_mapl = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
+      _RETURN_UNLESS(has_mapl)
+
+      mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
+      has_children = ESMF_HConfigIsDefined(mapl_cfg, keyString=KEY_CHILDREN_SECTION, _RC)
+      if (has_children) then
+         children_cfg = ESMF_HConfigCreateAt(mapl_cfg, keyString=KEY_CHILDREN_SECTION, _RC)
+         b = ESMF_HConfigIterBegin(children_cfg, _RC)
+         e = ESMF_HConfigIterEnd(children_cfg, _RC)
+         iter = b
+         do while (ESMF_HConfigIterLoop(iter, b, e))
+            child_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+            child_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
+            has_run_phases = ESMF_HConfigIsDefined(child_cfg, keyString=KEY_RUN_PHASES, _RC)
+            phase_names = ['run']
+            if (has_run_phases) then
+               phase_names = ESMF_HConfigAsStringSeq(child_cfg, keyString=KEY_RUN_PHASES, stringLen=ESMF_MAXSTR, _RC)
+            end if
+            do i = 1, size(phase_names)
+               call MAPL_GridCompRunChild(gridcomp, child_name=trim(child_name), phase_name=trim(phase_names(i)), _RC)
+            end do
+         end do
+      end if
+      call ESMF_HConfigDestroy(mapl_cfg, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine run_children_phases_
 
 end module mapl_ConfigurableGridComp_mod
 
