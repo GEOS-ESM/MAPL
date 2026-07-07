@@ -51,7 +51,7 @@ contains
       ! ASSUME: mapl and states sections always exist
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
       states_cfg = ESMF_HConfigCreateAt(mapl_cfg, keyString=COMPONENT_STATES_SECTION, _RC)
-      has_export_section = ESMF_HConfigIsDefined(states_cfg, keyString=COMPONENT_EXPORT_STATE_SECTION, rc=status)
+      has_export_section = ESMF_HConfigIsDefined(states_cfg, keyString=COMPONENT_EXPORT_STATE_SECTION, _RC)
       _RETURN_UNLESS(has_export_section)
 
       ! For each field getting 'export'ed, check hconfig and use default_vert_profile if specified
