@@ -19,6 +19,7 @@ module pFIO
    use pFIO_ServerThreadMod
    use pFIO_ClientThreadMod
    use pFIO_ClientThreadVectorMod
+   use pFIO_StringClientThreadMapMod
    use pFIO_ClientManagerMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod

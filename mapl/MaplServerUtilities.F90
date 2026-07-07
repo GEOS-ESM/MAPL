@@ -103,18 +103,42 @@ contains
       _RETURN(_SUCCESS)
    end function get_server_hconfigs
 
-   function get_ssis_per_server(server_hconfigs, rc) result(ssis_per_server)
+   ! Resolve num_nodes for each server entry.  The last server may use the
+   ! wildcard value '*' to claim all remaining SSIs after model + prior servers.
+   ! ssiCount and num_model_ssis are required to resolve the wildcard.
+   !
+   ! Detection strategy: ESMF_HConfigAsString casts integer YAML nodes to string
+   ! without error, so reading as string first lets us check for '*' before
+   ! attempting an integer read — no spurious ESMF log warnings.
+   function get_ssis_per_server(server_hconfigs, ssiCount, num_model_ssis, rc) result(ssis_per_server)
       integer, allocatable :: ssis_per_server(:)
       type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
+      integer, intent(in) :: ssiCount
+      integer, intent(in) :: num_model_ssis
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: i_server
+      integer :: used_ssis
+      character(:), allocatable :: num_nodes_str
 
       associate (n_servers => size(server_hconfigs))
          allocate(ssis_per_server(n_servers))
+         used_ssis = num_model_ssis
          do i_server = 1, n_servers
-            ssis_per_server(i_server) = ESMF_HConfigAsI4(server_hconfigs(i_server), keystring='num_nodes', _RC)
+            ! Read as string: ESMF casts integer YAML nodes to string without
+            ! complaint, so "2" and "*" both arrive cleanly.
+            num_nodes_str = ESMF_HConfigAsString(server_hconfigs(i_server), keystring='num_nodes', _RC)
+            if (num_nodes_str == '*') then
+               ! Wildcard: takes all remaining SSIs; only valid on the last server.
+               _ASSERT(i_server == n_servers, "'*' for num_nodes is only valid for the last server")
+               ssis_per_server(i_server) = ssiCount - used_ssis
+               _ASSERT(ssis_per_server(i_server) > 0, "PET resources oversubscribed: no SSIs remain for wildcard server")
+            else
+               ! Integer value — re-read as I4 (ESMF casts without complaint).
+               ssis_per_server(i_server) = ESMF_HConfigAsI4(server_hconfigs(i_server), keystring='num_nodes', _RC)
+               used_ssis = used_ssis + ssis_per_server(i_server)
+            end if
          end do
       end associate
       _RETURN(_SUCCESS)

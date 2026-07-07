@@ -40,7 +40,7 @@ contains
 
       character(:), allocatable :: field_name
       type(ESMF_HConfig) :: hconfig, mapl_cfg, states_cfg, export_cfg, field_cfg
-      logical :: has_export_section, has_default_vert_profile
+      logical :: has_states_section, has_export_section, has_default_vert_profile
       real(kind=ESMF_KIND_R4), allocatable :: default_vert_profile(:)
       real(kind=ESMF_KIND_R4), pointer :: ptr3d(:, :, :)
       integer :: ii, jj, shape_(3), status
@@ -48,8 +48,10 @@ contains
       type(ESMF_HConfigIter) :: iter, e, b
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      ! ASSUME: mapl and states sections always exist
+      ! ASSUME: mapl section always exists
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
+      has_states_section = ESMF_HConfigIsDefined(mapl_cfg, keyString=COMPONENT_STATES_SECTION, _RC)
+      _RETURN_UNLESS(has_states_section)
       states_cfg = ESMF_HConfigCreateAt(mapl_cfg, keyString=COMPONENT_STATES_SECTION, _RC)
       has_export_section = ESMF_HConfigIsDefined(states_cfg, keyString=COMPONENT_EXPORT_STATE_SECTION, _RC)
       _RETURN_UNLESS(has_export_section)
