@@ -3,6 +3,8 @@
 
 program geos
    use MAPL
+   use mapl_Cap_mod, only: MAPL_CapCreate, MAPL_CapRun
+   use esmf
    implicit none
 
    integer :: status
@@ -11,9 +13,9 @@ program geos
 
    call MAPL_Initialize(configFileNameFromArgNum=1, _RC)
    call MAPL_CreateServers(servers, _RC)
-   call MAPL_CreateCap(driver, _RC)
+   call MAPL_CapCreate(driver, _RC)
    call MAPL_RunServers(servers, _RC)
-   call MAPL_RunCap(driver, _RC)
+   call MAPL_CapRun(driver, _RC)
    call MAPL_Finalize(_RC)
 
 end program geos
