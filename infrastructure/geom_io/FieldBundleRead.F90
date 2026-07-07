@@ -257,6 +257,7 @@ contains
       type(ESMF_Field)                :: file_field
 
       class(GeomPFIO), allocatable    :: reader
+      class(ClientThread), pointer    :: i_client
       type(RegridderManager), pointer :: regridder_mgr
       class(Regridder), pointer       :: mapl_regridder
       type(RegridderSpec)             :: spec
@@ -364,8 +365,9 @@ contains
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
       call reader%initialize(trim(file_name), file_geom, _RC)
       call reader%request_data_from_file(trim(file_name), file_bundle, _RC)
-      call i_Client%done_collective_prefetch()
-      call i_Client%wait_all()
+      i_client => get_client_thread('i_client', _RC)
+      call i_client%done_collective_prefetch()
+      call i_client%wait_all()
 
       !--- Regrid if grids differ ---
       if (.not. same_grid) then

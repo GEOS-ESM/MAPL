@@ -7,20 +7,20 @@ module pFIO_ClientManagerMod
    use mapl_KeywordEnforcer_mod
    use pFIO_ClientThreadMod
    use pFIO_FastClientThreadMod
+   use pFIO_StringClientThreadMapMod
 
    implicit none
    private
 
    public :: init_IO_ClientManager
-   public :: i_Client
-   public :: o_Client
+   public :: get_client_thread
+   public :: client_map
 
    interface init_IO_ClientManager
       module procedure init_ClientManager
    end interface
 
-   class(ClientThread), allocatable, target :: i_Client
-   class(ClientThread), allocatable, target :: o_Client
+   type(StringClientThreadMap), target, protected :: client_map
 
 contains
 
@@ -32,24 +32,38 @@ contains
       integer :: status
 
       logical :: fast_
+      type(ClientThread) :: i_client
+      class(ClientThread), allocatable :: o_client
 
       fast_ = .false.
       if (present(fast_oclient)) fast_ = fast_oclient
 
-      if (allocated(i_Client)) deallocate(i_Client)
-      allocate(i_Client, source=ClientThread(client_comm=client_comm, rc=status))
-      _VERIFY(status)
+      client_map = StringClientThreadMap()
 
-      if (allocated(o_Client)) deallocate(o_Client)
+      i_client = ClientThread(client_comm=client_comm, rc=status)
+      _VERIFY(status)
+      call client_map%insert('i_client', i_client)
+
       if (fast_) then
-         allocate(o_Client, source=FastClientThread(client_comm=client_comm, rc=status))
+         allocate(o_client, source=FastClientThread(client_comm=client_comm, rc=status))
       else
-         allocate(o_Client, source=ClientThread(client_comm=client_comm, rc=status))
+         allocate(o_client, source=ClientThread(client_comm=client_comm, rc=status))
       end if
       _VERIFY(status)
+      call client_map%insert('o_client', o_client)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine init_ClientManager
+
+   function get_client_thread(name, rc) result(client)
+      character(len=*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+      class(ClientThread), pointer :: client
+
+      client => client_map%at(name)
+      _ASSERT(associated(client), "Client '"//name//"' not found in client manager")
+      _RETURN(_SUCCESS)
+   end function get_client_thread
 
 end module pFIO_ClientManagerMod

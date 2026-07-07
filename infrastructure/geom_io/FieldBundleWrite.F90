@@ -2,7 +2,6 @@
 module mapl_FieldBundleWrite_mod
    use ESMF
    use pFIO
-   use pFIO_ClientManagerMod, only: o_Client
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
    use mapl_SharedIO_mod
@@ -77,6 +76,7 @@ module mapl_FieldBundleWrite_mod
          real, allocatable :: file_times(:)
          type(ESMF_TimeInterval) :: time_interval
          real(kind=ESMF_KIND_R8) :: real_time_interval
+         class(ClientThread), pointer :: o_client
 
          old_size = size(this%file_times) 
          allocate(file_times, source=this%file_times, _STAT)
@@ -89,11 +89,12 @@ module mapl_FieldBundleWrite_mod
          this%file_times(time_index) = real_time_interval
 
          time_index = size(this%file_times)
-         call this%writer%stage_time_to_file(this%file_name, this%file_times, _RC)
-         call this%writer%stage_data_to_file(bundle, this%file_name, time_index, _RC)
+          o_client => get_client_thread('o_client', _RC)
+          call this%writer%stage_time_to_file(this%file_name, this%file_times, _RC)
+          call this%writer%stage_data_to_file(bundle, this%file_name, time_index, _RC)
 
-          call o_Client%done_collective_stage()
-          call o_Client%post_wait_all()
+          call o_client%done_collective_stage()
+          call o_client%post_wait_all()
          _VERIFY(status)
          _RETURN(_SUCCESS)
 

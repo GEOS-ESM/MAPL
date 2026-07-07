@@ -147,11 +147,13 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
+      class(ClientThread), pointer :: o_client
 
       call MAPL_GridCompRunChildren(gridcomp, phase_name='run', _RC)
 
-       call mapl_o_Client%done_collective_stage()
-       call mapl_o_Client%post_wait_all()
+      o_client => mapl_get_client_thread('o_client', _RC)
+      call o_client%done_collective_stage()
+      call o_client%post_wait_all()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
