@@ -24,6 +24,7 @@ module mapl_FieldApply_mod
    use ESMF, only: ESMF_FieldStatus_Flag, ESMF_FIELDSTATUS_COMPLETE
    use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
    use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use ESMF, only: operator(==)
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use mapl_ErrorHandling_mod
