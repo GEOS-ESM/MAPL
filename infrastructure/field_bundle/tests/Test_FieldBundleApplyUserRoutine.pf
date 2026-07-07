@@ -17,24 +17,37 @@ module Test_FieldBundleApplyUserRoutine
 contains
 
    subroutine count_slices(slice, rc)
-      class(*), pointer, intent(in) :: slice(:,:)
+      class(*), intent(inout) :: slice(..)
       integer, optional, intent(out) :: rc
       g_call_count = g_call_count + 1
-      select type (slice)
-      type is (real(kind=ESMF_KIND_R4))
-         slice = real(g_call_count, kind=ESMF_KIND_R4)
-      type is (real(kind=ESMF_KIND_R8))
-         slice = real(g_call_count, kind=ESMF_KIND_R8)
+      select rank (slice)
+      rank (2)
+         select type (slice)
+         type is (real(kind=ESMF_KIND_R4))
+            slice = real(g_call_count, kind=ESMF_KIND_R4)
+         type is (real(kind=ESMF_KIND_R8))
+            slice = real(g_call_count, kind=ESMF_KIND_R8)
+         end select
+      rank (3)
+         select type (slice)
+         type is (real(kind=ESMF_KIND_R4))
+            slice = real(g_call_count, kind=ESMF_KIND_R4)
+         type is (real(kind=ESMF_KIND_R8))
+            slice = real(g_call_count, kind=ESMF_KIND_R8)
+         end select
       end select
       if (present(rc)) rc = 0
    end subroutine count_slices
 
    subroutine fail_immediately(slice, rc)
-      class(*), pointer, intent(in) :: slice(:,:)
+      class(*), intent(inout) :: slice(..)
       integer, optional, intent(out) :: rc
+      ! Reference slice so it is not flagged as unused; it is intentionally
+      ! ignored by this routine (_UNUSED_DUMMY cannot take an assumed-rank
+      ! argument).
+      if (rank(slice) < 0) return
       g_call_count = g_call_count + 1
       if (present(rc)) rc = USER_ERROR
-      _UNUSED_DUMMY(slice)
    end subroutine fail_immediately
 
    function make_geom(rc) result(geom)
