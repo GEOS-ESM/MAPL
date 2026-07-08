@@ -48,7 +48,7 @@ contains
       integer :: request_id
       class(ClientThread), pointer :: o_client
 
-      o_client => get_client_thread('o_client', _RC)
+      o_client => get_client('o_client', _RC)
       file_metadata = this%get_file_metadata()
       has_ll = file_metadata%has_variable('lons') .and. file_metadata%has_variable('lats')
       if (has_ll) then
@@ -138,7 +138,7 @@ contains
       type(ESMF_Grid) :: grid
       type(pFIOServerBounds) :: server_bounds
 
-      o_client => get_client_thread('o_client', _RC)
+      o_client => get_client('o_client', _RC)
       collection_id = this%get_collection_id()
       call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, _RC)
       allocate(field_names(num_fields))
@@ -187,7 +187,7 @@ contains
       integer :: collection_id, num_fields, idx, pfio_typekind, status, request_id
       class(ClientThread), pointer :: i_client
 
-      i_client => get_client_thread('i_client', _RC)
+      i_client => get_client('i_client', _RC)
       collection_id = this%get_collection_id()
 
       call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, _RC)

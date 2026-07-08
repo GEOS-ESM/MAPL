@@ -7,7 +7,8 @@ module mapl_pfio_api
   use pfio, only: mapl_ArrayReference => ArrayReference
   use pfio, only: operator(==), operator(/=)
 
-  use pfio, only: mapl_get_client_thread => get_client_thread
+  use pfio, only: mapl_get_client => get_client
+  use pfio, only: mapl_add_client => add_client
   use pfio, only: ClientThread
   use pfio, only: mapl_pfio_read => pfio_read
   use pfio, only: mapl_string_in_stringvector => string_in_stringvector
@@ -21,7 +22,7 @@ module mapl_pfio_api
   public :: mapl_StringVariableMapIterator
   public :: mapl_NetCDF4_FileFormatter
 
-  public :: mapl_get_client_thread
+  public :: mapl_get_client
   public :: ClientThread
   public :: mapl_pfio_read
   public :: mapl_ArrayReference

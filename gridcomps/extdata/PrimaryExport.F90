@@ -94,7 +94,7 @@ module mapl_PrimaryExport_mod
          call primary_export%bracket%set_node(NODE_LEFT, left_node)
          call primary_export%bracket%set_node(NODE_RIGHT, right_node)
          call primary_export%file_selector%get_file_template(file_template)
-         i_client => mapl_get_client_thread('i_client', _RC)
+         i_client => mapl_get_client('i_client', _RC)
          primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
          allocate(primary_export%start_and_end, source=time_range)

@@ -365,7 +365,7 @@ contains
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
       call reader%initialize(trim(file_name), file_geom, _RC)
       call reader%request_data_from_file(trim(file_name), file_bundle, _RC)
-      i_client => get_client_thread('i_client', _RC)
+      i_client => get_client('i_client', _RC)
       call i_client%done_collective_prefetch()
       call i_client%wait_all()
 

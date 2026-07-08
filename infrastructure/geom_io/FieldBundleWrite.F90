@@ -89,7 +89,7 @@ module mapl_FieldBundleWrite_mod
          this%file_times(time_index) = real_time_interval
 
          time_index = size(this%file_times)
-          o_client => get_client_thread('o_client', _RC)
+          o_client => get_client('o_client', _RC)
           call this%writer%stage_time_to_file(this%file_name, this%file_times, _RC)
           call this%writer%stage_data_to_file(bundle, this%file_name, time_index, _RC)
 

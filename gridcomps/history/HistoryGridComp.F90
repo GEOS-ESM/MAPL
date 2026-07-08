@@ -151,7 +151,7 @@ contains
 
       call MAPL_GridCompRunChildren(gridcomp, phase_name='run', _RC)
 
-      o_client => mapl_get_client_thread('o_client', _RC)
+      o_client => mapl_get_client('o_client', _RC)
       call o_client%done_collective_stage()
       call o_client%post_wait_all()
 

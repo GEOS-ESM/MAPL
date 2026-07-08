@@ -95,7 +95,7 @@ module mapl_ExtDataReader_mod
          _RETURN(_SUCCESS)
       end if
 
-      i_client => mapl_get_client_thread('i_client', _RC)
+      i_client => mapl_get_client('i_client', _RC)
 
       call MAPL_FieldBundleGet(this%accumulated_fields, fieldList=field_list, _RC)
       do i=1,size(field_list)
