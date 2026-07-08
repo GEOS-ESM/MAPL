@@ -68,6 +68,7 @@ module mapl_MaplFramework_mod
       procedure :: get_vm_topology
       procedure :: validate_resources
       procedure :: create_servers
+      procedure :: initialize_clients
       procedure :: initialize_local_servers
       procedure :: add_local_server
       procedure :: initialize_complex_servers
@@ -388,12 +389,12 @@ contains
          call this%initialize_local_servers(_RC)
       end if
 
-      has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
-      if (.not. has_server_section) then
-         ! Simple path: local servers only, no ESMF GridComp servers.
-         allocate(servers(0))
-         _RETURN(_SUCCESS)
-      end if
+       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
+       if (.not. has_server_section) then
+          ! Simple path: local default servers only, no ESMF GridComp servers.
+          allocate(servers(0))
+          _RETURN(_SUCCESS)
+       end if
 
       ! Complex path: remote servers are additive on top of local servers.
       call this%initialize_complex_servers(servers, world_comm, model_petCount, ssiCount, ssiMap, &
@@ -480,54 +481,52 @@ contains
        class(KeywordEnforcer), optional, intent(in) :: unusable
        integer, optional, intent(out) :: rc
 
-       integer :: status
-       logical :: has_server_section
-       type(ESMF_HConfig) :: servers_hconfig
-       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
-       integer :: i_server
-       character(:), allocatable :: server_name
-       logical :: is_local
-       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
-       class(ClientThread), allocatable :: i_client, o_client
+        integer :: status
+        logical :: has_server_section
+        type(ESMF_HConfig) :: servers_hconfig
+        type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+        integer :: i_server
+        character(:), allocatable :: server_name
+        logical :: is_local
+        type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
 
-       allocate(i_client, source=ClientThread(client_comm=this%model_comm, rc=status))
-       allocate(o_client, source=FastClientThread(client_comm=this%model_comm, rc=status))
-       call add_client('i_client', i_client, _RC)
-       call add_client('o_client', o_client, _RC)
+        ! Initialize default or configured clients.
+        call this%initialize_clients(_RC)
 
-       ! Check if servers: section exists
-       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
+        ! Check if servers: section exists
+        has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
 
-       if (has_server_section) then
-          ! Read servers: section and iterate to find local: true entries
-          servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
-          iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
-          iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
-          iter = iter_begin
+        if (has_server_section) then
+           ! Read servers: section and iterate to find local: true entries
+           servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+           iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
+           iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
+           iter = iter_begin
 
-          do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-             ! Get server name from the key
-             server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
-             ! Check if this entry has local: true
-             is_local = ESMF_HConfigIsDefined(iter, keystring='local', _RC)
-             if (is_local) then
-                is_local = ESMF_HConfigAsLogical(iter, keystring='local', _RC)
-             end if
+           do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+              ! Get server name from the key
+              server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+              ! Check if this entry has local: true
+              is_local = ESMF_HConfigIsDefined(iter, keystring='local', _RC)
+              if (is_local) then
+                 is_local = ESMF_HConfigAsLogical(iter, keystring='local', _RC)
+              end if
 
-             if (is_local) then
-                ! Create local server from hconfig
-                call this%add_local_server(server_name, &
-                     make_client_name(server_name), &
-                     hconfig=iter, _RC)
-             end if
-          end do
+              if (is_local) then
+                 ! Create local server from hconfig
+                 call this%add_local_server(server_name, &
+                      make_client_name(server_name), &
+                      hconfig=iter, _RC)
+              end if
+           end do
 
-          call ESMF_HConfigDestroy(servers_hconfig, _RC)
-       else
-          ! Backward compatibility: no servers: section, use hardcoded defaults
-          call this%add_local_server('i_server', 'i_client', _RC)
-          call this%add_local_server('o_server', 'o_client', _RC)
-       end if
+           call ESMF_HConfigDestroy(servers_hconfig, _RC)
+        else
+           ! Backward compatibility: no servers: section, use hardcoded defaults.
+           ! These connect default clients created above.
+           call this%add_local_server('i_server', 'i_client', _RC)
+           call this%add_local_server('o_server', 'o_client', _RC)
+        end if
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(unusable)
@@ -587,7 +586,83 @@ contains
        _RETURN(_SUCCESS)
     end subroutine add_local_server
 
-   ! Run servers on server PETs; model PETs return immediately.
+     ! Initialize configured clients from pfio_clients: section.
+     ! Each client entry specifies:
+     !   - server: the name of the server to connect to
+     !   - subclass: 'default' (ClientThread) or 'fast' (FastClientThread); defaults to 'default'
+     subroutine initialize_clients(this, unusable, rc)
+        class(MaplFramework), target, intent(inout) :: this
+        class(KeywordEnforcer), optional, intent(in) :: unusable
+        integer, optional, intent(out) :: rc
+
+        integer :: status
+        logical :: has_client_section
+        type(ESMF_HConfig) :: clients_hconfig
+        type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
+        character(:), allocatable :: client_name, server_name, subclass_name
+        logical :: has_server, has_subclass
+        class(ClientThread), allocatable :: client
+
+        has_client_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='pfio_clients', _RC)
+        if (.not. has_client_section) then
+           allocate(client, source=ClientThread(client_comm=this%model_comm, rc=status))
+           _VERIFY(status)
+           call add_client('i_client', client, _RC)
+
+           deallocate(client)
+           allocate(client, source=FastClientThread(client_comm=this%model_comm, rc=status))
+           _VERIFY(status)
+           call add_client('o_client', client, _RC)
+
+           _RETURN(_SUCCESS)
+        end if
+
+        clients_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='pfio_clients', _RC)
+        iter_begin = ESMF_HConfigIterBegin(clients_hconfig, _RC)
+        iter_end = ESMF_HConfigIterEnd(clients_hconfig, _RC)
+        iter = iter_begin
+
+        do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+           ! Get client name from the key
+           client_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+
+           ! server: is required
+           has_server = ESMF_HConfigIsDefined(iter, keystring='server', _RC)
+           _ASSERT(has_server, "pfio_clients entry '"//client_name//"' missing required 'server' field")
+           server_name = ESMF_HConfigAsString(iter, keystring='server', _RC)
+
+           ! subclass: is optional; defaults to 'default'
+           subclass_name = 'default'
+           has_subclass = ESMF_HConfigIsDefined(iter, keystring='subclass', _RC)
+           if (has_subclass) then
+              subclass_name = ESMF_HConfigAsString(iter, keystring='subclass', _RC)
+           end if
+
+           ! Create appropriate client subclass
+           select case (trim(subclass_name))
+           case ('default')
+              allocate(client, source=ClientThread(client_comm=this%model_comm, rc=status))
+           case ('fast')
+              allocate(client, source=FastClientThread(client_comm=this%model_comm, rc=status))
+           case default
+              _ASSERT(.false., "Unknown client subclass: '"//trim(subclass_name)//"' (must be 'default' or 'fast')")
+           end select
+
+           ! Register client in the client manager
+           call add_client(client_name, client, _RC)
+
+           ! Connect client to its server
+           call this%directory_service%connect_to_server(server_name, client)
+
+        end do
+
+        call ESMF_HConfigDestroy(clients_hconfig, _RC)
+
+        _RETURN(_SUCCESS)
+        _UNUSED_DUMMY(unusable)
+     end subroutine initialize_clients
+
+    ! Run servers on server PETs; model PETs return immediately.
    ! ESMF_GridCompInitialize/Run/Finalize only require the petList PETs —
    ! no global collective needed.
    subroutine run_servers(this, servers, unusable, rc)
