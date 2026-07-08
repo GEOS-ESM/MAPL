@@ -23,6 +23,8 @@ module mapl_MaplFramework_mod
    use pfio_DirectoryServiceMod, only: DirectoryService
    use pfio_ClientManagerMod, only: init_IO_ClientManager, get_client_thread
    use pfio_MpiServerMod, only: MpiServer
+   use pfio_BaseServerMod, only: BaseServer
+   use pfio_StringServerMapMod, only: StringServerMap
    use pfio_ClientThreadMod, only: ClientThread
    use pfio_AbstractDirectoryServiceMod, only: PortInfo
    use udunits2f, only: UDUNITS_Initialize => Initialize
@@ -51,8 +53,7 @@ module mapl_MaplFramework_mod
       type(ESMF_HConfig) :: hconfig       ! full top-level hconfig
       type(ESMF_HConfig) :: mapl_hconfig  ! mapl: subsection
       type(DirectoryService) :: directory_service
-      type(MpiServer), pointer :: o_server => null()
-      type(MpiServer), pointer :: i_server => null()
+      type(StringServerMap) :: local_server_map
       logical :: is_model_pet = .false.
    contains
       procedure :: initialize
@@ -65,7 +66,8 @@ module mapl_MaplFramework_mod
       procedure :: get_vm_topology
       procedure :: validate_resources
       procedure :: create_servers
-      procedure :: initialize_simple_servers
+      procedure :: initialize_local_servers
+      procedure :: add_local_server
       procedure :: initialize_complex_servers
       procedure :: run_servers
       procedure :: initialize_field_dictionary
@@ -350,6 +352,8 @@ contains
 
    ! Create server communicators and ESMF GridComps for any explicit servers:
    ! section, or set up in-process simple servers if no servers: section exists.
+   ! Local servers are always created for model PETs.  Remote servers (complex
+   ! path) are additive on top of local servers.
    ! Sets this%is_model_pet and returns server GridComps via servers(:).
    subroutine create_servers(this, servers, unusable, rc)
       class(MaplFramework), target, intent(inout) :: this
@@ -368,23 +372,28 @@ contains
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
       model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
 
+      ! Always create the model communicator (both simple and complex paths).
+      call MPI_Comm_group(world_comm, world_group, _IERROR)
+      call MPI_Group_range_incl(world_group, 1, reshape([0, model_petCount-1, 1], [3,1]), model_group, _IERROR)
+      call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
+      call MPI_Group_free(model_group, _IERROR)
+      call MPI_Group_free(world_group, _IERROR)
+      this%is_model_pet = (this%model_comm /= MPI_COMM_NULL)
+
+      ! Always initialize local servers on model PETs.
+      if (this%is_model_pet) then
+         this%directory_service = DirectoryService(this%model_comm)
+         call this%initialize_local_servers(_RC)
+      end if
+
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
       if (.not. has_server_section) then
-         ! Simple path: in-process servers; no ESMF GridComp servers returned.
+         ! Simple path: local servers only, no ESMF GridComp servers.
          allocate(servers(0))
-         call MPI_Comm_group(world_comm, world_group, _IERROR)
-         call MPI_Group_range_incl(world_group, 1, reshape([0, model_petCount-1, 1], [3,1]), model_group, _IERROR)
-         call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
-         call MPI_Group_free(model_group, _IERROR)
-         call MPI_Group_free(world_group, _IERROR)
-         this%is_model_pet = (this%model_comm /= MPI_COMM_NULL)
-         _RETURN_UNLESS(this%is_model_pet)
-         this%directory_service = DirectoryService(this%model_comm)
-         call this%initialize_simple_servers(_RC)
          _RETURN(_SUCCESS)
       end if
 
-      ! Complex path: explicit server topology from servers: section.
+      ! Complex path: remote servers are additive on top of local servers.
       call this%initialize_complex_servers(servers, world_comm, model_petCount, ssiCount, ssiMap, &
            is_model_pet=this%is_model_pet, _RC)
 
@@ -428,7 +437,7 @@ contains
       call MPI_Comm_group(world_comm, world_group, _IERROR)
       model_pets = pets_on_ssis(ssiMap, 0, num_model_ssis)
       call MPI_Group_incl(world_group, size(model_pets), model_pets, model_group, _IERROR)
-      call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
+      ! model_comm already created in create_servers; derive is_model_pet from it.
       if (present(is_model_pet)) is_model_pet = (this%model_comm /= MPI_COMM_NULL)
 
       ssi_0 = num_model_ssis
@@ -451,35 +460,46 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_complex_servers
 
-   subroutine initialize_simple_servers(this, unusable, rc)
+   subroutine initialize_local_servers(this, unusable, rc)
       class(MaplFramework), target, intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status, stat_alloc
-      class(ClientThread), pointer :: client
+      integer :: status
 
       call init_IO_ClientManager(this%model_comm, _RC)
-
-      ! o server
-      allocate(this%o_server, source=MpiServer(this%model_comm, 'o_server', rc=status), stat=stat_alloc)
-      _VERIFY(status)
-      _VERIFY(stat_alloc)
-      call this%directory_service%publish(PortInfo('o_server', this%o_server), this%o_server)
-      client => get_client_thread('o_client', _RC)
-      call this%directory_service%connect_to_server('o_server', client)
-
-      ! i server
-      allocate(this%i_server, source=MpiServer(this%model_comm, 'i_server', rc=status), stat=stat_alloc)
-      _VERIFY(status)
-      _VERIFY(stat_alloc)
-      call this%directory_service%publish(PortInfo('i_server', this%i_server), this%i_server)
-      client => get_client_thread('i_client', _RC)
-      call this%directory_service%connect_to_server('i_server', client)
+      call this%add_local_server('i_server', 'i_client', _RC)
+      call this%add_local_server('o_server', 'o_client', _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine initialize_simple_servers
+   end subroutine initialize_local_servers
+
+   ! Register one local MpiServer and connect its client.
+   ! server_name: key used in local_server_map and DirectoryService port registry.
+   ! client_name: key used in the pfio client_map (via get_client_thread).
+   subroutine add_local_server(this, server_name, client_name, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      character(*), intent(in) :: server_name
+      character(*), intent(in) :: client_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status, alloc_stat
+      class(BaseServer), allocatable :: tmp
+      class(BaseServer), pointer :: srv
+      class(ClientThread), pointer :: client
+
+      allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
+      _VERIFY(status)
+      _VERIFY(alloc_stat)
+      call this%local_server_map%insert(server_name, tmp)
+      srv => this%local_server_map%at(server_name)
+      call this%directory_service%publish(PortInfo(server_name, srv), srv)
+      client => get_client_thread(client_name, _RC)
+      call this%directory_service%connect_to_server(server_name, client)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_local_server
 
    ! Run servers on server PETs; model PETs return immediately.
    ! ESMF_GridCompInitialize/Run/Finalize only require the petList PETs —
@@ -563,9 +583,13 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      ! local_server_map owns o_server and i_server (and any future local servers).
+      ! MpiServer uses allocatable components so clearing the map triggers
+      ! automatic cleanup of server resources.
+      call this%local_server_map%clear()
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(this)
    end subroutine finalize_servers
 
    subroutine finalize_profiler(this, unusable, rc)
