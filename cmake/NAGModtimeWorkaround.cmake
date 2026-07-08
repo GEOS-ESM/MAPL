@@ -2,8 +2,16 @@
 #
 # Purpose:
 #   Suppress NAG Fortran "module needs recompilation" warnings when consuming
-#   external ESMF .mod files with epoch/ancient timestamps, e.g. from Spack
-#   binary cache installs.
+#   external ESMF .mod files.  Two common causes are handled:
+#
+#   1. Epoch/ancient .mod timestamps (e.g. from Spack binary cache installs)
+#      where the .mod files were written at time 0 or before 1980.
+#
+#   2. "Source-inclusive" installations (e.g. ESMA Baselibs) where the ESMF
+#      source tree lives alongside the compiled modules.  NAG embeds absolute
+#      source-file paths in .mod files; if those paths still exist with a
+#      modification time newer than the .mod itself, NAG issues the same
+#      "needs recompilation" warning even though timestamps are modern.
 #
 # Usage:
 #   find_package(ESMF REQUIRED)
@@ -108,6 +116,48 @@ function(_mapl_esmf_has_old_mod_files outvar)
   set(${outvar} FALSE PARENT_SCOPE)
 endfunction()
 
+# Detect "source-inclusive" ESMF installations (e.g. ESMA Baselibs).
+# NAG embeds the absolute source-file path in every .mod file.  If those
+# source files still exist on the filesystem (because the build tree was
+# kept alongside the install), NAG checks whether they are newer than the
+# compiled .mod.  When they are, it emits the same "needs recompilation"
+# warning regardless of the .mod timestamp year.
+#
+# Heuristic: walk up to ${MAPL_NAG_MODTIME_SRC_SEARCH_DEPTH} directory levels
+# above each ESMF module/include directory.  If a "src" subdirectory is found
+# at any of those levels that contains at least one Fortran source file, we
+# treat the installation as source-inclusive and enable -nocheck_modtime.
+set(MAPL_NAG_MODTIME_SRC_SEARCH_DEPTH "4" CACHE STRING
+    "How many directory levels above the ESMF module dir to search for a source tree")
+
+function(_mapl_esmf_has_adjacent_source_tree outvar)
+  _mapl_collect_esmf_module_dirs(_esmf_dirs)
+
+  foreach(_dir IN LISTS _esmf_dirs)
+    set(_search "${_dir}")
+    foreach(_depth RANGE 1 ${MAPL_NAG_MODTIME_SRC_SEARCH_DEPTH})
+      if(IS_DIRECTORY "${_search}/src")
+        # Shallow glob: check one and two levels inside src/ for Fortran files.
+        file(GLOB _f90s
+          "${_search}/src/*.F90"  "${_search}/src/*.f90"
+          "${_search}/src/*.F"    "${_search}/src/*.f"
+          "${_search}/src/*/*.F90" "${_search}/src/*/*.f90"
+          "${_search}/src/*/*.F"   "${_search}/src/*/*.f"
+        )
+        if(_f90s)
+          message(DEBUG
+            "NAG modtime workaround: ESMF source tree found at ${_search}/src")
+          set(${outvar} TRUE PARENT_SCOPE)
+          return()
+        endif()
+      endif()
+      get_filename_component(_search "${_search}" DIRECTORY)
+    endforeach()
+  endforeach()
+
+  set(${outvar} FALSE PARENT_SCOPE)
+endfunction()
+
 set(_mapl_enable_nag_nocheck_modtime FALSE)
 
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
@@ -120,14 +170,20 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
 
   elseif(MAPL_NAG_MODTIME_POLICY STREQUAL "AUTO")
     _mapl_esmf_has_old_mod_files(_mapl_esmf_old_mods)
+    _mapl_esmf_has_adjacent_source_tree(_mapl_esmf_has_srctree)
 
-    if(_mapl_esmf_old_mods)
+    if(_mapl_esmf_old_mods OR _mapl_esmf_has_srctree)
       set(_mapl_enable_nag_nocheck_modtime TRUE)
-      message(STATUS
-        "NAG modtime workaround: old/epoch ESMF .mod timestamps found; enabling -nocheck_modtime")
+      if(_mapl_esmf_old_mods)
+        message(STATUS
+          "NAG modtime workaround: old/epoch ESMF .mod timestamps found; enabling -nocheck_modtime")
+      else()
+        message(STATUS
+          "NAG modtime workaround: ESMF source tree found alongside compiled modules; enabling -nocheck_modtime")
+      endif()
     else()
       message(STATUS
-        "NAG modtime workaround: ESMF .mod timestamps look normal; leaving checks enabled")
+        "NAG modtime workaround: no stale indicators found; leaving checks enabled")
     endif()
 
   else()
