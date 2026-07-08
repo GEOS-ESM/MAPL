@@ -26,13 +26,23 @@ contains
    end subroutine test_noleap_calendar_kind
 
    ! Test that the default calendar has been set to NOLEAP by the test initialization.
+   ! Create a time without specifying a calendar (uses the default), then retrieve
+   ! the calendar from it and verify its kind is ESMF_CALKIND_NOLEAP.
    @Test
    subroutine test_default_calendar_is_noleap()
+      type(ESMF_Time) :: time
+      type(ESMF_Calendar) :: cal
       type(ESMF_CalKind_Flag) :: calKind
       integer :: status
 
-      call ESMF_CalendarGet(ESMF_DEFAULT_CAL, calkindflag=calKind, rc=status)
-      @assertEqual(ESMF_SUCCESS, status, 'ESMF_CalendarGet on default calendar should succeed')
+      call ESMF_TimeSet(time, yy=2000, mm=1, dd=1, h=0, m=0, s=0, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, 'ESMF_TimeSet with default calendar should succeed')
+
+      call ESMF_TimeGet(time, calendar=cal, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, 'ESMF_TimeGet(calendar) should succeed')
+
+      call ESMF_CalendarGet(cal, calkindflag=calKind, rc=status)
+      @assertEqual(ESMF_SUCCESS, status, 'ESMF_CalendarGet should succeed')
       @assertEqual(ESMF_CALKIND_NOLEAP, calKind, 'Default calendar should be ESMF_CALKIND_NOLEAP')
 
    end subroutine test_default_calendar_is_noleap
