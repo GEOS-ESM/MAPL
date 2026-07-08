@@ -20,6 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Refactor local IO server management (#5239): added `pFIO_StringServerMapMod`
+  (`StringServerMap`) for polymorphic server storage; replaced raw `o_server`/
+  `i_server` pointers in `MaplFramework` with `local_server_map`; renamed
+  `initialize_simple_servers` → `initialize_local_servers` with an
+  `add_local_server` helper to eliminate duplication; local servers are now
+  always created for model PETs regardless of whether a remote `servers:`
+  section is present; `finalize_servers` now clears the map instead of no-op.
+
 - Refactored `pFIO_ClientManagerMod` (#5234): replaced module-level `i_client`/`o_client`
   variables with a `StringClientThreadMap` (public, PROTECTED, TARGET) and a
   `get_client_thread(name)` accessor; updated all call sites in MAPL to use the

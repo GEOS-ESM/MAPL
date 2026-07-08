@@ -1,6 +1,4 @@
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
-
+#include "MAPL.h"
 module pFIO_ClientManagerMod
 
    use mapl_ErrorHandling_mod
