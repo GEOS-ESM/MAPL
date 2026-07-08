@@ -6,6 +6,7 @@ set (srcs
   ESMF_TestParameter.F90
   MAPL_pFUnit_Throw.F90
   MAPL_Initialize.F90
+  MAPL_Initialize_NoLeap.F90
 )
 
 esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs} NOINSTALL TYPE SHARED)
