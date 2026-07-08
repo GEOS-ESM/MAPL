@@ -18,6 +18,7 @@ contains
       class(*), pointer :: option
       type(ESMF_GridComp), allocatable :: servers(:)
       integer :: status
+      integer :: rc
 
       call set_command_line_options()
 
@@ -27,8 +28,7 @@ contains
       end if
 
       call MAPL_initialize(level_name=level_name)
-      call ESMF_CalendarSetDefault(ESMF_CALKIND_NOLEAP, rc=status)
-      _VERIFY(status)
+      call ESMF_CalendarSetDefault(ESMF_CALKIND_NOLEAP, _RC)
       call MAPL_CreateServers(servers)
 
       call MAPL_set_throw_method(throw)
