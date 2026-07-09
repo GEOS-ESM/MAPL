@@ -152,6 +152,7 @@ contains
 
       logical :: is_default_server
       type(HistoryGridComp), pointer :: history
+      integer :: status
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE, history)
       is_default_server = history%server_name == MAPL_DEFAULT_OUTPUT_SERVER
