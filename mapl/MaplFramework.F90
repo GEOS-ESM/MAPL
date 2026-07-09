@@ -385,7 +385,7 @@ contains
 
       ! Always initialize local servers on model PETs.
       if (this%is_model_pet) then
-         this%directory_service = DirectoryService(this%model_comm)
+         this%directory_service = DirectoryService(world_comm)
          call this%initialize_local_servers(_RC)
       end if
 
