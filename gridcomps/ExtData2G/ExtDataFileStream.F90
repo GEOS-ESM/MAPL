@@ -22,6 +22,7 @@ module MAPL_ExtDataFileStream
       type(FileMetaData) :: metadata
       contains
          procedure :: detect_metadata
+         procedure :: refine_valid_range
    end type
 
     interface ExtDataFileStream
@@ -192,6 +193,177 @@ contains
       _UNUSED_DUMMY(time)
 
    end subroutine detect_metadata
+
+   ! Given a guess for the valid range of a file series, narrow it to the
+   ! actual first and last file times found on the filesystem.  The file
+   ! series is defined by reff_time + n * frequency for any integer n, and
+   ! files are assumed to form a single contiguous block within the range.
+   !
+   ! Algorithm: probe midpoint then right-quarter point as anchor (O(1));
+   ! if both miss, fall back to a linear scan from n_lo.  Once an anchor
+   ! (any confirmed file position) is established, binary search on each
+   ! monotone half gives O(log N) total filesystem probes for the common
+   ! case, with linear fallback only for unusual narrow-block situations.
+   subroutine refine_valid_range(this, unusable, rc)
+      class(ExtDataFileStream), intent(inout) :: this
+      class(KeywordEnforcer),   optional, intent(in)  :: unusable
+      integer,                  optional, intent(out) :: rc
+
+      integer(ESMF_KIND_I8) :: interval_seconds
+      integer :: n_lo, n_hi, n_first, n_last, n_mid, n_anchor, lo, hi, n
+      integer :: status
+      logical :: file_found
+      type(ESMF_Time) :: t_mid
+      type(ESMF_Time), allocatable :: time_series(:)
+      character(len=ESMF_MAXPATHLEN) :: filename
+      type(MAPLDataCollection),  pointer :: collection
+      type(FileMetadataUtils),   pointer :: file_metadata
+
+      _UNUSED_DUMMY(unusable)
+
+      ! Determine if interval is absolute (representable in seconds) or
+      ! relative (months/years).  Follows the same idiom as get_file in
+      ! ExtDataSimpleFileHandler: a zero s_i8 result means relative.
+      call ESMF_TimeIntervalGet(this%frequency, s_i8=interval_seconds)
+
+      if (interval_seconds /= 0) then
+
+         ! --- Absolute interval: compute index bounds via ESMF division ---
+         ! n_lo: last integer n with reff_time + n*freq <= valid_range(1)
+         ! (includes the file whose period covers valid_range(1) even if its
+         ! start timestamp is slightly before it).
+         ! ESMF division truncates toward zero, which is floor for positive
+         ! differences but ceiling for negative; the guard below corrects the
+         ! latter so both signs give the floor (i.e. the desired last n).
+         n_lo = (this%valid_range(1) - this%reff_time) / this%frequency
+         if (this%reff_time + n_lo * this%frequency > this%valid_range(1)) n_lo = n_lo - 1
+
+         ! n_hi: last integer n with reff_time + n*freq <= valid_range(2)
+         n_hi = (this%valid_range(2) - this%reff_time) / this%frequency
+         if (this%reff_time + n_hi * this%frequency > this%valid_range(2)) n_hi = n_hi - 1
+      else
+
+         ! --- Relative interval (months/years): walk to find index bounds ---
+         ! n_lo = last n such that reff_time + n*freq <= valid_range(1).
+         ! This includes the file whose start is at or just before valid_range(1)
+         ! so that files whose period covers valid_range(1) are not skipped.
+         ! (Using "first n >= valid_range(1)" would skip that file on any call
+         ! where valid_range(1) has been refined to a sub-period timestamp.)
+         n = 0
+         if (this%reff_time < this%valid_range(1)) then
+            do while (this%reff_time + (n + 1) * this%frequency <= this%valid_range(1))
+               n = n + 1
+            end do
+         else
+            do while (this%reff_time + n * this%frequency > this%valid_range(1))
+               n = n - 1
+            end do
+         end if
+         n_lo = n
+
+         ! Walk forward from n_lo to the last index within valid_range(2).
+         n = n_lo
+         do while (this%reff_time + (n + 1) * this%frequency <= this%valid_range(2))
+            n = n + 1
+         end do
+         n_hi = n
+
+      end if
+
+      _ASSERT(n_lo <= n_hi, &
+         "no candidate file times found within guess valid range for: "//trim(this%file_template))
+
+      ! === Phase 1: Find anchor — up to 2 probes, then linear scan fallback ===
+      ! A contiguous block needs a confirmed anchor so that each directed binary
+      ! search operates on a monotone sub-range: [n_lo, n_anchor] is 0...01...1
+      ! and [n_anchor, n_hi] is 1...10...0.
+
+      ! Probe 1: midpoint
+      n_anchor = (n_lo + n_hi) / 2
+      t_mid = this%reff_time + n_anchor * this%frequency
+      call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
+      inquire(file=trim(filename), exist=file_found)
+
+      if (.not. file_found) then
+         ! Probe 2: right-quarter point — covers the common case where data
+         ! starts after the midpoint of the guess range.
+         n_anchor = (n_anchor + n_hi) / 2
+         t_mid = this%reff_time + n_anchor * this%frequency
+         call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
+         inquire(file=trim(filename), exist=file_found)
+      end if
+
+      if (.not. file_found) then
+         ! Both probes missed; scan forward from n_lo to locate n_first.
+         do n = n_lo, n_hi
+            t_mid = this%reff_time + n * this%frequency
+            call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
+            inquire(file=trim(filename), exist=file_found)
+            if (file_found) then
+               n_first = n
+               exit
+            end if
+         end do
+         if (.not.file_found) then
+            _RETURN(_SUCCESS)
+         end if
+         !_ASSERT(file_found, "no files found in guess valid range for: "//trim(this%file_template))
+         n_anchor = n_first
+      end if
+      ! === Phase 2: Binary search for n_first in [n_lo, n_anchor] ===
+      ! n_anchor is confirmed to have a file; range is monotone 0...01...1.
+      lo = n_lo
+      hi = n_anchor
+      do while (lo < hi)
+         n_mid = (lo + hi) / 2
+         t_mid = this%reff_time + n_mid * this%frequency
+         call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
+         inquire(file=trim(filename), exist=file_found)
+         if (file_found) then
+            hi = n_mid       ! could be leftmost; search left half
+         else
+            lo = n_mid + 1   ! no file here; discard left half
+         end if
+      end do
+      n_first = lo
+
+      ! === Phase 3: Binary search for n_last in [n_anchor, n_hi] ===
+      ! n_anchor is confirmed to have a file; range is monotone 1...10...0.
+      lo = n_anchor
+      hi = n_hi
+      do while (lo < hi)
+         n_mid = (lo + hi + 1) / 2   ! ceiling to avoid infinite loop when hi = lo+1
+         t_mid = this%reff_time + n_mid * this%frequency
+         call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
+         inquire(file=trim(filename), exist=file_found)
+         if (file_found) then
+            lo = n_mid       ! could be rightmost; search right half
+         else
+            hi = n_mid - 1   ! no file here; discard right half
+         end if
+      end do
+      n_last = lo
+
+      ! Refine valid_range(1): open the first file and take its earliest time.
+      collection => DataCollections%at(this%collection_id)
+
+      t_mid = this%reff_time + n_first * this%frequency
+      call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
+      file_metadata => collection%find(trim(filename), _RC)
+      call file_metadata%get_time_info(timeVector=time_series, _RC)
+      this%valid_range(1) = time_series(1)
+      deallocate(time_series)
+
+      ! Refine valid_range(2): open the last file and take its latest time.
+      t_mid = this%reff_time + n_last * this%frequency
+      call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
+      file_metadata => collection%find(trim(filename), _RC)
+      call file_metadata%get_time_info(timeVector=time_series, _RC)
+      this%valid_range(2) = time_series(size(time_series))
+
+      _RETURN(_SUCCESS)
+
+   end subroutine refine_valid_range
 
 end module MAPL_ExtDataFileStream
 
