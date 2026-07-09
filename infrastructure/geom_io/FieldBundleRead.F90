@@ -230,16 +230,17 @@ contains
    !                   share the same schema (optional)
    !   rc            - Return code (optional)
    !---------------------------------------------------------------------------
-    subroutine read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
-         noread, file_override, rc)
-      type(ESMF_FieldBundle), intent(inout) :: bundle
-      character(*),           intent(in)    :: file_tmpl
-      type(ESMF_Time),        intent(in)    :: time
-      character(*), optional, intent(in)    :: only_vars
-      integer, optional,      intent(in)    :: regrid_method
-      logical, optional,      intent(in)    :: noread
-       character(*), optional, intent(in)    :: file_override
-       integer, optional,      intent(out)   :: rc
+     subroutine read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
+          noread, file_override, input_server_name, rc)
+       type(ESMF_FieldBundle), intent(inout) :: bundle
+       character(*),           intent(in)    :: file_tmpl
+       type(ESMF_Time),        intent(in)    :: time
+       character(*), optional, intent(in)    :: only_vars
+       integer, optional,      intent(in)    :: regrid_method
+       logical, optional,      intent(in)    :: noread
+        character(*), optional, intent(in)    :: file_override
+        character(*), optional, intent(in)    :: input_server_name
+        integer, optional,      intent(out)   :: rc
       integer :: status
       integer :: field_count, time_index, i, regrid_method_
 
@@ -363,10 +364,10 @@ contains
       end if
 
       !--- Read data into file_bundle via GeomIO ---
-      allocate(reader, source=make_geom_pfio(metadata), _STAT)
-      call reader%initialize(trim(file_name), file_geom, _RC)
-      call reader%request_data_from_file(trim(file_name), file_bundle, _RC)
-       i_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
+       allocate(reader, source=make_geom_pfio(metadata), _STAT)
+       call reader%initialize(trim(file_name), file_geom, input_server_name=input_server_name, _RC)
+       call reader%request_data_from_file(trim(file_name), file_bundle, _RC)
+        i_client => get_client(reader%get_input_server_name(), _RC)
       call i_client%done_collective_prefetch()
       call i_client%wait_all()
 

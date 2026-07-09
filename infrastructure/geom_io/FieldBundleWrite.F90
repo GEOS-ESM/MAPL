@@ -29,11 +29,12 @@ module mapl_FieldBundleWrite_mod
 
    contains
 
-      subroutine write_bundle_single_time(bundle,clock,output_file,rc)
-         type(ESMF_FieldBundle), intent(inout) :: bundle
-         type(ESMF_Clock), intent(inout) :: clock
-         character(len=*), intent(in) :: output_file
-         integer, optional, intent(out) :: rc
+      subroutine write_bundle_single_time(bundle,clock,output_file,output_server_name,rc)
+          type(ESMF_FieldBundle), intent(inout) :: bundle
+          type(ESMF_Clock), intent(inout) :: clock
+          character(len=*), intent(in) :: output_file
+          character(len=*), optional, intent(in) :: output_server_name
+          integer, optional, intent(out) :: rc
 
          integer :: status
 
@@ -41,33 +42,38 @@ module mapl_FieldBundleWrite_mod
          type(ESMF_Time) :: time
 
          call ESMF_ClockGet(clock, currTime=time, _RC)
-         call newWriter%start_new_file(output_File, time, _RC)
-         call newWriter%write_to_file(bundle, time, _RC)
+          if (present(output_server_name)) then
+             call newWriter%start_new_file(output_File, time, output_server_name=output_server_name, _RC)
+          else
+             call newWriter%start_new_file(output_File, time, _RC)
+          end if
+          call newWriter%write_to_file(bundle, time, _RC)
          _RETURN(_SUCCESS)
       end subroutine write_bundle_single_time
 
-      subroutine create_from_bundle(this,bundle,clock,rc)
-         class(FieldBundleWRiter), intent(inout) :: this
-         type(ESMF_FieldBundle), intent(inout) :: bundle
-         type(ESMF_Clock), intent(inout) :: clock
-         integer, optional, intent(out) :: rc
+      subroutine create_from_bundle(this,bundle,clock, output_server_name, rc)
+          class(FieldBundleWRiter), intent(inout) :: this
+          type(ESMF_FieldBundle), intent(inout) :: bundle
+          type(ESMF_Clock), intent(inout) :: clock
+          character(len=*), intent(in), optional :: output_server_name
+          integer, optional, intent(out) :: rc
 
          integer :: num_fields,i,file_steps,collection_id,status
          type(ESMF_Geom) :: geom
          type(FileMetadata) :: metadata
 
 
-         call ESMF_FieldBundleGet(bundle, geom=geom, _RC)
-         metadata = bundle_to_metadata(bundle, geom, _RC)
-         allocate(this%writer, source=make_geom_pfio(metadata,rc=status))
-         _VERIFY(status)
-         call this%writer%initialize(metadata, geom, _RC)
+          call ESMF_FieldBundleGet(bundle, geom=geom, _RC)
+          metadata = bundle_to_metadata(bundle, geom, _RC)
+          allocate(this%writer, source=make_geom_pfio(metadata,rc=status))
+          _VERIFY(status)
+          call this%writer%initialize(metadata, geom, output_server_name=output_server_name, _RC)
 
          _RETURN(_SUCCESS)
 
       end subroutine create_from_bundle
 
-      subroutine write_to_file(this,bundle, time, rc)
+       subroutine write_to_file(this,bundle, time, rc)
          class(FieldBundleWriter), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Time), intent(inout) :: time
@@ -77,7 +83,7 @@ module mapl_FieldBundleWrite_mod
          real, allocatable :: file_times(:)
          type(ESMF_TimeInterval) :: time_interval
          real(kind=ESMF_KIND_R8) :: real_time_interval
-         class(ClientThread), pointer :: o_client
+           class(ClientThread), pointer :: o_client
 
          old_size = size(this%file_times) 
          allocate(file_times, source=this%file_times, _STAT)
@@ -90,7 +96,7 @@ module mapl_FieldBundleWrite_mod
          this%file_times(time_index) = real_time_interval
 
          time_index = size(this%file_times)
-           o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
+           o_client => get_client(this%writer%get_output_server_name(), _RC)
           call this%writer%stage_time_to_file(this%file_name, this%file_times, _RC)
           call this%writer%stage_data_to_file(bundle, this%file_name, time_index, _RC)
 
@@ -101,20 +107,21 @@ module mapl_FieldBundleWrite_mod
 
       end subroutine write_to_file
 
-      subroutine start_new_file(this, filename, time, rc)
-         class(fieldBundleWriter),intent(inout) :: this
-         character(len=*), intent(in) :: filename
-         type(ESMF_Time), intent(in) :: time
-         integer, optional, intent(out) :: rc
+      subroutine start_new_file(this, filename, time, output_server_name, rc)
+          class(fieldBundleWriter),intent(inout) :: this
+          character(len=*), intent(in) :: filename
+          type(ESMF_Time), intent(in) :: time
+           character(len=*), intent(in), optional :: output_server_name
+          integer, optional, intent(out) :: rc
 
          integer :: status
 
-         allocate(this%file_times(0), _STAT)
-         this%file_name=filename
-         this%initial_time=time
-         call this%writer%stage_coordinates_to_file(filename, _RC)
-         call this%writer%update_time_on_server(time, _RC)
-         _RETURN(_SUCCESS)
-      end subroutine start_new_file
+          allocate(this%file_times(0), _STAT)
+          this%file_name=filename
+          this%initial_time=time
+           call this%writer%stage_coordinates_to_file(filename, _RC)
+           call this%writer%update_time_on_server(time, _RC)
+          _RETURN(_SUCCESS)
+       end subroutine start_new_file
 
 end module mapl_FieldBundleWrite_mod

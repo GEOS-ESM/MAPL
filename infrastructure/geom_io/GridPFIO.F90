@@ -47,9 +47,9 @@ contains
       type(ArrayReference) :: ref
       real(ESMF_Kind_R8), pointer :: coords(:,:)
       integer :: request_id
-      class(ClientThread), pointer :: o_client
+       class(ClientThread), pointer :: o_client
 
-       o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
+       o_client => get_client(this%get_output_server_name(), _RC)
       file_metadata = this%get_file_metadata()
       has_ll = file_metadata%has_variable('lons') .and. file_metadata%has_variable('lats')
       if (has_ll) then
@@ -134,12 +134,12 @@ contains
       type(ESMF_TypeKind_Flag) :: tk
       integer, allocatable :: element_count(:), new_element_count(:)
       integer :: request_id
-      class(ClientThread), pointer :: o_client
+       class(ClientThread), pointer :: o_client
 
       type(ESMF_Grid) :: grid
       type(pFIOServerBounds) :: server_bounds
 
-       o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
+       o_client => get_client(this%get_output_server_name(), _RC)
       collection_id = this%get_collection_id()
       call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, _RC)
       allocate(field_names(num_fields))
@@ -186,9 +186,9 @@ contains
       type(c_ptr) :: address
       type(ArrayReference) :: ref
       integer :: collection_id, num_fields, idx, pfio_typekind, status, request_id
-      class(ClientThread), pointer :: i_client
+       class(ClientThread), pointer :: i_client
 
-       i_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
+       i_client => get_client(this%get_input_server_name(), _RC)
       collection_id = this%get_collection_id()
 
       call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, _RC)

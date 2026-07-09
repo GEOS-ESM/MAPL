@@ -17,6 +17,8 @@ module mapl_GeomPFIO_mod
       integer :: collection_id
       type(ESMF_Geom) :: esmfgeom
       type(FileMetadata) :: file_metadata
+      character(:), allocatable :: output_server_name
+      character(:), allocatable :: input_server_name
    contains
       procedure(I_stage_data_to_file), deferred :: stage_data_to_file
       procedure(I_stage_coordinates_to_file), deferred :: stage_coordinates_to_file
@@ -29,6 +31,8 @@ module mapl_GeomPFIO_mod
       procedure, non_overridable :: get_collection_id
       procedure, non_overridable :: get_file_metadata
       procedure, non_overridable :: get_esmf_geom
+      procedure, non_overridable :: get_output_server_name
+      procedure, non_overridable :: get_input_server_name
    end type GeomPFIO
 
    abstract interface
@@ -71,12 +75,12 @@ contains
       integer :: status
       type(StringVariableMap) :: var_map
       type(Variable) :: time_var
-      class(ClientThread), pointer :: client
+       class(ClientThread), pointer :: client
 
-      time_var = create_time_variable(time, _RC)
-      call var_map%insert('time',time_var)
-       client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
-      call client%modify_metadata(this%collection_id, var_map=var_map, _RC)
+       time_var = create_time_variable(time, _RC)
+       call var_map%insert('time',time_var)
+       client => get_client(this%output_server_name, _RC)
+       call client%modify_metadata(this%collection_id, var_map=var_map, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -93,42 +97,52 @@ contains
       integer :: request_id
       class(ClientThread), pointer :: client
 
-      ref = ArrayReference(times)
-       client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
-      request_id = client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
+       ref = ArrayReference(times)
+       client => get_client(this%output_server_name, _RC)
+       request_id = client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine
 
-   subroutine init_with_metadata(this, metadata, esmfgeom,  rc)
-      class(GeomPFIO), intent(inout) :: this
-      type(FileMetadata), intent(in) :: metadata
-      type(ESMF_Geom), intent(in) :: esmfgeom
-      integer, optional, intent(out) :: rc
+   subroutine init_with_metadata(this, metadata, esmfgeom, output_server_name, rc)
+       class(GeomPFIO), intent(inout) :: this
+       type(FileMetadata), intent(in) :: metadata
+       type(ESMF_Geom), intent(in) :: esmfgeom
+       character(len=*), intent(in), optional :: output_server_name
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      class(ClientThread), pointer :: client
+       integer :: status
+       class(ClientThread), pointer :: client
+       character(len=:), allocatable :: server_name
 
-      this%esmfgeom = esmfgeom
-       client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
-      this%collection_id = client%add_data_collection(metadata, _RC)
-      this%file_metadata = metadata
+       server_name = MAPL_DEFAULT_OUTPUT_SERVER
+       if (present(output_server_name)) server_name = output_server_name
+       this%esmfgeom = esmfgeom
+       this%output_server_name = server_name
+       client => get_client(this%output_server_name, _RC)
+       this%collection_id = client%add_data_collection(metadata, _RC)
+       this%file_metadata = metadata
 
       _RETURN(_SUCCESS)
    end subroutine init_with_metadata
 
-   subroutine init_with_filename(this, file_name, esmfgeom,  rc)
-      class(GeomPFIO), intent(inout) :: this
-      character(len=*), intent(in) :: file_name
-      type(ESMF_Geom), intent(in) :: esmfgeom
-      integer, optional, intent(out) :: rc
+   subroutine init_with_filename(this, file_name, esmfgeom, input_server_name, rc)
+       class(GeomPFIO), intent(inout) :: this
+       character(len=*), intent(in) :: file_name
+       type(ESMF_Geom), intent(in) :: esmfgeom
+       character(len=*), intent(in), optional :: input_server_name
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      class(ClientThread), pointer :: client
+       integer :: status
+       class(ClientThread), pointer :: client
+       character(len=:), allocatable :: server_name
 
-      this%esmfgeom = esmfgeom
-       client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
-      this%collection_id = client%add_data_collection(file_name, _RC)
+       server_name = MAPL_DEFAULT_INPUT_SERVER
+       if (present(input_server_name)) server_name = input_server_name
+       this%esmfgeom = esmfgeom
+       this%input_server_name = server_name
+       client => get_client(this%input_server_name, _RC)
+       this%collection_id = client%add_data_collection(file_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine init_with_filename
@@ -152,5 +166,21 @@ contains
 
       esmfgeom=this%esmfgeom
    end function get_esmf_geom
+
+   function get_output_server_name(this) result(server_name)
+      class(GeomPFIO), intent(in) :: this
+      character(:), allocatable :: server_name
+
+      server_name = this%output_server_name
+
+   end function get_output_server_name
+
+   function get_input_server_name(this) result(server_name)
+      class(GeomPFIO), intent(in) :: this
+      character(:), allocatable :: server_name
+
+      server_name = this%input_server_name
+
+   end function get_input_server_name
 
 end module mapl_GeomPFIO_mod
