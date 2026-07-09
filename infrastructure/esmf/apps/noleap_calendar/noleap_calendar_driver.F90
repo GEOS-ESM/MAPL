@@ -17,7 +17,6 @@ program noleap_calendar_driver
 
    integer :: status
    type(ESMF_Config) :: config
-   type(ESMF_Calendar) :: cal
    type(ESMF_CalKind_Flag) :: calKind
    type(ESMF_Time) :: feb28, next_day
    type(ESMF_TimeInterval) :: one_day
@@ -47,26 +46,24 @@ program noleap_calendar_driver
    end if
 
    ! -----------------------------------------------------------------------
-   ! Check 1: explicitly create a NOLEAP calendar and verify its kind.
-   ! -----------------------------------------------------------------------
-   cal = ESMF_CalendarCreate(ESMF_CALKIND_NOLEAP, name='noleap', rc=status)
-   call report('ESMF_CalendarCreate(NOLEAP)', status == ESMF_SUCCESS, n_pass, n_fail)
-
-   call ESMF_CalendarGet(cal, calkindflag=calKind, rc=status)
-   call report('calendar kind is ESMF_CALKIND_NOLEAP', &
-        status == ESMF_SUCCESS .and. (ESMF_CALKIND_NOLEAP == calKind), &
-        n_pass, n_fail)
-
-   call ESMF_CalendarDestroy(cal, rc=status)
-
-   ! -----------------------------------------------------------------------
-   ! Check 2: day after 2000-02-28 is 2000-03-01 with the default calendar.
-   ! (In a leap-year calendar 2000 has a Feb 29; NOLEAP skips it.)
+   ! Check 1: verify the default calendar set by ESMF_Initialize is NOLEAP.
+   ! Set a time without specifying a calendar so ESMF uses the default, then
+   ! query calkindflag from that time object to confirm the default kind.
    ! -----------------------------------------------------------------------
    call ESMF_TimeSet(feb28, yy=2000, mm=2, dd=28, h=0, m=0, s=0, rc=status)
    call report('ESMF_TimeSet(2000-02-28) with default calendar', &
         status == ESMF_SUCCESS, n_pass, n_fail)
 
+   call ESMF_TimeGet(feb28, calkindflag=calKind, rc=status)
+   call report('default calendar kind is ESMF_CALKIND_NOLEAP', &
+        status == ESMF_SUCCESS .and. (ESMF_CALKIND_NOLEAP == calKind), &
+        n_pass, n_fail)
+
+   ! -----------------------------------------------------------------------
+   ! Check 2: day after 2000-02-28 is 2000-03-01 with the default calendar.
+   ! (In a leap-year calendar 2000 has a Feb 29; NOLEAP skips it.)
+   ! feb28 was already set in Check 1 above.
+   ! -----------------------------------------------------------------------
    call ESMF_TimeIntervalSet(one_day, d=1, rc=status)
    next_day = feb28 + one_day
 
