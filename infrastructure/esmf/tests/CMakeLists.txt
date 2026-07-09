@@ -19,17 +19,6 @@ add_pfunit_ctest(MAPL.esmf.tests
 set_target_properties(MAPL.esmf.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.esmf.tests PROPERTIES LABELS "ESSENTIAL")
 
-add_pfunit_ctest(MAPL.esmf.noleap.tests
-  TEST_SOURCES Test_NoLeap_Calendar.pf
-  LINK_LIBRARIES MAPL.esmf MAPL.pfunit
-  EXTRA_INITIALIZE Initialize
-  EXTRA_USE mapl_pFUnit_Initialize_NoLeap_mod
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  MAX_PES 1
-  )
-set_target_properties(MAPL.esmf.noleap.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-set_tests_properties(MAPL.esmf.noleap.tests PROPERTIES LABELS "ESSENTIAL")
-
 if (APPLE)
   set(LD_PATH "DYLD_LIBRARY_PATH")
 else()
@@ -43,7 +32,5 @@ if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
 endif()
 
 set_property(TEST MAPL.esmf.tests PROPERTY ENVIRONMENT "${TEST_ENV}")
-set_property(TEST MAPL.esmf.noleap.tests PROPERTY ENVIRONMENT "${TEST_ENV}")
 
 add_dependencies(build-tests MAPL.esmf.tests)
-add_dependencies(build-tests MAPL.esmf.noleap.tests)

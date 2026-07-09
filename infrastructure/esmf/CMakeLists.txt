@@ -64,3 +64,5 @@ if (PFUNIT_FOUND)
     add_subdirectory (hconfig/tests EXCLUDE_FROM_ALL)
     add_subdirectory (hconfig_utils/tests EXCLUDE_FROM_ALL)
 endif ()
+
+add_subdirectory (apps)
