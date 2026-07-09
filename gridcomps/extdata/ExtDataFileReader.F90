@@ -1,10 +1,11 @@
 #include "MAPL.h"
 module mapl_ExtDataReader_mod
    use esmf
-   use gftl2_StringStringMap
-   use gftl2_StringIntegerMap
-   use MAPL
-   use pFlogger, only: logger
+    use gftl2_StringStringMap
+    use gftl2_StringIntegerMap
+    use MAPL
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
+    use pFlogger, only: logger
    use, intrinsic :: iso_c_binding, only: c_ptr
    implicit none(type,external)
    private
@@ -95,7 +96,7 @@ module mapl_ExtDataReader_mod
          _RETURN(_SUCCESS)
       end if
 
-      i_client => mapl_get_client('i_client', _RC)
+      i_client => mapl_get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
 
       call MAPL_FieldBundleGet(this%accumulated_fields, fieldList=field_list, _RC)
       do i=1,size(field_list)

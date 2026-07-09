@@ -1,12 +1,13 @@
 #include "MAPL.h"
 
 module mapl_GeomPFIO_mod
-   use mapl_ErrorHandling_mod
-   use ESMF
-   use pfio, only: get_client, ClientThread, StringVariableMap, ArrayReference, FileMetadata, Variable
-   use mapl_geom_api
-   use mapl_SharedIO_mod
-   implicit none
+    use mapl_ErrorHandling_mod
+    use ESMF
+    use pfio, only: get_client, ClientThread, StringVariableMap, ArrayReference, FileMetadata, Variable
+    use mapl_geom_api
+    use mapl_SharedIO_mod
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
+    implicit none
    private
 
    public :: GeomPFIO
@@ -74,7 +75,7 @@ contains
 
       time_var = create_time_variable(time, _RC)
       call var_map%insert('time',time_var)
-      client => get_client('o_client', _RC)
+       client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
       call client%modify_metadata(this%collection_id, var_map=var_map, _RC)
 
       _RETURN(_SUCCESS)
@@ -93,7 +94,7 @@ contains
       class(ClientThread), pointer :: client
 
       ref = ArrayReference(times)
-      client => get_client('o_client', _RC)
+       client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
       request_id = client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
       _RETURN(_SUCCESS)
 
@@ -109,7 +110,7 @@ contains
       class(ClientThread), pointer :: client
 
       this%esmfgeom = esmfgeom
-      client => get_client('o_client', _RC)
+       client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
       this%collection_id = client%add_data_collection(metadata, _RC)
       this%file_metadata = metadata
 
@@ -126,7 +127,7 @@ contains
       class(ClientThread), pointer :: client
 
       this%esmfgeom = esmfgeom
-      client => get_client('i_client', _RC)
+       client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
       this%collection_id = client%add_data_collection(file_name, _RC)
 
       _RETURN(_SUCCESS)

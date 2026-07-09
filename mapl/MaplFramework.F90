@@ -18,10 +18,11 @@ module mapl_MaplFramework_mod
    ! Note: mapl_VerticalGridManager_mod used inside initialize() only
    use mapl_FixedLevelsVerticalGrid_mod
    use mapl_ModelVerticalGrid_mod
-   use mapl_FieldDictionary_mod, only: load_field_dictionary
-   use mapl_Profiler_mod, only: profiler_initialize => initialize, profiler_finalize => finalize
-    use pfio_DirectoryServiceMod, only: DirectoryService
-    use pfio_ClientManagerMod, only: get_client, add_client
+    use mapl_FieldDictionary_mod, only: load_field_dictionary
+    use mapl_Profiler_mod, only: profiler_initialize => initialize, profiler_finalize => finalize
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
+     use pfio_DirectoryServiceMod, only: DirectoryService
+     use pfio_ClientManagerMod, only: get_client, add_client
     use pfio_MpiServerMod, only: MpiServer
     use pfio_MultiGroupServerMod, only: MultiGroupServer
     use pfio_BaseServerMod, only: BaseServer
@@ -519,15 +520,25 @@ contains
            end do
 
            call ESMF_HConfigDestroy(servers_hconfig, _RC)
-        else
-           ! Backward compatibility: no servers: section, use hardcoded defaults.
-           ! These connect default clients created above.
-           call this%add_local_server('i_server', 'i_client', _RC)
-           call this%add_local_server('o_server', 'o_client', _RC)
-        end if
+         else
+            ! Backward compatibility: no servers: section, use hardcoded defaults.
+            ! These connect default clients created above.
+             write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: default path, calling add_local_server for INPUT'
+             flush(6)
+             call this%add_local_server(MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_INPUT_SERVER, _RC)
+             write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: add_local_server INPUT returned'
+             flush(6)
+             call this%add_local_server(MAPL_DEFAULT_OUTPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER, _RC)
+             write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: add_local_server OUTPUT returned'
+             flush(6)
+         end if
 
         ! Initialize default or configured clients.
+        write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: calling initialize_clients'
+        flush(6)
         call this%initialize_clients(_RC)
+        write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: initialize_clients returned'
+        flush(6)
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(unusable)
@@ -561,26 +572,36 @@ contains
           end if
        end if
 
-       ! Allocate appropriate server subclass
-       select case (trim(subclass_name))
-       case ('MpiServer')
-          allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
-          _VERIFY(status)
-          _VERIFY(alloc_stat)
-       case ('MultiGroupServer')
-          ! MultiGroupServer needs model_comm but also needs nwriter_per_node from hconfig.
-          ! For now, default to 1 writer per node.  In the future, read from hconfig if provided.
-          allocate(tmp, source=MultiGroupServer(this%model_comm, server_name, nwriter_per_node=1, rc=status), &
-               stat=alloc_stat)
-          _VERIFY(status)
-          _VERIFY(alloc_stat)
-       case default
-          _ASSERT(.false., "Unknown server subclass: '"//trim(subclass_name)//"'")
-       end select
+        ! Allocate appropriate server subclass
+        select case (trim(subclass_name))
+        case ('MpiServer')
+            write(*,'(A)') '[MAPL_DEBUG] add_local_server: constructing MpiServer for "'//trim(server_name)//'"'
+           flush(6)
+           allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
+           write(*,'(A)') '[MAPL_DEBUG] add_local_server: MpiServer constructed for "'//trim(server_name)//'"'
+           flush(6)
+           _VERIFY(status)
+           _VERIFY(alloc_stat)
+        case ('MultiGroupServer')
+           ! MultiGroupServer needs model_comm but also needs nwriter_per_node from hconfig.
+           ! For now, default to 1 writer per node.  In the future, read from hconfig if provided.
+           allocate(tmp, source=MultiGroupServer(this%model_comm, server_name, nwriter_per_node=1, rc=status), &
+                stat=alloc_stat)
+           _VERIFY(status)
+           _VERIFY(alloc_stat)
+        case default
+           _ASSERT(.false., "Unknown server subclass: '"//trim(subclass_name)//"'")
+        end select
 
-       call this%local_server_map%insert(server_name, tmp)
-       srv => this%local_server_map%at(server_name)
-       call this%directory_service%publish(PortInfo(server_name, srv), srv)
+         write(*,'(A)') '[MAPL_DEBUG] add_local_server: inserting "'//trim(server_name)//'" into local_server_map'
+         flush(6)
+         call this%local_server_map%insert(server_name, tmp)
+         srv => this%local_server_map%at(server_name)
+         write(*,'(A)') '[MAPL_DEBUG] add_local_server: calling directory_service%publish for "'//trim(server_name)//'"'
+         flush(6)
+         call this%directory_service%publish(PortInfo(server_name, srv), srv)
+         write(*,'(A)') '[MAPL_DEBUG] add_local_server: publish returned for "'//trim(server_name)//'"'
+         flush(6)
 !#       client => get_client(client_name, _RC)
 !#       call this%directory_service%connect_to_server(server_name, client)
 
@@ -606,22 +627,36 @@ contains
         class(ClientThread), pointer :: p_client
 
         has_client_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='pfio_clients', _RC)
-        if (.not. has_client_section) then
-           allocate(client, source=ClientThread(client_comm=this%model_comm, rc=status))
-           _VERIFY(status)
-           call add_client('i_client', client, _RC)
-           p_client => get_client('i_client', _RC)
-           call this%directory_service%connect_to_server('i_server', p_client)
+         if (.not. has_client_section) then
+            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: default path (no pfio_clients section)'
+            flush(6)
+            allocate(client, source=ClientThread(client_comm=this%model_comm, rc=status))
+            _VERIFY(status)
+            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: calling add_client for "'//MAPL_DEFAULT_INPUT_SERVER//'"'
+            flush(6)
+            call add_client(MAPL_DEFAULT_INPUT_SERVER, client, _RC)
+            p_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
+            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: calling connect_to_server for "'//MAPL_DEFAULT_INPUT_SERVER//'"'
+            flush(6)
+            call this%directory_service%connect_to_server(MAPL_DEFAULT_INPUT_SERVER, p_client)
+            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: connect_to_server INPUT returned'
+            flush(6)
 
-           deallocate(client)
-           allocate(client, source=FastClientThread(client_comm=this%model_comm, rc=status))
-           _VERIFY(status)
-           call add_client('o_client', client, _RC)
-           p_client => get_client('o_client', _RC)
-           call this%directory_service%connect_to_server('o_server', p_client)
+            deallocate(client)
+            allocate(client, source=FastClientThread(client_comm=this%model_comm, rc=status))
+            _VERIFY(status)
+            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: calling add_client for "'//MAPL_DEFAULT_OUTPUT_SERVER//'"'
+            flush(6)
+            call add_client(MAPL_DEFAULT_OUTPUT_SERVER, client, _RC)
+            p_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
+            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: calling connect_to_server for "'//MAPL_DEFAULT_OUTPUT_SERVER//'"'
+            flush(6)
+            call this%directory_service%connect_to_server(MAPL_DEFAULT_OUTPUT_SERVER, p_client)
+            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: connect_to_server OUTPUT returned'
+            flush(6)
 
-           _RETURN(_SUCCESS)
-        end if
+            _RETURN(_SUCCESS)
+         end if
 
         clients_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='pfio_clients', _RC)
         iter_begin = ESMF_HConfigIterBegin(clients_hconfig, _RC)

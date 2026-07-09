@@ -2,12 +2,13 @@
 
 module mapl_HistoryGridComp_mod
 
-   use MAPL
-   use ESMF
-   use mapl_HistoryGridComp_private_mod
-   use mapl_HistoryCollectionGridComp_mod, only: collection_setServices => setServices
-   use mapl_StatisticsGridComp_mod, only: statistics_setServices => setServices
-   use pFlogger, only: logger
+    use MAPL
+    use ESMF
+    use mapl_HistoryGridComp_private_mod
+    use mapl_HistoryCollectionGridComp_mod, only: collection_setServices => setServices
+    use mapl_StatisticsGridComp_mod, only: statistics_setServices => setServices
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_OUTPUT_SERVER
+    use pFlogger, only: logger
 
    implicit none(type,external)
    private
@@ -151,7 +152,7 @@ contains
 
       call MAPL_GridCompRunChildren(gridcomp, phase_name='run', _RC)
 
-      o_client => mapl_get_client('o_client', _RC)
+       o_client => mapl_get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
       call o_client%done_collective_stage()
       call o_client%post_wait_all()
 
@@ -176,4 +177,3 @@ subroutine setServices(gridcomp,rc)
 
    _RETURN(_SUCCESS)
 end subroutine
-

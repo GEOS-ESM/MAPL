@@ -6,12 +6,13 @@ module mapl_GridPFIO_mod
 
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
-   use mapl_SharedIO_mod
-   use ESMF
-   use PFIO
-   use MAPL_Constants,  only: MAPL_RADIANS_TO_DEGREES
-   use mapl_FieldPointerUtilities_mod
-   use mapl_pFIOServerBounds_mod, only: pFIOServerBounds, PFIO_BOUNDS_WRITE, PFIO_BOUNDS_READ
+    use mapl_SharedIO_mod
+    use ESMF
+    use PFIO
+    use MAPL_Constants,  only: MAPL_RADIANS_TO_DEGREES
+    use mapl_FieldPointerUtilities_mod
+    use mapl_pFIOServerBounds_mod, only: pFIOServerBounds, PFIO_BOUNDS_WRITE, PFIO_BOUNDS_READ
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
 
    implicit none
    private
@@ -48,7 +49,7 @@ contains
       integer :: request_id
       class(ClientThread), pointer :: o_client
 
-      o_client => get_client('o_client', _RC)
+       o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
       file_metadata = this%get_file_metadata()
       has_ll = file_metadata%has_variable('lons') .and. file_metadata%has_variable('lats')
       if (has_ll) then
@@ -138,7 +139,7 @@ contains
       type(ESMF_Grid) :: grid
       type(pFIOServerBounds) :: server_bounds
 
-      o_client => get_client('o_client', _RC)
+       o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
       collection_id = this%get_collection_id()
       call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, _RC)
       allocate(field_names(num_fields))
@@ -187,7 +188,7 @@ contains
       integer :: collection_id, num_fields, idx, pfio_typekind, status, request_id
       class(ClientThread), pointer :: i_client
 
-      i_client => get_client('i_client', _RC)
+       i_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
       collection_id = this%get_collection_id()
 
       call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, _RC)

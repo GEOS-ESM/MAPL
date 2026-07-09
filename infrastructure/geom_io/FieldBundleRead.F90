@@ -13,14 +13,15 @@ module mapl_FieldBundleRead_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_vertical_grid_api
    ! Note: mapl_VerticalGridManager_mod used inside MAPL_read_bundle only
-   use mapl_RegridderManager_mod, only: get_regridder_manager, RegridderManager
-   use mapl_RegridderSpec_mod
-   use mapl_RegridderMethods_mod
-   use mapl_Regridder_mod, only: Regridder
-   use mapl_FileMetadataUtils_mod
-   use mapl_StringTemplate_mod, only: fill_grads_template
-   use pFIO
-   use gFTL2_StringVector
+    use mapl_RegridderManager_mod, only: get_regridder_manager, RegridderManager
+    use mapl_RegridderSpec_mod
+    use mapl_RegridderMethods_mod
+    use mapl_Regridder_mod, only: Regridder
+    use mapl_FileMetadataUtils_mod
+    use mapl_StringTemplate_mod, only: fill_grads_template
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
+    use pFIO
+    use gFTL2_StringVector
 
    implicit none(type, external)
    private
@@ -365,7 +366,7 @@ contains
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
       call reader%initialize(trim(file_name), file_geom, _RC)
       call reader%request_data_from_file(trim(file_name), file_bundle, _RC)
-      i_client => get_client('i_client', _RC)
+       i_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
       call i_client%done_collective_prefetch()
       call i_client%wait_all()
 
