@@ -5,7 +5,7 @@ ecbuild_add_executable(
   SOURCES noleap_calendar_driver.F90
 )
 
-target_link_libraries(${exe} PRIVATE ESMF::ESMF MPI::MPI_Fortran)
+target_link_libraries(${exe} PRIVATE MAPL.esmf ESMF::ESMF MPI::MPI_Fortran)
 
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")

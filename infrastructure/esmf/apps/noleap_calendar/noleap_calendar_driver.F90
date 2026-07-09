@@ -41,7 +41,7 @@ program noleap_calendar_driver
         config=config, &
         defaultDefaultCalKind=ESMF_CALKIND_NOLEAP, &
         rc=status)
-   _ASSERT(status /= ESMF_SUCCESS, 'FAIL: ESMF_Initialize')
+   _ASSERT(status == ESMF_SUCCESS, 'FAIL: ESMF_Initialize')
 
    ! -----------------------------------------------------------------------
    ! Check 1: verify the default calendar set by ESMF_Initialize is NOLEAP.
@@ -49,7 +49,7 @@ program noleap_calendar_driver
    ! query calkindflag from that time object to confirm the default kind.
    ! -----------------------------------------------------------------------
    call ESMF_TimeSet(feb28, yy=2000, mm=2, dd=28, h=0, m=0, s=0, rc=status)
-   _ASSERT(status /= ESMF_SUCCESS, 'FAIL: ESMF_TimeSet(2000-02-28) with default calendar')
+   _ASSERT(status == ESMF_SUCCESS, 'FAIL: ESMF_TimeSet(2000-02-28) with default calendar')
 
    call ESMF_TimeGet(feb28, calkindflag=calKind, rc=status)
    _ASSERT(status == ESMF_SUCCESS .and. (ESMF_CALKIND_NOLEAP == calKind), 'FAIL: default calendar kind is not ESMF_CALKIND_NOLEAP')
@@ -63,7 +63,7 @@ program noleap_calendar_driver
    next_day = feb28 + one_day
 
    call ESMF_TimeGet(next_day, yy=yy, mm=mm, dd=dd, rc=status)
-   _ASSERT(status == ESMF_SUCCESS .and. (mm=03) .and. (dd=01), 'FAIL: day after 2000-02-28 is NOT 2000-03-01')
+   _ASSERT(status == ESMF_SUCCESS .and. (mm==3) .and. (dd==1), 'FAIL: day after 2000-02-28 is NOT 2000-03-01')
 
    ! -----------------------------------------------------------------------
    ! Summary
