@@ -48,6 +48,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_server
+      character(len=:), allocatable :: server_name
       type(ESMF_HConfig) :: collections_hconfig
 
       collections_hconfig = get_subconfig(hconfig, 'collections', _RC)
@@ -55,6 +57,12 @@ contains
       call ESMF_HConfigDestroy(collections_hconfig, _RC)
 
       call ESMF_HConfigAdd(child_hconfig, content=collection_name, addKeyString='collection_name', _RC)
+
+      has_server = ESMF_HConfigIsDefined(hconfig, keystring='server', _RC)
+      if (has_server) then
+         server_name = ESMF_HConfigAsString(hconfig, keystring='server', _RC)
+         call ESMF_HConfigAdd(child_hconfig, content=server_name, addKeyString='server', _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end function make_child_hconfig
