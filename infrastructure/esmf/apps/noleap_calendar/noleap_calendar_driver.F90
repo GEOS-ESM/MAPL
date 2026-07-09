@@ -14,6 +14,7 @@
 
 program noleap_calendar_driver
    use esmf
+   use mapl_ErrorHandling_mod
    implicit none
 
    integer :: status
