@@ -45,6 +45,7 @@ module mapl_MaplFramework_mod
    public :: MAPL_Get
    public :: MAPL_CreateServers
    public :: MAPL_RunServers
+   public :: MAPL_ConnectToServer
 
    type :: MaplFramework
       private
@@ -105,6 +106,10 @@ module mapl_MaplFramework_mod
    interface MAPL_RunServers
       procedure :: mapl_run_servers
    end interface MAPL_RunServers
+
+   interface MAPL_ConnectToServer
+      procedure :: mapl_connect_to_server
+   end interface MAPL_ConnectToServer
 
 contains
 
@@ -729,6 +734,29 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine run_servers
+
+   subroutine mapl_connect_to_server(server_name, unusable, client_name, rc)
+      character(*), intent(in) :: server_name
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: client_name
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: client_name_
+      class(ClientThread), allocatable :: client
+      class(ClientThread), pointer :: p_client
+      integer :: status
+
+      client_name_ = server_name
+      if (present(client_name)) client_name_ = client_name
+
+      allocate(FastClientThread :: client)
+      call add_client(client_name_, client, _RC)
+      p_client => get_client(client_name_, _RC)
+      call the_mapl_object%directory_service%connect_to_server(server_name, p_client)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine mapl_connect_to_server
 
    subroutine get(this, unusable, directory_service, is_model_pet, hconfig, rc)
       class(MaplFramework), target, intent(in) :: this
