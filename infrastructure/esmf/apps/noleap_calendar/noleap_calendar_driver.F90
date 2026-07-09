@@ -1,3 +1,4 @@
+#include "MAPL.h"
 ! Standalone driver that verifies ESMF_CALKIND_NOLEAP calendar behaviour.
 !
 ! The default calendar kind is configured through the YAML file passed as
@@ -40,10 +41,7 @@ program noleap_calendar_driver
         config=config, &
         defaultDefaultCalKind=ESMF_CALKIND_NOLEAP, &
         rc=status)
-   if (status /= ESMF_SUCCESS) then
-      print *, 'FAIL: ESMF_Initialize'
-      error stop 1
-   end if
+   _ASSERT(status /= ESMF_SUCCESS, 'FAIL: ESMF_Initialize')
 
    ! -----------------------------------------------------------------------
    ! Check 1: verify the default calendar set by ESMF_Initialize is NOLEAP.
@@ -51,14 +49,10 @@ program noleap_calendar_driver
    ! query calkindflag from that time object to confirm the default kind.
    ! -----------------------------------------------------------------------
    call ESMF_TimeSet(feb28, yy=2000, mm=2, dd=28, h=0, m=0, s=0, rc=status)
-   call report('ESMF_TimeSet(2000-02-28) with default calendar', &
-        status == ESMF_SUCCESS, n_pass, n_fail)
-   if (status /= ESMF_SUCCESS) error stop 1
+   _ASSERT(status /= ESMF_SUCCESS, 'FAIL: ESMF_TimeSet(2000-02-28) with default calendar')
 
    call ESMF_TimeGet(feb28, calkindflag=calKind, rc=status)
-   call report('default calendar kind is ESMF_CALKIND_NOLEAP', &
-        status == ESMF_SUCCESS .and. (ESMF_CALKIND_NOLEAP == calKind), &
-        n_pass, n_fail)
+   _ASSERT(status == ESMF_SUCCESS .and. (ESMF_CALKIND_NOLEAP == calKind), 'FAIL: default calendar kind is not ESMF_CALKIND_NOLEAP')
 
    ! -----------------------------------------------------------------------
    ! Check 2: day after 2000-02-28 is 2000-03-01 with the default calendar.
@@ -69,39 +63,13 @@ program noleap_calendar_driver
    next_day = feb28 + one_day
 
    call ESMF_TimeGet(next_day, yy=yy, mm=mm, dd=dd, rc=status)
-   if (status /= ESMF_SUCCESS) then
-      call report('ESMF_TimeGet after Feb 28', .false., n_pass, n_fail)
-   else
-      call report('day after 2000-02-28 is 2000-03-01 (no Feb 29)', &
-           yy == 2000 .and. mm == 3 .and. dd == 1, n_pass, n_fail)
-      if (.not. (yy == 2000 .and. mm == 3 .and. dd == 1)) then
-         write(*, '(a,3i4)') '      got:', yy, mm, dd
-      end if
-   end if
+   _ASSERT(status == ESMF_SUCCESS .and. (mm=03) .and. (dd=01), 'FAIL: day after 2000-02-28 is NOT 2000-03-01')
 
    ! -----------------------------------------------------------------------
    ! Summary
    ! -----------------------------------------------------------------------
-   write(*, *)
-   write(*, '(a,i0,a,i0,a)') 'Results: ', n_pass, ' passed, ', n_fail, ' failed'
-
    call ESMF_Finalize(rc=status)
 
-   if (n_fail /= 0) error stop 1
-
-contains
-
-   subroutine report(label, passed, n_pass, n_fail)
-      character(len=*), intent(in) :: label
-      logical,          intent(in) :: passed
-      integer,       intent(inout) :: n_pass, n_fail
-      if (passed) then
-         n_pass = n_pass + 1
-         write(*, '(a,a)') 'PASS: ', label
-      else
-         n_fail = n_fail + 1
-         write(*, '(a,a)') 'FAIL: ', label
-      end if
-   end subroutine report
+   _RETURN(ESMF_SUCCESS)
 
 end program noleap_calendar_driver
