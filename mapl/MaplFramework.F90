@@ -490,8 +490,6 @@ contains
         logical :: is_local
         type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
 
-        ! Initialize default or configured clients.
-        call this%initialize_clients(_RC)
 
         ! Check if servers: section exists
         has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
@@ -527,6 +525,9 @@ contains
            call this%add_local_server('i_server', 'i_client', _RC)
            call this%add_local_server('o_server', 'o_client', _RC)
         end if
+
+        ! Initialize default or configured clients.
+        call this%initialize_clients(_RC)
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(unusable)
@@ -580,8 +581,8 @@ contains
        call this%local_server_map%insert(server_name, tmp)
        srv => this%local_server_map%at(server_name)
        call this%directory_service%publish(PortInfo(server_name, srv), srv)
-       client => get_client(client_name, _RC)
-       call this%directory_service%connect_to_server(server_name, client)
+!#       client => get_client(client_name, _RC)
+!#       call this%directory_service%connect_to_server(server_name, client)
 
        _RETURN(_SUCCESS)
     end subroutine add_local_server
@@ -602,17 +603,22 @@ contains
         character(:), allocatable :: client_name, server_name, subclass_name
         logical :: has_server, has_subclass
         class(ClientThread), allocatable :: client
+        class(ClientThread), pointer :: p_client
 
         has_client_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='pfio_clients', _RC)
         if (.not. has_client_section) then
            allocate(client, source=ClientThread(client_comm=this%model_comm, rc=status))
            _VERIFY(status)
            call add_client('i_client', client, _RC)
+           p_client => get_client('i_client', _RC)
+           call this%directory_service%connect_to_server('i_server', p_client)
 
            deallocate(client)
            allocate(client, source=FastClientThread(client_comm=this%model_comm, rc=status))
            _VERIFY(status)
            call add_client('o_client', client, _RC)
+           p_client => get_client('o_client', _RC)
+           call this%directory_service%connect_to_server('o_server', p_client)
 
            _RETURN(_SUCCESS)
         end if
