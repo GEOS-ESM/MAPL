@@ -5,6 +5,7 @@ module mapl_pfio_api
   use pfio, only: mapl_StringVariableMapIterator => StringVariableMapIterator
   use pfio, only: mapl_NetCDF4_FileFormatter => NetCDF4_FileFormatter
   use pfio, only: mapl_ArrayReference => ArrayReference
+  use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
   use pfio, only: operator(==), operator(/=)
 
   use pfio, only: mapl_get_client => get_client
@@ -21,6 +22,8 @@ module mapl_pfio_api
   public :: mapl_StringVariableMap
   public :: mapl_StringVariableMapIterator
   public :: mapl_NetCDF4_FileFormatter
+  public :: MAPL_DEFAULT_INPUT_SERVER
+  public :: MAPL_DEFAULT_OUTPUT_SERVER
 
   public :: mapl_get_client
   public :: ClientThread
