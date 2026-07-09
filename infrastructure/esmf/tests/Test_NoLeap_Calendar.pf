@@ -18,7 +18,7 @@ contains
 
       call ESMF_CalendarGet(cal, calkindflag=calKind, rc=status)
       @assertEqual(ESMF_SUCCESS, status, 'ESMF_CalendarGet should succeed')
-      @assertEqual(ESMF_CALKIND_NOLEAP, calKind, 'Calendar kind should be ESMF_CALKIND_NOLEAP')
+      @assertTrue(ESMF_CALKIND_NOLEAP == calKind, 'Calendar kind should be ESMF_CALKIND_NOLEAP')
 
       call ESMF_CalendarDestroy(cal, rc=status)
       @assertEqual(ESMF_SUCCESS, status, 'ESMF_CalendarDestroy should succeed')
@@ -43,7 +43,7 @@ contains
 
       call ESMF_CalendarGet(cal, calkindflag=calKind, rc=status)
       @assertEqual(ESMF_SUCCESS, status, 'ESMF_CalendarGet should succeed')
-      @assertEqual(ESMF_CALKIND_NOLEAP, calKind, 'Default calendar should be ESMF_CALKIND_NOLEAP')
+      @assertTrue(ESMF_CALKIND_NOLEAP == calKind, 'Default calendar should be ESMF_CALKIND_NOLEAP')
 
    end subroutine test_default_calendar_is_noleap
 
