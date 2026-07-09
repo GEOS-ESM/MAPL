@@ -53,6 +53,7 @@ program noleap_calendar_driver
    call ESMF_TimeSet(feb28, yy=2000, mm=2, dd=28, h=0, m=0, s=0, rc=status)
    call report('ESMF_TimeSet(2000-02-28) with default calendar', &
         status == ESMF_SUCCESS, n_pass, n_fail)
+   if (status /= ESMF_SUCCESS) error stop 1
 
    call ESMF_TimeGet(feb28, calkindflag=calKind, rc=status)
    call report('default calendar kind is ESMF_CALKIND_NOLEAP', &
