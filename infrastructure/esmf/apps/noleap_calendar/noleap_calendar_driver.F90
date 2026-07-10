@@ -1,4 +1,5 @@
-#include "MAPL_ErrLog.h"
+#define I_AM_MAIN
+#include "MAPL.h"
 ! Standalone driver that verifies ESMF_CALKIND_NOLEAP calendar behaviour.
 !
 ! The default calendar kind is configured through the YAML file passed as
@@ -39,38 +40,32 @@ program noleap_calendar_driver
         configKey=['esmf'], &
         config=config, &
         defaultDefaultCalKind=ESMF_CALKIND_GREGORIAN, &
-        rc=status)
-   if(status /= ESMF_SUCCESS) error stop 'ESMF_Initialize'
+        _RC)
 
    ! -----------------------------------------------------------------------
    ! Check 1: verify the default calendar set by ESMF_Initialize is NOLEAP.
    ! Set a time without specifying a calendar so ESMF uses the default, then
    ! query calkindflag from that time object to confirm the default kind.
    ! -----------------------------------------------------------------------
-   call ESMF_TimeSet(feb28, yy=2000, mm=2, dd=28, h=0, m=0, s=0, rc=status)
-   if(status /= ESMF_SUCCESS) error stop 'FAIL: ESMF_TimeSet(2000-02-28) with default calendar'
+   call ESMF_TimeSet(feb28, yy=2000, mm=2, dd=28, h=0, m=0, s=0, _RC)
 
-   call ESMF_TimeGet(feb28, calkindflag=calKind, rc=status)
-   if(status /= ESMF_SUCCESS) error stop 'FAIL: ESMF_TimeGet 1st'
-   if(calKind /= ESMF_CALKIND_NOLEAP) error stop 'FAIL: calendar kind is not ESMF_CALKIND_NOLEAP'
+   call ESMF_TimeGet(feb28, calkindflag=calKind, _RC)
+   _ASSERT(calKind == ESMF_CALKIND_NOLEAP, 'calendar kind expected to be ESMF_CALKIND_NOLEAP')
 
    ! -----------------------------------------------------------------------
    ! Check 2: day after 2000-02-28 is 2000-03-01 with the default calendar.
    ! (In a leap-year calendar 2000 has a Feb 29; NOLEAP skips it.)
    ! feb28 was already set in Check 1 above.
    ! -----------------------------------------------------------------------
-   call ESMF_TimeIntervalSet(one_day, d=1, rc=status)
-   if(status /= ESMF_SUCCESS) error stop 'FAIL: ESMF_TimeIntervalSet'
+   call ESMF_TimeIntervalSet(one_day, d=1, _RC)
    next_day = feb28 + one_day
 
-   call ESMF_TimeGet(next_day, yy=yy, mm=mm, dd=dd, rc=status)
-   if(status /= ESMF_SUCCESS) error stop 'FAIL: ESMF_TimeGet 2nd'
-   if(mm /= 3 .and. dd /= 1) error stop 'FAIL: Next Day after Feb 28 is not Mar 1; calendar kind is not ESMF_CALKIND_NOLEAP'
+   call ESMF_TimeGet(next_day, yy=yy, mm=mm, dd=dd, _RC)
+   _ASSERT(mm == 3 .and. dd == 1, 'Next Day after Feb 28 is not Mar 1; calendar kind is not ESMF_CALKIND_NOLEAP')
 
    ! -----------------------------------------------------------------------
    ! Summary
    ! -----------------------------------------------------------------------
-   call ESMF_Finalize(rc=status)
-   if(status /= ESMF_SUCCESS) error stop 'FAIL: ESMF_Finalize'
+   call ESMF_Finalize(_RC)
 
 end program noleap_calendar_driver
