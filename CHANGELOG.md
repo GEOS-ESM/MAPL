@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   2-PET ctest `pfio_server_captest` under `gridcomps/cap/tests/`; fixed multiple
   missing `TARGET` attributes in `pfio` exposed by NAG Fortran debug mode
 
+- Added tests to check the use of ESMF_CALKIND_NOLEAP as the default calendar
 - Named default pfio server constants (#5242): new module `mapl_DefaultServerNames_mod`
   exports `MAPL_DEFAULT_INPUT_SERVER` and `MAPL_DEFAULT_OUTPUT_SERVER`; all hardcoded
   `'i_client'`/`'o_client'`/`'i_server'`/`'o_server'` string literals replaced with these
