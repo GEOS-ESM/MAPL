@@ -2,17 +2,24 @@
 
 module mapl_HistoryGridComp_mod
 
-   use MAPL
-   use ESMF
-   use mapl_HistoryGridComp_private_mod
-   use mapl_HistoryCollectionGridComp_mod, only: collection_setServices => setServices
-   use mapl_StatisticsGridComp_mod, only: statistics_setServices => setServices
-   use pFlogger, only: logger
+    use MAPL
+    use ESMF
+    use mapl_HistoryGridComp_private_mod
+    use mapl_HistoryCollectionGridComp_mod, only: collection_setServices => setServices
+    use mapl_StatisticsGridComp_mod, only: statistics_setServices => setServices
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_OUTPUT_SERVER
+    use pFlogger, only: logger
 
    implicit none(type,external)
    private
 
    public :: setServices
+
+   type :: HistoryGridComp
+      character(:), allocatable :: server_name
+   end type HistoryGridComp
+
+   character(*), parameter :: PRIVATE_STATE = 'History'
 
 contains
 
@@ -24,7 +31,9 @@ contains
       character(len=:), allocatable :: child_name, collection_name
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       logical :: has_active_collections
+      logical :: has_server
       class(logger), pointer :: lgr
+      type(HistoryGridComp), pointer :: history
       integer :: num_collections, status
       type(ESMF_TimeInterval), allocatable :: timeStep
 
@@ -32,8 +41,17 @@ contains
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER", _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
+      _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE)
+      _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE, history)
+
       ! Determine collections
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+
+      history%server_name = MAPL_DEFAULT_OUTPUT_SERVER
+      has_server = ESMF_HConfigIsDefined(hconfig, keyString='server', _RC)
+      if (has_server) then
+         history%server_name = ESMF_HConfigAsString(hconfig, keyString='server', _RC)
+      end if
 
       has_active_collections = ESMF_HConfigIsDefined(hconfig, keyString='active_collections', _RC)
       if (.not. has_active_collections) then
@@ -132,6 +150,16 @@ contains
       type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
+      logical :: is_default_server
+      type(HistoryGridComp), pointer :: history
+      integer :: status
+
+      _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE, history)
+      is_default_server = history%server_name == MAPL_DEFAULT_OUTPUT_SERVER
+      if (.not. is_default_server) then
+         call MAPL_ConnectToServer(history%server_name, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(gridcomp)
       _UNUSED_DUMMY(importState)
@@ -148,10 +176,13 @@ contains
 
       integer :: status
       class(ClientThread), pointer :: o_client
+      type(HistoryGridComp), pointer :: history
+
+      _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE, history)
 
       call MAPL_GridCompRunChildren(gridcomp, phase_name='run', _RC)
 
-      o_client => mapl_get_client_thread('o_client', _RC)
+      o_client => mapl_get_client(history%server_name, _RC)
       call o_client%done_collective_stage()
       call o_client%post_wait_all()
 
@@ -176,4 +207,3 @@ subroutine setServices(gridcomp,rc)
 
    _RETURN(_SUCCESS)
 end subroutine
-

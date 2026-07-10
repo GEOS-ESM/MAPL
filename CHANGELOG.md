@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added tests to check the use of ESMF_CALKIND_NOLEAP as the default calendar
+- Named default pfio server constants (#5242): new module `mapl_DefaultServerNames_mod`
+  exports `MAPL_DEFAULT_INPUT_SERVER` and `MAPL_DEFAULT_OUTPUT_SERVER`; all hardcoded
+  `'i_client'`/`'o_client'`/`'i_server'`/`'o_server'` string literals replaced with these
+  constants throughout `MaplFramework`, `RestartHandler`, `GeomPFIO`, `GridPFIO`,
+  `FieldBundleRead`, `FieldBundleWrite`, `HistoryGridComp`, `ExtDataFileReader`, and
+  `PrimaryExport`; fixed `MAX_LEN_PORT_NAME` (16 → 64) to support longer port names
+
 - Added `MAPL_StateMerge` to combine two `ESMF_State` objects into one without allocating new field memory
 - MAPL3 initialization lifecycle (#5231): new 6-call application lifecycle
   (`MAPL_Initialize`, `MAPL_CreateServers`, `MAPL_CapCreate`, `MAPL_RunServers`,
