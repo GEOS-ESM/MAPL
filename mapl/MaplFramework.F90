@@ -71,7 +71,6 @@ module mapl_MaplFramework_mod
       procedure :: validate_resources
       procedure :: initialize_default_servers
       procedure :: create_servers
-      procedure :: initialize_clients
       procedure :: initialize_configured_local_servers
       procedure :: add_local_server
       procedure :: initialize_non_default_servers
@@ -390,9 +389,9 @@ contains
       this%directory_service = DirectoryService(world_comm)
 
       ! Create the two default local servers and their clients.
+      ! Input uses a standard ClientThread; output uses a FastClientThread.
       call this%add_local_server(MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_INPUT_SERVER, _RC)
-      call this%add_local_server(MAPL_DEFAULT_OUTPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER, _RC)
-      call this%initialize_clients(_RC)
+      call this%add_local_server(MAPL_DEFAULT_OUTPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER, fast_client=.true., _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -563,32 +562,34 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_configured_local_servers
 
-    ! Register one local server and connect its client.
-    ! server_name: key used in local_server_map and DirectoryService port registry.
-    ! client_name: key used in the pfio client_map (via get_client_thread).
-    ! hconfig: optional hconfig for the server entry; if provided, reads subclass: to dispatch.
-    !   If not provided, defaults to MpiServer (backward compatibility).
-    subroutine add_local_server(this, server_name, client_name, hconfig, rc)
-       class(MaplFramework), target, intent(inout) :: this
-       character(*), intent(in) :: server_name
-       character(*), intent(in) :: client_name  ! reserved for future use (client registration)
-       type(ESMF_HConfigIter), optional, intent(in) :: hconfig
-       integer, optional, intent(out) :: rc
+   ! Register one local server and connect its client in a single atomic step.
+   ! server_name: key used in local_server_map and DirectoryService port registry.
+   ! client_name: key used in the pfio ClientManager.
+   ! hconfig: optional — if provided, reads subclass: to dispatch server type.
+   !          If not provided, defaults to MpiServer.
+   ! fast_client: if .true., use FastClientThread for the client; default is ClientThread.
+   subroutine add_local_server(this, server_name, client_name, hconfig, fast_client, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      character(*), intent(in) :: server_name
+      character(*), intent(in) :: client_name
+      type(ESMF_HConfigIter), optional, intent(in) :: hconfig
+      logical, optional, intent(in) :: fast_client
+      integer, optional, intent(out) :: rc
 
-       integer :: status, alloc_stat
-       class(BaseServer), allocatable :: tmp
-       class(BaseServer), pointer :: srv
-       logical :: has_subclass
-       character(:), allocatable :: subclass_name
+      integer :: status, alloc_stat
+      class(BaseServer), allocatable :: tmp
+      class(BaseServer), pointer :: srv
+      class(ClientThread), allocatable :: new_client
+      class(ClientThread), pointer :: p_client
+      logical :: has_subclass, use_fast
+      character(:), allocatable :: subclass_name
 
-       ! Determine server subclass
-       subclass_name = 'MpiServer'  ! default
-       if (present(hconfig)) then
-          has_subclass = ESMF_HConfigIsDefined(hconfig, keystring='subclass', _RC)
-          if (has_subclass) then
-             subclass_name = ESMF_HConfigAsString(hconfig, keystring='subclass', _RC)
-          end if
-       end if
+      ! Determine server subclass.
+      subclass_name = 'MpiServer'  ! default
+      if (present(hconfig)) then
+         has_subclass = ESMF_HConfigIsDefined(hconfig, keystring='subclass', _RC)
+         if (has_subclass) subclass_name = ESMF_HConfigAsString(hconfig, keystring='subclass', _RC)
+      end if
 
       ! Allocate appropriate server subclass.
       select case (trim(subclass_name))
@@ -597,8 +598,6 @@ contains
          _VERIFY(status)
          _VERIFY(alloc_stat)
       case ('MultiGroupServer')
-         ! MultiGroupServer needs model_comm but also needs nwriter_per_node from hconfig.
-         ! For now, default to 1 writer per node.  In the future, read from hconfig if provided.
          allocate(tmp, source=MultiGroupServer(this%model_comm, server_name, nwriter_per_node=1, rc=status), &
               stat=alloc_stat)
          _VERIFY(status)
@@ -607,94 +606,31 @@ contains
          _ASSERT(.false., "Unknown server subclass: '"//trim(subclass_name)//"'")
       end select
 
+      ! Publish the server so connect_to_server can find it by name.
       call this%local_server_map%insert(server_name, tmp)
       srv => this%local_server_map%at(server_name)
       call this%directory_service%publish(PortInfo(server_name, srv), srv)
 
+      ! Create the client, store it in the ClientManager, then connect the
+      ! map-resident copy to the server.  connect_to_server stores a pointer to
+      ! the client internally (SimpleSocket), so the client must be stored in
+      ! stable long-lived storage (the ClientManager map) before connecting.
+      use_fast = .false.
+      if (present(fast_client)) use_fast = fast_client
+
+      if (use_fast) then
+         allocate(new_client, source=FastClientThread(client_comm=this%model_comm, rc=status))
+      else
+         allocate(new_client, source=ClientThread(client_comm=this%model_comm, rc=status))
+      end if
+      _VERIFY(status)
+
+      call add_client(client_name, new_client, _RC)
+      p_client => get_client(client_name, _RC)
+      call this%directory_service%connect_to_server(server_name, p_client)
+
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(client_name)
    end subroutine add_local_server
-
-     ! Initialize configured clients from pfio_clients: section.
-     ! Each client entry specifies:
-     !   - server: the name of the server to connect to
-     !   - subclass: 'default' (ClientThread) or 'fast' (FastClientThread); defaults to 'default'
-     subroutine initialize_clients(this, unusable, rc)
-        class(MaplFramework), target, intent(inout) :: this
-        class(KeywordEnforcer), optional, intent(in) :: unusable
-        integer, optional, intent(out) :: rc
-
-        integer :: status
-        logical :: has_client_section
-        type(ESMF_HConfig) :: clients_hconfig
-        type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
-        character(:), allocatable :: client_name, server_name, subclass_name
-        logical :: has_server, has_subclass
-        class(ClientThread), allocatable :: client
-        class(ClientThread), pointer :: p_client
-
-        has_client_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='pfio_clients', _RC)
-         if (.not. has_client_section) then
-            allocate(client, source=ClientThread(client_comm=this%model_comm, rc=status))
-            _VERIFY(status)
-            call add_client(MAPL_DEFAULT_INPUT_SERVER, client, _RC)
-            p_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
-            call this%directory_service%connect_to_server(MAPL_DEFAULT_INPUT_SERVER, p_client)
-
-            deallocate(client)
-            allocate(client, source=FastClientThread(client_comm=this%model_comm, rc=status))
-            _VERIFY(status)
-            call add_client(MAPL_DEFAULT_OUTPUT_SERVER, client, _RC)
-            p_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
-            call this%directory_service%connect_to_server(MAPL_DEFAULT_OUTPUT_SERVER, p_client)
-
-            _RETURN(_SUCCESS)
-         end if
-
-        clients_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='pfio_clients', _RC)
-        iter_begin = ESMF_HConfigIterBegin(clients_hconfig, _RC)
-        iter_end = ESMF_HConfigIterEnd(clients_hconfig, _RC)
-        iter = iter_begin
-
-        do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-           ! Get client name from the key
-           client_name = ESMF_HConfigAsStringMapKey(iter, _RC)
-
-           ! server: is required
-           has_server = ESMF_HConfigIsDefined(iter, keystring='server', _RC)
-           _ASSERT(has_server, "pfio_clients entry '"//client_name//"' missing required 'server' field")
-           server_name = ESMF_HConfigAsString(iter, keystring='server', _RC)
-
-           ! subclass: is optional; defaults to 'default'
-           subclass_name = 'default'
-           has_subclass = ESMF_HConfigIsDefined(iter, keystring='subclass', _RC)
-           if (has_subclass) then
-              subclass_name = ESMF_HConfigAsString(iter, keystring='subclass', _RC)
-           end if
-
-           ! Create appropriate client subclass
-           select case (trim(subclass_name))
-           case ('default')
-              allocate(client, source=ClientThread(client_comm=this%model_comm, rc=status))
-           case ('fast')
-              allocate(client, source=FastClientThread(client_comm=this%model_comm, rc=status))
-           case default
-              _ASSERT(.false., "Unknown client subclass: '"//trim(subclass_name)//"' (must be 'default' or 'fast')")
-           end select
-
-           ! Register client in the client manager
-           call add_client(client_name, client, _RC)
-
-           ! Connect client to its server
-           call this%directory_service%connect_to_server(server_name, client)
-
-        end do
-
-        call ESMF_HConfigDestroy(clients_hconfig, _RC)
-
-        _RETURN(_SUCCESS)
-        _UNUSED_DUMMY(unusable)
-     end subroutine initialize_clients
 
     ! Run servers on server PETs; model PETs return immediately.
    ! ESMF_GridCompInitialize/Run/Finalize only require the petList PETs —
