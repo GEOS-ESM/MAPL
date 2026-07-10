@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added tests to check the use of ESMF_CALKIND_NOLEAP as the default calendar
 - Named default pfio server constants (#5242): new module `mapl_DefaultServerNames_mod`
   exports `MAPL_DEFAULT_INPUT_SERVER` and `MAPL_DEFAULT_OUTPUT_SERVER`; all hardcoded
   `'i_client'`/`'o_client'`/`'i_server'`/`'o_server'` string literals replaced with these
