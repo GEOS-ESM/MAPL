@@ -69,11 +69,12 @@ module mapl_MaplFramework_mod
       procedure :: initialize_udunits
       procedure :: get_vm_topology
       procedure :: validate_resources
+      procedure :: initialize_default_servers
       procedure :: create_servers
       procedure :: initialize_clients
-      procedure :: initialize_local_servers
+      procedure :: initialize_configured_local_servers
       procedure :: add_local_server
-      procedure :: initialize_complex_servers
+      procedure :: initialize_non_default_servers
       procedure :: run_servers
       procedure :: initialize_field_dictionary
       procedure :: initialize_field_fill_defaults
@@ -152,6 +153,11 @@ contains
            field_default_fill_value_r4=field_default_fill_value_r4, &
            field_default_fill_value_r8=field_default_fill_value_r8, &
            _RC)
+
+      ! Always create the default input/output servers and clients so that
+      ! simple utilities (e.g. Regrid_Util.x) that never call MAPL_CreateServers
+      ! can use pfio I/O without extra setup.
+      call this%initialize_default_servers(_RC)
 
       vgrid_manager => mapl_get_vertical_grid_manager(_RC)
       call vgrid_manager%initialize(_RC)
@@ -359,11 +365,45 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine validate_resources
 
-   ! Create server communicators and ESMF GridComps for any explicit servers:
-   ! section, or set up in-process simple servers if no servers: section exists.
-   ! Local servers are always created for model PETs.  Remote servers (complex
-   ! path) are additive on top of local servers.
-   ! Sets this%is_model_pet and returns server GridComps via servers(:).
+   ! Initialize the default input/output servers and clients unconditionally.
+   ! Called from initialize() so that simple utilities (e.g. Regrid_Util.x) that
+   ! never call MAPL_CreateServers can still perform pfio I/O.
+   ! Uses the full world communicator as the model communicator (all PETs are
+   ! model PETs).  MAPL_CreateServers will re-partition if a servers: section
+   ! is present in the configuration.
+   subroutine initialize_default_servers(this, unusable, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: world_comm
+
+      call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
+
+      ! Duplicate the world communicator so model_comm can be safely freed in finalize()
+      ! or replaced by create_servers() if a servers: section partitions it.
+      call MPI_Comm_dup(world_comm, this%model_comm, _IERROR)
+      this%is_model_pet = .true.
+
+      ! DirectoryService needs the full world communicator so all PETs can discover ports.
+      this%directory_service = DirectoryService(world_comm)
+
+      ! Create the two default local servers and their clients.
+      call this%add_local_server(MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_INPUT_SERVER, _RC)
+      call this%add_local_server(MAPL_DEFAULT_OUTPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER, _RC)
+      call this%initialize_clients(_RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine initialize_default_servers
+
+   ! Create non-default server communicators and ESMF GridComps when an explicit
+   ! servers: section is present.  The default input/output servers created in
+   ! initialize() remain available.  This routine re-partitions model_comm to
+   ! exclude server PETs, then adds any local: true servers from the config and
+   ! builds ESMF GridComps for the remote servers.
+   ! Returns server GridComps via servers(:); an empty array if no servers: section.
    subroutine create_servers(this, servers, unusable, rc)
       class(MaplFramework), target, intent(inout) :: this
       type(ESMF_GridComp), allocatable, intent(out) :: servers(:)
@@ -378,10 +418,23 @@ contains
       integer :: ssiCount
       integer, allocatable :: ssiMap(:)
 
+      has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
+      if (.not. has_server_section) then
+         ! Simple path: default servers already created in initialize(); nothing to do.
+         allocate(servers(0))
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Complex path: re-partition model_comm to the model-only PETs, add any
+      ! local: true servers from config, and build remote server GridComps.
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
       model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
 
-      ! Always create the model communicator (both simple and complex paths).
+      ! Free the world-spanning model_comm set in initialize_default_servers and
+      ! replace it with the model-only partition.
+      if (this%model_comm /= MPI_COMM_NULL) then
+         call MPI_Comm_free(this%model_comm, _IERROR)
+      end if
       call MPI_Comm_group(world_comm, world_group, _IERROR)
       call MPI_Group_range_incl(world_group, 1, reshape([0, model_petCount-1, 1], [3,1]), model_group, _IERROR)
       call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
@@ -389,21 +442,13 @@ contains
       call MPI_Group_free(world_group, _IERROR)
       this%is_model_pet = (this%model_comm /= MPI_COMM_NULL)
 
-      ! Always initialize local servers on model PETs.
+      ! Add any local: true servers declared in the servers: section.
       if (this%is_model_pet) then
-         this%directory_service = DirectoryService(world_comm)
-         call this%initialize_local_servers(_RC)
+         call this%initialize_configured_local_servers(_RC)
       end if
 
-       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
-       if (.not. has_server_section) then
-          ! Simple path: local default servers only, no ESMF GridComp servers.
-          allocate(servers(0))
-          _RETURN(_SUCCESS)
-       end if
-
-      ! Complex path: remote servers are additive on top of local servers.
-      call this%initialize_complex_servers(servers, world_comm, model_petCount, ssiCount, ssiMap, &
+      ! Build ESMF GridComps for remote (non-local) servers.
+      call this%initialize_non_default_servers(servers, world_comm, model_petCount, ssiCount, ssiMap, &
            is_model_pet=this%is_model_pet, _RC)
 
       _RETURN(_SUCCESS)
@@ -411,7 +456,7 @@ contains
    end subroutine create_servers
 
    ! Build MPI communicators and ESMF GridComps for an explicit servers: topology.
-   subroutine initialize_complex_servers(this, servers, world_comm, model_petCount, ssiCount, ssiMap, &
+   subroutine initialize_non_default_servers(this, servers, world_comm, model_petCount, ssiCount, ssiMap, &
         unusable, is_model_pet, rc)
       class(MaplFramework), target, intent(inout) :: this
       type(ESMF_GridComp), allocatable, intent(out) :: servers(:)
@@ -458,7 +503,7 @@ contains
       ! Populate only remote (non-local) servers
       i_server = 0
       do i_all = 1, size(server_hconfigs)
-         ! Skip local servers (already handled in initialize_local_servers)
+         ! Skip local servers (already handled in initialize_configured_local_servers)
          is_local = is_local_server(server_hconfigs(i_all), _RC)
          if (is_local) then
             cycle
@@ -480,74 +525,43 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine initialize_complex_servers
+   end subroutine initialize_non_default_servers
 
-    subroutine initialize_local_servers(this, unusable, rc)
-       class(MaplFramework), target, intent(inout) :: this
-       class(KeywordEnforcer), optional, intent(in) :: unusable
-       integer, optional, intent(out) :: rc
+   ! Initialize servers declared with local: true in the servers: config section.
+   ! Called from create_servers() when a servers: section is present.
+   ! The two default servers (MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER)
+   ! are NOT created here — they were already created in initialize_default_servers().
+   subroutine initialize_configured_local_servers(this, unusable, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
 
-        integer :: status
-        logical :: has_server_section
-        type(ESMF_HConfig) :: servers_hconfig
-        type(ESMF_HConfig), allocatable :: server_hconfigs(:)
-        integer :: i_server
-        character(:), allocatable :: server_name
-        logical :: is_local
-        type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
+      integer :: status
+      type(ESMF_HConfig) :: servers_hconfig
+      character(:), allocatable :: server_name
+      logical :: is_local
+      type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
 
+      ! Iterate the servers: section and register any local: true entries.
+      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+      iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
+      iter_end   = ESMF_HConfigIterEnd(servers_hconfig, _RC)
+      iter       = iter_begin
 
-        ! Check if servers: section exists
-        has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
-
-        if (has_server_section) then
-           ! Read servers: section and iterate to find local: true entries
-           servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
-           iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
-           iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
-           iter = iter_begin
-
-           do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-              ! Get server name from the key
-              server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
-              ! Check if this entry has local: true
-              is_local = ESMF_HConfigIsDefined(iter, keystring='local', _RC)
-              if (is_local) then
-                 is_local = ESMF_HConfigAsLogical(iter, keystring='local', _RC)
-              end if
-
-              if (is_local) then
-                 ! Create local server from hconfig
-                 call this%add_local_server(server_name, &
-                      make_client_name(server_name), &
-                      hconfig=iter, _RC)
-              end if
-           end do
-
-           call ESMF_HConfigDestroy(servers_hconfig, _RC)
-         else
-            ! Backward compatibility: no servers: section, use hardcoded defaults.
-            ! These connect default clients created above.
-             write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: default path, calling add_local_server for INPUT'
-             flush(6)
-             call this%add_local_server(MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_INPUT_SERVER, _RC)
-             write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: add_local_server INPUT returned'
-             flush(6)
-             call this%add_local_server(MAPL_DEFAULT_OUTPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER, _RC)
-             write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: add_local_server OUTPUT returned'
-             flush(6)
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+         server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+         is_local = ESMF_HConfigIsDefined(iter, keystring='local', _RC)
+         if (is_local) is_local = ESMF_HConfigAsLogical(iter, keystring='local', _RC)
+         if (is_local) then
+            call this%add_local_server(server_name, make_client_name(server_name), hconfig=iter, _RC)
          end if
+      end do
 
-        ! Initialize default or configured clients.
-        write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: calling initialize_clients'
-        flush(6)
-        call this%initialize_clients(_RC)
-        write(*,'(A)') '[MAPL_DEBUG] initialize_local_servers: initialize_clients returned'
-        flush(6)
+      call ESMF_HConfigDestroy(servers_hconfig, _RC)
 
-       _RETURN(_SUCCESS)
-       _UNUSED_DUMMY(unusable)
-    end subroutine initialize_local_servers
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine initialize_configured_local_servers
 
     ! Register one local server and connect its client.
     ! server_name: key used in local_server_map and DirectoryService port registry.
@@ -557,14 +571,13 @@ contains
     subroutine add_local_server(this, server_name, client_name, hconfig, rc)
        class(MaplFramework), target, intent(inout) :: this
        character(*), intent(in) :: server_name
-       character(*), intent(in) :: client_name
+       character(*), intent(in) :: client_name  ! reserved for future use (client registration)
        type(ESMF_HConfigIter), optional, intent(in) :: hconfig
        integer, optional, intent(out) :: rc
 
        integer :: status, alloc_stat
        class(BaseServer), allocatable :: tmp
        class(BaseServer), pointer :: srv
-       class(ClientThread), pointer :: client
        logical :: has_subclass
        character(:), allocatable :: subclass_name
 
@@ -577,41 +590,30 @@ contains
           end if
        end if
 
-        ! Allocate appropriate server subclass
-        select case (trim(subclass_name))
-        case ('MpiServer')
-            write(*,'(A)') '[MAPL_DEBUG] add_local_server: constructing MpiServer for "'//trim(server_name)//'"'
-           flush(6)
-           allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
-           write(*,'(A)') '[MAPL_DEBUG] add_local_server: MpiServer constructed for "'//trim(server_name)//'"'
-           flush(6)
-           _VERIFY(status)
-           _VERIFY(alloc_stat)
-        case ('MultiGroupServer')
-           ! MultiGroupServer needs model_comm but also needs nwriter_per_node from hconfig.
-           ! For now, default to 1 writer per node.  In the future, read from hconfig if provided.
-           allocate(tmp, source=MultiGroupServer(this%model_comm, server_name, nwriter_per_node=1, rc=status), &
-                stat=alloc_stat)
-           _VERIFY(status)
-           _VERIFY(alloc_stat)
-        case default
-           _ASSERT(.false., "Unknown server subclass: '"//trim(subclass_name)//"'")
-        end select
+      ! Allocate appropriate server subclass.
+      select case (trim(subclass_name))
+      case ('MpiServer')
+         allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
+         _VERIFY(status)
+         _VERIFY(alloc_stat)
+      case ('MultiGroupServer')
+         ! MultiGroupServer needs model_comm but also needs nwriter_per_node from hconfig.
+         ! For now, default to 1 writer per node.  In the future, read from hconfig if provided.
+         allocate(tmp, source=MultiGroupServer(this%model_comm, server_name, nwriter_per_node=1, rc=status), &
+              stat=alloc_stat)
+         _VERIFY(status)
+         _VERIFY(alloc_stat)
+      case default
+         _ASSERT(.false., "Unknown server subclass: '"//trim(subclass_name)//"'")
+      end select
 
-         write(*,'(A)') '[MAPL_DEBUG] add_local_server: inserting "'//trim(server_name)//'" into local_server_map'
-         flush(6)
-         call this%local_server_map%insert(server_name, tmp)
-         srv => this%local_server_map%at(server_name)
-         write(*,'(A)') '[MAPL_DEBUG] add_local_server: calling directory_service%publish for "'//trim(server_name)//'"'
-         flush(6)
-         call this%directory_service%publish(PortInfo(server_name, srv), srv)
-         write(*,'(A)') '[MAPL_DEBUG] add_local_server: publish returned for "'//trim(server_name)//'"'
-         flush(6)
-!#       client => get_client(client_name, _RC)
-!#       call this%directory_service%connect_to_server(server_name, client)
+      call this%local_server_map%insert(server_name, tmp)
+      srv => this%local_server_map%at(server_name)
+      call this%directory_service%publish(PortInfo(server_name, srv), srv)
 
-       _RETURN(_SUCCESS)
-    end subroutine add_local_server
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(client_name)
+   end subroutine add_local_server
 
      ! Initialize configured clients from pfio_clients: section.
      ! Each client entry specifies:
@@ -633,32 +635,18 @@ contains
 
         has_client_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='pfio_clients', _RC)
          if (.not. has_client_section) then
-            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: default path (no pfio_clients section)'
-            flush(6)
             allocate(client, source=ClientThread(client_comm=this%model_comm, rc=status))
             _VERIFY(status)
-            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: calling add_client for "'//MAPL_DEFAULT_INPUT_SERVER//'"'
-            flush(6)
             call add_client(MAPL_DEFAULT_INPUT_SERVER, client, _RC)
             p_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
-            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: calling connect_to_server for "'//MAPL_DEFAULT_INPUT_SERVER//'"'
-            flush(6)
             call this%directory_service%connect_to_server(MAPL_DEFAULT_INPUT_SERVER, p_client)
-            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: connect_to_server INPUT returned'
-            flush(6)
 
             deallocate(client)
             allocate(client, source=FastClientThread(client_comm=this%model_comm, rc=status))
             _VERIFY(status)
-            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: calling add_client for "'//MAPL_DEFAULT_OUTPUT_SERVER//'"'
-            flush(6)
             call add_client(MAPL_DEFAULT_OUTPUT_SERVER, client, _RC)
             p_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
-            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: calling connect_to_server for "'//MAPL_DEFAULT_OUTPUT_SERVER//'"'
-            flush(6)
             call this%directory_service%connect_to_server(MAPL_DEFAULT_OUTPUT_SERVER, p_client)
-            write(*,'(A)') '[MAPL_DEBUG] initialize_clients: connect_to_server OUTPUT returned'
-            flush(6)
 
             _RETURN(_SUCCESS)
          end if
