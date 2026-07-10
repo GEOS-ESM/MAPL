@@ -1,2 +1,7 @@
 esma_set_this (OVERRIDE MAPL.Apps.tests)
-add_subdirectory(acg3 EXCLUDE_FROM_ALL)
+
+if (PFUNIT_FOUND)
+  add_subdirectory(acg3 EXCLUDE_FROM_ALL)
+endif ()
+
+add_subdirectory(Regrid_Util)
