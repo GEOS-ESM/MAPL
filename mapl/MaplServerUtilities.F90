@@ -205,32 +205,38 @@ contains
       _RETURN(_SUCCESS)
    end subroutine create_server_comms
 
-   function make_server_gridcomp(hconfig, petList, comms, rc) result(gridcomp)
+   function make_server_gridcomp(server_name, hconfig, petList, resources, rc) result(gridcomp)
       use mapl_DSO_Utilities_mod
+      use mpi, only: MPI_COMM_NULL
       type(ESMF_GridComp) :: gridcomp
+      character(*), intent(in) :: server_name
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(in) :: petList(:)
-      integer, intent(in) :: comms(3) ! world, model, server
+      type(ServerResources), intent(in) :: resources
       integer, optional, intent(out) :: rc
 
       integer :: status, user_status
-      type(ESMF_HConfig) :: server_hconfig, comms_hconfig
+      type(ESMF_HConfig) :: server_hconfig
       character(:), allocatable :: sharedObj
       character(:), allocatable :: userRoutine
+      type(ServerResources), pointer :: p_resources
 
       server_hconfig = ESMF_HConfigCreateAt(hconfig, _RC)
-      comms_hconfig = ESMF_HConfigCreate(content='{}', _RC)
-      call ESMF_HConfigAdd(comms_hconfig, comms(1), addKeyString='world_comm', _RC)
-      call ESMF_HConfigAdd(comms_hconfig, comms(2), addKeyString='model_comm', _RC)
-      call ESMF_HConfigAdd(comms_hconfig, comms(3), addKeyString='server_comm', _RC)
-      call ESMF_HConfigAdd(server_hconfig, comms_hconfig, addKeyString='comms', _RC)
 
-      gridcomp = ESMF_GridCompCreate(petList=petList, _RC)
-      sharedObj = ESMF_HConfigAsString(server_hconfig, keystring='sharedOb', _RC)
+      gridcomp = ESMF_GridCompCreate(name=server_name, petList=petList, _RC)
+      sharedObj = ESMF_HConfigAsString(server_hconfig, keystring='sharedObj', _RC)
       userRoutine = ESMF_HConfigAsString(server_hconfig, keystring='userRoutine', _RC)
       call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(sharedObj), userRoutine=userRoutine, _USERRC)
 
-      call ESMF_HConfigDestroy(comms_hconfig, _RC)
+      ! Store resources in ESMF internal state.
+      ! server_comm is MPI_COMM_NULL on all non-server PETs; guard ensures
+      ! ESMF_InternalStateAdd is only called on PETs in the server petList.
+      if (resources%server_comm /= MPI_COMM_NULL) then
+         _SET_NAMED_PRIVATE_STATE(gridcomp, ServerResources, 'private state')
+         _GET_NAMED_PRIVATE_STATE(gridcomp, ServerResources, 'private state', p_resources)
+         p_resources = resources
+      end if
+
       call ESMF_HConfigDestroy(server_hconfig, _RC)
 
       _RETURN(_SUCCESS)

@@ -474,13 +474,14 @@ contains
        integer :: server_comm, model_server_comm
        integer :: num_model_ssis
        integer :: n_servers
-       logical :: is_local
+       logical :: is_local, has_subclass, has_nwriter
        integer :: ssi_0, ssi_1, i_server, i_all
        integer, allocatable :: ssis_per_server(:)
-       integer, allocatable :: model_pets(:), server_pets(:), model_server_pets(:)
+       integer, allocatable :: model_pets(:), server_pets(:)
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
       character(ESMF_MAXSTR), allocatable :: server_names(:)
       class(Logger), pointer :: lgr
+      type(ServerResources) :: srv_resources
 
       num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
 
@@ -514,9 +515,21 @@ contains
          ssi_1 = ssi_0 + ssis_per_server(i_all)
          server_pets = pets_on_ssis(ssiMap, ssi_0, ssi_1)
          call create_server_comms(world_comm, world_group, model_group, server_pets, server_comm, model_server_comm, _RC)
-         model_server_pets = [model_pets, server_pets]
-         servers(i_server) = make_server_gridcomp(server_hconfigs(i_all), &
-              model_server_pets, [model_server_comm, this%model_comm, server_comm], _RC)
+
+         srv_resources%world_comm = model_server_comm
+         srv_resources%model_comm = this%model_comm
+         srv_resources%server_comm = server_comm
+         srv_resources%subclass = 'MpiServer'
+         has_subclass = ESMF_HConfigIsDefined(server_hconfigs(i_all), keystring='subclass', _RC)
+         if (has_subclass) srv_resources%subclass = &
+              ESMF_HConfigAsString(server_hconfigs(i_all), keystring='subclass', _RC)
+         srv_resources%nwriter_per_node = 1
+         has_nwriter = ESMF_HConfigIsDefined(server_hconfigs(i_all), keystring='nwriter_per_node', _RC)
+         if (has_nwriter) srv_resources%nwriter_per_node = &
+              ESMF_HConfigAsI4(server_hconfigs(i_all), keystring='nwriter_per_node', _RC)
+
+         servers(i_server) = make_server_gridcomp(trim(server_names(i_all)), server_hconfigs(i_all), &
+              server_pets, srv_resources, _RC)
          ssi_0 = ssi_1
       end do
 
