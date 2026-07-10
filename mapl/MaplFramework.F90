@@ -46,6 +46,7 @@ module mapl_MaplFramework_mod
    public :: MAPL_CreateServers
    public :: MAPL_RunServers
    public :: MAPL_ConnectToServer
+   public :: MAPL_PublishServer
 
    type :: MaplFramework
       private
@@ -90,6 +91,11 @@ module mapl_MaplFramework_mod
    ! Private singleton object.  Used
    type(MaplFramework), target :: the_mapl_object
 
+   ! Names of clients connected via MAPL_ConnectToServer (external servers).
+   ! Model PETs must call terminate() on each before ESMF_Finalize.
+   integer, save :: n_ext_clients = 0
+   character(ESMF_MAXSTR), save :: ext_client_names(64)
+
    interface MAPL_Get
       procedure :: mapl_get
       procedure :: mapl_get_mapl
@@ -110,6 +116,10 @@ module mapl_MaplFramework_mod
    interface MAPL_ConnectToServer
       procedure :: mapl_connect_to_server
    end interface MAPL_ConnectToServer
+
+   interface MAPL_PublishServer
+      procedure :: mapl_publish_server
+   end interface MAPL_PublishServer
 
 contains
 
@@ -337,6 +347,7 @@ contains
       integer :: num_model_ssis, required_ssis
       type(ESMF_HConfig) :: servers_hconfig
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+      character(ESMF_MAXSTR), allocatable :: server_names(:)
       integer, allocatable :: ssis_per_server(:)
       class(Logger), pointer :: lgr
 
@@ -348,7 +359,7 @@ contains
       num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
-      server_hconfigs = get_server_hconfigs(servers_hconfig, _RC)
+      call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
       ssis_per_server = get_ssis_per_server(server_hconfigs, ssiCount=ssiCount, num_model_ssis=num_model_ssis, _RC)
 
       required_ssis = num_model_ssis + sum(ssis_per_server)
@@ -473,17 +484,19 @@ contains
        integer :: server_comm, model_server_comm
        integer :: num_model_ssis
        integer :: n_servers
-       logical :: is_local
+       logical :: is_local, has_subclass, has_nwriter
        integer :: ssi_0, ssi_1, i_server, i_all
        integer, allocatable :: ssis_per_server(:)
-      integer, allocatable :: model_pets(:), server_pets(:), model_server_pets(:)
+       integer, allocatable :: model_pets(:), server_pets(:)
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+      character(ESMF_MAXSTR), allocatable :: server_names(:)
       class(Logger), pointer :: lgr
+      type(ServerResources) :: srv_resources
 
       num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
-      server_hconfigs = get_server_hconfigs(servers_hconfig, _RC)
+      call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
 
       ! get_ssis_per_server handles '*' wildcard for the last server.
       ! Resource validation already ran in MAPL_Initialize; this is belt-and-suspenders.
@@ -512,9 +525,21 @@ contains
          ssi_1 = ssi_0 + ssis_per_server(i_all)
          server_pets = pets_on_ssis(ssiMap, ssi_0, ssi_1)
          call create_server_comms(world_comm, world_group, model_group, server_pets, server_comm, model_server_comm, _RC)
-         model_server_pets = [model_pets, server_pets]
-         servers(i_server) = make_server_gridcomp(server_hconfigs(i_all), &
-              model_server_pets, [model_server_comm, this%model_comm, server_comm], _RC)
+
+         srv_resources%world_comm = model_server_comm
+         srv_resources%model_comm = this%model_comm
+         srv_resources%server_comm = server_comm
+         srv_resources%subclass = 'MpiServer'
+         has_subclass = ESMF_HConfigIsDefined(server_hconfigs(i_all), keystring='subclass', _RC)
+         if (has_subclass) srv_resources%subclass = &
+              ESMF_HConfigAsString(server_hconfigs(i_all), keystring='subclass', _RC)
+         srv_resources%nwriter_per_node = 1
+         has_nwriter = ESMF_HConfigIsDefined(server_hconfigs(i_all), keystring='nwriter_per_node', _RC)
+         if (has_nwriter) srv_resources%nwriter_per_node = &
+              ESMF_HConfigAsI4(server_hconfigs(i_all), keystring='nwriter_per_node', _RC)
+
+         servers(i_server) = make_server_gridcomp(trim(server_names(i_all)), server_hconfigs(i_all), &
+              server_pets, srv_resources, _RC)
          ssi_0 = ssi_1
       end do
 
@@ -535,26 +560,30 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ESMF_HConfig) :: servers_hconfig
-      character(:), allocatable :: server_name
-      logical :: is_local
-      type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
+       integer :: status
+       type(ESMF_HConfig) :: servers_hconfig
+       type(ESMF_HConfig) :: server_val
+       character(:), allocatable :: server_name
+       logical :: is_local
+       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
 
-      ! Iterate the servers: section and register any local: true entries.
-      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
-      iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
-      iter_end   = ESMF_HConfigIterEnd(servers_hconfig, _RC)
-      iter       = iter_begin
+       ! Iterate the servers: section and register any local: true entries.
+       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+       iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
+       iter_end   = ESMF_HConfigIterEnd(servers_hconfig, _RC)
+       iter       = iter_begin
 
-      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-         server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
-         is_local = ESMF_HConfigIsDefined(iter, keystring='local', _RC)
-         if (is_local) is_local = ESMF_HConfigAsLogical(iter, keystring='local', _RC)
-         if (is_local) then
-            call this%add_local_server(server_name, make_client_name(server_name), hconfig=iter, _RC)
-         end if
-      end do
+       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+          server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+          server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
+          is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
+          if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
+          if (is_local) then
+             call this%add_local_server(server_name, make_client_name(server_name), hconfig=server_val, _RC)
+          end if
+          call ESMF_HConfigDestroy(server_val, _RC)
+       end do
+
 
       call ESMF_HConfigDestroy(servers_hconfig, _RC)
 
@@ -572,7 +601,7 @@ contains
       class(MaplFramework), target, intent(inout) :: this
       character(*), intent(in) :: server_name
       character(*), intent(in) :: client_name
-      type(ESMF_HConfigIter), optional, intent(in) :: hconfig
+       type(ESMF_HConfig), optional, intent(in) :: hconfig
       logical, optional, intent(in) :: fast_client
       integer, optional, intent(out) :: rc
 
@@ -633,9 +662,8 @@ contains
    end subroutine add_local_server
 
     ! Run servers on server PETs; model PETs return immediately.
-   ! ESMF_GridCompInitialize/Run/Finalize only require the petList PETs —
-   ! no global collective needed.
-   subroutine run_servers(this, servers, unusable, rc)
+    ! Server GridComps register only run phase.
+    subroutine run_servers(this, servers, unusable, rc)
       class(MaplFramework), target, intent(inout) :: this
       type(ESMF_GridComp), intent(inout) :: servers(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -646,14 +674,12 @@ contains
       ! Model PETs have nothing to do here.
       _RETURN_IF(this%is_model_pet)
 
-      ! Server PETs run the lifecycle for each server GridComp.
-      ! ESMF only executes on PETs in the GridComp's petList; other
-      ! server PETs silently skip GridComps they don't belong to.
-      do i = 1, size(servers)
-         call ESMF_GridCompInitialize(servers(i), _RC)
-         call ESMF_GridCompRun(servers(i), _RC)
-         call ESMF_GridCompFinalize(servers(i), _RC)
-      end do
+       ! Server PETs run each server GridComp.
+       ! ESMF only executes on PETs in the GridComp's petList; other
+       ! server PETs silently skip GridComps they don't belong to.
+       do i = 1, size(servers)
+          call ESMF_GridCompRun(servers(i), _RC)
+       end do
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -673,14 +699,31 @@ contains
       client_name_ = server_name
       if (present(client_name)) client_name_ = client_name
 
-      allocate(FastClientThread :: client)
+      allocate(client, source=FastClientThread(client_comm=the_mapl_object%model_comm, rc=status))
+      _VERIFY(status)
       call add_client(client_name_, client, _RC)
       p_client => get_client(client_name_, _RC)
       call the_mapl_object%directory_service%connect_to_server(server_name, p_client)
 
+      n_ext_clients = n_ext_clients + 1
+      ext_client_names(n_ext_clients) = client_name_
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine mapl_connect_to_server
+
+   subroutine mapl_publish_server(server_name, server, rc)
+      character(*), intent(in) :: server_name
+      class(BaseServer), target, intent(inout) :: server
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call the_mapl_object%directory_service%publish(PortInfo(server_name, server), server, _RC)
+      call the_mapl_object%directory_service%connect_to_client(server_name, server, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine mapl_publish_server
 
    subroutine get(this, unusable, directory_service, is_model_pet, hconfig, rc)
       class(MaplFramework), target, intent(in) :: this
@@ -711,11 +754,12 @@ contains
 
       integer :: status
 
+      call this%finalize_servers(_RC)
+
+      call this%directory_service%free_directory_resources()
       if (this%model_comm /= MPI_COMM_NULL) then
-         call this%directory_service%free_directory_resources()
          call MPI_Comm_free(this%model_comm, _IERROR)
       end if
-      call this%finalize_servers(_RC)
       !#         call server_comm%free_comms(_RC)
       !#         if (server_comm /= MPI_COMM_NULL) then
       !#            call MPI_Comm_free(server_comm, _IERROR)
@@ -736,6 +780,18 @@ contains
       class(MaplFramework), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+
+      integer :: i, status
+      class(ClientThread), pointer :: p_client
+
+      ! Model PETs send terminate to each external server client so server
+      ! PETs can exit server%start() and reach ESMF_Finalize collectively.
+      if (this%is_model_pet) then
+         do i = 1, n_ext_clients
+            p_client => get_client(trim(ext_client_names(i)), _RC)
+            call p_client%terminate(_RC)
+         end do
+      end if
 
       ! local_server_map owns o_server and i_server (and any future local servers).
       ! MpiServer uses allocatable components so clearing the map triggers
