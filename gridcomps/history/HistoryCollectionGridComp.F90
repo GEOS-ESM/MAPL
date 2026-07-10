@@ -65,7 +65,9 @@ contains
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
+      logical :: has_server
       character(len=ESMF_MAXSTR) :: name
+      character(len=:), allocatable :: server_name
       type(mapl_FileMetadata) :: metadata
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
@@ -78,7 +80,10 @@ contains
       metadata = mapl_bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
       allocate(collection_gridcomp%writer, source=mapl_make_geom_pfio(metadata, rc=status))
       _VERIFY(STATUS)
-      call collection_gridcomp%writer%init_with_metadata(metadata, geom, _RC)
+      server_name = MAPL_DEFAULT_OUTPUT_SERVER
+      has_server = ESMF_HConfigIsDefined(hconfig, keyString='server', _RC)
+      if (has_server) server_name = ESMF_HConfigAsString(hconfig, keyString='server', _RC)
+      call collection_gridcomp%writer%init_with_metadata(metadata, geom, output_server_name=server_name, _RC)
 
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
       collection_gridcomp%timeStep = get_frequency(hconfig, _RC)
