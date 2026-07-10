@@ -337,6 +337,7 @@ contains
       integer :: num_model_ssis, required_ssis
       type(ESMF_HConfig) :: servers_hconfig
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+      character(ESMF_MAXSTR), allocatable :: server_names(:)
       integer, allocatable :: ssis_per_server(:)
       class(Logger), pointer :: lgr
 
@@ -348,7 +349,7 @@ contains
       num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
-      server_hconfigs = get_server_hconfigs(servers_hconfig, _RC)
+      call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
       ssis_per_server = get_ssis_per_server(server_hconfigs, ssiCount=ssiCount, num_model_ssis=num_model_ssis, _RC)
 
       required_ssis = num_model_ssis + sum(ssis_per_server)
@@ -476,14 +477,15 @@ contains
        logical :: is_local
        integer :: ssi_0, ssi_1, i_server, i_all
        integer, allocatable :: ssis_per_server(:)
-      integer, allocatable :: model_pets(:), server_pets(:), model_server_pets(:)
+       integer, allocatable :: model_pets(:), server_pets(:), model_server_pets(:)
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+      character(ESMF_MAXSTR), allocatable :: server_names(:)
       class(Logger), pointer :: lgr
 
       num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
-      server_hconfigs = get_server_hconfigs(servers_hconfig, _RC)
+      call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
 
       ! get_ssis_per_server handles '*' wildcard for the last server.
       ! Resource validation already ran in MAPL_Initialize; this is belt-and-suspenders.

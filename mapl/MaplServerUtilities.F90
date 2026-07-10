@@ -9,6 +9,7 @@ module mapl_MaplServerUtilities_mod
    implicit none
    private
 
+   public :: ServerResources
    public :: pets_on_ssis
    public :: get_num_ssis
    public :: get_model_petCount
@@ -16,6 +17,14 @@ module mapl_MaplServerUtilities_mod
    public :: get_ssis_per_server
    public :: create_server_comms
    public :: make_server_gridcomp
+
+   type :: ServerResources
+      integer :: world_comm
+      integer :: model_comm
+      integer :: server_comm
+      integer :: nwriter_per_node
+      character(:), allocatable :: subclass
+   end type ServerResources
 
 contains
 
@@ -76,9 +85,10 @@ contains
       _RETURN(_SUCCESS)
    end function get_model_petCount
 
-   function get_server_hconfigs(servers_hconfig, rc) result(server_hconfigs)
-      type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+   subroutine get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, rc)
       type(ESMF_HConfig), intent(in) :: servers_hconfig
+      type(ESMF_HConfig), allocatable, intent(out) :: server_hconfigs(:)
+      character(ESMF_MAXSTR), allocatable, intent(out) :: server_names(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -88,6 +98,7 @@ contains
 
       n_servers = ESMF_HConfigGetSize(servers_hconfig, _RC)
       allocate(server_hconfigs(n_servers))
+      allocate(server_names(n_servers))
 
       iter_begin = ESMF_HConfigIterBegin(servers_hconfig,_RC)
       iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
@@ -98,10 +109,11 @@ contains
          i_server = i_server + 1
          ! server_hconfigs(i_server) = ESMF_HConfigCreateAtMapVal(iter, _RC)
          server_hconfigs(i_server) = ESMF_HConfigCreateAt(iter, _RC)
+         server_names(i_server) = ESMF_HConfigAsStringMapKey(iter, _RC)
       end do
 
       _RETURN(_SUCCESS)
-   end function get_server_hconfigs
+   end subroutine get_server_hconfigs
 
     ! Resolve num_nodes for each server entry.  The last server may use the
     ! wildcard value '*' to claim all remaining SSIs after model + prior servers.
