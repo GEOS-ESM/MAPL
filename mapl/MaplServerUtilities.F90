@@ -103,46 +103,71 @@ contains
       _RETURN(_SUCCESS)
    end function get_server_hconfigs
 
-   ! Resolve num_nodes for each server entry.  The last server may use the
-   ! wildcard value '*' to claim all remaining SSIs after model + prior servers.
-   ! ssiCount and num_model_ssis are required to resolve the wildcard.
-   !
-   ! Detection strategy: ESMF_HConfigAsString casts integer YAML nodes to string
-   ! without error, so reading as string first lets us check for '*' before
-   ! attempting an integer read — no spurious ESMF log warnings.
-   function get_ssis_per_server(server_hconfigs, ssiCount, num_model_ssis, rc) result(ssis_per_server)
-      integer, allocatable :: ssis_per_server(:)
-      type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
-      integer, intent(in) :: ssiCount
-      integer, intent(in) :: num_model_ssis
-      integer, optional, intent(out) :: rc
+    ! Resolve num_nodes for each server entry.  The last server may use the
+    ! wildcard value '*' to claim all remaining SSIs after model + prior servers.
+    ! ssiCount and num_model_ssis are required to resolve the wildcard.
+    !
+    ! Local servers (local: true) consume zero SSIs and are skipped.
+    ! Remote servers must have num_nodes (either integer or '*' wildcard).
+    !
+    ! Detection strategy: ESMF_HConfigAsString casts integer YAML nodes to string
+    ! without error, so reading as string first lets us check for '*' before
+    ! attempting an integer read — no spurious ESMF log warnings.
+    function get_ssis_per_server(server_hconfigs, ssiCount, num_model_ssis, rc) result(ssis_per_server)
+       integer, allocatable :: ssis_per_server(:)
+       type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
+       integer, intent(in) :: ssiCount
+       integer, intent(in) :: num_model_ssis
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: i_server
-      integer :: used_ssis
-      character(:), allocatable :: num_nodes_str
+       integer :: status
+       integer :: i_server
+       integer :: used_ssis
+       logical :: is_local, has_local
+       logical :: has_num_nodes
+       character(:), allocatable :: num_nodes_str
 
-      associate (n_servers => size(server_hconfigs))
-         allocate(ssis_per_server(n_servers))
-         used_ssis = num_model_ssis
-         do i_server = 1, n_servers
-            ! Read as string: ESMF casts integer YAML nodes to string without
-            ! complaint, so "2" and "*" both arrive cleanly.
-            num_nodes_str = ESMF_HConfigAsString(server_hconfigs(i_server), keystring='num_nodes', _RC)
-            if (num_nodes_str == '*') then
-               ! Wildcard: takes all remaining SSIs; only valid on the last server.
-               _ASSERT(i_server == n_servers, "'*' for num_nodes is only valid for the last server")
-               ssis_per_server(i_server) = ssiCount - used_ssis
-               _ASSERT(ssis_per_server(i_server) > 0, "PET resources oversubscribed: no SSIs remain for wildcard server")
-            else
-               ! Integer value — re-read as I4 (ESMF casts without complaint).
-               ssis_per_server(i_server) = ESMF_HConfigAsI4(server_hconfigs(i_server), keystring='num_nodes', _RC)
-               used_ssis = used_ssis + ssis_per_server(i_server)
-            end if
-         end do
-      end associate
-      _RETURN(_SUCCESS)
-   end function get_ssis_per_server
+       associate (n_servers => size(server_hconfigs))
+          allocate(ssis_per_server(n_servers))
+          used_ssis = num_model_ssis
+          do i_server = 1, n_servers
+             ! Check if this is a local server.
+             has_local = ESMF_HConfigIsDefined(server_hconfigs(i_server), keystring='local', _RC)
+
+             is_local = .false. ! unless
+             if (has_local) then
+                is_local = ESMF_HConfigAsLogical(server_hconfigs(i_server), keystring='local', _RC)
+             end if
+
+             if (is_local) then
+                ! Local servers consume zero extra SSIs.
+                ! Validation: local: true and num_nodes are mutually exclusive.
+                has_num_nodes = ESMF_HConfigIsDefined(server_hconfigs(i_server), keystring='num_nodes', _RC)
+                _ASSERT(.not. has_num_nodes, "Server entry cannot have both 'local: true' and 'num_nodes'")
+                ssis_per_server(i_server) = 0
+                cycle
+             end if
+
+             ! Remote server: must have num_nodes.
+             ! Read as string: ESMF casts integer YAML nodes to string without
+             ! complaint, so "2" and "*" both arrive cleanly.
+             num_nodes_str = ESMF_HConfigAsString(server_hconfigs(i_server), keystring='num_nodes', _RC)
+             if (num_nodes_str == '*') then
+                ! Wildcard: takes all remaining SSIs; only valid on the last server.
+                _ASSERT(i_server == n_servers, "'*' for num_nodes is only valid for the last server")
+                ssis_per_server(i_server) = ssiCount - used_ssis
+                _ASSERT(ssis_per_server(i_server) > 0, "PET resources oversubscribed: no SSIs remain for wildcard server")
+                cycle
+             end if
+
+             ! Integer value — re-read as I4 (ESMF casts without complaint).
+             ssis_per_server(i_server) = ESMF_HConfigAsI4(server_hconfigs(i_server), keystring='num_nodes', _RC)
+             used_ssis = used_ssis + ssis_per_server(i_server)
+
+          end do
+       end associate
+       _RETURN(_SUCCESS)
+    end function get_ssis_per_server
 
    ! Create the server and model+server MPI communicators for one server entry.
    ! Allocates and immediately frees the intermediate MPI groups.

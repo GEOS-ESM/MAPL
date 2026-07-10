@@ -27,6 +27,7 @@ set (srcs
   pFIO_Utilities.F90
   pFIO.F90
   API.F90
+  ServerNames.F90
 
   AbstractMessage.F90
   MessageVisitor.F90
