@@ -46,6 +46,7 @@ module mapl_MaplFramework_mod
    public :: MAPL_CreateServers
    public :: MAPL_RunServers
    public :: MAPL_ConnectToServer
+   public :: MAPL_PublishServer
 
    type :: MaplFramework
       private
@@ -110,6 +111,10 @@ module mapl_MaplFramework_mod
    interface MAPL_ConnectToServer
       procedure :: mapl_connect_to_server
    end interface MAPL_ConnectToServer
+
+   interface MAPL_PublishServer
+      procedure :: mapl_publish_server
+   end interface MAPL_PublishServer
 
 contains
 
@@ -648,9 +653,8 @@ contains
    end subroutine add_local_server
 
     ! Run servers on server PETs; model PETs return immediately.
-   ! ESMF_GridCompInitialize/Run/Finalize only require the petList PETs —
-   ! no global collective needed.
-   subroutine run_servers(this, servers, unusable, rc)
+    ! Server GridComps register only run phase.
+    subroutine run_servers(this, servers, unusable, rc)
       class(MaplFramework), target, intent(inout) :: this
       type(ESMF_GridComp), intent(inout) :: servers(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -661,14 +665,12 @@ contains
       ! Model PETs have nothing to do here.
       _RETURN_IF(this%is_model_pet)
 
-      ! Server PETs run the lifecycle for each server GridComp.
-      ! ESMF only executes on PETs in the GridComp's petList; other
-      ! server PETs silently skip GridComps they don't belong to.
-      do i = 1, size(servers)
-         call ESMF_GridCompInitialize(servers(i), _RC)
-         call ESMF_GridCompRun(servers(i), _RC)
-         call ESMF_GridCompFinalize(servers(i), _RC)
-      end do
+       ! Server PETs run each server GridComp.
+       ! ESMF only executes on PETs in the GridComp's petList; other
+       ! server PETs silently skip GridComps they don't belong to.
+       do i = 1, size(servers)
+          call ESMF_GridCompRun(servers(i), _RC)
+       end do
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -696,6 +698,19 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine mapl_connect_to_server
+
+   subroutine mapl_publish_server(server_name, server, rc)
+      character(*), intent(in) :: server_name
+      class(BaseServer), target, intent(inout) :: server
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call the_mapl_object%directory_service%publish(PortInfo(server_name, server), server, _RC)
+      call the_mapl_object%directory_service%connect_to_client(server_name, server, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine mapl_publish_server
 
    subroutine get(this, unusable, directory_service, is_model_pet, hconfig, rc)
       class(MaplFramework), target, intent(in) :: this
