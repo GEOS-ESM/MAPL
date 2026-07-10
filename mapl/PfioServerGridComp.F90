@@ -35,7 +35,7 @@ contains
 
       type(ServerResources), pointer :: resources
       character(ESMF_MAXSTR) :: server_name
-      class(BaseServer), allocatable :: server
+      class(BaseServer), allocatable, target :: server
       integer :: status
 
       ! GridComp name doubles as the port/server name in the DirectoryService.
@@ -67,3 +67,19 @@ contains
    end subroutine run
 
 end module mapl_PfioServerGridComp_mod
+
+! Standalone entry point so ESMF can resolve the symbol via dlsym when this
+! library is specified as sharedObj in a server YAML entry.
+! The module procedure is not directly reachable by simple name mangling
+! across all compilers; this thin wrapper is.
+subroutine setServices(gridcomp, rc)
+   use ESMF
+   use mapl_PfioServerGridComp_mod, only: pfio_server_setServices => setServices
+   type(ESMF_GridComp) :: gridcomp
+   integer, intent(out) :: rc
+
+   integer :: status
+
+   call pfio_server_setServices(gridcomp, status)
+   rc = status
+end subroutine setServices

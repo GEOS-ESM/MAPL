@@ -91,6 +91,11 @@ module mapl_MaplFramework_mod
    ! Private singleton object.  Used
    type(MaplFramework), target :: the_mapl_object
 
+   ! Names of clients connected via MAPL_ConnectToServer (external servers).
+   ! Model PETs must call terminate() on each before ESMF_Finalize.
+   integer, save :: n_ext_clients = 0
+   character(ESMF_MAXSTR), save :: ext_client_names(64)
+
    interface MAPL_Get
       procedure :: mapl_get
       procedure :: mapl_get_mapl
@@ -555,26 +560,30 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ESMF_HConfig) :: servers_hconfig
-      character(:), allocatable :: server_name
-      logical :: is_local
-      type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
+       integer :: status
+       type(ESMF_HConfig) :: servers_hconfig
+       type(ESMF_HConfig) :: server_val
+       character(:), allocatable :: server_name
+       logical :: is_local
+       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
 
-      ! Iterate the servers: section and register any local: true entries.
-      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
-      iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
-      iter_end   = ESMF_HConfigIterEnd(servers_hconfig, _RC)
-      iter       = iter_begin
+       ! Iterate the servers: section and register any local: true entries.
+       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+       iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
+       iter_end   = ESMF_HConfigIterEnd(servers_hconfig, _RC)
+       iter       = iter_begin
 
-      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-         server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
-         is_local = ESMF_HConfigIsDefined(iter, keystring='local', _RC)
-         if (is_local) is_local = ESMF_HConfigAsLogical(iter, keystring='local', _RC)
-         if (is_local) then
-            call this%add_local_server(server_name, make_client_name(server_name), hconfig=iter, _RC)
-         end if
-      end do
+       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+          server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+          server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
+          is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
+          if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
+          if (is_local) then
+             call this%add_local_server(server_name, make_client_name(server_name), hconfig=server_val, _RC)
+          end if
+          call ESMF_HConfigDestroy(server_val, _RC)
+       end do
+
 
       call ESMF_HConfigDestroy(servers_hconfig, _RC)
 
@@ -592,7 +601,7 @@ contains
       class(MaplFramework), target, intent(inout) :: this
       character(*), intent(in) :: server_name
       character(*), intent(in) :: client_name
-      type(ESMF_HConfigIter), optional, intent(in) :: hconfig
+       type(ESMF_HConfig), optional, intent(in) :: hconfig
       logical, optional, intent(in) :: fast_client
       integer, optional, intent(out) :: rc
 
@@ -690,10 +699,14 @@ contains
       client_name_ = server_name
       if (present(client_name)) client_name_ = client_name
 
-      allocate(FastClientThread :: client)
+      allocate(client, source=FastClientThread(client_comm=the_mapl_object%model_comm, rc=status))
+      _VERIFY(status)
       call add_client(client_name_, client, _RC)
       p_client => get_client(client_name_, _RC)
       call the_mapl_object%directory_service%connect_to_server(server_name, p_client)
+
+      n_ext_clients = n_ext_clients + 1
+      ext_client_names(n_ext_clients) = client_name_
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -741,11 +754,12 @@ contains
 
       integer :: status
 
+      call this%finalize_servers(_RC)
+
+      call this%directory_service%free_directory_resources()
       if (this%model_comm /= MPI_COMM_NULL) then
-         call this%directory_service%free_directory_resources()
          call MPI_Comm_free(this%model_comm, _IERROR)
       end if
-      call this%finalize_servers(_RC)
       !#         call server_comm%free_comms(_RC)
       !#         if (server_comm /= MPI_COMM_NULL) then
       !#            call MPI_Comm_free(server_comm, _IERROR)
@@ -766,6 +780,18 @@ contains
       class(MaplFramework), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+
+      integer :: i, status
+      class(ClientThread), pointer :: p_client
+
+      ! Model PETs send terminate to each external server client so server
+      ! PETs can exit server%start() and reach ESMF_Finalize collectively.
+      if (this%is_model_pet) then
+         do i = 1, n_ext_clients
+            p_client => get_client(trim(ext_client_names(i)), _RC)
+            call p_client%terminate(_RC)
+         end do
+      end if
 
       ! local_server_map owns o_server and i_server (and any future local servers).
       ! MpiServer uses allocatable components so clearing the map triggers

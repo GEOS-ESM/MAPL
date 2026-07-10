@@ -107,8 +107,7 @@ contains
       i_server = 0
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          i_server = i_server + 1
-         ! server_hconfigs(i_server) = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         server_hconfigs(i_server) = ESMF_HConfigCreateAt(iter, _RC)
+         server_hconfigs(i_server) = ESMF_HConfigCreateAtMapVal(iter, _RC)
          server_names(i_server) = ESMF_HConfigAsStringMapKey(iter, _RC)
       end do
 
