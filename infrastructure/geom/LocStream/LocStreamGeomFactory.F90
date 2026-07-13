@@ -15,7 +15,8 @@ module mapl_LocStreamGeomFactory_mod
    use pFIO_AttributeMod,      only: Attribute
    use pFIO_StringVariableMapMod
    use pFIO_NetCDF4_FileFormatterMod, only: NetCDF4_FileFormatter
-   use pFIO_ConstantsMod,      only: pFIO_READ
+   use pFIO_ConstantsMod,      only: pFIO_READ, PFIO_REAL64
+   use pFIO_UnlimitedEntityMod, only: UnlimitedEntity
    use gftl2_StringVector, only: StringVector
    use mapl_StringDictionary_mod, only: StringDictionary
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
@@ -375,12 +376,41 @@ contains
       type(FileMetadata) :: file_metadata
       integer, optional, intent(out) :: rc
 
-      ! LocStream-specific file metadata generation can be added later.
-      file_metadata = FileMetadata()
+      integer :: status
+      integer :: npoints
+      real(kind=ESMF_KIND_R8), pointer :: lons(:) => null(), lats(:) => null()
+      type(Variable) :: v
+
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(geom_spec)
       _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(chunksizes)
+
+      file_metadata = FileMetadata()
+
+      select type (geom_spec)
+      type is (LocStreamGeomSpec)
+         npoints = geom_spec%get_npoints()
+         call geom_spec%get_coordinates(lons, lats)
+
+         call file_metadata%add_dimension('loc', npoints)
+
+         v = Variable(type=PFIO_REAL64, dimensions='loc', chunksizes=chunksizes)
+         call v%add_attribute('long_name', 'longitude')
+         call v%add_attribute('units', 'degrees_east')
+         if (associated(lons)) then
+            call v%add_const_value(UnlimitedEntity(lons))
+         end if
+         call file_metadata%add_variable('lon', v)
+
+         v = Variable(type=PFIO_REAL64, dimensions='loc', chunksizes=chunksizes)
+         call v%add_attribute('long_name', 'latitude')
+         call v%add_attribute('units', 'degrees_north')
+         if (associated(lats)) then
+            call v%add_const_value(UnlimitedEntity(lats))
+         end if
+         call file_metadata%add_variable('lat', v)
+      class default
+         _FAIL('geom_spec is not of dynamic type LocStreamGeomSpec.')
+      end select
 
       _RETURN(_SUCCESS)
    end function make_file_metadata
