@@ -141,12 +141,18 @@ contains
          integer :: status
          type(ESMF_GeomType_Flag) :: geomtype
          type(ESMF_Grid) :: grid
+         type(ESMF_LocStream) :: locstream
 
          call ESMF_FieldBundleGet(fieldBundle, geomtype=geomtype, _RC)
          if (geomtype == ESMF_GEOMTYPE_GRID) then
             call ESMF_FieldBundleGet(fieldBundle, grid=grid, _RC)
             ! probable memory leak
             geom = ESMF_GeomCreate(grid=grid, _RC)
+            _RETURN(_SUCCESS)
+         else if (geomtype == ESMF_GEOMTYPE_LOCSTREAM) then
+            call ESMF_FieldBundleGet(fieldBundle, locstream=locstream, _RC)
+            ! probable memory leak
+            geom = ESMF_GeomCreate(locstream=locstream, _RC)
             _RETURN(_SUCCESS)
          end if
 
