@@ -27,6 +27,7 @@ set (srcs
   pFIO_Utilities.F90
   pFIO.F90
   API.F90
+  ServerNames.F90
 
   AbstractMessage.F90
   MessageVisitor.F90
@@ -76,6 +77,7 @@ set (srcs
   FastClientThread.F90
   ClientThreadVector.F90
   StringClientThreadMap.F90
+  StringServerMap.F90
   ClientManager.F90
   ExtDataCollection.F90
   HistoryCollection.F90

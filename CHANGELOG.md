@@ -12,6 +12,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `MAPL_FieldApplyUserRoutine`/`MAPL_FieldBundleApplyUserRoutine` to apply a user routine to each slice of a field (or every field in a bundle) with ungridded/vertical dimensions, plus `MAPL_FieldGetPointerToSlice` (overloaded for R4 and R8) for typed per-slice access. Slices are 2D by default, or 3D when the field has exactly three non-ungridded (grid + vertical) dimensions (for example a 4D field whose fourth dimension is the ungridded dimension). The slice-routine interface is unlimited-polymorphic and assumed-rank, so a single user routine handles R4/R8 and 2D/3D slices via `select rank`/`select type`
+- External pfio server GridComp and ctest: new `mapl_PfioServerGridComp_mod` provides
+  an ESMF GridComp whose `run` phase creates and starts an `MpiServer` or
+  `MultiGroupServer`; `MaplFramework` gains `mapl_connect_to_server`,
+  `mapl_publish_server`, module-level external-client registry, and
+  `finalize_servers` shutdown (sends `terminate` to each external client before
+  freeing `DirectoryService` resources); `HistoryGridComp` connects to an external
+  server in `GENERIC::INIT_REALIZE`; `MaplServerUtilities` fixed two
+  `ESMF_HConfigCreateAt` → `ESMF_HConfigCreateAtMapVal` iterator bugs; added
+  2-PET ctest `pfio_server_captest` under `gridcomps/cap/tests/`; fixed multiple
+  missing `TARGET` attributes in `pfio` exposed by NAG Fortran debug mode
+
+- Added tests to check the use of ESMF_CALKIND_NOLEAP as the default calendar
+- Named default pfio server constants (#5242): new module `mapl_DefaultServerNames_mod`
+  exports `MAPL_DEFAULT_INPUT_SERVER` and `MAPL_DEFAULT_OUTPUT_SERVER`; all hardcoded
+  `'i_client'`/`'o_client'`/`'i_server'`/`'o_server'` string literals replaced with these
+  constants throughout `MaplFramework`, `RestartHandler`, `GeomPFIO`, `GridPFIO`,
+  `FieldBundleRead`, `FieldBundleWrite`, `HistoryGridComp`, `ExtDataFileReader`, and
+  `PrimaryExport`; fixed `MAX_LEN_PORT_NAME` (16 → 64) to support longer port names
 - Added `MAPL_StateMerge` to combine two `ESMF_State` objects into one without allocating new field memory
 - MAPL3 initialization lifecycle (#5231): new 6-call application lifecycle
   (`MAPL_Initialize`, `MAPL_CreateServers`, `MAPL_CapCreate`, `MAPL_RunServers`,
@@ -20,6 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   last server entry; `pfunit` bootstrap updated to call `MAPL_CreateServers`
 
 ### Changed
+
+- Refactor local IO server management (#5239): added `pFIO_StringServerMapMod`
+  (`StringServerMap`) for polymorphic server storage; replaced raw `o_server`/
+  `i_server` pointers in `MaplFramework` with `local_server_map`; renamed
+  `initialize_simple_servers` → `initialize_local_servers` with an
+  `add_local_server` helper to eliminate duplication; local servers are now
+  always created for model PETs regardless of whether a remote `servers:`
+  section is present; `finalize_servers` now clears the map instead of no-op.
 
 - Refactored `pFIO_ClientManagerMod` (#5234): replaced module-level `i_client`/`o_client`
   variables with a `StringClientThreadMap` (public, PROTECTED, TARGET) and a

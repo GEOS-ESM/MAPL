@@ -13,7 +13,7 @@ module pFIO_AbstractDirectoryServiceMod
    public :: PortInfo
 
    integer,parameter :: MAX_NUM_PORTS = 16
-   integer,parameter :: MAX_LEN_PORT_NAME= 16
+   integer,parameter :: MAX_LEN_PORT_NAME= 64
 
    type :: PortInfo
      character(len=MAX_LEN_PORT_NAME) :: port_name

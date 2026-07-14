@@ -158,7 +158,7 @@ contains
    end subroutine init
 
    subroutine run(this, rc)
-      class (ServerThread), intent(inout) :: this
+      class (ServerThread), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       class (AbstractMessage), allocatable :: message

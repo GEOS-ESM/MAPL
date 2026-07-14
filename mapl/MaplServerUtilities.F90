@@ -9,6 +9,7 @@ module mapl_MaplServerUtilities_mod
    implicit none
    private
 
+   public :: ServerResources
    public :: pets_on_ssis
    public :: get_num_ssis
    public :: get_model_petCount
@@ -16,6 +17,14 @@ module mapl_MaplServerUtilities_mod
    public :: get_ssis_per_server
    public :: create_server_comms
    public :: make_server_gridcomp
+
+   type :: ServerResources
+      integer :: world_comm
+      integer :: model_comm
+      integer :: server_comm
+      integer :: nwriter_per_node
+      character(:), allocatable :: subclass
+   end type ServerResources
 
 contains
 
@@ -76,9 +85,10 @@ contains
       _RETURN(_SUCCESS)
    end function get_model_petCount
 
-   function get_server_hconfigs(servers_hconfig, rc) result(server_hconfigs)
-      type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+   subroutine get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, rc)
       type(ESMF_HConfig), intent(in) :: servers_hconfig
+      type(ESMF_HConfig), allocatable, intent(out) :: server_hconfigs(:)
+      character(ESMF_MAXSTR), allocatable, intent(out) :: server_names(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -88,6 +98,7 @@ contains
 
       n_servers = ESMF_HConfigGetSize(servers_hconfig, _RC)
       allocate(server_hconfigs(n_servers))
+      allocate(server_names(n_servers))
 
       iter_begin = ESMF_HConfigIterBegin(servers_hconfig,_RC)
       iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
@@ -96,53 +107,78 @@ contains
       i_server = 0
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          i_server = i_server + 1
-         ! server_hconfigs(i_server) = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         server_hconfigs(i_server) = ESMF_HConfigCreateAt(iter, _RC)
+         server_hconfigs(i_server) = ESMF_HConfigCreateAtMapVal(iter, _RC)
+         server_names(i_server) = ESMF_HConfigAsStringMapKey(iter, _RC)
       end do
 
       _RETURN(_SUCCESS)
-   end function get_server_hconfigs
+   end subroutine get_server_hconfigs
 
-   ! Resolve num_nodes for each server entry.  The last server may use the
-   ! wildcard value '*' to claim all remaining SSIs after model + prior servers.
-   ! ssiCount and num_model_ssis are required to resolve the wildcard.
-   !
-   ! Detection strategy: ESMF_HConfigAsString casts integer YAML nodes to string
-   ! without error, so reading as string first lets us check for '*' before
-   ! attempting an integer read — no spurious ESMF log warnings.
-   function get_ssis_per_server(server_hconfigs, ssiCount, num_model_ssis, rc) result(ssis_per_server)
-      integer, allocatable :: ssis_per_server(:)
-      type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
-      integer, intent(in) :: ssiCount
-      integer, intent(in) :: num_model_ssis
-      integer, optional, intent(out) :: rc
+    ! Resolve num_nodes for each server entry.  The last server may use the
+    ! wildcard value '*' to claim all remaining SSIs after model + prior servers.
+    ! ssiCount and num_model_ssis are required to resolve the wildcard.
+    !
+    ! Local servers (local: true) consume zero SSIs and are skipped.
+    ! Remote servers must have num_nodes (either integer or '*' wildcard).
+    !
+    ! Detection strategy: ESMF_HConfigAsString casts integer YAML nodes to string
+    ! without error, so reading as string first lets us check for '*' before
+    ! attempting an integer read — no spurious ESMF log warnings.
+    function get_ssis_per_server(server_hconfigs, ssiCount, num_model_ssis, rc) result(ssis_per_server)
+       integer, allocatable :: ssis_per_server(:)
+       type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
+       integer, intent(in) :: ssiCount
+       integer, intent(in) :: num_model_ssis
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: i_server
-      integer :: used_ssis
-      character(:), allocatable :: num_nodes_str
+       integer :: status
+       integer :: i_server
+       integer :: used_ssis
+       logical :: is_local, has_local
+       logical :: has_num_nodes
+       character(:), allocatable :: num_nodes_str
 
-      associate (n_servers => size(server_hconfigs))
-         allocate(ssis_per_server(n_servers))
-         used_ssis = num_model_ssis
-         do i_server = 1, n_servers
-            ! Read as string: ESMF casts integer YAML nodes to string without
-            ! complaint, so "2" and "*" both arrive cleanly.
-            num_nodes_str = ESMF_HConfigAsString(server_hconfigs(i_server), keystring='num_nodes', _RC)
-            if (num_nodes_str == '*') then
-               ! Wildcard: takes all remaining SSIs; only valid on the last server.
-               _ASSERT(i_server == n_servers, "'*' for num_nodes is only valid for the last server")
-               ssis_per_server(i_server) = ssiCount - used_ssis
-               _ASSERT(ssis_per_server(i_server) > 0, "PET resources oversubscribed: no SSIs remain for wildcard server")
-            else
-               ! Integer value — re-read as I4 (ESMF casts without complaint).
-               ssis_per_server(i_server) = ESMF_HConfigAsI4(server_hconfigs(i_server), keystring='num_nodes', _RC)
-               used_ssis = used_ssis + ssis_per_server(i_server)
-            end if
-         end do
-      end associate
-      _RETURN(_SUCCESS)
-   end function get_ssis_per_server
+       associate (n_servers => size(server_hconfigs))
+          allocate(ssis_per_server(n_servers))
+          used_ssis = num_model_ssis
+          do i_server = 1, n_servers
+             ! Check if this is a local server.
+             has_local = ESMF_HConfigIsDefined(server_hconfigs(i_server), keystring='local', _RC)
+
+             is_local = .false. ! unless
+             if (has_local) then
+                is_local = ESMF_HConfigAsLogical(server_hconfigs(i_server), keystring='local', _RC)
+             end if
+
+             if (is_local) then
+                ! Local servers consume zero extra SSIs.
+                ! Validation: local: true and num_nodes are mutually exclusive.
+                has_num_nodes = ESMF_HConfigIsDefined(server_hconfigs(i_server), keystring='num_nodes', _RC)
+                _ASSERT(.not. has_num_nodes, "Server entry cannot have both 'local: true' and 'num_nodes'")
+                ssis_per_server(i_server) = 0
+                cycle
+             end if
+
+             ! Remote server: must have num_nodes.
+             ! Read as string: ESMF casts integer YAML nodes to string without
+             ! complaint, so "2" and "*" both arrive cleanly.
+             num_nodes_str = ESMF_HConfigAsString(server_hconfigs(i_server), keystring='num_nodes', _RC)
+             if (num_nodes_str == '*') then
+                ! Wildcard: takes all remaining SSIs; only valid on the last server.
+                _ASSERT(i_server == n_servers, "'*' for num_nodes is only valid for the last server")
+                ssis_per_server(i_server) = ssiCount - used_ssis
+                _ASSERT(ssis_per_server(i_server) > 0, "PET resources oversubscribed: no SSIs remain for wildcard server")
+                cycle
+             end if
+
+             ! Integer value — re-read as I4 (ESMF casts without complaint).
+             ssis_per_server(i_server) = ESMF_HConfigAsI4(server_hconfigs(i_server), keystring='num_nodes', _RC)
+             used_ssis = used_ssis + ssis_per_server(i_server)
+
+          end do
+       end associate
+       _RETURN(_SUCCESS)
+    end function get_ssis_per_server
 
    ! Create the server and model+server MPI communicators for one server entry.
    ! Allocates and immediately frees the intermediate MPI groups.
@@ -168,32 +204,38 @@ contains
       _RETURN(_SUCCESS)
    end subroutine create_server_comms
 
-   function make_server_gridcomp(hconfig, petList, comms, rc) result(gridcomp)
+   function make_server_gridcomp(server_name, hconfig, petList, resources, rc) result(gridcomp)
       use mapl_DSO_Utilities_mod
+      use mpi, only: MPI_COMM_NULL
       type(ESMF_GridComp) :: gridcomp
+      character(*), intent(in) :: server_name
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, intent(in) :: petList(:)
-      integer, intent(in) :: comms(3) ! world, model, server
+      type(ServerResources), intent(in) :: resources
       integer, optional, intent(out) :: rc
 
       integer :: status, user_status
-      type(ESMF_HConfig) :: server_hconfig, comms_hconfig
+      type(ESMF_HConfig) :: server_hconfig
       character(:), allocatable :: sharedObj
       character(:), allocatable :: userRoutine
+      type(ServerResources), pointer :: p_resources
 
       server_hconfig = ESMF_HConfigCreateAt(hconfig, _RC)
-      comms_hconfig = ESMF_HConfigCreate(content='{}', _RC)
-      call ESMF_HConfigAdd(comms_hconfig, comms(1), addKeyString='world_comm', _RC)
-      call ESMF_HConfigAdd(comms_hconfig, comms(2), addKeyString='model_comm', _RC)
-      call ESMF_HConfigAdd(comms_hconfig, comms(3), addKeyString='server_comm', _RC)
-      call ESMF_HConfigAdd(server_hconfig, comms_hconfig, addKeyString='comms', _RC)
 
-      gridcomp = ESMF_GridCompCreate(petList=petList, _RC)
-      sharedObj = ESMF_HConfigAsString(server_hconfig, keystring='sharedOb', _RC)
+      gridcomp = ESMF_GridCompCreate(name=server_name, petList=petList, _RC)
+      sharedObj = ESMF_HConfigAsString(server_hconfig, keystring='sharedObj', _RC)
       userRoutine = ESMF_HConfigAsString(server_hconfig, keystring='userRoutine', _RC)
       call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(sharedObj), userRoutine=userRoutine, _USERRC)
 
-      call ESMF_HConfigDestroy(comms_hconfig, _RC)
+      ! Store resources in ESMF internal state.
+      ! server_comm is MPI_COMM_NULL on all non-server PETs; guard ensures
+      ! ESMF_InternalStateAdd is only called on PETs in the server petList.
+      if (resources%server_comm /= MPI_COMM_NULL) then
+         _SET_NAMED_PRIVATE_STATE(gridcomp, ServerResources, 'private state')
+         _GET_NAMED_PRIVATE_STATE(gridcomp, ServerResources, 'private state', p_resources)
+         p_resources = resources
+      end if
+
       call ESMF_HConfigDestroy(server_hconfig, _RC)
 
       _RETURN(_SUCCESS)
