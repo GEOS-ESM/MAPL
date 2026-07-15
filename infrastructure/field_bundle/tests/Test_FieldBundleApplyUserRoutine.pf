@@ -16,36 +16,55 @@ module Test_FieldBundleApplyUserRoutine
 
 contains
 
-   subroutine count_slices(slice, rc)
-      class(*), intent(inout) :: slice(..)
+   subroutine count_slices(slice_field, rc)
+      type(ESMF_Field), intent(inout) :: slice_field
       integer, optional, intent(out) :: rc
+
+      integer :: status, field_rank
+      type(ESMF_TypeKind_Flag) :: typekind
+      real(kind=ESMF_KIND_R4), pointer :: ptr2d_r4(:,:), ptr3d_r4(:,:,:)
+      real(kind=ESMF_KIND_R8), pointer :: ptr2d_r8(:,:), ptr3d_r8(:,:,:)
+
       g_call_count = g_call_count + 1
-      select rank (slice)
-      rank (2)
-         select type (slice)
-         type is (real(kind=ESMF_KIND_R4))
-            slice = real(g_call_count, kind=ESMF_KIND_R4)
-         type is (real(kind=ESMF_KIND_R8))
-            slice = real(g_call_count, kind=ESMF_KIND_R8)
-         end select
-      rank (3)
-         select type (slice)
-         type is (real(kind=ESMF_KIND_R4))
-            slice = real(g_call_count, kind=ESMF_KIND_R4)
-         type is (real(kind=ESMF_KIND_R8))
-            slice = real(g_call_count, kind=ESMF_KIND_R8)
-         end select
-      end select
+      call ESMF_FieldGet(slice_field, rank=field_rank, typekind=typekind, rc=status)
+      if (present(rc)) rc = status
+      if (status /= 0) return
+
+      if (field_rank == 2) then
+         if (typekind == ESMF_TYPEKIND_R4) then
+            call ESMF_FieldGet(slice_field, farrayPtr=ptr2d_r4, rc=status)
+            if (present(rc)) rc = status
+            if (status /= 0) return
+            ptr2d_r4 = real(g_call_count, kind=ESMF_KIND_R4)
+         else if (typekind == ESMF_TYPEKIND_R8) then
+            call ESMF_FieldGet(slice_field, farrayPtr=ptr2d_r8, rc=status)
+            if (present(rc)) rc = status
+            if (status /= 0) return
+            ptr2d_r8 = real(g_call_count, kind=ESMF_KIND_R8)
+         end if
+      else if (field_rank == 3) then
+         if (typekind == ESMF_TYPEKIND_R4) then
+            call ESMF_FieldGet(slice_field, farrayPtr=ptr3d_r4, rc=status)
+            if (present(rc)) rc = status
+            if (status /= 0) return
+            ptr3d_r4 = real(g_call_count, kind=ESMF_KIND_R4)
+         else if (typekind == ESMF_TYPEKIND_R8) then
+            call ESMF_FieldGet(slice_field, farrayPtr=ptr3d_r8, rc=status)
+            if (present(rc)) rc = status
+            if (status /= 0) return
+            ptr3d_r8 = real(g_call_count, kind=ESMF_KIND_R8)
+         end if
+      end if
+
       if (present(rc)) rc = 0
    end subroutine count_slices
 
-   subroutine fail_immediately(slice, rc)
-      class(*), intent(inout) :: slice(..)
+   subroutine fail_immediately(slice_field, rc)
+      type(ESMF_Field), intent(inout) :: slice_field
       integer, optional, intent(out) :: rc
-      ! Reference slice so it is not flagged as unused; it is intentionally
-      ! ignored by this routine (_UNUSED_DUMMY cannot take an assumed-rank
-      ! argument).
-      if (rank(slice) < 0) return
+      logical :: is_created
+      ! Reference slice_field to avoid unused-dummy warnings.
+      is_created = ESMF_FieldIsCreated(slice_field)
       g_call_count = g_call_count + 1
       if (present(rc)) rc = USER_ERROR
    end subroutine fail_immediately
