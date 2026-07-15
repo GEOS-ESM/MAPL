@@ -12,6 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added regression test for Regrid\_Util.x
+- External pfio server GridComp and ctest: new `mapl_PfioServerGridComp_mod` provides
+  an ESMF GridComp whose `run` phase creates and starts an `MpiServer` or
+  `MultiGroupServer`; `MaplFramework` gains `mapl_connect_to_server`,
+  `mapl_publish_server`, module-level external-client registry, and
+  `finalize_servers` shutdown (sends `terminate` to each external client before
+  freeing `DirectoryService` resources); `HistoryGridComp` connects to an external
+  server in `GENERIC::INIT_REALIZE`; `MaplServerUtilities` fixed two
+  `ESMF_HConfigCreateAt` → `ESMF_HConfigCreateAtMapVal` iterator bugs; added
+  2-PET ctest `pfio_server_captest` under `gridcomps/cap/tests/`; fixed multiple
+  missing `TARGET` attributes in `pfio` exposed by NAG Fortran debug mode
+
+- Added tests to check the use of ESMF_CALKIND_NOLEAP as the default calendar
 - Named default pfio server constants (#5242): new module `mapl_DefaultServerNames_mod`
   exports `MAPL_DEFAULT_INPUT_SERVER` and `MAPL_DEFAULT_OUTPUT_SERVER`; all hardcoded
   `'i_client'`/`'o_client'`/`'i_server'`/`'o_server'` string literals replaced with these
@@ -26,7 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fast-fail resource validation; wildcard `'*'` support for `num_nodes` in the
   last server entry; `pfunit` bootstrap updated to call `MAPL_CreateServers`
 
-### Changed
 
 - Refactor local IO server management (#5239): added `pFIO_StringServerMapMod`
   (`StringServerMap`) for polymorphic server storage; replaced raw `o_server`/

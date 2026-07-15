@@ -105,7 +105,7 @@ module pFIO_AbstractMessageMod
  contains
 
     recursive subroutine dispatch(this, visitor, rc)
-       class (AbstractMessage), intent(in) :: this
+       class (AbstractMessage), target, intent(in) :: this
        class (SurrogateMessageVisitor), target, intent(inout) :: visitor
        integer, optional, intent(out) :: rc
        integer :: status
