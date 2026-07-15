@@ -74,21 +74,21 @@ contains
 
          ! Entry points
          ! Initialize specs
-         call NUOPC_CompSpecialize(model, specLabel=label_Advertise, specRoutine=Initialize, _RC)
-         call NUOPC_CompSpecialize(model, specLabel=label_ModifyAdvertise, specRoutine=Initialize, _RC)
-         call NUOPC_CompSpecialize(model, specLabel=label_RealizeAccept, specRoutine=Initialize, _RC)
-         call NUOPC_CompSpecialize(model, specLabel=label_RealizeProvided, specRoutine=Iniitialize, _RC)
-         call NUOPC_CompSpecialize(model, specLabel=label_DataInitialize, specRoutine=Initialize, _RC)
+         call NUOPC_CompSpecialize(model, specLabel=label_Advertise, specRoutine=Advertise, _RC)
+         call NUOPC_CompSpecialize(model, specLabel=label_ModifyAdvertise, specRoutine=ModifyAdvertise, _RC)
+         call NUOPC_CompSpecialize(model, specLabel=label_RealizeAccept, specRoutine=RealizeAccept, _RC)
+         call NUOPC_CompSpecialize(model, specLabel=label_RealizeProvided, specRoutine=RealizeProvided, _RC)
+         call NUOPC_CompSpecialize(model, specLabel=label_DataInitialize, specRoutine=DataInitialize, _RC)
          
-         ! Supported initialize phases
-
-
-         ! Run specs
+         ! Advance specs
+         ! MAPL Framework phases
          call NUOPC_CompSpecialize(model, specLabel=label_AdvanceClock, specRoutine=AdvanceClock, _RC)
-         associate (phases => outer_meta%get_phases(ESMF_METHOD_RUN))
+         call NUOPC_CompSpecialize(model, specLabel=label_Advance, specRoutine=write_restart, specPhaseLabel='GENERIC::WRITE_RESTART', _RC)
+         ! User phases
+         associate (phases => meta_model%get_phases(ESMF_METHOD_RUN))
            do phase_idx = 1, phases%size()
               associate(phase_label => phases%of(phase_idx)
-                call NUOPC_CompSpecialize(model, specLabel=phaseIndex, specRoutine=Advance, specPhaseLabel=phase_label, _RC)
+                call NUOPC_CompSpecialize(model, specLabel=label_Advance, specRoutine=Advance, specPhaseLabel=phase_label, _RC)
               end associate
            end do
          end associate
@@ -109,8 +109,60 @@ contains
 #endif
    end subroutine GenericSetServices
 
+   recursive subroutine Advertise(model, rc)
+      type(ESMF_GridComp) :: model
+      integer, intent(out) :: rc
 
-   recursive subroutine Initialize(model, rc)
+      integer :: status
+      type(NuopcMetaModel), pointer :: meta_model
+
+      meta_model => get_meta_model(model, _RC)
+      call meta_model%advertise(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine Advertise
+
+   recursive subroutine ModifyAdvertise(model, rc)
+      type(ESMF_GridComp) :: model
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(NuopcMetaModel), pointer :: meta_model
+
+      meta_model => get_meta_model(model, _RC)
+      call meta_model%modifyAdvertise(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine ModifyAdvertise
+
+   recursive subroutine RealizeAccept(model, rc)
+      type(ESMF_GridComp) :: model
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(NuopcMetaModel), pointer :: meta_model
+
+      meta_model => get_meta_model(model, _RC)
+      call meta_model%realizeAccept(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine RealizeAccept
+
+   recursive subroutine RealizeProvided(model, rc)
+      type(ESMF_GridComp) :: model
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(NuopcMetaModel), pointer :: meta_model
+
+      meta_model => get_meta_model(model, _RC)
+      call meta_model%realizeProvided(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine RealizeProvided
+
+
+   recursive subroutine DataInitialize(model, rc)
       type(ESMF_GridComp) :: model
       integer, intent(out) :: rc
 
@@ -120,27 +172,12 @@ contains
       character(ESMF_MAXSTR) :: phaseLabel
 
       meta_model => get_meta_model(model, _RC)
-      call esmf_GridCompGet(model, currentPhase=phaseIndex, _RC)      
-      call nuopc_GridCompSearchRevPhaseMap(model, ESMF_METHOD_INITIALIZE, &
-           phaseIndex, phaseLabel, _RC)
 
-      select case (trim(q => phaseLabel))
-      case (label_Advertise)
-         call meta_model%advertise(_RC)
-      case (label_ModifyAdvertise
-         call meta_model%modify_advertise(_RC)
-      case (label_RealizeAccept
-         call meta_model%realize_accept(_RC)
-      case (label_RealizeProvided
-         call meta_model%realize_provided(_RC)
-      case (label_DataInitialize)
-         call meta_model%data_initialize(_RC)
-      case default
-         _FAIL('unknown nuopc init phase:: ' // q)
-      end select
+      call meta_model%read_restart(_RC)
+      call meta_model%init_user(_RC)
 
       _RETURN(_SUCCESS)
-   end subroutine Initialize
+   end subroutine DataInitialize
 
    recursive subroutine Advance(model, rc)
       type(ESMF_GridComp) :: model
