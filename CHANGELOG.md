@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added regression test for Regrid\_Util.x
 - Named default pfio server constants (#5242): new module `mapl_DefaultServerNames_mod`
   exports `MAPL_DEFAULT_INPUT_SERVER` and `MAPL_DEFAULT_OUTPUT_SERVER`; all hardcoded
   `'i_client'`/`'o_client'`/`'i_server'`/`'o_server'` string literals replaced with these
@@ -70,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug in FieldBundleRead when file grid and output bundle grid are different grid classes
 - Buggy logic in server initialization (#5214)
 - Missing call to initialize error handling in MPI context
 - Fixed bug that prevented R8 exports from being written in R8 in History
