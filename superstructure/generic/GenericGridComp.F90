@@ -117,28 +117,11 @@ contains
       ! must be processed later as the information gets stored in the ComponentSpec.
 
       user_gc_driver = GriddedComponentDriver(user_gridcomp)
-#ifndef __GFORTRAN__
       outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
-#else
-      ! GFortran 12 & 13 cannot directly assign to outer_meta.  But
-      ! the assignment works for an object without the POINTER
-      ! attribute.  An internal procedure is a workaround, but
-      ! ... ridiculous.
-      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, set_services, config))
-#endif
       call outer_meta%init_meta(_RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
-#ifdef __GFORTRAN__
-   contains
-
-      subroutine ridiculous(a, b)
-         type(OuterMetaComponent), intent(out) :: a
-         type(OuterMetaComponent), intent(in) :: b
-         a = b
-      end subroutine ridiculous
-#endif
    end function create_grid_comp_primary
 
 

@@ -79,6 +79,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add helper script for regression test work
 - For ACG, only declare pointer and get_pointer for MAPL_STATEITEM_FIELD
 - For ACG, add spec_filters to generalize testing specs
+- Enforce minimum supported gfortran versions (14.4, 15.2, 16.1) in `CMakeLists.txt`
+  via a `CMAKE_Fortran_COMPILER_VERSION` check that fails the configure step with
+  `FATAL_ERROR` on older, buggy compiler releases; with this floor in place, the
+  `__GFORTRAN__`-guarded workaround subroutines for direct assignment to
+  derived-type actual results (previously needed due to a gfortran bug) were
+  removed from `GenericGridComp.F90`, `StateRegistry_Extensions_smod.F90`, and
+  `GenericCoupler.F90` in favor of plain assignment
 
 ### Fixed
 
@@ -88,6 +95,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Dead `BUILD_SHARED_MAPL` option and `MAPL_LIBRARY_TYPE` logic in `CMakeLists.txt`,
+  left over from MAPL v2 and no longer used
 - Removed `ESMF_HCONFIGSET_HAS_INTENT_INOUT` preprocessor conditionals now that
   ESMF 9.0.0 is required (≥ 8.9.0, where `ESMF_HConfigSet` gained `intent(inout)`).
   The `intent(inout)` declarations in `HConfigUtilities.F90`, `OuterMetaComponent.F90`,
