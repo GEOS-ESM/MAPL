@@ -1,14 +1,20 @@
 #include "MAPL.h"
 #include "unused_dummy.H"
 
-! Apply a user routine to each 2D slice of every field in a FieldBundle.
+! Apply a user routine to each ungridded slice of every field in a
+! FieldBundle.
 !
 ! This is the bundle-level driver requested by service providers that
 ! want to handle fields with ungridded (and/or vertical) dimensions as a
-! collection of 2D "slices".  Each field is delegated to
-! FieldApplyUserRoutine (see MAPL.field), which performs the per-slice
-! iteration.  The user routine receives an unlimited-polymorphic slice
-! pointer, so a single interface handles both R4 and R8 fields.
+! collection of slices.  Each field is delegated to FieldApplyUserRoutine
+! (see infrastructure/field/FieldApplyUserRoutine.F90), which performs
+! the per-slice iteration.
+!
+! For each slice, FieldApplyUserRoutine calls FieldSliceToField to
+! construct a transient ESMF_Field whose data is a pointer into the
+! corresponding ungridded slice of the parent field.  The user routine
+! therefore always receives a proper ESMF_Field (with no ungridded
+! dimension) and may use the full ESMF field API.
 module mapl_FieldBundleApplyUserRoutine_mod
 
    use ESMF, only: ESMF_FieldBundle, ESMF_FieldBundleGet
@@ -40,7 +46,7 @@ contains
 
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
       do i = 1, field_count
-         ! ESMF 5 reorders items, be careful!
+         ! ESMF 5 reorders items; retrieve by position index to be safe.
          call ESMF_FieldBundleGet(bundle, i, field, _RC)
          user_status = 0
          call FieldApplyUserRoutine(field, userRoutine, userrc=user_status, _RC)
