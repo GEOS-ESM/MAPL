@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added regression test for Regrid\_Util.x
 - External pfio server GridComp and ctest: new `mapl_PfioServerGridComp_mod` provides
   an ESMF GridComp whose `run` phase creates and starts an `MpiServer` or
   `MultiGroupServer`; `MaplFramework` gains `mapl_connect_to_server`,
@@ -37,7 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fast-fail resource validation; wildcard `'*'` support for `num_nodes` in the
   last server entry; `pfunit` bootstrap updated to call `MAPL_CreateServers`
 
-### Changed
 
 - Refactor local IO server management (#5239): added `pFIO_StringServerMapMod`
   (`StringServerMap`) for polymorphic server storage; replaced raw `o_server`/
@@ -82,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug in FieldBundleRead when file grid and output bundle grid are different grid classes
 - Buggy logic in server initialization (#5214)
 - Missing call to initialize error handling in MPI context
 - Fixed bug that prevented R8 exports from being written in R8 in History
