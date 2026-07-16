@@ -19,8 +19,8 @@ contains
       type(XYGeomFactory) :: xy_factory
       type(EASEGeomFactory) :: ease_factory
 
-      call this%add_factory(latlon_factory)
       call this%add_factory(cs_factory)
+      call this%add_factory(latlon_factory)
       call this%add_factory(xy_factory)
       call this%add_factory(ease_factory)
 
