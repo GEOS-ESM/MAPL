@@ -51,9 +51,10 @@ module mapl_AbstractDataSetFileSelector_mod
 
 contains
 
-   function find_any_file(this, rc) result(filename)
+   function find_any_file(this, current_time, rc) result(filename)
       character(len=:), allocatable :: filename
       class(AbstractDataSetFileSelector), intent(inout) :: this
+      type(ESMF_Time), intent(in) :: current_time
       integer, optional, intent(out) :: rc
 
       integer :: status, i
@@ -62,13 +63,14 @@ contains
       logical :: file_found
 
       filename = file_not_found
-      useable_time = this%ref_time
+      useable_time = current_time
       call mapl_fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
       inquire(file=trim(trial_file),exist=file_found)
       if (file_found) then
          filename = trial_file
          _RETURN(_SUCCESS)
       end if
+      useable_time = this%ref_time
       do i=1, MAX_TRIALS
          useable_time = useable_time + this%file_frequency
          call mapl_fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
@@ -82,16 +84,17 @@ contains
       _FAIL("could not find a file")
    end function find_any_file
 
-   function get_dataset_metadata(this, rc) result(metadata)
+   function get_dataset_metadata(this, current_time, rc) result(metadata)
       type(FileMetadataUtils), pointer :: metadata
       class(AbstractDataSetFileSelector), intent(inout) :: this
+      type(ESMF_Time), intent(in) :: current_time
       integer, optional, intent(out) :: rc
 
       character(len=:), allocatable :: filename
       integer :: status
       type(mapl_DataCollection), pointer :: collection
 
-      filename = this%find_any_file(_RC)
+      filename = this%find_any_file(current_time, _RC)
       collection => mapl_DataCollections%at(this%collection_id)
       metadata => collection%find(filename, _RC)
 
