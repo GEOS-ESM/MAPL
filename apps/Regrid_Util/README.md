@@ -10,29 +10,36 @@ _**Also note, due to some misunderstandings as IO layers evolved, some metadata 
 
 If both the input and output are lat-lon or tripolar, it can be run on a single processor. In that case you must explicitly pass nx/ny to the program to override the defaults. **Also note if you specify NX and NY,  NX*NY must equals the number of cores used in the mpirun command.** This could be useful is you need higher speed or are regridding large input or output grids. Finally note that NY must be divisible by 6 if the input or output is on the cube. 
 
-**The minimum arguments are -i, -o, -ogrid and if you use only use these 3 the program must be run with 6 mpi tasks**
+**The minimum arguments are `-i`, `-o`/`--output`, `--ogrid` and if you use only these 3 the program must be run with 6 mpi tasks**
 
 # Command line options
 Note options have been added as the program has grown beyond the initial command line options. Additional options that have been added or potentially enhanced and the version they were made available will be noted.
-* -i input file (at **v2.11.0** and above you can give a list of comma separated files (no spaces!) to regrid. These should all be on the same grid and have the same variables)
-* -o output file (at **v2.11.0** and above if specifying multiple input files then correspondingly specify multiple output files, comma separated, no spaces)
-* -ogrid encoding of the output grid name, see section on grid names
-* -nx x decomposition to use for the decomposition of the target grid
-* -ny y decomposition to use for the decomposition of the target grid
-* -t date and time to select if the file contains multiple time slices (for example 20000415 210000)
-* -method regridding method, the available options are defined here and follow what one can specify in History: https://github.com/GEOS-ESM/MAPL/wiki/Regridding-Methods-Available-In-MAPL#specifying-regridding-methods-in-extdata-and-history-in-mapl-v2220-and-greater. These correspond to the underlying ESMF regridding methods. For more information about the ESMF regridding methods see this document: https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node3.html#SECTION03023000000000000000
-* -vars specify a comma separated (no spaces!) list of variables to regrid that subset of the variables from the input file only
-* -tp_in tripolar file for input grid is the input file is on a tripolar gird
-* -tp_out tripolar file for output grid if output grid is tripolar
-* -lon_range from **v2.9.0** if the output grid is lat-lon specify make grid region on the lon direction by specifying a min and max longitude in degrees separated by a space, i.e. `-lon_range 45 65`
-* -lon_range from **v2.9.0** if the output grid is lat-lon specify make grid region on the lat direction by specifying a min and max latitude in degrees separated by a space, i.e. `-lat_range 45 65`
-* -deflate from **v2.3.2** apply compression to the output file values can be 1 to 9 corresponding to the netcdf deflation level. Default is not compression.
-* -shave from **v2.3.2** bit shave the output by specifying the number of bits in the mantissa to retain (a floating point single precision number has 23 bits). Default no bit shaving
-* -file_weights from **v2.47.0** if this option is present, when it generates the regridding weights, it will either look for a file of the right name with weights or if said file already exists will use. This provides huge speedup if the file is there since it does not need to recompute the weights. See other notes section for more info.
+
+Command line argument parsing uses the fargparse library. Multi-character option names use a double-dash prefix (e.g. `--ogrid`). The short forms `-i` and `-o` are also accepted for the input and output file arguments.
+
+* `-i` / `--input` — input file (at **v2.11.0** and above you can give a list of comma separated files (no spaces!) to regrid. These should all be on the same grid and have the same variables)
+* `-o` / `--output` — output file (at **v2.11.0** and above if specifying multiple input files then correspondingly specify multiple output files, comma separated, no spaces)
+* `--ogrid` — encoding of the output grid name, see section on grid names
+* `--nx` — x decomposition to use for the decomposition of the target grid
+* `--ny` — y decomposition to use for the decomposition of the target grid
+* `--t` — date and time to select if the file contains multiple time slices (for example `--t 20000415 210000`)
+* `--method` — regridding method, the available options are defined here and follow what one can specify in History: https://github.com/GEOS-ESM/MAPL/wiki/Regridding-Methods-Available-In-MAPL#specifying-regridding-methods-in-extdata-and-history-in-mapl-v2220-and-greater. These correspond to the underlying ESMF regridding methods. For more information about the ESMF regridding methods see this document: https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node3.html#SECTION03023000000000000000
+* `--vars` — specify a comma separated (no spaces!) list of variables to regrid that subset of the variables from the input file only
+* `--tp_in` — tripolar file for input grid if the input file is on a tripolar grid
+* `--tp_out` — tripolar file for output grid if output grid is tripolar
+* `--lon_range` — from **v2.9.0** if the output grid is lat-lon, constrain the grid to a region in the longitude direction by specifying a min and max longitude in degrees separated by a space, i.e. `--lon_range 45 65`
+* `--lat_range` — from **v2.9.0** if the output grid is lat-lon, constrain the grid to a region in the latitude direction by specifying a min and max latitude in degrees separated by a space, i.e. `--lat_range 45 65`
+* `--stretch_factor` — cubed-sphere grid stretching parameters: stretch factor, target longitude, and target latitude in degrees, separated by spaces, i.e. `--stretch_factor 2.0 -100.0 40.0`
+* `--deflate` — from **v2.3.2** apply compression to the output file; values can be 1 to 9 corresponding to the netcdf deflation level. Default is no compression.
+* `--shave` — from **v2.3.2** bit shave the output by specifying the number of bits in the mantissa to retain (a floating point single precision number has 23 bits). Default no bit shaving.
+* `--quantize_algorithm` — quantize algorithm name (e.g. `BitRound`). Default is `NONE` (disabled).
+* `--quantize_level` — quantize level to use with the chosen quantize algorithm. Default is 0.
+* `--zstandard_level` — Zstandard compression level. Default is 0 (disabled).
+* `--file_weights` — from **v2.47.0** if this flag is present, when it generates the regridding weights, it will either look for a file of the right name with weights or if said file already exists will use it. This provides huge speedup if the file is there since it does not need to recompute the weights. See other notes section for more info.
 
 # Grid Names
 The grid name used in ogrid follows the following conventions:
-* For lat-lon grid it will be of the form PLEim_worldxjm_world-DATELINE (i.e. PC360x181-DC). In the case of a global lat-lon grid pole is either PC or PE (pole centered or pole edge) and dateline is DE,DC,GC,GE (dateline edge, dateline center, Grenwich center, Grenwich edge). IM_WORLD and JM_WORLD are the number of grid points in the lon and lat direction. From **v2.9.0** onward a regional lat-lon grid can be specified with the -lat_range and -lon_range option. Note you can specify 1 of these or both. Which ever one you specify, set the POLE or DATELINE (or both!) to XY. So a if you want a 180x90 regional grid from 0 to 90 in longitude and -30 to 30 in latitude use these arguments -lat_range -30,30 -lon_range 0,90 -ogrid XY180x90-XY
+* For lat-lon grid it will be of the form PLEim_worldxjm_world-DATELINE (i.e. PC360x181-DC). In the case of a global lat-lon grid pole is either PC or PE (pole centered or pole edge) and dateline is DE,DC,GC,GE (dateline edge, dateline center, Grenwich center, Grenwich edge). IM_WORLD and JM_WORLD are the number of grid points in the lon and lat direction. From **v2.9.0** onward a regional lat-lon grid can be specified with the `--lat_range` and `--lon_range` options. Note you can specify 1 of these or both. Whichever one you specify, set the POLE or DATELINE (or both!) to XY. So if you want a 180x90 regional grid from 0 to 90 in longitude and -30 to 30 in latitude use these arguments `--lat_range -30 30 --lon_range 0 90 --ogrid XY180x90-XY`
 * For cubed sphere the name will look like PEcube_sizexcubesize*6-CF (i.e. PE180x1080-CF for a c180 cubed sphere grid)
 * For tripolar it will look like PE720x410-TM, however you must supply an file containing the tripolar grid coordinates in the correct form
 
@@ -41,4 +48,4 @@ The grid name used in ogrid follows the following conventions:
 * If you do want to use more than 6 cores and specify an NX and NY note if going to a cubed-sphere output grid NY must be divisible by six (the cubed is decomposed such that each face has NX*NY/6 points).
 * This code in no way shape or form supports regridding of the vertical coordinate nor will it for the foreseeable future without extensive development of the MAPL library which is currently not being pursued!
 * If using the bit shaving option be careful, this helps with compression but you are throwing away information. If you have fields that varies in the last bits of the mantissa with the same exponent you lose that variation.
-* If you are using a modern enough MAPL and need to regrid a whole bunch of files from/to the same grid, I strongly recommend you use the -file_weights option. This will if not found, it will write the regridding weights to a file, and subsequent executions of the code will look for this file and use if found. This will provide speedup since it need not recompute the weights. Note these weights are not transferable. They are for whatever input and output grids were used on the core count used when it was generated so you cannot change that on subsequent executions. When using this option, on the first time used, you will see a new file appear that looks something like this, the import thing is that it start with rh_, e.g. `rh_05760x34560_00005x00024_00360x00181_00005x00024_method_01`. Basically it encodes the input/output grid resolution and layout and method in the file name for the weights.
+* If you are using a modern enough MAPL and need to regrid a whole bunch of files from/to the same grid, I strongly recommend you use the `--file_weights` option. This will if not found, it will write the regridding weights to a file, and subsequent executions of the code will look for this file and use if found. This will provide speedup since it need not recompute the weights. Note these weights are not transferable. They are for whatever input and output grids were used on the core count used when it was generated so you cannot change that on subsequent executions. When using this option, on the first time used, you will see a new file appear that looks something like this, the import thing is that it start with rh_, e.g. `rh_05760x34560_00005x00024_00360x00181_00005x00024_method_01`. Basically it encodes the input/output grid resolution and layout and method in the file name for the weights.
