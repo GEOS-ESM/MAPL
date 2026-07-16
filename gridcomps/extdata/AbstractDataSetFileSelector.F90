@@ -71,9 +71,9 @@ contains
          _RETURN(_SUCCESS)
       end if
       useable_time = this%ref_time
-      do i=1, MAX_TRIALS
-         useable_time = useable_time + this%file_frequency
+      do i=0, MAX_TRIALS
          call mapl_fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+         useable_time = useable_time + this%file_frequency
          inquire(file=trim(trial_file),exist=file_found)
          if (file_found) then
             filename = trial_file

@@ -21,18 +21,22 @@ contains
       type(NonClimDataSetFileSelector) :: file_handler
 
       character(len=:), allocatable :: template, sample_file
-      type(ESMF_Time) :: ref_time
+      type(ESMF_Time) :: ref_time, current_time
       type(ESMF_TimeInterval) :: file_frequency
 
       template = "/home/bmauer/extdata3g_test_data/hourly_files/hourly_files.%y4%m2%d2_%h200z.nc4"
       call ESMF_TimeSet(ref_time, yy=2004, mm=1, dd=31, h=21, m=0, s=0, _RC)
       call ESMF_TimeIntervalSet(file_frequency, h=1, _RC)
-     
+    
+      call ESMF_TimeSet(current_time, yy=2004, mm=2, dd=1, h=0, m=0, s=0, _RC) 
       file_handler = NonClimDataSetFileSelector(template, ref_time=ref_time, file_frequency=file_frequency, _RC) 
-      sample_file = file_handler%find_any_file(_RC)
+      sample_file = file_handler%find_any_file(current_time, _RC)
       
-      @assertTrue(sample_file == "/home/bmauer/extdata3g_test_data/hourly_files/hourly_files.20040131_2100z.nc4")
+      @assertTrue(sample_file == "/home/bmauer/extdata3g_test_data/hourly_files/hourly_files.20040201_0000z.nc4")
 
+      call ESMF_TimeSet(current_time, yy=2004, mm=3, dd=1, h=0, m=0, s=0, _RC) 
+      sample_file = file_handler%find_any_file(current_time, _RC)
+      @assertTrue(sample_file == "/home/bmauer/extdata3g_test_data/hourly_files/hourly_files.20040131_2100z.nc4")
    end subroutine Test_NonClimDataSetFileSelector_get_any_file
 
    @test
