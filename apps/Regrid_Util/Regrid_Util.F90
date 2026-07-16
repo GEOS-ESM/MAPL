@@ -4,7 +4,10 @@
 
    use ESMF
    use MAPL
+   use fargparse
    use gFTL2_StringVector
+   use gFTL2_IntegerVector
+   use gFTL2_RealVector
 
    implicit NONE
    private
@@ -86,130 +89,210 @@
        enddo
     end function split_string
 
-    subroutine process_command_line(this,rc)
-    class(regrid_support) :: this
-    integer, optional, intent(out) :: rc
+     subroutine process_command_line(this, rc)
+     class(regrid_support) :: this
+     integer, optional, intent(out) :: rc
 
-    character(len=ESMF_MAXSTR) :: RegridMth
-    integer :: nargs, i, status
-    character(len=ESMF_MAXPATHLEN) :: str,astr
-    character(len=ESMF_MAXPATHLEN) :: tp_filein,tp_fileout
-    character(len=ESMF_MAXPATHLEN*100) :: cfileNames,coutputFiles
-    character(len=ESMF_MAXSTR) :: gridname
-    type(ESMF_HConfig) :: hconfig_compression
+     character(len=ESMF_MAXSTR) :: RegridMth
+     integer :: status
+     character(len=ESMF_MAXPATHLEN*100) :: cfileNames, coutputFiles
+     character(len=ESMF_MAXSTR) :: gridname
+     type(ESMF_HConfig) :: hconfig_compression
 
-    this%nx=1
-    this%ny=1
-    this%onlyvars=.false.
-    this%alltimes=.true.
-    regridMth='bilinear'
-    this%cs_stretch_param=uninit
-    this%lon_range=uninit
-    this%lat_range=uninit
-    this%shave=-1
-    this%deflate=0
-    this%quantize_algorithm='NONE'
-    this%quantize_level=0
-    this%zstandard_level=0
-    this%use_weights = .false.
-    nargs = command_argument_count()
-    do i=1,nargs
-      call get_command_argument(i,str)
-      select case(trim(str))
-      case ('-o')
-         call get_command_argument(i+1,coutputfiles)
-      case('-i')
-         call get_command_argument(i+1,cfilenames)
-      case('-ogrid')
-         call get_command_argument(i+1,Gridname)
-      case('-nx')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%nx
-      case('-ny')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%ny
-      case('-vars')
-         call get_command_argument(i+1,this%vars)
+      type(ArgParser) :: parser
+      type(StringUnlimitedMap) :: options
+      class(*), pointer :: option
+      type(IntegerVector) :: int_vec
+      type(RealVector) :: real_vec
+      character(len=:), allocatable :: tmp_str
+
+     ! Defaults for options not covered by fargparse default= keyword
+     this%cs_stretch_param = uninit
+     this%lon_range = uninit
+     this%lat_range = uninit
+     this%onlyvars = .false.
+     this%alltimes = .true.
+
+     parser = ArgParser()
+
+     call parser%add_argument('-i', '--input', &
+          help='Comma-separated list of input NetCDF files', &
+          action='store', type='string')
+     call parser%add_argument('-o', '--output', &
+          help='Comma-separated list of output NetCDF files', &
+          action='store', type='string')
+     call parser%add_argument('--ogrid', &
+          help='Output grid name (e.g. PE180x1080-CF)', &
+          action='store', type='string')
+     call parser%add_argument('--nx', &
+          help='MPI decomposition in x (default: 1)', &
+          action='store', type='integer', default=1)
+     call parser%add_argument('--ny', &
+          help='MPI decomposition in y (default: 1)', &
+          action='store', type='integer', default=1)
+     call parser%add_argument('--vars', &
+          help='Comma-separated list of variable names to regrid', &
+          action='store', type='string')
+     call parser%add_argument('--t', &
+          help='Time range as two integers: YYYYMMDD HHMMSS (start and end)', &
+          action='store', type='integer', n_arguments=2)
+     call parser%add_argument('--stretch_factor', &
+          help='Cubed-sphere stretch parameters: stretch_factor target_lon target_lat', &
+          action='store', type='real', n_arguments=3)
+     call parser%add_argument('--lon_range', &
+          help='Longitude range for regional grid: lon_min lon_max', &
+          action='store', type='real', n_arguments=2)
+     call parser%add_argument('--lat_range', &
+          help='Latitude range for regional grid: lat_min lat_max', &
+          action='store', type='real', n_arguments=2)
+     call parser%add_argument('--method', &
+          help='Regrid method (default: bilinear)', &
+          action='store', type='string', default='bilinear')
+     call parser%add_argument('--tp_in', &
+          help='Tripolar input grid descriptor file', &
+          action='store', type='string')
+     call parser%add_argument('--tp_out', &
+          help='Tripolar output grid descriptor file', &
+          action='store', type='string')
+     call parser%add_argument('--shave', &
+          help='Number of bits to shave for compression (default: -1, disabled)', &
+          action='store', type='integer', default=-1)
+     call parser%add_argument('--deflate', &
+          help='Deflate compression level 0-9 (default: 0, disabled)', &
+          action='store', type='integer', default=0)
+     call parser%add_argument('--quantize_algorithm', &
+          help='Quantize algorithm name (default: NONE)', &
+          action='store', type='string', default='NONE')
+     call parser%add_argument('--quantize_level', &
+          help='Quantize level (default: 0)', &
+          action='store', type='integer', default=0)
+     call parser%add_argument('--zstandard_level', &
+          help='Zstandard compression level (default: 0, disabled)', &
+          action='store', type='integer', default=0)
+     call parser%add_argument('--file_weights', &
+          help='Use weight files for regridding', &
+          action='store_true', default=.false.)
+
+     options = parser%parse_args()
+
+     ! --- Required arguments ---
+
+      option => options%at('input')
+      _ASSERT(associated(option), 'required argument --input / -i not provided')
+      call cast(option, tmp_str)
+      cfilenames = tmp_str
+
+      option => options%at('output')
+      _ASSERT(associated(option), 'required argument --output / -o not provided')
+      call cast(option, tmp_str)
+      coutputfiles = tmp_str
+
+      option => options%at('ogrid')
+      _ASSERT(associated(option), 'required argument --ogrid not provided')
+      call cast(option, tmp_str)
+      gridname = tmp_str
+
+     ! --- Arguments with defaults (always associated) ---
+
+     option => options%at('nx')
+     if (associated(option)) call cast(option, this%nx)
+
+     option => options%at('ny')
+     if (associated(option)) call cast(option, this%ny)
+
+      option => options%at('method')
+      if (associated(option)) then
+         call cast(option, tmp_str)
+         RegridMth = tmp_str
+      end if
+
+     option => options%at('shave')
+     if (associated(option)) call cast(option, this%shave)
+
+     option => options%at('deflate')
+     if (associated(option)) call cast(option, this%deflate)
+
+     option => options%at('quantize_algorithm')
+     if (associated(option)) call cast(option, this%quantize_algorithm)
+
+     option => options%at('quantize_level')
+     if (associated(option)) call cast(option, this%quantize_level)
+
+     option => options%at('zstandard_level')
+     if (associated(option)) call cast(option, this%zstandard_level)
+
+     option => options%at('file_weights')
+     if (associated(option)) call cast(option, this%use_weights)
+
+     ! --- Optional arguments (not associated when absent) ---
+
+      option => options%at('vars')
+      if (associated(option)) then
+         call cast(option, tmp_str)
+         this%vars = tmp_str
          this%onlyVars = .true.
-      case('-t')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%itime(1)
-         call get_command_argument(i+2,astr)
-         read(astr,*)this%itime(2)
-         this%alltimes=.false.
-      case('-stretch_factor')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%cs_stretch_param(1)
-         call get_command_argument(i+2,astr)
-         read(astr,*)this%cs_stretch_param(2) ! target_lon in degree
-         call get_command_argument(i+3,astr)
-         read(astr,*)this%cs_stretch_param(3) ! target_lat in degree
-      case('-lon_range')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%lon_range(1)
-         call get_command_argument(i+2,astr)
-         read(astr,*)this%lon_range(2)
-      case('-lat_range')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%lat_range(1)
-         call get_command_argument(i+2,astr)
-         read(astr,*)this%lat_range(2)
-      case('-method')
-         call get_command_argument(i+1,RegridMth)
-      case('-tp_in')
-         call get_command_argument(i+1,tp_filein)
-         this%tripolar_file_in = tp_filein
-      case('-tp_out')
-         call get_command_argument(i+1,tp_fileout)
-         this%tripolar_file_out = tp_fileout
-      case('-shave')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%shave
-      case('-deflate')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%deflate
-      case('-quantize_algorithm')
-         call get_command_argument(i+1,astr)
-         this%quantize_algorithm=astr
-      case('-quantize_level')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%quantize_level
-      case('-zstandard_level')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%zstandard_level
-      case('-file_weights')
-         this%use_weights = .true.
-      case('--help')
-         if (local_am_i_root()) then
+      end if
 
-         end if
-         call MPI_Finalize(status)
-         return
-      end select
-    enddo
+     option => options%at('t')
+     if (associated(option)) then
+        call cast(option, int_vec)
+        this%itime(1) = int_vec%at(1)
+        this%itime(2) = int_vec%at(2)
+        this%alltimes = .false.
+     end if
 
-    if (.not.allocated(this%tripolar_file_out)) then
-       this%tripolar_file_out = "empty"
-    end if
-    this%regridMethod = mapl_regrid_method_string_to_int(regridMth)
-    _ASSERT(this%regridMethod/=MAPL_UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
+     option => options%at('stretch_factor')
+     if (associated(option)) then
+        call cast(option, real_vec)
+        this%cs_stretch_param(1) = real_vec%at(1)
+        this%cs_stretch_param(2) = real_vec%at(2)  ! target_lon in degrees
+        this%cs_stretch_param(3) = real_vec%at(3)  ! target_lat in degrees
+     end if
 
-    this%filenames = split_string(cfilenames,',')
-    this%outputfiles = split_string(coutputfiles,',')
-    _ASSERT(this%filenames%size() > 0, 'no input files')
-    _ASSERT(this%outputfiles%size() >0, 'no ouput files specified')
-    _ASSERT(this%filenames%size() == this%outputfiles%size(), 'different number of input and output files')
-    if (.not.this%alltimes) then
-       _ASSERT(this%filenames%size() == 1,'if selecting time from file, can only regrid a single file')
-    end if
+     option => options%at('lon_range')
+     if (associated(option)) then
+        call cast(option, real_vec)
+        this%lon_range(1) = real_vec%at(1)
+        this%lon_range(2) = real_vec%at(2)
+     end if
 
-    call this%create_grid(gridname,_RC)
-    call this%create_vgrid(_RC)
-    hconfig_compression = this%fill_in_compression_hconfig(_RC)
-    this%compression_settings = mapl_CompressionSettings(hconfig_compression, _RC)
-    _RETURN(_SUCCESS)
+     option => options%at('lat_range')
+     if (associated(option)) then
+        call cast(option, real_vec)
+        this%lat_range(1) = real_vec%at(1)
+        this%lat_range(2) = real_vec%at(2)
+     end if
 
-    end subroutine process_command_line
+     option => options%at('tp_in')
+     if (associated(option)) call cast(option, this%tripolar_file_in)
+
+     option => options%at('tp_out')
+     if (associated(option)) call cast(option, this%tripolar_file_out)
+
+     ! --- Post-parse validation and setup ---
+
+     if (.not. allocated(this%tripolar_file_out)) then
+        this%tripolar_file_out = "empty"
+     end if
+     this%regridMethod = mapl_regrid_method_string_to_int(RegridMth)
+     _ASSERT(this%regridMethod /= MAPL_UNSPECIFIED_REGRID_METHOD, "improper regrid method chosen")
+
+     this%filenames = split_string(cfilenames, ',')
+     this%outputfiles = split_string(coutputfiles, ',')
+     _ASSERT(this%filenames%size() > 0, 'no input files')
+     _ASSERT(this%outputfiles%size() > 0, 'no output files specified')
+     _ASSERT(this%filenames%size() == this%outputfiles%size(), 'different number of input and output files')
+     if (.not. this%alltimes) then
+        _ASSERT(this%filenames%size() == 1, 'if selecting time from file, can only regrid a single file')
+     end if
+
+     call this%create_grid(gridname, _RC)
+     call this%create_vgrid(_RC)
+     hconfig_compression = this%fill_in_compression_hconfig(_RC)
+     this%compression_settings = mapl_CompressionSettings(hconfig_compression, _RC)
+     _RETURN(_SUCCESS)
+
+     end subroutine process_command_line
 
      subroutine create_vgrid(this,rc)
      class(regrid_support) :: this
