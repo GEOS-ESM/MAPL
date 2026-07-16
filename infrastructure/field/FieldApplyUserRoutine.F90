@@ -152,8 +152,7 @@ contains
            name=field_name, _RC)
       call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
 
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, &
-           'FieldSliceToField: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
+      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldSliceToField: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
 
       ! condensed_slice_rank returns 2 (no vertical) or 3 (vertical present).
       ! This is the only use of mapl_FieldCondensedArray_mod in this module;
@@ -167,8 +166,7 @@ contains
 
          if (ungrid_count == 0) then
             ! No ungridded dim: wrap the full native array directly.
-            _ASSERT(slice_index == 1, &
-                 'slice_index must be 1 for a field with no ungridded dimension.')
+            _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
             nullify(fptr3d_r4)
             call ESMF_FieldGet(field, farrayPtr=fptr3d_r4, rc=status)
             if (status == 0 .and. associated(fptr3d_r4)) then
@@ -213,8 +211,7 @@ contains
       else if (typekind == ESMF_TYPEKIND_R8) then
 
          if (ungrid_count == 0) then
-            _ASSERT(slice_index == 1, &
-                 'slice_index must be 1 for a field with no ungridded dimension.')
+            _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
             nullify(fptr3d_r8)
             call ESMF_FieldGet(field, farrayPtr=fptr3d_r8, rc=status)
             if (status == 0 .and. associated(fptr3d_r8)) then
@@ -285,11 +282,9 @@ contains
 
       nullify(ptr)
       call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, &
-           'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
+      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
       if (ungrid_count == 0) then
-         _ASSERT(slice_index == 1, &
-              'slice_index must be 1 for a field with no ungridded dimension.')
+         _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
          call ESMF_FieldGet(field, farrayPtr=fptr2d, _RC)
          ptr => fptr2d
       else
@@ -311,11 +306,9 @@ contains
 
       nullify(ptr)
       call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, &
-           'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
+      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
       if (ungrid_count == 0) then
-         _ASSERT(slice_index == 1, &
-              'slice_index must be 1 for a field with no ungridded dimension.')
+         _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
          call ESMF_FieldGet(field, farrayPtr=fptr2d, _RC)
          ptr => fptr2d
       else
@@ -337,11 +330,9 @@ contains
 
       nullify(ptr)
       call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, &
-           'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
+      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
       if (ungrid_count == 0) then
-         _ASSERT(slice_index == 1, &
-              'slice_index must be 1 for a field with no ungridded dimension.')
+         _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
          call ESMF_FieldGet(field, farrayPtr=fptr3d, _RC)
          ptr => fptr3d
       else
@@ -363,11 +354,9 @@ contains
 
       nullify(ptr)
       call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, &
-           'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
+      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
       if (ungrid_count == 0) then
-         _ASSERT(slice_index == 1, &
-              'slice_index must be 1 for a field with no ungridded dimension.')
+         _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
          call ESMF_FieldGet(field, farrayPtr=fptr3d, _RC)
          ptr => fptr3d
       else
@@ -419,8 +408,7 @@ contains
       call ESMF_FieldGet(field, typekind=typekind, &
            ungriddedDimCount=ungrid_count, _RC)
 
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, &
-           'FieldApplyUserRoutine: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
+      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldApplyUserRoutine: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
 
       if (ungrid_count == 0) then
          n_slices = 1
