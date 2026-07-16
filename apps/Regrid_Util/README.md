@@ -13,12 +13,10 @@ If both the input and output are lat-lon or tripolar, it can be run on a single 
 **The minimum arguments are `-i`, `-o`/`--output`, `--ogrid` and if you use only these 3 the program must be run with 6 mpi tasks**
 
 # Command line options
-Note options have been added as the program has grown beyond the initial command line options. Additional options that have been added or potentially enhanced and the version they were made available will be noted.
-
 Command line argument parsing uses the fargparse library. Multi-character option names use a double-dash prefix (e.g. `--ogrid`). The short forms `-i` and `-o` are also accepted for the input and output file arguments.
 
-* `-i` / `--input` — input file (at **v2.11.0** and above you can give a list of comma separated files (no spaces!) to regrid. These should all be on the same grid and have the same variables)
-* `-o` / `--output` — output file (at **v2.11.0** and above if specifying multiple input files then correspondingly specify multiple output files, comma separated, no spaces)
+* `-i` / `--input` — input file; you can give a list of comma separated files (no spaces!) to regrid. These should all be on the same grid and have the same variables.
+* `-o` / `--output` — output file; if specifying multiple input files then correspondingly specify multiple output files, comma separated, no spaces.
 * `--ogrid` — encoding of the output grid name, see section on grid names
 * `--nx` — x decomposition to use for the decomposition of the target grid
 * `--ny` — y decomposition to use for the decomposition of the target grid
@@ -27,19 +25,19 @@ Command line argument parsing uses the fargparse library. Multi-character option
 * `--vars` — specify a comma separated (no spaces!) list of variables to regrid that subset of the variables from the input file only
 * `--tp_in` — tripolar file for input grid if the input file is on a tripolar grid
 * `--tp_out` — tripolar file for output grid if output grid is tripolar
-* `--lon_range` — from **v2.9.0** if the output grid is lat-lon, constrain the grid to a region in the longitude direction by specifying a min and max longitude in degrees separated by a space, i.e. `--lon_range 45 65`
-* `--lat_range` — from **v2.9.0** if the output grid is lat-lon, constrain the grid to a region in the latitude direction by specifying a min and max latitude in degrees separated by a space, i.e. `--lat_range 45 65`
+* `--lon_range` — if the output grid is lat-lon, constrain the grid to a region in the longitude direction by specifying a min and max longitude in degrees separated by a space, i.e. `--lon_range 45 65`
+* `--lat_range` — if the output grid is lat-lon, constrain the grid to a region in the latitude direction by specifying a min and max latitude in degrees separated by a space, i.e. `--lat_range 45 65`
 * `--stretch_factor` — cubed-sphere grid stretching parameters: stretch factor, target longitude, and target latitude in degrees, separated by spaces, i.e. `--stretch_factor 2.0 -100.0 40.0`
-* `--deflate` — from **v2.3.2** apply compression to the output file; values can be 1 to 9 corresponding to the netcdf deflation level. Default is no compression.
-* `--shave` — from **v2.3.2** bit shave the output by specifying the number of bits in the mantissa to retain (a floating point single precision number has 23 bits). Default no bit shaving.
+* `--deflate` — apply compression to the output file; values can be 1 to 9 corresponding to the netcdf deflation level. Default is no compression.
+* `--shave` — bit shave the output by specifying the number of bits in the mantissa to retain (a floating point single precision number has 23 bits). Default no bit shaving.
 * `--quantize_algorithm` — quantize algorithm name (e.g. `BitRound`). Default is `NONE` (disabled).
 * `--quantize_level` — quantize level to use with the chosen quantize algorithm. Default is 0.
 * `--zstandard_level` — Zstandard compression level. Default is 0 (disabled).
-* `--file_weights` — from **v2.47.0** if this flag is present, when it generates the regridding weights, it will either look for a file of the right name with weights or if said file already exists will use it. This provides huge speedup if the file is there since it does not need to recompute the weights. See other notes section for more info.
+* `--file_weights` — if this flag is present, when it generates the regridding weights, it will either look for a file of the right name with weights or if said file already exists will use it. This provides huge speedup if the file is there since it does not need to recompute the weights. See other notes section for more info.
 
 # Grid Names
 The grid name used in ogrid follows the following conventions:
-* For lat-lon grid it will be of the form PLEim_worldxjm_world-DATELINE (i.e. PC360x181-DC). In the case of a global lat-lon grid pole is either PC or PE (pole centered or pole edge) and dateline is DE,DC,GC,GE (dateline edge, dateline center, Grenwich center, Grenwich edge). IM_WORLD and JM_WORLD are the number of grid points in the lon and lat direction. From **v2.9.0** onward a regional lat-lon grid can be specified with the `--lat_range` and `--lon_range` options. Note you can specify 1 of these or both. Whichever one you specify, set the POLE or DATELINE (or both!) to XY. So if you want a 180x90 regional grid from 0 to 90 in longitude and -30 to 30 in latitude use these arguments `--lat_range -30 30 --lon_range 0 90 --ogrid XY180x90-XY`
+* For lat-lon grid it will be of the form PLEim_worldxjm_world-DATELINE (i.e. PC360x181-DC). In the case of a global lat-lon grid pole is either PC or PE (pole centered or pole edge) and dateline is DE,DC,GC,GE (dateline edge, dateline center, Grenwich center, Grenwich edge). IM_WORLD and JM_WORLD are the number of grid points in the lon and lat direction. A regional lat-lon grid can be specified with the `--lat_range` and `--lon_range` options. Note you can specify 1 of these or both. Whichever one you specify, set the POLE or DATELINE (or both!) to XY. So if you want a 180x90 regional grid from 0 to 90 in longitude and -30 to 30 in latitude use these arguments `--lat_range -30 30 --lon_range 0 90 --ogrid XY180x90-XY`
 * For cubed sphere the name will look like PEcube_sizexcubesize*6-CF (i.e. PE180x1080-CF for a c180 cubed sphere grid)
 * For tripolar it will look like PE720x410-TM, however you must supply an file containing the tripolar grid coordinates in the correct form
 

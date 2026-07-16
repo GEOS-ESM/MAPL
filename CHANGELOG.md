@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- `Regrid_Util.x` now uses the fargparse library for command line argument parsing instead
+  of raw Fortran intrinsics. Multi-character options that previously used a single-dash prefix
+  (e.g. `-ogrid`, `-nx`, `-ny`, `-method`, `-tp_in`, `-tp_out`, `-lon_range`, `-lat_range`,
+  `-stretch_factor`, `-deflate`, `-shave`, `-quantize_algorithm`, `-quantize_level`,
+  `-zstandard_level`, `-file_weights`, `-vars`, `-t`) now require a double-dash prefix
+  (e.g. `--ogrid`, `--nx`). The short forms `-i` and `-o` are preserved. The `--help` flag
+  is now handled automatically by fargparse and prints a formatted usage summary.
+
 ### Added
 
 - Added regression test for Regrid\_Util.x
