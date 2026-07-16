@@ -4,6 +4,7 @@ set (srcs
   MAPL.F90
   MaplServerUtilities.F90
   MaplFramework.F90
+  PfioServerGridComp.F90
   Cap.F90
   )
 

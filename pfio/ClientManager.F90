@@ -1,55 +1,39 @@
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
-
+#include "MAPL.h"
 module pFIO_ClientManagerMod
 
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use pFIO_ClientThreadMod
    use pFIO_FastClientThreadMod
+   use pFIO_StringClientThreadMapMod
 
    implicit none
    private
 
-   public :: init_IO_ClientManager
-   public :: i_Client
-   public :: o_Client
+   public :: add_client
+   public :: get_client
 
-   interface init_IO_ClientManager
-      module procedure init_ClientManager
-   end interface
-
-   class(ClientThread), allocatable, target :: i_Client
-   class(ClientThread), allocatable, target :: o_Client
+   type(StringClientThreadMap), target, private :: client_map
 
 contains
 
-   subroutine init_ClientManager(client_comm, unusable, fast_oclient, rc)
-      integer, intent(in) :: client_comm
-      class (KeywordEnforcer), optional, intent(out) :: unusable
-      logical, optional, intent(in) :: fast_oclient
+   subroutine add_client(name, client, rc)
+      character(*), intent(in) :: name
+      class(ClientThread), intent(in) :: client
       integer, optional, intent(out) :: rc
-      integer :: status
 
-      logical :: fast_
-
-      fast_ = .false.
-      if (present(fast_oclient)) fast_ = fast_oclient
-
-      if (allocated(i_Client)) deallocate(i_Client)
-      allocate(i_Client, source=ClientThread(client_comm=client_comm, rc=status))
-      _VERIFY(status)
-
-      if (allocated(o_Client)) deallocate(o_Client)
-      if (fast_) then
-         allocate(o_Client, source=FastClientThread(client_comm=client_comm, rc=status))
-      else
-         allocate(o_Client, source=ClientThread(client_comm=client_comm, rc=status))
-      end if
-      _VERIFY(status)
-
+      call client_map%insert(name, client)
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine init_ClientManager
+   end subroutine add_client
+
+   function get_client(name, rc) result(client)
+      character(len=*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+      class(ClientThread), pointer :: client
+
+      client => client_map%at(name)
+      _ASSERT(associated(client), "Client '"//name//"' not found in client manager")
+      _RETURN(_SUCCESS)
+   end function get_client
 
 end module pFIO_ClientManagerMod

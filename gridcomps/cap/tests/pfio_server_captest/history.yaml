@@ -1,0 +1,24 @@
+server: pfio_output_server
+
+geoms:
+  geom1: &geom1
+    class: latlon
+    im_world: 20
+    jm_world: 15
+    pole: PC
+    dateline: DC
+
+active_collections:
+  - coll1
+
+time_specs:
+  hourly: &hourly
+    frequency: PT1H
+
+collections:
+  coll1:
+    template: "%c_%y4%m2%d2_%h2.nc4"
+    geom: *geom1
+    time_spec: *hourly
+    var_list:
+      E1: {source: E_1}

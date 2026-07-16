@@ -5,6 +5,10 @@ macro(run_case CASE)
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/${CASE} ${tempdir}
       )
     set(num_procs "1")
+    if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/${CASE}/num_procs)
+      file(READ ${CMAKE_CURRENT_LIST_DIR}/${CASE}/num_procs num_procs)
+      string(STRIP "${num_procs}" num_procs)
+    endif()
     execute_process(
       COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MPIEXEC_PREFLAGS} ${MY_BINARY_DIR}/GEOS.x cap.yaml
       RESULT_VARIABLE CMD_RESULT

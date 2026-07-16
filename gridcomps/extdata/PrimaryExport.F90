@@ -13,10 +13,11 @@ module mapl_PrimaryExport_mod
    use gftl2_StringVector
    use mapl_ExtDataRule_mod
    use mapl_ExtDataCollection_mod
-   use mapl_ExtDataSample_mod
-   use VerticalCoordinateMod
-   use pflogger, only: logger
-   implicit none(type,external)
+    use mapl_ExtDataSample_mod
+    use VerticalCoordinateMod
+    use pflogger, only: logger
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
+    implicit none(type,external)
    private
 
    public PrimaryExport
@@ -68,6 +69,7 @@ module mapl_PrimaryExport_mod
       type(DataSetNode) :: left_node, right_node
       character(len=:), allocatable :: file_template
       integer :: status, semi_pos
+      class(ClientThread), pointer :: i_client
 
       primary_export%export_var = export_var
       primary_export%is_constant = .not.associated(collection)
@@ -94,7 +96,8 @@ module mapl_PrimaryExport_mod
          call primary_export%bracket%set_node(NODE_LEFT, left_node)
          call primary_export%bracket%set_node(NODE_RIGHT, right_node)
          call primary_export%file_selector%get_file_template(file_template)
-          primary_export%client_collection_id = mapl_i_client%add_data_collection(file_template, _RC)
+          i_client => mapl_get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
+         primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
          allocate(primary_export%start_and_end, source=time_range)
       end if

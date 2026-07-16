@@ -6,21 +6,23 @@ module mapl_FieldBundleRead_mod
    use mapl_enums_api
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
+   use mapl_GeomFactory_mod, only: GeomFactory
    use mapl_GeomCategorizer_mod
-   use mapl_geom_api, only: mapl_GeomManager, mapl_MaplGeom, mapl_get_geom_manager, mapl_get_mapl_geom, MAPL_SameGeom
+   use mapl_geom_api, only: mapl_GeomManager, mapl_MaplGeom, mapl_GeomSpec, mapl_get_geom_manager, mapl_get_mapl_geom, MAPL_SameGeom
    use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet, MAPL_FieldBundleAdd
    use mapl_VerticalStaggerLoc_mod
    use mapl_vertical_grid_api
    ! Note: mapl_VerticalGridManager_mod used inside MAPL_read_bundle only
-   use mapl_RegridderManager_mod, only: get_regridder_manager, RegridderManager
-   use mapl_RegridderSpec_mod
-   use mapl_RegridderMethods_mod
-   use mapl_Regridder_mod, only: Regridder
-   use mapl_FileMetadataUtils_mod
-   use mapl_StringTemplate_mod, only: fill_grads_template
-   use pFIO
-   use gFTL2_StringVector
+    use mapl_RegridderManager_mod, only: get_regridder_manager, RegridderManager
+    use mapl_RegridderSpec_mod
+    use mapl_RegridderMethods_mod
+    use mapl_Regridder_mod, only: Regridder
+    use mapl_FileMetadataUtils_mod
+    use mapl_StringTemplate_mod, only: fill_grads_template
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
+    use pFIO
+    use gFTL2_StringVector
 
    implicit none(type, external)
    private
@@ -44,9 +46,10 @@ contains
    !   only_vars       - Comma-separated list of variable names to include (optional)
    !   rc              - Return code (optional)
    !---------------------------------------------------------------------------
-   subroutine FieldBundlePopulate(bundle, geom, vgrid, metadata_utils, only_vars, rc)
+   subroutine FieldBundlePopulate(bundle, file_geom, bundle_geom, vgrid, metadata_utils, only_vars, rc)
       type(ESMF_FieldBundle),  intent(inout) :: bundle
-      type(ESMF_Geom),         intent(in)    :: geom
+      type(ESMF_Geom),         intent(in)    :: file_geom
+      type(ESMF_Geom),         intent(in)    :: bundle_geom
       class(mapl_VerticalGrid), pointer, intent(in)    :: vgrid
       type(FileMetadataUtils), intent(inout), target :: metadata_utils
       character(*), optional,  intent(in)    :: only_vars
@@ -65,7 +68,12 @@ contains
 
       ! Grid geometry info
       type(mapl_MaplGeom), pointer :: mapl_geom
-      type(StringVector)      :: gridded_dims
+      class(mapl_GeomSpec), allocatable :: geom_spec
+      class(GeomFactory), allocatable   :: geom_factory
+      type(FileMetadata)                :: geom_file_metadata
+      type(StringVariableMap), pointer  :: geom_vars
+      type(StringVariableMapIterator)   :: geom_var_iter
+      character(len=:), pointer         :: geom_var_name_ptr
 
       ! Level info
       character(len=:), allocatable :: lev_name
@@ -93,19 +101,21 @@ contains
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
       _ASSERT(field_count == 0, 'FieldBundlePopulate: bundle must be empty')
 
-      ! Identify coordinate/dimension variable names to exclude.
-      ! Use mapl_geom%get_gridded_dims() which returns the horizontal
-      ! dimension names (e.g., "lon,lat" for LatLon or "Xdim,Ydim,nf" for CS).
-      mapl_geom => mapl_get_mapl_geom(geom, _RC)
-      gridded_dims = mapl_geom%get_gridded_dims()
+      ! Get the GeomSpec and factory from mapl_geom, then use the factory to
+      ! produce file metadata describing this geometry's coordinate variables.
+      mapl_geom => mapl_get_mapl_geom(file_geom, _RC)
+      geom_spec = mapl_geom%get_spec()
+      geom_factory = mapl_geom%get_factory()
+      geom_file_metadata = geom_factory%make_file_metadata(geom_spec, _RC)
 
-      ! Build comma-delimited exclude list: all horizontal coord names + lev/edge + time
+      ! Build comma-delimited exclude list: all geometry coordinate variable names + lev/edge + time
       exclude_list = ",time,time_bnds,lev,edge,"
-      dim_iter = gridded_dims%begin()
-      do while (dim_iter /= gridded_dims%end())
-         dim_name_ptr => dim_iter%of()
-         exclude_list = exclude_list // trim(dim_name_ptr) // ","
-         call dim_iter%next()
+      geom_vars => geom_file_metadata%get_variables()
+      geom_var_iter = geom_vars%ftn_begin()
+      do while (geom_var_iter /= geom_vars%ftn_end())
+         call geom_var_iter%next()
+         geom_var_name_ptr => geom_var_iter%first()
+         exclude_list = exclude_list // trim(geom_var_name_ptr) // ","
       end do
 
       ! Level dimension info
@@ -136,6 +146,7 @@ contains
          if (present(only_vars)) then
             if (index(only_list, bracketed_name) == 0) cycle
          end if
+
 
          ! Determine if variable has a vertical level dimension
          var_has_levels = .false.
@@ -172,7 +183,7 @@ contains
             end if
 
             field = MAPL_FieldCreate( &
-                 geom, ESMF_TYPEKIND_R4, &
+                 bundle_geom, ESMF_TYPEKIND_R4, &
                  !num_levels=lev_size, &
                  vgrid=vgrid, &
                  vert_staggerloc=vert_staggerloc, &
@@ -183,7 +194,7 @@ contains
                  _RC)
          else
             field = MAPL_FieldCreate( &
-                 geom=geom, typekind=ESMF_TYPEKIND_R4, &
+                 geom=bundle_geom, typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=vert_staggerloc, &
                  name=trim(var_name_ptr), &
                  units=trim(units), &
@@ -229,16 +240,17 @@ contains
    !                   share the same schema (optional)
    !   rc            - Return code (optional)
    !---------------------------------------------------------------------------
-    subroutine read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
-         noread, file_override, rc)
-      type(ESMF_FieldBundle), intent(inout) :: bundle
-      character(*),           intent(in)    :: file_tmpl
-      type(ESMF_Time),        intent(in)    :: time
-      character(*), optional, intent(in)    :: only_vars
-      integer, optional,      intent(in)    :: regrid_method
-      logical, optional,      intent(in)    :: noread
-       character(*), optional, intent(in)    :: file_override
-       integer, optional,      intent(out)   :: rc
+     subroutine read_bundle(bundle, file_tmpl, time, only_vars, regrid_method, &
+          noread, file_override, input_server_name, rc)
+       type(ESMF_FieldBundle), intent(inout) :: bundle
+       character(*),           intent(in)    :: file_tmpl
+       type(ESMF_Time),        intent(in)    :: time
+       character(*), optional, intent(in)    :: only_vars
+       integer, optional,      intent(in)    :: regrid_method
+       logical, optional,      intent(in)    :: noread
+        character(*), optional, intent(in)    :: file_override
+        character(*), optional, intent(in)    :: input_server_name
+        integer, optional,      intent(out)   :: rc
       integer :: status
       integer :: field_count, time_index, i, regrid_method_
 
@@ -257,6 +269,7 @@ contains
       type(ESMF_Field)                :: file_field
 
       class(GeomPFIO), allocatable    :: reader
+      class(ClientThread), pointer    :: i_client
       type(RegridderManager), pointer :: regridder_mgr
       class(Regridder), pointer       :: mapl_regridder
       type(RegridderSpec)             :: spec
@@ -307,7 +320,7 @@ contains
       !--- Populate empty bundle or verify existing fields ---
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
       if (field_count == 0) then
-         call FieldBundlePopulate(bundle, bundle_geom, file_vgrid, metadata_utils, &
+         call FieldBundlePopulate(bundle, file_geom, bundle_geom,file_vgrid, metadata_utils, &
               only_vars=only_vars, _RC)
       else
          ! Verify every field in the bundle exists in the file
@@ -361,11 +374,12 @@ contains
       end if
 
       !--- Read data into file_bundle via GeomIO ---
-      allocate(reader, source=make_geom_pfio(metadata), _STAT)
-      call reader%initialize(trim(file_name), file_geom, _RC)
-      call reader%request_data_from_file(trim(file_name), file_bundle, _RC)
-      call i_Client%done_collective_prefetch()
-      call i_Client%wait_all()
+       allocate(reader, source=make_geom_pfio(metadata), _STAT)
+       call reader%initialize(trim(file_name), file_geom, input_server_name=input_server_name, _RC)
+       call reader%request_data_from_file(trim(file_name), file_bundle, _RC)
+        i_client => get_client(reader%get_input_server_name(), _RC)
+      call i_client%done_collective_prefetch()
+      call i_client%wait_all()
 
       !--- Regrid if grids differ ---
       if (.not. same_grid) then
