@@ -2,61 +2,89 @@
 #include "unused_dummy.H"
 
 module Test_FieldApplyUserRoutine
-   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldApplyUserRoutine
-   use mapl_field_api, only: MAPL_FieldGetPointerToSlice
-   use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
-   use mapl_UngriddedDims_mod, only: UngriddedDims
-   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER
-   use mapl_vertical_grid_api
+   use mapl_FieldApplyUserRoutine_mod, only: MAPL_FieldApplyUserRoutine => FieldApplyUserRoutine
+   use mapl_FieldApplyUserRoutine_mod, only: MAPL_FieldGetPointerToSlice => FieldGetPointerToSlice
+   use mapl_FieldApplyUserRoutine_mod, only: MAPL_FieldSliceToField => FieldSliceToField
+   use mapl_UngriddedDims_mod,         only: UngriddedDims
    use mapl_FixedLevelsVerticalGrid_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_vertical_grid_api
+   use mapl_field_api,                 only: MAPL_FieldCreate
    use funit
    use ESMF_TestMethod_mod
    use esmf
 
-   implicit none(type,external)
+   implicit none
 
-   ! Module state used by the user routines below to record how they were
-   ! invoked during a test.
+   ! Module-level counters shared across user-routine callbacks.
    integer :: g_call_count = 0
-   integer :: g_last_rank = 0
-   integer, parameter :: FAIL_SLICE = 2
-   integer, parameter :: USER_ERROR = 17
+   integer :: g_last_rank  = 0
+
+   integer, parameter :: FAIL_SLICE    = 2
+   integer, parameter :: USER_ERROR    = 17
+   integer, parameter :: LEVEL_SPACING = 100
 
 contains
 
-   ! ---- User routines (match the slice-routine abstract interface) ----
+   ! --------------------------------------------------------------------------
+   ! User-routine callbacks (matching the I_FieldSliceRoutine interface:
+   ! the slice is presented as a proper ESMF_Field).
+   ! --------------------------------------------------------------------------
 
-   subroutine count_slices(slice, rc)
-      class(*), intent(inout) :: slice(..)
+   ! Increment g_call_count and stamp the slice field's data with the
+   ! current count value.  Also record the array rank of the slice field
+   ! in g_last_rank so tests can assert on slice dimensionality.
+   subroutine count_slices(field, rc)
+      type(ESMF_Field), intent(inout) :: field
       integer, optional, intent(out) :: rc
+
+      type(ESMF_TypeKind_Flag) :: typekind
+      integer :: dimcount, status
+      real(kind=ESMF_KIND_R4), pointer :: data_r4(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: data3d_r4(:,:,:)
+      real(kind=ESMF_KIND_R8), pointer :: data_r8(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: data3d_r8(:,:,:)
+
       g_call_count = g_call_count + 1
-      g_last_rank = rank(slice)
-      select rank (slice)
-      rank (2)
-         select type (slice)
-         type is (real(kind=ESMF_KIND_R4))
-            slice = real(g_call_count, kind=ESMF_KIND_R4)
-         type is (real(kind=ESMF_KIND_R8))
-            slice = real(g_call_count, kind=ESMF_KIND_R8)
-         end select
-      rank (3)
-         select type (slice)
-         type is (real(kind=ESMF_KIND_R4))
-            slice = real(g_call_count, kind=ESMF_KIND_R4)
-         type is (real(kind=ESMF_KIND_R8))
-            slice = real(g_call_count, kind=ESMF_KIND_R8)
-         end select
-      end select
+
+      call ESMF_FieldGet(field, typekind=typekind, dimCount=dimcount, _RC)
+      g_last_rank = dimcount
+
+      if (typekind == ESMF_TYPEKIND_R4) then
+         if (dimcount == 2) then
+            call ESMF_FieldGet(field, farrayPtr=data_r4, _RC)
+            data_r4 = real(g_call_count, kind=ESMF_KIND_R4)
+         else
+            call ESMF_FieldGet(field, farrayPtr=data3d_r4, _RC)
+            data3d_r4 = real(g_call_count, kind=ESMF_KIND_R4)
+         end if
+      else if (typekind == ESMF_TYPEKIND_R8) then
+         if (dimcount == 2) then
+            call ESMF_FieldGet(field, farrayPtr=data_r8, _RC)
+            data_r8 = real(g_call_count, kind=ESMF_KIND_R8)
+         else
+            call ESMF_FieldGet(field, farrayPtr=data3d_r8, _RC)
+            data3d_r8 = real(g_call_count, kind=ESMF_KIND_R8)
+         end if
+      end if
+
       if (present(rc)) rc = 0
    end subroutine count_slices
 
-   subroutine fail_on_second(slice, rc)
-      class(*), intent(inout) :: slice(..)
+   ! Fail with USER_ERROR on the FAIL_SLICE-th invocation and succeed
+   ! otherwise.  Uses a trivial ESMF_FieldGet to confirm the field is
+   ! valid without touching its data.
+   subroutine fail_on_second(field, rc)
+      type(ESMF_Field), intent(inout) :: field
       integer, optional, intent(out) :: rc
-      ! Reference slice so it is not flagged as unused; it is intentionally
-      ! ignored by this routine (_UNUSED_DUMMY cannot take an assumed-rank
-      ! argument).
-      if (rank(slice) < 0) return
+
+      type(ESMF_TypeKind_Flag) :: typekind
+      integer :: status
+
+      ! Confirm the field is a valid ESMF object (also suppresses
+      ! unused-dummy warnings).
+      call ESMF_FieldGet(field, typekind=typekind, _RC)
+
       g_call_count = g_call_count + 1
       if (present(rc)) then
          rc = 0
@@ -64,184 +92,218 @@ contains
       end if
    end subroutine fail_on_second
 
-   ! ---- Helpers ----
+   ! --------------------------------------------------------------------------
+   ! Helpers
+   ! --------------------------------------------------------------------------
 
    function make_geom(rc) result(geom)
       type(ESMF_Geom) :: geom
       integer, optional, intent(out) :: rc
       type(ESMF_Grid) :: grid
       integer :: status
+
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[3,2], _RC)
       geom = ESMF_GeomCreate(grid, _RC)
       _RETURN(_SUCCESS)
    end function make_geom
 
    ! Build a field on a 2D horizontal grid that also carries a vertical
-   ! dimension (num_layers levels) plus the requested ungridded dimensions.
-   ! Such a field has three non-ungridded dimensions, so its slices are 3D.
+   ! dimension, for tests that exercise 3D-slice (rank-4 field) paths.
    function make_vertical_field(typekind, ungridded_dims, num_layers, rc) result(field)
       type(ESMF_Field) :: field
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      type(UngriddedDims), intent(in) :: ungridded_dims
-      integer, intent(in) :: num_layers
-      integer, optional, intent(out) :: rc
+      type(UngriddedDims),      intent(in) :: ungridded_dims
+      integer,                  intent(in) :: num_layers
+      integer, optional,        intent(out) :: rc
+
       type(ESMF_Geom) :: geom
       type(FixedLevelsVerticalGridSpec) :: vgrid_spec
-      type(FixedLevelsVerticalGrid) :: vgrid_local
+      type(FixedLevelsVerticalGrid)     :: vgrid_local
       class(mapl_VerticalGrid), pointer :: vgrid
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
       real, allocatable :: levels(:)
-      integer, parameter :: LEVEL_SPACING = 100  ! arbitrary distinct pressures (Pa) for the test vgrid
       integer :: i, status
 
       levels = [(real(LEVEL_SPACING*i), i=1, num_layers)]
-      vgrid_spec = FixedLevelsVerticalGridSpec(physical_dimension='air_pressure', levels=levels, units='Pa')
+      vgrid_spec%levels = levels
       call vgrid_local%initialize(vgrid_spec)
       vgrid_manager => mapl_get_vertical_grid_manager()
       vgrid => vgrid_manager%add_grid(vgrid_local, _RC)
 
-      geom = make_geom(_RC)
+      geom  = make_geom(_RC)
       field = MAPL_FieldCreate(geom, typekind=typekind, &
            vgrid=vgrid, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            ungridded_dims=ungridded_dims, _RC)
       _RETURN(_SUCCESS)
    end function make_vertical_field
 
-   ! ---- Tests ----
+   ! --------------------------------------------------------------------------
+   ! Tests
+   ! --------------------------------------------------------------------------
 
-   ! A 2D field (no ungridded dims) has exactly one slice.
+   ! A purely 2D field (no ungridded dims) has exactly one slice, and
+   ! that slice is itself a 2D field.
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_apply_2d_r4(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: field
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom)  :: geom
       integer :: status
 
-      geom = make_geom(_RC)
+      geom  = make_geom(_RC)
       field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
 
       g_call_count = 0
+      g_last_rank  = 0
       call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
-      @assertEqual(1, g_call_count, 'A 2D field should have exactly one slice.')
+      @assertEqual(1, g_call_count, 'A purely 2D field should produce exactly 1 slice invocation.')
+      @assertEqual(2, g_last_rank,  'The slice of a 2D field should itself be rank-2.')
 
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_apply_2d_r4
 
-   ! A 3D field (single ungridded dim of extent 4) has 4 slices.
+   ! A 3D field (one ungridded dim of extent 4) has 4 slices; each
+   ! slice is a 2D field.
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_apply_3d_r4(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: field
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom)  :: geom
       integer :: status
 
-      geom = make_geom(_RC)
+      geom  = make_geom(_RC)
       field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims=UngriddedDims([4]), _RC)
 
       g_call_count = 0
+      g_last_rank  = 0
       call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
-      @assertEqual(4, g_call_count, 'A field with ungridded extent 4 should have 4 slices.')
+      @assertEqual(4, g_call_count, 'A 3D field with ungridded extent 4 should produce 4 slice invocations.')
+      @assertEqual(2, g_last_rank,  'Each slice of a 3D field should be rank-2.')
 
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_apply_3d_r4
 
-   ! A field with two ungridded dims (extents 3 and 4) has 3*4 = 12 slices.
+   ! A field with two ungridded dims (extents 3 and 4) has 3*4=12
+   ! slices.
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_apply_rank4_r4(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: field
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom)  :: geom
       integer :: status
 
-      geom = make_geom(_RC)
+      geom  = make_geom(_RC)
       field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims=UngriddedDims([3, 4]), _RC)
 
       g_call_count = 0
       call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
-      @assertEqual(12, g_call_count, 'A field with ungridded extents 3x4 should have 12 slices.')
+      @assertEqual(12, g_call_count, 'A field with ungridded dims [3,4] should produce 12 slice invocations.')
 
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_apply_rank4_r4
 
-   ! R8 field: a single ungridded dim of extent 2 handled by the same
-   ! (polymorphic) user routine interface.
+   ! Same as test_apply_3d_r4 but for an R8 field, exercising the
+   ! ESMF_Field-based user routine interface for R8 data.
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_apply_3d_r8(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: field
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom)  :: geom
       integer :: status
 
-      geom = make_geom(_RC)
+      geom  = make_geom(_RC)
       field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R8, &
            ungridded_dims=UngriddedDims([2]), _RC)
 
       g_call_count = 0
       call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
-      @assertEqual(2, g_call_count, 'R8 field with ungridded extent 2 should have 2 slices.')
+      @assertEqual(2, g_call_count, 'An R8 field with ungridded extent 2 should produce 2 slice invocations.')
 
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_apply_3d_r8
 
-   ! FieldGetPointerToSlice returns a writable pointer into the field data.
+   ! FieldGetPointerToSlice returns a writable 2D pointer into the
+   ! field data for a 3D field; writes through the pointer are visible
+   ! in the underlying native array.
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_get_pointer_to_slice_r4(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: field
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom)  :: geom
       real(kind=ESMF_KIND_R4), pointer :: slice(:,:)
-      real(kind=ESMF_KIND_R4), pointer :: condensed(:,:,:)
+      real(kind=ESMF_KIND_R4), pointer :: fptr(:,:,:)   ! native rank-3 array
       integer :: status
 
-      geom = make_geom(_RC)
+      geom  = make_geom(_RC)
       field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims=UngriddedDims([3]), _RC)
 
       call MAPL_FieldGetPointerToSlice(field, 2, slice, _RC)
       @assertTrue(associated(slice), 'Slice pointer should be associated.')
+      @assertEqual([3, 2], shape(slice), 'A 2D slice should match the horizontal extents.')
       slice = 3.14_ESMF_KIND_R4
 
-      ! Verify the write landed in the underlying (condensed) field data.
-      call assign_fptr_condensed_array(field, condensed, _RC)
-      @assertEqual(3, size(condensed, 3), 'Expected 3 slices in condensed array.')
-      @assertEqual(3.14_ESMF_KIND_R4, condensed(1, 1, 2), 'Slice write should be visible in the field.')
+      ! Verify the write is visible in the underlying native field array.
+      call ESMF_FieldGet(field, farrayPtr=fptr, _RC)
+      @assertEqual(3, size(fptr, 3), 'Expected 3 slices in native array.')
+      @assertEqual(3.14_ESMF_KIND_R4, fptr(1,1,2), 'Slice write should be visible in the native array.')
 
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_get_pointer_to_slice_r4
 
-   ! A non-zero user return code is propagated via userrc, and iteration
-   ! stops at the failing slice.
+   ! FieldGetPointerToSlice with slice_index=1 on a field with no
+   ! ungridded dimension returns a pointer to the full field array.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_pointer_to_slice_no_ungridded(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: field
+      type(ESMF_Geom)  :: geom
+      real(kind=ESMF_KIND_R4), pointer :: slice(:,:)
+      integer :: status
+
+      geom  = make_geom(_RC)
+      field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
+
+      call MAPL_FieldGetPointerToSlice(field, 1, slice, _RC)
+      @assertTrue(associated(slice), 'Slice pointer should be associated for a field with no ungridded dim.')
+      @assertEqual([3, 2], shape(slice), 'Slice shape should match the horizontal extents.')
+
+      call ESMF_FieldDestroy(field, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_pointer_to_slice_no_ungridded
+
+   ! A user error on the second slice stops iteration; g_call_count
+   ! should be exactly FAIL_SLICE and userrc should be USER_ERROR.
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_userrc_propagation(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: field
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom)  :: geom
       integer :: status, userrc
 
-      geom = make_geom(_RC)
+      geom  = make_geom(_RC)
       field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims=UngriddedDims([5]), _RC)
 
       g_call_count = 0
       userrc = 0
       call MAPL_FieldApplyUserRoutine(field, fail_on_second, userrc=userrc, _RC)
-      @assertEqual(USER_ERROR, userrc, 'User return code should be propagated.')
+      @assertEqual(USER_ERROR, userrc,       'User return code should be propagated.')
       @assertEqual(FAIL_SLICE, g_call_count, 'Iteration should stop at the failing slice.')
 
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_userrc_propagation
 
-   ! A 4D field whose fourth dimension is the ungridded dimension (a 2D
-   ! horizontal grid + vertical + one ungridded dim of extent 4) has 4
-   ! slices, and each slice is a 3D block.
+   ! A 4D field (horizontal + vertical + one ungridded dim of extent 4)
+   ! has 4 slices and each slice is a 3D field (horizontal + vertical).
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_apply_3d_slices_r4(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -251,17 +313,16 @@ contains
       field = make_vertical_field(ESMF_TYPEKIND_R4, UngriddedDims([4]), num_layers=5, _RC)
 
       g_call_count = 0
-      g_last_rank = 0
+      g_last_rank  = 0
       call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(4, g_call_count, 'A 4D field with ungridded extent 4 should have 4 slices.')
-      @assertEqual(3, g_last_rank, 'Each slice of a 4D field should be a 3D block.')
+      @assertEqual(3, g_last_rank,  'Each slice of a 4D field should be a 3D field.')
 
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_apply_3d_slices_r4
 
-   ! Same as above for an R8 field, exercising the polymorphic 3D-slice
-   ! path.
+   ! Same as above for an R8 field.
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_apply_3d_slices_r8(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -271,36 +332,36 @@ contains
       field = make_vertical_field(ESMF_TYPEKIND_R8, UngriddedDims([2]), num_layers=3, _RC)
 
       g_call_count = 0
-      g_last_rank = 0
+      g_last_rank  = 0
       call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(2, g_call_count, 'An R8 4D field with ungridded extent 2 should have 2 slices.')
-      @assertEqual(3, g_last_rank, 'Each slice of a 4D field should be a 3D block.')
+      @assertEqual(3, g_last_rank,  'Each slice of a 4D field should be a 3D field.')
 
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_apply_3d_slices_r8
 
-   ! FieldGetPointerToSlice returns a writable 3D pointer into the field
-   ! data for a 4D field whose fourth dimension is ungridded.
+   ! FieldGetPointerToSlice returns a writable 3D pointer for a 4D
+   ! field; writes are visible in the underlying native array.
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_get_pointer_to_slice3d_r4(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: field
       real(kind=ESMF_KIND_R4), pointer :: slice(:,:,:)
-      real(kind=ESMF_KIND_R4), pointer :: condensed(:,:,:,:)
+      real(kind=ESMF_KIND_R4), pointer :: fptr(:,:,:,:)  ! native rank-4 array
       integer :: status
 
       field = make_vertical_field(ESMF_TYPEKIND_R4, UngriddedDims([3]), num_layers=5, _RC)
 
       call MAPL_FieldGetPointerToSlice(field, 2, slice, _RC)
       @assertTrue(associated(slice), 'Slice pointer should be associated.')
-      @assertEqual([3, 2, 5], shape(slice), 'A 3D slice should retain the horizontal and vertical extents.')
+      @assertEqual([3, 2, 5], shape(slice), 'A 3D slice should retain horizontal and vertical extents.')
       slice = 3.14_ESMF_KIND_R4
 
-      ! Verify the write landed in the underlying (condensed) field data.
-      call assign_fptr_condensed_array(field, condensed, _RC)
-      @assertEqual(3, size(condensed, 4), 'Expected 3 slices in condensed array.')
-      @assertEqual(3.14_ESMF_KIND_R4, condensed(1, 1, 1, 2), 'Slice write should be visible in the field.')
+      ! Verify the write is visible in the underlying native field array.
+      call ESMF_FieldGet(field, farrayPtr=fptr, _RC)
+      @assertEqual(3,                   size(fptr, 4),  'Expected 3 slices in native array.')
+      @assertEqual(3.14_ESMF_KIND_R4, fptr(1,1,1,2),   'Slice write should be visible in the native array.')
 
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
