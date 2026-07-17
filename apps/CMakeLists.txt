@@ -5,8 +5,8 @@
 # used.
 #
 # Note: We use configure_file(... COPYONLY) instead of file(COPY ...) here
-# so that CMake registers these scripts as dependencies. If you edit the source 
-# scripts, the build system will automatically detect the change and re-copy 
+# so that CMake registers these scripts as dependencies. If you edit the source
+# scripts, the build system will automatically detect the change and re-copy
 # them to the build/install directories without needing a manual re-run of CMake.
 
 configure_file (MAPL_GridCompSpecs_ACG.py ${esma_etc}/MAPL/MAPL_GridCompSpecs_ACG.py COPYONLY)
@@ -30,9 +30,11 @@ install(
   PROGRAMS forcing_converter/utilities.py
   DESTINATION bin/forcing_converter)
 
-ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util/Regrid_Util.F90)
-target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
-target_include_directories (Regrid_Util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+if(BUILD_WITH_FARGPARSE)
+  ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util/Regrid_Util.F90)
+  target_link_libraries (Regrid_Util.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran FARGPARSE::fargparse)
+  target_include_directories (Regrid_Util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+endif()
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)

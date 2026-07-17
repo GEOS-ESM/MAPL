@@ -70,7 +70,7 @@ contains
       type(mapl_MaplGeom), pointer :: mapl_geom
       class(mapl_GeomSpec), allocatable :: geom_spec
       class(GeomFactory), allocatable   :: geom_factory
-      type(FileMetadata)                :: geom_file_metadata
+      type(FileMetadata), target        :: geom_file_metadata
       type(StringVariableMap), pointer  :: geom_vars
       type(StringVariableMapIterator)   :: geom_var_iter
       character(len=:), pointer         :: geom_var_name_ptr
