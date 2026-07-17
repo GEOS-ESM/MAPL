@@ -200,6 +200,36 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
+      integer :: status
+      type(ESMF_Field) :: field
+      type(ESMF_GeomType_Flag) :: geomtype
+
+      ! The internal-state fields (rand, grid_lons, grid_lats, quarter_grid)
+      ! are built on this component's own geometry. That geometry is normally
+      ! an ESMF_Grid (rank-2 horizontal fields), but it may also be a
+      ! non-gridded geometry such as ESMF_LocStream (rank-1 fields). Dispatch
+      ! on the actual geom type of one of these fields to pick the correct
+      ! rank-specific implementation.
+      call ESMF_StateGet(internal_state, 'rand', field, _RC)
+      call ESMF_FieldGet(field, geomtype=geomtype, _RC)
+
+      if (geomtype == ESMF_GEOMTYPE_GRID) then
+         call initialize_internal_state_grid(internal_state, hconfig, _RC)
+      else if (geomtype == ESMF_GEOMTYPE_LOCSTREAM) then
+         call initialize_internal_state_locstream(internal_state, hconfig, _RC)
+      else
+         _FAIL('componentDriverGridComp: unsupported geometry type for internal state')
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_internal_state
+
+   subroutine initialize_internal_state_grid(internal_state, hconfig, rc)
+      type(ESMF_State), intent(inout) :: internal_state
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
       real, pointer :: ptr_2d(:, :)
       real(kind=ESMF_KIND_R8), pointer :: coords(:, :)
       integer :: status, seed_size, mypet, i, j
@@ -253,7 +283,61 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end subroutine initialize_internal_state
+   end subroutine initialize_internal_state_grid
+
+   subroutine initialize_internal_state_locstream(internal_state, hconfig, rc)
+      type(ESMF_State), intent(inout) :: internal_state
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      real, pointer :: ptr_1d(:)
+      real(kind=ESMF_KIND_R8), pointer :: coords(:)
+      integer :: status, seed_size, mypet, i
+      integer, allocatable :: seeds(:)
+      type(ESMF_Field) :: field
+      type(ESMF_LocStream) :: locstream
+      type(ESMF_VM) :: vm
+      logical :: is_present
+      real :: quarter_grid_fac1, quarter_grid_fac2
+
+      ! rand
+      call MAPL_StateGetPointer(internal_state, ptr_1d, 'rand', _RC)
+      call random_seed(size=seed_size)
+      allocate(seeds(seed_size))
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, localPet=mypet, _RC)
+      seeds = mypet
+      call random_seed(put=seeds)
+      call random_number(ptr_1d)
+      ! lons and lats
+      call MAPL_StateGetPointer(internal_state, ptr_1d, 'grid_lons', _RC)
+      call ESMF_StateGet(internal_state, 'grid_lons', field, _RC)
+      call ESMF_FieldGet(field, locstream=locstream, _RC)
+      call ESMF_LocStreamGetKey(locstream, keyName='ESMF:Lon', farray=coords, _RC)
+      ptr_1d = real(coords, kind=kind(ptr_1d))
+      call MAPL_StateGetPointer(internal_state, ptr_1d, 'grid_lats', _RC)
+      call ESMF_LocStreamGetKey(locstream, keyName='ESMF:Lat', farray=coords, _RC)
+      ptr_1d = real(coords, kind=kind(ptr_1d))
+
+      quarter_grid_fac1 = 1.0
+      quarter_grid_fac2 = 2.0
+      is_present = ESMF_HConfigIsDefined(hconfig, keyString='quarter_grid_fac1', _RC)
+      if (is_present) then
+         quarter_grid_fac1 = ESMF_HConfigAsR4(hconfig, keyString='quarter_grid_fac1', _RC)
+      end if
+      is_present = ESMF_HConfigIsDefined(hconfig, keyString='quarter_grid_fac2', _RC)
+      if (is_present) then
+         quarter_grid_fac2 = ESMF_HConfigAsR4(hconfig, keyString='quarter_grid_fac2', _RC)
+      end if
+      call MAPL_StateGetPointer(internal_state, ptr_1d, 'quarter_grid', _RC)
+      ptr_1d = quarter_grid_fac2
+      do i = 1, size(ptr_1d), 2
+         ptr_1d(i) = quarter_grid_fac1
+      end do
+
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_internal_state_locstream
 
    subroutine update_internal_state(internal_state, current_time, support, rc)
       type(ESMF_State), intent(inout) :: internal_state
@@ -263,9 +347,28 @@ contains
 
       integer :: status
       real, pointer :: ptr_2d(:, :)
+      real, pointer :: ptr_1d(:)
+      type(ESMF_Field) :: field
+      type(ESMF_GeomType_Flag) :: geomtype
+      real :: time_value
 
-      call MAPL_StateGetPointer(internal_state, ptr_2d, 'time_interval', _RC)
-      ptr_2d = support%tFunc%evaluate_time(current_time, _RC)
+      ! The 'time_interval' internal field is built on this component's own
+      ! geometry, which may be an ESMF_Grid (rank-2) or a non-gridded
+      ! geometry such as ESMF_LocStream (rank-1).
+      call ESMF_StateGet(internal_state, 'time_interval', field, _RC)
+      call ESMF_FieldGet(field, geomtype=geomtype, _RC)
+
+      time_value = support%tFunc%evaluate_time(current_time, _RC)
+
+      if (geomtype == ESMF_GEOMTYPE_GRID) then
+         call MAPL_StateGetPointer(internal_state, ptr_2d, 'time_interval', _RC)
+         ptr_2d = time_value
+      else if (geomtype == ESMF_GEOMTYPE_LOCSTREAM) then
+         call MAPL_StateGetPointer(internal_state, ptr_1d, 'time_interval', _RC)
+         ptr_1d = time_value
+      else
+         _FAIL('componentDriverGridComp: unsupported geometry type for internal state')
+      end if
 
       _RETURN(_SUCCESS)
 

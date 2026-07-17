@@ -80,6 +80,7 @@ contains
       type(ESMF_GeomType_Flag) :: geomtype
       type(ESMF_Info) :: bundle_info
       type(ESMF_Grid) :: grid
+      type(ESMF_LocStream) :: locstream
       integer :: i
       type(ESMF_Field), allocatable :: fieldList(:)
       logical, allocatable :: has_geom
@@ -95,6 +96,15 @@ contains
             call ESMF_GeomGet(geom, grid=grid, _RC)
             call FieldBundleReset(fieldBundle)
             call ESMF_FieldBundleSet(fieldBundle, grid=grid, _RC)
+
+            call FieldBundleGet(fieldBundle, fieldList=fieldList, _RC)
+            do i = 1, size(fieldList)
+               call MAPL_FieldSet(fieldList(i), geom=geom, _RC)
+            end do
+         else if (geomtype == ESMF_GEOMTYPE_LOCSTREAM) then
+            call ESMF_GeomGet(geom, locstream=locstream, _RC)
+            call FieldBundleReset(fieldBundle)
+            call ESMF_FieldBundleSet(fieldBundle, locstream=locstream, _RC)
 
             call FieldBundleGet(fieldBundle, fieldList=fieldList, _RC)
             do i = 1, size(fieldList)

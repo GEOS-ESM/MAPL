@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added test case for regridding from CubedSphere to Loctream
 - Added regression test for Regrid\_Util.x
 - External pfio server GridComp and ctest: new `mapl_PfioServerGridComp_mod` provides
   an ESMF GridComp whose `run` phase creates and starts an `MpiServer` or
