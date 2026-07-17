@@ -16,8 +16,10 @@ contains
       type(DataSetNode) :: node
       character(len=:), allocatable :: trial_file, node_file, expected_file
       integer :: time_index, expected_time_index
+      character(len=512) :: extdata_dir
 
-      trial_file = "/home/bmauer/extdata3g_test_data/twelve_month_file/climatology.2004.nc4"
+      call get_environment_variable('LOCAL_REGRESSION_DATA_DIR', extdata_dir)
+      trial_file = trim(extdata_dir) // "/extdata3g_test_data/twelve_month_file/climatology.2004.nc4"
       expected_file = trial_file 
 
       call node%set_node_side(NODE_LEFT)
@@ -57,8 +59,10 @@ contains
       type(DataSetNode) :: node
       character(len=:), allocatable :: trial_file, node_file, expected_file
       integer :: time_index, expected_time_index
+      character(len=512) :: extdata_dir
 
-      trial_file = "/home/bmauer/extdata3g_test_data/hourly_files/hourly_files.20040201_0800z.nc4"
+      call get_environment_variable('LOCAL_REGRESSION_DATA_DIR', extdata_dir)
+      trial_file = trim(extdata_dir) // "/extdata3g_test_data/hourly_files/hourly_files.20040201_0800z.nc4"
       expected_file = trial_file 
 
       call node%set_node_side(NODE_LEFT)
