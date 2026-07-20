@@ -127,7 +127,6 @@ contains
       type(ESMF_TypeKind_Flag)         :: typekind
       character(len=ESMF_MAXSTR)       :: field_name
       integer                          :: s_rank, status
-      integer                          :: ungrid_count
       integer                          :: n_gridded, n_vertical
    
       ! ------------------------------------------------------------------
@@ -135,10 +134,6 @@ contains
       ! ------------------------------------------------------------------
       call ESMF_FieldGet(field, geom=geom, typekind=typekind, &
            name=field_name, _RC)
-      call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
-   
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, &
-           'FieldCreateFieldSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
    
       ! ------------------------------------------------------------------
       ! Determine the slice shape.
