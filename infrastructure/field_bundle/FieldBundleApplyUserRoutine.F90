@@ -10,7 +10,7 @@
 ! (see infrastructure/field/FieldApplyUserRoutine.F90), which performs
 ! the per-slice iteration.
 !
-! For each slice, FieldApplyUserRoutine calls FieldSliceToField to
+! For each slice, FieldApplyUserRoutine calls FieldCreateFieldSlice to
 ! construct a transient ESMF_Field whose data is a pointer into the
 ! corresponding ungridded slice of the parent field.  The user routine
 ! therefore always receives a proper ESMF_Field (with no ungridded

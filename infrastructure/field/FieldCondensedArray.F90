@@ -77,9 +77,14 @@ contains
    end subroutine assign_fptr_condensed_array_slice3d_r8
 
    ! Return the rank of the "slice" produced by the condensed-array
-   ! machinery for this field: 3 when the field has exactly three
-   ! non-ungridded (grid + vertical) dimensions (so a 3D slice is natural),
-   ! and 2 otherwise (the default collapsed horizontal x vertical slice).
+   ! machinery for this field:
+   !   1 — field has a single non-ungridded (grid) dimension, no vertical
+   !       (e.g. LocStream surface points)
+   !   2 — field has two non-ungridded dimensions: either 2-D horizontal
+   !       (Grid/Mesh) with no vertical, or 1-D horizontal (LocStream)
+   !       with vertical
+   !   3 — field has three non-ungridded dimensions: 2-D horizontal
+   !       (Grid/Mesh) with vertical
    function condensed_slice_rank(f, rc) result(slice_rank)
       integer :: slice_rank
       type(ESMF_Field), intent(inout) :: f
@@ -91,13 +96,15 @@ contains
       integer :: n_spatial
 
       call get_field_layout(f, gridToFieldMap, localElementCount, has_vertical, _RC)
+
+      ! count(gridToFieldMap /= 0) gives the number of gridded (horizontal)
+      ! dimensions mapped into the field:
+      !   1 for LocStream (1-D surface points)
+      !   2 for Grid / Mesh (2-D horizontal)
       n_spatial = count(gridToFieldMap /= 0)
       if (has_vertical) n_spatial = n_spatial + 1
-      if (n_spatial == 3) then
-         slice_rank = 3
-      else
-         slice_rank = 2
-      end if
+
+      slice_rank = n_spatial
 
       _RETURN(_SUCCESS)
    end function condensed_slice_rank
