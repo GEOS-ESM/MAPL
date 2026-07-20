@@ -9,9 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- `Regrid_Util.x` now uses the fargparse library for command line argument parsing instead
+  of raw Fortran intrinsics. Multi-character options that previously used a single-dash prefix
+  (e.g. `-ogrid`, `-nx`, `-ny`, `-method`, `-tp_in`, `-tp_out`, `-lon_range`, `-lat_range`,
+  `-stretch_factor`, `-deflate`, `-shave`, `-quantize_algorithm`, `-quantize_level`,
+  `-zstandard_level`, `-file_weights`, `-vars`, `-t`) now require a double-dash prefix
+  (e.g. `--ogrid`, `--nx`). The short forms `-i` and `-o` are preserved. The `--help` flag
+  is now handled automatically by fargparse and prints a formatted usage summary.
+
 ### Added
 
 - Added `MAPL_FieldApplyUserRoutine`/`MAPL_FieldBundleApplyUserRoutine` to apply a user routine to each slice of a field (or every field in a bundle) with ungridded/vertical dimensions, plus `MAPL_FieldGetPointerToSlice` (overloaded for R4 and R8) for typed per-slice access. Slices are 2D by default, or 3D when the field has exactly three non-ungridded (grid + vertical) dimensions (for example a 4D field whose fourth dimension is the ungridded dimension). The slice-routine interface is unlimited-polymorphic and assumed-rank, so a single user routine handles R4/R8 and 2D/3D slices via `select rank`/`select type`
+
+- Added regression test for Regrid\_Util.x
+
 - External pfio server GridComp and ctest: new `mapl_PfioServerGridComp_mod` provides
   an ESMF GridComp whose `run` phase creates and starts an `MpiServer` or
   `MultiGroupServer`; `MaplFramework` gains `mapl_connect_to_server`,
@@ -37,7 +50,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fast-fail resource validation; wildcard `'*'` support for `num_nodes` in the
   last server entry; `pfunit` bootstrap updated to call `MAPL_CreateServers`
 
-### Changed
 
 - Refactor local IO server management (#5239): added `pFIO_StringServerMapMod`
   (`StringServerMap`) for polymorphic server storage; replaced raw `o_server`/
@@ -82,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug in FieldBundleRead when file grid and output bundle grid are different grid classes
 - Buggy logic in server initialization (#5214)
 - Missing call to initialize error handling in MPI context
 - Fixed bug that prevented R8 exports from being written in R8 in History
