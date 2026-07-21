@@ -33,6 +33,7 @@ module mapl_PrimaryExport_mod
       type(ESMF_Time), allocatable :: start_and_end(:)
       real :: linear_trans(2) ! offset, scaling
       character(len=:), allocatable :: regridding_method
+      logical :: enable_vertical_regrid = .false.
       integer :: fraction_value
 
       contains
@@ -122,9 +123,10 @@ module mapl_PrimaryExport_mod
       varname = this%export_var
    end function get_export_var_name
 
-    subroutine complete_export_spec(this, item_name, exportState, rc)
+    subroutine complete_export_spec(this, item_name, current_time, exportState, rc)
       class(PrimaryExport), intent(inout) :: this
       character(len=*), intent(in) :: item_name
+      type(ESMF_Time), intent(in) :: current_time
       type(ESMF_State), intent(inout) :: exportState
       integer, optional, intent(out) :: rc
 
@@ -147,7 +149,7 @@ module mapl_PrimaryExport_mod
 
       vgrid_manager => mapl_get_vertical_grid_manager()
 
-      metadata => this%file_selector%get_dataset_metadata(_RC)
+      metadata => this%file_selector%get_dataset_metadata(current_time, _RC)
       geom_mgr => mapl_get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
@@ -159,6 +161,7 @@ module mapl_PrimaryExport_mod
       regridder_param_info = regridder_param%make_info(_RC)
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
+
       if (this%vcoord%vertical_type == NO_COORD) then
          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE, regridder_param_info=regridder_param_info, _RC)
@@ -168,15 +171,24 @@ module mapl_PrimaryExport_mod
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
       else
-         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+         if (this%enable_vertical_regrid) then
+            _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+         else 
+            this%vcoord%vertical_type = SIMPLE_COORD
+            vertical_grid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
+            call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+                 typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
+                 vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)
    end subroutine complete_export_spec
 
-    subroutine update_export_spec(this, item_name, exportState, rc)
+    subroutine update_export_spec(this, item_name, current_time, exportState, rc)
       class(PrimaryExport), intent(inout) :: this
       character(len=*), intent(in) :: item_name
+      type(ESMF_Time), intent(in) :: current_time
       type(ESMF_State), intent(inout) :: exportState
       integer, optional, intent(out) :: rc
 
@@ -196,7 +208,7 @@ module mapl_PrimaryExport_mod
       end if
 
       vgrid_manager => mapl_get_vertical_grid_manager()
-      metadata => this%file_selector%get_dataset_metadata(_RC)
+      metadata => this%file_selector%get_dataset_metadata(current_time, _RC)
       geom_mgr => mapl_get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
