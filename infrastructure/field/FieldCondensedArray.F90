@@ -1,7 +1,6 @@
 #include "MAPL.h"
 module mapl_FieldCondensedArray_mod
    use mapl_FieldCondensedArray_private_mod, only: ARRAY_RANK, get_fptr_shape_private
-   use mapl_FieldCondensedArray_private_mod, only: SLICE3D_ARRAY_RANK, get_fptr_shape_slice3d_private
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount, assign_fptr
    use mapl_VerticalStaggerLoc_mod
    use mapl_ErrorHandling_mod
@@ -95,21 +94,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_fptr_shape
-
-   function get_fptr_shape_slice3d(f, rc) result(fptr_shape)
-      integer :: fptr_shape(SLICE3D_ARRAY_RANK)
-      type(ESMF_Field), intent(inout) :: f
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer, allocatable :: gridToFieldMap(:)
-      integer, allocatable :: localElementCount(:)
-      logical :: has_vertical
-
-      call get_field_layout(f, gridToFieldMap, localElementCount, has_vertical, _RC)
-      fptr_shape = get_fptr_shape_slice3d_private(gridToFieldMap, localElementCount, has_vertical, _RC)
-
-      _RETURN(_SUCCESS)
-   end function get_fptr_shape_slice3d
 
    ! Extract the field-layout metadata shared by the condensed-array shape
    ! helpers: the grid-to-field map, the local element count, and whether
