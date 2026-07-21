@@ -18,8 +18,6 @@ module mapl_FieldCondensedArray_mod
    interface assign_fptr_condensed_array
       module procedure :: assign_fptr_condensed_array_r4
       module procedure :: assign_fptr_condensed_array_r8
-      module procedure :: assign_fptr_condensed_array_slice3d_r4
-      module procedure :: assign_fptr_condensed_array_slice3d_r8
    end interface assign_fptr_condensed_array
 
 contains
@@ -49,32 +47,6 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine assign_fptr_condensed_array_r8
-
-   subroutine assign_fptr_condensed_array_slice3d_r4(x, fptr, rc)
-      type(ESMF_Field), intent(inout) :: x
-      real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:,:,:,:)
-      integer, optional, intent(out) :: rc
-      integer(ESMF_KIND_I8) :: fp_shape(SLICE3D_ARRAY_RANK)
-      integer :: status
-
-      fp_shape = get_fptr_shape_slice3d(x, _RC)
-      call assign_fptr(x, fp_shape, fptr, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine assign_fptr_condensed_array_slice3d_r4
-
-   subroutine assign_fptr_condensed_array_slice3d_r8(x, fptr, rc)
-      type(ESMF_Field), intent(inout) :: x
-      real(kind=ESMF_KIND_R8), pointer, intent(out) :: fptr(:,:,:,:)
-      integer, optional, intent(out) :: rc
-      integer(ESMF_KIND_I8) :: fp_shape(SLICE3D_ARRAY_RANK)
-      integer :: status
-
-      fp_shape = get_fptr_shape_slice3d(x, _RC)
-      call assign_fptr(x, fp_shape, fptr, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine assign_fptr_condensed_array_slice3d_r8
 
    ! Return the rank of the "slice" produced by the condensed-array
    ! machinery for this field:
