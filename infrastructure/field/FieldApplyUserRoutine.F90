@@ -24,12 +24,12 @@
 !     (horiz_x, horiz_y, ungrid1, ungrid2).  A flat slice_index is
 !     converted to a (i3, i4) pair in column-major order.
 !
-!   ungrid_count > MAX_UNGRIDDED_DIMS is not currently supported and is
+!   ungrid_num > MAX_UNGRIDDED_DIMS is not currently supported and is
 !   caught by an explicit _ASSERT in both FieldCreateFieldSlice and
 !   FieldApplyUserRoutine.
 !
 !   The vertical-vs-second-ungridded-dim ambiguity (both produce a
-!   rank-4 native array with ESMF ungrid_count==2) is resolved by
+!   rank-4 native array with ESMF ungrid_num==2) is resolved by
 !   condensed_slice_rank: slice_rank==3 means vertical is present and
 !   the last dim is the sole ungridded dim; slice_rank==2 means no
 !   vertical and both trailing dims are ungridded.
@@ -68,6 +68,8 @@ module mapl_FieldApplyUserRoutine_mod
                                            assign_fptr_condensed_array
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
+   use mapl_UngriddedDims_mod, only: ungriddedDims
+   use mapl_FieldGet_mod, only: MAPL_FieldGet => FieldGet
    use mapl_ErrorHandling_mod
 
    implicit none(type, external)
@@ -249,14 +251,16 @@ contains
       real(kind=ESMF_KIND_R4), pointer, intent(out) :: ptr(:,:)
       integer, optional, intent(out) :: rc
 
+      type(ungriddedDims) :: ungridded_dims
       real(kind=ESMF_KIND_R4), pointer :: fptr3d(:,:,:)
       real(kind=ESMF_KIND_R4), pointer :: fptr2d(:,:)
-      integer :: ungrid_count, status
+      integer :: ungrid_num, status
 
       nullify(ptr)
-      call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
-      if (ungrid_count == 0) then
+      call mapl_FieldGet(field, ungridded_dims=ungridded_dims, _RC)
+      ungrid_num = ungridded_dims%get_num_ungridded()
+      _ASSERT(ungrid_num <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_num > MAX_UNGRIDDED_DIMS is not supported.')
+      if (ungrid_num == 0) then
          _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
          call ESMF_FieldGet(field, farrayPtr=fptr2d, _RC)
          ptr => fptr2d
@@ -273,14 +277,16 @@ contains
       real(kind=ESMF_KIND_R8), pointer, intent(out) :: ptr(:,:)
       integer, optional, intent(out) :: rc
 
+      type(ungriddedDims) :: ungridded_dims
       real(kind=ESMF_KIND_R8), pointer :: fptr3d(:,:,:)
       real(kind=ESMF_KIND_R8), pointer :: fptr2d(:,:)
-      integer :: ungrid_count, status
+      integer :: ungrid_num, status
 
       nullify(ptr)
-      call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
-      if (ungrid_count == 0) then
+      call mapl_FieldGet(field, ungridded_dims=ungridded_dims, _RC)
+      ungrid_num = ungridded_dims%get_num_ungridded()
+      _ASSERT(ungrid_num <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_num > MAX_UNGRIDDED_DIMS is not supported.')
+      if (ungrid_num == 0) then
          _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
          call ESMF_FieldGet(field, farrayPtr=fptr2d, _RC)
          ptr => fptr2d
@@ -297,14 +303,16 @@ contains
       real(kind=ESMF_KIND_R4), pointer, intent(out) :: ptr(:,:,:)
       integer, optional, intent(out) :: rc
 
+      type(ungriddedDims) :: ungridded_dims
       real(kind=ESMF_KIND_R4), pointer :: fptr4d(:,:,:,:)
       real(kind=ESMF_KIND_R4), pointer :: fptr3d(:,:,:)
-      integer :: ungrid_count, status
+      integer :: ungrid_num, status
 
       nullify(ptr)
-      call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
-      if (ungrid_count == 0) then
+      call mapl_FieldGet(field, ungridded_dims=ungridded_dims, _RC)
+      ungrid_num = ungridded_dims%get_num_ungridded()
+      _ASSERT(ungrid_num <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_num > MAX_UNGRIDDED_DIMS is not supported.')
+      if (ungrid_num == 0) then
          _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
          call ESMF_FieldGet(field, farrayPtr=fptr3d, _RC)
          ptr => fptr3d
@@ -321,14 +329,16 @@ contains
       real(kind=ESMF_KIND_R8), pointer, intent(out) :: ptr(:,:,:)
       integer, optional, intent(out) :: rc
 
+      type(ungriddedDims) :: ungridded_dims
       real(kind=ESMF_KIND_R8), pointer :: fptr4d(:,:,:,:)
       real(kind=ESMF_KIND_R8), pointer :: fptr3d(:,:,:)
-      integer :: ungrid_count, status
+      integer :: ungrid_num, status
 
       nullify(ptr)
-      call ESMF_FieldGet(field, ungriddedDimCount=ungrid_count, _RC)
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
-      if (ungrid_count == 0) then
+      call mapl_FieldGet(field, ungridded_dims=ungridded_dims, _RC)
+      ungrid_num = ungridded_dims%get_num_ungridded()
+      _ASSERT(ungrid_num <= MAX_UNGRIDDED_DIMS, 'FieldGetPointerToSlice: ungrid_num > MAX_UNGRIDDED_DIMS is not supported.')
+      if (ungrid_num == 0) then
          _ASSERT(slice_index == 1, 'slice_index must be 1 for a field with no ungridded dimension.')
          call ESMF_FieldGet(field, farrayPtr=fptr3d, _RC)
          ptr => fptr3d
@@ -350,7 +360,7 @@ contains
    ! condensed_slice_rank to correctly handle the vertical-vs-second-
    ! ungridded-dim ambiguity.
    !
-   ! ungrid_count > MAX_UNGRIDDED_DIMS is caught by an assertion before
+   ! ungrid_num > MAX_UNGRIDDED_DIMS is caught by an assertion before
    ! the slice loop.
    ! --------------------------------------------------------------------------
    subroutine FieldApplyUserRoutine(field, userRoutine, unusable, userrc, rc)
@@ -363,8 +373,9 @@ contains
       type(ESMF_Field) :: slice_field
       type(ESMF_FieldStatus_Flag) :: field_status
       type(ESMF_TypeKind_Flag) :: typekind
+      type(ungriddedDims) :: ungridded_dims
       integer :: k, n_slices, status, user_status
-      integer :: ungrid_count, slice_rank
+      integer :: ungrid_num, slice_rank
 
       ! Native array pointers used only to determine n_slices.
       real(kind=ESMF_KIND_R4), pointer :: fptr3d_r4(:,:,:)
@@ -378,12 +389,13 @@ contains
       call ESMF_FieldGet(field, status=field_status, _RC)
       _RETURN_UNLESS(field_status == ESMF_FIELDSTATUS_COMPLETE)
 
-      call ESMF_FieldGet(field, typekind=typekind, &
-           ungriddedDimCount=ungrid_count, _RC)
+      call ESMF_FieldGet(field, typekind=typekind, _RC)
+      call mapl_FieldGet(field, ungridded_dims=ungridded_dims, _RC)
+      ungrid_num = ungridded_dims%get_num_ungridded()
 
-      _ASSERT(ungrid_count <= MAX_UNGRIDDED_DIMS, 'FieldApplyUserRoutine: ungrid_count > MAX_UNGRIDDED_DIMS is not supported.')
+      _ASSERT(ungrid_num <= MAX_UNGRIDDED_DIMS, 'FieldApplyUserRoutine: ungrid_num > MAX_UNGRIDDED_DIMS is not supported.')
 
-      if (ungrid_count == 0) then
+      if (ungrid_num == 0) then
          n_slices = 1
       else
          ! Use condensed_slice_rank to resolve vertical-vs-second-ungridded
@@ -396,7 +408,7 @@ contains
                ! Last dim is the sole ungridded dim.
                call ESMF_FieldGet(field, farrayPtr=fptr4d_r4, _RC)
                n_slices = size(fptr4d_r4, 4)
-            else if (ungrid_count == 1) then
+            else if (ungrid_num == 1) then
                ! Layout: (horiz_x, horiz_y, ungrid1)
                call ESMF_FieldGet(field, farrayPtr=fptr3d_r4, _RC)
                n_slices = size(fptr3d_r4, 3)
@@ -410,7 +422,7 @@ contains
                ! Layout: (horiz_x, horiz_y, vertical, ungrid1)
                call ESMF_FieldGet(field, farrayPtr=fptr4d_r8, _RC)
                n_slices = size(fptr4d_r8, 4)
-            else if (ungrid_count == 1) then
+            else if (ungrid_num == 1) then
                ! Layout: (horiz_x, horiz_y, ungrid1)
                call ESMF_FieldGet(field, farrayPtr=fptr3d_r8, _RC)
                n_slices = size(fptr3d_r8, 3)
