@@ -1,5 +1,5 @@
 # Overview
-Regrid_Util.x is a utility program built with MAPL. It has the ability to regrid files created by the MAPL IO layer (newCFIO+pFIO) that is used by the MAPL History and ExtData Component to any lat-lon, cubed-sphere, or a tripolar grid. The utility can therefore regrid between any two supported grid types, and the input and output grids can be of the **same type** (but different resolution). Behind the scene it uses ESMF to perform the regridding. It is entirely driven by command line options. The user specifies an output grid and the input grid type and specifications are determined from the input file.
+Regrid_Util.x is a utility program built with MAPL. It has the ability to regrid files created by the MAPL IO layer (newCFIO+pFIO) that is used by the MAPL History and ExtData Component to any lat-lon, cubed-sphere, or a tripolar grid. The utility can therefore regrid between any two supported grid types, and the input and output grids can be of the **same type** (but different resolution). Behind the scene it uses ESMF to perform the regridding. It can be driven by command line options or by a YAML configuration file. The user specifies an output grid and the input grid type and specifications are determined from the input file.
 
 Note this should be able to regrid a file produced by the History component and the resultant file should be readable by ExtData. Note that the Lat-Lon files produced by History match the CF convention, so if you have your own lat-lon files that were produced by some other means, if they adhere to the CF standard for lons,lats,level, and time information, then they will probably work if you give them as input. If you want to be extra safe run GEOS and get some lat-lon History output and make sure your own files looks like this!
 
@@ -20,7 +20,7 @@ Command line argument parsing uses the fargparse library. Multi-character option
 * `--ogrid` — encoding of the output grid name, see section on grid names
 * `--nx` — x decomposition to use for the decomposition of the target grid
 * `--ny` — y decomposition to use for the decomposition of the target grid
-* `--t` — date and time to select if the file contains multiple time slices (for example `--t 20000415 210000`)
+* `--t` — date and time to select if the file contains multiple time slices, specified as an ISO 8601 string (for example `--t 2000-04-15T21:00:00`)
 * `--method` — regridding method, the available options are defined here and follow what one can specify in History: https://github.com/GEOS-ESM/MAPL/wiki/Regridding-Methods-Available-In-MAPL#specifying-regridding-methods-in-extdata-and-history-in-mapl-v2220-and-greater. These correspond to the underlying ESMF regridding methods. For more information about the ESMF regridding methods see this document: https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node3.html#SECTION03023000000000000000
 * `--vars` — specify a comma separated (no spaces!) list of variables to regrid that subset of the variables from the input file only
 * `--tp_in` — tripolar file for input grid if the input file is on a tripolar grid
@@ -35,8 +35,94 @@ Command line argument parsing uses the fargparse library. Multi-character option
 * `--zstandard_level` — Zstandard compression level. Default is 0 (disabled).
 * `--file_weights` — if this flag is present, when it generates the regridding weights, it will either look for a file of the right name with weights or if said file already exists will use it. This provides huge speedup if the file is there since it does not need to recompute the weights. See other notes section for more info.
 
+# YAML Configuration File
+
+As an alternative to command line arguments, all options can be specified in a YAML file and passed via the `--config` flag:
+
+```
+mpirun -np 6 Regrid_Util.x --config my_config.yaml
+```
+
+`--config` is mutually exclusive with all other command line arguments; no other flags may be passed alongside it.
+
+## YAML keys
+
+The YAML keys correspond directly to the command line options:
+
+| YAML key | Equivalent CLI option | Notes |
+|---|---|---|
+| `input` | `-i` / `--input` | Comma-separated list of input files |
+| `output` | `-o` / `--output` | Comma-separated list of output files |
+| `output_grid` | `--ogrid` | YAML mapping describing the output grid (see below) |
+| `nx` | `--nx` | x decomposition |
+| `ny` | `--ny` | y decomposition |
+| `t` | `--t` | ISO 8601 time string, e.g. `2000-04-15T21:00:00` |
+| `method` | `--method` | Regridding method name |
+| `vars` | `--vars` | Comma-separated list of variables to regrid |
+| `tp_in` | `--tp_in` | Tripolar input grid descriptor file |
+| `tp_out` | `--tp_out` | Tripolar output grid descriptor file |
+| `deflate` | `--deflate` | NetCDF deflation level (1–9) |
+| `shave` | `--shave` | Number of mantissa bits to retain |
+| `quantize_algorithm` | `--quantize_algorithm` | Quantize algorithm name |
+| `quantize_level` | `--quantize_level` | Quantize level |
+| `zstandard_level` | `--zstandard_level` | Zstandard compression level |
+| `file_weights` | `--file_weights` | Boolean; set to `true` to enable weight file caching |
+
+## `output_grid` mapping
+
+Instead of the packed grid-name string used by `--ogrid`, `output_grid` is expressed as a YAML mapping with explicit keys. The `class` key selects the grid type; remaining keys depend on the class.
+
+**Lat-lon grid** (`class: latlon`):
+```yaml
+output_grid:
+  class: latlon
+  im_world: 360   # number of longitude points
+  jm_world: 181   # number of latitude points
+  pole: PC        # PC (pole-centered) or PE (pole-edge)
+  dateline: DC    # DC, DE, GC, or GE
+```
+
+**Cubed-sphere grid** (`class: CubedSphere`):
+```yaml
+output_grid:
+  class: CubedSphere
+  im_world: 180   # cube face size (c180 grid)
+  nx_face: 1      # MPI tiles per face in x (equals --nx from CLI)
+  ny_face: 1      # MPI tiles per face in y (equals --ny/6 from CLI)
+```
+
+**Note:** When `nx` and `ny` are provided as top-level YAML keys, they are automatically injected into the `output_grid` mapping for grid types that use `nx`/`ny` directly (e.g. lat-lon). For cubed-sphere grids, specify `nx_face` and `ny_face` explicitly in the `output_grid` block.
+
+## Example YAML files
+
+Regrid from a cubed-sphere input to a c12 cubed-sphere output on 6 MPI tasks:
+```yaml
+input: input.nc4
+output: output.nc4
+nx: 1
+ny: 6
+output_grid:
+  class: CubedSphere
+  im_world: 12
+  nx_face: 1
+  ny_face: 1
+```
+
+Regrid from a cubed-sphere input to a 90×47 lat-lon output on 6 MPI tasks:
+```yaml
+input: input.nc4
+output: output.nc4
+nx: 1
+ny: 6
+output_grid:
+  class: latlon
+  im_world: 90
+  jm_world: 47
+  pole: PC
+  dateline: DC
+```
+
 # Grid Names
-The grid name used in ogrid follows the following conventions:
 * For lat-lon grid it will be of the form PLEim_worldxjm_world-DATELINE (i.e. PC360x181-DC). In the case of a global lat-lon grid pole is either PC or PE (pole centered or pole edge) and dateline is DE,DC,GC,GE (dateline edge, dateline center, Grenwich center, Grenwich edge). IM_WORLD and JM_WORLD are the number of grid points in the lon and lat direction. A regional lat-lon grid can be specified with the `--lat_range` and `--lon_range` options. Note you can specify 1 of these or both. Whichever one you specify, set the POLE or DATELINE (or both!) to XY. So if you want a 180x90 regional grid from 0 to 90 in longitude and -30 to 30 in latitude use these arguments `--lat_range -30 30 --lon_range 0 90 --ogrid XY180x90-XY`
 * For cubed sphere the name will look like PEcube_sizexcubesize*6-CF (i.e. PE180x1080-CF for a c180 cubed sphere grid)
 * For tripolar it will look like PE720x410-TM, however you must supply an file containing the tripolar grid coordinates in the correct form
