@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `Regrid_Util.x` now has the option to be drive via a yaml file passed on the command line rather than
+   a whole list of command line arguments.
 - Modified ExtData tests to get path to test data from environment variable `LOCAL_REGRESSION_DATA_DIR`
 - Added regression test for Regrid\_Util.x
 - External pfio server GridComp and ctest: new `mapl_PfioServerGridComp_mod` provides
