@@ -9,5 +9,6 @@ private
   integer, parameter, public    :: Derived_TYpe      = 4
   integer, parameter, public    :: time_not_found = -1
   character(len=14), parameter, public :: file_not_found = "file_not_found"
+  character(len=19), parameter, public :: sample_not_provided = "sample_not_provided"
 
 end module MAPL_ExtDataConstants
