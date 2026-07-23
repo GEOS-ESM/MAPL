@@ -50,11 +50,11 @@ contains
 #ifndef __GFORTRAN__
       meta_model = NuopcMetaModel(model, user_gc_driver, user_SetServices, hconfig)
 #else
-      ! GFortran 12 & 13 cannot directly assign to outer_meta.  But
+      ! GFortran 12 & 13 cannot directly assign to meta_model.  But
       ! the assignment works for an object without the POINTER
       ! attribute.  An internal procedure is a workaround, but
       ! ... ridiculous.
-      call ridiculous(meta_model, NuopcMetaModel(model, user_gc_driver, set_services, config))
+      call ridiculous(meta_model, NuopcMetaModel(model, user_gc_driver, set_services, hconfig))
 #endif
       call meta_model%init(_RC)
 
