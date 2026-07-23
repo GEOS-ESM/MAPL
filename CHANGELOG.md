@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- field\_bundle\_read can now fill an empty bundle from a file that has both edge and center 3D fields 
+- `field_bundle_read` can now fill an empty bundle from a file that has both edge and center 3D fields
 
 ## [2.57.1] - 2026-01-16
 
