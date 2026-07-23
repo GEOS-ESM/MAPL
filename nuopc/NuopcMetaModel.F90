@@ -4,56 +4,97 @@ module mapl_NuopcMetaModel_mod
    use mapl_KeywordEnforcer_mod
    use esmf
    use nuopc
+   use mapl_MethodPhasesMap_mod
    implicit none(type,external)
    private
 
    public :: NuopcMetaModel
    public :: make_model
 
-
-   type NupcMetaModel
+   type NuopcMetaModel
       private
       type(esmf_GridComp) :: self_model
       type(GriddedComponentDriver) :: user_gc_driver
       class(AbstractUserSetServices), allocatable :: user_setservices
+      type(ESMF_HConfig) :: hconfig
       type(ComponentSpec)                         :: component_spec
-
+      type(MethodPhasesMap)                       :: user_phases_map
    contains
+      procedure :: init
+      procedure :: setServices
+      procedure :: get_phases
       ! Init phases
       !------------
       ! label_Advertise
       procedure :: advertise
-      procedure :: advertise_geom_a
-      procedure :: advertise_geom_b
+      procedure :: advertise_geom_a !wdb fixme deleteme missing
+      procedure :: advertise_geom_b !wdb fixme deleteme missing
       procedure :: advertise_variable
       !label_ModifyAdvertise
       procedure :: modify_advertise
       !label_RealizeAccept
-      procedure :: realize_accept
+      procedure :: realize_accept !wdb fixme deleteme missing
       !label_RealizeProvided
-      procedure :: realize_provided
+      procedure :: realize_provided !wdb fixme deleteme missing
       ! label_DataInitialize
       procedure :: data_initialize
       procedure :: read_restart
-      procedure :: user_initialize
+      procedure :: user_initialize !wdb fixme deleteme missing
 
       ! Run phases
       !------------
       ! label_Advance
       procedure :: advance
       ! label_WriteRestart
-      procedure :: write_restart
+      procedure :: write_restart !wdb fixme deleteme missing
       ! label_AdvanceClock
       procedure :: advance_clock
 
       ! Finalize phases
       !----------------
       ! label_Finalize
-      procedure :: finalize
+      procedure :: finalize !wdb fixme deleteme missing
+   end type NuopcMetaModel
 
-   end type NupcMetaModel
+   interface NuopcMetaModel
+      module procedure :: construct_meta_model
+   end interface NuopcMetaModel
 
 contains
+
+   function construct_meta_model(model, user_gc_driver, user_setservices, hconfig) result(meta_model)
+      type(NuopcMetaModel) :: meta_model
+      type(ESMF_GridComp), intent(in) :: model
+      type(GriddedComponentDriver), intent(in) :: user_gc_driver
+      type(AbstractUserSetServices), intent(in) :: user_setservices
+      type(ESMF_HConfig), intent(in) :: hconfig
+      
+      meta_model%self_model = model
+      meta_model%user_gc_driver = user_gc_driver
+      meta_model%user_setservices = user_setservices
+      meta_model%hconfig = hconfig
+
+   end function construct_meta_model
+
+   !wdb fixme deleteme To be implemented
+   subroutine init(this, rc)
+      type(NuopcMetaModel), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+
+   end subroutine init
+
+   !wdb fixme deleteme To be implemented
+   subroutine setServices(this, rc)
+      type(NuopcMetaModel), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+      
+      _RETURN(_SUCCESS)
+
+   end subroutine setServices
 
    subroutine advertise(this, unusable, rc)
       class(NuopcMetaModel), intent(inout) ::  this
@@ -209,7 +250,7 @@ contains
 
       type(ESMF_Time) :: currTime
       logical :: is_ringing
-      integere :: currentPhase
+      integer :: currentPhase
       character(ESMF_MAXSTR) :: phaseLabel
 
       call esmf_GridCompGet(model, currentPhase=currentPhase, _RC)
@@ -282,5 +323,14 @@ contains
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine advance_clock
+
+   function get_phases(this, method_flag) result(phases)
+      type(StringVector), pointer :: phases
+      class(OuterMetaComponent), target, intent(inout):: this
+      type(ESMF_Method_Flag), intent(in) :: method_flag
+
+      phases => this%user_phases_map%of(method_flag)
+
+   end function get_phases
 
 end module mapl_NuopcMetaModel
