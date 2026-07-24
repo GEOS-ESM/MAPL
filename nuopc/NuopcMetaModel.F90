@@ -169,7 +169,7 @@ contains
 
 
    recursive subroutine read_restart(this, unusable, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
+      class(NuopcMetaModel), target, intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -326,7 +326,7 @@ contains
 
    function get_phases(this, method_flag) result(phases)
       type(StringVector), pointer :: phases
-      class(OuterMetaComponent), target, intent(inout):: this
+      class(NuopcMetaModel), target, intent(inout):: this
       type(ESMF_Method_Flag), intent(in) :: method_flag
 
       phases => this%user_phases_map%of(method_flag)
