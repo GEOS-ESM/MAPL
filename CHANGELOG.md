@@ -9,8 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- `Regrid_Util.x` now uses the fargparse library for command line argument parsing instead
+  of raw Fortran intrinsics. Multi-character options that previously used a single-dash prefix
+  (e.g. `-ogrid`, `-nx`, `-ny`, `-method`, `-tp_in`, `-tp_out`, `-lon_range`, `-lat_range`,
+  `-stretch_factor`, `-deflate`, `-shave`, `-quantize_algorithm`, `-quantize_level`,
+  `-zstandard_level`, `-file_weights`, `-vars`, `-t`) now require a double-dash prefix
+  (e.g. `--ogrid`, `--nx`). The short forms `-i` and `-o` are preserved. The `--help` flag
+  is now handled automatically by fargparse and prints a formatted usage summary.
+
 ### Added
 
+- `Regrid_Util.x` now has the option to be drive via a yaml file passed on the command line rather than
+   a whole list of command line arguments.
+- Modified ExtData tests to get path to test data from environment variable `LOCAL_REGRESSION_DATA_DIR`
 - Added regression test for Regrid\_Util.x
 - External pfio server GridComp and ctest: new `mapl_PfioServerGridComp_mod` provides
   an ESMF GridComp whose `run` phase creates and starts an `MpiServer` or

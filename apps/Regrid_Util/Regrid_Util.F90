@@ -4,7 +4,9 @@
 
    use ESMF
    use MAPL
+   use fargparse
    use gFTL2_StringVector
+   use gFTL2_RealVector
 
    implicit NONE
    private
@@ -23,7 +25,7 @@
       type(StringVector) :: filenames,outputfiles
       type(mapl_CompressionSettings) :: compression_settings
       integer :: Nx,Ny
-      integer :: itime(2)
+      type(ESMF_Time) :: itime
       logical :: onlyVars, allTimes
       character(len=512) :: vars
       character(len=:), allocatable :: tripolar_file_in,tripolar_file_out
@@ -38,8 +40,10 @@
       logical :: use_weights
    contains
       procedure :: create_grid
+      procedure :: create_grid_from_hconfig
       procedure :: create_vgrid
       procedure :: process_command_line
+      procedure :: process_yaml_file
       procedure :: sync_compression_to_bundle
       procedure :: fill_in_compression_hconfig
    end type regrid_support
@@ -86,130 +90,220 @@
        enddo
     end function split_string
 
-    subroutine process_command_line(this,rc)
-    class(regrid_support) :: this
-    integer, optional, intent(out) :: rc
+     subroutine process_command_line(this, rc)
+     class(regrid_support) :: this
+     integer, optional, intent(out) :: rc
 
-    character(len=ESMF_MAXSTR) :: RegridMth
-    integer :: nargs, i, status
-    character(len=ESMF_MAXPATHLEN) :: str,astr
-    character(len=ESMF_MAXPATHLEN) :: tp_filein,tp_fileout
-    character(len=ESMF_MAXPATHLEN*100) :: cfileNames,coutputFiles
-    character(len=ESMF_MAXSTR) :: gridname
-    type(ESMF_HConfig) :: hconfig_compression
+     character(len=ESMF_MAXSTR) :: RegridMth
+     integer :: status
+     character(len=ESMF_MAXPATHLEN*100) :: cfileNames, coutputFiles
+     character(len=ESMF_MAXSTR) :: gridname
+     type(ESMF_HConfig) :: hconfig_compression
 
-    this%nx=1
-    this%ny=1
-    this%onlyvars=.false.
-    this%alltimes=.true.
-    regridMth='bilinear'
-    this%cs_stretch_param=uninit
-    this%lon_range=uninit
-    this%lat_range=uninit
-    this%shave=-1
-    this%deflate=0
-    this%quantize_algorithm='NONE'
-    this%quantize_level=0
-    this%zstandard_level=0
-    this%use_weights = .false.
-    nargs = command_argument_count()
-    do i=1,nargs
-      call get_command_argument(i,str)
-      select case(trim(str))
-      case ('-o')
-         call get_command_argument(i+1,coutputfiles)
-      case('-i')
-         call get_command_argument(i+1,cfilenames)
-      case('-ogrid')
-         call get_command_argument(i+1,Gridname)
-      case('-nx')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%nx
-      case('-ny')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%ny
-      case('-vars')
-         call get_command_argument(i+1,this%vars)
+       type(ArgParser) :: parser
+      type(StringUnlimitedMap) :: options
+      class(*), pointer :: option
+      type(RealVector) :: real_vec
+      character(len=:), allocatable :: tmp_str
+
+     ! Defaults for options not covered by fargparse default= keyword
+     this%cs_stretch_param = uninit
+     this%lon_range = uninit
+     this%lat_range = uninit
+     this%onlyvars = .false.
+     this%alltimes = .true.
+
+     parser = ArgParser()
+
+     call parser%add_argument('--config', &
+          help='Path to a YAML configuration file. If provided, no other arguments may be passed.', &
+          action='store', type='string')
+     call parser%add_argument('-i', '--input', &
+          help='Comma-separated list of input NetCDF files', &
+          action='store', type='string')
+     call parser%add_argument('-o', '--output', &
+          help='Comma-separated list of output NetCDF files', &
+          action='store', type='string')
+     call parser%add_argument('--ogrid', &
+          help='Output grid name (e.g. PE180x1080-CF)', &
+          action='store', type='string')
+     call parser%add_argument('--nx', &
+          help='MPI decomposition in x (default: 1)', &
+          action='store', type='integer', default=1)
+     call parser%add_argument('--ny', &
+          help='MPI decomposition in y (default: 1)', &
+          action='store', type='integer', default=1)
+     call parser%add_argument('--vars', &
+          help='Comma-separated list of variable names to regrid', &
+          action='store', type='string')
+      call parser%add_argument('--t', &
+           help='Time to extract as ISO 8601 string: YYYY-MM-DDTHH:MM:SS', &
+           action='store', type='string')
+     call parser%add_argument('--stretch_factor', &
+          help='Cubed-sphere stretch parameters: stretch_factor target_lon target_lat', &
+          action='store', type='real', n_arguments=3)
+     call parser%add_argument('--lon_range', &
+          help='Longitude range for regional grid: lon_min lon_max', &
+          action='store', type='real', n_arguments=2)
+     call parser%add_argument('--lat_range', &
+          help='Latitude range for regional grid: lat_min lat_max', &
+          action='store', type='real', n_arguments=2)
+     call parser%add_argument('--method', &
+          help='Regrid method (default: bilinear)', &
+          action='store', type='string', default='bilinear')
+     call parser%add_argument('--tp_in', &
+          help='Tripolar input grid descriptor file', &
+          action='store', type='string')
+     call parser%add_argument('--tp_out', &
+          help='Tripolar output grid descriptor file', &
+          action='store', type='string')
+     call parser%add_argument('--shave', &
+          help='Number of bits to shave for compression (default: -1, disabled)', &
+          action='store', type='integer', default=-1)
+     call parser%add_argument('--deflate', &
+          help='Deflate compression level 0-9 (default: 0, disabled)', &
+          action='store', type='integer', default=0)
+     call parser%add_argument('--quantize_algorithm', &
+          help='Quantize algorithm name (default: NONE)', &
+          action='store', type='string', default='NONE')
+     call parser%add_argument('--quantize_level', &
+          help='Quantize level (default: 0)', &
+          action='store', type='integer', default=0)
+     call parser%add_argument('--zstandard_level', &
+          help='Zstandard compression level (default: 0, disabled)', &
+          action='store', type='integer', default=0)
+     call parser%add_argument('--file_weights', &
+          help='Use weight files for regridding', &
+          action='store_true', default=.false.)
+
+     options = parser%parse_args()
+
+     ! --- YAML config mode: mutually exclusive with all other arguments ---
+     option => options%at('config')
+     if (associated(option)) then
+         _ASSERT(command_argument_count() == 2, '--config is mutually exclusive with all other arguments')
+        call cast(option, tmp_str)
+        call this%process_yaml_file(tmp_str, _RC)
+        _RETURN(_SUCCESS)
+     end if
+
+     ! --- Required arguments ---
+
+      option => options%at('input')
+      _ASSERT(associated(option), 'required argument --input / -i not provided')
+      call cast(option, tmp_str)
+      cfilenames = tmp_str
+
+      option => options%at('output')
+      _ASSERT(associated(option), 'required argument --output / -o not provided')
+      call cast(option, tmp_str)
+      coutputfiles = tmp_str
+
+      option => options%at('ogrid')
+      _ASSERT(associated(option), 'required argument --ogrid not provided')
+      call cast(option, tmp_str)
+      gridname = tmp_str
+
+     ! --- Arguments with defaults (always associated) ---
+
+     option => options%at('nx')
+     if (associated(option)) call cast(option, this%nx)
+
+     option => options%at('ny')
+     if (associated(option)) call cast(option, this%ny)
+
+      option => options%at('method')
+      if (associated(option)) then
+         call cast(option, tmp_str)
+         RegridMth = tmp_str
+      end if
+
+     option => options%at('shave')
+     if (associated(option)) call cast(option, this%shave)
+
+     option => options%at('deflate')
+     if (associated(option)) call cast(option, this%deflate)
+
+     option => options%at('quantize_algorithm')
+     if (associated(option)) call cast(option, this%quantize_algorithm)
+
+     option => options%at('quantize_level')
+     if (associated(option)) call cast(option, this%quantize_level)
+
+     option => options%at('zstandard_level')
+     if (associated(option)) call cast(option, this%zstandard_level)
+
+     option => options%at('file_weights')
+     if (associated(option)) call cast(option, this%use_weights)
+
+     ! --- Optional arguments (not associated when absent) ---
+
+      option => options%at('vars')
+      if (associated(option)) then
+         call cast(option, tmp_str)
+         this%vars = tmp_str
          this%onlyVars = .true.
-      case('-t')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%itime(1)
-         call get_command_argument(i+2,astr)
-         read(astr,*)this%itime(2)
-         this%alltimes=.false.
-      case('-stretch_factor')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%cs_stretch_param(1)
-         call get_command_argument(i+2,astr)
-         read(astr,*)this%cs_stretch_param(2) ! target_lon in degree
-         call get_command_argument(i+3,astr)
-         read(astr,*)this%cs_stretch_param(3) ! target_lat in degree
-      case('-lon_range')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%lon_range(1)
-         call get_command_argument(i+2,astr)
-         read(astr,*)this%lon_range(2)
-      case('-lat_range')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%lat_range(1)
-         call get_command_argument(i+2,astr)
-         read(astr,*)this%lat_range(2)
-      case('-method')
-         call get_command_argument(i+1,RegridMth)
-      case('-tp_in')
-         call get_command_argument(i+1,tp_filein)
-         this%tripolar_file_in = tp_filein
-      case('-tp_out')
-         call get_command_argument(i+1,tp_fileout)
-         this%tripolar_file_out = tp_fileout
-      case('-shave')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%shave
-      case('-deflate')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%deflate
-      case('-quantize_algorithm')
-         call get_command_argument(i+1,astr)
-         this%quantize_algorithm=astr
-      case('-quantize_level')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%quantize_level
-      case('-zstandard_level')
-         call get_command_argument(i+1,astr)
-         read(astr,*)this%zstandard_level
-      case('-file_weights')
-         this%use_weights = .true.
-      case('--help')
-         if (local_am_i_root()) then
+      end if
 
-         end if
-         call MPI_Finalize(status)
-         return
-      end select
-    enddo
+     option => options%at('t')
+     if (associated(option)) then
+        call cast(option, tmp_str)
+        this%itime = parse_iso_time(tmp_str, _RC)
+        this%alltimes = .false.
+     end if
 
-    if (.not.allocated(this%tripolar_file_out)) then
-       this%tripolar_file_out = "empty"
-    end if
-    this%regridMethod = mapl_regrid_method_string_to_int(regridMth)
-    _ASSERT(this%regridMethod/=MAPL_UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
+     option => options%at('stretch_factor')
+     if (associated(option)) then
+        call cast(option, real_vec)
+        this%cs_stretch_param(1) = real_vec%at(1)
+        this%cs_stretch_param(2) = real_vec%at(2)  ! target_lon in degrees
+        this%cs_stretch_param(3) = real_vec%at(3)  ! target_lat in degrees
+     end if
 
-    this%filenames = split_string(cfilenames,',')
-    this%outputfiles = split_string(coutputfiles,',')
-    _ASSERT(this%filenames%size() > 0, 'no input files')
-    _ASSERT(this%outputfiles%size() >0, 'no ouput files specified')
-    _ASSERT(this%filenames%size() == this%outputfiles%size(), 'different number of input and output files')
-    if (.not.this%alltimes) then
-       _ASSERT(this%filenames%size() == 1,'if selecting time from file, can only regrid a single file')
-    end if
+     option => options%at('lon_range')
+     if (associated(option)) then
+        call cast(option, real_vec)
+        this%lon_range(1) = real_vec%at(1)
+        this%lon_range(2) = real_vec%at(2)
+     end if
 
-    call this%create_grid(gridname,_RC)
-    call this%create_vgrid(_RC)
-    hconfig_compression = this%fill_in_compression_hconfig(_RC)
-    this%compression_settings = mapl_CompressionSettings(hconfig_compression, _RC)
-    _RETURN(_SUCCESS)
+     option => options%at('lat_range')
+     if (associated(option)) then
+        call cast(option, real_vec)
+        this%lat_range(1) = real_vec%at(1)
+        this%lat_range(2) = real_vec%at(2)
+     end if
 
-    end subroutine process_command_line
+     option => options%at('tp_in')
+     if (associated(option)) call cast(option, this%tripolar_file_in)
+
+     option => options%at('tp_out')
+     if (associated(option)) call cast(option, this%tripolar_file_out)
+
+     ! --- Post-parse validation and setup ---
+
+     if (.not. allocated(this%tripolar_file_out)) then
+        this%tripolar_file_out = "empty"
+     end if
+     this%regridMethod = mapl_regrid_method_string_to_int(RegridMth)
+     _ASSERT(this%regridMethod /= MAPL_UNSPECIFIED_REGRID_METHOD, "improper regrid method chosen")
+
+     this%filenames = split_string(cfilenames, ',')
+     this%outputfiles = split_string(coutputfiles, ',')
+     _ASSERT(this%filenames%size() > 0, 'no input files')
+     _ASSERT(this%outputfiles%size() > 0, 'no output files specified')
+     _ASSERT(this%filenames%size() == this%outputfiles%size(), 'different number of input and output files')
+     if (.not. this%alltimes) then
+        _ASSERT(this%filenames%size() == 1, 'if selecting time from file, can only regrid a single file')
+     end if
+
+     call this%create_grid(gridname, _RC)
+     call this%create_vgrid(_RC)
+     hconfig_compression = this%fill_in_compression_hconfig(_RC)
+     this%compression_settings = mapl_CompressionSettings(hconfig_compression, _RC)
+     _RETURN(_SUCCESS)
+
+     end subroutine process_command_line
 
      subroutine create_vgrid(this,rc)
      class(regrid_support) :: this
@@ -232,29 +326,37 @@
 
     end subroutine create_vgrid
 
-    subroutine create_grid(this,grid_name,rc)
-    class(regrid_support) :: this
-    character(len=*), intent(in) :: grid_name
-    integer, optional, intent(out) :: rc
+     subroutine create_grid(this,grid_name,rc)
+     class(regrid_support) :: this
+     character(len=*), intent(in) :: grid_name
+     integer, optional, intent(out) :: rc
 
-    integer :: im_world,jm_world
-    character(len=2) :: dateline,pole
-    integer :: status
-    type(ESMF_HConfig) :: geom_hconfig
-    type(mapl_MAPLGeom), pointer :: mapl_geom
-    type(ESMF_Geom) :: geom
-    type(mapl_GeomManager), pointer :: geom_mgr
+     integer :: im_world,jm_world
+     character(len=2) :: dateline,pole
+     integer :: status
+     type(ESMF_HConfig) :: geom_hconfig
+     type(mapl_MAPLGeom), pointer :: mapl_geom
+     type(ESMF_Geom) :: geom
+     type(mapl_GeomManager), pointer :: geom_mgr
+     type(ESMF_VM) :: vm
+     integer :: petCount
 
-    call UnpackGridName(Grid_name,im_world,jm_world,dateline,pole)
+     call UnpackGridName(Grid_name,im_world,jm_world,dateline,pole)
 
-    geom_hconfig = create_output_geom_hconfig(grid_name,im_world,jm_world,this%nx,this%ny,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
-    geom_mgr => mapl_get_geom_manager()
-    mapl_geom => geom_mgr%get_mapl_geom(geom_hconfig, _RC)
-    geom = mapl_geom%get_geom()
-    call ESMF_GeomGet(geom, grid=this%new_grid, _RC)
+     if (dateline == 'CF') then
+        call ESMF_VMGetCurrent(vm, _RC)
+        call ESMF_VMGet(vm, petCount=petCount, _RC)
+        _ASSERT(mod(petCount, 6) == 0, 'Number of processors must be divisible by 6 for CubedSphere grids')
+     end if
 
-    _RETURN(_SUCCESS)
-    end subroutine create_grid
+     geom_hconfig = create_output_geom_hconfig(grid_name,im_world,jm_world,this%nx,this%ny,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
+     geom_mgr => mapl_get_geom_manager()
+     mapl_geom => geom_mgr%get_mapl_geom(geom_hconfig, _RC)
+     geom = mapl_geom%get_geom()
+     call ESMF_GeomGet(geom, grid=this%new_grid, _RC)
+
+     _RETURN(_SUCCESS)
+     end subroutine create_grid
 
     function create_output_geom_hconfig(grid_name,im_world,jm_world,nx,ny,cs_stretch_param,lon_range,lat_range,tripolar_file,rc) result(output_geom_hconfig)
        type(ESMF_HConfig)              :: output_geom_hconfig
@@ -355,7 +457,191 @@
 
       end function fill_in_compression_hconfig
 
+       subroutine process_yaml_file(this, yaml_path, rc)
+      class(regrid_support), intent(inout) :: this
+      character(len=*), intent(in) :: yaml_path
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: hconfig, geom_hconfig, hconfig_compression
+      character(len=ESMF_MAXPATHLEN*100) :: cfilenames, coutputfiles
+      character(len=ESMF_MAXSTR) :: RegridMth
+      character(len=:), allocatable :: tmp_str
+      logical :: key_defined
+
+      ! --- Defaults ---
+      this%nx = 1
+      this%ny = 1
+      this%cs_stretch_param = uninit
+      this%lon_range = uninit
+      this%lat_range = uninit
+      this%onlyvars = .false.
+      this%alltimes = .true.
+      this%shave = -1
+      this%deflate = 0
+      this%quantize_algorithm = 'NONE'
+      this%quantize_level = 0
+      this%zstandard_level = 0
+      this%use_weights = .false.
+      RegridMth = 'bilinear'
+
+      ! --- Load yaml ---
+      hconfig = ESMF_HConfigCreate(filename=yaml_path, _RC)
+
+      ! --- Required keys ---
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='input', _RC)
+      _ASSERT(key_defined, 'yaml config missing required key: input')
+      tmp_str = ESMF_HConfigAsString(hconfig, keyString='input', _RC)
+      cfilenames = tmp_str
+
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='output', _RC)
+      _ASSERT(key_defined, 'yaml config missing required key: output')
+      tmp_str = ESMF_HConfigAsString(hconfig, keyString='output', _RC)
+      coutputfiles = tmp_str
+
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='output_grid', _RC)
+      _ASSERT(key_defined, 'yaml config missing required key: output_grid')
+      geom_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='output_grid', _RC)
+
+      ! --- Optional top-level keys ---
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='nx', _RC)
+      if (key_defined) then
+         this%nx = ESMF_HConfigAsI4(hconfig, keyString='nx', _RC)
+      end if
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='ny', _RC)
+      if (key_defined) then
+         this%ny = ESMF_HConfigAsI4(hconfig, keyString='ny', _RC)
+      end if
+
+      ! Inject nx/ny into the output_grid hconfig if not already present there,
+      ! so get_mapl_geom sees the MPI decomposition parameters
+      key_defined = ESMF_HConfigIsDefined(geom_hconfig, keyString='nx', _RC)
+      if (.not. key_defined) then
+         call ESMF_HConfigAdd(geom_hconfig, this%nx, addKeyString='nx', _RC)
+      end if
+      key_defined = ESMF_HConfigIsDefined(geom_hconfig, keyString='ny', _RC)
+      if (.not. key_defined) then
+         call ESMF_HConfigAdd(geom_hconfig, this%ny, addKeyString='ny', _RC)
+      end if
+
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='method', _RC)
+      if (key_defined) then
+         RegridMth = ESMF_HConfigAsString(hconfig, keyString='method', _RC)
+      end if
+      this%regridMethod = mapl_regrid_method_string_to_int(RegridMth)
+      _ASSERT(this%regridMethod /= MAPL_UNSPECIFIED_REGRID_METHOD, 'improper regrid method chosen')
+
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='vars', _RC)
+      if (key_defined) then
+         tmp_str = ESMF_HConfigAsString(hconfig, keyString='vars', _RC)
+         this%vars = tmp_str
+         this%onlyVars = .true.
+      end if
+
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='t', _RC)
+      if (key_defined) then
+         tmp_str = ESMF_HConfigAsString(hconfig, keyString='t', _RC)
+         this%itime = parse_iso_time(tmp_str, _RC)
+         this%alltimes = .false.
+      end if
+
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='file_weights', _RC)
+      if (key_defined) then
+         this%use_weights = ESMF_HConfigAsLogical(hconfig, keyString='file_weights', _RC)
+      end if
+
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='tp_in', _RC)
+      if (key_defined) then
+         tmp_str = ESMF_HConfigAsString(hconfig, keyString='tp_in', _RC)
+         this%tripolar_file_in = tmp_str
+      end if
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='tp_out', _RC)
+      if (key_defined) then
+         tmp_str = ESMF_HConfigAsString(hconfig, keyString='tp_out', _RC)
+         this%tripolar_file_out = tmp_str
+      else
+         this%tripolar_file_out = 'empty'
+      end if
+
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='deflate', _RC)
+      if (key_defined) then
+         this%deflate = ESMF_HConfigAsI4(hconfig, keyString='deflate', _RC)
+      end if
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='shave', _RC)
+      if (key_defined) then
+         this%shave = ESMF_HConfigAsI4(hconfig, keyString='shave', _RC)
+      end if
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='quantize_algorithm', _RC)
+      if (key_defined) then
+         tmp_str = ESMF_HConfigAsString(hconfig, keyString='quantize_algorithm', _RC)
+         this%quantize_algorithm = tmp_str
+      end if
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='quantize_level', _RC)
+      if (key_defined) then
+         this%quantize_level = ESMF_HConfigAsI4(hconfig, keyString='quantize_level', _RC)
+      end if
+      key_defined = ESMF_HConfigIsDefined(hconfig, keyString='zstandard_level', _RC)
+      if (key_defined) then
+         this%zstandard_level = ESMF_HConfigAsI4(hconfig, keyString='zstandard_level', _RC)
+      end if
+
+      ! --- Build file lists and validate ---
+      this%filenames = split_string(cfilenames, ',')
+      this%outputfiles = split_string(coutputfiles, ',')
+      _ASSERT(this%filenames%size() > 0, 'no input files')
+      _ASSERT(this%outputfiles%size() > 0, 'no output files specified')
+      _ASSERT(this%filenames%size() == this%outputfiles%size(), 'different number of input and output files')
+      if (.not. this%alltimes) then
+         _ASSERT(this%filenames%size() == 1, 'if selecting time from file, can only regrid a single file')
+      end if
+
+      ! --- Build grid, vertical grid, and compression settings ---
+      call this%create_grid_from_hconfig(geom_hconfig, _RC)
+      call this%create_vgrid(_RC)
+      hconfig_compression = this%fill_in_compression_hconfig(_RC)
+      this%compression_settings = mapl_CompressionSettings(hconfig_compression, _RC)
+
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+
+      end subroutine process_yaml_file
+
+      subroutine create_grid_from_hconfig(this, geom_hconfig, rc)
+      class(regrid_support), intent(inout) :: this
+      type(ESMF_HConfig), intent(inout) :: geom_hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(mapl_MAPLGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(ESMF_VM) :: vm
+      integer :: petCount
+      character(len=:), allocatable :: grid_class
+      logical :: key_defined
+
+      key_defined = ESMF_HConfigIsDefined(geom_hconfig, keyString='class', _RC)
+      if (key_defined) then
+         grid_class = ESMF_HConfigAsString(geom_hconfig, keyString='class', _RC)
+         if (trim(grid_class) == 'CubedSphere') then
+            call ESMF_VMGetCurrent(vm, _RC)
+            call ESMF_VMGet(vm, petCount=petCount, _RC)
+            _ASSERT(mod(petCount, 6) == 0, 'Number of processors must be divisible by 6 for CubedSphere grids')
+         end if
+      end if
+
+      geom_mgr => mapl_get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(geom_hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_GeomGet(geom, grid=this%new_grid, _RC)
+
+      _RETURN(_SUCCESS)
+
+      end subroutine create_grid_from_hconfig
+
       function local_am_i_root(rc) result(am_i_root)
+
          logical :: am_i_root
          integer, optional, intent(out) :: rc
 
@@ -367,6 +653,25 @@
          am_i_root = localPet == 0
          _RETURN(_SUCCESS)
       end function local_am_i_root
+
+      function parse_iso_time(iso_str, rc) result(t)
+         character(len=*), intent(in) :: iso_str
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_Time) :: t
+         integer :: status
+         integer :: yy, mm, dd, h, m, s
+         integer :: ios
+
+         ! Accepts ISO 8601 format: YYYY-MM-DDTHH:MM:SS
+         ! The format string uses 1X to skip each single-character separator (-, T, :)
+         read(iso_str, '(I4,1X,I2,1X,I2,1X,I2,1X,I2,1X,I2)', iostat=ios) yy, mm, dd, h, m, s
+         _ASSERT(ios == 0, 'Failed to parse ISO 8601 time string (expected YYYY-MM-DDTHH:MM:SS): ' // trim(iso_str))
+         call ESMF_TimeSet(t, yy=yy, mm=mm, dd=dd, h=h, m=m, s=s, _RC)
+
+         _RETURN(_SUCCESS)
+
+      end function parse_iso_time
 
    end module regrid_util_support_mod
 
@@ -492,7 +797,7 @@ CONTAINS
 
    subroutine get_file_times(filename,itime,alltimes,tseries,timeInterval,tint,tsteps,rc)
       character(len=*), intent(in) :: filename
-      integer, intent(in) :: itime(2)
+      type(ESMF_Time), intent(in) :: itime
       logical, intent(in) :: alltimes
       type(ESMF_Time), allocatable, intent(inout) :: tseries(:)
       type(ESMF_TimeInterval), intent(inout) :: timeInterval
@@ -501,7 +806,7 @@ CONTAINS
       integer, intent(out), optional :: rc
 
       integer :: status
-      integer :: second,minute,hour,day,month,year
+      integer :: second,minute,hour
       type(mapl_NetCDF4_fileFormatter) :: formatter
       type(mapl_FileMetadata) :: basic_metadata
       type(FileMetadataUtils) :: metadata
@@ -517,10 +822,9 @@ CONTAINS
 
       if (.not.allTimes) then
          tSteps=1
-         call mapl_UnpackDateTIme(itime,year,month,day,hour,minute,second)
          deallocate(tSeries)
          allocate(tSeries(1))
-         call ESMF_TimeSet(tSeries(1), yy=year, mm=month, dd=day,  h=hour,  m=minute, s=second,_RC)
+         tSeries(1) = itime
       end if
       if (tSteps == 1) then
          call ESMF_TimeIntervalSet( TimeInterval, h=6, m=0, s=0, _RC )

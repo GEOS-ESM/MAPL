@@ -111,7 +111,7 @@ contains
          enddo
          idx = extdata_gridcomp%get_item_index(item_name, current_time, _RC)
          primary_export_ptr => extdata_gridcomp%export_vector%at(idx)
-         call primary_export_ptr%complete_export_spec(item_name, exportState, _RC)
+         call primary_export_ptr%complete_export_spec(item_name, current_time, exportState, _RC)
          call extdata_gridcomp%last_item%insert(item_name, idx)
       end do
 
@@ -157,7 +157,7 @@ contains
          export_item => extdata_gridcomp%export_vector%at(idx)
          if (last_index /= idx) then
             last_index = idx
-            call export_item%update_export_spec(base_name, exportState, _RC)
+            call export_item%update_export_spec(base_name, current_time, exportState, _RC)
          end if
          if (export_item%is_constant) cycle
 

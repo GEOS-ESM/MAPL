@@ -1,10 +1,21 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.extdata.tests")
 
+# For known sites, set LOCAL_REGRESSION_DATA_DIR automatically if not already set
+if (${GEOS_SITE} MATCHES "NCCS")
+  if (NOT DEFINED ENV{LOCAL_REGRESSION_DATA_DIR})
+    set(ENV{LOCAL_REGRESSION_DATA_DIR} "/discover/nobackup/bmauer/test-data")
+  endif ()
+elseif (${GEOS_SITE} MATCHES "GMAO.desktop")
+  if (NOT DEFINED ENV{LOCAL_REGRESSION_DATA_DIR})
+    set(ENV{LOCAL_REGRESSION_DATA_DIR} "/home/bmauer/test-data")
+  endif ()
+endif ()
+
 set (test_srcs
   Test_ExtDataNodeBracket.pf
   )
 
-if (${GEOS_SITE} MATCHES "NCCS" OR ${GEOS_SITE} MATCHES "GMAO.desktop") 
+if (DEFINED ENV{LOCAL_REGRESSION_DATA_DIR} AND IS_DIRECTORY "$ENV{LOCAL_REGRESSION_DATA_DIR}")
   list(APPEND test_srcs Test_NonClimDataSetFileSelector.pf)
   list(APPEND test_srcs Test_DataSetNode.pf)
 endif ()
@@ -27,6 +38,7 @@ else()
 endif ()
 
 set(TEST_ENV "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}}")
+list(APPEND TEST_ENV "LOCAL_REGRESSION_DATA_DIR=$ENV{LOCAL_REGRESSION_DATA_DIR}")
 
 if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
   list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
