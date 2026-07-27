@@ -14,7 +14,7 @@ module mapl_ExtDataRule_mod
       character(:), allocatable :: collection
       !character(:), allocatable :: file_var
       type(StringVector) :: file_vars
-      character(:), allocatable :: sample_key = SAMPLE_NOT_PROVIDED
+      character(:), allocatable :: sample_key
       real, allocatable :: linear_trans(:)
       character(:), allocatable :: regrid_method
       character(:), allocatable :: vector_partner
@@ -57,6 +57,7 @@ contains
          usable_multi_rule = .false.
       end if
 
+      rule%sample_key = SAMPLE_NOT_PROVIDED
       if (allocated(tempc)) deallocate(tempc)
       collection_present = ESMF_HConfigIsDefined(config,keyString="collection")
       _ASSERT(collection_present,"no collection present in ExtData export")
