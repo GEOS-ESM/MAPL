@@ -460,13 +460,16 @@ contains
 
       export_rule => this%rule_map%at(full_name)
       collection => null()
-      sample => this%sample_map%at(export_rule%sample_key)
       if (export_rule%collection /= "/dev/null") then
          collection => this%file_stream_map%at(export_rule%collection)
+         _ASSERT(associated(collection), 'invalid collection key for '//trim(base_name))
       end if
-      if (.not. associated(sample)) then
+      if (export_rule%sample_key == SAMPLE_NOT_PROVDED) then
          call default_sample%set_defaults()
          sample => default_sample
+      else
+         sample => this%sample_map%at(export_rule%sample_key)
+         _ASSERT(associated(sample), 'invalid sample key for '//trim(base-name))
       end if
       call this%get_time_range(full_name, base_name, time_range, _RC)
       export = PrimaryExport(base_name, export_rule, collection, sample, time_range, time_step, _RC)

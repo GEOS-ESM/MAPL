@@ -4,6 +4,7 @@ module mapl_ExtDataRule_mod
    use MAPL
    use mapl_ExtDataSample_mod
    use mapl_ExtDataSampleMap_mod
+   use mapl_ExtDataConstants_mod
    use gFTL2_StringVector
    implicit none
    private
@@ -13,7 +14,7 @@ module mapl_ExtDataRule_mod
       character(:), allocatable :: collection
       !character(:), allocatable :: file_var
       type(StringVector) :: file_vars
-      character(:), allocatable :: sample_key
+      character(:), allocatable :: sample_key = SAMPLE_NOT_PROVIDED
       real, allocatable :: linear_trans(:)
       character(:), allocatable :: regrid_method
       character(:), allocatable :: vector_partner
