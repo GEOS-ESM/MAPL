@@ -12,7 +12,6 @@ module mapl_ExtDataRule_mod
    type, public :: ExtDataRule
       type(ESMF_Time), allocatable :: start_time
       character(:), allocatable :: collection
-      !character(:), allocatable :: file_var
       type(StringVector) :: file_vars
       character(:), allocatable :: sample_key
       real, allocatable :: linear_trans(:)
