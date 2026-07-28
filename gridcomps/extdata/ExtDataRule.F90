@@ -57,7 +57,6 @@ contains
          usable_multi_rule = .false.
       end if
 
-      rule%sample_key = SAMPLE_NOT_PROVIDED
       if (allocated(tempc)) deallocate(tempc)
       collection_present = ESMF_HConfigIsDefined(config,keyString="collection")
       _ASSERT(collection_present,"no collection present in ExtData export")
@@ -86,7 +85,7 @@ contains
             rule%sample_key=ESMF_HConfigAsString(config1,_RC)
          end if
       else
-         rule%sample_key = ""
+         rule%sample_key = SAMPLE_NOT_PROVIDED
       end if
 
       if (allocated(rule%linear_trans)) deallocate(rule%linear_trans)
