@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
 module mapl_GenericNuopcModel_mod
-   use :: NuopcMetaModel
+   use :: mapl_NuopcMetaModel_mod
    use :: mapl_GriddedComponentDriver_mod
    use esmf
    use nuopc
@@ -14,11 +14,17 @@ module mapl_GenericNuopcModel_mod
    ! Procedures
    public :: NuopcSetServices
 
+   ! This may not be necessary.
    interface mapl_NuopcModelCreate
       procedure create_model
    end interface Mapl_NuopcModelCreate
 
 contains
+
+   ! This fulfills the interface above trivially.
+   function create_model() result(model)
+      type(ESMF_GridComp) :: model
+   end function create_model
 
    recursive subroutine NuopcSetServices(model, rc)
       type(ESMF_GridComp) :: model
