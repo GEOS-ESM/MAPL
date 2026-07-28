@@ -242,6 +242,7 @@ include(mapl_create_stub_component)
 
 add_subdirectory (apps)
 add_subdirectory (tests)
+add_subdirectory (nuopc)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
 esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
