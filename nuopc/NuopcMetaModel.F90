@@ -5,11 +5,14 @@ module mapl_NuopcMetaModel_mod
    use esmf
    use nuopc
    use mapl_MethodPhasesMap_mod
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use mapl_InnerMetaComponent_mod
    implicit none(type,external)
    private
 
    public :: NuopcMetaModel
-   public :: make_model
+   public :: attach_meta_model
+   public :: get_meta_model
 
    type NuopcMetaModel
       private
@@ -21,44 +24,50 @@ module mapl_NuopcMetaModel_mod
       type(MethodPhasesMap)                       :: user_phases_map
    contains
       procedure :: init
-      procedure :: setServices
+      procedure :: setServices => setServices_
       procedure :: get_phases
       ! Init phases
       !------------
       ! label_Advertise
       procedure :: advertise
-      procedure :: advertise_geom_a !wdb fixme deleteme missing
-      procedure :: advertise_geom_b !wdb fixme deleteme missing
+      procedure :: advertise_geom_a
+      procedure :: advertise_geom_b
       procedure :: advertise_variable
       !label_ModifyAdvertise
       procedure :: modify_advertise
       !label_RealizeAccept
-      procedure :: realize_accept !wdb fixme deleteme missing
+      procedure :: realize_accept
       !label_RealizeProvided
-      procedure :: realize_provided !wdb fixme deleteme missing
+      procedure :: realize_provided
       ! label_DataInitialize
       procedure :: data_initialize
       procedure :: read_restart
-      procedure :: user_initialize !wdb fixme deleteme missing
+      procedure :: user_initialize
 
       ! Run phases
       !------------
       ! label_Advance
       procedure :: advance
       ! label_WriteRestart
-      procedure :: write_restart !wdb fixme deleteme missing
+      procedure :: write_restart
       ! label_AdvanceClock
       procedure :: advance_clock
 
       ! Finalize phases
       !----------------
       ! label_Finalize
-      procedure :: finalize !wdb fixme deleteme missing
+      procedure :: finalize
    end type NuopcMetaModel
 
    interface NuopcMetaModel
       module procedure :: construct_meta_model
    end interface NuopcMetaModel
+
+   interface get_meta_model
+      module procedure :: get_meta_model_from_generic_model
+   end interface get_meta_model
+
+   character(len=*), parameter :: META_MODEL_PRIVATE_STATE = "MAPL::NuopcMetaModel::private"
 
 contains
 
@@ -71,30 +80,44 @@ contains
       
       meta_model%self_model = model
       meta_model%user_gc_driver = user_gc_driver
-      meta_model%user_setservices = user_setservices
+      allocate(meta_model%user_setServices, source=user_setServices)
       meta_model%hconfig = hconfig
+      call initialize_phases_map(meta_model%user_phases_map)
 
    end function construct_meta_model
 
    !wdb fixme deleteme To be implemented
    subroutine init(this, rc)
-      type(NuopcMetaModel), intent(inout) :: this
+      class(NuopcMetaModel), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
+      character(len=:), allocatable :: user_gc_name
 
+      user_gc_name = this%user_gc_driver%get_name(_RC)
+      !wdb fixme deleteme Do we set the registry?
+      !wdb fixme deleteme Do we set the logger?
       _RETURN(_SUCCESS)
 
    end subroutine init
 
    !wdb fixme deleteme To be implemented
-   subroutine setServices(this, rc)
-      type(NuopcMetaModel), intent(inout) :: this
+   subroutine setServices_(this, rc)
+      class(NuopcMetaModel), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
-      
+      character(len=:), allocatable :: user_name
+      type(ESMF_GridComp) :: user_gridcomp
+
+      user_name = this%user_gc_driver%get_name()
+      user_gridcomp = this%user_gc_driver%get_gridcomp()
+      call attach_inner_meta(user_gridcomp, this%self_model, _RC)
+      call this%user_setservices%run(user_gridcomp, _RC)
+      !wdb fixme deleteme Need to parse hconfig to get component_spec, but no registry. Need component_spec for other procedures
+      ! this%component_spec = parse_component_spec(this%hconfig, this%registry, user_name, _RC)
+
       _RETURN(_SUCCESS)
 
-   end subroutine setServices
+   end subroutine setServices_
 
    subroutine advertise(this, unusable, rc)
       class(NuopcMetaModel), intent(inout) ::  this
@@ -158,6 +181,7 @@ contains
 
    end subroutine advertise_variable
    
+   !wdb fixme deleteme Not implemented
    subroutine modify_advertise(this, unusable, rc)
       class(NuopcMetaModel), intent(inout) ::  this
       class(KeywordEnforcer), optional, intent(out) :: unusable
@@ -284,6 +308,9 @@ contains
    
 
    subroutine advance_clock(this, unusable, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(out) :: rc
       integer :: status
       type(GriddedComponentDriverMapIterator) :: iter
       type(GriddedComponentDriver), pointer :: child
@@ -332,5 +359,115 @@ contains
       phases => this%user_phases_map%of(method_flag)
 
    end function get_phases
+
+   subroutine attach_meta_model(model, rc)
+      class(ESMF_GridComp), intent(inout) :: model
+      integer, optional, intent(out) :: rc
+      integer :: status
+      
+      _SET_NAMED_PRIVATE_STATE(model, NuopcMetaModel, META_MODEL_PRIVATE_STATE)
+      _RETURN(_SUCCESS)
+
+   end subroutine attach_meta_model
+
+   function get_meta_model_from_generic_model(model, rc) result(ptr)
+      class(NuopcMetaModel), pointer :: ptr
+      type(esmf_GridComp), intent(inout) :: model
+      integer, optional, intent(out) :: rc
+      integer :: status
+      
+      _GET_NAMED_PRIVATE_STATE(model, NuopcMetaModel, META_MODEL_PRIVATE_STATE, ptr)
+      _RETURN(_SUCCESS)
+
+   end function get_meta_model_from_generic_model
+
+   !wdb fixme deleteme Not implemented
+   subroutine advertise_geom_a(this, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+
+   end subroutine advertise_geom_a
+
+   !wdb fixme deleteme Not implemented
+   subroutine advertise_geom_b(this, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+
+   end subroutine advertise_geom_b
+
+   !wdb fixme deleteme Not implemented
+   subroutine recurse(meta_model, phase_idx, rc)
+      class(NuopcMetaModel), target, intent(inout) :: meta_model
+      integer, intent(in) :: phase_idx
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+
+   end subroutine recurse
+
+   !wdb fixme deleteme Not implemented
+   subroutine realize_accept(this, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+
+   end subroutine realize_accept
+
+   !wdb fixme deleteme Not implemented
+   subroutine realize_provided(this, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+
+   end subroutine realize_provided
+
+   !wdb fixme deleteme Not implemented
+   subroutine user_initialize(this, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+
+   end subroutine user_initialize
+
+   !wdb fixme deleteme Not implemented
+   subroutine write_restart(this, importState, exportState, clock, unusable, rc)
+      class(NuopcMetaModel), target, intent(inout) :: this
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(esmf_Clock) :: clock
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(out) :: rc
+      integer :: status
+      
+      _RETURN(_SUCCESS)
+
+   end subroutine write_restart
+
+   !wdb fixme deleteme Not implemented
+   subroutine finalize(this, importState, exportState, clock, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      integer :: state
+      
+      _RETURN(_SUCCESS)
+
+   end subroutine finalize
 
 end module mapl_NuopcMetaModel
