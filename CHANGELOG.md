@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Simplified the `CMakeLists.txt` ESMF handling: `ESMA_cmake` now creates the NetCDF/HDF5/ESMF/MPI targets and enforces a minimum ESMF version for both Baselibs and Spack builds automatically, so the manual `if (NOT Baselibs_FOUND) ... else () ... endif ()` block is no longer needed. MAPL3's stricter ESMF >= 9.0.0 requirement is now expressed by setting `ESMA_ESMF_MIN_VERSION` before `include(esma)`.
+  - Update `components.yaml`
+    - ESMA_cmake v4.43.0
+      - Split dependency-target creation (NetCDF, HDF5, ESMF, FMS, etc.) out of `FindBaselibs.cmake` into `ConfigureBaselibs.cmake` and `ConfigureExternalLibraries.cmake`; `esma.cmake` now `include()`s the appropriate one automatically based on `Baselibs_FOUND`
+      - Guard the historical `ZLIB::zlib` alias creation with `if(NOT TARGET ZLIB::zlib)`
+      - Only look for FMS via `find_package` when `FV_PRECISION` is defined, so projects like MAPL that don't use FMS no longer require it
+      - Added an `ESMA_ESMF_MIN_VERSION` variable, settable before `include(esma)`, to control the minimum ESMF version enforced for both Baselibs and Spack builds (defaults to `8.6.1`)
+
 - `Regrid_Util.x` now uses the fargparse library for command line argument parsing instead
   of raw Fortran intrinsics. Multi-character options that previously used a single-dash prefix
   (e.g. `-ogrid`, `-nx`, `-ny`, `-method`, `-tp_in`, `-tp_out`, `-lon_range`, `-lat_range`,

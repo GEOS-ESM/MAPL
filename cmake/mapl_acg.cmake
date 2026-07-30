@@ -79,10 +79,10 @@ function (mapl_acg target specs_file)
 
   endforeach ()
 
-  if (DEFINED MAPL_BASE_DIR)
-    set (_generator_dir ${MAPL_BASE_DIR}/etc)
-  else ()
+  if (MAPL_STANDALONE OR NOT DEFINED MAPL_BASE_DIR)
     set (_generator_dir ${esma_etc}/MAPL)
+  else ()
+    set (_generator_dir ${MAPL_BASE_DIR}/etc)
   endif ()
 
   # NOTE: ACG changes significantly in MAPL 3. Downstream users do not need to

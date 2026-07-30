@@ -58,7 +58,10 @@ esma_add_library(${this}
   TYPE SHARED
   )
 
-add_subdirectory(specs)
+# Do not name this binary directory "specs". With the Spack Intel toolchain,
+# ifort's GCC probe fails from this directory when ./specs exists, surfacing as
+# the misleading ifort #10417 compiler-environment error.
+add_subdirectory(specs generic_specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(transforms)
