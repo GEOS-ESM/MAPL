@@ -8,5 +8,6 @@ private
   integer, parameter, public    :: PRIMARY_TYPE_VECTOR_COMP2 = 3
   integer, parameter, public    :: DERIVED_TYPE      = 4
   character(len=14), parameter, public :: FILE_NOT_FOUND = "file_not_found"
+  character(len=19), parameter, public :: SAMPLE_NOT_PROVIDED = "sample_not_provided"
 
 end module mapl_ExtDataConstants_mod

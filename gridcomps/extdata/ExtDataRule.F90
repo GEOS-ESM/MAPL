@@ -4,6 +4,7 @@ module mapl_ExtDataRule_mod
    use MAPL
    use mapl_ExtDataSample_mod
    use mapl_ExtDataSampleMap_mod
+   use mapl_ExtDataConstants_mod
    use gFTL2_StringVector
    implicit none
    private
@@ -11,7 +12,6 @@ module mapl_ExtDataRule_mod
    type, public :: ExtDataRule
       type(ESMF_Time), allocatable :: start_time
       character(:), allocatable :: collection
-      !character(:), allocatable :: file_var
       type(StringVector) :: file_vars
       character(:), allocatable :: sample_key
       real, allocatable :: linear_trans(:)
@@ -84,7 +84,7 @@ contains
             rule%sample_key=ESMF_HConfigAsString(config1,_RC)
          end if
       else
-         rule%sample_key = ""
+         rule%sample_key = SAMPLE_NOT_PROVIDED
       end if
 
       if (allocated(rule%linear_trans)) deallocate(rule%linear_trans)
