@@ -28,12 +28,17 @@ contains
    
    recursive module subroutine SetServices_(this, rc)
       use mapl_Generic_api, only: mapl_GenericSetServices
+      use mapl_ComponentSpecParser_mod, only: parse_setservices
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, intent(out) :: rc
 
       integer :: status
       type(ESMF_GridComp) :: user_gridcomp
       class(logger_t), pointer :: logger
+
+      if (.not. allocated(this%user_setservices)) then
+         this%user_setservices = parse_setservices(this%hconfig, _RC)
+      end if
 
       ! Note that Parent component should set timestep and offset in outer meta before calling SetServices.
       this%component_spec = parse_component_spec(this%hconfig, this%registry, this%user_gc_driver%get_name(), _RC)

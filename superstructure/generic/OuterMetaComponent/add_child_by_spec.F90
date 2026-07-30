@@ -3,7 +3,7 @@
 submodule (mapl_OuterMetaComponent_mod) add_child_by_spec_smod
 
    use mapl_ComponentSpecParser_mod
-   use mapl_Generic_api, only: MAPL_GridCompCreate
+
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
    use mapl_Validation_mod
@@ -34,7 +34,10 @@ contains
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
 
       total_hconfig = merge_hconfig(this%hconfig, child_spec%hconfig, _RC)
-      child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, _RC)
+      child_outer_gc = ESMF_GridCompCreate(name=child_name, config=total_hconfig, _RC)
+      if (allocated(child_spec%user_setservices)) then
+         call attach_outer_meta(child_outer_gc, child_spec%user_setservices, _RC)
+      end if
 
       ! Meta stuff
       child_meta => get_outer_meta(child_outer_gc, _RC)

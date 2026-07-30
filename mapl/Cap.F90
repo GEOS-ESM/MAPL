@@ -290,12 +290,23 @@ contains
       integer, optional, intent(out) :: rc
 
       type(esmf_GridComp) :: cap_gridcomp
+      type(esmf_HConfig) :: cap_hconfig
       integer :: status, user_status
       integer, allocatable :: petList(:)
 
+      type(esmf_HConfig) :: cap_hconfig, mapl_cfg, dso_cfg
+
       petList = get_model_pets(options%is_model_pet, _RC)
 
-      cap_gridcomp = mapl_GridCompCreate(options%name, user_setservices('libMAPL.cap', 'setservices_'), hconfig, petList=petList, _RC)
+      cap_hconfig = ESMF_HConfigCreate(hconfig, _RC)
+      if (.not. ESMF_HConfigIsDefined(cap_hconfig, keyString='mapl', _RC)) then
+         mapl_cfg = ESMF_HConfigCreate(content='{}', _RC)
+         dso_cfg = ESMF_HConfigCreate(content='{sharedObj: "libMAPL.cap", userRoutine: "setservices_"}', _RC)
+         call ESMF_HConfigAdd(mapl_cfg, dso_cfg, addKeyString='dso', _RC)
+         call ESMF_HConfigAdd(cap_hconfig, mapl_cfg, addKeyString='mapl', _RC)
+      end if
+
+      cap_gridcomp = ESMF_GridCompCreate(name=options%name, config=cap_hconfig, petList=petList, _RC)
       call esmf_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, _USERRC)
 
       driver = MAPL_GriddedComponentDriver(cap_gridcomp, clock=clock)

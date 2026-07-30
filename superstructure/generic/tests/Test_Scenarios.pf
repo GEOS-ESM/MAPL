@@ -7,11 +7,7 @@ module Test_Scenarios
    use mapl_MultiState_mod
    use mapl_OuterMetaComponent_mod
    use mapl_GriddedComponentDriver_mod
-   use mapl_Generic_api, only: mapl_GridCompCreate, &
-                               mapl_GenericSetServices !, &
-                               !mapl_GridCompSetEntryPoint, &
-                               !mapl_GridCompGeta, &
-                               !mapl_GridcompGetResource
+   use mapl_Generic_api, only: mapl_GenericSetServices
    use mapl_UserSetServices_mod
    use mapl_ESMF_Utilities_mod
    use mapl_geom_api, only: mapl_GeomGet
@@ -185,7 +181,10 @@ contains
         call ESMF_TimeIntervalSet(dt, h=1)
         clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
 
-        outer_gc = MAPL_GridCompCreate('ROOT', user_setservices('libconfigurable_gridcomp'), config, _RC)
+        if (.not. ESMF_HConfigIsDefined(config, keyString='mapl', _RC)) then
+           call ESMF_HConfigAdd(config, ESMF_HConfigCreate(content='{dso: {sharedObj: "libconfigurable_gridcomp", userRoutine: "setservices_"}}', _RC), addKeyString='mapl', _RC)
+        end if
+        outer_gc = ESMF_GridCompCreate(name='ROOT', config=config, _RC)
         call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetservices, userRC=user_status, _RC)
         _VERIFY(user_status)
 

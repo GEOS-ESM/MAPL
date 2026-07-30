@@ -5,7 +5,7 @@ module Test_ConfigurableGridComp
    use mapl_GenericPhases_mod
    use mapl_Generic_api, only: MAPL_GridCompSetGeom, MAPL_GridCompSetVerticalGrid
    use mapl_UserSetServices_mod
-   use mapl_Generic_api, only: MAPL_GridCompCreate
+
    use mapl_Generic_api, only: mapl_GenericSetServices
    use mapl_GriddedComponentDriver_mod
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
@@ -48,7 +48,10 @@ contains
       call ESMF_TimeIntervalSet(dt, h=1)
       clock = ESMF_ClockCreate(dt, t)
 
-      outer_gc = MAPL_GridCompCreate('P', user_setservices('libconfigurable_gridcomp'), config, _RC)
+      if (.not. ESMF_HConfigIsDefined(config, keyString='mapl', _RC)) then
+         call ESMF_HConfigAdd(config, ESMF_HConfigCreate(content='{dso: {sharedObj: "libconfigurable_gridcomp", userRoutine: "setservices_"}}', _RC), addKeyString='mapl', _RC)
+      end if
+      outer_gc = ESMF_GridCompCreate(name='P', config=config, _RC)
       call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetServices, userRC=userRC, _RC)
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)

@@ -60,7 +60,7 @@ Notable source modules and their key exported entities:
 | `mapl_VariableSpec_mod` | `VariableSpec` (type) |
 | `mapl_GenericPhases_mod` | phase constants/types |
 | `mapl_OuterMetaComponent_mod` | `OuterMetaComponent` (type) |
-| `mapl_GenericGridComp_mod` | `MAPL_GridCompCreate` |
+| `mapl_GenericGridComp_mod` | `GenericSetServices` |
 | `mapl_BasicVerticalGrid_mod` | `BasicVerticalGrid`, `BasicVerticalGridSpec`, `BasicVerticalGridFactory` |
 | `mapl_ModelVerticalGrid_mod` | `ModelVerticalGrid`, `ModelVerticalGridFactory` |
 | `mapl_ComponentDriver_mod` | `ComponentDriver` (type) |

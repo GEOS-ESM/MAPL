@@ -6,13 +6,13 @@ module Test_timestep_propagation
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
    use mapl_GenericPhases_mod
-   use mapl_Generic_api, only: mapl_GridCompCreate, &
-                               mapl_GenericSetServices, &
+   use mapl_Generic_api, only: mapl_GenericSetServices, &
                                mapl_GridCompSetEntryPoint, &
                                mapl_GridCompGet, &
                                mapl_GridcompGetResource, &
                                mapl_GridCompAddChild, &
                                mapl_GridCompRunChild
+   use mapl_OuterMetaComponent_mod, only: attach_outer_meta
    use mapl_ComponentDriver_mod
    use mapl_GriddedComponentDriver_mod
    use mapl_UserSetServices_mod
@@ -46,7 +46,8 @@ contains
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
       cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true, use_default_runTime: true}', _RC)
 
-      cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
+      cap_gridcomp = ESMF_GridCompCreate(name='CAP', config=cap_hconfig, _RC)
+      call attach_outer_meta(cap_gridcomp, user_setservices(parent_ss), _RC)
       call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
@@ -80,7 +81,8 @@ contains
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
       cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true, use_default_runTime: true}', _RC)
 
-      cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
+      cap_gridcomp = ESMF_GridCompCreate(name='CAP', config=cap_hconfig, _RC)
+      call attach_outer_meta(cap_gridcomp, user_setservices(parent_ss), _RC)
       call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
@@ -114,7 +116,8 @@ contains
       cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: false, use_default_runTime: true}', _RC)
 
 
-      cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
+      cap_gridcomp = ESMF_GridCompCreate(name='CAP', config=cap_hconfig, _RC)
+      call attach_outer_meta(cap_gridcomp, user_setservices(parent_ss), _RC)
       call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
@@ -158,7 +161,8 @@ contains
       cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: false, use_default_runTime: false}', _RC)
 
 
-      cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
+      cap_gridcomp = ESMF_GridCompCreate(name='CAP', config=cap_hconfig, _RC)
+      call attach_outer_meta(cap_gridcomp, user_setservices(parent_ss), _RC)
       call ESMF_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, userRC=user_status, _RC)
 
       driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)

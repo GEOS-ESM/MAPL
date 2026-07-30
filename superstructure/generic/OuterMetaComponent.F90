@@ -219,8 +219,10 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end function get_outer_meta_from_outer_gc
 
-      module subroutine attach_outer_meta(gridcomp, rc)
+      module subroutine attach_outer_meta(gridcomp, user_setservices, rc)
+         use mapl_UserSetServices_mod, only: AbstractUserSetServices
          type(ESMF_GridComp), intent(inout) :: gridcomp
+         class(AbstractUserSetServices), optional, intent(in) :: user_setservices
          integer, optional, intent(out) :: rc
       end subroutine attach_outer_meta
 
