@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug that allowed ExtData2G to proceed if an invalid sampling key was provided
+
 ### Added
+
+- `field_bundle_read` can now fill an empty bundle from a file that has both edge and center 3D fields (forward port of MAPL 2.57.2 fix)
 
 ### Changed
 
@@ -376,6 +380,12 @@ make using Fortran-allocated memory transparent.
 
 - Added RC for Timer call in `MAPL_Generic.F90`
 - Adds the wall clock date and time to the GCM stdout log so we can more readily diagnose slow periods of performance during the run
+
+## [2.57.2] - 2026-07-23
+
+### Added
+
+- `field_bundle_read` can now fill an empty bundle from a file that has both edge and center 3D fields
 
 ## [2.57.1] - 2026-01-16
 
