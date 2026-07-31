@@ -210,9 +210,11 @@ contains
 
       integer :: status
       type(NuopcMetaModel), pointer :: meta_model
+      type(ESMF_Clock) :: modelClock
 
       meta_model => get_meta_model(model, _RC)
-      call meta_model%advance_clock(_RC)
+      call Nuopc_ModelGet(model, modelClock=modelClock, _RC)
+      call meta_model%advance_clock(modelClock, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine AdvanceClock
