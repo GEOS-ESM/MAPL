@@ -225,6 +225,7 @@ add_subdirectory (mp_utils)
  add_subdirectory (superstructure)
  add_subdirectory (mapl)
  add_subdirectory (gridcomps)
+ add_subdirectory (nuopc)
  if (BUILD_WITH_FARGPARSE)
     add_subdirectory (docs)
     add_subdirectory (benchmarks)
@@ -242,7 +243,6 @@ include(mapl_create_stub_component)
 
 add_subdirectory (apps)
 add_subdirectory (tests)
-add_subdirectory (nuopc)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
 esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
