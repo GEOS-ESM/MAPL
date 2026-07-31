@@ -12,17 +12,17 @@ contains
       type(ESMF_HConfig), target, intent(in) :: config
       integer, optional, intent(out) :: rc
 
-      character(*), parameter :: dso_keys(*) = [character(len=9) :: 'dso', 'DSO', 'sharedObj', 'sharedobj']
-      character(*), parameter :: userProcedure_keys(*) = [character(len=12) :: 'SetServices', 'setServices', 'setservices', 'userRoutine', 'userProcedure']
+      character(len=ESMF_MAXSTR), parameter :: dso_keys(*) = [character(len=ESMF_MAXSTR) :: 'dso', 'DSO', 'sharedObj', 'sharedobj']
+      character(len=ESMF_MAXSTR), parameter :: userProcedure_keys(*) = [character(len=ESMF_MAXSTR) :: 'SetServices', 'setServices', 'setservices', 'userRoutine', 'userProcedure']
 
       character(:), allocatable :: sharedObj, userRoutine, try_key
       type(ESMF_HConfig) :: mapl_cfg, dso_cfg
       integer :: i, status
       logical :: has_mapl, has_dso, dso_found, userProcedure_found
 
-      character(*), parameter :: ss_dict_keys(*) = [character(len=11) :: 'setServices', 'SetServices', 'setservices', 'dso', 'DSO']
-      character(*), parameter :: shared_obj_keys(*) = [character(len=9) :: 'sharedObj', 'sharedobj', 'SHAREDOBJ', 'library', 'dso', 'DSO']
-      character(*), parameter :: user_routine_keys(*) = [character(len=12) :: 'userRoutine', 'userroutine', 'USERROUTINE', 'procedure', 'setServices', 'setservices']
+      character(len=ESMF_MAXSTR), parameter :: ss_dict_keys(*) = [character(len=ESMF_MAXSTR) :: 'setServices', 'SetServices', 'setservices', 'dso', 'DSO']
+      character(len=ESMF_MAXSTR), parameter :: shared_obj_keys(*) = [character(len=ESMF_MAXSTR) :: 'sharedObj', 'sharedobj', 'SHAREDOBJ', 'library', 'dso', 'DSO']
+      character(len=ESMF_MAXSTR), parameter :: user_routine_keys(*) = [character(len=ESMF_MAXSTR) :: 'userRoutine', 'userroutine', 'USERROUTINE', 'procedure', 'setServices', 'setservices']
       character(:), allocatable :: ss_key
 
       has_mapl = ESMF_HConfigIsDefined(config, keyString='mapl', _RC)
