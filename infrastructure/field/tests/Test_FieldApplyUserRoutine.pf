@@ -2,9 +2,8 @@
 #include "unused_dummy.H"
 
 module Test_FieldApplyUserRoutine
-   use mapl_FieldApplyUserRoutine_mod, only: MAPL_FieldApplyUserRoutine => FieldApplyUserRoutine
-   use mapl_FieldApplyUserRoutine_mod, only: MAPL_FieldGetPointerToSlice => FieldGetPointerToSlice
-   use mapl_FieldApplyUserRoutine_mod, only: MAPL_FieldCreateFieldSlice => FieldCreateFieldSlice
+   use mapl_FieldApplyUserRoutine_mod, only: FieldApplyUserRoutine
+   use mapl_FieldApplyUserRoutine_mod, only: FieldGetPointerToSlice
    use mapl_UngriddedDims_mod,         only: UngriddedDims
    use mapl_FixedLevelsVerticalGrid_mod
    use mapl_VerticalStaggerLoc_mod
@@ -155,7 +154,7 @@ contains
 
       g_call_count = 0
       g_last_rank  = 0
-      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
+      call FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(1, g_call_count, 'A purely 2D field should produce exactly 1 slice invocation.')
       @assertEqual(2, g_last_rank,  'The slice of a 2D field should itself be rank-2.')
 
@@ -178,7 +177,7 @@ contains
 
       g_call_count = 0
       g_last_rank  = 0
-      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
+      call FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(4, g_call_count, 'A 3D field with ungridded extent 4 should produce 4 slice invocations.')
       @assertEqual(2, g_last_rank,  'Each slice of a 3D field should be rank-2.')
 
@@ -200,7 +199,7 @@ contains
            ungridded_dims=UngriddedDims([3, 4]), _RC)
 
       g_call_count = 0
-      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
+      call FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(12, g_call_count, 'A field with ungridded dims [3,4] should produce 12 slice invocations.')
 
       call ESMF_FieldDestroy(field, _RC)
@@ -221,7 +220,7 @@ contains
            ungridded_dims=UngriddedDims([2]), _RC)
 
       g_call_count = 0
-      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
+      call FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(2, g_call_count, 'An R8 field with ungridded extent 2 should produce 2 slice invocations.')
 
       call ESMF_FieldDestroy(field, _RC)
@@ -244,7 +243,7 @@ contains
       field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
            ungridded_dims=UngriddedDims([3]), _RC)
 
-      call MAPL_FieldGetPointerToSlice(field, 2, slice, _RC)
+      call FieldGetPointerToSlice(field, 2, slice, _RC)
       @assertTrue(associated(slice), 'Slice pointer should be associated.')
       @assertEqual([3, 2], shape(slice), 'A 2D slice should match the horizontal extents.')
       slice = 3.14_ESMF_KIND_R4
@@ -271,7 +270,7 @@ contains
       geom  = make_geom(_RC)
       field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
 
-      call MAPL_FieldGetPointerToSlice(field, 1, slice, _RC)
+      call FieldGetPointerToSlice(field, 1, slice, _RC)
       @assertTrue(associated(slice), 'Slice pointer should be associated for a field with no ungridded dim.')
       @assertEqual([3, 2], shape(slice), 'Slice shape should match the horizontal extents.')
 
@@ -294,7 +293,7 @@ contains
 
       g_call_count = 0
       userrc = 0
-      call MAPL_FieldApplyUserRoutine(field, fail_on_second, userrc=userrc, _RC)
+      call FieldApplyUserRoutine(field, fail_on_second, userrc=userrc, _RC)
       @assertEqual(USER_ERROR, userrc,       'User return code should be propagated.')
       @assertEqual(FAIL_SLICE, g_call_count, 'Iteration should stop at the failing slice.')
 
@@ -314,7 +313,7 @@ contains
 
       g_call_count = 0
       g_last_rank  = 0
-      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
+      call FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(4, g_call_count, 'A 4D field with ungridded extent 4 should have 4 slices.')
       @assertEqual(3, g_last_rank,  'Each slice of a 4D field should be a 3D field.')
 
@@ -333,7 +332,7 @@ contains
 
       g_call_count = 0
       g_last_rank  = 0
-      call MAPL_FieldApplyUserRoutine(field, count_slices, _RC)
+      call FieldApplyUserRoutine(field, count_slices, _RC)
       @assertEqual(2, g_call_count, 'An R8 4D field with ungridded extent 2 should have 2 slices.')
       @assertEqual(3, g_last_rank,  'Each slice of a 4D field should be a 3D field.')
 
@@ -353,7 +352,7 @@ contains
 
       field = make_vertical_field(ESMF_TYPEKIND_R4, UngriddedDims([3]), num_layers=5, _RC)
 
-      call MAPL_FieldGetPointerToSlice(field, 2, slice, _RC)
+      call FieldGetPointerToSlice(field, 2, slice, _RC)
       @assertTrue(associated(slice), 'Slice pointer should be associated.')
       @assertEqual([3, 2, 5], shape(slice), 'A 3D slice should retain horizontal and vertical extents.')
       slice = 3.14_ESMF_KIND_R4
