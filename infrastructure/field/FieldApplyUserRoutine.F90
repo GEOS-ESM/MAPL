@@ -375,13 +375,12 @@ contains
       type(ESMF_TypeKind_Flag) :: typekind
       type(ungriddedDims) :: ungridded_dims
       integer :: k, n_slices, status, user_status
-      integer :: ungrid_num, slice_rank
+      integer :: ungrid_num
 
-      ! Native array pointers used only to determine n_slices.
-      real(kind=ESMF_KIND_R4), pointer :: fptr3d_r4(:,:,:)
-      real(kind=ESMF_KIND_R8), pointer :: fptr3d_r8(:,:,:)
-      real(kind=ESMF_KIND_R4), pointer :: fptr4d_r4(:,:,:,:)
-      real(kind=ESMF_KIND_R8), pointer :: fptr4d_r8(:,:,:,:)
+      ! Condensed array pointer (rank-3: gridded_product, vertical_or_1, ungridded_flat)
+      ! to derive n_slices directly from the ungridded dimension.
+      real(kind=ESMF_KIND_R4), pointer :: fptr_condensed_r4(:,:,:)
+      real(kind=ESMF_KIND_R8), pointer :: fptr_condensed_r8(:,:,:)
 
       if (present(userrc)) userrc = 0
       user_status = 0
@@ -395,45 +394,17 @@ contains
 
       _ASSERT(ungrid_num <= MAX_UNGRIDDED_DIMS, 'FieldApplyUserRoutine: ungrid_num > MAX_UNGRIDDED_DIMS is not supported.')
 
-      if (ungrid_num == 0) then
-         n_slices = 1
+      ! Derive n_slices from the condensed array's 3rd dimension.
+      ! The condensed array view is always (gridded_product, vertical_or_1, ungridded_flat),
+      ! so the 3rd dimension directly gives us the number of ungridded slices.
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call assign_fptr_condensed_array(field, fptr_condensed_r4, _RC)
+         n_slices = size(fptr_condensed_r4, 3)
+      else if (typekind == ESMF_TYPEKIND_R8) then
+         call assign_fptr_condensed_array(field, fptr_condensed_r8, _RC)
+         n_slices = size(fptr_condensed_r8, 3)
       else
-         ! Use condensed_slice_rank to resolve vertical-vs-second-ungridded
-         ! ambiguity before computing n_slices from native array dimensions.
-         slice_rank = condensed_slice_rank(field, _RC)
-
-         if (typekind == ESMF_TYPEKIND_R4) then
-            if (slice_rank == 3) then
-               ! Layout: (horiz_x, horiz_y, vertical, ungrid1)
-               ! Last dim is the sole ungridded dim.
-               call ESMF_FieldGet(field, farrayPtr=fptr4d_r4, _RC)
-               n_slices = size(fptr4d_r4, 4)
-            else if (ungrid_num == 1) then
-               ! Layout: (horiz_x, horiz_y, ungrid1)
-               call ESMF_FieldGet(field, farrayPtr=fptr3d_r4, _RC)
-               n_slices = size(fptr3d_r4, 3)
-            else
-               ! Layout: (horiz_x, horiz_y, ungrid1, ungrid2)
-               call ESMF_FieldGet(field, farrayPtr=fptr4d_r4, _RC)
-               n_slices = size(fptr4d_r4, 3) * size(fptr4d_r4, 4)
-            end if
-         else if (typekind == ESMF_TYPEKIND_R8) then
-            if (slice_rank == 3) then
-               ! Layout: (horiz_x, horiz_y, vertical, ungrid1)
-               call ESMF_FieldGet(field, farrayPtr=fptr4d_r8, _RC)
-               n_slices = size(fptr4d_r8, 4)
-            else if (ungrid_num == 1) then
-               ! Layout: (horiz_x, horiz_y, ungrid1)
-               call ESMF_FieldGet(field, farrayPtr=fptr3d_r8, _RC)
-               n_slices = size(fptr3d_r8, 3)
-            else
-               ! Layout: (horiz_x, horiz_y, ungrid1, ungrid2)
-               call ESMF_FieldGet(field, farrayPtr=fptr4d_r8, _RC)
-               n_slices = size(fptr4d_r8, 3) * size(fptr4d_r8, 4)
-            end if
-         else
-            _FAIL('FieldApplyUserRoutine: unsupported typekind (expected R4 or R8).')
-         end if
+         _FAIL('FieldApplyUserRoutine: unsupported typekind (expected R4 or R8).')
       end if
 
       do k = 1, n_slices
