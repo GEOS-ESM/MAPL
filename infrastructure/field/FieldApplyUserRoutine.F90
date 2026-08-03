@@ -373,9 +373,7 @@ contains
       type(ESMF_Field) :: slice_field
       type(ESMF_FieldStatus_Flag) :: field_status
       type(ESMF_TypeKind_Flag) :: typekind
-      type(ungriddedDims) :: ungridded_dims
       integer :: k, n_slices, status, user_status
-      integer :: ungrid_num
 
       ! Condensed array pointer (rank-3: gridded_product, vertical_or_1, ungridded_flat)
       ! to derive n_slices directly from the ungridded dimension.
@@ -389,10 +387,6 @@ contains
       _RETURN_UNLESS(field_status == ESMF_FIELDSTATUS_COMPLETE)
 
       call ESMF_FieldGet(field, typekind=typekind, _RC)
-      call mapl_FieldGet(field, ungridded_dims=ungridded_dims, _RC)
-      ungrid_num = ungridded_dims%get_num_ungridded()
-
-      _ASSERT(ungrid_num <= MAX_UNGRIDDED_DIMS, 'FieldApplyUserRoutine: ungrid_num > MAX_UNGRIDDED_DIMS is not supported.')
 
       ! Derive n_slices from the condensed array's 3rd dimension.
       ! The condensed array view is always (gridded_product, vertical_or_1, ungridded_flat),
