@@ -60,10 +60,10 @@ contains
          allocate(source_years(2))
          call ESMF_TimeGet(source_time(1),yy=source_years(1),_RC)
          call ESMF_TimeGet(source_time(2),yy=source_years(2),_RC)
-         _ASSERT(source_time(1) >= this%valid_range(1),'source time outside valid range')
-         _ASSERT(source_time(1) <=  this%valid_range(2),'source time outside valid range')
-         _ASSERT(source_time(2) >=  this%valid_range(1),'source time outside valid range')
-         _ASSERT(source_time(2) <= this%valid_range(2),'source time outside valid range')
+         _ASSERT(source_years(1) >= valid_years(1),'source time year outside valid range')
+         _ASSERT(source_years(1) <= valid_years(2),'source time year outside valid range')
+         _ASSERT(source_years(2) >= valid_years(1),'source time year outside valid range')
+         _ASSERT(source_years(2) <= valid_years(2),'source time year outside valid range')
       end if
 
       ! shift target year to request source time if specified

@@ -57,13 +57,14 @@ module MAPL_ExtDataOldTypesCreator
       end subroutine new_ExtDataOldTypesCreator
 
 
-   subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,unusable,rc)
+   subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,run_range,unusable,rc)
       class(ExtDataOldTypesCreator), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       character(len=*), intent(in) :: base_name
       type(PrimaryExport), intent(inout) :: primary_item
       type(ESMF_Time), intent(inout) :: time
       type(ESMF_Clock), intent(inout) :: clock
+      type(ESMF_Time), intent(in) :: run_range(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -74,7 +75,7 @@ module MAPL_ExtDataOldTypesCreator
       type(ExtDataSimpleFileHandler) :: simple_handler
       type(ExtDataClimFileHandler) :: clim_handler
       integer :: status, semi_pos
-      logical :: disable_interpolation, get_range, exact
+      logical :: disable_interpolation, get_range, exact, user_set_range
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
@@ -147,9 +148,25 @@ module MAPL_ExtDataOldTypesCreator
            _FAIL("ExtData problem with collection "//TRIM(rule%collection))
          end if
 
-         primary_item%file_template = dataset%file_template
-         get_range = trim(time_sample%extrap_outside) /= "none"
-         call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,_RC)
+          primary_item%file_template = dataset%file_template
+          get_range = trim(time_sample%extrap_outside) /= "none"
+          user_set_range = allocated(dataset%valid_range)
+          call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,_RC)
+          if (user_set_range .and. index(dataset%file_template,'%') /= 0) then
+             if (trim(time_sample%extrap_outside) == "persist_closest") then
+                call dataset%refine_valid_range(_RC)
+                ! Intersect the on-disk range with the model run period so that
+                ! persist_closest does not require files outside the actual run
+                ! window to be present.
+                if (dataset%valid_range(1) <= run_range(2) .and. dataset%valid_range(2) >= run_range(1)) then
+                   if (dataset%valid_range(1) < run_range(1)) dataset%valid_range(1) = run_range(1)
+                   if (dataset%valid_range(2) > run_range(2)) dataset%valid_range(2) = run_range(2)
+                end if
+             else if (trim(time_sample%extrap_outside) == "clim") then
+                call dataset%refine_valid_range(_RC)
+                ! No run-period intersection for clim — year-wrapping uses the full range
+             end if
+          end if
       else
          primary_item%file_template = rule%collection
       end if

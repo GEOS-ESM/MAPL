@@ -354,6 +354,8 @@ CONTAINS
       _FAIL("Unsatisfied imports in ExtData")
    end if
 
+   call ESMF_ClockGet(clock, currtime=run_range(1), stoptime=run_range(2), _RC)
+
    num_primary=0
    num_derived=0
    do i=1,self%primary%import_names%size()
@@ -370,7 +372,7 @@ CONTAINS
             num_primary=num_primary+1
             write(sidx,'(I1)')j
             allocate(temp_item)
-            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,temp_item,time,clock,rc=status)
+            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,temp_item,time,clock,run_range,rc=status)
             _ASSERT(status==0, "ExtData multi-rule problem with BASE NAME "//TRIM(current_base_name))
             allocate(temp_item%start_end_time(2))
             temp_item%start_end_time(1)=time_ranges(j)
@@ -381,7 +383,7 @@ CONTAINS
       else
          num_primary=num_primary+1
          allocate(temp_item)
-         call config_yaml%fillin_primary(current_base_name,current_base_name,temp_item,time,clock,_RC)
+          call config_yaml%fillin_primary(current_base_name,current_base_name,temp_item,time,clock,run_range,_RC)
          call self%primary%item_vec%push_back(temp_item)
          deallocate(temp_item)
          _ASSERT(status==0, "ExtData single-rule problem with BASE NAME "//TRIM(current_base_name))
@@ -399,7 +401,6 @@ CONTAINS
       end if
    enddo
 
-   call ESMF_ClockGet(clock, currtime=run_range(1), stoptime=run_range(2), _RC)
 !  now lets establish the horizonal and vertical grid for each component, replaces getlevs
    do i=1,self%primary%import_names%size()
 
