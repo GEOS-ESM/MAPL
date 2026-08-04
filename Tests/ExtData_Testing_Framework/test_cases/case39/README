@@ -1,4 +1,5 @@
-persist_closest with wide valid_range and partial on-disk data. Only 2005 monthly files
-exist on disk; valid_range covers 2004-2006. refine_valid_range narrows to the actual
-on-disk files and intersects with the run period so that the run (20050615) succeeds
-without requiring files outside the run window to be present.
+persist_closest with valid_range matching the 2005 on-disk monthly files. The model
+run (pass 2) requests 20080615, which is outside valid_range end (2005-12-31).
+check_data_availability verifies files exist and passes (found_any is sufficient for
+persist_closest outside valid_range). At runtime, ExtData clamps to valid_range(2) and
+persists the Dec 15 2005 value (day 348 since 20050101).

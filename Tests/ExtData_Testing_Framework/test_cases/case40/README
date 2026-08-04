@@ -1,5 +1,5 @@
-clim extrapolation with a wide valid_range spanning 2005-2009, but only 2007 monthly
-files exist on disk. refine_valid_range (called for clim via Option B) narrows the
-valid_range to the actual 2007 file timestamps. The model run requests 02/29/2008
-(leap day), which year-wraps to 2007 and interpolates between Feb 15 and Mar 15 2007.
-No source_time is configured; the clim handler uses valid_years to anchor year-wrapping.
+clim extrapolation with valid_range covering exactly the on-disk data year (2007).
+Only 2007 monthly files exist on disk. The model run requests 02/29/2008 (leap day),
+which is outside valid_range. check_data_availability verifies the 2007 files span
+a full annual cycle (Jan-Dec) then passes. Year-wrapping maps Feb 29 2008 to Feb 2007
+and interpolates between Feb 15 and Mar 15 2007.
