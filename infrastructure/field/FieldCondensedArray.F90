@@ -1,6 +1,6 @@
 #include "MAPL.h"
 module mapl_FieldCondensedArray_mod
-   use mapl_FieldCondensedArray_private_mod, only: ARRAY_RANK, get_fptr_shape_private
+   use mapl_FieldCondensedArray_private_mod, only: CONDENSED_RANK, get_fptr_shape_private
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount, assign_fptr
    use mapl_VerticalStaggerLoc_mod
    use mapl_ErrorHandling_mod
@@ -25,7 +25,7 @@ contains
       type(ESMF_Field), intent(inout) :: x
       real(kind=ESMF_KIND_R4), pointer, intent(out) :: fptr(:,:,:)
       integer, optional, intent(out) :: rc
-      integer(ESMF_KIND_I8) :: fp_shape(ARRAY_RANK)
+      integer(ESMF_KIND_I8) :: fp_shape(CONDENSED_RANK)
       integer :: status
 
       fp_shape = get_fptr_shape(x, _RC)
@@ -38,7 +38,7 @@ contains
       type(ESMF_Field), intent(inout) :: x
       real(kind=ESMF_KIND_R8), pointer, intent(out) :: fptr(:,:,:)
       integer, optional, intent(out) :: rc
-      integer(ESMF_KIND_I8) :: fp_shape(ARRAY_RANK)
+      integer(ESMF_KIND_I8) :: fp_shape(CONDENSED_RANK)
       integer :: status
 
       fp_shape = get_fptr_shape(x, _RC)
@@ -81,7 +81,7 @@ contains
    end function condensed_slice_rank
 
    function get_fptr_shape(f, rc) result(fptr_shape)
-      integer :: fptr_shape(ARRAY_RANK)
+      integer :: fptr_shape(CONDENSED_RANK)
       type(ESMF_Field), intent(inout) :: f
       integer, optional, intent(out) :: rc
       integer :: status
