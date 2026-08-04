@@ -684,7 +684,7 @@ contains
       skip_key_exists = ESMF_HConfigIsDefined(hconfig, keyString='skip_restart_write', _RC)
       if (skip_key_exists) then
          skip_restart_write = ESMF_HConfigAsLogical(hconfig, keyString='skip_restart_write', _RC)
-         if (skip_restart_write) _RETURN(_SUCCESS)
+         _RETURN_IF(skip_restart_write)
       end if
 
       call ESMF_ClockGet(clock, currTime=currTime, repeatCount=repeatCount, _RC)
