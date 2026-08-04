@@ -19,10 +19,12 @@ module MAPL_ExtDataFileStream
       type(ESMF_Time) :: reff_time
       integer :: collection_id
       type(ESMF_Time), allocatable :: valid_range(:)
+      type(ESMF_Time), allocatable :: on_disk_range(:)  ! set by check_data_availability; actual first/last file timestamps
       type(FileMetaData) :: metadata
       contains
          procedure :: detect_metadata
-         procedure :: refine_valid_range
+         procedure :: check_data_availability
+         procedure, private :: refine_valid_range
    end type
 
     interface ExtDataFileStream
@@ -194,18 +196,25 @@ contains
 
    end subroutine detect_metadata
 
-   ! Given a guess for the valid range of a file series, narrow it to the
-   ! actual first and last file times found on the filesystem.  The file
-   ! series is defined by reff_time + n * frequency for any integer n, and
-   ! files are assumed to form a single contiguous block within the range.
+   ! Given a guess for the valid range of a file series, find the actual
+   ! first and last file times on the filesystem.  The file series is
+   ! defined by reff_time + n * frequency for any integer n, and files are
+   ! assumed to form a single contiguous block within the range.
+   !
+   ! Returns on_disk_first and on_disk_last (timestamps from inside the
+   ! first and last files found), and found_any=.false. if no files exist.
+   ! valid_range on this is never modified.
    !
    ! Algorithm: probe midpoint then right-quarter point as anchor (O(1));
    ! if both miss, fall back to a linear scan from n_lo.  Once an anchor
    ! (any confirmed file position) is established, binary search on each
    ! monotone half gives O(log N) total filesystem probes for the common
    ! case, with linear fallback only for unusual narrow-block situations.
-   subroutine refine_valid_range(this, unusable, rc)
-      class(ExtDataFileStream), intent(inout) :: this
+   subroutine refine_valid_range(this, on_disk_first, on_disk_last, found_any, unusable, rc)
+      class(ExtDataFileStream), intent(in)    :: this
+      type(ESMF_Time),          intent(out)   :: on_disk_first
+      type(ESMF_Time),          intent(out)   :: on_disk_last
+      logical,                  intent(out)   :: found_any
       class(KeywordEnforcer),   optional, intent(in)  :: unusable
       integer,                  optional, intent(out) :: rc
 
@@ -220,6 +229,8 @@ contains
       type(FileMetadataUtils),   pointer :: file_metadata
 
       _UNUSED_DUMMY(unusable)
+
+      found_any = .false.
 
       ! Determine if interval is absolute (representable in seconds) or
       ! relative (months/years).  Follows the same idiom as get_file in
@@ -304,12 +315,13 @@ contains
                exit
             end if
          end do
-         if (.not.file_found) then
+         if (.not. file_found) then
+            ! No files found anywhere in valid_range — return found_any=.false.
             _RETURN(_SUCCESS)
          end if
-         !_ASSERT(file_found, "no files found in guess valid range for: "//trim(this%file_template))
          n_anchor = n_first
       end if
+
       ! === Phase 2: Binary search for n_first in [n_lo, n_anchor] ===
       ! n_anchor is confirmed to have a file; range is monotone 0...01...1.
       lo = n_lo
@@ -344,26 +356,170 @@ contains
       end do
       n_last = lo
 
-      ! Refine valid_range(1): open the first file and take its earliest time.
+      ! Open the first file and read its earliest internal timestamp.
       collection => DataCollections%at(this%collection_id)
 
       t_mid = this%reff_time + n_first * this%frequency
       call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
       file_metadata => collection%find(trim(filename), _RC)
       call file_metadata%get_time_info(timeVector=time_series, _RC)
-      this%valid_range(1) = time_series(1)
+      on_disk_first = time_series(1)
       deallocate(time_series)
 
-      ! Refine valid_range(2): open the last file and take its latest time.
+      ! Open the last file and read its latest internal timestamp.
       t_mid = this%reff_time + n_last * this%frequency
       call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
       file_metadata => collection%find(trim(filename), _RC)
       call file_metadata%get_time_info(timeVector=time_series, _RC)
-      this%valid_range(2) = time_series(size(time_series))
+      on_disk_last = time_series(size(time_series))
 
+      found_any = .true.
       _RETURN(_SUCCESS)
 
    end subroutine refine_valid_range
+
+   ! Validate that sufficient files exist on disk to satisfy the combination
+   ! of valid_range, run_range, and extrap_outside.  Calls refine_valid_range
+   ! internally to discover what is actually on disk, then applies two checks:
+   !
+   !   1. Overlap check: if the run period overlaps valid_range, the on-disk
+   !      data must cover the full overlap at both endpoints.
+   !
+   !   2. Extrapolation sufficiency check: if the run period extends outside
+   !      valid_range, the extrapolation mode must have enough data to work:
+   !        persist_closest — found_any is sufficient (at least one file exists
+   !                          to persist from either endpoint).
+   !        clim            — on-disk data must span a full annual cycle
+   !                          (Jan through Dec within one year, or across a
+   !                          year boundary).
+   !
+   ! valid_range on this is never modified.
+   subroutine check_data_availability(this, run_range, extrap_outside, unusable, rc)
+      class(ExtDataFileStream), intent(inout)   :: this
+      type(ESMF_Time),          intent(in)   :: run_range(2)
+      character(len=*),         intent(in)   :: extrap_outside
+      class(KeywordEnforcer),   optional, intent(in)  :: unusable
+      integer,                  optional, intent(out) :: rc
+
+      type(ESMF_Time) :: on_disk_first, on_disk_last
+      type(ESMF_Time) :: overlap_start, overlap_end
+      logical         :: found_any, has_overlap, full_cycle
+      integer         :: yr_first, yr_last, mm_first, mm_last
+      integer         :: vr_yr1, vr_yr2
+      integer         :: status
+      character(len=ESMF_MAXSTR) :: t_str1, t_str2
+
+      _UNUSED_DUMMY(unusable)
+
+      call this%refine_valid_range(on_disk_first, on_disk_last, found_any, _RC)
+
+      if (.not. found_any) then
+         call ESMF_TimeGet(this%valid_range(1), timeString=t_str1, _RC)
+         call ESMF_TimeGet(this%valid_range(2), timeString=t_str2, _RC)
+         _FAIL("No files found within valid_range ["//trim(t_str1)//"/"//trim(t_str2)// &
+               "] for template: "//trim(this%file_template))
+      end if
+
+      ! Store the on-disk range so handlers can use it for runtime clamping.
+      if (allocated(this%on_disk_range)) deallocate(this%on_disk_range)
+      allocate(this%on_disk_range(2))
+      this%on_disk_range(1) = on_disk_first
+      this%on_disk_range(2) = on_disk_last
+
+      ! --- Overlap check ---
+      ! Compute intersection of run_range and valid_range.
+      if (run_range(1) > this%valid_range(1)) then
+         overlap_start = run_range(1)
+      else
+         overlap_start = this%valid_range(1)
+      end if
+      if (run_range(2) < this%valid_range(2)) then
+         overlap_end = run_range(2)
+      else
+         overlap_end = this%valid_range(2)
+      end if
+      has_overlap = (overlap_start <= overlap_end)
+
+      if (has_overlap) then
+         ! File timestamps are mid-period (e.g. Jan 15 for a monthly file whose
+         ! period starts Jan 1), so we allow on_disk_first to be up to one file
+         ! period after overlap_start, and on_disk_last to be up to one file
+         ! period before overlap_end.  This is the standard bracketing tolerance.
+         if (on_disk_first > overlap_start + this%frequency) then
+            call ESMF_TimeGet(on_disk_first, timeString=t_str1, _RC)
+            call ESMF_TimeGet(overlap_start, timeString=t_str2, _RC)
+            _FAIL("Run period overlaps valid_range but on-disk data starts at "// &
+                  trim(t_str1)//". Data is required from "//trim(t_str2)// &
+                  " for template: "//trim(this%file_template))
+         end if
+         if (on_disk_last < overlap_end - this%frequency) then
+            call ESMF_TimeGet(on_disk_last, timeString=t_str1, _RC)
+            call ESMF_TimeGet(overlap_end,  timeString=t_str2, _RC)
+            _FAIL("Run period overlaps valid_range but on-disk data ends at "// &
+                  trim(t_str1)//". Data is required through "//trim(t_str2)// &
+                  " for template: "//trim(this%file_template))
+         end if
+      end if
+
+      ! --- Extrapolation sufficiency check ---
+      select case (trim(extrap_outside))
+
+      case ("persist_closest")
+         ! found_any is sufficient: at least one file exists to persist from.
+         ! (Already verified above.)
+
+      case ("clim")
+         ! Require files spanning a full annual cycle: either Jan-Dec within
+         ! one year, or across a year boundary (yr_last > yr_first).
+         call ESMF_TimeGet(on_disk_first, yy=yr_first, mm=mm_first, _RC)
+         call ESMF_TimeGet(on_disk_last,  yy=yr_last,  mm=mm_last,  _RC)
+         full_cycle = (yr_last > yr_first) .or. &
+                      (yr_last == yr_first .and. mm_first == 1 .and. mm_last == 12)
+         if (.not. full_cycle) then
+            call ESMF_TimeGet(on_disk_first, timeString=t_str1, _RC)
+            call ESMF_TimeGet(on_disk_last,  timeString=t_str2, _RC)
+            _FAIL("clim extrapolation requires files spanning a full annual cycle "// &
+                  "but on-disk data only covers "//trim(t_str1)//" to "//trim(t_str2)// &
+                  " for template: "//trim(this%file_template))
+         end if
+
+         ! Direction-aware check: the clim handler uses valid_years(1) when the
+         ! run is before valid_range, and valid_years(2) when it is after.
+         ! The on-disk contiguous block must include the year that will actually
+         ! be used; checking that on_disk_first/last fall in the right year is
+         ! sufficient given the contiguous-block assumption in refine_valid_range.
+         call ESMF_TimeGet(this%valid_range(1), yy=vr_yr1, _RC)
+         call ESMF_TimeGet(this%valid_range(2), yy=vr_yr2, _RC)
+
+         if (run_range(2) < this%valid_range(1)) then
+            ! Run is entirely before valid_range: clim handler will use valid_years(1).
+            ! on_disk_first must be in vr_yr1 so the full contiguous block covers it.
+            if (yr_first /= vr_yr1) then
+               call ESMF_TimeGet(on_disk_first,       timeString=t_str1, _RC)
+               call ESMF_TimeGet(this%valid_range(1), timeString=t_str2, _RC)
+               _FAIL("clim extrapolation: run is before valid_range (starts "// &
+                     trim(t_str2)//") so year "//trim(t_str2(1:4))//" is needed, "// &
+                     "but on-disk data only starts at "//trim(t_str1)// &
+                     " for template: "//trim(this%file_template))
+            end if
+         else if (run_range(1) > this%valid_range(2)) then
+            ! Run is entirely after valid_range: clim handler will use valid_years(2).
+            ! on_disk_last must be in vr_yr2 so the full contiguous block covers it.
+            if (yr_last /= vr_yr2) then
+               call ESMF_TimeGet(on_disk_last,        timeString=t_str1, _RC)
+               call ESMF_TimeGet(this%valid_range(2), timeString=t_str2, _RC)
+               _FAIL("clim extrapolation: run is after valid_range (ends "// &
+                     trim(t_str2)//") so year "//trim(t_str2(1:4))//" is needed, "// &
+                     "but on-disk data only ends at "//trim(t_str1)// &
+                     " for template: "//trim(this%file_template))
+            end if
+         end if
+
+      end select
+
+      _RETURN(_SUCCESS)
+
+   end subroutine check_data_availability
 
 end module MAPL_ExtDataFileStream
 

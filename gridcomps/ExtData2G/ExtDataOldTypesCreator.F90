@@ -152,20 +152,9 @@ module MAPL_ExtDataOldTypesCreator
           get_range = trim(time_sample%extrap_outside) /= "none"
           user_set_range = allocated(dataset%valid_range)
           call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,_RC)
-          if (user_set_range .and. index(dataset%file_template,'%') /= 0) then
-             if (trim(time_sample%extrap_outside) == "persist_closest") then
-                call dataset%refine_valid_range(_RC)
-                ! Intersect the on-disk range with the model run period so that
-                ! persist_closest does not require files outside the actual run
-                ! window to be present.
-                if (dataset%valid_range(1) <= run_range(2) .and. dataset%valid_range(2) >= run_range(1)) then
-                   if (dataset%valid_range(1) < run_range(1)) dataset%valid_range(1) = run_range(1)
-                   if (dataset%valid_range(2) > run_range(2)) dataset%valid_range(2) = run_range(2)
-                end if
-             else if (trim(time_sample%extrap_outside) == "clim") then
-                call dataset%refine_valid_range(_RC)
-                ! No run-period intersection for clim — year-wrapping uses the full range
-             end if
+          if (user_set_range .and. index(dataset%file_template,'%') /= 0 .and. &
+               trim(time_sample%extrap_outside) /= "none") then
+             call dataset%check_data_availability(run_range, time_sample%extrap_outside, _RC)
           end if
       else
          primary_item%file_template = rule%collection

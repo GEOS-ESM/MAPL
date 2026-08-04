@@ -27,6 +27,7 @@ module MAPL_ExtdataAbstractFileHandler
       type(ESMF_Time) :: reff_time
       integer :: collection_id
       type(ESMF_Time), allocatable :: valid_range(:)
+      type(ESMF_Time), allocatable :: on_disk_range(:)  ! actual first/last file timestamps from check_data_availability
       logical :: persist_closest
       contains
          procedure :: initialize
@@ -65,6 +66,9 @@ contains
       this%reff_time = file_series%reff_time
       if (allocated(file_series%valid_range)) then
           allocate(this%valid_range,source=file_series%valid_range)
+      end if
+      if (allocated(file_series%on_disk_range)) then
+          allocate(this%on_disk_range, source=file_series%on_disk_range)
       end if
       this%collection_id = file_series%collection_id
       if (present(persist_closest)) then
@@ -189,17 +193,19 @@ contains
         filename = trial_file
         _RETURN(_SUCCESS)
      end if
-     if (allocated(this%valid_range)) then
-        useable_time = this%valid_range(1)
-     end if
+      if (allocated(this%on_disk_range)) then
+         useable_time = this%on_disk_range(1)
+      else if (allocated(this%valid_range)) then
+         useable_time = this%valid_range(1)
+      end if
      do i=1, MAX_TRIALS
-        useable_time = useable_time + this%frequency
         call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
         inquire(file=trim(trial_file),exist=file_found)
         if (file_found) then
            filename = trial_file
            _RETURN(_SUCCESS)
         end if
+        useable_time = useable_time + this%frequency
      enddo
 
      if (fail_on_missing) then

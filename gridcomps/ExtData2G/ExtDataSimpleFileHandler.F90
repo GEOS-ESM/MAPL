@@ -55,18 +55,36 @@ contains
 
       call bracket%set_parameters(intermittent_disable=.false.)
       if (this%persist_closest) then
-         if (input_time <= this%valid_range(1)) then
-            target_time = this%valid_range(1)
-            get_right = .false.
-            in_range = .false.
-            if (left_was_set) get_left=.false.
-            call bracket%set_parameters(intermittent_disable=.true.)
-         else if (input_time >= this%valid_range(2)) then
-            target_time = this%valid_range(2)
-            get_right = .false.
-            in_range = .false.
-            if (left_was_set) get_left=.false.
-            call bracket%set_parameters(intermittent_disable=.true.)
+         ! Use on_disk_range for clamping when available (reflects actual files
+         ! on disk); fall back to valid_range otherwise.
+         if (allocated(this%on_disk_range)) then
+            if (input_time <= this%on_disk_range(1)) then
+               target_time = this%on_disk_range(1)
+               get_right = .false.
+               in_range = .false.
+               if (left_was_set) get_left=.false.
+               call bracket%set_parameters(intermittent_disable=.true.)
+            else if (input_time >= this%on_disk_range(2)) then
+               target_time = this%on_disk_range(2)
+               get_right = .false.
+               in_range = .false.
+               if (left_was_set) get_left=.false.
+               call bracket%set_parameters(intermittent_disable=.true.)
+            end if
+         else
+            if (input_time <= this%valid_range(1)) then
+               target_time = this%valid_range(1)
+               get_right = .false.
+               in_range = .false.
+               if (left_was_set) get_left=.false.
+               call bracket%set_parameters(intermittent_disable=.true.)
+            else if (input_time >= this%valid_range(2)) then
+               target_time = this%valid_range(2)
+               get_right = .false.
+               in_range = .false.
+               if (left_was_set) get_left=.false.
+               call bracket%set_parameters(intermittent_disable=.true.)
+            end if
          end if
       else
          _ASSERT(left_was_set.eqv.right_was_set,"You should not be here")
