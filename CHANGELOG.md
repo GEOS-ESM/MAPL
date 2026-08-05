@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `update_restart` in `Cap.F90` now supports a `skip_restart_write` boolean flag in the
+  `ESMF_HConfig`. When present and `true`, the routine returns immediately without writing
+  the restart file. Default behavior (key absent or `false`) is unchanged.
+
 - `Regrid_Util.x` now has the option to be drive via a yaml file passed on the command line rather than
    a whole list of command line arguments.
 - Modified ExtData tests to get path to test data from environment variable `LOCAL_REGRESSION_DATA_DIR`
@@ -95,6 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Improved `SimpleConnection` assertion messages for unknown virtual connection points
 - Fixed bug in FieldBundleRead when file grid and output bundle grid are different grid classes
 - Buggy logic in server initialization (#5214)
 - Missing call to initialize error handling in MPI context
