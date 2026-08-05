@@ -85,18 +85,28 @@ module mapl_NonClimDataSetFileSelector_mod
        target_time = current_time
        if (this%persist_closest) then
           _ASSERT(allocated(this%valid_range), 'using persistence but not in range')
-          if (.not. this%in_valid_range(target_time)) then
-             establish_both = .false.
-             if (current_time < this%valid_range(1)) then
-                establish_single = .true.
-                node_side = NODE_LEFT
-                target_time = this%valid_range(1)
-             else if (current_time >= this%valid_range(2)) then
-                establish_single = .true.
-                node_side = NODE_LEFT
-                target_time = this%valid_range(2)
-             end if
-          end if
+           if (.not. this%in_valid_range(target_time)) then
+              establish_both = .false.
+              if (current_time < this%valid_range(1)) then
+                 establish_single = .true.
+                 node_side = NODE_LEFT
+                 ! Prefer on_disk_range for clamping — guaranteed to have an
+                 ! actual file.  Fall back to valid_range if not yet set.
+                 if (allocated(this%on_disk_range)) then
+                    target_time = this%on_disk_range(1)
+                 else
+                    target_time = this%valid_range(1)
+                 end if
+              else if (current_time >= this%valid_range(2)) then
+                 establish_single = .true.
+                 node_side = NODE_LEFT
+                 if (allocated(this%on_disk_range)) then
+                    target_time = this%on_disk_range(2)
+                 else
+                    target_time = this%valid_range(2)
+                 end if
+              end if
+           end if
        end if
 
        if (establish_single) then

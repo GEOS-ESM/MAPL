@@ -54,7 +54,7 @@ module mapl_PrimaryExport_mod
 
    contains
 
-   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step,  rc) result(primary_export)
+   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step, run_range, rc) result(primary_export)
       type(PrimaryExport) :: primary_export
       character(len=*), intent(in) :: export_var
       type(ExtDataRule), pointer, intent(in) :: rule
@@ -62,6 +62,7 @@ module mapl_PrimaryExport_mod
       type(ExtDataSample), pointer, intent(in) :: sample
       type(ESMF_Time), intent(in) :: time_range(:)
       type(ESMF_TimeInterval), intent(in) :: time_step
+      type(ESMF_Time), intent(in) :: run_range(2)
       integer, optional, intent(out) :: rc
 
       type(NonClimDataSetFileSelector) :: non_clim_file_selector
@@ -81,6 +82,17 @@ module mapl_PrimaryExport_mod
             non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest"), timeStep=time_step )
             allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
          end if
+
+         ! Validate that sufficient files exist on disk for the run period and
+         ! extrapolation mode, and populate on_disk_range for runtime clamping.
+         ! Only fires when valid_range is explicitly set and the template is
+         ! multi-file (contains '%') and extrapolation is not 'none'.
+         if (collection%is_valid_range_allocated() .and. &
+             index(collection%file_template, '%') /= 0 .and. &
+             trim(sample%extrap_outside) /= 'none') then
+            call primary_export%file_selector%check_data_availability(run_range, sample%extrap_outside, _RC)
+         end if
+
          primary_export%file_vars = rule%file_vars
          primary_export%linear_trans = rule%linear_trans
          if (index(rule%regrid_method, 'FRACTION') > 0) then

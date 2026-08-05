@@ -139,6 +139,7 @@ contains
       character(len=*), parameter :: isostring = '1999-12-31T23:29:59'
       character(len=len(isostring)) :: time_string
 
+      _HERE, ' bmaa '
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
       lgr => logging%get_logger('HIST.'//name)
@@ -154,6 +155,7 @@ contains
 
       _RETURN_UNLESS(run_collection)
 
+      call ESMF_TimePrint(current_time, options='string', prestring='bmaa time: ', _RC)
       file_timestamp = compute_file_timestamp(collection_gridcomp%accumulation_mode, &
              current_time, collection_gridcomp%timeStep, _RC)
       call mapl_fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=file_timestamp, _RC)

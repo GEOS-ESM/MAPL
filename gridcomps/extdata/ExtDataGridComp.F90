@@ -67,7 +67,7 @@ contains
       integer :: rules_for_item, rule_counter, j, idx
       type(ExtDataConfig) :: config
       type(ESMF_Hconfig) :: hconfig
-      type(ESMF_Time) :: current_time
+      type(ESMF_Time) :: current_time, stop_time
       type(StringVectorIterator) :: iter
       character(len=:), pointer :: item_name
       character(len=ESMF_MAXSTR) :: full_name
@@ -85,7 +85,7 @@ contains
       end if
 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
-      call ESMF_ClockGet(clock, currTime=current_time, timeStep=time_step, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, stopTime=stop_time, timeStep=time_step, _RC)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       extdata_gridcomp%active_items = get_active_items(exportState, _RC)
       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
@@ -106,7 +106,7 @@ contains
             rule_counter = rule_counter + 1
             full_name = item_name
             if (rules_for_item > 1) write(full_name,'(A,A1,I0)')trim(item_name),rule_sep,j
-            primary_export = config%make_PrimaryExport(trim(full_name), item_name, time_step, _RC)
+             primary_export = config%make_PrimaryExport(trim(full_name), item_name, time_step, [current_time, stop_time], _RC)
             call extdata_gridcomp%export_vector%push_back(primary_export)
          enddo
          idx = extdata_gridcomp%get_item_index(item_name, current_time, _RC)

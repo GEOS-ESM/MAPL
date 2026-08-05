@@ -443,12 +443,13 @@ contains
       _RETURN(_SUCCESS)
    end function has_rule_for
 
-   function make_PrimaryExport(this, full_name, base_name, time_step, rc) result(export)
+   function make_PrimaryExport(this, full_name, base_name, time_step, run_range, rc) result(export)
       type(PrimaryExport) :: export
       class(ExtDataConfig), intent(inout) :: this
       character(len=*), intent(in) :: full_name
       character(len=*), intent(in) :: base_name
       type(ESMF_TimeInterval), intent(in) :: time_step
+      type(ESMF_Time), intent(in) :: run_range(2)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -472,7 +473,7 @@ contains
          _ASSERT(associated(sample), 'invalid sample key for '//trim(base_name))
       end if
       call this%get_time_range(full_name, base_name, time_range, _RC)
-      export = PrimaryExport(base_name, export_rule, collection, sample, time_range, time_step, _RC)
+      export = PrimaryExport(base_name, export_rule, collection, sample, time_range, time_step, run_range, _RC)
 
       _RETURN(_SUCCESS)
    end function make_PrimaryExport
