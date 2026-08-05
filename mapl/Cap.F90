@@ -674,10 +674,18 @@ contains
       type(ESMF_Time) :: currTime
       integer(kind=ESMF_KIND_I8) :: repeatCount
       logical :: restart_is_defined
+      logical :: skip_key_exists
+      logical :: skip_restart_write
       character(:), allocatable :: cap_restart_file
       type(ESMF_HConfig) :: restart_cfg
       integer, parameter :: ISOSTRING_LENGTH = 20
       character(len=ISOSTRING_LENGTH) :: timeString
+
+      skip_key_exists = ESMF_HConfigIsDefined(hconfig, keyString='skip_restart_write', _RC)
+      if (skip_key_exists) then
+         skip_restart_write = ESMF_HConfigAsLogical(hconfig, keyString='skip_restart_write', _RC)
+         _RETURN_IF(skip_restart_write)
+      end if
 
       call ESMF_ClockGet(clock, currTime=currTime, repeatCount=repeatCount, _RC)
       call ESMF_TimeGet(currTime, timeString=timeString, _RC)
