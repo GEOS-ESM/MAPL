@@ -77,6 +77,7 @@ contains
       type(StateItemSpecPtr), target, allocatable :: src_extensions(:), dst_extensions(:)
       type(StateItemSpec), pointer :: src_extension, dst_extension
       type(StateItemSpec), pointer :: spec
+      character(:), allocatable :: error_message
       integer :: i
       integer :: status
 
@@ -89,9 +90,13 @@ contains
       _ASSERT(associated(src_registry), 'Unknown source registry')
       _ASSERT(associated(dst_registry), 'Unknown destination registry')
 
-      _ASSERT(dst_registry%has_virtual_pt(dst_pt%v_pt), "connection to unknown src_pt")
+      error_message = "Unknown destination v_pt '" // dst_pt%v_pt%get_full_name() // &
+           "' for component '" // dst_pt%component_name // "'"
+      _ASSERT(dst_registry%has_virtual_pt(dst_pt%v_pt), error_message)
       dst_extensions = dst_registry%get_specs(dst_pt%v_pt, _RC)
-      _ASSERT(src_registry%has_virtual_pt(src_pt%v_pt), "connection to unknown src_pt")
+      error_message = "Unknown source v_pt '" // src_pt%v_pt%get_full_name() // &
+           "' for component '" // src_pt%component_name // "'"
+      _ASSERT(src_registry%has_virtual_pt(src_pt%v_pt), error_message)
       src_extensions = src_registry%get_specs(src_pt%v_pt, _RC)
 
       do i = 1, size(dst_extensions)
@@ -220,4 +225,3 @@ contains
    end subroutine activate_dependencies
 
 end module mapl_SimpleConnection_mod
-
