@@ -89,6 +89,73 @@ contains
 
 #include "MAPL.h"
 
+   ! --------------------------------------------------------------------------
+   ! FieldApplyUserRoutine
+   !
+   ! Apply a user routine to every ungridded slice of a field.  For each
+   ! slice index k, FieldCreateFieldSlice is called to create a transient
+   ! ESMF_Field that wraps that slice; this field is passed to userRoutine
+   ! and then destroyed.  The number of slices is derived from the actual
+   ! last dimension(s) of the native array, disambiguated by
+   ! condensed_slice_rank to correctly handle the vertical-vs-second-
+   ! ungridded-dim ambiguity.
+   !
+   ! ungrid_num > MAX_UNGRIDDED_DIMS is caught by an assertion before
+   ! the slice loop.
+   ! --------------------------------------------------------------------------
+   subroutine FieldApplyUserRoutine(field, userRoutine, unusable, userrc, rc)
+      type(ESMF_Field), intent(inout) :: field
+      procedure(I_FieldSliceRoutine) :: userRoutine
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: userrc
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: slice_field
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_TypeKind_Flag) :: typekind
+      integer :: k, n_slices, status, user_status
+
+      ! Condensed array pointer (rank-3: gridded_product, vertical_or_1, ungridded_flat)
+      ! to derive n_slices directly from the ungridded dimension.
+      real(kind=ESMF_KIND_R4), pointer :: fptr_condensed_r4(:,:,:)
+      real(kind=ESMF_KIND_R8), pointer :: fptr_condensed_r8(:,:,:)
+
+      if (present(userrc)) userrc = 0
+      user_status = 0
+
+      call ESMF_FieldGet(field, status=field_status, _RC)
+      _RETURN_UNLESS(field_status == ESMF_FIELDSTATUS_COMPLETE)
+
+      call ESMF_FieldGet(field, typekind=typekind, _RC)
+
+      ! Derive n_slices from the condensed array's 3rd dimension.
+      ! The condensed array view is always (gridded_product, vertical_or_1, ungridded_flat),
+      ! so the 3rd dimension directly gives us the number of ungridded slices.
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call assign_fptr_condensed_array(field, fptr_condensed_r4, _RC)
+         n_slices = size(fptr_condensed_r4, 3)
+      else if (typekind == ESMF_TYPEKIND_R8) then
+         call assign_fptr_condensed_array(field, fptr_condensed_r8, _RC)
+         n_slices = size(fptr_condensed_r8, 3)
+      else
+         _FAIL('FieldApplyUserRoutine: unsupported typekind (expected R4 or R8).')
+      end if
+
+      do k = 1, n_slices
+         user_status = 0
+         ! Build a transient ESMF_Field pointing into slice k of the parent.
+         slice_field = FieldCreateFieldSlice(field, k, _RC)
+         call userRoutine(slice_field, rc=user_status)
+         call ESMF_FieldDestroy(slice_field, _RC)
+         if (user_status /= 0) exit
+      end do
+
+      if (present(userrc)) userrc = user_status
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine FieldApplyUserRoutine
+
    function FieldCreateFieldSlice(field, ith, rc) result(slice)
       use, intrinsic :: iso_c_binding
       type(ESMF_Field)                 :: slice
@@ -219,72 +286,5 @@ contains
    
       _RETURN(_SUCCESS)
    end function FieldCreateFieldSlice
-
-   ! --------------------------------------------------------------------------
-   ! FieldApplyUserRoutine
-   !
-   ! Apply a user routine to every ungridded slice of a field.  For each
-   ! slice index k, FieldCreateFieldSlice is called to create a transient
-   ! ESMF_Field that wraps that slice; this field is passed to userRoutine
-   ! and then destroyed.  The number of slices is derived from the actual
-   ! last dimension(s) of the native array, disambiguated by
-   ! condensed_slice_rank to correctly handle the vertical-vs-second-
-   ! ungridded-dim ambiguity.
-   !
-   ! ungrid_num > MAX_UNGRIDDED_DIMS is caught by an assertion before
-   ! the slice loop.
-   ! --------------------------------------------------------------------------
-   subroutine FieldApplyUserRoutine(field, userRoutine, unusable, userrc, rc)
-      type(ESMF_Field), intent(inout) :: field
-      procedure(I_FieldSliceRoutine) :: userRoutine
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: userrc
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_Field) :: slice_field
-      type(ESMF_FieldStatus_Flag) :: field_status
-      type(ESMF_TypeKind_Flag) :: typekind
-      integer :: k, n_slices, status, user_status
-
-      ! Condensed array pointer (rank-3: gridded_product, vertical_or_1, ungridded_flat)
-      ! to derive n_slices directly from the ungridded dimension.
-      real(kind=ESMF_KIND_R4), pointer :: fptr_condensed_r4(:,:,:)
-      real(kind=ESMF_KIND_R8), pointer :: fptr_condensed_r8(:,:,:)
-
-      if (present(userrc)) userrc = 0
-      user_status = 0
-
-      call ESMF_FieldGet(field, status=field_status, _RC)
-      _RETURN_UNLESS(field_status == ESMF_FIELDSTATUS_COMPLETE)
-
-      call ESMF_FieldGet(field, typekind=typekind, _RC)
-
-      ! Derive n_slices from the condensed array's 3rd dimension.
-      ! The condensed array view is always (gridded_product, vertical_or_1, ungridded_flat),
-      ! so the 3rd dimension directly gives us the number of ungridded slices.
-      if (typekind == ESMF_TYPEKIND_R4) then
-         call assign_fptr_condensed_array(field, fptr_condensed_r4, _RC)
-         n_slices = size(fptr_condensed_r4, 3)
-      else if (typekind == ESMF_TYPEKIND_R8) then
-         call assign_fptr_condensed_array(field, fptr_condensed_r8, _RC)
-         n_slices = size(fptr_condensed_r8, 3)
-      else
-         _FAIL('FieldApplyUserRoutine: unsupported typekind (expected R4 or R8).')
-      end if
-
-      do k = 1, n_slices
-         user_status = 0
-         ! Build a transient ESMF_Field pointing into slice k of the parent.
-         slice_field = FieldCreateFieldSlice(field, k, _RC)
-         call userRoutine(slice_field, rc=user_status)
-         call ESMF_FieldDestroy(slice_field, _RC)
-         if (user_status /= 0) exit
-      end do
-
-      if (present(userrc)) userrc = user_status
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine FieldApplyUserRoutine
 
 end module mapl_FieldApplyUserRoutine_mod
