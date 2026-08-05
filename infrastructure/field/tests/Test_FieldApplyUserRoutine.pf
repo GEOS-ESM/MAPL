@@ -3,7 +3,6 @@
 
 module Test_FieldApplyUserRoutine
    use mapl_FieldApplyUserRoutine_mod, only: FieldApplyUserRoutine
-   use mapl_FieldApplyUserRoutine_mod, only: FieldGetPointerToSlice
    use mapl_UngriddedDims_mod,         only: UngriddedDims
    use mapl_FixedLevelsVerticalGrid_mod
    use mapl_VerticalStaggerLoc_mod
@@ -227,57 +226,6 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_apply_3d_r8
 
-   ! FieldGetPointerToSlice returns a writable 2D pointer into the
-   ! field data for a 3D field; writes through the pointer are visible
-   ! in the underlying native array.
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_get_pointer_to_slice_r4(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_Field) :: field
-      type(ESMF_Geom)  :: geom
-      real(kind=ESMF_KIND_R4), pointer :: slice(:,:)
-      real(kind=ESMF_KIND_R4), pointer :: fptr(:,:,:)   ! native rank-3 array
-      integer :: status
-
-      geom  = make_geom(_RC)
-      field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims=UngriddedDims([3]), _RC)
-
-      call FieldGetPointerToSlice(field, 2, slice, _RC)
-      @assertTrue(associated(slice), 'Slice pointer should be associated.')
-      @assertEqual([3, 2], shape(slice), 'A 2D slice should match the horizontal extents.')
-      slice = 3.14_ESMF_KIND_R4
-
-      ! Verify the write is visible in the underlying native field array.
-      call ESMF_FieldGet(field, farrayPtr=fptr, _RC)
-      @assertEqual(3, size(fptr, 3), 'Expected 3 slices in native array.')
-      @assertEqual(3.14_ESMF_KIND_R4, fptr(1,1,2), 'Slice write should be visible in the native array.')
-
-      call ESMF_FieldDestroy(field, _RC)
-      _UNUSED_DUMMY(this)
-   end subroutine test_get_pointer_to_slice_r4
-
-   ! FieldGetPointerToSlice with slice_index=1 on a field with no
-   ! ungridded dimension returns a pointer to the full field array.
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_get_pointer_to_slice_no_ungridded(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_Field) :: field
-      type(ESMF_Geom)  :: geom
-      real(kind=ESMF_KIND_R4), pointer :: slice(:,:)
-      integer :: status
-
-      geom  = make_geom(_RC)
-      field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
-
-      call FieldGetPointerToSlice(field, 1, slice, _RC)
-      @assertTrue(associated(slice), 'Slice pointer should be associated for a field with no ungridded dim.')
-      @assertEqual([3, 2], shape(slice), 'Slice shape should match the horizontal extents.')
-
-      call ESMF_FieldDestroy(field, _RC)
-      _UNUSED_DUMMY(this)
-   end subroutine test_get_pointer_to_slice_no_ungridded
-
    ! A user error on the second slice stops iteration; g_call_count
    ! should be exactly FAIL_SLICE and userrc should be USER_ERROR.
    @test(type=ESMF_TestMethod, npes=[1])
@@ -339,31 +287,5 @@ contains
       call ESMF_FieldDestroy(field, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_apply_3d_slices_r8
-
-   ! FieldGetPointerToSlice returns a writable 3D pointer for a 4D
-   ! field; writes are visible in the underlying native array.
-   @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_get_pointer_to_slice3d_r4(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_Field) :: field
-      real(kind=ESMF_KIND_R4), pointer :: slice(:,:,:)
-      real(kind=ESMF_KIND_R4), pointer :: fptr(:,:,:,:)  ! native rank-4 array
-      integer :: status
-
-      field = make_vertical_field(ESMF_TYPEKIND_R4, UngriddedDims([3]), num_layers=5, _RC)
-
-      call FieldGetPointerToSlice(field, 2, slice, _RC)
-      @assertTrue(associated(slice), 'Slice pointer should be associated.')
-      @assertEqual([3, 2, 5], shape(slice), 'A 3D slice should retain horizontal and vertical extents.')
-      slice = 3.14_ESMF_KIND_R4
-
-      ! Verify the write is visible in the underlying native field array.
-      call ESMF_FieldGet(field, farrayPtr=fptr, _RC)
-      @assertEqual(3,                   size(fptr, 4),  'Expected 3 slices in native array.')
-      @assertEqual(3.14_ESMF_KIND_R4, fptr(1,1,1,2),   'Slice write should be visible in the native array.')
-
-      call ESMF_FieldDestroy(field, _RC)
-      _UNUSED_DUMMY(this)
-   end subroutine test_get_pointer_to_slice3d_r4
 
 end module Test_FieldApplyUserRoutine

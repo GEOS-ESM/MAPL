@@ -9,7 +9,6 @@ module mapl_field_api
    use mapl_FieldSet_mod, only: MAPL_FieldSet => FieldSet
    use mapl_FieldFill_mod, only: MAPL_FieldFill => FieldFill
    use mapl_FieldApplyUserRoutine_mod, only: MAPL_FieldApplyUserRoutine => FieldApplyUserRoutine
-   use mapl_FieldApplyUserRoutine_mod, only: MAPL_FieldGetPointerToSlice => FieldGetPointerToSlice
    use mapl_FieldApplyUserRoutine_mod, only: MAPL_I_FieldSliceRoutine => I_FieldSliceRoutine
    use mapl_RestartModes_mod, only: MAPL_RESTART_REQUIRED => RESTART_REQUIRED
    use mapl_RestartModes_mod, only: MAPL_RESTART_SKIP => RESTART_SKIP
@@ -24,7 +23,6 @@ module mapl_field_api
    public :: MAPL_FieldSet
    public :: MAPL_FieldFill
    public :: MAPL_FieldApplyUserRoutine
-   public :: MAPL_FieldGetPointerToSlice
    public :: MAPL_I_FieldSliceRoutine
    public :: MAPL_RESTART_REQUIRED
    public :: MAPL_RESTART_SKIP
