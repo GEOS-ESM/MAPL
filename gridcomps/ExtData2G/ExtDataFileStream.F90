@@ -24,6 +24,7 @@ module MAPL_ExtDataFileStream
       contains
          procedure :: detect_metadata
          procedure :: check_data_availability
+         procedure :: get_required_files_hconfig
          procedure, private :: refine_valid_range
    end type
 
@@ -196,13 +197,13 @@ contains
 
    end subroutine detect_metadata
 
-   ! Given a guess for the valid range of a file series, find the actual
-   ! first and last file times on the filesystem.  The file series is
-   ! defined by reff_time + n * frequency for any integer n, and files are
-   ! assumed to form a single contiguous block within the range.
+   ! Given a scan window (scan_range), find the actual first and last file
+   ! times on the filesystem within that window.  The file series is defined
+   ! by reff_time + n * frequency for any integer n, and files are assumed to
+   ! form a single contiguous block within the range.
    !
-   ! Returns on_disk_first and on_disk_last (timestamps from inside the
-   ! first and last files found), and found_any=.false. if no files exist.
+   ! Returns on_disk_first and on_disk_last (timestamps from inside the first
+   ! and last files found), and found_any=.false. if no files exist.
    ! valid_range on this is never modified.
    !
    ! Algorithm: probe midpoint then right-quarter point as anchor (O(1));
@@ -210,8 +211,9 @@ contains
    ! (any confirmed file position) is established, binary search on each
    ! monotone half gives O(log N) total filesystem probes for the common
    ! case, with linear fallback only for unusual narrow-block situations.
-   subroutine refine_valid_range(this, on_disk_first, on_disk_last, found_any, unusable, rc)
+   subroutine refine_valid_range(this, scan_range, on_disk_first, on_disk_last, found_any, unusable, rc)
       class(ExtDataFileStream), intent(in)    :: this
+      type(ESMF_Time),          intent(in)    :: scan_range(2)
       type(ESMF_Time),          intent(out)   :: on_disk_first
       type(ESMF_Time),          intent(out)   :: on_disk_last
       logical,                  intent(out)   :: found_any
@@ -240,41 +242,39 @@ contains
       if (interval_seconds /= 0) then
 
          ! --- Absolute interval: compute index bounds via ESMF division ---
-         ! n_lo: last integer n with reff_time + n*freq <= valid_range(1)
-         ! (includes the file whose period covers valid_range(1) even if its
+         ! n_lo: last integer n with reff_time + n*freq <= scan_range(1)
+         ! (includes the file whose period covers scan_range(1) even if its
          ! start timestamp is slightly before it).
          ! ESMF division truncates toward zero, which is floor for positive
          ! differences but ceiling for negative; the guard below corrects the
          ! latter so both signs give the floor (i.e. the desired last n).
-         n_lo = (this%valid_range(1) - this%reff_time) / this%frequency
-         if (this%reff_time + n_lo * this%frequency > this%valid_range(1)) n_lo = n_lo - 1
+         n_lo = (scan_range(1) - this%reff_time) / this%frequency
+         if (this%reff_time + n_lo * this%frequency > scan_range(1)) n_lo = n_lo - 1
 
-         ! n_hi: last integer n with reff_time + n*freq <= valid_range(2)
-         n_hi = (this%valid_range(2) - this%reff_time) / this%frequency
-         if (this%reff_time + n_hi * this%frequency > this%valid_range(2)) n_hi = n_hi - 1
+         ! n_hi: last integer n with reff_time + n*freq <= scan_range(2)
+         n_hi = (scan_range(2) - this%reff_time) / this%frequency
+         if (this%reff_time + n_hi * this%frequency > scan_range(2)) n_hi = n_hi - 1
       else
 
          ! --- Relative interval (months/years): walk to find index bounds ---
-         ! n_lo = last n such that reff_time + n*freq <= valid_range(1).
-         ! This includes the file whose start is at or just before valid_range(1)
-         ! so that files whose period covers valid_range(1) are not skipped.
-         ! (Using "first n >= valid_range(1)" would skip that file on any call
-         ! where valid_range(1) has been refined to a sub-period timestamp.)
+         ! n_lo = last n such that reff_time + n*freq <= scan_range(1).
+         ! This includes the file whose start is at or just before scan_range(1)
+         ! so that files whose period covers scan_range(1) are not skipped.
          n = 0
-         if (this%reff_time < this%valid_range(1)) then
-            do while (this%reff_time + (n + 1) * this%frequency <= this%valid_range(1))
+         if (this%reff_time < scan_range(1)) then
+            do while (this%reff_time + (n + 1) * this%frequency <= scan_range(1))
                n = n + 1
             end do
          else
-            do while (this%reff_time + n * this%frequency > this%valid_range(1))
+            do while (this%reff_time + n * this%frequency > scan_range(1))
                n = n - 1
             end do
          end if
          n_lo = n
 
-         ! Walk forward from n_lo to the last index within valid_range(2).
+         ! Walk forward from n_lo to the last index within scan_range(2).
          n = n_lo
-         do while (this%reff_time + (n + 1) * this%frequency <= this%valid_range(2))
+         do while (this%reff_time + (n + 1) * this%frequency <= scan_range(2))
             n = n + 1
          end do
          n_hi = n
@@ -282,7 +282,7 @@ contains
       end if
 
       _ASSERT(n_lo <= n_hi, &
-         "no candidate file times found within guess valid range for: "//trim(this%file_template))
+         "no candidate file times found within scan range for: "//trim(this%file_template))
 
       ! === Phase 1: Find anchor — up to 2 probes, then linear scan fallback ===
       ! A contiguous block needs a confirmed anchor so that each directed binary
@@ -379,19 +379,24 @@ contains
    end subroutine refine_valid_range
 
    ! Validate that sufficient files exist on disk to satisfy the combination
-   ! of valid_range, run_range, and extrap_outside.  Calls refine_valid_range
-   ! internally to discover what is actually on disk, then applies two checks:
+   ! of valid_range, run_range, and extrap_outside.
    !
-   !   1. Overlap check: if the run period overlaps valid_range, the on-disk
-   !      data must cover the full overlap at both endpoints.
+   ! Three scenarios:
    !
-   !   2. Extrapolation sufficiency check: if the run period extends outside
-   !      valid_range, the extrapolation mode must have enough data to work:
-   !        persist_closest — found_any is sufficient (at least one file exists
-   !                          to persist from either endpoint).
-   !        clim            — on-disk data must span a full annual cycle
-   !                          (Jan through Dec within one year, or across a
-   !                          year boundary).
+   !   1. extrap_outside = "none"
+   !      Scan window = run_range (valid_range not required).
+   !      If valid_range is set and run_range extends outside it → config error.
+   !      On-disk data must cover the full run_range.
+   !
+   !   2. extrap_outside = "persist_closest"
+   !      Scan window = valid_range (required).
+   !      If run overlaps valid_range: on-disk data must cover the overlap.
+   !      If run is outside valid_range: found_any is sufficient (persist endpoint).
+   !
+   !   3. extrap_outside = "clim"
+   !      Scan window = valid_range (required).
+   !      If run overlaps valid_range: on-disk data must cover the overlap.
+   !      If run is outside valid_range: full-cycle + direction + gap-scan checks.
    !
    ! valid_range on this is never modified.
    subroutine check_data_availability(this, run_range, extrap_outside, unusable, rc)
@@ -401,100 +406,279 @@ contains
       class(KeywordEnforcer),   optional, intent(in)  :: unusable
       integer,                  optional, intent(out) :: rc
 
-      type(ESMF_Time) :: on_disk_first, on_disk_last
-      type(ESMF_Time) :: overlap_start, overlap_end
-      logical         :: found_any, has_overlap, full_cycle
-      integer         :: yr_first, yr_last, mm_first, mm_last
-      integer         :: vr_yr1, vr_yr2
-      integer         :: status
-      character(len=ESMF_MAXSTR) :: t_str1, t_str2
+       type(ESMF_Time) :: on_disk_first, on_disk_last
+       type(ESMF_Time) :: overlap_start, overlap_end
+       type(ESMF_Time) :: scan_range(2)
+       logical         :: found_any, has_overlap, full_cycle
+       integer         :: yr_first, yr_last, mm_first, mm_last
+       integer         :: vr_yr1, vr_yr2, scan_year
+       integer         :: n_scan_lo, n_scan_hi, n_scan, n_missing
+       integer(ESMF_KIND_I8) :: scan_interval_seconds
+       type(ESMF_Time) :: t_scan_lo, t_scan_hi, t_probe
+       logical         :: do_gap_scan, probe_found
+       character(len=ESMF_MAXPATHLEN) :: probe_filename
+       character(len=ESMF_MAXSTR)     :: t_missing
+       character(len=:), allocatable  :: missing_list
+       integer         :: status
+       character(len=ESMF_MAXSTR) :: t_str1, t_str2
 
       _UNUSED_DUMMY(unusable)
 
-      call this%refine_valid_range(on_disk_first, on_disk_last, found_any, _RC)
-
-      if (.not. found_any) then
-         call ESMF_TimeGet(this%valid_range(1), timeString=t_str1, _RC)
-         call ESMF_TimeGet(this%valid_range(2), timeString=t_str2, _RC)
-         _FAIL("No files found within valid_range ["//trim(t_str1)//"/"//trim(t_str2)// &
-               "] for template: "//trim(this%file_template))
-      end if
-
-      ! Store the on-disk range so handlers can use it for runtime clamping.
-      if (allocated(this%on_disk_range)) deallocate(this%on_disk_range)
-      allocate(this%on_disk_range(2))
-      this%on_disk_range(1) = on_disk_first
-      this%on_disk_range(2) = on_disk_last
-
-      ! --- Overlap check ---
-      ! Compute intersection of run_range and valid_range.
-      if (run_range(1) > this%valid_range(1)) then
-         overlap_start = run_range(1)
-      else
-         overlap_start = this%valid_range(1)
-      end if
-      if (run_range(2) < this%valid_range(2)) then
-         overlap_end = run_range(2)
-      else
-         overlap_end = this%valid_range(2)
-      end if
-      has_overlap = (overlap_start <= overlap_end)
-
-      if (has_overlap) then
-         ! File timestamps are mid-period (e.g. Jan 15 for a monthly file whose
-         ! period starts Jan 1), so we allow on_disk_first to be up to one file
-         ! period after overlap_start, and on_disk_last to be up to one file
-         ! period before overlap_end.  This is the standard bracketing tolerance.
-         if (on_disk_first > overlap_start + this%frequency) then
-            call ESMF_TimeGet(on_disk_first, timeString=t_str1, _RC)
-            call ESMF_TimeGet(overlap_start, timeString=t_str2, _RC)
-            _FAIL("Run period overlaps valid_range but on-disk data starts at "// &
-                  trim(t_str1)//". Data is required from "//trim(t_str2)// &
-                  " for template: "//trim(this%file_template))
-         end if
-         if (on_disk_last < overlap_end - this%frequency) then
-            call ESMF_TimeGet(on_disk_last, timeString=t_str1, _RC)
-            call ESMF_TimeGet(overlap_end,  timeString=t_str2, _RC)
-            _FAIL("Run period overlaps valid_range but on-disk data ends at "// &
-                  trim(t_str1)//". Data is required through "//trim(t_str2)// &
-                  " for template: "//trim(this%file_template))
-         end if
-      end if
-
-      ! --- Extrapolation sufficiency check ---
       select case (trim(extrap_outside))
 
-      case ("persist_closest")
-         ! found_any is sufficient: at least one file exists to persist from.
-         ! (Already verified above.)
+      ! -----------------------------------------------------------------------
+      case ("none")
+      ! -----------------------------------------------------------------------
+      ! Scenario 1: no extrapolation.  Scan run_range directly.
+      ! If valid_range is set, run_range must lie within it (else config error).
 
-      case ("clim")
-         ! Require files spanning a full annual cycle: either Jan-Dec within
-         ! one year, or across a year boundary (yr_last > yr_first).
-         call ESMF_TimeGet(on_disk_first, yy=yr_first, mm=mm_first, _RC)
-         call ESMF_TimeGet(on_disk_last,  yy=yr_last,  mm=mm_last,  _RC)
-         full_cycle = (yr_last > yr_first) .or. &
-                      (yr_last == yr_first .and. mm_first == 1 .and. mm_last == 12)
-         if (.not. full_cycle) then
+         scan_range = run_range
+         call this%refine_valid_range(scan_range, on_disk_first, on_disk_last, found_any, _RC)
+
+         ! Config error: valid_range specified but run is outside it
+         if (allocated(this%valid_range)) then
+            if (run_range(1) < this%valid_range(1) .or. run_range(2) > this%valid_range(2)) then
+               call ESMF_TimeGet(run_range(1),          timeString=t_str1, _RC)
+               call ESMF_TimeGet(run_range(2),          timeString=t_str2, _RC)
+               call ESMF_TimeGet(this%valid_range(1),   timeString=t_missing, _RC)
+               _FAIL("extrap_outside=none but run_range ["//trim(t_str1)//"/"//trim(t_str2)// &
+                     "] extends outside valid_range ["//trim(t_missing)//"...] for template: "// &
+                     trim(this%file_template))
+            end if
+         end if
+
+         if (.not. found_any) then
+            call ESMF_TimeGet(run_range(1), timeString=t_str1, _RC)
+            call ESMF_TimeGet(run_range(2), timeString=t_str2, _RC)
+            _FAIL("No files found within run_range ["//trim(t_str1)//"/"//trim(t_str2)// &
+                  "] for template: "//trim(this%file_template))
+         end if
+
+         ! Store the on-disk range so handlers can use it for runtime clamping.
+         if (allocated(this%on_disk_range)) deallocate(this%on_disk_range)
+         allocate(this%on_disk_range(2))
+         this%on_disk_range(1) = on_disk_first
+         this%on_disk_range(2) = on_disk_last
+
+         ! Data must cover the full run_range (same one-period tolerance as overlap check).
+         if (on_disk_first > run_range(1) + this%frequency) then
             call ESMF_TimeGet(on_disk_first, timeString=t_str1, _RC)
-            call ESMF_TimeGet(on_disk_last,  timeString=t_str2, _RC)
-            _FAIL("clim extrapolation requires files spanning a full annual cycle "// &
-                  "but on-disk data only covers "//trim(t_str1)//" to "//trim(t_str2)// &
+            call ESMF_TimeGet(run_range(1),  timeString=t_str2, _RC)
+            _FAIL("extrap_outside=none: on-disk data starts at "//trim(t_str1)// &
+                  " but data is required from "//trim(t_str2)// &
+                  " for template: "//trim(this%file_template))
+         end if
+         if (on_disk_last < run_range(2) - this%frequency) then
+            call ESMF_TimeGet(on_disk_last, timeString=t_str1, _RC)
+            call ESMF_TimeGet(run_range(2), timeString=t_str2, _RC)
+            _FAIL("extrap_outside=none: on-disk data ends at "//trim(t_str1)// &
+                  " but data is required through "//trim(t_str2)// &
                   " for template: "//trim(this%file_template))
          end if
 
-         ! Direction-aware check: the clim handler uses valid_years(1) when the
-         ! run is before valid_range, and valid_years(2) when it is after.
-         ! The on-disk contiguous block must include the year that will actually
-         ! be used; checking that on_disk_first/last fall in the right year is
-         ! sufficient given the contiguous-block assumption in refine_valid_range.
+      ! -----------------------------------------------------------------------
+      case ("persist_closest")
+      ! -----------------------------------------------------------------------
+      ! Scenario 2: persistence extrapolation.  Scan valid_range.
+      ! Overlap: must cover the full overlap.  Outside: found_any is sufficient.
+
+         scan_range = this%valid_range
+         call this%refine_valid_range(scan_range, on_disk_first, on_disk_last, found_any, _RC)
+
+         if (.not. found_any) then
+            call ESMF_TimeGet(this%valid_range(1), timeString=t_str1, _RC)
+            call ESMF_TimeGet(this%valid_range(2), timeString=t_str2, _RC)
+            _FAIL("No files found within valid_range ["//trim(t_str1)//"/"//trim(t_str2)// &
+                  "] for template: "//trim(this%file_template))
+         end if
+
+         ! Store the on-disk range.
+         if (allocated(this%on_disk_range)) deallocate(this%on_disk_range)
+         allocate(this%on_disk_range(2))
+         this%on_disk_range(1) = on_disk_first
+         this%on_disk_range(2) = on_disk_last
+
+         ! Overlap check.
+         if (run_range(1) > this%valid_range(1)) then
+            overlap_start = run_range(1)
+         else
+            overlap_start = this%valid_range(1)
+         end if
+         if (run_range(2) < this%valid_range(2)) then
+            overlap_end = run_range(2)
+         else
+            overlap_end = this%valid_range(2)
+         end if
+         has_overlap = (overlap_start <= overlap_end)
+
+         if (has_overlap) then
+            if (on_disk_first > overlap_start + this%frequency) then
+               call ESMF_TimeGet(on_disk_first, timeString=t_str1, _RC)
+               call ESMF_TimeGet(overlap_start, timeString=t_str2, _RC)
+               _FAIL("Run period overlaps valid_range but on-disk data starts at "// &
+                     trim(t_str1)//". Data is required from "//trim(t_str2)// &
+                     " for template: "//trim(this%file_template))
+            end if
+            if (on_disk_last < overlap_end - this%frequency) then
+               call ESMF_TimeGet(on_disk_last, timeString=t_str1, _RC)
+               call ESMF_TimeGet(overlap_end,  timeString=t_str2, _RC)
+               _FAIL("Run period overlaps valid_range but on-disk data ends at "// &
+                     trim(t_str1)//". Data is required through "//trim(t_str2)// &
+                     " for template: "//trim(this%file_template))
+            end if
+         end if
+         ! Run outside valid_range: found_any already verified above — sufficient
+         ! for persist_closest (will clamp to on_disk_range endpoint at runtime).
+
+      ! -----------------------------------------------------------------------
+      case ("clim")
+      ! -----------------------------------------------------------------------
+      ! Scenario 3: climatology extrapolation.  Scan valid_range.
+
+         scan_range = this%valid_range
+         call this%refine_valid_range(scan_range, on_disk_first, on_disk_last, found_any, _RC)
+
+         if (.not. found_any) then
+            call ESMF_TimeGet(this%valid_range(1), timeString=t_str1, _RC)
+            call ESMF_TimeGet(this%valid_range(2), timeString=t_str2, _RC)
+            _FAIL("No files found within valid_range ["//trim(t_str1)//"/"//trim(t_str2)// &
+                  "] for template: "//trim(this%file_template))
+         end if
+
+         ! Store the on-disk range.
+         if (allocated(this%on_disk_range)) deallocate(this%on_disk_range)
+         allocate(this%on_disk_range(2))
+         this%on_disk_range(1) = on_disk_first
+         this%on_disk_range(2) = on_disk_last
+
+         ! Overlap check.
+         if (run_range(1) > this%valid_range(1)) then
+            overlap_start = run_range(1)
+         else
+            overlap_start = this%valid_range(1)
+         end if
+         if (run_range(2) < this%valid_range(2)) then
+            overlap_end = run_range(2)
+         else
+            overlap_end = this%valid_range(2)
+         end if
+         has_overlap = (overlap_start <= overlap_end)
+
+         if (has_overlap) then
+            if (on_disk_first > overlap_start + this%frequency) then
+               call ESMF_TimeGet(on_disk_first, timeString=t_str1, _RC)
+               call ESMF_TimeGet(overlap_start, timeString=t_str2, _RC)
+               _FAIL("Run period overlaps valid_range but on-disk data starts at "// &
+                     trim(t_str1)//". Data is required from "//trim(t_str2)// &
+                     " for template: "//trim(this%file_template))
+            end if
+            if (on_disk_last < overlap_end - this%frequency) then
+               call ESMF_TimeGet(on_disk_last, timeString=t_str1, _RC)
+               call ESMF_TimeGet(overlap_end,  timeString=t_str2, _RC)
+               _FAIL("Run period overlaps valid_range but on-disk data ends at "// &
+                     trim(t_str1)//". Data is required through "//trim(t_str2)// &
+                     " for template: "//trim(this%file_template))
+            end if
+         end if
+
+         ! --- Extrapolation sufficiency (run outside valid_range) ---
+         ! Extract on-disk year/month info for the full_cycle check.
+         call ESMF_TimeGet(on_disk_first, yy=yr_first, mm=mm_first, _RC)
+         call ESMF_TimeGet(on_disk_last,  yy=yr_last,  mm=mm_last,  _RC)
+
+         ! Extract valid_range years and determine run direction up front so
+         ! the scan scope is known if full_cycle fails.
          call ESMF_TimeGet(this%valid_range(1), yy=vr_yr1, _RC)
          call ESMF_TimeGet(this%valid_range(2), yy=vr_yr2, _RC)
 
+         do_gap_scan = .false.
          if (run_range(2) < this%valid_range(1)) then
-            ! Run is entirely before valid_range: clim handler will use valid_years(1).
-            ! on_disk_first must be in vr_yr1 so the full contiguous block covers it.
-            if (yr_first /= vr_yr1) then
+            scan_year   = vr_yr1
+            do_gap_scan = .true.
+         else if (run_range(1) > this%valid_range(2)) then
+            scan_year   = vr_yr2
+            do_gap_scan = .true.
+         end if
+
+         ! --- Full-cycle check ---
+         ! Require files spanning a full annual cycle: either Jan-Dec within
+         ! one year, or across a year boundary (yr_last > yr_first).
+         ! On failure, scan the target year (or full valid_range if overlapping)
+         ! and report every missing file explicitly.
+         full_cycle = (yr_last > yr_first) .or. &
+                      (yr_last == yr_first .and. mm_first == 1 .and. mm_last == 12)
+         if (.not. full_cycle) then
+            ! Set scan bounds: target year if direction known, else full valid_range.
+            if (do_gap_scan) then
+               call ESMF_TimeSet(t_scan_lo, yy=scan_year, mm=1,  dd=1,  h=0,  m=0,  s=0,  _RC)
+               call ESMF_TimeSet(t_scan_hi, yy=scan_year, mm=12, dd=31, h=23, m=59, s=59, _RC)
+            else
+               t_scan_lo = this%valid_range(1)
+               t_scan_hi = this%valid_range(2)
+            end if
+
+            call ESMF_TimeIntervalGet(this%frequency, s_i8=scan_interval_seconds, _RC)
+            if (scan_interval_seconds /= 0) then
+               n_scan_lo = (t_scan_lo - this%reff_time) / this%frequency
+               if (this%reff_time + n_scan_lo * this%frequency > t_scan_lo) n_scan_lo = n_scan_lo - 1
+               n_scan_hi = (t_scan_hi - this%reff_time) / this%frequency
+               if (this%reff_time + n_scan_hi * this%frequency > t_scan_hi) n_scan_hi = n_scan_hi - 1
+            else
+               n_scan = 0
+               if (this%reff_time < t_scan_lo) then
+                  do while (this%reff_time + (n_scan + 1) * this%frequency <= t_scan_lo)
+                     n_scan = n_scan + 1
+                  end do
+               else
+                  do while (this%reff_time + n_scan * this%frequency > t_scan_lo)
+                     n_scan = n_scan - 1
+                  end do
+               end if
+               n_scan_lo = n_scan
+               n_scan = n_scan_lo
+               do while (this%reff_time + (n_scan + 1) * this%frequency <= t_scan_hi)
+                  n_scan = n_scan + 1
+               end do
+               n_scan_hi = n_scan
+            end if
+
+            n_missing    = 0
+            missing_list = ""
+            do n_scan = n_scan_lo, n_scan_hi
+               t_probe = this%reff_time + n_scan * this%frequency
+               call fill_grads_template(probe_filename, this%file_template, time=t_probe, _RC)
+               inquire(file=trim(probe_filename), exist=probe_found)
+               if (.not. probe_found) then
+                  call ESMF_TimeGet(t_probe, timeString=t_missing, _RC)
+                  missing_list = missing_list // new_line('a') // "  " // trim(t_missing)
+                  n_missing = n_missing + 1
+               end if
+            end do
+
+            if (n_missing > 0) then
+               _FAIL("clim extrapolation requires files spanning a full annual cycle "// &
+                     "but the following files are missing for template: "// &
+                     trim(this%file_template)//trim(missing_list))
+            else
+               ! full_cycle was false based on on_disk_first/last alone, but all
+               ! files are actually present — this should not happen with a
+               ! contiguous block assumption, but fall back to the original message.
+               call ESMF_TimeGet(on_disk_first, timeString=t_str1, _RC)
+               call ESMF_TimeGet(on_disk_last,  timeString=t_str2, _RC)
+               _FAIL("clim extrapolation requires files spanning a full annual cycle "// &
+                     "but on-disk data only covers "//trim(t_str1)//" to "//trim(t_str2)// &
+                     " for template: "//trim(this%file_template))
+            end if
+         end if
+
+         ! --- Direction-aware endpoint check ---
+         ! The clim handler uses valid_years(1) when the run is before valid_range,
+         ! and valid_years(2) when it is after.  The on-disk contiguous block must
+         ! cover valid_range(1) (resp. valid_range(2)) so that the full first (resp.
+         ! last) year is available for year-wrapping.  We apply the same one-period
+         ! tolerance used in the overlap check.
+         if (run_range(2) < this%valid_range(1)) then
+            if (on_disk_first > this%valid_range(1) + this%frequency) then
                call ESMF_TimeGet(on_disk_first,       timeString=t_str1, _RC)
                call ESMF_TimeGet(this%valid_range(1), timeString=t_str2, _RC)
                _FAIL("clim extrapolation: run is before valid_range (starts "// &
@@ -503,9 +687,7 @@ contains
                      " for template: "//trim(this%file_template))
             end if
          else if (run_range(1) > this%valid_range(2)) then
-            ! Run is entirely after valid_range: clim handler will use valid_years(2).
-            ! on_disk_last must be in vr_yr2 so the full contiguous block covers it.
-            if (yr_last /= vr_yr2) then
+            if (on_disk_last < this%valid_range(2) - this%frequency) then
                call ESMF_TimeGet(on_disk_last,        timeString=t_str1, _RC)
                call ESMF_TimeGet(this%valid_range(2), timeString=t_str2, _RC)
                _FAIL("clim extrapolation: run is after valid_range (ends "// &
@@ -515,11 +697,297 @@ contains
             end if
          end if
 
+         ! --- Gap scan: probe every expected file in the target year ---
+         ! Checks that the year the clim handler will actually use has no
+         ! missing files.  The scan bounds are [Jan 1, Dec 31] of scan_year,
+         ! converted to file-series indices using the same abs/rel arithmetic
+         ! as refine_valid_range.
+         if (do_gap_scan) then
+            call ESMF_TimeSet(t_scan_lo, yy=scan_year, mm=1,  dd=1,  h=0,  m=0,  s=0,  _RC)
+            call ESMF_TimeSet(t_scan_hi, yy=scan_year, mm=12, dd=31, h=23, m=59, s=59, _RC)
+
+            call ESMF_TimeIntervalGet(this%frequency, s_i8=scan_interval_seconds, _RC)
+            if (scan_interval_seconds /= 0) then
+               n_scan_lo = (t_scan_lo - this%reff_time) / this%frequency
+               if (this%reff_time + n_scan_lo * this%frequency > t_scan_lo) n_scan_lo = n_scan_lo - 1
+               n_scan_hi = (t_scan_hi - this%reff_time) / this%frequency
+               if (this%reff_time + n_scan_hi * this%frequency > t_scan_hi) n_scan_hi = n_scan_hi - 1
+            else
+               n_scan = 0
+               if (this%reff_time < t_scan_lo) then
+                  do while (this%reff_time + (n_scan + 1) * this%frequency <= t_scan_lo)
+                     n_scan = n_scan + 1
+                  end do
+               else
+                  do while (this%reff_time + n_scan * this%frequency > t_scan_lo)
+                     n_scan = n_scan - 1
+                  end do
+               end if
+               n_scan_lo = n_scan
+               n_scan = n_scan_lo
+               do while (this%reff_time + (n_scan + 1) * this%frequency <= t_scan_hi)
+                  n_scan = n_scan + 1
+               end do
+               n_scan_hi = n_scan
+            end if
+
+            do n_scan = n_scan_lo, n_scan_hi
+               t_probe = this%reff_time + n_scan * this%frequency
+               call fill_grads_template(probe_filename, this%file_template, time=t_probe, _RC)
+               inquire(file=trim(probe_filename), exist=probe_found)
+               if (.not. probe_found) then
+                  call ESMF_TimeGet(t_probe, timeString=t_str1, _RC)
+                  _FAIL("clim extrapolation: file missing within year "// &
+                        achar(48 + mod(scan_year/1000,10))// &
+                        achar(48 + mod(scan_year/100, 10))// &
+                        achar(48 + mod(scan_year/10,  10))// &
+                        achar(48 + mod(scan_year,     10))// &
+                        " needed for year-wrapping; expected file at "// &
+                        trim(t_str1)//" for template: "//trim(this%file_template))
+               end if
+            end do
+         end if
+
       end select
 
       _RETURN(_SUCCESS)
 
    end subroutine check_data_availability
+
+   ! Compute the first (n_lo) and last (n_hi) file-series indices within
+   ! the window [t_lo, t_hi] inclusive.
+   ! Uses the same abs/rel arithmetic as refine_valid_range.
+   subroutine compute_index_bounds(reff_time, frequency, t_lo, t_hi, n_lo, n_hi, rc)
+      type(ESMF_Time),         intent(in)  :: reff_time
+      type(ESMF_TimeInterval), intent(in)  :: frequency
+      type(ESMF_Time),         intent(in)  :: t_lo
+      type(ESMF_Time),         intent(in)  :: t_hi
+      integer,                 intent(out) :: n_lo
+      integer,                 intent(out) :: n_hi
+      integer, optional,       intent(out) :: rc
+
+      integer(ESMF_KIND_I8) :: interval_seconds
+      integer :: n, status
+
+      call ESMF_TimeIntervalGet(frequency, s_i8=interval_seconds, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         if (present(rc)) rc = status
+         return
+      end if
+
+      if (interval_seconds /= 0) then
+         n_lo = (t_lo - reff_time) / frequency
+         if (reff_time + n_lo * frequency > t_lo) n_lo = n_lo - 1
+         n_hi = (t_hi - reff_time) / frequency
+         if (reff_time + n_hi * frequency > t_hi) n_hi = n_hi - 1
+      else
+         n = 0
+         if (reff_time < t_lo) then
+            do while (reff_time + (n + 1) * frequency <= t_lo)
+               n = n + 1
+            end do
+         else
+            do while (reff_time + n * frequency > t_lo)
+               n = n - 1
+            end do
+         end if
+         n_lo = n
+         n = n_lo
+         do while (reff_time + (n + 1) * frequency <= t_hi)
+            n = n + 1
+         end do
+         n_hi = n
+      end if
+
+      if (present(rc)) rc = ESMF_SUCCESS
+
+   end subroutine compute_index_bounds
+
+   ! Build an ESMF_HConfig map entry describing all files this dataset requires
+   ! for the given run_range and extrap_outside mode.  No filesystem probing is
+   ! performed — the list is derived purely from the template, frequency, and ranges.
+   !
+   ! Output structure (one entry in the manifest sequence):
+   !   template:       <file_template>
+   !   extrap_outside: <extrap_outside>
+   !   run_range:      [<run_range(1)>, <run_range(2)>]
+   !   files:
+   !     - <expanded filename>
+   !     - ...
+   !
+   ! Enumeration scope per scenario:
+   !   "none"            — indices within run_range
+   !   "persist_closest" — indices in overlap(run_range, valid_range);
+   !                       if run is entirely outside valid_range, just the
+   !                       single endpoint file (first or last of valid_range)
+   !   "clim" inside     — indices in overlap(run_range, valid_range)
+   !   "clim" outside    — indices in the target year (vr_yr1 or vr_yr2)
+   subroutine get_required_files_hconfig(this, run_range, extrap_outside, entry_hconfig, unusable, rc)
+      class(ExtDataFileStream), intent(in)    :: this
+      type(ESMF_Time),          intent(in)    :: run_range(2)
+      character(len=*),         intent(in)    :: extrap_outside
+      type(ESMF_HConfig),       intent(out)   :: entry_hconfig
+      class(KeywordEnforcer),   optional, intent(in)  :: unusable
+      integer,                  optional, intent(out) :: rc
+
+      integer :: n, n_lo, n_hi, status
+      integer :: vr_yr1, vr_yr2, scan_year
+      type(ESMF_Time) :: t_enum_lo, t_enum_hi, t_probe
+      type(ESMF_Time) :: overlap_start, overlap_end
+      type(ESMF_HConfig) :: files_seq
+      character(len=ESMF_MAXPATHLEN) :: probe_filename
+      character(len=ESMF_MAXSTR) :: t_str1, t_str2
+
+      _UNUSED_DUMMY(unusable)
+
+      ! Build the top-level map for this dataset entry.
+      entry_hconfig = ESMF_HConfigCreate(content='{}', rc=status)
+      _VERIFY(status)
+
+      call ESMF_HConfigAdd(entry_hconfig, this%file_template, addKeyString='template', rc=status)
+      _VERIFY(status)
+      call ESMF_HConfigAdd(entry_hconfig, trim(extrap_outside), addKeyString='extrap_outside', rc=status)
+      _VERIFY(status)
+
+      ! Include valid_range when set — useful context in the manifest.
+      if (allocated(this%valid_range)) then
+         call ESMF_TimeGet(this%valid_range(1), timeString=t_str1, rc=status)
+         _VERIFY(status)
+         call ESMF_TimeGet(this%valid_range(2), timeString=t_str2, rc=status)
+         _VERIFY(status)
+         block
+            type(ESMF_HConfig) :: vr_seq
+            vr_seq = ESMF_HConfigCreate(content='[]', rc=status)
+            _VERIFY(status)
+            call ESMF_HConfigAdd(vr_seq, trim(t_str1), rc=status)
+            _VERIFY(status)
+            call ESMF_HConfigAdd(vr_seq, trim(t_str2), rc=status)
+            _VERIFY(status)
+            call ESMF_HConfigAdd(entry_hconfig, content=vr_seq, addKeyString='valid_range', rc=status)
+            _VERIFY(status)
+            call ESMF_HConfigDestroy(vr_seq, rc=status)
+            _VERIFY(status)
+         end block
+      end if
+
+      call ESMF_TimeGet(run_range(1), timeString=t_str1, rc=status)
+      _VERIFY(status)
+      call ESMF_TimeGet(run_range(2), timeString=t_str2, rc=status)
+      _VERIFY(status)
+      ! Build run_range as a proper YAML sequence [start, stop].
+      block
+         type(ESMF_HConfig) :: rr_seq
+         rr_seq = ESMF_HConfigCreate(content='[]', rc=status)
+         _VERIFY(status)
+         call ESMF_HConfigAdd(rr_seq, trim(t_str1), rc=status)
+         _VERIFY(status)
+         call ESMF_HConfigAdd(rr_seq, trim(t_str2), rc=status)
+         _VERIFY(status)
+         call ESMF_HConfigAdd(entry_hconfig, content=rr_seq, addKeyString='run_range', rc=status)
+         _VERIFY(status)
+         call ESMF_HConfigDestroy(rr_seq, rc=status)
+         _VERIFY(status)
+      end block
+
+      ! Determine enumeration window based on scenario.
+      select case (trim(extrap_outside))
+
+      case ("none")
+         ! Enumerate all file indices within run_range.
+         t_enum_lo = run_range(1)
+         t_enum_hi = run_range(2)
+
+      case ("persist_closest")
+         ! Compute overlap of run_range and valid_range.
+         if (run_range(1) > this%valid_range(1)) then
+            overlap_start = run_range(1)
+         else
+            overlap_start = this%valid_range(1)
+         end if
+         if (run_range(2) < this%valid_range(2)) then
+            overlap_end = run_range(2)
+         else
+            overlap_end = this%valid_range(2)
+         end if
+
+         if (overlap_start <= overlap_end) then
+            ! Run overlaps valid_range — enumerate the overlap.
+            t_enum_lo = overlap_start
+            t_enum_hi = overlap_end
+         else if (run_range(2) < this%valid_range(1)) then
+            ! Run is entirely before valid_range — need the first file.
+            t_enum_lo = this%valid_range(1)
+            t_enum_hi = this%valid_range(1)
+         else
+            ! Run is entirely after valid_range — need the last file.
+            t_enum_lo = this%valid_range(2)
+            t_enum_hi = this%valid_range(2)
+         end if
+
+      case ("clim")
+         ! Compute overlap of run_range and valid_range.
+         if (run_range(1) > this%valid_range(1)) then
+            overlap_start = run_range(1)
+         else
+            overlap_start = this%valid_range(1)
+         end if
+         if (run_range(2) < this%valid_range(2)) then
+            overlap_end = run_range(2)
+         else
+            overlap_end = this%valid_range(2)
+         end if
+
+         if (overlap_start <= overlap_end) then
+            ! Run overlaps valid_range — enumerate the overlap only.
+            t_enum_lo = overlap_start
+            t_enum_hi = overlap_end
+         else
+            ! Run is outside valid_range — enumerate the target year.
+            call ESMF_TimeGet(this%valid_range(1), yy=vr_yr1, rc=status)
+            _VERIFY(status)
+            call ESMF_TimeGet(this%valid_range(2), yy=vr_yr2, rc=status)
+            _VERIFY(status)
+            if (run_range(2) < this%valid_range(1)) then
+               scan_year = vr_yr1
+            else
+               scan_year = vr_yr2
+            end if
+            call ESMF_TimeSet(t_enum_lo, yy=scan_year, mm=1,  dd=1,  h=0,  m=0,  s=0,  rc=status)
+            _VERIFY(status)
+            call ESMF_TimeSet(t_enum_hi, yy=scan_year, mm=12, dd=31, h=23, m=59, s=59, rc=status)
+            _VERIFY(status)
+         end if
+
+      case default
+         ! Unknown extrap_outside — enumerate run_range as a safe default.
+         t_enum_lo = run_range(1)
+         t_enum_hi = run_range(2)
+
+      end select
+
+      ! Compute index bounds and emit file list.
+      call compute_index_bounds(this%reff_time, this%frequency, t_enum_lo, t_enum_hi, n_lo, n_hi, rc=status)
+      _VERIFY(status)
+
+      files_seq = ESMF_HConfigCreate(content='[]', rc=status)
+      _VERIFY(status)
+
+      do n = n_lo, n_hi
+         t_probe = this%reff_time + n * this%frequency
+         call fill_grads_template(probe_filename, this%file_template, time=t_probe, rc=status)
+         _VERIFY(status)
+         call ESMF_HConfigAdd(files_seq, trim(probe_filename), rc=status)
+         _VERIFY(status)
+      end do
+
+      call ESMF_HConfigAdd(entry_hconfig, content=files_seq, addKeyString='files', rc=status)
+      _VERIFY(status)
+      call ESMF_HConfigDestroy(files_seq, rc=status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_required_files_hconfig
 
 end module MAPL_ExtDataFileStream
 

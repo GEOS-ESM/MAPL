@@ -246,6 +246,7 @@ CONTAINS
 
    type(ExtDataOldTypesCreator), target :: config_yaml
    character(len=ESMF_MAXSTR) :: new_rc_file
+   character(len=ESMF_MAXSTR) :: print_required_files_path
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
    integer :: item_type
@@ -282,7 +283,10 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
    call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
-   call get_global_options(new_rc_file,self%active,self%file_weights,_RC)
+    call get_global_options(new_rc_file,self%active,self%file_weights,config_yaml%validate_file_ranges,print_required_files_path,_RC)
+    if (len_trim(print_required_files_path) > 0) then
+       allocate(config_yaml%print_required_files, source=trim(print_required_files_path))
+    end if
 
    call ESMF_ClockGet(CLOCK, currTIME=time, _RC)
 ! Get information from export state
@@ -400,6 +404,20 @@ CONTAINS
          end if
       end if
    enddo
+
+!  Write required-files manifest if requested.
+   if (config_yaml%required_files_hconfig_initialized) then
+      block
+         type(ESMF_HConfig) :: manifest_hconfig
+         manifest_hconfig = ESMF_HConfigCreate(content='{}', _RC)
+         call ESMF_HConfigAdd(manifest_hconfig, content=config_yaml%required_files_hconfig, &
+              addKeyString='required_files', _RC)
+         call ESMF_HConfigFileSave(manifest_hconfig, trim(print_required_files_path), _RC)
+         call ESMF_HConfigDestroy(manifest_hconfig, _RC)
+         call ESMF_HConfigDestroy(config_yaml%required_files_hconfig, _RC)
+         config_yaml%required_files_hconfig_initialized = .false.
+      end block
+   end if
 
 !  now lets establish the horizonal and vertical grid for each component, replaces getlevs
    do i=1,self%primary%import_names%size()
@@ -1829,22 +1847,32 @@ CONTAINS
 
    end function range_overlaps_item
 
-   subroutine get_global_options(yaml_file,am_running,use_file_weights,rc)
+   subroutine get_global_options(yaml_file,am_running,use_file_weights,validate_file_ranges,print_required_files,rc)
      character(len=*), intent(in) :: yaml_file
      logical,intent(out) :: am_running
      logical,intent(out) :: use_file_weights
+     logical,intent(out) :: validate_file_ranges
+     character(len=*), intent(out) :: print_required_files
      integer, intent(out), optional :: rc
      type(ESMF_HConfig), allocatable :: config
      integer :: status
 
      am_running=.true.
      use_file_weights=.false.
+     validate_file_ranges=.false.
+     print_required_files=''
      config = ESMF_HConfigCreate(filename = trim(yaml_file),_RC)
      if (ESMF_HConfigIsDefined(config,keyString="USE_EXTDATA")) then
         am_running  = ESMF_HConfigAsLogical(config,keyString="USE_EXTDATA",_RC)
      end if
      if (ESMF_HConfigIsDefined(config,keyString="file_weights")) then
         use_file_weights  = ESMF_HConfigAsLogical(config,keyString="file_weights",_RC)
+     end if
+     if (ESMF_HConfigIsDefined(config,keyString="VALIDATE_FILE_RANGES")) then
+        validate_file_ranges = ESMF_HConfigAsLogical(config,keyString="VALIDATE_FILE_RANGES",_RC)
+     end if
+     if (ESMF_HConfigIsDefined(config,keyString="PRINT_REQUIRED_FILES")) then
+        print_required_files = ESMF_HConfigAsString(config,keyString="PRINT_REQUIRED_FILES",_RC)
      end if
      call ESMF_HConfigDestroy(config)
      _RETURN(_SUCCESS)

@@ -29,6 +29,10 @@ module MAPL_ExtDataOldTypesCreator
 
    type, extends(ExtDataConfig) :: ExtDataOldTypesCreator
       private
+      logical, public :: validate_file_ranges = .false.
+      character(len=:), public, allocatable :: print_required_files
+      type(ESMF_HConfig), public :: required_files_hconfig  ! sequence of per-dataset entries
+      logical, public :: required_files_hconfig_initialized = .false.
       contains
          procedure :: fillin_primary
          procedure :: fillin_derived
@@ -76,6 +80,7 @@ module MAPL_ExtDataOldTypesCreator
       type(ExtDataClimFileHandler) :: clim_handler
       integer :: status, semi_pos
       logical :: disable_interpolation, get_range, exact, user_set_range
+      type(ESMF_HConfig) :: entry_hconfig
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
@@ -152,9 +157,24 @@ module MAPL_ExtDataOldTypesCreator
           get_range = trim(time_sample%extrap_outside) /= "none"
           user_set_range = allocated(dataset%valid_range)
           call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,_RC)
-          if (user_set_range .and. index(dataset%file_template,'%') /= 0 .and. &
-               trim(time_sample%extrap_outside) /= "none") then
-             call dataset%check_data_availability(run_range, time_sample%extrap_outside, _RC)
+          if (this%validate_file_ranges .and. &
+               index(dataset%file_template,'%') /= 0) then
+             if (trim(time_sample%extrap_outside) == "none" .or. user_set_range) then
+                call dataset%check_data_availability(run_range, time_sample%extrap_outside, _RC)
+             end if
+          end if
+
+          ! Accumulate manifest entry if print_required_files is enabled.
+          if (allocated(this%print_required_files) .and. &
+               index(dataset%file_template,'%') /= 0 .and. &
+               (trim(time_sample%extrap_outside) == "none" .or. user_set_range)) then
+             if (.not. this%required_files_hconfig_initialized) then
+                this%required_files_hconfig = ESMF_HConfigCreate(content='[]', _RC)
+                this%required_files_hconfig_initialized = .true.
+             end if
+             call dataset%get_required_files_hconfig(run_range, time_sample%extrap_outside, entry_hconfig, _RC)
+             call ESMF_HConfigAdd(this%required_files_hconfig, content=entry_hconfig, _RC)
+             call ESMF_HConfigDestroy(entry_hconfig, _RC)
           end if
       else
          primary_item%file_template = rule%collection

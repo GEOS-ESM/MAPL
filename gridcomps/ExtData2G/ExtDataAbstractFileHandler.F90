@@ -189,24 +189,49 @@ contains
      call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
      inquire(file=trim(trial_file),exist=file_found)
 
-     if (file_found) then
-        filename = trial_file
-        _RETURN(_SUCCESS)
-     end if
+      if (file_found) then
+         filename = trial_file
+         _RETURN(_SUCCESS)
+      end if
       if (allocated(this%on_disk_range)) then
          useable_time = this%on_disk_range(1)
+         ! Also try the last known file immediately — covers the common case
+         ! where only the endpoint file exists (e.g. persist_closest with run
+         ! outside valid_range and only the last file on disk).
+         call fill_grads_template(trial_file, this%file_template, time=this%on_disk_range(2), _RC)
+         inquire(file=trim(trial_file), exist=file_found)
+         if (file_found) then
+            filename = trial_file
+            _RETURN(_SUCCESS)
+         end if
       else if (allocated(this%valid_range)) then
          useable_time = this%valid_range(1)
       end if
-     do i=1, MAX_TRIALS
-        call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
-        inquire(file=trim(trial_file),exist=file_found)
-        if (file_found) then
-           filename = trial_file
-           _RETURN(_SUCCESS)
-        end if
-        useable_time = useable_time + this%frequency
-     enddo
+      do i=1, MAX_TRIALS
+         call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+         inquire(file=trim(trial_file),exist=file_found)
+         if (file_found) then
+            filename = trial_file
+            _RETURN(_SUCCESS)
+         end if
+         useable_time = useable_time + this%frequency
+      enddo
+
+      ! Forward scan from start missed; if valid_range is set, try scanning
+      ! backward from valid_range(2) — handles the case where data is sparse
+      ! and only exists near the end of the valid range.
+      if (.not. file_found .and. allocated(this%valid_range)) then
+         useable_time = this%valid_range(2)
+         do i=1, MAX_TRIALS
+            call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+            inquire(file=trim(trial_file),exist=file_found)
+            if (file_found) then
+               filename = trial_file
+               _RETURN(_SUCCESS)
+            end if
+            useable_time = useable_time - this%frequency
+         enddo
+      end if
 
      if (fail_on_missing) then
         _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials. Tried template: "//trim(this%file_template))
