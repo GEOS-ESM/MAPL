@@ -247,6 +247,7 @@ CONTAINS
    type(ExtDataOldTypesCreator), target :: config_yaml
    character(len=ESMF_MAXSTR) :: new_rc_file
    character(len=ESMF_MAXSTR) :: print_required_files_path
+   logical :: validate_file_ranges_tmp
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
    integer :: item_type
@@ -283,10 +284,7 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
    call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
-    call get_global_options(new_rc_file,self%active,self%file_weights,config_yaml%validate_file_ranges,print_required_files_path,_RC)
-    if (len_trim(print_required_files_path) > 0) then
-       allocate(config_yaml%print_required_files, source=trim(print_required_files_path))
-    end if
+    call get_global_options(new_rc_file,self%active,self%file_weights,validate_file_ranges_tmp,print_required_files_path,_RC)
 
    call ESMF_ClockGet(CLOCK, currTIME=time, _RC)
 ! Get information from export state
@@ -305,6 +303,12 @@ CONTAINS
     end if
 
     call new_ExtDataOldTypesCreator(config_yaml, new_rc_file, time, _RC)
+    ! Re-apply options after new_ExtDataOldTypesCreator since intent(out)
+    ! resets all fields of config_yaml to their default values.
+    config_yaml%validate_file_ranges = validate_file_ranges_tmp
+    if (len_trim(print_required_files_path) > 0) then
+       allocate(config_yaml%print_required_files, source=trim(print_required_files_path))
+    end if
 
     allocate(ITEMNAMES(ITEMCOUNT), _STAT)
     allocate(ITEMTYPES(ITEMCOUNT), _STAT)
