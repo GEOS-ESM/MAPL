@@ -58,12 +58,15 @@ module mapl_FieldApplyUserRoutine_mod
    use ESMF, only: ESMF_Geom, ESMF_GeomGet
    use ESMF, only: ESMF_DATACOPY_REFERENCE
    use ESMF, only: ESMF_AttributeCopy, ESMF_AttributeRemove
+   use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoRemove, ESMF_InfoIsPresent
    use ESMF, only: operator(==)
    use mapl_FieldCondensedArray_mod, only: condensed_slice_rank, &
                                            assign_fptr_condensed_array
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
    use mapl_ErrorHandling_mod
+   use mapl_InfoUtilities_mod, only: MAPL_InfoCreateFromShared, MAPL_InfoSet
+   use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE, KEY_UNGRIDDED_DIMS
 
    implicit none(type, external)
    private
@@ -278,13 +281,50 @@ contains
       end if
    
       ! ------------------------------------------------------------------
-      ! Copy all ESMF attributes from the original field to the slice.
-      ! TODO: Remove ungridded-dimension-specific metadata so the slice
-      !       field does not misrepresent its structure.
+      ! Copy ESMF_Info from the original field to the slice, excluding
+      ! ungridded-dimension metadata so the slice does not misrepresent
+      ! its structure.
       ! ------------------------------------------------------------------
-      call ESMF_AttributeCopy(field, slice, _RC)
+      call copy_info_excluding_ungridded_dims(field, slice, _RC)
    
       _RETURN(_SUCCESS)
    end function FieldCreateFieldSlice
+
+   ! --------------------------------------------------------------------------
+   ! copy_info_excluding_ungridded_dims
+   !
+   ! Copy the ESMF_Info object from the source field to the destination field,
+   ! excluding the ungridded dimension metadata. This ensures that a slice
+   ! field does not carry metadata describing ungridded dimensions it no
+   ! longer possesses.
+   ! --------------------------------------------------------------------------
+   subroutine copy_info_excluding_ungridded_dims(field_src, field_dst, rc)
+      type(ESMF_Field), intent(in)    :: field_src
+      type(ESMF_Field), intent(inout) :: field_dst
+      integer, optional, intent(out)  :: rc
+    
+      type(ESMF_Info) :: shared_info_src, info_dst
+      character(len=:), allocatable :: full_key
+      logical :: is_present
+      integer :: status
+    
+      ! Get the shared namespace Info from the source field
+      shared_info_src = MAPL_InfoCreateFromShared(field_src, _RC)
+    
+      ! Get the Info object from the destination field
+      call ESMF_InfoGetFromHost(field_dst, info_dst, _RC)
+    
+      ! Set the shared Info on the destination field
+      call MAPL_InfoSet(info_dst, INFO_SHARED_NAMESPACE, shared_info_src, _RC)
+    
+      ! Remove the ungridded_dims key if it exists in the destination's shared namespace
+      full_key = INFO_SHARED_NAMESPACE // KEY_UNGRIDDED_DIMS
+      is_present = ESMF_InfoIsPresent(info_dst, full_key, _RC)
+      if (is_present) then
+         call ESMF_InfoRemove(info_dst, full_key, _RC)
+      end if
+    
+      _RETURN(_SUCCESS)
+   end subroutine copy_info_excluding_ungridded_dims
 
 end module mapl_FieldApplyUserRoutine_mod
