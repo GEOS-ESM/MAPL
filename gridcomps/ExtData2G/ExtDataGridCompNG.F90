@@ -412,13 +412,36 @@ CONTAINS
 !  Write required-files manifest if requested.
    if (config_yaml%required_files_hconfig_initialized) then
       block
-         type(ESMF_HConfig) :: manifest_hconfig
-         manifest_hconfig = ESMF_HConfigCreate(content='{}', _RC)
+         type(ESMF_HConfig) :: manifest_hconfig, rr_seq
+         character(len=ESMF_MAXSTR) :: t_str1, t_str2
+         integer :: manifest_status
+         manifest_hconfig = ESMF_HConfigCreate(content='{}', rc=manifest_status)
+         _VERIFY(manifest_status)
+         ! Add run_range as a sequence at the top level.
+         call ESMF_TimeGet(run_range(1), timeString=t_str1, rc=manifest_status)
+         _VERIFY(manifest_status)
+         call ESMF_TimeGet(run_range(2), timeString=t_str2, rc=manifest_status)
+         _VERIFY(manifest_status)
+         rr_seq = ESMF_HConfigCreate(content='[]', rc=manifest_status)
+         _VERIFY(manifest_status)
+         call ESMF_HConfigAdd(rr_seq, trim(t_str1), rc=manifest_status)
+         _VERIFY(manifest_status)
+         call ESMF_HConfigAdd(rr_seq, trim(t_str2), rc=manifest_status)
+         _VERIFY(manifest_status)
+         call ESMF_HConfigAdd(manifest_hconfig, content=rr_seq, addKeyString='run_range', rc=manifest_status)
+         _VERIFY(manifest_status)
+         call ESMF_HConfigDestroy(rr_seq, rc=manifest_status)
+         _VERIFY(manifest_status)
+         ! Add the required_files map.
          call ESMF_HConfigAdd(manifest_hconfig, content=config_yaml%required_files_hconfig, &
-              addKeyString='required_files', _RC)
-         call ESMF_HConfigFileSave(manifest_hconfig, trim(print_required_files_path), _RC)
-         call ESMF_HConfigDestroy(manifest_hconfig, _RC)
-         call ESMF_HConfigDestroy(config_yaml%required_files_hconfig, _RC)
+              addKeyString='required_files', rc=manifest_status)
+         _VERIFY(manifest_status)
+         call ESMF_HConfigFileSave(manifest_hconfig, trim(print_required_files_path), rc=manifest_status)
+         _VERIFY(manifest_status)
+         call ESMF_HConfigDestroy(manifest_hconfig, rc=manifest_status)
+         _VERIFY(manifest_status)
+         call ESMF_HConfigDestroy(config_yaml%required_files_hconfig, rc=manifest_status)
+         _VERIFY(manifest_status)
          config_yaml%required_files_hconfig_initialized = .false.
       end block
    end if

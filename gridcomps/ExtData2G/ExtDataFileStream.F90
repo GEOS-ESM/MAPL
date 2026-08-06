@@ -836,11 +836,10 @@ contains
       type(ESMF_Time) :: overlap_start, overlap_end
       type(ESMF_HConfig) :: files_seq
       character(len=ESMF_MAXPATHLEN) :: probe_filename
-      character(len=ESMF_MAXSTR) :: t_str1, t_str2
 
       _UNUSED_DUMMY(unusable)
 
-      ! Build the top-level map for this dataset entry.
+      ! Build the entry map: template, extrap_outside, files.
       entry_hconfig = ESMF_HConfigCreate(content='{}', rc=status)
       _VERIFY(status)
 
@@ -848,46 +847,6 @@ contains
       _VERIFY(status)
       call ESMF_HConfigAdd(entry_hconfig, trim(extrap_outside), addKeyString='extrap_outside', rc=status)
       _VERIFY(status)
-
-      ! Include valid_range when set — useful context in the manifest.
-      if (allocated(this%valid_range)) then
-         call ESMF_TimeGet(this%valid_range(1), timeString=t_str1, rc=status)
-         _VERIFY(status)
-         call ESMF_TimeGet(this%valid_range(2), timeString=t_str2, rc=status)
-         _VERIFY(status)
-         block
-            type(ESMF_HConfig) :: vr_seq
-            vr_seq = ESMF_HConfigCreate(content='[]', rc=status)
-            _VERIFY(status)
-            call ESMF_HConfigAdd(vr_seq, trim(t_str1), rc=status)
-            _VERIFY(status)
-            call ESMF_HConfigAdd(vr_seq, trim(t_str2), rc=status)
-            _VERIFY(status)
-            call ESMF_HConfigAdd(entry_hconfig, content=vr_seq, addKeyString='valid_range', rc=status)
-            _VERIFY(status)
-            call ESMF_HConfigDestroy(vr_seq, rc=status)
-            _VERIFY(status)
-         end block
-      end if
-
-      call ESMF_TimeGet(run_range(1), timeString=t_str1, rc=status)
-      _VERIFY(status)
-      call ESMF_TimeGet(run_range(2), timeString=t_str2, rc=status)
-      _VERIFY(status)
-      ! Build run_range as a proper YAML sequence [start, stop].
-      block
-         type(ESMF_HConfig) :: rr_seq
-         rr_seq = ESMF_HConfigCreate(content='[]', rc=status)
-         _VERIFY(status)
-         call ESMF_HConfigAdd(rr_seq, trim(t_str1), rc=status)
-         _VERIFY(status)
-         call ESMF_HConfigAdd(rr_seq, trim(t_str2), rc=status)
-         _VERIFY(status)
-         call ESMF_HConfigAdd(entry_hconfig, content=rr_seq, addKeyString='run_range', rc=status)
-         _VERIFY(status)
-         call ESMF_HConfigDestroy(rr_seq, rc=status)
-         _VERIFY(status)
-      end block
 
       ! Determine enumeration window based on scenario.
       select case (trim(extrap_outside))

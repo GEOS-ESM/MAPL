@@ -169,11 +169,38 @@ module MAPL_ExtDataOldTypesCreator
                index(dataset%file_template,'%') /= 0 .and. &
                (trim(time_sample%extrap_outside) == "none" .or. user_set_range)) then
              if (.not. this%required_files_hconfig_initialized) then
-                this%required_files_hconfig = ESMF_HConfigCreate(content='[]', _RC)
+                this%required_files_hconfig = ESMF_HConfigCreate(content='{}', _RC)
                 this%required_files_hconfig_initialized = .true.
              end if
              call dataset%get_required_files_hconfig(run_range, time_sample%extrap_outside, entry_hconfig, _RC)
-             call ESMF_HConfigAdd(this%required_files_hconfig, content=entry_hconfig, _RC)
+             ! Key = base_name. For multi-rule items the key already exists as a
+             ! sequence; for single-rule items it does not exist yet.
+             if (ESMF_HConfigIsDefined(this%required_files_hconfig, keyString=trim(base_name))) then
+                ! Key exists — this is a subsequent rule; append to the sequence.
+                ! If the existing value is a map (first rule was single), convert it
+                ! to a sequence first.
+                block
+                   type(ESMF_HConfig) :: existing, new_seq, first_entry
+                   existing = ESMF_HConfigCreateAt(this%required_files_hconfig, keyString=trim(base_name), _RC)
+                   if (ESMF_HConfigIsMap(existing)) then
+                      ! First rule was stored as a plain map — wrap it in a sequence.
+                      new_seq = ESMF_HConfigCreate(content='[]', _RC)
+                      first_entry = ESMF_HConfigCreate(existing, _RC)
+                      call ESMF_HConfigAdd(new_seq, content=first_entry, _RC)
+                      call ESMF_HConfigAdd(new_seq, content=entry_hconfig, _RC)
+                      call ESMF_HConfigAdd(this%required_files_hconfig, content=new_seq, addKeyString=trim(base_name), _RC)
+                      call ESMF_HConfigDestroy(new_seq, _RC)
+                      call ESMF_HConfigDestroy(first_entry, _RC)
+                   else
+                      ! Already a sequence — just append.
+                      call ESMF_HConfigAdd(existing, content=entry_hconfig, _RC)
+                   end if
+                   call ESMF_HConfigDestroy(existing, _RC)
+                end block
+             else
+                ! First rule for this export — store as a plain map.
+                call ESMF_HConfigAdd(this%required_files_hconfig, content=entry_hconfig, addKeyString=trim(base_name), _RC)
+             end if
              call ESMF_HConfigDestroy(entry_hconfig, _RC)
           end if
       else
