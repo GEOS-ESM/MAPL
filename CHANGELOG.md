@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [v2.35.3+R21C_v1.5.0] - 2026-08-06
+
+### Fixed
+
+- Fixed bug in `time_ave_util.x` when the input files have a level size of 1
+
 ## [v2.35.3+R21C_v1.4.0] - 2024-11-29
 
 ### Changed
