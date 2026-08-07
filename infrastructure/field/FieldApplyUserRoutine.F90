@@ -65,8 +65,8 @@ module mapl_FieldApplyUserRoutine_mod
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
    use mapl_ErrorHandling_mod
-   use mapl_InfoUtilities_mod, only: MAPL_InfoCreateFromShared, MAPL_InfoSet
-   use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE, KEY_UNGRIDDED_DIMS
+   use mapl_InfoUtilities_mod, only: MAPL_InfoSet
+   use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE, KEY_UNGRIDDED_DIMS
 
    implicit none(type, external)
    private
@@ -303,22 +303,22 @@ contains
       type(ESMF_Field), intent(inout) :: field_dst
       integer, optional, intent(out)  :: rc
     
-      type(ESMF_Info) :: shared_info_src, info_dst
+      type(ESMF_Info) :: info_src, info_dst
       character(len=:), allocatable :: full_key
       logical :: is_present
       integer :: status
     
-      ! Get the shared namespace Info from the source field
-      shared_info_src = MAPL_InfoCreateFromShared(field_src, _RC)
+      ! Get the entire Info object from the source field
+      call ESMF_InfoGetFromHost(field_src, info_src, _RC)
     
       ! Get the Info object from the destination field
       call ESMF_InfoGetFromHost(field_dst, info_dst, _RC)
     
-      ! Set the shared Info on the destination field
-      call MAPL_InfoSet(info_dst, INFO_SHARED_NAMESPACE, shared_info_src, _RC)
+      ! Copy the entire Info tree from source to destination
+      call MAPL_InfoSet(info_dst, key="", value=info_src, _RC)
     
-      ! Remove the ungridded_dims key if it exists in the destination's shared namespace
-      full_key = INFO_SHARED_NAMESPACE // KEY_UNGRIDDED_DIMS
+      ! Remove the ungridded_dims key if it exists in the internal namespace
+      full_key = INFO_INTERNAL_NAMESPACE // KEY_UNGRIDDED_DIMS
       is_present = ESMF_InfoIsPresent(info_dst, full_key, _RC)
       if (is_present) then
          call ESMF_InfoRemove(info_dst, full_key, _RC)
