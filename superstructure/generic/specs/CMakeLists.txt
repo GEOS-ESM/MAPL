@@ -31,6 +31,7 @@ target_sources(MAPL.generic PRIVATE
   VariableSpecVector.F90
 
   GeometrySpec.F90
+  GeometryClassAspect.F90
 
   GridSpec.F90
   
