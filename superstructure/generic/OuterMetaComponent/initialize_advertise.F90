@@ -29,11 +29,12 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
+      call advertise_framework_geometry(this, _RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
-      call self_advertise(this, _RC)
-      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+      call advertise_state_items(this, _RC)
+      call run_advertise_callbacks(this, PHASE_NAME, _RC)
+      call activate_connections(this, _RC)
 
-      call process_connections(this, _RC)
       call this%registry%propagate_unsatisfied_imports(_RC)
       call this%registry%propagate_exports(_RC)
 
@@ -43,6 +44,34 @@ contains
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_advertise
+
+   subroutine advertise_framework_geometry(this, unusable, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      ! Geometry carriers remain framework-only until geometry propagation is enabled.
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+   end subroutine advertise_framework_geometry
+
+
+   subroutine advertise_state_items(this, unusable, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call self_advertise(this, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine advertise_state_items
+
 
    subroutine self_advertise(this, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -67,7 +96,20 @@ contains
    end subroutine self_advertise
 
 
-   subroutine process_connections(this, rc)
+   subroutine run_advertise_callbacks(this, phase_name, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: phase_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%run_custom(ESMF_METHOD_INITIALIZE, phase_name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine run_advertise_callbacks
+
+
+   subroutine activate_connections(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -85,6 +127,6 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
-   end subroutine process_connections
+   end subroutine activate_connections
 
 end submodule initialize_advertise_smod

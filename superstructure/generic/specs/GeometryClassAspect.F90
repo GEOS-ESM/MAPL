@@ -29,6 +29,7 @@ module mapl_GeometryClassAspect_mod
    type, extends(ClassAspect) :: GeometryClassAspect
       private
       type(ESMF_Field) :: payload
+      logical :: owns_payload = .true.
       type(ESMF_Geom), allocatable :: geom
       class(VerticalGrid), allocatable :: vertical_grid
    contains
@@ -176,6 +177,7 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
+      this%owns_payload = .true.
       if (allocated(this%geom)) call mapl_FieldSet(this%payload, geom=this%geom, _RC)
       if (allocated(this%vertical_grid)) call mapl_FieldSet(this%payload, vgrid=this%vertical_grid, _RC)
       call mapl_FieldSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
@@ -211,7 +213,10 @@ contains
 
       integer :: status
 
-      call ESMF_FieldDestroy(this%payload, noGarbage=.true., _RC)
+      if (this%owns_payload) then
+         call ESMF_FieldDestroy(this%payload, noGarbage=.true., _RC)
+         this%owns_payload = .false.
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine destroy
@@ -227,7 +232,8 @@ contains
 
       export_aspect = to_GeometryClassAspect(export, _RC)
       call this%destroy(_RC)
-      this%payload = ESMF_NamedAlias(export_aspect%payload, name='MAPL geometry carrier', _RC)
+      this%payload = export_aspect%payload
+      this%owns_payload = .false.
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
