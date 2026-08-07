@@ -317,6 +317,10 @@ contains
       ! Copy the entire Info tree from source to destination
       call MAPL_InfoSet(info_dst, key="", value=info_src, _RC)
     
+      ! Re-acquire the Info handle after the copy operation
+      ! The copy operation may invalidate the previous handle
+      call ESMF_InfoGetFromHost(field_dst, info_dst, _RC)
+    
       ! Remove the ungridded_dims key if it exists in the internal namespace
       full_key = INFO_INTERNAL_NAMESPACE // KEY_UNGRIDDED_DIMS
       is_present = ESMF_InfoIsPresent(info_dst, full_key, _RC)
