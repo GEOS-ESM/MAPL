@@ -11,6 +11,7 @@ module mapl_MatchConnection_mod
    use mapl_ActualConnectionPt_mod
    use mapl_ActualPtVec_Map_mod
    use mapl_ActualPtVector_mod
+   use mapl_InternalConstants_mod, only: MAPL_FRAMEWORK_NAMESPACE
    use mapl_StateItemSpec_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
@@ -88,6 +89,9 @@ contains
       do i = 1, dst_v_pts%size()
          dst_pattern => dst_v_pts%of(i)
 
+         ! Framework-only carriers must not participate in user wildcard matching.
+         if (index(dst_pattern%get_esmf_name(), MAPL_FRAMEWORK_NAMESPACE) == 1) cycle
+
          src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
               dst_pattern%get_esmf_name(), comp_name=dst_pattern%get_comp_name())
 
@@ -144,6 +148,9 @@ contains
 
       do i = 1, dst_v_pts%size()
          dst_pattern => dst_v_pts%of(i)
+
+         ! Framework-only carriers must not participate in user wildcard matching.
+         if (index(dst_pattern%get_esmf_name(), MAPL_FRAMEWORK_NAMESPACE) == 1) cycle
 
          src_pattern = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
               dst_pattern%get_esmf_name(), comp_name=dst_pattern%get_comp_name())

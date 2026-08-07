@@ -13,6 +13,9 @@ submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
    use mapl_VariableSpecVector_mod, only: operator(/=)
    use mapl_StateItemSpec_mod
    use mapl_MultiState_mod
+   use mapl_GeometryClassAspect_mod
+   use mapl_GeometrySpec_mod, only: GEOMETRY_PROVIDER, GEOMETRY_FROM_PARENT, GEOMETRY_FROM_CHILD
+   use mapl_InternalConstants_mod, only: MAPL_FRAMEWORK_NAMESPACE
    use mapl_ErrorHandling_mod
    implicit none (type, external)
 
@@ -45,17 +48,45 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_advertise
 
-   subroutine advertise_framework_geometry(this, unusable, rc)
+   subroutine advertise_framework_geometry(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      type(GeometryCarrierLayout) :: layout
+      type(StateItemSpec) :: item_spec
+      type(StateItemSpec), pointer :: primary
+      type(VirtualConnectionPt) :: virtual_pt
+      type(ComponentSpec), pointer :: component_spec
       integer :: status
 
-      ! Geometry carriers remain framework-only until geometry propagation is enabled.
+      component_spec => this%get_component_spec()
+      layout = make_geometry_carrier_layout(component_spec%geometry_spec, &
+           has_children=this%get_num_children() > 0)
+
+      if (layout%has_import) then
+         virtual_pt = VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, MAPL_FRAMEWORK_NAMESPACE // 'geom_in')
+         item_spec = make_geometry_carrier_spec(ESMF_STATEINTENT_IMPORT)
+         call this%registry%add_primary_spec(virtual_pt, item_spec, _RC)
+         primary => this%registry%get_primary_spec(virtual_pt, _RC)
+         call primary%create(_RC)
+      end if
+
+      if (component_spec%geometry_spec%kind == GEOMETRY_PROVIDER) then
+         virtual_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, MAPL_FRAMEWORK_NAMESPACE // 'geom_out')
+         item_spec = make_geometry_carrier_spec(ESMF_STATEINTENT_EXPORT, &
+              this%geom, this%vertical_grid)
+         call this%registry%add_primary_spec(virtual_pt, item_spec, _RC)
+         primary => this%registry%get_primary_spec(virtual_pt, _RC)
+         call primary%create(_RC)
+      end if
+
+      if (component_spec%geometry_spec%kind == GEOMETRY_FROM_CHILD) then
+         call component_spec%reexport(src_comp=component_spec%geometry_spec%provider, &
+              src_name=MAPL_FRAMEWORK_NAMESPACE // 'geom_out', &
+              new_name=MAPL_FRAMEWORK_NAMESPACE // 'geom_out', _RC)
+      end if
+
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(unusable)
    end subroutine advertise_framework_geometry
 
 

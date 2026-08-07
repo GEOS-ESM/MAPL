@@ -25,6 +25,7 @@ module mapl_InternalConstants_mod
    character(len=*), parameter :: MAPL_GRID_FILE_NAME_DEFAULT = 'UNKNOWN'
    character(len=*), parameter :: MAPL_CF_COMPONENT_SEPARATOR = '.'
    character(len=*), parameter :: MAPL_DESTINATIONMASK        = "MAPL_DestinationMask"
+   character(len=*), parameter :: MAPL_FRAMEWORK_NAMESPACE    = 'MAPL_'
 
    ! Qsat formulation selectors
    enum, bind(c)
@@ -205,4 +206,3 @@ module mapl_InternalConstants_mod
    integer, parameter :: MAPL_FILETYPE_UNK = -1
 
 end module mapl_InternalConstants_mod
-
