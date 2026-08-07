@@ -178,7 +178,6 @@ contains
       class(ClientThread), pointer :: o_client
       type(HistoryGridComp), pointer :: history
 
-      _HERE, ' bmaa '
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE, history)
 
       call MAPL_GridCompRunChildren(gridcomp, phase_name='run', _RC)
