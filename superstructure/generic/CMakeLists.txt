@@ -60,6 +60,7 @@ esma_add_library(${this}
 
 add_subdirectory(specs)
 add_subdirectory(registry)
+add_subdirectory(graph)
 add_subdirectory(connection)
 add_subdirectory(transforms)
 add_subdirectory(couplers)
