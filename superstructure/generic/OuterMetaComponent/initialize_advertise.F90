@@ -63,7 +63,7 @@ contains
          primary => this%registry%get_primary_spec(virtual_pt, _RC)
          call primary%create(_RC)
       end if
-      if (component_spec%geometry_spec%kind == GEOMETRY_PROVIDER) then
+      if (layout%has_export .and. component_spec%geometry_spec%kind /= GEOMETRY_FROM_CHILD) then
          virtual_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, MAPL_FRAMEWORK_NAMESPACE // 'geom_out')
          item_spec = make_geometry_carrier_spec(ESMF_STATEINTENT_EXPORT, this%geom, this%vertical_grid)
          call this%registry%add_primary_spec(virtual_pt, item_spec, _RC)
