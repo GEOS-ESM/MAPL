@@ -3,6 +3,7 @@
 module mapl_ExtDataGridComp_mod
 
    use MAPL
+   use mapl_GeometrySpec_mod, only: GEOMETRY_NONE
    use esmf
    use mapl_ExtDataGridComp_private_mod
    use mapl_ExtDataConfig_mod
@@ -42,6 +43,8 @@ contains
 
       type(ESMF_HConfig) :: hconfig
       integer :: status
+
+      call MAPL_GridCompSetGeometryKind(gridcomp, GEOMETRY_NONE, _RC)
 
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name="GENERIC::INIT_MODIFY_ADVERTISED", _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)

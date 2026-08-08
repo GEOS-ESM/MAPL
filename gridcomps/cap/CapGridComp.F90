@@ -3,6 +3,7 @@
 module mapl_CapGridComp_mod
 
   use mapl
+  use mapl_GeometrySpec_mod, only: GEOMETRY_NONE
   use esmf, only: ESMF_GridComp, ESMF_State, ESMF_Clock
   use esmf, only: ESMF_METHOD_INITIALIZE, ESMF_METHOD_RUN, ESMF_SUCCESS
   use esmf, only: ESMF_InternalStateAdd, ESMF_InternalStateGet
@@ -31,6 +32,8 @@ contains
 
       integer :: status
       type(CapGridComp), pointer :: cap
+
+      call MAPL_GridCompSetGeometryKind(gridcomp, GEOMETRY_NONE, _RC)
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name='GENERIC::INIT_USER', _RC)

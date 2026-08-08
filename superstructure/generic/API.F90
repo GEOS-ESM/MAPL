@@ -22,6 +22,7 @@ module mapl_generic_api
        mapl_GridCompRunChildren => GridCompRunChildren, &
        mapl_GridCompGetInternalState => GridCompGetInternalState, &
        mapl_GridCompSetGeometry => GridCompSetGeometry, &
+       mapl_GridCompSetGeometryKind => GridCompSetGeometryKind, &
        mapl_GridcompGetResource => GridCompGetResource, &
        mapl_ClockGet => ClockGet, &
        mapl_GridCompSetGeom => GridCompSetGeom, &
@@ -79,6 +80,7 @@ module mapl_generic_api
    public :: mapl_GridCompGetInternalState
 
    public :: mapl_GridCompSetGeometry
+   public :: mapl_GridCompSetGeometryKind
 
    public :: mapl_GridcompGetResource
 

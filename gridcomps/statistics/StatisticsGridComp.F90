@@ -3,6 +3,7 @@
 module mapl_StatisticsGridComp_mod
 
    use MAPL
+   use mapl_GeometrySpec_mod, only: GEOMETRY_NONE
    use ESMF
    ! local modules
    use mapl_AbstractTimeStatistic_mod
@@ -40,8 +41,9 @@ contains
       type(mapl_CheckpointControls) :: restart_controls
 
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize, phase_name='GENERIC::INIT_REALIZE', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
+
+      call MAPL_GridCompSetGeometryKind(gridcomp, GEOMETRY_NONE, _RC)
 
       ! Attach private state
       _SET_NAMED_PRIVATE_STATE(gridcomp, Statistics, PRIVATE_STATE)
@@ -344,23 +346,6 @@ contains
 
    end subroutine modify_advertise
 
-   subroutine realize(gridcomp, importState, exportState, clock, rc)
-
-      type(esmf_GridComp) :: gridcomp
-      type(esmf_State) :: importState
-      type(esmf_State) :: exportState
-      type(esmf_Clock) :: clock
-      integer, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_Geom) :: geom
-
-      call MAPL_StateGetGeom(importState, geom, _RC)
-      call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine realize
-
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(esmf_GridComp) :: gridcomp
       type(esmf_State) :: importState
@@ -456,4 +441,3 @@ subroutine setServices(gridComp, rc)
 
    _RETURN(_SUCCESS)
 end subroutine setServices
-

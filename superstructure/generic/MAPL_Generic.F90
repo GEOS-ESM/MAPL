@@ -87,6 +87,7 @@ module mapl_Generic_mod
    public :: GridCompGetInternalState
 
    public :: GridCompSetGeometry
+   public :: GridCompSetGeometryKind
 
    public :: GridcompGetResource
 
@@ -1206,6 +1207,22 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_set_geometry
+
+   subroutine GridCompSetGeometryKind(gridcomp, kind, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      integer, intent(in) :: kind
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: component_spec
+
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      component_spec => outer_meta%get_component_spec()
+      component_spec%geometry_spec%kind = kind
+
+      _RETURN(_SUCCESS)
+   end subroutine GridCompSetGeometryKind
 
    subroutine gridcomp_set_geometry_from_hconfig(gridcomp, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp

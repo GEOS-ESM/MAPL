@@ -3,6 +3,7 @@
 module mapl_HistoryGridComp_mod
 
     use MAPL
+    use mapl_GeometrySpec_mod, only: GEOMETRY_NONE
     use ESMF
     use mapl_HistoryGridComp_private_mod
     use mapl_HistoryCollectionGridComp_mod, only: collection_setServices => setServices
@@ -36,6 +37,8 @@ contains
       type(HistoryGridComp), pointer :: history
       integer :: num_collections, status
       type(ESMF_TimeInterval), allocatable :: timeStep
+
+      call MAPL_GridCompSetGeometryKind(gridcomp, GEOMETRY_NONE, _RC)
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_REALIZE", _RC)
