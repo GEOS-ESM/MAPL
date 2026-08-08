@@ -3,6 +3,8 @@
 submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
    use mapl_enums_api, only: MAPL_GENERIC_INIT_ADVERTISE
    use mapl_VirtualConnectionPt_mod
+   use mapl_ConnectionPt_mod
+   use mapl_SimpleConnection_mod
    use mapl_StateItem_mod
    use mapl_VariableSpec_mod
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator
@@ -15,6 +17,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
    use mapl_MultiState_mod
    use mapl_GeometryClassAspect_mod
    use mapl_GeometrySpec_mod, only: GEOMETRY_PROVIDER, GEOMETRY_FROM_PARENT, GEOMETRY_FROM_CHILD
+   use mapl_GriddedComponentDriver_mod
    use mapl_InternalConstants_mod, only: MAPL_FRAMEWORK_NAMESPACE
    use mapl_ErrorHandling_mod
    implicit none (type, external)
@@ -31,6 +34,7 @@ contains
 
       call advertise_framework_geometry(this, _RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
+      call add_framework_geometry_connections(this, _RC)
       call advertise_state_items(this, _RC)
       call run_advertise_callbacks(this, PHASE_NAME, _RC)
       call activate_connections(this, _RC)
@@ -77,6 +81,45 @@ contains
       end if
       _RETURN(_SUCCESS)
    end subroutine advertise_framework_geometry
+
+   subroutine add_framework_geometry_connections(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      type(ComponentSpec), pointer :: component_spec
+      type(ComponentSpec), pointer :: child_component_spec
+      type(GeometryCarrierLayout) :: layout
+      type(GriddedComponentDriver) :: child
+      type(OuterMetaComponent), pointer :: child_meta
+      type(ESMF_GridComp) :: child_gc
+      type(ConnectionPt) :: source, destination
+      type(SimpleConnection) :: connection
+      character(:), allocatable :: child_name
+      integer :: i
+      integer :: status
+
+      component_spec => this%get_component_spec()
+      layout = make_geometry_carrier_layout(component_spec%geometry_spec, &
+           has_children=this%get_num_children() > 0)
+      _RETURN_UNLESS(layout%has_export)
+
+      do i = 1, this%get_num_children()
+         child_name = this%get_child_name(i, _RC)
+         child = this%get_child(child_name, _RC)
+         child_gc = child%get_gridcomp()
+         child_meta => get_outer_meta(child_gc, _RC)
+         child_component_spec => child_meta%get_component_spec()
+         if (child_component_spec%geometry_spec%kind /= GEOMETRY_FROM_PARENT) cycle
+
+         source = ConnectionPt('<self>', VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, &
+              MAPL_FRAMEWORK_NAMESPACE // 'geom_out'))
+         destination = ConnectionPt(child_name, VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
+              MAPL_FRAMEWORK_NAMESPACE // 'geom_in'))
+         connection = SimpleConnection(source, destination)
+         call component_spec%add_connection(connection)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine add_framework_geometry_connections
 
    subroutine advertise_state_items(this, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
