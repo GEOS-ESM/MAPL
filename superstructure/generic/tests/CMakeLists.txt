@@ -126,6 +126,7 @@ add_dependencies(MAPL.generic.aspects proto_extdata_gc proto_stat_gc)
 set(components_test_srcs
   Test_GenericGridComp.pf
   Test_ComponentSpec.pf
+  Test_GeometryClassAspect.pf
   Test_ComponentSpecParser.pf
   Test_WriteYaml.pf
   Test_ExtensionFamily.pf

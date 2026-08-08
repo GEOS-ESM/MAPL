@@ -1,0 +1,130 @@
+#include "MAPL_TestErr.h"
+
+module Test_GeometryClassAspect
+   use mapl_ActualConnectionPt_mod, only: ActualConnectionPt
+   use mapl_AspectId_mod, only: AspectId, CLASS_ASPECT_ID, operator(==)
+   use mapl_ClassAspect_mod, only: ClassAspect, to_ClassAspect
+   use mapl_GeometryClassAspect_mod
+   use mapl_GeometrySpec_mod
+   use mapl_StateItemAspect_mod, only: AspectMap
+   use mapl_StateItemSpec_mod, only: StateItemSpec
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
+   use mapl_field_api, only: mapl_FieldsAreAliased
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   @test
+   subroutine test_provider_layout()
+      type(GeometryCarrierLayout) :: layout
+      layout = make_geometry_carrier_layout(GeometrySpec(GEOMETRY_PROVIDER), has_children=.true.)
+      @assertFalse(layout%has_import)
+      @assertTrue(layout%has_export)
+   end subroutine test_provider_layout
+
+   @test
+   subroutine test_inherited_layout()
+      type(GeometryCarrierLayout) :: leaf, parent
+      leaf = make_geometry_carrier_layout(GeometrySpec(GEOMETRY_FROM_PARENT))
+      parent = make_geometry_carrier_layout(GeometrySpec(GEOMETRY_FROM_PARENT), has_children=.true.)
+      @assertTrue(leaf%has_import)
+      @assertFalse(leaf%has_export)
+      @assertTrue(parent%has_import)
+      @assertTrue(parent%has_export)
+   end subroutine test_inherited_layout
+
+   @test
+   subroutine test_from_child_layout()
+      type(GeometryCarrierLayout) :: layout
+      layout = make_geometry_carrier_layout(GeometrySpec('provider'))
+      @assertFalse(layout%has_import)
+      @assertTrue(layout%has_export)
+   end subroutine test_from_child_layout
+
+   @test
+   subroutine test_none_layout()
+      type(GeometryCarrierLayout) :: layout
+      layout = make_geometry_carrier_layout(GeometrySpec(GEOMETRY_NONE), has_children=.true.)
+      @assertFalse(layout%has_import)
+      @assertFalse(layout%has_export)
+   end subroutine test_none_layout
+
+   @test
+   subroutine test_carrier_is_field_backed_without_allocation()
+      type(StateItemSpec), target :: carrier
+      type(AspectMap), pointer :: aspects
+      class(ClassAspect), pointer :: class_aspect
+      type(ESMF_Field), allocatable :: field
+      type(ESMF_FieldStatus_Flag) :: field_status
+      integer :: status
+      logical :: is_allocated
+
+      carrier = make_geometry_carrier_spec(ESMF_STATEINTENT_EXPORT)
+      call carrier%create(_RC)
+      call carrier%allocate(_RC)
+      aspects => carrier%get_aspects()
+      class_aspect => to_ClassAspect(aspects, _RC)
+      call class_aspect%get_payload(field=field, _RC)
+      call ESMF_FieldGet(field, status=field_status, _RC)
+      @assertTrue(allocated(field))
+      is_allocated = carrier%is_allocated(_RC)
+      @assertTrue(is_allocated)
+      @assertFalse(field_status == ESMF_FIELDSTATUS_COMPLETE)
+      call carrier%destroy(_RC)
+   end subroutine test_carrier_is_field_backed_without_allocation
+
+   @test
+   subroutine test_connection_aliases_carrier_and_geometry()
+      type(StateItemSpec), target :: source, destination
+      type(AspectMap), pointer :: aspects
+      class(ClassAspect), pointer :: class_aspect
+      type(GeometryClassAspect) :: geometry_aspect
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom, aspect_geom
+      type(ESMF_Field), allocatable :: source_field, destination_field
+      type(ActualConnectionPt) :: actual_pt
+      integer :: status
+      logical :: are_aliased
+
+      grid = ESMF_GridCreate(maxIndex=[4, 4], _RC)
+      geom = ESMF_GeomCreate(grid=grid, _RC)
+      source = make_geometry_carrier_spec(ESMF_STATEINTENT_EXPORT, geom=geom)
+      destination = make_geometry_carrier_spec(ESMF_STATEINTENT_IMPORT)
+      call source%create(_RC)
+      call destination%create(_RC)
+      actual_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, 'geom'))
+      call destination%connect(source, actual_pt, _RC)
+
+      aspects => source%get_aspects()
+      class_aspect => to_ClassAspect(aspects, _RC)
+      call class_aspect%get_payload(field=source_field, _RC)
+      aspects => destination%get_aspects()
+      class_aspect => to_ClassAspect(aspects, _RC)
+      call class_aspect%get_payload(field=destination_field, _RC)
+      are_aliased = mapl_FieldsAreAliased(source_field, destination_field, _RC)
+      @assertTrue(are_aliased)
+      geometry_aspect = to_GeometryClassAspect(class_aspect, _RC)
+      aspect_geom = geometry_aspect%get_geom(_RC)
+      @assertTrue(geom == aspect_geom)
+
+      call destination%destroy(_RC)
+      call source%destroy(_RC)
+      call ESMF_GeomDestroy(geom, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_connection_aliases_carrier_and_geometry
+
+   @test
+   subroutine test_carrier_coupling_order_is_geometry_only()
+      type(StateItemSpec), target :: carrier, destination
+      type(AspectId), allocatable :: aspect_order(:)
+      integer :: status
+      carrier = make_geometry_carrier_spec(ESMF_STATEINTENT_EXPORT)
+      destination = make_geometry_carrier_spec(ESMF_STATEINTENT_IMPORT)
+      aspect_order = carrier%get_aspect_order(destination, _RC)
+      @assertEqual(1, size(aspect_order))
+      @assertTrue(aspect_order(1) == CLASS_ASPECT_ID)
+   end subroutine test_carrier_coupling_order_is_geometry_only
+
+end module Test_GeometryClassAspect
