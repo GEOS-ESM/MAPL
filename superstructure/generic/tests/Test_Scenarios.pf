@@ -14,7 +14,7 @@ module Test_Scenarios
                                !mapl_GridcompGetResource
    use mapl_UserSetServices_mod
    use mapl_ESMF_Utilities_mod
-   use mapl_geom_api, only: mapl_GeomGet
+    use mapl_geom_api, only: mapl_GeomGet, mapl_GridGet
    use esmf
    use nuopc
    ! testing framework
@@ -106,9 +106,10 @@ contains
       params = [params, add_params('exists', check_field_exists)]
       params = [params, add_params('status', check_field_status)]
       params = [params, add_params('typekind', check_field_typekind)]
-      params = [params, add_params('rank', check_field_rank)]
-      params = [params, add_params('geom_name', check_field_geom_name)]
-      params = [params, add_params('value', check_field_value)]
+       params = [params, add_params('rank', check_field_rank)]
+       params = [params, add_params('geom_name', check_field_geom_name)]
+       params = [params, add_params('geometry', check_field_geometry)]
+       params = [params, add_params('value', check_field_value)]
       params = [params, add_params('vertical_profile', check_field_vertical_profile)]
 
       ! Service oriented tests
@@ -139,7 +140,8 @@ contains
               ScenarioDescription('regrid',                  'cap.yaml',         check_name, check_stateitem), &
               ScenarioDescription('regrid_r8',               'cap.yaml',         check_name, check_stateitem), &
               ScenarioDescription('vector_1',                'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('propagate_geom',          'parent.yaml',      check_name, check_stateitem), &
+               ScenarioDescription('propagate_geom',          'parent.yaml',      check_name, check_stateitem), &
+               ScenarioDescription('geometry_propagation',    'parent.yaml',      check_name, check_stateitem), &
                ScenarioDescription('vertical_regridding',     'parent.yaml',      check_name, check_stateitem), &
                ScenarioDescription('vertical_regridding_2',   'parent.yaml',      check_name, check_stateitem), &
                ScenarioDescription('vertical_regridding_3',   'AGCM.yaml',        check_name, check_stateitem), &
@@ -830,6 +832,42 @@ contains
 
       rc = 0
    end subroutine check_field_geom_name
+
+    subroutine check_field_geometry(expectations, state, short_name, description, rc)
+       type(ESMF_HConfig), intent(in) :: expectations
+       type(ESMF_State), intent(inout) :: state
+       character(*), intent(in) :: short_name
+       character(*), intent(in) :: description
+       integer, intent(out) :: rc
+
+       type(ESMF_Field) :: field
+       type(ESMF_Geom) :: geom
+       type(ESMF_Grid) :: grid
+       type(ESMF_StateItem_Flag) :: itemtype
+       logical :: expected_has_geom, found_has_geom
+       integer :: expected_maxindex(2), found_maxindex(2)
+       integer :: status
+
+       rc = 0
+       if (.not. ESMF_HConfigIsDefined(expectations,keyString='has_geom')) return
+
+       call ESMF_StateGet(state, short_name, itemtype=itemtype)
+       if (itemtype /= ESMF_STATEITEM_FIELD) return
+
+       expected_has_geom = ESMF_HConfigAsLogical(expectations,keyString='has_geom',_RC)
+       call ESMF_StateGet(state, short_name, field, _RC)
+       call ESMF_FieldGet(field, geom=geom, _RC)
+       call ESMF_GeomGet(geom, grid=grid, rc=status)
+       found_has_geom = status == ESMF_SUCCESS
+       @assert_that(description // ' :: has_geom', found_has_geom, is(expected_has_geom))
+
+       if (.not. found_has_geom) return
+       if (.not. ESMF_HConfigIsDefined(expectations,keyString='geom_maxindex')) return
+
+       expected_maxindex = ESMF_HConfigAsI4Seq(expectations,keyString='geom_maxindex',_RC)
+       call mapl_GridGet(grid, im=found_maxindex(1), jm=found_maxindex(2), _RC)
+       @assert_that(description // ' :: geom_maxindex', found_maxindex, is(equal_to(expected_maxindex)))
+    end subroutine check_field_geometry
 
    subroutine check_fieldCount(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations

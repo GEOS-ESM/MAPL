@@ -1,0 +1,23 @@
+mapl:
+  geometry:
+    kind: provider
+    esmf_geom:
+      class: latlon
+      im_world: 8
+      jm_world: 9
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      class: basic
+      num_levels: 4
+  states:
+    import: {}
+    export:
+      V:
+        standard_name: provider_value
+        units: m
+        fill_value: 0.
+        vertical_dim_spec: center
+  setServices:
+    sharedObj: libconfigurable_gridcomp
+    userRoutine: setservices_

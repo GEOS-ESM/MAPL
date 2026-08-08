@@ -1,0 +1,27 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      class: basic
+      num_levels: 3
+
+  children:
+    provider:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/geometry_propagation/provider.yaml
+    inherited:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/geometry_propagation/inherited.yaml
+    from_child:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/geometry_propagation/from_child.yaml
+    none:
+      dso: libconfigurable_gridcomp
+      config_file: scenarios/geometry_propagation/none.yaml
+
+  states: {}
