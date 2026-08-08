@@ -41,7 +41,6 @@ contains
       integer :: status
 
       ! Set entry points
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init_geom, phase_name='GENERIC::INIT_GEOM_A', _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
@@ -95,31 +94,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(exportState)
    end subroutine init
-
-   subroutine init_geom(gridcomp, importState, exportState, clock, rc)
-      type(ESMF_GridComp)   :: gridcomp
-      type(ESMF_State)      :: importState
-      type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock
-      integer, intent(out)  :: rc
-
-      integer :: status
-      type(ESMF_HConfig) :: hconfig
-      type(ESMF_Geom) :: geom
-      logical :: has_geom
-
-      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
-      has_geom = ESMF_HConfigIsDefined(hconfig, keystring='geom', _RC)
-      if (has_geom) then
-         geom = make_geom(hconfig)
-         call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(importState)
-      _UNUSED_DUMMY(exportState)
-      _UNUSED_DUMMY(clock)
-   end subroutine init_geom
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp

@@ -153,6 +153,7 @@ contains
           integer :: status
           character(:), allocatable :: name
           type(esmf_Field) :: f_in
+          type(esmf_Geom) :: geom
           type(MAPL_StateItemAllocation) :: allocation_status
           type(esmf_StateItem_Flag) :: itemtype
 
@@ -164,6 +165,8 @@ contains
           call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
           call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
           _RETURN_UNLESS(allocation_status == MAPL_STATEITEM_ALLOCATION_CONNECTED)
+          call ESMF_FieldGet(f_in, geom=geom, _RC)
+          call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
 
           item = make_item(name, iter, clock, _RC)
          call stats%items%push_back(item)
