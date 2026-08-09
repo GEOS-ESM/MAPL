@@ -3,6 +3,8 @@ module mapl_ValueGraphNode_mod
    use mapl_NodeRevision_mod, only: NodeRevision, INVALID_REVISION
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GraphValue_mod, only: GraphValue
+   use mapl_GraphValueSpec_mod, only: GraphValueSpec
+   use mapl_ItemSpec_mod, only: ItemSpec
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -22,8 +24,15 @@ module mapl_ValueGraphNode_mod
    end type ValueGraphNode
 
    interface ValueGraphNode
-      module procedure new_value_graph_node
+       module procedure new_value_graph_node
+       module procedure new_value_graph_node_from_item_spec
    end interface ValueGraphNode
+
+   type, extends(GraphValue) :: ItemSpecValue
+      type(ItemSpec) :: spec_
+   contains
+      procedure :: spec => item_spec_value_spec
+   end type ItemSpecValue
 
 contains
 
@@ -33,6 +42,22 @@ contains
 
       allocate(node%value_, source=value)
    end function new_value_graph_node
+
+   function new_value_graph_node_from_item_spec(spec) result(node)
+      type(ItemSpec), intent(in) :: spec
+      type(ValueGraphNode) :: node
+      type(ItemSpecValue) :: value
+
+      value%spec_ = spec
+      allocate(node%value_, source=value)
+   end function new_value_graph_node_from_item_spec
+
+   function item_spec_value_spec(this) result(spec)
+      class(ItemSpecValue), intent(in) :: this
+      type(GraphValueSpec) :: spec
+
+      spec = GraphValueSpec(this%spec_%category())
+   end function item_spec_value_spec
 
    function value(this) result(payload)
       class(ValueGraphNode), target, intent(inout) :: this

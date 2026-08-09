@@ -40,14 +40,14 @@ module mapl_ComponentGraph_mod
       procedure :: has_node
       procedure :: get_node
 
-       procedure :: add_edge
-       procedure :: has_edge
-       procedure :: get_edge
-       procedure, private :: would_create_cycle
+      procedure :: add_edge
+      procedure :: has_edge
+      procedure :: get_edge
+      procedure, private :: would_create_cycle
 
-       procedure :: add_network
-       procedure :: has_network
-       procedure, private :: get_network
+      procedure :: add_network
+      procedure :: has_network
+      procedure, private :: get_network
 
       procedure :: freeze
       procedure :: is_frozen
@@ -140,7 +140,7 @@ contains
       
       _ASSERT(id%is_valid(), 'Invalid DependencyNetworkId passed to get_network.')
       _ASSERT(this%has_network(id), 'DependencyNetworkId not found in graph.')
-      network => this%dependency_networks%at(id)
+       network => this%dependency_networks%at(id, _RC)
 
       _RETURN(_SUCCESS)
    end function get_network
@@ -161,39 +161,40 @@ contains
       _RETURN(_SUCCESS)
    end function add_node
 
-   subroutine add_edge(this, edge, unusable, network_id, rc)
+    function add_edge(this, edge, unusable, network_id, rc) result(edge_id)
       class(ComponentGraph), target, intent(inout) :: this
       class(GraphEdge), intent(in) :: edge
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(DependencyNetworkId), optional, intent(in) :: network_id
-      integer, optional, intent(out) :: rc
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(EdgeId) :: edge_id
-      type(DependencyNetworkId) :: network_id_
-      type(DependencyNetwork), pointer :: dependency_network
+       integer :: status
+       type(EdgeId) :: edge_id
+       type(DependencyNetworkId) :: network_id_
+       type(DependencyNetwork), pointer :: dependency_network
 
-      _ASSERT(this%is_initialized(), 'ComponentGraph must be initialized before adding edges.')
+       _UNUSED_DUMMY(unusable)
+       _ASSERT(this%is_initialized(), 'ComponentGraph must be initialized before adding edges.')
       _ASSERT(.not. this%is_frozen(), 'Cannot add edge to frozen graph.')
 
-      associate (src => edge%source, tgt => edge%target())
-        _ASSERT(src%is_valid(), 'Edge source is invalid.')
-        _ASSERT(tgt%is_valid(), 'Edge target is invalid.')
-        _ASSERT(this%has_node(src), 'Edge source node not found in graph.')
-        _ASSERT(this%has_node(tgt), 'Edge target node not found in graph.')
+      associate (src_id => edge%source(), tgt_id => edge%target())
+        _ASSERT(src_id%is_valid(), 'Edge source is invalid.')
+        _ASSERT(tgt_id%is_valid(), 'Edge target is invalid.')
+        _ASSERT(this%has_node(src_id), 'Edge source node not found in graph.')
+        _ASSERT(this%has_node(tgt_id), 'Edge target node not found in graph.')
       end associate
       network_id_ = this%default_network_id
       if (present(network_id)) network_id_ = network_id
-      dependency_network => this%get_network(network_id_)
+       dependency_network => this%get_network(network_id_, _RC)
 
       _ASSERT(.not. this%would_create_cycle(dependency_network, edge), 'Edge would make dependency network cyclic.')
 
       edge_id = this%edge_id_generator%next(_RC)
       call this%edges%insert(edge_id, edge)
-      call dependency_network%add_edge_membership(edge_id, edge, _RC)
+       call dependency_network%add_edge_membership(edge_id, edge, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine add_edge
+    end function add_edge
 
    logical function would_create_cycle(this, network, edge)
       class(ComponentGraph), target, intent(in) :: this
@@ -211,7 +212,7 @@ contains
       type(NodeId), intent(in) :: source, target
       type(NodeIdSet), intent(inout) :: visited
 
-      type(EdgeIdSet) :: edge_ids
+       type(EdgeIdSet), pointer :: edge_ids
       type(EdgeIdSetIterator) :: edge_iter
       type(GraphEdge), pointer :: edge
 
@@ -219,7 +220,8 @@ contains
       if (found .or. visited%count(source) > 0) return
 
       call visited%insert(source)
-      edge_ids = network%get_out_edges(source)
+       edge_ids => network%get_out_edges(source)
+       if (.not. associated(edge_ids)) return
       associate (edge_end => edge_ids%ftn_end())
          edge_iter = edge_ids%ftn_begin()
          do while (edge_iter /= edge_end)
@@ -233,41 +235,37 @@ contains
       end associate
    end function path_exists
 
-   subroutine get_node(this, id, node_value, rc)
+   function get_node(this, id, rc) result(node)
       class(ComponentGraph), target, intent(in) :: this
       type(NodeId), intent(in) :: id
-      class(GraphNode), allocatable, intent(out) :: node_value
       integer, optional, intent(out) :: rc
-      class(GraphNode), pointer :: stored
+      class(GraphNode), pointer :: node
 
       integer :: status
 
       _ASSERT(id%is_valid(), 'Invalid NodeId passed to get_node.')
       _ASSERT(this%nodes%count(id) > 0, 'NodeId not found in graph.')
 
-      stored => this%nodes%at(id)
-      allocate(node_value, source=stored)
+       node => this%nodes%at(id, _RC)
 
       _RETURN(_SUCCESS)
 
-   end subroutine get_node
+   end function get_node
 
-   subroutine get_edge(this, id, edge, rc)
+   function get_edge(this, id, rc) result(edge)
       class(ComponentGraph), target, intent(in) :: this
       type(EdgeId), intent(in) :: id
-      type(GraphEdge), intent(out) :: edge
       integer, optional, intent(out) :: rc
 
-      type(GraphEdge), pointer :: stored
+      type(GraphEdge), pointer :: edge
       integer :: status
 
       _ASSERT(id%is_valid(), 'Invalid EdgeId passed to get_edge.')
       _ASSERT(this%has_edge(id), 'EdgeId not found in graph.')
 
-      stored => this%edges%at(id)
-      edge = stored
+       edge => this%edges%at(id, _RC)
       _RETURN(_SUCCESS)
-   end subroutine get_edge
+   end function get_edge
 
    subroutine mark_updated(graph, node_id, rc)
       class(ComponentGraph), target, intent(inout) :: graph
@@ -294,7 +292,7 @@ contains
       _ASSERT(node_id%is_valid(), 'Invalid NodeId passed to mark_valid.')
       _ASSERT(this%has_node(node_id), 'NodeId not found in graph.')
 
-      node => this%nodes%at(node_id)
+       node => this%nodes%at(node_id, _RC)
       select type (node)
       type is (ValueGraphNode)
          call node%advance_revision(_RC)
@@ -312,7 +310,7 @@ contains
       integer :: status
       class(GraphNode), pointer :: node
 
-      node => graph%get_node(node_id)
+       node => graph%get_node(node_id, _RC)
       call node%mark_invalid()
 
       call graph%invalidate_downstream(node_id, _RC)
@@ -322,8 +320,8 @@ contains
 
    recursive subroutine invalidate_downstream(graph, node_id, rc)
       class(ComponentGraph), target, intent(inout) :: graph
-      integer, intent(in) :: node_id
-      integer, optional, intent(in) :: rc
+      type(NodeId), intent(in) :: node_id
+       integer, optional, intent(out) :: rc
 
       type(EdgeIdSet), pointer :: out_edge_ids
       class(GraphNode), pointer :: node, dst_node
@@ -332,18 +330,19 @@ contains
       type(NodeId) :: dst_id
       integer :: status
 
-      node => graph%get_node(node_id)
+       node => graph%get_node(node_id, _RC)
       out_edge_ids => node%get_out_edges()
 
       associate (e => out_edge_ids%ftn_end())
         iter = out_edge_ids%ftn_begin()
         do while (iter /= e)
-           edge => iter%of()
+            edge => graph%edges%at(iter%of(), _RC)
            dst_id = edge%target()
-           dst_node => graph%get_node(dst_id)
-           call dst_node%mark_invalid()
-           call graph%invalidate_downstream(dst_id, _RC)
-        end do
+            dst_node => graph%get_node(dst_id, _RC)
+            call dst_node%mark_invalid()
+            call graph%invalidate_downstream(dst_id, _RC)
+            call iter%next()
+         end do
       end associate
 
       _RETURN(_SUCCESS)
@@ -362,7 +361,7 @@ contains
       type(EdgeIdSetIterator) :: iter
       integer :: status
 
-      node => graph%get_node(node_id)
+       node => graph%get_node(node_id, _RC)
       _RETURN_IF(node%is_valid())
 
       in_edge_ids => node%get_in_edges()
@@ -370,10 +369,11 @@ contains
       associate (e => in_edge_ids%ftn_end())
         iter = in_edge_ids%ftn_begin()
         do while (iter /= e)
-           edge => iter%of()
+            edge => graph%edges%at(iter%of(), _RC)
            src_id = edge%source()
            call graph%update(src_id, _RC)
-           src_node => graph%get_node(src_id)
+            src_node => graph%get_node(src_id, _RC)
+            call iter%next()
         end do
       end associate
 
@@ -391,20 +391,23 @@ contains
       integer, optional, intent(out) :: rc
 
       type(DependencyNetwork), pointer :: network
-      type(EdgeIdSet) :: edge_ids
+       type(EdgeIdSet), pointer :: edge_ids
       type(EdgeIdSetIterator) :: iter
       type(GraphEdge), pointer :: edge
       class(GraphNode), pointer :: output
       integer :: status
 
-      network => this%get_network(this%default_network_id)
-      edge_ids = network%get_out_edges(transform_id)
+       network => this%get_network(this%default_network_id, _RC)
+       edge_ids => network%get_out_edges(transform_id)
+       if (.not. associated(edge_ids)) then
+          _RETURN(_SUCCESS)
+       end if
 
       associate (e => edge_ids%ftn_end())
          iter = edge_ids%ftn_begin()
          do while (iter /= e)
-            edge => this%edges%at(iter%of())
-            output => this%nodes%at(edge%target())
+             edge => this%edges%at(iter%of(), _RC)
+             output => this%nodes%at(edge%target(), _RC)
             select type (output)
             type is (ValueGraphNode)
                call this%mark_valid(edge%target(), _RC)
@@ -440,31 +443,30 @@ contains
       integer :: i
 
       associate (e => this%nodes%ftn_end())
-        node_iter = this%nodes%ftn_begin()
-        do while (node_iter /= e)
-           call node_iter%next()
-           
-           select type (node_value => node_iter%second())
-           type is (ValueGraphNode)
-              associate (constituents => node_value%constituents())
-                do i = 1, size(constituents)
-                   _ASSERT(this%has_node(constituents(i)), 'ValueNode constituent not found in graph.')
-                end do
-              end associate
-           class default
-              continue
-           end select
-        end do
+         node_iter = this%nodes%ftn_begin()
+         do
+            call node_iter%next()
+            if (node_iter == e) exit
+            select type (node_value => node_iter%second())
+            type is (ValueGraphNode)
+               associate (constituents => node_value%constituents())
+                 do i = 1, size(constituents)
+                    _ASSERT(this%has_node(constituents(i)), 'ValueNode constituent not found in graph.')
+                 end do
+               end associate
+            end select
+         end do
       end associate
 
       associate (e => this%edges%ftn_end())
-        edge_iter = this%edges%ftn_begin()
-        do while (edge_iter /= e)
-           edge => edge_iter%second()
-           _ASSERT(this%has_node(edge%source()), 'Edge source node not found in graph.')
-           _ASSERT(this%has_node(edge%target()), 'Edge target node not found in graph.')
-           call edge_iter%next()
-        end do
+         edge_iter = this%edges%ftn_begin()
+         do
+            call edge_iter%next()
+            if (edge_iter == e) exit
+            edge => edge_iter%second()
+            _ASSERT(this%has_node(edge%source()), 'Edge source node not found in graph.')
+            _ASSERT(this%has_node(edge%target()), 'Edge target node not found in graph.')
+         end do
       end associate
 
       _RETURN(_SUCCESS)

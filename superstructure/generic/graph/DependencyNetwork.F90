@@ -55,19 +55,20 @@ contains
    end function new_dependency_network
 
    ! Low-level mutation. Caller must validate graph topology before invoking it.
-   subroutine add_edge_membership(this, edge_id, edge, transform_id, port_name, is_input, rc)
+    subroutine add_edge_membership(this, edge_id, edge, rc, transform_id, port_name, is_input)
       class(DependencyNetwork), target, intent(inout) :: this
       type(EdgeId), intent(in) :: edge_id
       type(GraphEdge), intent(in) :: edge
-      type(NodeId), intent(in) :: transform_id
-      character(*), intent(in) :: port_name
-      logical, intent(in) :: is_input
-      integer, optional, intent(out) :: rc
+       type(NodeId), optional, intent(in) :: transform_id
+       character(*), optional, intent(in) :: port_name
+       logical, optional, intent(in) :: is_input
+       integer, optional, intent(out) :: rc
 
       type(EdgeIdSet), pointer :: edge_ids
       type(NodeId) :: source, target
       integer :: status
-      type(EdgeId) :: id
+       type(EdgeId) :: id
+       logical :: has_binding
 
       _ASSERT(edge_id%is_valid(), &
          'Invalid EdgeId passed to DependencyNetwork%add_edge_membership.')
@@ -75,16 +76,21 @@ contains
       target = edge%target()
       _ASSERT(source%is_valid(), 'Edge source is invalid.')
       _ASSERT(target%is_valid(), 'Edge target is invalid.')
-      _ASSERT(transform_id%is_valid(), 'Transform NodeId is invalid.')
-      _ASSERT(len(port_name) > 0, 'Transform port name must not be empty.')
-      _ASSERT(.not. this%contains_edge(edge_id), 'Edge already belongs to dependency network.')
-      if (is_input) then
-         id = this%input_edge(transform_id, port_name)
-         _ASSERT(.not. edge_id%is_valid(), 'Transform input port is already bound.')
-      else
-         id = this%output_edge(transform_id, port_name)
-         _ASSERT(.not. edge_id%is_valid(), 'Transform output port is already bound.')
-      end if
+       _ASSERT(.not. this%contains_edge(edge_id), 'Edge already belongs to dependency network.')
+       has_binding = present(transform_id) .or. present(port_name) .or. present(is_input)
+       _ASSERT(has_binding .eqv. (present(transform_id) .and. present(port_name) .and. present(is_input)), &
+          'Transform binding arguments must be supplied together.')
+       if (has_binding) then
+          _ASSERT(transform_id%is_valid(), 'Transform NodeId is invalid.')
+          _ASSERT(len(port_name) > 0, 'Transform port name must not be empty.')
+          if (is_input) then
+             id = this%input_edge(transform_id, port_name)
+             _ASSERT(.not. id%is_valid(), 'Transform input port is already bound.')
+          else
+             id = this%output_edge(transform_id, port_name)
+             _ASSERT(.not. id%is_valid(), 'Transform output port is already bound.')
+          end if
+       end if
 
       call this%edges_%insert(edge_id)
 
@@ -100,11 +106,13 @@ contains
       edge_ids => this%incoming_edges%at(target)
       call edge_ids%insert(edge_id)
 
-      if (is_input) then
-         call append_binding(this%input_bindings, transform_id, port_name, edge_id)
-      else
-         call append_binding(this%output_bindings, transform_id, port_name, edge_id)
-      end if
+       if (has_binding) then
+          if (is_input) then
+             call append_binding(this%input_bindings, transform_id, port_name, edge_id)
+          else
+             call append_binding(this%output_bindings, transform_id, port_name, edge_id)
+          end if
+       end if
 
       _RETURN(_SUCCESS)
    end subroutine add_edge_membership
@@ -112,23 +120,23 @@ contains
    function get_in_edges(this, node_id) result(edge_ids)
       class(DependencyNetwork), target, intent(in) :: this
       type(NodeId), intent(in) :: node_id
-      type(EdgeIdSet) :: edge_ids
+       type(EdgeIdSet), pointer :: edge_ids
 
-      edge_ids = EdgeIdSet()
-      if (this%incoming_edges%count(node_id) > 0) then
-         edge_ids = this%incoming_edges%at(node_id)
-      end if
+       nullify(edge_ids)
+       if (this%incoming_edges%count(node_id) > 0) then
+          edge_ids => this%incoming_edges%at(node_id)
+       end if
    end function get_in_edges
 
    function get_out_edges(this, node_id) result(edge_ids)
       class(DependencyNetwork), target, intent(in) :: this
       type(NodeId), intent(in) :: node_id
-      type(EdgeIdSet) :: edge_ids
+       type(EdgeIdSet), pointer :: edge_ids
 
-      edge_ids = EdgeIdSet()
-      if (this%outgoing_edges%count(node_id) > 0) then
-         edge_ids = this%outgoing_edges%at(node_id)
-      end if
+       nullify(edge_ids)
+       if (this%outgoing_edges%count(node_id) > 0) then
+          edge_ids => this%outgoing_edges%at(node_id)
+       end if
    end function get_out_edges
 
    function edge_ids(this) result(ids)

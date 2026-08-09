@@ -22,9 +22,6 @@ target_sources(MAPL.generic PRIVATE
   GraphTransform.F90
   ValueGraphNode.F90
   TransformGraphNode.F90
-  DataItemNode.F90
-  FieldNode.F90
-  StateNode.F90
   ComponentGraph.F90
   GraphBuilder.F90
 

@@ -11,7 +11,7 @@ module mapl_GraphEdge_mod
       type(NodeId) :: target_
    contains
       procedure :: source
-       procedure :: target
+      procedure :: target
    end type GraphEdge
 
    interface GraphEdge

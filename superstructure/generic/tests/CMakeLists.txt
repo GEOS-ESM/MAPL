@@ -159,7 +159,7 @@ set(core_test_srcs
   Test_VectorBasisKind.pf
   Test_QuantityType.pf
   Test_ConservationType.pf
-  Test_PolymorphicSetMirror.pf
+   Test_PolymorphicSetMirror.pf
 )
 
 add_pfunit_ctest(
@@ -173,6 +173,23 @@ add_pfunit_ctest(
 )
 set_tests_properties(MAPL.generic.core PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.core proto_extdata_gc proto_stat_gc)
+
+# 7. MAPL.generic.graph - Graph machinery tests
+set(graph_test_srcs
+  Test_Graph.pf
+)
+
+add_pfunit_ctest(
+  MAPL.generic.graph
+  TEST_SOURCES ${graph_test_srcs}
+  LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
+  EXTRA_INITIALIZE Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  MAX_PES 1
+)
+set_tests_properties(MAPL.generic.graph PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.graph proto_extdata_gc proto_stat_gc)
 
 
 if (APPLE)
@@ -197,6 +214,7 @@ set_tests_properties(MAPL.generic.vertical PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.aspects PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.components PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.graph PROPERTIES ENVIRONMENT "${TEST_ENV}")
 
 # Add all test suites to build-tests target
 add_dependencies(build-tests

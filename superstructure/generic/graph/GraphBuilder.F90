@@ -1,9 +1,15 @@
+#include "MAPL.h"
 module mapl_GraphBuilder_mod
-   use mapl_ComonentGraph_mod, only: ComponentGraph
-   use mapl_NodeId_mod, only: operator(==)
-   use mapl_DataItemNode_mod, only: DataItemNode
-   use mapl_TransformNode_mod, only: TransformNode
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_EdgeId_mod, only: EdgeId
+   use mapl_GraphEdge_mod, only: GraphEdge
+   use mapl_GraphTransform_mod, only: GraphTransform, GraphPortSpec, GraphValueRef
+   use mapl_GraphValueSpec_mod, only: GraphValueSpec
+   use mapl_ValueGraphNode_mod, only: ValueGraphNode
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_ItemSpec_mod, only: ItemSpec, operator(==)
+   use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
@@ -34,9 +40,18 @@ module mapl_GraphBuilder_mod
       type(NodeId) :: result
    end type TransformResult
 
+   type, extends(GraphTransform) :: DescriptorTransform
+      type(ItemSpec) :: source_spec
+      type(ItemSpec) :: target_spec
+   contains
+      procedure :: input_specs => descriptor_input_specs
+      procedure :: output_specs => descriptor_output_specs
+      procedure :: execute => descriptor_execute
+   end type DescriptorTransform
+
    type :: GraphBuilder
       private
-      type(Graph) :: graph
+       type(ComponentGraph) :: graph
       type(Representation), allocatable :: representations(:)
       type(TransformResult), allocatable :: transform_results(:)
       logical :: built = .false.
@@ -60,8 +75,8 @@ contains
          return
       end if
 
-      node = this%graph%add_node(DataItemNode(spec), graph_status)
-      if (graph_status /= GRAPH_SUCCESS) then
+      node = this%graph%add_node(ValueGraphNode(spec), graph_status)
+       if (graph_status /= GRAPH_BUILDER_SUCCESS) then
          call set_status(status, GRAPH_BUILDER_INVALID_GRAPH)
          return
       end if
@@ -131,7 +146,7 @@ contains
 
    subroutine build(this, graph, status)
       class(GraphBuilder), intent(inout) :: this
-      type(Graph), intent(out) :: graph
+       type(ComponentGraph), intent(out) :: graph
       integer, intent(out) :: status
       integer :: graph_status
 
@@ -141,7 +156,7 @@ contains
       end if
 
       call this%graph%freeze(graph_status)
-      if (graph_status /= GRAPH_SUCCESS) then
+       if (graph_status /= GRAPH_BUILDER_SUCCESS) then
          status = GRAPH_BUILDER_INVALID_GRAPH
          return
       end if
@@ -157,8 +172,9 @@ contains
       type(TransformDescriptor), intent(in) :: descriptor
       type(NodeId), intent(out) :: result
       integer, intent(out) :: status
-      type(NodeId) :: transform
-      integer :: i, graph_status
+       type(NodeId) :: transform
+       type(EdgeId) :: edge_id
+       integer :: i, graph_status
 
       do i = 1, transform_result_count(this%transform_results)
          if (this%transform_results(i)%source == source .and. &
@@ -169,24 +185,28 @@ contains
          end if
       end do
 
-      transform = this%graph%add_node(TransformNode(transform_name(descriptor), &
-         source_spec, descriptor%target_spec), graph_status)
-      if (graph_status /= GRAPH_SUCCESS) then
+       block
+          type(DescriptorTransform) :: operation
+          operation%source_spec = source_spec
+          operation%target_spec = descriptor%target_spec
+          transform = this%graph%add_node(TransformGraphNode(operation), graph_status)
+       end block
+       if (graph_status /= GRAPH_BUILDER_SUCCESS) then
          status = GRAPH_BUILDER_INVALID_GRAPH
          return
       end if
-      result = this%graph%add_node(DataItemNode(descriptor%target_spec), graph_status)
-      if (graph_status /= GRAPH_SUCCESS) then
+      result = this%graph%add_node(ValueGraphNode(descriptor%target_spec), graph_status)
+       if (graph_status /= GRAPH_BUILDER_SUCCESS) then
          status = GRAPH_BUILDER_INVALID_GRAPH
          return
       end if
-      call add_graph_edge(this%graph, source, transform, graph_status)
-      if (graph_status /= GRAPH_SUCCESS) then
+       edge_id = add_graph_edge(this%graph, source, transform, graph_status)
+       if (graph_status /= GRAPH_BUILDER_SUCCESS) then
          status = GRAPH_BUILDER_INVALID_GRAPH
          return
       end if
-      call add_graph_edge(this%graph, transform, result, graph_status)
-      if (graph_status /= GRAPH_SUCCESS) then
+       edge_id = add_graph_edge(this%graph, transform, result, graph_status)
+       if (graph_status /= GRAPH_BUILDER_SUCCESS) then
          status = GRAPH_BUILDER_INVALID_GRAPH
          return
       end if
@@ -229,15 +249,44 @@ contains
       end do
    end function find_representation
 
-   subroutine add_graph_edge(graph, source, target, status)
-      use mapl_EdgeId_mod, only: EdgeId
-      type(Graph), intent(inout) :: graph
-      type(NodeId), intent(in) :: source, target
-      integer, intent(out) :: status
-      type(EdgeId) :: unused
+    function add_graph_edge(graph, source, target, status) result(edge_id)
+       type(ComponentGraph), intent(inout) :: graph
+       type(NodeId), intent(in) :: source, target
+       integer, intent(out) :: status
+       type(EdgeId) :: edge_id
 
-      unused = graph%add_edge(source, target, status)
-   end subroutine add_graph_edge
+       edge_id = graph%add_edge(GraphEdge(source, target), rc=status)
+    end function add_graph_edge
+
+   function descriptor_input_specs(this) result(specs)
+      class(DescriptorTransform), intent(in) :: this
+      type(GraphPortSpec), allocatable :: specs(:)
+
+      allocate(specs(1))
+      specs(1) = GraphPortSpec('input', GraphValueSpec(this%source_spec%category()))
+   end function descriptor_input_specs
+
+   function descriptor_output_specs(this) result(specs)
+      class(DescriptorTransform), intent(in) :: this
+      type(GraphPortSpec), allocatable :: specs(:)
+
+      allocate(specs(1))
+      specs(1) = GraphPortSpec('output', GraphValueSpec(this%target_spec%category()))
+   end function descriptor_output_specs
+
+   subroutine descriptor_execute(this, inputs, outputs, rc)
+      class(DescriptorTransform), intent(inout) :: this
+      type(GraphValueRef), intent(in) :: inputs(:)
+      type(GraphValueRef), intent(inout) :: outputs(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(inputs)
+      _UNUSED_DUMMY(outputs)
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_execute
 
    subroutine append_representation(values, value)
       type(Representation), allocatable, intent(inout) :: values(:)

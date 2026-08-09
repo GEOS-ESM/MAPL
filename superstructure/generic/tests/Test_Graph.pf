@@ -1,0 +1,70 @@
+module Test_Graph
+   use funit
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_GraphEdge_mod, only: GraphEdge
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_ItemSpec_mod, only: ItemSpec
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_EdgeId_mod, only: EdgeId
+   use mapl_ValueGraphNode_mod, only: ValueGraphNode
+   implicit none
+
+contains
+
+   @test
+   subroutine test_graph_lifecycle_and_accessors()
+      type(ComponentGraph), target :: graph
+      type(ItemSpec) :: spec
+      type(NodeId) :: source_id, target_id
+      type(EdgeId) :: edge_id
+      class(GraphNode), pointer :: node
+      type(GraphEdge), pointer :: edge
+      integer :: rc
+
+      spec = ItemSpec('field', 8, 0, 0, '1', 'grid')
+
+      call graph%initialize(rc)
+      @assert_that(rc, is(0))
+      @assert_that(graph%is_initialized(), is(true()))
+      @assert_that(graph%is_frozen(), is(false()))
+
+      source_id = graph%add_node(ValueGraphNode(spec), rc)
+      @assert_that(rc, is(0))
+      @assert_that(source_id%is_valid(), is(true()))
+      @assert_that(graph%has_node(source_id), is(true()))
+
+      target_id = graph%add_node(ValueGraphNode(spec), rc)
+      @assert_that(rc, is(0))
+      @assert_that(target_id%is_valid(), is(true()))
+      @assert_that(graph%has_node(target_id), is(true()))
+
+      edge_id = graph%add_edge(GraphEdge(source_id, target_id), rc=rc)
+      @assert_that(rc, is(0))
+      @assert_that(edge_id%is_valid(), is(true()))
+      @assert_that(graph%has_edge(edge_id), is(true()))
+
+      node => graph%get_node(source_id, rc)
+      @assert_that(rc, is(0))
+      @assert_that(associated(node), is(true()))
+      select type (node)
+      type is (ValueGraphNode)
+         @assert_that(node%is_transform(), is(false()))
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      edge => graph%get_edge(edge_id, rc)
+      @assert_that(rc, is(0))
+      @assert_that(associated(edge), is(true()))
+      @assert_that(edge%source() == source_id, is(true()))
+      @assert_that(edge%target() == target_id, is(true()))
+
+      call graph%validate(rc)
+      @assert_that(rc, is(0))
+
+      call graph%freeze(rc)
+      @assert_that(rc, is(0))
+      @assert_that(graph%is_frozen(), is(true()))
+   end subroutine test_graph_lifecycle_and_accessors
+
+end module Test_Graph
