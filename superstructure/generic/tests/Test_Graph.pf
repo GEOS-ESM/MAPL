@@ -1,21 +1,85 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
 module Test_Graph
    use funit
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_GraphEdge_mod, only: GraphEdge
    use mapl_GraphNode_mod, only: GraphNode
+   use mapl_GraphTransform_mod, only: GraphTransform, GraphPortSpec, GraphValueRef
+   use mapl_GraphValue_mod, only: GraphValue
+   use mapl_GraphValueSpec_mod, only: GraphValueSpec
    use mapl_ItemSpec_mod, only: ItemSpec, operator(==)
    use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_EdgeId_mod, only: EdgeId
    use mapl_FieldGraphValue_mod, only: FieldGraphValue
    use mapl_GeomGraphValue_mod, only: GeomGraphValue
-   use mapl_GraphValue_mod, only: GraphValue
    use mapl_NullGeomSpec_mod, only: NULL_GEOM_SPEC
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_GraphBuilder_mod, only: GraphBuilder, GRAPH_BUILDER_SUCCESS, &
       GRAPH_BUILDER_UNKNOWN_SOURCE, GRAPH_BUILDER_ALREADY_BUILT
+   use mapl_GraphAssembly_mod, only: GraphAssembly
    use mapl_ValueGraphNode_mod, only: ValueGraphNode
    implicit none
 
-contains
+   type, extends(GraphValue) :: TestGraphValue
+      integer :: value = 0
+   contains
+      procedure :: spec => test_graph_value_spec
+   end type TestGraphValue
+
+   type, extends(GraphTransform) :: TestCopyTransform
+      integer :: execution_count = 0
+   contains
+      procedure :: input_specs => test_copy_input_specs
+      procedure :: output_specs => test_copy_output_specs
+      procedure :: execute => test_copy_execute
+   end type TestCopyTransform
+
+ contains
+
+   function test_graph_value_spec(this) result(spec)
+      class(TestGraphValue), intent(in) :: this
+      type(GraphValueSpec) :: spec
+
+       spec = GraphValueSpec('test')
+       _UNUSED_DUMMY(this)
+   end function test_graph_value_spec
+
+   function test_copy_input_specs(this) result(specs)
+      class(TestCopyTransform), intent(in) :: this
+      type(GraphPortSpec), allocatable :: specs(:)
+
+       allocate(specs(1))
+       specs(1) = GraphPortSpec('input', GraphValueSpec('test'))
+       _UNUSED_DUMMY(this)
+   end function test_copy_input_specs
+
+   function test_copy_output_specs(this) result(specs)
+      class(TestCopyTransform), intent(in) :: this
+      type(GraphPortSpec), allocatable :: specs(:)
+
+       allocate(specs(1))
+       specs(1) = GraphPortSpec('output', GraphValueSpec('test'))
+       _UNUSED_DUMMY(this)
+   end function test_copy_output_specs
+
+   subroutine test_copy_execute(this, inputs, outputs, rc)
+      class(TestCopyTransform), intent(inout) :: this
+      type(GraphValueRef), intent(in) :: inputs(:)
+      type(GraphValueRef), intent(inout) :: outputs(:)
+      integer, optional, intent(out) :: rc
+
+      select type (input => inputs(1)%value)
+      type is (TestGraphValue)
+         select type (output => outputs(1)%value)
+         type is (TestGraphValue)
+            output%value = input%value + 1
+         end select
+      end select
+      this%execution_count = this%execution_count + 1
+      if (present(rc)) rc = 0
+   end subroutine test_copy_execute
 
    @test
    subroutine test_graph_lifecycle_and_accessors()
@@ -224,6 +288,7 @@ contains
 
       field_id = builder%register_representation(spec, rc)
       @assert_that(rc, is(GRAPH_BUILDER_SUCCESS))
+      @assert_that(field_id%is_valid(), is(true()))
       call builder%build(graph, rc)
       @assert_that(rc, is(GRAPH_BUILDER_SUCCESS))
 
@@ -231,5 +296,132 @@ contains
       @assert_that(rc, is(GRAPH_BUILDER_ALREADY_BUILT))
       @assert_that(result_id%is_valid(), is(false()))
    end subroutine test_graph_builder_rejects_invalid_operations
+
+   @test
+   subroutine test_graph_executes_bound_transform()
+      type(ComponentGraph), target :: graph
+      type(TestGraphValue) :: source_value, target_value
+      type(TestCopyTransform) :: operation
+      type(NodeId) :: source_id, transform_id, target_id
+      type(EdgeId) :: input_edge_id, output_edge_id
+      class(GraphNode), pointer :: node
+      class(GraphValue), pointer :: payload
+      class(GraphTransform), pointer :: transform
+      integer :: rc
+
+      source_value%value = 4
+      target_value%value = 0
+
+      call graph%initialize(rc)
+      @assert_that(rc, is(0))
+
+      source_id = graph%add_node(ValueGraphNode(source_value), rc)
+      @assert_that(rc, is(0))
+      transform_id = graph%add_node(TransformGraphNode(operation), rc)
+      @assert_that(rc, is(0))
+      target_id = graph%add_node(ValueGraphNode(target_value), rc)
+      @assert_that(rc, is(0))
+
+      input_edge_id = graph%add_edge(GraphEdge(source_id, transform_id), &
+         transform_id=transform_id, port_name='input', is_input=.true., rc=rc)
+      @assert_that(rc, is(0))
+      @assert_that(input_edge_id%is_valid(), is(true()))
+      output_edge_id = graph%add_edge(GraphEdge(transform_id, target_id), &
+         transform_id=transform_id, port_name='output', is_input=.false., rc=rc)
+      @assert_that(rc, is(0))
+      @assert_that(output_edge_id%is_valid(), is(true()))
+
+      call graph%mark_updated(source_id, rc)
+      @assert_that(rc, is(0))
+      call graph%update(target_id, rc)
+      @assert_that(rc, is(0))
+
+      node => graph%get_node(target_id, rc)
+      @assert_that(node%is_valid(), is(true()))
+      select type (node)
+      type is (ValueGraphNode)
+         payload => node%value()
+         select type (payload)
+         type is (TestGraphValue)
+            @assert_that(payload%value, is(5))
+         class default
+            @assert_that(.false., is(true()))
+         end select
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      node => graph%get_node(transform_id, rc)
+      select type (node)
+      type is (TransformGraphNode)
+         transform => node%transform()
+         select type (transform)
+         type is (TestCopyTransform)
+            @assert_that(transform%execution_count, is(1))
+         class default
+            @assert_that(.false., is(true()))
+         end select
+      class default
+         @assert_that(.false., is(true()))
+      end select
+   end subroutine test_graph_executes_bound_transform
+
+   @test
+   subroutine test_graph_assembly_resolves_connections()
+      type(GraphAssembly) :: assembly
+      type(ComponentGraph) :: graph
+      type(ItemSpec) :: spec
+      type(NodeId) :: geom_id, field_id
+      class(GraphNode), pointer :: node
+      integer :: rc
+
+      spec = ItemSpec('field', 8, 2, 0, 'K', 'MAPL_geom_out')
+      call assembly%initialize(rc)
+      @assert_that(rc, is(0))
+      geom_id = assembly%declare_geom('MAPL_geom_out', NULL_GEOM_SPEC, rc)
+      @assert_that(rc, is(0))
+      field_id = assembly%declare_field('temperature', spec, rc)
+      @assert_that(rc, is(0))
+      call assembly%declare_connection('MAPL_geom_out', 'temperature', rc)
+      @assert_that(rc, is(0))
+
+      call assembly%modify_advertise(rc)
+      @assert_that(rc, is(0))
+      @assert_that(assembly%unresolved_count(), is(0))
+      call assembly%build(graph, rc)
+      @assert_that(rc, is(0))
+
+      call graph%mark_valid(field_id, rc)
+      @assert_that(rc, is(0))
+      call graph%mark_updated(geom_id, rc)
+      @assert_that(rc, is(0))
+      node => graph%get_node(field_id, rc)
+      @assert_that(node%is_valid(), is(false()))
+   end subroutine test_graph_assembly_resolves_connections
+
+   @test
+   subroutine test_graph_assembly_records_missing_connections()
+      type(GraphAssembly) :: assembly
+      type(ItemSpec) :: spec
+      type(NodeId) :: field_id
+      character(:), allocatable :: source, target
+      integer :: rc
+
+      spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
+      call assembly%initialize(rc)
+      @assert_that(rc, is(0))
+      field_id = assembly%declare_field('temperature', spec, rc)
+      @assert_that(rc, is(0))
+      @assert_that(field_id%is_valid(), is(true()))
+      call assembly%declare_connection('missing_geom', 'temperature', rc)
+      @assert_that(rc, is(0))
+
+      call assembly%modify_advertise(rc)
+      @assert_that(rc, is(0))
+      @assert_that(assembly%unresolved_count(), is(1))
+      call assembly%get_unresolved_connection(1, source, target)
+      @assert_that(source, is('missing_geom'))
+      @assert_that(target, is('temperature'))
+   end subroutine test_graph_assembly_records_missing_connections
 
 end module Test_Graph

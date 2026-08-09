@@ -10,6 +10,8 @@ module mapl_ComponentGraph_mod
    use mapl_EdgeIdSet_mod
    use mapl_GraphEdge_mod
    use mapl_GraphEdgeMap_mod
+   use mapl_GraphTransform_mod, only: GraphTransform, GraphPortSpec, GraphValueRef
+   use mapl_GraphValue_mod, only: GraphValue
    use mapl_DependencyNetwork_mod
    use mapl_DependencyNetworkId_mod
    use mapl_DependencyNetworkMap_mod
@@ -43,7 +45,8 @@ module mapl_ComponentGraph_mod
       procedure :: add_edge
       procedure :: has_edge
       procedure :: get_edge
-      procedure, private :: would_create_cycle
+       procedure, private :: would_create_cycle
+       procedure, private :: execute_transform
 
       procedure :: add_network
       procedure :: has_network
@@ -161,11 +164,14 @@ contains
       _RETURN(_SUCCESS)
    end function add_node
 
-    function add_edge(this, edge, unusable, network_id, rc) result(edge_id)
+     function add_edge(this, edge, unusable, network_id, transform_id, port_name, is_input, rc) result(edge_id)
       class(ComponentGraph), target, intent(inout) :: this
       class(GraphEdge), intent(in) :: edge
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(DependencyNetworkId), optional, intent(in) :: network_id
+       class(KeywordEnforcer), optional, intent(in) :: unusable
+       type(DependencyNetworkId), optional, intent(in) :: network_id
+       type(NodeId), optional, intent(in) :: transform_id
+       character(*), optional, intent(in) :: port_name
+       logical, optional, intent(in) :: is_input
        integer, optional, intent(out) :: rc
 
        integer :: status
@@ -196,7 +202,8 @@ contains
        target_node => this%get_node(edge%target(), _RC)
        call source_node%add_out_edge(edge_id)
        call target_node%add_in_edge(edge_id)
-       call dependency_network%add_edge_membership(edge_id, edge, _RC)
+       call dependency_network%add_edge_membership(edge_id, edge, &
+          rc=status, transform_id=transform_id, port_name=port_name, is_input=is_input)
 
       _RETURN(_SUCCESS)
     end function add_edge
@@ -374,21 +381,82 @@ contains
       associate (e => in_edge_ids%ftn_end())
         iter = in_edge_ids%ftn_begin()
         do while (iter /= e)
-            edge => graph%edges%at(iter%of(), _RC)
+           call iter%next()
+           edge => graph%edges%at(iter%of(), _RC)
            src_id = edge%source()
            call graph%update(src_id, _RC)
-            src_node => graph%get_node(src_id, _RC)
-            call iter%next()
+           src_node => graph%get_node(src_id, _RC)
         end do
       end associate
 
-      if (node%is_transform()) then
-         call node%update(_RC)
-         call graph%mark_outputs_valid(node_id, _RC)
-      end if
+       if (node%is_transform()) then
+          call graph%execute_transform(node_id, _RC)
+          call graph%mark_outputs_valid(node_id, _RC)
+       end if
 
       _RETURN(_SUCCESS)
    end subroutine update
+
+   subroutine execute_transform(this, transform_id, rc)
+      class(ComponentGraph), target, intent(inout) :: this
+      type(NodeId), intent(in) :: transform_id
+      integer, optional, intent(out) :: rc
+
+      class(GraphNode), pointer :: node, source_node, target_node
+      class(GraphValue), pointer :: source_value, target_value
+      class(GraphTransform), pointer :: transform
+      type(DependencyNetwork), pointer :: network
+      type(GraphPortSpec), allocatable :: input_specs(:), output_specs(:)
+      type(GraphValueRef), allocatable :: inputs(:), outputs(:)
+      type(GraphEdge), pointer :: edge
+      type(EdgeId) :: edge_id
+      integer :: i, status
+
+      node => this%get_node(transform_id, _RC)
+      select type (node)
+      type is (TransformGraphNode)
+         transform => node%transform()
+         input_specs = node%input_specs()
+         output_specs = node%output_specs()
+      class default
+         _FAIL('Node passed to execute_transform is not a TransformGraphNode.')
+      end select
+
+      network => this%get_network(this%default_network_id, _RC)
+      allocate(inputs(size(input_specs)), outputs(size(output_specs)))
+
+      do i = 1, size(input_specs)
+         edge_id = network%input_edge(transform_id, input_specs(i)%name())
+         _ASSERT(edge_id%is_valid(), 'Required transform input is not bound.')
+         edge => this%edges%at(edge_id, _RC)
+         source_node => this%get_node(edge%source(), _RC)
+         select type (source_node)
+         type is (ValueGraphNode)
+            source_value => source_node%value()
+            inputs(i)%value => source_value
+         class default
+            _FAIL('Transform input source must be a ValueGraphNode.')
+         end select
+      end do
+
+      do i = 1, size(output_specs)
+         edge_id = network%output_edge(transform_id, output_specs(i)%name())
+         _ASSERT(edge_id%is_valid(), 'Required transform output is not bound.')
+         edge => this%edges%at(edge_id, _RC)
+         target_node => this%get_node(edge%target(), _RC)
+         select type (target_node)
+         type is (ValueGraphNode)
+            target_value => target_node%value()
+            outputs(i)%value => target_value
+         class default
+            _FAIL('Transform output target must be a ValueGraphNode.')
+         end select
+      end do
+
+      call transform%execute(inputs, outputs, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine execute_transform
 
    subroutine mark_outputs_valid(this, transform_id, rc)
       class(ComponentGraph), target, intent(inout) :: this
@@ -411,15 +479,15 @@ contains
       associate (e => edge_ids%ftn_end())
          iter = edge_ids%ftn_begin()
          do while (iter /= e)
-             edge => this%edges%at(iter%of(), _RC)
-             output => this%nodes%at(edge%target(), _RC)
+            call iter%next()
+            edge => this%edges%at(iter%of(), _RC)
+            output => this%nodes%at(edge%target(), _RC)
             select type (output)
             type is (ValueGraphNode)
                call this%mark_valid(edge%target(), _RC)
             class default
                _FAIL('Transform output must be a ValueGraphNode.')
             end select
-            call iter%next()
          end do
       end associate
 

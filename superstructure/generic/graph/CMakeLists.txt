@@ -25,6 +25,7 @@ target_sources(MAPL.generic PRIVATE
   ValueGraphNode.F90
   TransformGraphNode.F90
   ComponentGraph.F90
+  GraphAssembly.F90
   GraphBuilder.F90
 
   # Callback*.F90 sources are not yet ready for integration.
