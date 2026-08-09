@@ -57,8 +57,8 @@ module mapl_FieldApplyUserRoutine_mod
    use ESMF, only: ESMF_MAXSTR
    use ESMF, only: ESMF_Geom, ESMF_GeomGet
    use ESMF, only: ESMF_DATACOPY_REFERENCE
-   use ESMF, only: ESMF_AttributeCopy, ESMF_AttributeRemove
-   use ESMF, only: ESMF_Info, ESMF_InfoGetFromHost, ESMF_InfoRemove, ESMF_InfoIsPresent
+   use ESMF, only: ESMF_Info, ESMF_InfoCreate, ESMF_InfoDestroy
+   use ESMF, only: ESMF_InfoGetFromHost, ESMF_InfoIsPresent
    use ESMF, only: operator(==)
    use mapl_FieldCondensedArray_mod, only: condensed_slice_rank, &
                                            assign_fptr_condensed_array
@@ -66,7 +66,7 @@ module mapl_FieldApplyUserRoutine_mod
    use mapl_FieldPointerUtilities_mod, only: FieldGetLocalElementCount
    use mapl_ErrorHandling_mod
    use mapl_InfoUtilities_mod, only: MAPL_InfoSet
-   use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE, KEY_UNGRIDDED_DIMS
+   use mapl_esmf_info_keys_mod, only: INFO_SHARED_NAMESPACE, INFO_PRIVATE_NAMESPACE
 
    implicit none(type, external)
    private
@@ -280,55 +280,47 @@ contains
          _FAIL('FieldCreateFieldSlice: unsupported typekind (expected R4 or R8).')
       end if
    
-      ! ------------------------------------------------------------------
-      ! Copy ESMF_Info from the original field to the slice, excluding
-      ! ungridded-dimension metadata so the slice does not misrepresent
-      ! its structure.
-      ! ------------------------------------------------------------------
-      call copy_info_excluding_ungridded_dims(field, slice, _RC)
+      call set_info_for_field_slice(field, slice, _RC)
    
       _RETURN(_SUCCESS)
    end function FieldCreateFieldSlice
 
    ! --------------------------------------------------------------------------
-   ! copy_info_excluding_ungridded_dims
-   !
-   ! Copy the ESMF_Info object from the source field to the destination field,
-   ! excluding the ungridded dimension metadata. This ensures that a slice
-   ! field does not carry metadata describing ungridded dimensions it no
-   ! longer possesses.
+   ! Build a new ESMF_Info object containing the source field's namespaces.
    ! --------------------------------------------------------------------------
-   subroutine copy_info_excluding_ungridded_dims(field_src, field_dst, rc)
+   subroutine set_info_for_field_slice(field_src, field_dst, rc)
       type(ESMF_Field), intent(in)    :: field_src
       type(ESMF_Field), intent(inout) :: field_dst
       integer, optional, intent(out)  :: rc
     
-      type(ESMF_Info) :: info_src, info_dst
-      character(len=:), allocatable :: full_key
-      logical :: is_present
+      type(ESMF_Info) :: info_src, info_dst, info_slice
+      type(ESMF_Info) :: shared_info, private_info
+      logical :: shared_present, private_present
       integer :: status
-    
-      ! Get the entire Info object from the source field
+
       call ESMF_InfoGetFromHost(field_src, info_src, _RC)
-    
-      ! Get the Info object from the destination field
-      call ESMF_InfoGetFromHost(field_dst, info_dst, _RC)
-    
-      ! Copy the entire Info tree from source to destination
-      call MAPL_InfoSet(info_dst, key="", value=info_src, _RC)
-    
-      ! Re-acquire the Info handle after the copy operation
-      ! The copy operation may invalidate the previous handle
-      call ESMF_InfoGetFromHost(field_dst, info_dst, _RC)
-    
-      ! Remove the ungridded_dims key if it exists in the internal namespace
-      full_key = INFO_INTERNAL_NAMESPACE // KEY_UNGRIDDED_DIMS
-      is_present = ESMF_InfoIsPresent(info_dst, full_key, _RC)
-      if (is_present) then
-         call ESMF_InfoRemove(info_dst, full_key, _RC)
+
+      info_slice = ESMF_InfoCreate(_RC)
+
+      shared_present = ESMF_InfoIsPresent(info_src, INFO_SHARED_NAMESPACE, _RC)
+      if (shared_present) then
+         shared_info = ESMF_InfoCreate(info_src, INFO_SHARED_NAMESPACE, _RC)
+         call MAPL_InfoSet(info_slice, INFO_SHARED_NAMESPACE, shared_info, _RC)
+         call ESMF_InfoDestroy(shared_info, _RC)
       end if
-    
+
+      private_present = ESMF_InfoIsPresent(info_src, INFO_PRIVATE_NAMESPACE, _RC)
+      if (private_present) then
+         private_info = ESMF_InfoCreate(info_src, INFO_PRIVATE_NAMESPACE, _RC)
+         call MAPL_InfoSet(info_slice, INFO_PRIVATE_NAMESPACE, private_info, _RC)
+         call ESMF_InfoDestroy(private_info, _RC)
+      end if
+
+      call ESMF_InfoGetFromHost(field_dst, info_dst, _RC)
+      call MAPL_InfoSet(info_dst, key="", value=info_slice, _RC)
+      call ESMF_InfoDestroy(info_slice, _RC)
+
       _RETURN(_SUCCESS)
-   end subroutine copy_info_excluding_ungridded_dims
+   end subroutine set_info_for_field_slice
 
 end module mapl_FieldApplyUserRoutine_mod
