@@ -20,6 +20,8 @@ target_sources(MAPL.generic PRIVATE
 
   DependencyNetwork.F90
   GraphTransform.F90
+  FieldGraphValue.F90
+  GeomGraphValue.F90
   ValueGraphNode.F90
   TransformGraphNode.F90
   ComponentGraph.F90

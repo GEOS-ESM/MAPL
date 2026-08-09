@@ -49,21 +49,33 @@ module mapl_GraphBuilder_mod
       procedure :: execute => descriptor_execute
    end type DescriptorTransform
 
-   type :: GraphBuilder
-      private
-       type(ComponentGraph) :: graph
+    type :: GraphBuilder
+       private
+        type(ComponentGraph) :: graph
       type(Representation), allocatable :: representations(:)
       type(TransformResult), allocatable :: transform_results(:)
       logical :: built = .false.
-   contains
-      procedure :: register_representation
+    contains
+       procedure :: initialize
+       procedure :: register_representation
       procedure :: satisfy
       procedure :: build
    end type GraphBuilder
 
-contains
+ contains
 
-   function register_representation(this, spec, status) result(node)
+    subroutine initialize(this, rc)
+       class(GraphBuilder), intent(inout) :: this
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+
+       call this%graph%initialize(_RC)
+
+       _RETURN(_SUCCESS)
+    end subroutine initialize
+
+    function register_representation(this, spec, status) result(node)
       class(GraphBuilder), intent(inout) :: this
       type(ItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: status

@@ -3,9 +3,15 @@ module Test_Graph
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_GraphEdge_mod, only: GraphEdge
    use mapl_GraphNode_mod, only: GraphNode
-   use mapl_ItemSpec_mod, only: ItemSpec
+   use mapl_ItemSpec_mod, only: ItemSpec, operator(==)
    use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_EdgeId_mod, only: EdgeId
+   use mapl_FieldGraphValue_mod, only: FieldGraphValue
+   use mapl_GeomGraphValue_mod, only: GeomGraphValue
+   use mapl_GraphValue_mod, only: GraphValue
+   use mapl_NullGeomSpec_mod, only: NULL_GEOM_SPEC
+   use mapl_GraphBuilder_mod, only: GraphBuilder, GRAPH_BUILDER_SUCCESS, &
+      GRAPH_BUILDER_UNKNOWN_SOURCE, GRAPH_BUILDER_ALREADY_BUILT
    use mapl_ValueGraphNode_mod, only: ValueGraphNode
    implicit none
 
@@ -66,5 +72,164 @@ contains
       @assert_that(rc, is(0))
       @assert_that(graph%is_frozen(), is(true()))
    end subroutine test_graph_lifecycle_and_accessors
+
+   @test
+   subroutine test_add_field_value()
+      type(ComponentGraph), target :: graph
+      type(ItemSpec) :: spec
+      type(NodeId) :: field_id
+      class(GraphNode), pointer :: node
+      class(GraphValue), pointer :: payload
+      integer :: rc
+
+      spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
+
+      call graph%initialize(rc)
+      @assert_that(rc, is(0))
+
+      field_id = graph%add_node(ValueGraphNode(FieldGraphValue('temperature', spec)), rc)
+      @assert_that(rc, is(0))
+      @assert_that(field_id%is_valid(), is(true()))
+
+      node => graph%get_node(field_id, rc)
+      @assert_that(rc, is(0))
+      select type (node)
+      type is (ValueGraphNode)
+         payload => node%value()
+         select type (payload)
+         type is (FieldGraphValue)
+            @assert_that(payload%name(), is('temperature'))
+            @assert_that(payload%item_spec() == spec, is(true()))
+            @assert_that(payload%geom_name(), is('grid'))
+         class default
+            @assert_that(.false., is(true()))
+         end select
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      call graph%validate(rc)
+      @assert_that(rc, is(0))
+   end subroutine test_add_field_value
+
+   @test
+   subroutine test_geom_field_dependency()
+      type(ComponentGraph), target :: graph
+      type(ItemSpec) :: spec
+      type(NodeId) :: geom_id, field_id, second_field_id
+      type(EdgeId) :: edge_id, second_edge_id
+      class(GraphNode), pointer :: node
+      class(GraphValue), pointer :: payload
+      integer :: rc
+
+      spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
+
+      call graph%initialize(rc)
+      @assert_that(rc, is(0))
+
+      geom_id = graph%add_node(ValueGraphNode(GeomGraphValue(NULL_GEOM_SPEC, 'grid')), rc)
+      @assert_that(rc, is(0))
+      field_id = graph%add_node(ValueGraphNode(FieldGraphValue('temperature', spec)), rc)
+      @assert_that(rc, is(0))
+      second_field_id = graph%add_node( &
+         ValueGraphNode(FieldGraphValue('potential_temperature', spec)), rc)
+      @assert_that(rc, is(0))
+
+      node => graph%get_node(geom_id, rc)
+      @assert_that(rc, is(0))
+      select type (node)
+      type is (ValueGraphNode)
+         payload => node%value()
+         select type (payload)
+         type is (GeomGraphValue)
+            @assert_that(payload%name(), is('grid'))
+         class default
+            @assert_that(.false., is(true()))
+         end select
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      edge_id = graph%add_edge(GraphEdge(geom_id, field_id), rc=rc)
+      @assert_that(rc, is(0))
+      @assert_that(edge_id%is_valid(), is(true()))
+      second_edge_id = graph%add_edge(GraphEdge(geom_id, second_field_id), rc=rc)
+      @assert_that(rc, is(0))
+      @assert_that(second_edge_id%is_valid(), is(true()))
+
+      call graph%validate(rc)
+      @assert_that(rc, is(0))
+
+      call graph%mark_valid(field_id, rc)
+      @assert_that(rc, is(0))
+      node => graph%get_node(field_id, rc)
+      @assert_that(node%is_valid(), is(true()))
+      call graph%mark_valid(second_field_id, rc)
+      @assert_that(rc, is(0))
+      node => graph%get_node(second_field_id, rc)
+      @assert_that(node%is_valid(), is(true()))
+
+      call graph%mark_updated(geom_id, rc)
+      @assert_that(rc, is(0))
+      node => graph%get_node(field_id, rc)
+      @assert_that(node%is_valid(), is(false()))
+      node => graph%get_node(second_field_id, rc)
+      @assert_that(node%is_valid(), is(false()))
+   end subroutine test_geom_field_dependency
+
+   @test
+   subroutine test_graph_builder_registers_field()
+      type(GraphBuilder) :: builder
+      type(ComponentGraph) :: graph
+      type(ItemSpec) :: spec
+      type(NodeId) :: field_id, result_id
+      integer :: rc
+
+      spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
+
+      call builder%initialize(rc)
+      @assert_that(rc, is(GRAPH_BUILDER_SUCCESS))
+
+      field_id = builder%register_representation(spec, rc)
+      @assert_that(rc, is(GRAPH_BUILDER_SUCCESS))
+      @assert_that(field_id%is_valid(), is(true()))
+
+      result_id = builder%satisfy(field_id, spec, rc)
+      @assert_that(rc, is(GRAPH_BUILDER_SUCCESS))
+      @assert_that(result_id == field_id, is(true()))
+
+      call builder%build(graph, rc)
+      @assert_that(rc, is(GRAPH_BUILDER_SUCCESS))
+      @assert_that(graph%is_initialized(), is(true()))
+      @assert_that(graph%is_frozen(), is(true()))
+      @assert_that(graph%has_node(field_id), is(true()))
+   end subroutine test_graph_builder_registers_field
+
+   @test
+   subroutine test_graph_builder_rejects_invalid_operations()
+      type(GraphBuilder) :: builder
+      type(ComponentGraph) :: graph
+      type(ItemSpec) :: spec
+      type(NodeId) :: field_id, unknown_id, result_id
+      integer :: rc
+
+      spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
+
+      call builder%initialize(rc)
+      @assert_that(rc, is(GRAPH_BUILDER_SUCCESS))
+
+      result_id = builder%satisfy(unknown_id, spec, rc)
+      @assert_that(rc, is(GRAPH_BUILDER_UNKNOWN_SOURCE))
+      @assert_that(result_id%is_valid(), is(false()))
+
+      field_id = builder%register_representation(spec, rc)
+      @assert_that(rc, is(GRAPH_BUILDER_SUCCESS))
+      call builder%build(graph, rc)
+      @assert_that(rc, is(GRAPH_BUILDER_SUCCESS))
+
+      result_id = builder%register_representation(spec, rc)
+      @assert_that(rc, is(GRAPH_BUILDER_ALREADY_BUILT))
+      @assert_that(result_id%is_valid(), is(false()))
+   end subroutine test_graph_builder_rejects_invalid_operations
 
 end module Test_Graph

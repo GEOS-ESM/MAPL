@@ -172,6 +172,7 @@ contains
        type(EdgeId) :: edge_id
        type(DependencyNetworkId) :: network_id_
        type(DependencyNetwork), pointer :: dependency_network
+       class(GraphNode), pointer :: source_node, target_node
 
        _UNUSED_DUMMY(unusable)
        _ASSERT(this%is_initialized(), 'ComponentGraph must be initialized before adding edges.')
@@ -189,8 +190,12 @@ contains
 
       _ASSERT(.not. this%would_create_cycle(dependency_network, edge), 'Edge would make dependency network cyclic.')
 
-      edge_id = this%edge_id_generator%next(_RC)
-      call this%edges%insert(edge_id, edge)
+       edge_id = this%edge_id_generator%next(_RC)
+       call this%edges%insert(edge_id, edge)
+       source_node => this%get_node(edge%source(), _RC)
+       target_node => this%get_node(edge%target(), _RC)
+       call source_node%add_out_edge(edge_id)
+       call target_node%add_in_edge(edge_id)
        call dependency_network%add_edge_membership(edge_id, edge, _RC)
 
       _RETURN(_SUCCESS)
@@ -323,27 +328,27 @@ contains
       type(NodeId), intent(in) :: node_id
        integer, optional, intent(out) :: rc
 
-      type(EdgeIdSet), pointer :: out_edge_ids
-      class(GraphNode), pointer :: node, dst_node
-      type(GraphEdge), pointer :: edge
-      type(EdgeIdSetIterator) :: iter
-      type(NodeId) :: dst_id
-      integer :: status
+       type(EdgeIdSet), pointer :: out_edge_ids
+       class(GraphNode), pointer :: node, dst_node
+       type(GraphEdge), pointer :: edge
+       type(EdgeIdSetIterator) :: iter
+       type(NodeId) :: dst_id
+       integer :: status
 
        node => graph%get_node(node_id, _RC)
-      out_edge_ids => node%get_out_edges()
+       out_edge_ids => node%get_out_edges()
 
-      associate (e => out_edge_ids%ftn_end())
-        iter = out_edge_ids%ftn_begin()
-        do while (iter /= e)
-            edge => graph%edges%at(iter%of(), _RC)
-           dst_id = edge%target()
-            dst_node => graph%get_node(dst_id, _RC)
-            call dst_node%mark_invalid()
-            call graph%invalidate_downstream(dst_id, _RC)
-            call iter%next()
+       associate (e => out_edge_ids%ftn_end())
+         iter = out_edge_ids%ftn_begin()
+         do while (iter /= e)
+             call iter%next()
+             edge => graph%edges%at(iter%of(), _RC)
+             dst_id = edge%target()
+             dst_node => graph%get_node(dst_id, _RC)
+             call dst_node%mark_invalid()
+             call graph%invalidate_downstream(dst_id, _RC)
          end do
-      end associate
+       end associate
 
       _RETURN(_SUCCESS)
    end subroutine invalidate_downstream
