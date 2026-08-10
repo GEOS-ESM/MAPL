@@ -23,11 +23,6 @@ module mapl_GenericGridComp_mod
 
    ! Procedures
    public :: GenericSetServices
-   public :: GridCompCreate
-
-   interface GridCompCreate
-      procedure create_grid_comp_primary
-   end interface GridCompCreate
 
 contains
 
@@ -37,8 +32,29 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      type(ESMF_HConfig) :: hconfig
+      character(len=ESMF_MAXSTR) :: comp_name
+      type(ESMF_GridComp) :: user_gridcomp
+      type(GriddedComponentDriver) :: user_gc_driver
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
+      outer_meta => get_outer_meta(gridcomp, rc=status)
+      if (status /= ESMF_SUCCESS .or. .not. associated(outer_meta)) then
+         call set_is_generic(gridcomp, .true., _RC)
+         call attach_outer_meta(gridcomp, _RC)
+         outer_meta => get_outer_meta(gridcomp, _RC)
+
+         call ESMF_GridCompGet(gridcomp, name=comp_name, hconfig=hconfig, _RC)
+
+         user_gridcomp = ESMF_GridCompCreate(name=comp_name, _RC)
+         call set_is_generic(user_gridcomp, .false., _RC)
+         user_gc_driver = GriddedComponentDriver(user_gridcomp)
+
+         outer_meta%self_gridcomp = gridcomp
+         outer_meta%user_gc_driver = user_gc_driver
+         outer_meta%hconfig = hconfig
+         call outer_meta%init_meta(_RC)
+      end if
+
       call outer_meta%setServices(_RC)
       call set_entry_points(gridcomp, _RC)
 
@@ -80,67 +96,6 @@ contains
       end subroutine set_entry_points
 
    end subroutine GenericSetServices
-
-
-
-
-   recursive type(ESMF_GridComp) function create_grid_comp_primary( &
-        name, set_services, config, unusable, petlist, rc) result(gridcomp)
-      use :: mapl_UserSetServices_mod, only: AbstractUserSetServices
-
-      character(*), intent(in) :: name
-      class(AbstractUserSetServices), intent(in) :: set_services
-      type(ESMF_HConfig), intent(in) :: config
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: petlist(:)
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_GridComp) :: user_gridcomp
-      type(OuterMetaComponent), pointer :: outer_meta
-      type(GriddedComponentDriver) :: user_gc_driver
-      type(ESMF_Context_Flag) :: contextFlag
-      integer :: status
-
-      contextFlag = ESMF_CONTEXT_PARENT_VM
-      if(present(petlist)) contextFlag = ESMF_CONTEXT_OWN_VM
-      gridcomp = ESMF_GridCompCreate(name=outer_name(name), &
-           petlist=petlist, contextFlag=contextFlag, _RC)
-      call set_is_generic(gridcomp, _RC)
-
-      user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist, contextFlag=contextFlag, _RC)
-      call set_is_generic(user_gridcomp, .false., _RC)
-
-      call attach_outer_meta(gridcomp, _RC)
-      outer_meta => get_outer_meta(gridcomp, _RC)
-
-      ! We copy the outer gridcomp here.  If the user gridcomp runs at a different (slower!) timestep, that
-      ! must be processed later as the information gets stored in the ComponentSpec.
-
-      user_gc_driver = GriddedComponentDriver(user_gridcomp)
-#ifndef __GFORTRAN__
-      outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
-#else
-      ! GFortran 12 & 13 cannot directly assign to outer_meta.  But
-      ! the assignment works for an object without the POINTER
-      ! attribute.  An internal procedure is a workaround, but
-      ! ... ridiculous.
-      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, set_services, config))
-#endif
-      call outer_meta%init_meta(_RC)
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-#ifdef __GFORTRAN__
-   contains
-
-      subroutine ridiculous(a, b)
-         type(OuterMetaComponent), intent(out) :: a
-         type(OuterMetaComponent), intent(in) :: b
-         a = b
-      end subroutine ridiculous
-#endif
-   end function create_grid_comp_primary
-
 
    ! Generic initialize phases are always executed.  User component can specify
    ! additional pre-action for each phase.

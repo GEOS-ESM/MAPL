@@ -44,7 +44,6 @@ module mapl_generic_api
        MAPL_GridCompIsUser => GridCompIsUser
 
    use mapl_GenericGridComp_mod,  &
-       mapl_GridCompCreate => GridCompCreate, &
        mapl_GenericSetServices => GenericSetServices
 
     use mapl_VariableSpec_mod
@@ -113,7 +112,6 @@ module mapl_generic_api
    public :: mapl_get_num_threads
    public :: mapl_get_current_thread
 
-   public :: mapl_GridCompCreate
    public :: mapl_GenericSetServices
 
    public :: mapl_CheckpointControls
