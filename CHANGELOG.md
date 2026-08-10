@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Only look for FMS via `find_package` when `FV_PRECISION` is defined, so projects like MAPL that don't use FMS no longer require it
     - Enforce a minimum ESMF version for Baselibs builds (previously only enforced for Spack/non-Baselibs builds)
     - Added an `ESMA_ESMF_MIN_VERSION` variable, settable before `include(esma)`, to control the minimum ESMF version enforced for both Baselibs and Spack builds (defaults to `8.6.1`)
+    - Suppress compiler `-save-temps` in Debug builds generated with Ninja to prevent parallel compile collisions for shared source basenames
+    - Keep ESMF wrapper link options in `INTERFACE_LINK_OPTIONS` rather than treating them as libraries in `FindESMF.cmake`
+    - Added `copy_restarts()` helper function to `esma_regression_run_helpers.cmake` for regression test restart handling
+    - Update GitHub Actions workflow dependencies (`actions/checkout`, `actions/upload-artifact`) to current major versions
   - ESMA_cmake v4.42.0
     - Fix CMake 4.0 `CMP0219` policy warning in `esma_generate_gocart_code` macro
     - Fix `f2py` and `f2py3` NetCDF-Fortran builds and post-build Python import tests when dependencies are supplied by Spack
