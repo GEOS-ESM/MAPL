@@ -30,30 +30,16 @@ contains
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_HConfig) :: hconfig
-      character(len=ESMF_MAXSTR) :: comp_name
-      type(ESMF_GridComp) :: user_gridcomp
-      type(GriddedComponentDriver) :: user_gc_driver
+       integer :: status
+       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta(gridcomp, rc=status)
-      if (status /= ESMF_SUCCESS .or. .not. associated(outer_meta)) then
-         call set_is_generic(gridcomp, .true., _RC)
-         call attach_outer_meta(gridcomp, _RC)
-         outer_meta => get_outer_meta(gridcomp, _RC)
-
-         call ESMF_GridCompGet(gridcomp, name=comp_name, hconfig=hconfig, _RC)
-
-         user_gridcomp = ESMF_GridCompCreate(name=comp_name, _RC)
-         call set_is_generic(user_gridcomp, .false., _RC)
-         user_gc_driver = GriddedComponentDriver(user_gridcomp)
-
-         outer_meta%self_gridcomp = gridcomp
-         outer_meta%user_gc_driver = user_gc_driver
-         outer_meta%hconfig = hconfig
-         call outer_meta%init_meta(_RC)
-      end if
+       outer_meta => get_outer_meta(gridcomp, rc=status)
+       if (status /= ESMF_SUCCESS .or. .not. associated(outer_meta)) then
+          call set_is_generic(gridcomp, .true., _RC)
+          call attach_outer_meta(gridcomp, _RC)
+          outer_meta => get_outer_meta(gridcomp, _RC)
+          call outer_meta%init_meta(_RC)
+       end if
 
       call outer_meta%setServices(_RC)
       call set_entry_points(gridcomp, _RC)

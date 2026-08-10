@@ -33,9 +33,13 @@ contains
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
 
-      total_hconfig = merge_hconfig(this%hconfig, child_spec%hconfig, _RC)
-      child_outer_gc = ESMF_GridCompCreate(child_name, _RC)
-      child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, _RC)
+        total_hconfig = merge_hconfig(this%hconfig, child_spec%hconfig, _RC)
+        child_outer_gc = ESMF_GridCompCreate(name=child_name, hconfig=total_hconfig, _RC)
+
+        ! Call setServices with child's user_setservices procedure (NUOPC pattern)
+        if (allocated(child_spec%user_setservices)) then
+           call child_spec%user_setservices%run(child_outer_gc, _RC)
+        end if
 
       ! Meta stuff
       child_meta => get_outer_meta(child_outer_gc, _RC)
