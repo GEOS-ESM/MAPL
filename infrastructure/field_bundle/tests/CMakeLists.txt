@@ -8,6 +8,7 @@ set(SRCS
   Test_FieldBundleGetByIndex.pf
   Test_FieldBundleGetPointer.pf
   Test_FieldBundleMatch.pf
+  Test_FieldBundleApplyUserRoutine.pf
 )
 
 add_pfunit_ctest(MAPL.field_bundle.tests
