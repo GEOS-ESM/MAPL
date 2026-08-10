@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 #define _SUCCESS 0
 
 #if defined(_FAILURE)
