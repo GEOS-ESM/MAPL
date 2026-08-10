@@ -173,12 +173,15 @@ contains
 
        _ASSERT(this%status_%is_initialized(), 'GraphAssembly must be initialized before advertisement.')
        _ASSERT(.not. this%status_%is_modified(), 'GraphAssembly modify_advertise already complete.')
+       _ASSERT(.not. this%status_%is_realized(), 'Cannot modify realized GraphAssembly.')
        ! Preserve legacy callers that enter directly at modify_advertise.
        if (this%status_%is_declaring()) call this%status_%mark_advertised()
 
        initial_unresolved = this%unresolved_count()
        made_progress = .false.
 
+       ! Resolve until one complete pass makes no changes.  Readiness means
+       ! every declared connection resolved during this fixed point.
        do
           do i = 1, connection_count(this%connections)
             if (this%connections(i)%resolved) cycle

@@ -405,6 +405,7 @@ module Test_Graph
       type(ItemSpec) :: spec
       type(NodeId) :: field_id
       character(:), allocatable :: source, target
+      logical :: progress, ready
       integer :: rc
 
       spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
@@ -416,8 +417,11 @@ module Test_Graph
       call assembly%declare_connection('missing_geom', 'temperature', rc)
       @assert_that(rc, is(0))
 
-      call assembly%modify_advertise(rc)
+      call assembly%modify_advertise(rc, progress, ready)
       @assert_that(rc, is(0))
+      @assert_that(progress, is(false()))
+      @assert_that(ready, is(false()))
+      @assert_that(assembly%is_ready(), is(false()))
       @assert_that(assembly%unresolved_count(), is(1))
       call assembly%get_unresolved_connection(1, source, target)
       @assert_that(source, is('missing_geom'))
