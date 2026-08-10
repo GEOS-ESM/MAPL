@@ -54,12 +54,12 @@ contains
         call ESMF_TimeIntervalSet(dt, h=1)
         clock = ESMF_ClockCreate(dt, t)
 
-        is_mapl_key_defined = ESMF_HConfigIsDefined(config, keyString=MAPL_KEY, _RC)
-        if (.not. is_mapl_key_defined) then
-           mapl_config=ESMF_HConfigCreate(content=MAPL_VALUE, _RC)
-           call ESMF_HConfigAdd(config, mapl_config, addKeyString=MAPL_KEY, _RC)
-        end if
-        outer_gc = ESMF_GridCompCreate(name='P', config=config, _RC)
+         is_mapl_key_defined = ESMF_HConfigIsDefined(config, keyString=MAPL_KEY, _RC)
+         if (.not. is_mapl_key_defined) then
+            mapl_config=ESMF_HConfigCreate(content=MAPL_VALUE, _RC)
+            call ESMF_HConfigAdd(config, mapl_config, addKeyString=MAPL_KEY, _RC)
+         end if
+         outer_gc = ESMF_GridCompCreate(name='P', hconfig=config, _RC)
       call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetServices, userRC=userRC, _RC)
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
