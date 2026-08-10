@@ -68,9 +68,13 @@ GC_ARGNAME = 'gridcomp'
 GET = 'get'
 MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
+INVALID_VALUES = 'invalid_values'
 KIND = 'kind'
 MAPL_STATEITEM_FIELD = 'MAPL_STATEITEM_FIELD'
 MAPL_STATEITEM_VECTOR = 'MAPL_STATEITEM_VECTOR'
+MAPL_VERTICAL_STAGGER_CENTER = 'MAPL_VERTICAL_STAGGER_CENTER'
+MAPL_VERTICAL_STAGGER_EDGE = 'MAPL_VERTICAL_STAGGER_EDGE'
+MAPL_VERTICAL_STAGGER_NONE = 'MAPL_VERTICAL_STAGGER_NONE'
 MAPPED = 'mapped' 
 MAPPING = 'mapping'
 MISSING_MANDATORY = 'missing_mandatory'
@@ -93,6 +97,9 @@ ALLOC = 'alloc'
 ARRAY = 'array'
 CONDITION = 'condition'
 DIMS = 'dims'
+DIMS_XY = "'xy'"
+DIMS_XYZ = "'xyz'"
+DIMS_Z = "'z'"
 EXPORT_NAME = 'export_name'
 FILL_VALUE = 'fill_value'
 INTENT_ARG = 'intent_arg'
@@ -113,6 +120,7 @@ TYPEKIND = 'typekind'
 UNGRIDDED_DIMS = 'ungridded_dim_array'
 USE_FIELD_DICTIONARY = 'use_field_dictionary'
 VSTAGGER = 'vertical_stagger'
+VSTAGGER_ARG = 'vertical_stagger_arg'
 RESTART = 'restart_mode'
 
 # command-line option constants
@@ -183,20 +191,20 @@ def get_options(args):
     # spec columns
     options[SPECIFICATIONS] = {
         DIMS: {FLAGS: {MANDATORY}, MAPPING: {
-            'z': "'z'",
-            'xy': "'xy'",
-            'xyz': "'xyz'",
-            'MAPL_DimsVertOnly': "'z'",
-            'MAPL_DimsHorzOnly': "'xy'",
-            'MAPL_DimsHorzVert': "'xyz'"}},
+            'z': DIMS_Z,
+            'xy': DIMS_XY,
+            'xyz': DIMS_XYZ,
+            'MAPL_DimsVertOnly': DIMS_Z,
+            'MAPL_DimsHorzOnly': DIMS_XY,
+            'MAPL_DimsHorzVert': DIMS_XYZ}},
         SHORT_NAME: {MAPPING: MANGLED, FLAGS: MANDATORY},
         STATE_INTENT: {FLAGS: {MANDATORY}},
         STANDARD_NAME: {FLAGS: MANDATORY},
         UNGRIDDED_DIMS: {MAPPING: ARRAY},
         VSTAGGER: {FLAGS: MANDATORY, MAPPING: {
-             'C': 'MAPL_VERTICAL_STAGGER_CENTER',
-             'E': 'MAPL_VERTICAL_STAGGER_EDGE',
-             'N': 'MAPL_VERTICAL_STAGGER_NONE'}},
+             'C': MAPL_VERTICAL_STAGGER_CENTER,
+             'E': MAPL_VERTICAL_STAGGER_EDGE,
+             'N': MAPL_VERTICAL_STAGGER_NONE}},
         ALIAS: {FLAGS: {STORE}},
         ALLOC: {FLAGS: {STORE}},
         ADD_TO_EXPORT: {MAPPING: STRLOGICAL},
@@ -254,7 +262,8 @@ def get_options(args):
         STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, STANDARD_NAME_PREFIX), AS: STANDARD_NAME},
         INTENT_ARG: {FROM: (STATE_INTENT, STATE), MAPPING: (ID, dict(zip(states, intents))), FLAGS: AS},
         RANK: {MAPPING: RANK, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)},
-        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS}
+        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS},
+        VSTAGGER_ARG: {MAPPING: VSTAGGER, FROM: (VSTAGGER, DIMS), AS: VSTAGGER},
     }
 
     # internal constants
@@ -595,6 +604,7 @@ def get_values(specs, options):
                   SPECS_NOT_FOUND: specs_not_found,
                   VALUES_NOT_FOUND: values_not_found,
                   MISSING_MANDATORY: missing_mandatory,
+                  INVALID_VALUES: validate_values(values),
                   NONES: nones}
         results.append(result)
     return all_values, results
@@ -694,6 +704,30 @@ def compute_rank(dims, ungridded):
         extra_rank = r0
     return base_rank + extra_rank
 
+def default_vstagger(vstagger, dims):
+    """Default the vertical stagger for horizontal-only (2D) variables to NONE."""
+    if vstagger:
+        return vstagger
+    return MAPL_VERTICAL_STAGGER_NONE if dims == DIMS_XY else None
+
+def validate_vstagger(values):
+    """Check the vertical stagger against dims. Return an error message or None."""
+    dims = values.get(DIMS)
+    vstagger = values.get(VSTAGGER)
+    if dims == DIMS_XY and vstagger != MAPL_VERTICAL_STAGGER_NONE:
+        return f"{VSTAGGER} must be N or blank when {DIMS} is xy, not {vstagger}"
+    if dims == DIMS_XYZ and vstagger == MAPL_VERTICAL_STAGGER_NONE:
+        return f"{VSTAGGER} must be C or E when {DIMS} is xyz"
+    return None
+
+# Validators check a spec for consistency between columns. Each is called with
+# the values digested from one spec and returns an error message or None.
+VALIDATORS = (validate_vstagger,)
+
+def validate_values(values):
+    """Run the validators against a spec's values and return the error messages."""
+    return [message for message in (v(values) for v in VALIDATORS) if message]
+
 def header():
     """
     Returns a standard warning that can be placed at the top of each
@@ -770,6 +804,7 @@ NAMED_MAPPINGS = {
         MANGLED: lambda name: f''' '{rm_quotes(name).replace("*", "'//trim(comp_name)//'")}' ''' if name else None,
         STANDARD_NAME: mangle_standard_name,
         RANK: compute_rank,
+        VSTAGGER: default_vstagger,
         MAKE_BLOCK: lambda value: partial(make_block, value),
         BOOL: convert_to_bool,
         STRLOGICAL: lambda s: convert_to_logical(convert_to_bool(s))
@@ -847,16 +882,26 @@ def main(logger):
     parsed_specs = read_specs(args['input'])
 
     values, results = get_values(parsed_specs, options)
+    exit_code = SUCCESS
     # Make sure mandatory keys are present in specs.
     missing = [(r[SPEC], r[MISSING_MANDATORY]) for r in results if r[MISSING_MANDATORY]]
     if missing:
         for s, n in missing:
             print(f"value for {n} is missing in spec {s}")
         exit_code = ERROR
+    # Make sure the values within each spec are mutually consistent.
+    invalid = [(r[SPEC], r[INVALID_VALUES]) for r in results if r[INVALID_VALUES]]
+    if invalid:
+        for s, messages in invalid:
+            for message in messages:
+                print(f"{message} in spec {s}")
+        exit_code = ERROR
+    # Do not emit anything if any spec is bad.
+    if exit_code != SUCCESS:
+        sys.exit(exit_code)
 
 # Emit values
-    exit_code = emit_values(values, options)
-    sys.exit(exit_code)
+    sys.exit(emit_values(values, options))
 
 #############################################
 # MAIN program begins here
