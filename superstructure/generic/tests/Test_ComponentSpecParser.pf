@@ -54,8 +54,8 @@ contains
       ss_A = user_setservices('libA', 'setservices_')
       ss_B = user_setservices(gamma)
 
-      cs_a = ChildSpec(ss_A)
-      cs_b = ChildSpec(ss_B)
+       cs_a = ChildSpec(user_setservices=ss_A)
+       cs_b = ChildSpec(user_setservices=ss_B)
 
       @assert_that('OPERATOR(==)', cs_a == cs_b, is(false()))
 
@@ -76,18 +76,18 @@ contains
       
       ss = user_setservices('libA', 'setservices_')
 
-      a = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{a: 5}'))
+       a = ChildSpec(user_setservices=ss, hconfig=ESMF_HConfigCreate(content='{a: 5}'))
 
-      b = ChildSpec(ss)
-      @assert_that(a == b, is(false()))
+       b = ChildSpec(user_setservices=ss)
+       @assert_that(a == b, is(false()))
 
-      b = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{b: 7}'))
-      @assert_that(a == b, is(false()))
+       b = ChildSpec(user_setservices=ss, hconfig=ESMF_HConfigCreate(content='{b: 7}'))
+       @assert_that(a == b, is(false()))
 
-      b = ChildSpec(ss)
-      @assert_that(a == b, is(false()))
+       b = ChildSpec(user_setservices=ss)
+       @assert_that(a == b, is(false()))
 
-      b = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{b: 7}'))
+       b = ChildSpec(user_setservices=ss, hconfig=ESMF_HConfigCreate(content='{b: 7}'))
       @assert_that(a == b, is(false()))
           
 
@@ -109,7 +109,7 @@ contains
 
       config = ESMF_HConfigCreate(content='{sharedObj: libA, setServices: setservices_}')
 
-      expected = ChildSpec(user_setservices('libA', 'setservices_'))
+       expected = ChildSpec(user_setservices=user_setservices('libA', 'setservices_'))
       found = parse_child(config, _RC)
       @assert_that(expected == found, is(true()))
 
@@ -134,8 +134,8 @@ contains
       hconfig = ESMF_HConfigCreate(content='{setServices: setservices_, sharedObj: libA, config_file: a.yml}')
       child_hconfig = ESMF_HConfigCreate(content=CHILD_HCONFIG_CONTENT)
 
-      ss = user_setservices('libA', 'setservices_')
-      expected = ChildSpec(ss, hconfig=child_hconfig)
+       ss = user_setservices('libA', 'setservices_')
+       expected = ChildSpec(user_setservices=ss, hconfig=child_hconfig)
       found = parse_child(hconfig, _RC)
       @assert_that(expected == found, is(true()))
 
@@ -173,7 +173,7 @@ contains
 
       config = ESMF_HConfigCreate(content='children: {A: {sharedObj: libA}}')
       config_ptr => config
-      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
+       call expected%insert('A', ChildSpec(user_setservices=user_setservices('libA', 'setservices_')))
       found = parse_children(config_ptr, _RC)
       @assert_that(found == expected, is(true()))
       
