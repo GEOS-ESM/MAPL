@@ -14,7 +14,7 @@ contains
       class(AbstractUserSetServices), allocatable :: setservices
 
       character(*), parameter :: dso_keys(*) = [character(len=9) :: 'dso', 'DSO', 'sharedObj', 'sharedobj']
-      character(*), parameter :: userProcedure_keys(*) = [character(len=10) :: 'SetServices', 'setServices', 'setservices']
+      character(*), parameter :: userProcedure_keys(*) = [character(len=11) :: 'SetServices', 'setServices', 'setservices']
       integer :: i
       character(:), allocatable :: dso_key, userProcedure_key, try_key
       logical :: dso_found, userProcedure_found
@@ -48,7 +48,7 @@ contains
             userProcedure_key = try_key
          end if
       end do
-      userProcedure = 'setservices_'         
+      userProcedure = 'setservices_'
       if (userProcedure_found) then
          userProcedure = ESMF_HconfigAsString(hconfig, keyString=userProcedure_key,_RC)
       end if
