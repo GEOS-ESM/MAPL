@@ -191,8 +191,8 @@ contains
            'B: {sharedObj: libB}}')
       config_ptr => config
 
-      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
-      call expected%insert('B', ChildSpec(user_setservices('libB', 'setservices_')))
+       call expected%insert('A', ChildSpec(user_setservices=user_setservices('libA', 'setservices_')))
+       call expected%insert('B', ChildSpec(user_setservices=user_setservices('libB', 'setservices_')))
       found = parse_children(config_ptr, _RC)
 
       @assert_that(found%of('A') == expected%of('A'), is(true()))
