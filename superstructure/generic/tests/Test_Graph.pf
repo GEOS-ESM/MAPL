@@ -1,5 +1,4 @@
 #include "MAPL_TestErr.h"
-#include "unused_dummy.H"
 
 module Test_Graph
    use funit
@@ -11,6 +10,7 @@ module Test_Graph
    use mapl_GraphValueSpec_mod, only: GraphValueSpec
    use mapl_ItemSpec_mod, only: ItemSpec, operator(==)
    use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_PortId_mod, only: PortId
    use mapl_EdgeId_mod, only: EdgeId
    use mapl_FieldGraphValue_mod, only: FieldGraphValue
    use mapl_GeomGraphValue_mod, only: GeomGraphValue
@@ -18,7 +18,9 @@ module Test_Graph
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_GraphBuilder_mod, only: GraphBuilder, GRAPH_BUILDER_SUCCESS, &
       GRAPH_BUILDER_UNKNOWN_SOURCE, GRAPH_BUILDER_ALREADY_BUILT
-   use mapl_GraphAssembly_mod, only: GraphAssembly, GRAPH_GEOM_ROLE_A
+   use mapl_GraphAssembly_mod, only: GraphAssembly, GRAPH_GEOM_ROLE_A, &
+      GRAPH_GEOM_ROLE_PROVIDER
+   use mapl_ComponentInterface_mod, only: ComponentInterface
    use mapl_ValueGraphNode_mod, only: ValueGraphNode
    implicit none
 
@@ -378,14 +380,14 @@ module Test_Graph
       spec = ItemSpec('field', 8, 2, 0, 'K', 'MAPL_geom_out')
       call assembly%initialize(rc)
       @assert_that(rc, is(0))
-      geom_id = assembly%declare_geom('MAPL_geom_out', NULL_GEOM_SPEC, rc)
+       geom_id = assembly%declare_geom('MAPL_geom_out', NULL_GEOM_SPEC, rc=rc)
       @assert_that(rc, is(0))
-      field_id = assembly%declare_field('temperature', spec, rc)
+       field_id = assembly%declare_field('temperature', spec, rc=rc)
       @assert_that(rc, is(0))
-      call assembly%declare_connection('MAPL_geom_out', 'temperature', rc)
+       call assembly%declare_connection('MAPL_geom_out', 'temperature', rc=rc)
       @assert_that(rc, is(0))
 
-      call assembly%modify_advertise(rc)
+       call assembly%modify_advertise(rc=rc)
       @assert_that(rc, is(0))
       @assert_that(assembly%unresolved_count(), is(0))
       call assembly%build(graph, rc)
@@ -411,13 +413,13 @@ module Test_Graph
       spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
       call assembly%initialize(rc)
       @assert_that(rc, is(0))
-      field_id = assembly%declare_field('temperature', spec, rc)
+       field_id = assembly%declare_field('temperature', spec, rc=rc)
       @assert_that(rc, is(0))
       @assert_that(field_id%is_valid(), is(true()))
-      call assembly%declare_connection('missing_geom', 'temperature', rc)
+       call assembly%declare_connection('missing_geom', 'temperature', rc=rc)
       @assert_that(rc, is(0))
 
-      call assembly%modify_advertise(rc, progress, ready)
+       call assembly%modify_advertise(progress=progress, ready=ready, rc=rc)
       @assert_that(rc, is(0))
       @assert_that(progress, is(false()))
       @assert_that(ready, is(false()))
@@ -440,14 +442,14 @@ module Test_Graph
       spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
       call assembly%initialize(rc)
       @assert_that(rc, is(0))
-      geom_id = assembly%declare_geom('grid', NULL_GEOM_SPEC, rc, role=GRAPH_GEOM_ROLE_A)
-      field_id = assembly%declare_field('temperature', spec, rc)
-      call assembly%declare_alias('component_grid', 'grid', rc)
-      call assembly%declare_connection('component_grid', 'temperature', rc)
+       geom_id = assembly%declare_geom('grid', NULL_GEOM_SPEC, role=GRAPH_GEOM_ROLE_A, rc=rc)
+       field_id = assembly%declare_field('temperature', spec, rc=rc)
+       call assembly%declare_alias('component_grid', 'grid', rc=rc)
+       call assembly%declare_connection('component_grid', 'temperature', rc=rc)
 
       call assembly%advertise(rc)
       @assert_that(assembly%is_advertised(), is(true()))
-      call assembly%modify_advertise(rc, progress, ready)
+       call assembly%modify_advertise(progress=progress, ready=ready, rc=rc)
       @assert_that(progress, is(true()))
       @assert_that(ready, is(true()))
       @assert_that(assembly%is_ready(), is(true()))
@@ -461,5 +463,68 @@ module Test_Graph
       @assert_that(graph%has_node(geom_id), is(true()))
       @assert_that(graph%has_node(field_id), is(true()))
    end subroutine test_graph_assembly_aliases_roles_and_phase_state
+
+   @test
+   subroutine test_graph_assembly_resolves_local_connection()
+      type(GraphAssembly) :: assembly
+      type(ComponentGraph) :: graph
+      type(ItemSpec) :: spec
+      type(NodeId) :: geom_id, field_id
+      integer :: rc
+
+      spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
+      call assembly%initialize(rc)
+      @assert_that(rc, is(0))
+       geom_id = assembly%declare_geom('grid', NULL_GEOM_SPEC, &
+         role=GRAPH_GEOM_ROLE_PROVIDER, rc=rc)
+       field_id = assembly%declare_field('temperature', spec, rc=rc)
+       call assembly%declare_connection('grid', 'temperature', rc=rc)
+       call assembly%modify_advertise(rc=rc)
+      @assert_that(rc, is(0))
+      @assert_that(assembly%is_ready(), is(true()))
+      call assembly%build(graph, rc)
+      @assert_that(rc, is(0))
+
+      call graph%mark_valid(field_id, rc)
+      call graph%mark_updated(geom_id, rc)
+      @assert_that(rc, is(0))
+   end subroutine test_graph_assembly_resolves_local_connection
+
+   @test
+   subroutine test_graph_assembly_uses_child_export_proxy()
+      type(GraphAssembly) :: child, parent
+      type(ComponentInterface) :: child_interface
+      type(ComponentGraph) :: child_graph, parent_graph
+      type(ItemSpec) :: spec
+      type(NodeId) :: child_field, proxy, sink
+      character(:), allocatable :: child_name
+      type(PortId) :: port_id
+      integer :: rc
+
+      spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
+      call child%initialize(rc)
+      child_field = child%declare_field('temperature', spec, rc=rc)
+      @assert_that(child_field%is_valid(), is(true()))
+      call child%modify_advertise(rc=rc)
+      call child%build(child_graph, rc)
+      @assert_that(rc, is(0))
+      call child%publish_export('temperature', child_interface, rc=rc)
+      @assert_that(rc, is(0))
+
+      call parent%initialize(rc)
+      proxy = parent%declare_child_export('child', child_interface, 'temperature', &
+         'child_temperature', rc=rc)
+      sink = parent%declare_field('sink', spec, rc=rc)
+      call parent%declare_connection('child_temperature', 'sink', rc=rc)
+      call parent%modify_advertise(rc=rc)
+      @assert_that(parent%is_ready(), is(true()))
+      call parent%get_child_export_binding(1, child_name, port_id, proxy, rc=rc)
+      @assert_that(rc, is(0))
+      @assert_that(child_name, is('child'))
+      @assert_that(port_id%is_valid(), is(true()))
+      call parent%build(parent_graph, rc)
+      @assert_that(rc, is(0))
+      @assert_that(parent_graph%has_node(sink), is(true()))
+   end subroutine test_graph_assembly_uses_child_export_proxy
 
 end module Test_Graph

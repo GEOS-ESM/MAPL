@@ -2,12 +2,14 @@ target_sources(MAPL.generic PRIVATE
   AccessSpec.F90
   NodeId.F90
   NodeRevision.F90
+  PortId.F90
   EdgeId.F90
   DependencyNetworkId.F90
 
   GraphValue.F90
   GraphValueSpec.F90
   ItemSpec.F90
+  ComponentInterface.F90
   GraphAssemblyStatus.F90
   GraphNode.F90
   GraphEdge.F90

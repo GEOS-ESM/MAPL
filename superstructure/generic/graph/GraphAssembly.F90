@@ -1,6 +1,7 @@
 #include "MAPL.h"
 module mapl_GraphAssembly_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_ComponentInterface_mod, only: ComponentInterface
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GraphValue_mod, only: GraphValue
    use esmf, only: ESMF_Field, ESMF_State, ESMF_StateGet
@@ -13,7 +14,9 @@ module mapl_GraphAssembly_mod
    use mapl_EdgeId_mod, only: EdgeId
    use mapl_ItemSpec_mod, only: ItemSpec
    use mapl_NodeId_mod, only: NodeId
+   use mapl_PortId_mod, only: PortId
    use mapl_ValueGraphNode_mod, only: ValueGraphNode
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -36,23 +39,34 @@ module mapl_GraphAssembly_mod
        integer :: geometry_role = GRAPH_GEOM_ROLE_NONE
     end type Endpoint
 
-   type :: Connection
+    type :: LocalConnection
       character(:), allocatable :: source
       character(:), allocatable :: target
       logical :: resolved = .false.
-   end type Connection
+    end type LocalConnection
 
-   type :: GraphAssembly
+    type :: ChildPortBinding
+       character(:), allocatable :: child_name
+       type(PortId) :: child_port_id
+       type(NodeId) :: local_proxy
+    end type ChildPortBinding
+
+    type :: GraphAssembly
        private
        type(ComponentGraph) :: graph
        type(Endpoint), allocatable :: endpoints(:)
        type(StringStringMap) :: aliases_
-       type(Connection), allocatable :: connections(:)
+       type(LocalConnection), allocatable :: local_connections(:)
+       type(ChildPortBinding), allocatable :: child_port_bindings(:)
        type(GraphAssemblyStatus) :: status_
    contains
        procedure :: initialize
        procedure :: declare_field
        procedure :: declare_geom
+       procedure :: publish_export
+       procedure :: declare_child_export
+       procedure :: child_export_binding_count
+       procedure :: get_child_export_binding
        procedure :: declare_alias
        procedure :: declare_connection
        procedure :: advertise
@@ -68,9 +82,31 @@ module mapl_GraphAssembly_mod
        procedure :: build
    end type GraphAssembly
 
-contains
+ contains
 
-   subroutine initialize(this, rc)
+      function new_endpoint(name, node, geometry_role) result(value)
+       character(*), intent(in) :: name
+       type(NodeId), intent(in) :: node
+       integer, optional, intent(in) :: geometry_role
+         type(Endpoint) :: value
+       integer :: role
+
+       role = GRAPH_GEOM_ROLE_NONE
+       if (present(geometry_role)) role = geometry_role
+        value%name = name
+        value%node = node
+        value%geometry_role = role
+     end function new_endpoint
+
+      function new_local_connection(source, target) result(value)
+        character(*), intent(in) :: source, target
+         type(LocalConnection) :: value
+
+        value%source = source
+        value%target = target
+      end function new_local_connection
+
+    subroutine initialize(this, rc)
       class(GraphAssembly), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -79,39 +115,42 @@ contains
       call this%graph%initialize(_RC)
        call this%status_%mark_initialized()
       _RETURN(_SUCCESS)
-   end subroutine initialize
+    end subroutine initialize
 
-   function declare_field(this, name, spec, rc) result(node)
+     function declare_field(this, name, spec, unusable, rc) result(node)
       class(GraphAssembly), intent(inout) :: this
       character(*), intent(in) :: name
       type(ItemSpec), intent(in) :: spec
-      integer, optional, intent(out) :: rc
+       class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
       type(NodeId) :: node
 
       integer :: status
 
        _ASSERT(this%status_%is_declaring(), 'GraphAssembly must be initialized before declaration.')
-       _ASSERT(find_endpoint(this%endpoints, name) == 0, 'Graph endpoint already declared.')
+         _ASSERT(find_endpoint(this%endpoints, name) == 0, 'Graph endpoint already declared.')
        _ASSERT(this%aliases_%count(name) == 0, 'Graph alias already declared.')
 
       node = this%graph%add_node(ValueGraphNode(FieldGraphValue(name, spec)), _RC)
-      call append_endpoint(this%endpoints, Endpoint(name, node))
+        call append_endpoint(this%endpoints, new_endpoint(name, node))
 
-      _RETURN(_SUCCESS)
-   end function declare_field
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(unusable)
+    end function declare_field
 
-    function declare_geom(this, name, geom_spec, rc, role) result(node)
+      function declare_geom(this, name, geom_spec, unusable, role, rc) result(node)
        class(GraphAssembly), intent(inout) :: this
        character(*), intent(in) :: name
        class(GeomSpec), intent(in) :: geom_spec
-       integer, optional, intent(out) :: rc
-       integer, optional, intent(in) :: role
+        class(KeywordEnforcer), optional, intent(in) :: unusable
+        integer, optional, intent(in) :: role
+        integer, optional, intent(out) :: rc
        type(NodeId) :: node
 
        integer :: status, geometry_role
 
        _ASSERT(this%status_%is_declaring(), 'GraphAssembly must be initialized before declaration.')
-       _ASSERT(find_endpoint(this%endpoints, name) == 0, 'Graph endpoint already declared.')
+         _ASSERT(find_endpoint(this%endpoints, name) == 0, 'Graph endpoint already declared.')
        _ASSERT(this%aliases_%count(name) == 0, 'Graph alias already declared.')
        if (present(role)) then
           _ASSERT(role >= GRAPH_GEOM_ROLE_NONE .and. role <= GRAPH_GEOM_ROLE_FROM_CHILD, &
@@ -122,53 +161,140 @@ contains
           ValueGraphNode(GeomGraphValue(geom_spec, name)), _RC)
        geometry_role = GRAPH_GEOM_ROLE_NONE
        if (present(role)) geometry_role = role
-       call append_endpoint(this%endpoints, Endpoint(name, node, geometry_role))
+         call append_endpoint(this%endpoints, new_endpoint(name, node, geometry_role))
 
-      _RETURN(_SUCCESS)
-    end function declare_geom
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(unusable)
+      end function declare_geom
 
-    subroutine declare_alias(this, alias, target, rc)
+      subroutine publish_export(this, name, component_interface, unusable, rc)
+         class(GraphAssembly), target, intent(in) :: this
+         character(*), intent(in) :: name
+         type(ComponentInterface), intent(inout) :: component_interface
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+         integer :: status, index
+         class(GraphNode), pointer :: node
+         class(GraphValue), pointer :: value
+         type(ItemSpec) :: spec
+         type(PortId) :: published_port_id
+
+          _ASSERT(this%status_%is_initialized(), 'GraphAssembly must be initialized before publication.')
+         index = find_endpoint(this%endpoints, name)
+         _ASSERT(index /= 0, 'Cannot publish unknown graph endpoint.')
+         node => this%graph%get_node(this%endpoints(index)%node, _RC)
+         select type (node)
+         type is (ValueGraphNode)
+            value => node%value()
+            select type (value)
+            type is (FieldGraphValue)
+               spec = value%item_spec()
+            class default
+               _FAIL('Only field endpoints can be published as exports.')
+            end select
+         class default
+            _FAIL('Only value graph nodes can be published as exports.')
+         end select
+         published_port_id = component_interface%add_export(name, spec, unusable=unusable, rc=status)
+          _ASSERT(status == _SUCCESS, 'Failed to publish graph export.')
+
+          _RETURN(_SUCCESS)
+          _UNUSED_DUMMY(published_port_id)
+          _UNUSED_DUMMY(unusable)
+      end subroutine publish_export
+
+      function declare_child_export(this, child_name, component_interface, port_name, local_name, unusable, rc) &
+         result(node)
+         class(GraphAssembly), intent(inout) :: this
+         character(*), intent(in) :: child_name, port_name, local_name
+         type(ComponentInterface), intent(in) :: component_interface
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+         type(NodeId) :: node
+         type(ItemSpec) :: spec
+         type(PortId) :: port_id
+         integer :: status
+
+         call component_interface%get_export(port_name, port_id, spec, _RC)
+         node = this%declare_field(local_name, spec, unusable=unusable, rc=rc)
+         call append_child_port_binding(this%child_port_bindings, &
+            new_child_port_binding(child_name, port_id, node))
+
+         _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
+      end function declare_child_export
+
+      integer function child_export_binding_count(this)
+         class(GraphAssembly), intent(in) :: this
+
+         if (allocated(this%child_port_bindings)) then
+            child_export_binding_count = size(this%child_port_bindings)
+         else
+            child_export_binding_count = 0
+         end if
+      end function child_export_binding_count
+
+      subroutine get_child_export_binding(this, index, child_name, port_id, local_proxy, rc)
+         class(GraphAssembly), intent(in) :: this
+         integer, intent(in) :: index
+         character(:), allocatable, intent(out) :: child_name
+       type(PortId), intent(out) :: port_id
+         type(NodeId), intent(out) :: local_proxy
+         integer, optional, intent(out) :: rc
+         integer :: status
+
+         _ASSERT(index >= 1 .and. index <= this%child_export_binding_count(), &
+            'Child port binding index is out of range.')
+         child_name = this%child_port_bindings(index)%child_name
+         port_id = this%child_port_bindings(index)%child_port_id
+         local_proxy = this%child_port_bindings(index)%local_proxy
+
+         _RETURN(_SUCCESS)
+      end subroutine get_child_export_binding
+
+     subroutine declare_alias(this, alias, target, unusable, rc)
        class(GraphAssembly), intent(inout) :: this
        character(*), intent(in) :: alias, target
-       integer, optional, intent(out) :: rc
+        class(KeywordEnforcer), optional, intent(in) :: unusable
+        integer, optional, intent(out) :: rc
 
-       integer :: status
-
-       _ASSERT(this%status_%is_declaring(), 'GraphAssembly must be initialized before declaration.')
+        _ASSERT(this%status_%is_declaring(), 'GraphAssembly must be initialized before declaration.')
        _ASSERT(find_endpoint(this%endpoints, alias) == 0, 'Graph endpoint already declared.')
        _ASSERT(this%aliases_%count(alias) == 0, 'Graph alias already declared.')
        call this%aliases_%insert(alias, target)
 
-       _RETURN(_SUCCESS)
-    end subroutine declare_alias
+        _RETURN(_SUCCESS)
+        _UNUSED_DUMMY(unusable)
+     end subroutine declare_alias
 
-    subroutine declare_connection(this, source, target, rc)
-      class(GraphAssembly), intent(inout) :: this
-      character(*), intent(in) :: source, target
-      integer, optional, intent(out) :: rc
+      subroutine declare_connection(this, source, target, unusable, rc)
+       class(GraphAssembly), intent(inout) :: this
+       character(*), intent(in) :: source, target
+       class(KeywordEnforcer), optional, intent(in) :: unusable
+       integer, optional, intent(out) :: rc
 
        _ASSERT(this%status_%is_declaring(), 'GraphAssembly must be initialized before declaration.')
-      call append_connection(this%connections, Connection(source, target))
+        call append_local_connection(this%local_connections, new_local_connection(source, target))
 
-       _RETURN(_SUCCESS)
-    end subroutine declare_connection
+        _RETURN(_SUCCESS)
+        _UNUSED_DUMMY(unusable)
+     end subroutine declare_connection
 
     subroutine advertise(this, rc)
        class(GraphAssembly), intent(inout) :: this
        integer, optional, intent(out) :: rc
 
-       integer :: status
-
-       _ASSERT(this%status_%is_declaring(), 'GraphAssembly must be initialized before advertisement.')
+        _ASSERT(this%status_%is_declaring(), 'GraphAssembly must be initialized before advertisement.')
        call this%status_%mark_advertised()
 
        _RETURN(_SUCCESS)
     end subroutine advertise
 
-    subroutine modify_advertise(this, rc, progress, ready)
+     subroutine modify_advertise(this, unusable, progress, ready, rc)
        class(GraphAssembly), intent(inout) :: this
-       integer, optional, intent(out) :: rc
+       class(KeywordEnforcer), optional, intent(in) :: unusable
        logical, optional, intent(out) :: progress, ready
+       integer, optional, intent(out) :: rc
 
        integer :: status, i, source_index, target_index, initial_unresolved
        logical :: made_progress
@@ -181,18 +307,19 @@ contains
        ! Preserve legacy callers that enter directly at modify_advertise.
        if (this%status_%is_declaring()) call this%status_%mark_advertised()
 
-       initial_unresolved = this%unresolved_count()
+        initial_unresolved = this%unresolved_count()
        made_progress = .false.
 
-       ! Resolve until one complete pass makes no changes.  Readiness means
-       ! every declared connection resolved during this fixed point.
+        ! Resolve local graph declarations until one complete pass makes no
+        ! changes. Hierarchy-wide progress belongs to bottom-up outer-component
+        ! orchestration; this graph never traverses child graphs.
        do
-          do i = 1, connection_count(this%connections)
-            if (this%connections(i)%resolved) cycle
-             source_index = find_resolved_endpoint(this%endpoints, this%aliases_, &
-                this%connections(i)%source)
-             target_index = find_resolved_endpoint(this%endpoints, this%aliases_, &
-                this%connections(i)%target)
+           do i = 1, local_connection_count(this%local_connections)
+              if (this%local_connections(i)%resolved) cycle
+               source_index = find_resolved_endpoint(this%endpoints, this%aliases_, &
+                  this%local_connections(i)%source)
+               target_index = find_resolved_endpoint(this%endpoints, this%aliases_, &
+                  this%local_connections(i)%target)
             if (source_index == 0 .or. target_index == 0) cycle
 
             source = this%endpoints(source_index)%node
@@ -200,7 +327,7 @@ contains
             edge_id = this%graph%add_edge(GraphEdge(source, target), rc=status)
             _UNUSED_DUMMY(edge_id)
             _ASSERT(status == _SUCCESS, 'Failed to add declared graph connection.')
-             this%connections(i)%resolved = .true.
+             this%local_connections(i)%resolved = .true.
              made_progress = .true.
           end do
           if (.not. made_progress) exit
@@ -209,9 +336,10 @@ contains
 
        call this%status_%mark_modified()
        if (present(progress)) progress = this%unresolved_count() < initial_unresolved
-       if (present(ready)) ready = this%unresolved_count() == 0
-       _RETURN(_SUCCESS)
-    end subroutine modify_advertise
+        if (present(ready)) ready = this%unresolved_count() == 0
+        _RETURN(_SUCCESS)
+        _UNUSED_DUMMY(unusable)
+     end subroutine modify_advertise
 
     logical function is_advertised(this)
        class(GraphAssembly), intent(in) :: this
@@ -234,32 +362,32 @@ contains
       integer :: i
 
       unresolved_count = 0
-      do i = 1, connection_count(this%connections)
-         if (.not. this%connections(i)%resolved) unresolved_count = unresolved_count + 1
+       do i = 1, local_connection_count(this%local_connections)
+          if (.not. this%local_connections(i)%resolved) unresolved_count = unresolved_count + 1
       end do
    end function unresolved_count
 
-    subroutine get_unresolved_connection(this, index, source, target)
-      class(GraphAssembly), intent(in) :: this
-      integer, intent(in) :: index
-      character(:), allocatable, intent(out) :: source, target
+     subroutine get_unresolved_connection(this, index, source, target)
+       class(GraphAssembly), intent(in) :: this
+       integer, intent(in) :: index
+       character(:), allocatable, intent(out) :: source, target
       integer :: i, count
 
       count = 0
-      do i = 1, connection_count(this%connections)
-         if (this%connections(i)%resolved) cycle
+       do i = 1, local_connection_count(this%local_connections)
+          if (this%local_connections(i)%resolved) cycle
          count = count + 1
          if (count == index) then
-            source = this%connections(i)%source
-            target = this%connections(i)%target
+            source = this%local_connections(i)%source
+            target = this%local_connections(i)%target
             return
          end if
       end do
-      source = ''
-      target = ''
+       source = ''
+       target = ''
     end subroutine get_unresolved_connection
 
-    subroutine get_geometry_role(this, name, role, found)
+     subroutine get_geometry_role(this, name, role, found)
        class(GraphAssembly), intent(in) :: this
        character(*), intent(in) :: name
        integer, intent(out) :: role
@@ -332,28 +460,28 @@ contains
       _RETURN(_SUCCESS)
    end subroutine build
 
-    integer function find_endpoint(endpoints, name)
-      type(Endpoint), allocatable, intent(in) :: endpoints(:)
-      character(*), intent(in) :: name
+     integer function find_endpoint(endpoints, name)
+       type(Endpoint), allocatable, intent(in) :: endpoints(:)
+       character(*), intent(in) :: name
       integer :: i
 
       find_endpoint = 0
       if (.not. allocated(endpoints)) return
       do i = 1, size(endpoints)
-         if (endpoints(i)%name == name) then
+           if (endpoints(i)%name == name) then
             find_endpoint = i
             return
          end if
       end do
     end function find_endpoint
 
-    integer function find_resolved_endpoint(endpoints, aliases, name)
+     integer function find_resolved_endpoint(endpoints, aliases, name)
        type(Endpoint), allocatable, intent(in) :: endpoints(:)
        type(StringStringMap), intent(in) :: aliases
        character(*), intent(in) :: name
        character(:), allocatable :: target
 
-       find_resolved_endpoint = find_endpoint(endpoints, name)
+        find_resolved_endpoint = find_endpoint(endpoints, name)
        if (find_resolved_endpoint /= 0) return
 
        if (aliases%count(name) == 0) return
@@ -362,10 +490,10 @@ contains
           ! Alias chains remain metadata-only until their final endpoint exists.
           target = aliases%at(target)
        end if
-       find_resolved_endpoint = find_endpoint(endpoints, target)
+        find_resolved_endpoint = find_endpoint(endpoints, target)
     end function find_resolved_endpoint
 
-   subroutine append_endpoint(endpoints, endpoint_arg)
+    subroutine append_endpoint(endpoints, endpoint_arg)
       type(Endpoint), allocatable, intent(inout) :: endpoints(:)
       type(Endpoint), intent(in) :: endpoint_arg
 
@@ -374,28 +502,50 @@ contains
       else
          endpoints = [endpoint_arg]
       end if
-   end subroutine append_endpoint
+    end subroutine append_endpoint
 
-    subroutine append_connection(connections, connection_arg)
-      type(Connection), allocatable, intent(inout) :: connections(:)
-      type(Connection), intent(in) :: connection_arg
+    subroutine append_local_connection(connections, connection_arg)
+       type(LocalConnection), allocatable, intent(inout) :: connections(:)
+       type(LocalConnection), intent(in) :: connection_arg
 
       if (allocated(connections)) then
          connections = [connections, connection_arg]
       else
          connections = [connection_arg]
       end if
-    end subroutine append_connection
+    end subroutine append_local_connection
 
-    pure integer function connection_count(connections)
-      type(Connection), allocatable, intent(in) :: connections(:)
+    function new_child_port_binding(child_name, port_id, local_proxy) result(value)
+       character(*), intent(in) :: child_name
+       type(PortId), intent(in) :: port_id
+       type(NodeId), intent(in) :: local_proxy
+       type(ChildPortBinding) :: value
+
+       value%child_name = child_name
+       value%child_port_id = port_id
+       value%local_proxy = local_proxy
+    end function new_child_port_binding
+
+    subroutine append_child_port_binding(bindings, binding)
+       type(ChildPortBinding), allocatable, intent(inout) :: bindings(:)
+       type(ChildPortBinding), intent(in) :: binding
+
+       if (allocated(bindings)) then
+          bindings = [bindings, binding]
+       else
+          bindings = [binding]
+       end if
+    end subroutine append_child_port_binding
+
+    pure integer function local_connection_count(connections)
+       type(LocalConnection), allocatable, intent(in) :: connections(:)
 
       if (allocated(connections)) then
-         connection_count = size(connections)
+          local_connection_count = size(connections)
       else
-         connection_count = 0
+          local_connection_count = 0
       end if
-    end function connection_count
+    end function local_connection_count
 
     pure integer function endpoint_count(endpoints)
        type(Endpoint), allocatable, intent(in) :: endpoints(:)
