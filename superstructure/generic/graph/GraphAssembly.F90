@@ -1,6 +1,9 @@
 #include "MAPL.h"
 module mapl_GraphAssembly_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_GraphValue_mod, only: GraphValue
+   use esmf, only: ESMF_Field, ESMF_State, ESMF_StateGet
    use gFTL2_StringStringMap, only: StringStringMap
    use mapl_GraphAssemblyStatus_mod, only: GraphAssemblyStatus
    use mapl_FieldGraphValue_mod, only: FieldGraphValue
@@ -60,6 +63,7 @@ module mapl_GraphAssembly_mod
        procedure :: unresolved_count
        procedure :: get_unresolved_connection
        procedure :: get_geometry_role
+       procedure :: realize_fields
        procedure :: realize
        procedure :: build
    end type GraphAssembly
@@ -272,6 +276,34 @@ contains
        end if
     end subroutine get_geometry_role
 
+    subroutine realize_fields(this, state, rc)
+       class(GraphAssembly), target, intent(inout) :: this
+       type(ESMF_State), intent(inout) :: state
+       integer, optional, intent(out) :: rc
+
+       integer :: status, i
+       type(ESMF_Field) :: field
+       class(GraphNode), pointer :: node
+       class(GraphValue), pointer :: value
+
+       _ASSERT(this%is_ready(), 'GraphAssembly must be ready before field realization.')
+
+       do i = 1, endpoint_count(this%endpoints)
+          node => this%graph%get_node(this%endpoints(i)%node, _RC)
+          select type (node)
+          type is (ValueGraphNode)
+             value => node%value()
+             select type (value)
+             type is (FieldGraphValue)
+                call ESMF_StateGet(state, itemName=value%name(), field=field, _RC)
+                call value%bind_field(field)
+             end select
+          end select
+       end do
+
+       _RETURN(_SUCCESS)
+    end subroutine realize_fields
+
     subroutine realize(this, graph, rc)
        class(GraphAssembly), intent(inout) :: this
        type(ComponentGraph), intent(out) :: graph
@@ -355,7 +387,7 @@ contains
       end if
     end subroutine append_connection
 
-   pure integer function connection_count(connections)
+    pure integer function connection_count(connections)
       type(Connection), allocatable, intent(in) :: connections(:)
 
       if (allocated(connections)) then
@@ -363,6 +395,16 @@ contains
       else
          connection_count = 0
       end if
-   end function connection_count
+    end function connection_count
+
+    pure integer function endpoint_count(endpoints)
+       type(Endpoint), allocatable, intent(in) :: endpoints(:)
+
+       if (allocated(endpoints)) then
+          endpoint_count = size(endpoints)
+       else
+          endpoint_count = 0
+       end if
+    end function endpoint_count
 
 end module mapl_GraphAssembly_mod
