@@ -18,7 +18,7 @@ module Test_Graph
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_GraphBuilder_mod, only: GraphBuilder, GRAPH_BUILDER_SUCCESS, &
       GRAPH_BUILDER_UNKNOWN_SOURCE, GRAPH_BUILDER_ALREADY_BUILT
-   use mapl_GraphAssembly_mod, only: GraphAssembly
+   use mapl_GraphAssembly_mod, only: GraphAssembly, GRAPH_GEOM_ROLE_A
    use mapl_ValueGraphNode_mod, only: ValueGraphNode
    implicit none
 
@@ -423,5 +423,39 @@ module Test_Graph
       @assert_that(source, is('missing_geom'))
       @assert_that(target, is('temperature'))
    end subroutine test_graph_assembly_records_missing_connections
+
+   @test
+   subroutine test_graph_assembly_aliases_roles_and_phase_state()
+      type(GraphAssembly) :: assembly
+      type(ComponentGraph) :: graph
+      type(ItemSpec) :: spec
+      type(NodeId) :: geom_id, field_id
+      integer :: role, rc
+      logical :: progress, ready, found
+
+      spec = ItemSpec('field', 8, 2, 0, 'K', 'grid')
+      call assembly%initialize(rc)
+      @assert_that(rc, is(0))
+      geom_id = assembly%declare_geom('grid', NULL_GEOM_SPEC, rc, role=GRAPH_GEOM_ROLE_A)
+      field_id = assembly%declare_field('temperature', spec, rc)
+      call assembly%declare_alias('component_grid', 'grid', rc)
+      call assembly%declare_connection('component_grid', 'temperature', rc)
+
+      call assembly%advertise(rc)
+      @assert_that(assembly%is_advertised(), is(true()))
+      call assembly%modify_advertise(rc, progress, ready)
+      @assert_that(progress, is(true()))
+      @assert_that(ready, is(true()))
+      @assert_that(assembly%is_ready(), is(true()))
+
+      call assembly%get_geometry_role('grid', role, found)
+      @assert_that(found, is(true()))
+      @assert_that(role, is(GRAPH_GEOM_ROLE_A))
+      call assembly%realize(graph, rc)
+      @assert_that(rc, is(0))
+      @assert_that(assembly%is_realized(), is(true()))
+      @assert_that(graph%has_node(geom_id), is(true()))
+      @assert_that(graph%has_node(field_id), is(true()))
+   end subroutine test_graph_assembly_aliases_roles_and_phase_state
 
 end module Test_Graph

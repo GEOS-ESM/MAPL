@@ -8,6 +8,7 @@ target_sources(MAPL.generic PRIVATE
   GraphValue.F90
   GraphValueSpec.F90
   ItemSpec.F90
+  GraphAssemblyStatus.F90
   GraphNode.F90
   GraphEdge.F90
 
