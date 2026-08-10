@@ -10,7 +10,7 @@ module Test_Graph
    use mapl_GraphValueSpec_mod, only: GraphValueSpec
    use mapl_ItemSpec_mod, only: ItemSpec, operator(==)
    use mapl_NodeId_mod, only: NodeId, operator(==)
-   use mapl_PortId_mod, only: PortId
+   use mapl_PortId_mod, only: PortId, operator(==)
    use mapl_EdgeId_mod, only: EdgeId
    use mapl_FieldGraphValue_mod, only: FieldGraphValue
    use mapl_GeomGraphValue_mod, only: GeomGraphValue
@@ -20,7 +20,9 @@ module Test_Graph
       GRAPH_BUILDER_UNKNOWN_SOURCE, GRAPH_BUILDER_ALREADY_BUILT
    use mapl_GraphAssembly_mod, only: GraphAssembly, GRAPH_GEOM_ROLE_A, &
       GRAPH_GEOM_ROLE_PROVIDER
-   use mapl_ComponentInterface_mod, only: ComponentInterface
+   use mapl_ComponentInterface_mod, only: ComponentInterface, PublicPort, &
+      PORT_IMPORT, PORT_EXPORT, PORT_INTERNAL
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
    use mapl_ValueGraphNode_mod, only: ValueGraphNode
    implicit none
 
@@ -491,7 +493,7 @@ module Test_Graph
    end subroutine test_graph_assembly_resolves_local_connection
 
    @test
-   subroutine test_graph_assembly_uses_child_export_proxy()
+    subroutine test_graph_assembly_uses_child_export_proxy()
       type(GraphAssembly) :: child, parent
       type(ComponentInterface) :: child_interface
       type(ComponentGraph) :: child_graph, parent_graph
@@ -525,6 +527,82 @@ module Test_Graph
       call parent%build(parent_graph, rc)
       @assert_that(rc, is(0))
       @assert_that(parent_graph%has_node(sink), is(true()))
-   end subroutine test_graph_assembly_uses_child_export_proxy
+    end subroutine test_graph_assembly_uses_child_export_proxy
+
+    @test
+    subroutine test_component_interface_unifies_port_metadata()
+       type(ComponentInterface) :: component_interface
+       type(ItemSpec) :: import_spec, export_spec, returned_spec
+       type(PublicPort) :: import_port, export_port
+       type(PortId) :: import_id, export_id, returned_id
+       type(VirtualConnectionPt) :: connection_point
+       character(:), allocatable :: intent
+       integer :: rc
+
+       import_spec = ItemSpec('field', 4, 2, 0, 'K', 'grid_import')
+       export_spec = ItemSpec('field', 8, 2, 0, 'K', 'grid_export')
+
+       import_id = component_interface%add_import('incoming', import_spec, rc=rc)
+       @assert_that(rc, is(0))
+       export_id = component_interface%add_export('outgoing', export_spec, rc=rc)
+       @assert_that(rc, is(0))
+       @assert_that(import_id%is_valid(), is(true()))
+       @assert_that(export_id%is_valid(), is(true()))
+       @assert_that(import_id == export_id, is(false()))
+       @assert_that(component_interface%import_count(), is(1))
+       @assert_that(component_interface%export_count(), is(1))
+
+       @assert_that(component_interface%find_import('incoming') == import_id, is(true()))
+       @assert_that(component_interface%find_export('outgoing') == export_id, is(true()))
+       returned_id = component_interface%find_import('missing')
+       @assert_that(returned_id%is_valid(), is(false()))
+
+       import_port = component_interface%get_import_port('incoming', rc)
+       @assert_that(rc, is(0))
+       export_port = component_interface%get_export_port('outgoing', rc)
+       @assert_that(rc, is(0))
+       @assert_that(import_port%id() == import_id, is(true()))
+       @assert_that(export_port%id() == export_id, is(true()))
+       @assert_that(import_port%name(), is('incoming'))
+       @assert_that(export_port%name(), is('outgoing'))
+       @assert_that(import_port%direction(), is(PORT_IMPORT))
+       @assert_that(export_port%direction(), is(PORT_EXPORT))
+       @assert_that(import_port%is_import(), is(true()))
+       @assert_that(import_port%is_export(), is(false()))
+       @assert_that(import_port%is_internal(), is(false()))
+       @assert_that(export_port%is_import(), is(false()))
+       @assert_that(export_port%is_export(), is(true()))
+       @assert_that(export_port%is_internal(), is(false()))
+       @assert_that(import_port%item_spec() == import_spec, is(true()))
+       @assert_that(export_port%item_spec() == export_spec, is(true()))
+
+       connection_point = import_port%connection_point()
+       intent = connection_point%get_state_intent()
+       @assert_that(intent, is('import'))
+       connection_point = export_port%connection_point()
+       intent = connection_point%get_state_intent()
+       @assert_that(intent, is('export'))
+       @assert_that(PORT_INTERNAL, is(3))
+
+       call component_interface%get_import('incoming', returned_id, returned_spec, rc)
+       @assert_that(rc, is(0))
+       @assert_that(returned_id == import_id, is(true()))
+       @assert_that(returned_spec == import_spec, is(true()))
+       call component_interface%get_export('outgoing', returned_id, returned_spec, rc)
+       @assert_that(rc, is(0))
+       @assert_that(returned_id == export_id, is(true()))
+       @assert_that(returned_spec == export_spec, is(true()))
+
+       returned_id = component_interface%add_import('incoming', import_spec, rc=rc)
+       @assertExceptionRaised('Component import already declared.')
+       returned_id = component_interface%add_export('outgoing', export_spec, rc=rc)
+       @assertExceptionRaised('Component export already declared.')
+
+       call component_interface%get_import('missing', returned_id, returned_spec, rc)
+       @assertExceptionRaised('Component import is unknown.')
+       call component_interface%get_export('missing', returned_id, returned_spec, rc)
+       @assertExceptionRaised('Component export is unknown.')
+
+    end subroutine test_component_interface_unifies_port_metadata
 
 end module Test_Graph
