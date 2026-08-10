@@ -27,16 +27,17 @@ contains
       type(MultiState), intent(out) :: states
       integer, intent(out) :: rc
 
-      integer :: status, userRC
-      type(ESMF_Grid) :: grid
-      type(ESMF_HConfig) :: config, mapl_config
-      integer :: i
-      type(mapl_BasicVerticalGridSpec) :: vspec
-      type(mapl_BasicVerticalGridFactory) :: factory
-      class(mapl_VerticalGrid), allocatable :: vertical_grid
-      type(ESMF_Clock) :: clock
-      type(ESMF_Time) :: t
-      type(ESMF_TimeInterval) :: dt
+       integer :: status, userRC
+       type(ESMF_Grid) :: grid
+       type(ESMF_HConfig) :: config, mapl_config
+       integer :: i
+       type(mapl_BasicVerticalGridSpec) :: vspec
+       type(mapl_BasicVerticalGridFactory) :: factory
+       class(mapl_VerticalGrid), allocatable :: vertical_grid
+       type(ESMF_Clock) :: clock
+       type(ESMF_Time) :: t
+       type(ESMF_TimeInterval) :: dt
+       logical :: is_mapl_key_defined
       character(len=*), parameter :: BASEPATH = './scenarios/'
       character(len=*), parameter :: COMMONPATH = BASEPATH // 'scenario_1/'
       character(len=*), parameter :: CHILD_A_CONFIG = 'child_A: {config_file="' // COMMONPATH // 'child_A.yaml}'
@@ -49,15 +50,16 @@ contains
       config = ESMF_HConfigCreate(filename = COMMONPATH//'parent.yaml',rc=status)
       @assert_that(status, is(0))
 
-      call ESMF_TimeSet(t, h=0)
-      call ESMF_TimeIntervalSet(dt, h=1)
-      clock = ESMF_ClockCreate(dt, t)
+        call ESMF_TimeSet(t, h=0)
+        call ESMF_TimeIntervalSet(dt, h=1)
+        clock = ESMF_ClockCreate(dt, t)
 
-      if (.not. ESMF_HConfigIsDefined(config, keyString=MAPL_KEY, _RC)) then
-         mapl_config=ESMF_HConfigCreate(content=MAPL_VALUE, _RC)
-         call ESMF_HConfigAdd(config, mapl_config, addKeyString=MAPL_KEY, _RC)
-      end if
-      outer_gc = ESMF_GridCompCreate(name='P', config=config, _RC)
+        is_mapl_key_defined = ESMF_HConfigIsDefined(config, keyString=MAPL_KEY, _RC)
+        if (.not. is_mapl_key_defined) then
+           mapl_config=ESMF_HConfigCreate(content=MAPL_VALUE, _RC)
+           call ESMF_HConfigAdd(config, mapl_config, addKeyString=MAPL_KEY, _RC)
+        end if
+        outer_gc = ESMF_GridCompCreate(name='P', config=config, _RC)
       call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetServices, userRC=userRC, _RC)
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
