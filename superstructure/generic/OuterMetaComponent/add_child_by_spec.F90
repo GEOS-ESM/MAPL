@@ -39,7 +39,12 @@ contains
          ! Attach OuterMetaComponent to child BEFORE calling SetServices
          ! This ensures OuterMetaComponent private state and user_gc_driver are initialized
          ! when user_setservices%run() is invoked
-         call attach_outer_meta(child_outer_gc, _RC)
+         ! Pass user_setservices so OuterMetaComponent knows not to re-parse it later
+         if (allocated(child_spec%user_setservices)) then
+            call attach_outer_meta(child_outer_gc, user_setservices=child_spec%user_setservices, _RC)
+         else
+            call attach_outer_meta(child_outer_gc, _RC)
+         end if
          child_meta => get_outer_meta(child_outer_gc, _RC)
          
          ! Set the hconfig on the OuterMetaComponent before SetServices is called
