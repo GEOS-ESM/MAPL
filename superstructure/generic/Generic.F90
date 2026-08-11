@@ -11,7 +11,7 @@ module mapl_Generic
    use mapl_ComponentDriver_mod
    use mapl_GriddedComponentDriver_mod
    use mapl_ChildSpec_mod
-   use mapl_UserSetServices_mod
+   use mapl_SetServices_mod
    ! use mapl_esmf_api, only: MAPL_HConfigMatch
    use mapl_VerticalStaggerLoc_mod
    use mapl_geomio

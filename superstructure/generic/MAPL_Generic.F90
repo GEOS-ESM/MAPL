@@ -424,7 +424,7 @@ contains
    end subroutine get_internal_state
 
    subroutine gridcomp_add_child_by_procedure_and_config(gridcomp, child_name, ss_proc, hconfig, unusable, timeStep, refTime_offset, rc)
-      use mapl_UserSetServices_mod
+      use mapl_SetServices_mod
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       procedure() :: ss_proc
@@ -435,11 +435,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(AbstractUserSetServices), allocatable :: setservices
+      class(MAPL_SetServices), allocatable :: setservices
       type(ChildSpec) :: child_spec
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
-      setservices = user_setservices(ss_proc)
+      setservices = ProcSetServices(ss_proc)
 
       child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
       call GridCompAddChild(gridcomp, child_name, child_spec, _RC)
@@ -449,7 +449,7 @@ contains
    end subroutine gridcomp_add_child_by_procedure_and_config
 
    subroutine gridcomp_add_child_by_procedure_and_config_file(gridcomp, child_name, ss_proc, hconfig_file, unusable, timeStep, refTime_offset, rc)
-      use mapl_UserSetServices_mod
+      use mapl_SetServices_mod
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       procedure() :: ss_proc
@@ -478,7 +478,7 @@ contains
    end subroutine gridcomp_add_child_by_procedure_and_config_file
 
    subroutine gridcomp_add_child_by_dso_and_config(gridcomp, child_name, shared_obj, user_routine, hconfig, unusable, timeStep, refTime_offset, rc)
-      use mapl_UserSetServices_mod
+      use mapl_SetServices_mod
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       character(len=*), intent(in) :: shared_obj
@@ -490,11 +490,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(AbstractUserSetServices), allocatable :: setservices
+      class(MAPL_SetServices), allocatable :: setservices
       type(ChildSpec) :: child_spec
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
-      setservices = user_setservices(shared_obj, user_routine)
+      setservices = DsoSetServices(shared_obj, user_routine)
 
       child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
       call GridCompAddChild(gridcomp, child_name, child_spec, _RC)
@@ -504,7 +504,7 @@ contains
    end subroutine gridcomp_add_child_by_dso_and_config
 
    subroutine gridcomp_add_child_by_dso_and_config_file(gridcomp, child_name, shared_obj, user_routine, hconfig_file, unusable, timeStep, refTime_offset, rc)
-      use mapl_UserSetServices_mod
+      use mapl_SetServices_mod
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       character(len=*), intent(in) :: shared_obj

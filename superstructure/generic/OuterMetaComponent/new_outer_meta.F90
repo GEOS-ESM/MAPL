@@ -10,7 +10,7 @@ contains
       type(OuterMetaComponent) :: outer_meta
       type(ESMF_GridComp), intent(in) :: gridcomp
       type(GriddedComponentDriver), intent(in) :: user_gc_driver
-      class(AbstractUserSetServices), intent(in) :: user_setservices
+      class(MAPL_SetServices), intent(in) :: user_setservices
       type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_TimeInterval) :: offset
          

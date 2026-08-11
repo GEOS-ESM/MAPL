@@ -9,7 +9,7 @@ module ProtoExtDataGC
    use mapl_Generic_api, only: MAPL_GridCompGet, &
                                MAPL_GridCompGetRegistry, &
                                MAPL_GridCompGetOuterMeta
-   use mapl_UserSetServices_mod
+   use mapl_SetServices_mod
    use mapl_StateRegistry_mod, only: StateRegistry
    use mapl_VirtualConnectionPt_mod
    use mapl_ActualConnectionPt_mod

@@ -11,7 +11,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(AbstractUserSetServices), allocatable :: setservices
+      class(MAPL_SetServices), allocatable :: setservices
 
       character(*), parameter :: dso_keys(*) = [character(len=9) :: 'dso', 'DSO', 'sharedObj', 'sharedobj']
       character(*), parameter :: userProcedure_keys(*) = [character(len=11) :: 'SetServices', 'setServices', 'setservices']
@@ -59,7 +59,7 @@ contains
          child_hconfig = ESMF_HConfigCreate(filename=config_file,_RC)
       end if
 
-      setservices = user_setservices(sharedObj, userProcedure)
+      setservices = DsoSetServices(sharedObj, userProcedure)
 
       call parse_timespec(hconfig, timeStep, offset, _RC)
 

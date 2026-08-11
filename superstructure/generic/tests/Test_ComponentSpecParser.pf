@@ -7,7 +7,7 @@
 module Test_ComponentSpecParser
    use funit
    use mapl_StateItem_mod
-   use mapl_UserSetServices_mod
+   use mapl_SetServices_mod
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
@@ -24,11 +24,11 @@ contains
    @test
    subroutine test_parse_setServices()
       type(ESMF_HConfig) :: config
-      class(DSOSetServices), allocatable :: ss_expected
+      class(DsoSetServices), allocatable :: ss_expected
 
       config = ESMF_HConfigCreate(content='{sharedObj: libA, userRoutine: procB}')
 
-      ss_expected = DSOSetServices('libA', 'procB')
+      ss_expected = DsoSetServices('libA', 'procB')
       @assert_that(parse_setservices(config) == ss_expected, is(true()))
       
    end subroutine test_parse_setServices
@@ -36,19 +36,19 @@ contains
    @test
    subroutine test_parse_setServices_default()
       type(ESMF_HConfig) :: config
-      class(DSOSetServices), allocatable :: ss_expected
+      class(DsoSetServices), allocatable :: ss_expected
 
       config = ESMF_HConfigCreate(content='{sharedObj: libA}')
 
-      ss_expected = DSOSetServices('libA', 'setservices_')
+      ss_expected = DsoSetServices('libA', 'setservices_')
       @assert_that(parse_setservices(config) == ss_expected, is(true()))
       
    end subroutine test_parse_setServices_default
 
    @test
    subroutine test_equal_child_spec_ss_differs()
-      class(AbstractUserSetServices), allocatable :: ss_A
-      class(AbstractUserSetServices), allocatable :: ss_B
+      class(MAPL_SetServices), allocatable :: ss_A
+      class(MAPL_SetServices), allocatable :: ss_B
 
       type(ChildSpec) :: cs_a, cs_b
       ss_A = user_setservices('libA', 'setservices_')
@@ -70,7 +70,7 @@ contains
 
    @test
    subroutine test_equal_child_spec_cfg_differs()
-      class(AbstractUserSetServices), allocatable :: ss
+      class(MAPL_SetServices), allocatable :: ss
 
       type(ChildSpec) :: a, b
       
@@ -123,7 +123,7 @@ contains
       type(ChildSpec) :: found
       integer :: status, rc
 
-      class(AbstractUserSetServices), allocatable :: ss
+      class(MAPL_SetServices), allocatable :: ss
       type(ChildSpec) :: expected
       integer :: unit
 
