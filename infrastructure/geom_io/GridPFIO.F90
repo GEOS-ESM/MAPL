@@ -97,7 +97,7 @@ contains
          local_start = server_bounds%get_corner_local_start()
 
          call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
-         if (allocated(this%corner_lats)) deallocate(this%corner_lats)
+         if (allocated(this%corner_lons)) deallocate(this%corner_lons)
          allocate(this%corner_lons(size(coords,1), size(coords,2)), _STAT)
          this%corner_lons = coords*MAPL_RADIANS_TO_DEGREES
          ref = ArrayReference(this%corner_lons)
