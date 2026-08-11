@@ -7,7 +7,7 @@
 module Test_ComponentSpecParser
    use funit
    use mapl_StateItem_mod
-   use mapl_SetServices_mod
+   use mapl_UserSetServices_mod
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
@@ -47,8 +47,8 @@ contains
 
    @test
    subroutine test_equal_child_spec_ss_differs()
-      class(MAPL_SetServices), allocatable :: ss_A
-      class(MAPL_SetServices), allocatable :: ss_B
+      class(UserSetServices), allocatable :: ss_A
+      class(UserSetServices), allocatable :: ss_B
 
       type(ChildSpec) :: cs_a, cs_b
       ss_A = DsoSetServices('libA', 'setservices_')
@@ -70,7 +70,7 @@ contains
 
    @test
    subroutine test_equal_child_spec_cfg_differs()
-      class(MAPL_SetServices), allocatable :: ss
+      class(UserSetServices), allocatable :: ss
 
       type(ChildSpec) :: a, b
       
@@ -123,7 +123,7 @@ contains
       type(ChildSpec) :: found
       integer :: status, rc
 
-      class(MAPL_SetServices), allocatable :: ss
+      class(UserSetServices), allocatable :: ss
       type(ChildSpec) :: expected
       integer :: unit
 

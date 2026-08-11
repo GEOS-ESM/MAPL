@@ -8,7 +8,7 @@ set(srcs
 
   ComponentSpecParser.F90
 
-  MAPL_SetServices.F90
+  UserSetServices.F90
   MethodPhasesMap.F90
 
   InnerMetaComponent.F90

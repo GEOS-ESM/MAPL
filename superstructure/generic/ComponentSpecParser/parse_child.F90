@@ -11,7 +11,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(MAPL_SetServices), allocatable :: setservices
+      class(UserSetServices), allocatable :: setservices
 
       character(*), parameter :: dso_keys(*) = [character(len=9) :: 'dso', 'DSO', 'sharedObj', 'sharedobj']
       character(*), parameter :: userProcedure_keys(*) = [character(len=11) :: 'SetServices', 'setServices', 'setservices']

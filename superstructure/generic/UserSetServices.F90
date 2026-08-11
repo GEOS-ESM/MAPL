@@ -6,13 +6,13 @@
 ! Note that the subclasses (type extensions) are themselves private to
 ! the module.  Client code is expected to use the overloaded factory
 ! procedure ProcSetServices() or DsoSetServices() and assign the result to an object of
-! the base class MAPL_SetServices:
+! the base class UserSetServices:
 !
-!    class(MAPL_SetServices), allocatable :: ss
+!    class(UserSetServices), allocatable :: ss
 !    ss = ProcSetServices(...)
 !
 
-module mapl_SetServices_mod
+module mapl_UserSetServices_mod
    use :: ESMF, only: ESMF_GridComp
    use :: ESMF, only: ESMF_GridCompSetServices
    use :: ESMF, only: ESMF_SUCCESS
@@ -21,32 +21,32 @@ module mapl_SetServices_mod
    implicit none(type,external)
    private
 
-   public :: MAPL_SetServices  ! Base class for variant SS functors
+   public :: UserSetServices  ! Base class for variant SS functors
    public :: ProcSetServices
    public :: DsoSetServices
    public :: operator(==)
    public :: operator(/=)
    
-   type, abstract :: MAPL_SetServices
+   type, abstract :: UserSetServices
    contains
       procedure(I_RunSetServices), deferred :: run
       procedure(I_write_formatted), deferred :: write_formatted
       generic :: write(formatted) => write_formatted
-   end type MAPL_SetServices
+   end type UserSetServices
 
    abstract interface
 
       subroutine I_RunSetServices(this, gridcomp, rc)
          use esmf, only: ESMF_GridComp
-         import MAPL_SetServices
-         class(MAPL_SetServices), intent(in) :: this
+         import UserSetServices
+         class(UserSetServices), intent(in) :: this
          type(ESMF_GridComp) :: gridcomp
          integer, intent(out) :: rc
       end subroutine I_RunSetServices
 
       subroutine I_write_formatted(this, unit, iotype, v_list, iostat, iomsg)
-         import MAPL_SetServices
-         class(MAPL_SetServices), intent(in) :: this
+         import UserSetServices
+         class(UserSetServices), intent(in) :: this
          integer, intent(in) :: unit
          character(*), intent(in) :: iotype
          integer, intent(in) :: v_list(:)
@@ -59,7 +59,7 @@ module mapl_SetServices_mod
    ! Concrete subclass to encapsulate a traditional user setservices
    ! consisting of a procedure conforming to the I_SetServices
    ! interface.
-   type, extends(MAPL_SetServices) :: ProcSetServices
+   type, extends(UserSetServices) :: ProcSetServices
       procedure(I_SetServices), nopass, pointer :: userRoutine ! ESMF naming convention
    contains
       procedure :: run => run_ProcSetServices
@@ -68,7 +68,7 @@ module mapl_SetServices_mod
 
    ! Concrete subclass to encapsulate a user setservices procedure
    ! contained in a DSO.
-   type, extends(MAPL_SetServices) :: DsoSetServices
+   type, extends(UserSetServices) :: DsoSetServices
       character(:), allocatable :: sharedObj    ! ESMF naming convention
       character(:), allocatable :: userRoutine  ! ESMF naming convention
    contains
@@ -184,7 +184,7 @@ contains
    end subroutine write_formatted_dso
 
    logical function equal_setServices(a, b) result(equal)
-      class(MAPL_SetServices), intent(in) :: a, b
+      class(UserSetServices), intent(in) :: a, b
 
       select type (a)
       type is (DsoSetServices)
@@ -208,7 +208,7 @@ contains
    end function equal_setServices
 
    logical function not_equal_setServices(a, b) result(not_equal)
-      class(MAPL_SetServices), intent(in) :: a, b
+      class(UserSetServices), intent(in) :: a, b
       not_equal = .not. (a == b)
    end function not_equal_setServices
 
@@ -235,4 +235,4 @@ contains
    
 
    
-end module mapl_SetServices_mod
+end module mapl_UserSetServices_mod
