@@ -57,7 +57,7 @@ module mapl_SetServices_mod
    end interface
 
    ! Concrete subclass to encapsulate a traditional user setservices
-   ! consisting of a procuder conforming to the I_SetServices
+   ! consisting of a procedure conforming to the I_SetServices
    ! interface.
    type, extends(MAPL_SetServices) :: ProcSetServices
       procedure(I_SetServices), nopass, pointer :: userRoutine ! ESMF naming convention

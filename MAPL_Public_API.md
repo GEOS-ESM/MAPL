@@ -314,7 +314,6 @@ Has `private`; minimal exports.
 | `ProcSetServices` | interface/function | `mapl_SetServices_mod` |
 | `DsoSetServices` | interface/function | `mapl_SetServices_mod` |
 | `MAPL_SetServices` | abstract type | `mapl_SetServices_mod` |
-| `DsoSetServices` | type | `mapl_SetServices_mod` |
 
 ---
 
