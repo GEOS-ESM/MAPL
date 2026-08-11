@@ -2,6 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) attach_outer_meta_smod
    use mapl_UserSetServices_mod, only: AbstractUserSetServices
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -17,8 +18,11 @@ contains
 
       _SET_NAMED_PRIVATE_STATE(gridcomp, OuterMetaComponent, OUTER_META_PRIVATE_STATE)
 
+      outer_meta => get_outer_meta(gridcomp, _RC)
+      ! Initialize user_gc_driver to point to this gridcomp
+      outer_meta%user_gc_driver = GriddedComponentDriver(gridcomp)
+
       if (present(user_setservices)) then
-         outer_meta => get_outer_meta(gridcomp, _RC)
          allocate(outer_meta%user_setservices, source=user_setservices)
       end if
 
