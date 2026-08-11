@@ -184,9 +184,10 @@ contains
         call ESMF_TimeIntervalSet(dt, h=1)
         clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
 
-        outer_gc = ESMF_GridCompCreate(name='ROOT', hconfig=config, _RC)
+         outer_gc = ESMF_GridCompCreate(name='ROOT', hconfig=config, _RC)
+         call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetServices, _RC)
 
-        importState = ESMF_StateCreate(_RC)
+         importState = ESMF_StateCreate(_RC)
         exportState = ESMF_StateCreate(_RC)
         outer_states = MultiState(importState=importState, exportState=exportState)
 
