@@ -44,7 +44,7 @@ contains
          
          ! Set the hconfig on the OuterMetaComponent before SetServices is called
          ! SetServices needs access to the hconfig to parse component spec
-         call child_meta%set_hconfig(total_hconfig, _RC)
+         call child_meta%set_hconfig(total_hconfig)
 
          ! Call setServices with child's user_setservices procedure (NUOPC pattern)
          if (allocated(child_spec%user_setservices)) then
