@@ -40,13 +40,18 @@ contains
          ! This ensures OuterMetaComponent private state and user_gc_driver are initialized
          ! when user_setservices%run() is invoked
          call attach_outer_meta(child_outer_gc, _RC)
+         child_meta => get_outer_meta(child_outer_gc, _RC)
+         
+         ! Set the hconfig on the OuterMetaComponent before SetServices is called
+         ! SetServices needs access to the hconfig to parse component spec
+         call child_meta%set_hconfig(total_hconfig, _RC)
 
          ! Call setServices with child's user_setservices procedure (NUOPC pattern)
          if (allocated(child_spec%user_setservices)) then
             call child_spec%user_setservices%run(child_outer_gc, _RC)
          end if
 
-       ! Meta stuff
+       ! Meta stuff - child_meta already obtained above, just re-confirm it
        child_meta => get_outer_meta(child_outer_gc, _RC)
       call this%registry%add_subregistry(child_meta%get_registry())
 

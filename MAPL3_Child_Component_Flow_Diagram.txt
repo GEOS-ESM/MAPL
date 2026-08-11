@@ -1,0 +1,354 @@
+================================================================================
+MAPL3 CHILD COMPONENT CREATION - COMPLETE FLOW DIAGRAM (Develop Branch)
+================================================================================
+
+STEP 1: YAML STRUCTURE
+================================================================================
+parent.yaml (or .yml)
+├── grid:
+│   ├── class: LatLon
+│   ├── im_world: 12
+│   └── jm_world: 6
+│
+├── children:                      <-- KEY SECTION
+│   ├── A:
+│   │   ├── dso: libconfigurable_gridcomp
+│   │   ├── config_file: scenarios/precision_extension/A.yaml
+│   │   ├── [timestep: <interval>]
+│   │   └── [run_time_offset: <interval>]
+│   │
+│   └── B:
+│       ├── dso: libconfigurable_gridcomp
+│       └── config_file: scenarios/precision_extension/B.yaml
+│
+├── states: {}
+└── connections:
+    └── [connections between A and B]
+
+ALTERNATIVE: Under mapl: section
+===================================
+parent.yaml
+└── mapl:
+    ├── geometry: {...}
+    ├── states: {...}
+    └── children:          <-- Same structure as above
+        ├── A: {...}
+        └── B: {...}
+
+
+STEP 2-3: GRIDCOMP CREATION & YAML LOADING
+================================================================================
+
+User Code (or MAPL framework)
+        │
+        ├─ Calls: GridCompCreate("Parent", setservices, hconfig)
+        │
+        ├─ Input: hconfig = ESMF_HConfigCreate(filename="parent.yaml")
+        │
+        └─ Returns: parent_gc (ESMF_GridComp)
+
+Inside GridCompCreate():
+        │
+        ├─ Creates outer ESMF_GridComp "[Parent]"
+        ├─ Creates inner ESMF_GridComp "Parent"
+        ├─ Creates OuterMetaComponent:
+        │   ├─ self_gridcomp: outer GridComp
+        │   ├─ user_gc_driver: inner GridComp wrapper
+        │   ├─ user_setservices: provided SetServices
+        │   ├─ hconfig: parent_hconfig          <-- YAML stored here
+        │   └─ children: {} (empty map)
+        │
+        └─ Returns: outer_gc with OuterMetaComponent attached
+
+
+STEP 4: CALL SETSERVICES
+================================================================================
+
+ESMF Runtime
+        │
+        └─ Calls: ESMF_GridCompSetServices(parent_gc, GenericSetServices)
+              │
+              └─ Fortran Callback:
+                  │
+                  └─ GenericSetServices(parent_gc)
+                      │
+                      ├─ Gets OuterMetaComponent from parent_gc
+                      │
+                      └─ Calls: outer_meta%SetServices_()
+
+
+STEP 5-7: PARSE YAML -> CHILDREN
+================================================================================
+
+outer_meta%SetServices_()
+        │
+        ├─ [PARSE STEP]
+        │   │
+        │   ├─ Calls: parse_component_spec(parent_hconfig)
+        │   │   │
+        │   │   ├─ Checks for 'mapl:' section
+        │   │   ├─ IF found: navigates to mapl_cfg = ESMF_HConfigCreateAt(hconfig, "mapl")
+        │   │   ├─ IF not found: tries to parse from root
+        │   │   │
+        │   │   └─ Calls: parse_children(mapl_cfg)
+        │   │       │
+        │   │       ├─ Checks for 'children:' section
+        │   │       ├─ Gets: children_cfg = ESMF_HConfigCreateAt(hconfig, "children")
+        │   │       ├─ Iterates over mapping:
+        │   │       │   │
+        │   │       │   └─ For each child name (A, B, ...):
+        │   │       │       │
+        │   │       │       ├─ Gets child config section
+        │   │       │       ├─ Calls: parse_child(child_cfg)
+        │   │       │       │   │
+        │   │       │       │   └─ PARSES CHILD SPEC:
+        │   │       │       │       │
+        │   │       │       │       ├─ Read: dso key (from: "dso", "DSO", "sharedObj", "sharedobj")
+        │   │       │       │       │   → sharedObj = "libconfigurable_gridcomp"
+        │   │       │       │       │
+        │   │       │       │       ├─ Read: SetServices routine name (from: "SetServices", "setServices", "setservices")
+        │   │       │       │       │   → userRoutine = "setservices_" (default if not found)
+        │   │       │       │       │
+        │   │       │       │       ├─ Read: config_file
+        │   │       │       │       │   → child_hconfig = ESMF_HConfigCreate(filename="A.yaml")
+        │   │       │       │       │       <-- Loads child's YAML
+        │   │       │       │       │
+        │   │       │       │       ├─ Call: user_setservices(sharedObj, userRoutine)
+        │   │       │       │       │   → DSOSetServices("libconfigurable_gridcomp", "setservices_")
+        │   │       │       │       │
+        │   │       │       │       ├─ Read: [timestep] (optional)
+        │   │       │       │       ├─ Read: [run_time_offset] (optional)
+        │   │       │       │       │
+        │   │       │       │       └─ Return: ChildSpec {
+        │   │       │       │           user_setservices: DSOSetServices,
+        │   │       │       │           hconfig: child_hconfig,
+        │   │       │       │           timeStep: optional,
+        │   │       │       │           offset: optional
+        │   │       │       │       }
+        │   │       │       │
+        │   │       │       └─ Insert: children%insert("A", child_spec)
+        │   │       │
+        │   │       └─ Return: ChildSpecMap {"A" => ChildSpec, "B" => ChildSpec}
+        │   │
+        │   └─ Store: component_spec%children = ChildSpecMap
+        │
+        ├─ [ADD STEP]
+        │   │
+        │   └─ Call: add_children(this)
+        │       │
+        │       └─ For each child in component_spec%children:
+        │           │
+        │           ├─ Get: child_name = "A", child_spec = ChildSpec
+        │           │
+        │           └─ Call: this%add_child(child_name, child_spec)
+        │               │   ↓ (delegates to)
+        │               └─ add_child_by_spec(parent_meta, "A", child_spec)
+        │                   │
+        │                   ├─ MERGE HCONFIGS:
+        │                   │   └─ total_hconfig = merge_hconfig(parent_hconfig, child_hconfig)
+        │                   │       <-- Combines parent grid settings + child YAML
+        │                   │
+        │                   ├─ CREATE CHILD GRIDCOMP:
+        │                   │   └─ child_outer_gc = GridCompCreate("A", DSOSetServices, total_hconfig)
+        │                   │       │
+        │                   │       └─ Inside GridCompCreate():
+        │                   │           ├─ Creates outer GridComp "[A]"
+        │                   │           ├─ Creates inner GridComp "A"
+        │                   │           ├─ Creates child OuterMetaComponent:
+        │                   │           │   ├─ hconfig: total_hconfig (merged)
+        │                   │           │   ├─ user_setservices: DSOSetServices
+        │                   │           │   └─ children: {} (empty initially)
+        │                   │           └─ Returns: outer GridComp with metadata attached
+        │                   │
+        │                   ├─ EXTRACT CHILD META:
+        │                   │   └─ child_meta = get_outer_meta(child_outer_gc)
+        │                   │
+        │                   ├─ REGISTER SUBREGISTRY:
+        │                   │   └─ parent%registry%add_subregistry(child_meta%registry)
+        │                   │
+        │                   ├─ SET TIMING:
+        │                   │   ├─ IF child_spec%timeStep allocated:
+        │                   │   │   └─ child_meta%user_timeStep = child_spec%timeStep
+        │                   │   └─ child_meta%user_offset = parent%user_offset + child_spec%offset
+        │                   │
+        │                   └─ STORE CHILD:
+        │                       └─ parent%children%insert("A", GriddedComponentDriver(child_outer_gc))
+        │
+        └─ [SETSERVICES STEP]
+            │
+            └─ Call: run_children_setservices(this)
+                │
+                └─ For each child in parent%children:
+                    │
+                    ├─ Get: child_outer_gc from child_driver
+                    │
+                    └─ Call: ESMF_GridCompSetServices(child_outer_gc, GenericSetServices)
+                        │
+                        ├─ ESMF Callback:
+                        │   │
+                        │   └─ GenericSetServices(child_outer_gc)
+                        │       │
+                        │       └─ Gets child_meta = get_outer_meta(child_outer_gc)
+                        │           │
+                        │           └─ Calls: child_meta%SetServices_()
+                        │               │
+                        │               ├─ RECURSIVE: Parse child's total_hconfig
+                        │               │   └─ parse_component_spec(child_hconfig)
+                        │               │       └─ parse_children() - might be empty for child "A"
+                        │               │
+                        │               ├─ Call child's user_setservices%run(child_inner_gc)
+                        │               │   │
+                        │               │   └─ Calls: run_DSOSetServices()
+                        │               │       │
+                        │               │       └─ ESMF_GridCompSetServices(child_inner_gc,
+                        │               │           sharedObj="libconfigurable_gridcomp",
+                        │               │           userRoutine="setservices_")
+                        │               │           │
+                        │               │           └─ ESMF loads DSO and calls:
+                        │               │               libconfigurable_gridcomp::setservices_()
+                        │               │               <-- User's actual SetServices function
+                        │               │
+                        │               ├─ add_children(child) - if child has children
+                        │               │   └─ RECURSIVE: same process as parent
+                        │               │
+                        │               └─ run_children_setservices(child)
+                        │                   └─ RECURSIVE: Call SetServices on child's children
+                        │
+                        └─ SetServices_ returns successfully
+
+
+DATA STRUCTURE EVOLUTION
+================================================================================
+
+1. YAML FILE (parent.yaml)
+   ├─ grid: {...}
+   └─ children:
+       └─ A: {dso: ..., config_file: ...}
+
+2. LOADED INTO HCONFIG
+   HConfig (ESMF data structure)
+   ├─ grid: {...}
+   └─ children: {...}
+
+3. PARSED INTO COMPONENTSPEC
+   ComponentSpec
+   ├─ geometry_spec: {...}
+   ├─ var_specs: [...]
+   ├─ connections: [...]
+   └─ children: ChildSpecMap
+       └─ "A" => ChildSpec {
+           user_setservices: DSOSetServices("lib...", "setservices_"),
+           hconfig: <A.yaml as HConfig>,
+           timeStep: null,
+           offset: 0
+       }
+
+4. ADDED TO PARENT
+   OuterMetaComponent
+   ├─ hconfig: <parent_hconfig>
+   ├─ children: GriddedComponentDriverMap
+   │   └─ "A" => GriddedComponentDriver(child_outer_gc)
+   └─ component_spec: ComponentSpec
+
+5. CHILD CREATED WITH MERGED CONFIG
+   Child OuterMetaComponent
+   ├─ hconfig: <merged(parent_hconfig, A.yaml)>
+   ├─ children: GriddedComponentDriverMap {} (empty)
+   └─ user_setservices: DSOSetServices
+
+
+TIMING IN EXECUTION
+================================================================================
+
+Time → →
+
+1. Load parent YAML
+2. Create parent GridComp
+3. User/Framework calls GenericSetServices on parent
+4. Parent SetServices_() begins
+   │
+   ├─→ Parse parent YAML (fast, sequential)
+   │
+   ├─→ Call parent's user SetServices (DSO or procedure)
+   │
+   ├─→ Add children (creates child GridComps, but NOT their SetServices)
+   │
+   └─→ Call ESMF_GridCompSetServices on ALL children
+       │
+       ├─→ Child A's SetServices_() begins
+       │   ├─→ Parse child YAML
+       │   ├─→ Call child's user SetServices (from DSO)
+       │   └─→ Child SetServices_() ends
+       │
+       └─→ Child B's SetServices_() begins
+           ├─→ Parse child YAML
+           ├─→ Call child's user SetServices (from DSO)
+           └─→ Child SetServices_() ends
+
+5. Parent SetServices_() ends
+6. All GridComps now fully initialized
+
+KEY: SetServices on children called SEQUENTIALLY after parent finishes
+
+
+ERROR HANDLING POINTS
+================================================================================
+
+1. parse_child()
+   ├─ Check: dso key found? _ASSERT(dso_found)
+   ├─ Check: only one dso variant? _ASSERT(.not. dso_found)
+   └─ Check: config_file loadable? ESMF_HConfigCreate(filename=...)
+
+2. add_child_by_spec()
+   ├─ Check: valid child name? _ASSERT(is_valid_name(child_name))
+   ├─ Check: duplicate child? _ASSERT(children%count(child_name) == 0)
+   └─ Check: HConfig merge successful? merge_hconfig()
+
+3. run_DSOSetServices()
+   ├─ Check: DSO name supported? _ASSERT(is_supported_dso_name())
+   └─ Check: user routine found? userRoutinefound in ESMF call
+
+4. parse_children()
+   └─ Check: children is map? _ASSERT(is_map)
+
+
+FILE LOCATIONS (ABSOLUTE PATHS)
+================================================================================
+
+/Users/wdboggs/src/MAPL/superstructure/generic/
+├── GenericGridComp.F90 (create_grid_comp_primary, GenericSetServices)
+├── MAPL_Generic.F90 (GridCompAddChild overloads)
+├── UserSetServices.F90 (DSOSetServices, run_DSOSetServices)
+├── OuterMetaComponent.F90 (type definition)
+├── OuterMetaComponent/
+│   ├── new_outer_meta.F90 (constructor)
+│   ├── SetServices.F90 (SetServices_, add_children, run_children_setservices)
+│   └── add_child_by_spec.F90 (add_child_by_spec)
+├── ComponentSpecParser.F90 (module interface)
+├── ComponentSpecParser/
+│   ├── parse_component_spec.F90
+│   ├── parse_children.F90
+│   ├── parse_child.F90
+│   └── parse_timespec.F90
+└── specs/
+    └── ChildSpec.F90 (ChildSpec type definition)
+
+
+UNIQUE CHARACTERISTICS OF MAPL3 vs MAPL2
+================================================================================
+
+MAPL3:
+- ESMF HConfig (YAML parsed via ESMF, not Python)
+- Two-level component hierarchy (outer generic wrapper + inner user component)
+- Recursive child creation via GenericSetServices callback
+- HConfig merging for parent settings propagation
+- DSO loading deferred to ESMF_GridCompSetServices
+
+Traditional MAPL2:
+- Custom YAML parsing (Python or Fortran)
+- Single-level component hierarchy
+- Child creation in parent SetServices
+- Limited parent-child setting propagation
+- DSO loading in custom code
+
+================================================================================
