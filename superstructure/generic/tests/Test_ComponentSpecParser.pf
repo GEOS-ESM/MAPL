@@ -51,8 +51,8 @@ contains
       class(MAPL_SetServices), allocatable :: ss_B
 
       type(ChildSpec) :: cs_a, cs_b
-      ss_A = user_setservices('libA', 'setservices_')
-      ss_B = user_setservices(gamma)
+      ss_A = DsoSetServices('libA', 'setservices_')
+      ss_B = ProcSetServices(gamma)
 
       cs_a = ChildSpec(ss_A)
       cs_b = ChildSpec(ss_B)
@@ -74,7 +74,7 @@ contains
 
       type(ChildSpec) :: a, b
       
-      ss = user_setservices('libA', 'setservices_')
+      ss = DsoSetServices('libA', 'setservices_')
 
       a = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{a: 5}'))
 
@@ -109,7 +109,7 @@ contains
 
       config = ESMF_HConfigCreate(content='{sharedObj: libA, setServices: setservices_}')
 
-      expected = ChildSpec(user_setservices('libA', 'setservices_'))
+      expected = ChildSpec(DsoSetServices('libA', 'setservices_'))
       found = parse_child(config, _RC)
       @assert_that(expected == found, is(true()))
 
@@ -134,7 +134,7 @@ contains
       hconfig = ESMF_HConfigCreate(content='{setServices: setservices_, sharedObj: libA, config_file: a.yml}')
       child_hconfig = ESMF_HConfigCreate(content=CHILD_HCONFIG_CONTENT)
 
-      ss = user_setservices('libA', 'setservices_')
+      ss = DsoSetServices('libA', 'setservices_')
       expected = ChildSpec(ss, hconfig=child_hconfig)
       found = parse_child(hconfig, _RC)
       @assert_that(expected == found, is(true()))
@@ -173,7 +173,7 @@ contains
 
       config = ESMF_HConfigCreate(content='children: {A: {sharedObj: libA}}')
       config_ptr => config
-      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
+      call expected%insert('A', ChildSpec(DsoSetServices('libA', 'setservices_')))
       found = parse_children(config_ptr, _RC)
       @assert_that(found == expected, is(true()))
       
@@ -191,8 +191,8 @@ contains
            'B: {sharedObj: libB}}')
       config_ptr => config
 
-      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
-      call expected%insert('B', ChildSpec(user_setservices('libB', 'setservices_')))
+      call expected%insert('A', ChildSpec(DsoSetServices('libA', 'setservices_')))
+      call expected%insert('B', ChildSpec(DsoSetServices('libB', 'setservices_')))
       found = parse_children(config_ptr, _RC)
 
       @assert_that(found%of('A') == expected%of('A'), is(true()))

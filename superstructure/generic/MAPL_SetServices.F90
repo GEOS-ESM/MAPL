@@ -153,7 +153,7 @@ contains
 
    subroutine run_DsoSetServices(this, gridcomp, rc)
       use mapl_DSO_Utilities_mod
-      class(DSOSetservices), intent(in) :: this
+      class(DsoSetServices), intent(in) :: this
       type(ESMF_GridComp) :: GridComp
       integer, intent(out) :: rc
 

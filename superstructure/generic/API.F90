@@ -115,6 +115,9 @@ module mapl_generic_api
 
    public :: mapl_GridCompCreate
    public :: mapl_GenericSetServices
+   public :: MAPL_SetServices
+   public :: ProcSetServices
+   public :: DsoSetServices
 
    public :: mapl_CheckpointControls
    public :: mapl_RestartHandler
