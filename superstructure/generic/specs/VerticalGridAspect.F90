@@ -152,6 +152,8 @@ contains
       select type (dst)
       class is (VerticalGridAspect)
 
+         if (.not. allocated(src%vertical_grid)) return
+         if (.not. allocated(dst%vertical_grid)) return
          vec_in = src%vertical_grid%get_supported_physical_dimensions()
          vec_out = dst%vertical_grid%get_supported_physical_dimensions()
 
