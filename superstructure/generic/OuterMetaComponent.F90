@@ -2,7 +2,7 @@
 
 module mapl_OuterMetaComponent_mod
 
-   use mapl_UserSetServices_mod, only: AbstractUserSetServices
+   use mapl_UserSetServices_mod, only: UserSetServices
    use mapl_ComponentSpec_mod
    use mapl_CheckpointControls_mod
    use mapl_VariableSpec_mod
@@ -36,7 +36,7 @@ module mapl_OuterMetaComponent_mod
 
       type(ESMF_GridComp)                         :: self_gridcomp
       type(GriddedComponentDriver)                :: user_gc_driver
-      class(AbstractUserSetServices), allocatable :: user_setservices
+      class(UserSetServices), allocatable :: user_setservices
       type(ESMF_TimeInterval), allocatable        :: user_timeStep
       ! These are only allocated when parent overrides default timestepping.
       type(ESMF_TimeInterval)                     :: user_offset
@@ -170,7 +170,7 @@ module mapl_OuterMetaComponent_mod
          type(OuterMetaComponent) :: outer_meta
          type(ESMF_GridComp), intent(in) :: gridcomp
          type(GriddedComponentDriver), intent(in) :: user_gc_driver
-         class(AbstractUserSetServices), intent(in) :: user_setservices
+         class(UserSetServices), intent(in) :: user_setservices
          type(ESMF_HConfig), intent(in) :: hconfig
       end function new_outer_meta
 
