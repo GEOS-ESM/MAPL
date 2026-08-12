@@ -268,6 +268,8 @@ contains
       !$omp end critical
       _VERIFY(status)
 
+      this%origin_file = file
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine create_par
