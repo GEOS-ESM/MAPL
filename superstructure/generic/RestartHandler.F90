@@ -116,7 +116,7 @@ contains
       ! TODO: no-op if bundle is empty, or should we skip empty bundles?
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
        o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
-      call o_client%done_collective_stage()
+      call o_client%done_collective_stage(_RC)
       call o_client%post_wait_all()
 
       _RETURN(_SUCCESS)

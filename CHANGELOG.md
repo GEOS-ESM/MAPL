@@ -99,7 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add helper script for regression test work
 - For ACG, only declare pointer and get_pointer for MAPL_STATEITEM_FIELD
 - For ACG, add spec_filters to generalize testing specs
-- Added error message containing field and filename that is triggered if variable to write not found in file
+- Improved error handling for issues writing netcdf files
+
 
 ### Fixed
 
