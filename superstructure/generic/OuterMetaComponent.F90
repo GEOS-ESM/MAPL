@@ -91,6 +91,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: advertise_variable
       procedure :: initialize_modify_advertised
       procedure :: initialize_realize_provided
+      procedure :: initialize_realize_metadata
       procedure :: initialize_realize
       procedure :: initialize_read_restart
 
@@ -311,6 +312,16 @@ module mapl_OuterMetaComponent_mod
           class(KE), optional, intent(in) :: unusable
           integer, optional, intent(out) :: rc
       end subroutine initialize_realize_provided
+
+      module recursive subroutine initialize_realize_metadata(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+          ! optional arguments
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_realize_metadata
 
       module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this

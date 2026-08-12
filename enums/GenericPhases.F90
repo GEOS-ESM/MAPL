@@ -15,6 +15,7 @@ module mapl_GenericPhases_mod
    public :: GENERIC_INIT_ADVERTISE
    public :: GENERIC_INIT_MODIFY_ADVERTISED
    public :: GENERIC_INIT_REALIZE_PROVIDED
+   public :: GENERIC_INIT_REALIZE_METADATA
    public :: GENERIC_INIT_REALIZE
    public :: GENERIC_INIT_READ_RESTART
    public :: GENERIC_INIT_USER
@@ -39,6 +40,7 @@ module mapl_GenericPhases_mod
       enumerator :: GENERIC_INIT_MODIFY_ADVERTISED
       ! Phases that should be within NUOPC realize
       enumerator :: GENERIC_INIT_REALIZE_PROVIDED
+      enumerator :: GENERIC_INIT_REALIZE_METADATA
       enumerator :: GENERIC_INIT_REALIZE
       enumerator :: GENERIC_INIT_READ_RESTART
    end enum
@@ -66,6 +68,7 @@ module mapl_GenericPhases_mod
         GENERIC_INIT_MODIFY_ADVERTISED, &
         GENERIC_INIT_MODIFY_ADVERTISED, & ! repeat is hardwired until convergence detection can be automated
         GENERIC_INIT_REALIZE_PROVIDED, &
+        GENERIC_INIT_REALIZE_METADATA, &
         GENERIC_INIT_REALIZE, &
         GENERIC_INIT_READ_RESTART, & ! IMPORTANT: Goes before INIT_USER
         GENERIC_INIT_USER &

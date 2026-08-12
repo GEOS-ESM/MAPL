@@ -57,6 +57,7 @@ module mapl_enums_api
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_ADVERTISE       => GENERIC_INIT_ADVERTISE
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED => GENERIC_INIT_MODIFY_ADVERTISED
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_REALIZE_PROVIDED => GENERIC_INIT_REALIZE_PROVIDED
+   use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_REALIZE_METADATA => GENERIC_INIT_REALIZE_METADATA
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_REALIZE         => GENERIC_INIT_REALIZE
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_READ_RESTART    => GENERIC_INIT_READ_RESTART
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_USER            => GENERIC_INIT_USER
@@ -131,6 +132,7 @@ module mapl_enums_api
    public :: MAPL_GENERIC_INIT_ADVERTISE
    public :: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
    public :: MAPL_GENERIC_INIT_REALIZE_PROVIDED
+   public :: MAPL_GENERIC_INIT_REALIZE_METADATA
    public :: MAPL_GENERIC_INIT_REALIZE
    public :: MAPL_GENERIC_INIT_READ_RESTART
    public :: MAPL_GENERIC_INIT_USER

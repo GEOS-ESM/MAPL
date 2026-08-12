@@ -13,7 +13,6 @@ module mapl_StatisticsGridComp_mod
    use mapl_TimeMax_mod
    use mapl_TimeAccumulate_mod
    use mapl_TimeVariance_mod
-   use pflogger, only: Logger
 
    implicit none(type,external)
    private
@@ -39,7 +38,7 @@ contains
       type(esmf_HConfigIter) :: iter, b, e
       type(mapl_CheckpointControls) :: restart_controls
 
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
+      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize_provided, phase_name='GENERIC::INIT_REALIZE_METADATA', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize, phase_name='GENERIC::INIT_REALIZE', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
@@ -113,7 +112,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine advertise_item
 
-   subroutine modify_advertise(gridcomp, importState, exportState, clock, rc)
+   subroutine realize_provided(gridcomp, importState, exportState, clock, rc)
 
       type(esmf_GridComp) :: gridcomp
       type(esmf_State) :: importState
@@ -135,7 +134,7 @@ contains
       e = esmf_HConfigIterEnd(items_hconfig)
       iter = b
       do while (esmf_HConfigIterLoop(iter,b,e))
-         call modify_advertise_item(iter, _RC)
+          call realize_provided_item(iter, _RC)
       enddo
 
       call esmf_HConfigdestroy(items_hconfig, _RC)
@@ -144,7 +143,7 @@ contains
 
    contains
 
-      subroutine modify_advertise_item(iter, rc)
+       subroutine realize_provided_item(iter, rc)
          type(esmf_HConfigIter), intent(in) :: iter
          integer, optional, intent(out) :: rc
 
@@ -154,20 +153,20 @@ contains
           type(MAPL_StateItemAllocation) :: allocation_status
           type(esmf_StateItem_Flag) :: itemtype
 
-         name = esmf_HConfigAsString(iter, keystring='name', _RC)
+          name = esmf_HConfigAsString(iter, keystring='name', _RC)
 
-         call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
-         _RETURN_IF(itemtype == ESMF_STATEITEM_NOTFOUND)
+          call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
+          _RETURN_IF(itemtype == ESMF_STATEITEM_NOTFOUND)
 
           call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
           call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
           _RETURN_UNLESS(allocation_status == MAPL_STATEITEM_ALLOCATION_CONNECTED)
 
           item = make_item(name, iter, clock, _RC)
-         call stats%items%push_back(item)
+          call stats%items%push_back(item)
 
         _RETURN(_SUCCESS)
-      end subroutine modify_advertise_item
+       end subroutine realize_provided_item
 
       function make_item(name, iter, clock, rc) result(stat)
          class(AbstractTimeStatistic), allocatable :: stat
@@ -342,7 +341,7 @@ contains
             _RETURN(_SUCCESS)
          end function make_alarm
 
-   end subroutine modify_advertise
+   end subroutine realize_provided
 
    subroutine realize(gridcomp, importState, exportState, clock, rc)
 
@@ -456,4 +455,3 @@ subroutine setServices(gridComp, rc)
 
    _RETURN(_SUCCESS)
 end subroutine setServices
-

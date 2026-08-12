@@ -2,6 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_realize_provided_smod
    use mapl_enums_api, only: MAPL_GENERIC_INIT_REALIZE_PROVIDED
+   use mapl_MultiState_mod
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -17,9 +18,14 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE_PROVIDED'
+      type(MultiState) :: user_states
 
-      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+      ! Providers must publish metadata before parent components analyze it.
+      user_states = this%user_gc_driver%get_states()
+      call this%registry%add_to_states(user_states, mode='user', _RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE_PROVIDED, _RC)
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+      call this%registry%propagate_exports(_RC)
 
       _RETURN(_SUCCESS)
 
