@@ -91,10 +91,10 @@ contains
 
    recursive type(ESMF_GridComp) function create_grid_comp_primary( &
         name, set_services, config, unusable, petlist, rc) result(gridcomp)
-      use :: mapl_UserSetServices_mod, only: AbstractUserSetServices
+      use :: mapl_UserSetServices_mod, only: UserSetServices
 
       character(*), intent(in) :: name
-      class(AbstractUserSetServices), intent(in) :: set_services
+      class(UserSetServices), intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)

@@ -11,7 +11,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(AbstractUserSetServices), allocatable :: setservices
+      class(UserSetServices), allocatable :: setservices
 
       logical :: has_key
       type(ESMF_HConfig), allocatable :: child_hconfig, setservices_hconfig

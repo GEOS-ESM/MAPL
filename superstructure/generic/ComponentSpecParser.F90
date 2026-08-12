@@ -111,7 +111,7 @@ module mapl_ComponentSpecParser_mod
       end function parse_connections
 
       module function parse_setservices(config, rc) result(user_ss)
-         type(DSOSetServices) :: user_ss
+         type(DsoSetServices) :: user_ss
          type(ESMF_HConfig), target, intent(in) :: config
          integer, optional, intent(out) :: rc
       end function parse_setservices

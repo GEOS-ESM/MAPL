@@ -435,11 +435,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(AbstractUserSetServices), allocatable :: setservices
+      class(UserSetServices), allocatable :: setservices
       type(ChildSpec) :: child_spec
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
-      setservices = user_setservices(ss_proc)
+      setservices = ProcSetServices(ss_proc)
 
       child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
       call GridCompAddChild(gridcomp, child_name, child_spec, _RC)
@@ -490,11 +490,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(AbstractUserSetServices), allocatable :: setservices
+      class(UserSetServices), allocatable :: setservices
       type(ChildSpec) :: child_spec
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
-      setservices = user_setservices(shared_obj, user_routine)
+      setservices = DsoSetServices(shared_obj, user_routine)
 
       child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
       call GridCompAddChild(gridcomp, child_name, child_spec, _RC)

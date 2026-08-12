@@ -66,7 +66,7 @@ Notable source modules and their key exported entities:
 | `mapl_ComponentDriver_mod` | `ComponentDriver` (type) |
 | `mapl_GriddedComponentDriver_mod` | `GriddedComponentDriver` (type) |
 | `mapl_ChildSpec_mod` | `ChildSpec` (type) |
-| `mapl_UserSetServices_mod` | `user_setservices` (abstract interface), `AbstractUserSetServices` (abstract type), `DSOSetServices` (type) |
+| `mapl_UserSetServices_mod` | `ProcSetServices` and `DsoSetServices` (interfaces), `UserSetServices` (abstract type) |
 | `mapl_VerticalStaggerLoc_mod` | `VerticalStaggerLoc` (type), stagger location constants |
 | `mapl_geomio` | See `mapl_geomio` section below |
 | `mapl_ESMF_Utilities_mod` | ESMF utility wrappers |
@@ -311,9 +311,9 @@ Has `private`; minimal exports.
 
 | Entity | Kind | Source module |
 |---|---|---|
-| `user_setservices` | abstract interface | `mapl_UserSetServices_mod` |
-| `AbstractUserSetServices` | abstract type | `mapl_UserSetServices_mod` |
-| `DSOSetServices` | type | `mapl_UserSetServices_mod` |
+| `ProcSetServices` | interface/function | `mapl_UserSetServices_mod` |
+| `DsoSetServices` | interface/function | `mapl_UserSetServices_mod` |
+| `UserSetServices` | abstract type | `mapl_UserSetServices_mod` |
 
 ---
 
