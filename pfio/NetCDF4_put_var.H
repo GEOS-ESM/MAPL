@@ -26,7 +26,7 @@
       status = nf90_inq_varid(this%ncid, name=var_name, varid=varid)
      !$omp end critical
 
-     _ASSERT_RC(status==0,"Variable not found: "//trim(var_name)//" in file: "//trim(this%origin_file), status)
+     _ASSERT(status==0,"Variable not found: "//trim(var_name)//" in file: "//trim(this%origin_file))
 
      !$omp critical
 #if (_VARTYPE == 0)
