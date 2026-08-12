@@ -3,6 +3,10 @@ set (SRCS
   driver.F90
   )
 
+ecbuild_add_executable (TARGET create_stretched_cs_grid.x SOURCES create_stretched_cs_grid.F90)
+target_link_libraries (create_stretched_cs_grid.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF OpenMP::OpenMP_Fortran)
+target_include_directories (create_stretched_cs_grid.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
 #set(dependencies MAPL GFTL_SHARED::gftl-shared esmf OpenMP::OpenMP_Fortran)
 
 ecbuild_add_executable (

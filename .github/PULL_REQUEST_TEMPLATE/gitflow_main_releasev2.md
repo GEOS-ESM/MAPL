@@ -1,4 +1,4 @@
-## :memo:  Automatic PR: Gitflow: `main` → `develop`
+## :memo:  Automatic PR: Gitflow: `main` → `release/v2`
 
 ### Description
 

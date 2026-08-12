@@ -9,13 +9,218 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug that allowed ExtData2G to proceed if an invalid sampling key was provided
+
 ### Added
+
+- `field_bundle_read` can now fill an empty bundle from a file that has both edge and center 3D fields (forward port of MAPL 2.57.2 fix)
 
 ### Changed
 
 ### Removed
 
 ### Deprecated
+
+## [2.70.0] - 2026-07-06
+
+### Fixed
+
+- Fix typo in `allreducesum.H`
+- Fixed bug that prevented R8 exports being written as R4 output in History
+
+### Added
+
+- Add release guide (`docs/releasing.md`) documenting the MAPL release process
+
+### Changed
+
+- Update ExtData to not initialize primary items in multi rule case when the use this rule range does not overlap execution range
+- Update CI to use Baselibs 8.32.0 and circleci-tools orb v5
+- Update `components.yaml`
+  - ESMA_env v5.24.0
+    - Update to GEOSpyD 26.3.2 Python 3.14
+    - Update GEOSgcm to use Baselibs 8.32.0
+    - Move NAS runs to use Intel MPI by default
+  - ESMA_cmake v4.40.0
+    - Update ifx and NVHPC flags
+    - Better detect FMS/yaml support (needed for spack)
+    - Add new `color_message` function
+    - Add helper script for regression test work
+
+## [2.69.1] - 2026-05-19
+
+### Fixed
+
+- Check before assigning tilelons and tilelats in `MAPL_Locstreamget`
+
+## [2.69.0] - 2026-05-15
+
+### Fixed
+
+- Relaxed comparison standard for `grid_is_ok`. Added a test program to querry index
+- Fixed bug in WireComponent affecting TerminateImport
+- Removed unnecessary `_ASSERT` in `MAPL_TerminateImportAllBut`
+- Fixed bug so that an informative error message will be emitted when extrapolation is attempted to be used without a valid range in ExtData2G
+- Fixed SIGFPE (integer divide by zero) in `MAPL_LoadBalanceMod` when load balancing algorithm evaluates maximum differences to zero.
+- Python bridge: remove odd 3rd party dependency due to importing `no_type_check` outside of the standard library
+
+### Added
+
+- Add new `RUN_LIKE_MODEL` options to ExtDataDriver.x to control whether clock ticks before (like model) or after (default and behaviour before this)
+
+### Changed
+
+- Switch 6 lightweight CI workflows to `ubuntu-slim` runner to reduce concurrency pressure on `ubuntu-latest` (#4841)
+- Update `components.yaml`
+  - ESMA_cmake v4.37.0
+    - Add `Coverage` CMake build type
+- Update CTest configuration for Coverage tests
+- Changed standard_name to long_name in handling of non-CF dimensionless vertical coordinate in ExtData2G
+
+### Removed
+
+- Removed `MAPL_SUPPORT_MAPL3` CMake build option and all associated `MAPL_TARGET_PREFIX` variable logic (GH-4633). The dual-mount MAPL2+MAPL3 approach has been abandoned in favour of a single-mount MAPL3-only strategy.
+
+## [2.68.0] - 2026-04-06
+
+### Fixed
+
+- Python bridge: support for `icx`, fix GPU upload python side and updated base API to support python 3.12+
+- Guard IEEE halting mode calls on macOS flang to avoid missing `fe*except` symbols when initializing MPI.
+- Fixed some warnings with `mlc` link checker
+
+### Added
+
+- Added "read and bcast" pattern for `MAPL_ReadTilingNC4`
+- Added optional `tilelons` and `tilelats` to create a simple locstream
+- Add `MAPL_SUPPORT_MAPL3` CMake option to reduce MAPL2 to a support library for use alongside MAPL3. When `ON`, the generic layer, gridcomps, Apps, benchmarks, docs, Python bridge, and top-level Tests are disabled; all CMake targets are renamed with a `MAPL2.*` prefix controlled by the `MAPL_TARGET_PREFIX` variable. Default is `OFF` (no change in behavior).
+- When `MAPL_SUPPORT_MAPL3=ON`, the umbrella module in `MAPL/MAPL.F90` is renamed from `module MAPL` to `module MAPL2` (and the alias from `MAPL_Mod` to `MAPL2_Mod`); `use MAPL` in hybrid mode is intentionally undefined. `use ESMF_CFIOMod` is now unconditional in both modes.
+- Add `.mlc.toml` file to configure `mlc` link checker
+- Added a new feature: create a halo based on local displacement members, local-displacement-ensemble (LDE), requested some time ago by Arlindo da Silva
+- CDash nightly workflow configured to build and test `release/MAPL-v3` from the `main` branch
+- CTest dashboard configuration files (`CTestDashboard.cmake`, `CTestConfig.cmake`, `CTestCustom.cmake`) ported from `release/MAPL-v3` to support nightly CI/CD testing
+
+### Changed
+
+- Skip expensive CI on draft PRs to match CircleCI behavior
+  - Added `ready_for_review` trigger and `if: github.event.pull_request.draft == false` condition to `workflow.yml`, `spack-ci.yml`, and `nag_build_discover.yml`
+- Add `concurrency` groups to GitHub Actions workflows to prevent hitting runner concurrency limits on PRs
+  - Added to `workflow.yml`, `changelog-enforcer.yml`, `enforce-labels.yml`, `markup-link-checker.yml`, `validate_yaml_files.yml`
+  - Fixed `spack-ci.yml` to scope concurrency per PR number rather than per ref
+- Update `components.yaml` to match GEOSgcm v12
+  - ESMA_env v5.21.0
+    - Update to Baselibs 8.27.0
+      - ESMF v9.0.0b10
+      - GFE v1.23.0
+        - gFTL v1.17.0
+        - gFTL-shared v1.12.0
+        - fArgParse v1.11.0
+        - pFUnit v4.16.0
+      - Better support for LLVM Flang
+    - Fixes for Athena at NAS
+    - Updates for DSL work
+  - ESMA_cmake v4.36.0
+    - Multiple fixes for f2py with spack and on macOS
+    - CMake updates mainly for MAPL3 work
+  - ecbuild geos/v3.13.1
+- Add CTest scheduling metadata for pFIO tests so parallel `ctest` runs do not overlap the pFIO performance cases in the same working directory.
+- Update CI to use Baselibs 8.27.0
+- CDash nightly GitHub Actions workflow now allows manual selection of branch, CMake build type, and compiler via `workflow_dispatch`
+- CDash nightly GitHub Actions workflow now includes the branch name in the CDash `build_name` for easier identification
+- `CTestDashboard.cmake` now combines `install` and `build-tests` targets into a single build step to accurately capture total build time in CDash
+- CDash nightly GitHub Actions workflow now triggers scheduled builds from `main` while testing the `release/MAPL-v3` branch
+
+## [2.67.0] - 2026-02-27
+
+### Added
+
+- Introducing a two-way generic python bridge exposing limited MAPL feature down in Python. The system is opt-in and uses
+dynamic loading of py package based on a user given string. It also provides with _some_ tooling, to be expanded upon, to
+make using Fortran-allocated memory transparent.
+- Added optional `local_id` to create a simple locstream
+
+## [2.66.0] - 2026-02-13
+
+### Fixed
+
+- Guarded against 32-bit integer overflow in QSswap
+
+### Added
+
+- Added 9 modular OpenCode agent skills for MAPL development workflows (replaces AGENTS.md)
+  - mapl-setup: First-time environment configuration
+  - mapl-build: Building with NAG, gfortran, Intel compilers
+  - mapl-testing: Running and debugging tests with pFUnit
+  - fortran-style: MAPL Fortran coding standards
+  - mapl-error-handling: Error handling macros and best practices
+  - github-workflow: Git/GitHub conventions and PR process
+  - remote-build: Building on bucy with Intel compiler
+  - pfunit-troubleshooting: Debug pFUnit test failures
+  - compiler-switching: Switch between compilers safely
+- Added `.rgignore` to have ripgrep ignore common build directories
+
+### Changed
+
+- Update `components.yaml`
+  - `ESMA_env` v5.17.0
+    - Update to Baselibs 8.24.0
+      - ESMF v9.0.0b08
+      - GFE v1.22.0
+        - pFUnit v4.15.0
+      - curl 8.17.0
+      - NCO 5.3.6
+      - CDO 2.5.4
+      - Various updates for Athena/Turin/TOSS5 at NAS
+    - Support for Athena/Turin/TOSS5 at NAS
+      - Update `build.csh` to support Athena/Turin/TOSS5 at NAS
+        - Also remove Haswell
+  - `ESMA_cmake` v3.72.0
+    - Add `USES_TERMINAL` to our `tests` target to ensure output is shown as tests run with Ninja
+    - Updates for f2py and f2py3 for running on macOS with Spack
+    - Add Athena frontend nodes for NAS detection
+    - Remove `ctest` pre-test build
+
+## [2.65.0] - 2026-01-29
+
+### Added
+
+- Added implementation for `mapl_GetPartition()` with unit tests.  Replaces logic that will disappear with MAPL2
+- Added backwards compatibility with non-CF dimensionless vertical coordinate in ExtData2G
+- Added logic in History to check for consistent History and averaging coupler alarms
+
+### Changed
+
+- added formating string to the pFlogger call in `FileBundleRead.F90` to avoid processing incidental '%' characters in the filename
+- replaced `rc=status` with `_RC` in `MAPL_read_bundle`
+- `MAPL_read_bundle` now logs the filename instead of the file template
+- added optional argument "NoGarbage" to `MAPL_BundleDestroy`
+- Updated CI to use Baselibs 8.24.0
+  - This provides ESMF 9.0.0b08
+  - Update ifx tests to 2025.3 (enabled by ESMF 9.0.0b08)
+
+## [2.64.2] - 2026-01-16
+
+### Fixed
+
+- Fixed issue with `find_any_file` where bad logic caused issues with GAAS files not being read (forward port of MAPL 2.57.1 fix)
+
+## [2.64.1] - 2025-12-30
+
+### Fixed
+
+- Restore workaround for binary restart reads with GNU
+  - Brings back changes from PR #1038: Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
+
+## [2.64.0] - 2025-12-05
+
+### Added
+
+- Added `pfaf_index` to `MAPL_Locstream`
+- Added a simple MAPL_LocstreamCreate
+
+### Changed
+
+- Enforced presence of `grid` when reading binary tile file
 
 ## [2.63.1] - 2025-11-25
 
@@ -176,6 +381,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added RC for Timer call in `MAPL_Generic.F90`
 - Adds the wall clock date and time to the GCM stdout log so we can more readily diagnose slow periods of performance during the run
+
+## [2.57.2] - 2026-07-23
+
+### Added
+
+- `field_bundle_read` can now fill an empty bundle from a file that has both edge and center 3D fields
+
+## [2.57.1] - 2026-01-16
+
+### Fixed
+
+- Fixed issue with `find_any_file` where bad logic caused issues with GAAS files not being read
 
 ## [2.57.0] - 2025-06-18
 

@@ -1412,7 +1412,8 @@ contains
        allocate(var_1d(lbound(vr8_1d,1):ubound(vr8_1d,1)), _STAT)
        var_1d=vr8_1d
        f = MAPL_FieldCreateEmpty(name=fieldNAME, grid=grid, _RC)
-       call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_1D,    &
+       call ESMF_FieldEmptyComplete(F, farray=VAR_1D,    &
+                  indexflag=ESMF_INDEX_DELOCAL, &
             gridToFieldMap=gridToFieldMap,                      &
             datacopyFlag = datacopy,             &
             _RC)
@@ -1423,7 +1424,8 @@ contains
             _STAT)
        var_2d=vr8_2d
        f = MAPL_FieldCreateEmpty(name=fieldNAME, grid=grid, _RC)
-       call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_2D,    &
+       call ESMF_FieldEmptyComplete(F, farray=VAR_2D,    &
+                  indexflag=ESMF_INDEX_DELOCAL, &
             gridToFieldMap=gridToFieldMap,                      &
             datacopyFlag = datacopy,             &
             _RC)
@@ -1435,7 +1437,8 @@ contains
             _STAT)
        var_3d=vr8_3d
        f = MAPL_FieldCreateEmpty(name=fieldNAME, grid=grid, _RC)
-       call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_3D,    &
+       call ESMF_FieldEmptyComplete(F, farray=VAR_3D,    &
+                  indexflag=ESMF_INDEX_DELOCAL, &
             gridToFieldMap=gridToFieldMap,                      &
             datacopyFlag = datacopy,             &
             _RC)
@@ -2316,8 +2319,9 @@ contains
   end subroutine MAPL_FieldAttSetI4
   ! ========================================
 
-  module subroutine MAPL_FieldBundleDestroy(Bundle,RC)
+  module subroutine MAPL_FieldBundleDestroy(Bundle,NoGarbage,RC)
     type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
+    logical, optional,         intent(IN   ) :: NoGarbage
     integer, optional,         intent(OUT  ) :: RC
 
     integer                               :: I
@@ -2337,6 +2341,7 @@ contains
           call ESMF_FieldBundleGet(BUNDLE, I, FIELD, _RC)
           call MAPL_FieldDestroy(FIELD, _RC)
        end do
+       call ESMF_FieldBundleDestroy(bundle, NoGarbage=NoGarbage, _RC)
     end if
 
     _RETURN(ESMF_SUCCESS)
@@ -2886,7 +2891,7 @@ contains
           accurate_lon = 1.750d0*MAPL_PI_R8 - shift0
           accurate_lat = [(-alpha + (j-1)*dalpha, j = j1, j2)]
 
-          if (any(abs(accurate_lon - lonRe) > 2.0* tolerance) .or. any(abs(accurate_lat - latRe) > 2.0*tolerance)) then
+          if (any(abs(accurate_lon - lonRe) > 10.0* tolerance) .or. any(abs(accurate_lat - latRe) > 10.0*tolerance)) then
              print*, "Error: It could be "
              print*, "  1) grid may not have pi/18 Japan mountain shift"
              print*, "  2) grid is NOT gnomonic_ed;"

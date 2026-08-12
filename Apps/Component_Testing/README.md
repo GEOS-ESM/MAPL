@@ -89,14 +89,15 @@ GWD_INTERNAL_CHECKPOINT_FILE: gwd_internal_checkpoint
 GWD_EXPORT_CHECKPOINT_FILE: gwd_export_checkpoint
 BERES_FILE_NAME: newmfspectra40_dc25.nc
 ```
-> [!NOTE]  
+<!-- mlc-disable-next-line -->
+> [!NOTE]
 > 1. `NX/NY` is the per-face layout, so you need to run on 6 processors in this example
 > 1. You will need to point it to your own `.so`
 
 #### Copy files
 1. Copy `GWD_import_before_runPhase1` to `gwd_import_rst`, same for internal and export
 1. Copy the file `newmfspectra40_dc25.nc` to your run directory. To find it look in the GWD source code, then copy it from your original experiment under `scratch/ExtData/ ..`
-1. Copy the file `GWD_GridComp.rc` to your run directory. To find it look in the GWD source code directory 
+1. Copy the file `GWD_GridComp.rc` to your run directory. To find it look in the GWD source code directory
 
 ## Run
 ```shell

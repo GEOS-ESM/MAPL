@@ -598,6 +598,12 @@ module  BinIOMod
        call MAPL_CommsBcast(layout, status, n=1, ROOT=MAPL_Root, rc=stat)
        _VERIFY(STAT)
 
+#ifdef __GFORTRAN__
+       if (status == 5001) then
+          _RETURN(ESMF_SUCCESS)
+       end if
+#endif
+
        if (status == IOSTAT_END) then
           _RETURN(ESMF_SUCCESS)
        end if

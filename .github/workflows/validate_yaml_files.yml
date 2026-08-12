@@ -8,6 +8,10 @@ on:
   pull_request:
       types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 # This validation is equivalent to running on the command line:
 #   yamllint -d relaxed --no-warnings
 # and is controlled by the .yamllint.yml file
@@ -16,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           filter: blob:none
@@ -28,7 +32,7 @@ jobs:
           format: colored
           config_file: .yamllint.yml
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: yamllint-logfile

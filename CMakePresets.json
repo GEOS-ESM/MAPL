@@ -78,6 +78,24 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Aggressive"
       }
+    },
+    {
+      "name": "Coverage",
+      "inherits": "base-gnu",
+      "displayName": "Coverage Configure",
+      "description": "gcov/lcov coverage build using GNU Make generator",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Coverage"
+      }
+    },
+    {
+      "name": "Coverage-Ninja",
+      "inherits": "base-ninja",
+      "displayName": "Coverage Ninja Configure",
+      "description": "gcov/lcov coverage build using Ninja generator",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Coverage"
+      }
     }
   ],
   "buildPresets": [
@@ -130,6 +148,20 @@
       "inherits": "base-build",
       "displayName": "Aggressive Ninja Build",
       "description": "Aggressive build using Ninja generator"
+    },
+    {
+      "name": "Coverage",
+      "configurePreset": "Coverage",
+      "inherits": "base-build",
+      "displayName": "Coverage Build",
+      "description": "gcov/lcov coverage build using GNU Make generator"
+    },
+    {
+      "name": "Coverage-Ninja",
+      "configurePreset": "Coverage-Ninja",
+      "inherits": "base-build",
+      "displayName": "Coverage Ninja Build",
+      "description": "gcov/lcov coverage build using Ninja generator"
     }
   ]
 }

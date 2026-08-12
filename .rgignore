@@ -1,0 +1,23 @@
+# Have ripgrep ignore common build and install directory names
+
+## Generic names (Anchored, no trailing slash to catch symlinks)
+/[Bb]uild*
+/[Ii]nstall*
+
+## The Exception
+# This ensures this specific file is searched even if it matches the above
+!BUILD_INFO.rc.in
+
+## Compiler names
+/intel*/
+/ifort*/
+/ifx*/
+/gcc*/
+/gnu*/
+/nag*/
+/flang*/
+/nvfortran*/
+/nvhpc*/
+
+
+# vim:ft=gitignore

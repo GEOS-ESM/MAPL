@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.63.1
+  VERSION 2.70.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -61,6 +61,13 @@ endif ()
 # This tells cmake to assume MAPL's cmake directory is the first place to look
 list (PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
+# Newer ecbuild sets CMAKE_BUILD_WITH_INSTALL_RPATH=TRUE when ENABLE_RELATIVE_RPATHS
+# is ON (the default). This causes test binaries in the build tree to use the
+# install RPATH ($ORIGIN/../lib) at build time, which does not resolve correctly
+# against the build-tree library locations. Force FALSE so that CMake uses its
+# automatic build-tree RPATH (absolute paths) for targets in the build tree.
+set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
 option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
 if (BUILD_SHARED_MAPL)
   set (MAPL_LIBRARY_TYPE SHARED)
@@ -68,6 +75,7 @@ else ()
   set (MAPL_LIBRARY_TYPE STATIC)
 endif()
 message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
+
 
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
@@ -236,6 +244,7 @@ if (BUILD_WITH_FARGPARSE)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
 endif()
+add_subdirectory(Python)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
@@ -246,13 +255,6 @@ add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
 esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
-
-# Install the Python directory
-install (
-   DIRECTORY Python
-   DESTINATION lib
-   USE_SOURCE_PERMISSIONS
-   )
 
 install (
    DIRECTORY cmake

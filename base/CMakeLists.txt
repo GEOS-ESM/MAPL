@@ -49,6 +49,7 @@ set (srcs
   MAPL_DateTime_Parsing_ESMF.F90	MAPL_ObsUtil.F90
   MAPL_EASEConversion.F90
   MAPL_EASEGridFactory.F90
+  LDE.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
