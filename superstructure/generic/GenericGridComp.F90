@@ -24,15 +24,15 @@ module mapl_GenericGridComp_mod
    ! Procedures
    public :: GenericSetServices
    public :: GridCompCreate
-   public :: InitializeGridComp
+   public :: GridCompInit
 
    interface GridCompCreate
       procedure create_grid_comp_primary
    end interface GridCompCreate
 
-   interface InitializeGridComp
-      procedure :: initialize_grid_comp
-   end interface InitializeGridComp
+   interface GridCompInit
+      procedure :: grid_comp_init
+   end interface GridCompInit
 
 contains
 
@@ -111,7 +111,7 @@ contains
            petlist=petlist, contextFlag=contextFlag, _RC)
       
       ! Call the common init code
-      call InitializeGridComp(gridcomp, name, set_services, config, petlist=petlist, _RC)
+      call GridCompInit(gridcomp, name, set_services, config, petlist=petlist, _RC)
 
    end function create_grid_comp_primary
 
@@ -253,13 +253,13 @@ contains
 
    ! To allow MAPL Components to work in NUOPC hiearchies, the GridComp is created
    ! before this is called.
-   recursive subroutine initialize_grid_comp(gridcomp, name, set_services, &
+   recursive subroutine grid_comp_init(gridcomp, name, set_services, &
          & config, unusable, petlist, rc)
-      use :: mapl_UserSetServices_mod, only: AbstractUserSetServices
+      use :: mapl_UserSetServices_mod, only: UserSetServices
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(*), intent(in) :: name
-      class(AbstractUserSetServices), intent(in) :: set_services
+      class(UserSetServices), intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)
@@ -309,5 +309,5 @@ contains
          a = b
       end subroutine ridiculous
 #endif
-   end subroutine initialize_grid_comp
+   end subroutine grid_comp_init
 end module mapl_GenericGridComp_mod

@@ -21,7 +21,7 @@ contains
 
       do i=1, size(SHARED_OBJ_KEYS)
          key = trim(SHARED_OBJ_KEYS(i))
-         has_key = ESMF_HConfigAsString(config, keyString=SHARED_OBJ_KEYS(i))
+         has_key = ESMF_HConfigIsDefined(config, keyString=SHARED_OBJ_KEYS(i))
          if(has_key) then
             sharedObj = ESMF_HConfigAsString(config,keyString=key, rc=status)
             continue

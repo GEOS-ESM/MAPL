@@ -15,7 +15,7 @@ contains
 
       logical :: has_key
       type(ESMF_HConfig), allocatable :: child_hconfig, setservices_hconfig
-      character(:), allocatable :: sharedObj, userProcedure, config_file
+      character(:), allocatable :: config_file
       type(ESMF_TimeInterval), allocatable :: offset
       type(ESMF_TimeInterval), allocatable :: timeStep
       character(len=*), parameter :: CONFIG_FILE_KEY = 'config_file'
@@ -23,10 +23,10 @@ contains
       has_key = ESMF_HconfigIsDefined(hconfig, keyString=CONFIG_FILE_KEY, _RC)
       _ASSERT(has_key, CONFIG_FILE_KEY // ' was not found.')
       config_file = ESMF_HconfigAsString(hconfig, keyString=CONFIG_FILE_KEY, _RC)
-      child_hconfig = ESMF_HConfigCreate(config_file, _RC)
+      child_hconfig = ESMF_HConfigCreate(filename=config_file, _RC)
       has_key = ESMF_HconfigIsDefined(child_hconfig, keyString=COMPONENT_SETSERVICES_SECTION, _RC)
       _ASSERT(has_key, COMPONENT_SETSERVICES_SECTION // ' was not found.')
-      setservices_hconfig = ESMF_CreateAt(child_hconfig, keyString=COMPONENT_SETSERVICES_SECTION, _RC)
+      setservices_hconfig = ESMF_HConfigCreateAt(child_hconfig, keyString=COMPONENT_SETSERVICES_SECTION, _RC)
       setservices = parse_setservices(setservices_hconfig, _RC)
       call parse_timespec(hconfig, timeStep, offset, _RC)
 
