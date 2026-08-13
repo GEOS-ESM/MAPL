@@ -13,11 +13,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_mapl_section
+      logical :: has_section
       type(ESMF_HConfig) :: mapl_cfg
 
-      has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
-      _RETURN_UNLESS(has_mapl_section)
+      has_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
+      _RETURN_UNLESS(has_section)
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
 
       spec%geometry_spec = parse_geometry_spec(mapl_cfg, registry, component_name, _RC)
