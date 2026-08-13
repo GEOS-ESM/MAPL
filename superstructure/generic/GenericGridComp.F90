@@ -86,10 +86,9 @@ contains
 
    end subroutine GenericSetServices
 
-
-
-
-   recursive type(ESMF_GridComp) function create_grid_comp_primary( &
+   ! This is for the top of the hierarchy (Cap). If that is the only place it is called, contextFlag
+   ! and ESMF_GridCompCreate could be created at the calling site.
+   type(ESMF_GridComp) function create_grid_comp_primary( &
         name, set_services, config, unusable, petlist, rc) result(gridcomp)
       use :: mapl_UserSetServices_mod, only: UserSetServices
 
@@ -110,40 +109,10 @@ contains
       if(present(petlist)) contextFlag = ESMF_CONTEXT_OWN_VM
       gridcomp = ESMF_GridCompCreate(name=outer_name(name), &
            petlist=petlist, contextFlag=contextFlag, _RC)
-      call set_is_generic(gridcomp, _RC)
+      
+      ! Call the common init code
+      call InitializeGridComp(gridcomp, name, set_services, config, petlist=petlist, _RC)
 
-      user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist, contextFlag=contextFlag, _RC)
-      call set_is_generic(user_gridcomp, .false., _RC)
-
-      call attach_outer_meta(gridcomp, _RC)
-      outer_meta => get_outer_meta(gridcomp, _RC)
-
-      ! We copy the outer gridcomp here.  If the user gridcomp runs at a different (slower!) timestep, that
-      ! must be processed later as the information gets stored in the ComponentSpec.
-
-      user_gc_driver = GriddedComponentDriver(user_gridcomp)
-#ifndef __GFORTRAN__
-      outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
-#else
-      ! GFortran 12 & 13 cannot directly assign to outer_meta.  But
-      ! the assignment works for an object without the POINTER
-      ! attribute.  An internal procedure is a workaround, but
-      ! ... ridiculous.
-      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, set_services, config))
-#endif
-      call outer_meta%init_meta(_RC)
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-#ifdef __GFORTRAN__
-   contains
-
-      subroutine ridiculous(a, b)
-         type(OuterMetaComponent), intent(out) :: a
-         type(OuterMetaComponent), intent(in) :: b
-         a = b
-      end subroutine ridiculous
-#endif
    end function create_grid_comp_primary
 
 
@@ -282,8 +251,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_is_generic
 
-   recursive subroutine initialize_grid_comp(gridcomp,
-        name, set_services, config, unusable, rc) result(gridcomp)
+   ! To allow MAPL Components to work in NUOPC hiearchies, the GridComp is created
+   ! before this is called.
+   recursive subroutine initialize_grid_comp(gridcomp, name, set_services, &
+         & config, unusable, petlist, rc)
       use :: mapl_UserSetServices_mod, only: AbstractUserSetServices
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -291,23 +262,22 @@ contains
       class(AbstractUserSetServices), intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc
 
       type(ESMF_GridComp) :: user_gridcomp
       type(OuterMetaComponent), pointer :: outer_meta
       type(GriddedComponentDriver) :: user_gc_driver
-!      integer, allocatable :: petlist(:)
-!      type(ESMF_Context_Flag) :: contextFlag
+      type(ESMF_Context_Flag) :: contextFlag
       integer :: status
 
-!      contextFlag = ESMF_CONTEXT_PARENT_VM
-!      if(present(petlist)) contextFlag = ESMF_CONTEXT_OWN_VM
-!      gridcomp = ESMF_GridCompCreate(name=outer_name(name), &
-!           petlist=petlist, contextFlag=contextFlag, _RC)
       call set_is_generic(gridcomp, _RC)
 
-      !user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist, contextFlag=contextFlag, _RC)
-      user_gridcomp = ESMF_GridCompCreate(name=name, _RC)
+      ! These are necessary for the user_gridcomp.
+      contextFlag = ESMF_CONTEXT_PARENT_VM
+      if(present(petlist)) contextFlag = ESMF_CONTEXT_OWN_VM
+
+      user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist, contextFlag=contextFlag, _RC)
       call set_is_generic(user_gridcomp, .false., _RC)
 
       call attach_outer_meta(gridcomp, _RC)
