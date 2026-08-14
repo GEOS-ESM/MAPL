@@ -292,7 +292,6 @@ contains
       type(esmf_GridComp) :: cap_gridcomp
       integer :: status, user_status
       integer, allocatable :: petList(:)
-      type(ESMF_Context_Flag), parameter :: contextFlag =ESMF_CONTEXT_OWN_VM
 
       petList = get_model_pets(options%is_model_pet, _RC)
 
