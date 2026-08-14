@@ -292,10 +292,11 @@ contains
       type(esmf_GridComp) :: cap_gridcomp
       integer :: status, user_status
       integer, allocatable :: petList(:)
+      type(ESMF_Context_Flag), parameter :: contextFlag =ESMF_CONTEXT_OWN_VM
 
       petList = get_model_pets(options%is_model_pet, _RC)
 
-      cap_gridcomp = mapl_GridCompCreate(options%name, DsoSetServices('libMAPL.cap', 'setservices_'), hconfig, petList=petList, _RC)
+      cap_gridcomp = ESMF_GridCompCreate(name=options%name, petlist=petlist, contextFlag=contextFlag, hconfig=hconfig, _RC)
       call esmf_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, _USERRC)
 
       driver = MAPL_GriddedComponentDriver(cap_gridcomp, clock=clock)

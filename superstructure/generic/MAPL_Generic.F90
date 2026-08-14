@@ -441,7 +441,7 @@ contains
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       setservices = ProcSetServices(ss_proc)
 
-      child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
+      child_spec = ChildSpec(user_setservices=setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
       call GridCompAddChild(gridcomp, child_name, child_spec, _RC)
 
       _RETURN(_SUCCESS)
@@ -496,7 +496,7 @@ contains
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       setservices = DsoSetServices(shared_obj, user_routine)
 
-      child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
+      child_spec = ChildSpec(user_setservices=setServices, hconfig=hconfig, timeStep=timeStep, offset=refTime_offset)
       call GridCompAddChild(gridcomp, child_name, child_spec, _RC)
 
       _RETURN(_SUCCESS)

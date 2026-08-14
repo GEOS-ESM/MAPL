@@ -3,7 +3,6 @@
 submodule (mapl_OuterMetaComponent_mod) add_child_by_spec_smod
 
    use mapl_ComponentSpecParser_mod
-   use mapl_Generic_api, only: MAPL_GridCompInit
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
    use mapl_Validation_mod
@@ -29,14 +28,15 @@ contains
       type(ESMF_HConfig) :: total_hconfig
       class(Logger), pointer :: lgr
       character(:), allocatable :: this_name
+      type(ESMF_Context_Flag) :: contextFlag
 
+      contextFlag = ESMF_CONTEXT_PARENT_VM
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
 
       total_hconfig = merge_hconfig(this%hconfig, child_spec%hconfig, _RC)
-      child_outer_gc = ESMF_GridCompCreate(name=child_name, _RC)
-      call MAPL_GridCompInit(child_outer_gc, child_name, child_spec%user_setservices, total_hconfig, _RC)
-!      child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, _RC)
+      ! If petlist were present, contextFlag would be set differently.
+      child_outer_gc = ESMF_GridCompCreate(name=child_name, contextFlag=contextFlag, hconfig=total_hconfig, _RC)
 
       ! Meta stuff
       child_meta => get_outer_meta(child_outer_gc, _RC)

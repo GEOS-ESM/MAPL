@@ -11,10 +11,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(UserSetServices), allocatable :: setservices
-
       logical :: has_key
-      type(ESMF_HConfig), allocatable :: child_hconfig, setservices_hconfig
+      type(ESMF_HConfig), allocatable :: child_hconfig
       character(:), allocatable :: config_file
       type(ESMF_TimeInterval), allocatable :: offset
       type(ESMF_TimeInterval), allocatable :: timeStep
@@ -24,15 +22,10 @@ contains
       _ASSERT(has_key, CONFIG_FILE_KEY // ' was not found.')
       config_file = ESMF_HconfigAsString(hconfig, keyString=CONFIG_FILE_KEY, _RC)
       child_hconfig = ESMF_HConfigCreate(filename=config_file, _RC)
-      has_key = ESMF_HconfigIsDefined(child_hconfig, keyString=COMPONENT_SETSERVICES_SECTION, _RC)
-      _ASSERT(has_key, COMPONENT_SETSERVICES_SECTION // ' was not found.')
-      setservices_hconfig = ESMF_HConfigCreateAt(child_hconfig, keyString=COMPONENT_SETSERVICES_SECTION, _RC)
-      setservices = parse_setservices(setservices_hconfig, _RC)
       call parse_timespec(hconfig, timeStep, offset, _RC)
 
-      child = ChildSpec(setservices, hconfig=child_hconfig, timeStep=timeStep, offset=offset)
+      child = ChildSpec(hconfig=child_hconfig, timeStep=timeStep, offset=offset)
 
-      call ESMF_HConfigDestroy(setservices_hconfig, _RC)
       call ESMF_HConfigDestroy(child_hconfig, _RC)
       
       _RETURN(_SUCCESS)

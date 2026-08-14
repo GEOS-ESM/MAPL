@@ -43,10 +43,7 @@ module mapl_generic_api
        MAPL_GridCompIsGeneric => GridCompIsGeneric, &
        MAPL_GridCompIsUser => GridCompIsUser
 
-   use mapl_GenericGridComp_mod,  &
-       mapl_GridCompCreate => GridCompCreate, &
-       mapl_GridCompInit => GridCompInit, &
-       mapl_GenericSetServices => GenericSetServices
+   use mapl_GenericGridComp_mod, mapl_GenericSetServices => GenericSetServices
 
     use mapl_VariableSpec_mod
     use mapl_ComponentSpec_mod

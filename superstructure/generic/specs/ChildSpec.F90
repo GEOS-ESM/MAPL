@@ -11,16 +11,11 @@ module mapl_ChildSpec_mod
    public :: operator(==)
    public :: operator(/=)
 
-   public :: dump
-   
    type :: ChildSpec
       class(UserSetServices), allocatable :: user_setservices
       type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval), allocatable :: timeStep
       type(ESMF_TimeInterval) :: offset
-   contains
-      procedure :: write_formatted
-      generic :: write(formatted) => write_formatted
    end type ChildSpec
 
    interface ChildSpec
@@ -38,15 +33,18 @@ module mapl_ChildSpec_mod
 
 contains
 
-   function new_ChildSpec(user_setservices, unusable, hconfig, timeStep, offset) result(spec)
+   function new_ChildSpec(unusable, user_setservices, hconfig, timeStep, offset) result(spec)
       type(ChildSpec) :: spec
-      class(UserSetServices), intent(in) :: user_setservices
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      class(UserSetServices), optional, intent(in) :: user_setservices
       type(ESMF_HConfig), optional, intent(in) :: hconfig
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
 
-      spec%user_setservices = user_setservices
+      if(present(hconfig)) then
+         spec%user_setservices = user_setservices
+      end if
+
       if (present(hconfig)) then
          spec%hconfig = hconfig
       else
@@ -64,10 +62,17 @@ contains
    logical function equal(a, b)
       type(ChildSpec), intent(in) :: a
       type(ChildSpec), intent(in) :: b
+      logical :: uss_is_allocated
 
-      equal = (a%user_setservices == b%user_setservices)
+      uss_is_allocated = allocated(a%user_setservices) 
+      equal = uss_is_allocated .eqv. allocated(b%user_setservices)
       if (.not. equal) return
-      
+
+      if(uss_is_allocated) then
+         equal = (a%user_setservices == b%user_setservices)
+         if (.not. equal) return
+      end if
+
       equal = equal_hconfig(a%hconfig, b%hconfig)
       if (.not. equal) return
 
@@ -117,29 +122,5 @@ contains
 
       not_equal = .not. (a == b)
    end function not_equal
-
-   subroutine dump(x)
-      type(ChildSpec) :: x
-
-      select type (q => x%user_setservices)
-      type is (Dsosetservices)
-         print*,__FILE__,__LINE__, q%sharedObj, '::', q%userRoutine
-      end select
-   end subroutine dump
-
-   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
-      class(ChildSpec), intent(in) :: this
-      integer, intent(in) :: unit
-      character(*), intent(in) :: iotype
-      integer, intent(in) :: v_list(:)
-      integer, intent(out) :: iostat
-      character(*), intent(inout) :: iomsg
-
-      write(unit,'(a, DT)', iostat=iostat, iomsg=iomsg) 'UserSetServices: ', this%user_setservices
-
-      _UNUSED_DUMMY(iotype)
-      _UNUSED_DUMMY(v_list)
-      
-   end subroutine write_formatted
 
 end module mapl_ChildSpec_mod
