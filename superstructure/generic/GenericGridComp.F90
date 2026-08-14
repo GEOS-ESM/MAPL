@@ -33,20 +33,17 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
       character(len=ESMF_MAXSTR) :: name
-      type(ESMF_Context_Flag) :: contextFlag
       type(GriddedComponentDriver) :: user_gc_driver
       type(ESMF_HConfig) :: hconfig
       class(UserSetServices), allocatable :: set_services
       type(ESMF_GridComp) :: user_gridcomp
-
-      contextFlag = ESMF_CONTEXT_PARENT_VM
 
       call attach_outer_meta(gridcomp, _RC)
       call set_is_generic(gridcomp, _RC)
 
       call ESMF_GridCompGet(gridcomp, name=name, hconfig=hconfig, _RC)
       set_services = parse_setservices(hconfig, _RC)
-      user_gridcomp = ESMF_GridCompCreate(name=name, contextFlag=contextFlag, _RC)
+      user_gridcomp = ESMF_GridCompCreate(name=name, contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
       call set_is_generic(user_gridcomp, .false., _RC)
       user_gc_driver = GriddedComponentDriver(user_gridcomp)
 
@@ -277,7 +274,7 @@ contains
          has_key = ESMF_HConfigIsDefined(ss_hconfig, keyString=SHARED_OBJ_KEYS(i))
          if(has_key) then
             sharedObj = ESMF_HConfigAsString(ss_hconfig,keyString=key, rc=status)
-            continue
+            exit
          end if
       end do
       _ASSERT(status == 0, 'setServices spec does not specify sharedObj')
