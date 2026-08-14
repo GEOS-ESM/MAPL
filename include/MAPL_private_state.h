@@ -1,6 +1,10 @@
 ! The macros here are intended to simplify the process of
 ! accessing the per-gc private state via ESMF.
 
+#ifndef _MAPL_PRIVATE_STATE_ERROR_CODE
+#  define _MAPL_PRIVATE_STATE_ERROR_CODE 17
+#endif
+
 #ifdef _DECLARE_WRAPPER
 #  undef _DECLARE_WRAPPER
 #endif
@@ -44,7 +48,7 @@
     type(PrivateWrapper) :: w;                         \
     allocate(w%ptr);                                           \
     call ESMF_InternalStateAdd(gc, internalState=w, label=name, rc=status);         \
-    _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> already created for this gridcomp?"); \
+    _ASSERT_CODE_CTX(status==ESMF_SUCCESS, _MAPL_PRIVATE_STATE_ERROR_CODE, name); \
   end block
 
 #define _GET_PRIVATE_STATE(gc, T, private_state) _GET_NAMED_PRIVATE_STATE(gc, T, "private state", private_state)
@@ -54,7 +58,7 @@
     _DECLARE_WRAPPER(T);                                        \
     type(PrivateWrapper) :: w;                                  \
     call ESMF_InternalStateGet(gc, internalState=w, label=name, rc=status);         \
-    _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not found for this gridcomp."); \
+    _ASSERT_CODE_CTX(status==ESMF_SUCCESS, _MAPL_PRIVATE_STATE_ERROR_CODE, name); \
     private_state => w%ptr;                         \
   end block
 
@@ -65,7 +69,7 @@
     _DECLARE_WRAPPER(T);                                         \
     type(PrivateWrapper) :: w;                                   \
     call ESMF_InternalStateGet(gc, internalState=w, lable=name, rc=status);         \
-    _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not found for this gridcomp."); \
+    _ASSERT_CODE_CTX(status==ESMF_SUCCESS, _MAPL_PRIVATE_STATE_ERROR_CODE, name); \
     private_state => w%ptr; \
   end block
   

@@ -138,6 +138,20 @@ case(0)
 end if
 ```
 
+For migrated paths with named diagnostics, use code-bearing variants:
+
+```fortran
+_ASSERT_CODE(condition, MAPL_PARTITION_ARGUMENT_INVALID)
+_FAIL_CODE(MAPL_BUNDLE_LOOKUP_FAILURE)
+_FAIL_CODE_CTX(MAPL_MISSING_FILE, filename)
+```
+
+Legacy `_ASSERT(condition, message)` and `_FAIL(message)` forms remain supported while
+sites are migrated. `_CTX` forms supply site-specific values while generated catalog
+templates provide prose. Code-bearing forms preserve return-code propagation and
+include catalog code, symbolic name, message, source context, and optional values in
+`ERROR_UNIT`.
+
 ## `_RETURN`
 When you return from a procedure, if the procedure has an optional rc value you want to set to the success value so that if the calling is checking this they get the "success" value. If someone is checking it, i.e.:
 ```fortran

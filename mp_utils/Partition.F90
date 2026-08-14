@@ -4,6 +4,7 @@ module mapl_Partition_mod
 
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_PARTITION_ARGUMENT_INVALID
 
    implicit none(type,external)
    private
@@ -43,20 +44,24 @@ contains
       integer :: k_used
       integer :: im, remainder
       integer :: i_mid
-      logical :: symmetric_
-      integer :: min_extent_
-      integer :: status
-      integer, allocatable :: sub_partition_a(:), sub_partition_b(:)
+   logical :: symmetric_
+   integer :: min_extent_
+   integer :: status
+   integer, allocatable :: sub_partition_a(:), sub_partition_b(:)
+   character(32) :: n_string, k_string, min_extent_string
 
-      _ASSERT(n >= 0, 'n must be non-negative')
-      _ASSERT(k >= 0, 'k must be non-negative')
-      if (n == 0) then
-         _ASSERT(k == 0, 'k cannot be 0 unless n is zero')
+       write(n_string, '(i0)') n
+       write(k_string, '(i0)') k
+       _ASSERT_CODE_CTX(n >= 0, MAPL_PARTITION_ARGUMENT_INVALID, 'n='//trim(n_string))
+       _ASSERT_CODE_CTX(k >= 0, MAPL_PARTITION_ARGUMENT_INVALID, 'k='//trim(k_string))
+       if (n == 0) then
+          _ASSERT_CODE_CTX(k == 0, MAPL_PARTITION_ARGUMENT_INVALID, 'n=0,k='//trim(k_string))
       end if
 
-      min_extent_ = 0
-      if (present(min_extent)) min_extent_ = min_extent
-      _ASSERT(min_extent_ <= n, 'min_extent cannot be larger than n')
+       min_extent_ = 0
+       if (present(min_extent)) min_extent_ = min_extent
+       write(min_extent_string, '(i0)') min_extent_
+       _ASSERT_CODE_CTX(min_extent_ <= n, MAPL_PARTITION_ARGUMENT_INVALID, 'min_extent='//trim(min_extent_string)//', n='//trim(n_string))
 
       k_used = k
       if (min_extent_ > 0)  then

@@ -14,6 +14,7 @@ set (TEST_SRCS
   test_OS.pf
   test_sort.pf
   test_DirPath.pf
+  test_ErrorHandling.pf
 )
 
 # Test_MemInfoWrite only works on Linux (requires /proc/self/status)
@@ -32,9 +33,12 @@ set_target_properties(MAPL.utils.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MOD
 target_include_directories(MAPL.utils.tests PRIVATE ${esma_include}/MAPL.utils)
 set_tests_properties(MAPL.utils.tests PROPERTIES LABELS "ESSENTIAL")
 
+add_test(NAME MAPL.error_code_generator
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_error_code_generator.py)
+set_tests_properties(MAPL.error_code_generator PROPERTIES LABELS "ESSENTIAL")
+
 if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
   set_tests_properties(MAPL.utils.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
 endif()
 
 add_dependencies(build-tests MAPL.utils.tests)
-

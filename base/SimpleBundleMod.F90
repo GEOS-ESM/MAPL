@@ -23,6 +23,7 @@ module mapl_SimpleBundleMod_impl_mod
    use mapl_geom_api, only: MAPL_GridGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
    use mapl_ArrayReductions_mod, only: MaxMin
+   use MAPL_Constants, only: MAPL_BUNDLE_LOOKUP_FAILURE
    use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root
    use MAPL_Constants, only: MAPL_PI
    use mapl_ErrorHandling_mod
@@ -235,7 +236,7 @@ contains
                isRequested(n) = .true.
             else
                if (strict_match) then
-                  _FAIL('could not find field '//trim(var_list(i))//' in bundle '//trim(self%name))
+                   _FAIL_CODE_CTX(MAPL_BUNDLE_LOOKUP_FAILURE, 'field='//trim(var_list(i))//', bundle='//trim(self%name))
                end if
             end if
          end do

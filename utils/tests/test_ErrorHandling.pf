@@ -1,0 +1,102 @@
+#include "MAPL.h"
+
+module Test_ErrorHandling
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants
+   use mapl_Throw_mod, only: MAPL_set_throw_method
+   use funit
+   implicit none (type,external)
+
+   character(:), allocatable :: captured_message
+
+contains
+
+   @test
+   subroutine test_generated_codes()
+      @assertEqual(0, MAPL_SUCCESS)
+      @assertEqual(1, MAPL_FILE_NOT_FOUND)
+      @assertEqual(19, MAPL_UNKNOWN_ERROR)
+      @assertEqual(10, MAPL_ERROR_CATALOG_MISSING)
+      @assertEqual(11, MAPL_ERROR_CATALOG_INVALID)
+      @assertEqual(12, MAPL_ERROR_VERIFY)
+      @assertEqual(18, MAPL_MISSING_FILE)
+   end subroutine test_generated_codes
+
+   @test
+   subroutine test_code_bearing_assert_preserves_code()
+      logical :: failed
+      integer :: status
+
+      call MAPL_set_throw_method(capture_throw)
+      failed = MAPL_AssertCode(.false., MAPL_PARTITION_ARGUMENT_INVALID, &
+           'test_ErrorHandling.pf', 30, status)
+      @assertTrue(failed)
+      @assertEqual(MAPL_PARTITION_ARGUMENT_INVALID, status)
+      @assertTrue(index(captured_message, 'MAPL_PARTITION_ARGUMENT_INVALID') > 0)
+   end subroutine test_code_bearing_assert_preserves_code
+
+   @test
+   subroutine test_context_assert_renders_value()
+      logical :: failed
+      integer :: status
+
+      call MAPL_set_throw_method(capture_throw)
+      failed = MAPL_AssertCodeContext(.false., MAPL_MISSING_FILE, '/tmp/input.nc', &
+           'test_ErrorHandling.pf', 42, status)
+      @assertTrue(failed)
+      @assertEqual(MAPL_MISSING_FILE, status)
+      @assertTrue(index(captured_message, '/tmp/input.nc') > 0)
+   end subroutine test_context_assert_renders_value
+
+   @test
+   subroutine test_context_macro_preserves_rc()
+      integer :: status
+
+      call MAPL_set_throw_method(capture_throw)
+      call trigger_context_failure(status)
+      @assertEqual(MAPL_MISSING_FILE, status)
+      @assertTrue(index(captured_message, '/tmp/input.nc') > 0)
+   end subroutine test_context_macro_preserves_rc
+
+   @test
+   subroutine test_verify_preserves_status()
+      logical :: failed
+      integer :: status
+
+      call MAPL_set_throw_method(capture_throw)
+      failed = MAPL_Verify(37, 'test_ErrorHandling.pf', 52, status)
+      @assertTrue(failed)
+      @assertEqual(37, status)
+      @assertTrue(index(captured_message, 'status=37') > 0)
+   end subroutine test_verify_preserves_status
+
+   @test
+   subroutine test_legacy_assert_form_preserves_status()
+      logical :: failed
+      integer :: status
+
+      call MAPL_set_throw_method(capture_throw)
+      failed = MAPL_Assert(.false., 'legacy message', 1, 'test_ErrorHandling.pf', 64, status)
+      @assertTrue(failed)
+      @assertEqual(1, status)
+   end subroutine test_legacy_assert_form_preserves_status
+
+   subroutine capture_throw(filename, line_number, message)
+      character(*), intent(in) :: filename
+      integer, intent(in) :: line_number
+      character(*), optional, intent(in) :: message
+
+      if (present(message)) then
+         captured_message = message
+      else
+         captured_message = ''
+      end if
+   end subroutine capture_throw
+
+   subroutine trigger_context_failure(rc)
+      integer, intent(out) :: rc
+
+      _FAIL_CODE_CTX(MAPL_MISSING_FILE, '/tmp/input.nc')
+   end subroutine trigger_context_failure
+
+end module Test_ErrorHandling
