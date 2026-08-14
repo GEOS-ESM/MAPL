@@ -5422,6 +5422,9 @@ contains
       endif
 
       if (present(LakeType)) then
+         if (.not. MAPL_AM_I_ROOT(layout)) then
+            allocate(LakeType(ntile))
+         endif
          call MAPL_CommsBcast(layout, LakeType, ntile, MAPL_Root, status)
       endif
 
