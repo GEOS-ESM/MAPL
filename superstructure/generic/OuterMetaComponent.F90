@@ -140,6 +140,10 @@ module mapl_OuterMetaComponent_mod
       module procedure :: get_outer_meta_from_outer_gc
    end interface get_outer_meta
 
+   interface outer_meta_attached_to
+      module procedure :: outer_meta_is_attached_to
+   end interface outer_meta_attached_to
+
    character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "MAPL::OuterMetaComponent::private"
 
    abstract interface
@@ -487,6 +491,12 @@ module mapl_OuterMetaComponent_mod
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
+
+      module function outer_meta_is_attached_to(gridcomp, rc) result(is_attached)
+         logical :: is_attached
+         type(ESMF_GridComp), intent(inout) :: gridcomp
+         integer, optional, intent(out) :: rc
+      end function outer_meta_is_attached_to
 
    end interface ! submodule interfaces
 

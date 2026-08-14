@@ -11,7 +11,7 @@
 
 module mapl_GenericGridComp_mod
    use :: mapl_OuterMetaComponent_mod, only: OuterMetaComponent
-   use :: mapl_OuterMetaComponent_mod, only: get_outer_meta
+   use :: mapl_OuterMetaComponent_mod, only: get_outer_meta, outer_meta_attached_to
    use :: mapl_OuterMetaComponent_mod, only: attach_outer_meta
    use :: mapl_GenericPhases_mod
    use :: mapl_GriddedComponentDriver_mod
@@ -32,38 +32,13 @@ contains
       integer, intent(out) :: rc
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      character(len=ESMF_MAXSTR) :: name
-      type(GriddedComponentDriver) :: user_gc_driver
-      type(ESMF_HConfig) :: hconfig
-      class(UserSetServices), allocatable :: set_services
-      type(ESMF_GridComp) :: user_gridcomp
 
-      call attach_outer_meta(gridcomp, _RC)
-      call set_is_generic(gridcomp, _RC)
-
-      call ESMF_GridCompGet(gridcomp, name=name, hconfig=hconfig, _RC)
-      set_services = parse_setservices(hconfig, _RC)
-      user_gridcomp = ESMF_GridCompCreate(name=name, contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
-      call set_is_generic(user_gridcomp, .false., _RC)
-      user_gc_driver = GriddedComponentDriver(user_gridcomp)
-
-      outer_meta => get_outer_meta(gridcomp, _RC)
-      
-      ! We copy the outer gridcomp here.  If the user gridcomp runs at a different (slower!) timestep, that
-      ! must be processed later as the information gets stored in the ComponentSpec.
-#ifndef __GFORTRAN__
-      outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, hconfig)
-#else
-      ! GFortran 12 & 13 cannot directly assign to outer_meta.  But
-      ! the assignment works for an object without the POINTER
-      ! attribute.  An internal procedure is a workaround, but
-      ! ... ridiculous.
-      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, set_services, hconfig))
-#endif
+      outer_meta => associate_outer_meta(gridcomp, _RC)
+      _ASSERT(associated(outer_meta), 'Unable to get outer_meta')
       call outer_meta%init_meta(_RC)
-
       call outer_meta%setServices(_RC)
       call set_entry_points(gridcomp, _RC)
+      outer_meta => null()
 
       _RETURN(ESMF_SUCCESS)
 
@@ -76,6 +51,48 @@ contains
          a = b
       end subroutine ridiculous
 #endif
+      function associate_outer_meta(gridcomp, rc) result(ptr)
+         type(OuterMetaComponent), pointer :: ptr
+         type(ESMF_GridComp) :: gridcomp
+         integer, optional, intent(out) :: rc
+         integer :: status
+         character(len=ESMF_MAXSTR) :: name
+         type(GriddedComponentDriver) :: user_gc_driver
+         type(ESMF_HConfig) :: hconfig
+         class(UserSetServices), allocatable :: set_services
+         type(ESMF_GridComp) :: user_gridcomp
+         logical :: attached
+
+         ptr => null()
+         attached = outer_meta_attached_to(gridcomp, _RC)
+         if(attached) then
+            ptr => get_outer_meta(gridcomp, _RC)
+            _RETURN(ESMF_SUCCESS)
+         end if
+         call attach_outer_meta(gridcomp, _RC)
+         call set_is_generic(gridcomp, _RC)
+         call ESMF_GridCompGet(gridcomp, name=name, hconfig=hconfig, _RC)
+         set_services = parse_setservices(hconfig, _RC)
+         user_gridcomp = ESMF_GridCompCreate(name=name, contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
+         call set_is_generic(user_gridcomp, .false., _RC)
+         user_gc_driver = GriddedComponentDriver(user_gridcomp)
+         ptr => get_outer_meta(gridcomp, _RC)
+         
+         ! We copy the outer gridcomp here.  If the user gridcomp runs at a different (slower!) timestep, that
+         ! must be processed later as the information gets stored in the ComponentSpec.
+#ifndef __GFORTRAN__
+         ptr = OuterMetaComponent(gridcomp, user_gc_driver, set_services, hconfig)
+#else
+         ! GFortran 12 & 13 cannot directly assign to ptr.  But
+         ! the assignment works for an object without the POINTER
+         ! attribute.  An internal procedure is a workaround, but
+         ! ... ridiculous.
+         call ridiculous(ptr, OuterMetaComponent(gridcomp, user_gc_driver, set_services, hconfig))
+#endif
+         _RETURN(_ESMF_SUCCESS)
+
+      end function associate_outer_meta
+
       subroutine set_entry_points(gridcomp, rc)
          type(ESMF_GridComp), intent(inout) :: gridcomp
          integer, intent(out) :: rc
