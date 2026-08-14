@@ -283,10 +283,9 @@ contains
       _ASSERT(status == 0, 'setServices spec does not specify sharedObj')
 
       has_key = ESMF_HConfigIsDefined(ss_hconfig,keyString=USER_ROUTINE_KEY, _RC)
+      userRoutine = 'setservices_'
       if (has_key) then
          userRoutine = ESMF_HConfigAsString(ss_hconfig,keyString=USER_ROUTINE_KEY, _RC)
-      else
-         userRoutine = 'setservices_'
       end if
 
       user_ss = DsoSetServices(sharedObj, userRoutine)
