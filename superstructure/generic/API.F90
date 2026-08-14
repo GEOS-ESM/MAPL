@@ -2,7 +2,7 @@
 ! Public API exposed to external consumers.
 module mapl_generic_api
 
-   use mapl_UserSetServices_mod, only: user_setservices, AbstractUserSetServices, DSOSetServices
+   use mapl_UserSetServices_mod, only: UserSetServices, ProcSetServices, DsoSetServices
 
    use mapl_OpenMP_Support_mod, only: mapl_find_bounds => find_bounds
    use mapl_OpenMP_Support_mod, only: mapl_get_num_threads => get_num_threads
@@ -115,6 +115,9 @@ module mapl_generic_api
 
    public :: mapl_GridCompCreate
    public :: mapl_GenericSetServices
+   public :: UserSetServices
+   public :: ProcSetServices
+   public :: DsoSetServices
 
    public :: mapl_CheckpointControls
    public :: mapl_RestartHandler

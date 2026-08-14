@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - Added `esma_sync_aws_s3_data.cmake` and `esma_regression_run_helpers.cmake` to support S3-based regression test data
       - Switch macOS RPATH in `osx_extras.cmake` from absolute to relative (`@loader_path/../lib`) so experiment-local install trees resolve GEOS/MAPL shared libraries correctly
 
+- Refactored `UserSetServices.F90` to remove the `user_setservices` interface, rename `AbstractUserSetServices` to `UserSetServices`, and giving `ProcSetServices` and `DSOSetServices` their own constructors
 - `Regrid_Util.x` now uses the fargparse library for command line argument parsing instead
   of raw Fortran intrinsics. Multi-character options that previously used a single-dash prefix
   (e.g. `-ogrid`, `-nx`, `-ny`, `-method`, `-tp_in`, `-tp_out`, `-lon_range`, `-lat_range`,
@@ -38,17 +39,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-zstandard_level`, `-file_weights`, `-vars`, `-t`) now require a double-dash prefix
   (e.g. `--ogrid`, `--nx`). The short forms `-i` and `-o` are preserved. The `--help` flag
   is now handled automatically by fargparse and prints a formatted usage summary.
-
 ### Added
 
+- Added `MAPL_FieldApplyUserRoutine`/`MAPL_FieldBundleApplyUserRoutine` to apply a user routine to each slice of a field (or every field in a bundle) with ungridded/vertical dimensions, plus `MAPL_FieldGetPointerToSlice` (overloaded for R4 and R8) for typed per-slice access. Slices are 2D by default, or 3D when the field has exactly three non-ungridded (grid + vertical) dimensions (for example a 4D field whose fourth dimension is the ungridded dimension). The slice-routine interface is unlimited-polymorphic and assumed-rank, so a single user routine handles R4/R8 and 2D/3D slices via `select rank`/`select type`
 - `update_restart` in `Cap.F90` now supports a `skip_restart_write` boolean flag in the
   `ESMF_HConfig`. When present and `true`, the routine returns immediately without writing
   the restart file. Default behavior (key absent or `false`) is unchanged.
 
 - `Regrid_Util.x` now has the option to be drive via a yaml file passed on the command line rather than
    a whole list of command line arguments.
+
 - Modified ExtData tests to get path to test data from environment variable `LOCAL_REGRESSION_DATA_DIR`
+
 - Added regression test for Regrid\_Util.x
+
 - External pfio server GridComp and ctest: new `mapl_PfioServerGridComp_mod` provides
   an ESMF GridComp whose `run` phase creates and starts an `MpiServer` or
   `MultiGroupServer`; `MaplFramework` gains `mapl_connect_to_server`,
@@ -67,7 +71,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   constants throughout `MaplFramework`, `RestartHandler`, `GeomPFIO`, `GridPFIO`,
   `FieldBundleRead`, `FieldBundleWrite`, `HistoryGridComp`, `ExtDataFileReader`, and
   `PrimaryExport`; fixed `MAX_LEN_PORT_NAME` (16 → 64) to support longer port names
-
 - Added `MAPL_StateMerge` to combine two `ESMF_State` objects into one without allocating new field memory
 - MAPL3 initialization lifecycle (#5231): new 6-call application lifecycle
   (`MAPL_Initialize`, `MAPL_CreateServers`, `MAPL_CapCreate`, `MAPL_RunServers`,
