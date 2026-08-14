@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- add lake_type as an ptional argument fo MAPL_WriteTilingNC4 subroutine
+- add lake_type as an ptional argument fo MAPL_WriteTilingNC4 and MAPL_ReadTilingNC4 subroutines
 
 ### Removed
 

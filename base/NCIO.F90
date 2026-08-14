@@ -5086,7 +5086,7 @@ contains
    end function create_flipped_field
 
    ! Serial version - reads the file without MPI
-   subroutine MAPL_ReadTilingNC4_serial(File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
+   subroutine MAPL_ReadTilingNC4_serial(File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR, LakeType,rc)
       character(*),                             intent(IN)  :: File
       character(*), optional,                   intent(out) :: GridName(:)
       integer,      optional,                   intent(out) :: IM(:), JM(:)
@@ -5095,6 +5095,7 @@ contains
       real(kind=REAL64), optional, allocatable, intent(out) :: rTable(:,:)
       integer,      optional,              intent(out) :: N_PfafCat
       real,         optional, pointer,     intent(out) :: AVR(:,:)      ! used by GEOSgcm
+      integer,      optional, allocatable,      intent(out) :: LakeType(:)
       integer,      optional,              intent(out) :: rc
 
       type (Attribute), pointer     :: ref
@@ -5283,11 +5284,16 @@ contains
            where ( rTable(:,3+ll) /=0.0 ) rTable(:,3+ll) = rTable(:,3)/rTable(:,3+ll)
         enddo
       endif
+
+      if (present(LakeType)) then
+         allocate(LakeType(ntile))
+         call formatter%get_var('lake_type', LakeType(:), rc=status)
+      endif
       _RETURN(_SUCCESS)
    end subroutine MAPL_ReadTilingNC4_serial
 
    ! Parallel version - root calls serial version then broadcasts to all processes
-   subroutine MAPL_ReadTilingNC4_par(layout, File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
+   subroutine MAPL_ReadTilingNC4_par(layout, File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR, LakeType, rc)
       type(ESMF_DELayout),                      intent(IN)  :: layout
       character(*),                             intent(IN)  :: File
       character(*), optional,                   intent(out) :: GridName(:)
@@ -5297,6 +5303,7 @@ contains
       real(kind=REAL64), optional, allocatable, intent(out) :: rTable(:,:)
       integer,      optional,              intent(out) :: N_PfafCat
       real,         optional, pointer,     intent(out) :: AVR(:,:)      ! used by GEOSgcm
+      integer,      optional, allocatable, intent(out) :: LakeType(:)
       integer,      optional,              intent(out) :: rc
 
       integer :: status, ll, ng, ntile, NumCol
@@ -5304,7 +5311,7 @@ contains
       ! Root process calls the serial version
       if (MAPL_AM_I_ROOT(layout)) then
          call MAPL_ReadTilingNC4_serial(File, GridName, IM, JM, nx, ny, n_Grids, n_tiles, &
-                                        iTable, rTable, N_PfafCat, AVR, rc=status)
+                                        iTable, rTable, N_PfafCat, AVR, LakeType=LakeType, rc=status)
          _VERIFY(status)
          ! Get ng and ntile for broadcasts
          if (present(n_Grids)) then
@@ -5412,6 +5419,10 @@ contains
          endif
          call MAPL_CommsBcast(layout, AVR, ntile*NumCol, MAPL_Root, status)
          _VERIFY(status)
+      endif
+
+      if (present(LakeType)) then
+         call MAPL_CommsBcast(layout, LakeType, ntile, MAPL_Root, status)
       endif
 
       _RETURN(_SUCCESS)
