@@ -19,7 +19,10 @@ contains
       @assertEqual(10, MAPL_ERROR_CATALOG_MISSING)
       @assertEqual(11, MAPL_ERROR_CATALOG_INVALID)
       @assertEqual(12, MAPL_ERROR_VERIFY)
-      @assertEqual(18, MAPL_MISSING_FILE)
+      @assertEqual(22, MAPL_LOOKUP_FAILURE)
+      @assertEqual(23, MAPL_OBJECT_NOT_INITIALIZED)
+      @assertEqual(24, MAPL_ARGUMENT_INVALID)
+      @assertEqual(25, MAPL_CONFIGURATION_INVALID)
    end subroutine test_generated_codes
 
    @test
@@ -28,11 +31,11 @@ contains
       integer :: status
 
       call MAPL_set_throw_method(capture_throw)
-      failed = MAPL_AssertCode(.false., MAPL_PARTITION_ARGUMENT_INVALID, &
+      failed = MAPL_AssertCode(.false., MAPL_ARGUMENT_INVALID, &
            'test_ErrorHandling.pf', 30, status)
       @assertTrue(failed)
-      @assertEqual(MAPL_PARTITION_ARGUMENT_INVALID, status)
-      @assertTrue(index(captured_message, 'MAPL_PARTITION_ARGUMENT_INVALID') > 0)
+      @assertEqual(MAPL_ARGUMENT_INVALID, status)
+      @assertTrue(index(captured_message, 'MAPL_ARGUMENT_INVALID') > 0)
    end subroutine test_code_bearing_assert_preserves_code
 
    @test
@@ -41,12 +44,38 @@ contains
       integer :: status
 
       call MAPL_set_throw_method(capture_throw)
-      failed = MAPL_AssertCodeContext(.false., MAPL_MISSING_FILE, '/tmp/input.nc', &
+      failed = MAPL_AssertCodeContext(.false., MAPL_FILE_NOT_FOUND, '/tmp/input.nc', &
            'test_ErrorHandling.pf', 42, status)
       @assertTrue(failed)
-      @assertEqual(MAPL_MISSING_FILE, status)
+      @assertEqual(MAPL_FILE_NOT_FOUND, status)
       @assertTrue(index(captured_message, '/tmp/input.nc') > 0)
    end subroutine test_context_assert_renders_value
+
+   @test
+   subroutine test_integer_context_assert_renders_value()
+      logical :: failed
+      integer :: status
+
+      call MAPL_set_throw_method(capture_throw)
+      failed = MAPL_AssertCodeContext(.false., MAPL_ERROR_VERIFY, 37, &
+           'test_ErrorHandling.pf', 50, status)
+      @assertTrue(failed)
+      @assertEqual(MAPL_ERROR_VERIFY, status)
+      @assertTrue(index(captured_message, '37') > 0)
+   end subroutine test_integer_context_assert_renders_value
+
+   @test
+   subroutine test_variable_context_uses_catalog_template()
+      logical :: failed
+      integer :: status
+
+      call MAPL_set_throw_method(capture_throw)
+      failed = MAPL_AssertCodeContext(.false., MAPL_LOOKUP_FAILURE, 'variable=temperature', &
+           'test_ErrorHandling.pf', 62, status)
+      @assertTrue(failed)
+      @assertEqual(MAPL_LOOKUP_FAILURE, status)
+      @assertTrue(index(captured_message, 'lookup failed: variable=temperature') > 0)
+   end subroutine test_variable_context_uses_catalog_template
 
    @test
    subroutine test_context_macro_preserves_rc()
@@ -54,7 +83,7 @@ contains
 
       call MAPL_set_throw_method(capture_throw)
       call trigger_context_failure(status)
-      @assertEqual(MAPL_MISSING_FILE, status)
+       @assertEqual(MAPL_FILE_NOT_FOUND, status)
       @assertTrue(index(captured_message, '/tmp/input.nc') > 0)
    end subroutine test_context_macro_preserves_rc
 
@@ -96,7 +125,7 @@ contains
    subroutine trigger_context_failure(rc)
       integer, intent(out) :: rc
 
-      _FAIL_CODE_CTX(MAPL_MISSING_FILE, '/tmp/input.nc')
+       _FAIL_CODE_CTX(MAPL_FILE_NOT_FOUND, '/tmp/input.nc')
    end subroutine trigger_context_failure
 
 end module Test_ErrorHandling

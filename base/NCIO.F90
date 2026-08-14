@@ -260,7 +260,7 @@ contains
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(var_4d)) then
-             _FAIL( "Cannot read unassociated variable")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
 
           do L = 1,size(var_4d,3)
@@ -369,7 +369,7 @@ contains
                 end if
 
            else
-             _FAIL( "Cannot write unassociated var-1d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
@@ -385,7 +385,7 @@ contains
                 end if
 
            else
-             _FAIL( "Cannot write unassociated var8-1d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        endif
     else if (rank == 2) then
@@ -405,7 +405,7 @@ contains
                call VarWrite(formatter, name, var_2d, arrdes=arrdes, rc=status)
              endif ! dims
           else
-             _FAIL( "Cannot write unassociated var-2d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           endif ! associated
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
@@ -423,7 +423,7 @@ contains
                 call VarWrite(formatter, name, vr8_2d, arrdes=arrdes, rc=status)
              end if
           else
-             _FAIL( "Cannot write unassociated var8-2d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        endif
     else if (rank == 3) then
@@ -446,7 +446,7 @@ contains
                 call VarWrite(formatter, name, var_3d, arrdes=arrdes, rc=status)
              endif
           else
-             _FAIL( "Cannot write unassociated var-3d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
@@ -467,7 +467,7 @@ contains
                 call VarWrite(formatter, name, vr8_3d, arrdes=arrdes, rc=status)
              end if
           else
-             _FAIL( "Cannot write unassociated var8-3d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        endif
     else if (rank == 4) then
@@ -478,14 +478,14 @@ contains
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(var_4d)) then
-             _FAIL( "Cannot write unassociated vars")
+           _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
           call VarWrite(formatter, name, var_4d, arrdes=arrdes, rc=status)
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(vr8_4d)) then
-             _FAIL( "Cannot write unassociated vars")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
           call VarWrite(formatter, name, vr8_4d, arrdes=arrdes, rc=status)
        endif
@@ -2855,7 +2855,7 @@ contains
                      if (restore_export) then
                         if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
                      else
-                        _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                        _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'field='//trim(FieldName))
                      end if
                   end if
                end if
@@ -2938,7 +2938,7 @@ contains
                    if (restore_export) then
                       if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
                    else
-                      _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                      _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'field='//trim(FieldName))
                    end if
                 end if
              end if

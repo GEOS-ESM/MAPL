@@ -31,6 +31,7 @@ module mapl_FileIOShared_mod
                             MAPL_CommsAllGatherV => comms_allgatherv, &
                             MAPL_CommsScatterV => comms_scatterv
   use mapl_Shmem_mod
+  use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_UNSUPPORTED_TYPE
   use mapl_ErrorHandling_mod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
@@ -213,25 +214,25 @@ module mapl_FileIOShared_mod
 
     select case (type)
     case (R4_2)
-       _ASSERT(present(jm), 'jm not present for 2d')
+       _ASSERT_CODE(present(jm), MAPL_ARGUMENT_INVALID)
        allocate(A%r4_2(IM,JM))
     case (R4_1)
-       _ASSERT(.not.present(jm), 'jm is present for 1d')
+       _ASSERT_CODE(.not.present(jm), MAPL_ARGUMENT_INVALID)
        allocate(A%r4_1(IM))
     case (R8_2)
-       _ASSERT(present(jm), 'jm not present for 2d')
+       _ASSERT_CODE(present(jm), MAPL_ARGUMENT_INVALID)
        allocate(A%r8_2(IM,JM))
     case (R8_1)
-       _ASSERT(.not.present(jm),'jm is present for 1d')
+       _ASSERT_CODE(.not.present(jm), MAPL_ARGUMENT_INVALID)
        allocate(A%r8_1(IM))
     case (i4_1)
-       _ASSERT(.not.present(jm), 'jm present for 1d')
+       _ASSERT_CODE(.not.present(jm), MAPL_ARGUMENT_INVALID)
        allocate(A%I4_1(IM))
     case (i4_2)
-       _ASSERT(present(jm), 'jm not present for 2d')
+       _ASSERT_CODE(present(jm), MAPL_ARGUMENT_INVALID)
        allocate(A%I4_2(IM,JM))
     case default
-       _FAIL( 'unsupported tkr')
+       _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
     end select
 
     a%allocated=type
@@ -277,7 +278,7 @@ module mapl_FileIOShared_mod
              nullify(A%i4_2)
           end if
        case default
-          _FAIL( 'unsupported tkr')
+          _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
        end select
        a%allocated=not_allocated
     end if
@@ -318,7 +319,7 @@ module mapl_FileIOShared_mod
     logical :: amIRoot
 
     call ESMF_GridGet(grid, dimCount=gridRank, distGrid=distGrid, _RC)
-    _ASSERT(gridRank == 1, 'gridRank must be 1')
+    _ASSERT_CODE(gridRank == 1, MAPL_ARGUMENT_INVALID)
 
     call GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=global_dims, _RC)
     gcount = 1
@@ -335,7 +336,7 @@ module mapl_FileIOShared_mod
     lsize = lcount(1)
 
     call ESMF_DistGridGet(distgrid, localDe=0, elementCount=n, rc=status)
-    _ASSERT(lsize == n, ' inconsistent lsize')
+    _ASSERT_CODE(lsize == n, MAPL_ARGUMENT_INVALID)
 
     allocate(tileIndex(lsize), _STAT)
 
@@ -645,8 +646,8 @@ module mapl_FileIOShared_mod
 
        nx = size(arrdes%i1)
        ny = size(arrdes%j1)
-       _ASSERT(num_writers <= ny,'num writers must be less or equal to than NY')
-       _ASSERT(mod(ny,num_writers)==0,'num writerss must evenly divide NY')
+       _ASSERT_CODE(num_writers <= ny, MAPL_ARGUMENT_INVALID)
+       _ASSERT_CODE(mod(ny,num_writers)==0, MAPL_ARGUMENT_INVALID)
        call mpi_comm_rank(full_comm,myid, status)
        _VERIFY(status)
        color =  arrdes%NX0
@@ -692,8 +693,8 @@ module mapl_FileIOShared_mod
 
        nx = size(arrdes%i1)
        ny = size(arrdes%j1)
-       _ASSERT(num_readers <= ny,'num readers must be less than or equal to NY')
-       _ASSERT(mod(ny,num_readers)==0,'num readers must evenly divide NY')
+       _ASSERT_CODE(num_readers <= ny, MAPL_ARGUMENT_INVALID)
+       _ASSERT_CODE(mod(ny,num_readers)==0, MAPL_ARGUMENT_INVALID)
 
        call mpi_comm_rank(full_comm,myid, status)
        _VERIFY(status)

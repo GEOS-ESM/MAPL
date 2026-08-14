@@ -1,0 +1,68 @@
+# Error Code Inventory: Remaining Macro Migration
+
+Raw scan from foundation issue #5324 found approximately 314 macro references across
+MAPL-owned source/test files. This inventory is authoritative for issue #5328.
+
+## Review Checklist
+
+For every site record:
+
+- Failure condition and category
+- Recovery/action
+- Return-code behavior
+- Existing code and meaning
+- Required context type and fields
+- Canonical group or explicit rejection
+- Migration status
+
+## Batch Status
+
+| Subsystem | Sites | Status | Essential result |
+|---|---:|---|---|
+| `base/` | 67 migrated sites recorded below | mixed | `nag`: Essential 65/65 passed |
+| `mp_utils/` | TBD | legacy | pending |
+| `infrastructure/` | TBD | legacy | pending |
+| `superstructure/` | 1 migrated site recorded below | mixed | `nag`: Essential 65/65 passed |
+| `gridcomps/` | TBD | legacy | pending |
+| `tests/` | TBD | legacy | pending |
+
+No new codes or non-string context types are approved by this initial inventory.
+
+## Approved Site Records
+
+| Source | Macro | Canonical code | Category | Context | Return behavior | Status |
+|---|---|---:|---|---|---|---|
+| `superstructure/generic/RestartHandler.F90:91` | `_ASSERT` -> `_ASSERT_CODE_CTX` | `MAPL_FILE_NOT_FOUND` (1) | io | `filename` string | Existing assertion failure/`rc` behavior preserved | verified; Essential 65/65 passed |
+| `base/FileMetadataUtilities.F90:85,105,123,141,161,181,201,221` | `_ASSERT` -> `_ASSERT_CODE_CTX` | `MAPL_LOOKUP_FAILURE` (22) | lookup | `variable=...` string | Existing assertion return path preserved | verified; Essential 65/65 passed |
+| `base/SimpleBundleMod.F90:349,370,374,619,629` | `_FAIL` -> generated code forms | `MAPL_UNSUPPORTED_TYPE` (5) / `MAPL_LOOKUP_FAILURE` (22) | validation/lookup | field and bundle strings | Existing early-return behavior preserved | verified; Essential 65/65 passed |
+| `base/NCIO.F90:263,372,388,408,426,449,470,481,488,2858,2941` | `_FAIL` -> generated code forms | `MAPL_LOOKUP_FAILURE` (22) | lookup | variable/field context | Existing early-return behavior preserved | verified; Essential 65/65 passed |
+| `base/FileMetadataUtilities.F90:144,164,184,204,224,342,352,362,383,442,486,498,513,528,538,548` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_LOOKUP_FAILURE` (22), `MAPL_UNSUPPORTED_TYPE` (5), `MAPL_VALUE_NOT_SUPPORTED` (6) | metadata lookup/validation | attribute string where available | Existing early-return behavior preserved | verified; Essential 65/65 passed |
+| `base/FileIOShared.F90:216,219,222,225,228,231,234,280,321,338,648,649,695,696` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24) / `MAPL_UNSUPPORTED_TYPE` (5) | validation | catalog code identifies invalid shape/type | Existing early-return behavior preserved | verified; Essential 65/65 passed |
+| `base/MAPL_LocStreamMod.F90:1010,1156,1247,1458,1463,1514,1519,1734,1740` | `_ASSERT` -> `_ASSERT_CODE_CTX` | `MAPL_OBJECT_NOT_INITIALIZED` (23) | lifecycle | `LocStream` or `LocStream tiling` | Initialization/tiling precondition preserved | verified; Essential 65/65 passed |
+| `base/SunOrbit.F90:1016,2906,3006,3106` | `_ASSERT` -> `_ASSERT_CODE_CTX` | `MAPL_OBJECT_NOT_INITIALIZED` (23) | lifecycle | `SunOrbit` | Creation precondition preserved | verified; Essential 65/65 passed |
+| `mp_utils/Partition.F90:55,56,58,64` | `_ASSERT_CODE_CTX` | `MAPL_ARGUMENT_INVALID` (24) | validation | numeric argument context | Existing validation behavior preserved | verified; Essential 65/65 passed |
+| `superstructure/generic/UserSetServices.F90:161` | `_ASSERT_CODE_CTX` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | DSO name | Existing validation behavior preserved | verified; Essential 65/65 passed |
+| `superstructure/generic/vertical/FixedLevelsVerticalGrid.F90:106` | `_ASSERT_CODE_CTX` | `MAPL_CONFIGURATION_INVALID` (25) | configuration | physical dimension | Existing configuration behavior preserved | verified; Essential 65/65 passed |
+
+### Merge Review: Restart File Missing
+
+- Failure condition: requested restart file does not exist after bootstrap skip handling.
+- Recovery/action: caller must provide readable restart file or use bootstrap mode.
+- Return behavior: existing assertion return path remains unchanged.
+- Required context: restart `filename`; catalog template owns diagnostic prose.
+- Rejected near-matches: generic file I/O failures remain separate until their recovery and status semantics are reviewed.
+
+### Merge Review: Metadata Variable Lookup
+
+- Failure condition: requested metadata variable pointer is not associated.
+- Recovery/action: caller must request an available variable or correct input metadata.
+- Return behavior: assertion exits same procedure path; context now comes from `var_name`.
+- Required context: variable name string; catalog template owns diagnostic prose.
+- Rejected near-matches: attribute retrieval failures remain separate because they occur after variable lookup and have different recovery actions.
+
+## Validation Evidence
+
+- NAG build: `cmake --build nag -j 8` passed.
+- Targeted tests: `MAPL.utils.tests` and `MAPL.error_code_generator` passed.
+- Essential gate: `ctest --test-dir nag -L ESSENTIAL --output-on-failure` passed 65/65.
+- Generic consolidation: lookup, lifecycle, argument, configuration, and file-not-found groups use canonical codes; former specific entries remain deprecated aliases.

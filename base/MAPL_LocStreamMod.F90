@@ -1007,7 +1007,7 @@ contains
 
 ! Begin
 !------
-    _ASSERT(     associated(LocStreamIn %Ptr),'needs informative message')
+    _ASSERT_CODE_CTX(associated(LocStreamIn %Ptr), MAPL_OBJECT_NOT_INITIALIZED, 'LocStream')
 
 ! Allocate the Location Stream
 !-----------------------------
@@ -1153,7 +1153,7 @@ contains
 ! Make sure Location stream has been created
 !-------------------------------------------
 
-    _ASSERT(associated(LocStream%Ptr),'needs informative message')
+    _ASSERT_CODE_CTX(associated(LocStream%Ptr), MAPL_OBJECT_NOT_INITIALIZED, 'LocStream')
 
 ! Alias to the pointer
 !---------------------
@@ -1244,7 +1244,7 @@ contains
 ! Make sure Location stream has been created
 !-------------------------------------------
 
-    _ASSERT(associated(LocStream%Ptr),'needs informative message')
+    _ASSERT_CODE_CTX(associated(LocStream%Ptr), MAPL_OBJECT_NOT_INITIALIZED, 'LocStream')
 
 ! Alias to the pointer
 !---------------------
@@ -1455,12 +1455,12 @@ subroutine LocStreamFracArea (LocStream, TYPE, AREA, RC )
 ! Make sure Location stream has been created...
 !----------------------------------------------
 
-  _ASSERT(associated(LocStream%Ptr),'needs informative message')
+  _ASSERT_CODE_CTX(associated(LocStream%Ptr), MAPL_OBJECT_NOT_INITIALIZED, 'LocStream')
 
 ! and a grid attached...
 !-----------------------
 
-  _ASSERT(LocStream%Ptr%Current_Tiling > 0,'needs informative message')
+  _ASSERT_CODE_CTX(LocStream%Ptr%Current_Tiling > 0, MAPL_OBJECT_NOT_INITIALIZED, 'LocStream tiling')
 
 ! Compute area over masked locations
 !-----------------------------------------------
@@ -1511,12 +1511,12 @@ subroutine LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, TRANSP
 ! Make sure Location stream has been created...
 !----------------------------------------------
 
-  _ASSERT(associated(LocStream%Ptr),'needs informative message')
+  _ASSERT_CODE_CTX(associated(LocStream%Ptr), MAPL_OBJECT_NOT_INITIALIZED, 'LocStream')
 
 ! and a grid attached...
 !-----------------------
 
-  _ASSERT(LocStream%Ptr%Current_Tiling > 0,'needs informative message')
+  _ASSERT_CODE_CTX(LocStream%Ptr%Current_Tiling > 0, MAPL_OBJECT_NOT_INITIALIZED, 'LocStream tiling')
 
 ! that's the size of the output array
 !------------------------------------
@@ -1731,13 +1731,13 @@ subroutine LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 ! Make sure Location stream has been created...
 !----------------------------------------------
 
-  _ASSERT(associated(LocStream%Ptr),'needs informative message')
+  _ASSERT_CODE_CTX(associated(LocStream%Ptr), MAPL_OBJECT_NOT_INITIALIZED, 'LocStream')
 
 ! and a grid attached...
 !-----------------------
 
   if (usableATTACHED) then
-     _ASSERT(LocStream%Ptr%Current_Tiling > 0,'needs informative message')
+     _ASSERT_CODE_CTX(LocStream%Ptr%Current_Tiling > 0, MAPL_OBJECT_NOT_INITIALIZED, 'LocStream tiling')
 
 ! that's the size of the output array
 !------------------------------------

@@ -14,7 +14,7 @@ module mapl_FixedLevelsVerticalGrid_mod
    use mapl_VerticalStaggerLoc_mod
    use gftl2_StringVector, only: StringVector
    use mapl_ErrorHandling_mod
-   use MAPL_Constants, only: MAPL_VERTICAL_GRID_INVALID
+   use MAPL_Constants, only: MAPL_CONFIGURATION_INVALID
    implicit none(type,external)
    private
    
@@ -103,7 +103,7 @@ contains
       character(len=*), intent(in) :: physical_dimension
       integer, optional, intent(out) :: rc
 
-       _ASSERT_CODE_CTX(physical_dimension == this%get_physical_dimension(), MAPL_VERTICAL_GRID_INVALID, 'physical_dimension='//physical_dimension)
+        _ASSERT_CODE_CTX(physical_dimension == this%get_physical_dimension(), MAPL_CONFIGURATION_INVALID, 'physical_dimension='//physical_dimension)
       units = this%spec%units
 
       _RETURN(_SUCCESS)

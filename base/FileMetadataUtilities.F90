@@ -5,6 +5,7 @@ module mapl_FileMetadataUtils_mod
    use mapl_KeywordEnforcer_mod
    use gFTL2_StringIntegerMap
    use ESMF
+   use MAPL_Constants, only: MAPL_LOOKUP_FAILURE, MAPL_UNSUPPORTED_TYPE, MAPL_VALUE_NOT_SUPPORTED
    use mapl_ErrorHandling_mod
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32,INT64,INT32
    implicit none
@@ -82,7 +83,7 @@ module mapl_FileMetadataUtils_mod
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+       _ASSERT_CODE_CTX(associated(var), MAPL_LOOKUP_FAILURE, 'variable='//trim(var_name))
       ! check _FillValue, we could do more, not sure what to do here like also check for missing_value ...
       if (this%var_has_attr(var_name,"_FillValue")) then
          missing_value = this%get_var_attr_real32(var_name,"_FillValue",_RC)
@@ -102,7 +103,7 @@ module mapl_FileMetadataUtils_mod
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+       _ASSERT_CODE_CTX(associated(var), MAPL_LOOKUP_FAILURE, 'variable='//trim(var_name))
       var_has_missing_value = var%is_attribute_present("_FillValue")
 
       _RETURN(_SUCCESS)
@@ -120,7 +121,7 @@ module mapl_FileMetadataUtils_mod
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+       _ASSERT_CODE_CTX(associated(var), MAPL_LOOKUP_FAILURE, 'variable='//trim(var_name))
       var_has_attr = var%is_attribute_present(attr_name)
       _RETURN(_SUCCESS)
    end function var_has_attr
@@ -138,9 +139,9 @@ module mapl_FileMetadataUtils_mod
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+       _ASSERT_CODE_CTX(associated(var), MAPL_LOOKUP_FAILURE, 'variable='//trim(var_name))
       attr_real32 = var%get_attribute_real32(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+       _ASSERT_CODE_CTX(status == _SUCCESS, MAPL_LOOKUP_FAILURE, 'attribute='//trim(attr_name))
 
       _RETURN(_SUCCESS)
    end function get_var_attr_real32
@@ -158,9 +159,9 @@ module mapl_FileMetadataUtils_mod
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+       _ASSERT_CODE_CTX(associated(var), MAPL_LOOKUP_FAILURE, 'variable='//trim(var_name))
       attr_real64 = var%get_attribute_real64(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+       _ASSERT_CODE_CTX(status == _SUCCESS, MAPL_LOOKUP_FAILURE, 'attribute='//trim(attr_name))
       _RETURN(_SUCCESS)
 
    end function get_var_attr_real64
@@ -178,9 +179,9 @@ module mapl_FileMetadataUtils_mod
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+       _ASSERT_CODE_CTX(associated(var), MAPL_LOOKUP_FAILURE, 'variable='//trim(var_name))
       attr_int32 = var%get_attribute_int32(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+       _ASSERT_CODE_CTX(status == _SUCCESS, MAPL_LOOKUP_FAILURE, 'attribute='//trim(attr_name))
 
       _RETURN(_SUCCESS)
    end function get_var_attr_int32
@@ -198,9 +199,9 @@ module mapl_FileMetadataUtils_mod
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+       _ASSERT_CODE_CTX(associated(var), MAPL_LOOKUP_FAILURE, 'variable='//trim(var_name))
       attr_int64 = var%get_attribute_int64(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+       _ASSERT_CODE_CTX(status == _SUCCESS, MAPL_LOOKUP_FAILURE, 'attribute='//trim(attr_name))
 
       _RETURN(_SUCCESS)
    end function get_var_attr_int64
@@ -218,9 +219,9 @@ module mapl_FileMetadataUtils_mod
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+       _ASSERT_CODE_CTX(associated(var), MAPL_LOOKUP_FAILURE, 'variable='//trim(var_name))
       attr_string = var%get_attribute_string(attr_name, rc=status)
-      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+       _ASSERT_CODE_CTX(status == _SUCCESS, MAPL_LOOKUP_FAILURE, 'attribute='//trim(attr_name))
 
       _RETURN(_SUCCESS)
    end function get_var_attr_string
@@ -337,7 +338,7 @@ module mapl_FileMetadataUtils_mod
            endif
          endif
       class default
-         _FAIL("Time unit must be character in "//fname)
+         _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
       end select
       call ESMF_TimeSet(unmodStartTime,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
       _VERIFY(status)
@@ -347,7 +348,7 @@ module mapl_FileMetadataUtils_mod
       allocate(tr_r64(tsize))
       allocate(tvec(tsize))
       ptr => var%get_coordinate_data()
-      _ASSERT(associated(ptr),"time variable coordinate data not found in "//fname)
+       _ASSERT_CODE_CTX(associated(ptr), MAPL_LOOKUP_FAILURE, 'coordinate data')
       select type (ptr)
       type is (real(kind=REAL64))
          tr_r64=ptr
@@ -358,7 +359,7 @@ module mapl_FileMetadataUtils_mod
       type is (integer(kind=INT32))
          tr_r64=ptr
       class default
-         _FAIL("unsupported time variable type in "//fname)
+         _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
       end select
       do i=1,tsize
         select case (trim(tUnits))
@@ -379,7 +380,7 @@ module mapl_FileMetadataUtils_mod
            _VERIFY(status)
            tvec(i)=unmodStartTime+tint
         case default
-           _FAIL("unsupported time unit in "//fname)
+           _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
         end select
       enddo
 
@@ -438,7 +439,7 @@ module mapl_FileMetadataUtils_mod
          type is (character(*))
             units => vunits
          class default
-            _FAIL('units must be string for '//var_name//' in '//fname)
+            _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
          end select
       else
          units => null()
@@ -482,7 +483,7 @@ module mapl_FileMetadataUtils_mod
          type is (character(*))
             coordUnits = trim(coordUnitPtr)
          class default
-            _FAIL(trim(coordinate_name)//' units must be string in '//fname)
+         _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
          end select
       end if
 
@@ -494,7 +495,7 @@ module mapl_FileMetadataUtils_mod
             type is (character(*))
                long_name = trim(coordUnitPtr)
             class default
-               _FAIL(trim(coordinate_name)//' long_name must be string in '//fname)
+               _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
             end select
          else
              long_name = 'not found'
@@ -509,7 +510,7 @@ module mapl_FileMetadataUtils_mod
             type is (character(*))
                standard_name = trim(coordUnitPtr)
             class default
-               _FAIL(trim(coordinate_name)//' standard_name must be string in '//fname)
+                  _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
             end select
          else
              standard_name = 'not found'
@@ -524,7 +525,7 @@ module mapl_FileMetadataUtils_mod
             type is (character(*))
                coordinate_attr = trim(coordUnitPtr)
             class default
-               _FAIL(trim(coordinate_name)//' name must be string in '//fname)
+               _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
             end select
          else
              coordinate_attr = 'not found'
@@ -533,7 +534,7 @@ module mapl_FileMetadataUtils_mod
 
       if (present(coords)) then
          ptr => var%get_coordinate_data()
-         _ASSERT(associated(ptr),"coord variable coordinate data not found in "//fname)
+          _ASSERT_CODE_CTX(associated(ptr), MAPL_LOOKUP_FAILURE, 'coordinate data')
          select type (ptr)
          type is (real(kind=REAL64))
             coords=ptr
@@ -544,7 +545,7 @@ module mapl_FileMetadataUtils_mod
          type is (integer(kind=INT32))
             coords=ptr
          class default
-            _FAIL("unsupported coordinate variable type in "//fname)
+            _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
          end select
       end if
       _RETURN(_SUCCESS)
@@ -700,7 +701,3 @@ module mapl_FileMetadataUtils_mod
    end function
 
 end module mapl_FileMetadataUtils_mod
-
-
-
-

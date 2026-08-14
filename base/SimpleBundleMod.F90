@@ -23,7 +23,7 @@ module mapl_SimpleBundleMod_impl_mod
    use mapl_geom_api, only: MAPL_GridGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
    use mapl_ArrayReductions_mod, only: MaxMin
-   use MAPL_Constants, only: MAPL_BUNDLE_LOOKUP_FAILURE
+   use MAPL_Constants, only: MAPL_LOOKUP_FAILURE, MAPL_UNSUPPORTED_TYPE
    use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root
    use MAPL_Constants, only: MAPL_PI
    use mapl_ErrorHandling_mod
@@ -236,7 +236,7 @@ contains
                isRequested(n) = .true.
             else
                if (strict_match) then
-                   _FAIL_CODE_CTX(MAPL_BUNDLE_LOOKUP_FAILURE, 'field='//trim(var_list(i))//', bundle='//trim(self%name))
+                   _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'field='//trim(var_list(i))//', bundle='//trim(self%name))
                end if
             end if
          end do
@@ -346,7 +346,7 @@ contains
                self%r3(n3d)%myKind = ESMF_KIND_R4
                self%r3(n3d)%q      => self%r3(n3d)%qr4
             case default
-               _FAIL('unsupported array rank for R4 field '//trim(fieldName))
+               _FAIL_CODE_CTX(MAPL_UNSUPPORTED_TYPE, 'field='//trim(fieldName)//', rank=R4')
             end select
 
          else if (typeKind == ESMF_TYPEKIND_R8) then
@@ -367,11 +367,11 @@ contains
                self%r3(n3d)%name   = trim(fieldName)
                self%r3(n3d)%myKind = ESMF_KIND_R8
             case default
-               _FAIL('unsupported array rank for R8 field '//trim(fieldName))
+               _FAIL_CODE_CTX(MAPL_UNSUPPORTED_TYPE, 'field='//trim(fieldName)//', rank=R8')
             end select
 
          else
-            _FAIL('unsupported typeKind for field '//trim(fieldName))
+            _FAIL_CODE_CTX(MAPL_UNSUPPORTED_TYPE, 'field='//trim(fieldName))
          end if
 
       end do
@@ -616,7 +616,7 @@ contains
          end do
       case default
          if (present(rc)) then
-            _FAIL('invalid rank; must be 1, 2, or 3')
+            _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
          end if
       end select
 
@@ -626,7 +626,7 @@ contains
                rc = MAPL_RC_ERROR
                return
             else
-               _FAIL('could not find index for '//trim(name)//' in Simple Bundle <'//trim(self%name)//'>')
+               _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'field='//trim(name)//', bundle='//trim(self%name))
             end if
          else
             _RETURN(ESMF_SUCCESS)

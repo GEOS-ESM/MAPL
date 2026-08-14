@@ -4,7 +4,7 @@ module mapl_Partition_mod
 
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
-   use MAPL_Constants, only: MAPL_PARTITION_ARGUMENT_INVALID
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
 
    implicit none(type,external)
    private
@@ -52,16 +52,16 @@ contains
 
        write(n_string, '(i0)') n
        write(k_string, '(i0)') k
-       _ASSERT_CODE_CTX(n >= 0, MAPL_PARTITION_ARGUMENT_INVALID, 'n='//trim(n_string))
-       _ASSERT_CODE_CTX(k >= 0, MAPL_PARTITION_ARGUMENT_INVALID, 'k='//trim(k_string))
+       _ASSERT_CODE_CTX(n >= 0, MAPL_ARGUMENT_INVALID, 'n='//trim(n_string))
+       _ASSERT_CODE_CTX(k >= 0, MAPL_ARGUMENT_INVALID, 'k='//trim(k_string))
        if (n == 0) then
-          _ASSERT_CODE_CTX(k == 0, MAPL_PARTITION_ARGUMENT_INVALID, 'n=0,k='//trim(k_string))
+          _ASSERT_CODE_CTX(k == 0, MAPL_ARGUMENT_INVALID, 'n=0,k='//trim(k_string))
       end if
 
        min_extent_ = 0
        if (present(min_extent)) min_extent_ = min_extent
        write(min_extent_string, '(i0)') min_extent_
-       _ASSERT_CODE_CTX(min_extent_ <= n, MAPL_PARTITION_ARGUMENT_INVALID, 'min_extent='//trim(min_extent_string)//', n='//trim(n_string))
+       _ASSERT_CODE_CTX(min_extent_ <= n, MAPL_ARGUMENT_INVALID, 'min_extent='//trim(min_extent_string)//', n='//trim(n_string))
 
       k_used = k
       if (min_extent_ > 0)  then

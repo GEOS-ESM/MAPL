@@ -3,7 +3,8 @@
 module mapl_RestartHandler_mod
 
    use esmf
-   use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Return, MAPL_Assert
+   use MAPL_Constants, only: MAPL_FILE_NOT_FOUND
+   use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Return, MAPL_AssertCodeContext
    use mapl_SharedIO_mod, only: bundle_to_metadata
    use mapl_GeomPFIO_mod, only: GeomPFIO
    use mapl_GeomCategorizer_mod, only: make_geom_pfio
@@ -88,7 +89,7 @@ contains
 
       inquire(file=filename, exist=file_exists)
       _RETURN_IF(bootstrap .and. (.not. file_exists))
-      _ASSERT(file_exists, "Restart file " // trim(filename) // " does not exist")
+       _ASSERT_CODE_CTX(file_exists, MAPL_FILE_NOT_FOUND, filename)
       call this%lgr%info("Reading restart: %a", trim(filename))
       call MAPL_StateGet(state, bundle, _RC)
       call MAPL_FieldBundleFilter(bundle, predicate_skip_restart_, _RC)

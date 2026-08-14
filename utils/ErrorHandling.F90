@@ -30,6 +30,11 @@ module mapl_ErrorHandling_mod
       module procedure MAPL_Assert_return_code
    end interface MAPL_Assert
 
+   interface MAPL_AssertCodeContext
+      module procedure MAPL_AssertCodeContext_character
+      module procedure MAPL_AssertCodeContext_integer
+   end interface MAPL_AssertCodeContext
+
 contains
 
    logical function MAPL_Assert_condition(condition, message, return_code, filename, line, rc) result(fail)
@@ -72,10 +77,10 @@ contains
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc
 
-      fail = MAPL_AssertCodeContext(condition, error_code, '', filename, line, rc)
+      fail = MAPL_AssertCodeContext_character(condition, error_code, '', filename, line, rc)
    end function MAPL_AssertCode
 
-   logical function MAPL_AssertCodeContext(condition, error_code, context, filename, line, rc) result(fail)
+   logical function MAPL_AssertCodeContext_character(condition, error_code, context, filename, line, rc) result(fail)
       logical, intent(in) :: condition
       integer, intent(in) :: error_code
       character(*), intent(in) :: context, filename
@@ -90,7 +95,22 @@ contains
          !$omp end critical (MAPL_ErrorHandlingCode)
          if (present(rc)) rc = error_code
       end if
-   end function MAPL_AssertCodeContext
+   end function MAPL_AssertCodeContext_character
+
+   logical function MAPL_AssertCodeContext_integer(condition, error_code, context, filename, line, rc) result(fail)
+      logical, intent(in) :: condition
+      integer, intent(in) :: error_code, context
+      character(*), intent(in) :: filename
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+      character(64) :: context_string
+      integer :: status
+
+      write(context_string, '(i0)', iostat=status) context
+      if (status /= 0) context_string = '[integer context unavailable]'
+      fail = MAPL_AssertCodeContext_character(condition, error_code, trim(context_string), &
+           filename, line, rc)
+   end function MAPL_AssertCodeContext_integer
 
    logical function MAPL_Verify(status, filename, line, rc) result(fail)
       integer, intent(in) :: status

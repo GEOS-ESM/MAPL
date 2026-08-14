@@ -27,7 +27,7 @@ module mapl_Sun_mod
   use ESMF
   use MAPL_Constants
   use mapl_esmf_api, only: MAPL_CommsBcast
-  use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+  use mapl_ErrorHandling_mod, only: MAPL_AssertCodeContext, MAPL_Assert, MAPL_Verify, MAPL_Return
   use mapl_TimeInterpolation_mod, only: MAPL_ClimInterpFac
   use mapl_FileIO_mod, only: WRITE_PARALLEL
   use netcdf
@@ -1013,7 +1013,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
        character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitQuery"
        integer :: STATUS
 
-       _ASSERT(MAPL_SunOrbitCreated(ORBIT,RC=STATUS),'MAPL_SunOrbit not yet created!')
+       _ASSERT_CODE_CTX(MAPL_SunOrbitCreated(ORBIT,RC=STATUS), MAPL_OBJECT_NOT_INITIALIZED, 'SunOrbit')
 
        if(present(CLOCK          )) CLOCK           = ORBIT%CLOCK
        if(present(OBLIQUITY      )) OBLIQUITY       = ORBIT%OB
@@ -2903,7 +2903,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
 !     Begin
 
-      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      _ASSERT_CODE_CTX(MAPL_SunOrbitCreated(ORBIT), MAPL_OBJECT_NOT_INITIALIZED, 'SunOrbit')
 
       ! which current time?
       if (present(currTime)) then
@@ -3003,7 +3003,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       real(ESMF_KIND_R8) :: days
       real :: OBQ
 
-      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      _ASSERT_CODE_CTX(MAPL_SunOrbitCreated(ORBIT), MAPL_OBJECT_NOT_INITIALIZED, 'SunOrbit')
 
       ! Which time?
       if (present(currTime)) then
@@ -3103,7 +3103,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       integer :: i, nits
       logical :: do_EOT
 
-      _ASSERT (MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      _ASSERT_CODE_CTX(MAPL_SunOrbitCreated(ORBIT), MAPL_OBJECT_NOT_INITIALIZED, 'SunOrbit')
 
       ! Which time?
       if (present(TIME)) then
