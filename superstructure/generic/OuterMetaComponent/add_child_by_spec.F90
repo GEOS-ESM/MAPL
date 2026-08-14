@@ -36,7 +36,7 @@ contains
 
       total_hconfig = merge_hconfig(this%hconfig, child_spec%hconfig, _RC)
       ! If petlist were present, contextFlag would be set differently.
-      child_outer_gc = ESMF_GridCompCreate(name=child_name, contextFlag=contextFlag, hconfig=total_hconfig, _RC)
+      child_outer_gc = ESMF_GridCompCreate(name=child_name, hconfig=total_hconfig, contextFlag=contextFlag, _RC)
 
       ! Meta stuff
       child_meta => get_outer_meta(child_outer_gc, _RC)
