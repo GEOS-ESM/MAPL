@@ -2,6 +2,8 @@
 module mapl_DataSetBracket_mod
    use ESMF
    use MAPL
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
    use mapl_DataSetNode_mod
    implicit none
    private
@@ -58,7 +60,7 @@ contains
       else if (bracketside==NODE_RIGHT) then
          this%right_node = node
       else
-         _FAIL('wrong bracket side')
+          _FAIL_CODE(MAPL_ARGUMENT_INVALID)
       end if
       _RETURN(_SUCCESS)
 

@@ -58,10 +58,10 @@ description: "Task list for propagating generated MAPL error macros"
 - [X] T015 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the coordinated base batch and record result in `specs/002-propagate-error-macros/error-code-inventory.md`
 - [X] T016 [US1] Classify and migrate approved `mp_utils/` sites in MAPL-owned `mp_utils/` source files, preserving existing codes and return behavior
 - [X] T017 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the `mp_utils/` batch and record result in `specs/002-propagate-error-macros/error-code-inventory.md`
-- [ ] T018 [US1] Classify and migrate approved `infrastructure/` and `superstructure/` sites in their MAPL-owned source files, preserving `_VERIFY` status propagation into `rc`
-- [ ] T019 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the `infrastructure/` and `superstructure/` batches and record results in `specs/002-propagate-error-macros/error-code-inventory.md`
-- [ ] T020 [US1] Classify and migrate approved `gridcomps/` and MAPL-owned `tests/` sites in their source files, leaving unapproved legacy sites explicitly inventoried
-- [ ] T021 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the `gridcomps/` and `tests/` batches and record results in `specs/002-propagate-error-macros/error-code-inventory.md`
+- [X] T018 [US1] Classify and migrate approved `infrastructure/` and `superstructure/` sites in their MAPL-owned source files, preserving `_VERIFY` status propagation into `rc`
+- [X] T019 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the `infrastructure/` and `superstructure/` batches and record results in `specs/002-propagate-error-macros/error-code-inventory.md`
+- [X] T020 [US1] Classify and migrate approved `gridcomps/` and MAPL-owned `tests/` sites in their source files, leaving unapproved legacy sites explicitly inventoried
+- [X] T021 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the `gridcomps/` and `tests/` batches and record results in `specs/002-propagate-error-macros/error-code-inventory.md`
 
 **Checkpoint**: Every migrated approved site has generated code-bearing form and preserved behavior; remaining legacy sites have explicit status and rationale.
 
@@ -118,7 +118,7 @@ description: "Task list for propagating generated MAPL error macros"
 
 **Purpose**: Complete coverage, documentation, portability checks, and final validation.
 
-- [ ] T037 [P] Re-scan MAPL-owned source and test files and reconcile 100% macro-site coverage in `specs/002-propagate-error-macros/error-code-inventory.md`
+- [X] T037 [P] Re-scan MAPL-owned source and test files and reconcile 100% macro-site coverage in `specs/002-propagate-error-macros/error-code-inventory.md`
 - [ ] T038 [P] Run configured GNU, Intel, and NAG compile/test paths where available and record compiler-specific results in `specs/002-propagate-error-macros/quickstart.md`
 - [ ] T039 [P] Update migration workflow, unsupported-context review gate, and expected outcomes in `specs/002-propagate-error-macros/quickstart.md`
 - [X] T040 Run final `ctest -L ESSENTIAL --output-on-failure` and record complete batch evidence in `specs/002-propagate-error-macros/error-code-inventory.md`

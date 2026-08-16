@@ -9,6 +9,7 @@ module mapl_FieldUtilities_mod
    use mapl_LU_Bound_mod
    use mapl_KeywordEnforcer_mod
    use esmf
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_UNSUPPORTED_TYPE
 
    implicit none (type, external)
    private
@@ -54,7 +55,7 @@ contains
          call assign_fptr(field,f_ptr_r4,_RC)
          field_is_constant = all(f_ptr_r4 == constant_val)
       else
-         _FAIL("constant_val is single precision so you can not check if it is all undef for an R8")
+          _FAIL_CODE(MAPL_ARGUMENT_INVALID)
       end if
 
       _RETURN(_SUCCESS)
@@ -80,7 +81,7 @@ contains
          call assign_fptr(field,f_ptr_r8,_RC)
          field_is_constant = all(f_ptr_r8 == constant_val)
       else
-         _FAIL("constant_val is double precision so you can not check if it is all undef for an R4")
+          _FAIL_CODE(MAPL_ARGUMENT_INVALID)
       end if
 
       _RETURN(_SUCCESS)
@@ -110,7 +111,7 @@ contains
          call assign_fptr(field,f_ptr_i4,_RC)
          f_ptr_i4 = constant_val
       else
-         _FAIL('unsupported typekind')
+          _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
       end if
       _RETURN(ESMF_SUCCESS)
    end subroutine FieldSet_r8
@@ -137,7 +138,7 @@ contains
          call assign_fptr(field,f_ptr_i4,_RC)
          f_ptr_i4 = constant_val
       else
-         _FAIL('unsupported typekind')
+          _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
       end if
       _RETURN(ESMF_SUCCESS)
    end subroutine FieldSet_r4
@@ -180,7 +181,7 @@ contains
             f_ptr_r8 = -f_ptr_r8
          end if
       else
-         _FAIL('unsupported typekind')
+          _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
       end if
       _RETURN(ESMF_SUCCESS)
    end subroutine FieldNegate
@@ -201,14 +202,14 @@ contains
       type(ESMF_Field) :: fields(2)
 
       conformable = FieldsAreConformable(field_in,field_out,_RC)
-      _ASSERT(conformable,"Fields passed power function are not conformable")
+       _ASSERT_CODE(conformable, MAPL_ARGUMENT_INVALID)
 
       fields(1) = field_in
       fields(2) = field_out
       has_undef = FieldsHaveUndef(fields,_RC)
       call ESMF_FieldGet(field_in,typekind=tk_in,_RC)
       call ESMF_FieldGet(field_out,typekind=tk_out,_RC)
-      _ASSERT(tk_in == tk_out, "For now input and output field must be of same type for a field function")
+       _ASSERT_CODE(tk_in == tk_out, MAPL_ARGUMENT_INVALID)
       if (tk_in == ESMF_TYPEKIND_R4) then
          call assign_fptr(field_in,ptr_r4_in,_RC)
          call assign_fptr(field_out,ptr_r4_out,_RC)
@@ -236,7 +237,7 @@ contains
             ptr_r8_out = ptr_r8_in**expo
          end if
       else
-         _FAIL('unsupported typekind')
+          _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
       end if
       _RETURN(ESMF_SUCCESS)
    end subroutine FieldPow

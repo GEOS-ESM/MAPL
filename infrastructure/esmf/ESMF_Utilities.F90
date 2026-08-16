@@ -3,6 +3,7 @@
 module mapl_ESMF_Utilities_mod
    use esmf
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_UNSUPPORTED_TYPE
    implicit none
    private
 
@@ -162,7 +163,7 @@ contains
             tmp_state = ESMF_StateCreate(name=substate_name, _RC)
             call ESMF_StateAdd(substate, [tmp_state], _RC)
          else
-            _ASSERT(itemType == ESMF_STATEITEM_STATE, 'expected ' // substate_name // ' to be an ESMF_State.')
+             _ASSERT_CODE(itemType == ESMF_STATEITEM_STATE, MAPL_UNSUPPORTED_TYPE)
             call ESMF_StateGet(substate, substate_name, tmp_state, _RC)
          end if
          substate = tmp_state
@@ -189,7 +190,7 @@ contains
          state_intent = ESMF_STATEINTENT_INTERNAL
       case default
          state_intent = ESMF_STATEINTENT_INVALID
-         _FAIL('invalid state intent: ' // str_state_intent)
+          _FAIL_CODE(MAPL_ARGUMENT_INVALID)
       end select
 
       _RETURN(_SUCCESS)
@@ -207,7 +208,7 @@ contains
       else if (state_intent==ESMF_STATEINTENT_INTERNAL) then
          state_intent_str = "internal"
       else
-         _FAIL("invalid state intent")
+          _FAIL_CODE(MAPL_ARGUMENT_INVALID)
       end if
 
       _RETURN(_SUCCESS)

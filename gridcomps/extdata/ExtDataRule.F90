@@ -1,5 +1,7 @@
 #include "MAPL.h"
 module mapl_ExtDataRule_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
    use ESMF
    use MAPL
    use mapl_ExtDataSample_mod
@@ -58,13 +60,13 @@ contains
 
       if (allocated(tempc)) deallocate(tempc)
       collection_present = ESMF_HConfigIsDefined(config,keyString="collection")
-      _ASSERT(collection_present,"no collection present in ExtData export")
+       _ASSERT_CODE(collection_present, MAPL_ARGUMENT_INVALID)
       rule%collection = ESMF_HConfigAsString(config,keyString="collection",_RC)
 
       if (allocated(tempc)) deallocate(tempc)
       variable_present = ESMF_HConfigIsDefined(config,keyString="variable")
       if (index(rule%collection,"/dev/null")==0) then
-         _ASSERT(variable_present,"no variable present in ExtData export")
+          _ASSERT_CODE(variable_present, MAPL_ARGUMENT_INVALID)
       end if
       if (variable_present) then
          tempc = ESMF_HConfigAsString(config,keyString="variable",_RC)

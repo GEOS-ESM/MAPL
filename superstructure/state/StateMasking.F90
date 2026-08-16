@@ -9,6 +9,7 @@ module mapl_StateMask_mod
    use gFTL2_StringVector
    use mapl_StateArithmeticParser_mod
    use MAPL_Constants
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_VALUE_NOT_SUPPORTED
    use mapl_StateGetPointer_mod, only: MAPL_StateGetPointer => StateGetPointer
    implicit none
    private
@@ -41,7 +42,7 @@ module mapl_StateMask_mod
       integer :: i1,len
 
       i1 = index(mask_expression,"(")
-      _ASSERT(i1 > 0,'Incorrect format for function expression: missing "("')
+       _ASSERT_CODE(i1 > 0, MAPL_ARGUMENT_INVALID)
       function_name = adjustl(mask_expression(:i1-1))
       function_name = ESMF_UtilStringLowerCase(function_name, _RC)
 
@@ -52,13 +53,13 @@ module mapl_StateMask_mod
       else if (index(function_name,"boxmask") /= 0) then
          new_mask%mask_type = "boxmask"
       else
-         _FAIL("Invalid mask type")
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end if
 
       len = len_trim(mask_expression)
       arguments = adjustl(mask_expression(i1+1:len-1))
       i1 = index(arguments,",")
-      _ASSERT(i1 > 0,'Incorrect format for function expression: missing ","')
+       _ASSERT_CODE(i1 > 0, MAPL_ARGUMENT_INVALID)
       new_mask%mask_arguments = arguments
       _RETURN(_SUCCESS)
    end function
@@ -145,7 +146,7 @@ module mapl_StateMask_mod
           call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
           call MAPL_StateGetPointer(state,var3d, vartomask, _RC)
        else
-          _FAIL('Rank must be 2 or 3')
+           _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
        end if
 
        k=32

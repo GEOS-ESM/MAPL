@@ -14,6 +14,8 @@ module mapl_StatisticsGridComp_mod
    use mapl_TimeAccumulate_mod
    use mapl_TimeVariance_mod
    use pflogger, only: Logger
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_VALUE_NOT_SUPPORTED
 
    implicit none(type,external)
    private
@@ -105,7 +107,7 @@ contains
                has_deferred_aspects=.true., _RC)
           call advertise_time_variance_internal_fields(gridcomp, name, _RC)
        case default
-          _FAIL('unsupported action: '//action)
+           _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end select
 
       call esmf_HConfigDestroy(hconfig, _RC)
@@ -201,7 +203,7 @@ contains
              deallocate(stat) ! gfortran workaround
              stat = make_variance_stat(name, iter, alarm, _RC)
           case default
-             _FAIL('unsupported statistics class: '//action)
+              _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
           end select
 
          _RETURN(_SUCCESS)
@@ -306,7 +308,7 @@ contains
               case ('shifted')
                  algorithm = SHIFTED
               case default
-                 _FAIL('unsupported variance algorithm: '//algo_str)
+                  _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
               end select
            end if
 
@@ -456,4 +458,3 @@ subroutine setServices(gridComp, rc)
 
    _RETURN(_SUCCESS)
 end subroutine setServices
-

@@ -4,6 +4,7 @@ module mapl_FieldPointerUtilities_mod
 
    use ESMF
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_UNSUPPORTED_TYPE, MAPL_VALUE_NOT_SUPPORTED
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated
 
    implicit none
@@ -224,7 +225,7 @@ contains
       elseif (tk_x == ESMF_TYPEKIND_I8) then
          call get_cptr_i8(x, cptr, _RC)
       else
-         _FAIL('Unsupported typekind in FieldGetCptr().')
+          _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
       end if
 
       _RETURN(_SUCCESS)
@@ -262,7 +263,7 @@ contains
          call ESMF_FieldGet(x, farrayPtr = x_5d, _RC)
          cptr = c_loc(x_5d)
       case default
-         _FAIL('Unsupported rank in FieldGetCptr().')
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end select
 
       _RETURN(_SUCCESS)
@@ -300,7 +301,7 @@ contains
          call ESMF_FieldGet(x, farrayPtr = x_5d, _RC)
          cptr = c_loc(x_5d)
       case default
-         _FAIL('Unsupported rank in FieldGetCptr().')
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end select
 
       _RETURN(_SUCCESS)
@@ -338,7 +339,7 @@ contains
          call ESMF_FieldGet(x, farrayPtr = x_5d, _RC)
          cptr = c_loc(x_5d)
       case default
-         _FAIL('Unsupported rank in FieldGetCptr().')
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end select
 
       _RETURN(_SUCCESS)
@@ -376,7 +377,7 @@ contains
          call ESMF_FieldGet(x, farrayPtr = x_5d, _RC)
          cptr = c_loc(x_5d)
       case default
-         _FAIL('Unsupported rank in FieldGetCptr().')
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end select
 
       _RETURN(_SUCCESS)
@@ -485,7 +486,7 @@ contains
             allocate(VR8_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
             y = ESMF_FieldCreate(grid,VR8_4d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
          else
-            _FAIL( 'unsupported typekind+field_rank')
+             _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
          end if
       else
          y = ESMF_FieldCreate(grid, tk, staggerloc=staggerloc, &
@@ -928,7 +929,7 @@ contains
             call ESMF_FieldGet(field,0,farrayptr=r4_4d,_RC)
             local_count = shape(r4_4d)
          case default
-            _FAIL("Unsupported rank")
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end select
          _RETURN(_SUCCESS)
       end if
@@ -948,7 +949,7 @@ contains
             call ESMF_FieldGet(field,0,farrayptr=r8_4d,_RC)
             local_count = shape(r8_4d)
          case default
-            _FAIL("Unsupported rank")
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end select
          _RETURN(_SUCCESS)
       end if
@@ -968,7 +969,7 @@ contains
             call ESMF_FieldGet(field,0,farrayptr=i4_4d,_RC)
             local_count = shape(i4_4d)
          case default
-            _FAIL("Unsupported rank")
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end select
          _RETURN(_SUCCESS)
       end if
@@ -988,12 +989,12 @@ contains
             call ESMF_FieldGet(field,0,farrayptr=i8_4d,_RC)
             local_count = shape(i8_4d)
          case default
-            _FAIL("Unsupported rank")
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end select
       end if
 
       ! If you made it this far, you had an unsupported type.
-      _FAIL("Unsupported type")
+       _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
 
       _RETURN(_SUCCESS)
 
@@ -1094,7 +1095,7 @@ contains
             call ESMF_FieldGet(Field,0,VR8_4D,_RC)
             deallocate(VR8_3d,_STAT)
          else
-            _FAIL( 'unsupported typekind+rank')
+             _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
          end if
       end if
       call ESMF_FieldDestroy(Field,noGarbage = .true., rc=status)

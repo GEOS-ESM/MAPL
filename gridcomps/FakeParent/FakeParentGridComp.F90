@@ -2,10 +2,12 @@
 
 module mapl_FakeParentGridComp_mod
 
-   use MAPL, only: MAPL_Verify, MAPL_Assert, MAPL_Return
+   use MAPL, only: MAPL_Verify, MAPL_Return
    use MAPL, only: MAPL_GridCompSetEntryPoint
    use MAPL, only: MAPL_GridCompGet
    use MAPL, only: MAPL_GridCompRunChildren
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_CONFIGURATION_INVALID
    use ESMF, only: ESMF_GridComp, ESMF_State, ESMF_Clock, ESMF_METHOD_RUN
    use ESMF, only: ESMF_HConfig, ESMF_HConfigIsDefined, ESMF_HConfigAsLogical
    use ESMF, only: ESMF_HConfigCreateAt, ESMF_HConfigDestroy
@@ -65,7 +67,7 @@ contains
       run2 = .true.
 
       has_mapl = ESMF_HConfigIsDefined(hconfig, keyString='mapl', _RC)
-      _ASSERT(has_mapl, 'No mapl section found in hconfig for FakeParentGridComp')
+       _ASSERT_CODE(has_mapl, MAPL_CONFIGURATION_INVALID)
 
       mapl_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='mapl', _RC)
       has_run_phases = ESMF_HConfigIsDefined(mapl_hconfig, keyString='run_phases', _RC)

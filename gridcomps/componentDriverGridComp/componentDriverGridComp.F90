@@ -7,6 +7,8 @@ module mapl_ComponentDriverDriverGridComp_mod
    use gFTL2_StringStringMap
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use timeSupport
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
 
    implicit none(type,external)
    private
@@ -185,7 +187,7 @@ contains
          call MAPL_GridCompGet(gridcomp, grid=grid, _RC)
          call compare_state_to_expressions(importState, internal_state, grid, support, 0.001, _RC)
       else
-         _FAIL("no run mode selected")
+          _FAIL_CODE(MAPL_ARGUMENT_INVALID)
       end if
       _UNUSED_DUMMY(importState)
       _UNUSED_DUMMY(exportState)
@@ -292,7 +294,7 @@ contains
       do while (iter /= support%import_testing_expressions%end())
          equality => iter%of()
          equal_pos = index(equality, '=')
-         _ASSERT(equal_pos /= 0, 'comparison expression is invalid')
+          _ASSERT_CODE(equal_pos /= 0, MAPL_ARGUMENT_INVALID)
          lhs = equality(:equal_pos - 1)
          rhs = equality(equal_pos + 1:)
          call MAPL_StateEval(state, lhs, field_lhs, _RC)

@@ -4,6 +4,8 @@ module mapl_DataSetNode_mod
 
    use ESMF
    use MAPL
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
    use mapl_ExtDataUtilities_mod
    use pFlogger, only: logger
 
@@ -194,7 +196,7 @@ contains
       type(mapl_NetCDF4_FileFormatter) :: formatter
       type(ESMF_Time), allocatable :: time_vector(:)
 
-      _ASSERT(this%node_side/=NODE_UNKNOWN, "node does not have a side")
+       _ASSERT_CODE(this%node_side /= NODE_UNKNOWN, MAPL_ARGUMENT_INVALID)
       call formatter%open(filename, MAPL_PFIO_READ, _RC)
       basic_metadata = formatter%read(_RC)
       call formatter%close()

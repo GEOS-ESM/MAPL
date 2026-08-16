@@ -4,6 +4,8 @@ module mapl_ConfigurableGridComp_mod
 
    use MAPL
    use esmf
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
 
    implicit none
    private
@@ -70,7 +72,7 @@ contains
             default_vert_profile = ESMF_HConfigAsR4Seq(field_cfg, keyString=KEY_DEFAULT_VERT_PROFILE, _RC)
             call MAPL_StateGetPointer(exportState, ptr3d, trim(field_name), _RC)
             shape_ = shape(ptr3d)
-            _ASSERT(shape_(3) == size(default_vert_profile), "incorrect size of vertical profile")
+             _ASSERT_CODE(shape_(3) == size(default_vert_profile), MAPL_ARGUMENT_INVALID)
             do concurrent(ii = 1:shape_(1), jj=1:shape_(2))
                ptr3d(ii, jj, :) = default_vert_profile
             end do

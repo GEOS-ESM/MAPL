@@ -4,6 +4,8 @@ module mapl_ClimDataSetFileSelector_mod
 
    use ESMF
    use MAPL
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
    use mapl_DataSetBracket_mod
    use mapl_DataSetNode_mod
    use mapl_AbstractDataSetFileSelector_mod
@@ -48,7 +50,7 @@ contains
       file_handler%collection_id = mapl_AddDataCollection(file_handler%file_template)
 
       if (present(valid_range)) then
-         _ASSERT(size(valid_range)==2,"Valid range must be 2")
+          _ASSERT_CODE(size(valid_range) == 2, MAPL_ARGUMENT_INVALID)
          file_handler%valid_range = valid_range
       else
          call file_handler%get_valid_range_single_file(_RC)
@@ -63,7 +65,7 @@ contains
 
       allocate(file_handler%source_time(0))
       if (present(source_time)) then
-         _ASSERT(size(source_time) == 2, 'Source time must be of size 2')
+          _ASSERT_CODE(size(source_time) == 2, MAPL_ARGUMENT_INVALID)
          file_handler%source_time = source_time
       end if
 
@@ -82,14 +84,14 @@ contains
 
       target_time = current_time
       original_time = current_time
-      _ASSERT(size(this%valid_range) == 2, 'Valid range must be of size 2 to do climatological extrpolation')
+       _ASSERT_CODE(size(this%valid_range) == 2, MAPL_ARGUMENT_INVALID)
       call ESMF_TimeGet(this%valid_range(1),yy=valid_years(1),_RC)
       call ESMF_TimeGet(this%valid_range(2),yy=valid_years(2),_RC)
       if (size(this%source_time)==2) then
-         _ASSERT(this%source_time(1) >= this%valid_range(1),'source time outside valid range')
-         _ASSERT(this%source_time(1) <=  this%valid_range(2),'source time outside valid range')
-         _ASSERT(this%source_time(2) >=  this%valid_range(1),'source time outside valid range')
-         _ASSERT(this%source_time(2) <= this%valid_range(2),'source time outside valid range')
+          _ASSERT_CODE(this%source_time(1) >= this%valid_range(1), MAPL_ARGUMENT_INVALID)
+          _ASSERT_CODE(this%source_time(1) <= this%valid_range(2), MAPL_ARGUMENT_INVALID)
+          _ASSERT_CODE(this%source_time(2) >= this%valid_range(1), MAPL_ARGUMENT_INVALID)
+          _ASSERT_CODE(this%source_time(2) <= this%valid_range(2), MAPL_ARGUMENT_INVALID)
       end if
 
       if (target_time <= this%valid_range(1)) then
@@ -247,4 +249,3 @@ contains
    end subroutine swap_bracket_fields
 
 end module mapl_ClimDataSetFileSelector_mod
-

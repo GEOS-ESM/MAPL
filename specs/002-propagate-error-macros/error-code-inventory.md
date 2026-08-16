@@ -21,9 +21,9 @@ For every site record:
 |---|---:|---|---|
 | `base/` | 92 migrated sites recorded below | mixed | `nag`: Essential 65/65 passed |
 | `mp_utils/` | 7 migrated sites recorded below; remaining sites legacy | mixed | `nag-stack`: Essential 65/65 passed |
-| `infrastructure/` | 49 migrated sites recorded below; remaining sites legacy | mixed | `nag-stack`: affected Essential tests passed |
-| `superstructure/` | 1 migrated site recorded below | mixed | `nag`: Essential 65/65 passed |
-| `gridcomps/` | TBD | legacy | pending |
+| `infrastructure/` | 70 migrated sites recorded below; remaining sites legacy | mixed | `nag-stack`: full Essential pending final gate |
+| `superstructure/` | 8 migrated sites recorded below; remaining sites legacy | mixed | `nag-stack`: affected tests passed |
+| `gridcomps/` | 54 migrated sites recorded below; remaining sites legacy | mixed | `nag-stack`: affected tests passed where available |
 | `tests/` | TBD | legacy | pending |
 
 No new codes or non-string context types are approved by this initial inventory.
@@ -60,6 +60,35 @@ No new codes or non-string context types are approved by this initial inventory.
 | `infrastructure/regridder_mgr/RoutehandleParam.F90:304,326` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing regrid-method validation behavior preserved | verified; regridder Essential passed |
 | `infrastructure/regridder_mgr/EsmfRegridder.F90:232` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing geometry validation behavior preserved | verified; regridder Essential passed |
 | `infrastructure/regridder_mgr/Regridder.F90:80,88,89,130,158,159` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing bundle/vector validation behavior preserved | verified; regridder Essential passed |
+| `gridcomps/statistics/StatisticsGridComp.F90:108,204,309` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing statistics configuration behavior preserved | verified; statistics Essential passed |
+| `gridcomps/statistics/TimeVariance.F90:232` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing variance algorithm behavior preserved | verified; statistics Essential passed |
+| `gridcomps/history/HistoryUtilities.F90:53,55,59` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24), `MAPL_LOOKUP_FAILURE` (22) | configuration validation | none | Existing history item parsing behavior preserved | verified; history Essential passed |
+| `gridcomps/history/HistoryCollectionGridComp_private.F90:106,113,149` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_VALUE_NOT_SUPPORTED` (6), `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing history bundle and alias validation behavior preserved | verified; history Essential passed |
+| `gridcomps/extdata/ExtDataConfig.F90:81,85,113,141,156` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24), `MAPL_LOOKUP_FAILURE` (22), `MAPL_VALUE_NOT_SUPPORTED` (6) | configuration validation | none | Existing ExtData configuration behavior preserved | verified; extdata Essential passed |
+| `gridcomps/extdata/ExtDataCollection.F90:46,71,100,127` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24), `MAPL_VALUE_NOT_SUPPORTED` (6) | configuration validation | none | Existing collection parsing behavior preserved | verified; extdata Essential passed |
+| `gridcomps/extdata/ExtDataRule.F90:61,67` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | configuration validation | none | Existing export-rule validation behavior preserved | verified; extdata Essential passed |
+| `gridcomps/orbit/MAPL_OrbGridCompMod.F90:93,359,371` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24), `MAPL_VALUE_NOT_SUPPORTED` (6), `MAPL_INTERNAL_INVARIANT_FAILURE` (26) | configuration/validation | none | Existing orbit setup and sizing behavior preserved | verified; full NAG build passed; no dedicated orbit test registered |
+| `gridcomps/componentDriverGridComp/componentDriverGridComp.F90:188,295` | `_FAIL`/`_ASSERT` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24) | configuration validation | none | Existing run-mode and expression validation behavior preserved | verified; component-driver tests passed where registered |
+| `gridcomps/componentDriverGridComp/time_support.F90:106` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing time-unit validation behavior preserved | verified; full NAG build passed |
+| `gridcomps/extdata/ClimDataSetFileSelector.F90:51,66,85,91,92,93,94` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing climatology range validation behavior preserved | verified; extdata Essential passed |
+| `gridcomps/extdata/NonClimDataSetFileSelector.F90:49,59,87` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing persistence/range validation behavior preserved | verified; extdata Essential passed |
+| `gridcomps/extdata/AbstractDataSetFileSelector.F90:84` | `_FAIL` -> `_FAIL_CODE` | `MAPL_LOOKUP_FAILURE` (22) | lookup | none | Existing file search failure behavior preserved | verified; extdata Essential passed |
+| `gridcomps/extdata/PrimaryExport.F90:88,175,229,342` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24), `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing export specification behavior preserved | verified; extdata Essential passed |
+| `gridcomps/extdata/DataSetNode.F90:197` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing node-side precondition preserved | verified; extdata Essential passed |
+| `gridcomps/extdata/DataSetBracket.F90:61` | `_FAIL` -> `_FAIL_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing bracket-side validation preserved | verified; extdata Essential passed |
+| `gridcomps/FakeParent/FakeParentGridComp.F90:68` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_CONFIGURATION_INVALID` (25) | configuration | none | Existing FakeParent configuration behavior preserved | verified; cap tests passed |
+| `gridcomps/configurable/ConfigurableGridComp.F90:73` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing vertical-profile shape validation preserved | verified; cap tests passed |
+| `gridcomps/history/HistoryGridComp_private.F90:81,84,112,140` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_CONFIGURATION_INVALID` (25), `MAPL_ARGUMENT_INVALID` (24) | configuration validation | none | Existing history configuration behavior preserved | verified; history tests passed |
+| `gridcomps/history/HistoryCollectionGridComp_private.F90:266,270` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing per-variable override behavior preserved | verified; history tests passed |
+| `infrastructure/field/FieldUtilities.F90:57,83,113,140,183,204,211,239` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24), `MAPL_UNSUPPORTED_TYPE` (5) | field validation | none | Existing field operation behavior preserved | verified; field tests passed |
+| `infrastructure/field/FieldCreate.F90:192,222,223,343,359,361` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_OBJECT_NOT_INITIALIZED` (23), `MAPL_ARGUMENT_INVALID` (24) | lifecycle/validation | none | Existing field creation behavior preserved | verified; field tests passed |
+| `infrastructure/field/FieldDelta.F90:254,346` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_OBJECT_NOT_INITIALIZED` (23), `MAPL_VALUE_NOT_SUPPORTED` (6) | lifecycle/validation | none | Existing field reallocation behavior preserved | verified; full Essential passed |
+| `infrastructure/esmf/ESMF_Utilities.F90:165,192,210` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_UNSUPPORTED_TYPE` (5), `MAPL_ARGUMENT_INVALID` (24) | state validation | none | Existing state intent behavior preserved | verified; full Essential passed |
+| `infrastructure/esmf/FieldPointerUtilities.F90:227,265,304,342,380,489,932,952,972,992,997,1098` | `_FAIL` -> generated code forms | `MAPL_UNSUPPORTED_TYPE` (5), `MAPL_VALUE_NOT_SUPPORTED` (6) | type/rank validation | none | Existing pointer utility behavior preserved | verified; full Essential passed |
+| `superstructure/generic/ComponentSpecParser/parse_var_specs.F90:215,246,279` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24), `MAPL_VALUE_NOT_SUPPORTED` (6) | configuration validation | none | Existing variable-spec parsing behavior preserved | verified; generic tests passed |
+| `superstructure/generic/ComponentSpecParser/parse_geometry_spec.F90:66,79,83` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24), `MAPL_CONFIGURATION_INVALID` (25) | configuration validation | none | Existing geometry parsing behavior preserved | verified; generic tests passed |
+| `superstructure/generic/ComponentSpecParser/to_itemtype.F90:48` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | type validation | none | Existing unknown-subclass behavior preserved | verified; generic tests passed |
+| `superstructure/state/StateMasking.F90:44,55,61,148` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_ARGUMENT_INVALID` (24), `MAPL_VALUE_NOT_SUPPORTED` (6) | mask validation | none | Existing state-mask behavior preserved | verified; state tests passed |
 
 ### Merge Review: Restart File Missing
 
@@ -85,6 +114,13 @@ No new codes or non-string context types are approved by this initial inventory.
 - Infrastructure vertical batch: `module load nag-stack/default`; full build passed; rebuilt `MAPL.vertical_grid.tests`; targeted test passed.
 - Infrastructure field-bundle/geometry batch: `module load nag-stack/default`; full build passed; `MAPL.field_bundle.tests` and `MAPL.geom.tests` passed.
 - Infrastructure regridder batch: `module load nag-stack/default`; full build passed; `MAPL.regridder_mgr.tests` passed.
+- Gridcomps statistics batch: `module load nag-stack/default`; full build passed; `MAPL.statistics.tests` passed.
+- Gridcomps history batch: `module load nag-stack/default`; full build passed; `MAPL.history.tests` passed.
+- Gridcomps ExtData batch: `module load nag-stack/default`; full build passed; `MAPL.extdata.tests` passed.
+- Gridcomps component-driver batch: `module load nag-stack/default`; full build passed; `basic_captest` and `parent_child_captest` passed.
+- Infrastructure field/ESMF batch: `module load nag-stack/default`; full build passed; full Essential 65/65 passed.
+- Superstructure parser/state batch: `module load nag-stack/default`; full build passed; targeted generic/state tests passed; full Essential 65/65 passed.
+- Final validation checkpoint: `module load nag-stack/default`; full build passed; `ctest --test-dir nag -L ESSENTIAL --output-on-failure` passed 65/65.
 - Generic consolidation: lookup, lifecycle, argument, configuration, and file-not-found groups use canonical codes; former specific entries remain deprecated aliases.
 - Internal invariant consolidation: repeated NCIO/SimpleBundle count and bounds checks use canonical code 26; scientific and shape-specific groups remain separate for review.
 - mp_utils batch: `module load nag-stack/default`; `cmake --build nag -j 8` and `ctest --test-dir nag -L ESSENTIAL --output-on-failure` passed; Essential 65/65.
