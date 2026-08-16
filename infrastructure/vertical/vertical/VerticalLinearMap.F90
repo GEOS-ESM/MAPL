@@ -3,6 +3,7 @@
 module mapl_VerticalLinearMap_mod
 
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
    use mapl_CSR_SparseMatrix_mod, only: SparseMatrix_sp => CSR_SparseMatrix_sp
    use mapl_CSR_SparseMatrix_mod, only: add_row
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -45,9 +46,9 @@ contains
       type(IndexValuePair) :: pair(2)
 
 #ifndef NDEBUG
-      _ASSERT(maxval(dst) <= maxval(src), "maxval(dst) > maxval(src)")
-      _ASSERT(minval(dst) >= minval(src), "minval(dst) < minval(src)")
-      _ASSERT(is_decreasing(src), "src array is not decreasing")
+       _ASSERT_CODE(maxval(dst) <= maxval(src), MAPL_ARGUMENT_INVALID)
+       _ASSERT_CODE(minval(dst) >= minval(src), MAPL_ARGUMENT_INVALID)
+       _ASSERT_CODE(is_decreasing(src), MAPL_ARGUMENT_INVALID)
 #endif
 
       ! allocate(matrix(size(dst), size(src)), source=0., _STAT)

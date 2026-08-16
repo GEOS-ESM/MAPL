@@ -261,7 +261,7 @@ contains
 
     if (present(tilekind)) then
        PRINT *, 'IN LocStreamGet TILEKIND  NO LONGER VALID ARGUMENT'
-       _FAIL('needs informative message')
+       _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
 !       tilekind => locstream%Ptr%Local_GeoLocation(:)%u
     end if
 
@@ -1021,7 +1021,7 @@ contains
 
 ! Make sure that the input stream is attached
 !--------------------------------------------
-    _ASSERT(STREAMIN%CURRENT_TILING > 0,'needs informative message')
+    _ASSERT_CODE_CTX(STREAMIN%CURRENT_TILING > 0, MAPL_OBJECT_NOT_INITIALIZED, 'LocStream tiling')
 
 ! New stream has the same identifier as old
 !------------------------------------------
@@ -1163,7 +1163,7 @@ contains
 ! Location stream must have some allowed grids
 !---------------------------------------------
 
-    _ASSERT(STREAM%N_GRIDS>0,'needs informative message')
+    _ASSERT_CODE_CTX(STREAM%N_GRIDS > 0, MAPL_OBJECT_NOT_INITIALIZED, 'LocStream tiling')
 
 ! Find the given grid among the allowed grids
 !--------------------------------------------
@@ -1568,11 +1568,11 @@ subroutine LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, TRANSP
   end if
 
   if (computeVariance .and. usableTranspose) then
-     _FAIL("Can not compute variance and transpose in LocStream!")
+     _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
   end if
 
   if (computeVariance .and. uSample) then
-     _FAIL("Can not compute variance and sample in LocStream!")
+     _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
   end if
 
 ! Compute weighted average over masked locations
@@ -1784,7 +1784,7 @@ subroutine LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 
   if (usableGLOBAL) then
      PRINT *, 'IN G2T GLOBAL NO LONGER VALID ARGUMENT'
-     _FAIL('needs informative message')
+     _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
   else
      do N = 1, size(OUTPUT)
         if(usableMASK(N)) then
@@ -1899,7 +1899,7 @@ subroutine LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
   use_lock = .false.
 #endif
 
-  _ASSERT(associated(Xform%PTR),'needs informative message')
+  _ASSERT_CODE_CTX(associated(Xform%PTR), MAPL_OBJECT_NOT_INITIALIZED, 'LocStream transform')
 
   do N = 1,Xform%PTR%LastLocal
      OUTPUT(Xform%PTR%IndexOut(N)) = INPUT(Xform%PTR%IndexIn(N))
@@ -2039,7 +2039,7 @@ subroutine LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
   integer                     :: N
   real,   allocatable         :: FULLINPUT(:)
 
-  _ASSERT(associated(Xform%PTR),'needs informative message')
+  _ASSERT_CODE_CTX(associated(Xform%PTR), MAPL_OBJECT_NOT_INITIALIZED, 'LocStream transform')
 
   do N = 1,Xform%PTR%LastLocal
      OUTPUT(Xform%PTR%IndexOut(N)) = INPUT(Xform%PTR%IndexIn(N))
@@ -2106,7 +2106,7 @@ subroutine LocStreamTransformT2TR8R4 ( OUTPUT, XFORM, INPUT, RC )
   integer                     :: N
   real(kind=ESMF_KIND_R8),  allocatable  :: FULLINPUT(:)
 
-  _ASSERT(associated(Xform%PTR),'needs informative message')
+  _ASSERT_CODE_CTX(associated(Xform%PTR), MAPL_OBJECT_NOT_INITIALIZED, 'LocStream transform')
 
   do N = 1,Xform%PTR%LastLocal
      OUTPUT(Xform%PTR%IndexOut(N)) = real(INPUT(Xform%PTR%IndexIn(N)))
@@ -2749,7 +2749,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
    else if (crdSys == ESMF_COORDSYS_SPH_RAD) then
       conv2rad = 1._ESMF_KIND_R8
    else
-      _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
+      _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
    end if
 
    if (tk == ESMF_TYPEKIND_R4) then
@@ -2847,7 +2847,7 @@ SUBROUTINE ESMFL_HALO_R4_2D(GRID, INPUT, RC)
 
       if (.not.found) then
          print *, "Error: need bigger MAX_HALOTYPES value"
-         _FAIL( 'no unused slot for halo types')
+   _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end if
 
       call ESMF_GridGet(GRID,   distGrid=distGrid, dimCount=dimCount, RC=STATUS)

@@ -54,10 +54,10 @@ description: "Task list for propagating generated MAPL error macros"
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Classify the `base/FileMetadataUtilities.F90` variable-lookup group and assign its canonical code in `specs/002-propagate-error-macros/error-code-inventory.md`
-- [X] T014 [US1] Migrate 67 approved base lookup, metadata-type, partition-argument, unsupported-type, and lifecycle sites to generated generic macros
+- [X] T014 [US1] Migrate 92 approved base lookup, metadata-type, partition-argument, unsupported-type, lifecycle, and internal-invariant sites to generated generic macros
 - [X] T015 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the coordinated base batch and record result in `specs/002-propagate-error-macros/error-code-inventory.md`
-- [ ] T016 [US1] Classify and migrate approved `mp_utils/` sites in MAPL-owned `mp_utils/` source files, preserving existing codes and return behavior
-- [ ] T017 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the `mp_utils/` batch and record result in `specs/002-propagate-error-macros/error-code-inventory.md`
+- [X] T016 [US1] Classify and migrate approved `mp_utils/` sites in MAPL-owned `mp_utils/` source files, preserving existing codes and return behavior
+- [X] T017 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the `mp_utils/` batch and record result in `specs/002-propagate-error-macros/error-code-inventory.md`
 - [ ] T018 [US1] Classify and migrate approved `infrastructure/` and `superstructure/` sites in their MAPL-owned source files, preserving `_VERIFY` status propagation into `rc`
 - [ ] T019 [US1] Run `ctest -L ESSENTIAL --output-on-failure` after the `infrastructure/` and `superstructure/` batches and record results in `specs/002-propagate-error-macros/error-code-inventory.md`
 - [ ] T020 [US1] Classify and migrate approved `gridcomps/` and MAPL-owned `tests/` sites in their source files, leaving unapproved legacy sites explicitly inventoried

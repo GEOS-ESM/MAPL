@@ -3,6 +3,7 @@
 submodule (mapl_CoordinateAxis_mod) get_dim_name_smod
    use esmf, only: ESMF_UtilStringLowerCase
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_LOOKUP_FAILURE
    use gftl2_StringVector
    implicit none(type,external)
 
@@ -51,7 +52,7 @@ contains
 
            found = .true.
            counter = counter + 1
-           _ASSERT(counter == 1, 'Too many variables match requested units: ' // units)
+            _ASSERT_CODE(counter == 1, MAPL_LOOKUP_FAILURE)
            dim_name = dims%of(1)
            
         end do

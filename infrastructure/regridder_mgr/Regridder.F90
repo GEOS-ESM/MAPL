@@ -6,6 +6,7 @@ module mapl_Regridder_mod
    use mapl_field_bundle_api
    use mapl_enums_api
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
    use mapl_geom_api
    use mapl_RegridderSpec_mod
    use mapl_VectorBasis_mod
@@ -77,7 +78,7 @@ contains
 
       call MAPL_FieldBundleGet(fb_in, fieldBundleType=bundleType_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldBundleType=bundleType_out, _RC)
-      _ASSERT(bundleType_out == bundleType_in, 'Bundle types must match.')
+       _ASSERT_CODE(bundleType_out == bundleType_in, MAPL_ARGUMENT_INVALID)
 
       if (bundleType_in == MAPL_FIELDBUNDLETYPE_VECTOR) then
          call this%regrid_vector(fb_in, fb_out, _RC)
@@ -85,8 +86,8 @@ contains
       else if (bundleType_in == MAPL_FIELDBUNDLETYPE_VECTORBRACKET) then
          call MAPL_FieldBundleGet(fb_in, fieldList=field_list_in, _RC)
          call MAPL_FieldBundleGet(fb_out, fieldList=field_list_out, _RC)
-         _ASSERT(mod(size(field_list_in), 2) == 0, 'VectorBracket must contain an even number of fields')
-         _ASSERT(mod(size(field_list_out), 2) == 0, 'VectorBracket must contain an even number of fields')
+          _ASSERT_CODE(mod(size(field_list_in), 2) == 0, MAPL_ARGUMENT_INVALID)
+          _ASSERT_CODE(mod(size(field_list_out), 2) == 0, MAPL_ARGUMENT_INVALID)
 
          ! Get vector_basis_kind from parent bundle
          block
@@ -127,7 +128,7 @@ contains
       call MAPL_FieldBundleGet(fb_in, fieldList=fieldList_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=fieldList_out, _RC)
 
-      _ASSERT(size(fieldList_out) == size(fieldList_in), 'Brackets must have same size.')
+       _ASSERT_CODE(size(fieldList_out) == size(fieldList_in), MAPL_ARGUMENT_INVALID)
 
       do i = 1, size(fieldList_in)
          call this%regrid(fieldList_in(i), fieldList_out(i), _RC)
@@ -155,8 +156,8 @@ contains
       call MAPL_FieldBundleGet(fb_in, fieldList=uv_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=uv_out, _RC)
 
-      _ASSERT(size(uv_in) == 2, 'TangentVector must consiste of exactly 2 fields.')
-      _ASSERT(size(uv_out) == 2, 'TangentVector must consiste of exactly 2 fields.')
+       _ASSERT_CODE(size(uv_in) == 2, MAPL_ARGUMENT_INVALID)
+       _ASSERT_CODE(size(uv_out) == 2, MAPL_ARGUMENT_INVALID)
       
       call create_field_vector(archetype=uv_in(1), fv=xyz_in, _RC)
       call create_field_vector(archetype=uv_out(1), fv=xyz_out, _RC)

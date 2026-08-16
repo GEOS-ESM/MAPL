@@ -2,9 +2,10 @@
 
 module mapl_LocalDisplacementEnsemble_mod
    use mpi
-   use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_Verify, MAPL_Return
+   use mapl_ErrorHandling_mod, only: MAPL_Assert, MAPL_AssertCode, MAPL_Verify, MAPL_Return
    use esmf
    use gftl2_integer64Set
+   use MAPL_Constants, only: MAPL_VALUE_NOT_SUPPORTED
    implicit none !(type,external)
    private
 
@@ -173,7 +174,7 @@ contains
       integer, optional, intent(out) :: rc
 
       if (present(num_members)) then
-         _FAIL('getting NUM_MEMBERS is not supported yet')
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          num_members = this%num_members !???
       end if
 

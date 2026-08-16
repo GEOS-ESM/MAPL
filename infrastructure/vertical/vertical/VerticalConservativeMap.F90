@@ -3,6 +3,7 @@
 module mapl_VerticalConservativeMap_mod
 
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
    use mapl_CSR_SparseMatrix_mod, only: SparseMatrix_sp => CSR_SparseMatrix_sp
    use mapl_CSR_SparseMatrix_mod, only: add_row
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -44,8 +45,8 @@ contains
       nlev_src = size(src_interfaces) - 1
       nlev_dst = size(dst_interfaces) - 1
       
-      _ASSERT(nlev_src > 0, "Source must have at least one layer")
-      _ASSERT(nlev_dst > 0, "Destination must have at least one layer")
+       _ASSERT_CODE(nlev_src > 0, MAPL_ARGUMENT_INVALID)
+       _ASSERT_CODE(nlev_dst > 0, MAPL_ARGUMENT_INVALID)
       
       ! Allocate temporary array for building each row
       allocate(row_weights(nlev_src))
@@ -60,7 +61,7 @@ contains
           
           ! Compute destination layer thickness
           dest_thickness = abs(dst_interfaces(j+1) - dst_interfaces(j))
-          _ASSERT(dest_thickness > epsilon_sp, "Destination layer has zero thickness")
+           _ASSERT_CODE(dest_thickness > epsilon_sp, MAPL_ARGUMENT_INVALID)
           
           ! Find all source layers that overlap with this destination layer
           do k = 1, nlev_src

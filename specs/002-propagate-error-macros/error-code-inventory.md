@@ -19,9 +19,9 @@ For every site record:
 
 | Subsystem | Sites | Status | Essential result |
 |---|---:|---|---|
-| `base/` | 67 migrated sites recorded below | mixed | `nag`: Essential 65/65 passed |
-| `mp_utils/` | TBD | legacy | pending |
-| `infrastructure/` | TBD | legacy | pending |
+| `base/` | 92 migrated sites recorded below | mixed | `nag`: Essential 65/65 passed |
+| `mp_utils/` | 7 migrated sites recorded below; remaining sites legacy | mixed | `nag-stack`: Essential 65/65 passed |
+| `infrastructure/` | 49 migrated sites recorded below; remaining sites legacy | mixed | `nag-stack`: affected Essential tests passed |
 | `superstructure/` | 1 migrated site recorded below | mixed | `nag`: Essential 65/65 passed |
 | `gridcomps/` | TBD | legacy | pending |
 | `tests/` | TBD | legacy | pending |
@@ -43,6 +43,23 @@ No new codes or non-string context types are approved by this initial inventory.
 | `mp_utils/Partition.F90:55,56,58,64` | `_ASSERT_CODE_CTX` | `MAPL_ARGUMENT_INVALID` (24) | validation | numeric argument context | Existing validation behavior preserved | verified; Essential 65/65 passed |
 | `superstructure/generic/UserSetServices.F90:161` | `_ASSERT_CODE_CTX` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | DSO name | Existing validation behavior preserved | verified; Essential 65/65 passed |
 | `superstructure/generic/vertical/FixedLevelsVerticalGrid.F90:106` | `_ASSERT_CODE_CTX` | `MAPL_CONFIGURATION_INVALID` (25) | configuration | physical dimension | Existing configuration behavior preserved | verified; Essential 65/65 passed |
+| `base/NCIO.F90:1105,1106,1175,1176,1406,1407,1476,1477,1658,1659,1742,1743,1988,1989,2072,2073,2730,2745,3900,3921` | `_ASSERT` -> `_ASSERT_CODE_CTX` | `MAPL_INTERNAL_INVARIANT_FAILURE` (26) | state | invariant name | Existing internal consistency checks preserved | verified; Essential 65/65 passed |
+| `base/SimpleBundleMod.F90:220,676,693,730,759` | `_ASSERT` -> `_ASSERT_CODE_CTX` | `MAPL_INTERNAL_INVARIANT_FAILURE` (26) | state | invariant name | Existing internal consistency checks preserved | verified; Essential 65/65 passed |
+| `mp_utils/ArrayReductions.F90:90,175` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing argument validation behavior preserved | verified; Essential 65/65 passed |
+| `mp_utils/LocalDisplacementEnsemble.F90:176` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing unsupported-operation return behavior preserved | verified; Essential 65/65 passed |
+| `mp_utils/SimpleCommSplitter.F90:156,160` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing argument validation behavior preserved | verified; Essential 65/65 passed |
+| `infrastructure/vertical/vertical/VerticalConservativeMap.F90:47,48,63` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing layer validation behavior preserved | verified; vertical-grid Essential passed |
+| `infrastructure/vertical/vertical/VerticalLinearMap.F90:48,49,50` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing interpolation precondition behavior preserved | verified; vertical-grid Essential passed |
+| `infrastructure/vertical/vertical/VerticalCoordinate.F90:124,131,180,182,232,243` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_LOOKUP_FAILURE` (22), `MAPL_VALUE_NOT_SUPPORTED` (6), `MAPL_UNSUPPORTED_TYPE` (5) | metadata validation | coordinate/attribute context | Existing coordinate parsing return behavior preserved | verified; vertical-grid Essential passed |
+| `infrastructure/vertical/vertical_grid/VerticalGridManager.F90:92,112,131,153,156,170,174,177,182,211,239,248,271,281,304,312,328,351,374` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_INTERNAL_INVARIANT_FAILURE` (26), `MAPL_LOOKUP_FAILURE` (22), `MAPL_CONFIGURATION_INVALID` (25) | registry/configuration | factory/grid context retained where legacy tests require it | Existing manager failure and return behavior preserved | verified; vertical-grid Essential passed |
+| `infrastructure/field_bundle/FieldBundleSet.F90:104,144` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing bundle validation behavior preserved | verified; field-bundle Essential passed |
+| `infrastructure/field_bundle/FieldBundleGet.F90:153` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing unsupported geometry behavior preserved | verified; field-bundle Essential passed |
+| `infrastructure/geom/CoordinateAxis/get_coordinates_dim.F90:22,30` | `_ASSERT`/`_FAIL` -> generated code forms | `MAPL_LOOKUP_FAILURE` (22), `MAPL_UNSUPPORTED_TYPE` (5) | metadata validation | none | Existing coordinate lookup behavior preserved | verified; geom Essential passed |
+| `infrastructure/geom/CoordinateAxis/get_dim_name.F90:54` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_LOOKUP_FAILURE` (22) | lookup | none | Existing duplicate-match behavior preserved | verified; geom Essential passed |
+| `infrastructure/geom/Mesh/MeshGeomSpec_smod.F90:87,107` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6), `MAPL_ARGUMENT_INVALID` (24) | configuration | none | Existing mesh configuration behavior preserved | verified; geom Essential passed |
+| `infrastructure/regridder_mgr/RoutehandleParam.F90:304,326` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing regrid-method validation behavior preserved | verified; regridder Essential passed |
+| `infrastructure/regridder_mgr/EsmfRegridder.F90:232` | `_FAIL` -> `_FAIL_CODE` | `MAPL_VALUE_NOT_SUPPORTED` (6) | validation | none | Existing geometry validation behavior preserved | verified; regridder Essential passed |
+| `infrastructure/regridder_mgr/Regridder.F90:80,88,89,130,158,159` | `_ASSERT` -> `_ASSERT_CODE` | `MAPL_ARGUMENT_INVALID` (24) | validation | none | Existing bundle/vector validation behavior preserved | verified; regridder Essential passed |
 
 ### Merge Review: Restart File Missing
 
@@ -65,4 +82,10 @@ No new codes or non-string context types are approved by this initial inventory.
 - NAG build: `cmake --build nag -j 8` passed.
 - Targeted tests: `MAPL.utils.tests` and `MAPL.error_code_generator` passed.
 - Essential gate: `ctest --test-dir nag -L ESSENTIAL --output-on-failure` passed 65/65.
+- Infrastructure vertical batch: `module load nag-stack/default`; full build passed; rebuilt `MAPL.vertical_grid.tests`; targeted test passed.
+- Infrastructure field-bundle/geometry batch: `module load nag-stack/default`; full build passed; `MAPL.field_bundle.tests` and `MAPL.geom.tests` passed.
+- Infrastructure regridder batch: `module load nag-stack/default`; full build passed; `MAPL.regridder_mgr.tests` passed.
 - Generic consolidation: lookup, lifecycle, argument, configuration, and file-not-found groups use canonical codes; former specific entries remain deprecated aliases.
+- Internal invariant consolidation: repeated NCIO/SimpleBundle count and bounds checks use canonical code 26; scientific and shape-specific groups remain separate for review.
+- mp_utils batch: `module load nag-stack/default`; `cmake --build nag -j 8` and `ctest --test-dir nag -L ESSENTIAL --output-on-failure` passed; Essential 65/65.
+- Infrastructure vertical batch: `module load nag-stack/default`; full build passed; rebuilt `MAPL.vertical_grid.tests`; targeted test passed.

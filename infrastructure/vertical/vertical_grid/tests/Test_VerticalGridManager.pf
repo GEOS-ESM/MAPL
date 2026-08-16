@@ -7,6 +7,7 @@ module Test_VerticalGridManager
    use esmf, only: esmf_HConfig, esmf_Field, esmf_Geom
    use esmf, only: ESMF_TYPEKIND_R4
    use gftl2_StringVector
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_LOOKUP_FAILURE
    use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
 
@@ -74,8 +75,8 @@ contains
       type(BasicVerticalGridFactory) :: factory
       integer :: rc
       
-      call manager%register_factory("", factory, rc)
-      @assertExceptionRaised('Factory name cannot be empty')
+       call manager%register_factory("", factory, rc)
+       @assertExceptionRaised('Factory name cannot be empty')
 
    end subroutine test_manager_register_empty_name
 
@@ -128,8 +129,8 @@ contains
       class(VerticalGrid), pointer :: retrieved_grid
       integer :: rc
       
-      retrieved_grid => manager%get_grid(999, rc)
-      @assertExceptionRaised('Invalid id')
+       retrieved_grid => manager%get_grid(999, rc)
+       @assertExceptionRaised('Invalid id')
       @assert_that('Returned grid should be null', associated(retrieved_grid), is(false()))
    end subroutine test_manager_get_nonexistent_grid
 
@@ -158,8 +159,8 @@ contains
       type(VerticalGridManager), target :: manager
       integer :: rc
       
-      call manager%remove_grid(999, rc)
-      @assertExceptionRaised('Cannot remove grid: ID not found in manager')
+       call manager%remove_grid(999, rc)
+       @assertExceptionRaised('Cannot remove grid: ID not found in manager')
 
    end subroutine test_manager_remove_nonexistent_grid
 

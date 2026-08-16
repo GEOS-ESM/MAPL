@@ -29,8 +29,9 @@ module mapl_ArrayReductions_mod
    use mpi
    use, intrinsic :: iso_fortran_env, only: real32, real64
 
-   use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_Assert, MAPL_Return
-   use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
+   use mapl_ErrorHandling_mod, only: MAPL_Verify, MAPL_AssertCode, MAPL_Return
+   use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64, &
+        MAPL_ARGUMENT_INVALID
 
    implicit none
    private
@@ -87,7 +88,7 @@ contains
       integer :: status
 
       has_nans = any(p /= p)
-      _ASSERT(.not. has_nans, "input array contains NaNs")
+       _ASSERT_CODE(.not. has_nans, MAPL_ARGUMENT_INVALID)
 
       pm_send = [maxval(p), -minval(p)]
       call MPI_AllReduce(pm_send, pm_recv, TWO, MPI_REAL, MPI_MAX, comm, status)
@@ -172,7 +173,7 @@ contains
       integer, parameter :: TWO = 2
       integer :: im, jm, i, j, status
 
-      _ASSERT(all(shape(q) == shape(area)), "q and area need to be of the same shape")
+       _ASSERT_CODE(all(shape(q) == shape(area)), MAPL_ARGUMENT_INVALID)
 
       im = size(area, 1)
       jm = size(area, 2)

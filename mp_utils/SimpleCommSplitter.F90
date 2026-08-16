@@ -13,6 +13,7 @@ module mapl_SimpleCommSplitter_mod
    use mapl_KeywordEnforcer_mod
    use mapl_SplitCommunicator_mod
    use MPI
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
    implicit none
    
    private
@@ -153,11 +154,11 @@ contains
       nnodes_ = 0
       if (present(nnodes)) then
          nnodes_ = nnodes
-         _ASSERT( nnodes_ ==0 .or. npes_ == 0, "npes and nnodes are exclusive")
+          _ASSERT_CODE(nnodes_ == 0 .or. npes_ == 0, MAPL_ARGUMENT_INVALID)
       endif
 
       if (nnodes_ > 0) then
-         _ASSERT(isolate_nodes, " nnodes should be isolated")
+         _ASSERT_CODE(isolate_nodes, MAPL_ARGUMENT_INVALID)
       endif
 
       call this%group_descriptions%push_back(CommGroupDescription(npes_, nnodes_, isolate_nodes_, name_, npes_per_node = npes_per_node, rc=status))
@@ -341,4 +342,3 @@ contains
   end subroutine assign 
 
 end module mapl_SimpleCommSplitter_mod
-
