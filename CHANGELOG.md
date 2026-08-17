@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Simplified the `CMakeLists.txt` ESMF handling: `ESMA_cmake` now creates the NetCDF/HDF5/ESMF/MPI targets and enforces a minimum ESMF version for both Baselibs and Spack builds automatically, so the manual `if (NOT Baselibs_FOUND) ... else () ... endif ()` block is no longer needed. MAPL3's stricter ESMF >= 9.0.0 requirement is now expressed by setting `ESMA_ESMF_MIN_VERSION` before `include(esma)`.
   - Update `components.yaml`
+    - ESMA_cmake v4.44.0
+      - Support for `ESMFConfig.cmake`
     - ESMA_cmake v4.43.0
       - Split dependency-target creation (NetCDF, HDF5, ESMF, FMS, etc.) out of `FindBaselibs.cmake` into `ConfigureBaselibs.cmake` and `ConfigureExternalLibraries.cmake`; `esma.cmake` now `include()`s the appropriate one automatically based on `Baselibs_FOUND`
       - Guard the historical `ZLIB::zlib` alias creation with `if(NOT TARGET ZLIB::zlib)`
