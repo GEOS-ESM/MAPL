@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.71.0] - 2026-08-18
+
+### Fixed
+
 - Fixed the unreliable feedback from Python bridge failures
 - Fixed bug that allowed ExtData2G to proceed if an invalid sampling key was provided
 
@@ -20,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed the manual `find_package(MPI)`/`find_package(NetCDF)`/`find_package(HDF5)`/`find_package(ESMF)` block (and the Baselibs-only ESMF version guard) from the top-level `CMakeLists.txt`. As of ESMA_cmake v4.43.0, `esma.cmake` automatically `include()`s `ConfigureBaselibs.cmake` or `ConfigureExternalLibraries.cmake` based on `Baselibs_FOUND` right after `include(FindBaselibs)`, creating all of these dependency targets for us, including enforcing a minimum ESMF version of 8.6.1 for both Baselibs and Spack/non-Baselibs builds
 - Update `components.yaml`
+  - ESMA_cmake v4.44.0
+    - Support for `ESMFConfig.cmake`
   - ESMA_cmake v4.43.0
     - Split dependency-target creation (NetCDF, HDF5, ESMF, FMS, etc.) out of `FindBaselibs.cmake` into `ConfigureBaselibs.cmake` and `ConfigureExternalLibraries.cmake`; `esma.cmake` now `include()`s the appropriate one automatically based on `Baselibs_FOUND`
     - Guard the historical `ZLIB::zlib` alias creation with `if(NOT TARGET ZLIB::zlib)`
@@ -38,10 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Added `esma_add_regression_tests()` macro to centralise the CMake boilerplate for registering GEOS component regression tests
     - Added `esma_sync_aws_s3_data.cmake` and `esma_regression_run_helpers.cmake` to support S3-based regression test data
     - Switch macOS RPATH in `osx_extras.cmake` from absolute to relative (`@loader_path/../lib`) so experiment-local install trees resolve GEOS/MAPL shared libraries correctly
-
-### Removed
-
-### Deprecated
 
 ## [2.70.0] - 2026-07-06
 
