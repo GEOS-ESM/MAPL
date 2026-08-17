@@ -513,16 +513,45 @@ contains
                   " but data is required from "//trim(t_str2)// &
                   " for template: "//trim(this%file_template))
          end if
-         if (on_disk_last < run_range(2) - this%file_frequency) then
-            call ESMF_TimeGet(on_disk_last, timeString=t_str1, _RC)
-            call ESMF_TimeGet(run_range(2), timeString=t_str2, _RC)
-            _FAIL("extrap_outside=none: on-disk data ends at "//trim(t_str1)// &
-                  " but data is required through "//trim(t_str2)// &
-                  " for template: "//trim(this%file_template))
-         end if
+          if (on_disk_last < run_range(2) - this%file_frequency) then
+             call ESMF_TimeGet(on_disk_last, timeString=t_str1, _RC)
+             call ESMF_TimeGet(run_range(2), timeString=t_str2, _RC)
+             _FAIL("extrap_outside=none: on-disk data ends at "//trim(t_str1)// &
+                   " but data is required through "//trim(t_str2)// &
+                   " for template: "//trim(this%file_template))
+          end if
 
-      ! -----------------------------------------------------------------------
-      case ("persist_closest")
+          ! Gap scan: probe every file slot needed to bracket the full run_range,
+          ! including one file_frequency on each side for interpolation brackets.
+          ! Clamp to valid_range if set.
+          t_scan_lo = run_range(1) - this%file_frequency
+          if (allocated(this%valid_range)) then
+             if (t_scan_lo < this%valid_range(1)) t_scan_lo = this%valid_range(1)
+          end if
+          t_scan_hi = run_range(2) + this%file_frequency
+          if (allocated(this%valid_range)) then
+             if (t_scan_hi > this%valid_range(2)) t_scan_hi = this%valid_range(2)
+          end if
+          call this%compute_index_bounds(t_scan_lo, t_scan_hi, n_scan_lo, n_scan_hi, _RC)
+          n_missing    = 0
+          missing_list = ""
+          do n_scan = n_scan_lo, n_scan_hi
+             t_probe = this%compute_time_at_index(n_scan, _RC)
+             call mapl_fill_grads_template(probe_filename, this%file_template, time=t_probe, _RC)
+             inquire(file=trim(probe_filename), exist=probe_found)
+             if (.not. probe_found) then
+                call ESMF_TimeGet(t_probe, timeString=t_missing, _RC)
+                missing_list = missing_list // new_line('a') // "  " // trim(t_missing)
+                n_missing = n_missing + 1
+             end if
+          end do
+          if (n_missing > 0) then
+             _FAIL("The following files are required to bracket run_range" // &
+                   " for template: "//trim(this%file_template)//":"//missing_list)
+          end if
+
+       ! -----------------------------------------------------------------------
+       case ("persist_closest")
       ! -----------------------------------------------------------------------
       ! Scenario 2: persistence extrapolation.  Scan valid_range.
 
@@ -568,8 +597,20 @@ contains
                       trim(t_str1)//". Data is required through "//trim(t_str2)// &
                       " for template: "//trim(this%file_template))
              end if
-             ! Gap scan: probe every expected file slot within the overlap window
-             call this%compute_index_bounds(overlap_start, overlap_end, n_scan_lo, n_scan_hi, _RC)
+             ! Gap scan: probe every file slot needed to bracket the overlap window,
+             ! including one file_frequency on each side for interpolation brackets,
+             ! clamped to valid_range boundaries.
+             if (overlap_start - this%file_frequency > this%valid_range(1)) then
+                t_scan_lo = overlap_start - this%file_frequency
+             else
+                t_scan_lo = this%valid_range(1)
+             end if
+             if (overlap_end + this%file_frequency < this%valid_range(2)) then
+                t_scan_hi = overlap_end + this%file_frequency
+             else
+                t_scan_hi = this%valid_range(2)
+             end if
+             call this%compute_index_bounds(t_scan_lo, t_scan_hi, n_scan_lo, n_scan_hi, _RC)
              n_missing    = 0
              missing_list = ""
              do n_scan = n_scan_lo, n_scan_hi
@@ -583,8 +624,8 @@ contains
                 end if
              end do
              if (n_missing > 0) then
-                _FAIL("Run period overlaps valid_range but the following files are missing" // &
-                      " for template: "//trim(this%file_template)//":"//missing_list)
+                _FAIL("The following files are required to bracket the overlap of run_range" // &
+                      " and valid_range for template: "//trim(this%file_template)//":"//missing_list)
              end if
           end if
           ! Run outside valid_range: found_any already verified — sufficient
@@ -637,8 +678,20 @@ contains
                      trim(t_str1)//". Data is required through "//trim(t_str2)// &
                       " for template: "//trim(this%file_template))
              end if
-             ! Gap scan: probe every expected file slot within the overlap window
-             call this%compute_index_bounds(overlap_start, overlap_end, n_scan_lo, n_scan_hi, _RC)
+             ! Gap scan: probe every file slot needed to bracket the overlap window,
+             ! including one file_frequency on each side for interpolation brackets,
+             ! clamped to valid_range boundaries.
+             if (overlap_start - this%file_frequency > this%valid_range(1)) then
+                t_scan_lo = overlap_start - this%file_frequency
+             else
+                t_scan_lo = this%valid_range(1)
+             end if
+             if (overlap_end + this%file_frequency < this%valid_range(2)) then
+                t_scan_hi = overlap_end + this%file_frequency
+             else
+                t_scan_hi = this%valid_range(2)
+             end if
+             call this%compute_index_bounds(t_scan_lo, t_scan_hi, n_scan_lo, n_scan_hi, _RC)
              n_missing    = 0
              missing_list = ""
              do n_scan = n_scan_lo, n_scan_hi
@@ -652,8 +705,8 @@ contains
                 end if
              end do
              if (n_missing > 0) then
-                _FAIL("Run period overlaps valid_range but the following files are missing" // &
-                      " for template: "//trim(this%file_template)//":"//missing_list)
+                _FAIL("The following files are required to bracket the overlap of run_range" // &
+                      " and valid_range for template: "//trim(this%file_template)//":"//missing_list)
              end if
           end if
 

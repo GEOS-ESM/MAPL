@@ -84,9 +84,14 @@ Both are independent. `PRINT_REQUIRED_FILES` works without `VALIDATE_FILE_RANGES
 Default: **false**. Set `true` to enable startup file existence checks.
 
 - **`"none"`**: scans `run_range`; fails if `valid_range` set and run is outside it;
-  checks `on_disk_first <= run_range(1) + freq` and `on_disk_last >= run_range(2) - freq`.
-- **`"persist_closest"`**: scans `valid_range`; overlap coverage check + file-by-file gap scan over overlap window; outside = `found_any` sufficient.
-- **`"clim"`**: scans `valid_range`; overlap coverage check + file-by-file gap scan over overlap window; outside = full-cycle +
+  checks `on_disk_first <= run_range(1) + freq` and `on_disk_last >= run_range(2) - freq`;
+  then file-by-file gap scan over `[run_range(1) - freq, run_range(2) + freq]` (clamped
+  to `valid_range` if set) to catch missing interpolation bracket files.
+- **`"persist_closest"`**: scans `valid_range`; overlap coverage check; file-by-file gap
+  scan over `[max(overlap_start - freq, valid_range(1)), min(overlap_end + freq, valid_range(2))]`
+  to catch missing interpolation bracket files; outside = `found_any` sufficient.
+- **`"clim"`**: scans `valid_range`; overlap coverage check; same bracket-aware gap scan
+  as `persist_closest` over the overlap window; outside = full-cycle +
   direction endpoint + gap scan on target year.
 
 `on_disk_range` is set on `AbstractDataSetFileSelector` **only** when
@@ -181,5 +186,24 @@ across the gap at runtime.
 file-by-file gap scan over the full overlap window using `compute_index_bounds` +
 `compute_time_at_index` + `mapl_fill_grads_template` + `inquire`. All missing files
 are accumulated into `missing_list`; if any are found the run fails with the full list.
+
+**File:** `gridcomps/extdata/AbstractDataSetFileSelector.F90`
+
+### 2026-08-17 — Bracket-aware gap scan for all three scenarios
+
+**Problem:** The gap scans added above scanned only `[overlap_start, overlap_end]` for
+`persist_closest`/`clim`, and `"none"` had no gap scan at all. MAPL interpolates between
+the two nearest bracketing files, so a file just outside the run/overlap window can still
+be required. Example: monthly files timestamped on the 15th, run from June 25–29 with
+`extrap_outside="none"` — the July file is the right interpolation bracket but was never
+probed.
+
+**Fix:** Extended all three gap scans to include one `file_frequency` on each side:
+
+- **`"none"`**: new gap scan over `[run_range(1) - freq, run_range(2) + freq]`, clamped
+  to `valid_range` if set.
+- **`"persist_closest"` overlap**: scan window widened from `[overlap_start, overlap_end]`
+  to `[max(overlap_start - freq, valid_range(1)), min(overlap_end + freq, valid_range(2))]`.
+- **`"clim"` overlap**: same widening as `persist_closest`.
 
 **File:** `gridcomps/extdata/AbstractDataSetFileSelector.F90`
