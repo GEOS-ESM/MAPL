@@ -48,24 +48,25 @@ discovered actual range on disk, set only when `VALIDATE_FILE_RANGES: true`.
 
 1. **`extrap_outside = "none"`** — no extrapolation. Scan window = `run_range`.
    If `valid_range` is set and `run_range` extends outside it → config error.
-   On-disk data must cover the full `run_range`. `valid_range` not required.
+   On-disk data must cover the full `run_range` including interpolation brackets:
+   file-by-file gap scan over `[run_range(1) - freq, run_range(2) + freq]` (clamped
+   to `valid_range` if set). `valid_range` not required.
 
 2. **`extrap_outside = "persist_closest"`** — scan window = `valid_range` (required).
-    If run overlaps `valid_range`: on-disk data must cover the overlap (boundary check
-    + file-by-file gap scan over the overlap window). If run is outside `valid_range`:
-    `found_any` is sufficient (clamp to endpoint).
+   If run overlaps `valid_range`: boundary check + bracket-aware gap scan over
+   `[max(overlap_start - freq, valid_range(1)), min(overlap_end + freq, valid_range(2))]`.
+   If run is outside `valid_range`: `found_any` is sufficient (clamp to endpoint).
 
- 3. **`extrap_outside = "clim"`** — scan window = `valid_range` (required).
-    If run overlaps `valid_range`: on-disk data must cover the overlap (boundary check
-    + file-by-file gap scan over the overlap window). If run is outside `valid_range`:
-    full-cycle + direction-aware endpoint + gap-scan
+3. **`extrap_outside = "clim"`** — scan window = `valid_range` (required).
+   If run overlaps `valid_range`: same bracket-aware gap scan as `persist_closest`.
+   If run is outside `valid_range`: full-cycle + direction-aware endpoint + gap-scan
    checks on the target year (`vr_yr1` if before, `vr_yr2` if after).
 
 ## Key Files Changed
 
 | File | Change |
 |------|--------|
-| `gridcomps/extdata/AbstractDataSetFileSelector.F90` | `refine_valid_range` takes explicit `scan_range`; `check_data_availability` 3-scenario restructure; new `compute_index_bounds` private helper; new `get_required_files_hconfig` public method; `find_any_file` backward scan; overlap gap scan added to `persist_closest` and `clim` cases |
+| `gridcomps/extdata/AbstractDataSetFileSelector.F90` | `refine_valid_range` takes explicit `scan_range`; `check_data_availability` 3-scenario restructure; new `compute_index_bounds` private helper; new `get_required_files_hconfig` public method; `find_any_file` backward scan; bracket-aware gap scans added to all three cases |
 | `gridcomps/extdata/PrimaryExport.F90` | Updated `check_data_availability` gate (enables `"none"` scenario); manifest accumulation keyed by base export name; new optional args `validate_file_ranges` + `required_files_hconfig` |
 | `gridcomps/extdata/ExtDataConfig.F90` | `make_PrimaryExport` threads optional `validate_file_ranges` + `required_files_hconfig` to `PrimaryExport` constructor |
 | `gridcomps/extdata/ExtDataGridComp.F90` | `modify_advertise` reads `VALIDATE_FILE_RANGES` + `PRINT_REQUIRED_FILES` from hconfig; threads flags through `make_PrimaryExport`; writes manifest YAML after export loop |
