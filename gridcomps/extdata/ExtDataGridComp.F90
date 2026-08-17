@@ -77,6 +77,10 @@ contains
       type(PrimaryExport), pointer :: primary_export_ptr
       class(logger), pointer :: lgr
       type(ESMF_TimeInterval) :: time_step
+      logical :: validate_file_ranges
+      character(len=ESMF_MAXSTR) :: print_required_files_path
+      type(ESMF_HConfig) :: required_files_hconfig
+      logical :: required_files_hconfig_initialized
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
 
@@ -89,6 +93,23 @@ contains
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       extdata_gridcomp%active_items = get_active_items(exportState, _RC)
       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
+
+      ! Read VALIDATE_FILE_RANGES and PRINT_REQUIRED_FILES from top-level hconfig.
+      validate_file_ranges = .false.
+      if (ESMF_HConfigIsDefined(hconfig, keyString='VALIDATE_FILE_RANGES')) then
+         validate_file_ranges = ESMF_HConfigAsLogical(hconfig, keyString='VALIDATE_FILE_RANGES', _RC)
+      end if
+      print_required_files_path = ''
+      if (ESMF_HConfigIsDefined(hconfig, keyString='PRINT_REQUIRED_FILES')) then
+         print_required_files_path = ESMF_HConfigAsString(hconfig, keyString='PRINT_REQUIRED_FILES', _RC)
+      end if
+
+      required_files_hconfig_initialized = .false.
+      if (len_trim(print_required_files_path) > 0) then
+         required_files_hconfig = ESMF_HConfigCreate(content='{}', _RC)
+         required_files_hconfig_initialized = .true.
+      end if
+
       rule_counter = 0
       iter = extdata_gridcomp%active_items%ftn_begin()
       do while (iter /= extdata_gridcomp%active_items%ftn_end())
@@ -106,7 +127,14 @@ contains
             rule_counter = rule_counter + 1
             full_name = item_name
             if (rules_for_item > 1) write(full_name,'(A,A1,I0)')trim(item_name),rule_sep,j
-             primary_export = config%make_PrimaryExport(trim(full_name), item_name, time_step, [current_time, stop_time], _RC)
+            if (required_files_hconfig_initialized) then
+               primary_export = config%make_PrimaryExport(trim(full_name), item_name, time_step, [current_time, stop_time], &
+                    validate_file_ranges=validate_file_ranges, &
+                    required_files_hconfig=required_files_hconfig, _RC)
+            else
+               primary_export = config%make_PrimaryExport(trim(full_name), item_name, time_step, [current_time, stop_time], &
+                    validate_file_ranges=validate_file_ranges, _RC)
+            end if
             call extdata_gridcomp%export_vector%push_back(primary_export)
          enddo
          idx = extdata_gridcomp%get_item_index(item_name, current_time, _RC)
@@ -114,6 +142,39 @@ contains
          call primary_export_ptr%complete_export_spec(item_name, current_time, exportState, _RC)
          call extdata_gridcomp%last_item%insert(item_name, idx)
       end do
+
+      ! Write required-files manifest if requested.
+      if (required_files_hconfig_initialized) then
+         block
+            type(ESMF_HConfig) :: manifest_hconfig, rr_seq
+            character(len=ESMF_MAXSTR) :: t_str1, t_str2
+            integer :: manifest_status
+            manifest_hconfig = ESMF_HConfigCreate(content='{}', rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_TimeGet(current_time, timeString=t_str1, rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_TimeGet(stop_time, timeString=t_str2, rc=manifest_status)
+            _VERIFY(manifest_status)
+            rr_seq = ESMF_HConfigCreate(content='[]', rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_HConfigAdd(rr_seq, trim(t_str1), rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_HConfigAdd(rr_seq, trim(t_str2), rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_HConfigAdd(manifest_hconfig, content=rr_seq, addKeyString='run_range', rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_HConfigDestroy(rr_seq, rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_HConfigAdd(manifest_hconfig, content=required_files_hconfig, addKeyString='required_files', rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_HConfigFileSave(manifest_hconfig, trim(print_required_files_path), rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_HConfigDestroy(manifest_hconfig, rc=manifest_status)
+            _VERIFY(manifest_status)
+            call ESMF_HConfigDestroy(required_files_hconfig, rc=manifest_status)
+            _VERIFY(manifest_status)
+         end block
+      end if
 
       call report_active_items(extdata_gridcomp%active_items, lgr)
       extdata_gridcomp%has_run_mod_advert = .true.

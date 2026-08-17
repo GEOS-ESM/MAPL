@@ -22,6 +22,8 @@ module mapl_PrimaryExport_mod
 
    public PrimaryExport
 
+   character(len=1), parameter :: rule_sep = "+"
+
    type :: PrimaryExport
       character(len=:),  allocatable :: export_var
       type(StringVector) :: file_vars
@@ -54,7 +56,8 @@ module mapl_PrimaryExport_mod
 
    contains
 
-   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step, run_range, rc) result(primary_export)
+   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step, run_range, &
+        validate_file_ranges, required_files_hconfig, rc) result(primary_export)
       type(PrimaryExport) :: primary_export
       character(len=*), intent(in) :: export_var
       type(ExtDataRule), pointer, intent(in) :: rule
@@ -63,6 +66,8 @@ module mapl_PrimaryExport_mod
       type(ESMF_Time), intent(in) :: time_range(:)
       type(ESMF_TimeInterval), intent(in) :: time_step
       type(ESMF_Time), intent(in) :: run_range(2)
+      logical, optional, intent(in) :: validate_file_ranges
+      type(ESMF_HConfig), optional, intent(inout) :: required_files_hconfig
       integer, optional, intent(out) :: rc
 
       type(NonClimDataSetFileSelector) :: non_clim_file_selector
@@ -71,6 +76,13 @@ module mapl_PrimaryExport_mod
       character(len=:), allocatable :: file_template
       integer :: status, semi_pos
       class(ClientThread), pointer :: i_client
+      logical :: do_validate, do_manifest, user_set_range
+      type(ESMF_HConfig) :: entry_hconfig
+      character(len=:), allocatable :: base_name
+
+      do_validate = .false.
+      if (present(validate_file_ranges)) do_validate = validate_file_ranges
+      do_manifest = present(required_files_hconfig)
 
       primary_export%export_var = export_var
       primary_export%is_constant = .not.associated(collection)
@@ -83,14 +95,60 @@ module mapl_PrimaryExport_mod
             allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
          end if
 
+         user_set_range = collection%is_valid_range_allocated()
+
          ! Validate that sufficient files exist on disk for the run period and
          ! extrapolation mode, and populate on_disk_range for runtime clamping.
-         ! Only fires when valid_range is explicitly set and the template is
-         ! multi-file (contains '%') and extrapolation is not 'none'.
-         if (collection%is_valid_range_allocated() .and. &
-             index(collection%file_template, '%') /= 0 .and. &
-             trim(sample%extrap_outside) /= 'none') then
-            call primary_export%file_selector%check_data_availability(run_range, sample%extrap_outside, _RC)
+         ! Gated on VALIDATE_FILE_RANGES flag (default false).
+         ! Scenario "none" fires when template is multi-file, regardless of valid_range.
+         ! Scenarios "persist_closest"/"clim" require valid_range to be set.
+         if (do_validate .and. index(collection%file_template, '%') /= 0) then
+            if (trim(sample%extrap_outside) == 'none' .or. user_set_range) then
+               call primary_export%file_selector%check_data_availability(run_range, sample%extrap_outside, _RC)
+            end if
+         end if
+
+         ! Accumulate manifest entry if required_files_hconfig is provided.
+         if (do_manifest .and. index(collection%file_template, '%') /= 0 .and. &
+              (trim(sample%extrap_outside) == 'none' .or. user_set_range)) then
+            call primary_export%file_selector%get_required_files_hconfig( &
+                 run_range, sample%extrap_outside, entry_hconfig, _RC)
+            ! Key = base export name (strip rule_sep suffix if present).
+            base_name = export_var
+            if (index(export_var, rule_sep) > 0) base_name = export_var(:index(export_var,rule_sep)-1)
+            if (ESMF_HConfigIsDefined(required_files_hconfig, keyString=trim(base_name))) then
+               block
+                  type(ESMF_HConfig) :: existing, new_seq, first_entry
+                  existing = ESMF_HConfigCreateAt(required_files_hconfig, keyString=trim(base_name), rc=status)
+                  _VERIFY(status)
+                  if (ESMF_HConfigIsMap(existing)) then
+                     new_seq = ESMF_HConfigCreate(content='[]', rc=status)
+                     _VERIFY(status)
+                     first_entry = ESMF_HConfigCreate(existing, rc=status)
+                     _VERIFY(status)
+                     call ESMF_HConfigAdd(new_seq, content=first_entry, rc=status)
+                     _VERIFY(status)
+                     call ESMF_HConfigAdd(new_seq, content=entry_hconfig, rc=status)
+                     _VERIFY(status)
+                     call ESMF_HConfigAdd(required_files_hconfig, content=new_seq, addKeyString=trim(base_name), rc=status)
+                     _VERIFY(status)
+                     call ESMF_HConfigDestroy(new_seq, rc=status)
+                     _VERIFY(status)
+                     call ESMF_HConfigDestroy(first_entry, rc=status)
+                     _VERIFY(status)
+                  else
+                     call ESMF_HConfigAdd(existing, content=entry_hconfig, rc=status)
+                     _VERIFY(status)
+                  end if
+                  call ESMF_HConfigDestroy(existing, rc=status)
+                  _VERIFY(status)
+               end block
+            else
+               call ESMF_HConfigAdd(required_files_hconfig, content=entry_hconfig, addKeyString=trim(base_name), rc=status)
+               _VERIFY(status)
+            end if
+            call ESMF_HConfigDestroy(entry_hconfig, rc=status)
+            _VERIFY(status)
          end if
 
          primary_export%file_vars = rule%file_vars
