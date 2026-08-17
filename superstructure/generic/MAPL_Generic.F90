@@ -1149,14 +1149,10 @@ contains
 
       integer :: status
       type(ESMF_Info) :: info
-      logical :: found
-
       gridcomp_is_generic = .false.
       call ESMF_InfoGetFromHost(gridcomp, info, _RC)
-      found = ESMF_InfoIsSet(info, key='MAPL/GRIDCOMP_IS_GENERIC', _RC)
-      if (found) then
-         call ESMF_InfoGet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=gridcomp_is_generic, _RC)
-      end if
+      call ESMF_InfoGet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=gridcomp_is_generic, rc=status)
+      if (status /= 0) gridcomp_is_generic = .false.
 
       _RETURN(_SUCCESS)
    end function gridcomp_is_generic
