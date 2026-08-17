@@ -28,14 +28,17 @@ actual range on disk, set only when `VALIDATE_FILE_RANGES: true`.
 
 1. **`extrap_outside = "none"`** — no extrapolation. Scan window = `run_range`.
    If `valid_range` is set and `run_range` extends outside it → config error (clear
-   fail). On-disk data must cover the full `run_range`. `valid_range` not required.
+   fail). On-disk data must cover the full `run_range` including interpolation brackets:
+   file-by-file gap scan over `[run_range(1) - freq, run_range(2) + freq]` (clamped
+   to `valid_range` if set). `valid_range` not required.
 
 2. **`extrap_outside = "persist_closest"`** — scan window = `valid_range` (required).
-   If run overlaps `valid_range`: on-disk data must cover the overlap.
+   If run overlaps `valid_range`: boundary check + bracket-aware gap scan over
+   `[max(overlap_start - freq, valid_range(1)), min(overlap_end + freq, valid_range(2))]`.
    If run is outside `valid_range`: `found_any` is sufficient (clamp to endpoint).
 
 3. **`extrap_outside = "clim"`** — scan window = `valid_range` (required).
-   If run overlaps `valid_range`: on-disk data must cover the overlap.
+   If run overlaps `valid_range`: same bracket-aware gap scan as `persist_closest`.
    If run is outside `valid_range`: full-cycle + direction-aware endpoint + gap-scan
    checks on the target year (`vr_yr1` if before, `vr_yr2` if after).
 
@@ -64,9 +67,14 @@ Both are independent. `PRINT_REQUIRED_FILES` works without `VALIDATE_FILE_RANGES
 Default: **false**. Set `true` to enable startup file existence checks.
 
 - **`"none"`**: scans `run_range`; fails if `valid_range` set and run is outside it;
-  checks `on_disk_first <= run_range(1) + freq` and `on_disk_last >= run_range(2) - freq`.
-- **`"persist_closest"`**: scans `valid_range`; overlap coverage check; outside = `found_any` sufficient.
-- **`"clim"`**: scans `valid_range`; overlap coverage check; outside = full-cycle +
+  checks `on_disk_first <= run_range(1) + freq` and `on_disk_last >= run_range(2) - freq`;
+  then file-by-file gap scan over `[run_range(1) - freq, run_range(2) + freq]` (clamped
+  to `valid_range` if set) to catch missing interpolation bracket files.
+- **`"persist_closest"`**: scans `valid_range`; overlap coverage check; bracket-aware
+  gap scan over `[max(overlap_start - freq, valid_range(1)), min(overlap_end + freq, valid_range(2))]`;
+  outside = `found_any` sufficient.
+- **`"clim"`**: scans `valid_range`; overlap coverage check; same bracket-aware gap scan
+  as `persist_closest` over the overlap window; outside = full-cycle +
   direction endpoint + gap scan on target year.
 
 `on_disk_range` is set on `ExtDataFileStream` (and copied to `ExtDataAbstractFileHandler`)
@@ -157,3 +165,33 @@ Expected: **FAIL** — direction check: `on_disk_first (2005-01-01) > valid_rang
 
 - Build and run `ctest` to verify all tests pass.
 - Commit and open PR against `release/v2`.
+
+## Change Log
+
+### 2026-08-17 — Overlap gap scan for `persist_closest` and `clim`; bracket gap scan for all three scenarios
+
+**Problem 1:** When `extrap_outside` is `"persist_closest"` or `"clim"` and the run
+overlaps `valid_range`, `check_data_availability` only checked that the on-disk boundary
+files were within one `frequency` of the overlap endpoints. Interior gaps (e.g. a missing
+monthly file) were not detected; MAPL would silently interpolate across the gap at runtime.
+
+**Problem 2:** All three scenarios failed to account for the interpolation bracket files
+immediately outside the run/overlap window. MAPL interpolates between the two nearest
+bracketing files, so a file just outside the window can still be required. Example:
+monthly files timestamped on the 15th, run from June 25–29 with `extrap_outside="none"` —
+the July file is the right interpolation bracket but was never probed.
+
+**Fix:**
+
+- **`"none"`**: added file-by-file gap scan over `[run_range(1) - freq, run_range(2) + freq]`,
+  clamped to `valid_range` if set.
+- **`"persist_closest"` overlap**: added bracket-aware gap scan inside `if (has_overlap)`,
+  scan window `[max(overlap_start - freq, valid_range(1)), min(overlap_end + freq, valid_range(2))]`.
+- **`"clim"` overlap**: identical bracket-aware gap scan, inserted before the `full_cycle`/
+  `do_gap_scan` logic (which is unchanged).
+
+All gap scans accumulate all missing filenames into `missing_list` and fail with the full
+list. Uses the same inline `scan_interval_seconds` + `reff_time + n * frequency` index
+arithmetic and `fill_grads_template` pattern as the existing `do_gap_scan` block.
+
+**File:** `gridcomps/ExtData2G/ExtDataFileStream.F90`
