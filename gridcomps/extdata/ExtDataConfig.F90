@@ -16,6 +16,8 @@ module mapl_ExtDataConfig_mod
    use mapl_PrimaryExport_mod
    use mapl_AbstractDataSetFileSelector_mod
    use mapl_NonClimDataSetFileSelector_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_LOOKUP_FAILURE, MAPL_VALUE_NOT_SUPPORTED
 
    implicit none
    private
@@ -78,11 +80,11 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="subconfigs")) then
          is_right_type = ESMF_HConfigIsSequence(input_config,keyString='subconfigs',_RC)
-         _ASSERT(is_right_type,"subconfig list is not a sequence")
+          _ASSERT_CODE(is_right_type, MAPL_ARGUMENT_INVALID)
          sub_configs = ESMF_HConfigAsStringSeq(input_config,ESMF_MAXPATHLEN,keyString='subconfigs',_RC)
          do i=1,size(sub_configs)
             inquire(file=trim(sub_configs(i)),exist=file_found)
-            _ASSERT(file_found,"could not find: "//trim(sub_configs(i)))
+             _ASSERT_CODE(file_found, MAPL_LOOKUP_FAILURE)
             sub_config = ESMF_HConfigCreate(filename=trim(sub_configs(i)), _RC)
             call new_ExtDataConfig_from_yaml(ext_config,sub_config,current_time,_RC)
          enddo
@@ -110,7 +112,7 @@ contains
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
             temp_ds => ext_config%file_stream_map%at(hconfig_key)
-            _ASSERT(.not.associated(temp_ds),"defined duplicate named collection " // trim(hconfig_key))
+             _ASSERT_CODE(.not.associated(temp_ds), MAPL_ARGUMENT_INVALID)
             single_collection = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
             ds = ExtDataCollection(single_collection, current_time, _RC)
             call ext_config%file_stream_map%insert(trim(hconfig_key),ds)
@@ -138,7 +140,7 @@ contains
                   call ext_config%add_new_rule(new_key,rule_map,multi_rule=.true.,_RC)
                enddo
             else
-               _FAIL("Unsupported type")
+                _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
             end if
          enddo
       end if
@@ -153,7 +155,7 @@ contains
             single_export = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
             derived = ExtDataDerived(single_export,_RC)
             temp_derived => ext_config%derived_map%at(trim(hconfig_key))
-            _ASSERT(.not.associated(temp_derived),"duplicated derived entry key")
+             _ASSERT_CODE(.not.associated(temp_derived), MAPL_ARGUMENT_INVALID)
             call ext_config%derived_map%insert(trim(hconfig_key),derived)
          end do
       end if

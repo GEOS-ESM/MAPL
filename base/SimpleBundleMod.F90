@@ -23,6 +23,7 @@ module mapl_SimpleBundleMod_impl_mod
    use mapl_geom_api, only: MAPL_GridGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGetByIndex, MAPL_FieldBundleDestroy
    use mapl_ArrayReductions_mod, only: MaxMin
+   use MAPL_Constants, only: MAPL_LOOKUP_FAILURE, MAPL_UNSUPPORTED_TYPE, MAPL_INTERNAL_INVARIANT_FAILURE
    use mapl_Comms_mod, only: MAPL_AM_I_ROOT => am_i_root
    use MAPL_Constants, only: MAPL_PI
    use mapl_ErrorHandling_mod
@@ -216,7 +217,7 @@ contains
 
       if (present(only_vars)) then
          n_vars = csv_tokens_count_(only_vars)
-         _ASSERT(n_vars <= NumVars, 'more vars requested than in bundle')
+         _ASSERT_CODE_CTX(n_vars <= NumVars, MAPL_INTERNAL_INVARIANT_FAILURE, 'requested variable count')
          allocate(var_list(n_vars), __STAT__)
          var_list = '__NONE__'
          call csv_tokens_get_(only_vars, var_list, _RC)
@@ -235,7 +236,7 @@ contains
                isRequested(n) = .true.
             else
                if (strict_match) then
-                  _FAIL('could not find field '//trim(var_list(i))//' in bundle '//trim(self%name))
+                   _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'field='//trim(var_list(i))//', bundle='//trim(self%name))
                end if
             end if
          end do
@@ -345,7 +346,7 @@ contains
                self%r3(n3d)%myKind = ESMF_KIND_R4
                self%r3(n3d)%q      => self%r3(n3d)%qr4
             case default
-               _FAIL('unsupported array rank for R4 field '//trim(fieldName))
+               _FAIL_CODE_CTX(MAPL_UNSUPPORTED_TYPE, 'field='//trim(fieldName)//', rank=R4')
             end select
 
          else if (typeKind == ESMF_TYPEKIND_R8) then
@@ -366,11 +367,11 @@ contains
                self%r3(n3d)%name   = trim(fieldName)
                self%r3(n3d)%myKind = ESMF_KIND_R8
             case default
-               _FAIL('unsupported array rank for R8 field '//trim(fieldName))
+               _FAIL_CODE_CTX(MAPL_UNSUPPORTED_TYPE, 'field='//trim(fieldName)//', rank=R8')
             end select
 
          else
-            _FAIL('unsupported typeKind for field '//trim(fieldName))
+            _FAIL_CODE_CTX(MAPL_UNSUPPORTED_TYPE, 'field='//trim(fieldName))
          end if
 
       end do
@@ -615,7 +616,7 @@ contains
          end do
       case default
          if (present(rc)) then
-            _FAIL('invalid rank; must be 1, 2, or 3')
+            _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
          end if
       end select
 
@@ -625,7 +626,7 @@ contains
                rc = MAPL_RC_ERROR
                return
             else
-               _FAIL('could not find index for '//trim(name)//' in Simple Bundle <'//trim(self%name)//'>')
+               _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'field='//trim(name)//', bundle='//trim(self%name))
             end if
          else
             _RETURN(ESMF_SUCCESS)
@@ -672,7 +673,7 @@ contains
 
     call ESMF_StateGet(STATE,ItemCount=ItemCount,RC=STATUS)
     _VERIFY(STATUS)
-    _ASSERT(ItemCount>0, 'itemCount should be > 0')
+     _ASSERT_CODE_CTX(ItemCount > 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'item count')
     allocate ( ItemNames(ItemCount), stat=STATUS)
     _VERIFY(STATUS)
     allocate ( ItemTypes(ItemCount), stat=STATUS)
@@ -689,7 +690,7 @@ contains
     call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
     _VERIFY(STATUS)
 
-    _ASSERT(natt > 0, 'natt should be > 0')
+     _ASSERT_CODE_CTX(natt > 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'attribute count')
     allocate(orderlist(natt), stat=status)
     _VERIFY(STATUS)
     allocate(currList(natt), stat=status)
@@ -726,7 +727,7 @@ contains
              _VERIFY(STATUS)
              call ESMF_FieldBundleGet ( tBUNDLE, FieldCount = FieldCount, rc=STATUS)
              _VERIFY(STATUS)
-             _ASSERT(FieldCount>0, 'FieldCount should be > 0')
+              _ASSERT_CODE_CTX(FieldCount > 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'field count')
              do j = 1, FieldCount
                 call ESMF_FieldBundleGet ( tBUNDLE, j, tFIELD, rc=STATUS)
                 _VERIFY(STATUS)
@@ -755,14 +756,14 @@ contains
 
     call ESMF_FieldBundleGet ( BUNDLE, FieldCount = FieldCount, rc=STATUS)
     _VERIFY(STATUS)
-    _ASSERT(FieldCount>0, 'FieldCount should be > 0')
+     _ASSERT_CODE_CTX(FieldCount > 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'field count')
 
     if ( present(GRID) ) then
        call ESMF_FieldBundleSet ( BUNDLE, grid=GRID, rc=STATUS )
        _VERIFY(STATUS)
        needGrid = .false.
     else
-       _ASSERT(.not. needGrid, 'could not find a grid')
+       _ASSERT_CODE_CTX(.not. needGrid, MAPL_LOOKUP_FAILURE, 'grid')
     end if
 
     allocate ( FieldNames(FieldCount), stat=STATUS )

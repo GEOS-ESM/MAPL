@@ -13,6 +13,7 @@ module mapl_FieldDelta_mod
    use mapl_FieldFill_mod, only: FieldFill
    use mapl_FieldPointerUtilities_mod
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_OBJECT_NOT_INITIALIZED, MAPL_VALUE_NOT_SUPPORTED
    use mapl_KeywordEnforcer_mod
    use esmf
    implicit none(type,external)
@@ -251,7 +252,7 @@ contains
       if (present(ignore)) ignore_ = ignore
 
       call ESMF_FieldGet(field, status=field_status, _RC)
-      _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, 'field must at least have a geom.')
+       _ASSERT_CODE(field_status == ESMF_FIELDSTATUS_COMPLETE, MAPL_OBJECT_NOT_INITIALIZED)
       call ESMF_FieldGet(field, geom=current_geom, _RC)
 
       call ESMF_FieldGet(field, typekind=current_typekind, _RC)
@@ -343,7 +344,7 @@ contains
          _RETURN_IF(vert_staggerloc == VERTICAL_STAGGER_NONE)
 
          call FieldGet(field, num_levels=current_num_levels, _RC)
-         _ASSERT(count(vert_staggerloc == [VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE]) == 1, 'unsupported vertical stagger')
+          _ASSERT_CODE(count(vert_staggerloc == [VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE]) == 1, MAPL_VALUE_NOT_SUPPORTED)
          ungriddedUBound(1) = new_num_levels
 
          new_array = new_array .or. (new_num_levels /= current_num_levels)

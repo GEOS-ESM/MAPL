@@ -6,6 +6,7 @@ submodule (mapl_MeshGeomSpec_mod) MeshGeomSpec_smod
    use mapl_CoordinateAxis_mod, only: get_dim_name, get_coordinates
    use mapl_MeshDecomposition_mod
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_VALUE_NOT_SUPPORTED
    use mapl_StringUtilities_mod, only: to_lower
    use mapl_get_hconfig_mod, only: get_hconfig
    use mapl_hconfig_params_mod, only: HConfigParams
@@ -84,7 +85,7 @@ contains
       else
          ! For now, require file-based configuration
          ! TODO: Add support for inline mesh specification
-         _FAIL('Inline mesh specification not yet supported in HConfig')
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end if
 
       _RETURN(_SUCCESS)
@@ -104,7 +105,7 @@ contains
          spec = MeshGeomSpec(filename, rc=status)
          _VERIFY(status)
       else
-         _FAIL('Filename is required for MeshGeomSpec creation')
+          _FAIL_CODE(MAPL_ARGUMENT_INVALID)
       end if
 
       _RETURN(_SUCCESS)

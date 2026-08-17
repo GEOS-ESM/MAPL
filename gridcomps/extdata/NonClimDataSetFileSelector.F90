@@ -2,6 +2,8 @@
 module mapl_NonClimDataSetFileSelector_mod
    use ESMF
    use MAPL
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID
    use mapl_DataSetBracket_mod
    use mapl_DataSetNode_mod
    use mapl_AbstractDataSetFileSelector_mod
@@ -46,7 +48,7 @@ module mapl_NonClimDataSetFileSelector_mod
        if (present(file_frequency)) file_handler%file_frequency = file_frequency
        if (present(ref_time)) file_handler%ref_time = ref_time
        if (present(valid_range)) then
-          _ASSERT(size(valid_range)==2,"Valid range must be 2")
+           _ASSERT_CODE(size(valid_range) == 2, MAPL_ARGUMENT_INVALID)
           file_handler%valid_range = valid_range
        end if
        if (present(persist_closest)) file_handler%persist_closest = persist_closest
@@ -56,7 +58,7 @@ module mapl_NonClimDataSetFileSelector_mod
           if ( (.not.allocated(file_handler%valid_range)) .and. file_handler%single_file) then
              call file_handler%get_valid_range_single_file(_RC)
           end if
-          _ASSERT(allocated(file_handler%valid_range),'Asking for persistence but out of range')
+           _ASSERT_CODE(allocated(file_handler%valid_range), MAPL_ARGUMENT_INVALID)
        end if
 
        if (present(timeStep)) then
@@ -84,7 +86,7 @@ module mapl_NonClimDataSetFileSelector_mod
        establish_single = .false.
        target_time = current_time
        if (this%persist_closest) then
-          _ASSERT(allocated(this%valid_range), 'using persistence but not in range')
+           _ASSERT_CODE(allocated(this%valid_range), MAPL_ARGUMENT_INVALID)
           if (.not. this%in_valid_range(target_time)) then
              establish_both = .false.
              if (current_time < this%valid_range(1)) then
@@ -257,4 +259,3 @@ module mapl_NonClimDataSetFileSelector_mod
     end subroutine swap_bracket_fields
 
 end module mapl_NonClimDataSetFileSelector_mod
-

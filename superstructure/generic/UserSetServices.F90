@@ -18,6 +18,7 @@ module mapl_UserSetServices_mod
    use :: ESMF, only: ESMF_SUCCESS
    use :: mapl_ESMF_Interfaces_mod, only: I_SetServices
    use :: mapl_ErrorHandling_mod
+   use :: MAPL_Constants, only: MAPL_VALUE_NOT_SUPPORTED
    implicit none(type,external)
    private
 
@@ -160,7 +161,7 @@ contains
       integer :: status, user_status
       logical :: found
 
-      _ASSERT(is_supported_dso_name(this%sharedObj), 'unsupported dso name:: <'//this%sharedObj//'>')
+       _ASSERT_CODE_CTX(is_supported_dso_name(this%sharedObj), MAPL_VALUE_NOT_SUPPORTED, 'name='//this%sharedObj)
       call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
            userRoutine=this%userRoutine, userRoutinefound=found, _USERRC)
       

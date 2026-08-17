@@ -1,16 +1,19 @@
 #include "MAPL.h"
 
 module mapl_ErrorHandling_mod
+   use, intrinsic :: iso_fortran_env, only: ERROR_UNIT
+   use MAPL_Constants
    use mapl_Throw_mod
    implicit none
    private
 
    public :: MAPL_Assert
+   public :: MAPL_AssertCode
+   public :: MAPL_AssertCodeContext
    public :: MAPL_Verify
    public :: MAPL_Return
    public :: MAPL_Deprecated
    public :: MAPL_SetFailOnDeprecated
-   ! Legacy
    public :: MAPL_abort
    public :: MAPL_set_abort_handler
 
@@ -20,45 +23,17 @@ module mapl_ErrorHandling_mod
    end interface
 
    procedure(abort_handler_interface), pointer :: abort_handler => null()
-
-
-   public :: MAPL_SUCCESS
-
-   public :: MAPL_UNKNOWN_ERROR
-   public :: MAPL_NO_SUCH_PROPERTY
-   public :: MAPL_NO_SUCH_VARIABLE
-   public :: MAPL_TYPE_MISMATCH
-   public :: MAPL_UNSUPPORTED_TYPE
-
-   public :: MAPL_VALUE_NOT_SUPPORTED
-   public :: MAPL_NO_DEFAULT_VALUE
-   public :: MAPL_DUPLICATE_KEY
-   public :: MAPL_STRING_TOO_SHORT
-
-   enum, bind(c)
-      enumerator :: MAPL_SUCCESS       = 0
-
-      ! 001-005
-      enumerator :: MAPL_UNKNOWN_ERROR
-      enumerator :: MAPL_NO_SUCH_PROPERTY
-      enumerator :: MAPL_NO_SUCH_VARIABLE
-      enumerator :: MAPL_TYPE_MISMATCH
-      enumerator :: MAPL_UNSUPPORTED_TYPE
-
-      ! 006-010
-      enumerator :: MAPL_VALUE_NOT_SUPPORTED
-      enumerator :: MAPL_NO_DEFAULT_VALUE
-      enumerator :: MAPL_DUPLICATE_KEY
-      enumerator :: MAPL_STRING_TOO_SHORT
-   end enum
-
+   logical, save :: FAIL_ON_DEPRECATED = .false.
 
    interface MAPL_Assert
       module procedure MAPL_Assert_condition
       module procedure MAPL_Assert_return_code
    end interface MAPL_Assert
 
-   logical, save :: FAIL_ON_DEPRECATED = .false.
+   interface MAPL_AssertCodeContext
+      module procedure MAPL_AssertCodeContext_character
+      module procedure MAPL_AssertCodeContext_integer
+   end interface MAPL_AssertCodeContext
 
 contains
 
@@ -68,119 +43,132 @@ contains
       integer, intent(in) :: return_code
       character(*), intent(in) :: filename
       integer, intent(in) :: line
-      integer, optional, intent(out) :: rc ! Not present in MAIN
+      integer, optional, intent(out) :: rc
 
       fail = .not. condition
-
       if (fail) then
          !$omp critical (MAPL_ErrorHandling1)
          call MAPL_throw_exception(filename, line, message=message)
          !$omp end critical (MAPL_ErrorHandling1)
          if (present(rc)) rc = return_code
       end if
-
-   end function MAPL_Assert_Condition
-
+   end function MAPL_Assert_condition
 
    logical function MAPL_Assert_return_code(condition, return_code, filename, line, rc) result(fail)
       logical, intent(in) :: condition
       integer, intent(in) :: return_code
       character(*), intent(in) :: filename
       integer, intent(in) :: line
-      integer, optional, intent(out) :: rc ! Not present in MAIN
-      character(:), allocatable :: message
+      integer, optional, intent(out) :: rc
 
       fail = .not. condition
-
       if (fail) then
-         message = get_error_message(return_code)
          !$omp critical (MAPL_ErrorHandling2)
-         call MAPL_throw_exception(filename, line, message=message)
+         call MAPL_throw_exception(filename, line, message=render_message(return_code, ''))
          !$omp end critical (MAPL_ErrorHandling2)
          if (present(rc)) rc = return_code
       end if
-
    end function MAPL_Assert_return_code
 
+   logical function MAPL_AssertCode(condition, error_code, filename, line, rc) result(fail)
+      logical, intent(in) :: condition
+      integer, intent(in) :: error_code
+      character(*), intent(in) :: filename
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+
+      fail = MAPL_AssertCodeContext_character(condition, error_code, '', filename, line, rc)
+   end function MAPL_AssertCode
+
+   logical function MAPL_AssertCodeContext_character(condition, error_code, context, filename, line, rc) result(fail)
+      logical, intent(in) :: condition
+      integer, intent(in) :: error_code
+      character(*), intent(in) :: context, filename
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+
+      fail = .not. condition
+      if (fail) then
+         !$omp critical (MAPL_ErrorHandlingCode)
+         call MAPL_throw_exception(filename, line, &
+              message=render_message(error_code, context))
+         !$omp end critical (MAPL_ErrorHandlingCode)
+         if (present(rc)) rc = error_code
+      end if
+   end function MAPL_AssertCodeContext_character
+
+   logical function MAPL_AssertCodeContext_integer(condition, error_code, context, filename, line, rc) result(fail)
+      logical, intent(in) :: condition
+      integer, intent(in) :: error_code, context
+      character(*), intent(in) :: filename
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc
+      character(64) :: context_string
+      integer :: status
+
+      write(context_string, '(i0)', iostat=status) context
+      if (status /= 0) context_string = '[integer context unavailable]'
+      fail = MAPL_AssertCodeContext_character(condition, error_code, trim(context_string), &
+           filename, line, rc)
+   end function MAPL_AssertCodeContext_integer
 
    logical function MAPL_Verify(status, filename, line, rc) result(fail)
       integer, intent(in) :: status
       character(*), intent(in) :: filename
       integer, intent(in) :: line
-      integer, optional, intent(out) :: rc ! Not present in MAIN
-
-      logical :: condition
+      integer, optional, intent(out) :: rc
+      character(32) :: status_string
       character(:), allocatable :: message
-      character(16) :: status_string
 
-      condition = (status == 0)
-      fail = .not. condition
-
+      fail = status /= MAPL_SUCCESS
       if (fail) then
-         write(status_string,'(i0)') status
+         write(status_string, '(i0)') status
          message = 'status=' // trim(status_string)
+         write(ERROR_UNIT, '(a)') render_message(MAPL_ERROR_VERIFY, message)
          !$omp critical (MAPL_ErrorHandling3)
          call MAPL_throw_exception(filename, line, message=message)
          !$omp end critical (MAPL_ErrorHandling3)
          if (present(rc)) rc = status
       end if
-
    end function MAPL_Verify
 
    subroutine MAPL_Return(status, filename, line, rc)
       integer, intent(in) :: status
       character(*), intent(in) :: filename
       integer, intent(in) :: line
-      integer, intent(out), optional :: rc
+      integer, optional, intent(out) :: rc
 
-      logical :: condition, fail
-      character(:), allocatable :: message
-
-      condition = (status == 0)
-      fail = .not. condition
-
-      if (fail) then
-         message = get_error_message(status)
+      if (status /= MAPL_SUCCESS) then
          !$omp critical (MAPL_ErrorHandling4)
-         call MAPL_throw_exception(filename, line, message=message)
+         call MAPL_throw_exception(filename, line, message=render_message(status, ''))
          !$omp end critical (MAPL_ErrorHandling4)
       end if
-      ! Regardless of error:
       if (present(rc)) rc = status
-
    end subroutine MAPL_Return
 
    subroutine MAPL_Deprecated(file_name, module_name, procedure_name, rc)
-      use, intrinsic :: iso_fortran_env, only: ERROR_UNIT
-      character(*), intent(in) :: file_name
-      character(*), intent(in) :: module_name
-      character(*), intent(in) :: procedure_name
+      character(*), intent(in) :: file_name, module_name, procedure_name
       integer, optional, intent(out) :: rc
-
       integer :: status
 
-      write(ERROR_UNIT,*,iostat=status) "Invoking deprecated procedure: ", procedure_name
+      write(ERROR_UNIT, *, iostat=status) 'Invoking deprecated procedure: ', procedure_name
       _VERIFY(status)
-      write(ERROR_UNIT,*,iostat=status) "    ...             in module: ", module_name
+      write(ERROR_UNIT, *, iostat=status) '    ...             in module: ', module_name
       _VERIFY(status)
-      write(ERROR_UNIT,*,iostat=status) "    ...               in file: ", file_name
+      write(ERROR_UNIT, *, iostat=status) '    ...               in file: ', file_name
       _VERIFY(status)
-
-      _ASSERT(.not. FAIL_ON_DEPRECATED, "    ... aborting.")
+      _ASSERT(.not. FAIL_ON_DEPRECATED, '    ... aborting.')
       _RETURN(_SUCCESS)
    end subroutine MAPL_Deprecated
 
-
    subroutine MAPL_SetFailOnDeprecated(flag)
       logical, optional, intent(in) :: flag
-
       logical :: flag_
+
       flag_ = .true.
       if (present(flag)) flag_ = flag
-
       FAIL_ON_DEPRECATED = flag_
    end subroutine MAPL_SetFailOnDeprecated
-
 
    subroutine MAPL_set_abort_handler(handler)
       procedure(abort_handler_interface) :: handler
@@ -195,45 +183,68 @@ contains
       end if
    end subroutine MAPL_abort
 
-  function get_error_message(error_code) result(description)
-     use gFTL_IntegerStringMap
-     character(:), allocatable :: description
-     integer, intent(in) :: error_code
+   function render_message(error_code, context) result(message)
+      integer, intent(in) :: error_code
+      character(*), intent(in) :: context
+      character(:), allocatable :: message
+      integer :: index
+      character(32) :: code_string
+      character(:), allocatable :: template, name
 
-     type(IntegerStringMap), save :: error_messages
-     logical, save :: initialized = .false.
+      write(code_string, '(i0)') error_code
+      index = find_error_index(error_code)
+      if (index == 0) then
+         message = 'MAPL_UNKNOWN_ERROR(code=' // trim(code_string) // ')'
+         if (len_trim(context) > 0) message = message // ': ' // trim(context)
+         return
+      end if
 
+      name = trim(MAPL_ERROR_NAMES(index))
+      template = trim(MAPL_ERROR_TEMPLATES(index))
+      if (len_trim(context) > 0) then
+         message = replace_first_field(template, trim(context))
+      else
+         message = template
+      end if
+      message = name // '(code=' // trim(code_string) // '): ' // trim(message)
+   end function render_message
 
-     call initialize_err()
+   integer function find_error_index(error_code) result(index)
+      integer, intent(in) :: error_code
+      integer :: i
 
-     if (error_messages%count(error_code) > 0) then
-        description = error_messages%at(error_code)
-     else
-        description = error_messages%at(MAPL_UNKNOWN_ERROR)
-     end if
+      index = 0
+      do i = 1, MAPL_ERROR_CODE_COUNT
+         if (MAPL_ERROR_CODES(i) == error_code) then
+            index = i
+            return
+         end if
+      end do
+   end function find_error_index
 
-  contains
+   function replace_first_field(template, context) result(message)
+      character(*), intent(in) :: template, context
+      character(:), allocatable :: message
+      integer :: left, right
 
-     subroutine initialize_err()
-
-        if (.not. initialized) then
-           initialized = .true.
-           call error_messages%insert(MAPL_UNKNOWN_ERROR, 'unknown error')
-           call error_messages%insert(MAPL_SUCCESS, 'success')
-
-           call error_messages%insert(MAPL_NO_SUCH_PROPERTY, 'no such property')
-           call error_messages%insert(MAPL_NO_SUCH_VARIABLE, 'no such variable')
-           call error_messages%insert(MAPL_TYPE_MISMATCH,    'passed argument does not match expected type')
-           call error_messages%insert(MAPL_UNSUPPORTED_TYPE, 'provided data type is not supported by this subclass')
-           call error_messages%insert(MAPL_VALUE_NOT_SUPPORTED, 'provided value is not supported by this subclass')
-
-           call error_messages%insert(MAPL_NO_DEFAULT_VALUE, 'no default value has been provided for this property')
-           call error_messages%insert(MAPL_DUPLICATE_KEY, 'map container already has the specified key')
-           call error_messages%insert(MAPL_STRING_TOO_SHORT, 'fixed length string is not long enough to contain requested data')
-        end if
-
-     end subroutine initialize_err
-
-  end function get_error_message
+      left = index(template, '{')
+      if (left == 0) then
+         message = trim(template) // ': ' // trim(context)
+         return
+      end if
+      right = index(template(left:), '}')
+      if (right == 0) then
+         message = trim(template) // ': ' // trim(context)
+         return
+      end if
+      right = left + right - 1
+      if (left == 1) then
+         message = trim(context) // template(right+1:)
+      else if (right == len_trim(template)) then
+         message = template(:left-1) // trim(context)
+      else
+         message = template(:left-1) // trim(context) // template(right+1:)
+      end if
+   end function replace_first_field
 
 end module mapl_ErrorHandling_mod

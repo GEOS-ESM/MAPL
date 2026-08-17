@@ -9,7 +9,8 @@ module mapl_HistoryCollectionGridComp_private_mod
    use mapl_HistoryUtilities_mod
    use mapl_HistoryConstants_mod, only: VAR_LIST_KEY, KEY_TIMESTEP, &
       & KEY_ACCUMULATION_TYPE, KEY_TIME_SPEC, KEY_TYPEKIND, KEY_UNITS, &
-      & KEY_INSTANTANEOUS, KEY_REGRID
+       & KEY_INSTANTANEOUS, KEY_REGRID
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_VALUE_NOT_SUPPORTED
 
    implicit none(type,external)
    private
@@ -103,14 +104,14 @@ contains
          else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(import_state, short_name, vector_bundle, _RC)
             call MAPL_FieldBundleGet(vector_bundle, fieldBundleType=bundle_type, fieldList=field_list, _RC)
-            _ASSERT(bundle_type == MAPL_FIELDBUNDLETYPE_VECTOR, 'not vector type')
+             _ASSERT_CODE(bundle_type == MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_VALUE_NOT_SUPPORTED)
             alias_vector = split_alias(alias, _RC)
             new_field = create_alias_field(field_list(1), alias_vector%at(1), compression_settings, _RC)
             call ESMF_FieldBundleAdd(bundle, [new_field], _RC)
             new_field = create_alias_field(field_list(2), alias_vector%at(2), compression_settings, _RC)
             call ESMF_FieldBundleAdd(bundle, [new_field], _RC)
          else
-            _FAIL('unsupported item type being output in history')
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end if
       end do
 
@@ -146,7 +147,7 @@ contains
       comma = index(input_alias, ',')
       start_bracket = index(input_alias, '[')
       end_bracket = index(input_alias, ']')
-      _ASSERT(comma > 0 .and. start_bracket > 0 .and. end_bracket > 0, 'alias for vector is not correct')
+       _ASSERT_CODE(comma > 0 .and. start_bracket > 0 .and. end_bracket > 0, MAPL_ARGUMENT_INVALID)
       call alias_vector%push_back(input_alias(start_bracket+1:comma-1))
       call alias_vector%push_back(input_alias(comma+1:end_bracket-1))
       _RETURN(_SUCCESS)
@@ -262,11 +263,11 @@ contains
          ! instantaneous when the collection-level mode is non-instantaneous,
          ! because the entire collection's statistics machinery is set up for
          ! the collection-level mode.
-         _ASSERT(coll_opts%accumulation_type == KEY_INSTANTANEOUS .or. var_opts%accumulation_type /= KEY_INSTANTANEOUS, 'Cannot override accumulation_type to instantaneous for an individual variable when the collection accumulation_type is non-instantaneous')
+          _ASSERT_CODE(coll_opts%accumulation_type == KEY_INSTANTANEOUS .or. var_opts%accumulation_type /= KEY_INSTANTANEOUS, MAPL_ARGUMENT_INVALID)
 
          ! Validate: per-var cannot override typekind when collection specifies one.
          if (allocated(coll_opts%typekind)) then
-            _ASSERT(var_opts%typekind == coll_opts%typekind, 'Cannot override typekind for an individual variable when the collection specifies typekind')
+             _ASSERT_CODE(var_opts%typekind == coll_opts%typekind, MAPL_ARGUMENT_INVALID)
          end if
 
          call add_var_specs(gridcomp, short_name, alias, var_opts, _RC)

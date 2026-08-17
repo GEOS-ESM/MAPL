@@ -1,5 +1,7 @@
 #include "MAPL.h"
 module mapl_ExtDataCollection_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_VALUE_NOT_SUPPORTED
    use ESMF
    use MAPL
    use mapl_AbstractDataSetFileSelector_mod
@@ -43,7 +45,7 @@ contains
       logical :: is_present
 
       is_present = ESMF_HConfigIsDefined(config,keyString="template",_RC)
-      _ASSERT(is_present,"no file template in the collection")
+       _ASSERT_CODE(is_present, MAPL_ARGUMENT_INVALID)
 
       data_set%file_template = ESMF_HConfigAsString(config,keyString="template",_RC)
       file_frequency = get_string_with_default(config,"freq")
@@ -68,7 +70,7 @@ contains
             case("n2")
                call ESMF_TimeIntervalSet(data_set%frequency,m=1,_RC)
             case default
-               _FAIL("Unsupported token")
+                _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
             end select
          else
             ! couldn't find any tokens so all the data must be on one file
@@ -97,7 +99,7 @@ contains
             case("n2")
                call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,_RC)
             case default
-               _FAIL("Unsupported token")
+                _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
             end select
          else
             data_set%reff_time = current_time
@@ -124,7 +126,7 @@ contains
             case("n2")
                call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,_RC)
             case default
-               _FAIL("Unsupported token")
+                _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
             end select
          end if
 

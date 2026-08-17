@@ -4,6 +4,8 @@ module mapl_AbstractDataSetFileSelector_mod
 
    use ESMF
    use MAPL
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_LOOKUP_FAILURE
    use mapl_DataSetBracket_mod
    use mapl_ExtDataConstants_mod
 
@@ -81,7 +83,7 @@ contains
          end if
       enddo
 
-      _FAIL("could not find a file")
+       _FAIL_CODE(MAPL_LOOKUP_FAILURE)
    end function find_any_file
 
    function get_dataset_metadata(this, current_time, rc) result(metadata)

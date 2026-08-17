@@ -15,6 +15,7 @@ module mapl_FieldCreate_mod
    use mapl_FieldFill_mod, only: FieldFill
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_OBJECT_NOT_INITIALIZED
    use esmf, FieldEmptyCreate => ESMF_FieldEmptyCreate
 
    implicit none(type,external)
@@ -189,7 +190,7 @@ contains
       type(esmf_FieldStatus_Flag) :: fstatus
 
       call esmf_FieldGet(field, status=fstatus, _RC)
-      _ASSERT(fstatus == ESMF_FIELDSTATUS_GRIDSET, "Field must have a grid to allocate.")
+       _ASSERT_CODE(fstatus == ESMF_FIELDSTATUS_GRIDSET, MAPL_OBJECT_NOT_INITIALIZED)
       grid_to_field_map = make_grid_to_field_map(field, _RC)
       bounds = make_bounds(field, _RC)
 
@@ -219,8 +220,8 @@ contains
       grid_to_field_map = [integer::] ! function result must always be allocated
 
       call FieldGet(field, geom=geom, horizontal_dims_spec=horizontal_dims_spec, _RC)
-      _ASSERT(allocated(geom), "Must specify a geom before FieldComplete.")
-      _ASSERT(horizontal_dims_spec /= HORIZONTAL_DIMS_UNKNOWN, "should be one of GEOM/NONE")
+       _ASSERT_CODE(allocated(geom), MAPL_OBJECT_NOT_INITIALIZED)
+       _ASSERT_CODE(horizontal_dims_spec /= HORIZONTAL_DIMS_UNKNOWN, MAPL_ARGUMENT_INVALID)
 
       call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
       grid_to_field_map = [(0, idim=1,dim_count)]
@@ -340,7 +341,7 @@ contains
       integer, optional, intent(out) :: rc
 
       if (present(vgrid)) then
-         _ASSERT(present(vertical_stagger), "vertical_stagger must be specified for 3D fields")
+       _ASSERT_CODE(present(vertical_stagger), MAPL_ARGUMENT_INVALID)
       end if
 
       _RETURN(_SUCCESS)
@@ -356,9 +357,9 @@ contains
 
 
       is_created = esmf_FieldIsCreated(field1, _RC)
-      _ASSERT(is_created, 'invalid field detected')
+       _ASSERT_CODE(is_created, MAPL_OBJECT_NOT_INITIALIZED)
       is_created = esmf_FieldIsCreated(field2, _RC)
-      _ASSERT(is_created, 'invalid field detected')
+       _ASSERT_CODE(is_created, MAPL_OBJECT_NOT_INITIALIZED)
 
       are_aliased = associated(field1%ftypep, field2%ftypep)
 

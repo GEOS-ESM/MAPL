@@ -24,6 +24,9 @@
 !
    Use ESMF
    Use MAPL
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_VALUE_NOT_SUPPORTED, &
+        MAPL_INTERNAL_INVARIANT_FAILURE
 
    IMPLICIT NONE
    PRIVATE
@@ -90,7 +93,7 @@ CONTAINS
      _GET_NAMED_PRIVATE_STATE(GC, Orb_State, PRIVATE_STATE, self)
     call MAPL_GridCompGetResource(gc, "verbose", self%verbose, default=.false., _RC)
     call MAPL_GridCompGetResource(gc, "Nominal_Orbits", self%no, _RC)
-    _ASSERT(self%no>0,'needs informative message')
+    _ASSERT_CODE(self%no > 0, MAPL_ARGUMENT_INVALID)
     allocate(self%Instrument(self%no), self%Satellite(self%no), &
           self%Swath(self%no), self%halo(self%no), _STAT)
     if ( self%verbose ) then
@@ -356,7 +359,7 @@ CONTAINS
       case (1601:)
          call MAPL_GridCompGetResource(gc, "INTERPOLATION_WIDTH", swath(3), default=0.5, _RC)
       case default
-         _FAIL('imsize is out of supported range')
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
    end select
 
 !  define undef
@@ -368,7 +371,7 @@ CONTAINS
 !  get orb bundle
    call ESMF_StateGet(EXPORT,'SATORB',BUNDLE,_RC)
    call ESMF_FieldBundleGet(BUNDLE,fieldCOUNT=NORB,_RC)
-   _ASSERT(NORB==self%no,'needs informative message')
+    _ASSERT_CODE(NORB == self%no, MAPL_INTERNAL_INVARIANT_FAILURE)
 
 !  loop over each satellite and get it's mask
    do k=1,NORB

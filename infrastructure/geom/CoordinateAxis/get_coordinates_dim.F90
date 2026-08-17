@@ -2,6 +2,7 @@
 
 submodule (mapl_CoordinateAxis_mod) get_coordinates_dim_smod
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_LOOKUP_FAILURE, MAPL_UNSUPPORTED_TYPE
    use gftl2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none(type,external)
@@ -19,7 +20,7 @@ contains
 
       v => file_metadata%get_coordinate_variable(dim_name, _RC)
       ptr => v%get_coordinate_data()
-      _ASSERT(associated(ptr),'coordinate data not allocated')
+       _ASSERT_CODE(associated(ptr), MAPL_LOOKUP_FAILURE)
 
       select type (ptr)
       type is (real(kind=REAL64))
@@ -27,7 +28,7 @@ contains
       type is (real(kind=REAL32))
          coordinates = ptr
       class default
-         _FAIL('unsuppoted kind for coordinate data -- must be REAL32 or REAL64')
+          _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
       end select
 
       _RETURN(_SUCCESS)

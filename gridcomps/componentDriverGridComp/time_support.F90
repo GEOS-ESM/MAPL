@@ -2,6 +2,8 @@
 module timeSupport
    use MAPL
    use esmf
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_VALUE_NOT_SUPPORTED
    implicit none
 
    public timeVar
@@ -103,7 +105,7 @@ contains
       case ('seconds')
          call ESMF_TimeIntervalGet(timeInterval,s_r8=dt,_RC)
       case default
-         _FAIL("Unsupported time units specify for interval")
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end select
       _RETURN(_SUCCESS)
 
@@ -140,4 +142,3 @@ contains
    end function
 
 end module timeSupport
-

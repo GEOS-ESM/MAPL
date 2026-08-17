@@ -8,6 +8,8 @@ module mapl_TimeVariance_mod
    use mapl_WelfordCovarianceKernel_mod
    use MAPL
    use ESMF
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_VALUE_NOT_SUPPORTED
 
    implicit none(type, external)
    private
@@ -229,7 +231,7 @@ contains
       case (SHIFTED)
          allocate(ShiftedCovarianceKernel :: stat%kernel)
       case default
-         _FAIL("Unrecognized Variance algorithm")
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end select
 
       ! Realize internal state fields

@@ -3,6 +3,8 @@ module mapl_HistoryUtilities_mod
    use MAPL
    use esmf
    use mapl_esmf_info_keys_mod, only: KEY_SOURCE
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_LOOKUP_FAILURE
    !use gFTL2_StringVector
    !use gFTL2_StringSet
 
@@ -50,13 +52,13 @@ contains
       type(ESMF_HConfig) :: value
 
       isScalar = ESMF_HConfigIsScalarMapKey(item, _RC)
-      _ASSERT(isScalar, 'Variable list item does not have a scalar name.')
+       _ASSERT_CODE(isScalar, MAPL_ARGUMENT_INVALID)
       isMap = ESMF_HConfigIsMapMapVal(item, _RC)
-      _ASSERT(isMap, 'Variable list item does not have a map value.')
+       _ASSERT_CODE(isMap, MAPL_ARGUMENT_INVALID)
 
       if (present(alias)) then
          alias = ESMF_HConfigAsStringMapKey(item, asOkay=asOK, _RC)
-         _ASSERT(asOK, 'Item name could not be processed as a String.')
+          _ASSERT_CODE(asOK, MAPL_LOOKUP_FAILURE)
       end if
       if (present(short_name)) then
          value = ESMF_HConfigCreateAtMapVal(item, _RC)

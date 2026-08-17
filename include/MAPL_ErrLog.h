@@ -38,6 +38,18 @@
 #  ifdef _ASSERT
 #    undef _ASSERT
 #  endif
+#  ifdef _ASSERT_CODE
+#    undef _ASSERT_CODE
+#  endif
+#  ifdef _FAIL_CODE
+#    undef _FAIL_CODE
+#  endif
+#  ifdef _ASSERT_CODE_CTX
+#    undef _ASSERT_CODE_CTX
+#  endif
+#  ifdef _FAIL_CODE_CTX
+#    undef _FAIL_CODE_CTX
+#  endif
 #  ifdef _SUCCESS
 #    undef _SUCCESS
 #  endif
@@ -130,6 +142,10 @@
 ! Assumes __FILE__ and __LINE__ are appropriate
 #    define _ASSERT(A,msg) _ASSERT_MSG_AND_LOC(A,msg,1,_FILE_,__LINE__)
 #    define _ASSERT_RC(A,msg,stat) _ASSERT_MSG_AND_LOC(A,msg,stat,_FILE_,__LINE__)
+#    define _ASSERT_CODE(A,code) if(MAPL_AssertCode(A,code,_FILE_,__LINE__ __rc(rc))) __return
+#    define _FAIL_CODE(code) _ASSERT_CODE(.false.,code)
+#    define _ASSERT_CODE_CTX(A,code,ctx) if(MAPL_AssertCodeContext(A,code,ctx,_FILE_,__LINE__ __rc(rc))) __return
+#    define _FAIL_CODE_CTX(code,ctx) _ASSERT_CODE_CTX(.false.,code,ctx)
 #    define _ASSERT_NOMSG(A) _ASSERT(A,'needs informative message')
 #    define _FAIL(msg) _ASSERT(.false.,msg)
 #    define _FAIL_IF(cond, msg)  if(cond)then;_FAIL(msg);endif
@@ -140,6 +156,4 @@
 #    define ASSERT_(A)   _ASSERT(A, Iam) 
 
 #  endif
-
-
 

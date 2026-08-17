@@ -4,6 +4,7 @@ module VerticalCoordinateMod
 
    use PFIO
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_LOOKUP_FAILURE, MAPL_UNSUPPORTED_TYPE, MAPL_VALUE_NOT_SUPPORTED
    use gFTL2_StringVector
    use udunits2f, UDUNITS_are_convertible => are_convertible, &
       initialize_udunits => initialize, finalize_udunits => finalize
@@ -121,14 +122,14 @@ contains
                   vertical_coord%positive = "down"
                endif
             else
-               _FAIL('lev positive attribute not in file and no rule defined for setting it from long_name and units')
+                _FAIL_CODE(MAPL_LOOKUP_FAILURE)
             endif
          endif
 
          ! now test if this is a "fixed" height level, if has height units, then dimensioanl coordinate, but must have positive
          has_height_units = safe_are_convertible(temp_units, 'm', _RC)
          if (has_height_units) then
-            _ASSERT(allocated(vertical_coord%positive),"non pressure veritcal dimensional coordinates must have positive attribute")
+             _ASSERT_CODE(allocated(vertical_coord%positive), MAPL_LOOKUP_FAILURE)
             vertical_coord%level_units = temp_units
             vertical_coord%vertical_type = fixed_height
             _RETURN(_SUCCESS)
@@ -177,9 +178,9 @@ contains
                   call file_formatter%get_var(bk_name, vertical_coord%bk, _RC)
                end if
             else
-               _FAIL("unsupported hybrid vertical coordinate")
+                _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
             end if
-            _ASSERT(allocated(vertical_coord%surf_name), "PS was not found in the file")
+            _ASSERT_CODE(allocated(vertical_coord%surf_name), MAPL_LOOKUP_FAILURE)
             vertical_coord%vertical_type = model_pressure
             _RETURN(_SUCCESS)
          end if
@@ -229,7 +230,7 @@ contains
       class(*), pointer :: ptr(:)
 
       ptr => coord_var%get_coordinate_data()
-      _ASSERT(associated(ptr),"coord variable coordinate data not found")
+       _ASSERT_CODE(associated(ptr), MAPL_LOOKUP_FAILURE)
       select type (ptr)
       type is (real(kind=REAL64))
          coords=ptr
@@ -240,7 +241,7 @@ contains
       type is (integer(kind=INT32))
          coords=ptr
       class default
-         _FAIL("unsupported coordinate variable type in ")
+          _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
       end select
 
       _RETURN(_SUCCESS)

@@ -44,12 +44,6 @@ module mapl_InternalConstants_mod
    integer, parameter :: MAPL_TileNameLength = 128
    integer, parameter :: MAPL_NoShm = 255
 
-   ! Return codes
-   enum, bind(c)
-      enumerator MAPL_SUCCESS
-      enumerator MAPL_FILE_NOT_FOUND
-   endenum
-
    ! Dimension topology
    enum, bind(c)
       enumerator :: MAPL_DimTopoEdge = -1
@@ -205,4 +199,3 @@ module mapl_InternalConstants_mod
    integer, parameter :: MAPL_FILETYPE_UNK = -1
 
 end module mapl_InternalConstants_mod
-

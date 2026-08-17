@@ -1,6 +1,8 @@
 #include "MAPL.h"
 
 submodule (mapl_ComponentSpecParser_mod) to_itemtype_smod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_VALUE_NOT_SUPPORTED
    implicit none(type,external)
 
 contains
@@ -28,7 +30,7 @@ contains
       subclass = ESMF_UtilStringLowerCase(subclass)
 
       if (has_expression) then
-         _ASSERT(subclass == 'expression', 'Subclass ' // subclass // ' does not support expressions.')
+          _ASSERT(subclass == 'expression', 'Subclass ' // subclass // ' does not support expressions.')
       end if
 
       select case (subclass)
@@ -45,7 +47,7 @@ contains
       case ('bracket')
          itemtype = MAPL_STATEITEM_BRACKET
       case default
-         _FAIL('unknown subclass for state item: '//subclass)
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end select
 
       _RETURN(_SUCCESS)

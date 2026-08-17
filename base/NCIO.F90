@@ -260,7 +260,7 @@ contains
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(var_4d)) then
-             _FAIL( "Cannot read unassociated variable")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
 
           do L = 1,size(var_4d,3)
@@ -272,10 +272,10 @@ contains
              end do
           end do
        else
-          _FAIL( "ERROR: unsupported RANK/KIND")
+       _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
        endif
     else
-       _FAIL( "ERROR: unsupported RANK")
+       _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
     endif
     _VERIFY(STATUS)
 
@@ -369,7 +369,7 @@ contains
                 end if
 
            else
-             _FAIL( "Cannot write unassociated var-1d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
@@ -385,7 +385,7 @@ contains
                 end if
 
            else
-             _FAIL( "Cannot write unassociated var8-1d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        endif
     else if (rank == 2) then
@@ -405,7 +405,7 @@ contains
                call VarWrite(formatter, name, var_2d, arrdes=arrdes, rc=status)
              endif ! dims
           else
-             _FAIL( "Cannot write unassociated var-2d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           endif ! associated
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
@@ -423,7 +423,7 @@ contains
                 call VarWrite(formatter, name, vr8_2d, arrdes=arrdes, rc=status)
              end if
           else
-             _FAIL( "Cannot write unassociated var8-2d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        endif
     else if (rank == 3) then
@@ -446,7 +446,7 @@ contains
                 call VarWrite(formatter, name, var_3d, arrdes=arrdes, rc=status)
              endif
           else
-             _FAIL( "Cannot write unassociated var-3d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
@@ -467,25 +467,25 @@ contains
                 call VarWrite(formatter, name, vr8_3d, arrdes=arrdes, rc=status)
              end if
           else
-             _FAIL( "Cannot write unassociated var8-3d")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
        endif
     else if (rank == 4) then
        if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-          _FAIL( "Unsupported tile/ungrid variable")
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
        end if
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(var_4d)) then
-             _FAIL( "Cannot write unassociated vars")
+           _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
           call VarWrite(formatter, name, var_4d, arrdes=arrdes, rc=status)
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(vr8_4d)) then
-             _FAIL( "Cannot write unassociated vars")
+             _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'variable')
           end if
           call VarWrite(formatter, name, vr8_4d, arrdes=arrdes, rc=status)
        endif
@@ -1102,8 +1102,8 @@ contains
           enddo
           if (k /= nactive) then
              k = k+1
-             _ASSERT(k == nactive, 'inconsistent nactive')
-             _ASSERT(recvcounts(r2g(n)) == 0, 'recvcounts must be 0')
+              _ASSERT_CODE_CTX(k == nactive, MAPL_INTERNAL_INVARIANT_FAILURE, 'nactive')
+              _ASSERT_CODE_CTX(recvcounts(r2g(n)) == 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'recvcounts')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
@@ -1172,8 +1172,8 @@ contains
           endif
           last  = first + Rsize - 1
 
-          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
-          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
+           _ASSERT_CODE_CTX(lbound(mask,1) <= first, MAPL_INTERNAL_INVARIANT_FAILURE, 'mask lower bound')
+           _ASSERT_CODE_CTX(ubound(mask,1) >= last, MAPL_INTERNAL_INVARIANT_FAILURE, 'mask upper bound')
 ! lon, lat, lev, time
           start(1) = first
           start(2) = 1
@@ -1403,8 +1403,8 @@ contains
           enddo
           if (k /= nactive) then
              k = k+1
-             _ASSERT(k == nactive, 'inconsistent nactive')
-             _ASSERT(recvcounts(r2g(n)) == 0, 'recvcounts should be 0')
+              _ASSERT_CODE_CTX(k == nactive, MAPL_INTERNAL_INVARIANT_FAILURE, 'nactive')
+              _ASSERT_CODE_CTX(recvcounts(r2g(n)) == 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'recvcounts')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
@@ -1473,8 +1473,8 @@ contains
           endif
           last  = first + Rsize - 1
 
-          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
-          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
+           _ASSERT_CODE_CTX(lbound(mask,1) <= first, MAPL_INTERNAL_INVARIANT_FAILURE, 'mask lower bound')
+           _ASSERT_CODE_CTX(ubound(mask,1) >= last, MAPL_INTERNAL_INVARIANT_FAILURE, 'mask upper bound')
 ! lon, lat, lev, time
           start(1) = first
           start(2) = 1
@@ -1655,8 +1655,8 @@ contains
              _VERIFY(STATUS)
           endif
 
-          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
-          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
+           _ASSERT_CODE_CTX(lbound(mask,1) <= first, MAPL_INTERNAL_INVARIANT_FAILURE, 'mask lower bound')
+           _ASSERT_CODE_CTX(ubound(mask,1) >= last, MAPL_INTERNAL_INVARIANT_FAILURE, 'mask upper bound')
           msk = mask(first:last)
 
           allocate(idx(Rsize), stat=status)
@@ -1739,8 +1739,8 @@ contains
           enddo
           if (k /= nactive) then
              k = k+1
-             _ASSERT(k == nactive, 'inconsistent nactive')
-             _ASSERT(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
+              _ASSERT_CODE_CTX(k == nactive, MAPL_INTERNAL_INVARIANT_FAILURE, 'nactive')
+              _ASSERT_CODE_CTX(sendcounts(r2g(n)) == 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'sendcounts')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
@@ -1985,8 +1985,8 @@ contains
              _VERIFY(STATUS)
           endif
 
-          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
-          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
+           _ASSERT_CODE_CTX(lbound(mask,1) <= first, MAPL_INTERNAL_INVARIANT_FAILURE, 'mask lower bound')
+           _ASSERT_CODE_CTX(ubound(mask,1) >= last, MAPL_INTERNAL_INVARIANT_FAILURE, 'mask upper bound')
           msk = mask(first:last)
 
           allocate(idx(Rsize), stat=status)
@@ -2069,8 +2069,8 @@ contains
           enddo
           if (k /= nactive) then
              k = k+1
-             _ASSERT(k == nactive, 'inconsistent nactive')
-             _ASSERT(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
+              _ASSERT_CODE_CTX(k == nactive, MAPL_INTERNAL_INVARIANT_FAILURE, 'nactive')
+              _ASSERT_CODE_CTX(sendcounts(r2g(n)) == 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'sendcounts')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
@@ -2727,7 +2727,7 @@ contains
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
 
-    _ASSERT(ITEMCOUNT>0, 'itemcount should be > 0')
+     _ASSERT_CODE_CTX(ITEMCOUNT > 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'item count')
 
     allocate(ITEMNAMES(ITEMCOUNT),STAT=STATUS)
     _VERIFY(STATUS)
@@ -2742,7 +2742,7 @@ contains
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
-       _ASSERT(count(DOIT)/=0, 'count(DOIT) should not be 0')
+        _ASSERT_CODE_CTX(count(DOIT) /= 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'DOIT count')
     else
        DOIT = .true.
     endif
@@ -2855,7 +2855,7 @@ contains
                      if (restore_export) then
                         if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
                      else
-                        _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                        _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'field='//trim(FieldName))
                      end if
                   end if
                end if
@@ -2938,7 +2938,7 @@ contains
                    if (restore_export) then
                       if (mapl_am_i_root()) print*, trim(fieldName), " not found in ", trim(filename), ". Skipping reading..."
                    else
-                      _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
+                      _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'field='//trim(FieldName))
                    end if
                 end if
              end if
@@ -3192,7 +3192,7 @@ contains
     ! verify that file is compatible with fields in bundle we are reading
 
     if (nVars == 0) then
-       _FAIL( "The bundle you are trying to write is empty")
+       _FAIL_CODE_CTX(MAPL_LOOKUP_FAILURE, 'bundle')
     endif
 
     ! first we need to prep the netcdf file for writing
@@ -3285,7 +3285,7 @@ contains
                 UNGRID_DIMS(I,1) = size(var_4d,3)
                 UNGRID_DIMS(I,2) = size(var_4d,4)
              else
-                _FAIL( "Unsupported DIMS type")
+                _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
              end if
           elseif (tk == ESMF_TYPEKIND_R8) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_4d, rc=status)
@@ -3296,10 +3296,10 @@ contains
                 UNGRID_DIMS(I,1) = size(var8_4d,3)
                 UNGRID_DIMS(I,2) = size(var8_4d,4)
              else
-                _FAIL( "Unsupported DIMS type")
+                _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
              end if
           else
-             _FAIL( "Unsupported type/rank")
+             _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
           endif
        endif
 
@@ -3575,7 +3575,7 @@ contains
                    call add_fvar(cf,trim(fieldname),pfDataType,'edge',units,long_name,rc=status)
                    _VERIFY(status)
                 else
-                   _FAIL( 'ERROR: LOCATION not recognized for rank 1')
+                   _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
                 endif
              elseif(DIMS(1)==MAPL_DimsTileOnly) then
                 call add_fvar(cf,trim(fieldname),pfDataType,'tile',units,long_name,rc=status)
@@ -3589,11 +3589,11 @@ contains
                       exit
                    end if
                 end do
-                _ASSERT(found, 'search failed')
+                _ASSERT_CODE_CTX(found, MAPL_LOOKUP_FAILURE, 'ungridded dimension')
                 call add_fvar(cf,trim(fieldname),pfDataType,myUngridDimName1,units,long_name,rc=status)
                 _VERIFY(status)
              else
-                _FAIL( 'unsupported Dims case')
+                _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
              endif
           else if(arrayRank == 2) then
              if (DIMS(1)==MAPL_DimsHorzOnly) then
@@ -3627,7 +3627,7 @@ contains
                    call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,edge',units,long_name,rc=status)
                    _VERIFY(status)
                 else
-                   _FAIL( 'ERROR: LOCATION not recognized for rank 3')
+                   _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
                 endif
              else if(DIMS(1)==MAPL_DimsHorzOnly) then
                 do j=1,n_unique_ungrid_dims
@@ -3654,7 +3654,7 @@ contains
                 call add_fvar(cf,trim(fieldname),pfDataType,'tile,'//myUngridDimName1//','//myUngridDimName2,units,long_name,rc=status)
                 _VERIFY(status)
              else if(DIMS(1)/=MAPL_DimsHorzVert .and. DIMS(1)/=MAPL_DimsHorzOnly) then
-                _FAIL( 'ERROR: What else could it be')
+                   _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
              endif
           else if(arrayRank == 4) then
              if (DIMS(1)==MAPL_DimsHorzVert) then
@@ -3671,7 +3671,7 @@ contains
                    call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,edge,'//myUngridDimName1,units,long_name,rc=status)
                    _VERIFY(status)
                 else
-                   _FAIL( 'ERROR: LOCATION not recognized for rank 4')
+                   _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
                 endif
              else if(DIMS(1)==MAPL_DimsHorzOnly) then
                 do j=1,n_unique_ungrid_dims
@@ -3690,9 +3690,9 @@ contains
                 _VERIFY(status)
              else if (DIMS(1)==MAPL_DimsTileOnly .or. &
                   DIMS(1)==MAPL_DimsTileTile) then
-                _FAIL( 'ERROR: tiles with 2 or more UNGRIDDED dims not supported')
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
              else
-                _FAIL( 'ERROR: What else could it be')
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
              endif
           else
              write(buffer,*) 'ERROR: arrayRank ',arrayRank, ' not supported'
@@ -3897,7 +3897,7 @@ contains
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
 
-    _ASSERT(ITEMCOUNT>0, 'itemcount must be > 0')
+     _ASSERT_CODE_CTX(ITEMCOUNT > 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'item count')
 
     allocate(ITEMNAMES(ITEMCOUNT),STAT=STATUS)
     _VERIFY(STATUS)
@@ -3918,7 +3918,7 @@ contains
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
-       _ASSERT(count(DOIT)/=0, 'count(DOIT) must not be 0')
+       _ASSERT_CODE_CTX(count(DOIT) /= 0, MAPL_INTERNAL_INVARIANT_FAILURE, 'DOIT count')
     else
        DOIT = .true.
     endif
@@ -4373,7 +4373,7 @@ contains
   type is (character(*))
      call NCIOParseTimeUnits(units,year,month,day,hour,min,sec,status)
   class default
-     _FAIL( 'unsupported subclass for units')
+             _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
   end select
   nymd = year*10000 + month*100 + day
   nhms = hour*10000 + min*100   + sec
@@ -4519,13 +4519,13 @@ contains
                isPresent = var%is_attribute_present('positive')
                if (isPresent) then
                   attr => var%get_attribute('positive')
-                  _ASSERT(associated(attr),"restart file leve dim has no positive attribute")
+                  _ASSERT_CODE_CTX(associated(attr), MAPL_LOOKUP_FAILURE, 'positive attribute')
                   vpos => attr%get_value()
                   select type(vpos)
                   type is (character(*))
                      positive => vpos
                   class default
-                     _FAIL('units must be string')
+                     _FAIL_CODE(MAPL_UNSUPPORTED_TYPE)
                   end select
                else
                   positive => null()

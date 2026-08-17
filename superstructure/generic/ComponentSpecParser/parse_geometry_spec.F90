@@ -6,6 +6,8 @@ submodule (mapl_ComponentSpecParser_mod) parse_geometry_spec_smod
    use mapl_vertical_grid_api
    ! Note: mapl_VerticalGridManager_mod used inside parse_vertical_grid_ only
    use mapl_ModelVerticalGrid_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_CONFIGURATION_INVALID
 
    implicit none(type,external)
 
@@ -63,7 +65,7 @@ contains
       end if
 
       if (has_geometry_kind .and. (has_esmf_geom .or. has_vertical_grid)) then
-         _ASSERT(geometry_kind_str == 'provider', 'Geometry kind must be provider when using ESMF geom config or vertical grid.')
+          _ASSERT_CODE(geometry_kind_str == 'provider', MAPL_CONFIGURATION_INVALID)
       end if
 
       if (.not. (has_esmf_geom .or. has_vertical_grid)) then ! must have provided kind
@@ -76,11 +78,11 @@ contains
             geometry_spec = GeometrySpec(GEOMETRY_FROM_PARENT)
          case ('from_child')
             has_geometry_provider = ESMF_HConfigIsDefined(geometry_cfg, keystring='provider', _RC)
-            _ASSERT(has_geometry_provider, 'Must name provider when using GEOMETRY_FROM_CHILD')
+             _ASSERT_CODE(has_geometry_provider, MAPL_ARGUMENT_INVALID)
             provider = ESMF_HConfigAsString(geometry_cfg, keystring='provider', _RC)
             geometry_spec = GeometrySpec(provider)
          case default
-            _FAIL('Invalid geometry kind')
+             _FAIL_CODE(MAPL_CONFIGURATION_INVALID)
          end select
          call ESMF_HConfigDestroy(geometry_cfg, _RC)
          _RETURN(_SUCCESS)

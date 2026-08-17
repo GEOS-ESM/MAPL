@@ -4,6 +4,7 @@ module mapl_RoutehandleParam_mod
 
    use esmf
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_VALUE_NOT_SUPPORTED
 
    implicit none
    private
@@ -301,7 +302,7 @@ contains
          case (CONSERVE)
             regrid_method = ESMF_REGRIDMETHOD_CONSERVE
          case default
-            _FAIL('unsupported regrid method:: ' // regrid_method_str)
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end select
       end if
 
@@ -323,7 +324,7 @@ contains
       else if (this%regridMethod == ESMF_REGRIDMETHOD_CONSERVE) then
          regrid_method_str = CONSERVE
       else
-         _FAIL('unsupported esmf regrid method')
+         _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end if
 
       info = esmf_InfoCreate(_RC)

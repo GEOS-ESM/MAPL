@@ -18,6 +18,7 @@ module mapl_FieldBundleSet_mod
    use mapl_LU_Bound_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_VALUE_NOT_SUPPORTED
    use esmf
    implicit none(type,external)
    private
@@ -101,7 +102,7 @@ contains
                call MAPL_FieldSet(fieldList(i), geom=geom, _RC)
             end do
          else
-            _FAIL('unsupported geomtype')
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end if
 
       end if
@@ -141,7 +142,7 @@ contains
          if (has_bundle_type) then
             if (bundle_type /= MAPL_FIELDBUNDLETYPE_VECTOR .and. &
                 bundle_type /= MAPL_FIELDBUNDLETYPE_VECTORBRACKET) then
-               _FAIL('vector_basis_kind can only be set for vector field bundles')
+                _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
             end if
          end if
       end if

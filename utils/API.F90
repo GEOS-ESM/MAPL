@@ -67,22 +67,14 @@ module mapl_utils_api
 
    ! Error handling
    public :: MAPL_Assert
+   public :: MAPL_AssertCode
+   public :: MAPL_AssertCodeContext
    public :: MAPL_Verify
    public :: MAPL_Return
    public :: MAPL_Deprecated
    public :: MAPL_SetFailOnDeprecated
    public :: MAPL_abort
    public :: MAPL_set_abort_handler
-   public :: MAPL_SUCCESS
-   public :: MAPL_UNKNOWN_ERROR
-   public :: MAPL_NO_SUCH_PROPERTY
-   public :: MAPL_NO_SUCH_VARIABLE
-   public :: MAPL_TYPE_MISMATCH
-   public :: MAPL_UNSUPPORTED_TYPE
-   public :: MAPL_VALUE_NOT_SUPPORTED
-   public :: MAPL_NO_DEFAULT_VALUE
-   public :: MAPL_DUPLICATE_KEY
-   public :: MAPL_STRING_TOO_SHORT
 
    ! Keyword enforcer
    public :: mapl_KeywordEnforcer

@@ -5,6 +5,8 @@ module mapl_PrimaryExport_mod
    use mapl_NonClimDataSetFileSelector_mod
    use mapl_ClimDataSetFileSelector_mod
    use MAPL
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_VALUE_NOT_SUPPORTED
    use mapl_DataSetNode_mod
    use mapl_DataSetBracket_mod
    use mapl_ExtDataReader_mod
@@ -85,7 +87,7 @@ module mapl_PrimaryExport_mod
          primary_export%linear_trans = rule%linear_trans
          if (index(rule%regrid_method, 'FRACTION') > 0) then
             semi_pos = index(rule%regrid_method, ';')
-            _ASSERT(semi_pos > 0, "Specified fractional regridding but did not specify fraction value")
+             _ASSERT_CODE(semi_pos > 0, MAPL_ARGUMENT_INVALID)
             read(rule%regrid_method(semi_pos+1:),*)primary_export%fraction_value
             primary_Export%regridding_method = 'FRACTION'
          else
@@ -172,7 +174,7 @@ module mapl_PrimaryExport_mod
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
       else
          if (this%enable_vertical_regrid) then
-            _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          else 
             this%vcoord%vertical_type = SIMPLE_COORD
             vertical_grid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
@@ -226,7 +228,7 @@ module mapl_PrimaryExport_mod
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER,  _RC)
       else
-         _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
       end if
 
       _RETURN(_SUCCESS)
@@ -339,7 +341,7 @@ module mapl_PrimaryExport_mod
             call mapl_AssignFptr(field_list(i), ptr_r8, _RC)
             ptr_r8 = ptr_r8 - real(this%fraction_value, kind=ESMF_KIND_R8)
          else
-            _FAIL('Unsupported typekind')
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end if
       enddo
       _RETURN(_SUCCESS)

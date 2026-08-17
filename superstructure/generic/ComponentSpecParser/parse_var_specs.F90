@@ -3,6 +3,8 @@
 submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    use mapl_VerticalGrid_mod
    use mapl_HorizontalDimsSpec_mod
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_VALUE_NOT_SUPPORTED
    implicit none(type,external)
 
    character(*), parameter :: KEY_DIMS = 'dims'
@@ -212,7 +214,7 @@ contains
          case ('mirror')
             typekind = MAPL_TYPEKIND_MIRROR
          case default
-            _FAIL('Unsupported typekind: <'//typekind_str//'>')
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end select
 
          _RETURN(_SUCCESS)
@@ -243,7 +245,7 @@ contains
          case ('vertical_dim_mirror', 'm', 'mirror')
             vertical_stagger = VERTICAL_STAGGER_MIRROR
          case default
-            _FAIL('Unsupported vertical_stagger')
+             _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
          end select
 
          _RETURN(_SUCCESS)
@@ -276,7 +278,7 @@ contains
             has_units = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_UNITS)
             has_extent = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_EXTENT)
             has_coordinates = ESMF_HConfigIsDefined(dim_spec,keyString=KEY_UNGRIDDED_DIM_COORDINATES)
-            _ASSERT(.not.(has_extent .and. has_coordinates), "Both extent and coordinates specified")
+             _ASSERT_CODE(.not.(has_extent .and. has_coordinates), MAPL_ARGUMENT_INVALID)
             if (has_name) then
                dim_name = ESMF_HConfigAsString(dim_spec, keyString=KEY_UNGRIDDED_DIM_NAME, _RC)
             end if
@@ -356,5 +358,4 @@ contains
    end function parse_var_specs
 
 end submodule parse_var_specs_smod
-
 

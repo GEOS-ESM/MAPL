@@ -9,6 +9,8 @@ module mapl_VerticalGridManager_mod
    use mapl_VerticalGridFactoryMap_mod
    use pfio, only: FileMetadata
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_CONFIGURATION_INVALID, &
+        MAPL_INTERNAL_INVARIANT_FAILURE, MAPL_LOOKUP_FAILURE
    use esmf, only: esmf_HConfig, esmf_HConfigLog
    use gfTL2_StringVector
 
@@ -89,7 +91,7 @@ contains
       class(VerticalGridManager), intent(inout) :: this
       integer, intent(out), optional :: rc
 
-      _ASSERT(this%next_id < huge(this%next_id), 'Integer overflow in ID generation')
+       _ASSERT_CODE(this%next_id < huge(this%next_id), MAPL_INTERNAL_INVARIANT_FAILURE)
 
       id = this%next_id
       this%next_id = this%next_id + 1
@@ -109,7 +111,7 @@ contains
       call this%grid_map%insert(id, grid)
 
       grid_ptr => this%get_grid(id, _RC)
-      _ASSERT(associated(grid_ptr), 'Failed to retrieve grid after insertion into map')
+       _ASSERT_CODE(associated(grid_ptr), MAPL_INTERNAL_INVARIANT_FAILURE)
 
       call grid_ptr%set_id(id)
 
@@ -128,7 +130,7 @@ contains
 
       ! Find appropriate factory
       factory => this%find_factory_for_spec(spec, _RC)
-      _ASSERT(associated(factory), 'No factory found that supports the provided specification')
+       _ASSERT_CODE(associated(factory), MAPL_LOOKUP_FAILURE)
 
       ! Create grid using factory
       new_grid = factory%create_grid_from_spec(spec, _RC)
@@ -150,10 +152,10 @@ contains
       grid_ptr => null()
 
       iter = this%grid_map%find(id)
-      _ASSERT(iter /= this%grid_map%end(), 'Invalid id')
+       _ASSERT(iter /= this%grid_map%end(), 'Invalid id')
 
       grid_ptr => iter%second()
-      _ASSERT(associated(grid_ptr), 'Map iterator returned null pointer for valid ID')
+       _ASSERT_CODE(associated(grid_ptr), MAPL_INTERNAL_INVARIANT_FAILURE)
 
       _RETURN(_SUCCESS)
    end function get_grid
@@ -167,19 +169,19 @@ contains
       class(VerticalGrid), pointer :: grid_ptr
       integer :: erase_count
 
-      _ASSERT(this%has_id(id), 'Cannot remove grid: ID not found in manager')
+       _ASSERT(this%has_id(id), 'Cannot remove grid: ID not found in manager')
 
       ! Clear the grid's ID before removing
       iter = this%grid_map%find(id)
-      _ASSERT(iter /= this%grid_map%end(), 'Grid ID disappeared between has_id check and removal')
+       _ASSERT_CODE(iter /= this%grid_map%end(), MAPL_INTERNAL_INVARIANT_FAILURE)
 
       grid_ptr => iter%second()
-      _ASSERT(associated(grid_ptr), 'Map iterator returned null pointer during removal')
+       _ASSERT_CODE(associated(grid_ptr), MAPL_INTERNAL_INVARIANT_FAILURE)
 
       call grid_ptr%set_id(-1)
 
       erase_count = this%grid_map%erase(id)
-      _ASSERT(erase_count == 1, 'Expected to erase exactly one grid entry')
+       _ASSERT_CODE(erase_count == 1, MAPL_INTERNAL_INVARIANT_FAILURE)
 
       _RETURN(_SUCCESS)
    end subroutine remove_grid
@@ -208,7 +210,7 @@ contains
       class(VerticalGridFactory), intent(in) :: factory
       integer, intent(out), optional :: rc
 
-      _ASSERT(len_trim(name) > 0, 'Factory name cannot be empty')
+       _ASSERT(len_trim(name) > 0, 'Factory name cannot be empty')
 
       ! Add factory to registry (container makes deep copy)
       call this%factories%insert(name, factory)
@@ -236,7 +238,7 @@ contains
         do while (iter /= e)
            call iter%next()
            candidate => iter%second()
-           _ASSERT(associated(candidate), 'Factory registry returned null factory pointer')
+            _ASSERT_CODE(associated(candidate), MAPL_INTERNAL_INVARIANT_FAILURE)
 
            if (candidate%supports(spec)) then
               factory_ptr => candidate
@@ -245,7 +247,7 @@ contains
         end do
       end associate
 
-      _FAIL('No suitable factory found.')
+       _FAIL_CODE(MAPL_LOOKUP_FAILURE)
    end function find_factory_for_spec
 
    function find_factory_for_config(this, config, rc) result(factory_ptr)
@@ -268,7 +270,7 @@ contains
         do while (iter /= e)
            call iter%next()
            candidate => iter%second()
-           _ASSERT(associated(candidate), 'Factory registry returned null factory pointer')
+            _ASSERT_CODE(associated(candidate), MAPL_INTERNAL_INVARIANT_FAILURE)
 
             if (candidate%supports(config)) then
               factory_ptr => candidate
@@ -278,7 +280,7 @@ contains
       end associate
 
       call esmf_HConfigLog(config, _RC)  ! Log the config for debugging
-      _FAIL('No suitable factory found. (See esmf log for config.)')
+       _FAIL_CODE(MAPL_CONFIGURATION_INVALID)
 
    end function find_factory_for_config
 
@@ -301,7 +303,7 @@ contains
         do while (iter /= e)
            call iter%next()
            candidate => iter%second()
-           _ASSERT(associated(candidate), 'Factory registry returned null factory pointer')
+            _ASSERT_CODE(associated(candidate), MAPL_INTERNAL_INVARIANT_FAILURE)
 
             if (candidate%supports(file_metadata)) then
               factory_ptr => candidate
@@ -309,7 +311,7 @@ contains
            end if
         end do
       end associate
-      _FAIL('No suitable factory found.')
+       _FAIL_CODE(MAPL_LOOKUP_FAILURE)
 
    end function find_factory_for_file_metadata
 
@@ -325,7 +327,7 @@ contains
 
       ! Find appropriate factory
       factory => this%find_factory_for_spec(spec, _RC)
-      _ASSERT(associated(factory), 'No factory found that supports the provided configuration')
+       _ASSERT_CODE(associated(factory), MAPL_CONFIGURATION_INVALID)
 
       ! Create grid using factory
       new_grid = factory%create_grid_from_spec(spec, _RC)
@@ -348,7 +350,7 @@ contains
 
       ! Find appropriate factory
       factory => this%find_factory_for_config(config, _RC)
-      _ASSERT(associated(factory), 'No factory found that supports the provided configuration')
+       _ASSERT_CODE(associated(factory), MAPL_CONFIGURATION_INVALID)
 
       ! Create grid using factory
       allocate(new_grid, source=factory%create_grid_from_config(config,rc=status))
@@ -371,7 +373,7 @@ contains
 
       ! Find appropriate factory
       factory => this%find_factory_for_file_metadata(file_metadata, _RC)
-      _ASSERT(associated(factory), 'No factory found that supports the provided file metadata')
+       _ASSERT_CODE(associated(factory), MAPL_LOOKUP_FAILURE)
 
       ! Create grid using factory
       new_grid = factory%create_grid_from_file_metadata(file_metadata, _RC)

@@ -5,6 +5,7 @@ module mapl_FieldBundleGet_mod
    use mapl_VerticalAlignment_mod
    use mapl_KeywordEnforcer_mod
    use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_VALUE_NOT_SUPPORTED
    use mapl_field_api
    use mapl_UngriddedDims_mod
    use mapl_QuantityTypeMetadata_mod
@@ -150,7 +151,7 @@ contains
             _RETURN(_SUCCESS)
          end if
 
-         _FAIL('unsupported geomtype; needs simple extension')
+          _FAIL_CODE(MAPL_VALUE_NOT_SUPPORTED)
 
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)

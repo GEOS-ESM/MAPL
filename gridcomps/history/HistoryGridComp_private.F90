@@ -6,6 +6,8 @@ module mapl_HistoryGridComp_private_mod
    use mapl_HistoryUtilities_mod
    use mapl_StatisticsGridComp_mod, only: statistics_setServices => setServices
    use esmf
+   use mapl_ErrorHandling_mod
+   use MAPL_Constants, only: MAPL_ARGUMENT_INVALID, MAPL_CONFIGURATION_INVALID
 
    implicit none
    private
@@ -78,10 +80,10 @@ contains
       logical :: is_map
 
       has_key = ESMF_HConfigIsDefined(hconfig, keyString=keyString, _RC)
-      _ASSERT(has_key, 'Hconfig is expected to have '//keyString//' but does not.')
+       _ASSERT_CODE(has_key, MAPL_CONFIGURATION_INVALID)
 
       is_map = ESMF_HConfigIsMap(hconfig, keyString=keyString, _RC)
-      _ASSERT(is_map, 'HConfig expected a YAML mapping for '//keyString//'but does not.')
+       _ASSERT_CODE(is_map, MAPL_ARGUMENT_INVALID)
 
       subconfig = ESMF_HConfigCreateAt(hconfig, keyString=keystring, _RC)
 
@@ -109,7 +111,7 @@ contains
 
       mode = ESMF_HConfigAsString(time_hconfig, keyString='mode', _RC)
        _RETURN_IF(mode == KEY_INSTANTANEOUS)
-      _ASSERT(has_frequency, 'requested statitics performed on collection: '//child_name//' but did not provide frequency of the collection')
+       _ASSERT_CODE(has_frequency, MAPL_CONFIGURATION_INVALID)
 
       stats_hconfig = ESMF_HConfigCreate(content='{}',_RC)
       ref_datetime = "'YYYY-MM-DDTHH:NN:SS'"
@@ -137,7 +139,7 @@ contains
           has_var_mode = ESMF_HConfigIsDefined(var_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
           if (has_var_mode) then
              var_mode = ESMF_HConfigAsString(var_hconfig, keyString=KEY_ACCUMULATION_TYPE, _RC)
-             _ASSERT(var_mode /= KEY_INSTANTANEOUS, 'Cannot override mode to instantaneous for an individual variable when the collection mode is non-instantaneous')
+              _ASSERT_CODE(var_mode /= KEY_INSTANTANEOUS, MAPL_ARGUMENT_INVALID)
              effective_mode = var_mode
           end if
           call ESMF_HConfigDestroy(var_hconfig, _RC)
