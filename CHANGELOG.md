@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed the unreliable feedback from Python bridge failures
 - Fixed bug that allowed ExtData2G to proceed if an invalid sampling key was provided
 
 ### Added
