@@ -14,7 +14,7 @@ module mapl_ChildSpec_mod
    public :: dump
    
    type :: ChildSpec
-      class(AbstractUserSetServices), allocatable :: user_setservices
+      class(UserSetServices), allocatable :: user_setservices
       type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval), allocatable :: timeStep
       type(ESMF_TimeInterval) :: offset
@@ -40,7 +40,7 @@ contains
 
    function new_ChildSpec(user_setservices, unusable, hconfig, timeStep, offset) result(spec)
       type(ChildSpec) :: spec
-      class(AbstractUserSetServices), intent(in) :: user_setservices
+      class(UserSetServices), intent(in) :: user_setservices
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_HConfig), optional, intent(in) :: hconfig
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
