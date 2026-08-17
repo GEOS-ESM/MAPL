@@ -11,15 +11,34 @@ from {} import ffi
 from datetime import datetime
 import MAPL_PythonBridge
 import traceback
+import sys
+
+try:
+    from mpi4py import MPI
+except ModuleNotFoundError as err:
+    MPI = None
+
+
+def _print_stack_and_return() -> int:
+    if MPI:
+        r = MPI.COMM_WORLD.Get_rank()
+    else:
+        r = ""
+    print(
+        f"\\n == == (Rank {{r}}) Error in Python: == == \\n"
+        f"{{traceback.format_exc()}}",
+        file=sys.stderr,
+        flush=True,
+    )
+    return -1
+
 
 @ffi.def_extern()
 def mapl_fortran_python_bridge_global_initialize_PyHook(IM, JM, LM) -> int:
     try:
         MAPL_PythonBridge.global_initialize(IM, JM, LM)
     except Exception as err:
-        print("Error in Python:")
-        print(traceback.format_exc())
-        return -1
+        return _print_stack_and_return()
     return 0
 
 @ffi.def_extern()
@@ -27,9 +46,7 @@ def mapl_fortran_python_bridge_user_init_PyHook(name, mapl_state, import_state, 
     try:
         MAPL_PythonBridge.named_init(name, mapl_state, import_state, export_state)
     except Exception as err:
-        print("Error in Python:")
-        print(traceback.format_exc())
-        return -1
+        return _print_stack_and_return()
     return 0
 
 @ffi.def_extern()
@@ -37,9 +54,7 @@ def mapl_fortran_python_bridge_user_run_PyHook(name, mapl_state, import_state, e
     try:
         MAPL_PythonBridge.named_run(name, mapl_state, import_state, export_state)
     except Exception as err:
-        print("Error in Python:")
-        print(traceback.format_exc())
-        return -1
+        return _print_stack_and_return()
     return 0
 
 @ffi.def_extern()
@@ -47,9 +62,7 @@ def mapl_fortran_python_bridge_user_run_with_internal_PyHook(name, mapl_state, i
     try:
         MAPL_PythonBridge.named_run_with_internal(name, mapl_state, import_state, export_state, internal_state)
     except Exception as err:
-        print("Error in Python:")
-        print(traceback.format_exc())
-        return -1
+        return _print_stack_and_return()
     return 0
 
 @ffi.def_extern()
