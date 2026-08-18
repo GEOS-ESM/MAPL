@@ -43,8 +43,7 @@ contains
           end if
        end do
 
-      _ASSERT(.not. has_deprecated_dso_key .and. .not. has_deprecated_routine_key, &
-           'Child DSO metadata must be declared in child config mapl.setServices, not parent mapl.children entry')
+      _ASSERT(.not. has_deprecated_dso_key .and. .not. has_deprecated_routine_key, 'Child DSO metadata must be declared in child config mapl.setServices, not parent mapl.children entry')
 
       has_config_file = ESMF_HconfigIsDefined(hconfig, keyString='config_file', _RC)
       _ASSERT(has_config_file, 'Child config entry must specify config_file')
