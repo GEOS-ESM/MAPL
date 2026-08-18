@@ -88,16 +88,16 @@ contains
          call outer_meta%init_meta(_RC)
 
          _RETURN(_SUCCESS)
-#ifdef __GFORTRAN__
-      contains
-
-         subroutine ridiculous(a, b)
-            type(OuterMetaComponent), intent(out) :: a
-            type(OuterMetaComponent), intent(in) :: b
-            a = b
-         end subroutine ridiculous
-#endif
       end subroutine get_or_create_outer_meta
+
+#ifdef __GFORTRAN__
+
+      subroutine ridiculous(a, b)
+         type(OuterMetaComponent), intent(out) :: a
+         type(OuterMetaComponent), intent(in) :: b
+         a = b
+      end subroutine ridiculous
+#endif
 
       subroutine set_entry_points(gridcomp, rc)
          type(ESMF_GridComp), intent(inout) :: gridcomp
