@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [v2.35.3+R21C_v1.6.0] - 2026-08-18
+
+### Fixed
+
+- Fixed bug so that MAPL_GridGet will return 0 for the level size if the grid has no level, instead of 1
+
 ## [v2.35.3+R21C_v1.5.0] - 2026-08-06
 
 ### Fixed
