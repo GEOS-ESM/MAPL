@@ -42,6 +42,7 @@ module mapl_Generic_mod
    use mapl_RestartModes_mod, only: RestartMode
    use mapl_ComponentSpecParser_mod, only: parse_geometry_spec
    use mapl_InternalConstants_mod
+   use :: mapl_ESMF_Interfaces_mod, only: I_SetServices
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
@@ -427,7 +428,7 @@ contains
       use mapl_UserSetServices_mod
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
-      procedure() :: ss_proc
+      procedure(I_SetServices) :: ss_proc
       type(ESMF_HConfig), intent(in) :: hconfig
       class(KeywordEnforcer), optional, intent(out) :: unusable
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
@@ -452,7 +453,7 @@ contains
       use mapl_UserSetServices_mod
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
-      procedure() :: ss_proc
+      procedure(I_SetServices) :: ss_proc
       character(len=*), intent(in) :: hconfig_file
       class(KeywordEnforcer), optional, intent(out) :: unusable
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
