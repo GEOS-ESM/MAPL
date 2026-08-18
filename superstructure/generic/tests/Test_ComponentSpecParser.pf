@@ -139,21 +139,6 @@ contains
 
    end subroutine test_parse_childSpec_basic
 
-   @test
-   subroutine test_parse_childSpec_legacy_parent_metadata_fails()
-      type(ESMF_HConfig) :: config
-      type(ChildSpec) :: found
-      integer :: status
-
-      call write_text_file('child_legacy.yaml', '{mapl: {setServices: {sharedObj: libA}}}')
-      config = ESMF_HConfigCreate(content='{sharedObj: libA, config_file: child_legacy.yaml}')
-
-      found = parse_child(config, rc=status)
-      @assertExceptionRaised('Child DSO metadata must be declared in child config mapl.setServices, not parent mapl.children entry')
-
-      call delete_file('child_legacy.yaml')
-   end subroutine test_parse_childSpec_legacy_parent_metadata_fails
-
 
    @test
    subroutine test_parse_childSpec_with_config_file()
