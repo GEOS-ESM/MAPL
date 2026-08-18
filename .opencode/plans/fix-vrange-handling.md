@@ -174,6 +174,22 @@ directly into `make_PrimaryExport` → `PrimaryExport` constructor. No workaroun
 
 ## Change Log
 
+### 2026-08-17 — Fix infinite loop in `refine_valid_range` Phase 2 binary search
+
+**Problem:** When `reff_time` is derived from `valid_range(1)` and `run_range(1) < reff_time`,
+the Phase 2 binary search in `refine_valid_range` could hang forever. The midpoint formula
+`(lo + hi) / 2` uses Fortran's truncation-toward-zero integer division. For negative odd sums
+(e.g. `lo=-4, hi=-3` → `-7/2 = -3`), this rounds toward the more positive value, yielding
+`n_mid = hi`. A file exists at that index, so `hi = n_mid = hi` — no change — and the loop
+never converges.
+
+**Fix (`AbstractDataSetFileSelector.F90:381`):** Changed
+`n_mid = (lo + hi) / 2` → `n_mid = lo + (hi - lo) / 2`.
+Since `hi > lo` guarantees `hi - lo > 0`, the division always floors, producing
+`n_mid ∈ [lo, hi-1]` and ensuring `hi` strictly decreases on every "found" branch.
+
+**File:** `gridcomps/extdata/AbstractDataSetFileSelector.F90`
+
 ### 2026-08-17 — Overlap gap scan for `persist_closest` and `clim`
 
 **Problem:** When `extrap_outside` is `"persist_closest"` or `"clim"` and the run
