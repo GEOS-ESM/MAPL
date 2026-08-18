@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- MAPL_GridGet will now return 0 instead of 1 if the grid was never set with the "LM" attribute for the vertical grid size
 - Removed the manual `find_package(MPI)`/`find_package(NetCDF)`/`find_package(HDF5)`/`find_package(ESMF)` block (and the Baselibs-only ESMF version guard) from the top-level `CMakeLists.txt`. As of ESMA_cmake v4.43.0, `esma.cmake` automatically `include()`s `ConfigureBaselibs.cmake` or `ConfigureExternalLibraries.cmake` based on `Baselibs_FOUND` right after `include(FindBaselibs)`, creating all of these dependency targets for us, including enforcing a minimum ESMF version of 8.6.1 for both Baselibs and Spack/non-Baselibs builds
 - Update `components.yaml`
   - ESMA_cmake v4.44.0
