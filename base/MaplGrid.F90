@@ -287,7 +287,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
       if (pglobal) then
 
-         globalCellCountPerDim = 1
+         globalCellCountPerDim = 0
          call ESMF_GridGet(grid, tileCount=tileCount,_RC)
 
          call ESMF_GridGet(grid, tile=1, staggerLoc=ESMF_STAGGERLOC_CENTER, &
@@ -311,7 +311,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       end if
 
       if (plocal) then
-         localCellCountPerDim = 1
+         localCellCountPerDim = 0
 
          HasDE = MAPL_GridHasDE(grid,_RC)
          if (HasDE) then
