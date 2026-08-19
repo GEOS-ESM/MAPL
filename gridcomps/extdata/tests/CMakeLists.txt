@@ -1,12 +1,5 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.extdata.tests")
 
-# For known sites, set LOCAL_REGRESSION_DATA_DIR automatically if not already set
-if (${GEOS_SITE} MATCHES "NCCS")
-  if (NOT DEFINED ENV{LOCAL_REGRESSION_DATA_DIR})
-    set(ENV{LOCAL_REGRESSION_DATA_DIR} "/discover/nobackup/bmauer/test-data")
-  endif ()
-endif ()
-
 set (test_srcs
   Test_ExtDataNodeBracket.pf
   )
