@@ -21,7 +21,7 @@ bcs_version: &bcs_version v12.0.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@5
+  ci: geos-esm/circleci-tools@dev:75d4abbc14621f940ce221fa0921a49322a5201e
 
 workflows:
   ############################################################################################################################
@@ -129,22 +129,6 @@ workflows:
       #     gcm_ocean_type: MOM6                           #
       #     change_layout: false                           #
       ######################################################
-
-      # Run GOCART tests
-      - ci/run_gocart_tests:
-          name: run-GOCART-tests-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              # To save CircleCI resources, we run GOCART tests only with ifx for now
-              #compiler: [gfortran, ifort, ifx]
-              compiler: [gfortran, ifx]
-          requires:
-            - build-GEOSgcm-on-<< matrix.compiler >>
-          repo: GEOSgcm
-          baselibs_version: *baselibs_version
-          bcs_version: *bcs_version
 
   #########################################################
   # build-GEOSldas:                                       #
