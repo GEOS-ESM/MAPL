@@ -21,7 +21,7 @@ bcs_version: &bcs_version v12.0.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@dev:ac1e2b22f6260535a38591a266c7c3b415f46b0b
+  ci: geos-esm/circleci-tools@dev:899473b4122023a4fd4be15993d1b8f1fba6492f
 
 workflows:
   ############################################################################################################################
@@ -96,6 +96,9 @@ workflows:
           checkout_mapl_branch: true
           run_regression_tests: true
           ctest_options: "-L REGRESSION"
+          # This is usually built if we run the MAPL tests, but we don't usually do that
+          # when building GEOSgcm. So we need to build it "extra"
+          extra_buildtargets: "MAPL.extdata.tests"
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
       ######################################################
