@@ -61,7 +61,7 @@ module MAPL_ExtDataOldTypesCreator
       end subroutine new_ExtDataOldTypesCreator
 
 
-   subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,run_range,unusable,rc)
+   subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,run_range,unusable,time_range,rc)
       class(ExtDataOldTypesCreator), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       character(len=*), intent(in) :: base_name
@@ -70,6 +70,7 @@ module MAPL_ExtDataOldTypesCreator
       type(ESMF_Clock), intent(inout) :: clock
       type(ESMF_Time), intent(in) :: run_range(2)
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Time), optional, intent(in) :: time_range(2)
       integer, optional, intent(out) :: rc
 
       type(ExtDataRule), pointer :: rule
@@ -81,6 +82,7 @@ module MAPL_ExtDataOldTypesCreator
       integer :: status, semi_pos
       logical :: disable_interpolation, get_range, exact, user_set_range
       type(ESMF_HConfig) :: entry_hconfig
+      type(ESMF_Time) :: effective_run(2)
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
@@ -157,10 +159,33 @@ module MAPL_ExtDataOldTypesCreator
           get_range = trim(time_sample%extrap_outside) /= "none"
           user_set_range = allocated(dataset%valid_range)
           call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,_RC)
+
+          ! Clip run_range to this rule's active window [time_range(1), time_range(2)).
+          ! For multi-rule exports this prevents validating a rule against dates when a
+          ! different rule is active.  Single-rule calls omit time_range so effective_run
+          ! falls back to run_range unchanged.
+          if (present(time_range)) then
+             if (run_range(1) > time_range(1)) then
+                effective_run(1) = run_range(1)
+             else
+                effective_run(1) = time_range(1)
+             end if
+             if (run_range(2) < time_range(2)) then
+                effective_run(2) = run_range(2)
+             else
+                effective_run(2) = time_range(2)
+             end if
+          else
+             effective_run = run_range
+          end if
+
+          ! Skip both blocks if this rule's active window does not overlap the run.
+          if (effective_run(1) < effective_run(2)) then
+
           if (this%validate_file_ranges .and. &
                index(dataset%file_template,'%') /= 0) then
              if (trim(time_sample%extrap_outside) == "none" .or. user_set_range) then
-                call dataset%check_data_availability(run_range, time_sample%extrap_outside, _RC)
+                call dataset%check_data_availability(effective_run, time_sample%extrap_outside, _RC)
              end if
           end if
 
@@ -172,7 +197,7 @@ module MAPL_ExtDataOldTypesCreator
                 this%required_files_hconfig = ESMF_HConfigCreate(content='{}', _RC)
                 this%required_files_hconfig_initialized = .true.
              end if
-             call dataset%get_required_files_hconfig(run_range, time_sample%extrap_outside, entry_hconfig, _RC)
+             call dataset%get_required_files_hconfig(effective_run, time_sample%extrap_outside, entry_hconfig, _RC)
              ! Key = base_name. For multi-rule items the key already exists as a
              ! sequence; for single-rule items it does not exist yet.
              if (ESMF_HConfigIsDefined(this%required_files_hconfig, keyString=trim(base_name))) then
@@ -203,6 +228,8 @@ module MAPL_ExtDataOldTypesCreator
              end if
              call ESMF_HConfigDestroy(entry_hconfig, _RC)
           end if
+
+          end if ! effective_run(1) < effective_run(2)
       else
          primary_item%file_template = rule%collection
       end if

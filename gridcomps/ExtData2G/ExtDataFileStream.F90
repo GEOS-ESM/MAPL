@@ -327,7 +327,7 @@ contains
       lo = n_lo
       hi = n_anchor
       do while (lo < hi)
-         n_mid = (lo + hi) / 2
+         n_mid = lo + (hi - lo) / 2
          t_mid = this%reff_time + n_mid * this%frequency
          call fill_grads_template(filename, this%file_template, time=t_mid, _RC)
          inquire(file=trim(filename), exist=file_found)

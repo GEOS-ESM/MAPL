@@ -163,10 +163,33 @@ Expected: **FAIL** — direction check: `on_disk_first (2005-01-01) > valid_rang
 
 ## Remaining Work
 
-- Build and run `ctest` to verify all tests pass.
 - Commit and open PR against `release/v2`.
 
 ## Change Log
+
+### 2026-08-17 — Fix infinite loop in `refine_valid_range` Phase 2 binary search
+
+**Problem:** When `reff_time` is derived from `valid_range(1)` (lines 119–134 of the
+`ExtDataFileStream` constructor) and `run_range(1) < reff_time`, the Phase 2 binary
+search in `refine_valid_range` could hang forever.  The midpoint formula `(lo + hi) / 2`
+uses Fortran's truncation-toward-zero integer division.  For negative odd sums (e.g.
+`lo=-4, hi=-3` → `-7/2 = -3`), this rounds toward the more positive value, yielding
+`n_mid = hi`.  A file exists at that index, so `hi = n_mid = hi` — no change — and the
+loop never converges.
+
+**Trigger (case23 step 3):** `fstream2` has `valid_range: "2019-12-31/2020-01-10"` so
+`reff_time = 2019-12-31`.  With `extrap_outside="none"` the scan window is `run_range =
+[2019-12-27, 2020-01-06]`, giving `n_lo = -4`.  The search converges normally to
+`lo=-4, hi=-3` and then stalls.
+
+**Fix (`ExtDataFileStream.F90:330`):** Changed
+`n_mid = (lo + hi) / 2` → `n_mid = lo + (hi - lo) / 2`.
+Since `hi > lo` guarantees `hi - lo > 0`, the division always floors, producing
+`n_mid ∈ [lo, hi-1]` and ensuring `hi` strictly decreases on every "found" branch.
+
+Also removed the stray `_HERE` debug print that was left at the old line 334.
+
+**File:** `gridcomps/ExtData2G/ExtDataFileStream.F90`
 
 ### 2026-08-17 — Overlap gap scan for `persist_closest` and `clim`; bracket gap scan for all three scenarios
 
@@ -195,3 +218,38 @@ list. Uses the same inline `scan_interval_seconds` + `reff_time + n * frequency`
 arithmetic and `fill_grads_template` pattern as the existing `do_gap_scan` block.
 
 **File:** `gridcomps/ExtData2G/ExtDataFileStream.F90`
+
+### 2026-08-18 — Clip validation range to each rule's active window for multi-rule exports
+
+**Problem:** For multi-rule exports (e.g. `E_1` with `starting: 1970-01-01` using a clim
+collection, and `starting: 2020-01-01` using a non-clim collection), `check_data_availability`
+was called with the full simulation `run_range` for every rule. This caused spurious failures
+when `VALIDATE_FILE_RANGES: true` and the run started before the second rule's `starting:`
+date — Rule 2's files don't exist before 2020-01-01, but MAPL was trying to validate them
+against the full run.
+
+**Root cause:** In `ExtDataGridCompNG`, `time_ranges` (the `num_rules+1` fence-post array
+from `get_time_range`) is used to stamp `start_end_time` onto each `temp_item` **after**
+`fillin_primary` returns. So `check_data_availability` inside `fillin_primary` always saw
+the full `run_range`, not the narrowed per-rule window.
+
+**Fix:** Added an optional `time_range(2)` argument to `fillin_primary`
+(`ExtDataOldTypesCreator.F90`). When present, `effective_run` is computed as the
+intersection of `run_range` with `[time_range(1), time_range(2))` using explicit
+`if`-logic (ESMF overloads `>` / `<` on `ESMF_Time` but not `max`/`min`). Both the
+`check_data_availability` and manifest blocks are wrapped in
+`if (effective_run(1) < effective_run(2))` so a rule entirely outside the run is silently
+skipped. When `time_range` is absent (single-rule call), `effective_run = run_range`.
+
+In `ExtDataGridCompNG.F90`, the multi-rule loop now passes
+`time_range=[time_ranges(j), time_ranges(j+1)]` to `fillin_primary`. The single-rule
+call site is unchanged.
+
+Note: `valid_range` propagation to the file handler did **not** require a separate fix in
+mapl2g — `valid_range` already flows from the `ExtDataFileStream` (dataset) object into
+the handler via `handler%initialize(dataset, ...)`, so the gap-scan clamping in
+`check_data_availability` already worked correctly once the right `effective_run` was
+passed in.
+
+**Files:** `gridcomps/ExtData2G/ExtDataOldTypesCreator.F90`,
+`gridcomps/ExtData2G/ExtDataGridCompNG.F90`
