@@ -105,15 +105,20 @@ module mapl_PrimaryExport_mod
          ! Clip run_range to this rule's active window [time_range(1), time_range(2)).
          ! For multi-rule exports this prevents validating a rule against the portion
          ! of the run when a different rule is active.
-         if (run_range(1) > time_range(1)) then
-            effective_run(1) = run_range(1)
+         ! For single-rule exports time_range is empty; use run_range directly.
+         if (size(time_range) == 2) then
+            if (run_range(1) > time_range(1)) then
+               effective_run(1) = run_range(1)
+            else
+               effective_run(1) = time_range(1)
+            end if
+            if (run_range(2) < time_range(2)) then
+               effective_run(2) = run_range(2)
+            else
+               effective_run(2) = time_range(2)
+            end if
          else
-            effective_run(1) = time_range(1)
-         end if
-         if (run_range(2) < time_range(2)) then
-            effective_run(2) = run_range(2)
-         else
-            effective_run(2) = time_range(2)
+            effective_run = run_range
          end if
 
          ! Validate that sufficient files exist on disk for the run period and
