@@ -28,9 +28,9 @@ actual range on disk, set only when `VALIDATE_FILE_RANGES: true`.
 
 1. **`extrap_outside = "none"`** — no extrapolation. Scan window = `run_range`.
    If `valid_range` is set and `run_range` extends outside it → config error (clear
-   fail). On-disk data must cover the full `run_range` including interpolation brackets:
-   file-by-file gap scan over `[run_range(1) - freq, run_range(2) + freq]` (clamped
-   to `valid_range` if set). `valid_range` not required.
+   fail). On-disk data must cover the full `run_range` including interpolation brackets.
+   Bracket files are determined by opening candidate files and reading internal
+   timestamps via `get_bracket_indices`. `valid_range` not required.
 
 2. **`extrap_outside = "persist_closest"`** — scan window = `valid_range` (required).
    If run overlaps `valid_range`: boundary check + bracket-aware gap scan over
@@ -46,7 +46,7 @@ actual range on disk, set only when `VALIDATE_FILE_RANGES: true`.
 
 | File | Role |
 |------|------|
-| `gridcomps/ExtData2G/ExtDataFileStream.F90` | `refine_valid_range` (private, takes explicit `scan_range`); `check_data_availability` (3-scenario logic); `get_required_files_hconfig` (manifest entry builder); `compute_index_bounds` (private helper) |
+| `gridcomps/ExtData2G/ExtDataFileStream.F90` | `refine_valid_range` (private, takes explicit `scan_range`); `check_data_availability` (3-scenario logic); `get_required_files_hconfig` (manifest entry builder); `compute_index_bounds` (private standalone subroutine); `get_bracket_indices` (private method, opens files to read internal timestamps) |
 | `gridcomps/ExtData2G/ExtDataOldTypesCreator.F90` | `validate_file_ranges` + `print_required_files` fields; gated call site; manifest accumulation keyed by `base_name` |
 | `gridcomps/ExtData2G/ExtDataGridCompNG.F90` | `VALIDATE_FILE_RANGES` + `PRINT_REQUIRED_FILES` yaml keys; `run_range` fetch; manifest write after `fillin_primary` loop |
 | `gridcomps/ExtData2G/ExtDataAbstractFileHandler.F90` | `on_disk_range` field; `find_any_file` forward+backward scan |
@@ -68,8 +68,8 @@ Default: **false**. Set `true` to enable startup file existence checks.
 
 - **`"none"`**: scans `run_range`; fails if `valid_range` set and run is outside it;
   checks `on_disk_first <= run_range(1) + freq` and `on_disk_last >= run_range(2) - freq`;
-  then file-by-file gap scan over `[run_range(1) - freq, run_range(2) + freq]` (clamped
-  to `valid_range` if set) to catch missing interpolation bracket files.
+  then calls `get_bracket_indices` to find the exact bracket files needed by opening
+  candidate files and reading their internal timestamps; fails if any required file is missing.
 - **`"persist_closest"`**: scans `valid_range`; overlap coverage check; bracket-aware
   gap scan over `[max(overlap_start - freq, valid_range(1)), min(overlap_end + freq, valid_range(2))]`;
   outside = `found_any` sufficient.
@@ -82,8 +82,10 @@ Default: **false**. Set `true` to enable startup file existence checks.
 
 ## PRINT_REQUIRED_FILES Details
 
-Writes a YAML manifest of all files the run needs, derived purely from template +
-frequency + ranges — no filesystem probing. Uses `ESMF_HConfigCreate` / `ESMF_HConfigAdd`
+Writes a YAML manifest of all files the run needs. For `extrap_outside="none"`,
+files are determined by opening candidate files and reading internal timestamps
+(via `get_bracket_indices`). For other scenarios, derived from template + frequency +
+ranges without filesystem probing. Uses `ESMF_HConfigCreate` / `ESMF_HConfigAdd`
 / `ESMF_HConfigFileSave`.
 
 ### Output format
@@ -113,11 +115,31 @@ required_files:
 
 | extrap_outside | run inside valid_range | run outside valid_range |
 |---|---|---|
-| `none` | all indices in `run_range` | all indices in `run_range` |
+| `none` | bracket files from `get_bracket_indices` (opens files) | bracket files from `get_bracket_indices` (opens files) |
 | `persist_closest` | indices in overlap | single endpoint file |
 | `clim` | indices in overlap | all indices in target year (`vr_yr1` or `vr_yr2`) |
 
-### Key implementation note
+### `get_bracket_indices` (private method on `ExtDataFileStream`)
+
+Determines the tightest `[n_lo, n_hi]` of file-series indices required to bracket
+`run_range` based on **internal timestamps read from file metadata** (not filename
+arithmetic). This is necessary because file naming (e.g. `test.%y4%m2.nc4`) does not
+encode the internal timestamp (e.g. the 15th of each month).
+
+Algorithm:
+1. Expand `compute_index_bounds(run_range)` by ±1 to form a conservative candidate set.
+2. For each candidate that exists on disk, open it via `DataCollections` +
+   `FileMetadataUtils%get_time_info` to read the internal time vector.
+   Probe times computed using the same walking logic as `compute_index_bounds`
+   (handles both fixed-interval and relative monthly/yearly frequencies).
+3. `n_lo` = highest index `n` where `last_ts(n) <= run_range(1)` (lower bracket)
+4. `n_hi` = lowest  index `n` where `first_ts(n) >= run_range(2)` (upper bracket)
+5. Fallback to conservative `[n_cand_lo, n_cand_hi]` if no files found.
+
+Used by both `check_data_availability` (gap scan for `"none"`) and
+`get_required_files_hconfig` (`"none"` case). The latter required changing
+`this` from `intent(in)` to `intent(inout)` to allow file I/O through the
+collection cache.
 
 `get_global_options` is called **before** `new_ExtDataOldTypesCreator` (to get
 `self%active` for early-return), but `new_ExtDataOldTypesCreator` has `intent(out)`
@@ -253,3 +275,33 @@ passed in.
 
 **Files:** `gridcomps/ExtData2G/ExtDataOldTypesCreator.F90`,
 `gridcomps/ExtData2G/ExtDataGridCompNG.F90`
+
+### 2026-08-19 — Robust bracket-file determination via internal timestamps (`get_bracket_indices`)
+
+**Problem:** The `"none"` gap scan in `check_data_availability` and the `"none"` case
+in `get_required_files_hconfig` both used filename-arithmetic (`± frequency`) to
+determine which files bracket `run_range`. This is fundamentally wrong when files have
+internal timestamps that don't align with the filename grid (e.g. monthly files named
+`test.%y4%m2.nc4` but internally timestamped on the 15th). The arithmetic would either:
+- Miss needed files (e.g. only list `test.200401.nc4` when `test.200402.nc4` is also
+  needed to bracket Feb 2), or
+- Include files that aren't needed (e.g. `test.200403.nc4` for a run ending Feb 6), or
+- Spuriously require non-existent files (e.g. `test.200312.nc4` when the run starts
+  Jan 25 and `reff_time` is Jan 1).
+
+**Note:** The single-rule out-of-bounds crash (`time_range(0)` subscript) from the
+develop/mapl3g branch does not apply to mapl2g — `fillin_primary` uses a different
+call pattern that does not index `time_range` unconditionally.
+
+**Fix:** Replaced filename-arithmetic bracket finding with `get_bracket_indices`, a new
+private method on `ExtDataFileStream` that opens each candidate file and reads its
+internal time vector via `FileMetadataUtils%get_time_info`. Probe times are computed
+using the same walking logic as `compute_index_bounds` (handles both fixed-interval and
+relative monthly/yearly frequencies). The bracket is determined as:
+- `n_lo` = highest index whose `last_ts <= run_range(1)` (lower bracket file)
+- `n_hi` = lowest  index whose `first_ts >= run_range(2)` (upper bracket file)
+
+`get_required_files_hconfig`'s `this` was changed from `intent(in)` to `intent(inout)`
+to allow file I/O through the collection cache.
+
+**File:** `gridcomps/ExtData2G/ExtDataFileStream.F90`

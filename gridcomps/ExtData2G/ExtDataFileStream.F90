@@ -26,6 +26,7 @@ module MAPL_ExtDataFileStream
          procedure :: check_data_availability
          procedure :: get_required_files_hconfig
          procedure, private :: refine_valid_range
+         procedure, private :: get_bracket_indices
    end type
 
     interface ExtDataFileStream
@@ -476,41 +477,9 @@ contains
                   " for template: "//trim(this%file_template))
          end if
 
-         ! Gap scan: probe every file slot needed to bracket the full run_range,
-         ! including one frequency on each side for interpolation brackets.
-         ! Clamp to valid_range if set.
-         t_scan_lo = run_range(1) - this%frequency
-         if (allocated(this%valid_range)) then
-            if (t_scan_lo < this%valid_range(1)) t_scan_lo = this%valid_range(1)
-         end if
-         t_scan_hi = run_range(2) + this%frequency
-         if (allocated(this%valid_range)) then
-            if (t_scan_hi > this%valid_range(2)) t_scan_hi = this%valid_range(2)
-         end if
-         call ESMF_TimeIntervalGet(this%frequency, s_i8=scan_interval_seconds, _RC)
-         if (scan_interval_seconds /= 0) then
-            n_scan_lo = (t_scan_lo - this%reff_time) / this%frequency
-            if (this%reff_time + n_scan_lo * this%frequency > t_scan_lo) n_scan_lo = n_scan_lo - 1
-            n_scan_hi = (t_scan_hi - this%reff_time) / this%frequency
-            if (this%reff_time + n_scan_hi * this%frequency > t_scan_hi) n_scan_hi = n_scan_hi - 1
-         else
-            n_scan = 0
-            if (this%reff_time < t_scan_lo) then
-               do while (this%reff_time + (n_scan + 1) * this%frequency <= t_scan_lo)
-                  n_scan = n_scan + 1
-               end do
-            else
-               do while (this%reff_time + n_scan * this%frequency > t_scan_lo)
-                  n_scan = n_scan - 1
-               end do
-            end if
-            n_scan_lo = n_scan
-            n_scan = n_scan_lo
-            do while (this%reff_time + (n_scan + 1) * this%frequency <= t_scan_hi)
-               n_scan = n_scan + 1
-            end do
-            n_scan_hi = n_scan
-         end if
+         ! Gap scan: use get_bracket_indices to determine exactly which files
+         ! are required to bracket run_range based on internal timestamps.
+         call this%get_bracket_indices(run_range, n_scan_lo, n_scan_hi, _RC)
          n_missing    = 0
          missing_list = ""
          do n_scan = n_scan_lo, n_scan_hi
@@ -961,6 +930,110 @@ contains
 
    end subroutine compute_index_bounds
 
+   ! ---------------------------------------------------------------------------
+   ! get_bracket_indices: given run_range, determine the tightest set of
+   ! file-series indices [n_lo, n_hi] required to interpolate over run_range,
+   ! based on internal timestamps read from file metadata.
+   !
+   ! Required files span [n_lower, n_upper] where:
+   !   n_lower = highest n where last_ts(n)  <= run_range(1)  (lower bracket)
+   !   n_upper = lowest  n where first_ts(n) >= run_range(2)  (upper bracket)
+   !
+   ! Algorithm:
+   !   1. Expand compute_index_bounds(run_range) by ±1 for a conservative set.
+   !   2. For each candidate that exists on disk, open and read its time vector.
+   !   3. Derive n_lo / n_hi from the internal timestamps.
+   !   4. Fall back to the conservative estimate if no files found.
+   ! ---------------------------------------------------------------------------
+   subroutine get_bracket_indices(this, run_range, n_lo, n_hi, rc)
+      class(ExtDataFileStream), intent(inout) :: this
+      type(ESMF_Time),          intent(in)    :: run_range(2)
+      integer,                  intent(out)   :: n_lo
+      integer,                  intent(out)   :: n_hi
+      integer, optional,        intent(out)   :: rc
+
+      integer :: n_cand_lo, n_cand_hi, n, status
+      integer(ESMF_KIND_I8) :: interval_seconds
+      type(ESMF_Time) :: t_probe
+      type(ESMF_Time), allocatable :: time_series(:)
+      character(len=ESMF_MAXPATHLEN) :: filename
+      logical :: file_found, found_lo, found_hi
+      type(MAPLDataCollection), pointer :: collection
+      type(FileMetadataUtils),  pointer :: file_metadata
+
+      call compute_index_bounds(this%reff_time, this%frequency, &
+           run_range(1), run_range(2), n_cand_lo, n_cand_hi, rc=status)
+      _VERIFY(status)
+      n_cand_lo = n_cand_lo - 1
+      n_cand_hi = n_cand_hi + 1
+
+      call ESMF_TimeIntervalGet(this%frequency, s_i8=interval_seconds, rc=status)
+      _VERIFY(status)
+
+      collection => DataCollections%at(this%collection_id)
+
+      n_lo = n_cand_lo
+      n_hi = n_cand_hi
+      found_lo = .false.
+      found_hi = .false.
+
+      do n = n_cand_lo, n_cand_hi
+         ! Compute t_probe using the same logic as compute_index_bounds:
+         ! fixed-interval: reff_time + n * frequency
+         ! relative (monthly/yearly): walk from reff_time
+         if (interval_seconds /= 0) then
+            t_probe = this%reff_time + n * this%frequency
+         else
+            t_probe = this%reff_time
+            if (n >= 0) then
+               block
+                  integer :: i
+                  do i = 1, n
+                     t_probe = t_probe + this%frequency
+                  end do
+               end block
+            else
+               block
+                  integer :: i
+                  do i = -1, n, -1
+                     t_probe = t_probe - this%frequency
+                  end do
+               end block
+            end if
+         end if
+
+         call fill_grads_template(filename, this%file_template, time=t_probe, rc=status)
+         _VERIFY(status)
+         inquire(file=trim(filename), exist=file_found)
+         if (.not. file_found) cycle
+
+         file_metadata => collection%find(trim(filename), rc=status)
+         _VERIFY(status)
+         call file_metadata%get_time_info(timeVector=time_series, rc=status)
+         _VERIFY(status)
+
+         ! Lower bracket: highest n where last_ts(n) <= run_range(1)
+         if (time_series(size(time_series)) <= run_range(1)) then
+            if (.not. found_lo .or. n > n_lo) n_lo = n
+            found_lo = .true.
+         end if
+         ! Upper bracket: lowest n where first_ts(n) >= run_range(2)
+         if (time_series(1) >= run_range(2)) then
+            if (.not. found_hi .or. n < n_hi) n_hi = n
+            found_hi = .true.
+         end if
+
+         deallocate(time_series)
+      end do
+
+      ! Fallback: if bracket not found in candidates, use conservative estimate
+      if (.not. found_lo) n_lo = n_cand_lo
+      if (.not. found_hi) n_hi = n_cand_hi
+
+      if (present(rc)) rc = ESMF_SUCCESS
+
+   end subroutine get_bracket_indices
+
    ! Build an ESMF_HConfig map entry describing all files this dataset requires
    ! for the given run_range and extrap_outside mode.  No filesystem probing is
    ! performed — the list is derived purely from the template, frequency, and ranges.
@@ -981,7 +1054,7 @@ contains
    !   "clim" inside     — indices in overlap(run_range, valid_range)
    !   "clim" outside    — indices in the target year (vr_yr1 or vr_yr2)
    subroutine get_required_files_hconfig(this, run_range, extrap_outside, entry_hconfig, unusable, rc)
-      class(ExtDataFileStream), intent(in)    :: this
+      class(ExtDataFileStream), intent(inout) :: this
       type(ESMF_Time),          intent(in)    :: run_range(2)
       character(len=*),         intent(in)    :: extrap_outside
       type(ESMF_HConfig),       intent(out)   :: entry_hconfig
@@ -1010,9 +1083,28 @@ contains
       select case (trim(extrap_outside))
 
       case ("none")
-         ! Enumerate all file indices within run_range.
-         t_enum_lo = run_range(1)
-         t_enum_hi = run_range(2)
+         ! Use get_bracket_indices to find exactly which files bracket run_range
+         ! based on their internal timestamps (read from file metadata).
+         call this%get_bracket_indices(run_range, n_lo, n_hi, rc=status)
+         _VERIFY(status)
+
+         files_seq = ESMF_HConfigCreate(content='[]', rc=status)
+         _VERIFY(status)
+
+         do n = n_lo, n_hi
+            t_probe = this%reff_time + n * this%frequency
+            call fill_grads_template(probe_filename, this%file_template, time=t_probe, rc=status)
+            _VERIFY(status)
+            call ESMF_HConfigAdd(files_seq, trim(probe_filename), rc=status)
+            _VERIFY(status)
+         end do
+
+         call ESMF_HConfigAdd(entry_hconfig, content=files_seq, addKeyString='files', rc=status)
+         _VERIFY(status)
+         call ESMF_HConfigDestroy(files_seq, rc=status)
+         _VERIFY(status)
+
+         _RETURN(_SUCCESS)
 
       case ("persist_closest")
          ! Compute overlap of run_range and valid_range.
