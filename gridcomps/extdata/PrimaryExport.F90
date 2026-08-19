@@ -79,6 +79,7 @@ module mapl_PrimaryExport_mod
       logical :: do_validate, do_manifest, user_set_range
       type(ESMF_HConfig) :: entry_hconfig
       character(len=:), allocatable :: base_name
+      type(ESMF_Time) :: effective_run(2)
 
       do_validate = .false.
       if (present(validate_file_ranges)) do_validate = validate_file_ranges
@@ -90,21 +91,42 @@ module mapl_PrimaryExport_mod
          if (sample%extrap_outside == 'clim') then
             clim_file_selector = ClimDataSetFileSelector(collection%file_template, collection%valid_range, collection%frequency, ref_time=collection%reff_time, timeStep=time_step)
             allocate(primary_export%file_selector, source=clim_file_selector, _STAT)
-         else
-            non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest"), timeStep=time_step )
-            allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
-         end if
+          else
+             if (collection%is_valid_range_allocated()) then
+                non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest"), valid_range=collection%valid_range, timeStep=time_step )
+             else
+                non_clim_file_selector = NonClimDataSetFileSelector(collection%file_template, collection%frequency, ref_time=collection%reff_time, persist_closest = (sample%extrap_outside == "persist_closest"), timeStep=time_step )
+             end if
+             allocate(primary_export%file_selector, source=non_clim_file_selector, _STAT)
+          end if
 
          user_set_range = collection%is_valid_range_allocated()
+
+         ! Clip run_range to this rule's active window [time_range(1), time_range(2)).
+         ! For multi-rule exports this prevents validating a rule against the portion
+         ! of the run when a different rule is active.
+         if (run_range(1) > time_range(1)) then
+            effective_run(1) = run_range(1)
+         else
+            effective_run(1) = time_range(1)
+         end if
+         if (run_range(2) < time_range(2)) then
+            effective_run(2) = run_range(2)
+         else
+            effective_run(2) = time_range(2)
+         end if
 
          ! Validate that sufficient files exist on disk for the run period and
          ! extrapolation mode, and populate on_disk_range for runtime clamping.
          ! Gated on VALIDATE_FILE_RANGES flag (default false).
          ! Scenario "none" fires when template is multi-file, regardless of valid_range.
          ! Scenarios "persist_closest"/"clim" require valid_range to be set.
+         ! Skip both blocks if this rule's active window does not overlap the run.
+         if (effective_run(1) < effective_run(2)) then
+
          if (do_validate .and. index(collection%file_template, '%') /= 0) then
             if (trim(sample%extrap_outside) == 'none' .or. user_set_range) then
-               call primary_export%file_selector%check_data_availability(run_range, sample%extrap_outside, _RC)
+               call primary_export%file_selector%check_data_availability(effective_run, sample%extrap_outside, _RC)
             end if
          end if
 
@@ -112,7 +134,7 @@ module mapl_PrimaryExport_mod
          if (do_manifest .and. index(collection%file_template, '%') /= 0 .and. &
               (trim(sample%extrap_outside) == 'none' .or. user_set_range)) then
             call primary_export%file_selector%get_required_files_hconfig( &
-                 run_range, sample%extrap_outside, entry_hconfig, _RC)
+                 effective_run, sample%extrap_outside, entry_hconfig, _RC)
             ! Key = base export name (strip rule_sep suffix if present).
             base_name = export_var
             if (index(export_var, rule_sep) > 0) base_name = export_var(:index(export_var,rule_sep)-1)
@@ -146,12 +168,14 @@ module mapl_PrimaryExport_mod
             else
                call ESMF_HConfigAdd(required_files_hconfig, content=entry_hconfig, addKeyString=trim(base_name), rc=status)
                _VERIFY(status)
-            end if
-            call ESMF_HConfigDestroy(entry_hconfig, rc=status)
-            _VERIFY(status)
-         end if
+          end if
+             call ESMF_HConfigDestroy(entry_hconfig, rc=status)
+             _VERIFY(status)
+          end if
 
-         primary_export%file_vars = rule%file_vars
+         end if ! effective_run(1) < effective_run(2)
+
+          primary_export%file_vars = rule%file_vars
          primary_export%linear_trans = rule%linear_trans
          if (index(rule%regrid_method, 'FRACTION') > 0) then
             semi_pos = index(rule%regrid_method, ';')

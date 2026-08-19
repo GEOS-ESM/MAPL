@@ -169,7 +169,6 @@ directly into `make_PrimaryExport` → `PrimaryExport` constructor. No workaroun
 
 ## Remaining Work
 
-- Build and run tests to verify all changes compile and pass.
 - Commit and open PR against `develop`.
 
 ## Change Log
@@ -224,3 +223,65 @@ probed.
 - **`"clim"` overlap**: same widening as `persist_closest`.
 
 **File:** `gridcomps/extdata/AbstractDataSetFileSelector.F90`
+
+### 2026-08-18 — Clip validation range to each rule's active window for multi-rule exports
+
+**Problem:** For multi-rule exports (e.g. `E_1` with `starting: 1970-01-01` using a clim
+collection, and `starting: 2020-01-01` using a non-clim collection), `check_data_availability`
+was called with the full simulation `run_range` for every rule. This caused spurious failures
+when `VALIDATE_FILE_RANGES: true` and the run started before the second rule's `starting:`
+date — Rule 2's files don't exist before 2020-01-01, but MAPL was trying to validate them
+against the full run from 2019-12-27.
+
+**Fix (`PrimaryExport.F90`):** Before calling `check_data_availability` (and
+`get_required_files_hconfig`), compute `effective_run` as the intersection of `run_range`
+with this rule's active window `[time_range(1), time_range(2))`:
+
+```fortran
+if (run_range(1) > time_range(1)) then
+   effective_run(1) = run_range(1)
+else
+   effective_run(1) = time_range(1)
+end if
+if (run_range(2) < time_range(2)) then
+   effective_run(2) = run_range(2)
+else
+   effective_run(2) = time_range(2)
+end if
+```
+
+If `effective_run(1) >= effective_run(2)` the rule is entirely outside the run and both
+blocks are skipped (no error, no manifest entry). Single-rule exports are unaffected:
+when `time_range` is size 0 (no multi-rule), `effective_run` falls back to `run_range`.
+
+Note: ESMF overloads `>` / `<` on `ESMF_Time` but not `max`/`min`, so explicit
+`if`-logic is required instead of intrinsic `max`/`min`.
+
+**File:** `gridcomps/extdata/PrimaryExport.F90`
+
+### 2026-08-18 — Pass `valid_range` to `NonClimDataSetFileSelector` for `extrap_outside="none"`
+
+**Problem:** The bracket-aware gap scan in `check_data_availability` (scenario `"none"`)
+clamps `t_scan_lo = run_range(1) - freq` to `valid_range(1)` when `valid_range` is
+allocated on the selector. However, `valid_range` was only wired into
+`NonClimDataSetFileSelector` for the `"persist_closest"` case — not for `"none"`. So for
+a `"none"` collection whose `valid_range` starts exactly at `run_range(1)` (e.g.
+`valid_range: 2020-01-01/2020-01-10`, rule active from `2020-01-01`), the scan would
+probe `2019-12-31` (one freq below the start) and report it missing even though data
+starts on `2020-01-01` as intended.
+
+**Fix (`PrimaryExport.F90`):** When constructing `NonClimDataSetFileSelector`, pass
+`valid_range=collection%valid_range` whenever the collection has one:
+
+```fortran
+if (collection%is_valid_range_allocated()) then
+   non_clim_file_selector = NonClimDataSetFileSelector(..., valid_range=collection%valid_range, ...)
+else
+   non_clim_file_selector = NonClimDataSetFileSelector(...)
+end if
+```
+
+This ensures the gap-scan clamping logic in `AbstractDataSetFileSelector` receives the
+`valid_range` it was already designed to use.
+
+**File:** `gridcomps/extdata/PrimaryExport.F90`
