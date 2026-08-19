@@ -48,9 +48,9 @@ discovered actual range on disk, set only when `VALIDATE_FILE_RANGES: true`.
 
 1. **`extrap_outside = "none"`** — no extrapolation. Scan window = `run_range`.
    If `valid_range` is set and `run_range` extends outside it → config error.
-   On-disk data must cover the full `run_range` including interpolation brackets:
-   file-by-file gap scan over `[run_range(1) - freq, run_range(2) + freq]` (clamped
-   to `valid_range` if set). `valid_range` not required.
+   On-disk data must cover the full `run_range` including interpolation brackets.
+   Bracket files are determined by opening candidate files and reading internal
+   timestamps via `get_bracket_indices`. `valid_range` not required.
 
 2. **`extrap_outside = "persist_closest"`** — scan window = `valid_range` (required).
    If run overlaps `valid_range`: boundary check + bracket-aware gap scan over
@@ -66,8 +66,8 @@ discovered actual range on disk, set only when `VALIDATE_FILE_RANGES: true`.
 
 | File | Change |
 |------|--------|
-| `gridcomps/extdata/AbstractDataSetFileSelector.F90` | `refine_valid_range` takes explicit `scan_range`; `check_data_availability` 3-scenario restructure; new `compute_index_bounds` private helper; new `get_required_files_hconfig` public method; `find_any_file` backward scan; bracket-aware gap scans added to all three cases |
-| `gridcomps/extdata/PrimaryExport.F90` | Updated `check_data_availability` gate (enables `"none"` scenario); manifest accumulation keyed by base export name; new optional args `validate_file_ranges` + `required_files_hconfig` |
+| `gridcomps/extdata/AbstractDataSetFileSelector.F90` | `refine_valid_range` takes explicit `scan_range`; `check_data_availability` 3-scenario restructure; new `compute_index_bounds` private helper; new `get_bracket_indices` private helper (opens files to read internal timestamps); new `get_required_files_hconfig` public method; `find_any_file` backward scan; bracket-aware gap scans using `get_bracket_indices` for `"none"` case |
+| `gridcomps/extdata/PrimaryExport.F90` | Updated `check_data_availability` gate (enables `"none"` scenario); out-of-bounds guard for single-rule exports (`size(time_range)==0`); manifest accumulation keyed by base export name; new optional args `validate_file_ranges` + `required_files_hconfig` |
 | `gridcomps/extdata/ExtDataConfig.F90` | `make_PrimaryExport` threads optional `validate_file_ranges` + `required_files_hconfig` to `PrimaryExport` constructor |
 | `gridcomps/extdata/ExtDataGridComp.F90` | `modify_advertise` reads `VALIDATE_FILE_RANGES` + `PRINT_REQUIRED_FILES` from hconfig; threads flags through `make_PrimaryExport`; writes manifest YAML after export loop |
 
@@ -86,8 +86,8 @@ Default: **false**. Set `true` to enable startup file existence checks.
 
 - **`"none"`**: scans `run_range`; fails if `valid_range` set and run is outside it;
   checks `on_disk_first <= run_range(1) + freq` and `on_disk_last >= run_range(2) - freq`;
-  then file-by-file gap scan over `[run_range(1) - freq, run_range(2) + freq]` (clamped
-  to `valid_range` if set) to catch missing interpolation bracket files.
+  then calls `get_bracket_indices` to find the exact bracket files needed by opening
+  candidate files and reading their internal timestamps; fails if any required file is missing.
 - **`"persist_closest"`**: scans `valid_range`; overlap coverage check; file-by-file gap
   scan over `[max(overlap_start - freq, valid_range(1)), min(overlap_end + freq, valid_range(2))]`
   to catch missing interpolation bracket files; outside = `found_any` sufficient.
@@ -100,8 +100,10 @@ Default: **false**. Set `true` to enable startup file existence checks.
 
 ## PRINT_REQUIRED_FILES Details
 
-Writes a YAML manifest of all files the run needs, derived purely from template +
-frequency + ranges — no filesystem probing. Uses `ESMF_HConfigCreate` /
+Writes a YAML manifest of all files the run needs. For `extrap_outside="none"`,
+files are determined by opening candidate files and reading internal timestamps
+(via `get_bracket_indices`). For other scenarios, derived from template + frequency +
+ranges without filesystem probing. Uses `ESMF_HConfigCreate` /
 `ESMF_HConfigAdd` / `ESMF_HConfigFileSave`.
 
 ### Output format
@@ -131,7 +133,7 @@ required_files:
 
 | extrap_outside | run inside valid_range | run outside valid_range |
 |---|---|---|
-| `none` | all indices in `run_range` | all indices in `run_range` |
+| `none` | bracket files from `get_bracket_indices` (opens files) | bracket files from `get_bracket_indices` (opens files) |
 | `persist_closest` | indices in overlap | single endpoint file |
 | `clim` | indices in overlap | all indices in target year (`vr_yr1` or `vr_yr2`) |
 
@@ -152,6 +154,26 @@ When `on_disk_range` is not allocated (validation off):
 Replaces the duplicated abs/rel index arithmetic that appeared separately in
 `refine_valid_range`, `check_data_availability` (gap scan), and `get_required_files_hconfig`.
 Uses `compute_time_at_index` for the relative-interval case.
+
+### `get_bracket_indices` (private, on `AbstractDataSetFileSelector`)
+
+Determines the tightest `[n_lo, n_hi]` of file-series indices required to bracket
+`run_range` based on **internal timestamps read from file metadata** (not filename
+arithmetic). This is necessary because file naming (e.g. `test.%y4%m2.nc4`) does not
+encode the internal timestamp (e.g. the 15th of each month).
+
+Algorithm:
+1. Expand `compute_index_bounds(run_range)` by ±1 to form a conservative candidate set.
+2. For each candidate that exists on disk, open it via `mapl_DataCollections` +
+   `FileMetadataUtils%get_time_info` to read the internal time vector.
+3. `n_lo` = highest index `n` where `last_ts(n) <= run_range(1)` (lower bracket)
+4. `n_hi` = lowest  index `n` where `first_ts(n) >= run_range(2)` (upper bracket)
+5. Fallback to conservative `[n_cand_lo, n_cand_hi]` if no files found.
+
+Used by both `check_data_availability` (gap scan for `"none"`) and
+`get_required_files_hconfig` (`"none"` case). The latter required changing
+`this` from `intent(in)` to `intent(inout)` to allow file I/O through the
+collection cache.
 
 ### `rule_sep` in `PrimaryExport`
 
@@ -285,3 +307,39 @@ This ensures the gap-scan clamping logic in `AbstractDataSetFileSelector` receiv
 `valid_range` it was already designed to use.
 
 **File:** `gridcomps/extdata/PrimaryExport.F90`
+
+### 2026-08-19 — Out-of-bounds fix for single-rule exports with `VALIDATE_FILE_RANGES`
+
+**Problem:** `get_time_range` in `ExtDataConfig.F90` returns a zero-length `time_range`
+for single-rule exports (no `rule_sep` in the key). The `effective_run` clipping block
+in `PrimaryExport.F90` then accessed `time_range(1)` unconditionally, causing:
+`forrtl: severe (408): Subscript #1 of the array TIME_RANGE has value 1 which is greater than the upper bound of 0`
+
+**Fix (`PrimaryExport.F90`):** Wrapped the `effective_run` clipping in
+`if (size(time_range) == 2) then ... else; effective_run = run_range; end if`.
+
+**File:** `gridcomps/extdata/PrimaryExport.F90`
+
+### 2026-08-19 — Robust bracket-file determination via internal timestamps (`get_bracket_indices`)
+
+**Problem:** The `"none"` gap scan in `check_data_availability` and the `"none"` case
+in `get_required_files_hconfig` both used filename-arithmetic (`± file_frequency`) to
+determine which files bracket `run_range`. This is fundamentally wrong when files have
+internal timestamps that don't align with the filename grid (e.g. monthly files named
+`test.%y4%m2.nc4` but internally timestamped on the 15th). The arithmetic would either:
+- Miss needed files (e.g. only list `test.200401.nc4` when `test.200402.nc4` is also
+  needed to bracket Feb 2), or
+- Include files that aren't needed (e.g. `test.200403.nc4` for a run ending Feb 6), or
+- Spuriously require non-existent files (e.g. `test.200312.nc4` when the run starts
+  Jan 25 and `reff_time` is Jan 1).
+
+**Fix:** Replaced filename-arithmetic bracket finding with `get_bracket_indices`, a new
+private subroutine that opens each candidate file and reads its internal time vector via
+`FileMetadataUtils%get_time_info`. The bracket is determined as:
+- `n_lo` = highest index whose `last_ts <= run_range(1)` (lower bracket file)
+- `n_hi` = lowest  index whose `first_ts >= run_range(2)` (upper bracket file)
+
+`get_required_files_hconfig`'s `this` was changed from `intent(in)` to `intent(inout)`
+to allow the file I/O.
+
+**Files:** `gridcomps/extdata/AbstractDataSetFileSelector.F90`
