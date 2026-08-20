@@ -1012,6 +1012,26 @@ contains
          call file_metadata%get_time_info(timeVector=time_series, rc=status)
          _VERIFY(status)
 
+         ! If this single file straddles the entire run (has at least one
+         ! timestamp <= run_range(1) AND at least one >= run_range(2)), it
+         ! alone provides both brackets — no other files needed.
+         block
+            logical :: has_lo_ts, has_hi_ts
+            integer :: k
+            has_lo_ts = .false.
+            has_hi_ts = .false.
+            do k = 1, size(time_series)
+               if (time_series(k) <= run_range(1)) has_lo_ts = .true.
+               if (time_series(k) >= run_range(2)) has_hi_ts = .true.
+            end do
+            if (has_lo_ts .and. has_hi_ts) then
+               n_lo = n
+               n_hi = n
+               deallocate(time_series)
+               _RETURN(_SUCCESS)
+            end if
+         end block
+
          ! Lower bracket: highest n where last_ts(n) <= run_range(1)
          if (time_series(size(time_series)) <= run_range(1)) then
             if (.not. found_lo .or. n > n_lo) n_lo = n

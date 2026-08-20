@@ -305,3 +305,29 @@ relative monthly/yearly frequencies). The bracket is determined as:
 to allow file I/O through the collection cache.
 
 **File:** `gridcomps/ExtData2G/ExtDataFileStream.F90`
+
+### 2026-08-19 — Single-file straddle shortcut in `get_bracket_indices`
+
+**Problem:** For files with multiple internal timestamps per file (e.g. one file per year
+with 12 monthly timestamps), `get_bracket_indices` would include the files immediately
+before and after the run even when a single file contains timestamps bracketing the entire
+run window. Example: `%y4` template, 12-timestamp yearly files, run from
+`2000-04-14T21:00:00` to `2000-04-15T21:00:00` — the 2000 file alone brackets the run,
+but the algorithm returned indices for 1999, 2000, and 2001.
+
+**Root cause:** The existing lower/upper bracket logic checked whether `last_ts(n) <=
+run_range(1)` (file entirely before run) or `first_ts(n) >= run_range(2)` (file entirely
+after run). A file that *straddles* the run (has timestamps on both sides) satisfies
+neither condition and was never recognized as self-sufficient.
+
+**Fix (`ExtDataFileStream.F90`):** Added a straddle check at the top of the per-candidate
+loop body, before the existing lower/upper bracket tests. For each candidate file whose
+`time_series` is read, an explicit loop checks whether the file contains at least one
+timestamp `<= run_range(1)` (`has_lo_ts`) and at least one timestamp `>= run_range(2)`
+(`has_hi_ts`). If both are true, the file alone provides both interpolation brackets:
+`n_lo = n_hi = n` and the subroutine returns immediately via `_RETURN(_SUCCESS)`.
+The existing lower/upper bracket logic is unchanged and handles all non-straddling cases.
+
+**Ported from:** `gridcomps/extdata/AbstractDataSetFileSelector.F90` in the mapl3g branch.
+
+**File:** `gridcomps/ExtData2G/ExtDataFileStream.F90`
