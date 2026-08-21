@@ -704,31 +704,7 @@ CONTAINS
       call MAPL_ExtDataFlipBracketSide(item,bracket_side,_RC)
       call bundle_iter%next()
    enddo
-   if (self%log_files_read) then
-      do i = 1, self%primary%import_names%size()
-         current_base_name => self%primary%import_names%at(i)
-         idx = self%primary%get_item_index(current_base_name, current_time, _RC)
-         item => self%primary%item_vec%at(idx)
-         if (item%isConst) then
-            nullify(item)
-            cycle
-         end if
-         call item%modelGridFields%comp1%get_parameters('L', file=file_processed, _RC)
-         if (trim(file_processed) /= file_not_found .and. len_trim(file_processed) > 0) then
-            if (.not. string_in_vector(self%files_read, file_processed)) then
-               call self%files_read%push_back(trim(file_processed))
-            end if
-         end if
-         call item%modelGridFields%comp1%get_parameters('R', file=file_processed, _RC)
-         if (trim(file_processed) /= file_not_found .and. len_trim(file_processed) > 0) then
-            if (.not. string_in_vector(self%files_read, file_processed)) then
-               call self%files_read%push_back(trim(file_processed))
-            end if
-         end if
-         nullify(item)
-      end do
-      self%run_end_time = current_time
-   end if
+   call harvest_files_read(self, current_time, _RC)
 
    call MAPL_ExtDataDestroyCFIO(IOBundles,_RC)
 
@@ -1951,6 +1927,49 @@ CONTAINS
      _RETURN(_SUCCESS)
 
   end subroutine confirm_imports_for_vregrid
+
+!.......................................................................
+
+  subroutine harvest_files_read(self, current_time, rc)
+     type(MAPL_ExtData_State), intent(inout) :: self
+     type(ESMF_Time),          intent(in)    :: current_time
+     integer, optional,        intent(out)   :: rc
+
+     integer :: i, idx, status
+     character(len=:), pointer :: current_base_name
+     type(primaryExport), pointer :: item
+     character(len=ESMF_MAXPATHLEN) :: current_file
+
+     if (.not. self%log_files_read) then
+        _RETURN(ESMF_SUCCESS)
+     end if
+
+     do i = 1, self%primary%import_names%size()
+        current_base_name => self%primary%import_names%at(i)
+        idx = self%primary%get_item_index(current_base_name, current_time, _RC)
+        item => self%primary%item_vec%at(idx)
+        if (item%isConst) then
+           nullify(item)
+           cycle
+        end if
+        call item%modelGridFields%comp1%get_parameters('L', file=current_file, _RC)
+        if (trim(current_file) /= file_not_found .and. len_trim(current_file) > 0) then
+           if (.not. string_in_vector(self%files_read, current_file)) then
+              call self%files_read%push_back(trim(current_file))
+           end if
+        end if
+        call item%modelGridFields%comp1%get_parameters('R', file=current_file, _RC)
+        if (trim(current_file) /= file_not_found .and. len_trim(current_file) > 0) then
+           if (.not. string_in_vector(self%files_read, current_file)) then
+              call self%files_read%push_back(trim(current_file))
+           end if
+        end if
+        nullify(item)
+     end do
+     self%run_end_time = current_time
+     _RETURN(ESMF_SUCCESS)
+
+  end subroutine harvest_files_read
 
 !.......................................................................
 
