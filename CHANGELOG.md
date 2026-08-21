@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated the Discover NAG CI workflow to skip fork pull requests by default,
   while allowing an authorized maintainer to run it by rerunning the workflow.
-
+- Refactored `UserSetServices.F90` to remove the `user_setservices` interface, rename `AbstractUserSetServices` to `UserSetServices`, and giving `ProcSetServices` and `DSOSetServices` their own constructors
 - `Regrid_Util.x` now uses the fargparse library for command line argument parsing instead
   of raw Fortran intrinsics. Multi-character options that previously used a single-dash prefix
   (e.g. `-ogrid`, `-nx`, `-ny`, `-method`, `-tp_in`, `-tp_out`, `-lon_range`, `-lat_range`,
@@ -104,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed the unreliable feedback from Python bridge failures
 - Improved `SimpleConnection` assertion messages for unknown virtual connection points
 - Fixed bug in FieldBundleRead when file grid and output bundle grid are different grid classes
 - Buggy logic in server initialization (#5214)
