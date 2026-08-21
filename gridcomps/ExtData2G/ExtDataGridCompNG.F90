@@ -117,6 +117,11 @@
      type(ESMF_Config)    :: CF
      logical              :: active = .true.
      logical              :: file_weights = .false.
+     logical              :: log_files_read = .false.
+     character(:), allocatable :: files_read_log_path
+     type(stringVector)   :: files_read
+     type(ESMF_Time)      :: run_start_time
+     type(ESMF_Time)      :: run_end_time
   end type MAPL_ExtData_State
 
 ! Hook for the ESMF
@@ -301,6 +306,12 @@ CONTAINS
     end if
 
     call new_ExtDataOldTypesCreator(config_yaml, new_rc_file, time, _RC)
+
+    self%log_files_read = config_yaml%log_files_read
+    if (config_yaml%log_files_read) then
+       self%files_read_log_path = config_yaml%files_read_log_path
+       self%run_start_time = time
+    end if
 
     allocate(ITEMNAMES(ITEMCOUNT), _STAT)
     allocate(ITEMTYPES(ITEMCOUNT), _STAT)
@@ -693,6 +704,32 @@ CONTAINS
       call MAPL_ExtDataFlipBracketSide(item,bracket_side,_RC)
       call bundle_iter%next()
    enddo
+   if (self%log_files_read) then
+      do i = 1, self%primary%import_names%size()
+         current_base_name => self%primary%import_names%at(i)
+         idx = self%primary%get_item_index(current_base_name, current_time, _RC)
+         item => self%primary%item_vec%at(idx)
+         if (item%isConst) then
+            nullify(item)
+            cycle
+         end if
+         call item%modelGridFields%comp1%get_parameters('L', file=file_processed, _RC)
+         if (trim(file_processed) /= file_not_found .and. len_trim(file_processed) > 0) then
+            if (.not. string_in_vector(self%files_read, file_processed)) then
+               call self%files_read%push_back(trim(file_processed))
+            end if
+         end if
+         call item%modelGridFields%comp1%get_parameters('R', file=file_processed, _RC)
+         if (trim(file_processed) /= file_not_found .and. len_trim(file_processed) > 0) then
+            if (.not. string_in_vector(self%files_read, file_processed)) then
+               call self%files_read%push_back(trim(file_processed))
+            end if
+         end if
+         nullify(item)
+      end do
+      self%run_end_time = current_time
+   end if
+
    call MAPL_ExtDataDestroyCFIO(IOBundles,_RC)
 
    call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
@@ -789,6 +826,41 @@ CONTAINS
 !-------------------------------------------------------------------------
 
    integer                           :: status
+   type(MAPL_ExtData_state), pointer :: self
+   type(ESMF_Config)                 :: CF_local
+   type(ESMF_HConfig)                :: cfg, files_list
+   type(StringVectorIterator)        :: fiter
+      character(len=ESMF_MAXSTR)        :: filename
+   character(len=ESMF_MAXSTR)        :: timestring
+
+!  Extract internal state
+!  ----------------------
+   call extract_ ( GC, self, CF_local, _RC )
+
+!  Write file-read log if enabled
+!  --------------------------------
+   if (self%log_files_read) then
+      cfg = ESMF_HConfigCreate(_RC)
+
+      call ESMF_TimeGet(self%run_start_time, timeString=timestring, _RC)
+      call ESMF_HConfigAdd(cfg, content=trim(timestring), addKeyString='run_start', _RC)
+
+      call ESMF_TimeGet(self%run_end_time, timeString=timestring, _RC)
+      call ESMF_HConfigAdd(cfg, content=trim(timestring), addKeyString='run_end', _RC)
+
+      files_list = ESMF_HConfigCreate(_RC)
+      fiter = self%files_read%begin()
+      do while (fiter /= self%files_read%end())
+         filename = fiter%get()
+         call ESMF_HConfigAdd(files_list, content=trim(filename), _RC)
+         call fiter%next()
+      end do
+      call ESMF_HConfigAdd(cfg, files_list, addKeyString='files_read', _RC)
+      call ESMF_HConfigDestroy(files_list, _RC)
+
+      call ESMF_HConfigFileSave(cfg, self%files_read_log_path, _RC)
+      call ESMF_HConfigDestroy(cfg, _RC)
+   end if
 
 !  Finalize MAPL Generic
 !  ---------------------
@@ -1879,6 +1951,25 @@ CONTAINS
      _RETURN(_SUCCESS)
 
   end subroutine confirm_imports_for_vregrid
+
+!.......................................................................
+
+  logical function string_in_vector(vec, str)
+     type(StringVector), intent(in) :: vec
+     character(len=*),   intent(in) :: str
+     type(StringVectorIterator) :: iter
+      character(len=ESMF_MAXSTR) :: val
+     string_in_vector = .false.
+     iter = vec%begin()
+     do while (iter /= vec%end())
+        val = iter%get()
+        if (trim(val) == trim(str)) then
+           string_in_vector = .true.
+           return
+        end if
+        call iter%next()
+     end do
+  end function string_in_vector
 
 
 

@@ -27,6 +27,8 @@ module MAPL_ExtDataConfig
       type(ExtDataDerivedMap) :: derived_map
       type(ExtDataFileStreamMap) :: file_stream_map
       type(ExtDataTimeSampleMap) :: sample_map
+      logical :: log_files_read = .false.
+      character(:), allocatable :: files_read_log_path
 
       contains
          procedure :: add_new_rule
@@ -158,6 +160,11 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="debug") )then
          ext_config%debug =  ESMF_HConfigAsI4(input_config,keyString="debug",_RC)
+      end if
+
+      if (ESMF_HConfigIsDefined(input_config,keyString="log_files_read")) then
+         ext_config%files_read_log_path = ESMF_HConfigAsString(input_config,keyString="log_files_read",_RC)
+         ext_config%log_files_read = .true.
       end if
 
       _RETURN(_SUCCESS)
