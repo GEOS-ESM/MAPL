@@ -33,7 +33,7 @@ below).
 | File | Change |
 |------|--------|
 | `gridcomps/ExtData2G/ExtDataConfig.F90` | Added `log_files_read` (logical) and `files_read_log_path` (allocatable string) to `ExtDataConfig` type; parse `log_files_read` key in `new_ExtDataConfig_from_yaml` |
-| `gridcomps/ExtData2G/ExtDataGridCompNG.F90` | Added `log_files_read`, `files_read_log_path`, `files_read` (StringVector), `run_start_time`, `run_end_time` to `MAPL_ExtData_State`; propagate config in `Initialize_`; harvest filenames from item brackets in `Run_`; write YAML log in `Finalize_` via `ESMF_HConfigFileSave`; added private `string_in_vector` helper for manual deduplication |
+| `gridcomps/ExtData2G/ExtDataGridCompNG.F90` | Added `log_files_read`, `files_read_log_path`, `files_read` (StringVector), `run_start_time`, `run_end_time` to `MAPL_ExtData_State`; propagate config in `Initialize_`; call `harvest_files_read` in `Run_`; write YAML log in `Finalize_` via `ESMF_HConfigFileSave`; added private `harvest_files_read` and `string_in_vector` helpers |
 
 ### Tests
 
@@ -129,5 +129,17 @@ changes, `IOBundles` is empty so nothing was logged.
 `item%modelGridFields%comp1%get_parameters('L', file=...)` and
 `get_parameters('R', file=...)` without any update guard. This always returns
 the files currently held in the L/R brackets, regardless of whether they were
-refreshed this timestep. Uses the existing `file_processed` local variable;
-skips const items and `file_not_found` sentinels.
+refreshed this timestep. Skips const items and `file_not_found` sentinels.
+
+### Bug 3: Refactor — extract `harvest_files_read` subroutine
+
+The file-harvesting block in `Run_` was 25 lines long, hurting readability.
+Extracted into a new private subroutine `harvest_files_read(self, current_time, rc)`
+placed alongside `string_in_vector` at the bottom of the file. The subroutine
+owns its local variables (`i`, `idx`, `current_base_name`, `item`,
+`current_file`) and contains the `if (.not. self%log_files_read)` early-exit
+guard internally. `Run_` is reduced to a single call line:
+
+```fortran
+call harvest_files_read(self, current_time, _RC)
+```
