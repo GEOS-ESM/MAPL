@@ -30,6 +30,23 @@ macro(run_case CASE DESCRIPTION)
 			 endif()
 			 math(EXPR step_num "${step_num} + 1")
     endforeach()
+
+    if (EXISTS "${tempdir}/compare.rc")
+        file(STRINGS "${tempdir}/compare.rc" compare_lines)
+        foreach(pair IN LISTS compare_lines)
+            string(REGEX MATCH "^([^ ]+) +([^ ]+)$" _ "${pair}")
+            set(generated "${tempdir}/${CMAKE_MATCH_1}")
+            set(reference "${tempdir}/${CMAKE_MATCH_2}")
+            execute_process(
+                COMMAND ${CMAKE_COMMAND} -E compare_files "${generated}" "${reference}"
+                RESULT_VARIABLE COMPARE_RESULT
+                )
+            if(COMPARE_RESULT)
+                message(FATAL_ERROR "${CASE} FAILED: ${CMAKE_MATCH_1} does not match reference ${CMAKE_MATCH_2}")
+            endif()
+        endforeach()
+    endif()
+
 	 execute_process(
 		COMMAND ${CMAKE_COMMAND} -E rm -rf ${tempdir}
 		)
