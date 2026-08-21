@@ -26,11 +26,33 @@ macro(run_case CASE)
       WORKING_DIRECTORY ${tempdir}
       #COMMAND_ECHO STDOUT
       )
+    if(CMD_RESULT)
+       execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${tempdir})
+       message(FATAL_ERROR "Error running ${CASE}")
+    endif()
+    if (EXISTS "${tempdir}/compare.rc")
+       file(STRINGS "${tempdir}/compare.rc" COMPARE_LINES)
+       foreach(line ${COMPARE_LINES})
+          # Skip comment lines
+          if (line MATCHES "^#")
+             continue()
+          endif()
+          separate_arguments(pair UNIX_COMMAND "${line}")
+          list(GET pair 0 generated)
+          list(GET pair 1 reference)
+          execute_process(
+             COMMAND ${CMAKE_COMMAND} -E compare_files
+                "${tempdir}/${generated}" "${tempdir}/${reference}"
+             RESULT_VARIABLE CMP_RESULT
+          )
+          if(CMP_RESULT)
+             execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${tempdir})
+             message(FATAL_ERROR "File comparison failed for ${CASE}: ${generated} differs from ${reference}")
+          endif()
+       endforeach()
+    endif()
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E rm -rf ${tempdir}
       )
-    if(CMD_RESULT)
-       message(FATAL_ERROR "Error running ${CASE}")
-    endif()
 endmacro()
 run_case(${TEST_CASE})
