@@ -68,8 +68,11 @@ function(run_case)
     )
   endif()
 
+  # References were generated with ifort. Permit GNU compiler roundoff on
+  # large-magnitude fields while retaining an absolute bound near zero.
   execute_process(
-    COMMAND nccmp -dmfgsB --tolerance 1e-4 "${TMP_DIR}/output_from_run.nc4" "${TMP_DIR}/output.nc4"
+    COMMAND nccmp -dmfgsB --tolerance 1e-4 --Tolerance 1e-4 --join-tolerance
+            "${TMP_DIR}/output_from_run.nc4" "${TMP_DIR}/output.nc4"
     RESULT_VARIABLE CMP_RESULT
   )
   if(NOT CMP_RESULT EQUAL 0)
@@ -102,7 +105,8 @@ function(run_case)
   endif()
 
   execute_process(
-    COMMAND nccmp -dmfgsB --tolerance 1e-4 "${TMP_DIR}/output_from_run.nc4" "${TMP_DIR}/output.nc4"
+    COMMAND nccmp -dmfgsB --tolerance 1e-4 --Tolerance 1e-4 --join-tolerance
+            "${TMP_DIR}/output_from_run.nc4" "${TMP_DIR}/output.nc4"
     RESULT_VARIABLE YAML_CMP_RESULT
   )
   if(NOT YAML_CMP_RESULT EQUAL 0)
