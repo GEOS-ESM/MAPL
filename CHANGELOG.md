@@ -102,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed restart handler so checkpoints have data in the coordinate variables.
 - Fixed the unreliable feedback from Python bridge failures
 - Improved `SimpleConnection` assertion messages for unknown virtual connection points
 - Fixed bug in FieldBundleRead when file grid and output bundle grid are different grid classes
