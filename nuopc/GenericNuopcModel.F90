@@ -12,58 +12,46 @@ module mapl_GenericNuopcModel_mod
    private
 
    ! Procedures
-   public :: NuopcSetServices
+   public :: SetServices
 
-   ! This may not be necessary.
-   interface mapl_NuopcModelCreate
-      procedure create_model
-   end interface Mapl_NuopcModelCreate
+   interface set_subclass
+      module procedure :: set_subclass_nuopc
+   end interface set_subclass
 
 contains
 
-   ! This fulfills the interface above trivially.
-   function create_model() result(model)
-      type(ESMF_GridComp) :: model
-   end function create_model
-
-   recursive subroutine NuopcSetServices(model, rc)
+   recursive subroutine SetServices(model, rc)
       type(ESMF_GridComp) :: model
       integer, intent(out) :: rc
-
       integer :: status
       type(NuopcMetaModel), pointer :: meta_model
       type(GriddedComponentDriver) :: user_gc_driver
       type(esmf_GridComp) :: user_gridcomp
-      type(DSoSetServices) :: user_SetServices
-
       type(esmf_HConfig) :: hconfig
-      character(:), allocatable :: sharedObj, userRoutine
+      character(len=ESMF_MAXSTR) :: name
 
       call NUOPC_CompDerive(model, modelSS, _RC)
       
+      call NUOPC_GridCompGet(model, name=name, _RC)
       call esmf_GridCompGet(model, hconfig=hconfig, _RC)
-      sharedObj = esmf_HConfigAsString(hconfig, keystring='sharedObj', _RC)
-      userRoutine = esmf_HConfigAsString(hconfig, keystring='userRoutine', _RC)
-      user_setServices = DsoSetServices(sharedObj, userRoutine)
-      
-      user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist, contextFlag=contextFlag, _RC)
+      user_gridcomp = ESMF_GridCompCreate(name=trim(name), _RC)
+      call set_is_generic(user_gridcomp, flag=.FALSE., _RC)
       call set_subclass(user_gridcomp,subclass='user_gridcomp', _RC)
       user_gc_driver = GriddedComponentDriver(user_gridcomp)
-         
+      call set_is_generic(model, _RC)
       call attach_meta_model(model, _RC)
       meta_model => get_meta_model(model, _RC)
 
 #ifndef __GFORTRAN__
-      meta_model = NuopcMetaModel(model, user_gc_driver, user_SetServices, hconfig)
+      meta_model = NuopcMetaModel(model, user_gc_driver, hconfig)
 #else
       ! GFortran 12 & 13 cannot directly assign to meta_model.  But
       ! the assignment works for an object without the POINTER
       ! attribute.  An internal procedure is a workaround, but
       ! ... ridiculous.
-      call ridiculous(meta_model, NuopcMetaModel(model, user_gc_driver, set_services, hconfig))
+      call ridiculous(meta_model, NuopcMetaModel(model, user_gc_driver, hconfig))
 #endif
       call meta_model%init(_RC)
-
       call meta_model%setServices(_RC)
       call set_entry_points(model, _RC)
 
@@ -106,14 +94,14 @@ contains
       end subroutine set_entry_points
 
    contains
-
+#ifdef __GFORTRAN__
       subroutine ridiculous(a, b)
          type(NuopcMetaModel), intent(out) :: a
          type(NuopcMetaModel), intent(in) :: b
          a = b
       end subroutine ridiculous
 #endif
-   end subroutine GenericSetServices
+   end subroutine SetServices
 
    recursive subroutine Advertise(model, rc)
       type(ESMF_GridComp) :: model
@@ -258,4 +246,21 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_subclass_nuopc
 
+   subroutine set_is_generic(gridcomp, flag, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      logical, optional, intent(in) :: flag
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: flag_
+      type(ESMF_Info) :: info
+
+      flag_ = .true.
+      if (present(flag)) flag_ = flag
+
+      call ESMF_InfoGetFromHost(gridcomp, info, _RC)
+      call ESMF_InfoSet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=flag_, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_is_generic
 end module mapl_GenericGridComp_mod
