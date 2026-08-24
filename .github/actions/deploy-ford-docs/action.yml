@@ -15,7 +15,20 @@ inputs:
     default: ""
   deploy-token:
     description: "GitHub token for deployment"
-    required: true
+    required: false
+    default: ""
+  clean:
+    description: "Remove files no longer present in the generated documentation"
+    required: false
+    default: "true"
+  clean-exclude:
+    description: "Files or folders to preserve when cleaning the deployment destination"
+    required: false
+    default: ""
+  publish:
+    description: "Publish the generated documentation to GitHub Pages"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -50,6 +63,7 @@ runs:
         path: gFTL
         fetch-depth: 1
         ref: v1.17.0
+        persist-credentials: false
 
     - name: Build gFTL
       run: |
@@ -68,10 +82,13 @@ runs:
 
     - name: Deploy Pages
       uses: JamesIves/github-pages-deploy-action@v4
-      if: github.event_name == 'push' && github.repository == 'GEOS-ESM/MAPL' && ( startsWith( github.ref, 'refs/tags/v' ) || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' )
+      if: inputs.publish == 'true' && ( github.event_name == 'push' || github.event_name == 'workflow_dispatch' ) && github.repository == 'GEOS-ESM/MAPL'
       with:
         folder: ${{ inputs.doc-folder }}
         target-folder: ${{ inputs.target-folder }}
         branch: gh-pages
         repository-name: GEOS-ESM/MAPL-docs
         token: ${{ inputs.deploy-token }}
+        clean: ${{ inputs.clean }}
+        clean-exclude: ${{ inputs.clean-exclude }}
+        force: false
