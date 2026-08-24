@@ -5,15 +5,15 @@ module mapl_FieldCondensedArray_private_mod
    implicit none
 
    private
-   public :: get_fptr_shape_private, ARRAY_RANK
+   public :: get_fptr_shape_private, CONDENSED_RANK
 
-   integer, parameter :: ARRAY_RANK = 3
+   integer, parameter :: CONDENSED_RANK = 3
 
 contains
 
    function get_fptr_shape_private(gridToFieldMap, localElementCount, has_vertical, rc) &
          &result(fptr_shape)
-      integer :: fptr_shape(ARRAY_RANK)
+      integer :: fptr_shape(CONDENSED_RANK)
       integer, intent(in) :: gridToFieldMap(:)
       integer, intent(in) :: localElementCount(:)
       logical, intent(in) :: has_vertical
