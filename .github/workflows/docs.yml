@@ -4,15 +4,18 @@ on:
   push:
     branches:
       - main
-    tags:
-      - v*
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: mapl-v2-documentation-deployment-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy-docs:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,9 +33,16 @@ jobs:
           # relative path to the ford input file.
           ford-input: docs-with-remote-esmf.md
           doc-folder: docs/Ford/doc
+          clean-exclude: |
+            dev-doc
+            mapl3-doc
+            mapl3-dev-doc
+          publish: ${{ github.ref == 'refs/heads/main' }}
           deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}
 
   build-and-deploy-dev-docs:
+    if: github.ref == 'refs/heads/main'
+    needs: build-and-deploy-docs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -51,4 +61,5 @@ jobs:
           ford-input: docs-with-remote-esmf.public_private_protected.md
           doc-folder: docs/Ford/dev-doc
           target-folder: dev-doc
+          publish: ${{ github.ref == 'refs/heads/main' }}
           deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}

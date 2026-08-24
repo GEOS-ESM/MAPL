@@ -12,6 +12,9 @@ on:
       - ".github/PULL_REQUEST_TEMPLATE.md"
       - ".editorconfig"
 
+permissions:
+  contents: read
+
 concurrency:
   # For PRs: one slot per PR number.
   # For non-PR events (schedule, workflow_dispatch): one slot per ref.
@@ -19,28 +22,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-ford-docs:
-    name: Build Ford Docs
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          filter: blob:none
-
-      - name: Build and Deploy Docs
-        uses: ./.github/actions/deploy-ford-docs
-        with:
-          # Due to a bug in ford, for now we do *not* want to use
-          # the full path to the ford input file. Rather, the
-          # action will cd into docs/Ford and then run ford
-          # relative path to the ford input file.
-          ford-input: ford-ci.md
-          doc-folder: docs/Ford/ci-doc
-          deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}
-
   #####################################################################################
   # build_test_mapl_gnu:                                                              #
   #   name: gfortran / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }} #
@@ -94,6 +75,7 @@ jobs:
         with:
           fetch-depth: 1
           filter: blob:none
+          persist-credentials: false
 
       - name: Build and Test MAPL
         uses: ./.github/actions/ci-build-and-test-mapl
@@ -120,6 +102,7 @@ jobs:
         with:
           fetch-depth: 1
           filter: blob:none
+          persist-credentials: false
 
       - name: Build and Test MAPL
         uses: ./.github/actions/ci-build-and-test-mapl
@@ -145,6 +128,7 @@ jobs:
         with:
           fetch-depth: 1
           filter: blob:none
+          persist-credentials: false
 
       - name: Build and Test MAPL
         uses: ./.github/actions/ci-build-and-test-mapl
@@ -165,6 +149,7 @@ jobs:
         with:
           fetch-depth: 1
           filter: blob:none
+          persist-credentials: false
 
       - name: Build MAPL without optional packages
         uses: ./.github/actions/ci-build-and-test-mapl
