@@ -13,6 +13,7 @@ module mapl_ExtDataGridComp_mod
    use gftl2_StringStringMap
    use gftl2_IntegerVector
    use gftl2_StringIntegerMap
+   use gFTL2_StringSet
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use pflogger
    implicit none(type,external)
@@ -30,6 +31,11 @@ module mapl_ExtDataGridComp_mod
       logical :: has_run_mod_advert = .false.
       type(StringVector) :: active_items
       type(StringIntegerMap) :: last_item
+      logical :: log_files_read = .false.
+      character(:), allocatable :: files_read_log_path
+      type(StringSet) :: files_read
+      type(ESMF_Time) :: run_start_time
+      type(ESMF_Time) :: run_end_time
    contains
       procedure :: get_item_index
    end type ExtDataGridComp
@@ -45,6 +51,7 @@ contains
 
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name="GENERIC::INIT_MODIFY_ADVERTISED", _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_FINALIZE, finalize_extdata, _RC)
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
@@ -89,6 +96,11 @@ contains
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       extdata_gridcomp%active_items = get_active_items(exportState, _RC)
       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
+      extdata_gridcomp%log_files_read = config%log_files_read
+      if (config%log_files_read) then
+         extdata_gridcomp%files_read_log_path = config%files_read_log_path
+         extdata_gridcomp%run_start_time = current_time
+      end if
       rule_counter = 0
       iter = extdata_gridcomp%active_items%ftn_begin()
       do while (iter /= extdata_gridcomp%active_items%ftn_end())
@@ -169,6 +181,10 @@ contains
          call export_item%append_state_to_reader(exportState, reader, lgr, _RC)
       end do
       call reader%read_items(lgr, _RC)
+      if (extdata_gridcomp%log_files_read) then
+         call reader%get_unique_filenames(extdata_gridcomp%files_read, _RC)
+         extdata_gridcomp%run_end_time = current_time
+      end if
       call reader%destroy_reader(_RC)
 
       call handle_fractional_regrid(extdata_gridcomp, current_time, exportState, _RC)
@@ -176,6 +192,53 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
    end subroutine run
+
+   subroutine finalize_extdata(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp)  :: gridcomp
+      type(ESMF_State)     :: importState
+      type(ESMF_State)     :: exportState
+      type(ESMF_Clock)     :: clock
+      integer, intent(out) :: rc
+
+      type(ExtDataGridComp), pointer :: extdata_gridcomp
+      type(ESMF_HConfig) :: cfg, files_list
+      type(StringSetIterator) :: iter
+      character(len=:), pointer :: filename
+      character(len=ESMF_MAXSTR) :: timestring
+      integer :: status
+
+      _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
+
+      if (.not. extdata_gridcomp%log_files_read) then
+         _RETURN(_SUCCESS)
+      end if
+
+      cfg = ESMF_HConfigCreate(_RC)
+
+      call ESMF_TimeGet(extdata_gridcomp%run_start_time, timeString=timestring, _RC)
+      call ESMF_HConfigAdd(cfg, content=trim(timestring), addKeyString='run_start', _RC)
+
+      call ESMF_TimeGet(extdata_gridcomp%run_end_time, timeString=timestring, _RC)
+      call ESMF_HConfigAdd(cfg, content=trim(timestring), addKeyString='run_end', _RC)
+
+      files_list = ESMF_HConfigCreate(_RC)
+      iter = extdata_gridcomp%files_read%begin()
+      do while (iter /= extdata_gridcomp%files_read%end())
+         filename => iter%of()
+         call ESMF_HConfigAdd(files_list, content=trim(filename), _RC)
+         call iter%next()
+      end do
+      call ESMF_HConfigAdd(cfg, files_list, addKeyString='files_read', _RC)
+      call ESMF_HConfigDestroy(files_list, _RC)
+
+      call ESMF_HConfigFileSave(cfg, extdata_gridcomp%files_read_log_path, _RC)
+      call ESMF_HConfigDestroy(cfg, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
+   end subroutine finalize_extdata
 
    subroutine handle_fractional_regrid(extdata_internal, current_time, export_state, rc)
       type(ExtDataGridComp), intent(in) :: extdata_internal
