@@ -502,6 +502,26 @@ contains
          file_metadata => collection%find(trim(filename), _RC)
          call file_metadata%get_time_info(timeVector=time_series, _RC)
 
+         ! If this single file straddles the entire run (has at least one
+         ! timestamp <= run_range(1) AND at least one >= run_range(2)), it
+         ! alone provides both brackets — no other files needed.
+         block
+            logical :: has_lo_ts, has_hi_ts
+            integer :: k
+            has_lo_ts = .false.
+            has_hi_ts = .false.
+            do k = 1, size(time_series)
+               if (time_series(k) <= run_range(1)) has_lo_ts = .true.
+               if (time_series(k) >= run_range(2)) has_hi_ts = .true.
+            end do
+            if (has_lo_ts .and. has_hi_ts) then
+               n_lo = n
+               n_hi = n
+               deallocate(time_series)
+               _RETURN(_SUCCESS)
+            end if
+         end block
+
          ! Lower bracket: highest n whose last timestamp is <= run_range(1)
          if (time_series(size(time_series)) <= run_range(1)) then
             if (.not. found_lo .or. n > n_lo) n_lo = n
@@ -898,15 +918,15 @@ contains
    !                       if run entirely outside valid_range, just endpoint file
    !   "clim" inside     — indices in overlap(run_range, valid_range)
    !   "clim" outside    — indices in target year (vr_yr1 or vr_yr2)
-   subroutine get_required_files_hconfig(this, run_range, extrap_outside, entry_hconfig, unusable, rc)
-      class(AbstractDataSetFileSelector), intent(inout) :: this
+    subroutine get_required_files_hconfig(this, run_range, extrap_outside, entry_hconfig, unusable, rc)
+       class(AbstractDataSetFileSelector), intent(in) :: this
       type(ESMF_Time),                    intent(in)  :: run_range(2)
       character(len=*),                   intent(in)  :: extrap_outside
       type(ESMF_HConfig),                 intent(out) :: entry_hconfig
       class(mapl_KeywordEnforcer), optional, intent(in)  :: unusable
       integer,                     optional, intent(out) :: rc
 
-      integer :: n, n_lo, n_hi, status
+      integer :: n, n_lo, n_hi, n_vr_lo, n_vr_hi, status
       integer :: vr_yr1, vr_yr2, scan_year
       type(ESMF_Time) :: t_enum_lo, t_enum_hi, t_probe
       type(ESMF_Time) :: overlap_start, overlap_end
@@ -925,32 +945,38 @@ contains
 
       select case (trim(extrap_outside))
 
-      case ("none")
-         ! Use get_bracket_indices to find exactly which files bracket run_range
-         ! based on their internal timestamps (read from file metadata).
-         call this%get_bracket_indices(run_range, n_lo, n_hi, rc=status)
-         _VERIFY(status)
+       case ("none")
+          ! Conservative over-approximation: enumerate all files whose filename-grid
+          ! position could plausibly bracket run_range, without opening any files.
+          ! We cannot determine the exact bracket files without reading internal
+          ! timestamps, which requires the files to already exist.  Expanding by ±1
+          ! step guarantees coverage regardless of where internal timestamps fall
+          ! within each file's nominal interval (e.g. daily files timestamped at 12Z).
+          call this%compute_index_bounds(run_range(1), run_range(2), n_lo, n_hi, rc=status)
+          _VERIFY(status)
+          n_lo = n_lo - 1
+          n_hi = n_hi + 1
 
-         files_seq = ESMF_HConfigCreate(content='[]', rc=status)
-         _VERIFY(status)
+          files_seq = ESMF_HConfigCreate(content='[]', rc=status)
+          _VERIFY(status)
 
-         do n = n_lo, n_hi
-            t_probe = this%compute_time_at_index(n, rc=status)
-            _VERIFY(status)
-            call mapl_fill_grads_template(probe_filename, this%file_template, time=t_probe, rc=status)
-            _VERIFY(status)
-            call ESMF_HConfigAdd(files_seq, trim(probe_filename), rc=status)
-            _VERIFY(status)
-         end do
+          do n = n_lo, n_hi
+             t_probe = this%compute_time_at_index(n, rc=status)
+             _VERIFY(status)
+             call mapl_fill_grads_template(probe_filename, this%file_template, time=t_probe, rc=status)
+             _VERIFY(status)
+             call ESMF_HConfigAdd(files_seq, trim(probe_filename), rc=status)
+             _VERIFY(status)
+          end do
 
-         call ESMF_HConfigAdd(entry_hconfig, content=files_seq, addKeyString='files', rc=status)
-         _VERIFY(status)
-         call ESMF_HConfigDestroy(files_seq, rc=status)
-         _VERIFY(status)
+          call ESMF_HConfigAdd(entry_hconfig, content=files_seq, addKeyString='files', rc=status)
+          _VERIFY(status)
+          call ESMF_HConfigDestroy(files_seq, rc=status)
+          _VERIFY(status)
 
-         _RETURN(_SUCCESS)
+          _RETURN(_SUCCESS)
 
-      case ("persist_closest")
+       case ("persist_closest")
          if (run_range(1) > this%valid_range(1)) then
             overlap_start = run_range(1)
          else
@@ -963,15 +989,45 @@ contains
          end if
 
          if (overlap_start <= overlap_end) then
-            t_enum_lo = overlap_start
-            t_enum_hi = overlap_end
+            ! Run overlaps valid_range: enumerate the overlap window with ±1 bracket
+            ! expansion, clamped to valid_range.  Same logic as "none": we need the
+            ! files immediately outside the overlap to cover interpolation brackets.
+            call this%compute_index_bounds(overlap_start, overlap_end, n_lo, n_hi, rc=status)
+            _VERIFY(status)
+            n_lo = n_lo - 1
+            n_hi = n_hi + 1
+            call this%compute_index_bounds(this%valid_range(1), this%valid_range(1), n_vr_lo, n_vr_lo, rc=status)
+            _VERIFY(status)
+            call this%compute_index_bounds(this%valid_range(2), this%valid_range(2), n_vr_hi, n_vr_hi, rc=status)
+            _VERIFY(status)
+            if (n_lo < n_vr_lo) n_lo = n_vr_lo
+            if (n_hi > n_vr_hi) n_hi = n_vr_hi
          else if (run_range(2) < this%valid_range(1)) then
-            t_enum_lo = this%valid_range(1)
-            t_enum_hi = this%valid_range(1)
+            ! Run entirely before valid_range: clamp to single first endpoint file.
+            call this%compute_index_bounds(this%valid_range(1), this%valid_range(1), n_lo, n_hi, rc=status)
+            _VERIFY(status)
          else
-            t_enum_lo = this%valid_range(2)
-            t_enum_hi = this%valid_range(2)
+            ! Run entirely after valid_range: clamp to single last endpoint file.
+            call this%compute_index_bounds(this%valid_range(2), this%valid_range(2), n_lo, n_hi, rc=status)
+            _VERIFY(status)
          end if
+
+         ! Enumeration already computed into n_lo/n_hi above; skip shared block.
+         files_seq = ESMF_HConfigCreate(content='[]', rc=status)
+         _VERIFY(status)
+         do n = n_lo, n_hi
+            t_probe = this%compute_time_at_index(n, rc=status)
+            _VERIFY(status)
+            call mapl_fill_grads_template(probe_filename, this%file_template, time=t_probe, rc=status)
+            _VERIFY(status)
+            call ESMF_HConfigAdd(files_seq, trim(probe_filename), rc=status)
+            _VERIFY(status)
+         end do
+         call ESMF_HConfigAdd(entry_hconfig, content=files_seq, addKeyString='files', rc=status)
+         _VERIFY(status)
+         call ESMF_HConfigDestroy(files_seq, rc=status)
+         _VERIFY(status)
+         _RETURN(_SUCCESS)
 
       case ("clim")
          if (run_range(1) > this%valid_range(1)) then
@@ -986,9 +1042,20 @@ contains
          end if
 
          if (overlap_start <= overlap_end) then
-            t_enum_lo = overlap_start
-            t_enum_hi = overlap_end
+            ! Run overlaps valid_range: same bracket expansion as "none", clamped to valid_range.
+            call this%compute_index_bounds(overlap_start, overlap_end, n_lo, n_hi, rc=status)
+            _VERIFY(status)
+            n_lo = n_lo - 1
+            n_hi = n_hi + 1
+            call this%compute_index_bounds(this%valid_range(1), this%valid_range(1), n_vr_lo, n_vr_lo, rc=status)
+            _VERIFY(status)
+            call this%compute_index_bounds(this%valid_range(2), this%valid_range(2), n_vr_hi, n_vr_hi, rc=status)
+            _VERIFY(status)
+            if (n_lo < n_vr_lo) n_lo = n_vr_lo
+            if (n_hi > n_vr_hi) n_hi = n_vr_hi
          else
+            ! Run entirely outside valid_range: enumerate the full target year.
+            ! No bracket expansion — MAPL wraps to the clim year, no file outside it is needed.
             call ESMF_TimeGet(this%valid_range(1), yy=vr_yr1, rc=status)
             _VERIFY(status)
             call ESMF_TimeGet(this%valid_range(2), yy=vr_yr2, rc=status)
@@ -1002,7 +1069,26 @@ contains
             _VERIFY(status)
             call ESMF_TimeSet(t_enum_hi, yy=scan_year, mm=12, dd=31, h=23, m=59, s=59, rc=status)
             _VERIFY(status)
+            call this%compute_index_bounds(t_enum_lo, t_enum_hi, n_lo, n_hi, rc=status)
+            _VERIFY(status)
          end if
+
+         ! Enumeration already computed into n_lo/n_hi above; skip shared block.
+         files_seq = ESMF_HConfigCreate(content='[]', rc=status)
+         _VERIFY(status)
+         do n = n_lo, n_hi
+            t_probe = this%compute_time_at_index(n, rc=status)
+            _VERIFY(status)
+            call mapl_fill_grads_template(probe_filename, this%file_template, time=t_probe, rc=status)
+            _VERIFY(status)
+            call ESMF_HConfigAdd(files_seq, trim(probe_filename), rc=status)
+            _VERIFY(status)
+         end do
+         call ESMF_HConfigAdd(entry_hconfig, content=files_seq, addKeyString='files', rc=status)
+         _VERIFY(status)
+         call ESMF_HConfigDestroy(files_seq, rc=status)
+         _VERIFY(status)
+         _RETURN(_SUCCESS)
 
       case default
          t_enum_lo = run_range(1)
@@ -1011,7 +1097,7 @@ contains
       end select
 
       call this%compute_index_bounds(t_enum_lo, t_enum_hi, n_lo, n_hi, rc=status)
-      _VERIFY(status)
+       _VERIFY(status)
 
       files_seq = ESMF_HConfigCreate(content='[]', rc=status)
       _VERIFY(status)

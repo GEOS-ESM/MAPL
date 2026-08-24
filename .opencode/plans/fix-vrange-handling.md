@@ -69,20 +69,20 @@ discovered actual range on disk, set only when `VALIDATE_FILE_RANGES: true`.
 | `gridcomps/extdata/AbstractDataSetFileSelector.F90` | `refine_valid_range` takes explicit `scan_range`; `check_data_availability` 3-scenario restructure; new `compute_index_bounds` private helper; new `get_bracket_indices` private helper (opens files to read internal timestamps); new `get_required_files_hconfig` public method; `find_any_file` backward scan; bracket-aware gap scans using `get_bracket_indices` for `"none"` case |
 | `gridcomps/extdata/PrimaryExport.F90` | Updated `check_data_availability` gate (enables `"none"` scenario); out-of-bounds guard for single-rule exports (`size(time_range)==0`); manifest accumulation keyed by base export name; new optional args `validate_file_ranges` + `required_files_hconfig` |
 | `gridcomps/extdata/ExtDataConfig.F90` | `make_PrimaryExport` threads optional `validate_file_ranges` + `required_files_hconfig` to `PrimaryExport` constructor |
-| `gridcomps/extdata/ExtDataGridComp.F90` | `modify_advertise` reads `VALIDATE_FILE_RANGES` + `PRINT_REQUIRED_FILES` from hconfig; threads flags through `make_PrimaryExport`; writes manifest YAML after export loop |
+| `gridcomps/extdata/ExtDataGridComp.F90` | `modify_advertise` reads `validate_file_ranges` + `estimate_required_files` from hconfig; threads flags through `make_PrimaryExport`; writes manifest YAML after export loop |
 
 ## YAML Flags (in `extdata.yaml`)
 
 ```yaml
-VALIDATE_FILE_RANGES: true        # default false — enables all 3-scenario checks
-PRINT_REQUIRED_FILES: needed.yaml # default '' (disabled) — writes manifest yaml
+validate_file_ranges: true        # default false — enables all 3-scenario checks
+estimate_required_files: needed.yaml # default '' (disabled) — writes manifest yaml
 ```
 
-Both are independent. `PRINT_REQUIRED_FILES` works without `VALIDATE_FILE_RANGES`.
+Both are independent. `estimate_required_files` works without `validate_file_ranges`.
 
 ## VALIDATE_FILE_RANGES Details
 
-Default: **false**. Set `true` to enable startup file existence checks.
+Default: **false**. Set `validate_file_ranges: true` to enable startup file existence checks.
 
 - **`"none"`**: scans `run_range`; fails if `valid_range` set and run is outside it;
   checks `on_disk_first <= run_range(1) + freq` and `on_disk_last >= run_range(2) - freq`;
@@ -96,14 +96,17 @@ Default: **false**. Set `true` to enable startup file existence checks.
   direction endpoint + gap scan on target year.
 
 `on_disk_range` is set on `AbstractDataSetFileSelector` **only** when
-`VALIDATE_FILE_RANGES: true`.
+`validate_file_ranges: true`.
 
-## PRINT_REQUIRED_FILES Details
+## estimate_required_files Details
 
-Writes a YAML manifest of all files the run needs. For `extrap_outside="none"`,
-files are determined by opening candidate files and reading internal timestamps
-(via `get_bracket_indices`). For other scenarios, derived from template + frequency +
-ranges without filesystem probing. Uses `ESMF_HConfigCreate` /
+Writes a YAML manifest of all files the run **might** need, as a conservative
+over-approximation suitable for pre-run file staging. No filesystem access is
+performed — all enumeration is pure filename-arithmetic. Because internal file
+timestamps are not known without opening files (e.g. daily files timestamped at
+12Z), the manifest may list files that turn out not to be needed at runtime.
+
+All `extrap_outside` scenarios are included. Uses `ESMF_HConfigCreate` /
 `ESMF_HConfigAdd` / `ESMF_HConfigFileSave`.
 
 ### Output format
@@ -117,25 +120,37 @@ required_files:
     template: case1.%y4.nc4
     extrap_outside: none
     files:
+      - case1.2003.nc4
       - case1.2004.nc4
+      - case1.2005.nc4
   AEROSOL:                       # multi-rule: value is a sequence
     - template: aero.%y4%m2.nc4
       extrap_outside: persist_closest
       files:
+        - aero.200312.nc4
         - aero.200401.nc4
+        - aero.200402.nc4
     - template: aero2.%y4%m2.nc4
       extrap_outside: clim
       files:
+        - aero2.200312.nc4
         - aero2.200401.nc4
+        - aero2.200402.nc4
 ```
 
 ### Enumeration scope per scenario
 
 | extrap_outside | run inside valid_range | run outside valid_range |
 |---|---|---|
-| `none` | bracket files from `get_bracket_indices` (opens files) | bracket files from `get_bracket_indices` (opens files) |
-| `persist_closest` | indices in overlap | single endpoint file |
-| `clim` | indices in overlap | all indices in target year (`vr_yr1` or `vr_yr2`) |
+| `none` | `compute_index_bounds(run_range) ±1` (arithmetic only) | same |
+| `persist_closest` | `compute_index_bounds(overlap) ±1`, clamped to valid_range | single endpoint file, no expansion |
+| `clim` | `compute_index_bounds(overlap) ±1`, clamped to valid_range | all indices in target year (`vr_yr1` or `vr_yr2`), no expansion |
+
+The ±1 expansion covers the case where internal timestamps are offset from the
+filename grid (e.g. a run starting at 9Z with 12Z-timestamped daily files needs
+the previous day's file as the lower bracket). No expansion is applied for
+outside-valid_range cases because MAPL clamps/wraps to a fixed endpoint and no
+file outside valid_range is ever needed.
 
 ## Key Implementation Notes
 
@@ -170,10 +185,10 @@ Algorithm:
 4. `n_hi` = lowest  index `n` where `first_ts(n) >= run_range(2)` (upper bracket)
 5. Fallback to conservative `[n_cand_lo, n_cand_hi]` if no files found.
 
-Used by both `check_data_availability` (gap scan for `"none"`) and
-`get_required_files_hconfig` (`"none"` case). The latter required changing
-`this` from `intent(in)` to `intent(inout)` to allow file I/O through the
-collection cache.
+Used by `check_data_availability` (gap scan for `"none"`) only.
+`get_required_files_hconfig` no longer calls `get_bracket_indices` — it uses
+pure `compute_index_bounds` arithmetic with ±1 expansion (no file I/O).
+`this` is `intent(in)` on `get_required_files_hconfig`.
 
 ### `rule_sep` in `PrimaryExport`
 
@@ -192,6 +207,7 @@ directly into `make_PrimaryExport` → `PrimaryExport` constructor. No workaroun
 ## Remaining Work
 
 - Commit and open PR against `develop`.
+- Write test cases for `estimate_required_files` (cases removed; starting fresh).
 
 ## Change Log
 
@@ -343,3 +359,51 @@ private subroutine that opens each candidate file and reads its internal time ve
 to allow the file I/O.
 
 **Files:** `gridcomps/extdata/AbstractDataSetFileSelector.F90`
+
+### 2026-08-19 — Single-file straddle shortcut in `get_bracket_indices`
+
+**Problem:** For files with multiple internal timestamps per file (e.g. one file per year
+with 12 monthly timestamps), `get_bracket_indices` would include the files immediately
+before and after the run even when a single file contains timestamps bracketing the entire
+run window. Example: `%y4` template, 12-timestamp yearly files, run from
+`2000-04-14T21:00:00` to `2000-04-15T21:00:00` — the 2000 file alone brackets the run,
+but the algorithm returned indices for 1999, 2000, and 2001.
+
+**Root cause:** The existing lower/upper bracket logic checked whether `last_ts(n) <=
+run_range(1)` (file entirely before run) or `first_ts(n) >= run_range(2)` (file entirely
+after run). A file that *straddles* the run (has timestamps on both sides) satisfies
+neither condition and was never recognized as self-sufficient.
+
+**Fix (`AbstractDataSetFileSelector.F90:505`):** Added a straddle check at the top of
+the per-candidate loop body, before the existing lower/upper bracket tests. For each
+candidate file whose `time_series` is read, an explicit loop checks whether the file
+contains at least one timestamp `<= run_range(1)` (`has_lo_ts`) and at least one
+timestamp `>= run_range(2)` (`has_hi_ts`). If both are true, the file alone provides
+both interpolation brackets: `n_lo = n_hi = n` and the subroutine returns immediately.
+The existing lower/upper bracket logic is unchanged and handles all non-straddling cases.
+
+**Test case:** `tests/MAPL3G_Component_Testing_Framework/test_cases/case45` (removed; starting fresh)
+
+**File:** `gridcomps/extdata/AbstractDataSetFileSelector.F90`
+
+### 2026-08-21 — Rename YAML flags to lowercase; decouple `estimate_required_files` from `validate_file_ranges`
+
+**Problem:** The two YAML flags were named `VALIDATE_FILE_RANGES` and `PRINT_REQUIRED_FILES`
+(all-caps). The `PRINT_REQUIRED_FILES` feature was fundamentally mis-designed: it called
+`get_bracket_indices` which opens files on disk to read internal timestamps — but the entire
+purpose of this flag is pre-run planning when files may not yet exist. Additionally, the
+manifest gate excluded `"persist_closest"` and `"clim"` scenarios entirely.
+
+**Fix:**
+- Renamed YAML keys to `validate_file_ranges` and `estimate_required_files` (lowercase).
+- `get_required_files_hconfig` for `"none"` now uses `compute_index_bounds(run_range) ±1`
+  (pure arithmetic, no file I/O). `this` reverted to `intent(in)`.
+- Manifest gate widened to all `extrap_outside` scenarios (not just `"none"`).
+- `"persist_closest"` and `"clim"` overlap cases: `compute_index_bounds(overlap) ±1`,
+  clamped to `valid_range` bounds — same bracket logic as `"none"`.
+- `"persist_closest"` outside: single endpoint file, no expansion.
+- `"clim"` outside: full target year, no expansion.
+- Removed test cases case44 and case45 (to be rewritten).
+
+**Files:** `gridcomps/extdata/AbstractDataSetFileSelector.F90`,
+`gridcomps/extdata/PrimaryExport.F90`, `gridcomps/extdata/ExtDataGridComp.F90`

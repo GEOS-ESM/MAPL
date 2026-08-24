@@ -135,9 +135,10 @@ module mapl_PrimaryExport_mod
             end if
          end if
 
-         ! Accumulate manifest entry if required_files_hconfig is provided.
-         if (do_manifest .and. index(collection%file_template, '%') /= 0 .and. &
-              (trim(sample%extrap_outside) == 'none' .or. user_set_range)) then
+          ! Accumulate manifest entry if required_files_hconfig is provided.
+          ! All extrap_outside scenarios are included: the manifest is a conservative
+          ! over-approximation for pre-run planning and does not require files to exist.
+          if (do_manifest .and. index(collection%file_template, '%') /= 0) then
             call primary_export%file_selector%get_required_files_hconfig( &
                  effective_run, sample%extrap_outside, entry_hconfig, _RC)
             ! Key = base export name (strip rule_sep suffix if present).

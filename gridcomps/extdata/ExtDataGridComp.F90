@@ -94,14 +94,14 @@ contains
       extdata_gridcomp%active_items = get_active_items(exportState, _RC)
       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
 
-      ! Read VALIDATE_FILE_RANGES and PRINT_REQUIRED_FILES from top-level hconfig.
+      ! Read validate_file_ranges and estimate_required_files from top-level hconfig.
       validate_file_ranges = .false.
-      if (ESMF_HConfigIsDefined(hconfig, keyString='VALIDATE_FILE_RANGES')) then
-         validate_file_ranges = ESMF_HConfigAsLogical(hconfig, keyString='VALIDATE_FILE_RANGES', _RC)
+      if (ESMF_HConfigIsDefined(hconfig, keyString='validate_file_ranges')) then
+         validate_file_ranges = ESMF_HConfigAsLogical(hconfig, keyString='validate_file_ranges', _RC)
       end if
       print_required_files_path = ''
-      if (ESMF_HConfigIsDefined(hconfig, keyString='PRINT_REQUIRED_FILES')) then
-         print_required_files_path = ESMF_HConfigAsString(hconfig, keyString='PRINT_REQUIRED_FILES', _RC)
+      if (ESMF_HConfigIsDefined(hconfig, keyString='estimate_required_files')) then
+         print_required_files_path = ESMF_HConfigAsString(hconfig, keyString='estimate_required_files', _RC)
       end if
 
       required_files_hconfig_initialized = .false.
