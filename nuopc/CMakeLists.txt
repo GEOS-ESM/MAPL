@@ -11,7 +11,7 @@ find_package (GFTL_SHARED REQUIRED)
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.component MAPL.utils MAPL.generic
+    DEPENDENCIES MAPL.component MAPL.utils MAPL.generic GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
     TYPE SHARED
 )
 

@@ -16,7 +16,8 @@ module mapl_NuopcMetaModel_mod
    use mapl_VariableSpecVector_mod
    use mapl_MultiState_mod
    use mapl_enums_api
-!   use gFTLv2_StringVector
+   use gFTLv2_StringVector
+   use mapl_SimpleAlarm_mod
 
    implicit none(type,external)
    private
@@ -30,16 +31,22 @@ module mapl_NuopcMetaModel_mod
       type(ESMF_GridComp) :: self_model
       type(GriddedComponentDriver) :: user_gc_driver
       class(AbstractUserSetServices), allocatable :: user_setservices
+      type(MethodPhasesMap) :: user_phases_map
       type(ESMF_HConfig) :: hconfig
-      type(ComponentSpec)                         :: component_spec
-      type(MethodPhasesMap)                       :: user_phases_map
+      type(ESMF_Geom), allocatable :: geom
+      type(GriddedComponentDriverMap) :: children
+      type(StateRegistry) :: registry
+      type(ComponentSpec) :: component_spec
+      type(SimpleAlarm) :: user_run_alarm
       logical :: run_if_alarm_rings_next = .FALSE.
    contains
-      procedure :: init
-      procedure :: setServices => setServices_
-      procedure :: get_phases
-      procedure :: run_custom
       procedure :: get_user_gc_driver
+      procedure :: has_geom
+      procedure :: has_geom
+      procedure :: get_phases
+      procedure :: setServices => setServices_
+      procedure :: init
+      procedure :: run_custom
       ! Init phases
       !------------
       ! label_Advertise
@@ -85,22 +92,19 @@ module mapl_NuopcMetaModel_mod
 
 contains
 
-   function construct_meta_model(model, user_gc_driver, user_setservices, hconfig) result(meta_model)
+   function construct_meta_model(model, user_gc_driver, hconfig) result(meta_model)
       type(NuopcMetaModel) :: meta_model
       type(ESMF_GridComp), intent(in) :: model
       type(GriddedComponentDriver), intent(in) :: user_gc_driver
-      class(AbstractUserSetServices), intent(in) :: user_setservices
       type(ESMF_HConfig), intent(in) :: hconfig
       
       meta_model%self_model = model
       meta_model%user_gc_driver = user_gc_driver
-      allocate(meta_model%user_setServices, source=user_setServices)
       meta_model%hconfig = hconfig
       call initialize_phases_map(meta_model%user_phases_map)
 
    end function construct_meta_model
 
-   !wdb fixme deleteme To be implemented
    subroutine init(this, rc)
       class(NuopcMetaModel), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -108,13 +112,12 @@ contains
       character(len=:), allocatable :: user_gc_name
 
       user_gc_name = this%user_gc_driver%get_name(_RC)
-      !wdb fixme deleteme Do we set the registry?
+      this%registry = StateRegistry(user_gc_name)
       !wdb fixme deleteme Do we set the logger?
       _RETURN(_SUCCESS)
 
    end subroutine init
 
-   !wdb fixme deleteme To be implemented
    subroutine setServices_(this, rc)
       class(NuopcMetaModel), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -123,11 +126,15 @@ contains
       type(ESMF_GridComp) :: user_gridcomp
 
       user_name = this%user_gc_driver%get_name()
+      this%component_spec = parse_component_spec(this%hconfig, this%registry, user_name, _RC)
+      associate (user_setservices => this%component_spec%user_setservices)
+         _ASSERT(allocated(user_setservices), 'User_setservices is not allocated.')
+         if(allocated(this%user_setservices)) deallocate(this%user_setservices)
+         allocate(this%user_setservices, source=user_setservices)
+      end associate
       user_gridcomp = this%user_gc_driver%get_gridcomp()
       call attach_inner_meta(user_gridcomp, this%self_model, _RC)
       call this%user_setservices%run(user_gridcomp, _RC)
-      !wdb fixme deleteme Need to parse hconfig to get component_spec, but no registry. Need component_spec for other procedures
-      ! this%component_spec = parse_component_spec(this%hconfig, this%registry, user_name, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -180,18 +187,18 @@ contains
       integer :: status
       type(ESMF_State) :: state
 
-!      select case (var_spec%state_intent)
-!      case (ESMF_STATEINTENT_IMPORT)
-!         call nuopc_ModelGet(this%self_model, importState=state, _RC)
-!      case (ESMF_STATEINTENT_EXPORT)
-!         call nuopc_ModelGet(this%self_model, exportState=state, _RC)
-!      case default
-!         _FAIL('Unsupported state intent')
-!      end select
+      select case (var_spec%state_intent)
+      case (ESMF_STATEINTENT_IMPORT)
+         call nuopc_ModelGet(this%self_model, importState=state, _RC)
+      case (ESMF_STATEINTENT_EXPORT)
+         call nuopc_ModelGet(this%self_model, exportState=state, _RC)
+      case default
+         _FAIL('Unsupported state intent')
+      end select
 
-!      call nuopc_advertise(state, &
-!           standardName=var_spec%standard_name, &
-!           name=var_spec%short_name, _RC)
+      call nuopc_advertise(state, &
+           standardName=var_spec%standard_name, &
+           name=var_spec%short_name, _RC)
 
    end subroutine advertise_variable
    
@@ -222,10 +229,10 @@ contains
 !      class(Logger), pointer :: user_logger
       logical :: bootstrap
 
-!      call recurse(this, phase_idx=MAPL_GENERIC_INIT_READ_RESTART, _RC)
-!      call this%run_custom(ESMF_METHOD_READRESTART, PHASE_NAME, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_READ_RESTART, _RC)
+      call this%run_custom(ESMF_METHOD_READRESTART, PHASE_NAME, _RC)
 
-!      _RETURN_UNLESS(this%has_geom())
+      _RETURN_UNLESS(this%has_geom())
 
       driver => this%get_user_gc_driver()
       states = driver%get_states()
@@ -268,7 +275,7 @@ contains
       ! Extra MAPL phases
       call this%read_restart(_RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
-!      call this%init_user_gc(_RC)
+      call this%init_user_gc(_RC)
  
       _RETURN(_SUCCESS)
    end subroutine data_initialize
@@ -281,7 +288,7 @@ contains
 
       integer :: status
       type(ESMF_Clock) :: clock
-!      type(StringVector), pointer :: run_phases
+      type(StringVector), pointer :: run_phases
       logical :: found
 !      class(logger_t), pointer :: logger
       integer :: currentPhase, phase
@@ -289,28 +296,29 @@ contains
       type(ESMF_Time) :: currTime
       logical :: is_ringing
 
-!      call ESMF_GridCompGet(this%self_model, currentPhase=currentPhase, _RC)
-!      call nuopc_GridCompSearchRevPhaseMap(model, ESMF_METHOD_RUN, currentPhase, phaseLabel=phaseLabel, _RC)
+      call ESMF_GridCompGet(this%self_model, currentPhase=currentPhase, _RC)
+      call nuopc_GridCompSearchRevPhaseMap(model, ESMF_METHOD_RUN, currentPhase, phaseLabel=phaseLabel, _RC)
       
-!      phase = get_phase_index(run_phases, phase_name, found=found)
+      phase = get_phase_index(run_phases, phase_name, found=found)
 
       call ESMF_GridCompGet(this%self_model, clock=clock, _RC)
       call ESMF_ClockGet(clock, currTime=currTime, _RC)
-!      if (this%run_if_alarm_rings_next) then
-!         call ESMF_ClockGetNextTime(clock, nextTime=currTime, _RC)
-!      end if
+      if (this%run_if_alarm_rings_next) then
+         call ESMF_ClockGetNextTime(clock, nextTime=currTime, _RC)
+      end if
 !      is_ringing = this%user_run_alarm%is_ringing(currTime, _RC)
-!      _RETURN_IF(.not. is_ringing)
+      is_ringing = .FALSE.
+      _RETURN_IF(.not. is_ringing)
 
-!      run_phases => this%get_phases(ESMF_METHOD_RUN)
-!      phase = get_phase_index(run_phases, trim(phaseLabel), found=found)
-!      _ASSERT(found, 'phase <'//trim(phaseLabel)//'> not found for model <'//this%get_name()//'>')
+      run_phases => this%get_phases(ESMF_METHOD_RUN)
+      phase = get_phase_index(run_phases, trim(phaseLabel), found=found)
+      _ASSERT(found, 'phase <'//trim(phaseLabel)//'> not found for model <'//this%get_name()//'>')
 
 !      logger => this%get_logger()
       !wdb fixme deleteme Need to reactivate
       !call logger%info(phase_name//": starting...")
       call this%start_timer(phase_name)
-!      call this%user_gc_driver%run(phase_idx=phase, _RC)
+      call this%user_gc_driver%run(phase_idx=phase, _RC)
       call this%stop_timer(phase_name)
       !wdb fixme deleteme Need to reactivate
       !call logger%info(phase_name//": ...completed")
@@ -329,54 +337,51 @@ contains
       integer :: status
       type(GriddedComponentDriverMapIterator) :: iter
       type(GriddedComponentDriver), pointer :: child
-!      type(StringVector), pointer :: run_phases
+      type(StringVector), pointer :: run_phases
       logical :: found
       logical :: is_ringing
       integer :: phase
       type(ESMF_Time) :: currTime
 
-!      call nuopc_ModelGet(this%self_model, modelClock=modelCloc, RC)
+      call nuopc_ModelGet(this%self_model, modelClock=modelClock, RC)
       call ESMF_ClockGet(modelClock, currTime=currTime, _RC)
-!      if (this%run_if_alarm_rings_next) then
-!         call ESMF_ClockGetNextTime(clock, nextTime=currTime, _RC)
-!      end if
+      if (this%run_if_alarm_rings_next) then
+         call ESMF_ClockGetNextTime(clock, nextTime=currTime, _RC)
+      end if
       !wdb fixme deleteme Need to reactivate
       !is_ringing = this%user_run_alarm%is_ringing(currTime, _RC)
       is_ringing = .FALSE.
       _RETURN_IF(.not. is_ringing)
 
-      !wdb fixme deleteme Need to reactivate
-      !associate(e => this%children%ftn_end())
-        !iter = this%children%ftn_begin()
-        !do while (iter /= e)
-           !call iter%next()
-           !child => iter%second()
-            !call child%run(phase_idx=MAPL_GENERIC_RUN_CLOCK_ADVANCE, _RC)
-           !call child%clock_advance()
-        !end do
-      !end associate
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           child => iter%second()
+           call child%run(phase_idx=MAPL_GENERIC_RUN_CLOCK_ADVANCE, _RC)
+           call child%clock_advance()
+        end do
+      end associate
 
-      !call this%user_gc_driver%clock_advance(_RC)
+      call this%user_gc_driver%clock_advance(_RC)
 
       ! Check for customization
-      !run_phases => this%get_phases(ESMF_METHOD_RUN)
-      !phase = get_phase_index(run_phases, phase_name='GENERIC::RUN_CLOCK_ADVANCE', found=found)
-      !if (found) then
-      !   call this%user_gc_driver%run(phase_idx=phase, _RC)
-      !end if
-      !wdb fixme deleteme END Need to reactivate
+      run_phases => this%get_phases(ESMF_METHOD_RUN)
+      phase = get_phase_index(run_phases, phase_name='GENERIC::RUN_CLOCK_ADVANCE', found=found)
+      if (found) then
+         call this%user_gc_driver%run(phase_idx=phase, _RC)
+      end if
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine advance_clock
 
    function get_phases(this, method_flag) result(phases)
-!      type(StringVector), pointer :: phases
-      integer :: phases !wdb fixme deleteme This is a temporary workaround.
+      type(StringVector), pointer :: phases
       class(NuopcMetaModel), target, intent(inout):: this
       type(ESMF_Method_Flag), intent(in) :: method_flag
 
-!      phases => this%user_phases_map%of(method_flag)
+      phases => this%user_phases_map%of(method_flag)
 
    end function get_phases
 
@@ -539,5 +544,13 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine stop_timer
+
+   function has_geom(this)
+      logical :: has_geom
+      class(NuopcMetaModel), intent(in) :: this
+
+      has_geom = allocated(this%geom)
+
+   end function has_geom
 
 end module mapl_NuopcMetaModel_mod
