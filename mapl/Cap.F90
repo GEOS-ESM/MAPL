@@ -3,7 +3,6 @@
 module mapl_Cap_mod
 
    use MAPL
-   use mapl_UserSetServices_mod
    use pflogger
    use esmf
 
@@ -290,12 +289,17 @@ contains
       integer, optional, intent(out) :: rc
 
       type(esmf_GridComp) :: cap_gridcomp
+      type(ESMF_Config) :: config
+      type(ESMF_Context_Flag) :: contextFlag
       integer :: status, user_status
       integer, allocatable :: petList(:)
 
       petList = get_model_pets(options%is_model_pet, _RC)
+      config = ESMF_ConfigCreate(hconfig=hconfig, _RC)
+      contextFlag = ESMF_CONTEXT_PARENT_VM
+      if (allocated(petList)) contextFlag = ESMF_CONTEXT_OWN_VM
 
-      cap_gridcomp = mapl_GridCompCreate(options%name, DsoSetServices('libMAPL.cap', 'setservices_'), hconfig, petList=petList, _RC)
+      cap_gridcomp = ESMF_GridCompCreate(name=options%name, config=config, petList=petList, contextFlag=contextFlag, _RC)
       call esmf_GridCompSetServices(cap_gridcomp, mapl_GenericSetServices, _USERRC)
 
       driver = MAPL_GriddedComponentDriver(cap_gridcomp, clock=clock)
