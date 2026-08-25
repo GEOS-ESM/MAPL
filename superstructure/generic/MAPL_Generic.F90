@@ -261,25 +261,27 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: is_generic
-      type(ESMF_GridComp) :: outer_gc
+      logical :: is_generic !wdb fixme deleteme 
+      type(ESMF_GridComp) :: outer_gc !wdb fixme deleteme 
 
-      is_generic = GridCompIsGeneric(gridcomp, _RC)
+      is_generic = GridCompIsGeneric(gridcomp, _RC) !wdb fixme deleteme 
 
-      if (is_generic) then
+      if (is_generic) then !wdb fixme deleteme 
          outer_meta => get_outer_meta(gridcomp, _RC)
          _RETURN(_SUCCESS)
       end if
 
-      ! is user gridcomp
-      outer_gc = get_outer_gridcomp(gridcomp, _RC)
-      call GridCompGetOuterMeta(outer_gc, outer_meta, _RC)
+      ! is user gridcomp !wdb fixme deleteme 
+!      outer_gc = get_outer_gridcomp(gridcomp, _RC)
+!      call GridCompGetOuterMeta(outer_gc, outer_meta, _RC)
 
+!      _RETURN(_SUCCESS)
+      outer_meta => get_outer_meta(gridcomp, _RC)
       _RETURN(_SUCCESS)
 
    contains
       ! Helper functions to access intenal/private state.
-      type(ESMF_GridComp) function get_outer_gridcomp(gridcomp, rc) result(outer_gc)
+      type(ESMF_GridComp) function get_outer_gridcomp(gridcomp, rc) result(outer_gc) !wdb fixme deleteme function
          type(ESMF_GridComp), intent(inout) :: gridcomp
          integer, optional, intent(out) :: rc
 
