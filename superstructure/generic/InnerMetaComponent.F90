@@ -19,10 +19,6 @@ module mapl_InnerMetaComponent_mod
       procedure :: get_outer_gridcomp
    end type InnerMetaComponent
 
-   type :: InnerMetaWrapper
-      type(InnerMetaComponent), pointer :: inner_meta
-   end type InnerMetaWrapper
-
    interface InnerMetaComponent
       module procedure :: new_InnerMetaComponent
    end interface InnerMetaComponent
