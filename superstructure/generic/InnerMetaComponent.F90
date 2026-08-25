@@ -15,23 +15,8 @@ module mapl_InnerMetaComponent_mod
    type :: InnerMetaComponent
       private
       type(ESMF_GridComp) :: outer_gc
-
-      character(len=:), allocatable :: name
-      type(ESMF_GridComp) :: self_gc ! mabye not needed?
-
-      type(GenericGrid) :: generic_grid ! maybe should go to outer meta?
-
-      real :: heartbeat
-!!$      type(MAPL_SunOrbit) :: orbit
-!!$      type(AlarmVector) :: alarms
-!!$      type(DistributedProfiler) :: t_profiler
-!!$      type(MaplGrid) :: grid
-
-!!$      class(Logger), pointer :: lgr   ! Full compname:  "GCM.AGCM...."
    contains
-
       procedure :: get_outer_gridcomp
-      
    end type InnerMetaComponent
 
    type :: InnerMetaWrapper
@@ -46,12 +31,10 @@ module mapl_InnerMetaComponent_mod
 
 contains
 
-   function new_InnerMetaComponent(self_gc, outer_gc) result(meta)
+   function new_InnerMetaComponent(outer_gc) result(meta)
       type(InnerMetaComponent) :: meta
-      type(ESMF_GridComp), intent(in) :: self_gc
       type(ESMF_GridComp), intent(in) :: outer_gc
 
-      meta%self_gc = self_gc
       meta%outer_gc = outer_gc
 
    end function new_InnerMetaComponent
@@ -78,7 +61,7 @@ contains
 
       _SET_NAMED_PRIVATE_STATE(self_gc, InnerMetaComponent, INNER_META_PRIVATE_STATE)
       _GET_NAMED_PRIVATE_STATE(self_gc, InnerMetaComponent, INNER_META_PRIVATE_STATE, inner_meta)
-      inner_meta = InnerMetaComponent(self_gc, outer_gc)
+      inner_meta = InnerMetaComponent(outer_gc)
       
       _RETURN(_SUCCESS)
    end subroutine attach_inner_meta
@@ -102,13 +85,4 @@ contains
       gc = this%outer_gc
    end function get_outer_gridcomp
 
-   subroutine set_outer_gridcomp(this, gc)
-      type(ESMF_GridComp), intent(in) :: gc
-      class(InnerMetaComponent), intent(inout) :: this
-
-      this%outer_gc = gc
-   end subroutine set_outer_gridcomp
-
-
 end module mapl_InnerMetaComponent_mod
-   
