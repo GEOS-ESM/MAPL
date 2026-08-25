@@ -39,8 +39,7 @@ contains
       this%component_spec = parse_component_spec(this%hconfig, this%registry, this%user_gc_driver%get_name(), _RC)
 
       user_gridcomp = this%user_gc_driver%get_gridcomp()
-      call attach_outer_meta(user_gridcomp, _RC)
-      !call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC) !wdb fixme deleteme 
+      call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       logger => this%get_logger()
       call logger%info("SetServices:: starting...", _RC)
       call run_user_setservices(this, user_gridcomp, _RC)
