@@ -224,14 +224,11 @@ contains
 
       logical :: has_variable
       integer :: status
-      character(len=:), allocatable :: variable_name
 
       item_type = MAPL_STATEITEM_BRACKET
       has_variable = ESMF_HConfigIsDefined(hconfig, keyString='variable', _RC)
       if (has_variable) then
-         if (ESMF_HConfigIsScalar(hconfig, keystring='variable')) then
-            variable_name = ESMF_HConfigAsString(hconfig, keyString='variable', _RC)
-         elseif (ESMF_HConfigIsSequence(hconfig, keystring='variable')) then
+         if (ESMF_HConfigIsSequence(hconfig, keystring='variable')) then
             item_type = MAPL_STATEITEM_VECTORBRACKET
          end if
       end if
