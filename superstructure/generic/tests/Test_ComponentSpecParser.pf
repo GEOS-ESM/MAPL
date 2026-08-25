@@ -6,7 +6,9 @@
 #include "MAPL_ErrLog.h"
 module Test_ComponentSpecParser
    use funit
+   use mapl_ComponentSpec_mod
    use mapl_StateItem_mod
+   use mapl_StateRegistry_mod
    use mapl_UserSetServices_mod
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
@@ -44,6 +46,23 @@ contains
       @assert_that(parse_setservices(config) == ss_expected, is(true()))
       
    end subroutine test_parse_setServices_default
+
+   @test
+   subroutine test_parse_component_spec_setServices()
+      type(ESMF_HConfig) :: config
+      type(ComponentSpec) :: spec
+      type(StateRegistry) :: registry
+      class(DsoSetServices), allocatable :: ss_expected
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{mapl: {setServices: {sharedObj: libA}}}')
+
+      ss_expected = DsoSetServices('libA', 'setservices_')
+      spec = parse_component_spec(config, registry, 'TEST', _RC)
+      @assert_that(allocated(spec%setservices), is(true()))
+      @assert_that(spec%setservices == ss_expected, is(true()))
+
+   end subroutine test_parse_component_spec_setServices
 
    @test
    subroutine test_equal_child_spec_ss_differs()
@@ -103,15 +122,20 @@ contains
    @test
    subroutine test_parse_childSpec_basic()
       type(ESMF_HConfig) :: config
+      type(ESMF_HConfig) :: child_hconfig
       type(ChildSpec) :: found
       integer :: rc, status
       type(ChildSpec) :: expected
 
-      config = ESMF_HConfigCreate(content='{sharedObj: libA, setServices: setservices_}')
+      call write_text_file('child_basic.yaml', '{mapl: {setServices: {sharedObj: libA}}}')
+      config = ESMF_HConfigCreate(content='{config_file: child_basic.yaml}')
+      child_hconfig = ESMF_HConfigCreate(content='{mapl: {setServices: {sharedObj: libA}}}')
 
-      expected = ChildSpec(DsoSetServices('libA', 'setservices_'))
+      expected = ChildSpec(hconfig=child_hconfig)
       found = parse_child(config, _RC)
       @assert_that(expected == found, is(true()))
+
+      call delete_file('child_basic.yaml')
 
    end subroutine test_parse_childSpec_basic
 
@@ -119,28 +143,22 @@ contains
    @test
    subroutine test_parse_childSpec_with_config_file()
       type(ESMF_HConfig) :: hconfig, child_hconfig
-      character(*), parameter :: CHILD_HCONFIG_CONTENT = '{a: 8}'
+      character(*), parameter :: CHILD_HCONFIG_CONTENT = '{mapl: {setServices: {sharedObj: libA}}, a: 8}'
       type(ChildSpec) :: found
       integer :: status, rc
 
-      class(UserSetServices), allocatable :: ss
       type(ChildSpec) :: expected
-      integer :: unit
 
-      open(newunit=unit,file='a.yml',form='formatted', status='unknown')
-      write(unit,'(a)')CHILD_HCONFIG_CONTENT
-      close(unit)
+      call write_text_file('a.yml', CHILD_HCONFIG_CONTENT)
 
-      hconfig = ESMF_HConfigCreate(content='{setServices: setservices_, sharedObj: libA, config_file: a.yml}')
+      hconfig = ESMF_HConfigCreate(content='{config_file: a.yml}')
       child_hconfig = ESMF_HConfigCreate(content=CHILD_HCONFIG_CONTENT)
 
-      ss = DsoSetServices('libA', 'setservices_')
-      expected = ChildSpec(ss, hconfig=child_hconfig)
+      expected = ChildSpec(hconfig=child_hconfig)
       found = parse_child(hconfig, _RC)
       @assert_that(expected == found, is(true()))
 
-      open(newunit=unit,file='a.yml',form='formatted', status='unknown')
-      close(unit,status='delete')
+      call delete_file('a.yml')
 
       call ESMF_HConfigDestroy(hconfig, _RC)
       call ESMF_HConfigDestroy(child_hconfig, _RC)
@@ -170,14 +188,19 @@ contains
       type(ESMF_HConfig), pointer :: config_ptr
       type(ChildSpecMap) :: expected, found
       integer :: status, rc
+      type(ESMF_HConfig) :: child_hconfig
 
-      config = ESMF_HConfigCreate(content='children: {A: {sharedObj: libA}}')
+      call write_text_file('child_map_1.yaml', '{mapl: {setServices: {sharedObj: libA}}}')
+      config = ESMF_HConfigCreate(content='children: {A: {config_file: child_map_1.yaml}}')
+      child_hconfig = ESMF_HConfigCreate(content='{mapl: {setServices: {sharedObj: libA}}}')
       config_ptr => config
-      call expected%insert('A', ChildSpec(DsoSetServices('libA', 'setservices_')))
+      call expected%insert('A', ChildSpec(hconfig=child_hconfig))
       found = parse_children(config_ptr, _RC)
       @assert_that(found == expected, is(true()))
-      
-   end subroutine test_parse_ChildSpecMap_1
+
+      call delete_file('child_map_1.yaml')
+
+    end subroutine test_parse_ChildSpecMap_1
 
    @test
    subroutine test_parse_ChildSpecMap_2()
@@ -185,19 +208,27 @@ contains
       type(ESMF_HConfig), pointer :: config_ptr
       type(ChildSpecMap) :: expected, found
       integer :: status, rc
+      type(ESMF_HConfig) :: child_a_hconfig, child_b_hconfig
 
+      call write_text_file('child_map_2_a.yaml', '{mapl: {setServices: {sharedObj: libA}}}')
+      call write_text_file('child_map_2_b.yaml', '{mapl: {setServices: {sharedObj: libB}}}')
       config = ESMF_HConfigCreate(content='children: {' // &
-           'A: {sharedObj: libA},' // &
-           'B: {sharedObj: libB}}')
+            'A: {config_file: child_map_2_a.yaml},' // &
+            'B: {config_file: child_map_2_b.yaml}}')
+      child_a_hconfig = ESMF_HConfigCreate(content='{mapl: {setServices: {sharedObj: libA}}}')
+      child_b_hconfig = ESMF_HConfigCreate(content='{mapl: {setServices: {sharedObj: libB}}}')
       config_ptr => config
 
-      call expected%insert('A', ChildSpec(DsoSetServices('libA', 'setservices_')))
-      call expected%insert('B', ChildSpec(DsoSetServices('libB', 'setservices_')))
+      call expected%insert('A', ChildSpec(hconfig=child_a_hconfig))
+      call expected%insert('B', ChildSpec(hconfig=child_b_hconfig))
       found = parse_children(config_ptr, _RC)
 
       @assert_that(found%of('A') == expected%of('A'), is(true()))
       @assert_that(found%of('B') == expected%of('B'), is(true()))
-      
+
+      call delete_file('child_map_2_a.yaml')
+      call delete_file('child_map_2_b.yaml')
+
    end subroutine test_parse_ChildSpecMap_2
 
    @test
@@ -275,5 +306,25 @@ contains
       call ESMF_HConfigDestroy(hconfig)
 
    end subroutine test_to_itemType
+
+   subroutine write_text_file(filename, content)
+      character(*), intent(in) :: filename
+      character(*), intent(in) :: content
+
+      integer :: unit
+
+      open(newunit=unit, file=filename, form='formatted', status='replace')
+      write(unit, '(a)') content
+      close(unit)
+   end subroutine write_text_file
+
+   subroutine delete_file(filename)
+      character(*), intent(in) :: filename
+
+      integer :: unit
+
+      open(newunit=unit, file=filename, form='formatted', status='old')
+      close(unit, status='delete')
+   end subroutine delete_file
 
 end module Test_ComponentSpecParser
