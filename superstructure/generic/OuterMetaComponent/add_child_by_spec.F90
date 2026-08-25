@@ -25,8 +25,10 @@ contains
       integer :: status
       type(GriddedComponentDriver) :: child_driver
       type(ESMF_GridComp) :: child_outer_gc
+      type(ESMF_GridComp) :: child_user_gc
       type(OuterMetaComponent), pointer :: child_meta
       type(ESMF_HConfig) :: total_hconfig
+      type(ESMF_Context_Flag) :: contextFlag
       class(Logger), pointer :: lgr
       character(:), allocatable :: this_name
 
@@ -34,7 +36,26 @@ contains
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
 
       total_hconfig = merge_hconfig(this%hconfig, child_spec%hconfig, _RC)
-      child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, _RC)
+      if (allocated(child_spec%user_setservices)) then
+         child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, _RC)
+      else
+         contextFlag = ESMF_CONTEXT_PARENT_VM
+         child_outer_gc = ESMF_GridCompCreate(name='[' // trim(child_name) // ']', contextFlag=contextFlag, _RC)
+         call set_is_generic(child_outer_gc, .true., _RC)
+
+         child_user_gc = ESMF_GridCompCreate(name=child_name, contextFlag=contextFlag, _RC)
+         call set_is_generic(child_user_gc, .false., _RC)
+
+         call attach_outer_meta(child_outer_gc, _RC)
+         child_meta => get_outer_meta(child_outer_gc, _RC)
+         child_driver = GriddedComponentDriver(child_user_gc)
+#ifndef __GFORTRAN__
+         child_meta = OuterMetaComponent(child_outer_gc, child_driver, hconfig=total_hconfig)
+#else
+         call ridiculous(child_meta, OuterMetaComponent(child_outer_gc, child_driver, hconfig=total_hconfig))
+#endif
+         call child_meta%init_meta(_RC)
+      end if
 
       ! Meta stuff
       child_meta => get_outer_meta(child_outer_gc, _RC)
@@ -52,6 +73,32 @@ contains
       call lgr%debug('%a added child <%a~>', this_name, child_name, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine add_child_by_spec
+
+   contains
+
+#ifdef __GFORTRAN__
+
+      subroutine ridiculous(a, b)
+         type(OuterMetaComponent), intent(out) :: a
+         type(OuterMetaComponent), intent(in) :: b
+
+         a = b
+      end subroutine ridiculous
+#endif
+
+      subroutine set_is_generic(gridcomp, flag, rc)
+         type(ESMF_GridComp), intent(inout) :: gridcomp
+         logical, intent(in) :: flag
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ESMF_Info) :: info
+
+         call ESMF_InfoGetFromHost(gridcomp, info, _RC)
+         call ESMF_InfoSet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=flag, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine set_is_generic
+    end subroutine add_child_by_spec
 
 end submodule add_child_by_spec_smod

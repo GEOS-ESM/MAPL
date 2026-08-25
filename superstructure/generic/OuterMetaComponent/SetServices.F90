@@ -42,14 +42,31 @@ contains
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       logger => this%get_logger()
       call logger%info("SetServices:: starting...", _RC)
-      call this%user_setservices%run(user_gridcomp, _RC)
+      call run_user_setservices(this, user_gridcomp, _RC)
       call logger%info("SetServices:: ...completed", _RC)
       call add_children(this, _RC)
       call run_children_setservices(this, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
-   contains
+    contains
+
+      subroutine run_user_setservices(this, user_gridcomp, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(ESMF_GridComp), intent(inout) :: user_gridcomp
+         integer, intent(out) :: rc
+
+         integer :: status
+
+         if (allocated(this%component_spec%setservices)) then
+            call this%component_spec%setservices%run(user_gridcomp, _RC)
+         else
+            _ASSERT(allocated(this%user_setservices), 'No setServices available for component config')
+            call this%user_setservices%run(user_gridcomp, _RC)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine run_user_setservices
 
       recursive subroutine add_children(this, rc)
          class(OuterMetaComponent), target, intent(inout) :: this

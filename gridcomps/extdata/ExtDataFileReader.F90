@@ -140,7 +140,7 @@ module mapl_ExtDataReader_mod
     end subroutine read_items
 
    subroutine get_unique_filenames(this, fileset, rc)
-      class(ExtDataReader), intent(in) :: this
+      class(ExtDataReader), intent(in), target :: this
       type(StringSet), intent(inout) :: fileset
       integer, optional, intent(out) :: rc
 
