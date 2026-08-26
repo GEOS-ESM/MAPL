@@ -22,16 +22,14 @@ cap:
   run_history: true
 
   mapl:
+    setServices:
+      sharedObj: libMAPL.cap
     children:
       *root :
-        dso: libconfigurable_gridcomp
-        setServices: setservices_
         config_file: GCM.yaml
       *extdata :
-        dso: libMAPL.extdata
         config_file: extdata.yaml
       *history :
-        dso: libMAPL.history
         config_file: history.yaml
 esmf:
   logKindFlag: ESMF_LOGKIND_MULTI_ON_ERROR

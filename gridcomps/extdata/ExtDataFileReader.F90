@@ -3,6 +3,7 @@ module mapl_ExtDataReader_mod
    use esmf
     use gftl2_StringStringMap
     use gftl2_StringIntegerMap
+    use gFTL2_StringSet
     use MAPL
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
     use pFlogger, only: logger
@@ -23,6 +24,7 @@ module mapl_ExtDataReader_mod
          procedure :: read_items
          procedure :: initialize_reader
          procedure :: destroy_reader
+         procedure :: get_unique_filenames
    end type ExtDataReader
 
    contains
@@ -134,7 +136,26 @@ module mapl_ExtDataReader_mod
       call i_client%done_collective_prefetch()
       call i_client%wait_all()
 
+       _RETURN(_SUCCESS)
+    end subroutine read_items
+
+   subroutine get_unique_filenames(this, fileset, rc)
+      class(ExtDataReader), intent(in), target :: this
+      type(StringSet), intent(inout) :: fileset
+      integer, optional, intent(out) :: rc
+
+      type(StringStringMapIterator) :: iter
+      character(len=:), pointer :: filename
+      integer :: status
+
+      iter = this%filename_map%begin()
+      do while (iter /= this%filename_map%end())
+         filename => iter%second()
+         call fileset%insert(filename)
+         call iter%next()
+      end do
+
       _RETURN(_SUCCESS)
-   end subroutine
+   end subroutine get_unique_filenames
 
 end module mapl_ExtDataReader_mod
