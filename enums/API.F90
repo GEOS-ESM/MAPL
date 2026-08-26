@@ -63,6 +63,8 @@ module mapl_enums_api
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_RUN_CLOCK_ADVANCE    => GENERIC_RUN_CLOCK_ADVANCE
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_RUN_USER             => GENERIC_RUN_USER
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_FINALIZE_USER        => GENERIC_FINALIZE_USER
+   use mapl_GenericPhases_mod, only: MAPL_GENERIC_INTERNAL_READ_RESTART  => GENERIC_INTERNAL_READ_RESTART
+   use mapl_GenericPhases_mod, only: MAPL_GENERIC_INTERNAL_WRITE_RESTART => GENERIC_INTERNAL_WRITE_RESTART
 
    ! CouplerPhases
    use mapl_CouplerPhases_mod, only: MAPL_GENERIC_COUPLER_INITIALIZE    => GENERIC_COUPLER_INITIALIZE
@@ -140,6 +142,10 @@ module mapl_enums_api
 
    ! Finalize phases
    public :: MAPL_GENERIC_FINALIZE_USER
+
+   ! Internal (in-memory) checkpoint phases
+   public :: MAPL_GENERIC_INTERNAL_READ_RESTART
+   public :: MAPL_GENERIC_INTERNAL_WRITE_RESTART
 
    ! StateItemAllocation
    public :: MAPL_StateItemAllocation

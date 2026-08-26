@@ -97,6 +97,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: run_clock_advance
       procedure :: finalize
       procedure :: write_restart
+      procedure :: read_restart
 
       procedure :: start_timer
       procedure :: stop_timer
@@ -385,6 +386,20 @@ module mapl_OuterMetaComponent_mod
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine write_restart
+
+      ! Dedicated ESMF_METHOD_READRESTART dispatch for the internal
+      ! (in-memory) checkpoint phase.  This is distinct from
+      ! initialize_read_restart, which handles existing netCDF restart
+      ! reads under ESMF_METHOD_INITIALIZE.
+      module recursive subroutine read_restart(this, importState, exportState, clock, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(ESMF_State) :: importState
+         type(ESMF_State) :: exportState
+         type(ESMF_Clock) :: clock
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine read_restart
 
       module subroutine start_timer(this, name, rc)
          class(OuterMetaComponent), intent(inout) :: this

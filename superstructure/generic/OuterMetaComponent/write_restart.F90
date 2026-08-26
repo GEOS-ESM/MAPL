@@ -6,6 +6,7 @@ submodule (mapl_OuterMetaComponent_mod) write_restart_smod
    use mapl_RestartHandler_mod
    use mapl_os_mod
    use mapl_ErrorHandling_mod
+   use mapl_GenericPhases_mod, only: GENERIC_INTERNAL_WRITE_RESTART
 
    implicit none(type,external)
 
@@ -26,9 +27,19 @@ contains
       type(MultiState) :: states
       type(RestartHandler) :: restart_handler
       integer :: status
+      integer :: current_phase
       character(:), allocatable :: subdir
       character(:), allocatable :: filename
       type(ESMF_Time) :: current_time
+
+      call ESMF_GridCompGet(this%get_gridcomp(), currentPhase=current_phase, _RC)
+
+      if (current_phase == GENERIC_INTERNAL_WRITE_RESTART) then
+         ! Internal (in-memory) checkpoint write.  Intentionally empty
+         ! for this proposal; existing netCDF write logic below remains
+         ! unaffected and is skipped for this phase.
+         _RETURN(ESMF_SUCCESS)
+      end if
 
       call recurse_write_restart_(this, _RC)
       call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)
