@@ -150,7 +150,7 @@ contains
       real, allocatable :: weights(:)
       character(len=:), allocatable :: export_name
       character(len=:), pointer :: base_name
-      type(ExtDataReader) :: reader
+      type(ExtDataReader), target :: reader
       class(logger), pointer :: lgr
       type(ESMF_FieldBundle) :: bundle
       integer :: idx
