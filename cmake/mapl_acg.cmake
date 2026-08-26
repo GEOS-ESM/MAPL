@@ -16,6 +16,8 @@
 #
 # NOTE: Use of LONG_NAME_PREFIX will require changes to the Fortran code as all the ACG does
 #       is write Fortran. So, you'll need to define a string in the Fortran for this
+#       Pointer headers also generate state-specific companions with _Import, _Export,
+#       and _Internal suffixes; the combined pointer headers remain available.
 #
 ################################################################################################
 
@@ -51,6 +53,22 @@ function (mapl_acg target specs_file)
     if (ARGS_${opt})
       string (REPLACE "{component}" component_name fname ${ARGS_${opt}})
       list (APPEND generated ${fname})
+      set (split_pointer_outputs FALSE)
+      if (opt STREQUAL "GET_POINTERS" OR opt STREQUAL "DECLARE_POINTERS")
+        set (split_pointer_outputs TRUE)
+      endif ()
+      if (split_pointer_outputs)
+        get_filename_component (fname_base ${fname} NAME_WLE)
+        get_filename_component (fname_dir ${fname} DIRECTORY)
+        get_filename_component (fname_ext ${fname} EXT)
+        foreach (state Import Export Internal)
+          if (fname_dir)
+            list (APPEND generated "${fname_dir}/${fname_base}_${state}${fname_ext}")
+          else ()
+            list (APPEND generated "${fname_base}_${state}${fname_ext}")
+          endif ()
+        endforeach ()
+      endif ()
       list (APPEND options ${flag} ${ARGS_${opt}})
     elseif (${opt} IN_LIST ARGS_KEYWORDS_MISSING_VALUES)
       string (REPLACE "{component}" component_name fname ${default})
@@ -73,6 +91,11 @@ function (mapl_acg target specs_file)
 
       # Now we let CMake know the generated file will be named off of the specs_file_base
       list (APPEND generated "${specs_file_base}_${fname}${suffix_for_generated_include_files}")
+      if (opt STREQUAL "GET_POINTERS" OR opt STREQUAL "DECLARE_POINTERS")
+        foreach (state Import Export Internal)
+          list (APPEND generated "${specs_file_base}_${fname}_${state}${suffix_for_generated_include_files}")
+        endforeach ()
+      endif ()
 
       list (APPEND options ${flag})
     endif ()

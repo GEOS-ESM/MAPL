@@ -16,6 +16,7 @@ module mapl_ComponentSpec_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use mapl_StringUtilities_mod
+   use mapl_UserSetServices_mod, only: DsoSetServices
    use gftl2_StringVector
    use ESMF
 
@@ -40,6 +41,7 @@ module mapl_ComponentSpec_mod
       type(VariableSpecVector) :: var_specs
       type(ConnectionVector) :: connections
       type(ChildSpecMap) :: children
+      type(DsoSetServices), allocatable :: setservices
       type(ESMF_HConfig), allocatable :: geom_hconfig ! optional
       type(MiscellaneousComponentSpec) :: misc
    contains

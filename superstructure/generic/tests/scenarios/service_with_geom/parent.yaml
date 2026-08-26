@@ -13,19 +13,16 @@ mapl:
 
   children:
     subscriber_A:
-      sharedObj: libconfigurable_gridcomp
-      setServices: setservices_
       config_file: scenarios/service_with_geom/subscriber_A.yaml
     subscriber_B:
-      sharedObj: libconfigurable_gridcomp
-      setServices: setservices_
       config_file: scenarios/service_with_geom/subscriber_B.yaml
     provider:
-      dso: libconfigurable_gridcomp
       config_file: scenarios/service_with_geom/provider.yaml
 
   states: {}
 
+  setServices:
+    sharedObj: libconfigurable_gridcomp
 
   connections:
     - src_name: S
@@ -37,4 +34,3 @@ mapl:
       dst_name: S1
       src_comp: provider
       dst_comp: subscriber_B
-
