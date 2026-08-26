@@ -31,6 +31,10 @@ esma_add_library(${this}
   DEPENDENCIES MAPL ESMF::ESMF PFLOGGER::pflogger TYPE SHARED)
 
 
+install(
+  PROGRAMS extdata_dryrun.py extdata_dryrun_check.py
+  DESTINATION bin)
+
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
