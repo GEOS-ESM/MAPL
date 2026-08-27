@@ -1,0 +1,22 @@
+checkpointing:
+  enabled: true
+  final: true
+  path: checkpoints
+  alarms:
+    - {frequency: PT6H, refTime: '1891-03-01T00:00:00'}
+    - {times: ['1891-03-01T00:00:00']}
+    - {offsets: ['P6H']} # relative to segment start
+
+root_name: &root GCM
+extdata_name: &extdata EXTDATA
+history_name: &history HIST
+
+mapl:
+  children:
+    *root:
+      config_file: GCM.yaml
+    *extdata:
+      config_file: extdata.yaml
+    *history:
+      config_file: history.yaml
+...
