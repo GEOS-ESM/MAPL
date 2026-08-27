@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.70.0
+  VERSION 2.71.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -140,34 +140,6 @@ if (BUILD_WITH_FLAP)
 endif ()
 
 ecbuild_declare_project()
-
-if (NOT Baselibs_FOUND)
-  set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
-  find_package(MPI)
-
-  find_package(NetCDF REQUIRED C Fortran)
-  add_definitions(-DHAS_NETCDF4)
-  add_definitions(-DHAS_NETCDF3)
-  add_definitions(-DNETCDF_NEED_NF_MPIIO)
-  add_definitions(-DHAS_NETCDF3)
-
-  find_package(HDF5 REQUIRED)
-  if(HDF5_IS_PARALLEL)
-     add_definitions(-DH5_HAVE_PARALLEL)
-  endif()
-
-  if (NOT TARGET ESMF::ESMF)
-    find_package(ESMF 8.6.1 MODULE REQUIRED)
-    target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
-  endif ()
-else ()
-  # This is an ESMF version test when using Baselibs which doesn't use the
-  # same find_package internally in ESMA_cmake as used above (with a version
-  # number) so this lets us at least trap use of old Baselibs here.
-  if (ESMF_VERSION VERSION_LESS 8.6.1)
-    message(FATAL_ERROR "ESMF must be at least 8.6.1")
-  endif ()
-endif ()
 
 # We wish to add extra flags when compiling as Debug. We should only
 # do this if we are using esma_cmake since the flags are defined
