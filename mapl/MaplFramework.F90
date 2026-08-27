@@ -23,7 +23,8 @@ module mapl_MaplFramework_mod
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
      use pfio_DirectoryServiceMod, only: DirectoryService
      use pfio_ClientManagerMod, only: get_client, add_client
-    use pfio_MpiServerMod, only: MpiServer
+     use pfio_AsyncInputServerMod, only: AsyncInputServer
+     use pfio_MpiServerMod, only: MpiServer
     use pfio_MultiGroupServerMod, only: MultiGroupServer
     use pfio_BaseServerMod, only: BaseServer
     use pfio_StringServerMapMod, only: StringServerMap
@@ -624,6 +625,10 @@ contains
       select case (trim(subclass_name))
       case ('MpiServer')
          allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
+         _VERIFY(status)
+         _VERIFY(alloc_stat)
+      case ('AsyncInputServer')
+         allocate(tmp, source=AsyncInputServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
          _VERIFY(status)
          _VERIFY(alloc_stat)
       case ('MultiGroupServer')

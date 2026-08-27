@@ -3,6 +3,7 @@
 module mapl_PfioServerGridComp_mod
    use mapl_MaplFramework_mod,       only: MAPL_PublishServer
    use mapl_MaplServerUtilities_mod, only: ServerResources
+   use pFIO_AsyncInputServerMod,     only: AsyncInputServer
    use pFIO_MpiServerMod,            only: MpiServer
    use pFIO_MultiGroupServerMod,     only: MultiGroupServer
    use pFIO_BaseServerMod,           only: BaseServer
@@ -47,6 +48,8 @@ contains
       select case (trim(resources%subclass))
       case ('MpiServer', '')
          allocate(server, source=MpiServer(resources%server_comm, trim(server_name)))
+      case ('AsyncInputServer')
+         allocate(server, source=AsyncInputServer(resources%server_comm, trim(server_name)))
       case ('MultiGroupServer')
          allocate(server, source=MultiGroupServer(resources%server_comm, trim(server_name), &
               nwriter_per_node=resources%nwriter_per_node))
