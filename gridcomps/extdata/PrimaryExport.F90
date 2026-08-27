@@ -54,7 +54,7 @@ module mapl_PrimaryExport_mod
 
    contains
 
-    function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step,  rc) result(primary_export)
+    function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step, input_server_name, rc) result(primary_export)
        type(PrimaryExport) :: primary_export
        character(len=*), intent(in) :: export_var
        type(ExtDataRule), pointer, intent(in) :: rule
