@@ -54,22 +54,24 @@ module mapl_PrimaryExport_mod
 
    contains
 
-   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step,  rc) result(primary_export)
-      type(PrimaryExport) :: primary_export
-      character(len=*), intent(in) :: export_var
-      type(ExtDataRule), pointer, intent(in) :: rule
-      type(ExtDataCollection), pointer, intent(in) :: collection
-      type(ExtDataSample), pointer, intent(in) :: sample
-      type(ESMF_Time), intent(in) :: time_range(:)
-      type(ESMF_TimeInterval), intent(in) :: time_step
-      integer, optional, intent(out) :: rc
+    function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step,  rc) result(primary_export)
+       type(PrimaryExport) :: primary_export
+       character(len=*), intent(in) :: export_var
+       type(ExtDataRule), pointer, intent(in) :: rule
+       type(ExtDataCollection), pointer, intent(in) :: collection
+       type(ExtDataSample), pointer, intent(in) :: sample
+       type(ESMF_Time), intent(in) :: time_range(:)
+       type(ESMF_TimeInterval), intent(in) :: time_step
+       character(len=*), intent(in), optional :: input_server_name
+       integer, optional, intent(out) :: rc
 
       type(NonClimDataSetFileSelector) :: non_clim_file_selector
       type(ClimDataSetFileSelector) :: clim_file_selector
-      type(DataSetNode) :: left_node, right_node
-      character(len=:), allocatable :: file_template
-      integer :: status, semi_pos
-      class(ClientThread), pointer :: i_client
+       type(DataSetNode) :: left_node, right_node
+       character(len=:), allocatable :: file_template
+       character(len=:), allocatable :: server_name
+       integer :: status, semi_pos
+       class(ClientThread), pointer :: i_client
 
       primary_export%export_var = export_var
       primary_export%is_constant = .not.associated(collection)
@@ -93,11 +95,13 @@ module mapl_PrimaryExport_mod
          end if
          call left_node%set_node_side(NODE_LEFT)
          call right_node%set_node_side(NODE_RIGHT)
-         call primary_export%bracket%set_node(NODE_LEFT, left_node)
-         call primary_export%bracket%set_node(NODE_RIGHT, right_node)
-         call primary_export%file_selector%get_file_template(file_template)
-          i_client => mapl_get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
-         primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
+          call primary_export%bracket%set_node(NODE_LEFT, left_node)
+          call primary_export%bracket%set_node(NODE_RIGHT, right_node)
+          call primary_export%file_selector%get_file_template(file_template)
+          server_name = MAPL_DEFAULT_INPUT_SERVER
+          if (present(input_server_name)) server_name = input_server_name
+           i_client => mapl_get_client(server_name, _RC)
+          primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
          allocate(primary_export%start_and_end, source=time_range)
       end if

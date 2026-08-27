@@ -13,13 +13,14 @@ module mapl_ExtDataReader_mod
 
    public :: ExtDataReader
 
-   type ExtDataReader
-      type(ESMF_FieldBundle) :: accumulated_fields
-      type(StringStringMap) :: alias_map
-      type(StringStringMap) :: filename_map
-      type(StringIntegerMap) :: time_index_map
-      type(StringIntegerMap) :: client_id_map
-      contains
+    type ExtDataReader
+       type(ESMF_FieldBundle) :: accumulated_fields
+       type(StringStringMap) :: alias_map
+       type(StringStringMap) :: filename_map
+       type(StringIntegerMap) :: time_index_map
+       type(StringIntegerMap) :: client_id_map
+       character(:), allocatable :: input_server_name
+       contains
          procedure :: add_item
          procedure :: read_items
          procedure :: initialize_reader
@@ -29,13 +30,16 @@ module mapl_ExtDataReader_mod
 
    contains
 
-   subroutine initialize_reader(this, rc)
-      class(ExtDataReader), intent(inout) :: this
-      integer, optional, intent(out) :: rc
+    subroutine initialize_reader(this, input_server_name, rc)
+       class(ExtDataReader), intent(inout) :: this
+       character(len=*), intent(in), optional :: input_server_name
+       integer, optional, intent(out) :: rc
 
-      integer :: status
+       integer :: status
 
-      this%accumulated_fields = MAPL_FieldBundleCreate(name="reader_bundle", _RC)
+       this%accumulated_fields = MAPL_FieldBundleCreate(name="reader_bundle", _RC)
+       this%input_server_name = MAPL_DEFAULT_INPUT_SERVER
+       if (present(input_server_name)) this%input_server_name = input_server_name
 
       _RETURN(_SUCCESS)
    end subroutine initialize_reader
@@ -98,7 +102,7 @@ module mapl_ExtDataReader_mod
          _RETURN(_SUCCESS)
       end if
 
-      i_client => mapl_get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
+      i_client => mapl_get_client(this%input_server_name, _RC)
 
       call MAPL_FieldBundleGet(this%accumulated_fields, fieldList=field_list, _RC)
       do i=1,size(field_list)

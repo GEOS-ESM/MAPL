@@ -23,19 +23,20 @@ module mapl_ExtDataGridComp_mod
 
    ! Private state
    character(*), parameter :: PRIVATE_STATE = "ExtData"
-   type :: ExtDataGridComp
-      type(PrimaryExportVector) :: export_vector
-      type(integerVector) :: rules_per_export
-      type(integerVector) :: export_id_start
-      type(StringVector) :: export_names
+    type :: ExtDataGridComp
+       type(PrimaryExportVector) :: export_vector
+       type(integerVector) :: rules_per_export
+       type(integerVector) :: export_id_start
+       type(StringVector) :: export_names
       logical :: has_run_mod_advert = .false.
       type(StringVector) :: active_items
       type(StringIntegerMap) :: last_item
-      logical :: log_files_read = .false.
-      character(:), allocatable :: files_read_log_path
-      type(StringSet) :: files_read
-      type(ESMF_Time) :: run_start_time
-      type(ESMF_Time) :: run_end_time
+       logical :: log_files_read = .false.
+       character(:), allocatable :: files_read_log_path
+       character(:), allocatable :: input_server_name
+       type(StringSet) :: files_read
+       type(ESMF_Time) :: run_start_time
+       type(ESMF_Time) :: run_end_time
    contains
       procedure :: get_item_index
    end type ExtDataGridComp
@@ -95,11 +96,12 @@ contains
       call ESMF_ClockGet(clock, currTime=current_time, timeStep=time_step, _RC)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       extdata_gridcomp%active_items = get_active_items(exportState, _RC)
-      call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
-      extdata_gridcomp%log_files_read = config%log_files_read
-      if (config%log_files_read) then
-         extdata_gridcomp%files_read_log_path = config%files_read_log_path
-         extdata_gridcomp%run_start_time = current_time
+       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
+       extdata_gridcomp%log_files_read = config%log_files_read
+       extdata_gridcomp%input_server_name = config%input_server_name
+       if (config%log_files_read) then
+          extdata_gridcomp%files_read_log_path = config%files_read_log_path
+          extdata_gridcomp%run_start_time = current_time
       end if
       rule_counter = 0
       iter = extdata_gridcomp%active_items%ftn_begin()
@@ -159,7 +161,7 @@ contains
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
-      call reader%initialize_reader(_RC)
+      call reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
       iter = extdata_gridcomp%active_items%ftn_begin()
       do while (iter /= extdata_gridcomp%active_items%ftn_end())
          call iter%next()
