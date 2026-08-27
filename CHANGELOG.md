@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-zstandard_level`, `-file_weights`, `-vars`, `-t`) now require a double-dash prefix
   (e.g. `--ogrid`, `--nx`). The short forms `-i` and `-o` are preserved. The `--help` flag
   is now handled automatically by fargparse and prints a formatted usage summary.
+
 ### Added
 
 - Added `log_files_read` option to ExtData2G to easily log all files read during a run
@@ -118,6 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Buggy logic in server initialization (#5214)
 - Missing call to initialize error handling in MPI context
 - Fixed bug that prevented R8 exports from being written in R8 in History
+- check before assign tilelons and tilelats in MAPL_Locstreamget
 
 ### Removed
 
