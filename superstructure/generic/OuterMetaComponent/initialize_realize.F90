@@ -25,7 +25,9 @@ contains
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE, _RC)
 
       user_states = this%user_gc_driver%get_states()
-      tmp_states = MultiState(importState=user_states%importState)
+      tmp_states = MultiState(importState=user_states%importState, &
+           exportState=user_states%exportState, &
+           internalState=user_states%internalState)
       call this%registry%add_to_states(tmp_states, mode='user', _RC)
       outer_states = MultiState(importState=importState, exportState=exportState)
       call this%registry%add_to_states(outer_states, mode='outer', _RC)

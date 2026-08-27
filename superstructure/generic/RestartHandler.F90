@@ -33,6 +33,12 @@ module mapl_RestartHandler_mod
       procedure, private :: read_bundle_
    end type RestartHandler
 
+   ! Selects which fields of state are eligible for a given restart
+   ! operation ('write' or 'read'), and returns them flattened into a
+   ! single bundle. Shared by RestartHandler%write/%read (netCDF path)
+   ! and by the in-memory checkpoint write/read (OuterMetaComponent).
+   public :: get_restart_bundle
+
    interface RestartHandler
       procedure new_RestartHandler
    end interface RestartHandler
@@ -64,8 +70,7 @@ contains
       _RETURN_UNLESS(item_count>0)
 
       call this%lgr%info("Writing checkpoint: %a", filename)
-      call MAPL_StateGet(state, bundle, _RC)
-      call MAPL_FieldBundleFilter(bundle, predicate_incomplete_, _RC)
+      call get_restart_bundle(state, is_write=.true., bundle=bundle, _RC)
       call this%write_bundle_(bundle, filename, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
@@ -90,8 +95,7 @@ contains
       _RETURN_IF(bootstrap .and. (.not. file_exists))
       _ASSERT(file_exists, "Restart file " // trim(filename) // " does not exist")
       call this%lgr%info("Reading restart: %a", trim(filename))
-      call MAPL_StateGet(state, bundle, _RC)
-      call MAPL_FieldBundleFilter(bundle, predicate_skip_restart_, _RC)
+      call get_restart_bundle(state, is_write=.false., bundle=bundle, _RC)
       call this%read_bundle_(filename, bundle, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
@@ -146,6 +150,31 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine read_bundle_
+
+   ! Build the restart-eligible flattened bundle for a given state.
+   ! Shared by RestartHandler%write/%read (netCDF path) and by the
+   ! in-memory checkpoint write/read (OuterMetaComponent), so both
+   ! paths use identical field-selection semantics:
+   !  - write (is_write=.true.): drop fields that are not
+   !    ESMF_FIELDSTATUS_COMPLETE.
+   !  - read (is_write=.false.): drop fields marked RESTART_SKIP.
+   subroutine get_restart_bundle(state, is_write, bundle, rc)
+      type(ESMF_State), intent(in) :: state
+      logical, intent(in) :: is_write
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call MAPL_StateGet(state, bundle, _RC)
+      if (is_write) then
+         call MAPL_FieldBundleFilter(bundle, predicate_incomplete_, _RC)
+      else
+         call MAPL_FieldBundleFilter(bundle, predicate_skip_restart_, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine get_restart_bundle
 
    function predicate_skip_restart_(field, rc) result(remove)
       type(ESMF_Field), intent(in) :: field
