@@ -49,7 +49,7 @@ contains
       case ('MpiServer', '')
          allocate(server, source=MpiServer(resources%server_comm, trim(server_name)))
       case ('AsyncInputServer')
-         allocate(server, source=AsyncInputServer(resources%server_comm, trim(server_name)))
+         allocate(server, source=AsyncInputServer(resources%server_comm, trim(server_name), model_comm=resources%model_comm))
       case ('MultiGroupServer')
          allocate(server, source=MultiGroupServer(resources%server_comm, trim(server_name), &
               nwriter_per_node=resources%nwriter_per_node))

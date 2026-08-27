@@ -628,7 +628,7 @@ contains
          _VERIFY(status)
          _VERIFY(alloc_stat)
       case ('AsyncInputServer')
-         allocate(tmp, source=AsyncInputServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
+         allocate(tmp, source=AsyncInputServer(this%model_comm, server_name, model_comm=this%model_comm, rc=status), stat=alloc_stat)
          _VERIFY(status)
          _VERIFY(alloc_stat)
       case ('MultiGroupServer')
