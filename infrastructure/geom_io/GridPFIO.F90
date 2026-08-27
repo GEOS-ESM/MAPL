@@ -2,7 +2,7 @@
 
 module mapl_GridPFIO_mod
 
-   use, intrinsic :: iso_c_binding, only: c_ptr, c_loc
+   use, intrinsic :: iso_c_binding, only: c_ptr
 
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
@@ -20,8 +20,7 @@ module mapl_GridPFIO_mod
    public :: GridPFIO
    type, extends (GeomPFIO) :: GridPFIO
       private
-      real(ESMF_KIND_R8), pointer :: lons(:,:) => null(), lats(:,:) => null()
-      real(ESMF_KIND_R8), pointer :: corner_lons(:,:) => null(), corner_lats(:,:) => null()
+      real(ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:), corner_lons(:,:), corner_lats(:,:)
    contains
       procedure :: stage_data_to_file
       procedure :: request_data_from_file
@@ -31,7 +30,7 @@ module mapl_GridPFIO_mod
 contains
 
    subroutine stage_coordinates_to_file(this, filename, rc)
-      class(GridPFIO), intent(inout) :: this
+      class(GridPFIO), target, intent(inout) :: this
       character(len=*), intent(in) :: filename
       integer, intent(out), optional :: rc
 
@@ -66,18 +65,18 @@ contains
          local_start = server_bounds%get_local_start()
 
          call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, _RC)
-         if (associated(this%lons)) deallocate(this%lons)
+         if (allocated(this%lons)) deallocate(this%lons)
          allocate(this%lons(size(coords,1), size(coords,2)), _STAT)
          this%lons = coords*MAPL_RADIANS_TO_DEGREES
-         ref = ArrayReference(c_loc(this%lons(1,1)), pFIO_REAL64, shape(this%lons))
+         ref = ArrayReference(this%lons)
           request_id = o_client%collective_stage_data(collection_id,filename, 'lons', &
                 ref, start=local_start, global_start=global_start, global_count=global_count)
 
          call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, _RC)
-         if (associated(this%lats)) deallocate(this%lats)
+         if (allocated(this%lats)) deallocate(this%lats)
          allocate(this%lats(size(coords,1), size(coords,2)), _STAT)
          this%lats = coords*MAPL_RADIANS_TO_DEGREES
-         ref = ArrayReference(c_loc(this%lats(1,1)), pFIO_REAL64, shape(this%lats))
+         ref = ArrayReference(this%lats)
           request_id = o_client%collective_stage_data(collection_id,filename, 'lats', &
                 ref, start=local_start, global_start=global_start, global_count=global_count)
 
@@ -98,18 +97,18 @@ contains
          local_start = server_bounds%get_corner_local_start()
 
          call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
-         if (associated(this%corner_lons)) deallocate(this%corner_lons)
+         if (allocated(this%corner_lons)) deallocate(this%corner_lons)
          allocate(this%corner_lons(size(coords,1), size(coords,2)), _STAT)
          this%corner_lons = coords*MAPL_RADIANS_TO_DEGREES
-         ref = ArrayReference(c_loc(this%corner_lons(1,1)), pFIO_REAL64, shape(this%corner_lons))
+         ref = ArrayReference(this%corner_lons)
            request_id = o_client%collective_stage_data(collection_id,filename, 'corner_lons', &
                 ref, start=local_start, global_start=global_start, global_count=global_count)
 
          call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
-         if (associated(this%corner_lats)) deallocate(this%corner_lats)
+         if (allocated(this%corner_lats)) deallocate(this%corner_lats)
          allocate(this%corner_lats(size(coords,1), size(coords,2)), _STAT)
          this%corner_lats = coords*MAPL_RADIANS_TO_DEGREES
-         ref = ArrayReference(c_loc(this%corner_lats(1,1)), pFIO_REAL64, shape(this%corner_lats))
+         ref = ArrayReference(this%corner_lats)
            request_id = o_client%collective_stage_data(collection_id,filename, 'corner_lats', &
                 ref, start=local_start, global_start=global_start, global_count=global_count)
 
