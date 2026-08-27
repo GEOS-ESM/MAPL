@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
 - Added `log_files_read` option to ExtData2G to easily log all files read during a run
+- Fix locality of symbols for Python -> Fortran call in MAPLPy
 
 ### Added
 
