@@ -118,6 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Buggy logic in server initialization (#5214)
 - Missing call to initialize error handling in MPI context
 - Fixed bug that prevented R8 exports from being written in R8 in History
+- Fix locality of symbols for Python -> Fortran call in MAPLPy
 
 ### Removed
 
