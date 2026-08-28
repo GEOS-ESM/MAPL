@@ -1,0 +1,31 @@
+name: cap
+restart: cap_restart.yaml
+run_extdata: true
+run_history: true
+
+clock:
+  dt: PT1H
+  start: 1891-03-01T00:00:00
+  stop: 2999-03-02T21:00:00
+  segment_duration: PT10H
+
+checkpointing:
+  enabled: true
+  final: true
+  path: checkpoints
+  alarms: {}
+
+extdata_name: &extdata EXTDATA
+history_name: &history HIST
+root_name: &root GCM
+
+mapl:
+  setServices:
+    sharedObj: libMAPL.cap
+  children:
+    *root :
+      config_file: GCM.yaml
+    *extdata :
+      config_file: extdata.yaml
+    *history :
+      config_file: history.yaml
