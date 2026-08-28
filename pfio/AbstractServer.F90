@@ -12,10 +12,11 @@ module pFIO_AbstractServerMod
    use gFTL2_StringVector
    use pFIO_AbstractMessageMod
    use pFIO_CollectiveStageDataMessageMod
-   use pFIO_RDMAReferenceMod
-   use pFIO_DummyMessageMod
-   use pFIO_MessageVectorMod
-   use mpi
+    use pFIO_RDMAReferenceMod
+    use pFIO_DummyMessageMod
+    use pFIO_MessageVectorMod
+    use pFIO_AbstractSocketMod
+    use mpi
 
    implicit none
    private
@@ -73,10 +74,11 @@ module pFIO_AbstractServerMod
       procedure :: get_DataFromMem
       procedure :: am_I_reading_PE
       procedure :: get_writing_PE
-      procedure :: distribute_task
-      procedure :: get_communicator
-      procedure :: report_profile
-   end type AbstractServer
+       procedure :: distribute_task
+       procedure :: get_communicator
+       procedure :: report_profile
+       procedure :: service_collective_prefetch
+    end type AbstractServer
 
    abstract interface
 
@@ -428,7 +430,7 @@ contains
 
    end function get_communicator
 
-   subroutine report_profile(this, rc )
+    subroutine report_profile(this, rc )
       class (AbstractServer), intent(inout) :: this
       integer, optional,   intent(  out) :: RC     ! Error code:
       type(StringVector) :: report_lines
@@ -467,8 +469,22 @@ contains
          write(*,'(a)') ''
       end if
 
-      deallocate(ioserver_profiler)
-      _RETURN(_SUCCESS)
-   end subroutine report_profile
+       deallocate(ioserver_profiler)
+       _RETURN(_SUCCESS)
+    end subroutine report_profile
+
+    subroutine service_collective_prefetch(this, request_backlog, connection, handled, rc)
+       class(AbstractServer), intent(inout) :: this
+       type(MessageVector), intent(inout) :: request_backlog
+       class(AbstractSocket), intent(inout), target :: connection
+       logical, intent(out) :: handled
+       integer, optional, intent(out) :: rc
+
+       handled = .false.
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(this)
+       _UNUSED_DUMMY(request_backlog)
+       _UNUSED_DUMMY(connection)
+    end subroutine service_collective_prefetch
 
 end module pFIO_AbstractServerMod

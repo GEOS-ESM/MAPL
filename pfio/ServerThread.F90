@@ -1081,6 +1081,8 @@ contains
       integer, optional, intent(out) :: rc
 
       class(AbstractDataReference),pointer :: dataRefPtr
+      class(AbstractSocket), pointer :: connection
+      logical :: handled
       integer :: status
 
       ! first time handling the "Done" message, simple return
@@ -1088,6 +1090,13 @@ contains
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
          _RETURN(_SUCCESS)
       endif
+
+      connection => this%get_connection(status)
+      _VERIFY(status)
+      call this%containing_server%service_collective_prefetch(this%request_backlog, connection, handled, _RC)
+      if (handled) then
+         _RETURN(_SUCCESS)
+      end if
 
       if( .not. multi_data_read) then
         ! each node read part of a file, then exchange
