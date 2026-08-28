@@ -10,9 +10,9 @@
 !     MAPL_REALIZE
 
 module mapl_GenericGridComp_mod
-   use :: mapl_OuterMetaComponent_mod, only: OuterMetaComponent
-   use :: mapl_OuterMetaComponent_mod, only: get_outer_meta
-   use :: mapl_OuterMetaComponent_mod, only: attach_outer_meta
+    use :: mapl_OuterMetaComponent_mod, only: OuterMetaComponent
+    use :: mapl_OuterMetaComponent_mod, only: get_outer_meta
+    use :: mapl_OuterMetaComponent_mod, only: attach_outer_meta
    use :: mapl_GenericPhases_mod
    use :: mapl_GriddedComponentDriver_mod
    use esmf
@@ -32,19 +32,59 @@ module mapl_GenericGridComp_mod
 contains
 
    recursive subroutine GenericSetServices(gridcomp, rc)
-      type(ESMF_GridComp) :: gridcomp
-      integer, intent(out) :: rc
+       type(ESMF_GridComp) :: gridcomp
+       integer, intent(out) :: rc
 
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
+       integer :: status
+       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%setServices(_RC)
-      call set_entry_points(gridcomp, _RC)
+       call get_or_create_outer_meta(gridcomp, outer_meta, _RC)
+       call outer_meta%setServices(_RC)
+       call set_entry_points(gridcomp, _RC)
 
-      _RETURN(ESMF_SUCCESS)
+       _RETURN(ESMF_SUCCESS)
 
-   contains
+    contains
+
+      subroutine get_or_create_outer_meta(gridcomp, outer_meta, rc)
+         type(ESMF_GridComp), intent(inout) :: gridcomp
+         type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+         integer, intent(out) :: rc
+
+         type :: PrivateWrapper
+            type(OuterMetaComponent), pointer :: ptr
+         end type PrivateWrapper
+
+         type(ESMF_Config) :: config
+         type(ESMF_HConfig) :: hconfig
+         type(PrivateWrapper) :: wrapper
+         type(ESMF_GridComp) :: user_gridcomp
+         type(GriddedComponentDriver) :: user_gc_driver
+         integer :: status
+         character(ESMF_MAXSTR) :: name
+
+         call ESMF_InternalStateGet(gridcomp, internalState=wrapper, &
+              label='MAPL::OuterMetaComponent::private', rc=status)
+         if (status == ESMF_SUCCESS) then
+            outer_meta => wrapper%ptr
+            _RETURN(_SUCCESS)
+         end if
+
+         call ESMF_GridCompGet(gridcomp, config=config, _RC)
+         call ESMF_GridCompGet(gridcomp, name=name, _RC)
+         call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
+
+         user_gridcomp = ESMF_GridCompCreate(name=trim(name), _RC)
+         call set_is_generic(user_gridcomp, .false., _RC)
+         user_gc_driver = GriddedComponentDriver(user_gridcomp)
+         call set_is_generic(gridcomp, _RC)
+         call attach_outer_meta(gridcomp, _RC)
+         outer_meta => get_outer_meta(gridcomp, _RC)
+         outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, hconfig=hconfig)
+         call outer_meta%init_meta(_RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine get_or_create_outer_meta
 
       subroutine set_entry_points(gridcomp, rc)
          type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -86,10 +126,10 @@ contains
 
    recursive type(ESMF_GridComp) function create_grid_comp_primary( &
         name, set_services, config, unusable, petlist, rc) result(gridcomp)
-      use :: mapl_UserSetServices_mod, only: AbstractUserSetServices
+      use :: mapl_UserSetServices_mod, only: UserSetServices
 
       character(*), intent(in) :: name
-      class(AbstractUserSetServices), intent(in) :: set_services
+      class(UserSetServices), optional, intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)
@@ -117,7 +157,11 @@ contains
       ! must be processed later as the information gets stored in the ComponentSpec.
 
       user_gc_driver = GriddedComponentDriver(user_gridcomp)
-      outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
+      if (present(set_services)) then
+         outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
+      else
+         outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, hconfig=config)
+      end if
       call outer_meta%init_meta(_RC)
 
       _RETURN(ESMF_SUCCESS)

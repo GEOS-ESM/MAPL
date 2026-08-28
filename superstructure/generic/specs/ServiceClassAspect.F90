@@ -6,6 +6,7 @@ module mapl_ServiceClassAspect_mod
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ACTIVE, MAPL_FIELDBUNDLETYPE_SERVICE
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED
    use mapl_ClassAspect_mod
    use mapl_FieldClassAspect_mod
    use mapl_StateRegistry_mod
@@ -103,8 +104,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=MAPL_FIELDBUNDLETYPE_SERVICE, _RC)
+
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call MAPL_FieldBundleInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(other_aspects)

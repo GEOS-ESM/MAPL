@@ -6,18 +6,20 @@ submodule (mapl_OuterMetaComponent_mod) new_outer_meta_smod
 contains
 
    ! Keep the constructor simple
-   module function new_outer_meta(gridcomp, user_gc_driver, user_setServices, hconfig) result(outer_meta)
-      type(OuterMetaComponent) :: outer_meta
-      type(ESMF_GridComp), intent(in) :: gridcomp
-      type(GriddedComponentDriver), intent(in) :: user_gc_driver
-      class(AbstractUserSetServices), intent(in) :: user_setservices
-      type(ESMF_HConfig), intent(in) :: hconfig
-      type(ESMF_TimeInterval) :: offset
+    module function new_outer_meta(gridcomp, user_gc_driver, user_setServices, hconfig) result(outer_meta)
+       type(OuterMetaComponent) :: outer_meta
+       type(ESMF_GridComp), intent(in) :: gridcomp
+       type(GriddedComponentDriver), intent(in) :: user_gc_driver
+       class(UserSetServices), optional, intent(in) :: user_setservices
+       type(ESMF_HConfig), intent(in) :: hconfig
+       type(ESMF_TimeInterval) :: offset
          
-      outer_meta%self_gridcomp = gridcomp
-      outer_meta%user_gc_driver = user_gc_driver
-      allocate(outer_meta%user_setServices, source=user_setServices)
-      outer_meta%hconfig = hconfig
+       outer_meta%self_gridcomp = gridcomp
+       outer_meta%user_gc_driver = user_gc_driver
+       if (present(user_setservices)) then
+          allocate(outer_meta%user_setServices, source=user_setServices)
+       end if
+       outer_meta%hconfig = hconfig
 
       call ESMF_TimeIntervalSet(offset, s=0)
       outer_meta%user_offset = offset

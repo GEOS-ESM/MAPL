@@ -33,6 +33,8 @@ module mapl_ExtDataConfig_mod
       type(ExtDataDerivedMap) :: derived_map
       type(ExtDataCollectionMap) :: file_stream_map
       type(ExtDataSampleMap) :: sample_map
+      logical :: log_files_read = .false.
+      character(:), allocatable :: files_read_log_path
    contains
       procedure :: add_new_rule
       procedure :: get_item_type
@@ -158,11 +160,16 @@ contains
          end do
       end if
 
-      if (ESMF_HConfigIsDefined(input_config,keyString="debug") )then
-         ext_config%debug =  ESMF_HConfigAsI4(input_config,keyString="debug",_RC)
-      end if
+       if (ESMF_HConfigIsDefined(input_config,keyString="debug") )then
+          ext_config%debug =  ESMF_HConfigAsI4(input_config,keyString="debug",_RC)
+       end if
 
-      _RETURN(_SUCCESS)
+       if (ESMF_HConfigIsDefined(input_config,keyString="log_files_read")) then
+          ext_config%files_read_log_path = ESMF_HConfigAsString(input_config,keyString="log_files_read",_RC)
+          ext_config%log_files_read = .true.
+       end if
+
+       _RETURN(_SUCCESS)
    end subroutine new_ExtDataConfig_from_yaml
 
    function count_rules_for_item(this,item_name,rc) result(number_of_rules)
@@ -460,13 +467,16 @@ contains
 
       export_rule => this%rule_map%at(full_name)
       collection => null()
-      sample => this%sample_map%at(export_rule%sample_key)
       if (export_rule%collection /= "/dev/null") then
          collection => this%file_stream_map%at(export_rule%collection)
+         _ASSERT(associated(collection), 'invalid collection key for '//trim(base_name))
       end if
-      if (.not. associated(sample)) then
+      if (export_rule%sample_key == SAMPLE_NOT_PROVIDED) then
          call default_sample%set_defaults()
          sample => default_sample
+      else
+         sample => this%sample_map%at(export_rule%sample_key)
+         _ASSERT(associated(sample), 'invalid sample key for '//trim(base_name))
       end if
       call this%get_time_range(full_name, base_name, time_range, _RC)
       export = PrimaryExport(base_name, export_rule, collection, sample, time_range, time_step, _RC)

@@ -9,6 +9,7 @@ set (srcs
     FieldUnits.F90
     FieldCondensedArray.F90
     FieldCondensedArray_private.F90
+    FieldApplyUserRoutine.F90
     FieldFillDefault.F90
     FieldFill.F90
     FieldCreate.F90

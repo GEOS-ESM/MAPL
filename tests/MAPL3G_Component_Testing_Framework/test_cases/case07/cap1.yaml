@@ -6,7 +6,6 @@ esmf:
 mapl:
   model_petcount: 1
   pflogger_cfg_file: logging.yaml
-#
 #  servers:
 #    pfio:
 #       nodes: 1
@@ -15,6 +14,7 @@ mapl:
 
 cap:
   name: cap
+  skip_restart_write: true
   restart: cap_restart1.yaml
 
   clock:
@@ -46,14 +46,12 @@ cap:
     - '2004-12-15T00:00:00'
 
   mapl:
+    setServices:
+      sharedObj: libMAPL.cap
     children:
       GCM:
-        dso: libMAPL.componentDriverGridComp
-        setServices: setservices_
         config_file: GCM1.yaml
       EXTDATA:
-        dso: libMAPL.extdata
         config_file: extdata1.yaml
       HIST:
-        dso: libMAPL.history
         config_file: history1.yaml
