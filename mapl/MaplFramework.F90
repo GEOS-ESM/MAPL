@@ -257,19 +257,23 @@ contains
 
          integer :: status
          logical :: has_model_petcount, has_app_petcount
-         logical :: has_servers, has_pflogger, has_pflogger_cfg_file
+         logical :: has_mapl_servers, has_pflogger, has_pflogger_cfg_file
+         logical :: has_servers
          type(ESMF_HConfig) :: servers_hconfig
          character(:), allocatable :: pflogger_cfg_file
+         integer(kind=ESMF_KIND_I4) :: app_petcount
 
          has_model_petcount = ESMF_HConfigIsDefined(mapl_hconfig, keystring='model_petcount', _RC)
          has_app_petcount = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
          if (.not. has_model_petcount .and. has_app_petcount) then
-            call ESMF_HConfigAdd(mapl_hconfig, content=ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC), &
+             app_petcount = ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC)
+            call ESMF_HConfigAdd(mapl_hconfig, content=app_petcount, &
                  addKeyString='model_petcount', _RC)
          end if
 
-         has_servers = ESMF_HConfigIsDefined(mapl_hconfig, keystring='servers', _RC)
-         if (.not. has_servers .and. ESMF_HConfigIsDefined(hconfig, keystring='servers', _RC)) then
+         has_mapl_servers = ESMF_HConfigIsDefined(mapl_hconfig, keystring='servers', _RC)
+         has_servers = ESMF_HConfigIsDefined(hconfig, keystring='servers', _RC)
+         if (.not. has_mapl_servers .and. has_servers) then
             servers_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='servers', _RC)
             call ESMF_HConfigAdd(mapl_hconfig, content=servers_hconfig, addKeyString='servers', _RC)
             call ESMF_HConfigDestroy(servers_hconfig, _RC)
