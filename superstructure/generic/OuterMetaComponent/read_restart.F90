@@ -45,8 +45,8 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine read_restart
 
-   ! In-memory checkpoint read: for each of import/export/internal
-   ! enabled via restart_controls, copy field data values from the
+    ! In-memory checkpoint read: for each enabled import/internal state,
+    ! copy field data values from the
    ! stored memory_checkpoint snapshot back into the live state's
    ! restart-eligible fields (data only - live field objects are not
    ! reallocated or replaced). Fails if no snapshot was ever stored
@@ -64,10 +64,6 @@ contains
 
       if (this%component_spec%misc%restart_controls%get_import()) then
          call copy_checkpoint_into_state_(this, states%importState, ESMF_STATEINTENT_IMPORT, _RC)
-      end if
-
-      if (this%component_spec%misc%restart_controls%get_export()) then
-         call copy_checkpoint_into_state_(this, states%exportState, ESMF_STATEINTENT_EXPORT, _RC)
       end if
 
       if (this%component_spec%misc%restart_controls%get_internal()) then
@@ -95,15 +91,22 @@ contains
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ESMF_State) :: checkpoint_state
-      type(ESMF_FieldBundle) :: live_bundle, checkpoint_bundle
-      integer :: checkpoint_item_count
+       integer :: status
+       type(ESMF_State) :: checkpoint_state
+       type(ESMF_Info) :: checkpoint_info
+       type(ESMF_FieldBundle) :: live_bundle, checkpoint_bundle
+       integer :: checkpoint_item_count
+       logical :: has_memory_checkpoint
 
-      _ASSERT(this%has_memory_checkpoint, 'In-memory checkpoint read requested but no in-memory checkpoint write has occurred.')
+       has_memory_checkpoint = .false.
+       _ASSERT(ESMF_StateIsCreated(this%memory_checkpoint), 'In-memory checkpoint read requested but no in-memory checkpoint write has occurred.')
+       call ESMF_InfoGetFromHost(this%memory_checkpoint, checkpoint_info, _RC)
+       call ESMF_InfoGet(checkpoint_info, key=MEMORY_CHECKPOINT_INFO_KEY, value=has_memory_checkpoint, rc=status)
+       if (status /= ESMF_SUCCESS) has_memory_checkpoint = .false.
+       _ASSERT(has_memory_checkpoint, 'In-memory checkpoint read requested but no in-memory checkpoint write has occurred.')
 
-      call this%get_memory_checkpoint_state_(state_intent, checkpoint_state, _RC)
-      call ESMF_StateGet(checkpoint_state, itemCount=checkpoint_item_count, _RC)
+       call this%get_memory_checkpoint_state_(state_intent, checkpoint_state, _RC)
+       call ESMF_StateGet(checkpoint_state, itemCount=checkpoint_item_count, _RC)
       _ASSERT(checkpoint_item_count > 0, 'In-memory checkpoint read requested for a state with no stored snapshot.')
 
       call get_restart_bundle(live_state, is_write=.true., bundle=live_bundle, _RC)

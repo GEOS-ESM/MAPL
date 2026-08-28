@@ -47,10 +47,9 @@ module mapl_OuterMetaComponent_mod
       class(VerticalGrid), allocatable            :: vertical_grid
 
       ! In-memory checkpoint: nested ESMF_States (import/export/internal)
-      ! holding the most recent in-memory checkpoint write. Lazily
-      ! created on first write; see ensure_memory_checkpoint_.
+      ! holding most recent in-memory checkpoint write. Lazily created
+      ! on first write; see ensure_memory_checkpoint_.
       type(ESMF_State) :: memory_checkpoint
-      logical :: has_memory_checkpoint
 
 ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
@@ -149,6 +148,7 @@ module mapl_OuterMetaComponent_mod
    end interface get_outer_meta
 
    character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "MAPL::OuterMetaComponent::private"
+   character(len=*), parameter :: MEMORY_CHECKPOINT_INFO_KEY = "MAPL/HAS_MEMORY_CHECKPOINT"
 
    abstract interface
       subroutine I_child_op(this, child_meta, rc)

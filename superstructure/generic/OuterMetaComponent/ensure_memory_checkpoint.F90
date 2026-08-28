@@ -16,6 +16,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: checkpoint_info
       type(ESMF_State) :: import_state, export_state, internal_state
       logical :: is_created
 
@@ -25,6 +26,8 @@ contains
       end if
 
       this%memory_checkpoint = ESMF_StateCreate(name="memory_checkpoint", _RC)
+      call ESMF_InfoGetFromHost(this%memory_checkpoint, checkpoint_info, _RC)
+      call ESMF_InfoSet(checkpoint_info, key=MEMORY_CHECKPOINT_INFO_KEY, value=.false., _RC)
 
       import_state = ESMF_StateCreate(name="import", _RC)
       export_state = ESMF_StateCreate(name="export", _RC)

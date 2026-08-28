@@ -28,9 +28,7 @@ contains
       outer_meta%counter = counter
       call initialize_phases_map(outer_meta%user_phases_map)
 
-      outer_meta%has_memory_checkpoint = .false.
-
-   end function new_outer_meta
+    end function new_outer_meta
 
 
 end submodule new_outer_meta_smod

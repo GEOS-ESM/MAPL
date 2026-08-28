@@ -8,7 +8,6 @@ submodule (mapl_OuterMetaComponent_mod) write_restart_smod
    use mapl_ErrorHandling_mod
    use mapl_GenericPhases_mod, only: GENERIC_INTERNAL_WRITE_RESTART
    use mapl_field_bundle_api, only: MAPL_FieldBundleClone, MAPL_FieldBundleCopy
-   use mapl_FieldUtils, only: FieldsDestroy
 
    implicit none(type,external)
 
@@ -79,20 +78,19 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine write_restart
 
-   ! In-memory checkpoint write: for each of import/export/internal
-   ! enabled via checkpoint_controls, deep-clone the state's
-   ! restart-eligible fields (independent allocation, no data copy
-   ! aliasing) into the corresponding nested state under
-   ! this%memory_checkpoint, replacing any previously stored snapshot
-   ! for that state.
-   subroutine write_memory_checkpoint_(this, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
+    ! In-memory checkpoint write: first save clones each enabled state's
+    ! restart-eligible fields into corresponding nested state under
+    ! this%memory_checkpoint. Later saves only copy field data into that
+    ! fixed structure.
+    subroutine write_memory_checkpoint_(this, rc)
+       class(OuterMetaComponent), target, intent(inout) :: this
+       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(GriddedComponentDriver), pointer :: driver
-      type(MultiState) :: states
-      logical :: wrote_any
+       integer :: status
+       type(GriddedComponentDriver), pointer :: driver
+       type(MultiState) :: states
+       type(ESMF_Info) :: checkpoint_info
+       logical :: wrote_any
 
       driver => this%get_user_gc_driver()
       states = driver%get_states()
@@ -100,92 +98,66 @@ contains
       wrote_any = .false.
 
       if (this%component_spec%misc%checkpoint_controls%get_import()) then
-         call clone_state_into_checkpoint_(this, states%importState, ESMF_STATEINTENT_IMPORT, _RC)
-         wrote_any = .true.
-      end if
-
-      if (this%component_spec%misc%checkpoint_controls%get_export()) then
-         call clone_state_into_checkpoint_(this, states%exportState, ESMF_STATEINTENT_EXPORT, _RC)
+         call save_state_into_checkpoint_(this, states%importState, ESMF_STATEINTENT_IMPORT, _RC)
          wrote_any = .true.
       end if
 
       if (this%component_spec%misc%checkpoint_controls%get_internal()) then
-         call clone_state_into_checkpoint_(this, states%internalState, ESMF_STATEINTENT_INTERNAL, _RC)
+         call save_state_into_checkpoint_(this, states%internalState, ESMF_STATEINTENT_INTERNAL, _RC)
          wrote_any = .true.
       end if
 
-      if (wrote_any) this%has_memory_checkpoint = .true.
-
-      _RETURN(ESMF_SUCCESS)
-   end subroutine write_memory_checkpoint_
-
-   ! Build the restart-eligible bundle for live_state, deep-clone it
-   ! (independent allocation via FieldClone, structure only), copy the
-   ! live data values into the clone, and store the clone's fields
-   ! into the memory_checkpoint substate identified by state_intent,
-   ! replacing any previous contents.
-   subroutine clone_state_into_checkpoint_(this, live_state, state_intent, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      type(ESMF_State), intent(in) :: live_state
-      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_FieldBundle) :: eligible_bundle, cloned_bundle
-      type(ESMF_State) :: checkpoint_state
-      type(ESMF_Field), allocatable :: cloned_fields(:)
-      integer :: field_count
-
-      call get_restart_bundle(live_state, is_write=.true., bundle=eligible_bundle, _RC)
-      call MAPL_FieldBundleClone(eligible_bundle, cloned_bundle, _RC)
-      ! FieldClone (used by MAPL_FieldBundleClone) only clones field
-      ! structure/metadata into freshly-allocated memory; it does NOT
-      ! copy data values. Populate the clone's data explicitly so the
-      ! stored checkpoint reflects the live state's current values.
-      call MAPL_FieldBundleCopy(eligible_bundle, cloned_bundle, _RC)
-      call ESMF_FieldBundleDestroy(eligible_bundle, _RC)
-
-      call this%get_memory_checkpoint_state_(state_intent, checkpoint_state, _RC)
-      call clear_checkpoint_state_(checkpoint_state, _RC)
-
-      call ESMF_FieldBundleGet(cloned_bundle, fieldCount=field_count, _RC)
-      if (field_count > 0) then
-         allocate(cloned_fields(field_count), _STAT)
-         call ESMF_FieldBundleGet(cloned_bundle, itemorderflag=ESMF_ITEMORDER_ABC, fieldList=cloned_fields, _RC)
-         call ESMF_StateAdd(checkpoint_state, cloned_fields, _RC)
-      end if
-      call ESMF_FieldBundleDestroy(cloned_bundle, _RC)
-
-      _RETURN(ESMF_SUCCESS)
-   end subroutine clone_state_into_checkpoint_
-
-   ! Remove and destroy any fields currently held directly in
-   ! checkpoint_state (i.e. the prior in-memory checkpoint snapshot
-   ! for this state, if any).
-   subroutine clear_checkpoint_state_(checkpoint_state, rc)
-      type(ESMF_State), intent(inout) :: checkpoint_state
-      integer, optional, intent(out) :: rc
-
-      integer :: status, item_count
-      character(len=ESMF_MAXSTR), allocatable :: item_names(:)
-      type(ESMF_Field), allocatable :: old_fields(:)
-      integer :: idx
-
-      call ESMF_StateGet(checkpoint_state, itemCount=item_count, _RC)
-      if (item_count == 0) then
-         _RETURN(ESMF_SUCCESS)
+      if (wrote_any) then
+         call ESMF_InfoGetFromHost(this%memory_checkpoint, checkpoint_info, _RC)
+         call ESMF_InfoSet(checkpoint_info, key=MEMORY_CHECKPOINT_INFO_KEY, value=.true., _RC)
       end if
 
-      allocate(item_names(item_count), _STAT)
-      allocate(old_fields(item_count), _STAT)
-      call ESMF_StateGet(checkpoint_state, itemNameList=item_names, _RC)
-      do idx = 1, item_count
-         call ESMF_StateGet(checkpoint_state, item_names(idx), old_fields(idx), _RC)
-      end do
-      call ESMF_StateRemove(checkpoint_state, itemNameList=item_names, _RC)
-      call FieldsDestroy(old_fields, _RC)
-
       _RETURN(ESMF_SUCCESS)
-   end subroutine clear_checkpoint_state_
+    end subroutine write_memory_checkpoint_
+
+    ! Build restart-eligible bundle for live_state. First save for given
+    ! state clones bundle structure into checkpoint state. Later saves
+    ! reuse stored fields and only copy data values.
+    subroutine save_state_into_checkpoint_(this, live_state, state_intent, rc)
+       class(OuterMetaComponent), target, intent(inout) :: this
+       type(ESMF_State), intent(in) :: live_state
+       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       type(ESMF_FieldBundle) :: eligible_bundle, checkpoint_bundle
+       type(ESMF_State) :: checkpoint_state
+       type(ESMF_FieldBundle) :: cloned_bundle
+       type(ESMF_Field), allocatable :: cloned_fields(:)
+       integer :: checkpoint_item_count, field_count
+
+       call get_restart_bundle(live_state, is_write=.true., bundle=eligible_bundle, _RC)
+
+       call this%get_memory_checkpoint_state_(state_intent, checkpoint_state, _RC)
+       call ESMF_StateGet(checkpoint_state, itemCount=checkpoint_item_count, _RC)
+
+       if (checkpoint_item_count == 0) then
+          call MAPL_FieldBundleClone(eligible_bundle, cloned_bundle, _RC)
+          ! FieldClone only allocates destination fields. Copy live data
+          ! after first-time clone so checkpoint stores current values.
+          call MAPL_FieldBundleCopy(eligible_bundle, cloned_bundle, _RC)
+
+          call ESMF_FieldBundleGet(cloned_bundle, fieldCount=field_count, _RC)
+          if (field_count > 0) then
+             allocate(cloned_fields(field_count), _STAT)
+             call ESMF_FieldBundleGet(cloned_bundle, itemorderflag=ESMF_ITEMORDER_ABC, fieldList=cloned_fields, _RC)
+             call ESMF_StateAdd(checkpoint_state, cloned_fields, _RC)
+          end if
+          call ESMF_FieldBundleDestroy(cloned_bundle, _RC)
+       else
+          call get_restart_bundle(checkpoint_state, is_write=.true., bundle=checkpoint_bundle, _RC)
+          call MAPL_FieldBundleCopy(eligible_bundle, checkpoint_bundle, _RC)
+          call ESMF_FieldBundleDestroy(checkpoint_bundle, _RC)
+       end if
+
+       call ESMF_FieldBundleDestroy(eligible_bundle, _RC)
+
+       _RETURN(ESMF_SUCCESS)
+    end subroutine save_state_into_checkpoint_
 
 end submodule write_restart_smod

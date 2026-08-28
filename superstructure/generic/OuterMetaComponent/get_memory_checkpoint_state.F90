@@ -9,9 +9,8 @@ submodule (mapl_OuterMetaComponent_mod) get_memory_checkpoint_state_smod
 contains
 
    ! Retrieve the nested ESMF_State within this%memory_checkpoint
-   ! corresponding to state_intent. Caller must ensure
-   ! this%memory_checkpoint has already been created (e.g. via
-   ! this%has_memory_checkpoint) before calling.
+    ! corresponding to state_intent. Caller must ensure
+    ! this%memory_checkpoint has already been created before calling.
    module subroutine get_memory_checkpoint_state_(this, state_intent, state, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
