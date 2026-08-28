@@ -285,9 +285,50 @@ contains
       _RETURN(_SUCCESS)
    end function get_timestamp
 
+   recursive subroutine merge_cap_hconfig(dst_hconfig, src_hconfig, rc)
+      type(ESMF_HConfig), intent(inout) :: dst_hconfig
+      type(ESMF_HConfig), intent(in) :: src_hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
+      character(:), allocatable :: key
+      type(ESMF_HConfig) :: src_val, dst_val
+      logical :: has_key, is_map
+
+      _ASSERT(ESMF_HConfigIsMap(dst_hconfig), 'destination hconfig must be a mapping.')
+      _ASSERT(ESMF_HConfigIsMap(src_hconfig), 'source hconfig must be a mapping.')
+
+      iter_begin = ESMF_HConfigIterBegin(src_hconfig, _RC)
+      iter_end = ESMF_HConfigIterEnd(src_hconfig, _RC)
+      iter = iter_begin
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+         _VERIFY(status)
+
+         key = ESMF_HConfigAsStringMapKey(iter, _RC)
+         src_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
+         has_key = ESMF_HConfigIsDefined(dst_hconfig, keystring=key, _RC)
+         if (.not. has_key) then
+            call ESMF_HConfigAdd(dst_hconfig, content=src_val, addKeyString=key, _RC)
+            cycle
+         end if
+
+         dst_val = ESMF_HConfigCreateAt(dst_hconfig, keystring=key, _RC)
+         is_map = ESMF_HConfigIsMap(dst_val, _RC) .and. ESMF_HConfigIsMap(src_val, _RC)
+         if (is_map) then
+            call merge_cap_hconfig(dst_val, src_val, _RC)
+            call ESMF_HConfigAdd(dst_hconfig, content=dst_val, addKeyString=key, _RC)
+         else
+            call ESMF_HConfigAdd(dst_hconfig, content=src_val, addKeyString=key, _RC)
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine merge_cap_hconfig
+
    function resolve_cap_hconfig(hconfig, rc) result(cap_hconfig)
-      type(esmf_HConfig) :: cap_hconfig
-      type(esmf_HConfig), intent(in) :: hconfig
+      type(ESMF_HConfig) :: cap_hconfig
+      type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -343,7 +384,7 @@ contains
             end if
             if (has_cap_gridcomp_file) then
                cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
-               cap_hconfig = merge_hconfig(cap_hconfig, cap_gridcomp_hconfig, _RC)
+               call merge_cap_hconfig(cap_hconfig, cap_gridcomp_hconfig, _RC)
                call esmf_HConfigDestroy(cap_gridcomp_hconfig, _RC)
             end if
 
