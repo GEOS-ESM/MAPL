@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
 - Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
+- Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
 
 ### Changed
 
@@ -112,6 +113,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add helper script for regression test work
 - For ACG, only declare pointer and get_pointer for MAPL_STATEITEM_FIELD
 - For ACG, add spec_filters to generalize testing specs
+- Improved error handling for issues writing netcdf files
+
 
 ### Fixed
 
@@ -122,6 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Buggy logic in server initialization (#5214)
 - Missing call to initialize error handling in MPI context
 - Fixed bug that prevented R8 exports from being written in R8 in History
+- Fixed bug causing 'already allocated' error when setting corner longitudes in cubed-sphere History files
 
 ### Removed
 
