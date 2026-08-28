@@ -29,6 +29,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is now handled automatically by fargparse and prints a formatted usage summary.
 ### Added
 
+### Added
+
+- Added `extdata_dryrun_check.py`, a Python utility that predicts which input
+  files an ExtData component will need for a given run without executing the
+  model. Supports three tiers: template enumeration (Tier 1), filesystem
+  existence check (Tier 2, `--check`), and time-axis narrowing via `netCDF4`
+  (Tier 3, `--narrow`). A `--verify_files_read` flag compares predictions
+  against the runtime `log_files_read` output for use in CTest. Wired into
+  the MAPL3G component test framework for case02, case11, and case23.
+- Added `latlon_to_face.py`, a Python utility that converts a cubed-sphere
+  NetCDF file from tiled lat/lon layout (`lat = 6 * lon`) to the face layout
+  (`nf / Ydim / Xdim`) required by MAPL/GEOS face-format readers.
 - Added `log_files_read` option to ExtData2G to easily log all files read during a run
 - Added `MAPL_FieldApplyUserRoutine`/`MAPL_FieldBundleApplyUserRoutine` to apply a user routine to each slice of a field (or every field in a bundle) with ungridded/vertical dimensions, plus `MAPL_FieldGetPointerToSlice` (overloaded for R4 and R8) for typed per-slice access. Slices are 2D by default, or 3D when the field has exactly three non-ungridded (grid + vertical) dimensions (for example a 4D field whose fourth dimension is the ungridded dimension). The slice-routine interface is unlimited-polymorphic and assumed-rank, so a single user routine handles R4/R8 and 2D/3D slices via `select rank`/`select type`
 - `update_restart` in `Cap.F90` now supports a `skip_restart_write` boolean flag in the
