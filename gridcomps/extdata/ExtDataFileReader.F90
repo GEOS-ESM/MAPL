@@ -148,11 +148,11 @@ module mapl_ExtDataReader_mod
       character(len=:), pointer :: filename
       integer :: status
 
-      iter = this%filename_map%begin()
-      do while (iter /= this%filename_map%end())
+      iter = this%filename_map%ftn_begin()
+      do while (iter /= this%filename_map%ftn_end())
+         call iter%next()
          filename => iter%second()
          call fileset%insert(filename)
-         call iter%next()
       end do
 
       _RETURN(_SUCCESS)

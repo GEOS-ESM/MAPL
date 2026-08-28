@@ -46,8 +46,6 @@ module mapl_OuterMetaComponent_mod
       type(ESMF_Geom), allocatable                :: geom
       class(VerticalGrid), allocatable            :: vertical_grid
 
-      type(InnerMetaComponent), allocatable       :: inner_meta
-
       ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
