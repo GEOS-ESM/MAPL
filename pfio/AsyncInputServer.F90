@@ -42,8 +42,17 @@ module pFIO_AsyncInputServerMod
       integer :: reader_capacity_on_node = 0
       logical :: synchronous_fallback = .true.
       integer, allocatable :: reader_ranks_on_node(:)
-       contains
-        procedure :: start
+      logical :: cache_valid = .false.
+      character(len=:), allocatable :: cache_file_name
+      character(len=:), allocatable :: cache_var_name
+      integer :: cache_type_kind = 0
+      integer, allocatable :: cache_start(:)
+      integer, allocatable :: cache_count(:)
+      integer, allocatable :: cache_words(:)
+      integer :: cache_hits = 0
+      integer :: cache_misses = 0
+      contains
+       procedure :: start
         procedure :: stop_reader_pool
         procedure :: service_collective_prefetch
       end type AsyncInputServer
@@ -186,20 +195,29 @@ contains
             call request%deserialize(buffer, _RC)
             deallocate(buffer)
 
+            mem_data_reference = LocalMemReference(request%type_kind, request%count)
             write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,1X,A,1X,A,1X,A)') &
                  'INFO: AsyncInputServer reader:', 'reader_rank=', this%rank, &
                  'source_rank=', source_rank, 'request_id=', request%request_id, &
                  'file=', trim(request%file_name), 'var=', trim(request%var_name)
 
-            mem_data_reference = LocalMemReference(request%type_kind, request%count)
-            call read_collective_request(this, request, mem_data_reference, _RC)
+            if (cache_matches_request(this, request)) then
+               this%cache_hits = this%cache_hits + 1
+               call load_cache_into_mem(this, mem_data_reference, _RC)
+            else
+               this%cache_misses = this%cache_misses + 1
+               call read_collective_request(this, request, mem_data_reference, _RC)
+               call update_cache(this, request, mem_data_reference, _RC)
+            end if
             msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
             call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
             call MPI_Send(i_ptr, msize_word, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
             _VERIFY(ierr)
-             call mem_data_reference%deallocate(status)
-             _VERIFY(status)
+            call mem_data_reference%deallocate(status)
+            _VERIFY(status)
           end do
+          write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0)') 'INFO: AsyncInputServer cache:', &
+               'reader_rank=', this%rank, 'hits=', this%cache_hits, 'misses=', this%cache_misses
           call finalize_runtime(this, _RC)
           _RETURN(_SUCCESS)
        end if
@@ -318,7 +336,7 @@ contains
        _RETURN(_SUCCESS)
     end subroutine service_collective_prefetch
 
-    subroutine read_collective_request(this, request, mem_data_reference, rc)
+     subroutine read_collective_request(this, request, mem_data_reference, rc)
        class(AsyncInputServer), intent(inout) :: this
        type(CollectivePrefetchDataMessage), intent(in) :: request
        type(LocalMemReference), intent(inout) :: mem_data_reference
@@ -355,6 +373,66 @@ contains
         _UNUSED_DUMMY(this)
      end subroutine read_collective_request
 
+     logical function cache_matches_request(this, request) result(matches)
+       class(AsyncInputServer), intent(in) :: this
+       type(CollectivePrefetchDataMessage), intent(in) :: request
+
+       matches = this%cache_valid
+       if (.not. matches) return
+
+       matches = this%cache_type_kind == request%type_kind
+       if (.not. matches) return
+       matches = allocated(this%cache_file_name) .and. this%cache_file_name == request%file_name
+       if (.not. matches) return
+       matches = allocated(this%cache_var_name) .and. this%cache_var_name == request%var_name
+       if (.not. matches) return
+       matches = allocated(this%cache_start) .and. allocated(this%cache_count)
+       if (.not. matches) return
+       matches = size(this%cache_start) == size(request%start) .and. all(this%cache_start == request%start)
+       if (.not. matches) return
+       matches = size(this%cache_count) == size(request%count) .and. all(this%cache_count == request%count)
+     end function cache_matches_request
+
+     subroutine update_cache(this, request, mem_data_reference, rc)
+       class(AsyncInputServer), intent(inout) :: this
+       type(CollectivePrefetchDataMessage), intent(in) :: request
+       type(LocalMemReference), intent(in) :: mem_data_reference
+       integer, optional, intent(out) :: rc
+
+       integer(INT64) :: msize_word
+       integer, pointer :: i_ptr(:)
+
+       this%cache_file_name = request%file_name
+       this%cache_var_name = request%var_name
+       this%cache_type_kind = request%type_kind
+       this%cache_start = request%start
+       this%cache_count = request%count
+
+       msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
+       call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
+       if (allocated(this%cache_words)) deallocate(this%cache_words)
+       allocate(this%cache_words(msize_word))
+       this%cache_words = i_ptr
+       this%cache_valid = .true.
+
+       _RETURN(_SUCCESS)
+     end subroutine update_cache
+
+     subroutine load_cache_into_mem(this, mem_data_reference, rc)
+       class(AsyncInputServer), intent(in) :: this
+       type(LocalMemReference), intent(inout) :: mem_data_reference
+       integer, optional, intent(out) :: rc
+
+       integer, pointer :: i_ptr(:)
+
+       _ASSERT(this%cache_valid, 'cache must be valid before load_cache_into_mem')
+       _ASSERT(allocated(this%cache_words), 'cache words must be allocated before load_cache_into_mem')
+       call c_f_pointer(mem_data_reference%base_address, i_ptr, [size(this%cache_words)])
+       i_ptr = this%cache_words
+
+       _RETURN(_SUCCESS)
+     end subroutine load_cache_into_mem
+
      subroutine finalize_runtime(this, rc)
        class(AsyncInputServer), intent(inout) :: this
        integer, optional, intent(out) :: rc
@@ -371,6 +449,12 @@ contains
           _VERIFY(status)
           this%node_comm = MPI_COMM_NULL
        end if
+       if (allocated(this%cache_words)) deallocate(this%cache_words)
+       if (allocated(this%cache_start)) deallocate(this%cache_start)
+       if (allocated(this%cache_count)) deallocate(this%cache_count)
+       if (allocated(this%cache_file_name)) deallocate(this%cache_file_name)
+       if (allocated(this%cache_var_name)) deallocate(this%cache_var_name)
+       this%cache_valid = .false.
 
        _RETURN(_SUCCESS)
      end subroutine finalize_runtime
