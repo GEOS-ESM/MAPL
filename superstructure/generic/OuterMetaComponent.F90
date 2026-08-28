@@ -46,8 +46,6 @@ module mapl_OuterMetaComponent_mod
       type(ESMF_Geom), allocatable                :: geom
       class(VerticalGrid), allocatable            :: vertical_grid
 
-      type(InnerMetaComponent), allocatable       :: inner_meta
-
       ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
@@ -166,13 +164,13 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end subroutine add_child_by_spec
 
-      module function new_outer_meta(gridcomp, user_gc_driver, user_setServices, hconfig) result(outer_meta)
-         type(OuterMetaComponent) :: outer_meta
-         type(ESMF_GridComp), intent(in) :: gridcomp
-         type(GriddedComponentDriver), intent(in) :: user_gc_driver
-         class(UserSetServices), intent(in) :: user_setservices
-         type(ESMF_HConfig), intent(in) :: hconfig
-      end function new_outer_meta
+       module function new_outer_meta(gridcomp, user_gc_driver, user_setServices, hconfig) result(outer_meta)
+          type(OuterMetaComponent) :: outer_meta
+          type(ESMF_GridComp), intent(in) :: gridcomp
+          type(GriddedComponentDriver), intent(in) :: user_gc_driver
+          class(UserSetServices), optional, intent(in) :: user_setservices
+          type(ESMF_HConfig), intent(in) :: hconfig
+       end function new_outer_meta
 
       module subroutine init_meta(this, rc)
          class(OuterMetaComponent), intent(inout) :: this

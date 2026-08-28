@@ -96,6 +96,9 @@ workflows:
           checkout_mapl_branch: true
           run_regression_tests: true
           ctest_options: "-L REGRESSION"
+          # This is usually built if we run the MAPL tests, but we don't usually do that
+          # when building GEOSgcm. So we need to build it "extra"
+          extra_buildtargets: "MAPL.extdata.tests"
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
       ######################################################
@@ -129,22 +132,6 @@ workflows:
       #     gcm_ocean_type: MOM6                           #
       #     change_layout: false                           #
       ######################################################
-
-      # Run GOCART tests
-      - ci/run_gocart_tests:
-          name: run-GOCART-tests-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              # To save CircleCI resources, we run GOCART tests only with ifx for now
-              #compiler: [gfortran, ifort, ifx]
-              compiler: [gfortran, ifx]
-          requires:
-            - build-GEOSgcm-on-<< matrix.compiler >>
-          repo: GEOSgcm
-          baselibs_version: *baselibs_version
-          bcs_version: *bcs_version
 
   #########################################################
   # build-GEOSldas:                                       #

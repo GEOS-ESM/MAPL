@@ -2,7 +2,7 @@
 
 module mapl_GridPFIO_mod
 
-   use, intrinsic :: iso_c_binding, only: c_ptr, c_loc
+   use, intrinsic :: iso_c_binding, only: c_ptr
 
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
@@ -30,7 +30,7 @@ module mapl_GridPFIO_mod
 contains
 
    subroutine stage_coordinates_to_file(this, filename, rc)
-      class(GridPFIO), intent(inout) :: this
+      class(GridPFIO), target, intent(inout) :: this
       character(len=*), intent(in) :: filename
       integer, intent(out), optional :: rc
 

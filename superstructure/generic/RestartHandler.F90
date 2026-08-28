@@ -114,6 +114,7 @@ contains
       call writer%initialize(metadata, this%gridcomp_geom, _RC)
       call writer%update_time_on_server(this%current_time, _RC)
       ! TODO: no-op if bundle is empty, or should we skip empty bundles?
+      call writer%stage_coordinates_to_file(filename, _RC)
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
        o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
       call o_client%done_collective_stage(_RC)
