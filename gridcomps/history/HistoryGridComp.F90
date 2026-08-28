@@ -183,7 +183,7 @@ contains
       call MAPL_GridCompRunChildren(gridcomp, phase_name='run', _RC)
 
       o_client => mapl_get_client(history%server_name, _RC)
-      call o_client%done_collective_stage()
+      call o_client%done_collective_stage(_RC)
       call o_client%post_wait_all()
 
       _RETURN(_SUCCESS)
