@@ -3,6 +3,7 @@
 module mapl_Cap_mod
 
    use MAPL
+   use mapl_HConfigUtilities_mod, only: merge_hconfig
    use pflogger
    use esmf
 
@@ -293,8 +294,12 @@ contains
       logical :: has_cap
       logical :: has_app
       logical :: has_app_config
+      logical :: has_cap_gridcomp_file
       type(esmf_HConfig) :: app_hconfig
+      type(esmf_HConfig) :: cap_gridcomp_hconfig
       character(:), allocatable :: config_file
+      character(:), allocatable :: gridcomp_config_file
+      integer :: idx
 
       class(Logger), pointer :: lgr
 
@@ -311,6 +316,37 @@ contains
          if (has_app_config) then
             config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
             cap_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
+
+            idx = index(config_file, 'cap_driver', back=.true.)
+            if (idx > 0) then
+               if (idx > 1) then
+                  gridcomp_config_file = config_file(:idx-1) // 'cap_gridcomp' // trim(config_file(idx+len('cap_driver'):))
+               else
+                  gridcomp_config_file = 'cap_gridcomp' // trim(config_file(idx+len('cap_driver'):))
+               end if
+            else
+               idx = index(config_file, 'cap.yaml', back=.true.)
+               if (idx > 0) then
+                  if (idx > 1) then
+                     gridcomp_config_file = config_file(:idx-1) // 'cap_gridcomp.yaml'
+                  else
+                     gridcomp_config_file = 'cap_gridcomp.yaml'
+                  end if
+               else
+                  gridcomp_config_file = ''
+               end if
+            end if
+
+            has_cap_gridcomp_file = .false.
+            if (len_trim(gridcomp_config_file) > 0) then
+               inquire(file=trim(gridcomp_config_file), exist=has_cap_gridcomp_file)
+            end if
+            if (has_cap_gridcomp_file) then
+               cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
+               cap_hconfig = merge_hconfig(cap_hconfig, cap_gridcomp_hconfig, _RC)
+               call esmf_HConfigDestroy(cap_gridcomp_hconfig, _RC)
+            end if
+
             call esmf_HConfigDestroy(app_hconfig, _RC)
             _RETURN(_SUCCESS)
          end if
