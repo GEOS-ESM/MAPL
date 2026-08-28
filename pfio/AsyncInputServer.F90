@@ -39,6 +39,7 @@ module pFIO_AsyncInputServerMod
       integer :: model_comm = MPI_COMM_NULL
       integer :: model_node_comm = MPI_COMM_NULL
       integer :: node_comm = MPI_COMM_NULL
+      integer :: reader_comm = MPI_COMM_NULL
       integer :: node_npes = 0
       integer :: model_npes_on_node = 0
       integer :: model_node_rank = -1
@@ -94,6 +95,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: ierror, status
+      integer :: reader_color
 
       call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%node_comm, ierror)
       _VERIFY(ierror)
@@ -110,6 +112,11 @@ contains
       end if
 
       call MPI_Comm_size(this%node_comm, this%node_npes, ierror)
+      _VERIFY(ierror)
+
+      reader_color = MPI_UNDEFINED
+      if (this%model_comm == MPI_COMM_NULL) reader_color = 1
+      call MPI_Comm_split(this%node_comm, reader_color, this%rank, this%reader_comm, ierror)
       _VERIFY(ierror)
 
       this%reader_capacity_on_node = this%node_npes - this%model_npes_on_node
@@ -471,7 +478,6 @@ contains
           _RETURN(_SUCCESS)
        end if
 
-       _ASSERT(this%model_npes_on_node == 1, 'shared-memory cache currently supports one model PE per node')
        _ASSERT(this%model_comm /= MPI_COMM_NULL, 'prepare_shared_cache should only be called on model/front ranks')
 
        do i = 1, size(this%reader_ranks_on_node)
@@ -482,7 +488,6 @@ contains
                ASYNC_INPUT_TAG_CACHE_SIZE, this%comm, status)
           _VERIFY(status)
        end do
-       call ensure_shared_cache_capacity(this, desired_words, _RC)
 
        _RETURN(_SUCCESS)
      end subroutine prepare_shared_cache
@@ -498,12 +503,14 @@ contains
           _RETURN(_SUCCESS)
        end if
 
+       _ASSERT(this%reader_comm /= MPI_COMM_NULL, 'shared cache allocation should only happen on reader ranks')
+
        if (allocated(this%cache_reference)) then
           call this%cache_reference%deallocate(status)
           _VERIFY(status)
           deallocate(this%cache_reference)
        end if
-       allocate(this%cache_reference, source=ShmemReference(pFIO_INT32, desired_words, this%node_comm, rc=status))
+       allocate(this%cache_reference, source=ShmemReference(pFIO_INT32, desired_words, this%reader_comm, rc=status))
        _VERIFY(status)
        this%cache_capacity_words = desired_words
        this%cache_valid = .false.
@@ -532,6 +539,11 @@ contains
           call MPI_Comm_free(this%node_comm, status)
           _VERIFY(status)
           this%node_comm = MPI_COMM_NULL
+       end if
+       if (this%reader_comm /= MPI_COMM_NULL) then
+          call MPI_Comm_free(this%reader_comm, status)
+          _VERIFY(status)
+          this%reader_comm = MPI_COMM_NULL
        end if
         if (allocated(this%cache_start)) deallocate(this%cache_start)
         if (allocated(this%cache_count)) deallocate(this%cache_count)
