@@ -580,7 +580,7 @@ contains
           is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
           if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
           if (is_local) then
-             call this%add_local_server(server_name, make_client_name(server_name), hconfig=server_val, _RC)
+             call this%add_local_server(server_name, server_name, hconfig=server_val, _RC)
           end if
           call ESMF_HConfigDestroy(server_val, _RC)
        end do
