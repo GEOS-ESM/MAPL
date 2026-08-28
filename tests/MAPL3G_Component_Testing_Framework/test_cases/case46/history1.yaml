@@ -1,0 +1,19 @@
+mapl:
+  setServices:
+    sharedObj: libMAPL.history
+
+run_next_step: false
+
+active_collections:
+  - test
+
+time_specs:
+  daily: &daily_anchor
+    frequency: PT3H
+
+collections:
+  test:
+    template: "%c.%y4%m2%d2.nc4"
+    time_spec: *daily_anchor
+    var_list:
+      E_1: {source: E_1}
