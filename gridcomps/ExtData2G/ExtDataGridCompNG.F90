@@ -828,7 +828,6 @@ CONTAINS
       fiter = self%files_read%begin()
       do while (fiter /= self%files_read%end())
          filename = fiter%get()
-         _HERE, ' bmaa '//trim(filename)
          call ESMF_HConfigAdd(files_list, content=trim(filename), _RC)
          call fiter%next()
       end do
