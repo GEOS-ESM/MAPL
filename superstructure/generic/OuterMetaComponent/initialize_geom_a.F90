@@ -31,9 +31,12 @@ contains
 
       ! Handle case where component provides its own geometry.
        associate (geometry_spec => this%component_spec%geometry_spec)
-        if (allocated(geometry_spec%geom_spec)) then
-           geom_mgr => mapl_get_geom_manager()
-           mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+         if (geometry_spec%kind == GEOMETRY_PROVIDER) then
+            this%geom_id = geometry_spec%geom_id
+         end if
+         if (allocated(geometry_spec%geom_spec)) then
+            geom_mgr => mapl_get_geom_manager()
+            mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
            this%geom = mapl_geom%get_geom()
         end if
         if (allocated(geometry_spec%vertical_grid)) then
@@ -51,14 +54,18 @@ contains
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_A, _RC)
 
       associate (geometry_spec => this%component_spec%geometry_spec)
-        if (geometry_spec%kind == GEOMETRY_FROM_CHILD) then
-           provider => this%children%at(geometry_spec%provider, _RC)
-           provider_gc = provider%get_gridcomp()
-           provider_meta => get_outer_meta(provider_gc, _RC)
-           _ASSERT(allocated(provider_meta%geom), 'Specified child does not provide a geom.')
-           this%geom = provider_meta%geom
-           this%vertical_grid = provider_meta%vertical_grid
-        end if
+         if (geometry_spec%kind == GEOMETRY_FROM_CHILD) then
+            provider => this%children%at(geometry_spec%provider, _RC)
+            provider_gc = provider%get_gridcomp()
+            provider_meta => get_outer_meta(provider_gc, _RC)
+            this%geom_id = provider_meta%geom_id
+            if (allocated(provider_meta%geom)) then
+               this%geom = provider_meta%geom
+            end if
+            if (allocated(provider_meta%vertical_grid)) then
+               this%vertical_grid = provider_meta%vertical_grid
+            end if
+         end if
       end associate
 
       _RETURN(_SUCCESS)

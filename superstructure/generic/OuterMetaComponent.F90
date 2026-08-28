@@ -17,6 +17,7 @@ module mapl_OuterMetaComponent_mod
    use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
+   use mapl_geom_api, only: mapl_GeomId
    use gFTL2_StringVector
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_Profiler_mod, only: DistributedProfiler
@@ -41,10 +42,11 @@ module mapl_OuterMetaComponent_mod
       ! These are only allocated when parent overrides default timestepping.
       type(ESMF_TimeInterval)                     :: user_offset
       type(MethodPhasesMap)                       :: user_phases_map
-      type(ESMF_HConfig)                          :: hconfig
+       type(ESMF_HConfig)                          :: hconfig
 
-      type(ESMF_Geom), allocatable                :: geom
-      class(VerticalGrid), allocatable            :: vertical_grid
+       type(mapl_GeomId)                           :: geom_id
+       type(ESMF_Geom), allocatable                :: geom
+       class(VerticalGrid), allocatable            :: vertical_grid
 
       ! In-memory checkpoint: nested ESMF_States (import/export/internal)
       ! holding most recent in-memory checkpoint write. Lazily created
