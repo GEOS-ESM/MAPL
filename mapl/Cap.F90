@@ -315,6 +315,8 @@ contains
          call esmf_HConfigDestroy(app_hconfig, _RC)
       end if
 
+      call logging%warning('No cap entry or app.config entry found in root config; this is a configuration error.')
+      _ASSERT(.false., 'No cap entry or app.config entry found in root config')
       cap_hconfig = esmf_HConfigCreate(content='{}', _RC)
       _RETURN(_SUCCESS)
    end function resolve_cap_hconfig

@@ -15,17 +15,26 @@ macro(run_case CASE DESCRIPTION)
     list(LENGTH file_lines total_steps)
     set(step_num 1)
     foreach(line IN LISTS file_lines)
-			 message(STATUS "${CASE} (${DESCRIPTION}): Running step ${step_num}/${total_steps}: ${line}")
-			 execute_process(
-				COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MPIEXEC_PREFLAGS} ${MY_BINARY_DIR}/GEOS.x ${line}
+				set(config_name "${line}")
+				if(EXISTS "${tempdir}/mapl.yaml")
+				  set(config_name "mapl.yaml")
+				elseif("${line}" MATCHES "^cap([0-9]+)\\.yaml$")
+				  set(config_num "${CMAKE_MATCH_1}")
+				  if(EXISTS "${tempdir}/mapl${config_num}.yaml")
+				    set(config_name "mapl${config_num}.yaml")
+				  endif()
+				endif()
+				message(STATUS "${CASE} (${DESCRIPTION}): Running step ${step_num}/${total_steps}: ${config_name}")
+				execute_process(
+				COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MPIEXEC_PREFLAGS} ${MY_BINARY_DIR}/GEOS.x ${config_name}
 				RESULT_VARIABLE CMD_RESULT
 				WORKING_DIRECTORY ${tempdir}
 				)
-			 if(CMD_RESULT)
+				if(CMD_RESULT)
 				 if(NOT "${DESCRIPTION}" STREQUAL "")
-					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${line})\nTest Description: ${DESCRIPTION}")
+					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${config_name})\nTest Description: ${DESCRIPTION}")
 				 else()
-					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${line})")
+					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${config_name})")
 				 endif()
 			 endif()
 			 math(EXPR step_num "${step_num} + 1")
