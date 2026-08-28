@@ -355,10 +355,6 @@ On success the script prints `OK: dry run verified — N files covered, 0 missin
 
 ## Limitations
 
-- **`extdata_dryrun.py`** (the simpler companion script) does not handle
-  multi-rule exports with `starting:` keys.  Only this script has the
-  multi-rule fix.
-
 - **`source_time`** — a sub-range within `valid_range` used by some clim
   collections — is parsed by the Fortran runtime but ignored by both scripts,
   consistent with current Fortran behaviour.

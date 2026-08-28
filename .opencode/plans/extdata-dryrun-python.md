@@ -2,36 +2,10 @@
 
 ## What was done
 
-### 1. Python dry run script (simple, Tier 1 only)
-**File:** `gridcomps/extdata/extdata_dryrun.py`
-
-A standalone Python script that estimates files needed by an ExtData component
-without opening any files. Given an extdata YAML config and a run range, it
-expands file templates over the maximalist time range `[run_start - freq,
-run_end + freq]`, adjusted for `valid_range` clamping, climatological wrapping
-(`extrap_outside: clim`), and `persist_closest` behaviour.
-
-**Usage:**
-```
-extdata_dryrun.py --config extdata.yaml \
-                  --run_start 2020-01-01T00:00:00 \
-                  --run_end   2020-12-31T18:00:00 \
-                  [--output   dry_run_files.yaml]
-```
-
-**Output YAML format:**
-```yaml
-run_start: '2020-01-01T00:00:00'
-run_end:   '2020-12-31T18:00:00'
-files:
-  - /path/to/file.nc4
-  ...
-```
-
-### 2. Python dry run + check script (Tiers 1/2/3)
+### 1. Python dry run + check script (Tiers 1/2/3)
 **File:** `gridcomps/extdata/extdata_dryrun_check.py`
 
-Fully self-contained (does not import from the simple script). Adds:
+A standalone Python script. Provides:
 
 - **Tier 2 (`--check`):** filesystem existence check — splits estimated files
   into present/missing, writes `--missing_output` YAML.
@@ -77,7 +51,7 @@ missing_files:
   - /path/to/missing.nc4
 ```
 
-### 3. CMakeLists.txt
+### 2. CMakeLists.txt
 **File:** `gridcomps/extdata/CMakeLists.txt`
 
 `extdata_dryrun_check.py` is installed to `bin/` and also copied into the build
@@ -95,7 +69,7 @@ file(COPY extdata_dryrun_check.py DESTINATION ${CMAKE_BINARY_DIR}/bin)
 Note: `file(COPY ...)` runs at cmake configure time. Changes to the script
 require a `cmake ..` re-run to propagate into the build tree.
 
-### 4. CTest integration
+### 3. CTest integration
 **Files:**
 - `tests/MAPL3G_Component_Testing_Framework/run_comp_tester.cmake` — modified
 - `tests/MAPL3G_Component_Testing_Framework/test_cases/case02/dryrun.rc` — new
@@ -127,7 +101,7 @@ run_end=<last time step of the segment>
 | case11 | 2 | 0 |
 | case23 | 23 | 0 |
 
-### 5. Fortran dry run code (removed)
+### 4. Fortran dry run code (removed)
 The session initially added a Fortran `ExtDataDryRun.F90` module, hook in
 `ExtDataGridComp.F90`, and `dry_run_output_path` field in `ExtDataConfig.F90`,
 but these were removed at the user's request in favour of the Python-only
@@ -296,7 +270,7 @@ Time variable name is always `"time"` (MAPL convention).
    clamping `rs = max(rs, vr_start)` excluded the grid point at `2006-01-01`
    (which is the file covering `vr_start`). Fixed by stepping `rs` back one
    freq before clamping: `rs = freq.sub(rs); rs = max(rs, freq.sub(vr_start))`.
-   Applied in both `_enumerate_clim_files` and `extdata_dryrun.py`.
+   Applied in `_enumerate_clim_files`.
 
 ### Session 3
 
@@ -328,7 +302,6 @@ Time variable name is always `"time"` (MAPL convention).
 
 | File | Status | Notes |
 |---|---|---|
-| `gridcomps/extdata/extdata_dryrun.py` | New | Simple Tier 1 script |
 | `gridcomps/extdata/extdata_dryrun_check.py` | New | Full Tier 1/2/3 script + `--verify_files_read` |
 | `gridcomps/extdata/CMakeLists.txt` | Modified | `install(PROGRAMS ...)` + `file(COPY ...)` to build tree |
 | `tests/MAPL3G_Component_Testing_Framework/run_comp_tester.cmake` | Modified | Added `dryrun.rc` post-run verification block |
@@ -352,12 +325,9 @@ The script is deployed two ways:
 - Static file narrowing (`--narrow`) only warns when a static file's time axis
   doesn't cover the run range; it does not add the static file to the missing
   list (and the warning is suppressed for `clim`/`persist_closest`).
-- The simple script (`extdata_dryrun.py`) does **not** handle multi-rule
-  exports with `starting:` keys. Only `extdata_dryrun_check.py` has the
-  multi-rule fix. This could be backported if desired.
 - `source_time` (a sub-range within `valid_range` for clim collections) is
-  parsed by the Fortran runtime but not currently used there either — both
-  scripts ignore it for now, consistent with the Fortran behaviour.
+  parsed by the Fortran runtime but not currently used there either — the
+  script ignores it for now, consistent with the Fortran behaviour.
 - Only case02, case11, case23 have CTest dry run verification. Other cases with
   `log_files_read` could be wired up similarly by adding a `dryrun.rc`.
 - More test cases (other case directories) have not yet been validated manually.
@@ -371,7 +341,6 @@ Open this file in the session context and tell the assistant:
 > plan at `.opencode/plans/extdata-dryrun-python.md` for context."
 
 The key files to re-read before continuing:
-- `gridcomps/extdata/extdata_dryrun.py`
 - `gridcomps/extdata/extdata_dryrun_check.py`
 - `gridcomps/extdata/CMakeLists.txt`
 - `tests/MAPL3G_Component_Testing_Framework/run_comp_tester.cmake`
