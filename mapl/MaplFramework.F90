@@ -202,6 +202,7 @@ contains
          _ASSERT(present(hconfig), "hconfig must be provided when ESMF is already initialized (path b)")
          this%hconfig = hconfig
          this%mapl_hconfig = get_subconfig(this%hconfig, keystring='mapl', _RC)
+         call normalize_mapl_hconfig(this%hconfig, this%mapl_hconfig, _RC)
          _RETURN(_SUCCESS)
       end if
 
@@ -217,6 +218,7 @@ contains
               mpiCommunicator=mpiCommunicator, _RC)
          call ESMF_ConfigGet(config, hconfig=this%hconfig, _RC)
          this%mapl_hconfig = get_subconfig(this%hconfig, keystring='mapl', _RC)
+         call normalize_mapl_hconfig(this%hconfig, this%mapl_hconfig, _RC)
       else
          call ESMF_Initialize(mpiCommunicator=mpiCommunicator, defaultDefaultCalKind=ESMF_CALKIND_GREGORIAN, _RC)
          this%hconfig = ESMF_HConfigCreate(content='{}', _RC)
@@ -247,6 +249,41 @@ contains
          subcfg = ESMF_HConfigCreate(content='{}', _RC)
          _RETURN(_SUCCESS)
       end function get_subconfig
+
+      subroutine normalize_mapl_hconfig(hconfig, mapl_hconfig, rc)
+         type(ESMF_HConfig), intent(in) :: hconfig
+         type(ESMF_HConfig), intent(inout) :: mapl_hconfig
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: has_model_petcount, has_app_petcount
+         logical :: has_servers, has_pflogger, has_pflogger_cfg_file
+         type(ESMF_HConfig) :: servers_hconfig
+         character(:), allocatable :: pflogger_cfg_file
+
+         has_model_petcount = ESMF_HConfigIsDefined(mapl_hconfig, keystring='model_petcount', _RC)
+         has_app_petcount = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
+         if (.not. has_model_petcount .and. has_app_petcount) then
+            call ESMF_HConfigAdd(mapl_hconfig, content=ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC), &
+                 addKeyString='model_petcount', _RC)
+         end if
+
+         has_servers = ESMF_HConfigIsDefined(mapl_hconfig, keystring='servers', _RC)
+         if (.not. has_servers .and. ESMF_HConfigIsDefined(hconfig, keystring='servers', _RC)) then
+            servers_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='servers', _RC)
+            call ESMF_HConfigAdd(mapl_hconfig, content=servers_hconfig, addKeyString='servers', _RC)
+            call ESMF_HConfigDestroy(servers_hconfig, _RC)
+         end if
+
+         has_pflogger_cfg_file = ESMF_HConfigIsDefined(mapl_hconfig, keystring='pflogger_cfg_file', _RC)
+         has_pflogger = ESMF_HConfigIsDefined(hconfig, keystring='pflogger', _RC)
+         if (.not. has_pflogger_cfg_file .and. has_pflogger) then
+            pflogger_cfg_file = ESMF_HConfigAsString(hconfig, keystring='pflogger', _RC)
+            call ESMF_HConfigAdd(mapl_hconfig, content=pflogger_cfg_file, addKeyString='pflogger_cfg_file', _RC)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine normalize_mapl_hconfig
 
    end subroutine initialize_esmf
 

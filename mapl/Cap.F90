@@ -58,7 +58,7 @@ contains
       type(esmf_Clock) :: clock
 
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
-      cap_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='cap', _RC)
+      cap_hconfig = resolve_cap_hconfig(hconfig, _RC)
       options = make_cap_options(cap_hconfig, is_model_pet, _RC)
       clock = make_clock(cap_hconfig, options%lgr, _RC)
       driver = make_driver(clock, cap_hconfig, options, _RC)
@@ -82,7 +82,7 @@ contains
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
       _RETURN_UNLESS(is_model_pet)
 
-      cap_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='cap', _RC)
+      cap_hconfig = resolve_cap_hconfig(hconfig, _RC)
       options = make_cap_options(cap_hconfig, is_model_pet, _RC)
 
       call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
@@ -107,19 +107,22 @@ contains
       type(MAPL_GriddedComponentDriver) :: driver
       type(esmf_Clock) :: clock
       type(CapOptions) :: options
+      type(esmf_HConfig) :: cap_hconfig
       integer :: status
 
-      options = make_cap_options(hconfig, is_model_pet, _RC)
-      clock = make_clock(hconfig, options%lgr, _RC)
-      driver = make_driver(clock, hconfig, options, _RC)
+      cap_hconfig = resolve_cap_hconfig(hconfig, _RC)
+      options = make_cap_options(cap_hconfig, is_model_pet, _RC)
+      clock = make_clock(cap_hconfig, options%lgr, _RC)
+      driver = make_driver(clock, cap_hconfig, options, _RC)
 
       _RETURN_UNLESS(is_model_pet)
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
       call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, hconfig, options%checkpointing, options%lgr, _RC)
+      call integrate(driver, cap_hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
-      call update_restart(hconfig, clock, _RC)
+      call update_restart(cap_hconfig, clock, _RC)
+      call ESMF_HConfigDestroy(cap_hconfig, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -281,6 +284,41 @@ contains
       _RETURN(_SUCCESS)
    end function get_timestamp
 
+   function resolve_cap_hconfig(hconfig, rc) result(cap_hconfig)
+      type(esmf_HConfig) :: cap_hconfig
+      type(esmf_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_cap
+      logical :: has_app
+      logical :: has_app_config
+      type(esmf_HConfig) :: app_hconfig
+      character(:), allocatable :: config_file
+
+      has_cap = esmf_HConfigIsDefined(hconfig, keystring='cap', _RC)
+      if (has_cap) then
+         cap_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap', _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      has_app = esmf_HConfigIsDefined(hconfig, keystring='app', _RC)
+      if (has_app) then
+         app_hconfig = esmf_HConfigCreateAt(hconfig, keystring='app', _RC)
+         has_app_config = esmf_HConfigIsDefined(app_hconfig, keystring='config', _RC)
+         if (has_app_config) then
+            config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
+            cap_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
+            call esmf_HConfigDestroy(app_hconfig, _RC)
+            _RETURN(_SUCCESS)
+         end if
+         call esmf_HConfigDestroy(app_hconfig, _RC)
+      end if
+
+      cap_hconfig = esmf_HConfigCreate(content='{}', _RC)
+      _RETURN(_SUCCESS)
+   end function resolve_cap_hconfig
+
    function make_driver(clock, hconfig, options, rc) result(driver)
       type(MAPL_GriddedComponentDriver) :: driver
       type(esmf_HConfig), intent(in) :: hconfig
@@ -314,8 +352,14 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_name
 
-      options%name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
+      has_name = esmf_HConfigIsDefined(hconfig, keystring='name', _RC)
+      if (has_name) then
+         options%name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
+      else
+         options%name = 'CAP'
+      end if
       options%is_model_pet = is_model_pet
       options%lgr => logging%get_logger(options%name, _RC)
 

@@ -74,12 +74,19 @@ contains
 
       integer :: status
       logical :: has_model_petcount
+      logical :: has_app_petcount
 
       call ESMF_VMGet(vm, petcount=model_petCount, _RC)
 
       has_model_petcount = ESMF_HConfigIsDefined(hconfig, keystring='model_petcount', _RC)
       if (has_model_petcount) then
          model_petcount = ESMF_HConfigAsI4(hconfig, keystring='model_petcount', _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      has_app_petcount = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
+      if (has_app_petcount) then
+         model_petcount = ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC)
       end if
 
       _RETURN(_SUCCESS)
