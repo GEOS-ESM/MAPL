@@ -19,6 +19,7 @@ install (PROGRAMS
   split_restart.py
   mapl_acg.pl
   mapl_stub.pl
+  latlon_to_face.py
   TYPE SYSCONF
   )
 

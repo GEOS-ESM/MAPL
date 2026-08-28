@@ -454,7 +454,8 @@ def _enumerate_time_range(
 
 CollectionFileResult = namedtuple(
     "CollectionFileResult",
-    ["all_files", "core_files", "left_buffer", "right_buffer", "is_static"],
+    ["all_files", "core_files", "left_buffer", "right_buffer", "is_static",
+     "narrow_left_ref", "narrow_right_ref"],
 )
 
 
@@ -480,6 +481,7 @@ def enumerate_collection_files(
         return CollectionFileResult(
             all_files={path}, core_files={path},
             left_buffer=set(), right_buffer=set(), is_static=True,
+            narrow_left_ref=run_start, narrow_right_ref=run_end,
         )
 
     if extrap_outside in ("persist_closest", "clim") and valid_range is None:
@@ -491,23 +493,15 @@ def enumerate_collection_files(
     if extrap_outside == "clim":
         return _enumerate_clim(template, freq, reff_time, valid_range, run_start, run_end)
     else:
-        return _enumerate_normal(template, freq, reff_time, valid_range, run_start, run_end)
+        return _enumerate_normal(template, freq, reff_time, valid_range, extrap_outside, run_start, run_end)
 
 
-def _enumerate_normal(template, freq, reff_time, valid_range, run_start, run_end):
+def _enumerate_normal(template, freq, reff_time, valid_range, extrap_outside, run_start, run_end):
     """Normal / persist_closest enumeration with buffer tracking."""
-    # Left buffer: [run_start - freq, run_start)
-    buf_left_start = freq.sub(run_start)
-    buf_left_end   = freq.sub(freq.add(run_start))  # = run_start - epsilon; use run_start exclusive
-
-    # Right buffer: (run_end, run_end + freq]
-    buf_right_start = freq.add(freq.sub(run_end))   # = run_end + epsilon; use run_end exclusive
-    buf_right_end   = freq.add(run_end)
-
-    # Apply valid_range clamping
+    # Apply valid_range clamping only for persist_closest (not plain "none")
     full_start = freq.sub(run_start)
     full_end   = freq.add(run_end)
-    if valid_range is not None:
+    if extrap_outside == "persist_closest" and valid_range is not None:
         full_start = max(full_start, valid_range[0])
         full_end   = min(full_end,   valid_range[1])
 
@@ -542,98 +536,147 @@ def _enumerate_normal(template, freq, reff_time, valid_range, run_start, run_end
         left_buffer=left_buffer,
         right_buffer=right_buffer,
         is_static=False,
+        narrow_left_ref=run_start,
+        narrow_right_ref=run_end,
     )
 
 
-def _enumerate_clim(template, freq, reff_time, valid_range, run_start, run_end):
-    """Climatological wrapping enumeration with buffer tracking."""
+def _enumerate_clim_files(template, freq, reff_time, valid_range, run_start, run_end,
+                          expand: bool = True) -> set:
+    """Non-recursive core of the clim enumeration.
+
+    Returns the flat set of paths that might be needed when
+    extrap_outside='clim', remapped into valid_range.
+
+    When expand=True (default) the enumeration window is widened by ±1 freq
+    step: [run_start-freq, run_end+freq].  When expand=False the window is
+    [run_start, run_end] exactly (used for core-file computation).
+    """
     vr_start, vr_end = valid_range
-    base_start = freq.sub(run_start)
-    base_end   = freq.add(run_end)
+    if expand:
+        base_start = freq.sub(run_start)
+        base_end   = freq.add(run_end)
+    else:
+        base_start = run_start
+        base_end   = run_end
 
     overlap_start = max(base_start, vr_start)
     overlap_end   = min(base_end,   vr_end)
 
-    all_files = set()
+    files = set()
 
     if overlap_start <= overlap_end:
-        all_files |= _enumerate_time_range(template, reff_time, freq,
-                                           overlap_start, overlap_end)
+        files |= _enumerate_time_range(template, reff_time, freq,
+                                       overlap_start, overlap_end)
         if base_start < vr_start:
             rs = swap_year(base_start, vr_start.year)
             re = vr_start
-            rs = max(rs, vr_start)
+            # Step rs back one freq so the file bracketing vr_start is included
+            rs = freq.sub(rs)
+            rs = max(rs, freq.sub(vr_start))
             re = min(re, vr_end)
             if rs <= re:
-                all_files |= _enumerate_time_range(template, reff_time, freq, rs, re)
+                files |= _enumerate_time_range(template, reff_time, freq, rs, re)
         if base_end > vr_end:
             rs = vr_end
             re = swap_year(base_end, vr_end.year)
             rs = max(rs, vr_start)
             re = min(re, vr_end)
             if rs <= re:
-                all_files |= _enumerate_time_range(template, reff_time, freq, rs, re)
+                files |= _enumerate_time_range(template, reff_time, freq, rs, re)
     else:
         rs = swap_year(base_start, vr_start.year)
         re = swap_year(base_end,   vr_start.year)
         if rs <= re:
-            rs = max(rs, vr_start)
+            # When expand=True, step rs back one freq to include the left-bracket
+            # file.  When expand=False (core files), do NOT step back — that would
+            # pull a buffer file into the core set.
+            if expand:
+                rs = freq.sub(rs)
+                rs = max(rs, freq.sub(vr_start))
             re = min(re, vr_end)
             if rs <= re:
-                all_files |= _enumerate_time_range(template, reff_time, freq, rs, re)
+                files |= _enumerate_time_range(template, reff_time, freq, rs, re)
         else:
-            rs1 = max(rs, vr_start)
+            # Year-wrap: Dec segment [rs, vr_end] and Jan segment [vr_start, re].
+            # When expand=True, step rs back one freq to include the left-bracket
+            # file.  When expand=False (core files), do NOT step back — that would
+            # pull a buffer file into the core set.
+            if expand:
+                rs1 = freq.sub(rs)
+                rs1 = max(rs1, freq.sub(vr_start))
+            else:
+                rs1 = rs
             re1 = vr_end
             if rs1 <= re1:
-                all_files |= _enumerate_time_range(template, reff_time, freq, rs1, re1)
+                files |= _enumerate_time_range(template, reff_time, freq, rs1, re1)
             rs2 = vr_start
             re2 = min(re, vr_end)
             if rs2 <= re2:
-                all_files |= _enumerate_time_range(template, reff_time, freq, rs2, re2)
+                files |= _enumerate_time_range(template, reff_time, freq, rs2, re2)
 
-    # For clim, compute core files by running the same logic over [run_start, run_end]
-    # clamped to valid_range.  Everything outside that is a buffer file.
-    core_start = max(run_start, vr_start)
-    core_end   = min(run_end,   vr_end)
-    if core_start <= core_end:
-        core_files = _enumerate_time_range(template, reff_time, freq, core_start, core_end)
+    return files
+
+
+def _enumerate_clim(template, freq, reff_time, valid_range, run_start, run_end):
+    """Climatological wrapping enumeration with buffer tracking."""
+    vr_start, vr_end = valid_range
+
+    # Full maximalist set: [run_start-freq, run_end+freq] remapped into valid_range
+    all_files = _enumerate_clim_files(
+        template, freq, reff_time, valid_range, run_start, run_end
+    )
+
+    # Core files: grid points within [run_start, run_end] mapped into valid_range.
+    #
+    # Case A — run overlaps valid_range directly: core = direct overlap portion.
+    # Case B — run entirely outside valid_range: core = remapped run window within
+    #           valid_range (the files the runtime will actually interpolate between).
+    overlap_run_start = max(run_start, vr_start)
+    overlap_run_end   = min(run_end,   vr_end)
+
+    if overlap_run_start <= overlap_run_end:
+        # Case A: some direct overlap — narrow refs are the real run times.
+        core_files = _enumerate_time_range(
+            template, reff_time, freq, overlap_run_start, overlap_run_end
+        )
+        # For buffer classification: use the simple ±1-step window approach
+        left_buffer = _enumerate_clim_files(
+            template, freq, reff_time, valid_range,
+            freq.sub(run_start), run_start,
+        ) - core_files
+        right_buffer = _enumerate_clim_files(
+            template, freq, reff_time, valid_range,
+            run_end, freq.add(run_end),
+        ) - core_files
+        narrow_left_ref  = run_start
+        narrow_right_ref = run_end
     else:
-        # run entirely outside valid_range — all files are "buffer" (remapped)
-        core_files = set()
-
-    non_core = all_files - core_files
-
-    # Classify non-core as left/right buffer based on which run edge they serve.
-    # For clim, use the remapped run_start and run_end as reference points.
-    left_buffer  = set()
-    right_buffer = set()
-    for f in non_core:
-        # Files that were generated from the left tail (before run_start /
-        # before vr_start) go to left_buffer; right tail to right_buffer.
-        # Since we don't easily recover which side generated which file in the
-        # clim case, we use a heuristic: enumerate the left tail and right tail
-        # windows separately.
-        pass  # filled below
-
-    # Left tail window: base_start to run_start (remapped if needed)
-    left_files  = set()
-    right_files = set()
-
-    # Re-enumerate just the left-buffer portion (one step before run_start)
-    ls = freq.sub(run_start)
-    le = run_start
-    # Apply the same clim remapping logic for this sub-window
-    left_result = _enumerate_clim(template, freq, reff_time, valid_range, ls, le)
-    left_files  = left_result.all_files - core_files
-
-    # Re-enumerate just the right-buffer portion
-    rs_r = run_end
-    re_r = freq.add(run_end)
-    right_result = _enumerate_clim(template, freq, reff_time, valid_range, rs_r, re_r)
-    right_files  = right_result.all_files - core_files
-
-    left_buffer  = left_files
-    right_buffer = right_files
+        # Case B: run entirely outside valid_range.
+        # Core = the clim-remapped files strictly needed for [run_start, run_end]
+        # (no ±1 buffer expansion).  Both endpoints remap into vr_start.year
+        # (that is what _enumerate_clim_files uses in the no-overlap branch).
+        core_files = _enumerate_clim_files(
+            template, freq, reff_time, valid_range, run_start, run_end, expand=False
+        )
+        # Left/right buffers = the extra ±1-step files in all_files beyond core.
+        # Classify by enumerating each buffer window separately (no recursion —
+        # both calls use expand=False on a 1-step window).
+        left_buffer = _enumerate_clim_files(
+            template, freq, reff_time, valid_range,
+            freq.sub(run_start), run_start, expand=False,
+        ) - core_files
+        right_buffer = _enumerate_clim_files(
+            template, freq, reff_time, valid_range,
+            run_end, freq.add(run_end), expand=False,
+        ) - core_files
+        # Ensure left/right buffers don't accidentally include core files
+        left_buffer  -= core_files
+        right_buffer -= core_files
+        # Narrow refs: remap run_start and run_end into vr_start.year so that
+        # file-time comparisons in narrow_files are in the same year as the files.
+        narrow_left_ref  = swap_year(run_start, vr_start.year)
+        narrow_right_ref = swap_year(run_end,   vr_start.year)
 
     return CollectionFileResult(
         all_files=all_files,
@@ -641,6 +684,8 @@ def _enumerate_clim(template, freq, reff_time, valid_range, run_start, run_end):
         left_buffer=left_buffer,
         right_buffer=right_buffer,
         is_static=False,
+        narrow_left_ref=narrow_left_ref,
+        narrow_right_ref=narrow_right_ref,
     )
 
 
@@ -725,22 +770,28 @@ def collect_all_files(
             )
 
             if return_per_collection:
-                # Key by (collection_name, extrap) — union results for same key
+                # Key by (collection_name, extrap) — union results for same key.
+                # The narrow_left_ref / narrow_right_ref are carried inside the
+                # CollectionFileResult (computed by _enumerate_clim / _enumerate_normal).
                 key = (col_name, extrap)
                 if key not in per_collection:
                     per_collection[key] = {
                         "collection": collection,
-                        "result": result,
+                        "result":     result,
                     }
                 else:
-                    # Union the results
-                    existing = per_collection[key]["result"]
-                    per_collection[key]["result"] = CollectionFileResult(
-                        all_files    = existing.all_files    | result.all_files,
-                        core_files   = existing.core_files   | result.core_files,
-                        left_buffer  = existing.left_buffer  | result.left_buffer,
-                        right_buffer = existing.right_buffer | result.right_buffer,
-                        is_static    = existing.is_static and result.is_static,
+                    # Union the results; keep the most conservative (earliest/latest) refs
+                    existing = per_collection[key]
+                    existing["result"] = CollectionFileResult(
+                        all_files    = existing["result"].all_files    | result.all_files,
+                        core_files   = existing["result"].core_files   | result.core_files,
+                        left_buffer  = existing["result"].left_buffer  | result.left_buffer,
+                        right_buffer = existing["result"].right_buffer | result.right_buffer,
+                        is_static    = existing["result"].is_static and result.is_static,
+                        narrow_left_ref  = min(existing["result"].narrow_left_ref,
+                                               result.narrow_left_ref),
+                        narrow_right_ref = max(existing["result"].narrow_right_ref,
+                                               result.narrow_right_ref),
                     )
             else:
                 all_files |= result.all_files
@@ -817,43 +868,96 @@ def narrow_files(per_collection: dict, run_start: datetime, run_end: datetime) -
     for (col_name, extrap), entry in per_collection.items():
         result     = entry["result"]
         collection = entry["collection"]
-
+        # narrow_left_ref / narrow_right_ref are stored in the result; for clim
+        # collections they are remapped into the valid_range year so that
+        # file-time comparisons work correctly.
+        narrow_left_ref  = result.narrow_left_ref
+        narrow_right_ref = result.narrow_right_ref
         # --- Static collections ---
         if result.is_static:
             final |= result.all_files
             for f in result.all_files:
                 if os.path.exists(f):
-                    _check_static_coverage(f, run_start, run_end, col_name)
+                    _check_static_coverage(f, run_start, run_end, col_name, extrap=extrap)
             continue
 
         # --- Core files: always keep ---
         final |= result.core_files
 
+        # Read times from the boundary core files to check whether the core
+        # already covers the bracket edges (avoids reading all core files).
+        # We only need the earliest core file (for left bracket suppression)
+        # and latest core file (for right bracket suppression).
+        sorted_core = sorted(result.core_files)
+        core_left_covered  = False  # core already provides a left bracket
+        core_right_covered = False  # core already provides a right bracket
+        if sorted_core:
+            earliest_core_times = _safe_read_times(sorted_core[0], col_name) or []
+            if any(t <= narrow_left_ref for t in earliest_core_times):
+                core_left_covered = True
+            latest_core_times = _safe_read_times(sorted_core[-1], col_name) or []
+            if any(t > narrow_right_ref for t in latest_core_times):
+                core_right_covered = True
+
         # --- Left buffer ---
-        for f in result.left_buffer:
-            if not os.path.exists(f):
-                # File is missing — keep it (it belongs in the missing report)
-                final.add(f)
-                continue
-            times = _safe_read_times(f, col_name)
-            if times is None:
-                # No time variable — keep conservatively
-                final.add(f)
-            elif any(t <= run_start for t in times):
-                final.add(f)
-            # else: file exists but contains no times <= run_start; drop it
+        # Among existing left-buffer files, keep only the one whose latest time
+        # is closest to (and <=) run_start — that's the actual left bracket.
+        # (We compare against raw run_start, not the clim-remapped narrow_left_ref,
+        # because file times are in real calendar years and run_start is the actual
+        # time the bracket must precede.)
+        # Skip entirely if a core file already covers the left bracket.
+        # All missing left-buffer files are kept (may be the needed bracket),
+        # unless the core already covers the left bracket.
+        if not core_left_covered:
+            missing_left = {f for f in result.left_buffer if not os.path.exists(f)}
+            final |= missing_left
+
+            best_left_file = None   # existing file with latest time <= run_start
+            best_left_time = None
+            for f in result.left_buffer:
+                if not os.path.exists(f):
+                    continue
+                times = _safe_read_times(f, col_name)
+                if times is None:
+                    # No time variable — keep conservatively
+                    final.add(f)
+                    continue
+                candidates = [t for t in times if t <= run_start]
+                if candidates:
+                    file_max = max(candidates)
+                    if best_left_time is None or file_max > best_left_time:
+                        best_left_time = file_max
+                        best_left_file = f
+            if best_left_file is not None:
+                final.add(best_left_file)
 
         # --- Right buffer ---
-        for f in result.right_buffer:
-            if not os.path.exists(f):
-                final.add(f)
-                continue
-            times = _safe_read_times(f, col_name)
-            if times is None:
-                final.add(f)
-            elif any(t > run_end for t in times):
-                final.add(f)
-            # else: file exists but contains no times > run_end; drop it
+        # Among existing right-buffer files, keep only the one whose earliest
+        # time is closest to (and >) run_end — that's the actual right bracket.
+        # (We compare against raw run_end for the same reason as left buffer above.)
+        # Skip entirely if a core file already covers the right bracket.
+        # All missing right-buffer files are kept, unless core already covers.
+        if not core_right_covered:
+            missing_right = {f for f in result.right_buffer if not os.path.exists(f)}
+            final |= missing_right
+
+            best_right_file = None  # existing file with earliest time > run_end
+            best_right_time = None
+            for f in result.right_buffer:
+                if not os.path.exists(f):
+                    continue
+                times = _safe_read_times(f, col_name)
+                if times is None:
+                    final.add(f)
+                    continue
+                candidates = [t for t in times if t > run_end]
+                if candidates:
+                    file_min = min(candidates)
+                    if best_right_time is None or file_min < best_right_time:
+                        best_right_time = file_min
+                        best_right_file = f
+            if best_right_file is not None:
+                final.add(best_right_file)
 
     return final
 
@@ -880,9 +984,18 @@ def _safe_read_times(path: str, col_name: str):
 
 
 def _check_static_coverage(path: str, run_start: datetime, run_end: datetime,
-                            col_name: str):
+                            col_name: str, extrap: str = "none"):
     """Open a static (no-token) file and warn if its time axis does not fully
-    cover [run_start, run_end]."""
+    cover [run_start, run_end].
+
+    For clim collections the file is used cyclically, so any mismatch between
+    the file's year and the run year is expected and not a problem.
+    For persist_closest collections a single static file can always be persisted
+    to cover any time by definition.
+    Both cases skip the coverage check entirely.
+    """
+    if extrap in ("clim", "persist_closest"):
+        return
     times = _safe_read_times(path, col_name)
     if times is None:
         return
@@ -938,6 +1051,63 @@ def write_missing_output(
         yaml.dump(doc, f, default_flow_style=False, sort_keys=False)
 
 
+def verify_files_read(
+    files_read_path: str,
+    estimated: set,
+    missing_output_path: str,
+) -> bool:
+    """Verify dry run predictions against the runtime files_read.yaml log.
+
+    Two checks are performed:
+
+    1. Coverage: every file listed in *files_read_path* must appear in the
+       *estimated* set.  If the dry run missed a file that ExtData actually
+       opened, that is a false negative and the test fails.
+
+    2. No missing files: the *missing_output_path* YAML (written by
+       --missing_output) must have an empty ``missing_files`` list.  If any
+       predicted file is absent from disk the test fails.
+
+    Returns True if both checks pass, False otherwise (diagnostics printed to
+    stderr).
+    """
+    ok = True
+
+    # --- Check 1: coverage ---
+    with open(files_read_path) as f:
+        doc = yaml.safe_load(f)
+    files_read = set(doc.get("files_read", []))
+    uncovered = files_read - estimated
+    if uncovered:
+        print(
+            "ERROR: dry run missed the following files that ExtData actually read:",
+            file=sys.stderr,
+        )
+        for path in sorted(uncovered):
+            print(f"  {path}", file=sys.stderr)
+        ok = False
+
+    # --- Check 2: no missing files ---
+    with open(missing_output_path) as f:
+        mdoc = yaml.safe_load(f)
+    missing = mdoc.get("missing_files", [])
+    if missing:
+        print(
+            "ERROR: the following predicted files are missing from disk:",
+            file=sys.stderr,
+        )
+        for path in sorted(missing):
+            print(f"  {path}", file=sys.stderr)
+        ok = False
+
+    if ok:
+        print(
+            f"OK: dry run verified — {len(files_read)} files covered, "
+            f"0 missing.",
+        )
+    return ok
+
+
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
@@ -983,6 +1153,14 @@ def parse_args():
         help="Path to write the missing-files YAML report. "
              "Required when --check or --narrow is given.",
     )
+    p.add_argument(
+        "--verify_files_read", metavar="PATH", default=None,
+        help="Path to a files_read.yaml produced at runtime by ExtData "
+             "(via log_files_read). Verifies that every file it lists appears "
+             "in the estimated set (coverage check) and that no estimated files "
+             "are missing from disk. Requires --check or --narrow and "
+             "--missing_output. Exits non-zero if either check fails.",
+    )
     return p.parse_args()
 
 
@@ -996,6 +1174,10 @@ def main():
     # Validate
     if args.check and not args.missing_output:
         sys.exit("Error: --missing_output is required when using --check or --narrow")
+    if args.verify_files_read and not args.check:
+        sys.exit("Error: --verify_files_read requires --check or --narrow")
+    if args.verify_files_read and not args.missing_output:
+        sys.exit("Error: --verify_files_read requires --missing_output")
 
     # Fail early if netCDF4 is needed but unavailable
     if args.narrow:
@@ -1027,6 +1209,15 @@ def main():
     if args.check:
         _, missing = check_files_exist(final_files)
         write_missing_output(args.missing_output, run_start, run_end, missing)
+
+    if args.verify_files_read:
+        passed = verify_files_read(
+            args.verify_files_read,
+            final_files,
+            args.missing_output,
+        )
+        if not passed:
+            sys.exit(1)
 
 
 if __name__ == "__main__":
