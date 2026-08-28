@@ -186,6 +186,11 @@ contains
             call request%deserialize(buffer, _RC)
             deallocate(buffer)
 
+            write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,1X,A,1X,A,1X,A)') &
+                 'INFO: AsyncInputServer reader:', 'reader_rank=', this%rank, &
+                 'source_rank=', source_rank, 'request_id=', request%request_id, &
+                 'file=', trim(request%file_name), 'var=', trim(request%var_name)
+
             mem_data_reference = LocalMemReference(request%type_kind, request%count)
             call read_collective_request(this, request, mem_data_reference, _RC)
             msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
