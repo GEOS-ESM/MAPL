@@ -54,9 +54,10 @@ module pFIO_ClientThreadMod
       integer :: rank = -1
 
       ! scratch pad for return values from application level interfaces
-      integer :: collection_id      = -1
-      integer :: request_counter    = MIN_ID
-      integer :: collective_counter = COLLECTIVE_MIN_ID
+       integer :: collection_id      = -1
+       integer :: request_counter    = MIN_ID
+       integer :: collective_counter = COLLECTIVE_MIN_ID
+       integer :: pending_collective_prefetches = 0
 
    contains
       procedure, private :: add_read_data_collection
@@ -66,8 +67,9 @@ module pFIO_ClientThreadMod
       procedure :: replace_metadata
       procedure :: prefetch_data
       procedure :: stage_data
-      procedure :: collective_prefetch_data
-      procedure :: collective_stage_data
+       procedure :: collective_prefetch_data
+       procedure :: collective_prefetch_data_cache_only
+       procedure :: collective_stage_data
       procedure :: stage_nondistributed_data
       procedure :: shake_hand
 
@@ -276,6 +278,7 @@ contains
            var_name, &
            data_reference,unusable=unusable, start=start,&
            global_start=global_start,global_count=global_count),_RC)
+      this%pending_collective_prefetches = this%pending_collective_prefetches + 1
 
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
@@ -284,7 +287,42 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
-   end function collective_prefetch_data
+    end function collective_prefetch_data
+
+    function collective_prefetch_data_cache_only(this, collection_id, file_name, var_name, data_reference, &
+         & unusable, start,global_start,global_count, rc) result(request_id)
+      class (ClientThread), intent(inout) :: this
+      integer, intent(in) :: collection_id
+      character(len=*), intent(in) :: file_name
+      character(len=*), intent(in) :: var_name
+      class (AbstractDataReference), intent(in) :: data_reference
+      class (KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(in) :: start(:)
+      integer, optional, intent(in) :: global_start(:)
+      integer, optional, intent(in) :: global_count(:)
+      integer, optional, intent(out):: rc
+
+      integer :: request_id
+      class (AbstractMessage), allocatable :: handshake_msg
+      class(AbstractSocket),pointer :: connection
+      integer :: status
+
+      request_id = this%get_unique_collective_request_id()
+      connection => this%get_connection()
+
+      call connection%send(CollectivePrefetchDataMessage( &
+           request_id, &
+           collection_id, &
+           file_name, &
+           var_name, &
+           data_reference, unusable=unusable, start=start, &
+           global_start=global_start, global_count=global_count, cache_only=.true.), _RC)
+      this%pending_collective_prefetches = this%pending_collective_prefetches + 1
+
+      call connection%receive(handshake_msg, _RC)
+
+      _RETURN(_SUCCESS)
+    end function collective_prefetch_data_cache_only
 
    function stage_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start, rc) result(request_id)
@@ -439,14 +477,15 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
-      if (this%isEmpty_RequestHandle()) then
-        _RETURN(_SUCCESS)
-      endif
+       if (this%isEmpty_RequestHandle() .and. this%pending_collective_prefetches == 0) then
+         _RETURN(_SUCCESS)
+       endif
 
-      connection=>this%get_connection()
-      call connection%send(CollectivePrefetchDoneMessage(),_RC)
-      _RETURN(_SUCCESS)
-   end subroutine done_collective_prefetch
+       connection=>this%get_connection()
+       call connection%send(CollectivePrefetchDoneMessage(),_RC)
+       this%pending_collective_prefetches = 0
+       _RETURN(_SUCCESS)
+    end subroutine done_collective_prefetch
 
    subroutine done_stage(this, rc)
       class (ClientThread), intent(inout) :: this

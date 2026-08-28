@@ -13,9 +13,9 @@ module pFIO_AbstractCollectiveDataMessageMod
 
    public :: AbstractCollectiveDataMessage
 
-   type, extends(AbstractDataMessage),abstract :: AbstractCollectiveDataMessage
-      integer, allocatable :: global_start(:)
-      integer, allocatable :: global_count(:)
+    type, extends(AbstractDataMessage),abstract :: AbstractCollectiveDataMessage
+       integer, allocatable :: global_start(:)
+       integer, allocatable :: global_count(:)
    contains
       procedure :: initCollective
       procedure :: get_length
@@ -25,9 +25,9 @@ module pFIO_AbstractCollectiveDataMessageMod
 
 contains
 
-   subroutine initCollective( message, &
-        & request_id, collection_id, file_name, var_name, &
-        & data_reference, unusable, start,global_start,global_count, rc)
+    subroutine initCollective( message, &
+         & request_id, collection_id, file_name, var_name, &
+         & data_reference, unusable, start,global_start,global_count, rc)
       class (AbstractCollectiveDataMessage) :: message
       integer, intent(in) :: request_id
       integer, intent(in) :: collection_id
@@ -66,10 +66,10 @@ contains
          st = message%global_start
       endif 
               
-      call message%init(request_id,collection_id, &
-          file_name,var_name,data_reference,unusable=unusable,start=st, rc=status)
-      _VERIFY(status)
-      _RETURN(_SUCCESS)
+       call message%init(request_id,collection_id, &
+           file_name,var_name,data_reference,unusable=unusable,start=st, rc=status)
+       _VERIFY(status)
+       _RETURN(_SUCCESS)
    end subroutine initCollective
  
    integer function get_length(this) result(length)
@@ -126,9 +126,9 @@ contains
       n = n + serialize_buffer_length(this%type_kind)
       call deserialize_intrinsic(buffer(n:), this%start)
       n = n + serialize_buffer_length(this%start)
-      call deserialize_intrinsic(buffer(n:), this%count)
-      n = n + serialize_buffer_length(this%count)
-      call deserialize_intrinsic(buffer(n:), this%global_start)
+       call deserialize_intrinsic(buffer(n:), this%count)
+       n = n + serialize_buffer_length(this%count)
+       call deserialize_intrinsic(buffer(n:), this%global_start)
       n = n + serialize_buffer_length(this%global_start)
       call deserialize_intrinsic(buffer(n:), this%global_count)
       _RETURN(_SUCCESS)

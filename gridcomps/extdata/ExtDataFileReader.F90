@@ -13,13 +13,14 @@ module mapl_ExtDataReader_mod
 
    public :: ExtDataReader
 
-    type ExtDataReader
-       type(ESMF_FieldBundle) :: accumulated_fields
-       type(StringStringMap) :: alias_map
-       type(StringStringMap) :: filename_map
-       type(StringIntegerMap) :: time_index_map
-       type(StringIntegerMap) :: client_id_map
-       character(:), allocatable :: input_server_name
+     type ExtDataReader
+        type(ESMF_FieldBundle) :: accumulated_fields
+        type(StringStringMap) :: alias_map
+        type(StringStringMap) :: filename_map
+        type(StringIntegerMap) :: time_index_map
+        type(StringIntegerMap) :: client_id_map
+        type(StringIntegerMap) :: prefetch_only_map
+        character(:), allocatable :: input_server_name
        contains
          procedure :: add_item
          procedure :: read_items
@@ -55,24 +56,30 @@ module mapl_ExtDataReader_mod
       _RETURN(_SUCCESS)
    end subroutine destroy_reader
 
-   subroutine add_item(this, field, alias, filename, time_index, client_id, rc)
-      class(ExtDataReader), intent(inout) :: this
-      type(ESMF_Field), intent(in) :: field
-      character(len=*), intent(in) :: alias
-      character(len=*), intent(in) :: filename
-      integer, intent(in) :: time_index
-      integer, intent(in) :: client_id
-      integer, optional, intent(out) :: rc
+    subroutine add_item(this, field, alias, filename, time_index, client_id, prefetch_only, rc)
+       class(ExtDataReader), intent(inout) :: this
+       type(ESMF_Field), intent(in) :: field
+       character(len=*), intent(in) :: alias
+       character(len=*), intent(in) :: filename
+       integer, intent(in) :: time_index
+       integer, intent(in) :: client_id
+       logical, intent(in), optional :: prefetch_only
+       integer, optional, intent(out) :: rc
 
-      character(len=ESMF_MAXSTR) :: field_name
-      integer :: status
+       character(len=ESMF_MAXSTR) :: field_name
+       integer :: status, prefetch_only_value
 
       call ESMF_FieldGet(field, name=field_name, _RC)
-      call this%alias_map%insert(trim(field_name), alias)
-      call this%filename_map%insert(trim(field_name), filename)
-      call this%time_index_map%insert(trim(field_name), time_index)
-      call this%client_id_map%insert(trim(field_name), client_id)
-      call ESMF_FieldBundleAdd(this%accumulated_fields, [field], _RC)
+       call this%alias_map%insert(trim(field_name), alias)
+       call this%filename_map%insert(trim(field_name), filename)
+       call this%time_index_map%insert(trim(field_name), time_index)
+       call this%client_id_map%insert(trim(field_name), client_id)
+       prefetch_only_value = 0
+       if (present(prefetch_only)) then
+          if (prefetch_only) prefetch_only_value = 1
+       end if
+       call this%prefetch_only_map%insert(trim(field_name), prefetch_only_value)
+       call ESMF_FieldBundleAdd(this%accumulated_fields, [field], _RC)
 
       _RETURN(_SUCCESS)
 
@@ -96,6 +103,7 @@ module mapl_ExtDataReader_mod
       type(mapl_pFIOServerBounds) :: server_bounds
       type(c_ptr) :: address
       type(mapl_ArrayReference) :: ref
+      integer, pointer :: prefetch_only
 
       call ESMF_FieldBundleGet(this%accumulated_fields, fieldCount=num_fields, _RC)
       if (num_fields == 0) then
@@ -110,6 +118,7 @@ module mapl_ExtDataReader_mod
          alias => this%alias_map%at(trim(field_name))
          filename => this%filename_map%at(trim(field_name))
          client_id => this%client_id_map%at(trim(field_name))
+         prefetch_only => this%prefetch_only_map%at(trim(field_name))
          time_index => this%time_index_map%at(trim(field_name))
          call ESMF_FieldGet(field_list(i), grid=grid, typekind=esmf_typekind, _RC)
          element_count = MAPL_FieldGetLocalElementCount(field_list(i), _RC)
@@ -125,18 +134,30 @@ module mapl_ExtDataReader_mod
 
          pfio_typekind = mapl_esmf_to_pfio_type(esmf_typekind, _RC)
          new_element_count = server_bounds%get_file_shape()
-         ref = mapl_ArrayReference(address, pfio_typekind, new_element_count)
-           request_id = i_client%collective_prefetch_data( &
-               client_id, &
-               filename, &
-               alias, &
-               ref, &
-               start=local_start, &
-               global_start=global_start, &
-               global_count=global_count)
-         deallocate(global_start, global_count, local_start, element_count, new_element_count)
-         call lgr%info('reading %a from file %a at time index %i0.5', alias, filename, time_index)
-      enddo
+          ref = mapl_ArrayReference(address, pfio_typekind, new_element_count)
+          if (prefetch_only == 0) then
+             request_id = i_client%collective_prefetch_data( &
+                 client_id, &
+                 filename, &
+                 alias, &
+                 ref, &
+                 start=local_start, &
+                 global_start=global_start, &
+                 global_count=global_count)
+             call lgr%info('reading %a from file %a at time index %i0.5', alias, filename, time_index)
+          else
+             request_id = i_client%collective_prefetch_data_cache_only( &
+                 client_id, &
+                 filename, &
+                 alias, &
+                 ref, &
+                 start=local_start, &
+                 global_start=global_start, &
+                 global_count=global_count)
+             call lgr%info('prefetching next %a from file %a at time index %i0.5', alias, filename, time_index)
+          end if
+          deallocate(global_start, global_count, local_start, element_count, new_element_count)
+       enddo
       call i_client%done_collective_prefetch()
       call i_client%wait_all()
 

@@ -223,16 +223,18 @@ contains
 
             if (cache_matches_request(this, request)) then
                this%cache_hits = this%cache_hits + 1
-               call load_cache_into_mem(this, mem_data_reference, _RC)
+               if (.not. request%cache_only) call load_cache_into_mem(this, mem_data_reference, _RC)
             else
                this%cache_misses = this%cache_misses + 1
                call read_collective_request(this, request, mem_data_reference, _RC)
                call update_cache(this, request, mem_data_reference, _RC)
             end if
-            msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
-            call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
-            call MPI_Send(i_ptr, msize_word, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
-            _VERIFY(ierr)
+            if (.not. request%cache_only) then
+               msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
+               call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
+               call MPI_Send(i_ptr, msize_word, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
+               _VERIFY(ierr)
+            end if
             call mem_data_reference%deallocate(status)
             _VERIFY(status)
           end do
@@ -347,15 +349,17 @@ contains
               deallocate(buffer)
 
               mem_data_reference = LocalMemReference(q%type_kind, q%count)
-              call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
-              call MPI_Recv(i_ptr, msize_word, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, MPI_STATUS_IGNORE, ierr)
-              _VERIFY(ierr)
+              if (.not. q%cache_only) then
+                 call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
+                 call MPI_Recv(i_ptr, msize_word, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, MPI_STATUS_IGNORE, ierr)
+                 _VERIFY(ierr)
 
-             handle = connection%put(q%request_id, mem_data_reference)
-             call handle%wait()
-             call mem_data_reference%deallocate(status)
-             _VERIFY(status)
-             call request_backlog%erase(iter)
+                 handle = connection%put(q%request_id, mem_data_reference)
+                 call handle%wait()
+              end if
+              call mem_data_reference%deallocate(status)
+              _VERIFY(status)
+              call request_backlog%erase(iter)
           class default
              _FAIL('AsyncInputServer only supports CollectivePrefetchDataMessage in service_collective_prefetch')
           end select

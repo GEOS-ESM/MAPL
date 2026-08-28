@@ -279,7 +279,7 @@ module mapl_PrimaryExport_mod
 
       type(ESMF_FieldBundle) :: bundle
       integer :: status
-      type(DataSetNode) :: node
+       type(DataSetNode) :: node, left_node, right_node
       logical :: update_file
       type(ESMF_Field), allocatable :: field_list(:)
       character(len=:), allocatable :: filename
@@ -290,7 +290,7 @@ module mapl_PrimaryExport_mod
       if (this%file_vars%size() == 2) list_start = 2
       node = this%bracket%get_left_node()
       update_file = node%get_update()
-      if (update_file) then
+       if (update_file) then
          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
          call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
@@ -299,13 +299,15 @@ module mapl_PrimaryExport_mod
          call lgr%info("updating %a", this%export_var)
          call node%write_node(lgr) !  bmaa
          do i=1,this%file_vars%size()
-            variable_name => this%file_vars%at(i)
-            call reader%add_item(field_list(i), variable_name, filename, time_index, this%client_collection_id, _RC)
-         enddo
-      end if
-      node = this%bracket%get_right_node()
-      update_file = node%get_update()
-      if (update_file) then
+             variable_name => this%file_vars%at(i)
+             call reader%add_item(field_list(i), variable_name, filename, time_index, this%client_collection_id, _RC)
+          enddo
+       end if
+       left_node = node
+       node = this%bracket%get_right_node()
+       right_node = node
+       update_file = node%get_update()
+       if (update_file) then
          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
          call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
@@ -314,10 +316,20 @@ module mapl_PrimaryExport_mod
          call node%write_node(lgr) !  bmaa
          call node%get_file(filename)
          do i=1,this%file_vars%size()
-            variable_name => this%file_vars%at(i)
-            call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, _RC)
-         enddo
-      end if
+             variable_name => this%file_vars%at(i)
+             call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, _RC)
+          enddo
+       else if (right_node%get_enabled() .and. (.not. (right_node == left_node))) then
+          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+          time_index = right_node%get_time_index()
+          call right_node%get_file(filename)
+          do i=1,this%file_vars%size()
+             variable_name => this%file_vars%at(i)
+             call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, &
+                  prefetch_only=.true., _RC)
+          enddo
+       end if
 
       _RETURN(_SUCCESS)
    end subroutine append_state_to_reader
