@@ -289,7 +289,8 @@ CONTAINS
    call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
    call get_global_options(new_rc_file,self%active,self%file_weights,_RC)
 
-   call ESMF_ClockGet(CLOCK, currTIME=time, _RC)
+   call ESMF_ClockGet(CLOCK, currTime=time, _RC)
+   call ESMF_ClockGet(clock, currTime=run_range(1), stoptime=run_range(2), _RC)
 ! Get information from export state
 !----------------------------------
     call ESMF_StateGet(EXPORT, ITEMCOUNT=ItemCount, _RC)
@@ -311,6 +312,7 @@ CONTAINS
     if (config_yaml%log_files_read) then
        self%files_read_log_path = config_yaml%files_read_log_path
        self%run_start_time = time
+       self%run_end_time = run_range(2)
     end if
 
     allocate(ITEMNAMES(ITEMCOUNT), _STAT)
@@ -410,7 +412,6 @@ CONTAINS
       end if
    enddo
 
-   call ESMF_ClockGet(clock, currtime=run_range(1), stoptime=run_range(2), _RC)
 !  now lets establish the horizonal and vertical grid for each component, replaces getlevs
    do i=1,self%primary%import_names%size()
 
@@ -654,7 +655,7 @@ CONTAINS
          call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
       end if
       call create_bracketing_fields(item,self%ExtDataState, _RC)
-      call IOBundle_Add_Entry(IOBundles,item,idx)
+      call IOBundle_Add_Entry(IOBundles,self,item,idx)
       useTime(i)=use_time
 
    end do READ_LOOP
@@ -704,7 +705,6 @@ CONTAINS
       call MAPL_ExtDataFlipBracketSide(item,bracket_side,_RC)
       call bundle_iter%next()
    enddo
-   call harvest_files_read(self, current_time, _RC)
 
    call MAPL_ExtDataDestroyCFIO(IOBundles,_RC)
 
@@ -1448,8 +1448,9 @@ CONTAINS
 
   end subroutine MAPL_ExtDataReadPrefetch
 
-  subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,rc)
+  subroutine IOBundle_Add_Entry(IOBundles,extdata_state,item,entry_num,rc)
      type(IOBundleNGVector), intent(inout) :: IOBundles
+     type(MAPL_ExtData_state), intent(inout) :: extdata_state
      type(primaryExport), target, intent(inout)        :: item
      integer, intent(in)                    :: entry_num
      integer, intent(out), optional         :: rc
@@ -1476,6 +1477,7 @@ CONTAINS
                item%pfioCollection_id,item%iclient_collection_id,itemsL,on_tiles,_RC)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated L bracket with: %a at time index %i0 ',item%name, current_file, time_index)
+           call append_files_read(extdata_state, current_file, _RC)
         end if
      end if
      call item%modelGridFields%comp1%get_parameters('R',update=update,file=current_file,time_index=time_index)
@@ -1486,6 +1488,7 @@ CONTAINS
                item%pfioCollection_id,item%iclient_collection_id,itemsR,on_tiles,_RC)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated R bracket with: %a at time index %i0 ',item%name,current_file, time_index)
+           call append_files_read(extdata_state, current_file, _RC)
         end if
      end if
 
@@ -1928,50 +1931,18 @@ CONTAINS
 
   end subroutine confirm_imports_for_vregrid
 
-!.......................................................................
-
-  subroutine harvest_files_read(self, current_time, rc)
+  subroutine append_files_read(self, current_file, rc)
      type(MAPL_ExtData_State), intent(inout) :: self
-     type(ESMF_Time),          intent(in)    :: current_time
+     character(len=*),         intent(in)    :: current_file 
      integer, optional,        intent(out)   :: rc
-
-     integer :: i, idx, status
-     character(len=:), pointer :: current_base_name
-     type(primaryExport), pointer :: item
-     character(len=ESMF_MAXPATHLEN) :: current_file
-
      if (.not. self%log_files_read) then
-        _RETURN(ESMF_SUCCESS)
+        _RETURN(_SUCCESS)
      end if
-
-     do i = 1, self%primary%import_names%size()
-        current_base_name => self%primary%import_names%at(i)
-        idx = self%primary%get_item_index(current_base_name, current_time, _RC)
-        item => self%primary%item_vec%at(idx)
-        if (item%isConst) then
-           nullify(item)
-           cycle
-        end if
-        call item%modelGridFields%comp1%get_parameters('L', file=current_file, _RC)
-        if (trim(current_file) /= file_not_found .and. len_trim(current_file) > 0) then
-           if (.not. string_in_vector(self%files_read, current_file)) then
-              call self%files_read%push_back(trim(current_file))
-           end if
-        end if
-        call item%modelGridFields%comp1%get_parameters('R', file=current_file, _RC)
-        if (trim(current_file) /= file_not_found .and. len_trim(current_file) > 0) then
-           if (.not. string_in_vector(self%files_read, current_file)) then
-              call self%files_read%push_back(trim(current_file))
-           end if
-        end if
-        nullify(item)
-     end do
-     self%run_end_time = current_time
-     _RETURN(ESMF_SUCCESS)
-
-  end subroutine harvest_files_read
-
-!.......................................................................
+     if (.not. string_in_vector(self%files_read, current_file)) then 
+        call self%files_read%push_back(trim(current_file))
+     end if
+     _RETURN(_SUCCESS)
+  end subroutine append_files_read
 
   logical function string_in_vector(vec, str)
      type(StringVector), intent(in) :: vec
@@ -1989,7 +1960,5 @@ CONTAINS
         call iter%next()
      end do
   end function string_in_vector
-
-
 
  END MODULE MAPL_ExtDataGridComp2G
