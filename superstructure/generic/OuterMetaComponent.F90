@@ -46,9 +46,12 @@ module mapl_OuterMetaComponent_mod
       type(ESMF_Geom), allocatable                :: geom
       class(VerticalGrid), allocatable            :: vertical_grid
 
-      type(InnerMetaComponent), allocatable       :: inner_meta
+      ! In-memory checkpoint: nested ESMF_States (import/export/internal)
+      ! holding most recent in-memory checkpoint write. Lazily created
+      ! on first write; see ensure_memory_checkpoint_.
+      type(ESMF_State) :: memory_checkpoint
 
-      ! Hierarchy
+! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
 
@@ -97,6 +100,10 @@ module mapl_OuterMetaComponent_mod
       procedure :: run_clock_advance
       procedure :: finalize
       procedure :: write_restart
+      procedure :: read_restart
+
+      procedure, private :: ensure_memory_checkpoint_
+      procedure, private :: get_memory_checkpoint_state_
 
       procedure :: start_timer
       procedure :: stop_timer
@@ -141,6 +148,7 @@ module mapl_OuterMetaComponent_mod
    end interface get_outer_meta
 
    character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "MAPL::OuterMetaComponent::private"
+   character(len=*), parameter :: MEMORY_CHECKPOINT_INFO_KEY = "MAPL/HAS_MEMORY_CHECKPOINT"
 
    abstract interface
       subroutine I_child_op(this, child_meta, rc)
@@ -385,6 +393,36 @@ module mapl_OuterMetaComponent_mod
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine write_restart
+
+      ! Dedicated ESMF_METHOD_READRESTART dispatch for the internal
+      ! (in-memory) checkpoint phase.  This is distinct from
+      ! initialize_read_restart, which handles existing netCDF restart
+      ! reads under ESMF_METHOD_INITIALIZE.
+      module recursive subroutine read_restart(this, importState, exportState, clock, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(ESMF_State) :: importState
+         type(ESMF_State) :: exportState
+         type(ESMF_Clock) :: clock
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine read_restart
+
+      ! Lazily create this%memory_checkpoint with nested "import",
+      ! "export", "internal" ESMF_States on first use.
+      module subroutine ensure_memory_checkpoint_(this, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine ensure_memory_checkpoint_
+
+      ! Retrieve the nested ESMF_State within this%memory_checkpoint
+      ! corresponding to state_intent (import/export/internal).
+      module subroutine get_memory_checkpoint_state_(this, state_intent, state, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+         type(ESMF_State), intent(out) :: state
+         integer, optional, intent(out) :: rc
+      end subroutine get_memory_checkpoint_state_
 
       module subroutine start_timer(this, name, rc)
          class(OuterMetaComponent), intent(inout) :: this
