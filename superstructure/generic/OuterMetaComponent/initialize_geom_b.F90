@@ -31,11 +31,12 @@ contains
          integer, optional, intent(out) :: rc
          
          associate(kind => child_meta%component_spec%geometry_spec%kind)
-           _RETURN_IF(kind /= GEOMETRY_FROM_PARENT)
+            _RETURN_IF(kind /= GEOMETRY_FROM_PARENT)
 
-           if (allocated(this%geom)) then
-              call child_meta%set_geom(this%geom)
-           end if
+            child_meta%geom_id = this%geom_id
+            if (allocated(this%geom)) then
+               call child_meta%set_geom(this%geom)
+            end if
            if (allocated(this%vertical_grid)) then
               call child_meta%set_vertical_grid(this%vertical_grid)
            end if

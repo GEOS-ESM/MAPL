@@ -20,8 +20,8 @@ contains
       type(StateItemSpec), pointer :: item_primary
       type(VirtualConnectionPt) :: virtual_pt
       
-      item_spec = var_spec%make_StateItemSpec(this%registry, &
-           this%geom, this%vertical_grid, _RC)
+       item_spec = var_spec%make_StateItemSpec(this%registry, &
+            this%geom, this%geom_id, this%vertical_grid, _RC)
       virtual_pt = var_spec%make_virtualPt()
       call this%registry%add_primary_spec(virtual_pt, item_spec)
       

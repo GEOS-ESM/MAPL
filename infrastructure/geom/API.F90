@@ -2,6 +2,10 @@
 ! Public API exposed to external consumers.
 module mapl_geom_api
 
+   use mapl_GeomId_mod, only: mapl_GeomId => GeomId
+   use mapl_GeomId_mod, only: mapl_GeomIdManager => GeomIdManager
+   use mapl_GeomId_mod, only: mapl_get_geom_id_manager => get_geom_id_manager
+   use mapl_GeomId_mod, only: mapl_new_GeomId => GeomId
    use mapl_MaplGeom_mod, only: mapl_MaplGeom => MaplGeom
    use mapl_GeomSpec_mod, only: mapl_GeomSpec => GeomSpec
    use mapl_GeomManager_mod, only: mapl_GeomManager => GeomManager
@@ -29,6 +33,10 @@ module mapl_geom_api
    private
 
    ! Geom types and manager
+   public :: mapl_GeomId
+   public :: mapl_GeomIdManager
+   public :: mapl_get_geom_id_manager
+   public :: mapl_new_GeomId
    public :: mapl_MaplGeom
    public :: mapl_GeomSpec
    public :: mapl_GeomManager
