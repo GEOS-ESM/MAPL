@@ -44,9 +44,9 @@ contains
 
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
-      s%model_comm = comm
+      s%model_comm = MPI_COMM_NULL
       if (present(model_comm)) s%model_comm = model_comm
-      call s%init(s%model_comm, port_name, profiler_name=profiler_name, with_profiler=with_profiler, _RC)
+      call s%init(comm, port_name, profiler_name=profiler_name, with_profiler=with_profiler, _RC)
       call initialize_role_accounting(s, comm, _RC)
 
       _RETURN(_SUCCESS)
@@ -61,10 +61,15 @@ contains
 
       call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%node_comm, ierror)
       _VERIFY(ierror)
-      call MPI_Comm_split_type(this%model_comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%model_node_comm, ierror)
-      _VERIFY(ierror)
-      call MPI_Comm_size(this%model_node_comm, this%model_npes_on_node, ierror)
-      _VERIFY(ierror)
+
+      this%model_npes_on_node = 0
+      if (this%model_comm /= MPI_COMM_NULL) then
+         call MPI_Comm_split_type(this%model_comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%model_node_comm, ierror)
+         _VERIFY(ierror)
+         call MPI_Comm_size(this%model_node_comm, this%model_npes_on_node, ierror)
+         _VERIFY(ierror)
+      end if
+
       call MPI_Comm_size(this%node_comm, this%node_npes, ierror)
       _VERIFY(ierror)
 

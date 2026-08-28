@@ -454,9 +454,7 @@ contains
       this%is_model_pet = (this%model_comm /= MPI_COMM_NULL)
 
       ! Add any local: true servers declared in the servers: section.
-      if (this%is_model_pet) then
-         call this%initialize_configured_local_servers(_RC)
-      end if
+      call this%initialize_configured_local_servers(_RC)
 
       ! Build ESMF GridComps for remote (non-local) servers.
       call this%initialize_non_default_servers(servers, world_comm, model_petCount, ssiCount, ssiMap, &
@@ -556,17 +554,18 @@ contains
    ! Called from create_servers() when a servers: section is present.
    ! The two default servers (MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER)
    ! are NOT created here — they were already created in initialize_default_servers().
-   subroutine initialize_configured_local_servers(this, unusable, rc)
-      class(MaplFramework), target, intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+    subroutine initialize_configured_local_servers(this, unusable, rc)
+       class(MaplFramework), target, intent(inout) :: this
+       class(KeywordEnforcer), optional, intent(in) :: unusable
+       integer, optional, intent(out) :: rc
 
-       integer :: status
-       type(ESMF_HConfig) :: servers_hconfig
-       type(ESMF_HConfig) :: server_val
-       character(:), allocatable :: server_name
-       logical :: is_local
-       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
+        integer :: status
+        type(ESMF_HConfig) :: servers_hconfig
+        type(ESMF_HConfig) :: server_val
+        character(:), allocatable :: server_name
+        character(:), allocatable :: subclass_name
+        logical :: is_local, has_subclass_local, is_async_local
+        type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
 
        ! Iterate the servers: section and register any local: true entries.
        servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
@@ -580,10 +579,29 @@ contains
           is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
           if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
           if (is_local) then
-             call this%add_local_server(server_name, server_name, hconfig=server_val, _RC)
+             subclass_name = 'MpiServer'
+             has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
+             if (has_subclass_local) then
+                subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
+             end if
+             is_async_local = (subclass_name == 'AsyncInputServer')
+             if (is_async_local) then
+                if (this%is_model_pet) then
+                   call this%add_local_server(server_name, server_name, &
+                        hconfig=server_val, register_client=.true., rc=status)
+                else
+                   call this%add_local_server(server_name, server_name, &
+                        hconfig=server_val, register_client=.false., rc=status)
+                end if
+             else
+                if (this%is_model_pet) then
+                   call this%add_local_server(server_name, server_name, &
+                        hconfig=server_val, rc=status)
+                end if
+              end if
           end if
           call ESMF_HConfigDestroy(server_val, _RC)
-       end do
+        end do
 
 
       call ESMF_HConfigDestroy(servers_hconfig, _RC)
@@ -598,12 +616,13 @@ contains
    ! hconfig: optional — if provided, reads subclass: to dispatch server type.
    !          If not provided, defaults to MpiServer.
    ! fast_client: if .true., use FastClientThread for the client; default is ClientThread.
-   subroutine add_local_server(this, server_name, client_name, hconfig, fast_client, rc)
+    subroutine add_local_server(this, server_name, client_name, hconfig, fast_client, register_client, rc)
       class(MaplFramework), target, intent(inout) :: this
       character(*), intent(in) :: server_name
       character(*), intent(in) :: client_name
        type(ESMF_HConfig), optional, intent(in) :: hconfig
       logical, optional, intent(in) :: fast_client
+      logical, optional, intent(in) :: register_client
       integer, optional, intent(out) :: rc
 
       integer :: status, alloc_stat
@@ -612,7 +631,7 @@ contains
       class(BaseServer), pointer :: srv
       class(ClientThread), allocatable :: new_client
       class(ClientThread), pointer :: p_client
-      logical :: has_subclass, use_fast
+      logical :: has_subclass, use_fast, register_client_
       character(:), allocatable :: subclass_name
 
       ! Determine server subclass.
@@ -646,6 +665,12 @@ contains
       call this%local_server_map%insert(server_name, tmp)
       srv => this%local_server_map%at(server_name)
       call this%directory_service%publish(PortInfo(server_name, srv), srv)
+
+      register_client_ = .true.
+      if (present(register_client)) register_client_ = register_client
+      if (.not. register_client_) then
+         _RETURN(_SUCCESS)
+      end if
 
       ! Create the client, store it in the ClientManager, then connect the
       ! map-resident copy to the server.  connect_to_server stores a pointer to
