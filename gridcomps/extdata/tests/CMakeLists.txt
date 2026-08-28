@@ -18,7 +18,7 @@ add_pfunit_ctest(MAPL.extdata.tests
                 MAX_PES 1
                 )
 set_target_properties(MAPL.extdata.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
-set_tests_properties(MAPL.extdata.tests PROPERTIES LABELS "REGRESSION")
+# set_tests_properties(MAPL.extdata.tests PROPERTIES LABELS "REGRESSION")
 
 if (APPLE)
   set(LD_PATH "DYLD_LIBRARY_PATH")

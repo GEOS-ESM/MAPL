@@ -46,15 +46,13 @@ module mapl_OuterMetaComponent_mod
       type(ESMF_Geom), allocatable                :: geom
       class(VerticalGrid), allocatable            :: vertical_grid
 
-      type(InnerMetaComponent), allocatable       :: inner_meta
-
       ! In-memory checkpoint: nested ESMF_States (import/export/internal)
       ! holding the most recent in-memory checkpoint write. Lazily
       ! created on first write; see ensure_memory_checkpoint_.
       type(ESMF_State) :: memory_checkpoint
       logical :: has_memory_checkpoint
 
-      ! Hierarchy
+! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
 
