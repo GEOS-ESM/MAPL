@@ -26,6 +26,10 @@ module mapl_GenericPhases_mod
    ! Finalize phases
    public :: GENERIC_FINALIZE_USER
 
+   ! Internal (in-memory) checkpoint phases
+   public :: GENERIC_INTERNAL_READ_RESTART
+   public :: GENERIC_INTERNAL_WRITE_RESTART
+
    enum, bind(c)
       !!!! IMPORTANT: USER phase must be "1" !!!!
       enumerator :: GENERIC_INIT_USER = 1
@@ -39,6 +43,21 @@ module mapl_GenericPhases_mod
       ! Phases that should be within NUOPC realize
       enumerator :: GENERIC_INIT_REALIZE
       enumerator :: GENERIC_INIT_READ_RESTART
+   end enum
+
+   ! Internal restart phases are registered directly against
+   ! ESMF_METHOD_READRESTART / ESMF_METHOD_WRITERESTART and are
+   ! intentionally NOT part of GENERIC_INIT_PHASE_SEQUENCE below.
+   !
+   ! GENERIC_INTERNAL_WRITE_RESTART must differ from the default
+   ! (ESMF_SINGLEPHASE == 1) phase already used by the existing
+   ! netCDF write_restart registration for ESMF_METHOD_WRITERESTART;
+   ! otherwise the two phases would collide on that method.
+   ! GENERIC_INTERNAL_READ_RESTART has no such collision since no
+   ! prior phase is registered for ESMF_METHOD_READRESTART.
+   enum, bind(c)
+      enumerator :: GENERIC_INTERNAL_READ_RESTART = 1
+      enumerator :: GENERIC_INTERNAL_WRITE_RESTART = 2
    end enum
 
    ! We start the generic run phases at a high index to allow for

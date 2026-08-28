@@ -7,6 +7,7 @@ set (srcs
     FieldBundleInfo.F90
     FieldBundleDelta.F90
     FieldBundleCreate.F90
+    FieldBundleClone.F90
     FieldBundleCopy.F90
     FieldBundleDestroy.F90
     FieldBundleFilter.F90
