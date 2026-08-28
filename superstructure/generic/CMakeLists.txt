@@ -32,6 +32,7 @@ set(srcs
 
   # Umbrella module
   API.F90
+  NuopcMetaModel.F90
   )
 
 # Workaround for strict NAG Fortran with ESMF implicit interface for private state.

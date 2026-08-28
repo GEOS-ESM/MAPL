@@ -16,7 +16,8 @@ module mapl_NuopcMetaModel_mod
    use mapl_VariableSpecVector_mod
    use mapl_MultiState_mod
    use mapl_enums_api
-   use gFTLv2_StringVector
+   use mapl_StateRegistry_mod
+   use gFTL2_StringVector
    use mapl_SimpleAlarm_mod
 
    implicit none(type,external)
@@ -45,8 +46,11 @@ module mapl_NuopcMetaModel_mod
       procedure :: has_geom
       procedure :: get_phases
       procedure :: setServices => setServices_
-      procedure :: init
+      procedure :: init_user_gc
       procedure :: run_custom
+      procedure :: start_timer
+      procedure :: stop_timer
+      procedure :: get_name
       ! Init phases
       !------------
       ! label_Advertise
@@ -68,7 +72,7 @@ module mapl_NuopcMetaModel_mod
       ! Run phases
       !------------
       ! label_Advance
-      procedure :: advance
+      procedure :: advance_
       ! label_WriteRestart
       procedure :: write_restart
       ! label_AdvanceClock
@@ -105,7 +109,7 @@ contains
 
    end function construct_meta_model
 
-   subroutine init(this, rc)
+   subroutine init_user_gc(this, rc)
       class(NuopcMetaModel), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
@@ -116,7 +120,7 @@ contains
       !wdb fixme deleteme Do we set the logger?
       _RETURN(_SUCCESS)
 
-   end subroutine init
+   end subroutine init_user_gc
 
    subroutine setServices_(this, rc)
       class(NuopcMetaModel), intent(inout) :: this
@@ -133,7 +137,6 @@ contains
          allocate(this%user_setservices, source=user_setservices)
       end associate
       user_gridcomp = this%user_gc_driver%get_gridcomp()
-      call attach_inner_meta(user_gridcomp, this%self_model, _RC)
       call this%user_setservices%run(user_gridcomp, _RC)
 
       _RETURN(_SUCCESS)
@@ -280,7 +283,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine data_initialize
 
-   subroutine advance(this, phaseLabel, unusable, rc)
+   subroutine advance_(this, phaseLabel, unusable, rc)
       class(NuopcMetaModel), intent(inout) ::  this
       character(ESMF_MAXSTR), intent(in) :: phaseLabel
       class(KeywordEnforcer), optional, intent(out) :: unusable
@@ -299,7 +302,7 @@ contains
       call ESMF_GridCompGet(this%self_model, currentPhase=currentPhase, _RC)
       call nuopc_GridCompSearchRevPhaseMap(model, ESMF_METHOD_RUN, currentPhase, phaseLabel=phaseLabel, _RC)
       
-      phase = get_phase_index(run_phases, phase_name, found=found)
+      phase = get_phase_index(run_phases, phase_label, found=found)
 
       call ESMF_GridCompGet(this%self_model, clock=clock, _RC)
       call ESMF_ClockGet(clock, currTime=currTime, _RC)
@@ -316,18 +319,17 @@ contains
 
 !      logger => this%get_logger()
       !wdb fixme deleteme Need to reactivate
-      !call logger%info(phase_name//": starting...")
-      call this%start_timer(phase_name)
+      !call logger%info(phase_label//": starting...")
+      call this%start_timer(phase_label)
       call this%user_gc_driver%run(phase_idx=phase, _RC)
-      call this%stop_timer(phase_name)
+      call this%stop_timer(phase_label)
       !wdb fixme deleteme Need to reactivate
-      !call logger%info(phase_name//": ...completed")
+      !call logger%info(phase_label//": ...completed")
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine advance
-   
+   end subroutine advance_
 
    subroutine advance_clock(this, modelClock, unusable, rc)
       class(NuopcMetaModel), intent(inout) :: this
@@ -343,7 +345,7 @@ contains
       integer :: phase
       type(ESMF_Time) :: currTime
 
-      call nuopc_ModelGet(this%self_model, modelClock=modelClock, RC)
+      call nuopc_ModelGet(this%self_model, modelClock=modelClock, _RC)
       call ESMF_ClockGet(modelClock, currTime=currTime, _RC)
       if (this%run_if_alarm_rings_next) then
          call ESMF_ClockGetNextTime(clock, nextTime=currTime, _RC)
@@ -552,5 +554,18 @@ contains
       has_geom = allocated(this%geom)
 
    end function has_geom
+
+   function get_name(this, rc) result(name_)
+      character(len=:), allocatable :: name_
+      class(NuopcMetaModel), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+      character(len=ESMF_MAXSTR) :: buffer
+      call ESMF_GridCompGet(this%self_model, name_=buffer, _RC)
+      name_=trim(buffer)
+
+      _RETURN(_SUCCESS)
+
+   end function get_name
 
 end module mapl_NuopcMetaModel_mod
