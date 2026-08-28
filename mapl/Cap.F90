@@ -296,6 +296,8 @@ contains
       type(esmf_HConfig) :: app_hconfig
       character(:), allocatable :: config_file
 
+      class(Logger), pointer :: lgr
+
       has_cap = esmf_HConfigIsDefined(hconfig, keystring='cap', _RC)
       if (has_cap) then
          cap_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap', _RC)
@@ -315,10 +317,9 @@ contains
          call esmf_HConfigDestroy(app_hconfig, _RC)
       end if
 
-      call logging%warning('No cap entry or app.config entry found in root config; this is a configuration error.')
-      _ASSERT(.false., 'No cap entry or app.config entry found in root config')
-      cap_hconfig = esmf_HConfigCreate(content='{}', _RC)
-      _RETURN(_SUCCESS)
+      lgr => logging%get_logger('MAPL')
+      call lgr%warning('No cap entry or app.config entry found in root config; this is a configuration error.')
+      _FAIL('No cap entry or app.config entry found in root config')
    end function resolve_cap_hconfig
 
    function make_driver(clock, hconfig, options, rc) result(driver)

@@ -307,6 +307,7 @@ contains
       logical :: has_pflogger_cfg_file
       logical :: file_exists
       character(:), allocatable :: pflogger_cfg_file
+      class(Logger), pointer :: lgr
 
       call pfl_initialize()
       get_sim_time => fill_time_dict
@@ -320,7 +321,8 @@ contains
             _RETURN(_SUCCESS)
          end if
 
-         call logging%warning('pflogger config file not found: "' // trim(pflogger_cfg_file) // '"; using defaults.')
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning('pflogger config file not found: "' // trim(pflogger_cfg_file) // '"; using defaults.')
       end if
 
       call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
@@ -537,7 +539,6 @@ contains
        integer, allocatable :: model_pets(:), server_pets(:)
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
       character(ESMF_MAXSTR), allocatable :: server_names(:)
-      class(Logger), pointer :: lgr
       type(ServerResources) :: srv_resources
 
       num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
