@@ -305,6 +305,7 @@ contains
       integer :: status
       integer :: world_comm
       logical :: has_pflogger_cfg_file
+      logical :: file_exists
       character(:), allocatable :: pflogger_cfg_file
 
       call pfl_initialize()
@@ -313,8 +314,11 @@ contains
       has_pflogger_cfg_file = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring="pflogger_cfg_file", _RC)
       if (has_pflogger_cfg_file) then
          pflogger_cfg_file = ESMF_HConfigAsString(this%mapl_hconfig, keystring="pflogger_cfg_file", _RC)
-         call logging%load_file(pflogger_cfg_file)
-         _RETURN(_SUCCESS)
+         inquire(file=trim(pflogger_cfg_file), exist=file_exists)
+         if (file_exists) then
+            call logging%load_file(pflogger_cfg_file)
+            _RETURN(_SUCCESS)
+         end if
       end if
 
       call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
