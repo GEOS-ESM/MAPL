@@ -925,6 +925,7 @@ contains
                select type (typed_server => server_ptr)
                type is (AsyncInputServer)
                   call typed_server%stop_reader_pool(_RC)
+                  call typed_server%release_runtime(_RC)
                end select
             end if
          end if

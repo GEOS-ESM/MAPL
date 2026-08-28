@@ -12,9 +12,10 @@ module pFIO_AsyncInputServerMod
    use pFIO_UtilitiesMod, only: word_size
    use pFIO_MessageVectorMod
    use pFIO_MessageVectorUtilMod
-   use pFIO_CollectivePrefetchDataMessageMod
-   use pFIO_LocalMemReferenceMod
-   use pFIO_NetCDF4_FileFormatterMod
+    use pFIO_CollectivePrefetchDataMessageMod
+    use pFIO_LocalMemReferenceMod
+    use pFIO_ShmemReferenceMod
+    use pFIO_NetCDF4_FileFormatterMod
    use pFIO_ServerThreadMod
    use pFIO_ServerThreadVectorMod
    use pFIO_BaseServerMod
@@ -25,11 +26,13 @@ module pFIO_AsyncInputServerMod
 
    public :: AsyncInputServer
 
-   integer, parameter :: ASYNC_INPUT_CMD_READ = 1
-   integer, parameter :: ASYNC_INPUT_CMD_TERMINATE = -1
-   integer, parameter :: ASYNC_INPUT_TAG_CMD = 4701
-   integer, parameter :: ASYNC_INPUT_TAG_SIZE = 4702
-   integer, parameter :: ASYNC_INPUT_TAG_BUFFER = 4703
+    integer, parameter :: ASYNC_INPUT_CMD_READ = 1
+    integer, parameter :: ASYNC_INPUT_CMD_PREPARE_CACHE = 2
+    integer, parameter :: ASYNC_INPUT_CMD_TERMINATE = -1
+    integer, parameter :: ASYNC_INPUT_TAG_CMD = 4701
+    integer, parameter :: ASYNC_INPUT_TAG_SIZE = 4702
+    integer, parameter :: ASYNC_INPUT_TAG_BUFFER = 4703
+    integer, parameter :: ASYNC_INPUT_TAG_CACHE_SIZE = 4704
 
     type, extends(BaseServer) :: AsyncInputServer
       character(len=:), allocatable :: port_name
@@ -48,12 +51,14 @@ module pFIO_AsyncInputServerMod
       integer :: cache_type_kind = 0
       integer, allocatable :: cache_start(:)
       integer, allocatable :: cache_count(:)
-      integer, allocatable :: cache_words(:)
+      type(ShmemReference), allocatable :: cache_reference
+      integer(INT64) :: cache_capacity_words = 0
       integer :: cache_hits = 0
       integer :: cache_misses = 0
       contains
        procedure :: start
         procedure :: stop_reader_pool
+        procedure :: release_runtime
         procedure :: service_collective_prefetch
       end type AsyncInputServer
 
@@ -166,7 +171,8 @@ contains
       class(ServerThread), pointer :: thread_ptr => null()
       integer :: i, client_size
       logical, allocatable :: mask(:)
-      integer :: status, ierr, cmd, source_rank, buffer_size, msize_word
+       integer :: status, ierr, cmd, source_rank, buffer_size, msize_word
+       integer(INT64) :: desired_words
       integer :: mpi_status(MPI_STATUS_SIZE)
       integer, allocatable :: buffer(:)
       type(CollectivePrefetchDataMessage) :: request
@@ -178,9 +184,16 @@ contains
             call MPI_Recv(cmd, 1, MPI_INTEGER, MPI_ANY_SOURCE, ASYNC_INPUT_TAG_CMD, this%comm, mpi_status, ierr)
             _VERIFY(ierr)
             if (cmd == ASYNC_INPUT_CMD_TERMINATE) exit
-            _ASSERT(cmd == ASYNC_INPUT_CMD_READ, 'unknown async input command')
 
             source_rank = mpi_status(MPI_SOURCE)
+            if (cmd == ASYNC_INPUT_CMD_PREPARE_CACHE) then
+               call MPI_Recv(desired_words, 1, MPI_INTEGER8, source_rank, ASYNC_INPUT_TAG_CACHE_SIZE, this%comm, mpi_status, ierr)
+               _VERIFY(ierr)
+               call ensure_shared_cache_capacity(this, desired_words, _RC)
+               cycle
+            end if
+            _ASSERT(cmd == ASYNC_INPUT_CMD_READ, 'unknown async input command')
+
             call MPI_Recv(buffer_size, 1, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_SIZE, this%comm, mpi_status, ierr)
             _VERIFY(ierr)
             allocate(buffer(buffer_size))
@@ -271,8 +284,17 @@ contains
           end do
        end if
 
+        _RETURN(_SUCCESS)
+      end subroutine stop_reader_pool
+
+     subroutine release_runtime(this, rc)
+       class(AsyncInputServer), intent(inout) :: this
+       integer, optional, intent(out) :: rc
+       integer :: status
+
+       call finalize_runtime(this, _RC)
        _RETURN(_SUCCESS)
-     end subroutine stop_reader_pool
+     end subroutine release_runtime
 
     subroutine service_collective_prefetch(this, request_backlog, connection, handled, rc)
        class(AsyncInputServer), intent(inout) :: this
@@ -285,7 +307,8 @@ contains
        class(AbstractMessage), pointer :: msg
        type(CollectivePrefetchDataMessage) :: request
        integer, allocatable :: buffer(:)
-       integer :: buffer_size, reader_rank, ierr, msize_word, status
+        integer :: buffer_size, reader_rank, ierr, status
+        integer(INT64) :: msize_word
        integer, pointer :: i_ptr(:)
        type(LocalMemReference) :: mem_data_reference
        class(AbstractRequestHandle), allocatable :: handle
@@ -302,23 +325,24 @@ contains
           select type (q => msg)
           type is (CollectivePrefetchDataMessage)
              request = q
-             reader_rank = this%reader_ranks_on_node(mod(this%model_node_rank, size(this%reader_ranks_on_node)) + 1)
-             buffer_size = request%get_length()
-             allocate(buffer(buffer_size))
-             call request%serialize(buffer, _RC)
+              reader_rank = this%reader_ranks_on_node(mod(this%model_node_rank, size(this%reader_ranks_on_node)) + 1)
+              msize_word = word_size(q%type_kind)*product(int(q%count, INT64))
+              call prepare_shared_cache(this, msize_word, _RC)
+              buffer_size = request%get_length()
+              allocate(buffer(buffer_size))
+              call request%serialize(buffer, _RC)
              call MPI_Send(ASYNC_INPUT_CMD_READ, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_CMD, this%comm, ierr)
              _VERIFY(ierr)
              call MPI_Send(buffer_size, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_SIZE, this%comm, ierr)
              _VERIFY(ierr)
              call MPI_Send(buffer, buffer_size, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
-             _VERIFY(ierr)
-             deallocate(buffer)
+              _VERIFY(ierr)
+              deallocate(buffer)
 
-             mem_data_reference = LocalMemReference(q%type_kind, q%count)
-             msize_word = word_size(q%type_kind)*product(int(q%count, INT64))
-             call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
-             call MPI_Recv(i_ptr, msize_word, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, MPI_STATUS_IGNORE, ierr)
-             _VERIFY(ierr)
+              mem_data_reference = LocalMemReference(q%type_kind, q%count)
+              call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
+              call MPI_Recv(i_ptr, msize_word, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, MPI_STATUS_IGNORE, ierr)
+              _VERIFY(ierr)
 
              handle = connection%put(q%request_id, mem_data_reference)
              call handle%wait()
@@ -400,44 +424,104 @@ contains
        integer, optional, intent(out) :: rc
 
        integer(INT64) :: msize_word
-       integer, pointer :: i_ptr(:)
+       integer, pointer :: i_ptr(:), cache_ptr(:)
 
-       this%cache_file_name = request%file_name
-       this%cache_var_name = request%var_name
-       this%cache_type_kind = request%type_kind
-       this%cache_start = request%start
-       this%cache_count = request%count
+        this%cache_file_name = request%file_name
+        this%cache_var_name = request%var_name
+        this%cache_type_kind = request%type_kind
+        this%cache_start = request%start
+        this%cache_count = request%count
 
-       msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
-       call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
-       if (allocated(this%cache_words)) deallocate(this%cache_words)
-       allocate(this%cache_words(msize_word))
-       this%cache_words = i_ptr
-       this%cache_valid = .true.
+        msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
+        _ASSERT(allocated(this%cache_reference), 'shared cache must be allocated before update_cache')
+        _ASSERT(msize_word <= this%cache_capacity_words, 'shared cache capacity too small in update_cache')
+        call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
+        call c_f_pointer(this%cache_reference%base_address, cache_ptr, [this%cache_capacity_words])
+        cache_ptr(1:msize_word) = i_ptr
+        this%cache_valid = .true.
 
-       _RETURN(_SUCCESS)
+        _RETURN(_SUCCESS)
      end subroutine update_cache
 
-     subroutine load_cache_into_mem(this, mem_data_reference, rc)
-       class(AsyncInputServer), intent(in) :: this
-       type(LocalMemReference), intent(inout) :: mem_data_reference
+      subroutine load_cache_into_mem(this, mem_data_reference, rc)
+       class(AsyncInputServer), intent(inout) :: this
+        type(LocalMemReference), intent(inout) :: mem_data_reference
+        integer, optional, intent(out) :: rc
+
+        integer, pointer :: i_ptr(:), cache_ptr(:)
+
+        _ASSERT(this%cache_valid, 'cache must be valid before load_cache_into_mem')
+        _ASSERT(allocated(this%cache_reference), 'shared cache must be allocated before load_cache_into_mem')
+        _ASSERT(allocated(this%cache_count), 'cache count must be allocated before load_cache_into_mem')
+        call c_f_pointer(mem_data_reference%base_address, i_ptr, [product(int(this%cache_count, INT64))*word_size(this%cache_type_kind)])
+        call c_f_pointer(this%cache_reference%base_address, cache_ptr, [this%cache_capacity_words])
+        i_ptr = cache_ptr(1:size(i_ptr))
+
+        _RETURN(_SUCCESS)
+     end subroutine load_cache_into_mem
+
+     subroutine prepare_shared_cache(this, desired_words, rc)
+       class(AsyncInputServer), intent(inout) :: this
+       integer(INT64), intent(in) :: desired_words
        integer, optional, intent(out) :: rc
 
-       integer, pointer :: i_ptr(:)
+       integer :: i, status
 
-       _ASSERT(this%cache_valid, 'cache must be valid before load_cache_into_mem')
-       _ASSERT(allocated(this%cache_words), 'cache words must be allocated before load_cache_into_mem')
-       call c_f_pointer(mem_data_reference%base_address, i_ptr, [size(this%cache_words)])
-       i_ptr = this%cache_words
+       if (desired_words <= this%cache_capacity_words) then
+          _RETURN(_SUCCESS)
+       end if
+
+       _ASSERT(this%model_npes_on_node == 1, 'shared-memory cache currently supports one model PE per node')
+       _ASSERT(this%model_comm /= MPI_COMM_NULL, 'prepare_shared_cache should only be called on model/front ranks')
+
+       do i = 1, size(this%reader_ranks_on_node)
+          call MPI_Send(ASYNC_INPUT_CMD_PREPARE_CACHE, 1, MPI_INTEGER, this%reader_ranks_on_node(i), &
+               ASYNC_INPUT_TAG_CMD, this%comm, status)
+          _VERIFY(status)
+          call MPI_Send(desired_words, 1, MPI_INTEGER8, this%reader_ranks_on_node(i), &
+               ASYNC_INPUT_TAG_CACHE_SIZE, this%comm, status)
+          _VERIFY(status)
+       end do
+       call ensure_shared_cache_capacity(this, desired_words, _RC)
 
        _RETURN(_SUCCESS)
-     end subroutine load_cache_into_mem
+     end subroutine prepare_shared_cache
+
+     subroutine ensure_shared_cache_capacity(this, desired_words, rc)
+       class(AsyncInputServer), intent(inout) :: this
+       integer(INT64), intent(in) :: desired_words
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+
+       if (desired_words <= this%cache_capacity_words) then
+          _RETURN(_SUCCESS)
+       end if
+
+       if (allocated(this%cache_reference)) then
+          call this%cache_reference%deallocate(status)
+          _VERIFY(status)
+          deallocate(this%cache_reference)
+       end if
+       allocate(this%cache_reference, source=ShmemReference(pFIO_INT32, desired_words, this%node_comm, rc=status))
+       _VERIFY(status)
+       this%cache_capacity_words = desired_words
+       this%cache_valid = .false.
+
+       _RETURN(_SUCCESS)
+     end subroutine ensure_shared_cache_capacity
 
      subroutine finalize_runtime(this, rc)
        class(AsyncInputServer), intent(inout) :: this
        integer, optional, intent(out) :: rc
 
        integer :: status
+
+       if (allocated(this%cache_reference)) then
+          call this%cache_reference%deallocate(status)
+          _VERIFY(status)
+          deallocate(this%cache_reference)
+       end if
 
        if (this%model_node_comm /= MPI_COMM_NULL) then
           call MPI_Comm_free(this%model_node_comm, status)
@@ -449,14 +533,14 @@ contains
           _VERIFY(status)
           this%node_comm = MPI_COMM_NULL
        end if
-       if (allocated(this%cache_words)) deallocate(this%cache_words)
-       if (allocated(this%cache_start)) deallocate(this%cache_start)
-       if (allocated(this%cache_count)) deallocate(this%cache_count)
-       if (allocated(this%cache_file_name)) deallocate(this%cache_file_name)
-       if (allocated(this%cache_var_name)) deallocate(this%cache_var_name)
-       this%cache_valid = .false.
+        if (allocated(this%cache_start)) deallocate(this%cache_start)
+        if (allocated(this%cache_count)) deallocate(this%cache_count)
+        if (allocated(this%cache_file_name)) deallocate(this%cache_file_name)
+        if (allocated(this%cache_var_name)) deallocate(this%cache_var_name)
+        this%cache_valid = .false.
+        this%cache_capacity_words = 0
 
-       _RETURN(_SUCCESS)
+        _RETURN(_SUCCESS)
      end subroutine finalize_runtime
 
 end module pFIO_AsyncInputServerMod
