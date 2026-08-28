@@ -266,7 +266,7 @@ contains
          has_model_petcount = ESMF_HConfigIsDefined(mapl_hconfig, keystring='model_petcount', _RC)
          has_app_petcount = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
          if (.not. has_model_petcount .and. has_app_petcount) then
-             app_petcount = ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC)
+            app_petcount = ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC)
             call ESMF_HConfigAdd(mapl_hconfig, content=app_petcount, &
                  addKeyString='model_petcount', _RC)
          end if
