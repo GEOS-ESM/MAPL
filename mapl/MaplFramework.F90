@@ -307,6 +307,7 @@ contains
       logical :: has_pflogger_cfg_file
       logical :: file_exists
       character(:), allocatable :: pflogger_cfg_file
+      type(Logger), pointer :: lgr
 
       call pfl_initialize()
       get_sim_time => fill_time_dict
@@ -319,6 +320,9 @@ contains
             call logging%load_file(pflogger_cfg_file)
             _RETURN(_SUCCESS)
          end if
+
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning('pflogger config file not found: "' // trim(pflogger_cfg_file) // '"; using defaults.')
       end if
 
       call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
