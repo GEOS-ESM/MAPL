@@ -607,6 +607,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, alloc_stat
+      integer :: world_comm
       class(BaseServer), allocatable :: tmp
       class(BaseServer), pointer :: srv
       class(ClientThread), allocatable :: new_client
@@ -624,11 +625,12 @@ contains
       ! Allocate appropriate server subclass.
       select case (trim(subclass_name))
       case ('MpiServer')
-         allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
-         _VERIFY(status)
-         _VERIFY(alloc_stat)
+          allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
+          _VERIFY(status)
+          _VERIFY(alloc_stat)
       case ('AsyncInputServer')
-         allocate(tmp, source=AsyncInputServer(this%model_comm, server_name, model_comm=this%model_comm, rc=status), stat=alloc_stat)
+         call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
+         allocate(tmp, source=AsyncInputServer(world_comm, server_name, model_comm=this%model_comm, rc=status), stat=alloc_stat)
          _VERIFY(status)
          _VERIFY(alloc_stat)
       case ('MultiGroupServer')
