@@ -294,7 +294,7 @@ contains
       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
       character(:), allocatable :: key
       type(ESMF_HConfig) :: src_val, dst_val
-      logical :: has_key, is_map
+      logical :: has_key, is_map, src_is_map, dst_is_map
 
       _ASSERT(ESMF_HConfigIsMap(dst_hconfig), 'destination hconfig must be a mapping.')
       _ASSERT(ESMF_HConfigIsMap(src_hconfig), 'source hconfig must be a mapping.')
@@ -308,13 +308,15 @@ contains
          key = ESMF_HConfigAsStringMapKey(iter, _RC)
          src_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
          has_key = ESMF_HConfigIsDefined(dst_hconfig, keystring=key, _RC)
+         src_is_map =  ESMF_HConfigIsMap(src_val, _RC)
          if (.not. has_key) then
             call ESMF_HConfigAdd(dst_hconfig, content=src_val, addKeyString=key, _RC)
             cycle
          end if
 
          dst_val = ESMF_HConfigCreateAt(dst_hconfig, keystring=key, _RC)
-         is_map = ESMF_HConfigIsMap(dst_val, _RC) .and. ESMF_HConfigIsMap(src_val, _RC)
+         dst_is_map =  ESMF_HConfigIsMap(dst_val, _RC)
+         is_map =  dst_is_map .and. src_is_map
          if (is_map) then
             call merge_cap_hconfig(dst_val, src_val, _RC)
             call ESMF_HConfigAdd(dst_hconfig, content=dst_val, addKeyString=key, _RC)
