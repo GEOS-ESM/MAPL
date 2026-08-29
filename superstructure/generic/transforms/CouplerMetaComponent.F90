@@ -305,9 +305,9 @@ contains
             end if
          else
             if (geom_in /= this%time_varying%geom_in .or. geom_out /= this%time_varying%geom_out) then
-               call this%transform%initialize(importState, exportState, clock, _RC)
-               this%time_varying%geom_in = geom_in
-               this%time_varying%geom_out = geom_out
+                call this%transform%initialize(importState, exportState, clock, _RC)
+                this%time_varying%geom_in = geom_in
+                this%time_varying%geom_out = geom_out
             end if
          end if
 
@@ -339,9 +339,9 @@ contains
             end if
          else
             if (geom_in /= this%time_varying%geom_in .or. geom_out /= this%time_varying%geom_out) then
-               call this%transform%initialize(importState, exportState, clock, _RC)
-               this%time_varying%geom_in = geom_in
-               this%time_varying%geom_out = geom_out
+                call this%transform%initialize(importState, exportState, clock, _RC)
+                this%time_varying%geom_in = geom_in
+                this%time_varying%geom_out = geom_out
             end if
          end if
 

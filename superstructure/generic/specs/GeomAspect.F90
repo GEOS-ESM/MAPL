@@ -146,11 +146,11 @@ contains
       class is (GeomAspect)
          if (src%is_mirror()) then
             matches = .false. ! need geom extension
-         else if (src%geom_id%is_assigned() .and. dst%geom_id%is_assigned()) then
-            matches = (src%geom_id%get_value() == dst%geom_id%get_value()) .and. &
-                 (src%horizontal_dims_spec == dst%horizontal_dims_spec)
          else if (allocated(src%geom) .and. allocated(dst%geom)) then
             matches = MAPL_SameGeom(src%geom, dst%geom) .and. &
+                 (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+         else if (src%geom_id%is_assigned() .and. dst%geom_id%is_assigned()) then
+            matches = (src%geom_id%get_value() == dst%geom_id%get_value()) .and. &
                  (src%horizontal_dims_spec == dst%horizontal_dims_spec)
          else
             matches = .false.
@@ -213,7 +213,7 @@ contains
       type(mapl_GeomId), intent(in) :: geom_id
 
       this%geom_id = geom_id
-      call this%set_mirror((.not. allocated(this%geom)) .and. (.not. this%geom_id%is_assigned()))
+      call this%set_mirror(.not. allocated(this%geom))
    end subroutine set_geom_id
 
    subroutine set_regridder_param(this, regridder_param)
@@ -268,7 +268,7 @@ contains
        else if (allocated(this%geom)) then
           deallocate(this%geom)
        end if
-       call this%set_mirror((.not. allocated(this%geom)) .and. (.not. this%geom_id%is_assigned()))
+       call this%set_mirror(.not. allocated(this%geom))
 
        _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
@@ -343,7 +343,7 @@ contains
          if (allocated(this%regridder_param)) deallocate(this%regridder_param)
       end if
 
-       call this%set_mirror((.not. allocated(this%geom)) .and. (.not. this%geom_id%is_assigned()))
+       call this%set_mirror(.not. allocated(this%geom))
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
@@ -364,14 +364,24 @@ contains
       if (allocated(this%regridder_param)) then
          regridder_param_info = this%regridder_param%make_info(_RC)
       end if
-      if (present(field)) then
-         call mapl_FieldSet(field, &
-              geom=this%geom, &
-              horizontal_dims_spec=this%horizontal_dims_spec, &
-              regridder_param_info=regridder_param_info, _RC)
-      else if (present(bundle)) then
-         call mapl_FieldBundleSet(bundle, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
-      end if
+       if (present(field)) then
+          if (allocated(this%geom)) then
+             call mapl_FieldSet(field, &
+                  geom=this%geom, &
+                  horizontal_dims_spec=this%horizontal_dims_spec, &
+                  regridder_param_info=regridder_param_info, _RC)
+          else
+             call mapl_FieldSet(field, &
+                  horizontal_dims_spec=this%horizontal_dims_spec, &
+                  regridder_param_info=regridder_param_info, _RC)
+          end if
+       else if (present(bundle)) then
+          if (allocated(this%geom)) then
+             call mapl_FieldBundleSet(bundle, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
+          else
+             call mapl_FieldBundleSet(bundle, regridder_param_info=regridder_param_info, _RC)
+          end if
+       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)

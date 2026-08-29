@@ -563,12 +563,13 @@ contains
       else
          if (present(component_geom)) then
             geom_ = component_geom
-         end if
-
-         if (this%geom_id%is_assigned()) then
+            if (this%geom_id%is_assigned()) then
+               geom_id_ = this%geom_id
+            else if (present(component_geom_id)) then
+               geom_id_ = component_geom_id
+            end if
+         else if (this%geom_id%is_assigned()) then
             geom_id_ = this%geom_id
-         else if (present(component_geom_id)) then
-            geom_id_ = component_geom_id
          end if
       end if
 

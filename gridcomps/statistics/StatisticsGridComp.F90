@@ -40,7 +40,7 @@ contains
       type(mapl_CheckpointControls) :: restart_controls
 
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize, phase_name='GENERIC::INIT_REALIZE', _RC)
+      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize, phase_name='GENERIC::INIT_REALIZE_PROVIDED', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
@@ -456,4 +456,3 @@ subroutine setServices(gridComp, rc)
 
    _RETURN(_SUCCESS)
 end subroutine setServices
-
