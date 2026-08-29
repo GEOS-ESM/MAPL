@@ -95,7 +95,9 @@ module mapl_OuterMetaComponent_mod
       procedure :: initialize_advertise
       procedure :: advertise_variable
       procedure :: initialize_modify_advertised
-      procedure :: initialize_realize
+      procedure :: initialize_realize_provided
+      procedure :: initialize_accept_transfer
+      procedure :: initialize_realize_accepted
       procedure :: initialize_read_restart
 
       procedure :: run_user
@@ -311,15 +313,34 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised
 
-      module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(ESMF_State) :: importState
-         type(ESMF_State) :: exportState
-         type(ESMF_Clock) :: clock
-        ! optional arguments
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine initialize_realize
+      module recursive subroutine initialize_realize_provided(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+         ! optional arguments
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_realize_provided
+
+      module recursive subroutine initialize_accept_transfer(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_accept_transfer
+
+      module recursive subroutine initialize_realize_accepted(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+         ! optional arguments
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_realize_accepted
 
       module recursive subroutine initialize_read_restart(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
