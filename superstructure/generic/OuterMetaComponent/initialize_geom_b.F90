@@ -2,7 +2,6 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_geom_b_smod
    use mapl_enums_api, only: MAPL_GENERIC_INIT_GEOM_B
-   use mapl_GeometrySpec_mod
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -15,36 +14,14 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM_B'
-      
-      call apply_to_children(this, set_child_geom, _RC)
-      call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_B, _RC)
+       integer :: status
+       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GEOM_B'
+       
+       call this%propagate_geom_to_children(_RC)
+       call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_B, _RC)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   contains
-      
-      subroutine set_child_geom(this, child_meta, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(OuterMetaComponent), target, intent(inout) ::  child_meta
-         integer, optional, intent(out) :: rc
-         
-         associate(kind => child_meta%component_spec%geometry_spec%kind)
-            _RETURN_IF(kind /= GEOMETRY_FROM_PARENT)
-
-            child_meta%geom_id = this%geom_id
-            if (allocated(this%geom)) then
-               call child_meta%set_geom(this%geom)
-            end if
-           if (allocated(this%vertical_grid)) then
-              call child_meta%set_vertical_grid(this%vertical_grid)
-           end if
-         end associate
-      
-         _RETURN(ESMF_SUCCESS)
-      end subroutine set_child_geom
-
+       _RETURN(_SUCCESS)
+       _UNUSED_DUMMY(unusable)
    end subroutine initialize_geom_b
 
 end submodule initialize_geom_b_smod
