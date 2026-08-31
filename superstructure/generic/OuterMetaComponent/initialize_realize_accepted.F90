@@ -15,10 +15,10 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-       integer :: status
-       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE_ACCEPTED'
-       call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE_ACCEPTED, _RC)
-       call this%registry%allocate(_RC)
+      integer :: status
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE_ACCEPTED'
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE_ACCEPTED, _RC)
+      call this%registry%allocate(_RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       _RETURN(ESMF_SUCCESS)
