@@ -390,13 +390,11 @@ contains
       integer :: status
       integer :: rank
 
-      _HERE
       element_count = [integer :: ] ! must allocate even under failure
       call ESMF_FieldGet(x, rank=rank, _RC)
 
       deallocate(element_count)
       allocate(element_count(rank))
-
       ! ESMF has a big fat bug with multi tile grids and loal element count
       !call ESMF_FieldGet(x, localElementCount=element_count, _RC)
       ! until it is fixed we must kluge :(

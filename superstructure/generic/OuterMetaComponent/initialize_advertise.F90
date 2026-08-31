@@ -53,14 +53,14 @@ contains
       type(VariableSpecVectorIterator) :: iter
       type(VariableSpec), pointer :: var_spec
 
-         associate (e => this%component_spec%var_specs%end())
-           iter = this%component_spec%var_specs%begin()
-           do while (iter /= e)
-              var_spec => iter%of()
-              call this%advertise_variable(var_spec, _RC)
-              call iter%next()
-           end do
-         end associate
+      associate (e => this%component_spec%var_specs%end())
+        iter = this%component_spec%var_specs%begin()
+        do while (iter /= e)
+           var_spec => iter%of()
+           call this%advertise_variable(var_spec, _RC)
+           call iter%next()
+        end do
+      end associate
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
