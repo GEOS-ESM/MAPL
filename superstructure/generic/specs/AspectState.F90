@@ -12,6 +12,7 @@ module mapl_AspectState_mod
    public :: ASPECT_STATE_SPECIFIED
    public :: ASPECT_STATE_MIRRORED
    public :: ASPECT_STATE_DEFERRED
+   public :: ASPECT_STATE_UNCHECKED
 
    type :: AspectState
       private
@@ -25,6 +26,7 @@ module mapl_AspectState_mod
    type(AspectState), parameter :: ASPECT_STATE_SPECIFIED = AspectState(2)
    type(AspectState), parameter :: ASPECT_STATE_MIRRORED  = AspectState(3)
    type(AspectState), parameter :: ASPECT_STATE_DEFERRED  = AspectState(4)
+   type(AspectState), parameter :: ASPECT_STATE_UNCHECKED = AspectState(5)
 
    interface operator(==)
       procedure :: equals
@@ -63,6 +65,8 @@ contains
          str = 'MIRRORED'
       case (ASPECT_STATE_DEFERRED%value)
          str = 'DEFERRED'
+      case (ASPECT_STATE_UNCHECKED%value)
+         str = 'UNCHECKED'
       case default
          str = 'UNKNOWN'
       end select

@@ -89,6 +89,7 @@ module mapl_StateItemAspect_mod
       procedure, non_overridable :: is_from_component
       procedure, non_overridable :: is_specified
       procedure, non_overridable :: is_deferred_state
+      procedure, non_overridable :: is_unchecked
       procedure, non_overridable :: is_time_dependent
       procedure, non_overridable :: set_time_dependent
 
@@ -273,7 +274,7 @@ contains
        type(AspectState), intent(in) :: characteristic_state
 
        this%characteristic_state = characteristic_state
-       this%mirror = (characteristic_state == ASPECT_STATE_MIRRORED)
+       this%mirror = characteristic_state == ASPECT_STATE_MIRRORED
     end subroutine set_characteristic_state
 
     logical function is_from_component(this)
@@ -290,6 +291,11 @@ contains
        class(StateItemAspect), intent(in) :: this
        is_deferred_state = this%characteristic_state == ASPECT_STATE_DEFERRED
     end function is_deferred_state
+
+    logical function is_unchecked(this)
+       class(StateItemAspect), intent(in) :: this
+       is_unchecked = this%characteristic_state == ASPECT_STATE_UNCHECKED
+    end function is_unchecked
 
    logical function is_time_dependent(this)
       class(StateItemAspect), intent(in) :: this
@@ -337,5 +343,3 @@ contains
 #undef Key
 #undef KEY_LT
 end module mapl_StateItemAspect_mod
-
-

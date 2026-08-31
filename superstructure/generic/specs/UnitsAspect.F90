@@ -4,6 +4,7 @@ module mapl_UnitsAspect_mod
 
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
+   use mapl_AspectState_mod
    use mapl_StateItemAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_ConvertUnitsTransform_mod
@@ -59,10 +60,10 @@ contains
       character(*), optional, intent(in) :: units
       logical, optional, intent(in) :: is_time_dependent
 
-      call aspect%set_mirror(.true.)
-      if (present(units)) then
-         aspect%units = units
-         call aspect%set_mirror(.false.)
+       call aspect%set_characteristic_state(ASPECT_STATE_UNCHECKED)
+       if (present(units)) then
+          aspect%units = units
+          call aspect%set_characteristic_state(ASPECT_STATE_SPECIFIED)
       end if
       call aspect%set_mirror(is_time_dependent)
 
@@ -100,9 +101,15 @@ contains
 
       select type(dst)
       class is (UnitsAspect)
+         matches = .false.
+         if (src%is_unchecked() .or. dst%is_unchecked()) then
+            matches = .true.
+            return
+         end if
+         if (.not. allocated(src%units) .or. .not. allocated(dst%units)) return
          matches = (src%units == dst%units) .or. &
-                   (src%units == "<unknown>") .or. &
-                   (dst%units == "<unknown>")
+              (src%units == "<unknown>") .or. &
+              (dst%units == "<unknown>")
       class default
          matches = .false.
       end select
@@ -136,8 +143,9 @@ contains
       type(UnitsAspect) :: export_
       integer :: status
 
-      export_ = to_UnitsAspect(export, _RC)
-      this%units = export_%units
+       export_ = to_UnitsAspect(export, _RC)
+       this%units = export_%units
+       call this%set_characteristic_state(export_%get_characteristic_state())
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
@@ -195,6 +203,13 @@ contains
       integer, optional, intent(out) :: rc
 
       this%units = units
+      if (units == IS_MIRROR) then
+         call this%set_characteristic_state(ASPECT_STATE_MIRRORED)
+      else if (units == '<unknown>') then
+         call this%set_characteristic_state(ASPECT_STATE_UNCHECKED)
+      else
+         call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine set_units
@@ -217,9 +232,19 @@ contains
          call mapl_FieldBundleGet(bundle, units=this%units, _RC)
       end if
 
-      mirror = .not. allocated(this%units)
-      if(.not. mirror) mirror = this%units == IS_MIRROR
-      call this%set_mirror(mirror)
+       mirror = .false.
+       if (allocated(this%units)) mirror = this%units == IS_MIRROR
+       if (mirror) then
+          call this%set_characteristic_state(ASPECT_STATE_MIRRORED)
+       else
+          if (.not. allocated(this%units)) then
+             call this%set_characteristic_state(ASPECT_STATE_UNCHECKED)
+          else if (this%units == '<unknown>') then
+             call this%set_characteristic_state(ASPECT_STATE_UNCHECKED)
+          else
+             call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+          end if
+       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)
@@ -238,8 +263,9 @@ contains
 
       _RETURN_UNLESS(present(field) .or. present(bundle))
 
-      units = IS_MIRROR
-      if(.not. this%is_mirror()) units = this%units
+       units = IS_MIRROR
+       if (this%is_unchecked()) units = '<unknown>'
+       if (this%is_specified() .and. allocated(this%units)) units = this%units
 
       if (present(field)) then
          call mapl_FieldSet(field, units=units, _RC)
