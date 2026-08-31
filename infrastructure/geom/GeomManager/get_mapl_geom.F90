@@ -3,7 +3,6 @@
 submodule (mapl_GeomManager_mod) get_mapl_geom_smod
 
    use mapl_GeomUtilities_mod, only: GeomGetId
-   use mapl_GeomId_mod, only: GeomId
 
    implicit none
 
@@ -15,11 +14,10 @@ contains
       type(MaplGeom), pointer :: mapl_geom
 
       type(GeomManager), pointer :: geom_mgr
-       type(GeomId) :: id
-       integer :: status
+      integer :: id, status
 
       geom_mgr => get_geom_manager()
-       id = GeomGetId(geom, _RC)
+      id = GeomGetId(geom, _RC)
       mapl_geom => geom_mgr%get_mapl_geom(id, _RC)
 
       _RETURN(_SUCCESS)

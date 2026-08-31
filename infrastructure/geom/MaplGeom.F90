@@ -2,7 +2,6 @@
 
 module mapl_MaplGeom_mod
    use mapl_GeomSpec_mod
-   use mapl_GeomId_mod, only: GeomId
    use mapl_VectorBasis_mod
    use mapl_GeomFactory_mod
    use pfio_FileMetadataMod, only: FileMetadata
@@ -33,7 +32,6 @@ module mapl_MaplGeom_mod
       class(GeomSpec), allocatable :: spec
       type(ESMF_Geom) :: geom
       class(GeomFactory), allocatable :: factory
-      type(GeomId) :: geom_id
       type(FileMetadata) :: file_metadata
       type(StringVector) :: gridded_dims ! center staggered
       type(StringDictionary) :: variable_attributes
@@ -42,7 +40,6 @@ module mapl_MaplGeom_mod
       type(VectorBases) :: bases
    contains
       procedure :: set_id
-      procedure :: get_id
       procedure :: get_spec
       procedure :: get_geom
       procedure :: get_factory
@@ -70,16 +67,11 @@ module mapl_MaplGeom_mod
          type(StringDictionary), optional, intent(in) :: variable_attributes
       end function new_MaplGeom
 
-       module subroutine set_id(this, id, rc)
-          class(MaplGeom), intent(inout) :: this
-          type(GeomId), intent(in) :: id
-          integer, optional, intent(out) :: rc
-       end subroutine set_id
-
-       module function get_id(this) result(id)
-          type(GeomId) :: id
-          class(MaplGeom), intent(in) :: this
-       end function get_id
+      module subroutine set_id(this, id, rc)
+         class(MaplGeom), intent(inout) :: this
+         integer, intent(in) :: id
+         integer, optional, intent(out) :: rc
+      end subroutine set_id
 
       module function get_spec(this) result(spec)
          class(GeomSpec), allocatable :: spec
@@ -121,4 +113,5 @@ module mapl_MaplGeom_mod
    end interface
 
 end module mapl_MaplGeom_mod
+
 

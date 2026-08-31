@@ -2,7 +2,6 @@ target_sources(MAPL.geom PRIVATE
 
   new_MaplGeom.F90
   set_id.F90
-  get_id.F90
   get_spec.F90
   get_geom.F90
   get_factory.F90

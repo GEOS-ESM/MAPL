@@ -40,8 +40,7 @@ contains
       type(mapl_CheckpointControls) :: restart_controls
 
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
-!#      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, modify_advertise, phase_name='GENERIC::INIT_ACCEPT_TRANSFER', _RC)
-      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize_accepted, phase_name='GENERIC::INIT_REALIZE_ACCEPTED', _RC)
+      call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_INITIALIZE, realize, phase_name='GENERIC::INIT_REALIZE_PROVIDED', _RC)
       call mapl_GridCompSetEntryPoint(gridComp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       ! Attach private state
@@ -345,7 +344,7 @@ contains
 
    end subroutine modify_advertise
 
-   subroutine realize_accepted(gridcomp, importState, exportState, clock, rc)
+   subroutine realize(gridcomp, importState, exportState, clock, rc)
 
       type(esmf_GridComp) :: gridcomp
       type(esmf_State) :: importState
@@ -360,7 +359,7 @@ contains
       call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
       _RETURN(_SUCCESS)
 
-   end subroutine realize_accepted
+   end subroutine realize
 
    subroutine run(gridcomp, importState, exportState, clock, rc)
       type(esmf_GridComp) :: gridcomp
