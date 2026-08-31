@@ -165,6 +165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Re-export `PackedDateCreate`, `PackedTimeCreate`, `PackedDateTimeCreate`, and
   `StrTemplate` through the top-level `MAPL` umbrella module.
 - `to_string` (`integer_to_string`) added to `mapl_StringUtilities`.
+- Added ACG option to leave vstagger entry blank for 2D fields
 
 ### Changed
 
