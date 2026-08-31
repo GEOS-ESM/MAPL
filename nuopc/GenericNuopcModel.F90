@@ -5,7 +5,7 @@ module mapl_GenericNuopcModel_mod
    use :: mapl_GriddedComponentDriver_mod
    use esmf
    use nuopc
-   use NUOPC_Model, modelSS    => SetServices
+   use NUOPC_Model, modelSS => SetServices
    use :: mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use :: mapl_ErrorHandling_mod
    implicit none(type,external)
@@ -31,8 +31,7 @@ contains
       character(len=ESMF_MAXSTR) :: name
 
       call NUOPC_CompDerive(model, modelSS, _RC)
-      
-      call NUOPC_GridCompGet(model, name=name, _RC)
+      call NUOPC_CompGet(model, name=name, _RC)
       call esmf_GridCompGet(model, hconfig=hconfig, _RC)
       user_gridcomp = ESMF_GridCompCreate(name=trim(name), _RC)
       call set_is_generic(user_gridcomp, flag=.FALSE., _RC)
@@ -51,7 +50,7 @@ contains
       ! ... ridiculous.
       call ridiculous(meta_model, NuopcMetaModel(model, user_gc_driver, hconfig))
 #endif
-      call meta_model%init(_RC)
+      call meta_model%init_user_gc(_RC)
       call meta_model%setServices(_RC)
       call set_entry_points(model, _RC)
 
@@ -64,13 +63,13 @@ contains
          integer, intent(out) :: rc
          integer :: status
          integer :: phase_idx
-
+         character(len=:), pointer :: phase_label
 
          ! Entry points
          ! Initialize specs
          call NUOPC_CompSpecialize(model, specLabel=label_Advertise, specRoutine=Advertise, _RC)
-         call NUOPC_CompSpecialize(model, specLabel=label_ModifyAdvertise, specRoutine=ModifyAdvertise, _RC)
-         call NUOPC_CompSpecialize(model, specLabel=label_RealizeAccept, specRoutine=RealizeAccept, _RC)
+         call NUOPC_CompSpecialize(model, specLabel=label_ModifyAdvertised, specRoutine=ModifyAdvertise, _RC)
+         call NUOPC_CompSpecialize(model, specLabel=label_RealizeAccepted, specRoutine=RealizeAccept, _RC)
          call NUOPC_CompSpecialize(model, specLabel=label_RealizeProvided, specRoutine=RealizeProvided, _RC)
          call NUOPC_CompSpecialize(model, specLabel=label_DataInitialize, specRoutine=DataInitialize, _RC)
          
@@ -81,9 +80,8 @@ contains
          ! User phases
          associate (phases => meta_model%get_phases(ESMF_METHOD_RUN))
            do phase_idx = 1, phases%size()
-              associate(phase_label => phases%of(phase_idx)
-                call NUOPC_CompSpecialize(model, specLabel=label_Advance, specRoutine=Advance, specPhaseLabel=phase_label, _RC)
-              end associate
+             phase_label => phases%of(phase_idx)
+             call NUOPC_CompSpecialize(model, specLabel=label_Advance, specRoutine=Advance, specPhaseLabel=phase_label, _RC)
            end do
          end associate
 
@@ -93,7 +91,6 @@ contains
          _RETURN(ESMF_SUCCESS)
       end subroutine set_entry_points
 
-   contains
 #ifdef __GFORTRAN__
       subroutine ridiculous(a, b)
          type(NuopcMetaModel), intent(out) :: a
@@ -124,7 +121,7 @@ contains
       type(NuopcMetaModel), pointer :: meta_model
 
       meta_model => get_meta_model(model, _RC)
-      call meta_model%modifyAdvertise(_RC)
+      call meta_model%modify_advertise(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine ModifyAdvertise
@@ -137,7 +134,7 @@ contains
       type(NuopcMetaModel), pointer :: meta_model
 
       meta_model => get_meta_model(model, _RC)
-      call meta_model%realizeAccept(_RC)
+      call meta_model%realize_accept(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine RealizeAccept
@@ -150,7 +147,7 @@ contains
       type(NuopcMetaModel), pointer :: meta_model
 
       meta_model => get_meta_model(model, _RC)
-      call meta_model%realizeProvided(_RC)
+      call meta_model%realize_provided(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine RealizeProvided
@@ -168,7 +165,7 @@ contains
       meta_model => get_meta_model(model, _RC)
 
       call meta_model%read_restart(_RC)
-      call meta_model%init_user(_RC)
+      call meta_model%init_user_gc(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine DataInitialize
@@ -184,10 +181,10 @@ contains
 
       meta_model => get_meta_model(model, _RC)
       call esmf_GridCompGet(model, currentPhase=phaseIndex, _RC)      
-      call nuopc_GridCompSearchRevPhaseMap(model, ESMF_METHOD_INITIALIZE, &
-           phaseIndex, phaseLabel, _RC)
+      call NUOPC_CompSearchRevPhaseMap(model, ESMF_METHOD_INITIALIZE, &
+           phaseIndex=phaseIndex, phaseLabel=phaseLabel, _RC)
 
-      call meta_model%advance(trim(phaseLabel), _RC)
+      call meta_model%advance(phaseLabel, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine Advance
@@ -220,6 +217,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine Finalize
 
+   recursive subroutine write_restart(model, rc)
+      type(ESMF_GridComp) :: model
+      integer, intent(out) :: rc
+      integer :: status
+      _RETURN(_SUCCESS)
+   end subroutine write_restart
 
    ! Parent components name their children, but such names should
    ! apply to the (inner) user grid comp.  The MAPL wrapper gridcomp,
@@ -263,4 +266,5 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_is_generic
-end module mapl_GenericGridComp_mod
+
+end module mapl_GenericNuopcModel_mod
