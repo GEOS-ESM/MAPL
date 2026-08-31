@@ -1,5 +1,6 @@
 target_sources(MAPL.generic PRIVATE
   AspectId.F90
+  AspectState.F90
   StateItemAspect.F90
   ClassAspect.F90
 

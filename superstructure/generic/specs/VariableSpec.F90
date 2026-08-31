@@ -4,6 +4,7 @@ module mapl_VariableSpec_mod
 
    use mapl_StateItemSpec_mod
    use mapl_StateItemAspect_mod
+   use mapl_AspectState_mod
    use mapl_GeomAspect_mod
 
    use mapl_ClassAspect_mod
@@ -514,8 +515,8 @@ contains
       aspect = this%make_NormalizationAspect(_RC)
       call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
 
-      aspect = this%make_VerticalGridAspect(vertical_grid, &
-           component_geom=component_geom, _RC)
+       aspect = this%make_VerticalGridAspect(vertical_grid, &
+            component_geom=component_geom, component_geom_id=component_geom_id, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
 
       aspect = this%make_ClassAspect(registry, _RC)
@@ -550,31 +551,40 @@ contains
 
       type(ESMF_Geom), allocatable :: geom_
       type(mapl_GeomId) :: geom_id_
+      type(AspectState) :: aspect_state
+
+      aspect_state = ASPECT_STATE_MIRRORED
 
       ! If geom is allocated in var spec then it is prioritized over the
       ! component-wide geom.
       ! If not specified either way, then it indicates that the geom is
       ! mirrored ind will be determined by a connection.
-      if (allocated(this%geom)) then
-         geom_ = this%geom
+       if (allocated(this%geom)) then
+          geom_ = this%geom
+          aspect_state = ASPECT_STATE_SPECIFIED
          if (this%geom_id%is_assigned()) then
             geom_id_ = this%geom_id
          end if
       else
-         if (present(component_geom)) then
-            geom_ = component_geom
+          if (present(component_geom)) then
+             geom_ = component_geom
+             aspect_state = ASPECT_STATE_SPECIFIED
             if (this%geom_id%is_assigned()) then
                geom_id_ = this%geom_id
             else if (present(component_geom_id)) then
                geom_id_ = component_geom_id
             end if
-         else if (this%geom_id%is_assigned()) then
-            geom_id_ = this%geom_id
+          else if (this%geom_id%is_assigned()) then
+             geom_id_ = this%geom_id
+             aspect_state = ASPECT_STATE_SPECIFIED
+          else if (present(component_geom_id)) then
+             geom_id_ = component_geom_id
+             aspect_state = ASPECT_STATE_FROM_COMP
          end if
       end if
 
-      aspect = GeomAspect(geom=geom_, regridder_param=this%regrid_param, &
-           horizontal_dims_spec=this%horizontal_dims_spec, geom_id=geom_id_)
+       aspect = GeomAspect(geom=geom_, regridder_param=this%regrid_param, &
+            horizontal_dims_spec=this%horizontal_dims_spec, geom_id=geom_id_, aspect_state=aspect_state)
 
       _RETURN(_SUCCESS)
    end function make_GeomAspect
@@ -626,16 +636,20 @@ contains
       _RETURN(_SUCCESS)
    end function make_NormalizationAspect
 
-   function make_VerticalGridAspect(this, vertical_grid, component_geom, time_dependent, rc) result(aspect)
+    function make_VerticalGridAspect(this, vertical_grid, component_geom, component_geom_id, time_dependent, rc) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VariableSpec), intent(in) :: this
-      class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(ESMF_Geom), optional, intent(in) :: component_geom
+       class(VerticalGrid), optional, intent(in) :: vertical_grid
+       type(ESMF_Geom), optional, intent(in) :: component_geom
+       type(mapl_GeomId), optional, intent(in) :: component_geom_id
       logical, optional, intent(in) :: time_dependent
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Geom) :: geom_
-      class(VerticalGrid), allocatable :: vgrid
+       type(ESMF_Geom) :: geom_
+       class(VerticalGrid), allocatable :: vgrid
+       type(AspectState) :: aspect_state
+
+       aspect_state = ASPECT_STATE_MIRRORED
 
       ! If geom is allocated in var spec then it is prioritized over the
       ! component-wide geom.
@@ -643,18 +657,23 @@ contains
       ! mirrored ind will be determined by a connection.
       if (allocated(this%geom)) then
          geom_ = this%geom
-      elseif (present(component_geom)) then
-         geom_ = component_geom
+       elseif (present(component_geom)) then
+          geom_ = component_geom
+          aspect_state = ASPECT_STATE_FROM_COMP
       end if
 
       if (allocated(this%vertical_grid)) then
          vgrid = this%vertical_grid
-      elseif (present(vertical_grid)) then
-         vgrid = vertical_grid
+       elseif (present(vertical_grid)) then
+          vgrid = vertical_grid
+          aspect_state = ASPECT_STATE_SPECIFIED
+       elseif (present(component_geom_id)) then
+          aspect_state = ASPECT_STATE_FROM_COMP
       end if
 
-      aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, &
-           vertical_alignment=VerticalAlignment(this%vertical_alignment), geom=geom_, typekind=this%typekind)
+       aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, &
+            vertical_alignment=VerticalAlignment(this%vertical_alignment), geom=geom_, typekind=this%typekind, &
+            aspect_state=aspect_state)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(time_dependent)

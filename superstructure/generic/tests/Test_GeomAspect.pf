@@ -2,7 +2,9 @@
 #include "unused_dummy.H"
 ! type(ESMF_GeomMatch_Flag)
 module Test_GeomAspect
+   use mapl_AspectState_mod, only: ASPECT_STATE_FROM_COMP
    use mapl_GeomAspect_mod, only: GeomAspect
+   use mapl_geom_api, only: mapl_GeomId, mapl_new_GeomId
    use mapl_field_api, only: MAPL_FieldSet, MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, operator(==)
@@ -23,6 +25,8 @@ module Test_GeomAspect
    use ESMF, only: ESMF_Info, ESMF_FieldStatus_Flag, ESMF_FIELDSTATUS_COMPLETE
    use pfunit
    use ESMF_TestMethod_mod
+   use mapl_ActualConnectionPt_mod, only: ActualConnectionPt
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
    implicit none(type, external)
 
    type(ESMF_TypeKind_Flag), parameter :: TK4 = ESMF_TYPEKIND_R4
@@ -47,6 +51,40 @@ contains
 !===============================================================================
 !TESTS
 !===============================================================================
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_from_comp_resolves_when_geom_is_set(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      aspect = GeomAspect(geom_id=mapl_new_GeomId(23), aspect_state=ASPECT_STATE_FROM_COMP)
+      @assertTrue(aspect%is_from_component(), 'Aspect should begin in FROM_COMP state.')
+
+      call get_geom(geom, _RC)
+      call aspect%set_geom(geom)
+      @assertTrue(aspect%is_specified(), 'FROM_COMP geom should resolve when geom is set.')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_from_comp_resolves_when_geom_is_set
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_mirror_inherits_from_comp_state_on_connect(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomAspect) :: export_aspect, import_aspect
+      type(ActualConnectionPt) :: actual_pt
+      integer :: status
+
+      export_aspect = GeomAspect(geom_id=mapl_new_GeomId(24), aspect_state=ASPECT_STATE_FROM_COMP)
+      import_aspect = GeomAspect()
+      actual_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='X'))
+
+      call import_aspect%connect_to_export(export_aspect, actual_pt, _RC)
+      @assertTrue(import_aspect%is_from_component(), 'Connected geom should inherit FROM_COMP state.')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_mirror_inherits_from_comp_state_on_connect
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_field(this)
@@ -282,8 +320,8 @@ contains
    
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_no_geom_bundle(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      type(ESMF_FieldBundle) :: bundle
+       class(ESMF_TestMethod), intent(inout) :: this
+       type(ESMF_FieldBundle) :: bundle
       type(GeomAspect) :: aspect
       type(ESMF_Geom) :: aspect_geom
       integer :: status
@@ -302,7 +340,96 @@ contains
       @assertTrue(is_mirror, 'The aspect geom should not be set after update.')
       _UNUSED_DUMMY(this)
 
-   end subroutine test_update_from_payload_no_geom_bundle
+    end subroutine test_update_from_payload_no_geom_bundle
+
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_matches_same_unresolved_geom_id(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       type(GeomAspect) :: src, dst
+       type(mapl_GeomId) :: geom_id
+       logical :: is_match
+
+       geom_id = mapl_new_GeomId(17)
+       src = GeomAspect(geom_id=geom_id, horizontal_dims_spec=HORZ_DIMS_SPEC)
+       dst = GeomAspect(geom_id=geom_id, horizontal_dims_spec=HORZ_DIMS_SPEC)
+
+       is_match = src%matches(dst)
+       @assertTrue(is_match, 'Same unresolved geom_id should match.')
+
+       _UNUSED_DUMMY(this)
+    end subroutine test_matches_same_unresolved_geom_id
+
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_mismatch_different_unresolved_geom_id(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       type(GeomAspect) :: src, dst
+       logical :: is_match
+
+       src = GeomAspect(geom_id=mapl_new_GeomId(17), horizontal_dims_spec=HORZ_DIMS_SPEC)
+       dst = GeomAspect(geom_id=mapl_new_GeomId(18), horizontal_dims_spec=HORZ_DIMS_SPEC)
+
+       is_match = src%matches(dst)
+       @assertFalse(is_match, 'Different unresolved geom_id values should not match.')
+
+       _UNUSED_DUMMY(this)
+    end subroutine test_mismatch_different_unresolved_geom_id
+
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_mismatch_same_unresolved_geom_id_different_horz_dims(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       type(GeomAspect) :: src, dst
+       type(mapl_GeomId) :: geom_id
+       logical :: is_match
+
+       geom_id = mapl_new_GeomId(19)
+       src = GeomAspect(geom_id=geom_id, horizontal_dims_spec=HORZ_DIMS_SPEC)
+       dst = GeomAspect(geom_id=geom_id, horizontal_dims_spec=ALT_HORZ_DIMS_SPEC)
+
+       is_match = src%matches(dst)
+       @assertFalse(is_match, 'Unresolved geom_id match still requires same horizontal dims.')
+
+       _UNUSED_DUMMY(this)
+    end subroutine test_mismatch_same_unresolved_geom_id_different_horz_dims
+
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_no_extension_same_geom_id_when_dst_resolved(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       type(GeomAspect) :: src, dst
+       type(mapl_GeomId) :: geom_id
+       type(ESMF_Geom) :: geom
+       logical :: needs_extension
+       integer :: status
+
+       geom_id = mapl_new_GeomId(20)
+       src = GeomAspect(geom_id=geom_id, horizontal_dims_spec=HORZ_DIMS_SPEC)
+       dst = GeomAspect(geom_id=geom_id, horizontal_dims_spec=HORZ_DIMS_SPEC)
+       call get_geom(geom, _RC)
+       call dst%set_geom(geom)
+
+       needs_extension = src%needs_extension_for(dst)
+       @assertFalse(needs_extension, 'Same geom_id should not require extension when dst geom is resolved.')
+
+       _UNUSED_DUMMY(this)
+    end subroutine test_no_extension_same_geom_id_when_dst_resolved
+
+    @Test(type=ESMF_TestMethod, npes=[1])
+    subroutine test_extension_different_geom_id_when_dst_resolved(this)
+       class(ESMF_TestMethod), intent(inout) :: this
+       type(GeomAspect) :: src, dst
+       type(ESMF_Geom) :: geom
+       logical :: needs_extension
+       integer :: status
+
+       src = GeomAspect(geom_id=mapl_new_GeomId(21), horizontal_dims_spec=HORZ_DIMS_SPEC)
+       dst = GeomAspect(geom_id=mapl_new_GeomId(22), horizontal_dims_spec=HORZ_DIMS_SPEC)
+       call get_geom(geom, _RC)
+       call dst%set_geom(geom)
+
+       needs_extension = src%needs_extension_for(dst)
+       @assertTrue(needs_extension, 'Different geom_id values should still require extension when dst geom is resolved.')
+
+       _UNUSED_DUMMY(this)
+    end subroutine test_extension_different_geom_id_when_dst_resolved
 
 !===============================================================================
 ! HELPERS

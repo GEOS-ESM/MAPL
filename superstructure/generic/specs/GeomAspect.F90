@@ -4,6 +4,7 @@ module mapl_GeomAspect_mod
 
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
+   use mapl_AspectState_mod
    use mapl_HorizontalDimsSpec_mod
    use mapl_StateItemAspect_mod
    use mapl_geom_api, only: mapl_GeomId
@@ -84,18 +85,23 @@ module mapl_GeomAspect_mod
 
 contains
 
-   function new_GeomAspect(geom, regridder_param, horizontal_dims_spec, is_time_dependent, geom_id) result(aspect)
+   function new_GeomAspect(geom, regridder_param, horizontal_dims_spec, is_time_dependent, geom_id, aspect_state) result(aspect)
       type(GeomAspect) :: aspect
       type(ESMF_Geom), optional, intent(in) :: geom
       type(EsmfRegridderParam), optional, intent(in) :: regridder_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       logical, optional, intent(in) :: is_time_dependent
       type(mapl_GeomId), optional, intent(in) :: geom_id
+      type(AspectState), optional, intent(in) :: aspect_state
 
-      call aspect%set_mirror(.true.)
+      call aspect%set_characteristic_state(ASPECT_STATE_MIRRORED)
+
+      if (present(aspect_state)) then
+         call aspect%set_characteristic_state(aspect_state)
+      end if
 
       if (present(geom_id)) then
-         call aspect%set_geom_id(geom_id)
+         aspect%geom_id = geom_id
       end if
 
       if (present(geom)) then
@@ -144,14 +150,14 @@ contains
 
       select type(dst)
       class is (GeomAspect)
-         if (src%is_mirror()) then
-            matches = .false. ! need geom extension
-         else if (allocated(src%geom) .and. allocated(dst%geom)) then
+         if (allocated(src%geom) .and. allocated(dst%geom)) then
             matches = MAPL_SameGeom(src%geom, dst%geom) .and. &
                  (src%horizontal_dims_spec == dst%horizontal_dims_spec)
          else if (src%geom_id%is_assigned() .and. dst%geom_id%is_assigned()) then
             matches = (src%geom_id%get_value() == dst%geom_id%get_value()) .and. &
                  (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+         else if (src%is_mirror()) then
+            matches = .false. ! need geom extension
          else
             matches = .false.
          end if
@@ -203,18 +209,18 @@ contains
           end if
        end if
 
-       this%geom = geom
-       call this%set_mirror(.false.)
+        this%geom = geom
+        call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
 
-    end subroutine set_geom
+     end subroutine set_geom
 
    subroutine set_geom_id(this, geom_id)
       class(GeomAspect), intent(inout) :: this
       type(mapl_GeomId), intent(in) :: geom_id
 
-      this%geom_id = geom_id
-      call this%set_mirror(.not. allocated(this%geom))
-   end subroutine set_geom_id
+       this%geom_id = geom_id
+       if (allocated(this%geom)) call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+    end subroutine set_geom_id
 
    subroutine set_regridder_param(this, regridder_param)
       class(GeomAspect), intent(inout) :: this
@@ -261,16 +267,19 @@ contains
       type(GeomAspect) :: export_
       integer :: status
 
-       export_ = to_GeomAspect(export, _RC)
-       this%geom_id = export_%geom_id
-       if (allocated(export_%geom)) then
-          this%geom = export_%geom
-       else if (allocated(this%geom)) then
-          deallocate(this%geom)
-       end if
-       call this%set_mirror(.not. allocated(this%geom))
+        export_ = to_GeomAspect(export, _RC)
+        this%geom_id = export_%geom_id
+        if (allocated(export_%geom)) then
+           this%geom = export_%geom
+           call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+        else if (allocated(this%geom)) then
+           deallocate(this%geom)
+           call this%set_characteristic_state(export_%get_characteristic_state())
+        else
+           call this%set_characteristic_state(export_%get_characteristic_state())
+        end if
 
-       _RETURN(_SUCCESS)
+        _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
@@ -333,9 +342,9 @@ contains
 
        if (allocated(geom_)) then
           call this%set_geom(geom_)
-       else if (allocated(this%geom)) then
+        else if (allocated(this%geom)) then
           deallocate(this%geom)
-       end if
+        end if
 
       if (allocated(regridder_param_info)) then
          this%regridder_param = make_EsmfRegridderParam(regridder_param_info, _RC)
@@ -343,7 +352,7 @@ contains
          if (allocated(this%regridder_param)) deallocate(this%regridder_param)
       end if
 
-       call this%set_mirror(.not. allocated(this%geom))
+       if (.not. allocated(this%geom)) call this%set_characteristic_state(ASPECT_STATE_MIRRORED)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)

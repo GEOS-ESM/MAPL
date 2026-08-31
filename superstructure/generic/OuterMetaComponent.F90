@@ -130,6 +130,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_child_name
       procedure :: set_entry_point
       procedure :: set_geom
+      procedure :: propagate_geom_to_children
       procedure :: get_name
       procedure :: get_gridcomp
 
@@ -496,6 +497,11 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_Geom), intent(in) :: geom
       end subroutine set_geom
+
+      module subroutine propagate_geom_to_children(this, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine propagate_geom_to_children
 
       module subroutine set_vertical_grid(this, vertical_grid)
          class(OuterMetaComponent), intent(inout) :: this
