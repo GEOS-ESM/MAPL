@@ -3,6 +3,7 @@
 module mapl_GeomManager_mod
 
    use mapl_GeomSpec_mod
+   use mapl_GeomId_mod, only: GeomId, GeomIdManager
    use mapl_NullGeomSpec_mod
    use mapl_MaplGeom_mod
    use mapl_GeomFactory_mod
@@ -36,7 +37,7 @@ module mapl_GeomManager_mod
       ! A counter (id_counter) is used to assign each new geom
       ! a unique label.  This allows other classes to support
       ! time-varying geoms by detecting when the ID has changed.
-      integer :: id_counter = 0
+       type(GeomIdManager) :: id_manager
 
    contains
 
@@ -124,7 +125,7 @@ module mapl_GeomManager_mod
       module function get_mapl_geom_from_id(this, id, rc) result(mapl_geom)
          type(MaplGeom), pointer :: mapl_geom
          class(GeomManager), target, intent(inout) :: this
-         integer, intent(in) :: id
+          type(GeomId), intent(in) :: id
          integer, optional, intent(out) :: rc
       end function get_mapl_geom_from_id
 
@@ -170,7 +171,7 @@ module mapl_GeomManager_mod
       module function get_geom_from_id(this, id, rc) result(geom)
          type(ESMF_Geom) :: geom
          class(GeomManager), target, intent(inout) :: this
-         integer, intent(in) :: id
+          type(GeomId), intent(in) :: id
          integer, optional, intent(out) :: rc
       end function get_geom_from_id
 
