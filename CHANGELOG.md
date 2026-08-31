@@ -27,9 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   key points at the cap_gridcomp configuration file (no more filename-guessing heuristic).
 - Removed support for the legacy top-level `cap:` config key and deleted all remaining
   legacy `cap.yaml`/`capN.yaml` fixtures; `resolve_cap_driver_hconfig` and
-  `resolve_cap_gridcomp_hconfig` were replaced by a single generic
-  `resolve_app_hconfig(hconfig, keystring, rc)` that resolves `app.config` or
-  `app.gridcomp_config`, since both are otherwise identical once the legacy fallback is gone
+  `resolve_cap_gridcomp_hconfig` (and the later `resolve_app_hconfig` helper that replaced
+  them) were removed entirely, since resolving `app.config`/`app.gridcomp_config` requires
+  only a `ESMF_HConfigCreateAt` navigation to `app:` followed by `ESMF_HConfigAsString`
+  and `ESMF_HConfigCreate(filename=...)`; this is now inlined directly in
+  `mapl_cap_create`, `mapl_cap_run`, and `mapl_run_driver`
 
 - Renamed `model_petcount`/`has_model_petcount` to `app_petcount`/`has_app_petcount`
   throughout the codebase, config files, and documentation
