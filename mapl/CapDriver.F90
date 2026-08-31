@@ -59,8 +59,8 @@ contains
       type(esmf_Clock) :: clock
 
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
-      cap_driver_hconfig = resolve_cap_driver_hconfig(hconfig, _RC)
-      cap_gridcomp_hconfig = resolve_cap_gridcomp_hconfig(hconfig, _RC)
+      cap_driver_hconfig = resolve_app_hconfig(hconfig, 'config', _RC)
+      cap_gridcomp_hconfig = resolve_app_hconfig(hconfig, 'gridcomp_config', _RC)
       options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
       clock = make_clock(cap_driver_hconfig, options%lgr, _RC)
       driver = make_driver(clock, cap_gridcomp_hconfig, options, _RC)
@@ -84,7 +84,7 @@ contains
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
       _RETURN_UNLESS(is_model_pet)
 
-      cap_driver_hconfig = resolve_cap_driver_hconfig(hconfig, _RC)
+      cap_driver_hconfig = resolve_app_hconfig(hconfig, 'config', _RC)
       options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
 
       call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
@@ -112,8 +112,8 @@ contains
       type(esmf_HConfig) :: cap_driver_hconfig, cap_gridcomp_hconfig
       integer :: status
 
-      cap_driver_hconfig = resolve_cap_driver_hconfig(hconfig, _RC)
-      cap_gridcomp_hconfig = resolve_cap_gridcomp_hconfig(hconfig, _RC)
+      cap_driver_hconfig = resolve_app_hconfig(hconfig, 'config', _RC)
+      cap_gridcomp_hconfig = resolve_app_hconfig(hconfig, 'gridcomp_config', _RC)
       options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
       clock = make_clock(cap_driver_hconfig, options%lgr, _RC)
       driver = make_driver(clock, cap_gridcomp_hconfig, options, _RC)
@@ -287,36 +287,30 @@ contains
       _RETURN(_SUCCESS)
    end function get_timestamp
 
-   ! Resolve the driver-level configuration (name, clock, restart, checkpointing,
-   ! run_times) from either the legacy 'cap' entry or a standalone cap_driver.yaml
-   ! file referenced by app.config.
-   function resolve_cap_driver_hconfig(hconfig, rc) result(cap_driver_hconfig)
-      type(ESMF_HConfig) :: cap_driver_hconfig
+   ! Resolve a configuration file referenced by a key under 'app' (e.g.
+   ! app.config for the driver-level configuration, or app.gridcomp_config
+   ! for the gridcomp-level configuration) in the root config.
+   function resolve_app_hconfig(hconfig, keystring, rc) result(resolved_hconfig)
+      type(ESMF_HConfig) :: resolved_hconfig
       type(ESMF_HConfig), intent(in) :: hconfig
+      character(*), intent(in) :: keystring
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_cap
       logical :: has_app
-      logical :: has_app_config
+      logical :: has_key
       type(esmf_HConfig) :: app_hconfig
       character(:), allocatable :: config_file
 
       class(Logger), pointer :: lgr
 
-      has_cap = esmf_HConfigIsDefined(hconfig, keystring='cap', _RC)
-      if (has_cap) then
-         cap_driver_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap', _RC)
-         _RETURN(_SUCCESS)
-      end if
-
       has_app = esmf_HConfigIsDefined(hconfig, keystring='app', _RC)
       if (has_app) then
          app_hconfig = esmf_HConfigCreateAt(hconfig, keystring='app', _RC)
-         has_app_config = esmf_HConfigIsDefined(app_hconfig, keystring='config', _RC)
-         if (has_app_config) then
-            config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
-            cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
+         has_key = esmf_HConfigIsDefined(app_hconfig, keystring=keystring, _RC)
+         if (has_key) then
+            config_file = esmf_HConfigAsString(app_hconfig, keystring=keystring, _RC)
+            resolved_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
             call esmf_HConfigDestroy(app_hconfig, _RC)
             _RETURN(_SUCCESS)
          end if
@@ -324,51 +318,9 @@ contains
       end if
 
       lgr => logging%get_logger('MAPL')
-      call lgr%warning('No cap entry or app.config entry found in root config; this is a configuration error.')
-      _FAIL('No cap entry or app.config entry found in root config')
-   end function resolve_cap_driver_hconfig
-
-   ! Resolve the gridcomp-level configuration (root/extdata/history names,
-   ! run_extdata/run_history, and the mapl: setServices/children tree) from
-   ! either the legacy 'cap' entry or a standalone cap_gridcomp.yaml file
-   ! referenced by app.gridcomp_config.
-   function resolve_cap_gridcomp_hconfig(hconfig, rc) result(cap_gridcomp_hconfig)
-      type(ESMF_HConfig) :: cap_gridcomp_hconfig
-      type(ESMF_HConfig), intent(in) :: hconfig
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      logical :: has_cap
-      logical :: has_app
-      logical :: has_gridcomp_config
-      type(esmf_HConfig) :: app_hconfig
-      character(:), allocatable :: gridcomp_config_file
-
-      class(Logger), pointer :: lgr
-
-      has_cap = esmf_HConfigIsDefined(hconfig, keystring='cap', _RC)
-      if (has_cap) then
-         cap_gridcomp_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap', _RC)
-         _RETURN(_SUCCESS)
-      end if
-
-      has_app = esmf_HConfigIsDefined(hconfig, keystring='app', _RC)
-      if (has_app) then
-         app_hconfig = esmf_HConfigCreateAt(hconfig, keystring='app', _RC)
-         has_gridcomp_config = esmf_HConfigIsDefined(app_hconfig, keystring='gridcomp_config', _RC)
-         if (has_gridcomp_config) then
-            gridcomp_config_file = esmf_HConfigAsString(app_hconfig, keystring='gridcomp_config', _RC)
-            cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
-            call esmf_HConfigDestroy(app_hconfig, _RC)
-            _RETURN(_SUCCESS)
-         end if
-         call esmf_HConfigDestroy(app_hconfig, _RC)
-      end if
-
-      lgr => logging%get_logger('MAPL')
-      call lgr%warning('No cap entry or app.gridcomp_config entry found in root config; this is a configuration error.')
-      _FAIL('No cap entry or app.gridcomp_config entry found in root config')
-   end function resolve_cap_gridcomp_hconfig
+      call lgr%warning('No app.'//keystring//' entry found in root config; this is a configuration error.')
+      _FAIL('No app.'//keystring//' entry found in root config')
+   end function resolve_app_hconfig
 
    function make_driver(clock, hconfig, options, rc) result(driver)
       type(MAPL_GriddedComponentDriver) :: driver

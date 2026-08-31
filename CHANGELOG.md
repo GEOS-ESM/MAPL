@@ -25,6 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   separately and consistently instead of being merged into a single hconfig. `app.config`
   continues to point at the cap_driver configuration file, and a new `app.gridcomp_config`
   key points at the cap_gridcomp configuration file (no more filename-guessing heuristic).
+- Removed support for the legacy top-level `cap:` config key and deleted all remaining
+  legacy `cap.yaml`/`capN.yaml` fixtures; `resolve_cap_driver_hconfig` and
+  `resolve_cap_gridcomp_hconfig` were replaced by a single generic
+  `resolve_app_hconfig(hconfig, keystring, rc)` that resolves `app.config` or
+  `app.gridcomp_config`, since both are otherwise identical once the legacy fallback is gone
+
 - Renamed `model_petcount`/`has_model_petcount` to `app_petcount`/`has_app_petcount`
   throughout the codebase, config files, and documentation
 - Renamed `mapl/Cap.F90` to `mapl/CapDriver.F90` and its module `mapl_Cap_mod` to `mapl_CapDriver_mod`

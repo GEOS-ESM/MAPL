@@ -236,7 +236,7 @@ Child references in connectivity calls use the child's string name
 rather than an integer ID.
 
 ```yaml
-# MAPL3: child registration in HConfig (cap.yaml or component config)
+# MAPL3: child registration in HConfig (cap_gridcomp.yaml or component config)
 mapl:
   children:
     MYCOMP:
