@@ -170,16 +170,16 @@ contains
    end subroutine test_mirror_units_2
 
    @test
-   subroutine test_double_mirror_units_fail()
+   subroutine test_double_unchecked_units_match()
       type(UnitsAspect) :: import
       type(UnitsAspect) :: export
 
-      import = UnitsAspect() ! mirror
-      export = UnitsAspect() ! mirror
+       import = UnitsAspect() ! unchecked
+       export = UnitsAspect() ! unchecked
 
-      @assert_that(export%can_connect_to(import), is(false()))
+       @assert_that(export%can_connect_to(import), is(true()))
 
-   end subroutine test_double_mirror_units_fail
+   end subroutine test_double_unchecked_units_match
 
    @test
    subroutine test_connect_geoms()
