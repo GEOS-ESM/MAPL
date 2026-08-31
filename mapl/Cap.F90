@@ -436,11 +436,10 @@ contains
       integer :: status
       logical :: has_name
 
+      options%name = 'CAP'
       has_name = esmf_HConfigIsDefined(hconfig, keystring='name', _RC)
       if (has_name) then
          options%name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
-      else
-         options%name = 'CAP'
       end if
       options%is_model_pet = is_model_pet
       options%lgr => logging%get_logger(options%name, _RC)
