@@ -1,7 +1,6 @@
 #include "MAPL.h"
 
 module mapl_GeomUtilities_mod
-   use mapl_GeomId_mod, only: GeomId, operator(==)
    use esmf
    use mapl_ErrorHandling_mod
    implicit none
@@ -33,21 +32,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine GeomSetId
 
-   function GeomGetId(geom, isPresent, rc) result(id)
-      type(GeomId) :: id
+   integer function GeomGetId(geom, isPresent, rc) result(id)
       type(ESMF_Geom), intent(in) :: geom
       logical, optional, intent(out) :: isPresent
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Info) :: info
-       integer, parameter :: NOT_FOUND = -1
-       integer :: id_value
+      integer, parameter :: NOT_FOUND = -1
 
       call ESMF_InfoGetFromHost(geom, info, _RC)
-       call ESMF_InfoGet(info, ID_INFO_KEY, id_value, default=NOT_FOUND, _RC)
-       id = GeomId(id_value)
-       if (present(isPresent)) isPresent = (id_value /= NOT_FOUND)
+      call ESMF_InfoGet(info, ID_INFO_KEY, id, default=NOT_FOUND, _RC)
+      if (present(isPresent)) isPresent = (id /= NOT_FOUND)
 
       
       _RETURN(_SUCCESS)
@@ -61,8 +57,8 @@ contains
 
       logical :: has_id_a
       logical :: has_id_b
-       type(GeomId) :: id_a
-       type(GeomId) :: id_b
+      integer :: id_a
+      integer :: id_b
 
       same_geom = .false. ! unless
 
@@ -70,7 +66,7 @@ contains
       id_b = GeomGetId(geom_b, isPresent=has_id_b)
 
       if (has_id_a .and. has_id_b) then
-          same_geom = (id_a == id_b)
+         same_geom = (id_a == id_b)
       end if
 
    end function same_geom
