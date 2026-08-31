@@ -15,12 +15,12 @@ contains
 
       type(mapl_GeomIdManager), pointer :: geom_id_manager
       logical :: has_geom_id
-      integer :: geom_id_value
+      type(mapl_GeomId) :: geom_id_value
 
       if (.not. this%geom_id%is_assigned()) then
          geom_id_value = MAPL_GeomGetId(geom, isPresent=has_geom_id)
          if (has_geom_id) then
-            this%geom_id = mapl_new_GeomId(geom_id_value)
+            this%geom_id = geom_id_value
          else
             geom_id_manager => mapl_get_geom_id_manager()
             this%geom_id = geom_id_manager%get_next_geom_id()

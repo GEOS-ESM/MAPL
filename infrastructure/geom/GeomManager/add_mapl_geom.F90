@@ -28,16 +28,15 @@ contains
 
       tmp_mapl_geom = this%make_mapl_geom(geom_spec, _RC)
 
-      associate (id => this%id_counter)
-        id = id + 1
-        _ASSERT(id <= MAX_ID, "Too many geoms created.")
+       associate (id => this%id_manager%get_next_geom_id())
+         _ASSERT(id%get_value() <= MAX_ID, "Too many geoms created.")
 
         call tmp_mapl_geom%set_id(id, _RC)
-        call this%geom_ids%push_back(id)
-        call this%geom_specs%push_back(geom_spec)
-        call this%mapl_geoms%insert(id, tmp_mapl_geom)
+         call this%geom_ids%push_back(id%get_value())
+         call this%geom_specs%push_back(geom_spec)
+         call this%mapl_geoms%insert(id%get_value(), tmp_mapl_geom)
 
-        mapl_geom => this%mapl_geoms%of(id)
+         mapl_geom => this%mapl_geoms%of(id%get_value())
       end associate
 
       _RETURN(_SUCCESS)
