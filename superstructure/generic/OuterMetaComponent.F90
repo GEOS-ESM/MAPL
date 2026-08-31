@@ -17,6 +17,7 @@ module mapl_OuterMetaComponent_mod
    use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
+   use mapl_geom_api, only: mapl_GeomId
    use gFTL2_StringVector
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_Profiler_mod, only: DistributedProfiler
@@ -41,10 +42,11 @@ module mapl_OuterMetaComponent_mod
       ! These are only allocated when parent overrides default timestepping.
       type(ESMF_TimeInterval)                     :: user_offset
       type(MethodPhasesMap)                       :: user_phases_map
-      type(ESMF_HConfig)                          :: hconfig
+       type(ESMF_HConfig)                          :: hconfig
 
-      type(ESMF_Geom), allocatable                :: geom
-      class(VerticalGrid), allocatable            :: vertical_grid
+       type(mapl_GeomId)                           :: geom_id
+       type(ESMF_Geom), allocatable                :: geom
+       class(VerticalGrid), allocatable            :: vertical_grid
 
       ! In-memory checkpoint: nested ESMF_States (import/export/internal)
       ! holding most recent in-memory checkpoint write. Lazily created
@@ -93,7 +95,9 @@ module mapl_OuterMetaComponent_mod
       procedure :: initialize_advertise
       procedure :: advertise_variable
       procedure :: initialize_modify_advertised
-      procedure :: initialize_realize
+      procedure :: initialize_realize_provided
+      procedure :: initialize_accept_transfer
+      procedure :: initialize_realize_accepted
       procedure :: initialize_read_restart
 
       procedure :: run_user
@@ -309,15 +313,34 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised
 
-      module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(ESMF_State) :: importState
-         type(ESMF_State) :: exportState
-         type(ESMF_Clock) :: clock
-        ! optional arguments
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine initialize_realize
+      module recursive subroutine initialize_realize_provided(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+         ! optional arguments
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_realize_provided
+
+      module recursive subroutine initialize_accept_transfer(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_accept_transfer
+
+      module recursive subroutine initialize_realize_accepted(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+         ! optional arguments
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_realize_accepted
 
       module recursive subroutine initialize_read_restart(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
