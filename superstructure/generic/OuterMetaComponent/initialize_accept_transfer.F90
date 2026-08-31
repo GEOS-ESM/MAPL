@@ -17,8 +17,8 @@ contains
 
       integer :: status
 
-      call recurse(this, phase_idx=MAPL_GENERIC_INIT_ACCEPT_TRANSFER, _RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, 'GENERIC::INIT_ACCEPT_TRANSFER', _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_ACCEPT_TRANSFER, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(importState)

@@ -435,13 +435,15 @@ contains
       _ASSERT(tk_found, 'Typekind was not found.')
    end function get_typekind
 
-   function detect_geom(bundle, collection_name, rc) result(geom)
+    function detect_geom(bundle, collection_name, rc) result(geom)
+       use mapl_GeomId_mod, only: operator(==)
       type(ESMF_Geom) :: geom
       type(ESMF_FieldBundle), intent(inout) :: bundle
       character(len=*), intent(in) :: collection_name
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: i, geom_id, last_id
+       type(MAPL_GeomId) :: geom_id, last_id
+       integer :: i
       type(ESMF_Field), allocatable :: fields(:)
 
       call MAPL_FieldBundleGet(bundle, fieldList=fields, _RC)
