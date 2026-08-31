@@ -41,7 +41,7 @@
 module mapl_StateItemAspect_mod
    use iso_fortran_env, only: INT64
    use mapl_AspectId_mod
-   use mapl_AspectState_mod
+   use mapl_AspectStatus_mod
    use mapl_ErrorHandling_mod
    use esmf, only: esmf_Field, esmf_FieldBundle, esmf_State
 
@@ -65,7 +65,7 @@ module mapl_StateItemAspect_mod
       private
       logical :: mirror = .false.
       logical :: time_dependent = .false.
-      type(AspectState) :: characteristic_state = ASPECT_STATE_INVALID
+      type(AspectStatus) :: characteristic_state = ASPECT_STATUS_INVALID
     contains
       ! Subclass must define these
       procedure(I_matches), deferred :: matches
@@ -254,47 +254,47 @@ contains
        if (.not. present(mirror)) return
 
        if (mirror) then
-          call this%set_characteristic_state(ASPECT_STATE_MIRRORED)
-       else if (this%characteristic_state == ASPECT_STATE_DEFERRED) then
+          call this%set_characteristic_state(ASPECT_STATUS_MIRRORED)
+       else if (this%characteristic_state == ASPECT_STATUS_DEFERRED) then
           this%mirror = .false.
        else
-          call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+          call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
        end if
     end subroutine set_mirror
 
     function get_characteristic_state(this) result(characteristic_state)
        class(StateItemAspect), intent(in) :: this
-       type(AspectState) :: characteristic_state
+       type(AspectStatus) :: characteristic_state
 
        characteristic_state = this%characteristic_state
     end function get_characteristic_state
 
     subroutine set_characteristic_state(this, characteristic_state)
        class(StateItemAspect), intent(inout) :: this
-       type(AspectState), intent(in) :: characteristic_state
+       type(AspectStatus), intent(in) :: characteristic_state
 
        this%characteristic_state = characteristic_state
-       this%mirror = characteristic_state == ASPECT_STATE_MIRRORED
+       this%mirror = characteristic_state == ASPECT_STATUS_MIRRORED
     end subroutine set_characteristic_state
 
     logical function is_from_component(this)
        class(StateItemAspect), intent(in) :: this
-       is_from_component = this%characteristic_state == ASPECT_STATE_FROM_COMP
+       is_from_component = this%characteristic_state == ASPECT_STATUS_FROM_COMP
     end function is_from_component
 
     logical function is_specified(this)
        class(StateItemAspect), intent(in) :: this
-       is_specified = this%characteristic_state == ASPECT_STATE_SPECIFIED
+       is_specified = this%characteristic_state == ASPECT_STATUS_SPECIFIED
     end function is_specified
 
     logical function is_deferred_state(this)
        class(StateItemAspect), intent(in) :: this
-       is_deferred_state = this%characteristic_state == ASPECT_STATE_DEFERRED
+       is_deferred_state = this%characteristic_state == ASPECT_STATUS_DEFERRED
     end function is_deferred_state
 
     logical function is_unchecked(this)
        class(StateItemAspect), intent(in) :: this
-       is_unchecked = this%characteristic_state == ASPECT_STATE_UNCHECKED
+       is_unchecked = this%characteristic_state == ASPECT_STATUS_UNCHECKED
     end function is_unchecked
 
    logical function is_time_dependent(this)

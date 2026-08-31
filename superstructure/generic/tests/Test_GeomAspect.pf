@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 ! type(ESMF_GeomMatch_Flag)
 module Test_GeomAspect
-   use mapl_AspectState_mod, only: ASPECT_STATE_FROM_COMP
+   use mapl_AspectStatus_mod, only: ASPECT_STATUS_FROM_COMP
    use mapl_GeomAspect_mod, only: GeomAspect
    use mapl_geom_api, only: mapl_GeomId, mapl_new_GeomId
    use mapl_field_api, only: MAPL_FieldSet, MAPL_FieldGet
@@ -59,7 +59,7 @@ contains
       type(ESMF_Geom) :: geom
       integer :: status
 
-      aspect = GeomAspect(geom_id=mapl_new_GeomId(23), aspect_state=ASPECT_STATE_FROM_COMP)
+      aspect = GeomAspect(geom_id=mapl_new_GeomId(23), aspect_status=ASPECT_STATUS_FROM_COMP)
       @assertTrue(aspect%is_from_component(), 'Aspect should begin in FROM_COMP state.')
 
       call get_geom(geom, _RC)
@@ -76,7 +76,7 @@ contains
       type(ActualConnectionPt) :: actual_pt
       integer :: status
 
-      export_aspect = GeomAspect(geom_id=mapl_new_GeomId(24), aspect_state=ASPECT_STATE_FROM_COMP)
+      export_aspect = GeomAspect(geom_id=mapl_new_GeomId(24), aspect_status=ASPECT_STATUS_FROM_COMP)
       import_aspect = GeomAspect()
       actual_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='X'))
 
