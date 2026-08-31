@@ -256,16 +256,16 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         logical :: has_app_petcount_mapl, has_app_petcount_root
+         logical :: has_app_petcount_in_mapl_section, has_app_petcount_in_root
          logical :: has_mapl_servers, has_pflogger, has_pflogger_cfg_file
          logical :: has_servers
          type(ESMF_HConfig) :: servers_hconfig
          character(:), allocatable :: pflogger_cfg_file
          integer(kind=ESMF_KIND_I4) :: app_petcount
 
-         has_app_petcount_mapl = ESMF_HConfigIsDefined(mapl_hconfig, keystring='app_petcount', _RC)
-         has_app_petcount_root = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
-         if (.not. has_app_petcount_mapl .and. has_app_petcount_root) then
+         has_app_petcount_in_mapl_section = ESMF_HConfigIsDefined(mapl_hconfig, keystring='app_petcount', _RC)
+         has_app_petcount_in_root = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
+         if (.not. has_app_petcount_in_mapl_section .and. has_app_petcount_in_root) then
             app_petcount = ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC)
             call ESMF_HConfigAdd(mapl_hconfig, content=app_petcount, &
                  addKeyString='app_petcount', _RC)
