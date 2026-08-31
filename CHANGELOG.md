@@ -19,6 +19,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Simplified the `CMakeLists.txt` ESMF handling: `ESMA_cmake` now creates the NetCDF/HDF5/ESMF/MPI targets and enforces a minimum ESMF version for both Baselibs and Spack builds automatically, so the manual `if (NOT Baselibs_FOUND) ... else () ... endif ()` block is no longer needed. MAPL3's stricter ESMF >= 9.0.0 requirement is now expressed by setting `ESMA_ESMF_MIN_VERSION` before `include(esma)`.
+  - Update `components.yaml`
+    - ESMA_cmake v4.44.0
+      - Support for `ESMFConfig.cmake`
+    - ESMA_cmake v4.43.0
+      - Split dependency-target creation (NetCDF, HDF5, ESMF, FMS, etc.) out of `FindBaselibs.cmake` into `ConfigureBaselibs.cmake` and `ConfigureExternalLibraries.cmake`; `esma.cmake` now `include()`s the appropriate one automatically based on `Baselibs_FOUND`
+      - Guard the historical `ZLIB::zlib` alias creation with `if(NOT TARGET ZLIB::zlib)`
+      - Only look for FMS via `find_package` when `FV_PRECISION` is defined, so projects like MAPL that don't use FMS no longer require it
+      - Added an `ESMA_ESMF_MIN_VERSION` variable, settable before `include(esma)`, to control the minimum ESMF version enforced for both Baselibs and Spack builds (defaults to `8.6.1`)
+      - Suppress compiler `-save-temps` in Debug builds generated with Ninja to prevent parallel compile collisions for shared source basenames
+      - Keep ESMF wrapper link options in `INTERFACE_LINK_OPTIONS` rather than treating them as libraries in `FindESMF.cmake`
+      - Added `copy_restarts()` helper function to `esma_regression_run_helpers.cmake` for regression test restart handling
+      - Update GitHub Actions workflow dependencies (`actions/checkout`, `actions/upload-artifact`) to current major versions
+    - ESMA_cmake v4.42.0
+      - Fix CMake 4.0 `CMP0219` policy warning in `esma_generate_gocart_code` macro
+      - Fix `f2py` and `f2py3` NetCDF-Fortran builds and post-build Python import tests when dependencies are supplied by Spack
+    - ESMA_cmake v4.41.0
+      - Add new `esma_install_manifest.cmake` to create a manifest of installed files
+      - Added `esma_add_regression_tests()` macro to centralise the CMake boilerplate for registering GEOS component regression tests
+      - Added `esma_sync_aws_s3_data.cmake` and `esma_regression_run_helpers.cmake` to support S3-based regression test data
+      - Switch macOS RPATH in `osx_extras.cmake` from absolute to relative (`@loader_path/../lib`) so experiment-local install trees resolve GEOS/MAPL shared libraries correctly
 - For vector items in ExtData change variables separted by `;` to a sequence of variables like History
 - Moved DSO-backed child `setServices` ownership into child configurations and added support for raw `ESMF_GridCompCreate` followed by `ESMF_GridCompSetServices` startup.
 - Refactored `UserSetServices.F90` to remove the `user_setservices` interface, rename `AbstractUserSetServices` to `UserSetServices`, and giving `ProcSetServices` and `DSOSetServices` their own constructors

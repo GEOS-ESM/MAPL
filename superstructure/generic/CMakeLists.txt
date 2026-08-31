@@ -58,7 +58,21 @@ esma_add_library(${this}
   TYPE SHARED
   )
 
-add_subdirectory(specs)
+# Note on add_subdirectory(specs generic_specs):
+# We pass "generic_specs" as the second argument (binary_dir) to explicitly override
+# the build output directory instead of allowing CMake to default to "${CMAKE_CURRENT_BINARY_DIR}/specs".
+#
+# Root Cause: When building under the Spack Intel toolchain, ifort invokes GCC under the hood
+# to probe host compiler configuration. GCC automatically checks the current working directory
+# for a custom compiler spec file named "specs". If a binary directory named "./specs" exists
+# in the build execution tree, GCC attempts to read it as a text file, fails, and surfaces
+# the notoriously misleading error:
+#   "ifort: error #10417: Problem setting up the execution environment..."
+#
+# By specifying "generic_specs" as the binary_dir argument, CMake outputs build artifacts to
+# "${CMAKE_CURRENT_BINARY_DIR}/generic_specs", preventing the creation of a "./specs" directory
+# in the build tree while leaving the source directory "specs/" unchanged.
+add_subdirectory(specs generic_specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(transforms)
