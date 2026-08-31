@@ -4,7 +4,7 @@ module mapl_VariableSpec_mod
 
    use mapl_StateItemSpec_mod
    use mapl_StateItemAspect_mod
-   use mapl_AspectState_mod
+   use mapl_AspectStatus_mod
    use mapl_GeomAspect_mod
 
    use mapl_ClassAspect_mod
@@ -551,9 +551,9 @@ contains
 
       type(ESMF_Geom), allocatable :: geom_
       type(mapl_GeomId) :: geom_id_
-      type(AspectState) :: aspect_state
+      type(AspectStatus) :: aspect_status
 
-      aspect_state = ASPECT_STATE_MIRRORED
+      aspect_status = ASPECT_STATUS_MIRRORED
 
       ! If geom is allocated in var spec then it is prioritized over the
       ! component-wide geom.
@@ -561,14 +561,14 @@ contains
       ! mirrored ind will be determined by a connection.
        if (allocated(this%geom)) then
           geom_ = this%geom
-          aspect_state = ASPECT_STATE_SPECIFIED
+          aspect_status = ASPECT_STATUS_SPECIFIED
          if (this%geom_id%is_assigned()) then
             geom_id_ = this%geom_id
          end if
       else
           if (present(component_geom)) then
              geom_ = component_geom
-             aspect_state = ASPECT_STATE_SPECIFIED
+             aspect_status = ASPECT_STATUS_SPECIFIED
             if (this%geom_id%is_assigned()) then
                geom_id_ = this%geom_id
             else if (present(component_geom_id)) then
@@ -576,15 +576,15 @@ contains
             end if
           else if (this%geom_id%is_assigned()) then
              geom_id_ = this%geom_id
-             aspect_state = ASPECT_STATE_SPECIFIED
+             aspect_status = ASPECT_STATUS_SPECIFIED
           else if (present(component_geom_id)) then
              geom_id_ = component_geom_id
-             aspect_state = ASPECT_STATE_FROM_COMP
+             aspect_status = ASPECT_STATUS_FROM_COMP
          end if
       end if
 
        aspect = GeomAspect(geom=geom_, regridder_param=this%regrid_param, &
-            horizontal_dims_spec=this%horizontal_dims_spec, geom_id=geom_id_, aspect_state=aspect_state)
+            horizontal_dims_spec=this%horizontal_dims_spec, geom_id=geom_id_, aspect_status=aspect_status)
 
       _RETURN(_SUCCESS)
    end function make_GeomAspect
@@ -647,9 +647,9 @@ contains
 
        type(ESMF_Geom) :: geom_
        class(VerticalGrid), allocatable :: vgrid
-       type(AspectState) :: aspect_state
+       type(AspectStatus) :: aspect_status
 
-       aspect_state = ASPECT_STATE_MIRRORED
+       aspect_status = ASPECT_STATUS_MIRRORED
 
       ! If geom is allocated in var spec then it is prioritized over the
       ! component-wide geom.
@@ -659,21 +659,21 @@ contains
          geom_ = this%geom
        elseif (present(component_geom)) then
           geom_ = component_geom
-          aspect_state = ASPECT_STATE_FROM_COMP
+          aspect_status = ASPECT_STATUS_FROM_COMP
       end if
 
       if (allocated(this%vertical_grid)) then
          vgrid = this%vertical_grid
        elseif (present(vertical_grid)) then
           vgrid = vertical_grid
-          aspect_state = ASPECT_STATE_SPECIFIED
+          aspect_status = ASPECT_STATUS_SPECIFIED
        elseif (present(component_geom_id)) then
-          aspect_state = ASPECT_STATE_FROM_COMP
+          aspect_status = ASPECT_STATUS_FROM_COMP
       end if
 
        aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, &
             vertical_alignment=VerticalAlignment(this%vertical_alignment), geom=geom_, typekind=this%typekind, &
-            aspect_state=aspect_state)
+            aspect_status=aspect_status)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(time_dependent)

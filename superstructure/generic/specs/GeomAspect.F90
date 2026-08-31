@@ -4,7 +4,7 @@ module mapl_GeomAspect_mod
 
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
-   use mapl_AspectState_mod
+   use mapl_AspectStatus_mod
    use mapl_HorizontalDimsSpec_mod
    use mapl_StateItemAspect_mod
    use mapl_geom_api, only: mapl_GeomId
@@ -85,19 +85,19 @@ module mapl_GeomAspect_mod
 
 contains
 
-   function new_GeomAspect(geom, regridder_param, horizontal_dims_spec, is_time_dependent, geom_id, aspect_state) result(aspect)
+   function new_GeomAspect(geom, regridder_param, horizontal_dims_spec, is_time_dependent, geom_id, aspect_status) result(aspect)
       type(GeomAspect) :: aspect
       type(ESMF_Geom), optional, intent(in) :: geom
       type(EsmfRegridderParam), optional, intent(in) :: regridder_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       logical, optional, intent(in) :: is_time_dependent
       type(mapl_GeomId), optional, intent(in) :: geom_id
-      type(AspectState), optional, intent(in) :: aspect_state
+      type(AspectStatus), optional, intent(in) :: aspect_status
 
-      call aspect%set_characteristic_state(ASPECT_STATE_MIRRORED)
+      call aspect%set_characteristic_state(ASPECT_STATUS_MIRRORED)
 
-      if (present(aspect_state)) then
-         call aspect%set_characteristic_state(aspect_state)
+      if (present(aspect_status)) then
+         call aspect%set_characteristic_state(aspect_status)
       end if
 
       if (present(geom_id)) then
@@ -210,7 +210,7 @@ contains
        end if
 
         this%geom = geom
-        call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+        call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
 
      end subroutine set_geom
 
@@ -219,7 +219,7 @@ contains
       type(mapl_GeomId), intent(in) :: geom_id
 
        this%geom_id = geom_id
-       if (allocated(this%geom)) call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+       if (allocated(this%geom)) call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
     end subroutine set_geom_id
 
    subroutine set_regridder_param(this, regridder_param)
@@ -271,7 +271,7 @@ contains
         this%geom_id = export_%geom_id
         if (allocated(export_%geom)) then
            this%geom = export_%geom
-           call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+           call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
         else if (allocated(this%geom)) then
            deallocate(this%geom)
            call this%set_characteristic_state(export_%get_characteristic_state())
@@ -352,7 +352,7 @@ contains
          if (allocated(this%regridder_param)) deallocate(this%regridder_param)
       end if
 
-       if (.not. allocated(this%geom)) call this%set_characteristic_state(ASPECT_STATE_MIRRORED)
+       if (.not. allocated(this%geom)) call this%set_characteristic_state(ASPECT_STATUS_MIRRORED)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)

@@ -4,7 +4,7 @@ module mapl_UnitsAspect_mod
 
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
-   use mapl_AspectState_mod
+   use mapl_AspectStatus_mod
    use mapl_StateItemAspect_mod
    use mapl_ExtensionTransform_mod
    use mapl_ConvertUnitsTransform_mod
@@ -60,10 +60,10 @@ contains
       character(*), optional, intent(in) :: units
       logical, optional, intent(in) :: is_time_dependent
 
-       call aspect%set_characteristic_state(ASPECT_STATE_UNCHECKED)
+       call aspect%set_characteristic_state(ASPECT_STATUS_UNCHECKED)
        if (present(units)) then
           aspect%units = units
-          call aspect%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+          call aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
       end if
       call aspect%set_mirror(is_time_dependent)
 
@@ -204,11 +204,11 @@ contains
 
       this%units = units
       if (units == IS_MIRROR) then
-         call this%set_characteristic_state(ASPECT_STATE_MIRRORED)
+         call this%set_characteristic_state(ASPECT_STATUS_MIRRORED)
       else if (units == '<unknown>') then
-         call this%set_characteristic_state(ASPECT_STATE_UNCHECKED)
+         call this%set_characteristic_state(ASPECT_STATUS_UNCHECKED)
       else
-         call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+         call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
       end if
 
       _RETURN(_SUCCESS)
@@ -235,14 +235,14 @@ contains
        mirror = .false.
        if (allocated(this%units)) mirror = this%units == IS_MIRROR
        if (mirror) then
-          call this%set_characteristic_state(ASPECT_STATE_MIRRORED)
+          call this%set_characteristic_state(ASPECT_STATUS_MIRRORED)
        else
           if (.not. allocated(this%units)) then
-             call this%set_characteristic_state(ASPECT_STATE_UNCHECKED)
+             call this%set_characteristic_state(ASPECT_STATUS_UNCHECKED)
           else if (this%units == '<unknown>') then
-             call this%set_characteristic_state(ASPECT_STATE_UNCHECKED)
+             call this%set_characteristic_state(ASPECT_STATUS_UNCHECKED)
           else
-             call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+             call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
           end if
        end if
 

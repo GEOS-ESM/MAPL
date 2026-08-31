@@ -3,7 +3,7 @@
 module mapl_VerticalGridAspect_mod
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
-   use mapl_AspectState_mod
+   use mapl_AspectStatus_mod
    use mapl_field_api
    use mapl_field_bundle_api
    use mapl_StateItemAspect_mod
@@ -89,7 +89,7 @@ module mapl_VerticalGridAspect_mod
 
 contains
 
-    function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, geom, typekind, time_dependent, aspect_state) result(aspect)
+    function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, geom, typekind, time_dependent, aspect_status) result(aspect)
        type(VerticalGridAspect) :: aspect
        class(VerticalGrid), optional, intent(in) :: vertical_grid
        type(VerticalRegridMethod), optional, intent(in) :: regrid_method
@@ -98,15 +98,15 @@ contains
        type(ESMF_Geom), optional, intent(in) :: geom
        type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
        logical, optional, intent(in) :: time_dependent
-       type(AspectState), optional, intent(in) :: aspect_state
+       type(AspectStatus), optional, intent(in) :: aspect_status
 
-       call aspect%set_characteristic_state(ASPECT_STATE_MIRRORED)
-       if (present(aspect_state)) then
-          call aspect%set_characteristic_state(aspect_state)
+       call aspect%set_characteristic_state(ASPECT_STATUS_MIRRORED)
+       if (present(aspect_status)) then
+          call aspect%set_characteristic_state(aspect_status)
        end if
        if (present(vertical_grid)) then
           aspect%vertical_grid = vertical_grid
-          call aspect%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+          call aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
        end if
 
       if (present(regrid_method)) then
@@ -132,7 +132,7 @@ contains
     function new_VerticalGridAspect_mirror() result(aspect)
        type(VerticalGridAspect) :: aspect
 
-       call aspect%set_characteristic_state(ASPECT_STATE_MIRRORED)
+       call aspect%set_characteristic_state(ASPECT_STATUS_MIRRORED)
     end function new_VerticalGridAspect_mirror
 
    logical function supports_conversion_general(src)
@@ -229,7 +229,7 @@ contains
        class(VerticalGrid), intent(in) :: vertical_grid
 
        self%vertical_grid = vertical_grid
-       call self%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+       call self%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
     end subroutine set_vertical_grid
 
    subroutine set_vertical_stagger(self, vertical_stagger)
@@ -393,9 +393,9 @@ contains
        end if
 
        if (is_mirror) then
-          call this%set_characteristic_state(ASPECT_STATE_MIRRORED)
+          call this%set_characteristic_state(ASPECT_STATUS_MIRRORED)
        else
-          call this%set_characteristic_state(ASPECT_STATE_SPECIFIED)
+          call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
        end if
 
       _RETURN(_SUCCESS)
