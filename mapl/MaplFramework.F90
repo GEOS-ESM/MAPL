@@ -256,19 +256,19 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         logical :: has_model_petcount, has_app_petcount
+         logical :: has_app_petcount_mapl, has_app_petcount_root
          logical :: has_mapl_servers, has_pflogger, has_pflogger_cfg_file
          logical :: has_servers
          type(ESMF_HConfig) :: servers_hconfig
          character(:), allocatable :: pflogger_cfg_file
          integer(kind=ESMF_KIND_I4) :: app_petcount
 
-         has_model_petcount = ESMF_HConfigIsDefined(mapl_hconfig, keystring='model_petcount', _RC)
-         has_app_petcount = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
-         if (.not. has_model_petcount .and. has_app_petcount) then
+         has_app_petcount_mapl = ESMF_HConfigIsDefined(mapl_hconfig, keystring='app_petcount', _RC)
+         has_app_petcount_root = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
+         if (.not. has_app_petcount_mapl .and. has_app_petcount_root) then
             app_petcount = ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC)
             call ESMF_HConfigAdd(mapl_hconfig, content=app_petcount, &
-                 addKeyString='model_petcount', _RC)
+                 addKeyString='app_petcount', _RC)
          end if
 
          has_mapl_servers = ESMF_HConfigIsDefined(mapl_hconfig, keystring='servers', _RC)
@@ -389,7 +389,7 @@ contains
 
       integer :: status
       logical :: has_server_section
-      integer :: model_petCount
+      integer :: app_petCount
       integer :: world_comm
       integer :: ssiCount
       integer, allocatable :: ssiMap(:)
@@ -404,8 +404,8 @@ contains
       _RETURN_UNLESS(has_server_section)
 
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
-      model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
-      num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
+      app_petCount = get_app_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
+      num_model_ssis = get_num_ssis(app_petCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
@@ -471,7 +471,7 @@ contains
 
       integer :: status
       logical :: has_server_section
-      integer :: model_petCount
+      integer :: app_petCount
       integer :: world_group, model_group
       integer :: world_comm
       integer :: ssiCount
@@ -487,7 +487,7 @@ contains
       ! Complex path: re-partition model_comm to the model-only PETs, add any
       ! local: true servers from config, and build remote server GridComps.
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
-      model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
+      app_petCount = get_app_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
 
       ! Free the world-spanning model_comm set in initialize_default_servers and
       ! replace it with the model-only partition.
@@ -495,7 +495,7 @@ contains
          call MPI_Comm_free(this%model_comm, _IERROR)
       end if
       call MPI_Comm_group(world_comm, world_group, _IERROR)
-      call MPI_Group_range_incl(world_group, 1, reshape([0, model_petCount-1, 1], [3,1]), model_group, _IERROR)
+      call MPI_Group_range_incl(world_group, 1, reshape([0, app_petCount-1, 1], [3,1]), model_group, _IERROR)
       call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
       call MPI_Group_free(model_group, _IERROR)
       call MPI_Group_free(world_group, _IERROR)
@@ -507,7 +507,7 @@ contains
       end if
 
       ! Build ESMF GridComps for remote (non-local) servers.
-      call this%initialize_non_default_servers(servers, world_comm, model_petCount, ssiCount, ssiMap, &
+      call this%initialize_non_default_servers(servers, world_comm, app_petCount, ssiCount, ssiMap, &
            is_model_pet=this%is_model_pet, _RC)
 
       _RETURN(_SUCCESS)
@@ -515,12 +515,12 @@ contains
    end subroutine create_servers
 
    ! Build MPI communicators and ESMF GridComps for an explicit servers: topology.
-   subroutine initialize_non_default_servers(this, servers, world_comm, model_petCount, ssiCount, ssiMap, &
+   subroutine initialize_non_default_servers(this, servers, world_comm, app_petCount, ssiCount, ssiMap, &
         unusable, is_model_pet, rc)
       class(MaplFramework), target, intent(inout) :: this
       type(ESMF_GridComp), allocatable, intent(out) :: servers(:)
       integer, intent(in) :: world_comm
-      integer, intent(in) :: model_petCount
+      integer, intent(in) :: app_petCount
       integer, intent(in) :: ssiCount
       integer, intent(in) :: ssiMap(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -541,7 +541,7 @@ contains
       character(ESMF_MAXSTR), allocatable :: server_names(:)
       type(ServerResources) :: srv_resources
 
-      num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
+      num_model_ssis = get_num_ssis(app_petCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)

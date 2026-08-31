@@ -12,7 +12,7 @@ module mapl_MaplServerUtilities_mod
    public :: ServerResources
    public :: pets_on_ssis
    public :: get_num_ssis
-   public :: get_model_petCount
+   public :: get_app_petCount
    public :: get_server_hconfigs
    public :: get_ssis_per_server
    public :: create_server_comms
@@ -67,30 +67,23 @@ contains
       _RETURN(_SUCCESS)
    end function get_num_ssis
 
-   integer function get_model_petCount(vm, hconfig, rc) result(model_petCount)
+   integer function get_app_petCount(vm, hconfig, rc) result(app_petCount)
       type(ESMF_VM), intent(in) :: vm
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_model_petcount
       logical :: has_app_petcount
 
-      call ESMF_VMGet(vm, petcount=model_petCount, _RC)
-
-      has_model_petcount = ESMF_HConfigIsDefined(hconfig, keystring='model_petcount', _RC)
-      if (has_model_petcount) then
-         model_petcount = ESMF_HConfigAsI4(hconfig, keystring='model_petcount', _RC)
-         _RETURN(_SUCCESS)
-      end if
+      call ESMF_VMGet(vm, petcount=app_petCount, _RC)
 
       has_app_petcount = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
       if (has_app_petcount) then
-         model_petcount = ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC)
+         app_petcount = ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC)
       end if
 
       _RETURN(_SUCCESS)
-   end function get_model_petCount
+   end function get_app_petCount
 
    subroutine get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, rc)
       type(ESMF_HConfig), intent(in) :: servers_hconfig

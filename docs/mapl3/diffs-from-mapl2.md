@@ -451,7 +451,7 @@ esmf:
   logAppendFlag:    false
 
 mapl:
-  model_petcount: 1
+  app_petcount: 1
   pflogger:       pflogger.yaml
 
   servers:
@@ -487,7 +487,7 @@ run:
 | Section | Purpose |
 |---------|---------|
 | `esmf:` | ESMF initialisation (`logKindFlag`, `defaultCalKind`, etc.) |
-| `mapl:` | Global MAPL settings: `model_petcount`, `pflogger_cfg_file`, `servers:` (I/O server node counts and DSOs) |
+| `mapl:` | Global MAPL settings: `app_petcount`, `pflogger_cfg_file`, `servers:` (I/O server node counts and DSOs) |
 | `cap:` | Clock (`start`, `stop`, `dt`, `segment_duration`), restart file, checkpointing alarms, and the root/extdata/history component names |
 | `cap.mapl.children:` | The DSO declarations that select which science components to load — this is what makes `GEOS.x` universal |
 

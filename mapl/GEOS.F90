@@ -3,7 +3,7 @@
 
 program geos
    use MAPL
-   use mapl_Cap_mod, only: MAPL_CapCreate, MAPL_CapRun
+   use mapl_CapDriver_mod, only: MAPL_CapCreate, MAPL_CapRun
    use esmf
    implicit none
 

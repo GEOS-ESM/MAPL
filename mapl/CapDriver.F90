@@ -1,6 +1,6 @@
 #include "MAPL.h"
 
-module mapl_Cap_mod
+module mapl_CapDriver_mod
 
    use MAPL
    use mapl_HConfigUtilities_mod, only: merge_hconfig
@@ -54,15 +54,16 @@ contains
 
       integer :: status
       logical :: is_model_pet
-      type(ESMF_HConfig) :: hconfig, cap_hconfig
+      type(ESMF_HConfig) :: hconfig, cap_driver_hconfig, cap_gridcomp_hconfig
       type(CapOptions) :: options
       type(esmf_Clock) :: clock
 
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
-      cap_hconfig = resolve_cap_hconfig(hconfig, _RC)
-      options = make_cap_options(cap_hconfig, is_model_pet, _RC)
-      clock = make_clock(cap_hconfig, options%lgr, _RC)
-      driver = make_driver(clock, cap_hconfig, options, _RC)
+      cap_driver_hconfig = resolve_cap_driver_hconfig(hconfig, _RC)
+      cap_gridcomp_hconfig = resolve_cap_gridcomp_hconfig(hconfig, _RC)
+      options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
+      clock = make_clock(cap_driver_hconfig, options%lgr, _RC)
+      driver = make_driver(clock, cap_gridcomp_hconfig, options, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -76,23 +77,23 @@ contains
 
       integer :: status
       logical :: is_model_pet
-      type(ESMF_HConfig) :: hconfig, cap_hconfig
+      type(ESMF_HConfig) :: hconfig, cap_driver_hconfig
       type(CapOptions) :: options
       type(esmf_Clock) :: clock
 
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
       _RETURN_UNLESS(is_model_pet)
 
-      cap_hconfig = resolve_cap_hconfig(hconfig, _RC)
-      options = make_cap_options(cap_hconfig, is_model_pet, _RC)
+      cap_driver_hconfig = resolve_cap_driver_hconfig(hconfig, _RC)
+      options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
 
       call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, cap_hconfig, options%checkpointing, options%lgr, _RC)
+      call integrate(driver, cap_driver_hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
 
       clock = driver%get_clock()
-      call update_restart(cap_hconfig, clock, _RC)
-      call ESMF_HConfigDestroy(cap_hconfig, _RC)
+      call update_restart(cap_driver_hconfig, clock, _RC)
+      call ESMF_HConfigDestroy(cap_driver_hconfig, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -108,22 +109,23 @@ contains
       type(MAPL_GriddedComponentDriver) :: driver
       type(esmf_Clock) :: clock
       type(CapOptions) :: options
-      type(esmf_HConfig) :: cap_hconfig
+      type(esmf_HConfig) :: cap_driver_hconfig, cap_gridcomp_hconfig
       integer :: status
 
-      cap_hconfig = resolve_cap_hconfig(hconfig, _RC)
-      options = make_cap_options(cap_hconfig, is_model_pet, _RC)
-      clock = make_clock(cap_hconfig, options%lgr, _RC)
-      driver = make_driver(clock, cap_hconfig, options, _RC)
+      cap_driver_hconfig = resolve_cap_driver_hconfig(hconfig, _RC)
+      cap_gridcomp_hconfig = resolve_cap_gridcomp_hconfig(hconfig, _RC)
+      options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
+      clock = make_clock(cap_driver_hconfig, options%lgr, _RC)
+      driver = make_driver(clock, cap_gridcomp_hconfig, options, _RC)
 
       _RETURN_UNLESS(is_model_pet)
 
       ! TODO `initialize_phases` should be a MAPL procedure (name)
       call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, cap_hconfig, options%checkpointing, options%lgr, _RC)
+      call integrate(driver, cap_driver_hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
-      call update_restart(cap_hconfig, clock, _RC)
-      call ESMF_HConfigDestroy(cap_hconfig, _RC)
+      call update_restart(cap_driver_hconfig, clock, _RC)
+      call ESMF_HConfigDestroy(cap_driver_hconfig, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -285,51 +287,11 @@ contains
       _RETURN(_SUCCESS)
    end function get_timestamp
 
-   recursive subroutine merge_cap_hconfig(dst_hconfig, src_hconfig, rc)
-      type(ESMF_HConfig), intent(inout) :: dst_hconfig
-      type(ESMF_HConfig), intent(in) :: src_hconfig
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
-      character(:), allocatable :: key
-      type(ESMF_HConfig) :: src_val, dst_val
-      logical :: has_key, is_map, src_is_map, dst_is_map
-
-      _ASSERT(ESMF_HConfigIsMap(dst_hconfig), 'destination hconfig must be a mapping.')
-      _ASSERT(ESMF_HConfigIsMap(src_hconfig), 'source hconfig must be a mapping.')
-
-      iter_begin = ESMF_HConfigIterBegin(src_hconfig, _RC)
-      iter_end = ESMF_HConfigIterEnd(src_hconfig, _RC)
-      iter = iter_begin
-      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
-         _VERIFY(status)
-
-         key = ESMF_HConfigAsStringMapKey(iter, _RC)
-         src_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         has_key = ESMF_HConfigIsDefined(dst_hconfig, keystring=key, _RC)
-         src_is_map =  ESMF_HConfigIsMap(src_val, _RC)
-         if (.not. has_key) then
-            call ESMF_HConfigAdd(dst_hconfig, content=src_val, addKeyString=key, _RC)
-            cycle
-         end if
-
-         dst_val = ESMF_HConfigCreateAt(dst_hconfig, keystring=key, _RC)
-         dst_is_map =  ESMF_HConfigIsMap(dst_val, _RC)
-         is_map =  dst_is_map .and. src_is_map
-         if (is_map) then
-            call merge_cap_hconfig(dst_val, src_val, _RC)
-            call ESMF_HConfigAdd(dst_hconfig, content=dst_val, addKeyString=key, _RC)
-         else
-            call ESMF_HConfigAdd(dst_hconfig, content=src_val, addKeyString=key, _RC)
-         end if
-      end do
-
-      _RETURN(_SUCCESS)
-   end subroutine merge_cap_hconfig
-
-   function resolve_cap_hconfig(hconfig, rc) result(cap_hconfig)
-      type(ESMF_HConfig) :: cap_hconfig
+   ! Resolve the driver-level configuration (name, clock, restart, checkpointing,
+   ! run_times) from either the legacy 'cap' entry or a standalone cap_driver.yaml
+   ! file referenced by app.config.
+   function resolve_cap_driver_hconfig(hconfig, rc) result(cap_driver_hconfig)
+      type(ESMF_HConfig) :: cap_driver_hconfig
       type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
@@ -337,18 +299,14 @@ contains
       logical :: has_cap
       logical :: has_app
       logical :: has_app_config
-      logical :: has_cap_gridcomp_file
       type(esmf_HConfig) :: app_hconfig
-      type(esmf_HConfig) :: cap_gridcomp_hconfig
       character(:), allocatable :: config_file
-      character(:), allocatable :: gridcomp_config_file
-      integer :: idx
 
       class(Logger), pointer :: lgr
 
       has_cap = esmf_HConfigIsDefined(hconfig, keystring='cap', _RC)
       if (has_cap) then
-         cap_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap', _RC)
+         cap_driver_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap', _RC)
          _RETURN(_SUCCESS)
       end if
 
@@ -358,38 +316,7 @@ contains
          has_app_config = esmf_HConfigIsDefined(app_hconfig, keystring='config', _RC)
          if (has_app_config) then
             config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
-            cap_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
-
-            idx = index(config_file, 'cap_driver', back=.true.)
-            if (idx > 0) then
-               if (idx > 1) then
-                  gridcomp_config_file = config_file(:idx-1) // 'cap_gridcomp' // trim(config_file(idx+len('cap_driver'):))
-               else
-                  gridcomp_config_file = 'cap_gridcomp' // trim(config_file(idx+len('cap_driver'):))
-               end if
-            else
-               idx = index(config_file, 'cap.yaml', back=.true.)
-               if (idx > 0) then
-                  if (idx > 1) then
-                     gridcomp_config_file = config_file(:idx-1) // 'cap_gridcomp.yaml'
-                  else
-                     gridcomp_config_file = 'cap_gridcomp.yaml'
-                  end if
-               else
-                  gridcomp_config_file = ''
-               end if
-            end if
-
-            has_cap_gridcomp_file = .false.
-            if (len_trim(gridcomp_config_file) > 0) then
-               inquire(file=trim(gridcomp_config_file), exist=has_cap_gridcomp_file)
-            end if
-            if (has_cap_gridcomp_file) then
-               cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
-               call merge_cap_hconfig(cap_hconfig, cap_gridcomp_hconfig, _RC)
-               call esmf_HConfigDestroy(cap_gridcomp_hconfig, _RC)
-            end if
-
+            cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
             call esmf_HConfigDestroy(app_hconfig, _RC)
             _RETURN(_SUCCESS)
          end if
@@ -399,7 +326,49 @@ contains
       lgr => logging%get_logger('MAPL')
       call lgr%warning('No cap entry or app.config entry found in root config; this is a configuration error.')
       _FAIL('No cap entry or app.config entry found in root config')
-   end function resolve_cap_hconfig
+   end function resolve_cap_driver_hconfig
+
+   ! Resolve the gridcomp-level configuration (root/extdata/history names,
+   ! run_extdata/run_history, and the mapl: setServices/children tree) from
+   ! either the legacy 'cap' entry or a standalone cap_gridcomp.yaml file
+   ! referenced by app.gridcomp_config.
+   function resolve_cap_gridcomp_hconfig(hconfig, rc) result(cap_gridcomp_hconfig)
+      type(ESMF_HConfig) :: cap_gridcomp_hconfig
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_cap
+      logical :: has_app
+      logical :: has_gridcomp_config
+      type(esmf_HConfig) :: app_hconfig
+      character(:), allocatable :: gridcomp_config_file
+
+      class(Logger), pointer :: lgr
+
+      has_cap = esmf_HConfigIsDefined(hconfig, keystring='cap', _RC)
+      if (has_cap) then
+         cap_gridcomp_hconfig = esmf_HConfigCreateAt(hconfig, keystring='cap', _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      has_app = esmf_HConfigIsDefined(hconfig, keystring='app', _RC)
+      if (has_app) then
+         app_hconfig = esmf_HConfigCreateAt(hconfig, keystring='app', _RC)
+         has_gridcomp_config = esmf_HConfigIsDefined(app_hconfig, keystring='gridcomp_config', _RC)
+         if (has_gridcomp_config) then
+            gridcomp_config_file = esmf_HConfigAsString(app_hconfig, keystring='gridcomp_config', _RC)
+            cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
+            call esmf_HConfigDestroy(app_hconfig, _RC)
+            _RETURN(_SUCCESS)
+         end if
+         call esmf_HConfigDestroy(app_hconfig, _RC)
+      end if
+
+      lgr => logging%get_logger('MAPL')
+      call lgr%warning('No cap entry or app.gridcomp_config entry found in root config; this is a configuration error.')
+      _FAIL('No cap entry or app.gridcomp_config entry found in root config')
+   end function resolve_cap_gridcomp_hconfig
 
    function make_driver(clock, hconfig, options, rc) result(driver)
       type(MAPL_GriddedComponentDriver) :: driver
@@ -830,4 +799,4 @@ contains
 
    end subroutine update_restart
 
-end module mapl_Cap_mod
+end module mapl_CapDriver_mod

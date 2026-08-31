@@ -7,3 +7,12 @@ clock:
   dt: PT900S
 #   repeat_duration: P1Y
   segment_duration: P1H
+
+checkpointing:
+  enabled: true
+  final: true
+  path: checkpoints
+  alarms:
+    - {frequency: PT6H, refTime: '1891-03-01T00:00:00'}
+    - {times: ['1891-03-01T00:00:00']}
+    - {offsets: ['P6H']} # relative to segment start
