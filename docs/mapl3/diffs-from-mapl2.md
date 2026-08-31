@@ -111,6 +111,7 @@ is a major design goal of MAPL3.  The phases are defined in
 | `GENERIC_INIT_GEOM_B` | Second geometry initialization pass |
 | `GENERIC_INIT_ADVERTISE` | Advertise import/export fields |
 | `GENERIC_INIT_MODIFY_ADVERTISED` | Modify advertised fields if needed |
+| `GENERIC_INIT_REALIZE_PROVIDED` | Publish provider metadata, resolve connections, and derive metadata |
 | `GENERIC_INIT_REALIZE` | Allocate and realize fields |
 | `GENERIC_INIT_READ_RESTART` | Read restart files |
 | `GENERIC_INIT_USER` | User-specific initialization |

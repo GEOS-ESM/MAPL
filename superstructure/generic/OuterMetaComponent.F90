@@ -93,6 +93,9 @@ module mapl_OuterMetaComponent_mod
       procedure :: initialize_advertise
       procedure :: advertise_variable
       procedure :: initialize_modify_advertised
+      procedure :: initialize_realize_provided
+      procedure, private :: publish_provided_metadata
+      procedure, private :: resolve_metadata
       procedure :: initialize_realize
       procedure :: initialize_read_restart
 
@@ -308,6 +311,28 @@ module mapl_OuterMetaComponent_mod
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised
+
+      module recursive subroutine initialize_realize_provided(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+          ! optional arguments
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_realize_provided
+
+       module recursive subroutine publish_provided_metadata(this, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+       end subroutine publish_provided_metadata
+
+       module recursive subroutine resolve_metadata(this, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+       end subroutine resolve_metadata
 
       module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this

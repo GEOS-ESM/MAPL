@@ -2,6 +2,9 @@
 
 submodule (mapl_OuterMetaComponent_mod) initialize_realize_smod
    use mapl_MultiState_mod
+   use mapl_Connection_mod
+   use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
+   use mapl_ConnectionVector_mod, only: operator(/=)
    use mapl_enums_api, only: MAPL_GENERIC_INIT_REALIZE
    use mapl_ErrorHandling_mod
    implicit none(type,external)
@@ -21,7 +24,7 @@ contains
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
       type(MultiState) :: outer_states, user_states, tmp_states
-
+      call process_connections(this, _RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE, _RC)
 
       user_states = this%user_gc_driver%get_states()
@@ -39,5 +42,25 @@ contains
       _UNUSED_DUMMY(unusable)
 
    end subroutine initialize_realize
+
+   subroutine process_connections(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ConnectionVectorIterator) :: iter
+      class(Connection), pointer :: c
+
+      associate (e => this%component_spec%connections%end())
+        iter = this%component_spec%connections%begin()
+        do while (iter /= e)
+           c => iter%of()
+           call c%connect(this%registry, _RC)
+           call iter%next()
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine process_connections
 
 end submodule initialize_realize_smod
