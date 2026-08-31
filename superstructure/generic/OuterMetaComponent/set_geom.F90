@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) set_geom_smod
+   use mapl_ErrorHandling_mod
    use mapl_geom_api, only: mapl_GeomIdManager
    use mapl_geom_api, only: MAPL_GeomGetId
    use mapl_geom_api, only: mapl_get_geom_id_manager
@@ -9,13 +10,15 @@ submodule (mapl_OuterMetaComponent_mod) set_geom_smod
 
 contains
 
-   module subroutine set_geom(this, geom)
+   module subroutine set_geom(this, geom, rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_Geom), intent(in) :: geom
+      integer, optional, intent(out) :: rc
 
       type(mapl_GeomIdManager), pointer :: geom_id_manager
       logical :: has_geom_id
       type(mapl_GeomId) :: geom_id_value
+      integer :: status
 
       if (.not. this%geom_id%is_assigned()) then
          geom_id_value = MAPL_GeomGetId(geom, isPresent=has_geom_id)
@@ -27,8 +30,11 @@ contains
          end if
       end if
 
-      this%geom = geom
+       this%geom = geom
+       call this%registry%set_geometry(geom=geom, _RC)
 
-   end subroutine set_geom
+       if (present(rc)) rc = ESMF_SUCCESS
+
+    end subroutine set_geom
 
 end submodule set_geom_smod
