@@ -2,6 +2,7 @@
 
 module MockAspect_mod
    use mapl_AspectId_mod
+   use mapl_AspectStatus_mod, only: ASPECT_STATUS_SPECIFIED
    use mapl_VariableSpec_mod
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
@@ -126,6 +127,7 @@ contains
       call aspects%insert(CLASS_ASPECT_ID, mock_class_aspect)
 
       mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
+      if (.not. mirror_) call mock_aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
       call aspects%insert(MOCK_ASPECT_ID, mock_aspect)
 
       call mock_spec%create()
@@ -152,8 +154,10 @@ contains
       logical, intent(in) :: time_dependent
       logical, intent(in) :: supports_conversion
 
-      call aspect%set_mirror(mirror)
-      call aspect%set_time_dependent(time_dependent)
+       call aspect%set_mirror(mirror)
+       call aspect%set_time_dependent(time_dependent)
+
+       if (.not. mirror) call aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
 
       aspect%value = value
       aspect%supports_conversion_ = supports_conversion
