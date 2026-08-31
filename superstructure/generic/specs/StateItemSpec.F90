@@ -8,6 +8,7 @@ module mapl_StateItemSpec_mod
    use mapl_ExtensionTransform_mod
    use mapl_MultiState_mod
    use mapl_StateItemAspect_mod
+   use mapl_AspectStatus_mod, only: AspectStatus
    use mapl_GeomAspect_mod
    use mapl_VerticalGridAspect_mod
    use mapl_ClassAspect_mod
@@ -46,6 +47,7 @@ module mapl_StateItemSpec_mod
       procedure :: get_aspect_priorities ! default implementation as aid to refactoring
       procedure :: clone_base
        procedure :: make_extension
+       procedure :: all_characteristics_resolved
 
 !#      procedure(I_write_formatted), deferred :: write_formatted
 !##ifndef __GFORTRAN__
@@ -310,6 +312,8 @@ contains
        class(StateItemAspect), pointer :: src_aspect, dst_aspect
        type(AspectMap), pointer :: other_aspects
 
+       _RETURN_UNLESS(this%all_characteristics_resolved())
+
        call this%activate(_RC)
       call this%update_from_payload(_RC)
 
@@ -351,6 +355,33 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_extension
+
+   logical function all_characteristics_resolved(this, rc)
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      type(AspectMapIterator) :: iter
+      class(StateItemAspect), pointer :: aspect
+      type(AspectStatus) :: aspect_status
+      integer :: status
+
+      all_characteristics_resolved = .true.
+      iter = this%aspects%ftn_begin()
+      associate (e => this%aspects%ftn_end())
+         do while (iter /= e)
+            call iter%next()
+            if (iter%first() == CLASS_ASPECT_ID) cycle
+            aspect => iter%second()
+            aspect_status = aspect%get_characteristic_state()
+            if (.not. aspect_status%is_resolved()) then
+               all_characteristics_resolved = .false.
+               exit
+            end if
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function all_characteristics_resolved
 
 
 

@@ -379,11 +379,11 @@ contains
       conn = SimpleConnection(CP('child_A', cp_A), CP('child_B', cp_B))
       call conn%connect(r, _RC)
 
-      ! Check that extension was created
+       ! Unresolved base geometry blocks extension creation.
       family => r_a%get_extension_family(cp_A, _RC)
 
       @assert_that(associated(family%get_primary()), is(true()))
-      @assert_that(family%num_variants(), is(2))
+       @assert_that(family%num_variants(), is(1))
 
       _UNUSED_DUMMY(this)
    end subroutine test_connect
