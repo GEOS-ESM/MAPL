@@ -19,6 +19,7 @@ module mapl_AspectStatus_mod
       integer :: value = 0
    contains
       procedure :: to_string
+      procedure :: is_resolved
    end type AspectStatus
 
    type(AspectStatus), parameter :: ASPECT_STATUS_INVALID   = AspectStatus(0)
@@ -71,5 +72,12 @@ contains
          str = 'UNKNOWN'
       end select
    end function to_string
+
+   elemental logical function is_resolved(this)
+      class(AspectStatus), intent(in) :: this
+
+      is_resolved = this == ASPECT_STATUS_SPECIFIED .or. &
+           this == ASPECT_STATUS_UNCHECKED
+   end function is_resolved
 
 end module mapl_AspectStatus_mod

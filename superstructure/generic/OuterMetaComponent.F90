@@ -493,9 +493,10 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), intent(in) :: this
       end function get_gridcomp
 
-      module subroutine set_geom(this, geom)
-         class(OuterMetaComponent), intent(inout) :: this
-         type(ESMF_Geom), intent(in) :: geom
+       module subroutine set_geom(this, geom, rc)
+          class(OuterMetaComponent), intent(inout) :: this
+          type(ESMF_Geom), intent(in) :: geom
+          integer, optional, intent(out) :: rc
       end subroutine set_geom
 
       module subroutine propagate_geom_to_children(this, rc)
@@ -503,9 +504,10 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end subroutine propagate_geom_to_children
 
-      module subroutine set_vertical_grid(this, vertical_grid)
-         class(OuterMetaComponent), intent(inout) :: this
-         class(VerticalGrid), intent(in) :: verticaL_grid
+       module subroutine set_vertical_grid(this, vertical_grid, rc)
+          class(OuterMetaComponent), intent(inout) :: this
+          class(VerticalGrid), intent(in) :: verticaL_grid
+          integer, optional, intent(out) :: rc
       end subroutine set_vertical_grid
 
       module function get_vertical_grid(this) result(vertical_grid)

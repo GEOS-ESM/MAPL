@@ -45,7 +45,7 @@ module mapl_StateItemSpec_mod
       procedure :: get_aspect_order ! as string vector
       procedure :: get_aspect_priorities ! default implementation as aid to refactoring
       procedure :: clone_base
-      procedure :: make_extension
+       procedure :: make_extension
 
 !#      procedure(I_write_formatted), deferred :: write_formatted
 !##ifndef __GFORTRAN__
@@ -294,7 +294,7 @@ contains
    ! Factory method to create an extension with couplers
    ! This creates a new spec that extends this one toward the goal_spec,
    ! setting up the necessary transform couplers
-   recursive function make_extension(this, goal_spec, rc) result(new_spec)
+    recursive function make_extension(this, goal_spec, rc) result(new_spec)
       type(StateItemSpec), target :: new_spec
       class(StateItemSpec), target, intent(inout) :: this
       type(StateItemSpec), target, intent(in) :: goal_spec
@@ -307,10 +307,10 @@ contains
       class(ComponentDriver), pointer :: source
       type(ESMF_GridComp) :: coupler_gridcomp
       type(AspectId), allocatable :: aspect_ids(:)
-      class(StateItemAspect), pointer :: src_aspect, dst_aspect
-      type(AspectMap), pointer :: other_aspects
+       class(StateItemAspect), pointer :: src_aspect, dst_aspect
+       type(AspectMap), pointer :: other_aspects
 
-      call this%activate(_RC)
+       call this%activate(_RC)
       call this%update_from_payload(_RC)
 
       new_spec = this%clone_base()
@@ -351,6 +351,8 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_extension
+
+
 
    ! Will use ESMF so cannot be PURE
    subroutine create(this, rc)
