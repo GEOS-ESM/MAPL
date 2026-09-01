@@ -8,7 +8,7 @@ module mapl_StateItemSpec_mod
    use mapl_ExtensionTransform_mod
    use mapl_MultiState_mod
    use mapl_StateItemAspect_mod
-   use mapl_AspectStatus_mod, only: AspectStatus
+   use mapl_AspectStatus_mod, only: AspectStatus, ASPECT_STATUS_FROM_COMP
    use mapl_GeomAspect_mod
    use mapl_VerticalGridAspect_mod
    use mapl_ClassAspect_mod
@@ -48,6 +48,7 @@ module mapl_StateItemSpec_mod
       procedure :: clone_base
        procedure :: make_extension
        procedure :: all_characteristics_resolved
+       procedure :: extension_ready
 
 !#      procedure(I_write_formatted), deferred :: write_formatted
 !##ifndef __GFORTRAN__
@@ -312,12 +313,11 @@ contains
        class(StateItemAspect), pointer :: src_aspect, dst_aspect
        type(AspectMap), pointer :: other_aspects
 
-       _RETURN_UNLESS(this%all_characteristics_resolved())
-
        call this%activate(_RC)
-      call this%update_from_payload(_RC)
+       call this%update_from_payload(_RC)
+       _RETURN_UNLESS(this%extension_ready())
 
-      new_spec = this%clone_base()
+       new_spec = this%clone_base()
 
       aspect_ids = this%get_aspect_order(goal_spec)
       do i = 1, size(aspect_ids)
@@ -370,8 +370,8 @@ contains
       associate (e => this%aspects%ftn_end())
          do while (iter /= e)
             call iter%next()
-            if (iter%first() == CLASS_ASPECT_ID) cycle
             aspect => iter%second()
+            if (iter%first() == CLASS_ASPECT_ID) cycle
             aspect_status = aspect%get_characteristic_state()
             if (.not. aspect_status%is_resolved()) then
                all_characteristics_resolved = .false.
@@ -382,6 +382,35 @@ contains
 
       _RETURN(_SUCCESS)
    end function all_characteristics_resolved
+
+   logical function extension_ready(this, rc)
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      type(AspectMapIterator) :: iter
+      class(StateItemAspect), pointer :: aspect
+      type(AspectStatus) :: aspect_status
+      integer :: status
+
+      extension_ready = .true.
+      iter = this%aspects%ftn_begin()
+      associate (e => this%aspects%ftn_end())
+         do while (iter /= e)
+            call iter%next()
+            if (iter%first() == CLASS_ASPECT_ID) cycle
+            aspect => iter%second()
+            aspect_status = aspect%get_characteristic_state()
+            ! Mirror aspects resolve from connection, and deferred payloads
+            ! must be extended before their geometry is known.
+            if (aspect_status /= ASPECT_STATUS_FROM_COMP .or. &
+                 this%has_deferred_aspects()) cycle
+            extension_ready = .false.
+            exit
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function extension_ready
 
 
 
