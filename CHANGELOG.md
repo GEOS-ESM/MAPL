@@ -20,25 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Split cap.yaml into mapl.yaml, cap_driver.yaml, and cap_gridcomp.yaml (see issue #5355)
-- Removed `merge_cap_hconfig` and `resolve_cap_hconfig` from `mapl/CapDriver.F90` so that
-  `mapl.yaml`, `cap_driver.yaml`, and `cap_gridcomp.yaml` are resolved and handled
-  separately and consistently instead of being merged into a single hconfig. `app.config`
-  continues to point at the cap_driver configuration file, and a new `app.gridcomp_config`
-  key points at the cap_gridcomp configuration file (no more filename-guessing heuristic).
-- Removed support for the legacy top-level `cap:` config key and deleted all remaining
-  legacy `cap.yaml`/`capN.yaml` fixtures; `resolve_cap_driver_hconfig` and
-  `resolve_cap_gridcomp_hconfig` (and the later `resolve_app_hconfig` helper that replaced
-  them) were removed entirely, since resolving `app.config`/`app.gridcomp_config` requires
-  only a `ESMF_HConfigCreateAt` navigation to `app:` followed by `ESMF_HConfigAsString`
-  and `ESMF_HConfigCreate(filename=...)`; this is now inlined directly in
-  `mapl_cap_create`, `mapl_cap_run`, and `mapl_run_driver`
 
 - Renamed `model_petcount`/`has_model_petcount` to `app_petcount`/`has_app_petcount`
   throughout the codebase, config files, and documentation
 - Renamed `mapl/Cap.F90` to `mapl/CapDriver.F90` and its module `mapl_Cap_mod` to `mapl_CapDriver_mod`
 - `MAPL_Initialize` gained a new optional `app_config` (intent(out)) argument that resolves
   and returns the `app.config`-derived hconfig (i.e. the `cap_driver.yaml` contents); `mapl/GEOS.F90`
-  passes this through to `MAPL_CapCreate`/`MAPL_CapRun` via a new optional `config` argument on
+  passes this through to `MAPL_CapCreate`/`MAPL_CapRun` via a new `config` argument on
   both, so `cap_driver.yaml` is parsed from disk only once instead of independently in each procedure
 - Moved `mapl/cap_gridcomp.yaml` to `gridcomps/cap/cap_gridcomp.yaml`, replacing the stale
   `gridcomps/cap/CapGridComp.yaml` (which used outdated `root`/`extdata`/`history` keys no
