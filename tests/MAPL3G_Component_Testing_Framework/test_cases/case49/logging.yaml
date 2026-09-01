@@ -1,0 +1,86 @@
+schema_version: 1
+
+locks:
+   mpi:
+      class: MpiLock
+      comm:  MPI_COMM_WORLD
+
+formatters:
+   plain:
+      class: Formatter
+      format: '%(message)a'
+
+   basic:
+      class: Formatter
+      format: '%(short_name)a15~: %(level_name)a~: %(message)a'
+
+   mpi:
+      class: MpiFormatter
+      format: '%(mpi_rank)i4.4~: %(name)~: %(level_name)a~: %(message)a'
+      comm: MPI_COMM_WORLD
+
+handlers:
+   console:
+      class: streamhandler
+      formatter: basic
+      unit: OUTPUT_UNIT
+      level: DEBUG
+
+   console_plain:
+      class: streamhandler
+      formatter: plain
+      unit: OUTPUT_UNIT
+      level: DEBUG
+
+   warnings:
+      class:  FileHandler
+      filename: warnings_and_errors.log
+      lock: mpi
+      level: WARNING
+      formatter: basic
+
+   errors:
+      class:  StreamHandler
+      formatter: basic
+      unit: ERROR_UNIT
+      level: ERROR
+
+   mpi_shared:
+      class: FileHandler
+      filename: allPEs.log
+      formatter: mpi
+      comm: MPI_COMM_WORLD
+      lock: mpi
+      rank_keyword: rank
+      level: DEBUG
+
+root:
+   handlers: [warnings,errors,console]
+   level: WARNING
+   root_level: WARNING
+
+loggers:
+   errors:
+      handlers: [errors]
+      level: ERROR
+
+   HIST:
+      level: INFO
+      root_level: INFO
+   EXTDATA:
+      level: INFO
+      root_level: INFO
+   cap:
+      level: INFO
+      root_level: INFO
+
+   MAPL:
+      handlers: [mpi_shared]
+      level: WARNING
+      root_level: INFO
+
+   MAPL.profiler:
+      handlers: [console_plain]
+      propagate: FALSE
+      level: WARNING
+      root_level: INFO

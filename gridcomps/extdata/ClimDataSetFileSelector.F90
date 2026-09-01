@@ -19,6 +19,7 @@ module mapl_ClimDataSetFileSelector_mod
        type(ESMF_Time), allocatable :: source_time(:)
     contains
        procedure :: update_file_bracket
+       procedure :: preview_bracket
        procedure :: in_valid_range
        procedure :: update_node_out_of_range_multi
        procedure :: update_both_brackets_out_range_multi
@@ -100,10 +101,79 @@ contains
       end if
 
       call this%update_bracket_out_of_range_multi(bundle, target_time, original_time, bracket, _RC)
-      call this%set_last_update(original_time, _RC)
+       call this%set_last_update(original_time, _RC)
 
        _RETURN(_SUCCESS)
     end subroutine update_file_bracket
+
+    subroutine preview_bracket(this, current_time, bracket, rc)
+       class(ClimDataSetFileSelector), intent(inout) :: this
+       type(ESMF_Time), intent(in) :: current_time
+       type(DataSetBracket), intent(inout) :: bracket
+       integer, optional, intent(out) :: rc
+
+       type(ESMF_Time) :: target_time, original_time
+       integer :: status, valid_years(2)
+
+       target_time = current_time
+       original_time = current_time
+       _ASSERT(size(this%valid_range) == 2, 'Valid range must be of size 2 to do climatological extrpolation')
+       call ESMF_TimeGet(this%valid_range(1),yy=valid_years(1),_RC)
+       call ESMF_TimeGet(this%valid_range(2),yy=valid_years(2),_RC)
+
+       if (target_time <= this%valid_range(1)) then
+          call swap_year(target_time, valid_years(1), _RC)
+       else if (target_time >= this%valid_range(2)) then
+          call swap_year(target_time, valid_years(2), _RC)
+       end if
+
+       call preview_bracket_out_of_range_multi(this, target_time, original_time, bracket, _RC)
+       _RETURN(_SUCCESS)
+    contains
+       subroutine preview_bracket_out_of_range_multi(this, target_time, original_time, bracket, rc)
+          class(ClimDataSetFileSelector), intent(inout) :: this
+          type(ESMF_Time), intent(in) :: target_time
+          type(ESMF_Time), intent(in) :: original_time
+          type(DataSetBracket), intent(inout) :: bracket
+          integer, optional, intent(out) :: rc
+
+          integer :: status
+          type(DataSetNode) :: left_node, right_node, test_node
+          logical :: node_is_valid, both_valid, time_jumped, both_invalid
+
+          left_node = bracket%get_left_node(_RC)
+          right_node = bracket%get_right_node(_RC)
+          both_valid = left_node%validate(original_time) .and. right_node%validate(original_time)
+          time_jumped = this%detect_time_flow(original_time)
+          both_invalid = &
+               (left_node%validate(original_time) .eqv. .false.) .and. &
+               (right_node%validate(original_time) .eqv. .false.)
+
+          if (time_jumped .or. both_invalid) then
+             call this%update_both_brackets_out_range_multi(bracket, target_time, original_time,  _RC)
+          else if (both_valid) then
+             call left_node%set_update(.false.)
+             call right_node%set_update(.false.)
+             call bracket%set_parameters(left_node=left_node)
+             call bracket%set_parameters(right_node=right_node)
+          else
+             test_node = right_node
+             call test_node%set_node_side(NODE_LEFT)
+             node_is_valid = test_node%validate(original_time)
+             if (node_is_valid) then
+                left_node = test_node
+                call left_node%set_update(.false.)
+                call bracket%set_parameters(left_node=left_node)
+                call this%update_node_out_of_range_multi(target_time, original_time, right_node, _RC)
+                call bracket%set_parameters(right_node=right_node)
+             else
+                call this%update_both_brackets_out_range_multi(bracket, target_time, original_time, _RC)
+             end if
+          end if
+
+          _RETURN(_SUCCESS)
+       end subroutine preview_bracket_out_of_range_multi
+    end subroutine preview_bracket
 
 
    subroutine update_bracket_out_of_range_multi(this, bundle, target_time, original_time, bracket, rc)

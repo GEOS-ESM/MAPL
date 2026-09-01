@@ -16,6 +16,7 @@ module mapl_NonClimDataSetFileSelector_mod
        logical :: persist_closest = .false.
        contains
           procedure :: update_file_bracket
+          procedure :: preview_bracket
           procedure :: in_valid_range
           procedure :: update_node
           procedure :: update_both_brackets
@@ -139,6 +140,115 @@ module mapl_NonClimDataSetFileSelector_mod
         call this%set_last_update(current_time, _RC)
         _RETURN(_SUCCESS)
     end subroutine update_file_bracket
+
+    subroutine preview_bracket(this, current_time, bracket, rc)
+       class(NonClimDataSetFileSelector), intent(inout) :: this
+       type(ESMF_Time), intent(in) :: current_time
+       type(DataSetBracket), intent(inout) :: bracket
+       integer, optional, intent(out) :: rc
+
+       type(ESMF_Time) :: target_time
+       integer :: status, node_side
+       logical :: establish_both, establish_single
+       type(DataSetNode) :: left_node, right_node, test_node
+       logical :: node_is_valid, both_valid, time_jumped, both_invalid
+
+       establish_both = .true.
+       establish_single = .false.
+       target_time = current_time
+       if (this%persist_closest) then
+          _ASSERT(allocated(this%valid_range), 'using persistence but not in range')
+          if (.not. this%in_valid_range(target_time)) then
+             establish_both = .false.
+             if (current_time < this%valid_range(1)) then
+                establish_single = .true.
+                node_side = NODE_LEFT
+                target_time = this%valid_range(1)
+             else if (current_time >= this%valid_range(2)) then
+                establish_single = .true.
+                node_side = NODE_LEFT
+                target_time = this%valid_range(2)
+             end if
+          end if
+       end if
+
+       if (establish_single) then
+          call preview_half_bracket(this, bracket, target_time, node_side, _RC)
+          _RETURN(_SUCCESS)
+       end if
+
+       _RETURN_UNLESS(establish_both)
+
+       left_node = bracket%get_left_node(_RC)
+       right_node = bracket%get_right_node(_RC)
+       both_valid = left_node%validate(target_time) .and. right_node%validate(target_time)
+       time_jumped = this%detect_time_flow(current_time)
+       both_invalid = (left_node%validate(target_time) .eqv. .false.) .and. &
+                      (right_node%validate(target_time) .eqv. .false.)
+
+       if (time_jumped .or. both_invalid) then
+          call this%update_both_brackets(bracket, target_time, _RC)
+       else if (both_valid) then
+          call left_node%set_update(.false.)
+          call right_node%set_update(.false.)
+          call bracket%set_parameters(left_node=left_node)
+          call bracket%set_parameters(right_node=right_node)
+       else
+          test_node = right_node
+          call test_node%set_node_side(NODE_LEFT)
+          node_is_valid = test_node%validate(target_time)
+          if (node_is_valid) then
+             left_node = test_node
+             call left_node%set_update(.false.)
+             call bracket%set_parameters(left_node=left_node)
+             call this%update_node(target_time, right_node, _RC)
+             call bracket%set_parameters(right_node=right_node)
+          else
+             call this%update_both_brackets(bracket, target_time, _RC)
+          end if
+       end if
+
+       _RETURN(_SUCCESS)
+    contains
+       subroutine preview_half_bracket(this, bracket, target_time, node_side, rc)
+          class(NonClimDataSetFileSelector), intent(inout) :: this
+          type(DataSetBracket), intent(inout) :: bracket
+          type(ESMF_Time), intent(in) :: target_time
+          integer, intent(in) :: node_side
+          integer, optional, intent(out) :: rc
+
+          type(DataSetNode) :: active_node, inactive_node
+          integer :: status
+          logical :: node_is_valid
+
+          select case(node_side)
+          case(NODE_LEFT)
+             active_node = bracket%get_left_node(_RC)
+             inactive_node = bracket%get_right_node(_RC)
+          case(NODE_RIGHT)
+             inactive_node = bracket%get_left_node(_RC)
+             active_node = bracket%get_right_node(_RC)
+          end select
+
+          call inactive_node%set_enabled(.false.)
+          call inactive_node%set_update(.false.)
+          call active_node%set_update(.false.)
+          node_is_valid = active_node%validate(target_time)
+          if (.not.node_is_valid) then
+             call this%update_node(target_time, active_node, _RC)
+          end if
+
+          select case(node_side)
+          case(NODE_LEFT)
+             call bracket%set_parameters(left_node=active_node)
+             call bracket%set_parameters(right_node=inactive_node)
+          case(NODE_RIGHT)
+             call bracket%set_parameters(left_node=inactive_node)
+             call bracket%set_parameters(right_node=active_node)
+          end select
+          _RETURN(_SUCCESS)
+       end subroutine preview_half_bracket
+    end subroutine preview_bracket
 
 
     subroutine update_half_bracket(this, bracket, target_time, current_time, node_side, rc)

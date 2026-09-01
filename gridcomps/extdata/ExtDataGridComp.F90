@@ -152,16 +152,21 @@ contains
       real, allocatable :: weights(:)
       character(len=:), allocatable :: export_name
       character(len=:), pointer :: base_name
-      type(ExtDataReader), target :: reader
+      type(ExtDataReader), target :: reader, prefetch_left_reader, prefetch_right_reader
       class(logger), pointer :: lgr
       type(ESMF_FieldBundle) :: bundle
       integer :: idx
       integer, pointer :: last_index
+      type(ESMF_TimeInterval) :: time_step
+      type(ESMF_Time) :: next_time
 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
-      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, timeStep=time_step, _RC)
+      next_time = current_time + time_step
       call reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
+      call prefetch_left_reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
+      call prefetch_right_reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
       iter = extdata_gridcomp%active_items%ftn_begin()
       do while (iter /= extdata_gridcomp%active_items%ftn_end())
          call iter%next()
@@ -181,13 +186,21 @@ contains
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
          call export_item%append_state_to_reader(exportState, reader, lgr, _RC)
+         call export_item%append_future_left_to_reader(exportState, next_time, prefetch_left_reader, lgr, _RC)
+         call export_item%append_future_right_to_reader(exportState, next_time, prefetch_right_reader, lgr, _RC)
       end do
       call reader%read_items(lgr, _RC)
+      call prefetch_left_reader%read_items(lgr, _RC)
+      call prefetch_right_reader%read_items(lgr, _RC)
       if (extdata_gridcomp%log_files_read) then
          call reader%get_unique_filenames(extdata_gridcomp%files_read, _RC)
+         call prefetch_left_reader%get_unique_filenames(extdata_gridcomp%files_read, _RC)
+         call prefetch_right_reader%get_unique_filenames(extdata_gridcomp%files_read, _RC)
          extdata_gridcomp%run_end_time = current_time
       end if
       call reader%destroy_reader(_RC)
+      call prefetch_left_reader%destroy_reader(_RC)
+      call prefetch_right_reader%destroy_reader(_RC)
 
       call handle_fractional_regrid(extdata_gridcomp, current_time, exportState, _RC)
 

@@ -45,6 +45,8 @@ module mapl_PrimaryExport_mod
           procedure :: get_bracket
           procedure :: update_my_bracket
           procedure :: append_state_to_reader
+          procedure :: append_future_left_to_reader
+          procedure :: append_future_right_to_reader
           procedure :: set_fraction_values_to_zero
    end type
 
@@ -337,6 +339,101 @@ module mapl_PrimaryExport_mod
 
       _RETURN(_SUCCESS)
    end subroutine append_state_to_reader
+
+   subroutine append_future_left_to_reader(this, export_state, next_time, reader, lgr, rc)
+      class(PrimaryExport), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: export_state
+      type(ESMF_Time), intent(in) :: next_time
+      type(ExtDataReader), intent(inout) :: reader
+      class(logger), intent(in), pointer :: lgr
+      integer, optional, intent(out) :: rc
+
+      type(DataSetBracket) :: future_bracket
+      type(DataSetNode) :: future_left
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
+      character(len=:), allocatable :: filename
+      character(len=:), pointer :: variable_name
+      integer :: status, i, time_index
+
+      _RETURN_UNLESS(this%bracket%uses_time_interpolation())
+
+      future_bracket = this%bracket
+      select type (selector => this%file_selector)
+      type is (NonClimDataSetFileSelector)
+         call selector%preview_bracket(next_time, future_bracket, _RC)
+      type is (ClimDataSetFileSelector)
+         call selector%preview_bracket(next_time, future_bracket, _RC)
+      class default
+         _RETURN(_SUCCESS)
+      end select
+
+      future_left = future_bracket%get_left_node(_RC)
+      _RETURN_UNLESS(future_left%get_enabled())
+
+      call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+      time_index = future_left%get_time_index()
+      call future_left%get_file(filename)
+      do i=1,this%file_vars%size()
+         variable_name => this%file_vars%at(i)
+         call reader%add_item(field_list(i), variable_name, filename, time_index, this%client_collection_id, &
+              prefetch_only=.true., _RC)
+      end do
+      call lgr%info('prefetching future left %a from file %a at time index %i0.5', this%export_var, filename, time_index)
+
+      _RETURN(_SUCCESS)
+   end subroutine append_future_left_to_reader
+
+   subroutine append_future_right_to_reader(this, export_state, next_time, reader, lgr, rc)
+      class(PrimaryExport), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: export_state
+      type(ESMF_Time), intent(in) :: next_time
+      type(ExtDataReader), intent(inout) :: reader
+      class(logger), intent(in), pointer :: lgr
+      integer, optional, intent(out) :: rc
+
+      type(DataSetBracket) :: future_bracket
+      type(DataSetNode) :: future_left, future_right
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
+      character(len=:), allocatable :: filename
+      character(len=:), pointer :: variable_name
+      integer :: status, i, time_index, list_start
+
+      _RETURN_UNLESS(this%bracket%uses_time_interpolation())
+
+      future_bracket = this%bracket
+      select type (selector => this%file_selector)
+      type is (NonClimDataSetFileSelector)
+         call selector%preview_bracket(next_time, future_bracket, _RC)
+      type is (ClimDataSetFileSelector)
+         call selector%preview_bracket(next_time, future_bracket, _RC)
+      class default
+         _RETURN(_SUCCESS)
+      end select
+
+      future_left = future_bracket%get_left_node(_RC)
+      future_right = future_bracket%get_right_node(_RC)
+      _RETURN_UNLESS(future_right%get_enabled())
+      _RETURN_IF(future_right == future_left)
+
+      list_start = 1
+      if (this%file_vars%size() == 2) list_start = 2
+
+      call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+      time_index = future_right%get_time_index()
+      call future_right%get_file(filename)
+      do i=1,this%file_vars%size()
+         variable_name => this%file_vars%at(i)
+         call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, &
+              prefetch_only=.true., _RC)
+      end do
+      call lgr%info('prefetching future right %a from file %a at time index %i0.5', this%export_var, filename, time_index)
+
+      _RETURN(_SUCCESS)
+   end subroutine append_future_right_to_reader
 
 
    subroutine set_fraction_values_to_zero(this, bundle, rc)

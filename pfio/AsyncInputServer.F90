@@ -33,6 +33,18 @@ module pFIO_AsyncInputServerMod
     integer, parameter :: ASYNC_INPUT_TAG_SIZE = 4702
     integer, parameter :: ASYNC_INPUT_TAG_BUFFER = 4703
     integer, parameter :: ASYNC_INPUT_TAG_CACHE_SIZE = 4704
+    integer, parameter :: ASYNC_INPUT_NUM_CACHE_SLOTS = 2
+
+    type :: AsyncInputCacheSlot
+      logical :: valid = .false.
+      character(len=:), allocatable :: file_name
+      character(len=:), allocatable :: var_name
+      integer :: type_kind = 0
+      integer, allocatable :: start(:)
+      integer, allocatable :: count(:)
+      type(ShmemReference), allocatable :: reference
+      integer(INT64) :: capacity_words = 0
+    end type AsyncInputCacheSlot
 
     type, extends(BaseServer) :: AsyncInputServer
       character(len=:), allocatable :: port_name
@@ -46,14 +58,8 @@ module pFIO_AsyncInputServerMod
       integer :: reader_capacity_on_node = 0
       logical :: synchronous_fallback = .true.
       integer, allocatable :: reader_ranks_on_node(:)
-      logical :: cache_valid = .false.
-      character(len=:), allocatable :: cache_file_name
-      character(len=:), allocatable :: cache_var_name
-      integer :: cache_type_kind = 0
-      integer, allocatable :: cache_start(:)
-      integer, allocatable :: cache_count(:)
-      type(ShmemReference), allocatable :: cache_reference
-      integer(INT64) :: cache_capacity_words = 0
+      type(AsyncInputCacheSlot) :: cache_slots(ASYNC_INPUT_NUM_CACHE_SLOTS)
+      integer :: next_cache_slot = 1
       integer :: cache_hits = 0
       integer :: cache_misses = 0
       contains
@@ -178,7 +184,7 @@ contains
       class(ServerThread), pointer :: thread_ptr => null()
       integer :: i, client_size
       logical, allocatable :: mask(:)
-       integer :: status, ierr, cmd, source_rank, buffer_size, msize_word
+       integer :: status, ierr, cmd, source_rank, buffer_size, msize_word, slot_index
        integer(INT64) :: desired_words
       integer :: mpi_status(MPI_STATUS_SIZE)
       integer, allocatable :: buffer(:)
@@ -216,14 +222,16 @@ contains
             deallocate(buffer)
 
             mem_data_reference = LocalMemReference(request%type_kind, request%count)
-            if (cache_matches_request(this, request)) then
-               this%cache_hits = this%cache_hits + 1
-               if (.not. request%cache_only) call load_cache_into_mem(this, mem_data_reference, _RC)
-            else
-               this%cache_misses = this%cache_misses + 1
-               call read_collective_request(this, request, mem_data_reference, _RC)
-               call update_cache(this, request, mem_data_reference, _RC)
-            end if
+             slot_index = find_cache_slot(this, request)
+             if (slot_index > 0) then
+                this%cache_hits = this%cache_hits + 1
+                if (.not. request%cache_only) call load_cache_into_mem(this, mem_data_reference, slot_index, _RC)
+             else
+                this%cache_misses = this%cache_misses + 1
+                call read_collective_request(this, request, mem_data_reference, _RC)
+                slot_index = choose_cache_slot(this)
+                call update_cache(this, request, mem_data_reference, slot_index, _RC)
+             end if
             if (.not. request%cache_only) then
                msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
                call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
@@ -403,68 +411,93 @@ contains
         _UNUSED_DUMMY(this)
      end subroutine read_collective_request
 
-     logical function cache_matches_request(this, request) result(matches)
-       class(AsyncInputServer), intent(in) :: this
-       type(CollectivePrefetchDataMessage), intent(in) :: request
+      integer function find_cache_slot(this, request) result(slot_index)
+        class(AsyncInputServer), intent(in) :: this
+        type(CollectivePrefetchDataMessage), intent(in) :: request
 
-       matches = this%cache_valid
-       if (.not. matches) return
+        integer :: i
 
-       matches = this%cache_type_kind == request%type_kind
-       if (.not. matches) return
-       matches = allocated(this%cache_file_name) .and. this%cache_file_name == request%file_name
-       if (.not. matches) return
-       matches = allocated(this%cache_var_name) .and. this%cache_var_name == request%var_name
-       if (.not. matches) return
-       matches = allocated(this%cache_start) .and. allocated(this%cache_count)
-       if (.not. matches) return
-       matches = size(this%cache_start) == size(request%start) .and. all(this%cache_start == request%start)
-       if (.not. matches) return
-       matches = size(this%cache_count) == size(request%count) .and. all(this%cache_count == request%count)
-     end function cache_matches_request
+        slot_index = 0
+        do i = 1, size(this%cache_slots)
+           if (cache_slot_matches(this%cache_slots(i), request)) then
+              slot_index = i
+              exit
+           end if
+        end do
+      end function find_cache_slot
 
-     subroutine update_cache(this, request, mem_data_reference, rc)
-       class(AsyncInputServer), intent(inout) :: this
-       type(CollectivePrefetchDataMessage), intent(in) :: request
-       type(LocalMemReference), intent(in) :: mem_data_reference
-       integer, optional, intent(out) :: rc
+      logical function cache_slot_matches(slot, request) result(matches)
+        type(AsyncInputCacheSlot), intent(in) :: slot
+        type(CollectivePrefetchDataMessage), intent(in) :: request
 
-       integer(INT64) :: msize_word
-       integer, pointer :: i_ptr(:), cache_ptr(:)
+        matches = slot%valid
+        if (.not. matches) return
 
-        this%cache_file_name = request%file_name
-        this%cache_var_name = request%var_name
-        this%cache_type_kind = request%type_kind
-        this%cache_start = request%start
-        this%cache_count = request%count
+        matches = slot%type_kind == request%type_kind
+        if (.not. matches) return
+        matches = allocated(slot%file_name) .and. slot%file_name == request%file_name
+        if (.not. matches) return
+        matches = allocated(slot%var_name) .and. slot%var_name == request%var_name
+        if (.not. matches) return
+        matches = allocated(slot%start) .and. allocated(slot%count)
+        if (.not. matches) return
+        matches = size(slot%start) == size(request%start) .and. all(slot%start == request%start)
+        if (.not. matches) return
+        matches = size(slot%count) == size(request%count) .and. all(slot%count == request%count)
+      end function cache_slot_matches
 
-        msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
-        _ASSERT(allocated(this%cache_reference), 'shared cache must be allocated before update_cache')
-        _ASSERT(msize_word <= this%cache_capacity_words, 'shared cache capacity too small in update_cache')
-        call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
-        call c_f_pointer(this%cache_reference%base_address, cache_ptr, [this%cache_capacity_words])
-        cache_ptr(1:msize_word) = i_ptr
-        this%cache_valid = .true.
+      integer function choose_cache_slot(this) result(slot_index)
+        class(AsyncInputServer), intent(inout) :: this
 
-        _RETURN(_SUCCESS)
-     end subroutine update_cache
+        slot_index = this%next_cache_slot
+        this%next_cache_slot = this%next_cache_slot + 1
+        if (this%next_cache_slot > size(this%cache_slots)) this%next_cache_slot = 1
+      end function choose_cache_slot
 
-      subroutine load_cache_into_mem(this, mem_data_reference, rc)
-       class(AsyncInputServer), intent(inout) :: this
+      subroutine update_cache(this, request, mem_data_reference, slot_index, rc)
+        class(AsyncInputServer), intent(inout) :: this
+        type(CollectivePrefetchDataMessage), intent(in) :: request
+        type(LocalMemReference), intent(in) :: mem_data_reference
+        integer, intent(in) :: slot_index
+        integer, optional, intent(out) :: rc
+
+        integer(INT64) :: msize_word
+        integer, pointer :: i_ptr(:), cache_ptr(:)
+
+         this%cache_slots(slot_index)%file_name = request%file_name
+         this%cache_slots(slot_index)%var_name = request%var_name
+         this%cache_slots(slot_index)%type_kind = request%type_kind
+         this%cache_slots(slot_index)%start = request%start
+         this%cache_slots(slot_index)%count = request%count
+
+         msize_word = word_size(request%type_kind)*product(int(request%count, INT64))
+         _ASSERT(allocated(this%cache_slots(slot_index)%reference), 'shared cache slot must be allocated before update_cache')
+         _ASSERT(msize_word <= this%cache_slots(slot_index)%capacity_words, 'shared cache slot capacity too small in update_cache')
+         call c_f_pointer(mem_data_reference%base_address, i_ptr, [msize_word])
+         call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, cache_ptr, [this%cache_slots(slot_index)%capacity_words])
+         cache_ptr(1:msize_word) = i_ptr
+         this%cache_slots(slot_index)%valid = .true.
+
+         _RETURN(_SUCCESS)
+      end subroutine update_cache
+
+       subroutine load_cache_into_mem(this, mem_data_reference, slot_index, rc)
+        class(AsyncInputServer), intent(inout) :: this
         type(LocalMemReference), intent(inout) :: mem_data_reference
+        integer, intent(in) :: slot_index
         integer, optional, intent(out) :: rc
 
         integer, pointer :: i_ptr(:), cache_ptr(:)
 
-        _ASSERT(this%cache_valid, 'cache must be valid before load_cache_into_mem')
-        _ASSERT(allocated(this%cache_reference), 'shared cache must be allocated before load_cache_into_mem')
-        _ASSERT(allocated(this%cache_count), 'cache count must be allocated before load_cache_into_mem')
-        call c_f_pointer(mem_data_reference%base_address, i_ptr, [product(int(this%cache_count, INT64))*word_size(this%cache_type_kind)])
-        call c_f_pointer(this%cache_reference%base_address, cache_ptr, [this%cache_capacity_words])
-        i_ptr = cache_ptr(1:size(i_ptr))
+         _ASSERT(this%cache_slots(slot_index)%valid, 'cache slot must be valid before load_cache_into_mem')
+         _ASSERT(allocated(this%cache_slots(slot_index)%reference), 'shared cache slot must be allocated before load_cache_into_mem')
+         _ASSERT(allocated(this%cache_slots(slot_index)%count), 'cache slot count must be allocated before load_cache_into_mem')
+         call c_f_pointer(mem_data_reference%base_address, i_ptr, [product(int(this%cache_slots(slot_index)%count, INT64))*word_size(this%cache_slots(slot_index)%type_kind)])
+         call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, cache_ptr, [this%cache_slots(slot_index)%capacity_words])
+         i_ptr = cache_ptr(1:size(i_ptr))
 
-        _RETURN(_SUCCESS)
-     end subroutine load_cache_into_mem
+         _RETURN(_SUCCESS)
+      end subroutine load_cache_into_mem
 
      subroutine prepare_shared_cache(this, desired_words, rc)
        class(AsyncInputServer), intent(inout) :: this
@@ -473,9 +506,9 @@ contains
 
        integer :: i, status
 
-       if (desired_words <= this%cache_capacity_words) then
-          _RETURN(_SUCCESS)
-       end if
+        if (all_cache_slots_large_enough(this, desired_words)) then
+           _RETURN(_SUCCESS)
+        end if
 
        _ASSERT(this%model_comm /= MPI_COMM_NULL, 'prepare_shared_cache should only be called on model/front ranks')
 
@@ -489,33 +522,48 @@ contains
        end do
 
        _RETURN(_SUCCESS)
-     end subroutine prepare_shared_cache
+      end subroutine prepare_shared_cache
 
-     subroutine ensure_shared_cache_capacity(this, desired_words, rc)
-       class(AsyncInputServer), intent(inout) :: this
-       integer(INT64), intent(in) :: desired_words
-       integer, optional, intent(out) :: rc
+      logical function all_cache_slots_large_enough(this, desired_words) result(large_enough)
+        class(AsyncInputServer), intent(in) :: this
+        integer(INT64), intent(in) :: desired_words
 
-       integer :: status
+        integer :: i
 
-       if (desired_words <= this%cache_capacity_words) then
-          _RETURN(_SUCCESS)
-       end if
+        large_enough = .true.
+        do i = 1, size(this%cache_slots)
+           large_enough = large_enough .and. (desired_words <= this%cache_slots(i)%capacity_words)
+        end do
+      end function all_cache_slots_large_enough
 
-       _ASSERT(this%reader_comm /= MPI_COMM_NULL, 'shared cache allocation should only happen on reader ranks')
+      subroutine ensure_shared_cache_capacity(this, desired_words, rc)
+        class(AsyncInputServer), intent(inout) :: this
+        integer(INT64), intent(in) :: desired_words
+        integer, optional, intent(out) :: rc
 
-       if (allocated(this%cache_reference)) then
-          call this%cache_reference%deallocate(status)
-          _VERIFY(status)
-          deallocate(this%cache_reference)
-       end if
-       allocate(this%cache_reference, source=ShmemReference(pFIO_INT32, desired_words, this%reader_comm, rc=status))
-       _VERIFY(status)
-       this%cache_capacity_words = desired_words
-       this%cache_valid = .false.
+        integer :: i, status
 
-       _RETURN(_SUCCESS)
-     end subroutine ensure_shared_cache_capacity
+        if (all_cache_slots_large_enough(this, desired_words)) then
+           _RETURN(_SUCCESS)
+        end if
+
+        _ASSERT(this%reader_comm /= MPI_COMM_NULL, 'shared cache allocation should only happen on reader ranks')
+
+        do i = 1, size(this%cache_slots)
+           if (desired_words <= this%cache_slots(i)%capacity_words) cycle
+           if (allocated(this%cache_slots(i)%reference)) then
+              call this%cache_slots(i)%reference%deallocate(status)
+              _VERIFY(status)
+              deallocate(this%cache_slots(i)%reference)
+           end if
+           allocate(this%cache_slots(i)%reference, source=ShmemReference(pFIO_INT32, desired_words, this%reader_comm, rc=status))
+           _VERIFY(status)
+           this%cache_slots(i)%capacity_words = desired_words
+           this%cache_slots(i)%valid = .false.
+        end do
+
+        _RETURN(_SUCCESS)
+      end subroutine ensure_shared_cache_capacity
 
      subroutine finalize_runtime(this, rc)
        class(AsyncInputServer), intent(inout) :: this
@@ -523,11 +571,7 @@ contains
 
        integer :: status
 
-       if (allocated(this%cache_reference)) then
-          call this%cache_reference%deallocate(status)
-          _VERIFY(status)
-          deallocate(this%cache_reference)
-       end if
+        call finalize_cache_slots(this, _RC)
 
        if (this%model_node_comm /= MPI_COMM_NULL) then
           call MPI_Comm_free(this%model_node_comm, status)
@@ -544,14 +588,33 @@ contains
           _VERIFY(status)
           this%reader_comm = MPI_COMM_NULL
        end if
-        if (allocated(this%cache_start)) deallocate(this%cache_start)
-        if (allocated(this%cache_count)) deallocate(this%cache_count)
-        if (allocated(this%cache_file_name)) deallocate(this%cache_file_name)
-        if (allocated(this%cache_var_name)) deallocate(this%cache_var_name)
-        this%cache_valid = .false.
-        this%cache_capacity_words = 0
+         this%next_cache_slot = 1
+
+         _RETURN(_SUCCESS)
+      end subroutine finalize_runtime
+
+      subroutine finalize_cache_slots(this, rc)
+        class(AsyncInputServer), intent(inout) :: this
+        integer, optional, intent(out) :: rc
+
+        integer :: i, status
+
+        do i = 1, size(this%cache_slots)
+           if (allocated(this%cache_slots(i)%reference)) then
+              call this%cache_slots(i)%reference%deallocate(status)
+              _VERIFY(status)
+              deallocate(this%cache_slots(i)%reference)
+           end if
+           if (allocated(this%cache_slots(i)%start)) deallocate(this%cache_slots(i)%start)
+           if (allocated(this%cache_slots(i)%count)) deallocate(this%cache_slots(i)%count)
+           if (allocated(this%cache_slots(i)%file_name)) deallocate(this%cache_slots(i)%file_name)
+           if (allocated(this%cache_slots(i)%var_name)) deallocate(this%cache_slots(i)%var_name)
+           this%cache_slots(i)%valid = .false.
+           this%cache_slots(i)%type_kind = 0
+           this%cache_slots(i)%capacity_words = 0
+        end do
 
         _RETURN(_SUCCESS)
-     end subroutine finalize_runtime
+      end subroutine finalize_cache_slots
 
 end module pFIO_AsyncInputServerMod

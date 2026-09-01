@@ -35,3 +35,4 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 46. Test AsyncInputServer single-slot cache path by routing two identical ExtData slab requests through the same local async reader and checking the duplicate imports remain equal
 47. Test AsyncInputServer rolling no-interpolation path across multiple timesteps by keeping duplicate ExtData imports equal while verifying the generated file-read log still collapses to one source file
 48. Test AsyncInputServer time-interpolation path across multiple sampled times by routing duplicate imports through the async server and logging which source files are consumed
+49. Test AsyncInputServer time-interpolation rollover behavior across a bracket boundary by sampling before and after the day-change interpolation pivot
