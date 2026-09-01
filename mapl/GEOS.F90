@@ -10,12 +10,13 @@ program geos
    integer :: status
    type(MAPL_GriddedComponentDriver) :: driver
    type(ESMF_GridComp), allocatable :: servers(:)
+   type(ESMF_HConfig) :: cap_driver_hconfig
 
    call MAPL_Initialize(configFileNameFromArgNum=1, _RC)
    call MAPL_CreateServers(servers, _RC)
-   call MAPL_CapCreate(driver, _RC)
+   call MAPL_CapCreate(driver, cap_driver_hconfig=cap_driver_hconfig, _RC)
    call MAPL_RunServers(servers, _RC)
-   call MAPL_CapRun(driver, _RC)
+   call MAPL_CapRun(driver, cap_driver_hconfig=cap_driver_hconfig, _RC)
    call MAPL_Finalize(_RC)
 
 end program geos
