@@ -36,16 +36,16 @@ module mapl_PrimaryExport_mod
       logical :: enable_vertical_regrid = .false.
       integer :: fraction_value
 
-      contains
-         procedure :: get_file_selector
-         procedure :: complete_export_spec
-         procedure :: update_export_spec
+       contains
+          procedure :: get_file_selector
+          procedure :: complete_export_spec
+          procedure :: update_export_spec
          !procedure :: get_file_var_name
          procedure :: get_export_var_name
-         procedure :: get_bracket
-         procedure :: update_my_bracket
-         procedure :: append_state_to_reader
-         procedure :: set_fraction_values_to_zero
+          procedure :: get_bracket
+          procedure :: update_my_bracket
+          procedure :: append_state_to_reader
+          procedure :: set_fraction_values_to_zero
    end type
 
    interface PrimaryExport
@@ -270,7 +270,7 @@ module mapl_PrimaryExport_mod
       _RETURN(_SUCCESS)
    end subroutine update_my_bracket
 
-   subroutine append_state_to_reader(this, export_state, reader, lgr, rc)
+    subroutine append_state_to_reader(this, export_state, reader, lgr, rc)
       class(PrimaryExport), intent(inout) :: this
       type(ESMF_State), intent(inout) :: export_state
       type(ExtDataReader), intent(inout) :: reader
@@ -313,12 +313,15 @@ module mapl_PrimaryExport_mod
           call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
           time_index = node%get_time_index()
           call lgr%info("updating %a", this%export_var)
-          call node%write_node(lgr) !  bmaa
-          call node%get_file(filename)
-          do i=1,this%file_vars%size()
-             variable_name => this%file_vars%at(i)
-             call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, &
-                  prefetch_only=(.not. this%bracket%uses_time_interpolation()), _RC)
+           call node%write_node(lgr) !  bmaa
+           call node%get_file(filename)
+           ! In the no-interpolation path, the current bracket's right node is the
+           ! dataset that will become current after the next bracket roll, so we
+           ! can treat this update as a one-step lookahead prefetch.
+           do i=1,this%file_vars%size()
+              variable_name => this%file_vars%at(i)
+              call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, &
+                   prefetch_only=(.not. this%bracket%uses_time_interpolation()), _RC)
            enddo
        else if (right_node%get_enabled() .and. (.not. (right_node == left_node))) then
           call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
@@ -334,6 +337,7 @@ module mapl_PrimaryExport_mod
 
       _RETURN(_SUCCESS)
    end subroutine append_state_to_reader
+
 
    subroutine set_fraction_values_to_zero(this, bundle, rc)
       class(PrimaryExport), intent(inout) :: this

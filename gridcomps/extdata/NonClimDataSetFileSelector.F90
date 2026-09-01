@@ -12,14 +12,14 @@ module mapl_NonClimDataSetFileSelector_mod
 
    public NonClimDataSetFileSelector
 
-   type, extends(AbstractDataSetFileSelector):: NonClimDataSetFileSelector
-      logical :: persist_closest = .false.
-      contains
-         procedure :: update_file_bracket
-         procedure :: in_valid_range
-         procedure :: update_node
-         procedure :: update_both_brackets
-         procedure :: update_half_bracket
+    type, extends(AbstractDataSetFileSelector):: NonClimDataSetFileSelector
+       logical :: persist_closest = .false.
+       contains
+          procedure :: update_file_bracket
+          procedure :: in_valid_range
+          procedure :: update_node
+          procedure :: update_both_brackets
+          procedure :: update_half_bracket
     end type
 
     interface NonClimDataSetFileSelector
@@ -136,9 +136,10 @@ module mapl_NonClimDataSetFileSelector_mod
           end if
        end if
 
-       call this%set_last_update(current_time, _RC)
-       _RETURN(_SUCCESS)
+        call this%set_last_update(current_time, _RC)
+        _RETURN(_SUCCESS)
     end subroutine update_file_bracket
+
 
     subroutine update_half_bracket(this, bracket, target_time, current_time, node_side, rc)
        class(NonClimDataSetFileSelector), intent(inout) :: this
@@ -257,4 +258,3 @@ module mapl_NonClimDataSetFileSelector_mod
     end subroutine swap_bracket_fields
 
 end module mapl_NonClimDataSetFileSelector_mod
-

@@ -216,11 +216,6 @@ contains
             deallocate(buffer)
 
             mem_data_reference = LocalMemReference(request%type_kind, request%count)
-            write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,1X,A,1X,A,1X,A)') &
-                 'INFO: AsyncInputServer reader:', 'reader_rank=', this%rank, &
-                 'source_rank=', source_rank, 'request_id=', request%request_id, &
-                 'file=', trim(request%file_name), 'var=', trim(request%var_name)
-
             if (cache_matches_request(this, request)) then
                this%cache_hits = this%cache_hits + 1
                if (.not. request%cache_only) call load_cache_into_mem(this, mem_data_reference, _RC)

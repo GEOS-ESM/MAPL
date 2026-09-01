@@ -15,14 +15,14 @@ module mapl_ClimDataSetFileSelector_mod
 
    public ClimDataSetFileSelector
 
-   type, extends(AbstractDataSetFileSelector):: ClimDataSetFileSelector
-      type(ESMF_Time), allocatable :: source_time(:)
-   contains
-      procedure :: update_file_bracket
-      procedure :: in_valid_range
-      procedure :: update_node_out_of_range_multi
-      procedure :: update_both_brackets_out_range_multi
-      procedure :: update_bracket_out_of_range_multi
+    type, extends(AbstractDataSetFileSelector):: ClimDataSetFileSelector
+       type(ESMF_Time), allocatable :: source_time(:)
+    contains
+       procedure :: update_file_bracket
+       procedure :: in_valid_range
+       procedure :: update_node_out_of_range_multi
+       procedure :: update_both_brackets_out_range_multi
+       procedure :: update_bracket_out_of_range_multi
    end type ClimDataSetFileSelector
 
    interface ClimDataSetFileSelector
@@ -70,7 +70,7 @@ contains
       _RETURN(_SUCCESS)
    end function new_ClimDataSetFileSelector
 
-   subroutine update_file_bracket(this, bundle, current_time, bracket, rc)
+    subroutine update_file_bracket(this, bundle, current_time, bracket, rc)
       class(ClimDataSetFileSelector), intent(inout) :: this
       type(ESMF_FieldBundle), intent(inout) :: bundle
       type(ESMF_Time), intent(in) :: current_time
@@ -102,8 +102,9 @@ contains
       call this%update_bracket_out_of_range_multi(bundle, target_time, original_time, bracket, _RC)
       call this%set_last_update(original_time, _RC)
 
-      _RETURN(_SUCCESS)
-   end subroutine update_file_bracket
+       _RETURN(_SUCCESS)
+    end subroutine update_file_bracket
+
 
    subroutine update_bracket_out_of_range_multi(this, bundle, target_time, original_time, bracket, rc)
       class(ClimDataSetFileSelector), intent(inout) :: this
@@ -247,4 +248,3 @@ contains
    end subroutine swap_bracket_fields
 
 end module mapl_ClimDataSetFileSelector_mod
-
