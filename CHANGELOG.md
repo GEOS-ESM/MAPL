@@ -36,6 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `model_petcount`/`has_model_petcount` to `app_petcount`/`has_app_petcount`
   throughout the codebase, config files, and documentation
 - Renamed `mapl/Cap.F90` to `mapl/CapDriver.F90` and its module `mapl_Cap_mod` to `mapl_CapDriver_mod`
+- `MAPL_Initialize` gained a new optional `app_config` (intent(out)) argument that resolves
+  and returns the `app.config`-derived hconfig (i.e. the `cap_driver.yaml` contents); `mapl/GEOS.F90`
+  passes this through to `MAPL_CapCreate`/`MAPL_CapRun` via a new optional `config` argument on
+  both, so `cap_driver.yaml` is parsed from disk only once instead of independently in each procedure
+- Moved `mapl/cap_gridcomp.yaml` to `gridcomps/cap/cap_gridcomp.yaml`, replacing the stale
+  `gridcomps/cap/CapGridComp.yaml` (which used outdated `root`/`extdata`/`history` keys no
+  longer read by `CapGridComp.F90`, which reads `root_name`/`extdata_name`/`history_name`)
 - For vector items in ExtData change variables separted by `;` to a sequence of variables like History
 - Moved DSO-backed child `setServices` ownership into child configurations and added support for raw `ESMF_GridCompCreate` followed by `ESMF_GridCompSetServices` startup.
 - Refactored `UserSetServices.F90` to remove the `user_setservices` interface, rename `AbstractUserSetServices` to `UserSetServices`, and giving `ProcSetServices` and `DSOSetServices` their own constructors

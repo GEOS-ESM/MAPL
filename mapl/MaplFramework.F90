@@ -127,8 +127,13 @@ contains
 
    ! Note: hconfig (path b) is intent(in) — ESMF is already initialized by caller.
    !       configFilenameFromArgNum (path a) — MAPL initializes ESMF internally.
+   ! app_config (optional, intent(out)): if requested, resolves and returns the
+   ! hconfig pointed to by the top-level `app: config:` key (i.e. the
+   ! cap_driver.yaml-derived hconfig) so that callers (e.g. mapl/GEOS.F90) can
+   ! pass it on to MAPL_CapCreate/MAPL_CapRun instead of having those
+   ! procedures each re-parse the file from disk.
    subroutine initialize(this, hconfig, unusable, mpiCommunicator, level_name, configFilenameFromArgNum, &
-        field_default_fill_value_r4, field_default_fill_value_r8, rc)
+        field_default_fill_value_r4, field_default_fill_value_r8, app_config, rc)
       class(MaplFramework), intent(inout) :: this
       type(ESMF_HConfig), optional, intent(in) :: hconfig  ! path (b): already-initialized ESMF
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -137,6 +142,7 @@ contains
       integer, optional, intent(in) :: configFilenameFromArgNum
       real(ESMF_KIND_R4), optional, intent(in) :: field_default_fill_value_r4
       real(ESMF_KIND_R8), optional, intent(in) :: field_default_fill_value_r8
+      type(ESMF_HConfig), optional, intent(out) :: app_config
       integer, optional, intent(out) :: rc
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
 
@@ -173,9 +179,35 @@ contains
       call vgrid_manager%register_factory("FixedLevels", fixed_levels_vgrid_factory, _RC)
       call vgrid_manager%register_factory("Model", model_vgrid_factory, _RC)
 
+      if (present(app_config)) then
+         app_config = resolve_app_config(this%hconfig, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine initialize
+
+   ! Resolve the hconfig pointed to by the top-level `app: config:` key
+   ! (i.e. parse the file named by `app.config`, typically cap_driver.yaml).
+   function resolve_app_config(hconfig, rc) result(app_config)
+      type(ESMF_HConfig) :: app_config
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: app_hconfig
+      character(:), allocatable :: config_file
+      logical :: has_app
+
+      has_app = ESMF_HConfigIsDefined(hconfig, keystring='app', _RC)
+      _ASSERT(has_app, "app_config requested but top-level 'app:' key is not defined")
+      app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
+      config_file = ESMF_HConfigAsString(app_hconfig, keystring='config', _RC)
+      app_config = ESMF_HConfigCreate(filename=config_file, _RC)
+      call ESMF_HConfigDestroy(app_hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function resolve_app_config
 
    ! Path (a) — standalone: MAPL calls ESMF_Initialize, derives hconfig from YAML file.
    ! Path (b) — embedded: ESMF already initialized; hconfig passed in by caller.
@@ -975,7 +1007,7 @@ contains
 
 
    subroutine mapl_initialize(hconfig, unusable, mpiCommunicator, configFilenameFromArgNum, level_name, &
-        field_default_fill_value_r4, field_default_fill_value_r8, rc)
+        field_default_fill_value_r4, field_default_fill_value_r8, app_config, rc)
       type(ESMF_HConfig), optional, intent(in) :: hconfig  ! path (b): already-initialized ESMF
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: mpiCommunicator
@@ -983,6 +1015,7 @@ contains
       character(*), optional, intent(in) :: level_name
       real(ESMF_KIND_R4), optional, intent(in) :: field_default_fill_value_r4
       real(ESMF_KIND_R8), optional, intent(in) :: field_default_fill_value_r8
+      type(ESMF_HConfig), optional, intent(out) :: app_config
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -993,6 +1026,7 @@ contains
            configFilenameFromArgNum=configFilenameFromArgNum, level_name=level_name, &
            field_default_fill_value_r4=field_default_fill_value_r4, &
            field_default_fill_value_r8=field_default_fill_value_r8, &
+           app_config=app_config, &
            _RC)
 
       _RETURN(_SUCCESS)

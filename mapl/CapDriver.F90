@@ -47,9 +47,13 @@ contains
 
    ! Create the cap GridComp and clock. Collective: all PETs must call.
    ! Reads is_model_pet and hconfig from the MAPL singleton.
-   subroutine mapl_cap_create(driver, unusable, rc)
+   ! If config (the app.config-derived hconfig, as returned by MAPL_Initialize's
+   ! app_config argument) is supplied, it is reused as cap_driver_hconfig
+   ! instead of re-parsing cap_driver.yaml from disk.
+   subroutine mapl_cap_create(driver, unusable, config, rc)
       type(MAPL_GriddedComponentDriver), intent(out) :: driver
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_HConfig), optional, intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -61,8 +65,12 @@ contains
 
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
       app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
-      config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
-      cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
+      if (present(config)) then
+         cap_driver_hconfig = config
+      else
+         config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
+         cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
+      end if
       gridcomp_config_file = esmf_HConfigAsString(app_hconfig, keystring='gridcomp_config', _RC)
       cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
       call ESMF_HConfigDestroy(app_hconfig, _RC)
@@ -79,9 +87,13 @@ contains
    end subroutine mapl_cap_create
 
    ! Run the cap lifecycle on model PETs; server PETs return immediately.
-   subroutine mapl_cap_run(driver, unusable, rc)
+   ! If config (the app.config-derived hconfig, as returned by MAPL_Initialize's
+   ! app_config argument) is supplied, it is reused as cap_driver_hconfig
+   ! instead of re-parsing cap_driver.yaml from disk.
+   subroutine mapl_cap_run(driver, unusable, config, rc)
       type(MAPL_GriddedComponentDriver), intent(inout) :: driver
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_HConfig), optional, intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -94,10 +106,14 @@ contains
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
       _RETURN_UNLESS(is_model_pet)
 
-      app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
-      config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
-      cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
-      call ESMF_HConfigDestroy(app_hconfig, _RC)
+      if (present(config)) then
+         cap_driver_hconfig = config
+      else
+         app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
+         config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
+         cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
+         call ESMF_HConfigDestroy(app_hconfig, _RC)
+      end if
       options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
 
       call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
@@ -106,7 +122,9 @@ contains
 
       clock = driver%get_clock()
       call update_restart(cap_driver_hconfig, clock, _RC)
-      call ESMF_HConfigDestroy(cap_driver_hconfig, _RC)
+      ! Only destroy the hconfig if this routine created it; when the caller
+      ! supplied it (config present), ownership/lifetime remains with the caller.
+      if (.not. present(config)) call ESMF_HConfigDestroy(cap_driver_hconfig, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
