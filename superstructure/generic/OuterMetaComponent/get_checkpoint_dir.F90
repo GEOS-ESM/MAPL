@@ -83,7 +83,7 @@ contains
       logical :: has_checkpointing_section, has_path
       integer :: status
 
-      path_base = "checkpoint" ! default base name
+      path_base = "checkpoints" ! default base name
       has_checkpointing_section = ESMF_HConfigIsDefined(hconfig, keystring=CHECKPOINTING_KEY, _RC)
       if (has_checkpointing_section) then
          checkpointing_cfg = ESMF_HConfigCreateAt(hconfig, keystring=CHECKPOINTING_KEY, _RC)
