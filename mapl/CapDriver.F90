@@ -66,6 +66,10 @@ contains
       gridcomp_config_file = esmf_HConfigAsString(app_hconfig, keystring='gridcomp_config', _RC)
       cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
       call ESMF_HConfigDestroy(app_hconfig, _RC)
+      ! Propagate driver-level keys (e.g. checkpointing) that descendant
+      ! components rely on inheriting (via the same merge_hconfig mechanism
+      ! used for child components) down through the cap gridcomp's own config.
+      cap_gridcomp_hconfig = merge_hconfig(cap_driver_hconfig, cap_gridcomp_hconfig, _RC)
       options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
       clock = make_clock(cap_driver_hconfig, options%lgr, _RC)
       driver = make_driver(clock, cap_gridcomp_hconfig, options, _RC)
@@ -128,6 +132,10 @@ contains
       gridcomp_config_file = esmf_HConfigAsString(app_hconfig, keystring='gridcomp_config', _RC)
       cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
       call ESMF_HConfigDestroy(app_hconfig, _RC)
+      ! Propagate driver-level keys (e.g. checkpointing) that descendant
+      ! components rely on inheriting (via the same merge_hconfig mechanism
+      ! used for child components) down through the cap gridcomp's own config.
+      cap_gridcomp_hconfig = merge_hconfig(cap_driver_hconfig, cap_gridcomp_hconfig, _RC)
       options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
       clock = make_clock(cap_driver_hconfig, options%lgr, _RC)
       driver = make_driver(clock, cap_gridcomp_hconfig, options, _RC)
