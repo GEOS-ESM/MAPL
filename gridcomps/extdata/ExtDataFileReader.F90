@@ -104,6 +104,7 @@ module mapl_ExtDataReader_mod
       type(c_ptr) :: address
       type(mapl_ArrayReference) :: ref
       integer, pointer :: prefetch_only
+      logical :: allow_cache_only_prefetch
 
       call ESMF_FieldBundleGet(this%accumulated_fields, fieldCount=num_fields, _RC)
       if (num_fields == 0) then
@@ -111,6 +112,11 @@ module mapl_ExtDataReader_mod
       end if
 
       i_client => mapl_get_client(this%input_server_name, _RC)
+      ! The cache-only next-request path is currently part of the
+      ! AsyncInputServer experiment only. Keep the default input server on the
+      ! original behavior until the broader pFIO path learns how to handle
+      ! handle-less collective-prefetch requests safely.
+      allow_cache_only_prefetch = (trim(this%input_server_name) == 'async_input_server')
 
       call MAPL_FieldBundleGet(this%accumulated_fields, fieldList=field_list, _RC)
       do pass = 0, 1
@@ -120,6 +126,7 @@ module mapl_ExtDataReader_mod
             filename => this%filename_map%at(trim(field_name))
             client_id => this%client_id_map%at(trim(field_name))
             prefetch_only => this%prefetch_only_map%at(trim(field_name))
+            if ((prefetch_only == 1) .and. (.not. allow_cache_only_prefetch)) cycle
             if (prefetch_only /= pass) cycle
             time_index => this%time_index_map%at(trim(field_name))
             call ESMF_FieldGet(field_list(i), grid=grid, typekind=esmf_typekind, _RC)
