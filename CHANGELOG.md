@@ -31,14 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   them) were removed entirely, since resolving `app.config`/`app.gridcomp_config` requires
   only a `ESMF_HConfigCreateAt` navigation to `app:` followed by `ESMF_HConfigAsString`
   and `ESMF_HConfigCreate(filename=...)`; this is now inlined directly in
-  `mapl_cap_create` and `mapl_cap_run`
-- Removed the unreachable/unexported `mapl_run_driver` procedure from
-  `mapl/CapDriver.F90` (it was never called and duplicated the resolution
-  logic in `mapl_cap_create`/`mapl_cap_run`); `mapl_cap_create` now returns
-  the `cap_driver_hconfig` it resolves via a new optional argument, and
-  `mapl_cap_run` accepts it as an optional argument as well, so callers (e.g.
-  `mapl/GEOS.F90`) can thread it through and avoid re-parsing
-  `cap_driver.yaml` from disk a second time
+  `mapl_cap_create`, `mapl_cap_run`, and `mapl_run_driver`
 
 - Renamed `model_petcount`/`has_model_petcount` to `app_petcount`/`has_app_petcount`
   throughout the codebase, config files, and documentation

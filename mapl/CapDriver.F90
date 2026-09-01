@@ -47,18 +47,14 @@ contains
 
    ! Create the cap GridComp and clock. Collective: all PETs must call.
    ! Reads is_model_pet and hconfig from the MAPL singleton.
-   ! The resolved cap_driver_hconfig (parsed from cap_driver.yaml) is returned
-   ! via the optional cap_driver_hconfig argument so that a subsequent call to
-   ! mapl_cap_run can reuse it instead of re-parsing the file from disk.
-   subroutine mapl_cap_create(driver, unusable, cap_driver_hconfig, rc)
+   subroutine mapl_cap_create(driver, unusable, rc)
       type(MAPL_GriddedComponentDriver), intent(out) :: driver
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_HConfig), optional, intent(out) :: cap_driver_hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: is_model_pet
-      type(ESMF_HConfig) :: hconfig, app_hconfig, local_cap_driver_hconfig, cap_gridcomp_hconfig
+      type(ESMF_HConfig) :: hconfig, app_hconfig, cap_driver_hconfig, cap_gridcomp_hconfig
       character(:), allocatable :: config_file, gridcomp_config_file
       type(CapOptions) :: options
       type(esmf_Clock) :: clock
@@ -66,36 +62,31 @@ contains
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
       app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
       config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
-      local_cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
+      cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
       gridcomp_config_file = esmf_HConfigAsString(app_hconfig, keystring='gridcomp_config', _RC)
       cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
       call ESMF_HConfigDestroy(app_hconfig, _RC)
       ! Propagate driver-level keys (e.g. checkpointing) that descendant
       ! components rely on inheriting (via the same merge_hconfig mechanism
       ! used for child components) down through the cap gridcomp's own config.
-      cap_gridcomp_hconfig = merge_hconfig(local_cap_driver_hconfig, cap_gridcomp_hconfig, _RC)
-      options = make_cap_options(local_cap_driver_hconfig, is_model_pet, _RC)
-      clock = make_clock(local_cap_driver_hconfig, options%lgr, _RC)
+      cap_gridcomp_hconfig = merge_hconfig(cap_driver_hconfig, cap_gridcomp_hconfig, _RC)
+      options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
+      clock = make_clock(cap_driver_hconfig, options%lgr, _RC)
       driver = make_driver(clock, cap_gridcomp_hconfig, options, _RC)
-
-      if (present(cap_driver_hconfig)) cap_driver_hconfig = local_cap_driver_hconfig
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine mapl_cap_create
 
    ! Run the cap lifecycle on model PETs; server PETs return immediately.
-   ! If cap_driver_hconfig (as returned by a prior mapl_cap_create call) is
-   ! supplied, it is reused instead of re-parsing cap_driver.yaml from disk.
-   subroutine mapl_cap_run(driver, unusable, cap_driver_hconfig, rc)
+   subroutine mapl_cap_run(driver, unusable, rc)
       type(MAPL_GriddedComponentDriver), intent(inout) :: driver
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_HConfig), optional, intent(in) :: cap_driver_hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: is_model_pet
-      type(ESMF_HConfig) :: hconfig, app_hconfig, local_cap_driver_hconfig
+      type(ESMF_HConfig) :: hconfig, app_hconfig, cap_driver_hconfig
       character(:), allocatable :: config_file
       type(CapOptions) :: options
       type(esmf_Clock) :: clock
@@ -103,30 +94,65 @@ contains
       call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
       _RETURN_UNLESS(is_model_pet)
 
-      if (present(cap_driver_hconfig)) then
-         local_cap_driver_hconfig = cap_driver_hconfig
-      else
-         app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
-         config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
-         local_cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
-         call ESMF_HConfigDestroy(app_hconfig, _RC)
-      end if
-      options = make_cap_options(local_cap_driver_hconfig, is_model_pet, _RC)
+      app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
+      config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
+      cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
+      call ESMF_HConfigDestroy(app_hconfig, _RC)
+      options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
 
       call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
-      call integrate(driver, local_cap_driver_hconfig, options%checkpointing, options%lgr, _RC)
+      call integrate(driver, cap_driver_hconfig, options%checkpointing, options%lgr, _RC)
       call driver%finalize(_RC)
 
       clock = driver%get_clock()
-      call update_restart(local_cap_driver_hconfig, clock, _RC)
-      ! Only destroy the hconfig if this routine created it; when the caller
-      ! supplied it (from a prior mapl_cap_create call), ownership/lifetime
-      ! remains with the caller.
-      if (.not. present(cap_driver_hconfig)) call ESMF_HConfigDestroy(local_cap_driver_hconfig, _RC)
+      call update_restart(cap_driver_hconfig, clock, _RC)
+      call ESMF_HConfigDestroy(cap_driver_hconfig, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine mapl_cap_run
+
+   subroutine mapl_run_driver(hconfig, is_model_pet, unusable, servers, rc)
+      type(esmf_HConfig), intent(inout) :: hconfig
+      logical, intent(in) :: is_model_pet
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
+      type(esmf_GridComp), optional, intent(in) :: servers(:)
+      integer, optional, intent(out) :: rc
+
+      type(MAPL_GriddedComponentDriver) :: driver
+      type(esmf_Clock) :: clock
+      type(CapOptions) :: options
+      type(esmf_HConfig) :: app_hconfig, cap_driver_hconfig, cap_gridcomp_hconfig
+      character(:), allocatable :: config_file, gridcomp_config_file
+      integer :: status
+
+      app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
+      config_file = esmf_HConfigAsString(app_hconfig, keystring='config', _RC)
+      cap_driver_hconfig = esmf_HConfigCreate(filename=config_file, _RC)
+      gridcomp_config_file = esmf_HConfigAsString(app_hconfig, keystring='gridcomp_config', _RC)
+      cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
+      call ESMF_HConfigDestroy(app_hconfig, _RC)
+      ! Propagate driver-level keys (e.g. checkpointing) that descendant
+      ! components rely on inheriting (via the same merge_hconfig mechanism
+      ! used for child components) down through the cap gridcomp's own config.
+      cap_gridcomp_hconfig = merge_hconfig(cap_driver_hconfig, cap_gridcomp_hconfig, _RC)
+      options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
+      clock = make_clock(cap_driver_hconfig, options%lgr, _RC)
+      driver = make_driver(clock, cap_gridcomp_hconfig, options, _RC)
+
+      _RETURN_UNLESS(is_model_pet)
+
+      ! TODO `initialize_phases` should be a MAPL procedure (name)
+      call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call integrate(driver, cap_driver_hconfig, options%checkpointing, options%lgr, _RC)
+      call driver%finalize(_RC)
+      call update_restart(cap_driver_hconfig, clock, _RC)
+      call ESMF_HConfigDestroy(cap_driver_hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(servers)
+   end subroutine mapl_run_driver
 
    subroutine integrate(driver, hconfig, checkpointing, lgr, rc)
       type(MAPL_GriddedComponentDriver), intent(inout) :: driver
