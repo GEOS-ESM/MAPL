@@ -12,4 +12,9 @@ set_target_properties(MAPL.mapl.server_utilities PROPERTIES Fortran_MODULE_DIREC
 target_include_directories(MAPL.mapl.server_utilities PRIVATE
   ${esma_include}/MAPL ${MAPL_SOURCE_DIR}/include)
 set_tests_properties(MAPL.mapl.server_utilities PROPERTIES LABELS "ESSENTIAL")
+
+if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
+  set_tests_properties(MAPL.mapl.server_utilities PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+endif()
+
 add_dependencies(build-tests MAPL.mapl.server_utilities)

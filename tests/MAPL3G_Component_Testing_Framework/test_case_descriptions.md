@@ -34,3 +34,4 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 45. Test ExtData routing through AsyncInputServer in synchronous-fallback mode; intended as the baseline YAML case for future cluster-side asynchronous input-server experiments
 46. Test AsyncInputServer single-slot cache path by routing two identical ExtData slab requests through the same local async reader and checking the duplicate imports remain equal
 47. Test AsyncInputServer rolling no-interpolation path across multiple timesteps by keeping duplicate ExtData imports equal while verifying the generated file-read log still collapses to one source file
+48. Test AsyncInputServer time-interpolation path across multiple sampled times by routing duplicate imports through the async server and logging which source files are consumed
