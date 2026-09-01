@@ -50,7 +50,7 @@ contains
       ! ... ridiculous.
       call ridiculous(meta_model, NuopcMetaModel(model, user_gc_driver, hconfig))
 #endif
-      call meta_model%init_user_gc(_RC)
+!      call meta_model%init_user_gc(_RC) !wdb fixme deleteme Should be internal to NuopcMetaModel
       call meta_model%setServices(_RC)
       call set_entry_points(model, _RC)
 
@@ -159,13 +159,9 @@ contains
 
       integer :: status
       type(NuopcMetaModel), pointer :: meta_model
-      integer :: phaseIndex
-      character(ESMF_MAXSTR) :: phaseLabel
 
       meta_model => get_meta_model(model, _RC)
-
-      call meta_model%read_restart(_RC)
-      call meta_model%init_user_gc(_RC)
+      call meta_model%data_initialize(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine DataInitialize
@@ -183,7 +179,6 @@ contains
       call esmf_GridCompGet(model, currentPhase=phaseIndex, _RC)      
       call NUOPC_CompSearchRevPhaseMap(model, ESMF_METHOD_INITIALIZE, &
            phaseIndex=phaseIndex, phaseLabel=phaseLabel, _RC)
-
       call meta_model%advance(phaseLabel, _RC)
 
       _RETURN(_SUCCESS)

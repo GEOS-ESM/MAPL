@@ -307,8 +307,7 @@ contains
       type(StringVector), pointer :: run_phases
       logical :: found
 !      class(logger_t), pointer :: logger
-      integer :: currentPhase, phase
-      character(ESMF_MAXSTR) :: currentPhaseLabel
+      integer :: phase
        
 
       type(ESMF_Time) :: currTime
@@ -324,9 +323,6 @@ contains
       _RETURN_IF(.not. is_ringing)
 
       run_phases => this%get_phases(ESMF_METHOD_RUN)
-!      call ESMF_GridCompGet(this%self_model, currentPhase=currentPhase, _RC)
-!      call NUOPC_CompSearchRevPhaseMap(this%self_model, ESMF_METHOD_RUN,&
-!         & phaseIndex=currentPhase, phaseLabel=currentPhaseLabel, _RC)
       phase = get_phase_index(run_phases, trim(phaseLabel), found=found)
       _ASSERT(found, 'phase <'//trim(phaseLabel)//'> not found for model <'//this%get_name()//'>')
 
@@ -358,7 +354,6 @@ contains
       integer :: phase
       type(ESMF_Time) :: currTime
 
-      call NUOPC_ModelGet(this%self_model, modelClock=modelClock, _RC)
       call ESMF_ClockGet(modelClock, currTime=currTime, _RC)
       if (this%run_if_alarm_rings_next) then
          call ESMF_ClockGetNextTime(modelClock, nextTime=currTime, _RC)
@@ -573,6 +568,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       character(len=ESMF_MAXSTR) :: buffer
+
       call ESMF_GridCompGet(this%self_model, name=buffer, _RC)
       name_=trim(buffer)
 
