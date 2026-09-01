@@ -4,9 +4,10 @@
 module pFIO_FastClientThreadMod
    use mapl_ErrorHandling_mod
    use pFIO_AbstractMessageMod
-   use pFIO_AbstractSocketMod
-   use pFIO_AbstractDataReferenceMod
-   use pFIO_LocalMemReferenceMod
+    use pFIO_AbstractSocketMod
+    use pFIO_AbstractDataReferenceMod
+    use pFIO_LocalMemReferenceMod
+    use pFIO_SimpleSocketMod, only: SimpleSocket
    use mapl_KeywordEnforcer_mod
    use pFIO_ClientThreadMod
    use pFIO_StageDataMessageMod
@@ -160,30 +161,30 @@ contains
       class(AbstractSocket),pointer :: connection
       type (LocalMemReference) :: mem_data_reference
 
-      request_id = this%get_unique_collective_request_id()
-      connection => this%get_connection()
-      call connection%send(CollectiveStageDataMessage( &
-           request_id, &
-           collection_id, &
-           file_name, &
-           var_name, &
-           data_reference),_RC)
+       request_id = this%get_unique_collective_request_id()
+       connection => this%get_connection()
+        call connection%send(CollectiveStageDataMessage( &
+            request_id, &
+            collection_id, &
+            file_name, &
+            var_name, &
+            data_reference),_RC)
 
-      call connection%receive(handshake_msg, _RC)
-      associate (id => request_id)
+       call connection%receive(handshake_msg, _RC)
+        associate (id => request_id)
 
          select type (data_reference)
          type is (LocalMemReference)
             !if localmem is already allocated, no need extra copy. For example, write_restart_by_oserver
             call this%insert_RequestHandle(id, connection%put(id, data_reference))
          class default
-            mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
-            ! copy data out so the client can move on after done message is send
-            call data_reference%copy_data_to(mem_data_reference, rc=status)
-            _VERIFY(status)
-            ! put calls iSend
-            call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
-         end select
+             mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
+             ! copy data out so the client can move on after done message is send
+             call data_reference%copy_data_to(mem_data_reference, rc=status)
+             _VERIFY(status)
+             ! put calls iSend
+             call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
+          end select
 
       end associate
 
@@ -191,13 +192,23 @@ contains
    end function stage_nondistributed_data
 
    ! The data has been copied out and post no wait after isend
-   subroutine post_wait_all(this, rc)
-      use pFIO_AbstractRequestHandleMod
-      class (FastClientThread), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-      ! do nothing on purpose
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(rc) ! pchakrab - should we have a _RETURN(_SUCCESS) here?
-   end subroutine post_wait_all
+    subroutine post_wait_all(this, rc)
+       use pFIO_AbstractRequestHandleMod
+       class (FastClientThread), target, intent(inout) :: this
+       integer, optional, intent(out) :: rc
+       class(AbstractSocket), pointer :: connection
+       integer :: status
+
+       connection => this%get_connection()
+       select type (connection)
+       type is (SimpleSocket)
+          call this%wait_all(_RC)
+       class default
+          ! For remote sockets the data was copied out before the nonblocking send,
+          ! so preserving the original no-op behavior avoids an unnecessary wait.
+       end select
+
+       if (present(rc)) rc = 0
+    end subroutine post_wait_all
 
 end module pFIO_FastClientThreadMod

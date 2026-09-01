@@ -6,18 +6,18 @@ input_server_name: async_input_server
 log_files_read: extdata_files_read.yaml
 
 Samplings:
-  sample_closest:
-    extrapolation: persist_closest
+  sample_no_interp:
+    time_interpolation: false
 
 Collections:
    c1:
-      template: "test.20040103.nc4"
+      template: "test.%y4%m2%d2.nc4"
 Exports:
   E_1:
     collection: c1
     variable: E_1
-    sample: sample_closest
+    sample: sample_no_interp
   E_2:
     collection: c1
     variable: E_1
-    sample: sample_closest
+    sample: sample_no_interp

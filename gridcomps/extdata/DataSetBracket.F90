@@ -12,13 +12,14 @@ module mapl_DataSetBracket_mod
       type(DataSetNode) :: left_node
       type(DataSetNode) :: right_node
       logical          :: time_interpolation= .true.
-      contains
-         procedure :: compute_bracket_weights 
-         procedure :: time_in_bracket
-         procedure :: set_parameters
-         procedure :: get_left_node
-         procedure :: get_right_node
-         procedure :: set_node
+       contains
+          procedure :: compute_bracket_weights 
+          procedure :: time_in_bracket
+          procedure :: set_parameters
+          procedure :: get_left_node
+          procedure :: get_right_node
+          procedure :: uses_time_interpolation
+          procedure :: set_node
    end type DataSetBracket
 
 contains
@@ -74,15 +75,21 @@ contains
 
    end function get_right_node
 
-   function get_left_node(this, rc) result(node)
-      type(DataSetNode) :: node
-      class(DataSetBracket), intent(inout) :: this
-      integer, optional, intent(out) :: rc
+    function get_left_node(this, rc) result(node)
+       type(DataSetNode) :: node
+       class(DataSetBracket), intent(inout) :: this
+       integer, optional, intent(out) :: rc
 
       node = this%left_node
-      _RETURN(_SUCCESS)
+       _RETURN(_SUCCESS)
 
-   end function get_left_node
+    end function get_left_node
+
+    logical function uses_time_interpolation(this) result(time_interpolation)
+       class(DataSetBracket), intent(in) :: this
+
+       time_interpolation = this%time_interpolation
+    end function uses_time_interpolation
 
    function compute_bracket_weights(this,time,rc) result(weights)
       real :: weights(2)

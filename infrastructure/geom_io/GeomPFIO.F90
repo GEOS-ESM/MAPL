@@ -86,21 +86,21 @@ contains
 
    end subroutine update_time_on_server
 
-   subroutine stage_time_to_file(this,filename, times, rc)
-      class(GeomPFIO), intent(inout) :: this
-      character(len=*), intent(in) :: filename
-      real, target, intent(in) :: times(:)
-      integer, optional, intent(out) :: rc
+    subroutine stage_time_to_file(this,filename, times, rc)
+       class(GeomPFIO), intent(inout) :: this
+       character(len=*), intent(in) :: filename
+       real, target, intent(in) :: times(:)
+       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ArrayReference) :: ref
-      integer :: request_id
-      class(ClientThread), pointer :: client
+       type(ArrayReference) :: ref
+       integer :: request_id
+       class(ClientThread), pointer :: client
 
-       ref = ArrayReference(times)
-       client => get_client(this%output_server_name, _RC)
-       request_id = client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
-      _RETURN(_SUCCESS)
+        ref = ArrayReference(times)
+        client => get_client(this%output_server_name, _RC)
+        request_id = client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
+       _RETURN(_SUCCESS)
 
    end subroutine
 

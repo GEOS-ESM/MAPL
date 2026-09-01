@@ -203,11 +203,10 @@ contains
       integer, intent(out) :: rc
 
       type(ExtDataGridComp), pointer :: extdata_gridcomp
-      type(ESMF_HConfig) :: cfg, files_list
       type(StringSetIterator) :: iter
       character(len=:), pointer :: filename
       character(len=ESMF_MAXSTR) :: timestring
-      integer :: status
+      integer :: status, unit
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
 
@@ -215,26 +214,23 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      cfg = ESMF_HConfigCreate(_RC)
-
       call ESMF_TimeGet(extdata_gridcomp%run_start_time, timeString=timestring, _RC)
-      call ESMF_HConfigAdd(cfg, content=trim(timestring), addKeyString='run_start', _RC)
+      open(newunit=unit, file=extdata_gridcomp%files_read_log_path, status='replace', action='write', iostat=status)
+      _VERIFY(status)
+      write(unit,'(A)') 'run_start: '//trim(timestring)
 
       call ESMF_TimeGet(extdata_gridcomp%run_end_time, timeString=timestring, _RC)
-      call ESMF_HConfigAdd(cfg, content=trim(timestring), addKeyString='run_end', _RC)
+      write(unit,'(A)') 'run_end: '//trim(timestring)
+      write(unit,'(A)') 'files_read:'
 
-      files_list = ESMF_HConfigCreate(_RC)
       iter = extdata_gridcomp%files_read%begin()
       do while (iter /= extdata_gridcomp%files_read%end())
          filename => iter%of()
-         call ESMF_HConfigAdd(files_list, content=trim(filename), _RC)
+         write(unit,'(A)') '  - '//trim(filename)
          call iter%next()
       end do
-      call ESMF_HConfigAdd(cfg, files_list, addKeyString='files_read', _RC)
-      call ESMF_HConfigDestroy(files_list, _RC)
-
-      call ESMF_HConfigFileSave(cfg, extdata_gridcomp%files_read_log_path, _RC)
-      call ESMF_HConfigDestroy(cfg, _RC)
+      close(unit, iostat=status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
