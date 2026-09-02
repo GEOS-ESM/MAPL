@@ -404,10 +404,11 @@ means History correctly sees the state at the end of the completed
 timestep before the clock moves forward.
 
 The Cap is configured via three separate YAML files: `mapl.yaml`
-(global MAPL settings, and pointers to the other two files),
-`cap_driver.yaml` (clock, restart, checkpointing), and
-`cap_gridcomp.yaml` (root/extdata/history component names and the
-`mapl.children`/`mapl.setServices` tree). A reference example:
+(global MAPL settings, and a pointer to `cap_driver.yaml`),
+`cap_driver.yaml` (clock, restart, checkpointing, and a pointer to
+`cap_gridcomp.yaml`), and `cap_gridcomp.yaml` (root/extdata/history
+component names and the `mapl.children`/`mapl.setServices` tree). A
+reference example:
 
 ```yaml
 # mapl.yaml
@@ -428,13 +429,13 @@ mapl:
 
 app:
   config:          cap_driver.yaml
-  gridcomp_config: cap_gridcomp.yaml
 ```
 
 ```yaml
 # cap_driver.yaml
 name: CAP
 restart: cap_restart.yaml
+cap_gridcomp_config: cap_gridcomp.yaml
 
 clock:
   start: 1891-03-01T00:00:00
@@ -497,8 +498,8 @@ the entire run:
 
 | File | Purpose |
 |------|---------|
-| `mapl.yaml` (`esmf:`, `mapl:`, `app:`) | ESMF initialisation (`logKindFlag`, `defaultCalKind`, etc.); global MAPL settings: `app_petcount`, `pflogger_cfg_file`, `servers:` (I/O server node counts and DSOs); and `app.config`/`app.gridcomp_config` pointers to the other two files |
-| `cap_driver.yaml` | Clock (`start`, `stop`, `dt`, `segment_duration`), restart file, and checkpointing alarms |
+| `mapl.yaml` (`esmf:`, `mapl:`, `app:`) | ESMF initialisation (`logKindFlag`, `defaultCalKind`, etc.); global MAPL settings: `app_petcount`, `pflogger_cfg_file`, `servers:` (I/O server node counts and DSOs); and `app.config` pointer to `cap_driver.yaml` |
+| `cap_driver.yaml` | Clock (`start`, `stop`, `dt`, `segment_duration`), restart file, checkpointing alarms, and the `cap_gridcomp_config` pointer to `cap_gridcomp.yaml` |
 | `cap_gridcomp.yaml` | The root/extdata/history component names and the `mapl.children:` DSO declarations that select which science components to load — this is what makes `GEOS.x` universal |
 
 By changing only `cap_gridcomp.yaml` — and in particular the

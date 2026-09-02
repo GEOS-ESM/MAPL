@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved `mapl/cap_gridcomp.yaml` to `gridcomps/cap/cap_gridcomp.yaml`, replacing the stale
   `gridcomps/cap/CapGridComp.yaml` (which used outdated `root`/`extdata`/`history` keys no
   longer read by `CapGridComp.F90`, which reads `root_name`/`extdata_name`/`history_name`)
+- Moved the `gridcomp_config` key out of `mapl.yaml`'s `app:` section into `cap_driver.yaml`
+  as `cap_gridcomp_config`, so `mapl.yaml`'s `app:` section only points at `cap_driver.yaml`
+  (via `config`), and `cap_driver.yaml` in turn points at `cap_gridcomp.yaml`
 - For vector items in ExtData change variables separted by `;` to a sequence of variables like History
 - Moved DSO-backed child `setServices` ownership into child configurations and added support for raw `ESMF_GridCompCreate` followed by `ESMF_GridCompSetServices` startup.
 - Refactored `UserSetServices.F90` to remove the `user_setservices` interface, rename `AbstractUserSetServices` to `UserSetServices`, and giving `ProcSetServices` and `DSOSetServices` their own constructors

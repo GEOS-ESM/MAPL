@@ -46,10 +46,11 @@ module mapl_CapDriver_mod
 contains
 
    ! Create the cap GridComp and clock. Collective: all PETs must call.
-   ! Reads is_model_pet and hconfig from the MAPL singleton.
-   ! If config (the app.config-derived hconfig, as returned by MAPL_Initialize's
-   ! app_config argument) is supplied, it is reused as cap_driver_hconfig
-   ! instead of re-parsing cap_driver.yaml from disk.
+   ! Reads is_model_pet from the MAPL singleton.
+   ! config (the app.config-derived hconfig, as returned by MAPL_Initialize's
+   ! app_config argument) is reused as cap_driver_hconfig instead of
+   ! re-parsing cap_driver.yaml from disk. cap_driver.yaml's
+   ! cap_gridcomp_config key names the cap_gridcomp.yaml file.
    subroutine mapl_cap_create(driver, unusable, config, rc)
       type(MAPL_GriddedComponentDriver), intent(out) :: driver
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
@@ -58,17 +59,15 @@ contains
 
       integer :: status
       logical :: is_model_pet
-      type(ESMF_HConfig) :: hconfig, app_hconfig, cap_driver_hconfig, cap_gridcomp_hconfig
+      type(ESMF_HConfig) :: cap_driver_hconfig, cap_gridcomp_hconfig
       character(:), allocatable :: gridcomp_config_file
       type(CapOptions) :: options
       type(esmf_Clock) :: clock
 
-      call MAPL_Get(is_model_pet=is_model_pet, hconfig=hconfig, _RC)
-      app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
+      call MAPL_Get(is_model_pet=is_model_pet, _RC)
       cap_driver_hconfig = config
-      gridcomp_config_file = esmf_HConfigAsString(app_hconfig, keystring='gridcomp_config', _RC)
+      gridcomp_config_file = esmf_HConfigAsString(cap_driver_hconfig, keystring='cap_gridcomp_config', _RC)
       cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
-      call ESMF_HConfigDestroy(app_hconfig, _RC)
       ! Propagate driver-level keys (e.g. checkpointing) that descendant
       ! components rely on inheriting (via the same merge_hconfig mechanism
       ! used for child components) down through the cap gridcomp's own config.
@@ -82,9 +81,9 @@ contains
    end subroutine mapl_cap_create
 
    ! Run the cap lifecycle on model PETs; server PETs return immediately.
-   ! If config (the app.config-derived hconfig, as returned by MAPL_Initialize's
-   ! app_config argument) is supplied, it is reused as cap_driver_hconfig
-   ! instead of re-parsing cap_driver.yaml from disk.
+   ! config (the app.config-derived hconfig, as returned by MAPL_Initialize's
+   ! app_config argument) is reused as cap_driver_hconfig instead of
+   ! re-parsing cap_driver.yaml from disk.
    subroutine mapl_cap_run(driver, unusable, config, rc)
       type(MAPL_GriddedComponentDriver), intent(inout) :: driver
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
