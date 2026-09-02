@@ -110,7 +110,11 @@ contains
          ! for backwards compatibility with non-cf files
          if ((.not. coord_var%is_attribute_present("positive")) .and. &
               (.not. has_pressure_units)) then
-            long_name = coord_var%get_attribute_string("long_name")
+            long_name = coord_var%get_attribute_string("long_name",rc=status)
+            if ( status /= 0 ) then
+              PRINT*,'LONG NAME not available for', TRIM(var_name)
+              _FAIL('longname problem')
+            endif
             ! metadata combinations that imply integer levels
             if ( any(long_name == ["level ", "levels"])  .and. &
                  any(temp_units == ["1    ", "level"])) then
@@ -119,6 +123,7 @@ contains
                   vertical_coord%positive = "down"
                endif
             else
+               PRINT*,'FAILING ON', TRIM(var_name)
                _FAIL('lev positive attribute not in file and no rule defined for setting it from long_name and units')
             endif
          endif
