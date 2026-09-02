@@ -76,7 +76,8 @@ contains
          ! Advance specs
          ! MAPL Framework phases
          call NUOPC_CompSpecialize(model, specLabel=label_AdvanceClock, specRoutine=AdvanceClock, _RC)
-         call NUOPC_CompSpecialize(model, specLabel=label_Advance, specRoutine=write_restart, specPhaseLabel='GENERIC::WRITE_RESTART', _RC)
+         ! specPhaseLabel='GENERIC::WRITE_RESTART'
+         call NUOPC_CompSpecialize(model, specLabel=label_Advance, specRoutine=write_restart, _RC)
          ! User phases
          associate (phases => meta_model%get_phases(ESMF_METHOD_RUN))
            do phase_idx = 1, phases%size()
