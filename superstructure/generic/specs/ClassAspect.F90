@@ -22,6 +22,7 @@ module mapl_ClassAspect_mod
       private
    contains
       procedure(I_get_aspect_order), deferred :: get_aspect_order
+      procedure(I_get_mandatory_aspect_ids), deferred :: get_mandatory_aspect_ids
       procedure(I_create), deferred :: create
       procedure(I_activate), deferred :: activate
       procedure(I_destroy), deferred :: destroy
@@ -45,6 +46,13 @@ module mapl_ClassAspect_mod
          type(AspectMap), intent(in) :: goal_aspects
          integer, optional, intent(out) :: rc
       end function I_get_aspect_order
+
+      function I_get_mandatory_aspect_ids(this) result(aspect_ids)
+         use mapl_StateItemAspect_mod
+         import ClassAspect, AspectId
+         type(AspectId), allocatable :: aspect_ids(:)
+         class(ClassAspect), intent(in) :: this
+      end function I_get_mandatory_aspect_ids
 
       ! Will use ESMF so cannot be PURE
       subroutine I_create(this, other_aspects, rc)

@@ -360,26 +360,29 @@ contains
       class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      type(AspectMapIterator) :: iter
       class(StateItemAspect), pointer :: aspect
       type(AspectStatus) :: aspect_status
+      class(ClassAspect), pointer :: class_aspect
+      type(AspectId), allocatable :: aspect_ids(:)
+      integer :: i
       integer :: status
 
-      all_characteristics_resolved = .true.
-      iter = this%aspects%ftn_begin()
-      associate (e => this%aspects%ftn_end())
-         do while (iter /= e)
-            call iter%next()
-            aspect => iter%second()
-            if (iter%first() == CLASS_ASPECT_ID) cycle
-            aspect_status = aspect%get_characteristic_state()
-            if (.not. aspect_status%is_resolved()) then
-               all_characteristics_resolved = .false.
-               exit
-            end if
-         end do
-      end associate
+      all_characteristics_resolved = .false.
 
+      call this%update_from_payload(_RC)
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      aspect_status = class_aspect%get_characteristic_state()
+      _RETURN_UNLESS(aspect_status%is_resolved())
+      aspect_ids = class_aspect%get_mandatory_aspect_ids()
+
+      do i = 1, size(aspect_ids)
+         aspect => this%aspects%at(aspect_ids(i), _RC)
+         aspect_status = aspect%get_characteristic_state()
+         _RETURN_UNLESS(aspect_status%is_resolved())
+      end do
+
+      all_characteristics_resolved = .true.
       _RETURN(_SUCCESS)
    end function all_characteristics_resolved
 
@@ -715,7 +718,13 @@ contains
       ! if (allocated(state)) then
       !    _FAIL('unsupported use case')
       ! end if
-      
+
+      block
+        logical :: all_resolved
+        all_resolved = this%all_characteristics_resolved()
+        _ASSERT(has_deferred_aspects .neqv. all_resolved, 'huh')
+      end block
+
       _RETURN(_SUCCESS)
    end function has_deferred_aspects
 
@@ -800,7 +809,7 @@ contains
    end subroutine print_spec
 
    subroutine update_from_payload(this, rc)
-      class(StateItemSpec), target, intent(inout) :: this
+      class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status

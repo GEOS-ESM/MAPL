@@ -48,6 +48,7 @@ module mapl_ServiceClassAspect_mod
       procedure :: connect_to_export
 
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: create
       procedure :: activate
       procedure :: allocate
@@ -313,6 +314,14 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
+
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(ServiceClassAspect), intent(in) :: this
+
+      aspect_ids = [AspectId:: ]
+
+   end function get_mandatory_aspect_ids
  
    subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(ServiceClassAspect), intent(in) :: this

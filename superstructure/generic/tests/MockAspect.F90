@@ -43,6 +43,7 @@ module MockAspect_mod
       procedure :: supports_conversion_general => supports_conversion_general_class
       procedure :: supports_conversion_specific => supports_conversion_specific_class
       procedure :: get_aspect_order => get_aspect_order_class
+      procedure :: get_mandatory_aspect_ids
       procedure :: create => create_class
       procedure :: activate => activate_class
       procedure :: allocate => allocate_class
@@ -124,6 +125,7 @@ contains
       aspects => mock_spec%get_aspects()
 
       mock_class_aspect = MockClassAspect(typekind, units_)
+      call mock_class_aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
       call aspects%insert(CLASS_ASPECT_ID, mock_class_aspect)
 
       mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
@@ -348,6 +350,14 @@ contains
       
       _RETURN(_SUCCESS)
    end function get_aspect_order_class
+
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(MockClassAspect), intent(in) :: this
+
+      aspect_ids = [CLASS_ASPECT_ID, TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID, MOCK_ASPECT_ID]
+      
+   end function get_mandatory_aspect_ids
 
    subroutine create_class(this, other_aspects, rc)
       class(MockClassAspect), intent(inout) :: this

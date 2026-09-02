@@ -84,12 +84,12 @@ module mapl_GenericPhases_mod
         GENERIC_INIT_GEOM_A, &
         GENERIC_INIT_GEOM_B, &
         GENERIC_INIT_ADVERTISE, &
-         GENERIC_INIT_MODIFY_ADVERTISED, &
-         GENERIC_INIT_MODIFY_ADVERTISED, & ! repeat is hardwired until convergence detection can be automated
-         GENERIC_INIT_REALIZE_PROVIDED, &
-         GENERIC_INIT_ACCEPT_TRANSFER, &
-         GENERIC_INIT_REALIZE_ACCEPTED, &
-         GENERIC_INIT_READ_RESTART, & ! IMPORTANT: Goes before INIT_USER
+        GENERIC_INIT_MODIFY_ADVERTISED, &
+        GENERIC_INIT_MODIFY_ADVERTISED, & ! repeat is hardwired until convergence detection can be automated
+        GENERIC_INIT_REALIZE_PROVIDED, &
+        GENERIC_INIT_ACCEPT_TRANSFER, &
+        GENERIC_INIT_REALIZE_ACCEPTED, &
+        GENERIC_INIT_READ_RESTART, & ! IMPORTANT: Goes before INIT_USER
         GENERIC_INIT_USER &
         ]
 

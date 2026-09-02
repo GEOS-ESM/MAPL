@@ -466,7 +466,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(AspectMap) :: aspects
+      type(AspectMap) :: aspects, filtered_aspects
       type(VirtualConnectionPtVector) :: dependencies
       integer :: status
 
@@ -735,6 +735,8 @@ contains
          aspect=FieldClassAspect('') ! must allocate something
          _FAIL('Unsupported itemType')
       end select
+
+      call aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
 
       _RETURN(_SUCCESS)
    end function make_ClassAspect

@@ -352,7 +352,12 @@ contains
          if (allocated(this%regridder_param)) deallocate(this%regridder_param)
       end if
 
-       if (.not. allocated(this%geom)) call this%set_characteristic_state(ASPECT_STATUS_MIRRORED)
+      if (.not. allocated(this%geom)) then
+         call this%set_characteristic_state(ASPECT_STATUS_MIRRORED)
+      else
+         call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
+      end if
+     
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)

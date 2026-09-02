@@ -65,7 +65,7 @@ contains
            vgrid=vertical_grid, &
            vert_staggerloc=vstagger, &
            _RC)
-
+      _HERE, allocated(geom)
       call mapl_FieldSet(avg_f, &
            geom=geom, &
            ungridded_dims=ungridded_dims, &
