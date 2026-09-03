@@ -139,7 +139,6 @@ module mapl_VariableSpec_mod
       ! miscellaneous
       !=====================
       type(StringVector) :: dependencies ! default empty
-      logical :: has_deferred_aspects = .false.
       logical :: use_field_dictionary = .false.
 
    contains
@@ -184,7 +183,6 @@ contains
         regrid_param, &
         horizontal_dims_spec, &
         vector_basis_kind, &
-        has_deferred_aspects, &
         use_field_dictionary, &
         restart_mode, &
         rc) result(var_spec)
@@ -214,7 +212,6 @@ contains
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       character(*), optional, intent(in) :: vector_basis_kind
-      logical, optional, intent(in) :: has_deferred_aspects
       logical, optional, intent(in) :: use_field_dictionary
       type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
@@ -250,7 +247,6 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
-      _SET_OPTIONAL(has_deferred_aspects)
       _SET_OPTIONAL(use_field_dictionary)
       _SET_OPTIONAL(restart_mode)
 
@@ -472,7 +468,7 @@ contains
 
       aspects = this%make_aspects(registry, component_geom, component_geom_id, vertical_grid, _RC)
       dependencies = this%make_dependencies(_RC)
-      spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)
+      spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -756,23 +752,8 @@ contains
       call verify_state_intent(spec%state_intent, _RC)
       call verify_short_name(spec%short_name, _RC)
       call verify_regrid(spec%regrid_param, spec%regrid_method, _RC)
-      call verify_deferred_items_have_export_intent(spec%has_deferred_aspects, spec%state_intent, _RC)
 
       _RETURN(_SUCCESS)
-
-   contains
-
-      subroutine verify_deferred_items_have_export_intent(has_deferred_aspects, state_intent, rc)
-         logical, intent(in) :: has_deferred_aspects
-         type(esmf_StateIntent_Flag), intent(in) :: state_intent
-         integer, optional, intent(out) :: rc
-
-         _RETURN_UNLESS(has_deferred_aspects)
-
-         _ASSERT(state_intent == ESMF_STATEINTENT_EXPORT, 'only exports can be deferred')
-         _RETURN(_SUCCESS)
-      end subroutine verify_deferred_items_have_export_intent
-
    end subroutine verify_variable_spec
 
 end module mapl_VariableSpec_mod

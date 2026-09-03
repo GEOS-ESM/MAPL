@@ -85,24 +85,19 @@ contains
       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR,  _RC)
        select case (action)
        case ('average')
-          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
-               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
           call advertise_time_average_internal_fields(gridcomp, name, _RC)
        case ('min')
-          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
-               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
           call advertise_time_min_internal_fields(gridcomp, name, _RC)
        case ('max')
-          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
-               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
           call advertise_time_max_internal_fields(gridcomp, name, _RC)
        case ('accumulate')
-          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
-               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
           call advertise_time_accumulate_internal_fields(gridcomp, name, _RC)
        case ('variance')
-          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, &
-               has_deferred_aspects=.true., _RC)
+          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
           call advertise_time_variance_internal_fields(gridcomp, name, _RC)
        case default
           _FAIL('unsupported action: '//action)

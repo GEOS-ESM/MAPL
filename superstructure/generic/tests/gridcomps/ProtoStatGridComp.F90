@@ -42,7 +42,6 @@ contains
            standard_name='<unknown>', &
            dims='xy', &
            vertical_stagger=VERTICAL_STAGGER_NONE, &
-           has_deferred_aspects=.true., &
            units='K', _RC)
 
       exports_ready = .false.
@@ -64,7 +63,6 @@ contains
       _RETURN_IF(exports_ready)
       
       call esmf_StateGet(exportState, itemName='avg_T', field=field, _RC)
-      call mapl_FieldSet(field, has_deferred_aspects = .false., _RC)
 
       exports_ready = .true.
 
