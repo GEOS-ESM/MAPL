@@ -65,7 +65,7 @@ contains
            vgrid=vertical_grid, &
            vert_staggerloc=vstagger, &
            _RC)
-      _HERE, allocated(geom)
+
       call mapl_FieldSet(avg_f, &
            geom=geom, &
            ungridded_dims=ungridded_dims, &
@@ -74,7 +74,6 @@ contains
            vgrid=vertical_grid, &
            vert_staggerloc=vstagger, &
            standard_name='foo', &
-           has_deferred_aspects=.false., &
            _RC)
 
       call esmf_StateGet(internal_state, 'sum_'//name, field=sum_f, _RC)
@@ -85,7 +84,6 @@ contains
            typekind=typekind, &
            vgrid=vertical_grid, &
            vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., &
            _RC)
 
       call esmf_StateGet(internal_state, 'counts_'//name, field=counts_f, _RC)
@@ -96,7 +94,6 @@ contains
            typekind=ESMF_TYPEKIND_I4, &
            vgrid=vertical_grid, &
            vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., &
            _RC)
 
       _UNUSED_DUMMY(unusable)
