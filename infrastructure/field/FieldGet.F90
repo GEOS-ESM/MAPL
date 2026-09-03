@@ -31,7 +31,6 @@ contains
         conservation_metadata, &
         units, standard_name, long_name, &
         allocation_status, &
-        has_deferred_aspects, &
         regridder_param_info, &
         rc)
       type(ESMF_Field), intent(in) :: field
@@ -54,11 +53,10 @@ contains
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
-      logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable,  intent(out) :: regridder_param_info
-       integer, optional, intent(out) :: rc
+      integer, optional, intent(out) :: rc
 
-       integer :: status
+      integer :: status
       type(ESMF_Info) :: field_info
       character(len=ESMF_MAXSTR) :: fname
       type(ESMF_FieldStatus_Flag) :: fstatus
@@ -97,7 +95,6 @@ contains
            conservation_metadata=conservation_metadata, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
-           has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
            _RC)
 

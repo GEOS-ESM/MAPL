@@ -35,20 +35,19 @@ contains
    subroutine bundle_get(fieldBundle, unusable, &
         fieldCount, fieldList, geom, vgrid, &
         fieldBundleType, &
-        ! Bracket specific items
+                                ! Bracket specific items
         typekind, interpolation_weights, &
-        ! Bracket field-prototype items
+                                ! Bracket field-prototype items
         ungridded_dims, num_levels, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         units, standard_name, long_name, &
         allocation_status, &
         bracket_updated, &
-        has_deferred_aspects, &
         regridder_param_info, &
         vector_basis_kind, &
         quantity_type_metadata, &
         normalization_metadata, &
         conservation_metadata, &
-         rc)
+        rc)
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: fieldCount
@@ -68,7 +67,6 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: bracket_updated
-      logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
       type(MAPL_VectorBasisKind), optional, intent(out) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
@@ -85,9 +83,9 @@ contains
 
       if (present(fieldCount) .or. present(fieldList)) then
          call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount_, _RC)
-          if (present(fieldCount)) then
-             fieldCount = fieldCount_
-          end if
+         if (present(fieldCount)) then
+            fieldCount = fieldCount_
+         end if
       end if
 
       if (present(fieldList)) then
@@ -107,7 +105,6 @@ contains
            allocation_status=allocation_status, &
            bracket_updated=bracket_updated, &
            has_geom=has_geom, &
-           has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
            vector_basis_kind=vector_basis_kind, &
            quantity_type_metadata=quantity_type_metadata, &
