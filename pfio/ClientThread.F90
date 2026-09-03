@@ -22,12 +22,14 @@ module pFIO_ClientThreadMod
    use pFIO_HandShakeMessageMod
    use pFIO_PrefetchDoneMessageMod
    use pFIO_CollectivePrefetchDoneMessageMod
+   use pFIO_NextCollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
    use pFIO_AddReadDataCollectionMessageMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
+   use pFIO_NextCollectivePrefetchMessageMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
@@ -58,6 +60,7 @@ module pFIO_ClientThreadMod
        integer :: request_counter    = MIN_ID
        integer :: collective_counter = COLLECTIVE_MIN_ID
        integer :: pending_collective_prefetches = 0
+       integer :: pending_next_collective_prefetches = 0
 
    contains
       procedure, private :: add_read_data_collection
@@ -191,6 +194,7 @@ contains
 
       integer :: request_id
       class (AbstractMessage), allocatable :: handshake_msg
+      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -206,7 +210,8 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the get call iRecv
-        call this%insert_RequestHandle(id, connection%get(id, data_reference))
+        handle = connection%get(id, data_reference)
+        call this%insert_RequestHandle(id, handle)
       end associate
       _RETURN(_SUCCESS)
    end function prefetch_data
@@ -265,6 +270,7 @@ contains
       integer :: request_id
 
       class (AbstractMessage), allocatable :: handshake_msg
+      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -283,7 +289,8 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the get call iRecv
-        call this%insert_RequestHandle(id, connection%get(id, data_reference))
+        handle = connection%get(id, data_reference)
+        call this%insert_RequestHandle(id, handle)
       end associate
 
       _RETURN(_SUCCESS)
@@ -304,25 +311,26 @@ contains
 
       integer :: request_id
       class (AbstractMessage), allocatable :: handshake_msg
+      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
       request_id = this%get_unique_collective_request_id()
       connection => this%get_connection()
 
-      call connection%send(CollectivePrefetchDataMessage( &
-           request_id, &
-           collection_id, &
-           file_name, &
-           var_name, &
-           data_reference, unusable=unusable, start=start, &
-           global_start=global_start, global_count=global_count, cache_only=.true.), _RC)
-      this%pending_collective_prefetches = this%pending_collective_prefetches + 1
+       call connection%send(NextCollectivePrefetchMessage( &
+            request_id, &
+            collection_id, &
+            file_name, &
+            var_name, &
+            data_reference, unusable=unusable, start=start, &
+            global_start=global_start, global_count=global_count), _RC)
+       this%pending_next_collective_prefetches = this%pending_next_collective_prefetches + 1
 
       call connection%receive(handshake_msg, _RC)
 
       _RETURN(_SUCCESS)
-    end function collective_prefetch_data_cache_only
+     end function collective_prefetch_data_cache_only
 
    function stage_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start, rc) result(request_id)
@@ -337,6 +345,7 @@ contains
 
       integer :: request_id
       class (AbstractMessage), allocatable :: handshake_msg
+      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -352,7 +361,8 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the put call iSend
-        call this%insert_RequestHandle(id, connection%put(id, data_reference))
+        handle = connection%put(id, data_reference)
+        call this%insert_RequestHandle(id, handle)
       end associate
       _RETURN(_SUCCESS)
    end function stage_data
@@ -373,6 +383,7 @@ contains
       integer :: request_id
 
       class (AbstractMessage), allocatable :: handshake_msg
+      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -390,7 +401,8 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the put call iSend
-        call this%insert_RequestHandle(id, connection%put(id, data_reference))
+        handle = connection%put(id, data_reference)
+        call this%insert_RequestHandle(id, handle)
       end associate
 
       _RETURN(_SUCCESS)
@@ -409,6 +421,7 @@ contains
       integer :: status
 
       class (AbstractMessage), allocatable :: handshake_msg
+      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
 
       request_id = this%get_unique_collective_request_id()
@@ -423,7 +436,8 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the put call iSend
-        call this%insert_RequestHandle(id, connection%put(id, data_reference))
+        handle = connection%put(id, data_reference)
+        call this%insert_RequestHandle(id, handle)
       end associate
       _RETURN(_SUCCESS)
    end function stage_nondistributed_data
@@ -477,15 +491,22 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
-       if (this%isEmpty_RequestHandle() .and. this%pending_collective_prefetches == 0) then
+        if (this%isEmpty_RequestHandle() .and. this%pending_collective_prefetches == 0 .and. &
+             this%pending_next_collective_prefetches == 0) then
          _RETURN(_SUCCESS)
        endif
 
        connection=>this%get_connection()
-       call connection%send(CollectivePrefetchDoneMessage(),_RC)
-       this%pending_collective_prefetches = 0
+       if (this%pending_collective_prefetches > 0) then
+          call connection%send(CollectivePrefetchDoneMessage(),_RC)
+          this%pending_collective_prefetches = 0
+       end if
+       if (this%pending_next_collective_prefetches > 0) then
+          call connection%send(NextCollectivePrefetchDoneMessage(),_RC)
+          this%pending_next_collective_prefetches = 0
+       end if
        _RETURN(_SUCCESS)
-    end subroutine done_collective_prefetch
+     end subroutine done_collective_prefetch
 
    subroutine done_stage(this, rc)
       class (ClientThread), intent(inout) :: this

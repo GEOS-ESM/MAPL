@@ -6,6 +6,7 @@ module mapl_ComponentDriverDriverGridComp_mod
    use esmf
    use gFTL2_StringStringMap
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
+   use mapl_Sleep_mod, only: MAPL_Sleep
    use timeSupport
 
    implicit none(type,external)
@@ -116,11 +117,7 @@ contains
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
 
       support%runMode = ESMF_HConfigAsString(hconfig, keyString='RUN_MODE', _RC)
-      support%delay = -1.0
-      is_present = ESMF_HConfigIsDefined(hconfig, keyString='delay', _RC)
-      if (is_present) then
-         support%delay = ESMF_HConfigAsR4(hconfig, keyString='delay', _RC)
-      end if
+      call MAPL_GridCompGetResource(gridcomp, keystring='delay', value=support%delay, default=-1.0, _RC)
       fill_def = ESMF_HConfigCreateAt(hconfig, keyString='FILL_DEF', _RC)
       b = ESMF_HConfigIterBegin(fill_def, _RC)
       e = ESMF_HConfigIterEnd(fill_def, _RC)
@@ -164,11 +161,19 @@ contains
       type(Comp_Driver_Support), pointer :: support
       type(ESMF_Time) :: current_time
       type(ESMF_Grid) :: grid
+      character(len=ESMF_MAXSTR) :: time_string
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, Comp_Driver_Support, PRIVATE_STATE, support)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
       call update_internal_state(internal_state, current_time, support, _RC)
+
+      if (support%delay > 0.0) then
+         call ESMF_TimeGet(current_time, timeString=time_string, _RC)
+         write(*,'(A,1X,A,1X,A,F6.2)') 'INFO: ComponentDriver sleep: start', trim(time_string), 'seconds=', support%delay
+         call MAPL_Sleep(support%delay)
+         write(*,'(A,1X,A)') 'INFO: ComponentDriver sleep: end', trim(time_string)
+      end if
 
       if (support%runMode == "GenerateExports") then
          call fill_state_from_internal(exportState, internal_state, support, _RC)

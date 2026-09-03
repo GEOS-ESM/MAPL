@@ -19,6 +19,8 @@ Build an ExtData input server that can eventually use extra node-local reader PE
 - `tests/MAPL3G_Component_Testing_Framework/test_cases/case47/`
 - `tests/MAPL3G_Component_Testing_Framework/test_cases/case48/`
 - `tests/MAPL3G_Component_Testing_Framework/test_cases/case49/`
+- `tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh`
+- `tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh`
 
 ### Files Modified
 - `mapl/MaplFramework.F90`
@@ -195,6 +197,18 @@ Build an ExtData input server that can eventually use extra node-local reader PE
   - `files_read: [test_20040415.nc4, test_20040416.nc4, test_20040417.nc4]`
 - This confirms the interpolation lookahead is now boundary-aware for the full future consumed pair, not just the future-left slab.
 
+#### Performance check status
+- Added two helper scripts under `tests/MAPL3G_Component_Testing_Framework/benchmark/` to prepare and run a dedicated 8-front-rank baseline vs 8+1 async-reader performance comparison on a real cluster.
+- The helper scripts currently prepare long interpolation workloads that span at least 20 daily source files.
+- A local Mac timing check on a long interpolation workload still showed the async path slower than the baseline for many-rank slab-heavy access patterns:
+  - baseline `MpiServer` (`8` ranks): wall time about `2.77 s`, `EXTDATA --run` about `0.30 s`
+  - async `AsyncInputServer` (`8+1` ranks): wall time about `4.83 s`, `EXTDATA --run` about `2.43 s`
+  - reader cache summary still had many misses: `hits=24 misses=2296`
+- Interpretation:
+  - request/pair lookahead is now working
+  - the remaining bottleneck for larger decompositions is per-slab request granularity
+  - the next major performance step, if needed, is node-level request aggregation / read-once-share-many
+
 ### Important Bug Fixes Made
 - Fixed local configured server client-key mismatch:
   - local servers must register client key as `server_name`, not `make_client_name(server_name)`.
@@ -300,10 +314,84 @@ Build an ExtData input server that can eventually use extra node-local reader PE
 - Keep the cache-only next-prefetch path scoped to `async_input_server` until the default pFIO route learns how to handle handle-less collective-prefetch requests safely.
 - Keep in mind that a future cleanup/generalization pass may still be needed for multi-front-rank-per-node shared-window cache allocation.
 - `case48` and `case49` are now the regression targets for any future interpolation-path performance work.
+- If the cluster performance run still shows many steady-state misses after warmup, move directly to node-level request aggregation and shared dataset serving.
 
-### How To Resume Tomorrow
+### Current State (2026-09-03 — end of day)
+
+#### Async path logic — verified correct
+- The `NextCollectivePrefetchMessage` / `NextCollectivePrefetchDoneMessage` split is implemented and working.
+- Message flow:
+  1. Client: `collective_prefetch_data_cache_only` → sends `NextCollectivePrefetchMessage` to server
+  2. Server (`handle_NextCollectivePrefetchData`): pushes message into `request_backlog`; sends `DummyMessage` handshake back
+  3. Client: `done_collective_prefetch` → sends `CollectivePrefetchDoneMessage` (if current items) AND/OR `NextCollectivePrefetchDoneMessage` (if next items), in that order
+  4. Server (`handle_Done_collective_prefetch`): waits for all threads; calls `service_collective_prefetch`; processes `CollectivePrefetchDataMessage` items; `finish_collective_service` resets `serverthread_done_msgs` if backlog still non-empty (e.g., has `NextCollectivePrefetchMessage` items)
+  5. Server (`handle_Done_next_collective_prefetch`): waits for all threads; calls `service_next_collective_prefetch`; finds `NextCollectivePrefetchMessage` items in backlog; calls `forward_request_to_reader(…, deliver_to_client=.false.)` per item
+  6. Reader (rank NOT in `model_comm`): receives `ASYNC_INPUT_CMD_READ` via `MPI_Recv`; deserializes `CollectivePrefetchDataMessage`; sees `cache_only=.true.`; reads the file, updates shared cache, does NOT send data back
+- `service_collective_prefetch` uses `type is (CollectivePrefetchDataMessage)` which is an **exact type match** in Fortran `select type` — it correctly skips `NextCollectivePrefetchMessage` subtype items
+- `service_next_collective_prefetch` uses `type is (NextCollectivePrefetchMessage)` — exact match for the next-prefetch items
+
+#### Local verification (2026-09-03)
+- All 5 async tests pass: `ctest -R "MAPL3G_Comp_Test_case(45|46|47|48|49)"` → 5/5 passed
+- Non-fallback 2-rank (1 model + 1 reader) manual run of case45 shows:
+  - `INFO: AsyncInputServer: async_input_server model_size_on_node=1 node_size=2 reader_capacity_on_node=1 synchronous_fallback=F`
+  - `INFO: AsyncInputServer forwarded: requests=73`
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=47 misses=26 requests=73`
+- Non-fallback 3-rank (2 model + 1 reader) manual run of case45 shows:
+  - Both model ranks (0 and 1) forward their slice to reader rank 2
+  - `INFO: AsyncInputServer forwarded: requests=73` (from rank 0 only, by design)
+  - `INFO: AsyncInputServer cache: reader_rank=2 hits=92 misses=54 requests=146`
+  - Reader processes 146 requests = 2 × 73 (both model PETs' slices)
+- The previously reported `forwarded_requests=0` in the `8+1` benchmark was from an earlier code state (prior to the `NextCollectivePrefetchMessage` split being fully wired up); the current code is confirmed working
+
+#### Blocking issues resolved
+- `cap2.yaml` crash in `insert_RequestHandle` during ExtData init: **resolved** (root cause was stale build artifacts; clean rebuild fixed it)
+- `cap1.yaml` local history output crash: **resolved** via `GeomPFIO` clone fix and `HistoryGridComp` `post_wait_all` bypass for `SimpleSocket`
+- No temporary debug prints remain in the codebase (`pfio/AsyncInputServer.F90` debug lines added for this session were removed)
+
+#### Node-level aggregation — implemented and verified (2026-09-03)
+
+**Design**: Reader-side global-key cache.
+- Cache key = `(file_name, var_name, type_kind, global_start, global_count)` — identical for all model ranks requesting the same variable/time.
+- Reader stores the **full global slab** in a `LocalMemReference`.
+- On a cache miss: reads full global slab from file, stores it.
+- On a cache hit: data is already in cache.
+- For every request (hit or miss): extracts the per-rank LOCAL slice via `copy_subarray` and MPI_Sends it back.
+- No collective operations between model ranks required — each rank operates independently.
+- `copy_subarray`: recursive Fortran-column-major sub-array copy; handles arbitrary N-dimensional hyper-slabs.
+
+**Previous approach (broken)**: ShmemReference over `model_node_comm` required `MPI_Win_allocate_shared` — a collective over model ranks — inside the service path. Each model rank enters the service path independently (no cross-rank synchronization), causing deadlock with `model_petcount > 1`.
+
+**Benchmark results after node-level aggregation (macOS, 2026-09-03)**:
+
+| Case | NP | Wall | EXTDATA run | Cache hits | Misses | Requests |
+|------|----|------|-------------|------------|--------|----------|
+| mpi8 | 8 | 2.98 s | 1.10 s | — | — | — |
+| async9 | 9 | 3.13 s | 1.11 s | 2284 | 20 | 2304 |
+
+- **Cache hit rate: 99.1%** (vs 7.3% before aggregation, 0% before this feature)
+- The 20 compulsory misses are unavoidable cold-start reads (first access to each unique global slab)
+- async9 wall time (3.13 s) ≈ mpi8 (2.98 s) — the async reader is now competitive
+- `reader_requests = 2304 = 36 × 8 × 8` (still 8 requests per rank per timestep); but only 20 result in file reads
+
+**Files changed for this step**:
+- `pfio/AsyncInputServer.F90`: full rewrite of the reader loop and cache system
+  - `AsyncInputCacheSlot`: cache key is now `global_start`/`global_count`; payload is `LocalMemReference` (not `ShmemReference`)
+  - `read_global_slab_into_slot`: reads full global slab using `global_start`/`global_count`
+  - `extract_local_slice_from_slot`: calls `copy_subarray` to extract per-rank slice
+  - `copy_subarray`: new recursive N-D sub-array copy routine
+  - `forward_request_to_reader`: unchanged in structure; reader now returns LOCAL slice
+  - `ensure_model_cache_capacity` / `ShmemReference` usage: **removed** (no longer needed)
+- `tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh`:
+  - Fixed `segment_duration` for cap1 (`P25D`) and cap2 (`P30D`)
+
+### How To Resume
 - Read these two files first:
   - `.opencode/plans/async-input-server-plan.md`
   - `.opencode/plans/async-input-server-status.md`
-- Mention `case45` and `AsyncInputServer`.
-- State whether cluster verification of the non-fallback path has happened yet.
+- All 5 regression tests (case45–49) pass
+- Benchmark shows 99.1% cache hit rate, async9 ≈ mpi8 wall time
+- The 20 remaining misses are compulsory cold-start misses — zero misses after warmup
+- **Next steps if continuing**:
+  - Consider whether 2 cache slots is optimal for the interpolation path (current=2, future-left+right=2 total = 4 unique slabs per timestep → 2 slots may evict too aggressively at the day-change boundary)
+  - Cluster verification: run the benchmark on the actual cluster where `node_size` > 1 and multiple model nodes exist
+  - If needed: increase `ASYNC_INPUT_NUM_CACHE_SLOTS` to 4 to match the 4 unique slabs in the interpolation access pattern

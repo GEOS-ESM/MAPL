@@ -8,12 +8,14 @@ module pFIO_MessageVisitorMod
    use pFIO_DoneMessageMod
    use pFIO_PrefetchDoneMessageMod
    use pFIO_CollectivePrefetchDoneMessageMod
+   use pFIO_NextCollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
    use pFIO_AddReadDataCollectionMessageMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
+   use pFIO_NextCollectivePrefetchMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
@@ -35,6 +37,7 @@ module pFIO_MessageVisitorMod
       procedure :: handle_Done
       procedure :: handle_Done_prefetch
       procedure :: handle_Done_collective_prefetch
+      procedure :: handle_Done_next_collective_prefetch
       procedure :: handle_Done_stage
       procedure :: handle_Done_collective_stage
 
@@ -42,6 +45,7 @@ module pFIO_MessageVisitorMod
       procedure :: handle_AddWriteDataCollection
       procedure :: handle_Id
       procedure :: handle_PrefetchData
+      procedure :: handle_NextCollectivePrefetchData
       procedure :: handle_StageData
       procedure :: handle_CollectivePrefetchData
       procedure :: handle_CollectiveStageData
@@ -53,12 +57,14 @@ module pFIO_MessageVisitorMod
       generic :: handle_cmd => handle_Done
       generic :: handle_cmd => handle_Done_prefetch
       generic :: handle_cmd => handle_Done_collective_prefetch
+      generic :: handle_cmd => handle_Done_next_collective_prefetch
       generic :: handle_cmd => handle_Done_stage
       generic :: handle_cmd => handle_Done_collective_stage
       generic :: handle_cmd => handle_AddReadDataCollection
       generic :: handle_cmd => handle_AddWriteDataCollection
       generic :: handle_cmd => handle_Id
       generic :: handle_cmd => handle_PrefetchData
+      generic :: handle_cmd => handle_NextCollectivePrefetchData
       generic :: handle_cmd => handle_CollectivePrefetchData
       generic :: handle_cmd => handle_StageData
       generic :: handle_cmd => handle_CollectiveStageData
@@ -88,8 +94,11 @@ contains
         call this%handle_Done_prefetch(cmd,rc=status)
         _VERIFY(status)
       type is (CollectivePrefetchDoneMessage)
-        call this%handle_Done_collective_prefetch(cmd,rc=status)
-        _VERIFY(status)
+         call this%handle_Done_collective_prefetch(cmd,rc=status)
+         _VERIFY(status)
+      type is (NextCollectivePrefetchDoneMessage)
+         call this%handle_Done_next_collective_prefetch(cmd,rc=status)
+         _VERIFY(status)
       type is (StageDoneMessage)
          call this%handle_Done_stage(cmd,_RC)
        type is (CollectiveStageDoneMessage)
@@ -104,6 +113,9 @@ contains
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
       type is (PrefetchDataMessage)
+        call this%handle_cmd(cmd,rc=status)
+        _VERIFY(status)
+      type is (NextCollectivePrefetchMessage)
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
       type is (CollectivePrefetchDataMessage)
@@ -190,6 +202,15 @@ contains
       _UNUSED_DUMMY(message)
    end subroutine handle_Done_collective_prefetch
 
+   subroutine handle_Done_next_collective_prefetch(this, message, rc)
+      class (MessageVisitor), target, intent(inout) :: this
+      type (NextCollectivePrefetchDoneMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+      _FAIL( "Warning : dummy handle_Done_next_collective_prefetch should not be called")
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
+   end subroutine handle_Done_next_collective_prefetch
+
    subroutine handle_Done_stage(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this
       type (StageDoneMessage), intent(in) :: message
@@ -243,6 +264,15 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_PrefetchData
+
+   subroutine handle_NextCollectivePrefetchData(this, message, rc)
+      class (MessageVisitor), target, intent(inout) :: this
+      type (NextCollectivePrefetchMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+      _FAIL( "Warning : dummy handle_NextCollectivePrefetchData should not be called")
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
+   end subroutine handle_NextCollectivePrefetchData
 
    subroutine handle_StageData(this, message, rc)
       class (MessageVisitor), target, intent(inout) :: this

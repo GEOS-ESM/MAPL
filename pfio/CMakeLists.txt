@@ -35,6 +35,7 @@ set (srcs
   DoneMessage.F90
   PrefetchDoneMessage.F90
   CollectivePrefetchDoneMessage.F90
+  NextCollectivePrefetchDoneMessage.F90
   StageDoneMessage.F90
   CollectiveStageDoneMessage.F90
   DummyMessage.F90
@@ -46,6 +47,7 @@ set (srcs
   PrefetchDataMessage.F90
   StageDataMessage.F90
   CollectivePrefetchDataMessage.F90
+  NextCollectivePrefetchMessage.F90
   CollectiveStageDataMessage.F90
   AddWriteDataCollectionMessage.F90
   ModifyMetadataMessage.F90

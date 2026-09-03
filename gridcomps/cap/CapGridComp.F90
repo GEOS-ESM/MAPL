@@ -3,6 +3,7 @@
 module mapl_CapGridComp_mod
 
   use mapl
+  use mapl_Sleep_mod, only: MAPL_Sleep
   use esmf, only: ESMF_GridComp, ESMF_State, ESMF_Clock
   use esmf, only: ESMF_METHOD_INITIALIZE, ESMF_METHOD_RUN, ESMF_SUCCESS
   use esmf, only: ESMF_InternalStateAdd, ESMF_InternalStateGet
@@ -67,6 +68,7 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
+      real :: model_delay
       type(CapGridComp), pointer :: cap
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
@@ -85,12 +87,19 @@ contains
       integer, intent(out)  :: rc
 
       integer :: status
+      real :: model_delay
       type(CapGridComp), pointer :: cap
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
       if (cap%run_extdata) then
          call MAPL_GridCompRunChild(gridcomp, cap%extdata_name, _RC)
+         call MAPL_GridCompGetResource(gridcomp, keystring='model_delay', value=model_delay, default=-1.0, _RC)
+         if (model_delay > 0.0) then
+            write(*,'(A,1X,F6.2)') 'INFO: Cap model sleep: start seconds=', model_delay
+            call MAPL_Sleep(model_delay)
+            write(*,'(A)') 'INFO: Cap model sleep: end'
+         end if
       end if
       call MAPL_GridCompRunChild(gridcomp, cap%root_name, _RC)
       if (cap%run_history) then

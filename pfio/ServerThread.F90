@@ -28,6 +28,7 @@ module pFIO_ServerThreadMod
    use pFIO_DoneMessageMod
    use pFIO_PrefetchDoneMessageMod
    use pFIO_CollectivePrefetchDoneMessageMod
+   use pFIO_NextCollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
    use pFIO_AddReadDataCollectionMessageMod
@@ -37,6 +38,7 @@ module pFIO_ServerThreadMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_AbstractDataMessageMod
    use pFIO_PrefetchDataMessageMod
+   use pFIO_NextCollectivePrefetchMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
@@ -87,11 +89,13 @@ module pFIO_ServerThreadMod
       procedure :: handle_Done
       procedure :: handle_Done_prefetch
       procedure :: handle_Done_collective_prefetch
+      procedure :: handle_Done_next_collective_prefetch
       procedure :: handle_Done_stage
       procedure :: handle_Done_collective_stage
       procedure :: handle_AddReadDataCollection
       procedure :: handle_AddWriteDataCollection
       procedure :: handle_PrefetchData
+      procedure :: handle_NextCollectivePrefetchData
       procedure :: handle_CollectivePrefetchData
       procedure :: handle_StageData
       procedure :: handle_CollectiveStageData
@@ -253,6 +257,9 @@ contains
          _RETURN(_SUCCESS)
       type is (CollectivePrefetchDataMessage)
          _FAIL( "please use done_collective_prefetch")
+         _RETURN(_SUCCESS)
+      type is (NextCollectivePrefetchMessage)
+         _FAIL( "please use done_next_collective_prefetch")
          _RETURN(_SUCCESS)
       type is (StageDataMessage)
          _FAIL( "please use done_stage")
@@ -569,6 +576,22 @@ contains
       _RETURN(_SUCCESS)
    end subroutine handle_CollectivePrefetchData
 
+   subroutine handle_NextCollectivePrefetchData(this, message, rc)
+      class (ServerThread), target, intent(inout) :: this
+      type (NextCollectivePrefetchMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+
+      class(AbstractSocket),pointer :: connection
+      type (DummyMessage) :: handshake_msg
+      integer :: status
+
+      connection=>this%get_connection()
+      call connection%send(handshake_msg,_RC)
+      call this%request_backlog%push_back(message)
+
+      _RETURN(_SUCCESS)
+   end subroutine handle_NextCollectivePrefetchData
+
    subroutine handle_ModifyMetadata(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
       type (ModifyMetadataMessage), intent(in) :: message
@@ -740,6 +763,7 @@ contains
       type(LocalMemReference) :: mem_data_reference
       type(DummyMessage) :: handshake_msg
       integer :: status
+      class(AbstractRequestHandle), allocatable :: handle
 
       connection=>this%get_connection()
       call connection%send(handshake_msg,_RC)
@@ -747,8 +771,8 @@ contains
 
       mem_data_reference=LocalMemReference(message%type_kind,message%count)
       !iRecv
-      call this%insert_RequestHandle(message%request_id, &
-              & connection%get(message%request_id, mem_data_reference))
+      handle = connection%get(message%request_id, mem_data_reference)
+      call this%insert_RequestHandle(message%request_id, handle)
 
        _RETURN(_SUCCESS)
    end subroutine handle_StageData
@@ -1043,8 +1067,9 @@ contains
       type (LocalMemReference) :: mem_data_reference
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
-      class(AbstractSocket),pointer :: connection
-      integer :: status
+       class(AbstractSocket),pointer :: connection
+       integer :: status
+       class(AbstractRequestHandle), allocatable :: handle
 
       iter = this%request_backlog%begin()
       do while ( iter /= this%request_backlog%end())
@@ -1058,8 +1083,8 @@ contains
 
              call this%get_DataFromFile(q,mem_data_reference%base_address, _RC)
 
-             call this%insert_RequestHandle(q%request_id, &
-              & connection%put(q%request_id, mem_data_reference))
+             handle = connection%put(q%request_id, mem_data_reference)
+             call this%insert_RequestHandle(q%request_id, handle)
              call this%request_backlog%erase(iter)
 
          class default
@@ -1122,6 +1147,31 @@ contains
       _UNUSED_DUMMY(message)
    end subroutine handle_Done_collective_prefetch
 
+   recursive subroutine handle_Done_next_collective_prefetch(this, message, rc)
+      class (ServerThread), target, intent(inout) :: this
+      type (NextCollectivePrefetchDoneMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+
+      class(AbstractSocket), pointer :: connection
+      logical :: handled
+      integer :: status
+
+      this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
+      if ( .not. all(this%containing_server%serverthread_done_msgs)) then
+         _RETURN(_SUCCESS)
+      endif
+
+      connection => this%get_connection(status)
+      _VERIFY(status)
+      call this%containing_server%service_next_collective_prefetch(this%request_backlog, connection, handled, _RC)
+      if (handled) then
+         _RETURN(_SUCCESS)
+      end if
+
+      _FAIL('NextCollectivePrefetchDoneMessage requires async input server support')
+      _UNUSED_DUMMY(message)
+   end subroutine handle_Done_next_collective_prefetch
+
    subroutine get_DataFromMem( this, multi_data_read, rc)
       class (ServerThread), target, intent(inout) :: this
       logical, intent(in) :: multi_data_read
@@ -1134,8 +1184,9 @@ contains
       integer,pointer :: i_ptr(:)
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
-      class(AbstractSocket),pointer :: connection
-      integer :: status
+       class(AbstractSocket),pointer :: connection
+       integer :: status
+       class(AbstractRequestHandle), allocatable :: handle
 
       connection=>this%get_connection(status)
       _VERIFY(status)
@@ -1164,8 +1215,8 @@ contains
 
            call mem_data_reference%fetch_data(offset_address,q%global_count,q%start-q%global_start+1, _RC)
 
-           call this%insert_RequestHandle(q%request_id, &
-              & connection%put(q%request_id, mem_data_reference))
+           handle = connection%put(q%request_id, mem_data_reference)
+           call this%insert_RequestHandle(q%request_id, handle)
 
            call this%request_backlog%erase(iter)
          class default

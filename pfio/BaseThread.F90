@@ -61,7 +61,10 @@ contains
       type (IntegerRequestMapIterator) :: iter
 
       iter = this%open_requests%find(request_id)
-      _ASSERT( iter /= this%open_requests%end(), "could not find the request handle id")
+      if (iter == this%open_requests%end()) then
+         write(*,'(A,1X,I0)') 'ERROR: missing request handle id', request_id
+         error stop 'BaseThread::get_RequestHandle missing request handle'
+      end if
       rh_Ptr => iter%second()
 
       _RETURN(_SUCCESS)
@@ -78,16 +81,16 @@ contains
       _RETURN(_SUCCESS)
    end function isEmpty_RequestHandle
 
-   subroutine insert_RequestHandle(this,request_id, handle, rc) 
-      class (BaseThread), target, intent(inout) :: this
-      integer, intent(in) :: request_id
-      class(AbstractRequestHandle), intent(in):: handle
-      integer, optional, intent(out) :: rc
+    subroutine insert_RequestHandle(this,request_id, handle, rc) 
+       class (BaseThread), target, intent(inout) :: this
+       integer, intent(in) :: request_id
+       class(AbstractRequestHandle), allocatable, intent(in) :: handle
+       integer, optional, intent(out) :: rc
 
       call this%open_requests%insert(request_id, handle)
 
       _RETURN(_SUCCESS)
-   end subroutine insert_RequestHandle
+    end subroutine insert_RequestHandle
 
    subroutine erase_RequestHandle(this,request_id, rc)
       class(BaseThread), target, intent(inout) :: this

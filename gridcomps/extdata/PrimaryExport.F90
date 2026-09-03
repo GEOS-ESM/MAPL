@@ -104,7 +104,7 @@ module mapl_PrimaryExport_mod
           if (present(input_server_name)) server_name = input_server_name
            i_client => mapl_get_client(server_name, _RC)
           primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
-         call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
+          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
          allocate(primary_export%start_and_end, source=time_range)
       end if
       _RETURN(_SUCCESS)

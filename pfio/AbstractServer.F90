@@ -78,7 +78,8 @@ module pFIO_AbstractServerMod
        procedure :: get_communicator
        procedure :: report_profile
        procedure :: service_collective_prefetch
-    end type AbstractServer
+       procedure :: service_next_collective_prefetch
+     end type AbstractServer
 
    abstract interface
 
@@ -473,8 +474,8 @@ contains
        _RETURN(_SUCCESS)
     end subroutine report_profile
 
-    subroutine service_collective_prefetch(this, request_backlog, connection, handled, rc)
-       class(AbstractServer), intent(inout) :: this
+     subroutine service_collective_prefetch(this, request_backlog, connection, handled, rc)
+        class(AbstractServer), intent(inout) :: this
        type(MessageVector), intent(inout) :: request_backlog
        class(AbstractSocket), intent(inout), target :: connection
        logical, intent(out) :: handled
@@ -483,8 +484,22 @@ contains
        handled = .false.
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(this)
-       _UNUSED_DUMMY(request_backlog)
-       _UNUSED_DUMMY(connection)
-    end subroutine service_collective_prefetch
+        _UNUSED_DUMMY(request_backlog)
+        _UNUSED_DUMMY(connection)
+     end subroutine service_collective_prefetch
+
+     subroutine service_next_collective_prefetch(this, request_backlog, connection, handled, rc)
+        class(AbstractServer), intent(inout) :: this
+        type(MessageVector), intent(inout) :: request_backlog
+        class(AbstractSocket), intent(inout), target :: connection
+        logical, intent(out) :: handled
+        integer, optional, intent(out) :: rc
+
+        handled = .false.
+        _RETURN(_SUCCESS)
+        _UNUSED_DUMMY(this)
+        _UNUSED_DUMMY(request_backlog)
+        _UNUSED_DUMMY(connection)
+     end subroutine service_next_collective_prefetch
 
 end module pFIO_AbstractServerMod
