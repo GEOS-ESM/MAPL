@@ -80,24 +80,11 @@ contains
          call set_is_generic(gridcomp, _RC)
          call attach_outer_meta(gridcomp, _RC)
          outer_meta => get_outer_meta(gridcomp, _RC)
-#ifndef __GFORTRAN__
          outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, hconfig=hconfig)
-#else
-         call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, hconfig=hconfig))
-#endif
          call outer_meta%init_meta(_RC)
 
          _RETURN(_SUCCESS)
       end subroutine get_or_create_outer_meta
-
-#ifdef __GFORTRAN__
-
-      subroutine ridiculous(a, b)
-         type(OuterMetaComponent), intent(out) :: a
-         type(OuterMetaComponent), intent(in) :: b
-         a = b
-      end subroutine ridiculous
-#endif
 
       subroutine set_entry_points(gridcomp, rc)
          type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -176,36 +163,15 @@ contains
       ! must be processed later as the information gets stored in the ComponentSpec.
 
       user_gc_driver = GriddedComponentDriver(user_gridcomp)
-#ifndef __GFORTRAN__
       if (present(set_services)) then
          outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
       else
          outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, hconfig=config)
       end if
-#else
-      ! GFortran 12 & 13 cannot directly assign to outer_meta.  But
-      ! the assignment works for an object without the POINTER
-      ! attribute.  An internal procedure is a workaround, but
-      ! ... ridiculous.
-      if (present(set_services)) then
-         call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, set_services, config))
-      else
-         call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, hconfig=config))
-      end if
-#endif
       call outer_meta%init_meta(_RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
-#ifdef __GFORTRAN__
-   contains
-
-      subroutine ridiculous(a, b)
-         type(OuterMetaComponent), intent(out) :: a
-         type(OuterMetaComponent), intent(in) :: b
-         a = b
-      end subroutine ridiculous
-#endif
    end function create_grid_comp_primary
 
 
