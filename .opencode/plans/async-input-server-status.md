@@ -496,11 +496,313 @@ Build an ExtData input server that can eventually use extra node-local reader PE
 - Preserved the benchmark-only `MAPL_PERF_READER_SLEEP_SEC` hook and the
   `model_delay` / `--quick` benchmark controls.
 - Rebuilt successfully and reran case45–49: all five tests pass.
+
+#### Reader Queue Investigation (2026-09-04)
+- Investigated why the async reader's artificial 5-second read interval starts
+  after the model sleep even though the next-prefetch fence is sent first.
+- Confirmed the relevant sequence in the current implementation:
+  - `ClientThread%done_collective_prefetch` sends
+    `NextCollectivePrefetchDoneMessage` before
+    `CollectivePrefetchDoneMessage`.
+  - `service_next_collective_prefetch` calls
+    `forward_request_to_reader(..., deliver_to_client=.false.)`.
+  - `forward_request_to_reader` sends the next request but does not wait for
+    the reader's read to finish.
+  - The reader nevertheless has one blocking loop:
+    `MPI_Recv(command)` -> receive size/payload -> cache lookup/read -> slice
+    extraction/response -> next `MPI_Recv(command)`.
+- The reader cannot start a later next-prefetch request while it is already
+  inside an earlier complete request. With multiple current and next requests
+  queued, the command receive and request processing sequence determines when
+  the actual next read begins; the Done-message order alone is insufficient.
+- A temporary priority MPI command tag/probe experiment was attempted, but it
+  hung the first focused test and was fully reverted. No priority-tag change
+  remains in the source.
+- Current conclusion: meaningful overlap requires a real reader-side request
+  scheduler or separate current/next work queues. The reader must be able to
+  accept/store next-prefetch work and begin it before current request work that
+  is waiting for model-side responses, without introducing a blocking per-rank
+  acknowledgment.
+- The tree was rebuilt after reverting the experiment. The previous validated
+  five-test run remains the relevant regression result; a fresh focused test
+  should be run before further reader-queue changes.
+- A first prepared-data protocol attempt was made after execution mode was
+  enabled. It added `QUEUE_NEXT`, synchronous `PROBE_PREPARED`, and
+  `GET_PREPARED` commands, with current requests intended to consume prepared
+  data or fall back to direct reads. It was reverted because PFIO case02
+  deadlocked: synchronous probe RPCs are incompatible with the current single
+  blocking reader loop.
+- The tree was restored to the last passing request protocol and rebuilt.
+  The renamed PFIO case01 through case05 tests all pass after the revert.
+- The next safe implementation boundary is a true MultiGroupServer-style
+  reader captain and worker pool with explicit asynchronous completion/state
+  messages. Synchronous prepared-data probes must not be added to the current
+  reader loop.
+
+#### Captain/Worker Implementation Attempt (2026-09-04)
+- A Phase 1 reader captain/worker implementation was attempted:
+  - reader communicator rank 0 as captain
+  - reader communicator ranks 1+ as workers
+  - minimum two readers required for nonfallback mode
+  - captain pending queue and worker completion polling
+- The attempt was not retained. It caused PFIO integration hangs/failures
+  during case02 and later cases, and the captain still had blocking worker
+  completion behavior in the critical path.
+- `pfio/AsyncInputServer.F90` was restored to the last known passing version.
+- Current verification after restoration:
+  - `MAPL3G_Comp_Test_pfio_case01`: passed
+  - `MAPL3G_Comp_Test_pfio_case02`: passed
+  - `MAPL3G_Comp_Test_pfio_case03`: passed
+  - `MAPL3G_Comp_Test_pfio_case04`: passed
+  - `MAPL3G_Comp_Test_pfio_case05`: passed
+- The next captain/worker attempt must first implement and test the worker
+  lifecycle independently of model request servicing, then add asynchronous
+  next queue state, and only afterward add Option C model-root distribution.
+
+#### Captain/Worker Phase 1 Execution (2026-09-04)
+- A second implementation attempt added a captain/worker scheduler modeled on
+  `MultiGroupServer`: reader rank 0 captain, reader ranks 1+ workers, pending
+  queue, worker busy state, and completion polling.
+- It was reverted after PFIO case02 hung. The implementation still coupled
+  worker completion and model response routing too tightly, and the shutdown
+  lifecycle was not independently validated.
+- The source is restored to the stable pre-captain implementation.
+- Current verification after restoration:
+  - MAPL.pfio build: passed
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`: all passed
+- Correct next step: implement a scheduler-only lifecycle test using synthetic
+  worker commands and idle notifications before attaching it to model data
+  requests. Then add current/next data routing and Option C distribution in
+  separate changes.
 - The timestamps confirm the async reader is a separate MPI rank and is not
   globally serialized behind model computation. However, this particular
   short run is dominated by cold-start reads and MPI scheduling; total wall
   time alone cannot be used as proof of overlap.
 - All five PFIO regression tests still pass: `pfio_case01`–`pfio_case05`.
+
+#### Five-Phase Execution Attempt (2026-09-04)
+- Attempted the five requested phases: standalone worker lifecycle, current
+  dispatch, next queue, prepared state, and Option C distribution.
+- The prototype failed with `MPI_ERR_RANK: invalid rank` during PFIO cases02–05
+  because reader-communicator local ranks were mixed with model/server
+  communicator global ranks during worker result forwarding.
+- All experimental source changes were reverted. The stable source has no
+  captain/worker or prepared-data queue implementation.
+- Stable verification after rollback: build succeeds and PFIO case01–05 all
+  pass.
+- The next implementation must first introduce explicit mappings between
+  reader-local ranks, reader global ranks, and model/server ranks, then verify
+  a synthetic captain/worker lifecycle before attaching model data routing.
+
+#### Rank-Mapping Phase (2026-09-04)
+- Added explicit `reader_comm_rank` and `is_reader_captain` state to
+  `AsyncInputServer`.
+- Kept all existing data sends/receives unchanged; this phase only establishes
+  the communicator-local role metadata needed for safe MultiGroupServer-style
+  dispatch.
+- Added validation that the gathered reader-rank map matches reader capacity.
+- Build succeeds and PFIO case01–05 all pass.
+- Important constraint for the next phase: values in
+  `reader_ranks_on_node` are ranks in the server/node communicator, while
+  worker destinations on `reader_comm` must use reader-local ranks. These rank
+  spaces must never be mixed.
+
+#### Phase 1 Lifecycle Attempt (2026-09-04)
+- A lifecycle-only change was attempted: reader communicator rank 0 as
+  captain, reader ranks 1+ as workers, and an explicit worker idle/terminate
+  protocol while preserving the existing data path.
+- PFIO case01 passed, but cases02–05 failed with `MPI_ERR_RANK: invalid rank`
+  on the one-reader nonfallback configuration. The lifecycle shutdown/data
+  path used reader/global ranks with a communicator whose rank space differed.
+- The lifecycle change was reverted. The stable source and existing component
+  test behavior are restored.
+- Required next fix: build explicit rank maps for every communicator before
+  adding any captain/worker messages:
+  - `reader_comm` local rank -> `world/server_comm` global rank
+  - model/server source rank -> destination communicator rank
+  - reader worker completion rank -> originating model rank
+- Do not use a reader rank gathered from `node_comm` directly as a rank in
+  `reader_comm` or `server_comm`.
+
+#### Rank-Diagnostic Follow-up (2026-09-04)
+- Attempted to construct the reader global/local rank map inside
+  `AsyncInputServer%initialize_role_accounting` with
+  `MPI_Group_translate_ranks`.
+- The diagnostic hung case02 during local-server initialization, so it was
+  reverted. The communicator available inside the server object is not enough
+  to safely infer all framework rank mappings in this local-server topology.
+- The correct location for rank-map construction is the framework layer where
+  `server_comm`, `model_comm`, and the world/model groups are created:
+  `MaplFramework.F90` / `MaplServerUtilities.F90`.
+- Future work should pass explicit rank maps through `ServerResources` into
+  `AsyncInputServer`; rank translation should not be inferred inside reader
+  service code.
+
+#### Explicit Communicator Contract (2026-09-04)
+- Changed `AsyncInputServer` construction to accept an explicit
+  `reader_comm` in addition to `comm` and `model_comm`.
+- `MaplFramework` now constructs `reader_comm` from the world communicator by
+  subtracting the model PET group and passes it through `AsyncInputServer`.
+- `PfioServerGridComp` passes the stored reader communicator into the server.
+- `AsyncInputServer` duplicates the supplied `reader_comm` and owns the copy;
+  this avoids invalid communicator handles when framework-owned communicators
+  are released.
+- All five renamed PFIO integration tests pass after the communicator-lifetime
+  fix.
+- The next captain/worker phase must use this explicit communicator and its
+  local rank space directly; it must not reconstruct reader membership inside
+  `AsyncInputServer`.
+
+#### Standalone Captain/Worker Lifecycle Test (2026-09-04)
+- Added `pfio/tests/Test_ReaderCaptainWorkerLifecycle.F90` and the CTest target
+  `pFIO_reader_captain_worker_lifecycle`.
+- The test uses three MPI ranks:
+  - world rank 0: synthetic model/client
+  - reader communicator rank 0: captain
+  - reader communicator rank 1: worker
+- It validates ready, work completion, and clean termination messages using
+  only communicator-local ranks on the reader communicator.
+- Direct run passed:
+  ```text
+  mpiexec -n 3 --use-hwthread-cpu -oversubscribe \
+    build/pfio/tests/pFIO_reader_captain_worker_lifecycle.x
+  ```
+- Existing PFIO integration tests also pass: renamed case01–case05.
+- This is the safe boundary for the next phase: attach current-read data
+  dispatch to the already-validated captain/worker lifecycle.
+
+#### Current-Read Worker Integration Attempt (2026-09-04)
+- Attempted to route current model requests through the reader captain and
+  worker rank 1 using explicit reader-local ranks.
+- The standalone lifecycle test passed, but PFIO case02 hung when model data
+  delivery was attached. The synchronous captain -> worker -> captain -> model
+  round trip is not safe with the existing independent model server callbacks.
+- The current-read integration and temporary three-rank test-count changes were
+  reverted. Stable PFIO case01–05 behavior is restored.
+- The next data-flow design must use nonblocking captain state and completion
+  messages; it must not synchronously wait for worker completion inside the
+  model request callback.
+
+#### Current-Read Worker Flow Attempt (2026-09-04)
+- Attempted to route current requests from the reader captain to a reader
+  worker using the explicit reader communicator.
+- The attempt failed because the worker receive loop was not independently
+  established before the captain began sending data jobs; cases02–05 hung or
+  reported invalid-rank behavior depending on topology.
+- The current-worker changes were reverted. Stable source/build state is
+  restored and PFIO case01–05 pass.
+- The next implementation must add a standalone synthetic worker job test:
+  - captain sends command/size/payload on `reader_comm`
+  - worker receives and sends idle/completion acknowledgment on `reader_comm`
+  - no model/server communicator is involved
+   - only after that passes should current data responses be attached.
+
+#### Current-Read Captain/Worker Dispatch Implemented (2026-09-04)
+- Implemented the first real data-flow phase using the explicit reader
+  communicator:
+  - reader communicator rank 0 is the captain
+  - reader communicator rank 1 is the current worker
+  - model/server source ranks remain in the server communicator
+  - worker traffic uses reader-communicator-local rank 1
+- Current requests are forwarded captain -> worker -> captain -> original
+  model/server source rank.
+- Worker uses the existing global-slab cache/read and local-slice extraction
+  routines. Next-prefetch still uses the same synchronous transport in this
+  phase; asynchronous prepared-state handling remains next.
+- PFIO cases02–05 were configured with three ranks where needed: one model and
+  two reader ranks. All renamed PFIO tests pass.
+- The standalone lifecycle test also passes:
+  `pFIO_reader_captain_worker_lifecycle` with three MPI ranks.
+
+**Current phase status**
+- Current-read captain/worker transport is implemented and stable.
+- Next-prefetch remains synchronous in this phase.
+- The next implementation must decouple captain request intake from worker
+  completion so `NextDone` can queue work and return before the worker finishes
+  reading.
+
+#### Nonblocking Next-Prefetch Scheduler (2026-09-04)
+- Implemented a captain-side pending next-prefetch queue with worker-busy
+  tracking and `MPI_Iprobe` completion polling.
+- Next-prefetch requests are accepted by the captain, queued or dispatched to
+  the worker, and do not wait for worker completion before the model callback
+  returns.
+- Current reads remain blocking and wait for active next work before dispatch;
+  this preserves correctness for the current phase.
+- Worker affinity is deterministic by global request key so matching global
+  slabs reuse the same worker cache.
+- The benchmark topology is now `async10`: 8 model ranks + 2 reader ranks
+  (captain + worker). The previous `async9` topology had only one reader and
+  is incompatible with the worker phase.
+- Eight-step 5-second benchmark:
+  - mpi8: `82.04 s`
+  - async10: `72.21 s`
+  - async improvement: approximately `12.0%`
+- PFIO case01–05 and the standalone captain/worker lifecycle test pass.
+
+#### Next-Prefetch Integration Attempt (2026-09-04)
+- Started the next phase by evaluating a captain-side next-request queue.
+- The queue-only design was intentionally not retained: draining it in the
+  captain would still perform blocking NetCDF work and would not be
+  asynchronous. It was removed before completion.
+- Stable build and PFIO case01–05 verification remain passing.
+- The next implementation must combine queue ownership with nonblocking
+  worker completion handling in the same change; do not add a queue that still
+  executes reads synchronously on the captain.
+
+#### Lifecycle Handshake Attempt (2026-09-04)
+- Attempted the next lifecycle step using a MultiGroupServer-style captain/
+  worker idle handshake on `reader_comm`.
+- The existing nonfallback PFIO layouts include one reader rank, so the
+  captain/worker lifecycle attempted to use an invalid worker rank and failed
+  with `MPI_ERR_RANK` in cases02–05.
+- The lifecycle change was reverted. Stable verification afterward:
+  - build succeeds
+  - PFIO case01–05 all pass
+- Before enabling a captain/worker lifecycle, the test and production topology
+  must guarantee at least two reader ranks per node and explicitly map
+  `reader_comm` local ranks separately from global/server ranks.
+
+#### Two-Reader Lifecycle Retry (2026-09-04)
+- Retried the lifecycle with PFIO cases02–05 changed to three MPI ranks:
+  one model rank and two reader ranks (`reader_capacity_on_node=2`).
+- The captain/worker handshake still failed with `MPI_ERR_RANK` before the
+  data service completed. This confirms the remaining invalid destination is
+  in the model/server communicator path, not merely the number of readers.
+- Reverted the lifecycle and temporary nproc changes. Stable verification:
+  - build succeeds
+  - PFIO case01–05 all pass
+- The next required diagnostic is a standalone communicator-rank exchange:
+  print/validate model server rank, server communicator rank, node/global rank,
+  reader communicator local rank, and reader global rank before any data
+  forwarding. Worker lifecycle changes should wait until that exchange passes.
+
+#### Explicit Reader Rank Map (2026-09-04)
+- Added `reader_global_ranks(:)` to `AsyncInputServer`.
+- The array is indexed by reader communicator local rank plus one and contains
+  the corresponding global/server rank.
+- It is built by sorting the reader ranks gathered from `node_comm`, matching
+  the `MPI_Comm_split` key ordering used to construct `reader_comm`.
+- This mapping-only change does not alter data routing and all PFIO case01–05
+  tests pass.
+- Future captain/worker code must use:
+  - `reader_comm` local rank for sends on `reader_comm`
+  - `reader_global_ranks(local_rank+1)` for sends on the server/world
+    communicator
+
+#### Two-Reader Lifecycle Attempt (2026-09-04)
+- Temporarily changed PFIO cases02–05 to launch three ranks: one model plus
+  two reader ranks, then added a reader captain/worker idle/termination
+  handshake using `reader_comm` local ranks.
+- The run still failed with `MPI_ERR_RANK` during case02–05, showing that the
+  remaining invalid destination is in the model/server communicator path, not
+  only the worker lifecycle.
+- The lifecycle and temporary nproc changes were reverted. Stable state is
+  restored and PFIO case01–05 pass.
+- Before another lifecycle attempt, construct and store explicit maps for all
+  three rank spaces (`world/server_comm`, `reader_comm`, and model/server
+  source ranks), and use the correct communicator-local destination for every
+  send. Then validate the maps with a standalone rank-exchange test.
 
 #### Fence Order Update (2026-09-03)
 - `ClientThread%done_collective_prefetch` now sends

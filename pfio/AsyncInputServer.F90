@@ -28,13 +28,19 @@ module pFIO_AsyncInputServerMod
 
    public :: AsyncInputServer
 
-    integer, parameter :: ASYNC_INPUT_CMD_READ       = 1
-    integer, parameter :: ASYNC_INPUT_CMD_PREPARE_CACHE = 2
+     integer, parameter :: ASYNC_INPUT_CMD_READ       = 1
+     integer, parameter :: ASYNC_INPUT_CMD_PREPARE_CACHE = 2
+     integer, parameter :: ASYNC_INPUT_CMD_NEXT_PREFETCH = 3
     integer, parameter :: ASYNC_INPUT_CMD_TERMINATE  = -1
     integer, parameter :: ASYNC_INPUT_TAG_CMD        = 4701
     integer, parameter :: ASYNC_INPUT_TAG_SIZE       = 4702
     integer, parameter :: ASYNC_INPUT_TAG_BUFFER     = 4703
-    integer, parameter :: ASYNC_INPUT_TAG_CACHE_SIZE = 4704
+     integer, parameter :: ASYNC_INPUT_TAG_CACHE_SIZE = 4704
+     integer, parameter :: ASYNC_INPUT_TAG_READER_CMD = 4711
+     integer, parameter :: ASYNC_INPUT_TAG_READER_SIZE = 4712
+     integer, parameter :: ASYNC_INPUT_TAG_READER_BUFFER = 4713
+     integer, parameter :: ASYNC_INPUT_TAG_READER_DONE = 4714
+     integer, parameter :: ASYNC_INPUT_TAG_READER_RESULT_SIZE = 4715
     integer, parameter :: ASYNC_INPUT_NUM_CACHE_SLOTS = 2
 
     ! -----------------------------------------------------------------------
@@ -63,6 +69,13 @@ module pFIO_AsyncInputServerMod
       type(LocalMemReference), allocatable :: reference   ! holds full global slab
     end type AsyncInputCacheSlot
 
+    type :: AsyncInputPendingRequest
+       integer :: command = ASYNC_INPUT_CMD_NEXT_PREFETCH
+       integer :: source_rank = -1
+       integer, allocatable :: buffer(:)
+    end type AsyncInputPendingRequest
+
+
     type, extends(BaseServer) :: AsyncInputServer
       character(len=:), allocatable :: port_name
       integer :: model_comm = MPI_COMM_NULL
@@ -82,6 +95,7 @@ module pFIO_AsyncInputServerMod
       integer :: forwarded_requests = 0
       integer :: reader_requests = 0
       real(REAL64) :: reader_sleep_seconds = 0.0_REAL64
+      integer :: reader_comm_rank = -1
        contains
        procedure :: start
        procedure :: stop_reader_pool
@@ -154,6 +168,10 @@ contains
       if (this%model_comm == MPI_COMM_NULL) reader_color = 1
       call MPI_Comm_split(this%node_comm, reader_color, this%rank, this%reader_comm, ierror)
       _VERIFY(ierror)
+      if (this%reader_comm /= MPI_COMM_NULL) then
+         call MPI_Comm_rank(this%reader_comm, this%reader_comm_rank, ierror)
+         _VERIFY(ierror)
+      end if
 
       this%reader_capacity_on_node = this%node_npes - this%model_npes_on_node
       _ASSERT(this%reader_capacity_on_node >= 0, 'reader_capacity_on_node must be non-negative')
@@ -236,15 +254,18 @@ contains
       integer :: i, client_size
       logical, allocatable :: mask(:)
        integer :: status, ierr, cmd, source_rank, buffer_size, slot_index, msize_word
+       integer :: worker_command, worker_source
        integer(INT64) :: desired_words, local_msize_word
-      integer :: mpi_status(MPI_STATUS_SIZE)
-      integer, allocatable :: buffer(:)
+       integer :: mpi_status(MPI_STATUS_SIZE)
+       integer, allocatable :: buffer(:), result(:)
+       type(AsyncInputPendingRequest), allocatable :: pending(:)
+       logical :: worker_busy, message_available
       type(CollectivePrefetchDataMessage) :: request
 
-       if (this%model_comm == MPI_COMM_NULL) then
+        if (this%model_comm == MPI_COMM_NULL .and. this%synchronous_fallback) then
           ! ---- Reader rank loop ----
           do while (.true.)
-            call MPI_Recv(cmd, 1, MPI_INTEGER, MPI_ANY_SOURCE, ASYNC_INPUT_TAG_CMD, this%comm, mpi_status, ierr)
+             call MPI_Recv(cmd, 1, MPI_INTEGER, MPI_ANY_SOURCE, ASYNC_INPUT_TAG_CMD, this%comm, mpi_status, ierr)
             _VERIFY(ierr)
             if (cmd == ASYNC_INPUT_CMD_TERMINATE) exit
 
@@ -255,7 +276,7 @@ contains
                _VERIFY(ierr)
                cycle
             end if
-            _ASSERT(cmd == ASYNC_INPUT_CMD_READ, 'unknown async input command')
+             _ASSERT(cmd == ASYNC_INPUT_CMD_READ, 'unknown async input command')
             this%reader_requests = this%reader_requests + 1
 
             call MPI_Recv(buffer_size, 1, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_SIZE, this%comm, mpi_status, ierr)
@@ -273,7 +294,7 @@ contains
             deallocate(buffer)
 
             ! Look up / populate the reader-side global-key cache.
-            slot_index = find_cache_slot(this, request)
+             slot_index = find_cache_slot(this, request)
             if (slot_index > 0) then
                this%cache_hits = this%cache_hits + 1
             else
@@ -292,10 +313,110 @@ contains
                _VERIFY(ierr)
                deallocate(buffer)
             end if
-          end do
+           end do
            write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0)') 'INFO: AsyncInputServer cache:', &
                 'reader_rank=', this%rank, 'hits=', this%cache_hits, 'misses=', this%cache_misses, &
                 'requests=', this%reader_requests
+          call finalize_runtime(this, _RC)
+           _RETURN(_SUCCESS)
+       end if
+
+       if (this%model_comm == MPI_COMM_NULL) then
+          if (this%reader_comm_rank /= 0) then
+             do while (.true.)
+                call MPI_Recv(cmd, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_CMD, &
+                     this%reader_comm, mpi_status, ierr)
+                _VERIFY(ierr)
+                if (cmd == ASYNC_INPUT_CMD_TERMINATE) exit
+                _ASSERT(cmd == ASYNC_INPUT_CMD_READ .or. cmd == ASYNC_INPUT_CMD_NEXT_PREFETCH, &
+                     'unknown worker command')
+                call MPI_Recv(buffer_size, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_SIZE, &
+                     this%reader_comm, mpi_status, ierr)
+                _VERIFY(ierr)
+                allocate(buffer(buffer_size))
+                call MPI_Recv(buffer, buffer_size, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_BUFFER, &
+                     this%reader_comm, mpi_status, ierr)
+                _VERIFY(ierr)
+                call execute_reader_request(this, buffer, buffer_size, result, msize_word, _RC)
+                deallocate(buffer)
+                call MPI_Send(0, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_DONE, this%reader_comm, ierr)
+                _VERIFY(ierr)
+                call MPI_Send(msize_word, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_RESULT_SIZE, &
+                     this%reader_comm, ierr)
+                _VERIFY(ierr)
+                if (msize_word > 0) then
+                   call MPI_Send(result, msize_word, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_BUFFER, &
+                        this%reader_comm, ierr)
+                   _VERIFY(ierr)
+                   deallocate(result)
+                end if
+             end do
+             call finalize_runtime(this, _RC)
+             _RETURN(_SUCCESS)
+          end if
+
+           worker_busy = .false.
+           worker_command = ASYNC_INPUT_CMD_READ
+           worker_source = -1
+           allocate(pending(0))
+           do while (.true.)
+              call poll_reader_completion(this, worker_busy, worker_command, worker_source, &
+                   pending, .false., ierr)
+              _VERIFY(ierr)
+              if (.not. worker_busy) then
+                 call dispatch_next_request(this, pending, worker_busy, worker_command, worker_source, ierr)
+                 _VERIFY(ierr)
+              end if
+              call MPI_Iprobe(MPI_ANY_SOURCE, ASYNC_INPUT_TAG_CMD, this%comm, message_available, mpi_status, ierr)
+              _VERIFY(ierr)
+              if (.not. message_available) then
+                 call MAPL_Sleep(0.0001)
+                 cycle
+              end if
+              call MPI_Recv(cmd, 1, MPI_INTEGER, MPI_ANY_SOURCE, ASYNC_INPUT_TAG_CMD, &
+                   this%comm, mpi_status, ierr)
+              _VERIFY(ierr)
+              if (cmd == ASYNC_INPUT_CMD_TERMINATE) exit
+              source_rank = mpi_status(MPI_SOURCE)
+              call MPI_Recv(buffer_size, 1, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_SIZE, &
+                   this%comm, mpi_status, ierr)
+              _VERIFY(ierr)
+              allocate(buffer(buffer_size))
+              call MPI_Recv(buffer, buffer_size, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_BUFFER, &
+                   this%comm, mpi_status, ierr)
+              _VERIFY(ierr)
+              if (cmd == ASYNC_INPUT_CMD_NEXT_PREFETCH) then
+                 call enqueue_next_request(pending, source_rank, buffer)
+                 deallocate(buffer)
+                 call dispatch_next_request(this, pending, worker_busy, worker_command, worker_source, ierr)
+                 _VERIFY(ierr)
+                 cycle
+              end if
+
+              ! Current reads remain blocking, but cannot use a worker running next work.
+              do while (worker_busy)
+                 call poll_reader_completion(this, worker_busy, worker_command, worker_source, &
+                      pending, .true., ierr)
+                 _VERIFY(ierr)
+              end do
+              call send_reader_request(this, ASYNC_INPUT_CMD_READ, source_rank, buffer, ierr)
+              _VERIFY(ierr)
+              deallocate(buffer)
+           end do
+
+           do while (worker_busy .or. size(pending) > 0)
+              call poll_reader_completion(this, worker_busy, worker_command, worker_source, &
+                   pending, .true., ierr)
+              _VERIFY(ierr)
+              if (.not. worker_busy) then
+                 call dispatch_next_request(this, pending, worker_busy, worker_command, worker_source, ierr)
+                 _VERIFY(ierr)
+              end if
+           end do
+           call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_CMD, &
+                this%reader_comm, ierr)
+           _VERIFY(ierr)
+           deallocate(pending)
           call finalize_runtime(this, _RC)
           _RETURN(_SUCCESS)
        end if
@@ -416,7 +537,7 @@ contains
        _RETURN(_SUCCESS)
     end subroutine service_collective_prefetch
 
-     subroutine service_next_collective_prefetch(this, request_backlog, connection, handled, rc)
+      subroutine service_next_collective_prefetch(this, request_backlog, connection, handled, rc)
         class(AsyncInputServer), intent(inout) :: this
         type(MessageVector), intent(inout) :: request_backlog
         class(AbstractSocket), intent(inout), target :: connection
@@ -437,7 +558,7 @@ contains
           type is (NextCollectivePrefetchMessage)
              if (.not. this%synchronous_fallback) then
                 _ASSERT(size(this%reader_ranks_on_node) > 0, 'reader ranks must exist when not in synchronous fallback')
-                call forward_request_to_reader(this, q, connection, .false., _RC)
+                 call forward_request_to_reader(this, q, connection, .false., ASYNC_INPUT_CMD_NEXT_PREFETCH, _RC)
              end if
              call request_backlog%erase(iter)
              removed = .true.
@@ -450,37 +571,187 @@ contains
        call finish_collective_service(this, request_backlog, _RC)
        handled = .true.
        _RETURN(_SUCCESS)
-    end subroutine service_next_collective_prefetch
+     end subroutine service_next_collective_prefetch
 
-    ! -----------------------------------------------------------------------
+     subroutine execute_reader_request(this, input, input_size, result, result_size, rc)
+       class(AsyncInputServer), intent(inout) :: this
+       integer, intent(in) :: input(:), input_size
+       integer, allocatable, intent(out) :: result(:)
+       integer, intent(out) :: result_size
+       integer, optional, intent(out) :: rc
+       type(CollectivePrefetchDataMessage) :: request
+        integer :: slot_index, status
+
+       call request%deserialize(input(1:input_size), _RC)
+       slot_index = find_cache_slot(this, request)
+       if (slot_index > 0) then
+          this%cache_hits = this%cache_hits + 1
+       else
+          this%cache_misses = this%cache_misses + 1
+          slot_index = choose_cache_slot(this)
+          call read_global_slab_into_slot(this, request, slot_index, _RC)
+       end if
+
+       result_size = 0
+       if (.not. request%cache_only) then
+          result_size = int(word_size(request%type_kind) * product(int(request%count, INT64)))
+          allocate(result(result_size))
+          call extract_local_slice_from_slot(this, request, slot_index, result, _RC)
+       else
+          allocate(result(0))
+       end if
+       this%reader_requests = this%reader_requests + 1
+       _RETURN(_SUCCESS)
+     end subroutine execute_reader_request
+
+     subroutine enqueue_next_request(pending, source_rank, input)
+       type(AsyncInputPendingRequest), allocatable, intent(inout) :: pending(:)
+       integer, intent(in) :: source_rank, input(:)
+       type(AsyncInputPendingRequest), allocatable :: expanded(:)
+       integer :: n
+
+       n = size(pending)
+       allocate(expanded(n + 1))
+       if (n > 0) expanded(1:n) = pending
+       expanded(n + 1)%source_rank = source_rank
+       allocate(expanded(n + 1)%buffer(size(input)))
+       expanded(n + 1)%buffer = input
+       call move_alloc(expanded, pending)
+     end subroutine enqueue_next_request
+
+     subroutine dispatch_next_request(this, pending, worker_busy, worker_command, worker_source, ierr)
+       class(AsyncInputServer), intent(in) :: this
+       type(AsyncInputPendingRequest), allocatable, intent(inout) :: pending(:)
+       logical, intent(inout) :: worker_busy
+       integer, intent(inout) :: worker_command, worker_source
+       integer, intent(out) :: ierr
+       type(AsyncInputPendingRequest), allocatable :: remaining(:)
+       integer :: n
+
+       ierr = MPI_SUCCESS
+       if (worker_busy .or. size(pending) == 0) return
+       call MPI_Send(ASYNC_INPUT_CMD_NEXT_PREFETCH, 1, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_CMD, &
+            this%reader_comm, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       call MPI_Send(size(pending(1)%buffer), 1, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_SIZE, &
+            this%reader_comm, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       call MPI_Send(pending(1)%buffer, size(pending(1)%buffer), MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_BUFFER, &
+            this%reader_comm, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       worker_busy = .true.
+       worker_command = ASYNC_INPUT_CMD_NEXT_PREFETCH
+       worker_source = pending(1)%source_rank
+       n = size(pending) - 1
+       allocate(remaining(n))
+       if (n > 0) remaining = pending(2:)
+       call move_alloc(remaining, pending)
+     end subroutine dispatch_next_request
+
+     subroutine send_reader_request(this, command, source_rank, input, ierr)
+       class(AsyncInputServer), intent(in) :: this
+       integer, intent(in) :: command, source_rank, input(:)
+       integer, intent(out) :: ierr
+       integer :: status, result_size
+       integer, allocatable :: result(:)
+
+       call MPI_Send(command, 1, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_CMD, this%reader_comm, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       call MPI_Send(size(input), 1, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_SIZE, this%reader_comm, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       call MPI_Send(input, size(input), MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_BUFFER, this%reader_comm, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       call MPI_Recv(status, 1, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_DONE, this%reader_comm, MPI_STATUS_IGNORE, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       call MPI_Recv(result_size, 1, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_RESULT_SIZE, &
+            this%reader_comm, MPI_STATUS_IGNORE, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       if (result_size > 0) then
+          allocate(result(result_size))
+          call MPI_Recv(result, result_size, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_BUFFER, &
+               this%reader_comm, MPI_STATUS_IGNORE, ierr)
+          if (ierr == MPI_SUCCESS) then
+             call MPI_Send(result, result_size, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
+          end if
+          deallocate(result)
+       end if
+     end subroutine send_reader_request
+
+     subroutine poll_reader_completion(this, worker_busy, worker_command, worker_source, pending, wait_for_one, ierr)
+       class(AsyncInputServer), intent(in) :: this
+       logical, intent(inout) :: worker_busy
+       integer, intent(inout) :: worker_command, worker_source
+       type(AsyncInputPendingRequest), allocatable, intent(inout) :: pending(:)
+       logical, intent(in) :: wait_for_one
+       integer, intent(out) :: ierr
+       logical :: available
+       integer :: result_size, dummy, result_status(MPI_STATUS_SIZE)
+       integer, allocatable :: result(:)
+
+       ierr = MPI_SUCCESS
+       if (.not. worker_busy) return
+       do
+          call MPI_Iprobe(1, ASYNC_INPUT_TAG_READER_DONE, this%reader_comm, available, result_status, ierr)
+          if (ierr /= MPI_SUCCESS) return
+          if (available) exit
+          if (.not. wait_for_one) return
+          call MAPL_Sleep(0.0001)
+       end do
+       call MPI_Recv(dummy, 1, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_DONE, this%reader_comm, &
+            result_status, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       call MPI_Recv(result_size, 1, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_RESULT_SIZE, this%reader_comm, &
+            MPI_STATUS_IGNORE, ierr)
+       if (ierr /= MPI_SUCCESS) return
+       if (result_size > 0) then
+          allocate(result(result_size))
+          call MPI_Recv(result, result_size, MPI_INTEGER, 1, ASYNC_INPUT_TAG_READER_BUFFER, this%reader_comm, &
+               MPI_STATUS_IGNORE, ierr)
+          if (ierr == MPI_SUCCESS .and. worker_command == ASYNC_INPUT_CMD_READ) then
+             call MPI_Send(result, result_size, MPI_INTEGER, worker_source, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
+          end if
+          deallocate(result)
+       end if
+       worker_busy = .false.
+       worker_source = -1
+     end subroutine poll_reader_completion
+
+     ! -----------------------------------------------------------------------
     ! forward_request_to_reader
     !
     ! Serialise the request (including global_start/global_count) and send to
     ! the reader.  If deliver_to_client is .true., wait for the reader to send
     ! back the LOCAL slice and deliver it via connection%put.
     ! -----------------------------------------------------------------------
-     subroutine forward_request_to_reader(this, request, connection, deliver_to_client, rc)
+      subroutine forward_request_to_reader(this, request, connection, deliver_to_client, command, rc)
        class(AsyncInputServer), intent(inout) :: this
        class(CollectivePrefetchDataMessage), intent(in) :: request
-       class(AbstractSocket), intent(inout), target :: connection
-       logical, intent(in) :: deliver_to_client
-       integer, optional, intent(out) :: rc
+        class(AbstractSocket), intent(inout), target :: connection
+        logical, intent(in) :: deliver_to_client
+        integer, optional, intent(in) :: command
+        integer, optional, intent(out) :: rc
 
-       integer, allocatable :: buffer(:)
+       integer, allocatable :: buffer(:), result(:)
        integer :: buffer_size, reader_rank, ierr, status
        integer(INT64) :: local_msize_word
        integer, pointer :: i_ptr(:)
        type(LocalMemReference) :: mem_data_reference
        class(AbstractRequestHandle), allocatable :: handle
 
-       reader_rank = this%reader_ranks_on_node(mod(this%model_node_rank, size(this%reader_ranks_on_node)) + 1)
+        ! Model commands always enter through the reader captain.  The captain
+        ! owns worker scheduling and uses reader_comm-local rank 1 for work.
+        reader_rank = this%reader_ranks_on_node(1)
        this%forwarded_requests = this%forwarded_requests + 1
        local_msize_word = word_size(request%type_kind) * product(int(request%count, INT64))
 
        buffer_size = request%get_length()
        allocate(buffer(buffer_size))
        call request%serialize(buffer, _RC)
-       call MPI_Send(ASYNC_INPUT_CMD_READ, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_CMD, this%comm, ierr)
+        if (present(command)) then
+           call MPI_Send(command, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_CMD, this%comm, ierr)
+        else
+           call MPI_Send(ASYNC_INPUT_CMD_READ, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_CMD, this%comm, ierr)
+        end if
        _VERIFY(ierr)
        call MPI_Send(buffer_size, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_SIZE, this%comm, ierr)
        _VERIFY(ierr)
@@ -507,7 +778,7 @@ contains
        _RETURN(_SUCCESS)
     end subroutine forward_request_to_reader
 
-    subroutine finish_collective_service(this, request_backlog, rc)
+     subroutine finish_collective_service(this, request_backlog, rc)
        class(AsyncInputServer), intent(inout) :: this
        type(MessageVector), intent(inout) :: request_backlog
        integer, optional, intent(out) :: rc
@@ -520,7 +791,8 @@ contains
        end if
 
        _RETURN(_SUCCESS)
-    end subroutine finish_collective_service
+     end subroutine finish_collective_service
+
 
     ! -----------------------------------------------------------------------
     ! Reader-side: read the full global slab from file into the cache slot.

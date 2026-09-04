@@ -76,6 +76,18 @@ target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
 target_include_directories(${TESTO} PRIVATE ${esma_include}/MAPL.utils ${esma_include}/MAPL.pfio)
 set_target_properties(${TESTO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
+set(READER_LIFECYCLE_TEST pFIO_reader_captain_worker_lifecycle.x)
+ecbuild_add_executable(
+  TARGET ${READER_LIFECYCLE_TEST}
+  NOINSTALL
+  SOURCES Test_ReaderCaptainWorkerLifecycle.F90
+  LIBS MPI::MPI_Fortran)
+
+add_test(NAME pFIO_reader_captain_worker_lifecycle
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3 ${MPIEXEC_PREFLAGS}
+          ${CMAKE_CURRENT_BINARY_DIR}/${READER_LIFECYCLE_TEST})
+set_tests_properties(pFIO_reader_captain_worker_lifecycle PROPERTIES LABELS "ESSENTIAL" PROCESSORS 3)
+
 # Detect if we are using Open MPI and add oversubscribe
 string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
 list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWORD)
@@ -132,5 +144,5 @@ set_tests_properties(pFIO_tests_mpi_2group PROPERTIES PROCESSORS 18 RESOURCE_LOC
 
 add_dependencies(build-tests MAPL.pfio.tests)
 add_dependencies(build-tests ${TESTO})
+add_dependencies(build-tests ${READER_LIFECYCLE_TEST})
 add_dependencies(build-tests pfio_writer.x)
-

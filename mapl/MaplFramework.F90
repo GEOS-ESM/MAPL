@@ -264,8 +264,7 @@ contains
       character(*), optional, intent(in) :: level_name
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: world_comm
+      integer :: status, world_comm
       logical :: has_pflogger_cfg_file
       character(:), allocatable :: pflogger_cfg_file
 

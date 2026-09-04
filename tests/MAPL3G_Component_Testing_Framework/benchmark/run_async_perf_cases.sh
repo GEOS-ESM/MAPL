@@ -72,4 +72,4 @@ run_case() {
 }
 
 run_case 8 "$mpi_dir" "mpi8"
-run_case 9 "$async_dir" "async9"
+run_case 10 "$async_dir" "async10"
