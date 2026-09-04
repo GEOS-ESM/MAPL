@@ -33,8 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-### Added
-
+- Added `StateGetPointer` overloads for retrieving paired (u, v) field pointers from a vector-type ESMF FieldBundle stored in a state
 - Added `extdata_dryrun_check.py`, a Python utility that predicts which input
   files an ExtData component will need for a given run without executing the
   model. Supports three tiers: template enumeration (Tier 1), filesystem
