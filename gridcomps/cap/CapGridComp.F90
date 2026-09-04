@@ -30,7 +30,7 @@ contains
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-      integer :: status
+       integer :: status
       type(CapGridComp), pointer :: cap
 
       ! Set entry points
@@ -67,7 +67,7 @@ contains
       type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
-      integer :: status
+       integer :: status
       real :: model_delay
       type(CapGridComp), pointer :: cap
 
@@ -86,7 +86,7 @@ contains
       type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
-      integer :: status
+       integer :: status
       real :: model_delay
       type(CapGridComp), pointer :: cap
 
@@ -94,11 +94,11 @@ contains
 
       if (cap%run_extdata) then
          call MAPL_GridCompRunChild(gridcomp, cap%extdata_name, _RC)
-         call MAPL_GridCompGetResource(gridcomp, keystring='model_delay', value=model_delay, default=-1.0, _RC)
-         if (model_delay > 0.0) then
-            write(*,'(A,1X,F6.2)') 'INFO: Cap model sleep: start seconds=', model_delay
-            call MAPL_Sleep(model_delay)
-            write(*,'(A)') 'INFO: Cap model sleep: end'
+          call MAPL_GridCompGetResource(gridcomp, keystring='model_delay', value=model_delay, default=-1.0, _RC)
+          if (model_delay > 0.0) then
+             write(*,'(A,1X,F6.2)') 'INFO: Cap model sleep: start seconds=', model_delay
+             call MAPL_Sleep(model_delay)
+             write(*,'(A)') 'INFO: Cap model sleep: end'
          end if
       end if
       call MAPL_GridCompRunChild(gridcomp, cap%root_name, _RC)

@@ -81,7 +81,7 @@ module pFIO_AsyncInputServerMod
       integer :: cache_misses = 0
       integer :: forwarded_requests = 0
       integer :: reader_requests = 0
-      real :: reader_sleep = 0.0   ! seconds to sleep after each file read (benchmark/debug)
+      real(REAL64) :: reader_sleep_seconds = 0.0_REAL64
        contains
        procedure :: start
        procedure :: stop_reader_pool
@@ -105,22 +105,20 @@ contains
       logical, optional, intent(in) :: with_profiler
       integer, optional, intent(out) :: rc
       integer :: status
-      character(len=32) :: env_val
-      integer :: env_len, env_status
+      character(len=32) :: sleep_string
+      integer :: sleep_length, sleep_status
 
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
       s%model_comm = MPI_COMM_NULL
       if (present(model_comm)) s%model_comm = model_comm
 
-      ! Optional artificial read delay for benchmark/overlap demonstrations.
-      ! Set ASYNC_READER_SLEEP_SEC=<seconds> before running.
-      s%reader_sleep = 0.0
-      call get_environment_variable('ASYNC_READER_SLEEP_SEC', env_val, env_len, env_status)
-      if (env_status == 0 .and. env_len > 0) then
-         read(env_val(1:env_len), *, iostat=env_status) s%reader_sleep
-         if (env_status /= 0) s%reader_sleep = 0.0
+      call get_environment_variable('MAPL_PERF_READER_SLEEP_SEC', sleep_string, sleep_length, sleep_status)
+      if (sleep_status == 0 .and. sleep_length > 0) then
+         read(sleep_string(1:sleep_length), *, iostat=sleep_status) s%reader_sleep_seconds
+         if (sleep_status /= 0) s%reader_sleep_seconds = 0.0_REAL64
       end if
+
       call s%init(comm, port_name, profiler_name=profiler_name, with_profiler=with_profiler, _RC)
       call initialize_role_accounting(s, comm, _RC)
 
@@ -170,10 +168,6 @@ contains
               'node_size=', this%node_npes, &
               'reader_capacity_on_node=', this%reader_capacity_on_node, &
               'synchronous_fallback=', this%synchronous_fallback
-         if (this%reader_sleep > 0.0) &
-              write(*,'(A,1X,A,1X,A,F6.3,1X,A)') &
-              'INFO: AsyncInputServer:', trim(this%port_name), &
-              'reader_sleep=', this%reader_sleep, 's per miss'
       end if
 
       _RETURN(_SUCCESS)
@@ -299,8 +293,9 @@ contains
                deallocate(buffer)
             end if
           end do
-          write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0)') 'INFO: AsyncInputServer cache:', &
-               'reader_rank=', this%rank, 'hits=', this%cache_hits, 'misses=', this%cache_misses, 'requests=', this%reader_requests
+           write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0)') 'INFO: AsyncInputServer cache:', &
+                'reader_rank=', this%rank, 'hits=', this%cache_hits, 'misses=', this%cache_misses, &
+                'requests=', this%reader_requests
           call finalize_runtime(this, _RC)
           _RETURN(_SUCCESS)
        end if
@@ -464,7 +459,7 @@ contains
     ! the reader.  If deliver_to_client is .true., wait for the reader to send
     ! back the LOCAL slice and deliver it via connection%put.
     ! -----------------------------------------------------------------------
-    subroutine forward_request_to_reader(this, request, connection, deliver_to_client, rc)
+     subroutine forward_request_to_reader(this, request, connection, deliver_to_client, rc)
        class(AsyncInputServer), intent(inout) :: this
        class(CollectivePrefetchDataMessage), intent(in) :: request
        class(AbstractSocket), intent(inout), target :: connection
@@ -489,7 +484,11 @@ contains
        _VERIFY(ierr)
        call MPI_Send(buffer_size, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_SIZE, this%comm, ierr)
        _VERIFY(ierr)
-       call MPI_Send(buffer, buffer_size, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
+       if (.not. deliver_to_client) then
+          call MPI_Ssend(buffer, buffer_size, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
+       else
+          call MPI_Send(buffer, buffer_size, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
+       end if
        _VERIFY(ierr)
        deallocate(buffer)
 
@@ -556,7 +555,7 @@ contains
        allocate(this%cache_slots(slot_index)%reference, &
             source=LocalMemReference(request%type_kind, request%global_count))
 
-       call formatter%open(request%file_name, pFIO_READ, rc=status)
+        call formatter%open(request%file_name, pFIO_READ, rc=status)
        _VERIFY(status)
        select case (request%type_kind)
        case (pFIO_INT32)
@@ -579,12 +578,12 @@ contains
           _FAIL('unsupported type kind for AsyncInputServer reader')
        end select
        _VERIFY(status)
+       ! Keep the artificial delay inside the reader operation: this models a
+       ! slow read and completes before the request is marked cached.
+       if (this%reader_sleep_seconds > 0.0_REAL64) &
+            call MAPL_Sleep(real(this%reader_sleep_seconds))
        call formatter%close()
-       ! Optional artificial sleep to simulate slow I/O (benchmark/overlap demo).
-       ! Applied only for cache-only (next-prefetch) requests so that the sleep
-       ! is hidden inside the model's compute window, not in the critical path.
-       if (this%reader_sleep > 0.0 .and. request%cache_only) call MAPL_Sleep(this%reader_sleep)
-       this%cache_slots(slot_index)%valid = .true.
+        this%cache_slots(slot_index)%valid = .true.
        _RETURN(_SUCCESS)
     end subroutine read_global_slab_into_slot
 

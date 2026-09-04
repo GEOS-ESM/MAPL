@@ -4,6 +4,7 @@
 module pFIO_ClientThreadMod
 
    use mapl_ErrorHandling_mod
+   use, intrinsic :: iso_fortran_env, only: REAL64
    use pFIO_AbstractMessageMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractRequestHandleMod
@@ -485,7 +486,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine done_prefetch
 
-   subroutine done_collective_prefetch(this, rc)
+    subroutine done_collective_prefetch(this, rc)
       class (ClientThread), intent(inout) :: this
       integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
@@ -496,15 +497,15 @@ contains
          _RETURN(_SUCCESS)
        endif
 
-       connection=>this%get_connection()
-       if (this%pending_collective_prefetches > 0) then
-          call connection%send(CollectivePrefetchDoneMessage(),_RC)
-          this%pending_collective_prefetches = 0
-       end if
-       if (this%pending_next_collective_prefetches > 0) then
-          call connection%send(NextCollectivePrefetchDoneMessage(),_RC)
-          this%pending_next_collective_prefetches = 0
-       end if
+        connection=>this%get_connection()
+        if (this%pending_next_collective_prefetches > 0) then
+           call connection%send(NextCollectivePrefetchDoneMessage(),_RC)
+           this%pending_next_collective_prefetches = 0
+        end if
+        if (this%pending_collective_prefetches > 0) then
+           call connection%send(CollectivePrefetchDoneMessage(),_RC)
+           this%pending_collective_prefetches = 0
+        end if
        _RETURN(_SUCCESS)
      end subroutine done_collective_prefetch
 

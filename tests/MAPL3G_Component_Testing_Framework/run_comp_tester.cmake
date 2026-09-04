@@ -2,7 +2,7 @@ macro(run_case CASE DESCRIPTION)
     string(RANDOM LENGTH 24 tempdir)
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E make_directory ${tempdir}
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/test_cases/${CASE} ${tempdir}
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/${TEST_CASE_PATH} ${tempdir}
       )
     if (EXISTS "${tempdir}/nproc.rc")
       file(READ "${tempdir}/nproc.rc" num_procs_temp)

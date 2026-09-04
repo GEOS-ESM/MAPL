@@ -15,10 +15,10 @@ Build an ExtData input server that can eventually use extra node-local reader PE
 - `.opencode/plans/async-input-server-plan.md`
 - `.opencode/plans/async-input-server-status.md`
 - `pfio/AsyncInputServer.F90`
-- `tests/MAPL3G_Component_Testing_Framework/test_cases/case45/`
-- `tests/MAPL3G_Component_Testing_Framework/test_cases/case47/`
-- `tests/MAPL3G_Component_Testing_Framework/test_cases/case48/`
-- `tests/MAPL3G_Component_Testing_Framework/test_cases/case49/`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case01/`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case03/`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case04/`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case05/`
 - `tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh`
 - `tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh`
 
@@ -217,9 +217,9 @@ Build an ExtData input server that can eventually use extra node-local reader PE
 ### Test Case Layout
 - `case44` was restored to its original role.
 - `case45` is the dedicated `AsyncInputServer` routing regression case.
-- `case45/extdata2.yaml` uses:
+- `test_cases/pfio/case01/extdata2.yaml` uses:
   - `input_server_name: async_input_server`
-- `case45/cap2.yaml` defines:
+- `test_cases/pfio/case01/cap2.yaml` defines:
   - `servers.async_input_server.local: true`
   - `servers.async_input_server.subclass: AsyncInputServer`
 
@@ -250,7 +250,7 @@ Build an ExtData input server that can eventually use extra node-local reader PE
 - `case46` uses two ExtData exports that both map to the same source variable and static file:
   - `E_1 <- E_1`
   - `E_2 <- E_1`
-- `case46/GCM2.yaml` checks correctness with:
+- `test_cases/pfio/case02/GCM2.yaml` checks correctness with:
   - `import_comparison_expressions: ['E_1-E_2 = 0.0']`
 - Local 2-rank non-fallback verification for `case46` showed the intended cache summary:
   - `INFO: AsyncInputServer cache: reader_rank=1 hits=1 misses=1`
@@ -266,8 +266,8 @@ Build an ExtData input server that can eventually use extra node-local reader PE
 - A clean rebuild under the proper `nag-stack` module environment fixed the stale-dispatch symptom.
 - Reordering ExtData request submission so all current reads are queued before all cache-only next-prefetch reads fixed the cache-thrashing regression.
 - After that fix, both focused regressions pass again under `nag-stack`:
-  - `ctest -R MAPL3G_Comp_Test_case45 --output-on-failure`
-  - `ctest -R MAPL3G_Comp_Test_case46 --output-on-failure`
+  - `ctest -R MAPL3G_Comp_Test_pfio_case01 --output-on-failure`
+  - `ctest -R MAPL3G_Comp_Test_pfio_case02 --output-on-failure`
 - A verbose `case46` rerun now shows the expected duplicate-request cache-hit behavior again for the current/next path, e.g.:
   - `INFO: AsyncInputServer cache: reader_rank=1 hits=2 misses=2`
 - Important Step 7 design finding from this debugging pass:
@@ -383,6 +383,139 @@ Build an ExtData input server that can eventually use extra node-local reader PE
   - `ensure_model_cache_capacity` / `ShmemReference` usage: **removed** (no longer needed)
 - `tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh`:
   - Fixed `segment_duration` for cap1 (`P25D`) and cap2 (`P30D`)
+  - Added `--model-delay SECS` and `--grid IMxJM` controls
+- `tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh`:
+  - Uses `--use-hwthread-cpu` on macOS so model and reader ranks execute concurrently
+  - Does not inject any reader sleep
+
+#### Real I/O / Client-Delay Benchmark (2026-09-03)
+- Method: reader performs only real NetCDF reads; model-side `model_delay` is
+  added equally to mpi8 and async9. No `ASYNC_READER_SLEEP_SEC` or other reader
+  delay is used.
+- Preliminary measurement with `1024x768` files and no model delay:
+  - async reader actual NetCDF read total: `0.1859 s` over 20 compulsory misses
+  - maximum individual reader read: `0.0258 s`
+- Comparable-delay run:
+  - preparation: `prepare_async_perf_cases.sh WORK --model-delay 0.02 --grid 1024x768`
+  - launch: benchmark runner with Open MPI `--use-hwthread-cpu -oversubscribe`
+  - mpi8 wall: `30.10 s`; EXTDATA mean: `2.86 s`
+  - async9 wall: `29.79 s`; EXTDATA mean: `2.40 s`
+  - async reader: `hits=2284 misses=20 requests=2304`, real read total `0.1796 s`, maximum `0.0296 s`
+  - async9 was approximately `1.0%` faster in wall time and `16%` faster in the EXTDATA profile
+- A larger-grid run (`1024x768`, `model_delay=0.5`) was also tested. It made
+  real reads measurable but increased MPI slice-transfer overhead; therefore
+  the reader/client timing must be chosen from measured read time rather than
+  by adding reader sleeps.
+- Important interpretation: on this macOS laptop, the reader's actual NetCDF
+  miss time is only about 9 ms on average, so a client delay around `0.02 s`
+  is comparable. A stronger speedup requires a real cluster/storage system
+  with slower reads or a substantially larger workload; the benchmark must
+  not fake reader work with a sleep.
+
+#### Controlled 5-second Reader/Model Experiment (2026-09-03)
+- Added benchmark-only environment variable `MAPL_PERF_READER_SLEEP_SEC`.
+  When set, both `ServerThread%get_DataFromFile` (MpiServer) and the
+  AsyncInputServer reader sleep after each actual file read. This gives both
+  paths the same artificial reader cost for a controlled experiment.
+- Added `--quick` to `prepare_async_perf_cases.sh`; it uses four timed model
+  steps so the 5-second experiment remains practical.
+- Run command:
+  ```bash
+  bash tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh \
+       /tmp/async-perf-5sec --model-delay 5 --quick
+  MAPL_PERF_READER_SLEEP_SEC=5 \
+       bash tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh \
+       /tmp/async-perf-5sec build /path/to/mpiexec
+  ```
+- Both runs used macOS Open MPI `--use-hwthread-cpu -oversubscribe`.
+- Results:
+  - mpi8: `41.88 s` wall, approximately `20 s` reader sleep + `20 s` model sleep
+  - async9: `41.82 s` wall, `hits=252 misses=4 requests=256`, approximately
+    `20 s` reader sleep + `20 s` model sleep
+- This short interpolation workload did not show a speedup. The async reader
+  ran concurrently, but its four compulsory 5-second misses account for the
+  same 20 seconds as the baseline. The short run therefore measures cold-start
+  cost more than steady-state overlap.
+- The artificial sleep is a benchmark-only hook, not production behavior.
+
+#### Reader Delay Placement (2026-09-03)
+- `MAPL_PERF_READER_SLEEP_SEC` now runs immediately after each reader-side
+  NetCDF `get_var` returns and before `formatter%close()`, cache completion,
+  and response handling.
+- The same placement is used in `ServerThread%get_DataFromFile` for the
+  MpiServer baseline path. The delay models a long reader operation and is
+  before request completion/fence handling.
+- Build succeeded and all five async regression tests pass after this change.
+
+#### Eight-Step 5-second Benchmark (2026-09-03)
+- Extended `--quick` from four to eight timed steps to reduce cold-start
+  weighting and expose steady-state behavior.
+- Configuration:
+  - `model_delay=5 s`
+  - `MAPL_PERF_READER_SLEEP_SEC=5 s` in both MpiServer and AsyncInputServer
+  - `--use-hwthread-cpu -oversubscribe`
+- Results:
+  - mpi8: `81.94 s`
+  - async9: `72.21 s`
+  - async9 improvement: approximately `11.9%`
+  - async cache: `hits=506 misses=6 requests=512`
+  - async reader sleep/read total: approximately `30.04 s`
+- Timestamp interpretation:
+  - mpi8 reader intervals occur before each model sleep, so the two 5-second
+    delays are serial: reader interval, then model sleep.
+  - async9 next-prefetch dispatch happens before model sleep, and the longer
+    run reaches steady-state cache reuse. Async reader intervals remain queued
+    around model phases, but the total wall-time reduction appears once the
+    cold-start cost is amortized over eight steps.
+
+#### 5-second Concurrency Verification (2026-09-03)
+- Added temporary wall-clock timestamps to both sides:
+  - `CapGridComp`: `Cap model sleep: ... start=<MPI_Wtime>` / `end=<MPI_Wtime>`
+  - `AsyncInputServer`: `reader interval: ... start=<MPI_Wtime>` / `end=<MPI_Wtime>`
+  - `ServerThread`: equivalent MpiServer reader interval timestamps
+- Rebuilt successfully and reran the four-step test with:
+  - `model_delay=5`
+  - `MAPL_PERF_READER_SLEEP_SEC=5`
+  - macOS Open MPI `--use-hwthread-cpu -oversubscribe`
+- Results remained:
+  - mpi8: `41.59 s`
+  - async9: `41.80 s`
+- Direct async interval evidence from `perf-async9/cap2.log`:
+  - model sleep interval: approximately `[10.53, 15.60]`
+  - reader interval: `[15.59, 20.59]` (cold/current phase)
+  - model sleep interval: approximately `[20.58, 25.64]`
+  - reader interval: `[30.67, 35.67]` (next-prefetch phase)
+  - model sleep interval: approximately `[35.66, 40.73]`
+  - reader interval: `[30.67, 35.67]` overlaps the following model sleep interval `[35.66, 40.73]` only at the boundary in this four-step run; the reader's earlier `[15.59,20.59]` interval also overlaps the model's `[20.58,25.64]` boundary by scheduling jitter.
+
+#### Cleanup (2026-09-03)
+- Removed temporary wall-clock and fence diagnostic logging from
+  `ClientThread.F90`, `ServerThread.F90`, `AsyncInputServer.F90`, and
+  `CapGridComp.F90`.
+- Preserved the validated next-before-current fence order.
+- Preserved the benchmark-only `MAPL_PERF_READER_SLEEP_SEC` hook and the
+  `model_delay` / `--quick` benchmark controls.
+- Rebuilt successfully and reran case45–49: all five tests pass.
+- The timestamps confirm the async reader is a separate MPI rank and is not
+  globally serialized behind model computation. However, this particular
+  short run is dominated by cold-start reads and MPI scheduling; total wall
+  time alone cannot be used as proof of overlap.
+- All five PFIO regression tests still pass: `pfio_case01`–`pfio_case05`.
+
+#### Fence Order Update (2026-09-03)
+- `ClientThread%done_collective_prefetch` now sends
+  `NextCollectivePrefetchDoneMessage` before `CollectivePrefetchDoneMessage`.
+- This is the required protocol order: next-prefetch requests are dispatched
+  before the current-prefetch fence is submitted.
+- The temporary per-request `ASYNC_INPUT_TAG_STARTED` acknowledgment was
+  removed. Waiting for an acknowledgment for every next request serialized
+  the multi-request next-prefetch batch and defeated overlap.
+- A four-step run with `model_delay=5`,
+  `MAPL_PERF_READER_SLEEP_SEC=5`, and `--use-hwthread-cpu` still measured
+  approximately equal wall times (`mpi8=41.55 s`, `async9=41.64 s`). The logs
+  confirm the fence ordering, but the reader intervals did not yet show a
+  full 5-second overlap with the model interval. Further request-queue tracing
+  is needed before claiming end-to-end overlap.
 
 ### How To Resume
 - Read these two files first:

@@ -3,14 +3,8 @@ set -euo pipefail
 
 # Usage: run_async_perf_cases.sh WORK_ROOT BUILD_DIR [MPIEXEC]
 #
-# For the overlap demo, set ASYNC_READER_SLEEP_SEC before calling:
-#   ASYNC_READER_SLEEP_SEC=0.3 bash run_async_perf_cases.sh WORK BUILD
-#
-# This adds an artificial sleep of 0.3s after each cache-miss file read in
-# the AsyncInputServer reader, simulating slow I/O.  Combined with a
-# model_delay set via prepare_async_perf_cases.sh --model-delay 0.5, the
-# reader pre-reads the next timestep inside the model's 0.5s window,
-# demonstrating I/O-overlap speedup.
+# The overlap demo uses only real reader I/O. Model-side work is controlled by
+# prepare_async_perf_cases.sh --model-delay; no artificial reader sleep is used.
 
 if [[ $# -lt 2 || $# -gt 3 ]]; then
   echo "usage: $0 WORK_ROOT BUILD_DIR [MPIEXEC]" >&2
@@ -48,14 +42,14 @@ fi
 export LD_LIBRARY_PATH="$build_dir/lib:$build_dir/gridcomps/componentDriverGridComp:$build_dir/tests/MAPL3G_Component_Testing_Framework/gridcomps:${LD_LIBRARY_PATH:-}"
 export DYLD_LIBRARY_PATH="$build_dir/lib:$build_dir/gridcomps/componentDriverGridComp:$build_dir/tests/MAPL3G_Component_Testing_Framework/gridcomps:${DYLD_LIBRARY_PATH:-}"
 
+reader_sleep="${MAPL_PERF_READER_SLEEP_SEC:-0}"
+echo "reader_sleep (both servers): ${reader_sleep}s"
+
 mpiexec_flags=( -oversubscribe )
 if [[ "$(uname -s)" == "Darwin" ]]; then
   mpiexec_flags=( --use-hwthread-cpu "${mpiexec_flags[@]}" )
 fi
 
-reader_sleep="${ASYNC_READER_SLEEP_SEC:-0}"
-
-echo "reader_sleep (async9 only): ${reader_sleep}s"
 echo "model_delay: $(grep 'model_delay' "$async_dir/cap2.yaml" 2>/dev/null | head -1 || echo 'not set')"
 echo
 
@@ -63,10 +57,8 @@ run_case() {
   local np=$1
   local dir=$2
   local label=$3
-  local extra_env=${4:-}
-
   ( cd "$dir" && "$mpiexec_cmd" -n 8 "${mpiexec_flags[@]}" "$geos_x" cap1.yaml > cap1.log 2>&1 )
-  ( cd "$dir" && env $extra_env /usr/bin/time -p -o cap2.time "$mpiexec_cmd" -n "$np" "${mpiexec_flags[@]}" "$geos_x" cap2.yaml > cap2.log 2>&1 )
+  ( cd "$dir" && env MAPL_PERF_READER_SLEEP_SEC="$reader_sleep" /usr/bin/time -p -o cap2.time "$mpiexec_cmd" -n "$np" "${mpiexec_flags[@]}" "$geos_x" cap2.yaml > cap2.log 2>&1 )
 
   echo "[$label] wall time"
   cat "$dir/cap2.time"
@@ -76,10 +68,8 @@ run_case() {
   grep 'Cap model sleep\|model_delay' "$dir/cap2.log" | head -1 || echo '(no model delay)'
   echo "[$label] cache summary"
   grep 'AsyncInputServer cache:' "$dir/cap2.log" || echo '(no async cache summary for baseline)'
-  echo "[$label] reader sleep"
-  grep 'reader_sleep' "$dir/cap2.log" | head -1 || echo '(no reader sleep)'
   echo
 }
 
 run_case 8 "$mpi_dir" "mpi8"
-run_case 9 "$async_dir" "async9" "ASYNC_READER_SLEEP_SEC=${reader_sleep}"
+run_case 9 "$async_dir" "async9"

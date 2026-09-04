@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: prepare_async_perf_cases.sh WORK_ROOT [--model-delay SECS] [--grid IMxJM]
+# Usage: prepare_async_perf_cases.sh WORK_ROOT [--model-delay SECS] [--grid IMxJM] [--quick]
 #
 # --model-delay SECS  Insert a cap-level model_delay (seconds) into both
-#                     cap2.yaml variants.  Use with ASYNC_READER_SLEEP_SEC
-#                     to demonstrate overlap:
+#                     cap2.yaml variants. The reader performs only real file
+#                     I/O while model ranks do concurrent work:
 #
 #                       bash prepare_async_perf_cases.sh /tmp/p \
 #                            --model-delay 0.5 --grid 512x384
-#                       ASYNC_READER_SLEEP_SEC=0.3 \
-#                         bash run_async_perf_cases.sh /tmp/p build
+#                       bash run_async_perf_cases.sh /tmp/p build
 #
 # --grid IMxJM        Override the lat-lon grid size in all YAML configs.
 #                     Default: 13x9 (tiny test grid from case49).
@@ -20,7 +19,7 @@ set -euo pipefail
 #                     artificial reader sleep.
 #
 # Overlap logic:
-#   model_delay(SECS) > ASYNC_READER_SLEEP_SEC or real read time
+#   model_delay(SECS) > real next-prefetch read time
 #   → async9 reader finishes next-prefetch inside the model window
 #   → next timestep's current read is a free cache hit
 #   → mpi8 must pay (read time + model_delay) per step; async9 pays only model_delay
@@ -28,6 +27,7 @@ set -euo pipefail
 model_delay_val=""
 grid_im=13
 grid_jm=9
+quick=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -35,18 +35,20 @@ while [[ $# -gt 0 ]]; do
       model_delay_val="$2"; shift 2 ;;
     --grid)
       grid_im="${2%%x*}"; grid_jm="${2##*x}"; shift 2 ;;
+    --quick)
+      quick=true; shift ;;
     *)
       work_root="$1"; shift ;;
   esac
 done
 
 if [[ -z "${work_root:-}" ]]; then
-  echo "usage: $0 WORK_ROOT [--model-delay SECS] [--grid IMxJM]" >&2
+  echo "usage: $0 WORK_ROOT [--model-delay SECS] [--grid IMxJM] [--quick]" >&2
   exit 2
 fi
 
 script_dir=$(cd "$(dirname "$0")" && pwd)
-base_case_dir="$script_dir/../test_cases/case49"
+base_case_dir="$script_dir/../test_cases/pfio/case05"
 
 mpi_dir="$work_root/perf-mpi8"
 async_dir="$work_root/perf-async9"
@@ -83,6 +85,18 @@ cap1_run_times=$(cat <<'EOF'
     - '2004-05-08T21:00:00'
 EOF
 )
+
+if $quick; then
+  cap1_run_times=$(cat <<'EOF'
+    - '2004-04-15T21:00:00'
+    - '2004-04-16T21:00:00'
+    - '2004-04-17T21:00:00'
+    - '2004-04-18T21:00:00'
+    - '2004-04-19T21:00:00'
+    - '2004-04-20T21:00:00'
+EOF
+  )
+fi
 
 cap2_run_times=$(cat <<'EOF'
     - '2004-04-20T09:00:00'
@@ -123,6 +137,20 @@ cap2_run_times=$(cat <<'EOF'
     - '2004-05-07T21:00:00'
 EOF
 )
+
+if $quick; then
+  cap2_run_times=$(cat <<'EOF'
+    - '2004-04-16T09:00:00'
+    - '2004-04-16T21:00:00'
+    - '2004-04-17T09:00:00'
+    - '2004-04-17T21:00:00'
+    - '2004-04-18T09:00:00'
+    - '2004-04-18T21:00:00'
+    - '2004-04-19T09:00:00'
+    - '2004-04-19T21:00:00'
+EOF
+  )
+fi
 
 cat > "$mpi_dir/cap1.yaml" <<EOF
 esmf:
@@ -294,7 +322,7 @@ Prepared:
 Next:
   bash tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh $work_root /path/to/build
 
-Overlap demo (reader_sleep=0.3s, model_delay=${model_delay_val:-not set}s):
-  bash tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh $work_root --model-delay 0.5
-  ASYNC_READER_SLEEP_SEC=0.3 bash tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh $work_root /path/to/build
+Overlap demo (real reader I/O, model_delay=${model_delay_val:-not set}s):
+  bash tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh $work_root --model-delay 5 --quick
+  bash tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh $work_root /path/to/build
 EOF

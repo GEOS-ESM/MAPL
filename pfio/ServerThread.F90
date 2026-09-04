@@ -8,6 +8,7 @@ module pFIO_ServerThreadMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use mapl_ErrorHandling_mod
+   use mapl_Sleep_mod, only: MAPL_Sleep
    use mapl_Profiler_mod
    use pFIO_UtilitiesMod, only: word_size, i_to_string
    use pFIO_AbstractSocketMod
@@ -140,8 +141,7 @@ contains
 
       type (ServerThread) :: s
       integer :: status
-
-      call s%set_connection(sckt, _RC)
+       call s%set_connection(sckt, _RC)
       if(present(server)) s%containing_server => server
 
       _RETURN(_SUCCESS)
@@ -698,6 +698,9 @@ contains
 
       integer, allocatable :: start(:),count(:)
       integer :: status
+      character(len=32) :: sleep_string
+      integer :: sleep_length, sleep_status
+      real :: reader_sleep
 
       collection => this%ext_collections%at(message%collection_id)
       formatter => collection%find(message%file_name, _RC)
@@ -749,7 +752,15 @@ contains
           case default
               _FAIL( "Not supported type")
           end select
-      end select
+       end select
+
+      ! Benchmark-only hook shared with AsyncInputServer. Keep this delay
+      ! immediately after get_var, before the read request is completed.
+      reader_sleep = 0.0
+      call get_environment_variable('MAPL_PERF_READER_SLEEP_SEC', sleep_string, sleep_length, sleep_status)
+      if (sleep_status == 0 .and. sleep_length > 0) &
+           read(sleep_string(1:sleep_length), *, iostat=sleep_status) reader_sleep
+       if (reader_sleep > 0.0) call MAPL_Sleep(reader_sleep)
 
       _RETURN(_SUCCESS)
    end subroutine get_DataFromFile
@@ -878,9 +889,9 @@ contains
           case default
               _FAIL( "not supported type")
           end select
-       end select
+      end select
 
-       _RETURN(_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine put_DataToFile
 
    subroutine receive_output_data(this, rc)
@@ -1116,10 +1127,10 @@ contains
          _RETURN(_SUCCESS)
       endif
 
-      connection => this%get_connection(status)
+        connection => this%get_connection(status)
       _VERIFY(status)
-      call this%containing_server%service_collective_prefetch(this%request_backlog, connection, handled, _RC)
-      if (handled) then
+       call this%containing_server%service_collective_prefetch(this%request_backlog, connection, handled, _RC)
+       if (handled) then
          _RETURN(_SUCCESS)
       end if
 
@@ -1161,10 +1172,10 @@ contains
          _RETURN(_SUCCESS)
       endif
 
-      connection => this%get_connection(status)
+        connection => this%get_connection(status)
       _VERIFY(status)
-      call this%containing_server%service_next_collective_prefetch(this%request_backlog, connection, handled, _RC)
-      if (handled) then
+       call this%containing_server%service_next_collective_prefetch(this%request_backlog, connection, handled, _RC)
+       if (handled) then
          _RETURN(_SUCCESS)
       end if
 
