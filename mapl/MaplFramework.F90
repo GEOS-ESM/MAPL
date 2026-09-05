@@ -127,8 +127,13 @@ contains
 
    ! Note: hconfig (path b) is intent(in) — ESMF is already initialized by caller.
    !       configFilenameFromArgNum (path a) — MAPL initializes ESMF internally.
+   ! app_config (optional, intent(out)): if requested, resolves and returns the
+   ! hconfig pointed to by the top-level `app: config:` key (i.e. the
+   ! cap_driver.yaml-derived hconfig) so that callers (e.g. mapl/GEOS.F90) can
+   ! pass it on to MAPL_CapCreate/MAPL_CapRun instead of having those
+   ! procedures each re-parse the file from disk.
    subroutine initialize(this, hconfig, unusable, mpiCommunicator, level_name, configFilenameFromArgNum, &
-        field_default_fill_value_r4, field_default_fill_value_r8, rc)
+        field_default_fill_value_r4, field_default_fill_value_r8, app_config, rc)
       class(MaplFramework), intent(inout) :: this
       type(ESMF_HConfig), optional, intent(in) :: hconfig  ! path (b): already-initialized ESMF
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -137,6 +142,7 @@ contains
       integer, optional, intent(in) :: configFilenameFromArgNum
       real(ESMF_KIND_R4), optional, intent(in) :: field_default_fill_value_r4
       real(ESMF_KIND_R8), optional, intent(in) :: field_default_fill_value_r8
+      type(ESMF_HConfig), optional, intent(out) :: app_config
       integer, optional, intent(out) :: rc
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
 
@@ -173,9 +179,35 @@ contains
       call vgrid_manager%register_factory("FixedLevels", fixed_levels_vgrid_factory, _RC)
       call vgrid_manager%register_factory("Model", model_vgrid_factory, _RC)
 
+      if (present(app_config)) then
+         app_config = resolve_app_config(this%hconfig, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine initialize
+
+   ! Resolve the hconfig pointed to by the top-level `app: config:` key
+   ! (i.e. parse the file named by `app.config`, typically cap_driver.yaml).
+   function resolve_app_config(hconfig, rc) result(app_config)
+      type(ESMF_HConfig) :: app_config
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: app_hconfig
+      character(:), allocatable :: config_file
+      logical :: has_app
+
+      has_app = ESMF_HConfigIsDefined(hconfig, keystring='app', _RC)
+      _ASSERT(has_app, "app_config requested but top-level 'app:' key is not defined")
+      app_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='app', _RC)
+      config_file = ESMF_HConfigAsString(app_hconfig, keystring='config', _RC)
+      app_config = ESMF_HConfigCreate(filename=config_file, _RC)
+      call ESMF_HConfigDestroy(app_hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function resolve_app_config
 
    ! Path (a) — standalone: MAPL calls ESMF_Initialize, derives hconfig from YAML file.
    ! Path (b) — embedded: ESMF already initialized; hconfig passed in by caller.
@@ -202,6 +234,7 @@ contains
          _ASSERT(present(hconfig), "hconfig must be provided when ESMF is already initialized (path b)")
          this%hconfig = hconfig
          this%mapl_hconfig = get_subconfig(this%hconfig, keystring='mapl', _RC)
+         call normalize_mapl_hconfig(this%hconfig, this%mapl_hconfig, _RC)
          _RETURN(_SUCCESS)
       end if
 
@@ -217,6 +250,7 @@ contains
               mpiCommunicator=mpiCommunicator, _RC)
          call ESMF_ConfigGet(config, hconfig=this%hconfig, _RC)
          this%mapl_hconfig = get_subconfig(this%hconfig, keystring='mapl', _RC)
+         call normalize_mapl_hconfig(this%hconfig, this%mapl_hconfig, _RC)
       else
          call ESMF_Initialize(mpiCommunicator=mpiCommunicator, defaultDefaultCalKind=ESMF_CALKIND_GREGORIAN, _RC)
          this%hconfig = ESMF_HConfigCreate(content='{}', _RC)
@@ -248,6 +282,45 @@ contains
          _RETURN(_SUCCESS)
       end function get_subconfig
 
+      subroutine normalize_mapl_hconfig(hconfig, mapl_hconfig, rc)
+         type(ESMF_HConfig), intent(in) :: hconfig
+         type(ESMF_HConfig), intent(inout) :: mapl_hconfig
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: has_app_petcount_in_mapl_section, has_app_petcount_in_root
+         logical :: has_mapl_servers, has_pflogger, has_pflogger_cfg_file
+         logical :: has_servers
+         type(ESMF_HConfig) :: servers_hconfig
+         character(:), allocatable :: pflogger_cfg_file
+         integer(kind=ESMF_KIND_I4) :: app_petcount
+
+         has_app_petcount_in_mapl_section = ESMF_HConfigIsDefined(mapl_hconfig, keystring='app_petcount', _RC)
+         has_app_petcount_in_root = ESMF_HConfigIsDefined(hconfig, keystring='app_petcount', _RC)
+         if (.not. has_app_petcount_in_mapl_section .and. has_app_petcount_in_root) then
+            app_petcount = ESMF_HConfigAsI4(hconfig, keystring='app_petcount', _RC)
+            call ESMF_HConfigAdd(mapl_hconfig, content=app_petcount, &
+                 addKeyString='app_petcount', _RC)
+         end if
+
+         has_mapl_servers = ESMF_HConfigIsDefined(mapl_hconfig, keystring='servers', _RC)
+         has_servers = ESMF_HConfigIsDefined(hconfig, keystring='servers', _RC)
+         if (.not. has_mapl_servers .and. has_servers) then
+            servers_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='servers', _RC)
+            call ESMF_HConfigAdd(mapl_hconfig, content=servers_hconfig, addKeyString='servers', _RC)
+            call ESMF_HConfigDestroy(servers_hconfig, _RC)
+         end if
+
+         has_pflogger_cfg_file = ESMF_HConfigIsDefined(mapl_hconfig, keystring='pflogger_cfg_file', _RC)
+         has_pflogger = ESMF_HConfigIsDefined(hconfig, keystring='pflogger', _RC)
+         if (.not. has_pflogger_cfg_file .and. has_pflogger) then
+            pflogger_cfg_file = ESMF_HConfigAsString(hconfig, keystring='pflogger', _RC)
+            call ESMF_HConfigAdd(mapl_hconfig, content=pflogger_cfg_file, addKeyString='pflogger_cfg_file', _RC)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine normalize_mapl_hconfig
+
    end subroutine initialize_esmf
 
 #ifdef BUILD_WITH_PFLOGGER
@@ -264,7 +337,9 @@ contains
       integer :: status
       integer :: world_comm
       logical :: has_pflogger_cfg_file
+      logical :: file_exists
       character(:), allocatable :: pflogger_cfg_file
+      class(Logger), pointer :: lgr
 
       call pfl_initialize()
       get_sim_time => fill_time_dict
@@ -272,8 +347,14 @@ contains
       has_pflogger_cfg_file = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring="pflogger_cfg_file", _RC)
       if (has_pflogger_cfg_file) then
          pflogger_cfg_file = ESMF_HConfigAsString(this%mapl_hconfig, keystring="pflogger_cfg_file", _RC)
-         call logging%load_file(pflogger_cfg_file)
-         _RETURN(_SUCCESS)
+         inquire(file=trim(pflogger_cfg_file), exist=file_exists)
+         if (file_exists) then
+            call logging%load_file(pflogger_cfg_file)
+            _RETURN(_SUCCESS)
+         end if
+
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning('pflogger config file not found: "' // trim(pflogger_cfg_file) // '"; using defaults.')
       end if
 
       call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
@@ -340,7 +421,7 @@ contains
 
       integer :: status
       logical :: has_server_section
-      integer :: model_petCount
+      integer :: app_petCount
       integer :: world_comm
       integer :: ssiCount
       integer, allocatable :: ssiMap(:)
@@ -355,8 +436,8 @@ contains
       _RETURN_UNLESS(has_server_section)
 
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
-      model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
-      num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
+      app_petCount = get_app_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
+      num_model_ssis = get_num_ssis(app_petCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
@@ -422,7 +503,7 @@ contains
 
       integer :: status
       logical :: has_server_section
-      integer :: model_petCount
+      integer :: app_petCount
       integer :: world_group, model_group
       integer :: world_comm
       integer :: ssiCount
@@ -438,7 +519,7 @@ contains
       ! Complex path: re-partition model_comm to the model-only PETs, add any
       ! local: true servers from config, and build remote server GridComps.
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
-      model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
+      app_petCount = get_app_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
 
       ! Free the world-spanning model_comm set in initialize_default_servers and
       ! replace it with the model-only partition.
@@ -446,7 +527,7 @@ contains
          call MPI_Comm_free(this%model_comm, _IERROR)
       end if
       call MPI_Comm_group(world_comm, world_group, _IERROR)
-      call MPI_Group_range_incl(world_group, 1, reshape([0, model_petCount-1, 1], [3,1]), model_group, _IERROR)
+      call MPI_Group_range_incl(world_group, 1, reshape([0, app_petCount-1, 1], [3,1]), model_group, _IERROR)
       call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
       call MPI_Group_free(model_group, _IERROR)
       call MPI_Group_free(world_group, _IERROR)
@@ -458,7 +539,7 @@ contains
       end if
 
       ! Build ESMF GridComps for remote (non-local) servers.
-      call this%initialize_non_default_servers(servers, world_comm, model_petCount, ssiCount, ssiMap, &
+      call this%initialize_non_default_servers(servers, world_comm, app_petCount, ssiCount, ssiMap, &
            is_model_pet=this%is_model_pet, _RC)
 
       _RETURN(_SUCCESS)
@@ -466,12 +547,12 @@ contains
    end subroutine create_servers
 
    ! Build MPI communicators and ESMF GridComps for an explicit servers: topology.
-   subroutine initialize_non_default_servers(this, servers, world_comm, model_petCount, ssiCount, ssiMap, &
+   subroutine initialize_non_default_servers(this, servers, world_comm, app_petCount, ssiCount, ssiMap, &
         unusable, is_model_pet, rc)
       class(MaplFramework), target, intent(inout) :: this
       type(ESMF_GridComp), allocatable, intent(out) :: servers(:)
       integer, intent(in) :: world_comm
-      integer, intent(in) :: model_petCount
+      integer, intent(in) :: app_petCount
       integer, intent(in) :: ssiCount
       integer, intent(in) :: ssiMap(:)
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -490,10 +571,9 @@ contains
        integer, allocatable :: model_pets(:), server_pets(:)
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
       character(ESMF_MAXSTR), allocatable :: server_names(:)
-      class(Logger), pointer :: lgr
       type(ServerResources) :: srv_resources
 
-      num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
+      num_model_ssis = get_num_ssis(app_petCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
@@ -927,7 +1007,7 @@ contains
 
 
    subroutine mapl_initialize(hconfig, unusable, mpiCommunicator, configFilenameFromArgNum, level_name, &
-        field_default_fill_value_r4, field_default_fill_value_r8, rc)
+        field_default_fill_value_r4, field_default_fill_value_r8, app_config, rc)
       type(ESMF_HConfig), optional, intent(in) :: hconfig  ! path (b): already-initialized ESMF
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: mpiCommunicator
@@ -935,6 +1015,7 @@ contains
       character(*), optional, intent(in) :: level_name
       real(ESMF_KIND_R4), optional, intent(in) :: field_default_fill_value_r4
       real(ESMF_KIND_R8), optional, intent(in) :: field_default_fill_value_r8
+      type(ESMF_HConfig), optional, intent(out) :: app_config
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -945,6 +1026,7 @@ contains
            configFilenameFromArgNum=configFilenameFromArgNum, level_name=level_name, &
            field_default_fill_value_r4=field_default_fill_value_r4, &
            field_default_fill_value_r8=field_default_fill_value_r8, &
+           app_config=app_config, &
            _RC)
 
       _RETURN(_SUCCESS)
