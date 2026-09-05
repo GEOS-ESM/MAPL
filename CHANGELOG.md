@@ -47,6 +47,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `StateGetPointer` overloads for retrieving paired (u, v) field pointers from a vector-type ESMF FieldBundle stored in a state
+- Added `extdata_dryrun_check.py`, a Python utility that predicts which input
+  files an ExtData component will need for a given run without executing the
+  model. Supports three tiers: template enumeration (Tier 1), filesystem
+  existence check (Tier 2, `--check`), and time-axis narrowing via `netCDF4`
+  (Tier 3, `--narrow`). A `--verify_files_read` flag compares predictions
+  against the runtime `log_files_read` output for use in CTest. Wired into
+  the MAPL3G component test framework for case02, case11, and case23.
+- Added `latlon_to_face.py`, a Python utility that converts a cubed-sphere
+  NetCDF file from tiled lat/lon layout (`lat = 6 * lon`) to the face layout
+  (`nf / Ydim / Xdim`) required by MAPL/GEOS face-format readers.
 - Added new GEOShs CI test
 - Added capability for doing in-memory checkpoint/restart.  Testing remains fairly basic, so further work is likely needed when we port replay to MAPL3.
 - Added `log_files_read` option to ExtData2G to easily log all files read during a run
