@@ -51,20 +51,21 @@ contains
    ! app_config argument) is reused as cap_driver_hconfig instead of
    ! re-parsing cap_driver.yaml from disk. cap_driver.yaml's
    ! cap_gridcomp_config key names the cap_gridcomp.yaml file.
-   subroutine mapl_cap_create(driver, unusable, cap_driver_hconfig, rc)
+   subroutine mapl_cap_create(driver, unusable, config, rc)
       type(MAPL_GriddedComponentDriver), intent(out) :: driver
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_HConfig), intent(in) :: cap_driver_hconfig
+      type(ESMF_HConfig), intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: is_model_pet
-      type(ESMF_HConfig) :: cap_gridcomp_hconfig
+      type(ESMF_HConfig) :: cap_driver_hconfig, cap_gridcomp_hconfig
       character(:), allocatable :: gridcomp_config_file
       type(CapOptions) :: options
       type(esmf_Clock) :: clock
 
       call MAPL_Get(is_model_pet=is_model_pet, _RC)
+      cap_driver_hconfig = config
       gridcomp_config_file = esmf_HConfigAsString(cap_driver_hconfig, keystring='cap_gridcomp_config', _RC)
       cap_gridcomp_hconfig = esmf_HConfigCreate(filename=gridcomp_config_file, _RC)
       ! Propagate driver-level keys (e.g. checkpointing) that descendant
@@ -83,20 +84,22 @@ contains
    ! config (the app.config-derived hconfig, as returned by MAPL_Initialize's
    ! app_config argument) is reused as cap_driver_hconfig instead of
    ! re-parsing cap_driver.yaml from disk.
-   subroutine mapl_cap_run(driver, unusable, cap_driver_hconfig, rc)
+   subroutine mapl_cap_run(driver, unusable, config, rc)
       type(MAPL_GriddedComponentDriver), intent(inout) :: driver
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_HConfig), intent(in) :: cap_driver_hconfig
+      type(ESMF_HConfig), intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: is_model_pet
+      type(ESMF_HConfig) :: cap_driver_hconfig
       type(CapOptions) :: options
       type(esmf_Clock) :: clock
 
       call MAPL_Get(is_model_pet=is_model_pet, _RC)
       _RETURN_UNLESS(is_model_pet)
 
+      cap_driver_hconfig = config
       options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
 
       call MAPL_DriverInitializePhases(driver, phases=MAPL_GENERIC_INIT_PHASE_SEQUENCE, _RC)
