@@ -139,26 +139,28 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemSpec), pointer :: extension
-      type(StateItemSpec), pointer :: spec
-      type(StringVector) :: expression_variables
-      type(StringVectorIterator) :: iter
-      character(:), pointer :: variable
 
-      expression_variables = parser_variables_in_expression(this%expression, _RC)
-      associate(b => expression_variables%begin(), e => expression_variables%end())
-      iter = b
-      do while (iter /= e)
-         variable => iter%of()
-         extension => this%registry%get_primary_spec(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable), _RC)
-         spec => extension
-         call spec%activate(_RC)
-         call iter%next()
-      enddo
-      end associate
+        type(StateItemSpec), pointer :: extension
+        type(StateItemSpec), pointer :: spec
+        type(StringVector) :: expression_variables
+        type(StringVectorIterator) :: iter
+        character(:), pointer :: variable
+        type(VirtualConnectionPt) :: v_pt
 
+        expression_variables = parser_variables_in_expression(this%expression, _RC)
+        associate(b => expression_variables%begin(), e => expression_variables%end())
+          iter = b
+          do while (iter /= e)
+             variable => iter%of()
+             v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable)
+             extension => this%registry%get_primary_spec(v_pt, _RC)
+             spec => extension
+             call spec%activate(_RC)
+             call iter%next()
+          enddo
+        end associate
       _RETURN(ESMF_SUCCESS)
-   end subroutine activate
+    end subroutine activate
 
    ! noop
    subroutine allocate(this, other_aspects, rc)
