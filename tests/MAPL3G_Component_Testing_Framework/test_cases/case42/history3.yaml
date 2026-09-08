@@ -13,6 +13,7 @@ geoms:
 active_collections:
   - monthly_full
   - djf_full
+  - mam_full
 
 time_specs:
   monthly_output: &monthly_output
@@ -23,6 +24,10 @@ time_specs:
     frequency: P3M
     mode: average
     ref_datetime: "YYYY-12-01T00:00:00"
+  mam_output: &mam_output
+    frequency: P3M
+    mode: average
+    ref_datetime: "YYYY-03-01T00:00:00"
 
 collections:
   monthly_full:
@@ -35,5 +40,11 @@ collections:
     template: "%c_%y4%m2%d2_%h2%n2.nc4"
     #geom: *geom1
     time_spec: *djf_output
+    var_list:
+      djf_avg: {source: E_1}
+  mam_full:
+    template: "%c_%y4%m2%d2_%h2%n2.nc4"
+    #geom: *geom1
+    time_spec: *mam_output
     var_list:
       djf_avg: {source: E_1}

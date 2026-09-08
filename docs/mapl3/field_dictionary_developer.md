@@ -205,7 +205,7 @@ n = dict%size()
 ## `mapl_FieldDictionaryConfig`
 
 Holds the runtime configuration for the dictionary subsystem, parsed from the
-`mapl/field_dictionary` section of `cap.yaml`.
+`mapl/field_dictionary` section of `mapl.yaml`.
 
 ### Public API
 
@@ -265,7 +265,7 @@ The relevant code lives in `mapl3g/MaplFramework.F90` in the
 `initialize_field_dictionary` subroutine:
 
 ```
-1. Read the optional 'field_dictionary' key from the mapl: section of cap.yaml
+1. Read the optional 'field_dictionary' key from the mapl: section of mapl.yaml
    (ESMF_HConfig).
    - If present, use that string as the path.
    - If absent, use the default path 'geos_field_dictionary.yaml' (CWD).
