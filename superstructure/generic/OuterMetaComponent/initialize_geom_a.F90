@@ -37,18 +37,18 @@ contains
          if (allocated(geometry_spec%geom_spec)) then
             geom_mgr => mapl_get_geom_manager()
             mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
-           this%geom = mapl_geom%get_geom()
+            call this%set_geom(mapl_geom%get_geom())
         end if
         if (allocated(geometry_spec%vertical_grid)) then
-           this%vertical_grid = geometry_spec%vertical_grid
+           call this%set_vertical_grid(geometry_spec%vertical_grid)
         end if
       end associate
 
       ! Initialize profiler
       call ESMF_VMGetCurrent(vm, _RC)
       call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
-      this%profiler = DistributedProfiler(this%user_gc_driver%get_name(), MpiTimerGauge(), comm=comm)
-      call this%profiler%start(_RC)
+!#      this%profiler = DistributedProfiler(this%user_gc_driver%get_name(), MpiTimerGauge(), comm=comm)
+!#      call this%profiler%start(_RC)
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_A, _RC)
@@ -60,10 +60,10 @@ contains
             provider_meta => get_outer_meta(provider_gc, _RC)
             this%geom_id = provider_meta%geom_id
             if (allocated(provider_meta%geom)) then
-               this%geom = provider_meta%geom
+               call this%set_geom(provider_meta%geom)
             end if
             if (allocated(provider_meta%vertical_grid)) then
-               this%vertical_grid = provider_meta%vertical_grid
+               call this%set_vertical_grid(provider_meta%vertical_grid)
             end if
          end if
       end associate

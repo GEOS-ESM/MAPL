@@ -127,6 +127,7 @@ contains
       call MAPL_FieldBundleGet(fb_in, fieldList=fieldList_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=fieldList_out, _RC)
 
+      _HERE, 'bracket? ', size(fieldList_out), size(fieldList_in)
       _ASSERT(size(fieldList_out) == size(fieldList_in), 'Brackets must have same size.')
 
       do i = 1, size(fieldList_in)
@@ -155,8 +156,8 @@ contains
       call MAPL_FieldBundleGet(fb_in, fieldList=uv_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=uv_out, _RC)
 
-      _ASSERT(size(uv_in) == 2, 'TangentVector must consiste of exactly 2 fields.')
-      _ASSERT(size(uv_out) == 2, 'TangentVector must consiste of exactly 2 fields.')
+      _ASSERT(size(uv_in) == 2, 'TangentVector must consist of exactly 2 fields.')
+      _ASSERT(size(uv_out) == 2, 'TangentVector must consist of exactly 2 fields.')
       
       call create_field_vector(archetype=uv_in(1), fv=xyz_in, _RC)
       call create_field_vector(archetype=uv_out(1), fv=xyz_out, _RC)

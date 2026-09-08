@@ -155,14 +155,8 @@ contains
       class(StateItemAspect), pointer :: aspect
       class(StateItemSpec), pointer :: spec
 
-      associate (specs => this%items_to_service)
-        do i = 1, size(specs)
-           spec => specs(i)%ptr
-           aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
-           field_aspect = to_FieldClassAspect(aspect, _RC)
-           call field_aspect%add_to_bundle(this%payload, _RC)
-        end do
-      end associate
+      ! No-op
+      ! Fields are added to bundle during connetion step
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
@@ -280,6 +274,9 @@ contains
       type(StateItemSpecPtr), allocatable :: spec_ptrs(:)
       type(VirtualConnectionPt) :: v_pt
       type(StateItemSpec), pointer :: primary
+      type(FieldClassAspect) :: field_aspect
+      class(StateItemAspect), pointer :: aspect
+      class(StateItemSpec), pointer :: spec
 
       select type (import)
       type is (ServiceClassAspect)
@@ -291,9 +288,13 @@ contains
               ! Internal items are always unique and "primary" (owned by user)
               primary => import%registry%get_primary_spec(v_pt, _RC)
               spec_ptrs(i)%ptr => primary
+              aspect => primary%get_aspect(CLASS_ASPECT_ID, _RC)
+              field_aspect = to_FieldClassAspect(aspect, _RC)
+              call field_aspect%add_to_bundle(this%payload, _RC)
            end do
          end associate
          this%items_to_service = [this%items_to_service, spec_ptrs]
+
       class default
          _FAIL('Import must be a Service')
       end select

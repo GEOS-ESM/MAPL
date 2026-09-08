@@ -297,8 +297,11 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end subroutine advertise_variable
 
-      module recursive subroutine initialize_advertise(this, unusable, rc)
+      module recursive subroutine initialize_advertise(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
+         type(ESMF_State) :: importState
+         type(ESMF_State) :: exportState
+         type(ESMF_Clock) :: clock
          ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc

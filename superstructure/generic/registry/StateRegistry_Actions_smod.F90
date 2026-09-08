@@ -35,7 +35,6 @@ contains
          if (has_deferred) cycle
 
          call item_spec%allocate(_RC)
-
       end do
 
       _RETURN(_SUCCESS)

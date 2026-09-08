@@ -170,7 +170,6 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-
       call mapl_FieldSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -264,7 +263,7 @@ contains
       call mirror(this%fill_value, export_%fill_value)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_CONNECTED, _RC)
+!#      call FieldInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)

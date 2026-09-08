@@ -18,15 +18,11 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE_PROVIDED'
-      type(MultiState) :: outer_states, user_states, tmp_states
 
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE_PROVIDED, _RC)
-      user_states = this%user_gc_driver%get_states()
-      tmp_states = MultiState(importState=user_states%importState)
-      call this%registry%add_to_states(tmp_states, mode='user', _RC)
-      outer_states = MultiState(importState=importState, exportState=exportState)
-      call this%registry%add_to_states(outer_states, mode='outer', _RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+
+      call this%registry%allocate(_RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(clock)

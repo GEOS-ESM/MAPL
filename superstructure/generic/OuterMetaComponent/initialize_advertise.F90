@@ -13,21 +13,33 @@ submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
    use mapl_VariableSpecVector_mod, only: operator(/=)
    use mapl_StateItemSpec_mod
    use mapl_MultiState_mod
+   use mapl_MpiTimerGauge_mod, only: MpiTimerGauge
    use mapl_ErrorHandling_mod
    implicit none (type, external)
 
 
 contains
 
-   module recursive subroutine initialize_advertise(this, unusable, rc)
+   module recursive subroutine initialize_advertise(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
+      type(esmf_State) :: importState
+      type(esmf_State) :: exportState
+      type(esmf_Clock) :: clock
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       type(MultiState) :: user_states
+      type(ESMF_VM) :: vm
+      integer :: comm
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
+
+      ! Initialize profiler
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
+      this%profiler = DistributedProfiler(this%user_gc_driver%get_name(), MpiTimerGauge(), comm=comm)
+      call this%profiler%start(_RC)
 
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
       call self_advertise(this, _RC)

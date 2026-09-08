@@ -263,9 +263,9 @@ contains
       allocate(aspect, source=NormalizationAspect())
       call aspect%set_mirror(.true.)
       call goal_aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
-      
+
       call goal_spec%create(_RC)
-      
+
       new_extension => this%registry%extend(v_pt, goal_spec, _RC)
       coupler => new_extension%get_producer()
       new_spec => new_extension

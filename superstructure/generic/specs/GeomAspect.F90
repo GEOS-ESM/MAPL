@@ -209,8 +209,8 @@ contains
           end if
        end if
 
-        this%geom = geom
-        call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
+       this%geom = geom
+       call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
 
      end subroutine set_geom
 

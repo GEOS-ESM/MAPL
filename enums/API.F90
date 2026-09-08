@@ -80,7 +80,6 @@ module mapl_enums_api
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_CREATED   => STATEITEM_ALLOCATION_CREATED
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_INACTIVE  => STATEITEM_ALLOCATION_INACTIVE
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_ACTIVE    => STATEITEM_ALLOCATION_ACTIVE
-   use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_CONNECTED => STATEITEM_ALLOCATION_CONNECTED
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED => STATEITEM_ALLOCATION_ALLOCATED
    use mapl_StateItemAllocation_mod, only: operator(==), operator(/=), operator(<), operator(>=)
 
@@ -155,7 +154,8 @@ module mapl_enums_api
    public :: MAPL_StateItemAllocation
    public :: MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED
    public :: MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE
-   public :: MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
+!#   public :: MAPL_STATEITEM_ALLOCATION_CONNECTED
+   public :: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    public :: operator(==), operator(/=), operator(<), operator(>=)
 
    ! FieldBundleType_Flag

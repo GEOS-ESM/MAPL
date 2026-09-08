@@ -152,7 +152,7 @@ contains
          variable => iter%of()
          extension => this%registry%get_primary_spec(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable), _RC)
          spec => extension
-         call spec%activate()
+         call spec%activate(_RC)
          call iter%next()
       enddo
       end associate
@@ -267,7 +267,6 @@ contains
       select type (dst)
       type is (FieldClassAspect)
 
-
          expression_variables = parser_variables_in_expression(src%expression, _RC)
          associate (b => expression_variables%begin(), e => expression_variables%end())
          iter = b
@@ -283,6 +282,7 @@ contains
          n = goal_aspects%erase(CLASS_ASPECT_ID)
          call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
          call goal_spec%create(_RC)
+         call goal_spec%allocate(_RC)
 
          do i = 1, inputs%size()
             v_pt => inputs%of(i)

@@ -30,8 +30,8 @@ contains
          end if
       end if
 
-       this%geom = geom
-       call this%registry%set_geometry(geom=geom, _RC)
+      this%geom = geom
+      call this%registry%set_geometry(geom=geom, _RC)
 
        if (present(rc)) rc = ESMF_SUCCESS
 

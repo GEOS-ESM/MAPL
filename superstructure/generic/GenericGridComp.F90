@@ -234,7 +234,7 @@ contains
       case (GENERIC_INIT_GEOM_B)
          call outer_meta%initialize_geom_b(_RC)
       case (GENERIC_INIT_ADVERTISE)
-         call outer_meta%initialize_advertise(_RC)
+         call outer_meta%initialize_advertise(importState, exportState, clock, _RC)
        case (GENERIC_INIT_MODIFY_ADVERTISED)
           call outer_meta%initialize_modify_advertised(importState, exportState, clock, _RC)
        case (GENERIC_INIT_REALIZE_PROVIDED)

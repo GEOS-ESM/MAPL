@@ -14,7 +14,6 @@ module mapl_StateItemAllocation_mod
    public :: STATEITEM_ALLOCATION_CREATED
    public :: STATEITEM_ALLOCATION_INACTIVE
    public :: STATEITEM_ALLOCATION_ACTIVE
-   public :: STATEITEM_ALLOCATION_CONNECTED
    public :: STATEITEM_ALLOCATION_ALLOCATED
    
    type :: StateItemAllocation
@@ -28,7 +27,6 @@ module mapl_StateItemAllocation_mod
    type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_CREATED = StateItemAllocation(0)
    type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_INACTIVE = StateItemAllocation(1)
    type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_ACTIVE = StateItemAllocation(2)
-   type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_CONNECTED = StateItemAllocation(3)
    type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_ALLOCATED = StateItemAllocation(4)
    
    interface operator(==)
@@ -67,8 +65,6 @@ contains
          allocation_status = STATEITEM_ALLOCATION_INACTIVE
       case ('ACTIVE')
          allocation_status = STATEITEM_ALLOCATION_ACTIVE
-      case ('CONNECTED')
-         allocation_status = STATEITEM_ALLOCATION_CONNECTED
       case ('ALLOCATED')
          allocation_status = STATEITEM_ALLOCATION_ALLOCATED
       case default
@@ -93,8 +89,6 @@ contains
          s = "INACTIVE"
       case (STATEITEM_ALLOCATION_ACTIVE%id)
          s = "ACTIVE"
-      case (STATEITEM_ALLOCATION_CONNECTED%id)
-         s = "CONNECTED"
       case (STATEITEM_ALLOCATION_ALLOCATED%id)
          s = "ALLOCATED"
       case default

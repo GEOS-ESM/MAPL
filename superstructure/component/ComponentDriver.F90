@@ -67,7 +67,9 @@ contains
          integer :: i
 
          do i = 1, size(phases)
+            _HERE, 'start phase: ', i, phases(i)
             call this % initialize(phase_idx=phases(i), _RC)
+            _HERE, '   ... end phase: ', i
          end do
 
          _RETURN(_SUCCESS)
