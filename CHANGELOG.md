@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
 
 ### Changed
-
+- Reworked MAPL phases to better align with NUOPC phases.
 - Split cap.yaml into mapl.yaml, cap_driver.yaml, and cap_gridcomp.yaml (see issue #5355)
 - Renamed `model_petcount`/`has_model_petcount` to `app_petcount`/`has_app_petcount`
   throughout the codebase, config files, and documentation
