@@ -151,7 +151,7 @@ contains
       _RETURN(_SUCCESS)
    end function is_allocated
 
-   subroutine activate(this, rc)
+   recursive subroutine activate(this, rc)
       use mapl_stateitemallocation_mod
       class(StateItemSpec), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
