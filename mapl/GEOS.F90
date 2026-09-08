@@ -14,9 +14,9 @@ program geos
 
    call MAPL_Initialize(configFileNameFromArgNum=1, app_config=config, _RC)
    call MAPL_CreateServers(servers, _RC)
-   call MAPL_CapCreate(driver, config=config, _RC)
+   call MAPL_CapCreate(driver, cap_driver_hconfig=config, _RC)
    call MAPL_RunServers(servers, _RC)
-   call MAPL_CapRun(driver, config=config, _RC)
+   call MAPL_CapRun(driver, cap_driver_hconfig=config, _RC)
    call MAPL_Finalize(_RC)
 
 end program geos
