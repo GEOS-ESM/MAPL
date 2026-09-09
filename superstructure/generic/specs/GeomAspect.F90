@@ -7,7 +7,7 @@ module mapl_GeomAspect_mod
    use mapl_AspectStatus_mod
    use mapl_HorizontalDimsSpec_mod
    use mapl_StateItemAspect_mod
-   use mapl_geom_api, only: mapl_GeomId
+   use mapl_GeomId_mod, only: GeomId
    use mapl_geom_api, only: mapl_GeomIdManager
    use mapl_geom_api, only: MAPL_GeomGetId
    use mapl_geom_api, only: mapl_get_geom_id_manager
@@ -45,7 +45,7 @@ module mapl_GeomAspect_mod
 
    type, extends(StateItemAspect) :: GeomAspect
       private
-      type(mapl_GeomId) :: geom_id
+      type(GeomId) :: geom_id
       type(ESMF_Geom), allocatable :: geom
       type(EsmfRegridderParam), allocatable :: regridder_param
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
@@ -91,7 +91,7 @@ contains
       type(EsmfRegridderParam), optional, intent(in) :: regridder_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       logical, optional, intent(in) :: is_time_dependent
-      type(mapl_GeomId), optional, intent(in) :: geom_id
+      type(GeomId), optional, intent(in) :: geom_id
       type(AspectStatus), optional, intent(in) :: aspect_status
 
       call aspect%set_characteristic_state(ASPECT_STATUS_MIRRORED)
@@ -197,7 +197,7 @@ contains
 
        type(mapl_GeomIdManager), pointer :: geom_id_manager
        logical :: has_geom_id
-       type(mapl_GeomId) :: geom_id_value
+       type(GeomId) :: geom_id_value
 
        if (.not. this%geom_id%is_assigned()) then
           geom_id_value = MAPL_GeomGetId(geom, isPresent=has_geom_id)
@@ -216,7 +216,7 @@ contains
 
    subroutine set_geom_id(this, geom_id)
       class(GeomAspect), intent(inout) :: this
-      type(mapl_GeomId), intent(in) :: geom_id
+      type(GeomId), intent(in) :: geom_id
 
        this%geom_id = geom_id
        if (allocated(this%geom)) call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
@@ -243,7 +243,7 @@ contains
 
    function get_geom_id(this) result(geom_id)
       class(GeomAspect), intent(in) :: this
-      type(mapl_GeomId) :: geom_id
+      type(GeomId) :: geom_id
 
       geom_id = this%geom_id
    end function get_geom_id

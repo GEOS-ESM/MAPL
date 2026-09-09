@@ -2,6 +2,7 @@
 
 submodule (mapl_OuterMetaComponent_mod) free_outer_meta_smod
    use mapl_ErrorHandling_mod
+   use mapl_InnerMetaComponent_mod
    implicit none(type,external)
 
 contains

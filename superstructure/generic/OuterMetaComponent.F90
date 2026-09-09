@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
 module mapl_OuterMetaComponent_mod
-
+!!$   use mapl_geom_api, only: mapl_GeomId
+   use mapl_GeomId_mod, only: GeomId
    use mapl_UserSetServices_mod, only: UserSetServices
    use mapl_ComponentSpec_mod
    use mapl_CheckpointControls_mod
    use mapl_VariableSpec_mod
    use mapl_ChildSpec_mod
-   use mapl_InnerMetaComponent_mod
    use mapl_MethodPhasesMap_mod
    use mapl_StateRegistry_mod
    use mapl_ESMF_Interfaces_mod, only: I_Run
@@ -17,7 +17,6 @@ module mapl_OuterMetaComponent_mod
    use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
-   use mapl_geom_api, only: mapl_GeomId
    use gFTL2_StringVector
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_Profiler_mod, only: DistributedProfiler
@@ -44,7 +43,7 @@ module mapl_OuterMetaComponent_mod
       type(MethodPhasesMap)                       :: user_phases_map
        type(ESMF_HConfig)                          :: hconfig
 
-       type(mapl_GeomId)                           :: geom_id
+       type(GeomId)                           :: geom_id
        type(ESMF_Geom), allocatable                :: geom
        class(VerticalGrid), allocatable            :: vertical_grid
 

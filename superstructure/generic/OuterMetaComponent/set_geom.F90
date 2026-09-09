@@ -17,7 +17,7 @@ contains
 
       type(mapl_GeomIdManager), pointer :: geom_id_manager
       logical :: has_geom_id
-      type(mapl_GeomId) :: geom_id_value
+      type(GeomId) :: geom_id_value
       integer :: status
 
       if (.not. this%geom_id%is_assigned()) then
