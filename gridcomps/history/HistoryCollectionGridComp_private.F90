@@ -127,15 +127,6 @@ contains
       integer :: status
       type(ESMF_Info) :: info, new_info
 
-      block
-        type(esmf_FieldStatus_Flag) :: fstatus
-        character(ESMF_MAXSTR) :: name
-        call esmf_FieldGet(old_field, name=name, status=fstatus, _RC)
-        _HERE, trim(name)
-        _HERE, 'complete?: ', fstatus == ESMF_FIELDSTATUS_COMPLETE
-        _HERE, 'gridset?: ', fstatus == ESMF_FIELDSTATUS_GRIDSET
-        _HERE, 'empty?: ', fstatus == ESMF_FIELDSTATUS_EMPTY
-      end block
       new_field = ESMF_FieldCreate(old_field, dataCopyFlag=ESMF_DATACOPY_REFERENCE, name=alias,  _RC)
       call ESMF_InfoGetFromHost(old_field, info, _RC)
       call ESMF_InfoGetFromHost(new_field, new_info, _RC)
