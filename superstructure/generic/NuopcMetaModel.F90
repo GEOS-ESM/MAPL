@@ -85,9 +85,24 @@ module mapl_NuopcMetaModel_mod
       procedure :: finalize
    end type NuopcMetaModel
 
+   type :: AdvertisedVariable
+      private
+      character(len=:), allocatable :: standardName
+      character(len=:), allocatable :: name
+      type(ESMF_StateIntent_Flag) :: stateIntent
+   contains
+      procedure :: get_standard_name
+      procedure :: get_name
+      procedure :: get_state_intent
+   end type AdvertisedVariable
+
    interface NuopcMetaModel
       module procedure :: construct_meta_model
    end interface NuopcMetaModel
+
+   interface AdvertisedVariable
+      module procedure :: construct_advertised_variable
+   end interface AdvertisedVariable
 
    interface get_meta_model
       module procedure :: get_meta_model_from_generic_model
@@ -142,8 +157,9 @@ contains
 
    end subroutine setServices_
 
-   subroutine advertise(this, unusable, rc)
+   subroutine advertise(this, variables, unusable, rc)
       class(NuopcMetaModel), intent(inout) ::  this
+      type(AdvertisedVariable), allocatable, intent(out) :: variables(:)
       class(KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -575,5 +591,17 @@ contains
       _RETURN(_SUCCESS)
 
    end function get_name
+
+   function construct_advertised_variable(standardName, name, stateIntent) result(var)
+      type(AdvertisedVariable) :: var
+      character(len=*), intent(in) :: standardName
+      character(len=*), intent(in) :: name
+      type(ESMF_StateIntent_Flag), intent(in) :: stateIntent
+
+      var%standardName = standardName
+      var%name = name
+      var%stateIntent = stateIntent
+
+   end function construct_advertised_variable
 
 end module mapl_NuopcMetaModel_mod
