@@ -99,7 +99,32 @@ workflows:
           # This is usually built if we run the MAPL tests, but we don't usually do that
           # when building GEOSgcm. So we need to build it "extra"
           extra_buildtargets: "MAPL.extdata.tests"
-          persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
+          persist_workspace: false # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
+
+  build-GEOShs:
+    jobs:
+      # Build GEOShs
+      - ci/build:
+          name: build-GEOShs-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              # To save CircleCI resources, we build only with ifx for now
+              #compiler: [gfortran, ifx]
+              compiler: [ifx]
+          baselibs_version: *baselibs_version
+          repo: GEOShs
+          checkout_fixture: true
+          fixture_branch: release/MAPL-v3
+          mepodevelop: false
+          # MAPL3 GEOSgcm should have the right branches in its components.yaml
+          # so we do not need to checkout MAPL3 release branches
+          checkout_mapl3_release_branch: false
+          checkout_mapl_branch: true
+          run_regression_tests: true
+          ctest_options: "-L REGRESSION"
+          persist_workspace: false # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
       ######################################################
       # # Run GCM (1 hour, no ExtData)                     #

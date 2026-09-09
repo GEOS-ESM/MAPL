@@ -31,6 +31,14 @@ esma_add_library(${this}
   DEPENDENCIES MAPL ESMF::ESMF PFLOGGER::pflogger TYPE SHARED)
 
 
+install(
+  PROGRAMS extdata_dryrun_check.py
+  DESTINATION bin)
+
+# Also copy into the build tree so CTest can find the script alongside GEOS.x
+# (MY_BINARY_DIR in run_comp_tester.cmake points to ${CMAKE_BINARY_DIR}/bin).
+file(COPY extdata_dryrun_check.py DESTINATION ${CMAKE_BINARY_DIR}/bin)
+
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()

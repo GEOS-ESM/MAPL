@@ -428,29 +428,23 @@ contains
 
       character(len=*), parameter :: CLONE_TAG = '_clone'
       !type(ESMF_ArraySpec) :: arrayspec
-      type(ESMF_Grid) :: grid
-      type(ESMF_StaggerLoc) :: staggerloc
+      type(ESMF_Geom) :: geom
       integer, allocatable :: gridToFieldMap(:)
       integer, allocatable :: ungriddedLBound(:)
       integer, allocatable :: ungriddedUBound(:)
       type(ESMF_TypeKind_Flag) :: tk
       character(len=ESMF_MAXSTR) :: clone_name
       integer :: status
-      integer :: field_rank, grid_rank,ungrid_size
-      type(ESMF_Index_Flag) :: index_flag
-      real(kind=ESMF_KIND_R4), pointer      :: VR4_1D(:), VR4_2D(:,:), VR4_3D(:,:,:), VR4_4D(:,:,:,:)
-      real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
-      integer, allocatable :: lc(:)
+      integer :: field_rank, geom_rank, ungrid_size
       type(ESMF_Info) :: x_info, y_info
 
-      call ESMF_FieldGet(x,grid=grid,rank=field_rank,_RC)
-      lc = get_local_element_count(x,_RC)
-      call ESMF_GridGet(grid,dimCount=grid_rank,indexFlag=index_flag,_RC)
-      ungrid_size = field_rank-grid_rank
-      allocate(gridToFieldMap(grid_rank))
+      call ESMF_FieldGet(x, geom=geom, rank=field_rank, _RC)
+      call ESMF_GeomGet(geom, dimCount=geom_rank, _RC)
+      ungrid_size = field_rank - geom_rank
+      allocate(gridToFieldMap(geom_rank))
       allocate(ungriddedLBound(ungrid_size),ungriddedUBound(ungrid_size))
       call ESMF_FieldGet(x, typekind=tk, name=clone_name, &
-         staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
+         gridToFieldMap=gridToFieldMap, &
          ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound,  _RC)
 
       if (present(name)) then
@@ -459,39 +453,9 @@ contains
          clone_name = trim(clone_name) // CLONE_TAG
       end if
 
-      if (index_flag == ESMF_INDEX_USER) then
-         if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 1) then
-            allocate(VR4_1d(lc(1)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_1d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 1) then
-            allocate(VR8_1d(lc(1)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_1d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 2) then
-            allocate(VR4_2d(lc(1),lc(2)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_2d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 2) then
-            allocate(VR8_2d(lc(1),lc(2)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_2d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 3) then
-            allocate(VR4_3d(lc(1),lc(2),lc(3)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_3d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 3) then
-            allocate(VR8_3d(lc(1),lc(2),lc(3)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_3d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 4) then
-            allocate(VR4_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_4d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 4) then
-            allocate(VR8_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_4d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else
-            _FAIL( 'unsupported typekind+field_rank')
-         end if
-      else
-         y = ESMF_FieldCreate(grid, tk, staggerloc=staggerloc, &
-            gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
-            ungriddedUBound=ungriddedUBound, name=clone_name, _RC)
-      end if
+      y = ESMF_FieldCreate(geom, typekind=tk, &
+         gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
+         ungriddedUBound=ungriddedUBound, name=clone_name, _RC)
 
       ! clone metadata
       call ESMF_InfoGetFromHost(x, x_info, _RC)

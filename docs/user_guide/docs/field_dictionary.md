@@ -126,7 +126,7 @@ ln -s /path/to/install/etc/geos_field_dictionary.yaml geos_field_dictionary.yaml
 If `geos_field_dictionary.yaml` does not exist in the run directory, MAPL3 logs
 a warning and skips dictionary lookups.
 
-### Explicit configuration in cap.yaml
+### Explicit configuration in mapl.yaml
 
 ```yaml
 mapl:
@@ -284,7 +284,7 @@ You can use a custom dictionary instead of (or in addition to) the production
 - Overriding specific entries for a particular experiment
 
 ```yaml
-# cap.yaml
+# mapl.yaml
 mapl:
   field_dictionary:
     path: my_experiment_dictionary.yaml
@@ -331,11 +331,11 @@ The field's `standard_name` does not appear in the loaded dictionary. Options:
    `GEOS_FieldDictionary/geos_field_dictionary.yaml` and open a PR to
    `GEOS-ESM/GEOS_FieldDictionary`.
 3. **Use permissive mode**: If you intentionally want to skip validation,
-   set `validation_mode: permissive` in `cap.yaml`.
+   set `validation_mode: permissive` in `mapl.yaml`.
 
 ### Error: "Field dictionary not found at configured path" (explicit path)
 
-The file specified by the `path` key in `cap.yaml` does not exist. Either:
+The file specified by the `path` key in `mapl.yaml` does not exist. Either:
 
 - Fix the path, or symlink the file as described in Experiment Setup above.
 - Remove the `path:` key entirely to fall back to the default
@@ -345,7 +345,7 @@ The file specified by the `path` key in `cap.yaml` does not exist. Either:
 
 - Verify `geos_field_dictionary.yaml` (or the configured `path`) exists in the
   run directory.
-- Check `cap.yaml` for a `mapl: field_dictionary:` key; if absent, the default
+- Check `mapl.yaml` for a `mapl: field_dictionary:` key; if absent, the default
   path `geos_field_dictionary.yaml` in CWD is used.
 - Enable debug logging to see dictionary load messages.
 

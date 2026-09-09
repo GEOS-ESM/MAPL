@@ -2,6 +2,7 @@
 module mapl_field_bundle_api
 
    use ESMF, only: MAPL_FieldBundleAdd => ESMF_FieldBundleAdd
+   use mapl_FieldBundleClone_mod, only: MAPL_FieldBundleClone => FieldBundleClone
    use mapl_FieldBundleCopy_mod, only: MAPL_FieldBundleCopy => FieldBundleCopy
    use mapl_FieldBundleCreate_mod, only: MAPL_FieldBundleCreate => FieldBundleCreate
    use mapl_FieldBundleCreate_mod, only: MAPL_FieldBundlesAreAliased => FieldBundlesAreAliased
@@ -20,6 +21,7 @@ module mapl_field_bundle_api
    private
 
    public :: MAPL_FieldBundleAdd
+   public :: MAPL_FieldBundleClone
    public :: MAPL_FieldBundleCopy
    public :: MAPL_FieldBundleCreate
    public :: MAPL_FieldBundleDestroy
