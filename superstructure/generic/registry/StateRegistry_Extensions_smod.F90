@@ -39,26 +39,12 @@ contains
 
       integer :: status
       type(ExtensionFamily), pointer :: new_family
-      
+
       call this%add_virtual_pt(virtual_pt, _RC)
       new_family => this%family_map%at(virtual_pt, _RC)
-#ifndef __GFORTRAN__      
       new_family = family
-#else
-      call ridiculous(new_family, family)
-#endif
 
       _RETURN(_SUCCESS)
-
-#ifdef __GFORTRAN__      
-   contains
-
-      subroutine ridiculous(a, b)
-         type(ExtensionFamily), intent(out) :: a
-         type(ExtensionFamily), intent(in) :: b
-         a = b
-      end subroutine ridiculous
-#endif
 
    end subroutine add_family
 
@@ -74,7 +60,7 @@ contains
       call this%owned_items%push_back(spec)
       family = ExtensionFamily(this%owned_items%back())
       call this%add_family(virtual_pt, family, _RC)
-      
+
       _RETURN(_SUCCESS)
 
    end subroutine add_primary_spec
@@ -215,7 +201,7 @@ contains
 
           ! Leave commented code here.   This should be migrated to use pflogger in the future.
           ! Useful debugging point.
-          
+
 !#          block
 !#            type(StateItemSpec), pointer :: spec
 !#            spec => closest_extension
