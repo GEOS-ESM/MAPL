@@ -18,6 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_env v5.26.0
+    - Update to ESMA-Baselibs v8.33.0
+  - ESMA_cmake v4.46.0
+    - Updated `ifx` flags
+    - Better support for LLVM Flang on macOS
+    - Updates for MAPL3 work
+- Update CI to use Baselibs 8.33.0 and add `gfortran-16`
+
 ### Removed
 
 ### Deprecated
