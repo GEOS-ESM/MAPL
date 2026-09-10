@@ -11,6 +11,12 @@ project (
   VERSION 3.0.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
+# MAPL3 requires a newer ESMF than most GEOS components. ESMA_cmake
+# (via ConfigureBaselibs.cmake / ConfigureExternalLibraries.cmake) reads
+# this variable to determine the minimum ESMF version to require, so it
+# must be set before include(esma) below.
+set(ESMA_ESMF_MIN_VERSION 9.0.0)
+
 # Set the possible values of build type for cmake-gui
 set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
   "Debug" "Release" "Aggressive")
@@ -129,34 +135,6 @@ if (BUILD_WITH_PFLOGGER)
 endif()
 
 ecbuild_declare_project()
-
-if (NOT Baselibs_FOUND)
-  set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
-  find_package(MPI)
-
-  find_package(NetCDF REQUIRED C Fortran)
-  add_definitions(-DHAS_NETCDF4)
-  add_definitions(-DHAS_NETCDF3)
-  add_definitions(-DNETCDF_NEED_NF_MPIIO)
-  add_definitions(-DHAS_NETCDF3)
-
-  find_package(HDF5 REQUIRED)
-  if(HDF5_IS_PARALLEL)
-     add_definitions(-DH5_HAVE_PARALLEL)
-  endif()
-
-  if (NOT TARGET ESMF::ESMF)
-    find_package(ESMF 9.0.0 MODULE REQUIRED)
-    target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
-  endif ()
-else ()
-  # This is an ESMF version test when using Baselibs which doesn't use the
-  # same find_package internally in ESMA_cmake as used above (with a version
-  # number) so this lets us at least trap use of old Baselibs here.
-  if (ESMF_VERSION VERSION_LESS 9.0.0)
-    message(FATAL_ERROR "ESMF must be at least 9.0.0")
-  endif ()
-endif ()
 
 # This is a workaround for NAG issues with spack builds due to the way
 # spack sets modification times on files when using binary-caches
