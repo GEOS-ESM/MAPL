@@ -178,7 +178,6 @@ contains
       end block
       
       call MAPL_FieldBundleSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_ACTIVE, _RC)
-      _HERE
       _RETURN(_SUCCESS)
    end subroutine activate
 
@@ -192,11 +191,9 @@ contains
       integer :: i
       type(FieldClassAspect) :: tmp
 
-      _HERE, 'Bracket allocate', ' bracket_size = ', this%bracket_size
       block
         integer :: fieldCount
         call mapl_FieldBundleGet(this%payload, fieldCount=fieldCount,_RC)
-        _HERE, 'Bracket allocate', ' numFields = ', fieldCount
       end block
       associate (n => this%bracket_size)
         do i = 1, n
@@ -211,7 +208,6 @@ contains
       block
         integer :: fieldCount
         call mapl_FieldBundleGet(this%payload, fieldCount=fieldCount,_RC)
-        _HERE, 'Bracket allocate', ' numFields = ', fieldCount
         _ASSERT(fieldCount <=2, 'BracketClassAspect can only have 2 fields in the bundle')
       end block
 

@@ -10,7 +10,7 @@ module mapl_RestartHandler_mod
    use mapl_FieldInfo_mod, only: FieldInfoGetInternal
     use mapl_RestartModes_mod, only: RestartMode, operator(==), RESTART_SKIP
     use mapl_state_api, only: MAPL_StateGet
-    use mapl_field_bundle_api, only: MAPL_FieldBundleFilter
+    use mapl_field_bundle_api, only: MAPL_FieldBundleFilter, MAPL_FieldBundleGetGeom
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
     use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
     use pFIO, only: get_client, ClientThread
@@ -23,7 +23,6 @@ module mapl_RestartHandler_mod
 
    type :: RestartHandler
       private
-      type(ESMF_Geom) :: gridcomp_geom
       type(ESMF_Time) :: current_time
       class(logger), pointer :: lgr => null()
    contains
@@ -45,13 +44,11 @@ module mapl_RestartHandler_mod
 
 contains
 
-   function new_RestartHandler(gridcomp_geom, current_time, gridcomp_logger) result(restart_handler)
-      type(ESMF_Geom), intent(in) :: gridcomp_geom
+   function new_RestartHandler(current_time, gridcomp_logger) result(restart_handler)
       type(ESMF_Time), intent(in) :: current_time
       class(logger), pointer, optional, intent(in) :: gridcomp_logger
       type(RestartHandler) :: restart_handler ! result
 
-      restart_handler%gridcomp_geom = gridcomp_geom
       restart_handler%current_time = current_time
       restart_handler%lgr => logging%get_logger('mapl.restart')
       if (present(gridcomp_logger)) restart_handler%lgr => gridcomp_logger
@@ -104,18 +101,20 @@ contains
 
    subroutine write_bundle_(this, bundle, filename, rc)
       class(RestartHandler), intent(in) :: this
-      type(ESMF_FieldBundle), intent(in) :: bundle
+      type(ESMF_FieldBundle), intent(inout) :: bundle
       character(len=*), intent(in) :: filename
       integer, optional, intent(out) :: rc
 
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: writer
+      type(ESMF_Geom) :: geom
       integer :: status
       class(ClientThread), pointer :: o_client
 
-      metadata = bundle_to_metadata(bundle, this%gridcomp_geom, _RC)
+      geom = MAPL_FieldBundleGetGeom(bundle, _RC)
+      metadata = bundle_to_metadata(bundle, geom, _RC)
       allocate(writer, source=make_geom_pfio(metadata), _STAT)
-      call writer%initialize(metadata, this%gridcomp_geom, _RC)
+      call writer%initialize(metadata, geom, _RC)
       call writer%update_time_on_server(this%current_time, _RC)
       ! TODO: no-op if bundle is empty, or should we skip empty bundles?
       call writer%stage_coordinates_to_file(filename, _RC)
@@ -136,14 +135,16 @@ contains
       type(NetCDF4_FileFormatter) :: file_formatter
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: reader
+      type(ESMF_Geom) :: geom
       integer :: status
       class(ClientThread), pointer :: i_client
 
       call file_formatter%open(filename, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
       call file_formatter%close(_RC)
+      geom = MAPL_FieldBundleGetGeom(bundle, _RC)
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
-      call reader%initialize(filename, this%gridcomp_geom, _RC)
+      call reader%initialize(filename, geom, _RC)
       call reader%request_data_from_file(filename, bundle, _RC)
        i_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
       call i_client%done_collective_prefetch()

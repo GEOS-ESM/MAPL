@@ -373,10 +373,8 @@ contains
       cp_A = VirtualConnectionPt(state_intent='export', short_name='ae')
       cp_B = VirtualConnectionPt(state_intent='import', short_name='ai')
 
-      _HERE
       call r_a%add_primary_spec(cp_A, MockItemSpec(7, state_intent=ESMF_STATEINTENT_EXPORT, typekind=ESMF_TYPEKIND_R4, units='m'))
       call r_b%add_primary_spec(cp_B, MockItemSpec(7, state_intent=ESMF_STATEINTENT_IMPORT, typekind=ESMF_TYPEKIND_R8, units='m'))
-      _HERE
 
       conn = SimpleConnection(CP('child_A', cp_A), CP('child_B', cp_B))
       call conn%connect(r, _RC)
