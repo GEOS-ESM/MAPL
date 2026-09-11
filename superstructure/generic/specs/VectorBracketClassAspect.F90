@@ -59,6 +59,7 @@ module mapl_VectorBracketClassAspect_mod
 
    contains
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_transform
@@ -141,6 +142,16 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
+
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(VectorBracketClassAspect), intent(in) :: this
+
+      type(FieldClassAspect) :: placeholder
+      aspect_ids = placeholder%get_mandatory_aspect_ids()
+
+   end function get_mandatory_aspect_ids
+   
 
    subroutine create(this, other_aspects, rc)
       class(VectorBracketClassAspect), intent(inout) :: this

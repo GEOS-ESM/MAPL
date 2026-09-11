@@ -41,6 +41,7 @@
 module mapl_StateItemAspect_mod
    use iso_fortran_env, only: INT64
    use mapl_AspectId_mod
+   use mapl_AspectStatus_mod
    use mapl_ErrorHandling_mod
    use esmf, only: esmf_Field, esmf_FieldBundle, esmf_State
 
@@ -64,7 +65,8 @@ module mapl_StateItemAspect_mod
       private
       logical :: mirror = .false.
       logical :: time_dependent = .false.
-   contains
+      type(AspectStatus) :: characteristic_state = ASPECT_STATUS_INVALID
+    contains
       ! Subclass must define these
       procedure(I_matches), deferred :: matches
 
@@ -82,6 +84,12 @@ module mapl_StateItemAspect_mod
 
       procedure, non_overridable :: is_mirror
       procedure, non_overridable :: set_mirror
+      procedure, non_overridable :: get_characteristic_state
+      procedure, non_overridable :: set_characteristic_state
+      procedure, non_overridable :: is_from_component
+      procedure, non_overridable :: is_specified
+      procedure, non_overridable :: is_deferred_state
+      procedure, non_overridable :: is_unchecked
       procedure, non_overridable :: is_time_dependent
       procedure, non_overridable :: set_time_dependent
 
@@ -240,11 +248,54 @@ contains
       is_mirror = this%mirror
    end function is_mirror
 
-   subroutine set_mirror(this, mirror)
-      class(StateItemAspect), intent(inout) :: this
-      logical, optional, intent(in) :: mirror
-      if (present(mirror)) this%mirror = mirror
-   end subroutine set_mirror
+    subroutine set_mirror(this, mirror)
+       class(StateItemAspect), intent(inout) :: this
+       logical, optional, intent(in) :: mirror
+       if (.not. present(mirror)) return
+
+       if (mirror) then
+          call this%set_characteristic_state(ASPECT_STATUS_MIRRORED)
+       else if (this%characteristic_state == ASPECT_STATUS_DEFERRED) then
+          this%mirror = .false.
+       else
+          call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
+       end if
+    end subroutine set_mirror
+
+    function get_characteristic_state(this) result(characteristic_state)
+       class(StateItemAspect), intent(in) :: this
+       type(AspectStatus) :: characteristic_state
+
+       characteristic_state = this%characteristic_state
+    end function get_characteristic_state
+
+    subroutine set_characteristic_state(this, characteristic_state)
+       class(StateItemAspect), intent(inout) :: this
+       type(AspectStatus), intent(in) :: characteristic_state
+
+       this%characteristic_state = characteristic_state
+       this%mirror = characteristic_state == ASPECT_STATUS_MIRRORED
+    end subroutine set_characteristic_state
+
+    logical function is_from_component(this)
+       class(StateItemAspect), intent(in) :: this
+       is_from_component = this%characteristic_state == ASPECT_STATUS_FROM_COMP
+    end function is_from_component
+
+    logical function is_specified(this)
+       class(StateItemAspect), intent(in) :: this
+       is_specified = this%characteristic_state == ASPECT_STATUS_SPECIFIED
+    end function is_specified
+
+    logical function is_deferred_state(this)
+       class(StateItemAspect), intent(in) :: this
+       is_deferred_state = this%characteristic_state == ASPECT_STATUS_DEFERRED
+    end function is_deferred_state
+
+    logical function is_unchecked(this)
+       class(StateItemAspect), intent(in) :: this
+       is_unchecked = this%characteristic_state == ASPECT_STATUS_UNCHECKED
+    end function is_unchecked
 
    logical function is_time_dependent(this)
       class(StateItemAspect), intent(in) :: this
@@ -292,7 +343,3 @@ contains
 #undef Key
 #undef KEY_LT
 end module mapl_StateItemAspect_mod
-
-
-
-

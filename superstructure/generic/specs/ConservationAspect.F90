@@ -328,9 +328,6 @@ contains
       type(MAPL_ConservationType) :: ctype
 
       ctype = this%metadata%get_conservation_type()
-      _HERE, file, line, this%is_mirror()
-      _HERE, file, line, 'conservation_type:', ctype%to_string()
-      _HERE, file, line, 'is_conservable:', this%metadata%get_is_conservable()
 
       _RETURN(_SUCCESS)
    end subroutine print_aspect

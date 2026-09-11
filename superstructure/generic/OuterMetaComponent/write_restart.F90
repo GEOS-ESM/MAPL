@@ -43,11 +43,9 @@ contains
       call recurse_write_restart_(this, _RC)
       call this%run_custom(ESMF_METHOD_WRITERESTART, PHASE_NAME, _RC)
 
-      _RETURN_UNLESS(this%has_geom())
-
       driver => this%get_user_gc_driver()
       call ESMF_ClockGet(driver%get_clock(), currTime=current_time, _RC)
-      restart_handler = RestartHandler(this%get_geom(), current_time, this%get_logger())
+      restart_handler = RestartHandler(current_time, this%get_logger())
       states = driver%get_states()
 
       if (this%component_spec%misc%checkpoint_controls%get_import()) then

@@ -74,7 +74,8 @@ module mapl_StateRegistry_mod
 
       ! Actions on specs
       procedure :: allocate => allocate_items
-      procedure :: add_to_states
+       procedure :: add_to_states
+       procedure :: set_geometry
 
       procedure :: filter ! for MatchConnection
 
@@ -126,11 +127,18 @@ module mapl_StateRegistry_mod
       end subroutine write_formatted
 
       ! Hierarchy procedures
-      module subroutine add_subregistry(this, subregistry, rc)
+       module subroutine add_subregistry(this, subregistry, rc)
          class(StateRegistry), target, intent(inout) :: this
          class(StateRegistry), target, intent(in) :: subregistry
          integer, optional, intent(out) :: rc
-      end subroutine add_subregistry
+       end subroutine add_subregistry
+
+       module subroutine set_geometry(this, geom, vertical_grid, rc)
+          class(StateRegistry), target, intent(inout) :: this
+          type(ESMF_Geom), optional, intent(in) :: geom
+          class(VerticalGrid), optional, intent(in) :: vertical_grid
+          integer, optional, intent(out) :: rc
+       end subroutine set_geometry
 
       module function has_subregistry(this, name) result(has_sub)
          logical :: has_sub

@@ -58,6 +58,7 @@ module mapl_BracketClassAspect_mod
 
    contains
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_transform
@@ -119,7 +120,7 @@ contains
               QUANTITY_TYPE_ASPECT_ID, &
               CLASS_ASPECT_ID, &
               GEOM_ASPECT_ID &
-           ]
+              ]
       else
          aspect_ids = [ &
               ATTRIBUTES_ASPECT_ID, &
@@ -127,7 +128,7 @@ contains
               QUANTITY_TYPE_ASPECT_ID, &
               GEOM_ASPECT_ID, &
               CLASS_ASPECT_ID &
-           ]
+              ]
       end if
 
       _RETURN(_SUCCESS)
@@ -135,13 +136,22 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(BracketClassAspect), intent(in) :: this
+
+      type(FieldClassAspect) :: placeholder
+      aspect_ids = placeholder%get_mandatory_aspect_ids()
+
+   end function get_mandatory_aspect_ids
+
    subroutine create(this, other_aspects, rc)
       class(BracketClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
-     integer :: status
-     type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=MAPL_FIELDBUNDLETYPE_BRACKET, _RC)
 
@@ -158,8 +168,16 @@ contains
 
       integer :: status
 
+      block
+        use mapl_stateitemallocation_mod
+        type(StateItemAllocation) :: allocation_status
+        call mapl_FieldBundleGet(this%payload, allocation_status=allocation_status, _RC)
+        if (allocation_status == MAPL_STATEITEM_ALLOCATION_ALLOCATED) then
+           _FAIL('BracketClassAspect cannot be activated after allocation')
+        end if
+      end block
+      
       call MAPL_FieldBundleSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_ACTIVE, _RC)
-
       _RETURN(_SUCCESS)
    end subroutine activate
 
@@ -173,7 +191,10 @@ contains
       integer :: i
       type(FieldClassAspect) :: tmp
 
-
+      block
+        integer :: fieldCount
+        call mapl_FieldBundleGet(this%payload, fieldCount=fieldCount,_RC)
+      end block
       associate (n => this%bracket_size)
         do i = 1, n
            tmp = this%field_aspect
@@ -184,6 +205,11 @@ contains
            call tmp%add_to_bundle(this%payload, _RC)
         end do
       end associate
+      block
+        integer :: fieldCount
+        call mapl_FieldBundleGet(this%payload, fieldCount=fieldCount,_RC)
+        _ASSERT(fieldCount <=2, 'BracketClassAspect can only have 2 fields in the bundle')
+      end block
 
       _RETURN(_SUCCESS)
 
@@ -225,7 +251,7 @@ contains
 
    end subroutine update_payload
 
-  subroutine destroy(this, rc)
+   subroutine destroy(this, rc)
       class(BracketClassAspect), intent(inout) :: this
       integer, optional, intent(out) :: rc
 

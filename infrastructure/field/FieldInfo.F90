@@ -11,7 +11,7 @@ module mapl_FieldInfo_mod
       & KEY_ALLOCATION_STATUS, KEY_QUANTITY_TYPE_METADATA, &
       & KEY_NORMALIZATION_METADATA, KEY_CONSERVATION_METADATA, &
       & KEY_REGRIDDER_PARAM,  KEY_UNDEF_VALUE, KEY_MISSING_VALUE, &
-      & KEY_FILL_VALUE, KEY_RESTART_MODE, KEY_HAS_DEFERRED_ASPECTS, DELIMITER
+      & KEY_FILL_VALUE, KEY_RESTART_MODE, DELIMITER
    use mapl_InfoUtilities_mod
    use mapl_vertical_grid_api, only: mapl_VerticalGrid, MAPL_VERTICAL_GRID_NOT_FOUND, mapl_VerticalGridManager, mapl_get_vertical_grid_manager
    use mapl_UngriddedDims_mod
@@ -74,7 +74,6 @@ contains
         conservation_metadata, &
         units, long_name, standard_name, &
         allocation_status, &
-        has_deferred_aspects, &
         regridder_param_info, &
         rc)
       type(ESMF_Info), intent(inout) :: info
@@ -93,7 +92,6 @@ contains
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
       type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
-      logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
@@ -174,10 +172,6 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status%to_string(), _RC)
       end if
 
-      if (present(has_deferred_aspects)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_HAS_DEFERRED_ASPECTS, has_deferred_aspects, _RC)
-      end if
-
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -194,7 +188,6 @@ contains
         normalization_metadata, &
         conservation_metadata, &
         allocation_status, &
-        has_deferred_aspects, &
         regridder_param_info, &
         rc)
       type(ESMF_Info), intent(in) :: info
@@ -216,7 +209,6 @@ contains
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
       type(ConservationMetadata), optional, intent(out) :: conservation_metadata
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
-      logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
@@ -335,11 +327,6 @@ contains
       if (present(allocation_status)) then
          call MAPL_InfoGet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status_str, _RC)
          allocation_status = MAPL_StateItemAllocation(allocation_status_str)
-      end if
-
-      if (present(has_deferred_aspects)) then
-         call esmf_InfoGet(info, key=namespace_ // KEY_HAS_DEFERRED_ASPECTS, &
-              value=has_deferred_aspects, default=.false., _RC)
       end if
 
      _RETURN(_SUCCESS)

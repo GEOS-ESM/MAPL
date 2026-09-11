@@ -35,7 +35,7 @@ contains
       integer :: status
 
       call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, run, phase_name="run", _RC)
-      call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_modify_advertised, phase_name='GENERIC::INIT_MODIFY_ADVERTISED', _RC)
+      call MAPL_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, init_realize_provided, phase_name='GENERIC::INIT_REALIZE_PROVIDED', _RC)
 
       resolved = .false.
 
@@ -43,7 +43,7 @@ contains
    end subroutine setservices
 
    
-   subroutine init_modify_advertised(gc, importState, exportState, clock, rc)
+   subroutine init_realize_provided(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -57,7 +57,7 @@ contains
       call step_B(gc, importState, exportState, clock, _RC)
       resolved = .true.
       _RETURN(_SUCCESS)
-   end subroutine init_modify_advertised
+   end subroutine init_realize_provided
 
    subroutine step_A(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
