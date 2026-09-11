@@ -186,7 +186,7 @@ contains
         clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
 
         config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
-        outer_gc = ESMF_GridCompCreate(name='ROOT', config=config_cf, _RC)
+        outer_gc = ESMF_GridCompCreate(name='ROOT', config=config_cf, contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
         call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetservices, userRC=user_status, _RC)
         _VERIFY(user_status)
 
@@ -369,7 +369,7 @@ contains
       function itemtype_to_string(itemtype) result(s)
          character(:), allocatable :: s
          type(ESMF_StateItem_Flag), intent(in) :: itemtype
-         
+
          if (itemtype == ESMF_STATEITEM_FIELD) then
             s = 'field'
          else if (itemtype == ESMF_STATEITEM_FIELDBUNDLE) then
