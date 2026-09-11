@@ -26,9 +26,6 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::WRITE_RESTART'
       type(GriddedComponentDriver), pointer :: driver
       type(MultiState) :: states
-      type(RestartHandler) :: restart_handler_import
-      type(RestartHandler) :: restart_handler_internal
-      type(RestartHandler) :: restart_handler_export
       type(RestartHandler) :: restart_handler
       integer :: status
       integer :: current_phase
