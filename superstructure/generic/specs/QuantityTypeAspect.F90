@@ -492,7 +492,6 @@ contains
 
       if (allocated(this%dimensions)) then
       end if
-      _HERE, file, line, 'basis:', this%basis%to_string()
 
       _RETURN(_SUCCESS)
    end subroutine print_aspect

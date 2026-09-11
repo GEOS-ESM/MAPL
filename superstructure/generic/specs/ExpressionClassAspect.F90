@@ -375,7 +375,6 @@ contains
 
 !#      select type(dst)
 !#      class is (FieldClassAspect)
-!#         _HERE
 !#         matches = .true.
 !#      end select
 

@@ -99,11 +99,8 @@ contains
 !#      call mapl_StateGetPointer(importState, X, 'X', _RC)
 !#      call mapl_StateGetPointer(exportState, avg_X, 'avg_X', _RC)
 !#
-!#      _HERE
 !#      X = 1
-!#      _HERE
 !#      avg_X = 2
-!#      _HERE
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run
