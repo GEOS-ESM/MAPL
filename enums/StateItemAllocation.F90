@@ -27,7 +27,7 @@ module mapl_StateItemAllocation_mod
    type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_CREATED = StateItemAllocation(0)
    type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_INACTIVE = StateItemAllocation(1)
    type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_ACTIVE = StateItemAllocation(2)
-   type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_ALLOCATED = StateItemAllocation(4)
+   type(StateItemAllocation), parameter :: STATEITEM_ALLOCATION_ALLOCATED = StateItemAllocation(3)
    
    interface operator(==)
       procedure equal
