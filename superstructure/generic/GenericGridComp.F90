@@ -74,7 +74,8 @@ contains
          call ESMF_GridCompGet(gridcomp, name=name, _RC)
          call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
 
-         user_gridcomp = ESMF_GridCompCreate(name=trim(name), _RC)
+         user_gridcomp = ESMF_GridCompCreate(name=trim(name), &
+               contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
          call set_is_generic(user_gridcomp, .false., _RC)
          user_gc_driver = GriddedComponentDriver(user_gridcomp)
          call set_is_generic(gridcomp, _RC)
