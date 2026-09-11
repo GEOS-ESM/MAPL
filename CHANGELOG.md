@@ -18,7 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
 
 ### Changed
+
 - Reworked MAPL phases to better align with NUOPC phases.
+- Simplified the `CMakeLists.txt` ESMF handling: `ESMA_cmake` now creates the NetCDF/HDF5/ESMF/MPI targets and enforces a minimum ESMF version for both Baselibs and Spack builds automatically, so the manual `if (NOT Baselibs_FOUND) ... else () ... endif ()` block is no longer needed. MAPL3's stricter ESMF >= 9.0.0 requirement is now expressed by setting `ESMA_ESMF_MIN_VERSION` before `include(esma)`.
+  - Update `components.yaml`
+    - ESMA_env v5.26.0
+    - ESMA_cmake v4.46.0
+    - ecbuild geos/v3.15.2
 - Split cap.yaml into mapl.yaml, cap_driver.yaml, and cap_gridcomp.yaml (see issue #5355)
 - Renamed `model_petcount`/`has_model_petcount` to `app_petcount`/`has_app_petcount`
   throughout the codebase, config files, and documentation

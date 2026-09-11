@@ -15,5 +15,6 @@ set_tests_properties(MAPL.mapl.server_utilities PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(build-tests MAPL.mapl.server_utilities)
 
 if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
-  set_tests_properties(MAPL.mapl.server_utilities PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+  list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
 endif()
+set_property(TEST MAPL.mapl.server_utilities PROPERTY ENVIRONMENT "${TEST_ENV}")

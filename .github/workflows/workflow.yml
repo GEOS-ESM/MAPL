@@ -28,7 +28,7 @@ jobs:
   #   if: github.event.pull_request.draft == false                                    #
   #   runs-on: ubuntu-latest                                                          #
   #   container:                                                                      #
-  #     image: gmao/ubuntu24-geos-env-mkl:v8.32.0-openmpi_5.0.5-gcc_14.2.0            #
+  #     image: gmao/ubuntu24-geos-env-mkl:v8.33.0-openmpi_5.0.5-gcc_14.2.0            #
   #   strategy:                                                                       #
   #     fail-fast: false                                                              #
   #     matrix:                                                                       #
@@ -59,7 +59,38 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env-mkl:v8.32.0-openmpi_5.0.5-gcc_15.2.0
+      image: gmao/ubuntu24-geos-env-mkl:v8.33.0-openmpi_5.0.5-gcc_15.2.0
+    strategy:
+      fail-fast: false
+      matrix:
+        cmake-build-type: [Debug, Release]
+        cmake-generator: [Unix Makefiles]
+    env:
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
+
+      - name: Build and Test MAPL
+        uses: ./.github/actions/ci-build-and-test-mapl
+        with:
+          cmake-build-type: ${{ matrix.cmake-build-type }}
+          cmake-generator: ${{ matrix.cmake-generator }}
+          fortran-compiler: gfortran
+          extra-cmake-args: -DMPIEXEC_PREFLAGS='--oversubscribe'
+
+  build_test_mapl_gnu16:
+    name: gfortran-16 / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    container:
+      image: gmao/ubuntu24-geos-env-mkl:v8.33.0-openmpi_5.0.11rc1-gcc_16.2.0
     strategy:
       fail-fast: false
       matrix:
@@ -90,7 +121,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.32.0-intelmpi_2021.13-ifort_2021.13
+      image: gmao/ubuntu24-geos-env:v8.33.0-intelmpi_2021.13-ifort_2021.13
     strategy:
       fail-fast: false
       matrix:
@@ -116,7 +147,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.32.0-intelmpi_2021.17-ifx_2025.3
+      image: gmao/ubuntu24-geos-env:v8.33.0-intelmpi_2021.17-ifx_2025.3
     strategy:
       fail-fast: false
       matrix:
@@ -142,7 +173,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.32.0-intelmpi_2021.13-ifort_2021.13
+      image: gmao/ubuntu24-geos-env:v8.33.0-intelmpi_2021.13-ifort_2021.13
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -165,7 +196,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ifort, ifx, gfortran-14, gfortran-15]
+        compiler: [ifort, ifx, gfortran-15, gfortran-16]
         build-type: [Debug]
     uses: GEOS-ESM/CI-workflows/.github/workflows/geosgcm_build_tests.yml@project/geosgcm
     with:
