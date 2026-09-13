@@ -830,3 +830,297 @@ Build an ExtData input server that can eventually use extra node-local reader PE
   - Consider whether 2 cache slots is optimal for the interpolation path (current=2, future-left+right=2 total = 4 unique slabs per timestep → 2 slots may evict too aggressively at the day-change boundary)
   - Cluster verification: run the benchmark on the actual cluster where `node_size` > 1 and multiple model nodes exist
   - If needed: increase `ASYNC_INPUT_NUM_CACHE_SLOTS` to 4 to match the 4 unique slabs in the interpolation access pattern
+
+### Test Handoff (2026-09-11)
+
+#### Clean NAG Build Verification
+- The existing `nag` build reproduced a PFIO runtime failure in
+  `pfio/BaseThread.F90:84`:
+  - `Invalid reference to procedure INSERT_REQUESTHANDLE - Subroutine called as a INTEGER(int32) function`
+- Source inspection confirmed that `insert_RequestHandle` is declared as a
+  subroutine and all current call sites invoke it with `call`.
+- The failure was caused by stale generated/compiler artifacts in the existing
+  build tree, not by a current source-level mismatch.
+- A fresh build directory, `nag-clean`, was configured and built with the
+  `nag-stack` module using NAG 7.2.43.
+- Tests were explicitly built with the `build-tests` target.
+
+#### Passing Verification
+- Focused PFIO/unit selection passed 4/4:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01`
+- Async PFIO component regression cases passed 5/5:
+  - `MAPL3G_Comp_Test_pfio_case01`
+  - `MAPL3G_Comp_Test_pfio_case02`
+  - `MAPL3G_Comp_Test_pfio_case03`
+  - `MAPL3G_Comp_Test_pfio_case04`
+  - `MAPL3G_Comp_Test_pfio_case05`
+- Reproduction/build commands:
+  ```bash
+  module load nag-stack
+  /Users/wjiang/.linuxbrew/Homebrew/bin/cmake -S . -B nag-clean -DCMAKE_BUILD_TYPE=Debug
+  /Users/wjiang/.linuxbrew/Homebrew/bin/cmake --build nag-clean -j 8 --target build-tests
+  ctest --test-dir nag-clean -R 'MAPL3G_Comp_Test_pfio_case0[1-5]' --output-on-failure
+  ```
+- No source files were changed during this verification. The pre-existing
+  `gridcomps/extdata/DataSetNode.F90` worktree modification was left intact.
+- Continue using `nag-clean` or another clean NAG build for validation; do not
+  rely on the stale `nag` tree until it is cleaned/reconfigured.
+
+### Step 9 Multi-Worker Handoff (2026-09-11)
+
+#### Implemented
+- `pfio/AsyncInputServer.F90` now supports one reader captain plus multiple
+  reader workers instead of hardcoding all work to `reader_comm` rank 1.
+- The captain maintains:
+  - per-worker busy state, command, model/server source rank, and file name
+  - a pending request queue containing both current and next-prefetch work
+  - an active-read table mapping each file currently being read to its worker
+- A second request for a file already present in the active-read table remains
+  pending. The active record is removed only after the worker completion is
+  received.
+- The captain polls completion from `MPI_ANY_SOURCE`, routes current-read
+  results to the originating model/server rank, and then marks that worker
+  idle.
+- Before the payload is returned, the captain sends the selected worker's
+  server-communicator rank back to the model-facing server loop. This is the
+  first protocol step needed for the Step 10 model/worker shared-memory path.
+- Reader communicator local ranks and server/global ranks are kept separate:
+  `reader_global_ranks(:)` is gathered over `reader_comm` and indexed by
+  reader-local rank.
+- Shutdown now sends `ASYNC_INPUT_CMD_TERMINATE` to every worker rank, not only
+  reader rank 1.
+
+#### Multi-Worker Regression Shape
+- PFIO case05 (`case49`) now launches 4 MPI processes:
+  - 1 model PET
+  - 1 reader captain
+  - 2 reader workers
+- It now generates and reads two distinct daily file families:
+  - `test_YYYYMMDD.nc4`
+  - `test_b_YYYYMMDD.nc4`
+- Its expected file-read log includes all six files across the two families.
+- Verbose output confirmed simultaneous dispatch to both workers, for example:
+  - `worker_rank=1 file=test_20040416.nc4`
+  - `worker_rank=2 file=test_b_20040416.nc4`
+- Completion logging confirmed both active-read records were removed only when
+  their workers completed.
+
+#### Final Verification
+- Clean `nag-stack` build completed with `build-tests`.
+- Focused final test selection passed 8/8:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- Two-worker case05 also passed separately with the benchmark-only
+  `MAPL_PERF_READER_SLEEP_SEC=0.2` delay.
+- Logs are saved in `nag-clean/`:
+  - `step9-final-build.log`
+  - `step9-final-tests.log`
+  - `step9-two-worker-distinct.log`
+
+#### Resume Point
+- Step 9 is implemented and passing.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.
+
+### Step 10 Shared-Memory Handoff (2026-09-13)
+
+#### Implemented
+- Each model rank allocates one fixed shared-memory mailbox per reader worker
+  with `MPI_Win_allocate_shared` on `node_comm`.
+- The captain still sends the selected worker's server rank to the requesting
+  model rank, but no longer relays result payloads.
+- A worker now writes the local result slice directly into the requesting
+  model rank's mailbox, publishes a ready flag with `MPI_Win_sync`, and reports
+  completion to the captain without waiting for model consumption.
+- The model waits on that mailbox's flag, copies the result, and marks the
+  mailbox empty. A worker waits for an empty mailbox before reuse, preventing
+  overwrite of an unconsumed result.
+- `MAPL_ASYNC_INPUT_SHMEM_WORDS` optionally controls each mailbox's integer-word
+  capacity; the default is 4,194,304 words. Oversized results fail with a clear
+  message rather than corrupting adjacent storage.
+- The captain now retains a file-to-worker ownership table for its lifetime.
+  Once a file is first assigned, every later request for that file waits for
+  and returns to the same worker, preserving worker-local cache ownership.
+- Cache-only next-prefetch requests continue to report completion without
+  publishing a payload.
+
+#### Verification
+- Clean `nag-stack` `nag-clean` build and `build-tests` target passed.
+- Focused selection passed 8/8:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- The four-rank case05 regression passed both normally and with
+  `MAPL_PERF_READER_SLEEP_SEC=0.2`.
+- The delayed run dispatched the two distinct future files concurrently to
+  worker ranks 1 and 2, completed cleanly, and retained the expected science
+  and file-read checks.
+- Logs are saved in `nag-clean/`:
+  - `step10-build-tests.log`
+  - `step10-focused-tests.log`
+  - `step10-two-worker.log`
+  - `step10-two-worker-slow.log`
+
+#### Resume Point
+- Step 10 is implemented and passing locally.
+- The shared transport currently uses fixed-size per-model/per-worker
+  mailboxes. Cluster workloads whose local slices exceed the default must set
+  `MAPL_ASYNC_INPUT_SHMEM_WORDS` higher.
+- The temporary `AsyncInputServer dispatch` and `AsyncInputServer complete`
+  lines remain useful for cluster ownership verification and can be reduced
+  after that run.
+- Next planned implementation is Step 11's captain-side warm-key tracking;
+  do not add a synchronous worker probe.
+
+### Step 11 Captain-Side Warm Reads (2026-09-13)
+
+#### Implemented
+- Workers now mirror each valid cache slot into their own node-shared window
+  segment and return the slot index with their existing asynchronous completion
+  notification.
+- The captain tracks the complete cache key, owning worker, and worker cache
+  slot only after receiving that completion. Reuse therefore requires no
+  synchronous worker query.
+- A current request matching a completed warm key is served by the captain
+  directly from the worker's shared cache image. The captain extracts the
+  requesting rank's local slice and publishes it through the Step 10 model
+  mailbox without dispatching a new worker request.
+- Warm metadata is replaced whenever a worker reuses a cache slot, preventing
+  stale keys from referencing overwritten shared data.
+- Warm reads are deferred while their owning worker is busy, so the shared
+  cache image cannot be read while that worker may be replacing the slot.
+- Added the shutdown diagnostic `AsyncInputServer captain cache: warm_hits=`.
+
+#### Verification
+- Clean `nag-stack` build and `build-tests` target passed in `nag-clean`.
+- Focused regression selection passed 8/8:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- Verbose rolling case03 (`case47`) passed and reported
+  `AsyncInputServer captain cache: warm_hits=1`, demonstrating a current read
+  was served without another worker dispatch.
+- Logs are saved in `nag-clean/`:
+  - `step11-final-build.log`
+  - `step11-final-tests.log`
+  - `step11-case47-verbose.log`
+
+#### Resume Point
+- Step 11 is implemented and passing locally.
+- Step 12 is next: make the cache-slot count configurable. The new shared
+  worker cache layout must use that same configured count when implemented.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.
+
+### Step 12 Configurable Cache Slots (2026-09-13)
+
+#### Implemented
+- Replaced the fixed-size two-element worker cache with an allocatable cache
+  sized during `AsyncInputServer` construction.
+- Added `MAPL_ASYNC_INPUT_CACHE_SLOTS`; unset, invalid, and non-positive values
+  use the existing default of two slots.
+- The Step 11 worker shared-cache mirror now allocates and indexes the same
+  runtime slot count, keeping captain-side warm-key metadata consistent with
+  worker eviction.
+- Reader shutdown diagnostics now include `slots=` so test logs show the
+  effective configuration.
+
+#### Verification
+- Clean `nag-stack` build and `build-tests` target passed in `nag-clean`.
+- The default focused regression selection passed 8/8:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- Case48 passed with both `MAPL_ASYNC_INPUT_CACHE_SLOTS=2` and `=4`; logs
+  confirmed the requested effective slot counts.
+- Both case48 runs reported `hits=12 misses=2 requests=14`. This workload has
+  only two unique resident slabs per worker after Step 11, so increasing to
+  four slots does not improve its already-minimal compulsory-miss count.
+- Multi-worker case49 also passed with four slots.
+- Logs are saved in `nag-clean/`:
+  - `step12-final-build.log`
+  - `step12-default-tests.log`
+  - `step12-case48-slots2.log`
+  - `step12-case48-slots4.log`
+  - `step12-case49-slots4.log`
+
+#### Resume Point
+- Step 12 is implemented and passing locally.
+- A workload with more than two reusable slabs per worker is needed to measure
+  a hit-rate improvement from four slots; current case48 proves configuration
+  and correctness but not a performance difference.
+- Step 13 is next.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.
+
+### Step 13 Selector-Aware Lookahead (2026-09-13)
+
+#### Implemented
+- Added `preview_bracket` as a deferred operation on
+  `AbstractDataSetFileSelector`; both non-climatological and climatological
+  selectors already provide non-mutating implementations.
+- `PrimaryExport` now invokes `preview_bracket(next_time, ...)` polymorphically
+  for both interpolation and no-interpolation exports.
+- Removed the no-interpolation shortcut that treated the current right bracket
+  node as the lookahead request. Current right-node reads remain normal reads
+  for interpolation, while no-interpolation lookahead comes exclusively from
+  the selector preview at `current_time + dt`.
+- Existing selector state and the live bracket remain unchanged because the
+  preview operates on a copied bracket and does not update `last_updated` or
+  swap field data.
+- Updated PFIO case03 (`case47`) to use an irregular 2.5-hour model timestep.
+
+#### Verification
+- Clean `nag-stack` `build-tests` build passed in `nag-clean`.
+- Irregular-timestep case47 passed and selected preview indices 2, 4, and 7
+  for next times 02:30, 05:00, and 07:30. These differ from the old current
+  right-node sequence and verify that the explicit selector preview is used.
+- The generated file-read log still contains only `test.20040103.nc4` and has
+  the expected final run time of `2004-01-03T07:30:00`.
+- Logs are saved in `nag-clean/step13-build-tests.log` and
+  `nag-clean/step13-irregular-case47.log`.
+
+#### Resume Point
+- Step 13 is implemented and the focused irregular-timestep regression passes.
+- Run the broader PFIO case01-case05 selection after any further selector or
+  prefetch changes.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.
+
+### Step 14 Multi-Worker Shutdown (2026-09-13)
+
+#### Implemented
+- Model rank zero now sends the server-level termination command only to the
+  reader captain. The captain owns worker lifecycle and broadcasts
+  `ASYNC_INPUT_CMD_TERMINATE` to every worker rank in `reader_comm` after
+  draining active and pending requests.
+- Each worker now acknowledges termination on `reader_comm` before leaving its
+  service loop.
+- The captain waits for every worker acknowledgment before freeing runtime
+  state and the shared-memory window. This prevents collective cleanup from
+  racing a worker that has not yet exited.
+
+#### Verification
+- Clean `nag-stack` `build-tests` build passed in `nag-clean`.
+- Focused regression selection passed 8/8, including PFIO case01-case05 and
+  the standalone captain/worker lifecycle test.
+- Four-rank case05, with one captain and two workers, passed with
+  `MAPL_PERF_READER_SLEEP_SEC=0.2`; both workers completed outstanding work,
+  acknowledged shutdown, and finalized without a hang or `MPI_Abort`.
+- Logs are saved in `nag-clean/step14-build-tests.log`,
+  `nag-clean/step14-focused-tests.log`, and
+  `nag-clean/step14-two-worker-shutdown.log`.
+
+#### Resume Point
+- Step 14 is implemented and passing locally.
+- Step 15 cluster verification remains.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.

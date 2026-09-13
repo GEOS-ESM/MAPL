@@ -317,15 +317,16 @@ module mapl_PrimaryExport_mod
           call lgr%info("updating %a", this%export_var)
            call node%write_node(lgr) !  bmaa
            call node%get_file(filename)
-           ! In the no-interpolation path, the current bracket's right node is the
-           ! dataset that will become current after the next bracket roll, so we
-           ! can treat this update as a one-step lookahead prefetch.
+           if (.not. this%bracket%uses_time_interpolation()) then
+              _RETURN(_SUCCESS)
+           end if
            do i=1,this%file_vars%size()
               variable_name => this%file_vars%at(i)
               call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, &
                    prefetch_only=(.not. this%bracket%uses_time_interpolation()), _RC)
            enddo
-       else if (right_node%get_enabled() .and. (.not. (right_node == left_node))) then
+        else if (this%bracket%uses_time_interpolation() .and. right_node%get_enabled() .and. &
+             (.not. (right_node == left_node))) then
           call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
           call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
           time_index = right_node%get_time_index()
@@ -356,17 +357,8 @@ module mapl_PrimaryExport_mod
       character(len=:), pointer :: variable_name
       integer :: status, i, time_index
 
-      _RETURN_UNLESS(this%bracket%uses_time_interpolation())
-
-      future_bracket = this%bracket
-      select type (selector => this%file_selector)
-      type is (NonClimDataSetFileSelector)
-         call selector%preview_bracket(next_time, future_bracket, _RC)
-      type is (ClimDataSetFileSelector)
-         call selector%preview_bracket(next_time, future_bracket, _RC)
-      class default
-         _RETURN(_SUCCESS)
-      end select
+       future_bracket = this%bracket
+       call this%file_selector%preview_bracket(next_time, future_bracket, _RC)
 
       future_left = future_bracket%get_left_node(_RC)
       _RETURN_UNLESS(future_left%get_enabled())
@@ -401,17 +393,10 @@ module mapl_PrimaryExport_mod
       character(len=:), pointer :: variable_name
       integer :: status, i, time_index, list_start
 
-      _RETURN_UNLESS(this%bracket%uses_time_interpolation())
+       _RETURN_UNLESS(this%bracket%uses_time_interpolation())
 
-      future_bracket = this%bracket
-      select type (selector => this%file_selector)
-      type is (NonClimDataSetFileSelector)
-         call selector%preview_bracket(next_time, future_bracket, _RC)
-      type is (ClimDataSetFileSelector)
-         call selector%preview_bracket(next_time, future_bracket, _RC)
-      class default
-         _RETURN(_SUCCESS)
-      end select
+       future_bracket = this%bracket
+       call this%file_selector%preview_bracket(next_time, future_bracket, _RC)
 
       future_left = future_bracket%get_left_node(_RC)
       future_right = future_bracket%get_right_node(_RC)

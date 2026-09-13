@@ -188,7 +188,8 @@ contains
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
          call export_item%append_state_to_reader(exportState, reader, lgr, _RC)
-         if (can_prefetch_next .or. export_item%bracket%uses_time_interpolation()) then
+          if (trim(extdata_gridcomp%input_server_name) == 'async_input_server' .and. &
+               (can_prefetch_next .or. export_item%bracket%uses_time_interpolation())) then
             call export_item%append_future_left_to_reader(exportState, next_time, prefetch_left_reader, lgr, _RC)
             call export_item%append_future_right_to_reader(exportState, next_time, prefetch_right_reader, lgr, _RC)
          end if
