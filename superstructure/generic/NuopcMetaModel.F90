@@ -2,7 +2,7 @@
 
 module mapl_NuopcMetaModel_mod
    use esmf
-   use NUOPC, only: NUOPC_CompSearchRevPhaseMap, NUOPC_Advertise
+   use NUOPC, only: NUOPC_Advertise
    use NUOPC_Model, only: NUOPC_ModelGet
    use mapl_MethodPhasesMap_mod
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
@@ -21,6 +21,21 @@ module mapl_NuopcMetaModel_mod
    use gFTL2_StringVector
    use mapl_SimpleAlarm_mod
    use mapl_ComponentSpecParser_mod
+   ! NUOPC label_Advertise phases
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_SET_CLOCK, MAPL_GENERIC_INIT_ADVERTISE
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_GEOM_A, MAPL_GENERIC_INIT_GEOM_B
+   ! NUOPC label_ModifyAdvertise phases
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
+   ! NUOPC label_RealizeProvided phases
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_REALIZE, MAPL_GENERIC_INIT_READ_RESTART
+   ! MAPL Internal phases
+   use mapl_enums_api, only: MAPL_GENERIC_INTERNAL_READ_RESTART, MAPL_GENERIC_INTERNAL_WRITE_RESTART
+   ! NUOPC label_Advance
+   use mapl_enums_api, only: MAPL_GENERIC_RUN_USER
+   ! NUOPC label_AdvanceClock
+   use mapl_enums_api, only: MAPL_GENERIC_RUN_CLOCK_ADVANCE
+   ! NUOPC label_Finalize
+   use mapl_enums_api, only: MAPL_GENERIC_FINALIZE_USER
 
    implicit none(type,external)
    private
@@ -51,7 +66,9 @@ module mapl_NuopcMetaModel_mod
       procedure :: run_custom
       procedure :: start_timer
       procedure :: stop_timer
-      procedure :: get_name
+      procedure, private :: get_name
+      procedure, private :: get_state
+      procedure, private :: get_offer
       ! Init phases
       !------------
       ! label_Advertise
@@ -59,11 +76,11 @@ module mapl_NuopcMetaModel_mod
       procedure :: advertise_geom_a
       procedure :: advertise_geom_b
       procedure :: advertise_variable
-      !label_ModifyAdvertise
+      ! label_ModifyAdvertise
       procedure :: modify_advertise
-      !label_RealizeAccept
+      ! label_RealizeAccept
       procedure :: realize_accept
-      !label_RealizeProvided
+      ! label_RealizeProvided
       procedure :: realize_provided
       ! label_DataInitialize
       procedure :: data_initialize
@@ -74,35 +91,26 @@ module mapl_NuopcMetaModel_mod
       !------------
       ! label_Advance
       procedure :: advance => advance_
-      ! label_WriteRestart
-      procedure :: write_restart
       ! label_AdvanceClock
       procedure :: advance_clock
-
       ! Finalize phases
       !----------------
       ! label_Finalize
       procedure :: finalize
+
+      ! No NUOPC semantic label
+      procedure :: write_restart
    end type NuopcMetaModel
 
    type :: AdvertisedVariable
-      private
       character(len=:), allocatable :: standardName
       character(len=:), allocatable :: name
       type(ESMF_StateIntent_Flag) :: stateIntent
-   contains
-      procedure :: get_standard_name
-      procedure :: get_name
-      procedure :: get_state_intent
    end type AdvertisedVariable
 
    interface NuopcMetaModel
       module procedure :: construct_meta_model
    end interface NuopcMetaModel
-
-   interface AdvertisedVariable
-      module procedure :: construct_advertised_variable
-   end interface AdvertisedVariable
 
    interface get_meta_model
       module procedure :: get_meta_model_from_generic_model
@@ -157,15 +165,14 @@ contains
 
    end subroutine setServices_
 
-   subroutine advertise(this, variables, unusable, rc)
+   subroutine advertise(this, unusable, rc)
       class(NuopcMetaModel), intent(inout) ::  this
-      type(AdvertisedVariable), allocatable, intent(out) :: variables(:)
       class(KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-
       integer :: status
 
       ! Extra MAPL phases
+      ! call this%set_clock !wdb fixme deleteme 
       call this%advertise_geom_a()
       call this%advertise_geom_b()
       
@@ -179,7 +186,6 @@ contains
       class(NuopcMetaModel), intent(inout) ::  this
       class(KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-
       integer :: status
       type(VariableSpecVectorIterator) :: iter
       type(VariableSpec), pointer :: var_spec
@@ -205,33 +211,32 @@ contains
       integer :: status
       type(ESMF_State) :: state
 
-      call get_state(var_spec%state_intent, this%self_model, state, _RC)
+      state = this%get_state(var_spec%state_intent, _RC)
+      offer = get_transfer_offer(var_spec%state_intent, _RC)
       call NUOPC_Advertise(state, standardName=var_spec%standard_name, &
-           name=var_spec%short_name, _RC)
+           name=var_spec%short_name, TransferOfferGeomObject=offer, _RC)
       _RETURN(_SUCCESS)
 
-   contains
-
-      subroutine get_state(state_intent, model, state, rc)
-         type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-         type(ESMF_GridComp), intent(inout) :: model
-         type(ESMF_State), intent(out) :: state
-         integer, optional, intent(out) :: rc
-         integer :: status
-
-         if(state_intent == ESMF_STATEINTENT_IMPORT) then
-            call NUOPC_ModelGet(model, importState=state, _RC)
-            _RETURN(_SUCCESS)
-         end if
-         if(state_intent == ESMF_STATEINTENT_EXPORT) then
-            call NUOPC_ModelGet(model, exportState=state, _RC)
-            _RETURN(_SUCCESS)
-         end if
-         _FAIL('Unsupported state intent')
-
-      end subroutine get_state
-
    end subroutine advertise_variable
+   
+   function get_transfer_offer(state_intent, rc) result(offer)
+      character(len=:), allocatable :: offer
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      if(state_intent == ESMF_STATEINTENT_IMPORT) then
+         offer = 'can provide'
+         _RETURN(_SUCCESS)
+      end if
+      if(state_intent == ESMF_STATEINTENT_EXPORT) then
+         offer = 'will provide'
+         _RETURN(_SUCCESS)
+      end if
+      _FAIL('Unsupported ESMF_StateIntent_Flag')
+
+   end function get_transfer_offer
+
    
    !wdb fixme deleteme Not implemented
    subroutine modify_advertise(this, unusable, rc)
@@ -464,21 +469,56 @@ contains
    end subroutine recurse
 
    !wdb fixme deleteme Not implemented
-   subroutine realize_accept(this, rc)
+   subroutine realize_accept(this, importState, exportState, rc)
       class(NuopcMetaModel), intent(inout) :: this
+      type(ESMF_State), intent(in) :: importState
+      type(ESMF_State), intent(in) :: exportState
       integer, optional, intent(out) :: rc
       integer :: status
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
+      type(MultiState) :: outer_states, user_states, tmp_states
+
+      ! MAPL_GENERIC_INIT_REALIZE
+      ! MAPL_GENERIC_INIT_READ_RESTART
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE, _RC)
+
+      user_states = this%user_gc_driver%get_states()
+      tmp_states = MultiState(importState=user_states%importState)
+      call this%registry%add_to_states(tmp_states, mode='user', _RC)
+      outer_states = MultiState(importState=importState, exportState=exportState)
+      call this%registry%add_to_states(outer_states, mode='outer', _RC)
+      call this%registry%allocate(_RC)
+
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+      !wdb fixme deleteme Do I need to call NUOPC_Realize here?
 
       _RETURN(_SUCCESS)
 
    end subroutine realize_accept
 
    !wdb fixme deleteme Not implemented
-   subroutine realize_provided(this, rc)
+   subroutine realize_provided(this, importState, exportState, rc)
       class(NuopcMetaModel), intent(inout) :: this
+      type(ESMF_State), intent(in) :: importState
+      type(ESMF_State), intent(in) :: exportState
       integer, optional, intent(out) :: rc
       integer :: status
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
+      type(MultiState) :: outer_states, user_states, tmp_states
 
+      ! MAPL_GENERIC_INIT_REALIZE
+      ! MAPL_GENERIC_INIT_READ_RESTART
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE, _RC)
+
+      user_states = this%user_gc_driver%get_states()
+      tmp_states = MultiState(importState=user_states%importState)
+      call this%registry%add_to_states(tmp_states, mode='user', _RC)
+      outer_states = MultiState(importState=importState, exportState=exportState)
+      call this%registry%add_to_states(outer_states, mode='outer', _RC)
+      call this%registry%allocate(_RC)
+
+      call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+      !wdb fixme deleteme Do I need to call NUOPC_Realize here?
       _RETURN(_SUCCESS)
 
    end subroutine realize_provided
@@ -506,20 +546,6 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine write_restart
-
-   !wdb fixme deleteme Not implemented
-   subroutine finalize_(this, importState, exportState, clock, unusable, rc)
-      class(NuopcMetaModel), intent(inout) :: this
-      type(ESMF_State) :: importState
-      type(ESMF_State) :: exportState
-      type(ESMF_Clock) :: clock
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-      integer :: state
-      
-      _RETURN(_SUCCESS)
-
-   end subroutine finalize_
 
    subroutine finalize(this, rc)
       class(NuopcMetaModel), intent(inout) :: this
@@ -592,16 +618,64 @@ contains
 
    end function get_name
 
-   function construct_advertised_variable(standardName, name, stateIntent) result(var)
-      type(AdvertisedVariable) :: var
-      character(len=*), intent(in) :: standardName
-      character(len=*), intent(in) :: name
-      type(ESMF_StateIntent_Flag), intent(in) :: stateIntent
+   function get_state(this, state_intent, rc) result(state)
+      type(ESMF_State) :: state
+      class(NuopcMetaModel), intent(in) :: this
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      integer, optional, intent(out) :: rc
+      integer :: status
 
-      var%standardName = standardName
-      var%name = name
-      var%stateIntent = stateIntent
+      if(state_intent == ESMF_STATEINTENT_IMPORT) then
+         call NUOPC_ModelGet(this%self_model, importState=state, _RC)
+         _RETURN(_SUCCESS)
+      end if
+      if(state_intent == ESMF_STATEINTENT_EXPORT) then
+         call NUOPC_ModelGet(this%self_model, exportState=state, _RC)
+         _RETURN(_SUCCESS)
+      end if
+      _FAIL('Unsupported state intent')
 
-   end function construct_advertised_variable
+   end function get_state
+
+   subroutine resize(variables, sz, relative)
+      type(AdvertisedVariable), allocatable, intent(inout) :: variables(:)
+      integer, intent(in) :: sz
+      logical, optional, intent(in) :: relative
+      integer :: sz_
+      type(AdvertisedVariable), allocatable :: tmp(:)
+      
+      if(.not. allocated(variables)) then
+         allocate(variables(max(sz, 0)))
+         return
+      end if
+
+      sz_ = max(sz, 0)
+      if(present(relative)) then
+         if(relative) sz_ = sz_ + size(variables)
+      end if
+      call move_alloc(variables, tmp)
+      allocate(variables(max(sz_, size(tmp))
+      variables(:size(tmp)) = tmp
+      
+   end subroutine resize
+
+   subroutine extend(variables, extension)
+      type(AdvertisedVariable), allocatable, intent(inout) :: variables(:)
+      type(AdvertisedVariable), intent(in) :: extension(:)
+      type(AdvertisedVariable), allocatable :: tmp(:)
+
+      call resize(variables, size(extension), relative=.TRUE.)
+      variables(size(variables)-size(extension)+1:) = extension
+
+   end subroutine extend
+
+   subroutine append(variables, variable)
+      type(AdvertisedVariable), allocatable, intent(inout) :: variables(:)
+      type(AdvertisedVariable), intent(in) :: variable
+
+      call resize(variables, 1, relative=.TRUE.)
+      variables(size(variables)) = variable
+
+   end subroutine append
 
 end module mapl_NuopcMetaModel_mod

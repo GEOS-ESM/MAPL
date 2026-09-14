@@ -1,5 +1,9 @@
 #include "MAPL.h"
 
+! Move NUOPC methods here.
+! Will field mirroring work/help here?
+! Set metadata
+! Could NUOPC_Mediator be useful here instead of NUOPC_Model
 module mapl_GenericNuopcModel_mod
    use :: mapl_NuopcMetaModel_mod
    use :: mapl_GriddedComponentDriver_mod
@@ -133,9 +137,13 @@ contains
 
       integer :: status
       type(NuopcMetaModel), pointer :: meta_model
+      type(ESMF_State) :: importState, exportState
+
+      call NUOPC_ModelGet(model, importState=importState, &
+         & exportState=exportState, _RC)
 
       meta_model => get_meta_model(model, _RC)
-      call meta_model%realize_accept(_RC)
+      call meta_model%realize_accept(importState, exportState, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine RealizeAccept
@@ -146,9 +154,12 @@ contains
 
       integer :: status
       type(NuopcMetaModel), pointer :: meta_model
+      type(ESMF_State) :: importState, exportState
 
+      call NUOPC_ModelGet(model, importState=importState, &
+         & exportState=exportState, _RC)
       meta_model => get_meta_model(model, _RC)
-      call meta_model%realize_provided(_RC)
+      call meta_model%realize_provided(importState, exportState, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine RealizeProvided
@@ -213,6 +224,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine Finalize
 
+   !wdb fixme deleteme do we need this in this type
    recursive subroutine write_restart(model, rc)
       type(ESMF_GridComp) :: model
       integer, intent(out) :: rc
