@@ -885,6 +885,7 @@ contains
               i = i + 1
               cycle
            end if
+           call reset_prefetch_request(request)
            call request%deserialize(pending(i)%buffer, ierr)
            if (ierr /= MPI_SUCCESS) return
            warm_index = find_warm_record(warm_records, request)
@@ -906,6 +907,17 @@ contains
            call remove_pending_request(pending, i)
         end do
      end subroutine serve_warm_requests
+
+     subroutine reset_prefetch_request(request)
+        type(CollectivePrefetchDataMessage), intent(inout) :: request
+
+        if (allocated(request%file_name)) deallocate(request%file_name)
+        if (allocated(request%var_name)) deallocate(request%var_name)
+        if (allocated(request%start)) deallocate(request%start)
+        if (allocated(request%count)) deallocate(request%count)
+        if (allocated(request%global_start)) deallocate(request%global_start)
+        if (allocated(request%global_count)) deallocate(request%global_count)
+     end subroutine reset_prefetch_request
 
      subroutine publish_warm_result(this, request, model_rank, warm_record, ierr)
         class(AsyncInputServer), intent(inout) :: this

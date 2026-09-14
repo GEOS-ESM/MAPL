@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: prepare_async_perf_cases.sh WORK_ROOT [--model-delay SECS] [--grid IMxJM] [--quick]
+# Usage: prepare_async_perf_cases.sh WORK_ROOT [--model-delay SECS]
+#        [--grid IMxJM] [--model-pets N] [--quick]
 #
 # --model-delay SECS  Insert a cap-level model_delay (seconds) into both
 #                     cap2.yaml variants. The reader performs only real file
@@ -13,21 +14,23 @@ set -euo pipefail
 #
 # --grid IMxJM        Override the lat-lon grid size in all YAML configs.
 #                     Default: 13x9 (tiny test grid from case49).
-#                     A larger grid (e.g. 512x384) produces bigger NC4 files
+#                     A larger grid (e.g. 1024x768) produces bigger NC4 files
 #                     so that real file-read time becomes significant and the
-#                     async9 cache-hit benefit is measurable without needing
+#                     async cache-hit benefit is measurable without needing
 #                     artificial reader sleep.
+# --model-pets N      Number of model PETs in both configurations. Default: 8.
 #
 # Overlap logic:
 #   model_delay(SECS) > real next-prefetch read time
-#   → async9 reader finishes next-prefetch inside the model window
+#   → async reader finishes next-prefetch inside the model window
 #   → next timestep's current read is a free cache hit
-#   → mpi8 must pay (read time + model_delay) per step; async9 pays only model_delay
+#   → MpiServer pays (read time + model_delay) per step; async pays only model_delay
 
 model_delay_val=""
 grid_im=13
 grid_jm=9
 quick=false
+model_pets=8
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -35,6 +38,8 @@ while [[ $# -gt 0 ]]; do
       model_delay_val="$2"; shift 2 ;;
     --grid)
       grid_im="${2%%x*}"; grid_jm="${2##*x}"; shift 2 ;;
+    --model-pets)
+      model_pets="$2"; shift 2 ;;
     --quick)
       quick=true; shift ;;
     *)
@@ -43,15 +48,15 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "${work_root:-}" ]]; then
-  echo "usage: $0 WORK_ROOT [--model-delay SECS] [--grid IMxJM] [--quick]" >&2
+  echo "usage: $0 WORK_ROOT [--model-delay SECS] [--grid IMxJM] [--model-pets N] [--quick]" >&2
   exit 2
 fi
 
 script_dir=$(cd "$(dirname "$0")" && pwd)
 base_case_dir="$script_dir/../test_cases/pfio/case05"
 
-mpi_dir="$work_root/perf-mpi8"
-async_dir="$work_root/perf-async9"
+mpi_dir="$work_root/perf-mpi"
+async_dir="$work_root/perf-async"
 
 rm -rf "$mpi_dir" "$async_dir"
 mkdir -p "$mpi_dir" "$async_dir"
@@ -158,7 +163,7 @@ esmf:
   logAppendFlag: false
 
 mapl:
-  model_petcount: 8
+  model_petcount: $model_pets
   pflogger_cfg_file: logging.yaml
 
 cap:
@@ -202,7 +207,7 @@ esmf:
   logAppendFlag: false
 
 mapl:
-  model_petcount: 8
+  model_petcount: $model_pets
   pflogger_cfg_file: logging.yaml
 
 cap:
@@ -244,7 +249,7 @@ esmf:
   logAppendFlag: false
 
 mapl:
-  model_petcount: 8
+  model_petcount: $model_pets
   pflogger_cfg_file: logging.yaml
   servers:
     async_input_server:

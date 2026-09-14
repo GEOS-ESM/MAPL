@@ -1124,3 +1124,30 @@ Build an ExtData input server that can eventually use extra node-local reader PE
 - Step 15 cluster verification remains.
 - Do not modify or revert the pre-existing user change in
   `gridcomps/extdata/DataSetNode.F90`.
+
+### MacBook Multi-Worker Benchmark (2026-09-14)
+
+- Updated the existing benchmark scripts to support configurable model PETs,
+  reader-pool sizes, repeated runs, and separate per-run logs.
+- On macOS, the runner replaces the component-driver shared-object name with
+  its absolute dylib path because `mpiexec` child processes do not reliably
+  inherit `DYLD_LIBRARY_PATH`.
+- Fixed repeated captain-side request deserialization exposed by the larger
+  benchmark: the reusable `CollectivePrefetchDataMessage` is reset before each
+  deserialize.
+- Configuration: 8 model PETs, 512x384 grid, no artificial model or reader
+  delay, quick eight-sample workload, three measured repetitions.
+- Mean wall times:
+  - MpiServer, 8 total PETs: 7.94 s
+  - AsyncInputServer, 8 model + captain + 1 worker: 9.74 s
+  - AsyncInputServer, 8 model + captain + 2 workers: 10.01 s
+  - AsyncInputServer, 8 model + captain + 3 workers: 10.74 s
+- Relative to MpiServer, the asynchronous configurations were approximately
+  23%, 26%, and 35% slower respectively on this laptop. Extra workers increase
+  CPU oversubscription and shared-memory/scheduler overhead for this fast local
+  filesystem workload.
+- A confirmation run produced 7.55 s, 9.54 s, 9.99 s, and 10.60 s in the same
+  order and showed that all three workers in the largest configuration handled
+  requests.
+- Results are in `nag-clean/macbook-async-benchmark.log` and
+  `nag-clean/macbook-async-benchmark-confirm.log`.
