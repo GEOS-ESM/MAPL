@@ -27,7 +27,9 @@ module mapl_NuopcMetaModel_mod
    ! NUOPC label_ModifyAdvertise phases
    use mapl_enums_api, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
    ! NUOPC label_RealizeProvided phases
-   use mapl_enums_api, only: MAPL_GENERIC_INIT_REALIZE, MAPL_GENERIC_INIT_READ_RESTART
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_REALIZE_PROVIDED, MAPL_GENERIC_INIT_READ_RESTART
+   ! NUOPC label_RealizeAccept phases
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_REALIZE_ACCEPTED
    ! MAPL Internal phases
    use mapl_enums_api, only: MAPL_GENERIC_INTERNAL_READ_RESTART, MAPL_GENERIC_INTERNAL_WRITE_RESTART
    ! NUOPC label_Advance
@@ -68,7 +70,6 @@ module mapl_NuopcMetaModel_mod
       procedure :: stop_timer
       procedure, private :: get_name
       procedure, private :: get_state
-      procedure, private :: get_offer
       ! Init phases
       !------------
       ! label_Advertise
@@ -210,6 +211,7 @@ contains
 
       integer :: status
       type(ESMF_State) :: state
+      character(len=:), allocatable :: offer
 
       state = this%get_state(var_spec%state_intent, _RC)
       offer = get_transfer_offer(var_spec%state_intent, _RC)
@@ -478,9 +480,9 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
       type(MultiState) :: outer_states, user_states, tmp_states
 
-      ! MAPL_GENERIC_INIT_REALIZE
+      ! MAPL_GENERIC_INIT_REALIZE_ACCEPTED
       ! MAPL_GENERIC_INIT_READ_RESTART
-      call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE_ACCEPTED, _RC)
 
       user_states = this%user_gc_driver%get_states()
       tmp_states = MultiState(importState=user_states%importState)
@@ -506,9 +508,9 @@ contains
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
       type(MultiState) :: outer_states, user_states, tmp_states
 
-      ! MAPL_GENERIC_INIT_REALIZE
+      ! MAPL_GENERIC_INIT_REALIZE_PROVIDED
       ! MAPL_GENERIC_INIT_READ_RESTART
-      call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE_PROVIDED, _RC)
 
       user_states = this%user_gc_driver%get_states()
       tmp_states = MultiState(importState=user_states%importState)
@@ -636,46 +638,5 @@ contains
       _FAIL('Unsupported state intent')
 
    end function get_state
-
-   subroutine resize(variables, sz, relative)
-      type(AdvertisedVariable), allocatable, intent(inout) :: variables(:)
-      integer, intent(in) :: sz
-      logical, optional, intent(in) :: relative
-      integer :: sz_
-      type(AdvertisedVariable), allocatable :: tmp(:)
-      
-      if(.not. allocated(variables)) then
-         allocate(variables(max(sz, 0)))
-         return
-      end if
-
-      sz_ = max(sz, 0)
-      if(present(relative)) then
-         if(relative) sz_ = sz_ + size(variables)
-      end if
-      call move_alloc(variables, tmp)
-      allocate(variables(max(sz_, size(tmp))
-      variables(:size(tmp)) = tmp
-      
-   end subroutine resize
-
-   subroutine extend(variables, extension)
-      type(AdvertisedVariable), allocatable, intent(inout) :: variables(:)
-      type(AdvertisedVariable), intent(in) :: extension(:)
-      type(AdvertisedVariable), allocatable :: tmp(:)
-
-      call resize(variables, size(extension), relative=.TRUE.)
-      variables(size(variables)-size(extension)+1:) = extension
-
-   end subroutine extend
-
-   subroutine append(variables, variable)
-      type(AdvertisedVariable), allocatable, intent(inout) :: variables(:)
-      type(AdvertisedVariable), intent(in) :: variable
-
-      call resize(variables, 1, relative=.TRUE.)
-      variables(size(variables)) = variable
-
-   end subroutine append
 
 end module mapl_NuopcMetaModel_mod
