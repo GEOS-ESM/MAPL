@@ -16,6 +16,7 @@ module mapl_field_bundle_api
    use mapl_FieldBundleSet_mod, only: MAPL_FieldBundleSet => FieldBundleSet
    use mapl_FieldBundleFilter_mod, only: MAPL_FieldBundleFilter => FieldBundleFilter
    use mapl_FieldBundleApplyUserRoutine_mod, only: MAPL_FieldBundleApplyUserRoutine => FieldBundleApplyUserRoutine
+   use mapl_FieldBundleGetGeom_mod, only: MAPL_FieldBundleGetGeom => FieldBundleGetGeom
 
    implicit none
    private
@@ -35,5 +36,6 @@ module mapl_field_bundle_api
    public :: MAPL_FieldBundleSet
    public :: MAPL_FieldBundleFilter
    public :: MAPL_FieldBundleApplyUserRoutine
+   public :: MAPL_FieldBundleGetGeom
 
 end module mapl_field_bundle_api

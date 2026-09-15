@@ -2,8 +2,8 @@
 
 module mapl_FieldBundleInfo_mod
    use mapl_esmf_info_keys_mod, only: KEY_FIELDBUNDLETYPE_FLAG, &
-      & KEY_ALLOCATION_STATUS, KEY_HAS_GEOM, KEY_QUANTITY_TYPE_METADATA, &
-      & KEY_NORMALIZATION_METADATA, KEY_CONSERVATION_METADATA
+        & KEY_ALLOCATION_STATUS, KEY_HAS_GEOM, KEY_QUANTITY_TYPE_METADATA, &
+        & KEY_NORMALIZATION_METADATA, KEY_CONSERVATION_METADATA
    use mapl_InfoUtilities_mod
    use mapl_esmf_info_keys_mod
    use mapl_field_api
@@ -27,11 +27,11 @@ module mapl_FieldBundleInfo_mod
 
    interface FieldBundleInfoGetInternal
       procedure fieldbundle_get_internal
-   end interface
+   end interface FieldBundleInfoGetInternal
 
    interface FieldBundleInfoSetInternal
       procedure fieldbundle_set_internal
-   end interface
+   end interface FieldBundleInfoSetInternal
 
 
 contains
@@ -46,13 +46,12 @@ contains
         allocation_status, &
         bracket_updated, &
         has_geom, &
-        has_deferred_aspects, &
-       regridder_param_info, &
-       vector_basis_kind, &
-       quantity_type_metadata, &
-       normalization_metadata, &
-       conservation_metadata, &
-       rc)
+        regridder_param_info, &
+        vector_basis_kind, &
+        quantity_type_metadata, &
+        normalization_metadata, &
+        conservation_metadata, &
+        rc)
 
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -72,7 +71,6 @@ contains
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       logical, optional, intent(out) :: bracket_updated
       logical, optional, intent(out) :: has_geom
-      logical, optional, intent(out) :: has_deferred_aspects
       type(esmf_Info), optional, allocatable, intent(out) :: regridder_param_info
       type(MAPL_VectorBasisKind), optional, intent(out) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
@@ -90,7 +88,7 @@ contains
          namespace_ = namespace
       end if
 
-     if (present(fieldBundleType)) then
+      if (present(fieldBundleType)) then
          call ESMF_InfoGetCharAlloc(info, key=namespace_//KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
          fieldBundleType = MAPL_FieldBundleType_Flag(fieldBundleType_str)
       end if
@@ -124,10 +122,10 @@ contains
       if (present(quantity_type_metadata)) then
          if (ESMF_InfoIsPresent(info, key=namespace_//KEY_QUANTITY_TYPE_METADATA)) then
             block
-               type(ESMF_Info) :: quantity_info
-               quantity_info = ESMF_InfoCreate(info, namespace_//KEY_QUANTITY_TYPE_METADATA, _RC)
-               quantity_type_metadata = make_QuantityTypeMetadata(quantity_info, _RC)
-               call ESMF_InfoDestroy(quantity_info, _RC)
+              type(ESMF_Info) :: quantity_info
+              quantity_info = ESMF_InfoCreate(info, namespace_//KEY_QUANTITY_TYPE_METADATA, _RC)
+              quantity_type_metadata = make_QuantityTypeMetadata(quantity_info, _RC)
+              call ESMF_InfoDestroy(quantity_info, _RC)
             end block
          end if
       end if
@@ -135,10 +133,10 @@ contains
       if (present(normalization_metadata)) then
          if (ESMF_InfoIsPresent(info, key=namespace_//KEY_NORMALIZATION_METADATA)) then
             block
-               type(ESMF_Info) :: normalization_info
-               normalization_info = ESMF_InfoCreate(info, namespace_//KEY_NORMALIZATION_METADATA, _RC)
-               normalization_metadata = make_NormalizationMetadata(normalization_info, _RC)
-               call ESMF_InfoDestroy(normalization_info, _RC)
+              type(ESMF_Info) :: normalization_info
+              normalization_info = ESMF_InfoCreate(info, namespace_//KEY_NORMALIZATION_METADATA, _RC)
+              normalization_metadata = make_NormalizationMetadata(normalization_info, _RC)
+              call ESMF_InfoDestroy(normalization_info, _RC)
             end block
          end if
       end if
@@ -146,10 +144,10 @@ contains
       if (present(conservation_metadata)) then
          if (ESMF_InfoIsPresent(info, key=namespace_//KEY_CONSERVATION_METADATA)) then
             block
-               type(ESMF_Info) :: conservation_info
-               conservation_info = ESMF_InfoCreate(info, namespace_//KEY_CONSERVATION_METADATA, _RC)
-               conservation_metadata = make_ConservationMetadata(conservation_info, _RC)
-               call ESMF_InfoDestroy(conservation_info, _RC)
+              type(ESMF_Info) :: conservation_info
+              conservation_info = ESMF_InfoCreate(info, namespace_//KEY_CONSERVATION_METADATA, _RC)
+              conservation_metadata = make_ConservationMetadata(conservation_info, _RC)
+              call ESMF_InfoDestroy(conservation_info, _RC)
             end block
          end if
       end if
@@ -161,7 +159,6 @@ contains
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, num_vgrid_levels=num_vgrid_levels, &
            units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
-           has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
            _RC)
 
@@ -180,13 +177,12 @@ contains
         vgrid_id, &
         bracket_updated, &
         has_geom, &
-        has_deferred_aspects, &
-       regridder_param_info, &
-       vector_basis_kind, &
-       quantity_type_metadata, &
-       normalization_metadata, &
-       conservation_metadata, &
-       rc)
+        regridder_param_info, &
+        vector_basis_kind, &
+        quantity_type_metadata, &
+        normalization_metadata, &
+        conservation_metadata, &
+        rc)
 
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -205,14 +201,13 @@ contains
       integer, optional, intent(in) :: vgrid_id
       logical, optional, intent(in) :: bracket_updated
       logical, optional, intent(in) :: has_geom
-      logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_info), optional, intent(in) :: regridder_param_info
       type(MAPL_VectorBasisKind), optional, intent(in) :: vector_basis_kind
       type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
       type(ConservationMetadata), optional, intent(in) :: conservation_metadata
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       character(:), allocatable :: fieldBundleType_str
       character(:), allocatable :: namespace_
@@ -245,48 +240,47 @@ contains
 
       if (present(vector_basis_kind)) then
          call ESMF_InfoSet(info, key=namespace_ // KEY_VECTOR_BASIS_KIND, &
-                           value=vector_basis_kind%to_string(), _RC)
+              value=vector_basis_kind%to_string(), _RC)
       end if
 
       if (present(quantity_type_metadata)) then
          block
-            type(ESMF_Info) :: quantity_info
-            quantity_info = quantity_type_metadata%make_info(_RC)
-            call MAPL_InfoSet(info, key=namespace_ // KEY_QUANTITY_TYPE_METADATA, value=quantity_info, _RC)
-            call ESMF_InfoDestroy(quantity_info, _RC)
+           type(ESMF_Info) :: quantity_info
+           quantity_info = quantity_type_metadata%make_info(_RC)
+           call MAPL_InfoSet(info, key=namespace_ // KEY_QUANTITY_TYPE_METADATA, value=quantity_info, _RC)
+           call ESMF_InfoDestroy(quantity_info, _RC)
          end block
       end if
 
       if (present(normalization_metadata)) then
          block
-            type(ESMF_Info) :: normalization_info
-            normalization_info = normalization_metadata%make_info(_RC)
-            call MAPL_InfoSet(info, key=namespace_ // KEY_NORMALIZATION_METADATA, value=normalization_info, _RC)
-            call ESMF_InfoDestroy(normalization_info, _RC)
+           type(ESMF_Info) :: normalization_info
+           normalization_info = normalization_metadata%make_info(_RC)
+           call MAPL_InfoSet(info, key=namespace_ // KEY_NORMALIZATION_METADATA, value=normalization_info, _RC)
+           call ESMF_InfoDestroy(normalization_info, _RC)
          end block
       end if
 
       if (present(conservation_metadata)) then
          block
-            type(ESMF_Info) :: conservation_info
-            conservation_info = conservation_metadata%make_info(_RC)
-            call MAPL_InfoSet(info, key=namespace_ // KEY_CONSERVATION_METADATA, value=conservation_info, _RC)
-            call ESMF_InfoDestroy(conservation_info, _RC)
+           type(ESMF_Info) :: conservation_info
+           conservation_info = conservation_metadata%make_info(_RC)
+           call MAPL_InfoSet(info, key=namespace_ // KEY_CONSERVATION_METADATA, value=conservation_info, _RC)
+           call ESMF_InfoDestroy(conservation_info, _RC)
          end block
       end if
 
-       call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
+      call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
            vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
            units=units, long_name=long_name, standard_name=standard_name, &
            vgrid_id=vgrid_id, &
-           has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
            _RC)
 
-       _RETURN(_SUCCESS)
-       _UNUSED_DUMMY(unusable)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    end subroutine fieldbundle_set_internal
 

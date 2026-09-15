@@ -4,6 +4,7 @@ module mapl_VariableSpec_mod
 
    use mapl_StateItemSpec_mod
    use mapl_StateItemAspect_mod
+   use mapl_AspectStatus_mod
    use mapl_GeomAspect_mod
 
    use mapl_ClassAspect_mod
@@ -32,11 +33,12 @@ module mapl_VariableSpec_mod
    use mapl_UngriddedDims_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_HorizontalDimsSpec_mod
-   use mapl_VirtualConnectionPt_mod
-   use mapl_ActualConnectionPt_mod
-   use mapl_VerticalGrid_mod
-   use mapl_VirtualConnectionPtVector_mod
-   use mapl_ErrorHandling_mod
+    use mapl_VirtualConnectionPt_mod
+    use mapl_ActualConnectionPt_mod
+    use mapl_VerticalGrid_mod
+    use mapl_geom_api, only: mapl_GeomId
+    use mapl_VirtualConnectionPtVector_mod
+    use mapl_ErrorHandling_mod
    use pflogger, only: logging, logger_t => logger
    use mapl_StateRegistry_mod
    use mapl_StateItem_mod
@@ -102,11 +104,12 @@ module mapl_VariableSpec_mod
       !=====================
       type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4 ! default
 
-      !=====================
-      ! geomaspect
-      !=====================
-      type(ESMF_Geom), allocatable :: geom
-      type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
+       !=====================
+       ! geomaspect
+       !=====================
+       type(mapl_GeomId) :: geom_id
+       type(ESMF_Geom), allocatable :: geom
+       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
       ! next two items are mutually exclusive
       type(EsmfRegridderParam), allocatable :: regrid_param
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -136,7 +139,6 @@ module mapl_VariableSpec_mod
       ! miscellaneous
       !=====================
       type(StringVector) :: dependencies ! default empty
-      logical :: has_deferred_aspects = .false.
       logical :: use_field_dictionary = .false.
 
    contains
@@ -161,9 +163,10 @@ contains
 
    function make_VariableSpec( &
         state_intent, short_name, unusable, &
-        standard_name, &
-        long_name, &
-        geom, &
+         standard_name, &
+         long_name, &
+         geom_id, &
+         geom, &
         units, &
         itemtype, &
         typekind, &
@@ -180,7 +183,6 @@ contains
         regrid_param, &
         horizontal_dims_spec, &
         vector_basis_kind, &
-        has_deferred_aspects, &
         use_field_dictionary, &
         restart_mode, &
         rc) result(var_spec)
@@ -192,6 +194,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
+      type(mapl_GeomId), optional, intent(in) :: geom_id
       type(ESMF_Geom), optional, intent(in) :: geom
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: expression
@@ -209,7 +212,6 @@ contains
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       character(*), optional, intent(in) :: vector_basis_kind
-      logical, optional, intent(in) :: has_deferred_aspects
       logical, optional, intent(in) :: use_field_dictionary
       type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
@@ -228,6 +230,7 @@ contains
 #define _SET_OPTIONAL(opt) if (present(opt)) var_spec%opt = opt
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(long_name)
+      _SET_OPTIONAL(geom_id)
       _SET_OPTIONAL(geom)
       _SET_OPTIONAL(units)
       _SET_OPTIONAL(expression)
@@ -244,7 +247,6 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
-      _SET_OPTIONAL(has_deferred_aspects)
       _SET_OPTIONAL(use_field_dictionary)
       _SET_OPTIONAL(restart_mode)
 
@@ -450,32 +452,34 @@ contains
 
    end subroutine add_item
 
-   function make_StateitemSpec(this, registry, component_geom, vertical_grid, unusable, rc) result(spec)
+   function make_StateitemSpec(this, registry, component_geom, component_geom_id, vertical_grid, unusable, rc) result(spec)
       type(StateItemSpec) :: spec
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, intent(in) :: registry
       type(ESMF_Geom), optional, intent(in) :: component_geom
+      type(mapl_GeomId), optional, intent(in) :: component_geom_id
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(AspectMap) :: aspects
+      type(AspectMap) :: aspects, filtered_aspects
       type(VirtualConnectionPtVector) :: dependencies
       integer :: status
 
-      aspects = this%make_aspects(registry, component_geom, vertical_grid, _RC)
+      aspects = this%make_aspects(registry, component_geom, component_geom_id, vertical_grid, _RC)
       dependencies = this%make_dependencies(_RC)
-      spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies, has_deferred_aspects=this%has_deferred_aspects)
+      spec = new_StateItemSpec(this%state_intent, aspects, dependencies=dependencies)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function make_StateitemSpec
 
-   function make_aspects(this, registry, component_geom, vertical_grid, unusable, rc) result(aspects)
+   function make_aspects(this, registry, component_geom, component_geom_id, vertical_grid, unusable, rc) result(aspects)
       type(AspectMap) :: aspects
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, intent(in) :: registry
       type(ESMF_Geom), optional, intent(in) :: component_geom
+      type(mapl_GeomId), optional, intent(in) :: component_geom_id
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -489,7 +493,7 @@ contains
       aspect = this%make_TypekindAspect(_RC)
       call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
 
-      aspect = this%make_GeomAspect(component_geom, _RC)
+      aspect = this%make_GeomAspect(component_geom, component_geom_id, _RC)
       call aspects%insert(GEOM_ASPECT_ID, aspect)
 
       aspect = this%make_UngriddedDimsAspect(_RC)
@@ -507,8 +511,8 @@ contains
       aspect = this%make_NormalizationAspect(_RC)
       call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
 
-      aspect = this%make_VerticalGridAspect(vertical_grid, &
-           component_geom=component_geom, _RC)
+       aspect = this%make_VerticalGridAspect(vertical_grid, &
+            component_geom=component_geom, component_geom_id=component_geom_id, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
 
       aspect = this%make_ClassAspect(registry, _RC)
@@ -534,24 +538,49 @@ contains
       _RETURN(_SUCCESS)
    end function make_TypekindAspect
 
-   function make_GeomAspect(this, component_geom, rc) result(aspect)
+   function make_GeomAspect(this, component_geom, component_geom_id, rc) result(aspect)
       type(GeomAspect) :: aspect
       class(VariableSpec), intent(in) :: this
       type(ESMF_Geom), optional, intent(in) :: component_geom
+      type(mapl_GeomId), optional, intent(in) :: component_geom_id
       integer, optional, intent(out) :: rc
 
       type(ESMF_Geom), allocatable :: geom_
+      type(mapl_GeomId) :: geom_id_
+      type(AspectStatus) :: aspect_status
+
+      aspect_status = ASPECT_STATUS_MIRRORED
 
       ! If geom is allocated in var spec then it is prioritized over the
       ! component-wide geom.
       ! If not specified either way, then it indicates that the geom is
       ! mirrored ind will be determined by a connection.
-      if (allocated(this%geom)) then
-         geom_ = this%geom
-      elseif (present(component_geom)) then
-         geom_ = component_geom
+       if (allocated(this%geom)) then
+          geom_ = this%geom
+          aspect_status = ASPECT_STATUS_SPECIFIED
+         if (this%geom_id%is_assigned()) then
+            geom_id_ = this%geom_id
+         end if
+      else
+          if (present(component_geom)) then
+             geom_ = component_geom
+             aspect_status = ASPECT_STATUS_SPECIFIED
+            if (this%geom_id%is_assigned()) then
+               geom_id_ = this%geom_id
+            else if (present(component_geom_id)) then
+               geom_id_ = component_geom_id
+            end if
+          else if (this%geom_id%is_assigned()) then
+             geom_id_ = this%geom_id
+             aspect_status = ASPECT_STATUS_SPECIFIED
+          else if (present(component_geom_id)) then
+             geom_id_ = component_geom_id
+             aspect_status = ASPECT_STATUS_FROM_COMP
+         end if
       end if
-      aspect = GeomAspect(geom_, this%regrid_param, this%horizontal_dims_spec)
+
+       aspect = GeomAspect(geom=geom_, regridder_param=this%regrid_param, &
+            horizontal_dims_spec=this%horizontal_dims_spec, geom_id=geom_id_, aspect_status=aspect_status)
 
       _RETURN(_SUCCESS)
    end function make_GeomAspect
@@ -603,16 +632,20 @@ contains
       _RETURN(_SUCCESS)
    end function make_NormalizationAspect
 
-   function make_VerticalGridAspect(this, vertical_grid, component_geom, time_dependent, rc) result(aspect)
+    function make_VerticalGridAspect(this, vertical_grid, component_geom, component_geom_id, time_dependent, rc) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VariableSpec), intent(in) :: this
-      class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(ESMF_Geom), optional, intent(in) :: component_geom
+       class(VerticalGrid), optional, intent(in) :: vertical_grid
+       type(ESMF_Geom), optional, intent(in) :: component_geom
+       type(mapl_GeomId), optional, intent(in) :: component_geom_id
       logical, optional, intent(in) :: time_dependent
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Geom) :: geom_
-      class(VerticalGrid), allocatable :: vgrid
+       type(ESMF_Geom) :: geom_
+       class(VerticalGrid), allocatable :: vgrid
+       type(AspectStatus) :: aspect_status
+
+       aspect_status = ASPECT_STATUS_MIRRORED
 
       ! If geom is allocated in var spec then it is prioritized over the
       ! component-wide geom.
@@ -620,18 +653,23 @@ contains
       ! mirrored ind will be determined by a connection.
       if (allocated(this%geom)) then
          geom_ = this%geom
-      elseif (present(component_geom)) then
-         geom_ = component_geom
+       elseif (present(component_geom)) then
+          geom_ = component_geom
+          aspect_status = ASPECT_STATUS_FROM_COMP
       end if
 
       if (allocated(this%vertical_grid)) then
          vgrid = this%vertical_grid
-      elseif (present(vertical_grid)) then
-         vgrid = vertical_grid
+       elseif (present(vertical_grid)) then
+          vgrid = vertical_grid
+          aspect_status = ASPECT_STATUS_SPECIFIED
+       elseif (present(component_geom_id)) then
+          aspect_status = ASPECT_STATUS_FROM_COMP
       end if
 
-      aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, &
-           vertical_alignment=VerticalAlignment(this%vertical_alignment), geom=geom_, typekind=this%typekind)
+       aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, &
+            vertical_alignment=VerticalAlignment(this%vertical_alignment), geom=geom_, typekind=this%typekind, &
+            aspect_status=aspect_status)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(time_dependent)
@@ -694,6 +732,8 @@ contains
          _FAIL('Unsupported itemType')
       end select
 
+      call aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
+
       _RETURN(_SUCCESS)
    end function make_ClassAspect
 
@@ -712,23 +752,8 @@ contains
       call verify_state_intent(spec%state_intent, _RC)
       call verify_short_name(spec%short_name, _RC)
       call verify_regrid(spec%regrid_param, spec%regrid_method, _RC)
-      call verify_deferred_items_have_export_intent(spec%has_deferred_aspects, spec%state_intent, _RC)
 
       _RETURN(_SUCCESS)
-
-   contains
-
-      subroutine verify_deferred_items_have_export_intent(has_deferred_aspects, state_intent, rc)
-         logical, intent(in) :: has_deferred_aspects
-         type(esmf_StateIntent_Flag), intent(in) :: state_intent
-         integer, optional, intent(out) :: rc
-
-         _RETURN_UNLESS(has_deferred_aspects)
-
-         _ASSERT(state_intent == ESMF_STATEINTENT_EXPORT, 'only exports can be deferred')
-         _RETURN(_SUCCESS)
-      end subroutine verify_deferred_items_have_export_intent
-
    end subroutine verify_variable_spec
 
 end module mapl_VariableSpec_mod

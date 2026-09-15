@@ -81,16 +81,13 @@ contains
 
       call esmf_StateGet(internal_state, 'mux_'//name, field=mux_f, _RC)
       call mapl_FieldSet(mux_f, geom=geom, ungridded_dims=ungridded_dims, units=units, &
-           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., _RC)
+           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
       call esmf_StateGet(internal_state, 'muy_'//name, field=muy_f, _RC)
       call mapl_FieldSet(muy_f, geom=geom, ungridded_dims=ungridded_dims, units=units, &
-           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., _RC)
+           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
       call esmf_StateGet(internal_state, 'c_'//name,   field=c_f,   _RC)
       call mapl_FieldSet(c_f,   geom=geom, ungridded_dims=ungridded_dims, units=units, &
-           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., _RC)
+           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
 
       _UNUSED_DUMMY(f_y)
       _UNUSED_DUMMY(counts_f)

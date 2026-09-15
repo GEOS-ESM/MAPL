@@ -1,13 +1,13 @@
 #include "MAPL.h"
 
 module mapl_OuterMetaComponent_mod
-
+!!$   use mapl_geom_api, only: mapl_GeomId
+   use mapl_GeomId_mod, only: GeomId
    use mapl_UserSetServices_mod, only: UserSetServices
    use mapl_ComponentSpec_mod
    use mapl_CheckpointControls_mod
    use mapl_VariableSpec_mod
    use mapl_ChildSpec_mod
-   use mapl_InnerMetaComponent_mod
    use mapl_MethodPhasesMap_mod
    use mapl_StateRegistry_mod
    use mapl_ESMF_Interfaces_mod, only: I_Run
@@ -41,10 +41,11 @@ module mapl_OuterMetaComponent_mod
       ! These are only allocated when parent overrides default timestepping.
       type(ESMF_TimeInterval)                     :: user_offset
       type(MethodPhasesMap)                       :: user_phases_map
-      type(ESMF_HConfig)                          :: hconfig
+       type(ESMF_HConfig)                          :: hconfig
 
-      type(ESMF_Geom), allocatable                :: geom
-      class(VerticalGrid), allocatable            :: vertical_grid
+       type(GeomId)                           :: geom_id
+       type(ESMF_Geom), allocatable                :: geom
+       class(VerticalGrid), allocatable            :: vertical_grid
 
       ! In-memory checkpoint: nested ESMF_States (import/export/internal)
       ! holding most recent in-memory checkpoint write. Lazily created
@@ -93,7 +94,9 @@ module mapl_OuterMetaComponent_mod
       procedure :: initialize_advertise
       procedure :: advertise_variable
       procedure :: initialize_modify_advertised
-      procedure :: initialize_realize
+      procedure :: initialize_realize_provided
+      procedure :: initialize_accept_transfer
+      procedure :: initialize_realize_accepted
       procedure :: initialize_read_restart
 
       procedure :: run_user
@@ -126,6 +129,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_child_name
       procedure :: set_entry_point
       procedure :: set_geom
+      procedure :: propagate_geom_to_children
       procedure :: get_name
       procedure :: get_gridcomp
 
@@ -292,8 +296,11 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end subroutine advertise_variable
 
-      module recursive subroutine initialize_advertise(this, unusable, rc)
+      module recursive subroutine initialize_advertise(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
+         type(ESMF_State) :: importState
+         type(ESMF_State) :: exportState
+         type(ESMF_Clock) :: clock
          ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
@@ -309,15 +316,34 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised
 
-      module recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(ESMF_State) :: importState
-         type(ESMF_State) :: exportState
-         type(ESMF_Clock) :: clock
-        ! optional arguments
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine initialize_realize
+      module recursive subroutine initialize_realize_provided(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+         ! optional arguments
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_realize_provided
+
+      module recursive subroutine initialize_accept_transfer(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_accept_transfer
+
+      module recursive subroutine initialize_realize_accepted(this, importState, exportState, clock, unusable, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          type(ESMF_State) :: importState
+          type(ESMF_State) :: exportState
+          type(ESMF_Clock) :: clock
+         ! optional arguments
+          class(KE), optional, intent(in) :: unusable
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_realize_accepted
 
       module recursive subroutine initialize_read_restart(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -469,14 +495,21 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), intent(in) :: this
       end function get_gridcomp
 
-      module subroutine set_geom(this, geom)
-         class(OuterMetaComponent), intent(inout) :: this
-         type(ESMF_Geom), intent(in) :: geom
+       module subroutine set_geom(this, geom, rc)
+          class(OuterMetaComponent), intent(inout) :: this
+          type(ESMF_Geom), intent(in) :: geom
+          integer, optional, intent(out) :: rc
       end subroutine set_geom
 
-      module subroutine set_vertical_grid(this, vertical_grid)
-         class(OuterMetaComponent), intent(inout) :: this
-         class(VerticalGrid), intent(in) :: verticaL_grid
+      module subroutine propagate_geom_to_children(this, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine propagate_geom_to_children
+
+       module subroutine set_vertical_grid(this, vertical_grid, rc)
+          class(OuterMetaComponent), intent(inout) :: this
+          class(VerticalGrid), intent(in) :: verticaL_grid
+          integer, optional, intent(out) :: rc
       end subroutine set_vertical_grid
 
       module function get_vertical_grid(this) result(vertical_grid)

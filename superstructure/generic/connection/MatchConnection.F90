@@ -168,7 +168,6 @@ contains
 
          end do
       end do
-
       this%consumed = .true.
 
       _RETURN(_SUCCESS)

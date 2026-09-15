@@ -54,10 +54,12 @@ module mapl_enums_api
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_SET_CLOCK       => GENERIC_INIT_SET_CLOCK
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_GEOM_A          => GENERIC_INIT_GEOM_A
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_GEOM_B          => GENERIC_INIT_GEOM_B
-   use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_ADVERTISE       => GENERIC_INIT_ADVERTISE
-   use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED => GENERIC_INIT_MODIFY_ADVERTISED
-   use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_REALIZE         => GENERIC_INIT_REALIZE
-   use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_READ_RESTART    => GENERIC_INIT_READ_RESTART
+    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_ADVERTISE       => GENERIC_INIT_ADVERTISE
+    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED => GENERIC_INIT_MODIFY_ADVERTISED
+    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_REALIZE_PROVIDED => GENERIC_INIT_REALIZE_PROVIDED
+    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_ACCEPT_TRANSFER => GENERIC_INIT_ACCEPT_TRANSFER
+    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_REALIZE_ACCEPTED => GENERIC_INIT_REALIZE_ACCEPTED
+    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_READ_RESTART    => GENERIC_INIT_READ_RESTART
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_USER            => GENERIC_INIT_USER
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_RUN_OFFSET           => GENERIC_RUN_OFFSET
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_RUN_CLOCK_ADVANCE    => GENERIC_RUN_CLOCK_ADVANCE
@@ -78,7 +80,6 @@ module mapl_enums_api
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_CREATED   => STATEITEM_ALLOCATION_CREATED
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_INACTIVE  => STATEITEM_ALLOCATION_INACTIVE
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_ACTIVE    => STATEITEM_ALLOCATION_ACTIVE
-   use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_CONNECTED => STATEITEM_ALLOCATION_CONNECTED
    use mapl_StateItemAllocation_mod, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED => STATEITEM_ALLOCATION_ALLOCATED
    use mapl_StateItemAllocation_mod, only: operator(==), operator(/=), operator(<), operator(>=)
 
@@ -128,11 +129,13 @@ module mapl_enums_api
    public :: MAPL_GENERIC_INIT_PHASE_SEQUENCE
    public :: MAPL_GENERIC_INIT_SET_CLOCK
    public :: MAPL_GENERIC_INIT_GEOM_A
-   public :: MAPL_GENERIC_INIT_GEOM_B
-   public :: MAPL_GENERIC_INIT_ADVERTISE
-   public :: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
-   public :: MAPL_GENERIC_INIT_REALIZE
-   public :: MAPL_GENERIC_INIT_READ_RESTART
+    public :: MAPL_GENERIC_INIT_GEOM_B
+    public :: MAPL_GENERIC_INIT_ADVERTISE
+    public :: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
+    public :: MAPL_GENERIC_INIT_REALIZE_PROVIDED
+    public :: MAPL_GENERIC_INIT_ACCEPT_TRANSFER
+    public :: MAPL_GENERIC_INIT_REALIZE_ACCEPTED
+    public :: MAPL_GENERIC_INIT_READ_RESTART
    public :: MAPL_GENERIC_INIT_USER
 
    ! Run phases
@@ -151,7 +154,8 @@ module mapl_enums_api
    public :: MAPL_StateItemAllocation
    public :: MAPL_STATEITEM_ALLOCATION_INVALID, MAPL_STATEITEM_ALLOCATION_CREATED
    public :: MAPL_STATEITEM_ALLOCATION_INACTIVE, MAPL_STATEITEM_ALLOCATION_ACTIVE
-   public :: MAPL_STATEITEM_ALLOCATION_CONNECTED, MAPL_STATEITEM_ALLOCATION_ALLOCATED
+!#   public :: MAPL_STATEITEM_ALLOCATION_CONNECTED
+   public :: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    public :: operator(==), operator(/=), operator(<), operator(>=)
 
    ! FieldBundleType_Flag

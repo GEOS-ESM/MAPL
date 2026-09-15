@@ -253,7 +253,6 @@ contains
            vgrid=vertical_grid, &
            vert_staggerloc=vstagger, &
            standard_name='foo', &
-           has_deferred_aspects=.false., &
            _RC)
 
       ! Realize counts_ internal field
@@ -265,7 +264,6 @@ contains
            typekind=ESMF_TYPEKIND_I4, &
            vgrid=vertical_grid, &
            vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., &
            _RC)
 
       ! Variance passes f as both x and y: Cov(f, f) = Var(f)

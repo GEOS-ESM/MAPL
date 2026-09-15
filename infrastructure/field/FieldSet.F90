@@ -40,13 +40,12 @@ contains
         unusable, &
         num_levels, &
         units, standard_name, long_name, &
-       ungridded_dims, &
-       quantity_type_metadata, &
-       normalization_metadata, &
-       conservation_metadata, &
-       attributes, &
+        ungridded_dims, &
+        quantity_type_metadata, &
+        normalization_metadata, &
+        conservation_metadata, &
+        attributes, &
         allocation_status, &
-        has_deferred_aspects, &
         regridder_param_info, &
         rc)
       type(ESMF_Field), intent(inout) :: field
@@ -61,13 +60,12 @@ contains
       character(len=*), optional, intent(in) :: units
       character(len=*), optional, intent(in) :: standard_name
       character(len=*), optional, intent(in) :: long_name
-       type(UngriddedDims), optional, intent(in) :: ungridded_dims
-       type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
-       type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
-       type(ConservationMetadata), optional, intent(in) :: conservation_metadata
-       type(StringVector), optional, intent(in) :: attributes
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      type(QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
+      type(NormalizationMetadata), optional, intent(in) :: normalization_metadata
+      type(ConservationMetadata), optional, intent(in) :: conservation_metadata
+      type(StringVector), optional, intent(in) :: attributes
       type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
-      logical, optional, intent(in) :: has_deferred_aspects
       type(esmf_Info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
 
@@ -93,7 +91,7 @@ contains
                call FieldGet(field, vert_staggerloc=stagger, _RC)
             end if
             derived_num_levels = stagger%get_num_levels(vgrid%get_num_layers())
-            
+
             ! Check if num_levels actually changed
             ! Get current num_levels from field array dimensions, not from vgrid
             localElementCount = FieldGetLocalElementCount(field, _RC)
@@ -139,7 +137,6 @@ contains
            normalization_metadata=normalization_metadata, &
            conservation_metadata=conservation_metadata, &
            allocation_status=allocation_status, &
-           has_deferred_aspects=has_deferred_aspects, &
            regridder_param_info=regridder_param_info, &
            _RC)
 

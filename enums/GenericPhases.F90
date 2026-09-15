@@ -14,7 +14,9 @@ module mapl_GenericPhases_mod
    public :: GENERIC_INIT_GEOM_B
    public :: GENERIC_INIT_ADVERTISE
    public :: GENERIC_INIT_MODIFY_ADVERTISED
-   public :: GENERIC_INIT_REALIZE
+   public :: GENERIC_INIT_REALIZE_PROVIDED
+   public :: GENERIC_INIT_ACCEPT_TRANSFER
+   public :: GENERIC_INIT_REALIZE_ACCEPTED
    public :: GENERIC_INIT_READ_RESTART
    public :: GENERIC_INIT_USER
 
@@ -41,7 +43,9 @@ module mapl_GenericPhases_mod
       ! Phases that should be within NUOPC modify_advertised
       enumerator :: GENERIC_INIT_MODIFY_ADVERTISED
       ! Phases that should be within NUOPC realize
-      enumerator :: GENERIC_INIT_REALIZE
+      enumerator :: GENERIC_INIT_REALIZE_PROVIDED
+      enumerator :: GENERIC_INIT_ACCEPT_TRANSFER
+      enumerator :: GENERIC_INIT_REALIZE_ACCEPTED
       enumerator :: GENERIC_INIT_READ_RESTART
    end enum
 
@@ -76,13 +80,32 @@ module mapl_GenericPhases_mod
 
    integer, parameter :: GENERIC_INIT_PHASE_SEQUENCE(*) = &
         [ &
-        GENERIC_INIT_SET_CLOCK, &
+
+        ! label_Advertise
+        GENERIC_INIT_SET_CLOCK, & ! 1
+        GENERIC_INIT_ADVERTISE, & ! 2
+
+        ! label_ModifyAdvertise
+        GENERIC_INIT_MODIFY_ADVERTISED, & ! 3
+
+        ! label_RealizeProvided
         GENERIC_INIT_GEOM_A, &
         GENERIC_INIT_GEOM_B, &
-        GENERIC_INIT_ADVERTISE, &
-        GENERIC_INIT_MODIFY_ADVERTISED, &
-        GENERIC_INIT_MODIFY_ADVERTISED, & ! repeat is hardwired until convergence detection can be automated
-        GENERIC_INIT_REALIZE, &
+        GENERIC_INIT_REALIZE_PROVIDED, &
+
+        ! label_AcceptTransfer
+        GENERIC_INIT_ACCEPT_TRANSFER, & ! 7
+
+        ! label_RealizeAccepted
+        GENERIC_INIT_REALIZE_ACCEPTED, & ! 8
+
+        ! Second pass
+        GENERIC_INIT_REALIZE_PROVIDED, & ! 9
+        GENERIC_INIT_ACCEPT_TRANSFER, &  ! 10
+        GENERIC_INIT_REALIZE_ACCEPTED, & ! 11
+        
+
+        ! label_DataInitialize
         GENERIC_INIT_READ_RESTART, & ! IMPORTANT: Goes before INIT_USER
         GENERIC_INIT_USER &
         ]

@@ -76,7 +76,7 @@ contains
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
 
-      geom = detect_geom(collection_gridcomp%output_bundle, name, _RC)
+      geom = MAPL_FieldBundleGetGeom(collection_gridcomp%output_bundle, _RC)
       metadata = mapl_bundle_to_metadata(collection_gridcomp%output_bundle, geom, _RC)
       allocate(collection_gridcomp%writer, source=mapl_make_geom_pfio(metadata, rc=status))
       _VERIFY(STATUS)

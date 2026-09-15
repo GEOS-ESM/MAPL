@@ -77,24 +77,19 @@ contains
 
       call esmf_StateGet(internal_state, 'kx_'//name,  field=kx_f,  _RC)
       call mapl_FieldSet(kx_f,  geom=geom, ungridded_dims=ungridded_dims, units=units, &
-           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., _RC)
+           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
       call esmf_StateGet(internal_state, 'ky_'//name,  field=ky_f,  _RC)
       call mapl_FieldSet(ky_f,  geom=geom, ungridded_dims=ungridded_dims, units=units, &
-           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., _RC)
+           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
       call esmf_StateGet(internal_state, 'ex_'//name,  field=ex_f,  _RC)
       call mapl_FieldSet(ex_f,  geom=geom, ungridded_dims=ungridded_dims, units=units, &
-           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., _RC)
+           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
       call esmf_StateGet(internal_state, 'ey_'//name,  field=ey_f,  _RC)
       call mapl_FieldSet(ey_f,  geom=geom, ungridded_dims=ungridded_dims, units=units, &
-           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., _RC)
+           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
       call esmf_StateGet(internal_state, 'exy_'//name, field=exy_f, _RC)
       call mapl_FieldSet(exy_f, geom=geom, ungridded_dims=ungridded_dims, units=units, &
-           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, &
-           has_deferred_aspects=.false., _RC)
+           typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(f_y)

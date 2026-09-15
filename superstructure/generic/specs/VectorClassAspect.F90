@@ -55,6 +55,7 @@ module mapl_VectorClassAspect_mod
       type(MAPL_VectorBasisKind) :: basis_kind
    contains
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_transform
@@ -101,6 +102,15 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
+
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(VectorClassAspect), intent(in) :: this
+
+      type(FieldClassAspect) :: placeholder
+
+      aspect_ids = placeholder%get_mandatory_aspect_ids()
+   end function get_mandatory_aspect_ids
 
    function matches(src, dst)
       logical :: matches

@@ -58,6 +58,7 @@ module mapl_ExpressionClassAspect_mod
       type(ESMF_Field) :: payload ! to hold metadata
    contains
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_transform
@@ -110,6 +111,14 @@ contains
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(ExpressionClassAspect), intent(in) :: this
+
+      aspect_ids = [AspectId:: ]
+   end function get_mandatory_aspect_ids
+
+
    ! No op
    subroutine create(this, other_aspects, rc)
       class(ExpressionClassAspect), intent(inout) :: this
@@ -130,26 +139,28 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemSpec), pointer :: extension
-      type(StateItemSpec), pointer :: spec
-      type(StringVector) :: expression_variables
-      type(StringVectorIterator) :: iter
-      character(:), pointer :: variable
 
-      expression_variables = parser_variables_in_expression(this%expression, _RC)
-      associate(b => expression_variables%begin(), e => expression_variables%end())
-      iter = b
-      do while (iter /= e)
-         variable => iter%of()
-         extension => this%registry%get_primary_spec(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable), _RC)
-         spec => extension
-         call spec%activate()
-         call iter%next()
-      enddo
-      end associate
+        type(StateItemSpec), pointer :: extension
+        type(StateItemSpec), pointer :: spec
+        type(StringVector) :: expression_variables
+        type(StringVectorIterator) :: iter
+        character(:), pointer :: variable
+        type(VirtualConnectionPt) :: v_pt
 
+        expression_variables = parser_variables_in_expression(this%expression, _RC)
+        associate(b => expression_variables%begin(), e => expression_variables%end())
+          iter = b
+          do while (iter /= e)
+             variable => iter%of()
+             v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable)
+             extension => this%registry%get_primary_spec(v_pt, _RC)
+             spec => extension
+             call spec%activate(_RC)
+             call iter%next()
+          enddo
+        end associate
       _RETURN(ESMF_SUCCESS)
-   end subroutine activate
+    end subroutine activate
 
    ! noop
    subroutine allocate(this, other_aspects, rc)
@@ -258,7 +269,6 @@ contains
       select type (dst)
       type is (FieldClassAspect)
 
-
          expression_variables = parser_variables_in_expression(src%expression, _RC)
          associate (b => expression_variables%begin(), e => expression_variables%end())
          iter = b
@@ -274,6 +284,7 @@ contains
          n = goal_aspects%erase(CLASS_ASPECT_ID)
          call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
          call goal_spec%create(_RC)
+         call goal_spec%allocate(_RC)
 
          do i = 1, inputs%size()
             v_pt => inputs%of(i)
@@ -364,7 +375,6 @@ contains
 
 !#      select type(dst)
 !#      class is (FieldClassAspect)
-!#         _HERE
 !#         matches = .true.
 !#      end select
 

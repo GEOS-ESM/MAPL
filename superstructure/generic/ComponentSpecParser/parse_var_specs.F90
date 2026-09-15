@@ -71,10 +71,11 @@ contains
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
 
-         type(GeometrySpec) :: geometry_spec
-         type(mapl_MaplGeom), pointer :: mapl_geom
-         type(mapl_GeomManager), pointer :: geom_mgr
-         type(ESMF_Geom), allocatable :: geom
+          type(GeometrySpec) :: geometry_spec
+          type(mapl_GeomId) :: geom_id
+          type(mapl_MaplGeom), pointer :: mapl_geom
+          type(mapl_GeomManager), pointer :: geom_mgr
+          type(ESMF_Geom), allocatable :: geom
          class(VerticalGrid), allocatable :: vertical_grid
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
@@ -90,6 +91,10 @@ contains
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
 
             short_name = name
+
+            geom_id = mapl_new_GeomId()
+            if (allocated(geom)) deallocate(geom)
+            if (allocated(vertical_grid)) deallocate(vertical_grid)
 
             typekind = to_typekind(attributes, _RC)
             call val_to_float(fill_value, attributes, KEY_FILL_VALUE, _RC)
@@ -126,10 +131,11 @@ contains
 
             dependencies = to_dependencies(attributes, _RC)
 
-            geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
-            if (allocated(geometry_spec%geom_spec)) then
-               geom_mgr => mapl_get_geom_manager()
-               mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+             geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
+             geom_id = geometry_spec%geom_id
+             if (allocated(geometry_spec%geom_spec)) then
+                geom_mgr => mapl_get_geom_manager()
+                mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
                geom = mapl_geom%get_geom()
             end if
             if (allocated(geometry_spec%vertical_grid)) then
@@ -148,8 +154,9 @@ contains
                  service_items=service_items, &
                  standard_name=standard_name, &
                  dependencies=dependencies, &
-                 expression=expression, &
-                 geom=geom, &
+                  expression=expression, &
+                  geom_id=geom_id, &
+                  geom=geom, &
                  vertical_grid=vertical_grid, &
                  horizontal_dims_spec=horizontal_dims_spec, _RC)
 
@@ -356,5 +363,3 @@ contains
    end function parse_var_specs
 
 end submodule parse_var_specs_smod
-
-

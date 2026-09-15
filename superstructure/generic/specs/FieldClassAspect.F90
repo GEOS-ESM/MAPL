@@ -56,6 +56,7 @@ module mapl_FieldClassAspect_mod
       type(RestartMode), allocatable :: restart_mode
    contains
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_transform
@@ -76,7 +77,7 @@ module mapl_FieldClassAspect_mod
 
    interface
       module function matches_a(src, dst) result(matches)
-        logical matches
+         logical matches
          class(FieldClassAspect), intent(in) :: src
          class(StateItemAspect), intent(in) :: dst
       end function matches_a
@@ -125,24 +126,41 @@ contains
       type(AspectMap), intent(in) :: goal_aspects
       integer, optional, intent(out) :: rc
 
-       aspect_ids = [ &
-            CLASS_ASPECT_ID, &
-            ATTRIBUTES_ASPECT_ID, &
-            UNGRIDDED_DIMS_ASPECT_ID, &
-            QUANTITY_TYPE_ASPECT_ID, &
-            CONSERVATION_ASPECT_ID, &
-            GEOM_ASPECT_ID, &
-            VERTICAL_GRID_ASPECT_ID, &
-            NORMALIZATION_ASPECT_ID, &
-            UNITS_ASPECT_ID, &
-            TYPEKIND_ASPECT_ID &
-            ]
+      aspect_ids = [ &
+           CLASS_ASPECT_ID, &
+           ATTRIBUTES_ASPECT_ID, &
+           UNGRIDDED_DIMS_ASPECT_ID, &
+           QUANTITY_TYPE_ASPECT_ID, &
+           CONSERVATION_ASPECT_ID, &
+           GEOM_ASPECT_ID, &
+           VERTICAL_GRID_ASPECT_ID, &
+           NORMALIZATION_ASPECT_ID, &
+           UNITS_ASPECT_ID, &
+           TYPEKIND_ASPECT_ID &
+           ]
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(FieldClassAspect), intent(in) :: this
+
+      aspect_ids = [ &
+           ATTRIBUTES_ASPECT_ID, &
+           UNGRIDDED_DIMS_ASPECT_ID, &
+           QUANTITY_TYPE_ASPECT_ID, &
+           CONSERVATION_ASPECT_ID, &
+           GEOM_ASPECT_ID, &
+           VERTICAL_GRID_ASPECT_ID, &
+           NORMALIZATION_ASPECT_ID, &
+           UNITS_ASPECT_ID, &
+           TYPEKIND_ASPECT_ID &
+           ]
+
+   end function get_mandatory_aspect_ids
 
    subroutine create(this, other_aspects, rc)
       class(FieldClassAspect), intent(inout) :: this
@@ -152,7 +170,6 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-
       call mapl_FieldSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
@@ -246,33 +263,33 @@ contains
       call mirror(this%fill_value, export_%fill_value)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_CONNECTED, _RC)
+!#      call FieldInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
 
    contains
 
-     subroutine mirror(dst, src)
-        real, allocatable, intent(inout) :: dst
-        real, allocatable, intent(in) :: src
+      subroutine mirror(dst, src)
+         real, allocatable, intent(inout) :: dst
+         real, allocatable, intent(in) :: src
 
-        character(100) :: buffer
-        class(Logger), pointer :: lgr
+         character(100) :: buffer
+         class(Logger), pointer :: lgr
 
-        if (.not. allocated(src)) return
+         if (.not. allocated(src)) return
 
-        if (.not. allocated(dst)) then
-           dst = src
-           return
-        end if
+         if (.not. allocated(dst)) then
+            dst = src
+            return
+         end if
 
-        ! TODO: Problematic case: both allocated with different values.
-        if (dst /= src) then
-           lgr => logging%get_logger('mapl.generic')
-           write(buffer,*) actual_pt
-           call lgr%info('Mismatched default values for %a src = %g0~; dst = %g0 (src value wins)', trim(buffer), src, dst)
-        end if
+         ! TODO: Problematic case: both allocated with different values.
+         if (dst /= src) then
+            lgr => logging%get_logger('mapl.generic')
+            write(buffer,*) actual_pt
+            call lgr%info('Mismatched default values for %a src = %g0~; dst = %g0 (src value wins)', trim(buffer), src, dst)
+         end if
 
       end subroutine mirror
 

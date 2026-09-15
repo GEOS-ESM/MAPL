@@ -8,6 +8,7 @@ module mapl_StateItemSpec_mod
    use mapl_ExtensionTransform_mod
    use mapl_MultiState_mod
    use mapl_StateItemAspect_mod
+   use mapl_AspectStatus_mod, only: AspectStatus, ASPECT_STATUS_FROM_COMP
    use mapl_GeomAspect_mod
    use mapl_VerticalGridAspect_mod
    use mapl_ClassAspect_mod
@@ -34,7 +35,7 @@ module mapl_StateItemSpec_mod
       type(VirtualConnectionPtVector) :: dependencies
 
       type(AspectMap) :: aspects
-      logical :: has_deferred_aspects_ = .false.
+!#      logical :: has_deferred_aspects_ = .false.
       type(esmf_StateIntent_Flag) :: state_intent
 
       ! Producer/consumer tracking (merged from StateItemExtension)
@@ -45,7 +46,8 @@ module mapl_StateItemSpec_mod
       procedure :: get_aspect_order ! as string vector
       procedure :: get_aspect_priorities ! default implementation as aid to refactoring
       procedure :: clone_base
-      procedure :: make_extension
+       procedure :: make_extension
+       procedure :: all_characteristics_resolved
 
 !#      procedure(I_write_formatted), deferred :: write_formatted
 !##ifndef __GFORTRAN__
@@ -60,7 +62,6 @@ module mapl_StateItemSpec_mod
       procedure, non_overridable :: is_active
       procedure, non_overridable :: activate
       procedure, non_overridable :: has_deferred_aspects
-      procedure, non_overridable :: set_has_deferred_aspects
       procedure :: get_aspect_by_id
       generic :: get_aspect => get_aspect_by_id
       procedure :: get_aspects
@@ -102,17 +103,15 @@ module mapl_StateItemSpec_mod
 
 contains
 
-   function new_StateItemSpec(state_intent, aspects, dependencies, has_deferred_aspects) result(spec)
+   function new_StateItemSpec(state_intent, aspects, dependencies) result(spec)
       type(StateItemSpec) :: spec
       type(AspectMap), intent(in) :: aspects
       type(esmf_StateIntent_Flag), intent(in) :: state_intent
       type(VirtualConnectionPtVector), intent(in) :: dependencies
-      logical, optional, intent(in) :: has_deferred_aspects
 
       spec%state_intent = state_intent
       spec%aspects = aspects
       spec%dependencies = dependencies
-      if (present(has_deferred_aspects)) spec%has_deferred_aspects_ = has_deferred_aspects
 
    end function new_StateItemSpec
 
@@ -131,7 +130,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
       call this%set_allocation_status(MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
       if (present(allocated)) then
          if (allocated) then
@@ -154,11 +152,17 @@ contains
    end function is_allocated
 
    recursive subroutine activate(this, rc)
+      use mapl_stateitemallocation_mod
       class(StateItemSpec), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(ClassAspect), pointer :: class_aspect
+      type(StateItemAllocation) :: allocation_status
+
+      allocation_status = this%get_allocation_status()
+      _RETURN_IF(allocation_status == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+      _RETURN_IF(allocation_status == MAPL_STATEITEM_ALLOCATION_ACTIVE)
 
       call this%set_allocation_status(MAPL_STATEITEM_ALLOCATION_ACTIVE, _RC)
 
@@ -283,7 +287,6 @@ contains
       new_spec%state_intent = this%state_intent
       new_spec%aspects = this%aspects
       new_spec%dependencies = this%dependencies  
-      new_spec%has_deferred_aspects_ = this%has_deferred_aspects_
       
       ! Producer/consumers are intentionally NOT copied (left as null/empty)
       ! This is the key difference from regular assignment
@@ -294,7 +297,7 @@ contains
    ! Factory method to create an extension with couplers
    ! This creates a new spec that extends this one toward the goal_spec,
    ! setting up the necessary transform couplers
-   recursive function make_extension(this, goal_spec, rc) result(new_spec)
+    recursive function make_extension(this, goal_spec, rc) result(new_spec)
       type(StateItemSpec), target :: new_spec
       class(StateItemSpec), target, intent(inout) :: this
       type(StateItemSpec), target, intent(in) :: goal_spec
@@ -309,15 +312,17 @@ contains
       type(AspectId), allocatable :: aspect_ids(:)
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
       type(AspectMap), pointer :: other_aspects
+      logical :: can_extend
 
-      call this%activate(_RC)
       call this%update_from_payload(_RC)
+      
+      can_extend = this%all_characteristics_resolved(_RC)
+      _RETURN_UNLESS(can_extend)
 
       new_spec = this%clone_base()
 
       aspect_ids = this%get_aspect_order(goal_spec)
       do i = 1, size(aspect_ids)
-
          src_aspect => new_spec%get_aspect(aspect_ids(i), _RC)
          _ASSERT(associated(src_aspect), 'src aspect not found')
 
@@ -338,7 +343,7 @@ contains
       end do
 
       if (allocated(transform)) then
-         
+
          call new_spec%create(_RC)
          call new_spec%activate(_RC)
          source => this%get_producer()
@@ -352,6 +357,38 @@ contains
       _RETURN(_SUCCESS)
    end function make_extension
 
+   logical function all_characteristics_resolved(this, rc)
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      class(StateItemAspect), pointer :: aspect
+      type(AspectStatus) :: aspect_status
+      class(ClassAspect), pointer :: class_aspect
+      type(AspectId), allocatable :: aspect_ids(:)
+      integer :: i
+      integer :: status
+
+      all_characteristics_resolved = .false.
+
+      call this%update_from_payload(_RC)
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      aspect_status = class_aspect%get_characteristic_state()
+      _RETURN_UNLESS(aspect_status%is_resolved())
+      aspect_ids = class_aspect%get_mandatory_aspect_ids()
+
+      do i = 1, size(aspect_ids)
+         aspect => this%aspects%at(aspect_ids(i), _RC)
+         aspect_status = aspect%get_characteristic_state()
+         _RETURN_UNLESS(aspect_status%is_resolved())
+      end do
+
+      all_characteristics_resolved = .true.
+      _RETURN(_SUCCESS)
+   end function all_characteristics_resolved
+
+
+
    ! Will use ESMF so cannot be PURE
    subroutine create(this, rc)
       class(StateItemSpec), target, intent(inout) :: this
@@ -362,48 +399,39 @@ contains
       type(esmf_Field), allocatable :: field
       type(esmf_FieldBundle), allocatable :: bundle
       type(esmf_State), allocatable :: state
-      
+
       class_aspect => to_ClassAspect(this%aspects, _RC)
       call class_aspect%create(this%aspects, _RC)
       call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
       call update_payload_from_aspects(this, field=field, bundle=bundle, state=state, _RC)
 
-      if (allocated(field)) then
-         call mapl_FieldSet(field, has_deferred_aspects=this%has_deferred_aspects_, _RC)
-      end if
-      if (allocated(bundle)) then
-         call mapl_FieldBundleSet(bundle, has_deferred_aspects=this%has_deferred_aspects_, _RC)
-      end if
-      
       _RETURN(_SUCCESS)
-   contains
-
-      subroutine update_payload_from_aspects(this, field, bundle, state, rc)
-         class(StateItemSpec), target, intent(in) :: this
-         type(esmf_Field), optional, intent(inout) :: field
-         type(esmf_FieldBundle), optional, intent(inout) :: bundle
-         type(esmf_State), optional, intent(inout) :: state
-         integer, optional, intent(out) :: rc
-
-         ! allocatable to be "not-present" in other calls
-         type(AspectMapIterator) :: iter
-         class(StateItemAspect), pointer :: aspect
-         integer :: status
-
-         associate(e => this%aspects%ftn_end())
-           iter = this%aspects%ftn_begin()
-           do while (iter /= e)
-             call iter%next()
-             aspect => iter%second()
-             call aspect%update_payload(field=field, bundle=bundle, state=state, _RC)
-          end do
-         end associate
-
-         _RETURN(_SUCCESS)
-      end subroutine update_payload_from_aspects
-
    end subroutine create
 
+   subroutine update_payload_from_aspects(this, field, bundle, state, rc)
+      class(StateItemSpec), target, intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+      
+      ! allocatable to be "not-present" in other calls
+      type(AspectMapIterator) :: iter
+      class(StateItemAspect), pointer :: aspect
+      integer :: status
+      
+      associate(e => this%aspects%ftn_end())
+        iter = this%aspects%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           aspect => iter%second()
+           call aspect%update_payload(field=field, bundle=bundle, state=state, _RC)
+        end do
+      end associate
+      
+      _RETURN(_SUCCESS)
+   end subroutine update_payload_from_aspects
+   
    subroutine destroy(this, rc)
       class(StateItemSpec), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -423,15 +451,15 @@ contains
 
       integer :: status
       class(ClassAspect), pointer :: class_aspect
-      logical, allocatable :: active, not_connected
+      logical, allocatable :: active, not_connected, not_allocated
       type(MAPL_StateItemAllocation) :: allocation_status
 
       if (this%state_intent == ESMF_STATEINTENT_IMPORT) then
          ! Allow allocation of non-connected imports to support some testing modes
          allocation_status = this%get_allocation_status(_RC)
          active = (allocation_status >= MAPL_STATEITEM_ALLOCATION_ACTIVE)
-         not_connected = (allocation_status < MAPL_STATEITEM_ALLOCATION_CONNECTED)
-         _RETURN_UNLESS(active .and. not_connected)
+!#         not_connected = (allocation_status < MAPL_STATEITEM_ALLOCATION_CONNECTED)
+         _RETURN_UNLESS(active .and. allocation_status /= MAPL_STATEITEM_ALLOCATION_ALLOCATED)
       end if
 
       class_aspect => to_ClassAspect(this%aspects, _RC)
@@ -491,8 +519,6 @@ contains
 
       call import%connect_to_export(export, actual_pt, _RC)
       call export%connect_to_import(import, _RC)
-      call import%set_allocation_status(MAPL_STATEITEM_ALLOCATION_CONNECTED, _RC)
-      call export%set_allocation_status(MAPL_STATEITEM_ALLOCATION_CONNECTED, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine connect
@@ -552,7 +578,6 @@ contains
       integer :: status
 
       call target_set_geom(this, geom, vertical_grid)
-
       _RETURN(_SUCCESS)
 
    contains
@@ -567,6 +592,11 @@ contains
          type(GeomAspect) :: geom_aspect
          type(VerticalGridAspect) :: vertical_grid_aspect
 
+         class(ClassAspect), pointer :: class_aspect
+         type(esmf_Field), allocatable :: field
+         type(esmf_FieldBundle), allocatable :: bundle
+         type(esmf_State), allocatable :: state
+
          if (present(geom)) then
             if (this%aspects%count(GEOM_ASPECT_ID) > 0) then
                poly_aspect => this%aspects%at(GEOM_ASPECT_ID, _RC)
@@ -577,8 +607,10 @@ contains
                end select
 
             else
-               call this%aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
+               poly_aspect => this%aspects%at(GEOM_ASPECT_ID, _RC)
             end if
+
+            call update_payload_from_aspects(this, field=field, bundle=bundle, state=state, _RC)
 
          end if
 
@@ -595,6 +627,11 @@ contains
             end if
 
          end if
+
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
+      call update_payload_from_aspects(this, field=field, bundle=bundle, state=state, _RC)
 
       end subroutine target_set_geom
 
@@ -620,40 +657,12 @@ contains
       _UNUSED_DUMMY(line)
    end subroutine check
 
-   subroutine set_has_deferred_aspects(this, has_deferred_aspects)
-      class(StateItemSpec), intent(inout) :: this
-      logical, intent(in) :: has_deferred_aspects
-
-      this%has_deferred_aspects_ = has_deferred_aspects
-   end subroutine set_has_deferred_aspects
-
    logical function has_deferred_aspects(this, rc)
       class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      class(ClassAspect), pointer :: class_aspect
-      type(esmf_Field), allocatable :: field
-      type(esmf_FieldBundle), allocatable :: bundle
-      type(esmf_State), allocatable :: state
+      has_deferred_aspects = .not. this%all_characteristics_resolved()
 
-      has_deferred_aspects = .false. ! default
-
-      class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
-
-      if (allocated(field)) then
-         call mapl_FieldGet(field, has_deferred_aspects=has_deferred_aspects, _RC)
-      end if
-
-      if (allocated(bundle)) then
-         call mapl_FieldBundleGet(bundle, has_deferred_aspects=has_deferred_aspects, _RC)
-      end if
-
-      ! if (allocated(state)) then
-      !    _FAIL('unsupported use case')
-      ! end if
-      
       _RETURN(_SUCCESS)
    end function has_deferred_aspects
 
@@ -738,7 +747,7 @@ contains
    end subroutine print_spec
 
    subroutine update_from_payload(this, rc)
-      class(StateItemSpec), target, intent(inout) :: this
+      class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
