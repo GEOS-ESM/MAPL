@@ -50,11 +50,13 @@ runs:
     - name: CMake
       shell: bash
       run: |
+        ulimit -s unlimited
         cmake -B build -DCMAKE_Fortran_COMPILER=${{ inputs.fortran-compiler }} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${{ inputs.cmake-build-type }} -DUSE_F2PY=OFF -G "${{ inputs.cmake-generator }}" "${{ inputs.extra-cmake-args }}"
 
     - name: Build
       shell: bash
       run: |
+        ulimit -s unlimited
         cmake --build build --parallel 4
         cmake --install build
 
@@ -62,5 +64,6 @@ runs:
       if: inputs.skip-tests != 'true'
       shell: bash
       run: |
+        ulimit -s unlimited
         cmake --build build --target build-tests --parallel 4
         ctest --test-dir build --parallel 1 --output-on-failure -L 'ESSENTIAL' || ( echo "Re-running only failing tests..." && ctest --test-dir build --parallel 1 --output-on-failure --rerun-failed )
