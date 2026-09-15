@@ -35,6 +35,14 @@ module mapl_PrimaryExport_mod
       character(len=:), allocatable :: regridding_method
       logical :: enable_vertical_regrid = .false.
       integer :: fraction_value
+      ! Optional coordinate-comparison tolerance from the collection's
+      ! config (see GEOS-ESM/MAPL#5385 / ExtDataCollection%coordinate_tolerance).
+      ! When set, stamped onto each file's FileMetadata (via the
+      ! metadata's existing generic add_attribute) before requesting a
+      ! geom, so that near-identical file-based grids can be treated as
+      ! the same grid by GeomManager.
+      logical :: has_coordinate_tolerance = .false.
+      real(kind=ESMF_KIND_R8) :: coordinate_tolerance = 0.0_ESMF_KIND_R8
 
       contains
          procedure :: get_file_selector
@@ -100,6 +108,10 @@ module mapl_PrimaryExport_mod
          primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
          allocate(primary_export%start_and_end, source=time_range)
+         primary_export%has_coordinate_tolerance = collection%is_coordinate_tolerance_allocated()
+         if (primary_export%has_coordinate_tolerance) then
+            primary_export%coordinate_tolerance = collection%get_coordinate_tolerance()
+         end if
       end if
       _RETURN(_SUCCESS)
 
@@ -150,6 +162,9 @@ module mapl_PrimaryExport_mod
       vgrid_manager => mapl_get_vertical_grid_manager()
 
       metadata => this%file_selector%get_dataset_metadata(current_time, _RC)
+      if (this%has_coordinate_tolerance) then
+         call metadata%metadata%add_attribute('coordinate_tolerance', this%coordinate_tolerance, _RC)
+      end if
       geom_mgr => mapl_get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()
@@ -209,6 +224,9 @@ module mapl_PrimaryExport_mod
 
       vgrid_manager => mapl_get_vertical_grid_manager()
       metadata => this%file_selector%get_dataset_metadata(current_time, _RC)
+      if (this%has_coordinate_tolerance) then
+         call metadata%metadata%add_attribute('coordinate_tolerance', this%coordinate_tolerance, _RC)
+      end if
       geom_mgr => mapl_get_geom_manager()
       geom = geom_mgr%get_mapl_geom_from_metadata(metadata%metadata, _RC)
       esmfgeom = geom%get_geom()

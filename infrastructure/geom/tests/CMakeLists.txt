@@ -30,6 +30,7 @@ set (TEST_SRCS
 set (OTHER_SRCS
   MeshTestHelper.F90
   XYTestHelper.F90
+  LatLonTestHelper.F90
 )
 
 add_pfunit_ctest(MAPL.geom.tests
