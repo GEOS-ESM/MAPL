@@ -21,8 +21,7 @@ module mapl_LatLonGeomSpec_mod
       type(LatLonDecomposition) :: decomposition
    contains
       ! mandatory interface
-      procedure :: equal_to
-      procedure :: get_horz_ij_index_r4
+      procedure :: equal_to      procedure :: get_horz_ij_index_r4
       procedure :: get_horz_ij_index_r8
 
       ! LatLon specific

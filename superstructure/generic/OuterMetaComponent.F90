@@ -15,6 +15,7 @@ module mapl_OuterMetaComponent_mod
    use mapl_ComponentDriverVector_mod
    use mapl_GriddedComponentDriverMap_mod, only: GriddedComponentDriverMap
    use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
+   use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
    use gFTL2_StringVector
@@ -55,6 +56,13 @@ module mapl_OuterMetaComponent_mod
 ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
+      ! Graph-neutral core (docs/graph/spec/02-component-hierarchy.md
+      ! REQ-HIER-002/004): exactly one local ComponentGraph per
+      ! OuterComponent. Constructed in init_meta (see init_meta.F90);
+      ! not yet populated by any GraphBuilder logic (that is roadmap
+      ! sub-change 3b, docs/graph/spec/20-implementation-roadmap.md
+      ! §20.4.1).
+      type(ComponentGraph) :: local_graph
 
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
@@ -75,6 +83,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: has_geom
       procedure :: get_geom
       procedure :: get_registry
+      procedure :: get_component_graph
       procedure :: get_logger
       procedure :: set_misc
       procedure :: set_checkpoint_controls_flags
@@ -521,6 +530,15 @@ module mapl_OuterMetaComponent_mod
          type(StateRegistry), pointer :: registry
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_registry
+
+      ! docs/graph/spec/02-component-hierarchy.md REQ-HIER-002/004: the
+      ! one local ComponentGraph owned by this OuterComponent. Read-only
+      ! accessor; mutation happens only through ComponentGraph's own
+      ! type-bound procedures on the returned pointer.
+      module function get_component_graph(this) result(local_graph)
+         type(ComponentGraph), pointer :: local_graph
+         class(OuterMetaComponent), target, intent(in) :: this
+      end function get_component_graph
 
       module function get_component_spec(this) result(component_spec)
          type(ComponentSpec), pointer :: component_spec
