@@ -13,14 +13,24 @@ module mapl_ExtDataCollection_mod
       type(ESMF_Time), allocatable :: reff_time
       integer :: collection_id
       type(ESMF_Time), allocatable :: valid_range(:)
+      ! Optional per-collection coordinate-comparison tolerance (see
+      ! GEOS-ESM/MAPL#5385). When allocated, ExtData stamps this value as
+      ! a "coordinate_tolerance" attribute onto each file's FileMetadata
+      ! before requesting a geom for it, so files whose grids differ only
+      ! by numerical noise can reuse geoms/RouteHandles. Unallocated
+      ! (the default) means no attribute is stamped and comparison stays
+      ! strict/bitwise, matching prior behavior.
+      real(kind=ESMF_KIND_R8), allocatable :: coordinate_tolerance
       contains
          procedure :: get_file_template
          procedure :: get_frequency
          procedure :: get_reff_time
          procedure :: get_collection_id
          procedure :: get_valid_range
+         procedure :: get_coordinate_tolerance
          procedure :: is_reff_time_allocated
          procedure :: is_valid_range_allocated
+         procedure :: is_coordinate_tolerance_allocated
    end type
 
     interface ExtDataCollection
@@ -49,6 +59,11 @@ contains
       file_frequency = get_string_with_default(config,"freq")
       file_reff_time = get_string_with_default(config,"ref_time")
       range_str = get_string_with_default(config,"valid_range")
+
+      if (ESMF_HConfigIsDefined(config,keyString="coordinate_tolerance")) then
+         data_set%coordinate_tolerance = ESMF_HConfigAsR8(config,keyString="coordinate_tolerance",_RC)
+         _ASSERT(data_set%coordinate_tolerance >= 0.0_ESMF_KIND_R8, "coordinate_tolerance must be non-negative")
+      end if
 
       if (file_frequency /= '') then
          data_set%frequency = mapl_HConfigAsTimeInterval(config, keyString="freq", _RC)
@@ -210,5 +225,24 @@ contains
 
       is_allocated = allocated(this%valid_range)
    end function is_valid_range_allocated
+
+   ! coordinate_tolerance accessors
+   function get_coordinate_tolerance(this) result(tolerance)
+      class(ExtDataCollection), intent(in) :: this
+      real(kind=ESMF_KIND_R8) :: tolerance
+
+      tolerance = 0.0_ESMF_KIND_R8
+      if (allocated(this%coordinate_tolerance)) then
+         tolerance = this%coordinate_tolerance
+      end if
+   end function get_coordinate_tolerance
+
+   ! Check if coordinate_tolerance is allocated (i.e. configured)
+   function is_coordinate_tolerance_allocated(this) result(is_allocated)
+      class(ExtDataCollection), intent(in) :: this
+      logical :: is_allocated
+
+      is_allocated = allocated(this%coordinate_tolerance)
+   end function is_coordinate_tolerance_allocated
 
 end module mapl_ExtDataCollection_mod

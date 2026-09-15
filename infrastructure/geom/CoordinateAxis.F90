@@ -26,10 +26,16 @@ module mapl_CoordinateAxis_mod
       private
       real(kind=R8), allocatable :: centers(:)
       real(kind=R8), allocatable :: corners(:)
+      ! Coordinate-comparison tolerance for equal_to(). Default of 0
+      ! preserves exact (bitwise) comparison; a nonzero value (sourced
+      ! from an external "coordinate_tolerance" attribute, e.g. by
+      ! ExtData) allows near-identical coordinates to compare equal.
+      real(kind=R8) :: tolerance = 0.0_R8
    contains
       procedure :: get_extent
       procedure :: get_centers
       procedure :: get_corners
+      procedure :: get_tolerance
       procedure :: is_periodic
    end type CoordinateAxis
 
@@ -52,10 +58,11 @@ module mapl_CoordinateAxis_mod
    ! Submodule
    interface
 
-      pure module function new_CoordinateAxis(centers, corners) result(axis)
+      pure module function new_CoordinateAxis(centers, corners, tolerance) result(axis)
          type(CoordinateAxis) :: axis
          real(kind=R8), intent(in) :: centers(:)
          real(kind=R8), intent(in) :: corners(:)
+         real(kind=R8), optional, intent(in) :: tolerance
       end function new_CoordinateAxis
 
       elemental logical module function equal_to(a, b)
@@ -83,6 +90,11 @@ module mapl_CoordinateAxis_mod
          real(kind=R8), allocatable :: corners(:)
          class(CoordinateAxis), intent(in) :: this
       end function get_corners
+
+      pure module function get_tolerance(this) result(tolerance)
+         real(kind=R8) :: tolerance
+         class(CoordinateAxis), intent(in) :: this
+      end function get_tolerance
 
       pure logical module function is_periodic(this)
          class(CoordinateAxis), intent(in) :: this
