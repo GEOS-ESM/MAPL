@@ -77,6 +77,7 @@ add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(transforms)
 add_subdirectory(couplers)
+add_subdirectory(graph)
 add_subdirectory(vertical)
 
 esma_add_fortran_submodules(
