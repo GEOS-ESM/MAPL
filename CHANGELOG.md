@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed Generic components created through direct SetServices to inherit their parent VM, preventing communicator-context exhaustion during repeated setup.
 - Fixed corrupted cubed-sphere coordinate endpoints in NAG-generated output
 - Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
@@ -23,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified the `CMakeLists.txt` ESMF handling: `ESMA_cmake` now creates the NetCDF/HDF5/ESMF/MPI targets and enforces a minimum ESMF version for both Baselibs and Spack builds automatically, so the manual `if (NOT Baselibs_FOUND) ... else () ... endif ()` block is no longer needed. MAPL3's stricter ESMF >= 9.0.0 requirement is now expressed by setting `ESMA_ESMF_MIN_VERSION` before `include(esma)`.
   - Update `components.yaml`
     - ESMA_env v5.26.0
-    - ESMA_cmake v4.46.0
+    - ESMA_cmake v4.47.0
     - ecbuild geos/v3.15.2
 - Split cap.yaml into mapl.yaml, cap_driver.yaml, and cap_gridcomp.yaml (see issue #5355)
 - Renamed `model_petcount`/`has_model_petcount` to `app_petcount`/`has_app_petcount`
