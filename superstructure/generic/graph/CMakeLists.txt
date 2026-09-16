@@ -37,6 +37,13 @@ target_sources(MAPL.generic PRIVATE
   ComponentGraph.F90
   ComponentGraph_DemandDrivenUpdate.F90
   GraphExport.F90
+
+  CharacteristicId.F90
+  Characteristic.F90
+  UnitsCharacteristic.F90
+  VerticalGridCharacteristic.F90
+  UnitsConverterTransform.F90
+  ExtensionResolution.F90
 )
 
 target_include_directories(MAPL.generic PRIVATE

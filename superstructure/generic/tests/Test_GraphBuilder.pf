@@ -70,13 +70,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_outer_meta
 
-   function make_var(state_intent, short_name) result(var_spec)
+   function make_var(state_intent, short_name, units) result(var_spec)
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
+      character(*), optional, intent(in) :: units
       type(VariableSpec) :: var_spec
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
+      if (present(units)) var_spec%units = units
    end function make_var
 
    ! Task 6.1 / spec "Advertising creates graph state-item nodes":
@@ -279,6 +281,90 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_wires_matching_and_reports_unresolved
+
+   ! openspec/changes/extension-reuse (roadmap sub-change 3c) - REQ-EXT-001/
+   ! 002/003 end-to-end through GraphBuilder: a units mismatch between a
+   ! matched export/import pair gets a real TransformGraphNode + extension
+   ! StateItemNode interposed instead of a direct dependency edge, and the
+   ! no-op case (elsewhere, a second, exactly-matching pair) still wires
+   ! directly - both handled by the same resolve_connections() call.
+   @test(npes=[0])
+   subroutine test_ordinary_connection_units_mismatch_creates_chain(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved, unsupported
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: net_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_units', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m'))
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='km'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+
+      ! REQ-EXT scenario "Mismatched export and import are wired through
+      ! an extension chain": not reported as unresolved, not reported as
+      ! unsupported (units has a real registered provider).
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net_id = parent_graph%get_default_network_id()
+      net => parent_graph%get_network(net_id)
+
+      ! Not a direct edge (spec "Mismatched export and import are wired
+      ! through an extension chain") - a transform node is interposed.
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(false()))
+      @assert_that(net%has_successors(t_export_proxy), is(true()))
+      @assert_that(net%has_predecessors(t_import_proxy), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_ordinary_connection_units_mismatch_creates_chain
 
    ! Two-phase timing correction (GraphBuilder.F90 module header):
    ! graphbuilder_check_unsatisfied_imports() is the GENERIC_INIT_ADVERTISE

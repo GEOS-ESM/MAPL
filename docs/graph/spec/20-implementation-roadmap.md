@@ -168,12 +168,37 @@ not Phase 3 — the sub-changes below exclude them accordingly.
   intentionally left alone rather than renumbered — this slots in
   functionally between 3b and 3c, before 3c's mismatch-driven work
   needs to run on whatever is still unresolved after propagation.
-- **3c. Extension reuse** (`09`, REQ-EXT-001..005) — Transform-chain
-  creation for mismatched export/import pairs, extension-family search
-  as a `DependencyNetwork` traversal, `StateRegistry` registration of
-  extension items. Depends on 3b's wiring and Phase 2's
-  `TransformGraphNode`/`Transform`. REQ-EXT-002a stays `[SPECULATIVE]`/
-  `[OPEN]`, not resolved by this sub-change.
+- **3c. Extension reuse** (`09`, REQ-EXT-001/002/003/005) —
+  `CharacteristicId`/`Characteristic`/`CharacteristicMap` (graph-native
+  analog of legacy `AspectId`/`StateItemAspect`/`AspectMap`, mirroring
+  those patterns' shape — type-safe id, a gFTL2 polymorphic map, and a
+  deferred `build_transform` method exactly like
+  `StateItemAspect%make_transform` — while deliberately independent of
+  their implementation), Transform-chain creation for mismatched export/
+  import pairs (real execution ships for `units` only, via
+  `UnitsCharacteristic%build_transform` and a new `UnitsConverterTransform`
+  — named to avoid colliding with legacy's `ConvertUnitsTransform`
+  module; rename once that legacy module is removed), and the
+  extension-family reuse search restated as a graph-native lookup via
+  `ComponentGraph`'s existing resource index. Depends on 3b's wiring and
+  Phase 2's `TransformGraphNode`/`Transform`. REQ-EXT-002a stays
+  `[SPECULATIVE]`/`[OPEN]`, not resolved by this sub-change.
+- **3c2. StateRegistry/OuterComponent visibility for extension items**
+  (`09` REQ-EXT-004) — discovered missing during 3c's implementation:
+  `StateItemSpec` has no construction path independent of its full
+  `AspectMap`, so satisfying REQ-EXT-004 without reusing `StateRegistry`'s
+  existing methods (a hard constraint by this point in the effort —
+  `StateRegistry` is intended to be retired once graph development is far
+  enough along, not extended) means a second, independent aspect-map-
+  equivalent construction pipeline — deliberately not attempted inside
+  3c itself. Extension items created by 3c are correct graph structure
+  (real `NodeId`s, dependency edges, reuse semantics) but are not yet
+  visible to `StateRegistry` or any ESMF state; 3c2 is what makes them
+  visible. Depends on 3c's chain-creation machinery; does not need real
+  providers for characteristics beyond `units` to be useful on its own.
+  Numbering intentionally mirrors 3b/3b2's own precedent (a sub-change
+  whose own implementation surfaced a required, committed follow-up) —
+  slots functionally after 3c, before 3d.
 - **3d. Visualization enrichment layer** (`19` REQ-VIZ-004 only) —
   wraps the Phase 1–2 graph-neutral exporter with a `NodeId -> label`
   resolver backed by `StateRegistry`. Independent of 3b/3c's hard

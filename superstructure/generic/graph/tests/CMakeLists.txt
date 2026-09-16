@@ -34,6 +34,9 @@ set(test_srcs
   Test_ComponentGraph_PortBindings.pf
   Test_DemandDrivenUpdate.pf
   Test_GraphExport.pf
+  Test_Characteristic.pf
+  Test_ExtensionResolution.pf
+  Test_UnitsConverterTransform.pf
 )
 
 add_pfunit_ctest(MAPL.generic.graph
@@ -44,5 +47,10 @@ add_pfunit_ctest(MAPL.generic.graph
   EXTRA_FINALIZE GraphCoreTest_Finalize
 )
 set_tests_properties(MAPL.generic.graph PROPERTIES LABELS "ESSENTIAL")
+# Test_UnitsConvertTransform.pf needs udunits2f initialized
+# (GraphCoreTestInit.F90), which needs the udunits2.xml database location -
+# same convention as udunits2f/tests/CMakeLists.txt and
+# superstructure/generic/tests/CMakeLists.txt's own TEST_ENV.
+set_tests_properties(MAPL.generic.graph PROPERTIES ENVIRONMENT "UDUNITS2_XML_PATH=${udunits_XML_PATH}")
 
 add_dependencies(build-tests MAPL.generic.graph)

@@ -5,17 +5,22 @@
 ! ComponentGraph/DependencyNetwork core and the rest of MAPL
 ! (spec/08-graph-builder.md REQ-GB-001/002/003, this change's proposal.md).
 !
-! Scope (roadmap sub-change 3b, spec/20-implementation-roadmap.md
+! Scope (roadmap sub-changes 3b + 3c, spec/20-implementation-roadmap.md
 ! sec 20.4.1): advertising (creating StateItemNodes for advertised
 ! import/export/internal items), ordinary (exact short-name match)
 ! connection resolution restricted to MatchConnection - the concrete
 ! Connection subtype behind OuterMetaComponent%connect_all's "magic
 ! connect" behavior (superstructure/generic/OuterMetaComponent/connect_all.F90)
-! - public-port/child-proxy population, and validate/freeze. Explicitly
-! NOT in scope here: SimpleConnection/ReexportConnection, extension/
-! mismatch-chain creation (3c), wildcard/callback resolution (Phase 4),
-! and compiled execution (Phase 5/Q9) - see proposal.md "Explicitly out
-! of scope".
+! - public-port/child-proxy population, validate/freeze, and (3c,
+! openspec/changes/extension-reuse) mismatch detection/extension-chain
+! creation for a matched pair whose export does not exactly match its
+! import, delegating to mapl_ExtensionResolution_mod
+! (superstructure/generic/graph/ExtensionResolution.F90). Explicitly NOT
+! in scope here: SimpleConnection/ReexportConnection, wildcard/callback
+! resolution (Phase 4), compiled execution (Phase 5/Q9), and real
+! (executing) extension providers for any characteristic other than
+! `units` (3c's own scope boundary, extension-reuse change design.md) -
+! see proposal.md "Explicitly out of scope".
 !
 ! Design (design.md - Decisions): a stateless-per-call procedure set, not
 ! a persistent object - every procedure here takes the OuterMetaComponent
@@ -93,6 +98,11 @@ module mapl_GraphBuilder_mod
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use gFTL2_StringVector, only: StringVector
+   use mapl_Characteristic_mod, only: CharacteristicMap
+   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID
+   use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
    use pflogger, only: Logger
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, &
         ESMF_STATEINTENT_EXPORT
@@ -379,7 +389,7 @@ contains
 
          logical :: has_export
 
-         has_export = var_specs_has_export(src_spec, var_spec%short_name)
+         has_export = associated(find_export_var_spec(src_spec, var_spec%short_name))
          if (.not. has_export) then
             call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
          end if
@@ -408,10 +418,17 @@ contains
    ! instead: once this component's graph is frozen, every ordinary
    ! connection it declares has already been resolved, so a repeat call
    ! is a safe no-op rather than an attempt to mutate a frozen graph.
-   subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, rc)
+    subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, &
+         unsupported_characteristics, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       type(StringVector), optional, intent(out) :: unresolved_imports
+      ! REQ scenario "Unregistered characteristic fails loudly": a
+      ! distinguishable report, separate from unresolved_imports (which
+      ! means "no export at all"), for a matched export/import pair whose
+      ! mismatch has no registered extension provider
+      ! (mapl_ExtensionResolution_mod).
+      type(StringVector), optional, intent(out) :: unsupported_characteristics
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -420,10 +437,12 @@ contains
       type(ConnectionVectorIterator) :: iter
       class(Connection), pointer :: c
       type(StringVector) :: unresolved
+      type(StringVector) :: unsupported
 
       graph => this%get_component_graph()
       if (graph%is_frozen()) then
          if (present(unresolved_imports)) unresolved_imports = unresolved
+         if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
          _RETURN(_SUCCESS)
       end if
 
@@ -436,7 +455,7 @@ contains
             c => iter%of()
             select type (c)
             class is (MatchConnection)
-               call resolve_match_connection(this, c, unresolved, _RC)
+               call resolve_match_connection(this, c, unresolved, unsupported, _RC)
             class default
                ! Wildcard/callback/reexport/simple connections: out of
                ! scope for this slice - deliberately skipped.
@@ -445,6 +464,7 @@ contains
       end associate
 
       if (present(unresolved_imports)) unresolved_imports = unresolved
+      if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -461,10 +481,11 @@ contains
    ! ConnectionPt/VirtualConnectionPt read-only accessors are ordinary
    ! public query methods on the Connection's own declared data, not part
    ! of that execution machinery, and are used here as-is.
-   subroutine resolve_match_connection(this, conn, unresolved, rc)
+   subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MatchConnection), intent(in) :: conn
       type(StringVector), intent(inout) :: unresolved
+      type(StringVector), intent(inout) :: unsupported
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -491,40 +512,105 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(NodeId) :: import_node_id, export_node_id
+         type(NodeId) :: import_node_id, export_node_id, final_node_id
          logical :: has_export
+         type(VariableSpec), pointer :: export_var_spec
+         type(CharacteristicMap), target :: export_characteristics, import_characteristics
+         type(CharacteristicId), allocatable :: mismatched(:)
+         character(:), allocatable :: unsupported_characteristic
 
          import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
               ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
 
          has_export = find_export_node_id(this, src_pt%component_name, var_spec%short_name, &
-              export_node_id, _RC)
+              export_node_id, export_var_spec, _RC)
 
-         if (has_export) then
-            call this_graph%add_dependency(net_id, export_node_id, import_node_id, _RC)
-         else
+         if (.not. has_export) then
             ! REQ scenario "Import with no matching export is left
             ! unresolved" - reported, not silently dropped.
             call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
+            _RETURN(_SUCCESS)
          end if
+
+         export_characteristics = build_characteristics(export_var_spec, _RC)
+         import_characteristics = build_characteristics(var_spec, _RC)
+         mismatched = find_mismatched_characteristics(export_characteristics, import_characteristics)
+
+         if (size(mismatched) == 0) then
+            ! REQ-EXT-003 no-op case: matches exactly, wire directly.
+            call this_graph%add_dependency(net_id, export_node_id, import_node_id, _RC)
+            _RETURN(_SUCCESS)
+         end if
+
+         ! REQ-EXT-001/005: mismatch - delegate to the extension-reuse
+         ! capability (mapl_ExtensionResolution_mod) rather than wiring
+         ! the mismatched pair directly.
+         call find_or_build_extension_chain(this_graph, net_id, export_node_id, &
+              export_characteristics, import_characteristics, mismatched, &
+              final_node_id, unsupported_characteristic, _RC)
+
+         if (unsupported_characteristic /= '') then
+            ! spec "Unregistered characteristic fails loudly" -
+            ! distinguishable from "import has no matching export."
+            call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
+                 ':' // unsupported_characteristic)
+            _RETURN(_SUCCESS)
+         end if
+
+         call this_graph%add_dependency(net_id, final_node_id, import_node_id, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine resolve_one
 
    end subroutine resolve_match_connection
 
-   logical function find_export_node_id(this, comp_name, short_name, export_node_id, rc) result(found)
+   ! Builds the CharacteristicMap for one VariableSpec directly from its
+   ! own declared fields - deliberately not via
+   ! VariableSpec%make_StateitemSpec/make_aspects (design.md Decisions:
+   ! "Characteristic is the graph's own name for what legacy calls an
+   ! Aspect, and is a deliberately independent design, not a reskin").
+   ! A kind is included only when the underlying field is actually
+   ! populated, mirroring "aspect present" gating.
+    function build_characteristics(var_spec, rc) result(characteristics)
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+      type(CharacteristicMap) :: characteristics
+
+      integer :: status
+      character(20) :: grid_id_buffer
+
+      if (allocated(var_spec%units)) then
+         call characteristics%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic(var_spec%units))
+      end if
+      if (allocated(var_spec%vertical_grid)) then
+         ! VerticalGrid%get_id() returns an integer identity token;
+         ! VerticalGridCharacteristic compares an opaque string
+         ! signature (Characteristic.F90 get_signature contract), so it
+         ! is rendered to text here rather than changing
+         ! VerticalGridCharacteristic's own constructor to know about
+         ! integer ids specifically.
+         write(grid_id_buffer, '(I0)') var_spec%vertical_grid%get_id()
+         call characteristics%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic(trim(grid_id_buffer)))
+      end if
+
+      _RETURN(_SUCCESS)
+   end function build_characteristics
+
+   logical function find_export_node_id(this, comp_name, short_name, export_node_id, export_var_spec, rc) result(found)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: comp_name
       character(*), intent(in) :: short_name
       type(NodeId), intent(out) :: export_node_id
+      type(VariableSpec), pointer, intent(out) :: export_var_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ComponentSpec), pointer :: src_spec
 
+      export_var_spec => null()
       src_spec => component_spec_for(this, comp_name, _RC)
-      found = var_specs_has_export(src_spec, short_name)
+      export_var_spec => find_export_var_spec(src_spec, short_name)
+      found = associated(export_var_spec)
       if (.not. found) then
          _RETURN(_SUCCESS)
       end if
@@ -534,26 +620,27 @@ contains
       _RETURN(_SUCCESS)
    end function find_export_node_id
 
-   logical function var_specs_has_export(comp_spec, short_name) result(has_export)
-      type(ComponentSpec), intent(in) :: comp_spec
+   function find_export_var_spec(comp_spec, short_name) result(export_var_spec)
+      type(ComponentSpec), target, intent(in) :: comp_spec
       character(*), intent(in) :: short_name
+      type(VariableSpec), pointer :: export_var_spec
 
       type(VariableSpecVectorIterator) :: iter
       type(VariableSpec), pointer :: var_spec
 
-      has_export = .false.
+      export_var_spec => null()
       associate (e => comp_spec%var_specs%ftn_end())
          iter = comp_spec%var_specs%ftn_begin()
          do while (iter /= e)
             call iter%next()
             var_spec => iter%of()
             if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT .and. var_spec%short_name == short_name) then
-               has_export = .true.
+               export_var_spec => var_spec
                return
             end if
          end do
       end associate
-   end function var_specs_has_export
+   end function find_export_var_spec
 
    ! ============================================================
    ! Task 4: Public ports and child proxies
@@ -741,9 +828,21 @@ contains
       class(OuterMetaComponent), target, intent(inout) :: this
 
       integer :: status
+      type(StringVector) :: unsupported
+      integer :: i
+      character(:), pointer :: unsupported_item
+      class(Logger), pointer :: lgr
 
-      call graphbuilder_resolve_connections(this, rc=status)
+      call graphbuilder_resolve_connections(this, unsupported_characteristics=unsupported, rc=status)
       call report_if_failed(this, 'resolve_connections', status)
+
+      lgr => this%get_logger()
+      do i = 1, unsupported%size()
+         unsupported_item => unsupported%of(i)
+         call lgr%warning( &
+              'GraphBuilder: no registered extension provider for mismatched characteristic %a', &
+              unsupported_item)
+      end do
 
       call graphbuilder_freeze(this, status)
       call report_if_failed(this, 'freeze', status)
