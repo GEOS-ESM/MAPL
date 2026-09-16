@@ -143,6 +143,8 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_gridcomp
 
       procedure :: get_component_spec
+      procedure :: get_child_component_spec
+      procedure :: get_child_component_graph
       procedure :: get_internal_state
 
       procedure :: set_vertical_grid
@@ -544,6 +546,32 @@ module mapl_OuterMetaComponent_mod
          type(ComponentSpec), pointer :: component_spec
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_component_spec
+
+      ! Framework-internal reach into a named child's own ComponentSpec/
+      ! ComponentGraph (docs/graph/spec/02-component-hierarchy.md
+      ! REQ-GB-002's "framework may reach into a child's own state"
+      ! carve-out; REQ-HIER-005 keeps this out of OuterMetaComponent's
+      ! general public API). Fortran has no friend-module/package-private
+      ! visibility, so these two ARE Fortran-public - "internal use
+      ! only" here is a documented convention, the same class of trust
+      ! already extended by REQ-GB-002, not a compiler-enforced boundary.
+      ! Not re-exported by any user-facing aggregator module; intended
+      ! callers are framework code inside mapl_generic (e.g.
+      ! mapl_GraphBuilder_mod) that already has this same reach
+      ! justified some other way, not ordinary user-facing API.
+      module function get_child_component_spec(this, child_name, rc) result(component_spec)
+         type(ComponentSpec), pointer :: component_spec
+         class(OuterMetaComponent), target, intent(inout) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_component_spec
+
+      module function get_child_component_graph(this, child_name, rc) result(local_graph)
+         type(ComponentGraph), pointer :: local_graph
+         class(OuterMetaComponent), target, intent(inout) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_component_graph
 
       module function get_internal_state(this) result(internal_state)
          type(ESMF_State) :: internal_state

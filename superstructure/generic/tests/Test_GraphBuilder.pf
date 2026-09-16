@@ -94,6 +94,7 @@ contains
       type(NodeId), pointer :: import_id, export_id, internal_id
       type(NodeIdSet) :: ids
       integer :: status
+      type(GraphBuilder) :: gb
 
       call make_outer_meta('comp_advertise', outer_gc, outer_meta, _RC)
       comp_spec => outer_meta%get_component_spec()
@@ -102,7 +103,7 @@ contains
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'Q'))
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_INTERNAL, 'INTERN'))
 
-      call graphbuilder_advertise(outer_meta, status)
+      call gb%advertise(outer_meta, status)
       @assert_that(status, is(0))
 
       graph => outer_meta%get_component_graph()
@@ -121,7 +122,7 @@ contains
       @assertEqual(3, ids%size())
 
       ! Re-advertising (e.g. a second init pass) does not duplicate.
-      call graphbuilder_advertise(outer_meta, status)
+      call gb%advertise(outer_meta, status)
       @assert_that(status, is(0))
       ids = graph%get_node_ids()
       @assertEqual(3, ids%size())
@@ -146,13 +147,14 @@ contains
       type(ComponentGraph), pointer :: graph
       type(NodeId), pointer :: import_id, export_id
       integer :: status
+      type(GraphBuilder) :: gb
 
       call make_outer_meta('comp_ports', outer_gc, outer_meta, _RC)
       comp_spec => outer_meta%get_component_spec()
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'Q'))
 
-      call graphbuilder_advertise(outer_meta, status)
+      call gb%advertise(outer_meta, status)
       @assert_that(status, is(0))
 
       graph => outer_meta%get_component_graph()
@@ -190,6 +192,7 @@ contains
       type(DependencyNetwork), pointer :: net
       type(DependencyNetworkId) :: net_id
       integer :: status
+      type(GraphBuilder) :: gb
 
       call make_outer_meta('comp_parent', parent_gc, parent_meta, _RC)
       child_spec = ChildSpec()
@@ -214,9 +217,9 @@ contains
       ! Children advertise first - mirrors recursion order in
       ! OuterMetaComponent/initialize_advertise.F90 (children complete
       ! before the parent resolves its own connections).
-      call graphbuilder_advertise(src_meta, status)
+      call gb%advertise(src_meta, status)
       @assert_that(status, is(0))
-      call graphbuilder_advertise(dst_meta, status)
+      call gb%advertise(dst_meta, status)
       @assert_that(status, is(0))
 
       ! connect_all('child_src', 'child_dst')'s own "magic connect" shape
@@ -227,7 +230,7 @@ contains
       parent_spec => parent_meta%get_component_spec()
       call parent_spec%add_connection(conn)
 
-      call graphbuilder_resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
       @assert_that(status, is(0))
 
       @assertEqual(1, unresolved%size())
@@ -301,6 +304,7 @@ contains
       type(NodeId), pointer :: t_export_proxy, t_import_proxy, q_import_proxy
       type(NodeIdSet) :: parent_ids
       integer :: status
+      type(GraphBuilder) :: gb
 
       call make_outer_meta('comp_parent_activate', parent_gc, parent_meta, _RC)
       child_spec = ChildSpec()
@@ -322,9 +326,9 @@ contains
       call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
       call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'Q')) ! no matching export
 
-      call graphbuilder_advertise(src_meta, status)
+      call gb%advertise(src_meta, status)
       @assert_that(status, is(0))
-      call graphbuilder_advertise(dst_meta, status)
+      call gb%advertise(dst_meta, status)
       @assert_that(status, is(0))
 
       conn = MatchConnection( &
@@ -337,7 +341,7 @@ contains
       parent_ids = parent_graph%get_node_ids()
       @assertEqual(0, parent_ids%size())
 
-      call graphbuilder_check_unsatisfied_imports(parent_meta, unresolved_imports=unresolved, rc=status)
+      call gb%check_unsatisfied_imports(parent_meta, unresolved_imports=unresolved, rc=status)
       @assert_that(status, is(0))
 
       ! Same unresolved report as the real (connect-time) resolution.
@@ -376,13 +380,14 @@ contains
       type(NodeId), pointer :: t_export, t_import
       type(DependencyNetwork), pointer :: net
       integer :: status
+      type(GraphBuilder) :: gb
 
       call make_outer_meta('comp_simple', outer_gc, outer_meta, _RC)
       comp_spec => outer_meta%get_component_spec()
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
 
-      call graphbuilder_advertise(outer_meta, status)
+      call gb%advertise(outer_meta, status)
       @assert_that(status, is(0))
 
       conn = SimpleConnection( &
@@ -390,7 +395,7 @@ contains
            ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='T')))
       call comp_spec%add_connection(conn)
 
-      call graphbuilder_resolve_connections(outer_meta, unresolved_imports=unresolved, rc=status)
+      call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
 
@@ -414,15 +419,16 @@ contains
       type(ComponentSpec), pointer :: comp_spec
       type(ComponentGraph), pointer :: graph
       integer :: status
+      type(GraphBuilder) :: gb
 
       call make_outer_meta('comp_freeze_ok', outer_gc, outer_meta, _RC)
       comp_spec => outer_meta%get_component_spec()
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
 
-      call graphbuilder_advertise(outer_meta, status)
+      call gb%advertise(outer_meta, status)
       @assert_that(status, is(0))
 
-      call graphbuilder_freeze(outer_meta, status)
+      call gb%freeze(outer_meta, status)
       @assert_that(status, is(0))
 
       graph => outer_meta%get_component_graph()
@@ -442,6 +448,7 @@ contains
       type(NodeId), pointer :: a_id, b_id, t_id
       type(DependencyNetworkId) :: default_net_id, second_net_id
       integer :: status
+      type(GraphBuilder) :: gb
 
       call make_outer_meta('comp_freeze_conflict', outer_gc, outer_meta, _RC)
       comp_spec => outer_meta%get_component_spec()
@@ -449,7 +456,7 @@ contains
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'B'))
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
 
-      call graphbuilder_advertise(outer_meta, status)
+      call gb%advertise(outer_meta, status)
       @assert_that(status, is(0))
 
       graph => outer_meta%get_component_graph()
@@ -466,7 +473,7 @@ contains
       call graph%add_dependency(default_net_id, a_id, t_id, _RC)
       call graph%add_dependency(second_net_id, b_id, t_id, _RC)
 
-      call graphbuilder_freeze(outer_meta, status)
+      call gb%freeze(outer_meta, status)
       ! Four propagated frames to unwind, innermost first: the
       ! descriptive message from validate_cross_network_writes()
       ! (ComponentGraph.F90), then three bare "status=1" propagation

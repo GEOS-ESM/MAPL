@@ -14,7 +14,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
    use mapl_StateItemSpec_mod
    use mapl_MultiState_mod
    use mapl_MpiTimerGauge_mod, only: MpiTimerGauge
-   use mapl_GraphBuilder_mod, only: graphbuilder_run_advertise_hook, graphbuilder_run_activate_hook
+   use mapl_GraphBuilder_mod, only: GraphBuilder
    use mapl_ErrorHandling_mod
    implicit none (type, external)
 
@@ -34,6 +34,7 @@ contains
       type(ESMF_VM) :: vm
       integer :: comm
       integer :: status
+      type(GraphBuilder) :: gb
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
       ! Initialize profiler
@@ -48,9 +49,9 @@ contains
       ! populate this component's graph representation alongside the
       ! legacy advertise path, never replacing it - see
       ! mapl_GraphBuilder_mod's module header and this change's design.md
-      ! "Invocation point" decision. graphbuilder_run_advertise_hook()
-      ! never propagates failure into this routine's own error path.
-      call graphbuilder_run_advertise_hook(this)
+      ! "Invocation point" decision. run_advertise_hook() never
+      ! propagates failure into this routine's own error path.
+      call gb%run_advertise_hook(this)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       call process_connections(this, _RC)
@@ -62,7 +63,7 @@ contains
       ! same decision propagate_unsatisfied_imports() below is about to
       ! make, without creating any graph structure (see
       ! mapl_GraphBuilder_mod module header, "Two-phase timing").
-      call graphbuilder_run_activate_hook(this)
+      call gb%run_activate_hook(this)
       call this%registry%propagate_unsatisfied_imports(_RC)
       call this%registry%propagate_exports(_RC)
 

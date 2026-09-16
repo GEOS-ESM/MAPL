@@ -22,13 +22,12 @@
 ! it operates on as an explicit argument and reads/writes only that
 ! component's own ComponentGraph (obtained via the existing 3a accessor,
 ! get_component_graph) plus, for cross-boundary connection resolution,
-! a named child's ComponentGraph/ComponentSpec reached the same way the
-! framework already reaches into a child's private OuterMetaComponent
-! state elsewhere (e.g. propagate_geom_to_children.F90's apply_to_children
-! pattern; superstructure/generic/tests/Test_ComponentHierarchyGraph.pf's
-! own use of get_outer_meta(child_gc) to reach a child's ComponentGraph
-! for test setup) - REQ-GB-002 explicitly allows GraphBuilder this reach,
-! unlike an ordinary user-facing API (REQ-HIER-003/005).
+! a named child's ComponentGraph/ComponentSpec reached via
+! OuterMetaComponent's own get_child_component_graph()/
+! get_child_component_spec() accessors (graphbuilder-code-quality-cleanup
+! change) - a framework-internal carve-out (REQ-GB-002), not part of
+! OuterMetaComponent's general public API (REQ-HIER-003/005), that these
+! two accessors document at their own declaration site.
 !
 ! Advertised-item and cross-graph-proxy identity lookup both reuse
 ! ComponentGraph's existing, already-specified "semantic resource index"
@@ -74,7 +73,7 @@
 !     wiring exists would be premature).
 !------------------------------------------------------------------------------
 module mapl_GraphBuilder_mod
-   use mapl_OuterMetaComponent_mod, only: OuterMetaComponent, get_outer_meta
+   use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_ComponentSpec_mod, only: ComponentSpec
    use mapl_VariableSpec_mod, only: VariableSpec
@@ -92,32 +91,57 @@ module mapl_GraphBuilder_mod
    use mapl_NodeId_mod, only: NodeId
    use mapl_PortId_mod, only: PortId
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
-   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use gFTL2_StringVector, only: StringVector
    use pflogger, only: Logger
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, &
-        ESMF_STATEINTENT_EXPORT, ESMF_GridComp
+        ESMF_STATEINTENT_EXPORT
    use esmf, only: operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
-   public :: graphbuilder_advertise
-   public :: graphbuilder_check_unsatisfied_imports
-   public :: graphbuilder_resolve_connections
-   public :: graphbuilder_freeze
-   public :: graphbuilder_run_advertise_hook
-   public :: graphbuilder_run_activate_hook
-   public :: graphbuilder_run_connect_hook
+   public :: GraphBuilder
    public :: item_key
    public :: proxy_key
+
+   ! Stateless-per-call by design (design.md Decisions): GraphBuilder
+   ! carries no state of its own - every bound procedure still takes the
+   ! OuterMetaComponent it operates on as an explicit argument, exactly
+   ! as the free functions this type replaces did. All bindings are
+   ! NOPASS so each procedure's signature is untouched by this
+   ! type-bound wrapping; only the calling convention changes, e.g.
+   ! `gb = GraphBuilder(); call gb%run_advertise_hook(this)`.
+   type :: GraphBuilder
+   contains
+      procedure, nopass :: advertise => graphbuilder_advertise
+      procedure, nopass :: check_unsatisfied_imports => graphbuilder_check_unsatisfied_imports
+      procedure, nopass :: resolve_connections => graphbuilder_resolve_connections
+      procedure, nopass :: freeze => graphbuilder_freeze
+      procedure, nopass :: run_advertise_hook => graphbuilder_run_advertise_hook
+      procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
+      procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
+   end type GraphBuilder
 
    ! Matches StateRegistry_Hierarchy_smod's own SELF sentinel
    ! (superstructure/generic/registry/StateRegistry_Hierarchy_smod.F90):
    ! a ConnectionPt component_name of "<self>" always refers to the
    ! component the connection was declared on.
    character(*), parameter :: SELF_COMPONENT_NAME = '<self>'
+
+   ! Per-match callback signature for for_each_matching_import() below -
+   ! same shape/precedent as OuterMetaComponent's own I_child_op
+   ! (superstructure/generic/OuterMetaComponent.F90), passed an internal
+   ! (CONTAINS-nested) procedure by each caller so it can host-associate
+   ! whatever extra context (this, src_pt, unresolved, ...) it needs
+   ! without threading it through this interface.
+   abstract interface
+      subroutine I_match_op(var_spec, rc)
+         import VariableSpec
+         type(VariableSpec), intent(in) :: var_spec
+         integer, optional, intent(out) :: rc
+      end subroutine I_match_op
+   end interface
 
 contains
 
@@ -146,12 +170,12 @@ contains
       comp_spec => this%get_component_spec()
       graph => this%get_component_graph()
 
-      associate (e => comp_spec%var_specs%end())
-         iter = comp_spec%var_specs%begin()
+      associate (e => comp_spec%var_specs%ftn_end())
+         iter = comp_spec%var_specs%ftn_begin()
          do while (iter /= e)
+            call iter%next()
             var_spec => iter%of()
             call advertise_one(graph, var_spec, _RC)
-            call iter%next()
          end do
       end associate
 
@@ -270,9 +294,10 @@ contains
 
       comp_spec => this%get_component_spec()
 
-      associate (e => comp_spec%connections%end())
-         iter = comp_spec%connections%begin()
+      associate (e => comp_spec%connections%ftn_end())
+         iter = comp_spec%connections%ftn_begin()
          do while (iter /= e)
+            call iter%next()
             c => iter%of()
             select type (c)
             class is (MatchConnection)
@@ -281,7 +306,6 @@ contains
                ! Wildcard/callback/reexport/simple connections: out of
                ! scope for this slice - deliberately skipped.
             end select
-            call iter%next()
          end do
       end associate
 
@@ -290,6 +314,39 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine graphbuilder_check_unsatisfied_imports
+
+   ! Shared by check_match_connection_unsatisfied() and
+   ! resolve_match_connection() below: both used to independently repeat
+   ! this same "which of dst_spec's imports does dst_pt's declared
+   ! pattern match" do/if/if scan (module header - "same destination-
+   ! import filtering"). Owns the loop and both guard clauses; each
+   ! caller supplies only the per-match step, as an internal procedure so
+   ! it can host-associate whatever extra context it needs (this,
+   ! src_pt, unresolved, ...) - same style as OuterMetaComponent's own
+   ! apply_to_children_custom()/I_child_op.
+   subroutine for_each_matching_import(dst_spec, dst_pt, op, rc)
+      type(ComponentSpec), intent(in) :: dst_spec
+      type(ConnectionPt), intent(in) :: dst_pt
+      procedure(I_match_op) :: op
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+
+      associate (e => dst_spec%var_specs%ftn_end())
+         iter = dst_spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT)) cycle
+            if (.not. dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_spec%short_name))) cycle
+            call op(var_spec, _RC)
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine for_each_matching_import
 
    ! Read-only counterpart of resolve_match_connection() below: same
    ! destination-import filtering and same-name export existence check,
@@ -304,9 +361,6 @@ contains
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
       type(ComponentSpec), pointer :: dst_spec, src_spec
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      logical :: has_export
 
       src_pt = conn%get_source()
       dst_pt = conn%get_destination()
@@ -314,23 +368,25 @@ contains
       dst_spec => component_spec_for(this, dst_pt%component_name, _RC)
       src_spec => component_spec_for(this, src_pt%component_name, _RC)
 
-      associate (e => dst_spec%var_specs%end())
-         iter = dst_spec%var_specs%begin()
-         do while (iter /= e)
-            var_spec => iter%of()
-            if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
-               if (dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_spec%short_name))) then
-                  has_export = var_specs_has_export(src_spec, var_spec%short_name)
-                  if (.not. has_export) then
-                     call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
-                  end if
-               end if
-            end if
-            call iter%next()
-         end do
-      end associate
+      call for_each_matching_import(dst_spec, dst_pt, check_one, _RC)
 
       _RETURN(_SUCCESS)
+   contains
+
+      subroutine check_one(var_spec, rc)
+         type(VariableSpec), intent(in) :: var_spec
+         integer, optional, intent(out) :: rc
+
+         logical :: has_export
+
+         has_export = var_specs_has_export(src_spec, var_spec%short_name)
+         if (.not. has_export) then
+            call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine check_one
+
    end subroutine check_match_connection_unsatisfied
 
    ! GENERIC_INIT_ACCEPT_TRANSFER-time analog of legacy
@@ -373,9 +429,10 @@ contains
 
       comp_spec => this%get_component_spec()
 
-      associate (e => comp_spec%connections%end())
-         iter = comp_spec%connections%begin()
+      associate (e => comp_spec%connections%ftn_end())
+         iter = comp_spec%connections%ftn_begin()
          do while (iter /= e)
+            call iter%next()
             c => iter%of()
             select type (c)
             class is (MatchConnection)
@@ -384,7 +441,6 @@ contains
                ! Wildcard/callback/reexport/simple connections: out of
                ! scope for this slice - deliberately skipped.
             end select
-            call iter%next()
          end do
       end associate
 
@@ -415,11 +471,7 @@ contains
       type(ConnectionPt) :: src_pt, dst_pt
       type(ComponentSpec), pointer :: dst_spec
       type(ComponentGraph), pointer :: this_graph
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      type(NodeId) :: import_node_id, export_node_id
       type(DependencyNetworkId) :: net_id
-      logical :: has_export
 
       src_pt = conn%get_source()
       dst_pt = conn%get_destination()
@@ -429,33 +481,36 @@ contains
       this_graph => this%get_component_graph()
       net_id = this_graph%get_default_network_id()
 
-      associate (e => dst_spec%var_specs%end())
-         iter = dst_spec%var_specs%begin()
-         do while (iter /= e)
-            var_spec => iter%of()
-            if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
-               if (dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_spec%short_name))) then
-
-                  import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
-                       ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
-
-                  has_export = find_export_node_id(this, src_pt%component_name, var_spec%short_name, &
-                       export_node_id, _RC)
-
-                  if (has_export) then
-                     call this_graph%add_dependency(net_id, export_node_id, import_node_id, _RC)
-                  else
-                     ! REQ scenario "Import with no matching export is
-                     ! left unresolved" - reported, not silently dropped.
-                     call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
-                  end if
-               end if
-            end if
-            call iter%next()
-         end do
-      end associate
+      call for_each_matching_import(dst_spec, dst_pt, resolve_one, _RC)
 
       _RETURN(_SUCCESS)
+   contains
+
+      subroutine resolve_one(var_spec, rc)
+         type(VariableSpec), intent(in) :: var_spec
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(NodeId) :: import_node_id, export_node_id
+         logical :: has_export
+
+         import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
+              ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
+
+         has_export = find_export_node_id(this, src_pt%component_name, var_spec%short_name, &
+              export_node_id, _RC)
+
+         if (has_export) then
+            call this_graph%add_dependency(net_id, export_node_id, import_node_id, _RC)
+         else
+            ! REQ scenario "Import with no matching export is left
+            ! unresolved" - reported, not silently dropped.
+            call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine resolve_one
+
    end subroutine resolve_match_connection
 
    logical function find_export_node_id(this, comp_name, short_name, export_node_id, rc) result(found)
@@ -487,15 +542,15 @@ contains
       type(VariableSpec), pointer :: var_spec
 
       has_export = .false.
-      associate (e => comp_spec%var_specs%end())
-         iter = comp_spec%var_specs%begin()
+      associate (e => comp_spec%var_specs%ftn_end())
+         iter = comp_spec%var_specs%ftn_begin()
          do while (iter /= e)
+            call iter%next()
             var_spec => iter%of()
             if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT .and. var_spec%short_name == short_name) then
                has_export = .true.
                return
             end if
-            call iter%next()
          end do
       end associate
    end function var_specs_has_export
@@ -514,29 +569,12 @@ contains
       self_ref = (comp_name == SELF_COMPONENT_NAME) .or. (comp_name == this%get_name())
    end function is_self
 
-   ! Reaches a named child's OuterMetaComponent the same way
-   ! superstructure/generic/tests/Test_ComponentHierarchyGraph.pf already
-   ! does for test setup: get_child() (public, returns a
-   ! GriddedComponentDriver value) -> get_gridcomp() -> get_outer_meta().
-   ! REQ-GB-002 permits GraphBuilder this reach; it is never exposed
-   ! through OuterMetaComponent's own public accessor set (REQ-HIER-005).
-   function get_child_meta(this, child_name, rc) result(child_meta)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: child_name
-      integer, optional, intent(out) :: rc
-      type(OuterMetaComponent), pointer :: child_meta
-
-      integer :: status
-      type(GriddedComponentDriver) :: child_driver
-      type(ESMF_GridComp) :: child_gc
-
-      child_driver = this%get_child(child_name, _RC)
-      child_gc = child_driver%get_gridcomp()
-      child_meta => get_outer_meta(child_gc, _RC)
-
-      _RETURN(_SUCCESS)
-   end function get_child_meta
-
+   ! REQ-GB-002 permits GraphBuilder this reach into a named child's own
+   ! spec/graph; it is never exposed through OuterMetaComponent's
+   ! general public API (REQ-HIER-005) - see
+   ! get_child_component_spec()/get_child_component_graph()'s own
+   ! interface comment in OuterMetaComponent.F90 for the visibility
+   ! rationale.
    function component_spec_for(this, comp_name, rc) result(comp_spec)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: comp_name
@@ -544,13 +582,11 @@ contains
       type(ComponentSpec), pointer :: comp_spec
 
       integer :: status
-      type(OuterMetaComponent), pointer :: child_meta
 
       if (is_self(this, comp_name)) then
          comp_spec => this%get_component_spec()
       else
-         child_meta => get_child_meta(this, comp_name, _RC)
-         comp_spec => child_meta%get_component_spec()
+         comp_spec => this%get_child_component_spec(comp_name, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -579,7 +615,6 @@ contains
       character(:), allocatable :: pkey
       type(NodeId), pointer :: existing
       type(NodeId), pointer :: child_item_id
-      type(OuterMetaComponent), pointer :: child_meta
       type(ComponentGraph), pointer :: child_graph
       type(StateItemNode) :: proxy_node
       type(GraphStateItem) :: payload
@@ -604,8 +639,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      child_meta => get_child_meta(this, comp_name, _RC)
-      child_graph => child_meta%get_component_graph()
+      child_graph => this%get_child_component_graph(comp_name, _RC)
       child_item_id => child_graph%get_resource_index(item_id_key)
       _ASSERT(associated(child_item_id), &
            'GraphBuilder: connection references an item child "' // comp_name // '" never advertised: ' // short_name)
@@ -658,13 +692,21 @@ contains
    ! propagating it, so a GraphBuilder defect can never break existing
    ! MAPL component initialization (design.md Risks/Trade-offs).
    !
+   ! These three are reached from their call sites only via the public
+   ! GraphBuilder type's bindings of the same name minus the
+   ! graphbuilder_ prefix (graphbuilder-code-quality-cleanup change),
+   ! e.g. `type(GraphBuilder) :: gb; call gb%run_advertise_hook(this)`.
+   !
    ! Called from initialize_advertise.F90 (GENERIC_INIT_ADVERTISE, mirrors
    ! self_advertise() + activate()):
-   !   graphbuilder_run_advertise_hook    - creates StateItemNodes
-   !   graphbuilder_run_activate_hook     - unresolved-imports report only
+   !   graphbuilder_run_advertise_hook -> gb%run_advertise_hook - creates
+   !     StateItemNodes
+   !   graphbuilder_run_activate_hook -> gb%run_activate_hook -
+   !     unresolved-imports report only
    ! Called from initialize_accept_transfer.F90 (GENERIC_INIT_ACCEPT_TRANSFER,
    ! mirrors connect()):
-   !   graphbuilder_run_connect_hook      - real proxies/edges, then freeze
+   !   graphbuilder_run_connect_hook -> gb%run_connect_hook - real
+   !     proxies/edges, then freeze
 
    subroutine graphbuilder_run_advertise_hook(this)
       class(OuterMetaComponent), target, intent(inout) :: this

@@ -7,7 +7,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_accept_transfer_smod
    use mapl_Connection_mod
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
    use mapl_ConnectionVector_mod, only: operator(/=)
-   use mapl_GraphBuilder_mod, only: graphbuilder_run_connect_hook
+   use mapl_GraphBuilder_mod, only: GraphBuilder
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -26,6 +26,7 @@ contains
       type(ESMF_GridComp) :: provider_gc
       type(OuterMetaComponent), pointer :: provider_meta
       integer :: status
+      type(GraphBuilder) :: gb
 
 !#      call this%propagate_geom_to_children(_RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ACCEPT_TRANSFER, _RC)
@@ -42,7 +43,7 @@ contains
       ! after recursion, so every child has already completed its own
       ! accept-transfer step (real edges + freeze) by this point, making
       ! cross-boundary proxy/lookup reads well-defined.
-      call graphbuilder_run_connect_hook(this)
+      call gb%run_connect_hook(this)
       call this%registry%propagate_exports(_RC)
 
       user_states = this%user_gc_driver%get_states()
