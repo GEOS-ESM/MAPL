@@ -145,7 +145,29 @@ not Phase 3 — the sub-changes below exclude them accordingly.
   be reproduced exactly," recommending side-by-side comparison against
   the existing imperative coupler on real configurations before
   removing that path. Kept deliberately narrow: REQ-EXT-003's exact-
-  match/no-op case only, no mismatch/extension handling yet.
+  match/no-op case only, no mismatch/extension handling yet, and (see
+  3b2 immediately below) *single-level* only — a connection is resolved
+  only when both endpoints declare the item directly; no cross-level
+  propagation.
+- **3b2. Cross-component unresolved-import propagation** — REQUIRED
+  completion of 3b's own job, not optional polish: discovered missing
+  during 3b's implementation and review (`openspec/changes/
+  graphbuilder-advertising-connections`). An import left unresolved by
+  3b's single-level matching is exactly legacy's own
+  `propagate_unsatisfied_imports()` case — the point where an
+  unsatisfied import must be re-advertised as needed one level up the
+  hierarchy (mirroring `StateRegistry_Propagation_smod.F90`'s
+  `childname/itemname` bubbling) so an ancestor's own connections get a
+  chance to resolve it, all the way up if necessary. Checking for
+  unsatisfied imports with no mechanism to ever satisfy them across
+  component boundaries is not useful on its own; this sub-change is
+  what makes 3b's activate-time check (`graphbuilder_check_unsatisfied_imports`)
+  connect to anything beyond a log message. Depends on 3b's proxy-node
+  and resource-index mechanisms; does not require 3c's mismatch/
+  extension machinery. Sub-sequencing (3c, 3d below) numbering is
+  intentionally left alone rather than renumbered — this slots in
+  functionally between 3b and 3c, before 3c's mismatch-driven work
+  needs to run on whatever is still unresolved after propagation.
 - **3c. Extension reuse** (`09`, REQ-EXT-001..005) — Transform-chain
   creation for mismatched export/import pairs, extension-family search
   as a `DependencyNetwork` traversal, `StateRegistry` registration of

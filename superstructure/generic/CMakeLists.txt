@@ -13,6 +13,7 @@ set(srcs
 
   InnerMetaComponent.F90
   OuterMetaComponent.F90
+  GraphBuilder.F90
   GenericGridComp.F90
 
   MAPL_Generic.F90

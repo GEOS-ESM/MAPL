@@ -14,6 +14,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
    use mapl_StateItemSpec_mod
    use mapl_MultiState_mod
    use mapl_MpiTimerGauge_mod, only: MpiTimerGauge
+   use mapl_GraphBuilder_mod, only: graphbuilder_run_advertise_hook, graphbuilder_run_activate_hook
    use mapl_ErrorHandling_mod
    implicit none (type, external)
 
@@ -43,9 +44,25 @@ contains
 
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
       call self_advertise(this, _RC)
+      ! Phase 3b (docs/graph/spec/20-implementation-roadmap.md sec 20.4.1):
+      ! populate this component's graph representation alongside the
+      ! legacy advertise path, never replacing it - see
+      ! mapl_GraphBuilder_mod's module header and this change's design.md
+      ! "Invocation point" decision. graphbuilder_run_advertise_hook()
+      ! never propagates failure into this routine's own error path.
+      call graphbuilder_run_advertise_hook(this)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       call process_connections(this, _RC)
+      ! Phase 3b: process_connections() above only calls Connection%activate()
+      ! at this phase - it does NOT form real wiring (that is
+      ! initialize_accept_transfer.F90's job, mirroring connect()). The
+      ! activate()-time analog here is likewise read-only: it determines
+      ! which ordinary-match imports would be unresolved, matching the
+      ! same decision propagate_unsatisfied_imports() below is about to
+      ! make, without creating any graph structure (see
+      ! mapl_GraphBuilder_mod module header, "Two-phase timing").
+      call graphbuilder_run_activate_hook(this)
       call this%registry%propagate_unsatisfied_imports(_RC)
       call this%registry%propagate_exports(_RC)
 

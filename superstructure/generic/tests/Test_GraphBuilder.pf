@@ -1,0 +1,486 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Phase 3b (docs/graph/spec/20-implementation-roadmap.md sec 20.4.1,
+! openspec/changes/graphbuilder-advertising-connections): GraphBuilder
+! advertising, ordinary (exact-match) connection resolution, public-port/
+! child-proxy population, and validate/freeze.
+!
+! Test-only OuterMetaComponent instances are built the same way
+! Test_ComponentHierarchyGraph.pf does (bypassing SetServices/DSO
+! machinery), with ComponentSpec%var_specs/connections populated
+! directly rather than through the ComponentSpecParser/DSL - only the
+! two fields GraphBuilder actually reads (short_name, state_intent) are
+! exercised.
+module Test_GraphBuilder
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_ConnectionPt_mod, only: ConnectionPt
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
+   use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_SimpleConnection_mod, only: SimpleConnection
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeIdSet_mod, only: NodeIdSet
+   use gFTL2_StringVector, only: StringVector
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! Directly builds a top-level OuterMetaComponent, bypassing
+   ! SetServices/DSO machinery - same helper as
+   ! Test_ComponentHierarchyGraph.pf.
+   subroutine make_outer_meta(name, outer_gc, outer_meta, rc)
+      character(*), intent(in) :: name
+      type(ESMF_GridComp), intent(out) :: outer_gc
+      type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: user_gc
+      type(GriddedComponentDriver) :: user_gc_driver
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(content='{}', _RC)
+      outer_gc = ESMF_GridCompCreate(name='['//trim(name)//']', _RC)
+      user_gc = ESMF_GridCompCreate(name=name, _RC)
+      user_gc_driver = GriddedComponentDriver(user_gc)
+
+      call attach_outer_meta(outer_gc, _RC)
+      outer_meta => get_outer_meta(outer_gc, _RC)
+#ifndef __GFORTRAN__
+      outer_meta = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+#else
+      block
+         type(OuterMetaComponent) :: tmp
+         tmp = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+         outer_meta = tmp
+      end block
+#endif
+      call outer_meta%init_meta(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_outer_meta
+
+   function make_var(state_intent, short_name) result(var_spec)
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = state_intent
+      var_spec%short_name = short_name
+   end function make_var
+
+   ! Task 6.1 / spec "Advertising creates graph state-item nodes":
+   ! advertised import/export/internal each produce exactly one
+   ! StateItemNode, queryable by identity; re-advertising does not
+   ! duplicate it.
+   @test(npes=[0])
+   subroutine test_advertise_creates_state_item_nodes(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: import_id, export_id, internal_id
+      type(NodeIdSet) :: ids
+      integer :: status
+
+      call make_outer_meta('comp_advertise', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'Q'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_INTERNAL, 'INTERN'))
+
+      call graphbuilder_advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+
+      import_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      export_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'Q'))
+      internal_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, 'INTERN'))
+      @assert_that(associated(import_id), is(true()))
+      @assert_that(associated(export_id), is(true()))
+      @assert_that(associated(internal_id), is(true()))
+      @assert_that(graph%owns_node(import_id), is(true()))
+      @assert_that(graph%owns_node(export_id), is(true()))
+      @assert_that(graph%owns_node(internal_id), is(true()))
+
+      ids = graph%get_node_ids()
+      @assertEqual(3, ids%size())
+
+      ! Re-advertising (e.g. a second init pass) does not duplicate.
+      call graphbuilder_advertise(outer_meta, status)
+      @assert_that(status, is(0))
+      ids = graph%get_node_ids()
+      @assertEqual(3, ids%size())
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_creates_state_item_nodes
+
+   ! Task 6.4 (public-port half) / spec "Declared public port is
+   ! recorded": an advertised import/export item's identity is
+   ! retrievable by name (resource index), and graphbuilder_advertise()
+   ! reports success - which it would not if the internal
+   ! add_import_port/add_export_port calls (REQ-HIER-002 "public ports")
+   ! had failed, since those are guarded by ordinary rc/status checks.
+   ! An internal item gets neither port kind.
+   @test(npes=[0])
+   subroutine test_public_port_recorded_and_reachable_by_name(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: import_id, export_id
+      integer :: status
+
+      call make_outer_meta('comp_ports', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'Q'))
+
+      call graphbuilder_advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      import_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      export_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'Q'))
+      @assert_that(associated(import_id), is(true()))
+      @assert_that(associated(export_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_public_port_recorded_and_reachable_by_name
+
+   ! Task 6.2 / spec "Matching export and import are wired" + "Import
+   ! with no matching export is left unresolved" + task 4.2 "Child's
+   ! published port gets a parent-local proxy": a parent declares a
+   ! connect_all-style MatchConnection between two children; the parent
+   ! ends up with proxy nodes (not the children's own NodeIds) wired in
+   ! its own default network, and the one import with no matching export
+   ! is reported, not silently dropped.
+   @test(npes=[0])
+   subroutine test_ordinary_connection_wires_matching_and_reports_unresolved(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph, src_graph, dst_graph
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy, q_import_proxy
+      type(NodeId), pointer :: t_export_native, t_import_native
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: net_id
+      integer :: status
+
+      call make_outer_meta('comp_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'Q')) ! no matching export
+
+      ! Children advertise first - mirrors recursion order in
+      ! OuterMetaComponent/initialize_advertise.F90 (children complete
+      ! before the parent resolves its own connections).
+      call graphbuilder_advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call graphbuilder_advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      ! connect_all('child_src', 'child_dst')'s own "magic connect" shape
+      ! (superstructure/generic/OuterMetaComponent/connect_all.F90).
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call graphbuilder_resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(1, unresolved%size())
+      @assert_that(unresolved%at(1, status), is(equal_to('child_dst:Q')))
+
+      parent_graph => parent_meta%get_component_graph()
+      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      q_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'Q'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+      @assert_that(associated(q_import_proxy), is(true()))
+
+      ! Sanity: the children's own native items still exist in their own
+      ! graphs (untouched by the parent's proxy creation).
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_native => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_native => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_native), is(true()))
+      @assert_that(associated(t_import_native), is(true()))
+
+      ! The proxy is owned by the parent's own graph.
+      @assert_that(parent_graph%owns_node(t_export_proxy), is(true()))
+      @assert_that(parent_graph%owns_node(t_import_proxy), is(true()))
+
+      ! REQ-HIER-005 ("no reference to the child's internal NodeId"):
+      ! NodeId values are graph-scoped sequence numbers, not globally
+      ! unique, so a runtime cross-graph value/ownership comparison is
+      ! not a meaningful way to test this (two independently-generated
+      ! small id sequences will coincidentally collide, exactly as
+      ! Test_ComponentHierarchyGraph.pf's own encapsulation test
+      ! documents for a related case). This is instead a
+      ! code-review-verifiable property of get_or_make_local_node_id()
+      ! (GraphBuilder.F90): the child branch's returned node_id always
+      ! comes from this_graph%next_node_id() - the child's own
+      ! child_item_id is used only as a read-only existence check, never
+      ! returned or stored as the resolved identity.
+
+      net_id = parent_graph%get_default_network_id()
+      net => parent_graph%get_network(net_id)
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+      @assert_that(net%has_predecessors(q_import_proxy), is(false()))
+      @assert_that(net%has_successors(t_export_proxy), is(true()))
+      @assert_that(net%has_predecessors(t_export_proxy), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_ordinary_connection_wires_matching_and_reports_unresolved
+
+   ! Two-phase timing correction (GraphBuilder.F90 module header):
+   ! graphbuilder_check_unsatisfied_imports() is the GENERIC_INIT_ADVERTISE
+   ! -time (Connection%activate()) analog - it must report the same
+   ! unresolved import as graphbuilder_resolve_connections() does, but
+   ! MUST NOT create any graph structure (no proxy nodes, no dependency
+   ! edges) - that is graphbuilder_resolve_connections()'s job, run later
+   ! at GENERIC_INIT_ACCEPT_TRANSFER time (Connection%connect()).
+   @test(npes=[0])
+   subroutine test_check_unsatisfied_imports_reports_without_mutating_graph(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy, q_import_proxy
+      type(NodeIdSet) :: parent_ids
+      integer :: status
+
+      call make_outer_meta('comp_parent_activate', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'Q')) ! no matching export
+
+      call graphbuilder_advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call graphbuilder_advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      parent_graph => parent_meta%get_component_graph()
+      parent_ids = parent_graph%get_node_ids()
+      @assertEqual(0, parent_ids%size())
+
+      call graphbuilder_check_unsatisfied_imports(parent_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+
+      ! Same unresolved report as the real (connect-time) resolution.
+      @assertEqual(1, unresolved%size())
+      @assert_that(unresolved%at(1, status), is(equal_to('child_dst:Q')))
+
+      ! No graph mutation: no proxy nodes created, node count unchanged.
+      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      q_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'Q'))
+      @assert_that(associated(t_export_proxy), is(false()))
+      @assert_that(associated(t_import_proxy), is(false()))
+      @assert_that(associated(q_import_proxy), is(false()))
+
+      parent_ids = parent_graph%get_node_ids()
+      @assertEqual(0, parent_ids%size())
+      @assert_that(parent_graph%is_frozen(), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_check_unsatisfied_imports_reports_without_mutating_graph
+
+   ! Task 6.3 / spec "Non-exact-match cases are not resolved by this
+   ! capability": a SimpleConnection (not a MatchConnection) is skipped
+   ! entirely - no dependency edge, not reported as an unresolved import
+   ! either, since it never enters the ordinary-match loop at all.
+   @test(npes=[0])
+   subroutine test_non_matchconnection_is_skipped(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(SimpleConnection) :: conn
+      type(StringVector) :: unresolved
+      type(NodeId), pointer :: t_export, t_import
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+
+      call make_outer_meta('comp_simple', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call graphbuilder_advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      conn = SimpleConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='T')), &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='T')))
+      call comp_spec%add_connection(conn)
+
+      call graphbuilder_resolve_connections(outer_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      graph => outer_meta%get_component_graph()
+      t_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      net => graph%get_network(graph%get_default_network_id())
+      @assert_that(net%contains_dependency(t_export, t_import), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_non_matchconnection_is_skipped
+
+   ! Task 6.5 / spec "Successful resolution is followed by freeze" and
+   ! "Validation failure prevents freeze".
+   @test(npes=[0])
+   subroutine test_freeze_succeeds_when_valid(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      integer :: status
+
+      call make_outer_meta('comp_freeze_ok', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call graphbuilder_advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      call graphbuilder_freeze(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      @assert_that(graph%is_frozen(), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_freeze_succeeds_when_valid
+
+   @test(npes=[0])
+   subroutine test_freeze_fails_and_leaves_graph_unfrozen_on_conflict(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: a_id, b_id, t_id
+      type(DependencyNetworkId) :: default_net_id, second_net_id
+      integer :: status
+
+      call make_outer_meta('comp_freeze_conflict', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'A'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'B'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call graphbuilder_advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      a_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'A'))
+      b_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'B'))
+      t_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      default_net_id = graph%get_default_network_id()
+      second_net_id = graph%create_network(_RC)
+
+      ! REQ-DEP-008a: T written (has a predecessor) in two different
+      ! networks within what would be one update pass - construction-time
+      ! validation must reject this, not just at runtime.
+      call graph%add_dependency(default_net_id, a_id, t_id, _RC)
+      call graph%add_dependency(second_net_id, b_id, t_id, _RC)
+
+      call graphbuilder_freeze(outer_meta, status)
+      ! Four propagated frames to unwind, innermost first: the
+      ! descriptive message from validate_cross_network_writes()
+      ! (ComponentGraph.F90), then three bare "status=1" propagation
+      ! frames (graph_validate -> graph_freeze -> graphbuilder_freeze) -
+      ! same pattern as Test_MemoryCheckpoint.pf's multi-frame unwind.
+      @assertExceptionRaised( &
+           'ComponentGraph: validate found a state item written in more than one network within the same update pass')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assert_that(status, is(not(equal_to(0))))
+      @assert_that(graph%is_frozen(), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
+
+end module Test_GraphBuilder

@@ -7,6 +7,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_accept_transfer_smod
    use mapl_Connection_mod
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
    use mapl_ConnectionVector_mod, only: operator(/=)
+   use mapl_GraphBuilder_mod, only: graphbuilder_run_connect_hook
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -31,6 +32,17 @@ contains
       call this%run_custom(ESMF_METHOD_INITIALIZE, 'GENERIC::INIT_ACCEPT_TRANSFER', _RC)
 
       call process_connections(this, _RC)
+      ! Phase 3b: process_connections() above calls Connection%connect()
+      ! at this phase - the real wiring step (versus activate() at
+      ! GENERIC_INIT_ADVERTISE, see initialize_advertise.F90). This is
+      ! therefore the correct point for GraphBuilder's own real graph
+      ! mutation (proxy nodes + dependency edges) and freeze, additional
+      ! to, not a replacement for, process_connections() above - see
+      ! mapl_GraphBuilder_mod module header, "Two-phase timing". Runs
+      ! after recursion, so every child has already completed its own
+      ! accept-transfer step (real edges + freeze) by this point, making
+      ! cross-boundary proxy/lookup reads well-defined.
+      call graphbuilder_run_connect_hook(this)
       call this%registry%propagate_exports(_RC)
 
       user_states = this%user_gc_driver%get_states()
