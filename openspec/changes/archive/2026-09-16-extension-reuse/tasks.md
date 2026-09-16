@@ -146,15 +146,37 @@
 
 ## 7. Real-configuration equivalence
 
-- [ ] 7.1 Extend the existing `graphbuilder_equivalence` scenario fixture
-      (or add a sibling fixture) with at least one genuine `units`
-      export/import mismatch (the one characteristic with a real,
-      executing provider in this change), per proposal.md "Tests".
-- [ ] 7.2 Add a side-by-side check comparing the extension(s) created and
-      reused by graph-based resolution against the existing
-      `ExtensionFamily`/`extend()` path on that fixture (spec "Same reuse
-      decision as the existing algorithm"), same posture as 3b's
-      equivalence test.
+- [x] 7.1 Added a sibling fixture,
+      `superstructure/generic/tests/scenarios/graphbuilder_equivalence_units/`
+      (`cap.yaml`/`comp_src.yaml`/`comp_dst.yaml`) - identical to
+      `graphbuilder_equivalence/` except `comp_src` exports `T` in `'m'`
+      and `comp_dst` imports it in `'km'`, a genuine, convertible units
+      mismatch (the one characteristic with a real, executing provider in
+      this change).
+- [x] 7.2 Added `test_units_mismatch_resolution_matches_legacy_coupler`
+      to `Test_GraphBuilderEquivalence.pf`, run through the same real
+      (DSO-backed, full `GENERIC_INIT_PHASE_SEQUENCE`) harness as the
+      existing exact-match equivalence test. Legacy oracle: comp_dst's
+      real ESMF import field for `T` still exists
+      (`ESMF_FieldIsCreated`), proving `SimpleConnection%connect_sibling`
+      -> `StateRegistry%extend` -> `ExtensionFamily`/`ConvertUnitsTransform`
+      still resolves the mismatch. Graph oracle: unlike the exact-match
+      case, `cap`'s own dependency network does NOT contain a direct
+      edge between the export/import proxies (spec "Mismatched export
+      and import are wired through an extension chain") - the export
+      proxy has successors and the import proxy has predecessors instead,
+      confirming a real `TransformGraphNode` is interposed. (A literal
+      node-for-node comparison against `ExtensionFamily`'s internal
+      family-list state - the spec's "Same reuse decision as the
+      existing algorithm" scenario, worded generically - is not
+      practical without exposing `ExtensionFamily`'s otherwise-private
+      internals to a test; the chosen oracle instead checks both paths'
+      *observable* outcome on the same real configuration, matching
+      3b's own equivalence test's level of rigor.) Verified: full
+      `MAPL.generic.*` ctest label set passes (7/7), full ctest run
+      shows the same 7 pre-existing, unrelated failures only (ll-ll/
+      cs-cs/cs-ll/ll-cs missing `LOCAL_REGRESSION_DATA_DIR`,
+      `MAPL3G_Comp_Test_case02/11/23`).
 
 ## 8. Build and verification
 

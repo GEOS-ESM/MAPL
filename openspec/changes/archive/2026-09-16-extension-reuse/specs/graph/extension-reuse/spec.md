@@ -78,13 +78,13 @@ it instead of creating a duplicate.
   other importers
 
 ### Requirement: A characteristic mismatch with no registered extension provider fails explicitly
-Building an extension step for a mismatched characteristic SHALL go
-through a framework-registered provider for that characteristic. If no
-provider is registered for a characteristic a mismatch was detected on,
-the system SHALL report an explicit, distinguishable failure for that
-connection rather than wiring the pair directly, silently ignoring the
-mismatch, or reporting it the same way as an unresolved import (no
-matching export at all).
+Resolving a mismatch requires the system to know how to bridge that
+specific characteristic. If the system has no such implementation
+registered for a characteristic a mismatch was detected on, it SHALL
+report an explicit, distinguishable failure for that connection rather
+than wiring the pair directly, silently ignoring the mismatch, or
+reporting it the same way as an unresolved import (no matching export
+at all).
 
 #### Scenario: Unregistered characteristic fails loudly
 - **WHEN** an export/import pair mismatches on a characteristic with no
