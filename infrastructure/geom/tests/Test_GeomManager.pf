@@ -2,8 +2,11 @@
 module Test_GeomManager
    use pfunit
    use mapl_geom_api
+   use mapl_LatLonTestHelper_mod
+   use pfio, only: FileMetadata
    use esmf_TestMethod_mod ! mapl
    use esmf
+   use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
 
 
@@ -141,5 +144,110 @@ contains
       @assertFalse(is_present)
       
    end subroutine test_do_not_reuse_geom
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Two file-based LatLon grids whose coordinates differ only by a tiny
+   ! perturbation. metadata_a is registered first (via get_mapl_geom);
+   ! metadata_b is looked up second, acting as the new "candidate" not
+   ! yet in the registry. Only the CANDIDATE's own "coordinate_tolerance"
+   ! attribute (as ExtData would stamp it) matters, interpreted as a
+   ! FRACTION of the candidate's own local grid spacing (DX) - here
+   ! 1.e-3 * 10 deg spacing (36x18 grid) = 0.01 deg, comfortably
+   ! covering the 1.e-4 deg perturbation - so the same MaplGeom is
+   ! reused.
+   subroutine test_reuse_geom_within_tolerance(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(mapl_GeomManager), target :: geom_manager
+      type(FileMetadata) :: metadata_a, metadata_b
+      integer :: status
+      type(mapl_MaplGeom), pointer :: mapl_geom_a, mapl_geom_b
+      type(ESMF_Geom) :: geom_a, geom_b
+
+      type(ESMF_Info) :: infoh
+      logical :: flag
+
+      call create_latlon_file('test_gm_tol_a.nc', 36, 18, rc=status)
+      @assert_that(status, is(0))
+      call create_latlon_file('test_gm_tol_b.nc', 36, 18, rc=status, perturbation=1.0e-4_REAL64)
+      @assert_that(status, is(0))
+
+      metadata_a = read_latlon_metadata('test_gm_tol_a.nc', rc=status)
+      @assert_that(status, is(0))
+      metadata_b = read_latlon_metadata('test_gm_tol_b.nc', rc=status)
+      @assert_that(status, is(0))
+      call metadata_b%add_attribute('coordinate_tolerance', 1.0e-3_REAL64)
+
+      geom_manager = mapl_GeomManager()
+
+      mapl_geom_a => geom_manager%get_mapl_geom(metadata_a, rc=status)
+      @assert_that(status, is(0))
+      geom_a = mapl_geom_a%get_geom()
+      call ESMF_InfoGetFromHost(geom_a, infoh, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_InfoSet(infoh, 'GeomManager was here', .true., rc=status)
+      @assert_that(status, is(0))
+
+      mapl_geom_b => geom_manager%get_mapl_geom(metadata_b, rc=status)
+      @assert_that(status, is(0))
+      geom_b = mapl_geom_b%get_geom()
+      call ESMF_InfoGetFromHost(geom_b, infoh, rc=status)
+      @assert_that(status, is(0))
+      flag = .false.
+      call ESMF_InfoGet(infoh, 'GeomManager was here', flag, rc=status)
+      @assert_that(status, is(0))
+
+      @assertTrue(flag)
+
+   end subroutine test_reuse_geom_within_tolerance
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Same setup, but the perturbation (1.e-1 deg) exceeds the
+   ! candidate's tolerance*DX (1.e-3 * 10 deg = 0.01 deg) - must NOT
+   ! reuse the geom.
+   subroutine test_do_not_reuse_geom_outside_tolerance(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(mapl_GeomManager), target :: geom_manager
+      type(FileMetadata) :: metadata_a, metadata_b
+      integer :: status
+      type(mapl_MaplGeom), pointer :: mapl_geom_a, mapl_geom_b
+      type(ESMF_Geom) :: geom_a, geom_b
+
+      type(ESMF_Info) :: infoh
+      logical :: is_present
+
+      call create_latlon_file('test_gm_notol_a.nc', 36, 18, rc=status)
+      @assert_that(status, is(0))
+      call create_latlon_file('test_gm_notol_b.nc', 36, 18, rc=status, perturbation=1.0e-1_REAL64)
+      @assert_that(status, is(0))
+
+      metadata_a = read_latlon_metadata('test_gm_notol_a.nc', rc=status)
+      @assert_that(status, is(0))
+      metadata_b = read_latlon_metadata('test_gm_notol_b.nc', rc=status)
+      @assert_that(status, is(0))
+      call metadata_b%add_attribute('coordinate_tolerance', 1.0e-3_REAL64)
+
+      geom_manager = mapl_GeomManager()
+
+      mapl_geom_a => geom_manager%get_mapl_geom(metadata_a, rc=status)
+      @assert_that(status, is(0))
+      geom_a = mapl_geom_a%get_geom()
+      call ESMF_InfoGetFromHost(geom_a, infoh, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_InfoSet(infoh, 'GeomManager was here', .true., rc=status)
+      @assert_that(status, is(0))
+
+      mapl_geom_b => geom_manager%get_mapl_geom(metadata_b, rc=status)
+      @assert_that(status, is(0))
+      geom_b = mapl_geom_b%get_geom()
+      call ESMF_InfoGetFromHost(geom_b, infoh, rc=status)
+      @assert_that(status, is(0))
+      is_present = ESMF_InfoIsPresent(infoh, 'GeomManager was here', rc=status)
+      @assert_that(status, is(0))
+
+      @assertFalse(is_present)
+
+   end subroutine test_do_not_reuse_geom_outside_tolerance
 
 end module Test_GeomManager
