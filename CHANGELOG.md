@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_env v5.26.0
     - Update to ESMA-Baselibs v8.33.0
       - ESMF v9.0.0b17 (for Flang on macOS support)
+  - ESMA_cmake v4.48.0
+    - Make GNU FPE trap flags opt-in
   - ESMA_cmake v4.47.0
     - Update GNU and NAG Flags, fixes for Baselibs ESMF on macOS
   - ESMA_cmake v4.46.0
