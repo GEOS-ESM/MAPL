@@ -80,7 +80,7 @@ contains
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
-      item_type_char = esmf_HConfigAsString(hconfig, keystring='class', _RC)
+      item_type_char = esmf_HConfigAsString(hconfig, keystring='itemtype', _RC)
       if (item_type_char == 'field') then
          item_type = MAPL_STATEITEM_FIELD
       else if (item_type_char == 'vector') then
