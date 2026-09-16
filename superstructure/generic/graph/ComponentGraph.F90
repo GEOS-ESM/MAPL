@@ -382,10 +382,8 @@ contains
       _ASSERT(.not. this%is_finalized(), 'ComponentGraph: add_child_port_binding called after finalize')
       _ASSERT(.not. this%is_frozen(), 'ComponentGraph: add_child_port_binding called on a frozen graph')
       _ASSERT(port_id%is_valid(), 'ComponentGraph: add_child_port_binding requires a PortId obtained via next_port_id()')
-      _ASSERT(this%ports%child_bindings%count(port_id) == 0, &
-         'ComponentGraph: add_child_port_binding - PortId is already bound')
-      _ASSERT(this%nodes%count(node_id) > 0, &
-         'ComponentGraph: add_child_port_binding - NodeId is not owned by this graph')
+      _ASSERT(this%ports%child_bindings%count(port_id) == 0, 'ComponentGraph: add_child_port_binding - PortId is already bound')
+      _ASSERT(this%nodes%count(node_id) > 0, 'ComponentGraph: add_child_port_binding - NodeId is not owned by this graph')
 
       call this%ports%child_bindings%insert(port_id, node_id)
 
@@ -457,8 +455,7 @@ contains
       class is (TransformGraphNode)
          is_input = node%is_input_port(port_name)
          is_output = node%is_output_port(port_name)
-         _ASSERT(is_input .or. is_output, &
-            'ComponentGraph: bind_port - port name not declared by this TransformGraphNode')
+         _ASSERT(is_input .or. is_output, 'ComponentGraph: bind_port - port name not declared by this TransformGraphNode')
 
          if (is_input) then
             spec = node%get_input_port(port_name, _RC)
@@ -473,8 +470,7 @@ contains
             class is (StateItemNode)
                target_payload = target_node%get_payload()
                actual_kind = target_payload%variant(_RC)
-               _ASSERT(actual_kind == expected_kind, &
-                  'ComponentGraph: bind_port - bound NodeId kind does not match declared port kind constraint')
+               _ASSERT(actual_kind == expected_kind, 'ComponentGraph: bind_port - bound NodeId kind does not match declared port kind constraint')
             class default
                ! Binding target is not a StateItemNode: the kind
                ! constraint is not checkable at this layer - documented
@@ -599,8 +595,7 @@ contains
             if (network%has_predecessors(item)) write_count = write_count + 1
          end do
 
-         _ASSERT(write_count <= 1, &
-            'ComponentGraph: validate found a state item written in more than one network within the same update pass')
+         _ASSERT(write_count <= 1, 'ComponentGraph: validate found a state item written in more than one network within the same update pass')
       end do
 
       _RETURN(_SUCCESS)
