@@ -43,19 +43,31 @@ See `proposal.md` - Why. Relevant existing code (branch
 ## Goals / Non-Goals
 
 **Goals:**
-- Let `LatLonGeomSpec::equal_to` treat two grids as equal when
-  corresponding coordinate values differ by no more than a tolerance.
+- Let `LatLonGeomSpec::equal_to` treat a new (not-yet-registered) grid
+  as equal to an already-registered one when corresponding coordinate
+  values differ by no more than that new grid's own declared tolerance
+  (a fraction of its own coordinate spacing/DX) - each grid decides for
+  itself, using only its own tolerance and resolution, never the
+  already-registered grid's.
 - Derive that tolerance from a generic `coordinate_tolerance` attribute
   on `FileMetadata`, read via the existing generic attribute API, so no
   new arguments are threaded through `GeomManager`, `GeomFactory`, or
   `GeomSpecVector` interfaces, and no tolerance-specific code is added
   to `pfio` or shared `geom_io` infrastructure.
 - Make ExtData the sole owner of deciding/producing the tolerance value:
-  a new optional per-collection config field, explicitly stamped onto
-  each file's `FileMetadata` by ExtData client code using the metadata's
-  existing generic `add_attribute` call - not a new specialized API.
-- Preserve exact-match behavior by default (tolerance = 0 / attribute
-  absent) when a collection does not opt in.
+  a per-collection config field, always stamped onto each file's
+  `FileMetadata` by ExtData client code using the metadata's existing
+  generic `add_attribute` call - not a new specialized API.
+- At the generic geom layer, preserve exact-match behavior by default
+  (tolerance = 0) when no `coordinate_tolerance` attribute is present at
+  all - that layer has no opinion on defaults and stays neutral for any
+  future client.
+- At the `ExtData` layer specifically, default to a nonzero tolerance
+  (not zero) when a collection does not configure
+  `coordinate_tolerance`, because MAPL2 treated slightly-differing
+  file-based grids as the same grid by default and existing `ExtData`
+  users depend on that behavior; an explicit `coordinate_tolerance: 0`
+  remains available to opt into strict comparison.
 
 **Non-Goals:**
 - Extending tolerant comparison to Mesh, LocStream, or EASE geoms (see
@@ -88,9 +100,9 @@ geom type's `equal_to`, even though only LatLon needs it.
 
 Instead, each `CoordinateAxis` (and therefore `LatAxis`/`LonAxis` and
 `LatLonGeomSpec`) stores its own tolerance value, populated once at
-construction time from `FileMetadata`. `equal_to(a, b)` then uses
-`max(a%tolerance, b%tolerance)` (or another agreed combination rule -
-see below) with no signature change.
+construction time from `FileMetadata`. `equal_to(a, b)` then derives the
+effective threshold from `b` alone (see Decision 2 below) with no
+signature change.
 
 **Alternative considered:** thread `coordinate_tolerance` as an optional
 argument through `get_mapl_geom_from_metadata` → `make_geom_spec` →
@@ -99,20 +111,42 @@ author's own follow-up: "would require lots of interface changes
 throughout geom manager," and the `GeomSpec` base class's `equal_to` is
 shared across all geom types, most of which have no tolerance concept.
 
-### 2. Tolerance combination rule when comparing two specs with different stored tolerances
-Two `LatLonGeomSpec` instances being compared may have been built from
-different files with different declared tolerances (e.g. the
-already-cached grid was built strictly, tolerance=0, and the new file
-declares tolerance=0.01). Decision: use `max(a%tolerance, b%tolerance)`
-so that if either side opts into blurring, the comparison is tolerant.
-This favors reuse (the issue's stated goal) and matches the "average
-spacing" framing in the issue body, where the tolerance is a property of
-one grid's own resolution, not an interaction between two files.
+### 2. Only the not-yet-registered ("candidate") grid's own tolerance and spacing matter - not a symmetric combination
+`equal_to(a, b)` is invoked by gFTL's `find()` as
+`T_EQ(container_element, lookup_value)`, i.e. `a` is always an
+already-registered `GeomSpec`/`CoordinateAxis` in `GeomManager`'s cache,
+and `b` is always the new candidate being looked up (see
+`GeomSpecVector.F90:4`, `GeomManager/get_mapl_geom_from_spec.F90`). Each
+grid decides for itself, using its own declared tolerance and its own
+coordinate spacing, whether an existing registry entry is close enough
+to reuse - the already-registered entry already made its own
+accept/reject decision, using its own tolerance, at the time it was
+itself inserted, so its tolerance is irrelevant to a later lookup
+against it. Decision: `equal_to` uses **only `b`'s** tolerance (and
+`b`'s own coordinate spacing - see Decision 4) and never consults `a`'s
+tolerance at all. This makes `equal_to` intentionally directional:
+`a == b` and `b == a` are generally not equivalent when `a` and `b`
+declare different tolerances.
+
+**Alternative considered (this project's original, incorrect,
+decision):** combine both sides via `max(a%tolerance, b%tolerance)`,
+on grounds that "if either side opts into blurring, the comparison
+should be tolerant." Rejected on review: it lets an already-registered
+grid's tolerance affect a lookup that grid has no part in, which
+contradicts the "each grid decides for itself" model, and even by that
+same (rejected) either-side-opts-in reasoning, a symmetric combination
+should logically have been the more conservative `min` (both sides must
+agree the values are close enough), not `max` (which lets the looser of
+the two override the other's implicit request for strict comparison).
+Both flaws are moot once the rule is correctly understood to be
+one-sided rather than a combination at all.
 
 **Alternative considered:** always use tolerance from `a` (the
-already-cached/first-seen grid) — simpler but order-dependent and
-surprising (result of `a==b` could differ from `b==a`), so rejected in
-favor of the symmetric `max` rule.
+already-cached/first-seen grid). Rejected because it puts the decision
+in the hands of whichever grid happened to be inserted first, rather
+than the grid that is actually asking "is this existing entry close
+enough for me" - exactly backwards from the intended per-grid,
+self-determined semantics.
 
 ### 3. Read `coordinate_tolerance` directly off `FileMetadata` via its existing generic-attribute API - no new pfio surface
 No new stored field or method is added to `FileMetadata` or
@@ -140,36 +174,47 @@ author's own follow-up comments, which settled on an explicitly-supplied
 tolerance with an implicit default of zero when absent, to keep behavior
 conservative and backward compatible.
 
-### 4. Comparison implementation in `CoordinateAxis::equal_to`
-Replace the exact elementwise `all(a%centers == b%centers)` /
-`all(a%corners == b%corners)` checks with
-`all(abs(a%centers - b%centers) <= tol)` /
-`all(abs(a%corners - b%corners) <= tol)`, guarded by the existing
+### 4. Comparison implementation in `CoordinateAxis::equal_to`, with tolerance scaled by the candidate's own grid spacing (DX)
+Per the original issue's own framing - "take the average spacing DX in
+[the relevant] grid, and set the tolerance to be say 1% of that" - the
+declared `coordinate_tolerance` is a dimensionless **fraction of grid
+spacing**, not an absolute coordinate difference. Per Decision 2, "the
+relevant grid" is `b` (the candidate), not `a`. Replace the exact
+elementwise `all(a%centers == b%centers)` / `all(a%corners ==
+b%corners)` checks with `all(abs(a%centers - b%centers) <= abs_tol)` /
+`all(abs(a%corners - b%corners) <= abs_tol)`, guarded by the existing
 `size(...)` equality short-circuits (unchanged - size mismatch is never
-"tolerant"). `tol` is the combined value from Decision 2, passed down
-from `LatLonGeomSpec::equal_to` through `LatAxis`/`LonAxis::equal_to`
-into `CoordinateAxis::equal_to`.
+"tolerant"), where:
+```
+abs_tol = b%tolerance * min_spacing(b%centers)
+min_spacing(centers) = minval(abs(centers(2:) - centers(:size-1)))   ! 0 if size(centers) < 2
+```
+`b%tolerance` (the fraction) is populated at construction time from
+`FileMetadata` (Decision 3), and `min_spacing` is computed directly from
+`b`'s own `centers` array - no min/max combination with `a` at all,
+consistent with Decision 2's one-sided rule. A degenerate single-point
+axis has no defined spacing and yields `abs_tol = 0` (strict) for that
+axis regardless of the declared fraction.
 
-### 5. ExtData owns producing the attribute: new per-collection config field, stamped explicitly by client code
-`ExtDataCollection` (`gridcomps/extdata/ExtDataCollection.F90:10-24`)
-gains an optional `real, allocatable :: coordinate_tolerance` field,
-parsed in `new_ExtDataCollection` the same way as `valid_range`
-(`ESMF_HConfigIsDefined`/`ESMF_HConfigAsR4` on a new `"coordinate_tolerance"`
-YAML key), with a `get_coordinate_tolerance`/`is_coordinate_tolerance_allocated`
-accessor pair mirroring the existing `valid_range` accessors
-(`ExtDataCollection.F90:189-212`).
+### 5. ExtData owns producing the attribute: per-collection config field, stamped unconditionally by client code
+`ExtDataCollection` (`gridcomps/extdata/ExtDataCollection.F90`) gains a
+`real(kind=ESMF_KIND_R8) :: coordinate_tolerance` field (always has an
+effective value - see Decision 6 for its default), parsed in
+`new_ExtDataCollection` the same way as `valid_range`
+(`ESMF_HConfigIsDefined`/`ESMF_HConfigAsR8` on a `"coordinate_tolerance"`
+YAML key), with a `get_coordinate_tolerance` accessor.
 
 `PrimaryExport` is constructed with a pointer to its `ExtDataCollection`
-(`PrimaryExport.F90:57-61`) already; it additionally captures the
-collection's configured tolerance (if any) into its own field at
-construction time, the same way it captures `client_collection_id`.
-Then, at each of the two places it loads file metadata and is about to
-request a geom (`PrimaryExport.F90:152-154` and `:211-213`), it calls the
+already; it additionally captures the collection's effective tolerance
+into its own field at construction time, the same way it captures
+`client_collection_id`. Then, at each of the two places it loads file
+metadata and is about to request a geom, it unconditionally calls the
 existing generic
 `metadata%metadata%add_attribute("coordinate_tolerance", this%coordinate_tolerance, _RC)`
-when a tolerance was configured, immediately before
-`geom_mgr%get_mapl_geom_from_metadata`. No other module (not
-`DataCollection.F90`, not `DataSetNode.F90`) is touched - the stamp
+immediately before `geom_mgr%get_mapl_geom_from_metadata` - there is no
+longer an "is a tolerance configured" branch, because every collection
+now has an effective tolerance (explicit or defaulted). No other module
+(not `DataCollection.F90`, not `DataSetNode.F90`) is touched - the stamp
 happens in ExtData's own gridcomp code, on the `FileMetadata` object
 ExtData is about to hand to `GeomManager`, matching the requirement that
 only `gridcomps/extdata` client code adds this attribute.
@@ -183,16 +228,79 @@ infrastructure (also used outside ExtData), and threading an
 ExtData-specific config value into it would leak ExtData-specific
 concerns into shared code - exactly what the user asked to avoid.
 
+### 6. ExtData defaults `coordinate_tolerance` to a nonzero value (0.1); the geom layer's own default stays 0
+The generic geom layer's default - when `FileMetadata` carries no
+`coordinate_tolerance` attribute at all - remains `0` (strict/bitwise).
+That default is correct and unchanged: the geom layer is client-agnostic
+and must not assume any particular policy.
+
+`ExtData` is a specific client with a specific historical contract,
+though: per the issue itself, "MAPL2 allows 2 file-based grids that
+differ slightly in their coordinates to be treated as the same grid...
+An override is given if someone wants to insist that the file grid be
+respected." I.e. MAPL2's default was tolerant, not strict, and the
+strict behavior was the opt-in override. If `ExtData`'s new
+`coordinate_tolerance` config field simply left the tolerance at 0 when
+unset, every existing `ExtData` collection config (which never
+mentions this brand-new key) would silently switch from MAPL2's
+historical tolerant matching to strict matching - the opposite of a
+compatible default, and precisely the regression this project must not
+introduce for existing users.
+
+Decision: `ExtDataCollection` defines
+`DEFAULT_COORDINATE_TOLERANCE = 0.1` (10% of a grid's own coordinate
+spacing/DX - matching the issue's own `DEFAULT_TOLERANCE = 0.1`
+pseudocode) and uses it whenever a collection's config omits
+`coordinate_tolerance`. A collection can set `coordinate_tolerance: 0`
+explicitly to opt into strict comparison - preserving MAPL2's own
+override mechanism, just expressed through the new config key instead
+of a separate flag. Because `ExtDataCollection%coordinate_tolerance` now
+always has an effective value, the previous `allocatable` field and its
+`is_coordinate_tolerance_allocated` accessor are unnecessary and were
+removed; `PrimaryExport` now unconditionally stamps the attribute
+(Decision 5) rather than conditionally doing so.
+
+**Alternative considered:** default to `0` (strict) at the `ExtData`
+layer, matching the geom layer's own generic default, on grounds of
+"least surprise" for a brand-new capability. Rejected because it
+inverts MAPL2's actual historical default and would change existing
+users' grid-reuse (and therefore RouteHandle-reuse and performance)
+behavior the moment they upgrade, without them touching their config at
+all - a worse practical outcome than an imperfect default value.
+
+**Alternative considered:** derive the default automatically from
+`min_dx` per grid rather than a fixed fraction (matching one reading of
+the issue's original pseudocode, `coordinate_tolerance_ = 0.1;
+... coordinate_tolerance_ * min_dx`). This is, in fact, exactly what
+happens: `0.1` is the fraction, and `CoordinateAxis::equal_to` (Decision
+4) already multiplies it by the candidate's own `min_dx` at comparison
+time. There is no separate "automatic" derivation to reject here - the
+scaling-by-DX and the default-fraction-value are two different, both
+necessary, pieces of the same mechanism.
+
 ## Risks / Trade-offs
 
-- **[Risk]** A large `coordinate_tolerance` configured on an ExtData
-  collection could silently merge grids that a user intended to keep
-  distinct (e.g. two physically different but coarsely similar grids
-  served by the same collection over time). → **Mitigation**: default
-  is strict (0/absent); tolerance is opt-in per collection, set
-  explicitly by whoever authors that collection's config; existing
-  decomposition and point-count checks still apply before any
-  coordinate comparison.
+- **[Risk]** A large `coordinate_tolerance` (explicit or the default
+  0.1) configured on an ExtData collection could silently merge grids
+  that a user intended to keep distinct (e.g. two physically different
+  but coarsely similar grids served by the same collection over time).
+  → **Mitigation**: existing decomposition and point-count checks still
+  apply before any coordinate comparison; the value is a *fraction* of
+  the grid's own spacing, so it scales with resolution rather than
+  being a fixed, potentially-too-loose absolute value; a collection can
+  set `coordinate_tolerance: 0` to disable tolerant matching entirely.
+- **[Risk]** Defaulting `ExtData`'s `coordinate_tolerance` to a nonzero
+  value (rather than 0) means every existing collection, without any
+  config change, now compares its file-based grids tolerantly rather
+  than bit-exactly - a real, deliberate change in observable behavior
+  for a codebase-wide default, not merely an "opt-in, no-op unless
+  configured" feature. → **Mitigation**: this default is intentionally
+  chosen to *restore* MAPL2's own historical default behavior (which
+  this change is otherwise re-implementing from scratch, per the
+  originating issue) rather than to introduce new behavior; it is not a
+  regression relative to what users of pre-MAPL3 GEOS actually
+  experienced. Collections that genuinely need bit-exact matching can
+  set `coordinate_tolerance: 0` explicitly.
 - **[Risk]** Because the attribute is stamped by ExtData at metadata-load
   time rather than being intrinsic to the file, two different
   `ExtDataCollection`s pointing at physically the same file could
@@ -203,13 +311,25 @@ concerns into shared code - exactly what the user asked to avoid.
   how *that collection* wants to treat its files, not a property of the
   file itself); document this scoping clearly; out of scope to dedupe
   across collections in this change.
-- **[Risk]** `max(a%tolerance, b%tolerance)` combination means a single
-  loosely-tolerant file can cause it to match an already-cached strict
-  grid, which may be surprising to a user who only intended the
-  tolerance to apply to comparisons among files sharing that same
-  tolerance. → **Mitigation**: document the symmetric `max` rule
-  clearly in code comments and in the requirement scenarios; revisit if
-  real-world usage shows this is too permissive.
+- **[Risk]** Because comparison is directional (only the candidate's
+  tolerance/spacing govern a lookup), `a == b` and `b == a` are
+  generally not equivalent, which could surprise a caller used to
+  ordinary symmetric equality. → **Mitigation**: document the
+  directional contract clearly on `CoordinateAxis`'s `tolerance` field
+  and in `equal_to`'s own comments, and in the requirement scenarios;
+  the asymmetry is intentional and matches "each grid decides for
+  itself" - it is exercised directly by
+  `test_equal_to_is_directional_not_symmetric` in both
+  `Test_CoordinateAxis.pf` and `Test_LatLonGeomSpec.pf`.
+- **[Risk]** Expressing `coordinate_tolerance` as a fraction of the
+  candidate's own grid spacing (rather than an absolute coordinate
+  difference) means the same numeric config value (e.g. `0.01`) implies
+  very different absolute tolerances on a coarse grid versus a fine
+  one. → **Mitigation**: this scaling is deliberate (per the original
+  issue's own "1% of DX" framing) and keeps the same fractional config
+  value meaningful across grids of different resolution; document the
+  fraction-of-DX semantics prominently wherever `coordinate_tolerance`
+  is read or configured.
 - **[Risk]** Introducing a `tolerance` field on `CoordinateAxis`/`LatAxis`/
   `LonAxis`/`LatLonGeomSpec` changes their size/derived-type layout,
   which could affect any existing serialization or equality-based tests
@@ -226,7 +346,11 @@ concerns into shared code - exactly what the user asked to avoid.
   on-disk file formats and MAPL public APIs (`GeomManager`, `GeomSpec`)
   are unaffected. The only new user-facing surface is the optional
   `coordinate_tolerance` key in ExtData collection YAML; existing
-  collection configs need no changes and get identical (strict) behavior.
+  collection configs need no changes to keep their historical (MAPL2)
+  default-tolerant grid-reuse behavior - `ExtData` applies a nonzero
+  default tolerance automatically. A collection can add
+  `coordinate_tolerance: 0` if it wants to newly opt into strict
+  comparison.
 - Rollout: land the fix for the pre-existing syntax break first (already
   done on the branch, verified in this planning pass), then land the
   tolerance-aware `equal_to` changes (a no-op until something stamps the

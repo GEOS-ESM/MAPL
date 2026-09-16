@@ -269,6 +269,13 @@ contains
 
    @test
    subroutine test_equal_to_within_tolerance()
+      ! `a` (metadata_a) plays the role of an already-registered geom;
+      ! `b` (metadata_b) plays the role of a newly-loaded candidate not
+      ! yet in the registry - matching GeomManager's actual lookup order
+      ! (`find` compares each registered entry, "a", against the new
+      ! lookup value, "b"; see CoordinateAxis/equal_to.F90). Only the
+      ! candidate's own declared tolerance (a fraction of ITS OWN local
+      ! grid spacing, here 10 deg for a 36x18 grid) is consulted.
       type(FileMetadata) :: metadata_a, metadata_b
       type(LatLonGeomSpec) :: a, b
       integer :: status
@@ -284,6 +291,8 @@ contains
       @assert_that(status, is(0))
       metadata_b = read_latlon_metadata('test_ll_eq_tol_b.nc', rc=status)
       @assert_that(status, is(0))
+      ! Tolerance is a FRACTION of b's own spacing: 1.e-3 * 10 deg = 0.01
+      ! deg, comfortably covering the 1.e-4 deg perturbation.
       call metadata_b%add_attribute('coordinate_tolerance', 1.0e-3_REAL64)
 
       a = make_LatLonGeomSpec(metadata_a, rc=status)
@@ -291,9 +300,45 @@ contains
       b = make_LatLonGeomSpec(metadata_b, rc=status)
       @assert_that(status, is(0))
 
+      ! a == b models the real GeomManager lookup: does candidate b
+      ! accept already-registered a as close enough?
       @assertTrue(a == b)
-      @assertTrue(b == a)
    end subroutine test_equal_to_within_tolerance
+
+   @test
+   subroutine test_equal_to_is_directional_not_symmetric()
+      ! Same setup as test_equal_to_within_tolerance, but demonstrating
+      ! that swapping which side is "the candidate" changes the result:
+      ! only the tolerance declared on the not-yet-registered side is
+      ! ever consulted, so equal_to is not a symmetric relation.
+      type(FileMetadata) :: metadata_a, metadata_b
+      type(LatLonGeomSpec) :: a, b
+      integer :: status
+
+      call create_latlon_file('test_ll_eq_dir_a.nc', 36, 18, rc=status)
+      @assert_that(status, is(0))
+      call create_latlon_file('test_ll_eq_dir_b.nc', 36, 18, rc=status, perturbation=1.0e-4_REAL64)
+      @assert_that(status, is(0))
+
+      metadata_a = read_latlon_metadata('test_ll_eq_dir_a.nc', rc=status)
+      @assert_that(status, is(0))
+      metadata_b = read_latlon_metadata('test_ll_eq_dir_b.nc', rc=status)
+      @assert_that(status, is(0))
+      ! Only metadata_b declares a tolerance; metadata_a does not.
+      call metadata_b%add_attribute('coordinate_tolerance', 1.0e-3_REAL64)
+
+      a = make_LatLonGeomSpec(metadata_a, rc=status)
+      @assert_that(status, is(0))
+      b = make_LatLonGeomSpec(metadata_b, rc=status)
+      @assert_that(status, is(0))
+
+      ! a == b: b is the candidate, and its tolerance covers the
+      ! perturbation.
+      @assertTrue(a == b)
+      ! b == a: now a is the candidate, but a declared no tolerance
+      ! (strict/0), so the same perturbation is rejected.
+      @assertFalse(b == a)
+   end subroutine test_equal_to_is_directional_not_symmetric
 
    @test
    subroutine test_equal_to_outside_tolerance()
@@ -362,7 +407,9 @@ contains
       @assert_that(status, is(0))
       metadata_b = read_latlon_metadata('test_ll_eq_decomp_b.nc', rc=status)
       @assert_that(status, is(0))
-      call metadata_a%add_attribute('coordinate_tolerance', 1.0e6_REAL64)
+      ! Only b's (the candidate's) tolerance is ever consulted; set a
+      ! huge one here to confirm it still cannot paper over the size
+      ! mismatch.
       call metadata_b%add_attribute('coordinate_tolerance', 1.0e6_REAL64)
 
       a = make_LatLonGeomSpec(metadata_a, rc=status)

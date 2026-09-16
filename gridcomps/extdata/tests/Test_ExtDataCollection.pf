@@ -8,7 +8,11 @@ module Test_ExtDataCollection
 contains
 
    @test
-   subroutine test_coordinate_tolerance_absent()
+   subroutine test_coordinate_tolerance_absent_uses_default()
+      ! When not explicitly configured, the collection SHALL fall back to
+      ! DEFAULT_COORDINATE_TOLERANCE (0.1 = 10% of a grid's own spacing),
+      ! preserving MAPL2's historical default-tolerant grid-reuse
+      ! behavior for existing users who never set this key.
       integer :: status
       type(ESMF_HConfig) :: config
       type(ESMF_Time) :: current_time
@@ -21,14 +25,13 @@ contains
       collection = ExtDataCollection(config, current_time, rc=status)
       @assert_that(status, is(0))
 
-      @assertFalse(collection%is_coordinate_tolerance_allocated())
-      @assertEqual(0.0d0, collection%get_coordinate_tolerance())
+      @assertEqual(0.1d0, collection%get_coordinate_tolerance(), tolerance=1.0d-10)
 
       call ESMF_HConfigDestroy(config, rc=status)
-   end subroutine test_coordinate_tolerance_absent
+   end subroutine test_coordinate_tolerance_absent_uses_default
 
    @test
-   subroutine test_coordinate_tolerance_present()
+   subroutine test_coordinate_tolerance_explicit_value()
       integer :: status
       type(ESMF_HConfig) :: config
       type(ESMF_Time) :: current_time
@@ -42,11 +45,33 @@ contains
       collection = ExtDataCollection(config, current_time, rc=status)
       @assert_that(status, is(0))
 
-      @assertTrue(collection%is_coordinate_tolerance_allocated())
       @assertEqual(0.01d0, collection%get_coordinate_tolerance(), tolerance=1.0d-10)
 
       call ESMF_HConfigDestroy(config, rc=status)
-   end subroutine test_coordinate_tolerance_present
+   end subroutine test_coordinate_tolerance_explicit_value
+
+   @test
+   subroutine test_coordinate_tolerance_explicit_zero_is_strict()
+      ! Explicit coordinate_tolerance: 0 is the escape hatch to strict/
+      ! exact comparison - the override MAPL2 itself provided for
+      ! insisting a file's grid be respected exactly.
+      integer :: status
+      type(ESMF_HConfig) :: config
+      type(ESMF_Time) :: current_time
+      type(ExtDataCollection) :: collection
+
+      call ESMF_TimeSet(current_time, yy=2000, mm=1, dd=1, h=0, m=0, s=0, _RC)
+      config = ESMF_HConfigCreate( &
+           content="{template: dummy_%y4%m2%d2.nc4, coordinate_tolerance: 0.0}", rc=status)
+      @assert_that(status, is(0))
+
+      collection = ExtDataCollection(config, current_time, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(0.0d0, collection%get_coordinate_tolerance())
+
+      call ESMF_HConfigDestroy(config, rc=status)
+   end subroutine test_coordinate_tolerance_explicit_zero_is_strict
 
    @test
    subroutine test_coordinate_tolerance_rejects_negative()

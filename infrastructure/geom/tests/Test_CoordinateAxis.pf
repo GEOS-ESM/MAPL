@@ -66,7 +66,8 @@ contains
       b = CoordinateAxis(centers=centers, corners=corners)
       @assert_that(a == b, is(true()))
 
-      ! No tolerance set (default 0) - even a tiny perturbation must reject.
+      ! No tolerance set on the candidate, b (default 0) - even a tiny
+      ! perturbation must reject.
       b = CoordinateAxis(centers=centers + eps, corners=corners)
       @assert_that(a == b, is(false()))
 
@@ -74,20 +75,52 @@ contains
 
    @test
    subroutine test_equal_to_within_tolerance()
+      ! `a` plays the role of an already-registered axis; `b` plays the
+      ! role of a new candidate not yet in the registry. Per equal_to's
+      ! contract (see equal_to.F90), only the CANDIDATE's tolerance and
+      ! its own local spacing (DX) matter: min spacing of centers
+      ! [1,2,3] is 1, so a fractional tolerance of 1.e-3 accepts
+      ! differences up to 1.e-3.
       type(CoordinateAxis) :: a, b
       real(kind=R8), parameter :: centers(3) = [1._R8, 2._R8, 3._R8]
       real(kind=R8), parameter :: corners(4) = [0.5_R8, 1.5_R8, 2.5_R8, 3.5_R8]
       real(kind=R8), parameter :: perturbation = 1.e-4_R8
-      real(kind=R8), parameter :: tol = 1.e-3_R8
+      real(kind=R8), parameter :: tol_fraction = 1.e-3_R8
 
-      a = CoordinateAxis(centers=centers, corners=corners, tolerance=tol)
-      b = CoordinateAxis(centers=centers + perturbation, corners=corners + perturbation)
+      a = CoordinateAxis(centers=centers, corners=corners)
+      b = CoordinateAxis(centers=centers + perturbation, corners=corners + perturbation, &
+           tolerance=tol_fraction)
 
+      ! a == b: b (the candidate) accepts a (the registered entry) as
+      ! close enough, using b's own tolerance/DX.
       @assert_that(a == b, is(true()))
-      ! Symmetric: b == a must agree, even though only a declared a tolerance.
-      @assert_that(b == a, is(true()))
 
    end subroutine test_equal_to_within_tolerance
+
+   @test
+   subroutine test_equal_to_is_directional_not_symmetric()
+      ! Same setup as test_equal_to_within_tolerance, but demonstrating
+      ! that equal_to is NOT a symmetric relation: which side declares
+      ! the tolerance matters, because only the "not yet registered"
+      ! side's tolerance is ever consulted.
+      type(CoordinateAxis) :: a, b
+      real(kind=R8), parameter :: centers(3) = [1._R8, 2._R8, 3._R8]
+      real(kind=R8), parameter :: corners(4) = [0.5_R8, 1.5_R8, 2.5_R8, 3.5_R8]
+      real(kind=R8), parameter :: perturbation = 1.e-4_R8
+      real(kind=R8), parameter :: tol_fraction = 1.e-3_R8
+
+      a = CoordinateAxis(centers=centers, corners=corners)
+      b = CoordinateAxis(centers=centers + perturbation, corners=corners + perturbation, &
+           tolerance=tol_fraction)
+
+      ! a == b: candidate b has a tolerance covering the perturbation.
+      @assert_that(a == b, is(true()))
+      ! b == a: now a plays the candidate role, but a has no tolerance
+      ! (default 0), so the same nonzero perturbation is rejected -
+      ! despite b (now playing "already registered") having a tolerance.
+      @assert_that(b == a, is(false()))
+
+   end subroutine test_equal_to_is_directional_not_symmetric
 
    @test
    subroutine test_equal_to_outside_tolerance()
@@ -95,11 +128,13 @@ contains
       real(kind=R8), parameter :: centers(3) = [1._R8, 2._R8, 3._R8]
       real(kind=R8), parameter :: corners(4) = [0.5_R8, 1.5_R8, 2.5_R8, 3.5_R8]
       real(kind=R8), parameter :: perturbation = 1.e-2_R8
-      real(kind=R8), parameter :: tol = 1.e-3_R8
+      real(kind=R8), parameter :: tol_fraction = 1.e-3_R8
 
-      a = CoordinateAxis(centers=centers, corners=corners, tolerance=tol)
-      b = CoordinateAxis(centers=centers + perturbation, corners=corners + perturbation)
+      a = CoordinateAxis(centers=centers, corners=corners)
+      b = CoordinateAxis(centers=centers + perturbation, corners=corners + perturbation, &
+           tolerance=tol_fraction)
 
+      ! Perturbation (1.e-2) exceeds b's tolerance*DX (1.e-3 * 1 = 1.e-3).
       @assert_that(a == b, is(false()))
 
    end subroutine test_equal_to_outside_tolerance
@@ -113,13 +148,31 @@ contains
       real(kind=R8), parameter :: corners3(3) = [0.5_R8, 1.5_R8, 2.5_R8]
       real(kind=R8), parameter :: huge_tol = 1.e6_R8
 
-      ! Even a huge tolerance must not paper over a size (gridpoint count) mismatch.
-      a = CoordinateAxis(centers=centers3, corners=corners4, tolerance=huge_tol)
+      ! Even a huge tolerance on the candidate must not paper over a
+      ! size (gridpoint count) mismatch.
+      a = CoordinateAxis(centers=centers3, corners=corners4)
       b = CoordinateAxis(centers=centers2, corners=corners3, tolerance=huge_tol)
 
       @assert_that(a == b, is(false()))
 
    end subroutine test_equal_to_size_mismatch_ignores_tolerance
+
+   @test
+   subroutine test_equal_to_single_point_axis_has_no_spacing()
+      ! A degenerate single-point axis has no defined DX, so a nonzero
+      ! fractional tolerance on it has no effect - comparison stays
+      ! strict (bitwise) for that axis.
+      type(CoordinateAxis) :: a, b
+      real(kind=R8), parameter :: centers(1) = [1._R8]
+      real(kind=R8), parameter :: corners(2) = [0.5_R8, 1.5_R8]
+      real(kind=R8), parameter :: eps = 1.e-6_R8
+
+      a = CoordinateAxis(centers=centers, corners=corners)
+      b = CoordinateAxis(centers=centers + eps, corners=corners, tolerance=1.e3_R8)
+
+      @assert_that(a == b, is(false()))
+
+   end subroutine test_equal_to_single_point_axis_has_no_spacing
 
 
 end module Test_CoordinateAxis

@@ -29,13 +29,20 @@ creation that could otherwise be reused. See GEOS-ESM/MAPL#5385.
   (`coordinate_tolerance` in the collection's YAML entry), and after
   loading a file's `FileMetadata`, `PrimaryExport` explicitly calls the
   existing generic `add_attribute` on that `FileMetadata` object to
-  stamp the collection's configured tolerance onto it before handing it
+  stamp the collection's effective tolerance onto it before handing it
   to `GeomManager`. This avoids any specialized logic in `pfio` or in
   shared `geom_io` infrastructure.
-- Default behavior is unchanged: a collection that does not set
-  `coordinate_tolerance` never stamps the attribute, so the effective
-  tolerance is `0` and comparison remains bit-exact (strict), matching
-  current behavior.
+- The geom layer's own default (when `FileMetadata` has no
+  `coordinate_tolerance` attribute at all) remains `0` (strict/bitwise)
+  - that generic contract is unchanged and client-agnostic. `ExtData`,
+  however, always stamps *some* tolerance: a collection that does not
+  set `coordinate_tolerance` gets a nonzero default
+  (`DEFAULT_COORDINATE_TOLERANCE`, 10% of a grid's own spacing) rather
+  than no attribute at all, because MAPL2 treated slightly-differing
+  file-based grids as the same grid by default and existing `ExtData`
+  users depend on that behavior; a collection can set
+  `coordinate_tolerance: 0` explicitly to opt into strict comparison -
+  the override MAPL2 itself provided.
 - Scope is LatLon grids only for this change; `Mesh`, `LocStream`, and
   `EASE` geom comparisons are untouched.
 - Fix the accidental syntax error in
@@ -80,10 +87,11 @@ creation that could otherwise be reused. See GEOS-ESM/MAPL#5385.
   `coordinate_tolerance` config field, parsed from the collection's
   YAML entry, with a getter.
 - `gridcomps/extdata/PrimaryExport.F90` — captures the collection's
-  `coordinate_tolerance` at construction; before calling
-  `geom_mgr%get_mapl_geom_from_metadata`, calls
+  effective `coordinate_tolerance` (explicit or defaulted) at
+  construction; before calling `geom_mgr%get_mapl_geom_from_metadata`,
+  unconditionally calls
   `metadata%metadata%add_attribute("coordinate_tolerance", ...)` on the
-  loaded `FileMetadata` when a tolerance was configured.
+  loaded `FileMetadata`.
 - `infrastructure/geom_io/FieldBundleRead.F90` and other `GeomManager`
   consumers are unaffected - they continue to call the same
   `GeomManager`/`MAPL_SameGeom` APIs and only benefit from tolerant

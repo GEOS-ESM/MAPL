@@ -147,9 +147,14 @@ contains
 
    @test(type=ESMF_TestMethod, npes=[1])
    ! Two file-based LatLon grids whose coordinates differ only by a tiny
-   ! perturbation, with a "coordinate_tolerance" attribute (as ExtData
-   ! would stamp) large enough to cover it, should reuse the same
-   ! MaplGeom.
+   ! perturbation. metadata_a is registered first (via get_mapl_geom);
+   ! metadata_b is looked up second, acting as the new "candidate" not
+   ! yet in the registry. Only the CANDIDATE's own "coordinate_tolerance"
+   ! attribute (as ExtData would stamp it) matters, interpreted as a
+   ! FRACTION of the candidate's own local grid spacing (DX) - here
+   ! 1.e-3 * 10 deg spacing (36x18 grid) = 0.01 deg, comfortably
+   ! covering the 1.e-4 deg perturbation - so the same MaplGeom is
+   ! reused.
    subroutine test_reuse_geom_within_tolerance(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
@@ -197,8 +202,9 @@ contains
    end subroutine test_reuse_geom_within_tolerance
 
    @test(type=ESMF_TestMethod, npes=[1])
-   ! Same setup, but the perturbation exceeds the declared tolerance -
-   ! must NOT reuse the geom.
+   ! Same setup, but the perturbation (1.e-1 deg) exceeds the
+   ! candidate's tolerance*DX (1.e-3 * 10 deg = 0.01 deg) - must NOT
+   ! reuse the geom.
    subroutine test_do_not_reuse_geom_outside_tolerance(this)
       class(ESMF_TestMethod), intent(inout) :: this
 

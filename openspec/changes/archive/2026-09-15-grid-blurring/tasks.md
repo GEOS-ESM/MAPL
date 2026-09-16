@@ -33,6 +33,13 @@
       equal within tolerance, not equal outside tolerance, size mismatch
       short-circuits regardless of tolerance, default tolerance (0) is
       strict.
+      Post-review correction: the `max(a%tolerance, b%tolerance)`
+      combination rule in 3.2 was wrong (see design.md Decision 2) and
+      was replaced with a one-sided rule using only `b`'s (the new
+      candidate's) tolerance, scaled by `b`'s own local grid spacing
+      (DX) per Decision 4 - not an absolute value. Tests were extended
+      accordingly with `test_equal_to_is_directional_not_symmetric` and
+      `test_equal_to_single_point_axis_has_no_spacing`.
 
 ## 4. Thread tolerance through LatAxis/LonAxis/LatLonGeomSpec
 
@@ -77,6 +84,15 @@
       present/absent in a collection's YAML), and that `PrimaryExport`
       stamps (or omits) the attribute on the `FileMetadata` it passes to
       `GeomManager` accordingly.
+      Post-review correction: PR review determined ExtData's default
+      (when the key is absent) must be nonzero, not strict/0, to
+      preserve MAPL2's historical default-tolerant behavior for
+      existing users (see design.md Decision 6). `coordinate_tolerance`
+      is no longer `allocatable`; it always has an effective value
+      (explicit or `DEFAULT_COORDINATE_TOLERANCE = 0.1`), the
+      `is_coordinate_tolerance_allocated` accessor was removed, and
+      `PrimaryExport` now stamps the attribute unconditionally rather
+      than only "when a tolerance was configured".
 
 ## 6. Tests: GeomManager and LatLonGeomSpec (tolerant comparison)
 

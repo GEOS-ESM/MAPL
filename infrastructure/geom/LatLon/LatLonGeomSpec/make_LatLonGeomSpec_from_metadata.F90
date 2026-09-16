@@ -49,6 +49,13 @@ contains
    ! client, e.g. ExtData, chooses to set it), not of pfio. Absent
    ! attribute (or unrecognized type) yields the default of 0.0 (strict,
    ! bitwise comparison - unchanged prior behavior).
+   !
+   ! The value is a FRACTION of this grid's own local spacing (DX), not
+   ! an absolute coordinate difference - see CoordinateAxis::equal_to,
+   ! which multiplies it by the minimum spacing between adjacent
+   ! centers. It is also directional: it only ever affects comparisons
+   ! where THIS grid is the new candidate being looked up against an
+   ! already-registered grid, never the reverse.
    function get_coordinate_tolerance(file_metadata, rc) result(tolerance)
       real(kind=R8) :: tolerance
       type(FileMetadata), intent(in) :: file_metadata
