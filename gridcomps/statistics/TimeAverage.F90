@@ -14,9 +14,11 @@ module mapl_TimeAverage_mod
 
    type, extends(AbstractTimeStatistic) :: TimeAverage
       private
-       type(MAPL_SimpleAlarm) :: alarm
-       type(esmf_Field) :: f      ! input
+      type(MAPL_SimpleAlarm) :: alarm
+      type(esmf_Field) :: f      ! input
       type(esmf_Field) :: avg_f  ! output
+      type(ESMF_FieldBundle) :: b ! input
+      type(ESMF_FieldBundle) :: avg_b ! output
    contains
       procedure :: destroy
       procedure :: reset
@@ -27,12 +29,13 @@ module mapl_TimeAverage_mod
    end type TimeAverage
 
    interface TimeAverage
-      module procedure new_TimeAverage
+      module procedure new_TimeAverage_field
+      module procedure new_TimeAverage_fieldbundle
    end interface TimeAverage
 
 contains
 
-   function new_TimeAverage(unusable, gridcomp, f, avg_f, alarm, rc) result(stat)
+   function new_TimeAverage_field(unusable, gridcomp, f, avg_f, alarm, rc) result(stat)
       type(TimeAverage) :: stat
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
       type(esmf_GridComp), intent(inout) :: gridcomp
@@ -98,7 +101,76 @@ contains
 
       _UNUSED_DUMMY(unusable)
       _RETURN(_SUCCESS)
-   end function new_TimeAverage
+   end function new_TimeAverage_field
+
+   function new_TimeAverage_fieldbundle(unusable, gridcomp, b, avg_b, alarm, rc) result(stat)
+      type(TimeAverage) :: stat
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      type(esmf_FieldBundle), intent(in) :: b
+      type(esmf_FieldBundle), intent(inout) :: avg_b
+       type(MAPL_SimpleAlarm), intent(in) :: alarm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_State) :: internal_state
+      type(esmf_Geom), allocatable :: geom
+      type(mapl_UngriddedDims) :: ungridded_dims
+      character(:), allocatable :: units, name
+      type(esmf_TypeKind_Flag) :: typekind
+      class(mapl_VerticalGrid), pointer :: vertical_grid
+      type(mapl_VerticalStaggerLoc) :: vstagger
+      type(esmf_FieldBundle) :: sum_b, counts_b
+
+      stat%b = b
+      stat%avg_b = avg_b
+      stat%alarm = alarm
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(b, short_name=name, _RC)
+      call mapl_FieldBundleGet(b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           _RC)
+
+      call mapl_fieldbundleset(avg_b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           standard_name='foo', &
+           _RC)
+
+      call esmf_StateGet(internal_state, 'sum_'//name, fieldbundle=sum_b, _RC)
+      call mapl_fieldbundleset(sum_b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           _RC)
+
+      call esmf_StateGet(internal_state, 'counts_'//name, fieldbundle=counts_b, _RC)
+      call mapl_fieldbundleset(counts_b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units='1', &
+           typekind=ESMF_TYPEKIND_I4, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           _RC)
+
+      _UNUSED_DUMMY(unusable)
+      _RETURN(_SUCCESS)
+   end function new_TimeAverage_fieldbundle
+
 
    subroutine destroy(this, rc)
       class(TimeAverage), intent(inout) :: this
@@ -322,9 +394,10 @@ contains
       alarm = this%alarm
    end function get_alarm
 
-   subroutine advertise_time_average_internal_fields(gridcomp, name, rc)
+   subroutine advertise_time_average_internal_fields(gridcomp, name, item_type, rc)
       type(esmf_GridComp), intent(inout) :: gridcomp
       character(*), intent(in) :: name
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
       integer, optional, intent(out) :: rc
 
       integer :: status, slash_pos
@@ -335,9 +408,9 @@ contains
        if (slash_pos > 0) then
           just_name = name(slash_pos+1:)
        end if
-       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'sum_'//just_name, fill_value=0.0, _RC)
+       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'sum_'//just_name, fill_value=0.0, itemtype=item_type, _RC)
 
-       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'counts_'//just_name, fill_value=0.0, _RC)
+       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'counts_'//just_name, fill_value=0.0, itemtype=item_type, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine advertise_time_average_internal_fields

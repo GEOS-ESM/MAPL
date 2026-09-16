@@ -127,7 +127,6 @@ contains
       call MAPL_FieldBundleGet(fb_in, fieldList=fieldList_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=fieldList_out, _RC)
 
-      _HERE, 'bracket? ', size(fieldList_out), size(fieldList_in)
       _ASSERT(size(fieldList_out) == size(fieldList_in), 'Brackets must have same size.')
 
       do i = 1, size(fieldList_in)
