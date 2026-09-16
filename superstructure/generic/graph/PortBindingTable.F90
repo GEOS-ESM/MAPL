@@ -58,8 +58,7 @@ contains
       if (this%bindings%count(key) == 0) call this%bindings%insert(key, empty_map)
 
       port_map => this%bindings%at(key)
-      _ASSERT(port_map%count(port_name) == 0, &
-         'PortBindingTable: port name is already bound for this (network, node) pair')
+      _ASSERT(port_map%count(port_name) == 0, 'PortBindingTable: port name is already bound for this (network, node) pair')
       call port_map%insert(port_name, target_id)
 
       _RETURN(_SUCCESS)
