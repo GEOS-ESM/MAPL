@@ -159,13 +159,23 @@ contains
       integer, pointer :: last_index
       type(ESMF_TimeInterval) :: time_step
       type(ESMF_Time) :: next_time, stop_time
-      logical :: can_prefetch_next
+      logical :: can_prefetch_next, dry_run_reads
+      character(len=8) :: dry_run_string
+      integer :: dry_run_length, dry_run_status
 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
       call ESMF_ClockGet(clock, currTime=current_time, timeStep=time_step, stopTime=stop_time, _RC)
       next_time = current_time + time_step
       can_prefetch_next = next_time < stop_time
+      dry_run_reads = .false.
+      call get_environment_variable('MAPL_PERF_DRY_RUN_READS', dry_run_string, dry_run_length, dry_run_status)
+      if (dry_run_status == 0 .and. dry_run_length > 0) then
+         select case (dry_run_string(1:1))
+         case ('1', 'T', 't', 'Y', 'y')
+            dry_run_reads = .true.
+         end select
+      end if
       call reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
       call prefetch_left_reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
       call prefetch_right_reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
@@ -188,8 +198,8 @@ contains
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
          call export_item%append_state_to_reader(exportState, reader, lgr, _RC)
-          if (trim(extdata_gridcomp%input_server_name) == 'async_input_server' .and. &
-               (can_prefetch_next .or. export_item%bracket%uses_time_interpolation())) then
+           if ((trim(extdata_gridcomp%input_server_name) == 'async_input_server' .or. dry_run_reads) .and. &
+                (can_prefetch_next .or. export_item%bracket%uses_time_interpolation())) then
             call export_item%append_future_left_to_reader(exportState, next_time, prefetch_left_reader, lgr, _RC)
             call export_item%append_future_right_to_reader(exportState, next_time, prefetch_right_reader, lgr, _RC)
          end if

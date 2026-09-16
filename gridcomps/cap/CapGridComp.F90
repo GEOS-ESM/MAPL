@@ -4,9 +4,11 @@ module mapl_CapGridComp_mod
 
   use mapl
   use mapl_Sleep_mod, only: MAPL_Sleep
+  use, intrinsic :: iso_fortran_env, only: REAL64
   use esmf, only: ESMF_GridComp, ESMF_State, ESMF_Clock
   use esmf, only: ESMF_METHOD_INITIALIZE, ESMF_METHOD_RUN, ESMF_SUCCESS
   use esmf, only: ESMF_InternalStateAdd, ESMF_InternalStateGet
+  use mpi, only: MPI_Wtime
 
    implicit none
 
@@ -67,8 +69,7 @@ contains
       type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
-       integer :: status
-      real :: model_delay
+      integer :: status
       type(CapGridComp), pointer :: cap
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
@@ -86,8 +87,9 @@ contains
       type(ESMF_Clock)      :: clock
       integer, intent(out)  :: rc
 
-       integer :: status
+      integer :: status
       real :: model_delay
+      real(REAL64) :: delay_start, delay_end
       type(CapGridComp), pointer :: cap
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
@@ -96,10 +98,13 @@ contains
          call MAPL_GridCompRunChild(gridcomp, cap%extdata_name, _RC)
           call MAPL_GridCompGetResource(gridcomp, keystring='model_delay', value=model_delay, default=-1.0, _RC)
           if (model_delay > 0.0) then
-             write(*,'(A,1X,F6.2)') 'INFO: Cap model sleep: start seconds=', model_delay
+             delay_start = MPI_Wtime()
+             write(*,'(A,F12.6,1X,A,F6.2)') 'INFO: Cap model interval: start=', delay_start, &
+                  'seconds=', model_delay
              call MAPL_Sleep(model_delay)
-             write(*,'(A)') 'INFO: Cap model sleep: end'
-         end if
+             delay_end = MPI_Wtime()
+             write(*,'(A,F12.6)') 'INFO: Cap model interval: end=', delay_end
+          end if
       end if
       call MAPL_GridCompRunChild(gridcomp, cap%root_name, _RC)
       if (cap%run_history) then

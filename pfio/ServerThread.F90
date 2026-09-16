@@ -8,7 +8,7 @@ module pFIO_ServerThreadMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use mapl_ErrorHandling_mod
-   use mapl_Sleep_mod, only: MAPL_Sleep
+   use mapl_Sleep_mod, only: MAPL_PassiveSleep
    use mapl_Profiler_mod
    use pFIO_UtilitiesMod, only: word_size, i_to_string
    use pFIO_AbstractSocketMod
@@ -701,9 +701,21 @@ contains
       character(len=32) :: sleep_string
       integer :: sleep_length, sleep_status
       real :: reader_sleep
+      logical :: dry_run_reads
 
-      collection => this%ext_collections%at(message%collection_id)
-      formatter => collection%find(message%file_name, _RC)
+      dry_run_reads = .false.
+      call get_environment_variable('MAPL_PERF_DRY_RUN_READS', sleep_string, sleep_length, sleep_status)
+      if (sleep_status == 0 .and. sleep_length > 0) then
+         select case (sleep_string(1:1))
+         case ('1', 'T', 't', 'Y', 'y')
+            dry_run_reads = .true.
+         end select
+      end if
+      if (.not. dry_run_reads) then
+         collection => this%ext_collections%at(message%collection_id)
+         formatter => collection%find(message%file_name, _RC)
+      end if
+      status = _SUCCESS
 
       select type (message)
       type is (PrefetchDataMessage)
@@ -722,16 +734,32 @@ contains
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_0d)
-              call formatter%get_var(message%var_name, values_int32_0d, _RC)
+              if (dry_run_reads) then
+                 values_int32_0d = 0
+              else
+                 call formatter%get_var(message%var_name, values_int32_0d, _RC)
+              end if
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_0d)
-              call formatter%get_var(message%var_name, values_real32_0d, _RC)
+              if (dry_run_reads) then
+                 values_real32_0d = 0.0_REAL32
+              else
+                 call formatter%get_var(message%var_name, values_real32_0d, _RC)
+              end if
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_0d)
-              call formatter%get_var(message%var_name, values_int64_0d, _RC)
+              if (dry_run_reads) then
+                 values_int64_0d = 0_INT64
+              else
+                 call formatter%get_var(message%var_name, values_int64_0d, _RC)
+              end if
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_0d)
-              call formatter%get_var(message%var_name, values_real64_0d, _RC)
+              if (dry_run_reads) then
+                 values_real64_0d = 0.0_REAL64
+              else
+                 call formatter%get_var(message%var_name, values_real64_0d, _RC)
+              end if
           case default
               _FAIL( "Not supported type")
           end select
@@ -739,16 +767,32 @@ contains
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_int32_1d, start=start, count=count, _RC)
+              if (dry_run_reads) then
+                 values_int32_1d = 0
+              else
+                 call formatter%get_var(message%var_name, values_int32_1d, start=start, count=count, _RC)
+              end if
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
+              if (dry_run_reads) then
+                 values_real32_1d = 0.0_REAL32
+              else
+                 call formatter%get_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
+              end if
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
+              if (dry_run_reads) then
+                 values_int64_1d = 0_INT64
+              else
+                 call formatter%get_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
+              end if
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
+              if (dry_run_reads) then
+                 values_real64_1d = 0.0_REAL64
+              else
+                 call formatter%get_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
+              end if
           case default
               _FAIL( "Not supported type")
           end select
@@ -760,7 +804,7 @@ contains
       call get_environment_variable('MAPL_PERF_READER_SLEEP_SEC', sleep_string, sleep_length, sleep_status)
       if (sleep_status == 0 .and. sleep_length > 0) &
            read(sleep_string(1:sleep_length), *, iostat=sleep_status) reader_sleep
-       if (reader_sleep > 0.0) call MAPL_Sleep(reader_sleep)
+        if (reader_sleep > 0.0) call MAPL_PassiveSleep(reader_sleep)
 
       _RETURN(_SUCCESS)
    end subroutine get_DataFromFile

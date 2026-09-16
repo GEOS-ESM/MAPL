@@ -1151,3 +1151,280 @@ Build an ExtData input server that can eventually use extra node-local reader PE
   requests.
 - Results are in `nag-clean/macbook-async-benchmark.log` and
   `nag-clean/macbook-async-benchmark-confirm.log`.
+
+### Simplified Benchmark Workflow (2026-09-15)
+
+- Replaced the configurable benchmark matrix with one fixed comparison:
+  - MpiServer: 8 model PETs
+  - AsyncInputServer: 8 model PETs plus 1 captain and 2 workers
+- The benchmark directory now contains two explicit run configurations,
+  `cap-mpi.yaml` and `cap-async.yaml`; both consume the same generated files.
+- The complete workflow is two commands:
+  ```bash
+  bash tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh /tmp/mapl-async-benchmark
+  bash tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh /tmp/mapl-async-benchmark nag-clean
+  ```
+- Local macOS validation with the clean NAG build completed successfully:
+  - MpiServer: `8.03 s` wall, `6.79 s` maximum EXTDATA profile time
+  - AsyncInputServer: `10.64 s` wall, `8.95 s` maximum EXTDATA profile time
+  - AsyncInputServer was about 32.5% slower in wall time on this laptop.
+  - Both workers were active; reader summaries reported 231 requests on one
+    worker and 66 on the other, with 215 captain-side warm hits.
+- Validation output is in `nag-clean/simplified-async-benchmark.log`.
+
+### Delayed-I/O Investigation (2026-09-15)
+
+- The controlled benchmark now uses `model_delay: 5.0` in both cap YAMLs and
+  defaults `MAPL_PERF_READER_SLEEP_SEC=1` for both input-server paths. This
+  models a one-second read while leaving enough model work to hide it.
+- Found that cache-only lookahead was not fully asynchronous: every model rank
+  waited for the captain's worker-selection response even though no result was
+  returned. The cache-only path now returns after sending its request; only
+  current reads wait for a selected worker and mailbox result.
+- Found that first-idle file assignment frequently pinned both file families to
+  one worker. New files are now assigned by a deterministic filename hash, so
+  `test_*.nc4` and `test_b_*.nc4` use both workers while preserving exclusive
+  per-file ownership.
+- Found that `MAPL_Sleep` is a busy spin. Using it to emulate reader I/O made
+  11 oversubscribed async processes compete for CPU and invalidated the timing
+  model. Added `MAPL_PassiveSleep` and use it only for the benchmark reader
+  delay; the model delay remains CPU work.
+- With model/read delays both set to one second before the passive-delay fix,
+  the local result improved from `36.21 s` to `29.85 s` after balancing the two
+  workers, but was still slower than MpiServer (`24.23 s`) because of CPU
+  oversubscription and protocol overhead.
+- Final controlled run: five seconds of model work and one second of passive
+  simulated I/O at each compulsory read:
+  - MpiServer: `59.38 s` wall
+  - AsyncInputServer: `62.04 s` wall
+  - Async overhead is now `2.66 s` (4.5%) instead of adding the simulated read
+    time to every model-work interval. Both workers handled 134 requests and
+    six misses, and the captain reported 244 warm hits.
+- This result demonstrates concurrent execution, but the first cold reads and
+  transport/scheduling overhead prevent the total run from being exactly the
+  ideal `max(read, work)`. Cluster verification remains authoritative because
+  the laptop runs 11 MPI processes on 8 physical cores.
+
+### Five-Model Benchmark Topology (2026-09-15)
+
+- Changed the laptop comparison to fit its eight physical cores without
+  oversubscription:
+  - MpiServer: 5 model PETs
+  - AsyncInputServer: 5 model PETs plus 1 captain and 2 workers (8 total)
+- With five seconds of model work and one second of passive simulated I/O:
+  - MpiServer: `57.21 s` wall
+  - AsyncInputServer: `63.00 s` wall
+  - Both async workers handled 86 requests and six misses; the captain served
+    148 warm hits.
+- Results are in `nag-clean/simplified-async-5plus3-benchmark.log`.
+
+### Current/Next Data-Flow Verification (2026-09-15)
+
+- Verified the client ordering in `ExtDataGridComp` and `ExtDataFileReader`:
+  current requests are submitted and waited for first; future-left and
+  future-right cache-only requests are then submitted before the cap starts
+  its model-work delay.
+- Fixed the cache-only server path so a model rank no longer waits for a worker
+  assignment. Current requests still block until their mailbox result is
+  ready, while next requests return after submission and execute on readers
+  during model work.
+- Added separate reader diagnostics for `demand_misses` and
+  `prefetch_misses`, plus captain-side `prefetch_hits`. The previous aggregate
+  miss counter could not distinguish a failed lookahead from the expected miss
+  that actually loads new future data.
+- The focused rollover benchmark uses eight consecutive 15-minute model steps
+  around the daily-file boundary. Its cache summary was:
+  - each worker: `demand_misses=2`, all incurred during the initial current
+    pair load
+  - each worker: `prefetch_misses=1`, incurred while asynchronously preparing
+    the new file at rollover
+  - captain: `warm_hits=26 prefetch_hits=218`
+- Therefore, after startup, new data misses occur on the next/prefetch path;
+  subsequent current requests are served warm. This matches the intended data
+  flow. The worker's aggregate `misses` count is not expected to become zero,
+  because every newly introduced future dataset must first miss in order to be
+  loaded.
+- Controlled 5-model + 3-reader timing for that focused flow:
+  - MpiServer: `51.43 s`
+  - AsyncInputServer: `54.28 s`
+- Results are in `nag-clean/async-dataflow-pivot-benchmark.log`.
+
+### Equal-Delay Interpretation (2026-09-15)
+
+- Equal-delay local comparison used the same focused rollover workload with:
+  - `model_delay = 5 s`
+  - `MAPL_PERF_READER_SLEEP_SEC = 5 s`
+  - 5 model PETs for `MpiServer`
+  - 5 model PETs + 1 captain + 2 workers for `AsyncInputServer`
+- Measured wall times:
+  - MpiServer: `58.82 s`
+  - AsyncInputServer: `71.65 s`
+- The naive expectation of
+  `MpiServer = model_delay + reader_delay` versus
+  `AsyncInputServer = max(model_delay, reader_delay)` does **not** match this
+  workload because neither side executes one single read per model step.
+- Important observations from the instrumented async run:
+  - zero-read-delay baseline:
+    - MpiServer: `48.87 s`
+    - AsyncInputServer: `50.56 s`
+  - equal 5-second read delay adds:
+    - about `9.95 s` to MpiServer
+    - about `21.09 s` to AsyncInputServer
+  - async reader diagnostics show only six real reader misses total:
+    - each worker: `demand_misses=2`, `prefetch_misses=1`
+    - these correspond to two cold current loads at startup plus one future-file
+      load at the rollover boundary
+- Interpretation:
+  - MpiServer is not a single sequential reader in this collective path. The
+    baseline already distributes collective read work across server/model PETs,
+    so its added delay is closer to a small number of parallel read waves than
+    to `8 * 5 s`.
+  - AsyncInputServer also does not reduce to one ideal overlapped read per
+    timestep. For this focused workload it pays:
+    - startup cold current reads
+    - one future-file prefetch miss per worker at rollover
+    - fixed captain/mailbox/protocol overhead
+    - end-of-run work that cannot be overlapped backward into a later step
+- Therefore, the near wall-time proximity is explained by the benchmark shape:
+  a small number of unique file-read events dominate both paths, and the
+  baseline path already overlaps some of its read delay internally.
+
+### Resume Point (2026-09-15 End Of Day)
+
+- The async current/next data flow is now verified:
+  - current requests block and are delivered correctly
+  - next requests are cache-only and no longer wait for worker assignment
+  - redundant warm next requests are dropped by the captain
+  - worker ownership is balanced deterministically by filename hash
+- The focused rollover benchmark confirms the intended miss pattern:
+  - each worker: `demand_misses=2` at cold start only
+  - each worker: `prefetch_misses=1` at the rollover future-file load
+  - no evidence of extra steady-state current misses after startup
+- The remaining unresolved question is performance interpretation, not basic
+  correctness:
+  - why the equal-delay wall times remain close even though the async pipeline
+    is functioning
+  - current best explanation: this benchmark has only a few unique file-read
+    events, and the MpiServer collective path already overlaps some read delay
+    internally
+- Best logs to read first tomorrow:
+  - `nag-clean/async-dataflow-pivot-benchmark.log`
+  - `nag-clean/async-model5-read0-benchmark.log`
+  - `nag-clean/async-equal-delay-dedup-benchmark.log`
+  - `.opencode/plans/async-input-server-status.md`
+- Most likely next task:
+  - build a benchmark with repeated rollover-style future-file introductions so
+    every timestep exercises the next-prefetch pipeline, making the expected
+    `max(model_delay, reader_delay)` behavior directly measurable.
+
+### Concurrent Read/Model Investigation (2026-09-16)
+
+- Traced the complete current/next path. `ExtDataGridComp%run` waits for all
+  current reads, submits cache-only future-left/right reads, and returns before
+  the cap starts its model-work delay. The cache-only client call waits only for
+  the server's receipt handshake; `forward_request_to_reader` no longer waits
+  for worker assignment or completion for next requests.
+- Added matching `MPI_Wtime` interval diagnostics around the benchmark model
+  delay and the benchmark-only reader delay.
+- The existing daily-file rollover workload does not create a new read every
+  timestep; most next requests are warm duplicates. A controlled run with
+  `model_delay=5 s` and reader delay `5 s` showed the only steady-state
+  prefetch misses overlapping model work directly:
+  - model interval approximately `[39.178, 44.203]`
+  - worker 1 prefetch interval approximately `[39.180, 44.181]`
+  - worker 2 prefetch interval approximately `[39.192, 44.193]`
+- This proves the model and both reader workers execute concurrently. The
+  remaining wall-time gap comes from four cold demand misses before the first
+  model interval, plus startup/protocol overhead, not a synchronization barrier
+  between prefetch reads and model work.
+- The equal-delay run measured `MpiServer=59.06 s` and
+  `AsyncInputServer=70.79 s`. The async run paid about 20 seconds for four
+  serialized cold-start demand reads, while its two later prefetch reads were
+  fully hidden inside one five-second model interval.
+- The benchmark preparation now generates additional daily source files and
+  the benchmark run extends through `22:00`, keeping the day-boundary overlap
+  event away from the final timestep.
+- Clean NAG `build-tests` completed, and the captain/worker lifecycle plus PFIO
+  case01-case05 selection passed 6/6.
+- Logs:
+  - `nag-clean/concurrency-investigation-build.log`
+  - `nag-clean/concurrency-investigation-tests.log`
+  - `nag-clean/concurrency-overlap-benchmark.log`
+
+#### Conclusion
+- Reading and model work can run concurrently in the current implementation.
+- What cannot overlap is a cold **current** read, by design: ExtData must receive
+  that data before it can return to the cap/model. The first timestep therefore
+  has unavoidable pipeline fill cost.
+- A benchmark that expects every simulated read delay to disappear must either
+  exclude startup/final drain from timing or use enough repeated future-file
+  transitions to amortize them. The interval evidence is the authoritative
+  concurrency check; aggregate wall time alone is not.
+
+### Every-Step Read Benchmark (2026-09-16)
+
+- Changed the benchmark workload to use one timestamped source file per
+  15-minute model timestep instead of reusing daily files.
+- Input generation now writes the required sequence before the timed runs. Both
+  benchmark variants read the same files and execute eight timed model steps.
+- With `model_delay=5 s` and `MAPL_PERF_READER_SLEEP_SEC=5`:
+  - MpiServer: `53.54 s`
+  - AsyncInputServer: `59.72 s`
+  - each async worker reported `misses=8`: one cold demand miss plus seven
+    next-prefetch misses
+  - the captain reported `warm_hits=8 prefetch_hits=56`
+- Every steady-state prefetch read overlaps its model interval. Representative
+  intervals were:
+  - model approximately `[28.55, 33.57]`, readers approximately
+    `[28.53, 33.55]`
+  - model approximately `[33.62, 38.64]`, readers approximately
+    `[33.60, 38.62]`
+  - model approximately `[43.76, 48.77]`, readers approximately
+    `[43.73, 48.75]`
+- There is one new dataset per field family per timestep. The two families are
+  assigned to separate workers, so they form one parallel read wave per step.
+  MpiServer's model ranks also read concurrently, so its five-second delay is
+  one read wave per step rather than five seconds per rank.
+- The remaining async wall-time penalty is primarily pipeline fill: its two
+  cold demand reads are serialized before the first model step. Steady-state
+  async timesteps take about five seconds and demonstrate the intended overlap.
+- Results are in `nag-clean/concurrency-every-step-delay5.log`.
+
+### Equal-Work Dry-Read Benchmark (2026-09-16)
+
+- Added benchmark-only `MAPL_PERF_DRY_RUN_READS` support to both input-server
+  paths. When enabled, the selected file still supplies metadata for ExtData,
+  but the server skips `get_var`, fills the requested payload with zeros, and
+  applies `MAPL_PERF_READER_SLEEP_SEC` as the simulated read cost.
+- Dry-run mode also gives MpiServer the same one-step future-data schedule as
+  AsyncInputServer. MpiServer submits that future item as an ordinary blocking
+  read; AsyncInputServer submits it as cache-only asynchronous work. Production
+  behavior is unchanged when the environment variable is unset.
+- The benchmark now generates timestamped 15-minute source files and runs 16
+  timed timesteps. Each timestep introduces one new dataset in each of two file
+  families; the async server assigns the families to its two workers.
+- Equal-delay configuration:
+  - model work: `5 s` per timestep
+  - simulated read: `5 s` per new dataset
+  - `MAPL_PERF_DRY_RUN_READS=1`
+- Final wall times:
+  - MpiServer: `170.42 s`
+  - AsyncInputServer: `100.26 s`
+  - AsyncInputServer improvement: approximately `41.2%`
+- The steady-state slopes match the intended model:
+  - MpiServer: approximately `10 s/timestep` because its blocking read wave is
+    followed by the five-second model interval
+  - AsyncInputServer: approximately `5 s/timestep` because the next read wave
+    overlaps the five-second model interval
+- Async diagnostics confirmed exactly one read per worker per timestep:
+  - each worker: `misses=16`, `demand_misses=1`, `prefetch_misses=15`
+  - captain: `warm_hits=8 prefetch_hits=120`
+- The async startup remains more expensive because its two cold current reads
+  are delivered synchronously before the first model step. The longer run
+  amortizes this pipeline-fill cost and exposes the steady-state benefit.
+- Clean NAG build passed. With dry mode unset, the captain/worker lifecycle and
+  PFIO case01-case05 regression selection passed 6/6.
+- Logs:
+  - `nag-clean/dry-read-build.log`
+  - `nag-clean/dry-read-equal-work-16step.log`
+  - `nag-clean/dry-read-final-regressions.log`

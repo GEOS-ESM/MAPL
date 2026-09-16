@@ -104,8 +104,10 @@ module mapl_ExtDataReader_mod
       type(c_ptr) :: address
       type(mapl_ArrayReference) :: ref
       integer, pointer :: prefetch_only
-      logical :: allow_cache_only_prefetch
+      logical :: allow_cache_only_prefetch, dry_run_reads
       logical, allocatable :: submitted(:)
+      character(len=8) :: dry_run_string
+      integer :: dry_run_length, dry_run_status
 
       call ESMF_FieldBundleGet(this%accumulated_fields, fieldCount=num_fields, _RC)
       if (num_fields == 0) then
@@ -118,6 +120,14 @@ module mapl_ExtDataReader_mod
       ! original behavior until the broader pFIO path learns how to handle
       ! handle-less collective-prefetch requests safely.
       allow_cache_only_prefetch = (trim(this%input_server_name) == 'async_input_server')
+      dry_run_reads = .false.
+      call get_environment_variable('MAPL_PERF_DRY_RUN_READS', dry_run_string, dry_run_length, dry_run_status)
+      if (dry_run_status == 0 .and. dry_run_length > 0) then
+         select case (dry_run_string(1:1))
+         case ('1', 'T', 't', 'Y', 'y')
+            dry_run_reads = .true.
+         end select
+      end if
 
       call MAPL_FieldBundleGet(this%accumulated_fields, fieldList=field_list, _RC)
       allocate(submitted(size(field_list)))
@@ -130,11 +140,12 @@ module mapl_ExtDataReader_mod
             filename => this%filename_map%at(trim(field_name))
             client_id => this%client_id_map%at(trim(field_name))
             prefetch_only => this%prefetch_only_map%at(trim(field_name))
-            if ((prefetch_only == 1) .and. (.not. allow_cache_only_prefetch)) cycle
+            if ((prefetch_only == 1) .and. (.not. allow_cache_only_prefetch) .and. (.not. dry_run_reads)) cycle
             if (prefetch_only /= pass) cycle
             do j=i,size(field_list)
                if (submitted(j)) cycle
-               if (.not. same_submission_key(this, field_list(i), field_list(j), allow_cache_only_prefetch, pass, rc=status)) cycle
+               if (.not. same_submission_key(this, field_list(i), field_list(j), &
+                    allow_cache_only_prefetch .or. dry_run_reads, pass, rc=status)) cycle
                _VERIFY(status)
 
                call ESMF_FieldGet(field_list(j), name=field_name, _RC)
@@ -157,7 +168,7 @@ module mapl_ExtDataReader_mod
                pfio_typekind = mapl_esmf_to_pfio_type(esmf_typekind, _RC)
                new_element_count = server_bounds%get_file_shape()
                ref = mapl_ArrayReference(address, pfio_typekind, new_element_count)
-               if (prefetch_only == 0) then
+                if (prefetch_only == 0 .or. (.not. allow_cache_only_prefetch)) then
                   request_id = i_client%collective_prefetch_data( &
                       client_id, &
                       filename, &
@@ -208,7 +219,7 @@ module mapl_ExtDataReader_mod
 
       prefetch_only_a => this%prefetch_only_map%at(trim(field_name_a))
       prefetch_only_b => this%prefetch_only_map%at(trim(field_name_b))
-      if ((prefetch_only_a == 1) .and. (.not. allow_cache_only_prefetch)) then
+       if ((prefetch_only_a == 1) .and. (.not. allow_cache_only_prefetch)) then
          matches = .false.
          _RETURN(_SUCCESS)
       end if

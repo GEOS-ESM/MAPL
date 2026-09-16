@@ -5,7 +5,7 @@ module pFIO_AsyncInputServerMod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64, REAL32, REAL64
    use mapl_ErrorHandling_mod
    use mapl_Profiler_mod
-   use mapl_Sleep_mod, only: MAPL_Sleep
+   use mapl_Sleep_mod, only: MAPL_Sleep, MAPL_PassiveSleep
    use pFIO_AbstractMessageMod
    use pFIO_ConstantsMod
    use pFIO_AbstractSocketMod
@@ -131,10 +131,14 @@ module pFIO_AsyncInputServerMod
       integer :: next_cache_slot = 1
       integer :: cache_hits = 0
       integer :: cache_misses = 0
+      integer :: demand_cache_misses = 0
+      integer :: prefetch_cache_misses = 0
        integer :: forwarded_requests = 0
        integer :: captain_warm_hits = 0
-       integer :: reader_requests = 0
+       integer :: captain_prefetch_hits = 0
+      integer :: reader_requests = 0
       real(REAL64) :: reader_sleep_seconds = 0.0_REAL64
+      logical :: dry_run_reads = .false.
       integer :: reader_comm_rank = -1
        contains
        procedure :: start
@@ -171,6 +175,14 @@ contains
       if (sleep_status == 0 .and. sleep_length > 0) then
          read(sleep_string(1:sleep_length), *, iostat=sleep_status) s%reader_sleep_seconds
          if (sleep_status /= 0) s%reader_sleep_seconds = 0.0_REAL64
+      end if
+
+      call get_environment_variable('MAPL_PERF_DRY_RUN_READS', sleep_string, sleep_length, sleep_status)
+      if (sleep_status == 0 .and. sleep_length > 0) then
+         select case (sleep_string(1:1))
+         case ('1', 'T', 't', 'Y', 'y')
+            s%dry_run_reads = .true.
+         end select
       end if
 
       call get_environment_variable('MAPL_ASYNC_INPUT_SHMEM_WORDS', sleep_string, sleep_length, sleep_status)
@@ -475,10 +487,11 @@ contains
                       this%reader_comm, ierr)
                  _VERIFY(ierr)
               end do
-              write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0)') &
+              write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0)') &
                    'INFO: AsyncInputServer cache:', 'reader_rank=', this%rank, &
                    'slots=', this%num_cache_slots, 'hits=', this%cache_hits, &
-                   'misses=', this%cache_misses, 'requests=', this%reader_requests
+                   'misses=', this%cache_misses, 'demand_misses=', this%demand_cache_misses, &
+                   'prefetch_misses=', this%prefetch_cache_misses, 'requests=', this%reader_requests
               call finalize_runtime(this, _RC)
              _RETURN(_SUCCESS)
           end if
@@ -533,8 +546,8 @@ contains
                call dispatch_pending_requests(this, pending, workers, active_reads, file_owners, ierr)
                 _VERIFY(ierr)
              end do
-             write(*,'(A,1X,A,I0)') 'INFO: AsyncInputServer captain cache:', &
-                  'warm_hits=', this%captain_warm_hits
+             write(*,'(A,1X,A,I0,1X,A,I0)') 'INFO: AsyncInputServer captain cache:', &
+                  'warm_hits=', this%captain_warm_hits, 'prefetch_hits=', this%captain_prefetch_hits
              do i = 1, size(workers)
                 call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, i, &
                      ASYNC_INPUT_TAG_READER_CMD, this%reader_comm, ierr)
@@ -718,9 +731,14 @@ contains
        slot_index = find_cache_slot(this, request)
        if (slot_index > 0) then
           this%cache_hits = this%cache_hits + 1
-       else
-          this%cache_misses = this%cache_misses + 1
-          slot_index = choose_cache_slot(this)
+        else
+           this%cache_misses = this%cache_misses + 1
+           if (request%cache_only) then
+              this%prefetch_cache_misses = this%prefetch_cache_misses + 1
+           else
+              this%demand_cache_misses = this%demand_cache_misses + 1
+           end if
+           slot_index = choose_cache_slot(this)
           call read_global_slab_into_slot(this, request, slot_index, _RC)
        end if
 
@@ -816,9 +834,11 @@ contains
           allocate(workers(worker_rank)%buffer(size(pending(request_index)%buffer)))
           workers(worker_rank)%buffer = pending(request_index)%buffer
           call add_active_read(active_reads, workers(worker_rank)%file_name, worker_rank)
-          call MPI_Send(this%reader_global_ranks(worker_rank + 1), 1, MPI_INTEGER, &
-               workers(worker_rank)%source_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
-          if (ierr /= MPI_SUCCESS) return
+           if (workers(worker_rank)%command == ASYNC_INPUT_CMD_READ) then
+              call MPI_Send(this%reader_global_ranks(worker_rank + 1), 1, MPI_INTEGER, &
+                   workers(worker_rank)%source_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
+              if (ierr /= MPI_SUCCESS) return
+           end if
           write(*,'(A,1X,A,I0,1X,A,A)') 'INFO: AsyncInputServer dispatch:', &
                'worker_rank=', worker_rank, 'file=', trim(workers(worker_rank)%file_name)
           call remove_pending_request(pending, request_index)
@@ -881,10 +901,6 @@ contains
         ierr = MPI_SUCCESS
         i = 1
         do while (i <= size(pending))
-           if (pending(i)%command /= ASYNC_INPUT_CMD_READ) then
-              i = i + 1
-              cycle
-           end if
            call reset_prefetch_request(request)
            call request%deserialize(pending(i)%buffer, ierr)
            if (ierr /= MPI_SUCCESS) return
@@ -898,12 +914,16 @@ contains
               cycle
            end if
 
-           call publish_warm_result(this, request, pending(i)%source_rank, warm_records(warm_index), ierr)
-           if (ierr /= MPI_SUCCESS) return
-           call MPI_Send(this%reader_global_ranks(warm_records(warm_index)%worker_rank + 1), &
-                1, MPI_INTEGER, pending(i)%source_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
-           if (ierr /= MPI_SUCCESS) return
-           this%captain_warm_hits = this%captain_warm_hits + 1
+           if (pending(i)%command == ASYNC_INPUT_CMD_READ) then
+              call publish_warm_result(this, request, pending(i)%source_rank, warm_records(warm_index), ierr)
+              if (ierr /= MPI_SUCCESS) return
+              call MPI_Send(this%reader_global_ranks(warm_records(warm_index)%worker_rank + 1), &
+                   1, MPI_INTEGER, pending(i)%source_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
+              if (ierr /= MPI_SUCCESS) return
+              this%captain_warm_hits = this%captain_warm_hits + 1
+           else
+              this%captain_prefetch_hits = this%captain_prefetch_hits + 1
+           end if
            call remove_pending_request(pending, i)
         end do
      end subroutine serve_warm_requests
@@ -1025,20 +1045,7 @@ contains
         call move_alloc(updated, warm_records)
      end subroutine update_warm_record
 
-     integer function find_idle_worker(workers) result(worker_rank)
-       type(AsyncInputWorkerState), intent(in) :: workers(:)
-       integer :: i
-
-       worker_rank = 0
-       do i = 1, size(workers)
-          if (.not. workers(i)%busy) then
-             worker_rank = i
-             return
-          end if
-       end do
-     end function find_idle_worker
-
-     subroutine select_pending_request(pending, workers, active_reads, file_owners, &
+      subroutine select_pending_request(pending, workers, active_reads, file_owners, &
           request_index, worker_rank)
        type(AsyncInputPendingRequest), intent(in) :: pending(:)
        type(AsyncInputWorkerState), intent(in) :: workers(:)
@@ -1052,19 +1059,31 @@ contains
        do i = 1, size(pending)
           if (file_read_is_active(active_reads, pending(i)%file_name)) cycle
           owner_rank = find_file_worker(file_owners, pending(i)%file_name)
-          if (owner_rank > 0) then
-             if (workers(owner_rank)%busy) cycle
-             request_index = i
-             worker_rank = owner_rank
-             return
-          end if
-          worker_rank = find_idle_worker(workers)
-          if (worker_rank < 1) return
-          call add_active_read(file_owners, pending(i)%file_name, worker_rank)
-          request_index = i
-          return
-       end do
-     end subroutine select_pending_request
+           if (owner_rank > 0) then
+              if (workers(owner_rank)%busy) cycle
+              request_index = i
+              worker_rank = owner_rank
+              return
+           end if
+           worker_rank = select_file_worker(pending(i)%file_name, size(workers))
+           if (workers(worker_rank)%busy) cycle
+           call add_active_read(file_owners, pending(i)%file_name, worker_rank)
+           request_index = i
+           return
+        end do
+      end subroutine select_pending_request
+
+      integer function select_file_worker(file_name, n_workers) result(worker_rank)
+        character(len=*), intent(in) :: file_name
+        integer, intent(in) :: n_workers
+        integer :: hash_value, i
+
+        hash_value = 0
+        do i = 1, len_trim(file_name)
+           hash_value = modulo(31 * hash_value + iachar(file_name(i:i)), n_workers)
+        end do
+        worker_rank = hash_value + 1
+      end function select_file_worker
 
      integer function find_file_worker(records, file_name) result(worker_rank)
        type(AsyncInputFileReadRecord), intent(in) :: records(:)
@@ -1143,8 +1162,9 @@ contains
     ! forward_request_to_reader
     !
     ! Serialise the request (including global_start/global_count) and send to
-    ! the reader. If deliver_to_client is .true., wait for the worker to publish
-    ! the LOCAL slice in shared memory and deliver it via connection%put.
+     ! the reader. Current reads wait for the selected worker to publish the
+     ! LOCAL slice. Cache-only lookahead returns as soon as the captain accepts
+     ! the request, allowing the worker read to overlap model computation.
     ! -----------------------------------------------------------------------
       subroutine forward_request_to_reader(this, request, connection, deliver_to_client, command, rc)
        class(AsyncInputServer), intent(inout) :: this
@@ -1178,18 +1198,14 @@ contains
        _VERIFY(ierr)
        call MPI_Send(buffer_size, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_SIZE, this%comm, ierr)
        _VERIFY(ierr)
-       if (.not. deliver_to_client) then
-          call MPI_Ssend(buffer, buffer_size, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
-       else
-          call MPI_Send(buffer, buffer_size, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
-       end if
-       _VERIFY(ierr)
-       deallocate(buffer)
-       call MPI_Recv(worker_rank, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_WORKER_RANK, &
-            this%comm, MPI_STATUS_IGNORE, ierr)
-       _VERIFY(ierr)
+        call MPI_Send(buffer, buffer_size, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
+        _VERIFY(ierr)
+        deallocate(buffer)
 
         if (deliver_to_client) then
+           call MPI_Recv(worker_rank, 1, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_WORKER_RANK, &
+                this%comm, MPI_STATUS_IGNORE, ierr)
+           _VERIFY(ierr)
            mem_data_reference = LocalMemReference(request%type_kind, request%count)
            call c_f_pointer(mem_data_reference%base_address, i_ptr, [local_msize_word])
            call consume_shared_result(this, worker_rank, i_ptr, int(local_msize_word), _RC)
@@ -1355,6 +1371,7 @@ contains
        real(REAL32), pointer :: values_real32(:)
        real(REAL64), pointer :: values_real64(:)
        integer :: status
+       real(REAL64) :: delay_start, delay_end
 
        ! Update cache key metadata.
        this%cache_slots(slot_index)%file_name    = request%file_name
@@ -1371,36 +1388,66 @@ contains
           deallocate(this%cache_slots(slot_index)%reference)
        end if
        allocate(this%cache_slots(slot_index)%reference, &
-            source=LocalMemReference(request%type_kind, request%global_count))
+             source=LocalMemReference(request%type_kind, request%global_count))
 
-        call formatter%open(request%file_name, pFIO_READ, rc=status)
-       _VERIFY(status)
+       status = _SUCCESS
        select case (request%type_kind)
        case (pFIO_INT32)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_int32, [product(request%global_count)])
-          call formatter%get_var(request%var_name, values_int32, &
-               start=request%global_start, count=request%global_count, rc=status)
+          if (this%dry_run_reads) then
+             values_int32 = 0
+          else
+             call formatter%open(request%file_name, pFIO_READ, rc=status)
+             _VERIFY(status)
+             call formatter%get_var(request%var_name, values_int32, &
+                  start=request%global_start, count=request%global_count, rc=status)
+          end if
        case (pFIO_INT64)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_int64, [product(request%global_count)])
-          call formatter%get_var(request%var_name, values_int64, &
-               start=request%global_start, count=request%global_count, rc=status)
+          if (this%dry_run_reads) then
+             values_int64 = 0_INT64
+          else
+             call formatter%open(request%file_name, pFIO_READ, rc=status)
+             _VERIFY(status)
+             call formatter%get_var(request%var_name, values_int64, &
+                  start=request%global_start, count=request%global_count, rc=status)
+          end if
        case (pFIO_REAL32)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_real32, [product(request%global_count)])
-          call formatter%get_var(request%var_name, values_real32, &
-               start=request%global_start, count=request%global_count, rc=status)
+          if (this%dry_run_reads) then
+             values_real32 = 0.0_REAL32
+          else
+             call formatter%open(request%file_name, pFIO_READ, rc=status)
+             _VERIFY(status)
+             call formatter%get_var(request%var_name, values_real32, &
+                  start=request%global_start, count=request%global_count, rc=status)
+          end if
        case (pFIO_REAL64)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_real64, [product(request%global_count)])
-          call formatter%get_var(request%var_name, values_real64, &
-               start=request%global_start, count=request%global_count, rc=status)
+          if (this%dry_run_reads) then
+             values_real64 = 0.0_REAL64
+          else
+             call formatter%open(request%file_name, pFIO_READ, rc=status)
+             _VERIFY(status)
+             call formatter%get_var(request%var_name, values_real64, &
+                  start=request%global_start, count=request%global_count, rc=status)
+          end if
        case default
           _FAIL('unsupported type kind for AsyncInputServer reader')
        end select
        _VERIFY(status)
        ! Keep the artificial delay inside the reader operation: this models a
        ! slow read and completes before the request is marked cached.
-       if (this%reader_sleep_seconds > 0.0_REAL64) &
-            call MAPL_Sleep(real(this%reader_sleep_seconds))
-       call formatter%close()
+       if (this%reader_sleep_seconds > 0.0_REAL64) then
+          delay_start = MPI_Wtime()
+          write(*,'(A,F12.6,1X,A,A,1X,A,L1)') 'INFO: AsyncInputServer reader interval: start=', &
+               delay_start, 'file=', trim(request%file_name), 'cache_only=', request%cache_only
+          call MAPL_PassiveSleep(real(this%reader_sleep_seconds))
+          delay_end = MPI_Wtime()
+          write(*,'(A,F12.6,1X,A,A,1X,A,L1)') 'INFO: AsyncInputServer reader interval: end=', &
+               delay_end, 'file=', trim(request%file_name), 'cache_only=', request%cache_only
+       end if
+       if (.not. this%dry_run_reads) call formatter%close()
         this%cache_slots(slot_index)%valid = .true.
        _RETURN(_SUCCESS)
     end subroutine read_global_slab_into_slot
