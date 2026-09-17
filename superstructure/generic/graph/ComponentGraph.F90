@@ -157,8 +157,10 @@ module mapl_ComponentGraph_mod
       module procedure new_ComponentGraph
    end interface ComponentGraph
 
-   ! update()'s implementation (recursive graph traversal, REQ-REV-005..
-   ! 007) lives in a separate file/submodule
+   ! update()'s implementation (post-order dependency-graph traversal,
+   ! REQ-REV-005..007 - explicit-stack, not literal Fortran recursion;
+   ! see that submodule's own header comment) lives in a separate
+   ! file/submodule
    ! (mapl_ComponentGraph_DemandDrivenUpdate_smod,
    ! ComponentGraph_DemandDrivenUpdate.F90) rather than inline below,
    ! purely to keep this already-large file from growing further - a
@@ -166,7 +168,7 @@ module mapl_ComponentGraph_mod
    ! purpose (callers see an ordinary `graph%update(...)` type-bound
    ! call; there is no separate public interface to maintain).
    interface
-      module recursive subroutine graph_update(this, network_id, node_id, rc)
+      module subroutine graph_update(this, network_id, node_id, rc)
          class(ComponentGraph), target, intent(in) :: this
          type(DependencyNetworkId), intent(in) :: network_id
          type(NodeId), intent(in) :: node_id

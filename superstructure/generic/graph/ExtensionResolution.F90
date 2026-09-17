@@ -126,7 +126,7 @@ contains
    ! final_node_id, reusing an existing chain for the same export + same
    ! combined mismatch signature when one already exists. Reports
    ! "unsupported" explicitly (unsupported_characteristic set to a
-   ! non-empty name, rc still _SUCCESS - this is a structured, expected
+   ! non-empty name, rc still a success code - this is a structured, expected
    ! outcome for the caller to check, not an exceptional error) the
    ! first time a mismatched kind's own Characteristic%build_transform
    ! fails - no wiring to the import is done by this routine in that
