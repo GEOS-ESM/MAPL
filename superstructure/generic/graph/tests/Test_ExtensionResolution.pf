@@ -1,0 +1,348 @@
+! openspec/changes/extension-reuse - task group 6 (unit tests for
+! mapl_Characteristic_mod / mapl_ExtensionResolution_mod).
+!
+! Uses only synthetic graph nodes (StateItemNode/TransformGraphNode) - no
+! OuterComponent/StateRegistry/GraphBuilder type is referenced anywhere,
+! matching Test_ComponentGraph_PortBindings.pf's existing style. The
+! multi-step chain test uses a test-only FakeCharacteristic
+! (MOCK_CHARACTERISTIC_ID, mirroring AspectId.F90's own MOCK_ASPECT_ID
+! precedent) so the chain-building loop can be exercised with two links
+! without needing a second real, executing characteristic (extension-
+! reuse change design.md Decisions).
+module Test_ExtensionResolution
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_TransformGraphNode_mod, only: Transform
+   use mapl_Characteristic_mod, only: Characteristic, CharacteristicMap
+   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, &
+        VERTICAL_GRID_CHARACTERISTIC_ID, MOCK_CHARACTERISTIC_ID, operator(==)
+   use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
+   use funit
+   implicit none
+
+   type, extends(Transform) :: FakeCompute
+   contains
+      procedure :: compute => fake_compute
+   end type FakeCompute
+
+   ! Test-only Characteristic - see module header.
+   type, extends(Characteristic) :: FakeCharacteristic
+      private
+      character(:), allocatable :: value
+   contains
+      procedure, nopass :: get_id => fake_get_id
+      procedure :: get_signature => fake_get_signature
+      procedure :: needs_extension_for => fake_needs_extension_for
+      procedure :: build_transform => fake_build_transform
+   end type FakeCharacteristic
+
+   interface FakeCharacteristic
+      module procedure new_FakeCharacteristic
+   end interface FakeCharacteristic
+
+contains
+
+   function new_FakeCharacteristic(value) result(characteristic)
+      character(*), intent(in) :: value
+      type(FakeCharacteristic) :: characteristic
+
+      characteristic%value = value
+   end function new_FakeCharacteristic
+
+   function fake_get_id() result(id)
+      type(CharacteristicId) :: id
+
+      id = MOCK_CHARACTERISTIC_ID
+   end function fake_get_id
+
+   function fake_get_signature(this) result(signature)
+      class(FakeCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      signature = 'mock=' // this%value
+   end function fake_get_signature
+
+   logical function fake_needs_extension_for(this, goal) result(needs_extension)
+      class(FakeCharacteristic), intent(in) :: this
+      class(Characteristic), intent(in) :: goal
+
+      select type (goal)
+      class is (FakeCharacteristic)
+         needs_extension = (this%value /= goal%value)
+      class default
+         needs_extension = .true.
+      end select
+   end function fake_needs_extension_for
+
+   subroutine fake_build_transform(this, graph, input_node_id, output_node_id, goal, transformer, rc)
+      class(FakeCharacteristic), intent(in) :: this
+      class(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: input_node_id
+      type(NodeId), intent(in) :: output_node_id
+      class(Characteristic), intent(in) :: goal
+      class(Transform), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      type(FakeCompute) :: strategy
+
+      allocate(transformer, source=strategy)
+      call transformer%declare_input_port('source_field')
+      call transformer%declare_output_port('destination_field')
+      if (present(rc)) rc = 0
+   end subroutine fake_build_transform
+
+   subroutine fake_compute(this, rc)
+      class(FakeCompute), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      rc = 0
+   end subroutine fake_compute
+
+   ! -- mismatch detection ---------------------------------------------
+
+   @test
+   subroutine test_no_mismatch_reports_empty()
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(0, size(mismatched))
+   end subroutine test_no_mismatch_reports_empty
+
+   @test
+   subroutine test_units_mismatch_detected()
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+      @assertTrue(mismatched(1) == UNITS_CHARACTERISTIC_ID)
+   end subroutine test_units_mismatch_detected
+
+   @test
+   subroutine test_units_and_vertical_grid_mismatch_detected()
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call export_map%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic('gridA'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      call import_map%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic('gridB'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(2, size(mismatched))
+   end subroutine test_units_and_vertical_grid_mismatch_detected
+
+   ! -- chain creation ---------------------------------------------------
+
+   @test
+   subroutine test_single_step_chain_creates_one_transform()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertFalse(final_id == export_id)
+   end subroutine test_single_step_chain_creates_one_transform
+
+   @test
+   subroutine test_multi_step_chain_with_fake_characteristic()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call export_map%insert(MOCK_CHARACTERISTIC_ID, FakeCharacteristic('a'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      call import_map%insert(MOCK_CHARACTERISTIC_ID, FakeCharacteristic('b'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(2, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertFalse(final_id == export_id)
+   end subroutine test_multi_step_chain_with_fake_characteristic
+
+   @test
+   subroutine test_no_mismatch_case_creates_nothing()
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      ! spec "No-op case creates nothing": nothing to chain-build - the
+      ! no-mismatch case is handled entirely by the caller
+      ! (GraphBuilder.F90's resolve_one) wiring the import directly to
+      ! the export, never calling find_or_build_extension_chain at all.
+      @assertEqual(0, size(mismatched))
+   end subroutine test_no_mismatch_case_creates_nothing
+
+   ! -- unregistered characteristic --------------------------------------
+
+   @test
+   subroutine test_unregistered_characteristic_fails_loudly()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic('gridA'))
+      call import_map%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic('gridB'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      ! VerticalGridCharacteristic%build_transform always fails - no
+      ! real vertical-regrid Transform exists yet.
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertEqual('VERTICAL_GRID', unsupported)
+   end subroutine test_unregistered_characteristic_fails_loudly
+
+   ! -- reuse -------------------------------------------------------------
+
+   @test
+   subroutine test_reuse_second_import_same_variant()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+      type(NodeId) :: final_id1, final_id2
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id1, unsupported, rc=status)
+      @assertEqual(0, status)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id2, unsupported, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(final_id1 == final_id2)
+   end subroutine test_reuse_second_import_same_variant
+
+   @test
+   subroutine test_different_variant_creates_new_extension()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(CharacteristicMap) :: export_map, import_map1, import_map2
+      type(CharacteristicId), allocatable :: mismatched1(:), mismatched2(:)
+      type(NodeId) :: final_id1, final_id2
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call import_map1%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      call import_map2%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('cm'))
+
+      mismatched1 = find_mismatched_characteristics(export_map, import_map1)
+      mismatched2 = find_mismatched_characteristics(export_map, import_map2)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map1, &
+           mismatched1, final_id1, unsupported, rc=status)
+      @assertEqual(0, status)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map2, &
+           mismatched2, final_id2, unsupported, rc=status)
+      @assertEqual(0, status)
+
+      @assertFalse(final_id1 == final_id2)
+   end subroutine test_different_variant_creates_new_extension
+
+end module Test_ExtensionResolution
