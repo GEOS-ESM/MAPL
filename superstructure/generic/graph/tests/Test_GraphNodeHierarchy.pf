@@ -1,0 +1,109 @@
+module Test_GraphNodeHierarchy
+   use mapl_BaseGraphNode_mod, only: BaseGraphNode, NODE_LIFECYCLE_CREATED
+   use mapl_OperationGraphNode_mod, only: OperationGraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem, ESMF_STATEITEM_NOTFOUND, operator(==)
+   use mapl_NodeRevision_mod, only: NodeRevision, operator(==)
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==), operator(/=)
+   use funit
+   implicit none
+
+   ! Test-only concrete descendant of OperationGraphNode, standing in for
+   ! the Phase 2/4 TransformGraphNode/MethodGraphNode concrete subclasses
+   ! (out of scope for this change) - demonstrates that OperationGraphNode
+   ! can be extended into a concrete, instantiable type while adding no
+   ! identity mechanism of its own (REQ-NODE-004).
+   type, extends(OperationGraphNode) :: MockOperationGraphNode
+   end type MockOperationGraphNode
+
+contains
+
+   ! REQ-NODE-001/REQ-NODE-004: GraphNode and OperationGraphNode are
+   ! abstract. The only evidence a runtime test can offer is that a
+   ! concrete descendant of each exists and is instantiable/usable
+   ! through the identity/dispatch contract inherited from GraphNode -
+   ! any attempt to declare a bare GraphNode/OperationGraphNode variable
+   ! is rejected at compile time, not exercised here.
+   @test
+   subroutine test_base_graph_node_is_a_graph_node()
+      type(NodeIdGenerator) :: gen
+      type(BaseGraphNode) :: node
+      type(NodeId) :: id
+
+      id = gen%next()
+      node = BaseGraphNode(id)
+
+      @assertTrue(node%get_node_id() == id)
+   end subroutine test_base_graph_node_is_a_graph_node
+
+   @test
+   subroutine test_operation_graph_node_inherits_identity()
+      type(NodeIdGenerator) :: gen
+      type(MockOperationGraphNode) :: node
+      type(NodeId) :: id
+
+      id = gen%next()
+      node%BaseGraphNode = BaseGraphNode(id)
+
+      @assertTrue(node%get_node_id() == id)
+      @assertEqual(NODE_LIFECYCLE_CREATED, node%get_lifecycle_status())
+   end subroutine test_operation_graph_node_inherits_identity
+
+   ! REQ-NODE-002/002a: NodeId accessor returns the id set at creation;
+   ! no public mutator changes it afterward (there is no such mutator in
+   ! BaseGraphNode's public interface - absence, not a failing call, is
+   ! the evidence).
+   @test
+   subroutine test_node_id_set_once_and_stable()
+      type(NodeIdGenerator) :: gen
+      type(BaseGraphNode) :: node
+      type(NodeId) :: id, other_id
+
+      id = gen%next()
+      other_id = gen%next()
+      node = BaseGraphNode(id)
+
+      @assertTrue(node%get_node_id() == id)
+      @assertTrue(node%get_node_id() /= other_id)
+
+      call node%set_lifecycle_status(NODE_LIFECYCLE_CREATED)
+      @assertTrue(node%get_node_id() == id)
+   end subroutine test_node_id_set_once_and_stable
+
+   ! REQ-NODE-003a/REQ-SI-005: StateItemNode is instantiable, and exposes
+   ! exactly one payload and one revision.
+   @test
+   subroutine test_state_item_node_is_instantiable()
+      type(NodeIdGenerator) :: gen
+      type(StateItemNode) :: node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NodeId) :: id
+
+      id = gen%next()
+      node = StateItemNode(id, payload, revision)
+
+      @assertTrue(node%get_node_id() == id)
+   end subroutine test_state_item_node_is_instantiable
+
+   @test
+   subroutine test_state_item_node_exposes_one_payload_and_one_revision()
+      type(NodeIdGenerator) :: gen
+      type(StateItemNode) :: node
+      type(GraphStateItem) :: payload_in, payload_out
+      type(NodeRevision) :: revision_in, revision_out
+      type(NodeId) :: id
+      integer :: status
+
+      id = gen%next()
+      node = StateItemNode(id, payload_in, revision_in)
+
+      payload_out = node%get_payload()
+      revision_out = node%get_revision()
+
+      @assertTrue(revision_out == revision_in)
+      @assertTrue(payload_out%itemType(rc=status) == ESMF_STATEITEM_NOTFOUND)
+      @assertEqual(0, status)
+   end subroutine test_state_item_node_exposes_one_payload_and_one_revision
+
+end module Test_GraphNodeHierarchy
