@@ -1,0 +1,338 @@
+! Tasks 5.1/5.2 (spec/06-dependency-network.md REQ-DEP-001..008).
+!
+! DependencyNetwork is graph-neutral: it knows nothing about GraphNode
+! subclasses. Ownership ("valid_ids") and producer/state-item
+! classification ("producer_ids"/"state_item_ids") are ordinary NodeId
+! sets built directly here with a NodeIdGenerator, standing in for what
+! ComponentGraph would compute from its owned node map - no ComponentGraph
+! instance is needed to exercise DependencyNetwork's full contract.
+module Test_DependencyNetwork
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
+   use mapl_NodeIdSet_mod, only: NodeIdSet
+   use funit
+   implicit none
+
+contains
+
+   ! REQ-DEP-001/002/005: add_dependency creates bidirectional adjacency;
+   ! contains_dependency/get_predecessors/get_successors/has_predecessors/
+   ! has_successors all agree.
+   @test
+   subroutine test_add_dependency_is_bidirectional()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a, b
+      type(NodeIdSet) :: preds, succs
+      integer :: status
+
+      a = gen%next()
+      b = gen%next()
+
+      call net%add_dependency(a, b, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(net%contains_dependency(a, b))
+      @assertFalse(net%contains_dependency(b, a))
+
+      succs = net%get_successors(a)
+      @assertEqual(1, succs%size())
+      @assertTrue(succs%count(b) > 0)
+
+      preds = net%get_predecessors(b)
+      @assertEqual(1, preds%size())
+      @assertTrue(preds%count(a) > 0)
+
+      @assertTrue(net%has_successors(a))
+      @assertFalse(net%has_predecessors(a))
+      @assertTrue(net%has_predecessors(b))
+      @assertFalse(net%has_successors(b))
+   end subroutine test_add_dependency_is_bidirectional
+
+   ! REQ-DEP-005: remove_dependency clears both adjacency directions.
+   @test
+   subroutine test_remove_dependency_clears_both_directions()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a, b
+      integer :: status
+
+      a = gen%next()
+      b = gen%next()
+
+      call net%add_dependency(a, b, rc=status)
+      @assertEqual(0, status)
+
+      call net%remove_dependency(a, b, rc=status)
+      @assertEqual(0, status)
+
+      @assertFalse(net%contains_dependency(a, b))
+      @assertFalse(net%has_successors(a))
+      @assertFalse(net%has_predecessors(b))
+   end subroutine test_remove_dependency_clears_both_directions
+
+   ! REQ-DEP-005: removing an absent pair is a harmless no-op.
+   @test
+   subroutine test_remove_dependency_absent_pair_is_noop()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a, b
+      integer :: status
+
+      a = gen%next()
+      b = gen%next()
+
+      call net%remove_dependency(a, b, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_remove_dependency_absent_pair_is_noop
+
+   ! REQ-DEP-005: clear() empties all adjacency.
+   @test
+   subroutine test_clear_empties_network()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a, b, c
+      integer :: status
+
+      a = gen%next()
+      b = gen%next()
+      c = gen%next()
+
+      call net%add_dependency(a, b, rc=status)
+      call net%add_dependency(b, c, rc=status)
+
+      call net%clear(rc=status)
+      @assertEqual(0, status)
+
+      @assertFalse(net%contains_dependency(a, b))
+      @assertFalse(net%contains_dependency(b, c))
+      @assertFalse(net%has_successors(a))
+      @assertFalse(net%has_predecessors(c))
+   end subroutine test_clear_empties_network
+
+   ! REQ-DEP-006/007: self-dependency is rejected without mutation.
+   @test
+   subroutine test_self_dependency_rejected_no_mutation()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a
+      integer :: status
+
+      a = gen%next()
+
+      call net%add_dependency(a, a, rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(net%contains_dependency(a, a))
+      @assertFalse(net%has_successors(a))
+   end subroutine test_self_dependency_rejected_no_mutation
+
+   ! REQ-DEP-006/007: a NodeId outside the supplied valid_ids set is
+   ! rejected as foreign, with no partial mutation.
+   @test
+   subroutine test_foreign_node_rejected_no_mutation()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a, b, foreign
+      type(NodeIdSet) :: valid_ids
+      integer :: status
+
+      a = gen%next()
+      b = gen%next()
+      foreign = gen%next()
+
+      call valid_ids%insert(a)
+      call valid_ids%insert(b)
+
+      call net%add_dependency(a, foreign, rc=status, valid_ids=valid_ids)
+      @assertTrue(status /= 0)
+      @assertFalse(net%contains_dependency(a, foreign))
+      @assertFalse(net%has_successors(a))
+   end subroutine test_foreign_node_rejected_no_mutation
+
+   ! REQ-DEP-006: an edge that would close a cycle is rejected, with the
+   ! existing adjacency left completely unchanged.
+   @test
+   subroutine test_cycle_rejected_no_partial_mutation()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a, b, c
+      integer :: status
+
+      a = gen%next()
+      b = gen%next()
+      c = gen%next()
+
+      call net%add_dependency(a, b, rc=status)
+      @assertEqual(0, status)
+      call net%add_dependency(b, c, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(net%would_create_cycle(c, a))
+
+      call net%add_dependency(c, a, rc=status)
+      @assertTrue(status /= 0)
+
+      ! Existing adjacency is completely unaffected by the rejected add.
+      @assertTrue(net%contains_dependency(a, b))
+      @assertTrue(net%contains_dependency(b, c))
+      @assertFalse(net%contains_dependency(c, a))
+      @assertFalse(net%has_predecessors(a))
+      @assertFalse(net%has_successors(c))
+   end subroutine test_cycle_rejected_no_partial_mutation
+
+   ! REQ-DEP-005: freeze() disables all structural mutation while leaving
+   ! read-only queries available.
+   @test
+   subroutine test_frozen_network_rejects_mutation_keeps_queries()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a, b, c
+      integer :: status
+
+      a = gen%next()
+      b = gen%next()
+      c = gen%next()
+
+      call net%add_dependency(a, b, rc=status)
+      @assertEqual(0, status)
+
+      call net%freeze()
+      @assertTrue(net%is_frozen())
+
+      call net%add_dependency(b, c, rc=status)
+      @assertTrue(status /= 0)
+
+      call net%remove_dependency(a, b, rc=status)
+      @assertTrue(status /= 0)
+
+      call net%clear(rc=status)
+      @assertTrue(status /= 0)
+
+      ! Queries remain available and unaffected.
+      @assertTrue(net%contains_dependency(a, b))
+   end subroutine test_frozen_network_rejects_mutation_keeps_queries
+
+   ! REQ-DEP-005: freeze is irreversible - no operation reopens mutation.
+   @test
+   subroutine test_freeze_is_irreversible()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a, b
+
+      a = gen%next()
+      b = gen%next()
+
+      call net%freeze()
+      call net%freeze()
+      @assertTrue(net%is_frozen())
+   end subroutine test_freeze_is_irreversible
+
+   ! REQ-DEP-007: a valid acyclic network with owned ids passes validate().
+   @test
+   subroutine test_validate_passes_for_valid_network()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork), target :: net
+      type(NodeId) :: a, b, c
+      type(NodeIdSet), target :: valid_ids
+      integer :: status
+
+      a = gen%next()
+      b = gen%next()
+      c = gen%next()
+
+      call net%add_dependency(a, b, rc=status)
+      call net%add_dependency(b, c, rc=status)
+
+      call valid_ids%insert(a)
+      call valid_ids%insert(b)
+      call valid_ids%insert(c)
+
+      call net%validate(rc=status, valid_ids=valid_ids)
+      @assertEqual(0, status)
+   end subroutine test_validate_passes_for_valid_network
+
+   ! REQ-DEP-007 item 2: validate() rejects a NodeId not present in the
+   ! supplied valid_ids set, even though add_dependency (called without a
+   ! valid_ids argument) permitted the wiring.
+   @test
+   subroutine test_validate_rejects_unowned_reference()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: a, b
+      type(NodeIdSet) :: incomplete_valid_ids
+      integer :: status
+
+      a = gen%next()
+      b = gen%next()
+
+      call net%add_dependency(a, b, rc=status)
+      @assertEqual(0, status)
+
+      call incomplete_valid_ids%insert(a)
+      ! b deliberately omitted.
+
+      call net%validate(rc=status, valid_ids=incomplete_valid_ids)
+      @assertTrue(status /= 0)
+   end subroutine test_validate_rejects_unowned_reference
+
+   ! REQ-DEP-008: two direct producers for the same state item fail
+   ! validation.
+   @test
+   subroutine test_validate_rejects_multiple_direct_producers()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork), target :: net
+      type(NodeId) :: producer1, producer2, state_item
+      type(NodeIdSet), target :: producer_ids, state_item_ids
+      integer :: status
+
+      producer1 = gen%next()
+      producer2 = gen%next()
+      state_item = gen%next()
+
+      call net%add_dependency(producer1, state_item, rc=status)
+      @assertEqual(0, status)
+      call net%add_dependency(producer2, state_item, rc=status)
+      @assertEqual(0, status)
+
+      call producer_ids%insert(producer1)
+      call producer_ids%insert(producer2)
+      call state_item_ids%insert(state_item)
+
+      call net%validate(rc=status, producer_ids=producer_ids, state_item_ids=state_item_ids)
+      @assertTrue(status /= 0)
+   end subroutine test_validate_rejects_multiple_direct_producers
+
+   ! REQ-DEP-008 note: an explicit merge node feeding the state item is
+   ! accepted - the state item still has exactly one *direct* producer
+   ! (the merge node); the two upstream contributors feed the merge node,
+   ! not the state item.
+   @test
+   subroutine test_validate_accepts_explicit_merge_node()
+      type(NodeIdGenerator) :: gen
+      type(DependencyNetwork) :: net
+      type(NodeId) :: contributor1, contributor2, merge_node, state_item
+      type(NodeIdSet) :: producer_ids, state_item_ids
+      integer :: status
+
+      contributor1 = gen%next()
+      contributor2 = gen%next()
+      merge_node = gen%next()
+      state_item = gen%next()
+
+      call net%add_dependency(contributor1, merge_node, rc=status)
+      @assertEqual(0, status)
+      call net%add_dependency(contributor2, merge_node, rc=status)
+      @assertEqual(0, status)
+      call net%add_dependency(merge_node, state_item, rc=status)
+      @assertEqual(0, status)
+
+      call producer_ids%insert(contributor1)
+      call producer_ids%insert(contributor2)
+      call producer_ids%insert(merge_node)
+      call state_item_ids%insert(state_item)
+
+      call net%validate(rc=status, producer_ids=producer_ids, state_item_ids=state_item_ids)
+      @assertEqual(0, status)
+   end subroutine test_validate_accepts_explicit_merge_node
+
+end module Test_DependencyNetwork

@@ -1,0 +1,309 @@
+! Task 5.3 (spec/19-visualization-export.md §19.2, REQ-VIZ-001..003,
+! REQ-VIZ-006..012, REQ-VIZ-014, REQ-VIZ-016/016a, REQ-VIZ-017).
+!
+! Synthetic graph only - no OuterComponent/StateRegistry/hierarchy type
+! is referenced anywhere in this file, matching the exit criterion in
+! spec/20-implementation-roadmap.md §20.3.
+module Test_GraphExport
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_GraphExport_mod, only: export_graph_dot, export_graph_json
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode, Transform
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use funit
+   implicit none
+
+   type, extends(Transform) :: NoOpCompute
+   contains
+      procedure :: compute => noop_compute
+   end type NoOpCompute
+
+contains
+
+   subroutine noop_compute(this, rc)
+      class(NoOpCompute), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      rc = 0
+   end subroutine noop_compute
+
+   ! Builds: input_id -> transform_id -> output_id (bound ports 'in'/
+   ! 'out'), plus an extra_input_id -> transform_id dependency edge with
+   ! deliberately NO port binding, to exercise the "degrade gracefully"
+   ! scenario. Returns every id the tests need to check for.
+   subroutine build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
+      type(ComponentGraph), intent(out) :: graph
+      type(NodeId), intent(out) :: input_id, extra_input_id, transform_id, output_id
+      type(DependencyNetworkId), intent(out) :: default_id
+
+      type(StateItemNode) :: input_node, extra_input_node, output_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: transform
+      type(NoOpCompute) :: strategy
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      input_id = graph%next_node_id(rc=status)
+      input_node = StateItemNode(input_id, payload, revision)
+      call graph%register_node(input_node, rc=status)
+
+      extra_input_id = graph%next_node_id(rc=status)
+      extra_input_node = StateItemNode(extra_input_id, payload, revision)
+      call graph%register_node(extra_input_node, rc=status)
+
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call transform%declare_output_port('out', rc=status)
+      call graph%register_node(transform, rc=status)
+
+      output_id = graph%next_node_id(rc=status)
+      output_node = StateItemNode(output_id, payload, revision)
+      call graph%register_node(output_node, rc=status)
+
+      call graph%add_dependency(default_id, input_id, transform_id, rc=status)
+      call graph%add_dependency(default_id, extra_input_id, transform_id, rc=status)
+      call graph%add_dependency(default_id, transform_id, output_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'in', input_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'out', output_id, rc=status)
+   end subroutine build_synthetic_graph
+
+   ! REQ-VIZ-010/011: node kind, payload kind, and network attribution
+   ! are present in the DOT output.
+   @test
+   subroutine test_dot_includes_node_and_edge_metadata()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, extra_input_id, transform_id, output_id
+      type(DependencyNetworkId) :: default_id
+      character(:), allocatable :: dot_text
+      integer :: status
+
+      call build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
+
+      dot_text = export_graph_dot(graph, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(index(dot_text, 'kind="StateItemNode"') > 0)
+      @assertTrue(index(dot_text, 'kind="TransformGraphNode"') > 0)
+      @assertTrue(index(dot_text, 'payload="NOTFOUND"') > 0)
+      @assertTrue(index(dot_text, 'network="' // default_id%to_string() // '"') > 0)
+   end subroutine test_dot_includes_node_and_edge_metadata
+
+   ! REQ-VIZ-012: bound port names appear as edge labels; an edge with no
+   ! matching binding-table entry is still exported, without a label
+   ! (degrades gracefully rather than failing).
+   @test
+   subroutine test_port_labels_present_when_bound_absent_when_not()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, extra_input_id, transform_id, output_id
+      type(DependencyNetworkId) :: default_id
+      character(:), allocatable :: dot_text
+      character(:), allocatable :: bound_edge, unbound_edge
+      integer :: status
+
+      call build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
+
+      dot_text = export_graph_dot(graph, rc=status)
+      @assertEqual(0, status)
+
+      bound_edge = '"' // input_id%to_string() // '" -> "' // transform_id%to_string() // '"'
+      unbound_edge = '"' // extra_input_id%to_string() // '" -> "' // transform_id%to_string() // '"'
+
+      @assertTrue(index(dot_text, bound_edge) > 0)
+      @assertTrue(index(dot_text, unbound_edge) > 0)
+
+      ! The bound edge's own attribute list carries label="in"; check by
+      ! locating the bound edge's attribute bracket specifically.
+      @assertTrue(index(dot_text, bound_edge // ' [network="' // default_id%to_string() // &
+                          '", label="in"]') > 0)
+
+      ! The unbound edge must still appear, but with no label attribute
+      ! at all - only the network attribute.
+      @assertTrue(index(dot_text, unbound_edge // ' [network="' // default_id%to_string() // '"]') > 0)
+   end subroutine test_port_labels_present_when_bound_absent_when_not
+
+   ! REQ-VIZ-016/016a: revision metadata is optional, present only when
+   ! both requested and the node's revision is actually valid (an
+   ! invalid/never-produced revision is not reported as if it were a
+   ! real stamp), and reading it does not mutate anything.
+   @test
+   subroutine test_revision_metadata_optional_when_requested_and_valid()
+      use mapl_GraphNode_mod, only: GraphNode
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, extra_input_id, transform_id, output_id
+      type(DependencyNetworkId) :: default_id
+      character(:), allocatable :: dot_without, dot_with
+      class(GraphNode), pointer :: retrieved
+      integer :: status
+
+      call build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
+
+      ! No node has ever been produced yet - never any revision="..."
+      ! field, requested or not.
+      dot_without = export_graph_dot(graph, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(index(dot_without, 'revision="') > 0)
+
+      dot_with = export_graph_dot(graph, rc=status, include_revisions=.true.)
+      @assertEqual(0, status)
+      @assertFalse(index(dot_with, 'revision="') > 0)
+
+      ! Simulate "output has been produced once": advance its revision
+      ! directly, then check it appears only when requested.
+      retrieved => graph%get_node(output_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         call retrieved%advance_revision(rc=status)
+         @assertEqual(0, status)
+      class default
+         @assertTrue(.false.)
+      end select
+
+      dot_without = export_graph_dot(graph, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(index(dot_without, 'revision="') > 0)
+
+      dot_with = export_graph_dot(graph, rc=status, include_revisions=.true.)
+      @assertEqual(0, status)
+      @assertTrue(index(dot_with, 'revision="0"') > 0)
+   end subroutine test_revision_metadata_optional_when_requested_and_valid
+
+   ! REQ-VIZ-002/016a/019.1: export never executes a TransformGraphNode
+   ! or advances any NodeRevision as a side effect.
+   @test
+   subroutine test_export_does_not_mutate_graph_state()
+      use mapl_GraphNode_mod, only: GraphNode
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, extra_input_id, transform_id, output_id
+      type(DependencyNetworkId) :: default_id
+      character(:), allocatable :: dot_text, json_text
+      class(GraphNode), pointer :: retrieved
+      logical :: has_run_before, has_run_after
+      type(NodeRevision) :: revision_check
+      integer :: status
+
+      call build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
+
+      retrieved => graph%get_node(transform_id)
+      select type (retrieved)
+      class is (TransformGraphNode)
+         has_run_before = retrieved%has_run()
+      class default
+         @assertTrue(.false.)
+      end select
+      @assertFalse(has_run_before)
+
+      dot_text = export_graph_dot(graph, rc=status, include_revisions=.true.)
+      @assertEqual(0, status)
+      json_text = export_graph_json(graph, rc=status, include_revisions=.true.)
+      @assertEqual(0, status)
+
+      retrieved => graph%get_node(transform_id)
+      select type (retrieved)
+      class is (TransformGraphNode)
+         has_run_after = retrieved%has_run()
+      class default
+         @assertTrue(.false.)
+      end select
+      @assertFalse(has_run_after)
+
+      retrieved => graph%get_node(output_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         revision_check = retrieved%get_revision()
+         @assertFalse(revision_check%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_export_does_not_mutate_graph_state
+
+   ! REQ-VIZ-009: DOT and JSON enumerate the same node/edge sets.
+   @test
+   subroutine test_dot_and_json_agree_on_node_and_edge_sets()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, extra_input_id, transform_id, output_id
+      type(DependencyNetworkId) :: default_id
+      character(:), allocatable :: dot_text, json_text
+      integer :: status
+
+      call build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
+
+      dot_text = export_graph_dot(graph, rc=status)
+      @assertEqual(0, status)
+      json_text = export_graph_json(graph, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(index(dot_text, '"' // input_id%to_string() // '"') > 0)
+      @assertTrue(index(json_text, '"id": "' // input_id%to_string() // '"') > 0)
+      @assertTrue(index(dot_text, '"' // transform_id%to_string() // '"') > 0)
+      @assertTrue(index(json_text, '"id": "' // transform_id%to_string() // '"') > 0)
+      @assertTrue(index(dot_text, '"' // output_id%to_string() // '"') > 0)
+      @assertTrue(index(json_text, '"id": "' // output_id%to_string() // '"') > 0)
+
+      @assertTrue(index(json_text, '"source": "' // input_id%to_string() // &
+                          '", "target": "' // transform_id%to_string() // '"') > 0)
+      @assertTrue(index(json_text, '"source": "' // transform_id%to_string() // &
+                          '", "target": "' // output_id%to_string() // '"') > 0)
+   end subroutine test_dot_and_json_agree_on_node_and_edge_sets
+
+   ! REQ-VIZ-007: export is usable at least once after freeze.
+   @test
+   subroutine test_export_works_on_frozen_graph()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, extra_input_id, transform_id, output_id
+      type(DependencyNetworkId) :: default_id
+      character(:), allocatable :: dot_text
+      integer :: status
+
+      call build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+
+      dot_text = export_graph_dot(graph, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(index(dot_text, 'kind="TransformGraphNode"') > 0)
+   end subroutine test_export_works_on_frozen_graph
+
+   ! REQ-VIZ-017: no bulk payload data is ever serialized - only
+   ! classification metadata (checked here by absence of any array-like
+   ! numeric dump; the exporter never touches ESMF_Field contents at
+   ! all, so this is really a design guarantee, exercised here as a
+   ! smoke test that a Field-bearing GraphStateItem still exports cleanly).
+   @test
+   subroutine test_export_excludes_payload_data()
+      use StateItemTestSupport_mod, only: make_test_field
+      use ESMF, only: ESMF_Field
+      type(ComponentGraph) :: graph
+      type(NodeId) :: field_id
+      type(StateItemNode) :: field_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(ESMF_Field) :: field
+      character(:), allocatable :: dot_text
+      integer :: status
+
+      graph = ComponentGraph()
+
+      field = make_test_field('t_export_field', rc=status)
+      @assertEqual(0, status)
+      call payload%set(field, rc=status)
+      @assertEqual(0, status)
+
+      field_id = graph%next_node_id(rc=status)
+      field_node = StateItemNode(field_id, payload, revision)
+      call graph%register_node(field_node, rc=status)
+      @assertEqual(0, status)
+
+      dot_text = export_graph_dot(graph, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(index(dot_text, 'payload="FIELD"') > 0)
+   end subroutine test_export_excludes_payload_data
+
+end module Test_GraphExport
