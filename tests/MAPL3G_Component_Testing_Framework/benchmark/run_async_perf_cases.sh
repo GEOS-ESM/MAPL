@@ -25,8 +25,6 @@ export LD_LIBRARY_PATH="$build_dir/lib:$component_lib_dir:$build_dir/tests/MAPL3
 export DYLD_LIBRARY_PATH="$build_dir/lib:$component_lib_dir:$build_dir/tests/MAPL3G_Component_Testing_Framework/gridcomps:${DYLD_LIBRARY_PATH:-}"
 export UDUNITS2_XML_PATH="$udunits_xml"
 export ESMF_RUNTIME_COMPLIANCECHECK=OFF
-export MAPL_PERF_READER_SLEEP_SEC="${MAPL_PERF_READER_SLEEP_SEC:-5}"
-export MAPL_PERF_DRY_RUN_READS="${MAPL_PERF_DRY_RUN_READS:-1}"
 export MAPL_ASYNC_INPUT_CACHE_SLOTS="${MAPL_ASYNC_INPUT_CACHE_SLOTS:-4}"
 
 mpiexec_flags=()
@@ -61,10 +59,9 @@ run_case() {
   )
 
   echo "$label ($np PETs)"
-  echo "model delay: 5 s; simulated read delay: ${MAPL_PERF_READER_SLEEP_SEC} s; dry reads: ${MAPL_PERF_DRY_RUN_READS}"
+  echo "mode: real-io"
   perl -ne 'print if /^real /' "$work_dir/$label.time"
   perl -ne 'print if /EXTDATA\.profile: EXTDATA/' "$work_dir/$label.log"
-  perl -ne 'print if /(?:Cap model|AsyncInputServer reader) interval:/' "$work_dir/$label.log"
   perl -ne 'print if /AsyncInputServer (?:captain )?cache:/' "$work_dir/$label.log"
 }
 

@@ -5,7 +5,7 @@ module pFIO_AsyncInputServerMod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64, REAL32, REAL64
    use mapl_ErrorHandling_mod
    use mapl_Profiler_mod
-   use mapl_Sleep_mod, only: MAPL_Sleep, MAPL_PassiveSleep
+   use mapl_Sleep_mod, only: MAPL_Sleep
    use pFIO_AbstractMessageMod
    use pFIO_ConstantsMod
    use pFIO_AbstractSocketMod
@@ -133,10 +133,8 @@ module pFIO_AsyncInputServerMod
       integer :: prefetch_cache_misses = 0
        integer :: forwarded_requests = 0
        integer :: captain_warm_hits = 0
-       integer :: captain_prefetch_hits = 0
+      integer :: captain_prefetch_hits = 0
       integer :: reader_requests = 0
-      real(REAL64) :: reader_sleep_seconds = 0.0_REAL64
-      logical :: dry_run_reads = .false.
       integer :: reader_comm_rank = -1
        contains
        procedure :: start
@@ -169,21 +167,7 @@ contains
       s%model_comm = MPI_COMM_NULL
       if (present(model_comm)) s%model_comm = model_comm
 
-      call get_environment_variable('MAPL_PERF_READER_SLEEP_SEC', sleep_string, sleep_length, sleep_status)
-      if (sleep_status == 0 .and. sleep_length > 0) then
-         read(sleep_string(1:sleep_length), *, iostat=sleep_status) s%reader_sleep_seconds
-         if (sleep_status /= 0) s%reader_sleep_seconds = 0.0_REAL64
-      end if
-
-      call get_environment_variable('MAPL_PERF_DRY_RUN_READS', sleep_string, sleep_length, sleep_status)
-      if (sleep_status == 0 .and. sleep_length > 0) then
-         select case (sleep_string(1:1))
-         case ('1', 'T', 't', 'Y', 'y')
-            s%dry_run_reads = .true.
-         end select
-      end if
-
-      call get_environment_variable('MAPL_ASYNC_INPUT_SHMEM_WORDS', sleep_string, sleep_length, sleep_status)
+       call get_environment_variable('MAPL_ASYNC_INPUT_SHMEM_WORDS', sleep_string, sleep_length, sleep_status)
       if (sleep_status == 0 .and. sleep_length > 0) then
          read(sleep_string(1:sleep_length), *, iostat=sleep_status) s%shared_mailbox_words
          if (sleep_status /= 0 .or. s%shared_mailbox_words < 1) &
@@ -559,10 +543,6 @@ contains
         integer, optional, intent(out) :: rc
         integer :: status
 
-        if (this%model_comm /= MPI_COMM_NULL .and. .not. this%synchronous_fallback .and. this%model_node_rank == 0) then
-           write(*,'(A,1X,A,I0)') 'INFO: AsyncInputServer forwarded:', 'requests=', this%forwarded_requests
-        end if
-
         call finalize_runtime(this, _RC)
         _RETURN(_SUCCESS)
       end subroutine release_runtime
@@ -771,8 +751,6 @@ contains
                    workers(worker_rank)%source_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
               if (ierr /= MPI_SUCCESS) return
            end if
-          write(*,'(A,1X,A,I0,1X,A,A)') 'INFO: AsyncInputServer dispatch:', &
-               'worker_rank=', worker_rank, 'file=', trim(workers(worker_rank)%file_name)
           call remove_pending_request(pending, request_index)
        end do
      end subroutine dispatch_pending_requests
@@ -812,8 +790,6 @@ contains
        if (ierr /= MPI_SUCCESS) return
        call update_warm_record(warm_records, request, worker_rank, slot_index)
        call remove_active_read(active_reads, workers(worker_rank)%file_name, worker_rank)
-       write(*,'(A,1X,A,I0,1X,A,A)') 'INFO: AsyncInputServer complete:', &
-            'worker_rank=', worker_rank, 'file=', trim(workers(worker_rank)%file_name)
        workers(worker_rank)%busy = .false.
        workers(worker_rank)%source_rank = -1
        if (allocated(workers(worker_rank)%file_name)) deallocate(workers(worker_rank)%file_name)
@@ -1303,8 +1279,6 @@ contains
        real(REAL32), pointer :: values_real32(:)
        real(REAL64), pointer :: values_real64(:)
        integer :: status
-       real(REAL64) :: delay_start, delay_end
-
        ! Update cache key metadata.
        this%cache_slots(slot_index)%file_name    = request%file_name
        this%cache_slots(slot_index)%var_name     = request%var_name
@@ -1326,60 +1300,33 @@ contains
        select case (request%type_kind)
        case (pFIO_INT32)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_int32, [product(request%global_count)])
-          if (this%dry_run_reads) then
-             values_int32 = 0
-          else
-             call formatter%open(request%file_name, pFIO_READ, rc=status)
-             _VERIFY(status)
-             call formatter%get_var(request%var_name, values_int32, &
-                  start=request%global_start, count=request%global_count, rc=status)
-          end if
+          call formatter%open(request%file_name, pFIO_READ, rc=status)
+          _VERIFY(status)
+          call formatter%get_var(request%var_name, values_int32, &
+               start=request%global_start, count=request%global_count, rc=status)
        case (pFIO_INT64)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_int64, [product(request%global_count)])
-          if (this%dry_run_reads) then
-             values_int64 = 0_INT64
-          else
-             call formatter%open(request%file_name, pFIO_READ, rc=status)
-             _VERIFY(status)
-             call formatter%get_var(request%var_name, values_int64, &
-                  start=request%global_start, count=request%global_count, rc=status)
-          end if
+          call formatter%open(request%file_name, pFIO_READ, rc=status)
+          _VERIFY(status)
+          call formatter%get_var(request%var_name, values_int64, &
+               start=request%global_start, count=request%global_count, rc=status)
        case (pFIO_REAL32)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_real32, [product(request%global_count)])
-          if (this%dry_run_reads) then
-             values_real32 = 0.0_REAL32
-          else
-             call formatter%open(request%file_name, pFIO_READ, rc=status)
-             _VERIFY(status)
-             call formatter%get_var(request%var_name, values_real32, &
-                  start=request%global_start, count=request%global_count, rc=status)
-          end if
+          call formatter%open(request%file_name, pFIO_READ, rc=status)
+          _VERIFY(status)
+          call formatter%get_var(request%var_name, values_real32, &
+               start=request%global_start, count=request%global_count, rc=status)
        case (pFIO_REAL64)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_real64, [product(request%global_count)])
-          if (this%dry_run_reads) then
-             values_real64 = 0.0_REAL64
-          else
-             call formatter%open(request%file_name, pFIO_READ, rc=status)
-             _VERIFY(status)
-             call formatter%get_var(request%var_name, values_real64, &
-                  start=request%global_start, count=request%global_count, rc=status)
-          end if
+          call formatter%open(request%file_name, pFIO_READ, rc=status)
+          _VERIFY(status)
+          call formatter%get_var(request%var_name, values_real64, &
+               start=request%global_start, count=request%global_count, rc=status)
        case default
           _FAIL('unsupported type kind for AsyncInputServer reader')
        end select
        _VERIFY(status)
-       ! Keep the artificial delay inside the reader operation: this models a
-       ! slow read and completes before the request is marked cached.
-       if (this%reader_sleep_seconds > 0.0_REAL64) then
-          delay_start = MPI_Wtime()
-          write(*,'(A,F12.6,1X,A,A,1X,A,L1)') 'INFO: AsyncInputServer reader interval: start=', &
-               delay_start, 'file=', trim(request%file_name), 'cache_only=', request%cache_only
-          call MAPL_PassiveSleep(real(this%reader_sleep_seconds))
-          delay_end = MPI_Wtime()
-          write(*,'(A,F12.6,1X,A,A,1X,A,L1)') 'INFO: AsyncInputServer reader interval: end=', &
-               delay_end, 'file=', trim(request%file_name), 'cache_only=', request%cache_only
-       end if
-       if (.not. this%dry_run_reads) call formatter%close()
+       call formatter%close()
         this%cache_slots(slot_index)%valid = .true.
        _RETURN(_SUCCESS)
     end subroutine read_global_slab_into_slot
