@@ -13,6 +13,7 @@ set(srcs
 
   InnerMetaComponent.F90
   OuterMetaComponent.F90
+  GraphBuilder.F90
   GenericGridComp.F90
 
   MAPL_Generic.F90
@@ -77,6 +78,7 @@ add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(transforms)
 add_subdirectory(couplers)
+add_subdirectory(graph)
 add_subdirectory(vertical)
 
 esma_add_fortran_submodules(
@@ -96,6 +98,8 @@ esma_add_fortran_submodules(
           write_restart.F90 read_restart.F90 get_name.F90 get_gridcomp.F90
           set_geom.F90 propagate_geom_to_children.F90 set_vertical_grid.F90 get_vertical_grid.F90 get_registry.F90
           get_component_spec.F90 get_internal_state.F90 get_logger.F90
+          get_component_graph.F90
+          get_child_component_spec.F90 get_child_component_graph.F90
           get_user_gc_driver.F90 connect_all.F90 set_entry_point.F90
           finalize.F90 start_timer.F90 stop_timer.F90 get_checkpoint_dir.F90
           ensure_memory_checkpoint.F90 get_memory_checkpoint_state.F90)

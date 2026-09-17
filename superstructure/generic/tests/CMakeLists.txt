@@ -35,6 +35,7 @@ set(COMMON_LINK_LIBRARIES MAPL.generic.test_common MAPL.pfunit MAPL.statistics)
 set(scenarios_test_srcs
   Test_Scenarios.pf
   Test_MemoryCheckpoint.pf
+  Test_GraphBuilderEquivalence.pf
 )
 
 add_pfunit_ctest(
@@ -130,6 +131,8 @@ set(components_test_srcs
   Test_ComponentSpecParser.pf
   Test_WriteYaml.pf
   Test_ExtensionFamily.pf
+  Test_ComponentHierarchyGraph.pf
+  Test_GraphBuilder.pf
 )
 
 add_pfunit_ctest(
