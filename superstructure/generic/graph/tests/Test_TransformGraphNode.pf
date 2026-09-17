@@ -1,0 +1,331 @@
+! Task 2.4 (spec/10-transforms-and-ports.md REQ-XFORM-001..004,
+! spec/11-revision-and-update.md REQ-REV-005..007).
+module Test_TransformGraphNode
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode, Transform, &
+                                       PortSpecMap, PortNameRevisionMap
+   use mapl_PortSpec_mod, only: PortSpec
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD, operator(==)
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
+   use funit
+   implicit none
+
+   ! Test-only Transform double. Since TransformGraphNode's
+   ! constructor allocates its strategy component via sourced allocation
+   ! (a value copy), run_count is a pointer to an external target so the
+   ! test can observe executions even though the strategy object stored
+   ! inside the node is not the same instance as the local variable
+   ! passed to the constructor.
+   type, extends(Transform) :: CountingCompute
+      integer, pointer :: run_count => null()
+      logical :: fail = .false.
+   contains
+      procedure :: compute => counting_compute
+   end type CountingCompute
+
+   ! Stand-in for a real Transform subclass (e.g. ConvertUnitsTransform):
+   ! its fixed port shape is intrinsic to the subclass, declared once by
+   ! its own constructor - a caller wiring an instance into a
+   ! TransformGraphNode never needs to know or re-declare that shape
+   ! itself (REQ-XFORM-004's "declaration belongs to the Transform").
+   type, extends(Transform) :: SelfDescribingTransform
+   contains
+      procedure :: compute => self_describing_compute
+   end type SelfDescribingTransform
+
+   interface SelfDescribingTransform
+      module procedure new_SelfDescribingTransform
+   end interface SelfDescribingTransform
+
+contains
+
+   subroutine counting_compute(this, rc)
+      class(CountingCompute), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      if (associated(this%run_count)) this%run_count = this%run_count + 1
+      rc = 0
+      if (this%fail) rc = 1
+   end subroutine counting_compute
+
+   ! Declares its own fixed port shape at construction time - no
+   ! external caller needs to know these names.
+   function new_SelfDescribingTransform() result(xform)
+      type(SelfDescribingTransform) :: xform
+      integer :: status
+
+      call xform%declare_input_port('source_field', rc=status)
+      call xform%declare_output_port('destination_field', rc=status)
+   end function new_SelfDescribingTransform
+
+   subroutine self_describing_compute(this, rc)
+      class(SelfDescribingTransform), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      rc = 0
+   end subroutine self_describing_compute
+
+   ! REQ-XFORM-002: multiple named inputs and outputs, independently
+   ! retrievable by name and direction.
+   @test
+   subroutine test_declare_multiple_named_ports()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      type(PortSpec) :: spec
+      integer :: status
+
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call node%declare_input_port('source_field', rc=status)
+      @assertEqual(0, status)
+      call node%declare_input_port('source_vertical_grid', rc=status)
+      @assertEqual(0, status)
+      call node%declare_input_port('destination_vertical_grid', rc=status)
+      @assertEqual(0, status)
+      call node%declare_output_port('destination_field', rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(node%is_input_port('source_field'))
+      @assertTrue(node%is_input_port('source_vertical_grid'))
+      @assertTrue(node%is_input_port('destination_vertical_grid'))
+      @assertTrue(node%is_output_port('destination_field'))
+      @assertFalse(node%is_output_port('source_field'))
+      @assertFalse(node%is_input_port('destination_field'))
+
+      spec = node%get_input_port('source_field', rc=status)
+      @assertEqual(0, status)
+      @assertEqual('source_field', spec%get_name())
+   end subroutine test_declare_multiple_named_ports
+
+   ! REQ-XFORM-004: port declaration is intrinsic to the Transform
+   ! subclass, not something the wiring code must know or re-declare.
+   ! The node is built directly from an already-self-configured
+   ! Transform instance - no declare_input_port/declare_output_port
+   ! call happens anywhere in this test.
+   @test
+   subroutine test_ports_are_intrinsic_to_the_transform_subclass()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(SelfDescribingTransform) :: xform
+      integer :: status
+
+      xform = SelfDescribingTransform()
+      node = TransformGraphNode(gen%next(), xform)
+
+      @assertTrue(node%is_input_port('source_field'))
+      @assertTrue(node%is_output_port('destination_field'))
+      @assertFalse(node%is_input_port('destination_field'))
+
+      call node%execute(rc=status)
+      @assertEqual(0, status)
+   end subroutine test_ports_are_intrinsic_to_the_transform_subclass
+
+   ! REQ-XFORM-004 (uniqueness within one direction).
+   @test
+   subroutine test_duplicate_input_port_name_rejected()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      integer :: status
+
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call node%declare_input_port('x', rc=status)
+      @assertEqual(0, status)
+      call node%declare_input_port('x', rc=status)
+      @assertTrue(status /= 0)
+      ! Original declaration is unaffected.
+      @assertTrue(node%is_input_port('x'))
+   end subroutine test_duplicate_input_port_name_rejected
+
+   @test
+   subroutine test_duplicate_output_port_name_rejected()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      integer :: status
+
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call node%declare_output_port('y', rc=status)
+      @assertEqual(0, status)
+      call node%declare_output_port('y', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_duplicate_output_port_name_rejected
+
+   ! Same name may be used across different directions (not disallowed).
+   @test
+   subroutine test_same_name_allowed_across_directions()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      integer :: status
+
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call node%declare_input_port('z', rc=status)
+      @assertEqual(0, status)
+      call node%declare_output_port('z', rc=status)
+      @assertEqual(0, status)
+   end subroutine test_same_name_allowed_across_directions
+
+   ! REQ-XFORM-003: declared kind constraint is queryable without any
+   ! bound value.
+   @test
+   subroutine test_kind_constrained_port_query()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      type(PortSpec) :: spec
+      integer :: status
+
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call node%declare_input_port('g', rc=status, expected_kind=MAPL_STATEITEM_FIELD)
+      @assertEqual(0, status)
+
+      spec = node%get_input_port('g', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%is_kind_constrained())
+      @assertTrue(spec%get_expected_kind(rc=status) == MAPL_STATEITEM_FIELD)
+      @assertEqual(0, status)
+   end subroutine test_kind_constrained_port_query
+
+   @test
+   subroutine test_unconstrained_port_reports_not_constrained()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      type(PortSpec) :: spec
+      integer :: status
+
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call node%declare_input_port('h', rc=status)
+      @assertEqual(0, status)
+
+      spec = node%get_input_port('h', rc=status)
+      @assertEqual(0, status)
+      @assertFalse(spec%is_kind_constrained())
+   end subroutine test_unconstrained_port_reports_not_constrained
+
+   ! REQ-XFORM-001: no implicit execution.
+   @test
+   subroutine test_construction_does_not_execute()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      integer, target :: counter
+
+      counter = 0
+      strategy%run_count => counter
+      node = TransformGraphNode(gen%next(), strategy)
+
+      @assertEqual(0, counter)
+      @assertFalse(node%has_run())
+   end subroutine test_construction_does_not_execute
+
+   ! REQ-REV-006 step 4: never-run reports stale regardless of input
+   ! revisions (even an empty set).
+   @test
+   subroutine test_never_run_is_stale()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      type(PortNameRevisionMap) :: empty_revisions
+
+      node = TransformGraphNode(gen%next(), strategy)
+
+      @assertTrue(node%needs_execution(empty_revisions))
+   end subroutine test_never_run_is_stale
+
+   ! execute() invokes the injected strategy exactly once per call.
+   @test
+   subroutine test_execute_invokes_strategy()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      integer, target :: counter
+      integer :: status
+
+      counter = 0
+      strategy%run_count => counter
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call node%execute(rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, counter)
+
+      call node%execute(rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, counter)
+   end subroutine test_execute_invokes_strategy
+
+   ! REQ-REV-005: execute() failure is reported, not swallowed.
+   @test
+   subroutine test_execute_propagates_strategy_failure()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      integer :: status
+
+      strategy%fail = .true.
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call node%execute(rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_execute_propagates_strategy_failure
+
+   ! REQ-REV-006 steps 3/6: after record_run(), an identical input
+   ! revision snapshot is no longer stale.
+   @test
+   subroutine test_record_run_then_unchanged_inputs_not_stale()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      type(PortNameRevisionMap) :: revisions
+      type(NodeRevision) :: rev_a
+      integer :: status
+
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call rev_a%advance(rc=status)
+      @assertEqual(0, status)
+      call revisions%insert('a', rev_a)
+
+      call node%record_run(revisions, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(node%has_run())
+
+      @assertFalse(node%needs_execution(revisions))
+   end subroutine test_record_run_then_unchanged_inputs_not_stale
+
+   ! REQ-REV-006 step 4: a changed declared-input revision makes the
+   ! transform stale again.
+   @test
+   subroutine test_changed_input_revision_is_stale()
+      type(NodeIdGenerator) :: gen
+      type(TransformGraphNode) :: node
+      type(CountingCompute) :: strategy
+      type(PortNameRevisionMap) :: baseline_revisions, changed_revisions
+      type(NodeRevision) :: rev_a, rev_a_advanced
+      integer :: status
+
+      node = TransformGraphNode(gen%next(), strategy)
+
+      call rev_a%advance(rc=status)
+      @assertEqual(0, status)
+      call baseline_revisions%insert('a', rev_a)
+      call node%record_run(baseline_revisions, rc=status)
+      @assertEqual(0, status)
+
+      rev_a_advanced = rev_a
+      call rev_a_advanced%advance(rc=status)
+      @assertEqual(0, status)
+      call changed_revisions%insert('a', rev_a_advanced)
+
+      @assertTrue(node%needs_execution(changed_revisions))
+   end subroutine test_changed_input_revision_is_stale
+
+end module Test_TransformGraphNode

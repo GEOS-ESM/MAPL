@@ -1,0 +1,87 @@
+! Task 5.1 (spec/07-component-graph.md, "ComponentGraph exposes node and
+! network identity enumeration" - added for the graph-neutral exporter's
+! REQ-VIZ-003 dependency on public full-graph enumeration).
+module Test_ComponentGraph_Enumeration
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeIdSet_mod, only: NodeIdSet
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_DependencyNetworkIdSet_mod, only: DependencyNetworkIdSet
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_all_owned_node_ids_are_enumerable()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: id1, id2
+      type(StateItemNode) :: node1, node2
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NodeIdSet) :: ids
+      integer :: status
+
+      graph = ComponentGraph()
+
+      id1 = graph%next_node_id(rc=status)
+      node1 = StateItemNode(id1, payload, revision)
+      call graph%register_node(node1, rc=status)
+      @assertEqual(0, status)
+
+      id2 = graph%next_node_id(rc=status)
+      node2 = StateItemNode(id2, payload, revision)
+      call graph%register_node(node2, rc=status)
+      @assertEqual(0, status)
+
+      ids = graph%get_node_ids()
+      @assertTrue(ids%count(id1) > 0)
+      @assertTrue(ids%count(id2) > 0)
+   end subroutine test_all_owned_node_ids_are_enumerable
+
+   @test
+   subroutine test_all_owned_network_ids_are_enumerable()
+      type(ComponentGraph) :: graph
+      type(DependencyNetworkId) :: default_id, second_id
+      type(DependencyNetworkIdSet) :: ids
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+      second_id = graph%create_network(rc=status)
+      @assertEqual(0, status)
+
+      ids = graph%get_network_ids()
+      @assertTrue(ids%count(default_id) > 0)
+      @assertTrue(ids%count(second_id) > 0)
+   end subroutine test_all_owned_network_ids_are_enumerable
+
+   ! REQ-CG-003b/003c-style lifecycle guard: enumeration reports empty
+   ! rather than exposing finalized internal state.
+   @test
+   subroutine test_enumeration_empty_after_finalize()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: id1
+      type(StateItemNode) :: node1
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NodeIdSet) :: ids
+      integer :: status
+
+      graph = ComponentGraph()
+      id1 = graph%next_node_id(rc=status)
+      node1 = StateItemNode(id1, payload, revision)
+      call graph%register_node(node1, rc=status)
+      @assertEqual(0, status)
+
+      call graph%finalize(rc=status)
+      @assertEqual(0, status)
+
+      ids = graph%get_node_ids()
+      @assertTrue(ids%empty())
+   end subroutine test_enumeration_empty_after_finalize
+
+end module Test_ComponentGraph_Enumeration
