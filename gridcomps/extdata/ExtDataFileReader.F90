@@ -113,11 +113,7 @@ module mapl_ExtDataReader_mod
       end if
 
       i_client => mapl_get_client(this%input_server_name, _RC)
-      ! The cache-only next-request path is currently part of the
-      ! AsyncInputServer experiment only. Keep the default input server on the
-      ! original behavior until the broader pFIO path learns how to handle
-      ! handle-less collective-prefetch requests safely.
-      allow_cache_only_prefetch = (trim(this%input_server_name) == 'async_input_server')
+      allow_cache_only_prefetch = i_client%supports_cache_only_prefetch()
 
       call MAPL_FieldBundleGet(this%accumulated_fields, fieldList=field_list, _RC)
       allocate(submitted(size(field_list)))

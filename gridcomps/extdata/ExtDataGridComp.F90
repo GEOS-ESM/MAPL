@@ -153,16 +153,19 @@ contains
       character(len=:), allocatable :: export_name
       character(len=:), pointer :: base_name
       type(ExtDataReader), target :: reader, prefetch_left_reader, prefetch_right_reader
+      class(ClientThread), pointer :: input_client
       class(logger), pointer :: lgr
       type(ESMF_FieldBundle) :: bundle
       integer :: idx
       integer, pointer :: last_index
       type(ESMF_TimeInterval) :: time_step
       type(ESMF_Time) :: next_time, stop_time
-      logical :: can_prefetch_next
+      logical :: can_prefetch_next, supports_cache_only_prefetch
 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
+      input_client => mapl_get_client(extdata_gridcomp%input_server_name, _RC)
+      supports_cache_only_prefetch = input_client%supports_cache_only_prefetch()
       call ESMF_ClockGet(clock, currTime=current_time, timeStep=time_step, stopTime=stop_time, _RC)
       next_time = current_time + time_step
       can_prefetch_next = next_time < stop_time
@@ -188,7 +191,7 @@ contains
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
          call export_item%append_state_to_reader(exportState, reader, lgr, _RC)
-           if ((trim(extdata_gridcomp%input_server_name) == 'async_input_server') .and. &
+           if (supports_cache_only_prefetch .and. &
                 (can_prefetch_next .or. export_item%bracket%uses_time_interpolation())) then
             call export_item%append_future_left_to_reader(exportState, next_time, prefetch_left_reader, lgr, _RC)
             call export_item%append_future_right_to_reader(exportState, next_time, prefetch_right_reader, lgr, _RC)

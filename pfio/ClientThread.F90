@@ -62,6 +62,7 @@ module pFIO_ClientThreadMod
        integer :: collective_counter = COLLECTIVE_MIN_ID
        integer :: pending_collective_prefetches = 0
        integer :: pending_next_collective_prefetches = 0
+       logical :: cache_only_prefetch_supported = .false.
 
    contains
       procedure, private :: add_read_data_collection
@@ -94,6 +95,8 @@ module pFIO_ClientThreadMod
       procedure :: get_client_comm
       procedure :: get_rank
       procedure :: set_client_comm
+      procedure :: supports_cache_only_prefetch
+      procedure :: set_cache_only_prefetch_supported
    end type ClientThread
 
 
@@ -103,11 +106,12 @@ module pFIO_ClientThreadMod
 
 contains
 
-   function new_ClientThread(sckt, client_comm, rc) result(c)
+   function new_ClientThread(sckt, client_comm, rc, supports_cache_only_prefetch) result(c)
       type (ClientThread),target :: c
       class(AbstractSocket),optional,intent(in) :: sckt
       integer, optional, intent(in) :: client_comm
       integer, optional, intent(out) :: rc
+      logical, optional, intent(in) :: supports_cache_only_prefetch
 
       integer :: ierror
 
@@ -118,6 +122,8 @@ contains
       else
          if (present(rc)) rc = 0
       end if
+      if (present(supports_cache_only_prefetch)) &
+           c%cache_only_prefetch_supported = supports_cache_only_prefetch
 
    end function new_ClientThread
 
@@ -614,6 +620,17 @@ contains
       class (ClientThread), intent(in) :: this
       rank = this%rank
    end function get_rank
+
+   logical function supports_cache_only_prefetch(this)
+      class(ClientThread), intent(in) :: this
+      supports_cache_only_prefetch = this%cache_only_prefetch_supported
+   end function supports_cache_only_prefetch
+
+   subroutine set_cache_only_prefetch_supported(this, supported)
+      class(ClientThread), intent(inout) :: this
+      logical, intent(in) :: supported
+      this%cache_only_prefetch_supported = supported
+   end subroutine set_cache_only_prefetch_supported
 
    subroutine set_client_comm(this, client_comm, rc)
       class (ClientThread), intent(inout) :: this

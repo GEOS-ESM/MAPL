@@ -632,7 +632,7 @@ contains
       class(BaseServer), pointer :: srv
       class(ClientThread), allocatable :: new_client
       class(ClientThread), pointer :: p_client
-      logical :: has_subclass, use_fast, register_client_
+      logical :: has_subclass, use_fast, register_client_, supports_cache_only_prefetch
       character(:), allocatable :: subclass_name
 
       ! Determine server subclass.
@@ -679,11 +679,14 @@ contains
       ! stable long-lived storage (the ClientManager map) before connecting.
       use_fast = .false.
       if (present(fast_client)) use_fast = fast_client
+      supports_cache_only_prefetch = (trim(subclass_name) == 'AsyncInputServer')
 
       if (use_fast) then
-         allocate(new_client, source=FastClientThread(client_comm=this%model_comm, rc=status))
+         allocate(new_client, source=FastClientThread(client_comm=this%model_comm, &
+              supports_cache_only_prefetch=supports_cache_only_prefetch, rc=status))
       else
-         allocate(new_client, source=ClientThread(client_comm=this%model_comm, rc=status))
+         allocate(new_client, source=ClientThread(client_comm=this%model_comm, &
+              supports_cache_only_prefetch=supports_cache_only_prefetch, rc=status))
       end if
       _VERIFY(status)
 
