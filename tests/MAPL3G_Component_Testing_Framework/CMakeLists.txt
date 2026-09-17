@@ -96,5 +96,12 @@ foreach(TEST_CASE ${TEST_CASES})
       -P ${CMAKE_CURRENT_SOURCE_DIR}/run_comp_tester.cmake
   )
    set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES LABELS "ESSENTIAL")
-   set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES ENVIRONMENT "${TEST_ENV}")
+   set(TEST_CASE_ENV ${TEST_ENV})
+   if (TEST_CASE STREQUAL "case46" OR TEST_CASE STREQUAL "case47" OR
+       TEST_CASE STREQUAL "case48" OR TEST_CASE STREQUAL "case49")
+     # These 13x9 PFIO cases need only a few hundred words per payload. Keep
+     # concurrent tests below restrictive cluster shared-memory limits.
+     list(APPEND TEST_CASE_ENV "MAPL_ASYNC_INPUT_SHMEM_WORDS=4096")
+   endif()
+   set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES ENVIRONMENT "${TEST_CASE_ENV}")
 endforeach()
