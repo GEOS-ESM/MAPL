@@ -1,0 +1,386 @@
+! Task 4.2 (spec/11-revision-and-update.md REQ-REV-005..007, REQ-REV-009).
+!
+! Synthetic graphs only (StateItemNode/TransformGraphNode via
+! ComponentGraph) - no ESMF component/GridComp/StateRegistry involved
+! anywhere, per spec/20-implementation-roadmap.md §20.3's exit criterion.
+module Test_DemandDrivenUpdate
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode, Transform
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_GraphNode_mod, only: GraphNode
+   use funit
+   implicit none
+
+   ! Counting Transform double (see Test_TransformGraphNode.pf for
+   ! the run_count-is-a-pointer rationale: TransformGraphNode's
+   ! constructor sourced-allocates a copy of the strategy).
+   type, extends(Transform) :: CountingCompute
+      integer, pointer :: run_count => null()
+   contains
+      procedure :: compute => counting_compute
+   end type CountingCompute
+
+contains
+
+   subroutine counting_compute(this, rc)
+      class(CountingCompute), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      if (associated(this%run_count)) this%run_count = this%run_count + 1
+      rc = 0
+   end subroutine counting_compute
+
+   ! A no-producer StateItemNode (nothing wired to it) is a no-op: update
+   ! completes without error and does not require any TransformGraphNode
+   ! to exist at all.
+   @test
+   subroutine test_externally_supplied_item_is_noop()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_id
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: default_id
+      integer :: status
+
+      graph = ComponentGraph()
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+      @assertEqual(0, status)
+
+      default_id = graph%get_default_network_id()
+      call graph%update(default_id, item_id, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_externally_supplied_item_is_noop
+
+   ! REQ-REV-005/006: first request executes the transform exactly once,
+   ! and advances its output's revision.
+   @test
+   subroutine test_first_request_executes_transform_once()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, transform_id, output_id
+      type(StateItemNode) :: input_node, output_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: transform
+      type(CountingCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      integer, target :: run_count
+      class(GraphNode), pointer :: retrieved
+      type(NodeRevision) :: revision_check
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      input_id = graph%next_node_id(rc=status)
+      input_node = StateItemNode(input_id, payload, revision)
+      call graph%register_node(input_node, rc=status)
+      @assertEqual(0, status)
+
+      run_count = 0
+      strategy%run_count => run_count
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call transform%declare_output_port('out', rc=status)
+      call graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      output_id = graph%next_node_id(rc=status)
+      output_node = StateItemNode(output_id, payload, revision)
+      call graph%register_node(output_node, rc=status)
+      @assertEqual(0, status)
+
+      call graph%add_dependency(default_id, input_id, transform_id, rc=status)
+      @assertEqual(0, status)
+      call graph%add_dependency(default_id, transform_id, output_id, rc=status)
+      @assertEqual(0, status)
+      call graph%bind_port(default_id, transform_id, 'in', input_id, rc=status)
+      @assertEqual(0, status)
+      call graph%bind_port(default_id, transform_id, 'out', output_id, rc=status)
+      @assertEqual(0, status)
+
+      call graph%update(default_id, output_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count)
+
+      retrieved => graph%get_node(output_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         revision_check = retrieved%get_revision()
+         @assertTrue(revision_check%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_first_request_executes_transform_once
+
+   ! REQ-REV-006: a second request with no input change does not
+   ! re-execute.
+   @test
+   subroutine test_unchanged_second_request_does_not_reexecute()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, transform_id, output_id
+      type(StateItemNode) :: input_node, output_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: transform
+      type(CountingCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      integer, target :: run_count
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      input_id = graph%next_node_id(rc=status)
+      input_node = StateItemNode(input_id, payload, revision)
+      call graph%register_node(input_node, rc=status)
+
+      run_count = 0
+      strategy%run_count => run_count
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call transform%declare_output_port('out', rc=status)
+      call graph%register_node(transform, rc=status)
+
+      output_id = graph%next_node_id(rc=status)
+      output_node = StateItemNode(output_id, payload, revision)
+      call graph%register_node(output_node, rc=status)
+
+      call graph%add_dependency(default_id, input_id, transform_id, rc=status)
+      call graph%add_dependency(default_id, transform_id, output_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'in', input_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'out', output_id, rc=status)
+
+      call graph%update(default_id, output_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count)
+
+      call graph%update(default_id, output_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count)
+   end subroutine test_unchanged_second_request_does_not_reexecute
+
+   ! REQ-REV-006: a changed input triggers re-execution.
+   @test
+   subroutine test_changed_input_triggers_reexecution()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, transform_id, output_id
+      type(StateItemNode) :: input_node, output_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: transform
+      type(CountingCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      integer, target :: run_count
+      class(GraphNode), pointer :: retrieved
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      input_id = graph%next_node_id(rc=status)
+      input_node = StateItemNode(input_id, payload, revision)
+      call graph%register_node(input_node, rc=status)
+
+      run_count = 0
+      strategy%run_count => run_count
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call transform%declare_output_port('out', rc=status)
+      call graph%register_node(transform, rc=status)
+
+      output_id = graph%next_node_id(rc=status)
+      output_node = StateItemNode(output_id, payload, revision)
+      call graph%register_node(output_node, rc=status)
+
+      call graph%add_dependency(default_id, input_id, transform_id, rc=status)
+      call graph%add_dependency(default_id, transform_id, output_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'in', input_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'out', output_id, rc=status)
+
+      call graph%update(default_id, output_id, rc=status)
+      @assertEqual(1, run_count)
+
+      ! Simulate the input's producer (outside this synthetic graph)
+      ! updating its value: advance the input node's revision directly.
+      retrieved => graph%get_node(input_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         call retrieved%advance_revision(rc=status)
+         @assertEqual(0, status)
+      class default
+         @assertTrue(.false.)
+      end select
+
+      call graph%update(default_id, output_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, run_count)
+   end subroutine test_changed_input_triggers_reexecution
+
+   ! REQ-REV-007: all declared outputs advance together, not only the
+   ! one originally requested.
+   @test
+   subroutine test_all_outputs_advance_together()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, transform_id, output1_id, output2_id
+      type(StateItemNode) :: input_node, output1_node, output2_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: transform
+      type(CountingCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      integer, target :: run_count
+      class(GraphNode), pointer :: retrieved
+      type(NodeRevision) :: revision_check
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      input_id = graph%next_node_id(rc=status)
+      input_node = StateItemNode(input_id, payload, revision)
+      call graph%register_node(input_node, rc=status)
+
+      run_count = 0
+      strategy%run_count => run_count
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call transform%declare_output_port('out1', rc=status)
+      call transform%declare_output_port('out2', rc=status)
+      call graph%register_node(transform, rc=status)
+
+      output1_id = graph%next_node_id(rc=status)
+      output1_node = StateItemNode(output1_id, payload, revision)
+      call graph%register_node(output1_node, rc=status)
+
+      output2_id = graph%next_node_id(rc=status)
+      output2_node = StateItemNode(output2_id, payload, revision)
+      call graph%register_node(output2_node, rc=status)
+
+      call graph%add_dependency(default_id, input_id, transform_id, rc=status)
+      call graph%add_dependency(default_id, transform_id, output1_id, rc=status)
+      call graph%add_dependency(default_id, transform_id, output2_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'in', input_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'out1', output1_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'out2', output2_id, rc=status)
+
+      ! Request only output1.
+      call graph%update(default_id, output1_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count)
+
+      retrieved => graph%get_node(output1_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         revision_check = retrieved%get_revision()
+         @assertTrue(revision_check%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+
+      ! output2 was never directly requested but must have advanced too.
+      retrieved => graph%get_node(output2_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         revision_check = retrieved%get_revision()
+         @assertTrue(revision_check%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_all_outputs_advance_together
+
+   ! REQ-REV-006 step 1: a two-transform chain fully updates upstream
+   ! before the downstream transform's staleness is evaluated, and an
+   ! upstream-only input change propagates through both.
+   @test
+   subroutine test_two_transform_chain_propagates()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: a_id, t1_id, b_id, t2_id, c_id
+      type(StateItemNode) :: a_node, b_node, c_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: t1, t2
+      type(CountingCompute) :: strategy1, strategy2
+      type(DependencyNetworkId) :: default_id
+      integer, target :: run_count1, run_count2
+      class(GraphNode), pointer :: retrieved
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      a_id = graph%next_node_id(rc=status)
+      a_node = StateItemNode(a_id, payload, revision)
+      call graph%register_node(a_node, rc=status)
+
+      run_count1 = 0
+      strategy1%run_count => run_count1
+      t1_id = graph%next_node_id(rc=status)
+      t1 = TransformGraphNode(t1_id, strategy1)
+      call t1%declare_input_port('in', rc=status)
+      call t1%declare_output_port('out', rc=status)
+      call graph%register_node(t1, rc=status)
+
+      b_id = graph%next_node_id(rc=status)
+      b_node = StateItemNode(b_id, payload, revision)
+      call graph%register_node(b_node, rc=status)
+
+      run_count2 = 0
+      strategy2%run_count => run_count2
+      t2_id = graph%next_node_id(rc=status)
+      t2 = TransformGraphNode(t2_id, strategy2)
+      call t2%declare_input_port('in', rc=status)
+      call t2%declare_output_port('out', rc=status)
+      call graph%register_node(t2, rc=status)
+
+      c_id = graph%next_node_id(rc=status)
+      c_node = StateItemNode(c_id, payload, revision)
+      call graph%register_node(c_node, rc=status)
+
+      call graph%add_dependency(default_id, a_id, t1_id, rc=status)
+      call graph%add_dependency(default_id, t1_id, b_id, rc=status)
+      call graph%add_dependency(default_id, b_id, t2_id, rc=status)
+      call graph%add_dependency(default_id, t2_id, c_id, rc=status)
+      call graph%bind_port(default_id, t1_id, 'in', a_id, rc=status)
+      call graph%bind_port(default_id, t1_id, 'out', b_id, rc=status)
+      call graph%bind_port(default_id, t2_id, 'in', b_id, rc=status)
+      call graph%bind_port(default_id, t2_id, 'out', c_id, rc=status)
+
+      call graph%update(default_id, c_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count1)
+      @assertEqual(1, run_count2)
+
+      ! Second request with nothing changed: neither re-executes.
+      call graph%update(default_id, c_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count1)
+      @assertEqual(1, run_count2)
+
+      ! Changing only the root input must propagate through both.
+      retrieved => graph%get_node(a_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         call retrieved%advance_revision(rc=status)
+         @assertEqual(0, status)
+      class default
+         @assertTrue(.false.)
+      end select
+
+      call graph%update(default_id, c_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, run_count1)
+      @assertEqual(2, run_count2)
+   end subroutine test_two_transform_chain_propagates
+
+end module Test_DemandDrivenUpdate

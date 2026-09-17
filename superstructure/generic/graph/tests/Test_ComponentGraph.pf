@@ -1,0 +1,414 @@
+! Tasks 5.3/5.4/5.5 (spec/07-component-graph.md REQ-CG-001..008,
+! spec/06-dependency-network.md REQ-DEP-008a).
+!
+! Uses only synthetic graph nodes (StateItemNode plus a local
+! OperationGraphNode descendant, matching the pattern already established
+! by Test_GraphNodeHierarchy.pf's MockOperationGraphNode) - no
+! OuterComponent/StateRegistry/GraphBuilder/component-hierarchy type is
+! referenced anywhere, demonstrating REQ-CG-002 at the same time.
+module Test_ComponentGraph
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_OperationGraphNode_mod, only: OperationGraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem, ESMF_STATEITEM_FIELD, operator(==)
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_BaseGraphNode_mod, only: BaseGraphNode
+   use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId, operator(==)
+   use mapl_PortId_mod, only: PortId
+   use StateItemTestSupport_mod, only: make_test_field
+   use ESMF, only: ESMF_Field
+   use funit
+   implicit none
+
+   ! Test-only concrete OperationGraphNode descendant, standing in for the
+   ! not-yet-implemented TransformGraphNode (REQ-NODE-004).
+   type, extends(OperationGraphNode) :: MockOperationGraphNode
+   end type MockOperationGraphNode
+
+contains
+
+   ! REQ-CG-004 scenario "Graph owns distinct default network identity":
+   ! each graph's default network id is its own dynamically-generated
+   ! instance property (not a shared global constant), and each graph
+   ! genuinely owns its own. (Independent generators both starting at
+   ! their first issued value can coincide numerically across separate
+   ! ComponentGraph instances - REQ-ID-002 only promises freshness within
+   ! one graph's lifetime - so this does not assert cross-instance
+   ! numeric inequality; it asserts each id is real, non-default-sentinel,
+   ! and owned by its own graph.)
+   @test
+   subroutine test_each_graph_has_distinct_default_network()
+      use mapl_DependencyNetworkId_mod, only: DEFAULT_DependencyNetworkId
+      type(ComponentGraph) :: graph1, graph2
+      type(DependencyNetworkId) :: id1, id2
+
+      graph1 = ComponentGraph()
+      graph2 = ComponentGraph()
+
+      id1 = graph1%get_default_network_id()
+      id2 = graph2%get_default_network_id()
+
+      @assertTrue(graph1%owns_network(id1))
+      @assertTrue(graph2%owns_network(id2))
+      @assertFalse(id1 == DEFAULT_DependencyNetworkId)
+      @assertFalse(id2 == DEFAULT_DependencyNetworkId)
+   end subroutine test_each_graph_has_distinct_default_network
+
+   ! REQ-CG-001 scenario "Node registration preserves identity": no second
+   ! node silently replaces one already registered under the same NodeId.
+   @test
+   subroutine test_node_registration_preserves_identity_no_silent_replace()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: id
+      type(StateItemNode) :: node1, node2
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: status
+
+      graph = ComponentGraph()
+      id = graph%next_node_id(rc=status)
+      @assertEqual(0, status)
+
+      node1 = StateItemNode(id, payload, revision)
+      call graph%register_node(node1, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(graph%owns_node(id))
+
+      ! A second node built with the SAME id must not silently replace it.
+      node2 = StateItemNode(id, payload, revision)
+      call graph%register_node(node2, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_node_registration_preserves_identity_no_silent_replace
+
+   ! REQ-CG-001/002: initialization builds structure (nodes, default
+   ! network, dependency) using only synthetic types.
+   @test
+   subroutine test_initialization_builds_structure()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: producer_id, item_id
+      type(MockOperationGraphNode) :: producer
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: default_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      producer_id = graph%next_node_id(rc=status)
+      producer%BaseGraphNode = BaseGraphNode(producer_id)
+      call graph%register_node(producer, rc=status)
+      @assertEqual(0, status)
+
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+      @assertEqual(0, status)
+
+      default_id = graph%get_default_network_id()
+      call graph%add_dependency(default_id, producer_id, item_id, rc=status)
+      @assertEqual(0, status)
+
+      call graph%validate(rc=status)
+      @assertEqual(0, status)
+   end subroutine test_initialization_builds_structure
+
+   ! REQ-CG-004 scenario "Invalid foreign node is rejected": wiring a
+   ! NodeId this graph never registered fails without partial mutation.
+   ! (A legitimately-issued-but-never-registered id is exactly as foreign
+   ! to ownership/wiring as one from a different graph entirely - the
+   ! ownership check is against the owned *nodes* map, not the
+   ! generator - and this avoids relying on cross-instance id inequality,
+   ! which independent per-graph generators do not promise.)
+   @test
+   subroutine test_add_dependency_rejects_foreign_node()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: owned_id, never_registered_id
+      type(MockOperationGraphNode) :: owned_node
+      type(DependencyNetworkId) :: default_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      owned_id = graph%next_node_id(rc=status)
+      owned_node%BaseGraphNode = BaseGraphNode(owned_id)
+      call graph%register_node(owned_node, rc=status)
+      @assertEqual(0, status)
+
+      never_registered_id = graph%next_node_id(rc=status)
+
+      default_id = graph%get_default_network_id()
+      call graph%add_dependency(default_id, owned_id, never_registered_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_add_dependency_rejects_foreign_node
+
+   ! REQ-DEP-008a scenario "Same-pass cross-network write is rejected":
+   ! two different graph-owned networks each independently and validly
+   ! write the same StateItemNode; graph-level validate() must catch the
+   ! combination even though each individual network's own validate()
+   ! (one producer per network) passes.
+   @test
+   subroutine test_validate_rejects_cross_network_duplicate_write()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: producer1_id, producer2_id, item_id
+      type(MockOperationGraphNode) :: producer1, producer2
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: default_id, second_network_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      producer1_id = graph%next_node_id(rc=status)
+      producer1%BaseGraphNode = BaseGraphNode(producer1_id)
+      call graph%register_node(producer1, rc=status)
+
+      producer2_id = graph%next_node_id(rc=status)
+      producer2%BaseGraphNode = BaseGraphNode(producer2_id)
+      call graph%register_node(producer2, rc=status)
+
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+
+      default_id = graph%get_default_network_id()
+      call graph%add_dependency(default_id, producer1_id, item_id, rc=status)
+      @assertEqual(0, status)
+
+      second_network_id = graph%create_network(rc=status)
+      @assertEqual(0, status)
+      call graph%add_dependency(second_network_id, producer2_id, item_id, rc=status)
+      @assertEqual(0, status)
+
+      ! Each network is individually valid (one producer each)...
+      call graph%validate(rc=status)
+      ! ...but the graph-level cross-network check must still reject it.
+      @assertTrue(status /= 0)
+   end subroutine test_validate_rejects_cross_network_duplicate_write
+
+   ! REQ-CG-005..007: freeze validates first and leaves no freeze-state
+   ! change on failure (the "rollback" behavior for task 5.4/5.5).
+   @test
+   subroutine test_freeze_fails_and_does_not_change_state_on_invalid_graph()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: producer1_id, producer2_id, item_id
+      type(MockOperationGraphNode) :: producer1, producer2
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: default_id, second_network_id
+      type(DependencyNetwork), pointer :: default_network, second_network
+      integer :: status
+
+      graph = ComponentGraph()
+
+      producer1_id = graph%next_node_id(rc=status)
+      producer1%BaseGraphNode = BaseGraphNode(producer1_id)
+      call graph%register_node(producer1, rc=status)
+
+      producer2_id = graph%next_node_id(rc=status)
+      producer2%BaseGraphNode = BaseGraphNode(producer2_id)
+      call graph%register_node(producer2, rc=status)
+
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+
+      default_id = graph%get_default_network_id()
+      call graph%add_dependency(default_id, producer1_id, item_id, rc=status)
+
+      second_network_id = graph%create_network(rc=status)
+      call graph%add_dependency(second_network_id, producer2_id, item_id, rc=status)
+
+      call graph%freeze(rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(graph%is_frozen())
+
+      default_network => graph%get_network(default_id)
+      second_network => graph%get_network(second_network_id)
+      @assertFalse(default_network%is_frozen())
+      @assertFalse(second_network%is_frozen())
+   end subroutine test_freeze_fails_and_does_not_change_state_on_invalid_graph
+
+   ! REQ-CG-007 scenario "Graph freeze propagates to networks".
+   @test
+   subroutine test_freeze_propagates_to_owned_networks()
+      type(ComponentGraph) :: graph
+      type(DependencyNetworkId) :: default_id, second_network_id
+      type(DependencyNetwork), pointer :: default_network, second_network
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+      second_network_id = graph%create_network(rc=status)
+      @assertEqual(0, status)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(graph%is_frozen())
+      default_network => graph%get_network(default_id)
+      second_network => graph%get_network(second_network_id)
+      @assertTrue(default_network%is_frozen())
+      @assertTrue(second_network%is_frozen())
+   end subroutine test_freeze_propagates_to_owned_networks
+
+   ! REQ-CG-006 scenario "Frozen structure rejects mutation": node,
+   ! dependency, network, and port-binding additions all fail after freeze.
+   @test
+   subroutine test_frozen_graph_rejects_all_structural_mutation()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_id, new_node_id
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(MockOperationGraphNode) :: new_node
+      type(DependencyNetworkId) :: default_id, unused_network_id
+      type(PortId) :: port_id
+      integer :: status
+
+      graph = ComponentGraph()
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+      @assertEqual(0, status)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+
+      ! No new node may be added.
+      new_node_id = graph%next_node_id(rc=status)
+      @assertTrue(status /= 0)
+
+      new_node%BaseGraphNode = BaseGraphNode(item_id)  ! id irrelevant; call must fail regardless
+      call graph%register_node(new_node, rc=status)
+      @assertTrue(status /= 0)
+
+      ! No new DependencyNetwork may be created.
+      unused_network_id = graph%create_network(rc=status)
+      @assertTrue(status /= 0)
+
+      ! No new dependency may be added.
+      default_id = graph%get_default_network_id()
+      call graph%add_dependency(default_id, item_id, item_id, rc=status)
+      @assertTrue(status /= 0)
+
+      ! No new port binding may be added.
+      port_id = graph%next_port_id(rc=status)
+      @assertTrue(status /= 0)
+      call graph%add_import_port(port_id, item_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_frozen_graph_rejects_all_structural_mutation
+
+   ! REQ-CG-006/008 scenario "Runtime value update remains allowed": after
+   ! freeze, an existing StateItemNode's payload may still be updated in
+   ! place (through the pointer returned by get_node(), exactly as a real
+   ! caller would - no ComponentGraph API is involved in the mutation
+   ! itself), without changing its NodeId or graph topology.
+   @test
+   subroutine test_runtime_value_update_allowed_after_freeze()
+      use mapl_GraphNode_mod, only: GraphNode
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_id
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload, updated_payload
+      type(NodeRevision) :: revision
+      type(ESMF_Field) :: field
+      class(GraphNode), pointer :: retrieved
+      integer :: status
+
+      graph = ComponentGraph()
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+      @assertEqual(0, status)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+
+      field = make_test_field('t_runtime_update_field', rc=status)
+      @assertEqual(0, status)
+      call updated_payload%set(field, rc=status)
+      @assertEqual(0, status)
+
+      retrieved => graph%get_node(item_id)
+      @assertTrue(associated(retrieved))
+      select type (retrieved)
+      type is (StateItemNode)
+         call retrieved%set_payload(updated_payload)
+      class default
+         @assertTrue(.false.)
+      end select
+
+      ! Re-fetch: same NodeId, updated payload persisted.
+      retrieved => graph%get_node(item_id)
+      @assertTrue(associated(retrieved))
+      select type (retrieved)
+      type is (StateItemNode)
+         @assertTrue(retrieved%get_node_id() == item_id)
+         payload = retrieved%get_payload()
+         @assertTrue(payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+         @assertEqual(0, status)
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_runtime_value_update_allowed_after_freeze
+
+   ! REQ-CG-005..007: freeze() is irreversible; calling it again is a
+   ! harmless no-op that leaves the graph frozen.
+   @test
+   subroutine test_graph_freeze_is_irreversible()
+      type(ComponentGraph) :: graph
+      integer :: status
+
+      graph = ComponentGraph()
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+      @assertTrue(graph%is_frozen())
+   end subroutine test_graph_freeze_is_irreversible
+
+   ! REQ-CG-003b/003c scenario "Finalized graph rejects use".
+   @test
+   subroutine test_finalized_graph_rejects_use()
+      use mapl_GraphNode_mod, only: GraphNode
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_id
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      class(GraphNode), pointer :: retrieved
+      integer :: status
+
+      graph = ComponentGraph()
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+      @assertEqual(0, status)
+
+      call graph%finalize(rc=status)
+      @assertEqual(0, status)
+      @assertTrue(graph%is_finalized())
+
+      retrieved => graph%get_node(item_id)
+      @assertFalse(associated(retrieved))
+
+      call graph%validate(rc=status)
+      @assertTrue(status /= 0)
+
+      call graph%freeze(rc=status)
+      @assertTrue(status /= 0)
+
+      ! Finalization itself is not idempotent (REQ-CG-003c): a second
+      ! call is also rejected as "use after finalize."
+      call graph%finalize(rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_finalized_graph_rejects_use
+
+end module Test_ComponentGraph

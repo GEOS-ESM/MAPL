@@ -1,0 +1,233 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Task 7 (openspec/changes/graphbuilder-advertising-connections/tasks.md
+! sec 7): side-by-side equivalence check between the existing imperative
+! coupler and GraphBuilder's ordinary connection resolution, on a real
+! (non-synthetic, DSO-backed, full ESMF Initialize lifecycle) MAPL
+! configuration - scenarios/graphbuilder_equivalence/.
+!
+! Scope note (design.md / proposal.md "Explicitly out of scope"):
+! GraphBuilder reads each component's own ComponentSpec%var_specs
+! directly (design.md Decisions), not StateRegistry's cross-level
+! propagate_exports/propagate_unsatisfied_imports view. Every existing
+! connect_all-based scenario fixture under scenarios/ (statistics,
+! statistics_real, history_1, history_wildcard, extdata_1) connects two
+! components whose real items actually live on a *grandchild* and only
+! become visible on the connected components via that propagation
+! machinery - GraphBuilder does not see those (a real limitation,
+! documented in proposal.md "Explicitly out of scope" and
+! specs/graph/graph-builder/spec.md, discovered while attempting this
+! task). This fixture is therefore deliberately flat: comp_src/comp_dst
+! are direct children of cap and declare their own export/import
+! directly, with no further nesting - the case GraphBuilder's ordinary
+! resolution is actually scoped to handle.
+module Test_GraphBuilderEquivalence
+
+   use mapl_Generic_mod
+   use mapl_GenericPhases_mod
+   use mapl_MultiState_mod
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod, only: item_key, proxy_key
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_Generic_api, only: mapl_GridCompCreate, mapl_GenericSetServices
+   use esmf
+   use nuopc
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! Real (DSO-backed) end-to-end run of scenarios/graphbuilder_equivalence,
+   ! mirroring Test_Scenarios.pf's own Scenario%setup for the
+   ! advertise/modify_advertised/realize init-phase sequence (no run
+   ! phases needed - this only checks wiring, not run-time values).
+   @test(npes=[0])
+   subroutine test_ordinary_resolution_matches_legacy_coupler(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_GridComp) :: cap_gc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+
+      type(OuterMetaComponent), pointer :: cap_meta, src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(GriddedComponentDriver) :: dst_user_driver
+      type(MultiState) :: dst_user_states
+      type(ESMF_State) :: dst_import_state
+      type(ESMF_Field) :: field
+
+      type(ComponentGraph), pointer :: cap_graph
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(DependencyNetwork), pointer :: net
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      config = ESMF_HConfigCreate(filename='./scenarios/graphbuilder_equivalence/cap.yaml', _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+      cap_gc = ESMF_GridCompCreate(name='CAP', config=config_cf, _RC)
+      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      @assert_that(user_status, is(0))
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+            call ESMF_GridCompInitialize(cap_gc, &
+                 importState=importState, exportState=exportState, clock=clock, &
+                 phase=phase, userRC=user_status, _RC)
+            @assert_that(user_status, is(0))
+         end associate
+      end do
+
+      ! --- Legacy-coupler oracle: the real ESMF import state on comp_dst
+      ! actually contains field "T", proving the existing imperative
+      ! coupler (connect_all/MatchConnection/StateRegistry_Actions_smod)
+      ! resolved this connection. ---
+      cap_meta => get_outer_meta(cap_gc, _RC)
+      dst_driver = cap_meta%get_child('comp_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      dst_user_driver = dst_meta%get_user_gc_driver()
+      dst_user_states = dst_user_driver%get_states()
+      call dst_user_states%get_state(dst_import_state, 'import', _RC)
+      call ESMF_StateGet(dst_import_state, 'T', field, _RC)
+      @assert_that(ESMF_FieldIsCreated(field), is(true()))
+
+      ! --- GraphBuilder's own resolution reaches the same conclusion:
+      ! a dependency edge exists, in the cap's own default network,
+      ! between the parent-local proxies for comp_src's export and
+      ! comp_dst's import. ---
+      src_driver = cap_meta%get_child('comp_src', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      cap_graph => cap_meta%get_component_graph()
+      t_export_proxy => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => cap_graph%get_resource_index(proxy_key('comp_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+   end subroutine test_ordinary_resolution_matches_legacy_coupler
+
+   ! openspec/changes/extension-reuse (roadmap sub-change 3c), task group
+   ! 7: side-by-side equivalence check on a real (DSO-backed) mismatched
+   ! configuration - scenarios/graphbuilder_equivalence_units/ is
+   ! identical to graphbuilder_equivalence/ except comp_src exports T in
+   ! 'm' and comp_dst imports T in 'km' (a genuine, convertible units
+   ! mismatch - the one characteristic with a real, executing provider in
+   ! this change). Legacy oracle: the existing imperative coupler
+   ! (SimpleConnection%connect_sibling -> StateRegistry%extend ->
+   ! ExtensionFamily/ConvertUnitsTransform) still resolves this into a
+   ! real ESMF field on comp_dst's import, same as the exact-match
+   ! fixture. GraphBuilder's own resolution must NOT reduce to the same
+   ! direct proxy-to-proxy edge the exact-match case produces (spec
+   ! "Mismatched export and import are wired through an extension
+   ! chain") - it must interpose a real TransformGraphNode instead.
+   @test(npes=[0])
+   subroutine test_units_mismatch_resolution_matches_legacy_coupler(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_GridComp) :: cap_gc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+
+      type(OuterMetaComponent), pointer :: cap_meta, src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(GriddedComponentDriver) :: dst_user_driver
+      type(MultiState) :: dst_user_states
+      type(ESMF_State) :: dst_import_state
+      type(ESMF_Field) :: field
+
+      type(ComponentGraph), pointer :: cap_graph
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(DependencyNetwork), pointer :: net
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      config = ESMF_HConfigCreate(filename='./scenarios/graphbuilder_equivalence_units/cap.yaml', _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+      cap_gc = ESMF_GridCompCreate(name='CAP', config=config_cf, _RC)
+      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      @assert_that(user_status, is(0))
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+            call ESMF_GridCompInitialize(cap_gc, &
+                 importState=importState, exportState=exportState, clock=clock, &
+                 phase=phase, userRC=user_status, _RC)
+            @assert_that(user_status, is(0))
+         end associate
+      end do
+
+      ! --- Legacy-coupler oracle: still resolves the mismatched
+      ! connection to a real ESMF field on comp_dst's import, via the
+      ! ExtensionFamily/ConvertUnitsTransform coupler path (not a direct
+      ! alias - the two declared units differ). ---
+      cap_meta => get_outer_meta(cap_gc, _RC)
+      dst_driver = cap_meta%get_child('comp_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      dst_user_driver = dst_meta%get_user_gc_driver()
+      dst_user_states = dst_user_driver%get_states()
+      call dst_user_states%get_state(dst_import_state, 'import', _RC)
+      call ESMF_StateGet(dst_import_state, 'T', field, _RC)
+      @assert_that(ESMF_FieldIsCreated(field), is(true()))
+
+      ! --- GraphBuilder's own resolution: NOT a direct proxy-to-proxy
+      ! edge (spec "Mismatched export and import are wired through an
+      ! extension chain") - an extension chain is interposed instead. ---
+      src_driver = cap_meta%get_child('comp_src', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      cap_graph => cap_meta%get_component_graph()
+      t_export_proxy => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => cap_graph%get_resource_index(proxy_key('comp_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(false()))
+      @assert_that(net%has_successors(t_export_proxy), is(true()))
+      @assert_that(net%has_predecessors(t_import_proxy), is(true()))
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+   end subroutine test_units_mismatch_resolution_matches_legacy_coupler
+
+end module Test_GraphBuilderEquivalence

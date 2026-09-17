@@ -1,0 +1,372 @@
+module Test_GraphStateItem
+   use mapl_GraphStateItem_mod, only: GraphStateItem, ESMF_StateItem_Flag, &
+                             ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
+                             ESMF_STATEITEM_STATE, &
+                             ESMF_STATEITEM_NOTFOUND, MAPL_StateItem_Flag, operator(==), &
+                             StateItemMemberMap
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
+                                     MAPL_STATEITEM_STATE, MAPL_STATEITEM_ROUTEHANDLE, &
+                                     MAPL_STATEITEM_GEOM, operator(==)
+   use mapl_StateItemVariantInfo_mod, only: set_variant
+   use StateItemTestSupport_mod, only: make_test_field, make_test_field_bundle, &
+                                        make_test_state, make_test_route_handle
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_State, ESMF_RouteHandle, &
+                   ESMF_RouteHandleIsCreated
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_new_state_item_has_no_component_allocated()
+      type(GraphStateItem) :: item
+      integer :: status
+
+      @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_NOTFOUND)
+      @assertEqual(0, status)
+   end subroutine test_new_state_item_has_no_component_allocated
+
+   @test
+   subroutine test_item_type_matches_allocated_field()
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = make_test_field('t_field', rc=status)
+      @assertEqual(0, status)
+
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+      @assertEqual(0, status)
+   end subroutine test_item_type_matches_allocated_field
+
+   @test
+   subroutine test_item_type_matches_allocated_field_bundle()
+      type(GraphStateItem) :: item
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      bundle = make_test_field_bundle(rc=status)
+      @assertEqual(0, status)
+
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_FIELDBUNDLE)
+      @assertEqual(0, status)
+   end subroutine test_item_type_matches_allocated_field_bundle
+
+   @test
+   subroutine test_item_type_matches_allocated_plain_state()
+      type(GraphStateItem) :: item
+      type(ESMF_State) :: state
+      integer :: status
+
+      state = make_test_state(rc=status)
+      @assertEqual(0, status)
+
+      call item%set(state, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_STATE)
+      @assertEqual(0, status)
+   end subroutine test_item_type_matches_allocated_plain_state
+
+   ! REQ-SI-002a/002b: route-handle-wrapper role is still itemType()==
+   ! STATE (it's a plain esmf_state as far as "which component is
+   ! allocated" is concerned) - the wrapper role itself is a variant()
+   ! question, exercised separately below.
+   @test
+   subroutine test_item_type_reports_state_for_route_handle_wrapper()
+      type(GraphStateItem) :: item
+      type(ESMF_RouteHandle) :: rh
+      integer :: status
+
+      rh = make_test_route_handle(rc=status)
+      @assertEqual(0, status)
+
+      call item%set(rh, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_STATE)
+      @assertEqual(0, status)
+   end subroutine test_item_type_reports_state_for_route_handle_wrapper
+
+   @test
+   subroutine test_at_most_one_component_allocated()
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      field = make_test_field('t_field', rc=status)
+      @assertEqual(0, status)
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+
+      bundle = make_test_field_bundle(rc=status)
+      @assertEqual(0, status)
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+
+      ! Switching kind via `set` clears the previously-allocated
+      ! component - the invariant holds across the switch.
+      @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_FIELDBUNDLE)
+      @assertEqual(0, status)
+   end subroutine test_at_most_one_component_allocated
+
+   ! REQ-SI-004: more than one allocated component is a checked defect,
+   ! not silently tolerated. Forced via the test-only backdoor since
+   ! there is no public path to reach this state.
+   @test
+   subroutine test_double_allocation_is_a_checked_defect()
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      field = make_test_field('t_field', rc=status)
+      @assertEqual(0, status)
+      bundle = make_test_field_bundle(rc=status)
+      @assertEqual(0, status)
+
+      call item%debug_force_double_allocate_for_test(field, bundle, rc=status)
+      @assertEqual(0, status)
+
+      call item%check_invariant(rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_double_allocation_is_a_checked_defect
+
+   ! REQ-SI-002b: variant() defaults to the vanilla value matching the
+   ! native kind (mirroring itemType()'s own vocabulary) when no finer
+   ! role has been tagged.
+   @test
+   subroutine test_variant_defaults_to_vanilla_kind()
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_State) :: state
+      integer :: status
+
+      field = make_test_field('t_field', rc=status)
+      @assertEqual(0, status)
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item%variant(rc=status) == MAPL_STATEITEM_FIELD)
+      @assertEqual(0, status)
+
+      bundle = make_test_field_bundle(rc=status)
+      @assertEqual(0, status)
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item%variant(rc=status) == MAPL_STATEITEM_FIELDBUNDLE)
+
+      state = make_test_state(rc=status)
+      @assertEqual(0, status)
+      call item%set(state, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item%variant(rc=status) == MAPL_STATEITEM_STATE)
+   end subroutine test_variant_defaults_to_vanilla_kind
+
+   ! REQ-SI-002c: variant round-trips through the ESMF Info-backed
+   ! mapl_StateItemVariantInfo_mod helpers, and travels with the field itself.
+   @test
+   subroutine test_variant_round_trips_and_travels_with_field()
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = make_test_field('t_field', rc=status)
+      @assertEqual(0, status)
+
+      call set_variant(field, MAPL_STATEITEM_GEOM, rc=status)
+      @assertEqual(0, status)
+
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%variant(rc=status) == MAPL_STATEITEM_GEOM)
+      @assertEqual(0, status)
+   end subroutine test_variant_round_trips_and_travels_with_field
+
+   ! REQ-SI-002b: variant() reports the route-handle role as a
+   ! refinement of STATE (mirroring how VERTICALGRID also refines
+   ! STATE), delegating to the wrapper's sole member's own native
+   ! classification rather than at the itemType() tier.
+   @test
+   subroutine test_variant_is_route_handle_for_route_handle_wrapper()
+      type(GraphStateItem) :: item
+      type(ESMF_RouteHandle) :: rh
+      integer :: status
+
+      rh = make_test_route_handle(rc=status)
+      @assertEqual(0, status)
+      call item%set(rh, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%variant(rc=status) == MAPL_STATEITEM_ROUTEHANDLE)
+      @assertEqual(0, status)
+   end subroutine test_variant_is_route_handle_for_route_handle_wrapper
+
+   ! REQ-SI-002a: the route handle is resolved out of the wrapper's
+   ! sole member via get_route_handle(), gated on variant() rather than
+   ! itemType().
+   @test
+   subroutine test_get_route_handle_resolves_from_wrapper()
+      type(GraphStateItem) :: item
+      type(ESMF_RouteHandle) :: rh, rh_out
+      integer :: status
+      logical :: is_created
+
+      rh = make_test_route_handle(rc=status)
+      @assertEqual(0, status)
+      call item%set(rh, rc=status)
+      @assertEqual(0, status)
+
+      rh_out = item%get_route_handle(rc=status)
+      @assertEqual(0, status)
+
+      is_created = ESMF_RouteHandleIsCreated(rh_out, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(is_created)
+   end subroutine test_get_route_handle_resolves_from_wrapper
+
+   ! REQ-SI-006: state_members is rejected for the route-handle-wrapper
+   ! role even though itemType() reports STATE for it - the wrapper's
+   ! sole member is not a graph-visible, node-identity-addressable item.
+   @test
+   subroutine test_add_state_member_rejected_for_route_handle_wrapper()
+      type(GraphStateItem) :: item
+      type(ESMF_RouteHandle) :: rh
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id
+      integer :: status
+
+      rh = make_test_route_handle(rc=status)
+      @assertEqual(0, status)
+      call item%set(rh, rc=status)
+      @assertEqual(0, status)
+
+      id = gen%next()
+      call item%add_state_member('member_1', id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_add_state_member_rejected_for_route_handle_wrapper
+
+   @test
+   subroutine test_variant_to_string()
+      @assertEqual('FIELD', MAPL_STATEITEM_FIELD%to_string())
+      @assertEqual('GEOM', MAPL_STATEITEM_GEOM%to_string())
+   end subroutine test_variant_to_string
+
+   ! REQ-SI-006: field-bundle member map populated only for
+   ! field-bundle kind; state member map stays empty.
+   @test
+   subroutine test_field_bundle_member_map_gated_by_kind()
+      type(GraphStateItem) :: item
+      type(ESMF_FieldBundle) :: bundle
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id
+      type(StateItemMemberMap) :: fb_members, s_members
+      integer :: status
+
+      bundle = make_test_field_bundle(rc=status)
+      @assertEqual(0, status)
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+
+      id = gen%next()
+      call item%add_field_bundle_member('member_1', id, rc=status)
+      @assertEqual(0, status)
+
+      fb_members = item%field_bundle_members()
+      s_members = item%state_members()
+      @assertTrue(fb_members%count('member_1') > 0)
+      @assertEqual(0, s_members%size())
+   end subroutine test_field_bundle_member_map_gated_by_kind
+
+   @test
+   subroutine test_state_member_map_gated_by_kind()
+      type(GraphStateItem) :: item
+      type(ESMF_State) :: state
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id
+      type(StateItemMemberMap) :: fb_members, s_members
+      integer :: status
+
+      state = make_test_state(rc=status)
+      @assertEqual(0, status)
+      call item%set(state, rc=status)
+      @assertEqual(0, status)
+
+      id = gen%next()
+      call item%add_state_member('member_1', id, rc=status)
+      @assertEqual(0, status)
+
+      fb_members = item%field_bundle_members()
+      s_members = item%state_members()
+      @assertTrue(s_members%count('member_1') > 0)
+      @assertEqual(0, fb_members%size())
+   end subroutine test_state_member_map_gated_by_kind
+
+   @test
+   subroutine test_both_member_maps_empty_for_field_kind()
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      type(StateItemMemberMap) :: fb_members, s_members
+      integer :: status
+
+      field = make_test_field('t_field', rc=status)
+      @assertEqual(0, status)
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+
+      fb_members = item%field_bundle_members()
+      s_members = item%state_members()
+      @assertEqual(0, fb_members%size())
+      @assertEqual(0, s_members%size())
+   end subroutine test_both_member_maps_empty_for_field_kind
+
+   @test
+   subroutine test_both_member_maps_empty_for_route_handle_kind()
+      type(GraphStateItem) :: item
+      type(ESMF_RouteHandle) :: rh
+      type(StateItemMemberMap) :: fb_members, s_members
+      integer :: status
+
+      rh = make_test_route_handle(rc=status)
+      @assertEqual(0, status)
+      call item%set(rh, rc=status)
+      @assertEqual(0, status)
+
+      fb_members = item%field_bundle_members()
+      s_members = item%state_members()
+      @assertEqual(0, fb_members%size())
+      @assertEqual(0, s_members%size())
+   end subroutine test_both_member_maps_empty_for_route_handle_kind
+
+   ! REQ-SI-005/spec/04 §4.6.4: no dedicated geometry node/payload kind
+   ! exists - geometry is an ordinary GraphStateItem with its field component
+   ! allocated and variant() == MAPL_STATEITEM_GEOM.
+   @test
+   subroutine test_geometry_has_no_dedicated_payload_kind()
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = make_test_field('t_geom_field', rc=status)
+      @assertEqual(0, status)
+      call set_variant(field, MAPL_STATEITEM_GEOM, rc=status)
+      @assertEqual(0, status)
+
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+      @assertTrue(item%variant(rc=status) == MAPL_STATEITEM_GEOM)
+   end subroutine test_geometry_has_no_dedicated_payload_kind
+
+end module Test_GraphStateItem

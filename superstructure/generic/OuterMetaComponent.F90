@@ -15,6 +15,7 @@ module mapl_OuterMetaComponent_mod
    use mapl_ComponentDriverVector_mod
    use mapl_GriddedComponentDriverMap_mod, only: GriddedComponentDriverMap
    use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
+   use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
    use gFTL2_StringVector
@@ -55,6 +56,13 @@ module mapl_OuterMetaComponent_mod
 ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
+      ! Graph-neutral core (docs/graph/spec/02-component-hierarchy.md
+      ! REQ-HIER-002/004): exactly one local ComponentGraph per
+      ! OuterComponent. Constructed in init_meta (see init_meta.F90);
+      ! not yet populated by any GraphBuilder logic (that is roadmap
+      ! sub-change 3b, docs/graph/spec/20-implementation-roadmap.md
+      ! §20.4.1).
+      type(ComponentGraph) :: local_graph
 
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
@@ -75,6 +83,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: has_geom
       procedure :: get_geom
       procedure :: get_registry
+      procedure :: get_component_graph
       procedure :: get_logger
       procedure :: set_misc
       procedure :: set_checkpoint_controls_flags
@@ -134,6 +143,8 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_gridcomp
 
       procedure :: get_component_spec
+      procedure :: get_child_component_spec
+      procedure :: get_child_component_graph
       procedure :: get_internal_state
 
       procedure :: set_vertical_grid
@@ -522,10 +533,45 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_registry
 
+      ! docs/graph/spec/02-component-hierarchy.md REQ-HIER-002/004: the
+      ! one local ComponentGraph owned by this OuterComponent. Read-only
+      ! accessor; mutation happens only through ComponentGraph's own
+      ! type-bound procedures on the returned pointer.
+      module function get_component_graph(this) result(local_graph)
+         type(ComponentGraph), pointer :: local_graph
+         class(OuterMetaComponent), target, intent(in) :: this
+      end function get_component_graph
+
       module function get_component_spec(this) result(component_spec)
          type(ComponentSpec), pointer :: component_spec
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_component_spec
+
+      ! Framework-internal reach into a named child's own ComponentSpec/
+      ! ComponentGraph (docs/graph/spec/02-component-hierarchy.md
+      ! REQ-GB-002's "framework may reach into a child's own state"
+      ! carve-out; REQ-HIER-005 keeps this out of OuterMetaComponent's
+      ! general public API). Fortran has no friend-module/package-private
+      ! visibility, so these two ARE Fortran-public - "internal use
+      ! only" here is a documented convention, the same class of trust
+      ! already extended by REQ-GB-002, not a compiler-enforced boundary.
+      ! Not re-exported by any user-facing aggregator module; intended
+      ! callers are framework code inside mapl_generic (e.g.
+      ! mapl_GraphBuilder_mod) that already has this same reach
+      ! justified some other way, not ordinary user-facing API.
+      module function get_child_component_spec(this, child_name, rc) result(component_spec)
+         type(ComponentSpec), pointer :: component_spec
+         class(OuterMetaComponent), target, intent(inout) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_component_spec
+
+      module function get_child_component_graph(this, child_name, rc) result(local_graph)
+         type(ComponentGraph), pointer :: local_graph
+         class(OuterMetaComponent), target, intent(inout) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_component_graph
 
       module function get_internal_state(this) result(internal_state)
          type(ESMF_State) :: internal_state

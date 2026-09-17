@@ -1,0 +1,65 @@
+! openspec/changes/extension-reuse - task 6.6: UnitsConverterTransform
+! numerical correctness (real udunits2f conversion, real ESMF_Field data,
+! no legacy ExtensionTransform/StateRegistry involvement).
+module Test_UnitsConverterTransform
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_UnitsConverterTransform_mod, only: UnitsConverterTransform
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr
+   use StateItemTestSupport_mod, only: make_test_field
+   use ESMF, only: ESMF_Field, ESMF_KIND_R4
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_units_converter_transform_computes_correct_value()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: input_id, output_id
+      type(StateItemNode) :: input_node, output_node
+      type(GraphStateItem) :: input_payload, output_payload
+      type(NodeRevision) :: revision
+      type(ESMF_Field) :: input_field, output_field
+      type(UnitsConverterTransform) :: transform
+      real(kind=ESMF_KIND_R4), pointer :: x_in(:), x_out(:)
+      integer :: status
+
+      graph = ComponentGraph()
+
+      input_field = make_test_field('input', rc=status)
+      @assertEqual(0, status)
+      output_field = make_test_field('output', rc=status)
+      @assertEqual(0, status)
+
+      call assign_fptr(input_field, x_in, rc=status)
+      @assertEqual(0, status)
+      x_in = 1000.0
+
+      call input_payload%set(input_field, rc=status)
+      @assertEqual(0, status)
+      call output_payload%set(output_field, rc=status)
+      @assertEqual(0, status)
+
+      input_id = graph%next_node_id(rc=status)
+      input_node = StateItemNode(input_id, input_payload, revision)
+      call graph%register_node(input_node, rc=status)
+
+      output_id = graph%next_node_id(rc=status)
+      output_node = StateItemNode(output_id, output_payload, revision)
+      call graph%register_node(output_node, rc=status)
+
+      ! 1000 m == 1 km
+      transform = UnitsConverterTransform(graph, input_id, output_id, 'm', 'km')
+      call transform%compute(status)
+      @assertEqual(0, status)
+
+      call assign_fptr(output_field, x_out, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1.0, x_out(1), tolerance=1.0e-4)
+   end subroutine test_units_converter_transform_computes_correct_value
+
+end module Test_UnitsConverterTransform

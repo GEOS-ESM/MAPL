@@ -1,0 +1,28 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+
+    vertical_grid:
+      class: basic
+      num_levels: 5
+
+  children:
+    comp_src:
+      config_file: scenarios/graphbuilder_equivalence_units/comp_src.yaml
+    comp_dst:
+      config_file: scenarios/graphbuilder_equivalence_units/comp_dst.yaml
+
+  states: {}
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp
+
+  connections:
+    - all_unsatisfied: true
+      src_comp: comp_src
+      dst_comp: comp_dst

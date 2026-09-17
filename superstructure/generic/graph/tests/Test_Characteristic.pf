@@ -1,0 +1,74 @@
+! openspec/changes/extension-reuse - task 6.1: CharacteristicMap
+! (gFTL2 polymorphic map, CharacteristicId -> Characteristic - mirrors
+! AspectMap's own construction, superstructure/generic/specs/
+! StateItemAspect.F90) and per-Characteristic needs_extension_for.
+module Test_Characteristic
+   use mapl_Characteristic_mod, only: Characteristic, CharacteristicMap
+   use mapl_CharacteristicId_mod, only: UNITS_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID, operator(==)
+   use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_map_insert_count_at()
+      type(CharacteristicMap), target :: map
+      class(Characteristic), pointer :: found
+      integer :: status
+
+      @assertEqual(0, map%count(UNITS_CHARACTERISTIC_ID))
+
+      call map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      @assertEqual(1, map%count(UNITS_CHARACTERISTIC_ID))
+      @assertEqual(0, map%count(VERTICAL_GRID_CHARACTERISTIC_ID))
+
+      found => map%at(UNITS_CHARACTERISTIC_ID, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(associated(found))
+      select type (found)
+      class is (UnitsCharacteristic)
+         @assertEqual('units=m', found%get_signature())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_map_insert_count_at
+
+   @test
+   subroutine test_units_characteristic_needs_extension_for()
+      type(UnitsCharacteristic) :: m, also_m, km
+
+      m = UnitsCharacteristic('m')
+      also_m = UnitsCharacteristic('m')
+      km = UnitsCharacteristic('km')
+
+      @assertFalse(m%needs_extension_for(also_m))
+      @assertTrue(m%needs_extension_for(km))
+   end subroutine test_units_characteristic_needs_extension_for
+
+   @test
+   subroutine test_vertical_grid_characteristic_needs_extension_for()
+      type(VerticalGridCharacteristic) :: grid_a, also_grid_a, grid_b
+
+      grid_a = VerticalGridCharacteristic('gridA')
+      also_grid_a = VerticalGridCharacteristic('gridA')
+      grid_b = VerticalGridCharacteristic('gridB')
+
+      @assertFalse(grid_a%needs_extension_for(also_grid_a))
+      @assertTrue(grid_a%needs_extension_for(grid_b))
+   end subroutine test_vertical_grid_characteristic_needs_extension_for
+
+   @test
+   subroutine test_get_id_matches_map_key()
+      type(UnitsCharacteristic) :: units
+      type(VerticalGridCharacteristic) :: vgrid
+
+      units = UnitsCharacteristic('m')
+      vgrid = VerticalGridCharacteristic('gridA')
+
+      @assertTrue(units%get_id() == UNITS_CHARACTERISTIC_ID)
+      @assertTrue(vgrid%get_id() == VERTICAL_GRID_CHARACTERISTIC_ID)
+   end subroutine test_get_id_matches_map_key
+
+end module Test_Characteristic
