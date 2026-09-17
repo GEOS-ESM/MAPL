@@ -171,10 +171,8 @@ contains
        ! Add fields to this stat item
        call ESMF_HConfigAdd(stat_item, trim(name), AddKeyString="name", _RC)
        if (is_vector) then
-          _HERE,' bmaa1 '//trim(name)
           call ESMF_HConfigAdd(stat_item, "vector", AddKeyString="itemtype", _RC)
        else
-          _HERE,' bmaa2 '//trim(name)
           call ESMF_HConfigAdd(stat_item, "field", AddKeyString="itemtype", _RC)
        end if
        call ESMF_HConfigAdd(stat_item, trim(action), AddkeyString="action", _RC)

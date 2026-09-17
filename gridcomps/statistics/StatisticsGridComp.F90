@@ -192,7 +192,6 @@ contains
          select case (action)
          case ('average')
             deallocate(stat) ! gfortran workaround
-            _HERE, ' bmaa '
             stat = make_average_stat(name, iter, alarm, _RC)
          case ('min')
             deallocate(stat) ! gfortran workaround
@@ -225,7 +224,6 @@ contains
          type(ESMF_fieldBundle) :: b_in, b_out
          type(esmf_StateItem_Flag) :: itemtype
 
-         _HERE, ' bmaa '
          call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
          if (itemtype == MAPL_STATEITEM_FIELD) then
             call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
@@ -236,7 +234,6 @@ contains
             call esmf_StateGet(exportState, itemName=name, fieldbundle=b_out, _RC)
             average = TimeAverage(gridcomp=gridcomp, b=b_in, avg_b=b_out, alarm=alarm, _RC)
          end if
-         _HERE, ' bmaa '
 
 
          _RETURN(_SUCCESS)
