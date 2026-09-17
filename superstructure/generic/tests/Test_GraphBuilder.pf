@@ -27,8 +27,16 @@ module Test_GraphBuilder
    use mapl_MatchConnection_mod, only: MatchConnection
    use mapl_SimpleConnection_mod, only: SimpleConnection
    use mapl_NodeId_mod, only: NodeId
-   use mapl_NodeIdSet_mod, only: NodeIdSet
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_NOTFOUND, operator(==)
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR
+   use mapl_FieldGet_mod, only: FieldGet
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
    use gFTL2_StringVector, only: StringVector
+   use ESMF_TestMethod_mod
    use esmf
    use pfunit
    implicit none(type, external)
@@ -575,5 +583,372 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
+
+   ! -- openspec/changes/extension-registry-visibility, task group 6 -----
+
+   ! Test-only helper: the extension chain's final item is wired as the
+   ! sole predecessor of the import proxy (GraphBuilder.F90's own
+   ! resolve_one - the last add_dependency call). Assumes exactly one
+   ! predecessor, true for every single-mismatch fixture below.
+   function single_predecessor(net, node) result(pred_id)
+      type(DependencyNetwork), intent(in) :: net
+      type(NodeId), intent(in) :: node
+      type(NodeId) :: pred_id
+
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+
+      preds = net%get_predecessors(node)
+      iter = preds%ftn_begin()
+      call iter%next()
+      pred_id = iter%of()
+   end function single_predecessor
+
+   ! Task 6.1 / spec "Materialization disabled by default": with the
+   ! gate untouched (off), a units-mismatch extension chain's final item
+   ! keeps 3c's own unallocated placeholder payload - zero behavior
+   ! change from today.
+   @test(npes=[0])
+   subroutine test_materialize_extensions_disabled_leaves_placeholder(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved, unsupported
+      type(NodeId), pointer :: t_import_proxy
+      type(NodeId) :: extension_id
+      type(DependencyNetwork), pointer :: net
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: extension_payload
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call set_materialize_extensions(.false.)
+
+      call make_outer_meta('comp_parent_gate_off', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m'))
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='km'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      extension_id = single_predecessor(net, t_import_proxy)
+
+      node => parent_graph%get_node(extension_id)
+      select type (node)
+      class is (StateItemNode)
+         extension_payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(extension_payload%itemType(rc=status) == ESMF_STATEITEM_NOTFOUND)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_materialize_extensions_disabled_leaves_placeholder
+
+   ! Task 6.2/6.4 / spec "Resolved extension has a real payload" +
+   ! "Resolved extension remains discoverable" + "Reused extension is
+   ! not re-materialized": with the gate explicitly enabled, the
+   ! extension chain's final item gets a real, correctly-shaped
+   ! ESMF_Field, still discoverable via the same proxy/predecessor
+   ! query, and calling resolve_connections a second time does not
+   ! replace it.
+   ! type=ESMF_TestMethod, npes=[1] (unlike this suite's other tests,
+   ! Test_GeomAspect.pf's own precedent for real-geom pFUnit tests):
+   ! this test calls FieldCreate on a real ESMF_Geom - a plain
+   ! MpiTestMethod sub-communicator does not reconfigure ESMF's own
+   ! default VM, so a real ESMF collective call still synchronizes
+   ! against this suite's full ambient multi-PE test world and would
+   ! deadlock without ESMF_TestMethod's proper per-test VM scoping.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_materialize_extensions_enabled_creates_real_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved, unsupported
+      type(NodeId), pointer :: t_import_proxy
+      type(NodeId) :: extension_id
+      type(DependencyNetwork), pointer :: net
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: extension_payload
+      type(VariableSpec) :: export_var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: result_field
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      character(:), allocatable :: got_units
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_gate_on', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      ! Explicit-override geom (design.md Decisions "Geom/vgrid
+      ! resolution order" case (a), the HistoryCollection-style case) -
+      ! this synthetic OuterMetaComponent never runs initialize_geom_a/b,
+      ! so it has no component-wide default of its own.
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%geom = geom
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='km'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      call set_materialize_extensions(.false.)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      extension_id = single_predecessor(net, t_import_proxy)
+
+      node => parent_graph%get_node(extension_id)
+      select type (node)
+      class is (StateItemNode)
+         extension_payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(extension_payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+
+      result_field = extension_payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call FieldGet(result_field, typekind=got_typekind, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R4)
+      @assertEqual('km', got_units)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_materialize_extensions_enabled_creates_real_field
+
+   ! Task 6.6 / spec "A non-field item class fails explicitly": a
+   ! Vector-typed mismatched pair is reported as an explicit,
+   ! distinguishable failure - not a fabricated payload, and not
+   ! confused with "no matching export" or "unregistered
+   ! characteristic."
+   @test(npes=[0])
+   subroutine test_materialize_extensions_reports_unsupported_item_class(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_vector_mismatch', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%itemType = MAPL_STATEITEM_VECTOR
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='km')
+      import_var_spec%itemType = MAPL_STATEITEM_VECTOR
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_var_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      call set_materialize_extensions(.false.)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:T:unsupported_item_class:VECTOR')))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_materialize_extensions_reports_unsupported_item_class
+
+   ! Task 6.5 / spec "An extension with no executing provider is still
+   ! not given a payload": a vertical-grid mismatch (3c's own
+   ! "unregistered characteristic fails loudly" case, no real
+   ! build_transform) is unaffected by the materialization gate.
+   @test(npes=[0])
+   subroutine test_materialize_extensions_vgrid_mismatch_unaffected(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(mapl_BasicVerticalGrid) :: export_vgrid, import_vgrid
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_vgrid_mismatch', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      call export_vgrid%set_id(1)
+      call import_vgrid%set_id(2)
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
+      export_var_spec%vertical_grid = export_vgrid
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      import_var_spec%vertical_grid = import_vgrid
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_var_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      call set_materialize_extensions(.false.)
+      ! VerticalGridCharacteristic%build_transform's own internal _FAIL
+      ! (no real vertical-regrid Transform implemented, unchanged 3c
+      ! behavior) - a structured "unsupported" report to this test's own
+      ! caller (status remains 0 below), but still registered with
+      ! pFUnit's own exception mechanism and must be consumed here,
+      ! matching this suite's test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
+      ! precedent for a propagated internal _FAIL/_ASSERT.
+      @assertExceptionRaised('VerticalGridCharacteristic: no vertical-regrid Transform is implemented yet')
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:T:VERTICAL_GRID')))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_materialize_extensions_vgrid_mismatch_unaffected
 
 end module Test_GraphBuilder

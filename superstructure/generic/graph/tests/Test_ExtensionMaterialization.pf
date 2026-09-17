@@ -1,0 +1,283 @@
+! openspec/changes/extension-registry-visibility - task group 6: real
+! payload materialization for a framework-created extension item
+! (mapl_ExtensionMaterialization_mod), gated by
+! mapl_ExtensionResolution_mod's materialize_extensions_enabled()/
+! set_materialize_extensions(). Synthetic ComponentGraph/StateItemNode
+! setup, same style as Test_ExtensionResolution.pf - extended here with a
+! real ESMF_Geom (ESMF_GridCreateNoPeriDim/ESMF_GeomCreate,
+! Test_FieldCreate.pf's own precedent) since this capability's whole job
+! is a real, allocated ESMF_Field, not a synthetic MockPayload.
+!
+! Gate hygiene (design.md Risks - "module-level mutable state can leak
+! across pFUnit tests"): every test that calls set_materialize_extensions
+! resets it to .false. before returning.
+module Test_ExtensionMaterialization
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem, ESMF_STATEITEM_FIELD, &
+        ESMF_STATEITEM_NOTFOUND, operator(==)
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_Characteristic_mod, only: CharacteristicMap
+   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID
+   use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
+   use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
+        set_materialize_extensions, materialize_extensions_enabled
+   use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
+   use mapl_FieldCreate_mod, only: FieldCreate, FieldsAreAliased
+   use mapl_FieldGet_mod, only: FieldGet
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr
+   use ESMF, only: ESMF_Geom, ESMF_Grid, ESMF_Field, ESMF_TypeKind_Flag
+   use ESMF, only: ESMF_GridCreateNoPeriDim, ESMF_GeomCreate
+   use ESMF, only: ESMF_TYPEKIND_R4, ESMF_KIND_R4
+   use ESMF, only: operator(==)
+   use funit
+   implicit none
+
+contains
+
+   ! -- gate ----------------------------------------------------------------
+
+   @test
+   subroutine test_gate_defaults_off_and_setter_round_trips()
+      call set_materialize_extensions(.false.)
+      @assertFalse(materialize_extensions_enabled())
+
+      call set_materialize_extensions(.true.)
+      @assertTrue(materialize_extensions_enabled())
+
+      call set_materialize_extensions(.false.)
+      @assertFalse(materialize_extensions_enabled())
+   end subroutine test_gate_defaults_off_and_setter_round_trips
+
+   ! -- materialization -------------------------------------------------------
+
+   @test
+   subroutine test_materialize_creates_real_field_with_correct_metadata()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, final_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+      character(:), allocatable :: unsupported
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: result_payload
+      type(ESMF_Field) :: result_field
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      character(:), allocatable :: got_units
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+
+      ! Before materialization: 3c's own unallocated placeholder (spec.md
+      ! "Materialization disabled by default").
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         result_payload = node%get_payload()
+      class default
+         @assertTrue(.false.)
+      end select
+      @assertTrue(result_payload%itemType(rc=status) == ESMF_STATEITEM_NOTFOUND)
+
+      call set_materialize_extensions(.true.)
+      call materialize_field_extension(graph, final_id, geom=geom, typekind=ESMF_TYPEKIND_R4, &
+           units='km', rc=status)
+      @assertEqual(0, status)
+      call set_materialize_extensions(.false.)
+
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         result_payload = node%get_payload()
+      class default
+         @assertTrue(.false.)
+      end select
+      @assertTrue(result_payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+
+      result_field = result_payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call FieldGet(result_field, typekind=got_typekind, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R4)
+      @assertEqual('km', got_units)
+   end subroutine test_materialize_creates_real_field_with_correct_metadata
+
+   ! spec.md "Reused extension is not re-materialized": a second call on
+   ! the same (already-materialized) NodeId - as GraphBuilder.F90 makes
+   ! whenever find_or_build_extension_chain reuses an existing chain for
+   ! a second import - must be a no-op, not a second FieldCreate.
+   @test
+   subroutine test_materialize_is_idempotent_on_reuse()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, final_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+      character(:), allocatable :: unsupported
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: result_payload
+      type(ESMF_Field) :: field1, field2
+      logical :: are_aliased
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, unsupported, rc=status)
+
+      call set_materialize_extensions(.true.)
+
+      call materialize_field_extension(graph, final_id, geom=geom, typekind=ESMF_TYPEKIND_R4, &
+           units='km', rc=status)
+      @assertEqual(0, status)
+
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         result_payload = node%get_payload()
+      end select
+      field1 = result_payload%get_field(rc=status)
+
+      call materialize_field_extension(graph, final_id, geom=geom, typekind=ESMF_TYPEKIND_R4, &
+           units='km', rc=status)
+      @assertEqual(0, status)
+
+      call set_materialize_extensions(.false.)
+
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         result_payload = node%get_payload()
+      end select
+      field2 = result_payload%get_field(rc=status)
+
+      are_aliased = FieldsAreAliased(field1, field2, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(are_aliased)
+   end subroutine test_materialize_is_idempotent_on_reuse
+
+   ! -- numerical correctness (task 6.3) ---------------------------------
+
+   @test
+   subroutine test_materialized_field_supports_correct_unit_conversion()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, final_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(CharacteristicMap) :: export_map, import_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+      character(:), allocatable :: unsupported
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: input_field, output_field
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: input_payload, output_payload
+      real(kind=ESMF_KIND_R4), pointer :: x_in(:), x_out(:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, unsupported, rc=status)
+      @assertEqual(0, status)
+
+      ! Simulate the export item already having a real, populated field -
+      ! out of this capability's own scope (it only materializes the
+      ! *extension* item; the export/source item's own realization is
+      ! separate, later integration work, proposal.md "Explicitly out of
+      ! scope").
+      input_field = FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, units='m', rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(input_field, x_in, rc=status)
+      @assertEqual(0, status)
+      x_in = 1000.0
+
+      call input_payload%set(input_field, rc=status)
+      node => graph%get_node(export_id)
+      select type (node)
+      class is (StateItemNode)
+         call node%set_payload(input_payload)
+      end select
+
+      call set_materialize_extensions(.true.)
+      call materialize_field_extension(graph, final_id, geom=geom, typekind=ESMF_TYPEKIND_R4, &
+           units='km', rc=status)
+      @assertEqual(0, status)
+      call set_materialize_extensions(.false.)
+
+      call graph%update(net_id, final_id, rc=status)
+      @assertEqual(0, status)
+
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         output_payload = node%get_payload()
+      end select
+      output_field = output_payload%get_field(rc=status)
+      @assertEqual(0, status)
+
+      call assign_fptr(output_field, x_out, rc=status)
+      @assertEqual(0, status)
+      ! 1000 m == 1 km
+      @assertEqual(1.0, x_out(1), tolerance=1.0e-4)
+   end subroutine test_materialized_field_supports_correct_unit_conversion
+
+end module Test_ExtensionMaterialization

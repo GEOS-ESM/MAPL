@@ -167,7 +167,6 @@ module mapl_ComponentGraph_mod
    ! call; there is no separate public interface to maintain).
    interface
       module recursive subroutine graph_update(this, network_id, node_id, rc)
-         import :: ComponentGraph, DependencyNetworkId, NodeId
          class(ComponentGraph), target, intent(in) :: this
          type(DependencyNetworkId), intent(in) :: network_id
          type(NodeId), intent(in) :: node_id

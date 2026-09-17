@@ -56,11 +56,37 @@ module mapl_ExtensionResolution_mod
 
    public :: find_mismatched_characteristics
    public :: find_or_build_extension_chain
+   public :: set_materialize_extensions
+   public :: materialize_extensions_enabled
 
    character(*), parameter :: INPUT_PORT_NAME = 'source_field'
    character(*), parameter :: OUTPUT_PORT_NAME = 'destination_field'
 
+   ! extension-registry-visibility change (design.md Decisions, "Gate
+   ! real materialization behind a simple, global, default-off, internal
+   ! switch"): guards only whether GraphBuilder.F90 performs the real
+   ! FieldCreate-based materialization step (mapl_ExtensionMaterialization_mod)
+   ! for a resolved extension chain - chain *structure* built by this
+   ! module (NodeIds, edges, resource-index entries, above) is unaffected
+   ! and runs unconditionally regardless of this flag, exactly as 3c left
+   ! it. Off (.false.) is the state of every real production run unless a
+   ! test explicitly calls set_materialize_extensions(.true.) - no
+   ! production initialization code does.
+   logical, save :: materialize_extensions = .false.
+
 contains
+
+   ! Test-only (and future equivalence-fixture-only) setter - see the
+   ! module-level flag comment above. No production code calls this.
+   subroutine set_materialize_extensions(enabled)
+      logical, intent(in) :: enabled
+
+      materialize_extensions = enabled
+   end subroutine set_materialize_extensions
+
+   logical function materialize_extensions_enabled() result(enabled)
+      enabled = materialize_extensions
+   end function materialize_extensions_enabled
 
    ! REQ-EXT-003/REQ-EXT-001: which characteristic kinds does the export
    ! declare that the import also declares, with different values? A

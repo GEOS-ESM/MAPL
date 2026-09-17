@@ -36,6 +36,7 @@ set(test_srcs
   Test_GraphExport.pf
   Test_Characteristic.pf
   Test_ExtensionResolution.pf
+  Test_ExtensionMaterialization.pf
   Test_UnitsConverterTransform.pf
 )
 
