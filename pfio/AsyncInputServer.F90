@@ -333,6 +333,9 @@ contains
 #endif
        _VERIFY(ierr)
 
+       call MPI_Win_lock_all(0, this%shared_win, ierr)
+       _VERIFY(ierr)
+
        if (this%model_comm /= MPI_COMM_NULL) then
           call c_f_pointer(this%shared_base_address, shared_words, &
                [n_workers * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)])
@@ -1585,6 +1588,8 @@ contains
        call finalize_cache_slots(this, _RC)
 
        if (this%shared_win /= MPI_WIN_NULL) then
+          call MPI_Win_unlock_all(this%shared_win, status)
+          _VERIFY(status)
           call MPI_Win_free(this%shared_win, status)
           _VERIFY(status)
           this%shared_win = MPI_WIN_NULL
