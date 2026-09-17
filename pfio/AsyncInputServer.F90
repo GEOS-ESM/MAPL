@@ -28,14 +28,12 @@ module pFIO_AsyncInputServerMod
    public :: AsyncInputServer
 
      integer, parameter :: ASYNC_INPUT_CMD_READ       = 1
-     integer, parameter :: ASYNC_INPUT_CMD_PREPARE_CACHE = 2
      integer, parameter :: ASYNC_INPUT_CMD_NEXT_PREFETCH = 3
     integer, parameter :: ASYNC_INPUT_CMD_TERMINATE  = -1
     integer, parameter :: ASYNC_INPUT_TAG_CMD        = 4701
     integer, parameter :: ASYNC_INPUT_TAG_SIZE       = 4702
     integer, parameter :: ASYNC_INPUT_TAG_BUFFER     = 4703
-     integer, parameter :: ASYNC_INPUT_TAG_CACHE_SIZE = 4704
-     integer, parameter :: ASYNC_INPUT_TAG_WORKER_RANK = 4705
+      integer, parameter :: ASYNC_INPUT_TAG_WORKER_RANK = 4705
      integer, parameter :: ASYNC_INPUT_TAG_READER_CMD = 4711
      integer, parameter :: ASYNC_INPUT_TAG_READER_SIZE = 4712
      integer, parameter :: ASYNC_INPUT_TAG_READER_BUFFER = 4713
@@ -354,100 +352,31 @@ contains
     ! -----------------------------------------------------------------------
     ! Main server loop.
     !
-    ! Reader ranks (model_comm == MPI_COMM_NULL):
-    !   Spin on MPI_Recv.
-    !   ASYNC_INPUT_CMD_PREPARE_CACHE — no-op (reader no longer maintains shmem)
-    !   ASYNC_INPUT_CMD_READ:
-    !     Deserialise request.  Look up (file, var, global_start, global_count)
-    !     in the 2-slot cache:
-    !       Cache miss → read the full GLOBAL slab from file → store in slot.
-    !       Cache hit  → data already in the slot.
-    !     Extract the per-rank LOCAL slice (request%start, request%count) from
-    !     the cached global slab and publish it to the model rank's mailbox.
-    !     If cache_only==.true., skip publication (caller only wanted prefetch).
+    ! Reader ranks use reader_comm rank 0 as captain. The captain schedules
+    ! requests on worker ranks, which own the file cache and publish current
+    ! results directly to model-rank shared-memory mailboxes. Cache-only
+    ! requests populate the worker cache without publishing a result.
     !
     ! Model ranks (model_comm /= MPI_COMM_NULL):
     !   Standard ServerThread dispatch loop.
-    !   Each model rank sends its full request (including global extents) to
-    !   the reader and waits for its local slice in shared memory. The reader deduplicates
-    !   based on the global key → only ONE file read per unique slab per node.
+    !   Each model rank sends its full request, including global extents, to
+    !   its node-local captain and waits only when it needs the current slice.
     ! -----------------------------------------------------------------------
     subroutine start(this, rc)
        class(AsyncInputServer), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-      class(ServerThread), pointer :: thread_ptr => null()
-      integer :: i, client_size
-      logical, allocatable :: mask(:)
+       integer, optional, intent(out) :: rc
+       class(ServerThread), pointer :: thread_ptr => null()
+       integer :: i, client_size
+       logical, allocatable :: mask(:)
        integer :: status, ierr, cmd, source_rank, buffer_size, slot_index, msize_word
-       integer(INT64) :: desired_words, local_msize_word
        integer :: mpi_status(MPI_STATUS_SIZE)
-        integer, allocatable :: buffer(:), result(:)
+       integer, allocatable :: buffer(:), result(:)
        type(AsyncInputPendingRequest), allocatable :: pending(:)
        type(AsyncInputWorkerState), allocatable :: workers(:)
        type(AsyncInputFileReadRecord), allocatable :: active_reads(:)
        type(AsyncInputFileReadRecord), allocatable :: file_owners(:)
        type(AsyncInputWarmRecord), allocatable :: warm_records(:)
        logical :: message_available
-      type(CollectivePrefetchDataMessage) :: request
-
-        if (this%model_comm == MPI_COMM_NULL .and. this%synchronous_fallback) then
-          ! ---- Reader rank loop ----
-          do while (.true.)
-             call MPI_Recv(cmd, 1, MPI_INTEGER, MPI_ANY_SOURCE, ASYNC_INPUT_TAG_CMD, this%comm, mpi_status, ierr)
-            _VERIFY(ierr)
-            if (cmd == ASYNC_INPUT_CMD_TERMINATE) exit
-
-            source_rank = mpi_status(MPI_SOURCE)
-            if (cmd == ASYNC_INPUT_CMD_PREPARE_CACHE) then
-               ! No-op in the new design: cache is managed per-request below.
-               call MPI_Recv(desired_words, 1, MPI_INTEGER8, source_rank, ASYNC_INPUT_TAG_CACHE_SIZE, this%comm, mpi_status, ierr)
-               _VERIFY(ierr)
-               cycle
-            end if
-             _ASSERT(cmd == ASYNC_INPUT_CMD_READ, 'unknown async input command')
-            this%reader_requests = this%reader_requests + 1
-
-            call MPI_Recv(buffer_size, 1, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_SIZE, this%comm, mpi_status, ierr)
-            _VERIFY(ierr)
-            allocate(buffer(buffer_size))
-            call MPI_Recv(buffer, buffer_size, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, mpi_status, ierr)
-            _VERIFY(ierr)
-            if (allocated(request%file_name)) deallocate(request%file_name)
-            if (allocated(request%var_name)) deallocate(request%var_name)
-            if (allocated(request%start)) deallocate(request%start)
-            if (allocated(request%count)) deallocate(request%count)
-            if (allocated(request%global_start)) deallocate(request%global_start)
-            if (allocated(request%global_count)) deallocate(request%global_count)
-            call request%deserialize(buffer, _RC)
-            deallocate(buffer)
-
-            ! Look up / populate the reader-side global-key cache.
-             slot_index = find_cache_slot(this, request)
-            if (slot_index > 0) then
-               this%cache_hits = this%cache_hits + 1
-            else
-               this%cache_misses = this%cache_misses + 1
-               slot_index = choose_cache_slot(this)
-               call read_global_slab_into_slot(this, request, slot_index, _RC)
-            end if
-
-            ! Return the per-rank local slice, unless this is a cache-only request.
-            if (.not. request%cache_only) then
-               local_msize_word = word_size(request%type_kind) * product(int(request%count, INT64))
-               msize_word = int(local_msize_word)
-               allocate(buffer(msize_word))
-               call extract_local_slice_from_slot(this, request, slot_index, buffer, _RC)
-               call MPI_Send(buffer, msize_word, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_BUFFER, this%comm, ierr)
-               _VERIFY(ierr)
-               deallocate(buffer)
-            end if
-           end do
-           write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0)') 'INFO: AsyncInputServer cache:', &
-                'reader_rank=', this%rank, 'hits=', this%cache_hits, 'misses=', this%cache_misses, &
-                'requests=', this%reader_requests
-          call finalize_runtime(this, _RC)
-           _RETURN(_SUCCESS)
-       end if
 
        if (this%model_comm == MPI_COMM_NULL) then
           if (this%reader_comm_rank /= 0) then

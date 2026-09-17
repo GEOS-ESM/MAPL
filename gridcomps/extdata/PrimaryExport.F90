@@ -320,11 +320,11 @@ module mapl_PrimaryExport_mod
            if (.not. this%bracket%uses_time_interpolation()) then
               _RETURN(_SUCCESS)
            end if
-           do i=1,this%file_vars%size()
-              variable_name => this%file_vars%at(i)
-              call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, &
-                   prefetch_only=(.not. this%bracket%uses_time_interpolation()), _RC)
-           enddo
+            do i=1,this%file_vars%size()
+               variable_name => this%file_vars%at(i)
+               call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, &
+                    this%client_collection_id, _RC)
+            enddo
         else if (this%bracket%uses_time_interpolation() .and. right_node%get_enabled() .and. &
              (.not. (right_node == left_node))) then
           call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
