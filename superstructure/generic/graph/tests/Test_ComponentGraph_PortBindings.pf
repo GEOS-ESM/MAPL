@@ -1,0 +1,315 @@
+! Task 3.4 (spec/10-transforms-and-ports.md REQ-XFORM-005,
+! spec/07-component-graph.md port-binding table addition).
+!
+! Uses only synthetic graph nodes (StateItemNode/TransformGraphNode) - no
+! OuterComponent/StateRegistry/GraphBuilder type is referenced anywhere,
+! matching Test_ComponentGraph.pf's existing style.
+module Test_ComponentGraph_PortBindings
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode, Transform
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD
+   use StateItemTestSupport_mod, only: make_test_field
+   use ESMF, only: ESMF_Field
+   use funit
+   implicit none
+
+   type, extends(Transform) :: NoOpCompute
+   contains
+      procedure :: compute => noop_compute
+   end type NoOpCompute
+
+contains
+
+   subroutine noop_compute(this, rc)
+      class(NoOpCompute), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      rc = 0
+   end subroutine noop_compute
+
+   ! REQ-XFORM-005: the same TransformGraphNode may be bound differently
+   ! per network, with neither binding overwriting the other.
+   @test
+   subroutine test_bind_port_independent_per_network()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: transform_id, target1_id, target2_id
+      type(TransformGraphNode) :: transform
+      type(StateItemNode) :: target1, target2
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NoOpCompute) :: strategy
+      type(DependencyNetworkId) :: default_id, second_network_id
+      type(NodeId), pointer :: bound_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('x', rc=status)
+      @assertEqual(0, status)
+      call graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      target1_id = graph%next_node_id(rc=status)
+      target1 = StateItemNode(target1_id, payload, revision)
+      call graph%register_node(target1, rc=status)
+      @assertEqual(0, status)
+
+      target2_id = graph%next_node_id(rc=status)
+      target2 = StateItemNode(target2_id, payload, revision)
+      call graph%register_node(target2, rc=status)
+      @assertEqual(0, status)
+
+      default_id = graph%get_default_network_id()
+      second_network_id = graph%create_network(rc=status)
+      @assertEqual(0, status)
+
+      call graph%bind_port(default_id, transform_id, 'x', target1_id, rc=status)
+      @assertEqual(0, status)
+      call graph%bind_port(second_network_id, transform_id, 'x', target2_id, rc=status)
+      @assertEqual(0, status)
+
+      bound_id => graph%get_port_binding(default_id, transform_id, 'x')
+      @assertTrue(associated(bound_id))
+      @assertTrue(bound_id == target1_id)
+
+      bound_id => graph%get_port_binding(second_network_id, transform_id, 'x')
+      @assertTrue(associated(bound_id))
+      @assertTrue(bound_id == target2_id)
+   end subroutine test_bind_port_independent_per_network
+
+   ! REQ-XFORM-005 scenario "Binding requires a matching port declaration".
+   @test
+   subroutine test_bind_port_rejects_undeclared_port_name()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: transform_id, target_id
+      type(TransformGraphNode) :: transform
+      type(StateItemNode) :: target
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NoOpCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      target_id = graph%next_node_id(rc=status)
+      target = StateItemNode(target_id, payload, revision)
+      call graph%register_node(target, rc=status)
+      @assertEqual(0, status)
+
+      default_id = graph%get_default_network_id()
+      call graph%bind_port(default_id, transform_id, 'never_declared', target_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_bind_port_rejects_undeclared_port_name
+
+   ! REQ-XFORM-005 scenario "Rebinding an already-bound port name is
+   ! rejected".
+   @test
+   subroutine test_bind_port_rejects_rebind()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: transform_id, target1_id, target2_id
+      type(TransformGraphNode) :: transform
+      type(StateItemNode) :: target1, target2
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NoOpCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      type(NodeId), pointer :: bound_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('x', rc=status)
+      call graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      target1_id = graph%next_node_id(rc=status)
+      target1 = StateItemNode(target1_id, payload, revision)
+      call graph%register_node(target1, rc=status)
+
+      target2_id = graph%next_node_id(rc=status)
+      target2 = StateItemNode(target2_id, payload, revision)
+      call graph%register_node(target2, rc=status)
+
+      default_id = graph%get_default_network_id()
+      call graph%bind_port(default_id, transform_id, 'x', target1_id, rc=status)
+      @assertEqual(0, status)
+
+      call graph%bind_port(default_id, transform_id, 'x', target2_id, rc=status)
+      @assertTrue(status /= 0)
+
+      ! Original binding is unchanged.
+      bound_id => graph%get_port_binding(default_id, transform_id, 'x')
+      @assertTrue(associated(bound_id))
+      @assertTrue(bound_id == target1_id)
+   end subroutine test_bind_port_rejects_rebind
+
+   ! REQ-XFORM-005 scenario "Missing binding degrades gracefully".
+   @test
+   subroutine test_get_port_binding_missing_returns_null()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: transform_id
+      type(TransformGraphNode) :: transform
+      type(NoOpCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      type(NodeId), pointer :: bound_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('x', rc=status)
+      call graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      default_id = graph%get_default_network_id()
+      bound_id => graph%get_port_binding(default_id, transform_id, 'x')
+      @assertFalse(associated(bound_id))
+   end subroutine test_get_port_binding_missing_returns_null
+
+   ! REQ-XFORM-005 scenario "Binding a kind-constrained port to a
+   ! mismatched value is rejected".
+   @test
+   subroutine test_bind_port_rejects_kind_mismatch()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: transform_id, target_id
+      type(TransformGraphNode) :: transform
+      type(StateItemNode) :: target
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NoOpCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('x', rc=status, expected_kind=MAPL_STATEITEM_FIELD)
+      call graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      ! Default-constructed GraphStateItem payload's variant() is NOTFOUND,
+      ! not FIELD - a deliberate mismatch requiring no real ESMF object.
+      target_id = graph%next_node_id(rc=status)
+      target = StateItemNode(target_id, payload, revision)
+      call graph%register_node(target, rc=status)
+      @assertEqual(0, status)
+
+      default_id = graph%get_default_network_id()
+      call graph%bind_port(default_id, transform_id, 'x', target_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_bind_port_rejects_kind_mismatch
+
+   ! Matching kind constraint succeeds (real ESMF_Field payload).
+   @test
+   subroutine test_bind_port_accepts_matching_kind()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: transform_id, target_id
+      type(TransformGraphNode) :: transform
+      type(StateItemNode) :: target
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NoOpCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      type(ESMF_Field) :: field
+      integer :: status
+
+      graph = ComponentGraph()
+
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('x', rc=status, expected_kind=MAPL_STATEITEM_FIELD)
+      call graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      field = make_test_field('t_bind_port_field', rc=status)
+      @assertEqual(0, status)
+      call payload%set(field, rc=status)
+      @assertEqual(0, status)
+
+      target_id = graph%next_node_id(rc=status)
+      target = StateItemNode(target_id, payload, revision)
+      call graph%register_node(target, rc=status)
+      @assertEqual(0, status)
+
+      default_id = graph%get_default_network_id()
+      call graph%bind_port(default_id, transform_id, 'x', target_id, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_bind_port_accepts_matching_kind
+
+   ! REQ-XFORM-005 / component-graph modified spec scenario "Frozen
+   ! structure rejects new transform port bindings".
+   @test
+   subroutine test_bind_port_rejected_after_freeze()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: transform_id, target_id
+      type(TransformGraphNode) :: transform
+      type(StateItemNode) :: target
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NoOpCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('x', rc=status)
+      call graph%register_node(transform, rc=status)
+
+      target_id = graph%next_node_id(rc=status)
+      target = StateItemNode(target_id, payload, revision)
+      call graph%register_node(target, rc=status)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+
+      default_id = graph%get_default_network_id()
+      call graph%bind_port(default_id, transform_id, 'x', target_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_bind_port_rejected_after_freeze
+
+   ! component-graph modified spec scenario "Transform port binding
+   ! requires graph-owned identities".
+   @test
+   subroutine test_bind_port_rejects_foreign_ids()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: transform_id, never_registered_id
+      type(TransformGraphNode) :: transform
+      type(NoOpCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('x', rc=status)
+      call graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      never_registered_id = graph%next_node_id(rc=status)
+
+      default_id = graph%get_default_network_id()
+      call graph%bind_port(default_id, transform_id, 'x', never_registered_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_bind_port_rejects_foreign_ids
+
+end module Test_ComponentGraph_PortBindings

@@ -1,0 +1,45 @@
+module Test_NodeIdMapCompatibility
+   use mapl_NodeId_mod
+   use MockPayload_mod, only: MockPayload
+   use MockPayloadConcrete_mod, only: MockPayloadConcrete
+   use NodeIdMockPayloadMap_mod
+   use funit
+   implicit none
+
+contains
+
+   ! REQ-ID-006: NodeId is directly usable as a gFTL map key for a
+   ! polymorphic mapped value, with no intermediate "Box" wrapper type.
+   @test
+   subroutine test_nodeid_keyed_polymorphic_map()
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: key_a, key_b
+      type(NodeIdMockPayloadMap) :: map
+      class(MockPayload), pointer :: retrieved
+
+      key_a = gen%next()
+      key_b = gen%next()
+
+      call map%insert(key_a, MockPayloadConcrete(tag=1))
+      call map%insert(key_b, MockPayloadConcrete(tag=2))
+
+      @assertEqual(2, map%size())
+
+      retrieved => map%at(key_a)
+      select type (retrieved)
+      type is (MockPayloadConcrete)
+         @assertEqual(1, retrieved%tag)
+      class default
+         @assertTrue(.false.)
+      end select
+
+      retrieved => map%at(key_b)
+      select type (retrieved)
+      type is (MockPayloadConcrete)
+         @assertEqual(2, retrieved%tag)
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_nodeid_keyed_polymorphic_map
+
+end module Test_NodeIdMapCompatibility
