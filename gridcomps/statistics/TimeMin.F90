@@ -586,7 +586,7 @@ contains
          just_name = name(slash_pos+1:)
       end if
 
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'temp_min'//just_name, fill_value=0.0, itemtype=item_type, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'temp_min'//just_name, fill_value=MAPL_UNDEF, itemtype=item_type, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine advertise_time_min_internal_fields
