@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `log_files_read` option to ExtData2G to easily log all files read during a run. The argument to `log_files_read` is the name of file to save the output
 - Fix locality of symbols for Python -> Fortran call in MAPLPy
 - Fixed detection of NetCDF quantization and Zstandard support when using Spack
+- Fixed NAG OpenMP initialization in profiler constructors and meters
 
 ### Added
 
