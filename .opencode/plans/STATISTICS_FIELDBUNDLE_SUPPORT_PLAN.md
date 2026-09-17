@@ -1,10 +1,12 @@
 # Statistics GridComp: ESMF_FieldBundle Support Plan
 
-**Document Version:** 2.0
+**Document Version:** 2.1
 **Date:** 2026-09-17
 **Status:** Field/Bundle support for TimeAverage, TimeMax, TimeMin, TimeAccumulate is
 implemented AND now covered by an expanded `statistics_real` scenario test (all 4 actions
 x both item types). TimeVariance + covariance kernels remain deferred (unstarted).
+**All of this has been committed** (see "Commit History" section near the end) — the
+working tree is currently clean with respect to this effort.
 
 ## Context and Motivation
 
@@ -305,8 +307,10 @@ item like `UV`). Now:
   already had unrelated uncommitted WIP edits (`cap_driver1.yaml`/`history1.yaml`,
   changing `segment_duration`/history frequency) present in the working tree *before*
   this session started — not something introduced by this work.
-- **Nothing has been committed to git** (per explicit user instruction throughout this
-  session); all changes below are unstaged/uncommitted working-tree edits.
+- **Committed to git** as `7e20e30e` ("add plan for vector stats") and `46b9ca0d`
+  ("vector working") — see "Commit History" section near the end for exact commit
+  hashes/file lists. The working tree is clean with respect to this effort as of
+  2026-09-17.
 
 ## Deferred Work: `TimeVariance.F90` + Covariance Kernels
 
@@ -416,31 +420,36 @@ exactly as-is (Field-only) until the kernel refactor is undertaken as separate w
    the first-period-with-no-prior-reset edge case, so a future refactor can't
    regress it silently (currently only caught indirectly via the `statistics_real`
    scenario test's `QV_MIN` check).
-7. `git status` currently also shows unrelated pre-existing uncommitted edits to
-   `tests/MAPL3G_Component_Testing_Framework/test_cases/case18/{cap_driver1,history1}.yaml`
-   (segment_duration / history frequency changes) — not part of this effort, left
-   untouched throughout. An untracked `case18/temp7788/` scratch directory also exists
-   from a prior `MAPL3G_Comp_Test_case18` run and can likely be deleted.
+7. ~~`git status` currently also shows unrelated pre-existing uncommitted edits to
+   `tests/MAPL3G_Component_Testing_Framework/test_cases/case18/{cap_driver1,history1}.yaml`~~
+   — **resolved/no longer present**: as of 2026-09-17 the working tree is clean aside
+   from this plan document; those case18 edits (and the `case18/temp7788/` scratch
+   directory) are gone (either reverted or handled outside this effort). No action
+   needed here anymore.
 
-## Files Touched (cumulative across all sessions, still uncommitted)
+## Files Touched (cumulative across all sessions — now committed, see Commit History)
 
-- `gridcomps/statistics/TimeAverage.F90` (prior session)
-- `gridcomps/statistics/TimeMax.F90` (bundle support: prior session; `fill_value` bugfix:
-  this session)
-- `gridcomps/statistics/TimeMin.F90` (bundle support: prior session; `fill_value` bugfix:
-  this session)
-- `gridcomps/statistics/TimeAccumulate.F90` (prior session)
-- `gridcomps/statistics/StatisticsGridComp.F90` (prior session)
-- `gridcomps/configurable/ConfigurableGridComp.F90` (this session — bundle-aware `run()`)
+- `gridcomps/statistics/TimeAverage.F90` (prior session; committed in `d45c1568`/`57883343`)
+- `gridcomps/statistics/TimeMax.F90` (bundle support: prior session, `d45c1568`;
+  `fill_value` bugfix: this session, `46b9ca0d`)
+- `gridcomps/statistics/TimeMin.F90` (bundle support: prior session, `d45c1568`;
+  `fill_value` bugfix: this session, `46b9ca0d`)
+- `gridcomps/statistics/TimeAccumulate.F90` (prior session; committed in `d45c1568`)
+- `gridcomps/statistics/StatisticsGridComp.F90` (prior session; committed in `d45c1568`)
+- `gridcomps/configurable/ConfigurableGridComp.F90` (this session — bundle-aware `run()`;
+  committed in `46b9ca0d`)
 - `superstructure/generic/tests/Test_Scenarios.pf` (this session — bundle-aware
-  `check_field_status`/`check_field_value`, missing `use` fix)
-- `superstructure/generic/tests/scenarios/statistics_real/A.yaml` (this session)
-- `superstructure/generic/tests/scenarios/statistics_real/stat.yaml` (this session)
-- `superstructure/generic/tests/scenarios/statistics_real/history.yaml` (this session)
+  `check_field_status`/`check_field_value`, missing `use` fix; committed in `46b9ca0d`)
+- `superstructure/generic/tests/scenarios/statistics_real/A.yaml` (this session;
+  committed in `46b9ca0d`)
+- `superstructure/generic/tests/scenarios/statistics_real/stat.yaml` (this session;
+  committed in `46b9ca0d`)
+- `superstructure/generic/tests/scenarios/statistics_real/history.yaml` (this session;
+  committed in `46b9ca0d`)
 - `superstructure/generic/tests/scenarios/statistics_real/collection_1.yaml` (this
-  session)
+  session; committed in `46b9ca0d`)
 - `superstructure/generic/tests/scenarios/statistics_real/expectations.yaml` (this
-  session)
+  session; committed in `46b9ca0d`)
 
 ## Files NOT Touched (deliberately deferred)
 
@@ -452,4 +461,26 @@ exactly as-is (Field-only) until the kernel refactor is undertaken as separate w
   already generic enough)
 - `gridcomps/statistics/tests/*.pf` (no new unit tests added; only the scenario-level
   `statistics_real` integration test was expanded)
+
+## Commit History (this effort)
+
+```
+46b9ca0d vector working                       <- this session: scenario-test expansion,
+                                                  fill_value bugfix, Test_Scenarios.pf
+                                                  bundle support, ConfigurableGridComp
+                                                  bundle-aware run(), plan doc v2.0
+7e20e30e add plan for vector stats             <- plan doc v1.0 (prior session's summary)
+d45c1568 update all non-variance methods       <- prior session: TimeMax/TimeMin/
+                                                  TimeAccumulate bundle support +
+                                                  StatisticsGridComp.F90 dispatch
+150b6a13 fix bug                               <- prior session (HistoryGridComp_private,
+                                                  StatisticsGridComp minor fix)
+57883343 more changes                          <- earlier session: initial TimeAverage
+                                                  bundle work + History/FieldBundleGet
+                                                  fixes
+```
+
+As of this writing, `git status` is fully clean — nothing left uncommitted for this
+effort (see "Remaining Tasks" item 7 for a note on the now-resolved `case18` tangent).
+
 </content>
