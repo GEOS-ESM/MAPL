@@ -145,6 +145,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_component_spec
       procedure :: get_child_component_spec
       procedure :: get_child_component_graph
+      procedure :: get_child_outer_meta
       procedure :: get_internal_state
 
       procedure :: set_vertical_grid
@@ -548,11 +549,12 @@ module mapl_OuterMetaComponent_mod
       end function get_component_spec
 
       ! Framework-internal reach into a named child's own ComponentSpec/
-      ! ComponentGraph (docs/graph/spec/02-component-hierarchy.md
-      ! REQ-GB-002's "framework may reach into a child's own state"
-      ! carve-out; REQ-HIER-005 keeps this out of OuterMetaComponent's
-      ! general public API). Fortran has no friend-module/package-private
-      ! visibility, so these two ARE Fortran-public - "internal use
+      ! ComponentGraph/OuterMetaComponent
+      ! (docs/graph/spec/02-component-hierarchy.md REQ-GB-002's
+      ! "framework may reach into a child's own state" carve-out;
+      ! REQ-HIER-005 keeps this out of OuterMetaComponent's general
+      ! public API). Fortran has no friend-module/package-private
+      ! visibility, so these three ARE Fortran-public - "internal use
       ! only" here is a documented convention, the same class of trust
       ! already extended by REQ-GB-002, not a compiler-enforced boundary.
       ! Not re-exported by any user-facing aggregator module; intended
@@ -572,6 +574,22 @@ module mapl_OuterMetaComponent_mod
          character(*), intent(in) :: child_name
          integer, optional, intent(out) :: rc
       end function get_child_component_graph
+
+      ! extension-registry-visibility change: GraphBuilder.F90's own
+      ! materialization step needs a named child's component-wide
+      ! geom/vertical_grid defaults (has_geom()/get_geom()/
+      ! get_vertical_grid(), all already-public OuterMetaComponent
+      ! accessors) - unlike get_child_component_spec/
+      ! get_child_component_graph above, no existing accessor exposes
+      ! those without the whole child OuterMetaComponent object itself.
+      ! Same REQ-GB-002 carve-out and visibility convention as the two
+      ! above, not a new kind of exposure.
+      module function get_child_outer_meta(this, child_name, rc) result(child_meta)
+         type(OuterMetaComponent), pointer :: child_meta
+         class(OuterMetaComponent), target, intent(inout) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_outer_meta
 
       module function get_internal_state(this) result(internal_state)
          type(ESMF_State) :: internal_state

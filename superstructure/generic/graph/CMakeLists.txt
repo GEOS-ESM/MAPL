@@ -44,6 +44,7 @@ target_sources(MAPL.generic PRIVATE
   VerticalGridCharacteristic.F90
   UnitsConverterTransform.F90
   ExtensionResolution.F90
+  ExtensionMaterialization.F90
 )
 
 target_include_directories(MAPL.generic PRIVATE

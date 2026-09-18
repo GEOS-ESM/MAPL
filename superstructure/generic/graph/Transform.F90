@@ -31,13 +31,15 @@ module mapl_Transform_mod
    private
 
    public :: Transform
-   public :: PortSpec
-   public :: PortSpecMap
-   public :: PortSpecMapIterator
-   ! Re-exported so a client importing PortSpecMapIterator from this
-   ! module can also compare iterators with ftn_end() - see
-   ! mapl_TransformGraphNode_mod's identical rationale for its own
-   ! operator re-exports.
+   ! operator(==)/operator(/=) re-export: the one legitimate exception -
+   ! see mapl_GraphStateItem_mod's identical rationale. PortSpec/
+   ! PortSpecMap/PortSpecMapIterator were previously re-exported here
+   ! too (plain names, not the operator-merge case) - Intel's compiler
+   ! correctly rejects that for a client that also reaches the same
+   ! entity through its true defining module (icc/ifx error #6405).
+   ! Removed; mapl_TransformGraphNode_mod (this module's one consumer of
+   ! those names) now imports them directly from mapl_PortSpec_mod/
+   ! mapl_PortSpecMap_mod instead.
    public :: operator(==)
    public :: operator(/=)
 
