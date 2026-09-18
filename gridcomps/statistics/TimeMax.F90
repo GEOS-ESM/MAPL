@@ -14,9 +14,12 @@ module mapl_TimeMax_mod
 
    type, extends(AbstractTimeStatistic) :: TimeMax
       private
+      logical :: is_bundle = .false.
        type(MAPL_SimpleAlarm) :: alarm
        type(esmf_Field) :: f      ! input
       type(esmf_Field) :: max_f  ! output
+      type(ESMF_FieldBundle) :: b ! input
+      type(ESMF_FieldBundle) :: max_b ! output
    contains
       procedure :: destroy
       procedure :: reset
@@ -28,6 +31,7 @@ module mapl_TimeMax_mod
 
    interface TimeMax
       module procedure new_TimeMax
+      module procedure new_TimeMax_fieldbundle
    end interface TimeMax
 
 contains
@@ -51,6 +55,7 @@ contains
       class(mapl_VerticalGrid), pointer :: vertical_grid
       type(esmf_Field) :: temp_max_f
 
+      stat%is_bundle = .false.
       stat%f = f
       stat%max_f = max_f
       stat%alarm = alarm
@@ -90,18 +95,97 @@ contains
       _RETURN(_SUCCESS)
    end function new_TimeMax
 
+   function new_TimeMax_fieldbundle(unusable, gridcomp, b, max_b, alarm, rc) result(stat)
+      type(TimeMax) :: stat
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      type(esmf_FieldBundle), intent(in) :: b
+      type(esmf_FieldBundle), intent(inout) :: max_b
+       type(MAPL_SimpleAlarm), intent(in) :: alarm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_State) :: internal_state
+      type(esmf_Geom), allocatable :: geom
+      type(MAPL_UngriddedDims) :: ungridded_dims
+      character(:), allocatable :: units, name
+      type(esmf_TypeKind_Flag) :: typekind
+      type(MAPL_VerticalStaggerLoc) :: vstagger
+      class(mapl_VerticalGrid), pointer :: vertical_grid
+      type(esmf_FieldBundle) :: temp_max_b
+
+      stat%is_bundle = .true.
+      stat%b = b
+      stat%max_b = max_b
+      stat%alarm = alarm
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(b, short_name=name, _RC)
+      call mapl_FieldBundleGet(b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           _RC)
+
+      call mapl_fieldbundleset(max_b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           standard_name='foo', &
+           _RC)
+
+      call esmf_StateGet(internal_state, 'temp_max'//name, fieldbundle=temp_max_b, _RC)
+      call mapl_fieldbundleset(temp_max_b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           _RC)
+
+      _UNUSED_DUMMY(unusable)
+      _RETURN(_SUCCESS)
+   end function new_TimeMax_fieldbundle
+
    subroutine destroy(this, rc)
       class(TimeMax), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call esmf_FieldDestroy(this%max_f, _RC)
+      if (this%is_bundle) then
+         call MAPL_FieldBundleDestroy(this%max_b, _RC)
+      else
+         call esmf_FieldDestroy(this%max_f, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine destroy
 
    subroutine reset(this, gridcomp, rc)
+      class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (this%is_bundle) then
+         call reset_bundle(this, gridcomp, _RC)
+      else
+         call reset_field(this, gridcomp, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine reset
+
+   subroutine reset_field(this, gridcomp, rc)
       class(TimeMax), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       integer, optional, intent(out) :: rc
@@ -128,7 +212,40 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine reset
+   end subroutine reset_field
+
+   subroutine reset_bundle(this, gridcomp, rc)
+      class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_max_b
+      character(:), allocatable :: name
+      type(esmf_TypeKind_Flag) :: typekind
+      type(esmf_Field), allocatable :: temp_max_fieldlist(:)
+      real(kind=ESMF_KIND_R4), pointer :: f4(:)
+      real(kind=ESMF_KIND_R8), pointer :: f8(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, fieldbundle=temp_max_b, _RC)
+
+      call mapl_FieldBundleGet(temp_max_b, typekind=typekind, fieldList=temp_max_fieldlist, _RC)
+
+      do i = 1, size(temp_max_fieldlist)
+         if (typekind == ESMF_TYPEKIND_R4) then
+            call MAPL_AssignFptr(temp_max_fieldlist(i), f4, _RC)
+            f4 = MAPL_UNDEF
+         else if (typekind == ESMF_TYPEKIND_R8) then
+            call MAPL_AssignFptr(temp_max_fieldlist(i), f8, _RC)
+            f8 = MAPL_UNDEF
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine reset_bundle
 
    subroutine update(this, gridcomp, clock, rc)
       class(TimeMax), intent(inout) :: this
@@ -141,12 +258,24 @@ contains
        logical :: is_ringing
        type(esmf_Time) :: nextTime
 
-       call mapl_FieldGet(this%f, typekind=typekind, _RC)
+       if (this%is_bundle) then
+          call mapl_FieldBundleGet(this%b, typekind=typekind, _RC)
+       else
+          call mapl_FieldGet(this%f, typekind=typekind, _RC)
+       end if
 
-       if (typekind == ESMF_TYPEKIND_R4) then
-          call update_r4(this, gridcomp, _RC)
-       else if (typekind == ESMF_TYPEKIND_R8) then
-          call update_r8(this, gridcomp, _RC)
+       if (this%is_bundle) then
+          if (typekind == ESMF_TYPEKIND_R4) then
+             call update_bundle_r4(this, gridcomp, _RC)
+          else if (typekind == ESMF_TYPEKIND_R8) then
+             call update_bundle_r8(this, gridcomp, _RC)
+          end if
+       else
+          if (typekind == ESMF_TYPEKIND_R4) then
+             call update_r4(this, gridcomp, _RC)
+          else if (typekind == ESMF_TYPEKIND_R8) then
+             call update_r8(this, gridcomp, _RC)
+          end if
        end if
 
        call ESMF_ClockGetNextTime(clock, nextTime=nextTime, _RC)
@@ -217,6 +346,76 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_r8
 
+   subroutine update_bundle_r4(this, gridcomp, rc)
+      class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_max_b
+      character(:), allocatable :: name
+      type(esmf_Field), allocatable :: fieldlist(:), temp_max_fieldlist(:)
+      real(kind=ESMF_KIND_R4), pointer :: f(:), temp_max_f_ptr(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, fieldbundle=temp_max_b, _RC)
+
+      call mapl_FieldBundleGet(this%b, fieldList=fieldlist, _RC)
+      call mapl_FieldBundleGet(temp_max_b, fieldList=temp_max_fieldlist, _RC)
+
+      do i = 1, size(fieldlist)
+         call MAPL_AssignFptr(fieldlist(i), f, _RC)
+         call MAPL_AssignFptr(temp_max_fieldlist(i), temp_max_f_ptr, _RC)
+
+         where (f /= MAPL_UNDEF)
+            where (temp_max_f_ptr == MAPL_UNDEF)
+               temp_max_f_ptr = f
+            elsewhere
+               temp_max_f_ptr = max(temp_max_f_ptr, f)
+            end where
+         end where
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine update_bundle_r4
+
+   subroutine update_bundle_r8(this, gridcomp, rc)
+      class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_max_b
+      character(:), allocatable :: name
+      type(esmf_Field), allocatable :: fieldlist(:), temp_max_fieldlist(:)
+      real(kind=ESMF_KIND_R8), pointer :: f(:), temp_max_f_ptr(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, fieldbundle=temp_max_b, _RC)
+
+      call mapl_FieldBundleGet(this%b, fieldList=fieldlist, _RC)
+      call mapl_FieldBundleGet(temp_max_b, fieldList=temp_max_fieldlist, _RC)
+
+      do i = 1, size(fieldlist)
+         call MAPL_AssignFptr(fieldlist(i), f, _RC)
+         call MAPL_AssignFptr(temp_max_fieldlist(i), temp_max_f_ptr, _RC)
+
+         where (f /= MAPL_UNDEF)
+            where (temp_max_f_ptr == MAPL_UNDEF)
+               temp_max_f_ptr = f
+            elsewhere
+               temp_max_f_ptr = max(temp_max_f_ptr, f)
+            end where
+         end where
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine update_bundle_r8
+
    subroutine compute_result(this, gridcomp, rc)
       class(TimeMax), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
@@ -225,12 +424,24 @@ contains
       integer :: status
       type(ESMF_TypeKind_Flag) :: typekind
 
-      call mapl_FieldGet(this%f, typekind=typekind, _RC)
+      if (this%is_bundle) then
+         call mapl_FieldBundleGet(this%b, typekind=typekind, _RC)
+      else
+         call mapl_FieldGet(this%f, typekind=typekind, _RC)
+      end if
 
-      if (typekind == ESMF_TYPEKIND_R4) then
-         call compute_result_r4(this, gridcomp, _RC)
-      else if (typekind == ESMF_TYPEKIND_R8) then
-         call compute_result_r8(this, gridcomp, _RC)
+      if (this%is_bundle) then
+         if (typekind == ESMF_TYPEKIND_R4) then
+            call compute_result_bundle_r4(this, gridcomp, _RC)
+         else if (typekind == ESMF_TYPEKIND_R8) then
+            call compute_result_bundle_r8(this, gridcomp, _RC)
+         end if
+      else
+         if (typekind == ESMF_TYPEKIND_R4) then
+            call compute_result_r4(this, gridcomp, _RC)
+         else if (typekind == ESMF_TYPEKIND_R8) then
+            call compute_result_r8(this, gridcomp, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)
@@ -282,6 +493,64 @@ contains
       _RETURN(_SUCCESS)
    end subroutine compute_result_r8
 
+   subroutine compute_result_bundle_r4(this, gridcomp, rc)
+      class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_max_b
+      character(:), allocatable :: name
+      type(esmf_Field), allocatable :: max_fieldlist(:), temp_max_fieldlist(:)
+      real(kind=ESMF_KIND_R4), pointer :: temp_max_f_ptr(:), max_f(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, fieldbundle=temp_max_b, _RC)
+
+      call mapl_FieldBundleGet(this%max_b, fieldList=max_fieldlist, _RC)
+      call mapl_FieldBundleGet(temp_max_b, fieldList=temp_max_fieldlist, _RC)
+
+      do i = 1, size(max_fieldlist)
+         call MAPL_AssignFptr(temp_max_fieldlist(i), temp_max_f_ptr, _RC)
+         call MAPL_AssignFptr(max_fieldlist(i), max_f, _RC)
+
+         max_f = temp_max_f_ptr
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine compute_result_bundle_r4
+
+   subroutine compute_result_bundle_r8(this, gridcomp, rc)
+      class(TimeMax), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_max_b
+      character(:), allocatable :: name
+      type(esmf_Field), allocatable :: max_fieldlist(:), temp_max_fieldlist(:)
+      real(kind=ESMF_KIND_R8), pointer :: temp_max_f_ptr(:), max_f(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_max'//name, fieldbundle=temp_max_b, _RC)
+
+      call mapl_FieldBundleGet(this%max_b, fieldList=max_fieldlist, _RC)
+      call mapl_FieldBundleGet(temp_max_b, fieldList=temp_max_fieldlist, _RC)
+
+      do i = 1, size(max_fieldlist)
+         call MAPL_AssignFptr(temp_max_fieldlist(i), temp_max_f_ptr, _RC)
+         call MAPL_AssignFptr(max_fieldlist(i), max_f, _RC)
+
+         max_f = temp_max_f_ptr
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine compute_result_bundle_r8
+
    subroutine add_to_state(this, state, rc)
       class(TimeMax), intent(inout) :: this
       type(esmf_State), intent(inout) :: state
@@ -302,9 +571,10 @@ contains
       alarm = this%alarm
    end function get_alarm
 
-   subroutine advertise_time_max_internal_fields(gridcomp, name, rc)
+   subroutine advertise_time_max_internal_fields(gridcomp, name, item_type, rc)
       type(esmf_GridComp), intent(inout) :: gridcomp
       character(*), intent(in) :: name
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
       integer, optional, intent(out) :: rc
 
       integer :: status, slash_pos
@@ -316,7 +586,7 @@ contains
          just_name = name(slash_pos+1:)
       end if
 
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'temp_max'//just_name, fill_value=0.0, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'temp_max'//just_name, fill_value=MAPL_UNDEF, itemtype=item_type, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine advertise_time_max_internal_fields

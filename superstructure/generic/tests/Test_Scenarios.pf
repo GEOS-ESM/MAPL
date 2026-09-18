@@ -14,6 +14,7 @@ module Test_Scenarios
                                !mapl_GridcompGetResource
    use mapl_ESMF_Utilities_mod
    use mapl_geom_api, only: mapl_GeomGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet
    use esmf
    use nuopc
    ! testing framework
@@ -424,13 +425,20 @@ contains
       type(ESMF_FieldStatus_Flag) :: found_field_status
       type(ESMF_StateItem_Flag) :: itemtype
       type(ESMF_Field) :: field
-      integer :: status
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
+      integer :: status, j
       character(len=:), allocatable :: msg
 
       msg = short_name // ':: '// description
 
       itemtype = get_itemtype(state, short_name, _RC)
-      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
+      if (itemtype /= ESMF_STATEITEM_FIELD .and. itemtype /= ESMF_STATEITEM_FIELDBUNDLE) then ! that's ok
+         rc = 0
+         return
+      end if
+
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='status')) then
          rc = 0
          return
       end if
@@ -448,11 +456,23 @@ contains
          _VERIFY(-1)
       end select
 
-      call ESMF_StateGet(state, short_name, field, _RC)
-      call ESMF_FieldGet(field, status=found_field_status, _RC)
-      msg = msg // ' :: expected=' // expected_field_status_str // ', found=' // &
-           fieldstatus_to_string(found_field_status)
-      @assert_that(msg, expected_field_status == found_field_status, is(true()))
+      if (itemtype == ESMF_STATEITEM_FIELD) then
+         call ESMF_StateGet(state, short_name, field, _RC)
+         call ESMF_FieldGet(field, status=found_field_status, _RC)
+         msg = msg // ' :: expected=' // expected_field_status_str // ', found=' // &
+              fieldstatus_to_string(found_field_status)
+         @assert_that(msg, expected_field_status == found_field_status, is(true()))
+      else ! ESMF_STATEITEM_FIELDBUNDLE
+         call ESMF_StateGet(state, short_name, bundle, _RC)
+         call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+         do j = 1, size(field_list)
+            call ESMF_FieldGet(field_list(j), status=found_field_status, _RC)
+            msg = short_name // ':: '// description // ' :: member=' // trim(int_to_string(j)) // &
+                 ' :: expected=' // expected_field_status_str // ', found=' // &
+                 fieldstatus_to_string(found_field_status)
+            @assert_that(msg, expected_field_status == found_field_status, is(true()))
+         end do
+      end if
 
       rc = 0
 
@@ -470,6 +490,14 @@ contains
             s = 'unknown'
          end if
       end function fieldstatus_to_string
+
+      function int_to_string(i) result(s)
+         integer, intent(in) :: i
+         character(:), allocatable :: s
+         character(len=12) :: buffer
+         write(buffer, '(i0)') i
+         s = trim(buffer)
+      end function int_to_string
    end subroutine check_field_status
 
    subroutine check_field_typekind(expectations, state, short_name, description, rc)
@@ -543,19 +571,20 @@ contains
       character(*), intent(in) :: description
       integer, intent(out) :: rc
 
-      real :: expected_field_value
+      real, allocatable :: expected_field_values(:)
       real :: tolerance
-      integer :: rank
-      type(ESMF_TypeKind_Flag) :: typekind
-      integer :: status
+      integer :: status, j
       character(len=:), allocatable :: msg
       type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
       type(ESMF_StateItem_Flag) :: itemtype
+      logical :: is_sequence
 
       msg = description
 
       itemtype = get_itemtype(state, short_name, _RC)
-      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
+      if (itemtype /= ESMF_STATEITEM_FIELD .and. itemtype /= ESMF_STATEITEM_FIELDBUNDLE) then ! that's ok
          rc = 0
          return
       end if
@@ -565,77 +594,126 @@ contains
          return
       end if
 
-      expected_field_value = ESMF_HConfigAsR4(expectations,keyString='value',_RC)
       tolerance = 0.
       if (ESMF_HConfigIsDefined(expectations, keyString='tolerance')) then
          tolerance = ESMF_HConfigAsR4(expectations,keyString='tolerance',_RC)
       end if
 
-      call ESMF_StateGet(state, short_name, field, _RC)
-      call ESMF_FieldGet(field, typekind=typekind, rank=rank, rc=status)
-      @assert_that('field get failed '//short_name,  status, is(0))
+      if (itemtype == ESMF_STATEITEM_FIELD) then
+         allocate(expected_field_values(1))
+         expected_field_values(1) = ESMF_HConfigAsR4(expectations,keyString='value',_RC)
 
-      if (typekind == ESMF_TYPEKIND_R4) then
-         block
-            real(kind=ESMF_KIND_R4), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
-            character(len=512) :: buffer
-            select case(rank)
-            case(2)
-               call ESMF_FieldGet(field, farrayPtr=x2, _RC)
-               if (.not. all(abs(x2 - expected_field_value) <= tolerance)) then
-                  write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
-                       ', tol=', tolerance, ', range=[', minval(x2), ',', maxval(x2), ']'
-                  @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
-               end if
-            case(3)
-               call ESMF_FieldGet(field, farrayPtr=x3, _RC)
-               if (.not. all(abs(x3 - expected_field_value) <= tolerance)) then
-                  write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
-                       ', tol=', tolerance, ', range=[', minval(x3), ',', maxval(x3), ']'
-                  @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
-               end if
-            case(4)
-               call ESMF_FieldGet(field, farrayPtr=x4, _RC)
-               if (.not. all(abs(x4 - expected_field_value) <= tolerance)) then
-                  write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
-                       ', tol=', tolerance, ', range=[', minval(x4), ',', maxval(x4), ']'
-                  @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
-               end if
-            end select
-         end block
-      elseif (typekind == ESMF_TYPEKIND_R8) then
-         block
-            real(kind=ESMF_KIND_R8), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
-            character(len=512) :: buffer
-            select case(rank)
-            case(2)
-               call ESMF_FieldGet(field, farrayPtr=x2, _RC)
-               if (.not. all(abs(x2 - expected_field_value) <= tolerance)) then
-                  write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
-                       ', tol=', tolerance, ', range=[', minval(x2), ',', maxval(x2), ']'
-                  @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
-               end if
-            case(3)
-               call ESMF_FieldGet(field, farrayPtr=x3, _RC)
-               if (.not. all(abs(x3 - expected_field_value) <= tolerance)) then
-                  write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
-                       ', tol=', tolerance, ', range=[', minval(x3), ',', maxval(x3), ']'
-                  @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
-               end if
-            case(4)
-               call ESMF_FieldGet(field, farrayPtr=x4, _RC)
-               if (.not. all(abs(x4 - expected_field_value) <= tolerance)) then
-                  write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
-                       ', tol=', tolerance, ', range=[', minval(x4), ',', maxval(x4), ']'
-                  @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
-               end if
-            end select
-         end block
-      else
-         _VERIFY(-1)
+         call ESMF_StateGet(state, short_name, field, _RC)
+         call check_one_field_value(field, expected_field_values(1), tolerance, &
+              msg // ' :: ' // trim(short_name), _RC)
+      else ! ESMF_STATEITEM_FIELDBUNDLE
+         call ESMF_StateGet(state, short_name, bundle, _RC)
+         call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+
+         is_sequence = ESMF_HConfigIsSequence(expectations, keyString='value', _RC)
+         if (is_sequence) then
+            expected_field_values = ESMF_HConfigAsR4Seq(expectations, keyString='value', _RC)
+            @assert_that('value list size must match bundle member count for ' // short_name, &
+                 size(expected_field_values), is(equal_to(size(field_list))))
+         else
+            allocate(expected_field_values(size(field_list)))
+            expected_field_values = ESMF_HConfigAsR4(expectations,keyString='value',_RC)
+         end if
+
+         do j = 1, size(field_list)
+            call check_one_field_value(field_list(j), expected_field_values(j), tolerance, &
+                 msg // ' :: ' // trim(short_name) // ' member ' // trim(int_to_string(j)), _RC)
+         end do
       end if
 
       rc = 0
+
+   contains
+
+      function int_to_string(i) result(s)
+         integer, intent(in) :: i
+         character(:), allocatable :: s
+         character(len=12) :: buffer
+         write(buffer, '(i0)') i
+         s = trim(buffer)
+      end function int_to_string
+
+      subroutine check_one_field_value(field, expected_field_value, tolerance, msg, rc)
+         type(ESMF_Field), intent(inout) :: field
+         real, intent(in) :: expected_field_value
+         real, intent(in) :: tolerance
+         character(*), intent(in) :: msg
+         integer, intent(out) :: rc
+
+         integer :: rank, status
+         type(ESMF_TypeKind_Flag) :: typekind
+
+         call ESMF_FieldGet(field, typekind=typekind, rank=rank, rc=status)
+         @assert_that('field get failed :: '//msg,  status, is(0))
+
+         if (typekind == ESMF_TYPEKIND_R4) then
+            block
+               real(kind=ESMF_KIND_R4), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
+               character(len=512) :: buffer
+               select case(rank)
+               case(2)
+                  call ESMF_FieldGet(field, farrayPtr=x2, _RC)
+                  if (.not. all(abs(x2 - expected_field_value) <= tolerance)) then
+                     write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
+                          ', tol=', tolerance, ', range=[', minval(x2), ',', maxval(x2), ']'
+                     @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
+                  end if
+               case(3)
+                  call ESMF_FieldGet(field, farrayPtr=x3, _RC)
+                  if (.not. all(abs(x3 - expected_field_value) <= tolerance)) then
+                     write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
+                          ', tol=', tolerance, ', range=[', minval(x3), ',', maxval(x3), ']'
+                     @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
+                  end if
+               case(4)
+                  call ESMF_FieldGet(field, farrayPtr=x4, _RC)
+                  if (.not. all(abs(x4 - expected_field_value) <= tolerance)) then
+                     write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
+                          ', tol=', tolerance, ', range=[', minval(x4), ',', maxval(x4), ']'
+                     @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
+                  end if
+               end select
+            end block
+         elseif (typekind == ESMF_TYPEKIND_R8) then
+            block
+               real(kind=ESMF_KIND_R8), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
+               character(len=512) :: buffer
+               select case(rank)
+               case(2)
+                  call ESMF_FieldGet(field, farrayPtr=x2, _RC)
+                  if (.not. all(abs(x2 - expected_field_value) <= tolerance)) then
+                     write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
+                          ', tol=', tolerance, ', range=[', minval(x2), ',', maxval(x2), ']'
+                     @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
+                  end if
+               case(3)
+                  call ESMF_FieldGet(field, farrayPtr=x3, _RC)
+                  if (.not. all(abs(x3 - expected_field_value) <= tolerance)) then
+                     write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
+                          ', tol=', tolerance, ', range=[', minval(x3), ',', maxval(x3), ']'
+                     @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
+                  end if
+               case(4)
+                  call ESMF_FieldGet(field, farrayPtr=x4, _RC)
+                  if (.not. all(abs(x4 - expected_field_value) <= tolerance)) then
+                     write(buffer, '(a,f12.5,a,f12.5,a,f12.5,a,f12.5,a)') 'expected=', expected_field_value, &
+                          ', tol=', tolerance, ', range=[', minval(x4), ',', maxval(x4), ']'
+                     @assert_that(msg // ' :: ' // trim(buffer), .false., is(true()))
+                  end if
+               end select
+            end block
+         else
+            _VERIFY(-1)
+         end if
+
+         rc = 0
+      end subroutine check_one_field_value
+
    end subroutine check_field_value
 
    subroutine check_field_vertical_profile(expectations, state, short_name, description, rc)
