@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed NAG OpenMP initialization in profiler constructors and meters
 
 ### Added
+- Added DIMS entries for tile dimensions in ACG (2)
 
 ### Changed
 
