@@ -61,7 +61,8 @@ module mapl_ComponentGraph_mod
    use mapl_OperationGraphNode_mod, only: OperationGraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
-   use mapl_TransformGraphNode_mod, only: TransformGraphNode, PortSpec
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_PortSpec_mod, only: PortSpec
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_NodeIdSet_mod
    use mapl_NodeIdGraphNodeMap_mod

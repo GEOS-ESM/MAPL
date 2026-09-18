@@ -61,8 +61,9 @@ submodule (mapl_ComponentGraph_mod) mapl_ComponentGraph_DemandDrivenUpdate_smod
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
-   use mapl_TransformGraphNode_mod, only: TransformGraphNode, PortSpecMap, PortSpecMapIterator, &
-                                       PortNameRevisionMap, operator(==), operator(/=)
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode, operator(==), operator(/=)
+   use mapl_PortSpecMap_mod, only: PortSpecMap, PortSpecMapIterator
+   use mapl_PortNameRevisionMap_mod, only: PortNameRevisionMap
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_NodeIdSet_mod
    use mapl_ErrorHandling_mod

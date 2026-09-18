@@ -49,7 +49,8 @@ module mapl_ExtensionResolution_mod
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
-   use mapl_TransformGraphNode_mod, only: TransformGraphNode, Transform
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_Transform_mod, only: Transform
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private

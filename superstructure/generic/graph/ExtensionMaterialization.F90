@@ -24,13 +24,13 @@ module mapl_ExtensionMaterialization_mod
    use mapl_NodeId_mod, only: NodeId
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
-   use mapl_GraphStateItem_mod, only: GraphStateItem, ESMF_StateItem_Flag, &
-        ESMF_STATEITEM_FIELD, operator(==)
+   use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_FieldCreate_mod, only: FieldCreate
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
    use mapl_vertical_grid_api, only: mapl_VerticalGrid
    use ESMF, only: ESMF_Geom, ESMF_TypeKind_Flag, ESMF_Field
+   use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
