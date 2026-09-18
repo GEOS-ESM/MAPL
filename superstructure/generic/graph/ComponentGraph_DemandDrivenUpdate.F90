@@ -69,19 +69,11 @@ submodule (mapl_ComponentGraph_mod) mapl_ComponentGraph_DemandDrivenUpdate_smod
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
-   ! One explicit-stack frame for graph_update's iterative rewrite (see
-   ! that subroutine's own header comment for why this is no longer a
-   ! recursive Fortran subroutine). Unlike DependencyNetwork's
-   ! has_cycle_from (mapl_DependencyNetwork_mod), this traversal's
-   ! per-node predecessor set is small and does not need a resumable
-   ! iterator: it is materialized into a plain array once, up front,
-   ! when the frame is created, and walked with a plain integer index.
-   type :: UpdateFrame
-      type(NodeId) :: node_id
-      class(GraphNode), pointer :: node => null()
-      type(NodeId), allocatable :: predecessor_ids(:)
-      integer :: next_index = 1
-   end type UpdateFrame
+   ! UpdateFrame (the explicit-stack frame graph_update's iterative
+   ! rewrite below needs) is declared in the ancestor module
+   ! (mapl_ComponentGraph_mod, ComponentGraph.F90) rather than here -
+   ! see that declaration's own comment for why a submodule-local type
+   ! is deliberately avoided.
 
 contains
 
