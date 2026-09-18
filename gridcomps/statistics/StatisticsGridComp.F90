@@ -85,6 +85,8 @@ contains
          item_type = MAPL_STATEITEM_FIELD
       else if (item_type_char == 'vector') then
          item_type = MAPL_STATEITEM_VECTOR
+      else
+         _FAIL("unsupported ESMF_StateItem_Flag requested for statisitcis GC to handle")
       end if
       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR, itemtype=item_type, _RC)
       select case (action)

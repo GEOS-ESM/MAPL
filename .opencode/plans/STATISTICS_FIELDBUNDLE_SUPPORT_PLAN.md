@@ -1,12 +1,13 @@
 # Statistics GridComp: ESMF_FieldBundle Support Plan
 
-**Document Version:** 2.1
-**Date:** 2026-09-17
+**Document Version:** 3.0
+**Date:** 2026-09-18
 **Status:** Field/Bundle support for TimeAverage, TimeMax, TimeMin, TimeAccumulate is
-implemented AND now covered by an expanded `statistics_real` scenario test (all 4 actions
-x both item types). TimeVariance + covariance kernels remain deferred (unstarted).
-**All of this has been committed** (see "Commit History" section near the end) — the
-working tree is currently clean with respect to this effort.
+implemented and covered by an expanded `statistics_real` scenario test (all 4 actions
+x both item types) — all committed. **TimeVariance + covariance kernels are now fully
+planned/designed (approved by user) but NOT YET IMPLEMENTED** — this is the next and
+final piece of this overall effort. See "Deferred Work" section below for the
+ready-to-implement design.
 
 ## Context and Motivation
 
@@ -312,13 +313,15 @@ item like `UV`). Now:
   hashes/file lists. The working tree is clean with respect to this effort as of
   2026-09-17.
 
-## Deferred Work: `TimeVariance.F90` + Covariance Kernels
+## Deferred Work: `TimeVariance.F90` + Covariance Kernels — READY TO IMPLEMENT
 
 `TimeVariance.F90` was explicitly **excluded** from all sessions so far because it is
 architecturally different from the other four types and requires an interface change,
-not just an additive one. Nothing has changed on this front since v1.0 of this plan.
+not just an additive one. As of 2026-09-18, the design below has been fully worked out
+and **approved by the user** — this is the next session's starting point. Nothing has
+been implemented yet; `git status` should be clean when resuming.
 
-### Why it's harder
+### Why it's harder (unchanged analysis, still accurate)
 
 `TimeVariance` delegates all actual per-timestep math to a pluggable
 `class(AbstractCovarianceKernel)` (`AbstractCovarianceKernel.F90`), with two concrete
@@ -348,58 +351,253 @@ because member field names/count of an import bundle are not generally known unt
 realize-time (they arrive via the framework's structure-mirroring mechanism, same as
 `sum_`/`counts_` bundles in `TimeAverage`).
 
-### Proposed refactor (NOT yet implemented — for a future session)
+### Approved refactor design (ready to implement)
 
-Refactor `AbstractCovarianceKernel` so kernels no longer do their own internal-state
-lookup by derived name. Instead:
+**Core idea:** kernels become pure computation with no state-lookup responsibility at
+all. `TimeVariance` becomes responsible for ALL `internal_state`/bundle lookups
+(mirroring exactly what `TimeAverage`/`TimeMax`/`TimeMin`/`TimeAccumulate` already do),
+resolving the specific internal fields — either once (field mode) or per-member-in-a-
+loop (bundle mode) — and passing them explicitly into the kernel calls as a
+`type(esmf_Field), intent(inout) :: internal_fields(:)` array, indexed by a
+kernel-specific fixed position. Since Welford (3 internal fields: mux, muy, c) and
+Shifted (5 internal fields: kx, ky, ex, ey, exy) have different arity, a single deferred
+kernel method — `get_internal_field_prefixes()` — lets `TimeVariance` generically
+discover which top-level internal-state names to resolve and in what order, WITHOUT
+`TimeVariance` hardcoding "3 for Welford, 5 for Shifted" anywhere.
 
-- `TimeVariance` itself becomes responsible for all `internal_state`/bundle lookups
-  (mirroring exactly what `TimeAverage` etc. do now), extracting the specific internal
-  fields — either once (field mode) or per-member-field-in-a-loop (bundle mode) — and
-  passing them explicitly into the kernel calls.
-- Kernel abstract interfaces (`I_update`, `I_compute`, `I_initialize`, `I_action`/reset)
-  change to accept the pre-resolved internal fields as an explicit argument instead of
-  deriving names and doing `esmf_StateGet` internally.
-- Since Welford (3 internal fields: mux, muy, c) and Shifted (5 internal fields: kx, ky,
-  ex, ey, exy) have a *different* number/set of internal fields, the common abstract
-  signature should pass them as an assumed-shape array argument, e.g.
-  `internal_fields(:)` of `type(esmf_Field)`, with each concrete kernel indexing into it
-  by its own known convention:
-  - Welford: `internal_fields = [mux_f, muy_f, c_f]`
-  - Shifted: `internal_fields = [kx_f, ky_f, ex_f, ey_f, exy_f]`
-  (This exact approach — "array of esmf_Field" — was the user's explicit preference when
-  asked, over "named per-kernel arguments" which would break the abstract-interface
-  contract since arity would differ between concrete kernel types.)
-- `kernel%advertise()` stays mostly as-is — it already just adds specs by name/prefix;
-  it just needs the same `item_type` pass-through as the other `advertise_*` routines
-  (`advertise_time_variance_internal_fields(gridcomp, name, rc)` -> `(gridcomp, name,
-  item_type, rc)`, forwarded to `wk%advertise`/`sk%advertise` — those two would also
-  need an `item_type` parameter added).
-- `TimeVariance` then, in bundle mode, loops over member index `i` and calls something
-  like `kernel%update_r4(gridcomp, x_fieldlist(i), y_fieldlist(i),
-  counts_fieldlist(i), internal_fieldlists_at_i(:), rc)`.
+#### 1. `AbstractCovarianceKernel.F90` — interface changes
 
-This is a real architectural change touching `AbstractCovarianceKernel.F90`,
-`WelfordCovarianceKernel.F90`, `ShiftedCovarianceKernel.F90`, and `TimeVariance.F90` —
-not just an additive change like the other four stat types. It should be scoped as its
-own follow-up task.
+- `I_advertise(this, gridcomp, name, item_type, rc)`: add
+  `type(ESMF_StateItem_Flag), intent(in) :: item_type`, to be forwarded into every
+  internal `MAPL_GridCompAddSpec(..., itemtype=item_type, ...)` call (same pattern as
+  `advertise_time_max_internal_fields` etc.).
+- **New deferred function:**
+  ```fortran
+  function I_get_internal_field_prefixes(this) result(prefixes)
+     import AbstractCovarianceKernel
+     class(AbstractCovarianceKernel), intent(in) :: this
+     character(len=16), allocatable :: prefixes(:)
+  end function I_get_internal_field_prefixes
+  ```
+  (fixed-length `character(len=16)` chosen for simplicity over a variable-length
+  allocatable-character-array, which is awkward in Fortran; 16 chars is comfortably
+  larger than the longest prefix, `'exy_'`.)
+  - Welford implementation returns `['mux_', 'muy_', 'c_  ']` (order matters: matches
+    the fixed positional convention below).
+  - Shifted implementation returns `['kx_ ', 'ky_ ', 'ex_ ', 'ey_ ', 'exy_']`.
+- `I_initialize(this, gridcomp, f_x, f_y, counts_f, internal_fields, rc)`: add
+  `type(esmf_Field), intent(inout) :: internal_fields(:)`. Kernel no longer does
+  `esmf_StateGet` — it just does `mapl_FieldSet(internal_fields(k), geom=..., ...)` for
+  each `k` (metadata still derived from `f_x`, exactly as today), in the fixed order
+  matching `get_internal_field_prefixes()`.
+- `I_action(this, gridcomp, internal_fields, rc)` (used for both `reset` and `destroy`):
+  replace the `f_x` argument with `internal_fields(:)`. `reset` does
+  `esmf_FieldFill(internal_fields(k), ...)` for each `k`. `destroy` remains a no-op (as
+  today — `TimeVariance%destroy` never actually calls `kernel%destroy` currently; this
+  is just kept consistent for interface completeness).
+- `I_update(this, gridcomp, f_x, f_y, counts_f, internal_fields, rc)`: add
+  `internal_fields(:)`, remove all internal `esmf_StateGet`; unpack by fixed position
+  (e.g. Welford: `mux_f => internal_fields(1)`, `muy_f => internal_fields(2)`,
+  `c_f => internal_fields(3)`) and do the exact same `where`-block math as today.
+- `I_compute(this, gridcomp, f_x, f_y, counts_f, cov_f, internal_fields, biased, rc)`:
+  same treatment — unpack only the subset actually needed (Welford only needs `c_f =
+  internal_fields(3)`; Shifted needs `ex_f=internal_fields(3)`, `ey_f=(4)`,
+  `exy_f=(5)`).
 
-### Explicit decision from user (2026-09-16 session, unchanged)
+#### 2. `WelfordCovarianceKernel.F90` / `ShiftedCovarianceKernel.F90`
 
-When asked how to proceed, the user chose: **"Skip TimeVariance for now"** — i.e. do not
-even add the outer-shell `is_bundle`/bundle-constructor to `TimeVariance` yet; leave it
-exactly as-is (Field-only) until the kernel refactor is undertaken as separate work.
+- Add `get_internal_field_prefixes`.
+- Rewrite `advertise` to accept + forward `item_type`.
+- Rewrite `initialize`, `reset`, `update_r4`/`update_r8`, `compute_r4`/`compute_r8` to
+  take `internal_fields(:)` and index into it by fixed position instead of doing
+  `mapl_FieldGet(f_x, short_name=...)` + `esmf_StateGet`. The actual math (Welford's
+  running-mean recurrence; Shifted's shifted-sum-of-products) is **unchanged** — this is
+  purely a plumbing refactor of how the internal fields are obtained, not a change to
+  the numerics.
+- `destroy` keeps its current no-op body (just update signature to match `I_action`).
+
+#### 3. `TimeVariance.F90`
+
+- Add `logical :: is_bundle = .false.`, `type(ESMF_FieldBundle) :: b`, `type
+  (ESMF_FieldBundle) :: var_b` components alongside existing `f`/`var_f`.
+- Add `new_TimeVariance_fieldbundle(unusable, b, var_b, alarm, algorithm, biased)
+  result(stat)` constructor mirroring the existing `new_TimeVariance` (note: unlike the
+  other 4 stat types, TimeVariance's constructors don't take `gridcomp` and don't do any
+  geom/metadata work at construction time — that's deferred to `initialize()`, invoked
+  lazily on first `update()` via the existing `needs_initialization()` check. The bundle
+  constructor should follow the exact same lazy pattern: just store `b`, `var_b`,
+  `alarm`, `algorithm`, `biased`, `is_bundle=.true.`). Combine both constructors via a
+  generic `interface TimeVariance`.
+- **New private helper** (the crux of the refactor):
+  ```fortran
+  function resolve_internal_fields(this, gridcomp, member_index, rc) result(fields)
+     class(TimeVariance), intent(inout) :: this
+     type(esmf_GridComp), intent(inout) :: gridcomp
+     integer, intent(in) :: member_index   ! ignored/ANY value when .not. this%is_bundle
+     integer, optional, intent(out) :: rc
+     type(esmf_Field), allocatable :: fields(:)
+     ! 1. prefixes = this%kernel%get_internal_field_prefixes()
+     ! 2. just_name = <name derived from this%f or this%b, stripped of any '/'-prefix,
+     !    matching the existing advertise-time just_name convention>
+     ! 3. allocate(fields(size(prefixes)))
+     ! 4. do k = 1, size(prefixes)
+     !       if (this%is_bundle) then
+     !          esmf_StateGet(internal_state, trim(prefixes(k))//just_name, fieldbundle=tmp_b)
+     !          MAPL_FieldBundleGet(tmp_b, fieldList=tmp_list)
+     !          fields(k) = tmp_list(member_index)
+     !       else
+     !          esmf_StateGet(internal_state, trim(prefixes(k))//just_name, field=fields(k))
+     !       end if
+     !    end do
+  end function resolve_internal_fields
+  ```
+  Called from `reset`, `update`, `compute_result`, and `initialize` — this is what makes
+  the rest of the refactor generic across Welford/Shifted without `TimeVariance` ever
+  hardcoding a field count.
+- `destroy`: branch `is_bundle` → `MAPL_FieldBundleDestroy(this%var_b, rc)` vs
+  `esmf_FieldDestroy(this%var_f, rc)`.
+- `reset`: branch `is_bundle`.
+  - Field mode: unchanged structurally, but now also calls `resolve_internal_fields`
+    (member_index irrelevant) and passes the result to `kernel%reset`.
+  - Bundle mode: fetch `counts_` bundle, `MAPL_FieldBundleGet(..., fieldList=...)`, loop
+    `i = 1, size(fieldlist)`: zero counts member `i`; call
+    `kernel%reset(gridcomp, resolve_internal_fields(this, gridcomp, i, _RC), _RC)`.
+- `update`: determine `typekind` via `is_bundle` branch (as in the other 4 types). Bundle
+  mode: get `fieldList` of `this%b` (x=y input) and of the `counts_` bundle; loop `i`:
+  `kernel%update_r4/r8(gridcomp, b_fieldlist(i), b_fieldlist(i), counts_fieldlist(i),
+  resolve_internal_fields(this, gridcomp, i, _RC), _RC)`. Field mode: single call as
+  today, just with the extra `resolve_internal_fields(...)` argument.
+- `compute_result`: same branching pattern, looping over `var_b`'s fieldList as the
+  output (`cov_f`) alongside `b`'s and `counts_`'s fieldLists as inputs.
+- `initialize`: kernel allocation (`select case (stat%algorithm)`) is unchanged/
+  independent of `is_bundle`. Field mode: unchanged geom/metadata propagation onto
+  `var_f`/`counts_f`, then calls `kernel%initialize(..., resolve_internal_fields(...),
+  _RC)`. Bundle mode: loop `i = 1, size(b_fieldlist)`: get member `i` of `b`, `var_b`,
+  `counts_b`; propagate geom/metadata onto `var_b`'s and `counts_b`'s member `i` (factor
+  the existing per-field geom/ungridded_dims/units/typekind/vgrid/vert_staggerloc
+  extraction-and-`mapl_FieldSet` logic into a small shared private helper,
+  e.g. `propagate_metadata(f_i, var_f_i, counts_f_i, rc)`, called once per member to
+  avoid duplicating it between field-mode and the bundle-mode loop); then call
+  `kernel%initialize(gridcomp, f_i, f_i, counts_f_i, resolve_internal_fields(this,
+  gridcomp, i, _RC), _RC)`.
+- `advertise_time_variance_internal_fields(gridcomp, name, item_type, rc)`: add
+  `item_type` parameter (currently missing it entirely — the only one of the 5
+  `advertise_time_*_internal_fields` routines that doesn't take it yet), forward into
+  the `counts_'//just_name` `MAPL_GridCompAddSpec` call and into `wk%advertise(gridcomp,
+  just_name, item_type, _RC)` / `sk%advertise(gridcomp, just_name, item_type, _RC)`.
+
+#### 4. `StatisticsGridComp.F90`
+
+- `advertise_item`'s `'variance'` case: pass `itemtype=item_type` to the EXPORT
+  `MAPL_GridCompAddSpec` call (currently the only action that doesn't) and to
+  `advertise_time_variance_internal_fields(gridcomp, name, item_type, _RC)`.
+- `make_variance_stat`: add the `MAPL_STATEITEM_FIELD`/`MAPL_STATEITEM_FIELDBUNDLE`
+  dispatch via `mapl_StateGet(importState, itemName=name, itemtype=itemtype)`, exactly
+  mirroring `make_min_stat`/`make_max_stat`/`make_accumulate_stat`: FIELD →
+  `TimeVariance(f=f_in, var_f=f_out, alarm=alarm, algorithm=algorithm, biased=biased)`;
+  FIELDBUNDLE → `TimeVariance(b=b_in, var_b=b_out, alarm=alarm, algorithm=algorithm,
+  biased=biased)`.
+
+#### Sanity check already performed: no analogous `fill_value` bug expected here
+
+Unlike `TimeMin`/`TimeMax` (where the fix was `fill_value=0.0` → `fill_value=MAPL_UNDEF`
+to match `reset()`'s sentinel), the variance/covariance internal fields (`mux_`, `muy_`,
+`c_`, `kx_`, `ky_`, `ex_`, `ey_`, `exy_`, `counts_`) all correctly use `fill_value=0.0`
+at advertise time, and `reset()` also fills them back to `0.0` via `esmf_FieldFill(...,
+const1=0.d0)` — **consistent**, since `0` is a legitimate neutral starting value for
+running sums/means/counts (unlike min/max, which need a true "no value yet" sentinel).
+No fix needed here; this was double-checked by reading both kernels' `advertise`/`reset`
+side by side before finalizing this plan.
+
+#### Aside (explicitly out of scope): true two-field covariance
+
+`stat.yaml`'s unused `monthly_covariance` YAML anchor has `action: variance` too —
+there is no actual distinct "covariance of two different fields" action implemented
+anywhere (`TimeVariance` always passes `f` as both `x` and `y`, i.e. `Cov(f,f) =
+Var(f)`). The refactored kernel interface (`f_x`, `f_y` args, already distinct in the
+signature) *could* support true two-field covariance later with fairly small additional
+work in `TimeVariance`/`StatisticsGridComp.F90` (a new `action: covariance` taking two
+`name`s), but this is a separate feature request, not part of this refactor, and was
+not requested.
+
+### Locked-in decisions from user Q&A (2026-09-17 planning session)
+
+- **Kernel refactor approach approved as designed above** (pre-resolved
+  `internal_fields(:)` array + new `get_internal_field_prefixes()` kernel method) — no
+  alternative design was requested.
+- **Test coverage for the new bundle/field variance support:** exercise **both**
+  algorithms (`welford` AND `shifted`), for **both** item types (field and vector) — 4
+  new scenario-test quantities total, doubling the coverage compared to the other 4
+  actions (which only got 1 algorithm each, since they don't have a pluggable-kernel
+  concept).
+- **Only the default (unbiased/sample, `biased: false`) variance branch** needs testing
+  — no `biased: true` variant required.
+
+### Planned test-matrix addition (once implemented)
+
+Add to `superstructure/generic/tests/scenarios/statistics_real/`, following the exact
+same pattern established for the other 4 actions (`A.yaml` run-series + export decl,
+`stat.yaml` stats entry, `history.yaml` connection, `collection_1.yaml` import,
+`expectations.yaml` status/value checks):
+
+| Quantity | Type | Action | Algorithm | Expected value(s) |
+|---|---|---|---|---|
+| `TS_VAR_W` (or similar name) | field | variance | welford (default) | 50.0 |
+| `TS_VAR_S` | field | variance | shifted | 50.0 |
+| `UV_VAR_W` | vector | variance | welford (default) | [50.0, 50.0] |
+| `UV_VAR_S` | vector | variance | shifted | [50.0, 50.0] |
+
+**Expected-value derivation** (already computed, reusable): using the existing
+`1..24`/`0..23` ramp series, sample variance (`biased: false`, divide by `n-1`) of an
+arithmetic sequence of `N` consecutive integers is `N(N+1)/12`; for `N=24` that's
+`24*25/12 = 50.0` **exactly**. This is shift-invariant, so both the U-component
+(`1..24`) and V-component (`0..23`) of the vector quantities give the same `50.0` —
+convenient for expectations but worth double-checking empirically once implemented
+(build+run, adjust if the actual computed value differs, exactly as was done for the
+`QV_MIN`/`fill_value` bug in the prior session).
+
+`stat.yaml` entries will need `algorithm: shifted` added explicitly for the `_S`
+variants (default is `welford` when omitted, per `make_variance_stat`'s existing
+`algorithm` key handling — unchanged by this refactor).
+
+### Next-session implementation order (recommended)
+
+1. `AbstractCovarianceKernel.F90` interface changes.
+2. `WelfordCovarianceKernel.F90` refactor (simpler kernel, 3 fields — do this one first
+   to validate the pattern).
+3. `ShiftedCovarianceKernel.F90` refactor (5 fields, same pattern).
+4. `TimeVariance.F90`: `resolve_internal_fields` helper, `is_bundle`/bundle constructor,
+   branch all 4 methods (`destroy`/`reset`/`update`/`compute_result`) +
+   `advertise_time_variance_internal_fields` + `initialize`.
+5. `StatisticsGridComp.F90`: `advertise_item`'s `'variance'` case +
+   `make_variance_stat` dispatch.
+6. Build (`MAPL.statistics` target) and fix any compile errors before touching tests.
+7. Expand `statistics_real` scenario files per the test-matrix table above; build
+   `build-tests`; run `ctest -R MAPL.generic.scenarios`; adjust expected values if the
+   actual computed numbers differ from the hand-derived `50.0`.
+8. Full `ctest --test-dir build-debug` sanity pass (expect the same 5 pre-existing
+   unrelated failures as before — `ll-ll`/`cs-cs`/`cs-ll`/`ll-cs`/`case18` — nothing
+   else).
+9. Update this plan document's status/commit-history sections once done; do not commit
+   unless the user explicitly asks (per this effort's established norm).
+
+### Explicit decision from user (2026-09-16 session, still applies to "skip until now")
+
+When originally asked how to proceed (before this design was worked out), the user
+chose: **"Skip TimeVariance for now"** — i.e. do not even add the outer-shell
+`is_bundle`/bundle-constructor to `TimeVariance` until a proper kernel refactor was
+designed. That refactor is now fully designed (this section) and approved — the "skip"
+decision is superseded by the plan above for the next session.
 
 ## Remaining / Follow-up Tasks
 
-1. **TimeVariance + kernel refactor** (see above) — the main remaining piece.
-2. Once TimeVariance supports bundles, update `StatisticsGridComp.F90`'s `'variance'`
-   case in `advertise_item` (pass `itemtype=item_type` to the EXPORT spec + to
-   `advertise_time_variance_internal_fields`) and `make_variance_stat` (add the
-   `MAPL_STATEITEM_FIELD`/`MAPL_STATEITEM_FIELDBUNDLE` dispatch), matching the pattern
-   already applied to `make_min_stat`/`make_max_stat`/`make_accumulate_stat`. Also add a
-   `variance`/`covariance` entry (field + vector) to the `statistics_real` scenario test
-   matrix, following the same pattern used for the other 4 actions this session.
+1. **TimeVariance + kernel refactor + StatisticsGridComp.F90 wiring + scenario-test
+   expansion** — see the fully-designed "Deferred Work" section above (approved,
+   ready to implement step-by-step per its "Next-session implementation order"
+   subsection) — the one remaining piece of this overall effort.
+2. ~~Once TimeVariance supports bundles, update `StatisticsGridComp.F90`'s
+   `'variance'` case...~~ — folded into item 1 above (see "Deferred Work" §4 and the
+   test-matrix table).
 3. Consider adding pFUnit tests for FieldBundle-mode behavior at the unit-test level too
    (`gridcomps/statistics/tests/` currently only has `Test_TimeAccumulate.pf` and
    `Test_TimeVariance.pf`; the new scenario-test coverage added this session is
