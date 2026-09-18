@@ -65,13 +65,20 @@ module pFIO_AsyncInputServerMod
     ! This way the file is read ONCE per unique (file, var, timestep) no
     ! matter how many model ranks exist on the node.
     ! -----------------------------------------------------------------------
-    type :: AsyncInputCacheSlot
-      logical :: valid = .false.
+    type :: AsyncInputCacheKey
       character(len=:), allocatable :: file_name
       character(len=:), allocatable :: var_name
       integer :: type_kind = 0
       integer, allocatable :: global_start(:)
       integer, allocatable :: global_count(:)
+    contains
+      procedure :: matches_request => cache_key_matches_request
+      procedure :: set_from_request => set_cache_key_from_request
+    end type AsyncInputCacheKey
+
+    type :: AsyncInputCacheSlot
+      logical :: valid = .false.
+      type(AsyncInputCacheKey) :: key
       type(LocalMemReference), allocatable :: reference   ! holds full global slab
     end type AsyncInputCacheSlot
 
@@ -90,36 +97,34 @@ module pFIO_AsyncInputServerMod
        integer, allocatable :: buffer(:)
     end type AsyncInputWorkerState
 
-    type :: AsyncInputFileReadRecord
-       character(len=:), allocatable :: file_name
-       integer :: worker_rank = -1
-    end type AsyncInputFileReadRecord
-
     type :: AsyncInputWarmRecord
        integer :: worker_rank = -1
        integer :: slot_index = 0
-       character(len=:), allocatable :: file_name
-       character(len=:), allocatable :: var_name
-       integer :: type_kind = 0
-       integer, allocatable :: global_start(:)
-       integer, allocatable :: global_count(:)
+       type(AsyncInputCacheKey) :: key
     end type AsyncInputWarmRecord
 
+    type :: AsyncInputTopology
+       integer :: model_node_comm = MPI_COMM_NULL
+       integer :: node_comm = MPI_COMM_NULL
+       integer :: reader_comm = MPI_COMM_NULL
+       integer :: node_size = 0
+       integer :: model_size = 0
+       integer :: model_node_rank = -1
+       integer :: reader_size = 0
+       integer :: reader_rank = -1
+       logical :: synchronous_fallback = .true.
+       integer, allocatable :: node_server_ranks(:)
+       integer, allocatable :: reader_server_ranks(:)
+    contains
+       procedure :: node_rank => topology_node_rank
+       procedure :: worker_rank => topology_worker_rank
+    end type AsyncInputTopology
+
     type, extends(BaseServer) :: AsyncInputServer
+      private
       character(len=:), allocatable :: port_name
       integer :: model_comm = MPI_COMM_NULL
-      integer :: model_node_comm = MPI_COMM_NULL
-      integer :: node_comm = MPI_COMM_NULL
-      integer :: reader_comm = MPI_COMM_NULL
-      integer :: node_npes = 0
-      integer :: model_npes_on_node = 0
-      integer :: model_node_rank = -1
-       integer :: reader_capacity_on_node = 0
-       logical :: synchronous_fallback = .true.
-       integer, allocatable :: reader_ranks_on_node(:)
-       integer :: reader_comm_size = 0
-       integer, allocatable :: reader_global_ranks(:)
-       integer, allocatable :: node_global_ranks(:)
+      type(AsyncInputTopology) :: topology
        integer :: shared_win = MPI_WIN_NULL
        type(c_ptr) :: shared_base_address = c_null_ptr
        type(c_ptr) :: shared_cache_base_address = c_null_ptr
@@ -135,13 +140,12 @@ module pFIO_AsyncInputServerMod
        integer :: captain_warm_hits = 0
       integer :: captain_prefetch_hits = 0
       integer :: reader_requests = 0
-      integer :: reader_comm_rank = -1
        contains
-       procedure :: start
-       procedure :: stop_reader_pool
-       procedure :: release_runtime
-       procedure :: service_collective_prefetch
-       procedure :: service_next_collective_prefetch
+       procedure, public :: start
+       procedure, public :: shutdown
+       procedure, public :: is_reader_role
+       procedure, public :: service_collective_prefetch
+       procedure, public :: service_next_collective_prefetch
        end type AsyncInputServer
 
    interface AsyncInputServer
@@ -154,7 +158,7 @@ contains
       type(AsyncInputServer) :: s
       integer, intent(in) :: comm
       character(*), intent(in) :: port_name
-      integer, optional, intent(in) :: model_comm
+      integer, intent(in) :: model_comm
       character(*), optional, intent(in) :: profiler_name
       logical, optional, intent(in) :: with_profiler
       integer, optional, intent(out) :: rc
@@ -164,8 +168,7 @@ contains
 
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
-      s%model_comm = MPI_COMM_NULL
-      if (present(model_comm)) s%model_comm = model_comm
+      s%model_comm = model_comm
 
        call get_environment_variable('MAPL_ASYNC_INPUT_SHMEM_WORDS', sleep_string, sleep_length, sleep_status)
       if (sleep_status == 0 .and. sleep_length > 0) then
@@ -193,94 +196,69 @@ contains
       integer, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
-      integer :: ierror, status
-      integer :: reader_color
+      integer :: ierror, status, model_flag, reader_color, reader_size
+      integer, allocatable :: model_flags(:)
 
-      call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%node_comm, ierror)
+      status = _SUCCESS
+      call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%topology%node_comm, ierror)
       _VERIFY(ierror)
 
-      this%model_npes_on_node = 0
-      this%model_node_rank = -1
+      this%topology%model_node_rank = -1
       if (this%model_comm /= MPI_COMM_NULL) then
-         call MPI_Comm_split_type(this%model_comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%model_node_comm, ierror)
+         call MPI_Comm_split_type(this%model_comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &
+              this%topology%model_node_comm, ierror)
          _VERIFY(ierror)
-         call MPI_Comm_size(this%model_node_comm, this%model_npes_on_node, ierror)
-         _VERIFY(ierror)
-         call MPI_Comm_rank(this%model_node_comm, this%model_node_rank, ierror)
+         call MPI_Comm_rank(this%topology%model_node_comm, this%topology%model_node_rank, ierror)
          _VERIFY(ierror)
       end if
 
-      call MPI_Comm_size(this%node_comm, this%node_npes, ierror)
+      call MPI_Comm_size(this%topology%node_comm, this%topology%node_size, ierror)
       _VERIFY(ierror)
+      allocate(this%topology%node_server_ranks(this%topology%node_size))
+      call MPI_Allgather(this%rank, 1, MPI_INTEGER, this%topology%node_server_ranks, 1, &
+           MPI_INTEGER, this%topology%node_comm, ierror)
+      _VERIFY(ierror)
+
+      model_flag = merge(1, 0, this%model_comm /= MPI_COMM_NULL)
+      allocate(model_flags(this%topology%node_size))
+      call MPI_Allgather(model_flag, 1, MPI_INTEGER, model_flags, 1, MPI_INTEGER, &
+           this%topology%node_comm, ierror)
+      _VERIFY(ierror)
+      this%topology%model_size = count(model_flags == 1)
+      this%topology%reader_size = this%topology%node_size - this%topology%model_size
+      _ASSERT(this%topology%reader_size >= 0, 'reader size must be non-negative')
+      allocate(this%topology%reader_server_ranks(this%topology%reader_size))
+      this%topology%reader_server_ranks = pack(this%topology%node_server_ranks, model_flags == 0)
+      deallocate(model_flags)
 
       reader_color = MPI_UNDEFINED
       if (this%model_comm == MPI_COMM_NULL) reader_color = 1
-      call MPI_Comm_split(this%node_comm, reader_color, this%rank, this%reader_comm, ierror)
+      call MPI_Comm_split(this%topology%node_comm, reader_color, this%rank, this%topology%reader_comm, ierror)
       _VERIFY(ierror)
-       if (this%reader_comm /= MPI_COMM_NULL) then
-          call MPI_Comm_rank(this%reader_comm, this%reader_comm_rank, ierror)
+       if (this%topology%reader_comm /= MPI_COMM_NULL) then
+          call MPI_Comm_rank(this%topology%reader_comm, this%topology%reader_rank, ierror)
           _VERIFY(ierror)
-          call MPI_Comm_size(this%reader_comm, this%reader_comm_size, ierror)
+          call MPI_Comm_size(this%topology%reader_comm, reader_size, ierror)
           _VERIFY(ierror)
-          allocate(this%reader_global_ranks(this%reader_comm_size))
-          call MPI_Allgather(this%rank, 1, MPI_INTEGER, this%reader_global_ranks, 1, &
-               MPI_INTEGER, this%reader_comm, ierror)
-          _VERIFY(ierror)
+          _ASSERT(reader_size == this%topology%reader_size, 'reader communicator size does not match node topology')
        end if
 
-      this%reader_capacity_on_node = this%node_npes - this%model_npes_on_node
-      _ASSERT(this%reader_capacity_on_node >= 0, 'reader_capacity_on_node must be non-negative')
-      this%synchronous_fallback = (this%reader_capacity_on_node == 0)
-
-      call gather_reader_ranks(this, _RC)
-      if (.not. this%synchronous_fallback) call initialize_shared_mailboxes(this, _RC)
+      this%topology%synchronous_fallback = (this%topology%reader_size == 0)
 
       if (this%InNode_Rank == 0) then
          write(*,'(A,1X,A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,L1)') &
               'INFO: AsyncInputServer:', trim(this%port_name), &
-              'model_size_on_node=', this%model_npes_on_node, &
-              'node_size=', this%node_npes, &
-              'reader_capacity_on_node=', this%reader_capacity_on_node, &
-              'synchronous_fallback=', this%synchronous_fallback
+               'model_size_on_node=', this%topology%model_size, &
+               'node_size=', this%topology%node_size, &
+               'reader_capacity_on_node=', this%topology%reader_size, &
+               'synchronous_fallback=', this%topology%synchronous_fallback
       end if
+
+      if (.not. this%topology%synchronous_fallback) call initialize_shared_mailboxes(this, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(comm)
     end subroutine initialize_role_accounting
-
-    subroutine gather_reader_ranks(this, rc)
-      class(AsyncInputServer), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer, allocatable :: model_ranks(:)
-      integer :: i, j, status
-      logical :: is_model_rank
-
-      allocate(this%node_global_ranks(this%node_npes))
-      call MPI_Allgather(this%rank, 1, MPI_INTEGER, this%node_global_ranks, 1, MPI_INTEGER, this%node_comm, status)
-      _VERIFY(status)
-
-      allocate(model_ranks(this%model_npes_on_node))
-      if (this%model_npes_on_node > 0) then
-         call MPI_Allgather(this%rank, 1, MPI_INTEGER, model_ranks, 1, MPI_INTEGER, this%model_node_comm, status)
-         _VERIFY(status)
-      end if
-
-      allocate(this%reader_ranks_on_node(this%reader_capacity_on_node))
-      j = 0
-      do i = 1, size(this%node_global_ranks)
-         is_model_rank = .false.
-         if (this%model_npes_on_node > 0) then
-            is_model_rank = any(model_ranks == this%node_global_ranks(i))
-         end if
-         if (.not. is_model_rank) then
-            j = j + 1
-            if (j <= size(this%reader_ranks_on_node)) this%reader_ranks_on_node(j) = this%node_global_ranks(i)
-         end if
-      end do
-
-      _RETURN(_SUCCESS)
-    end subroutine gather_reader_ranks
 
     subroutine initialize_shared_mailboxes(this, rc)
        class(AsyncInputServer), intent(inout) :: this
@@ -293,23 +271,23 @@ contains
        integer(kind=MPI_ADDRESS_KIND) :: baseaddr
 #endif
 
-       n_workers = this%reader_capacity_on_node - 1
+       n_workers = this%topology%reader_size - 1
        _ASSERT(n_workers > 0, 'nonfallback AsyncInputServer requires at least one reader worker')
        local_bytes = 0_MPI_ADDRESS_KIND
        if (this%model_comm /= MPI_COMM_NULL) then
           local_bytes = int(n_workers, MPI_ADDRESS_KIND) * &
                int(ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words, MPI_ADDRESS_KIND) * &
                4_MPI_ADDRESS_KIND
-       else if (this%reader_comm_rank > 0) then
+       else if (this%topology%reader_rank > 0) then
           local_bytes = int(this%num_cache_slots, MPI_ADDRESS_KIND) * &
                int(this%shared_mailbox_words, MPI_ADDRESS_KIND) * 4_MPI_ADDRESS_KIND
        end if
 
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-       call MPI_Win_allocate_shared(local_bytes, 4, MPI_INFO_NULL, this%node_comm, &
+       call MPI_Win_allocate_shared(local_bytes, 4, MPI_INFO_NULL, this%topology%node_comm, &
             this%shared_base_address, this%shared_win, ierr)
 #else
-       call MPI_Win_allocate_shared(local_bytes, 4, MPI_INFO_NULL, this%node_comm, &
+       call MPI_Win_allocate_shared(local_bytes, 4, MPI_INFO_NULL, this%topology%node_comm, &
             baseaddr, this%shared_win, ierr)
        this%shared_base_address = transfer(baseaddr, this%shared_base_address)
 #endif
@@ -324,10 +302,10 @@ contains
           shared_words = ASYNC_INPUT_MAILBOX_EMPTY
           call MPI_Win_sync(this%shared_win, ierr)
           _VERIFY(ierr)
-       else if (this%reader_comm_rank > 0) then
+       else if (this%topology%reader_rank > 0) then
           this%shared_cache_base_address = this%shared_base_address
        end if
-       call MPI_Barrier(this%node_comm, ierr)
+       call MPI_Barrier(this%topology%node_comm, ierr)
        _VERIFY(ierr)
 
        _RETURN(_SUCCESS)
@@ -357,50 +335,49 @@ contains
        integer, allocatable :: buffer(:), result(:)
        type(AsyncInputPendingRequest), allocatable :: pending(:)
        type(AsyncInputWorkerState), allocatable :: workers(:)
-       type(AsyncInputFileReadRecord), allocatable :: active_reads(:)
-       type(AsyncInputFileReadRecord), allocatable :: file_owners(:)
        type(AsyncInputWarmRecord), allocatable :: warm_records(:)
        logical :: message_available
 
        if (this%model_comm == MPI_COMM_NULL) then
-          if (this%reader_comm_rank /= 0) then
+          if (this%topology%reader_rank /= 0) then
              do while (.true.)
                  call MPI_Recv(cmd, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_CMD, &
-                      this%reader_comm, mpi_status, ierr)
+                      this%topology%reader_comm, mpi_status, ierr)
                  _VERIFY(ierr)
                  if (cmd == ASYNC_INPUT_CMD_TERMINATE) then
                     call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, 0, &
-                         ASYNC_INPUT_TAG_READER_TERMINATED, this%reader_comm, ierr)
+                         ASYNC_INPUT_TAG_READER_TERMINATED, this%topology%reader_comm, ierr)
                     _VERIFY(ierr)
                     exit
                  end if
                 _ASSERT(cmd == ASYNC_INPUT_CMD_READ .or. cmd == ASYNC_INPUT_CMD_NEXT_PREFETCH, &
                      'unknown worker command')
                  call MPI_Recv(buffer_size, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_SIZE, &
-                      this%reader_comm, mpi_status, ierr)
+                      this%topology%reader_comm, mpi_status, ierr)
                  _VERIFY(ierr)
                  call MPI_Recv(source_rank, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_SOURCE, &
-                      this%reader_comm, mpi_status, ierr)
+                      this%topology%reader_comm, mpi_status, ierr)
                  _VERIFY(ierr)
                  allocate(buffer(buffer_size))
                 call MPI_Recv(buffer, buffer_size, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_BUFFER, &
-                     this%reader_comm, mpi_status, ierr)
+                     this%topology%reader_comm, mpi_status, ierr)
                 _VERIFY(ierr)
                  call execute_reader_request(this, buffer, buffer_size, result, msize_word, slot_index, _RC)
                  deallocate(buffer)
                  call publish_shared_cache_slot(this, slot_index, _RC)
                  if (msize_word > 0) then
-                    call publish_shared_result(this, source_rank, this%reader_comm_rank, &
+                    call publish_shared_result(this, source_rank, this%topology%reader_rank, &
                          result, msize_word, _RC)
                     deallocate(result)
                  end if
-                 call MPI_Send(0, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_DONE, this%reader_comm, ierr)
+                 call MPI_Send(0, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_DONE, &
+                      this%topology%reader_comm, ierr)
                 _VERIFY(ierr)
                  call MPI_Send(msize_word, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_RESULT_SIZE, &
-                      this%reader_comm, ierr)
+                      this%topology%reader_comm, ierr)
                  _VERIFY(ierr)
                  call MPI_Send(slot_index, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_CACHE_SLOT, &
-                      this%reader_comm, ierr)
+                      this%topology%reader_comm, ierr)
                  _VERIFY(ierr)
               end do
               write(*,'(A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,I0)') &
@@ -412,19 +389,17 @@ contains
              _RETURN(_SUCCESS)
           end if
 
-            _ASSERT(this%reader_comm_size > 1, &
+            _ASSERT(this%topology%reader_size > 1, &
                  'nonfallback AsyncInputServer requires one reader captain and at least one worker')
-             allocate(workers(this%reader_comm_size - 1))
+             allocate(workers(this%topology%reader_size - 1))
              allocate(pending(0))
-             allocate(active_reads(0))
-             allocate(file_owners(0))
              allocate(warm_records(0))
              do while (.true.)
-                call poll_reader_completions(this, workers, active_reads, warm_records, .false., ierr)
+                call poll_reader_completions(this, workers, warm_records, .false., ierr)
                 _VERIFY(ierr)
                 call serve_warm_requests(this, pending, workers, warm_records, ierr)
                 _VERIFY(ierr)
-                call dispatch_pending_requests(this, pending, workers, active_reads, file_owners, ierr)
+                call dispatch_pending_requests(this, pending, workers, ierr)
                _VERIFY(ierr)
                call MPI_Iprobe(MPI_ANY_SOURCE, ASYNC_INPUT_TAG_CMD, this%comm, message_available, mpi_status, ierr)
               _VERIFY(ierr)
@@ -450,33 +425,31 @@ contains
                 deallocate(buffer)
                 call serve_warm_requests(this, pending, workers, warm_records, ierr)
                 _VERIFY(ierr)
-                call dispatch_pending_requests(this, pending, workers, active_reads, file_owners, ierr)
+                call dispatch_pending_requests(this, pending, workers, ierr)
                _VERIFY(ierr)
             end do
 
              do while (any(workers%busy) .or. size(pending) > 0)
-               call poll_reader_completions(this, workers, active_reads, warm_records, .true., ierr)
+               call poll_reader_completions(this, workers, warm_records, .true., ierr)
                _VERIFY(ierr)
                call serve_warm_requests(this, pending, workers, warm_records, ierr)
                _VERIFY(ierr)
-               call dispatch_pending_requests(this, pending, workers, active_reads, file_owners, ierr)
+               call dispatch_pending_requests(this, pending, workers, ierr)
                 _VERIFY(ierr)
              end do
              write(*,'(A,1X,A,I0,1X,A,I0)') 'INFO: AsyncInputServer captain cache:', &
                   'warm_hits=', this%captain_warm_hits, 'prefetch_hits=', this%captain_prefetch_hits
              do i = 1, size(workers)
                 call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, i, &
-                     ASYNC_INPUT_TAG_READER_CMD, this%reader_comm, ierr)
+                     ASYNC_INPUT_TAG_READER_CMD, this%topology%reader_comm, ierr)
                 _VERIFY(ierr)
              end do
              do i = 1, size(workers)
                 call MPI_Recv(cmd, 1, MPI_INTEGER, i, ASYNC_INPUT_TAG_READER_TERMINATED, &
-                     this%reader_comm, MPI_STATUS_IGNORE, ierr)
+                     this%topology%reader_comm, MPI_STATUS_IGNORE, ierr)
                 _VERIFY(ierr)
                 _ASSERT(cmd == ASYNC_INPUT_CMD_TERMINATE, 'reader worker returned an invalid shutdown acknowledgment')
              end do
-             deallocate(active_reads)
-             deallocate(file_owners)
              deallocate(warm_records)
             deallocate(pending)
             deallocate(workers)
@@ -511,41 +484,43 @@ contains
        call this%threads%clear()
        deallocate(mask)
 
-       if (.not. this%synchronous_fallback .and. this%model_comm /= MPI_COMM_NULL .and. this%model_node_rank == 0) then
+       if (.not. this%topology%synchronous_fallback .and. this%model_comm /= MPI_COMM_NULL .and. &
+            this%topology%model_node_rank == 0) then
           write(*,'(A,1X,A,I0)') 'INFO: AsyncInputServer forwarded:', 'requests=', this%forwarded_requests
        end if
 
-        call this%stop_reader_pool(_RC)
-
        call this%report_profile(_RC)
-       call finalize_runtime(this, _RC)
+       call this%shutdown(_RC)
 
        _RETURN(_SUCCESS)
      end subroutine start
 
-     subroutine stop_reader_pool(this, rc)
+     subroutine shutdown(this, rc)
        class(AsyncInputServer), intent(inout) :: this
        integer, optional, intent(out) :: rc
 
         integer :: status
 
-        if (.not. this%synchronous_fallback .and. this%model_comm /= MPI_COMM_NULL .and. this%model_node_rank == 0) then
-           call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, this%reader_ranks_on_node(1), &
+        if (this%topology%node_comm == MPI_COMM_NULL) then
+           _RETURN(_SUCCESS)
+        end if
+
+        if (.not. this%topology%synchronous_fallback .and. this%model_comm /= MPI_COMM_NULL .and. &
+             this%topology%model_node_rank == 0) then
+           call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, &
+                this%topology%reader_server_ranks(1), &
                 ASYNC_INPUT_TAG_CMD, this%comm, status)
            _VERIFY(status)
         end if
 
-        _RETURN(_SUCCESS)
-      end subroutine stop_reader_pool
-
-     subroutine release_runtime(this, rc)
-        class(AsyncInputServer), intent(inout) :: this
-        integer, optional, intent(out) :: rc
-        integer :: status
-
         call finalize_runtime(this, _RC)
         _RETURN(_SUCCESS)
-      end subroutine release_runtime
+      end subroutine shutdown
+
+     logical function is_reader_role(this)
+        class(AsyncInputServer), intent(in) :: this
+        is_reader_role = this%model_comm == MPI_COMM_NULL
+     end function is_reader_role
 
     ! -----------------------------------------------------------------------
     ! service_collective_prefetch
@@ -569,10 +544,10 @@ contains
        logical :: removed
 
        handled = .false.
-        if (this%synchronous_fallback) then
+        if (this%topology%synchronous_fallback) then
            _RETURN(_SUCCESS)
         end if
-        _ASSERT(size(this%reader_ranks_on_node) > 0, 'reader ranks must exist when not in synchronous fallback')
+        _ASSERT(this%topology%reader_size > 0, 'reader ranks must exist when not in synchronous fallback')
 
         iter = request_backlog%begin()
        do while (iter /= request_backlog%end())
@@ -613,8 +588,9 @@ contains
           msg => iter%get()
           select type (q => msg)
           type is (NextCollectivePrefetchMessage)
-             if (.not. this%synchronous_fallback) then
-                _ASSERT(size(this%reader_ranks_on_node) > 0, 'reader ranks must exist when not in synchronous fallback')
+             if (.not. this%topology%synchronous_fallback) then
+                _ASSERT(this%topology%reader_size > 0, &
+                     'reader ranks must exist when not in synchronous fallback')
                  call forward_request_to_reader(this, q, connection, .false., ASYNC_INPUT_CMD_NEXT_PREFETCH, _RC)
              end if
              call request_backlog%erase(iter)
@@ -675,8 +651,8 @@ contains
         integer :: ierr
         integer, pointer :: cache_data(:), slot_data(:)
 
-        cache_words = word_size(this%cache_slots(slot_index)%type_kind) * &
-             product(int(this%cache_slots(slot_index)%global_count, INT64))
+        cache_words = word_size(this%cache_slots(slot_index)%key%type_kind) * &
+             product(int(this%cache_slots(slot_index)%key%global_count, INT64))
         _ASSERT(cache_words <= this%shared_mailbox_words, &
              'AsyncInputServer shared cache slot is too small; increase MAPL_ASYNC_INPUT_SHMEM_WORDS')
         call c_f_pointer(this%shared_cache_base_address, cache_data, &
@@ -711,32 +687,29 @@ contains
        _RETURN(_SUCCESS)
      end subroutine enqueue_reader_request
 
-     subroutine dispatch_pending_requests(this, pending, workers, active_reads, file_owners, ierr)
+     subroutine dispatch_pending_requests(this, pending, workers, ierr)
        class(AsyncInputServer), intent(in) :: this
        type(AsyncInputPendingRequest), allocatable, intent(inout) :: pending(:)
        type(AsyncInputWorkerState), intent(inout) :: workers(:)
-       type(AsyncInputFileReadRecord), allocatable, intent(inout) :: active_reads(:)
-       type(AsyncInputFileReadRecord), allocatable, intent(inout) :: file_owners(:)
        integer, intent(out) :: ierr
        integer :: request_index, worker_rank
 
        ierr = MPI_SUCCESS
        do
-          call select_pending_request(pending, workers, active_reads, file_owners, &
-               request_index, worker_rank)
+          call select_pending_request(pending, workers, request_index, worker_rank)
           if (request_index < 1) return
 
           call MPI_Send(pending(request_index)%command, 1, MPI_INTEGER, worker_rank, &
-               ASYNC_INPUT_TAG_READER_CMD, this%reader_comm, ierr)
+               ASYNC_INPUT_TAG_READER_CMD, this%topology%reader_comm, ierr)
           if (ierr /= MPI_SUCCESS) return
           call MPI_Send(size(pending(request_index)%buffer), 1, MPI_INTEGER, worker_rank, &
-               ASYNC_INPUT_TAG_READER_SIZE, this%reader_comm, ierr)
+               ASYNC_INPUT_TAG_READER_SIZE, this%topology%reader_comm, ierr)
           if (ierr /= MPI_SUCCESS) return
           call MPI_Send(pending(request_index)%source_rank, 1, MPI_INTEGER, worker_rank, &
-               ASYNC_INPUT_TAG_READER_SOURCE, this%reader_comm, ierr)
+               ASYNC_INPUT_TAG_READER_SOURCE, this%topology%reader_comm, ierr)
           if (ierr /= MPI_SUCCESS) return
           call MPI_Send(pending(request_index)%buffer, size(pending(request_index)%buffer), &
-               MPI_INTEGER, worker_rank, ASYNC_INPUT_TAG_READER_BUFFER, this%reader_comm, ierr)
+               MPI_INTEGER, worker_rank, ASYNC_INPUT_TAG_READER_BUFFER, this%topology%reader_comm, ierr)
           if (ierr /= MPI_SUCCESS) return
 
           workers(worker_rank)%busy = .true.
@@ -745,9 +718,8 @@ contains
           workers(worker_rank)%file_name = pending(request_index)%file_name
           allocate(workers(worker_rank)%buffer(size(pending(request_index)%buffer)))
           workers(worker_rank)%buffer = pending(request_index)%buffer
-          call add_active_read(active_reads, workers(worker_rank)%file_name, worker_rank)
            if (workers(worker_rank)%command == ASYNC_INPUT_CMD_READ) then
-              call MPI_Send(this%reader_global_ranks(worker_rank + 1), 1, MPI_INTEGER, &
+              call MPI_Send(this%topology%reader_server_ranks(worker_rank + 1), 1, MPI_INTEGER, &
                    workers(worker_rank)%source_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
               if (ierr /= MPI_SUCCESS) return
            end if
@@ -755,10 +727,9 @@ contains
        end do
      end subroutine dispatch_pending_requests
 
-     subroutine poll_reader_completions(this, workers, active_reads, warm_records, wait_for_one, ierr)
+     subroutine poll_reader_completions(this, workers, warm_records, wait_for_one, ierr)
        class(AsyncInputServer), intent(in) :: this
        type(AsyncInputWorkerState), intent(inout) :: workers(:)
-       type(AsyncInputFileReadRecord), allocatable, intent(inout) :: active_reads(:)
        type(AsyncInputWarmRecord), allocatable, intent(inout) :: warm_records(:)
        logical, intent(in) :: wait_for_one
        integer, intent(out) :: ierr
@@ -769,7 +740,7 @@ contains
        ierr = MPI_SUCCESS
        if (.not. any(workers%busy)) return
        do
-          call MPI_Iprobe(MPI_ANY_SOURCE, ASYNC_INPUT_TAG_READER_DONE, this%reader_comm, &
+          call MPI_Iprobe(MPI_ANY_SOURCE, ASYNC_INPUT_TAG_READER_DONE, this%topology%reader_comm, &
                available, result_status, ierr)
           if (ierr /= MPI_SUCCESS) return
           if (available) exit
@@ -777,19 +748,21 @@ contains
           call MAPL_Sleep(0.0001)
        end do
        worker_rank = result_status(MPI_SOURCE)
-       call MPI_Recv(dummy, 1, MPI_INTEGER, worker_rank, ASYNC_INPUT_TAG_READER_DONE, this%reader_comm, &
+       call MPI_Recv(dummy, 1, MPI_INTEGER, worker_rank, ASYNC_INPUT_TAG_READER_DONE, &
+            this%topology%reader_comm, &
             result_status, ierr)
        if (ierr /= MPI_SUCCESS) return
-       call MPI_Recv(result_size, 1, MPI_INTEGER, worker_rank, ASYNC_INPUT_TAG_READER_RESULT_SIZE, this%reader_comm, &
+       call MPI_Recv(result_size, 1, MPI_INTEGER, worker_rank, ASYNC_INPUT_TAG_READER_RESULT_SIZE, &
+            this%topology%reader_comm, &
             MPI_STATUS_IGNORE, ierr)
        if (ierr /= MPI_SUCCESS) return
-       call MPI_Recv(slot_index, 1, MPI_INTEGER, worker_rank, ASYNC_INPUT_TAG_READER_CACHE_SLOT, this%reader_comm, &
+       call MPI_Recv(slot_index, 1, MPI_INTEGER, worker_rank, ASYNC_INPUT_TAG_READER_CACHE_SLOT, &
+            this%topology%reader_comm, &
             MPI_STATUS_IGNORE, ierr)
        if (ierr /= MPI_SUCCESS) return
        call request%deserialize(workers(worker_rank)%buffer, ierr)
        if (ierr /= MPI_SUCCESS) return
        call update_warm_record(warm_records, request, worker_rank, slot_index)
-       call remove_active_read(active_reads, workers(worker_rank)%file_name, worker_rank)
        workers(worker_rank)%busy = .false.
        workers(worker_rank)%source_rank = -1
        if (allocated(workers(worker_rank)%file_name)) deallocate(workers(worker_rank)%file_name)
@@ -825,7 +798,7 @@ contains
            if (pending(i)%command == ASYNC_INPUT_CMD_READ) then
               call publish_warm_result(this, request, pending(i)%source_rank, warm_records(warm_index), ierr)
               if (ierr /= MPI_SUCCESS) return
-              call MPI_Send(this%reader_global_ranks(warm_records(warm_index)%worker_rank + 1), &
+              call MPI_Send(this%topology%reader_server_ranks(warm_records(warm_index)%worker_rank + 1), &
                    1, MPI_INTEGER, pending(i)%source_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
               if (ierr /= MPI_SUCCESS) return
               this%captain_warm_hits = this%captain_warm_hits + 1
@@ -865,18 +838,19 @@ contains
 #endif
 
         ierr = MPI_SUCCESS
-        model_node_rank = find_node_rank(this, model_rank)
+        model_node_rank = this%topology%node_rank(model_rank)
         if (model_node_rank < 0) then
            ierr = MPI_ERR_RANK
            return
         end if
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-        call MPI_Win_shared_query(this%shared_win, find_node_rank(this, &
-             this%reader_global_ranks(warm_record%worker_rank + 1)), segment_bytes, disp_unit, &
+        call MPI_Win_shared_query(this%shared_win, this%topology%node_rank( &
+             this%topology%reader_server_ranks(warm_record%worker_rank + 1)), segment_bytes, disp_unit, &
              cache_base_address, ierr)
 #else
-        call MPI_Win_shared_query(this%shared_win, find_node_rank(this, &
-             this%reader_global_ranks(warm_record%worker_rank + 1)), segment_bytes, disp_unit, baseaddr, ierr)
+        call MPI_Win_shared_query(this%shared_win, this%topology%node_rank( &
+             this%topology%reader_server_ranks(warm_record%worker_rank + 1)), &
+             segment_bytes, disp_unit, baseaddr, ierr)
         cache_base_address = transfer(baseaddr, cache_base_address)
 #endif
         if (ierr /= MPI_SUCCESS) return
@@ -911,15 +885,7 @@ contains
         type(AsyncInputWarmRecord), intent(in) :: record
         type(CollectivePrefetchDataMessage), intent(in) :: request
 
-        matches = record%type_kind == request%type_kind
-        if (.not. matches) return
-        matches = record%file_name == request%file_name .and. record%var_name == request%var_name
-        if (.not. matches) return
-        matches = size(record%global_start) == size(request%global_start) .and. &
-             all(record%global_start == request%global_start)
-        if (.not. matches) return
-        matches = size(record%global_count) == size(request%global_count) .and. &
-             all(record%global_count == request%global_count)
+        matches = record%key%matches_request(request)
      end function warm_record_matches
 
      subroutine update_warm_record(warm_records, request, worker_rank, slot_index)
@@ -932,11 +898,7 @@ contains
         do i = 1, size(warm_records)
            if (warm_records(i)%worker_rank == worker_rank .and. &
                 warm_records(i)%slot_index == slot_index) then
-              warm_records(i)%file_name = request%file_name
-              warm_records(i)%var_name = request%var_name
-              warm_records(i)%type_kind = request%type_kind
-              warm_records(i)%global_start = request%global_start
-              warm_records(i)%global_count = request%global_count
+              call warm_records(i)%key%set_from_request(request)
               return
            end if
         end do
@@ -945,37 +907,21 @@ contains
         if (n > 0) updated(1:n) = warm_records
         updated(n + 1)%worker_rank = worker_rank
         updated(n + 1)%slot_index = slot_index
-        updated(n + 1)%file_name = request%file_name
-        updated(n + 1)%var_name = request%var_name
-        updated(n + 1)%type_kind = request%type_kind
-        updated(n + 1)%global_start = request%global_start
-        updated(n + 1)%global_count = request%global_count
+        call updated(n + 1)%key%set_from_request(request)
         call move_alloc(updated, warm_records)
      end subroutine update_warm_record
 
-      subroutine select_pending_request(pending, workers, active_reads, file_owners, &
-          request_index, worker_rank)
+      subroutine select_pending_request(pending, workers, request_index, worker_rank)
        type(AsyncInputPendingRequest), intent(in) :: pending(:)
        type(AsyncInputWorkerState), intent(in) :: workers(:)
-       type(AsyncInputFileReadRecord), intent(in) :: active_reads(:)
-       type(AsyncInputFileReadRecord), allocatable, intent(inout) :: file_owners(:)
        integer, intent(out) :: request_index, worker_rank
-       integer :: i, owner_rank
+       integer :: i
 
        request_index = 0
-       worker_rank = 0
-       do i = 1, size(pending)
-          if (file_read_is_active(active_reads, pending(i)%file_name)) cycle
-          owner_rank = find_file_worker(file_owners, pending(i)%file_name)
-           if (owner_rank > 0) then
-              if (workers(owner_rank)%busy) cycle
-              request_index = i
-              worker_rank = owner_rank
-              return
-           end if
+        worker_rank = 0
+        do i = 1, size(pending)
            worker_rank = select_file_worker(pending(i)%file_name, size(workers))
            if (workers(worker_rank)%busy) cycle
-           call add_active_read(file_owners, pending(i)%file_name, worker_rank)
            request_index = i
            return
         end do
@@ -992,66 +938,6 @@ contains
         end do
         worker_rank = hash_value + 1
       end function select_file_worker
-
-     integer function find_file_worker(records, file_name) result(worker_rank)
-       type(AsyncInputFileReadRecord), intent(in) :: records(:)
-       character(len=*), intent(in) :: file_name
-       integer :: i
-
-       worker_rank = 0
-       do i = 1, size(records)
-          if (records(i)%file_name == file_name) then
-             worker_rank = records(i)%worker_rank
-             return
-          end if
-       end do
-     end function find_file_worker
-
-     logical function file_read_is_active(active_reads, file_name) result(is_active)
-       type(AsyncInputFileReadRecord), intent(in) :: active_reads(:)
-       character(len=*), intent(in) :: file_name
-       integer :: i
-
-       is_active = .false.
-       do i = 1, size(active_reads)
-          if (active_reads(i)%file_name == file_name) then
-             is_active = .true.
-             return
-          end if
-       end do
-     end function file_read_is_active
-
-     subroutine add_active_read(active_reads, file_name, worker_rank)
-       type(AsyncInputFileReadRecord), allocatable, intent(inout) :: active_reads(:)
-       character(len=*), intent(in) :: file_name
-       integer, intent(in) :: worker_rank
-       type(AsyncInputFileReadRecord), allocatable :: expanded(:)
-       integer :: n
-
-       n = size(active_reads)
-       allocate(expanded(n + 1))
-       if (n > 0) expanded(1:n) = active_reads
-       expanded(n + 1)%file_name = file_name
-       expanded(n + 1)%worker_rank = worker_rank
-       call move_alloc(expanded, active_reads)
-     end subroutine add_active_read
-
-     subroutine remove_active_read(active_reads, file_name, worker_rank)
-       type(AsyncInputFileReadRecord), allocatable, intent(inout) :: active_reads(:)
-       character(len=*), intent(in) :: file_name
-       integer, intent(in) :: worker_rank
-       type(AsyncInputFileReadRecord), allocatable :: remaining(:)
-       integer :: i, j
-
-       allocate(remaining(max(0, size(active_reads) - 1)))
-       j = 0
-       do i = 1, size(active_reads)
-          if (active_reads(i)%worker_rank == worker_rank .and. active_reads(i)%file_name == file_name) cycle
-          j = j + 1
-          if (j <= size(remaining)) remaining(j) = active_reads(i)
-       end do
-       call move_alloc(remaining, active_reads)
-     end subroutine remove_active_read
 
      subroutine remove_pending_request(pending, request_index)
        type(AsyncInputPendingRequest), allocatable, intent(inout) :: pending(:)
@@ -1091,7 +977,7 @@ contains
 
          ! Model commands always enter through the reader captain. The captain
          ! returns the selected worker's server-communicator rank before data.
-        reader_rank = this%reader_ranks_on_node(1)
+        reader_rank = this%topology%reader_server_ranks(1)
        this%forwarded_requests = this%forwarded_requests + 1
        local_msize_word = word_size(request%type_kind) * product(int(request%count, INT64))
 
@@ -1134,7 +1020,7 @@ contains
 
         integer :: ierr, model_node_rank
 
-        model_node_rank = find_node_rank(this, model_rank)
+        model_node_rank = this%topology%node_rank(model_rank)
         _ASSERT(model_node_rank >= 0, 'model rank is not present in the node communicator')
         call publish_result_to_mailbox(this, model_node_rank, worker_rank, result, result_size, ierr)
         if (ierr /= MPI_SUCCESS) return
@@ -1166,7 +1052,8 @@ contains
 #endif
         if (ierr /= MPI_SUCCESS) return
         call c_f_pointer(model_base_address, mailboxes, &
-             [(this%reader_comm_size - 1) * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)])
+             [(this%topology%reader_size - 1) * &
+             (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)])
         offset = (worker_rank - 1) * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
 
         do
@@ -1197,10 +1084,11 @@ contains
         integer :: ierr, offset, result_size, worker_rank
         integer, pointer :: mailboxes(:)
 
-        worker_rank = find_worker_rank(this, worker_global_rank)
+        worker_rank = this%topology%worker_rank(worker_global_rank)
         _ASSERT(worker_rank > 0, 'captain selected an unknown reader worker')
         call c_f_pointer(this%shared_base_address, mailboxes, &
-             [(this%reader_capacity_on_node - 1) * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)])
+             [(this%topology%reader_size - 1) * &
+             (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)])
         offset = (worker_rank - 1) * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
         do
            call MPI_Win_sync(this%shared_win, ierr)
@@ -1220,33 +1108,33 @@ contains
         _RETURN(_SUCCESS)
      end subroutine consume_shared_result
 
-     integer function find_node_rank(this, global_rank) result(node_rank)
-        class(AsyncInputServer), intent(in) :: this
-        integer, intent(in) :: global_rank
+     integer function topology_node_rank(this, server_rank) result(node_rank)
+        class(AsyncInputTopology), intent(in) :: this
+        integer, intent(in) :: server_rank
         integer :: i
 
         node_rank = -1
-        do i = 1, size(this%node_global_ranks)
-           if (this%node_global_ranks(i) == global_rank) then
+        do i = 1, size(this%node_server_ranks)
+           if (this%node_server_ranks(i) == server_rank) then
               node_rank = i - 1
               return
            end if
         end do
-     end function find_node_rank
+     end function topology_node_rank
 
-     integer function find_worker_rank(this, global_rank) result(worker_rank)
-        class(AsyncInputServer), intent(in) :: this
-        integer, intent(in) :: global_rank
+     integer function topology_worker_rank(this, server_rank) result(worker_rank)
+        class(AsyncInputTopology), intent(in) :: this
+        integer, intent(in) :: server_rank
         integer :: i
 
         worker_rank = 0
-        do i = 2, size(this%reader_ranks_on_node)
-           if (this%reader_ranks_on_node(i) == global_rank) then
+        do i = 2, size(this%reader_server_ranks)
+           if (this%reader_server_ranks(i) == server_rank) then
               worker_rank = i - 1
               return
            end if
         end do
-     end function find_worker_rank
+     end function topology_worker_rank
 
      subroutine finish_collective_service(this, request_backlog, rc)
        class(AsyncInputServer), intent(inout) :: this
@@ -1280,11 +1168,7 @@ contains
        real(REAL64), pointer :: values_real64(:)
        integer :: status
        ! Update cache key metadata.
-       this%cache_slots(slot_index)%file_name    = request%file_name
-       this%cache_slots(slot_index)%var_name     = request%var_name
-       this%cache_slots(slot_index)%type_kind    = request%type_kind
-       this%cache_slots(slot_index)%global_start = request%global_start
-       this%cache_slots(slot_index)%global_count = request%global_count
+       call this%cache_slots(slot_index)%key%set_from_request(request)
        this%cache_slots(slot_index)%valid        = .false.
 
        ! Allocate (or re-use) the LocalMemReference for the global slab.
@@ -1432,20 +1316,38 @@ contains
 
       matches = slot%valid
       if (.not. matches) return
-      matches = slot%type_kind == request%type_kind
-      if (.not. matches) return
-      matches = allocated(slot%file_name) .and. slot%file_name == request%file_name
-      if (.not. matches) return
-      matches = allocated(slot%var_name) .and. slot%var_name == request%var_name
-      if (.not. matches) return
-      matches = allocated(slot%global_start) .and. allocated(slot%global_count)
-      if (.not. matches) return
-      matches = size(slot%global_start) == size(request%global_start) .and. &
-                all(slot%global_start == request%global_start)
-      if (.not. matches) return
-      matches = size(slot%global_count) == size(request%global_count) .and. &
-                all(slot%global_count == request%global_count)
+      matches = slot%key%matches_request(request)
     end function cache_slot_matches
+
+    logical function cache_key_matches_request(this, request) result(matches)
+      class(AsyncInputCacheKey), intent(in) :: this
+      class(CollectivePrefetchDataMessage), intent(in) :: request
+
+      matches = this%type_kind == request%type_kind
+      if (.not. matches) return
+      matches = allocated(this%file_name) .and. this%file_name == request%file_name
+      if (.not. matches) return
+      matches = allocated(this%var_name) .and. this%var_name == request%var_name
+      if (.not. matches) return
+      matches = allocated(this%global_start) .and. allocated(this%global_count)
+      if (.not. matches) return
+      matches = size(this%global_start) == size(request%global_start) .and. &
+           all(this%global_start == request%global_start)
+      if (.not. matches) return
+      matches = size(this%global_count) == size(request%global_count) .and. &
+           all(this%global_count == request%global_count)
+    end function cache_key_matches_request
+
+    subroutine set_cache_key_from_request(this, request)
+      class(AsyncInputCacheKey), intent(inout) :: this
+      class(CollectivePrefetchDataMessage), intent(in) :: request
+
+      this%file_name = request%file_name
+      this%var_name = request%var_name
+      this%type_kind = request%type_kind
+      this%global_start = request%global_start
+      this%global_count = request%global_count
+    end subroutine set_cache_key_from_request
 
     integer function choose_cache_slot(this) result(slot_index)
       class(AsyncInputServer), intent(inout) :: this
@@ -1472,24 +1374,28 @@ contains
           this%shared_base_address = c_null_ptr
        end if
 
-      if (this%model_node_comm /= MPI_COMM_NULL) then
-         call MPI_Comm_free(this%model_node_comm, status)
+      if (this%topology%model_node_comm /= MPI_COMM_NULL) then
+         call MPI_Comm_free(this%topology%model_node_comm, status)
          _VERIFY(status)
-         this%model_node_comm = MPI_COMM_NULL
+         this%topology%model_node_comm = MPI_COMM_NULL
       end if
-      if (this%node_comm /= MPI_COMM_NULL) then
-         call MPI_Comm_free(this%node_comm, status)
+      if (this%topology%node_comm /= MPI_COMM_NULL) then
+         call MPI_Comm_free(this%topology%node_comm, status)
          _VERIFY(status)
-         this%node_comm = MPI_COMM_NULL
+         this%topology%node_comm = MPI_COMM_NULL
       end if
-       if (this%reader_comm /= MPI_COMM_NULL) then
-          call MPI_Comm_free(this%reader_comm, status)
+       if (this%topology%reader_comm /= MPI_COMM_NULL) then
+          call MPI_Comm_free(this%topology%reader_comm, status)
           _VERIFY(status)
-          this%reader_comm = MPI_COMM_NULL
+          this%topology%reader_comm = MPI_COMM_NULL
        end if
-       if (allocated(this%reader_global_ranks)) deallocate(this%reader_global_ranks)
-       if (allocated(this%node_global_ranks)) deallocate(this%node_global_ranks)
-       this%reader_comm_size = 0
+       if (allocated(this%topology%reader_server_ranks)) deallocate(this%topology%reader_server_ranks)
+       if (allocated(this%topology%node_server_ranks)) deallocate(this%topology%node_server_ranks)
+       this%topology%reader_size = 0
+       this%topology%node_size = 0
+       this%topology%model_size = 0
+       this%topology%reader_rank = -1
+       this%topology%model_node_rank = -1
         this%next_cache_slot = 1
 
         _RETURN(_SUCCESS)
@@ -1511,12 +1417,12 @@ contains
             _VERIFY(status)
             deallocate(this%cache_slots(i)%reference)
          end if
-         if (allocated(this%cache_slots(i)%global_start)) deallocate(this%cache_slots(i)%global_start)
-         if (allocated(this%cache_slots(i)%global_count)) deallocate(this%cache_slots(i)%global_count)
-         if (allocated(this%cache_slots(i)%file_name)) deallocate(this%cache_slots(i)%file_name)
-         if (allocated(this%cache_slots(i)%var_name)) deallocate(this%cache_slots(i)%var_name)
+         if (allocated(this%cache_slots(i)%key%global_start)) deallocate(this%cache_slots(i)%key%global_start)
+         if (allocated(this%cache_slots(i)%key%global_count)) deallocate(this%cache_slots(i)%key%global_count)
+         if (allocated(this%cache_slots(i)%key%file_name)) deallocate(this%cache_slots(i)%key%file_name)
+         if (allocated(this%cache_slots(i)%key%var_name)) deallocate(this%cache_slots(i)%key%var_name)
          this%cache_slots(i)%valid = .false.
-         this%cache_slots(i)%type_kind = 0
+         this%cache_slots(i)%key%type_kind = 0
       end do
       deallocate(this%cache_slots)
 

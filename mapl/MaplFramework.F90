@@ -59,7 +59,7 @@ module mapl_MaplFramework_mod
       type(ESMF_HConfig) :: hconfig       ! full top-level hconfig
       type(ESMF_HConfig) :: mapl_hconfig  ! mapl: subsection
       type(DirectoryService) :: directory_service
-      type(StringServerMap) :: local_server_map
+       type(StringServerMap) :: local_server_map
       logical :: is_model_pet = .false.
    contains
       procedure :: initialize
@@ -731,49 +731,36 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_HConfig) :: servers_hconfig
-      type(ESMF_HConfig) :: server_val
+      type(ESMF_HConfig) :: servers_hconfig, server_val
       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
       class(BaseServer), pointer :: server_ptr
-      type(AsyncInputServer), pointer :: reader_server
-      character(:), allocatable :: server_name
-      character(:), allocatable :: subclass_name
-      integer :: n_reader_servers
+      character(:), allocatable :: server_name, subclass_name
       logical :: is_local, has_subclass_local
 
-      reader_server => null()
-      n_reader_servers = 0
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
-      iter_end   = ESMF_HConfigIterEnd(servers_hconfig, _RC)
-      iter       = iter_begin
+      iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
+      iter = iter_begin
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
          server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
          is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
          if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
-         if (is_local) then
-            subclass_name = 'MpiServer'
-            has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
-            if (has_subclass_local) subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
-            if (subclass_name == 'AsyncInputServer') then
-               server_ptr => this%local_server_map%at(server_name)
-               select type (typed_server => server_ptr)
-               type is (AsyncInputServer)
-                  if (typed_server%model_comm == MPI_COMM_NULL) then
-                     n_reader_servers = n_reader_servers + 1
-                     reader_server => typed_server
-                  end if
-               end select
-            end if
+         subclass_name = 'MpiServer'
+         has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
+         if (has_subclass_local) subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
+         if (is_local .and. subclass_name == 'AsyncInputServer') then
+            server_ptr => this%local_server_map%at(server_name)
+            select type (typed_server => server_ptr)
+            type is (AsyncInputServer)
+               if (typed_server%is_reader_role()) call typed_server%start(_RC)
+            class default
+               _FAIL('registered local async server has the wrong type')
+            end select
          end if
          call ESMF_HConfigDestroy(server_val, _RC)
       end do
       call ESMF_HConfigDestroy(servers_hconfig, _RC)
-
-      _RETURN_UNLESS(n_reader_servers > 0)
-      _ASSERT(n_reader_servers == 1, 'at most one non-model local AsyncInputServer is currently supported')
-      call reader_server%start(_RC)
 
       _RETURN(_SUCCESS)
     end subroutine run_local_async_servers
@@ -901,35 +888,32 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_HConfig) :: servers_hconfig
-      type(ESMF_HConfig) :: server_val
+      type(ESMF_HConfig) :: servers_hconfig, server_val
       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
       class(BaseServer), pointer :: server_ptr
-      character(:), allocatable :: server_name
-      character(:), allocatable :: subclass_name
+      character(:), allocatable :: server_name, subclass_name
       logical :: is_local, has_subclass_local
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
-      iter_end   = ESMF_HConfigIterEnd(servers_hconfig, _RC)
-      iter       = iter_begin
+      iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
+      iter = iter_begin
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
          server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
          is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
          if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
-         if (is_local) then
-            subclass_name = 'MpiServer'
-            has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
-            if (has_subclass_local) subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
-            if (subclass_name == 'AsyncInputServer') then
-               server_ptr => this%local_server_map%at(server_name)
-               select type (typed_server => server_ptr)
-               type is (AsyncInputServer)
-                  call typed_server%stop_reader_pool(_RC)
-                  call typed_server%release_runtime(_RC)
-               end select
-            end if
+         subclass_name = 'MpiServer'
+         has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
+         if (has_subclass_local) subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
+         if (is_local .and. subclass_name == 'AsyncInputServer') then
+            server_ptr => this%local_server_map%at(server_name)
+            select type (typed_server => server_ptr)
+            type is (AsyncInputServer)
+               call typed_server%shutdown(_RC)
+            class default
+               _FAIL('registered local async server has the wrong type')
+            end select
          end if
          call ESMF_HConfigDestroy(server_val, _RC)
       end do
