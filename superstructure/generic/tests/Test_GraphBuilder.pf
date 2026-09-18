@@ -33,6 +33,9 @@ module Test_GraphBuilder
    use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR
+   use mapl_NodeIdLabelMap_mod, only: NodeIdLabelMap
+   use mapl_NodeLabel_mod, only: NodeLabel
+   use mapl_GraphExport_mod, only: export_graph_dot, export_graph_json
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
    use gFTL2_StringVector, only: StringVector
@@ -950,5 +953,129 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_materialize_extensions_vgrid_mismatch_unaffected
+
+   ! visualization-enrichment-layer change, task 3.1/3.2/4.1: a
+   ! component's own advertised import/export/internal items are
+   ! labeled by their own declared short_name when build_label_map's
+   ! result is handed to the exporter (spec.md "Advertised item is
+   ! labeled by its own name").
+   @test(npes=[0])
+   subroutine test_build_label_map_labels_own_advertised_items(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(NodeIdLabelMap) :: label_map
+      character(:), allocatable :: dot_text, json_text
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_label_own', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'Q'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_INTERNAL, 'INTERN'))
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      label_map = gb%build_label_map(outer_meta, status)
+      @assert_that(status, is(0))
+
+      dot_text = export_graph_dot(outer_meta%get_component_graph(), rc=status, label_map=label_map)
+      @assert_that(status, is(0))
+      @assertTrue(index(dot_text, 'label="T"') > 0)
+      @assertTrue(index(dot_text, 'label="Q"') > 0)
+      @assertTrue(index(dot_text, 'label="INTERN"') > 0)
+      ! None of these three carries the proxy marking.
+      @assertFalse(index(dot_text, 'shape="doublecircle"') > 0)
+
+      json_text = export_graph_json(outer_meta%get_component_graph(), rc=status, label_map=label_map)
+      @assert_that(status, is(0))
+      @assertTrue(index(json_text, '"label": "T"') > 0)
+      @assertTrue(index(json_text, '"label": "Q"') > 0)
+      @assertTrue(index(json_text, '"label": "INTERN"') > 0)
+      @assertFalse(index(json_text, '"proxy"') > 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_build_label_map_labels_own_advertised_items
+
+   ! Task 3.3/4.2: a cached child-proxy node is labeled
+   ! "<child_name>:<short_name>" and marked as a proxy.
+   @test(npes=[0])
+   subroutine test_build_label_map_labels_child_proxy(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved
+      type(NodeIdLabelMap) :: label_map
+      character(:), allocatable :: dot_text, json_text
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_label_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      ! Never referenced by any connection below - task 3.4's "no
+      ! cached proxy" case: must produce no map entry, not an error.
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'R'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='T')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      label_map = gb%build_label_map(parent_meta, status)
+      @assert_that(status, is(0))
+
+      dot_text = export_graph_dot(parent_meta%get_component_graph(), rc=status, label_map=label_map)
+      @assert_that(status, is(0))
+      @assertTrue(index(dot_text, 'label="child_src:T", kind="StateItemNode", payload="NOTFOUND", shape="doublecircle"') > 0)
+      @assertTrue(index(dot_text, 'label="child_dst:T", kind="StateItemNode", payload="NOTFOUND", shape="doublecircle"') > 0)
+      ! child_dst:R was never referenced by the connection - no cached
+      ! proxy exists for it at all, so no label mentions it.
+      @assertFalse(index(dot_text, 'child_dst:R') > 0)
+
+      json_text = export_graph_json(parent_meta%get_component_graph(), rc=status, label_map=label_map)
+      @assert_that(status, is(0))
+      @assertTrue(index(json_text, '"label": "child_src:T", "proxy": true') > 0)
+      @assertTrue(index(json_text, '"label": "child_dst:T", "proxy": true') > 0)
+      @assertFalse(index(json_text, 'child_dst:R') > 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_build_label_map_labels_child_proxy
 
 end module Test_GraphBuilder

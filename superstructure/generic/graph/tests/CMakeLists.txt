@@ -24,6 +24,7 @@ set(test_srcs
   Test_PortId.pf
   Test_CallbackInterfaceId.pf
   Test_NodeIdMapCompatibility.pf
+  Test_NodeIdLabelMap.pf
   Test_GraphNodeHierarchy.pf
   Test_GraphStateItem.pf
   Test_NodeRevision.pf
