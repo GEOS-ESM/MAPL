@@ -44,16 +44,22 @@ module mapl_GraphStateItem_mod
    private
 
    public :: GraphStateItem
-   public :: ESMF_StateItem_Flag
-   public :: ESMF_STATEITEM_FIELD
-   public :: ESMF_STATEITEM_FIELDBUNDLE
-   public :: ESMF_STATEITEM_STATE
-   public :: ESMF_STATEITEM_NOTFOUND
-   public :: MAPL_StateItem_Flag
+   ! operator(==)/operator(/=) are the one legitimate exception to "don't
+   ! re-export a use-associated name": they are Fortran's own idiom for
+   ! merging a generic across module boundaries, and every consumer that
+   ! needs to compare an MAPL_StateItem_Flag/ESMF_StateItem_Flag reached
+   ! through this module needs the merged generic, not just this
+   ! module's own (nonexistent) specific procedure. Every other name
+   ! below was previously re-exported too (ESMF_StateItem_Flag/
+   ! ESMF_STATEITEM_*, MAPL_StateItem_Flag, StateItemMemberMap*) - real
+   ! plain-name re-exports of another module's own entity, not an
+   ! operator-merge case, and Intel's compiler correctly rejects that
+   ! when a client also reaches the same entity through its true
+   ! defining module (icc/ifx error #6405). Removed; callers now import
+   ! those directly from ESMF/mapl_StateItemFlag_mod/
+   ! mapl_StateItemMemberMap_mod instead.
    public :: operator(==)
    public :: operator(/=)
-   public :: StateItemMemberMap
-   public :: StateItemMemberMapIterator
 
    type :: GraphStateItem
       private

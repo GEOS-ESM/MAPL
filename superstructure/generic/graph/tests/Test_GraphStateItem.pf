@@ -1,18 +1,17 @@
 module Test_GraphStateItem
-   use mapl_GraphStateItem_mod, only: GraphStateItem, ESMF_StateItem_Flag, &
-                             ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
-                             ESMF_STATEITEM_STATE, &
-                             ESMF_STATEITEM_NOTFOUND, MAPL_StateItem_Flag, operator(==), &
-                             StateItemMemberMap
+   use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
                                      MAPL_STATEITEM_STATE, MAPL_STATEITEM_ROUTEHANDLE, &
-                                     MAPL_STATEITEM_GEOM, operator(==)
+                                     MAPL_STATEITEM_GEOM, MAPL_StateItem_Flag, operator(==)
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_StateItemVariantInfo_mod, only: set_variant
    use StateItemTestSupport_mod, only: make_test_field, make_test_field_bundle, &
                                         make_test_state, make_test_route_handle
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_State, ESMF_RouteHandle, &
                    ESMF_RouteHandleIsCreated
+   use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
+                   ESMF_STATEITEM_STATE, ESMF_STATEITEM_NOTFOUND
    use funit
    implicit none
 

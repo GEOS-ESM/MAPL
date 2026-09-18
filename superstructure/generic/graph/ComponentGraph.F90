@@ -61,7 +61,8 @@ module mapl_ComponentGraph_mod
    use mapl_OperationGraphNode_mod, only: OperationGraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
-   use mapl_TransformGraphNode_mod, only: TransformGraphNode, PortSpec
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_PortSpec_mod, only: PortSpec
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_NodeIdSet_mod
    use mapl_NodeIdGraphNodeMap_mod
@@ -157,8 +158,32 @@ module mapl_ComponentGraph_mod
       module procedure new_ComponentGraph
    end interface ComponentGraph
 
-   ! update()'s implementation (recursive graph traversal, REQ-REV-005..
-   ! 007) lives in a separate file/submodule
+   ! One explicit-stack frame for graph_update's iterative traversal
+   ! (mapl_ComponentGraph_DemandDrivenUpdate_smod, below) - not itself
+   ! part of ComponentGraph's own public API. Deliberately declared here
+   ! in the ancestor module rather than inside that submodule: this is
+   ! the only submodule anywhere in this codebase that would otherwise
+   ! declare its own module-level derived type, and doing so triggered a
+   ! shared-library symbol-versioning gap under ifx (the auto-generated
+   ! .so version script had no entry for the type's compiler-generated
+   ! descriptor symbol, whose name encodes both the ancestor module and
+   ! submodule - `ld: version node not found for symbol ...@..._UPDATEFRAME`).
+   ! Every other submodule in the codebase only implements interface
+   ! bodies, never declares its own types - matching that established,
+   ! universally-working pattern here avoids relying on an apparently
+   ! untested corner of the toolchain, rather than chasing the exact
+   ! root cause in ifx/CMake's version-script generation.
+   type :: UpdateFrame
+      type(NodeId) :: node_id
+      class(GraphNode), pointer :: node => null()
+      type(NodeId), allocatable :: predecessor_ids(:)
+      integer :: next_index = 1
+   end type UpdateFrame
+
+   ! update()'s implementation (post-order dependency-graph traversal,
+   ! REQ-REV-005..007 - explicit-stack, not literal Fortran recursion;
+   ! see that submodule's own header comment) lives in a separate
+   ! file/submodule
    ! (mapl_ComponentGraph_DemandDrivenUpdate_smod,
    ! ComponentGraph_DemandDrivenUpdate.F90) rather than inline below,
    ! purely to keep this already-large file from growing further - a
@@ -166,8 +191,7 @@ module mapl_ComponentGraph_mod
    ! purpose (callers see an ordinary `graph%update(...)` type-bound
    ! call; there is no separate public interface to maintain).
    interface
-      module recursive subroutine graph_update(this, network_id, node_id, rc)
-         import :: ComponentGraph, DependencyNetworkId, NodeId
+      module subroutine graph_update(this, network_id, node_id, rc)
          class(ComponentGraph), target, intent(in) :: this
          type(DependencyNetworkId), intent(in) :: network_id
          type(NodeId), intent(in) :: node_id

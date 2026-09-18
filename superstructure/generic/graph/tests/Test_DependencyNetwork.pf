@@ -236,19 +236,27 @@ contains
       type(NodeIdSet), target :: valid_ids
       integer :: status
 
+      print*,__FILE__,__LINE__
       a = gen%next()
       b = gen%next()
       c = gen%next()
 
+      print*,__FILE__,__LINE__
       call net%add_dependency(a, b, rc=status)
       call net%add_dependency(b, c, rc=status)
 
+      print*,__FILE__,__LINE__
       call valid_ids%insert(a)
+      print*,__FILE__,__LINE__
       call valid_ids%insert(b)
+      print*,__FILE__,__LINE__
       call valid_ids%insert(c)
+      print*,__FILE__,__LINE__
 
       call net%validate(rc=status, valid_ids=valid_ids)
+      print*,__FILE__,__LINE__
       @assertEqual(0, status)
+      print*,__FILE__,__LINE__
    end subroutine test_validate_passes_for_valid_network
 
    ! REQ-DEP-007 item 2: validate() rejects a NodeId not present in the

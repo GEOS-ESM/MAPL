@@ -102,10 +102,19 @@ module mapl_GraphBuilder_mod
    use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID
    use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
-   use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
+   use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
+        materialize_extensions_enabled
+   use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
+        MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_BRACKET, &
+        MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_EXPRESSION
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_CENTER, &
+        VERTICAL_STAGGER_NONE, operator(==)
    use pflogger, only: Logger
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, &
         ESMF_STATEINTENT_EXPORT
+   use esmf, only: ESMF_Geom, ESMF_StateItem_Flag
    use esmf, only: operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -412,7 +421,7 @@ contains
    ! invoke GENERIC_INIT_ACCEPT_TRANSFER (and hence this) more than once
    ! per component within a single Initialize sequence - legacy's own
    ! MatchConnection%connect()/SimpleConnection%connect()
-   ! (superstructure/generic/connection/*.F90) guard against exactly this
+   ! (superstructure/generic/connection/ *.F90) guard against exactly this
    ! with a per-connection `consumed` flag. GraphBuilder has no equivalent
    ! per-connection state to reuse, so it guards at the graph level
    ! instead: once this component's graph is frozen, every ordinary
@@ -518,6 +527,7 @@ contains
          type(CharacteristicMap), target :: export_characteristics, import_characteristics
          type(CharacteristicId), allocatable :: mismatched(:)
          character(:), allocatable :: unsupported_characteristic
+         character(:), allocatable :: materialization_failure
 
          import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
               ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
@@ -555,6 +565,25 @@ contains
             call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
                  ':' // unsupported_characteristic)
             _RETURN(_SUCCESS)
+         end if
+
+         ! extension-registry-visibility change, task groups 1-3: chain
+         ! *structure* above is unconditional (unaffected by the gate,
+         ! exactly as 3c left it) - only the real FieldCreate-based
+         ! payload materialization step is gated. Off (the default): the
+         ! extension item keeps 3c's own unallocated placeholder payload,
+         ! zero behavior change from today.
+         if (materialize_extensions_enabled()) then
+            call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, var_spec, &
+                 this_graph, final_node_id, materialization_failure, _RC)
+            if (materialization_failure /= '') then
+               ! Distinguishable from both "no matching export" and
+               ! "unregistered characteristic fails loudly" above (spec
+               ! "A non-field item class fails explicitly").
+               call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
+                    ':' // materialization_failure)
+               _RETURN(_SUCCESS)
+            end if
          end if
 
          call this_graph%add_dependency(net_id, final_node_id, import_node_id, _RC)
@@ -679,6 +708,205 @@ contains
       _RETURN(_SUCCESS)
    end function component_spec_for
 
+   ! extension-registry-visibility change (design.md Finding 5/Decisions
+   ! "Geom/vgrid resolution order"): same is_self()-gated shape as
+   ! component_spec_for() above, but returning the owning
+   ! OuterMetaComponent object itself (not just its ComponentSpec) - the
+   ! geom/vertical_grid component-wide defaults
+   ! (has_geom()/get_geom()/get_vertical_grid()) live on OuterMetaComponent,
+   ! not ComponentSpec. The child-name case delegates to
+   ! OuterMetaComponent's own get_child_outer_meta() (REQ-GB-002
+   ! carve-out, same as get_child_component_spec/get_child_component_graph)
+   ! rather than re-deriving the get_child()->get_gridcomp()->
+   ! get_outer_meta() reach here.
+   function component_for(this, comp_name, rc) result(comp_meta)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: comp_name
+      integer, optional, intent(out) :: rc
+      class(OuterMetaComponent), pointer :: comp_meta
+
+      integer :: status
+
+      comp_meta => null()
+
+      if (is_self(this, comp_name)) then
+         comp_meta => this
+         _RETURN(_SUCCESS)
+      end if
+
+      comp_meta => this%get_child_outer_meta(comp_name, _RC)
+
+      _RETURN(_SUCCESS)
+   end function component_for
+
+   ! extension-registry-visibility change, task groups 2/3: when the
+   ! materialization gate (mapl_ExtensionResolution_mod) is enabled,
+   ! give a resolved units-mismatch extension chain's final item a real,
+   ! allocated ESMF_Field for a Field-typed export/import pair (design.md
+   ! Decisions - "Materialize a real Field natively via FieldCreate"), or
+   ! report an explicit, distinguishable failure_reason (empty string on
+   ! success) for anything this capability cannot materialize a payload
+   ! for - a non-Field item class on either side (design.md Decisions
+   ! "Scope limited to Field-typed items"), or an unresolvable geom
+   ! (design.md Decisions "Geom/vgrid resolution order" case (c)).
+   subroutine try_materialize_field_extension(this, export_comp_name, export_var_spec, import_var_spec, &
+        graph, node_id, failure_reason, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: export_comp_name
+      type(VariableSpec), intent(in) :: export_var_spec
+      type(VariableSpec), intent(in) :: import_var_spec
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      character(:), allocatable, intent(out) :: failure_reason
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(OuterMetaComponent), pointer :: export_meta
+      type(ESMF_Geom) :: geom
+      logical :: has_geom
+      class(VerticalGrid), allocatable :: vgrid
+      type(VerticalStaggerLoc) :: vert_staggerloc
+
+      failure_reason = ''
+
+      if (.not. (export_var_spec%itemType == MAPL_STATEITEM_FIELD)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(export_var_spec%itemType)
+         _RETURN(_SUCCESS)
+      end if
+      if (.not. (import_var_spec%itemType == MAPL_STATEITEM_FIELD)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(import_var_spec%itemType)
+         _RETURN(_SUCCESS)
+      end if
+      _ASSERT(allocated(import_var_spec%units), 'GraphBuilder: materialization reached with no import units - internal inconsistency')
+
+      export_meta => component_for(this, export_comp_name, _RC)
+
+      call resolve_export_geom(export_var_spec, export_meta, geom, has_geom, _RC)
+      if (.not. has_geom) then
+         ! design.md Decisions "Geom/vgrid resolution order" case (c):
+         ! neither the VariableSpec nor the owning OuterMetaComponent has
+         ! a concrete geom - distinguishable from both the "unsupported
+         ! item class" case above and 3c's own "unregistered
+         ! characteristic fails loudly."
+         failure_reason = 'unresolved_geom'
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Vertical grid is optional (a 2D field legitimately has none,
+      ! same as FieldCreate's own optional vgrid argument) - unlike geom,
+      ! its absence is not a failure. When present, a vert_staggerloc is
+      ! required alongside it (FieldCreate's own contract); default to
+      ! CENTER when the export's own VariableSpec does not say otherwise
+      ! (VariableSpec.F90's own make_VerticalGridAspect precedent).
+      call resolve_export_vgrid(export_var_spec, export_meta, vgrid)
+      if (allocated(vgrid)) then
+         vert_staggerloc = VERTICAL_STAGGER_CENTER
+         if (allocated(export_var_spec%vertical_stagger)) vert_staggerloc = export_var_spec%vertical_stagger
+
+         call materialize_field_extension(graph, node_id, geom=geom, typekind=export_var_spec%typekind, &
+              units=import_var_spec%units, ungridded_dims=export_var_spec%ungridded_dims, &
+              vgrid=vgrid, vert_staggerloc=vert_staggerloc, _RC)
+      else
+         call materialize_field_extension(graph, node_id, geom=geom, typekind=export_var_spec%typekind, &
+              units=import_var_spec%units, ungridded_dims=export_var_spec%ungridded_dims, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine try_materialize_field_extension
+
+   ! design.md Decisions "Geom/vgrid resolution order": (a) the export's
+   ! own VariableSpec%geom if explicitly allocated (HistoryCollection-
+   ! style explicit override), else (b) the owning OuterMetaComponent's
+   ! component-wide default via its existing public has_geom()/get_geom()
+   ! accessors (the same fallback advertise_variable.F90 already applies
+   ! to every VariableSpec), else (c) not found - no cross-component
+   ! mirror propagation (that remains a distinct, future capability).
+   subroutine resolve_export_geom(var_spec, owner, geom, found, rc)
+      type(VariableSpec), intent(in) :: var_spec
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      type(ESMF_Geom), intent(out) :: geom
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      found = .false.
+
+      if (allocated(var_spec%geom)) then
+         geom = var_spec%geom
+         found = .true.
+         _RETURN(_SUCCESS)
+      end if
+
+      if (owner%has_geom()) then
+         geom = owner%get_geom(_RC)
+         found = .true.
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_export_geom
+
+   ! Same priority order as resolve_export_geom() above, for the
+   ! vertical grid - but unlike geom, "not found" here means "no vertical
+   ! dimension" (a legitimate 2D field), not a failure; see
+   ! try_materialize_field_extension()'s own comment. An explicit
+   ! `vertical_stagger == VERTICAL_STAGGER_NONE` (the parser's own
+   ! `vertical_dim_spec: NONE`, VariableSpec.F90) is this VariableSpec's
+   ! own explicit declaration that the field has no vertical dimension
+   ! at all - honored ahead of the component-wide default so a 2D field
+   ! declared inside an otherwise-3D-capable component is not
+   ! mistakenly given that component's own vertical grid.
+   subroutine resolve_export_vgrid(var_spec, owner, vgrid)
+      type(VariableSpec), intent(in) :: var_spec
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      class(VerticalGrid), allocatable, intent(out) :: vgrid
+
+      class(VerticalGrid), pointer :: component_vgrid
+
+      if (allocated(var_spec%vertical_stagger)) then
+         if (var_spec%vertical_stagger == VERTICAL_STAGGER_NONE) return
+      end if
+
+      if (allocated(var_spec%vertical_grid)) then
+         vgrid = var_spec%vertical_grid
+         return
+      end if
+
+      component_vgrid => owner%get_vertical_grid()
+      if (associated(component_vgrid)) vgrid = component_vgrid
+   end subroutine resolve_export_vgrid
+
+   ! Human-readable item-class name for an unsupported-item-class failure
+   ! message (design.md Decisions "Scope limited to Field-typed items")
+   ! - distinguishes which non-Field class was encountered, mirroring
+   ! VariableSpec.F90's own %itemType%ot select-case precedent
+   ! (make_ClassAspect).
+   function itemtype_name(item_type) result(name)
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
+      character(:), allocatable :: name
+
+      select case (item_type%ot)
+      case (MAPL_STATEITEM_FIELD%ot)
+         name = 'FIELD'
+      case (MAPL_STATEITEM_FIELDBUNDLE%ot)
+         name = 'FIELDBUNDLE'
+      case (MAPL_STATEITEM_VECTOR%ot)
+         name = 'VECTOR'
+      case (MAPL_STATEITEM_VECTORBRACKET%ot)
+         name = 'VECTORBRACKET'
+      case (MAPL_STATEITEM_BRACKET%ot)
+         name = 'BRACKET'
+      case (MAPL_STATEITEM_STATE%ot)
+         name = 'STATE'
+      case (MAPL_STATEITEM_SERVICE%ot)
+         name = 'SERVICE'
+      case (MAPL_STATEITEM_EXPRESSION%ot)
+         name = 'EXPRESSION'
+      case default
+         name = 'UNKNOWN'
+      end select
+   end function itemtype_name
+
    ! Resolves a (component, intent, short_name) reference to a NodeId in
    ! THIS component's own graph:
    !  - "<self>"/this's own name: the item's own NodeId (must already
@@ -713,8 +941,7 @@ contains
 
       if (is_self(this, comp_name)) then
          existing => this_graph%get_resource_index(item_id_key)
-         _ASSERT(associated(existing), &
-              'GraphBuilder: connection references an item this component never advertised: ' // short_name)
+         _ASSERT(associated(existing), 'GraphBuilder: connection references an item this component never advertised: ' // short_name)
          node_id = existing
          _RETURN(_SUCCESS)
       end if
@@ -728,8 +955,7 @@ contains
 
       child_graph => this%get_child_component_graph(comp_name, _RC)
       child_item_id => child_graph%get_resource_index(item_id_key)
-      _ASSERT(associated(child_item_id), &
-           'GraphBuilder: connection references an item child "' // comp_name // '" never advertised: ' // short_name)
+      _ASSERT(associated(child_item_id), 'GraphBuilder: connection references an item child "' // comp_name // '" never advertised: ' // short_name)
 
       node_id = this_graph%next_node_id(_RC)
       proxy_node = StateItemNode(node_id, payload, revision)

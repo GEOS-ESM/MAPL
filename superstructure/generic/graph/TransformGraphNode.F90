@@ -30,8 +30,9 @@ module mapl_TransformGraphNode_mod
    use mapl_OperationGraphNode_mod, only: OperationGraphNode
    use mapl_BaseGraphNode_mod, only: BaseGraphNode
    use mapl_NodeId_mod, only: NodeId
-   use mapl_Transform_mod, only: Transform, PortSpec, PortSpecMap, PortSpecMapIterator, &
-                                   operator(==), operator(/=)
+   use mapl_Transform_mod, only: Transform, operator(==), operator(/=)
+   use mapl_PortSpec_mod, only: PortSpec
+   use mapl_PortSpecMap_mod, only: PortSpecMap, PortSpecMapIterator
    use mapl_PortNameRevisionMap_mod
    use mapl_NodeRevision_mod, only: NodeRevision, operator(==), operator(/=)
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
@@ -40,12 +41,7 @@ module mapl_TransformGraphNode_mod
    private
 
    public :: TransformGraphNode
-   public :: Transform
-   public :: PortSpec
-   public :: PortSpecMap
-   public :: PortSpecMapIterator
-   public :: PortNameRevisionMap
-   public :: PortNameRevisionMapIterator
+
    ! Re-exported so that a client (e.g.
    ! mapl_ComponentGraph_DemandDrivenUpdate_smod) importing
    ! PortSpecMapIterator/PortNameRevisionMapIterator from this module can
