@@ -31,3 +31,8 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 42. Test of Historys ability to output monthly and djf averages
 43. Test of Historys ability to output daily averge and modify on a per-variable basis the units, averaging type, and precision
 44. Test ExtData file-read logging: enable log_files_read in extdata config, run a 2-step case where step 1 generates and writes files and step 2 reads them with logging enabled, then compare the generated log against a golden reference file
+45. Test ExtData routing through AsyncInputServer in synchronous-fallback mode; intended as the baseline YAML case for future cluster-side asynchronous input-server experiments
+46. Test AsyncInputServer cache-hit path by routing two identical ExtData slab requests through the same local async reader and checking the duplicate imports remain equal
+47. Test selector-aware AsyncInputServer no-interpolation lookahead with an irregular 2.5-hour model timestep while keeping duplicate ExtData imports equal and verifying the file-read log
+48. Test AsyncInputServer time-interpolation path across multiple sampled times by routing duplicate imports through the async server and logging which source files are consumed
+49. Test AsyncInputServer time-interpolation rollover behavior across a bracket boundary with one reader captain and two workers reading distinct file families
