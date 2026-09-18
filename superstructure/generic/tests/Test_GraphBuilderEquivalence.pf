@@ -32,6 +32,12 @@ module Test_GraphBuilderEquivalence
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_FieldGet_mod, only: FieldGet
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_Generic_api, only: mapl_GridCompCreate, mapl_GenericSetServices
    use esmf
@@ -40,6 +46,24 @@ module Test_GraphBuilderEquivalence
    implicit none(type, external)
 
 contains
+
+   ! Test-only helper (mirrors Test_GraphBuilder.pf's own private copy):
+   ! the extension chain's final item is the sole predecessor of the
+   ! import proxy (GraphBuilder.F90's own resolve_one, its last
+   ! add_dependency call).
+   function single_predecessor(net, node) result(pred_id)
+      type(DependencyNetwork), intent(in) :: net
+      type(NodeId), intent(in) :: node
+      type(NodeId) :: pred_id
+
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+
+      preds = net%get_predecessors(node)
+      iter = preds%ftn_begin()
+      call iter%next()
+      pred_id = iter%of()
+   end function single_predecessor
 
    ! Real (DSO-backed) end-to-end run of scenarios/graphbuilder_equivalence,
    ! mirroring Test_Scenarios.pf's own Scenario%setup for the
@@ -167,7 +191,13 @@ contains
 
       type(ComponentGraph), pointer :: cap_graph
       type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(NodeId) :: extension_id
       type(DependencyNetwork), pointer :: net
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: extension_payload
+      type(ESMF_Field) :: extension_field
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      character(:), allocatable :: got_units
 
       call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
 
@@ -185,6 +215,20 @@ contains
       importState = ESMF_StateCreate(_RC)
       exportState = ESMF_StateCreate(_RC)
 
+      ! Task 6.7: gate enabled for this fixture's own real (DSO-backed)
+      ! init sequence - GraphBuilder's own extension chain (built during
+      ! GENERIC_INIT_ACCEPT_TRANSFER, inside this phase loop) should also
+      ! get a real, correctly-shaped field, decision parity with the
+      ! legacy oracle above (design.md Risks - "assert *decision* parity
+      ! ... not byte-for-byte parity with a legacy field that no longer
+      ! exists in this code path"). comp_src's own geom/vertical_grid
+      ! here come from cap's real geometry section propagated down via
+      ! propagate_geom_to_children (design.md Decisions case (b)) - not
+      ! an explicit per-VariableSpec override - the common-case path
+      ! Finding 5 describes, exercised end-to-end for the first time by
+      ! this fixture.
+      call set_materialize_extensions(.true.)
+
       do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
          associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
             call ESMF_GridCompInitialize(cap_gc, &
@@ -193,6 +237,8 @@ contains
             @assert_that(user_status, is(0))
          end associate
       end do
+
+      call set_materialize_extensions(.false.)
 
       ! --- Legacy-coupler oracle: still resolves the mismatched
       ! connection to a real ESMF field on comp_dst's import, via the
@@ -225,6 +271,28 @@ contains
       @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(false()))
       @assert_that(net%has_successors(t_export_proxy), is(true()))
       @assert_that(net%has_predecessors(t_import_proxy), is(true()))
+
+      ! Task 6.7: the graph-side extension item is real and
+      ! correctly-shaped (units = the import's own required 'km') when
+      ! the gate is enabled - decision parity with the legacy oracle
+      ! above, not byte-for-byte field identity with it.
+      extension_id = single_predecessor(net, t_import_proxy)
+      node => cap_graph%get_node(extension_id)
+      select type (node)
+      class is (StateItemNode)
+         extension_payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(extension_payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+      @assertEqual(0, status)
+
+      extension_field = extension_payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call FieldGet(extension_field, typekind=got_typekind, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R4)
+      @assertEqual('km', got_units)
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(src_meta)
