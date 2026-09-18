@@ -14,17 +14,22 @@ contains
 
       class(GeomFactory), pointer :: factory
       integer :: status
+      integer :: i
+      logical :: found
 
       geom_spec = NULL_GEOM_SPEC
-      factory => find_factory(this%factories, supports_metadata, _RC)
+      found = .false.
+      do i = 1, this%factories%size()
+         factory => this%factories%of(i)
+         if (factory%supports(file_metadata)) then
+            found = .true.
+            exit
+         end if
+      end do
+      _ASSERT(found, 'No factory supports file metadata.')
       geom_spec = factory%make_spec(file_metadata, _RC)
-      
+
       _RETURN(_SUCCESS)
-   contains
-      logical function supports_metadata(factory)
-         class(GeomFactory), intent(in) :: factory
-         supports_metadata = factory%supports(file_metadata)
-      end function supports_metadata
    end function make_geom_spec_from_metadata
 
 end submodule make_geom_spec_from_metadata_smod

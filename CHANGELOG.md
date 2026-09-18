@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Avoided passing the HConfig geometry-factory predicate as an internal
+  procedure callback, fixing a Flang 23 crash on hardened macOS systems; see
+  [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
+- Avoided passing the file-metadata geometry-factory predicate as an internal
+  procedure callback, preventing the same Flang 23 crash in metadata-based
+  geometry creation; see [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
 - Extended History and StatisticsGridComp so one can take average, min, max, accumulation, and variance for vectors
 - Fixed Generic components created through direct SetServices to inherit their parent VM, preventing communicator-context exhaustion during repeated setup.
 - Fixed corrupted cubed-sphere coordinate endpoints in NAG-generated output
