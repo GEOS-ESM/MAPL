@@ -8,8 +8,6 @@ module mapl_HistoryGridComp_mod
     use mapl_HistoryCollectionGridComp_mod, only: collection_setServices => setServices
     use mapl_StatisticsGridComp_mod, only: statistics_setServices => setServices
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_OUTPUT_SERVER
-    use pFIO_AbstractSocketMod
-    use pFIO_SimpleSocketMod, only: SimpleSocket
     use pFlogger, only: logger
 
    implicit none(type,external)
@@ -178,7 +176,6 @@ contains
 
       integer :: status
       class(ClientThread), pointer :: o_client
-      class(AbstractSocket), pointer :: connection
       type(HistoryGridComp), pointer :: history
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE, history)
@@ -187,13 +184,7 @@ contains
 
       o_client => mapl_get_client(history%server_name, _RC)
       call o_client%done_collective_stage()
-      connection => o_client%get_connection(_RC)
-      select type (connection)
-      type is (SimpleSocket)
-         ! Local SimpleSocket stage requests complete synchronously.
-      class default
-         call o_client%post_wait_all()
-      end select
+      call o_client%post_wait_all()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)

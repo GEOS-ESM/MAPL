@@ -6,15 +6,10 @@ add_pfunit_ctest(MAPL.mapl.server_utilities
   EXTRA_INITIALIZE Initialize
   EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  MAX_PES 1
+  MAX_PES 2
 )
 set_target_properties(MAPL.mapl.server_utilities PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 target_include_directories(MAPL.mapl.server_utilities PRIVATE
   ${esma_include}/MAPL ${MAPL_SOURCE_DIR}/include)
 set_tests_properties(MAPL.mapl.server_utilities PROPERTIES LABELS "ESSENTIAL")
-
-if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
-  set_tests_properties(MAPL.mapl.server_utilities PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
-endif()
-
 add_dependencies(build-tests MAPL.mapl.server_utilities)

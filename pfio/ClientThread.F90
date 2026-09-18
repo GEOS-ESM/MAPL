@@ -4,7 +4,6 @@
 module pFIO_ClientThreadMod
 
    use mapl_ErrorHandling_mod
-   use, intrinsic :: iso_fortran_env, only: REAL64
    use pFIO_AbstractMessageMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractRequestHandleMod
@@ -201,7 +200,6 @@ contains
 
       integer :: request_id
       class (AbstractMessage), allocatable :: handshake_msg
-      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -217,8 +215,7 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the get call iRecv
-        handle = connection%get(id, data_reference)
-        call this%insert_RequestHandle(id, handle)
+        call this%insert_RequestHandle(id, connection%get(id, data_reference))
       end associate
       _RETURN(_SUCCESS)
    end function prefetch_data
@@ -277,7 +274,6 @@ contains
       integer :: request_id
 
       class (AbstractMessage), allocatable :: handshake_msg
-      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -296,8 +292,7 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the get call iRecv
-        handle = connection%get(id, data_reference)
-        call this%insert_RequestHandle(id, handle)
+        call this%insert_RequestHandle(id, connection%get(id, data_reference))
       end associate
 
       _RETURN(_SUCCESS)
@@ -318,7 +313,6 @@ contains
 
       integer :: request_id
       class (AbstractMessage), allocatable :: handshake_msg
-      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -352,7 +346,6 @@ contains
 
       integer :: request_id
       class (AbstractMessage), allocatable :: handshake_msg
-      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -368,8 +361,7 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the put call iSend
-        handle = connection%put(id, data_reference)
-        call this%insert_RequestHandle(id, handle)
+        call this%insert_RequestHandle(id, connection%put(id, data_reference))
       end associate
       _RETURN(_SUCCESS)
    end function stage_data
@@ -390,7 +382,6 @@ contains
       integer :: request_id
 
       class (AbstractMessage), allocatable :: handshake_msg
-      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
       integer :: status
 
@@ -408,8 +399,7 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the put call iSend
-        handle = connection%put(id, data_reference)
-        call this%insert_RequestHandle(id, handle)
+        call this%insert_RequestHandle(id, connection%put(id, data_reference))
       end associate
 
       _RETURN(_SUCCESS)
@@ -428,7 +418,6 @@ contains
       integer :: status
 
       class (AbstractMessage), allocatable :: handshake_msg
-      class (AbstractRequestHandle), allocatable :: handle
       class(AbstractSocket),pointer :: connection
 
       request_id = this%get_unique_collective_request_id()
@@ -443,8 +432,7 @@ contains
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
         ! the put call iSend
-        handle = connection%put(id, data_reference)
-        call this%insert_RequestHandle(id, handle)
+        call this%insert_RequestHandle(id, connection%put(id, data_reference))
       end associate
       _RETURN(_SUCCESS)
    end function stage_nondistributed_data

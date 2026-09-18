@@ -132,5 +132,5 @@ set_tests_properties(pFIO_tests_mpi_2group PROPERTIES PROCESSORS 18 RESOURCE_LOC
 
 add_dependencies(build-tests MAPL.pfio.tests)
 add_dependencies(build-tests ${TESTO})
-add_dependencies(build-tests ${READER_LIFECYCLE_TEST})
 add_dependencies(build-tests pfio_writer.x)
+

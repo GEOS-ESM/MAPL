@@ -13,7 +13,7 @@ module mapl_DataSetBracket_mod
       type(DataSetNode) :: right_node
       logical          :: time_interpolation= .true.
        contains
-          procedure :: compute_bracket_weights 
+          procedure :: compute_bracket_weights
           procedure :: time_in_bracket
           procedure :: set_parameters
           procedure :: get_left_node

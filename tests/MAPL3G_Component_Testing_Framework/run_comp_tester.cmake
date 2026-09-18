@@ -19,18 +19,13 @@ macro(run_case CASE DESCRIPTION)
 			 execute_process(
 				COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MPIEXEC_PREFLAGS} ${MY_BINARY_DIR}/GEOS.x ${line}
 				RESULT_VARIABLE CMD_RESULT
-				OUTPUT_VARIABLE CMD_OUTPUT
-				ERROR_VARIABLE CMD_ERROR
 				WORKING_DIRECTORY ${tempdir}
 				)
 			 if(CMD_RESULT)
-				 message(STATUS "${CASE}: preserving failed case directory ${tempdir}")
-				 message(STATUS "${CASE}: GEOS.x stdout:\n${CMD_OUTPUT}")
-				 message(STATUS "${CASE}: GEOS.x stderr:\n${CMD_ERROR}")
 				 if(NOT "${DESCRIPTION}" STREQUAL "")
-					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${line})\nTest Description: ${DESCRIPTION}\nFailed case directory: ${tempdir}")
+					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${line})\nTest Description: ${DESCRIPTION}")
 				 else()
-					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${line})\nFailed case directory: ${tempdir}")
+					 message(FATAL_ERROR "${CASE} FAILED at step ${step_num}/${total_steps} (${line})")
 				 endif()
 			 endif()
 			 math(EXPR step_num "${step_num} + 1")

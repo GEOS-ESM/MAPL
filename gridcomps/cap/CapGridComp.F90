@@ -29,7 +29,7 @@ contains
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-       integer :: status
+      integer :: status
       type(CapGridComp), pointer :: cap
 
       ! Set entry points
@@ -89,9 +89,9 @@ contains
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
-       if (cap%run_extdata) then
-          call MAPL_GridCompRunChild(gridcomp, cap%extdata_name, _RC)
-       end if
+      if (cap%run_extdata) then
+         call MAPL_GridCompRunChild(gridcomp, cap%extdata_name, _RC)
+      end if
       call MAPL_GridCompRunChild(gridcomp, cap%root_name, _RC)
       if (cap%run_history) then
          call MAPL_GridCompRunChild(gridcomp, cap%history_name, phase_name='run', _RC)

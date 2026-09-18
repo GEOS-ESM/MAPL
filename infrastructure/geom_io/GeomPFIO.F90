@@ -3,7 +3,7 @@
 module mapl_GeomPFIO_mod
     use mapl_ErrorHandling_mod
     use ESMF
-    use pfio, only: get_client, ClientThread, StringVariableMap, ArrayReference, FileMetadata, FileMetadata_deserialize, Variable
+    use pfio, only: get_client, ClientThread, StringVariableMap, ArrayReference, FileMetadata, Variable
     use mapl_geom_api
     use mapl_SharedIO_mod
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
@@ -86,21 +86,21 @@ contains
 
    end subroutine update_time_on_server
 
-    subroutine stage_time_to_file(this,filename, times, rc)
-       class(GeomPFIO), intent(inout) :: this
-       character(len=*), intent(in) :: filename
-       real, target, intent(in) :: times(:)
-       integer, optional, intent(out) :: rc
+   subroutine stage_time_to_file(this,filename, times, rc)
+      class(GeomPFIO), intent(inout) :: this
+      character(len=*), intent(in) :: filename
+      real, target, intent(in) :: times(:)
+      integer, optional, intent(out) :: rc
 
       integer :: status
-       type(ArrayReference) :: ref
-       integer :: request_id
-       class(ClientThread), pointer :: client
+      type(ArrayReference) :: ref
+      integer :: request_id
+      class(ClientThread), pointer :: client
 
-        ref = ArrayReference(times)
-        client => get_client(this%output_server_name, _RC)
-        request_id = client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
-       _RETURN(_SUCCESS)
+       ref = ArrayReference(times)
+       client => get_client(this%output_server_name, _RC)
+       request_id = client%stage_nondistributed_data(this%collection_id, filename, 'time', ref, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine
 
@@ -121,7 +121,7 @@ contains
        this%output_server_name = server_name
        client => get_client(this%output_server_name, _RC)
        this%collection_id = client%add_data_collection(metadata, _RC)
-       call clone_file_metadata(metadata, this%file_metadata, _RC)
+       this%file_metadata = metadata
 
       _RETURN(_SUCCESS)
    end subroutine init_with_metadata
@@ -153,31 +153,12 @@ contains
       get_collection_id = this%collection_id
    end function get_collection_id
 
-    function get_file_metadata(this) result(file_metadata)
-       type(FileMetadata) :: file_metadata
-       class(GeomPFIO), intent(in) :: this
+   function get_file_metadata(this) result(file_metadata)
+      type(FileMetadata) :: file_metadata
+      class(GeomPFIO), intent(in) :: this
  
-       integer :: status
-
-       call clone_file_metadata(this%file_metadata, file_metadata, rc=status)
-       if (status /= _SUCCESS) error stop 'GeomPFIO::get_file_metadata failed'
-    end function get_file_metadata
-
-    subroutine clone_file_metadata(source, dest, rc)
-       type(FileMetadata), intent(in) :: source
-       type(FileMetadata), intent(out) :: dest
-       integer, optional, intent(out) :: rc
-
-       integer :: status
-       integer, allocatable :: buffer(:)
-
-       call source%serialize(buffer, rc=status)
-       _VERIFY(status)
-       call FileMetadata_deserialize(buffer, dest, rc=status)
-       _VERIFY(status)
-
-       _RETURN(_SUCCESS)
-    end subroutine clone_file_metadata
+      file_metadata = this%file_metadata
+   end function get_file_metadata
 
    function get_esmf_geom(this) result(esmfgeom)
       type(ESMF_Geom) :: esmfgeom
