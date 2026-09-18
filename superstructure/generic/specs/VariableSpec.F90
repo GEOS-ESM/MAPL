@@ -52,6 +52,8 @@ module mapl_VariableSpec_mod
    use gFTL2_StringVector
    use nuopc
    use mapl_VariableSpec_private_mod
+   use mapl_VariableSpecTag_mod, only: VariableSpecTag
+   use mapl_VariableSpecMemberMap_mod
 
    implicit none
    private
@@ -63,7 +65,16 @@ module mapl_VariableSpec_mod
    ! state item.  This is largely to support legacy interfaces, but it
    ! also allows us to defer interpretation until after user
    ! setservices() have run.
-   type VariableSpec
+   !
+   ! extends(VariableSpecTag): openspec/changes/composite-state-spec,
+   ! design.md Decisions - lets `members` below be a map of VariableSpec
+   ! itself (a composite declaration IS a VariableSpec with itemType ==
+   ! MAPL_STATEITEM_STATE and declared members, each itself an ordinary
+   ! VariableSpec - no separate wrapper type) without a circular module
+   ! dependency. VariableSpecTag is a bare, empty abstract marker with no
+   ! components/deferred procedures - purely additive, no existing
+   ! type(VariableSpec) usage anywhere is affected.
+   type, extends(VariableSpecTag) :: VariableSpec
       ! TODO: delete - move to StateItemSpec
 
       ! Mandatory values:
@@ -141,6 +152,17 @@ module mapl_VariableSpec_mod
       type(StringVector) :: dependencies ! default empty
       logical :: use_field_dictionary = .false.
 
+      !=====================
+      ! composite members (openspec/changes/composite-state-spec)
+      !=====================
+      ! Plain (not allocatable), always present, empty unless populated -
+      ! mirrors GraphStateItem's own state_members_map component shape.
+      ! Meaningful only when itemType == MAPL_STATEITEM_STATE
+      ! (declare_member enforces this at declaration time); a member's
+      ! own short_name field is never read - only the map key is a
+      ! member's identity (design.md Decisions, mirrors REQ-VAL-006).
+      type(VariableSpecMemberMap) :: members
+
    contains
       procedure :: make_virtualPt
       procedure :: make_dependencies
@@ -157,6 +179,11 @@ module mapl_VariableSpec_mod
       procedure :: make_NormalizationAspect
       procedure :: make_VerticalGridAspect
       procedure :: make_ClassAspect
+
+      procedure :: declare_member
+      procedure :: has_member
+      procedure :: get_member
+      procedure :: get_member_names
    end type VariableSpec
 
 contains
@@ -738,6 +765,73 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_ClassAspect
+
+   ! ========================================================================
+   ! Composite member declaration (openspec/changes/composite-state-spec)
+   ! ========================================================================
+
+   ! Asserts this%itemType is already MAPL_STATEITEM_STATE (fails loudly
+   ! otherwise - design.md Decisions: no implicit itemType mutation) and
+   ! that no member is already declared under `name` (spec scenario
+   ! "Duplicate member name at the same level is rejected"), leaving the
+   ! existing entry unchanged on failure. `member`'s own short_name field
+   ! is never read (design.md Decisions, mirrors REQ-VAL-006).
+   subroutine declare_member(this, name, member, rc)
+      class(VariableSpec), intent(inout) :: this
+      character(*), intent(in) :: name
+      type(VariableSpec), intent(in) :: member
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(this%itemType == MAPL_STATEITEM_STATE, &
+           'VariableSpec: declare_member called on a non-STATE itemType')
+      _ASSERT(this%members%count(name) == 0, &
+           'VariableSpec: duplicate member name at this level: '//name)
+
+      call this%members%insert(name, member)
+
+      _RETURN(_SUCCESS)
+   end subroutine declare_member
+
+   logical function has_member(this, name) result(has)
+      class(VariableSpec), intent(in) :: this
+      character(*), intent(in) :: name
+
+      has = (this%members%count(name) > 0)
+   end function has_member
+
+   function get_member(this, name, rc) result(member)
+      class(VariableSpec), target, intent(in) :: this
+      character(*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+      type(VariableSpec) :: member
+
+      class(VariableSpecTag), pointer :: found
+
+      found => this%members%at(name)
+      _ASSERT(associated(found), 'VariableSpec: no member declared with name: '//name)
+
+      select type (found)
+      type is (VariableSpec)
+         member = found
+      class default
+         _FAIL('VariableSpec: member map contains an unexpected VariableSpecTag concrete type')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_member
+
+   function get_member_names(this) result(names)
+      class(VariableSpec), target, intent(in) :: this
+      type(StringVector) :: names
+
+      type(VariableSpecMemberMapIterator) :: iter
+
+      iter = this%members%ftn_begin()
+      do while (iter /= this%members%ftn_end())
+         call iter%next()
+         call names%push_back(iter%first())
+      end do
+   end function get_member_names
 
    subroutine verify_variable_spec(spec, rc)
 

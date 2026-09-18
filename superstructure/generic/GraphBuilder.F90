@@ -84,6 +84,7 @@ module mapl_GraphBuilder_mod
    use mapl_VariableSpec_mod, only: VariableSpec
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator
    use mapl_VariableSpecVector_mod, only: operator(/=)
+   use mapl_CompositeStateMaterialization_mod, only: materialize_composite
    use mapl_Connection_mod, only: Connection
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
    use mapl_ConnectionVector_mod, only: operator(/=)
@@ -217,6 +218,7 @@ contains
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
       type(PortId) :: port_id
+      type(StringVector) :: member_names
 
       key = item_key(var_spec%state_intent, var_spec%short_name)
 
@@ -228,14 +230,26 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      id = graph%next_node_id(_RC)
+      ! openspec/changes/composite-state-spec: a VariableSpec with
+      ! declared members is a composite - build its real, individually
+      ! addressable node tree (mapl_CompositeStateMaterialization_mod)
+      ! instead of the flat, unallocated-payload node below. No other
+      ! branch of this procedure changes: the same identity key,
+      ! resource-index registration, and port registration apply
+      ! uniformly to both cases (design.md Decisions).
+      member_names = var_spec%get_member_names()
+      if (member_names%size() > 0) then
+         id = materialize_composite(graph, var_spec, _RC)
+      else
+         id = graph%next_node_id(_RC)
 
-      ! payload/revision are left default-initialized (no ESMF handle
-      ! allocated, NodeRevision invalid): this item is advertised, not
-      ! yet realized - REALIZE happens in a later init phase this slice
-      ! does not touch (design.md Non-Goals).
-      node = StateItemNode(id, payload, revision)
-      call graph%register_node(node, _RC)
+         ! payload/revision are left default-initialized (no ESMF handle
+         ! allocated, NodeRevision invalid): this item is advertised, not
+         ! yet realized - REALIZE happens in a later init phase this
+         ! slice does not touch (design.md Non-Goals).
+         node = StateItemNode(id, payload, revision)
+         call graph%register_node(node, _RC)
+      end if
       call graph%add_resource_index(key, id, _RC)
 
       if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then

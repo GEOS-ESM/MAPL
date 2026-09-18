@@ -111,9 +111,13 @@ context by construction — no repo-separation saving available here:
   sub-sequencing this phase needs before implementation starts.
 - **Phase 4** — `12` MethodGraphNode + invocation adapters +
   `GriddedComponentDriver` + SetServices lifecycle, `15` callbacks
-  (CallbackInterface/registry/Handler/Invoker), `14` route handles
-  (RouteHandleValue/Key, sharing/renewal), `13` geometry and vertical
-  grids (time-dependent geometry, renewal under freeze).
+  (CallbackInterface/registry/Handler/Invoker), `13` geometry and
+  vertical grids, `14` route handles (RouteHandleValue/Key, sharing).
+  Time-dependent geometry/RouteHandle renewal (§13.4/§14.4) and
+  exchange-component geometry (REQ-GEO-002a) are explicitly deferred
+  out of this phase's initial scope, not silently assumed solved. See
+  §20.4.3 for the sub-sequencing this phase needs before implementation
+  starts.
 - **Phase 5 (speculative/deferred, do not block on these)** — `18`
   StateItemCharacteristic hierarchy, `16` ordinary inout items, Q9
   compiled-execution optimization.
@@ -270,6 +274,84 @@ drop its own "blocked until legacy is retired" follow-up elsewhere:**
   instantiates the legacy type directly from the live
   `StateRegistry_Extensions_smod.F90` dispatch path — load-bearing, not
   dead code.
+
+### 20.4.3 Phase 4 sub-sequencing
+
+Phase 4, like Phase 3 (§20.4.1), does not fit a single spec-driven
+change proposal without an unreasonable context/cost footprint. Unlike
+Phase 3, none of Phase 4 is built yet — no `MethodGraphNode`, no
+`CallbackInterface`/registry beyond an empty `CallbackInterfaceId`
+identity stub, no `RouteHandleValue`/`RouteHandleKey`, no geometry
+`GraphStateItem` handling — so this is greenfield work on top of the
+completed Phase 1–3 foundation, not an extension of partially-built
+Phase 4 code. `17-open-questions.md` Q10 already gives this phase's
+internal ordering rationale (methods/lifecycle first since "phases
+start flowing through the graph" here; callbacks next as new capability
+with no legacy behavior to match; geometry/route-handles last since
+they touch the most existing special-cased code and should wait until
+the graph plumbing around them is well-exercised). Split into seven
+ordered sub-changes:
+
+- **4a. MethodGraphNode + invocation adapters** (`12` REQ-MTH-001/002/
+  004/005/006) — the node type covering both GridComp phase invocation
+  and attached-State-method invocation through one invocation-adapter
+  abstraction (`GridCompMethodInvocation`/`StateMethodInvocation`,
+  `17-open-questions.md` Q2). Synthetic-driver testable, same posture as
+  3a: no real `GriddedComponentDriver` wiring yet, no ESMF component
+  required.
+- **4b. GriddedComponentDriver integration + init lifecycle** (`12`
+  REQ-MTH-007..013) — the stable driver-lookup mechanism (REQ-MTH-009),
+  the trigger/advance discipline around invocation (REQ-MTH-003a), and
+  the full `advertise → modify_advertised → cycle(realize_provided,
+  accept_transfer, realize_accepted) → read_restart → user_specific`
+  ordering (REQ-MTH-011). REQ-MTH-011 step (c)'s convergence algorithm
+  (how progress is detected, iteration-limit behavior, non-convergence
+  handling) is explicitly `[OPEN]` in the spec — this sub-change's
+  design.md MUST resolve it as a planned, up-front design decision
+  before implementation starts, not discover it mid-implementation the
+  way 3b's own real-configuration validation surfaced 3b2 unplanned.
+  First sub-change requiring real `GriddedComponentDriver`/ESMF context;
+  depends on 4a.
+- **4c. Callback data model + registry** (`15` §15.2–15.7) —
+  `CallbackInterface`/`CallbackArgumentSpec`/`CallbackMethodSpec`/
+  `CallbackStateBinding`/`CallbackInterfaceRegistry`. Static and
+  unit-testable, no `GraphBuilder` wiring yet. No new dependency beyond
+  Phase 1–3 — MAY proceed in parallel with 4a/4b if desired, though Q10's
+  stated order (methods before callbacks) is the default assumption.
+- **4d. Callback wiring** (`15` §15.9–15.10) — `GraphBuilder`
+  wildcard/regex expansion against the flattened qualified-export
+  namespace (REQ-CB-016, pattern syntax settled as regex per Q5),
+  per-method `DependencyNetwork`s for get/put argument flow
+  (REQ-CB-018), and the invoke-once-after-all-args-ready discipline
+  (REQ-CB-020). Depends on 4a (binds to a `MethodGraphNode`, REQ-CB-019)
+  and 4c.
+- **4e. Horizontal geometry as GraphStateItem** (`13` §13.1–13.2) —
+  geometry carried as an incomplete `esmf_field` proxy
+  (`ESMF_FIELDSTATUS_GRIDSET`), resolved through ordinary
+  advertise/connect/transform-if-needed rules with no special-case code
+  paths (REQ-GEO-001..003). **Explicit deferral, to be stated in this
+  sub-change's own proposal.md:** REQ-GEO-002a (exchange-component
+  geometry, e.g. `SURF`-style multi-source `XGrid`) and all of §13.4
+  (time-dependent geometry renewal under freeze) are out of scope —
+  static geometry only. Depends on Phase 1–3 only.
+- **4f. VerticalGrid model** (`13` §13.3) — `VerticalGrid` as an
+  `esmf_state`-kind `GraphStateItem` with `variant() ==
+  MAPL_STATEITEM_VERTICALGRID` (REQ-GEO-009), physical-dimension-keyed
+  coordinate sets (REQ-GEO-004/004a), the dimension-adaptability check
+  for mismatched vertical grids (REQ-GEO-007a), and the
+  `ReferenceCharacteristic` link back to horizontal geometry. Depends on
+  4e.
+- **4g. RouteHandleValue/Key** (`14`) — `RouteHandleKey` structure
+  (REQ-RH-002/003), the `RouteHandleKey -> NodeId` semantic index for
+  reuse (REQ-RH-004/005). **Explicit deferral, to be stated in this
+  sub-change's own proposal.md:** §14.4 time-dependent renewal is out of
+  scope — reuse-of-existing-handle case only. Depends on 4e (needs
+  geometry identity to populate `RouteHandleKey`).
+
+**Repo/tooling note (extends §20.4.1's own note).** Phase 4 code lives
+in the MAPL repo/checkout, same as Phase 3, for the same reason: real
+`GriddedComponentDriver`/`OuterComponent`/ESMF context is required from
+4b onward regardless of repo layout.
 
 ## 20.5 Cross-reference
 

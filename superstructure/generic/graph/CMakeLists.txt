@@ -48,6 +48,8 @@ target_sources(MAPL.generic PRIVATE
   UnitsConverterTransform.F90
   ExtensionResolution.F90
   ExtensionMaterialization.F90
+
+  CompositeStateMaterialization.F90
 )
 
 target_include_directories(MAPL.generic PRIVATE

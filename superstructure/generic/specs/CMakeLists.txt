@@ -27,6 +27,8 @@ target_sources(MAPL.generic PRIVATE
   ConservationAspect.F90
   NormalizationAspect.F90
 
+  VariableSpecTag.F90
+  VariableSpecMemberMap.F90
   VariableSpec.F90
   # StateItem.F90 moved to infrastructure/esmf/
   VariableSpecVector.F90
