@@ -36,6 +36,7 @@ set(test_srcs
   Test_GraphExport.pf
   Test_Characteristic.pf
   Test_ExtensionResolution.pf
+  Test_ExtensionMaterialization.pf
   Test_UnitsConverterTransform.pf
 )
 
@@ -45,6 +46,7 @@ add_pfunit_ctest(MAPL.generic.graph
   EXTRA_USE GraphCoreTestInit_mod
   EXTRA_INITIALIZE GraphCoreTest_Initialize
   EXTRA_FINALIZE GraphCoreTest_Finalize
+  MAX_PES 1
 )
 set_tests_properties(MAPL.generic.graph PROPERTIES LABELS "ESSENTIAL")
 # Test_UnitsConvertTransform.pf needs udunits2f initialized

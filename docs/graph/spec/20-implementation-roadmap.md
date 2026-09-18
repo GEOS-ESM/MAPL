@@ -117,6 +117,12 @@ context by construction — no repo-separation saving available here:
 - **Phase 5 (speculative/deferred, do not block on these)** — `18`
   StateItemCharacteristic hierarchy, `16` ordinary inout items, Q9
   compiled-execution optimization.
+- **Phase 6 (cleanup, growable — see §20.4.2)** — retire legacy
+  `StateRegistry`/`ExtensionFamily`/aspect-based coupling once the
+  graph-native paths above are the actual default, plus a running list
+  of small, otherwise-easy-to-lose follow-ups that are blocked on that
+  retirement (e.g. 3c's own `UnitsConverterTransform` ->
+  `ConvertUnitsTransform` rename).
 
 ### 20.4.1 Phase 3 sub-sequencing
 
@@ -219,6 +225,51 @@ standing precedent for one subrepo per major MAPL design element. The
   `docs/graph/spec/` and executable Phase 1-2 requirement subsets under
   `openspec/specs/graph/`; Phase 3 agents should use these local copies
   rather than requiring access to the former standalone core repository.
+
+### 20.4.2 Phase 6: legacy retirement (cleanup phase)
+
+**Purpose:** every sub-change from 3c onward has deliberately kept the
+graph-native path *additive* — real production behavior still runs
+through legacy `StateRegistry`/`ExtensionFamily`/`ClassAspect`/
+`AspectMap` (`superstructure/generic/registry/`,
+`superstructure/generic/specs/*Aspect*.F90`), with the graph-native
+equivalent gated off by default (e.g. `extension-registry-visibility`'s
+`materialize_extensions` flag) or simply not yet wired into the real
+init sequence at all. That additive posture is correct while the graph
+path is still being built out, but it also means a small, growing set
+of otherwise-easy-to-lose follow-ups keeps accumulating — each one
+individually too small to be its own roadmap phase, but genuinely
+blocked until legacy is gone, not merely deferred by choice. Phase 6 is
+where that debt gets paid: (a) retire `StateRegistry`/`ExtensionFamily`/
+the aspect system once the graph-native paths are the *actual* default
+(gates removed, not just flippable) and validated at production scale
+— not attempted piecemeal inside any earlier sub-change; and (b) work
+through the list below once (a) has landed.
+
+**Entry criterion:** do not start (a) until every real production code
+path that currently depends on `StateRegistry`/`StateItemSpec`/
+`make_StateItemSpec`/`make_aspects`/any `ClassAspect` subclass has a
+graph-native replacement that has been validated (not merely built) as
+the default behavior — matching each earlier sub-change's own explicit
+"read-only background reference, never called into" boundary around
+that legacy machinery, now finally made moot by having nothing left
+that needs it.
+
+**Growable list — append here, do not let a future sub-change silently
+drop its own "blocked until legacy is retired" follow-up elsewhere:**
+
+- Rename `UnitsConverterTransform` -> `ConvertUnitsTransform`
+  (`superstructure/generic/graph/UnitsConverterTransform.F90`) once
+  legacy `mapl_ConvertUnitsTransform_mod`
+  (`superstructure/generic/transforms/ConvertUnitsTransform.F90`) is
+  removed — module names share one global namespace, so the two cannot
+  coexist under the same name. Originates from 3c (design.md); tracked
+  as task 7.1 of `extension-registry-visibility`, confirmed still
+  blocked 2026-09-17: legacy `UnitsAspect%make_transform`
+  (`superstructure/generic/specs/UnitsAspect.F90:128`) still
+  instantiates the legacy type directly from the live
+  `StateRegistry_Extensions_smod.F90` dispatch path — load-bearing, not
+  dead code.
 
 ## 20.5 Cross-reference
 
