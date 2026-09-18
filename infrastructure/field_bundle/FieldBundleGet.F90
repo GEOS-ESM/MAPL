@@ -33,7 +33,7 @@ contains
    ! For "bracket" bundles, additional metadata is stored in the info object
 
    subroutine bundle_get(fieldBundle, unusable, &
-        fieldCount, fieldList, geom, vgrid, &
+        short_name, fieldCount, fieldList, geom, vgrid, &
         fieldBundleType, &
                                 ! Bracket specific items
         typekind, interpolation_weights, &
@@ -50,6 +50,7 @@ contains
         rc)
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=:), optional, allocatable, intent(out) :: short_name
       integer, optional, intent(out) :: fieldCount
       type(ESMF_Field), optional, allocatable, intent(out) :: fieldList(:)
       type(ESMF_Geom), allocatable, optional, intent(out) :: geom
@@ -80,6 +81,12 @@ contains
       logical :: has_geom
       integer :: vgrid_id
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      character(len=ESMF_MAXSTR) :: fname
+
+      if (present(short_name)) then
+         call ESMF_FieldBundleGet(fieldBundle, name=fname, _RC)
+         short_name = trim(fname)
+      end if
 
       if (present(fieldCount) .or. present(fieldList)) then
          call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount_, _RC)

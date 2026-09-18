@@ -72,29 +72,36 @@ contains
       type(esmf_HConfigIter), intent(in) :: iter
       integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: action, name
-      type(esmf_StateItem_Flag) :: itemtype
+      character(:), allocatable :: action, name, item_type_char
+      type(esmf_StateItem_Flag) :: item_type
       integer :: status
       type(esmf_HConfig) :: hconfig
 
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
       name = esmf_HConfigAsString(hconfig, keystring='name', _RC)
-
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR,  _RC)
+      item_type_char = esmf_HConfigAsString(hconfig, keystring='itemtype', _RC)
+      if (item_type_char == 'field') then
+         item_type = MAPL_STATEITEM_FIELD
+      else if (item_type_char == 'vector') then
+         item_type = MAPL_STATEITEM_VECTOR
+      else
+         _FAIL("unsupported ESMF_StateItem_Flag requested for statisitcis GC to handle")
+      end if
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR, itemtype=item_type, _RC)
       select case (action)
       case ('average')
-         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
-         call advertise_time_average_internal_fields(gridcomp, name, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)
+         call advertise_time_average_internal_fields(gridcomp, name, item_type, _RC)
       case ('min')
-         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
-         call advertise_time_min_internal_fields(gridcomp, name, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)
+         call advertise_time_min_internal_fields(gridcomp, name, item_type, _RC)
       case ('max')
-         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
-         call advertise_time_max_internal_fields(gridcomp, name, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)
+         call advertise_time_max_internal_fields(gridcomp, name, item_type, _RC)
       case ('accumulate')
-         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
-         call advertise_time_accumulate_internal_fields(gridcomp, name, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)
+         call advertise_time_accumulate_internal_fields(gridcomp, name, item_type, _RC)
       case ('variance')
          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
          call advertise_time_variance_internal_fields(gridcomp, name, _RC)
@@ -145,6 +152,7 @@ contains
          integer :: status
          character(:), allocatable :: name
          type(esmf_Field) :: f_in
+         type(ESMF_FieldBundle) :: b_in
          type(MAPL_StateItemAllocation) :: allocation_status
          type(esmf_StateItem_Flag) :: itemtype
 
@@ -153,8 +161,13 @@ contains
          call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
          _RETURN_IF(itemtype == ESMF_STATEITEM_NOTFOUND)
 
-         call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
-         call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
+         if (itemtype == MAPL_STATEITEM_FIELD) then
+            call mapl_StateGet(importState, itemName=name, field=f_in, _RC)
+            call mapl_FieldGet(f_in, allocation_status=allocation_status, _RC)
+         else if (itemtype == MAPL_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(importState, itemName=name, fieldbundle=b_in, _RC)
+            call MAPL_FieldBundleGet(b_in, allocation_status=allocation_status, _RC)
+         end if
          _RETURN_UNLESS(allocation_status == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
 
          item = make_item(name, iter, clock, _RC)
@@ -210,11 +223,20 @@ contains
 
          integer :: status
          type(esmf_Field) :: f_in, f_out
+         type(ESMF_fieldBundle) :: b_in, b_out
+         type(esmf_StateItem_Flag) :: itemtype
 
-         call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
-         call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+         call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
+         if (itemtype == MAPL_STATEITEM_FIELD) then
+            call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+            average = TimeAverage(gridcomp=gridcomp, f=f_in, avg_f=f_out, alarm=alarm, _RC)
+         else if (itemtype == MAPL_STATEITEM_FIELDBUNDLE) then
+            call esmf_StateGet(importState, itemName=name, fieldbundle=b_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, fieldbundle=b_out, _RC)
+            average = TimeAverage(gridcomp=gridcomp, b=b_in, avg_b=b_out, alarm=alarm, _RC)
+         end if
 
-         average = TimeAverage(gridcomp=gridcomp, f=f_in, avg_f=f_out, alarm=alarm, _RC)
 
          _RETURN(_SUCCESS)
       end function make_average_stat
@@ -228,11 +250,19 @@ contains
 
          integer :: status
          type(esmf_Field) :: f_in, f_out
+         type(ESMF_fieldBundle) :: b_in, b_out
+         type(esmf_StateItem_Flag) :: itemtype
 
-         call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
-         call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
-
-         min_stat = TimeMin(gridcomp=gridcomp, f=f_in, min_f=f_out, alarm=alarm, _RC)
+         call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
+         if (itemtype == MAPL_STATEITEM_FIELD) then
+            call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+            min_stat = TimeMin(gridcomp=gridcomp, f=f_in, min_f=f_out, alarm=alarm, _RC)
+         else if (itemtype == MAPL_STATEITEM_FIELDBUNDLE) then
+            call esmf_StateGet(importState, itemName=name, fieldbundle=b_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, fieldbundle=b_out, _RC)
+            min_stat = TimeMin(gridcomp=gridcomp, b=b_in, min_b=b_out, alarm=alarm, _RC)
+         end if
 
          _RETURN(_SUCCESS)
       end function make_min_stat
@@ -246,11 +276,19 @@ contains
 
          integer :: status
          type(esmf_Field) :: f_in, f_out
+         type(ESMF_fieldBundle) :: b_in, b_out
+         type(esmf_StateItem_Flag) :: itemtype
 
-         call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
-         call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
-
-         max_stat = TimeMax(gridcomp=gridcomp, f=f_in, max_f=f_out, alarm=alarm, _RC)
+         call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
+         if (itemtype == MAPL_STATEITEM_FIELD) then
+            call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+            max_stat = TimeMax(gridcomp=gridcomp, f=f_in, max_f=f_out, alarm=alarm, _RC)
+         else if (itemtype == MAPL_STATEITEM_FIELDBUNDLE) then
+            call esmf_StateGet(importState, itemName=name, fieldbundle=b_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, fieldbundle=b_out, _RC)
+            max_stat = TimeMax(gridcomp=gridcomp, b=b_in, max_b=b_out, alarm=alarm, _RC)
+         end if
 
          _RETURN(_SUCCESS)
       end function make_max_stat
@@ -265,11 +303,19 @@ contains
 
          integer :: status
          type(esmf_Field) :: f_in, f_out
+         type(ESMF_fieldBundle) :: b_in, b_out
+         type(esmf_StateItem_Flag) :: itemtype
 
-         call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
-         call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
-
-         accum_stat = TimeAccumulate(gridcomp=gridcomp, f=f_in, accum_f=f_out, alarm=alarm, _RC)
+         call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
+         if (itemtype == MAPL_STATEITEM_FIELD) then
+            call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+            accum_stat = TimeAccumulate(gridcomp=gridcomp, f=f_in, accum_f=f_out, alarm=alarm, _RC)
+         else if (itemtype == MAPL_STATEITEM_FIELDBUNDLE) then
+            call esmf_StateGet(importState, itemName=name, fieldbundle=b_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, fieldbundle=b_out, _RC)
+            accum_stat = TimeAccumulate(gridcomp=gridcomp, b=b_in, accum_b=b_out, alarm=alarm, _RC)
+         end if
 
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(iter)

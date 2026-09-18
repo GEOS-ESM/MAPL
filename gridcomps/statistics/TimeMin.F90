@@ -14,9 +14,12 @@ module mapl_TimeMin_mod
 
    type, extends(AbstractTimeStatistic) :: TimeMin
       private
+      logical :: is_bundle = .false.
        type(MAPL_SimpleAlarm) :: alarm
        type(esmf_Field) :: f      ! input
       type(esmf_Field) :: min_f  ! output
+      type(ESMF_FieldBundle) :: b ! input
+      type(ESMF_FieldBundle) :: min_b ! output
    contains
       procedure :: destroy
       procedure :: reset
@@ -28,6 +31,7 @@ module mapl_TimeMin_mod
 
    interface TimeMin
       module procedure new_TimeMin
+      module procedure new_TimeMin_fieldbundle
    end interface TimeMin
 
 contains
@@ -51,6 +55,7 @@ contains
       class(mapl_VerticalGrid), pointer :: vertical_grid
       type(esmf_Field) :: temp_min_f
 
+      stat%is_bundle = .false.
       stat%f = f
       stat%min_f = min_f
       stat%alarm = alarm
@@ -90,18 +95,97 @@ contains
       _RETURN(_SUCCESS)
    end function new_TimeMin
 
+   function new_TimeMin_fieldbundle(unusable, gridcomp, b, min_b, alarm, rc) result(stat)
+      type(TimeMin) :: stat
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      type(esmf_FieldBundle), intent(in) :: b
+      type(esmf_FieldBundle), intent(inout) :: min_b
+       type(MAPL_SimpleAlarm), intent(in) :: alarm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(esmf_State) :: internal_state
+      type(esmf_Geom), allocatable :: geom
+      type(MAPL_UngriddedDims) :: ungridded_dims
+      character(:), allocatable :: units, name
+      type(esmf_TypeKind_Flag) :: typekind
+      type(MAPL_VerticalStaggerLoc) :: vstagger
+      class(mapl_VerticalGrid), pointer :: vertical_grid
+      type(esmf_FieldBundle) :: temp_min_b
+
+      stat%is_bundle = .true.
+      stat%b = b
+      stat%min_b = min_b
+      stat%alarm = alarm
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(b, short_name=name, _RC)
+      call mapl_FieldBundleGet(b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           _RC)
+
+      call mapl_fieldbundleset(min_b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           standard_name='foo', &
+           _RC)
+
+      call esmf_StateGet(internal_state, 'temp_min'//name, fieldbundle=temp_min_b, _RC)
+      call mapl_fieldbundleset(temp_min_b, &
+           geom=geom, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           typekind=typekind, &
+           vgrid=vertical_grid, &
+           vert_staggerloc=vstagger, &
+           _RC)
+
+      _UNUSED_DUMMY(unusable)
+      _RETURN(_SUCCESS)
+   end function new_TimeMin_fieldbundle
+
    subroutine destroy(this, rc)
       class(TimeMin), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call esmf_FieldDestroy(this%min_f, _RC)
+      if (this%is_bundle) then
+         call MAPL_FieldBundleDestroy(this%min_b, _RC)
+      else
+         call esmf_FieldDestroy(this%min_f, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine destroy
 
    subroutine reset(this, gridcomp, rc)
+      class(TimeMin), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (this%is_bundle) then
+         call reset_bundle(this, gridcomp, _RC)
+      else
+         call reset_field(this, gridcomp, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine reset
+
+   subroutine reset_field(this, gridcomp, rc)
       class(TimeMin), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       integer, optional, intent(out) :: rc
@@ -128,7 +212,40 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine reset
+   end subroutine reset_field
+
+   subroutine reset_bundle(this, gridcomp, rc)
+      class(TimeMin), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_min_b
+      character(:), allocatable :: name
+      type(esmf_TypeKind_Flag) :: typekind
+      type(esmf_Field), allocatable :: temp_min_fieldlist(:)
+      real(kind=ESMF_KIND_R4), pointer :: f4(:)
+      real(kind=ESMF_KIND_R8), pointer :: f8(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_min'//name, fieldbundle=temp_min_b, _RC)
+
+      call mapl_FieldBundleGet(temp_min_b, typekind=typekind, fieldList=temp_min_fieldlist, _RC)
+
+      do i = 1, size(temp_min_fieldlist)
+         if (typekind == ESMF_TYPEKIND_R4) then
+            call MAPL_AssignFptr(temp_min_fieldlist(i), f4, _RC)
+            f4 = MAPL_UNDEF
+         else if (typekind == ESMF_TYPEKIND_R8) then
+            call MAPL_AssignFptr(temp_min_fieldlist(i), f8, _RC)
+            f8 = MAPL_UNDEF
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine reset_bundle
 
    subroutine update(this, gridcomp, clock, rc)
       class(TimeMin), intent(inout) :: this
@@ -141,12 +258,24 @@ contains
        logical :: is_ringing
        type(esmf_Time) :: nextTime
 
-       call mapl_FieldGet(this%f, typekind=typekind, _RC)
+       if (this%is_bundle) then
+          call mapl_FieldBundleGet(this%b, typekind=typekind, _RC)
+       else
+          call mapl_FieldGet(this%f, typekind=typekind, _RC)
+       end if
 
-       if (typekind == ESMF_TYPEKIND_R4) then
-          call update_r4(this, gridcomp, _RC)
-       else if (typekind == ESMF_TYPEKIND_R8) then
-          call update_r8(this, gridcomp, _RC)
+       if (this%is_bundle) then
+          if (typekind == ESMF_TYPEKIND_R4) then
+             call update_bundle_r4(this, gridcomp, _RC)
+          else if (typekind == ESMF_TYPEKIND_R8) then
+             call update_bundle_r8(this, gridcomp, _RC)
+          end if
+       else
+          if (typekind == ESMF_TYPEKIND_R4) then
+             call update_r4(this, gridcomp, _RC)
+          else if (typekind == ESMF_TYPEKIND_R8) then
+             call update_r8(this, gridcomp, _RC)
+          end if
        end if
 
        call ESMF_ClockGetNextTime(clock, nextTime=nextTime, _RC)
@@ -217,6 +346,76 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_r8
 
+   subroutine update_bundle_r4(this, gridcomp, rc)
+      class(TimeMin), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_min_b
+      character(:), allocatable :: name
+      type(esmf_Field), allocatable :: fieldlist(:), temp_min_fieldlist(:)
+      real(kind=ESMF_KIND_R4), pointer :: f(:), temp_min_f_ptr(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_min'//name, fieldbundle=temp_min_b, _RC)
+
+      call mapl_FieldBundleGet(this%b, fieldList=fieldlist, _RC)
+      call mapl_FieldBundleGet(temp_min_b, fieldList=temp_min_fieldlist, _RC)
+
+      do i = 1, size(fieldlist)
+         call MAPL_AssignFptr(fieldlist(i), f, _RC)
+         call MAPL_AssignFptr(temp_min_fieldlist(i), temp_min_f_ptr, _RC)
+
+         where (f /= MAPL_UNDEF)
+            where (temp_min_f_ptr == MAPL_UNDEF)
+               temp_min_f_ptr = f
+            elsewhere
+               temp_min_f_ptr = min(temp_min_f_ptr, f)
+            end where
+         end where
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine update_bundle_r4
+
+   subroutine update_bundle_r8(this, gridcomp, rc)
+      class(TimeMin), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_min_b
+      character(:), allocatable :: name
+      type(esmf_Field), allocatable :: fieldlist(:), temp_min_fieldlist(:)
+      real(kind=ESMF_KIND_R8), pointer :: f(:), temp_min_f_ptr(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_min'//name, fieldbundle=temp_min_b, _RC)
+
+      call mapl_FieldBundleGet(this%b, fieldList=fieldlist, _RC)
+      call mapl_FieldBundleGet(temp_min_b, fieldList=temp_min_fieldlist, _RC)
+
+      do i = 1, size(fieldlist)
+         call MAPL_AssignFptr(fieldlist(i), f, _RC)
+         call MAPL_AssignFptr(temp_min_fieldlist(i), temp_min_f_ptr, _RC)
+
+         where (f /= MAPL_UNDEF)
+            where (temp_min_f_ptr == MAPL_UNDEF)
+               temp_min_f_ptr = f
+            elsewhere
+               temp_min_f_ptr = min(temp_min_f_ptr, f)
+            end where
+         end where
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine update_bundle_r8
+
    subroutine compute_result(this, gridcomp, rc)
       class(TimeMin), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
@@ -225,12 +424,24 @@ contains
       integer :: status
       type(esmf_TypeKind_Flag) :: typekind
 
-      call mapl_FieldGet(this%f, typekind=typekind, _RC)
+      if (this%is_bundle) then
+         call mapl_FieldBundleGet(this%b, typekind=typekind, _RC)
+      else
+         call mapl_FieldGet(this%f, typekind=typekind, _RC)
+      end if
 
-      if (typekind == ESMF_TYPEKIND_R4) then
-         call compute_result_r4(this, gridcomp, _RC)
-      else if (typekind == ESMF_TYPEKIND_R8) then
-         call compute_result_r8(this, gridcomp, _RC)
+      if (this%is_bundle) then
+         if (typekind == ESMF_TYPEKIND_R4) then
+            call compute_result_bundle_r4(this, gridcomp, _RC)
+         else if (typekind == ESMF_TYPEKIND_R8) then
+            call compute_result_bundle_r8(this, gridcomp, _RC)
+         end if
+      else
+         if (typekind == ESMF_TYPEKIND_R4) then
+            call compute_result_r4(this, gridcomp, _RC)
+         else if (typekind == ESMF_TYPEKIND_R8) then
+            call compute_result_r8(this, gridcomp, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)
@@ -282,6 +493,64 @@ contains
       _RETURN(_SUCCESS)
    end subroutine compute_result_r8
 
+   subroutine compute_result_bundle_r4(this, gridcomp, rc)
+      class(TimeMin), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_min_b
+      character(:), allocatable :: name
+      type(esmf_Field), allocatable :: min_fieldlist(:), temp_min_fieldlist(:)
+      real(kind=ESMF_KIND_R4), pointer :: temp_min_f_ptr(:), min_f(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_min'//name, fieldbundle=temp_min_b, _RC)
+
+      call mapl_FieldBundleGet(this%min_b, fieldList=min_fieldlist, _RC)
+      call mapl_FieldBundleGet(temp_min_b, fieldList=temp_min_fieldlist, _RC)
+
+      do i = 1, size(min_fieldlist)
+         call MAPL_AssignFptr(temp_min_fieldlist(i), temp_min_f_ptr, _RC)
+         call MAPL_AssignFptr(min_fieldlist(i), min_f, _RC)
+
+         min_f = temp_min_f_ptr
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine compute_result_bundle_r4
+
+   subroutine compute_result_bundle_r8(this, gridcomp, rc)
+      class(TimeMin), intent(inout) :: this
+      type(esmf_GridComp), intent(inout) :: gridcomp
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(esmf_State) :: internal_state
+      type(esmf_FieldBundle) :: temp_min_b
+      character(:), allocatable :: name
+      type(esmf_Field), allocatable :: min_fieldlist(:), temp_min_fieldlist(:)
+      real(kind=ESMF_KIND_R8), pointer :: temp_min_f_ptr(:), min_f(:)
+
+      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
+      call mapl_FieldBundleGet(this%b, short_name=name, _RC)
+      call esmf_StateGet(internal_state, 'temp_min'//name, fieldbundle=temp_min_b, _RC)
+
+      call mapl_FieldBundleGet(this%min_b, fieldList=min_fieldlist, _RC)
+      call mapl_FieldBundleGet(temp_min_b, fieldList=temp_min_fieldlist, _RC)
+
+      do i = 1, size(min_fieldlist)
+         call MAPL_AssignFptr(temp_min_fieldlist(i), temp_min_f_ptr, _RC)
+         call MAPL_AssignFptr(min_fieldlist(i), min_f, _RC)
+
+         min_f = temp_min_f_ptr
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine compute_result_bundle_r8
+
    subroutine add_to_state(this, state, rc)
       class(TimeMin), intent(inout) :: this
       type(esmf_State), intent(inout) :: state
@@ -302,9 +571,10 @@ contains
       alarm = this%alarm
    end function get_alarm
 
-   subroutine advertise_time_min_internal_fields(gridcomp, name, rc)
+   subroutine advertise_time_min_internal_fields(gridcomp, name, item_type, rc)
       type(esmf_GridComp), intent(inout) :: gridcomp
       character(*), intent(in) :: name
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
       integer, optional, intent(out) :: rc
 
       integer :: status, slash_pos
@@ -316,7 +586,7 @@ contains
          just_name = name(slash_pos+1:)
       end if
 
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'temp_min'//just_name, fill_value=0.0, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'temp_min'//just_name, fill_value=MAPL_UNDEF, itemtype=item_type, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine advertise_time_min_internal_fields
