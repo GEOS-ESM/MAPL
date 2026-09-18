@@ -292,6 +292,22 @@ they touch the most existing special-cased code and should wait until
 the graph plumbing around them is well-exercised). Split into seven
 ordered sub-changes:
 
+**Landed prerequisite, discovered ahead of this list (not one of the
+original seven, inserted before it):** `composite-state-spec`
+(`openspec/changes/archive/2026-09-18-composite-state-spec`,
+`openspec/specs/graph/composite-state-spec/spec.md`). `15-callbacks.md`'s
+`CallbackStateBinding` (REQ-CB-007, "argument name → member `NodeId`")
+requires a callback State's members to be individually graph-visible —
+nothing in `VariableSpec`/`GraphBuilder` supported that before this
+change landed (a `MAPL_STATEITEM_STATE` declaration produced an empty,
+opaque `ESMF_State`, per proposal.md - Why). Resolved by letting
+`VariableSpec` declare its own composite member structure directly
+(`declare_member`/`get_member`/`get_member_names`, a member being any
+ordinary `VariableSpec`, leaf or further-nested) and by
+`GraphBuilder`'s `advertise_one` recursing into declared members to
+build a real `StateItemNode` tree. Does not block 4a/4b (neither touches
+composite structure); is a real prerequisite for 4c/4d below.
+
 - **4a. MethodGraphNode + invocation adapters** (`12` REQ-MTH-001/002/
   004/005/006) — the node type covering both GridComp phase invocation
   and attached-State-method invocation through one invocation-adapter
@@ -315,7 +331,9 @@ ordered sub-changes:
 - **4c. Callback data model + registry** (`15` §15.2–15.7) —
   `CallbackInterface`/`CallbackArgumentSpec`/`CallbackMethodSpec`/
   `CallbackStateBinding`/`CallbackInterfaceRegistry`. Static and
-  unit-testable, no `GraphBuilder` wiring yet. No new dependency beyond
+  unit-testable, no `GraphBuilder` wiring yet. Depends on
+  `composite-state-spec` (landed, above) for `CallbackStateBinding`'s
+  member-`NodeId` addressability; otherwise no new dependency beyond
   Phase 1–3 — MAY proceed in parallel with 4a/4b if desired, though Q10's
   stated order (methods before callbacks) is the default assumption.
 - **4d. Callback wiring** (`15` §15.9–15.10) — `GraphBuilder`
@@ -323,8 +341,8 @@ ordered sub-changes:
   namespace (REQ-CB-016, pattern syntax settled as regex per Q5),
   per-method `DependencyNetwork`s for get/put argument flow
   (REQ-CB-018), and the invoke-once-after-all-args-ready discipline
-  (REQ-CB-020). Depends on 4a (binds to a `MethodGraphNode`, REQ-CB-019)
-  and 4c.
+  (REQ-CB-020). Depends on 4a (binds to a `MethodGraphNode`, REQ-CB-019),
+  4c, and `composite-state-spec` (landed, above).
 - **4e. Horizontal geometry as GraphStateItem** (`13` §13.1–13.2) —
   geometry carried as an incomplete `esmf_field` proxy
   (`ESMF_FIELDSTATUS_GRIDSET`), resolved through ordinary
