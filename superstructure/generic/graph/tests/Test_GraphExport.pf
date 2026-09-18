@@ -14,6 +14,8 @@ module Test_GraphExport
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_NodeId_mod, only: NodeId
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_NodeLabel_mod, only: NodeLabel
+   use mapl_NodeIdLabelMap_mod, only: NodeIdLabelMap
    use funit
    implicit none
 
@@ -306,5 +308,75 @@ contains
       @assertEqual(0, status)
       @assertTrue(index(dot_text, 'payload="FIELD"') > 0)
    end subroutine test_export_excludes_payload_data
+
+   ! Task 2.1/2.2 (spec.md "Labeled node appears under its supplied
+   ! label in DOT/JSON" / "Export without a label lookup is unchanged" /
+   ! "Node with no lookup entry falls back to its identity string"):
+   ! a labeled node shows its supplied label; an unlabeled node (present
+   ! in the map argument but with no entry) still falls back to
+   ! NodeId%to_string(); omitting the argument entirely reproduces the
+   ! exact pre-enrichment output.
+   @test
+   subroutine test_label_lookup_overrides_identity_with_fallback()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, extra_input_id, transform_id, output_id
+      type(DependencyNetworkId) :: default_id
+      type(NodeIdLabelMap) :: label_map
+      character(:), allocatable :: dot_unlabeled, dot_labeled, json_labeled
+      integer :: status
+
+      call build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
+
+      ! Baseline: no label_map argument at all - byte-for-byte unchanged.
+      dot_unlabeled = export_graph_dot(graph, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(index(dot_unlabeled, 'label="' // input_id%to_string() // '"') > 0)
+
+      ! Label only the input node; extra_input_id is left with no entry.
+      call label_map%insert(input_id, NodeLabel('T_import'))
+
+      dot_labeled = export_graph_dot(graph, rc=status, label_map=label_map)
+      @assertEqual(0, status)
+      @assertTrue(index(dot_labeled, 'label="T_import"') > 0)
+      ! Unlabeled node still falls back to its NodeId%to_string().
+      @assertTrue(index(dot_labeled, 'label="' // extra_input_id%to_string() // '"') > 0)
+
+      json_labeled = export_graph_json(graph, rc=status, label_map=label_map)
+      @assertEqual(0, status)
+      @assertTrue(index(json_labeled, '"id": "' // input_id%to_string() // '"') > 0)
+      @assertTrue(index(json_labeled, '"label": "T_import"') > 0)
+      ! Unlabeled node's "label" field falls back to its NodeId%to_string().
+      @assertTrue(index(json_labeled, '"label": "' // extra_input_id%to_string() // '"') > 0)
+   end subroutine test_label_lookup_overrides_identity_with_fallback
+
+   ! Task 2.3 (spec.md "Proxy node is visually distinct in DOT" /
+   ! "Proxy node carries a proxy field in JSON" / "Ordinary node carries
+   ! no proxy marking").
+   @test
+   subroutine test_proxy_flag_marks_node_distinguishably()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, extra_input_id, transform_id, output_id
+      type(DependencyNetworkId) :: default_id
+      type(NodeIdLabelMap) :: label_map
+      character(:), allocatable :: dot_text, json_text
+      integer :: status
+
+      call build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
+
+      call label_map%insert(input_id, NodeLabel('child:T', is_proxy=.true.))
+      call label_map%insert(output_id, NodeLabel('Q_export', is_proxy=.false.))
+
+      dot_text = export_graph_dot(graph, rc=status, label_map=label_map)
+      @assertEqual(0, status)
+      @assertTrue(index(dot_text, 'label="child:T", kind="StateItemNode", payload="NOTFOUND", shape="doublecircle"') > 0)
+      ! Ordinary labeled node: no shape attribute at all.
+      @assertTrue(index(dot_text, 'label="Q_export", kind="StateItemNode", payload="NOTFOUND"];') > 0)
+      @assertFalse(index(dot_text, 'label="Q_export", kind="StateItemNode", payload="NOTFOUND", shape') > 0)
+
+      json_text = export_graph_json(graph, rc=status, label_map=label_map)
+      @assertEqual(0, status)
+      @assertTrue(index(json_text, '"label": "child:T", "proxy": true') > 0)
+      @assertTrue(index(json_text, '"label": "Q_export"}') > 0)
+   end subroutine test_proxy_flag_marks_node_distinguishably
 
 end module Test_GraphExport
