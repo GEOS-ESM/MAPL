@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
 - Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
+- Allow arbitrary order for arguments in parsing an AddSpec call with the ACG Writer
 
 ### Changed
 
