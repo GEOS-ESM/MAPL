@@ -103,8 +103,8 @@ contains
          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)
          call advertise_time_accumulate_internal_fields(gridcomp, name, item_type, _RC)
       case ('variance')
-         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, _RC)
-         call advertise_time_variance_internal_fields(gridcomp, name, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)
+         call advertise_time_variance_internal_fields(gridcomp, name, item_type, _RC)
       case default
          _FAIL('unsupported action: '//action)
       end select
@@ -330,12 +330,11 @@ contains
 
          integer :: status
          type(esmf_Field) :: f_in, f_out
+         type(ESMF_fieldBundle) :: b_in, b_out
+         type(esmf_StateItem_Flag) :: itemtype
          integer(kind=kind(WELFORD)) :: algorithm
          logical :: biased
          character(:), allocatable :: algo_str
-
-         call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
-         call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
 
          algorithm = WELFORD
          if (esmf_HConfigIsDefined(iter, keystring='algorithm')) then
@@ -355,8 +354,18 @@ contains
             biased = esmf_HConfigAsLogical(iter, keystring='biased', _RC)
          end if
 
-         var_stat = TimeVariance(f=f_in, var_f=f_out, alarm=alarm, &
-              algorithm=algorithm, biased=biased)
+         call mapl_StateGet(importState, itemName=name, itemtype=itemtype, _RC)
+         if (itemtype == MAPL_STATEITEM_FIELD) then
+            call esmf_StateGet(importState, itemName=name, field=f_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, field=f_out, _RC)
+            var_stat = TimeVariance(gridcomp=gridcomp, f=f_in, var_f=f_out, alarm=alarm, &
+                 algorithm=algorithm, biased=biased, _RC)
+         else if (itemtype == MAPL_STATEITEM_FIELDBUNDLE) then
+            call esmf_StateGet(importState, itemName=name, fieldbundle=b_in, _RC)
+            call esmf_StateGet(exportState, itemName=name, fieldbundle=b_out, _RC)
+            var_stat = TimeVariance(gridcomp=gridcomp, b=b_in, var_b=b_out, alarm=alarm, &
+                 algorithm=algorithm, biased=biased, _RC)
+         end if
 
          _RETURN(_SUCCESS)
       end function make_variance_stat

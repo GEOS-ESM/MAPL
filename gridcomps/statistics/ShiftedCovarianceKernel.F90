@@ -14,6 +14,7 @@ module mapl_ShiftedCovarianceKernel_mod
    type, extends(AbstractCovarianceKernel) :: ShiftedCovarianceKernel
    contains
       procedure :: advertise
+      procedure :: get_internal_field_prefixes
       procedure :: initialize
       procedure :: destroy
       procedure :: reset
@@ -28,70 +29,75 @@ module mapl_ShiftedCovarianceKernel_mod
    !   ex_<name>, ey_<name>   : sum of (x - kx), (y - ky)
    !   exy_<name>             : sum of (x - kx)*(y - ky)
    !
+   ! Fixed positional convention (see get_internal_field_prefixes):
+   !   internal_fields(1) = kx_, (2) = ky_, (3) = ex_, (4) = ey_, (5) = exy_
+   !
    ! For variance, f_x = f_y so kx=ky, ex=ey, exy=ex2.
    ! Cov(X,Y) = (exy - ex*ey/n) / (n - offset)
 
 contains
 
-   subroutine advertise(this, gridcomp, name, rc)
+   function get_internal_field_prefixes(this) result(prefixes)
+      class(ShiftedCovarianceKernel), intent(in) :: this
+      character(len=16), allocatable :: prefixes(:)
+
+      prefixes = [character(len=16) :: 'kx_', 'ky_', 'ex_', 'ey_', 'exy_']
+      _UNUSED_DUMMY(this)
+   end function get_internal_field_prefixes
+
+   subroutine advertise(this, gridcomp, name, item_type, rc)
       class(ShiftedCovarianceKernel), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       character(*), intent(in) :: name
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'kx_'//name,  fill_value=0.0, _RC)
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'ky_'//name,  fill_value=0.0, _RC)
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'ex_'//name,  fill_value=0.0, _RC)
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'ey_'//name,  fill_value=0.0, _RC)
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'exy_'//name, fill_value=0.0, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'kx_'//name,  fill_value=0.0, itemtype=item_type, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'ky_'//name,  fill_value=0.0, itemtype=item_type, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'ex_'//name,  fill_value=0.0, itemtype=item_type, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'ey_'//name,  fill_value=0.0, itemtype=item_type, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'exy_'//name, fill_value=0.0, itemtype=item_type, _RC)
 
+      _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
 
    end subroutine advertise
 
-   subroutine initialize(this, gridcomp, f_x, f_y, counts_f, rc)
+   subroutine initialize(this, gridcomp, f_x, f_y, counts_f, internal_fields, rc)
       class(ShiftedCovarianceKernel), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(inout) :: f_x
       type(esmf_Field), intent(inout) :: f_y
       type(esmf_Field), intent(inout) :: counts_f
+      type(esmf_Field), intent(inout) :: internal_fields(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_State) :: internal_state
-      type(esmf_Field) :: kx_f, ky_f, ex_f, ey_f, exy_f
       type(esmf_Geom), allocatable :: geom
       type(MAPL_UngriddedDims) :: ungridded_dims
-      character(:), allocatable :: units, name
+      character(:), allocatable :: units
       type(esmf_TypeKind_Flag) :: typekind
       type(MAPL_VerticalStaggerLoc) :: vstagger
       class(mapl_VerticalGrid), pointer :: vertical_grid
 
-      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
-      call mapl_FieldGet(f_x, short_name=name, _RC)
       call mapl_FieldGet(f_x, &
            geom=geom, ungridded_dims=ungridded_dims, units=units, &
            typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
 
-      call esmf_StateGet(internal_state, 'kx_'//name,  field=kx_f,  _RC)
-      call mapl_FieldSet(kx_f,  geom=geom, ungridded_dims=ungridded_dims, units=units, &
+      call mapl_FieldSet(internal_fields(1), geom=geom, ungridded_dims=ungridded_dims, units=units, &
            typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
-      call esmf_StateGet(internal_state, 'ky_'//name,  field=ky_f,  _RC)
-      call mapl_FieldSet(ky_f,  geom=geom, ungridded_dims=ungridded_dims, units=units, &
+      call mapl_FieldSet(internal_fields(2), geom=geom, ungridded_dims=ungridded_dims, units=units, &
            typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
-      call esmf_StateGet(internal_state, 'ex_'//name,  field=ex_f,  _RC)
-      call mapl_FieldSet(ex_f,  geom=geom, ungridded_dims=ungridded_dims, units=units, &
+      call mapl_FieldSet(internal_fields(3), geom=geom, ungridded_dims=ungridded_dims, units=units, &
            typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
-      call esmf_StateGet(internal_state, 'ey_'//name,  field=ey_f,  _RC)
-      call mapl_FieldSet(ey_f,  geom=geom, ungridded_dims=ungridded_dims, units=units, &
+      call mapl_FieldSet(internal_fields(4), geom=geom, ungridded_dims=ungridded_dims, units=units, &
            typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
-      call esmf_StateGet(internal_state, 'exy_'//name, field=exy_f, _RC)
-      call mapl_FieldSet(exy_f, geom=geom, ungridded_dims=ungridded_dims, units=units, &
+      call mapl_FieldSet(internal_fields(5), geom=geom, ungridded_dims=ungridded_dims, units=units, &
            typekind=typekind, vgrid=vertical_grid, vert_staggerloc=vstagger, _RC)
 
-      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(gridcomp)
       _UNUSED_DUMMY(f_y)
       _UNUSED_DUMMY(counts_f)
       _UNUSED_DUMMY(this)
@@ -99,78 +105,58 @@ contains
 
    end subroutine initialize
 
-   subroutine destroy(this, gridcomp, f_x, rc)
+   subroutine destroy(this, gridcomp, internal_fields, rc)
       class(ShiftedCovarianceKernel), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
-      type(esmf_Field), intent(inout) :: f_x
+      type(esmf_Field), intent(inout) :: internal_fields(:)
       integer, optional, intent(out) :: rc
       _UNUSED_DUMMY(gridcomp)
-      _UNUSED_DUMMY(f_x)
+      _UNUSED_DUMMY(internal_fields)
       _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
 
    end subroutine destroy
 
-   subroutine reset(this, gridcomp, f_x, rc)
+   subroutine reset(this, gridcomp, internal_fields, rc)
       class(ShiftedCovarianceKernel), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
-      type(esmf_Field), intent(inout) :: f_x
+      type(esmf_Field), intent(inout) :: internal_fields(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_State) :: internal_state
-      type(esmf_Field) :: kx_f, ky_f, ex_f, ey_f, exy_f
-      character(:), allocatable :: name
 
-      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
-      call mapl_FieldGet(f_x, short_name=name, _RC)
-      call esmf_StateGet(internal_state, 'kx_'//name,  field=kx_f,  _RC)
-      call esmf_StateGet(internal_state, 'ky_'//name,  field=ky_f,  _RC)
-      call esmf_StateGet(internal_state, 'ex_'//name,  field=ex_f,  _RC)
-      call esmf_StateGet(internal_state, 'ey_'//name,  field=ey_f,  _RC)
-      call esmf_StateGet(internal_state, 'exy_'//name, field=exy_f, _RC)
+      call esmf_FieldFill(internal_fields(1), dataFillScheme='const', const1=0.d0, _RC)
+      call esmf_FieldFill(internal_fields(2), dataFillScheme='const', const1=0.d0, _RC)
+      call esmf_FieldFill(internal_fields(3), dataFillScheme='const', const1=0.d0, _RC)
+      call esmf_FieldFill(internal_fields(4), dataFillScheme='const', const1=0.d0, _RC)
+      call esmf_FieldFill(internal_fields(5), dataFillScheme='const', const1=0.d0, _RC)
 
-      call esmf_FieldFill(kx_f,  dataFillScheme='const', const1=0.d0, _RC)
-      call esmf_FieldFill(ky_f,  dataFillScheme='const', const1=0.d0, _RC)
-      call esmf_FieldFill(ex_f,  dataFillScheme='const', const1=0.d0, _RC)
-      call esmf_FieldFill(ey_f,  dataFillScheme='const', const1=0.d0, _RC)
-      call esmf_FieldFill(exy_f, dataFillScheme='const', const1=0.d0, _RC)
-
+      _UNUSED_DUMMY(gridcomp)
       _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
 
    end subroutine reset
 
-   subroutine update_r4(this, gridcomp, f_x, f_y, counts_f, rc)
+   subroutine update_r4(this, gridcomp, f_x, f_y, counts_f, internal_fields, rc)
       class(ShiftedCovarianceKernel), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(inout) :: f_x
       type(esmf_Field), intent(inout) :: f_y
       type(esmf_Field), intent(inout) :: counts_f
+      type(esmf_Field), intent(inout) :: internal_fields(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_State) :: internal_state
-      type(esmf_Field) :: kx_f, ky_f, ex_f, ey_f, exy_f
-      character(:), allocatable :: name
       real(kind=ESMF_KIND_R4), pointer :: xp(:), yp(:), kxp(:), kyp(:), exp(:), eyp(:), exyp(:)
       integer(kind=ESMF_KIND_I4), pointer :: counts(:)
 
-      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
-      call mapl_FieldGet(f_x, short_name=name, _RC)
-      call esmf_StateGet(internal_state, 'kx_'//name,  field=kx_f,  _RC)
-      call esmf_StateGet(internal_state, 'ky_'//name,  field=ky_f,  _RC)
-      call esmf_StateGet(internal_state, 'ex_'//name,  field=ex_f,  _RC)
-      call esmf_StateGet(internal_state, 'ey_'//name,  field=ey_f,  _RC)
-      call esmf_StateGet(internal_state, 'exy_'//name, field=exy_f, _RC)
-
       call MAPL_AssignFptr(f_x,      xp,     _RC)
       call MAPL_AssignFptr(f_y,      yp,     _RC)
-      call MAPL_AssignFptr(kx_f,     kxp,    _RC)
-      call MAPL_AssignFptr(ky_f,     kyp,    _RC)
-      call MAPL_AssignFptr(ex_f,     exp,    _RC)
-      call MAPL_AssignFptr(ey_f,     eyp,    _RC)
-      call MAPL_AssignFptr(exy_f,    exyp,   _RC)
+      call MAPL_AssignFptr(internal_fields(1), kxp,  _RC)
+      call MAPL_AssignFptr(internal_fields(2), kyp,  _RC)
+      call MAPL_AssignFptr(internal_fields(3), exp,  _RC)
+      call MAPL_AssignFptr(internal_fields(4), eyp,  _RC)
+      call MAPL_AssignFptr(internal_fields(5), exyp, _RC)
       call MAPL_AssignFptr(counts_f, counts, _RC)
 
       where ((xp /= MAPL_UNDEF) .and. (yp /= MAPL_UNDEF) .and. (counts == 0))
@@ -185,41 +171,32 @@ contains
          exyp   = exyp + (xp - kxp) * (yp - kyp)
       end where
 
+      _UNUSED_DUMMY(gridcomp)
       _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
 
    end subroutine update_r4
 
-   subroutine update_r8(this, gridcomp, f_x, f_y, counts_f, rc)
+   subroutine update_r8(this, gridcomp, f_x, f_y, counts_f, internal_fields, rc)
       class(ShiftedCovarianceKernel), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(inout) :: f_x
       type(esmf_Field), intent(inout) :: f_y
       type(esmf_Field), intent(inout) :: counts_f
+      type(esmf_Field), intent(inout) :: internal_fields(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_State) :: internal_state
-      type(esmf_Field) :: kx_f, ky_f, ex_f, ey_f, exy_f
-      character(:), allocatable :: name
       real(kind=ESMF_KIND_R8), pointer :: xp(:), yp(:), kxp(:), kyp(:), exp(:), eyp(:), exyp(:)
       integer(kind=ESMF_KIND_I4), pointer :: counts(:)
 
-      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
-      call mapl_FieldGet(f_x, short_name=name, _RC)
-      call esmf_StateGet(internal_state, 'kx_'//name,  field=kx_f,  _RC)
-      call esmf_StateGet(internal_state, 'ky_'//name,  field=ky_f,  _RC)
-      call esmf_StateGet(internal_state, 'ex_'//name,  field=ex_f,  _RC)
-      call esmf_StateGet(internal_state, 'ey_'//name,  field=ey_f,  _RC)
-      call esmf_StateGet(internal_state, 'exy_'//name, field=exy_f, _RC)
-
       call MAPL_AssignFptr(f_x,      xp,     _RC)
       call MAPL_AssignFptr(f_y,      yp,     _RC)
-      call MAPL_AssignFptr(kx_f,     kxp,    _RC)
-      call MAPL_AssignFptr(ky_f,     kyp,    _RC)
-      call MAPL_AssignFptr(ex_f,     exp,    _RC)
-      call MAPL_AssignFptr(ey_f,     eyp,    _RC)
-      call MAPL_AssignFptr(exy_f,    exyp,   _RC)
+      call MAPL_AssignFptr(internal_fields(1), kxp,  _RC)
+      call MAPL_AssignFptr(internal_fields(2), kyp,  _RC)
+      call MAPL_AssignFptr(internal_fields(3), exp,  _RC)
+      call MAPL_AssignFptr(internal_fields(4), eyp,  _RC)
+      call MAPL_AssignFptr(internal_fields(5), exyp, _RC)
       call MAPL_AssignFptr(counts_f, counts, _RC)
 
       where ((xp /= MAPL_UNDEF) .and. (yp /= MAPL_UNDEF) .and. (counts == 0))
@@ -234,25 +211,24 @@ contains
          exyp   = exyp + (xp - kxp) * (yp - kyp)
       end where
 
+      _UNUSED_DUMMY(gridcomp)
       _UNUSED_DUMMY(this)
       _RETURN(_SUCCESS)
 
    end subroutine update_r8
 
-   subroutine compute_r4(this, gridcomp, f_x, f_y, counts_f, cov_f, biased, rc)
+   subroutine compute_r4(this, gridcomp, f_x, f_y, counts_f, cov_f, internal_fields, biased, rc)
       class(ShiftedCovarianceKernel), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(inout) :: f_x
       type(esmf_Field), intent(inout) :: f_y
       type(esmf_Field), intent(inout) :: counts_f
       type(esmf_Field), intent(inout) :: cov_f
+      type(esmf_Field), intent(inout) :: internal_fields(:)
       logical, intent(in) :: biased
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_State) :: internal_state
-      type(esmf_Field) :: ex_f, ey_f, exy_f
-      character(:), allocatable :: name
       real(kind=ESMF_KIND_R4), pointer :: exp(:), eyp(:), exyp(:), covp(:)
       integer(kind=ESMF_KIND_I4), pointer :: counts(:)
       integer :: counts_offset
@@ -260,15 +236,9 @@ contains
       counts_offset = 1
       if (biased) counts_offset = 0
 
-      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
-      call mapl_FieldGet(f_x, short_name=name, _RC)
-      call esmf_StateGet(internal_state, 'ex_'//name,  field=ex_f,  _RC)
-      call esmf_StateGet(internal_state, 'ey_'//name,  field=ey_f,  _RC)
-      call esmf_StateGet(internal_state, 'exy_'//name, field=exy_f, _RC)
-
-      call MAPL_AssignFptr(ex_f,     exp,    _RC)
-      call MAPL_AssignFptr(ey_f,     eyp,    _RC)
-      call MAPL_AssignFptr(exy_f,    exyp,   _RC)
+      call MAPL_AssignFptr(internal_fields(3), exp,  _RC)
+      call MAPL_AssignFptr(internal_fields(4), eyp,  _RC)
+      call MAPL_AssignFptr(internal_fields(5), exyp, _RC)
       call MAPL_AssignFptr(counts_f, counts, _RC)
       call MAPL_AssignFptr(cov_f,    covp,   _RC)
 
@@ -278,26 +248,26 @@ contains
          covp = MAPL_UNDEF
       end where
 
-      _UNUSED_DUMMY(f_y)
+      _UNUSED_DUMMY(gridcomp)
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(f_x)
+      _UNUSED_DUMMY(f_y)
       _RETURN(_SUCCESS)
 
    end subroutine compute_r4
 
-   subroutine compute_r8(this, gridcomp, f_x, f_y, counts_f, cov_f, biased, rc)
+   subroutine compute_r8(this, gridcomp, f_x, f_y, counts_f, cov_f, internal_fields, biased, rc)
       class(ShiftedCovarianceKernel), intent(inout) :: this
       type(esmf_GridComp), intent(inout) :: gridcomp
       type(esmf_Field), intent(inout) :: f_x
       type(esmf_Field), intent(inout) :: f_y
       type(esmf_Field), intent(inout) :: counts_f
       type(esmf_Field), intent(inout) :: cov_f
+      type(esmf_Field), intent(inout) :: internal_fields(:)
       logical, intent(in) :: biased
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(esmf_State) :: internal_state
-      type(esmf_Field) :: ex_f, ey_f, exy_f
-      character(:), allocatable :: name
       real(kind=ESMF_KIND_R8), pointer :: exp(:), eyp(:), exyp(:), covp(:)
       integer(kind=ESMF_KIND_I4), pointer :: counts(:)
       integer :: counts_offset
@@ -305,15 +275,9 @@ contains
       counts_offset = 1
       if (biased) counts_offset = 0
 
-      call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
-      call mapl_FieldGet(f_x, short_name=name, _RC)
-      call esmf_StateGet(internal_state, 'ex_'//name,  field=ex_f,  _RC)
-      call esmf_StateGet(internal_state, 'ey_'//name,  field=ey_f,  _RC)
-      call esmf_StateGet(internal_state, 'exy_'//name, field=exy_f, _RC)
-
-      call MAPL_AssignFptr(ex_f,     exp,    _RC)
-      call MAPL_AssignFptr(ey_f,     eyp,    _RC)
-      call MAPL_AssignFptr(exy_f,    exyp,   _RC)
+      call MAPL_AssignFptr(internal_fields(3), exp,  _RC)
+      call MAPL_AssignFptr(internal_fields(4), eyp,  _RC)
+      call MAPL_AssignFptr(internal_fields(5), exyp, _RC)
       call MAPL_AssignFptr(counts_f, counts, _RC)
       call MAPL_AssignFptr(cov_f,    covp,   _RC)
 
@@ -323,8 +287,10 @@ contains
          covp = MAPL_UNDEF
       end where
 
-      _UNUSED_DUMMY(f_y)
+      _UNUSED_DUMMY(gridcomp)
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(f_x)
+      _UNUSED_DUMMY(f_y)
       _RETURN(_SUCCESS)
 
    end subroutine compute_r8

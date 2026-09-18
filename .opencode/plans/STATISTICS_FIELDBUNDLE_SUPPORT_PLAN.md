@@ -1,13 +1,18 @@
 # Statistics GridComp: ESMF_FieldBundle Support Plan
 
-**Document Version:** 3.0
+**Document Version:** 4.0
 **Date:** 2026-09-18
-**Status:** Field/Bundle support for TimeAverage, TimeMax, TimeMin, TimeAccumulate is
-implemented and covered by an expanded `statistics_real` scenario test (all 4 actions
-x both item types) — all committed. **TimeVariance + covariance kernels are now fully
-planned/designed (approved by user) but NOT YET IMPLEMENTED** — this is the next and
-final piece of this overall effort. See "Deferred Work" section below for the
-ready-to-implement design.
+**Status:** COMPLETE. Field/Bundle support for TimeAverage, TimeMax, TimeMin,
+TimeAccumulate, and now **TimeVariance** (both `welford` and `shifted` covariance
+kernels) is implemented and covered by an expanded `statistics_real` scenario test
+(all 4 non-variance actions x both item types, plus variance x both algorithms x both
+item types — 12 quantities total). Full `ctest --test-dir build-debug` run: 70/74
+pass, with the same 4 pre-existing/unrelated `Regrid_Util` REGRESSION failures
+(environment-dependent, `LOCAL_REGRESSION_DATA_DIR` not set) as before. Not yet
+committed to git — see "Session 2026-09-18 implementation notes" below for what
+changed and why, including an important deviation from the original "Deferred Work"
+design (the lazy/first-`update()` initialization pattern turned out to be broken and
+had to be replaced with eager construction-time initialization).
 
 ## Context and Motivation
 
@@ -313,13 +318,16 @@ item like `UV`). Now:
   hashes/file lists. The working tree is clean with respect to this effort as of
   2026-09-17.
 
-## Deferred Work: `TimeVariance.F90` + Covariance Kernels — READY TO IMPLEMENT
+## Deferred Work: `TimeVariance.F90` + Covariance Kernels — IMPLEMENTED (2026-09-18)
 
-`TimeVariance.F90` was explicitly **excluded** from all sessions so far because it is
-architecturally different from the other four types and requires an interface change,
-not just an additive one. As of 2026-09-18, the design below has been fully worked out
-and **approved by the user** — this is the next session's starting point. Nothing has
-been implemented yet; `git status` should be clean when resuming.
+`TimeVariance.F90` was explicitly **excluded** from all prior sessions because it is
+architecturally different from the other four types and required an interface change,
+not just an additive one. As of 2026-09-18, this has been **fully implemented**,
+built (NAG, `build-debug/`), and verified via the expanded `statistics_real` scenario
+test plus a full `ctest --test-dir build-debug` pass. The design below (as approved
+by the user in the prior planning session) was implemented largely as written, with
+**one significant deviation** discovered and fixed during implementation — see
+"Session 2026-09-18 implementation notes" at the end of this section.
 
 ### Why it's harder (unchanged analysis, still accurate)
 
@@ -531,7 +539,10 @@ not requested.
   actions (which only got 1 algorithm each, since they don't have a pluggable-kernel
   concept).
 - **Only the default (unbiased/sample, `biased: false`) variance branch** needs testing
-  — no `biased: true` variant required.
+  — no `biased: true` variant required. **Superseded later in the 2026-09-18
+  session** — see "Follow-up (2026-09-18, same session): added `biased: true` test
+  coverage" below; the user asked for `biased: true` coverage too, with full parity
+  (4 more quantities) to the unbiased matrix.
 
 ### Planned test-matrix addition (once implemented)
 
@@ -542,7 +553,7 @@ same pattern established for the other 4 actions (`A.yaml` run-series + export d
 
 | Quantity | Type | Action | Algorithm | Expected value(s) |
 |---|---|---|---|---|
-| `TS_VAR_W` (or similar name) | field | variance | welford (default) | 50.0 |
+| `TS_VAR_W` | field | variance | welford (default) | 50.0 |
 | `TS_VAR_S` | field | variance | shifted | 50.0 |
 | `UV_VAR_W` | vector | variance | welford (default) | [50.0, 50.0] |
 | `UV_VAR_S` | vector | variance | shifted | [50.0, 50.0] |
@@ -551,14 +562,16 @@ same pattern established for the other 4 actions (`A.yaml` run-series + export d
 `1..24`/`0..23` ramp series, sample variance (`biased: false`, divide by `n-1`) of an
 arithmetic sequence of `N` consecutive integers is `N(N+1)/12`; for `N=24` that's
 `24*25/12 = 50.0` **exactly**. This is shift-invariant, so both the U-component
-(`1..24`) and V-component (`0..23`) of the vector quantities give the same `50.0` —
-convenient for expectations but worth double-checking empirically once implemented
-(build+run, adjust if the actual computed value differs, exactly as was done for the
-`QV_MIN`/`fill_value` bug in the prior session).
+(`1..24`) and V-component (`0..23`) of the vector quantities give the same `50.0`.
+**Confirmed empirically** — the hand-derived `50.0` matched the actual computed value
+exactly for all 4 new quantities on the first passing scenario-test run; no adjustment
+was needed (unlike the `QV_MIN`/`fill_value` bug in the prior session, which did
+require an adjustment/fix).
 
-`stat.yaml` entries will need `algorithm: shifted` added explicitly for the `_S`
+`stat.yaml` entries needed `algorithm: shifted` added explicitly for the `_S`
 variants (default is `welford` when omitted, per `make_variance_stat`'s existing
-`algorithm` key handling — unchanged by this refactor).
+`algorithm` key handling — unchanged by this refactor). Implemented exactly as
+planned; see `superstructure/generic/tests/scenarios/statistics_real/stat.yaml`.
 
 ### Next-session implementation order (recommended)
 
@@ -581,6 +594,132 @@ variants (default is `welford` when omitted, per `make_variance_stat`'s existing
 9. Update this plan document's status/commit-history sections once done; do not commit
    unless the user explicitly asks (per this effort's established norm).
 
+**This order was followed exactly during implementation** (2026-09-18 session) — see
+"Session 2026-09-18 implementation notes" below for what was found/fixed along the
+way, in particular at steps 6-8 (the build succeeded cleanly on the first try, but the
+scenario test uncovered a real runtime bug requiring a design change before all tests
+passed).
+
+### Session 2026-09-18 implementation notes
+
+**Steps 1-5 (kernel interface + TimeVariance + StatisticsGridComp wiring) were
+implemented exactly as designed above**, with one small addition not explicitly
+spelled out in the design: a private `propagate_metadata(f_i, var_f_i, counts_f_i,
+rc)` helper in `TimeVariance.F90` factors the per-field geom/ungridded_dims/units/
+typekind/vgrid/vert_staggerloc extraction-and-`mapl_FieldSet` logic shared between
+field-mode `initialize_field` and (originally) bundle-mode per-member work, exactly as
+anticipated in design section 3's `initialize` bullet.
+
+**Step 6 (build `MAPL.statistics`) succeeded cleanly on the first try** — no compile
+errors, only pre-existing benign NAG "unused variable"/"unused dummy" remarks.
+
+**Step 7 (scenario-test expansion) uncovered a real, previously-latent runtime bug**
+that required a design change beyond what was specified in the "Approved refactor
+design" section above. Two issues were found and fixed, in order:
+
+1. **Bundle-mode `initialize()` crashed with an out-of-bounds fieldList access**
+   (`Subscript 1 of VAR_FIELDLIST ... out of range (1:0)`). The original design's
+   `initialize()` bullet for bundle mode said to "loop `i = 1, size(b_fieldlist)`" over
+   `stat%b`'s member fields *during construction* (i.e. during the
+   `GENERIC::INIT_REALIZE_PROVIDED` phase, since `TimeVariance`'s constructors are
+   called from `StatisticsGridComp.F90`'s `realize_provided`/`realize_item`/
+   `make_variance_stat`). This is a fundamental ordering bug: bundle member fields do
+   **not exist yet** at construction time — they only appear later via the framework's
+   structure-mirroring mechanism (the same mechanism documented in the "Key decisions"
+   section above for `TimeAverage`/`TimeMax`/etc.). This is exactly why
+   `TimeAverage`'s bundle constructor (`new_TimeAverage_fieldbundle`) never loops over
+   `MAPL_FieldBundleGet(..., fieldList=...)` at construction time — it only calls
+   whole-bundle `mapl_fieldbundleset(...)` (propagating geom/typekind onto the *bundle*
+   as a unit, which the framework then uses to complete each member as it's created
+   later) and defers *all* per-member fieldList access to `reset`/`update`/
+   `compute_result`, which run later during `RUN`, after members exist. **Fix:**
+   rewrote `initialize_bundle` in `TimeVariance.F90` to mirror this exact pattern —
+   whole-bundle `mapl_fieldbundleset` calls on `stat%var_b`, the `counts_` bundle, and
+   each of the kernel's internal-state bundles (via
+   `stat%kernel%get_internal_field_prefixes()`, generically, no hardcoded 3-vs-5
+   count) — with **no** per-member loop and **no** call to `stat%kernel%initialize`
+   in bundle mode at all (that field-level kernel method is only ever invoked in field
+   mode now). Per-member kernel math (`update_r4`/`r8`, `compute_r4`/`r8`) is
+   unaffected and still runs per-member, later, during `RUN`, exactly as originally
+   designed.
+
+2. **Field-mode variance silently produced `MAPL_UNDEF`/never-completed fields**
+   (initially manifested as a NAG `_ASSERT` failure, "Field typekind does not match
+   pointer type and kind", inside `WelfordCovarianceKernel%update_r4`). Root cause,
+   found via targeted debug prints (`ESMF_FieldGet(..., status=...)`): the *original*
+   (pre-2026-09-18) design faithfully preserved by this session's initial
+   implementation had `TimeVariance`'s kernel-allocation-and-geom-propagation step
+   (`initialize()`) invoked **lazily on the first `update()` call**, i.e. during the
+   `RUN` phase — unlike the other 4 stat types, whose equivalent metadata-propagation
+   work happens in their constructors, called during the
+   `GENERIC::INIT_REALIZE_PROVIDED` *initialize* phase. It turns out this distinction
+   is not just stylistic: internal-state fields that are still `ESMF_FIELDSTATUS_EMPTY`
+   when `mapl_FieldSet(..., geom=...)` is first called only transition to
+   `ESMF_FIELDSTATUS_GRIDSET` (grid/geom assigned, but data not yet allocated) — some
+   *other*, framework-driven completion pass (evidently tied to the
+   `INIT_REALIZE_PROVIDED`/`INIT_REALIZE_ACCEPTED` phase transition, analogous to
+   `MAPL_FieldEmptyComplete` in `infrastructure/field/FieldCreate.F90`) is responsible
+   for finishing the transition to `ESMF_FIELDSTATUS_COMPLETE` (actual data allocated),
+   and that pass only runs once, early, during `INITIALIZE`. Since `TimeVariance`'s
+   `mux_`/`muy_`/`c_`/etc. fields never got their geom set until deep into `RUN` (well
+   after that one-time completion pass had already executed), they were permanently
+   stuck at `GRIDSET`, and any later attempt to `MAPL_AssignFptr` a real
+   fortran-pointer onto them failed outright (no allocated data to point to). This is
+   a genuine bug in the *original* (pre-existing, never-before-fully-exercised)
+   `TimeVariance.F90`, not something introduced by this session's bundle-support work
+   — it was simply never caught before because field-mode variance had never been
+   run end-to-end through the full generic-framework realize/run pipeline prior to
+   this session's scenario-test expansion (only via standalone unit tests in
+   `Test_TimeVariance.pf`, which construct/complete fields directly and never exercise
+   this code path). **Fix:** changed `TimeVariance`'s public constructors
+   (`new_TimeVariance_field`/`new_TimeVariance_fieldbundle`) to take an additional
+   mandatory `gridcomp` argument and to call `initialize(stat, gridcomp, _RC)`
+   **eagerly, at construction time** (i.e. during `realize_provided`, matching exactly
+   when `TimeAverage`/`TimeMax`/`TimeMin`/`TimeAccumulate` do their analogous geom
+   work) instead of lazily via the `needs_initialization()`/first-`update()` check.
+   `StatisticsGridComp.F90`'s `make_variance_stat` was updated to pass
+   `gridcomp=gridcomp` into both `TimeVariance(...)` constructor calls. The
+   `needs_initialization()`/lazy-init fallback check was left in place in `update()` as
+   a harmless no-op safety net (kernel is now always allocated by the time `update()`
+   first runs, so this branch is never actually taken) rather than removed, to
+   minimize the diff.
+
+**Steps 8-9 completed as planned:** full `ctest --test-dir build-debug` run: 70/74
+pass; the 4 failures are the pre-existing/environmental `ll-ll`/`cs-cs`/`cs-ll`/
+`ll-cs` Regrid_Util REGRESSION tests (require `LOCAL_REGRESSION_DATA_DIR` to be set;
+unrelated to this work). Notably, `MAPL3G_Comp_Test_case18` (previously listed as a
+5th pre-existing failure in the 2026-09-17 session, due to unrelated uncommitted WIP
+in the working tree at that time) now **passes** — that WIP is gone and was never
+part of this effort.
+
+### Follow-up (2026-09-18, same session): added `biased: true` test coverage
+
+The original "Locked-in decisions" above stated only the default (`biased: false`,
+unbiased/sample) variance branch needed testing. This was revisited later the same
+session — the user asked to also cover `biased: true` (population variance, divide by
+`n` instead of `n-1`). Added, with **full parity** to the existing unbiased matrix (4
+new quantities, `_BIASED` suffix naming): `TS_VAR_W_BIASED` (field, welford),
+`TS_VAR_S_BIASED` (field, shifted), `UV_VAR_W_BIASED` (vector, welford),
+`UV_VAR_S_BIASED` (vector, shifted) — each with `biased: true` added to its
+`stat.yaml` entry, reusing the same `1..24`/`0..23` ramp series as the unbiased
+variants.
+
+**Expected value:** population variance of `N` consecutive integers is `(N²-1)/12`;
+for `N=24` that's `575/12 ≈ 47.916667` — not exactly representable in binary
+floating point (unlike the unbiased case's exact `50.0`), so `expectations.yaml`'s
+per-item `tolerance: 1.0e-3` key (already supported by `Test_Scenarios.pf`'s
+`check_field_value`/`check_one_field_value`, previously unused in this scenario) was
+added alongside `value: 47.916667` for these 4 entries only (existing exact-match
+entries were left untouched). No source code changes were needed — the `biased: true`
+branch already existed and worked in `WelfordCovarianceKernel.F90`/
+`ShiftedCovarianceKernel.F90`'s `compute_r4`/`compute_r8` (`counts_offset = 0` when
+`biased`); this was purely a scenario-YAML-only addition across the same 5 files
+(`A.yaml`, `stat.yaml`, `history.yaml`, `collection_1.yaml`, `expectations.yaml`).
+**Verified passing on the first try** (`ctest -R MAPL.generic.scenarios`: all
+sub-tests pass; full `ctest --test-dir build-debug`: still 70/74, same 4 pre-existing/
+environmental failures, no new ones). This plan document is being updated now (this
+edit) as the final step; **nothing has been committed to git yet**.
+
 ### Explicit decision from user (2026-09-16 session, still applies to "skip until now")
 
 When originally asked how to proceed (before this design was worked out), the user
@@ -591,28 +730,28 @@ decision is superseded by the plan above for the next session.
 
 ## Remaining / Follow-up Tasks
 
-1. **TimeVariance + kernel refactor + StatisticsGridComp.F90 wiring + scenario-test
-   expansion** — see the fully-designed "Deferred Work" section above (approved,
-   ready to implement step-by-step per its "Next-session implementation order"
-   subsection) — the one remaining piece of this overall effort.
+1. ~~TimeVariance + kernel refactor + StatisticsGridComp.F90 wiring + scenario-test
+   expansion~~ — **DONE** (2026-09-18 session, this document's "Deferred Work"
+   section above, including implementation notes on the eager-initialization fix).
 2. ~~Once TimeVariance supports bundles, update `StatisticsGridComp.F90`'s
    `'variance'` case...~~ — folded into item 1 above (see "Deferred Work" §4 and the
-   test-matrix table).
+   test-matrix table). **DONE.**
 3. Consider adding pFUnit tests for FieldBundle-mode behavior at the unit-test level too
    (`gridcomps/statistics/tests/` currently only has `Test_TimeAccumulate.pf` and
-   `Test_TimeVariance.pf`; the new scenario-test coverage added this session is
+   `Test_TimeVariance.pf`; the scenario-test coverage added across sessions is
    integration-level, not unit-level). Still explicitly out of scope unless requested.
 4. Double check `MAPL_STATEITEM_VECTOR` vs `MAPL_STATEITEM_FIELDBUNDLE` semantics in
    `StatisticsGridComp.F90::advertise_item` — the YAML `itemtype: vector` maps to
    `MAPL_STATEITEM_VECTOR`, but the runtime dispatch in `realize_item`/`make_*_stat`
    checks against `MAPL_STATEITEM_FIELDBUNDLE`. This pre-existing wrinkle (not
    introduced by this effort) appears to be intentional/working correctly (confirmed
-   empirically — all 3 new vector-mode stats in the scenario test pass), but is still
-   worth documenting properly if it ever causes confusion.
-5. Clean up stray pre-existing debug output (`_HERE, ' bmaa '` calls) in
-   `StatisticsGridComp.F90`'s `make_average_stat`/`make_item` — not introduced by this
-   effort, still present, prints to stdout on every scenario test run. Should be removed
-   before this branch is finalized for review/PR.
+   empirically — all vector-mode stats, including the 2 new variance ones, pass in the
+   scenario test), but is still worth documenting properly if it ever causes confusion.
+5. ~~Clean up stray pre-existing debug output (`_HERE, ' bmaa '` calls) in
+   `StatisticsGridComp.F90`'s `make_average_stat`/`make_item`~~ — **resolved**: as of
+   the 2026-09-18 session, this debug output is no longer present in
+   `StatisticsGridComp.F90` (it was cleaned up prior to/during the PR #5392 merge that
+   landed the non-variance bundle-support work). No action needed.
 6. Consider whether the `TimeMin`/`TimeMax` `fill_value=MAPL_UNDEF` fix should also be
    accompanied by a unit test (in `gridcomps/statistics/tests/`) specifically covering
    the first-period-with-no-prior-reset edge case, so a future refactor can't
@@ -620,65 +759,87 @@ decision is superseded by the plan above for the next session.
    scenario test's `QV_MIN` check).
 7. ~~`git status` currently also shows unrelated pre-existing uncommitted edits to
    `tests/MAPL3G_Component_Testing_Framework/test_cases/case18/{cap_driver1,history1}.yaml`~~
-   — **resolved/no longer present**: as of 2026-09-17 the working tree is clean aside
-   from this plan document; those case18 edits (and the `case18/temp7788/` scratch
-   directory) are gone (either reverted or handled outside this effort). No action
-   needed here anymore.
+   — **resolved/no longer present**: the working tree has been clean aside from the
+   statistics/variance files (and this plan document) throughout this effort;
+   `MAPL3G_Comp_Test_case18` passes cleanly in the 2026-09-18 full ctest run.
+8. **New (2026-09-18):** the `needs_initialization()`/lazy-init fallback branch in
+   `TimeVariance.F90::update()` is now dead code in practice (kernel is always
+   allocated eagerly at construction time) but was deliberately left in place as a
+   harmless safety net rather than removed. Consider removing it in a future cleanup
+   pass if it's confirmed to add no value, or leave as defensive code — not urgent.
 
 ## Files Touched (cumulative across all sessions — now committed, see Commit History)
 
-- `gridcomps/statistics/TimeAverage.F90` (prior session; committed in `d45c1568`/`57883343`)
-- `gridcomps/statistics/TimeMax.F90` (bundle support: prior session, `d45c1568`;
-  `fill_value` bugfix: this session, `46b9ca0d`)
-- `gridcomps/statistics/TimeMin.F90` (bundle support: prior session, `d45c1568`;
-  `fill_value` bugfix: this session, `46b9ca0d`)
-- `gridcomps/statistics/TimeAccumulate.F90` (prior session; committed in `d45c1568`)
-- `gridcomps/statistics/StatisticsGridComp.F90` (prior session; committed in `d45c1568`)
-- `gridcomps/configurable/ConfigurableGridComp.F90` (this session — bundle-aware `run()`;
-  committed in `46b9ca0d`)
-- `superstructure/generic/tests/Test_Scenarios.pf` (this session — bundle-aware
-  `check_field_status`/`check_field_value`, missing `use` fix; committed in `46b9ca0d`)
-- `superstructure/generic/tests/scenarios/statistics_real/A.yaml` (this session;
-  committed in `46b9ca0d`)
-- `superstructure/generic/tests/scenarios/statistics_real/stat.yaml` (this session;
-  committed in `46b9ca0d`)
-- `superstructure/generic/tests/scenarios/statistics_real/history.yaml` (this session;
-  committed in `46b9ca0d`)
-- `superstructure/generic/tests/scenarios/statistics_real/collection_1.yaml` (this
-  session; committed in `46b9ca0d`)
-- `superstructure/generic/tests/scenarios/statistics_real/expectations.yaml` (this
-  session; committed in `46b9ca0d`)
+- `gridcomps/statistics/TimeAverage.F90` (prior sessions; merged via PR #5392,
+  "Vector Statistics - Part 1", commit `622f3ce7`)
+- `gridcomps/statistics/TimeMax.F90` (bundle support + `fill_value` bugfix: prior
+  sessions; merged via PR #5392, `622f3ce7`)
+- `gridcomps/statistics/TimeMin.F90` (bundle support + `fill_value` bugfix: prior
+  sessions; merged via PR #5392, `622f3ce7`)
+- `gridcomps/statistics/TimeAccumulate.F90` (prior sessions; merged via PR #5392,
+  `622f3ce7`)
+- `gridcomps/configurable/ConfigurableGridComp.F90` (bundle-aware `run()`; prior
+  sessions; merged via PR #5392, `622f3ce7`)
+- `superstructure/generic/tests/Test_Scenarios.pf` (bundle-aware
+  `check_field_status`/`check_field_value`, missing `use` fix; prior sessions; merged
+  via PR #5392, `622f3ce7`)
+- `superstructure/generic/tests/scenarios/statistics_real/A.yaml`,
+  `collection_1.yaml`, `history.yaml`, `stat.yaml`, `expectations.yaml` (non-variance
+  quantities: prior sessions, merged via PR #5392, `622f3ce7`; unbiased variance
+  quantities `TS_VAR_W`/`TS_VAR_S`/`UV_VAR_W`/`UV_VAR_S` and biased variance
+  quantities `TS_VAR_W_BIASED`/`TS_VAR_S_BIASED`/`UV_VAR_W_BIASED`/
+  `UV_VAR_S_BIASED`: **this session, 2026-09-18, NOT YET COMMITTED** — see below)
+- `gridcomps/statistics/AbstractCovarianceKernel.F90`,
+  `WelfordCovarianceKernel.F90`, `ShiftedCovarianceKernel.F90`, `TimeVariance.F90`,
+  `StatisticsGridComp.F90` — **this session, 2026-09-18, NOT YET COMMITTED**:
+  kernel-interface refactor (`item_type` param, `get_internal_field_prefixes()`,
+  `internal_fields(:)` plumbing), `TimeVariance` bundle support + eager-initialization
+  fix (see "Session 2026-09-18 implementation notes" above), and
+  `StatisticsGridComp.F90`'s `'variance'` case/`make_variance_stat` bundle dispatch.
 
-## Files NOT Touched (deliberately deferred)
+## Files NOT Touched
 
-- `gridcomps/statistics/TimeVariance.F90`
-- `gridcomps/statistics/AbstractCovarianceKernel.F90`
-- `gridcomps/statistics/WelfordCovarianceKernel.F90`
-- `gridcomps/statistics/ShiftedCovarianceKernel.F90`
 - `gridcomps/statistics/AbstractTimeStatistic.F90` (no changes needed — interfaces
   already generic enough)
 - `gridcomps/statistics/tests/*.pf` (no new unit tests added; only the scenario-level
-  `statistics_real` integration test was expanded)
+  `statistics_real` integration test was expanded, across all sessions of this effort)
 
 ## Commit History (this effort)
 
 ```
-46b9ca0d vector working                       <- this session: scenario-test expansion,
-                                                  fill_value bugfix, Test_Scenarios.pf
-                                                  bundle support, ConfigurableGridComp
-                                                  bundle-aware run(), plan doc v2.0
-7e20e30e add plan for vector stats             <- plan doc v1.0 (prior session's summary)
-d45c1568 update all non-variance methods       <- prior session: TimeMax/TimeMin/
-                                                  TimeAccumulate bundle support +
-                                                  StatisticsGridComp.F90 dispatch
-150b6a13 fix bug                               <- prior session (HistoryGridComp_private,
-                                                  StatisticsGridComp minor fix)
-57883343 more changes                          <- earlier session: initial TimeAverage
-                                                  bundle work + History/FieldBundleGet
-                                                  fixes
+622f3ce7 Vector Statistics - Part 1 (#5392)   <- merged PR containing all prior-session
+                                                  work: TimeAverage/TimeMax/TimeMin/
+                                                  TimeAccumulate bundle support,
+                                                  StatisticsGridComp.F90 non-variance
+                                                  dispatch, ConfigurableGridComp
+                                                  bundle-aware run(), Test_Scenarios.pf
+                                                  bundle support, statistics_real
+                                                  scenario-test expansion (8 non-variance
+                                                  quantities)
 ```
 
-As of this writing, `git status` is fully clean — nothing left uncommitted for this
-effort (see "Remaining Tasks" item 7 for a note on the now-resolved `case18` tangent).
+As of this writing (2026-09-18, end of session), the TimeVariance/covariance-kernel
+bundle support + eager-init fix described in this document, plus the 8 new
+`statistics_real` variance scenario-test quantities (4 unbiased + 4 biased), are
+**implemented, built, and verified passing** (`ctest -R MAPL.generic.scenarios`: all
+sub-tests pass; full `ctest --test-dir build-debug`: 70/74 pass, remaining 4 failures
+pre-existing/environmental and unrelated — see implementation notes above) but **NOT
+YET COMMITTED to git** (per this effort's established norm: do not commit unless the
+user explicitly asks). `git status --short` at this point shows exactly (same 10
+files as before this addition — the biased quantities were added to the same 5
+scenario-test YAML files):
+
+```
+ M gridcomps/statistics/AbstractCovarianceKernel.F90
+ M gridcomps/statistics/ShiftedCovarianceKernel.F90
+ M gridcomps/statistics/StatisticsGridComp.F90
+ M gridcomps/statistics/TimeVariance.F90
+ M gridcomps/statistics/WelfordCovarianceKernel.F90
+ M superstructure/generic/tests/scenarios/statistics_real/A.yaml
+ M superstructure/generic/tests/scenarios/statistics_real/collection_1.yaml
+ M superstructure/generic/tests/scenarios/statistics_real/expectations.yaml
+ M superstructure/generic/tests/scenarios/statistics_real/history.yaml
+ M superstructure/generic/tests/scenarios/statistics_real/stat.yaml
+```
 
 </content>
