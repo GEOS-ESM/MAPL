@@ -21,6 +21,14 @@ target_sources(MAPL.generic PRIVATE
   Transform.F90
   TransformGraphNode.F90
 
+  AccessSpec.F90
+  ArgumentSpec.F90
+  containers/ArgumentSpecMap.F90
+  MethodInvocationAdapter.F90
+  GridCompMethodInvocation.F90
+  StateMethodInvocation.F90
+  MethodGraphNode.F90
+
   PortBindingKey.F90
   containers/PortBindingKeyPortMap.F90
   PortBindingTable.F90

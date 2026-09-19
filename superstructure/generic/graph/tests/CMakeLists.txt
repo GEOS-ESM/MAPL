@@ -34,6 +34,11 @@ set(test_srcs
   Test_TransformGraphNode.pf
   Test_ComponentGraph_PortBindings.pf
   Test_DemandDrivenUpdate.pf
+  Test_AccessSpec.pf
+  Test_ArgumentSpec.pf
+  Test_GridCompMethodInvocation.pf
+  Test_StateMethodInvocation.pf
+  Test_MethodGraphNode.pf
   Test_GraphExport.pf
   Test_Characteristic.pf
   Test_ExtensionResolution.pf

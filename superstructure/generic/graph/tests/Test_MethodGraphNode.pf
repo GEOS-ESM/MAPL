@@ -1,0 +1,398 @@
+! Task 4.7 (spec/12-methods-and-drivers.md REQ-MTH-001/002/003/004/005/006).
+module Test_MethodGraphNode
+   use mapl_MethodGraphNode_mod, only: MethodGraphNode
+   use mapl_MethodInvocationAdapter_mod, only: MethodInvocationAdapter, &
+        GridCompPhaseInvoker, StateMethodInvoker
+   use mapl_GridCompMethodInvocation_mod, only: GridCompMethodInvocation
+   use mapl_StateMethodInvocation_mod, only: StateMethodInvocation
+   use mapl_ArgumentSpec_mod, only: ArgumentSpec
+   use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_AccessSpec_mod, only: AccessSpec, operator(==), &
+        MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT, MAPL_ACCESS_UNSPECIFIED
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, operator(==)
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
+   use ESMF, only: ESMF_Clock, ESMF_Time, ESMF_TimeInterval, ESMF_ClockCreate, &
+        ESMF_TimeSet, ESMF_TimeIntervalSet
+   use funit
+   implicit none
+
+   ! Generic recording MethodInvocationAdapter double, used to test
+   ! MethodGraphNode%invoke()'s delegation contract independent of
+   ! either concrete adapter kind. Held via a pointer-to-record for the
+   ! same reason as the other test doubles in this change (survives the
+   ! sourced-allocation copy MethodGraphNode's constructor performs).
+   type :: CallRecord
+      integer :: call_count = 0
+      integer :: argument_count = -1
+      integer :: binding_count = -1
+      logical :: clock_present = .false.
+   end type CallRecord
+
+   type, extends(MethodInvocationAdapter) :: RecordingAdapter
+      type(CallRecord), pointer :: record => null()
+      logical :: fail = .false.
+   contains
+      procedure :: invoke => recording_adapter_invoke
+   end type RecordingAdapter
+
+   ! Minimal always-succeeds doubles for the two concrete adapter kinds,
+   ! used to confirm a MethodGraphNode invokes identically regardless of
+   ! which adapter kind is attached.
+   type, extends(GridCompPhaseInvoker) :: NullPhaseInvoker
+   contains
+      procedure :: invoke_phase => null_invoke_phase
+   end type NullPhaseInvoker
+
+   type, extends(StateMethodInvoker) :: NullStateInvoker
+   contains
+      procedure :: invoke_method => null_invoke_method
+   end type NullStateInvoker
+
+contains
+
+   subroutine recording_adapter_invoke(this, arguments, bindings, clock, rc)
+      class(RecordingAdapter), intent(inout) :: this
+      type(ArgumentSpecMap), intent(in) :: arguments
+      type(StateItemMemberMap), intent(in) :: bindings
+      type(ESMF_Clock), optional, intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      this%record%call_count = this%record%call_count + 1
+      this%record%argument_count = int(arguments%size())
+      this%record%binding_count = int(bindings%size())
+      this%record%clock_present = present(clock)
+
+      if (this%fail) then
+         rc = 1
+      else
+         rc = 0
+      end if
+   end subroutine recording_adapter_invoke
+
+   subroutine null_invoke_phase(this, driver_key, phase_name, arguments, bindings, clock, rc)
+      class(NullPhaseInvoker), intent(inout) :: this
+      character(*), intent(in) :: driver_key
+      character(*), intent(in) :: phase_name
+      type(ArgumentSpecMap), intent(in) :: arguments
+      type(StateItemMemberMap), intent(in) :: bindings
+      type(ESMF_Clock), optional, intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      rc = 0
+   end subroutine null_invoke_phase
+
+   subroutine null_invoke_method(this, state_node_id, method_name, arguments, bindings, rc)
+      class(NullStateInvoker), intent(inout) :: this
+      type(NodeId), intent(in) :: state_node_id
+      character(*), intent(in) :: method_name
+      type(ArgumentSpecMap), intent(in) :: arguments
+      type(StateItemMemberMap), intent(in) :: bindings
+      integer, optional, intent(out) :: rc
+
+      rc = 0
+   end subroutine null_invoke_method
+
+   ! Spec scenario: "Node constructed for a GridComp-phase call shape"
+   @test
+   subroutine test_gridcomp_adapter_shape()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(GridCompMethodInvocation) :: adapter
+      integer :: status
+
+      adapter = GridCompMethodInvocation('driver-1', 'RUN', NullPhaseInvoker())
+      node = MethodGraphNode(gen%next(), adapter)
+
+      call node%declare_argument('x', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(node%is_argument('x'))
+   end subroutine test_gridcomp_adapter_shape
+
+   ! Spec scenario: "Node constructed for a State-callback call shape"
+   @test
+   subroutine test_state_adapter_shape()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(StateMethodInvocation) :: adapter
+      integer :: status
+
+      adapter = StateMethodInvocation(gen%next(), 'get', NullStateInvoker())
+      node = MethodGraphNode(gen%next(), adapter)
+
+      call node%declare_argument('x', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(node%is_argument('x'))
+   end subroutine test_state_adapter_shape
+
+   ! Spec scenario: "No adapter attached is not invocable"
+   @test
+   subroutine test_invoke_with_no_adapter_fails()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      integer :: status
+
+      node = MethodGraphNode(gen%next())
+
+      call node%invoke(rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_invoke_with_no_adapter_fails
+
+   ! Spec scenario: "Arguments declared with each access mode"
+   @test
+   subroutine test_declare_each_access_mode()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(ArgumentSpec) :: spec
+      integer :: status
+
+      node = MethodGraphNode(gen%next())
+
+      call node%declare_argument('a_in', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+      call node%declare_argument('a_out', MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+      call node%declare_argument('a_inout', MAPL_ACCESS_INOUT, rc=status)
+      @assertEqual(0, status)
+      call node%declare_argument('a_unspecified', MAPL_ACCESS_UNSPECIFIED, rc=status)
+      @assertEqual(0, status)
+
+      spec = node%get_argument('a_in', rc=status)
+      @assertTrue(spec%get_access() == MAPL_ACCESS_IN)
+      spec = node%get_argument('a_out', rc=status)
+      @assertTrue(spec%get_access() == MAPL_ACCESS_OUT)
+      spec = node%get_argument('a_inout', rc=status)
+      @assertTrue(spec%get_access() == MAPL_ACCESS_INOUT)
+      spec = node%get_argument('a_unspecified', rc=status)
+      @assertTrue(spec%get_access() == MAPL_ACCESS_UNSPECIFIED)
+   end subroutine test_declare_each_access_mode
+
+   ! Spec scenario: "Duplicate argument name is rejected"
+   @test
+   subroutine test_duplicate_argument_name_rejected()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(ArgumentSpec) :: spec
+      integer :: status
+
+      node = MethodGraphNode(gen%next())
+
+      call node%declare_argument('x', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+      call node%declare_argument('x', MAPL_ACCESS_OUT, rc=status)
+      @assertTrue(status /= 0)
+
+      ! Original declaration is unaffected.
+      spec = node%get_argument('x', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%get_access() == MAPL_ACCESS_IN)
+   end subroutine test_duplicate_argument_name_rejected
+
+   ! Spec scenarios: "Kind-constrained argument accepts/rejects a binding"
+   @test
+   subroutine test_kind_constrained_binding_accepts_match()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(NodeId) :: target_id
+      type(NodeId), pointer :: bound_id
+      integer :: status
+
+      node = MethodGraphNode(gen%next())
+      call node%declare_argument('g', MAPL_ACCESS_IN, rc=status, expected_kind=MAPL_STATEITEM_FIELD)
+      @assertEqual(0, status)
+
+      target_id = gen%next()
+      call node%bind_argument('g', target_id, rc=status, actual_kind=MAPL_STATEITEM_FIELD)
+      @assertEqual(0, status)
+
+      bound_id => node%get_argument_binding('g')
+      @assertTrue(associated(bound_id))
+      @assertTrue(bound_id == target_id)
+   end subroutine test_kind_constrained_binding_accepts_match
+
+   @test
+   subroutine test_kind_constrained_binding_rejects_mismatch()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(NodeId) :: target_id
+      type(NodeId), pointer :: bound_id
+      integer :: status
+
+      node = MethodGraphNode(gen%next())
+      call node%declare_argument('g', MAPL_ACCESS_IN, rc=status, expected_kind=MAPL_STATEITEM_FIELD)
+      @assertEqual(0, status)
+
+      target_id = gen%next()
+      call node%bind_argument('g', target_id, rc=status, actual_kind=MAPL_STATEITEM_FIELDBUNDLE)
+      @assertTrue(status /= 0)
+
+      bound_id => node%get_argument_binding('g')
+      @assertFalse(associated(bound_id))
+   end subroutine test_kind_constrained_binding_rejects_mismatch
+
+   ! Spec scenario: "Binding an undeclared argument is rejected"
+   @test
+   subroutine test_bind_undeclared_argument_rejected()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      integer :: status
+
+      node = MethodGraphNode(gen%next())
+
+      call node%bind_argument('never_declared', gen%next(), rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_bind_undeclared_argument_rejected
+
+   ! Spec scenario: "Bound argument is retrievable by name"
+   @test
+   subroutine test_bound_argument_retrievable_by_name()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(NodeId) :: target_id
+      type(NodeId), pointer :: bound_id
+      integer :: status
+
+      node = MethodGraphNode(gen%next())
+      call node%declare_argument('x', MAPL_ACCESS_IN, rc=status)
+      target_id = gen%next()
+      call node%bind_argument('x', target_id, rc=status)
+      @assertEqual(0, status)
+
+      bound_id => node%get_argument_binding('x')
+      @assertTrue(associated(bound_id))
+      @assertTrue(bound_id == target_id)
+   end subroutine test_bound_argument_retrievable_by_name
+
+   ! Spec scenario: "Arguments from both sides coexist without distinction"
+   @test
+   subroutine test_import_and_export_flavored_arguments_coexist()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(NodeId) :: import_id, export_id
+      type(NodeId), pointer :: bound_id
+      type(ArgumentSpecMap) :: arguments
+      integer :: status
+
+      node = MethodGraphNode(gen%next())
+      call node%declare_argument('import_side', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+      call node%declare_argument('export_side', MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+
+      import_id = gen%next()
+      export_id = gen%next()
+      call node%bind_argument('import_side', import_id, rc=status)
+      @assertEqual(0, status)
+      call node%bind_argument('export_side', export_id, rc=status)
+      @assertEqual(0, status)
+
+      ! Both retrievable through the same query methods - no separate
+      ! "which side" query exists or is needed.
+      arguments = node%get_arguments()
+      @assertEqual(2, int(arguments%size()))
+
+      bound_id => node%get_argument_binding('import_side')
+      @assertTrue(associated(bound_id) .and. bound_id == import_id)
+      bound_id => node%get_argument_binding('export_side')
+      @assertTrue(associated(bound_id) .and. bound_id == export_id)
+   end subroutine test_import_and_export_flavored_arguments_coexist
+
+   ! Spec scenario: "Invocation calls exactly the adapter's entry point"
+   @test
+   subroutine test_invoke_calls_adapter_entry_point_exactly_once()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(RecordingAdapter) :: adapter
+      type(CallRecord), target :: record
+      integer :: status
+
+      adapter%record => record
+      node = MethodGraphNode(gen%next(), adapter)
+
+      call node%declare_argument('x', MAPL_ACCESS_IN, rc=status)
+      call node%bind_argument('x', gen%next(), rc=status)
+
+      call node%invoke(rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, record%call_count)
+      @assertEqual(1, record%argument_count)
+      @assertEqual(1, record%binding_count)
+      @assertFalse(record%clock_present)
+
+      call node%invoke(rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, record%call_count)
+   end subroutine test_invoke_calls_adapter_entry_point_exactly_once
+
+   ! Spec scenario: "Invocation succeeds identically regardless of
+   ! adapter kind"
+   @test
+   subroutine test_invoke_succeeds_for_both_adapter_kinds()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: gridcomp_node, state_node
+      integer :: status
+
+      gridcomp_node = MethodGraphNode(gen%next(), &
+           GridCompMethodInvocation('driver-1', 'RUN', NullPhaseInvoker()))
+      state_node = MethodGraphNode(gen%next(), &
+           StateMethodInvocation(gen%next(), 'get', NullStateInvoker()))
+
+      call gridcomp_node%invoke(rc=status)
+      @assertEqual(0, status)
+
+      call state_node%invoke(rc=status)
+      @assertEqual(0, status)
+   end subroutine test_invoke_succeeds_for_both_adapter_kinds
+
+   ! Spec scenarios: "Invoking with a clock does not create a graph
+   ! dependency" / "Invoking without a clock succeeds"
+   @test
+   subroutine test_invoke_with_clock_passes_through_with_no_new_state()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(RecordingAdapter) :: adapter
+      type(CallRecord), target :: record
+      type(ESMF_Time) :: start_time
+      type(ESMF_TimeInterval) :: timestep
+      type(ESMF_Clock) :: clock
+      type(ArgumentSpecMap) :: arguments_before, arguments_after
+      integer :: status
+
+      adapter%record => record
+      node = MethodGraphNode(gen%next(), adapter)
+      arguments_before = node%get_arguments()
+
+      call ESMF_TimeSet(start_time, h=0, rc=status)
+      @assertEqual(0, status)
+      call ESMF_TimeIntervalSet(timestep, h=1, rc=status)
+      @assertEqual(0, status)
+      clock = ESMF_ClockCreate(timestep, start_time, rc=status)
+      @assertEqual(0, status)
+
+      call node%invoke(rc=status, clock=clock)
+      @assertEqual(0, status)
+      @assertTrue(record%clock_present)
+
+      ! No argument declaration/binding was created or consulted to
+      ! represent the clock.
+      arguments_after = node%get_arguments()
+      @assertEqual(int(arguments_before%size()), int(arguments_after%size()))
+   end subroutine test_invoke_with_clock_passes_through_with_no_new_state
+
+   @test
+   subroutine test_invoke_without_clock_succeeds()
+      type(NodeIdGenerator) :: gen
+      type(MethodGraphNode) :: node
+      type(RecordingAdapter) :: adapter
+      type(CallRecord), target :: record
+      integer :: status
+
+      adapter%record => record
+      node = MethodGraphNode(gen%next(), adapter)
+
+      call node%invoke(rc=status)
+      @assertEqual(0, status)
+      @assertFalse(record%clock_present)
+   end subroutine test_invoke_without_clock_succeeds
+
+end module Test_MethodGraphNode
