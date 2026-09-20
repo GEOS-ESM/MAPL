@@ -363,6 +363,49 @@ composite structure); is a real prerequisite for 4c/4d below.
   `is_self()`/`SELF_COMPONENT_NAME` checks hint at for connection
   resolution; that is a separate, larger question outside driver
   storage, not assumed solved by this sub-change.
+
+  **Evaluated during planning (2026-09-20), declined — not
+  implemented.** Change proposal drafted
+  (`openspec/changes/outermetacomponent-driver-map-unification`,
+  removed after this decision, never merged) and taken through design
+  before implementation began. Two findings killed it:
+  1. `this%children` (`OuterMetaComponent.F90:57`) is not merely
+     driver storage — it is the live "list of real children" that
+     `get_num_children.F90`, `get_child_name.F90`, `recurse.F90`
+     (`initialize`/`write_restart`), `run_children_.F90`,
+     `run_clock_advance.F90`, `finalize.F90`'s `recurse_finalize_`, and
+     `apply_to_children_custom.F90` all iterate directly. Inserting the
+     self driver into that same map under `<self>` would have made
+     every one of those sites additionally process the self entry as a
+     "child," double-invoking `initialize`/`run`/`finalize`/
+     `clock_advance` on the user's own driver (on top of the existing
+     explicit `user_gc_driver`/`get_user_gc_driver()` calls already
+     present in `run_user.F90`, `run_custom.F90`, `finalize.F90`,
+     `run_clock_advance.F90`) and off-by-one-ing `get_num_children`/
+     `get_child_name`. Filtering `<self>` out of all seven sites was
+     considered and rejected: it adds guard logic in seven lifecycle-
+     critical loops, the opposite of this sub-change's own stated
+     purpose (measurably *reducing* duplicated logic).
+  2. With that option off the table, the fallback — collapse
+     `OuterMetaComponentDriverResolver.F90`'s self-vs-child `if/else`
+     into a new `OuterMetaComponent` accessor without merging the
+     underlying storage — was checked against the actual codebase
+     first rather than assumed worthwhile: a repo-wide search found
+     that branch already exists in exactly one place
+     (`OuterMetaComponentDriverResolver.F90:65-82`); every other
+     `get_user_gc_driver()` caller already knows it wants the self
+     driver and calls it directly, with no `driver_key`-style branch to
+     share. There is no second copy of the logic anywhere to
+     consolidate, so relocating those four lines to a new method would
+     move code sideways for zero measurable reduction in duplication —
+     the premise this sub-change was filed under.
+
+  Net: both mechanically-available paths are net-negative or net-zero
+  against the sub-change's own justification. 4b's `DriverResolver`
+  remains as shipped (two representations, one already-centralized
+  branch) — correct, if not maximally elegant. Revisit only if a
+  second real consumer of self-or-child driver-key resolution appears;
+  until then there is nothing to unify.
 - **4c. Callback data model + registry** (`15` §15.2–15.7) —
   `CallbackInterface`/`CallbackArgumentSpec`/`CallbackMethodSpec`/
   `CallbackStateBinding`/`CallbackInterfaceRegistry`. Static and
