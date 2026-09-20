@@ -45,6 +45,11 @@ set(test_srcs
   Test_ExtensionResolution.pf
   Test_ExtensionMaterialization.pf
   Test_UnitsConverterTransform.pf
+  Test_CallbackArgumentSpec.pf
+  Test_CallbackMethodSpec.pf
+  Test_CallbackInterface.pf
+  Test_CallbackInterfaceRegistry.pf
+  Test_CallbackStateBinding.pf
 )
 
 add_pfunit_ctest(MAPL.generic.graph

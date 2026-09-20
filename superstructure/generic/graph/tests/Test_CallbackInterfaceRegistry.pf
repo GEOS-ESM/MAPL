@@ -1,0 +1,88 @@
+! Task 4.3 (spec/15-callbacks.md REQ-CB-008/009/010).
+!
+! The registry is a real module-level singleton (design.md Decision 4,
+! Risks) - each test below uses its own unique service_name to stay
+! independent of test execution order, the same convention
+! ExtensionResolution.F90's own singleton flag relies on.
+module Test_CallbackInterfaceRegistry
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
+        get_callback_interface, get_callback_interface_by_name, &
+        lookup_callback_interface_id
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, operator(==)
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_registration_assigns_retrievable_identity()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      call register_callback_interface('test-registry-basic', iface, id, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(id%is_valid())
+   end subroutine test_registration_assigns_retrievable_identity
+
+   @test
+   subroutine test_retrieval_by_identity_and_by_service_name()
+      type(CallbackInterface) :: iface, by_id, by_name
+      type(CallbackInterfaceId) :: id, looked_up
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      call register_callback_interface('test-registry-retrieval', iface, id, rc=status)
+      @assertEqual(0, status)
+
+      looked_up = lookup_callback_interface_id('test-registry-retrieval', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(looked_up == id)
+
+      by_id = get_callback_interface(id, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(by_id%is_argument('tracers'))
+
+      by_name = get_callback_interface_by_name('test-registry-retrieval', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(by_name%is_argument('tracers'))
+   end subroutine test_retrieval_by_identity_and_by_service_name
+
+   @test
+   subroutine test_duplicate_service_name_rejected()
+      type(CallbackInterface) :: iface_one, iface_two, retrieved
+      type(CallbackInterfaceId) :: id_one, id_two
+      integer :: status
+
+      call iface_one%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      call register_callback_interface('test-registry-duplicate', iface_one, id_one, rc=status)
+      @assertEqual(0, status)
+
+      call register_callback_interface('test-registry-duplicate', iface_two, id_two, rc=status)
+      @assertTrue(status /= 0)
+
+      ! Original registration is unaffected.
+      retrieved = get_callback_interface_by_name('test-registry-duplicate', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(retrieved%is_argument('tracers'))
+   end subroutine test_duplicate_service_name_rejected
+
+   @test
+   subroutine test_lookup_of_unregistered_service_name_fails()
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      id = lookup_callback_interface_id('test-registry-never-registered', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_lookup_of_unregistered_service_name_fails
+
+end module Test_CallbackInterfaceRegistry

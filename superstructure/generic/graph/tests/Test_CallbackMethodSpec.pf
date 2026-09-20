@@ -1,0 +1,69 @@
+! Task 2.4 (spec/15-callbacks.md REQ-CB-004).
+module Test_CallbackMethodSpec
+   use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
+   use mapl_AccessSpec_mod, only: AccessSpec, operator(==), &
+        MAPL_ACCESS_OUT, MAPL_ACCESS_IN
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_declare_and_retrieve_argument_access()
+      type(CallbackMethodSpec) :: spec
+      type(AccessSpec) :: access
+      integer :: status
+
+      call spec%declare_argument_access('tracers', MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(spec%is_argument_access('tracers'))
+      access = spec%get_argument_access('tracers', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(access == MAPL_ACCESS_OUT)
+   end subroutine test_declare_and_retrieve_argument_access
+
+   @test
+   subroutine test_duplicate_argument_access_rejected()
+      type(CallbackMethodSpec) :: spec
+      type(AccessSpec) :: access
+      integer :: status
+
+      call spec%declare_argument_access('tracers', MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+
+      call spec%declare_argument_access('tracers', MAPL_ACCESS_IN, rc=status)
+      @assertTrue(status /= 0)
+
+      ! Original declaration is unaffected.
+      access = spec%get_argument_access('tracers', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(access == MAPL_ACCESS_OUT)
+   end subroutine test_duplicate_argument_access_rejected
+
+   @test
+   subroutine test_get_argument_access_fails_when_undeclared()
+      type(CallbackMethodSpec) :: spec
+      type(AccessSpec) :: access
+      integer :: status
+
+      access = spec%get_argument_access('never_declared', rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(spec%is_argument_access('never_declared'))
+   end subroutine test_get_argument_access_fails_when_undeclared
+
+   @test
+   subroutine test_get_argument_accesses_reports_size()
+      use mapl_AccessSpecMap_mod, only: AccessSpecMap
+      type(CallbackMethodSpec) :: spec
+      type(AccessSpecMap) :: accesses
+      integer :: status
+
+      call spec%declare_argument_access('a', MAPL_ACCESS_IN, rc=status)
+      call spec%declare_argument_access('b', MAPL_ACCESS_OUT, rc=status)
+
+      accesses = spec%get_argument_accesses()
+      @assertEqual(2, int(accesses%size()))
+   end subroutine test_get_argument_accesses_reports_size
+
+end module Test_CallbackMethodSpec
