@@ -1,0 +1,124 @@
+! Task 3.2 (spec/15-callbacks.md REQ-CB-002/003/004).
+module Test_CallbackInterface
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
+   use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
+   use mapl_AccessSpec_mod, only: AccessSpec, operator(==), &
+        MAPL_ACCESS_OUT, MAPL_ACCESS_IN
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE, operator(==)
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_declare_argument_and_retrieve()
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(iface%is_argument('tracers'))
+
+      spec = iface%get_argument('tracers', rc=status)
+      @assertEqual(0, status)
+      @assertEqual('tracers', spec%get_name())
+      @assertTrue(spec%get_expected_kind() == MAPL_STATEITEM_FIELDBUNDLE)
+   end subroutine test_declare_argument_and_retrieve
+
+   @test
+   subroutine test_duplicate_argument_name_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_duplicate_argument_name_rejected
+
+   @test
+   subroutine test_declare_method_and_retrieve()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_method('get', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(iface%is_method('get'))
+   end subroutine test_declare_method_and_retrieve
+
+   @test
+   subroutine test_duplicate_method_name_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_method('get', rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_method('get', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_duplicate_method_name_rejected
+
+   @test
+   subroutine test_set_method_argument_access_rejects_undeclared_argument()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_method('get', rc=status)
+      @assertEqual(0, status)
+
+      call iface%set_method_argument_access('get', 'tracers', MAPL_ACCESS_OUT, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_set_method_argument_access_rejects_undeclared_argument
+
+   @test
+   subroutine test_set_method_argument_access_rejects_undeclared_method()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      call iface%set_method_argument_access('get', 'tracers', MAPL_ACCESS_OUT, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_set_method_argument_access_rejects_undeclared_method
+
+   ! Spec scenario: "Same argument has different access modes in
+   ! different methods" - the PassiveTracer example (15-callbacks.md
+   ! §15.3).
+   @test
+   subroutine test_passive_tracer_example()
+      type(CallbackInterface) :: iface
+      type(CallbackMethodSpec) :: get_spec, put_spec
+      type(AccessSpec) :: access
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_method('get', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('put', rc=status)
+      @assertEqual(0, status)
+
+      call iface%set_method_argument_access('get', 'tracers', MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('put', 'tracers', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+
+      get_spec = iface%get_method('get', rc=status)
+      @assertEqual(0, status)
+      access = get_spec%get_argument_access('tracers', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(access == MAPL_ACCESS_OUT)
+
+      put_spec = iface%get_method('put', rc=status)
+      @assertEqual(0, status)
+      access = put_spec%get_argument_access('tracers', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(access == MAPL_ACCESS_IN)
+   end subroutine test_passive_tracer_example
+
+end module Test_CallbackInterface

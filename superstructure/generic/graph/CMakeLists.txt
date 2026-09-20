@@ -60,6 +60,18 @@ target_sources(MAPL.generic PRIVATE
   ExtensionMaterialization.F90
 
   CompositeStateMaterialization.F90
+
+  CallbackArgumentSpec.F90
+  containers/CallbackArgumentSpecMap.F90
+  containers/AccessSpecMap.F90
+  CallbackMethodSpec.F90
+  containers/CallbackMethodSpecMap.F90
+  CallbackInterface.F90
+  containers/CallbackInterfaceIdInterfaceMap.F90
+  containers/CallbackServiceNameIdMap.F90
+  CallbackInterfaceRegistry.F90
+  containers/CallbackMethodAttachmentMap.F90
+  CallbackStateBinding.F90
 )
 
 target_include_directories(MAPL.generic PRIVATE

@@ -1,0 +1,295 @@
+! Task 5.3 (spec/15-callbacks.md REQ-CB-001/007).
+module Test_CallbackStateBinding
+   use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, operator(==)
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface
+   use mapl_MethodInvocationAdapter_mod, only: StateMethodInvoker
+   use mapl_StateMethodInvocation_mod, only: StateMethodInvocation
+   use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_AccessSpec_mod, only: MAPL_ACCESS_OUT, MAPL_ACCESS_IN
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
+   use funit
+   implicit none
+
+   ! Records exactly what invoke_method() was called with - same
+   ! pattern as Test_StateMethodInvocation.pf's RecordingStateInvoker.
+   type :: CallRecord
+      integer :: call_count = 0
+      type(NodeId) :: state_node_id
+      character(:), allocatable :: method_name
+      integer :: argument_count = -1
+      integer :: binding_count = -1
+   end type CallRecord
+
+   type, extends(StateMethodInvoker) :: RecordingStateInvoker
+      type(CallRecord), pointer :: record => null()
+   contains
+      procedure :: invoke_method => recording_invoke_method
+   end type RecordingStateInvoker
+
+contains
+
+   subroutine recording_invoke_method(this, state_node_id, method_name, arguments, bindings, rc)
+      class(RecordingStateInvoker), intent(inout) :: this
+      type(NodeId), intent(in) :: state_node_id
+      character(*), intent(in) :: method_name
+      type(ArgumentSpecMap), intent(in) :: arguments
+      type(StateItemMemberMap), intent(in) :: bindings
+      integer, optional, intent(out) :: rc
+
+      this%record%call_count = this%record%call_count + 1
+      this%record%state_node_id = state_node_id
+      this%record%method_name = method_name
+      this%record%argument_count = int(arguments%size())
+      this%record%binding_count = int(bindings%size())
+
+      rc = 0
+   end subroutine recording_invoke_method
+
+   ! Builds the PassiveTracer CallbackInterface (15-callbacks.md §15.3):
+   ! one "tracers" FieldBundle argument, "get" (OUT) / "put" (IN)
+   ! methods.
+   function make_passive_tracer_interface(rc) result(iface)
+      integer, optional, intent(out) :: rc
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      if (present(rc)) rc = status
+      if (status /= 0) return
+
+      call iface%declare_method('get', rc=status)
+      if (present(rc)) rc = status
+      if (status /= 0) return
+
+      call iface%declare_method('put', rc=status)
+      if (present(rc)) rc = status
+      if (status /= 0) return
+
+      call iface%set_method_argument_access('get', 'tracers', MAPL_ACCESS_OUT, rc=status)
+      if (present(rc)) rc = status
+      if (status /= 0) return
+
+      call iface%set_method_argument_access('put', 'tracers', MAPL_ACCESS_IN, rc=status)
+      if (present(rc)) rc = status
+   end function make_passive_tracer_interface
+
+   @test
+   subroutine test_construction_retrieves_interface_and_state_ids()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: binding
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: state_id
+      integer :: status
+
+      iface = make_passive_tracer_interface(rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('test-binding-construction', iface, interface_id, rc=status)
+      @assertEqual(0, status)
+
+      state_id = gen%next()
+      binding = CallbackStateBinding(interface_id, iface, state_id)
+
+      @assertTrue(binding%get_interface_id() == interface_id)
+      @assertTrue(binding%get_state_node_id() == state_id)
+   end subroutine test_construction_retrieves_interface_and_state_ids
+
+   @test
+   subroutine test_bind_argument_success_and_retrieval()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: binding
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: state_id, member_id
+      type(NodeId), pointer :: bound_id
+      integer :: status
+
+      iface = make_passive_tracer_interface(rc=status)
+      call register_callback_interface('test-binding-argument', iface, interface_id, rc=status)
+
+      state_id = gen%next()
+      binding = CallbackStateBinding(interface_id, iface, state_id)
+
+      member_id = gen%next()
+      call binding%bind_argument('tracers', member_id, rc=status)
+      @assertEqual(0, status)
+
+      bound_id => binding%get_argument_binding('tracers')
+      @assertTrue(associated(bound_id))
+      @assertTrue(bound_id == member_id)
+   end subroutine test_bind_argument_success_and_retrieval
+
+   @test
+   subroutine test_bind_argument_outside_interface_rejected()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: binding
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: state_id
+      type(NodeId), pointer :: bound_id
+      integer :: status
+
+      iface = make_passive_tracer_interface(rc=status)
+      call register_callback_interface('test-binding-argument-reject', iface, interface_id, rc=status)
+
+      state_id = gen%next()
+      binding = CallbackStateBinding(interface_id, iface, state_id)
+
+      call binding%bind_argument('never_declared', gen%next(), rc=status)
+      @assertTrue(status /= 0)
+
+      bound_id => binding%get_argument_binding('never_declared')
+      @assertFalse(associated(bound_id))
+   end subroutine test_bind_argument_outside_interface_rejected
+
+   @test
+   subroutine test_bind_method_success_and_retrieval()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: binding
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: state_id
+      type(StateMethodInvocation), pointer :: attachment
+      integer :: status
+
+      iface = make_passive_tracer_interface(rc=status)
+      call register_callback_interface('test-binding-method', iface, interface_id, rc=status)
+
+      state_id = gen%next()
+      binding = CallbackStateBinding(interface_id, iface, state_id)
+
+      call binding%bind_method('get', rc=status)
+      @assertEqual(0, status)
+
+      attachment => binding%get_method_attachment('get')
+      @assertTrue(associated(attachment))
+   end subroutine test_bind_method_success_and_retrieval
+
+   @test
+   subroutine test_bind_method_outside_interface_rejected()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: binding
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: state_id
+      type(StateMethodInvocation), pointer :: attachment
+      integer :: status
+
+      iface = make_passive_tracer_interface(rc=status)
+      call register_callback_interface('test-binding-method-reject', iface, interface_id, rc=status)
+
+      state_id = gen%next()
+      binding = CallbackStateBinding(interface_id, iface, state_id)
+
+      call binding%bind_method('never_declared', rc=status)
+      @assertTrue(status /= 0)
+
+      attachment => binding%get_method_attachment('never_declared')
+      @assertFalse(associated(attachment))
+   end subroutine test_bind_method_outside_interface_rejected
+
+   @test
+   subroutine test_invoke_method_with_invoker_succeeds_exactly_once()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: binding
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: state_id, member_id
+      type(RecordingStateInvoker) :: invoker
+      type(CallRecord), target :: record
+      integer :: status
+
+      iface = make_passive_tracer_interface(rc=status)
+      call register_callback_interface('test-binding-invoke', iface, interface_id, rc=status)
+
+      state_id = gen%next()
+      binding = CallbackStateBinding(interface_id, iface, state_id)
+
+      member_id = gen%next()
+      call binding%bind_argument('tracers', member_id, rc=status)
+      @assertEqual(0, status)
+
+      invoker%record => record
+      call binding%bind_method('get', rc=status, invoker=invoker)
+      @assertEqual(0, status)
+
+      call binding%invoke_method('get', rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(1, record%call_count)
+      @assertTrue(record%state_node_id == state_id)
+      @assertEqual('get', record%method_name)
+      @assertEqual(1, record%argument_count)
+      @assertEqual(1, record%binding_count)
+   end subroutine test_invoke_method_with_invoker_succeeds_exactly_once
+
+   ! Spec scenario: "Method attachment with no configured implementation
+   ! fails loudly on invocation"
+   @test
+   subroutine test_invoke_method_with_no_invoker_fails_loudly()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: binding
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: state_id
+      integer :: status
+
+      iface = make_passive_tracer_interface(rc=status)
+      call register_callback_interface('test-binding-no-invoker', iface, interface_id, rc=status)
+
+      state_id = gen%next()
+      binding = CallbackStateBinding(interface_id, iface, state_id)
+
+      call binding%bind_method('put', rc=status)
+      @assertEqual(0, status)
+
+      call binding%invoke_method('put', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_invoke_method_with_no_invoker_fails_loudly
+
+   ! End-to-end PassiveTracer scenario (15-callbacks.md §15.3):
+   ! register, bind a synthetic callback state NodeId with a synthetic
+   ! tracers member NodeId, bind get/put methods, invoke get through a
+   ! synthetic invoker.
+   @test
+   subroutine test_passive_tracer_end_to_end()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: binding
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: state_id, tracers_member_id
+      type(RecordingStateInvoker) :: get_invoker
+      type(CallRecord), target :: get_record
+      integer :: status
+
+      iface = make_passive_tracer_interface(rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('test-binding-passive-tracer', iface, interface_id, rc=status)
+      @assertEqual(0, status)
+
+      state_id = gen%next()
+      binding = CallbackStateBinding(interface_id, iface, state_id)
+
+      tracers_member_id = gen%next()
+      call binding%bind_argument('tracers', tracers_member_id, rc=status)
+      @assertEqual(0, status)
+
+      get_invoker%record => get_record
+      call binding%bind_method('get', rc=status, invoker=get_invoker)
+      @assertEqual(0, status)
+      call binding%bind_method('put', rc=status)
+      @assertEqual(0, status)
+
+      call binding%invoke_method('get', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, get_record%call_count)
+      @assertEqual('get', get_record%method_name)
+      @assertEqual(1, get_record%argument_count)
+   end subroutine test_passive_tracer_end_to_end
+
+end module Test_CallbackStateBinding
