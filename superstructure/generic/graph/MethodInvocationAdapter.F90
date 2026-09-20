@@ -20,15 +20,38 @@
 ! delegate to, so REQ-MTH-003 ("must not duplicate invocation logic
 ! already in GriddedComponentDriver") is satisfied by construction: a
 ! concrete adapter's own invoke() does nothing but gather bound
-! arguments and call the one injected entry point. This change supplies
+! arguments and call the one injected entry point. Phase 4a supplied
 ! only synthetic test-double implementations of these two interfaces;
-! Phase 4b/4c supply the real GriddedComponentDriver-backed/
-! ESMF_MethodExecute-backed implementations (design.md Decisions).
+! griddedcomponentdriver-integration-lifecycle (Phase 4b) supplies the
+! real GriddedComponentDriver-backed GridCompPhaseInvoker
+! (GridCompDriverPhaseInvoker.F90); the real ESMF_MethodExecute-backed
+! StateMethodInvoker remains Phase 4c/4d's job.
+!
+! gridcomp_invoke_phase_interface's phase_idx (integer) fixes a mismatch
+! Phase 4a's own design.md flagged in its Risks section: the real driver
+! call this must eventually reach (GriddedComponentDriver%run/initialize/
+! finalize, superstructure/component/GriddedComponentDriver.F90) takes
+! phase_idx : integer, never a phase name - see
+! griddedcomponentdriver-integration-lifecycle's design.md Decisions
+! ("GridCompMethodInvocation gains phase_idx in place of phase_name").
+!
+! DriverResolver: the REQ-MTH-009 "stable local identifier -> driver"
+! resolution abstraction (griddedcomponentdriver-integration-lifecycle
+! design.md Decisions - "A new DriverResolver abstraction decouples the
+! real GridCompPhaseInvoker from OuterMetaComponent"). Declared here,
+! alongside the other small injection points this module already owns,
+! rather than in mapl_OuterMetaComponent_mod, so this module keeps its
+! existing independence from OuterMetaComponent - only the return type
+! (GriddedComponentDriver) is needed, not anything OuterMetaComponent-
+! shaped. The concrete implementation resolving a real driver_key
+! against a real OuterMetaComponent's own driver/children lives in
+! superstructure/generic/OuterMetaComponentDriverResolver.F90.
 !------------------------------------------------------------------------------
 module mapl_MethodInvocationAdapter_mod
    use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_NodeId_mod, only: NodeId
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use ESMF, only: ESMF_Clock
    implicit none(type, external)
    private
@@ -36,6 +59,7 @@ module mapl_MethodInvocationAdapter_mod
    public :: MethodInvocationAdapter
    public :: GridCompPhaseInvoker
    public :: StateMethodInvoker
+   public :: DriverResolver
 
    type, abstract :: MethodInvocationAdapter
    contains
@@ -54,24 +78,47 @@ module mapl_MethodInvocationAdapter_mod
    end interface
 
    ! Injected by GridCompMethodInvocation - "the one existing driver
-   ! entry point" (Q2) a real Phase 4b implementation backs with
-   ! GriddedComponentDriver's own initialize/run/finalize calls.
+   ! entry point" (Q2). Real implementation:
+   ! GridCompDriverPhaseInvoker.F90, backed by GriddedComponentDriver's
+   ! own initialize/run/finalize calls.
    type, abstract :: GridCompPhaseInvoker
    contains
       procedure(gridcomp_invoke_phase_interface), deferred :: invoke_phase
    end type GridCompPhaseInvoker
 
    abstract interface
-      subroutine gridcomp_invoke_phase_interface(this, driver_key, phase_name, arguments, bindings, clock, rc)
+      subroutine gridcomp_invoke_phase_interface(this, driver_key, phase_idx, arguments, bindings, clock, rc)
          import :: GridCompPhaseInvoker, ArgumentSpecMap, StateItemMemberMap, ESMF_Clock
          class(GridCompPhaseInvoker), intent(inout) :: this
          character(*), intent(in) :: driver_key
-         character(*), intent(in) :: phase_name
+         integer, intent(in) :: phase_idx
          type(ArgumentSpecMap), intent(in) :: arguments
          type(StateItemMemberMap), intent(in) :: bindings
          type(ESMF_Clock), optional, intent(in) :: clock
          integer, optional, intent(out) :: rc
       end subroutine gridcomp_invoke_phase_interface
+   end interface
+
+   ! REQ-MTH-009: resolves a stable driver_key to the concrete driver it
+   ! names, without the resolved pointer ever being retained by any
+   ! graph-visible object (griddedcomponentdriver-integration-lifecycle
+   ! design.md Decisions). The real implementation
+   ! (OuterMetaComponentDriverResolver.F90) resolves against a real
+   ! OuterMetaComponent's own driver/children; a test double MAY resolve
+   ! against anything else entirely.
+   type, abstract :: DriverResolver
+   contains
+      procedure(driver_resolver_resolve_interface), deferred :: resolve
+   end type DriverResolver
+
+   abstract interface
+      function driver_resolver_resolve_interface(this, driver_key, rc) result(driver)
+         import :: DriverResolver, GriddedComponentDriver
+         class(DriverResolver), intent(in) :: this
+         character(*), intent(in) :: driver_key
+         integer, optional, intent(out) :: rc
+         class(GriddedComponentDriver), pointer :: driver
+      end function driver_resolver_resolve_interface
    end interface
 
    ! Injected by StateMethodInvocation - "the one existing attachment

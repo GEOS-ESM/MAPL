@@ -1,0 +1,143 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Task 3.2 (spec/12-methods-and-drivers.md REQ-MTH-008/009,
+! griddedcomponentdriver-integration-lifecycle spec.md "A driver key
+! resolves to an owned driver without exposing driver identity as a
+! pointer"). OuterMetaComponentDriverResolver's real REQ-MTH-009
+! resolution against a real OuterMetaComponent's own driver ownership
+! (own driver + one driver per child).
+!
+! Test-only OuterMetaComponent instances are built the same way
+! Test_ComponentHierarchyGraph.pf/Test_GraphBuilder.pf do (bypassing
+! SetServices/DSO machinery).
+module Test_OuterMetaComponentDriverResolver
+   use mapl_OuterMetaComponent_mod
+   use mapl_OuterMetaComponentDriverResolver_mod, only: OuterMetaComponentDriverResolver
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! Directly builds a top-level OuterMetaComponent, bypassing
+   ! SetServices/DSO machinery - same helper as
+   ! Test_ComponentHierarchyGraph.pf/Test_GraphBuilder.pf.
+   subroutine make_outer_meta(name, outer_gc, outer_meta, rc)
+      character(*), intent(in) :: name
+      type(ESMF_GridComp), intent(out) :: outer_gc
+      type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: user_gc
+      type(GriddedComponentDriver) :: user_gc_driver
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(content='{}', _RC)
+      outer_gc = ESMF_GridCompCreate(name='['//trim(name)//']', _RC)
+      user_gc = ESMF_GridCompCreate(name=name, _RC)
+      user_gc_driver = GriddedComponentDriver(user_gc)
+
+      call attach_outer_meta(outer_gc, _RC)
+      outer_meta => get_outer_meta(outer_gc, _RC)
+#ifndef __GFORTRAN__
+      outer_meta = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+#else
+      block
+         type(OuterMetaComponent) :: tmp
+         tmp = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+         outer_meta = tmp
+      end block
+#endif
+      call outer_meta%init_meta(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_outer_meta
+
+   ! Spec scenario "Own-driver key resolves to the component's own
+   ! driver": both the '<self>' sentinel and an empty key resolve to
+   ! exactly the same driver get_user_gc_driver() itself returns.
+   @test(npes=[0])
+   subroutine test_self_key_resolves_to_own_driver(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(OuterMetaComponentDriverResolver) :: resolver
+      class(GriddedComponentDriver), pointer :: expected, resolved_self, resolved_empty
+      integer :: status
+
+      call make_outer_meta('comp_resolver_self', outer_gc, outer_meta, _RC)
+      resolver = OuterMetaComponentDriverResolver(outer_meta)
+
+      expected => outer_meta%get_user_gc_driver()
+
+      resolved_self => resolver%resolve('<self>', rc=status)
+      @assertEqual(0, status)
+      @assert_that(associated(resolved_self, expected), is(true()))
+
+      resolved_empty => resolver%resolve('', rc=status)
+      @assertEqual(0, status)
+      @assert_that(associated(resolved_empty, expected), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_self_key_resolves_to_own_driver
+
+   ! Spec scenario "Child-driver key resolves to the named child's
+   ! driver".
+   @test(npes=[0])
+   subroutine test_child_key_resolves_to_child_driver(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(OuterMetaComponentDriverResolver) :: resolver
+      type(ChildSpec) :: child_spec
+      class(GriddedComponentDriver), pointer :: expected, resolved
+      integer :: status
+
+      call make_outer_meta('comp_resolver_child', outer_gc, outer_meta, _RC)
+      child_spec = ChildSpec()
+      call outer_meta%add_child('child_a', child_spec, _RC)
+
+      resolver = OuterMetaComponentDriverResolver(outer_meta)
+
+      expected => outer_meta%get_child_driver('child_a', _RC)
+      resolved => resolver%resolve('child_a', rc=status)
+      @assertEqual(0, status)
+      @assert_that(associated(resolved, expected), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_child_key_resolves_to_child_driver
+
+   ! Spec scenario "Unresolvable driver key fails loudly".
+   @test(npes=[0])
+   subroutine test_unknown_key_fails_loudly(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(OuterMetaComponentDriverResolver) :: resolver
+      class(GriddedComponentDriver), pointer :: resolved
+      integer :: status
+
+      call make_outer_meta('comp_resolver_unknown', outer_gc, outer_meta, _RC)
+      resolver = OuterMetaComponentDriverResolver(outer_meta)
+
+      resolved => resolver%resolve('no-such-child', rc=status)
+      ! Two propagated frames to unwind, innermost first: get_child_driver's
+      ! own descriptive _ASSERT, then resolver_resolve's own bare
+      ! "status=1" _VERIFY propagation - same pattern
+      ! Test_GraphBuilder.pf's test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
+      ! documents for a comparable multi-frame unwind.
+      @assertExceptionRaised('OuterMetaComponent: get_child_driver - child not found: <no-such-child>.')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unknown_key_fails_loudly
+
+end module Test_OuterMetaComponentDriverResolver

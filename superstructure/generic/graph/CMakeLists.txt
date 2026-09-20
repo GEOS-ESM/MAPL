@@ -26,8 +26,10 @@ target_sources(MAPL.generic PRIVATE
   containers/ArgumentSpecMap.F90
   MethodInvocationAdapter.F90
   GridCompMethodInvocation.F90
+  GridCompDriverPhaseInvoker.F90
   StateMethodInvocation.F90
   MethodGraphNode.F90
+  MethodInvocation.F90
 
   PortBindingKey.F90
   containers/PortBindingKeyPortMap.F90

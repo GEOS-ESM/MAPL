@@ -328,6 +328,41 @@ composite structure); is a real prerequisite for 4c/4d below.
   way 3b's own real-configuration validation surfaced 3b2 unplanned.
   First sub-change requiring real `GriddedComponentDriver`/ESMF context;
   depends on 4a.
+- **4b2. Unify `OuterMetaComponent`'s own driver into its child-driver
+  map** — discovered during 4b's own code review
+  (`openspec/changes/griddedcomponentdriver-integration-lifecycle`), not
+  a required completion of 4b's job the way 3b2 was for 3b: 4b's own
+  `DriverResolver` already works correctly as shipped, and this
+  sub-change is a pure simplification, not a correctness gap. Does not
+  block 4c/4d. REQ-MTH-008's "own driver + one driver per child"
+  ownership shape currently lives as two separate representations on
+  `OuterMetaComponent` — a single `user_gc_driver` field plus a
+  `children: GriddedComponentDriverMap` — which forces every
+  driver-key-resolution call site (4b's own
+  `OuterMetaComponentDriverResolver`, and any future one) to branch on
+  "is this the `<self>` sentinel or a real child name" instead of doing
+  one uniform lookup. Store the component's own driver in the *same*
+  map, under the already-established `<self>` sentinel
+  (`GraphBuilder.F90`'s own `SELF_COMPONENT_NAME`, matching
+  `StateRegistry_Hierarchy_smod`'s own precedent for treating "the
+  component itself" as a reserved name among its children) — unifying
+  "the user gridcomp" and "a child gridcomp" as the same underlying
+  representation, differing only in which name resolves to which entry.
+  Real work, not a one-line rename: `user_gc_driver` is currently
+  accessed as a bare field (not only through the existing
+  `get_user_gc_driver()` accessor) from several of `OuterMetaComponent`'s
+  own submodules (e.g. `initialize_accept_transfer.F90`'s
+  `this%user_gc_driver%get_states()`), every one of which would need to
+  move to a uniform accessor once the separate field is gone; must also
+  confirm no existing code path can ever declare a child literally
+  named `<self>` (almost certainly already excluded by the same
+  sentinel convention elsewhere, but worth confirming explicitly rather
+  than assuming). Scoped to `OuterMetaComponent`'s own driver storage
+  only — does not attempt the broader "is a component itself just a
+  specially-named child everywhere" unification `GraphBuilder.F90`'s own
+  `is_self()`/`SELF_COMPONENT_NAME` checks hint at for connection
+  resolution; that is a separate, larger question outside driver
+  storage, not assumed solved by this sub-change.
 - **4c. Callback data model + registry** (`15` §15.2–15.7) —
   `CallbackInterface`/`CallbackArgumentSpec`/`CallbackMethodSpec`/
   `CallbackStateBinding`/`CallbackInterfaceRegistry`. Static and

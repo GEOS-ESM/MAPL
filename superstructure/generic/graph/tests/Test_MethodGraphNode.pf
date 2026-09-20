@@ -70,10 +70,10 @@ contains
       end if
    end subroutine recording_adapter_invoke
 
-   subroutine null_invoke_phase(this, driver_key, phase_name, arguments, bindings, clock, rc)
+   subroutine null_invoke_phase(this, driver_key, phase_idx, arguments, bindings, clock, rc)
       class(NullPhaseInvoker), intent(inout) :: this
       character(*), intent(in) :: driver_key
-      character(*), intent(in) :: phase_name
+      integer, intent(in) :: phase_idx
       type(ArgumentSpecMap), intent(in) :: arguments
       type(StateItemMemberMap), intent(in) :: bindings
       type(ESMF_Clock), optional, intent(in) :: clock
@@ -101,7 +101,7 @@ contains
       type(GridCompMethodInvocation) :: adapter
       integer :: status
 
-      adapter = GridCompMethodInvocation('driver-1', 'RUN', NullPhaseInvoker())
+      adapter = GridCompMethodInvocation('driver-1', 2, NullPhaseInvoker())
       node = MethodGraphNode(gen%next(), adapter)
 
       call node%declare_argument('x', MAPL_ACCESS_IN, rc=status)
@@ -333,7 +333,7 @@ contains
       integer :: status
 
       gridcomp_node = MethodGraphNode(gen%next(), &
-           GridCompMethodInvocation('driver-1', 'RUN', NullPhaseInvoker()))
+           GridCompMethodInvocation('driver-1', 2, NullPhaseInvoker()))
       state_node = MethodGraphNode(gen%next(), &
            StateMethodInvocation(gen%next(), 'get', NullStateInvoker()))
 
