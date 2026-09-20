@@ -19,7 +19,7 @@ module Test_GridCompMethodInvocation
    type :: CallRecord
       integer :: call_count = 0
       character(:), allocatable :: driver_key
-      character(:), allocatable :: phase_name
+      integer :: phase_idx = -1
       integer :: argument_count = -1
       integer :: binding_count = -1
       logical :: clock_present = .false.
@@ -33,10 +33,10 @@ module Test_GridCompMethodInvocation
 
 contains
 
-   subroutine recording_invoke_phase(this, driver_key, phase_name, arguments, bindings, clock, rc)
+   subroutine recording_invoke_phase(this, driver_key, phase_idx, arguments, bindings, clock, rc)
       class(RecordingPhaseInvoker), intent(inout) :: this
       character(*), intent(in) :: driver_key
-      character(*), intent(in) :: phase_name
+      integer, intent(in) :: phase_idx
       type(ArgumentSpecMap), intent(in) :: arguments
       type(StateItemMemberMap), intent(in) :: bindings
       type(ESMF_Clock), optional, intent(in) :: clock
@@ -44,7 +44,7 @@ contains
 
       this%record%call_count = this%record%call_count + 1
       this%record%driver_key = driver_key
-      this%record%phase_name = phase_name
+      this%record%phase_idx = phase_idx
       this%record%argument_count = int(arguments%size())
       this%record%binding_count = int(bindings%size())
       this%record%clock_present = present(clock)
@@ -63,7 +63,7 @@ contains
       integer :: status
 
       invoker%record => record
-      adapter = GridCompMethodInvocation('driver-1', 'RUN', invoker)
+      adapter = GridCompMethodInvocation('driver-1', 2, invoker)
 
       call arguments%insert('x', ArgumentSpec('x', MAPL_ACCESS_IN))
       call bindings%insert('x', gen%next())
@@ -73,7 +73,7 @@ contains
 
       @assertEqual(1, record%call_count)
       @assertEqual('driver-1', record%driver_key)
-      @assertEqual('RUN', record%phase_name)
+      @assertEqual(2, record%phase_idx)
       @assertEqual(1, record%argument_count)
       @assertEqual(1, record%binding_count)
       @assertFalse(record%clock_present)
@@ -90,7 +90,7 @@ contains
       type(StateItemMemberMap) :: bindings
       integer :: status
 
-      adapter = GridCompMethodInvocation('driver-1', 'RUN')
+      adapter = GridCompMethodInvocation('driver-1', 2)
 
       call adapter%invoke(arguments, bindings, rc=status)
       @assertTrue(status /= 0)

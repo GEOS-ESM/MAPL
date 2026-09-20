@@ -1146,11 +1146,29 @@ contains
       end do
    end subroutine graphbuilder_run_activate_hook
 
-   subroutine graphbuilder_run_connect_hook(this)
+   ! griddedcomponentdriver-integration-lifecycle design.md Decisions
+   ! ("REQ-MTH-011 step (c) convergence: match the existing fixed
+   ! two-pass schedule; add one missing hard-error check"): once this
+   ! call's own graphbuilder_freeze succeeds - i.e. once no further
+   ! ACCEPT_TRANSFER pass can ever change anything further, per
+   ! GENERIC_INIT_PHASE_SEQUENCE's fixed two-pass schedule
+   ! (enums/GenericPhases.F90) - re-run the same
+   ! graphbuilder_check_unsatisfied_imports() check
+   ! graphbuilder_run_activate_hook already runs (at GENERIC_INIT_ADVERTISE
+   ! time, before either real pass), but this time escalate a non-empty
+   ! result to an explicit failure instead of only a logged warning.
+   ! Still caught and downgraded to a logged failure by this hook's own
+   ! existing report_if_failed convention below - this is a hard error
+   ! only within graphbuilder_resolve_connections/
+   ! check_unsatisfied_imports' own directly-tested API, never a new way
+   ! for a GraphBuilder defect to break real component initialization
+   ! (design.md Risks).
+    subroutine graphbuilder_run_connect_hook(this)
       class(OuterMetaComponent), target, intent(inout) :: this
 
       integer :: status
       type(StringVector) :: unsupported
+      type(StringVector) :: unresolved
       integer :: i
       character(:), pointer :: unsupported_item
       class(Logger), pointer :: lgr
@@ -1168,7 +1186,33 @@ contains
 
       call graphbuilder_freeze(this, status)
       call report_if_failed(this, 'freeze', status)
+
+      if (status == 0) then
+         call graphbuilder_check_unsatisfied_imports(this, unresolved_imports=unresolved, rc=status)
+         call report_if_failed(this, 'check_unsatisfied_imports', status)
+         if (status == 0) then
+            call assert_converged(unresolved, status)
+            call report_if_failed(this, 'convergence_check', status)
+         end if
+      end if
    end subroutine graphbuilder_run_connect_hook
+
+   ! Split out from graphbuilder_run_connect_hook so this check has its
+   ! own real rc to report through the same report_if_failed convention
+   ! every other step in that hook already uses, rather than an inline
+   ! _ASSERT with no rc of its own to propagate.
+   subroutine assert_converged(unresolved, rc)
+      type(StringVector), intent(in) :: unresolved
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: msg
+
+      _RETURN_IF(unresolved%size() == 0)
+
+      msg = 'GraphBuilder: unresolved required import(s) remain once the fixed realize/accept/realize '// &
+           'schedule ends (griddedcomponentdriver-integration-lifecycle design.md "REQ-MTH-011 step (c) convergence")'
+      _FAIL(msg)
+   end subroutine assert_converged
 
    subroutine report_if_failed(this, step_name, status)
       class(OuterMetaComponent), target, intent(inout) :: this

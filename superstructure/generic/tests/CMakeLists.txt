@@ -134,6 +134,9 @@ set(components_test_srcs
   Test_ExtensionFamily.pf
   Test_ComponentHierarchyGraph.pf
   Test_GraphBuilder.pf
+  Test_OuterMetaComponentDriverResolver.pf
+  Test_GraphBuilder_ConvergenceCheck.pf
+  Test_GridCompDriverPhaseInvoker.pf
 )
 
 add_pfunit_ctest(

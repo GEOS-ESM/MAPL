@@ -782,10 +782,8 @@ contains
       type(VariableSpec), intent(in) :: member
       integer, optional, intent(out) :: rc
 
-      _ASSERT(this%itemType == MAPL_STATEITEM_STATE, &
-           'VariableSpec: declare_member called on a non-STATE itemType')
-      _ASSERT(this%members%count(name) == 0, &
-           'VariableSpec: duplicate member name at this level: '//name)
+      _ASSERT(this%itemType == MAPL_STATEITEM_STATE, 'VariableSpec: declare_member called on a non-STATE itemType')
+      _ASSERT(this%members%count(name) == 0, 'VariableSpec: duplicate member name at this level: '//name)
 
       call this%members%insert(name, member)
 
