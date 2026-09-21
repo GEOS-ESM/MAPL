@@ -50,6 +50,7 @@ set(test_srcs
   Test_CallbackInterface.pf
   Test_CallbackInterfaceRegistry.pf
   Test_CallbackStateBinding.pf
+  Test_CallbackMethodBinding.pf
 )
 
 add_pfunit_ctest(MAPL.generic.graph

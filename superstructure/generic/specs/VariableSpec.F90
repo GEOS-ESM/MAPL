@@ -54,6 +54,7 @@ module mapl_VariableSpec_mod
    use mapl_VariableSpec_private_mod
    use mapl_VariableSpecTag_mod, only: VariableSpecTag
    use mapl_VariableSpecMemberMap_mod
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
 
    implicit none
    private
@@ -162,6 +163,26 @@ module mapl_VariableSpec_mod
       ! own short_name field is never read - only the map key is a
       ! member's identity (design.md Decisions, mirrors REQ-VAL-006).
       type(VariableSpecMemberMap) :: members
+
+      !=====================
+      ! callback interface (openspec/changes/callback-wiring)
+      !=====================
+      ! Marks an import as a callback consumer expecting to satisfy the
+      ! given CallbackInterface, e.g. a `tracers` import expecting the
+      ! PassiveTracer interface (15-callbacks.md sec 15.3). Default
+      ! unset (is_valid() == .false., IdTemplate.inc's own default) for
+      ! an ordinary (non-callback) item - GraphBuilder branches on this
+      ! field's validity, not on itemType, since a callback-consuming
+      ! import is still an ordinary composite STATE item otherwise
+      ! (design.md Decision 0 - mirrors MAPL_STATEITEM_SERVICE's own
+      ! "mark the item, not the connection" precedent without
+      ! overloading itemType itself). Set via plain field assignment
+      ! only (no make_VariableSpec keyword - design.md's own "Explicit
+      ! deferrals": no ComponentSpecParser/YAML or SetServices-
+      ! convenience entry point exists yet, mirroring
+      ! composite-state-spec's own "YAML/HConfig-driven builder... not
+      ! built here" precedent for `members`, below).
+      type(CallbackInterfaceId) :: callback_interface_id
 
    contains
       procedure :: make_virtualPt
