@@ -16,11 +16,12 @@ module mapl_NuopcMetaModel_mod
    use mapl_VariableSpec_mod
    use mapl_VariableSpecVector_mod
    use mapl_MultiState_mod
-   use mapl_enums_api
    use mapl_StateRegistry_mod
    use gFTL2_StringVector
    use mapl_SimpleAlarm_mod
    use mapl_ComponentSpecParser_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_StateItemSpec_mod
    ! NUOPC label_Advertise phases
    use mapl_enums_api, only: MAPL_GENERIC_INIT_SET_CLOCK, MAPL_GENERIC_INIT_ADVERTISE
    use mapl_enums_api, only: MAPL_GENERIC_INIT_GEOM_A, MAPL_GENERIC_INIT_GEOM_B
@@ -69,7 +70,6 @@ module mapl_NuopcMetaModel_mod
       procedure :: start_timer
       procedure :: stop_timer
       procedure, private :: get_name
-      procedure, private :: get_state
       ! Init phases
       !------------
       ! label_Advertise
@@ -166,8 +166,10 @@ contains
 
    end subroutine setServices_
 
-   subroutine advertise(this, unusable, rc)
+   subroutine advertise(this, importState, exportState, unusable, rc)
       class(NuopcMetaModel), intent(inout) ::  this
+      type(ESMF_State), intent(inout) :: importState
+      type(ESMF_State), intent(inout) :: exportState
       class(KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
@@ -179,6 +181,7 @@ contains
       
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
       call self_advertise(this, _RC)
+      call this%registry%add_to_states(MultiState(importState=importState, exportState=exportState), mode='user', _RC)
  
       _RETURN(_SUCCESS)
    end subroutine advertise
@@ -210,13 +213,24 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_State) :: state
-      character(len=:), allocatable :: offer
+      type(StateItemSpec), target :: item_spec
+      type(StateItemSpec), pointer :: item_primary
+      type(VirtualConnectionPt) :: virtual_pt
 
-      state = this%get_state(var_spec%state_intent, _RC)
-      offer = get_transfer_offer(var_spec%state_intent, _RC)
-      call NUOPC_Advertise(state, standardName=var_spec%standard_name, &
-           name=var_spec%short_name, TransferOfferGeomObject=offer, _RC)
+      item_spec = var_spec%make_StateItemSpec(this%registry, &
+           this%geom, this%geom_id, this%vertical_grid, _RC)
+      virtual_pt = var_spec%make_virtualPt()
+      call this%registry%add_primary_spec(virtual_pt, item_spec)
+
+      item_primary => this%registry%get_primary_spec(virtual_pt, _RC)
+
+      call item_primary%create(_RC)
+      call set_default_activation(item_primary, var_spec%state_intent, _RC)
+      !wdb fixme deleteme get_aspects() from StateItemSpec -> to_FieldClassAspect() -> get_payload(field=field)
+      !wdb fixme deleteme return field with TranferOffer or query from above
+      !wdb fixme deleteme TransferOffer here if state_intent is EXPORT set ProducerTransferOffer
+      !wdb fixme deleteme if state_intent is IMPORT set ConsumerTransferOffer
+
       _RETURN(_SUCCESS)
 
    end subroutine advertise_variable
@@ -226,13 +240,15 @@ contains
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       integer, optional, intent(out) :: rc
       integer :: status
+      character(len=*), parameter :: CAN = 'can provide'
+      character(len=*), parameter :: WILL = 'will provide'
 
       if(state_intent == ESMF_STATEINTENT_IMPORT) then
-         offer = 'can provide'
+         offer = WILL
          _RETURN(_SUCCESS)
       end if
       if(state_intent == ESMF_STATEINTENT_EXPORT) then
-         offer = 'will provide'
+         offer = WILL
          _RETURN(_SUCCESS)
       end if
       _FAIL('Unsupported ESMF_StateIntent_Flag')
@@ -619,24 +635,5 @@ contains
       _RETURN(_SUCCESS)
 
    end function get_name
-
-   function get_state(this, state_intent, rc) result(state)
-      type(ESMF_State) :: state
-      class(NuopcMetaModel), intent(in) :: this
-      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      if(state_intent == ESMF_STATEINTENT_IMPORT) then
-         call NUOPC_ModelGet(this%self_model, importState=state, _RC)
-         _RETURN(_SUCCESS)
-      end if
-      if(state_intent == ESMF_STATEINTENT_EXPORT) then
-         call NUOPC_ModelGet(this%self_model, exportState=state, _RC)
-         _RETURN(_SUCCESS)
-      end if
-      _FAIL('Unsupported state intent')
-
-   end function get_state
 
 end module mapl_NuopcMetaModel_mod

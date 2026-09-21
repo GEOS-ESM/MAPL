@@ -111,9 +111,12 @@ contains
 
       integer :: status
       type(NuopcMetaModel), pointer :: meta_model
+      type(ESMF_State) :: importState, exportState
 
+      call NUOPC_ModelGet(model, importState=importState, &
+         & exportState=exportState, _RC)
       meta_model => get_meta_model(model, _RC)
-      call meta_model%advertise(_RC)
+      call meta_model%advertise(importState=importState, exportState=exportState, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine Advertise
@@ -143,7 +146,7 @@ contains
          & exportState=exportState, _RC)
 
       meta_model => get_meta_model(model, _RC)
-      call meta_model%realize_accept(importState, exportState, _RC)
+      !call meta_model%realize_accept(importState, exportState, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine RealizeAccept
