@@ -7,10 +7,7 @@ mapl:
   model_petcount: 1
   pflogger_cfg_file: logging.yaml
   servers:
-    # Synchronous fallback on a single-PE local run.
-    # On the cluster, keep the same async_input_server name but adjust the
-    # server communicator/resources so comm includes extra node-local reader PEs
-    # while model_comm remains the front/model communicator.
+    # One model PET, one reader captain, and one reader worker.
     async_input_server:
       local: true
       subclass: AsyncInputServer

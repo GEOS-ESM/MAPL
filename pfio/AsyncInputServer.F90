@@ -112,7 +112,6 @@ module pFIO_AsyncInputServerMod
        integer :: model_node_rank = -1
        integer :: reader_size = 0
        integer :: reader_rank = -1
-       logical :: synchronous_fallback = .true.
        integer, allocatable :: node_server_ranks(:)
        integer, allocatable :: reader_server_ranks(:)
     contains
@@ -226,7 +225,8 @@ contains
       _VERIFY(ierror)
       this%topology%model_size = count(model_flags == 1)
       this%topology%reader_size = this%topology%node_size - this%topology%model_size
-      _ASSERT(this%topology%reader_size >= 0, 'reader size must be non-negative')
+      _ASSERT(this%topology%reader_size >= 2, &
+           'AsyncInputServer requires one reader captain and at least one reader worker')
       allocate(this%topology%reader_server_ranks(this%topology%reader_size))
       this%topology%reader_server_ranks = pack(this%topology%node_server_ranks, model_flags == 0)
       deallocate(model_flags)
@@ -243,18 +243,15 @@ contains
           _ASSERT(reader_size == this%topology%reader_size, 'reader communicator size does not match node topology')
        end if
 
-      this%topology%synchronous_fallback = (this%topology%reader_size == 0)
-
       if (this%InNode_Rank == 0) then
-         write(*,'(A,1X,A,1X,A,I0,1X,A,I0,1X,A,I0,1X,A,L1)') &
+         write(*,'(A,1X,A,1X,A,I0,1X,A,I0,1X,A,I0)') &
               'INFO: AsyncInputServer:', trim(this%port_name), &
                'model_size_on_node=', this%topology%model_size, &
                'node_size=', this%topology%node_size, &
-               'reader_capacity_on_node=', this%topology%reader_size, &
-               'synchronous_fallback=', this%topology%synchronous_fallback
+               'reader_capacity_on_node=', this%topology%reader_size
       end if
 
-      if (.not. this%topology%synchronous_fallback) call initialize_shared_mailboxes(this, _RC)
+      call initialize_shared_mailboxes(this, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(comm)
@@ -484,8 +481,7 @@ contains
        call this%threads%clear()
        deallocate(mask)
 
-       if (.not. this%topology%synchronous_fallback .and. this%model_comm /= MPI_COMM_NULL .and. &
-            this%topology%model_node_rank == 0) then
+       if (this%model_comm /= MPI_COMM_NULL .and. this%topology%model_node_rank == 0) then
           write(*,'(A,1X,A,I0)') 'INFO: AsyncInputServer forwarded:', 'requests=', this%forwarded_requests
        end if
 
@@ -505,8 +501,7 @@ contains
            _RETURN(_SUCCESS)
         end if
 
-        if (.not. this%topology%synchronous_fallback .and. this%model_comm /= MPI_COMM_NULL .and. &
-             this%topology%model_node_rank == 0) then
+        if (this%model_comm /= MPI_COMM_NULL .and. this%topology%model_node_rank == 0) then
            call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, &
                 this%topology%reader_server_ranks(1), &
                 ASYNC_INPUT_TAG_CMD, this%comm, status)
@@ -543,11 +538,9 @@ contains
        integer :: status
        logical :: removed
 
-       handled = .false.
-        if (this%topology%synchronous_fallback) then
-           _RETURN(_SUCCESS)
-        end if
-        _ASSERT(this%topology%reader_size > 0, 'reader ranks must exist when not in synchronous fallback')
+        handled = .false.
+        _ASSERT(this%topology%reader_size >= 2, &
+             'AsyncInputServer requires one reader captain and at least one reader worker')
 
         iter = request_backlog%begin()
        do while (iter /= request_backlog%end())
@@ -585,14 +578,12 @@ contains
         iter = request_backlog%begin()
        do while (iter /= request_backlog%end())
           removed = .false.
-          msg => iter%get()
-          select type (q => msg)
-          type is (NextCollectivePrefetchMessage)
-             if (.not. this%topology%synchronous_fallback) then
-                _ASSERT(this%topology%reader_size > 0, &
-                     'reader ranks must exist when not in synchronous fallback')
-                 call forward_request_to_reader(this, q, connection, .false., ASYNC_INPUT_CMD_NEXT_PREFETCH, _RC)
-             end if
+           msg => iter%get()
+           select type (q => msg)
+           type is (NextCollectivePrefetchMessage)
+              _ASSERT(this%topology%reader_size >= 2, &
+                   'AsyncInputServer requires one reader captain and at least one reader worker')
+              call forward_request_to_reader(this, q, connection, .false., ASYNC_INPUT_CMD_NEXT_PREFETCH, _RC)
              call request_backlog%erase(iter)
              removed = .true.
           class default

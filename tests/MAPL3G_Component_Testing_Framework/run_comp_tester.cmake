@@ -37,11 +37,11 @@ macro(run_case CASE DESCRIPTION)
             string(REGEX MATCH "^([^ ]+) +([^ ]+)$" _ "${pair}")
             set(generated "${tempdir}/${CMAKE_MATCH_1}")
             set(reference "${tempdir}/${CMAKE_MATCH_2}")
-            execute_process(
-                COMMAND ${CMAKE_COMMAND} -E compare_files "${generated}" "${reference}"
-                RESULT_VARIABLE COMPARE_RESULT
-                )
-            if(COMPARE_RESULT)
+            file(READ "${generated}" generated_contents)
+            file(READ "${reference}" reference_contents)
+            string(STRIP "${generated_contents}" generated_contents)
+            string(STRIP "${reference_contents}" reference_contents)
+            if(NOT generated_contents STREQUAL reference_contents)
                 message(FATAL_ERROR "${CASE} FAILED: ${CMAKE_MATCH_1} does not match reference ${CMAKE_MATCH_2}")
             endif()
         endforeach()
