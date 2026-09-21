@@ -1,0 +1,37 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+
+    vertical_grid:
+      class: basic
+      num_levels: 5
+
+  children:
+    child_A:
+      config_file: scenarios/names_1/child_A.yaml
+    child_B:
+      config_file: scenarios/names_1/child_B.yaml
+
+  states: {}
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp
+
+  connections:
+    - src_name: E_A1
+      dst_name: I_B1
+      src_comp: child_A
+      dst_comp: child_B
+    - src_name: E_A2
+      dst_name: I_B2
+      src_comp: child_A
+      dst_comp: child_B
+    - src_name: E_A3
+      dst_name: I_B3
+      src_comp: child_A
+      dst_comp: child_B

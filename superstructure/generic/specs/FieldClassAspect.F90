@@ -101,12 +101,14 @@ contains
       real(kind=ESMF_KIND_R4), optional, intent(in) :: fill_value
       type(RestartMode), optional, intent(in) :: restart_mode
 
-      aspect%standard_name = 'unknown'
+      ! NOTE: standard_name/long_name are intentionally left unallocated when
+      ! not supplied (rather than defaulted to a literal 'unknown') so that
+      ! allocated(...) can be used downstream (connect_to_export, add_to_state)
+      ! to distinguish "not assigned here" from "explicitly assigned".
       if (present(standard_name)) then
          aspect%standard_name = standard_name
       end if
 
-      aspect%long_name = 'unknown'
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
@@ -201,11 +203,11 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-      call mapl_FieldSet(this%payload, &
-           standard_name=this%standard_name, &
-           long_name=this%long_name, &
-           _RC)
-
+      ! NOTE: standard_name/long_name are NOT set here.  Unlike fill_value,
+      ! they are per-connection-endpoint metadata (see add_to_state) rather
+      ! than a single field-wide value - allocate() only runs once, for the
+      ! endpoint that owns memory allocation, which would collapse every
+      ! other endpoint's (Import, re-export, ...) view to this one value.
       call mapl_FieldEmptyComplete(this%payload, _RC)
 
       if (allocated(this%fill_value)) then
@@ -260,6 +262,15 @@ contains
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
 
+      ! standard_name/long_name: keep this (import) side's own explicitly
+      ! declared value if it has one; otherwise inherit from the predecessor
+      ! (export_).  One-directional: unlike fill_value, this must NOT converge
+      ! bidirectionally - the export's own declared name must never be
+      ! overwritten by a downstream import's declaration (see connect_to_import,
+      ! which is intentionally left untouched).
+      call mirror_name(this%standard_name, export_%standard_name)
+      call mirror_name(this%long_name, export_%long_name)
+
       call mirror(this%fill_value, export_%fill_value)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
@@ -292,6 +303,21 @@ contains
          end if
 
       end subroutine mirror
+
+      ! Character-string counterpart of mirror() above, but with different
+      ! precedence semantics deliberately: dst (this connection endpoint's own
+      ! declared value) always wins if assigned; src (the predecessor) is only
+      ! adopted when dst was left unassigned.  No mismatch logging - differing
+      ! standard_name/long_name on each side of a connection is the expected,
+      ! common case, not an authoring error.
+      subroutine mirror_name(dst, src)
+         character(:), allocatable, intent(inout) :: dst
+         character(:), allocatable, intent(in) :: src
+
+         if (allocated(dst)) return
+         if (allocated(src)) dst = src
+
+      end subroutine mirror_name
 
    end subroutine connect_to_export
 
@@ -391,10 +417,24 @@ contains
       end if
       call ESMF_StateAddReplace(substate, [alias], _RC)
 
-      if (allocated(this%restart_mode)) then
+      if (allocated(this%restart_mode) .or. allocated(this%standard_name) .or. allocated(this%long_name)) then
          call ESMF_NamedAliasGet(alias, id=alias_id, _RC)
          call ESMF_InfoGetFromHost(alias, info, _RC)
-         call FieldInfoSetInternal(info, alias_id, this%restart_mode, _RC)
+
+         if (allocated(this%restart_mode)) then
+            call FieldInfoSetInternal(info, alias_id, this%restart_mode, _RC)
+         end if
+
+         ! standard_name/long_name are per-connection-endpoint metadata: this
+         ! placement (this specific alias - the Export's own, a connected
+         ! Import's own, or an intermediate transform hop's own) records its
+         ! own value, independent of every other placement of the same
+         ! underlying field.  See connect_to_export for how an endpoint that
+         ! declares neither inherits from its connection predecessor.
+         if (allocated(this%standard_name) .or. allocated(this%long_name)) then
+            call FieldInfoSetInternal(info, alias_id, &
+                 standard_name=this%standard_name, long_name=this%long_name, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)

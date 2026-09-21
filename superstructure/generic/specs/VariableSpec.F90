@@ -689,6 +689,7 @@ contains
       case (MAPL_STATEITEM_FIELD%ot)
          aspect = FieldClassAspect( &
               standard_name=this%standard_name, &
+              long_name=this%long_name, &
               fill_value=this%fill_value, &
               restart_mode=this%restart_mode)
       case (MAPL_STATEITEM_FIELDBUNDLE%ot)

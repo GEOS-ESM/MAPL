@@ -25,6 +25,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
 - Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
+- Fixed `standard_name`/`long_name` Field metadata being collapsed to a single,
+  field-wide value across a connection. Because a connected Import's `ESMF_Field`
+  is an `ESMF_NamedAlias` of its Export's field, and aliases share one underlying
+  `ESMF_Info` host, only the Export side's declared `standard_name`/`long_name`
+  ever survived; an Import (or a re-export several hops away) that declared its
+  own value had it silently discarded. Each connection endpoint - Export, Import,
+  and any intermediate transform/coupler hop - now persists its own
+  `standard_name`/`long_name` in a per-`NamedAlias`-id namespace of the shared
+  `ESMF_Info` (the same pattern already used for `restart_mode`). An endpoint
+  that declares neither now inherits its predecessor's value (one-directional,
+  downstream only) instead of resolving to a hardcoded `'unknown'`.
+  `MAPL_FieldGet(field, standard_name=, long_name=)` resolves the value for the
+  specific alias represented by the `field` handle passed in; no signature
+  change was needed since callers already hold the correct alias from a specific
+  `ESMF_State`.
 
 ### Changed
 
