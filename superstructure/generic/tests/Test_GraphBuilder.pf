@@ -26,15 +26,24 @@ module Test_GraphBuilder
    use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
    use mapl_MatchConnection_mod, only: MatchConnection
    use mapl_SimpleConnection_mod, only: SimpleConnection
-   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_STATE
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
    use mapl_NodeIdLabelMap_mod, only: NodeIdLabelMap
+   ! -- openspec/changes/callback-wiring -----------------------------------
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface
+   use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
+   use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
+   use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT
+   use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE
+   ! ------------------------------------------------------------------------
    use mapl_NodeLabel_mod, only: NodeLabel
    use mapl_GraphExport_mod, only: export_graph_dot, export_graph_json
    use mapl_FieldGet_mod, only: FieldGet
@@ -1332,5 +1341,683 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_wires_matching_composite
+
+   ! -- openspec/changes/callback-wiring ------------------------------------
+
+   ! Builds the PassiveTracer CallbackInterface (15-callbacks.md sec
+   ! 15.3): one "tracers" FieldBundle argument, "get" (OUT) / "put" (IN)
+   ! methods - same fixture shape as
+   ! graph/tests/Test_CallbackStateBinding.pf's own
+   ! make_passive_tracer_interface.
+   function make_passive_tracer_interface(rc) result(iface)
+      integer, optional, intent(out) :: rc
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_VARIANT_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('get', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('put', rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('get', 'tracers', MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('put', 'tracers', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+
+      _RETURN(_SUCCESS)
+   end function make_passive_tracer_interface
+
+   ! An interface with a single INOUT argument, exercising REQ-CB-018's
+   ! get+put-both-directions case (task 7.3) - distinct from
+   ! PassiveTracer's own two-method get/put split.
+   function make_exchanger_interface(rc) result(iface)
+      integer, optional, intent(out) :: rc
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      call iface%declare_argument('value', MAPL_VARIANT_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('exchange', rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('exchange', 'value', MAPL_ACCESS_INOUT, rc=status)
+      @assertEqual(0, status)
+
+      _RETURN(_SUCCESS)
+   end function make_exchanger_interface
+
+   ! One composite export satisfying PassiveTracer: itemType STATE, one
+   ! declared 'tracers' FieldBundle member.
+   function make_tracer_callback_export(short_name) result(var_spec)
+      character(*), intent(in) :: short_name
+      type(VariableSpec) :: var_spec
+
+      type(VariableSpec) :: tracers_member
+      integer :: status
+
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, short_name)
+      var_spec%itemType = MAPL_STATEITEM_STATE
+
+      tracers_member = make_var(ESMF_STATEINTENT_EXPORT, 'tracers')
+      tracers_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      call var_spec%declare_member('tracers', tracers_member, rc=status)
+      @assertEqual(0, status)
+   end function make_tracer_callback_export
+
+   ! Builds root -> CHEM -> DU, SS (each exporting a 'tracer_callback'
+   ! composite satisfying PassiveTracer) plus root -> DYN (a plain child,
+   ! left for the caller to advertise its own 'tracers' import onto) -
+   ! mirrors 15-callbacks.md's own DU/SS/... tracer-callback example.
+   ! Every component below DYN is already advertised, children before
+   ! parents, matching real recursion order.
+   subroutine build_tracer_hierarchy(service_name, root_gc, root_meta, chem_meta, du_meta, ss_meta, &
+        dyn_meta, iface, interface_id, rc)
+      character(*), intent(in) :: service_name
+      type(ESMF_GridComp), intent(out) :: root_gc
+      type(OuterMetaComponent), pointer, intent(out) :: root_meta
+      type(OuterMetaComponent), pointer, intent(out) :: chem_meta
+      type(OuterMetaComponent), pointer, intent(out) :: du_meta
+      type(OuterMetaComponent), pointer, intent(out) :: ss_meta
+      type(OuterMetaComponent), pointer, intent(out) :: dyn_meta
+      type(CallbackInterface), intent(out) :: iface
+      type(CallbackInterfaceId), intent(out) :: interface_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: chem_driver, dyn_driver, du_driver, ss_driver
+      type(ESMF_GridComp) :: chem_gc, dyn_gc, du_gc, ss_gc
+      type(ComponentSpec), pointer :: du_spec, ss_spec
+      type(GraphBuilder) :: gb
+
+      iface = make_passive_tracer_interface(_RC)
+      call register_callback_interface(service_name, iface, interface_id, _RC)
+
+      call make_outer_meta('root_' // service_name, root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('CHEM', child_spec, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('DYN', child_spec, _RC)
+
+      chem_driver = root_meta%get_child('CHEM', _RC)
+      chem_gc = chem_driver%get_gridcomp()
+      chem_meta => get_outer_meta(chem_gc, _RC)
+
+      dyn_driver = root_meta%get_child('DYN', _RC)
+      dyn_gc = dyn_driver%get_gridcomp()
+      dyn_meta => get_outer_meta(dyn_gc, _RC)
+
+      child_spec = ChildSpec()
+      call chem_meta%add_child('DU', child_spec, _RC)
+      child_spec = ChildSpec()
+      call chem_meta%add_child('SS', child_spec, _RC)
+
+      du_driver = chem_meta%get_child('DU', _RC)
+      du_gc = du_driver%get_gridcomp()
+      du_meta => get_outer_meta(du_gc, _RC)
+
+      ss_driver = chem_meta%get_child('SS', _RC)
+      ss_gc = ss_driver%get_gridcomp()
+      ss_meta => get_outer_meta(ss_gc, _RC)
+
+      du_spec => du_meta%get_component_spec()
+      call du_spec%add_var_spec(make_tracer_callback_export('tracer_callback'))
+
+      ss_spec => ss_meta%get_component_spec()
+      call ss_spec%add_var_spec(make_tracer_callback_export('tracer_callback'))
+
+      call gb%advertise(du_meta, _RC)
+      call gb%advertise(ss_meta, _RC)
+      call gb%advertise(chem_meta, _RC)
+      call gb%advertise(dyn_meta, _RC)
+      call gb%advertise(root_meta, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_tracer_hierarchy
+
+   ! Task 2.2 / spec "Descendant exports are visible under a
+   ! hierarchically-qualified name": own export under own name,
+   ! descendant exports qualified and distinguishable, re-querying does
+   ! not duplicate.
+   @test(npes=[0])
+   subroutine test_build_qualified_export_namespace_multilevel(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: chem_driver, du_driver, ss_driver
+      type(ESMF_GridComp) :: chem_gc, du_gc, ss_gc
+      type(OuterMetaComponent), pointer :: chem_meta, du_meta, ss_meta
+      type(ComponentSpec), pointer :: chem_spec, du_spec, ss_spec
+      type(QualifiedExportEntry), allocatable :: entries(:), entries_again(:)
+      integer :: status
+      type(GraphBuilder) :: gb
+      logical :: found_own, found_du, found_ss
+      integer :: i
+
+      call make_outer_meta('ns_root', root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('CHEM', child_spec, _RC)
+      chem_driver = root_meta%get_child('CHEM', _RC)
+      chem_gc = chem_driver%get_gridcomp()
+      chem_meta => get_outer_meta(chem_gc, _RC)
+
+      chem_spec => chem_meta%get_component_spec()
+      call chem_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'Y'))
+
+      child_spec = ChildSpec()
+      call chem_meta%add_child('DU', child_spec, _RC)
+      child_spec = ChildSpec()
+      call chem_meta%add_child('SS', child_spec, _RC)
+
+      du_driver = chem_meta%get_child('DU', _RC)
+      du_gc = du_driver%get_gridcomp()
+      du_meta => get_outer_meta(du_gc, _RC)
+      du_spec => du_meta%get_component_spec()
+      call du_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'X'))
+
+      ss_driver = chem_meta%get_child('SS', _RC)
+      ss_gc = ss_driver%get_gridcomp()
+      ss_meta => get_outer_meta(ss_gc, _RC)
+      ss_spec => ss_meta%get_component_spec()
+      call ss_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'X'))
+
+      call gb%advertise(du_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(ss_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+
+      entries = build_qualified_export_namespace(chem_meta, status)
+      @assert_that(status, is(0))
+      @assertEqual(3, size(entries))
+
+      found_own = .false.
+      found_du = .false.
+      found_ss = .false.
+      do i = 1, size(entries)
+         if (entries(i)%qualified_name == 'Y' .and. len(entries(i)%comp_path) == 0) found_own = .true.
+         if (entries(i)%qualified_name == 'DU/X') found_du = .true.
+         if (entries(i)%qualified_name == 'SS/X') found_ss = .true.
+      end do
+      @assert_that(found_own, is(true()))
+      @assert_that(found_du, is(true()))
+      @assert_that(found_ss, is(true()))
+
+      entries_again = build_qualified_export_namespace(chem_meta, status)
+      @assert_that(status, is(0))
+      @assertEqual(size(entries), size(entries_again))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_build_qualified_export_namespace_multilevel
+
+   ! Task 2.3 / design.md Risks cross-check: the graph-native qualified
+   ! name for a descendant export matches what
+   ! VirtualConnectionPt%get_full_name() would produce for the same
+   ! single-level case.
+   @test(npes=[0])
+   subroutine test_qualified_name_matches_virtualconnectionpt_convention(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: du_driver
+      type(ESMF_GridComp) :: du_gc
+      type(OuterMetaComponent), pointer :: du_meta
+      type(ComponentSpec), pointer :: du_spec
+      type(QualifiedExportEntry), allocatable :: entries(:)
+      type(VirtualConnectionPt) :: expected_v_pt
+      integer :: status
+      type(GraphBuilder) :: gb
+      integer :: i
+      logical :: found
+
+      call make_outer_meta('ns_crosscheck_root', root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('DU', child_spec, _RC)
+      du_driver = root_meta%get_child('DU', _RC)
+      du_gc = du_driver%get_gridcomp()
+      du_meta => get_outer_meta(du_gc, _RC)
+      du_spec => du_meta%get_component_spec()
+      call du_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'tracers'))
+
+      call gb%advertise(du_meta, status)
+      @assert_that(status, is(0))
+
+      entries = build_qualified_export_namespace(root_meta, status)
+      @assert_that(status, is(0))
+
+      expected_v_pt = VirtualConnectionPt(state_intent='export', short_name='tracers')
+      expected_v_pt = expected_v_pt%add_comp_name('DU')
+
+      found = .false.
+      do i = 1, size(entries)
+         if (entries(i)%comp_path == 'DU') then
+            @assertEqual(expected_v_pt%get_full_name(), entries(i)%qualified_name)
+            found = .true.
+         end if
+      end do
+      @assert_that(found, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_qualified_name_matches_virtualconnectionpt_convention
+
+   ! Task 3.2 / spec "A destination with no declared callback interface
+   ! is unaffected": ordinary resolution, unchanged, for a var_spec
+   ! whose callback_interface_id is left at its default (unset) value.
+   @test(npes=[0])
+   subroutine test_non_callback_destination_unaffected(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(DependencyNetwork), pointer :: net
+      type(VariableSpec) :: import_var_spec
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_no_callback', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      @assertFalse(import_var_spec%callback_interface_id%is_valid())
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_var_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_non_callback_destination_unaffected
+
+   ! Task 4.2 / spec "A pattern matching multiple qualified exports
+   ! selects all of them" + "A matching export that does not implement
+   ! the expected interface is rejected": DU/SS conform, BAD (no
+   ! declared 'tracers' member) does not.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_matches_and_rejects(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, du_meta, ss_meta, dyn_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: bad_driver
+      type(ESMF_GridComp) :: bad_gc
+      type(OuterMetaComponent), pointer :: bad_meta
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export
+      type(VariableSpec) :: dst_var_spec
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(StringVector) :: rejected
+      integer :: status
+      type(GraphBuilder) :: gb
+      logical :: found_du, found_ss
+      integer :: i
+
+      call build_tracer_hierarchy('svc-4-2', root_gc, root_meta, chem_meta, du_meta, ss_meta, &
+           dyn_meta, iface, interface_id, _RC)
+
+      child_spec = ChildSpec()
+      call chem_meta%add_child('BAD', child_spec, _RC)
+      bad_driver = chem_meta%get_child('BAD', _RC)
+      bad_gc = bad_driver%get_gridcomp()
+      bad_meta => get_outer_meta(bad_gc, _RC)
+      bad_export = make_var(ESMF_STATEINTENT_EXPORT, 'tracer_callback')
+      bad_export%itemType = MAPL_STATEITEM_STATE
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+
+      dst_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'tracers')
+      dst_var_spec%callback_interface_id = interface_id
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      matches = resolve_callback_import(root_meta, src_pt, dst_var_spec, rejected=rejected, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(2, size(matches))
+      found_du = .false.
+      found_ss = .false.
+      do i = 1, size(matches)
+         if (matches(i)%qualified_name == 'DU/tracer_callback') found_du = .true.
+         if (matches(i)%qualified_name == 'SS/tracer_callback') found_ss = .true.
+      end do
+      @assert_that(found_du, is(true()))
+      @assert_that(found_ss, is(true()))
+
+      @assertEqual(1, rejected%size())
+      @assertTrue(index(rejected%of(1), 'BAD/tracer_callback') > 0)
+      @assertTrue(index(rejected%of(1), 'missing_member:tracers') > 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_matches_and_rejects
+
+   ! Task 4.2 (empty-match case) / spec "A pattern matching no export
+   ! resolves to an empty, valid selection".
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_no_match_is_empty(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, du_meta, ss_meta, dyn_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(VariableSpec) :: dst_var_spec
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      integer :: status
+
+      call build_tracer_hierarchy('svc-4-2-empty', root_gc, root_meta, chem_meta, du_meta, ss_meta, &
+           dyn_meta, iface, interface_id, _RC)
+
+      dst_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'tracers')
+      dst_var_spec%callback_interface_id = interface_id
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='no_such_thing'))
+
+      matches = resolve_callback_import(root_meta, src_pt, dst_var_spec, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(matches))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_no_match_is_empty
+
+   ! Task 5.3 / spec "The materialized collection contains exactly the
+   ! resolved matches" + "Re-resolving does not duplicate collection
+   ! members": full pipeline through the public
+   ! GraphBuilder%resolve_connections() entry point.
+   @test(npes=[0])
+   subroutine test_callback_collection_materializes_and_wires_import(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, du_meta, ss_meta, dyn_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: root_spec, dyn_spec
+      type(VariableSpec) :: dyn_import
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved
+      type(ComponentGraph), pointer :: root_graph
+      type(NodeId), pointer :: import_id
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: pred_iter
+      type(NodeId) :: collection_id, collection_id_again
+      class(GraphNode), pointer :: collection_node
+      type(GraphStateItem) :: collection_payload
+      type(StateItemMemberMap) :: members
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_tracer_hierarchy('svc-5-3', root_gc, root_meta, chem_meta, du_meta, ss_meta, &
+           dyn_meta, iface, interface_id, _RC)
+
+      dyn_import = make_var(ESMF_STATEINTENT_IMPORT, 'tracers')
+      dyn_import%callback_interface_id = interface_id
+      dyn_spec => dyn_meta%get_component_spec()
+      call dyn_spec%add_var_spec(dyn_import)
+      call gb%advertise(dyn_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback')), &
+           ConnectionPt('DYN', VirtualConnectionPt(state_intent='import', short_name='tracers')))
+      root_spec => root_meta%get_component_spec()
+      call root_spec%add_connection(conn)
+
+      call gb%resolve_connections(root_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      root_graph => root_meta%get_component_graph()
+      import_id => root_graph%get_resource_index(proxy_key('DYN', ESMF_STATEINTENT_IMPORT, 'tracers'))
+      @assert_that(associated(import_id), is(true()))
+
+      net => root_graph%get_network(root_graph%get_default_network_id())
+      preds = net%get_predecessors(import_id)
+      @assertEqual(1, preds%size())
+      pred_iter = preds%ftn_begin()
+      call pred_iter%next()
+      collection_id = pred_iter%of()
+
+      collection_node => root_graph%get_node(collection_id)
+      select type (collection_node)
+      class is (StateItemNode)
+         collection_payload = collection_node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      members = collection_payload%state_members()
+      @assertEqual(2, members%size())
+      @assert_that(associated(members%at('DU/tracer_callback')), is(true()))
+      @assert_that(associated(members%at('SS/tracer_callback')), is(true()))
+
+      ! Idempotency: re-resolving does not create a second collection.
+      call gb%resolve_connections(root_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      preds = net%get_predecessors(import_id)
+      @assertEqual(1, preds%size())
+      pred_iter = preds%ftn_begin()
+      call pred_iter%next()
+      collection_id_again = pred_iter%of()
+      @assert_that(collection_id_again == collection_id, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_callback_collection_materializes_and_wires_import
+
+   ! Task 6.2 / design.md Context: build_callback_state_binding's bound
+   ! argument NodeIds match the real, already-materialized member
+   ! NodeIds in DU's own graph - not caller-supplied stand-ins.
+   @test(npes=[0])
+   subroutine test_build_callback_state_binding_uses_real_member_nodeids(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, du_meta, ss_meta, dyn_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ConnectionPt) :: src_pt
+      type(VariableSpec) :: dst_var_spec
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(CallbackStateBinding) :: binding
+      type(ComponentGraph), pointer :: du_graph
+      class(GraphNode), pointer :: du_node
+      type(GraphStateItem) :: du_payload
+      type(StateItemMemberMap) :: du_members
+      type(NodeId), pointer :: expected_member_id
+      type(NodeId), pointer :: bound_member_id
+      type(NodeId), pointer :: du_state_id
+      integer :: status
+      integer :: i
+      integer :: du_index
+
+      call build_tracer_hierarchy('svc-6-2', root_gc, root_meta, chem_meta, du_meta, ss_meta, &
+           dyn_meta, iface, interface_id, _RC)
+
+      dst_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'tracers')
+      dst_var_spec%callback_interface_id = interface_id
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      matches = resolve_callback_import(root_meta, src_pt, dst_var_spec, rc=status)
+      @assert_that(status, is(0))
+
+      du_index = 0
+      do i = 1, size(matches)
+         if (matches(i)%qualified_name == 'DU/tracer_callback') du_index = i
+      end do
+      @assert_that(du_index > 0, is(true()))
+
+      binding = build_callback_state_binding(root_meta, 'CHEM', matches(du_index), interface_id, iface, status)
+      @assert_that(status, is(0))
+
+      du_graph => du_meta%get_component_graph()
+      du_state_id => du_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'tracer_callback'))
+      @assert_that(associated(du_state_id), is(true()))
+      du_node => du_graph%get_node(du_state_id)
+      select type (du_node)
+      class is (StateItemNode)
+         du_payload = du_node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      du_members = du_payload%state_members()
+      expected_member_id => du_members%at('tracers')
+      @assert_that(associated(expected_member_id), is(true()))
+
+      bound_member_id => binding%get_argument_binding('tracers')
+      @assert_that(associated(bound_member_id), is(true()))
+      @assert_that(bound_member_id == expected_member_id, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_build_callback_state_binding_uses_real_member_nodeids
+
+   ! Task 7.3 / spec "Get and put networks are independently
+   ! constructed" + "Each network is acyclic on its own even if their
+   ! union is not": a single shared provider item feeds "get" and
+   ! receives "put" - provider->value->provider would be a 2-cycle if
+   ! the two networks were merged, but each network alone has only one
+   ! edge.
+   @test(npes=[0])
+   subroutine test_callback_method_binding_builds_get_put_networks(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: exchanger_export, exchanger_member
+      type(NodeId) :: state_node_id
+      type(NodeId), pointer :: member_node_id
+      type(NodeId) :: provider_id
+      type(GraphStateItem) :: payload
+      class(GraphNode), pointer :: node
+      type(StateItemMemberMap) :: members
+      type(StateItemMemberMap) :: provider_get_ids, provider_put_ids
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: state_binding
+      type(CallbackMethodBinding) :: method_binding
+      type(DependencyNetwork), pointer :: get_net, put_net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_exchanger', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      exchanger_export = make_var(ESMF_STATEINTENT_EXPORT, 'exchanger')
+      exchanger_export%itemType = MAPL_STATEITEM_STATE
+      exchanger_member = make_var(ESMF_STATEINTENT_EXPORT, 'value')
+      exchanger_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      call exchanger_export%declare_member('value', exchanger_member, rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(exchanger_export)
+
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'provider_shared'))
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      state_node_id = graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'exchanger'))
+      node => graph%get_node(state_node_id)
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      members = payload%state_members()
+      member_node_id => members%at('value')
+      @assert_that(associated(member_node_id), is(true()))
+
+      iface = make_exchanger_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-7-3', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      state_binding = CallbackStateBinding(interface_id, iface, state_node_id)
+      call state_binding%bind_argument('value', member_node_id, status)
+      @assert_that(status, is(0))
+      call state_binding%bind_method('exchange', status)
+      @assert_that(status, is(0))
+
+      provider_id = graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'provider_shared'))
+      call provider_get_ids%insert('value', provider_id)
+      call provider_put_ids%insert('value', provider_id)
+
+      method_binding = build_callback_method_binding(outer_meta, iface, 'exchange', state_binding, &
+           provider_get_ids, provider_put_ids, status)
+      @assert_that(status, is(0))
+
+      get_net => graph%get_network(method_binding%get_get_network_id())
+      put_net => graph%get_network(method_binding%get_put_network_id())
+      @assert_that(associated(get_net), is(true()))
+      @assert_that(associated(put_net), is(true()))
+
+      @assert_that(get_net%contains_dependency(provider_id, member_node_id), is(true()))
+      @assert_that(put_net%contains_dependency(member_node_id, provider_id), is(true()))
+
+      ! Each network individually acyclic - freeze runs
+      ! ComponentGraph%validate() over every owned network, including
+      ! these two, and would fail if either one contained a cycle.
+      call graph%freeze(status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_callback_method_binding_builds_get_put_networks
 
 end module Test_GraphBuilder

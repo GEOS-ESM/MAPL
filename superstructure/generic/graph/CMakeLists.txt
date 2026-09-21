@@ -72,6 +72,7 @@ target_sources(MAPL.generic PRIVATE
   CallbackInterfaceRegistry.F90
   containers/CallbackMethodAttachmentMap.F90
   CallbackStateBinding.F90
+  CallbackMethodBinding.F90
 )
 
 target_include_directories(MAPL.generic PRIVATE

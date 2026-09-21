@@ -129,6 +129,7 @@ set(components_test_srcs
   Test_GenericGridComp.pf
   Test_ComponentSpec.pf
   Test_VariableSpecMembers.pf
+  Test_VariableSpecCallback.pf
   Test_ComponentSpecParser.pf
   Test_WriteYaml.pf
   Test_ExtensionFamily.pf

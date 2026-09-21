@@ -1,0 +1,44 @@
+#include "MAPL_TestErr.h"
+
+! openspec/changes/callback-wiring, tasks.md 1.2: VariableSpec's own
+! callback_interface_id field (design.md Decision 0) - default unset for
+! an ordinary item, explicitly set/retrievable for a callback-consuming
+! import.
+module Test_VariableSpecCallback
+   use pfunit
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, CallbackInterfaceIdGenerator, operator(==)
+   use esmf, only: ESMF_STATEINTENT_IMPORT
+   implicit none(type, external)
+
+contains
+
+   @test
+   subroutine test_ordinary_item_has_no_callback_interface()
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%short_name = 'T'
+
+      @assertFalse(var_spec%callback_interface_id%is_valid())
+   end subroutine test_ordinary_item_has_no_callback_interface
+
+   @test
+   subroutine test_callback_item_reports_its_declared_interface_id()
+      type(VariableSpec) :: var_spec
+      type(CallbackInterfaceIdGenerator) :: id_gen
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      id = id_gen%next(status)
+      @assertEqual(0, status)
+
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%short_name = 'tracers'
+      var_spec%callback_interface_id = id
+
+      @assertTrue(var_spec%callback_interface_id%is_valid())
+      @assertTrue(var_spec%callback_interface_id == id)
+   end subroutine test_callback_item_reports_its_declared_interface_id
+
+end module Test_VariableSpecCallback
