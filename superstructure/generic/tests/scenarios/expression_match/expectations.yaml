@@ -1,0 +1,36 @@
+# Reproduces the user-reported case (generic/field-name-propagation): an
+# expression-derived export (E_sum) declares its own standard_name/long_name,
+# and a sibling component references it by name via an implicit, wildcard
+# MatchConnection (all_unsatisfied: true) rather than an explicit
+# connections: entry - the same mechanism MAPL_GridCompConnectAll/History's
+# var_list: {source: ...} sourcing use. B's own E_sum import declares no
+# name of its own, so it must inherit A's declared values instead of
+# resolving to the fallback "unknown".
+
+- component: A/<user>
+  export:
+    A: {status: complete, value: 2.}
+    B: {status: complete, value: 3.}
+- component: A
+  export:
+    A: {status: complete}
+    B: {status: complete}
+    E_sum(1): {status: complete, value: 5., standard_name: 'E_sum standard name', long_name: 'E_sum long name'}
+
+- component: B/<user>
+  import:
+    E_sum: {status: complete, value: 5., standard_name: 'E_sum standard name', long_name: 'E_sum long name'}
+- component: B
+  import:
+    E_sum: {status: complete, standard_name: 'E_sum standard name', long_name: 'E_sum long name'}
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  export:
+    A/A: {status: complete}
+    A/B: {status: complete}
+    A/E_sum(1): {status: complete, standard_name: 'E_sum standard name', long_name: 'E_sum long name'}

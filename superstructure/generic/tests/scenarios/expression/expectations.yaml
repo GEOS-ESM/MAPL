@@ -1,3 +1,15 @@
+# expr/I: I (the import/consumer) declares its own standard_name AND
+# long_name.  A connection that needs a coupler (any expression connection
+# does) produces a single shared extension aspect for the whole chain - once
+# built, both A's own re-export ("expr(1)") and B's own import ("I") refer to
+# the same materialized aspect, so I's own declared values win throughout and
+# are NOT overwritten by expr's declared name (regression check,
+# generic/field-name-propagation "own value always wins").
+#
+# expr2/I2: expr2 declares its own standard_name/long_name; I2 (the
+# consumer) declares neither - the shared extension aspect for this chain
+# therefore inherits expr2's declared values (predecessor propagation).
+
 - component: A/<user>
   export:
     A: {status: complete, value=1.}
@@ -6,20 +18,24 @@
   export:
     A: {status: complete}
     B: {status: complete}
-    expr(1): {status: complete}
+    expr(1): {status: complete, standard_name: 'I', long_name: 'I long name'}
+    expr2(1): {status: complete, standard_name: 'expr2 standard name', long_name: 'expr2 long name'}
 
 - component: B/<user>
   import:
-    I: {status: complete, value: 1.}  # A=1, B=2, C=3, (A+B)/C=3
+    I: {status: complete, value: 1., standard_name: 'I', long_name: 'I long name'}  # A=1, B=2, C=3, (A+B)/C=3
+    I2: {status: complete, standard_name: 'expr2 standard name', long_name: 'expr2 long name'}
 - component: B
   import:
-    I: {status: complete}
+    I: {status: complete, standard_name: 'I', long_name: 'I long name'}
+    I2: {status: complete, standard_name: 'expr2 standard name', long_name: 'expr2 long name'}
 - component: <user>
   import: {}
   export: {}
   internal: {}
 - component: <root>
   export:
-    A/expr(1): {status: complete}
+    A/expr(1): {status: complete, standard_name: 'I', long_name: 'I long name'}
+    A/expr2(1): {status: complete, standard_name: 'expr2 standard name', long_name: 'expr2 long name'}
     A/A: {status: complete}
     A/B: {status: complete}

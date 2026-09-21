@@ -75,6 +75,15 @@ module mapl_StateItemAspect_mod
       procedure(I_connect_to_export), deferred :: connect_to_export
       procedure(I_get_aspect_id), deferred, nopass :: get_aspect_id
 
+      ! Lets an aspect being wholesale-replaced during StateItemSpec%make_extension's
+      ! aspect substitution hand its own descriptive metadata (standard_name/long_name)
+      ! to its replacement, if the replacement does not already have its own.  Default
+      ! is a no-op; only FieldClassAspect currently overrides it.  See
+      ! generic/field-name-propagation.
+      procedure :: inherit_descriptive_metadata
+      procedure :: get_standard_name
+      procedure :: get_long_name
+
       procedure(I_supports_conversion_general), deferred :: supports_conversion_general
       procedure(I_supports_conversion_specific), deferred :: supports_conversion_specific
       generic :: supports_conversion => supports_conversion_general, supports_conversion_specific
@@ -320,6 +329,32 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(import)
    end subroutine connect_to_import
+
+   ! Default (NOOP): most aspects have no descriptive metadata to hand off.
+   subroutine inherit_descriptive_metadata(this, predecessor, rc)
+      class(StateItemAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: predecessor
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(predecessor)
+   end subroutine inherit_descriptive_metadata
+
+   ! Default: no standard_name/long_name to offer.
+   function get_standard_name(this) result(standard_name)
+      character(:), allocatable :: standard_name
+      class(StateItemAspect), intent(in) :: this
+
+      _UNUSED_DUMMY(this)
+   end function get_standard_name
+
+   function get_long_name(this) result(long_name)
+      character(:), allocatable :: long_name
+      class(StateItemAspect), intent(in) :: this
+
+      _UNUSED_DUMMY(this)
+   end function get_long_name
 
    ! default
    subroutine print_aspect(this, file, line, rc)
