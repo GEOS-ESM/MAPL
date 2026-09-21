@@ -12,7 +12,7 @@ submodule (mapl_LatLonGeomFactory_mod) fill_coordinates_smod
    use gFTL2_StringVector
    use esmf
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
-   use mapl_GridAccessors_mod, only: grid_has_de
+   use mapl_GridAccessors_mod, only: grid_has_de, grid_get_interior
    implicit none (type, external)
 
 
@@ -32,7 +32,7 @@ contains
       integer :: i, j
       type(LonAxis) :: lon_axis
       type(LatAxis) :: lat_axis
-      logical :: has_de, grid_get_interior
+      logical :: has_de
       integer, allocatable :: grid_interior_centers(:), grid_interior_corners(:)
       integer :: im_world, jm_world
 
@@ -52,7 +52,7 @@ contains
       jm_world = size(lat_centers)
       lon_corners = lon_axis%get_corners()
       lat_corners = lat_axis%get_corners()
-      grid_interior_centers = grid_get_interior(grid, _RC) 
+      call grid_get_interior(grid, grid_interior_centers, _RC) 
       allocate(grid_interior_corners(size(grid_interior_centers)), _STAT)
 
  
