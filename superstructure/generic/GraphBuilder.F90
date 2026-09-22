@@ -1879,7 +1879,7 @@ contains
 
    ! REQ-REV-011's "advance-all-after", applied to binding's own put
    ! network - only reached once invoke() has already succeeded
-   ! (invoke_callback_method's own _RC-checked call above returns early
+   ! (invoke_callback_method's own "_RC"-checked call above returns early
    ! otherwise, spec scenario "Failed invocation does not advance bound
    ! outputs").
    subroutine advance_callback_put_arguments(graph, put_bindings, rc)
