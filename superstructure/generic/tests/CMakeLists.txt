@@ -109,6 +109,7 @@ set(aspects_test_srcs
   Test_GeomAspect.pf
   Test_ConservationAspect.pf
   Test_NormalizationAspect.pf
+  Test_ExpressionClassAspect.pf
 )
 
 add_pfunit_ctest(

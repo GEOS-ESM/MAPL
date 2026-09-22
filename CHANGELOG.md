@@ -24,6 +24,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
 - Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
+- Fixed `expression` state items (`expression: (A + B)/C`) requiring an explicit
+  `vertical_dim_spec` even when it references at least one variable. The
+  omitted-key case previously left `VerticalGridAspect`'s vertical stagger at an
+  invalid sentinel while `VariableSpec::make_VerticalGridAspect` could still mark
+  the aspect resolved purely because a component-level vertical grid resource was
+  available, so `is_mirror()` incorrectly reported `.false.` and the connection
+  machinery skipped its `ExtendTransform` mirror path (already used by
+  `GeomAspect`), failing with "BasicVerticalGrid should have been connected to a
+  different subclass before this is called." `ExpressionClassAspect::create` now
+  forces a genuinely mirrored state in that case, letting the existing
+  mirror-from-connection mechanism resolve it; `ExpressionClassAspect::make_transform`
+  also now checks, on a best-effort basis, whether the expression's referenced
+  variables (and its own resolved value) already agree on vertical stagger,
+  failing with a clear error on a genuine mismatch instead of allowing arithmetic
+  on dimensionally incompatible operands. Expressions with no referenced
+  variables (e.g. a literal/constant expression) are unaffected and still require
+  an explicit `vertical_dim_spec`.
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
 - Fixed `standard_name`/`long_name` Field metadata being collapsed to a single,
   field-wide value across a connection. Because a connected Import's `ESMF_Field`
