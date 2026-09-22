@@ -342,19 +342,27 @@ contains
    end subroutine inherit_descriptive_metadata
 
    ! Default: no standard_name/long_name to offer.
-   function get_standard_name(this) result(standard_name)
-      character(:), allocatable :: standard_name
+   ! NOTE: deliberately a subroutine with an intent(out) allocatable dummy,
+   ! not a function returning an allocatable character result. A function
+   ! whose allocatable character result is left untouched on some code paths
+   ! has triggered spurious "allocatable ... is not allocated" runtime aborts
+   ! with Intel ifort/ifx (observed via CI on this exact pattern); an
+   ! intent(out) dummy is unconditionally left deallocated by the standard
+   ! when unset, which is both portable and matches this codebase's existing
+   ! convention (e.g. FieldInfoGetInternal's optional allocatable outputs).
+   subroutine get_standard_name(this, standard_name)
       class(StateItemAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: standard_name
 
       _UNUSED_DUMMY(this)
-   end function get_standard_name
+   end subroutine get_standard_name
 
-   function get_long_name(this) result(long_name)
-      character(:), allocatable :: long_name
+   subroutine get_long_name(this, long_name)
       class(StateItemAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: long_name
 
       _UNUSED_DUMMY(this)
-   end function get_long_name
+   end subroutine get_long_name
 
    ! default
    subroutine print_aspect(this, file, line, rc)

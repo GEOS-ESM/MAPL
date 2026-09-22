@@ -333,8 +333,8 @@ contains
 
       character(:), allocatable :: predecessor_standard_name, predecessor_long_name
 
-      predecessor_standard_name = predecessor%get_standard_name()
-      predecessor_long_name = predecessor%get_long_name()
+      call predecessor%get_standard_name(predecessor_standard_name)
+      call predecessor%get_long_name(predecessor_long_name)
 
       call mirror_name(this%standard_name, predecessor_standard_name)
       call mirror_name(this%long_name, predecessor_long_name)
@@ -342,19 +342,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine inherit_descriptive_metadata
 
-   function get_standard_name(this) result(standard_name)
-      character(:), allocatable :: standard_name
+   subroutine get_standard_name(this, standard_name)
       class(FieldClassAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: standard_name
 
       if (allocated(this%standard_name)) standard_name = this%standard_name
-   end function get_standard_name
+   end subroutine get_standard_name
 
-   function get_long_name(this) result(long_name)
-      character(:), allocatable :: long_name
+   subroutine get_long_name(this, long_name)
       class(FieldClassAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: long_name
 
       if (allocated(this%long_name)) long_name = this%long_name
-   end function get_long_name
+   end subroutine get_long_name
 
    function to_fieldclassaspect_from_poly(aspect, rc) result(field_aspect)
       type(FieldClassAspect) :: field_aspect

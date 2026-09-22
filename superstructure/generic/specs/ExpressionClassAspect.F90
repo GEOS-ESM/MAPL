@@ -412,18 +412,18 @@ contains
       _UNUSED_DUMMY(state)
    end subroutine get_payload
 
-   function get_standard_name(this) result(standard_name)
-      character(:), allocatable :: standard_name
+   subroutine get_standard_name(this, standard_name)
       class(ExpressionClassAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: standard_name
 
       if (allocated(this%standard_name)) standard_name = this%standard_name
-   end function get_standard_name
+   end subroutine get_standard_name
 
-   function get_long_name(this) result(long_name)
-      character(:), allocatable :: long_name
+   subroutine get_long_name(this, long_name)
       class(ExpressionClassAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: long_name
 
       if (allocated(this%long_name)) long_name = this%long_name
-   end function get_long_name
+   end subroutine get_long_name
 
 end module mapl_ExpressionClassAspect_mod
