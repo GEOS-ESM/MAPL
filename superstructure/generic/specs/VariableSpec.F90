@@ -727,7 +727,8 @@ contains
          _ASSERT(present(registry), 'must have registry for creating a Service')
          aspect = ServiceClassAspect(registry, this%service_items)
       case (MAPL_STATEITEM_EXPRESSION%ot)
-         aspect = ExpressionClassAspect(registry=registry, expression=this%expression)
+         aspect = ExpressionClassAspect(registry=registry, expression=this%expression, &
+              standard_name=this%standard_name, long_name=this%long_name)
       case default
          aspect=FieldClassAspect('') ! must allocate something
          _FAIL('Unsupported itemType')

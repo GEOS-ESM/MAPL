@@ -78,6 +78,7 @@ contains
       integer :: rank, ungriddedDimCount
       integer, allocatable :: localElementCount(:)
       type(VerticalStaggerLoc) :: stagger
+      integer :: alias_id
 
       call esmf_FieldGet(field, status=fstatus, _RC)
       if (fstatus == ESMF_FIELDSTATUS_COMPLETE) then
@@ -131,7 +132,7 @@ contains
            vert_staggerloc=vert_staggerloc, &
            vert_alignment=vert_alignment, &
            typekind=typekind, &
-           units=units, standard_name=standard_name, long_name=long_name, &
+           units=units, &
            ungridded_dims=ungridded_dims, &
            quantity_type_metadata=quantity_type_metadata, &
            normalization_metadata=normalization_metadata, &
@@ -139,6 +140,18 @@ contains
            allocation_status=allocation_status, &
            regridder_param_info=regridder_param_info, &
            _RC)
+
+      ! standard_name/long_name are per-NamedAlias-id metadata (see
+      ! generic/field-name-propagation): scope the write to THIS field's own
+      ! alias id (via ESMF_NamedAliasGet), matching how FieldGet resolves it
+      ! on read.  id=0 (a field never placed via ESMF_NamedAlias) is a valid,
+      ! self-consistent scope like any other - it just means "this specific
+      ! field object's own slot", which is exactly what a caller setting
+      ! standard_name/long_name directly on `field` wants.
+      if (present(standard_name) .or. present(long_name)) then
+         call ESMF_NamedAliasGet(field, id=alias_id, _RC)
+         call FieldInfoSetInternal(field_info, alias_id, standard_name=standard_name, long_name=long_name, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
