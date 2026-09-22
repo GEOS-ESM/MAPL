@@ -203,6 +203,7 @@ contains
       type(RecordingStateInvoker) :: invoker
       type(CallRecord), target :: record
       integer :: status
+      character(*), parameter :: METHOD_NAME = 'get'
 
       iface = make_passive_tracer_interface(rc=status)
       call register_callback_interface('test-binding-invoke', iface, interface_id, rc=status)
@@ -215,10 +216,23 @@ contains
       @assertEqual(0, status)
 
       invoker%record => record
-      call binding%bind_method('get', rc=status, invoker=invoker)
+      ! Pre-size record%method_name to METHOD_NAME's own length before
+      ! entering the call chain below (gfortran -O3 defect: an
+      ! allocatable character component's (de)allocation performed
+      ! while nested inside a call reached through a class(...) dummy
+      ! spanning several separately-compiled modules - here
+      ! bind_method -> StateMethodInvocation%invoke ->
+      ! recording_invoke_method - fails to persist back to this frame;
+      ! only a same-length in-place byte copy into storage already
+      ! allocated *before* that nested-call excursion began survives).
+      ! Using the same METHOD_NAME literal for both this pre-size and
+      ! the invoke_method() call below guarantees the lengths can never
+      ! drift out of sync.
+      record%method_name = METHOD_NAME
+      call binding%bind_method(METHOD_NAME, rc=status, invoker=invoker)
       @assertEqual(0, status)
 
-      call binding%invoke_method('get', rc=status)
+      call binding%invoke_method(METHOD_NAME, rc=status)
       @assertEqual(0, status)
 
       @assertEqual(1, record%call_count)
@@ -266,6 +280,7 @@ contains
       type(RecordingStateInvoker) :: get_invoker
       type(CallRecord), target :: get_record
       integer :: status
+      character(*), parameter :: METHOD_NAME = 'get'
 
       iface = make_passive_tracer_interface(rc=status)
       @assertEqual(0, status)
@@ -280,12 +295,16 @@ contains
       @assertEqual(0, status)
 
       get_invoker%record => get_record
-      call binding%bind_method('get', rc=status, invoker=get_invoker)
+      ! See test_invoke_method_with_invoker_succeeds_exactly_once's own
+      ! comment above (same gfortran -O3 defect) - pre-size using the
+      ! same METHOD_NAME literal passed to invoke_method() below.
+      get_record%method_name = METHOD_NAME
+      call binding%bind_method(METHOD_NAME, rc=status, invoker=get_invoker)
       @assertEqual(0, status)
       call binding%bind_method('put', rc=status)
       @assertEqual(0, status)
 
-      call binding%invoke_method('get', rc=status)
+      call binding%invoke_method(METHOD_NAME, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, get_record%call_count)
       @assertEqual('get', get_record%method_name)
