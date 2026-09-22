@@ -3,6 +3,122 @@
 ### Goal
 Build an ExtData input server that can eventually use extra node-local reader PEs while keeping `model_comm` as the front/model communicator.
 
+### Active Goal (2026-09-22)
+
+Restructure `AsyncInputServer` as a MultiGroup-style node-local input service:
+
+- one captain and at least one worker on every model-containing node;
+- models submit request metadata to the captain;
+- the captain identifies the worker that owns or will produce the data;
+- the model obtains its payload directly from worker-owned shared memory;
+- the captain remains control-only and never copies payload bytes;
+- `model_comm` is caller-owned and used only during initialization, not stored
+  in `AsyncInputServer`.
+
+The active implementation plan is Steps 16-22 in
+`.opencode/plans/async-input-server-plan.md`. Earlier steps and entries below
+are retained as implementation history.
+
+### Required Work Discipline (2026-09-22)
+
+- Update this status document immediately after each completed plan step.
+- Each update must record files changed, decisions or deviations, exact build
+  and test commands, results, log paths, remaining risks, and the next step.
+- Load `nag-stack` in the same shell invocation as every build or test command.
+- Use `build/` as the NAG build directory and do not mix compilers in it.
+- Write configure, build, and test logs into `build/` using `tee`.
+- Build tests explicitly with the `build-tests` target before running them.
+- Run focused tests during each step and the full `ESSENTIAL` label after the
+  final implementation step.
+
+### Planning Status (2026-09-22)
+
+- State: complete.
+- Saved the active MultiGroup-style redesign as Steps 16-22 in the plan.
+- Inspected the current `AsyncInputServer`, `MultiGroupServer`, framework
+  initialization, communicator lifecycle, and PFIO component tests.
+- Confirmed the current implementation already has a node-local captain,
+  multiple workers, filename-based routing, worker caches, and shared-memory
+  delivery, but still retains `model_comm`, lets the captain copy warm payloads,
+  and allocates result mailboxes on model ranks.
+- Confirmed the remote `PfioServerGridComp` path cannot support the current
+  shared-memory design because its server communicator excludes model ranks.
+- No source implementation was changed and no build or test was required for
+  this planning-only step.
+- Next step: Step 16, initialization contract and immutable role/rank state.
+
+### Step 16: Initialization Contract and Roles (2026-09-22)
+
+- State: complete.
+- Removed the persistent `model_comm` component from `AsyncInputServer`.
+- The constructor still accepts `model_comm` for source compatibility, but
+  passes it directly to topology initialization and does not retain, duplicate,
+  or free it.
+- Added immutable runtime role state for model, reader, captain, worker, and
+  model-node-root behavior. Runtime dispatch, shared-window allocation,
+  shutdown, and `is_reader_role()` now use these stored roles.
+- Added an explicit `captain_service_rank` topology value and use it for model
+  request forwarding and shutdown instead of repeatedly indexing the reader
+  map.
+- Renamed request source fields and arguments to `source_service_rank` or
+  `model_service_rank` where the values belong to the service communicator.
+- Added read-only role/topology queries used by the focused test:
+  `is_model_role()`, `is_captain_role()`, `is_worker_role()`, and
+  `get_captain_service_rank()`.
+- Rejected the remote `PfioServerGridComp` construction path explicitly.
+  `AsyncInputServer` currently requires `local: true` because its service
+  communicator and MPI shared window must contain both model and reader ranks.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+- `mapl/PfioServerGridComp.F90`
+- `pfio/tests/Test_AsyncInputServer.pf`
+- `pfio/tests/CMakeLists.txt`
+
+Focused test:
+
+- Added `test_temporary_reordered_model_comm` to `MAPL.pfio.tests` with four
+  ranks: one model, one captain, and two workers.
+- The service communicator is reordered so parent rank 0/model rank 0 becomes
+  service rank 2; reader service rank 0 is captain and reader service ranks 1
+  and 3 are workers. This prevents accidental reliance on model and service
+  rank numbers being equal.
+- The test frees the caller-owned model communicator immediately after server
+  construction, checks all roles and the captain service rank, runs the real
+  captain/worker shutdown protocol, and checks that role state remains valid
+  after runtime cleanup.
+
+Build and test commands:
+
+```bash
+zsh -lic 'module load nag-stack && cmake -B build -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee build/step16-cmake-config.log && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step16-build-tests.log'
+zsh -lic 'module load nag-stack && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure 2>&1 | tee build/step16-pfio-test.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure 2>&1 | tee build/step16-pfio-components.log'
+```
+
+Results:
+
+- NAG `build-tests`: passed; target reached 100%.
+- `MAPL.pfio.tests`: 1/1 CTest target passed, including the new four-rank
+  topology/lifetime test.
+- PFIO component cases 01-05: 5/5 passed.
+- Configure log: `build/step16-cmake-config.log`.
+- Build log: `build/step16-build-tests.log`.
+- Focused unit/MPI log: `build/step16-pfio-test.log`.
+- Component regression log: `build/step16-pfio-components.log`.
+
+Notes and remaining risks:
+
+- The non-login tool shell did not define `module`; build and test commands
+  therefore use `zsh -lic` so `nag-stack` is loaded in the same shell as each
+  operation.
+- Step 16 does not yet move result mailboxes to worker-owned memory or remove
+  captain-side warm-payload copying; those remain Steps 18 and 19.
+- The full `ESSENTIAL` label is reserved for completion of the redesign, as
+  specified in the plan.
+- Next step: Step 17, explicit request IDs and control-protocol metadata.
+
 ### Key Design Decisions
 - `pfio` should not inspect `MPI_COMM_WORLD`.
 - `AsyncInputServer` takes:

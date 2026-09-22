@@ -84,7 +84,7 @@ module pFIO_AsyncInputServerMod
 
     type :: AsyncInputPendingRequest
        integer :: command = ASYNC_INPUT_CMD_READ
-       integer :: source_rank = -1
+       integer :: source_service_rank = -1
        character(len=:), allocatable :: file_name
        integer, allocatable :: buffer(:)
     end type AsyncInputPendingRequest
@@ -92,7 +92,7 @@ module pFIO_AsyncInputServerMod
     type :: AsyncInputWorkerState
        logical :: busy = .false.
        integer :: command = ASYNC_INPUT_CMD_READ
-       integer :: source_rank = -1
+       integer :: source_service_rank = -1
        character(len=:), allocatable :: file_name
        integer, allocatable :: buffer(:)
     end type AsyncInputWorkerState
@@ -103,27 +103,32 @@ module pFIO_AsyncInputServerMod
        type(AsyncInputCacheKey) :: key
     end type AsyncInputWarmRecord
 
-    type :: AsyncInputTopology
-       integer :: model_node_comm = MPI_COMM_NULL
-       integer :: node_comm = MPI_COMM_NULL
-       integer :: reader_comm = MPI_COMM_NULL
+     type :: AsyncInputTopology
+        integer :: model_node_comm = MPI_COMM_NULL
+        integer :: node_comm = MPI_COMM_NULL
+        integer :: reader_comm = MPI_COMM_NULL
        integer :: node_size = 0
        integer :: model_size = 0
-       integer :: model_node_rank = -1
-       integer :: reader_size = 0
-       integer :: reader_rank = -1
-       integer, allocatable :: node_server_ranks(:)
-       integer, allocatable :: reader_server_ranks(:)
+        integer :: model_node_rank = -1
+        integer :: reader_size = 0
+        integer :: reader_rank = -1
+        integer :: captain_service_rank = -1
+        integer, allocatable :: node_server_ranks(:)
+        integer, allocatable :: reader_server_ranks(:)
     contains
        procedure :: node_rank => topology_node_rank
        procedure :: worker_rank => topology_worker_rank
     end type AsyncInputTopology
 
     type, extends(BaseServer) :: AsyncInputServer
-      private
-      character(len=:), allocatable :: port_name
-      integer :: model_comm = MPI_COMM_NULL
-      type(AsyncInputTopology) :: topology
+       private
+       character(len=:), allocatable :: port_name
+       logical :: model_role = .false.
+       logical :: reader_role = .false.
+       logical :: captain_role = .false.
+       logical :: worker_role = .false.
+       logical :: model_node_root_role = .false.
+       type(AsyncInputTopology) :: topology
        integer :: shared_win = MPI_WIN_NULL
        type(c_ptr) :: shared_base_address = c_null_ptr
        type(c_ptr) :: shared_cache_base_address = c_null_ptr
@@ -141,9 +146,13 @@ module pFIO_AsyncInputServerMod
       integer :: reader_requests = 0
        contains
        procedure, public :: start
-       procedure, public :: shutdown
-       procedure, public :: is_reader_role
-       procedure, public :: service_collective_prefetch
+        procedure, public :: shutdown
+        procedure, public :: is_reader_role
+        procedure, public :: is_model_role
+        procedure, public :: is_captain_role
+        procedure, public :: is_worker_role
+        procedure, public :: get_captain_service_rank
+        procedure, public :: service_collective_prefetch
        procedure, public :: service_next_collective_prefetch
        end type AsyncInputServer
 
@@ -165,9 +174,8 @@ contains
       character(len=32) :: sleep_string
       integer :: sleep_length, sleep_status
 
-      s%port_name = trim(port_name)
-      s%threads = ServerThreadVector()
-      s%model_comm = model_comm
+       s%port_name = trim(port_name)
+       s%threads = ServerThreadVector()
 
        call get_environment_variable('MAPL_ASYNC_INPUT_SHMEM_WORDS', sleep_string, sleep_length, sleep_status)
       if (sleep_status == 0 .and. sleep_length > 0) then
@@ -184,28 +192,30 @@ contains
       end if
       allocate(s%cache_slots(s%num_cache_slots))
 
-      call s%init(comm, port_name, profiler_name=profiler_name, with_profiler=with_profiler, _RC)
-      call initialize_role_accounting(s, comm, _RC)
+       call s%init(comm, port_name, profiler_name=profiler_name, with_profiler=with_profiler, _RC)
+       call initialize_role_accounting(s, comm, model_comm, _RC)
 
       _RETURN(_SUCCESS)
    end function new_AsyncInputServer
 
-   subroutine initialize_role_accounting(this, comm, rc)
-      class(AsyncInputServer), intent(inout) :: this
-      integer, intent(in) :: comm
+    subroutine initialize_role_accounting(this, comm, model_comm, rc)
+       class(AsyncInputServer), intent(inout) :: this
+       integer, intent(in) :: comm, model_comm
       integer, optional, intent(out) :: rc
 
       integer :: ierror, status, model_flag, reader_color, reader_size
       integer, allocatable :: model_flags(:)
 
-      status = _SUCCESS
-      call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%topology%node_comm, ierror)
+       status = _SUCCESS
+       this%model_role = model_comm /= MPI_COMM_NULL
+       this%reader_role = .not. this%model_role
+       call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%topology%node_comm, ierror)
       _VERIFY(ierror)
 
       this%topology%model_node_rank = -1
-      if (this%model_comm /= MPI_COMM_NULL) then
-         call MPI_Comm_split_type(this%model_comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &
-              this%topology%model_node_comm, ierror)
+       if (this%model_role) then
+          call MPI_Comm_split_type(model_comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &
+               this%topology%model_node_comm, ierror)
          _VERIFY(ierror)
          call MPI_Comm_rank(this%topology%model_node_comm, this%topology%model_node_rank, ierror)
          _VERIFY(ierror)
@@ -218,7 +228,7 @@ contains
            MPI_INTEGER, this%topology%node_comm, ierror)
       _VERIFY(ierror)
 
-      model_flag = merge(1, 0, this%model_comm /= MPI_COMM_NULL)
+       model_flag = merge(1, 0, this%model_role)
       allocate(model_flags(this%topology%node_size))
       call MPI_Allgather(model_flag, 1, MPI_INTEGER, model_flags, 1, MPI_INTEGER, &
            this%topology%node_comm, ierror)
@@ -227,13 +237,14 @@ contains
       this%topology%reader_size = this%topology%node_size - this%topology%model_size
       _ASSERT(this%topology%reader_size >= 2, &
            'AsyncInputServer requires one reader captain and at least one reader worker')
-      allocate(this%topology%reader_server_ranks(this%topology%reader_size))
-      this%topology%reader_server_ranks = pack(this%topology%node_server_ranks, model_flags == 0)
-      deallocate(model_flags)
+       allocate(this%topology%reader_server_ranks(this%topology%reader_size))
+       this%topology%reader_server_ranks = pack(this%topology%node_server_ranks, model_flags == 0)
+       this%topology%captain_service_rank = this%topology%reader_server_ranks(1)
+       deallocate(model_flags)
 
-      reader_color = MPI_UNDEFINED
-      if (this%model_comm == MPI_COMM_NULL) reader_color = 1
-      call MPI_Comm_split(this%topology%node_comm, reader_color, this%rank, this%topology%reader_comm, ierror)
+       reader_color = MPI_UNDEFINED
+       if (this%reader_role) reader_color = 1
+       call MPI_Comm_split(this%topology%node_comm, reader_color, this%rank, this%topology%reader_comm, ierror)
       _VERIFY(ierror)
        if (this%topology%reader_comm /= MPI_COMM_NULL) then
           call MPI_Comm_rank(this%topology%reader_comm, this%topology%reader_rank, ierror)
@@ -242,6 +253,9 @@ contains
           _VERIFY(ierror)
           _ASSERT(reader_size == this%topology%reader_size, 'reader communicator size does not match node topology')
        end if
+       this%captain_role = this%reader_role .and. this%topology%reader_rank == 0
+       this%worker_role = this%reader_role .and. this%topology%reader_rank > 0
+       this%model_node_root_role = this%model_role .and. this%topology%model_node_rank == 0
 
       if (this%InNode_Rank == 0) then
          write(*,'(A,1X,A,1X,A,I0,1X,A,I0,1X,A,I0)') &
@@ -271,7 +285,7 @@ contains
        n_workers = this%topology%reader_size - 1
        _ASSERT(n_workers > 0, 'nonfallback AsyncInputServer requires at least one reader worker')
        local_bytes = 0_MPI_ADDRESS_KIND
-       if (this%model_comm /= MPI_COMM_NULL) then
+        if (this%model_role) then
           local_bytes = int(n_workers, MPI_ADDRESS_KIND) * &
                int(ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words, MPI_ADDRESS_KIND) * &
                4_MPI_ADDRESS_KIND
@@ -293,7 +307,7 @@ contains
        call MPI_Win_lock_all(0, this%shared_win, ierr)
        _VERIFY(ierr)
 
-       if (this%model_comm /= MPI_COMM_NULL) then
+        if (this%model_role) then
           call c_f_pointer(this%shared_base_address, shared_words, &
                [n_workers * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)])
           shared_words = ASYNC_INPUT_MAILBOX_EMPTY
@@ -316,7 +330,7 @@ contains
     ! results directly to model-rank shared-memory mailboxes. Cache-only
     ! requests populate the worker cache without publishing a result.
     !
-    ! Model ranks (model_comm /= MPI_COMM_NULL):
+     ! Model ranks:
     !   Standard ServerThread dispatch loop.
     !   Each model rank sends its full request, including global extents, to
     !   its node-local captain and waits only when it needs the current slice.
@@ -327,7 +341,7 @@ contains
        class(ServerThread), pointer :: thread_ptr => null()
        integer :: i, client_size
        logical, allocatable :: mask(:)
-       integer :: status, ierr, cmd, source_rank, buffer_size, slot_index, msize_word
+       integer :: status, ierr, cmd, source_service_rank, buffer_size, slot_index, msize_word
        integer :: mpi_status(MPI_STATUS_SIZE)
        integer, allocatable :: buffer(:), result(:)
        type(AsyncInputPendingRequest), allocatable :: pending(:)
@@ -335,8 +349,8 @@ contains
        type(AsyncInputWarmRecord), allocatable :: warm_records(:)
        logical :: message_available
 
-       if (this%model_comm == MPI_COMM_NULL) then
-          if (this%topology%reader_rank /= 0) then
+       if (this%reader_role) then
+          if (this%worker_role) then
              do while (.true.)
                  call MPI_Recv(cmd, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_CMD, &
                       this%topology%reader_comm, mpi_status, ierr)
@@ -352,7 +366,7 @@ contains
                  call MPI_Recv(buffer_size, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_SIZE, &
                       this%topology%reader_comm, mpi_status, ierr)
                  _VERIFY(ierr)
-                 call MPI_Recv(source_rank, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_SOURCE, &
+                  call MPI_Recv(source_service_rank, 1, MPI_INTEGER, 0, ASYNC_INPUT_TAG_READER_SOURCE, &
                       this%topology%reader_comm, mpi_status, ierr)
                  _VERIFY(ierr)
                  allocate(buffer(buffer_size))
@@ -363,7 +377,7 @@ contains
                  deallocate(buffer)
                  call publish_shared_cache_slot(this, slot_index, _RC)
                  if (msize_word > 0) then
-                    call publish_shared_result(this, source_rank, this%topology%reader_rank, &
+                     call publish_shared_result(this, source_service_rank, this%topology%reader_rank, &
                          result, msize_word, _RC)
                     deallocate(result)
                  end if
@@ -408,17 +422,17 @@ contains
                    this%comm, mpi_status, ierr)
               _VERIFY(ierr)
               if (cmd == ASYNC_INPUT_CMD_TERMINATE) exit
-              source_rank = mpi_status(MPI_SOURCE)
-              call MPI_Recv(buffer_size, 1, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_SIZE, &
+               source_service_rank = mpi_status(MPI_SOURCE)
+               call MPI_Recv(buffer_size, 1, MPI_INTEGER, source_service_rank, ASYNC_INPUT_TAG_SIZE, &
                    this%comm, mpi_status, ierr)
               _VERIFY(ierr)
               allocate(buffer(buffer_size))
-              call MPI_Recv(buffer, buffer_size, MPI_INTEGER, source_rank, ASYNC_INPUT_TAG_BUFFER, &
+               call MPI_Recv(buffer, buffer_size, MPI_INTEGER, source_service_rank, ASYNC_INPUT_TAG_BUFFER, &
                    this%comm, mpi_status, ierr)
               _VERIFY(ierr)
                _ASSERT(cmd == ASYNC_INPUT_CMD_READ .or. cmd == ASYNC_INPUT_CMD_NEXT_PREFETCH, &
                     'unknown reader captain command')
-                call enqueue_reader_request(pending, cmd, source_rank, buffer, _RC)
+                 call enqueue_reader_request(pending, cmd, source_service_rank, buffer, _RC)
                 deallocate(buffer)
                 call serve_warm_requests(this, pending, workers, warm_records, ierr)
                 _VERIFY(ierr)
@@ -481,7 +495,7 @@ contains
        call this%threads%clear()
        deallocate(mask)
 
-       if (this%model_comm /= MPI_COMM_NULL .and. this%topology%model_node_rank == 0) then
+       if (this%model_node_root_role) then
           write(*,'(A,1X,A,I0)') 'INFO: AsyncInputServer forwarded:', 'requests=', this%forwarded_requests
        end if
 
@@ -501,9 +515,9 @@ contains
            _RETURN(_SUCCESS)
         end if
 
-        if (this%model_comm /= MPI_COMM_NULL .and. this%topology%model_node_rank == 0) then
+        if (this%model_node_root_role) then
            call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, &
-                this%topology%reader_server_ranks(1), &
+                this%topology%captain_service_rank, &
                 ASYNC_INPUT_TAG_CMD, this%comm, status)
            _VERIFY(status)
         end if
@@ -514,8 +528,28 @@ contains
 
      logical function is_reader_role(this)
         class(AsyncInputServer), intent(in) :: this
-        is_reader_role = this%model_comm == MPI_COMM_NULL
+        is_reader_role = this%reader_role
      end function is_reader_role
+
+     logical function is_model_role(this)
+        class(AsyncInputServer), intent(in) :: this
+        is_model_role = this%model_role
+     end function is_model_role
+
+     logical function is_captain_role(this)
+        class(AsyncInputServer), intent(in) :: this
+        is_captain_role = this%captain_role
+     end function is_captain_role
+
+     logical function is_worker_role(this)
+        class(AsyncInputServer), intent(in) :: this
+        is_worker_role = this%worker_role
+     end function is_worker_role
+
+     integer function get_captain_service_rank(this)
+        class(AsyncInputServer), intent(in) :: this
+        get_captain_service_rank = this%topology%captain_service_rank
+     end function get_captain_service_rank
 
     ! -----------------------------------------------------------------------
     ! service_collective_prefetch
@@ -657,9 +691,9 @@ contains
         _RETURN(_SUCCESS)
      end subroutine publish_shared_cache_slot
 
-     subroutine enqueue_reader_request(pending, command, source_rank, input, rc)
+     subroutine enqueue_reader_request(pending, command, source_service_rank, input, rc)
        type(AsyncInputPendingRequest), allocatable, intent(inout) :: pending(:)
-       integer, intent(in) :: command, source_rank, input(:)
+       integer, intent(in) :: command, source_service_rank, input(:)
        integer, optional, intent(out) :: rc
        type(AsyncInputPendingRequest), allocatable :: expanded(:)
        type(CollectivePrefetchDataMessage) :: request
@@ -670,7 +704,7 @@ contains
        allocate(expanded(n + 1))
        if (n > 0) expanded(1:n) = pending
        expanded(n + 1)%command = command
-       expanded(n + 1)%source_rank = source_rank
+       expanded(n + 1)%source_service_rank = source_service_rank
        expanded(n + 1)%file_name = request%file_name
        allocate(expanded(n + 1)%buffer(size(input)))
        expanded(n + 1)%buffer = input
@@ -696,7 +730,7 @@ contains
           call MPI_Send(size(pending(request_index)%buffer), 1, MPI_INTEGER, worker_rank, &
                ASYNC_INPUT_TAG_READER_SIZE, this%topology%reader_comm, ierr)
           if (ierr /= MPI_SUCCESS) return
-          call MPI_Send(pending(request_index)%source_rank, 1, MPI_INTEGER, worker_rank, &
+          call MPI_Send(pending(request_index)%source_service_rank, 1, MPI_INTEGER, worker_rank, &
                ASYNC_INPUT_TAG_READER_SOURCE, this%topology%reader_comm, ierr)
           if (ierr /= MPI_SUCCESS) return
           call MPI_Send(pending(request_index)%buffer, size(pending(request_index)%buffer), &
@@ -705,13 +739,13 @@ contains
 
           workers(worker_rank)%busy = .true.
           workers(worker_rank)%command = pending(request_index)%command
-          workers(worker_rank)%source_rank = pending(request_index)%source_rank
+          workers(worker_rank)%source_service_rank = pending(request_index)%source_service_rank
           workers(worker_rank)%file_name = pending(request_index)%file_name
           allocate(workers(worker_rank)%buffer(size(pending(request_index)%buffer)))
           workers(worker_rank)%buffer = pending(request_index)%buffer
            if (workers(worker_rank)%command == ASYNC_INPUT_CMD_READ) then
               call MPI_Send(this%topology%reader_server_ranks(worker_rank + 1), 1, MPI_INTEGER, &
-                   workers(worker_rank)%source_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
+                    workers(worker_rank)%source_service_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
               if (ierr /= MPI_SUCCESS) return
            end if
           call remove_pending_request(pending, request_index)
@@ -755,7 +789,7 @@ contains
        if (ierr /= MPI_SUCCESS) return
        call update_warm_record(warm_records, request, worker_rank, slot_index)
        workers(worker_rank)%busy = .false.
-       workers(worker_rank)%source_rank = -1
+       workers(worker_rank)%source_service_rank = -1
        if (allocated(workers(worker_rank)%file_name)) deallocate(workers(worker_rank)%file_name)
        if (allocated(workers(worker_rank)%buffer)) deallocate(workers(worker_rank)%buffer)
      end subroutine poll_reader_completions
@@ -787,10 +821,10 @@ contains
            end if
 
            if (pending(i)%command == ASYNC_INPUT_CMD_READ) then
-              call publish_warm_result(this, request, pending(i)%source_rank, warm_records(warm_index), ierr)
+              call publish_warm_result(this, request, pending(i)%source_service_rank, warm_records(warm_index), ierr)
               if (ierr /= MPI_SUCCESS) return
               call MPI_Send(this%topology%reader_server_ranks(warm_records(warm_index)%worker_rank + 1), &
-                   1, MPI_INTEGER, pending(i)%source_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
+                   1, MPI_INTEGER, pending(i)%source_service_rank, ASYNC_INPUT_TAG_WORKER_RANK, this%comm, ierr)
               if (ierr /= MPI_SUCCESS) return
               this%captain_warm_hits = this%captain_warm_hits + 1
            else
@@ -811,10 +845,10 @@ contains
         if (allocated(request%global_count)) deallocate(request%global_count)
      end subroutine reset_prefetch_request
 
-     subroutine publish_warm_result(this, request, model_rank, warm_record, ierr)
+     subroutine publish_warm_result(this, request, model_service_rank, warm_record, ierr)
         class(AsyncInputServer), intent(inout) :: this
         type(CollectivePrefetchDataMessage), intent(in) :: request
-        integer, intent(in) :: model_rank
+        integer, intent(in) :: model_service_rank
         type(AsyncInputWarmRecord), intent(in) :: warm_record
         integer, intent(out) :: ierr
 
@@ -829,7 +863,7 @@ contains
 #endif
 
         ierr = MPI_SUCCESS
-        model_node_rank = this%topology%node_rank(model_rank)
+        model_node_rank = this%topology%node_rank(model_service_rank)
         if (model_node_rank < 0) then
            ierr = MPI_ERR_RANK
            return
@@ -968,7 +1002,7 @@ contains
 
          ! Model commands always enter through the reader captain. The captain
          ! returns the selected worker's server-communicator rank before data.
-        reader_rank = this%topology%reader_server_ranks(1)
+        reader_rank = this%topology%captain_service_rank
        this%forwarded_requests = this%forwarded_requests + 1
        local_msize_word = word_size(request%type_kind) * product(int(request%count, INT64))
 
@@ -1004,14 +1038,14 @@ contains
        _RETURN(_SUCCESS)
      end subroutine forward_request_to_reader
 
-     subroutine publish_shared_result(this, model_rank, worker_rank, result, result_size, rc)
+     subroutine publish_shared_result(this, model_service_rank, worker_rank, result, result_size, rc)
         class(AsyncInputServer), intent(inout) :: this
-        integer, intent(in) :: model_rank, worker_rank, result(:), result_size
+        integer, intent(in) :: model_service_rank, worker_rank, result(:), result_size
         integer, optional, intent(out) :: rc
 
         integer :: ierr, model_node_rank
 
-        model_node_rank = this%topology%node_rank(model_rank)
+        model_node_rank = this%topology%node_rank(model_service_rank)
         _ASSERT(model_node_rank >= 0, 'model rank is not present in the node communicator')
         call publish_result_to_mailbox(this, model_node_rank, worker_rank, result, result_size, ierr)
         if (ierr /= MPI_SUCCESS) return
@@ -1385,9 +1419,10 @@ contains
        this%topology%reader_size = 0
        this%topology%node_size = 0
        this%topology%model_size = 0
-       this%topology%reader_rank = -1
-       this%topology%model_node_rank = -1
-        this%next_cache_slot = 1
+        this%topology%reader_rank = -1
+        this%topology%model_node_rank = -1
+        this%topology%captain_service_rank = -1
+         this%next_cache_slot = 1
 
         _RETURN(_SUCCESS)
     end subroutine finalize_runtime

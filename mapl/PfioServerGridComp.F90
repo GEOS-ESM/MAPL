@@ -3,7 +3,6 @@
 module mapl_PfioServerGridComp_mod
    use mapl_MaplFramework_mod,       only: MAPL_PublishServer
    use mapl_MaplServerUtilities_mod, only: ServerResources
-   use pFIO_AsyncInputServerMod,     only: AsyncInputServer
    use pFIO_MpiServerMod,            only: MpiServer
    use pFIO_MultiGroupServerMod,     only: MultiGroupServer
    use pFIO_BaseServerMod,           only: BaseServer
@@ -49,7 +48,7 @@ contains
       case ('MpiServer', '')
          allocate(server, source=MpiServer(resources%server_comm, trim(server_name)))
       case ('AsyncInputServer')
-         allocate(server, source=AsyncInputServer(resources%server_comm, trim(server_name), model_comm=resources%model_comm))
+          _FAIL('AsyncInputServer requires local: true because its model and reader ranks must share memory')
       case ('MultiGroupServer')
          allocate(server, source=MultiGroupServer(resources%server_comm, trim(server_name), &
               nwriter_per_node=resources%nwriter_per_node))

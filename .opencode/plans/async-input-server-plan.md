@@ -310,3 +310,254 @@
     cluster where `reader_capacity_on_node > 0` spans multiple nodes.
   - Confirm the Step 9 multi-worker log lines appear and multi-worker
     dispatch actually improves wall time versus the single-worker baseline.
+
+## Active Redesign: MultiGroup-Style Input Service
+
+### Objective
+
+Restructure `AsyncInputServer` around the useful topology and scheduling
+patterns in `MultiGroupServer`:
+
+```text
+model/client ranks
+        |
+        | request metadata
+        v
+node-local reader captain
+        |
+        | worker assignment
+        v
+node-local reader worker(s)
+        |
+        | worker-owned shared-memory result
+        v
+model/client rank
+```
+
+Each shared-memory node that contains model ranks must contain one reader
+captain and at least one reader worker. Models submit requests only to the
+captain. The captain schedules the request and tells the model which worker
+owns or will produce the data. The model then copies the result directly from
+worker-owned shared memory. The captain handles control metadata only and does
+not copy payload data.
+
+`model_comm` is a caller-owned, initialization-only input. It is not a
+component of `AsyncInputServer`, is not duplicated or freed by the server, and
+must not be accessed after topology initialization.
+
+Until a non-shared-memory transport is implemented, this design supports only
+`local: true` because each model, captain, and assigned worker must belong to
+the same MPI shared-memory domain.
+
+### Step 16: Initialization Contract and Roles
+
+- Remove the persistent `model_comm` component from `AsyncInputServer`.
+- Continue accepting `model_comm` as a constructor argument initially to
+  preserve the public call shape.
+- During construction, convert model membership into immutable runtime state:
+  `is_model_rank`, `is_reader_rank`, `is_captain`, `is_worker`, and
+  `is_model_node_root`.
+- Store the node-local captain's service-communicator rank and explicit maps
+  among service, node, and reader rank spaces.
+- Rename ambiguous variables such as `model_rank` when they actually contain
+  a service-communicator rank.
+- Replace all runtime tests of `model_comm == MPI_COMM_NULL` with initialized
+  role fields.
+- Do not assume equal numerical ranks in `model_comm` and the service
+  communicator.
+- Validate one captain and at least one worker on every model-containing node.
+- Reject non-local `AsyncInputServer` configurations early with a clear error.
+
+Files:
+
+- `pfio/AsyncInputServer.F90`
+- `mapl/MaplFramework.F90`
+- `mapl/PfioServerGridComp.F90`
+- focused PFIO MPI topology tests
+
+Verify:
+
+- Construct using a temporary caller-owned `model_comm`, complete
+  initialization, and prove runtime role queries no longer use that handle.
+- Test a non-prefix or reordered model/service rank mapping.
+- Verify one model, one captain, and two workers resolve the expected rank
+  spaces and shut down cleanly.
+- Run existing PFIO component cases 01-05.
+
+### Step 17: Explicit Control Protocol
+
+- Give every request a unique request ID.
+- Define explicit metadata for model-to-captain requests, captain-to-worker
+  commands, captain-to-model assignments, and worker-to-captain completions.
+- Include source service rank, source node/model index, file and variable,
+  type, global and local bounds, and `cache_only` in request metadata.
+- Keep MPI tags separate for request, assignment, worker command, completion,
+  termination, and termination acknowledgment.
+- Document the rank space of every transmitted rank.
+
+Files:
+
+- `pfio/AsyncInputServer.F90`
+- focused protocol tests under `pfio/tests/`
+
+Verify:
+
+- A model sends request metadata only to its captain.
+- The captain returns a valid node-local worker and the same request ID.
+- Worker completion is associated with the correct request and cache key.
+- Multiple outstanding requests cannot consume another request's response.
+
+### Step 18: Worker-Owned Shared-Memory Results
+
+- Change shared-memory ownership so each worker allocates:
+  - its private cache-slot payloads;
+  - one result mailbox for each node-local model rank.
+- Put state, request ID/generation, payload size, status, and payload in each
+  mailbox.
+- Use explicit mailbox states such as `EMPTY`, `FILLING`, `READY`, `OVERFLOW`,
+  and `ERROR`.
+- Have the worker extract the model's local slice and publish it into its own
+  shared segment.
+- Have the model query the selected worker's shared segment, wait for the
+  matching request ID, copy the data, and release the mailbox.
+- Preserve `MAPL_ASYNC_INPUT_SHMEM_WORDS` for the first implementation; dynamic
+  payload allocation is a later enhancement.
+
+Files:
+
+- `pfio/AsyncInputServer.F90`
+- shared-memory MPI tests under `pfio/tests/`
+
+Verify:
+
+- The payload path is worker to model through shared memory; no payload MPI
+  message passes through the captain.
+- Exercise `EMPTY -> FILLING -> READY -> EMPTY` transitions.
+- Exercise two workers and at least two model ranks without mailbox overlap.
+- Verify INT32, INT64, REAL32, and REAL64 payloads where supported.
+- Verify controlled overflow and size-mismatch failures.
+
+### Step 19: Control-Only Captain and Warm Hits
+
+- Remove captain-side payload extraction and publication from the warm-cache
+  path.
+- Keep cache-directory metadata at the captain, including worker, slot, key,
+  and generation.
+- On a warm demand request, instruct the owning worker to serve the cached
+  value and return that worker identity to the model.
+- On cache-slot replacement, invalidate stale captain directory entries.
+- Preserve cache-only lookahead semantics: lookahead returns after acceptance,
+  while the worker later reports cache population to the captain.
+
+Files:
+
+- `pfio/AsyncInputServer.F90`
+- warm-cache integration tests
+
+Verify:
+
+- A prefetched key is served without another file read.
+- The worker, not the captain, publishes the warm payload.
+- Reused cache slots cannot satisfy requests with stale data.
+- Existing demand and cache-only message behavior remains unchanged.
+
+### Step 20: MultiGroup-Style Scheduling
+
+- Replace hash-only dispatch with explicit per-worker idle/busy and load state,
+  following the backend scheduler pattern in `MultiGroupServer`.
+- Select workers in this order:
+  1. idle worker already owning the exact cache key;
+  2. idle worker with useful file affinity;
+  3. least-loaded idle worker;
+  4. queue the request when no worker is available.
+- Track identical in-flight keys so concurrent requests share one physical
+  read and receive separate local slices afterward.
+- Keep deterministic filename hashing only as a tie-breaker if useful.
+
+Files:
+
+- `pfio/AsyncInputServer.F90`
+- scheduler unit or focused MPI tests
+
+Verify:
+
+- Independent files run concurrently on two workers.
+- Repeated keys use the owning worker and avoid duplicate reads.
+- A busy affinity worker does not block unrelated work when another worker is
+  idle.
+- Queue draining is fair and does not starve a worker or request.
+
+### Step 21: Hierarchical Shutdown and Framework Integration
+
+- Use stored roles rather than `model_comm` during shutdown.
+- Have one model-node root terminate its captain.
+- Have the captain stop accepting work, drain pending and active requests,
+  terminate every worker, collect acknowledgments, and acknowledge the model.
+- Release the shared window and all server-created communicators through one
+  idempotent cleanup path.
+- Ensure local async readers still run when unrelated remote server GridComps
+  are configured; the current `run_servers` early branch must not suppress
+  them.
+- Keep communicator ownership changes narrowly scoped to `AsyncInputServer`;
+  do not change all `AbstractServer` ownership semantics in this work.
+
+Files:
+
+- `pfio/AsyncInputServer.F90`
+- `mapl/MaplFramework.F90`
+- lifecycle tests
+
+Verify:
+
+- Initiate shutdown with queued and active work and confirm that it drains.
+- Confirm every worker acknowledges termination.
+- Run a mixed local async-input plus remote output-server configuration.
+- Run under a CTest timeout so protocol deadlocks fail deterministically.
+
+### Step 22: Regression Coverage and Documentation
+
+- Add focused collective-prefetch and next-prefetch serialization tests.
+- Add a two-model, one-captain, two-worker integration case.
+- Enhance PFIO case05 with machine-checkable worker ownership or counters.
+- Add a prefetch-then-demand warm-hit case.
+- Add a negative test for remote `AsyncInputServer` configuration.
+- Document topology, minimum process count, local-only restriction,
+  environment variables, and communicator ownership in `pfio/pfio.md`.
+
+Verify:
+
+- Build all tests and run focused async-input tests first.
+- Run PFIO component cases 01-05.
+- Run the full `ESSENTIAL` test label before considering the redesign complete.
+
+## Build and Status Discipline
+
+- After each numbered step, update
+  `.opencode/plans/async-input-server-status.md` with:
+  - completion date and state;
+  - files changed;
+  - design decisions or deviations;
+  - exact build and test commands;
+  - pass/fail counts and relevant log paths;
+  - remaining risks and the next step.
+- Load `nag-stack` in the same shell invocation as every configure, build, or
+  test command because module state does not persist between tool calls.
+- Use `build/` as the NAG build directory. Do not configure that directory
+  with another compiler.
+- Preserve complete logs in `build/` with `tee`.
+- Standard commands are:
+
+```bash
+module load nag-stack && cmake -B build -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee build/cmake-config.log
+module load nag-stack && cmake --build build -j 8 2>&1 | tee build/build.log
+module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/build-tests.log
+module load nag-stack && ctest --test-dir build --output-on-failure 2>&1 | tee build/ctest.log
+```
+
+- During implementation, use focused test selections and append their output
+  to step-specific files in `build/`. Run the full `ESSENTIAL` selection at
+  the end:
+
+```bash
+module load nag-stack && ctest --test-dir build -L ESSENTIAL --output-on-failure 2>&1 | tee build/ctest-essential.log
+```
