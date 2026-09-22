@@ -1,0 +1,89 @@
+module test_AsyncInputServer
+   use pfunit
+   use mpi
+   use, intrinsic :: iso_fortran_env, only: INT64
+   use pFIO_AsyncInputServerMod, only: AsyncInputServer
+   implicit none
+
+contains
+
+   @test(npes=[4])
+   subroutine test_temporary_reordered_model_comm(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer, parameter :: service_key(0:3) = [2, 0, 3, 1]
+      integer, parameter :: expected_service_rank(0:3) = [2, 0, 3, 1]
+
+      type(AsyncInputServer) :: server
+      integer :: parent_comm, service_comm, model_comm
+      integer :: parent_rank, service_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr
+      logical :: topology_ok, role_before_start_ok, role_after_start_ok
+      integer(INT64) :: request_ids(2), all_request_ids(8)
+      integer :: i, j
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+
+      call MPI_Comm_split(parent_comm, 0, service_key(parent_rank), service_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      call MPI_Comm_rank(service_comm, service_rank, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      model_color = MPI_UNDEFINED
+      if (parent_rank == 0) model_color = 0
+      call MPI_Comm_split(service_comm, model_color, 0, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(service_comm, 'step16-topology', model_comm=model_comm, rc=init_rc)
+
+      if (model_comm /= MPI_COMM_NULL) then
+         call MPI_Comm_free(model_comm, ierr)
+         @assertEqual(MPI_SUCCESS, ierr)
+      end if
+
+      topology_ok = service_rank == expected_service_rank(parent_rank)
+      topology_ok = topology_ok .and. server%get_captain_service_rank() == 0
+      select case (service_rank)
+      case (0)
+         topology_ok = topology_ok .and. server%is_reader_role()
+         topology_ok = topology_ok .and. server%is_captain_role()
+         topology_ok = topology_ok .and. .not. server%is_worker_role()
+      case (1, 3)
+         topology_ok = topology_ok .and. server%is_reader_role()
+         topology_ok = topology_ok .and. .not. server%is_captain_role()
+         topology_ok = topology_ok .and. server%is_worker_role()
+      case (2)
+         topology_ok = topology_ok .and. server%is_model_role()
+         topology_ok = topology_ok .and. .not. server%is_reader_role()
+      case default
+         topology_ok = .false.
+      end select
+      role_before_start_ok = server%is_reader_role() .eqv. (service_rank /= 2)
+
+      request_ids = [server%next_protocol_request_id(), server%next_protocol_request_id()]
+      call MPI_Allgather(request_ids, 2, MPI_INTEGER8, all_request_ids, 2, MPI_INTEGER8, service_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      do i = 1, size(all_request_ids)
+         do j = i + 1, size(all_request_ids)
+            topology_ok = topology_ok .and. all_request_ids(i) /= all_request_ids(j)
+         end do
+      end do
+
+      call server%start(rc=start_rc)
+      role_after_start_ok = server%is_reader_role() .eqv. (service_rank /= 2)
+      call server%shutdown(rc=shutdown_rc)
+
+      call MPI_Barrier(service_comm, ierr)
+      call MPI_Comm_free(service_comm, ierr)
+
+      @assertTrue(topology_ok)
+      @assertTrue(role_before_start_ok)
+      @assertTrue(role_after_start_ok)
+      @assertEqual(0, init_rc)
+      @assertEqual(0, start_rc)
+      @assertEqual(0, shutdown_rc)
+      @assertEqual(MPI_SUCCESS, ierr)
+   end subroutine test_temporary_reordered_model_comm
+
+end module test_AsyncInputServer

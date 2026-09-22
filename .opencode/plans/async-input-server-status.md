@@ -119,6 +119,82 @@ Notes and remaining risks:
   specified in the plan.
 - Next step: Step 17, explicit request IDs and control-protocol metadata.
 
+### Step 17: Explicit Control Protocol (2026-09-22)
+
+- State: complete.
+- Added a separate 64-bit `protocol_request_id` for internal async control
+  traffic. It is generated from the service rank and a per-rank sequence, so
+  it remains distinct from the client/socket `request_id` serialized in the
+  collective-prefetch payload.
+- Added fixed request, assignment, and completion records. Their fields carry
+  the protocol request ID and explicitly named service, node, model-node, and
+  reader rank values.
+- Replaced fragmented model-to-captain sends with one fixed request header and
+  one serialized request payload.
+- Replaced fragmented captain-to-worker sends with one fixed worker header and
+  one serialized request payload.
+- Replaced the worker's three completion sends with one identified completion
+  record. The captain validates its request ID, source ranks, worker rank, and
+  status against the busy-worker state before updating warm-cache metadata.
+- Captain assignments now include request ID, worker service rank, worker
+  reader rank, and status. Demand and cache-only requests both wait for this
+  acceptance/assignment before returning from the forwarding operation.
+- The captain sends each assignment immediately when accepting the request.
+  This preserves cache-only overlap and avoids blocking the captain when a
+  worker is busy, while the identified completion still validates the actual
+  worker execution.
+- Added dedicated termination tags so shutdown is no longer encoded as a
+  command on the normal request or worker-command channel.
+- The existing serialized `CollectivePrefetchDataMessage` remains the source
+  of file name, variable name, type, local/global bounds, client request ID,
+  and `cache_only`; the new header validates command/cache-only consistency.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+- `pfio/tests/Test_AsyncInputServer.pf`
+
+Focused test extension:
+
+- Extended the reordered four-rank Step 16 test to generate two internal
+  protocol IDs on every service rank and all-gather them.
+- The test verifies all eight IDs are unique even though every server starts
+  with the same local sequence values.
+- Existing PFIO component cases exercise the full request header, assignment,
+  worker header, completion, cache-only acceptance, and shutdown tag paths.
+
+Build and test commands:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target MAPL.pfio.tests 2>&1 | tee build/step17-build-pfio-final.log && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure 2>&1 | tee build/step17-pfio-test-final.log && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure 2>&1 | tee build/step17-pfio-components-final.log'
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step17-build-tests.log'
+```
+
+Results:
+
+- NAG `MAPL.pfio.tests` target: built successfully.
+- `MAPL.pfio.tests`: 1/1 CTest target passed, including the unique protocol-ID
+  checks and the existing reordered topology/lifecycle test.
+- PFIO component cases 01-05: 5/5 passed through the new control protocol.
+- NAG `build-tests`: passed; target reached 100%.
+- Logs:
+  - `build/step17-build-pfio-final.log`
+  - `build/step17-pfio-test-final.log`
+  - `build/step17-pfio-components-final.log`
+  - `build/step17-build-tests.log`
+
+Notes and remaining risks:
+
+- Assignment receives are blocking and rely on the current synchronous
+  per-`ServerThread` forwarding path. The IDs detect mismatches; a future
+  genuinely concurrent model-side submission path may need an assignment
+  inbox to retain out-of-order assignments.
+- Shared result mailboxes still have no request ID or generation field. Step 18
+  moves the mailbox to worker-owned memory and adds that correlation.
+- The captain still copies warm payloads in Step 17. Step 19 removes that data
+  path and makes the captain control-only.
+- Next step: Step 18, worker-owned shared-memory result mailboxes.
+
 ### Key Design Decisions
 - `pfio` should not inspect `MPI_COMM_WORLD`.
 - `AsyncInputServer` takes:
