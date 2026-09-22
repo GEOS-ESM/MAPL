@@ -44,9 +44,18 @@ module pFIO_AsyncInputServerMod
      integer, parameter :: ASYNC_INPUT_COMPLETION_WORDS = 8
      integer, parameter :: ASYNC_INPUT_DEFAULT_CACHE_SLOTS = 2
      integer, parameter :: ASYNC_INPUT_MAILBOX_EMPTY = 0
-     integer, parameter :: ASYNC_INPUT_MAILBOX_READY = 1
-     integer, parameter :: ASYNC_INPUT_MAILBOX_OVERFLOW = 2
-     integer, parameter :: ASYNC_INPUT_MAILBOX_HEADER_WORDS = 2
+     integer, parameter :: ASYNC_INPUT_MAILBOX_FILLING = 1
+     integer, parameter :: ASYNC_INPUT_MAILBOX_READY = 2
+     integer, parameter :: ASYNC_INPUT_MAILBOX_OVERFLOW = 3
+     integer, parameter :: ASYNC_INPUT_MAILBOX_ERROR = 4
+     integer, parameter :: ASYNC_INPUT_WORD_BYTES = storage_size(0) / 8
+     integer, parameter :: ASYNC_INPUT_REQUEST_ID_WORDS = storage_size(0_INT64) / storage_size(0)
+     integer, parameter :: ASYNC_INPUT_MAILBOX_STATE_WORD = 1
+     integer, parameter :: ASYNC_INPUT_MAILBOX_REQUEST_ID_FIRST_WORD = 2
+     integer, parameter :: ASYNC_INPUT_MAILBOX_SIZE_WORD = &
+          ASYNC_INPUT_MAILBOX_REQUEST_ID_FIRST_WORD + ASYNC_INPUT_REQUEST_ID_WORDS
+     integer, parameter :: ASYNC_INPUT_MAILBOX_STATUS_WORD = ASYNC_INPUT_MAILBOX_SIZE_WORD + 1
+     integer, parameter :: ASYNC_INPUT_MAILBOX_HEADER_WORDS = ASYNC_INPUT_MAILBOX_STATUS_WORD
      integer, parameter :: ASYNC_INPUT_DEFAULT_MAILBOX_WORDS = 4 * 1024 * 1024
 
      ! Rank spaces in the internal protocol are explicit:
@@ -310,29 +319,28 @@ contains
        integer, optional, intent(out) :: rc
 
        integer(kind=MPI_ADDRESS_KIND) :: local_bytes
-       integer :: ierr, n_workers
+       integer :: ierr, segment_words
        integer, pointer :: shared_words(:)
 #if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
        integer(kind=MPI_ADDRESS_KIND) :: baseaddr
 #endif
 
-       n_workers = this%topology%reader_size - 1
-       _ASSERT(n_workers > 0, 'nonfallback AsyncInputServer requires at least one reader worker')
+       _ASSERT(this%topology%reader_size > 1, &
+            'nonfallback AsyncInputServer requires at least one reader worker')
+       _ASSERT(storage_size(0_INT64) == ASYNC_INPUT_REQUEST_ID_WORDS * storage_size(0), &
+            'AsyncInputServer cannot represent an INT64 request ID in shared-memory words')
        local_bytes = 0_MPI_ADDRESS_KIND
-        if (this%model_role) then
-          local_bytes = int(n_workers, MPI_ADDRESS_KIND) * &
-               int(ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words, MPI_ADDRESS_KIND) * &
-               4_MPI_ADDRESS_KIND
-       else if (this%topology%reader_rank > 0) then
-          local_bytes = int(this%num_cache_slots, MPI_ADDRESS_KIND) * &
-               int(this%shared_mailbox_words, MPI_ADDRESS_KIND) * 4_MPI_ADDRESS_KIND
+       if (this%worker_role) then
+          segment_words = worker_segment_words(this)
+          local_bytes = int(segment_words, MPI_ADDRESS_KIND) * &
+               int(ASYNC_INPUT_WORD_BYTES, MPI_ADDRESS_KIND)
        end if
 
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-       call MPI_Win_allocate_shared(local_bytes, 4, MPI_INFO_NULL, this%topology%node_comm, &
+       call MPI_Win_allocate_shared(local_bytes, ASYNC_INPUT_WORD_BYTES, MPI_INFO_NULL, this%topology%node_comm, &
             this%shared_base_address, this%shared_win, ierr)
 #else
-       call MPI_Win_allocate_shared(local_bytes, 4, MPI_INFO_NULL, this%topology%node_comm, &
+       call MPI_Win_allocate_shared(local_bytes, ASYNC_INPUT_WORD_BYTES, MPI_INFO_NULL, this%topology%node_comm, &
             baseaddr, this%shared_win, ierr)
        this%shared_base_address = transfer(baseaddr, this%shared_base_address)
 #endif
@@ -341,13 +349,11 @@ contains
        call MPI_Win_lock_all(0, this%shared_win, ierr)
        _VERIFY(ierr)
 
-        if (this%model_role) then
-          call c_f_pointer(this%shared_base_address, shared_words, &
-               [n_workers * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)])
-          shared_words = ASYNC_INPUT_MAILBOX_EMPTY
+       if (this%worker_role) then
+          call c_f_pointer(this%shared_base_address, shared_words, [segment_words])
+          shared_words = 0
           call MPI_Win_sync(this%shared_win, ierr)
           _VERIFY(ierr)
-       else if (this%topology%reader_rank > 0) then
           this%shared_cache_base_address = this%shared_base_address
        end if
        call MPI_Barrier(this%topology%node_comm, ierr)
@@ -360,8 +366,8 @@ contains
     ! Main server loop.
     !
     ! Reader ranks use reader_comm rank 0 as captain. The captain schedules
-    ! requests on worker ranks, which own the file cache and publish current
-    ! results directly to model-rank shared-memory mailboxes. Cache-only
+     ! requests on worker ranks, which own the file cache and per-model result
+     ! mailboxes in their shared-memory segments. Cache-only
     ! requests populate the worker cache without publishing a result.
     !
      ! Model ranks:
@@ -419,8 +425,8 @@ contains
                  deallocate(buffer)
                  call publish_shared_cache_slot(this, slot_index, _RC)
                  if (msize_word > 0) then
-                     call publish_shared_result(this, source_service_rank, this%topology%reader_rank, &
-                         result, msize_word, _RC)
+                     call publish_shared_result(this, metadata%source_model_index, &
+                          metadata%protocol_request_id, result, msize_word, MPI_SUCCESS, _RC)
                     deallocate(result)
                  end if
                   completion%protocol_request_id = metadata%protocol_request_id
@@ -888,7 +894,7 @@ contains
            end if
 
             if (pending(i)%metadata%command == ASYNC_INPUT_CMD_READ) then
-               call publish_warm_result(this, request, pending(i)%metadata%source_service_rank, warm_records(warm_index), ierr)
+               call publish_warm_result(this, request, pending(i)%metadata, warm_records(warm_index), ierr)
                if (ierr /= MPI_SUCCESS) return
                this%captain_warm_hits = this%captain_warm_hits + 1
             else
@@ -909,16 +915,16 @@ contains
         if (allocated(request%global_count)) deallocate(request%global_count)
      end subroutine reset_prefetch_request
 
-     subroutine publish_warm_result(this, request, model_service_rank, warm_record, ierr)
+     subroutine publish_warm_result(this, request, metadata, warm_record, ierr)
         class(AsyncInputServer), intent(inout) :: this
         type(CollectivePrefetchDataMessage), intent(in) :: request
-        integer, intent(in) :: model_service_rank
+        type(AsyncInputRequestMetadata), intent(in) :: metadata
         type(AsyncInputWarmRecord), intent(in) :: warm_record
         integer, intent(out) :: ierr
 
         integer(kind=MPI_ADDRESS_KIND) :: segment_bytes
         integer(INT64) :: cache_words, cache_offset
-        integer :: disp_unit, model_node_rank, result_size
+        integer :: disp_unit, result_size, worker_node_rank
         integer, allocatable :: result(:)
         integer, pointer :: cache_data(:)
         type(c_ptr) :: cache_base_address
@@ -927,24 +933,23 @@ contains
 #endif
 
         ierr = MPI_SUCCESS
-        model_node_rank = this%topology%node_rank(model_service_rank)
-        if (model_node_rank < 0) then
+        worker_node_rank = this%topology%node_rank( &
+             this%topology%reader_server_ranks(warm_record%worker_rank + 1))
+        if (worker_node_rank < 0) then
            ierr = MPI_ERR_RANK
            return
         end if
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-        call MPI_Win_shared_query(this%shared_win, this%topology%node_rank( &
-             this%topology%reader_server_ranks(warm_record%worker_rank + 1)), segment_bytes, disp_unit, &
+        call MPI_Win_shared_query(this%shared_win, worker_node_rank, segment_bytes, disp_unit, &
              cache_base_address, ierr)
 #else
-        call MPI_Win_shared_query(this%shared_win, this%topology%node_rank( &
-             this%topology%reader_server_ranks(warm_record%worker_rank + 1)), &
-             segment_bytes, disp_unit, baseaddr, ierr)
+        call MPI_Win_shared_query(this%shared_win, worker_node_rank, segment_bytes, disp_unit, baseaddr, ierr)
         cache_base_address = transfer(baseaddr, cache_base_address)
 #endif
         if (ierr /= MPI_SUCCESS) return
-        call c_f_pointer(cache_base_address, cache_data, &
-             [this%num_cache_slots * this%shared_mailbox_words])
+        call validate_worker_segment(this, segment_bytes, disp_unit, ierr)
+        if (ierr /= MPI_SUCCESS) return
+        call c_f_pointer(cache_base_address, cache_data, [worker_segment_words(this)])
         cache_words = word_size(request%type_kind) * product(int(request%global_count, INT64))
         cache_offset = int(warm_record%slot_index - 1, INT64) * this%shared_mailbox_words
         result_size = int(word_size(request%type_kind) * product(int(request%count, INT64)))
@@ -952,7 +957,8 @@ contains
         call copy_subarray(cache_data(cache_offset + 1:cache_offset + cache_words), result, &
              request%global_count, request%start - request%global_start + 1, request%count, &
              size(request%global_count), word_size(request%type_kind))
-        call publish_result_to_mailbox(this, model_node_rank, warm_record%worker_rank, result, result_size, ierr)
+        call publish_result_to_mailbox(this, cache_base_address, metadata%source_model_index, &
+             metadata%protocol_request_id, result, result_size, MPI_SUCCESS, ierr)
         deallocate(result)
      end subroutine publish_warm_result
 
@@ -1111,7 +1117,8 @@ contains
          if (deliver_to_client) then
             mem_data_reference = LocalMemReference(request%type_kind, request%count)
            call c_f_pointer(mem_data_reference%base_address, i_ptr, [local_msize_word])
-           call consume_shared_result(this, worker_rank, i_ptr, int(local_msize_word), _RC)
+           call consume_shared_result(this, worker_rank, metadata%protocol_request_id, &
+                i_ptr, int(local_msize_word), _RC)
 
           handle = connection%put(request%request_id, mem_data_reference)
           call handle%wait()
@@ -1203,100 +1210,186 @@ contains
         completion%status = int(words(8))
      end subroutine unpack_completion
 
-     subroutine publish_shared_result(this, model_service_rank, worker_rank, result, result_size, rc)
+     subroutine publish_shared_result(this, source_model_index, protocol_request_id, &
+          result, result_size, result_status, rc)
         class(AsyncInputServer), intent(inout) :: this
-        integer, intent(in) :: model_service_rank, worker_rank, result(:), result_size
+        integer, intent(in) :: source_model_index, result(:), result_size, result_status
+        integer(INT64), intent(in) :: protocol_request_id
         integer, optional, intent(out) :: rc
 
-        integer :: ierr, model_node_rank
+        integer :: ierr
 
-        model_node_rank = this%topology%node_rank(model_service_rank)
-        _ASSERT(model_node_rank >= 0, 'model rank is not present in the node communicator')
-        call publish_result_to_mailbox(this, model_node_rank, worker_rank, result, result_size, ierr)
+        _ASSERT(this%worker_role, 'only a reader worker may publish through its local shared segment')
+        call publish_result_to_mailbox(this, this%shared_base_address, source_model_index, &
+             protocol_request_id, result, result_size, result_status, ierr)
         if (ierr /= MPI_SUCCESS) return
 
         _RETURN(_SUCCESS)
      end subroutine publish_shared_result
 
-     subroutine publish_result_to_mailbox(this, model_node_rank, worker_rank, result, result_size, ierr)
+     subroutine publish_result_to_mailbox(this, worker_base_address, source_model_index, &
+          protocol_request_id, result, result_size, result_status, ierr)
         class(AsyncInputServer), intent(inout) :: this
-        integer, intent(in) :: model_node_rank, worker_rank, result(:), result_size
+        type(c_ptr), intent(in) :: worker_base_address
+        integer, intent(in) :: source_model_index, result(:), result_size, result_status
+        integer(INT64), intent(in) :: protocol_request_id
         integer, intent(out) :: ierr
 
-        integer(kind=MPI_ADDRESS_KIND) :: segment_bytes
-        integer :: disp_unit, offset
+        integer :: offset
         integer, pointer :: mailboxes(:)
-        type(c_ptr) :: model_base_address
-#if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-        integer(kind=MPI_ADDRESS_KIND) :: baseaddr
-#endif
 
         ierr = MPI_SUCCESS
-#if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-        call MPI_Win_shared_query(this%shared_win, model_node_rank, segment_bytes, disp_unit, &
-             model_base_address, ierr)
-#else
-        call MPI_Win_shared_query(this%shared_win, model_node_rank, segment_bytes, disp_unit, &
-             baseaddr, ierr)
-        model_base_address = transfer(baseaddr, model_base_address)
-#endif
-        if (ierr /= MPI_SUCCESS) return
-        call c_f_pointer(model_base_address, mailboxes, &
-             [(this%topology%reader_size - 1) * &
-             (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)])
-        offset = (worker_rank - 1) * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
+        if (source_model_index < 0 .or. source_model_index >= this%topology%model_size) then
+           ierr = MPI_ERR_RANK
+           return
+        end if
+        call c_f_pointer(worker_base_address, mailboxes, [worker_segment_words(this)])
+        offset = mailbox_offset(this, source_model_index)
 
         do
            call MPI_Win_sync(this%shared_win, ierr)
            if (ierr /= MPI_SUCCESS) return
-           if (mailboxes(offset + 1) == ASYNC_INPUT_MAILBOX_EMPTY) exit
+           if (mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) == ASYNC_INPUT_MAILBOX_EMPTY) exit
            call MAPL_Sleep(0.0001)
         end do
-        if (result_size > this%shared_mailbox_words) then
-           mailboxes(offset + 2) = result_size
-           mailboxes(offset + 1) = ASYNC_INPUT_MAILBOX_OVERFLOW
+        mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_FILLING
+        call store_mailbox_request_id(mailboxes(offset + 1:), protocol_request_id)
+        mailboxes(offset + ASYNC_INPUT_MAILBOX_SIZE_WORD) = result_size
+        mailboxes(offset + ASYNC_INPUT_MAILBOX_STATUS_WORD) = result_status
+        call MPI_Win_sync(this%shared_win, ierr)
+        if (ierr /= MPI_SUCCESS) return
+        if (result_status /= MPI_SUCCESS) then
+           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_ERROR
+        else if (result_size > this%shared_mailbox_words) then
+           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATUS_WORD) = MPI_ERR_TRUNCATE
+           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_OVERFLOW
         else
-           mailboxes(offset + 3:offset + 2 + result_size) = result
-           mailboxes(offset + 2) = result_size
+           mailboxes(offset + ASYNC_INPUT_MAILBOX_HEADER_WORDS + 1: &
+                offset + ASYNC_INPUT_MAILBOX_HEADER_WORDS + result_size) = result
            call MPI_Win_sync(this%shared_win, ierr)
            if (ierr /= MPI_SUCCESS) return
-           mailboxes(offset + 1) = ASYNC_INPUT_MAILBOX_READY
+           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_READY
         end if
         call MPI_Win_sync(this%shared_win, ierr)
      end subroutine publish_result_to_mailbox
 
-     subroutine consume_shared_result(this, worker_global_rank, result, expected_size, rc)
+     subroutine consume_shared_result(this, worker_service_rank, protocol_request_id, result, expected_size, rc)
         class(AsyncInputServer), intent(inout) :: this
-        integer, intent(in) :: worker_global_rank, expected_size
+        integer, intent(in) :: worker_service_rank, expected_size
+        integer(INT64), intent(in) :: protocol_request_id
         integer, intent(out) :: result(:)
         integer, optional, intent(out) :: rc
 
-        integer :: ierr, offset, result_size, worker_rank
+        integer(kind=MPI_ADDRESS_KIND) :: segment_bytes
+        integer :: ierr, offset, result_size, result_status, state, worker_node_rank, worker_rank, disp_unit
         integer, pointer :: mailboxes(:)
+        integer(INT64) :: mailbox_request_id
+        type(c_ptr) :: worker_base_address
+#if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+        integer(kind=MPI_ADDRESS_KIND) :: baseaddr
+#endif
 
-        worker_rank = this%topology%worker_rank(worker_global_rank)
+        worker_rank = this%topology%worker_rank(worker_service_rank)
         _ASSERT(worker_rank > 0, 'captain selected an unknown reader worker')
-        call c_f_pointer(this%shared_base_address, mailboxes, &
-             [(this%topology%reader_size - 1) * &
-             (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)])
-        offset = (worker_rank - 1) * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
+        worker_node_rank = this%topology%node_rank(worker_service_rank)
+        _ASSERT(worker_node_rank >= 0, 'captain selected a worker outside the node communicator')
+#if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+        call MPI_Win_shared_query(this%shared_win, worker_node_rank, segment_bytes, disp_unit, &
+             worker_base_address, ierr)
+#else
+        call MPI_Win_shared_query(this%shared_win, worker_node_rank, segment_bytes, disp_unit, baseaddr, ierr)
+        worker_base_address = transfer(baseaddr, worker_base_address)
+#endif
+        _VERIFY(ierr)
+        call validate_worker_segment(this, segment_bytes, disp_unit, ierr)
+        _VERIFY(ierr)
+        call c_f_pointer(worker_base_address, mailboxes, [worker_segment_words(this)])
+        offset = mailbox_offset(this, this%topology%model_node_rank)
         do
            call MPI_Win_sync(this%shared_win, ierr)
            _VERIFY(ierr)
-           if (mailboxes(offset + 1) /= ASYNC_INPUT_MAILBOX_EMPTY) exit
+           state = mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD)
+           if (state /= ASYNC_INPUT_MAILBOX_EMPTY .and. state /= ASYNC_INPUT_MAILBOX_FILLING) exit
            call MAPL_Sleep(0.0001)
         end do
-        result_size = mailboxes(offset + 2)
-        _ASSERT(mailboxes(offset + 1) /= ASYNC_INPUT_MAILBOX_OVERFLOW, &
+        mailbox_request_id = load_mailbox_request_id(mailboxes(offset + 1:))
+        result_size = mailboxes(offset + ASYNC_INPUT_MAILBOX_SIZE_WORD)
+        result_status = mailboxes(offset + ASYNC_INPUT_MAILBOX_STATUS_WORD)
+        if (mailbox_request_id /= protocol_request_id) then
+           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
+           call MPI_Win_sync(this%shared_win, ierr)
+           _ASSERT(.false., 'AsyncInputServer shared result has an unexpected protocol request ID')
+        end if
+        if (state == ASYNC_INPUT_MAILBOX_ERROR) then
+           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
+           call MPI_Win_sync(this%shared_win, ierr)
+           _VERIFY(result_status)
+        end if
+        if (state == ASYNC_INPUT_MAILBOX_OVERFLOW) then
+           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
+           call MPI_Win_sync(this%shared_win, ierr)
+        end if
+        _ASSERT(state /= ASYNC_INPUT_MAILBOX_OVERFLOW, &
              'AsyncInputServer shared mailbox is too small; increase MAPL_ASYNC_INPUT_SHMEM_WORDS')
-        _ASSERT(result_size == expected_size, 'AsyncInputServer shared result has an unexpected size')
-        result = mailboxes(offset + 3:offset + 2 + result_size)
-        mailboxes(offset + 1) = ASYNC_INPUT_MAILBOX_EMPTY
+        if (state /= ASYNC_INPUT_MAILBOX_READY .or. result_status /= MPI_SUCCESS .or. &
+             result_size /= expected_size) then
+           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
+           call MPI_Win_sync(this%shared_win, ierr)
+           _ASSERT(state == ASYNC_INPUT_MAILBOX_READY, 'AsyncInputServer shared mailbox has an invalid state')
+           _ASSERT(result_status == MPI_SUCCESS, 'AsyncInputServer shared result has an error status')
+           _ASSERT(result_size == expected_size, 'AsyncInputServer shared result has an unexpected size')
+        end if
+        result = mailboxes(offset + ASYNC_INPUT_MAILBOX_HEADER_WORDS + 1: &
+             offset + ASYNC_INPUT_MAILBOX_HEADER_WORDS + result_size)
+        mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
         call MPI_Win_sync(this%shared_win, ierr)
         _VERIFY(ierr)
 
         _RETURN(_SUCCESS)
      end subroutine consume_shared_result
+
+     integer function worker_segment_words(this) result(n_words)
+        class(AsyncInputServer), intent(in) :: this
+
+        n_words = this%num_cache_slots * this%shared_mailbox_words + &
+             this%topology%model_size * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
+     end function worker_segment_words
+
+     integer function mailbox_offset(this, source_model_index) result(offset)
+        class(AsyncInputServer), intent(in) :: this
+        integer, intent(in) :: source_model_index
+
+        offset = this%num_cache_slots * this%shared_mailbox_words + &
+             source_model_index * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
+     end function mailbox_offset
+
+     subroutine store_mailbox_request_id(mailbox, request_id)
+        integer, intent(inout) :: mailbox(:)
+        integer(INT64), intent(in) :: request_id
+
+        mailbox(ASYNC_INPUT_MAILBOX_REQUEST_ID_FIRST_WORD: &
+             ASYNC_INPUT_MAILBOX_REQUEST_ID_FIRST_WORD + ASYNC_INPUT_REQUEST_ID_WORDS - 1) = &
+             transfer(request_id, [0], ASYNC_INPUT_REQUEST_ID_WORDS)
+     end subroutine store_mailbox_request_id
+
+     integer(INT64) function load_mailbox_request_id(mailbox) result(request_id)
+        integer, intent(in) :: mailbox(:)
+
+        request_id = transfer(mailbox(ASYNC_INPUT_MAILBOX_REQUEST_ID_FIRST_WORD: &
+             ASYNC_INPUT_MAILBOX_REQUEST_ID_FIRST_WORD + ASYNC_INPUT_REQUEST_ID_WORDS - 1), request_id)
+     end function load_mailbox_request_id
+
+     subroutine validate_worker_segment(this, segment_bytes, disp_unit, ierr)
+        class(AsyncInputServer), intent(in) :: this
+        integer(kind=MPI_ADDRESS_KIND), intent(in) :: segment_bytes
+        integer, intent(in) :: disp_unit
+        integer, intent(out) :: ierr
+
+        ierr = MPI_SUCCESS
+        if (disp_unit /= ASYNC_INPUT_WORD_BYTES .or. segment_bytes < &
+             int(worker_segment_words(this), MPI_ADDRESS_KIND) * &
+             int(ASYNC_INPUT_WORD_BYTES, MPI_ADDRESS_KIND)) ierr = MPI_ERR_SIZE
+     end subroutine validate_worker_segment
 
      integer function topology_node_rank(this, server_rank) result(node_rank)
         class(AsyncInputTopology), intent(in) :: this
@@ -1560,9 +1653,10 @@ contains
           _VERIFY(status)
           call MPI_Win_free(this%shared_win, status)
           _VERIFY(status)
-          this%shared_win = MPI_WIN_NULL
-          this%shared_base_address = c_null_ptr
-       end if
+           this%shared_win = MPI_WIN_NULL
+           this%shared_base_address = c_null_ptr
+           this%shared_cache_base_address = c_null_ptr
+        end if
 
       if (this%topology%model_node_comm /= MPI_COMM_NULL) then
          call MPI_Comm_free(this%topology%model_node_comm, status)

@@ -195,6 +195,81 @@ Notes and remaining risks:
   path and makes the captain control-only.
 - Next step: Step 18, worker-owned shared-memory result mailboxes.
 
+### Step 18: Worker-Owned Shared-Memory Results (2026-09-22)
+
+- State: complete.
+- Reversed shared-memory ownership: model ranks and the captain now allocate
+  zero-byte window segments, while every worker allocates its cache slots plus
+  one result mailbox for every node-local model rank.
+- Defined a worker segment as a cache region followed by fixed-stride model
+  mailboxes. Models query the assigned worker's segment by translating its
+  service rank to a node rank; mailbox selection uses the explicit
+  `source_model_index` from Step 17.
+- Expanded mailbox metadata to include state, full 64-bit protocol request ID,
+  payload size, and MPI status. Request IDs are stored losslessly across
+  default-integer words with `transfer`.
+- Added explicit `EMPTY`, `FILLING`, `READY`, `OVERFLOW`, and `ERROR` states.
+  Producers publish metadata and payload before the terminal state becomes
+  visible; consumers release the mailbox to `EMPTY` after consumption or a
+  detected error.
+- Models verify the mailbox request ID against the assignment request ID before
+  accepting payload data. They also validate state, status, and exact payload
+  size.
+- Workers now publish normal results directly into their own segment. No
+  result-payload MPI message is sent through the captain.
+- Preserved the captain warm-cache writer temporarily, as required by the plan,
+  but changed its destination to the owning worker's mailbox region. Step 19
+  will replace this with a worker command so the captain becomes control-only.
+- Removed hard-coded four-byte displacement arithmetic in favor of
+  `storage_size(0) / 8` and added segment-size/displacement validation.
+- Cleanup now clears both shared base pointers.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+- `pfio/tests/Test_AsyncInputServer.pf`
+
+Focused test extension:
+
+- Added a five-rank reordered topology test with two model ranks, one captain,
+  and two workers.
+- The test constructs the worker-owned layout with two independent model
+  mailbox slots per worker, frees the caller-owned `model_comm`, validates the
+  non-prefix service-role mapping, and runs the real multi-model shutdown
+  lifecycle.
+- Existing component cases exercise normal worker publication, worker-segment
+  lookup by the model, request-ID validation, warm-cache publication into a
+  worker segment, and mailbox release.
+
+Build and test commands:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step18-build-tests.log && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure 2>&1 | tee build/step18-pfio-test-final2.log && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure 2>&1 | tee build/step18-pfio-components-final.log'
+```
+
+Results:
+
+- NAG `build-tests`: passed; target reached 100%.
+- `MAPL.pfio.tests`: 1/1 CTest target passed, including the four-rank and new
+  five-rank topology/lifecycle tests.
+- PFIO component cases 01-05: 5/5 passed with worker-owned result mailboxes.
+- Logs:
+  - `build/step18-build-tests.log`
+  - `build/step18-pfio-test-final2.log`
+  - `build/step18-pfio-components-final.log`
+
+Notes and remaining risks:
+
+- The focused lifecycle tests validate the two-model/two-worker allocation and
+  synchronization collectively. Typed payload correctness remains covered by
+  the existing component data comparisons rather than direct mailbox helper
+  unit tests, because the mailbox implementation is private.
+- Overflow and explicit worker error states are implemented, but a dedicated
+  negative test cannot use MAPL assertions without terminating that MPI test.
+- The captain still reads worker cache memory and writes warm result mailboxes.
+  Step 19 removes that remaining payload handling.
+- Next step: Step 19, control-only captain and worker-served warm hits.
+
 ### Key Design Decisions
 - `pfio` should not inspect `MPI_COMM_WORLD`.
 - `AsyncInputServer` takes:

@@ -86,4 +86,50 @@ contains
       @assertEqual(MPI_SUCCESS, ierr)
    end subroutine test_temporary_reordered_model_comm
 
+   @test(npes=[5])
+   subroutine test_two_model_worker_mailbox_layout(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer, parameter :: service_key(0:4) = [2, 4, 0, 3, 1]
+
+      type(AsyncInputServer) :: server
+      integer :: parent_comm, service_comm, model_comm
+      integer :: parent_rank, service_rank, model_color, model_key
+      integer :: init_rc, start_rc, ierr
+      logical :: roles_ok
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+      call MPI_Comm_split(parent_comm, 0, service_key(parent_rank), service_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      call MPI_Comm_rank(service_comm, service_rank, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      model_color = MPI_UNDEFINED
+      model_key = 0
+      if (parent_rank < 2) then
+         model_color = 0
+         model_key = 1 - parent_rank
+      end if
+      call MPI_Comm_split(service_comm, model_color, model_key, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(service_comm, 'step18-layout', model_comm=model_comm, rc=init_rc)
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+
+      roles_ok = server%get_captain_service_rank() == 0
+      roles_ok = roles_ok .and. (server%is_model_role() .eqv. (service_rank == 2 .or. service_rank == 4))
+      roles_ok = roles_ok .and. (server%is_captain_role() .eqv. (service_rank == 0))
+      roles_ok = roles_ok .and. (server%is_worker_role() .eqv. (service_rank == 1 .or. service_rank == 3))
+
+      call server%start(rc=start_rc)
+      call MPI_Barrier(service_comm, ierr)
+      call MPI_Comm_free(service_comm, ierr)
+
+      @assertTrue(roles_ok)
+      @assertEqual(0, init_rc)
+      @assertEqual(0, start_rc)
+      @assertEqual(MPI_SUCCESS, ierr)
+   end subroutine test_two_model_worker_mailbox_layout
+
 end module test_AsyncInputServer
