@@ -63,6 +63,9 @@ module mapl_FieldClassAspect_mod
       procedure :: matches => matches_a
       procedure :: connect_to_import
       procedure :: connect_to_export
+      procedure :: inherit_descriptive_metadata
+      procedure :: get_standard_name
+      procedure :: get_long_name
 
       procedure :: create
       procedure :: activate
@@ -304,22 +307,54 @@ contains
 
       end subroutine mirror
 
-      ! Character-string counterpart of mirror() above, but with different
-      ! precedence semantics deliberately: dst (this connection endpoint's own
-      ! declared value) always wins if assigned; src (the predecessor) is only
-      ! adopted when dst was left unassigned.  No mismatch logging - differing
-      ! standard_name/long_name on each side of a connection is the expected,
-      ! common case, not an authoring error.
-      subroutine mirror_name(dst, src)
-         character(:), allocatable, intent(inout) :: dst
-         character(:), allocatable, intent(in) :: src
-
-         if (allocated(dst)) return
-         if (allocated(src)) dst = src
-
-      end subroutine mirror_name
-
    end subroutine connect_to_export
+
+   ! Character-string counterpart of the internal mirror() above (fill_value), but
+   ! with different precedence semantics deliberately: dst (this aspect's own
+   ! declared value) always wins if assigned; src (the predecessor) is only
+   ! adopted when dst was left unassigned.  No mismatch logging - differing
+   ! standard_name/long_name on each side of a connection is the expected,
+   ! common case, not an authoring error.  Shared by connect_to_export (aliasing
+   ! an existing field) and inherit_descriptive_metadata (a fresh FieldClassAspect
+   ! superseding a non-Field predecessor, e.g. an ExpressionClassAspect).
+   subroutine mirror_name(dst, src)
+      character(:), allocatable, intent(inout) :: dst
+      character(:), allocatable, intent(in) :: src
+
+      if (allocated(dst)) return
+      if (allocated(src)) dst = src
+
+   end subroutine mirror_name
+
+   subroutine inherit_descriptive_metadata(this, predecessor, rc)
+      class(FieldClassAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: predecessor
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: predecessor_standard_name, predecessor_long_name
+
+      call predecessor%get_standard_name(predecessor_standard_name)
+      call predecessor%get_long_name(predecessor_long_name)
+
+      call mirror_name(this%standard_name, predecessor_standard_name)
+      call mirror_name(this%long_name, predecessor_long_name)
+
+      _RETURN(_SUCCESS)
+   end subroutine inherit_descriptive_metadata
+
+   subroutine get_standard_name(this, standard_name)
+      class(FieldClassAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: standard_name
+
+      if (allocated(this%standard_name)) standard_name = this%standard_name
+   end subroutine get_standard_name
+
+   subroutine get_long_name(this, long_name)
+      class(FieldClassAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: long_name
+
+      if (allocated(this%long_name)) long_name = this%long_name
+   end subroutine get_long_name
 
    function to_fieldclassaspect_from_poly(aspect, rc) result(field_aspect)
       type(FieldClassAspect) :: field_aspect
