@@ -111,14 +111,12 @@ contains
 
       integer :: status
       type(NuopcMetaModel), pointer :: meta_model
-      type(ESMF_State) :: importState, exportState
 
-      call NUOPC_ModelGet(model, importState=importState, &
-         & exportState=exportState, _RC)
       meta_model => get_meta_model(model, _RC)
-      call meta_model%advertise(importState=importState, exportState=exportState, _RC)
+      call meta_model%advertise(_RC)
 
       _RETURN(_SUCCESS)
+
    end subroutine Advertise
 
    recursive subroutine ModifyAdvertise(model, rc)
@@ -154,19 +152,14 @@ contains
    recursive subroutine RealizeProvided(model, rc)
       type(ESMF_GridComp) :: model
       integer, intent(out) :: rc
-
       integer :: status
       type(NuopcMetaModel), pointer :: meta_model
-      type(ESMF_State) :: importState, exportState
 
-      call NUOPC_ModelGet(model, importState=importState, &
-         & exportState=exportState, _RC)
       meta_model => get_meta_model(model, _RC)
-      call meta_model%realize_provided(importState, exportState, _RC)
+      call meta_model%realize_provided(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine RealizeProvided
-
 
    recursive subroutine DataInitialize(model, rc)
       type(ESMF_GridComp) :: model
@@ -191,10 +184,7 @@ contains
       character(ESMF_MAXSTR) :: phaseLabel
 
       meta_model => get_meta_model(model, _RC)
-      call esmf_GridCompGet(model, currentPhase=phaseIndex, _RC)      
-      call NUOPC_CompSearchRevPhaseMap(model, ESMF_METHOD_INITIALIZE, &
-           phaseIndex=phaseIndex, phaseLabel=phaseLabel, _RC)
-      call meta_model%advance(phaseLabel, _RC)
+      call meta_model%advance(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine Advance
@@ -205,11 +195,9 @@ contains
 
       integer :: status
       type(NuopcMetaModel), pointer :: meta_model
-      type(ESMF_Clock) :: modelClock
 
       meta_model => get_meta_model(model, _RC)
-      call Nuopc_ModelGet(model, modelClock=modelClock, _RC)
-      call meta_model%advance_clock(modelClock, _RC)
+      call meta_model%advance_clock(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine AdvanceClock
