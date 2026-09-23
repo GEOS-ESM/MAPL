@@ -1,0 +1,44 @@
+name: "Build Documentation for PR"
+
+on:
+  pull_request:
+    branches:
+      - release/v2
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-v2-documentation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          filter: blob:none
+          persist-credentials: false
+
+      - name: Build Docs
+        uses: ./.github/actions/deploy-ford-docs
+        with:
+          ford-input: docs-with-remote-esmf.md
+          doc-folder: docs/Ford/doc
+
+  build-dev-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          filter: blob:none
+          persist-credentials: false
+
+      - name: Build Dev Docs
+        uses: ./.github/actions/deploy-ford-docs
+        with:
+          ford-input: docs-with-remote-esmf.public_private_protected.md
+          doc-folder: docs/Ford/dev-doc

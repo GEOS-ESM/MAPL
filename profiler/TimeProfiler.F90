@@ -36,6 +36,11 @@ contains
       character(*), intent(in) :: name
       integer, optional,intent(in) :: comm_world
 
+      ! Initialize NAG's per-DSO OpenMP state before reaching !$omp master
+      ! directives in BaseProfiler.
+      !$omp parallel
+      !$omp end parallel
+
       call prof%set_comm_world(comm_world = comm_world)
       call prof%set_node(MeterNode(name, prof%make_meter()))
 
