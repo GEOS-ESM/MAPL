@@ -76,18 +76,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `VectorBracketClassAspect` each drove their per-component field through a
   local `update_payload` helper that forwarded to sibling aspects but never
   invoked the component's own `update_payload`; fixed to call it.
-- Fixed a remaining non-alias-scoped write path for `standard_name`/`long_name`:
-  `MAPL_FieldCreate`/`FieldEmptyComplete` (`field_empty_complete` in
-  `FieldCreate.F90`) set these two through the base (unnamespaced)
-  `FieldInfoSetInternal` overload, a leftover from before the per-`NamedAlias`-id
-  scheme above. Any field built via `MAPL_FieldCreate(..., standard_name=,
-  long_name=)` therefore had its name written to a key `MAPL_FieldGet` -
-  which always reads through the alias-scoped overload - could never find,
-  resolving to `'unknown'` regardless of any `FieldClassAspect` involvement.
-  `field_empty_complete` now resolves this field's own alias id (0, since it
-  was never placed via `ESMF_NamedAlias` at this point) and writes through
-  the same alias-scoped path as `MAPL_FieldSet`/`MAPL_FieldGet`, so every
-  path that attaches or reads these two fields agrees on where they live.
+- Closed a remaining gap in the `standard_name`/`long_name` alias-scoping
+  above: the base (unnamespaced) `FieldInfoSetInternal`/`FieldInfoGetInternal`
+  overload still accepted `standard_name`/`long_name` as plain, non-aliased
+  keys - a leftover from before the per-`NamedAlias`-id scheme, and a footgun
+  for any future caller. `MAPL_FieldCreate`/`FieldEmptyComplete`
+  (`field_empty_complete` in `FieldCreate.F90`) used exactly that path, so a
+  field built via `MAPL_FieldCreate(..., standard_name=, long_name=)` had its
+  name written to a key `MAPL_FieldGet` - which always reads through the
+  alias-scoped overload - could never find, resolving to `'unknown'`
+  regardless of any `FieldClassAspect` involvement. `standard_name`/
+  `long_name` are now handled entirely inside `field_info_set_internal`/
+  `field_info_get_internal` themselves (like every other item there - units,
+  typekind, ...), with a `named_alias_id` argument that scopes just those two
+  keys to their own per-alias namespace; `MAPL_FieldSet`/`MAPL_FieldGet`/
+  `FieldClassAspect%add_to_state` each resolve their own alias id once and
+  pass it through in the same call as everything else. `FieldBundleInfo`'s
+  unrelated bundle-wide "field prototype" template (describing the bundle as
+  a whole, not any specific Field's own identity) passes a fixed `id=0`.
 
 ### Changed
 

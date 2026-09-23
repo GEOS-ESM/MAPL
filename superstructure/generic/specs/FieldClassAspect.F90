@@ -504,7 +504,7 @@ contains
          ! underlying field.  See connect_to_export for how an endpoint that
          ! declares neither inherits from its connection predecessor.
          if (allocated(this%standard_name) .or. allocated(this%long_name)) then
-            call FieldInfoSetInternal(info, alias_id, &
+            call FieldInfoSetInternal(info, named_alias_id=alias_id, &
                  standard_name=this%standard_name, long_name=this%long_name, _RC)
          end if
       end if
