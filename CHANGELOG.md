@@ -25,6 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
 - Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
+- Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
+  by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the
+  requested `nx`/`ny` topology given ESMF's `min_extent=2` constraint, and updated
+  `LatLonGeomFactory`'s `fill_coordinates` to use `grid_has_de`/`grid_get_interior` so PETs
+  that legitimately own no DE in that case are skipped instead of crashing; added
+  `Test_LatLonZeroDE.pf` and a `LatLonDecomposition` unit test covering this case
 
 ### Changed
 
