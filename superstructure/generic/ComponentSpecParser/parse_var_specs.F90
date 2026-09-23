@@ -54,6 +54,7 @@ contains
          type(VerticalStaggerLoc) :: vertical_stagger
          type(UngriddedDims) :: ungridded_dims
          character(:), allocatable :: standard_name
+         character(:), allocatable :: long_name
          character(:), allocatable :: units
          character(:), allocatable :: expression
          type(ESMF_StateItem_Flag) :: itemtype
@@ -63,6 +64,7 @@ contains
          integer :: status
          logical :: has_state
          logical :: has_standard_name
+         logical :: has_long_name
          logical :: has_units
          logical :: has_expression
          logical :: has_dims
@@ -71,10 +73,11 @@ contains
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
 
-         type(GeometrySpec) :: geometry_spec
-         type(mapl_MaplGeom), pointer :: mapl_geom
-         type(mapl_GeomManager), pointer :: geom_mgr
-         type(ESMF_Geom), allocatable :: geom
+          type(GeometrySpec) :: geometry_spec
+          type(mapl_GeomId) :: geom_id
+          type(mapl_MaplGeom), pointer :: mapl_geom
+          type(mapl_GeomManager), pointer :: geom_mgr
+          type(ESMF_Geom), allocatable :: geom
          class(VerticalGrid), allocatable :: vertical_grid
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
@@ -90,6 +93,10 @@ contains
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
 
             short_name = name
+
+            geom_id = mapl_new_GeomId()
+            if (allocated(geom)) deallocate(geom)
+            if (allocated(vertical_grid)) deallocate(vertical_grid)
 
             typekind = to_typekind(attributes, _RC)
             call val_to_float(fill_value, attributes, KEY_FILL_VALUE, _RC)
@@ -111,6 +118,11 @@ contains
                standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name', _RC)
             end if
 
+            has_long_name = ESMF_HConfigIsDefined(attributes,keyString='long_name', _RC)
+            if (has_long_name) then
+               long_name = ESMF_HConfigAsString(attributes,keyString='long_name', _RC)
+            end if
+
             has_units = ESMF_HConfigIsDefined(attributes,keyString='units', _RC)
             if (has_units) then
                units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
@@ -126,10 +138,11 @@ contains
 
             dependencies = to_dependencies(attributes, _RC)
 
-            geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
-            if (allocated(geometry_spec%geom_spec)) then
-               geom_mgr => mapl_get_geom_manager()
-               mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+             geometry_spec = parse_geometry_spec(attributes, registry, component_name//"::"//short_name, _RC)
+             geom_id = geometry_spec%geom_id
+             if (allocated(geometry_spec%geom_spec)) then
+                geom_mgr => mapl_get_geom_manager()
+                mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
                geom = mapl_geom%get_geom()
             end if
             if (allocated(geometry_spec%vertical_grid)) then
@@ -147,14 +160,17 @@ contains
                  fill_value=fill_value, &
                  service_items=service_items, &
                  standard_name=standard_name, &
+                 long_name=long_name, &
                  dependencies=dependencies, &
-                 expression=expression, &
-                 geom=geom, &
+                  expression=expression, &
+                  geom_id=geom_id, &
+                  geom=geom, &
                  vertical_grid=vertical_grid, &
                  horizontal_dims_spec=horizontal_dims_spec, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
+            if (allocated(long_name)) deallocate(long_name)
             call var_specs%push_back(var_spec)
 
             call ESMF_HConfigDestroy(attributes, _RC)
@@ -356,5 +372,3 @@ contains
    end function parse_var_specs
 
 end submodule parse_var_specs_smod
-
-

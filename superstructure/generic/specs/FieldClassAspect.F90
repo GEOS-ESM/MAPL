@@ -56,14 +56,19 @@ module mapl_FieldClassAspect_mod
       type(RestartMode), allocatable :: restart_mode
    contains
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_transform
       procedure :: matches => matches_a
       procedure :: connect_to_import
       procedure :: connect_to_export
+      procedure :: inherit_descriptive_metadata
+      procedure :: get_standard_name
+      procedure :: get_long_name
 
       procedure :: create
+      procedure :: update_payload
       procedure :: activate
       procedure :: allocate
       procedure :: destroy
@@ -76,7 +81,7 @@ module mapl_FieldClassAspect_mod
 
    interface
       module function matches_a(src, dst) result(matches)
-        logical matches
+         logical matches
          class(FieldClassAspect), intent(in) :: src
          class(StateItemAspect), intent(in) :: dst
       end function matches_a
@@ -100,12 +105,14 @@ contains
       real(kind=ESMF_KIND_R4), optional, intent(in) :: fill_value
       type(RestartMode), optional, intent(in) :: restart_mode
 
-      aspect%standard_name = 'unknown'
+      ! NOTE: standard_name/long_name are intentionally left unallocated when
+      ! not supplied (rather than defaulted to a literal 'unknown') so that
+      ! allocated(...) can be used downstream (connect_to_export, add_to_state)
+      ! to distinguish "not assigned here" from "explicitly assigned".
       if (present(standard_name)) then
          aspect%standard_name = standard_name
       end if
 
-      aspect%long_name = 'unknown'
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
@@ -125,24 +132,41 @@ contains
       type(AspectMap), intent(in) :: goal_aspects
       integer, optional, intent(out) :: rc
 
-       aspect_ids = [ &
-            CLASS_ASPECT_ID, &
-            ATTRIBUTES_ASPECT_ID, &
-            UNGRIDDED_DIMS_ASPECT_ID, &
-            QUANTITY_TYPE_ASPECT_ID, &
-            CONSERVATION_ASPECT_ID, &
-            GEOM_ASPECT_ID, &
-            VERTICAL_GRID_ASPECT_ID, &
-            NORMALIZATION_ASPECT_ID, &
-            UNITS_ASPECT_ID, &
-            TYPEKIND_ASPECT_ID &
-            ]
+      aspect_ids = [ &
+           CLASS_ASPECT_ID, &
+           ATTRIBUTES_ASPECT_ID, &
+           UNGRIDDED_DIMS_ASPECT_ID, &
+           QUANTITY_TYPE_ASPECT_ID, &
+           CONSERVATION_ASPECT_ID, &
+           GEOM_ASPECT_ID, &
+           VERTICAL_GRID_ASPECT_ID, &
+           NORMALIZATION_ASPECT_ID, &
+           UNITS_ASPECT_ID, &
+           TYPEKIND_ASPECT_ID &
+           ]
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
 
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(FieldClassAspect), intent(in) :: this
+
+      aspect_ids = [ &
+           ATTRIBUTES_ASPECT_ID, &
+           UNGRIDDED_DIMS_ASPECT_ID, &
+           QUANTITY_TYPE_ASPECT_ID, &
+           CONSERVATION_ASPECT_ID, &
+           GEOM_ASPECT_ID, &
+           VERTICAL_GRID_ASPECT_ID, &
+           NORMALIZATION_ASPECT_ID, &
+           UNITS_ASPECT_ID, &
+           TYPEKIND_ASPECT_ID &
+           ]
+
+   end function get_mandatory_aspect_ids
 
    subroutine create(this, other_aspects, rc)
       class(FieldClassAspect), intent(inout) :: this
@@ -152,12 +176,52 @@ contains
       integer :: status
 
       this%payload = ESMF_FieldEmptyCreate(_RC)
-
       call mapl_FieldSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
    end subroutine create
+
+   ! Called (via update_payload_from_aspects) alongside every other
+   ! characteristic aspect's own update_payload (units, typekind, geom, ...)
+   ! - i.e. the same point in the lifecycle (StateItemSpec%create) where the
+   ! rest of a field's descriptive metadata is attached to the payload.
+   !
+   ! MAPL_FieldSet resolves standard_name/long_name via ESMF_NamedAliasGet on
+   ! `field`, scoping the write to whatever alias id that specific handle
+   ! resolves to.  `field` here is `this%payload` itself (see get_payload),
+   ! which has never been wrapped in a NamedAlias at this point, so it
+   ! resolves to id=0.  This does NOT collapse per-connection-endpoint
+   ! metadata: each state placement made later via add_to_state (Import,
+   ! re-export, ...) is wrapped in its own NamedAlias and stores its own
+   ! value under that alias's own nonzero id, which always takes precedence
+   ! over id=0 for that placement.  id=0 only matters as the fallback
+   ! resolved by a field handle that is never wrapped in a NamedAlias at all
+   ! - e.g. a field pulled out of a service bundle via
+   ! ServiceClassAspect%add_to_bundle, or a hand-built field in a unit test -
+   ! which would otherwise default all the way down to 'unknown'.
+   ! (Bracket/Vector/VectorBracketClassAspect route their per-component
+   ! FieldClassAspect through a *local* update_payload helper that only
+   ! forwards to sibling aspects (units, typekind, ...) and never calls the
+   ! component's own update_payload - so this fix does not yet reach them;
+   ! see follow-up.)
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(FieldClassAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (present(field)) then
+         call MAPL_FieldSet(field, standard_name=this%standard_name, long_name=this%long_name, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
+   end subroutine update_payload
 
    subroutine activate(this, rc)
       class(FieldClassAspect), intent(inout) :: this
@@ -183,11 +247,6 @@ contains
 
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
-
-      call mapl_FieldSet(this%payload, &
-           standard_name=this%standard_name, &
-           long_name=this%long_name, &
-           _RC)
 
       call mapl_FieldEmptyComplete(this%payload, _RC)
 
@@ -243,40 +302,96 @@ contains
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
 
+      ! standard_name/long_name: keep this (import) side's own explicitly
+      ! declared value if it has one; otherwise inherit from the predecessor
+      ! (export_).  One-directional: unlike fill_value, this must NOT converge
+      ! bidirectionally - the export's own declared name must never be
+      ! overwritten by a downstream import's declaration (see connect_to_import,
+      ! which is intentionally left untouched).
+      call mirror_name(this%standard_name, export_%standard_name)
+      call mirror_name(this%long_name, export_%long_name)
+
       call mirror(this%fill_value, export_%fill_value)
 
       call ESMF_InfoGetFromHost(this%payload, info, _RC)
-      call FieldInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_CONNECTED, _RC)
+!#      call FieldInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
 
    contains
 
-     subroutine mirror(dst, src)
-        real, allocatable, intent(inout) :: dst
-        real, allocatable, intent(in) :: src
+      subroutine mirror(dst, src)
+         real, allocatable, intent(inout) :: dst
+         real, allocatable, intent(in) :: src
 
-        character(100) :: buffer
-        class(Logger), pointer :: lgr
+         character(100) :: buffer
+         class(Logger), pointer :: lgr
 
-        if (.not. allocated(src)) return
+         if (.not. allocated(src)) return
 
-        if (.not. allocated(dst)) then
-           dst = src
-           return
-        end if
+         if (.not. allocated(dst)) then
+            dst = src
+            return
+         end if
 
-        ! TODO: Problematic case: both allocated with different values.
-        if (dst /= src) then
-           lgr => logging%get_logger('mapl.generic')
-           write(buffer,*) actual_pt
-           call lgr%info('Mismatched default values for %a src = %g0~; dst = %g0 (src value wins)', trim(buffer), src, dst)
-        end if
+         ! TODO: Problematic case: both allocated with different values.
+         if (dst /= src) then
+            lgr => logging%get_logger('mapl.generic')
+            write(buffer,*) actual_pt
+            call lgr%info('Mismatched default values for %a src = %g0~; dst = %g0 (src value wins)', trim(buffer), src, dst)
+         end if
 
       end subroutine mirror
 
    end subroutine connect_to_export
+
+   ! Character-string counterpart of the internal mirror() above (fill_value), but
+   ! with different precedence semantics deliberately: dst (this aspect's own
+   ! declared value) always wins if assigned; src (the predecessor) is only
+   ! adopted when dst was left unassigned.  No mismatch logging - differing
+   ! standard_name/long_name on each side of a connection is the expected,
+   ! common case, not an authoring error.  Shared by connect_to_export (aliasing
+   ! an existing field) and inherit_descriptive_metadata (a fresh FieldClassAspect
+   ! superseding a non-Field predecessor, e.g. an ExpressionClassAspect).
+   subroutine mirror_name(dst, src)
+      character(:), allocatable, intent(inout) :: dst
+      character(:), allocatable, intent(in) :: src
+
+      if (allocated(dst)) return
+      if (allocated(src)) dst = src
+
+   end subroutine mirror_name
+
+   subroutine inherit_descriptive_metadata(this, predecessor, rc)
+      class(FieldClassAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: predecessor
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: predecessor_standard_name, predecessor_long_name
+
+      call predecessor%get_standard_name(predecessor_standard_name)
+      call predecessor%get_long_name(predecessor_long_name)
+
+      call mirror_name(this%standard_name, predecessor_standard_name)
+      call mirror_name(this%long_name, predecessor_long_name)
+
+      _RETURN(_SUCCESS)
+   end subroutine inherit_descriptive_metadata
+
+   subroutine get_standard_name(this, standard_name)
+      class(FieldClassAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: standard_name
+
+      if (allocated(this%standard_name)) standard_name = this%standard_name
+   end subroutine get_standard_name
+
+   subroutine get_long_name(this, long_name)
+      class(FieldClassAspect), intent(in) :: this
+      character(:), allocatable, intent(out) :: long_name
+
+      if (allocated(this%long_name)) long_name = this%long_name
+   end subroutine get_long_name
 
    function to_fieldclassaspect_from_poly(aspect, rc) result(field_aspect)
       type(FieldClassAspect) :: field_aspect
@@ -362,7 +477,12 @@ contains
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
 
-      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      ! MAPL_NamedAlias (not a bare ESMF_NamedAlias) so this new placement's
+      ! own alias id starts out with whatever standard_name/long_name/
+      ! restart_mode `this%payload` currently resolves to; the explicit
+      ! writes below then authoritatively override with this aspect's own
+      ! (possibly connection-inherited) values.
+      alias = MAPL_NamedAlias(this%payload, name=inner_name, _RC)
 
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then
@@ -374,10 +494,24 @@ contains
       end if
       call ESMF_StateAddReplace(substate, [alias], _RC)
 
-      if (allocated(this%restart_mode)) then
+      if (allocated(this%restart_mode) .or. allocated(this%standard_name) .or. allocated(this%long_name)) then
          call ESMF_NamedAliasGet(alias, id=alias_id, _RC)
          call ESMF_InfoGetFromHost(alias, info, _RC)
-         call FieldInfoSetInternal(info, alias_id, this%restart_mode, _RC)
+
+         if (allocated(this%restart_mode)) then
+            call FieldInfoSetInternal(info, alias_id, this%restart_mode, _RC)
+         end if
+
+         ! standard_name/long_name are per-connection-endpoint metadata: this
+         ! placement (this specific alias - the Export's own, a connected
+         ! Import's own, or an intermediate transform hop's own) records its
+         ! own value, independent of every other placement of the same
+         ! underlying field.  See connect_to_export for how an endpoint that
+         ! declares neither inherits from its connection predecessor.
+         if (allocated(this%standard_name) .or. allocated(this%long_name)) then
+            call FieldInfoSetInternal(info, named_alias_id=alias_id, &
+                 standard_name=this%standard_name, long_name=this%long_name, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)

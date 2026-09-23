@@ -55,6 +55,7 @@ module mapl_VectorClassAspect_mod
       type(MAPL_VectorBasisKind) :: basis_kind
    contains
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_transform
@@ -101,6 +102,15 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
+
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(VectorClassAspect), intent(in) :: this
+
+      type(FieldClassAspect) :: placeholder
+
+      aspect_ids = placeholder%get_mandatory_aspect_ids()
+   end function get_mandatory_aspect_ids
 
    function matches(src, dst)
       logical :: matches
@@ -177,6 +187,11 @@ contains
       type(esmf_Field), allocatable :: field
 
       call field_aspect%get_payload(field=field, _RC)
+
+      ! field_aspect's own metadata (standard_name/long_name) - other_aspects
+      ! only covers *sibling* characteristic aspects (units, typekind, ...),
+      ! not this per-component FieldClassAspect itself.
+      call field_aspect%update_payload(field=field, _RC)
 
       associate(e => other_aspects%ftn_end())
         iter = other_aspects%ftn_begin()
@@ -322,7 +337,7 @@ contains
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
 
-      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      alias = MAPL_NamedAlias(this%payload, name=inner_name, _RC)
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then
          if (intent /= 'import') then

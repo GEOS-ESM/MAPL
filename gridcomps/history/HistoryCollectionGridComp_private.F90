@@ -15,7 +15,6 @@ module mapl_HistoryCollectionGridComp_private_mod
    private
 
    public :: make_geom
-   public :: detect_geom
    public :: register_imports
    public :: create_output_bundle
    public :: set_start_stop_time
@@ -126,12 +125,23 @@ contains
 
       integer :: status
       type(ESMF_Info) :: info, new_info
+      character(:), allocatable :: standard_name, long_name
 
       new_field = ESMF_FieldCreate(old_field, dataCopyFlag=ESMF_DATACOPY_REFERENCE, name=alias,  _RC)
       call ESMF_InfoGetFromHost(old_field, info, _RC)
       call ESMF_InfoGetFromHost(new_field, new_info, _RC)
       call ESMF_InfoSet(new_info, key="", value=info, _RC)
       call compression_settings%sync_to_info(new_info, _RC)
+
+      ! standard_name/long_name are per-NamedAlias-id metadata (see
+      ! generic/field-name-propagation).  The wholesale Info copy above
+      ! carries over old_field's alias-scoped entry under old_field's own id,
+      ! but new_field was built with ESMF_FieldCreate (not ESMF_NamedAlias),
+      ! so it has its own, different id - that copied entry is orphaned and
+      ! never looked up.  Explicitly re-resolve the names from old_field and
+      ! re-set them, scoped to new_field's own id.
+      call MAPL_FieldGet(old_field, standard_name=standard_name, long_name=long_name, _RC)
+      call MAPL_FieldSet(new_field, standard_name=standard_name, long_name=long_name, _RC)
 
       _RETURN(_SUCCESS)
    end function create_alias_field
@@ -434,27 +444,6 @@ contains
 
       _ASSERT(tk_found, 'Typekind was not found.')
    end function get_typekind
-
-   function detect_geom(bundle, collection_name, rc) result(geom)
-      type(ESMF_Geom) :: geom
-      type(ESMF_FieldBundle), intent(inout) :: bundle
-      character(len=*), intent(in) :: collection_name
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer :: i, geom_id, last_id
-      type(ESMF_Field), allocatable :: fields(:)
-
-      call MAPL_FieldBundleGet(bundle, fieldList=fields, _RC)
-      do i=1,size(fields)
-         call ESMF_FieldGet(fields(i), geom=geom ,_RC)
-         geom_id = MAPL_GeomGetID(geom, _RC)
-         if (i > 1) then
-            _ASSERT(geom_id == last_id,"Items in collections "//trim(collection_name)//" have inconsistent geoms")
-         end if
-         last_id=geom_id
-      enddo
-      _RETURN(_SUCCESS)
-   end function detect_geom
 
    function get_frequency(hconfig, rc) result(frequency)
       type(ESMF_TimeInterval) :: frequency

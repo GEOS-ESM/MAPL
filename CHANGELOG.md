@@ -9,10 +9,139 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Fixed
+
+- Avoided passing the HConfig geometry-factory predicate as an internal
+  procedure callback, fixing a Flang 23 crash on hardened macOS systems; see
+  [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
+- Avoided passing the file-metadata geometry-factory predicate as an internal
+  procedure callback, preventing the same Flang 23 crash in metadata-based
+  geometry creation; see [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
+- Extended History and StatisticsGridComp so one can take average, min, max, accumulation, and variance for vectors
+- Fixed Generic components created through direct SetServices to inherit their parent VM, preventing communicator-context exhaustion during repeated setup.
+- Fixed corrupted cubed-sphere coordinate endpoints in NAG-generated output
+- Fixed detection of NetCDF quantization and Zstandard support when using Spack
+- Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
+- Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
+- Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
+- Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
+- Fixed `standard_name`/`long_name` Field metadata being collapsed to a single,
+  field-wide value across a connection. Because a connected Import's `ESMF_Field`
+  is an `ESMF_NamedAlias` of its Export's field, and aliases share one underlying
+  `ESMF_Info` host, only the Export side's declared `standard_name`/`long_name`
+  ever survived; an Import (or a re-export several hops away) that declared its
+  own value had it silently discarded. Each connection endpoint - Export, Import,
+  and any intermediate transform/coupler hop - now persists its own
+  `standard_name`/`long_name` in a per-`NamedAlias`-id namespace of the shared
+  `ESMF_Info` (the same pattern already used for `restart_mode`). An endpoint
+  that declares neither now inherits its predecessor's value (one-directional,
+  downstream only) instead of resolving to a hardcoded `'unknown'`.
+  `MAPL_FieldGet(field, standard_name=, long_name=)` resolves the value for the
+  specific alias represented by the `field` handle passed in; no signature
+  change was needed since callers already hold the correct alias from a specific
+  `ESMF_State`.
+- Fixed two further gaps in the `standard_name`/`long_name` propagation above.
+  (1) An `expression:`-derived export (e.g. `E_sum: {expression: A+B,
+  standard_name: "foo", long_name: "bar"}`) always lost its declared name: its
+  `ExpressionClassAspect` never carried `standard_name`/`long_name` at all, and
+  because `ExpressionClassAspect` never "matches" a `FieldClassAspect`, any
+  connection into it - including an implicit same-name match (the mechanism
+  `MAPL_GridCompConnectAll`/History's `var_list: {source: ...}` use) - always
+  went through `StateItemSpec%make_extension`'s aspect substitution, which
+  unconditionally replaced it with the consumer's own nameless goal aspect.
+  `ExpressionClassAspect` now carries its declared name, and a new
+  `inherit_descriptive_metadata` hook (default no-op on `StateItemAspect`,
+  overridden on `FieldClassAspect`) lets the superseded aspect hand its name to
+  its replacement when the replacement doesn't already have its own. (2) Even
+  for plain Fields, `MAPL_FieldGet`'s alias-scoped read had no symmetric
+  counterpart in `MAPL_FieldSet`, which still wrote to a single unaliased slot;
+  a consumer that duplicates a field via `ESMF_FieldCreate` (as History's
+  `create_alias_field` does, rather than `ESMF_NamedAlias`) gets its own,
+  different alias id, so the name written under the original field's id was
+  never found. `MAPL_FieldSet` now writes `standard_name`/`long_name` through
+  the same alias-scoped path `MAPL_FieldGet` reads from, and
+  `create_alias_field` explicitly re-copies the names across its field
+  duplication.
+- Fixed `standard_name`/`long_name` always resolving to `'unknown'` for
+  fields placed into a `FieldBundle` (`class: service`, `class: vector`,
+  `class: bracket`, `class: vector_bracket`). `FieldClassAspect%add_to_bundle`
+  adds a field via a plain `ESMF_FieldBundleAdd`, not `ESMF_NamedAlias`, so it
+  never went through the alias-scoped write path added for #5399; any field
+  later retrieved from such a bundle resolved `ESMF_NamedAliasGet` to id=0,
+  an empty slot. `standard_name`/`long_name` are now attached via
+  `FieldClassAspect%update_payload` at field-creation time - the same point
+  every other characteristic aspect (units, typekind, geom, ...) attaches its
+  metadata - so the unaliased field's own id=0 slot is populated before it is
+  ever placed in a bundle. `VectorClassAspect`, `BracketClassAspect`, and
+  `VectorBracketClassAspect` each drove their per-component field through a
+  local `update_payload` helper that forwarded to sibling aspects but never
+  invoked the component's own `update_payload`; fixed to call it.
+- Closed a remaining gap in the `standard_name`/`long_name` alias-scoping
+  above: the base (unnamespaced) `FieldInfoSetInternal`/`FieldInfoGetInternal`
+  overload still accepted `standard_name`/`long_name` as plain, non-aliased
+  keys - a leftover from before the per-`NamedAlias`-id scheme, and a footgun
+  for any future caller. `MAPL_FieldCreate`/`FieldEmptyComplete`
+  (`field_empty_complete` in `FieldCreate.F90`) used exactly that path, so a
+  field built via `MAPL_FieldCreate(..., standard_name=, long_name=)` had its
+  name written to a key `MAPL_FieldGet` - which always reads through the
+  alias-scoped overload - could never find, resolving to `'unknown'`
+  regardless of any `FieldClassAspect` involvement. `standard_name`/
+  `long_name` are now handled entirely inside `field_info_set_internal`/
+  `field_info_get_internal` themselves (like every other item there - units,
+  typekind, ...), with a `named_alias_id` argument that scopes just those two
+  keys to their own per-alias namespace; `MAPL_FieldSet`/`MAPL_FieldGet`/
+  `FieldClassAspect%add_to_state` each resolve their own alias id once and
+  pass it through in the same call as everything else. `FieldBundleInfo`'s
+  unrelated bundle-wide "field prototype" template (describing the bundle as
+  a whole, not any specific Field's own identity) passes a fixed `id=0`.
+- Fixed `superstructure/state/StateGet.F90`'s `state_get_bundle` (used to
+  serialize a `State` into a synthetic `FieldBundle`, e.g. for I/O) silently
+  dropping `standard_name`/`long_name`/`restart_mode` when re-aliasing a
+  `FieldBundle` member field: it called bare `ESMF_NamedAlias`, which has no
+  knowledge of MAPL's per-`NamedAlias`-id metadata, so the field's brand new
+  alias id resolved to defaults regardless of what the source field carried.
+  Added `MAPL_NamedAlias` (`infrastructure/field/FieldNamedAlias.F90`) as the
+  one place that wraps `ESMF_NamedAlias` for `ESMF_Field` and additionally
+  copies `standard_name`/`long_name`/`restart_mode` from the source field's
+  own resolved alias id onto the new alias's own (different) id; every
+  `ESMF_NamedAlias(field, ...)` call site in MAPL - `state_get_bundle` and
+  each `ClassAspect%add_to_state`/`connect_to_import` that creates a Field
+  alias - now goes through it. `MAPL_NamedAlias` also accepts
+  `ESMF_FieldBundle`/`ESMF_State` (used by the bundle/vector/bracket/service/
+  state `ClassAspect`s' own `add_to_state`), as a plain pass-through: MAPL
+  does not attach per-alias-id metadata to bundles (their `standard_name`/
+  `long_name` "field prototype" template lives at a single fixed id, shared
+  by every alias of the same bundle) or to nested states today, so there is
+  nothing to propagate for those two - they are included so every
+  `ESMF_NamedAlias` call in MAPL shares one consistent, safe name.
+
 ### Changed
 
 - Updated the Discover NAG CI workflow to skip fork pull requests by default,
   while allowing an authorized maintainer to run it by rerunning the workflow.
+- Changed ESMF\_RouteHandle parameters so LINETYPE_GREAT_CIRCLE is default for all methods
+- Reworked MAPL phases to better align with NUOPC phases.
+- Simplified the `CMakeLists.txt` ESMF handling: `ESMA_cmake` now creates the NetCDF/HDF5/ESMF/MPI targets and enforces a minimum ESMF version for both Baselibs and Spack builds automatically, so the manual `if (NOT Baselibs_FOUND) ... else () ... endif ()` block is no longer needed. MAPL3's stricter ESMF >= 9.0.0 requirement is now expressed by setting `ESMA_ESMF_MIN_VERSION` before `include(esma)`.
+  - Update `components.yaml`
+    - ESMA_env v5.26.0
+    - ESMA_cmake v4.48.0
+    - ecbuild geos/v3.15.2
+- Split cap.yaml into mapl.yaml, cap_driver.yaml, and cap_gridcomp.yaml (see issue #5355)
+- Renamed `model_petcount`/`has_model_petcount` to `app_petcount`/`has_app_petcount`
+  throughout the codebase, config files, and documentation
+- Renamed `mapl/Cap.F90` to `mapl/CapDriver.F90` and its module `mapl_Cap_mod` to `mapl_CapDriver_mod`
+- `MAPL_Initialize` gained a new optional `app_config` (intent(out)) argument that resolves
+  and returns the `app.config`-derived hconfig (i.e. the `cap_driver.yaml` contents); `mapl/GEOS.F90`
+  passes this through to `MAPL_CapCreate`/`MAPL_CapRun` via a new `config` argument on
+  both, so `cap_driver.yaml` is parsed from disk only once instead of independently in each procedure
+- Moved `mapl/cap_gridcomp.yaml` to `gridcomps/cap/cap_gridcomp.yaml`, replacing the stale
+  `gridcomps/cap/CapGridComp.yaml` (which used outdated `root`/`extdata`/`history` keys no
+  longer read by `CapGridComp.F90`, which reads `root_name`/`extdata_name`/`history_name`)
+- Moved the `gridcomp_config` key out of `mapl.yaml`'s `app:` section into `cap_driver.yaml`
+  as `cap_gridcomp_config`, so `mapl.yaml`'s `app:` section only points at `cap_driver.yaml`
+  (via `config`), and `cap_driver.yaml` in turn points at `cap_gridcomp.yaml`
+- For vector items in ExtData change variables separted by `;` to a sequence of variables like History
+- Moved DSO-backed child `setServices` ownership into child configurations and added support for raw `ESMF_GridCompCreate` followed by `ESMF_GridCompSetServices` startup.
 - Refactored `UserSetServices.F90` to remove the `user_setservices` interface, rename `AbstractUserSetServices` to `UserSetServices`, and giving `ProcSetServices` and `DSOSetServices` their own constructors
 - `Regrid_Util.x` now uses the fargparse library for command line argument parsing instead
   of raw Fortran intrinsics. Multi-character options that previously used a single-dash prefix
@@ -21,10 +150,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-zstandard_level`, `-file_weights`, `-vars`, `-t`) now require a double-dash prefix
   (e.g. `--ogrid`, `--nx`). The short forms `-i` and `-o` are preserved. The `--help` flag
   is now handled automatically by fargparse and prints a formatted usage summary.
+- Removed unused fields and methods from InnerMetaComponent
+
 ### Added
 
+- Added optional coordinate-comparison tolerance for LatLon grid equality (`GEOS-ESM/MAPL#5385`), so that two file-based LatLon grids whose coordinates differ only by numerical noise can be treated as the same grid, letting `GeomManager` reuse geoms/RouteHandles instead of minting new ones on every file swap. `coordinate_tolerance` is a dimensionless fraction of a grid's own coordinate spacing (DX) - e.g. `0.01` means "within 1% of the minimum spacing between adjacent grid points" - not an absolute coordinate difference. Comparison is directional: when a new (not yet cached) grid is looked up against an already-registered one, only the new grid's own declared tolerance and its own spacing are consulted; the already-registered grid's tolerance never matters. The tolerance is sourced from a generic `coordinate_tolerance` attribute on `FileMetadata` (read via the existing generic attribute API; no new `pfio`/`FileMetadata` methods added); the geom layer itself defaults to `0` (strict/bitwise) when the attribute is absent, staying neutral for any client. `ExtData` is the first client to set this attribute: file collections may set an optional `coordinate_tolerance` in their YAML config, which `PrimaryExport` stamps onto each file's `FileMetadata` before requesting a geom for it. Unlike the geom layer's own neutral default, `ExtData` defaults `coordinate_tolerance` to a nonzero value (`0.1`, i.e. 10% of DX) when a collection's config omits it, restoring MAPL2's historical default-tolerant grid-reuse behavior for existing users; a collection can set `coordinate_tolerance: 0` explicitly to opt into strict comparison.
+- Added `StateGetPointer` overloads for retrieving paired (u, v) field pointers from a vector-type ESMF FieldBundle stored in a state
+- Added `extdata_dryrun_check.py`, a Python utility that predicts which input
+  files an ExtData component will need for a given run without executing the
+  model. Supports three tiers: template enumeration (Tier 1), filesystem
+  existence check (Tier 2, `--check`), and time-axis narrowing via `netCDF4`
+  (Tier 3, `--narrow`). A `--verify_files_read` flag compares predictions
+  against the runtime `log_files_read` output for use in CTest. Wired into
+  the MAPL3G component test framework for case02, case11, and case23.
+- Added `latlon_to_face.py`, a Python utility that converts a cubed-sphere
+  NetCDF file from tiled lat/lon layout (`lat = 6 * lon`) to the face layout
+  (`nf / Ydim / Xdim`) required by MAPL/GEOS face-format readers.
+- Added new GEOShs CI test
+- Added capability for doing in-memory checkpoint/restart.  Testing remains fairly basic, so further work is likely needed when we port replay to MAPL3.
+- Added `log_files_read` option to ExtData2G to easily log all files read during a run
 - Added `MAPL_FieldApplyUserRoutine`/`MAPL_FieldBundleApplyUserRoutine` to apply a user routine to each slice of a field (or every field in a bundle) with ungridded/vertical dimensions, plus `MAPL_FieldGetPointerToSlice` (overloaded for R4 and R8) for typed per-slice access. Slices are 2D by default, or 3D when the field has exactly three non-ungridded (grid + vertical) dimensions (for example a 4D field whose fourth dimension is the ungridded dimension). The slice-routine interface is unlimited-polymorphic and assumed-rank, so a single user routine handles R4/R8 and 2D/3D slices via `select rank`/`select type`
-- `update_restart` in `Cap.F90` now supports a `skip_restart_write` boolean flag in the
+- `update_restart` in `CapDriver.F90` now supports a `skip_restart_write` boolean flag in the
   `ESMF_HConfig`. When present and `true`, the routine returns immediately without writing
   the restart file. Default behavior (key absent or `false`) is unchanged.
 
@@ -101,15 +247,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add helper script for regression test work
 - For ACG, only declare pointer and get_pointer for MAPL_STATEITEM_FIELD
 - For ACG, add spec_filters to generalize testing specs
+- Improved error handling for issues writing netcdf files
+
 
 ### Fixed
 
+- Fixed restart handler so checkpoints have data in the coordinate variables.
 - Fixed the unreliable feedback from Python bridge failures
 - Improved `SimpleConnection` assertion messages for unknown virtual connection points
 - Fixed bug in FieldBundleRead when file grid and output bundle grid are different grid classes
 - Buggy logic in server initialization (#5214)
 - Missing call to initialize error handling in MPI context
 - Fixed bug that prevented R8 exports from being written in R8 in History
+- Fixed bug causing 'already allocated' error when setting corner longitudes in cubed-sphere History files
 
 ### Removed
 

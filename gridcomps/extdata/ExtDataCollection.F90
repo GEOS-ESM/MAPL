@@ -7,18 +7,51 @@ module mapl_ExtDataCollection_mod
    implicit none
    private
 
+   ! Default per-collection coordinate-comparison tolerance, applied
+   ! when a collection's config does not set "coordinate_tolerance"
+   ! explicitly. MAPL2 treated file-based grids that differed only by
+   ! numerical noise as the same grid by default (see GEOS-ESM/MAPL#5385
+   ! - "MAPL2 allows 2 file-based grids that differ slightly in their
+   ! coordinates to be treated as the same grid... An override is given
+   ! if someone wants to insist that the file grid be respected"). This
+   ! default (10% of a grid's own coordinate spacing/DX) preserves that
+   ! historical, existing-user-expected behavior; it is not necessarily
+   ! the ideal default for a brand-new feature, but changing existing
+   ! users' grid-reuse behavior by default would be a worse regression
+   ! than an imperfect default value. A collection may set an explicit
+   ! `coordinate_tolerance: 0` to opt into strict/bitwise comparison -
+   ! the override MAPL2 itself provided.
+   real(kind=ESMF_KIND_R8), parameter :: DEFAULT_COORDINATE_TOLERANCE = 0.1_ESMF_KIND_R8
+
    type, public :: ExtDataCollection
       character(len=:), allocatable :: file_template
       type(ESMF_TimeInterval) :: frequency
       type(ESMF_Time), allocatable :: reff_time
       integer :: collection_id
       type(ESMF_Time), allocatable :: valid_range(:)
+      ! Per-collection coordinate-comparison tolerance (see
+      ! GEOS-ESM/MAPL#5385), expressed as a FRACTION of a grid's own
+      ! local spacing (DX) - e.g. 0.01 means "within 1% of the minimum
+      ! spacing between adjacent grid points" - not an absolute
+      ! coordinate difference. Always has an effective value: either the
+      ! config's explicit `coordinate_tolerance`, or
+      ! DEFAULT_COORDINATE_TOLERANCE when the key is absent. ExtData
+      ! stamps this value as a "coordinate_tolerance" attribute onto
+      ! each file's FileMetadata before requesting a geom for it, so
+      ! files whose grids differ only by numerical noise can reuse
+      ! geoms/RouteHandles. An explicit `coordinate_tolerance: 0`
+      ! disables this (strict/bitwise comparison). Only the
+      ! not-yet-registered grid's own tolerance is ever consulted (see
+      ! CoordinateAxis::equal_to) - a collection's tolerance never
+      ! affects how *other* collections' already-cached grids compare.
+      real(kind=ESMF_KIND_R8) :: coordinate_tolerance = DEFAULT_COORDINATE_TOLERANCE
       contains
          procedure :: get_file_template
          procedure :: get_frequency
          procedure :: get_reff_time
          procedure :: get_collection_id
          procedure :: get_valid_range
+         procedure :: get_coordinate_tolerance
          procedure :: is_reff_time_allocated
          procedure :: is_valid_range_allocated
    end type
@@ -49,6 +82,13 @@ contains
       file_frequency = get_string_with_default(config,"freq")
       file_reff_time = get_string_with_default(config,"ref_time")
       range_str = get_string_with_default(config,"valid_range")
+
+      if (ESMF_HConfigIsDefined(config,keyString="coordinate_tolerance")) then
+         data_set%coordinate_tolerance = ESMF_HConfigAsR8(config,keyString="coordinate_tolerance",_RC)
+      else
+         data_set%coordinate_tolerance = DEFAULT_COORDINATE_TOLERANCE
+      end if
+      _ASSERT(data_set%coordinate_tolerance >= 0.0_ESMF_KIND_R8, "coordinate_tolerance must be non-negative")
 
       if (file_frequency /= '') then
          data_set%frequency = mapl_HConfigAsTimeInterval(config, keyString="freq", _RC)
@@ -210,5 +250,14 @@ contains
 
       is_allocated = allocated(this%valid_range)
    end function is_valid_range_allocated
+
+   ! coordinate_tolerance accessor. Always returns an effective value:
+   ! either the config's explicit setting, or DEFAULT_COORDINATE_TOLERANCE.
+   function get_coordinate_tolerance(this) result(tolerance)
+      class(ExtDataCollection), intent(in) :: this
+      real(kind=ESMF_KIND_R8) :: tolerance
+
+      tolerance = this%coordinate_tolerance
+   end function get_coordinate_tolerance
 
 end module mapl_ExtDataCollection_mod

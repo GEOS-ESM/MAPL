@@ -1,0 +1,48 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+
+    vertical_grid:
+      class: basic
+      num_levels: 1
+
+  states:
+    import:
+      I_A1:
+        standard_name: 'I_A1 standard name'
+        units: 'm'
+        vertical_dim_spec: NONE
+
+    export:
+      E_A1:
+        standard_name: 'E_A1 standard name'
+        units: 'm'
+        fill_value: 1
+        vertical_dim_spec: NONE
+
+    internal:
+      Z_A1:
+        standard_name: 'Z_A1 standard name'
+        units: 'm'
+        fill_value: 1
+        vertical_dim_spec: NONE
+
+  misc:
+    activate_all_imports: true
+    activate_all_exports: true
+    checkpoint:
+      import: false
+      export: false
+      internal: true
+    restart:
+      import: false
+      internal: true
+      bootstrap: true
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp

@@ -40,13 +40,13 @@ contains
 
    function new_ChildSpec(user_setservices, unusable, hconfig, timeStep, offset) result(spec)
       type(ChildSpec) :: spec
-      class(UserSetServices), intent(in) :: user_setservices
+      class(UserSetServices), optional, intent(in) :: user_setservices
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_HConfig), optional, intent(in) :: hconfig
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
 
-      spec%user_setservices = user_setservices
+      if (present(user_setservices)) spec%user_setservices = user_setservices
       if (present(hconfig)) then
          spec%hconfig = hconfig
       else
@@ -65,8 +65,13 @@ contains
       type(ChildSpec), intent(in) :: a
       type(ChildSpec), intent(in) :: b
 
-      equal = (a%user_setservices == b%user_setservices)
+      equal = (allocated(a%user_setservices) .eqv. allocated(b%user_setservices))
       if (.not. equal) return
+
+      if (allocated(a%user_setservices)) then
+         equal = (a%user_setservices == b%user_setservices)
+         if (.not. equal) return
+      end if
       
       equal = equal_hconfig(a%hconfig, b%hconfig)
       if (.not. equal) return
@@ -121,9 +126,16 @@ contains
    subroutine dump(x)
       type(ChildSpec) :: x
 
+      if (.not. allocated(x%user_setservices)) then
+         print*,__FILE__,__LINE__, '<deferred-to-config>'
+         return
+      end if
+
       select type (q => x%user_setservices)
       type is (Dsosetservices)
          print*,__FILE__,__LINE__, q%sharedObj, '::', q%userRoutine
+      class default
+         print*,__FILE__,__LINE__, '<procedure>'
       end select
    end subroutine dump
 
@@ -135,7 +147,11 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit,'(a, DT)', iostat=iostat, iomsg=iomsg) 'UserSetServices: ', this%user_setservices
+      if (allocated(this%user_setservices)) then
+         write(unit,'(a, DT)', iostat=iostat, iomsg=iomsg) 'UserSetServices: ', this%user_setservices
+      else
+         write(unit,'(a)', iostat=iostat, iomsg=iomsg) 'UserSetServices: <deferred-to-config>'
+      end if
 
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)

@@ -3,6 +3,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.field_bundle.tests")
 set(SRCS
   Test_FieldBundleDelta.pf
   Test_FieldBundlesAreAliased.pf
+  Test_FieldBundleClone.pf
   Test_FieldBundleDestroy.pf
   Test_FieldBundleFilter.pf
   Test_FieldBundleGetByIndex.pf

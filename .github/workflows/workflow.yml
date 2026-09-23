@@ -12,6 +12,9 @@ on:
       - ".github/PULL_REQUEST_TEMPLATE.md"
       - ".editorconfig"
 
+permissions:
+  contents: read
+
 concurrency:
   # For PRs: one slot per PR number.
   # For non-PR events (schedule, workflow_dispatch): one slot per ref.
@@ -19,35 +22,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-ford-docs:
-    name: Build Ford Docs
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          filter: blob:none
-
-      - name: Build and Deploy Docs
-        uses: ./.github/actions/deploy-ford-docs
-        with:
-          # Due to a bug in ford, for now we do *not* want to use
-          # the full path to the ford input file. Rather, the
-          # action will cd into docs/Ford and then run ford
-          # relative path to the ford input file.
-          ford-input: ford-ci.md
-          doc-folder: docs/Ford/ci-doc
-          deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}
-
   #####################################################################################
   # build_test_mapl_gnu:                                                              #
   #   name: gfortran / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }} #
   #   if: github.event.pull_request.draft == false                                    #
   #   runs-on: ubuntu-latest                                                          #
   #   container:                                                                      #
-  #     image: gmao/ubuntu24-geos-env-mkl:v8.32.0-openmpi_5.0.5-gcc_14.2.0            #
+  #     image: gmao/ubuntu24-geos-env-mkl:v8.33.0-openmpi_5.0.5-gcc_14.2.0            #
   #   strategy:                                                                       #
   #     fail-fast: false                                                              #
   #     matrix:                                                                       #
@@ -78,7 +59,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env-mkl:v8.32.0-openmpi_5.0.5-gcc_15.2.0
+      image: gmao/ubuntu24-geos-env-mkl:v8.33.0-openmpi_5.0.5-gcc_15.2.0
     strategy:
       fail-fast: false
       matrix:
@@ -94,6 +75,38 @@ jobs:
         with:
           fetch-depth: 1
           filter: blob:none
+          persist-credentials: false
+
+      - name: Build and Test MAPL
+        uses: ./.github/actions/ci-build-and-test-mapl
+        with:
+          cmake-build-type: ${{ matrix.cmake-build-type }}
+          cmake-generator: ${{ matrix.cmake-generator }}
+          fortran-compiler: gfortran
+          extra-cmake-args: -DMPIEXEC_PREFLAGS='--oversubscribe'
+
+  build_test_mapl_gnu16:
+    name: gfortran-16 / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    container:
+      image: gmao/ubuntu24-geos-env-mkl:v8.33.0-openmpi_5.0.11rc1-gcc_16.2.0
+    strategy:
+      fail-fast: false
+      matrix:
+        cmake-build-type: [Debug, Release]
+        cmake-generator: [Unix Makefiles]
+    env:
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          persist-credentials: false
 
       - name: Build and Test MAPL
         uses: ./.github/actions/ci-build-and-test-mapl
@@ -108,7 +121,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.32.0-intelmpi_2021.13-ifort_2021.13
+      image: gmao/ubuntu24-geos-env:v8.33.0-intelmpi_2021.13-ifort_2021.13
     strategy:
       fail-fast: false
       matrix:
@@ -120,6 +133,7 @@ jobs:
         with:
           fetch-depth: 1
           filter: blob:none
+          persist-credentials: false
 
       - name: Build and Test MAPL
         uses: ./.github/actions/ci-build-and-test-mapl
@@ -133,7 +147,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.32.0-intelmpi_2021.17-ifx_2025.3
+      image: gmao/ubuntu24-geos-env:v8.33.0-intelmpi_2021.17-ifx_2025.3
     strategy:
       fail-fast: false
       matrix:
@@ -145,6 +159,7 @@ jobs:
         with:
           fetch-depth: 1
           filter: blob:none
+          persist-credentials: false
 
       - name: Build and Test MAPL
         uses: ./.github/actions/ci-build-and-test-mapl
@@ -158,13 +173,14 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env:v8.32.0-intelmpi_2021.13-ifort_2021.13
+      image: gmao/ubuntu24-geos-env:v8.33.0-intelmpi_2021.13-ifort_2021.13
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
           filter: blob:none
+          persist-credentials: false
 
       - name: Build MAPL without optional packages
         uses: ./.github/actions/ci-build-and-test-mapl
@@ -180,7 +196,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [ifort, ifx, gfortran-14, gfortran-15]
+        compiler: [ifort, ifx, gfortran-15, gfortran-16]
         build-type: [Debug]
     uses: GEOS-ESM/CI-workflows/.github/workflows/geosgcm_build_tests.yml@project/geosgcm
     with:

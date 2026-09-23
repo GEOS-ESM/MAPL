@@ -58,7 +58,21 @@ esma_add_library(${this}
   TYPE SHARED
   )
 
-add_subdirectory(specs)
+# Note on add_subdirectory(specs generic_specs):
+# We pass "generic_specs" as the second argument (binary_dir) to explicitly override
+# the build output directory instead of allowing CMake to default to "${CMAKE_CURRENT_BINARY_DIR}/specs".
+#
+# Root Cause: When building under the Spack Intel toolchain, ifort invokes GCC under the hood
+# to probe host compiler configuration. GCC automatically checks the current working directory
+# for a custom compiler spec file named "specs". If a binary directory named "./specs" exists
+# in the build execution tree, GCC attempts to read it as a text file, fails, and surfaces
+# the notoriously misleading error:
+#   "ifort: error #10417: Problem setting up the execution environment..."
+#
+# By specifying "generic_specs" as the binary_dir argument, CMake outputs build artifacts to
+# "${CMAKE_CURRENT_BINARY_DIR}/generic_specs", preventing the creation of a "./specs" directory
+# in the build tree while leaving the source directory "specs/" unchanged.
+add_subdirectory(specs generic_specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
 add_subdirectory(transforms)
@@ -74,16 +88,17 @@ esma_add_fortran_submodules(
           get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
           get_phases.F90 set_hconfig.F90 get_hconfig.F90 has_geom.F90 get_geom.F90
 	        advertise_variable.F90 initialize_advertise.F90 initialize_modify_advertised.F90
-          initialize_realize.F90 initialize_read_restart.F90 recurse.F90
+          initialize_realize_provided.F90 initialize_accept_transfer.F90 initialize_realize_accepted.F90 initialize_read_restart.F90 recurse.F90
 	        apply_to_children_custom.F90
           initialize_user.F90 run_custom.F90 run_user.F90
 	        initialize_set_clock.F90 run_clock_advance.F90
 	        initialize_geom_a.F90 initialize_geom_b.F90
-          write_restart.F90 get_name.F90 get_gridcomp.F90
-          set_geom.F90 set_vertical_grid.F90 get_vertical_grid.F90 get_registry.F90
+          write_restart.F90 read_restart.F90 get_name.F90 get_gridcomp.F90
+          set_geom.F90 propagate_geom_to_children.F90 set_vertical_grid.F90 get_vertical_grid.F90 get_registry.F90
           get_component_spec.F90 get_internal_state.F90 get_logger.F90
           get_user_gc_driver.F90 connect_all.F90 set_entry_point.F90
-          finalize.F90 start_timer.F90 stop_timer.F90 get_checkpoint_dir.F90)
+          finalize.F90 start_timer.F90 stop_timer.F90 get_checkpoint_dir.F90
+          ensure_memory_checkpoint.F90 get_memory_checkpoint_state.F90)
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic

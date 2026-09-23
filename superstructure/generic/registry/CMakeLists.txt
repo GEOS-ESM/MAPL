@@ -21,6 +21,7 @@ target_sources(MAPL.generic PRIVATE
   StateRegistry_Extensions_smod.F90
   StateRegistry_Propagation_smod.F90
   StateRegistry_Actions_smod.F90
+  StateRegistry_SetGeometry_smod.F90
   ExtensionFamily.F90
   VirtualPtFamilyMap.F90
 )

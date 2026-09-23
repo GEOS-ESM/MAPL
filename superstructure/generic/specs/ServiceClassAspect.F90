@@ -3,9 +3,11 @@
 module mapl_ServiceClassAspect_mod
 
    use mapl_field_bundle_api
+   use mapl_field_api, only: MAPL_NamedAlias
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ACTIVE, MAPL_FIELDBUNDLETYPE_SERVICE
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED
    use mapl_ClassAspect_mod
    use mapl_FieldClassAspect_mod
    use mapl_StateRegistry_mod
@@ -47,6 +49,7 @@ module mapl_ServiceClassAspect_mod
       procedure :: connect_to_export
 
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: create
       procedure :: activate
       procedure :: allocate
@@ -103,8 +106,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
 
       this%payload = MAPL_FieldBundleCreate(fieldBundleType=MAPL_FIELDBUNDLETYPE_SERVICE, _RC)
+
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call MAPL_FieldBundleInfoSetInternal(info, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
@@ -149,14 +156,8 @@ contains
       class(StateItemAspect), pointer :: aspect
       class(StateItemSpec), pointer :: spec
 
-      associate (specs => this%items_to_service)
-        do i = 1, size(specs)
-           spec => specs(i)%ptr
-           aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
-           field_aspect = to_FieldClassAspect(aspect, _RC)
-           call field_aspect%add_to_bundle(this%payload, _RC)
-        end do
-      end associate
+      ! No-op
+      ! Fields are added to bundle during connetion step
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(other_aspects)
@@ -176,7 +177,7 @@ contains
       integer :: status
 
       short_name = actual_pt%get_esmf_name()
-      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
+      alias = MAPL_NamedAlias(this%payload, name=short_name, _RC)
 
       ! Add bundle to both import and export specs.
       call get_substate(multi_state%importstate, actual_pt%get_comp_name(), substate=substate, _RC)
@@ -274,6 +275,9 @@ contains
       type(StateItemSpecPtr), allocatable :: spec_ptrs(:)
       type(VirtualConnectionPt) :: v_pt
       type(StateItemSpec), pointer :: primary
+      type(FieldClassAspect) :: field_aspect
+      class(StateItemAspect), pointer :: aspect
+      class(StateItemSpec), pointer :: spec
 
       select type (import)
       type is (ServiceClassAspect)
@@ -285,9 +289,13 @@ contains
               ! Internal items are always unique and "primary" (owned by user)
               primary => import%registry%get_primary_spec(v_pt, _RC)
               spec_ptrs(i)%ptr => primary
+              aspect => primary%get_aspect(CLASS_ASPECT_ID, _RC)
+              field_aspect = to_FieldClassAspect(aspect, _RC)
+              call field_aspect%add_to_bundle(this%payload, _RC)
            end do
          end associate
          this%items_to_service = [this%items_to_service, spec_ptrs]
+
       class default
          _FAIL('Import must be a Service')
       end select
@@ -308,6 +316,14 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
+
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(ServiceClassAspect), intent(in) :: this
+
+      aspect_ids = [AspectId:: ]
+
+   end function get_mandatory_aspect_ids
  
    subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(ServiceClassAspect), intent(in) :: this

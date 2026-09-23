@@ -34,6 +34,7 @@ set(COMMON_LINK_LIBRARIES MAPL.generic.test_common MAPL.pfunit MAPL.statistics)
 # 1. MAPL.generic.scenarios - End-to-end integration test scenarios
 set(scenarios_test_srcs
   Test_Scenarios.pf
+  Test_MemoryCheckpoint.pf
 )
 
 add_pfunit_ctest(

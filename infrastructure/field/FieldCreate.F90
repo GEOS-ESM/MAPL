@@ -325,10 +325,20 @@ contains
            vert_staggerloc=vert_staggerloc_, &
            vert_alignment=vert_alignment, &
            units=units, &
-           standard_name=standard_name, &
-           long_name=long_name, &
            allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, &
            _RC)
+
+      ! standard_name/long_name are per-NamedAlias-id metadata (see
+      ! generic/field-name-propagation) - unlike the other characteristics
+      ! set above, they must NOT go through the flat, unnamespaced key of the
+      ! base FieldInfoSetInternal overload.  FieldSet already resolves this
+      ! field's own alias id (0 if `field` was never placed via
+      ! ESMF_NamedAlias) and writes through the alias-scoped path
+      ! FieldGet reads from; reuse it rather than duplicating that
+      ! resolution here.
+      if (present(standard_name) .or. present(long_name)) then
+         call FieldSet(field, standard_name=standard_name, long_name=long_name, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
