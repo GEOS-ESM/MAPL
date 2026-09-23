@@ -62,7 +62,7 @@ contains
       type(ESMF_FieldStatus_Flag) :: fstatus
       integer :: vgrid_id
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
-      integer :: alias_id
+      integer :: named_alias_id
 
       if (present(short_name)) then
          call ESMF_FieldGet(field, name=fname, _RC)
@@ -80,7 +80,17 @@ contains
          end if
       end if
 
+      ! standard_name/long_name are per-connection-endpoint metadata:
+      ! named_alias_id resolves them for the specific NamedAlias represented
+      ! by this `field` handle, not a single field-wide value.
+      ! ESMF_NamedAliasGet never fails; it returns id=0 for a field that was
+      ! never placed via ESMF_NamedAlias (e.g. a hand-built field in a unit
+      ! test), which simply resolves to its own (unshared) namespace.
+      ! FieldInfoGetInternal always returns an allocated string for each
+      ! output that is present (defaulting to 'unknown' internally), so no
+      ! post-processing is needed here.
       call ESMF_InfoGetFromHost(field, field_info, _RC)
+      call ESMF_NamedAliasGet(field, id=named_alias_id, _RC)
       call FieldInfoGetInternal(field_info, &
            typekind=typekind, &
            horizontal_dims_spec=horizontal_dims_spec, &
@@ -97,29 +107,10 @@ contains
            units=units, &
            allocation_status=allocation_status, &
            regridder_param_info=regridder_param_info, &
+           named_alias_id=named_alias_id, &
+           standard_name=standard_name, &
+           long_name=long_name, &
            _RC)
-
-      ! standard_name/long_name are per-connection-endpoint metadata: resolve
-      ! them for the specific NamedAlias represented by this `field` handle,
-      ! not a single field-wide value.  ESMF_NamedAliasGet never fails; it
-      ! returns id=0 for a field that was never placed via ESMF_NamedAlias
-      ! (e.g. a hand-built field in a unit test), which simply resolves to its
-      ! own (unshared) namespace below.  FieldInfoGetInternal always returns
-      ! an allocated string for each output that is present (defaulting to
-      ! 'unknown' internally), so no post-processing is needed here.  Each
-      ! output is looked up in its own independently-guarded call so that
-      ! neither is ever referenced when the caller did not ask for it.
-      if (present(standard_name) .or. present(long_name)) then
-         call ESMF_NamedAliasGet(field, id=alias_id, _RC)
-      end if
-
-      if (present(standard_name)) then
-         call FieldInfoGetInternal(field_info, alias_id, standard_name=standard_name, _RC)
-      end if
-
-      if (present(long_name)) then
-         call FieldInfoGetInternal(field_info, alias_id, long_name=long_name, _RC)
-      end if
 
       if (present(vgrid)) then
          if (vgrid_id == MAPL_VERTICAL_GRID_NOT_FOUND) then
