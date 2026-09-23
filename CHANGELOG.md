@@ -76,6 +76,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `VectorBracketClassAspect` each drove their per-component field through a
   local `update_payload` helper that forwarded to sibling aspects but never
   invoked the component's own `update_payload`; fixed to call it.
+- Fixed a remaining non-alias-scoped write path for `standard_name`/`long_name`:
+  `MAPL_FieldCreate`/`FieldEmptyComplete` (`field_empty_complete` in
+  `FieldCreate.F90`) set these two through the base (unnamespaced)
+  `FieldInfoSetInternal` overload, a leftover from before the per-`NamedAlias`-id
+  scheme above. Any field built via `MAPL_FieldCreate(..., standard_name=,
+  long_name=)` therefore had its name written to a key `MAPL_FieldGet` -
+  which always reads through the alias-scoped overload - could never find,
+  resolving to `'unknown'` regardless of any `FieldClassAspect` involvement.
+  `field_empty_complete` now resolves this field's own alias id (0, since it
+  was never placed via `ESMF_NamedAlias` at this point) and writes through
+  the same alias-scoped path as `MAPL_FieldSet`/`MAPL_FieldGet`, so every
+  path that attaches or reads these two fields agrees on where they live.
 
 ### Changed
 

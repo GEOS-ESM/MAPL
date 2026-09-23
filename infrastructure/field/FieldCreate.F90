@@ -292,6 +292,7 @@ contains
       integer, allocatable :: grid_to_field_map(:)
       type(ESMF_Geom) :: geom
       integer :: dim_count, idim, status
+      integer :: alias_id
 
       ! Note: This is an internal subroutine called after vgrid has been converted to num_levels
       ! No need to call vertical_level_sanity_check here - it's already been checked in field_create
@@ -325,10 +326,21 @@ contains
            vert_staggerloc=vert_staggerloc_, &
            vert_alignment=vert_alignment, &
            units=units, &
-           standard_name=standard_name, &
-           long_name=long_name, &
            allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, &
            _RC)
+
+      ! standard_name/long_name are per-NamedAlias-id metadata (see
+      ! generic/field-name-propagation) - unlike the other characteristics
+      ! set above, they must NOT go through the flat, unnamespaced key of the
+      ! base FieldInfoSetInternal overload.  Scope the write to this field's
+      ! own alias id (0 if `field` was never placed via ESMF_NamedAlias),
+      ! exactly as MAPL_FieldSet/MAPL_FieldGet already do, so every path that
+      ! attaches or reads these two fields agrees on where they live.
+      if (present(standard_name) .or. present(long_name)) then
+         call ESMF_NamedAliasGet(field, id=alias_id, _RC)
+         call FieldInfoSetInternal(field_info, alias_id, &
+              standard_name=standard_name, long_name=long_name, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
