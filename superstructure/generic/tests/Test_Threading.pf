@@ -70,7 +70,12 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_misc_num_threads
 
-   ! An invalid number of threads must be rejected.
+   ! An invalid number of threads must be rejected.  Note that MAPL's
+   ! `_ASSERT` is routed into pFUnit's exception stack in test
+   ! executables (see mapl_pFUnit_Initialize_mod), so the exceptions
+   ! raised as the error unwinds must be consumed here.  No pFUnit
+   ! assertion may appear between the failing call and the drain, since
+   ! the generated assertion code returns early when exceptions pend.
    @test
    subroutine test_parse_misc_bad_num_threads()
       type(ESMF_HConfig) :: config
@@ -79,11 +84,19 @@ contains
       integer :: status
 
       config = ESMF_HConfigCreate(content='{mapl: {misc: {use_threads: true, num_threads: 0}}}', rc=status)
-      @assert_that(status, is(ESMF_SUCCESS))
 
       spec = parse_component_spec(config, registry, 'TEST', rc=status)
-      @assert_that(status /= ESMF_SUCCESS, is(true()))
 
+      block
+        logical :: ignore
+        do ! uninteresting secondary errors
+           ignore = catch('status=1')
+           if (.not. ignore) exit
+        end do
+      end block
+      @assertExceptionRaised('num_threads must be at least 1')
+
+      @assert_that(status /= ESMF_SUCCESS, is(true()))
       call ESMF_HConfigDestroy(config, rc=status)
    end subroutine test_parse_misc_bad_num_threads
 
