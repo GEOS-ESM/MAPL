@@ -130,6 +130,7 @@ set(components_test_srcs
   Test_ComponentSpecParser.pf
   Test_WriteYaml.pf
   Test_ExtensionFamily.pf
+  Test_Threading.pf
 )
 
 add_pfunit_ctest(

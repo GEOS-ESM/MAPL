@@ -52,7 +52,15 @@ contains
       logger => this%get_logger()
       call logger%info(phase_name//": starting...")
       call this%start_timer(phase_name)
-      call this%user_gc_driver%run(phase_idx=phase, _RC)
+      if (this%is_threading_active()) then
+         ! An ancestor component has already opened an OpenMP parallel
+         ! region - just run this thread's "mini" component.
+         call run_thread_local(this, phase, _RC)
+      else if (this%get_use_threads()) then
+         call this%run_user_threaded(phase, _RC)
+      else
+         call this%user_gc_driver%run(phase_idx=phase, _RC)
+      end if
       call this%stop_timer(phase_name)
       call logger%info(phase_name//": ...completed")
 
@@ -64,6 +72,31 @@ contains
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
+
+   contains
+
+      subroutine run_thread_local(outer_meta, phase_idx, rc)
+         class(OuterMetaComponent), intent(inout) :: outer_meta
+         integer, intent(in) :: phase_idx
+         integer, optional, intent(out) :: rc
+
+         integer :: status, user_status
+         type(ESMF_GridComp) :: thread_gc
+         type(MultiState) :: thread_states
+         type(ESMF_Clock) :: user_clock
+
+         thread_states = outer_meta%get_thread_states(_RC)
+         thread_gc = outer_meta%get_thread_gridcomp(_RC)
+         user_clock = outer_meta%user_gc_driver%get_clock()
+
+         call ESMF_GridCompRun(thread_gc, &
+              importState=thread_states%importState, &
+              exportState=thread_states%exportState, &
+              clock=user_clock, phase=phase_idx, _USERRC)
+
+         _RETURN(_SUCCESS)
+      end subroutine run_thread_local
+
    end subroutine run_user
 
 end submodule run_user_smod

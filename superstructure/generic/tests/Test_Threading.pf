@@ -1,0 +1,152 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Tests for the OpenMP threading support of generic components:
+!   - parsing of the `use_threads` / `num_threads` options
+!   - the GridCompGet/GridCompSet accessors
+!   - the decomposition of a local domain across threads
+
+module Test_Threading
+   use mapl_ComponentSpec_mod
+   use mapl_ComponentSpecParser_mod
+   use mapl_StateRegistry_mod
+   use mapl_UserSetServices_mod
+   use mapl_Generic_api, only: mapl_GridCompCreate, mapl_GridCompGet, mapl_GridCompSet
+   use mapl_OpenMP_Support_mod, only: Interval, find_bounds, get_num_threads, get_current_thread
+   use ESMF
+   use pfunit
+   implicit none(type,external)
+
+contains
+
+   ! Threading is off by default.
+   @test
+   subroutine test_parse_misc_threading_default()
+      type(ESMF_HConfig) :: config
+      type(ComponentSpec) :: spec
+      type(StateRegistry) :: registry
+      integer :: status
+
+      config = ESMF_HConfigCreate(content='{mapl: {misc: {}}}')
+      spec = parse_component_spec(config, registry, 'TEST', _RC)
+
+      @assert_that(spec%misc%use_threads, is(false()))
+      @assert_that(spec%misc%num_threads, is(1))
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_misc_threading_default
+
+   ! `num_threads` defaults to the number of threads available when
+   ! threading is requested but no explicit count is given.
+   @test
+   subroutine test_parse_misc_use_threads()
+      type(ESMF_HConfig) :: config
+      type(ComponentSpec) :: spec
+      type(StateRegistry) :: registry
+      integer :: status
+
+      config = ESMF_HConfigCreate(content='{mapl: {misc: {use_threads: true}}}')
+      spec = parse_component_spec(config, registry, 'TEST', _RC)
+
+      @assert_that(spec%misc%use_threads, is(true()))
+      @assert_that(spec%misc%num_threads, is(get_num_threads()))
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_misc_use_threads
+
+   @test
+   subroutine test_parse_misc_num_threads()
+      type(ESMF_HConfig) :: config
+      type(ComponentSpec) :: spec
+      type(StateRegistry) :: registry
+      integer :: status
+
+      config = ESMF_HConfigCreate(content='{mapl: {misc: {use_threads: true, num_threads: 3}}}')
+      spec = parse_component_spec(config, registry, 'TEST', _RC)
+
+      @assert_that(spec%misc%use_threads, is(true()))
+      @assert_that(spec%misc%num_threads, is(3))
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_misc_num_threads
+
+   ! An invalid number of threads must be rejected.
+   @test
+   subroutine test_parse_misc_bad_num_threads()
+      type(ESMF_HConfig) :: config
+      type(ComponentSpec) :: spec
+      type(StateRegistry) :: registry
+      integer :: status
+
+      config = ESMF_HConfigCreate(content='{mapl: {misc: {use_threads: true, num_threads: 0}}}', rc=status)
+      @assert_that(status, is(ESMF_SUCCESS))
+
+      spec = parse_component_spec(config, registry, 'TEST', rc=status)
+      @assert_that(status /= ESMF_SUCCESS, is(true()))
+
+      call ESMF_HConfigDestroy(config, rc=status)
+   end subroutine test_parse_misc_bad_num_threads
+
+   @test(npes=[0])
+   subroutine test_set_get_threads(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      logical :: use_threads
+      integer :: num_threads
+
+      hconfig = ESMF_HConfigCreate(content='{}')
+      outer_gc = MAPL_GridCompCreate('ROOT', DsoSetServices('libsimple_parent_gridcomp'), hconfig, _RC)
+
+      call MAPL_GridCompGet(outer_gc, use_threads=use_threads, num_threads=num_threads, _RC)
+      @assert_that(use_threads, is(false()))
+      @assert_that(num_threads, is(1))
+
+      call MAPL_GridCompSet(outer_gc, use_threads=.true., num_threads=2, _RC)
+      call MAPL_GridCompGet(outer_gc, use_threads=use_threads, num_threads=num_threads, _RC)
+      @assert_that(use_threads, is(true()))
+      @assert_that(num_threads, is(2))
+
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_set_get_threads
+
+   ! The local domain must be split into disjoint intervals that exactly
+   ! cover the original extent.
+   @test
+   subroutine test_find_bounds_partitions_domain()
+      type(Interval), allocatable :: bounds(:)
+      integer, parameter :: N = 10
+      integer, parameter :: NUM_THREADS = 3
+      integer :: i
+      integer :: total
+
+      bounds = find_bounds(N, NUM_THREADS)
+      @assert_that(size(bounds), is(NUM_THREADS))
+
+      total = 0
+      do i = 1, NUM_THREADS
+         @assert_that(bounds(i)%max >= bounds(i)%min, is(true()))
+         total = total + (bounds(i)%max - bounds(i)%min + 1)
+      end do
+      @assert_that(total, is(N))
+
+      @assert_that(bounds(1)%min, is(1))
+      @assert_that(bounds(NUM_THREADS)%max, is(N))
+
+      do i = 2, NUM_THREADS
+         @assert_that(bounds(i)%min, is(bounds(i-1)%max + 1))
+      end do
+
+   end subroutine test_find_bounds_partitions_domain
+
+   ! Without an active parallel region there is only thread 0.
+   @test
+   subroutine test_get_current_thread()
+      @assert_that(get_current_thread(), is(0))
+   end subroutine test_get_current_thread
+
+end module Test_Threading

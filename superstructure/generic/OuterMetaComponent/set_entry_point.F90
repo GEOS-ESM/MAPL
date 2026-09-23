@@ -8,6 +8,7 @@ contains
 
    module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
       use mapl_KeywordEnforcer_mod
+      use mapl_RunEntryPoint_mod, only: runEntryPoint
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_Method_Flag), intent(in) :: method_flag
       procedure(I_Run) :: userProcedure
@@ -18,6 +19,7 @@ contains
       integer :: status
       character(:), allocatable :: phase_name_
       type(ESMF_GridComp) :: user_gridcomp
+      type(runEntryPoint) :: run_entry_point
       logical :: found
 
       if (present(phase_name)) then
@@ -31,6 +33,14 @@ contains
         _ASSERT(found, "run phase: <"//phase_name_//"> not found.")
         user_gridcomp = this%user_gc_driver%get_gridcomp()
         call ESMF_GridCompSetEntryPoint(user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
+
+        ! Run entry points are also saved so that the user component can
+        ! be replicated across OpenMP threads.  (See create_subobjects.)
+        if (method_flag == ESMF_METHOD_RUN) then
+           _ASSERT(this%run_entry_points%size() == phase_idx - 1, 'run entry points are out of sync with run phases')
+           run_entry_point%run_entry_point => userProcedure
+           call this%run_entry_points%push_back(run_entry_point)
+        end if
       end associate
 
       _RETURN(ESMF_SUCCESS)

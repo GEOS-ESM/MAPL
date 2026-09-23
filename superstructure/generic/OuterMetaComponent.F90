@@ -17,6 +17,8 @@ module mapl_OuterMetaComponent_mod
    use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
+   use mapl_MultiState_mod, only: MultiState
+   use mapl_EntryPointVector_mod, only: EntryPointVector
    use gFTL2_StringVector
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_Profiler_mod, only: DistributedProfiler
@@ -30,6 +32,14 @@ module mapl_OuterMetaComponent_mod
    public :: get_outer_meta
    public :: attach_outer_meta
    public :: free_outer_meta
+
+   ! A "mini" replica of the user component that operates on a subset
+   ! of the geometry of the primary component.  One per OpenMP thread.
+   type :: SubComponent
+      type(ESMF_GridComp) :: gridcomp
+      type(MultiState) :: states
+      type(ESMF_Geom) :: geom
+   end type SubComponent
 
    type :: OuterMetaComponent
       private
@@ -51,6 +61,13 @@ module mapl_OuterMetaComponent_mod
       ! holding most recent in-memory checkpoint write. Lazily created
       ! on first write; see ensure_memory_checkpoint_.
       type(ESMF_State) :: memory_checkpoint
+
+! OpenMP threading
+      ! Run entry points of the user component.  These are needed to
+      ! replicate the user component across threads.
+      type(EntryPointVector)                      :: run_entry_points
+      type(SubComponent), allocatable             :: subcomponents(:)
+      logical :: threading_active = .false.
 
 ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
@@ -100,6 +117,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: initialize_read_restart
 
       procedure :: run_user
+      procedure :: run_user_threaded
       procedure :: run_clock_advance
       procedure :: finalize
       procedure :: write_restart
@@ -135,6 +153,18 @@ module mapl_OuterMetaComponent_mod
 
       procedure :: get_component_spec
       procedure :: get_internal_state
+
+      ! OpenMP threading
+      procedure :: set_use_threads
+      procedure :: get_use_threads
+      procedure :: set_num_threads
+      procedure :: get_num_threads
+      procedure :: is_threading_active
+      procedure :: activate_threading
+      procedure :: deactivate_threading
+      procedure :: create_subobjects
+      procedure :: get_thread_states
+      procedure :: get_thread_gridcomp
 
       procedure :: set_vertical_grid
       procedure :: get_vertical_grid
@@ -558,6 +588,72 @@ module mapl_OuterMetaComponent_mod
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
+
+      ! OpenMP threading
+
+      module subroutine set_use_threads(this, use_threads)
+         class(OuterMetaComponent), intent(inout) :: this
+         logical, intent(in) :: use_threads
+      end subroutine set_use_threads
+
+      module function get_use_threads(this) result(use_threads)
+         logical :: use_threads
+         class(OuterMetaComponent), intent(in) :: this
+      end function get_use_threads
+
+      module subroutine set_num_threads(this, num_threads, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         integer, intent(in) :: num_threads
+         integer, optional, intent(out) :: rc
+      end subroutine set_num_threads
+
+      module function get_num_threads(this) result(num_threads)
+         integer :: num_threads
+         class(OuterMetaComponent), intent(in) :: this
+      end function get_num_threads
+
+      module function is_threading_active(this) result(threading_active)
+         logical :: threading_active
+         class(OuterMetaComponent), intent(in) :: this
+      end function is_threading_active
+
+      module recursive subroutine activate_threading(this, num_threads, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, intent(in) :: num_threads
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine activate_threading
+
+      module recursive subroutine deactivate_threading(this, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine deactivate_threading
+
+      module subroutine create_subobjects(this, num_threads, unusable, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         integer, intent(in) :: num_threads
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine create_subobjects
+
+      module function get_thread_states(this, rc) result(states)
+         type(MultiState) :: states
+         class(OuterMetaComponent), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function get_thread_states
+
+      module function get_thread_gridcomp(this, rc) result(gridcomp)
+         type(ESMF_GridComp) :: gridcomp
+         class(OuterMetaComponent), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function get_thread_gridcomp
+
+      module recursive subroutine run_user_threaded(this, phase_idx, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, intent(in) :: phase_idx
+         integer, optional, intent(out) :: rc
+      end subroutine run_user_threaded
 
    end interface ! submodule interfaces
 

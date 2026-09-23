@@ -46,12 +46,14 @@ contains
    ! section?
    
    function parse_misc(hconfig, rc) result(misc)
+      use mapl_OpenMP_Support_mod, only: get_num_threads
       type(MiscellaneousComponentSpec) :: misc
      type(ESMF_HConfig), intent(in) :: hconfig
       integer, optional, intent(out) :: rc
 
       integer :: status
       logical :: has_misc_section
+      logical :: has_num_threads
       type(ESMF_HConfig) :: misc_cfg
 
       has_misc_section = ESMF_HConfigIsDefined(hconfig, keyString=COMPONENT_MISC_SECTION, _RC)
@@ -60,6 +62,17 @@ contains
 
       call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_EXPORTS, value=misc%activate_all_exports, _RC)
       call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_IMPORTS, value=misc%activate_all_imports, _RC)
+      call parse_item(misc_cfg, key=COMPONENT_USE_THREADS, value=misc%use_threads, _RC)
+
+      ! An explicit number of threads always wins.  Otherwise a component
+      ! that requests threading uses all threads available to the process.
+      has_num_threads = ESMF_HConfigIsDefined(misc_cfg, keyString=COMPONENT_NUM_THREADS, _RC)
+      if (has_num_threads) then
+         misc%num_threads = ESMF_HConfigAsI4(misc_cfg, keyString=COMPONENT_NUM_THREADS, _RC)
+         _ASSERT(misc%num_threads >= 1, 'num_threads must be at least 1')
+      else if (misc%use_threads) then
+         misc%num_threads = get_num_threads()
+      end if
 
       misc%checkpoint_controls = parse_checkpoint_controls(misc_cfg, key=COMPONENT_CHECKPOINT, _RC)
       misc%restart_controls = parse_checkpoint_controls(misc_cfg, key=COMPONENT_RESTART, _RC)
