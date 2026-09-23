@@ -70,33 +70,32 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_misc_num_threads
 
-   ! An invalid number of threads must be rejected.  Note that MAPL's
-   ! `_ASSERT` is routed into pFUnit's exception stack in test
-   ! executables (see mapl_pFUnit_Initialize_mod), so the exceptions
-   ! raised as the error unwinds must be consumed here.  No pFUnit
-   ! assertion may appear between the failing call and the drain, since
-   ! the generated assertion code returns early when exceptions pend.
+   ! An invalid number of threads must be rejected.  In test executables
+   ! MAPL routes `_ASSERT`/`_VERIFY` into pFUnit's exception list (see
+   ! mapl_pFUnit_Initialize_mod), so the deliberate failure below leaves
+   ! the originating assertion plus one `status=` exception per frame
+   ! unwound.  All of them must be consumed, and no pFUnit assertion may
+   ! run until they are, because the generated assertion code returns
+   ! early whenever exceptions are pending.
    @test
    subroutine test_parse_misc_bad_num_threads()
       type(ESMF_HConfig) :: config
       type(ComponentSpec) :: spec
       type(StateRegistry) :: registry
       integer :: status
+      logical :: raised
 
       config = ESMF_HConfigCreate(content='{mapl: {misc: {use_threads: true, num_threads: 0}}}', rc=status)
 
       spec = parse_component_spec(config, registry, 'TEST', rc=status)
 
-      block
-        logical :: ignore
-        do ! uninteresting secondary errors
-           ignore = catch('status=1')
-           if (.not. ignore) exit
-        end do
-      end block
-      @assertExceptionRaised('num_threads must be at least 1')
+      raised = catch('num_threads must be at least 1')
+      do while (catch()) ! discard the secondary errors from the unwinding
+      end do
 
+      @assert_that(raised, is(true()))
       @assert_that(status /= ESMF_SUCCESS, is(true()))
+
       call ESMF_HConfigDestroy(config, rc=status)
    end subroutine test_parse_misc_bad_num_threads
 
