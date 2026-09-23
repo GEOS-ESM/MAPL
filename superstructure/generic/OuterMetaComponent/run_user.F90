@@ -43,6 +43,19 @@ contains
       phase = get_phase_index(run_phases, phase_name, found=found)
       _ASSERT(found, 'phase <'//phase_name//'> not found for gridcomp <'//this%get_name()//'>')
 
+      if (this%is_threading_active()) then
+         ! This component is being run from inside an OpenMP parallel region
+         ! opened by an ancestor.  The couplers, the profiler and the logger
+         ! are shared by all threads and are not thread safe, so only the
+         ! thread local "mini" component may run here.
+         import_couplers = this%registry%get_import_couplers()
+         export_couplers = this%registry%get_export_couplers()
+         _ASSERT(import_couplers%size() == 0 .and. export_couplers%size() == 0, &
+              'component <'//this%get_name()//'> has couplers and cannot be run by a threaded ancestor')
+         call run_thread_local(this, phase, _RC)
+         _RETURN(ESMF_SUCCESS)
+      end if
+
       import_couplers = this%registry%get_import_couplers()
       do i = 1, import_couplers%size()
          drvr = import_couplers%of(i)
@@ -52,11 +65,7 @@ contains
       logger => this%get_logger()
       call logger%info(phase_name//": starting...")
       call this%start_timer(phase_name)
-      if (this%is_threading_active()) then
-         ! An ancestor component has already opened an OpenMP parallel
-         ! region - just run this thread's "mini" component.
-         call run_thread_local(this, phase, _RC)
-      else if (this%get_use_threads()) then
+      if (this%get_use_threads()) then
          call this%run_user_threaded(phase, _RC)
       else
          call this%user_gc_driver%run(phase_idx=phase, _RC)
