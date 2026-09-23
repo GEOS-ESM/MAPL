@@ -101,12 +101,12 @@ contains
       param%extrapDistExponent = 2.0
       param%unmappedaction = ESMF_UNMAPPEDACTION_ERROR
       param%ignoreDegenerate = .false.
+      param%linetype = ESMF_LINETYPE_GREAT_CIRCLE
 
       if (present(regridmethod)) param%regridmethod = regridmethod
 
       ! Contingent ESMF defaults
       param%polemethod = get_default_polemethod(param%regridmethod)
-      param%linetype = get_default_linetype(param%regridmethod)
 
       if (present(polemethod)) param%polemethod = polemethod
       if (present(regridPoleNPnts)) param%regridPoleNPnts = regridPoleNPnts
@@ -135,19 +135,6 @@ contains
          end if
 
       end function get_default_polemethod
-
-      function get_default_linetype(regridmethod) result(linetype)
-         type(ESMF_LineType_Flag) :: linetype
-         type(ESMF_RegridMethod_Flag), intent(in) :: regridmethod
-         integer :: i
-
-         if (any([(regridmethod == CONSERVATIVE_METHODS(i), i= 1, size(CONSERVATIVE_METHODS))])) then
-            linetype = ESMF_LINETYPE_GREAT_CIRCLE
-         else
-            linetype = ESMF_LINETYPE_CART
-         end if
-
-      end function get_default_linetype
 
    end function new_RoutehandleParam
 

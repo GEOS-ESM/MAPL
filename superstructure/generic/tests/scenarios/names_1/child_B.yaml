@@ -1,0 +1,30 @@
+mapl:
+  states:
+    import:
+      I_B1:
+        standard_name: 'I_B1 standard name'
+        long_name: 'I_B1 long name'
+        units: 'm'
+        vertical_dim_spec: NONE
+      # I_B2 declares no standard_name/long_name of its own - it is expected
+      # to inherit E_A2's declared name (predecessor propagation).
+      I_B2:
+        units: 'm'
+        vertical_dim_spec: NONE
+      # I_B3 declares no name and has a mismatched typekind vs. E_A3, forcing
+      # a coupler; expected to inherit E_A3's name through the transform.
+      I_B3:
+        units: 'm'
+        typekind: R4
+        vertical_dim_spec: NONE
+
+    export:
+      E_B1:
+        standard_name: 'E_B1 standard name'
+        long_name: 'E_B1 long name'
+        units: 'm'
+        fill_value: 1
+        vertical_dim_spec: NONE
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp

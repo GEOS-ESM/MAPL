@@ -26,9 +26,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
 - Allow arbitrary order for arguments in parsing an AddSpec call with the ACG Writer
+- Fixed `standard_name`/`long_name` Field metadata being collapsed to a single,
+  field-wide value across a connection. Because a connected Import's `ESMF_Field`
+  is an `ESMF_NamedAlias` of its Export's field, and aliases share one underlying
+  `ESMF_Info` host, only the Export side's declared `standard_name`/`long_name`
+  ever survived; an Import (or a re-export several hops away) that declared its
+  own value had it silently discarded. Each connection endpoint - Export, Import,
+  and any intermediate transform/coupler hop - now persists its own
+  `standard_name`/`long_name` in a per-`NamedAlias`-id namespace of the shared
+  `ESMF_Info` (the same pattern already used for `restart_mode`). An endpoint
+  that declares neither now inherits its predecessor's value (one-directional,
+  downstream only) instead of resolving to a hardcoded `'unknown'`.
+  `MAPL_FieldGet(field, standard_name=, long_name=)` resolves the value for the
+  specific alias represented by the `field` handle passed in; no signature
+  change was needed since callers already hold the correct alias from a specific
+  `ESMF_State`.
+- Fixed two further gaps in the `standard_name`/`long_name` propagation above.
+  (1) An `expression:`-derived export (e.g. `E_sum: {expression: A+B,
+  standard_name: "foo", long_name: "bar"}`) always lost its declared name: its
+  `ExpressionClassAspect` never carried `standard_name`/`long_name` at all, and
+  because `ExpressionClassAspect` never "matches" a `FieldClassAspect`, any
+  connection into it - including an implicit same-name match (the mechanism
+  `MAPL_GridCompConnectAll`/History's `var_list: {source: ...}` use) - always
+  went through `StateItemSpec%make_extension`'s aspect substitution, which
+  unconditionally replaced it with the consumer's own nameless goal aspect.
+  `ExpressionClassAspect` now carries its declared name, and a new
+  `inherit_descriptive_metadata` hook (default no-op on `StateItemAspect`,
+  overridden on `FieldClassAspect`) lets the superseded aspect hand its name to
+  its replacement when the replacement doesn't already have its own. (2) Even
+  for plain Fields, `MAPL_FieldGet`'s alias-scoped read had no symmetric
+  counterpart in `MAPL_FieldSet`, which still wrote to a single unaliased slot;
+  a consumer that duplicates a field via `ESMF_FieldCreate` (as History's
+  `create_alias_field` does, rather than `ESMF_NamedAlias`) gets its own,
+  different alias id, so the name written under the original field's id was
+  never found. `MAPL_FieldSet` now writes `standard_name`/`long_name` through
+  the same alias-scoped path `MAPL_FieldGet` reads from, and
+  `create_alias_field` explicitly re-copies the names across its field
+  duplication.
 
 ### Changed
 
+- Changed ESMF\_RouteHandle parameters so LINETYPE_GREAT_CIRCLE is default for all methods
 - Reworked MAPL phases to better align with NUOPC phases.
 - Simplified the `CMakeLists.txt` ESMF handling: `ESMA_cmake` now creates the NetCDF/HDF5/ESMF/MPI targets and enforces a minimum ESMF version for both Baselibs and Spack builds automatically, so the manual `if (NOT Baselibs_FOUND) ... else () ... endif ()` block is no longer needed. MAPL3's stricter ESMF >= 9.0.0 requirement is now expressed by setting `ESMA_ESMF_MIN_VERSION` before `include(esma)`.
   - Update `components.yaml`
