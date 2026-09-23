@@ -62,6 +62,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the same alias-scoped path `MAPL_FieldGet` reads from, and
   `create_alias_field` explicitly re-copies the names across its field
   duplication.
+- Fixed `standard_name`/`long_name` always resolving to `'unknown'` for
+  fields placed into a `FieldBundle` (`class: service`, `class: vector`,
+  `class: bracket`, `class: vector_bracket`). `FieldClassAspect%add_to_bundle`
+  adds a field via a plain `ESMF_FieldBundleAdd`, not `ESMF_NamedAlias`, so it
+  never went through the alias-scoped write path added for #5399; any field
+  later retrieved from such a bundle resolved `ESMF_NamedAliasGet` to id=0,
+  an empty slot. `standard_name`/`long_name` are now attached via
+  `FieldClassAspect%update_payload` at field-creation time - the same point
+  every other characteristic aspect (units, typekind, geom, ...) attaches its
+  metadata - so the unaliased field's own id=0 slot is populated before it is
+  ever placed in a bundle. `VectorClassAspect`, `BracketClassAspect`, and
+  `VectorBracketClassAspect` each drove their per-component field through a
+  local `update_payload` helper that forwarded to sibling aspects but never
+  invoked the component's own `update_payload`; fixed to call it.
 
 ### Changed
 
