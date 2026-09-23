@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.72.0] - 2026-09-23
+
+### Fixed
+
 - Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
 - Added `log_files_read` option to ExtData2G to easily log all files read during a run. The argument to `log_files_read` is the name of file to save the output
@@ -17,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed NAG OpenMP initialization in profiler constructors and meters
 
 ### Added
+
 - Added DIMS entries for tile dimensions in ACG (2)
 
 ### Changed
@@ -34,10 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Better support for LLVM Flang on macOS
     - Updates for MAPL3 work
 - Update CI to use Baselibs 8.33.0 and add `gfortran-16`
-
-### Removed
-
-### Deprecated
 
 ## [2.71.0] - 2026-08-18
 
