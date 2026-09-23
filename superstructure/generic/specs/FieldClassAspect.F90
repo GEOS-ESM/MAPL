@@ -477,7 +477,12 @@ contains
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
 
-      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      ! MAPL_NamedAlias (not a bare ESMF_NamedAlias) so this new placement's
+      ! own alias id starts out with whatever standard_name/long_name/
+      ! restart_mode `this%payload` currently resolves to; the explicit
+      ! writes below then authoritatively override with this aspect's own
+      ! (possibly connection-inherited) values.
+      alias = MAPL_NamedAlias(this%payload, name=inner_name, _RC)
 
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then

@@ -94,6 +94,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   pass it through in the same call as everything else. `FieldBundleInfo`'s
   unrelated bundle-wide "field prototype" template (describing the bundle as
   a whole, not any specific Field's own identity) passes a fixed `id=0`.
+- Fixed `superstructure/state/StateGet.F90`'s `state_get_bundle` (used to
+  serialize a `State` into a synthetic `FieldBundle`, e.g. for I/O) silently
+  dropping `standard_name`/`long_name`/`restart_mode` when re-aliasing a
+  `FieldBundle` member field: it called bare `ESMF_NamedAlias`, which has no
+  knowledge of MAPL's per-`NamedAlias`-id metadata, so the field's brand new
+  alias id resolved to defaults regardless of what the source field carried.
+  Added `MAPL_NamedAlias` (`infrastructure/field/FieldNamedAlias.F90`) as the
+  one place that wraps `ESMF_NamedAlias` for `ESMF_Field` and additionally
+  copies `standard_name`/`long_name`/`restart_mode` from the source field's
+  own resolved alias id onto the new alias's own (different) id; every
+  `ESMF_NamedAlias(field, ...)` call site in MAPL - `state_get_bundle` and
+  each `ClassAspect%add_to_state`/`connect_to_import` that creates a Field
+  alias - now goes through it. `MAPL_NamedAlias` also accepts
+  `ESMF_FieldBundle`/`ESMF_State` (used by the bundle/vector/bracket/service/
+  state `ClassAspect`s' own `add_to_state`), as a plain pass-through: MAPL
+  does not attach per-alias-id metadata to bundles (their `standard_name`/
+  `long_name` "field prototype" template lives at a single fixed id, shared
+  by every alias of the same bundle) or to nested states today, so there is
+  nothing to propagate for those two - they are included so every
+  `ESMF_NamedAlias` call in MAPL shares one consistent, safe name.
 
 ### Changed
 
