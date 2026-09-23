@@ -12,6 +12,9 @@ on:
       - ".github/CODEOWNERS"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   # For PRs: one slot per PR number.
   # For non-PR events (schedule, workflow_dispatch): one slot per ref.
@@ -34,8 +37,10 @@ jobs:
     uses: GEOS-ESM/CI-workflows/.github/workflows/spack_gcc_build.yml@project/geosgcm
     name: Spack Build with ESMF (${{ matrix.name }})
     secrets:
-      BUILDCACHE_USERNAME: ${{ secrets.BUILDCACHE_USERNAME }}
-      BUILDCACHE_TOKEN: ${{ secrets.BUILDCACHE_TOKEN }}
+      # The public build cache supports anonymous reads. These empty values
+      # satisfy the reusable workflow's currently required secret interface.
+      BUILDCACHE_USERNAME: ""
+      BUILDCACHE_TOKEN: ""
     with:
       use-esmf-develop: ${{ matrix.use-esmf-develop }}
       run-tests: ${{ matrix.run-tests }}

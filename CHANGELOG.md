@@ -17,6 +17,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.72.0] - 2026-09-23
+
+### Fixed
+
+- Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
+- Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
+- Added `log_files_read` option to ExtData2G to easily log all files read during a run. The argument to `log_files_read` is the name of file to save the output
+- Fix locality of symbols for Python -> Fortran call in MAPLPy
+- Fixed detection of NetCDF quantization and Zstandard support when using Spack
+- Fixed NAG OpenMP initialization in profiler constructors and meters
+
+### Added
+
+- Added DIMS entries for tile dimensions in ACG (2)
+
+### Changed
+
+- Update `components.yaml`
+  - ESMA_env v5.26.0
+    - Update to ESMA-Baselibs v8.33.0
+      - ESMF v9.0.0b17 (for Flang on macOS support)
+  - ESMA_cmake v4.48.0
+    - Make GNU FPE trap flags opt-in
+  - ESMA_cmake v4.47.0
+    - Update GNU and NAG Flags, fixes for Baselibs ESMF on macOS
+  - ESMA_cmake v4.46.0
+    - Updated `ifx` flags
+    - Better support for LLVM Flang on macOS
+    - Updates for MAPL3 work
+- Update CI to use Baselibs 8.33.0 and add `gfortran-16`
+
 ## [2.71.0] - 2026-08-18
 
 ### Fixed
