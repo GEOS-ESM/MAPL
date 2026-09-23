@@ -50,11 +50,13 @@ module mapl_FieldInfo_mod
    interface FieldInfoSetInternal
       module procedure field_info_set_internal
       module procedure field_info_set_internal_restart_mode
+      module procedure field_info_set_internal_names
    end interface FieldInfoSetInternal
 
    interface FieldInfoGetInternal
       module procedure field_info_get_internal
       module procedure field_info_get_internal_restart_mode
+      module procedure field_info_get_internal_names
    end interface FieldInfoGetInternal
 
    interface FieldInfoCopyShared
@@ -375,6 +377,78 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine field_info_get_internal_restart_mode
+
+   ! Per-alias standard_name/long_name.  Each NamedAlias placement of a Field
+   ! into a state (an Export, a connected Import, or an intermediate transform
+   ! hop) has its own alias id, and may carry its own independently-declared
+   ! standard_name/long_name even though all aliases share the same underlying
+   ! ESMF_Info host.  Namespacing by alias id (mirroring restart_mode above)
+   ! keeps these independent instead of collapsing to one field-wide value.
+   subroutine field_info_set_internal_names(info, named_alias_id, unusable, standard_name, long_name, rc)
+      type(ESMF_Info), intent(inout) :: info
+      integer, intent(in) :: named_alias_id
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: long_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: id_str, namespace
+
+      id_str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+      ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+      namespace = INFO_INTERNAL_NAMESPACE // "/alias" // trim(id_str)
+
+      if (present(standard_name)) then
+         call MAPL_InfoSet(info, namespace // KEY_STANDARD_NAME, standard_name, _RC)
+      end if
+
+      if (present(long_name)) then
+         call MAPL_InfoSet(info, namespace // KEY_LONG_NAME, long_name, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine field_info_set_internal_names
+
+   subroutine field_info_get_internal_names(info, named_alias_id, unusable, standard_name, long_name, rc)
+      type(ESMF_Info), intent(in) :: info
+      integer, intent(in) :: named_alias_id
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(:), optional, allocatable, intent(out) :: standard_name
+      character(:), optional, allocatable, intent(out) :: long_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: id_str, namespace, key
+      logical :: key_is_present
+      character(*), parameter :: DEFAULT_NAME = 'unknown'
+
+      id_str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+      ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+      namespace = INFO_INTERNAL_NAMESPACE // "/alias" // trim(id_str)
+
+      ! Every present output is guaranteed to come back allocated: either the
+      ! value recorded for this specific alias, or DEFAULT_NAME when nothing
+      ! was ever assigned anywhere in the connection chain for it.  Callers
+      ! never need to check allocated(...) themselves.
+      if (present(standard_name)) then
+         standard_name = DEFAULT_NAME
+         key = namespace // KEY_STANDARD_NAME
+         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+         if (key_is_present) call MAPL_InfoGet(info, key, standard_name, _RC)
+      end if
+
+      if (present(long_name)) then
+         long_name = DEFAULT_NAME
+         key = namespace // KEY_LONG_NAME
+         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+         if (key_is_present) call MAPL_InfoGet(info, key, long_name, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine field_info_get_internal_names
 
    subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
       type(ESMF_Field), intent(in) :: field

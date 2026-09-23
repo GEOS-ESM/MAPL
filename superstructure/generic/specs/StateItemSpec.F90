@@ -335,6 +335,13 @@ contains
             allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))
             _VERIFY(status)
 
+            ! Let the aspect being substituted in (dst_aspect) inherit any
+            ! descriptive metadata (standard_name/long_name) the aspect it is
+            ! superseding (src_aspect) declared, if dst_aspect does not already
+            ! have its own.  Default no-op for aspect types that don't carry
+            ! such metadata.  See generic/field-name-propagation.
+            call dst_aspect%inherit_descriptive_metadata(src_aspect, _RC)
+
             call new_spec%set_aspect(dst_aspect, _RC)
 
             exit
