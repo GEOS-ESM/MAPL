@@ -29,18 +29,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   omitted-key case previously left `VerticalGridAspect`'s vertical stagger at an
   invalid sentinel while `VariableSpec::make_VerticalGridAspect` could still mark
   the aspect resolved purely because a component-level vertical grid resource was
-  available, so `is_mirror()` incorrectly reported `.false.` and the connection
-  machinery skipped its `ExtendTransform` mirror path (already used by
-  `GeomAspect`), failing with "BasicVerticalGrid should have been connected to a
-  different subclass before this is called." `ExpressionClassAspect::create` now
-  forces a genuinely mirrored state in that case, letting the existing
-  mirror-from-connection mechanism resolve it; `ExpressionClassAspect::make_transform`
-  also now checks, on a best-effort basis, whether the expression's referenced
-  variables (and its own resolved value) already agree on vertical stagger,
-  failing with a clear error on a genuine mismatch instead of allowing arithmetic
-  on dimensionally incompatible operands. Expressions with no referenced
-  variables (e.g. a literal/constant expression) are unaffected and still require
-  an explicit `vertical_dim_spec`.
+  available, failing with "BasicVerticalGrid should have been connected to a
+  different subclass before this is called." An initial fix that forced a
+  genuinely mirrored state in `create()` (relying on the same
+  mirror-from-connection/`ExtendTransform` mechanism `GeomAspect` already uses)
+  did not hold up: a component-level vertical grid resource
+  (`MAPL_GridCompSetVerticalGrid`) unconditionally overwrites *every* item's
+  `VerticalGridAspect` status to resolved once declared, regardless of what
+  `create()` set it to, silently undoing the forced mirror before the item is
+  ever connected. `ExpressionClassAspect` now instead directly resolves its own
+  vertical stagger (and vertical grid, if applicable) from whichever of its
+  referenced variables are already resolved at the time - first on a best-effort
+  basis in `create()`, and again (more reliably, since by then referenced
+  variables and any component-level override have had a chance to settle) at
+  actual connection time in `make_transform`. The same logic also validates
+  consistency: if the expression's own vertical stagger is (or resolves to) a
+  concrete value and any of its resolved referenced variables disagree, that is
+  a hard error naming the conflicting items, rather than allowing arithmetic on
+  dimensionally incompatible operands. A referenced variable that is not yet
+  resolved - or not yet even registered - is skipped rather than treated as an
+  error. Expressions with no referenced variables (e.g. a literal/constant
+  expression) are unaffected and still require an explicit `vertical_dim_spec`.
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
 - Fixed `standard_name`/`long_name` Field metadata being collapsed to a single,
   field-wide value across a connection. Because a connected Import's `ESMF_Field`
