@@ -120,7 +120,18 @@ contains
          end if
       end if
 
-      call expr_spec%create(_RC)
+      ! Deliberately not using the usual test-mode error-check macros here
+      ! (see MAPL_TestErr.h): in test files those expand to an unconditional
+      ! pFUnit assertion that status equals success, which would make it
+      ! impossible for any caller of this helper to exercise the failure path
+      ! of create() (e.g. the "variables disagree" test below). A genuine
+      ! create() failure is instead simply propagated to the caller's rc,
+      ! without asserting anything about it here.
+      call expr_spec%create(rc=status)
+      if (status /= _SUCCESS) then
+         if (present(rc)) rc = status
+         return
+      end if
 
       class_aspect => to_ClassAspect(aspects, _RC)
       select type (class_aspect)
@@ -154,15 +165,24 @@ contains
       _RETURN(_SUCCESS)
    end function own_vertical_grid_aspect
 
-   ! Requirement: "An expression's unspecified vertical dim spec resolves via
-   ! connection mirroring" - create() must force a genuinely mirrored state.
+   ! Requirement: "An expression's unspecified vertical dim spec is resolved
+   ! directly from its already-resolved referenced variables" - create() must
+   ! adopt the agreeing value immediately, rather than merely marking the
+   ! aspect mirrored. A mirror/characteristic_state-based signal is not
+   ! reliable here: a component-level vertical grid resource
+   ! (MAPL_GridCompSetVerticalGrid) unconditionally overwrites every item's
+   ! VerticalGridAspect characteristic_state to SPECIFIED well before
+   ! connection time (see StateItemSpec::set_geometry/target_set_geom),
+   ! without ever touching vertical_stagger - so vertical_stagger is the only
+   ! signal that survives.
    @test
-   subroutine test_create_forces_mirror_when_omitted_and_has_variables()
+   subroutine test_create_resolves_omitted_stagger_from_agreeing_variables()
       type(StateRegistry), target :: registry
       type(StateItemSpec), target :: expr_spec
       type(ExpressionClassAspect) :: expr_aspect
       type(AspectMap), pointer :: aspects
       type(VerticalGridAspect) :: vg
+      type(VerticalStaggerLoc) :: resolved_stagger
       integer :: status
 
       registry = StateRegistry('test')
@@ -175,8 +195,11 @@ contains
 
       vg = own_vertical_grid_aspect(aspects, rc=status)
       @assertEqual(0, status, 'expression item should have a VerticalGridAspect')
-      @assertTrue(vg%is_mirror(), 'omitted vertical_dim_spec with referenced variables should force mirror')
-   end subroutine test_create_forces_mirror_when_omitted_and_has_variables
+      resolved_stagger = vg%get_vertical_stagger(rc=status)
+      @assertEqual(0, status, 'expression item vertical_stagger should now be resolved (not left VERTICAL_STAGGER_INVALID)')
+      @assertTrue(resolved_stagger == VERTICAL_STAGGER_NONE, &
+           'omitted vertical_dim_spec should adopt the agreeing value found among referenced variables')
+   end subroutine test_create_resolves_omitted_stagger_from_agreeing_variables
 
    ! Requirement: "Expressions with no referenced state items are unaffected"
    @test
@@ -259,7 +282,14 @@ contains
    end subroutine test_consistency_check_passes_when_variables_agree
 
    ! Requirement: "Mismatched, already-resolved inputs are rejected with a
-   ! clear error"
+   ! clear error". A and D are deliberately registered *after* make_expr_item
+   ! runs, so create()'s own early resolution attempt finds nothing yet to
+   ! work with (both are skipped as "not yet in registry" - see
+   ! test_create_skips_variable_not_yet_in_registry) and create() succeeds
+   ! cleanly; the mismatch is instead discovered by the explicit
+   ! check_vertical_stagger_consistency call below, exactly as it would be at
+   ! real connection time (make_transform), once A and D are actually
+   ! resolved.
    @test
    subroutine test_consistency_check_fails_when_variables_disagree()
       type(StateRegistry), target :: registry
@@ -270,12 +300,13 @@ contains
       integer :: status
 
       registry = StateRegistry('test')
-      call add_resolved_export(registry, 'A', VERTICAL_STAGGER_NONE, _RC)
-      call add_resolved_export(registry, 'D', VERTICAL_STAGGER_CENTER, _RC)
 
       call make_expr_item(registry, 'A+D', expr_spec=expr_spec, expr_aspect=expr_aspect, rc=status)
       @assertEqual(0, status, 'setting up expression item should succeed')
       aspects => expr_spec%get_aspects()
+
+      call add_resolved_export(registry, 'A', VERTICAL_STAGGER_NONE, _RC)
+      call add_resolved_export(registry, 'D', VERTICAL_STAGGER_CENTER, _RC)
 
       call expression_variables%push_back('A')
       call expression_variables%push_back('D')
@@ -309,5 +340,28 @@ contains
       call check_vertical_stagger_consistency(expr_aspect, aspects, expression_variables, rc=status)
       @assertEqual(0, status, 'an unresolved input should be skipped, not treated as an error')
    end subroutine test_consistency_check_skips_unresolved_variable
+
+   ! Requirement: "A referenced input not yet present in the registry at all
+   ! does not block initialization". create() runs at each item's own
+   ! construction time, before every other item in the component (let alone
+   ! other components) is necessarily registered yet - unlike
+   ! get_primary_spec, which fails hard for a virtual connection point that
+   ! does not exist, this must be treated the same as "not yet resolved":
+   ! skipped, best effort, not an error.
+   @test
+   subroutine test_create_skips_variable_not_yet_in_registry()
+      type(StateRegistry), target :: registry
+      type(StateItemSpec), target :: expr_spec
+      type(ExpressionClassAspect) :: expr_aspect
+      integer :: status
+
+      registry = StateRegistry('test')
+      ! Deliberately do not register 'A' before constructing the expression -
+      ! simulates a forward/cross-component reference that has not been
+      ! advertised yet.
+
+      call make_expr_item(registry, 'A+A', expr_spec=expr_spec, expr_aspect=expr_aspect, rc=status)
+      @assertEqual(0, status, 'a reference to a not-yet-registered variable should not block create()')
+   end subroutine test_create_skips_variable_not_yet_in_registry
 
 end module Test_ExpressionClassAspect
