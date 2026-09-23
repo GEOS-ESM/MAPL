@@ -6,6 +6,30 @@ REQ-GEO-009, `17-open-questions.md` Q14); `[OPEN]` post-freeze
 time-dependent renewal mechanics (§13.4, shared with `14-route-handles.md`),
 exchange-component geometry (§13.1, REQ-GEO-002a, deferred).
 
+**Implementation status (Phase 4e,
+`openspec/changes/horizontal-geometry-graph-state-item`, landed):**
+REQ-GEO-001/002/003 are implemented for the three single-source cases
+(own/from-ancestor/from-child) and static (pre-freeze) geometry. Entirely
+gated behind a new global `graph_native_enabled()` toggle
+(`mapl_GraphMode_mod`, default off) — no real production run's behavior
+changes. One deviation from this section's original wording, discovered
+during implementation: REQ-GEO-002's three single-source cases are not
+*resolved* by the new graph-native code — `GeometrySpec`/
+`initialize_geom_a.F90`/`initialize_geom_b.F90` already resolve them,
+entirely before `GraphBuilder.F90` ever runs. The new code (a dedicated
+`GraphBuilder.F90` hook, `run_geometry_hook`, not the ordinary
+`VariableSpec`-based `resolve_one` path) gives that already-resolved
+outcome real graph structure — one `StateItemNode` per component plus a
+cross-`ComponentGraph` dependency edge for the ancestor/child cases —
+reusing the same `Characteristic`-based mismatch-detection and
+extension-chain-delegation machinery `09-extension-reuse.md` already
+established for `units`/vertical grid, and the same cross-boundary proxy
+machinery ordinary `MatchConnection`s already use for the "from child"
+pull direction (a new, symmetric helper for the "from parent" push
+direction, which has no existing precedent to reuse). See that change's
+design.md for the full rationale. REQ-GEO-002a and §13.4 remain deferred/
+open as stated below.
+
 ## 13.1 Geometry as first-class GraphValue
 
 **REQ-GEO-001.** Geometry MUST become first-class, via (at minimum)

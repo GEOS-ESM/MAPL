@@ -422,14 +422,37 @@ composite structure); is a real prerequisite for 4c/4d below.
   (REQ-CB-020). Depends on 4a (binds to a `MethodGraphNode`, REQ-CB-019),
   4c, and `composite-state-spec` (landed, above).
 - **4e. Horizontal geometry as GraphStateItem** (`13` §13.1–13.2) —
+  **landed** (`openspec/changes/horizontal-geometry-graph-state-item`):
   geometry carried as an incomplete `esmf_field` proxy
-  (`ESMF_FIELDSTATUS_GRIDSET`), resolved through ordinary
-  advertise/connect/transform-if-needed rules with no special-case code
-  paths (REQ-GEO-001..003). **Explicit deferral, to be stated in this
-  sub-change's own proposal.md:** REQ-GEO-002a (exchange-component
-  geometry, e.g. `SURF`-style multi-source `XGrid`) and all of §13.4
-  (time-dependent geometry renewal under freeze) are out of scope —
-  static geometry only. Depends on Phase 1–3 only.
+  (`ESMF_FIELDSTATUS_GRIDSET`), given real graph structure for
+  REQ-GEO-001..003's three single-source cases. **Deviation from this
+  entry's original wording, discovered during implementation:** "resolved
+  through ordinary advertise/connect/transform-if-needed rules" turned out
+  to be the wrong framing — `GeometrySpec`/`initialize_geom_a.F90`/
+  `initialize_geom_b.F90` already resolve own/from-parent/from-child,
+  entirely before `GraphBuilder.F90` ever runs (lifecycle phases 3-4,
+  hierarchy-wide, before phase 5's `GENERIC_INIT_ADVERTISE`). The landed
+  design is a dedicated `GraphBuilder.F90` hook
+  (`run_geometry_hook`/`graphbuilder_advertise_geometry`/
+  `graphbuilder_resolve_geometry`) that represents that already-resolved
+  outcome as real graph structure (one `StateItemNode` per component, plus
+  a cross-`ComponentGraph` dependency edge for the ancestor/child cases,
+  reusing `09-extension-reuse.md`'s existing `Characteristic`/mismatch/
+  extension-chain machinery) rather than an ordinary `VariableSpec`-based
+  connection the way `08-graph-builder.md`'s existing `resolve_one` path
+  handles other items - a reserved-name `VariableSpec` for this purpose
+  was tried first and abandoned, since `ComponentSpec%var_specs` also
+  feeds legacy `StateRegistry%add_to_states`, which would have leaked the
+  geometry proxy into real user-facing states (REQ-GEO-003 violation).
+  Entirely gated behind a new global toggle, `mapl_GraphMode_mod`'s
+  `graph_native_enabled()` (added mid-implementation, general
+  infrastructure beyond this sub-change's own scope - see §20.4.3's own
+  discussion below and that change's design.md Decision D6), default off.
+  **Explicit deferral, as stated in this sub-change's own proposal.md:**
+  REQ-GEO-002a (exchange-component geometry, e.g. `SURF`-style
+  multi-source `XGrid`) and all of §13.4 (time-dependent geometry renewal
+  under freeze) are out of scope — static geometry only. Depended on
+  Phase 1–3 only, as planned.
 - **4f. VerticalGrid model** (`13` §13.3) — `VerticalGrid` as an
   `esmf_state`-kind `GraphStateItem` with `variant() ==
   MAPL_STATEITEM_VERTICALGRID` (REQ-GEO-009), physical-dimension-keyed
