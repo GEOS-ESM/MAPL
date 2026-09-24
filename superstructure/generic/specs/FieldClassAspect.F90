@@ -68,6 +68,7 @@ module mapl_FieldClassAspect_mod
       procedure :: get_long_name
 
       procedure :: create
+      procedure :: update_payload
       procedure :: activate
       procedure :: allocate
       procedure :: destroy
@@ -181,6 +182,47 @@ contains
       _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
+   ! Called (via update_payload_from_aspects) alongside every other
+   ! characteristic aspect's own update_payload (units, typekind, geom, ...)
+   ! - i.e. the same point in the lifecycle (StateItemSpec%create) where the
+   ! rest of a field's descriptive metadata is attached to the payload.
+   !
+   ! MAPL_FieldSet resolves standard_name/long_name via ESMF_NamedAliasGet on
+   ! `field`, scoping the write to whatever alias id that specific handle
+   ! resolves to.  `field` here is `this%payload` itself (see get_payload),
+   ! which has never been wrapped in a NamedAlias at this point, so it
+   ! resolves to id=0.  This does NOT collapse per-connection-endpoint
+   ! metadata: each state placement made later via add_to_state (Import,
+   ! re-export, ...) is wrapped in its own NamedAlias and stores its own
+   ! value under that alias's own nonzero id, which always takes precedence
+   ! over id=0 for that placement.  id=0 only matters as the fallback
+   ! resolved by a field handle that is never wrapped in a NamedAlias at all
+   ! - e.g. a field pulled out of a service bundle via
+   ! ServiceClassAspect%add_to_bundle, or a hand-built field in a unit test -
+   ! which would otherwise default all the way down to 'unknown'.
+   ! (Bracket/Vector/VectorBracketClassAspect route their per-component
+   ! FieldClassAspect through a *local* update_payload helper that only
+   ! forwards to sibling aspects (units, typekind, ...) and never calls the
+   ! component's own update_payload - so this fix does not yet reach them;
+   ! see follow-up.)
+   subroutine update_payload(this, field, bundle, state, rc)
+      class(FieldClassAspect), intent(in) :: this
+      type(esmf_Field), optional, intent(inout) :: field
+      type(esmf_FieldBundle), optional, intent(inout) :: bundle
+      type(esmf_State), optional, intent(inout) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (present(field)) then
+         call MAPL_FieldSet(field, standard_name=this%standard_name, long_name=this%long_name, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(bundle)
+      _UNUSED_DUMMY(state)
+   end subroutine update_payload
+
    subroutine activate(this, rc)
       class(FieldClassAspect), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -206,11 +248,6 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-      ! NOTE: standard_name/long_name are NOT set here.  Unlike fill_value,
-      ! they are per-connection-endpoint metadata (see add_to_state) rather
-      ! than a single field-wide value - allocate() only runs once, for the
-      ! endpoint that owns memory allocation, which would collapse every
-      ! other endpoint's (Import, re-export, ...) view to this one value.
       call mapl_FieldEmptyComplete(this%payload, _RC)
 
       if (allocated(this%fill_value)) then
@@ -440,7 +477,12 @@ contains
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
 
-      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      ! MAPL_NamedAlias (not a bare ESMF_NamedAlias) so this new placement's
+      ! own alias id starts out with whatever standard_name/long_name/
+      ! restart_mode `this%payload` currently resolves to; the explicit
+      ! writes below then authoritatively override with this aspect's own
+      ! (possibly connection-inherited) values.
+      alias = MAPL_NamedAlias(this%payload, name=inner_name, _RC)
 
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then
@@ -467,7 +509,7 @@ contains
          ! underlying field.  See connect_to_export for how an endpoint that
          ! declares neither inherits from its connection predecessor.
          if (allocated(this%standard_name) .or. allocated(this%long_name)) then
-            call FieldInfoSetInternal(info, alias_id, &
+            call FieldInfoSetInternal(info, named_alias_id=alias_id, &
                  standard_name=this%standard_name, long_name=this%long_name, _RC)
          end if
       end if
