@@ -24,6 +24,7 @@ set(test_srcs
   Test_PortId.pf
   Test_CallbackInterfaceId.pf
   Test_NodeIdMapCompatibility.pf
+  Test_NodeIdLabelMap.pf
   Test_GraphNodeHierarchy.pf
   Test_GraphStateItem.pf
   Test_NodeRevision.pf
@@ -33,11 +34,23 @@ set(test_srcs
   Test_TransformGraphNode.pf
   Test_ComponentGraph_PortBindings.pf
   Test_DemandDrivenUpdate.pf
+  Test_AccessSpec.pf
+  Test_ArgumentSpec.pf
+  Test_GridCompMethodInvocation.pf
+  Test_StateMethodInvocation.pf
+  Test_MethodGraphNode.pf
+  Test_MethodInvocation.pf
   Test_GraphExport.pf
   Test_Characteristic.pf
   Test_ExtensionResolution.pf
   Test_ExtensionMaterialization.pf
   Test_UnitsConverterTransform.pf
+  Test_CallbackArgumentSpec.pf
+  Test_CallbackMethodSpec.pf
+  Test_CallbackInterface.pf
+  Test_CallbackInterfaceRegistry.pf
+  Test_CallbackStateBinding.pf
+  Test_CallbackMethodBinding.pf
 )
 
 add_pfunit_ctest(MAPL.generic.graph

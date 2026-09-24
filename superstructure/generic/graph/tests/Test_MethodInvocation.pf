@@ -1,0 +1,328 @@
+! Task 4.2 (spec/12-methods-and-drivers.md REQ-MTH-003a,
+! spec/11-revision-and-update.md REQ-REV-006/011,
+! griddedcomponentdriver-integration-lifecycle spec.md "Default-network
+! invocation pulls all bound imports before and advances all bound
+! exports after").
+!
+! Synthetic ComponentGraph/MethodGraphNode only - no ESMF component/
+! GriddedComponentDriver involved (design.md Decisions - "one new
+! graph-neutral procedure"), same posture as Test_DemandDrivenUpdate.pf.
+!
+! Each test builds its own fixture inline rather than sharing a
+! make_fixture() helper subroutine: a shared helper returning
+! graph/method_id/... through intent(out) dummy arguments was found,
+! empirically, to trigger a gfortran-specific miscompilation (a
+! ComponentGraph/StateItemMemberMap constructed inside a callee and
+! returned to its caller across that procedure boundary silently lost
+! internal state - the same "state does not survive returning up the
+! call chain" bug class already documented in
+! ComponentGraph_DemandDrivenUpdate.F90/DependencyNetwork.F90, there
+! triggered by literal Fortran recursion rather than a single ordinary
+! call/return). Building the graph directly in each test body, with no
+! intervening procedure boundary for graph/method_node construction,
+! avoids it and was confirmed correct under both NAG and gfortran.
+module Test_MethodInvocation
+   use mapl_MethodInvocation_mod, only: invoke_on_default_network
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_Transform_mod, only: Transform
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_MethodGraphNode_mod, only: MethodGraphNode
+   use mapl_MethodInvocationAdapter_mod, only: MethodInvocationAdapter
+   use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT
+   use ESMF, only: ESMF_Clock
+   use funit
+   implicit none
+
+   ! Upstream Transform double, counts its own executions - used to
+   ! confirm the bound IN argument was actually pulled current (its
+   ! producing transform ran) before the method node's own invoke()
+   ! fired.
+   type, extends(Transform) :: CountingCompute
+      integer, pointer :: run_count => null()
+   contains
+      procedure :: compute => counting_compute
+   end type CountingCompute
+
+   ! Held via pointer fields throughout (survives the sourced-allocation
+   ! copy MethodGraphNode's constructor performs, same reason
+   ! Test_DemandDrivenUpdate.pf's CountingCompute%run_count is a
+   ! pointer): run_count_at_invoke captures run_count_source's value at
+   ! the exact moment invoke() runs, proving pull-before-invoke ordering
+   ! (as opposed to merely "eventually ran at some point").
+   type, extends(MethodInvocationAdapter) :: RecordingAdapter
+      integer, pointer :: call_count => null()
+      integer, pointer :: run_count_source => null()
+      integer, pointer :: run_count_at_invoke => null()
+      logical :: fail = .false.
+   contains
+      procedure :: invoke => recording_adapter_invoke
+   end type RecordingAdapter
+
+contains
+
+   subroutine counting_compute(this, rc)
+      class(CountingCompute), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      if (associated(this%run_count)) this%run_count = this%run_count + 1
+      rc = 0
+   end subroutine counting_compute
+
+   subroutine recording_adapter_invoke(this, arguments, bindings, clock, rc)
+      class(RecordingAdapter), intent(inout) :: this
+      type(ArgumentSpecMap), intent(in) :: arguments
+      type(StateItemMemberMap), intent(in) :: bindings
+      type(ESMF_Clock), optional, intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      if (associated(this%call_count)) this%call_count = this%call_count + 1
+      if (associated(this%run_count_at_invoke) .and. associated(this%run_count_source)) &
+           this%run_count_at_invoke = this%run_count_source
+
+      if (this%fail) then
+         if (present(rc)) rc = 1
+      else
+         if (present(rc)) rc = 0
+      end if
+   end subroutine recording_adapter_invoke
+
+   ! Spec scenario "Bound inputs are made current before invocation":
+   ! the upstream transform producing the bound IN argument has already
+   ! run - captured via run_count_at_invoke, snapshotted from inside
+   ! invoke() itself, not merely checked after the whole call returns -
+   ! by the time invoke() fires.
+   @test
+   subroutine test_bound_inputs_current_before_invocation()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: producer_id, in_id, out_id, inout_id, method_id
+      type(StateItemNode) :: in_node, out_node, inout_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: producer
+      type(CountingCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      type(MethodGraphNode) :: method_node
+      type(RecordingAdapter) :: adapter
+      integer, target :: run_count
+      integer, target :: call_count
+      integer, target :: run_count_at_invoke
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      run_count = 0
+      call_count = 0
+      run_count_at_invoke = -1
+      strategy%run_count => run_count
+      producer_id = graph%next_node_id(rc=status)
+      producer = TransformGraphNode(producer_id, strategy)
+      call producer%declare_output_port('out', rc=status)
+      call graph%register_node(producer, rc=status)
+
+      in_id = graph%next_node_id(rc=status)
+      in_node = StateItemNode(in_id, payload, revision)
+      call graph%register_node(in_node, rc=status)
+      call graph%add_dependency(default_id, producer_id, in_id, rc=status)
+      call graph%bind_port(default_id, producer_id, 'out', in_id, rc=status)
+
+      out_id = graph%next_node_id(rc=status)
+      out_node = StateItemNode(out_id, payload, revision)
+      call graph%register_node(out_node, rc=status)
+
+      inout_id = graph%next_node_id(rc=status)
+      inout_node = StateItemNode(inout_id, payload, revision)
+      call graph%register_node(inout_node, rc=status)
+
+      adapter%run_count_source => run_count
+      adapter%call_count => call_count
+      adapter%run_count_at_invoke => run_count_at_invoke
+
+      method_id = graph%next_node_id(rc=status)
+      method_node = MethodGraphNode(method_id, adapter)
+      call method_node%declare_argument('x_in', MAPL_ACCESS_IN, rc=status)
+      call method_node%declare_argument('x_out', MAPL_ACCESS_OUT, rc=status)
+      call method_node%declare_argument('x_inout', MAPL_ACCESS_INOUT, rc=status)
+      call method_node%bind_argument('x_in', in_id, rc=status)
+      call method_node%bind_argument('x_out', out_id, rc=status)
+      call method_node%bind_argument('x_inout', inout_id, rc=status)
+      call graph%register_node(method_node, rc=status)
+
+      call invoke_on_default_network(graph, method_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, call_count)
+      @assertEqual(1, run_count_at_invoke)
+      @assertEqual(1, run_count)
+   end subroutine test_bound_inputs_current_before_invocation
+
+   ! Spec scenario "Bound outputs are advanced after successful
+   ! invocation": both OUT and INOUT are invalid beforehand and valid
+   ! immediately after invoke_on_default_network returns.
+   @test
+   subroutine test_bound_outputs_advanced_after_success()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: producer_id, in_id, out_id, inout_id, method_id
+      type(StateItemNode) :: in_node, out_node, inout_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: producer
+      type(CountingCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      type(MethodGraphNode) :: method_node
+      type(RecordingAdapter) :: adapter
+      integer, target :: run_count
+      class(GraphNode), pointer :: node
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      run_count = 0
+      strategy%run_count => run_count
+      producer_id = graph%next_node_id(rc=status)
+      producer = TransformGraphNode(producer_id, strategy)
+      call producer%declare_output_port('out', rc=status)
+      call graph%register_node(producer, rc=status)
+
+      in_id = graph%next_node_id(rc=status)
+      in_node = StateItemNode(in_id, payload, revision)
+      call graph%register_node(in_node, rc=status)
+      call graph%add_dependency(default_id, producer_id, in_id, rc=status)
+      call graph%bind_port(default_id, producer_id, 'out', in_id, rc=status)
+
+      out_id = graph%next_node_id(rc=status)
+      out_node = StateItemNode(out_id, payload, revision)
+      call graph%register_node(out_node, rc=status)
+
+      inout_id = graph%next_node_id(rc=status)
+      inout_node = StateItemNode(inout_id, payload, revision)
+      call graph%register_node(inout_node, rc=status)
+
+      adapter%run_count_source => run_count
+
+      method_id = graph%next_node_id(rc=status)
+      method_node = MethodGraphNode(method_id, adapter)
+      call method_node%declare_argument('x_in', MAPL_ACCESS_IN, rc=status)
+      call method_node%declare_argument('x_out', MAPL_ACCESS_OUT, rc=status)
+      call method_node%declare_argument('x_inout', MAPL_ACCESS_INOUT, rc=status)
+      call method_node%bind_argument('x_in', in_id, rc=status)
+      call method_node%bind_argument('x_out', out_id, rc=status)
+      call method_node%bind_argument('x_inout', inout_id, rc=status)
+      call graph%register_node(method_node, rc=status)
+
+      node => graph%get_node(out_id)
+      select type (node)
+      class is (StateItemNode)
+         revision = node%get_revision()
+         @assertFalse(revision%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+
+      call invoke_on_default_network(graph, method_id, rc=status)
+      @assertEqual(0, status)
+
+      node => graph%get_node(out_id)
+      select type (node)
+      class is (StateItemNode)
+         revision = node%get_revision()
+         @assertTrue(revision%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+
+      node => graph%get_node(inout_id)
+      select type (node)
+      class is (StateItemNode)
+         revision = node%get_revision()
+         @assertTrue(revision%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_bound_outputs_advanced_after_success
+
+   ! Spec scenario "Failed invocation does not advance bound outputs".
+   @test
+   subroutine test_failed_invocation_does_not_advance_outputs()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: producer_id, in_id, out_id, inout_id, method_id
+      type(StateItemNode) :: in_node, out_node, inout_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: producer
+      type(CountingCompute) :: strategy
+      type(DependencyNetworkId) :: default_id
+      type(MethodGraphNode) :: method_node
+      type(RecordingAdapter) :: adapter
+      integer, target :: run_count
+      class(GraphNode), pointer :: node
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      run_count = 0
+      strategy%run_count => run_count
+      producer_id = graph%next_node_id(rc=status)
+      producer = TransformGraphNode(producer_id, strategy)
+      call producer%declare_output_port('out', rc=status)
+      call graph%register_node(producer, rc=status)
+
+      in_id = graph%next_node_id(rc=status)
+      in_node = StateItemNode(in_id, payload, revision)
+      call graph%register_node(in_node, rc=status)
+      call graph%add_dependency(default_id, producer_id, in_id, rc=status)
+      call graph%bind_port(default_id, producer_id, 'out', in_id, rc=status)
+
+      out_id = graph%next_node_id(rc=status)
+      out_node = StateItemNode(out_id, payload, revision)
+      call graph%register_node(out_node, rc=status)
+
+      inout_id = graph%next_node_id(rc=status)
+      inout_node = StateItemNode(inout_id, payload, revision)
+      call graph%register_node(inout_node, rc=status)
+
+      adapter%run_count_source => run_count
+      adapter%fail = .true.
+
+      method_id = graph%next_node_id(rc=status)
+      method_node = MethodGraphNode(method_id, adapter)
+      call method_node%declare_argument('x_in', MAPL_ACCESS_IN, rc=status)
+      call method_node%declare_argument('x_out', MAPL_ACCESS_OUT, rc=status)
+      call method_node%declare_argument('x_inout', MAPL_ACCESS_INOUT, rc=status)
+      call method_node%bind_argument('x_in', in_id, rc=status)
+      call method_node%bind_argument('x_out', out_id, rc=status)
+      call method_node%bind_argument('x_inout', inout_id, rc=status)
+      call graph%register_node(method_node, rc=status)
+
+      call invoke_on_default_network(graph, method_id, rc=status)
+      @assertTrue(status /= 0)
+
+      node => graph%get_node(out_id)
+      select type (node)
+      class is (StateItemNode)
+         revision = node%get_revision()
+         @assertFalse(revision%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+
+      node => graph%get_node(inout_id)
+      select type (node)
+      class is (StateItemNode)
+         revision = node%get_revision()
+         @assertFalse(revision%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_failed_invocation_does_not_advance_outputs
+
+end module Test_MethodInvocation

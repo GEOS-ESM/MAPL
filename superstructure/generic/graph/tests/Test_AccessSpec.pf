@@ -1,0 +1,52 @@
+! Task 1.2 (spec/15-callbacks.md REQ-CB-005).
+module Test_AccessSpec
+   use mapl_AccessSpec_mod, only: AccessSpec, operator(==), operator(/=), &
+        MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT, MAPL_ACCESS_UNSPECIFIED
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_each_constant_equals_itself()
+      @assertTrue(MAPL_ACCESS_IN == MAPL_ACCESS_IN)
+      @assertTrue(MAPL_ACCESS_OUT == MAPL_ACCESS_OUT)
+      @assertTrue(MAPL_ACCESS_INOUT == MAPL_ACCESS_INOUT)
+      @assertTrue(MAPL_ACCESS_UNSPECIFIED == MAPL_ACCESS_UNSPECIFIED)
+   end subroutine test_each_constant_equals_itself
+
+   @test
+   subroutine test_distinct_constants_are_unequal()
+      @assertTrue(MAPL_ACCESS_IN /= MAPL_ACCESS_OUT)
+      @assertTrue(MAPL_ACCESS_IN /= MAPL_ACCESS_INOUT)
+      @assertTrue(MAPL_ACCESS_IN /= MAPL_ACCESS_UNSPECIFIED)
+      @assertTrue(MAPL_ACCESS_OUT /= MAPL_ACCESS_INOUT)
+      @assertTrue(MAPL_ACCESS_OUT /= MAPL_ACCESS_UNSPECIFIED)
+      @assertTrue(MAPL_ACCESS_INOUT /= MAPL_ACCESS_UNSPECIFIED)
+
+      @assertFalse(MAPL_ACCESS_IN == MAPL_ACCESS_OUT)
+   end subroutine test_distinct_constants_are_unequal
+
+   @test
+   subroutine test_to_string_is_distinct_and_nonempty()
+      character(:), allocatable :: s_in, s_out, s_inout, s_unspecified
+
+      s_in = MAPL_ACCESS_IN%to_string()
+      s_out = MAPL_ACCESS_OUT%to_string()
+      s_inout = MAPL_ACCESS_INOUT%to_string()
+      s_unspecified = MAPL_ACCESS_UNSPECIFIED%to_string()
+
+      @assertTrue(len(s_in) > 0)
+      @assertTrue(len(s_out) > 0)
+      @assertTrue(len(s_inout) > 0)
+      @assertTrue(len(s_unspecified) > 0)
+
+      @assertTrue(s_in /= s_out)
+      @assertTrue(s_in /= s_inout)
+      @assertTrue(s_in /= s_unspecified)
+      @assertTrue(s_out /= s_inout)
+      @assertTrue(s_out /= s_unspecified)
+      @assertTrue(s_inout /= s_unspecified)
+   end subroutine test_to_string_is_distinct_and_nonempty
+
+end module Test_AccessSpec

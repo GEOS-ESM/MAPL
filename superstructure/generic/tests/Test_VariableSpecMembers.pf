@@ -1,0 +1,214 @@
+#include "MAPL_TestErr.h"
+
+! openspec/changes/composite-state-spec, tasks.md 4.1.
+module Test_VariableSpecMembers
+   use pfunit
+   use mapl_VariableSpec_mod
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELD
+   use gFTL2_StringVector, only: StringVector
+   use esmf, only: ESMF_STATEINTENT_EXPORT, operator(==)
+   implicit none(type, external)
+
+contains
+
+   function make_leaf(short_name, units) result(var_spec)
+      character(*), intent(in) :: short_name
+      character(*), optional, intent(in) :: units
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      var_spec%short_name = short_name
+      var_spec%itemType = MAPL_STATEITEM_FIELD
+      if (present(units)) var_spec%units = units
+   end function make_leaf
+
+   function make_composite(short_name) result(var_spec)
+      character(*), intent(in) :: short_name
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      var_spec%short_name = short_name
+      var_spec%itemType = MAPL_STATEITEM_STATE
+   end function make_composite
+
+   @test
+   subroutine test_declare_and_retrieve_leaf_member()
+      type(VariableSpec) :: spec
+      type(VariableSpec) :: got
+      integer :: status
+
+      spec = make_composite('PHYS_STATE')
+      call spec%declare_member('tracers', make_leaf('tracers'), rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(spec%has_member('tracers'))
+      got = spec%get_member('tracers', status)
+      @assertEqual(0, status)
+      @assertTrue(got%itemType == MAPL_STATEITEM_FIELD)
+   end subroutine test_declare_and_retrieve_leaf_member
+
+   @test
+   subroutine test_declare_and_retrieve_nested_member()
+      type(VariableSpec) :: spec, inner
+      type(VariableSpec) :: got
+      integer :: status
+
+      inner = make_composite('inner_ignored')
+      call inner%declare_member('a', make_leaf('a'), rc=status)
+      @assertEqual(0, status)
+
+      spec = make_composite('TOP')
+      call spec%declare_member('inner_state', inner, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(spec%has_member('inner_state'))
+      got = spec%get_member('inner_state', status)
+      @assertEqual(0, status)
+      @assertTrue(got%itemType == MAPL_STATEITEM_STATE)
+      @assertTrue(got%has_member('a'))
+   end subroutine test_declare_and_retrieve_nested_member
+
+   @test
+   subroutine test_declare_member_on_non_state_itemtype_fails()
+      type(VariableSpec) :: spec
+      integer :: status
+
+      spec = make_leaf('T')
+      call spec%declare_member('x', make_leaf('x'), rc=status)
+      @assertExceptionRaised('VariableSpec: declare_member called on a non-STATE itemType')
+   end subroutine test_declare_member_on_non_state_itemtype_fails
+
+   @test
+   subroutine test_duplicate_member_name_rejected()
+      type(VariableSpec) :: spec
+      integer :: status
+
+      spec = make_composite('TOP')
+      call spec%declare_member('a', make_leaf('a'), rc=status)
+      @assertEqual(0, status)
+
+      call spec%declare_member('a', make_leaf('a_second'), rc=status)
+      @assertExceptionRaised('VariableSpec: duplicate member name at this level: a')
+
+      ! Original entry unchanged.
+      block
+         type(VariableSpec) :: got
+         got = spec%get_member('a', status)
+         @assertEqual('a', got%short_name)
+      end block
+   end subroutine test_duplicate_member_name_rejected
+
+   @test
+   subroutine test_same_name_at_different_levels_does_not_conflict()
+      type(VariableSpec) :: spec, inner
+      integer :: status
+
+      inner = make_composite('inner')
+      call inner%declare_member('x', make_leaf('x_inner'), rc=status)
+      @assertEqual(0, status)
+
+      spec = make_composite('TOP')
+      call spec%declare_member('x', make_leaf('x_outer'), rc=status)
+      @assertEqual(0, status)
+      call spec%declare_member('nested', inner, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(spec%has_member('x'))
+      @assertTrue(spec%has_member('nested'))
+   end subroutine test_same_name_at_different_levels_does_not_conflict
+
+   @test
+   subroutine test_multi_level_nesting_is_walkable()
+      type(VariableSpec) :: level3, level2, level1
+      type(VariableSpec) :: got2, got3
+      integer :: status
+
+      level3 = make_composite('level3')
+      call level3%declare_member('leaf3', make_leaf('leaf3'), rc=status)
+      @assertEqual(0, status)
+
+      level2 = make_composite('level2')
+      call level2%declare_member('level3', level3, rc=status)
+      @assertEqual(0, status)
+
+      level1 = make_composite('level1')
+      call level1%declare_member('level2', level2, rc=status)
+      @assertEqual(0, status)
+
+      got2 = level1%get_member('level2', status)
+      @assertEqual(0, status)
+      @assertTrue(got2%has_member('level3'))
+
+      got3 = got2%get_member('level3', status)
+      @assertEqual(0, status)
+      @assertTrue(got3%has_member('leaf3'))
+   end subroutine test_multi_level_nesting_is_walkable
+
+   ! spec "Leaf members keep independent characteristics under a shared
+   ! composite": two members with different units retrieve those units
+   ! independently.
+   @test
+   subroutine test_members_keep_independent_characteristics()
+      type(VariableSpec) :: spec
+      type(VariableSpec) :: got_a, got_b
+      integer :: status
+
+      spec = make_composite('TOP')
+      call spec%declare_member('a', make_leaf('a', units='m'), rc=status)
+      @assertEqual(0, status)
+      call spec%declare_member('b', make_leaf('b', units='km'), rc=status)
+      @assertEqual(0, status)
+
+      got_a = spec%get_member('a', status)
+      got_b = spec%get_member('b', status)
+
+      @assertEqual('m', got_a%units)
+      @assertEqual('km', got_b%units)
+   end subroutine test_members_keep_independent_characteristics
+
+   ! design.md Decisions "A member's own short_name field is never read":
+   ! declare a member whose short_name differs from its map key -
+   ! retrieval is still by map key only.
+   @test
+   subroutine test_member_short_name_is_not_consulted()
+      type(VariableSpec) :: spec
+      type(VariableSpec) :: got
+      integer :: status
+
+      spec = make_composite('TOP')
+      call spec%declare_member('key_name', make_leaf('different_short_name'), rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(spec%has_member('key_name'))
+      @assertFalse(spec%has_member('different_short_name'))
+
+      got = spec%get_member('key_name', status)
+      @assertEqual(0, status)
+      @assertEqual('different_short_name', got%short_name)
+   end subroutine test_member_short_name_is_not_consulted
+
+   @test
+   subroutine test_get_member_names_lists_all_declared_members()
+      type(VariableSpec) :: spec
+      type(StringVector) :: names
+      integer :: status
+
+      spec = make_composite('TOP')
+      call spec%declare_member('a', make_leaf('a'), rc=status)
+      call spec%declare_member('b', make_leaf('b'), rc=status)
+
+      names = spec%get_member_names()
+      @assertEqual(2, names%size())
+   end subroutine test_get_member_names_lists_all_declared_members
+
+   @test
+   subroutine test_leaf_has_no_members()
+      type(VariableSpec) :: spec
+      type(StringVector) :: names
+
+      spec = make_leaf('T')
+      names = spec%get_member_names()
+      @assertEqual(0, names%size())
+   end subroutine test_leaf_has_no_members
+
+end module Test_VariableSpecMembers
