@@ -111,9 +111,13 @@ context by construction — no repo-separation saving available here:
   sub-sequencing this phase needs before implementation starts.
 - **Phase 4** — `12` MethodGraphNode + invocation adapters +
   `GriddedComponentDriver` + SetServices lifecycle, `15` callbacks
-  (CallbackInterface/registry/Handler/Invoker), `14` route handles
-  (RouteHandleValue/Key, sharing/renewal), `13` geometry and vertical
-  grids (time-dependent geometry, renewal under freeze).
+  (CallbackInterface/registry/Handler/Invoker), `13` geometry and
+  vertical grids, `14` route handles (RouteHandleValue/Key, sharing).
+  Time-dependent geometry/RouteHandle renewal (§13.4/§14.4) and
+  exchange-component geometry (REQ-GEO-002a) are explicitly deferred
+  out of this phase's initial scope, not silently assumed solved. See
+  §20.4.3 for the sub-sequencing this phase needs before implementation
+  starts.
 - **Phase 5 (speculative/deferred, do not block on these)** — `18`
   StateItemCharacteristic hierarchy, `16` ordinary inout items, Q9
   compiled-execution optimization.
@@ -270,6 +274,180 @@ drop its own "blocked until legacy is retired" follow-up elsewhere:**
   instantiates the legacy type directly from the live
   `StateRegistry_Extensions_smod.F90` dispatch path — load-bearing, not
   dead code.
+
+### 20.4.3 Phase 4 sub-sequencing
+
+Phase 4, like Phase 3 (§20.4.1), does not fit a single spec-driven
+change proposal without an unreasonable context/cost footprint. Unlike
+Phase 3, none of Phase 4 is built yet — no `MethodGraphNode`, no
+`CallbackInterface`/registry beyond an empty `CallbackInterfaceId`
+identity stub, no `RouteHandleValue`/`RouteHandleKey`, no geometry
+`GraphStateItem` handling — so this is greenfield work on top of the
+completed Phase 1–3 foundation, not an extension of partially-built
+Phase 4 code. `17-open-questions.md` Q10 already gives this phase's
+internal ordering rationale (methods/lifecycle first since "phases
+start flowing through the graph" here; callbacks next as new capability
+with no legacy behavior to match; geometry/route-handles last since
+they touch the most existing special-cased code and should wait until
+the graph plumbing around them is well-exercised). Split into seven
+ordered sub-changes:
+
+**Landed prerequisite, discovered ahead of this list (not one of the
+original seven, inserted before it):** `composite-state-spec`
+(`openspec/changes/archive/2026-09-18-composite-state-spec`,
+`openspec/specs/graph/composite-state-spec/spec.md`). `15-callbacks.md`'s
+`CallbackStateBinding` (REQ-CB-007, "argument name → member `NodeId`")
+requires a callback State's members to be individually graph-visible —
+nothing in `VariableSpec`/`GraphBuilder` supported that before this
+change landed (a `MAPL_STATEITEM_STATE` declaration produced an empty,
+opaque `ESMF_State`, per proposal.md - Why). Resolved by letting
+`VariableSpec` declare its own composite member structure directly
+(`declare_member`/`get_member`/`get_member_names`, a member being any
+ordinary `VariableSpec`, leaf or further-nested) and by
+`GraphBuilder`'s `advertise_one` recursing into declared members to
+build a real `StateItemNode` tree. Does not block 4a/4b (neither touches
+composite structure); is a real prerequisite for 4c/4d below.
+
+- **4a. MethodGraphNode + invocation adapters** (`12` REQ-MTH-001/002/
+  004/005/006) — the node type covering both GridComp phase invocation
+  and attached-State-method invocation through one invocation-adapter
+  abstraction (`GridCompMethodInvocation`/`StateMethodInvocation`,
+  `17-open-questions.md` Q2). Synthetic-driver testable, same posture as
+  3a: no real `GriddedComponentDriver` wiring yet, no ESMF component
+  required.
+- **4b. GriddedComponentDriver integration + init lifecycle** (`12`
+  REQ-MTH-007..013) — the stable driver-lookup mechanism (REQ-MTH-009),
+  the trigger/advance discipline around invocation (REQ-MTH-003a), and
+  the full `advertise → modify_advertised → cycle(realize_provided,
+  accept_transfer, realize_accepted) → read_restart → user_specific`
+  ordering (REQ-MTH-011). REQ-MTH-011 step (c)'s convergence algorithm
+  (how progress is detected, iteration-limit behavior, non-convergence
+  handling) is explicitly `[OPEN]` in the spec — this sub-change's
+  design.md MUST resolve it as a planned, up-front design decision
+  before implementation starts, not discover it mid-implementation the
+  way 3b's own real-configuration validation surfaced 3b2 unplanned.
+  First sub-change requiring real `GriddedComponentDriver`/ESMF context;
+  depends on 4a.
+- **4b2. Unify `OuterMetaComponent`'s own driver into its child-driver
+  map** — discovered during 4b's own code review
+  (`openspec/changes/griddedcomponentdriver-integration-lifecycle`), not
+  a required completion of 4b's job the way 3b2 was for 3b: 4b's own
+  `DriverResolver` already works correctly as shipped, and this
+  sub-change is a pure simplification, not a correctness gap. Does not
+  block 4c/4d. REQ-MTH-008's "own driver + one driver per child"
+  ownership shape currently lives as two separate representations on
+  `OuterMetaComponent` — a single `user_gc_driver` field plus a
+  `children: GriddedComponentDriverMap` — which forces every
+  driver-key-resolution call site (4b's own
+  `OuterMetaComponentDriverResolver`, and any future one) to branch on
+  "is this the `<self>` sentinel or a real child name" instead of doing
+  one uniform lookup. Store the component's own driver in the *same*
+  map, under the already-established `<self>` sentinel
+  (`GraphBuilder.F90`'s own `SELF_COMPONENT_NAME`, matching
+  `StateRegistry_Hierarchy_smod`'s own precedent for treating "the
+  component itself" as a reserved name among its children) — unifying
+  "the user gridcomp" and "a child gridcomp" as the same underlying
+  representation, differing only in which name resolves to which entry.
+  Real work, not a one-line rename: `user_gc_driver` is currently
+  accessed as a bare field (not only through the existing
+  `get_user_gc_driver()` accessor) from several of `OuterMetaComponent`'s
+  own submodules (e.g. `initialize_accept_transfer.F90`'s
+  `this%user_gc_driver%get_states()`), every one of which would need to
+  move to a uniform accessor once the separate field is gone; must also
+  confirm no existing code path can ever declare a child literally
+  named `<self>` (almost certainly already excluded by the same
+  sentinel convention elsewhere, but worth confirming explicitly rather
+  than assuming). Scoped to `OuterMetaComponent`'s own driver storage
+  only — does not attempt the broader "is a component itself just a
+  specially-named child everywhere" unification `GraphBuilder.F90`'s own
+  `is_self()`/`SELF_COMPONENT_NAME` checks hint at for connection
+  resolution; that is a separate, larger question outside driver
+  storage, not assumed solved by this sub-change.
+
+  **Evaluated during planning (2026-09-20), declined — not
+  implemented.** Change proposal drafted
+  (`openspec/changes/outermetacomponent-driver-map-unification`,
+  removed after this decision, never merged) and taken through design
+  before implementation began. Two findings killed it:
+  1. `this%children` (`OuterMetaComponent.F90:57`) is not merely
+     driver storage — it is the live "list of real children" that
+     `get_num_children.F90`, `get_child_name.F90`, `recurse.F90`
+     (`initialize`/`write_restart`), `run_children_.F90`,
+     `run_clock_advance.F90`, `finalize.F90`'s `recurse_finalize_`, and
+     `apply_to_children_custom.F90` all iterate directly. Inserting the
+     self driver into that same map under `<self>` would have made
+     every one of those sites additionally process the self entry as a
+     "child," double-invoking `initialize`/`run`/`finalize`/
+     `clock_advance` on the user's own driver (on top of the existing
+     explicit `user_gc_driver`/`get_user_gc_driver()` calls already
+     present in `run_user.F90`, `run_custom.F90`, `finalize.F90`,
+     `run_clock_advance.F90`) and off-by-one-ing `get_num_children`/
+     `get_child_name`. Filtering `<self>` out of all seven sites was
+     considered and rejected: it adds guard logic in seven lifecycle-
+     critical loops, the opposite of this sub-change's own stated
+     purpose (measurably *reducing* duplicated logic).
+  2. With that option off the table, the fallback — collapse
+     `OuterMetaComponentDriverResolver.F90`'s self-vs-child `if/else`
+     into a new `OuterMetaComponent` accessor without merging the
+     underlying storage — was checked against the actual codebase
+     first rather than assumed worthwhile: a repo-wide search found
+     that branch already exists in exactly one place
+     (`OuterMetaComponentDriverResolver.F90:65-82`); every other
+     `get_user_gc_driver()` caller already knows it wants the self
+     driver and calls it directly, with no `driver_key`-style branch to
+     share. There is no second copy of the logic anywhere to
+     consolidate, so relocating those four lines to a new method would
+     move code sideways for zero measurable reduction in duplication —
+     the premise this sub-change was filed under.
+
+  Net: both mechanically-available paths are net-negative or net-zero
+  against the sub-change's own justification. 4b's `DriverResolver`
+  remains as shipped (two representations, one already-centralized
+  branch) — correct, if not maximally elegant. Revisit only if a
+  second real consumer of self-or-child driver-key resolution appears;
+  until then there is nothing to unify.
+- **4c. Callback data model + registry** (`15` §15.2–15.7) —
+  `CallbackInterface`/`CallbackArgumentSpec`/`CallbackMethodSpec`/
+  `CallbackStateBinding`/`CallbackInterfaceRegistry`. Static and
+  unit-testable, no `GraphBuilder` wiring yet. Depends on
+  `composite-state-spec` (landed, above) for `CallbackStateBinding`'s
+  member-`NodeId` addressability; otherwise no new dependency beyond
+  Phase 1–3 — MAY proceed in parallel with 4a/4b if desired, though Q10's
+  stated order (methods before callbacks) is the default assumption.
+- **4d. Callback wiring** (`15` §15.9–15.10) — `GraphBuilder`
+  wildcard/regex expansion against the flattened qualified-export
+  namespace (REQ-CB-016, pattern syntax settled as regex per Q5),
+  per-method `DependencyNetwork`s for get/put argument flow
+  (REQ-CB-018), and the invoke-once-after-all-args-ready discipline
+  (REQ-CB-020). Depends on 4a (binds to a `MethodGraphNode`, REQ-CB-019),
+  4c, and `composite-state-spec` (landed, above).
+- **4e. Horizontal geometry as GraphStateItem** (`13` §13.1–13.2) —
+  geometry carried as an incomplete `esmf_field` proxy
+  (`ESMF_FIELDSTATUS_GRIDSET`), resolved through ordinary
+  advertise/connect/transform-if-needed rules with no special-case code
+  paths (REQ-GEO-001..003). **Explicit deferral, to be stated in this
+  sub-change's own proposal.md:** REQ-GEO-002a (exchange-component
+  geometry, e.g. `SURF`-style multi-source `XGrid`) and all of §13.4
+  (time-dependent geometry renewal under freeze) are out of scope —
+  static geometry only. Depends on Phase 1–3 only.
+- **4f. VerticalGrid model** (`13` §13.3) — `VerticalGrid` as an
+  `esmf_state`-kind `GraphStateItem` with `variant() ==
+  MAPL_STATEITEM_VERTICALGRID` (REQ-GEO-009), physical-dimension-keyed
+  coordinate sets (REQ-GEO-004/004a), the dimension-adaptability check
+  for mismatched vertical grids (REQ-GEO-007a), and the
+  `ReferenceCharacteristic` link back to horizontal geometry. Depends on
+  4e.
+- **4g. RouteHandleValue/Key** (`14`) — `RouteHandleKey` structure
+  (REQ-RH-002/003), the `RouteHandleKey -> NodeId` semantic index for
+  reuse (REQ-RH-004/005). **Explicit deferral, to be stated in this
+  sub-change's own proposal.md:** §14.4 time-dependent renewal is out of
+  scope — reuse-of-existing-handle case only. Depends on 4e (needs
+  geometry identity to populate `RouteHandleKey`).
+
+**Repo/tooling note (extends §20.4.1's own note).** Phase 4 code lives
+in the MAPL repo/checkout, same as Phase 3, for the same reason: real
+`GriddedComponentDriver`/`OuterComponent`/ESMF context is required from
+4b onward regardless of repo layout.
 
 ## 20.5 Cross-reference
 

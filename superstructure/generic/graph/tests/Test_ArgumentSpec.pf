@@ -1,0 +1,49 @@
+! Task 2.3 (spec/12-methods-and-drivers.md REQ-MTH-002).
+module Test_ArgumentSpec
+   use mapl_ArgumentSpec_mod, only: ArgumentSpec
+   use mapl_AccessSpec_mod, only: AccessSpec, operator(==), &
+        MAPL_ACCESS_IN, MAPL_ACCESS_OUT
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, MAPL_STATEITEM_FIELD, operator(==)
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_unconstrained_argument()
+      type(ArgumentSpec) :: spec
+
+      spec = ArgumentSpec('x', MAPL_ACCESS_IN)
+
+      @assertEqual('x', spec%get_name())
+      @assertTrue(spec%get_access() == MAPL_ACCESS_IN)
+      @assertFalse(spec%is_kind_constrained())
+   end subroutine test_unconstrained_argument
+
+   @test
+   subroutine test_kind_constrained_argument()
+      type(ArgumentSpec) :: spec
+      integer :: status
+
+      spec = ArgumentSpec('y', MAPL_ACCESS_OUT, expected_kind=MAPL_STATEITEM_FIELD)
+
+      @assertEqual('y', spec%get_name())
+      @assertTrue(spec%get_access() == MAPL_ACCESS_OUT)
+      @assertTrue(spec%is_kind_constrained())
+      @assertTrue(spec%get_expected_kind(rc=status) == MAPL_STATEITEM_FIELD)
+      @assertEqual(0, status)
+   end subroutine test_kind_constrained_argument
+
+   @test
+   subroutine test_get_expected_kind_fails_when_unconstrained()
+      type(ArgumentSpec) :: spec
+      type(MAPL_StateItem_Flag) :: kind
+      integer :: status
+
+      spec = ArgumentSpec('z', MAPL_ACCESS_IN)
+
+      kind = spec%get_expected_kind(rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_get_expected_kind_fails_when_unconstrained
+
+end module Test_ArgumentSpec

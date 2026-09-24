@@ -1,0 +1,216 @@
+! openspec/changes/callback-wiring, tasks.md 7.4/8.1/8.2 - synthetic
+! ComponentGraph-only tests (no OuterMetaComponent/ESMF component
+! needed), same posture as Test_MethodInvocation.pf: CallbackMethodBinding's
+! own construction/accessors (spec/15-callbacks.md REQ-CB-019), and
+! mapl_GraphBuilder_mod%invoke_callback_method's invoke-once-after-all-
+! ready discipline (design.md Decision 7, REQ-CB-018/019/020).
+module Test_CallbackMethodBinding
+   use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
+   use mapl_GraphBuilder_mod, only: invoke_callback_method
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_Transform_mod, only: Transform
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId, operator(==)
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_MethodGraphNode_mod, only: MethodGraphNode
+   use mapl_MethodInvocationAdapter_mod, only: MethodInvocationAdapter
+   use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use ESMF, only: ESMF_Clock
+   use funit
+   implicit none
+
+   ! Upstream Transform double, counts its own executions - same
+   ! pattern as Test_MethodInvocation.pf's own CountingCompute, used to
+   ! confirm the get-network provider was actually pulled current
+   ! (its producing transform ran) before the method node's own
+   ! invoke() fired.
+   type, extends(Transform) :: CountingCompute
+      integer, pointer :: run_count => null()
+   contains
+      procedure :: compute => counting_compute
+   end type CountingCompute
+
+   type, extends(MethodInvocationAdapter) :: RecordingAdapter
+      integer, pointer :: call_count => null()
+      integer, pointer :: run_count_source => null()
+      integer, pointer :: run_count_at_invoke => null()
+   contains
+      procedure :: invoke => recording_adapter_invoke
+   end type RecordingAdapter
+
+contains
+
+   subroutine counting_compute(this, rc)
+      class(CountingCompute), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      if (associated(this%run_count)) this%run_count = this%run_count + 1
+      rc = 0
+   end subroutine counting_compute
+
+   subroutine recording_adapter_invoke(this, arguments, bindings, clock, rc)
+      class(RecordingAdapter), intent(inout) :: this
+      type(ArgumentSpecMap), intent(in) :: arguments
+      type(StateItemMemberMap), intent(in) :: bindings
+      type(ESMF_Clock), optional, intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      if (associated(this%call_count)) this%call_count = this%call_count + 1
+      if (associated(this%run_count_at_invoke) .and. associated(this%run_count_source)) &
+           this%run_count_at_invoke = this%run_count_source
+
+      if (present(rc)) rc = 0
+   end subroutine recording_adapter_invoke
+
+   ! Task 7.4: construction and accessor retrieval.
+   @test
+   subroutine test_construction_retrieves_fields()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: method_id, other_id
+      type(DependencyNetworkId) :: get_net_id, put_net_id
+      type(CallbackMethodBinding) :: binding
+      integer :: status
+
+      graph = ComponentGraph()
+      method_id = graph%next_node_id(rc=status)
+      get_net_id = graph%create_network(rc=status)
+      put_net_id = graph%create_network(rc=status)
+      other_id = graph%next_node_id(rc=status)
+
+      binding = CallbackMethodBinding(method_id, get_net_id, put_net_id)
+
+      @assertTrue(binding%get_method_node_id() == method_id)
+      @assertTrue(binding%get_network_id() == get_net_id)
+      @assertTrue(binding%get_get_network_id() == get_net_id)
+      @assertTrue(binding%get_put_network_id() == put_net_id)
+
+      call binding%bind_get_argument('x', other_id, rc=status)
+      @assertEqual(0, status)
+      call binding%bind_put_argument('x', other_id, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(associated(binding%get_get_argument_binding('x')))
+      @assertTrue(associated(binding%get_put_argument_binding('x')))
+      @assertTrue(binding%get_get_argument_binding('x') == other_id)
+      @assertTrue(binding%get_put_argument_binding('x') == other_id)
+   end subroutine test_construction_retrieves_fields
+
+   @test
+   subroutine test_rebinding_same_argument_name_is_rejected()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: method_id, id_a, id_b
+      type(DependencyNetworkId) :: get_net_id, put_net_id
+      type(CallbackMethodBinding) :: binding
+      integer :: status
+
+      graph = ComponentGraph()
+      method_id = graph%next_node_id(rc=status)
+      get_net_id = graph%create_network(rc=status)
+      put_net_id = graph%create_network(rc=status)
+      id_a = graph%next_node_id(rc=status)
+      id_b = graph%next_node_id(rc=status)
+
+      binding = CallbackMethodBinding(method_id, get_net_id, put_net_id)
+
+      call binding%bind_get_argument('x', id_a, rc=status)
+      @assertEqual(0, status)
+      call binding%bind_get_argument('x', id_b, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_rebinding_same_argument_name_is_rejected
+
+   ! Task 8.1/8.2 / spec "Invocation waits until every required argument
+   ! path is ready" + "A ready method is invoked exactly once per
+   ! invocation request": the get-network provider is fed by a
+   ! TransformGraphNode that has not yet run; invoke_callback_method
+   ! pulls it current (REQ-REV-006) before invoking, invokes exactly
+   ! once, and advances the put-network target's revision only after
+   ! that successful invocation.
+   @test
+   subroutine test_invoke_pulls_get_then_invokes_then_advances_put()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: producer_id, get_provider_id, put_target_id, method_id
+      type(StateItemNode) :: get_provider_node, put_target_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: producer
+      type(CountingCompute) :: strategy
+      type(DependencyNetworkId) :: get_net_id, put_net_id
+      type(MethodGraphNode) :: method_node
+      type(RecordingAdapter) :: adapter
+      type(CallbackMethodBinding) :: binding
+      class(GraphNode), pointer :: node
+      type(NodeRevision) :: put_revision_after
+      integer, target :: run_count
+      integer, target :: call_count
+      integer, target :: run_count_at_invoke
+      integer :: status
+
+      graph = ComponentGraph()
+      get_net_id = graph%create_network(rc=status)
+      put_net_id = graph%create_network(rc=status)
+
+      run_count = 0
+      call_count = 0
+      run_count_at_invoke = -1
+      strategy%run_count => run_count
+
+      producer_id = graph%next_node_id(rc=status)
+      producer = TransformGraphNode(producer_id, strategy)
+      call producer%declare_output_port('out', rc=status)
+      call graph%register_node(producer, rc=status)
+
+      get_provider_id = graph%next_node_id(rc=status)
+      get_provider_node = StateItemNode(get_provider_id, payload, revision)
+      call graph%register_node(get_provider_node, rc=status)
+      call graph%add_dependency(get_net_id, producer_id, get_provider_id, rc=status)
+      call graph%bind_port(get_net_id, producer_id, 'out', get_provider_id, rc=status)
+
+      put_target_id = graph%next_node_id(rc=status)
+      put_target_node = StateItemNode(put_target_id, payload, revision)
+      call graph%register_node(put_target_node, rc=status)
+
+      adapter%run_count_source => run_count
+      adapter%call_count => call_count
+      adapter%run_count_at_invoke => run_count_at_invoke
+
+      method_id = graph%next_node_id(rc=status)
+      method_node = MethodGraphNode(method_id, adapter)
+      call graph%register_node(method_node, rc=status)
+
+      binding = CallbackMethodBinding(method_id, get_net_id, put_net_id)
+      call binding%bind_get_argument('value', get_provider_id, rc=status)
+      @assertEqual(0, status)
+      call binding%bind_put_argument('value', put_target_id, rc=status)
+      @assertEqual(0, status)
+
+      ! Not yet ready: the get-network producer has never run.
+      @assertEqual(0, run_count)
+
+      call invoke_callback_method(graph, binding, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, call_count)
+      @assertEqual(1, run_count_at_invoke)
+      @assertEqual(1, run_count)
+
+      node => graph%get_node(put_target_id)
+      select type (node)
+      class is (StateItemNode)
+         put_revision_after = node%get_revision()
+      class default
+         @assertTrue(.false.)
+      end select
+      @assertTrue(put_revision_after%is_valid())
+
+      ! Invoked again on request -> exactly one more invocation (once
+      ! per invocation request, not "already done, skip").
+      call invoke_callback_method(graph, binding, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, call_count)
+   end subroutine test_invoke_pulls_get_then_invokes_then_advances_put
+
+end module Test_CallbackMethodBinding

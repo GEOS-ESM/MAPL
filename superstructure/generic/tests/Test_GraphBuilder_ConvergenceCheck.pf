@@ -1,0 +1,210 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Tasks 5.2/5.3 (spec/12-methods-and-drivers.md REQ-MTH-011 step (c),
+! griddedcomponentdriver-integration-lifecycle spec.md "The realize/
+! accept/realize initialization cycle terminates on defined convergence
+! or fails explicitly"). graphbuilder_run_connect_hook's new hard-error
+! check for an unresolved required import once the graph is frozen -
+! promoted from graphbuilder_run_activate_hook's existing warning-only
+! report (design.md Decisions).
+!
+! Test-only OuterMetaComponent instances are built the same way
+! Test_GraphBuilder.pf does (bypassing SetServices/DSO machinery).
+module Test_GraphBuilder_ConvergenceCheck
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_ConnectionPt_mod, only: ConnectionPt
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
+   use mapl_MatchConnection_mod, only: MatchConnection
+   use gFTL2_StringVector, only: StringVector
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! Directly builds a top-level OuterMetaComponent, bypassing
+   ! SetServices/DSO machinery - same helper as Test_GraphBuilder.pf.
+   subroutine make_outer_meta(name, outer_gc, outer_meta, rc)
+      character(*), intent(in) :: name
+      type(ESMF_GridComp), intent(out) :: outer_gc
+      type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: user_gc
+      type(GriddedComponentDriver) :: user_gc_driver
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(content='{}', _RC)
+      outer_gc = ESMF_GridCompCreate(name='['//trim(name)//']', _RC)
+      user_gc = ESMF_GridCompCreate(name=name, _RC)
+      user_gc_driver = GriddedComponentDriver(user_gc)
+
+      call attach_outer_meta(outer_gc, _RC)
+      outer_meta => get_outer_meta(outer_gc, _RC)
+#ifndef __GFORTRAN__
+      outer_meta = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+#else
+      block
+         type(OuterMetaComponent) :: tmp
+         tmp = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+         outer_meta = tmp
+      end block
+#endif
+      call outer_meta%init_meta(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_outer_meta
+
+   function make_var(state_intent, short_name) result(var_spec)
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = state_intent
+      var_spec%short_name = short_name
+   end function make_var
+
+   ! Shared two-child (child_src/child_dst) parent fixture, matching
+   ! Test_GraphBuilder.pf's own connect_all-style MatchConnection shape.
+   ! When leave_unresolved is .true., child_dst additionally declares an
+   ! import ('Q') with no matching export - the never-resolvable case.
+   subroutine make_two_child_fixture(parent_meta, leave_unresolved, rc)
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta
+      logical, intent(in) :: leave_unresolved
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call make_outer_meta('comp_convergence_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      if (leave_unresolved) then
+         call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'Q')) ! never matched
+      end if
+
+      call gb%run_advertise_hook(src_meta)
+      call gb%run_advertise_hook(dst_meta)
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_two_child_fixture
+
+   ! Spec scenario "Cycle reaching the iteration limit without
+   ! convergence fails explicitly": an import that can never be
+   ! resolved is still unresolved once the graph is frozen (the fixed
+   ! schedule has run out) - the new check raises an explicit failure
+   ! rather than only logging a warning, but freeze itself already
+   ! succeeded (component initialization is not aborted - design.md
+   ! Risks "still caught... downgraded to a logged failure").
+   @test(npes=[0])
+   subroutine test_unresolved_import_after_freeze_fails_explicitly(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(ComponentGraph), pointer :: parent_graph
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call make_two_child_fixture(parent_meta, leave_unresolved=.true., _RC)
+
+      call gb%run_connect_hook(parent_meta)
+      @assertExceptionRaised( &
+           'GraphBuilder: unresolved required import(s) remain once the fixed realize/accept/realize '// &
+           'schedule ends (griddedcomponentdriver-integration-lifecycle design.md "REQ-MTH-011 step (c) convergence")')
+
+      ! freeze() itself already succeeded before the new check ran -
+      ! the hard error does not roll that back.
+      parent_graph => parent_meta%get_component_graph()
+      @assert_that(parent_graph%is_frozen(), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unresolved_import_after_freeze_fails_explicitly
+
+   ! Spec scenario "Cycle converging within the iteration limit proceeds
+   ! normally": every declared import resolves by the time the graph
+   ! freezes - no exception, ordinary success.
+   @test(npes=[0])
+   subroutine test_fully_resolved_proceeds_without_error(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(ComponentGraph), pointer :: parent_graph
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call make_two_child_fixture(parent_meta, leave_unresolved=.false., _RC)
+
+      call gb%run_connect_hook(parent_meta)
+
+      parent_graph => parent_meta%get_component_graph()
+      @assert_that(parent_graph%is_frozen(), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_fully_resolved_proceeds_without_error
+
+   ! Task 5.3 (regression): a second call to run_connect_hook on an
+   ! already-frozen, fully-resolved graph is a safe no-op - it must not
+   ! re-raise the hard-error check with stale/inconsistent state, and
+   ! must not attempt to mutate the frozen graph (spec scenario "Cycle
+   ! stops once an iteration makes no further progress"), matching the
+   ! real ESMF-driven double GENERIC_INIT_ACCEPT_TRANSFER invocation
+   ! graphbuilder_resolve_connections' own header comment documents.
+   @test(npes=[0])
+   subroutine test_second_call_on_frozen_graph_is_noop(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(ComponentGraph), pointer :: parent_graph
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call make_two_child_fixture(parent_meta, leave_unresolved=.false., _RC)
+
+      call gb%run_connect_hook(parent_meta)
+      parent_graph => parent_meta%get_component_graph()
+      @assert_that(parent_graph%is_frozen(), is(true()))
+
+      ! Second invocation - no exception expected, graph remains frozen.
+      call gb%run_connect_hook(parent_meta)
+      @assert_that(parent_graph%is_frozen(), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_second_call_on_frozen_graph_is_noop
+
+end module Test_GraphBuilder_ConvergenceCheck

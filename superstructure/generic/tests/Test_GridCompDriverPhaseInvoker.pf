@@ -1,0 +1,325 @@
+! Task 2.4 (spec/12-methods-and-drivers.md REQ-MTH-003/007/009,
+! griddedcomponentdriver-integration-lifecycle spec.md "GridComp phase
+! invocation reaches the real driver's own phase entry points"). First
+! test in this repo exercising a real GriddedComponentDriver wrapping a
+! real (minimal, bare) ESMF_GridComp through the new
+! GridCompDriverPhaseInvoker - no OuterMetaComponent, no GraphBuilder,
+! no MethodGraphNode: only the invoker/resolver/driver seam this
+! sub-change adds.
+!
+! Lives in this suite (not superstructure/generic/graph/tests/) because
+! it needs a real, working ESMF_Clock/ESMF_GridComp lifecycle - this
+! suite's own EXTRA_INITIALIZE (mapl_pFUnit_Initialize_mod%Initialize,
+! which calls MAPL_initialize()) already sets
+! defaultDefaultCalKind=ESMF_CALKIND_GREGORIAN (mapl/MaplFramework.F90),
+! which plain ESMF_TimeSet(..., timeString=...) needs - exactly why
+! Test_timestep_propagation.pf's own real GriddedComponentDriver%run()
+! calls already work in this suite with no special handling. The
+! graph/tests suite's GraphCoreTestInit is deliberately minimal (no
+! calendar, no full MAPL) and is the wrong home for this.
+!
+! @Test(type=ESMF_TestMethod, npes=[1]) throughout - Test_GraphBuilder.pf's
+! own established precedent (test_materialize_extensions_enabled_creates_real_field)
+! for exactly this situation: a plain MpiTestMethod sub-communicator
+! (npes=[0], used by every OTHER test in this suite) gives the test a
+! sub-communicator object but does NOT reconfigure ESMF's own default
+! VM - a real ESMF collective call (SetServices/Initialize/Run/Finalize
+! all qualify) still synchronizes against this suite's full ambient
+! multi-PE test world (MAX_PES 4) and deadlocks/errors without
+! ESMF_TestMethod's proper per-test VM scoping. Every other test in
+! this suite only constructs OuterMetaComponent metadata and never
+! actually invokes a real GridComp phase, which is why npes=[0] has
+! sufficed for them but not here.
+#include "unused_dummy.H"
+module Test_GridCompDriverPhaseInvoker
+   use mapl_GridCompDriverPhaseInvoker_mod, only: GridCompDriverPhaseInvoker
+   use mapl_MethodInvocationAdapter_mod, only: DriverResolver
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_ErrorHandling_mod
+   use ESMF_TestMethod_mod
+   use ESMF
+   use pfunit
+   implicit none
+
+   ! Module-level counters: the ESMF entry-point subroutines below have
+   ! a fixed external interface (gc, importState, exportState, clock,
+   ! rc) with no room for a closure/context argument, so recording their
+   ! own invocation has to go through module state - same pattern
+   ! ProtoExtDataGC.F90's own `resolved` module variable uses. Reset at
+   ! the top of every @test to avoid cross-test leakage.
+   integer, save :: init_count = 0
+   integer, save :: run_count = 0
+   integer, save :: finalize_count = 0
+
+   ! Resolves 'known-driver' to a driver supplied by the test, fails
+   ! loudly for any other key (spec scenario "Unresolvable driver key
+   ! fails loudly").
+   type, extends(DriverResolver) :: RecordingDriverResolver
+      type(GriddedComponentDriver), pointer :: held_driver => null()
+   contains
+      procedure :: resolve => recording_resolve
+   end type RecordingDriverResolver
+
+contains
+
+   function recording_resolve(this, driver_key, rc) result(driver)
+      class(RecordingDriverResolver), intent(in) :: this
+      character(*), intent(in) :: driver_key
+      integer, optional, intent(out) :: rc
+      class(GriddedComponentDriver), pointer :: driver
+
+      driver => null()
+      if (driver_key /= 'known-driver') then
+         if (present(rc)) rc = 1
+         return
+      end if
+      driver => this%held_driver
+
+      if (present(rc)) rc = 0
+   end function recording_resolve
+
+   subroutine test_init(gc, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gc
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+
+      init_count = init_count + 1
+      rc = ESMF_SUCCESS
+   end subroutine test_init
+
+   subroutine test_run(gc, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gc
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+
+      run_count = run_count + 1
+      rc = ESMF_SUCCESS
+   end subroutine test_run
+
+   subroutine test_finalize(gc, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gc
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+
+      finalize_count = finalize_count + 1
+      rc = ESMF_SUCCESS
+   end subroutine test_finalize
+
+   ! ESMF_GridCompSetEntryPoint alone is not enough - ESMF's own
+   ! diagnostic ("No VM was started for this Component - missing
+   ! SetServices() call?", PET*.ESMF_LogFile) confirms
+   ! ESMF_GridCompSetServices must be called; the entry points are
+   ! registered from inside it instead.
+   subroutine test_setservices(gc, rc)
+      type(ESMF_GridComp) :: gc
+      integer, intent(out) :: rc
+
+      integer :: status
+
+      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, test_init, phase=1, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         rc = status
+         return
+      end if
+      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, test_run, phase=1, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         rc = status
+         return
+      end if
+      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, test_finalize, phase=1, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         rc = status
+         return
+      end if
+
+      rc = ESMF_SUCCESS
+   end subroutine test_setservices
+
+   ! Bare ESMF_GridComp with the three test entry points registered via
+   ! a real ESMF_GridCompSetServices call at phase 1 - no MAPL
+   ! SetServices/generic machinery involved at all (design.md Risks:
+   ! "no real MethodGraphNode is constructed... manually constructing
+   ! the MethodGraphNode/GridCompMethodInvocation rather than via
+   ! GraphBuilder").
+   subroutine make_test_driver(driver, rc)
+      type(GriddedComponentDriver), intent(out) :: driver
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_GridComp) :: gc
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: timestep
+      integer :: status
+      integer :: user_status
+
+      ! GriddedComponentDriver%initialize/run/finalize pass this%clock
+      ! straight through to ESMF_GridCompInitialize/Run/Finalize's own
+      ! clock= argument - an uninitialized default ESMF_Clock there is
+      ! not a valid ESMF object, so a real (if otherwise unused) clock
+      ! is required here even though this test's own entry points never
+      ! read it.
+      call ESMF_TimeSet(t0, timeString="2000-01-01T00:00:00", rc=status)
+      call ESMF_TimeSet(t1, timeString="2000-01-01T01:00:00", rc=status)
+      call ESMF_TimeIntervalSet(timestep, s=3600, rc=status)
+      clock = ESMF_ClockCreate(timeStep=timestep, startTime=t0, stopTime=t1, refTime=t0, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         if (present(rc)) rc = status
+         return
+      end if
+
+      gc = ESMF_GridCompCreate(name='gridcomp_driver_phase_invoker_test', rc=status)
+      if (status /= ESMF_SUCCESS) then
+         if (present(rc)) rc = status
+         return
+      end if
+
+      call ESMF_GridCompSetServices(gc, test_setservices, userRC=user_status, rc=status)
+      if (status /= ESMF_SUCCESS .or. user_status /= ESMF_SUCCESS) then
+         if (present(rc)) rc = max(status, user_status, 1)
+         return
+      end if
+
+      driver = GriddedComponentDriver(gc, clock=clock)
+
+      if (present(rc)) rc = ESMF_SUCCESS
+   end subroutine make_test_driver
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_invoke_initialize_reaches_driver(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GriddedComponentDriver), target :: driver
+      type(RecordingDriverResolver) :: resolver
+      type(GridCompDriverPhaseInvoker) :: invoker
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      integer :: status
+
+      init_count = 0
+      run_count = 0
+      finalize_count = 0
+
+      call make_test_driver(driver, status)
+      @assertEqual(0, status)
+      resolver%held_driver => driver
+
+      invoker = GridCompDriverPhaseInvoker(resolver, ESMF_METHOD_INITIALIZE)
+      call invoker%invoke_phase('known-driver', 1, arguments, bindings, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(1, init_count)
+      @assertEqual(0, run_count)
+      @assertEqual(0, finalize_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_invoke_initialize_reaches_driver
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_invoke_run_reaches_driver(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GriddedComponentDriver), target :: driver
+      type(RecordingDriverResolver) :: resolver
+      type(GridCompDriverPhaseInvoker) :: invoker
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      integer :: status
+
+      init_count = 0
+      run_count = 0
+      finalize_count = 0
+
+      call make_test_driver(driver, status)
+      @assertEqual(0, status)
+      resolver%held_driver => driver
+
+      invoker = GridCompDriverPhaseInvoker(resolver, ESMF_METHOD_RUN)
+      call invoker%invoke_phase('known-driver', 1, arguments, bindings, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(0, init_count)
+      @assertEqual(1, run_count)
+      @assertEqual(0, finalize_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_invoke_run_reaches_driver
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_invoke_finalize_reaches_driver(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GriddedComponentDriver), target :: driver
+      type(RecordingDriverResolver) :: resolver
+      type(GridCompDriverPhaseInvoker) :: invoker
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      integer :: status
+
+      init_count = 0
+      run_count = 0
+      finalize_count = 0
+
+      call make_test_driver(driver, status)
+      @assertEqual(0, status)
+      resolver%held_driver => driver
+
+      invoker = GridCompDriverPhaseInvoker(resolver, ESMF_METHOD_FINALIZE)
+      call invoker%invoke_phase('known-driver', 1, arguments, bindings, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(0, init_count)
+      @assertEqual(0, run_count)
+      @assertEqual(1, finalize_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_invoke_finalize_reaches_driver
+
+   ! Spec scenario "Unresolvable driver key fails loudly": the
+   ! resolver's own failure propagates through invoke_phase() rather
+   ! than being swallowed, and no phase is exercised.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_invoke_propagates_unresolvable_driver_key(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GriddedComponentDriver), target :: driver
+      type(RecordingDriverResolver) :: resolver
+      type(GridCompDriverPhaseInvoker) :: invoker
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      integer :: status
+
+      init_count = 0
+      run_count = 0
+      finalize_count = 0
+
+      call make_test_driver(driver, status)
+      @assertEqual(0, status)
+      resolver%held_driver => driver
+
+      invoker = GridCompDriverPhaseInvoker(resolver, ESMF_METHOD_RUN)
+      call invoker%invoke_phase('nonexistent-driver', 1, arguments, bindings, rc=status)
+      ! GridCompDriverPhaseInvoker.F90's own driver => this%resolver%resolve(driver_key, _RC)
+      ! propagates the resolver's non-zero rc through a bare _VERIFY,
+      ! which raises a pFUnit-visible exception in this suite (its
+      ! EXTRA_INITIALIZE installs the pFUnit-aware throw method) - must
+      ! be consumed here, same pattern as
+      ! Test_GraphBuilder.pf's own multi-frame-unwind precedent.
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      @assertEqual(0, init_count)
+      @assertEqual(0, run_count)
+      @assertEqual(0, finalize_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_invoke_propagates_unresolvable_driver_key
+
+end module Test_GridCompDriverPhaseInvoker
