@@ -17,6 +17,14 @@ add_custom_target(copy_scenarios ALL
 # load_field_dictionary can find it by relative path at runtime.
 configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
 
+# Also copy it under the default path MaplFramework%initialize_field_dictionary
+# looks for when no field_dictionary: cap.yaml key is present (which is the
+# case for every pFUnit binary here - see openspec change
+# use-field-dictionary-in-scenario-tests). This activates the fixture above
+# for all six of this directory's pFUnit executables (they share this
+# WORKING_DIRECTORY), in PERMISSIVE ValidationMode (the default).
+configure_file(field_dictionary_test.yaml geos_field_dictionary.yaml COPYONLY)
+
 # Create a shared library for common test sources to avoid parallel build race conditions
 # When multiple test suites compile the same OTHER_SOURCES files to the same MODULE_DIRECTORY,
 # they can conflict during parallel builds
@@ -32,9 +40,14 @@ target_include_directories(MAPL.generic.test_common PUBLIC $<BUILD_INTERFACE:${M
 set(COMMON_LINK_LIBRARIES MAPL.generic.test_common MAPL.pfunit MAPL.statistics)
 
 # 1. MAPL.generic.scenarios - End-to-end integration test scenarios
+# (PERMISSIVE ValidationMode - the default). Nine scenarios verified clean
+# under STRICT (scenario_1, scenario_2, scenario_reexport_twice,
+# propagate_geom, memory_checkpoint, statistics, statistics_real,
+# vertical_regridding_2, vertical_regridding_3) live instead in
+# MAPL.generic.scenarios.strict below - see openspec change
+# use-field-dictionary-in-scenario-tests.
 set(scenarios_test_srcs
   Test_Scenarios.pf
-  Test_MemoryCheckpoint.pf
 )
 
 add_pfunit_ctest(
@@ -48,6 +61,28 @@ add_pfunit_ctest(
 )
 set_tests_properties(MAPL.generic.scenarios PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios)
+
+# 1b. MAPL.generic.scenarios.strict - the same scenario-check machinery,
+# restricted to the subset of scenarios verified clean under STRICT
+# field-dictionary ValidationMode. Uses Initialize_strict (same module,
+# pfunit/MAPL_Initialize.F90) instead of Initialize so this one executable
+# runs with ValidationMode=STRICT; every other pFUnit binary is unaffected.
+set(scenarios_strict_test_srcs
+  Test_ScenariosStrict.pf
+  Test_MemoryCheckpoint.pf
+)
+
+add_pfunit_ctest(
+  MAPL.generic.scenarios.strict
+  TEST_SOURCES ${scenarios_strict_test_srcs}
+  LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
+  EXTRA_INITIALIZE Initialize_strict
+  EXTRA_USE mapl_pFUnit_Initialize_mod
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  MAX_PES 4
+)
+set_tests_properties(MAPL.generic.scenarios.strict PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.scenarios.strict proto_extdata_gc proto_stat_gc copy_scenarios)
 
 # 2. MAPL.generic.transforms - Data transformation tests
 set(transforms_test_srcs
@@ -194,6 +229,7 @@ endif()
 
 # Apply environment settings to all test suites
 set_tests_properties(MAPL.generic.scenarios PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.scenarios.strict PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.transforms PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.vertical PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.aspects PROPERTIES ENVIRONMENT "${TEST_ENV}")
@@ -203,6 +239,7 @@ set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
 # Add all test suites to build-tests target
 add_dependencies(build-tests
   MAPL.generic.scenarios
+  MAPL.generic.scenarios.strict
   MAPL.generic.transforms
   MAPL.generic.vertical
   MAPL.generic.aspects

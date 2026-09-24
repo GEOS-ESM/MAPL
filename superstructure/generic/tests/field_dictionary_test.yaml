@@ -188,3 +188,85 @@ air_pressure PL:
 A:
   long_name: Test Scalar A
   canonical_units: m
+
+# --- Entries for superstructure/generic/tests/scenarios/ (activated for the
+# first time by openspec change use-field-dictionary-in-scenario-tests;
+# GEOS-ESM/MAPL#5413 follow-up). Only scenarios explicitly migrated to use
+# this dictionary are covered here - see that change's design.md for the
+# full rationale and the list of scenarios intentionally left unmigrated.
+
+# --- Batch 1: the I_A1/E_A1/Z_A1 (+ I_B1/E_B1/Z_B1) structural family reused
+# verbatim (units 'm') across scenario_1, scenario_2, scenario_reexport_twice,
+# propagate_geom, memory_checkpoint, and names_1. These names/units are also
+# incidentally reused as unconnected placeholders by several unrelated,
+# out-of-scope scenarios (history_wildcard, history_1, service_with_geom,
+# service_with_options, service_service, 3d_specs, precision_extension*,
+# ungridded_dims); verified none of those check long_name against a
+# conflicting value, and one (service_service) already independently
+# declares the identical 'Z_A1 long name' explicitly, confirming this is
+# already the established convention for this family, not a new collision.
+I_A1 standard name:
+  long_name: I_A1 long name
+  canonical_units: m
+
+E_A1 standard name:
+  long_name: E_A1 long name
+  canonical_units: m
+
+Z_A1 standard name:
+  long_name: Z_A1 long name
+  canonical_units: m
+
+I_B1 standard name:
+  long_name: I_B1 long name
+  canonical_units: m
+
+E_B1 standard name:
+  long_name: E_B1 long name
+  canonical_units: m
+
+Z_B1 standard name:
+  long_name: Z_B1 long name
+  canonical_units: m
+
+# --- Batch 2: statistics_real (and statistics' single 'T' field, which
+# reuses the existing air_temperature entry above). CF snake_case names
+# replacing the scenario's previous human-sentence standard_names
+# ("Surface Temperature", etc. - not valid CF standard names).
+surface_temperature:
+  long_name: Surface Temperature
+  canonical_units: K
+
+surface_air_pressure:
+  long_name: Surface Pressure
+  canonical_units: hPa
+
+specific_humidity:
+  long_name: Specific Humidity
+  canonical_units: '1'
+
+air_pressure_at_sea_level:
+  long_name: Sea Level Pressure
+  canonical_units: hPa
+
+# Note: statistics_real's vector fields (standard_name
+# '(eastward_wind,northward_wind) horizontal velocity') are NOT looked up
+# here - a Vector's compound-encoded standard_name is exempt from
+# FieldDictionary lookup by design (generic/standard-name-enforcement); only
+# the per-component agreement check applies to them.
+
+# --- Batch 3: vertical_regridding_2 / vertical_regridding_3. Both scenarios'
+# distinctly-suffixed names (air_pressure_ple_edge/air_pressure_c_center/
+# air_pressure_dyn_center, temperature_dyn_center/temperature_phys_center)
+# were consolidated onto air_pressure/air_temperature (the latter reusing
+# the existing entry above) - the suffixes distinguished which component's
+# copy of the field you were looking at, not a real difference in physical
+# quantity, and the previous names caused two of that scenario's
+# connections to have disagreeing standard_names between Import and Export.
+air_pressure:
+  long_name: Air Pressure
+  canonical_units: hPa
+
+height:
+  long_name: Height
+  canonical_units: m

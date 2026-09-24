@@ -331,8 +331,7 @@ contains
          ! ValidationMode (generic/standard-name-enforcement).
          fd_config => get_field_dictionary_config()
          if (fd_config%get_validation_mode() == MAPL_VALIDATION_MODE_STRICT) then
-            _FAIL('standard_name "' // standard_name // &
-                 '" not found in field dictionary (strict mode).')
+            _FAIL('standard_name "' // standard_name // '" not found in field dictionary (strict mode).')
          else
             call lgr%warning('standard_name "' // standard_name // &
                  '" not found in field dictionary; ' // &
@@ -736,8 +735,16 @@ contains
       case (MAPL_STATEITEM_STATE%ot)
          aspect = StateClassAspect(state_intent=this%state_intent)
       case (MAPL_STATEITEM_VECTOR%ot)
-         std_name_1 = 'unknown'
-         std_name_2 = 'unknown'
+         ! Bugfix (found via openspec change use-field-dictionary-in-scenario-tests):
+         ! std_name_1/std_name_2 are intentionally left UNALLOCATED (not
+         ! defaulted to the literal 'unknown') when this%standard_name is
+         ! absent, so StandardNameAspect's own constructor treats them as
+         ! unchecked/wildcard - matching every other absent-standard_name
+         ! case (generic/standard-name-enforcement). The literal 'unknown'
+         ! string used here previously was treated as a real, specified
+         ! name, causing spurious standard_name mismatch warnings for any
+         ! Vector import/export left without an explicit standard_name
+         ! (e.g. the statistics gridcomp's internal vector accumulators).
          if (allocated(this%standard_name)) then
             call split_name(this%standard_name, std_name_1, std_name_2, _RC)
          end if

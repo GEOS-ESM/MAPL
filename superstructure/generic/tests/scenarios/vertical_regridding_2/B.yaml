@@ -13,10 +13,15 @@ mapl:
       units: hPa
       levels: [13.]
 
+  # I_B previously declared its own placeholder standard_name ('I_B'),
+  # disagreeing with its connected Export (A's PLE, 'air_pressure_ple_edge'
+  # at the time) - see openspec change use-field-dictionary-in-scenario-tests.
+  # Declaring none here (rather than repeating 'air_pressure') lets it
+  # correctly report as a wildcard/unchecked Import, matching whatever its
+  # Export declares.
   states:
     import:
       I_B:
-        standard_name: I_B
         units: hPa
         vertical_dim_spec: center
     export: {}

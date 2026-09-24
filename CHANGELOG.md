@@ -40,6 +40,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Default mode is permissive, so existing configurations are unaffected
   until a run opts into strict mode.
 
+### Changed
+
+- Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a
+  checked-in fixture that had never actually been loaded by anything) as
+  the default-path `FieldDictionary` for all six of
+  `superstructure/generic/tests/`'s pFUnit binaries
+  (`MAPL.generic.scenarios/.transforms/.vertical/.aspects/.components/.core`),
+  so MAPL's own test suite - especially the YAML-driven scenario tests -
+  finally exercises `FieldDictionary`-driven `long_name`/`units` defaulting
+  and `standard_name` enforcement against real data, in the default
+  permissive `ValidationMode`. Extended that fixture and converged three
+  scenario batches onto it: the `I_A1`/`E_A1`/`Z_A1` (+`I_B1`/`E_B1`/`Z_B1`)
+  structural family shared by `scenario_1`, `scenario_2`,
+  `scenario_reexport_twice`, `propagate_geom`, and `memory_checkpoint`
+  (also unifying several of these scenarios' previously arbitrary,
+  inconsistent placeholder `units`); `statistics`/`statistics_real`,
+  converged from human-sentence `standard_name`s ("Surface Temperature",
+  not a valid CF standard name) to proper CF `snake_case` identifiers
+  (`surface_temperature`, `surface_air_pressure`, `specific_humidity`,
+  `air_pressure_at_sea_level`), and fixed a stray-whitespace bug in the
+  vector fields' compound-encoded name that left the second component's
+  split name with a leading space; and `vertical_regridding_2`/`_3`,
+  consolidating several distinctly-suffixed synthetic names
+  (`air_pressure_ple_edge`/`air_pressure_c_center`/`air_pressure_dyn_center`,
+  `temperature_dyn_center`/`temperature_phys_center`) onto plain
+  `air_pressure`/`air_temperature`, which also fixed three pre-existing
+  Import/Export `standard_name` disagreements those distinct suffixes had
+  been causing. Roughly twenty other scenario directories are intentionally
+  left unmigrated for a future increment and continue to run under the
+  default permissive `ValidationMode` in `MAPL.generic.scenarios`.
+- Split the nine scenarios converged above off into a new
+  `MAPL.generic.scenarios.strict` pFUnit executable/ctest target
+  (`superstructure/generic/tests/Test_ScenariosStrict.pf`, plus
+  `Test_MemoryCheckpoint.pf` which moved wholesale since it only covers
+  `memory_checkpoint`) that runs with `ValidationMode=STRICT`, via a new
+  `Initialize_strict()` entry point alongside the existing `Initialize()` in
+  `mapl_pFUnit_Initialize_mod` (`pfunit/MAPL_Initialize.F90`); no other
+  pFUnit binary is affected. This is the first MAPL test coverage that
+  genuinely exercises `STRICT` enforcement end-to-end against realistic
+  scenario fixtures (previously only isolated `Test_Aspects.pf`/
+  `Test_FieldDictionary.pf` unit tests exercised `STRICT` in isolation).
+  Verifying this split surfaced (and this change fixes) two further
+  genuine, pre-existing defects that permissive mode's warn-and-continue
+  behavior had always masked: three connected Import/Export pairs in the
+  `I_A1`/`E_A1`/`Z_A1` family declared disagreeing `standard_name`s
+  (`scenario_1`, `scenario_2`, `propagate_geom`), and
+  `superstructure/generic/tests/gridcomps/ProtoStatGridComp.F90` hardcoded
+  `standard_name='<unknown>'` (`StandardNameAspect`'s own "not set"
+  sentinel) as if it were a real declared name.
+
 ### Fixed
 
 - Fixed a spurious `standard_name` convention violation raised while
@@ -58,6 +108,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   each side. The coordinate-field aspect map now also overrides
   `StandardNameAspect` (to unchecked), matching the existing treatment of
   `UnitsAspect`.
+- Fixed two `standard_name`-enforcement bugs found while wiring MAPL's own
+  test suite up to a real `FieldDictionary` (see `### Changed` above).
+  (1) `VariableSpec`'s `MAPL_STATEITEM_VECTOR` case defaulted a Vector's two
+  split component names to the literal string `'unknown'` when no
+  `standard_name` was declared at all, instead of leaving them unset;
+  `StandardNameAspect` only treats its own `'<unknown>'` sentinel as a
+  wildcard, so the literal `'unknown'` was treated as a real, specified
+  name and produced spurious "standard_name convention violation" warnings
+  for every such Vector (e.g. the statistics gridcomp's internal vector
+  accumulators) connecting to any vector with a real name. (2)
+  `StandardNameAspect%connect_to_export` unconditionally copied the
+  export's (possibly unallocated) `standard_name` onto the import side,
+  which both crashed with an "ALLOCATABLE ... is not currently allocated"
+  runtime error once (1) was fixed and stopped masking it, and would have
+  incorrectly discarded the import's own declared name whenever the export
+  side legitimately declared none.
 - Avoided passing the HConfig geometry-factory predicate as an internal
   procedure callback, fixing a Flang 23 crash on hardened macOS systems; see
   [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).

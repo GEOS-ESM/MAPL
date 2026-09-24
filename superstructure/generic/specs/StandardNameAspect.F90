@@ -193,11 +193,26 @@ contains
       integer :: status
 
       ! Already validated equal-or-accepted by matches(); this endpoint
-      ! unconditionally adopts the export's value (no per-alias inheritance
-      ! needed - there is only one field-wide value once connected).
+      ! adopts the export's value whenever the export declares one - this
+      ! is "the export's value wins" for both the agreeing and the
+      ! permissive-mismatch case (see matches()). Bugfix (found via
+      ! openspec change use-field-dictionary-in-scenario-tests):
+      ! export_%standard_name is unallocated whenever the export side is
+      ! itself unchecked/wildcard (it declared no standard_name at all -
+      ! matches()'s "Import declares one, Export does not" branch accepts
+      ! exactly this case). When that happens, there is nothing for the
+      ! export to contribute, so this side's own already-declared value (if
+      ! any) is left untouched rather than being overwritten with nothing -
+      ! unconditionally copying export_%standard_name here would both crash
+      ! on the unallocated assignment and incorrectly discard this side's
+      ! only real information.
       export_ = to_StandardNameAspect(export, _RC)
-      this%standard_name = export_%standard_name
-      call this%set_characteristic_state(export_%get_characteristic_state())
+      if (allocated(export_%standard_name)) then
+         this%standard_name = export_%standard_name
+         call this%set_characteristic_state(export_%get_characteristic_state())
+      end if
+      ! else: export contributed nothing - this side's own prior value and
+      ! characteristic_state (whatever matches() already accepted) stand.
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)

@@ -1,12 +1,18 @@
 #include "MAPL_TestErr.h"
 
-! scenario_1, scenario_2, scenario_reexport_twice, propagate_geom,
-! vertical_regridding_2, vertical_regridding_3, statistics, and
-! statistics_real have moved to Test_ScenariosStrict.pf
-! (MAPL.generic.scenarios.strict, run under STRICT ValidationMode) - see
-! openspec change use-field-dictionary-in-scenario-tests. Everything
-! remaining here continues to run under the default PERMISSIVE mode.
-module Test_Scenarios
+! Same check/setup machinery as Test_Scenarios.pf, restricted to the subset
+! of scenarios verified clean under STRICT field-dictionary ValidationMode
+! (see openspec change use-field-dictionary-in-scenario-tests). Built into
+! its own executable (MAPL.generic.scenarios.strict) via the
+! Initialize_strict() EXTRA_INITIALIZE hook (pfunit/MAPL_Initialize.F90) so
+! ValidationMode=STRICT for this process without affecting
+! MAPL.generic.scenarios or any other pFUnit binary. Any scenario moved here
+! must be re-verified strict-clean; do not add one without confirming first
+! (a spurious/unrelated framework bug can make an otherwise-fine scenario
+! fail here even though its own standard_name usage is fine - see the
+! VerticalGridAspect%make_transform fix in GEOS-ESM/MAPL#5413 for a real
+! example).
+module Test_ScenariosStrict
 
    use mapl_Generic_mod
    use mapl_GenericPhases_mod
@@ -104,7 +110,6 @@ contains
    function get_parameters() result(params)
 
       type(ScenarioDescription), allocatable :: params(:)
-      type(ScenarioDescription) :: p
 
       params = [ScenarioDescription:: ]
 
@@ -120,12 +125,6 @@ contains
       params = [params, add_params('value', check_field_value)]
       params = [params, add_params('vertical_profile', check_field_vertical_profile)]
 
-      ! Service oriented tests
-      p = ScenarioDescription('service_service', 'parent.yaml', 'fieldcount', check_fieldcount)
-      params = [params, p]
-      p = ScenarioDescription('service_with_options', 'parent.yaml', 'fieldcount', check_fieldcount)
-      params = [params, p]
-
    contains
 
       function add_params(check_name, check_stateitem) result(params)
@@ -134,30 +133,14 @@ contains
          procedure(I_check_stateitem) :: check_stateitem
 
          params = [ &
-              ScenarioDescription('scenario_0',              'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('names_1',                 'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('precision_extension_3d',  'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('service_with_options',    'parent.yaml',      check_name, check_stateitem), &
-              ! ScenarioDescription('service_with_geom',       'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('export_dependency',       'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('regrid',                  'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('regrid_r8',               'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('vector_1',                'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_regridding',     'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_alignment_same_grid',   'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_alignment_regrid',      'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_alignment_with_grid',   'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('expression',              'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('expression_match',        'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('expression_defer_geom',   'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('invalidate',              'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('history_1',               'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('history_wildcard',        'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('extdata_1',               'cap.yaml',         check_name, check_stateitem) &
+              ScenarioDescription('scenario_1',              'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('scenario_2',              'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('scenario_reexport_twice', 'grandparent.yaml', check_name, check_stateitem), &
+              ScenarioDescription('propagate_geom',          'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('vertical_regridding_2',   'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('vertical_regridding_3',   'AGCM.yaml',        check_name, check_stateitem), &
+              ScenarioDescription('statistics',              'cap.yaml',         check_name, check_stateitem), &
+              ScenarioDescription('statistics_real',         'cap.yaml',         check_name, check_stateitem) &
               ]
       end function add_params
 
@@ -1225,4 +1208,4 @@ contains
       return
    end function num_fields
 
-end module Test_Scenarios
+end module Test_ScenariosStrict
