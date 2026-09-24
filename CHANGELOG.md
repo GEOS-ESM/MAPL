@@ -9,8 +9,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Added
+
+- Enforced the `standard_name` convention between a connected Import and
+  Export (GEOS-ESM/MAPL#5413). A new `StandardNameAspect`
+  (`superstructure/generic/specs/StandardNameAspect.F90`), modeled directly
+  on `UnitsAspect`, checks agreement via the standard `AspectMap`
+  connection-resolution `matches()` machinery: equal values connect
+  silently; an Import may declare a wildcard/unset `standard_name` to
+  accept any Export; an Export with no declared `standard_name` warns but
+  still connects (never a fatal error); a genuine disagreement is a fatal
+  error in the new `STRICT` `ValidationMode` and a warning (Export's value
+  wins) in the default `PERMISSIVE` mode. `standard_name` is now a single,
+  unaliased, field-wide value (like `units`) rather than the per-connection-
+  endpoint value it briefly became; `long_name` is unaffected and keeps its
+  existing per-alias/inheritance behavior. For a `Vector` item, whose
+  `standard_name` is a compound `"(name1,name2)"` encoding of two
+  independent component names, agreement is checked per component.
+  `FieldDictionary`-driven `long_name`/`units` defaulting from a declared
+  `standard_name` (`VariableSpec`) is now unconditional - the
+  `use_field_dictionary` opt-in flag has been removed (**BREAKING**: any
+  code passing `use_field_dictionary=` to `make_VariableSpec`/
+  `MAPL_GridCompAddSpec` will need to drop the argument); a `standard_name`
+  absent from the dictionary is likewise a fatal error in strict mode. The
+  previously-unused `ValidationMode`/`FieldDictionaryConfig`
+  (`infrastructure/field_dictionary/`) are now wired into
+  `MaplFramework%initialize_field_dictionary`, which accepts either the
+  existing bare-string `field_dictionary: <path>` cap.yaml key or a new
+  mapping form, `field_dictionary: {path: ..., validation_mode: strict|permissive}`.
+  Default mode is permissive, so existing configurations are unaffected
+  until a run opts into strict mode.
+
 ### Fixed
 
+- Fixed a spurious `standard_name` convention violation raised while
+  resolving a vertical regrid between two mismatched vertical grids
+  (`VerticalGridAspect%make_transform`, GEOS-ESM/MAPL#5413). Building the
+  criteria for looking up/extending the vertical coordinate field (e.g.
+  `PLE`/`ZLE`) copied the *payload* field's entire `AspectMap` wholesale and
+  then overrode only `UnitsAspect` with the coordinate field's own units;
+  `StandardNameAspect` was not similarly overridden, so the coordinate
+  field's lookup incorrectly inherited the payload's `standard_name` as a
+  match requirement. Since the coordinate field is a different physical
+  quantity than the payload (e.g. payload `air_temperature` vs. coordinate
+  `air_pressure`), this failed in `STRICT` `ValidationMode` (and warned
+  spuriously in the default permissive mode) for essentially every
+  cross-vertical-grid connection with a real, distinct `standard_name` on
+  each side. The coordinate-field aspect map now also overrides
+  `StandardNameAspect` (to unchecked), matching the existing treatment of
+  `UnitsAspect`.
 - Avoided passing the HConfig geometry-factory predicate as an internal
   procedure callback, fixing a Flang 23 crash on hardened macOS systems; see
   [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).

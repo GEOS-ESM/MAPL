@@ -1,10 +1,22 @@
-# Simple two-component scenario used to verify that 'standard_name' and
-# 'long_name' field metadata is retained independently at each connection
-# endpoint (spec: generic/field-name-propagation).
+# Simple two-component scenario used to verify 'standard_name'/'long_name'
+# field metadata behavior across a connection (specs:
+# generic/field-name-propagation for long_name, generic/standard-name-
+# enforcement for standard_name).
 #
-#   E_A1 (named) -> I_B1 (named):   each side keeps its own declared name.
-#   E_A2 (named) -> I_B2 (unnamed): I_B2 inherits E_A2's name (predecessor
-#                                   propagation).
+#   E_A1 (named) -> I_B1 (named, disagreeing): long_name keeps its own
+#                                   declared value on each side
+#                                   (field-name-propagation); standard_name
+#                                   is a single field-wide value under
+#                                   standard-name-enforcement, so both sides
+#                                   read the Export's (E_A1's) value - the
+#                                   disagreement with I_B1's own declared
+#                                   standard_name is a warning in the
+#                                   default PERMISSIVE ValidationMode, not
+#                                   an error.
+#   E_A2 (named) -> I_B2 (unnamed): I_B2 inherits E_A2's name (long_name:
+#                                   predecessor propagation; standard_name:
+#                                   trivially the same single field-wide
+#                                   value - no disagreement here).
 #   E_A3 (named, R8) -> I_B3 (unnamed, R4): typekind mismatch forces an
 #                                   intermediate coupler; I_B3 (and A's own
 #                                   R4-converted extension E_A3(1)) inherit
@@ -34,14 +46,14 @@
 
 - component: child_B/<user>
   import:
-    I_B1: {status: complete, standard_name: 'I_B1 standard name', long_name: 'I_B1 long name'}
+    I_B1: {status: complete, standard_name: 'E_A1 standard name', long_name: 'I_B1 long name'}
     I_B2: {status: complete, standard_name: 'E_A2 standard name', long_name: 'E_A2 long name'}
     I_B3: {status: complete, typekind: R4, standard_name: 'E_A3 standard name', long_name: 'E_A3 long name'}
   export:
     E_B1: {status: gridset}
 - component: child_B
   import:
-    I_B1: {status: complete, standard_name: 'I_B1 standard name', long_name: 'I_B1 long name'}
+    I_B1: {status: complete, standard_name: 'E_A1 standard name', long_name: 'I_B1 long name'}
     I_B2: {status: complete, standard_name: 'E_A2 standard name', long_name: 'E_A2 long name'}
     I_B3: {status: complete, typekind: R4, standard_name: 'E_A3 standard name', long_name: 'E_A3 long name'}
   export:

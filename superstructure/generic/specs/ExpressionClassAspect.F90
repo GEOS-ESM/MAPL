@@ -60,11 +60,13 @@ module mapl_ExpressionClassAspect_mod
       type(StateRegistry), pointer :: registry => null()
       type(ESMF_Field) :: payload ! to hold metadata
       ! Descriptive metadata declared on this export item itself (e.g. E_sum's own
-      ! standard_name/long_name).  Not used by this aspect directly - exposed via
-      ! get_standard_name()/get_long_name() so that whatever FieldClassAspect ends
-      ! up superseding this one (via StateItemSpec%make_extension) can inherit it
-      ! rather than silently losing it.  See generic/field-name-propagation.
-      character(:), allocatable :: standard_name
+      ! long_name).  Not used by this aspect directly - exposed via
+      ! get_long_name() so that whatever FieldClassAspect ends up superseding
+      ! this one (via StateItemSpec%make_extension) can inherit it rather than
+      ! silently losing it.  See generic/field-name-propagation.
+      ! (standard_name is no longer part of this inheritance mechanism - it is
+      ! a single field-wide value enforced via StandardNameAspect; see
+      ! generic/standard-name-enforcement.)
       character(:), allocatable :: long_name
    contains
       procedure :: get_aspect_order
@@ -85,7 +87,6 @@ module mapl_ExpressionClassAspect_mod
 
       procedure, nopass :: get_aspect_id
       procedure :: get_payload
-      procedure :: get_standard_name
       procedure :: get_long_name
    end type ExpressionClassAspect
 
@@ -95,17 +96,15 @@ module mapl_ExpressionClassAspect_mod
 
 contains
 
-   function new_ExpressionClassAspect(expression, registry, standard_name, long_name) result(aspect)
+   function new_ExpressionClassAspect(expression, registry, long_name) result(aspect)
       type(ExpressionClassAspect) :: aspect
       character(*), intent(in) :: expression
       type(StateRegistry), target, intent(in) :: registry
-      character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
 
       aspect%expression = expression
       aspect%registry => registry
 
-      if (present(standard_name)) aspect%standard_name = standard_name
       if (present(long_name)) aspect%long_name = long_name
 
    end function new_ExpressionClassAspect
@@ -327,7 +326,7 @@ contains
          goal_spec = StateItemSpec(ESMF_STATEINTENT_EXPORT, other_aspects, empty)
          goal_aspects => goal_spec%get_aspects()
          n = goal_aspects%erase(CLASS_ASPECT_ID)
-         call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
+         call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(long_name=''))
          call goal_spec%create(_RC)
          call goal_spec%allocate(_RC)
 
@@ -571,13 +570,6 @@ contains
       _UNUSED_DUMMY(bundle)
       _UNUSED_DUMMY(state)
    end subroutine get_payload
-
-   subroutine get_standard_name(this, standard_name)
-      class(ExpressionClassAspect), intent(in) :: this
-      character(:), allocatable, intent(out) :: standard_name
-
-      if (allocated(this%standard_name)) standard_name = this%standard_name
-   end subroutine get_standard_name
 
    subroutine get_long_name(this, long_name)
       class(ExpressionClassAspect), intent(in) :: this

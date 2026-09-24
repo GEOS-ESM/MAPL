@@ -1,13 +1,4 @@
-# generic/field-name-propagation Specification
-
-## Purpose
-
-Defines how the `standard_name` and `long_name` descriptive metadata of a coupled
-`ESMF_Field` state item is retained and resolved independently at each connection
-endpoint (Export, Import, and any intermediate transform), instead of being
-collapsed to a single field-wide value.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Each connection endpoint retains its own declared field name metadata
 When a component declares a `long_name` for one of its own Field state items
@@ -76,20 +67,6 @@ any inheritance step.
   declares a `long_name` anywhere along the connection chain
 - **THEN** reading `long_name` from either `E`'s or `I`'s state returns a
   well-defined fallback value (`"unknown"`) rather than an error
-
-### Requirement: Field name metadata is only defined once a field is allocation-complete
-`standard_name`/`long_name` metadata SHALL only be considered defined for a Field
-state item once that item has reached `ESMF_FIELDSTATUS_COMPLETE`. Querying this
-metadata on a field that is not yet complete (for example, an unconnected import
-that remains merely grid-set, or an export with no downstream consumer) is not a
-supported operation and SHALL NOT be relied upon by callers.
-
-#### Scenario: Querying an unconnected, incomplete import
-- **WHEN** a component declares an import that is never satisfied by any connection
-  and therefore never reaches `ESMF_FIELDSTATUS_COMPLETE`
-- **THEN** the system does not guarantee any particular `standard_name`/`long_name`
-  value for that field, and test/verification code SHALL only assert on this
-  metadata for fields confirmed to be `ESMF_FIELDSTATUS_COMPLETE`
 
 ### Requirement: Expression-derived exports retain their own declared name metadata
 When a component declares a `long_name` for an export state item whose value

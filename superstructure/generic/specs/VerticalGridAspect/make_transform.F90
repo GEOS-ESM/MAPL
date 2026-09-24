@@ -4,6 +4,7 @@ submodule (mapl_VerticalGridAspect_mod) make_transform_smod
 
    use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
    use mapl_ComponentDriver_mod
+   use mapl_StandardNameAspect_mod, only: StandardNameAspect
 
    implicit none(type,external)
 
@@ -54,9 +55,19 @@ contains
       physical_dimension = find_common_physical_dimension(src, dst_, _RC)
       units = dst_%vertical_grid%get_units(physical_dimension, _RC)
 
-      ! Build aspect map for coordinate field creation
+      ! Build aspect map for coordinate field creation. The coordinate field
+      ! (e.g. PLE/ZLE) is a different physical quantity than the payload
+      ! field being regridded, so the payload's own UnitsAspect and
+      ! StandardNameAspect (inherited wholesale via `other_aspects`, which
+      ! belongs to the payload connection) must not be imposed as match
+      ! requirements on it - only UnitsAspect was previously overridden;
+      ! StandardNameAspect was not, causing a spurious standard_name
+      ! convention violation (in STRICT mode) whenever the payload's
+      ! standard_name differs from the coordinate field's own (the normal
+      ! case - e.g. payload "air_temperature" vs coordinate "air_pressure").
       coord_aspects = other_aspects
       call coord_aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
+      call coord_aspects%insert(STANDARD_NAME_ASPECT_ID, StandardNameAspect())
 
       v_in_field = src%vertical_grid%get_coordinate_field(physical_dimension, coord_aspects, _RC)
       select type (vg => src%vertical_grid)
