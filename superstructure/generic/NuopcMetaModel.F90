@@ -2,7 +2,8 @@
 
 module mapl_NuopcMetaModel_mod
    use esmf
-   use NUOPC, only: NUOPC_Advertise
+   use NUOPC, only: NUOPC_Advertise, NUOPC_GetStateMemberLists
+   use NUOPC, only: NUOPC_CompSearchRevPhaseMap, NUOPC_Realize
    use NUOPC_Model, only: NUOPC_ModelGet
    use mapl_MethodPhasesMap_mod
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
@@ -18,11 +19,11 @@ module mapl_NuopcMetaModel_mod
    use mapl_MultiState_mod
    use mapl_StateRegistry_mod
    use gFTL2_StringVector
-   use gftl2_StringStringMap
    use mapl_SimpleAlarm_mod
    use mapl_ComponentSpecParser_mod
    use mapl_VirtualConnectionPt_mod
    use mapl_StateItemSpec_mod
+   use mapl_state_api
    ! NUOPC label_Advertise phases
    use mapl_enums_api, only: MAPL_GENERIC_INIT_SET_CLOCK, MAPL_GENERIC_INIT_ADVERTISE
    use mapl_enums_api, only: MAPL_GENERIC_INIT_GEOM_A, MAPL_GENERIC_INIT_GEOM_B
@@ -62,8 +63,6 @@ module mapl_NuopcMetaModel_mod
       type(ComponentSpec) :: component_spec
       type(SimpleAlarm) :: user_run_alarm
       logical :: run_if_alarm_rings_next = .FALSE.
-      type(StringStringMap) :: importNames
-      type(StringStringMap) :: exportNames
    contains
       procedure :: get_user_gc_driver
       procedure :: has_geom
@@ -206,15 +205,16 @@ contains
       integer :: status
       type(ESMF_State) :: innerState, outerState, importState, exportState
       character(len=:), allocatable :: names(:)
-      character(len=ESMF_MAXSTR) :: standardName, units
+      character(len=:), allocatable :: standardName, units
+      integer :: i
 
       call NUOPC_ModelGet(this%self_model, importState=importState, exportState=exportState, _RC)
       outerState = importState
       if(stateIntent == ESMF_STATEINTENT_EXPORT) outerState=exportState
       innerState = this%get_state(stateIntent, _RC)
-      call get_field_names(innerState, names, _RC)
+      names = get_field_names(innerState, _RC)
       do i=1, size(names)
-         call MAPL_StateGet(innerState, name=names(i), standardName=standardName, units=units, _RC)
+         call MAPL_StateGet(innerState, names(i), standard_name=standardName, units=units, _RC)
          call NUOPC_Advertise(outerState, StandardName=standardName, Units=units, name=names(i), _RC)
       end do
       _RETURN(_SUCCESS)
@@ -242,7 +242,7 @@ contains
    end subroutine self_advertise
 
    subroutine advertise_variable(this, var_spec, unusable, rc)
-      class(NuopcMetaModel), intent(inout) ::  this
+      class(NuopcMetaModel), target, intent(inout) ::  this
       type(VariableSpec), intent(in) :: var_spec
       class(KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
@@ -252,8 +252,8 @@ contains
       type(StateItemSpec), pointer :: item_primary
       type(VirtualConnectionPt) :: virtual_pt
 
-      item_spec = var_spec%make_StateItemSpec(this%registry, &
-           this%geom, this%geom_id, this%vertical_grid, _RC)
+      item_spec = var_spec%make_StateItemSpec(this%registry, _RC)
+           !this%geom, this%geom_id, this%vertical_grid, _RC)
       virtual_pt = var_spec%make_virtualPt()
       call this%registry%add_primary_spec(virtual_pt, item_spec)
 
@@ -409,13 +409,11 @@ contains
       !call logger%info(phaseLabel//": ...completed")
 
       _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
 
    end subroutine advance_
 
    subroutine advance_clock(this, rc)
       class(NuopcMetaModel), intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
       type(GriddedComponentDriverMapIterator) :: iter
@@ -458,7 +456,7 @@ contains
       end if
 
       _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
+
    end subroutine advance_clock
 
    function get_phases(this, method_flag) result(phases)
@@ -576,11 +574,11 @@ contains
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       
       itemNameList => null()
-      call this%get_state(ESMF_STATEINTENT_EXPORT, innerState, _RC)
+      innerState = this%get_state(ESMF_STATEINTENT_EXPORT, _RC)
       call NUOPC_ModelGet(this%self_model, exportState=exportState, _RC)
-      call NUOPC_GetStateMemberLists(exportState, itemNameList=itemNameList(:), _RC)
+      call NUOPC_GetStateMemberLists(exportState, itemNameList=itemNameList, _RC)
       _ASSERT(associated(itemNameList), 'itemNameList not associated')
-      do i=1, size(fieldList)
+      do i=1, size(itemNameList)
          call MAPL_StateGet(innerState, itemNameList(i), field=innerField, _RC)
          call NUOPC_Realize(exportState, innerField, _RC)
       end do
@@ -686,6 +684,7 @@ contains
    function get_state(this, stateIntent, rc) result(state)
       type(ESMF_State) :: state
       class(NuopcMetaModel), intent(inout) :: this
+      type(ESMF_StateIntent_Flag), intent(in) :: stateIntent
       integer, optional, intent(out) :: rc
       integer :: status
       type(MultiState) :: user_states
@@ -696,69 +695,33 @@ contains
       _RETURN(_SUCCESS)
 
    end function get_state
-      
-   function get_field_name_map(state, unusable, standardFirst, rc) result(name_map)
-      type(StringStringMap) :: name_map
-      type(ESMF_State), intent(inout) :: state
-      class(KeywordEnforcer), optional, intent(out) :: unusable
-      logical, optional, intent(in) :: standardFirst
-      integer, optional, intent(out) :: rc
-      integer :: status
-      logical :: standardFirst_
+
+   function get_field_names(state, rc) result(names)
       character(len=:), allocatable :: names(:)
-      character(len=ESMF_MAXSTR) :: standardName
-      procedure, pointer :: add_entry
-
-      add_entry => name_first
-      if(present(standardFirst)) then
-         if(standardFirst) add_entry => standard_name_first
-      end if
-      call get_field_names(state, names, _RC)
-      name_map = StringStringMap()
-      do i=1, size(names)
-         call MAPL_State(state, name=names(i), standardName=standardName, _RC)
-         call add_entry(names(i), standardName)
-      end do
-
-      _RETURN(_SUCCESS)
-
-   contains
-
-      subroutine name_first(map, name, standardName)
-         type(StringStringMap), intent(inout) :: map
-         character(len=*), intent(in) :: name
-         character(len=*), intent(in) :: standardName
-
-         call map%insert(name, standardName)
-
-      end subroutine name_first
-
-      subroutine standard_name_first(map, name, standardName)
-         type(StringStringMap), intent(inout) :: map
-         character(len=*), intent(in) :: name
-         character(len=*), intent(in) :: standardName
-
-         call map%insert(standardName, name)
-
-      end subroutine standard_name_first
-
-   end function get_field_name_map
-
-   subroutine get_field_names(state, names, rc)
       type(ESMF_State), intent(inout) :: state
-      character(len=*), allocatable, intent(out) :: names(:)
       integer, optional, intent(out) :: rc
       integer :: status
       character(len=:), allocatable :: itemNames(:)
       type(ESMF_StateItem_Flag), allocatable :: itemTypes(:)
+      integer :: itemCount
 
       call ESMF_StateGet(state, itemCount=itemCount, _RC)
       allocate(character(len=ESMF_MAXSTR) :: itemNames(itemCount))
       allocate(itemTypes(itemCount))
-      call ESMF_StateGet(state, itemTypes=itemTypes, itemNames=names, _RC)
+      call ESMF_StateGet(state, itemTypeList=itemTypes, itemNameList=names, _RC)
       names = pack(itemNames, itemTypes == ESMF_STATEITEM_FIELD)
       _RETURN(_SUCCESS)
 
-   end subroutine get_field_names
+   end function get_field_names
          
+   subroutine set_default_activation(itemSpec, stateIntent, rc) 
+      type(StateItemSpec), pointer :: itemSpec
+      type(ESMF_StateIntent_Flag), intent(in) :: stateIntent
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_default_activation
+
 end module mapl_NuopcMetaModel_mod
