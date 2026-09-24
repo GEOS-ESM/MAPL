@@ -267,7 +267,7 @@ contains
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
 
-      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      alias = MAPL_NamedAlias(this%payload, name=inner_name, _RC)
 
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then

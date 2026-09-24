@@ -188,6 +188,11 @@ contains
 
       call field_aspect%get_payload(field=field, _RC)
 
+      ! field_aspect's own metadata (standard_name/long_name) - other_aspects
+      ! only covers *sibling* characteristic aspects (units, typekind, ...),
+      ! not this per-component FieldClassAspect itself.
+      call field_aspect%update_payload(field=field, _RC)
+
       associate(e => other_aspects%ftn_end())
         iter = other_aspects%ftn_begin()
         do while (iter /= e)
@@ -332,7 +337,7 @@ contains
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
 
-      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      alias = MAPL_NamedAlias(this%payload, name=inner_name, _RC)
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then
          if (intent /= 'import') then

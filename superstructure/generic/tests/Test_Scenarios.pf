@@ -924,11 +924,13 @@ contains
       integer, intent(out) :: rc
 
       type(ESMF_Field) :: field
-      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
       character(:), allocatable :: expected_standard_name
-      character(:), allocatable :: found_standard_name
-      integer :: status
+      character(len=:), allocatable :: expected_standard_names(:)
+      integer :: status, j
       type(ESMF_StateItem_Flag) :: itemtype
+      logical :: is_sequence
       character(len=:), allocatable :: msg
 
       msg = description
@@ -938,31 +940,81 @@ contains
          return
       end if
 
-      call ESMF_StateGet(state, short_name, itemtype=itemtype)
-      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
+      itemtype = get_itemtype(state, short_name, _RC)
+      if (itemtype /= ESMF_STATEITEM_FIELD .and. itemtype /= ESMF_STATEITEM_FIELDBUNDLE) then ! that's ok
          rc = 0
          return
       end if
 
-      call ESMF_StateGet(state, short_name, field, _RC)
+      if (itemtype == ESMF_STATEITEM_FIELD) then
+         call ESMF_StateGet(state, short_name, field, _RC)
+         expected_standard_name = ESMF_HConfigAsString(expectations,keyString='standard_name',_RC)
+         call check_one_field_standard_name(field, expected_standard_name, &
+              msg // ' :: ' // trim(short_name), _RC)
+      else ! ESMF_STATEITEM_FIELDBUNDLE
+         call ESMF_StateGet(state, short_name, bundle, _RC)
+         call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
 
-      ! standard_name/long_name are only attached to a field once it has
-      ! been fully allocated (status: complete).  A merely 'gridset' field
-      ! (e.g. an unconnected import, or an export with no consumer) has not
-      ! had this metadata applied yet, so there is nothing meaningful to
-      ! check.  (Use the 'status' check to verify completeness separately.)
-      call ESMF_FieldGet(field, status=field_status, _RC)
-      if (field_status /= ESMF_FIELDSTATUS_COMPLETE) then
-         rc = 0
-         return
+         is_sequence = ESMF_HConfigIsSequence(expectations, keyString='standard_name', _RC)
+         if (is_sequence) then
+            expected_standard_names = ESMF_HConfigAsStringSeq(expectations, stringLen=ESMF_MAXSTR, &
+                 keyString='standard_name', _RC)
+            @assert_that('standard_name list size must match bundle member count for ' // short_name, &
+                 size(expected_standard_names), is(equal_to(size(field_list))))
+         else
+            expected_standard_name = ESMF_HConfigAsString(expectations,keyString='standard_name',_RC)
+         end if
+
+         do j = 1, size(field_list)
+            if (is_sequence) then
+               call check_one_field_standard_name(field_list(j), trim(expected_standard_names(j)), &
+                    msg // ' :: ' // trim(short_name) // ' member ' // trim(int_to_string(j)), _RC)
+            else
+               call check_one_field_standard_name(field_list(j), expected_standard_name, &
+                    msg // ' :: ' // trim(short_name) // ' member ' // trim(int_to_string(j)), _RC)
+            end if
+         end do
       end if
-
-      call MAPL_FieldGet(field, standard_name=found_standard_name, _RC)
-
-      expected_standard_name = ESMF_HConfigAsString(expectations,keyString='standard_name',_RC)
-      @assert_that(msg // ' :: standard_name', found_standard_name, is(expected_standard_name))
 
       rc = 0
+
+   contains
+
+      function int_to_string(i) result(s)
+         integer, intent(in) :: i
+         character(:), allocatable :: s
+         character(len=12) :: buffer
+         write(buffer, '(i0)') i
+         s = trim(buffer)
+      end function int_to_string
+
+      subroutine check_one_field_standard_name(field, expected_standard_name, msg, rc)
+         type(ESMF_Field), intent(inout) :: field
+         character(*), intent(in) :: expected_standard_name
+         character(*), intent(in) :: msg
+         integer, intent(out) :: rc
+
+         type(ESMF_FieldStatus_Flag) :: field_status
+         character(:), allocatable :: found_standard_name
+         integer :: status
+
+         ! standard_name/long_name are only attached to a field once it has
+         ! been fully allocated (status: complete).  A merely 'gridset' field
+         ! (e.g. an unconnected import, or an export with no consumer) has not
+         ! had this metadata applied yet, so there is nothing meaningful to
+         ! check.  (Use the 'status' check to verify completeness separately.)
+         call ESMF_FieldGet(field, status=field_status, _RC)
+         if (field_status /= ESMF_FIELDSTATUS_COMPLETE) then
+            rc = 0
+            return
+         end if
+
+         call MAPL_FieldGet(field, standard_name=found_standard_name, _RC)
+         @assert_that(msg // ' :: standard_name', found_standard_name, is(expected_standard_name))
+
+         rc = 0
+      end subroutine check_one_field_standard_name
+
    end subroutine check_field_standard_name
 
    subroutine check_field_long_name(expectations, state, short_name, description, rc)
@@ -973,11 +1025,13 @@ contains
       integer, intent(out) :: rc
 
       type(ESMF_Field) :: field
-      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
       character(:), allocatable :: expected_long_name
-      character(:), allocatable :: found_long_name
-      integer :: status
+      character(len=:), allocatable :: expected_long_names(:)
+      integer :: status, j
       type(ESMF_StateItem_Flag) :: itemtype
+      logical :: is_sequence
       character(len=:), allocatable :: msg
 
       msg = description
@@ -987,27 +1041,77 @@ contains
          return
       end if
 
-      call ESMF_StateGet(state, short_name, itemtype=itemtype)
-      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
+      itemtype = get_itemtype(state, short_name, _RC)
+      if (itemtype /= ESMF_STATEITEM_FIELD .and. itemtype /= ESMF_STATEITEM_FIELDBUNDLE) then ! that's ok
          rc = 0
          return
       end if
 
-      call ESMF_StateGet(state, short_name, field, _RC)
+      if (itemtype == ESMF_STATEITEM_FIELD) then
+         call ESMF_StateGet(state, short_name, field, _RC)
+         expected_long_name = ESMF_HConfigAsString(expectations,keyString='long_name',_RC)
+         call check_one_field_long_name(field, expected_long_name, &
+              msg // ' :: ' // trim(short_name), _RC)
+      else ! ESMF_STATEITEM_FIELDBUNDLE
+         call ESMF_StateGet(state, short_name, bundle, _RC)
+         call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
 
-      ! See check_field_standard_name for rationale.
-      call ESMF_FieldGet(field, status=field_status, _RC)
-      if (field_status /= ESMF_FIELDSTATUS_COMPLETE) then
-         rc = 0
-         return
+         is_sequence = ESMF_HConfigIsSequence(expectations, keyString='long_name', _RC)
+         if (is_sequence) then
+            expected_long_names = ESMF_HConfigAsStringSeq(expectations, stringLen=ESMF_MAXSTR, &
+                 keyString='long_name', _RC)
+            @assert_that('long_name list size must match bundle member count for ' // short_name, &
+                 size(expected_long_names), is(equal_to(size(field_list))))
+         else
+            expected_long_name = ESMF_HConfigAsString(expectations,keyString='long_name',_RC)
+         end if
+
+         do j = 1, size(field_list)
+            if (is_sequence) then
+               call check_one_field_long_name(field_list(j), trim(expected_long_names(j)), &
+                    msg // ' :: ' // trim(short_name) // ' member ' // trim(int_to_string(j)), _RC)
+            else
+               call check_one_field_long_name(field_list(j), expected_long_name, &
+                    msg // ' :: ' // trim(short_name) // ' member ' // trim(int_to_string(j)), _RC)
+            end if
+         end do
       end if
-
-      call MAPL_FieldGet(field, long_name=found_long_name, _RC)
-
-      expected_long_name = ESMF_HConfigAsString(expectations,keyString='long_name',_RC)
-      @assert_that(msg // ' :: long_name', found_long_name, is(expected_long_name))
 
       rc = 0
+
+   contains
+
+      function int_to_string(i) result(s)
+         integer, intent(in) :: i
+         character(:), allocatable :: s
+         character(len=12) :: buffer
+         write(buffer, '(i0)') i
+         s = trim(buffer)
+      end function int_to_string
+
+      subroutine check_one_field_long_name(field, expected_long_name, msg, rc)
+         type(ESMF_Field), intent(inout) :: field
+         character(*), intent(in) :: expected_long_name
+         character(*), intent(in) :: msg
+         integer, intent(out) :: rc
+
+         type(ESMF_FieldStatus_Flag) :: field_status
+         character(:), allocatable :: found_long_name
+         integer :: status
+
+         ! See check_field_standard_name for rationale.
+         call ESMF_FieldGet(field, status=field_status, _RC)
+         if (field_status /= ESMF_FIELDSTATUS_COMPLETE) then
+            rc = 0
+            return
+         end if
+
+         call MAPL_FieldGet(field, long_name=found_long_name, _RC)
+         @assert_that(msg // ' :: long_name', found_long_name, is(expected_long_name))
+
+         rc = 0
+      end subroutine check_one_field_long_name
+
    end subroutine check_field_long_name
 
    subroutine check_fieldCount(expectations, state, short_name, description, rc)

@@ -3,6 +3,7 @@
 module mapl_ServiceClassAspect_mod
 
    use mapl_field_bundle_api
+   use mapl_field_api, only: MAPL_NamedAlias
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ACTIVE, MAPL_FIELDBUNDLETYPE_SERVICE
@@ -176,7 +177,7 @@ contains
       integer :: status
 
       short_name = actual_pt%get_esmf_name()
-      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
+      alias = MAPL_NamedAlias(this%payload, name=short_name, _RC)
 
       ! Add bundle to both import and export specs.
       call get_substate(multi_state%importstate, actual_pt%get_comp_name(), substate=substate, _RC)
