@@ -1,0 +1,20 @@
+! Task 1.3 (spec/15-callbacks.md REQ-CB-003).
+module Test_CallbackArgumentSpec
+   use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE, operator(==)
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_construction_and_accessors()
+      type(CallbackArgumentSpec) :: spec
+
+      spec = CallbackArgumentSpec('tracers', MAPL_STATEITEM_FIELDBUNDLE)
+
+      @assertEqual('tracers', spec%get_name())
+      @assertTrue(spec%get_expected_kind() == MAPL_STATEITEM_FIELDBUNDLE)
+   end subroutine test_construction_and_accessors
+
+end module Test_CallbackArgumentSpec

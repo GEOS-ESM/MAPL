@@ -78,6 +78,7 @@ module mapl_OuterMetaComponent_mod
    contains
 
       procedure :: get_user_gc_driver
+      procedure :: get_child_driver
       procedure :: set_hconfig
       procedure :: get_hconfig
       procedure :: has_geom
@@ -605,6 +606,23 @@ module mapl_OuterMetaComponent_mod
          type(GriddedComponentDriver), pointer :: user_gc_driver
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_user_gc_driver
+
+      ! Pointer-returning child-driver lookup, deliberately narrower
+      ! than get_child_by_name()'s existing value-copy convention
+      ! (get_child_by_name.F90's own "deep copy of shallow ESMF objects
+      ! - be careful using result" caveat): added for
+      ! OuterMetaComponentDriverResolver.F90, which needs a driver only
+      ! transiently, inside one resolve() call, and never retains it -
+      ! griddedcomponentdriver-integration-lifecycle design.md Decisions
+      ! ("The concrete DriverResolver implementation lives in
+      ! superstructure/generic/"). Keeps `children` itself private to
+      ! this module.
+      module function get_child_driver(this, child_name, rc) result(driver)
+         class(GriddedComponentDriver), pointer :: driver
+         class(OuterMetaComponent), target, intent(in) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_driver
 
       module subroutine connect_all(this, src_comp, dst_comp, rc)
          class(OuterMetaComponent), intent(inout) :: this

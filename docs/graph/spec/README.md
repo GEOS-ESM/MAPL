@@ -7,7 +7,7 @@ baseline for future design and code review.
 
 ## Scope
 
-MAPL2 builds automatic couplers (Transforms) between component import/export
+MAPL3 builds automatic couplers (Transforms) between component import/export
 state items implicitly. This specification defines an explicit graph
 architecture — nodes, values, dependency networks, and a builder layer — that
 makes that mechanism first-class, and extends it to support multi-input/output

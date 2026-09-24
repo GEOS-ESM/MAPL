@@ -1,0 +1,96 @@
+! Task 3.6 (spec/12-methods-and-drivers.md REQ-MTH-001/003,
+! spec/15-callbacks.md REQ-CB-001).
+module Test_StateMethodInvocation
+   use mapl_StateMethodInvocation_mod, only: StateMethodInvocation
+   use mapl_MethodInvocationAdapter_mod, only: StateMethodInvoker
+   use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_ArgumentSpec_mod, only: ArgumentSpec
+   use mapl_AccessSpec_mod, only: MAPL_ACCESS_OUT
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
+   use funit
+   implicit none
+
+   ! Records exactly what invoke_method() was called with. Held via a
+   ! pointer for the same reason as
+   ! Test_GridCompMethodInvocation.pf's CallRecord (survives the
+   ! sourced-allocation copy StateMethodInvocation's constructor
+   ! performs).
+   type :: CallRecord
+      integer :: call_count = 0
+      type(NodeId) :: state_node_id
+      character(:), allocatable :: method_name
+      integer :: argument_count = -1
+      integer :: binding_count = -1
+   end type CallRecord
+
+   type, extends(StateMethodInvoker) :: RecordingStateInvoker
+      type(CallRecord), pointer :: record => null()
+   contains
+      procedure :: invoke_method => recording_invoke_method
+   end type RecordingStateInvoker
+
+contains
+
+   subroutine recording_invoke_method(this, state_node_id, method_name, arguments, bindings, rc)
+      class(RecordingStateInvoker), intent(inout) :: this
+      type(NodeId), intent(in) :: state_node_id
+      character(*), intent(in) :: method_name
+      type(ArgumentSpecMap), intent(in) :: arguments
+      type(StateItemMemberMap), intent(in) :: bindings
+      integer, optional, intent(out) :: rc
+
+      this%record%call_count = this%record%call_count + 1
+      this%record%state_node_id = state_node_id
+      this%record%method_name = method_name
+      this%record%argument_count = int(arguments%size())
+      this%record%binding_count = int(bindings%size())
+
+      rc = 0
+   end subroutine recording_invoke_method
+
+   @test
+   subroutine test_invoke_calls_injected_invoker_exactly_once_no_clock_needed()
+      type(StateMethodInvocation) :: adapter
+      type(RecordingStateInvoker) :: invoker
+      type(CallRecord), target :: record
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: state_id
+      integer :: status
+
+      invoker%record => record
+      state_id = gen%next()
+      adapter = StateMethodInvocation(state_id, 'get', invoker)
+
+      call arguments%insert('tracers', ArgumentSpec('tracers', MAPL_ACCESS_OUT))
+      call bindings%insert('tracers', gen%next())
+
+      ! No clock supplied at all - REQ-CB-001's callback methods have
+      ! none.
+      call adapter%invoke(arguments, bindings, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(1, record%call_count)
+      @assertTrue(record%state_node_id == state_id)
+      @assertEqual('get', record%method_name)
+      @assertEqual(1, record%argument_count)
+      @assertEqual(1, record%binding_count)
+   end subroutine test_invoke_calls_injected_invoker_exactly_once_no_clock_needed
+
+   @test
+   subroutine test_invoke_fails_with_no_invoker_attached()
+      type(StateMethodInvocation) :: adapter
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      type(NodeIdGenerator) :: gen
+      integer :: status
+
+      adapter = StateMethodInvocation(gen%next(), 'put')
+
+      call adapter%invoke(arguments, bindings, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_invoke_fails_with_no_invoker_attached
+
+end module Test_StateMethodInvocation

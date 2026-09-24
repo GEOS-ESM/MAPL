@@ -84,6 +84,7 @@ module mapl_GraphBuilder_mod
    use mapl_VariableSpec_mod, only: VariableSpec
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator
    use mapl_VariableSpecVector_mod, only: operator(/=)
+   use mapl_CompositeStateMaterialization_mod, only: materialize_composite
    use mapl_Connection_mod, only: Connection
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
    use mapl_ConnectionVector_mod, only: operator(/=)
@@ -94,6 +95,8 @@ module mapl_GraphBuilder_mod
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeLabel_mod, only: NodeLabel
+   use mapl_NodeIdLabelMap_mod, only: NodeIdLabelMap
    use mapl_PortId_mod, only: PortId
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
@@ -111,10 +114,28 @@ module mapl_GraphBuilder_mod
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_CENTER, &
         VERTICAL_STAGGER_NONE, operator(==)
+   ! -- callback wiring (openspec/changes/callback-wiring, Phase 4d) -----
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface
+   use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
+   use mapl_CallbackArgumentSpecMap_mod, only: CallbackArgumentSpecMap, CallbackArgumentSpecMapIterator, operator(/=)
+   use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
+   use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
+   use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
+   use mapl_MethodGraphNode_mod, only: MethodGraphNode
+   use mapl_StateMethodInvocation_mod, only: StateMethodInvocation
+   use mapl_AccessSpec_mod, only: AccessSpec, operator(==), MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT
+   use mapl_AccessSpecMap_mod, only: AccessSpecMap, AccessSpecMapIterator, operator(/=)
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap, StateItemMemberMapIterator, operator(/=)
+   ! ----------------------------------------------------------------------
    use pflogger, only: Logger
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, &
         ESMF_STATEINTENT_EXPORT
    use esmf, only: ESMF_Geom, ESMF_StateItem_Flag
+   use esmf, only: ESMF_State, ESMF_StateCreate
    use esmf, only: operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -123,6 +144,20 @@ module mapl_GraphBuilder_mod
    public :: GraphBuilder
    public :: item_key
    public :: proxy_key
+
+   ! openspec/changes/callback-wiring: exposed (like item_key/proxy_key
+   ! above) so tests exercising this capability's own internal
+   ! resolution steps directly - not just through the public
+   ! GraphBuilder%resolve_connections()/check_unsatisfied_imports() entry
+   ! points - do not need to duplicate this module's private logic.
+   public :: QualifiedExportEntry
+   public :: build_qualified_export_namespace
+   public :: resolve_callback_import
+   public :: materialize_callback_collection
+   public :: resolve_callback_destination
+   public :: build_callback_state_binding
+   public :: build_callback_method_binding
+   public :: invoke_callback_method
 
    ! Stateless-per-call by design (design.md Decisions): GraphBuilder
    ! carries no state of its own - every bound procedure still takes the
@@ -137,6 +172,7 @@ module mapl_GraphBuilder_mod
       procedure, nopass :: check_unsatisfied_imports => graphbuilder_check_unsatisfied_imports
       procedure, nopass :: resolve_connections => graphbuilder_resolve_connections
       procedure, nopass :: freeze => graphbuilder_freeze
+      procedure, nopass :: build_label_map => graphbuilder_build_label_map
       procedure, nopass :: run_advertise_hook => graphbuilder_run_advertise_hook
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
@@ -161,6 +197,25 @@ module mapl_GraphBuilder_mod
          integer, optional, intent(out) :: rc
       end subroutine I_match_op
    end interface
+
+   ! openspec/changes/callback-wiring: one entry in the flattened
+   ! qualified-export namespace (build_qualified_export_namespace,
+   ! below) - comp_path is '' for the namespace root's own export, else
+   ! the '/'-joined descendant path (e.g. 'CHEM/DU') the export was
+   ! found under (design.md Decision 2 - a plain character key, no
+   ! VirtualConnectionPt dependency for the storage shape itself).
+   ! Public (not an opaque handle) since matching and interface-
+   ! conformance both need the underlying VariableSpec, and resolving a
+   ! match into a real NodeId needs comp_path.
+   type :: QualifiedExportEntry
+      character(:), allocatable :: qualified_name
+      character(:), allocatable :: comp_path
+      type(VariableSpec) :: var_spec
+   end type QualifiedExportEntry
+
+   ! Argument names are short, framework-declared identifiers - matches
+   ! mapl_MethodInvocation_mod's own MAX_ARGUMENT_NAME_LEN precedent.
+   integer, parameter :: MAX_CALLBACK_ARGUMENT_NAME_LEN = 128
 
 contains
 
@@ -214,6 +269,7 @@ contains
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
       type(PortId) :: port_id
+      type(StringVector) :: member_names
 
       key = item_key(var_spec%state_intent, var_spec%short_name)
 
@@ -225,14 +281,26 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      id = graph%next_node_id(_RC)
+      ! openspec/changes/composite-state-spec: a VariableSpec with
+      ! declared members is a composite - build its real, individually
+      ! addressable node tree (mapl_CompositeStateMaterialization_mod)
+      ! instead of the flat, unallocated-payload node below. No other
+      ! branch of this procedure changes: the same identity key,
+      ! resource-index registration, and port registration apply
+      ! uniformly to both cases (design.md Decisions).
+      member_names = var_spec%get_member_names()
+      if (member_names%size() > 0) then
+         id = materialize_composite(graph, var_spec, _RC)
+      else
+         id = graph%next_node_id(_RC)
 
-      ! payload/revision are left default-initialized (no ESMF handle
-      ! allocated, NodeRevision invalid): this item is advertised, not
-      ! yet realized - REALIZE happens in a later init phase this slice
-      ! does not touch (design.md Non-Goals).
-      node = StateItemNode(id, payload, revision)
-      call graph%register_node(node, _RC)
+         ! payload/revision are left default-initialized (no ESMF handle
+         ! allocated, NodeRevision invalid): this item is advertised, not
+         ! yet realized - REALIZE happens in a later init phase this
+         ! slice does not touch (design.md Non-Goals).
+         node = StateItemNode(id, payload, revision)
+         call graph%register_node(node, _RC)
+      end if
       call graph%add_resource_index(key, id, _RC)
 
       if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
@@ -397,6 +465,21 @@ contains
          integer, optional, intent(out) :: rc
 
          logical :: has_export
+         type(QualifiedExportEntry), allocatable :: callback_matches(:)
+
+         ! openspec/changes/callback-wiring, design.md Decision 0: a
+         ! destination declaring an expected callback interface is
+         ! resolved against the flattened namespace instead of exact-
+         ! name matching - read-only here (resolve_callback_import never
+         ! mutates the graph), matching this procedure's own activate-
+         ! time contract.
+         if (var_spec%callback_interface_id%is_valid()) then
+            callback_matches = resolve_callback_import(this, src_pt, var_spec, rc=rc)
+            if (size(callback_matches) == 0) then
+               call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
+            end if
+            _RETURN(_SUCCESS)
+         end if
 
          has_export = associated(find_export_var_spec(src_spec, var_spec%short_name))
          if (.not. has_export) then
@@ -528,6 +611,26 @@ contains
          type(CharacteristicId), allocatable :: mismatched(:)
          character(:), allocatable :: unsupported_characteristic
          character(:), allocatable :: materialization_failure
+         type(StringVector) :: callback_rejected
+         character(:), pointer :: rejected_item
+         integer :: j
+
+         ! openspec/changes/callback-wiring, design.md Decision 0: a
+         ! destination declaring an expected callback interface is
+         ! resolved against the flattened namespace, materialized into
+         ! its own collection, and wired to the import via an ordinary
+         ! add_dependency edge (resolve_callback_destination) - instead
+         ! of the exact-name/extension-chain logic below, which never
+         ! runs for this var_spec.
+         if (var_spec%callback_interface_id%is_valid()) then
+            call resolve_callback_destination(this, src_pt, dst_pt, var_spec, callback_rejected, _RC)
+            do j = 1, callback_rejected%size()
+               rejected_item => callback_rejected%of(j)
+               call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
+                    ':' // rejected_item)
+            end do
+            _RETURN(_SUCCESS)
+         end if
 
          import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
               ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
@@ -990,6 +1093,833 @@ contains
    end subroutine graphbuilder_freeze
 
    ! ============================================================
+   ! Task 6: Visualization enrichment (visualization-enrichment-layer
+   ! change, REQ-VIZ-004/015)
+   ! ============================================================
+
+   ! Builds a NodeId -> label lookup for THIS component's own local
+   ! graph only (design.md Goals/Non-Goals): a component's own
+   ! advertised items are labeled by their own short_name (read from
+   ! ComponentSpec%var_specs, the same iteration graphbuilder_advertise
+   ! already performs); each cached child-proxy node in this
+   ! component's own graph is labeled "<child_name>:<short_name>" and
+   ! marked as a proxy, read from that child's own already-published
+   ! ComponentSpec%var_specs (the same framework-internal carve-out
+   ! get_or_make_local_node_id already uses, REQ-GB-002) - never the
+   ! child's own graph/NodeId/DependencyNetwork. A child item never
+   ! actually connected has no cached proxy, so
+   ! graph%get_resource_index(proxy_key(...)) simply returns
+   ! unassociated and that item is left out of the map - not an error
+   ! (design.md Decisions, "Enrichment builds the map by walking
+   ! var_specs").
+   function graphbuilder_build_label_map(this, rc) result(label_map)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      type(NodeIdLabelMap) :: label_map
+
+      integer :: status
+      integer :: i, num_children
+      type(ComponentGraph), pointer :: graph
+      type(ComponentSpec), pointer :: comp_spec, child_spec
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      character(:), allocatable :: child_name
+      character(:), allocatable :: key
+      type(NodeId), pointer :: found_id
+
+      graph => this%get_component_graph()
+      comp_spec => this%get_component_spec()
+
+      ! This component's own advertised items (design.md - "walking
+      ! var_specs", not reversing the resource index).
+      associate (e => comp_spec%var_specs%ftn_end())
+         iter = comp_spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            key = item_key(var_spec%state_intent, var_spec%short_name)
+            found_id => graph%get_resource_index(key)
+            if (associated(found_id)) then
+               call label_map%insert(found_id, NodeLabel(var_spec%short_name, is_proxy=.false.))
+            end if
+         end do
+      end associate
+
+      ! Each child's cached proxy nodes, if any, in THIS component's
+      ! own graph (never the child's own graph - design.md "Enrichment
+      ! layer does not cross into a child's own graph").
+      num_children = this%get_num_children()
+      do i = 1, num_children
+         child_name = this%get_child_name(i, _RC)
+         child_spec => this%get_child_component_spec(child_name, _RC)
+
+         associate (ce => child_spec%var_specs%ftn_end())
+            iter = child_spec%var_specs%ftn_begin()
+            do while (iter /= ce)
+               call iter%next()
+               var_spec => iter%of()
+               key = proxy_key(child_name, var_spec%state_intent, var_spec%short_name)
+               found_id => graph%get_resource_index(key)
+               if (associated(found_id)) then
+                  call label_map%insert(found_id, &
+                       NodeLabel(child_name // ':' // var_spec%short_name, is_proxy=.true.))
+               end if
+            end do
+         end associate
+      end do
+
+      _RETURN(_SUCCESS)
+   end function graphbuilder_build_label_map
+
+   ! ============================================================
+   ! Task: Callback wiring (openspec/changes/callback-wiring,
+   ! docs/graph/spec/15-callbacks.md sec 15.9-15.10, roadmap Phase 4d)
+   ! ============================================================
+   !
+   ! Triggered from inside the existing MatchConnection dispatch above
+   ! (check_match_connection_unsatisfied/resolve_match_connection's own
+   ! check_one/resolve_one) whenever a matched destination import's own
+   ! VariableSpec declares callback_interface_id%is_valid() (design.md
+   ! Decision 0) - no new Connection subtype. Resolves the connection's
+   ! own declared source pattern against a flattened, hierarchy-wide
+   ! qualified-export namespace (REQ-CB-013/014), validates each match
+   ! against the destination's expected CallbackInterface (REQ-CB-016),
+   ! materializes a flat callback collection for the destination
+   ! (REQ-CB-016), builds a real CallbackStateBinding per matched
+   ! callback state (Phase 4c), and provides CallbackMethodBinding/
+   ! per-method get-put network construction plus the invoke-once-after-
+   ! all-ready discipline (REQ-CB-018/019/020). See design.md Decisions
+   ! 0-7.
+
+   ! REQ-CB-013/014: builds root's own flattened qualified-export
+   ! namespace by recursing across every descendant level (design.md
+   ! Decision 1 - a fresh, uncached snapshot at resolution time; REQ-CB-016's
+   ! own "currently-known" phrasing). root's own exports are keyed by
+   ! their own short name; a descendant's export is additionally keyed
+   ! by comp_path/short_name, composing one segment per hierarchy level.
+   function build_qualified_export_namespace(root, rc) result(entries)
+      class(OuterMetaComponent), target, intent(inout) :: root
+      integer, optional, intent(out) :: rc
+      type(QualifiedExportEntry), allocatable :: entries(:)
+
+      integer :: status
+
+      allocate(entries(0))
+      call collect_qualified_exports(root, '', entries, _RC)
+
+      _RETURN(_SUCCESS)
+   end function build_qualified_export_namespace
+
+   recursive subroutine collect_qualified_exports(owner, path_prefix, entries, rc)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      character(*), intent(in) :: path_prefix
+      type(QualifiedExportEntry), allocatable, intent(inout) :: entries(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i, num_children
+      type(ComponentSpec), pointer :: comp_spec
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      character(:), allocatable :: child_name, child_path
+      type(OuterMetaComponent), pointer :: child_meta
+      type(QualifiedExportEntry) :: entry
+
+      comp_spec => owner%get_component_spec()
+
+      associate (e => comp_spec%var_specs%ftn_end())
+         iter = comp_spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
+            entry%comp_path = path_prefix
+            if (len(path_prefix) == 0) then
+               entry%qualified_name = var_spec%short_name
+            else
+               entry%qualified_name = path_prefix // '/' // var_spec%short_name
+            end if
+            entry%var_spec = var_spec
+            entries = [entries, entry]
+         end do
+      end associate
+
+      num_children = owner%get_num_children()
+      do i = 1, num_children
+         child_name = owner%get_child_name(i, _RC)
+         child_meta => owner%get_child_outer_meta(child_name, _RC)
+         if (len(path_prefix) == 0) then
+            child_path = child_name
+         else
+            child_path = path_prefix // '/' // child_name
+         end if
+         call collect_qualified_exports(child_meta, child_path, entries, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine collect_qualified_exports
+
+   ! Walks comp_path's '/'-separated segments via get_child_outer_meta,
+   ! one hop per segment, from `root` to the OuterMetaComponent that
+   ! actually owns comp_path's own graph (design.md Decision 1 -
+   ! generalizes the single-hop child lookup ordinary connection
+   ! resolution already uses, get_or_make_local_node_id, to arbitrary
+   ! depth). comp_path MUST be non-empty - callers guard this; an empty
+   ! comp_path means "root itself," never routed here.
+   function resolve_descendant(root, comp_path, rc) result(meta)
+      class(OuterMetaComponent), target, intent(inout) :: root
+      character(*), intent(in) :: comp_path
+      integer, optional, intent(out) :: rc
+      type(OuterMetaComponent), pointer :: meta
+
+      integer :: status
+      character(:), allocatable :: remaining, segment
+      integer :: slash_pos
+
+      remaining = comp_path
+
+      slash_pos = index(remaining, '/')
+      if (slash_pos == 0) then
+         segment = remaining
+         remaining = ''
+      else
+         segment = remaining(1:slash_pos - 1)
+         remaining = remaining(slash_pos + 1:)
+      end if
+      meta => root%get_child_outer_meta(segment, _RC)
+
+      do while (len(remaining) > 0)
+         slash_pos = index(remaining, '/')
+         if (slash_pos == 0) then
+            segment = remaining
+            remaining = ''
+         else
+            segment = remaining(1:slash_pos - 1)
+            remaining = remaining(slash_pos + 1:)
+         end if
+         meta => meta%get_child_outer_meta(segment, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function resolve_descendant
+
+   ! Resolves entry (found under a namespace rooted at src_component_name,
+   ! relative to `this`) to a NodeId usable directly in `this`'s own
+   ! graph: `this`'s own export with no further descendant path resolves
+   ! to its already-advertised NodeId directly; every other case resolves
+   ! through a cached-or-newly-created parent-local proxy StateItemNode
+   ! (REQ-HIER-006), generalizing get_or_make_local_node_id's own
+   ! single-level proxy shape to the full path from `this` down to the
+   ! real owner (src_component_name, then entry%comp_path's own further
+   ! segments).
+   function resolve_qualified_export_node_id(this, src_component_name, entry, rc) result(node_id)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: src_component_name
+      type(QualifiedExportEntry), intent(in) :: entry
+      integer, optional, intent(out) :: rc
+      type(NodeId) :: node_id
+
+      integer :: status
+      character(:), allocatable :: full_path
+      type(ComponentGraph), pointer :: this_graph, owner_graph
+      character(:), allocatable :: pkey
+      type(NodeId), pointer :: existing
+      type(NodeId), pointer :: owner_item_id
+      type(OuterMetaComponent), pointer :: owner_meta
+      type(StateItemNode) :: proxy_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(PortId) :: port_id
+
+      this_graph => this%get_component_graph()
+
+      if (is_self(this, src_component_name) .and. len(entry%comp_path) == 0) then
+         existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name))
+         _ASSERT(associated(existing), 'GraphBuilder: callback wiring references an export this component never advertised: ' // entry%var_spec%short_name)
+         node_id = existing
+         _RETURN(_SUCCESS)
+      end if
+
+      if (is_self(this, src_component_name)) then
+         full_path = entry%comp_path
+      else if (len(entry%comp_path) == 0) then
+         full_path = src_component_name
+      else
+         full_path = src_component_name // '/' // entry%comp_path
+      end if
+
+      pkey = 'CALLBACK_PROXY:' // full_path // ':' // item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name)
+      existing => this_graph%get_resource_index(pkey)
+      if (associated(existing)) then
+         node_id = existing
+         _RETURN(_SUCCESS)
+      end if
+
+      owner_meta => resolve_descendant(this, full_path, _RC)
+      owner_graph => owner_meta%get_component_graph()
+      owner_item_id => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name))
+      _ASSERT(associated(owner_item_id), 'GraphBuilder: callback wiring references an export never advertised at path ' // full_path)
+
+      node_id = this_graph%next_node_id(_RC)
+      proxy_node = StateItemNode(node_id, payload, revision)
+      call this_graph%register_node(proxy_node, _RC)
+      call this_graph%add_resource_index(pkey, node_id, _RC)
+
+      port_id = this_graph%next_port_id(_RC)
+      call this_graph%add_child_port_binding(port_id, node_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end function resolve_qualified_export_node_id
+
+   ! design.md Decision 4: an export "implements" expected_iface when its
+   ! own declared composite members (composite-state-spec's
+   ! declare_member tree) cover every argument name expected_iface
+   ! declares, with each member's own itemType matching that argument's
+   ! expected_kind (compared by name - MAPL_StateItem_Flag's variant-flag
+   ! vocabulary and itemtype_name()'s existing ESMF-domain vocabulary
+   ! already agree on FIELD/FIELDBUNDLE/STATE for the base kinds this
+   ! check needs). Method presence (get/put, ...) is not checked here -
+   ! CallbackStateBinding%bind_method already reports a missing method
+   ! attachment explicitly at binding time (design.md Risks).
+   function export_conforms_to_interface(var_spec, expected_iface, reason) result(conforms)
+      type(VariableSpec), target, intent(in) :: var_spec
+      type(CallbackInterface), target, intent(in) :: expected_iface
+      character(:), allocatable, intent(out) :: reason
+      logical :: conforms
+
+      type(CallbackArgumentSpecMap), target :: arguments
+      type(CallbackArgumentSpecMapIterator) :: iter
+      character(:), allocatable :: argument_name
+      type(CallbackArgumentSpec) :: arg_spec
+      type(MAPL_StateItem_Flag) :: expected_kind
+      type(VariableSpec) :: member
+      integer :: status
+
+      conforms = .true.
+      reason = ''
+
+      arguments = expected_iface%get_arguments()
+      iter = arguments%ftn_begin()
+      do while (iter /= arguments%ftn_end())
+         call iter%next()
+         argument_name = iter%first()
+         arg_spec = iter%second()
+
+         if (.not. var_spec%has_member(argument_name)) then
+            conforms = .false.
+            reason = 'missing_member:' // argument_name
+            return
+         end if
+
+         member = var_spec%get_member(argument_name, rc=status)
+         if (status /= 0) then
+            conforms = .false.
+            reason = 'unreadable_member:' // argument_name
+            return
+         end if
+
+         expected_kind = arg_spec%get_expected_kind()
+         if (itemtype_name(member%itemType) /= expected_kind%to_string()) then
+            conforms = .false.
+            reason = 'kind_mismatch:' // argument_name
+            return
+         end if
+      end do
+   end function export_conforms_to_interface
+
+   ! REQ-CB-016: expands the connection's own declared source pattern
+   ! (src_pt%v_pt) against the flattened qualified-export namespace
+   ! rooted at src_pt%component_name (design.md Decision 1), keeping
+   ! only matches that implement dst_var_spec's declared expected
+   ! CallbackInterface (design.md Decision 4). rejected (optional)
+   ! collects a human-readable reason string per rejected match (spec
+   ! scenario "A matching export that does not implement the expected
+   ! interface is rejected" - "the rejection is reported"). Read-only:
+   ! never mutates any ComponentGraph - safe to call from both the
+   ! activate-time unsatisfied-check and the real connect-time
+   ! resolution.
+   function resolve_callback_import(this, src_pt, dst_var_spec, rejected, rc) result(matches)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(VariableSpec), intent(in) :: dst_var_spec
+      type(StringVector), optional, intent(out) :: rejected
+      integer, optional, intent(out) :: rc
+      type(QualifiedExportEntry), allocatable :: matches(:)
+
+      integer :: status
+      class(OuterMetaComponent), pointer :: root_meta
+      type(QualifiedExportEntry), allocatable :: namespace(:)
+      type(VirtualConnectionPt) :: candidate_v_pt
+      type(CallbackInterface) :: expected_iface
+      type(StringVector) :: reject_reasons
+      integer :: i
+      logical :: conforms
+      character(:), allocatable :: reason
+
+      allocate(matches(0))
+
+      root_meta => component_for(this, src_pt%component_name, _RC)
+      namespace = build_qualified_export_namespace(root_meta, _RC)
+      expected_iface = get_callback_interface(dst_var_spec%callback_interface_id, _RC)
+
+      do i = 1, size(namespace)
+         candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
+         if (.not. src_pt%v_pt%matches(candidate_v_pt)) cycle
+
+         conforms = export_conforms_to_interface(namespace(i)%var_spec, expected_iface, reason)
+         if (.not. conforms) then
+            call reject_reasons%push_back(namespace(i)%qualified_name // ':' // reason)
+            cycle
+         end if
+
+         matches = [matches, namespace(i)]
+      end do
+
+      if (present(rejected)) rejected = reject_reasons
+
+      _RETURN(_SUCCESS)
+   end function resolve_callback_import
+
+   ! REQ-CB-016 "materialize a flat callback collection": builds one new
+   ! StateItemNode (a real, structurally-empty ESMF_State, mirroring
+   ! composite-state-spec's own nested-level materialization, design.md
+   ! Decision 5) in this's own graph whose state_members map has one
+   ! entry per resolved match, keyed by that match's own qualified name
+   ! (unique within one resolution by construction) mapping to that
+   ! match's own destination-local NodeId
+   ! (resolve_qualified_export_node_id above). Built directly, not
+   ! routed through CompositeStateMaterialization's VariableSpec-tree
+   ! walk (design.md Decision 5's own rationale).
+   function materialize_callback_collection(this, src_pt, matches, rc) result(collection_id)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(QualifiedExportEntry), intent(in) :: matches(:)
+      integer, optional, intent(out) :: rc
+      type(NodeId) :: collection_id
+
+      integer :: status
+      type(ComponentGraph), pointer :: graph
+      type(ESMF_State) :: state
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemNode) :: node
+      type(NodeId) :: member_id
+      integer :: i
+
+      graph => this%get_component_graph()
+
+      state = ESMF_StateCreate(_RC)
+      call payload%set(state, _RC)
+
+      do i = 1, size(matches)
+         member_id = resolve_qualified_export_node_id(this, src_pt%component_name, matches(i), _RC)
+         call payload%add_state_member(matches(i)%qualified_name, member_id, _RC)
+      end do
+
+      collection_id = graph%next_node_id(_RC)
+      node = StateItemNode(collection_id, payload, revision)
+      call graph%register_node(node, _RC)
+
+      _RETURN(_SUCCESS)
+   end function materialize_callback_collection
+
+   ! Orchestrates one callback-declaring destination's full resolution:
+   ! wildcard match + interface conformance (resolve_callback_import
+   ! above), materialization (materialize_callback_collection above),
+   ! wiring to the already-advertised destination import via an ordinary
+   ! add_dependency edge (design.md Decision 5 - the same "producer node
+   ! feeds a consumer import" shape ordinary/extension-chain resolution
+   ! already uses), and per-match CallbackStateBinding construction
+   ! (build_callback_state_binding, below). Idempotent: a resource-index
+   ! key derived from the destination import's own NodeId is checked
+   ! before rebuilding (mirrors find_or_build_extension_chain's own
+   ! chain_key reuse idiom) - a repeat resolve_connections() call is
+   ! then a no-op (spec scenario "Re-resolving the same connection does
+   ! not duplicate collection members").
+   subroutine resolve_callback_destination(this, src_pt, dst_pt, var_spec, rejected, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(ConnectionPt), intent(in) :: dst_pt
+      type(VariableSpec), intent(in) :: var_spec
+      type(StringVector), optional, intent(out) :: rejected
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: import_id
+      character(:), allocatable :: collection_key
+      type(NodeId), pointer :: existing_collection
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(NodeId) :: collection_id
+      type(DependencyNetworkId) :: net_id
+
+      graph => this%get_component_graph()
+
+      import_id = get_or_make_local_node_id(this, dst_pt%component_name, ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
+
+      collection_key = 'CALLBACK_COLLECTION:' // import_id%to_string()
+      existing_collection => graph%get_resource_index(collection_key)
+      if (associated(existing_collection)) then
+         if (present(rejected)) rejected = StringVector()
+         _RETURN(_SUCCESS)
+      end if
+
+      matches = resolve_callback_import(this, src_pt, var_spec, rejected, _RC)
+
+      collection_id = materialize_callback_collection(this, src_pt, matches, _RC)
+      call graph%add_resource_index(collection_key, collection_id, _RC)
+
+      net_id = graph%get_default_network_id()
+      call graph%add_dependency(net_id, collection_id, import_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_callback_destination
+
+   ! Task 6 / design.md Context: the first real, non-test caller of
+   ! CallbackStateBinding%bind_argument, using the matched callback
+   ! state's own already-materialized composite member NodeIds - read
+   ! directly from its owning component's own graph via
+   ! GraphStateItem%state_members(), not re-derived from VariableSpec
+   ! and not caller-supplied stand-ins.
+   function build_callback_state_binding(this, src_component_name, entry, expected_interface_id, &
+        expected_iface, rc) result(binding)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: src_component_name
+      type(QualifiedExportEntry), intent(in) :: entry
+      type(CallbackInterfaceId), intent(in) :: expected_interface_id
+      type(CallbackInterface), intent(in) :: expected_iface
+      integer, optional, intent(out) :: rc
+      type(CallbackStateBinding) :: binding
+
+      integer :: status
+      character(:), allocatable :: full_path
+      class(OuterMetaComponent), pointer :: owner_meta
+      type(ComponentGraph), pointer :: owner_graph
+      type(NodeId), pointer :: state_node_id_ptr
+      type(NodeId) :: state_node_id
+      class(GraphNode), pointer :: state_node
+      type(GraphStateItem) :: state_payload
+      type(StateItemMemberMap) :: members
+      type(CallbackArgumentSpecMap), target :: arguments
+      type(CallbackArgumentSpecMapIterator) :: iter
+      character(:), allocatable :: argument_name
+      type(NodeId), pointer :: member_node_id
+
+      if (is_self(this, src_component_name)) then
+         full_path = entry%comp_path
+      else if (len(entry%comp_path) == 0) then
+         full_path = src_component_name
+      else
+         full_path = src_component_name // '/' // entry%comp_path
+      end if
+
+      if (len(full_path) == 0) then
+         owner_meta => this
+      else
+         owner_meta => resolve_descendant(this, full_path, _RC)
+      end if
+      owner_graph => owner_meta%get_component_graph()
+
+      state_node_id_ptr => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name))
+      _ASSERT(associated(state_node_id_ptr), 'GraphBuilder: callback state binding - export was never advertised: ' // entry%qualified_name)
+      state_node_id = state_node_id_ptr
+
+      state_node => owner_graph%get_node(state_node_id)
+      _ASSERT(associated(state_node), 'GraphBuilder: callback state binding - state node not found')
+      select type (state_node)
+      class is (StateItemNode)
+         state_payload = state_node%get_payload()
+      class default
+         _ASSERT(.false., 'GraphBuilder: callback state binding - state node is not a StateItemNode')
+      end select
+      members = state_payload%state_members()
+
+      binding = CallbackStateBinding(expected_interface_id, expected_iface, state_node_id)
+
+      arguments = expected_iface%get_arguments()
+      iter = arguments%ftn_begin()
+      do while (iter /= arguments%ftn_end())
+         call iter%next()
+         argument_name = iter%first()
+
+         member_node_id => members%at(argument_name)
+         _ASSERT(associated(member_node_id), 'GraphBuilder: callback state binding - member not found for argument: ' // argument_name)
+         call binding%bind_argument(argument_name, member_node_id, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function build_callback_state_binding
+
+   ! REQ-CB-018/019: builds one CallbackMethodBinding for method_name on
+   ! state_binding (a CallbackStateBinding already bound to a real
+   ! callback state via build_callback_state_binding, task 6) - registers
+   ! a MethodGraphNode (holding the StateMethodInvocation attachment
+   ! CallbackStateBinding%bind_method already produced) in this's own
+   ! graph, creates a get network and a put network via
+   ! ComponentGraph%create_network(), and wires each declared argument's
+   ! dependency edge into the appropriate network by access mode,
+   ! reusing find_mismatched_characteristics/find_or_build_extension_chain
+   ! exactly like ordinary connection resolution (design.md Decisions) -
+   ! both sides' CharacteristicMaps are always empty at this data-model
+   ! tier (CallbackArgumentSpec has no units/vgrid declaration yet), so
+   ! this always takes the exact-match direct-edge branch today; the
+   ! transform-chain branch remains available for a future
+   ! characteristics-aware CallbackArgumentSpec.
+   function build_callback_method_binding(this, iface, method_name, state_binding, &
+        provider_get_ids, provider_put_ids, rc) result(binding)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(CallbackInterface), intent(in) :: iface
+      character(*), intent(in) :: method_name
+      type(CallbackStateBinding), target, intent(in) :: state_binding
+      type(StateItemMemberMap), intent(in) :: provider_get_ids
+      type(StateItemMemberMap), intent(in) :: provider_put_ids
+      integer, optional, intent(out) :: rc
+      type(CallbackMethodBinding) :: binding
+
+      integer :: status
+      type(ComponentGraph), pointer :: graph
+      type(DependencyNetworkId) :: get_net_id, put_net_id
+      type(StateMethodInvocation), pointer :: attachment
+      type(NodeId) :: method_node_id
+      type(MethodGraphNode) :: method_node
+      type(CallbackMethodSpec) :: method_spec
+      type(AccessSpecMap), target :: accesses
+      type(AccessSpecMapIterator) :: iter
+      character(:), allocatable :: argument_name
+      type(AccessSpec) :: access
+      type(CallbackArgumentSpec) :: arg_spec
+      type(MAPL_StateItem_Flag) :: expected_kind
+      type(NodeId), pointer :: member_id
+      type(NodeId), pointer :: provider_id
+
+      graph => this%get_component_graph()
+
+      attachment => state_binding%get_method_attachment(method_name)
+      _ASSERT(associated(attachment), 'GraphBuilder: build_callback_method_binding - method not bound on state binding')
+
+      method_node_id = graph%next_node_id(_RC)
+      ! Not registered yet - node_declare_argument/node_bind_argument
+      ! (below) must run on this local value before it is handed to
+      ! register_node(), which copies it into the graph's own node map;
+      ! mutating a fetched-back pointer would work too (the pattern
+      ! finish_transform/extension materialization already use) but
+      ! populating before the one-shot registration is simpler here
+      ! since nothing else needs this node's identity in between.
+      method_node = MethodGraphNode(method_node_id, attachment)
+
+      get_net_id = graph%create_network(_RC)
+      put_net_id = graph%create_network(_RC)
+
+      binding = CallbackMethodBinding(method_node_id, get_net_id, put_net_id)
+
+      method_spec = iface%get_method(method_name, _RC)
+      accesses = method_spec%get_argument_accesses()
+
+      iter = accesses%ftn_begin()
+      do while (iter /= accesses%ftn_end())
+         call iter%next()
+         argument_name = iter%first()
+         access = iter%second()
+
+         member_id => state_binding%get_argument_binding(argument_name)
+         _ASSERT(associated(member_id), 'GraphBuilder: build_callback_method_binding - argument not bound on state binding: ' // argument_name)
+
+         ! Populates the MethodGraphNode's own declared-argument/binding
+         ! storage (REQ-MTH-002) with exactly the same argument name,
+         ! access mode, and bound member NodeId CallbackStateBinding's
+         ! own invoke_method() would otherwise materialize fresh per
+         ! call (CallbackStateBinding.F90's build_arguments_for_method) -
+         ! so this method_node's own invoke() (called from
+         ! invoke_callback_method, task 8) is self-sufficient and needs
+         ! no separate call back into state_binding.
+         arg_spec = iface%get_argument(argument_name, _RC)
+         expected_kind = arg_spec%get_expected_kind()
+         call method_node%declare_argument(argument_name, access, expected_kind=expected_kind, rc=status)
+         _VERIFY(status)
+         call method_node%bind_argument(argument_name, member_id, actual_kind=expected_kind, rc=status)
+         _VERIFY(status)
+
+         if (access == MAPL_ACCESS_IN .or. access == MAPL_ACCESS_INOUT) then
+            provider_id => provider_get_ids%at(argument_name)
+            _ASSERT(associated(provider_id), 'GraphBuilder: build_callback_method_binding - no get-side provider for argument: ' // argument_name)
+            call wire_callback_argument(graph, get_net_id, provider_id, member_id, _RC)
+            call binding%bind_get_argument(argument_name, provider_id, _RC)
+         end if
+
+         if (access == MAPL_ACCESS_OUT .or. access == MAPL_ACCESS_INOUT) then
+            provider_id => provider_put_ids%at(argument_name)
+            _ASSERT(associated(provider_id), 'GraphBuilder: build_callback_method_binding - no put-side provider for argument: ' // argument_name)
+            call wire_callback_argument(graph, put_net_id, member_id, provider_id, _RC)
+            call binding%bind_put_argument(argument_name, provider_id, _RC)
+         end if
+      end do
+
+      call graph%register_node(method_node, _RC)
+
+      _RETURN(_SUCCESS)
+   end function build_callback_method_binding
+
+   ! Wires one argument's data flow edge into network_id, reusing
+   ! find_mismatched_characteristics/find_or_build_extension_chain
+   ! exactly like ordinary connection resolution (design.md Decisions) -
+   ! both source_characteristics/target_characteristics are empty
+   ! CharacteristicMaps at this data-model tier, so this always takes
+   ! the exact-match direct-edge branch today; the transform-chain
+   ! branch remains available for a future characteristics-aware
+   ! CallbackArgumentSpec.
+   subroutine wire_callback_argument(graph, network_id, source_id, target_id, rc)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(DependencyNetworkId), intent(in) :: network_id
+      type(NodeId), intent(in) :: source_id
+      type(NodeId), intent(in) :: target_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(CharacteristicMap), target :: empty_characteristics
+      type(CharacteristicId), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      character(:), allocatable :: unsupported
+
+      mismatched = find_mismatched_characteristics(empty_characteristics, empty_characteristics)
+
+      if (size(mismatched) == 0) then
+         call graph%add_dependency(network_id, source_id, target_id, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      call find_or_build_extension_chain(graph, network_id, source_id, &
+           empty_characteristics, empty_characteristics, mismatched, final_id, unsupported, _RC)
+      _ASSERT(unsupported == '', 'GraphBuilder: wire_callback_argument - unsupported characteristic: ' // unsupported)
+
+      call graph%add_dependency(network_id, final_id, target_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine wire_callback_argument
+
+   ! REQ-CB-020: invoke-once-after-all-args-ready discipline, mirroring
+   ! mapl_MethodInvocation_mod%invoke_on_default_network's exact
+   ! three-phase shape (design.md Decision 7) but parameterized by
+   ! binding's own get/put networks instead of the default network.
+   ! Never registers the callback MethodGraphNode into demand-driven
+   ! update's own dispatch - only its get-network predecessor(s) are
+   ! pulled current via the ordinary graph%update() entry point, and
+   ! only its put-network target(s) are advanced, both by this
+   ! procedure's own explicit request.
+   subroutine invoke_callback_method(graph, binding, rc)
+      class(ComponentGraph), target, intent(inout) :: graph
+      type(CallbackMethodBinding), target, intent(in) :: binding
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemMemberMap) :: get_bindings, put_bindings
+      class(GraphNode), pointer :: generic_node
+      class(MethodGraphNode), pointer :: method_node
+      type(DependencyNetworkId) :: get_net_id
+
+      ! put_bindings' own revisions are advanced directly by NodeId
+      ! (advance_callback_put_arguments below, mirroring
+      ! mapl_MethodInvocation_mod%advance_bound_outputs' own precedent) -
+      ! no per-network traversal is needed for "advance," so the put
+      ! network's own id is not read here.
+      get_net_id = binding%get_get_network_id()
+      get_bindings = binding%get_get_bindings()
+      put_bindings = binding%get_put_bindings()
+
+      generic_node => graph%get_node(binding%get_method_node_id())
+      _ASSERT(associated(generic_node), 'GraphBuilder: invoke_callback_method - method node not found')
+      select type (generic_node)
+      class is (MethodGraphNode)
+         method_node => generic_node
+      class default
+         _ASSERT(.false., 'GraphBuilder: invoke_callback_method - node_id does not identify a MethodGraphNode')
+      end select
+
+      call pull_callback_get_arguments(graph, get_net_id, get_bindings, _RC)
+
+      call method_node%invoke(_RC)
+
+      call advance_callback_put_arguments(graph, put_bindings, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine invoke_callback_method
+
+   ! REQ-REV-011's "pull-all-before", applied to binding's own get
+   ! network (mapl_MethodInvocation_mod%pull_bound_inputs' own
+   ! collect-then-process shape, design.md Decision 7 - no map iterator
+   ! live across the graph%update() call).
+   subroutine pull_callback_get_arguments(graph, network_id, get_bindings, rc)
+      class(ComponentGraph), target, intent(in) :: graph
+      type(DependencyNetworkId), intent(in) :: network_id
+      type(StateItemMemberMap), target, intent(in) :: get_bindings
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemMemberMapIterator) :: iter
+      character(:), allocatable :: names(:)
+      integer :: n, i
+      type(NodeId), pointer :: provider_id
+
+      allocate(character(MAX_CALLBACK_ARGUMENT_NAME_LEN) :: names(get_bindings%size()))
+      n = 0
+      iter = get_bindings%ftn_begin()
+      do while (iter /= get_bindings%ftn_end())
+         call iter%next()
+         n = n + 1
+         names(n) = iter%first()
+      end do
+
+      do i = 1, n
+         provider_id => get_bindings%at(trim(names(i)))
+         _ASSERT(associated(provider_id), 'GraphBuilder: pull_callback_get_arguments - bound name not found')
+         call graph%update(network_id, provider_id, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine pull_callback_get_arguments
+
+   ! REQ-REV-011's "advance-all-after", applied to binding's own put
+   ! network - only reached once invoke() has already succeeded
+   ! (invoke_callback_method's own "_RC"-checked call above returns early
+   ! otherwise, spec scenario "Failed invocation does not advance bound
+   ! outputs").
+   subroutine advance_callback_put_arguments(graph, put_bindings, rc)
+      class(ComponentGraph), target, intent(in) :: graph
+      type(StateItemMemberMap), target, intent(in) :: put_bindings
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemMemberMapIterator) :: iter
+      character(:), allocatable :: names(:)
+      integer :: n, i
+      type(NodeId), pointer :: target_id
+      class(GraphNode), pointer :: generic_node
+
+      allocate(character(MAX_CALLBACK_ARGUMENT_NAME_LEN) :: names(put_bindings%size()))
+      n = 0
+      iter = put_bindings%ftn_begin()
+      do while (iter /= put_bindings%ftn_end())
+         call iter%next()
+         n = n + 1
+         names(n) = iter%first()
+      end do
+
+      do i = 1, n
+         target_id => put_bindings%at(trim(names(i)))
+         _ASSERT(associated(target_id), 'GraphBuilder: advance_callback_put_arguments - bound name not found')
+         generic_node => graph%get_node(target_id)
+         _ASSERT(associated(generic_node), 'GraphBuilder: advance_callback_put_arguments - bound NodeId not found in graph')
+         select type (generic_node)
+         class is (StateItemNode)
+            call generic_node%advance_revision(_RC)
+         class default
+            _ASSERT(.false., 'GraphBuilder: advance_callback_put_arguments - bound NodeId is not a StateItemNode')
+         end select
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine advance_callback_put_arguments
+
+   ! ============================================================
    ! Lifecycle-hook wrappers (task 2.3 / 3.4)
    ! ============================================================
    !
@@ -1050,11 +1980,29 @@ contains
       end do
    end subroutine graphbuilder_run_activate_hook
 
-   subroutine graphbuilder_run_connect_hook(this)
+   ! griddedcomponentdriver-integration-lifecycle design.md Decisions
+   ! ("REQ-MTH-011 step (c) convergence: match the existing fixed
+   ! two-pass schedule; add one missing hard-error check"): once this
+   ! call's own graphbuilder_freeze succeeds - i.e. once no further
+   ! ACCEPT_TRANSFER pass can ever change anything further, per
+   ! GENERIC_INIT_PHASE_SEQUENCE's fixed two-pass schedule
+   ! (enums/GenericPhases.F90) - re-run the same
+   ! graphbuilder_check_unsatisfied_imports() check
+   ! graphbuilder_run_activate_hook already runs (at GENERIC_INIT_ADVERTISE
+   ! time, before either real pass), but this time escalate a non-empty
+   ! result to an explicit failure instead of only a logged warning.
+   ! Still caught and downgraded to a logged failure by this hook's own
+   ! existing report_if_failed convention below - this is a hard error
+   ! only within graphbuilder_resolve_connections/
+   ! check_unsatisfied_imports' own directly-tested API, never a new way
+   ! for a GraphBuilder defect to break real component initialization
+   ! (design.md Risks).
+    subroutine graphbuilder_run_connect_hook(this)
       class(OuterMetaComponent), target, intent(inout) :: this
 
       integer :: status
       type(StringVector) :: unsupported
+      type(StringVector) :: unresolved
       integer :: i
       character(:), pointer :: unsupported_item
       class(Logger), pointer :: lgr
@@ -1072,7 +2020,33 @@ contains
 
       call graphbuilder_freeze(this, status)
       call report_if_failed(this, 'freeze', status)
+
+      if (status == 0) then
+         call graphbuilder_check_unsatisfied_imports(this, unresolved_imports=unresolved, rc=status)
+         call report_if_failed(this, 'check_unsatisfied_imports', status)
+         if (status == 0) then
+            call assert_converged(unresolved, status)
+            call report_if_failed(this, 'convergence_check', status)
+         end if
+      end if
    end subroutine graphbuilder_run_connect_hook
+
+   ! Split out from graphbuilder_run_connect_hook so this check has its
+   ! own real rc to report through the same report_if_failed convention
+   ! every other step in that hook already uses, rather than an inline
+   ! _ASSERT with no rc of its own to propagate.
+   subroutine assert_converged(unresolved, rc)
+      type(StringVector), intent(in) :: unresolved
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: msg
+
+      _RETURN_IF(unresolved%size() == 0)
+
+      msg = 'GraphBuilder: unresolved required import(s) remain once the fixed realize/accept/realize '// &
+           'schedule ends (griddedcomponentdriver-integration-lifecycle design.md "REQ-MTH-011 step (c) convergence")'
+      _FAIL(msg)
+   end subroutine assert_converged
 
    subroutine report_if_failed(this, step_name, status)
       class(OuterMetaComponent), target, intent(inout) :: this
