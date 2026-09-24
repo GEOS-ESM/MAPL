@@ -134,8 +134,8 @@ contains
       type(ESMF_TypeKind_Flag) :: tk
       integer, allocatable :: element_count(:), new_element_count(:)
       integer :: request_id
-       class(ClientThread), pointer :: o_client
-
+      class(ClientThread), pointer :: o_client
+      logical :: has_de
       type(ESMF_Grid) :: grid
       type(pFIOServerBounds) :: server_bounds
 
@@ -146,6 +146,8 @@ contains
       call ESMF_FieldBundleGet(bundle, fieldNameList=field_names, _RC)
       do i=1,num_fields
          call ESMF_FieldBundleGet(bundle, field_names(i), field=field, _RC)
+         has_de = field_has_de(field, _RC)
+         if (.not.has_de) cycle
 
          element_count = FieldGetLocalElementCount(field, _RC)
          call ESMF_FieldGet(field, grid=grid, typekind=tk,  _RC)
@@ -187,6 +189,7 @@ contains
       type(ArrayReference) :: ref
       integer :: collection_id, num_fields, idx, pfio_typekind, status, request_id
        class(ClientThread), pointer :: i_client
+      logical :: has_de
 
        i_client => get_client(this%get_input_server_name(), _RC)
       collection_id = this%get_collection_id()
@@ -198,6 +201,8 @@ contains
          call ESMF_FieldBundleGet(bundle, fieldName=field_names(idx), field=field, _RC)
          call ESMF_FieldGet(field, grid=grid, status=field_status, typekind=esmf_typekind, _RC)
          _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, "ESMF field is not complete")
+         has_de = field_has_de(field, _RC)
+         if (.not.has_de) cycle
          element_count = FieldGetLocalElementCount(field, _RC)
          server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_READ, _RC)
          global_start = server_bounds%get_global_start()

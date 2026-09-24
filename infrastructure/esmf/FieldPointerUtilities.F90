@@ -23,6 +23,7 @@ module mapl_FieldPointerUtilities_mod
    public :: MAPL_FieldDestroy
    public :: FieldCopyBroadcast
    public :: FieldSameData
+   public :: field_has_de
 
    interface GetFieldsUndef
       module procedure GetFieldsUndef_r4
@@ -389,12 +390,20 @@ contains
 
       integer :: status
       integer :: rank
+      logical :: has_de
 
       element_count = [integer :: ] ! must allocate even under failure
       call ESMF_FieldGet(x, rank=rank, _RC)
 
       deallocate(element_count)
       allocate(element_count(rank))
+
+      has_de = field_has_de(x, _RC)
+      if (.not.has_de) then
+         element_count = 0
+         _RETURN(_SUCCESS)
+      end if
+
       ! ESMF has a big fat bug with multi tile grids and loal element count
       !call ESMF_FieldGet(x, localElementCount=element_count, _RC)
       ! until it is fixed we must kluge :(
@@ -1138,5 +1147,24 @@ contains
 
       _RETURN(_SUCCESS)
    end function same_data
+
+   logical function field_has_de(field, rc)
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Grid) :: grid
+      type(ESMF_DistGrid) :: distGrid
+      type(ESMF_DeLayout) :: layout
+      integer :: localDECount
+
+      call ESMF_FieldGet(field, grid=grid, _RC)
+      call esmf_GridGet(grid, distGrid=distGrid, _RC)
+      call ESMF_DistGridGet(distGrid, delayout=layout, _RC)
+      call ESMF_DELayoutGet(layout, localDECount=localDECount, _RC)
+      field_has_de = (localDECount /=0)
+
+      _RETURN(_SUCCESS)
+
+   end function field_has_de
 
 end module mapl_FieldPointerUtilities_mod

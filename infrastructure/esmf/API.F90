@@ -71,6 +71,7 @@ module mapl_esmf_api
    use mapl_FieldPointerUtilities_mod, only: MAPL_AssignFptr => assign_fptr
    use mapl_FieldPointerUtilities_mod, only: MAPL_FieldGetLocalElementCount => FieldGetLocalElementCount
    use mapl_FieldPointerUtilities_mod, only: MAPL_FieldClone => FieldClone
+   use mapl_FieldPointerUtilities_mod, only: MAPL_FieldHasDE => field_has_de
 
 
    ! HConfig
