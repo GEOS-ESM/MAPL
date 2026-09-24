@@ -13,6 +13,11 @@ module Test_DemandDrivenUpdate
    use mapl_NodeId_mod, only: NodeId
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_GraphNode_mod, only: GraphNode
+   use mapl_MethodGraphNode_mod, only: MethodGraphNode
+   use mapl_MethodInvocationAdapter_mod, only: MethodInvocationAdapter
+   use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use ESMF, only: ESMF_Clock
    use funit
    implicit none
 
@@ -25,6 +30,18 @@ module Test_DemandDrivenUpdate
       procedure :: compute => counting_compute
    end type CountingCompute
 
+   ! MethodInvocationAdapter double whose invoke() must never be called
+   ! by demand-driven update (spec/graph/method-graph-node/spec.md
+   ! "Method node execution is never scheduled by demand-driven
+   ! update", spec/03-graph-node-hierarchy.md REQ-NODE-007). Held via a
+   ! pointer for the same sourced-allocation-copy reason as
+   ! CountingCompute's run_count above.
+   type, extends(MethodInvocationAdapter) :: NeverCalledAdapter
+      logical, pointer :: was_called => null()
+   contains
+      procedure :: invoke => never_called_invoke
+   end type NeverCalledAdapter
+
 contains
 
    subroutine counting_compute(this, rc)
@@ -34,6 +51,17 @@ contains
       if (associated(this%run_count)) this%run_count = this%run_count + 1
       rc = 0
    end subroutine counting_compute
+
+   subroutine never_called_invoke(this, arguments, bindings, clock, rc)
+      class(NeverCalledAdapter), intent(inout) :: this
+      type(ArgumentSpecMap), intent(in) :: arguments
+      type(StateItemMemberMap), intent(in) :: bindings
+      type(ESMF_Clock), optional, intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      if (associated(this%was_called)) this%was_called = .true.
+      rc = 0
+   end subroutine never_called_invoke
 
    ! A no-producer StateItemNode (nothing wired to it) is a no-op: update
    ! completes without error and does not require any TransformGraphNode
@@ -383,5 +411,76 @@ contains
       @assertEqual(2, run_count1)
       @assertEqual(2, run_count2)
    end subroutine test_two_transform_chain_propagates
+
+   ! Task 5.1 (spec/graph/method-graph-node/spec.md "Method node
+   ! execution is never scheduled by demand-driven update",
+   ! spec/03-graph-node-hierarchy.md REQ-NODE-007). Registers a
+   ! MethodGraphNode alongside ordinary StateItemNode/TransformGraphNode
+   ! wiring (unconnected - no add_dependency call involves it, matching
+   ! this change's own explicit deferral of wiring MethodGraphNode into
+   ! a real DependencyNetwork), then resolves an unrelated
+   ! TransformGraphNode-produced value via ComponentGraph%update().
+   ! Confirms the MethodGraphNode's adapter is never invoked -
+   ! exercising the existing, unmodified class default branch in
+   ! mapl_ComponentGraph_DemandDrivenUpdate_smod against this new node
+   ! kind. No production code change is expected to make this pass.
+   @test
+   subroutine test_update_never_invokes_a_registered_method_node()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: input_id, transform_id, output_id, method_id
+      type(StateItemNode) :: input_node, output_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: transform
+      type(CountingCompute) :: strategy
+      type(MethodGraphNode) :: method_node
+      type(NeverCalledAdapter) :: adapter
+      logical, target :: was_called
+      type(DependencyNetworkId) :: default_id
+      integer, target :: run_count
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      input_id = graph%next_node_id(rc=status)
+      input_node = StateItemNode(input_id, payload, revision)
+      call graph%register_node(input_node, rc=status)
+      @assertEqual(0, status)
+
+      run_count = 0
+      strategy%run_count => run_count
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call transform%declare_output_port('out', rc=status)
+      call graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      output_id = graph%next_node_id(rc=status)
+      output_node = StateItemNode(output_id, payload, revision)
+      call graph%register_node(output_node, rc=status)
+      @assertEqual(0, status)
+
+      call graph%add_dependency(default_id, input_id, transform_id, rc=status)
+      call graph%add_dependency(default_id, transform_id, output_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'in', input_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'out', output_id, rc=status)
+
+      ! Registered alongside the above, but never wired into any
+      ! DependencyNetwork - REQ-NODE-007's own point is that demand-
+      ! driven update must not schedule it regardless.
+      was_called = .false.
+      adapter%was_called => was_called
+      method_id = graph%next_node_id(rc=status)
+      method_node = MethodGraphNode(method_id, adapter)
+      call graph%register_node(method_node, rc=status)
+      @assertEqual(0, status)
+
+      call graph%update(default_id, output_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count)
+      @assertFalse(was_called)
+   end subroutine test_update_never_invokes_a_registered_method_node
 
 end module Test_DemandDrivenUpdate

@@ -1,0 +1,54 @@
+! Task 1.2: NodeIdLabelMap in isolation - insert, lookup, not-found case
+! (visualization-enrichment-layer change, tasks.md).
+module Test_NodeIdLabelMap
+   use mapl_NodeId_mod
+   use mapl_NodeLabel_mod, only: NodeLabel
+   use mapl_NodeIdLabelMap_mod, only: NodeIdLabelMap
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_insert_and_lookup()
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: key_a, key_b
+      type(NodeIdLabelMap) :: map
+      type(NodeLabel), pointer :: retrieved
+
+      key_a = gen%next()
+      key_b = gen%next()
+
+      call map%insert(key_a, NodeLabel('T', is_proxy=.false.))
+      call map%insert(key_b, NodeLabel('child:Q', is_proxy=.true.))
+
+      @assertEqual(2, map%size())
+
+      retrieved => map%at(key_a)
+      @assertTrue(associated(retrieved))
+      @assertEqual('T', retrieved%get_label())
+      @assertFalse(retrieved%get_is_proxy())
+
+      retrieved => map%at(key_b)
+      @assertTrue(associated(retrieved))
+      @assertEqual('child:Q', retrieved%get_label())
+      @assertTrue(retrieved%get_is_proxy())
+   end subroutine test_insert_and_lookup
+
+   @test
+   subroutine test_not_found_returns_null()
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: key_a, missing_key
+      type(NodeIdLabelMap) :: map
+      type(NodeLabel), pointer :: retrieved
+
+      key_a = gen%next()
+      missing_key = gen%next()
+
+      call map%insert(key_a, NodeLabel('T'))
+
+      retrieved => map%at(missing_key)
+      @assertFalse(associated(retrieved))
+   end subroutine test_not_found_returns_null
+
+end module Test_NodeIdLabelMap
