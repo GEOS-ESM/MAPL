@@ -92,6 +92,7 @@ module mapl_ExtDataReader_mod
       type(mapl_pFIOServerBounds) :: server_bounds
       type(c_ptr) :: address
       type(mapl_ArrayReference) :: ref
+      logical :: has_de
 
       call ESMF_FieldBundleGet(this%accumulated_fields, fieldCount=num_fields, _RC)
       if (num_fields == 0) then
@@ -102,6 +103,8 @@ module mapl_ExtDataReader_mod
 
       call MAPL_FieldBundleGet(this%accumulated_fields, fieldList=field_list, _RC)
       do i=1,size(field_list)
+         has_de = MAPL_FieldHasDE(field_list(i), _RC)
+         if (.not.has_de) cycle
          call ESMF_FieldGet(field_list(i), name=field_name, _RC)
          alias => this%alias_map%at(trim(field_name))
          filename => this%filename_map%at(trim(field_name))

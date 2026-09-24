@@ -172,6 +172,7 @@ module mapl_esmf_api
    public :: MAPL_AssignFptr
    public :: MAPL_FieldGetLocalElementCount
    public :: MAPL_FieldClone
+   public :: MAPL_FieldHasDE
 
    ! State item constants
    public :: mapl_UngriddedDim
