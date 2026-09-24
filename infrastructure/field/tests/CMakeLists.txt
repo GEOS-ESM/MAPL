@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.field/tests")
 
 add_pfunit_ctest(MAPL.field.test_fieldcreate
                 TEST_SOURCES Test_FieldCreate.pf Test_FieldFill.pf Test_FieldApplyUserRoutine.pf
+                             Test_FieldNamedAlias.pf
                 LINK_LIBRARIES MAPL.field MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE mapl_pFUnit_Initialize_mod
