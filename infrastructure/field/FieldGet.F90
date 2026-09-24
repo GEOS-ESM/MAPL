@@ -62,6 +62,7 @@ contains
       type(ESMF_FieldStatus_Flag) :: fstatus
       integer :: vgrid_id
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      integer :: named_alias_id
 
       if (present(short_name)) then
          call ESMF_FieldGet(field, name=fname, _RC)
@@ -79,7 +80,17 @@ contains
          end if
       end if
 
+      ! standard_name/long_name are per-connection-endpoint metadata:
+      ! named_alias_id resolves them for the specific NamedAlias represented
+      ! by this `field` handle, not a single field-wide value.
+      ! ESMF_NamedAliasGet never fails; it returns id=0 for a field that was
+      ! never placed via ESMF_NamedAlias (e.g. a hand-built field in a unit
+      ! test), which simply resolves to its own (unshared) namespace.
+      ! FieldInfoGetInternal always returns an allocated string for each
+      ! output that is present (defaulting to 'unknown' internally), so no
+      ! post-processing is needed here.
       call ESMF_InfoGetFromHost(field, field_info, _RC)
+      call ESMF_NamedAliasGet(field, id=named_alias_id, _RC)
       call FieldInfoGetInternal(field_info, &
            typekind=typekind, &
            horizontal_dims_spec=horizontal_dims_spec, &
@@ -93,9 +104,12 @@ contains
            quantity_type_metadata=quantity_type_metadata, &
            normalization_metadata=normalization_metadata, &
            conservation_metadata=conservation_metadata, &
-           units=units, standard_name=standard_name, long_name=long_name, &
+           units=units, &
            allocation_status=allocation_status, &
            regridder_param_info=regridder_param_info, &
+           named_alias_id=named_alias_id, &
+           standard_name=standard_name, &
+           long_name=long_name, &
            _RC)
 
       if (present(vgrid)) then

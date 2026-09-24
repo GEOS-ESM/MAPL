@@ -54,6 +54,7 @@ contains
          type(VerticalStaggerLoc) :: vertical_stagger
          type(UngriddedDims) :: ungridded_dims
          character(:), allocatable :: standard_name
+         character(:), allocatable :: long_name
          character(:), allocatable :: units
          character(:), allocatable :: expression
          type(ESMF_StateItem_Flag) :: itemtype
@@ -63,6 +64,7 @@ contains
          integer :: status
          logical :: has_state
          logical :: has_standard_name
+         logical :: has_long_name
          logical :: has_units
          logical :: has_expression
          logical :: has_dims
@@ -116,6 +118,11 @@ contains
                standard_name = ESMF_HConfigAsString(attributes,keyString='standard_name', _RC)
             end if
 
+            has_long_name = ESMF_HConfigIsDefined(attributes,keyString='long_name', _RC)
+            if (has_long_name) then
+               long_name = ESMF_HConfigAsString(attributes,keyString='long_name', _RC)
+            end if
+
             has_units = ESMF_HConfigIsDefined(attributes,keyString='units', _RC)
             if (has_units) then
                units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
@@ -153,6 +160,7 @@ contains
                  fill_value=fill_value, &
                  service_items=service_items, &
                  standard_name=standard_name, &
+                 long_name=long_name, &
                  dependencies=dependencies, &
                   expression=expression, &
                   geom_id=geom_id, &
@@ -162,6 +170,7 @@ contains
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
+            if (allocated(long_name)) deallocate(long_name)
             call var_specs%push_back(var_spec)
 
             call ESMF_HConfigDestroy(attributes, _RC)
