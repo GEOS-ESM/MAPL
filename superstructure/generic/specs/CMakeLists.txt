@@ -23,6 +23,7 @@ target_sources(MAPL.generic PRIVATE
   VerticalGridAspect.F90
   UngriddedDimsAspect.F90
   UnitsAspect.F90
+  StandardNameAspect.F90
   QuantityTypeAspect.F90
   ConservationAspect.F90
   NormalizationAspect.F90

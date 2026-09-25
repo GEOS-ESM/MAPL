@@ -33,78 +33,89 @@ run:
     - [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
 mapl:
+  # standard_names here converged onto proper CF snake_case identifiers
+  # (previously human-sentence text like 'Surface Temperature', not valid
+  # CF standard names) and backed by field_dictionary_test.yaml, except the
+  # vector fields: a Vector's compound-encoded standard_name is exempt from
+  # FieldDictionary lookup by design (generic/standard-name-enforcement),
+  # so only the internal ',' -> ',' spacing was fixed (the previous
+  # '(eastward_wind, northward_wind) ...' - with a space after the comma -
+  # made split_name's second component " northward_wind ..." with a stray
+  # leading space) to satisfy the per-component agreement check between
+  # here and collection_1.yaml's identically-named imports. See openspec
+  # change use-field-dictionary-in-scenario-tests.
   states:
     import: {}
     export:
       TS:
-        standard_name: 'Surface Temperature'
+        standard_name: 'surface_temperature'
         units: 'K'
         vertical_dim_spec: NONE
       PS:
-        standard_name: 'Surface Pressure'
+        standard_name: 'surface_air_pressure'
         units: 'hPa'
         vertical_dim_spec: NONE
       QV_MIN:
-        standard_name: 'Specific Humidity'
+        standard_name: 'specific_humidity'
         units: '1'
         vertical_dim_spec: NONE
       SLP_ACCUM:
-        standard_name: 'Sea Level Pressure'
+        standard_name: 'air_pressure_at_sea_level'
         units: 'hPa'
         vertical_dim_spec: NONE
       UV:
-        standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        standard_name: '(eastward_wind,northward_wind) horizontal velocity'
         units: 'm s-1'
         vertical_dim_spec: NONE
         class: vector
       UV_MIN:
-        standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        standard_name: '(eastward_wind,northward_wind) horizontal velocity'
         units: 'm s-1'
         vertical_dim_spec: NONE
         class: vector
       UV_MAX:
-        standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        standard_name: '(eastward_wind,northward_wind) horizontal velocity'
         units: 'm s-1'
         vertical_dim_spec: NONE
         class: vector
       UV_ACCUM:
-        standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        standard_name: '(eastward_wind,northward_wind) horizontal velocity'
         units: 'm s-1'
         vertical_dim_spec: NONE
         class: vector
       TS_VAR_W:
-        standard_name: 'Surface Temperature'
+        standard_name: 'surface_temperature'
         units: 'K'
         vertical_dim_spec: NONE
       TS_VAR_S:
-        standard_name: 'Surface Temperature'
+        standard_name: 'surface_temperature'
         units: 'K'
         vertical_dim_spec: NONE
       UV_VAR_W:
-        standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        standard_name: '(eastward_wind,northward_wind) horizontal velocity'
         units: 'm s-1'
         vertical_dim_spec: NONE
         class: vector
       UV_VAR_S:
-        standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        standard_name: '(eastward_wind,northward_wind) horizontal velocity'
         units: 'm s-1'
         vertical_dim_spec: NONE
         class: vector
       TS_VAR_W_BIASED:
-        standard_name: 'Surface Temperature'
+        standard_name: 'surface_temperature'
         units: 'K'
         vertical_dim_spec: NONE
       TS_VAR_S_BIASED:
-        standard_name: 'Surface Temperature'
+        standard_name: 'surface_temperature'
         units: 'K'
         vertical_dim_spec: NONE
       UV_VAR_W_BIASED:
-        standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        standard_name: '(eastward_wind,northward_wind) horizontal velocity'
         units: 'm s-1'
         vertical_dim_spec: NONE
         class: vector
       UV_VAR_S_BIASED:
-        standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        standard_name: '(eastward_wind,northward_wind) horizontal velocity'
         units: 'm s-1'
         vertical_dim_spec: NONE
         class: vector

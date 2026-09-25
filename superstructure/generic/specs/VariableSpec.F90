@@ -19,6 +19,7 @@ module mapl_VariableSpec_mod
    use mapl_ExpressionClassAspect_mod
 
    use mapl_UnitsAspect_mod
+   use mapl_StandardNameAspect_mod
    use mapl_AttributesAspect_mod
    use mapl_UngriddedDimsAspect_mod
    use mapl_VerticalGridAspect_mod
@@ -46,6 +47,9 @@ module mapl_VariableSpec_mod
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    use mapl_FieldDictionary_mod
    use mapl_FieldDictionaryItem_mod, only: FieldDictionaryItem
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, get_field_dictionary_config
+   use mapl_ValidationMode_mod, only: MAPL_VALIDATION_MODE_STRICT => VALIDATION_MODE_STRICT
+   use mapl_ValidationMode_mod, only: operator(==)
    use mapl_KeywordEnforcer_mod
    use mapl_RestartModes_mod, only: RestartMode
    use esmf
@@ -139,7 +143,6 @@ module mapl_VariableSpec_mod
       ! miscellaneous
       !=====================
       type(StringVector) :: dependencies ! default empty
-      logical :: use_field_dictionary = .false.
 
    contains
       procedure :: make_virtualPt
@@ -148,6 +151,7 @@ module mapl_VariableSpec_mod
       procedure :: make_StateItemSpec
       procedure :: make_aspects
       procedure :: make_UnitsAspect
+      procedure :: make_StandardNameAspect
       procedure :: make_TypekindAspect
       procedure :: make_GeomAspect
       procedure :: make_UngriddedDimsAspect
@@ -183,7 +187,6 @@ contains
         regrid_param, &
         horizontal_dims_spec, &
         vector_basis_kind, &
-        use_field_dictionary, &
         restart_mode, &
         rc) result(var_spec)
 
@@ -212,7 +215,6 @@ contains
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       character(*), optional, intent(in) :: vector_basis_kind
-      logical, optional, intent(in) :: use_field_dictionary
       type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
 
@@ -220,6 +222,7 @@ contains
 !#      type(EsmfRegridderParam) :: regrid_param_
 
       integer :: status
+      type(FieldDictionaryConfig), pointer :: fd_config
 
       var_spec%short_name = short_name
       var_spec%state_intent = state_intent
@@ -247,7 +250,6 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
-      _SET_OPTIONAL(use_field_dictionary)
       _SET_OPTIONAL(restart_mode)
 
       var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
@@ -256,7 +258,13 @@ contains
          var_spec%vector_basis_kind = MAPL_VectorBasisKind(vector_basis_kind)
       end if
 
-      if (var_spec%use_field_dictionary) then
+      ! FieldDictionary-driven long_name/units defaulting is unconditional
+      ! (no more use_field_dictionary opt-in - see generic/standard-name-
+      ! enforcement), except for item types FieldDictionaryConfig%is_exempt
+      ! considers exempt from standard_name enforcement altogether (they
+      ! carry no standard_name of their own to look up).
+      fd_config => get_field_dictionary_config()
+      if (.not. fd_config%is_exempt(var_spec%itemType)) then
          call apply_field_dictionary_defaults_(var_spec, short_name, standard_name, units, long_name, _RC)
       end if
 
@@ -281,6 +289,7 @@ contains
 
       type(FieldDictionary), pointer :: fd
       type(FieldDictionaryItem) :: dict_item
+      type(FieldDictionaryConfig), pointer :: fd_config
       type(logger_t), pointer :: lgr
       character(:), allocatable :: lookup_key
       logical :: by_alias
@@ -309,13 +318,25 @@ contains
 
       lgr => logging%get_logger('MAPL')
       if (by_alias) then
-         call lgr%warning('use_field_dictionary=.true. but short_name "' // &
-              short_name // '" not found in field dictionary; ' // &
+         ! No standard_name was declared at all (falling back to short_name
+         ! as a dictionary alias); a miss here is always just a warning,
+         ! independent of ValidationMode - this VarSpec never claimed
+         ! standard_name-convention compliance in the first place.
+         call lgr%warning('short_name "' // short_name // &
+              '" not found in field dictionary (as an alias); ' // &
               'units and long_name defaults will not be applied.')
       else
-         call lgr%warning('use_field_dictionary=.true. but standard_name "' // &
-              standard_name // '" not found in field dictionary; ' // &
-              'units and long_name defaults will not be applied.')
+         ! standard_name was declared but has no FieldDictionary entry: a
+         ! standard-name-convention violation whose severity is governed by
+         ! ValidationMode (generic/standard-name-enforcement).
+         fd_config => get_field_dictionary_config()
+         if (fd_config%get_validation_mode() == MAPL_VALIDATION_MODE_STRICT) then
+            _FAIL('standard_name "' // standard_name // '" not found in field dictionary (strict mode).')
+         else
+            call lgr%warning('standard_name "' // standard_name // &
+                 '" not found in field dictionary; ' // &
+                 'units and long_name defaults will not be applied.')
+         end if
       end if
 
       _RETURN(_SUCCESS)
@@ -367,14 +388,14 @@ contains
       _RETURN(_SUCCESS)
    end function make_dependencies
 
-   function get_regrid_param(requested_param, standard_name, use_field_dictionary) result(regrid_param)
+   ! FieldDictionary-driven regrid-method defaulting is unconditional (no
+   ! more use_field_dictionary opt-in - see generic/standard-name-enforcement).
+   function get_regrid_param(requested_param, standard_name) result(regrid_param)
       type(EsmfRegridderParam) :: regrid_param
       type(EsmfRegridderParam), optional, intent(in) :: requested_param
       character(*), optional, intent(in) :: standard_name
-      logical, optional, intent(in) :: use_field_dictionary
 
       type(ESMF_RegridMethod_Flag) :: regrid_method
-      logical :: use_fd
       integer :: status
 
       if (present(requested_param)) then
@@ -383,10 +404,6 @@ contains
       end if
 
       regrid_param = EsmfRegridderParam() ! default regrid method
-
-      use_fd = .false.
-      if (present(use_field_dictionary)) use_fd = use_field_dictionary
-      if (.not. use_fd) return
 
       regrid_method = get_regrid_method_from_field_dict_(standard_name, rc=status)
       if (status==ESMF_SUCCESS) then
@@ -490,6 +507,9 @@ contains
       aspect = this%make_UnitsAspect(RC)
       call aspects%insert(UNITS_ASPECT_ID, aspect)
 
+      aspect = this%make_StandardNameAspect(_RC)
+      call aspects%insert(STANDARD_NAME_ASPECT_ID, aspect)
+
       aspect = this%make_TypekindAspect(_RC)
       call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
 
@@ -529,6 +549,25 @@ contains
       aspect = UnitsAspect(this%units)
       _RETURN(_SUCCESS)
    end function make_UnitsAspect
+
+   ! Built unconditionally for every VarSpec, mirroring make_UnitsAspect -
+   ! exactly like UNITS_ASPECT_ID, this outer StandardNameAspect entry is
+   ! simply never *consulted* (via get_aspect_order/get_mandatory_aspect_ids)
+   ! for item types exempt from standard_name enforcement
+   ! (FieldDictionaryConfig%is_exempt: FieldBundle, State, Wildcard,
+   ! Expression, Service), or for Vector (which enforces its own two split
+   ! names internally - see make_ClassAspect's MAPL_STATEITEM_VECTOR case and
+   ! generic/standard-name-enforcement design.md Decision 6). Passing
+   ! `this%standard_name` unallocated is fine: make_StandardNameAspect/
+   ! StandardNameAspect's constructor leaves the aspect ASPECT_STATUS_UNCHECKED
+   ! (wildcard) when no value is present.
+   function make_StandardNameAspect(this, rc) result(aspect)
+      type(StandardNameAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      aspect = StandardNameAspect(this%standard_name)
+      _RETURN(_SUCCESS)
+   end function make_StandardNameAspect
 
    function make_TypekindAspect(this, rc) result(aspect)
       type(TypekindAspect) :: aspect
@@ -688,17 +727,24 @@ contains
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
          aspect = FieldClassAspect( &
-              standard_name=this%standard_name, &
               long_name=this%long_name, &
               fill_value=this%fill_value, &
               restart_mode=this%restart_mode)
       case (MAPL_STATEITEM_FIELDBUNDLE%ot)
-         aspect = FieldBundleClassAspect(standard_name=this%standard_name)
+         aspect = FieldBundleClassAspect()
       case (MAPL_STATEITEM_STATE%ot)
-         aspect = StateClassAspect(state_intent=this%state_intent, standard_name=this%standard_name)
+         aspect = StateClassAspect(state_intent=this%state_intent)
       case (MAPL_STATEITEM_VECTOR%ot)
-         std_name_1 = 'unknown'
-         std_name_2 = 'unknown'
+         ! Bugfix (found via openspec change use-field-dictionary-in-scenario-tests):
+         ! std_name_1/std_name_2 are intentionally left UNALLOCATED (not
+         ! defaulted to the literal 'unknown') when this%standard_name is
+         ! absent, so StandardNameAspect's own constructor treats them as
+         ! unchecked/wildcard - matching every other absent-standard_name
+         ! case (generic/standard-name-enforcement). The literal 'unknown'
+         ! string used here previously was treated as a real, specified
+         ! name, causing spurious standard_name mismatch warnings for any
+         ! Vector import/export left without an explicit standard_name
+         ! (e.g. the statistics gridcomp's internal vector accumulators).
          if (allocated(this%standard_name)) then
             call split_name(this%standard_name, std_name_1, std_name_2, _RC)
          end if
@@ -707,19 +753,30 @@ contains
          else
             basis_kind = MAPL_VECTOR_BASIS_KIND_NS
          end if
+         ! standard_name is a compound "(name1,name2)" encoding of two
+         ! independent CF names (one per physical component), not one
+         ! shared scalar value like units/typekind - see
+         ! generic/standard-name-enforcement design.md Decision 6.
+         ! VectorClassAspect enforces/carries the two split names itself
+         ! (standard_name_1/standard_name_2), independent of the outer
+         ! per-VarSpec StandardNameAspect built below (which is built from
+         ! the raw, unsplit compound string and is never actually consulted
+         ! for a Vector item - see VectorClassAspect%get_aspect_order).
          aspect = VectorClassAspect( &
               [ &
-              FieldClassAspect(standard_name=std_name_1, fill_value=this%fill_value), &
-              FieldClassAspect(standard_name=std_name_2, fill_value=this%fill_value) &
+              FieldClassAspect(fill_value=this%fill_value), &
+              FieldClassAspect(fill_value=this%fill_value) &
               ], &
-              basis_kind)
+              basis_kind, &
+              standard_name_1=std_name_1, &
+              standard_name_2=std_name_2)
       case (MAPL_STATEITEM_BRACKET%ot)
-         aspect = BracketClassAspect(this%bracket_size, this%standard_name, fill_value=this%fill_value)
+         aspect = BracketClassAspect(this%bracket_size, fill_value=this%fill_value)
       case (MAPL_STATEITEM_VECTORBRACKET%ot)
          if (allocated(this%vector_basis_kind)) then
-            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, vector_basis_kind=this%vector_basis_kind, fill_value=this%fill_value)
+            aspect = VectorBracketClassAspect(this%bracket_size, vector_basis_kind=this%vector_basis_kind, fill_value=this%fill_value)
          else
-            aspect = VectorBracketClassAspect(this%bracket_size, this%standard_name, fill_value=this%fill_value)
+            aspect = VectorBracketClassAspect(this%bracket_size, fill_value=this%fill_value)
          end if
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(aspect,source=WildcardClassAspect())
@@ -728,7 +785,7 @@ contains
          aspect = ServiceClassAspect(registry, this%service_items)
       case (MAPL_STATEITEM_EXPRESSION%ot)
          aspect = ExpressionClassAspect(registry=registry, expression=this%expression, &
-              standard_name=this%standard_name, long_name=this%long_name)
+              long_name=this%long_name)
       case default
          aspect=FieldClassAspect('') ! must allocate something
          _FAIL('Unsupported itemType')
