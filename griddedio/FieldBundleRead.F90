@@ -22,6 +22,7 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_StringTemplate
    use gFTL_StringVector
    use MAPL_RegridMethods
+   use MAPL_CommsMod, only : MAPL_AM_I_ROOT
    use pFlogger, only: logging, Logger
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
@@ -187,6 +188,8 @@ module MAPL_ESMFFieldBundleRead
          call fill_grads_template(file_name,file_tmpl,time=time,rc=status)
          _VERIFY(status)
 
+         if(MAPL_AM_I_ROOT() ) print*, 'ck 1'
+         
          collection_id=i_clients%add_ext_collection(trim(file_tmpl))
 
          metadata_id = MAPL_DataAddCollection(trim(file_tmpl))
@@ -206,6 +209,8 @@ module MAPL_ESMFFieldBundleRead
          _ASSERT(time_index/=-1,"Time not found on file "//trim(file_name))
          deallocate(time_series)
 
+         if(MAPL_AM_I_ROOT() ) print*, 'ck 2'
+         
          call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,rc=status)
          _VERIFY(status)
          if (num_fields ==0) then
@@ -218,6 +223,8 @@ module MAPL_ESMFFieldBundleRead
             end if
          end if
 
+         if(MAPL_AM_I_ROOT() ) print*, 'ck 3'         
+
          call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,rc=status)
          _VERIFY(status)
          allocate(field_names(num_fields))
@@ -229,6 +236,7 @@ module MAPL_ESMFFieldBundleRead
             call items%push_back(item)
          enddo
 
+         if(MAPL_AM_I_ROOT() ) print*, 'ck 4'
 
          cfio=MAPL_GriddedIO(output_bundle=bundle,metadata_collection_id=metadata_id,read_collection_id=collection_id,items=items)
          call cfio%set_param(regrid_method=regrid_method)
@@ -239,10 +247,21 @@ module MAPL_ESMFFieldBundleRead
                call cfio%set_param(regrid_hints=regrid_hints)
             end if
          end if
+
+         if(MAPL_AM_I_ROOT() ) print*, 'ck 5'         
+
          call cfio%request_data_from_file(trim(file_name),timeindex=time_index,rc=status)
          _VERIFY(status)
+
+         if(MAPL_AM_I_ROOT() ) print*, 'ck 6'
+         
          call i_clients%done_collective_prefetch(_RC)
+         if(MAPL_AM_I_ROOT() ) print*, 'ck 6.1'
+
          call i_clients%wait(_RC)
+
+         if(MAPL_AM_I_ROOT() ) print*, 'ck 7'
+         
          call cfio%process_data_from_file(rc=status)
          _VERIFY(status)
 
