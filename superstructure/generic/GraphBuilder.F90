@@ -1282,14 +1282,14 @@ contains
       type(CharacteristicId), allocatable :: mismatched(:)
       character(20) :: id_buffer
       character(:), allocatable :: unsupported
+      character(:), allocatable :: assertion_message
       type(GeomId) :: this_own_geom_id
       type(GeomId) :: provider_geom_id
 
       this_graph => this%get_component_graph()
       net_id = this_graph%get_default_network_id()
       existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      _ASSERT(associated(existing), &
-           'GraphBuilder: resolve_geometry_from_child called before this component advertised its own geometry')
+      _ASSERT(associated(existing), 'GraphBuilder: resolve_geometry_from_child called before this component advertised its own geometry')
       this_own_id = existing
 
       child_proxy_id = get_or_make_local_node_id(this, provider_name, ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME, _RC)
@@ -1322,10 +1322,10 @@ contains
 
       call find_or_build_extension_chain(this_graph, net_id, child_proxy_id, &
            child_map, this_map, mismatched, final_id, unsupported, _RC)
-      _ASSERT(unsupported == '', &
-           'GraphBuilder: geometry from child ' // provider_name // &
-           ' does not match the receiving component own resolved geometry (unsupported: ' // &
-           unsupported // ') - should be unreachable given GeometrySpec own exclusive resolution')
+      assertion_message = 'GraphBuilder: geometry from child ' // provider_name // &
+            ' does not match the receiving component own resolved geometry (unsupported: ' // &
+            unsupported // ') - should be unreachable given GeometrySpec own exclusive resolution'
+      _ASSERT(unsupported == '', assertion_message)
 
       call this_graph%add_dependency(net_id, final_id, this_own_id, _RC)
 
@@ -1359,13 +1359,13 @@ contains
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
       character(:), allocatable :: unsupported
+      character(:), allocatable :: assertion_message
       type(GeomId) :: this_geom_id
       type(GeomId) :: child_geom_id
 
       this_graph => this%get_component_graph()
       existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      _ASSERT(associated(existing), &
-           'GraphBuilder: push_geometry_to_child called before this component advertised its own geometry')
+      _ASSERT(associated(existing), 'GraphBuilder: push_geometry_to_child called before this component advertised its own geometry')
       ! Existence is all that matters here (this component must have
       ! already advertised its own geometry before it can push it into a
       ! child) - unlike resolve_geometry_from_child, this component's own
@@ -1376,9 +1376,9 @@ contains
       child_meta => this%get_child_outer_meta(child_name, _RC)
 
       existing => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      _ASSERT(associated(existing), &
-           'GraphBuilder: child "' // child_name // '" has no geometry to receive into - ' // &
-           'has it run its own advertise_geometry yet?')
+      assertion_message = 'GraphBuilder: child "' // child_name // &
+            '" has no geometry to receive into - has it run its own advertise_geometry yet?'
+      _ASSERT(associated(existing), assertion_message)
       child_own_id = existing
 
       pkey = parent_geometry_proxy_key()
@@ -1416,10 +1416,10 @@ contains
 
       call find_or_build_extension_chain(child_graph, child_net_id, parent_proxy_id, &
            this_map, child_map, mismatched, final_id, unsupported, _RC)
-      _ASSERT(unsupported == '', &
-           'GraphBuilder: parent geometry does not match child ' // child_name // &
-           ' own resolved geometry (unsupported: ' // unsupported // &
-           ') - should be unreachable given GeometrySpec own exclusive resolution')
+      assertion_message = 'GraphBuilder: parent geometry does not match child ' // child_name // &
+            ' own resolved geometry (unsupported: ' // unsupported // &
+            ') - should be unreachable given GeometrySpec own exclusive resolution'
+      _ASSERT(unsupported == '', assertion_message)
 
       call child_graph%add_dependency(child_net_id, final_id, child_own_id, _RC)
 
