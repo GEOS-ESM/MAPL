@@ -31,6 +31,12 @@ module mapl_ComponentSpec_mod
       logical :: activate_all_exports = .false. ! used for testing in isolation
       logical :: activate_all_imports = .false. ! used for testing in isolation
 
+      ! OpenMP threading of the user component.  When use_threads is
+      ! .true., the user component is replicated into num_threads
+      ! "mini" gridcomps that each operate on a subset of the geometry.
+      logical :: use_threads = .false.
+      integer :: num_threads = 1
+
       type(CheckpointControls) :: checkpoint_controls
       type(CheckpointControls) :: restart_controls
    end type MiscellaneousComponentSpec

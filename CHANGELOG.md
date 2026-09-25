@@ -325,6 +325,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added OpenMP threading support for generic gridded components. A component
+  can now request that its user component be replicated into a set of "mini"
+  components - each with its own sub-geometry, sub-states and sub-gridcomp -
+  that are run concurrently on OpenMP threads within a single PET. Threading is
+  configured per component through the `mapl: misc:` section of its HConfig
+  (`use_threads: true` and an optional `num_threads: <n>`; `num_threads`
+  defaults to the number of threads available to the process), or
+  programmatically via `MAPL_GridCompSet(gridcomp, use_threads=, num_threads=)`.
+  While threading is active, `MAPL_GridCompGet(gridcomp, geom=)` and
+  `MAPL_GridCompGetInternalState` return the thread-local geometry and internal
+  state, so user code that already uses the MAPL accessors works unchanged.
+  Children of a threaded component are decomposed as well and run their own
+  thread-local "mini" component; because couplers, timers and loggers are
+  shared across threads and are not thread safe, a component that is run from
+  within a threaded ancestor's parallel region must not have couplers, and this
+  is reported as an error rather than silently racing.
 - Added optional coordinate-comparison tolerance for LatLon grid equality (`GEOS-ESM/MAPL#5385`), so that two file-based LatLon grids whose coordinates differ only by numerical noise can be treated as the same grid, letting `GeomManager` reuse geoms/RouteHandles instead of minting new ones on every file swap. `coordinate_tolerance` is a dimensionless fraction of a grid's own coordinate spacing (DX) - e.g. `0.01` means "within 1% of the minimum spacing between adjacent grid points" - not an absolute coordinate difference. Comparison is directional: when a new (not yet cached) grid is looked up against an already-registered one, only the new grid's own declared tolerance and its own spacing are consulted; the already-registered grid's tolerance never matters. The tolerance is sourced from a generic `coordinate_tolerance` attribute on `FileMetadata` (read via the existing generic attribute API; no new `pfio`/`FileMetadata` methods added); the geom layer itself defaults to `0` (strict/bitwise) when the attribute is absent, staying neutral for any client. `ExtData` is the first client to set this attribute: file collections may set an optional `coordinate_tolerance` in their YAML config, which `PrimaryExport` stamps onto each file's `FileMetadata` before requesting a geom for it. Unlike the geom layer's own neutral default, `ExtData` defaults `coordinate_tolerance` to a nonzero value (`0.1`, i.e. 10% of DX) when a collection's config omits it, restoring MAPL2's historical default-tolerant grid-reuse behavior for existing users; a collection can set `coordinate_tolerance: 0` explicitly to opt into strict comparison.
 - Added `StateGetPointer` overloads for retrieving paired (u, v) field pointers from a vector-type ESMF FieldBundle stored in a state
 - Added `extdata_dryrun_check.py`, a Python utility that predicts which input
