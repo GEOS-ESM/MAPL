@@ -4,7 +4,7 @@ module mapl_FieldPointerUtilities_mod
 
    use ESMF
    use mapl_ErrorHandling_mod
-   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated, c_null_ptr
 
    implicit none
    private
@@ -213,6 +213,21 @@ contains
 
       integer :: status
       type(ESMF_TypeKind_Flag) :: tk_x
+      logical :: has_de
+
+      ! A rank with no local decomposition element for this field has no
+      ! local data to point to. Every caller of assign_fptr()/FieldGetCptr()
+      ! derives its c_f_pointer() shape from FieldGetLocalElementCount() (or
+      ! FieldGetLocalSize()), both of which are already safe for this case
+      ! and yield a zero-size shape -- so a C_NULL_PTR base address is valid
+      ! here per the Fortran c_f_pointer() rules, and all downstream
+      ! elementwise operations on the resulting zero-size pointer become
+      ! well-defined no-ops.
+      has_de = field_has_de(x, _RC)
+      if (.not. has_de) then
+         cptr = c_null_ptr
+         _RETURN(_SUCCESS)
+      end if
 
       call ESMF_FieldGet(x, typekind=tk_x, _RC)
 
