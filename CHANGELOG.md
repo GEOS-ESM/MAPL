@@ -58,16 +58,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Declared `standard_name`s now always supply FieldDictionary
+- Declared `standard_name`s now always supply FieldDictionary
   defaults for `long_name` and `units`. Remove `use_field_dictionary=` from
   `make_VariableSpec`/`MAPL_GridCompAddSpec` calls; strict mode also rejects
   names missing from the dictionary.
-- **BREAKING:** Split `cap.yaml` into `mapl.yaml`, `cap_driver.yaml`, and
+- Split `cap.yaml` into `mapl.yaml`, `cap_driver.yaml`, and
   `cap_gridcomp.yaml`; `mapl.yaml` points to the driver config, which points
   to the gridcomp config. Renamed `model_petcount`/`has_model_petcount` to
   `app_petcount`/`has_app_petcount`, and `mapl_Cap_mod` to
   `mapl_CapDriver_mod`.
-- **BREAKING:** `Regrid_Util.x` now uses fargparse: multi-character options
+- `Regrid_Util.x` now uses fargparse: multi-character options
   require `--` (e.g. `--ogrid` instead of `-ogrid`); `-i` and `-o` remain.
   It can also read options from a YAML file.
 - ExtData vector-variable lists now use YAML sequences instead of
