@@ -74,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   semicolon-separated strings.
 - The default RouteHandle line type is now `LINETYPE_GREAT_CIRCLE` for all
   methods.
-- MAPL initialization now has an explicit six-call application lifecycle
+- MAPL applications now follow an explicit six-call lifecycle
   (`MAPL_Initialize`, `MAPL_CreateServers`, `MAPL_CapCreate`,
   `MAPL_RunServers`, `MAPL_CapRun`, `MAPL_Finalize`). Server ownership and
   initialization were refactored; local servers are created for model PETs
