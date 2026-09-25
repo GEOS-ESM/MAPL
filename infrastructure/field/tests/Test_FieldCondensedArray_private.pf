@@ -158,4 +158,46 @@ contains
 
     end subroutine test_get_fptr_shape_wrong_order_raise_exception
 
+    ! ------------------------------------------------------------------
+    ! No-DE regression tests.
+    !
+    ! A rank with no local DE for a field's grid has an all-zero
+    ! localElementCount (from the DE-safe FieldGetLocalElementCount()
+    ! wrapper). The resulting condensed shape must still have zero total
+    ! size (product == 0), even though the vertical slot defaults to 1
+    ! when has_vertical is .false., so that a C_NULL_PTR base address
+    ! remains valid for the corresponding c_f_pointer() call in
+    ! assign_fptr_condensed_array_*().
+    ! ------------------------------------------------------------------
+
+    @Test
+    subroutine test_get_fptr_shape_no_de_2D()
+       integer :: actual(CONDENSED_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       has_vertical = .FALSE.
+       gridToFieldMap = [1, 2]
+       localElementCount = [0, 0]
+       actual = get_fptr_shape_private(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, product(actual), is(equal_to(0)))
+
+    end subroutine test_get_fptr_shape_no_de_2D
+
+    @Test
+    subroutine test_get_fptr_shape_no_de_3D()
+       integer :: actual(CONDENSED_RANK)
+       integer, allocatable :: gridToFieldMap(:)
+       integer, allocatable :: localElementCount(:)
+       logical :: has_vertical
+
+       has_vertical = .TRUE.
+       gridToFieldMap = [1, 2]
+       localElementCount = [0, 0, 0]
+       actual = get_fptr_shape_private(gridToFieldMap, localElementCount, has_vertical)
+       @assert_that(GENERIC_MESSAGE, product(actual), is(equal_to(0)))
+
+    end subroutine test_get_fptr_shape_no_de_3D
+
 end module Test_FieldCondensedArray_private

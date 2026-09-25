@@ -4,7 +4,7 @@ module mapl_FieldPointerUtilities_mod
 
    use ESMF
    use mapl_ErrorHandling_mod
-   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated, c_null_ptr
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated, c_null_ptr, C_INT8_T
 
    implicit none
    private
@@ -24,6 +24,11 @@ module mapl_FieldPointerUtilities_mod
    public :: FieldCopyBroadcast
    public :: FieldSameData
    public :: field_has_de
+
+   ! Dummy, never-dereferenced target used as the base address for a
+   ! zero-size c_f_pointer() result on a rank with no local DE (see
+   ! get_cptr() below for why C_NULL_PTR itself is not used for this).
+   integer(kind=C_INT8_T), target, save :: no_de_dummy_target = 0_C_INT8_T
 
    interface GetFieldsUndef
       module procedure GetFieldsUndef_r4
@@ -219,13 +224,23 @@ contains
       ! local data to point to. Every caller of assign_fptr()/FieldGetCptr()
       ! derives its c_f_pointer() shape from FieldGetLocalElementCount() (or
       ! FieldGetLocalSize()), both of which are already safe for this case
-      ! and yield a zero-size shape -- so a C_NULL_PTR base address is valid
-      ! here per the Fortran c_f_pointer() rules, and all downstream
-      ! elementwise operations on the resulting zero-size pointer become
-      ! well-defined no-ops.
+      ! and yield a zero-size shape, so any valid (non-null) base address is
+      ! acceptable here -- no bytes are ever actually read/written since the
+      ! resulting pointer has zero elements.
+      !
+      ! NOTE: we deliberately do NOT use C_NULL_PTR here. Per the Fortran
+      ! standard, c_f_pointer(C_NULL_PTR, fptr, shape) is legal when every
+      ! element of shape is zero, but NAG's runtime treats the resulting
+      ! Fortran pointer as fully disassociated in that case, and aborts
+      ! ("Reference to disassociated POINTER") on any subsequent reference
+      ! to it (even e.g. SIZE()) -- which downstream callers (elementwise
+      ! BLAS-like operations, etc.) routinely do. Pointing at a real, if
+      ! unused, static target avoids that false positive while remaining
+      ! standard-compliant (a valid, if otherwise meaningless, address is
+      ! always an acceptable basis for a zero-size c_f_pointer() result).
       has_de = field_has_de(x, _RC)
       if (.not. has_de) then
-         cptr = c_null_ptr
+         cptr = c_loc(no_de_dummy_target)
          _RETURN(_SUCCESS)
       end if
 
