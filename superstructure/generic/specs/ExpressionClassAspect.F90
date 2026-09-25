@@ -9,6 +9,8 @@ module mapl_ExpressionClassAspect_mod
    use mapl_GeomAspect_mod
    use mapl_HorizontalDimsSpec_mod
    use mapl_VerticalGridAspect_mod
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_VerticalStaggerLoc_mod
    use mapl_UnitsAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UngriddedDimsAspect_mod
@@ -44,6 +46,7 @@ module mapl_ExpressionClassAspect_mod
 
    public :: ExpressionClassAspect
    public :: to_ExpressionClassAspect
+   public :: check_vertical_stagger_consistency
 
    interface to_ExpressionClassAspect
       procedure :: to_expressionclassaspect_from_poly
@@ -133,19 +136,37 @@ contains
    end function get_mandatory_aspect_ids
 
 
-   ! No op
    subroutine create(this, other_aspects, rc)
       class(ExpressionClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(StringVector) :: expression_variables
 
       this%payload = ESMF_FieldEmptyCreate(name='expression', _RC)
       call mapl_FieldSet(this%payload, allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
 
+      ! Best-effort, early attempt at the same resolution
+      ! check_vertical_stagger_consistency performs again (more reliably) at
+      ! actual connection time (make_transform): if this expression's own
+      ! vertical_dim_spec was omitted (VERTICAL_STAGGER_INVALID - see
+      ! ComponentSpecParser/parse_var_specs.F90) and its referenced variables
+      ! already have a consistent, resolved vertical stagger *at this point*
+      ! (e.g. an explicit vertical_dim_spec on a variable declared earlier in
+      ! the same component's YAML), adopt it directly now.
+      !
+      ! This must be attempted here, not only in make_transform, because
+      ! VERTICAL_GRID_ASPECT_ID precedes CLASS_ASPECT_ID in get_aspect_order:
+      ! an expression whose own VerticalGridAspect is still unresolved
+      ! (VERTICAL_STAGGER_INVALID) when this item is first connected crashes
+      ! while extending the VERTICAL_GRID_ASPECT_ID aspect itself, before
+      ! CLASS_ASPECT_ID - and this expression's own make_transform - is ever
+      ! reached. See design.md Decisions.
+      expression_variables = parser_variables_in_expression(this%expression, _RC)
+      call check_vertical_stagger_consistency(this, other_aspects, expression_variables, _RC)
+
       _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(other_aspects)
    end subroutine create
 
    subroutine activate(this, rc)
@@ -293,6 +314,16 @@ contains
          enddo
          end associate
 
+         ! Best-effort consistency check: whichever referenced variables
+         ! already have a resolved vertical stagger at this point (their own
+         ! VerticalGridAspect is not itself still mirrored) are compared to
+         ! each other and to this item's own (already resolved, since
+         ! VERTICAL_GRID_ASPECT_ID precedes CLASS_ASPECT_ID in
+         ! get_aspect_order) resolved stagger. A variable whose stagger is
+         ! not yet resolved is skipped rather than treated as an error - see
+         ! design.md Decisions.
+         call check_vertical_stagger_consistency(src, other_aspects, expression_variables, _RC)
+
          goal_spec = StateItemSpec(ESMF_STATEINTENT_EXPORT, other_aspects, empty)
          goal_aspects => goal_spec%get_aspects()
          n = goal_aspects%erase(CLASS_ASPECT_ID)
@@ -328,6 +359,135 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_transform
+
+   ! Best-effort: compares whichever of this expression's referenced
+   ! variables (plus the expression's own already-declared value, if any)
+   ! already have a resolved vertical stagger at this point; a variable that
+   ! is still genuinely mirrored (not yet resolved) is skipped rather than
+   ! treated as an error. See design.md Decisions for why this cannot be a
+   ! hard requirement.
+   !
+   ! If this expression's own vertical_dim_spec was omitted (parsed as
+   ! VERTICAL_STAGGER_INVALID - see ComponentSpecParser/parse_var_specs.F90)
+   ! and a consistent value is found among its resolved inputs, that value is
+   ! adopted directly on this expression's own VerticalGridAspect here.
+   !
+   ! This direct approach - rather than forcing ASPECT_STATUS_MIRRORED in
+   ! create() and relying on the generic mirror/ExtendTransform machinery -
+   ! is required because a component-level vertical grid resource
+   ! (MAPL_GridCompSetVerticalGrid) unconditionally overwrites *every* item's
+   ! VerticalGridAspect in the registry to ASPECT_STATUS_SPECIFIED (see
+   ! StateItemSpec::set_geometry/target_set_geom) well before this transform
+   ! ever runs, including this expression's - even though it never touches
+   ! vertical_stagger itself. is_mirror()/characteristic_state is therefore
+   ! not a reliable signal of "not yet declared"; VERTICAL_STAGGER_INVALID is.
+   ! By the time this make_transform runs (at actual connection time), that
+   ! one-time component-level override has already happened, so directly
+   ! setting the resolved value here is safe and final. See design.md
+   ! Decisions.
+   subroutine check_vertical_stagger_consistency(src, other_aspects, expression_variables, rc)
+      class(ExpressionClassAspect), intent(in) :: src
+      type(AspectMap), intent(in) :: other_aspects
+      type(StringVector), intent(in) :: expression_variables
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i, n_vars
+      character(:), allocatable :: variable
+      type(VirtualConnectionPt) :: v_pt
+      type(StateItemSpec), pointer :: var_spec
+      type(VerticalGridAspect) :: var_vgrid
+      type(VerticalGridAspect) :: own_vgrid
+      type(VerticalStaggerLoc) :: var_stagger
+      type(VerticalStaggerLoc) :: common_stagger
+      type(VerticalStaggerLoc) :: own_stagger
+      class(VerticalGrid), pointer :: var_vgrid_ptr
+      class(VerticalGrid), allocatable :: common_vgrid
+      logical :: own_is_unresolved
+      logical :: have_common
+      logical :: mismatch
+      character(:), allocatable :: report
+      class(StateItemAspect), pointer :: own_poly
+
+      n_vars = expression_variables%size()
+      _RETURN_IF(n_vars == 0)
+
+      have_common = .false.
+      mismatch = .false.
+      report = ''
+
+      own_vgrid = to_VerticalGridAspect(other_aspects, _RC)
+      own_stagger = own_vgrid%get_vertical_stagger(_RC)
+      ! Two independent signals both mean "not actually declared, treat as a
+      ! candidate for resolution rather than an authoritative value to check
+      ! others against": VERTICAL_STAGGER_INVALID is how an omitted
+      ! vertical_dim_spec is parsed from YAML (see
+      ! ComponentSpecParser/parse_var_specs.F90), but not every
+      ! ExpressionClassAspect item goes through that parser - e.g. ExtData's
+      ! "Derived" exports build their own VariableSpec without ever setting
+      ! vertical_stagger at all, which leaves it at VerticalGridAspect's own
+      ! CENTER-if-absent constructor default instead. is_mirror() catches
+      ! that case (still genuinely unconnected). Conversely, is_mirror()
+      ! alone is not reliable either - see the create()/make_transform
+      ! comments above for why a component-level vertical grid resource can
+      ! leave is_mirror() false while vertical_stagger is still
+      ! VERTICAL_STAGGER_INVALID. Only treating both as false means this
+      ! expression's own value was genuinely, deliberately declared.
+      own_is_unresolved = (own_stagger == VERTICAL_STAGGER_INVALID) .or. own_vgrid%is_mirror()
+      if (.not. own_is_unresolved) then
+         common_stagger = own_stagger
+         have_common = .true.
+         report = report // ' expr=' // own_stagger%to_string()
+      end if
+
+      do i = 1, n_vars
+         variable = expression_variables%of(i)
+         v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable)
+
+         ! A referenced variable may not be registered yet at all (this is
+         ! called early, from create(), as well as later from
+         ! make_transform): treat "not yet in the registry" the same as "not
+         ! yet resolved" - skip, best effort - rather than treating it as an
+         ! error. See design.md Decisions.
+         if (.not. src%registry%has_virtual_pt(v_pt)) cycle
+
+         var_spec => src%registry%get_primary_spec(v_pt, _RC)
+         var_vgrid = to_VerticalGridAspect(var_spec%get_aspects(), _RC)
+
+         if (var_vgrid%is_mirror()) cycle ! not yet resolved - skip (best effort)
+
+         var_stagger = var_vgrid%get_vertical_stagger(_RC)
+         report = report // ' ' // variable // '=' // var_stagger%to_string()
+
+         if (.not. have_common) then
+            common_stagger = var_stagger
+            have_common = .true.
+            if (var_stagger /= VERTICAL_STAGGER_NONE) then
+               var_vgrid_ptr => var_vgrid%get_vertical_grid(_RC)
+               allocate(common_vgrid, source=var_vgrid_ptr)
+            end if
+         else if (var_stagger /= common_stagger) then
+            mismatch = .true.
+         end if
+      end do
+
+      if (mismatch) then
+         report = 'ExpressionClassAspect: inconsistent vertical_dim_spec among expression "' &
+              // src%expression // '" and its resolved inputs:' // report
+      end if
+      _ASSERT(.not. mismatch, report)
+
+      if (own_is_unresolved .and. have_common) then
+         own_poly => other_aspects%at(VERTICAL_GRID_ASPECT_ID, _RC)
+         select type (own_poly)
+         type is (VerticalGridAspect)
+            call own_poly%set_vertical_stagger(common_stagger)
+            if (allocated(common_vgrid)) call own_poly%set_vertical_grid(common_vgrid)
+         end select
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine check_vertical_stagger_consistency
 
    logical function supports_conversion_general(src)
       class(ExpressionClassAspect), intent(in) :: src
