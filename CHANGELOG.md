@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed `MAPL_LocStreamGet` accessing unassociated geometry when requesting
+  `tilelons` or `tilelats` with GNU Fortran.
+
 ### Added
 
 ### Changed
