@@ -12,6 +12,7 @@ module mapl_VectorClassAspect_mod
    use mapl_GeomAspect_mod
    use mapl_VerticalGridAspect_mod
    use mapl_UnitsAspect_mod
+   use mapl_StandardNameAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UngriddedDimsAspect_mod
    use mapl_enums_api, only: MAPL_VectorBasisKind, MAPL_STATEITEM_ALLOCATION_CREATED, &
@@ -52,6 +53,14 @@ module mapl_VectorClassAspect_mod
       private
       type(ESMF_FieldBundle) :: payload
       type(FieldClassAspect) :: component_specs(2)
+      ! Vector's standard_name is a compound "(name1,name2)" encoding of two
+      ! independent CF names (one per physical component), unlike
+      ! units/typekind which are one shared scalar value for the whole
+      ! vector - so, unlike those, standard_name is enforced per-component
+      ! directly here rather than through a single outer StandardNameAspect
+      ! entry in the VarSpec's shared AspectMap. See
+      ! generic/standard-name-enforcement design.md Decision 6.
+      type(StandardNameAspect) :: standard_name_aspects(2)
       type(MAPL_VectorBasisKind) :: basis_kind
    contains
       procedure :: get_aspect_order
@@ -79,16 +88,24 @@ module mapl_VectorClassAspect_mod
 
 contains
 
-   function new_VectorClassAspect_basic(component_specs, basis_kind) result(aspect)
+   function new_VectorClassAspect_basic(component_specs, basis_kind, standard_name_1, standard_name_2) result(aspect)
       type(VectorClassAspect) :: aspect
       type(FieldClassAspect), intent(in) :: component_specs(2)
       type(MAPL_VectorBasisKind), intent(in) :: basis_kind
+      character(*), optional, intent(in) :: standard_name_1
+      character(*), optional, intent(in) :: standard_name_2
 
       aspect%component_specs = component_specs
       aspect%basis_kind = basis_kind
+      aspect%standard_name_aspects(1) = StandardNameAspect(standard_name_1)
+      aspect%standard_name_aspects(2) = StandardNameAspect(standard_name_2)
    end function new_VectorClassAspect_basic
 
-   ! Should always be the same as for Field
+   ! Should always be the same as for Field, minus STANDARD_NAME_ASPECT_ID:
+   ! agreement for standard_name is checked per-component directly in
+   ! matches() below (not through a separate outer aspect-map slot), because
+   ! the two components generally have different, independent CF names - see
+   ! generic/standard-name-enforcement design.md Decision 6.
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
       type(AspectId), allocatable :: aspect_ids(:)
       class(VectorClassAspect), intent(in) :: this
@@ -96,8 +113,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(AspectId), allocatable :: field_aspect_ids(:)
 
-      aspect_ids = this%component_specs(1)%get_aspect_order(goal_aspects, _RC)
+      field_aspect_ids = this%component_specs(1)%get_aspect_order(goal_aspects, _RC)
+      aspect_ids = pack(field_aspect_ids, field_aspect_ids /= STANDARD_NAME_ASPECT_ID)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(goal_aspects)
@@ -108,8 +127,10 @@ contains
       class(VectorClassAspect), intent(in) :: this
 
       type(FieldClassAspect) :: placeholder
+      type(AspectId), allocatable :: field_aspect_ids(:)
 
-      aspect_ids = placeholder%get_mandatory_aspect_ids()
+      field_aspect_ids = placeholder%get_mandatory_aspect_ids()
+      aspect_ids = pack(field_aspect_ids, field_aspect_ids /= STANDARD_NAME_ASPECT_ID)
    end function get_mandatory_aspect_ids
 
    function matches(src, dst)
@@ -117,13 +138,18 @@ contains
       class(VectorClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
+      integer :: i
+
       matches = .false.
       select type(dst)
       class is (VectorClassAspect)
          matches = .true.
+         do i = 1, NUM_COMPONENTS
+            matches = matches .and. &
+                 src%standard_name_aspects(i)%matches(dst%standard_name_aspects(i))
+         end do
       end select
 
-      _UNUSED_DUMMY(src)
    end function matches
 
    subroutine create(this, other_aspects, rc)
@@ -168,7 +194,7 @@ contains
 
       do i = 1, NUM_COMPONENTS
          call this%component_specs(i)%create(other_aspects, _RC)
-         call update_payload(this%component_specs(i), other_aspects, _RC)
+         call update_payload(this%component_specs(i), this%standard_name_aspects(i), other_aspects, _RC)
          call this%component_specs(i)%allocate(other_aspects, _RC)
          call this%component_specs(i)%add_to_bundle(this%payload, _RC)
       end do
@@ -176,8 +202,9 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
 
-   subroutine update_payload(field_aspect, other_aspects, rc)
+   subroutine update_payload(field_aspect, standard_name_aspect, other_aspects, rc)
       type(FieldClassAspect), intent(inout) :: field_aspect
+      type(StandardNameAspect), intent(in) :: standard_name_aspect
       type(AspectMap), target, intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
 
@@ -188,9 +215,9 @@ contains
 
       call field_aspect%get_payload(field=field, _RC)
 
-      ! field_aspect's own metadata (standard_name/long_name) - other_aspects
-      ! only covers *sibling* characteristic aspects (units, typekind, ...),
-      ! not this per-component FieldClassAspect itself.
+      ! field_aspect's own metadata (long_name) - other_aspects only covers
+      ! *sibling* characteristic aspects (units, typekind, ...), not this
+      ! per-component FieldClassAspect itself.
       call field_aspect%update_payload(field=field, _RC)
 
       associate(e => other_aspects%ftn_end())
@@ -201,6 +228,16 @@ contains
            call aspect%update_payload(field=field, _RC)
         end do
       end associate
+
+      ! This component's own split standard_name (see
+      ! generic/standard-name-enforcement design.md Decision 6) - applied
+      ! LAST, after the generic sibling loop above, because `other_aspects`
+      ! (the outer, per-VarSpec AspectMap) still contains an unconsulted
+      ! STANDARD_NAME_ASPECT_ID entry built from the *unsplit* compound
+      ! string (see VariableSpec%make_StandardNameAspect); that entry's own
+      ! update_payload would otherwise silently clobber this component's
+      ! correct, split value if it happened to run after this call.
+      call standard_name_aspect%update_payload(field=field, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine update_payload
@@ -243,14 +280,22 @@ contains
       integer, optional, intent(out) :: rc
 
       type(VectorClassAspect) :: export_
-      integer :: status
+      integer :: status, i
 
       export_ = to_VectorClassAspect(export, _RC)
       call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
 
+      ! Per-component standard_name: already validated (equal, wildcard, or
+      ! accepted per permissive mode) by matches() above; each component
+      ! unconditionally adopts its counterpart's (already-matched) value -
+      ! see generic/standard-name-enforcement design.md Decision 6.
+      do i = 1, NUM_COMPONENTS
+         call this%standard_name_aspects(i)%connect_to_export( &
+              export_%standard_name_aspects(i), actual_pt, _RC)
+      end do
+
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
    function to_vectorclassaspect_from_poly(aspect, rc) result(vector_aspect)

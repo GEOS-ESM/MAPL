@@ -80,15 +80,18 @@ contains
          end if
       end if
 
-      ! standard_name/long_name are per-connection-endpoint metadata:
-      ! named_alias_id resolves them for the specific NamedAlias represented
-      ! by this `field` handle, not a single field-wide value.
+      ! long_name is per-connection-endpoint metadata: named_alias_id
+      ! resolves it for the specific NamedAlias represented by this `field`
+      ! handle, not a single field-wide value. standard_name, by contrast, is
+      ! unaliased/field-wide (see generic/standard-name-enforcement) - the
+      ! same value is visible from every NamedAlias of the field, and
+      ! named_alias_id plays no role in resolving it.
       ! ESMF_NamedAliasGet never fails; it returns id=0 for a field that was
       ! never placed via ESMF_NamedAlias (e.g. a hand-built field in a unit
       ! test), which simply resolves to its own (unshared) namespace.
       ! FieldInfoGetInternal always returns an allocated string for each
-      ! output that is present (defaulting to 'unknown' internally), so no
-      ! post-processing is needed here.
+      ! output that is present (defaulting to 'unknown'/'<unknown>'
+      ! internally), so no post-processing is needed here.
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       call ESMF_NamedAliasGet(field, id=named_alias_id, _RC)
       call FieldInfoGetInternal(field_info, &
