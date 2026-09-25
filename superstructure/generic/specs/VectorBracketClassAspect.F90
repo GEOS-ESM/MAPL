@@ -52,7 +52,13 @@ module mapl_VectorBracketClassAspect_mod
       type(FieldClassAspect), allocatable :: field_aspect ! reference
 
        integer :: bracket_size   ! allocate only if not time dependent
-       character(:), allocatable :: standard_name
+       ! standard_name is no longer a per-ClassAspect member (see
+       ! generic/standard-name-enforcement): VectorBracketClassAspect
+       ! automatically picks up STANDARD_NAME_ASPECT_ID enforcement because
+       ! it delegates get_aspect_order/get_mandatory_aspect_ids to a
+       ! FieldClassAspect placeholder, and VariableSpec builds the actual
+       ! StandardNameAspect from the VarSpec-level standard_name in its own
+       ! outer AspectMap.
        character(:), allocatable :: long_name
        type(MAPL_VectorBasisKind) :: vector_basis_kind
        real(kind=ESMF_KIND_R4) :: fill_value
@@ -82,19 +88,15 @@ module mapl_VectorBracketClassAspect_mod
 
 contains
 
-   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name, vector_basis_kind, fill_value) result(aspect)
+   function new_VectorBracketClassAspect(bracket_size, long_name, vector_basis_kind, fill_value) result(aspect)
       type(VectorBracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
-      character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       type(MAPL_VectorBasisKind), optional, intent(in) :: vector_basis_kind
       real(kind=ESMF_KIND_R4), optional, intent(in) :: fill_value
 
-       aspect%field_aspect = FieldClassAspect(standard_name, long_name, fill_value)
+       aspect%field_aspect = FieldClassAspect(long_name=long_name, fill_value=fill_value)
        aspect%bracket_size = bracket_size
-       if (present(standard_name)) then
-          aspect%standard_name = standard_name
-       end if
        if (present(long_name)) then
           aspect%long_name = long_name
        end if

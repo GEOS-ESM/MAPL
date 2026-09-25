@@ -1,14 +1,24 @@
-# expr/I: I (the import/consumer) declares its own standard_name AND
-# long_name.  A connection that needs a coupler (any expression connection
-# does) produces a single shared extension aspect for the whole chain - once
-# built, both A's own re-export ("expr(1)") and B's own import ("I") refer to
-# the same materialized aspect, so I's own declared values win throughout and
-# are NOT overwritten by expr's declared name (regression check,
-# generic/field-name-propagation "own value always wins").
+# expr/I: I (the import/consumer) declares its own long_name; a connection
+# that needs a coupler (any expression connection does) produces a single
+# shared extension aspect for the whole chain - once built, both A's own
+# re-export ("expr(1)") and B's own import ("I") refer to the same
+# materialized aspect, so I's own declared long_name wins throughout and is
+# NOT overwritten by expr's declared long_name (regression check,
+# generic/field-name-propagation "own value always wins" - this requirement
+# is unchanged by generic/standard-name-enforcement and still applies to
+# long_name).
+#
+# standard_name, by contrast, is a single field-wide value under
+# generic/standard-name-enforcement (GEOS-ESM/MAPL#5413): both expr and I
+# declare the same 'expr standard name', so the Export's value simply reads
+# through the chain (both expr(1) and I read 'expr standard name'), unlike
+# long_name above which keeps each side's own distinct declared value.
 #
 # expr2/I2: expr2 declares its own standard_name/long_name; I2 (the
 # consumer) declares neither - the shared extension aspect for this chain
-# therefore inherits expr2's declared values (predecessor propagation).
+# therefore reads expr2's declared values everywhere (no disagreement, so
+# this case looks the same under both the old per-endpoint-inheritance model
+# and the new field-wide model).
 
 - component: A/<user>
   export:
@@ -18,16 +28,16 @@
   export:
     A: {status: complete}
     B: {status: complete}
-    expr(1): {status: complete, standard_name: 'I', long_name: 'I long name'}
+    expr(1): {status: complete, standard_name: 'expr standard name', long_name: 'I long name'}
     expr2(1): {status: complete, standard_name: 'expr2 standard name', long_name: 'expr2 long name'}
 
 - component: B/<user>
   import:
-    I: {status: complete, value: 1., standard_name: 'I', long_name: 'I long name'}  # A=1, B=2, C=3, (A+B)/C=3
+    I: {status: complete, value: 1., standard_name: 'expr standard name', long_name: 'I long name'}  # A=1, B=2, C=3, (A+B)/C=3
     I2: {status: complete, standard_name: 'expr2 standard name', long_name: 'expr2 long name'}
 - component: B
   import:
-    I: {status: complete, standard_name: 'I', long_name: 'I long name'}
+    I: {status: complete, standard_name: 'expr standard name', long_name: 'I long name'}
     I2: {status: complete, standard_name: 'expr2 standard name', long_name: 'expr2 long name'}
 - component: <user>
   import: {}
@@ -35,7 +45,7 @@
   internal: {}
 - component: <root>
   export:
-    A/expr(1): {status: complete, standard_name: 'I', long_name: 'I long name'}
+    A/expr(1): {status: complete, standard_name: 'expr standard name', long_name: 'I long name'}
     A/expr2(1): {status: complete, standard_name: 'expr2 standard name', long_name: 'expr2 long name'}
     A/A: {status: complete}
     A/B: {status: complete}

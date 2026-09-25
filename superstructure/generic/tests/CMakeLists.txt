@@ -17,6 +17,14 @@ add_custom_target(copy_scenarios ALL
 # load_field_dictionary can find it by relative path at runtime.
 configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
 
+# Also copy it under the default path MaplFramework%initialize_field_dictionary
+# looks for when no field_dictionary: cap.yaml key is present (which is the
+# case for every pFUnit binary here - see openspec change
+# use-field-dictionary-in-scenario-tests). This activates the fixture above
+# for all six of this directory's pFUnit executables (they share this
+# WORKING_DIRECTORY), in PERMISSIVE ValidationMode (the default).
+configure_file(field_dictionary_test.yaml geos_field_dictionary.yaml COPYONLY)
+
 # Create a shared library for common test sources to avoid parallel build race conditions
 # When multiple test suites compile the same OTHER_SOURCES files to the same MODULE_DIRECTORY,
 # they can conflict during parallel builds
@@ -31,7 +39,14 @@ target_include_directories(MAPL.generic.test_common PUBLIC $<BUILD_INTERFACE:${M
 # Common dependencies for all test suites
 set(COMMON_LINK_LIBRARIES MAPL.generic.test_common MAPL.pfunit MAPL.statistics)
 
-# 1. MAPL.generic.scenarios - End-to-end integration test scenarios
+# 1. MAPL.generic.scenarios - End-to-end integration test scenarios.
+# All scenarios now run under STRICT field-dictionary ValidationMode
+# (Initialize_strict, same module as the default Initialize() every other
+# pFUnit binary here still uses) - see openspec change
+# use-field-dictionary-in-scenario-tests. This was previously split into a
+# separate MAPL.generic.scenarios/.strict pair while some scenarios were
+# still being migrated; now that all of them are STRICT-clean, it is a
+# single suite again.
 set(scenarios_test_srcs
   Test_Scenarios.pf
   Test_MemoryCheckpoint.pf
@@ -41,7 +56,7 @@ add_pfunit_ctest(
   MAPL.generic.scenarios
   TEST_SOURCES ${scenarios_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
-  EXTRA_INITIALIZE Initialize
+  EXTRA_INITIALIZE Initialize_strict
   EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
@@ -109,6 +124,7 @@ set(aspects_test_srcs
   Test_GeomAspect.pf
   Test_ConservationAspect.pf
   Test_NormalizationAspect.pf
+  Test_ExpressionClassAspect.pf
 )
 
 add_pfunit_ctest(

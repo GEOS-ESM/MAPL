@@ -91,12 +91,13 @@ contains
       type(ConservationMetadata), optional, intent(in) :: conservation_metadata
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
-      character(*), optional, intent(in) :: standard_name
-      ! standard_name/long_name are per-NamedAlias-id metadata (see
+      ! long_name is per-NamedAlias-id metadata (see
       ! generic/field-name-propagation): named_alias_id is required whenever
-      ! either is present, and scopes their write to that specific alias's
-      ! own namespace, unlike every other item here which uses the plain
+      ! it is present, and scopes its write to that specific alias's own
+      ! namespace, unlike every other item here (including standard_name,
+      ! see generic/standard-name-enforcement) which uses the plain
       ! namespace_ (shared across all aliases of the same underlying Field).
+      character(*), optional, intent(in) :: standard_name
       integer, optional, intent(in) :: named_alias_id
       type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       type(esmf_info), optional, intent(in) :: regridder_param_info
@@ -156,19 +157,20 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_UNITS, units, _RC)
       end if
 
-      if (present(long_name) .or. present(standard_name)) then
-         _ASSERT(present(named_alias_id), 'named_alias_id is required to set standard_name/long_name')
-         str = ESMF_UtilStringInt2String(named_alias_id, _RC)
-         ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
-         alias_namespace_ = namespace_ // "/alias" // trim(str)
+      ! standard_name: unaliased/field-wide, like units (see
+      ! generic/standard-name-enforcement) - agreement between a connection's
+      ! endpoints is enforced at connection time, so there is at most one
+      ! value to store; no named_alias_id needed.
+      if (present(standard_name)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
       end if
 
       if (present(long_name)) then
+         _ASSERT(present(named_alias_id), 'named_alias_id is required to set long_name')
+         str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+         ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+         alias_namespace_ = namespace_ // "/alias" // trim(str)
          call MAPL_InfoSet(info, alias_namespace_ // KEY_LONG_NAME, long_name, _RC)
-      end if
-
-      if (present(standard_name)) then
-         call MAPL_InfoSet(info, alias_namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
       end if
 
       if (present(regridder_param_info)) then
@@ -220,8 +222,9 @@ contains
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
-      ! standard_name/long_name are per-NamedAlias-id metadata; see
-      ! field_info_set_internal.
+      ! long_name is per-NamedAlias-id metadata; see field_info_set_internal.
+      ! standard_name is unaliased/field-wide (see generic/standard-name-enforcement)
+      ! and does not need named_alias_id.
       integer, optional, intent(in) :: named_alias_id
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
@@ -239,6 +242,7 @@ contains
       character(:), allocatable :: namespace_
       character(:), allocatable :: alias_namespace_, key
       character(*), parameter :: DEFAULT_NAME = 'unknown'
+      character(*), parameter :: UNKNOWN_STANDARD_NAME = '<unknown>'
       logical :: key_is_present
       character(:), allocatable :: str
       logical :: is_present
@@ -338,27 +342,28 @@ contains
          end if
       end if
 
-      ! standard_name/long_name are per-NamedAlias-id metadata (see
-      ! field_info_set_internal): named_alias_id is required whenever either
-      ! is present.  Every present output is guaranteed to come back
-      ! allocated: either the value recorded for this specific alias, or
-      ! DEFAULT_NAME when nothing was ever assigned for it.  Callers never
-      ! need to check allocated(...) themselves.
-      if (present(long_name) .or. present(standard_name)) then
-         _ASSERT(present(named_alias_id), 'named_alias_id is required to get standard_name/long_name')
-         str = ESMF_UtilStringInt2String(named_alias_id, _RC)
-         ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
-         alias_namespace_ = namespace_ // "/alias" // trim(str)
-      end if
-
+      ! standard_name: unaliased/field-wide (see generic/standard-name-enforcement),
+      ! same storage model as units. Defaults to '<unknown>' (matching
+      ! UnitsAspect's own "unspecified" sentinel) when nothing was ever
+      ! assigned - never requires named_alias_id.
       if (present(standard_name)) then
-         standard_name = DEFAULT_NAME
-         key = alias_namespace_ // KEY_STANDARD_NAME
+         standard_name = UNKNOWN_STANDARD_NAME
+         key = namespace_ // KEY_STANDARD_NAME
          key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
          if (key_is_present) call MAPL_InfoGet(info, key, standard_name, _RC)
       end if
 
+      ! long_name is per-NamedAlias-id metadata (see field_info_set_internal):
+      ! named_alias_id is required whenever it is present. The output is
+      ! guaranteed to come back allocated: either the value recorded for this
+      ! specific alias, or DEFAULT_NAME when nothing was ever assigned for it.
+      ! Callers never need to check allocated(...) themselves.
       if (present(long_name)) then
+         _ASSERT(present(named_alias_id), 'named_alias_id is required to get long_name')
+         str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+         ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+         alias_namespace_ = namespace_ // "/alias" // trim(str)
+
          long_name = DEFAULT_NAME
          key = alias_namespace_ // KEY_LONG_NAME
          key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)

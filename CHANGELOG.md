@@ -9,8 +9,148 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Added
+
+- Enforced the `standard_name` convention between a connected Import and
+  Export (GEOS-ESM/MAPL#5413). A new `StandardNameAspect`
+  (`superstructure/generic/specs/StandardNameAspect.F90`), modeled directly
+  on `UnitsAspect`, checks agreement via the standard `AspectMap`
+  connection-resolution `matches()` machinery: equal values connect
+  silently; an Import may declare a wildcard/unset `standard_name` to
+  accept any Export; an Export with no declared `standard_name` warns but
+  still connects (never a fatal error); a genuine disagreement is a fatal
+  error in the new `STRICT` `ValidationMode` and a warning (Export's value
+  wins) in the default `PERMISSIVE` mode. `standard_name` is now a single,
+  unaliased, field-wide value (like `units`) rather than the per-connection-
+  endpoint value it briefly became; `long_name` is unaffected and keeps its
+  existing per-alias/inheritance behavior. For a `Vector` item, whose
+  `standard_name` is a compound `"(name1,name2)"` encoding of two
+  independent component names, agreement is checked per component.
+  `FieldDictionary`-driven `long_name`/`units` defaulting from a declared
+  `standard_name` (`VariableSpec`) is now unconditional - the
+  `use_field_dictionary` opt-in flag has been removed (**BREAKING**: any
+  code passing `use_field_dictionary=` to `make_VariableSpec`/
+  `MAPL_GridCompAddSpec` will need to drop the argument); a `standard_name`
+  absent from the dictionary is likewise a fatal error in strict mode. The
+  previously-unused `ValidationMode`/`FieldDictionaryConfig`
+  (`infrastructure/field_dictionary/`) are now wired into
+  `MaplFramework%initialize_field_dictionary`, which accepts either the
+  existing bare-string `field_dictionary: <path>` cap.yaml key or a new
+  mapping form, `field_dictionary: {path: ..., validation_mode: strict|permissive}`.
+  Default mode is permissive, so existing configurations are unaffected
+  until a run opts into strict mode.
+
+### Changed
+
+- Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a
+  checked-in fixture that had never actually been loaded by anything) as
+  the default-path `FieldDictionary` for all six of
+  `superstructure/generic/tests/`'s pFUnit binaries
+  (`MAPL.generic.scenarios/.transforms/.vertical/.aspects/.components/.core`),
+  so MAPL's own test suite - especially the YAML-driven scenario tests -
+  finally exercises `FieldDictionary`-driven `long_name`/`units` defaulting
+  and `standard_name` enforcement against real data. Converged every one of
+  `MAPL.generic.scenarios`'s scenario directories onto the dictionary and
+  switched that binary from the default permissive `ValidationMode` to
+  `STRICT` (via a new `Initialize_strict()` entry point alongside the
+  existing `Initialize()` in `mapl_pFUnit_Initialize_mod`,
+  `pfunit/MAPL_Initialize.F90` - no other pFUnit binary is affected). This
+  is the first MAPL test coverage that genuinely exercises `STRICT`
+  enforcement end-to-end against realistic scenario fixtures (previously
+  only isolated `Test_Aspects.pf`/`Test_FieldDictionary.pf` unit tests
+  exercised `STRICT` in isolation).
+
+  Reaching full coverage required resolving several classes of pre-existing
+  issue that permissive mode's warn-and-continue behavior had always
+  masked, none of them dictionary gaps as such:
+  - Genuinely inconsistent naming: human-sentence `standard_name`s in
+    `statistics`/`statistics_real` converged to proper CF `snake_case`
+    identifiers (`surface_temperature`, `surface_air_pressure`,
+    `specific_humidity`, `air_pressure_at_sea_level`; also fixed a
+    stray-whitespace bug in a vector field's compound-encoded name), and
+    several distinctly-suffixed synthetic names in `vertical_regridding_2`/
+    `_3` (`air_pressure_ple_edge`/`air_pressure_c_center`/
+    `air_pressure_dyn_center`, `temperature_dyn_center`/
+    `temperature_phys_center`) consolidated onto plain `air_pressure`/
+    `air_temperature`.
+  - Incidental Import/Export `standard_name` placeholder mismatches with no
+    dependent test behavior - each side had simply been given its own
+    independent auto-generated name rather than the value it actually
+    receives over the connection - fixed by making the Import side match
+    its connected Export across: the `I_A1`/`E_A1`/`Z_A1` family
+    (`scenario_1`, `scenario_2`, `propagate_geom`); the `A1`/`A3`/`B2`
+    family shared by `3d_specs`, `precision_extension`,
+    `precision_extension_3d`, and `ungridded_dims`; the `E_A`/`I_B` pair
+    shared by `vertical_regridding` and all three `vertical_alignment_*`
+    scenarios; `export_dependency`'s `E1`/`I1` pair; and
+    `history_wildcard`'s undocumented `huh1` override (removed, now
+    inherits from its connection instead).
+  - Two scenarios (`names_1`, `expression`) had deliberately declared a
+    disagreeing `standard_name` specifically to exercise permissive-mode's
+    "warn but connect anyway, Export's value wins" behavior. Per
+    maintainer direction that behavior was not worth preserving as a
+    dedicated scenario, so both were changed to agree instead (the
+    *observed* `standard_name` was already the Export's value either way,
+    so no `expectations.yaml` changes were needed) and their explanatory
+    comments updated accordingly.
+  - `superstructure/generic/tests/gridcomps/ProtoStatGridComp.F90` hardcoded
+    `standard_name='<unknown>'` (`StandardNameAspect`'s own "not set"
+    sentinel) as if it were a real declared name - fixed by omitting the
+    argument.
+  - Two real framework bugs, both a "goal spec built by copying an
+    unrelated field's `AspectMap` wholesale, overriding some aspects but
+    not `StandardNameAspect`" - see `### Fixed`
+    (`VerticalGridAspect%make_transform`, `ExpressionClassAspect%make_transform`).
+  - `field_dictionary_test.yaml` gained dictionary entries for every
+    remaining `standard_name` used anywhere in `superstructure/generic/tests/scenarios/`.
+
 ### Fixed
 
+- Fixed a spurious `standard_name` convention violation raised while
+  resolving a vertical regrid between two mismatched vertical grids
+  (`VerticalGridAspect%make_transform`, GEOS-ESM/MAPL#5413). Building the
+  criteria for looking up/extending the vertical coordinate field (e.g.
+  `PLE`/`ZLE`) copied the *payload* field's entire `AspectMap` wholesale and
+  then overrode only `UnitsAspect` with the coordinate field's own units;
+  `StandardNameAspect` was not similarly overridden, so the coordinate
+  field's lookup incorrectly inherited the payload's `standard_name` as a
+  match requirement. Since the coordinate field is a different physical
+  quantity than the payload (e.g. payload `air_temperature` vs. coordinate
+  `air_pressure`), this failed in `STRICT` `ValidationMode` (and warned
+  spuriously in the default permissive mode) for essentially every
+  cross-vertical-grid connection with a real, distinct `standard_name` on
+  each side. The coordinate-field aspect map now also overrides
+  `StandardNameAspect` (to unchecked), matching the existing treatment of
+  `UnitsAspect`.
+- Fixed the same class of bug as above in a second location:
+  `ExpressionClassAspect%make_transform` builds a `goal_spec` to look
+  up/extend each of an `expression:` field's referenced variables (e.g. `A`,
+  `B` in `E_sum: {expression: A + B}`) by copying the expression's own
+  `AspectMap` wholesale and overriding only `CLASS_ASPECT_ID`; a referenced
+  variable's own `standard_name` (e.g. `A`'s) was therefore spuriously
+  compared against the expression's unrelated declared `standard_name`
+  (e.g. `E_sum`'s), which is fatal under `STRICT` (and warns spuriously
+  under permissive) essentially any time an expression declares its own
+  `standard_name` and differs from any of its operands - the normal case,
+  since an expression's result is a different quantity than any single
+  operand. The `goal_spec`'s `StandardNameAspect` is now also overridden (to
+  unchecked), matching the existing `CLASS_ASPECT_ID` treatment.
+- Fixed two `standard_name`-enforcement bugs found while wiring MAPL's own
+  test suite up to a real `FieldDictionary` (see `### Changed` above).
+  (1) `VariableSpec`'s `MAPL_STATEITEM_VECTOR` case defaulted a Vector's two
+  split component names to the literal string `'unknown'` when no
+  `standard_name` was declared at all, instead of leaving them unset;
+  `StandardNameAspect` only treats its own `'<unknown>'` sentinel as a
+  wildcard, so the literal `'unknown'` was treated as a real, specified
+  name and produced spurious "standard_name convention violation" warnings
+  for every such Vector (e.g. the statistics gridcomp's internal vector
+  accumulators) connecting to any vector with a real name. (2)
+  `StandardNameAspect%connect_to_export` unconditionally copied the
+  export's (possibly unallocated) `standard_name` onto the import side,
+  which both crashed with an "ALLOCATABLE ... is not currently allocated"
+  runtime error once (1) was fixed and stopped masking it, and would have
+  incorrectly discarded the import's own declared name whenever the export
+  side legitimately declared none.
 - Avoided passing the HConfig geometry-factory predicate as an internal
   procedure callback, fixing a Flang 23 crash on hardened macOS systems; see
   [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
@@ -24,7 +164,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
 - Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
+- Fixed `expression` state items (`expression: (A + B)/C`) requiring an explicit
+  `vertical_dim_spec` even when it references at least one variable. The
+  omitted-key case previously left `VerticalGridAspect`'s vertical stagger at an
+  invalid sentinel while `VariableSpec::make_VerticalGridAspect` could still mark
+  the aspect resolved purely because a component-level vertical grid resource was
+  available, failing with "BasicVerticalGrid should have been connected to a
+  different subclass before this is called." An initial fix that forced a
+  genuinely mirrored state in `create()` (relying on the same
+  mirror-from-connection/`ExtendTransform` mechanism `GeomAspect` already uses)
+  did not hold up: a component-level vertical grid resource
+  (`MAPL_GridCompSetVerticalGrid`) unconditionally overwrites *every* item's
+  `VerticalGridAspect` status to resolved once declared, regardless of what
+  `create()` set it to, silently undoing the forced mirror before the item is
+  ever connected. `ExpressionClassAspect` now instead directly resolves its own
+  vertical stagger (and vertical grid, if applicable) from whichever of its
+  referenced variables are already resolved at the time - first on a best-effort
+  basis in `create()`, and again (more reliably, since by then referenced
+  variables and any component-level override have had a chance to settle) at
+  actual connection time in `make_transform`. The same logic also validates
+  consistency: if the expression's own vertical stagger is (or resolves to) a
+  concrete value and any of its resolved referenced variables disagree, that is
+  a hard error naming the conflicting items, rather than allowing arithmetic on
+  dimensionally incompatible operands. A referenced variable that is not yet
+  resolved - or not yet even registered - is skipped rather than treated as an
+  error. Expressions with no referenced variables (e.g. a literal/constant
+  expression) are unaffected and still require an explicit `vertical_dim_spec`.
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
+- Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
+  by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the
+  requested `nx`/`ny` topology given ESMF's `min_extent=2` constraint, and updated
+  `LatLonGeomFactory`'s `fill_coordinates` to use `grid_has_de`/`grid_get_interior` so PETs
+  that legitimately own no DE in that case are skipped instead of crashing; added
+  `Test_LatLonZeroDE.pf` and a `LatLonDecomposition` unit test covering this case
+=======
 - Fixed `standard_name`/`long_name` Field metadata being collapsed to a single,
   field-wide value across a connection. Because a connected Import's `ESMF_Field`
   is an `ESMF_NamedAlias` of its Export's field, and aliases share one underlying

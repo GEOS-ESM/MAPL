@@ -125,13 +125,16 @@ contains
          vgrid_id = vgrid%get_id() ! allocate so "present" below
       end if
 
-      ! standard_name/long_name are per-NamedAlias-id metadata (see
+      ! long_name is per-NamedAlias-id metadata (see
       ! generic/field-name-propagation): named_alias_id resolves THIS field's
       ! own alias id (via ESMF_NamedAliasGet), matching how FieldGet resolves
       ! it on read.  id=0 (a field never placed via ESMF_NamedAlias) is a
       ! valid, self-consistent scope like any other - it just means "this
       ! specific field object's own slot", which is exactly what a caller
-      ! setting standard_name/long_name directly on `field` wants.
+      ! setting long_name directly on `field` wants. standard_name, by
+      ! contrast, is unaliased/field-wide (see
+      ! generic/standard-name-enforcement); named_alias_id is passed through
+      ! here but plays no role in resolving it.
       call esmf_InfoGetFromHost(field, field_info, _RC)
       call ESMF_NamedAliasGet(field, id=named_alias_id, _RC)
       call FieldInfoSetInternal(field_info, &

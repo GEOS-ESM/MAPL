@@ -1,8 +1,16 @@
 mapl:
   states:
     import:
+      # standard_name changed to match its connected Export (child_A's
+      # E_A1) - previously declared its own independent placeholder,
+      # deliberately disagreeing to exercise PERMISSIVE-mode-specific
+      # override behavior. Per user direction, that behavior is no longer
+      # considered worth preserving as a dedicated scenario; the observed
+      # standard_name here was already 'E_A1 standard name' either way
+      # (the Export's value always wins), so expectations.yaml is
+      # unchanged.
       I_B1:
-        standard_name: 'I_B1 standard name'
+        standard_name: 'E_A1 standard name'
         long_name: 'I_B1 long name'
         units: 'm'
         vertical_dim_spec: NONE
