@@ -2,7 +2,7 @@
 
 module mapl_GridPFIO_mod
 
-   use, intrinsic :: iso_c_binding, only: c_ptr
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
 
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
@@ -36,6 +36,7 @@ contains
 
       integer :: status, collection_id
       logical :: has_ll
+      logical :: has_de
       type(FileMetadata) :: file_metadata
       type(ESMF_Grid) :: grid
       type(ESMF_Geom) :: EsmfGeom
@@ -58,24 +59,34 @@ contains
          call ESMF_GeomGet(EsmfGeom, grid=grid, _RC)
          call ESMF_GridGet(grid, coordTypeKind=tk, _RC)
          field = ESMF_FieldCreate(grid=grid, typekind=tk, _RC)
+         has_de = field_has_de(field, _RC)
          element_count = FieldGetLocalElementCount(field, _RC)
-         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, has_de=has_de, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
 
-         call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, _RC)
          if (allocated(this%lons)) deallocate(this%lons)
-         allocate(this%lons(size(coords,1), size(coords,2)), _STAT)
-         this%lons = coords*MAPL_RADIANS_TO_DEGREES
+         if (allocated(this%lats)) deallocate(this%lats)
+         if (has_de) then
+            call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, _RC)
+            allocate(this%lons(size(coords,1), size(coords,2)), _STAT)
+            this%lons = coords*MAPL_RADIANS_TO_DEGREES
+         else
+            ! No local DE: nothing to write for this rank.
+            allocate(this%lons(0,0), _STAT)
+         end if
          ref = ArrayReference(this%lons)
           request_id = o_client%collective_stage_data(collection_id,filename, 'lons', &
                 ref, start=local_start, global_start=global_start, global_count=global_count)
 
-         call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, _RC)
-         if (allocated(this%lats)) deallocate(this%lats)
-         allocate(this%lats(size(coords,1), size(coords,2)), _STAT)
-         this%lats = coords*MAPL_RADIANS_TO_DEGREES
+         if (has_de) then
+            call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, _RC)
+            allocate(this%lats(size(coords,1), size(coords,2)), _STAT)
+            this%lats = coords*MAPL_RADIANS_TO_DEGREES
+         else
+            allocate(this%lats(0,0), _STAT)
+         end if
          ref = ArrayReference(this%lats)
           request_id = o_client%collective_stage_data(collection_id,filename, 'lats', &
                 ref, start=local_start, global_start=global_start, global_count=global_count)
@@ -90,24 +101,34 @@ contains
          call ESMF_GeomGet(EsmfGeom, grid=grid, _RC)
          call ESMF_GridGet(grid, coordTypeKind=tk, _RC)
          field = ESMF_FieldCreate(grid=grid, typekind=tk, staggerLoc=ESMF_STAGGERLOC_CORNER, _RC)
+         has_de = field_has_de(field, _RC)
          element_count = FieldGetLocalElementCount(field, _RC)
-         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, has_de=has_de, _RC)
          global_start = server_bounds%get_corner_global_start()
          global_count = server_bounds%get_corner_global_count()
          local_start = server_bounds%get_corner_local_start()
 
-         call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
          if (allocated(this%corner_lons)) deallocate(this%corner_lons)
-         allocate(this%corner_lons(size(coords,1), size(coords,2)), _STAT)
-         this%corner_lons = coords*MAPL_RADIANS_TO_DEGREES
+         if (allocated(this%corner_lats)) deallocate(this%corner_lats)
+         if (has_de) then
+            call ESMF_GridGetCoord(grid, 1, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
+            allocate(this%corner_lons(size(coords,1), size(coords,2)), _STAT)
+            this%corner_lons = coords*MAPL_RADIANS_TO_DEGREES
+         else
+            ! No local DE: nothing to write for this rank.
+            allocate(this%corner_lons(0,0), _STAT)
+         end if
          ref = ArrayReference(this%corner_lons)
            request_id = o_client%collective_stage_data(collection_id,filename, 'corner_lons', &
                 ref, start=local_start, global_start=global_start, global_count=global_count)
 
-         call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
-         if (allocated(this%corner_lats)) deallocate(this%corner_lats)
-         allocate(this%corner_lats(size(coords,1), size(coords,2)), _STAT)
-         this%corner_lats = coords*MAPL_RADIANS_TO_DEGREES
+         if (has_de) then
+            call ESMF_GridGetCoord(grid, 2, farrayPtr=coords, staggerloc=ESMF_STAGGERLOC_CORNER, _RC)
+            allocate(this%corner_lats(size(coords,1), size(coords,2)), _STAT)
+            this%corner_lats = coords*MAPL_RADIANS_TO_DEGREES
+         else
+            allocate(this%corner_lats(0,0), _STAT)
+         end if
          ref = ArrayReference(this%corner_lats)
            request_id = o_client%collective_stage_data(collection_id,filename, 'corner_lats', &
                 ref, start=local_start, global_start=global_start, global_count=global_count)
@@ -147,18 +168,29 @@ contains
       do i=1,num_fields
          call ESMF_FieldBundleGet(bundle, field_names(i), field=field, _RC)
          has_de = field_has_de(field, _RC)
-         if (.not.has_de) cycle
 
+         ! FieldGetLocalElementCount is safe with no local DE: it returns an
+         ! all-zero, correctly-ranked array in that case.
          element_count = FieldGetLocalElementCount(field, _RC)
          call ESMF_FieldGet(field, grid=grid, typekind=tk,  _RC)
 
-         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, time_index=time_index, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_WRITE, time_index=time_index, has_de=has_de, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
 
          ! generate array reference
-         call FieldGetCptr(field, address, _RC)
+         if (has_de) then
+            call FieldGetCptr(field, address, _RC)
+         else
+            ! No local DE: nothing to point to; global_start/global_count/
+            ! local_start above are all correct/full-domain values, but this
+            ! rank contributes zero elements. It still must issue the
+            ! collective request below to stay in lock-step with other
+            ! ranks sharing this server (see ClientThread's shared
+            ! collective_counter).
+            address = c_null_ptr
+         end if
          type_kind = esmf_to_pfio_type(tk, _RC)
          new_element_count = server_bounds%get_file_shape()
          ref = ArrayReference(address, type_kind, new_element_count)
@@ -202,13 +234,23 @@ contains
          call ESMF_FieldGet(field, grid=grid, status=field_status, typekind=esmf_typekind, _RC)
          _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, "ESMF field is not complete")
          has_de = field_has_de(field, _RC)
-         if (.not.has_de) cycle
+
+         ! FieldGetLocalElementCount is safe with no local DE: it returns an
+         ! all-zero, correctly-ranked array in that case.
          element_count = FieldGetLocalElementCount(field, _RC)
-         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_READ, _RC)
+         server_bounds = pFIOServerBounds(grid, element_count, PFIO_BOUNDS_READ, has_de=has_de, _RC)
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
-         call FieldGetCptr(field, address, _RC)
+
+         if (has_de) then
+            call FieldGetCptr(field, address, _RC)
+         else
+            ! No local DE: nothing to point to; still must issue the
+            ! collective request below to stay in lock-step with other
+            ! ranks sharing this server.
+            address = c_null_ptr
+         end if
          pfio_typekind = esmf_to_pfio_type(esmf_typekind, _RC)
          new_element_count = server_bounds%get_file_shape()
          ref = ArrayReference(address, pfio_typekind, new_element_count)

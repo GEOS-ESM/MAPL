@@ -7,7 +7,7 @@ module mapl_ExtDataReader_mod
     use MAPL
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
     use pFlogger, only: logger
-   use, intrinsic :: iso_c_binding, only: c_ptr
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
    implicit none(type,external)
    private
 
@@ -104,26 +104,36 @@ module mapl_ExtDataReader_mod
       call MAPL_FieldBundleGet(this%accumulated_fields, fieldList=field_list, _RC)
       do i=1,size(field_list)
          has_de = MAPL_FieldHasDE(field_list(i), _RC)
-         if (.not.has_de) cycle
          call ESMF_FieldGet(field_list(i), name=field_name, _RC)
          alias => this%alias_map%at(trim(field_name))
          filename => this%filename_map%at(trim(field_name))
          client_id => this%client_id_map%at(trim(field_name))
          time_index => this%time_index_map%at(trim(field_name))
          call ESMF_FieldGet(field_list(i), grid=grid, typekind=esmf_typekind, _RC)
+
+         ! MAPL_FieldGetLocalElementCount is safe with no local DE: it returns
+         ! an all-zero, correctly-ranked array in that case.
          element_count = MAPL_FieldGetLocalElementCount(field_list(i), _RC)
 
-
-         server_bounds = mapl_pFIOServerBounds(grid, element_count, MAPL_PFIO_BOUNDS_READ, time_index=time_index, _RC)
-
+         server_bounds = mapl_pFIOServerBounds(grid, element_count, MAPL_PFIO_BOUNDS_READ, &
+              time_index=time_index, has_de=has_de, _RC)
 
          global_start = server_bounds%get_global_start()
          global_count = server_bounds%get_global_count()
          local_start = server_bounds%get_local_start()
-         call MAPL_FieldGetCptr(field_list(i), address, _RC)
+         new_element_count = server_bounds%get_file_shape()
+
+         if (has_de) then
+            call MAPL_FieldGetCptr(field_list(i), address, _RC)
+         else
+            ! No local DE: nothing to point to; global_start/global_count/
+            ! local_start above are all zero so this rank contributes no
+            ! data, but it still must issue the collective request below to
+            ! stay in lock-step with other ranks sharing this server.
+            address = c_null_ptr
+         end if
 
          pfio_typekind = mapl_esmf_to_pfio_type(esmf_typekind, _RC)
-         new_element_count = server_bounds%get_file_shape()
          ref = mapl_ArrayReference(address, pfio_typekind, new_element_count)
            request_id = i_client%collective_prefetch_data( &
                client_id, &

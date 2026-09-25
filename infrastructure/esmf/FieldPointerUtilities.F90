@@ -773,7 +773,16 @@ contains
       logical :: conformable
       logical :: x_is_double
       logical :: y_is_double
+      logical :: has_de
       character(len=*), parameter :: UNSUPPORTED_TK = 'Unsupported typekind in FieldCOPY() for '
+
+      ! This is a purely local memory copy (no MPI/collective communication
+      ! involved), so a rank with no local DE for these fields has nothing
+      ! to copy and can simply skip it.
+      has_de = field_has_de(x, _RC)
+      if (.not. has_de) then
+         _RETURN(_SUCCESS)
+      end if
 
       conformable = FieldsAreConformable(x, y)
       !wdb fixme need to pass RC
