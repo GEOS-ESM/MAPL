@@ -27,7 +27,6 @@ module mapl_StateClassAspect_mod
       logical :: is_created = .false.
       type(ESMF_State) :: payload
       type(ESMF_StateIntent_Flag) :: state_intent
-      character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
    contains
       procedure :: get_aspect_order
@@ -54,17 +53,12 @@ module mapl_StateClassAspect_mod
 
 contains
 
-   function new_StateClassAspect(state_intent, standard_name, long_name) result(aspect)
+   function new_StateClassAspect(state_intent, long_name) result(aspect)
       type(StateClassAspect) :: aspect
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-      character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
 
       aspect%state_intent = state_intent
-      aspect%standard_name = "unknown"
-      if (present(standard_name)) then
-         aspect%standard_name = standard_name
-      end if
       aspect%long_name = "unknown"
       if (present(long_name)) then
          aspect%long_name = long_name

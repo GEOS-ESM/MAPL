@@ -1,8 +1,16 @@
 mapl:
   states:
     import:
+      # standard_name changed to match its connected Export's declared
+      # value (expr's 'expr standard name') - previously declared its own
+      # independent placeholder 'I', deliberately disagreeing to exercise
+      # PERMISSIVE-mode-specific override behavior. Per user direction,
+      # that behavior is no longer considered worth preserving as a
+      # dedicated scenario; the observed standard_name here was already
+      # 'expr standard name' either way (the Export's value always wins),
+      # so expectations.yaml is unchanged.
       I:
-        standard_name: I
+        standard_name: 'expr standard name'
         long_name: 'I long name'
         units: m
         vertical_dim_spec: NONE

@@ -12,6 +12,13 @@ mapl:
       fields: {pressure: PLE, height: ZLE}
       num_levels: 4
 
+  # PL/PLE both use the field_dictionary_test.yaml-backed 'air_pressure'
+  # entry (units hPa) - see openspec change use-field-dictionary-in-scenario-tests.
+  # PLE previously used a distinct 'air_pressure_ple_edge' standard_name
+  # that disagreed with its connected Import (B's I_B, below) - real CF
+  # convention does not distinguish air_pressure by vertical staggering
+  # (that is the vertical grid's own concern), so both are simply
+  # 'air_pressure' now.
   states:
     import: {}
     export:
@@ -21,7 +28,7 @@ mapl:
         fill_value: 17.
         vertical_dim_spec: center
       PLE:
-        standard_name: air_pressure_ple_edge
+        standard_name: air_pressure
         units: hPa
         fill_value: 13.
         vertical_dim_spec: edge
