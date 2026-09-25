@@ -18,7 +18,7 @@ add_pfunit_ctest(MAPL.field.test_utils
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE mapl_pFUnit_Initialize_mod
                 OTHER_SOURCES field_utils_setup.F90
-                MAX_PES 4
+                MAX_PES 5
                 )
 set_target_properties(MAPL.field.test_utils PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/utils")
 set_tests_properties(MAPL.field.test_utils PROPERTIES LABELS "ESSENTIAL")

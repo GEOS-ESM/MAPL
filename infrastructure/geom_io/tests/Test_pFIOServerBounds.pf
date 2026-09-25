@@ -1,0 +1,238 @@
+#include "MAPL_TestErr.h"
+
+! Regression tests for mapl_pFIOServerBounds_mod's handling of a rank with
+! no local decomposition element (DE) for a field's grid.
+!
+! The key invariant under test: global_start/global_count (and
+! corner_global_*) describe the true, full file-variable shape and MUST
+! be identical regardless of has_de -- the pfio server picks one
+! (arbitrary) representative message per collective request_id to size
+! and populate its read/write buffer (see pfio/ServerThread.F90
+! read_and_share/read_and_gather), so these must never be zeroed out for
+! a no-DE rank. Only file_shape (this rank's own local contribution, i.e.
+! the ArrayReference's shape) is expected to go to zero in that case.
+!
+! has_de is a plain, explicit logical argument to pFIOServerBounds(), so
+! these tests exercise both branches directly (passing has_de=.false. and
+! a zero-filled field_shape, matching what MAPL_FieldGetLocalElementCount
+! already safely returns for a genuinely no-DE field) without needing a
+! real multi-PE, some-ranks-idle grid decomposition.
+module Test_pFIOServerBounds
+
+   use esmf
+   use esmf_TestMethod_mod
+   use pfunit
+   use mapl_pFIOServerBounds_mod, only: pFIOServerBounds, PFIO_BOUNDS_READ, PFIO_BOUNDS_WRITE
+   use mapl_geom_api, only: mapl_GeomManager, mapl_MaplGeom, mapl_get_geom_manager
+   use mapl_ErrorHandling_mod
+
+   implicit none
+
+contains
+
+   function make_latlon_grid(im, jm, rc) result(grid)
+      integer, intent(in) :: im, jm
+      integer, optional, intent(out) :: rc
+      type(ESMF_Grid) :: grid
+
+      integer :: status
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      type(ESMF_HConfig) :: hconfig
+      character(len=256) :: content
+
+      write(content, '(A,I0,A,I0,A)') &
+           '{class: latlon, im_world: ', im, &
+           ', jm_world: ', jm, &
+           ', pole: PC, dateline: DC, nx: 1, ny: 1}'
+
+      hconfig = ESMF_HConfigCreate(content=trim(content), _RC)
+      geom_mgr => mapl_get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_GeomGet(geom, grid=grid, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_latlon_grid
+
+   function make_cubed_sphere_grid(im_world, rc) result(grid)
+      integer, intent(in) :: im_world
+      integer, optional, intent(out) :: rc
+      type(ESMF_Grid) :: grid
+
+      integer :: status
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      type(ESMF_HConfig) :: hconfig
+      character(len=256) :: content
+
+      write(content, '(A,I0,A)') &
+           '{class: CubedSphere, im_world: ', im_world, ', nx_face: 1, ny_face: 1}'
+
+      hconfig = ESMF_HConfigCreate(content=trim(content), _RC)
+      geom_mgr => mapl_get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_GeomGet(geom, grid=grid, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_cubed_sphere_grid
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_gridded_latlon_has_de(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(pFIOServerBounds) :: bounds
+      integer :: status
+
+      grid = make_latlon_grid(4, 4, _RC)
+
+      bounds = pFIOServerBounds(grid, [4, 4], PFIO_BOUNDS_WRITE, has_de=.true., _RC)
+
+      @assert_that(bounds%get_file_shape(), is(equal_to([4, 4])))
+      @assert_that(bounds%get_global_start(), is(equal_to([1, 1])))
+      @assert_that(bounds%get_global_count(), is(equal_to([4, 4])))
+      @assert_that(bounds%get_local_start(), is(equal_to([1, 1])))
+
+   end subroutine test_gridded_latlon_has_de
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! This is the actual regression test for the bug found (and fixed) this
+   ! session: global_start/global_count must be identical between the
+   ! has_de=.true. and has_de=.false. cases -- only file_shape (this
+   ! rank's own local contribution) should differ (go to zero).
+   subroutine test_gridded_latlon_no_de(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(pFIOServerBounds) :: bounds_true, bounds_false
+      integer :: status
+
+      grid = make_latlon_grid(4, 4, _RC)
+
+      bounds_true = pFIOServerBounds(grid, [4, 4], PFIO_BOUNDS_WRITE, has_de=.true., _RC)
+
+      ! A rank with no local DE always has an all-zero local element count
+      ! (from the DE-safe FieldGetLocalElementCount() wrapper).
+      bounds_false = pFIOServerBounds(grid, [0, 0], PFIO_BOUNDS_WRITE, has_de=.false., _RC)
+
+      @assert_that(bounds_false%get_file_shape(), is(equal_to([0, 0])))
+      @assert_that(bounds_false%get_global_start(), is(equal_to(bounds_true%get_global_start())))
+      @assert_that(bounds_false%get_global_count(), is(equal_to(bounds_true%get_global_count())))
+
+   end subroutine test_gridded_latlon_no_de
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_gridded_latlon_has_de_time_index(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(pFIOServerBounds) :: bounds
+      integer :: status
+
+      grid = make_latlon_grid(4, 4, _RC)
+
+      bounds = pFIOServerBounds(grid, [4, 4], PFIO_BOUNDS_READ, time_index=5, has_de=.true., _RC)
+
+      @assert_that(bounds%get_file_shape(), is(equal_to([4, 4])))
+      @assert_that(bounds%get_global_start(), is(equal_to([1, 1, 5])))
+      @assert_that(bounds%get_global_count(), is(equal_to([4, 4, 1])))
+      @assert_that(bounds%get_local_start(), is(equal_to([1, 1, 5])))
+
+   end subroutine test_gridded_latlon_has_de_time_index
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_gridded_latlon_no_de_time_index(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(pFIOServerBounds) :: bounds_true, bounds_false
+      integer :: status
+
+      grid = make_latlon_grid(4, 4, _RC)
+
+      bounds_true = pFIOServerBounds(grid, [4, 4], PFIO_BOUNDS_READ, time_index=5, has_de=.true., _RC)
+      bounds_false = pFIOServerBounds(grid, [0, 0], PFIO_BOUNDS_READ, time_index=5, has_de=.false., _RC)
+
+      @assert_that(bounds_false%get_file_shape(), is(equal_to([0, 0])))
+      @assert_that(bounds_false%get_global_start(), is(equal_to(bounds_true%get_global_start())))
+      @assert_that(bounds_false%get_global_count(), is(equal_to(bounds_true%get_global_count())))
+
+   end subroutine test_gridded_latlon_no_de_time_index
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   ! Cubed-sphere (tile_count == 6) variant of the same regression: with
+   ! nx_face=1, ny_face=1 each of the 6 PETs owns exactly one whole face
+   ! (a 12x12 local block for im_world=12). has_de is still passed in
+   ! explicitly here (decoupled from each PET's real DE ownership), so
+   ! this exercises the has_de=.false. branch identically on every PET.
+   subroutine test_gridded_cubed_sphere_no_de(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(pFIOServerBounds) :: bounds_true, bounds_false
+      integer :: status
+
+      grid = make_cubed_sphere_grid(12, _RC)
+
+      bounds_true = pFIOServerBounds(grid, [12, 12], PFIO_BOUNDS_WRITE, has_de=.true., _RC)
+      bounds_false = pFIOServerBounds(grid, [0, 0], PFIO_BOUNDS_WRITE, has_de=.false., _RC)
+
+      ! Global shape for a 6-tile cubed sphere is [im_world, im_world, tile_count].
+      @assert_that(bounds_true%get_global_count(), is(equal_to([12, 12, 6])))
+      @assert_that(bounds_true%get_file_shape(), is(equal_to([12, 12, 1])))
+
+      @assert_that(bounds_false%get_file_shape(), is(equal_to([0, 0, 1])))
+      @assert_that(bounds_false%get_global_start(), is(equal_to(bounds_true%get_global_start())))
+      @assert_that(bounds_false%get_global_count(), is(equal_to(bounds_true%get_global_count())))
+
+   end subroutine test_gridded_cubed_sphere_no_de
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_vert_only_has_de(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(pFIOServerBounds) :: bounds
+      integer :: status
+
+      ! vert_only dispatch is triggered purely by size(field_shape) == 1;
+      ! the grid argument is unused in that code path, so any valid grid
+      ! will do.
+      grid = make_latlon_grid(4, 4, _RC)
+
+      bounds = pFIOServerBounds(grid, [7], PFIO_BOUNDS_WRITE, has_de=.true., _RC)
+
+      @assert_that(bounds%get_file_shape(), is(equal_to([7])))
+      @assert_that(bounds%get_global_start(), is(equal_to([1])))
+      @assert_that(bounds%get_global_count(), is(equal_to([7])))
+      @assert_that(bounds%get_local_start(), is(equal_to([1])))
+
+   end subroutine test_vert_only_has_de
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! NOTE (known limitation, documented here rather than fixed): unlike
+   ! the gridded case above, the vert-only path has no independent source
+   ! for the true number of levels when has_de is .false. -- the only
+   ! shape info available, field_shape, is already zeroed by the caller in
+   ! that case -- so global_start/global_count DO go to zero here, unlike
+   ! the gridded case. This is believed to be benign in practice because
+   ! vert-only (non-horizontally-decomposed) fields are not expected to
+   ! legitimately have has_de=.false., but it is a real asymmetry with the
+   ! gridded implementation that a future change may want to address.
+   subroutine test_vert_only_no_de(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Grid) :: grid
+      type(pFIOServerBounds) :: bounds
+      integer :: status
+
+      grid = make_latlon_grid(4, 4, _RC)
+
+      bounds = pFIOServerBounds(grid, [0], PFIO_BOUNDS_WRITE, has_de=.false., _RC)
+
+      @assert_that(bounds%get_file_shape(), is(equal_to([0])))
+      @assert_that(bounds%get_global_start(), is(equal_to([0])))
+      @assert_that(bounds%get_global_count(), is(equal_to([0])))
+
+   end subroutine test_vert_only_no_de
+
+end module Test_pFIOServerBounds
