@@ -49,46 +49,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`MAPL.generic.scenarios/.transforms/.vertical/.aspects/.components/.core`),
   so MAPL's own test suite - especially the YAML-driven scenario tests -
   finally exercises `FieldDictionary`-driven `long_name`/`units` defaulting
-  and `standard_name` enforcement against real data, in the default
-  permissive `ValidationMode`. Extended that fixture and converged three
-  scenario batches onto it: the `I_A1`/`E_A1`/`Z_A1` (+`I_B1`/`E_B1`/`Z_B1`)
-  structural family shared by `scenario_1`, `scenario_2`,
-  `scenario_reexport_twice`, `propagate_geom`, and `memory_checkpoint`
-  (also unifying several of these scenarios' previously arbitrary,
-  inconsistent placeholder `units`); `statistics`/`statistics_real`,
-  converged from human-sentence `standard_name`s ("Surface Temperature",
-  not a valid CF standard name) to proper CF `snake_case` identifiers
-  (`surface_temperature`, `surface_air_pressure`, `specific_humidity`,
-  `air_pressure_at_sea_level`), and fixed a stray-whitespace bug in the
-  vector fields' compound-encoded name that left the second component's
-  split name with a leading space; and `vertical_regridding_2`/`_3`,
-  consolidating several distinctly-suffixed synthetic names
-  (`air_pressure_ple_edge`/`air_pressure_c_center`/`air_pressure_dyn_center`,
-  `temperature_dyn_center`/`temperature_phys_center`) onto plain
-  `air_pressure`/`air_temperature`, which also fixed three pre-existing
-  Import/Export `standard_name` disagreements those distinct suffixes had
-  been causing. Roughly twenty other scenario directories are intentionally
-  left unmigrated for a future increment and continue to run under the
-  default permissive `ValidationMode` in `MAPL.generic.scenarios`.
-- Split the nine scenarios converged above off into a new
-  `MAPL.generic.scenarios.strict` pFUnit executable/ctest target
-  (`superstructure/generic/tests/Test_ScenariosStrict.pf`, plus
-  `Test_MemoryCheckpoint.pf` which moved wholesale since it only covers
-  `memory_checkpoint`) that runs with `ValidationMode=STRICT`, via a new
-  `Initialize_strict()` entry point alongside the existing `Initialize()` in
-  `mapl_pFUnit_Initialize_mod` (`pfunit/MAPL_Initialize.F90`); no other
-  pFUnit binary is affected. This is the first MAPL test coverage that
-  genuinely exercises `STRICT` enforcement end-to-end against realistic
-  scenario fixtures (previously only isolated `Test_Aspects.pf`/
-  `Test_FieldDictionary.pf` unit tests exercised `STRICT` in isolation).
-  Verifying this split surfaced (and this change fixes) two further
-  genuine, pre-existing defects that permissive mode's warn-and-continue
-  behavior had always masked: three connected Import/Export pairs in the
-  `I_A1`/`E_A1`/`Z_A1` family declared disagreeing `standard_name`s
-  (`scenario_1`, `scenario_2`, `propagate_geom`), and
-  `superstructure/generic/tests/gridcomps/ProtoStatGridComp.F90` hardcoded
-  `standard_name='<unknown>'` (`StandardNameAspect`'s own "not set"
-  sentinel) as if it were a real declared name.
+  and `standard_name` enforcement against real data. Converged every one of
+  `MAPL.generic.scenarios`'s scenario directories onto the dictionary and
+  switched that binary from the default permissive `ValidationMode` to
+  `STRICT` (via a new `Initialize_strict()` entry point alongside the
+  existing `Initialize()` in `mapl_pFUnit_Initialize_mod`,
+  `pfunit/MAPL_Initialize.F90` - no other pFUnit binary is affected). This
+  is the first MAPL test coverage that genuinely exercises `STRICT`
+  enforcement end-to-end against realistic scenario fixtures (previously
+  only isolated `Test_Aspects.pf`/`Test_FieldDictionary.pf` unit tests
+  exercised `STRICT` in isolation).
+
+  Reaching full coverage required resolving several classes of pre-existing
+  issue that permissive mode's warn-and-continue behavior had always
+  masked, none of them dictionary gaps as such:
+  - Genuinely inconsistent naming: human-sentence `standard_name`s in
+    `statistics`/`statistics_real` converged to proper CF `snake_case`
+    identifiers (`surface_temperature`, `surface_air_pressure`,
+    `specific_humidity`, `air_pressure_at_sea_level`; also fixed a
+    stray-whitespace bug in a vector field's compound-encoded name), and
+    several distinctly-suffixed synthetic names in `vertical_regridding_2`/
+    `_3` (`air_pressure_ple_edge`/`air_pressure_c_center`/
+    `air_pressure_dyn_center`, `temperature_dyn_center`/
+    `temperature_phys_center`) consolidated onto plain `air_pressure`/
+    `air_temperature`.
+  - Incidental Import/Export `standard_name` placeholder mismatches with no
+    dependent test behavior - each side had simply been given its own
+    independent auto-generated name rather than the value it actually
+    receives over the connection - fixed by making the Import side match
+    its connected Export across: the `I_A1`/`E_A1`/`Z_A1` family
+    (`scenario_1`, `scenario_2`, `propagate_geom`); the `A1`/`A3`/`B2`
+    family shared by `3d_specs`, `precision_extension`,
+    `precision_extension_3d`, and `ungridded_dims`; the `E_A`/`I_B` pair
+    shared by `vertical_regridding` and all three `vertical_alignment_*`
+    scenarios; `export_dependency`'s `E1`/`I1` pair; and
+    `history_wildcard`'s undocumented `huh1` override (removed, now
+    inherits from its connection instead).
+  - Two scenarios (`names_1`, `expression`) had deliberately declared a
+    disagreeing `standard_name` specifically to exercise permissive-mode's
+    "warn but connect anyway, Export's value wins" behavior. Per
+    maintainer direction that behavior was not worth preserving as a
+    dedicated scenario, so both were changed to agree instead (the
+    *observed* `standard_name` was already the Export's value either way,
+    so no `expectations.yaml` changes were needed) and their explanatory
+    comments updated accordingly.
+  - `superstructure/generic/tests/gridcomps/ProtoStatGridComp.F90` hardcoded
+    `standard_name='<unknown>'` (`StandardNameAspect`'s own "not set"
+    sentinel) as if it were a real declared name - fixed by omitting the
+    argument.
+  - Two real framework bugs, both a "goal spec built by copying an
+    unrelated field's `AspectMap` wholesale, overriding some aspects but
+    not `StandardNameAspect`" - see `### Fixed`
+    (`VerticalGridAspect%make_transform`, `ExpressionClassAspect%make_transform`).
+  - `field_dictionary_test.yaml` gained dictionary entries for every
+    remaining `standard_name` used anywhere in `superstructure/generic/tests/scenarios/`.
 
 ### Fixed
 
@@ -108,6 +122,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   each side. The coordinate-field aspect map now also overrides
   `StandardNameAspect` (to unchecked), matching the existing treatment of
   `UnitsAspect`.
+- Fixed the same class of bug as above in a second location:
+  `ExpressionClassAspect%make_transform` builds a `goal_spec` to look
+  up/extend each of an `expression:` field's referenced variables (e.g. `A`,
+  `B` in `E_sum: {expression: A + B}`) by copying the expression's own
+  `AspectMap` wholesale and overriding only `CLASS_ASPECT_ID`; a referenced
+  variable's own `standard_name` (e.g. `A`'s) was therefore spuriously
+  compared against the expression's unrelated declared `standard_name`
+  (e.g. `E_sum`'s), which is fatal under `STRICT` (and warns spuriously
+  under permissive) essentially any time an expression declares its own
+  `standard_name` and differs from any of its operands - the normal case,
+  since an expression's result is a different quantity than any single
+  operand. The `goal_spec`'s `StandardNameAspect` is now also overridden (to
+  unchecked), matching the existing `CLASS_ASPECT_ID` treatment.
 - Fixed two `standard_name`-enforcement bugs found while wiring MAPL's own
   test suite up to a real `FieldDictionary` (see `### Changed` above).
   (1) `VariableSpec`'s `MAPL_STATEITEM_VECTOR` case defaulted a Vector's two

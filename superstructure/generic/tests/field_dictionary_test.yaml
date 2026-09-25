@@ -270,3 +270,147 @@ air_pressure:
 height:
   long_name: Height
   canonical_units: m
+
+# --- Batch 4 (second increment, GEOS-ESM/MAPL#5413 follow-up): migrating
+# the remaining scenarios to STRICT ValidationMode. canonical_units below
+# are frequently irrelevant in practice - every scenario using these keys
+# already declares its own `units` explicitly, and FieldDictionary-driven
+# defaulting only ever applies when `units` is absent - but a value is
+# still required by the schema, so each uses whichever unit that scenario
+# family happens to declare.
+
+# scenario_0 (unconnected internal field).
+Z standard name:
+  long_name: Z long name
+  canonical_units: m
+
+# 3d_specs / precision_extension / precision_extension_3d / ungridded_dims:
+# I_B1/I_B3 previously declared their own placeholder standard_names
+# disagreeing with their connected Export (A's E_A1/E_A3) - now made to
+# match (see those scenarios' B.yaml). ungridded_dims' family uses units
+# 'm' rather than 'barn'; irrelevant per the note above.
+A1 standard name:
+  long_name: A1 long name
+  canonical_units: barn
+
+A3 standard name:
+  long_name: A3 long name
+  canonical_units: barn
+
+B2 standard name:
+  long_name: B2 long name
+  canonical_units: barn
+
+# vertical_regridding / vertical_alignment_same_grid / vertical_alignment_regrid
+# / vertical_alignment_with_grid: same E_A/I_B placeholder-mismatch pattern
+# (I_B's own name changed to match its connected Export's E_A).
+E_A:
+  long_name: E_A long name
+  canonical_units: m
+
+# export_dependency: I1's own placeholder name changed to match its
+# connected Export (child_A's E1).
+E1:
+  long_name: E1 long name
+  canonical_units: m
+
+E2:
+  long_name: E2 long name
+  canonical_units: km
+
+# regrid / regrid_r8 (shared literal standard_name across both scenarios).
+name:
+  long_name: Name long name
+  canonical_units: barn
+
+# invalidate: both sides already declare the identical 'Temperature'
+# (a deliberate units-conversion-coupler test, not a naming mismatch);
+# previously left out of the dictionary as unnecessary while this change
+# only targeted PERMISSIVE-mode exercise - now needed for STRICT.
+Temperature:
+  long_name: Temperature long name
+  canonical_units: km
+
+# extdata_1 (shared literal standard_name across all of its fields).
+T1:
+  long_name: T1 long name
+  canonical_units: none
+
+# history_1: bare (non-'... standard name'-suffixed) placeholder family,
+# distinct from the batch-1 'E_A1 standard name'/'E_B1 standard name' keys.
+E_A1:
+  long_name: E_A1 (history_1) long name
+  canonical_units: m
+
+E_A2:
+  long_name: E_A2 (history_1) long name
+  canonical_units: '1'
+
+# E_B2 standard name is shared verbatim by history_1 and history_wildcard.
+E_B2 standard name:
+  long_name: E_B2 long name
+  canonical_units: furlong
+
+E_B3:
+  long_name: E_B3 long name
+  canonical_units: m
+
+# history_wildcard: uses the suffixed 'E_A2 standard name' convention
+# (distinct from history_1's bare 'E_A2' above); E1_A0's own export name;
+# collection_1.yaml's B/E_B2 import previously redeclared an unrelated,
+# undocumented 'huh1' that disagreed with its connected Export - that
+# redeclaration was removed (now inherits E_B2 standard name above) rather
+# than given its own entry.
+E_A2 standard name:
+  long_name: E_A2 (history_wildcard) long name
+  canonical_units: m
+
+# names_1's E_A3 (I_A1/E_A1/E_A2/Z_A1/etc. already have entries above from
+# the first increment).
+E_A3 standard name:
+  long_name: E_A3 long name
+  canonical_units: m
+
+foo:
+  long_name: foo long name
+  canonical_units: m
+
+# expression_match / expression_defer_geom ('A' already has a coincidental
+# pre-existing entry above and is reused unchanged; 'B' is shared verbatim
+# by both scenarios).
+B:
+  long_name: B long name
+  canonical_units: m
+
+# expression (used only by this scenario - 'A'/'B' above are shared with
+# expression_match/expression_defer_geom).
+C:
+  long_name: C long name
+  canonical_units: m
+
+expr standard name:
+  long_name: expr long name
+  canonical_units: m
+
+expr2 standard name:
+  long_name: expr2 long name
+  canonical_units: m
+
+E_sum standard name:
+  long_name: E_sum long name
+  canonical_units: m
+
+I:
+  long_name: I (expression_defer_geom) long name
+  canonical_units: m
+
+# service_service / service_with_options (Z_A1 standard name already has a
+# pre-existing entry above; Z_A2/W standard name are shared verbatim by
+# both scenarios).
+Z_A2 standard name:
+  long_name: Z_A2 long name
+  canonical_units: meter
+
+W standard name:
+  long_name: W long name
+  canonical_units: meter

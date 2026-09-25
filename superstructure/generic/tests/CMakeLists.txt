@@ -39,50 +39,30 @@ target_include_directories(MAPL.generic.test_common PUBLIC $<BUILD_INTERFACE:${M
 # Common dependencies for all test suites
 set(COMMON_LINK_LIBRARIES MAPL.generic.test_common MAPL.pfunit MAPL.statistics)
 
-# 1. MAPL.generic.scenarios - End-to-end integration test scenarios
-# (PERMISSIVE ValidationMode - the default). Nine scenarios verified clean
-# under STRICT (scenario_1, scenario_2, scenario_reexport_twice,
-# propagate_geom, memory_checkpoint, statistics, statistics_real,
-# vertical_regridding_2, vertical_regridding_3) live instead in
-# MAPL.generic.scenarios.strict below - see openspec change
-# use-field-dictionary-in-scenario-tests.
+# 1. MAPL.generic.scenarios - End-to-end integration test scenarios.
+# All scenarios now run under STRICT field-dictionary ValidationMode
+# (Initialize_strict, same module as the default Initialize() every other
+# pFUnit binary here still uses) - see openspec change
+# use-field-dictionary-in-scenario-tests. This was previously split into a
+# separate MAPL.generic.scenarios/.strict pair while some scenarios were
+# still being migrated; now that all of them are STRICT-clean, it is a
+# single suite again.
 set(scenarios_test_srcs
   Test_Scenarios.pf
+  Test_MemoryCheckpoint.pf
 )
 
 add_pfunit_ctest(
   MAPL.generic.scenarios
   TEST_SOURCES ${scenarios_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
-  EXTRA_INITIALIZE Initialize
+  EXTRA_INITIALIZE Initialize_strict
   EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
 set_tests_properties(MAPL.generic.scenarios PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios)
-
-# 1b. MAPL.generic.scenarios.strict - the same scenario-check machinery,
-# restricted to the subset of scenarios verified clean under STRICT
-# field-dictionary ValidationMode. Uses Initialize_strict (same module,
-# pfunit/MAPL_Initialize.F90) instead of Initialize so this one executable
-# runs with ValidationMode=STRICT; every other pFUnit binary is unaffected.
-set(scenarios_strict_test_srcs
-  Test_ScenariosStrict.pf
-  Test_MemoryCheckpoint.pf
-)
-
-add_pfunit_ctest(
-  MAPL.generic.scenarios.strict
-  TEST_SOURCES ${scenarios_strict_test_srcs}
-  LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
-  EXTRA_INITIALIZE Initialize_strict
-  EXTRA_USE mapl_pFUnit_Initialize_mod
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  MAX_PES 4
-)
-set_tests_properties(MAPL.generic.scenarios.strict PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic.scenarios.strict proto_extdata_gc proto_stat_gc copy_scenarios)
 
 # 2. MAPL.generic.transforms - Data transformation tests
 set(transforms_test_srcs
@@ -229,7 +209,6 @@ endif()
 
 # Apply environment settings to all test suites
 set_tests_properties(MAPL.generic.scenarios PROPERTIES ENVIRONMENT "${TEST_ENV}")
-set_tests_properties(MAPL.generic.scenarios.strict PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.transforms PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.vertical PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.aspects PROPERTIES ENVIRONMENT "${TEST_ENV}")
@@ -239,7 +218,6 @@ set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
 # Add all test suites to build-tests target
 add_dependencies(build-tests
   MAPL.generic.scenarios
-  MAPL.generic.scenarios.strict
   MAPL.generic.transforms
   MAPL.generic.vertical
   MAPL.generic.aspects

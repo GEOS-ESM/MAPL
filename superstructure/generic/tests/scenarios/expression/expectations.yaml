@@ -9,11 +9,10 @@
 # long_name).
 #
 # standard_name, by contrast, is a single field-wide value under
-# generic/standard-name-enforcement (GEOS-ESM/MAPL#5413): expr declares
-# 'expr standard name' and I declares the disagreeing 'I' - in the default
-# PERMISSIVE ValidationMode this is a warning, not an error, and the
-# Export's (expr's) value wins throughout the chain (both expr(1) and I read
-# 'expr standard name'), unlike long_name above.
+# generic/standard-name-enforcement (GEOS-ESM/MAPL#5413): both expr and I
+# declare the same 'expr standard name', so the Export's value simply reads
+# through the chain (both expr(1) and I read 'expr standard name'), unlike
+# long_name above which keeps each side's own distinct declared value.
 #
 # expr2/I2: expr2 declares its own standard_name/long_name; I2 (the
 # consumer) declares neither - the shared extension aspect for this chain

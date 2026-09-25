@@ -12,6 +12,7 @@ module mapl_ExpressionClassAspect_mod
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_VerticalStaggerLoc_mod
    use mapl_UnitsAspect_mod
+   use mapl_StandardNameAspect_mod, only: StandardNameAspect
    use mapl_TypekindAspect_mod
    use mapl_UngriddedDimsAspect_mod
 
@@ -323,10 +324,27 @@ contains
          ! design.md Decisions.
          call check_vertical_stagger_consistency(src, other_aspects, expression_variables, _RC)
 
+         ! goal_spec is used below to "extend" (find/create the actual field
+         ! for) each of this expression's referenced variables (A, B, ...) -
+         ! it is a request for "whatever field represents variable A", not a
+         ! request for a field matching this expression's (E_sum's) own
+         ! declared identity, so this expression's own CLASS_ASPECT_ID and
+         ! StandardNameAspect (inherited wholesale via other_aspects, which
+         ! belongs to *this* expression's connection, not any referenced
+         ! variable's) must not be imposed on the lookup - only
+         ! CLASS_ASPECT_ID was previously overridden; StandardNameAspect was
+         ! not, causing a spurious standard_name convention violation (in
+         ! STRICT mode) comparing a referenced variable's own standard_name
+         ! (e.g. A's) against this expression's unrelated declared value
+         ! (e.g. "E_sum standard name") whenever the two differ - the normal
+         ! case, since an expression's result is a different quantity than
+         ! any single operand.
          goal_spec = StateItemSpec(ESMF_STATEINTENT_EXPORT, other_aspects, empty)
          goal_aspects => goal_spec%get_aspects()
          n = goal_aspects%erase(CLASS_ASPECT_ID)
          call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(long_name=''))
+         n = goal_aspects%erase(STANDARD_NAME_ASPECT_ID)
+         call goal_aspects%insert(STANDARD_NAME_ASPECT_ID, StandardNameAspect())
          call goal_spec%create(_RC)
          call goal_spec%allocate(_RC)
 
