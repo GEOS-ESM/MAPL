@@ -31,6 +31,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `LatLonGeomFactory`'s `fill_coordinates` to use `grid_has_de`/`grid_get_interior` so PETs
   that legitimately own no DE in that case are skipped instead of crashing; added
   `Test_LatLonZeroDE.pf` and a `LatLonDecomposition` unit test covering this case
+- Fixed several crashes affecting ranks with no local decomposition element (DE)
+  for a field's grid (the "coarse grid, extra PET" scenario), continuing the
+  `LatLonDecomposition`/`LatLonGeomFactory` fix above: `pFIOServerBounds` gained
+  a `has_de` argument so a no-DE rank still reports the true, shared
+  `global_start`/`global_count` (required since pfio's server sizes its shared
+  read/write buffer from one arbitrary representative message per collective
+  `request_id`), zeroing only its own local `file_shape`; `ExtDataFileReader`
+  and `GridPFIO` (History/Restart read+write, plus coordinate writing) now call
+  their collective pfio requests unconditionally on every rank instead of
+  skipping no-DE ranks, since `ClientThread`'s `request_id` counter is local
+  and unsynchronized and skipping it on some ranks desyncs which request a
+  given rank's data belongs to; and `FieldGetCptr`/`assign_fptr`'s common
+  `get_cptr` now returns a zero-size result instead of crashing for a no-DE
+  field, transparently fixing `FieldCopy`, `FieldBLAS`, `FieldUtilities`,
+  `FieldCondensedArray`, `FieldApplyUserRoutine`, and the generic3g unit/
+  normalization/time-interpolation transforms. That last fix uses a dummy
+  static target rather than `C_NULL_PTR` because NAG's runtime aborts
+  ("Reference to disassociated POINTER") on any reference to a pointer
+  associated via `c_f_pointer(C_NULL_PTR, ...)`, even with a zero size.
 =======
 - Fixed `standard_name`/`long_name` Field metadata being collapsed to a single,
   field-wide value across a connection. Because a connected Import's `ESMF_Field`
@@ -158,6 +177,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unused fields and methods from InnerMetaComponent
 
 ### Added
+
+- Added regression test coverage for the no-local-DE fixes above: new
+  `Test_FieldPointerUtilities.pf` and `Test_pFIOServerBounds.pf` exercise
+  `FieldGetCptr`/`assign_fptr`/`FieldCopy` and `pFIOServerBounds` directly on
+  no-DE ranks/inputs, and existing `Test_FieldBLAS.pf`/`Test_FieldArithmetic.pf`/
+  `Test_FieldCondensedArray_private.pf` gained no-DE variants (also adding the
+  first coverage at all for `FieldSet`/`FieldIsConstant`).
 
 - Added optional coordinate-comparison tolerance for LatLon grid equality (`GEOS-ESM/MAPL#5385`), so that two file-based LatLon grids whose coordinates differ only by numerical noise can be treated as the same grid, letting `GeomManager` reuse geoms/RouteHandles instead of minting new ones on every file swap. `coordinate_tolerance` is a dimensionless fraction of a grid's own coordinate spacing (DX) - e.g. `0.01` means "within 1% of the minimum spacing between adjacent grid points" - not an absolute coordinate difference. Comparison is directional: when a new (not yet cached) grid is looked up against an already-registered one, only the new grid's own declared tolerance and its own spacing are consulted; the already-registered grid's tolerance never matters. The tolerance is sourced from a generic `coordinate_tolerance` attribute on `FileMetadata` (read via the existing generic attribute API; no new `pfio`/`FileMetadata` methods added); the geom layer itself defaults to `0` (strict/bitwise) when the attribute is absent, staying neutral for any client. `ExtData` is the first client to set this attribute: file collections may set an optional `coordinate_tolerance` in their YAML config, which `PrimaryExport` stamps onto each file's `FileMetadata` before requesting a geom for it. Unlike the geom layer's own neutral default, `ExtData` defaults `coordinate_tolerance` to a nonzero value (`0.1`, i.e. 10% of DX) when a collection's config omits it, restoring MAPL2's historical default-tolerant grid-reuse behavior for existing users; a collection can set `coordinate_tolerance: 0` explicitly to opt into strict comparison.
 - Added `StateGetPointer` overloads for retrieving paired (u, v) field pointers from a vector-type ESMF FieldBundle stored in a state
