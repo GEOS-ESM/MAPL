@@ -7,6 +7,7 @@ set (test_srcs
   Test_StateDestroy.pf
   Test_StateGetBundle.pf
   Test_StateGetGeom.pf
+  Test_StateGetPointerVector.pf
   Test_StateMerge.pf)
 
 add_pfunit_ctest(MAPL.state.tests

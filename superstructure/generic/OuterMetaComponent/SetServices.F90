@@ -4,10 +4,10 @@ submodule (mapl_OuterMetaComponent_mod) SetServices_smod
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
-   use mapl_Generic_api
-   use mapl_vertical_grid_api
+   use mapl_Generic_api, only: mapl_GenericSetServices
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ErrorHandling_mod
+   use mapl_InnerMetaComponent_mod
    use pflogger, only: logger_t => logger
    implicit none(type,external)
 
@@ -27,7 +27,6 @@ contains
    !=========================================================================
    
    recursive module subroutine SetServices_(this, rc)
-      use mapl_Generic_api, only: mapl_GenericSetServices
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, intent(out) :: rc
 
@@ -42,14 +41,31 @@ contains
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       logger => this%get_logger()
       call logger%info("SetServices:: starting...", _RC)
-      call this%user_setservices%run(user_gridcomp, _RC)
+      call run_user_setservices(this, user_gridcomp, _RC)
       call logger%info("SetServices:: ...completed", _RC)
       call add_children(this, _RC)
       call run_children_setservices(this, _RC)
 
       _RETURN(ESMF_SUCCESS)
 
-   contains
+    contains
+
+      subroutine run_user_setservices(this, user_gridcomp, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(ESMF_GridComp), intent(inout) :: user_gridcomp
+         integer, intent(out) :: rc
+
+         integer :: status
+
+         if (allocated(this%component_spec%setservices)) then
+            call this%component_spec%setservices%run(user_gridcomp, _RC)
+         else
+            _ASSERT(allocated(this%user_setservices), 'No setServices available for component config')
+            call this%user_setservices%run(user_gridcomp, _RC)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine run_user_setservices
 
       recursive subroutine add_children(this, rc)
          class(OuterMetaComponent), target, intent(inout) :: this

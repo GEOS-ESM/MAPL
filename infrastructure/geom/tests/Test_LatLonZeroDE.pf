@@ -1,0 +1,79 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
+
+! Regression tests for the case where a LatLon grid is too coarse to be
+! decomposed onto the requested topology given ESMF's min_extent=2
+! constraint.  In that situation, mapl_GetPartition() (used by
+! LatLonDecomposition) collapses the excess bins, so the grid ends up
+! with fewer DEs than PETs. Some PETs therefore legitimately own zero
+! DEs, and the geom factory must handle that gracefully (rather than
+! crash or produce garbage coordinates) for the PETs that *do* own a DE.
+module Test_LatLonZeroDE
+   use pfunit
+   use esmf_TestMethod_mod ! mapl
+   use mapl_GeomSpec_mod
+   use mapl_LatLonGeomFactory_mod
+   use mapl_geom_api, only: mapl_GridGet, mapl_GridGetCoordinates
+   use esmf
+   implicit none
+
+contains
+
+   ! im_world=3 cannot be split into 4 bins with min_extent=2, so the
+   ! requested nx=4 topology collapses to a single DE along the lon
+   ! direction.  With ny=1 that means the whole grid is a single DE,
+   ! and only 1 of the 4 PETs ends up owning it.
+   @test(type=ESMF_TestMethod, npes=[4])
+   subroutine test_zero_de_grid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      type(LatLonGeomFactory) :: factory
+      class(GeomSpec), allocatable :: geom_spec
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_VM) :: vm
+      integer :: local_pet, pet_count
+      logical :: has_de
+      real(kind=ESMF_KIND_R8), allocatable :: lons(:,:), lats(:,:)
+
+      hconfig = ESMF_HConfigCreate( &
+           content="{im_world: 3, jm_world: 4, pole: PC, dateline: DC, nx: 4, ny: 1}", rc=status)
+      @assert_that(status, is(0))
+
+      allocate(geom_spec, source=factory%make_spec(hconfig, rc=status))
+      @assert_that(status, is(0))
+
+      ! This is the main regression check: constructing the geom used to
+      ! fail (or crash) for the PETs that end up with no local DE.
+      geom = factory%make_geom(geom_spec, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assert_that(status, is(0))
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=local_pet, petCount=pet_count, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(pet_count, is(equal_to(4)))
+
+      call mapl_GridGet(grid, has_de=has_de, rc=status)
+      @assert_that(status, is(0))
+
+      if (local_pet == 0) then
+         ! The single surviving DE is owned by PET 0.
+         @assert_that(has_de, is(true()))
+
+         call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
+         @assert_that(status, is(0))
+         @assert_that(shape(lons), is(equal_to([3, 4])))
+         @assert_that(shape(lats), is(equal_to([3, 4])))
+      else
+         ! PETs 1-3 legitimately own no DE for this coarse grid.
+         @assert_that(has_de, is(false()))
+      end if
+
+   end subroutine test_zero_de_grid
+
+end module Test_LatLonZeroDE

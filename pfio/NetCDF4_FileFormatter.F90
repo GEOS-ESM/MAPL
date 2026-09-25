@@ -208,6 +208,8 @@ contains
       !$omp end critical
       _VERIFY(status)
 
+      this%origin_file = file
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine create
@@ -265,6 +267,8 @@ contains
       status = nf90_create(file, mode_, comm=comm_, info=info_, ncid=this%ncid)
       !$omp end critical
       _VERIFY(status)
+
+      this%origin_file = file
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

@@ -1,0 +1,186 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Regression tests for MAPL_NamedAlias (superstructure/state/StateGet.F90's
+! state_get_bundle originally called bare ESMF_NamedAlias directly, silently
+! dropping standard_name/long_name/restart_mode tied to the source field's
+! own alias id - see #5407 follow-up). MAPL_NamedAlias must always be used
+! in place of ESMF_NamedAlias for ESMF_Field handles so this metadata is
+! carried over to the new alias's own (different) id.
+module Test_FieldNamedAlias
+   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet, MAPL_FieldSet, MAPL_NamedAlias
+   use mapl_FieldInfo_mod, only: FieldInfoGetInternal, FieldInfoSetInternal
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
+   use funit
+   use ESMF_TestMethod_mod
+   use esmf
+
+   implicit none(type,external)
+
+contains
+
+   function make_geom(rc) result(geom)
+      type(ESMF_Geom) :: geom
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Grid) :: grid
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_geom
+
+   ! Aliasing a field that has never itself been placed via ESMF_NamedAlias
+   ! (id=0): MAPL_NamedAlias must copy its long_name onto the new alias's
+   ! own (different) id (generic/field-name-propagation). standard_name is
+   ! unaliased/field-wide (generic/standard-name-enforcement) so it is
+   ! trivially visible from every alias without any copying at all - this
+   ! test still exercises that (the assertions below happen to hold either
+   ! way), but the interesting per-alias regression case is long_name.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_named_alias_propagates_from_unaliased_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field, alias
+      type(ESMF_Geom) :: geom
+      character(*), parameter :: EXPECTED_STANDARD_NAME = 'expected standard name'
+      character(*), parameter :: EXPECTED_LONG_NAME = 'expected long name'
+      character(:), allocatable :: standard_name, long_name
+      integer :: status
+
+      geom = make_geom(_RC)
+      field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           standard_name=EXPECTED_STANDARD_NAME, long_name=EXPECTED_LONG_NAME, _RC)
+
+      alias = MAPL_NamedAlias(field, name='alias_of_field', _RC)
+
+      call MAPL_FieldGet(alias, standard_name=standard_name, long_name=long_name, _RC)
+      @assertEqual(standard_name, EXPECTED_STANDARD_NAME)
+      @assertEqual(long_name, EXPECTED_LONG_NAME)
+
+      ! Source field itself is unaffected.
+      call MAPL_FieldGet(field, standard_name=standard_name, long_name=long_name, _RC)
+      @assertEqual(standard_name, EXPECTED_STANDARD_NAME)
+      @assertEqual(long_name, EXPECTED_LONG_NAME)
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_named_alias_propagates_from_unaliased_field
+
+   ! Aliasing a field that was never given an explicit name: the new alias
+   ! must report the same default the source itself would have - not fail,
+   ! not silently allocate something else. long_name is per-alias metadata
+   ! (generic/field-name-propagation) and defaults to 'unknown'.
+   ! standard_name is unaliased/field-wide (generic/standard-name-
+   ! enforcement, GEOS-ESM/MAPL#5413) and defaults to '<unknown>' (matching
+   ! UnitsAspect's own "unspecified" sentinel).
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_named_alias_default_when_source_unset(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field, alias
+      type(ESMF_Geom) :: geom
+      character(:), allocatable :: standard_name, long_name
+      integer :: status
+
+      geom = make_geom(_RC)
+      field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
+
+      alias = MAPL_NamedAlias(field, name='alias_of_field', _RC)
+
+      call MAPL_FieldGet(alias, standard_name=standard_name, long_name=long_name, _RC)
+      @assertEqual(standard_name, '<unknown>')
+      @assertEqual(long_name, 'unknown')
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_named_alias_default_when_source_unset
+
+   ! Aliasing a field that is *itself already* a NamedAlias placement with
+   ! its own explicitly-set name (a nonzero alias id) - e.g. re-serializing
+   ! an Export field into a synthetic bundle, as
+   ! superstructure/state/StateGet.F90's state_get_bundle does. The second
+   ! alias gets a third, different id; MAPL_NamedAlias must still find and
+   ! copy the first alias's own long_name onto it (long_name is per-alias -
+   ! generic/field-name-propagation). standard_name, being unaliased/field-
+   ! wide (generic/standard-name-enforcement, GEOS-ESM/MAPL#5413), is set
+   ! once and visible identically from *every* handle to the field,
+   ! including the original `field` variable - there is no "own (unaliased)
+   ! slot" for it to leave untouched.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_named_alias_propagates_from_existing_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field, alias1, alias2
+      type(ESMF_Geom) :: geom
+      character(*), parameter :: EXPECTED_STANDARD_NAME = 'placement-specific name'
+      character(*), parameter :: EXPECTED_LONG_NAME = 'placement-specific long name'
+      character(:), allocatable :: standard_name, long_name
+      integer :: status
+
+      geom = make_geom(_RC)
+      field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC) ! no name of its own
+
+      alias1 = MAPL_NamedAlias(field, name='first_placement', _RC)
+      call MAPL_FieldSet(alias1, standard_name=EXPECTED_STANDARD_NAME, long_name=EXPECTED_LONG_NAME, _RC)
+
+      alias2 = MAPL_NamedAlias(alias1, name='second_placement', _RC)
+
+      call MAPL_FieldGet(alias2, standard_name=standard_name, long_name=long_name, _RC)
+      @assertEqual(standard_name, EXPECTED_STANDARD_NAME)
+      @assertEqual(long_name, EXPECTED_LONG_NAME)
+
+      ! long_name's own (unaliased, id=0) slot was never set - still
+      ! 'unknown'. standard_name, being field-wide, was set (through
+      ! alias1) and is visible here too.
+      call MAPL_FieldGet(field, standard_name=standard_name, long_name=long_name, _RC)
+      @assertEqual(standard_name, EXPECTED_STANDARD_NAME)
+      @assertEqual(long_name, 'unknown')
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_named_alias_propagates_from_existing_alias
+
+   ! restart_mode is MAPL-internal (not part of the public FieldGet/FieldSet
+   ! API - see RestartHandler.F90), so this test reaches into
+   ! FieldInfoGetInternal/SetInternal directly to set it up and verify it.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_named_alias_propagates_restart_mode(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field, alias
+      type(ESMF_Geom) :: geom
+      type(ESMF_Info) :: info
+      type(RestartMode) :: found_restart_mode
+      integer :: alias_id
+      integer :: status
+
+      geom = make_geom(_RC)
+      field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
+
+      call ESMF_InfoGetFromHost(field, info, _RC)
+      call ESMF_NamedAliasGet(field, id=alias_id, _RC)
+      call FieldInfoSetInternal(info, alias_id, RESTART_SKIP, _RC)
+
+      alias = MAPL_NamedAlias(field, name='alias_of_field', _RC)
+
+      call ESMF_InfoGetFromHost(alias, info, _RC)
+      call ESMF_NamedAliasGet(alias, id=alias_id, _RC)
+      call FieldInfoGetInternal(info, alias_id, found_restart_mode, _RC)
+      @assert_that(found_restart_mode == RESTART_SKIP, is(true()))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_named_alias_propagates_restart_mode
+
+end module Test_FieldNamedAlias

@@ -32,17 +32,14 @@ contains
 
       call mapl_GridCompAddSpec(gc, short_name='A/T', &
            state_intent=ESMF_STATEINTENT_IMPORT, &
-           standard_name='<unknown>', &
            dims='xy', &
            vertical_stagger=VERTICAL_STAGGER_NONE, &
            units='K', _RC)
 
       call mapl_GridCompAddSpec(gc, short_name='avg_T', &
            state_intent=ESMF_STATEINTENT_EXPORT, &
-           standard_name='<unknown>', &
            dims='xy', &
            vertical_stagger=VERTICAL_STAGGER_NONE, &
-           has_deferred_aspects=.true., &
            units='K', _RC)
 
       exports_ready = .false.
@@ -64,7 +61,6 @@ contains
       _RETURN_IF(exports_ready)
       
       call esmf_StateGet(exportState, itemName='avg_T', field=field, _RC)
-      call mapl_FieldSet(field, has_deferred_aspects = .false., _RC)
 
       exports_ready = .true.
 
@@ -101,11 +97,8 @@ contains
 !#      call mapl_StateGetPointer(importState, X, 'X', _RC)
 !#      call mapl_StateGetPointer(exportState, avg_X, 'avg_X', _RC)
 !#
-!#      _HERE
 !#      X = 1
-!#      _HERE
 !#      avg_X = 2
-!#      _HERE
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run

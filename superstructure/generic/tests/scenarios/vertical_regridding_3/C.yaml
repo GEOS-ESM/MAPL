@@ -13,13 +13,19 @@ mapl:
       units: hPa
       levels: [40., 20., 10.]
 
+  # I_C previously declared its own suffixed standard_name
+  # ('air_pressure_c_center'), disagreeing with its connected Export
+  # (DYN's PLE, 'air_pressure_dyn_center' at the time) - the suffixes
+  # distinguished which component's copy of the field you were looking at,
+  # not a real difference in physical quantity. Declaring none here lets it
+  # correctly report as a wildcard/unchecked Import; DYN's PLE (now plain
+  # 'air_pressure', field_dictionary_test.yaml-backed) wins. See openspec
+  # change use-field-dictionary-in-scenario-tests.
   states:
     import:
       I_C:
-        standard_name: air_pressure_c_center
         units: hPa
         vertical_dim_spec: center
 
   setServices:
     sharedObj: libconfigurable_gridcomp
-    userRoutine: setservices_

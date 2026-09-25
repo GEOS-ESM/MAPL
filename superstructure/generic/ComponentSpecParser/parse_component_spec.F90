@@ -14,7 +14,9 @@ contains
 
       integer :: status
       logical :: has_mapl_section
+      logical :: has_setservices_section
       type(ESMF_HConfig) :: mapl_cfg
+      type(ESMF_HConfig) :: setservices_cfg
 
       has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
       _RETURN_UNLESS(has_mapl_section)
@@ -24,6 +26,13 @@ contains
       spec%var_specs = parse_var_specs(mapl_cfg, registry, component_name, _RC)
       spec%connections = parse_connections(mapl_cfg, _RC)
       spec%children = parse_children(mapl_cfg, _RC)
+
+      has_setservices_section = ESMF_HConfigIsDefined(mapl_cfg, keyString=COMPONENT_SETSERVICES_SECTION, _RC)
+      if (has_setservices_section) then
+         setservices_cfg = ESMF_HConfigCreateAt(mapl_cfg, keyString=COMPONENT_SETSERVICES_SECTION, _RC)
+         spec%setservices = parse_setservices(setservices_cfg, _RC)
+         call ESMF_HConfigDestroy(setservices_cfg, _RC)
+      end if
 
       spec%misc = parse_misc(mapl_cfg, _RC)
 
@@ -113,4 +122,3 @@ contains
    end subroutine parse_item
 
 end submodule parse_component_spec_smod
-

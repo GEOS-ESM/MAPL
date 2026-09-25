@@ -12,7 +12,7 @@ else()
   endif()
 endif()
 
-set(REGRID_UTIL_PATH Regrid_Util) 
+set(REGRID_UTIL_PATH Regrid_Util)
 
 # Regression tests
 foreach(TEST_CASE ${TEST_CASES})
@@ -28,7 +28,7 @@ foreach(TEST_CASE ${TEST_CASES})
       -P ${CMAKE_CURRENT_SOURCE_DIR}/run_case.cmake
   )
   set_tests_properties("${TEST_CASE}" PROPERTIES
-    LABELS "MAPL_APPS"
+    LABELS "MAPL_APPS;REGRESSION"
     ENVIRONMENT "${LD_PATH}=${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}}"
   )
 endforeach()

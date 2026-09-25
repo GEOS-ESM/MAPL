@@ -7,18 +7,20 @@ set (srcs
     FieldBundleInfo.F90
     FieldBundleDelta.F90
     FieldBundleCreate.F90
+    FieldBundleClone.F90
     FieldBundleCopy.F90
     FieldBundleDestroy.F90
     FieldBundleFilter.F90
     FieldBundleGetPointer.F90
     FieldBundleApplyUserRoutine.F90
     FieldBundleMatch.F90
+    FieldBundleGetGeom.F90
     API.F90
 )
 
 esma_add_library (${this}
     SRCS ${srcs}
-    DEPENDENCIES MAPL.field MAPL.utils MAPL.esmf
+    DEPENDENCIES MAPL.field MAPL.utils MAPL.esmf MAPL.geom
                  PFLOGGER::pflogger ESMF::ESMF GFTL::gftl-v2
     TYPE SHARED
 )

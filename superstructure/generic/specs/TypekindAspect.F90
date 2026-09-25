@@ -123,8 +123,9 @@ contains
       type(TypekindAspect) :: export_
       integer :: status
 
-      export_ = to_TypekindAspect(export, _RC)
-      this%typekind = export_%typekind
+       export_ = to_TypekindAspect(export, _RC)
+       this%typekind = export_%typekind
+       call this%set_characteristic_state(export_%get_characteristic_state())
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export

@@ -10,9 +10,9 @@
 !     MAPL_REALIZE
 
 module mapl_GenericGridComp_mod
-   use :: mapl_OuterMetaComponent_mod, only: OuterMetaComponent
-   use :: mapl_OuterMetaComponent_mod, only: get_outer_meta
-   use :: mapl_OuterMetaComponent_mod, only: attach_outer_meta
+    use :: mapl_OuterMetaComponent_mod, only: OuterMetaComponent
+    use :: mapl_OuterMetaComponent_mod, only: get_outer_meta
+    use :: mapl_OuterMetaComponent_mod, only: attach_outer_meta
    use :: mapl_GenericPhases_mod
    use :: mapl_GriddedComponentDriver_mod
    use esmf
@@ -32,19 +32,73 @@ module mapl_GenericGridComp_mod
 contains
 
    recursive subroutine GenericSetServices(gridcomp, rc)
-      type(ESMF_GridComp) :: gridcomp
-      integer, intent(out) :: rc
+       type(ESMF_GridComp) :: gridcomp
+       integer, intent(out) :: rc
 
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
+       integer :: status
+       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%setServices(_RC)
-      call set_entry_points(gridcomp, _RC)
+       call get_or_create_outer_meta(gridcomp, outer_meta, _RC)
+       call outer_meta%setServices(_RC)
+       call set_entry_points(gridcomp, _RC)
 
-      _RETURN(ESMF_SUCCESS)
+       _RETURN(ESMF_SUCCESS)
 
-   contains
+    contains
+
+      subroutine get_or_create_outer_meta(gridcomp, outer_meta, rc)
+         type(ESMF_GridComp), intent(inout) :: gridcomp
+         type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+         integer, intent(out) :: rc
+
+         type :: PrivateWrapper
+            type(OuterMetaComponent), pointer :: ptr
+         end type PrivateWrapper
+
+         type(ESMF_Config) :: config
+         type(ESMF_HConfig) :: hconfig
+         type(PrivateWrapper) :: wrapper
+         type(ESMF_GridComp) :: user_gridcomp
+         type(GriddedComponentDriver) :: user_gc_driver
+         integer :: status
+         character(ESMF_MAXSTR) :: name
+
+         call ESMF_InternalStateGet(gridcomp, internalState=wrapper, &
+              label='MAPL::OuterMetaComponent::private', rc=status)
+         if (status == ESMF_SUCCESS) then
+            outer_meta => wrapper%ptr
+            _RETURN(_SUCCESS)
+         end if
+
+         call ESMF_GridCompGet(gridcomp, config=config, _RC)
+         call ESMF_GridCompGet(gridcomp, name=name, _RC)
+         call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
+
+         user_gridcomp = ESMF_GridCompCreate(name=trim(name), &
+               contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
+         call set_is_generic(user_gridcomp, .false., _RC)
+         user_gc_driver = GriddedComponentDriver(user_gridcomp)
+         call set_is_generic(gridcomp, _RC)
+         call attach_outer_meta(gridcomp, _RC)
+         outer_meta => get_outer_meta(gridcomp, _RC)
+#ifndef __GFORTRAN__
+         outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, hconfig=hconfig)
+#else
+         call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, hconfig=hconfig))
+#endif
+         call outer_meta%init_meta(_RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine get_or_create_outer_meta
+
+#ifdef __GFORTRAN__
+
+      subroutine ridiculous(a, b)
+         type(OuterMetaComponent), intent(out) :: a
+         type(OuterMetaComponent), intent(in) :: b
+         a = b
+      end subroutine ridiculous
+#endif
 
       subroutine set_entry_points(gridcomp, rc)
          type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -60,7 +114,9 @@ contains
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GEOM_B, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_PROVIDED, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ACCEPT_TRANSFER, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_ACCEPTED, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_READ_RESTART, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
 
@@ -76,6 +132,12 @@ contains
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_FINALIZE,     finalize,      _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_WRITERESTART, write_restart, _RC)
 
+         ! Internal (in-memory) checkpoint phases.  These are registered
+         ! directly against ESMF_METHOD_READRESTART/WRITERESTART and are
+         ! intentionally NOT part of GENERIC_INIT_PHASE_SEQUENCE.
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_READRESTART,  read_restart,  phase=GENERIC_INTERNAL_READ_RESTART, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_WRITERESTART, write_restart, phase=GENERIC_INTERNAL_WRITE_RESTART, _RC)
+
          _RETURN(ESMF_SUCCESS)
       end subroutine set_entry_points
 
@@ -89,7 +151,7 @@ contains
       use :: mapl_UserSetServices_mod, only: UserSetServices
 
       character(*), intent(in) :: name
-      class(UserSetServices), intent(in) :: set_services
+      class(UserSetServices), optional, intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)
@@ -118,13 +180,21 @@ contains
 
       user_gc_driver = GriddedComponentDriver(user_gridcomp)
 #ifndef __GFORTRAN__
-      outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
+      if (present(set_services)) then
+         outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
+      else
+         outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, hconfig=config)
+      end if
 #else
       ! GFortran 12 & 13 cannot directly assign to outer_meta.  But
       ! the assignment works for an object without the POINTER
       ! attribute.  An internal procedure is a workaround, but
       ! ... ridiculous.
-      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, set_services, config))
+      if (present(set_services)) then
+         call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, set_services, config))
+      else
+         call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, hconfig=config))
+      end if
 #endif
       call outer_meta%init_meta(_RC)
 
@@ -165,13 +235,17 @@ contains
       case (GENERIC_INIT_GEOM_B)
          call outer_meta%initialize_geom_b(_RC)
       case (GENERIC_INIT_ADVERTISE)
-         call outer_meta%initialize_advertise(_RC)
-      case (GENERIC_INIT_MODIFY_ADVERTISED)
-         call outer_meta%initialize_modify_advertised(importState, exportState, clock, _RC)
-      case (GENERIC_INIT_REALIZE)
-         call outer_meta%initialize_realize(importState, exportState, clock, _RC)
-      case (GENERIC_INIT_READ_RESTART)
-         call outer_meta%initialize_read_restart(_RC)
+         call outer_meta%initialize_advertise(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_MODIFY_ADVERTISED)
+          call outer_meta%initialize_modify_advertised(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_REALIZE_PROVIDED)
+          call outer_meta%initialize_realize_provided(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_ACCEPT_TRANSFER)
+          call outer_meta%initialize_accept_transfer(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_REALIZE_ACCEPTED)
+          call outer_meta%initialize_realize_accepted(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_READ_RESTART)
+          call outer_meta%initialize_read_restart(_RC)
       case (GENERIC_INIT_USER)
          call outer_meta%initialize_user(_RC)
       case default
@@ -247,6 +321,27 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_restart
+
+   ! Dedicated ESMF_METHOD_READRESTART entry point.  Unlike write_restart,
+   ! no prior outer-level READRESTART entry point existed: existing netCDF
+   ! restart reads run under ESMF_METHOD_INITIALIZE phase
+   ! GENERIC_INIT_READ_RESTART via initialize_read_restart, which this
+   ! procedure does not touch or replace.
+   recursive subroutine read_restart(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gridcomp
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+      call outer_meta%read_restart(importState, exportState, clock, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine read_restart
 
    ! Parent components name their children, but such names should
    ! apply to the (inner) user grid comp.  The MAPL wrapper gridcomp,

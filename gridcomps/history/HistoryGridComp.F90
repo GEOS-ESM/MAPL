@@ -38,7 +38,8 @@ contains
       type(ESMF_TimeInterval), allocatable :: timeStep
 
       ! Set entry points
-      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_REALIZE", _RC)
+!#      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_REALIZE_ACCEPTED", _RC)
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_ADVERTISE", _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name='run', _RC)
 
       _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryGridComp, PRIVATE_STATE)
@@ -183,7 +184,7 @@ contains
       call MAPL_GridCompRunChildren(gridcomp, phase_name='run', _RC)
 
       o_client => mapl_get_client(history%server_name, _RC)
-      call o_client%done_collective_stage()
+      call o_client%done_collective_stage(_RC)
       call o_client%post_wait_all()
 
       _RETURN(_SUCCESS)

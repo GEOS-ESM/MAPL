@@ -145,7 +145,7 @@ contains
       type(ESMF_Field) :: xyz_in(3), xyz_out(3)
       integer :: status
       integer :: i
-      integer :: id_in, id_out
+       type(mapl_GeomId) :: id_in, id_out
       type(mapl_MaplGeom), pointer :: mapl_geom
       type(VectorBasis), pointer :: basis
       type(mapl_GeomManager), pointer :: geom_mgr
@@ -155,8 +155,8 @@ contains
       call MAPL_FieldBundleGet(fb_in, fieldList=uv_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=uv_out, _RC)
 
-      _ASSERT(size(uv_in) == 2, 'TangentVector must consiste of exactly 2 fields.')
-      _ASSERT(size(uv_out) == 2, 'TangentVector must consiste of exactly 2 fields.')
+      _ASSERT(size(uv_in) == 2, 'TangentVector must consist of exactly 2 fields.')
+      _ASSERT(size(uv_out) == 2, 'TangentVector must consist of exactly 2 fields.')
       
       call create_field_vector(archetype=uv_in(1), fv=xyz_in, _RC)
       call create_field_vector(archetype=uv_out(1), fv=xyz_out, _RC)
@@ -172,7 +172,7 @@ contains
       call MAPL_FieldBundleGet(fb_in, vector_basis_kind=basis_kind, _RC)
       call ESMF_FieldGet(uv_in(1), geom=geom_in, _RC)
       id_in = MAPL_GeomGetId(geom_in, _RC)
-      mapl_geom => geom_mgr%get_mapl_geom(id_in, _RC)
+       mapl_geom => geom_mgr%get_mapl_geom(id_in, _RC)
       basis => mapl_geom%get_basis(basis_kind, _RC)
 
       call FieldGEMV('N', 1., basis%elements, uv_in, 0., xyz_in, _RC)

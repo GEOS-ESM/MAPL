@@ -32,14 +32,12 @@ contains
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_READ_RESTART, _RC)
       call this%run_custom(ESMF_METHOD_READRESTART, PHASE_NAME, _RC)
 
-      _RETURN_UNLESS(this%has_geom())
-
       driver => this%get_user_gc_driver()
       states = driver%get_states()
       call esmf_ClockGet(driver%get_clock(), currTime=current_time, _RC)
 
       user_logger => this%get_logger()
-      restart_handler = RestartHandler(this%get_geom(), current_time, user_logger)
+      restart_handler = RestartHandler(current_time, user_logger)
 
       ! if I try to pass this derived type in to read in folowing code nag crashes
       bootstrap = this%component_spec%misc%restart_controls%get_bootstrap()

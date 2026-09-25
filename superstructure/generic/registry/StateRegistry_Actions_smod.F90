@@ -23,12 +23,18 @@ contains
       integer :: status
       type(StateItemSpec), pointer :: item_spec
       integer :: i
+      logical :: has_deferred
 
       do i = 1, this%owned_items%size()
          item_spec => this%owned_items%of(i)
-         if (item_spec%is_active()) then
-            call item_spec%allocate(_RC)
-         end if
+
+         if (.not. item_spec%is_active()) cycle
+         if (item_spec%is_allocated()) cycle
+
+         has_deferred = item_spec%has_deferred_aspects(_RC)
+         if (has_deferred) cycle
+
+         call item_spec%allocate(_RC)
       end do
 
       _RETURN(_SUCCESS)

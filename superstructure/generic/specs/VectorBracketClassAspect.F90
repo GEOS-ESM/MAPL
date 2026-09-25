@@ -52,13 +52,20 @@ module mapl_VectorBracketClassAspect_mod
       type(FieldClassAspect), allocatable :: field_aspect ! reference
 
        integer :: bracket_size   ! allocate only if not time dependent
-       character(:), allocatable :: standard_name
+       ! standard_name is no longer a per-ClassAspect member (see
+       ! generic/standard-name-enforcement): VectorBracketClassAspect
+       ! automatically picks up STANDARD_NAME_ASPECT_ID enforcement because
+       ! it delegates get_aspect_order/get_mandatory_aspect_ids to a
+       ! FieldClassAspect placeholder, and VariableSpec builds the actual
+       ! StandardNameAspect from the VarSpec-level standard_name in its own
+       ! outer AspectMap.
        character(:), allocatable :: long_name
        type(MAPL_VectorBasisKind) :: vector_basis_kind
        real(kind=ESMF_KIND_R4) :: fill_value
 
    contains
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_transform
@@ -81,19 +88,15 @@ module mapl_VectorBracketClassAspect_mod
 
 contains
 
-   function new_VectorBracketClassAspect(bracket_size, standard_name, long_name, vector_basis_kind, fill_value) result(aspect)
+   function new_VectorBracketClassAspect(bracket_size, long_name, vector_basis_kind, fill_value) result(aspect)
       type(VectorBracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
-      character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
       type(MAPL_VectorBasisKind), optional, intent(in) :: vector_basis_kind
       real(kind=ESMF_KIND_R4), optional, intent(in) :: fill_value
 
-       aspect%field_aspect = FieldClassAspect(standard_name, long_name, fill_value)
+       aspect%field_aspect = FieldClassAspect(long_name=long_name, fill_value=fill_value)
        aspect%bracket_size = bracket_size
-       if (present(standard_name)) then
-          aspect%standard_name = standard_name
-       end if
        if (present(long_name)) then
           aspect%long_name = long_name
        end if
@@ -141,6 +144,16 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
+
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(VectorBracketClassAspect), intent(in) :: this
+
+      type(FieldClassAspect) :: placeholder
+      aspect_ids = placeholder%get_mandatory_aspect_ids()
+
+   end function get_mandatory_aspect_ids
+   
 
    subroutine create(this, other_aspects, rc)
       class(VectorBracketClassAspect), intent(inout) :: this
@@ -221,6 +234,11 @@ contains
       type(esmf_Field), allocatable :: field
 
       call field_aspect%get_payload(field=field, _RC)
+
+      ! field_aspect's own metadata (standard_name/long_name) - other_aspects
+      ! only covers *sibling* characteristic aspects (units, typekind, ...),
+      ! not this per-component FieldClassAspect itself.
+      call field_aspect%update_payload(field=field, _RC)
 
       associate(e => other_aspects%ftn_end())
         iter = other_aspects%ftn_begin()
@@ -370,7 +388,7 @@ contains
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
 
-      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      alias = MAPL_NamedAlias(this%payload, name=inner_name, _RC)
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then
          call ESMF_StateGet(substate, itemName=inner_name, fieldBundle=existing_bundle, _RC)

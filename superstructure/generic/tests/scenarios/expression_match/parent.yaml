@@ -1,0 +1,33 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+
+    vertical_grid:
+      class: basic
+      num_levels: 5
+
+  children:
+    A:
+      config_file: scenarios/expression_match/A.yaml
+    B:
+      config_file: scenarios/expression_match/B.yaml
+
+  states: {}
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp
+
+  # Implicit, wildcard, same-name connection - the same MatchConnection
+  # mechanism used by MAPL_GridCompConnectAll (which CapGridComp uses to wire
+  # root_name's exports to history_name's imports, and which is how History's
+  # `var_list: {source: ...}` entries reach a sibling's export without an
+  # explicit connections: entry).
+  connections:
+    - src_comp: A
+      dst_comp: B
+      all_unsatisfied: true

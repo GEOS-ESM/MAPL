@@ -17,10 +17,16 @@ contains
 
       sharedObj = ESMF_HConfigAsString(config,keyString='sharedObj',rc=status)
       _ASSERT(status == 0, 'setServices spec does not specify sharedObj')
+      sharedObj = trim(sharedObj)
+      _ASSERT(len(sharedObj) > 0, 'setServices spec does not specify sharedObj')
 
       if (ESMF_HConfigIsDefined(config,keyString='userRoutine')) then
          userRoutine = ESMF_HConfigAsString(config,keyString='userRoutine',_RC)
-      else
+         userRoutine = trim(userRoutine)
+      end if
+      if (.not. allocated(userRoutine)) then
+         userRoutine = 'setservices_'
+      else if (len_trim(userRoutine) == 0) then
          userRoutine = 'setservices_'
       end if
 

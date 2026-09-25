@@ -49,7 +49,7 @@ module mapl_GeomPFIO_mod
 
      subroutine I_stage_coordinates_to_file(this, filename, rc)
         import GeomPFIO
-        class(GeomPFIO), intent(inout) :: this
+        class(GeomPFIO), target, intent(inout) :: this
         character(len=*), intent(in) :: filename
         integer, intent(out), optional :: rc
      end subroutine I_stage_coordinates_to_file
