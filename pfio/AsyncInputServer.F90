@@ -39,9 +39,9 @@ module pFIO_AsyncInputServerMod
      integer, parameter :: ASYNC_INPUT_TAG_COMPLETION = 4713
      integer, parameter :: ASYNC_INPUT_TAG_WORKER_TERMINATE = 4714
      integer, parameter :: ASYNC_INPUT_TAG_WORKER_TERMINATED = 4715
-     integer, parameter :: ASYNC_INPUT_REQUEST_HEADER_WORDS = 6
+     integer, parameter :: ASYNC_INPUT_REQUEST_HEADER_WORDS = 8
      integer, parameter :: ASYNC_INPUT_ASSIGNMENT_WORDS = 4
-     integer, parameter :: ASYNC_INPUT_COMPLETION_WORDS = 8
+     integer, parameter :: ASYNC_INPUT_COMPLETION_WORDS = 9
      integer, parameter :: ASYNC_INPUT_DEFAULT_CACHE_SLOTS = 2
      integer, parameter :: ASYNC_INPUT_MAILBOX_EMPTY = 0
      integer, parameter :: ASYNC_INPUT_MAILBOX_FILLING = 1
@@ -65,6 +65,12 @@ module pFIO_AsyncInputServerMod
      ! worker_reader_rank is a rank in topology%reader_comm.
      ! protocol_request_id identifies async control traffic independently of
      ! the client/socket request_id serialized in the request payload.
+     ! hint_cache_slot/hint_cache_generation let the captain instruct the
+     ! owning worker to serve an already-cached slot directly, without the
+     ! captain itself ever touching worker-owned payload bytes. The worker
+     ! independently re-validates the hint against its live cache state
+     ! before treating it as a hit, so a stale hint can never produce a
+     ! stale result; it only loses the fast-path shortcut.
      type :: AsyncInputRequestMetadata
         integer(INT64) :: protocol_request_id = -1_INT64
         integer :: command = 0
@@ -72,6 +78,8 @@ module pFIO_AsyncInputServerMod
         integer :: source_node_rank = -1
         integer :: source_model_index = -1
         integer :: payload_words = 0
+        integer :: hint_cache_slot = 0
+        integer :: hint_cache_generation = 0
      end type AsyncInputRequestMetadata
 
      type :: AsyncInputAssignment
@@ -89,6 +97,7 @@ module pFIO_AsyncInputServerMod
         integer :: source_model_index = -1
         integer :: result_words = 0
         integer :: cache_slot = 0
+        integer :: cache_generation = 0
         integer :: status = MPI_SUCCESS
      end type AsyncInputCompletion
 
@@ -121,6 +130,7 @@ module pFIO_AsyncInputServerMod
 
     type :: AsyncInputCacheSlot
       logical :: valid = .false.
+      integer :: generation = 0
       type(AsyncInputCacheKey) :: key
       type(LocalMemReference), allocatable :: reference   ! holds full global slab
     end type AsyncInputCacheSlot
@@ -129,6 +139,13 @@ module pFIO_AsyncInputServerMod
        type(AsyncInputRequestMetadata) :: metadata
        character(len=:), allocatable :: file_name
        integer, allocatable :: buffer(:)
+       ! worker_rank is the reader-worker rank (1-based within workers(:))
+       ! that owns this request's file, computed once when the request is
+       ! enqueued. It is carried explicitly through assignment and dispatch
+       ! rather than re-derived from the file name, so a future scheduler
+       ! (Step 20) that assigns workers independently of the deterministic
+       ! filename hash cannot desynchronize from a warm-directory hint.
+       integer :: worker_rank = 0
     end type AsyncInputPendingRequest
 
     type :: AsyncInputWorkerState
@@ -141,6 +158,7 @@ module pFIO_AsyncInputServerMod
     type :: AsyncInputWarmRecord
        integer :: worker_rank = -1
        integer :: slot_index = 0
+       integer :: generation = 0
        type(AsyncInputCacheKey) :: key
     end type AsyncInputWarmRecord
 
@@ -172,7 +190,6 @@ module pFIO_AsyncInputServerMod
        type(AsyncInputTopology) :: topology
        integer :: shared_win = MPI_WIN_NULL
        type(c_ptr) :: shared_base_address = c_null_ptr
-       type(c_ptr) :: shared_cache_base_address = c_null_ptr
        integer :: shared_mailbox_words = ASYNC_INPUT_DEFAULT_MAILBOX_WORDS
        integer :: num_cache_slots = ASYNC_INPUT_DEFAULT_CACHE_SLOTS
        type(AsyncInputCacheSlot), allocatable :: cache_slots(:)
@@ -197,6 +214,16 @@ module pFIO_AsyncInputServerMod
         procedure, public :: next_protocol_request_id
         procedure, public :: service_collective_prefetch
        procedure, public :: service_next_collective_prefetch
+        ! Test-support counters. These expose reader-side cache hit/miss
+        ! bookkeeping and captain-side warm-hint bookkeeping so focused tests
+        ! can verify Step 19 warm-cache behavior (single physical read on
+        ! repeat, worker-side hint validation, correct data after slot
+        ! replacement) without needing to inspect private module state.
+        procedure, public :: get_cache_hits
+        procedure, public :: get_cache_misses
+        procedure, public :: get_captain_warm_hits
+        procedure, public :: get_captain_prefetch_hits
+        procedure, public :: get_num_cache_slots
        end type AsyncInputServer
 
    interface AsyncInputServer
@@ -354,7 +381,6 @@ contains
           shared_words = 0
           call MPI_Win_sync(this%shared_win, ierr)
           _VERIFY(ierr)
-          this%shared_cache_base_address = this%shared_base_address
        end if
        call MPI_Barrier(this%topology%node_comm, ierr)
        _VERIFY(ierr)
@@ -421,14 +447,15 @@ contains
                  call MPI_Recv(buffer, buffer_size, MPI_INTEGER, 0, ASYNC_INPUT_TAG_WORKER_PAYLOAD, &
                       this%topology%reader_comm, MPI_STATUS_IGNORE, ierr)
                  _VERIFY(ierr)
-                 call execute_reader_request(this, buffer, buffer_size, result, msize_word, slot_index, _RC)
-                 deallocate(buffer)
-                 call publish_shared_cache_slot(this, slot_index, _RC)
-                 if (msize_word > 0) then
-                     call publish_shared_result(this, metadata%source_model_index, &
-                          metadata%protocol_request_id, result, msize_word, MPI_SUCCESS, _RC)
-                    deallocate(result)
-                 end if
+                  call execute_reader_request(this, buffer, buffer_size, &
+                       metadata%hint_cache_slot, metadata%hint_cache_generation, &
+                       result, msize_word, slot_index, _RC)
+                  deallocate(buffer)
+                  if (msize_word > 0) then
+                      call publish_shared_result(this, metadata%source_model_index, &
+                           metadata%protocol_request_id, result, msize_word, MPI_SUCCESS, _RC)
+                     deallocate(result)
+                  end if
                   completion%protocol_request_id = metadata%protocol_request_id
                   completion%worker_reader_rank = this%topology%reader_rank
                   completion%source_service_rank = metadata%source_service_rank
@@ -436,6 +463,7 @@ contains
                   completion%source_model_index = metadata%source_model_index
                   completion%result_words = msize_word
                   completion%cache_slot = slot_index
+                  completion%cache_generation = this%cache_slots(slot_index)%generation
                   completion%status = MPI_SUCCESS
                   call pack_completion(completion, completion_words)
                   call MPI_Send(completion_words, ASYNC_INPUT_COMPLETION_WORDS, MPI_INTEGER8, 0, &
@@ -459,7 +487,7 @@ contains
              do while (.true.)
                 call poll_reader_completions(this, workers, warm_records, .false., ierr)
                 _VERIFY(ierr)
-                call serve_warm_requests(this, pending, workers, warm_records, ierr)
+                call serve_warm_requests(this, pending, warm_records, ierr)
                 _VERIFY(ierr)
                 call dispatch_pending_requests(this, pending, workers, ierr)
                _VERIFY(ierr)
@@ -496,12 +524,11 @@ contains
                _VERIFY(ierr)
                _ASSERT(cmd == ASYNC_INPUT_CMD_READ .or. cmd == ASYNC_INPUT_CMD_NEXT_PREFETCH, &
                     'unknown reader captain command')
-                 call enqueue_reader_request(pending, metadata, buffer, _RC)
-                 deallocate(buffer)
-                 call send_assignment(this, metadata, &
-                      select_file_worker(pending(size(pending))%file_name, size(workers)), ierr)
-                 _VERIFY(ierr)
-                 call serve_warm_requests(this, pending, workers, warm_records, ierr)
+                  call enqueue_reader_request(pending, metadata, buffer, size(workers), _RC)
+                  deallocate(buffer)
+                  call send_assignment(this, metadata, pending(size(pending))%worker_rank, ierr)
+                  _VERIFY(ierr)
+                 call serve_warm_requests(this, pending, warm_records, ierr)
                 _VERIFY(ierr)
                 call dispatch_pending_requests(this, pending, workers, ierr)
                _VERIFY(ierr)
@@ -510,7 +537,7 @@ contains
              do while (any(workers%busy) .or. size(pending) > 0)
                call poll_reader_completions(this, workers, warm_records, .true., ierr)
                _VERIFY(ierr)
-               call serve_warm_requests(this, pending, workers, warm_records, ierr)
+               call serve_warm_requests(this, pending, warm_records, ierr)
                _VERIFY(ierr)
                call dispatch_pending_requests(this, pending, workers, ierr)
                 _VERIFY(ierr)
@@ -626,6 +653,41 @@ contains
         this%next_protocol_sequence = this%next_protocol_sequence + 1_INT64
      end function next_protocol_request_id
 
+     ! Reader-side (worker) cache hit/miss counters. Valid on a reader rank
+     ! after start() returns; on a model or captain rank these remain 0.
+     integer function get_cache_hits(this) result(n)
+        class(AsyncInputServer), intent(in) :: this
+        n = this%cache_hits
+     end function get_cache_hits
+
+     integer function get_cache_misses(this) result(n)
+        class(AsyncInputServer), intent(in) :: this
+        n = this%cache_misses
+     end function get_cache_misses
+
+     ! Captain-side warm-hint counters, incremented in poll_reader_completions
+     ! only once a worker's completion confirms it actually served the hinted
+     ! slot/generation (see the "hint_honored" comment there). Valid on the
+     ! captain rank after start() returns; on other ranks these remain 0.
+     integer function get_captain_warm_hits(this) result(n)
+        class(AsyncInputServer), intent(in) :: this
+        n = this%captain_warm_hits
+     end function get_captain_warm_hits
+
+     integer function get_captain_prefetch_hits(this) result(n)
+        class(AsyncInputServer), intent(in) :: this
+        n = this%captain_prefetch_hits
+     end function get_captain_prefetch_hits
+
+     ! Configured reader-side cache slot count (from MAPL_ASYNC_INPUT_CACHE_SLOTS
+     ! or the default). Valid on any rank; lets a focused test drive exactly
+     ! enough distinct requests to force slot replacement/eviction regardless
+     ! of the configured slot count.
+     integer function get_num_cache_slots(this) result(n)
+        class(AsyncInputServer), intent(in) :: this
+        n = this%num_cache_slots
+     end function get_num_cache_slots
+
     ! -----------------------------------------------------------------------
     ! service_collective_prefetch
     !
@@ -706,9 +768,11 @@ contains
        _RETURN(_SUCCESS)
      end subroutine service_next_collective_prefetch
 
-     subroutine execute_reader_request(this, input, input_size, result, result_size, slot_index, rc)
+     subroutine execute_reader_request(this, input, input_size, hint_cache_slot, &
+          hint_cache_generation, result, result_size, slot_index, rc)
        class(AsyncInputServer), intent(inout) :: this
        integer, intent(in) :: input(:), input_size
+       integer, intent(in) :: hint_cache_slot, hint_cache_generation
        integer, allocatable, intent(out) :: result(:)
        integer, intent(out) :: result_size, slot_index
        integer, optional, intent(out) :: rc
@@ -716,7 +780,23 @@ contains
         integer :: status
 
        call request%deserialize(input(1:input_size), _RC)
-       slot_index = find_cache_slot(this, request)
+
+       ! A captain-supplied hint lets a warm request skip the linear cache
+       ! scan below. The worker independently re-validates the hint against
+       ! its own live slot state (validity, generation, and full key) before
+       ! trusting it, so a stale or wrong hint can never produce a stale
+       ! result -- it only loses the fast-path shortcut and falls back to the
+       ! ordinary scan/miss path.
+       slot_index = 0
+       if (hint_cache_slot >= 1 .and. hint_cache_slot <= size(this%cache_slots)) then
+          if (this%cache_slots(hint_cache_slot)%valid .and. &
+               this%cache_slots(hint_cache_slot)%generation == hint_cache_generation .and. &
+               this%cache_slots(hint_cache_slot)%key%matches_request(request)) then
+             slot_index = hint_cache_slot
+          end if
+       end if
+       if (slot_index == 0) slot_index = find_cache_slot(this, request)
+
        if (slot_index > 0) then
           this%cache_hits = this%cache_hits + 1
         else
@@ -739,37 +819,14 @@ contains
           allocate(result(0))
        end if
        this%reader_requests = this%reader_requests + 1
-       _RETURN(_SUCCESS)
-     end subroutine execute_reader_request
-
-     subroutine publish_shared_cache_slot(this, slot_index, rc)
-        class(AsyncInputServer), intent(inout) :: this
-        integer, intent(in) :: slot_index
-        integer, optional, intent(out) :: rc
-
-        integer(INT64) :: cache_words, offset
-        integer :: ierr
-        integer, pointer :: cache_data(:), slot_data(:)
-
-        cache_words = word_size(this%cache_slots(slot_index)%key%type_kind) * &
-             product(int(this%cache_slots(slot_index)%key%global_count, INT64))
-        _ASSERT(cache_words <= this%shared_mailbox_words, &
-             'AsyncInputServer shared cache slot is too small; increase MAPL_ASYNC_INPUT_SHMEM_WORDS')
-        call c_f_pointer(this%shared_cache_base_address, cache_data, &
-             [this%num_cache_slots * this%shared_mailbox_words])
-        call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, slot_data, [cache_words])
-        offset = int(slot_index - 1, INT64) * this%shared_mailbox_words
-        cache_data(offset + 1:offset + cache_words) = slot_data
-        call MPI_Win_sync(this%shared_win, ierr)
-        if (ierr /= MPI_SUCCESS) return
-
         _RETURN(_SUCCESS)
-     end subroutine publish_shared_cache_slot
+      end subroutine execute_reader_request
 
-     subroutine enqueue_reader_request(pending, metadata, input, rc)
+      subroutine enqueue_reader_request(pending, metadata, input, n_workers, rc)
        type(AsyncInputPendingRequest), allocatable, intent(inout) :: pending(:)
        type(AsyncInputRequestMetadata), intent(in) :: metadata
        integer, intent(in) :: input(:)
+       integer, intent(in) :: n_workers
        integer, optional, intent(out) :: rc
        type(AsyncInputPendingRequest), allocatable :: expanded(:)
        type(CollectivePrefetchDataMessage) :: request
@@ -786,6 +843,11 @@ contains
        if (n > 0) expanded(1:n) = pending
        expanded(n + 1)%metadata = metadata
        expanded(n + 1)%file_name = request%file_name
+       ! The owning worker is computed once, here, and carried explicitly
+       ! through assignment/dispatch/warm hints. This is currently the same
+       ! deterministic filename hash used everywhere else, but storing it
+       ! removes the need for any other routine to re-derive it independently.
+       expanded(n + 1)%worker_rank = select_file_worker(request%file_name, n_workers)
        allocate(expanded(n + 1)%buffer(size(input)))
        expanded(n + 1)%buffer = input
        call move_alloc(expanded, pending)
@@ -823,54 +885,114 @@ contains
      end subroutine dispatch_pending_requests
 
      subroutine poll_reader_completions(this, workers, warm_records, wait_for_one, ierr)
-       class(AsyncInputServer), intent(in) :: this
-       type(AsyncInputWorkerState), intent(inout) :: workers(:)
-       type(AsyncInputWarmRecord), allocatable, intent(inout) :: warm_records(:)
-       logical, intent(in) :: wait_for_one
-       integer, intent(out) :: ierr
-       logical :: available
-       integer :: worker_rank, result_status(MPI_STATUS_SIZE)
-       integer(INT64) :: completion_words(ASYNC_INPUT_COMPLETION_WORDS)
-       type(AsyncInputCompletion) :: completion
-       type(CollectivePrefetchDataMessage) :: request
-
-       ierr = MPI_SUCCESS
-       if (.not. any(workers%busy)) return
-       do
-          call MPI_Iprobe(MPI_ANY_SOURCE, ASYNC_INPUT_TAG_COMPLETION, this%topology%reader_comm, &
-               available, result_status, ierr)
-          if (ierr /= MPI_SUCCESS) return
-          if (available) exit
-          if (.not. wait_for_one) return
-          call MAPL_Sleep(0.0001)
-       end do
-       worker_rank = result_status(MPI_SOURCE)
-       call MPI_Recv(completion_words, ASYNC_INPUT_COMPLETION_WORDS, MPI_INTEGER8, worker_rank, &
-             ASYNC_INPUT_TAG_COMPLETION, this%topology%reader_comm, result_status, ierr)
-       if (ierr /= MPI_SUCCESS) return
-       call unpack_completion(completion_words, completion)
-       if (.not. workers(worker_rank)%busy .or. completion%worker_reader_rank /= worker_rank .or. &
-            completion%protocol_request_id /= workers(worker_rank)%metadata%protocol_request_id .or. &
-            completion%source_service_rank /= workers(worker_rank)%metadata%source_service_rank .or. &
-            completion%source_node_rank /= workers(worker_rank)%metadata%source_node_rank .or. &
-            completion%source_model_index /= workers(worker_rank)%metadata%source_model_index .or. &
-            completion%status /= MPI_SUCCESS) then
-          ierr = MPI_ERR_OTHER
-          return
-       end if
-       call request%deserialize(workers(worker_rank)%buffer, ierr)
-       if (ierr /= MPI_SUCCESS) return
-       call update_warm_record(warm_records, request, worker_rank, completion%cache_slot)
-       workers(worker_rank)%busy = .false.
-       workers(worker_rank)%metadata = AsyncInputRequestMetadata()
-       if (allocated(workers(worker_rank)%file_name)) deallocate(workers(worker_rank)%file_name)
-       if (allocated(workers(worker_rank)%buffer)) deallocate(workers(worker_rank)%buffer)
-     end subroutine poll_reader_completions
-
-     subroutine serve_warm_requests(this, pending, workers, warm_records, ierr)
         class(AsyncInputServer), intent(inout) :: this
+        type(AsyncInputWorkerState), intent(inout) :: workers(:)
+        type(AsyncInputWarmRecord), allocatable, intent(inout) :: warm_records(:)
+        logical, intent(in) :: wait_for_one
+        integer, intent(out) :: ierr
+        logical :: available, hint_honored
+        integer :: worker_rank, result_status(MPI_STATUS_SIZE)
+        integer(INT64) :: completion_words(ASYNC_INPUT_COMPLETION_WORDS)
+        type(AsyncInputCompletion) :: completion
+        type(CollectivePrefetchDataMessage) :: request
+
+        ierr = MPI_SUCCESS
+        if (.not. any(workers%busy)) return
+        do
+           call MPI_Iprobe(MPI_ANY_SOURCE, ASYNC_INPUT_TAG_COMPLETION, this%topology%reader_comm, &
+                available, result_status, ierr)
+           if (ierr /= MPI_SUCCESS) return
+           if (available) exit
+           if (.not. wait_for_one) return
+           call MAPL_Sleep(0.0001)
+        end do
+        worker_rank = result_status(MPI_SOURCE)
+        call MPI_Recv(completion_words, ASYNC_INPUT_COMPLETION_WORDS, MPI_INTEGER8, worker_rank, &
+              ASYNC_INPUT_TAG_COMPLETION, this%topology%reader_comm, result_status, ierr)
+        if (ierr /= MPI_SUCCESS) return
+        call unpack_completion(completion_words, completion)
+        if (.not. workers(worker_rank)%busy .or. completion%worker_reader_rank /= worker_rank .or. &
+             completion%protocol_request_id /= workers(worker_rank)%metadata%protocol_request_id .or. &
+             completion%source_service_rank /= workers(worker_rank)%metadata%source_service_rank .or. &
+             completion%source_node_rank /= workers(worker_rank)%metadata%source_node_rank .or. &
+             completion%source_model_index /= workers(worker_rank)%metadata%source_model_index .or. &
+             completion%status /= MPI_SUCCESS) then
+           ierr = MPI_ERR_OTHER
+           return
+        end if
+        call request%deserialize(workers(worker_rank)%buffer, ierr)
+        if (ierr /= MPI_SUCCESS) return
+
+        ! A hint was actually honored only if the worker's reported cache
+        ! slot AND generation exactly match what the captain sent. Because a
+        ! slot's generation is bumped every time it is replaced (never
+        ! reused at the same value), this equality can only hold if the
+        ! worker found its live slot state unchanged from when the hint was
+        ! issued, i.e. the hint's fast path was actually taken. This is
+        ! computed from the completion, not assumed at hint-attach time, so
+        ! a stale hint that fell back to a miss is never counted as a hit.
+        hint_honored = workers(worker_rank)%metadata%hint_cache_slot > 0 .and. &
+             completion%cache_slot == workers(worker_rank)%metadata%hint_cache_slot .and. &
+             completion%cache_generation == workers(worker_rank)%metadata%hint_cache_generation
+        if (hint_honored) then
+           if (workers(worker_rank)%metadata%command == ASYNC_INPUT_CMD_READ) then
+              this%captain_warm_hits = this%captain_warm_hits + 1
+           else
+              this%captain_prefetch_hits = this%captain_prefetch_hits + 1
+           end if
+        end if
+
+        call update_warm_record(warm_records, request, worker_rank, completion%cache_slot, &
+             completion%cache_generation)
+        workers(worker_rank)%busy = .false.
+        workers(worker_rank)%metadata = AsyncInputRequestMetadata()
+        if (allocated(workers(worker_rank)%file_name)) deallocate(workers(worker_rank)%file_name)
+        if (allocated(workers(worker_rank)%buffer)) deallocate(workers(worker_rank)%buffer)
+      end subroutine poll_reader_completions
+
+     ! -----------------------------------------------------------------------
+     ! serve_warm_requests
+     !
+     ! Control-only: the captain never touches worker-owned payload bytes.
+     ! It only consults its own cache directory (file/var/extent -> worker,
+     ! slot, generation).
+     !
+     ! Both a demand (current) request and a cache-only (prefetch) request
+     ! that match a warm directory entry are left in the pending queue and
+     ! annotated with a hint naming that worker's cached slot and
+     ! generation. Neither is ever retired directly from directory metadata:
+     ! the directory can go stale between a worker's in-place slot
+     ! replacement (which bumps the slot generation immediately) and the
+     ! next completion report for that slot, so only the worker's own live
+     ! re-validation of the hint -- not the captain's directory snapshot --
+     ! may be trusted to decide whether the cache is actually still warm.
+     ! Retiring a cache-only request from the directory alone could silently
+     ! drop a request for a key that a concurrent slot replacement had just
+     ! evicted, converting a planned prefetch into a later blocking demand
+     ! miss.
+     !
+     ! The normal dispatch path routes every hinted request to the exact
+     ! worker recorded on the pending request (see enqueue_reader_request),
+     ! which is the same worker that produced the warm directory entry while
+     ! scheduling remains deterministic by file name. That worker
+     ! independently re-validates the hint against its live cache state
+     ! before serving from it and publishing through its own mailbox (or, for
+     ! cache-only requests, simply confirming the cache is warm with no
+     ! mailbox write). A stale or mismatched hint never produces a stale
+     ! result: the worker falls back to its ordinary scan/read path, which
+     ! also repopulates the cache for an evicted key. Cache-only requests
+     ! still return to the client as soon as the captain sends the
+     ! assignment (in the caller, immediately after enqueueing), before this
+     ! dispatch happens, so this preserves the existing cache-only "returns
+     ! after acceptance" semantics.
+     !
+     ! Hit counters are not updated here: attaching a hint is only an
+     ! attempt. They are updated in poll_reader_completions, once the
+     ! worker's completion confirms the hint was actually honored.
+     ! -----------------------------------------------------------------------
+     subroutine serve_warm_requests(this, pending, warm_records, ierr)
+        class(AsyncInputServer), intent(in) :: this
         type(AsyncInputPendingRequest), allocatable, intent(inout) :: pending(:)
-        type(AsyncInputWorkerState), intent(in) :: workers(:)
         type(AsyncInputWarmRecord), intent(in) :: warm_records(:)
         integer, intent(out) :: ierr
 
@@ -878,30 +1000,19 @@ contains
         type(CollectivePrefetchDataMessage) :: request
 
         ierr = MPI_SUCCESS
-        i = 1
-        do while (i <= size(pending))
+        do i = 1, size(pending)
+           if (pending(i)%metadata%hint_cache_slot > 0) cycle
            call reset_prefetch_request(request)
            call request%deserialize(pending(i)%buffer, ierr)
            if (ierr /= MPI_SUCCESS) return
            warm_index = find_warm_record(warm_records, request)
-           if (warm_index < 1) then
-              i = i + 1
-              cycle
-           end if
-           if (workers(warm_records(warm_index)%worker_rank)%busy) then
-              i = i + 1
-              cycle
-           end if
+           if (warm_index < 1) cycle
+           if (warm_records(warm_index)%worker_rank /= pending(i)%worker_rank) cycle
 
-            if (pending(i)%metadata%command == ASYNC_INPUT_CMD_READ) then
-               call publish_warm_result(this, request, pending(i)%metadata, warm_records(warm_index), ierr)
-               if (ierr /= MPI_SUCCESS) return
-               this%captain_warm_hits = this%captain_warm_hits + 1
-            else
-               this%captain_prefetch_hits = this%captain_prefetch_hits + 1
-            end if
-            call remove_pending_request(pending, i)
+           pending(i)%metadata%hint_cache_slot = warm_records(warm_index)%slot_index
+           pending(i)%metadata%hint_cache_generation = warm_records(warm_index)%generation
         end do
+        _UNUSED_DUMMY(this)
      end subroutine serve_warm_requests
 
      subroutine reset_prefetch_request(request)
@@ -914,53 +1025,6 @@ contains
         if (allocated(request%global_start)) deallocate(request%global_start)
         if (allocated(request%global_count)) deallocate(request%global_count)
      end subroutine reset_prefetch_request
-
-     subroutine publish_warm_result(this, request, metadata, warm_record, ierr)
-        class(AsyncInputServer), intent(inout) :: this
-        type(CollectivePrefetchDataMessage), intent(in) :: request
-        type(AsyncInputRequestMetadata), intent(in) :: metadata
-        type(AsyncInputWarmRecord), intent(in) :: warm_record
-        integer, intent(out) :: ierr
-
-        integer(kind=MPI_ADDRESS_KIND) :: segment_bytes
-        integer(INT64) :: cache_words, cache_offset
-        integer :: disp_unit, result_size, worker_node_rank
-        integer, allocatable :: result(:)
-        integer, pointer :: cache_data(:)
-        type(c_ptr) :: cache_base_address
-#if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-        integer(kind=MPI_ADDRESS_KIND) :: baseaddr
-#endif
-
-        ierr = MPI_SUCCESS
-        worker_node_rank = this%topology%node_rank( &
-             this%topology%reader_server_ranks(warm_record%worker_rank + 1))
-        if (worker_node_rank < 0) then
-           ierr = MPI_ERR_RANK
-           return
-        end if
-#if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-        call MPI_Win_shared_query(this%shared_win, worker_node_rank, segment_bytes, disp_unit, &
-             cache_base_address, ierr)
-#else
-        call MPI_Win_shared_query(this%shared_win, worker_node_rank, segment_bytes, disp_unit, baseaddr, ierr)
-        cache_base_address = transfer(baseaddr, cache_base_address)
-#endif
-        if (ierr /= MPI_SUCCESS) return
-        call validate_worker_segment(this, segment_bytes, disp_unit, ierr)
-        if (ierr /= MPI_SUCCESS) return
-        call c_f_pointer(cache_base_address, cache_data, [worker_segment_words(this)])
-        cache_words = word_size(request%type_kind) * product(int(request%global_count, INT64))
-        cache_offset = int(warm_record%slot_index - 1, INT64) * this%shared_mailbox_words
-        result_size = int(word_size(request%type_kind) * product(int(request%count, INT64)))
-        allocate(result(result_size))
-        call copy_subarray(cache_data(cache_offset + 1:cache_offset + cache_words), result, &
-             request%global_count, request%start - request%global_start + 1, request%count, &
-             size(request%global_count), word_size(request%type_kind))
-        call publish_result_to_mailbox(this, cache_base_address, metadata%source_model_index, &
-             metadata%protocol_request_id, result, result_size, MPI_SUCCESS, ierr)
-        deallocate(result)
-     end subroutine publish_warm_result
 
      integer function find_warm_record(warm_records, request) result(record_index)
         type(AsyncInputWarmRecord), intent(in) :: warm_records(:)
@@ -983,16 +1047,17 @@ contains
         matches = record%key%matches_request(request)
      end function warm_record_matches
 
-     subroutine update_warm_record(warm_records, request, worker_rank, slot_index)
+     subroutine update_warm_record(warm_records, request, worker_rank, slot_index, generation)
         type(AsyncInputWarmRecord), allocatable, intent(inout) :: warm_records(:)
         type(CollectivePrefetchDataMessage), intent(in) :: request
-        integer, intent(in) :: worker_rank, slot_index
+        integer, intent(in) :: worker_rank, slot_index, generation
         type(AsyncInputWarmRecord), allocatable :: updated(:)
         integer :: i, n
 
         do i = 1, size(warm_records)
            if (warm_records(i)%worker_rank == worker_rank .and. &
                 warm_records(i)%slot_index == slot_index) then
+              warm_records(i)%generation = generation
               call warm_records(i)%key%set_from_request(request)
               return
            end if
@@ -1002,6 +1067,7 @@ contains
         if (n > 0) updated(1:n) = warm_records
         updated(n + 1)%worker_rank = worker_rank
         updated(n + 1)%slot_index = slot_index
+        updated(n + 1)%generation = generation
         call updated(n + 1)%key%set_from_request(request)
         call move_alloc(updated, warm_records)
      end subroutine update_warm_record
@@ -1015,7 +1081,13 @@ contains
        request_index = 0
         worker_rank = 0
         do i = 1, size(pending)
-           worker_rank = select_file_worker(pending(i)%file_name, size(workers))
+           ! The owning worker is the one recorded when the request was
+           ! enqueued (see enqueue_reader_request), not re-derived here. This
+           ! keeps assignment/dispatch in lock-step with any warm-directory
+           ! hint attached by serve_warm_requests, which is keyed on the same
+           ! stored worker_rank. While scheduling is still hash-only, this
+           ! must equal select_file_worker(pending(i)%file_name, size(workers)).
+           worker_rank = pending(i)%worker_rank
            if (workers(worker_rank)%busy) cycle
            request_index = i
            return
@@ -1153,7 +1225,8 @@ contains
 
         words = [metadata%protocol_request_id, int(metadata%command, INT64), &
              int(metadata%source_service_rank, INT64), int(metadata%source_node_rank, INT64), &
-             int(metadata%source_model_index, INT64), int(metadata%payload_words, INT64)]
+             int(metadata%source_model_index, INT64), int(metadata%payload_words, INT64), &
+             int(metadata%hint_cache_slot, INT64), int(metadata%hint_cache_generation, INT64)]
      end subroutine pack_request_metadata
 
      subroutine unpack_request_metadata(words, metadata)
@@ -1166,6 +1239,8 @@ contains
         metadata%source_node_rank = int(words(4))
         metadata%source_model_index = int(words(5))
         metadata%payload_words = int(words(6))
+        metadata%hint_cache_slot = int(words(7))
+        metadata%hint_cache_generation = int(words(8))
      end subroutine unpack_request_metadata
 
      subroutine pack_assignment(assignment, words)
@@ -1193,7 +1268,8 @@ contains
         words = [completion%protocol_request_id, int(completion%worker_reader_rank, INT64), &
              int(completion%source_service_rank, INT64), int(completion%source_node_rank, INT64), &
              int(completion%source_model_index, INT64), int(completion%result_words, INT64), &
-             int(completion%cache_slot, INT64), int(completion%status, INT64)]
+             int(completion%cache_slot, INT64), int(completion%cache_generation, INT64), &
+             int(completion%status, INT64)]
      end subroutine pack_completion
 
      subroutine unpack_completion(words, completion)
@@ -1207,7 +1283,8 @@ contains
         completion%source_model_index = int(words(5))
         completion%result_words = int(words(6))
         completion%cache_slot = int(words(7))
-        completion%status = int(words(8))
+        completion%cache_generation = int(words(8))
+        completion%status = int(words(9))
      end subroutine unpack_completion
 
      subroutine publish_shared_result(this, source_model_index, protocol_request_id, &
@@ -1348,20 +1425,22 @@ contains
         _RETURN(_SUCCESS)
      end subroutine consume_shared_result
 
-     integer function worker_segment_words(this) result(n_words)
-        class(AsyncInputServer), intent(in) :: this
+      integer function worker_segment_words(this) result(n_words)
+         class(AsyncInputServer), intent(in) :: this
 
-        n_words = this%num_cache_slots * this%shared_mailbox_words + &
-             this%topology%model_size * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
-     end function worker_segment_words
+         ! The shared window holds only worker-owned model mailboxes. Cache
+         ! payloads are private LocalMemReference objects (see
+         ! AsyncInputCacheSlot), never mirrored into the shared window, so no
+         ! space is reserved here for num_cache_slots.
+         n_words = this%topology%model_size * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
+      end function worker_segment_words
 
-     integer function mailbox_offset(this, source_model_index) result(offset)
-        class(AsyncInputServer), intent(in) :: this
-        integer, intent(in) :: source_model_index
+      integer function mailbox_offset(this, source_model_index) result(offset)
+         class(AsyncInputServer), intent(in) :: this
+         integer, intent(in) :: source_model_index
 
-        offset = this%num_cache_slots * this%shared_mailbox_words + &
-             source_model_index * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
-     end function mailbox_offset
+         offset = source_model_index * (ASYNC_INPUT_MAILBOX_HEADER_WORDS + this%shared_mailbox_words)
+      end function mailbox_offset
 
      subroutine store_mailbox_request_id(mailbox, request_id)
         integer, intent(inout) :: mailbox(:)
@@ -1450,7 +1529,10 @@ contains
        real(REAL32), pointer :: values_real32(:)
        real(REAL64), pointer :: values_real64(:)
        integer :: status
-       ! Update cache key metadata.
+       ! Update cache key metadata. Bump the generation before the slot
+       ! becomes invalid so any captain directory entry still pointing at the
+       ! prior contents is immediately stale.
+       this%cache_slots(slot_index)%generation = this%cache_slots(slot_index)%generation + 1
        call this%cache_slots(slot_index)%key%set_from_request(request)
        this%cache_slots(slot_index)%valid        = .false.
 
@@ -1655,7 +1737,6 @@ contains
           _VERIFY(status)
            this%shared_win = MPI_WIN_NULL
            this%shared_base_address = c_null_ptr
-           this%shared_cache_base_address = c_null_ptr
         end if
 
       if (this%topology%model_node_comm /= MPI_COMM_NULL) then

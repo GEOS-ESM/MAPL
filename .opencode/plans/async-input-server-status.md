@@ -270,6 +270,252 @@ Notes and remaining risks:
   Step 19 removes that remaining payload handling.
 - Next step: Step 19, control-only captain and worker-served warm hits.
 
+### Step 19: Control-Only Captain and Warm Hits (2026-09-23)
+
+- State: complete.
+- Removed all captain-side payload extraction and publication. Deleted
+  `publish_shared_cache_slot` (the worker-to-shared-cache mirror the captain
+  used to read) and `publish_warm_result` (the captain routine that read a
+  worker's shared cache and wrote a model mailbox directly). The captain no
+  longer calls `MPI_Win_shared_query` against worker cache memory anywhere.
+- Added a `generation` counter to `AsyncInputCacheSlot`, incremented every
+  time a worker slot is replaced by a new read, before the slot is marked
+  invalid. This makes slot replacement immediately detectable independent of
+  wall-clock timing.
+- Extended the internal request header
+  (`ASYNC_INPUT_REQUEST_HEADER_WORDS` 6 -> 8) with `hint_cache_slot` and
+  `hint_cache_generation`, and the completion record
+  (`ASYNC_INPUT_COMPLETION_WORDS` 8 -> 9) with `cache_generation`. The
+  captain's warm-key directory (`AsyncInputWarmRecord`) now also stores the
+  generation reported with each worker completion.
+- `serve_warm_requests` is now purely a captain-side directory lookup:
+  - A cache-only (prefetch) request matching a warm directory entry is
+    retired immediately without ever dispatching it to a worker, because the
+    data is already resident in its owning worker's cache. This preserves
+    the existing cache-only "returns after acceptance" semantics.
+  - A demand (current) request matching a warm directory entry is left in
+    the pending queue but annotated with a hint naming that worker's cached
+    slot and generation. The unmodified deterministic-by-filename dispatch
+    path (`select_file_worker`) still routes it to the exact same worker
+    that owns the file, so the hint always targets the correct worker.
+- `execute_reader_request` (worker-side) now takes the hint and independently
+  re-validates it against its own live slot state -- `valid`, `generation`,
+  and the full key match (`file_name`, `var_name`, `type_kind`,
+  `global_start`, `global_count`) -- before trusting it. A stale or
+  mismatched hint never produces a stale result: the worker simply falls
+  back to its ordinary linear cache scan (`find_cache_slot`) and, on an
+  actual miss, its ordinary NetCDF read path. The worker, not the captain,
+  is what serves the cached value and publishes it through its own mailbox,
+  exactly as for a fresh read.
+- Removed the now-unused `shared_cache_base_address` field and its
+  initialization/cleanup; the shared window now only ever holds
+  worker-private cache slots and worker-owned model mailboxes, with no
+  captain-visible mirrored cache region.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+
+Verify:
+
+- Clean `nag-stack` build of `MAPL.pfio`, `MAPL.pfio.tests`, and the full
+  `build-tests` target all passed.
+- Focused selection passed 7/7:
+  - `MAPL.pfio.tests`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- Manual verbose reruns of case02 and case03 (`cap2.log`-equivalent stdout)
+  showed:
+  - case02 (single worker, duplicate-request pattern):
+    `AsyncInputServer captain cache: warm_hits=1 prefetch_hits=0` and reader
+    `hits=1 misses=1`, confirming the demand-hint path is exercised and
+    still produces a single read.
+  - case03 (single worker, rolling irregular-timestep pattern):
+    `AsyncInputServer captain cache: warm_hits=1 prefetch_hits=3` and reader
+    `hits=1 misses=4`, confirming both the demand-hint path and the
+    immediate cache-only retirement path are exercised together.
+  - case05 (two workers, distinct file families):
+    `AsyncInputServer captain cache: warm_hits=0 prefetch_hits=2` with both
+    worker ranks reporting activity, confirming the control-only cache-only
+    path works correctly across multiple workers.
+  - In all three manual reruns, `extdata_files_read.yaml` matched
+    `extdata_files_read_expected.yaml` except for a trailing-newline-only
+    difference (consistent with the ctest comparison passing).
+- Logs:
+  - `build/step19-build-pfio.log`
+  - `build/step19-build-tests.log`
+  - `build/step19-pfio-tests.log`
+  - `build/step19-pfio-components.log`
+  - `build/step19-build-final.log`
+  - `build/step19-final-tests.log`
+
+Notes and remaining risks:
+
+- No dedicated automated test yet asserts "the worker, not the captain,
+  publishes the warm payload" at the protocol level; this is currently
+  verified only indirectly through the manual verbose reruns above and the
+  absence of any captain-side `MPI_Win_shared_query` call against worker
+  cache memory in the source. A future focused test could assert on hint
+  fields directly.
+- Cache-slot replacement invalidates stale directory entries purely through
+  the generation counter compared at the worker; the captain's directory
+  entry for an evicted slot is not proactively removed, only superseded on
+  the next completion for that same (worker, slot) pair. This is safe (the
+  worker re-validates before trusting any hint) but means the captain
+  directory can briefly hold a stale generation for a slot between eviction
+  and the next completion report for that slot.
+- A code review of this step (`.opencode/plans/async-input-server-step19-review.md`)
+  found a real correctness regression (stale cache-only requests could be
+  discarded using stale directory metadata) plus three other findings,
+  including exactly the missing-test risk noted above. All four findings
+  were fixed and verified in the "Step 19 Review Follow-Up" section below;
+  see that section for the final corrected behavior and the added
+  regression tests. This section is retained as originally written for
+  history.
+- Next step: Step 20, MultiGroup-style explicit per-worker idle/busy and
+  load-based scheduling.
+
+### Step 19 Review Follow-Up (Complete, 2026-09-25)
+
+- State: complete. Findings 1-4 from
+  `.opencode/plans/async-input-server-step19-review.md` are all fixed and
+  verified. Step 19 is now eligible to be considered complete (see the
+  updated Step 19 section below) and this diff is eligible to commit per the
+  review's recommendation (item 6).
+- Findings 1-3 (stale cache-only discard, wasted shared-window cache region,
+  hint not carrying explicit worker identity) were fixed in a prior session,
+  as already recorded above; unchanged this session.
+- Finding 4 (missing warm-cache regression tests) was implemented this
+  session. Added four new focused MPI pFUnit tests to
+  `pfio/tests/Test_AsyncInputServer.pf`, plus test-support infrastructure:
+  - `test_prefetch_then_demand_single_read_and_worker_publish` (`npes=[3]`,
+    1 model + 1 captain + 1 worker): submits a cache-only prefetch followed
+    by a demand read for the exact same global key through a real `.nc4`
+    fixture. Asserts exactly one physical read
+    (`server%get_cache_hits()==1`/`get_cache_misses()==1` on the worker),
+    that the demand hit was actually honored as a warm hint
+    (`get_captain_warm_hits()==1`, `get_captain_prefetch_hits()==0` on the
+    captain), and that the exact fixture payload reached the model rank
+    through `CaptureSocket` (proving worker-side, not captain-side,
+    publication). Covers review Finding-4 cases 1 and 2 together.
+  - `test_slot_replacement_then_evicted_key_request` (`npes=[3]`, same
+    topology): drives `get_num_cache_slots()+1` distinct cache-only
+    prefetches through the single worker so the first key's slot is
+    guaranteed evicted (round-robin replacement), then issues a demand read
+    for that evicted key. Asserts the worker's total physical-read count is
+    exactly `extent+1` (one miss per fill plus one more for the re-read; no
+    phantom hit off stale slot contents) and that the correct original
+    value is delivered. This is the direct regression test for review
+    Finding 1.
+  - `test_two_worker_warm_ownership` (`npes=[4]`, 1 model + 1 captain + 2
+    workers): uses two independent fixture files
+    (`two_worker_fileA.nc4`/`two_worker_fileB.nc4`) that the current
+    filename hash routes to worker 1 and worker 2 respectively. Each key is
+    demand-read twice (first miss, second warm-hit). Asserts
+    `get_captain_warm_hits()==2` and that each worker's own
+    `get_cache_hits()==1`/`get_cache_misses()==1` (queried on that worker's
+    own rank), proving warm hints are routed to the correct owning worker
+    per key rather than any idle worker.
+  - Test-support infrastructure added to
+    `pfio/tests/Test_AsyncInputServer.pf` (no `CMakeLists.txt` change
+    needed; the file was already registered):
+    - `CaptureSocket`/`CaptureHandle`: a minimal `AbstractSocket`/
+      `AbstractRequestHandle` test double that records the flat REAL32
+      payload delivered through `connection%put()` inside
+      `forward_request_to_reader`'s demand-read path, so a test can assert
+      on the exact bytes the model received without needing `MockSocket`'s
+      hard-coded 0d/2d shape assumptions.
+    - `create_real32_fixture`: writes a real one-dimension, one-variable
+      `.nc4` file via `NetCDF4_FileFormatter`/`FileMetadata` (same API
+      pattern as `pfio/tests/Test_ServerThread.pf`'s `setUp()`), and
+      `delete_fixture_file` to remove it afterward.
+    - `prepare_model_for_direct_service`: allocates
+      `server%serverthread_done_msgs(0)` on the model rank. This is
+      normally allocated by `AsyncInputServer%start()`
+      (`this%threads%size()` entries) before any `ServerThread` dispatch
+      runs; a test that calls `service_collective_prefetch`/
+      `service_next_collective_prefetch` directly on the model rank
+      (bypassing `start()` entirely, since the model rank never has any
+      `ServerThread` clients in this harness) must allocate this itself
+      first, because `finish_collective_service` unconditionally touches it
+      via the inherited `clean_up()`.
+    - `model_submit_prefetch`/`model_submit_demand`: build a one-message
+      `MessageVector` backlog exactly as `ServerThread%handle_Done_*` do in
+      production (`pfio/ServerThread.F90:1100-1170`) and drive it through
+      `service_next_collective_prefetch`/`service_collective_prefetch`
+      directly on the calling rank, returning a simple integer `rc`.
+  - Confirmed working pattern: the model rank in each new test calls
+    `service_collective_prefetch`/`service_next_collective_prefetch`
+    directly (never `server%start()`), while the captain/worker ranks for
+    the same `AsyncInputServer` instance run `call server%start(rc=...)`
+    concurrently, exactly as anticipated in prior-session research. The
+    model rank ends with the existing `server%shutdown(rc=...)` call, which
+    already sends `ASYNC_INPUT_TAG_TERMINATE` to the captain and lets the
+    captain/worker `start()` calls return normally.
+  - One implementation pitfall hit and fixed during this session: an early
+    draft of `test_slot_replacement_then_evicted_key_request` allocated the
+    `expected(:)` array twice (once when writing the fixture, again inside
+    the `case (2)` model branch), which NAG's runtime correctly rejected
+    with "Cannot allocate ALLOCATABLE EXPECTED - it is already currently
+    allocated". Fixed by allocating it exactly once, before the
+    `select case`, and reusing it in the model branch.
+  - A second false alarm during this session: running only
+    `test_slot_replacement_then_evicted_key_request` in isolation with
+    `mpiexec -n 3` appeared to hang under a 15-20s wall-clock check, but this
+    was because that test's own body only needs 3 ranks while a later test
+    in the same file's `-t <name>` re-run path still attempted to size-check
+    against the full suite; the real ctest invocation (`-n 8`, matching
+    `pfio/tests/CTestTestfile.cmake`) and a direct `mpiexec -n 8 ./MAPL.pfio.tests
+    --verbose` both completed the entire 92-test suite in under 3 seconds
+    with no hang. This was confirmed by temporary file-based debug logging
+    (written to `evict_debug.log` on the model rank) showing the model rank
+    finishes all of its prefetch/demand submissions and its `rc` checks
+    immediately; the debug logging was removed again before finalizing.
+- Verify (full Step 19 verification matrix, review Plan-for-Next-Session
+  item 5):
+  - `zsh -lic 'module load nag-stack && cmake --build build -j 8 --target MAPL.pfio.tests 2>&1 | tee build/step19-finding4-build-final.log'`
+    — built successfully.
+  - `zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step19-finding4-build-tests.log'`
+    — `build-tests` target reached 100%.
+  - `zsh -lic 'module load nag-stack && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure --timeout 90 2>&1 | tee build/step19-finding4-tests-final.log'`
+    — 1/1 CTest target passed (2.88s), 92/92 individual pFUnit cases passed,
+    including all three new warm-cache tests plus the pre-existing Step
+    16/18 topology tests.
+  - `zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL.mapl.server_utilities$" --output-on-failure --timeout 90 2>&1 | tee build/step19-final-server-utilities.log'`
+    — 1/1 passed.
+  - `zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure --timeout 180 2>&1 | tee build/step19-final-pfio-components.log'`
+    — 5/5 passed (case01-case05).
+  - Logs:
+    - `build/step19-finding4-build-final.log`
+    - `build/step19-finding4-build-tests.log`
+    - `build/step19-finding4-tests-final.log`
+    - `build/step19-final-server-utilities.log`
+    - `build/step19-final-pfio-components.log`
+- Notes and remaining risks:
+  - The review's suggested assertion ("assert the re-derived hash-based
+    worker equals the directory's worker while hash-only scheduling is
+    still in effect") from the Finding 3 fix was still not added; this
+    remains an open nice-to-have, not required for correctness, and is
+    unrelated to Finding 4.
+  - The new tests rely on the current deterministic `select_file_worker`
+    filename hash to route `two_worker_fileA.nc4`/`two_worker_fileB.nc4` to
+    two distinct workers. Step 20 (load-based scheduling) may change routing
+    and could require picking new filenames or asserting worker identity
+    differently; this is expected and acceptable since Step 20 explicitly
+    plans to replace hash-only dispatch.
+  - `test_two_worker_warm_ownership` and the other new tests do not
+    exercise a genuinely concurrent multi-model-rank submission path (only
+    one model rank submits requests sequentially in each new test); the
+    existing Step 18 five-rank test is still the only coverage for
+    multiple simultaneous model ranks, and that test does not exercise
+    Step 19 warm-cache behavior. A future test could combine both shapes if
+    needed.
+  - Next step: Step 20, MultiGroup-style explicit per-worker idle/busy and
+    load-based scheduling (unchanged from the original Step 19 status
+    entry's "next step").
+
+
+
 ### Key Design Decisions
 - `pfio` should not inspect `MPI_COMM_WORLD`.
 - `AsyncInputServer` takes:
