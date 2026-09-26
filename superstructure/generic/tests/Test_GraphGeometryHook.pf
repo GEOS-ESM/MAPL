@@ -1,0 +1,407 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e),
+! tasks 4.3/4.4: GraphBuilder's geometry hook
+! (run_geometry_hook/advertise_geometry/resolve_geometry_from_child/
+! push_geometry_to_child), covering REQ-GEO-002's three single-source
+! cases and the mismatch-fails-loudly path.
+!
+! Entirely gated behind mapl_GraphMode_mod%graph_native_enabled() -
+! every test here explicitly enables it (set_graph_native_enabled(.true.))
+! and restores it to .false. afterward, mirroring
+! mapl_ExtensionResolution_mod%set_materialize_extensions's own
+! test-only-setter precedent.
+!
+! Test-only OuterMetaComponent instances are built the same way
+! Test_GraphBuilder.pf does (bypassing SetServices/DSO machinery);
+! geometry is given directly via OuterMetaComponent%set_geom (the same
+! accessor initialize_geom_a.F90/propagate_geom_to_children.F90 already
+! use in production) rather than by driving the full GEOM_A/GEOM_B
+! lifecycle phases, since the hook under test only ever reads
+! this%get_geom()/this%has_geom() - it does not re-derive GeometrySpec's
+! own resolution.
+module Test_GraphGeometryHook
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod
+   use mapl_GraphMode_mod, only: set_graph_native_enabled
+   use mapl_GeometrySpec_mod, only: GeometrySpec, GEOMETRY_FROM_PARENT, GEOMETRY_FROM_CHILD
+   use mapl_GeomId_mod, only: GeomId, GeomIdManager, get_geom_id_manager
+   use mapl_GeomUtilities_mod, only: GeomSetId
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_GEOM, operator(==)
+   use esmf, only: ESMF_STATEINTENT_EXPORT
+   use esmf, only: ESMF_Geom, ESMF_GeomCreate
+   use esmf, only: ESMF_Grid, ESMF_GridCreateNoPeriDim
+   use esmf, only: ESMF_GridComp, ESMF_GridCompCreate
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate
+   use ESMF_TestMethod_mod
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! Same helper as Test_GraphBuilder.pf's own make_outer_meta.
+   subroutine make_outer_meta(name, outer_gc, outer_meta, rc)
+      character(*), intent(in) :: name
+      type(ESMF_GridComp), intent(out) :: outer_gc
+      type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: user_gc
+      type(GriddedComponentDriver) :: user_gc_driver
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(content='{}', _RC)
+      outer_gc = ESMF_GridCompCreate(name='['//trim(name)//']', _RC)
+      user_gc = ESMF_GridCompCreate(name=name, _RC)
+      user_gc_driver = GriddedComponentDriver(user_gc)
+
+      call attach_outer_meta(outer_gc, _RC)
+      outer_meta => get_outer_meta(outer_gc, _RC)
+#ifndef __GFORTRAN__
+      outer_meta = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+#else
+      block
+         type(OuterMetaComponent) :: tmp
+         tmp = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+         outer_meta = tmp
+      end block
+#endif
+      call outer_meta%init_meta(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_outer_meta
+
+   ! Same helper as Test_GeomProxyField.pf's own make_test_geom - a
+   ! freshly-created, untagged (no GeomId yet) real ESMF_Geom.
+   ! Unlike Test_GeomProxyField.pf's own make_test_geom, this one
+   ! immediately tags the geom with a fresh GeomId (mirroring how a real
+   ! geom sourced from mapl_GeomManager/MaplGeom%set_id already arrives
+   ! pre-tagged before any OuterMetaComponent%set_geom call ever sees
+   ! it). This matters here specifically because OuterMetaComponent%
+   ! set_geom's own fallback (mint a fresh id when none is present) has
+   ! no public way to write that freshly-minted id back onto the geom's
+   ! own Info - only propagate_geom_to_children.F90/initialize_geom_a.F90
+   ! can do that, via same-module private field access
+   ! (child_meta%geom_id = this%geom_id) this test module does not have.
+   ! Pre-tagging here is what lets two independent set_geom calls on the
+   ! same (or a copied handle to the same) geom agree on one GeomId, the
+   ! way production code's two-step field-then-set_geom sequence does.
+   function make_test_geom(rc) result(geom)
+      integer, optional, intent(out) :: rc
+      type(ESMF_Geom) :: geom
+
+      type(ESMF_Grid) :: grid
+      type(GeomIdManager), pointer :: manager
+      type(GeomId) :: new_id
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], _RC)
+      geom = ESMF_GeomCreate(grid=grid, _RC)
+
+      ! Bound to named variables, not chained (a type-bound call cannot
+      ! be invoked directly on another type-bound call's non-pointer
+      ! function result - see GraphBuilder.F90's own comment on this).
+      manager => get_geom_id_manager()
+      new_id = manager%get_next_geom_id()
+      call GeomSetId(geom, new_id%get_value(), _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_test_geom
+
+   ! REQ-GEO-002 "a component providing its own geometry": no import
+   ! resolution needed - the geometry item is available directly after
+   ! advertise_geometry, tagged with the GEOM variant.
+   @test(npes=[0])
+   subroutine test_own_geometry_needs_no_resolution(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentGraph), pointer :: graph
+      type(ESMF_Geom) :: geom
+      type(NodeId), pointer :: geom_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call set_graph_native_enabled(.true.)
+
+      call make_outer_meta('geom_own', gc, meta, _RC)
+      geom = make_test_geom(_RC)
+      call meta%set_geom(geom)
+
+      call gb%run_geometry_hook(meta)
+
+      graph => meta%get_component_graph()
+      geom_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      @assert_that(associated(geom_id), is(true()))
+
+      node => graph%get_node(geom_id)
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assert_that(payload%variant(rc=status) == MAPL_STATEITEM_GEOM, is(true()))
+
+      call set_graph_native_enabled(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_own_geometry_needs_no_resolution
+
+   ! REQ-GEO-002 "a component receiving geometry from an ancestor"
+   ! (GEOMETRY_FROM_PARENT, the default GeometrySpec kind): the parent
+   ! pushes a proxy + dependency edge into the child's own graph.
+   @test(npes=[0])
+   subroutine test_child_receives_geometry_from_parent(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta, child_meta
+      type(GriddedComponentDriver) :: child_driver
+      type(ESMF_GridComp) :: child_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentGraph), pointer :: parent_graph, child_graph
+      type(ESMF_Geom) :: geom
+      type(NodeId), pointer :: parent_own_id, child_own_id, parent_proxy_id
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: net_id
+      character(:), allocatable :: pkey
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call set_graph_native_enabled(.true.)
+
+      call make_outer_meta('geom_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('geom_child', child_spec, _RC)
+      child_driver = parent_meta%get_child('geom_child', _RC)
+      child_gc = child_driver%get_gridcomp()
+      child_meta => get_outer_meta(child_gc, _RC)
+
+      ! GeometrySpec's default kind is GEOMETRY_FROM_PARENT - no
+      ! override needed on the child's own ComponentSpec.
+      geom = make_test_geom(_RC)
+      call parent_meta%set_geom(geom)
+      ! Mirrors propagate_geom_to_children.F90's own effect by the time
+      ! GENERIC_INIT_ADVERTISE runs (GEOM_B completes, hierarchy-wide,
+      ! before ADVERTISE starts anywhere) - the child already has the
+      ! parent's own (now GeomId-tagged) geom by the time its own
+      ! advertise_geometry runs.
+      geom = parent_meta%get_geom(_RC)
+      call child_meta%set_geom(geom)
+
+      ! Bottom-up: child's own hook completes before the parent's.
+      call gb%run_geometry_hook(child_meta)
+      call gb%run_geometry_hook(parent_meta)
+
+      parent_graph => parent_meta%get_component_graph()
+      child_graph => child_meta%get_component_graph()
+
+      parent_own_id => parent_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      child_own_id => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      @assert_that(associated(parent_own_id), is(true()))
+      @assert_that(associated(child_own_id), is(true()))
+
+      pkey = parent_geometry_proxy_key()
+      parent_proxy_id => child_graph%get_resource_index(pkey)
+      @assert_that(associated(parent_proxy_id), is(true()))
+      ! The proxy lives in the CHILD's own graph, not the parent's.
+      @assert_that(child_graph%owns_node(parent_proxy_id), is(true()))
+
+      net_id = child_graph%get_default_network_id()
+      net => child_graph%get_network(net_id)
+      @assert_that(net%contains_dependency(parent_proxy_id, child_own_id), is(true()))
+
+      call set_graph_native_enabled(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_child_receives_geometry_from_parent
+
+   ! REQ-GEO-002 "a component receiving geometry from a child"
+   ! (GEOMETRY_FROM_CHILD): the parent pulls the child's own item into a
+   ! parent-local proxy, structurally identical to an ordinary
+   ! cross-boundary MatchConnection (get_or_make_local_node_id reused
+   ! unmodified).
+   @test(npes=[0])
+   subroutine test_parent_receives_geometry_from_child(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta, child_meta
+      type(GriddedComponentDriver) :: child_driver
+      type(ESMF_GridComp) :: child_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec
+      type(ComponentGraph), pointer :: parent_graph, child_graph
+      type(ESMF_Geom) :: geom
+      type(NodeId), pointer :: parent_own_id, child_own_id, child_proxy_id
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: net_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call set_graph_native_enabled(.true.)
+
+      call make_outer_meta('geom_parent2', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('geom_provider', child_spec, _RC)
+      child_driver = parent_meta%get_child('geom_provider', _RC)
+      child_gc = child_driver%get_gridcomp()
+      child_meta => get_outer_meta(child_gc, _RC)
+
+      parent_spec => parent_meta%get_component_spec()
+      parent_spec%geometry_spec = GeometrySpec('geom_provider')
+      @assert_that(parent_spec%geometry_spec%kind == GEOMETRY_FROM_CHILD, is(true()))
+
+      geom = make_test_geom(_RC)
+      call child_meta%set_geom(geom)
+      ! Mirrors initialize_geom_a.F90's own FROM_CHILD branch effect:
+      ! `this%geom_id = provider_meta%geom_id; call this%set_geom(provider_meta%geom)`.
+      geom = child_meta%get_geom(_RC)
+      call parent_meta%set_geom(geom)
+
+      call gb%run_geometry_hook(child_meta)
+      call gb%run_geometry_hook(parent_meta)
+
+      parent_graph => parent_meta%get_component_graph()
+      child_graph => child_meta%get_component_graph()
+
+      parent_own_id => parent_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      child_own_id => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      @assert_that(associated(parent_own_id), is(true()))
+      @assert_that(associated(child_own_id), is(true()))
+
+      child_proxy_id => parent_graph%get_resource_index(proxy_key('geom_provider', ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      @assert_that(associated(child_proxy_id), is(true()))
+      @assert_that(parent_graph%owns_node(child_proxy_id), is(true()))
+
+      net_id = parent_graph%get_default_network_id()
+      net => parent_graph%get_network(net_id)
+      @assert_that(net%contains_dependency(child_proxy_id, parent_own_id), is(true()))
+
+      call set_graph_native_enabled(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_parent_receives_geometry_from_child
+
+   ! A genuine geometry mismatch (both sides independently resolved to
+   ! different geoms - the "should be unreachable given GeometrySpec's
+   ! own exclusive resolution" defensive case) is reported, not silently
+   ! wired and not a crash: no dependency edge is added.
+   @test(npes=[0])
+   subroutine test_mismatched_geometry_from_child_is_not_wired(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta, child_meta
+      type(GriddedComponentDriver) :: child_driver
+      type(ESMF_GridComp) :: child_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(ESMF_Geom) :: parent_geom, child_geom
+      type(NodeId), pointer :: parent_own_id, child_proxy_id
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: net_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call set_graph_native_enabled(.true.)
+
+      call make_outer_meta('geom_parent3', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('geom_provider2', child_spec, _RC)
+      child_driver = parent_meta%get_child('geom_provider2', _RC)
+      child_gc = child_driver%get_gridcomp()
+      child_meta => get_outer_meta(child_gc, _RC)
+
+      parent_spec => parent_meta%get_component_spec()
+      parent_spec%geometry_spec = GeometrySpec('geom_provider2')
+
+      ! Deliberately independent (untagged) geoms - each gets its own,
+      ! distinct, freshly-assigned GeomId via set_geom, unlike the
+      ! matching tests above which reuse the same tagged geom object.
+      parent_geom = make_test_geom(_RC)
+      child_geom = make_test_geom(_RC)
+      call parent_meta%set_geom(parent_geom)
+      call child_meta%set_geom(child_geom)
+
+      call gb%run_geometry_hook(child_meta)
+      call gb%run_geometry_hook(parent_meta)
+
+      ! graphbuilder_run_geometry_hook swallows the failure into a
+      ! logged warning (report_if_failed) rather than propagating rc -
+      ! a GraphBuilder defect must never break real component
+      ! initialization (design.md Risks) - but the underlying
+      ! _ASSERT/_VERIFY chain still throws pFUnit-visible exceptions
+      ! that must be explicitly consumed here, matching this test
+      ! target's own established idiom (e.g. Test_MemoryCheckpoint.pf).
+      @assertExceptionRaised('GeomCharacteristic: no horizontal-regrid Transform is implemented yet')
+      @assertExceptionRaised('GraphBuilder: geometry from child geom_provider2 does not match the receiving component' // &
+           ' own resolved geometry (unsupported: GEOM) - should be unreachable given GeometrySpec own exclusive resolution')
+      ! graphbuilder_resolve_geometry's own `_RC` on the call into
+      ! resolve_geometry_from_child adds one more generic layer, same
+      ! precedent as Test_MemoryCheckpoint.pf/
+      ! Test_OuterMetaComponentDriverResolver.pf's own multi-layer
+      ! exception chains.
+      @assertExceptionRaised('status=1')
+
+      parent_graph => parent_meta%get_component_graph()
+      parent_own_id => parent_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      @assert_that(associated(parent_own_id), is(true()))
+
+      child_proxy_id => parent_graph%get_resource_index(proxy_key('geom_provider2', ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      @assert_that(associated(child_proxy_id), is(true()))
+
+      net_id = parent_graph%get_default_network_id()
+      net => parent_graph%get_network(net_id)
+      @assert_that(net%contains_dependency(child_proxy_id, parent_own_id), is(false()))
+
+      call set_graph_native_enabled(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_mismatched_geometry_from_child_is_not_wired
+
+   ! The toggle itself: run_geometry_hook is a documented no-op when
+   ! graph-native mode is not enabled - the default for every real
+   ! production run today.
+   @test(npes=[0])
+   subroutine test_hook_is_noop_when_graph_native_disabled(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentGraph), pointer :: graph
+      type(ESMF_Geom) :: geom
+      type(NodeId), pointer :: geom_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call set_graph_native_enabled(.false.)
+
+      call make_outer_meta('geom_disabled', gc, meta, _RC)
+      geom = make_test_geom(_RC)
+      call meta%set_geom(geom)
+
+      call gb%run_geometry_hook(meta)
+
+      graph => meta%get_component_graph()
+      geom_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      @assert_that(associated(geom_id), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_hook_is_noop_when_graph_native_disabled
+
+end module Test_GraphGeometryHook

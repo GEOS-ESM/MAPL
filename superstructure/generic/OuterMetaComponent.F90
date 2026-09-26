@@ -83,6 +83,7 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_hconfig
       procedure :: has_geom
       procedure :: get_geom
+      procedure :: get_geom_id
       procedure :: get_registry
       procedure :: get_component_graph
       procedure :: get_logger
@@ -280,6 +281,18 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), intent(inout) :: this
          integer, intent(out), optional :: rc
       end function get_geom
+
+      ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
+      ! GraphBuilder.F90's geometry hook needs this component's own
+      ! resolved GeomId directly (mirroring how UnitsCharacteristic/
+      ! VerticalGridCharacteristic's own callers already read
+      ! var_spec%units/vertical_grid%get_id() - this is the geometry
+      ! analog, sourced from OuterMetaComponent since geometry, unlike
+      ! units/vertical_grid, has no per-item VariableSpec of its own).
+      module function get_geom_id(this) result(geom_id)
+         type(GeomId) :: geom_id
+         class(OuterMetaComponent), intent(in) :: this
+      end function get_geom_id
 
       module recursive subroutine initialize_set_clock(this, outer_clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
