@@ -1579,6 +1579,8 @@ contains
       character(:), allocatable :: child_name, child_path
       type(OuterMetaComponent), pointer :: child_meta
       type(QualifiedExportEntry) :: entry
+      type(QualifiedExportEntry), allocatable :: grown_entries(:)
+      integer :: n
 
       comp_spec => owner%get_component_spec()
 
@@ -1595,7 +1597,21 @@ contains
                entry%qualified_name = path_prefix // '/' // var_spec%short_name
             end if
             entry%var_spec = var_spec
-            entries = [entries, entry]
+            ! Classic ifort (2021.13, -O0) segfaults compiling the more
+            ! natural self-referencing array-constructor growth
+            ! `entries = [entries, entry]` here, where entries is an
+            ! allocatable array of a derived type (QualifiedExportEntry)
+            ! with a nested allocatable-component type (VariableSpec) -
+            ! bisected against this file's own ICE (gfortran, NAG, and
+            ! ifx all accept the array-constructor form without issue).
+            ! Grow via an explicit fresh temporary and move_alloc
+            ! instead - functionally identical, but never assigns the
+            ! array constructor result back onto one of its own operands.
+            n = size(entries)
+            allocate(grown_entries(n + 1))
+            grown_entries(1:n) = entries
+            grown_entries(n + 1) = entry
+            call move_alloc(grown_entries, entries)
          end do
       end associate
 
@@ -1808,8 +1824,10 @@ contains
       type(CallbackInterface) :: expected_iface
       type(StringVector) :: reject_reasons
       integer :: i
+      integer :: n
       logical :: conforms
       character(:), allocatable :: reason
+      type(QualifiedExportEntry), allocatable :: grown_matches(:)
 
       allocate(matches(0))
 
@@ -1827,7 +1845,14 @@ contains
             cycle
          end if
 
-         matches = [matches, namespace(i)]
+         ! Same classic-ifort self-referencing-array-constructor ICE as
+         ! collect_qualified_exports above - grow via a fresh temporary
+         ! and move_alloc instead of `matches = [matches, namespace(i)]`.
+         n = size(matches)
+         allocate(grown_matches(n + 1))
+         grown_matches(1:n) = matches
+         grown_matches(n + 1) = namespace(i)
+         call move_alloc(grown_matches, matches)
       end do
 
       if (present(rejected)) rejected = reject_reasons
