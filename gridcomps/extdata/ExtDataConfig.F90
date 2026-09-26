@@ -11,11 +11,12 @@ module mapl_ExtDataConfig_mod
    use mapl_ExtDataDerived_mod
    use mapl_ExtDataDerivedMap_mod
    use mapl_ExtDataConstants_mod
-   use mapl_ExtDataSample_mod
-   use mapl_ExtDataSampleMap_mod
-   use mapl_PrimaryExport_mod
-   use mapl_AbstractDataSetFileSelector_mod
-   use mapl_NonClimDataSetFileSelector_mod
+    use mapl_ExtDataSample_mod
+    use mapl_ExtDataSampleMap_mod
+    use mapl_PrimaryExport_mod
+    use mapl_AbstractDataSetFileSelector_mod
+    use mapl_NonClimDataSetFileSelector_mod
+    use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
 
    implicit none
    private
@@ -27,14 +28,15 @@ module mapl_ExtDataConfig_mod
 
    character(len=1), parameter :: rule_sep = "+"
 
-   type :: ExtDataConfig
-      integer :: debug
-      type(ExtDataRuleMap) :: rule_map
-      type(ExtDataDerivedMap) :: derived_map
-      type(ExtDataCollectionMap) :: file_stream_map
-      type(ExtDataSampleMap) :: sample_map
-      logical :: log_files_read = .false.
-      character(:), allocatable :: files_read_log_path
+    type :: ExtDataConfig
+       integer :: debug
+       type(ExtDataRuleMap) :: rule_map
+       type(ExtDataDerivedMap) :: derived_map
+       type(ExtDataCollectionMap) :: file_stream_map
+       type(ExtDataSampleMap) :: sample_map
+       logical :: log_files_read = .false.
+       character(:), allocatable :: files_read_log_path
+       character(:), allocatable :: input_server_name
    contains
       procedure :: add_new_rule
       procedure :: get_item_type
@@ -76,7 +78,11 @@ contains
       logical :: is_right_type
       character(len=:), allocatable :: sub_configs(:)
 
-      _UNUSED_DUMMY(unusable)
+       _UNUSED_DUMMY(unusable)
+
+       if (.not. allocated(ext_config%input_server_name)) then
+          ext_config%input_server_name = MAPL_DEFAULT_INPUT_SERVER
+       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="subconfigs")) then
          is_right_type = ESMF_HConfigIsSequence(input_config,keyString='subconfigs',_RC)
@@ -164,10 +170,14 @@ contains
           ext_config%debug =  ESMF_HConfigAsI4(input_config,keyString="debug",_RC)
        end if
 
-       if (ESMF_HConfigIsDefined(input_config,keyString="log_files_read")) then
-          ext_config%files_read_log_path = ESMF_HConfigAsString(input_config,keyString="log_files_read",_RC)
-          ext_config%log_files_read = .true.
-       end if
+        if (ESMF_HConfigIsDefined(input_config,keyString="log_files_read")) then
+           ext_config%files_read_log_path = ESMF_HConfigAsString(input_config,keyString="log_files_read",_RC)
+           ext_config%log_files_read = .true.
+        end if
+
+        if (ESMF_HConfigIsDefined(input_config,keyString="input_server_name")) then
+           ext_config%input_server_name = ESMF_HConfigAsString(input_config,keyString="input_server_name",_RC)
+        end if
 
        _RETURN(_SUCCESS)
    end subroutine new_ExtDataConfig_from_yaml
@@ -479,7 +489,8 @@ contains
          _ASSERT(associated(sample), 'invalid sample key for '//trim(base_name))
       end if
       call this%get_time_range(full_name, base_name, time_range, _RC)
-      export = PrimaryExport(base_name, export_rule, collection, sample, time_range, time_step, _RC)
+      export = PrimaryExport(base_name, export_rule, collection, sample, time_range, time_step, &
+           input_server_name=this%input_server_name, _RC)
 
       _RETURN(_SUCCESS)
    end function make_PrimaryExport

@@ -1,0 +1,657 @@
+module test_AsyncInputServer
+   use pfunit
+   use mpi
+   use, intrinsic :: iso_fortran_env, only: INT64, REAL32
+   use, intrinsic :: iso_c_binding, only: c_f_pointer
+   use pFIO_AsyncInputServerMod, only: AsyncInputServer
+   use pFIO_MessageVectorMod, only: MessageVector
+   use pFIO_CollectivePrefetchDataMessageMod, only: CollectivePrefetchDataMessage
+   use pFIO_NextCollectivePrefetchMessageMod, only: NextCollectivePrefetchMessage
+   use pFIO_LocalMemReferenceMod, only: LocalMemReference
+   use pFIO_ConstantsMod, only: pFIO_REAL32
+   use pFIO_AbstractSocketMod, only: AbstractSocket
+   use pFIO_AbstractMessageMod, only: AbstractMessage
+   use pFIO_AbstractDataReferenceMod, only: AbstractDataReference
+   use pFIO_AbstractRequestHandleMod, only: AbstractRequestHandle
+   use pFIO_NetCDF4_FileFormatterMod, only: NetCDF4_FileFormatter
+   use pFIO_FileMetadataMod, only: FileMetadata
+   use pFIO_VariableMod, only: Variable
+   implicit none
+
+   ! -----------------------------------------------------------------------
+   ! CaptureSocket: a minimal AbstractSocket test double that records the
+   ! payload delivered through connection%put() during
+   ! forward_request_to_reader's demand-read path. Unlike MockSocket (which
+   ! hard-codes shapes for the pre-existing ServerThread/Client tests), this
+   ! captures an arbitrary flat REAL32 payload so a Step 19 warm-cache test
+   ! can assert the exact values that reached the model rank came from the
+   ! worker's own mailbox, proving the worker (not the captain) served the
+   ! data correctly end-to-end.
+   ! -----------------------------------------------------------------------
+   type, extends(AbstractSocket) :: CaptureSocket
+      real(kind=REAL32), allocatable :: captured(:)
+   contains
+      procedure :: receive => capture_receive
+      procedure :: send => capture_send
+      procedure :: put => capture_put
+      procedure :: get => capture_get
+      procedure :: to_string => capture_to_string
+   end type CaptureSocket
+
+   type, extends(AbstractRequestHandle) :: CaptureHandle
+   contains
+      procedure :: wait => capture_wait
+   end type CaptureHandle
+
+contains
+
+   subroutine capture_receive(this, message, rc)
+      class(CaptureSocket), intent(inout) :: this
+      class(AbstractMessage), allocatable, intent(out) :: message
+      integer, optional, intent(out) :: rc
+
+      if (present(rc)) rc = 0
+      if (.false.) print*, allocated(this%captured)
+      if (.false. .and. allocated(message)) print*, 'unused'
+   end subroutine capture_receive
+
+   subroutine capture_send(this, message, rc)
+      class(CaptureSocket), target, intent(inout) :: this
+      class(AbstractMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+
+      if (present(rc)) rc = 0
+      if (.false.) print*, allocated(this%captured)
+      if (.false.) print*, message%get_length()
+   end subroutine capture_send
+
+   function capture_put(this, request_id, local_reference, rc) result(handle)
+      class(AbstractRequestHandle), allocatable :: handle
+      class(CaptureSocket), intent(inout) :: this
+      integer, intent(in) :: request_id
+      class(AbstractDataReference), intent(in) :: local_reference
+      integer, optional, intent(out) :: rc
+
+      real(kind=REAL32), pointer :: vals(:)
+      integer(INT64) :: n
+
+      n = product(int(local_reference%shape, INT64))
+      call c_f_pointer(local_reference%base_address, vals, [n])
+      this%captured = vals
+
+      allocate(handle, source=CaptureHandle())
+      if (present(rc)) rc = 0
+      if (.false.) print*, request_id
+   end function capture_put
+
+   function capture_get(this, request_id, local_reference, rc) result(handle)
+      class(AbstractRequestHandle), allocatable :: handle
+      class(CaptureSocket), target, intent(inout) :: this
+      integer, intent(in) :: request_id
+      class(AbstractDataReference), intent(in) :: local_reference
+      integer, optional, intent(out) :: rc
+
+      allocate(handle, source=CaptureHandle())
+      if (present(rc)) rc = 0
+      if (.false.) print*, allocated(this%captured), request_id, local_reference%type_kind
+   end function capture_get
+
+   function capture_to_string(this) result(string)
+      class(CaptureSocket), intent(in) :: this
+      character(len=:), allocatable :: string
+
+      string = 'CaptureSocket'
+      if (.false.) print*, allocated(this%captured)
+   end function capture_to_string
+
+   subroutine capture_wait(this, rc)
+      class(CaptureHandle), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      if (present(rc)) rc = 0
+      if (.false.) print*, allocated(this%data_reference)
+   end subroutine capture_wait
+
+   subroutine create_real32_fixture(file_name, var_name, dim_name, values)
+      character(len=*), intent(in) :: file_name, var_name, dim_name
+      real(kind=REAL32), intent(in) :: values(:)
+
+      type(FileMetadata) :: metadata
+      type(NetCDF4_FileFormatter) :: formatter
+
+      call metadata%add_dimension(dim_name, size(values))
+      call metadata%add_variable(var_name, Variable(type=pFIO_REAL32, dimensions=dim_name))
+
+      call formatter%create(file_name)
+      call formatter%write(metadata)
+      call formatter%put_var(var_name, values)
+      call formatter%close()
+   end subroutine create_real32_fixture
+
+   subroutine delete_fixture_file(file_name)
+      character(len=*), intent(in) :: file_name
+      integer :: unit
+
+      open(newunit=unit, file=file_name, status='old')
+      close(unit, status='delete')
+   end subroutine delete_fixture_file
+
+   ! service_collective_prefetch/service_next_collective_prefetch end by
+   ! calling finish_collective_service, which (once the just-submitted
+   ! single-message backlog is drained) calls the inherited clean_up(),
+   ! which unconditionally writes to serverthread_done_msgs(:). A model rank
+   ! that calls these entry points directly -- bypassing the normal
+   ! ServerThread dispatch loop and start(), which is what normally
+   ! allocates serverthread_done_msgs(this%threads%size()) -- must allocate
+   ! it itself first, exactly as start() would (this%threads is empty here,
+   ! so size 0, matching client_size==0).
+   subroutine prepare_model_for_direct_service(server)
+      class(AsyncInputServer), intent(inout) :: server
+
+      if (.not. allocated(server%serverthread_done_msgs)) then
+         allocate(server%serverthread_done_msgs(0))
+      end if
+   end subroutine prepare_model_for_direct_service
+
+   ! -----------------------------------------------------------------------
+   ! model_submit_prefetch / model_submit_demand: build a one-message
+   ! MessageVector backlog exactly as ServerThread's
+   ! handle_Done_next_collective_prefetch / handle_Done_collective_prefetch
+   ! do in production (pfio/ServerThread.F90:1100-1170), and drive it through
+   ! service_next_collective_prefetch / service_collective_prefetch directly
+   ! on the calling (model) rank. This lets a model-rank test thread submit
+   ! Step 19 warm-cache requests without running the full ServerThread
+   ! dispatch loop, while the captain/worker ranks for the same
+   ! AsyncInputServer instance service them concurrently through their own
+   ! blocking server%start() loop, exactly as the Step16-18 topology tests
+   ! already exercise for is_reader_role() ranks.
+   ! -----------------------------------------------------------------------
+   subroutine model_submit_prefetch(server, connection, file_name, var_name, &
+        global_start, global_count, request_id, rc)
+      class(AsyncInputServer), intent(inout) :: server
+      class(AbstractSocket), intent(inout), target :: connection
+      character(len=*), intent(in) :: file_name, var_name
+      integer, intent(in) :: global_start(:), global_count(:)
+      integer, intent(in) :: request_id
+      integer, intent(out) :: rc
+
+      type(MessageVector) :: backlog
+      type(LocalMemReference) :: data_ref
+      logical :: handled
+      integer :: status
+
+      data_ref = LocalMemReference(pFIO_REAL32, global_count)
+      backlog = MessageVector()
+      call backlog%push_back(NextCollectivePrefetchMessage(request_id, 1, file_name, var_name, &
+           data_ref, start=global_start, global_start=global_start, global_count=global_count))
+      call data_ref%deallocate(status)
+      handled = .false.
+      call server%service_next_collective_prefetch(backlog, connection, handled, rc=status)
+      rc = status
+      if (rc == 0 .and. .not. handled) rc = 1
+   end subroutine model_submit_prefetch
+
+   subroutine model_submit_demand(server, connection, file_name, var_name, &
+        global_start, global_count, request_id, rc)
+      class(AsyncInputServer), intent(inout) :: server
+      class(AbstractSocket), intent(inout), target :: connection
+      character(len=*), intent(in) :: file_name, var_name
+      integer, intent(in) :: global_start(:), global_count(:)
+      integer, intent(in) :: request_id
+      integer, intent(out) :: rc
+
+      type(MessageVector) :: backlog
+      type(LocalMemReference) :: data_ref
+      logical :: handled
+      integer :: status
+
+      data_ref = LocalMemReference(pFIO_REAL32, global_count)
+      backlog = MessageVector()
+      call backlog%push_back(CollectivePrefetchDataMessage(request_id, 1, file_name, var_name, &
+           data_ref, start=global_start, global_start=global_start, global_count=global_count, &
+           cache_only=.false.))
+      call data_ref%deallocate(status)
+      handled = .false.
+      call server%service_collective_prefetch(backlog, connection, handled, rc=status)
+      rc = status
+      if (rc == 0 .and. .not. handled) rc = 1
+   end subroutine model_submit_demand
+
+   ! -----------------------------------------------------------------------
+   ! test_prefetch_then_demand_single_read_and_worker_publish
+   !
+   ! 3-rank topology: 1 model, 1 captain, 1 worker (worker_rank=1). Covers
+   ! Step 19 review Finding 4 test cases 1 and 2:
+   !   (1) prefetch-then-demand single-read proof: a cache-only prefetch
+   !       followed by a demand read for the exact same global key causes
+   !       exactly one physical read (one cache miss) and one cache hit on
+   !       the worker, and the demand hit is confirmed captain-side as an
+   !       honored warm hint (get_captain_warm_hits()==1), not merely
+   !       attempted.
+   !   (2) worker-side (not captain-side) warm publication: the payload
+   !       delivered to the model through connection%put() (captured here
+   !       by CaptureSocket, bypassing the socket layer entirely) matches
+   !       the real fixture data, proving the value reached the model
+   !       through the worker's own mailbox/publish path.
+   ! -----------------------------------------------------------------------
+   @test(npes=[3])
+   subroutine test_prefetch_then_demand_single_read_and_worker_publish(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(len=*), parameter :: file_name = 'warm_single_read.nc4'
+      character(len=*), parameter :: var_name = 'v'
+      integer, parameter :: extent = 8
+      real(kind=REAL32), parameter :: expected(extent) = &
+           [10., 20., 30., 40., 50., 60., 70., 80.]
+
+      type(AsyncInputServer) :: server
+      type(CaptureSocket), target :: connection
+      integer :: parent_comm, model_comm
+      integer :: parent_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr
+      integer :: prefetch_rc, demand_rc
+      logical :: cache_ok, captain_ok, model_ok
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+
+      ! Roles: rank 2 = model, rank 0 = captain, rank 1 = worker.
+      model_color = MPI_UNDEFINED
+      if (parent_rank == 2) model_color = 0
+      call MPI_Comm_split(parent_comm, model_color, 0, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(parent_comm, 'test19-single-read', model_comm=model_comm, rc=init_rc)
+      @assertEqual(0, init_rc)
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+
+      if (parent_rank == 2) then
+         call create_real32_fixture(file_name, var_name, 'i', expected)
+      end if
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      cache_ok = .true.
+      captain_ok = .true.
+      model_ok = .true.
+
+      select case (parent_rank)
+      case (0) ! captain
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+         captain_ok = server%get_captain_warm_hits() == 1
+         captain_ok = captain_ok .and. server%get_captain_prefetch_hits() == 0
+      case (1) ! worker
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+         cache_ok = server%get_cache_hits() == 1
+         cache_ok = cache_ok .and. server%get_cache_misses() == 1
+      case (2) ! model
+         call prepare_model_for_direct_service(server)
+
+         call model_submit_prefetch(server, connection, file_name, var_name, &
+              [1], [extent], 101, prefetch_rc)
+         call model_submit_demand(server, connection, file_name, var_name, &
+              [1], [extent], 102, demand_rc)
+
+         model_ok = (prefetch_rc == 0) .and. (demand_rc == 0)
+         model_ok = model_ok .and. allocated(connection%captured)
+         if (model_ok) then
+            model_ok = size(connection%captured) == extent
+         end if
+         if (model_ok) then
+            model_ok = all(connection%captured == expected)
+         end if
+
+         call server%shutdown(rc=shutdown_rc)
+         @assertEqual(0, shutdown_rc)
+      end select
+
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      if (parent_rank == 2) call delete_fixture_file(file_name)
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      @assertTrue(cache_ok)
+      @assertTrue(captain_ok)
+      @assertTrue(model_ok)
+   end subroutine test_prefetch_then_demand_single_read_and_worker_publish
+
+   ! -----------------------------------------------------------------------
+   ! test_slot_replacement_then_evicted_key_request
+   !
+   ! 3-rank topology (1 model, 1 captain, 1 worker), same as above. Covers
+   ! Step 19 review Finding 4 test case 3: submit get_num_cache_slots()+1
+   ! distinct cache-only prefetches through the single worker so the first
+   ! request's cache slot is guaranteed evicted (round-robin replacement),
+   ! then submit a demand request for that now-evicted key and assert it
+   ! causes a fresh miss (not a stale hint/hit) and delivers the correct
+   ! (re-read) data. This is the direct regression test for review Finding 1
+   ! (a stale captain directory entry must never satisfy a request with
+   ! stale data).
+   ! -----------------------------------------------------------------------
+   @test(npes=[3])
+   subroutine test_slot_replacement_then_evicted_key_request(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(len=*), parameter :: file_name = 'evict_test.nc4'
+      character(len=*), parameter :: var_name = 'v'
+
+      type(AsyncInputServer) :: server
+      type(CaptureSocket), target :: connection
+      integer :: parent_comm, model_comm
+      integer :: parent_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr
+      integer :: n_slots, extent, i, rc_i
+      real(kind=REAL32), allocatable :: expected(:)
+      logical :: cache_ok, model_ok
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+
+      model_color = MPI_UNDEFINED
+      if (parent_rank == 2) model_color = 0
+      call MPI_Comm_split(parent_comm, model_color, 0, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(parent_comm, 'test19-evict', model_comm=model_comm, rc=init_rc)
+      @assertEqual(0, init_rc)
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+
+      n_slots = server%get_num_cache_slots()
+      extent = n_slots + 1
+
+      if (parent_rank == 2) then
+         allocate(expected(extent))
+         do i = 1, extent
+            expected(i) = real(100 * i, kind=REAL32)
+         end do
+         call create_real32_fixture(file_name, var_name, 'i', expected)
+      end if
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      cache_ok = .true.
+      model_ok = .true.
+
+      select case (parent_rank)
+      case (0) ! captain
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+      case (1) ! worker
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+      case (2) ! model
+         call prepare_model_for_direct_service(server)
+
+         ! Fill every slot, then evict slot 1's original key (global key i=1)
+         ! by submitting one more distinct key. Round-robin slot selection
+         ! guarantees slot 1 is reused on the (n_slots+1)-th distinct key.
+         do i = 1, extent
+            call model_submit_prefetch(server, connection, file_name, var_name, &
+                 [i], [1], 200 + i, rc_i)
+            model_ok = model_ok .and. (rc_i == 0)
+         end do
+
+         ! Now request the evicted key (i=1) as a demand read. It must be a
+         ! fresh physical miss (the captain's directory entry for slot 1 no
+         ! longer names key i=1, and even if it did, the worker would
+         ! re-validate the generation/key before trusting any hint), and it
+         ! must deliver the correct original value for key i=1.
+         call model_submit_demand(server, connection, file_name, var_name, &
+              [1], [1], 300, rc_i)
+         model_ok = model_ok .and. (rc_i == 0)
+
+         model_ok = model_ok .and. allocated(connection%captured)
+         if (model_ok) model_ok = size(connection%captured) == 1
+         if (model_ok) model_ok = connection%captured(1) == expected(1)
+
+         call server%shutdown(rc=shutdown_rc)
+         @assertEqual(0, shutdown_rc)
+      end select
+
+      if (parent_rank == 1) then
+         ! Worker-side proof: exactly extent physical misses from the initial
+         ! fill, plus exactly one more miss for the evicted key's re-read --
+         ! never a phantom hit on stale slot contents.
+         cache_ok = server%get_cache_misses() == extent + 1
+      end if
+
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      if (parent_rank == 2) call delete_fixture_file(file_name)
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      @assertTrue(cache_ok)
+      @assertTrue(model_ok)
+   end subroutine test_slot_replacement_then_evicted_key_request
+
+   ! -----------------------------------------------------------------------
+   ! test_two_worker_warm_ownership
+   !
+   ! 4-rank topology: 1 model, 1 captain, 2 workers. Covers Step 19 review
+   ! Finding 4 test case 4: two independent files, deterministically routed
+   ! (by the current filename hash) to two different workers. Each key is
+   ! demand-read twice (first miss, second warm-hit). Asserts the captain
+   ! recorded exactly one honored warm hit per key
+   ! (get_captain_warm_hits()==2) and, independently, that EACH worker's own
+   ! get_cache_hits()/get_cache_misses() show exactly one hit and one miss --
+   ! proving warm ownership/hints are routed to the correct owning worker
+   ! per key, not just any idle worker.
+   ! -----------------------------------------------------------------------
+   @test(npes=[4])
+   subroutine test_two_worker_warm_ownership(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(len=*), parameter :: file_a = 'two_worker_fileA.nc4'
+      character(len=*), parameter :: file_b = 'two_worker_fileB.nc4'
+      character(len=*), parameter :: var_name = 'v'
+      real(kind=REAL32), parameter :: value_a(1) = [11.0]
+      real(kind=REAL32), parameter :: value_b(1) = [22.0]
+
+      type(AsyncInputServer) :: server
+      type(CaptureSocket), target :: connection
+      integer :: parent_comm, model_comm
+      integer :: parent_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr
+      integer :: rc_a1, rc_a2, rc_b1, rc_b2
+      logical :: worker_ok, model_ok, captain_ok
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+
+      ! Roles: rank 0 = model, rank 1 = captain, ranks 2,3 = workers.
+      model_color = MPI_UNDEFINED
+      if (parent_rank == 0) model_color = 0
+      call MPI_Comm_split(parent_comm, model_color, 0, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(parent_comm, 'test19-two-worker', model_comm=model_comm, rc=init_rc)
+      @assertEqual(0, init_rc)
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+
+      if (parent_rank == 0) then
+         call create_real32_fixture(file_a, var_name, 'i', value_a)
+         call create_real32_fixture(file_b, var_name, 'i', value_b)
+      end if
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      worker_ok = .true.
+      captain_ok = .true.
+      model_ok = .true.
+
+      select case (parent_rank)
+      case (1) ! captain
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+         captain_ok = server%get_captain_warm_hits() == 2
+      case (2, 3) ! workers
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+         worker_ok = server%get_cache_hits() == 1 .and. server%get_cache_misses() == 1
+      case (0) ! model
+         call prepare_model_for_direct_service(server)
+
+         call model_submit_demand(server, connection, file_a, var_name, [1], [1], 401, rc_a1)
+         model_ok = model_ok .and. (rc_a1 == 0) .and. allocated(connection%captured)
+         if (model_ok) model_ok = connection%captured(1) == value_a(1)
+
+         call model_submit_demand(server, connection, file_b, var_name, [1], [1], 402, rc_b1)
+         model_ok = model_ok .and. (rc_b1 == 0) .and. allocated(connection%captured)
+         if (model_ok) model_ok = connection%captured(1) == value_b(1)
+
+         call model_submit_demand(server, connection, file_a, var_name, [1], [1], 403, rc_a2)
+         model_ok = model_ok .and. (rc_a2 == 0) .and. allocated(connection%captured)
+         if (model_ok) model_ok = connection%captured(1) == value_a(1)
+
+         call model_submit_demand(server, connection, file_b, var_name, [1], [1], 404, rc_b2)
+         model_ok = model_ok .and. (rc_b2 == 0) .and. allocated(connection%captured)
+         if (model_ok) model_ok = connection%captured(1) == value_b(1)
+
+         call server%shutdown(rc=shutdown_rc)
+         @assertEqual(0, shutdown_rc)
+      end select
+
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      if (parent_rank == 0) then
+         call delete_fixture_file(file_a)
+         call delete_fixture_file(file_b)
+      end if
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      @assertTrue(worker_ok)
+      @assertTrue(captain_ok)
+      @assertTrue(model_ok)
+   end subroutine test_two_worker_warm_ownership
+
+   @test(npes=[4])
+   subroutine test_temporary_reordered_model_comm(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer, parameter :: service_key(0:3) = [2, 0, 3, 1]
+      integer, parameter :: expected_service_rank(0:3) = [2, 0, 3, 1]
+
+      type(AsyncInputServer) :: server
+      integer :: parent_comm, service_comm, model_comm
+      integer :: parent_rank, service_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr
+      logical :: topology_ok, role_before_start_ok, role_after_start_ok
+      integer(INT64) :: request_ids(2), all_request_ids(8)
+      integer :: i, j
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+
+      call MPI_Comm_split(parent_comm, 0, service_key(parent_rank), service_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      call MPI_Comm_rank(service_comm, service_rank, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      model_color = MPI_UNDEFINED
+      if (parent_rank == 0) model_color = 0
+      call MPI_Comm_split(service_comm, model_color, 0, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(service_comm, 'step16-topology', model_comm=model_comm, rc=init_rc)
+
+      if (model_comm /= MPI_COMM_NULL) then
+         call MPI_Comm_free(model_comm, ierr)
+         @assertEqual(MPI_SUCCESS, ierr)
+      end if
+
+      topology_ok = service_rank == expected_service_rank(parent_rank)
+      topology_ok = topology_ok .and. server%get_captain_service_rank() == 0
+      select case (service_rank)
+      case (0)
+         topology_ok = topology_ok .and. server%is_reader_role()
+         topology_ok = topology_ok .and. server%is_captain_role()
+         topology_ok = topology_ok .and. .not. server%is_worker_role()
+      case (1, 3)
+         topology_ok = topology_ok .and. server%is_reader_role()
+         topology_ok = topology_ok .and. .not. server%is_captain_role()
+         topology_ok = topology_ok .and. server%is_worker_role()
+      case (2)
+         topology_ok = topology_ok .and. server%is_model_role()
+         topology_ok = topology_ok .and. .not. server%is_reader_role()
+      case default
+         topology_ok = .false.
+      end select
+      role_before_start_ok = server%is_reader_role() .eqv. (service_rank /= 2)
+
+      request_ids = [server%next_protocol_request_id(), server%next_protocol_request_id()]
+      call MPI_Allgather(request_ids, 2, MPI_INTEGER8, all_request_ids, 2, MPI_INTEGER8, service_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      do i = 1, size(all_request_ids)
+         do j = i + 1, size(all_request_ids)
+            topology_ok = topology_ok .and. all_request_ids(i) /= all_request_ids(j)
+         end do
+      end do
+
+      call server%start(rc=start_rc)
+      role_after_start_ok = server%is_reader_role() .eqv. (service_rank /= 2)
+      call server%shutdown(rc=shutdown_rc)
+
+      call MPI_Barrier(service_comm, ierr)
+      call MPI_Comm_free(service_comm, ierr)
+
+      @assertTrue(topology_ok)
+      @assertTrue(role_before_start_ok)
+      @assertTrue(role_after_start_ok)
+      @assertEqual(0, init_rc)
+      @assertEqual(0, start_rc)
+      @assertEqual(0, shutdown_rc)
+      @assertEqual(MPI_SUCCESS, ierr)
+   end subroutine test_temporary_reordered_model_comm
+
+   @test(npes=[5])
+   subroutine test_two_model_worker_mailbox_layout(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer, parameter :: service_key(0:4) = [2, 4, 0, 3, 1]
+
+      type(AsyncInputServer) :: server
+      integer :: parent_comm, service_comm, model_comm
+      integer :: parent_rank, service_rank, model_color, model_key
+      integer :: init_rc, start_rc, ierr
+      logical :: roles_ok
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+      call MPI_Comm_split(parent_comm, 0, service_key(parent_rank), service_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      call MPI_Comm_rank(service_comm, service_rank, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      model_color = MPI_UNDEFINED
+      model_key = 0
+      if (parent_rank < 2) then
+         model_color = 0
+         model_key = 1 - parent_rank
+      end if
+      call MPI_Comm_split(service_comm, model_color, model_key, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(service_comm, 'step18-layout', model_comm=model_comm, rc=init_rc)
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+
+      roles_ok = server%get_captain_service_rank() == 0
+      roles_ok = roles_ok .and. (server%is_model_role() .eqv. (service_rank == 2 .or. service_rank == 4))
+      roles_ok = roles_ok .and. (server%is_captain_role() .eqv. (service_rank == 0))
+      roles_ok = roles_ok .and. (server%is_worker_role() .eqv. (service_rank == 1 .or. service_rank == 3))
+
+      call server%start(rc=start_rc)
+      call MPI_Barrier(service_comm, ierr)
+      call MPI_Comm_free(service_comm, ierr)
+
+      @assertTrue(roles_ok)
+      @assertEqual(0, init_rc)
+      @assertEqual(0, start_rc)
+      @assertEqual(MPI_SUCCESS, ierr)
+   end subroutine test_two_model_worker_mailbox_layout
+
+end module test_AsyncInputServer

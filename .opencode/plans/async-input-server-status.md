@@ -1,0 +1,1943 @@
+## Async Input Server Status
+
+### Goal
+Build an ExtData input server that can eventually use extra node-local reader PEs while keeping `model_comm` as the front/model communicator.
+
+### Active Goal (2026-09-22)
+
+Restructure `AsyncInputServer` as a MultiGroup-style node-local input service:
+
+- one captain and at least one worker on every model-containing node;
+- models submit request metadata to the captain;
+- the captain identifies the worker that owns or will produce the data;
+- the model obtains its payload directly from worker-owned shared memory;
+- the captain remains control-only and never copies payload bytes;
+- `model_comm` is caller-owned and used only during initialization, not stored
+  in `AsyncInputServer`.
+
+The active implementation plan is Steps 16-22 in
+`.opencode/plans/async-input-server-plan.md`. Earlier steps and entries below
+are retained as implementation history.
+
+### Required Work Discipline (2026-09-22)
+
+- Update this status document immediately after each completed plan step.
+- Each update must record files changed, decisions or deviations, exact build
+  and test commands, results, log paths, remaining risks, and the next step.
+- Load `nag-stack` in the same shell invocation as every build or test command.
+- Use `build/` as the NAG build directory and do not mix compilers in it.
+- Write configure, build, and test logs into `build/` using `tee`.
+- Build tests explicitly with the `build-tests` target before running them.
+- Run focused tests during each step and the full `ESSENTIAL` label after the
+  final implementation step.
+
+### Planning Status (2026-09-22)
+
+- State: complete.
+- Saved the active MultiGroup-style redesign as Steps 16-22 in the plan.
+- Inspected the current `AsyncInputServer`, `MultiGroupServer`, framework
+  initialization, communicator lifecycle, and PFIO component tests.
+- Confirmed the current implementation already has a node-local captain,
+  multiple workers, filename-based routing, worker caches, and shared-memory
+  delivery, but still retains `model_comm`, lets the captain copy warm payloads,
+  and allocates result mailboxes on model ranks.
+- Confirmed the remote `PfioServerGridComp` path cannot support the current
+  shared-memory design because its server communicator excludes model ranks.
+- No source implementation was changed and no build or test was required for
+  this planning-only step.
+- Next step: Step 16, initialization contract and immutable role/rank state.
+
+### Step 16: Initialization Contract and Roles (2026-09-22)
+
+- State: complete.
+- Removed the persistent `model_comm` component from `AsyncInputServer`.
+- The constructor still accepts `model_comm` for source compatibility, but
+  passes it directly to topology initialization and does not retain, duplicate,
+  or free it.
+- Added immutable runtime role state for model, reader, captain, worker, and
+  model-node-root behavior. Runtime dispatch, shared-window allocation,
+  shutdown, and `is_reader_role()` now use these stored roles.
+- Added an explicit `captain_service_rank` topology value and use it for model
+  request forwarding and shutdown instead of repeatedly indexing the reader
+  map.
+- Renamed request source fields and arguments to `source_service_rank` or
+  `model_service_rank` where the values belong to the service communicator.
+- Added read-only role/topology queries used by the focused test:
+  `is_model_role()`, `is_captain_role()`, `is_worker_role()`, and
+  `get_captain_service_rank()`.
+- Rejected the remote `PfioServerGridComp` construction path explicitly.
+  `AsyncInputServer` currently requires `local: true` because its service
+  communicator and MPI shared window must contain both model and reader ranks.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+- `mapl/PfioServerGridComp.F90`
+- `pfio/tests/Test_AsyncInputServer.pf`
+- `pfio/tests/CMakeLists.txt`
+
+Focused test:
+
+- Added `test_temporary_reordered_model_comm` to `MAPL.pfio.tests` with four
+  ranks: one model, one captain, and two workers.
+- The service communicator is reordered so parent rank 0/model rank 0 becomes
+  service rank 2; reader service rank 0 is captain and reader service ranks 1
+  and 3 are workers. This prevents accidental reliance on model and service
+  rank numbers being equal.
+- The test frees the caller-owned model communicator immediately after server
+  construction, checks all roles and the captain service rank, runs the real
+  captain/worker shutdown protocol, and checks that role state remains valid
+  after runtime cleanup.
+
+Build and test commands:
+
+```bash
+zsh -lic 'module load nag-stack && cmake -B build -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee build/step16-cmake-config.log && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step16-build-tests.log'
+zsh -lic 'module load nag-stack && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure 2>&1 | tee build/step16-pfio-test.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure 2>&1 | tee build/step16-pfio-components.log'
+```
+
+Results:
+
+- NAG `build-tests`: passed; target reached 100%.
+- `MAPL.pfio.tests`: 1/1 CTest target passed, including the new four-rank
+  topology/lifetime test.
+- PFIO component cases 01-05: 5/5 passed.
+- Configure log: `build/step16-cmake-config.log`.
+- Build log: `build/step16-build-tests.log`.
+- Focused unit/MPI log: `build/step16-pfio-test.log`.
+- Component regression log: `build/step16-pfio-components.log`.
+
+Notes and remaining risks:
+
+- The non-login tool shell did not define `module`; build and test commands
+  therefore use `zsh -lic` so `nag-stack` is loaded in the same shell as each
+  operation.
+- Step 16 does not yet move result mailboxes to worker-owned memory or remove
+  captain-side warm-payload copying; those remain Steps 18 and 19.
+- The full `ESSENTIAL` label is reserved for completion of the redesign, as
+  specified in the plan.
+- Next step: Step 17, explicit request IDs and control-protocol metadata.
+
+### Step 17: Explicit Control Protocol (2026-09-22)
+
+- State: complete.
+- Added a separate 64-bit `protocol_request_id` for internal async control
+  traffic. It is generated from the service rank and a per-rank sequence, so
+  it remains distinct from the client/socket `request_id` serialized in the
+  collective-prefetch payload.
+- Added fixed request, assignment, and completion records. Their fields carry
+  the protocol request ID and explicitly named service, node, model-node, and
+  reader rank values.
+- Replaced fragmented model-to-captain sends with one fixed request header and
+  one serialized request payload.
+- Replaced fragmented captain-to-worker sends with one fixed worker header and
+  one serialized request payload.
+- Replaced the worker's three completion sends with one identified completion
+  record. The captain validates its request ID, source ranks, worker rank, and
+  status against the busy-worker state before updating warm-cache metadata.
+- Captain assignments now include request ID, worker service rank, worker
+  reader rank, and status. Demand and cache-only requests both wait for this
+  acceptance/assignment before returning from the forwarding operation.
+- The captain sends each assignment immediately when accepting the request.
+  This preserves cache-only overlap and avoids blocking the captain when a
+  worker is busy, while the identified completion still validates the actual
+  worker execution.
+- Added dedicated termination tags so shutdown is no longer encoded as a
+  command on the normal request or worker-command channel.
+- The existing serialized `CollectivePrefetchDataMessage` remains the source
+  of file name, variable name, type, local/global bounds, client request ID,
+  and `cache_only`; the new header validates command/cache-only consistency.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+- `pfio/tests/Test_AsyncInputServer.pf`
+
+Focused test extension:
+
+- Extended the reordered four-rank Step 16 test to generate two internal
+  protocol IDs on every service rank and all-gather them.
+- The test verifies all eight IDs are unique even though every server starts
+  with the same local sequence values.
+- Existing PFIO component cases exercise the full request header, assignment,
+  worker header, completion, cache-only acceptance, and shutdown tag paths.
+
+Build and test commands:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target MAPL.pfio.tests 2>&1 | tee build/step17-build-pfio-final.log && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure 2>&1 | tee build/step17-pfio-test-final.log && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure 2>&1 | tee build/step17-pfio-components-final.log'
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step17-build-tests.log'
+```
+
+Results:
+
+- NAG `MAPL.pfio.tests` target: built successfully.
+- `MAPL.pfio.tests`: 1/1 CTest target passed, including the unique protocol-ID
+  checks and the existing reordered topology/lifecycle test.
+- PFIO component cases 01-05: 5/5 passed through the new control protocol.
+- NAG `build-tests`: passed; target reached 100%.
+- Logs:
+  - `build/step17-build-pfio-final.log`
+  - `build/step17-pfio-test-final.log`
+  - `build/step17-pfio-components-final.log`
+  - `build/step17-build-tests.log`
+
+Notes and remaining risks:
+
+- Assignment receives are blocking and rely on the current synchronous
+  per-`ServerThread` forwarding path. The IDs detect mismatches; a future
+  genuinely concurrent model-side submission path may need an assignment
+  inbox to retain out-of-order assignments.
+- Shared result mailboxes still have no request ID or generation field. Step 18
+  moves the mailbox to worker-owned memory and adds that correlation.
+- The captain still copies warm payloads in Step 17. Step 19 removes that data
+  path and makes the captain control-only.
+- Next step: Step 18, worker-owned shared-memory result mailboxes.
+
+### Step 18: Worker-Owned Shared-Memory Results (2026-09-22)
+
+- State: complete.
+- Reversed shared-memory ownership: model ranks and the captain now allocate
+  zero-byte window segments, while every worker allocates its cache slots plus
+  one result mailbox for every node-local model rank.
+- Defined a worker segment as a cache region followed by fixed-stride model
+  mailboxes. Models query the assigned worker's segment by translating its
+  service rank to a node rank; mailbox selection uses the explicit
+  `source_model_index` from Step 17.
+- Expanded mailbox metadata to include state, full 64-bit protocol request ID,
+  payload size, and MPI status. Request IDs are stored losslessly across
+  default-integer words with `transfer`.
+- Added explicit `EMPTY`, `FILLING`, `READY`, `OVERFLOW`, and `ERROR` states.
+  Producers publish metadata and payload before the terminal state becomes
+  visible; consumers release the mailbox to `EMPTY` after consumption or a
+  detected error.
+- Models verify the mailbox request ID against the assignment request ID before
+  accepting payload data. They also validate state, status, and exact payload
+  size.
+- Workers now publish normal results directly into their own segment. No
+  result-payload MPI message is sent through the captain.
+- Preserved the captain warm-cache writer temporarily, as required by the plan,
+  but changed its destination to the owning worker's mailbox region. Step 19
+  will replace this with a worker command so the captain becomes control-only.
+- Removed hard-coded four-byte displacement arithmetic in favor of
+  `storage_size(0) / 8` and added segment-size/displacement validation.
+- Cleanup now clears both shared base pointers.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+- `pfio/tests/Test_AsyncInputServer.pf`
+
+Focused test extension:
+
+- Added a five-rank reordered topology test with two model ranks, one captain,
+  and two workers.
+- The test constructs the worker-owned layout with two independent model
+  mailbox slots per worker, frees the caller-owned `model_comm`, validates the
+  non-prefix service-role mapping, and runs the real multi-model shutdown
+  lifecycle.
+- Existing component cases exercise normal worker publication, worker-segment
+  lookup by the model, request-ID validation, warm-cache publication into a
+  worker segment, and mailbox release.
+
+Build and test commands:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step18-build-tests.log && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure 2>&1 | tee build/step18-pfio-test-final2.log && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure 2>&1 | tee build/step18-pfio-components-final.log'
+```
+
+Results:
+
+- NAG `build-tests`: passed; target reached 100%.
+- `MAPL.pfio.tests`: 1/1 CTest target passed, including the four-rank and new
+  five-rank topology/lifecycle tests.
+- PFIO component cases 01-05: 5/5 passed with worker-owned result mailboxes.
+- Logs:
+  - `build/step18-build-tests.log`
+  - `build/step18-pfio-test-final2.log`
+  - `build/step18-pfio-components-final.log`
+
+Notes and remaining risks:
+
+- The focused lifecycle tests validate the two-model/two-worker allocation and
+  synchronization collectively. Typed payload correctness remains covered by
+  the existing component data comparisons rather than direct mailbox helper
+  unit tests, because the mailbox implementation is private.
+- Overflow and explicit worker error states are implemented, but a dedicated
+  negative test cannot use MAPL assertions without terminating that MPI test.
+- The captain still reads worker cache memory and writes warm result mailboxes.
+  Step 19 removes that remaining payload handling.
+- Next step: Step 19, control-only captain and worker-served warm hits.
+
+### Step 19: Control-Only Captain and Warm Hits (2026-09-23)
+
+- State: complete.
+- Removed all captain-side payload extraction and publication. Deleted
+  `publish_shared_cache_slot` (the worker-to-shared-cache mirror the captain
+  used to read) and `publish_warm_result` (the captain routine that read a
+  worker's shared cache and wrote a model mailbox directly). The captain no
+  longer calls `MPI_Win_shared_query` against worker cache memory anywhere.
+- Added a `generation` counter to `AsyncInputCacheSlot`, incremented every
+  time a worker slot is replaced by a new read, before the slot is marked
+  invalid. This makes slot replacement immediately detectable independent of
+  wall-clock timing.
+- Extended the internal request header
+  (`ASYNC_INPUT_REQUEST_HEADER_WORDS` 6 -> 8) with `hint_cache_slot` and
+  `hint_cache_generation`, and the completion record
+  (`ASYNC_INPUT_COMPLETION_WORDS` 8 -> 9) with `cache_generation`. The
+  captain's warm-key directory (`AsyncInputWarmRecord`) now also stores the
+  generation reported with each worker completion.
+- `serve_warm_requests` is now purely a captain-side directory lookup:
+  - A cache-only (prefetch) request matching a warm directory entry is
+    retired immediately without ever dispatching it to a worker, because the
+    data is already resident in its owning worker's cache. This preserves
+    the existing cache-only "returns after acceptance" semantics.
+  - A demand (current) request matching a warm directory entry is left in
+    the pending queue but annotated with a hint naming that worker's cached
+    slot and generation. The unmodified deterministic-by-filename dispatch
+    path (`select_file_worker`) still routes it to the exact same worker
+    that owns the file, so the hint always targets the correct worker.
+- `execute_reader_request` (worker-side) now takes the hint and independently
+  re-validates it against its own live slot state -- `valid`, `generation`,
+  and the full key match (`file_name`, `var_name`, `type_kind`,
+  `global_start`, `global_count`) -- before trusting it. A stale or
+  mismatched hint never produces a stale result: the worker simply falls
+  back to its ordinary linear cache scan (`find_cache_slot`) and, on an
+  actual miss, its ordinary NetCDF read path. The worker, not the captain,
+  is what serves the cached value and publishes it through its own mailbox,
+  exactly as for a fresh read.
+- Removed the now-unused `shared_cache_base_address` field and its
+  initialization/cleanup; the shared window now only ever holds
+  worker-private cache slots and worker-owned model mailboxes, with no
+  captain-visible mirrored cache region.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+
+Verify:
+
+- Clean `nag-stack` build of `MAPL.pfio`, `MAPL.pfio.tests`, and the full
+  `build-tests` target all passed.
+- Focused selection passed 7/7:
+  - `MAPL.pfio.tests`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- Manual verbose reruns of case02 and case03 (`cap2.log`-equivalent stdout)
+  showed:
+  - case02 (single worker, duplicate-request pattern):
+    `AsyncInputServer captain cache: warm_hits=1 prefetch_hits=0` and reader
+    `hits=1 misses=1`, confirming the demand-hint path is exercised and
+    still produces a single read.
+  - case03 (single worker, rolling irregular-timestep pattern):
+    `AsyncInputServer captain cache: warm_hits=1 prefetch_hits=3` and reader
+    `hits=1 misses=4`, confirming both the demand-hint path and the
+    immediate cache-only retirement path are exercised together.
+  - case05 (two workers, distinct file families):
+    `AsyncInputServer captain cache: warm_hits=0 prefetch_hits=2` with both
+    worker ranks reporting activity, confirming the control-only cache-only
+    path works correctly across multiple workers.
+  - In all three manual reruns, `extdata_files_read.yaml` matched
+    `extdata_files_read_expected.yaml` except for a trailing-newline-only
+    difference (consistent with the ctest comparison passing).
+- Logs:
+  - `build/step19-build-pfio.log`
+  - `build/step19-build-tests.log`
+  - `build/step19-pfio-tests.log`
+  - `build/step19-pfio-components.log`
+  - `build/step19-build-final.log`
+  - `build/step19-final-tests.log`
+
+Notes and remaining risks:
+
+- No dedicated automated test yet asserts "the worker, not the captain,
+  publishes the warm payload" at the protocol level; this is currently
+  verified only indirectly through the manual verbose reruns above and the
+  absence of any captain-side `MPI_Win_shared_query` call against worker
+  cache memory in the source. A future focused test could assert on hint
+  fields directly.
+- Cache-slot replacement invalidates stale directory entries purely through
+  the generation counter compared at the worker; the captain's directory
+  entry for an evicted slot is not proactively removed, only superseded on
+  the next completion for that same (worker, slot) pair. This is safe (the
+  worker re-validates before trusting any hint) but means the captain
+  directory can briefly hold a stale generation for a slot between eviction
+  and the next completion report for that slot.
+- A code review of this step (`.opencode/plans/async-input-server-step19-review.md`)
+  found a real correctness regression (stale cache-only requests could be
+  discarded using stale directory metadata) plus three other findings,
+  including exactly the missing-test risk noted above. All four findings
+  were fixed and verified in the "Step 19 Review Follow-Up" section below;
+  see that section for the final corrected behavior and the added
+  regression tests. This section is retained as originally written for
+  history.
+- Next step: Step 20, MultiGroup-style explicit per-worker idle/busy and
+  load-based scheduling.
+
+### Step 19 Review Follow-Up (Complete, 2026-09-25)
+
+- State: complete. Findings 1-4 from
+  `.opencode/plans/async-input-server-step19-review.md` are all fixed and
+  verified. Step 19 is now eligible to be considered complete (see the
+  updated Step 19 section below) and this diff is eligible to commit per the
+  review's recommendation (item 6).
+- Findings 1-3 (stale cache-only discard, wasted shared-window cache region,
+  hint not carrying explicit worker identity) were fixed in a prior session,
+  as already recorded above; unchanged this session.
+- Finding 4 (missing warm-cache regression tests) was implemented this
+  session. Added four new focused MPI pFUnit tests to
+  `pfio/tests/Test_AsyncInputServer.pf`, plus test-support infrastructure:
+  - `test_prefetch_then_demand_single_read_and_worker_publish` (`npes=[3]`,
+    1 model + 1 captain + 1 worker): submits a cache-only prefetch followed
+    by a demand read for the exact same global key through a real `.nc4`
+    fixture. Asserts exactly one physical read
+    (`server%get_cache_hits()==1`/`get_cache_misses()==1` on the worker),
+    that the demand hit was actually honored as a warm hint
+    (`get_captain_warm_hits()==1`, `get_captain_prefetch_hits()==0` on the
+    captain), and that the exact fixture payload reached the model rank
+    through `CaptureSocket` (proving worker-side, not captain-side,
+    publication). Covers review Finding-4 cases 1 and 2 together.
+  - `test_slot_replacement_then_evicted_key_request` (`npes=[3]`, same
+    topology): drives `get_num_cache_slots()+1` distinct cache-only
+    prefetches through the single worker so the first key's slot is
+    guaranteed evicted (round-robin replacement), then issues a demand read
+    for that evicted key. Asserts the worker's total physical-read count is
+    exactly `extent+1` (one miss per fill plus one more for the re-read; no
+    phantom hit off stale slot contents) and that the correct original
+    value is delivered. This is the direct regression test for review
+    Finding 1.
+  - `test_two_worker_warm_ownership` (`npes=[4]`, 1 model + 1 captain + 2
+    workers): uses two independent fixture files
+    (`two_worker_fileA.nc4`/`two_worker_fileB.nc4`) that the current
+    filename hash routes to worker 1 and worker 2 respectively. Each key is
+    demand-read twice (first miss, second warm-hit). Asserts
+    `get_captain_warm_hits()==2` and that each worker's own
+    `get_cache_hits()==1`/`get_cache_misses()==1` (queried on that worker's
+    own rank), proving warm hints are routed to the correct owning worker
+    per key rather than any idle worker.
+  - Test-support infrastructure added to
+    `pfio/tests/Test_AsyncInputServer.pf` (no `CMakeLists.txt` change
+    needed; the file was already registered):
+    - `CaptureSocket`/`CaptureHandle`: a minimal `AbstractSocket`/
+      `AbstractRequestHandle` test double that records the flat REAL32
+      payload delivered through `connection%put()` inside
+      `forward_request_to_reader`'s demand-read path, so a test can assert
+      on the exact bytes the model received without needing `MockSocket`'s
+      hard-coded 0d/2d shape assumptions.
+    - `create_real32_fixture`: writes a real one-dimension, one-variable
+      `.nc4` file via `NetCDF4_FileFormatter`/`FileMetadata` (same API
+      pattern as `pfio/tests/Test_ServerThread.pf`'s `setUp()`), and
+      `delete_fixture_file` to remove it afterward.
+    - `prepare_model_for_direct_service`: allocates
+      `server%serverthread_done_msgs(0)` on the model rank. This is
+      normally allocated by `AsyncInputServer%start()`
+      (`this%threads%size()` entries) before any `ServerThread` dispatch
+      runs; a test that calls `service_collective_prefetch`/
+      `service_next_collective_prefetch` directly on the model rank
+      (bypassing `start()` entirely, since the model rank never has any
+      `ServerThread` clients in this harness) must allocate this itself
+      first, because `finish_collective_service` unconditionally touches it
+      via the inherited `clean_up()`.
+    - `model_submit_prefetch`/`model_submit_demand`: build a one-message
+      `MessageVector` backlog exactly as `ServerThread%handle_Done_*` do in
+      production (`pfio/ServerThread.F90:1100-1170`) and drive it through
+      `service_next_collective_prefetch`/`service_collective_prefetch`
+      directly on the calling rank, returning a simple integer `rc`.
+  - Confirmed working pattern: the model rank in each new test calls
+    `service_collective_prefetch`/`service_next_collective_prefetch`
+    directly (never `server%start()`), while the captain/worker ranks for
+    the same `AsyncInputServer` instance run `call server%start(rc=...)`
+    concurrently, exactly as anticipated in prior-session research. The
+    model rank ends with the existing `server%shutdown(rc=...)` call, which
+    already sends `ASYNC_INPUT_TAG_TERMINATE` to the captain and lets the
+    captain/worker `start()` calls return normally.
+  - One implementation pitfall hit and fixed during this session: an early
+    draft of `test_slot_replacement_then_evicted_key_request` allocated the
+    `expected(:)` array twice (once when writing the fixture, again inside
+    the `case (2)` model branch), which NAG's runtime correctly rejected
+    with "Cannot allocate ALLOCATABLE EXPECTED - it is already currently
+    allocated". Fixed by allocating it exactly once, before the
+    `select case`, and reusing it in the model branch.
+  - A second false alarm during this session: running only
+    `test_slot_replacement_then_evicted_key_request` in isolation with
+    `mpiexec -n 3` appeared to hang under a 15-20s wall-clock check, but this
+    was because that test's own body only needs 3 ranks while a later test
+    in the same file's `-t <name>` re-run path still attempted to size-check
+    against the full suite; the real ctest invocation (`-n 8`, matching
+    `pfio/tests/CTestTestfile.cmake`) and a direct `mpiexec -n 8 ./MAPL.pfio.tests
+    --verbose` both completed the entire 92-test suite in under 3 seconds
+    with no hang. This was confirmed by temporary file-based debug logging
+    (written to `evict_debug.log` on the model rank) showing the model rank
+    finishes all of its prefetch/demand submissions and its `rc` checks
+    immediately; the debug logging was removed again before finalizing.
+- Verify (full Step 19 verification matrix, review Plan-for-Next-Session
+  item 5):
+  - `zsh -lic 'module load nag-stack && cmake --build build -j 8 --target MAPL.pfio.tests 2>&1 | tee build/step19-finding4-build-final.log'`
+    — built successfully.
+  - `zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step19-finding4-build-tests.log'`
+    — `build-tests` target reached 100%.
+  - `zsh -lic 'module load nag-stack && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure --timeout 90 2>&1 | tee build/step19-finding4-tests-final.log'`
+    — 1/1 CTest target passed (2.88s), 92/92 individual pFUnit cases passed,
+    including all three new warm-cache tests plus the pre-existing Step
+    16/18 topology tests.
+  - `zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL.mapl.server_utilities$" --output-on-failure --timeout 90 2>&1 | tee build/step19-final-server-utilities.log'`
+    — 1/1 passed.
+  - `zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure --timeout 180 2>&1 | tee build/step19-final-pfio-components.log'`
+    — 5/5 passed (case01-case05).
+  - Logs:
+    - `build/step19-finding4-build-final.log`
+    - `build/step19-finding4-build-tests.log`
+    - `build/step19-finding4-tests-final.log`
+    - `build/step19-final-server-utilities.log`
+    - `build/step19-final-pfio-components.log`
+- Notes and remaining risks:
+  - The review's suggested assertion ("assert the re-derived hash-based
+    worker equals the directory's worker while hash-only scheduling is
+    still in effect") from the Finding 3 fix was still not added; this
+    remains an open nice-to-have, not required for correctness, and is
+    unrelated to Finding 4.
+  - The new tests rely on the current deterministic `select_file_worker`
+    filename hash to route `two_worker_fileA.nc4`/`two_worker_fileB.nc4` to
+    two distinct workers. Step 20 (load-based scheduling) may change routing
+    and could require picking new filenames or asserting worker identity
+    differently; this is expected and acceptable since Step 20 explicitly
+    plans to replace hash-only dispatch.
+  - `test_two_worker_warm_ownership` and the other new tests do not
+    exercise a genuinely concurrent multi-model-rank submission path (only
+    one model rank submits requests sequentially in each new test); the
+    existing Step 18 five-rank test is still the only coverage for
+    multiple simultaneous model ranks, and that test does not exercise
+    Step 19 warm-cache behavior. A future test could combine both shapes if
+    needed.
+  - Next step: Step 20, MultiGroup-style explicit per-worker idle/busy and
+    load-based scheduling (unchanged from the original Step 19 status
+    entry's "next step").
+
+
+
+### Key Design Decisions
+- `pfio` should not inspect `MPI_COMM_WORLD`.
+- `AsyncInputServer` takes:
+  - `comm`: all server processes available to the async input server
+  - `model_comm`: the model/front communicator
+- `AsyncInputServer` derives node-local communicators internally with `MPI_Comm_split_type`.
+- If `reader_capacity_on_node == 0`, it falls back to synchronous behavior.
+
+### Files Added
+- `.opencode/plans/async-input-server-plan.md`
+- `.opencode/plans/async-input-server-status.md`
+- `pfio/AsyncInputServer.F90`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case01/`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case03/`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case04/`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case05/`
+- `tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh`
+- `tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh`
+
+### Files Modified
+- `mapl/MaplFramework.F90`
+- `mapl/PfioServerGridComp.F90`
+- `pfio/AbstractServer.F90`
+- `pfio/ServerThread.F90`
+- `pfio/CMakeLists.txt`
+- `gridcomps/extdata/ExtDataConfig.F90`
+- `gridcomps/extdata/PrimaryExport.F90`
+- `gridcomps/extdata/ExtDataGridComp.F90`
+- `gridcomps/extdata/ExtDataFileReader.F90`
+- `tests/MAPL3G_Component_Testing_Framework/test_case_descriptions.md`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/cases.txt`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/case44/cap2.yaml`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/case44/extdata2.yaml`
+
+### Implemented Steps
+
+#### Step 0: ExtData input-server override
+- Added optional `input_server_name` flow through ExtData.
+- Default remains `MAPL_DEFAULT_INPUT_SERVER`.
+
+#### Step 1: Named custom input server
+- Added `AsyncInputServer` subclass.
+- Initially behaved exactly like `MpiServer`.
+- Added dedicated regression case `case45` for routing ExtData through `async_input_server`.
+
+#### Step 2: Communicator contract and fallback
+- `AsyncInputServer` now uses explicit `comm` and `model_comm`.
+- Computes:
+  - `model_size_on_node`
+  - `node_size_on_node`
+  - `reader_capacity_on_node`
+  - `synchronous_fallback`
+- Falls back when no extra node-local PEs are available.
+
+#### Step 3a: Broader local communicator
+- Local `AsyncInputServer` now gets `comm=world_comm` and `model_comm=this%model_comm`.
+- This makes node-capacity accounting meaningful on the cluster.
+
+#### Step 3b: Construction on all PETs in `comm`
+- Configured local `AsyncInputServer` entries are constructed on all PETs.
+- Client registration happens only on model PETs.
+- This avoids invalid collectives when `comm` is larger than `model_comm`.
+
+#### Step 4: First synchronous reader offload path
+- Added a server hook for collective prefetch service.
+- `AsyncInputServer` can now, when not in fallback mode:
+  - receive collective prefetch requests on front/model ranks
+  - delegate a concrete `file_name/var_name/start/count` read to a reader rank
+  - have the reader read directly from NetCDF
+  - send raw words back synchronously
+  - return data to the client through the existing socket/request-handle path
+- This is still synchronous.
+- No current/next prefetch yet.
+- No cache yet.
+
+#### Step 4a: Local async-reader lifecycle fixes
+- Local `AsyncInputServer` entries now work when `model_petcount` is smaller than the launched MPI size:
+  - non-model PETs enter the async reader loop
+  - model PETs stop those reader loops during finalize
+- Fixed async backlog handling so serviced collective-prefetch messages are erased.
+- Fixed async reader request reuse so repeated deserialization does not fail on allocatable components.
+- Fixed async local-memory ownership so the non-fallback path does not double-free reader buffers.
+
+#### Step 5a: First simple cache inside `AsyncInputServer`
+- Added a first single-slot cache on the reader side using ordinary process-owned memory.
+- Cache key currently uses:
+  - `file_name`
+  - `var_name`
+  - `type_kind`
+  - `start`
+  - `count`
+- On a cache miss, the reader performs the NetCDF read and refreshes the single cache slot.
+- On a cache hit, the reader serves the request from cached raw words without rereading the file.
+- Added temporary cache counters logged on reader shutdown:
+  - `hits=`
+  - `misses=`
+- Important limitation of this first cache:
+  - the cache is reader-local, not yet true node-shared memory across multiple reader PETs
+  - explicit shared-memory MPI windows are still the intended next step for a real node-shared cache
+
+#### Step 5b: Shared-memory MPI window cache backing
+- Replaced the ordinary reader-local cache payload with a `ShmemReference`-backed buffer using `MPI_Win_allocate_shared`.
+- The front/model rank now coordinates shared-cache allocation before the first read size that needs it.
+- The reader now stores cached raw words in the shared-memory window rather than in a private allocatable array.
+- Current limitation of this first shared-window version:
+  - allocation choreography currently assumes `model_npes_on_node == 1`
+  - this matches the current `case45`/`case46` verification shape (`model_petcount: 1`)
+  - future generalization is still needed for multiple model/front PETs on the same node
+
+#### Step 6a: Minimal `current` + cache-only `next` request path
+- Added a `cache_only` flag on `CollectivePrefetchDataMessage` only.
+- Added client support to submit a collective-prefetch request without creating a return-data request handle.
+- Added reader/server support so a `cache_only` request:
+  - resolves through the existing async reader path
+  - updates the server cache
+  - does not send data back to the client field buffer
+- Added ExtData reader bookkeeping so queued read items can now be marked as:
+  - normal current read
+  - cache-only next prefetch
+- Added minimal ExtData-side submission logic in `PrimaryExport` for a first `next` path:
+  - when the right bracket node is enabled, distinct from the left node, and not already part of the current update batch, it is submitted as a cache-only prefetch request
+- Added logging for that path in `ExtDataFileReader`:
+  - `prefetching next ...`
+- This is intentionally a small first Step 6 increment:
+  - current consumption semantics are unchanged
+  - server transport semantics are unchanged for normal reads
+  - next-prefetch selection is still conservative and not yet the full rolling two-slot policy
+
+#### Step 7a: First rolling no-interpolation verification case
+- Added dedicated regression case `case47` to exercise the no-interpolation current/next path across multiple model timesteps in the non-fallback async-input configuration.
+- `case47` combines the duplicate-request shape from `case46` with a longer `cap2` segment so the run advances through several 3-hour model steps on the same source file.
+- Local `nag-stack` verification for `case47` now shows the expected rolling pattern in the log:
+  - first timestep queues current reads and cache-only next requests
+  - later timesteps queue only `prefetching next ...` requests while the current data is already carried forward by ExtData's bracket/state flow
+- In a verbose local rerun, the step-2 log showed:
+  - timestep `00:00`: `reading E_1 ... time index 00001` and `prefetching next E_1 ... time index 00002`
+  - timestep `03:00`: only `prefetching next E_1 ... time index 00005`
+  - timestep `06:00`: only `prefetching next E_1 ... time index 00008`
+  - timestep `09:00`: only `prefetching next E_1 ... time index 00011`
+- `case47` passed and its generated `extdata_files_read.yaml` still collapsed to a single source file:
+  - `run_start: 2004-01-03T00:00:00`
+  - `run_end: 2004-01-03T09:00:00`
+  - `files_read: [test.20040103.nc4]`
+- The verbose `case47` rerun also showed rolling cache reuse on the reader side:
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=5 misses=5`
+- This is not yet a generalized selector-aware `current_time + dt` lookahead implementation.
+- Instead, it verifies that the existing conservative no-interpolation path now behaves like the intended rolling two-slot pattern over multiple timesteps for the current ExtData bracket semantics.
+- Follow-up tracing of the bracket/state transition clarified why this works:
+  - for the current no-interpolation ExtData path, the dataset consumed at timestep `N+1` is the bracket's current right node from timestep `N`
+  - therefore, on this path, the existing right-node cache-only request is already the correct one-step lookahead
+  - a naive fresh selector preview at `current_time + dt` was tested separately and was wrong for `case46`, because it skipped over the carried-forward right-node state that ExtData actually consumes after the bracket roll
+
+#### Step 7b: Time-interpolation regression established
+- Added dedicated regression case `case48` to probe the async-input time-interpolation path across multiple sampled times.
+- `case48` is based on the existing daily-file interpolation setup from `case05`, but routes through `async_input_server`, duplicates the import (`E_1`, `E_2 <- E_1`), and enables file-read logging.
+- Local `nag-stack` verification for `case48` showed:
+  - the interpolation path issues normal current reads for both left and right bracket nodes at every sampled time
+  - a first future-lookahead extension can now cache-only prefetch the future left-node slab for the next sampled time
+  - after first grouping identical slab requests together before submission, the async reader got intra-timestep duplicate-request reuse with:
+    - `INFO: AsyncInputServer cache: reader_rank=1 hits=6 misses=6`
+- after then separating interpolation prefetches into a second reader and cache-only prefetching the future left-node slab, `case48` improved further to:
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=11 misses=7`
+- after then converting the reader cache from one slot to two slots, `case48` improved again to:
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=16 misses=2`
+- after then extending interpolation lookahead from future-left-only to full future-pair staging, `case48` improved further to:
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=22 misses=2`
+- With the two-slot cache in place, the interpolation path can keep both current left/right slabs resident while still benefiting from the future-left prefetch, which is a much better fit for the current interpolation access pattern than the original single-slot cache.
+- In a verbose local rerun, the step-2 log showed repeated reads of the same two source files at each sampled time:
+  - `reading E_1 from file test_20040415.nc4 at time index 00001`
+  - `reading E_1 from file test_20040416.nc4 at time index 00001`
+  - and the same pair repeated again at later sampled times (`12:00`, `15:00`)
+- `case48` passed and its generated file-read log matched:
+  - `run_start: 2004-04-15T21:00:00`
+  - `run_end: 2004-04-16T15:00:00`
+  - `files_read: [test_20040415.nc4, test_20040416.nc4]`
+- This gives the first concrete evidence that the current Step 7 behavior does not yet extend to the time-interpolation path.
+- The interpolation path now has a first cross-timestep improvement as well: the cache ends each sampled time with the future left-node slab, which reduces misses at the next sampled time.
+- A future extension may still need an explicit notion of the full dataset pair consumed at the next timestep, rather than only the future left-node slab, but the two-slot cache substantially reduces the urgency of that change for the current `case48` pattern.
+
+#### Step 7d: Interpolation rollover probe
+- Added dedicated regression case `case49` to sample the interpolation path immediately before the day-change pivot.
+- `case49` probes whether the future-lookahead logic follows the bracket rollover direction correctly at `2004-04-16T20:45:00`.
+- Local `nag-stack` verification for `case49` showed:
+  - current pair reads still come from `test_20040415.nc4` and `test_20040416.nc4`
+  - the future-left preview correctly switches to `test_20040416.nc4`
+  - the future-right preview now also stages `test_20040417.nc4`
+- The reader cache summary for this boundary probe was:
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=5 misses=3`
+- `case49` passed and its generated file-read log matched:
+  - `run_start: 2004-04-15T21:00:00`
+  - `run_end: 2004-04-16T20:45:00`
+  - `files_read: [test_20040415.nc4, test_20040416.nc4, test_20040417.nc4]`
+- This confirms the interpolation lookahead is now boundary-aware for the full future consumed pair, not just the future-left slab.
+
+#### Performance check status
+- Added two helper scripts under `tests/MAPL3G_Component_Testing_Framework/benchmark/` to prepare and run a dedicated 8-front-rank baseline vs 8+1 async-reader performance comparison on a real cluster.
+- The helper scripts currently prepare long interpolation workloads that span at least 20 daily source files.
+- A local Mac timing check on a long interpolation workload still showed the async path slower than the baseline for many-rank slab-heavy access patterns:
+  - baseline `MpiServer` (`8` ranks): wall time about `2.77 s`, `EXTDATA --run` about `0.30 s`
+  - async `AsyncInputServer` (`8+1` ranks): wall time about `4.83 s`, `EXTDATA --run` about `2.43 s`
+  - reader cache summary still had many misses: `hits=24 misses=2296`
+- Interpretation:
+  - request/pair lookahead is now working
+  - the remaining bottleneck for larger decompositions is per-slab request granularity
+  - the next major performance step, if needed, is node-level request aggregation / read-once-share-many
+
+### Important Bug Fixes Made
+- Fixed local configured server client-key mismatch:
+  - local servers must register client key as `server_name`, not `make_client_name(server_name)`.
+- Fixed `PrimaryExport` constructor signature to include `input_server_name` in the dummy argument list.
+
+### Test Case Layout
+- `case44` was restored to its original role.
+- `case45` is the dedicated `AsyncInputServer` routing regression case.
+- `test_cases/pfio/case01/extdata2.yaml` uses:
+  - `input_server_name: async_input_server`
+- `test_cases/pfio/case01/cap2.yaml` defines:
+  - `servers.async_input_server.local: true`
+  - `servers.async_input_server.subclass: AsyncInputServer`
+
+### Local Verification Done
+- Local runs were done with `mpirun -np 1`.
+- `case45` passes in synchronous fallback mode.
+- `extdata_files_read.yaml` matches `extdata_files_read_expected.yaml`.
+- Typical log line:
+  - `INFO: AsyncInputServer: async_input_server model_size_on_node=1 node_size=1 reader_capacity_on_node=0 synchronous_fallback=T`
+
+### Additional Non-Fallback Verification Done
+- Ran `case45` locally with `mpiexec -n 2` and `model_petcount: 1` so:
+  - `model_comm` had 1 front/model PET
+  - `comm` had 2 PETs on the node
+  - `reader_capacity_on_node=1`
+- Verified in the log:
+  - `INFO: AsyncInputServer: async_input_server model_size_on_node=1 node_size=2 reader_capacity_on_node=1 synchronous_fallback=F`
+- After the lifecycle and buffer-ownership fixes above, a fresh 2-step `case45` rerun completed successfully.
+- `extdata_files_read.yaml` matched `extdata_files_read_expected.yaml` in the non-fallback run.
+- Added lightweight temporary reader logging and verified lines of the form:
+  - `INFO: AsyncInputServer reader: reader_rank=1 source_rank=0 request_id=... file=... var=...`
+- This confirms the extra reader PE, not the front/model PE, is performing the concrete NetCDF read work in the current synchronous offload path.
+- After `case45`/`case46`/`case47` were in place, that per-request temporary reader logging was removed again to keep routine test logs quieter.
+- With the first simple cache enabled, `case45` still passes and `extdata_files_read.yaml` still matches `extdata_files_read_expected.yaml`.
+- Current `case45` workload does not issue repeated identical slab requests, so the temporary cache summary is presently all misses, e.g.:
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=0 misses=25`
+- Added dedicated regression case `case46` to force two identical slab requests in one `cap2` run.
+- `case46` uses two ExtData exports that both map to the same source variable and static file:
+  - `E_1 <- E_1`
+  - `E_2 <- E_1`
+- `test_cases/pfio/case02/GCM2.yaml` checks correctness with:
+  - `import_comparison_expressions: ['E_1-E_2 = 0.0']`
+- Local 2-rank non-fallback verification for `case46` showed the intended cache summary:
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=1 misses=1`
+- This explicitly proves the first cache-hit path.
+- After converting the cache payload to shared-memory MPI windows, `case46` still passes and still reports:
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=1 misses=1`
+- `case46` therefore now verifies both:
+  - the duplicate-request cache-hit path
+  - the shared-memory-backed cache storage path
+- During the later Step 6a/current-next work, `case45`/`case46` initially regressed for two separate reasons:
+  - the build tree had stale type-bound dispatch artifacts, which produced a misleading `StageDoneMessage` / `CollectiveStageDoneMessage` mismatch in the output-server path
+  - the new ExtData-side current/next bookkeeping submitted requests in `current, next, current, next` order, which thrashed the single-slot cache in `case46`
+- A clean rebuild under the proper `nag-stack` module environment fixed the stale-dispatch symptom.
+- Reordering ExtData request submission so all current reads are queued before all cache-only next-prefetch reads fixed the cache-thrashing regression.
+- After that fix, both focused regressions pass again under `nag-stack`:
+  - `ctest -R MAPL3G_Comp_Test_pfio_case01 --output-on-failure`
+  - `ctest -R MAPL3G_Comp_Test_pfio_case02 --output-on-failure`
+- A verbose `case46` rerun now shows the expected duplicate-request cache-hit behavior again for the current/next path, e.g.:
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=2 misses=2`
+- Important Step 7 design finding from this debugging pass:
+  - for the current no-interpolation path verified by `case47`, the bracket's current right node is in fact the dataset consumed at the next model timestep
+  - a stricter selector-aware `current_time + dt` preview is therefore not needed for this specific path and was shown to be wrong in a first prototype
+  - a future selector-aware preview may still be needed when broadening Step 7 beyond this first no-interpolation path, especially for time-interpolation cases
+- Full local `nag-stack` regression testing after these fixes showed:
+  - all AsyncInputServer/ExtData-related component cases are now passing, including `case44`, `case45`, `case46`, and `case47`
+  - previously regressed default-server ExtData cases (`case01`, `case04`, `case18`, `case21`, `case22`, `case23`, `case24`, `case30`) are passing again after scoping cache-only next-prefetch requests to `async_input_server` only
+- Local `nag-stack` testing also exposed an unrelated environment-sensitive failure in `MAPL.mapl.server_utilities`:
+  - the pFUnit test body passed, but a 2-rank run aborted later in `MPI_Finalize` inside the OFI teardown path (`destroy_vni_context ... Device or resource busy`)
+  - that test does not require multi-rank execution, so its test target was reduced from `MAX_PES 2` to `MAX_PES 1`
+  - after that adjustment, `MAPL.mapl.server_utilities` passes locally
+- After these fixes, the only remaining full-ctest failures in this local environment are the 4 `Regrid_Util` regression tests:
+  - `ll-ll`
+  - `cs-cs`
+  - `cs-ll`
+  - `ll-cs`
+- Those failures are not tied to AsyncInputServer work; they report missing regression-data directories and ask whether `LOCAL_REGRESSION_DATA_DIR` is set correctly.
+- Also manually verified a multi-model-front configuration using `case46`-style inputs with:
+  - `model_petcount: 2`
+  - total MPI size `3`
+  - one extra reader PE on the node
+- Confirmed activation log line:
+  - `INFO: AsyncInputServer: async_input_server model_size_on_node=2 node_size=3 reader_capacity_on_node=1 synchronous_fallback=F`
+- That run completed successfully, showing the current shared-window cache path works for `model_petcount > 1` with a single reader PE.
+- In that configuration, the current duplicate-request pattern decomposed into distinct per-rank slabs, so the temporary cache summary showed misses only:
+  - `INFO: AsyncInputServer cache: reader_rank=2 hits=0 misses=4`
+
+### What Still Needs Cluster Verification
+- Run `case45` on the actual cluster where `comm` includes extra node-local PEs beyond `model_comm`.
+- Confirm in `cap2.log`:
+  - `reader_capacity_on_node > 0`
+- Confirm the test still passes there as it now does in the local 2-rank single-node verification.
+- Keep or remove the temporary reader-rank logging depending on whether more cluster debugging is needed.
+- Generalize the shared-window cache choreography beyond `model_npes_on_node == 1` if/when that becomes necessary.
+- If full app-regression coverage is needed locally, configure `LOCAL_REGRESSION_DATA_DIR` so the `Regrid_Util` regression tests can find their datasets.
+
+### Next Planned Step
+- Treat Step 7 as verified for the current no-interpolation collective-prefetch path via `case47`.
+- Broaden the rolling policy beyond this first path:
+  - cover time-interpolation cases explicitly
+  - decide whether the current full future-pair staging plus two-slot cache is sufficient for interpolation, or whether further aggregation/caching of the full dataset payload is still needed for many-rank workloads
+- Keep the cache-only next-prefetch path scoped to `async_input_server` until the default pFIO route learns how to handle handle-less collective-prefetch requests safely.
+- Keep in mind that a future cleanup/generalization pass may still be needed for multi-front-rank-per-node shared-window cache allocation.
+- `case48` and `case49` are now the regression targets for any future interpolation-path performance work.
+- If the cluster performance run still shows many steady-state misses after warmup, move directly to node-level request aggregation and shared dataset serving.
+
+### Current State (2026-09-03 — end of day)
+
+#### Async path logic — verified correct
+- The `NextCollectivePrefetchMessage` / `NextCollectivePrefetchDoneMessage` split is implemented and working.
+- Message flow:
+  1. Client: `collective_prefetch_data_cache_only` → sends `NextCollectivePrefetchMessage` to server
+  2. Server (`handle_NextCollectivePrefetchData`): pushes message into `request_backlog`; sends `DummyMessage` handshake back
+  3. Client: `done_collective_prefetch` → sends `CollectivePrefetchDoneMessage` (if current items) AND/OR `NextCollectivePrefetchDoneMessage` (if next items), in that order
+  4. Server (`handle_Done_collective_prefetch`): waits for all threads; calls `service_collective_prefetch`; processes `CollectivePrefetchDataMessage` items; `finish_collective_service` resets `serverthread_done_msgs` if backlog still non-empty (e.g., has `NextCollectivePrefetchMessage` items)
+  5. Server (`handle_Done_next_collective_prefetch`): waits for all threads; calls `service_next_collective_prefetch`; finds `NextCollectivePrefetchMessage` items in backlog; calls `forward_request_to_reader(…, deliver_to_client=.false.)` per item
+  6. Reader (rank NOT in `model_comm`): receives `ASYNC_INPUT_CMD_READ` via `MPI_Recv`; deserializes `CollectivePrefetchDataMessage`; sees `cache_only=.true.`; reads the file, updates shared cache, does NOT send data back
+- `service_collective_prefetch` uses `type is (CollectivePrefetchDataMessage)` which is an **exact type match** in Fortran `select type` — it correctly skips `NextCollectivePrefetchMessage` subtype items
+- `service_next_collective_prefetch` uses `type is (NextCollectivePrefetchMessage)` — exact match for the next-prefetch items
+
+#### Local verification (2026-09-03)
+- All 5 async tests pass: `ctest -R "MAPL3G_Comp_Test_case(45|46|47|48|49)"` → 5/5 passed
+- Non-fallback 2-rank (1 model + 1 reader) manual run of case45 shows:
+  - `INFO: AsyncInputServer: async_input_server model_size_on_node=1 node_size=2 reader_capacity_on_node=1 synchronous_fallback=F`
+  - `INFO: AsyncInputServer forwarded: requests=73`
+  - `INFO: AsyncInputServer cache: reader_rank=1 hits=47 misses=26 requests=73`
+- Non-fallback 3-rank (2 model + 1 reader) manual run of case45 shows:
+  - Both model ranks (0 and 1) forward their slice to reader rank 2
+  - `INFO: AsyncInputServer forwarded: requests=73` (from rank 0 only, by design)
+  - `INFO: AsyncInputServer cache: reader_rank=2 hits=92 misses=54 requests=146`
+  - Reader processes 146 requests = 2 × 73 (both model PETs' slices)
+- The previously reported `forwarded_requests=0` in the `8+1` benchmark was from an earlier code state (prior to the `NextCollectivePrefetchMessage` split being fully wired up); the current code is confirmed working
+
+#### Blocking issues resolved
+- `cap2.yaml` crash in `insert_RequestHandle` during ExtData init: **resolved** (root cause was stale build artifacts; clean rebuild fixed it)
+- `cap1.yaml` local history output crash: **resolved** via `GeomPFIO` clone fix and `HistoryGridComp` `post_wait_all` bypass for `SimpleSocket`
+- No temporary debug prints remain in the codebase (`pfio/AsyncInputServer.F90` debug lines added for this session were removed)
+
+#### Node-level aggregation — implemented and verified (2026-09-03)
+
+**Design**: Reader-side global-key cache.
+- Cache key = `(file_name, var_name, type_kind, global_start, global_count)` — identical for all model ranks requesting the same variable/time.
+- Reader stores the **full global slab** in a `LocalMemReference`.
+- On a cache miss: reads full global slab from file, stores it.
+- On a cache hit: data is already in cache.
+- For every request (hit or miss): extracts the per-rank LOCAL slice via `copy_subarray` and MPI_Sends it back.
+- No collective operations between model ranks required — each rank operates independently.
+- `copy_subarray`: recursive Fortran-column-major sub-array copy; handles arbitrary N-dimensional hyper-slabs.
+
+**Previous approach (broken)**: ShmemReference over `model_node_comm` required `MPI_Win_allocate_shared` — a collective over model ranks — inside the service path. Each model rank enters the service path independently (no cross-rank synchronization), causing deadlock with `model_petcount > 1`.
+
+**Benchmark results after node-level aggregation (macOS, 2026-09-03)**:
+
+| Case | NP | Wall | EXTDATA run | Cache hits | Misses | Requests |
+|------|----|------|-------------|------------|--------|----------|
+| mpi8 | 8 | 2.98 s | 1.10 s | — | — | — |
+| async9 | 9 | 3.13 s | 1.11 s | 2284 | 20 | 2304 |
+
+- **Cache hit rate: 99.1%** (vs 7.3% before aggregation, 0% before this feature)
+- The 20 compulsory misses are unavoidable cold-start reads (first access to each unique global slab)
+- async9 wall time (3.13 s) ≈ mpi8 (2.98 s) — the async reader is now competitive
+- `reader_requests = 2304 = 36 × 8 × 8` (still 8 requests per rank per timestep); but only 20 result in file reads
+
+**Files changed for this step**:
+- `pfio/AsyncInputServer.F90`: full rewrite of the reader loop and cache system
+  - `AsyncInputCacheSlot`: cache key is now `global_start`/`global_count`; payload is `LocalMemReference` (not `ShmemReference`)
+  - `read_global_slab_into_slot`: reads full global slab using `global_start`/`global_count`
+  - `extract_local_slice_from_slot`: calls `copy_subarray` to extract per-rank slice
+  - `copy_subarray`: new recursive N-D sub-array copy routine
+  - `forward_request_to_reader`: unchanged in structure; reader now returns LOCAL slice
+  - `ensure_model_cache_capacity` / `ShmemReference` usage: **removed** (no longer needed)
+- `tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh`:
+  - Fixed `segment_duration` for cap1 (`P25D`) and cap2 (`P30D`)
+  - Added `--model-delay SECS` and `--grid IMxJM` controls
+- `tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh`:
+  - Uses `--use-hwthread-cpu` on macOS so model and reader ranks execute concurrently
+  - Does not inject any reader sleep
+
+#### Real I/O / Client-Delay Benchmark (2026-09-03)
+- Method: reader performs only real NetCDF reads; model-side `model_delay` is
+  added equally to mpi8 and async9. No `ASYNC_READER_SLEEP_SEC` or other reader
+  delay is used.
+- Preliminary measurement with `1024x768` files and no model delay:
+  - async reader actual NetCDF read total: `0.1859 s` over 20 compulsory misses
+  - maximum individual reader read: `0.0258 s`
+- Comparable-delay run:
+  - preparation: `prepare_async_perf_cases.sh WORK --model-delay 0.02 --grid 1024x768`
+  - launch: benchmark runner with Open MPI `--use-hwthread-cpu -oversubscribe`
+  - mpi8 wall: `30.10 s`; EXTDATA mean: `2.86 s`
+  - async9 wall: `29.79 s`; EXTDATA mean: `2.40 s`
+  - async reader: `hits=2284 misses=20 requests=2304`, real read total `0.1796 s`, maximum `0.0296 s`
+  - async9 was approximately `1.0%` faster in wall time and `16%` faster in the EXTDATA profile
+- A larger-grid run (`1024x768`, `model_delay=0.5`) was also tested. It made
+  real reads measurable but increased MPI slice-transfer overhead; therefore
+  the reader/client timing must be chosen from measured read time rather than
+  by adding reader sleeps.
+- Important interpretation: on this macOS laptop, the reader's actual NetCDF
+  miss time is only about 9 ms on average, so a client delay around `0.02 s`
+  is comparable. A stronger speedup requires a real cluster/storage system
+  with slower reads or a substantially larger workload; the benchmark must
+  not fake reader work with a sleep.
+
+#### Controlled 5-second Reader/Model Experiment (2026-09-03)
+- Added benchmark-only environment variable `MAPL_PERF_READER_SLEEP_SEC`.
+  When set, both `ServerThread%get_DataFromFile` (MpiServer) and the
+  AsyncInputServer reader sleep after each actual file read. This gives both
+  paths the same artificial reader cost for a controlled experiment.
+- Added `--quick` to `prepare_async_perf_cases.sh`; it uses four timed model
+  steps so the 5-second experiment remains practical.
+- Run command:
+  ```bash
+  bash tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh \
+       /tmp/async-perf-5sec --model-delay 5 --quick
+  MAPL_PERF_READER_SLEEP_SEC=5 \
+       bash tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh \
+       /tmp/async-perf-5sec build /path/to/mpiexec
+  ```
+- Both runs used macOS Open MPI `--use-hwthread-cpu -oversubscribe`.
+- Results:
+  - mpi8: `41.88 s` wall, approximately `20 s` reader sleep + `20 s` model sleep
+  - async9: `41.82 s` wall, `hits=252 misses=4 requests=256`, approximately
+    `20 s` reader sleep + `20 s` model sleep
+- This short interpolation workload did not show a speedup. The async reader
+  ran concurrently, but its four compulsory 5-second misses account for the
+  same 20 seconds as the baseline. The short run therefore measures cold-start
+  cost more than steady-state overlap.
+- The artificial sleep is a benchmark-only hook, not production behavior.
+
+#### Reader Delay Placement (2026-09-03)
+- `MAPL_PERF_READER_SLEEP_SEC` now runs immediately after each reader-side
+  NetCDF `get_var` returns and before `formatter%close()`, cache completion,
+  and response handling.
+- The same placement is used in `ServerThread%get_DataFromFile` for the
+  MpiServer baseline path. The delay models a long reader operation and is
+  before request completion/fence handling.
+- Build succeeded and all five async regression tests pass after this change.
+
+#### Eight-Step 5-second Benchmark (2026-09-03)
+- Extended `--quick` from four to eight timed steps to reduce cold-start
+  weighting and expose steady-state behavior.
+- Configuration:
+  - `model_delay=5 s`
+  - `MAPL_PERF_READER_SLEEP_SEC=5 s` in both MpiServer and AsyncInputServer
+  - `--use-hwthread-cpu -oversubscribe`
+- Results:
+  - mpi8: `81.94 s`
+  - async9: `72.21 s`
+  - async9 improvement: approximately `11.9%`
+  - async cache: `hits=506 misses=6 requests=512`
+  - async reader sleep/read total: approximately `30.04 s`
+- Timestamp interpretation:
+  - mpi8 reader intervals occur before each model sleep, so the two 5-second
+    delays are serial: reader interval, then model sleep.
+  - async9 next-prefetch dispatch happens before model sleep, and the longer
+    run reaches steady-state cache reuse. Async reader intervals remain queued
+    around model phases, but the total wall-time reduction appears once the
+    cold-start cost is amortized over eight steps.
+
+#### 5-second Concurrency Verification (2026-09-03)
+- Added temporary wall-clock timestamps to both sides:
+  - `CapGridComp`: `Cap model sleep: ... start=<MPI_Wtime>` / `end=<MPI_Wtime>`
+  - `AsyncInputServer`: `reader interval: ... start=<MPI_Wtime>` / `end=<MPI_Wtime>`
+  - `ServerThread`: equivalent MpiServer reader interval timestamps
+- Rebuilt successfully and reran the four-step test with:
+  - `model_delay=5`
+  - `MAPL_PERF_READER_SLEEP_SEC=5`
+  - macOS Open MPI `--use-hwthread-cpu -oversubscribe`
+- Results remained:
+  - mpi8: `41.59 s`
+  - async9: `41.80 s`
+- Direct async interval evidence from `perf-async9/cap2.log`:
+  - model sleep interval: approximately `[10.53, 15.60]`
+  - reader interval: `[15.59, 20.59]` (cold/current phase)
+  - model sleep interval: approximately `[20.58, 25.64]`
+  - reader interval: `[30.67, 35.67]` (next-prefetch phase)
+  - model sleep interval: approximately `[35.66, 40.73]`
+  - reader interval: `[30.67, 35.67]` overlaps the following model sleep interval `[35.66, 40.73]` only at the boundary in this four-step run; the reader's earlier `[15.59,20.59]` interval also overlaps the model's `[20.58,25.64]` boundary by scheduling jitter.
+
+#### Cleanup (2026-09-03)
+- Removed temporary wall-clock and fence diagnostic logging from
+  `ClientThread.F90`, `ServerThread.F90`, `AsyncInputServer.F90`, and
+  `CapGridComp.F90`.
+- Preserved the validated next-before-current fence order.
+- Preserved the benchmark-only `MAPL_PERF_READER_SLEEP_SEC` hook and the
+  `model_delay` / `--quick` benchmark controls.
+- Rebuilt successfully and reran case45–49: all five tests pass.
+
+#### Reader Queue Investigation (2026-09-04)
+- Investigated why the async reader's artificial 5-second read interval starts
+  after the model sleep even though the next-prefetch fence is sent first.
+- Confirmed the relevant sequence in the current implementation:
+  - `ClientThread%done_collective_prefetch` sends
+    `NextCollectivePrefetchDoneMessage` before
+    `CollectivePrefetchDoneMessage`.
+  - `service_next_collective_prefetch` calls
+    `forward_request_to_reader(..., deliver_to_client=.false.)`.
+  - `forward_request_to_reader` sends the next request but does not wait for
+    the reader's read to finish.
+  - The reader nevertheless has one blocking loop:
+    `MPI_Recv(command)` -> receive size/payload -> cache lookup/read -> slice
+    extraction/response -> next `MPI_Recv(command)`.
+- The reader cannot start a later next-prefetch request while it is already
+  inside an earlier complete request. With multiple current and next requests
+  queued, the command receive and request processing sequence determines when
+  the actual next read begins; the Done-message order alone is insufficient.
+- A temporary priority MPI command tag/probe experiment was attempted, but it
+  hung the first focused test and was fully reverted. No priority-tag change
+  remains in the source.
+- Current conclusion: meaningful overlap requires a real reader-side request
+  scheduler or separate current/next work queues. The reader must be able to
+  accept/store next-prefetch work and begin it before current request work that
+  is waiting for model-side responses, without introducing a blocking per-rank
+  acknowledgment.
+- The tree was rebuilt after reverting the experiment. The previous validated
+  five-test run remains the relevant regression result; a fresh focused test
+  should be run before further reader-queue changes.
+- A first prepared-data protocol attempt was made after execution mode was
+  enabled. It added `QUEUE_NEXT`, synchronous `PROBE_PREPARED`, and
+  `GET_PREPARED` commands, with current requests intended to consume prepared
+  data or fall back to direct reads. It was reverted because PFIO case02
+  deadlocked: synchronous probe RPCs are incompatible with the current single
+  blocking reader loop.
+- The tree was restored to the last passing request protocol and rebuilt.
+  The renamed PFIO case01 through case05 tests all pass after the revert.
+- The next safe implementation boundary is a true MultiGroupServer-style
+  reader captain and worker pool with explicit asynchronous completion/state
+  messages. Synchronous prepared-data probes must not be added to the current
+  reader loop.
+
+#### Captain/Worker Implementation Attempt (2026-09-04)
+- A Phase 1 reader captain/worker implementation was attempted:
+  - reader communicator rank 0 as captain
+  - reader communicator ranks 1+ as workers
+  - minimum two readers required for nonfallback mode
+  - captain pending queue and worker completion polling
+- The attempt was not retained. It caused PFIO integration hangs/failures
+  during case02 and later cases, and the captain still had blocking worker
+  completion behavior in the critical path.
+- `pfio/AsyncInputServer.F90` was restored to the last known passing version.
+- Current verification after restoration:
+  - `MAPL3G_Comp_Test_pfio_case01`: passed
+  - `MAPL3G_Comp_Test_pfio_case02`: passed
+  - `MAPL3G_Comp_Test_pfio_case03`: passed
+  - `MAPL3G_Comp_Test_pfio_case04`: passed
+  - `MAPL3G_Comp_Test_pfio_case05`: passed
+- The next captain/worker attempt must first implement and test the worker
+  lifecycle independently of model request servicing, then add asynchronous
+  next queue state, and only afterward add Option C model-root distribution.
+
+#### Captain/Worker Phase 1 Execution (2026-09-04)
+- A second implementation attempt added a captain/worker scheduler modeled on
+  `MultiGroupServer`: reader rank 0 captain, reader ranks 1+ workers, pending
+  queue, worker busy state, and completion polling.
+- It was reverted after PFIO case02 hung. The implementation still coupled
+  worker completion and model response routing too tightly, and the shutdown
+  lifecycle was not independently validated.
+- The source is restored to the stable pre-captain implementation.
+- Current verification after restoration:
+  - MAPL.pfio build: passed
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`: all passed
+- Correct next step: implement a scheduler-only lifecycle test using synthetic
+  worker commands and idle notifications before attaching it to model data
+  requests. Then add current/next data routing and Option C distribution in
+  separate changes.
+- The timestamps confirm the async reader is a separate MPI rank and is not
+  globally serialized behind model computation. However, this particular
+  short run is dominated by cold-start reads and MPI scheduling; total wall
+  time alone cannot be used as proof of overlap.
+- All five PFIO regression tests still pass: `pfio_case01`–`pfio_case05`.
+
+#### Five-Phase Execution Attempt (2026-09-04)
+- Attempted the five requested phases: standalone worker lifecycle, current
+  dispatch, next queue, prepared state, and Option C distribution.
+- The prototype failed with `MPI_ERR_RANK: invalid rank` during PFIO cases02–05
+  because reader-communicator local ranks were mixed with model/server
+  communicator global ranks during worker result forwarding.
+- All experimental source changes were reverted. The stable source has no
+  captain/worker or prepared-data queue implementation.
+- Stable verification after rollback: build succeeds and PFIO case01–05 all
+  pass.
+- The next implementation must first introduce explicit mappings between
+  reader-local ranks, reader global ranks, and model/server ranks, then verify
+  a synthetic captain/worker lifecycle before attaching model data routing.
+
+#### Rank-Mapping Phase (2026-09-04)
+- Added explicit `reader_comm_rank` and `is_reader_captain` state to
+  `AsyncInputServer`.
+- Kept all existing data sends/receives unchanged; this phase only establishes
+  the communicator-local role metadata needed for safe MultiGroupServer-style
+  dispatch.
+- Added validation that the gathered reader-rank map matches reader capacity.
+- Build succeeds and PFIO case01–05 all pass.
+- Important constraint for the next phase: values in
+  `reader_ranks_on_node` are ranks in the server/node communicator, while
+  worker destinations on `reader_comm` must use reader-local ranks. These rank
+  spaces must never be mixed.
+
+#### Phase 1 Lifecycle Attempt (2026-09-04)
+- A lifecycle-only change was attempted: reader communicator rank 0 as
+  captain, reader ranks 1+ as workers, and an explicit worker idle/terminate
+  protocol while preserving the existing data path.
+- PFIO case01 passed, but cases02–05 failed with `MPI_ERR_RANK: invalid rank`
+  on the one-reader nonfallback configuration. The lifecycle shutdown/data
+  path used reader/global ranks with a communicator whose rank space differed.
+- The lifecycle change was reverted. The stable source and existing component
+  test behavior are restored.
+- Required next fix: build explicit rank maps for every communicator before
+  adding any captain/worker messages:
+  - `reader_comm` local rank -> `world/server_comm` global rank
+  - model/server source rank -> destination communicator rank
+  - reader worker completion rank -> originating model rank
+- Do not use a reader rank gathered from `node_comm` directly as a rank in
+  `reader_comm` or `server_comm`.
+
+#### Rank-Diagnostic Follow-up (2026-09-04)
+- Attempted to construct the reader global/local rank map inside
+  `AsyncInputServer%initialize_role_accounting` with
+  `MPI_Group_translate_ranks`.
+- The diagnostic hung case02 during local-server initialization, so it was
+  reverted. The communicator available inside the server object is not enough
+  to safely infer all framework rank mappings in this local-server topology.
+- The correct location for rank-map construction is the framework layer where
+  `server_comm`, `model_comm`, and the world/model groups are created:
+  `MaplFramework.F90` / `MaplServerUtilities.F90`.
+- Future work should pass explicit rank maps through `ServerResources` into
+  `AsyncInputServer`; rank translation should not be inferred inside reader
+  service code.
+
+#### Explicit Communicator Contract (2026-09-04)
+- Changed `AsyncInputServer` construction to accept an explicit
+  `reader_comm` in addition to `comm` and `model_comm`.
+- `MaplFramework` now constructs `reader_comm` from the world communicator by
+  subtracting the model PET group and passes it through `AsyncInputServer`.
+- `PfioServerGridComp` passes the stored reader communicator into the server.
+- `AsyncInputServer` duplicates the supplied `reader_comm` and owns the copy;
+  this avoids invalid communicator handles when framework-owned communicators
+  are released.
+- All five renamed PFIO integration tests pass after the communicator-lifetime
+  fix.
+- The next captain/worker phase must use this explicit communicator and its
+  local rank space directly; it must not reconstruct reader membership inside
+  `AsyncInputServer`.
+
+#### Standalone Captain/Worker Lifecycle Test (2026-09-04)
+- Added `pfio/tests/Test_ReaderCaptainWorkerLifecycle.F90` and the CTest target
+  `pFIO_reader_captain_worker_lifecycle`.
+- The test uses three MPI ranks:
+  - world rank 0: synthetic model/client
+  - reader communicator rank 0: captain
+  - reader communicator rank 1: worker
+- It validates ready, work completion, and clean termination messages using
+  only communicator-local ranks on the reader communicator.
+- Direct run passed:
+  ```text
+  mpiexec -n 3 --use-hwthread-cpu -oversubscribe \
+    build/pfio/tests/pFIO_reader_captain_worker_lifecycle.x
+  ```
+- Existing PFIO integration tests also pass: renamed case01–case05.
+- This is the safe boundary for the next phase: attach current-read data
+  dispatch to the already-validated captain/worker lifecycle.
+
+#### Current-Read Worker Integration Attempt (2026-09-04)
+- Attempted to route current model requests through the reader captain and
+  worker rank 1 using explicit reader-local ranks.
+- The standalone lifecycle test passed, but PFIO case02 hung when model data
+  delivery was attached. The synchronous captain -> worker -> captain -> model
+  round trip is not safe with the existing independent model server callbacks.
+- The current-read integration and temporary three-rank test-count changes were
+  reverted. Stable PFIO case01–05 behavior is restored.
+- The next data-flow design must use nonblocking captain state and completion
+  messages; it must not synchronously wait for worker completion inside the
+  model request callback.
+
+#### Current-Read Worker Flow Attempt (2026-09-04)
+- Attempted to route current requests from the reader captain to a reader
+  worker using the explicit reader communicator.
+- The attempt failed because the worker receive loop was not independently
+  established before the captain began sending data jobs; cases02–05 hung or
+  reported invalid-rank behavior depending on topology.
+- The current-worker changes were reverted. Stable source/build state is
+  restored and PFIO case01–05 pass.
+- The next implementation must add a standalone synthetic worker job test:
+  - captain sends command/size/payload on `reader_comm`
+  - worker receives and sends idle/completion acknowledgment on `reader_comm`
+  - no model/server communicator is involved
+   - only after that passes should current data responses be attached.
+
+#### Current-Read Captain/Worker Dispatch Implemented (2026-09-04)
+- Implemented the first real data-flow phase using the explicit reader
+  communicator:
+  - reader communicator rank 0 is the captain
+  - reader communicator rank 1 is the current worker
+  - model/server source ranks remain in the server communicator
+  - worker traffic uses reader-communicator-local rank 1
+- Current requests are forwarded captain -> worker -> captain -> original
+  model/server source rank.
+- Worker uses the existing global-slab cache/read and local-slice extraction
+  routines. Next-prefetch still uses the same synchronous transport in this
+  phase; asynchronous prepared-state handling remains next.
+- PFIO cases02–05 were configured with three ranks where needed: one model and
+  two reader ranks. All renamed PFIO tests pass.
+- The standalone lifecycle test also passes:
+  `pFIO_reader_captain_worker_lifecycle` with three MPI ranks.
+
+**Current phase status**
+- Current-read captain/worker transport is implemented and stable.
+- Next-prefetch remains synchronous in this phase.
+- The next implementation must decouple captain request intake from worker
+  completion so `NextDone` can queue work and return before the worker finishes
+  reading.
+
+#### Nonblocking Next-Prefetch Scheduler (2026-09-04)
+- Implemented a captain-side pending next-prefetch queue with worker-busy
+  tracking and `MPI_Iprobe` completion polling.
+- Next-prefetch requests are accepted by the captain, queued or dispatched to
+  the worker, and do not wait for worker completion before the model callback
+  returns.
+- Current reads remain blocking and wait for active next work before dispatch;
+  this preserves correctness for the current phase.
+- Worker affinity is deterministic by global request key so matching global
+  slabs reuse the same worker cache.
+- The benchmark topology is now `async10`: 8 model ranks + 2 reader ranks
+  (captain + worker). The previous `async9` topology had only one reader and
+  is incompatible with the worker phase.
+- Eight-step 5-second benchmark:
+  - mpi8: `82.04 s`
+  - async10: `72.21 s`
+  - async improvement: approximately `12.0%`
+- PFIO case01–05 and the standalone captain/worker lifecycle test pass.
+
+#### Next-Prefetch Integration Attempt (2026-09-04)
+- Started the next phase by evaluating a captain-side next-request queue.
+- The queue-only design was intentionally not retained: draining it in the
+  captain would still perform blocking NetCDF work and would not be
+  asynchronous. It was removed before completion.
+- Stable build and PFIO case01–05 verification remain passing.
+- The next implementation must combine queue ownership with nonblocking
+  worker completion handling in the same change; do not add a queue that still
+  executes reads synchronously on the captain.
+
+#### Lifecycle Handshake Attempt (2026-09-04)
+- Attempted the next lifecycle step using a MultiGroupServer-style captain/
+  worker idle handshake on `reader_comm`.
+- The existing nonfallback PFIO layouts include one reader rank, so the
+  captain/worker lifecycle attempted to use an invalid worker rank and failed
+  with `MPI_ERR_RANK` in cases02–05.
+- The lifecycle change was reverted. Stable verification afterward:
+  - build succeeds
+  - PFIO case01–05 all pass
+- Before enabling a captain/worker lifecycle, the test and production topology
+  must guarantee at least two reader ranks per node and explicitly map
+  `reader_comm` local ranks separately from global/server ranks.
+
+#### Two-Reader Lifecycle Retry (2026-09-04)
+- Retried the lifecycle with PFIO cases02–05 changed to three MPI ranks:
+  one model rank and two reader ranks (`reader_capacity_on_node=2`).
+- The captain/worker handshake still failed with `MPI_ERR_RANK` before the
+  data service completed. This confirms the remaining invalid destination is
+  in the model/server communicator path, not merely the number of readers.
+- Reverted the lifecycle and temporary nproc changes. Stable verification:
+  - build succeeds
+  - PFIO case01–05 all pass
+- The next required diagnostic is a standalone communicator-rank exchange:
+  print/validate model server rank, server communicator rank, node/global rank,
+  reader communicator local rank, and reader global rank before any data
+  forwarding. Worker lifecycle changes should wait until that exchange passes.
+
+#### Explicit Reader Rank Map (2026-09-04)
+- Added `reader_global_ranks(:)` to `AsyncInputServer`.
+- The array is indexed by reader communicator local rank plus one and contains
+  the corresponding global/server rank.
+- It is built by sorting the reader ranks gathered from `node_comm`, matching
+  the `MPI_Comm_split` key ordering used to construct `reader_comm`.
+- This mapping-only change does not alter data routing and all PFIO case01–05
+  tests pass.
+- Future captain/worker code must use:
+  - `reader_comm` local rank for sends on `reader_comm`
+  - `reader_global_ranks(local_rank+1)` for sends on the server/world
+    communicator
+
+#### Two-Reader Lifecycle Attempt (2026-09-04)
+- Temporarily changed PFIO cases02–05 to launch three ranks: one model plus
+  two reader ranks, then added a reader captain/worker idle/termination
+  handshake using `reader_comm` local ranks.
+- The run still failed with `MPI_ERR_RANK` during case02–05, showing that the
+  remaining invalid destination is in the model/server communicator path, not
+  only the worker lifecycle.
+- The lifecycle and temporary nproc changes were reverted. Stable state is
+  restored and PFIO case01–05 pass.
+- Before another lifecycle attempt, construct and store explicit maps for all
+  three rank spaces (`world/server_comm`, `reader_comm`, and model/server
+  source ranks), and use the correct communicator-local destination for every
+  send. Then validate the maps with a standalone rank-exchange test.
+
+#### Fence Order Update (2026-09-03)
+- `ClientThread%done_collective_prefetch` now sends
+  `NextCollectivePrefetchDoneMessage` before `CollectivePrefetchDoneMessage`.
+- This is the required protocol order: next-prefetch requests are dispatched
+  before the current-prefetch fence is submitted.
+- The temporary per-request `ASYNC_INPUT_TAG_STARTED` acknowledgment was
+  removed. Waiting for an acknowledgment for every next request serialized
+  the multi-request next-prefetch batch and defeated overlap.
+- A four-step run with `model_delay=5`,
+  `MAPL_PERF_READER_SLEEP_SEC=5`, and `--use-hwthread-cpu` still measured
+  approximately equal wall times (`mpi8=41.55 s`, `async9=41.64 s`). The logs
+  confirm the fence ordering, but the reader intervals did not yet show a
+  full 5-second overlap with the model interval. Further request-queue tracing
+  is needed before claiming end-to-end overlap.
+
+### How To Resume
+- Read these two files first:
+  - `.opencode/plans/async-input-server-plan.md`
+  - `.opencode/plans/async-input-server-status.md`
+- All 5 regression tests (case45–49) pass
+- Benchmark shows 99.1% cache hit rate, async9 ≈ mpi8 wall time
+- The 20 remaining misses are compulsory cold-start misses — zero misses after warmup
+- **Next steps if continuing**:
+  - Consider whether 2 cache slots is optimal for the interpolation path (current=2, future-left+right=2 total = 4 unique slabs per timestep → 2 slots may evict too aggressively at the day-change boundary)
+  - Cluster verification: run the benchmark on the actual cluster where `node_size` > 1 and multiple model nodes exist
+  - If needed: increase `ASYNC_INPUT_NUM_CACHE_SLOTS` to 4 to match the 4 unique slabs in the interpolation access pattern
+
+### Test Handoff (2026-09-11)
+
+#### Clean NAG Build Verification
+- The existing `nag` build reproduced a PFIO runtime failure in
+  `pfio/BaseThread.F90:84`:
+  - `Invalid reference to procedure INSERT_REQUESTHANDLE - Subroutine called as a INTEGER(int32) function`
+- Source inspection confirmed that `insert_RequestHandle` is declared as a
+  subroutine and all current call sites invoke it with `call`.
+- The failure was caused by stale generated/compiler artifacts in the existing
+  build tree, not by a current source-level mismatch.
+- A fresh build directory, `nag-clean`, was configured and built with the
+  `nag-stack` module using NAG 7.2.43.
+- Tests were explicitly built with the `build-tests` target.
+
+#### Passing Verification
+- Focused PFIO/unit selection passed 4/4:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01`
+- Async PFIO component regression cases passed 5/5:
+  - `MAPL3G_Comp_Test_pfio_case01`
+  - `MAPL3G_Comp_Test_pfio_case02`
+  - `MAPL3G_Comp_Test_pfio_case03`
+  - `MAPL3G_Comp_Test_pfio_case04`
+  - `MAPL3G_Comp_Test_pfio_case05`
+- Reproduction/build commands:
+  ```bash
+  module load nag-stack
+  /Users/wjiang/.linuxbrew/Homebrew/bin/cmake -S . -B nag-clean -DCMAKE_BUILD_TYPE=Debug
+  /Users/wjiang/.linuxbrew/Homebrew/bin/cmake --build nag-clean -j 8 --target build-tests
+  ctest --test-dir nag-clean -R 'MAPL3G_Comp_Test_pfio_case0[1-5]' --output-on-failure
+  ```
+- No source files were changed during this verification. The pre-existing
+  `gridcomps/extdata/DataSetNode.F90` worktree modification was left intact.
+- Continue using `nag-clean` or another clean NAG build for validation; do not
+  rely on the stale `nag` tree until it is cleaned/reconfigured.
+
+### Step 9 Multi-Worker Handoff (2026-09-11)
+
+#### Implemented
+- `pfio/AsyncInputServer.F90` now supports one reader captain plus multiple
+  reader workers instead of hardcoding all work to `reader_comm` rank 1.
+- The captain maintains:
+  - per-worker busy state, command, model/server source rank, and file name
+  - a pending request queue containing both current and next-prefetch work
+  - an active-read table mapping each file currently being read to its worker
+- A second request for a file already present in the active-read table remains
+  pending. The active record is removed only after the worker completion is
+  received.
+- The captain polls completion from `MPI_ANY_SOURCE`, routes current-read
+  results to the originating model/server rank, and then marks that worker
+  idle.
+- Before the payload is returned, the captain sends the selected worker's
+  server-communicator rank back to the model-facing server loop. This is the
+  first protocol step needed for the Step 10 model/worker shared-memory path.
+- Reader communicator local ranks and server/global ranks are kept separate:
+  `reader_global_ranks(:)` is gathered over `reader_comm` and indexed by
+  reader-local rank.
+- Shutdown now sends `ASYNC_INPUT_CMD_TERMINATE` to every worker rank, not only
+  reader rank 1.
+
+#### Multi-Worker Regression Shape
+- PFIO case05 (`case49`) now launches 4 MPI processes:
+  - 1 model PET
+  - 1 reader captain
+  - 2 reader workers
+- It now generates and reads two distinct daily file families:
+  - `test_YYYYMMDD.nc4`
+  - `test_b_YYYYMMDD.nc4`
+- Its expected file-read log includes all six files across the two families.
+- Verbose output confirmed simultaneous dispatch to both workers, for example:
+  - `worker_rank=1 file=test_20040416.nc4`
+  - `worker_rank=2 file=test_b_20040416.nc4`
+- Completion logging confirmed both active-read records were removed only when
+  their workers completed.
+
+#### Final Verification
+- Clean `nag-stack` build completed with `build-tests`.
+- Focused final test selection passed 8/8:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- Two-worker case05 also passed separately with the benchmark-only
+  `MAPL_PERF_READER_SLEEP_SEC=0.2` delay.
+- Logs are saved in `nag-clean/`:
+  - `step9-final-build.log`
+  - `step9-final-tests.log`
+  - `step9-two-worker-distinct.log`
+
+#### Resume Point
+- Step 9 is implemented and passing.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.
+
+### Step 10 Shared-Memory Handoff (2026-09-13)
+
+#### Implemented
+- Each model rank allocates one fixed shared-memory mailbox per reader worker
+  with `MPI_Win_allocate_shared` on `node_comm`.
+- The captain still sends the selected worker's server rank to the requesting
+  model rank, but no longer relays result payloads.
+- A worker now writes the local result slice directly into the requesting
+  model rank's mailbox, publishes a ready flag with `MPI_Win_sync`, and reports
+  completion to the captain without waiting for model consumption.
+- The model waits on that mailbox's flag, copies the result, and marks the
+  mailbox empty. A worker waits for an empty mailbox before reuse, preventing
+  overwrite of an unconsumed result.
+- `MAPL_ASYNC_INPUT_SHMEM_WORDS` optionally controls each mailbox's integer-word
+  capacity; the default is 4,194,304 words. Oversized results fail with a clear
+  message rather than corrupting adjacent storage.
+- The captain now retains a file-to-worker ownership table for its lifetime.
+  Once a file is first assigned, every later request for that file waits for
+  and returns to the same worker, preserving worker-local cache ownership.
+- Cache-only next-prefetch requests continue to report completion without
+  publishing a payload.
+
+#### Verification
+- Clean `nag-stack` `nag-clean` build and `build-tests` target passed.
+- Focused selection passed 8/8:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- The four-rank case05 regression passed both normally and with
+  `MAPL_PERF_READER_SLEEP_SEC=0.2`.
+- The delayed run dispatched the two distinct future files concurrently to
+  worker ranks 1 and 2, completed cleanly, and retained the expected science
+  and file-read checks.
+- Logs are saved in `nag-clean/`:
+  - `step10-build-tests.log`
+  - `step10-focused-tests.log`
+  - `step10-two-worker.log`
+  - `step10-two-worker-slow.log`
+
+#### Resume Point
+- Step 10 is implemented and passing locally.
+- The shared transport currently uses fixed-size per-model/per-worker
+  mailboxes. Cluster workloads whose local slices exceed the default must set
+  `MAPL_ASYNC_INPUT_SHMEM_WORDS` higher.
+- The temporary `AsyncInputServer dispatch` and `AsyncInputServer complete`
+  lines remain useful for cluster ownership verification and can be reduced
+  after that run.
+- Next planned implementation is Step 11's captain-side warm-key tracking;
+  do not add a synchronous worker probe.
+
+### Step 11 Captain-Side Warm Reads (2026-09-13)
+
+#### Implemented
+- Workers now mirror each valid cache slot into their own node-shared window
+  segment and return the slot index with their existing asynchronous completion
+  notification.
+- The captain tracks the complete cache key, owning worker, and worker cache
+  slot only after receiving that completion. Reuse therefore requires no
+  synchronous worker query.
+- A current request matching a completed warm key is served by the captain
+  directly from the worker's shared cache image. The captain extracts the
+  requesting rank's local slice and publishes it through the Step 10 model
+  mailbox without dispatching a new worker request.
+- Warm metadata is replaced whenever a worker reuses a cache slot, preventing
+  stale keys from referencing overwritten shared data.
+- Warm reads are deferred while their owning worker is busy, so the shared
+  cache image cannot be read while that worker may be replacing the slot.
+- Added the shutdown diagnostic `AsyncInputServer captain cache: warm_hits=`.
+
+#### Verification
+- Clean `nag-stack` build and `build-tests` target passed in `nag-clean`.
+- Focused regression selection passed 8/8:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- Verbose rolling case03 (`case47`) passed and reported
+  `AsyncInputServer captain cache: warm_hits=1`, demonstrating a current read
+  was served without another worker dispatch.
+- Logs are saved in `nag-clean/`:
+  - `step11-final-build.log`
+  - `step11-final-tests.log`
+  - `step11-case47-verbose.log`
+
+#### Resume Point
+- Step 11 is implemented and passing locally.
+- Step 12 is next: make the cache-slot count configurable. The new shared
+  worker cache layout must use that same configured count when implemented.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.
+
+### Step 12 Configurable Cache Slots (2026-09-13)
+
+#### Implemented
+- Replaced the fixed-size two-element worker cache with an allocatable cache
+  sized during `AsyncInputServer` construction.
+- Added `MAPL_ASYNC_INPUT_CACHE_SLOTS`; unset, invalid, and non-positive values
+  use the existing default of two slots.
+- The Step 11 worker shared-cache mirror now allocates and indexes the same
+  runtime slot count, keeping captain-side warm-key metadata consistent with
+  worker eviction.
+- Reader shutdown diagnostics now include `slots=` so test logs show the
+  effective configuration.
+
+#### Verification
+- Clean `nag-stack` build and `build-tests` target passed in `nag-clean`.
+- The default focused regression selection passed 8/8:
+  - `MAPL.pfio.tests`
+  - `pFIO_reader_captain_worker_lifecycle`
+  - `MAPL.mapl.server_utilities`
+  - `MAPL3G_Comp_Test_pfio_case01` through `pfio_case05`
+- Case48 passed with both `MAPL_ASYNC_INPUT_CACHE_SLOTS=2` and `=4`; logs
+  confirmed the requested effective slot counts.
+- Both case48 runs reported `hits=12 misses=2 requests=14`. This workload has
+  only two unique resident slabs per worker after Step 11, so increasing to
+  four slots does not improve its already-minimal compulsory-miss count.
+- Multi-worker case49 also passed with four slots.
+- Logs are saved in `nag-clean/`:
+  - `step12-final-build.log`
+  - `step12-default-tests.log`
+  - `step12-case48-slots2.log`
+  - `step12-case48-slots4.log`
+  - `step12-case49-slots4.log`
+
+#### Resume Point
+- Step 12 is implemented and passing locally.
+- A workload with more than two reusable slabs per worker is needed to measure
+  a hit-rate improvement from four slots; current case48 proves configuration
+  and correctness but not a performance difference.
+- Step 13 is next.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.
+
+### Step 13 Selector-Aware Lookahead (2026-09-13)
+
+#### Implemented
+- Added `preview_bracket` as a deferred operation on
+  `AbstractDataSetFileSelector`; both non-climatological and climatological
+  selectors already provide non-mutating implementations.
+- `PrimaryExport` now invokes `preview_bracket(next_time, ...)` polymorphically
+  for both interpolation and no-interpolation exports.
+- Removed the no-interpolation shortcut that treated the current right bracket
+  node as the lookahead request. Current right-node reads remain normal reads
+  for interpolation, while no-interpolation lookahead comes exclusively from
+  the selector preview at `current_time + dt`.
+- Existing selector state and the live bracket remain unchanged because the
+  preview operates on a copied bracket and does not update `last_updated` or
+  swap field data.
+- Updated PFIO case03 (`case47`) to use an irregular 2.5-hour model timestep.
+
+#### Verification
+- Clean `nag-stack` `build-tests` build passed in `nag-clean`.
+- Irregular-timestep case47 passed and selected preview indices 2, 4, and 7
+  for next times 02:30, 05:00, and 07:30. These differ from the old current
+  right-node sequence and verify that the explicit selector preview is used.
+- The generated file-read log still contains only `test.20040103.nc4` and has
+  the expected final run time of `2004-01-03T07:30:00`.
+- Logs are saved in `nag-clean/step13-build-tests.log` and
+  `nag-clean/step13-irregular-case47.log`.
+
+#### Resume Point
+- Step 13 is implemented and the focused irregular-timestep regression passes.
+- Run the broader PFIO case01-case05 selection after any further selector or
+  prefetch changes.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.
+
+### Step 14 Multi-Worker Shutdown (2026-09-13)
+
+#### Implemented
+- Model rank zero now sends the server-level termination command only to the
+  reader captain. The captain owns worker lifecycle and broadcasts
+  `ASYNC_INPUT_CMD_TERMINATE` to every worker rank in `reader_comm` after
+  draining active and pending requests.
+- Each worker now acknowledges termination on `reader_comm` before leaving its
+  service loop.
+- The captain waits for every worker acknowledgment before freeing runtime
+  state and the shared-memory window. This prevents collective cleanup from
+  racing a worker that has not yet exited.
+
+#### Verification
+- Clean `nag-stack` `build-tests` build passed in `nag-clean`.
+- Focused regression selection passed 8/8, including PFIO case01-case05 and
+  the standalone captain/worker lifecycle test.
+- Four-rank case05, with one captain and two workers, passed with
+  `MAPL_PERF_READER_SLEEP_SEC=0.2`; both workers completed outstanding work,
+  acknowledged shutdown, and finalized without a hang or `MPI_Abort`.
+- Logs are saved in `nag-clean/step14-build-tests.log`,
+  `nag-clean/step14-focused-tests.log`, and
+  `nag-clean/step14-two-worker-shutdown.log`.
+
+#### Resume Point
+- Step 14 is implemented and passing locally.
+- Step 15 cluster verification remains.
+- Do not modify or revert the pre-existing user change in
+  `gridcomps/extdata/DataSetNode.F90`.
+
+### MacBook Multi-Worker Benchmark (2026-09-14)
+
+- Updated the existing benchmark scripts to support configurable model PETs,
+  reader-pool sizes, repeated runs, and separate per-run logs.
+- On macOS, the runner replaces the component-driver shared-object name with
+  its absolute dylib path because `mpiexec` child processes do not reliably
+  inherit `DYLD_LIBRARY_PATH`.
+- Fixed repeated captain-side request deserialization exposed by the larger
+  benchmark: the reusable `CollectivePrefetchDataMessage` is reset before each
+  deserialize.
+- Configuration: 8 model PETs, 512x384 grid, no artificial model or reader
+  delay, quick eight-sample workload, three measured repetitions.
+- Mean wall times:
+  - MpiServer, 8 total PETs: 7.94 s
+  - AsyncInputServer, 8 model + captain + 1 worker: 9.74 s
+  - AsyncInputServer, 8 model + captain + 2 workers: 10.01 s
+  - AsyncInputServer, 8 model + captain + 3 workers: 10.74 s
+- Relative to MpiServer, the asynchronous configurations were approximately
+  23%, 26%, and 35% slower respectively on this laptop. Extra workers increase
+  CPU oversubscription and shared-memory/scheduler overhead for this fast local
+  filesystem workload.
+- A confirmation run produced 7.55 s, 9.54 s, 9.99 s, and 10.60 s in the same
+  order and showed that all three workers in the largest configuration handled
+  requests.
+- Results are in `nag-clean/macbook-async-benchmark.log` and
+  `nag-clean/macbook-async-benchmark-confirm.log`.
+
+### Simplified Benchmark Workflow (2026-09-15)
+
+- Replaced the configurable benchmark matrix with one fixed comparison:
+  - MpiServer: 8 model PETs
+  - AsyncInputServer: 8 model PETs plus 1 captain and 2 workers
+- The benchmark directory now contains two explicit run configurations,
+  `cap-mpi.yaml` and `cap-async.yaml`; both consume the same generated files.
+- The complete workflow is two commands:
+  ```bash
+  bash tests/MAPL3G_Component_Testing_Framework/benchmark/prepare_async_perf_cases.sh /tmp/mapl-async-benchmark
+  bash tests/MAPL3G_Component_Testing_Framework/benchmark/run_async_perf_cases.sh /tmp/mapl-async-benchmark nag-clean
+  ```
+- Local macOS validation with the clean NAG build completed successfully:
+  - MpiServer: `8.03 s` wall, `6.79 s` maximum EXTDATA profile time
+  - AsyncInputServer: `10.64 s` wall, `8.95 s` maximum EXTDATA profile time
+  - AsyncInputServer was about 32.5% slower in wall time on this laptop.
+  - Both workers were active; reader summaries reported 231 requests on one
+    worker and 66 on the other, with 215 captain-side warm hits.
+- Validation output is in `nag-clean/simplified-async-benchmark.log`.
+
+### Delayed-I/O Investigation (2026-09-15)
+
+- The controlled benchmark now uses `model_delay: 5.0` in both cap YAMLs and
+  defaults `MAPL_PERF_READER_SLEEP_SEC=1` for both input-server paths. This
+  models a one-second read while leaving enough model work to hide it.
+- Found that cache-only lookahead was not fully asynchronous: every model rank
+  waited for the captain's worker-selection response even though no result was
+  returned. The cache-only path now returns after sending its request; only
+  current reads wait for a selected worker and mailbox result.
+- Found that first-idle file assignment frequently pinned both file families to
+  one worker. New files are now assigned by a deterministic filename hash, so
+  `test_*.nc4` and `test_b_*.nc4` use both workers while preserving exclusive
+  per-file ownership.
+- Found that `MAPL_Sleep` is a busy spin. Using it to emulate reader I/O made
+  11 oversubscribed async processes compete for CPU and invalidated the timing
+  model. Added `MAPL_PassiveSleep` and use it only for the benchmark reader
+  delay; the model delay remains CPU work.
+- With model/read delays both set to one second before the passive-delay fix,
+  the local result improved from `36.21 s` to `29.85 s` after balancing the two
+  workers, but was still slower than MpiServer (`24.23 s`) because of CPU
+  oversubscription and protocol overhead.
+- Final controlled run: five seconds of model work and one second of passive
+  simulated I/O at each compulsory read:
+  - MpiServer: `59.38 s` wall
+  - AsyncInputServer: `62.04 s` wall
+  - Async overhead is now `2.66 s` (4.5%) instead of adding the simulated read
+    time to every model-work interval. Both workers handled 134 requests and
+    six misses, and the captain reported 244 warm hits.
+- This result demonstrates concurrent execution, but the first cold reads and
+  transport/scheduling overhead prevent the total run from being exactly the
+  ideal `max(read, work)`. Cluster verification remains authoritative because
+  the laptop runs 11 MPI processes on 8 physical cores.
+
+### Five-Model Benchmark Topology (2026-09-15)
+
+- Changed the laptop comparison to fit its eight physical cores without
+  oversubscription:
+  - MpiServer: 5 model PETs
+  - AsyncInputServer: 5 model PETs plus 1 captain and 2 workers (8 total)
+- With five seconds of model work and one second of passive simulated I/O:
+  - MpiServer: `57.21 s` wall
+  - AsyncInputServer: `63.00 s` wall
+  - Both async workers handled 86 requests and six misses; the captain served
+    148 warm hits.
+- Results are in `nag-clean/simplified-async-5plus3-benchmark.log`.
+
+### Current/Next Data-Flow Verification (2026-09-15)
+
+- Verified the client ordering in `ExtDataGridComp` and `ExtDataFileReader`:
+  current requests are submitted and waited for first; future-left and
+  future-right cache-only requests are then submitted before the cap starts
+  its model-work delay.
+- Fixed the cache-only server path so a model rank no longer waits for a worker
+  assignment. Current requests still block until their mailbox result is
+  ready, while next requests return after submission and execute on readers
+  during model work.
+- Added separate reader diagnostics for `demand_misses` and
+  `prefetch_misses`, plus captain-side `prefetch_hits`. The previous aggregate
+  miss counter could not distinguish a failed lookahead from the expected miss
+  that actually loads new future data.
+- The focused rollover benchmark uses eight consecutive 15-minute model steps
+  around the daily-file boundary. Its cache summary was:
+  - each worker: `demand_misses=2`, all incurred during the initial current
+    pair load
+  - each worker: `prefetch_misses=1`, incurred while asynchronously preparing
+    the new file at rollover
+  - captain: `warm_hits=26 prefetch_hits=218`
+- Therefore, after startup, new data misses occur on the next/prefetch path;
+  subsequent current requests are served warm. This matches the intended data
+  flow. The worker's aggregate `misses` count is not expected to become zero,
+  because every newly introduced future dataset must first miss in order to be
+  loaded.
+- Controlled 5-model + 3-reader timing for that focused flow:
+  - MpiServer: `51.43 s`
+  - AsyncInputServer: `54.28 s`
+- Results are in `nag-clean/async-dataflow-pivot-benchmark.log`.
+
+### Equal-Delay Interpretation (2026-09-15)
+
+- Equal-delay local comparison used the same focused rollover workload with:
+  - `model_delay = 5 s`
+  - `MAPL_PERF_READER_SLEEP_SEC = 5 s`
+  - 5 model PETs for `MpiServer`
+  - 5 model PETs + 1 captain + 2 workers for `AsyncInputServer`
+- Measured wall times:
+  - MpiServer: `58.82 s`
+  - AsyncInputServer: `71.65 s`
+- The naive expectation of
+  `MpiServer = model_delay + reader_delay` versus
+  `AsyncInputServer = max(model_delay, reader_delay)` does **not** match this
+  workload because neither side executes one single read per model step.
+- Important observations from the instrumented async run:
+  - zero-read-delay baseline:
+    - MpiServer: `48.87 s`
+    - AsyncInputServer: `50.56 s`
+  - equal 5-second read delay adds:
+    - about `9.95 s` to MpiServer
+    - about `21.09 s` to AsyncInputServer
+  - async reader diagnostics show only six real reader misses total:
+    - each worker: `demand_misses=2`, `prefetch_misses=1`
+    - these correspond to two cold current loads at startup plus one future-file
+      load at the rollover boundary
+- Interpretation:
+  - MpiServer is not a single sequential reader in this collective path. The
+    baseline already distributes collective read work across server/model PETs,
+    so its added delay is closer to a small number of parallel read waves than
+    to `8 * 5 s`.
+  - AsyncInputServer also does not reduce to one ideal overlapped read per
+    timestep. For this focused workload it pays:
+    - startup cold current reads
+    - one future-file prefetch miss per worker at rollover
+    - fixed captain/mailbox/protocol overhead
+    - end-of-run work that cannot be overlapped backward into a later step
+- Therefore, the near wall-time proximity is explained by the benchmark shape:
+  a small number of unique file-read events dominate both paths, and the
+  baseline path already overlaps some of its read delay internally.
+
+### Resume Point (2026-09-15 End Of Day)
+
+- The async current/next data flow is now verified:
+  - current requests block and are delivered correctly
+  - next requests are cache-only and no longer wait for worker assignment
+  - redundant warm next requests are dropped by the captain
+  - worker ownership is balanced deterministically by filename hash
+- The focused rollover benchmark confirms the intended miss pattern:
+  - each worker: `demand_misses=2` at cold start only
+  - each worker: `prefetch_misses=1` at the rollover future-file load
+  - no evidence of extra steady-state current misses after startup
+- The remaining unresolved question is performance interpretation, not basic
+  correctness:
+  - why the equal-delay wall times remain close even though the async pipeline
+    is functioning
+  - current best explanation: this benchmark has only a few unique file-read
+    events, and the MpiServer collective path already overlaps some read delay
+    internally
+- Best logs to read first tomorrow:
+  - `nag-clean/async-dataflow-pivot-benchmark.log`
+  - `nag-clean/async-model5-read0-benchmark.log`
+  - `nag-clean/async-equal-delay-dedup-benchmark.log`
+  - `.opencode/plans/async-input-server-status.md`
+- Most likely next task:
+  - build a benchmark with repeated rollover-style future-file introductions so
+    every timestep exercises the next-prefetch pipeline, making the expected
+    `max(model_delay, reader_delay)` behavior directly measurable.
+
+### Concurrent Read/Model Investigation (2026-09-16)
+
+- Traced the complete current/next path. `ExtDataGridComp%run` waits for all
+  current reads, submits cache-only future-left/right reads, and returns before
+  the cap starts its model-work delay. The cache-only client call waits only for
+  the server's receipt handshake; `forward_request_to_reader` no longer waits
+  for worker assignment or completion for next requests.
+- Added matching `MPI_Wtime` interval diagnostics around the benchmark model
+  delay and the benchmark-only reader delay.
+- The existing daily-file rollover workload does not create a new read every
+  timestep; most next requests are warm duplicates. A controlled run with
+  `model_delay=5 s` and reader delay `5 s` showed the only steady-state
+  prefetch misses overlapping model work directly:
+  - model interval approximately `[39.178, 44.203]`
+  - worker 1 prefetch interval approximately `[39.180, 44.181]`
+  - worker 2 prefetch interval approximately `[39.192, 44.193]`
+- This proves the model and both reader workers execute concurrently. The
+  remaining wall-time gap comes from four cold demand misses before the first
+  model interval, plus startup/protocol overhead, not a synchronization barrier
+  between prefetch reads and model work.
+- The equal-delay run measured `MpiServer=59.06 s` and
+  `AsyncInputServer=70.79 s`. The async run paid about 20 seconds for four
+  serialized cold-start demand reads, while its two later prefetch reads were
+  fully hidden inside one five-second model interval.
+- The benchmark preparation now generates additional daily source files and
+  the benchmark run extends through `22:00`, keeping the day-boundary overlap
+  event away from the final timestep.
+- Clean NAG `build-tests` completed, and the captain/worker lifecycle plus PFIO
+  case01-case05 selection passed 6/6.
+- Logs:
+  - `nag-clean/concurrency-investigation-build.log`
+  - `nag-clean/concurrency-investigation-tests.log`
+  - `nag-clean/concurrency-overlap-benchmark.log`
+
+#### Conclusion
+- Reading and model work can run concurrently in the current implementation.
+- What cannot overlap is a cold **current** read, by design: ExtData must receive
+  that data before it can return to the cap/model. The first timestep therefore
+  has unavoidable pipeline fill cost.
+- A benchmark that expects every simulated read delay to disappear must either
+  exclude startup/final drain from timing or use enough repeated future-file
+  transitions to amortize them. The interval evidence is the authoritative
+  concurrency check; aggregate wall time alone is not.
+
+### Every-Step Read Benchmark (2026-09-16)
+
+- Changed the benchmark workload to use one timestamped source file per
+  15-minute model timestep instead of reusing daily files.
+- Input generation now writes the required sequence before the timed runs. Both
+  benchmark variants read the same files and execute eight timed model steps.
+- With `model_delay=5 s` and `MAPL_PERF_READER_SLEEP_SEC=5`:
+  - MpiServer: `53.54 s`
+  - AsyncInputServer: `59.72 s`
+  - each async worker reported `misses=8`: one cold demand miss plus seven
+    next-prefetch misses
+  - the captain reported `warm_hits=8 prefetch_hits=56`
+- Every steady-state prefetch read overlaps its model interval. Representative
+  intervals were:
+  - model approximately `[28.55, 33.57]`, readers approximately
+    `[28.53, 33.55]`
+  - model approximately `[33.62, 38.64]`, readers approximately
+    `[33.60, 38.62]`
+  - model approximately `[43.76, 48.77]`, readers approximately
+    `[43.73, 48.75]`
+- There is one new dataset per field family per timestep. The two families are
+  assigned to separate workers, so they form one parallel read wave per step.
+  MpiServer's model ranks also read concurrently, so its five-second delay is
+  one read wave per step rather than five seconds per rank.
+- The remaining async wall-time penalty is primarily pipeline fill: its two
+  cold demand reads are serialized before the first model step. Steady-state
+  async timesteps take about five seconds and demonstrate the intended overlap.
+- Results are in `nag-clean/concurrency-every-step-delay5.log`.
+
+### Equal-Work Dry-Read Benchmark (2026-09-16)
+
+- Added benchmark-only `MAPL_PERF_DRY_RUN_READS` support to both input-server
+  paths. When enabled, the selected file still supplies metadata for ExtData,
+  but the server skips `get_var`, fills the requested payload with zeros, and
+  applies `MAPL_PERF_READER_SLEEP_SEC` as the simulated read cost.
+- Dry-run mode also gives MpiServer the same one-step future-data schedule as
+  AsyncInputServer. MpiServer submits that future item as an ordinary blocking
+  read; AsyncInputServer submits it as cache-only asynchronous work. Production
+  behavior is unchanged when the environment variable is unset.
+- The benchmark now generates timestamped 15-minute source files and runs 16
+  timed timesteps. Each timestep introduces one new dataset in each of two file
+  families; the async server assigns the families to its two workers.
+- Equal-delay configuration:
+  - model work: `5 s` per timestep
+  - simulated read: `5 s` per new dataset
+  - `MAPL_PERF_DRY_RUN_READS=1`
+- Final wall times:
+  - MpiServer: `170.42 s`
+  - AsyncInputServer: `100.26 s`
+  - AsyncInputServer improvement: approximately `41.2%`
+- The steady-state slopes match the intended model:
+  - MpiServer: approximately `10 s/timestep` because its blocking read wave is
+    followed by the five-second model interval
+  - AsyncInputServer: approximately `5 s/timestep` because the next read wave
+    overlaps the five-second model interval
+- Async diagnostics confirmed exactly one read per worker per timestep:
+  - each worker: `misses=16`, `demand_misses=1`, `prefetch_misses=15`
+  - captain: `warm_hits=8 prefetch_hits=120`
+- The async startup remains more expensive because its two cold current reads
+  are delivered synchronously before the first model step. The longer run
+  amortizes this pipeline-fill cost and exposes the steady-state benefit.
+- Clean NAG build passed. With dry mode unset, the captain/worker lifecycle and
+  PFIO case01-case05 regression selection passed 6/6.
+- Logs:
+  - `nag-clean/dry-read-build.log`
+  - `nag-clean/dry-read-equal-work-16step.log`
+  - `nag-clean/dry-read-final-regressions.log`

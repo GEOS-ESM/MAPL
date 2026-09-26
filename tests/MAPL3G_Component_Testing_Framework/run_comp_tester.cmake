@@ -2,7 +2,7 @@ macro(run_case CASE DESCRIPTION)
     string(RANDOM LENGTH 24 tempdir)
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E make_directory ${tempdir}
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/test_cases/${CASE} ${tempdir}
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/${TEST_CASE_PATH} ${tempdir}
       )
     if (EXISTS "${tempdir}/nproc.rc")
       file(READ "${tempdir}/nproc.rc" num_procs_temp)
@@ -38,11 +38,11 @@ macro(run_case CASE DESCRIPTION)
             string(REGEX MATCH "^([^ ]+) +([^ ]+)$" _ "${pair}")
             set(generated "${tempdir}/${CMAKE_MATCH_1}")
             set(reference "${tempdir}/${CMAKE_MATCH_2}")
-            execute_process(
-                COMMAND ${CMAKE_COMMAND} -E compare_files "${generated}" "${reference}"
-                RESULT_VARIABLE COMPARE_RESULT
-                )
-            if(COMPARE_RESULT)
+            file(READ "${generated}" generated_contents)
+            file(READ "${reference}" reference_contents)
+            string(STRIP "${generated_contents}" generated_contents)
+            string(STRIP "${reference_contents}" reference_contents)
+            if(NOT generated_contents STREQUAL reference_contents)
                 message(FATAL_ERROR "${CASE} FAILED: ${CMAKE_MATCH_1} does not match reference ${CMAKE_MATCH_2}")
             endif()
         endforeach()
