@@ -32,8 +32,9 @@ module pFIO_AsyncInputServerMod
      integer, parameter :: ASYNC_INPUT_CMD_TERMINATE = -1
      integer, parameter :: ASYNC_INPUT_TAG_REQUEST_HEADER = 4701
      integer, parameter :: ASYNC_INPUT_TAG_REQUEST_PAYLOAD = 4702
-     integer, parameter :: ASYNC_INPUT_TAG_ASSIGNMENT = 4703
-     integer, parameter :: ASYNC_INPUT_TAG_TERMINATE = 4704
+      integer, parameter :: ASYNC_INPUT_TAG_ASSIGNMENT = 4703
+      integer, parameter :: ASYNC_INPUT_TAG_TERMINATE = 4704
+      integer, parameter :: ASYNC_INPUT_TAG_TERMINATED = 4705
      integer, parameter :: ASYNC_INPUT_TAG_WORKER_HEADER = 4711
      integer, parameter :: ASYNC_INPUT_TAG_WORKER_PAYLOAD = 4712
      integer, parameter :: ASYNC_INPUT_TAG_COMPLETION = 4713
@@ -232,7 +233,8 @@ module pFIO_AsyncInputServerMod
         procedure, public :: is_reader_role
         procedure, public :: is_model_role
         procedure, public :: is_captain_role
-        procedure, public :: is_worker_role
+         procedure, public :: is_worker_role
+         procedure, public :: is_model_node
         procedure, public :: get_captain_service_rank
         procedure, public :: next_protocol_request_id
         procedure, public :: service_collective_prefetch
@@ -329,8 +331,10 @@ contains
       _VERIFY(ierror)
       this%topology%model_size = count(model_flags == 1)
       this%topology%reader_size = this%topology%node_size - this%topology%model_size
-      _ASSERT(this%topology%reader_size >= 2, &
-           'AsyncInputServer requires one reader captain and at least one reader worker')
+       if (this%topology%model_size > 0) then
+          _ASSERT(this%topology%reader_size >= 2, &
+               'AsyncInputServer requires one reader captain and at least one reader worker')
+       end if
        allocate(this%topology%reader_server_ranks(this%topology%reader_size))
        this%topology%reader_server_ranks = pack(this%topology%node_server_ranks, model_flags == 0)
        this%topology%captain_service_rank = this%topology%reader_server_ranks(1)
@@ -376,8 +380,10 @@ contains
        integer(kind=MPI_ADDRESS_KIND) :: baseaddr
 #endif
 
-       _ASSERT(this%topology%reader_size > 1, &
-            'nonfallback AsyncInputServer requires at least one reader worker')
+       if (this%topology%model_size > 0) then
+          _ASSERT(this%topology%reader_size > 1, &
+               'nonfallback AsyncInputServer requires at least one reader worker')
+       end if
        _ASSERT(storage_size(0_INT64) == ASYNC_INPUT_REQUEST_ID_WORDS * storage_size(0), &
             'AsyncInputServer cannot represent an INT64 request ID in shared-memory words')
        local_bytes = 0_MPI_ADDRESS_KIND
@@ -432,6 +438,7 @@ contains
        integer :: i, client_size
        logical, allocatable :: mask(:)
        integer :: status, ierr, cmd, source_service_rank, buffer_size, slot_index, msize_word
+       integer :: terminating_model_rank
        integer :: mpi_status(MPI_STATUS_SIZE)
        integer, allocatable :: buffer(:), result(:)
        integer(INT64) :: header_words(ASYNC_INPUT_REQUEST_HEADER_WORDS)
@@ -508,6 +515,7 @@ contains
              allocate(workers(this%topology%reader_size - 1))
              allocate(pending(0))
              allocate(warm_records(0))
+             terminating_model_rank = -1
              do while (.true.)
                 call poll_reader_completions(this, workers, warm_records, .false., ierr)
                 _VERIFY(ierr)
@@ -526,6 +534,7 @@ contains
                   call MPI_Recv(cmd, 1, MPI_INTEGER, source_service_rank, ASYNC_INPUT_TAG_TERMINATE, &
                        this%comm, MPI_STATUS_IGNORE, ierr)
                   _VERIFY(ierr)
+                  terminating_model_rank = source_service_rank
                   exit
                end if
                _ASSERT(mpi_status(MPI_TAG) == ASYNC_INPUT_TAG_REQUEST_HEADER, 'unknown captain protocol tag')
@@ -580,8 +589,12 @@ contains
                  call MPI_Recv(cmd, 1, MPI_INTEGER, i, ASYNC_INPUT_TAG_WORKER_TERMINATED, &
                      this%topology%reader_comm, MPI_STATUS_IGNORE, ierr)
                 _VERIFY(ierr)
-                _ASSERT(cmd == ASYNC_INPUT_CMD_TERMINATE, 'reader worker returned an invalid shutdown acknowledgment')
+                 _ASSERT(cmd == ASYNC_INPUT_CMD_TERMINATE, 'reader worker returned an invalid shutdown acknowledgment')
              end do
+             _ASSERT(terminating_model_rank >= 0, 'reader captain has no model shutdown requester')
+             call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, terminating_model_rank, &
+                  ASYNC_INPUT_TAG_TERMINATED, this%comm, ierr)
+             _VERIFY(ierr)
              deallocate(warm_records)
             deallocate(pending)
             deallocate(workers)
@@ -630,7 +643,7 @@ contains
        class(AsyncInputServer), intent(inout) :: this
        integer, optional, intent(out) :: rc
 
-        integer :: status
+        integer :: status, shutdown_ack
 
         if (this%topology%node_comm == MPI_COMM_NULL) then
            _RETURN(_SUCCESS)
@@ -641,6 +654,11 @@ contains
                  this%topology%captain_service_rank, &
                 ASYNC_INPUT_TAG_TERMINATE, this%comm, status)
            _VERIFY(status)
+           call MPI_Recv(shutdown_ack, 1, MPI_INTEGER, this%topology%captain_service_rank, &
+                ASYNC_INPUT_TAG_TERMINATED, this%comm, MPI_STATUS_IGNORE, status)
+           _VERIFY(status)
+           _ASSERT(shutdown_ack == ASYNC_INPUT_CMD_TERMINATE, &
+                'reader captain returned an invalid shutdown acknowledgment')
         end if
 
         call finalize_runtime(this, _RC)
@@ -666,6 +684,11 @@ contains
         class(AsyncInputServer), intent(in) :: this
         is_worker_role = this%worker_role
      end function is_worker_role
+
+     logical function is_model_node(this)
+        class(AsyncInputServer), intent(in) :: this
+        is_model_node = this%topology%model_size > 0
+     end function is_model_node
 
      integer function get_captain_service_rank(this)
         class(AsyncInputServer), intent(in) :: this

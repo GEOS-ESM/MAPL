@@ -707,13 +707,13 @@ contains
 
        integer :: i, status
 
-       ! Model PETs have nothing to do here.
+       ! Model PETs have nothing to do here. On non-model PETs, start a
+       ! configured local AsyncInputServer first when this PET is a reader on
+       ! a model-containing shared-memory node. Reader start blocks until the
+       ! model shuts the service down; PETs on remote-server-only nodes skip
+       ! it and continue to their ESMF server GridComp below.
        _RETURN_IF(this%is_model_pet)
-
-       if (size(servers) == 0) then
-          call this%run_local_async_servers(_RC)
-          _RETURN(_SUCCESS)
-       end if
+       call this%run_local_async_servers(_RC)
 
         ! Server PETs run each server GridComp.
         ! ESMF only executes on PETs in the GridComp's petList; other
@@ -750,10 +750,20 @@ contains
          has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
          if (has_subclass_local) subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
          if (is_local .and. subclass_name == 'AsyncInputServer') then
-            server_ptr => this%local_server_map%at(server_name)
-            select type (typed_server => server_ptr)
-            type is (AsyncInputServer)
-               if (typed_server%is_reader_role()) call typed_server%start(_RC)
+             server_ptr => this%local_server_map%at(server_name)
+             select type (typed_server => server_ptr)
+             type is (AsyncInputServer)
+                if (typed_server%is_reader_role()) then
+                   if (typed_server%is_model_node()) then
+                      call typed_server%start(_RC)
+                   else
+                      ! This PET belongs to a remote-server-only node. It
+                      ! participated in async topology/window construction,
+                      ! so release those local resources before entering its
+                      ! remote server GridComp.
+                      call typed_server%shutdown(_RC)
+                   end if
+                end if
             class default
                _FAIL('registered local async server has the wrong type')
             end select

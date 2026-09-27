@@ -714,6 +714,81 @@ contains
       @assertTrue(model_ok)
    end subroutine test_scheduler_coalesces_identical_inflight_key
 
+   ! Shutdown is requested while one demand is active and another request is
+   ! queued. The captain must drain both, stop every worker, collect every
+   ! worker acknowledgment, and only then acknowledge the model root.
+   @test(npes=[5])
+   subroutine test_shutdown_drains_active_and_queued_work(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(len=*), parameter :: file_a = 'step21_drain_a.nc4'
+      character(len=*), parameter :: file_b = 'step21_drain_b.nc4'
+      character(len=*), parameter :: var_name = 'v'
+      real(kind=REAL32), parameter :: value_a(1) = [71.0]
+      real(kind=REAL32), parameter :: value_b(1) = [82.0]
+
+      type(AsyncInputServer) :: server
+      type(CaptureSocket), target :: connection
+      integer :: parent_comm, model_comm
+      integer :: parent_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr, rc_i
+      logical :: worker_ok, model_ok
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+      model_color = MPI_UNDEFINED
+      if (parent_rank <= 1) model_color = 0
+      call MPI_Comm_split(parent_comm, model_color, parent_rank, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(parent_comm, 'step21-drain', model_comm=model_comm, rc=init_rc)
+      @assertEqual(0, init_rc)
+      if (parent_rank == 0) then
+         call create_real32_fixture(file_a, var_name, 'i', value_a)
+         call create_real32_fixture(file_b, var_name, 'i', value_b)
+      end if
+      call MPI_Barrier(parent_comm, ierr)
+
+      worker_ok = .true.
+      model_ok = .true.
+      select case (parent_rank)
+      case (2)
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+      case (3, 4)
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+         worker_ok = server%get_reader_requests() >= 1
+      case (0)
+         call prepare_model_for_direct_service(server)
+         call MPI_Barrier(model_comm, ierr)
+         call model_submit_prefetch(server, connection, file_a, var_name, [1], [1], 701, rc_i)
+         model_ok = rc_i == 0
+         call MPI_Barrier(model_comm, ierr)
+         call server%shutdown(rc=shutdown_rc)
+         @assertEqual(0, shutdown_rc)
+      case (1)
+         call prepare_model_for_direct_service(server)
+         call MPI_Barrier(model_comm, ierr)
+         call model_submit_prefetch(server, connection, file_b, var_name, [1], [1], 702, rc_i)
+         model_ok = rc_i == 0
+         call MPI_Barrier(model_comm, ierr)
+         call server%shutdown(rc=shutdown_rc)
+         @assertEqual(0, shutdown_rc)
+      end select
+
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+      call MPI_Barrier(parent_comm, ierr)
+      if (parent_rank == 0) then
+         call delete_fixture_file(file_a)
+         call delete_fixture_file(file_b)
+      end if
+      call MPI_Barrier(parent_comm, ierr)
+
+      @assertTrue(worker_ok)
+      @assertTrue(model_ok)
+   end subroutine test_shutdown_drains_active_and_queued_work
+
    @test(npes=[4])
    subroutine test_temporary_reordered_model_comm(this)
       class(MpiTestMethod), intent(inout) :: this

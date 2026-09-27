@@ -743,6 +743,70 @@ Results:
 - `AsyncInputServer` derives node-local communicators internally with `MPI_Comm_split_type`.
 - If `reader_capacity_on_node == 0`, it falls back to synchronous behavior.
 
+### Step 21: Hierarchical Shutdown and Framework Integration (2026-09-27)
+
+- State: complete.
+- Added a distinct captain-to-model termination acknowledgment tag. The sole
+  model-node root sends termination, the captain stops accepting requests,
+  drains pending and active work, terminates every worker, receives every
+  worker acknowledgment, and only then acknowledges the model root.
+- `shutdown` now blocks the model-node root until that captain acknowledgment
+  arrives. All ranks still enter the single idempotent `finalize_runtime`
+  cleanup path; repeated calls return immediately after `node_comm` becomes
+  `MPI_COMM_NULL`.
+- Added `is_model_node()` from immutable topology state. Framework reader PETs
+  use it to distinguish node-local async readers from unrelated remote-server
+  PETs without consulting the caller-owned `model_comm`.
+- Fixed `MaplFramework%run_servers`: non-model PETs now always check and run a
+  node-local async input service before processing remote server GridComps.
+  Previously the local service was started only when `size(servers)==0`, so a
+  configured remote output server suppressed local async readers. PETs on
+  remote-only nodes skip local async startup, release the topology/window
+  resources they collectively created, and continue to their ESMF GridComp
+  normally. Topology validation now requires a captain/workers only on nodes
+  that actually contain model ranks.
+- Communicator ownership remains scoped to `AsyncInputServer`; no
+  `AbstractServer` ownership behavior changed.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+- `mapl/MaplFramework.F90`
+- `pfio/tests/Test_AsyncInputServer.pf`
+
+Tests:
+
+- Added `test_shutdown_drains_active_and_queued_work` (2 models, 1 captain,
+  2 workers). Both models submit accepted cache-only work and immediately
+  initiate hierarchical shutdown. The model root cannot return until the
+  captain has drained both requests and collected both worker acknowledgments;
+  each worker asserts that it serviced work.
+- Existing lifecycle tests continue to exercise idempotent post-`start`
+  cleanup and reordered rank mappings.
+- The mixed local/remote framework branch is covered structurally by the
+  unconditional `run_local_async_servers` call plus the `is_model_node` guard;
+  the current single-node CTest environment cannot allocate a distinct remote
+  server SSI for a full mixed GridComp integration case.
+
+Commands and results:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target MAPL.pfio.tests 2>&1 | tee build/step21-build-pfio.log && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure --timeout 90 2>&1 | tee build/step21-pfio-tests.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure --timeout 180 2>&1 | tee build/step21-pfio-components.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL.mapl.server_utilities$" --output-on-failure --timeout 90 2>&1 | tee build/step21-server-utilities.log'
+```
+
+- NAG `MAPL.pfio.tests` build: passed.
+- `MAPL.pfio.tests`: passed under a 90-second timeout.
+- PFIO component cases 01-05: 5/5 passed.
+- `MAPL.mapl.server_utilities`: 1/1 passed.
+- Logs: `build/step21-build-pfio.log`, `build/step21-pfio-tests.log`,
+  `build/step21-pfio-components.log`, and
+  `build/step21-server-utilities.log`.
+- Remaining risk: run the mixed local-async plus remote-output configuration
+  on a multi-SSI cluster as part of Step 22/cluster verification.
+- Next step: Step 22, regression coverage and documentation.
+
 ### Files Added
 - `.opencode/plans/async-input-server-plan.md`
 - `.opencode/plans/async-input-server-status.md`
