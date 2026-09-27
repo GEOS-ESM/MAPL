@@ -23,19 +23,20 @@ module mapl_ExtDataGridComp_mod
 
    ! Private state
    character(*), parameter :: PRIVATE_STATE = "ExtData"
-   type :: ExtDataGridComp
-      type(PrimaryExportVector) :: export_vector
-      type(integerVector) :: rules_per_export
-      type(integerVector) :: export_id_start
-      type(StringVector) :: export_names
+    type :: ExtDataGridComp
+       type(PrimaryExportVector) :: export_vector
+       type(integerVector) :: rules_per_export
+       type(integerVector) :: export_id_start
+       type(StringVector) :: export_names
       logical :: has_run_mod_advert = .false.
       type(StringVector) :: active_items
       type(StringIntegerMap) :: last_item
-      logical :: log_files_read = .false.
-      character(:), allocatable :: files_read_log_path
-      type(StringSet) :: files_read
-      type(ESMF_Time) :: run_start_time
-      type(ESMF_Time) :: run_end_time
+       logical :: log_files_read = .false.
+       character(:), allocatable :: files_read_log_path
+       character(:), allocatable :: input_server_name
+       type(StringSet) :: files_read
+       type(ESMF_Time) :: run_start_time
+       type(ESMF_Time) :: run_end_time
    contains
       procedure :: get_item_index
    end type ExtDataGridComp
@@ -95,11 +96,12 @@ contains
       call ESMF_ClockGet(clock, currTime=current_time, timeStep=time_step, _RC)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       extdata_gridcomp%active_items = get_active_items(exportState, _RC)
-      call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
-      extdata_gridcomp%log_files_read = config%log_files_read
-      if (config%log_files_read) then
-         extdata_gridcomp%files_read_log_path = config%files_read_log_path
-         extdata_gridcomp%run_start_time = current_time
+       call new_ExtDataConfig_from_yaml(config, hconfig, current_time,  _RC)
+       extdata_gridcomp%log_files_read = config%log_files_read
+       extdata_gridcomp%input_server_name = config%input_server_name
+       if (config%log_files_read) then
+          extdata_gridcomp%files_read_log_path = config%files_read_log_path
+          extdata_gridcomp%run_start_time = current_time
       end if
       rule_counter = 0
       iter = extdata_gridcomp%active_items%ftn_begin()
@@ -150,16 +152,26 @@ contains
       real, allocatable :: weights(:)
       character(len=:), allocatable :: export_name
       character(len=:), pointer :: base_name
-      type(ExtDataReader), target :: reader
+      type(ExtDataReader), target :: reader, prefetch_left_reader, prefetch_right_reader
+      class(ClientThread), pointer :: input_client
       class(logger), pointer :: lgr
       type(ESMF_FieldBundle) :: bundle
       integer :: idx
       integer, pointer :: last_index
+      type(ESMF_TimeInterval) :: time_step
+      type(ESMF_Time) :: next_time, stop_time
+      logical :: can_prefetch_next, supports_cache_only_prefetch
 
       call MAPL_GridCompGet(gridcomp, logger=lgr, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, ExtDataGridComp, PRIVATE_STATE, extdata_gridcomp)
-      call ESMF_ClockGet(clock, currTime=current_time, _RC)
-      call reader%initialize_reader(_RC)
+      input_client => mapl_get_client(extdata_gridcomp%input_server_name, _RC)
+      supports_cache_only_prefetch = input_client%supports_cache_only_prefetch()
+      call ESMF_ClockGet(clock, currTime=current_time, timeStep=time_step, stopTime=stop_time, _RC)
+      next_time = current_time + time_step
+      can_prefetch_next = next_time < stop_time
+      call reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
+      call prefetch_left_reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
+      call prefetch_right_reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
       iter = extdata_gridcomp%active_items%ftn_begin()
       do while (iter /= extdata_gridcomp%active_items%ftn_end())
          call iter%next()
@@ -179,13 +191,24 @@ contains
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
          call export_item%append_state_to_reader(exportState, reader, lgr, _RC)
+           if (supports_cache_only_prefetch .and. &
+                (can_prefetch_next .or. export_item%bracket%uses_time_interpolation())) then
+            call export_item%append_future_left_to_reader(exportState, next_time, prefetch_left_reader, lgr, _RC)
+            call export_item%append_future_right_to_reader(exportState, next_time, prefetch_right_reader, lgr, _RC)
+         end if
       end do
       call reader%read_items(lgr, _RC)
+      call prefetch_left_reader%read_items(lgr, _RC)
+      call prefetch_right_reader%read_items(lgr, _RC)
       if (extdata_gridcomp%log_files_read) then
          call reader%get_unique_filenames(extdata_gridcomp%files_read, _RC)
+         call prefetch_left_reader%get_unique_filenames(extdata_gridcomp%files_read, _RC)
+         call prefetch_right_reader%get_unique_filenames(extdata_gridcomp%files_read, _RC)
          extdata_gridcomp%run_end_time = current_time
       end if
       call reader%destroy_reader(_RC)
+      call prefetch_left_reader%destroy_reader(_RC)
+      call prefetch_right_reader%destroy_reader(_RC)
 
       call handle_fractional_regrid(extdata_gridcomp, current_time, exportState, _RC)
 

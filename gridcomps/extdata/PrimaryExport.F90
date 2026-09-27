@@ -51,16 +51,18 @@ module mapl_PrimaryExport_mod
       ! and some other file is being compared against it.
       real(kind=ESMF_KIND_R8) :: coordinate_tolerance = 0.0_ESMF_KIND_R8
 
-      contains
-         procedure :: get_file_selector
-         procedure :: complete_export_spec
-         procedure :: update_export_spec
+       contains
+          procedure :: get_file_selector
+          procedure :: complete_export_spec
+          procedure :: update_export_spec
          !procedure :: get_file_var_name
          procedure :: get_export_var_name
-         procedure :: get_bracket
-         procedure :: update_my_bracket
-         procedure :: append_state_to_reader
-         procedure :: set_fraction_values_to_zero
+          procedure :: get_bracket
+          procedure :: update_my_bracket
+          procedure :: append_state_to_reader
+          procedure :: append_future_left_to_reader
+          procedure :: append_future_right_to_reader
+          procedure :: set_fraction_values_to_zero
    end type
 
    interface PrimaryExport
@@ -69,22 +71,24 @@ module mapl_PrimaryExport_mod
 
    contains
 
-   function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step,  rc) result(primary_export)
-      type(PrimaryExport) :: primary_export
-      character(len=*), intent(in) :: export_var
-      type(ExtDataRule), pointer, intent(in) :: rule
-      type(ExtDataCollection), pointer, intent(in) :: collection
-      type(ExtDataSample), pointer, intent(in) :: sample
-      type(ESMF_Time), intent(in) :: time_range(:)
-      type(ESMF_TimeInterval), intent(in) :: time_step
-      integer, optional, intent(out) :: rc
+    function new_PrimaryExport(export_var, rule, collection, sample, time_range, time_step, input_server_name, rc) result(primary_export)
+       type(PrimaryExport) :: primary_export
+       character(len=*), intent(in) :: export_var
+       type(ExtDataRule), pointer, intent(in) :: rule
+       type(ExtDataCollection), pointer, intent(in) :: collection
+       type(ExtDataSample), pointer, intent(in) :: sample
+       type(ESMF_Time), intent(in) :: time_range(:)
+       type(ESMF_TimeInterval), intent(in) :: time_step
+       character(len=*), intent(in), optional :: input_server_name
+       integer, optional, intent(out) :: rc
 
       type(NonClimDataSetFileSelector) :: non_clim_file_selector
       type(ClimDataSetFileSelector) :: clim_file_selector
-      type(DataSetNode) :: left_node, right_node
-      character(len=:), allocatable :: file_template
-      integer :: status, semi_pos
-      class(ClientThread), pointer :: i_client
+       type(DataSetNode) :: left_node, right_node
+       character(len=:), allocatable :: file_template
+       character(len=:), allocatable :: server_name
+       integer :: status, semi_pos
+       class(ClientThread), pointer :: i_client
 
       primary_export%export_var = export_var
       primary_export%is_constant = .not.associated(collection)
@@ -108,12 +112,14 @@ module mapl_PrimaryExport_mod
          end if
          call left_node%set_node_side(NODE_LEFT)
          call right_node%set_node_side(NODE_RIGHT)
-         call primary_export%bracket%set_node(NODE_LEFT, left_node)
-         call primary_export%bracket%set_node(NODE_RIGHT, right_node)
-         call primary_export%file_selector%get_file_template(file_template)
-          i_client => mapl_get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
-         primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
-         call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
+          call primary_export%bracket%set_node(NODE_LEFT, left_node)
+          call primary_export%bracket%set_node(NODE_RIGHT, right_node)
+          call primary_export%file_selector%get_file_template(file_template)
+          server_name = MAPL_DEFAULT_INPUT_SERVER
+          if (present(input_server_name)) server_name = input_server_name
+           i_client => mapl_get_client(server_name, _RC)
+          primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
+          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
          allocate(primary_export%start_and_end, source=time_range)
          primary_export%coordinate_tolerance = collection%get_coordinate_tolerance()
       end if
@@ -284,7 +290,7 @@ module mapl_PrimaryExport_mod
       _RETURN(_SUCCESS)
    end subroutine update_my_bracket
 
-   subroutine append_state_to_reader(this, export_state, reader, lgr, rc)
+    subroutine append_state_to_reader(this, export_state, reader, lgr, rc)
       class(PrimaryExport), intent(inout) :: this
       type(ESMF_State), intent(inout) :: export_state
       type(ExtDataReader), intent(inout) :: reader
@@ -293,7 +299,7 @@ module mapl_PrimaryExport_mod
 
       type(ESMF_FieldBundle) :: bundle
       integer :: status
-      type(DataSetNode) :: node
+       type(DataSetNode) :: node, left_node, right_node
       logical :: update_file
       type(ESMF_Field), allocatable :: field_list(:)
       character(len=:), allocatable :: filename
@@ -304,7 +310,7 @@ module mapl_PrimaryExport_mod
       if (this%file_vars%size() == 2) list_start = 2
       node = this%bracket%get_left_node()
       update_file = node%get_update()
-      if (update_file) then
+       if (update_file) then
          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
          call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
@@ -313,28 +319,125 @@ module mapl_PrimaryExport_mod
          call lgr%info("updating %a", this%export_var)
          call node%write_node(lgr) !  bmaa
          do i=1,this%file_vars%size()
-            variable_name => this%file_vars%at(i)
-            call reader%add_item(field_list(i), variable_name, filename, time_index, this%client_collection_id, _RC)
-         enddo
-      end if
-      node = this%bracket%get_right_node()
-      update_file = node%get_update()
-      if (update_file) then
-         call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
-         call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
-         call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
-         time_index = node%get_time_index()
-         call lgr%info("updating %a", this%export_var)
-         call node%write_node(lgr) !  bmaa
-         call node%get_file(filename)
-         do i=1,this%file_vars%size()
-            variable_name => this%file_vars%at(i)
-            call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, _RC)
-         enddo
-      end if
+             variable_name => this%file_vars%at(i)
+             call reader%add_item(field_list(i), variable_name, filename, time_index, this%client_collection_id, _RC)
+          enddo
+       end if
+       left_node = node
+       node = this%bracket%get_right_node()
+       right_node = node
+       update_file = node%get_update()
+       if (update_file) then
+          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+          call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
+          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+          time_index = node%get_time_index()
+          call lgr%info("updating %a", this%export_var)
+           call node%write_node(lgr) !  bmaa
+           call node%get_file(filename)
+           if (.not. this%bracket%uses_time_interpolation()) then
+              _RETURN(_SUCCESS)
+           end if
+            do i=1,this%file_vars%size()
+               variable_name => this%file_vars%at(i)
+               call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, &
+                    this%client_collection_id, _RC)
+            enddo
+        else if (this%bracket%uses_time_interpolation() .and. right_node%get_enabled() .and. &
+             (.not. (right_node == left_node))) then
+          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+          time_index = right_node%get_time_index()
+          call right_node%get_file(filename)
+          do i=1,this%file_vars%size()
+             variable_name => this%file_vars%at(i)
+             call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, &
+                  prefetch_only=.true., _RC)
+          enddo
+       end if
 
       _RETURN(_SUCCESS)
    end subroutine append_state_to_reader
+
+   subroutine append_future_left_to_reader(this, export_state, next_time, reader, lgr, rc)
+      class(PrimaryExport), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: export_state
+      type(ESMF_Time), intent(in) :: next_time
+      type(ExtDataReader), intent(inout) :: reader
+      class(logger), intent(in), pointer :: lgr
+      integer, optional, intent(out) :: rc
+
+      type(DataSetBracket) :: future_bracket
+      type(DataSetNode) :: future_left
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
+      character(len=:), allocatable :: filename
+      character(len=:), pointer :: variable_name
+      integer :: status, i, time_index
+
+       future_bracket = this%bracket
+       call this%file_selector%preview_bracket(next_time, future_bracket, _RC)
+
+      future_left = future_bracket%get_left_node(_RC)
+      _RETURN_UNLESS(future_left%get_enabled())
+
+      call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+      time_index = future_left%get_time_index()
+      call future_left%get_file(filename)
+      do i=1,this%file_vars%size()
+         variable_name => this%file_vars%at(i)
+         call reader%add_item(field_list(i), variable_name, filename, time_index, this%client_collection_id, &
+              prefetch_only=.true., _RC)
+      end do
+      call lgr%info('prefetching future left %a from file %a at time index %i0.5', this%export_var, filename, time_index)
+
+      _RETURN(_SUCCESS)
+   end subroutine append_future_left_to_reader
+
+   subroutine append_future_right_to_reader(this, export_state, next_time, reader, lgr, rc)
+      class(PrimaryExport), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: export_state
+      type(ESMF_Time), intent(in) :: next_time
+      type(ExtDataReader), intent(inout) :: reader
+      class(logger), intent(in), pointer :: lgr
+      integer, optional, intent(out) :: rc
+
+      type(DataSetBracket) :: future_bracket
+      type(DataSetNode) :: future_left, future_right
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
+      character(len=:), allocatable :: filename
+      character(len=:), pointer :: variable_name
+      integer :: status, i, time_index, list_start
+
+       _RETURN_UNLESS(this%bracket%uses_time_interpolation())
+
+       future_bracket = this%bracket
+       call this%file_selector%preview_bracket(next_time, future_bracket, _RC)
+
+      future_left = future_bracket%get_left_node(_RC)
+      future_right = future_bracket%get_right_node(_RC)
+      _RETURN_UNLESS(future_right%get_enabled())
+      _RETURN_IF(future_right == future_left)
+
+      list_start = 1
+      if (this%file_vars%size() == 2) list_start = 2
+
+      call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
+      call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+      time_index = future_right%get_time_index()
+      call future_right%get_file(filename)
+      do i=1,this%file_vars%size()
+         variable_name => this%file_vars%at(i)
+         call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, &
+              prefetch_only=.true., _RC)
+      end do
+      call lgr%info('prefetching future right %a from file %a at time index %i0.5', this%export_var, filename, time_index)
+
+      _RETURN(_SUCCESS)
+   end subroutine append_future_right_to_reader
+
 
    subroutine set_fraction_values_to_zero(this, bundle, rc)
       class(PrimaryExport), intent(inout) :: this

@@ -22,12 +22,14 @@ module pFIO_ClientThreadMod
    use pFIO_HandShakeMessageMod
    use pFIO_PrefetchDoneMessageMod
    use pFIO_CollectivePrefetchDoneMessageMod
+   use pFIO_NextCollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
    use pFIO_AddReadDataCollectionMessageMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
+   use pFIO_NextCollectivePrefetchMessageMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
@@ -54,9 +56,12 @@ module pFIO_ClientThreadMod
       integer :: rank = -1
 
       ! scratch pad for return values from application level interfaces
-      integer :: collection_id      = -1
-      integer :: request_counter    = MIN_ID
-      integer :: collective_counter = COLLECTIVE_MIN_ID
+       integer :: collection_id      = -1
+       integer :: request_counter    = MIN_ID
+       integer :: collective_counter = COLLECTIVE_MIN_ID
+       integer :: pending_collective_prefetches = 0
+       integer :: pending_next_collective_prefetches = 0
+       logical :: cache_only_prefetch_supported = .false.
 
    contains
       procedure, private :: add_read_data_collection
@@ -66,8 +71,9 @@ module pFIO_ClientThreadMod
       procedure :: replace_metadata
       procedure :: prefetch_data
       procedure :: stage_data
-      procedure :: collective_prefetch_data
-      procedure :: collective_stage_data
+       procedure :: collective_prefetch_data
+       procedure :: collective_prefetch_data_cache_only
+       procedure :: collective_stage_data
       procedure :: stage_nondistributed_data
       procedure :: shake_hand
 
@@ -88,6 +94,8 @@ module pFIO_ClientThreadMod
       procedure :: get_client_comm
       procedure :: get_rank
       procedure :: set_client_comm
+      procedure :: supports_cache_only_prefetch
+      procedure :: set_cache_only_prefetch_supported
    end type ClientThread
 
 
@@ -97,11 +105,12 @@ module pFIO_ClientThreadMod
 
 contains
 
-   function new_ClientThread(sckt, client_comm, rc) result(c)
+   function new_ClientThread(sckt, client_comm, rc, supports_cache_only_prefetch) result(c)
       type (ClientThread),target :: c
       class(AbstractSocket),optional,intent(in) :: sckt
       integer, optional, intent(in) :: client_comm
       integer, optional, intent(out) :: rc
+      logical, optional, intent(in) :: supports_cache_only_prefetch
 
       integer :: ierror
 
@@ -112,6 +121,8 @@ contains
       else
          if (present(rc)) rc = 0
       end if
+      if (present(supports_cache_only_prefetch)) &
+           c%cache_only_prefetch_supported = supports_cache_only_prefetch
 
    end function new_ClientThread
 
@@ -276,6 +287,7 @@ contains
            var_name, &
            data_reference,unusable=unusable, start=start,&
            global_start=global_start,global_count=global_count),_RC)
+      this%pending_collective_prefetches = this%pending_collective_prefetches + 1
 
       call connection%receive(handshake_msg, _RC)
       associate (id => request_id)
@@ -284,7 +296,42 @@ contains
       end associate
 
       _RETURN(_SUCCESS)
-   end function collective_prefetch_data
+    end function collective_prefetch_data
+
+    function collective_prefetch_data_cache_only(this, collection_id, file_name, var_name, data_reference, &
+         & unusable, start,global_start,global_count, rc) result(request_id)
+      class (ClientThread), intent(inout) :: this
+      integer, intent(in) :: collection_id
+      character(len=*), intent(in) :: file_name
+      character(len=*), intent(in) :: var_name
+      class (AbstractDataReference), intent(in) :: data_reference
+      class (KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(in) :: start(:)
+      integer, optional, intent(in) :: global_start(:)
+      integer, optional, intent(in) :: global_count(:)
+      integer, optional, intent(out):: rc
+
+      integer :: request_id
+      class (AbstractMessage), allocatable :: handshake_msg
+      class(AbstractSocket),pointer :: connection
+      integer :: status
+
+      request_id = this%get_unique_collective_request_id()
+      connection => this%get_connection()
+
+       call connection%send(NextCollectivePrefetchMessage( &
+            request_id, &
+            collection_id, &
+            file_name, &
+            var_name, &
+            data_reference, unusable=unusable, start=start, &
+            global_start=global_start, global_count=global_count), _RC)
+       this%pending_next_collective_prefetches = this%pending_next_collective_prefetches + 1
+
+      call connection%receive(handshake_msg, _RC)
+
+      _RETURN(_SUCCESS)
+     end function collective_prefetch_data_cache_only
 
    function stage_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start, rc) result(request_id)
@@ -433,20 +480,28 @@ contains
       _RETURN(_SUCCESS)
    end subroutine done_prefetch
 
-   subroutine done_collective_prefetch(this, rc)
+    subroutine done_collective_prefetch(this, rc)
       class (ClientThread), intent(inout) :: this
       integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
       integer :: status
 
-      if (this%isEmpty_RequestHandle()) then
-        _RETURN(_SUCCESS)
-      endif
+        if (this%isEmpty_RequestHandle() .and. this%pending_collective_prefetches == 0 .and. &
+             this%pending_next_collective_prefetches == 0) then
+         _RETURN(_SUCCESS)
+       endif
 
-      connection=>this%get_connection()
-      call connection%send(CollectivePrefetchDoneMessage(),_RC)
-      _RETURN(_SUCCESS)
-   end subroutine done_collective_prefetch
+        connection=>this%get_connection()
+        if (this%pending_next_collective_prefetches > 0) then
+           call connection%send(NextCollectivePrefetchDoneMessage(),_RC)
+           this%pending_next_collective_prefetches = 0
+        end if
+        if (this%pending_collective_prefetches > 0) then
+           call connection%send(CollectivePrefetchDoneMessage(),_RC)
+           this%pending_collective_prefetches = 0
+        end if
+       _RETURN(_SUCCESS)
+     end subroutine done_collective_prefetch
 
    subroutine done_stage(this, rc)
       class (ClientThread), intent(inout) :: this
@@ -553,6 +608,17 @@ contains
       class (ClientThread), intent(in) :: this
       rank = this%rank
    end function get_rank
+
+   logical function supports_cache_only_prefetch(this)
+      class(ClientThread), intent(in) :: this
+      supports_cache_only_prefetch = this%cache_only_prefetch_supported
+   end function supports_cache_only_prefetch
+
+   subroutine set_cache_only_prefetch_supported(this, supported)
+      class(ClientThread), intent(inout) :: this
+      logical, intent(in) :: supported
+      this%cache_only_prefetch_supported = supported
+   end subroutine set_cache_only_prefetch_supported
 
    subroutine set_client_comm(this, client_comm, rc)
       class (ClientThread), intent(inout) :: this

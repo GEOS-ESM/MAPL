@@ -148,6 +148,10 @@ contains
       class(DataSetNode), intent(in) :: a
       class(DataSetNode), intent(in) :: b
 
+      if (.not. allocated(a%file) .or. .not. allocated(b%file)) then
+         equals = allocated(a%file) .eqv. allocated(b%file)
+         return
+      end if
       equals = (trim(a%file)==trim(b%file)) .and. (a%time_index==b%time_index) .and. (a%interp_time==b%interp_time)
    end function equals
 

@@ -17,6 +17,7 @@ set (TEST_SRCS
     Test_Client.pf
     Test_ProtocolParser.pf
     Test_DirectoryService.pf
+    Test_AsyncInputServer.pf
   )
 
 # SRCS are mostly mocks to facilitate tests
@@ -133,4 +134,3 @@ set_tests_properties(pFIO_tests_mpi_2group PROPERTIES PROCESSORS 18 RESOURCE_LOC
 add_dependencies(build-tests MAPL.pfio.tests)
 add_dependencies(build-tests ${TESTO})
 add_dependencies(build-tests pfio_writer.x)
-

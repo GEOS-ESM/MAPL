@@ -35,29 +35,43 @@ set(TEST_ENV "${LD_PATH}=$<TARGET_FILE_DIR:configurable_gridcomp>:$<TARGET_FILE_
 
 foreach(TEST_CASE ${TEST_CASES})
 
+  string(REPLACE "/" "_" TEST_NAME "${TEST_CASE}")
+
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc)
-    file(READ ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc num_procs)
+    set(TEST_CASE_PATH "test_cases/${TEST_CASE}")
+    file(READ ${CMAKE_CURRENT_LIST_DIR}/${TEST_CASE_PATH}/nproc.rc num_procs)
   else()
+    set(TEST_CASE_PATH "test_cases/${TEST_CASE}")
     set(num_procs "1")
   endif()
   
   # Get description for this test case
   set(test_description "")
-  if(DEFINED TEST_DESC_${TEST_CASE})
+  if(TEST_CASE MATCHES "^pfio/case0([1-5])$")
+    math(EXPR description_case "44 + ${CMAKE_MATCH_1}")
+    set(test_description "${TEST_DESC_case${description_case}}")
+  elseif(DEFINED TEST_DESC_${TEST_CASE})
     set(test_description "${TEST_DESC_${TEST_CASE}}")
   endif()
   
   add_test(
-    NAME "MAPL3G_Comp_Test_${TEST_CASE}"
+    NAME "MAPL3G_Comp_Test_${TEST_NAME}"
     COMMAND ${CMAKE_COMMAND}
       -DTEST_CASE=${TEST_CASE}
       "-DTEST_DESCRIPTION=${test_description}"
       -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}
       -DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}
-      -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
-      -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
+       -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
+       -DTEST_CASE_PATH=${TEST_CASE_PATH}
+       -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/run_comp_tester.cmake
   )
-  set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
-  set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES ENVIRONMENT "${TEST_ENV}")
+   set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES LABELS "ESSENTIAL")
+   set(TEST_CASE_ENV ${TEST_ENV})
+   if (TEST_CASE MATCHES "^pfio/case0[2-5]$")
+     # These 13x9 PFIO cases need only a few hundred words per payload. Keep
+     # concurrent tests below restrictive cluster shared-memory limits.
+     list(APPEND TEST_CASE_ENV "MAPL_ASYNC_INPUT_SHMEM_WORDS=4096")
+   endif()
+   set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES ENVIRONMENT "${TEST_CASE_ENV}")
 endforeach()
