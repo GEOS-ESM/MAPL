@@ -125,6 +125,7 @@ module pFIO_AsyncInputServerMod
       integer, allocatable :: global_count(:)
     contains
       procedure :: matches_request => cache_key_matches_request
+      procedure :: matches_key => cache_key_matches_key
       procedure :: set_from_request => set_cache_key_from_request
     end type AsyncInputCacheKey
 
@@ -138,13 +139,14 @@ module pFIO_AsyncInputServerMod
     type :: AsyncInputPendingRequest
        type(AsyncInputRequestMetadata) :: metadata
        character(len=:), allocatable :: file_name
+       type(AsyncInputCacheKey) :: key
        integer, allocatable :: buffer(:)
-       ! worker_rank is the reader-worker rank (1-based within workers(:))
-       ! that owns this request's file, computed once when the request is
-       ! enqueued. It is carried explicitly through assignment and dispatch
-       ! rather than re-derived from the file name, so a future scheduler
-       ! (Step 20) that assigns workers independently of the deterministic
-       ! filename hash cannot desynchronize from a warm-directory hint.
+       logical :: assignment_sent = .false.
+       ! worker_rank is zero for globally queued unrelated work, or the
+       ! 1-based reader-worker rank for an exact key with an active, warm, or
+       ! already-queued owner. Unassigned work receives a worker only when it
+       ! can be dispatched, while every request for one key remains pinned to
+       ! the same owner.
        integer :: worker_rank = 0
     end type AsyncInputPendingRequest
 
@@ -152,6 +154,27 @@ module pFIO_AsyncInputServerMod
        logical :: busy = .false.
        type(AsyncInputRequestMetadata) :: metadata
        character(len=:), allocatable :: file_name
+       ! key/key_valid describe the request currently in flight on this
+       ! worker (valid only while busy). select_worker_for_request uses this
+       ! to route a concurrent request for the exact same key onto the same
+       ! worker, so the two share one physical read instead of triggering a
+       ! duplicate read on a second worker.
+       type(AsyncInputCacheKey) :: key
+       logical :: key_valid = .false.
+       ! last_file_name is a persistent affinity hint: the file name most
+       ! recently dispatched to this worker, retained across idle periods
+       ! (unlike key/key_valid, which only describe in-flight work). It lets
+       ! later unrelated slabs of the same file continue landing on the
+       ! worker that already has that file's cache-slot locality.
+       character(len=:), allocatable :: last_file_name
+       ! load is the number of requests currently assigned to this worker,
+       ! counting both the one it is actively executing (if busy) and any
+       ! requests still queued in `pending` whose worker_rank names it. It
+       ! is the tie-breaker used by "least-loaded idle worker" selection and
+       ! is maintained incrementally by select_worker_for_request/
+       ! poll_reader_completions/dispatch_pending_requests rather than
+       ! recomputed by scanning `pending` on every dispatch decision.
+       integer :: load = 0
        integer, allocatable :: buffer(:)
     end type AsyncInputWorkerState
 
@@ -223,7 +246,8 @@ module pFIO_AsyncInputServerMod
         procedure, public :: get_cache_misses
         procedure, public :: get_captain_warm_hits
         procedure, public :: get_captain_prefetch_hits
-        procedure, public :: get_num_cache_slots
+         procedure, public :: get_num_cache_slots
+         procedure, public :: get_reader_requests
        end type AsyncInputServer
 
    interface AsyncInputServer
@@ -524,10 +548,13 @@ contains
                _VERIFY(ierr)
                _ASSERT(cmd == ASYNC_INPUT_CMD_READ .or. cmd == ASYNC_INPUT_CMD_NEXT_PREFETCH, &
                     'unknown reader captain command')
-                  call enqueue_reader_request(pending, metadata, buffer, size(workers), _RC)
+                  call enqueue_reader_request(pending, metadata, buffer, workers, warm_records, _RC)
                   deallocate(buffer)
-                  call send_assignment(this, metadata, pending(size(pending))%worker_rank, ierr)
-                  _VERIFY(ierr)
+                  if (metadata%command == ASYNC_INPUT_CMD_NEXT_PREFETCH) then
+                     call send_assignment(this, metadata, 0, ierr)
+                     _VERIFY(ierr)
+                     pending(size(pending))%assignment_sent = .true.
+                  end if
                  call serve_warm_requests(this, pending, warm_records, ierr)
                 _VERIFY(ierr)
                 call dispatch_pending_requests(this, pending, workers, ierr)
@@ -688,6 +715,12 @@ contains
         n = this%num_cache_slots
      end function get_num_cache_slots
 
+     integer function get_reader_requests(this) result(n)
+        class(AsyncInputServer), intent(in) :: this
+        n = this%reader_requests
+     end function get_reader_requests
+
+
     ! -----------------------------------------------------------------------
     ! service_collective_prefetch
     !
@@ -822,15 +855,16 @@ contains
         _RETURN(_SUCCESS)
       end subroutine execute_reader_request
 
-      subroutine enqueue_reader_request(pending, metadata, input, n_workers, rc)
+      subroutine enqueue_reader_request(pending, metadata, input, workers, warm_records, rc)
        type(AsyncInputPendingRequest), allocatable, intent(inout) :: pending(:)
        type(AsyncInputRequestMetadata), intent(in) :: metadata
        integer, intent(in) :: input(:)
-       integer, intent(in) :: n_workers
+       type(AsyncInputWorkerState), intent(inout) :: workers(:)
+       type(AsyncInputWarmRecord), intent(in) :: warm_records(:)
        integer, optional, intent(out) :: rc
        type(AsyncInputPendingRequest), allocatable :: expanded(:)
        type(CollectivePrefetchDataMessage) :: request
-       integer :: n, status
+       integer :: n, status, worker_rank
 
        call request%deserialize(input, _RC)
        _ASSERT(metadata%payload_words == size(input), 'request payload size does not match its header')
@@ -843,16 +877,99 @@ contains
        if (n > 0) expanded(1:n) = pending
        expanded(n + 1)%metadata = metadata
        expanded(n + 1)%file_name = request%file_name
-       ! The owning worker is computed once, here, and carried explicitly
-       ! through assignment/dispatch/warm hints. This is currently the same
-       ! deterministic filename hash used everywhere else, but storing it
-       ! removes the need for any other routine to re-derive it independently.
-       expanded(n + 1)%worker_rank = select_file_worker(request%file_name, n_workers)
+       call expanded(n + 1)%key%set_from_request(request)
+       ! Exact-key ownership is sticky even while the owner is busy. Other
+       ! requests remain unassigned until dispatch, when any idle worker can
+       ! take them. This avoids pinning unrelated queued work behind a slow
+       ! worker while preserving single-read ownership for repeated keys.
+       worker_rank = find_key_owner(expanded(n + 1)%key, pending, workers, warm_records)
+       expanded(n + 1)%worker_rank = worker_rank
+       if (worker_rank > 0) workers(worker_rank)%load = workers(worker_rank)%load + 1
        allocate(expanded(n + 1)%buffer(size(input)))
        expanded(n + 1)%buffer = input
        call move_alloc(expanded, pending)
        _RETURN(_SUCCESS)
      end subroutine enqueue_reader_request
+
+     ! -----------------------------------------------------------------------
+     ! select_worker_for_request
+     !
+     ! MultiGroup-style selection among workers that are idle now:
+     !   1) A worker with useful file affinity: its most recently
+     !      dispatched file name matches this request's file, so it likely
+     !      still has that file open/cheap to reopen and its cache slots
+     !      biased toward that file's other slabs.
+     !   2) The least-loaded idle worker, tie-broken by the deterministic
+     !      filename hash so identical ties still resolve reproducibly.
+     ! Exact active, warm, or queued keys are assigned earlier by
+     ! find_key_owner and never enter this routine. If no worker is idle,
+     ! zero is returned and the request remains in the global queue.
+     ! -----------------------------------------------------------------------
+     integer function select_worker_for_request(file_name, workers) result(worker_rank)
+        character(len=*), intent(in) :: file_name
+        type(AsyncInputWorkerState), intent(in) :: workers(:)
+
+        integer :: i, n_workers, best_load
+        integer, allocatable :: tied(:)
+
+        n_workers = size(workers)
+        worker_rank = 0
+
+        ! Idle worker with useful file affinity.
+        do i = 1, n_workers
+           if (.not. workers(i)%busy .and. allocated(workers(i)%last_file_name)) then
+              if (workers(i)%last_file_name == file_name) then
+                 worker_rank = i
+                 return
+              end if
+           end if
+        end do
+
+        ! Least-loaded idle worker. Several idle workers with equal
+        ! (typically zero) load are common at startup or after a burst of
+        ! completions, so ties are broken with the deterministic filename
+        ! hash restricted to the tied candidates; this keeps unrelated files
+        ! spread reproducibly across otherwise-equal idle workers instead of
+        ! always collapsing onto the lowest-numbered one.
+        best_load = huge(0)
+        do i = 1, n_workers
+           if (.not. workers(i)%busy) best_load = min(best_load, workers(i)%load)
+        end do
+        if (best_load == huge(0)) return
+        allocate(tied(0))
+        do i = 1, n_workers
+           if (.not. workers(i)%busy .and. workers(i)%load == best_load) tied = [tied, i]
+        end do
+        worker_rank = tied(select_file_worker(file_name, size(tied)))
+     end function select_worker_for_request
+
+     integer function find_key_owner(key, pending, workers, warm_records) result(worker_rank)
+        type(AsyncInputCacheKey), intent(in) :: key
+        type(AsyncInputPendingRequest), intent(in) :: pending(:)
+        type(AsyncInputWorkerState), intent(in) :: workers(:)
+        type(AsyncInputWarmRecord), intent(in) :: warm_records(:)
+        integer :: i
+
+        worker_rank = 0
+        do i = 1, size(workers)
+           if (workers(i)%key_valid .and. workers(i)%key%matches_key(key)) then
+              worker_rank = i
+              return
+           end if
+        end do
+        do i = 1, size(warm_records)
+           if (warm_records(i)%key%matches_key(key)) then
+              worker_rank = warm_records(i)%worker_rank
+              return
+           end if
+        end do
+        do i = 1, size(pending)
+           if (pending(i)%key%matches_key(key) .and. pending(i)%worker_rank > 0) then
+              worker_rank = pending(i)%worker_rank
+              return
+           end if
+        end do
+     end function find_key_owner
 
      subroutine dispatch_pending_requests(this, pending, workers, ierr)
        class(AsyncInputServer), intent(in) :: this
@@ -867,6 +984,15 @@ contains
           call select_pending_request(pending, workers, request_index, worker_rank)
           if (request_index < 1) return
 
+          if (pending(request_index)%worker_rank == 0) then
+             call assign_key_group(pending, request_index, worker_rank, workers)
+          end if
+          if (.not. pending(request_index)%assignment_sent) then
+             call send_assignment(this, pending(request_index)%metadata, worker_rank, ierr)
+             if (ierr /= MPI_SUCCESS) return
+             pending(request_index)%assignment_sent = .true.
+          end if
+
           call pack_request_metadata(pending(request_index)%metadata, header_words)
           call MPI_Send(header_words, ASYNC_INPUT_REQUEST_HEADER_WORDS, MPI_INTEGER8, worker_rank, &
                ASYNC_INPUT_TAG_WORKER_HEADER, this%topology%reader_comm, ierr)
@@ -878,11 +1004,29 @@ contains
           workers(worker_rank)%busy = .true.
           workers(worker_rank)%metadata = pending(request_index)%metadata
           workers(worker_rank)%file_name = pending(request_index)%file_name
+          workers(worker_rank)%key = pending(request_index)%key
+          workers(worker_rank)%key_valid = .true.
+          workers(worker_rank)%last_file_name = pending(request_index)%file_name
           allocate(workers(worker_rank)%buffer(size(pending(request_index)%buffer)))
           workers(worker_rank)%buffer = pending(request_index)%buffer
           call remove_pending_request(pending, request_index)
        end do
      end subroutine dispatch_pending_requests
+
+     subroutine assign_key_group(pending, request_index, worker_rank, workers)
+        type(AsyncInputPendingRequest), intent(inout) :: pending(:)
+        integer, intent(in) :: request_index, worker_rank
+        type(AsyncInputWorkerState), intent(inout) :: workers(:)
+        integer :: i
+
+        do i = 1, size(pending)
+           if (pending(i)%worker_rank == 0 .and. &
+                pending(i)%key%matches_key(pending(request_index)%key)) then
+              pending(i)%worker_rank = worker_rank
+              workers(worker_rank)%load = workers(worker_rank)%load + 1
+           end if
+        end do
+     end subroutine assign_key_group
 
      subroutine poll_reader_completions(this, workers, warm_records, wait_for_one, ierr)
         class(AsyncInputServer), intent(inout) :: this
@@ -946,6 +1090,8 @@ contains
              completion%cache_generation)
         workers(worker_rank)%busy = .false.
         workers(worker_rank)%metadata = AsyncInputRequestMetadata()
+        workers(worker_rank)%key_valid = .false.
+        workers(worker_rank)%load = max(0, workers(worker_rank)%load - 1)
         if (allocated(workers(worker_rank)%file_name)) deallocate(workers(worker_rank)%file_name)
         if (allocated(workers(worker_rank)%buffer)) deallocate(workers(worker_rank)%buffer)
       end subroutine poll_reader_completions
@@ -972,19 +1118,25 @@ contains
      ! miss.
      !
      ! The normal dispatch path routes every hinted request to the exact
-     ! worker recorded on the pending request (see enqueue_reader_request),
-     ! which is the same worker that produced the warm directory entry while
-     ! scheduling remains deterministic by file name. That worker
-     ! independently re-validates the hint against its live cache state
-     ! before serving from it and publishing through its own mailbox (or, for
-     ! cache-only requests, simply confirming the cache is warm with no
-     ! mailbox write). A stale or mismatched hint never produces a stale
-     ! result: the worker falls back to its ordinary scan/read path, which
-     ! also repopulates the cache for an evicted key. Cache-only requests
-     ! still return to the client as soon as the captain sends the
-     ! assignment (in the caller, immediately after enqueueing), before this
-     ! dispatch happens, so this preserves the existing cache-only "returns
-     ! after acceptance" semantics.
+     ! worker recorded on the pending request (see enqueue_reader_request /
+     ! select_worker_for_request), which is the same worker that produced
+     ! the warm directory entry whenever that worker was idle at enqueue
+     ! time (tier 1 of select_worker_for_request routes directly to it). If
+     ! that worker was instead busy at enqueue time, scheduling may pick a
+     ! different worker and this routine's worker-match check below simply
+     ! declines to attach a hint, leaving the request as an ordinary
+     ! request/possible-miss on whichever worker it was actually sent to;
+     ! correctness never depends on the hint being attached. When a hint is
+     ! attached, that worker independently re-validates it against its live
+     ! cache state before serving from it and publishing through its own
+     ! mailbox (or, for cache-only requests, simply confirming the cache is
+     ! warm with no mailbox write). A stale or mismatched hint never
+     ! produces a stale result: the worker falls back to its ordinary
+     ! scan/read path, which also repopulates the cache for an evicted key.
+     ! Cache-only requests still return to the client as soon as the captain
+     ! sends the assignment (in the caller, immediately after enqueueing),
+     ! before this dispatch happens, so this preserves the existing
+     ! cache-only "returns after acceptance" semantics.
      !
      ! Hit counters are not updated here: attaching a hint is only an
      ! attempt. They are updated in poll_reader_completions, once the
@@ -997,15 +1149,11 @@ contains
         integer, intent(out) :: ierr
 
         integer :: i, warm_index
-        type(CollectivePrefetchDataMessage) :: request
 
         ierr = MPI_SUCCESS
         do i = 1, size(pending)
            if (pending(i)%metadata%hint_cache_slot > 0) cycle
-           call reset_prefetch_request(request)
-           call request%deserialize(pending(i)%buffer, ierr)
-           if (ierr /= MPI_SUCCESS) return
-           warm_index = find_warm_record(warm_records, request)
+           warm_index = find_warm_record(warm_records, pending(i)%key)
            if (warm_index < 1) cycle
            if (warm_records(warm_index)%worker_rank /= pending(i)%worker_rank) cycle
 
@@ -1015,37 +1163,19 @@ contains
         _UNUSED_DUMMY(this)
      end subroutine serve_warm_requests
 
-     subroutine reset_prefetch_request(request)
-        type(CollectivePrefetchDataMessage), intent(inout) :: request
-
-        if (allocated(request%file_name)) deallocate(request%file_name)
-        if (allocated(request%var_name)) deallocate(request%var_name)
-        if (allocated(request%start)) deallocate(request%start)
-        if (allocated(request%count)) deallocate(request%count)
-        if (allocated(request%global_start)) deallocate(request%global_start)
-        if (allocated(request%global_count)) deallocate(request%global_count)
-     end subroutine reset_prefetch_request
-
-     integer function find_warm_record(warm_records, request) result(record_index)
+     integer function find_warm_record(warm_records, key) result(record_index)
         type(AsyncInputWarmRecord), intent(in) :: warm_records(:)
-        type(CollectivePrefetchDataMessage), intent(in) :: request
+        type(AsyncInputCacheKey), intent(in) :: key
         integer :: i
 
         record_index = 0
         do i = 1, size(warm_records)
-           if (warm_record_matches(warm_records(i), request)) then
+           if (warm_records(i)%key%matches_key(key)) then
               record_index = i
               return
            end if
         end do
      end function find_warm_record
-
-     logical function warm_record_matches(record, request) result(matches)
-        type(AsyncInputWarmRecord), intent(in) :: record
-        type(CollectivePrefetchDataMessage), intent(in) :: request
-
-        matches = record%key%matches_request(request)
-     end function warm_record_matches
 
      subroutine update_warm_record(warm_records, request, worker_rank, slot_index, generation)
         type(AsyncInputWarmRecord), allocatable, intent(inout) :: warm_records(:)
@@ -1072,22 +1202,44 @@ contains
         call move_alloc(updated, warm_records)
      end subroutine update_warm_record
 
-      subroutine select_pending_request(pending, workers, request_index, worker_rank)
+     subroutine select_pending_request(pending, workers, request_index, worker_rank)
        type(AsyncInputPendingRequest), intent(in) :: pending(:)
        type(AsyncInputWorkerState), intent(in) :: workers(:)
        integer, intent(out) :: request_index, worker_rank
        integer :: i
 
        request_index = 0
-        worker_rank = 0
+       worker_rank = 0
+
+       ! Exact-key followers receive a warm hint after the owner's
+       ! completion. Dispatch those before older unrelated work assigned to
+       ! the same worker so its newly populated slot cannot be evicted before
+       ! every follower has extracted its own local slice.
+       do i = 1, size(pending)
+          worker_rank = pending(i)%worker_rank
+          if (worker_rank < 1) cycle
+          if (pending(i)%metadata%hint_cache_slot < 1) cycle
+          if (workers(worker_rank)%busy) cycle
+          request_index = i
+          return
+       end do
+
         do i = 1, size(pending)
-           ! The owning worker is the one recorded when the request was
-           ! enqueued (see enqueue_reader_request), not re-derived here. This
-           ! keeps assignment/dispatch in lock-step with any warm-directory
-           ! hint attached by serve_warm_requests, which is keyed on the same
-           ! stored worker_rank. While scheduling is still hash-only, this
-           ! must equal select_file_worker(pending(i)%file_name, size(workers)).
+           ! The owning worker is the one chosen by select_worker_for_request
+           ! when the request was enqueued (see enqueue_reader_request), not
+           ! re-derived here. This keeps assignment/dispatch in lock-step
+           ! with any warm-directory hint attached by serve_warm_requests,
+           ! which is keyed on the same stored worker_rank. Scanning
+           ! `pending` in FIFO order and dispatching the first request whose
+           ! worker is currently idle keeps per-worker queue draining fair:
+           ! once a worker frees up, its oldest still-queued request (tier 0
+           ! or tier 4 assignments made while it was busy) is always the one
+           ! sent next, never a newer one placed ahead of it.
            worker_rank = pending(i)%worker_rank
+           if (worker_rank == 0) then
+              worker_rank = select_worker_for_request(pending(i)%file_name, workers)
+              if (worker_rank == 0) cycle
+           end if
            if (workers(worker_rank)%busy) cycle
            request_index = i
            return
@@ -1178,12 +1330,18 @@ contains
          _ASSERT(assignment%protocol_request_id == metadata%protocol_request_id, &
               'captain assignment does not match the submitted request')
          _ASSERT(assignment%status == MPI_SUCCESS, 'captain could not assign the input request')
-         _ASSERT(assignment%worker_reader_rank > 0 .and. &
-              assignment%worker_reader_rank < this%topology%reader_size, &
-              'captain returned an invalid reader worker rank')
-         _ASSERT(assignment%worker_service_rank == &
-              this%topology%reader_server_ranks(assignment%worker_reader_rank + 1), &
-              'captain returned inconsistent worker rank spaces')
+         if (deliver_to_client) then
+            _ASSERT(assignment%worker_reader_rank > 0 .and. &
+                 assignment%worker_reader_rank < this%topology%reader_size, &
+                 'captain returned an invalid reader worker rank')
+            _ASSERT(assignment%worker_service_rank == &
+                 this%topology%reader_server_ranks(assignment%worker_reader_rank + 1), &
+                 'captain returned inconsistent worker rank spaces')
+         else
+            _ASSERT(assignment%worker_reader_rank >= 0 .and. &
+                 assignment%worker_reader_rank < this%topology%reader_size, &
+                 'captain returned an invalid cache-only acceptance')
+         end if
          worker_rank = assignment%worker_service_rank
 
          if (deliver_to_client) then
@@ -1211,7 +1369,9 @@ contains
         type(AsyncInputAssignment) :: assignment
 
         assignment%protocol_request_id = metadata%protocol_request_id
-        assignment%worker_service_rank = this%topology%reader_server_ranks(worker_reader_rank + 1)
+        assignment%worker_service_rank = -1
+        if (worker_reader_rank > 0) &
+             assignment%worker_service_rank = this%topology%reader_server_ranks(worker_reader_rank + 1)
         assignment%worker_reader_rank = worker_reader_rank
         assignment%status = MPI_SUCCESS
         call pack_assignment(assignment, words)
@@ -1713,6 +1873,32 @@ contains
       this%global_start = request%global_start
       this%global_count = request%global_count
     end subroutine set_cache_key_from_request
+
+    ! Key-to-key comparison, used by the Step 20 scheduler to detect
+    ! identical in-flight requests (same file, var, type, and global extent)
+    ! without needing to re-deserialize a CollectivePrefetchDataMessage.
+    logical function cache_key_matches_key(this, other) result(matches)
+      class(AsyncInputCacheKey), intent(in) :: this
+      type(AsyncInputCacheKey), intent(in) :: other
+
+      matches = this%type_kind == other%type_kind
+      if (.not. matches) return
+      matches = allocated(this%file_name) .and. allocated(other%file_name) .and. &
+           this%file_name == other%file_name
+      if (.not. matches) return
+      matches = allocated(this%var_name) .and. allocated(other%var_name) .and. &
+           this%var_name == other%var_name
+      if (.not. matches) return
+      matches = allocated(this%global_start) .and. allocated(other%global_start)
+      if (.not. matches) return
+      matches = size(this%global_start) == size(other%global_start) .and. &
+           all(this%global_start == other%global_start)
+      if (.not. matches) return
+      matches = allocated(this%global_count) .and. allocated(other%global_count)
+      if (.not. matches) return
+      matches = size(this%global_count) == size(other%global_count) .and. &
+           all(this%global_count == other%global_count)
+    end function cache_key_matches_key
 
     integer function choose_cache_slot(this) result(slot_index)
       class(AsyncInputServer), intent(inout) :: this

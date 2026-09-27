@@ -386,11 +386,17 @@ contains
          call prepare_model_for_direct_service(server)
 
          ! Fill every slot, then evict slot 1's original key (global key i=1)
-         ! by submitting one more distinct key. Round-robin slot selection
+         ! by submitting one more distinct key. A cache-only request returns
+         ! after acceptance, not completion, so follow each prefetch with a
+         ! demand for the same key to prove that fill is complete before
+         ! advancing to the next key. Round-robin slot selection then
          ! guarantees slot 1 is reused on the (n_slots+1)-th distinct key.
          do i = 1, extent
             call model_submit_prefetch(server, connection, file_name, var_name, &
                  [i], [1], 200 + i, rc_i)
+            model_ok = model_ok .and. (rc_i == 0)
+            call model_submit_demand(server, connection, file_name, var_name, &
+                 [i], [1], 250 + i, rc_i)
             model_ok = model_ok .and. (rc_i == 0)
          end do
 
@@ -416,6 +422,7 @@ contains
          ! fill, plus exactly one more miss for the evicted key's re-read --
          ! never a phantom hit on stale slot contents.
          cache_ok = server%get_cache_misses() == extent + 1
+         cache_ok = cache_ok .and. server%get_cache_hits() == extent
       end if
 
       call MPI_Barrier(parent_comm, ierr)
@@ -528,6 +535,184 @@ contains
       @assertTrue(captain_ok)
       @assertTrue(model_ok)
    end subroutine test_two_worker_warm_ownership
+
+   ! -----------------------------------------------------------------------
+   ! test_scheduler_spreads_hash_colliding_files
+   !
+   ! 5-rank topology: 2 model ranks, 1 captain, 2 workers. Covers Step 20
+   ! plan item "Independent files run concurrently on two workers" using two
+   ! files (collide_0.nc4, collide_2.nc4) that the deterministic filename
+   ! hash used as only a tie-breaker (select_file_worker) both map to the
+   ! SAME worker for n_workers=2. Under hash-only dispatch (pre-Step-20) both
+   ! requests would have been forced onto that one worker even though the
+   ! other worker was completely idle. Each model rank demand-reads its own
+   ! distinct file exactly once, so with two idle workers and no warm
+   ! directory entries yet, tier 3 (least-loaded idle worker) applies to
+   ! both requests. Asserts each worker services exactly one request
+   ! (get_cache_misses()==1 on each), proving the two requests were spread
+   ! across both workers rather than collapsing onto one, and that each
+   ! model rank received its own file's correct value.
+   ! -----------------------------------------------------------------------
+   @test(npes=[5])
+   subroutine test_scheduler_spreads_hash_colliding_files(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(len=*), parameter :: file_a = 'collide_0.nc4'
+      character(len=*), parameter :: file_b = 'collide_2.nc4'
+      character(len=*), parameter :: var_name = 'v'
+      real(kind=REAL32), parameter :: value_a(1) = [31.0]
+      real(kind=REAL32), parameter :: value_b(1) = [42.0]
+
+      type(AsyncInputServer) :: server
+      type(CaptureSocket), target :: connection
+      integer :: parent_comm, model_comm
+      integer :: parent_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr
+      integer :: rc_i
+      logical :: worker_ok, model_ok
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+
+      ! Roles: ranks 0,1 = model, rank 2 = captain, ranks 3,4 = workers.
+      model_color = MPI_UNDEFINED
+      if (parent_rank <= 1) model_color = 0
+      call MPI_Comm_split(parent_comm, model_color, parent_rank, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(parent_comm, 'step20-spread', model_comm=model_comm, rc=init_rc)
+      @assertEqual(0, init_rc)
+
+      if (parent_rank == 0) then
+         call create_real32_fixture(file_a, var_name, 'i', value_a)
+         call create_real32_fixture(file_b, var_name, 'i', value_b)
+      end if
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      worker_ok = .true.
+      model_ok = .true.
+
+      select case (parent_rank)
+      case (2) ! captain
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+      case (3, 4) ! workers
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+         worker_ok = server%get_cache_hits() == 0 .and. server%get_cache_misses() == 1
+      case (0) ! model rank 0: demands file_a
+         call prepare_model_for_direct_service(server)
+         call model_submit_demand(server, connection, file_a, var_name, [1], [1], 501, rc_i)
+         model_ok = (rc_i == 0) .and. allocated(connection%captured)
+         if (model_ok) model_ok = connection%captured(1) == value_a(1)
+         call MPI_Barrier(model_comm, ierr)
+         @assertEqual(MPI_SUCCESS, ierr)
+         call server%shutdown(rc=shutdown_rc)
+         @assertEqual(0, shutdown_rc)
+      case (1) ! model rank 1: demands file_b
+         call prepare_model_for_direct_service(server)
+         call model_submit_demand(server, connection, file_b, var_name, [1], [1], 502, rc_i)
+         model_ok = (rc_i == 0) .and. allocated(connection%captured)
+         if (model_ok) model_ok = connection%captured(1) == value_b(1)
+         call MPI_Barrier(model_comm, ierr)
+         @assertEqual(MPI_SUCCESS, ierr)
+         ! Every rank in node_comm (both model ranks here, not just the
+         ! model-node root) must call shutdown()/start() so that
+         ! finalize_runtime's collective MPI_Comm_free/MPI_Win_free calls on
+         ! node_comm complete; only the model-node root actually sends the
+         ! ASYNC_INPUT_TAG_TERMINATE message to the captain.
+         call server%shutdown(rc=shutdown_rc)
+         @assertEqual(0, shutdown_rc)
+      end select
+
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      if (parent_rank == 0) then
+         call delete_fixture_file(file_a)
+         call delete_fixture_file(file_b)
+      end if
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      @assertTrue(worker_ok)
+      @assertTrue(model_ok)
+   end subroutine test_scheduler_spreads_hash_colliding_files
+
+   ! Two model ranks submit the same key concurrently. The captain must keep
+   ! both requests on one owning worker: one physical miss, one cache hit,
+   ! and no work on the other worker.
+   @test(npes=[5])
+   subroutine test_scheduler_coalesces_identical_inflight_key(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(len=*), parameter :: file_name = 'step20_shared_key.nc4'
+      character(len=*), parameter :: var_name = 'v'
+      real(kind=REAL32), parameter :: expected(4) = [7.0, 8.0, 9.0, 10.0]
+
+      type(AsyncInputServer) :: server
+      type(CaptureSocket), target :: connection
+      integer :: parent_comm, model_comm
+      integer :: parent_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr, rc_i
+      integer :: local_misses, total_misses, local_requests, total_requests
+      logical :: worker_ok, model_ok
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+      model_color = MPI_UNDEFINED
+      if (parent_rank <= 1) model_color = 0
+      call MPI_Comm_split(parent_comm, model_color, parent_rank, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(parent_comm, 'step20-coalesce', model_comm=model_comm, rc=init_rc)
+      @assertEqual(0, init_rc)
+      if (parent_rank == 0) call create_real32_fixture(file_name, var_name, 'i', expected)
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      worker_ok = .true.
+      model_ok = .true.
+      select case (parent_rank)
+      case (2)
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+      case (3, 4)
+         call server%start(rc=start_rc)
+         @assertEqual(0, start_rc)
+         worker_ok = server%get_cache_misses() <= 1
+         worker_ok = worker_ok .and. server%get_reader_requests() <= 2
+      case (0, 1)
+         call prepare_model_for_direct_service(server)
+         call MPI_Barrier(model_comm, ierr)
+         call model_submit_demand(server, connection, file_name, var_name, [1], [4], 600 + parent_rank, rc_i)
+         model_ok = (rc_i == 0) .and. allocated(connection%captured)
+         if (model_ok) model_ok = all(connection%captured == expected)
+         call MPI_Barrier(model_comm, ierr)
+         call server%shutdown(rc=shutdown_rc)
+         @assertEqual(0, shutdown_rc)
+      end select
+
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+      local_misses = 0
+      local_requests = 0
+      if (parent_rank == 3 .or. parent_rank == 4) then
+         local_misses = server%get_cache_misses()
+         local_requests = server%get_reader_requests()
+      end if
+      call MPI_Allreduce(local_misses, total_misses, 1, MPI_INTEGER, MPI_SUM, parent_comm, ierr)
+      call MPI_Allreduce(local_requests, total_requests, 1, MPI_INTEGER, MPI_SUM, parent_comm, ierr)
+      worker_ok = worker_ok .and. total_misses == 1 .and. total_requests == 2
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+      if (parent_rank == 0) call delete_fixture_file(file_name)
+      call MPI_Barrier(parent_comm, ierr)
+
+      @assertTrue(worker_ok)
+      @assertTrue(model_ok)
+   end subroutine test_scheduler_coalesces_identical_inflight_key
 
    @test(npes=[4])
    subroutine test_temporary_reordered_model_comm(this)

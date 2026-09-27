@@ -516,7 +516,226 @@ Notes and remaining risks:
 
 
 
+### Step 20: MultiGroup-Style Scheduling (Complete, 2026-09-26)
+
+- State: complete.
+- Replaced hash-only worker dispatch (`select_file_worker` used directly as
+  the only routing decision in `enqueue_reader_request`) with an explicit
+  captain-side scheduler, `select_worker_for_request`, implementing the
+  plan's ranked selection order plus one prerequisite tier:
+  - Tier 0 (new, ahead of the plan's four tiers): a worker currently BUSY
+    reading the exact same key is selected so a concurrent identical
+    request shares one physical read instead of causing a duplicate read on
+    a different idle worker. This case is invisible to "idle worker that
+    owns the key" (tier 1) because the captain's warm directory is only
+    populated on completion, so without tier 0 a second concurrent request
+    for a still-in-flight key would always fall through to tier 2/3 and
+    dispatch a second physical read.
+  - Tier 1: an idle worker that already owns the exact key, per the
+    existing captain-side warm directory (`AsyncInputWarmRecord`, unchanged
+    from Step 19).
+  - Tier 2 (new): an idle worker whose most recently dispatched file name
+    (`last_file_name`, new persistent per-worker field) matches this
+    request's file, giving unrelated-slab file affinity without requiring a
+    warm directory hit.
+  - Tier 3 (new): the least-loaded idle worker, using a new incremental
+    `load` counter per worker (requests currently assigned, in flight or
+    still queued for it). Ties among idle workers with equal load are
+    broken by restricting the existing deterministic filename hash
+    (`select_file_worker`) to just the tied candidates, so equally-loaded
+    workers still spread reproducibly instead of always collapsing onto the
+    lowest-numbered idle worker.
+  - Tier 4 (new): if no worker is idle, the request is queued behind the
+    least-loaded worker overall (same hash tie-break), and the existing
+    `dispatch_pending_requests`/`select_pending_request` FIFO-per-worker
+    draining (unchanged logic, now scheduling-order-agnostic) sends it once
+    that worker's next completion arrives.
+- Added `AsyncInputCacheKey%matches_key` (key-to-key comparison) alongside
+  the existing `matches_request` (key-to-live-message comparison), so the
+  scheduler and `serve_warm_requests` can compare two already-extracted
+  keys without re-deserializing a `CollectivePrefetchDataMessage`. Added a
+  `key` field to `AsyncInputPendingRequest` (populated once via
+  `key%set_from_request` when the request is enqueued) so `serve_warm_requests`
+  no longer needs its own `reset_prefetch_request`/re-deserialize helper;
+  that dead code was removed.
+- Added `key`/`key_valid` (in-flight key) and `last_file_name` (persistent
+  affinity) to `AsyncInputWorkerState`, both set in `dispatch_pending_requests`
+  when a request is actually sent to a worker and cleared/left as-is
+  respectively in `poll_reader_completions` (`key_valid` clears on
+  completion; `last_file_name` intentionally persists so tier 2 still works
+  after the worker goes idle).
+- `load` is maintained incrementally, not recomputed by scanning `pending`:
+  incremented once in `enqueue_reader_request` right after a worker is
+  chosen, decremented once in `poll_reader_completions` when that worker's
+  completion is processed. This keeps tier 3/4 selection O(n_workers) per
+  request instead of O(n_workers * size(pending)).
+- `enqueue_reader_request`'s signature changed from taking `n_workers`
+  (an integer) to taking `workers(:)` and `warm_records(:)` directly, since
+  the scheduler now needs to inspect live worker busy/key/affinity/load
+  state and the warm directory, not just a worker count. The one call site
+  in `start()` was updated accordingly.
+- `select_pending_request` (dispatch-side FIFO-per-worker draining) and
+  `serve_warm_requests` (captain-side hint attachment) were not changed in
+  their control flow, only in comments/signature, because both already
+  operated purely on `pending(i)%worker_rank`, whatever scheduling decision
+  produced it. This was the intended seam from Step 19's "future scheduler"
+  comment.
+
+Files changed:
+
+- `pfio/AsyncInputServer.F90`
+- `pfio/tests/Test_AsyncInputServer.pf`
+
+Focused test extension:
+
+- Added `test_scheduler_spreads_hash_colliding_files` (`npes=[5]`, 2 model +
+  1 captain + 2 workers): uses two files (`collide_0.nc4`, `collide_2.nc4`)
+  deliberately chosen so the deterministic filename hash used as only a
+  tie-breaker maps both to the SAME worker for `n_workers=2` (confirmed by
+  direct computation of the same hash formula used in
+  `select_file_worker`). Under the pre-Step-20 hash-only dispatch, both
+  requests would have been forced onto that one worker even with the other
+  worker completely idle. Each of the two model ranks demand-reads its own
+  distinct file exactly once concurrently; with two idle workers and no
+  warm directory entries yet, tier 3 (least-loaded idle worker, hash
+  tie-break restricted to the two idle candidates) applies to both and
+  spreads them. Asserts each worker's own `get_cache_hits()==0`/
+  `get_cache_misses()==1` (proving each worker did exactly one physical
+  read, not zero-and-two or two-and-zero) and that each model rank received
+  its own file's correct value through `CaptureSocket`.
+  - Implementation note: both model ranks must call
+    `server%shutdown(rc=...)` (not just the model-node root), matching the
+    existing Step 18 `test_two_model_worker_mailbox_layout` pattern; every
+    rank in `node_comm` participates in `finalize_runtime`'s collective
+    `MPI_Comm_free`/`MPI_Win_free` calls, so a non-root model rank that
+    skips `shutdown()` hangs the whole topology at finalize. This was caught
+    by an early draft of the test that only called `shutdown()` on rank 0
+    and hung under `ctest`'s `--oversubscribe -n 8` invocation (reproduced
+    directly with `mpiexec --oversubscribe -n 8 ./MAPL.pfio.tests --verbose`
+    before the fix, and confirmed fixed and stable across five repeated
+    `ctest` runs after adding the second `shutdown()` call).
+- Existing `test_two_worker_warm_ownership` (Step 19) and
+  `test_prefetch_then_demand_single_read_and_worker_publish` (Step 19)
+  continue to pass unchanged and now exercise tier 0/tier 1 dispatch through
+  the new scheduler instead of pure hash routing, since both only ever have
+  one candidate worker per key.
+
+Build and test commands:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target MAPL.pfio.tests 2>&1 | tee build/step20-build-pfio.log'
+zsh -lic 'module load nag-stack && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure --timeout 90 2>&1 | tee build/step20-final-pfio-tests.log'
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step20-build-tests-final2.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure --timeout 180 2>&1 | tee build/step20-final-pfio-components.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL.mapl.server_utilities$" --output-on-failure --timeout 90 2>&1 | tee build/step20-final-server-utilities.log'
+```
+
+Results:
+
+- NAG `MAPL.pfio.tests` target: built successfully (one NAG "Questionable"
+  style note about an unconditional `RETURN` as the last statement of a DO
+  loop body in `select_pending_request`; pre-existing pattern, not a new
+  warning class, left as-is).
+- NAG `build-tests`: passed; target reached 100%.
+- `MAPL.pfio.tests`: 1/1 CTest target passed, 93/93 individual pFUnit cases
+  passed (92 pre-existing + 1 new), including the new
+  `test_scheduler_spreads_hash_colliding_files` and all Step 16-19 topology
+  and warm-cache tests. Confirmed stable across 5 repeated `ctest`
+  invocations after the shutdown-hang fix above (no flakiness observed).
+- PFIO component cases 01-05: 5/5 passed.
+- `MAPL.mapl.server_utilities`: 1/1 passed.
+- Logs:
+  - `build/step20-build-pfio.log`
+  - `build/step20-final-pfio-tests.log`
+  - `build/step20-build-tests-final2.log`
+  - `build/step20-final-pfio-components.log`
+  - `build/step20-final-server-utilities.log`
+
+Notes and remaining risks:
+
+- Tier 2 (file affinity) and tier 3/4 (load, hash tie-break) are not
+  independently covered by a dedicated focused test yet; only tier 0
+  (implicitly, via the unchanged single-worker-per-key Step 19 tests) and
+  tier 3's spreading behavior (via the new test) are directly exercised.
+  Tier 2 in particular has no regression coverage showing a worker with
+  matching `last_file_name` being preferred over a lower-loaded idle
+  worker; this would need a request pattern with 3+ workers and an uneven
+  load/affinity combination to distinguish tier 2 from tier 3.
+  "concurrent in-flight identical key" case (two simultaneous requests for
+  the same key while a first read is still outstanding, proving tier 0
+  specifically rather than tier 1) also has no direct regression test; the
+  existing warm-ownership tests only ever demand-read a key twice
+  sequentially (miss then warm hit), never twice concurrently.
+- The plan's "Queue draining is fair and does not starve a worker or
+  request" verification point is satisfied by the unchanged FIFO-per-worker
+  `select_pending_request` logic (a worker's oldest queued request is
+  always sent first once that worker frees up), but there is no dedicated
+  test that deliberately drives tier 4 (all workers busy, request queued)
+  and confirms fair multi-request draining order across more than the
+  incidental queuing that may occur in the existing tests.
+- Next step: Step 21, hierarchical shutdown and framework integration using
+  stored roles instead of `model_comm`.
+
+### Step 20 Review Follow-Up (Complete, 2026-09-26)
+
+- Fixed the review's exact-key ownership bugs. `find_key_owner` now searches
+  active workers, the warm directory, and already queued assigned requests,
+  so every request for the same key remains attached to one worker even when
+  the owner is busy or the first request has not yet been dispatched.
+- Fixed duplicate-read exposure between an owner's completion and its queued
+  followers. Exact-key followers receive the completed slot/generation hint
+  and are dispatched before unrelated work assigned to that worker, preventing
+  intervening cache replacement before all local slices are served.
+- Replaced busy-worker pinning for unrelated work with a true unassigned
+  global queue. Requests without an existing key owner keep `worker_rank=0`;
+  `select_pending_request` chooses an idle worker at dispatch time using file
+  affinity and least-load/hash tie-breaking. A worker that becomes idle can
+  therefore immediately take queued unrelated work.
+- Demand assignments are now sent only when a worker is committed at dispatch,
+  so queued work can remain movable. Cache-only requests retain asynchronous
+  acceptance semantics through an assignment with reader rank 0/service rank
+  -1; their eventual worker is selected later by the captain.
+- Added `assignment_sent` to pending requests and `assign_key_group` so an
+  unassigned key and all already-queued identical followers are atomically
+  attached to the same selected worker before dispatch.
+- Fixed the two-model scheduler test's shutdown race by retaining the temporary
+  model communicator through request completion and synchronizing both model
+  ranks before the model-node root sends termination. Both model ranks then
+  call `shutdown` for collective runtime cleanup.
+- Added `test_scheduler_coalesces_identical_inflight_key` (2 models, 1 captain,
+  2 workers), which submits the same key from both model ranks and verifies
+  one total physical miss and two total worker requests, with correct payloads
+  on both models. Added `get_reader_requests` as focused test support.
+- Made the existing eviction regression deterministic under asynchronous
+  prefetch acceptance by following each prefetch with a demand for that key
+  before advancing to the next slot; it now explicitly verifies one hit per
+  fill plus the expected post-eviction reread.
+- Restored the missing `### Key Design Decisions` heading below.
+
+Verification:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step20-review-fix-build-tests.log'
+zsh -lic 'module load nag-stack && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure --timeout 90 2>&1 | tee build/step20-review-fix-final-pfio.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure --timeout 180 2>&1 | tee build/step20-review-fix-components.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL.mapl.server_utilities$" --output-on-failure --timeout 90 2>&1 | tee build/step20-review-fix-server-utilities.log'
+```
+
+Results:
+
+- NAG `build-tests`: passed; target reached 100%.
+- `MAPL.pfio.tests`: 1/1 CTest target passed, including both Step 20
+  multi-model scheduler tests and all prior async-input tests.
+- PFIO component cases 01-05: 5/5 passed.
+- `MAPL.mapl.server_utilities`: 1/1 passed.
+- Remaining coverage gap: file-affinity precedence and a long tier-4 fairness
+  sequence are not isolated in their own unit tests, although global queue
+  dispatch and two-worker concurrency are exercised by the new integration
+  tests.
+- Next step remains Step 21.
+
 ### Key Design Decisions
+
 - `pfio` should not inspect `MPI_COMM_WORLD`.
 - `AsyncInputServer` takes:
   - `comm`: all server processes available to the async input server
