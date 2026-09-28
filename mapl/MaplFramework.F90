@@ -19,6 +19,7 @@ module mapl_MaplFramework_mod
    use mapl_FixedLevelsVerticalGrid_mod
    use mapl_ModelVerticalGrid_mod
     use mapl_FieldDictionary_mod, only: load_field_dictionary
+    use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config
     use mapl_Profiler_mod, only: profiler_initialize => initialize, profiler_finalize => finalize
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
      use pfio_DirectoryServiceMod, only: DirectoryService
@@ -1185,26 +1186,54 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine initialize_udunits
 
+   ! Accepts two forms of the `field_dictionary` key in mapl_hconfig:
+   !   - a bare string (pre-#5413 form): field_dictionary: <path>
+   !     Path only; ValidationMode defaults to permissive.
+   !   - a mapping (generic/standard-name-enforcement):
+   !     field_dictionary: {path: <path>, validation_mode: strict|permissive}
+   ! Either way, a FieldDictionaryConfig is always stored via
+   ! set_field_dictionary_config so StandardNameAspect/VariableSpec have one
+   ! consistent place to query the active mode/exemptions, even when the
+   ! bare-string (or no) form is used.
    subroutine initialize_field_dictionary(this, rc)
       class(MaplFramework), intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_path, file_exists
+      logical :: has_key, is_map, file_exists
       character(:), allocatable :: path
       type(Logger), pointer :: lgr
+      type(FieldDictionaryConfig) :: fd_config
+      type(ESMF_HConfig) :: field_dictionary_node
 
-      has_path = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_dictionary', _RC)
-      if (has_path) then
-         path = ESMF_HConfigAsString(this%mapl_hconfig, keystring='field_dictionary', _RC)
+      has_key = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='field_dictionary', _RC)
+      if (has_key) then
+         is_map = ESMF_HConfigIsMap(this%mapl_hconfig, keyString='field_dictionary', _RC)
       else
-         path = 'geos_field_dictionary.yaml'
+         is_map = .false.
       end if
+
+      if (is_map) then
+         field_dictionary_node = ESMF_HConfigCreateAt(this%mapl_hconfig, keyString='field_dictionary', _RC)
+         fd_config = FieldDictionaryConfig(field_dictionary_node, _RC)
+         path = fd_config%get_dictionary_path()
+      else if (has_key) then
+         path = ESMF_HConfigAsString(this%mapl_hconfig, keystring='field_dictionary', _RC)
+         fd_config = FieldDictionaryConfig(path)
+      else
+         ! No field_dictionary key at all: preserve the pre-#5413 default
+         ! path (distinct from FieldDictionaryConfig's own generic default
+         ! of 'field_dictionary.yaml', used when the mapping form's `path`
+         ! is itself omitted).
+         path = 'geos_field_dictionary.yaml'
+         fd_config = FieldDictionaryConfig(path)
+      end if
+      call set_field_dictionary_config(fd_config)
 
       inquire(file=path, exist=file_exists)
       if (file_exists) then
          call load_field_dictionary(path, _RC)
-      else if (has_path) then
+      else if (has_key) then
          ! Explicitly configured path must exist — fail hard.
          _ASSERT(.false., 'Field dictionary not found at configured path: "'//path//'"')
       else

@@ -13,10 +13,13 @@ mapl:
       units: m
       levels: [23.]
 
+  # I_D previously declared its own placeholder standard_name ('I_D'),
+  # disagreeing with its connected Export (C's ZLE, 'height') - see openspec
+  # change use-field-dictionary-in-scenario-tests. Declaring none here lets
+  # it correctly report as a wildcard/unchecked Import.
   states:
     import:
       I_D:
-        standard_name: I_D
         units: m
         vertical_dim_spec: center
     export: {}

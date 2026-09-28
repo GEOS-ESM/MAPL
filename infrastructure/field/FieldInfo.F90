@@ -50,13 +50,11 @@ module mapl_FieldInfo_mod
    interface FieldInfoSetInternal
       module procedure field_info_set_internal
       module procedure field_info_set_internal_restart_mode
-      module procedure field_info_set_internal_names
    end interface FieldInfoSetInternal
 
    interface FieldInfoGetInternal
       module procedure field_info_get_internal
       module procedure field_info_get_internal_restart_mode
-      module procedure field_info_get_internal_names
    end interface FieldInfoGetInternal
 
    interface FieldInfoCopyShared
@@ -74,10 +72,11 @@ contains
         quantity_type_metadata, &
         normalization_metadata, &
         conservation_metadata, &
-        units, long_name, standard_name, &
-        allocation_status, &
-        regridder_param_info, &
-        rc)
+         units, long_name, standard_name, &
+         named_alias_id, &
+         allocation_status, &
+         regridder_param_info, &
+         rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
@@ -92,7 +91,14 @@ contains
       type(ConservationMetadata), optional, intent(in) :: conservation_metadata
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
+      ! long_name is per-NamedAlias-id metadata (see
+      ! generic/field-name-propagation): named_alias_id is required whenever
+      ! it is present, and scopes its write to that specific alias's own
+      ! namespace, unlike every other item here (including standard_name,
+      ! see generic/standard-name-enforcement) which uses the plain
+      ! namespace_ (shared across all aliases of the same underlying Field).
       character(*), optional, intent(in) :: standard_name
+      integer, optional, intent(in) :: named_alias_id
       type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       type(esmf_info), optional, intent(in) :: regridder_param_info
       integer, optional, intent(out) :: rc
@@ -100,6 +106,7 @@ contains
       integer :: status
       type(ESMF_Info) :: ungridded_info, quantity_info, normalization_info, conservation_info
       character(:), allocatable :: namespace_
+      character(:), allocatable :: alias_namespace_
       character(:), allocatable :: str
       logical :: isPresent
 
@@ -150,12 +157,20 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_UNITS, units, _RC)
       end if
 
-      if (present(long_name)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_LONG_NAME, long_name, _RC)
-      end if
-
+      ! standard_name: unaliased/field-wide, like units (see
+      ! generic/standard-name-enforcement) - agreement between a connection's
+      ! endpoints is enforced at connection time, so there is at most one
+      ! value to store; no named_alias_id needed.
       if (present(standard_name)) then
          call MAPL_InfoSet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
+      end if
+
+      if (present(long_name)) then
+         _ASSERT(present(named_alias_id), 'named_alias_id is required to set long_name')
+         str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+         ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+         alias_namespace_ = namespace_ // "/alias" // trim(str)
+         call MAPL_InfoSet(info, alias_namespace_ // KEY_LONG_NAME, long_name, _RC)
       end if
 
       if (present(regridder_param_info)) then
@@ -185,6 +200,7 @@ contains
         vgrid_id, num_levels, num_layers, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         units, &
         long_name, standard_name, &
+        named_alias_id, &
         ungridded_dims, &
         quantity_type_metadata, &
         normalization_metadata, &
@@ -206,6 +222,10 @@ contains
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
+      ! long_name is per-NamedAlias-id metadata; see field_info_set_internal.
+      ! standard_name is unaliased/field-wide (see generic/standard-name-enforcement)
+      ! and does not need named_alias_id.
+      integer, optional, intent(in) :: named_alias_id
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
@@ -220,6 +240,10 @@ contains
       character(:), allocatable :: vert_staggerloc_str, vert_alignment_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_
+      character(:), allocatable :: alias_namespace_, key
+      character(*), parameter :: DEFAULT_NAME = 'unknown'
+      character(*), parameter :: UNKNOWN_STANDARD_NAME = '<unknown>'
+      logical :: key_is_present
       character(:), allocatable :: str
       logical :: is_present
 
@@ -318,12 +342,32 @@ contains
          end if
       end if
 
-      if (present(long_name)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_LONG_NAME, long_name, _RC)
+      ! standard_name: unaliased/field-wide (see generic/standard-name-enforcement),
+      ! same storage model as units. Defaults to '<unknown>' (matching
+      ! UnitsAspect's own "unspecified" sentinel) when nothing was ever
+      ! assigned - never requires named_alias_id.
+      if (present(standard_name)) then
+         standard_name = UNKNOWN_STANDARD_NAME
+         key = namespace_ // KEY_STANDARD_NAME
+         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+         if (key_is_present) call MAPL_InfoGet(info, key, standard_name, _RC)
       end if
 
-      if (present(standard_name)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
+      ! long_name is per-NamedAlias-id metadata (see field_info_set_internal):
+      ! named_alias_id is required whenever it is present. The output is
+      ! guaranteed to come back allocated: either the value recorded for this
+      ! specific alias, or DEFAULT_NAME when nothing was ever assigned for it.
+      ! Callers never need to check allocated(...) themselves.
+      if (present(long_name)) then
+         _ASSERT(present(named_alias_id), 'named_alias_id is required to get long_name')
+         str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+         ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+         alias_namespace_ = namespace_ // "/alias" // trim(str)
+
+         long_name = DEFAULT_NAME
+         key = alias_namespace_ // KEY_LONG_NAME
+         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+         if (key_is_present) call MAPL_InfoGet(info, key, long_name, _RC)
       end if
 
       if (present(allocation_status)) then
@@ -377,78 +421,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine field_info_get_internal_restart_mode
-
-   ! Per-alias standard_name/long_name.  Each NamedAlias placement of a Field
-   ! into a state (an Export, a connected Import, or an intermediate transform
-   ! hop) has its own alias id, and may carry its own independently-declared
-   ! standard_name/long_name even though all aliases share the same underlying
-   ! ESMF_Info host.  Namespacing by alias id (mirroring restart_mode above)
-   ! keeps these independent instead of collapsing to one field-wide value.
-   subroutine field_info_set_internal_names(info, named_alias_id, unusable, standard_name, long_name, rc)
-      type(ESMF_Info), intent(inout) :: info
-      integer, intent(in) :: named_alias_id
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: standard_name
-      character(*), optional, intent(in) :: long_name
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: id_str, namespace
-
-      id_str = ESMF_UtilStringInt2String(named_alias_id, _RC)
-      ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
-      namespace = INFO_INTERNAL_NAMESPACE // "/alias" // trim(id_str)
-
-      if (present(standard_name)) then
-         call MAPL_InfoSet(info, namespace // KEY_STANDARD_NAME, standard_name, _RC)
-      end if
-
-      if (present(long_name)) then
-         call MAPL_InfoSet(info, namespace // KEY_LONG_NAME, long_name, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine field_info_set_internal_names
-
-   subroutine field_info_get_internal_names(info, named_alias_id, unusable, standard_name, long_name, rc)
-      type(ESMF_Info), intent(in) :: info
-      integer, intent(in) :: named_alias_id
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(:), optional, allocatable, intent(out) :: standard_name
-      character(:), optional, allocatable, intent(out) :: long_name
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(:), allocatable :: id_str, namespace, key
-      logical :: key_is_present
-      character(*), parameter :: DEFAULT_NAME = 'unknown'
-
-      id_str = ESMF_UtilStringInt2String(named_alias_id, _RC)
-      ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
-      namespace = INFO_INTERNAL_NAMESPACE // "/alias" // trim(id_str)
-
-      ! Every present output is guaranteed to come back allocated: either the
-      ! value recorded for this specific alias, or DEFAULT_NAME when nothing
-      ! was ever assigned anywhere in the connection chain for it.  Callers
-      ! never need to check allocated(...) themselves.
-      if (present(standard_name)) then
-         standard_name = DEFAULT_NAME
-         key = namespace // KEY_STANDARD_NAME
-         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
-         if (key_is_present) call MAPL_InfoGet(info, key, standard_name, _RC)
-      end if
-
-      if (present(long_name)) then
-         long_name = DEFAULT_NAME
-         key = namespace // KEY_LONG_NAME
-         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
-         if (key_is_present) call MAPL_InfoGet(info, key, long_name, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine field_info_get_internal_names
 
    subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
       type(ESMF_Field), intent(in) :: field

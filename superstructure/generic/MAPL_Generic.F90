@@ -641,7 +641,6 @@ contains
         regrid_param, &
         horizontal_dims_spec, &
         vector_basis_kind, &
-        use_field_dictionary, &
         restart_mode, &
 
         dims, &
@@ -674,7 +673,6 @@ contains
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       character(*), optional, intent(in) :: vector_basis_kind
-      logical, optional, intent(in) :: use_field_dictionary
       type(RestartMode), optional, intent(in) :: restart_mode
 
       character(*), optional, intent(in) :: dims
@@ -732,7 +730,6 @@ contains
               regrid_param=regrid_param, &
               horizontal_dims_spec=horizontal_dims_spec_, &
               vector_basis_kind=vector_basis_kind, &
-              use_field_dictionary=use_field_dictionary, &
               restart_mode=restart_mode, &
               _RC)
 
