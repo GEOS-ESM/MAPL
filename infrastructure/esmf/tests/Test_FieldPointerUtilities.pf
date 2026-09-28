@@ -1,0 +1,124 @@
+#include "MAPL.h"
+
+! Regression tests for mapl_FieldPointerUtilities_mod's handling of a rank
+! that owns zero local decomposition elements (DEs) for a field's grid.
+!
+! FieldGetCptr()/assign_fptr() previously crashed unconditionally on such a
+! rank, because every caller ultimately reaches ESMF_FieldGet(...,
+! farrayPtr=...), which fails when there is no local data. get_cptr() now
+! guards this: when field_has_de() is .false., it returns cptr=C_NULL_PTR
+! immediately, which is valid because every caller derives its
+! c_f_pointer() shape from FieldGetLocalElementCount()/FieldGetLocalSize()
+! (both DE-safe, yielding a zero-size shape in that case).
+module Test_FieldPointerUtilities
+
+   use ESMF
+   use pfunit
+   use mapl_FieldPointerUtilities_mod
+   use mapl_ErrorHandling_mod
+   use, intrinsic :: iso_c_binding, only: c_ptr
+
+   implicit none
+
+contains
+
+   ! Build a grid with exactly 2 DEs (a 2x1 decomposition). Running a test
+   ! with 3 PEs means the 3rd PET legitimately owns zero DEs for it.
+   function mk_grid(rc) result(grid)
+      integer, optional, intent(out) :: rc
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2,2], countsPerDeDim2=[2], &
+           indexflag=ESMF_INDEX_DELOCAL, name='no_de_test_grid', _RC)
+
+      _RETURN(_SUCCESS)
+   end function mk_grid
+
+   function mk_field_r4(rc) result(field)
+      integer, optional, intent(out) :: rc
+      type(ESMF_Field) :: field
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      grid = mk_grid(_RC)
+      field = ESMF_FieldCreate(grid, typekind=ESMF_TYPEKIND_R4, name='no_de_test_field', _RC)
+
+      _RETURN(_SUCCESS)
+   end function mk_field_r4
+
+   @Test(npes=[3])
+   ! Regression test for FieldGetCptr(): must not crash on a rank with no
+   ! local DE.
+   subroutine test_FieldGetCptr_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_Field) :: x
+      type(c_ptr) :: cptr
+      integer :: status, rc
+
+      x = mk_field_r4(_RC)
+      call FieldGetCptr(x, cptr, _RC)
+      ! No crash is the primary assertion here (any non-zero status from
+      ! the calls above would already have failed this test via _RC).
+
+   end subroutine test_FieldGetCptr_no_DE
+
+   @Test(npes=[3])
+   ! Regression test: assign_fptr() must not crash on a rank with no local
+   ! DE, must yield a zero-size pointer there, and must still correctly
+   ! read/write data on the ranks that do have one.
+   subroutine test_assign_fptr_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
+      integer, allocatable :: element_count(:)
+      logical :: has_de
+      integer :: status, rc
+
+      x = mk_field_r4(_RC)
+      has_de = field_has_de(x, _RC)
+      element_count = FieldGetLocalElementCount(x, _RC)
+      call assign_fptr(x, int(element_count, kind=ESMF_KIND_I8), x_ptr, _RC)
+
+      if (has_de) then
+         x_ptr = 3.0
+         @assertTrue(all(x_ptr == 3.0), 'expected to read/write real local data')
+      else
+         @assertEqual(0, size(x_ptr), 'expected a zero-size pointer with no local DE')
+      end if
+
+   end subroutine test_assign_fptr_no_DE
+
+   @Test(npes=[3])
+   ! Regression test: FieldCopy() previously crashed unconditionally when
+   ! either field had no local DE. Confirm it now succeeds and gives
+   ! correct results on the ranks that do have local data.
+   subroutine test_FieldCopy_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_Field) :: x, y
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:)
+      integer, allocatable :: element_count(:)
+      logical :: has_de
+      integer :: status, rc
+
+      x = mk_field_r4(_RC)
+      y = mk_field_r4(_RC)
+      has_de = field_has_de(x, _RC)
+
+      if (has_de) then
+         element_count = FieldGetLocalElementCount(x, _RC)
+         call assign_fptr(x, int(element_count, kind=ESMF_KIND_I8), x_ptr, _RC)
+         x_ptr = 7.0
+      end if
+
+      call FieldCopy(x, y, _RC)
+
+      if (has_de) then
+         element_count = FieldGetLocalElementCount(y, _RC)
+         call assign_fptr(y, int(element_count, kind=ESMF_KIND_I8), y_ptr, _RC)
+         @assertTrue(all(y_ptr == 7.0), 'FieldCopy did not copy data correctly')
+      end if
+
+   end subroutine test_FieldCopy_no_DE
+
+end module Test_FieldPointerUtilities
