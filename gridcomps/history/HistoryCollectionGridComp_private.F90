@@ -15,6 +15,7 @@ module mapl_HistoryCollectionGridComp_private_mod
    private
 
    public :: make_geom
+   public :: make_vertical_grid
    public :: register_imports
    public :: create_output_bundle
    public :: set_start_stop_time
@@ -62,6 +63,18 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_geom
+
+   function make_vertical_grid(hconfig, rc) result(vertical_grid)
+      class(MAPL_VerticalGrid), allocatable :: vertical_grid
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_HConfig) :: vertical_grid_hconfig
+      type(MAPL_VerticalGridManger), pointer :: vgrid_manager
+
+      vertical_grid_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='vertical_grid', _RC)
+
+   end function make_vertical_grid
 
    function create_output_bundle(hconfig, import_state, rc) result(bundle)
       type(ESMF_FieldBundle) :: bundle
