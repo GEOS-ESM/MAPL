@@ -316,6 +316,8 @@ contains
         grid, &
         num_levels, &
         num_children, &
+        use_threads, &
+        num_threads, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -326,6 +328,8 @@ contains
       type(ESMF_Grid), optional, intent(out) :: grid
       integer, optional, intent(out) :: num_levels
       integer, optional, intent(out) :: num_children
+      logical, optional, intent(out) :: use_threads
+      integer, optional, intent(out) :: num_threads
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -360,17 +364,23 @@ contains
          num_children = outer_meta_%get_num_children()
       end if
 
+      if (present(use_threads)) use_threads = outer_meta_%get_use_threads()
+      if (present(num_threads)) num_threads = outer_meta_%get_num_threads()
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_get
 
-   subroutine gridcomp_set(gridcomp, unusable, activate_all_exports, activate_all_imports, checkpoint_controls, restart_controls, rc)
+   subroutine gridcomp_set(gridcomp, unusable, activate_all_exports, activate_all_imports, checkpoint_controls, restart_controls, &
+        use_threads, num_threads, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: activate_all_exports
       logical, optional, intent(in) :: activate_all_imports
       type(CheckpointControls), optional, intent(in) :: checkpoint_controls
       type(CheckpointControls), optional, intent(in) :: restart_controls
+      logical, optional, intent(in) :: use_threads
+      integer, optional, intent(in) :: num_threads
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -382,6 +392,8 @@ contains
            activate_all_imports=activate_all_imports, &
            checkpoint_controls=checkpoint_controls, &
            restart_controls=restart_controls)
+      if (present(use_threads)) call outer_meta%set_use_threads(use_threads)
+      if (present(num_threads)) call outer_meta%set_num_threads(num_threads, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

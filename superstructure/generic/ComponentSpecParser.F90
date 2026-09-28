@@ -59,6 +59,8 @@ module mapl_ComponentSpecParser_mod
    character(*), parameter :: COMPONENT_MISC_SECTION = 'misc'
    character(*), parameter :: COMPONENT_ACTIVATE_ALL_EXPORTS = 'activate_all_exports'
    character(*), parameter :: COMPONENT_ACTIVATE_ALL_IMPORTS = 'activate_all_imports'
+   character(*), parameter :: COMPONENT_USE_THREADS = 'use_threads'
+   character(*), parameter :: COMPONENT_NUM_THREADS = 'num_threads'
 
    character(*), parameter :: COMPONENT_CHECKPOINT = 'checkpoint'
    character(*), parameter :: COMPONENT_RESTART = 'restart'

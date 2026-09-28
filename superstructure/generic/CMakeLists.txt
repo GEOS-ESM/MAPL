@@ -98,7 +98,9 @@ esma_add_fortran_submodules(
           get_component_spec.F90 get_internal_state.F90 get_logger.F90
           get_user_gc_driver.F90 connect_all.F90 set_entry_point.F90
           finalize.F90 start_timer.F90 stop_timer.F90 get_checkpoint_dir.F90
-          ensure_memory_checkpoint.F90 get_memory_checkpoint_state.F90)
+          ensure_memory_checkpoint.F90 get_memory_checkpoint_state.F90
+          threading_accessors.F90 activate_threading.F90 deactivate_threading.F90
+          create_subobjects.F90 get_thread_context.F90 run_user_threaded.F90)
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic
@@ -110,6 +112,9 @@ esma_add_fortran_submodules(
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+# OpenMP is used to run a component concurrently on subsets of its geometry.
+target_link_libraries (${this} PRIVATE OpenMP::OpenMP_Fortran)
 
 
 if (PFUNIT_FOUND)

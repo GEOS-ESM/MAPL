@@ -15,6 +15,7 @@ module mapl_OpenMP_Support_mod
 
     public :: Interval
     public :: make_subgrids
+    public :: make_subgeoms
     public :: find_bounds
     public :: make_subfields
     public :: make_subFieldBundles
@@ -48,6 +49,37 @@ module mapl_OpenMP_Support_mod
         num_threads = 1  ! default if OpenMP is not used
         !$ num_threads = omp_get_max_threads() ! get the actual number of threads if OpenMP is used
     end function get_num_threads
+
+    ! Decompose an ESMF_Geom into `num_subgeoms` sub-geometries, each of
+    ! which covers a contiguous subset of the local "j" extent of the
+    ! primary geometry.  Only grid-based geometries can be decomposed.
+    function make_subgeoms(primary_geom, num_subgeoms, unusable, rc) result(subgeoms)
+        type(ESMF_Geom), allocatable :: subgeoms(:)
+        type(ESMF_Geom), intent(in) :: primary_geom
+        integer, intent(in) :: num_subgeoms
+        class(KeywordEnforcer), optional, intent(in) :: unusable
+        integer, optional, intent(out) :: rc
+
+        integer :: i, status
+        type(ESMF_GeomType_Flag) :: geomtype
+        type(ESMF_Grid) :: primary_grid
+        type(ESMF_Grid), allocatable :: subgrids(:)
+
+        _ASSERT(num_subgeoms > 0, 'number of sub-geometries must be positive')
+
+        call ESMF_GeomGet(primary_geom, geomtype=geomtype, _RC)
+        _ASSERT(geomtype == ESMF_GEOMTYPE_GRID, 'OpenMP threading requires a grid-based geometry')
+        call ESMF_GeomGet(primary_geom, grid=primary_grid, _RC)
+
+        subgrids = make_subgrids(primary_grid, num_subgeoms, _RC)
+        allocate(subgeoms(size(subgrids)))
+        do i = 1, size(subgrids)
+           subgeoms(i) = ESMF_GeomCreate(grid=subgrids(i), _RC)
+        end do
+
+        _RETURN(_SUCCESS)
+        _UNUSED_DUMMY(unusable)
+    end function make_subgeoms
 
     function make_subfields_from_num_grids(primary_field, num_subgrids, unusable, rc) result(subfields)
         type(ESMF_Field), allocatable :: subfields(:)
@@ -345,6 +377,11 @@ module mapl_OpenMP_Support_mod
       _UNUSED_DUMMY(unusable)
     end function make_substates_from_num_grids
 
+    ! Replicate a user gridcomp into `num_grids` "mini" gridcomps, each
+    ! with its own VM (a single PET) and with the user's run entry points
+    ! registered.  Note that MAPL private state (e.g. the inner meta
+    ! component) is _not_ copied here - the caller is responsible for
+    ! attaching whatever private state the mini gridcomps require.
     function make_subgridcomps(GridComp, run_entry_points, num_grids, unusable, rc) result(subgridcomps)
         use mapl_RunEntryPoint_mod
         use mapl_EntryPointVector_mod
@@ -357,52 +394,27 @@ module mapl_OpenMP_Support_mod
 
         integer :: status, user_status
         type(ESMF_VM) :: vm
-        integer :: myPet, i, ilabel
-        logical :: has_private_state
+        integer :: myPet, i
         type(runEntryPoint), pointer :: run_entry_point
         procedure(), pointer :: user_method => null()
 
-        type :: MAPL_GenericWrap
-           type(ESMF_Clock), pointer :: dummy
-        end type MAPL_GenericWrap
-
-        type(ESMF_Clock), pointer :: dummy
-
-        type(MAPL_GenericWrap) :: wrap
         character(len=ESMF_MAXSTR) :: comp_name
-        character(len=:), allocatable :: labels(:)
-        integer :: phase
-        type(ESMF_Config) :: CF
 
+        _ASSERT(num_grids > 0, 'number of sub gridcomps must be positive')
         allocate(subgridcomps(num_grids))
 
         call ESMF_VMGetCurrent(vm, _RC)
         call ESMF_VMGet(vm, localPET=myPET, _RC)
 
-        call ESMF_GridCompGet(GridComp, config=CF, name=comp_name, _RC)
-        call ESMF_InternalStateGet(GridComp, labelList=labels, _RC)
+        call ESMF_GridCompGet(GridComp, name=comp_name, _RC)
 
         do i = 1, num_grids
           associate (gc => subgridcomps(i) )
-            gc = ESMF_GridCompCreate(name=trim(comp_name), config=CF, petlist=[myPet], &
+            gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
                  & contextflag=ESMF_CONTEXT_OWN_VM, _RC)
             call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, _RC)
             _VERIFY(user_status)
           end associate
-        end do
-
-        do ilabel = 1, size(labels)
-           _GET_NAMED_PRIVATE_STATE(GridComp, ESMF_Clock, trim(labels(ilabel)), dummy)
-           wrap%dummy => dummy
-
-           has_private_state = (status == ESMF_SUCCESS)
-           do i = 1, num_grids
-              associate (gc => subgridcomps(i) )
-                if (has_private_state) then
-                   _SET_NAMED_PRIVATE_STATE(gc, ESMF_Clock, trim(labels(ilabel)))
-                end if
-              end associate
-           end do
         end do
 
         _RETURN(ESMF_SUCCESS)

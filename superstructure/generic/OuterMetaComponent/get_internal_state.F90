@@ -1,7 +1,6 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) get_internal_state_smod
-   use mapl_MultiState_mod
    implicit none(type,external)
 
 contains
@@ -13,7 +12,8 @@ contains
 
       type(MultiState) :: user_states
 
-      user_states = this%user_gc_driver%get_states()
+      ! Returns the thread local internal state while threading is active.
+      user_states = this%get_thread_states()
       internal_state = user_states%internalState
 
    end function get_internal_state
