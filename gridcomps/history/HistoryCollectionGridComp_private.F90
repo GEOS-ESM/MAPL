@@ -133,13 +133,17 @@ contains
       call ESMF_InfoSet(new_info, key="", value=info, _RC)
       call compression_settings%sync_to_info(new_info, _RC)
 
-      ! standard_name/long_name are per-NamedAlias-id metadata (see
+      ! long_name is per-NamedAlias-id metadata (see
       ! generic/field-name-propagation).  The wholesale Info copy above
       ! carries over old_field's alias-scoped entry under old_field's own id,
       ! but new_field was built with ESMF_FieldCreate (not ESMF_NamedAlias),
       ! so it has its own, different id - that copied entry is orphaned and
-      ! never looked up.  Explicitly re-resolve the names from old_field and
-      ! re-set them, scoped to new_field's own id.
+      ! never looked up.  Explicitly re-resolve long_name from old_field and
+      ! re-set it, scoped to new_field's own id. standard_name, by contrast,
+      ! is unaliased/field-wide (generic/standard-name-enforcement) - the
+      ! wholesale Info copy above already carries it over correctly onto
+      ! new_field with no orphaning possible; re-fetching/re-setting it here
+      ! is redundant but harmless (a no-op re-write of the same value).
       call MAPL_FieldGet(old_field, standard_name=standard_name, long_name=long_name, _RC)
       call MAPL_FieldSet(new_field, standard_name=standard_name, long_name=long_name, _RC)
 

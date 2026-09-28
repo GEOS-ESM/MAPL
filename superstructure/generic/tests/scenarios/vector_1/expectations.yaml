@@ -3,23 +3,43 @@
 #   - list the fields expected in each import/export/internal states
 #   - annotate whether field is "complete"
 
+# NOTE on standard_name for the vector 'uv' bundle: VariableSpec splits the
+# compound standard_name '(eastward,northward) horizontal velocity' into two
+# per-component names (see VariableSpec::split_name), one per bundle member,
+# in [eastward, northward] order (see VectorClassAspect::allocate).
+
 - component: child_A/<user>
   export:
-    uv: {status: complete, class: bundle}
+    uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
 - component: child_A
   export:
-    uv: {status: complete, class: bundle}
+    uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
 
 - component: child_B/<user>
   import:
-    uv: {status: complete, class: bundle}
+    uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
 - component: child_B
   import:
-    uv: {status: complete, class: bundle}
+    uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
 - component: <user>
   import: {}
   export: {}
   internal: {}
 - component: <root>
   export:
-    child_A/uv: {status: complete, class: bundle}
+    child_A/uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']

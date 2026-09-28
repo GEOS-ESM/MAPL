@@ -8,6 +8,7 @@ set (TEST_SRCS
   Test_LatAxis.pf
   Test_LatLonGeomSpec.pf
   Test_LatLonGeomFactory.pf
+  Test_LatLonZeroDE.pf
   Test_CubedSphereGeomSpec.pf
   Test_CubedSphereGeomFactory.pf
   Test_GridGet.pf

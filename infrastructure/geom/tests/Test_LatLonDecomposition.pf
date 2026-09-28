@@ -35,4 +35,36 @@ contains
       @assert_that(found == expected, is(true()))
 
    end subroutine test_make_decomposition_npes
+
+   ! Regression test: when the requested topology is finer than the grid
+   ! can actually support (given the min_extent=2 constraint imposed by
+   ! ESMF), mapl_GetPartition() returns zero-sized trailing bins.  The
+   ! topology constructor must pack those out so that the resulting
+   ! distribution has fewer entries than requested, rather than keeping
+   ! zero-extent bins around (which would eventually lead to PETs being
+   ! assigned empty DEs incorrectly).
+   @test
+   subroutine test_make_decomposition_topo_too_coarse()
+
+      type(LatLonDecomposition) :: decomp
+      integer, allocatable :: lon_distribution(:)
+      integer, allocatable :: lat_distribution(:)
+
+      ! im_world=3 cannot support 4 bins of min_extent=2, so only 1
+      ! non-empty bin is possible along the lon direction.
+      decomp = LatLonDecomposition([3, 4], topology=[4, 1])
+
+      lon_distribution = decomp%get_lon_distribution()
+      lat_distribution = decomp%get_lat_distribution()
+
+      @assert_that(size(lon_distribution), is(equal_to(1)))
+      @assert_that(sum(lon_distribution), is(equal_to(3)))
+      @assert_that(any(lon_distribution == 0), is(false()))
+
+      @assert_that(size(lat_distribution), is(equal_to(1)))
+      @assert_that(sum(lat_distribution), is(equal_to(4)))
+      @assert_that(any(lat_distribution == 0), is(false()))
+
+   end subroutine test_make_decomposition_topo_too_coarse
+
 end module Test_LatLonDecomposition

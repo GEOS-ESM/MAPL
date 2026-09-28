@@ -32,14 +32,12 @@ contains
 
       call mapl_GridCompAddSpec(gc, short_name='A/T', &
            state_intent=ESMF_STATEINTENT_IMPORT, &
-           standard_name='<unknown>', &
            dims='xy', &
            vertical_stagger=VERTICAL_STAGGER_NONE, &
            units='K', _RC)
 
       call mapl_GridCompAddSpec(gc, short_name='avg_T', &
            state_intent=ESMF_STATEINTENT_EXPORT, &
-           standard_name='<unknown>', &
            dims='xy', &
            vertical_stagger=VERTICAL_STAGGER_NONE, &
            units='K', _RC)

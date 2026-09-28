@@ -152,12 +152,17 @@ contains
          end if
       end if
 
-      ! Field-prototype items that come from field-info (including typekind)
+      ! Field-prototype items that come from field-info (including typekind).
+      ! standard_name/long_name here describe the bundle as a whole (a
+      ! template, not any specific Field's own per-alias identity), so they
+      ! use the fixed "unaliased" (id=0) slot within this already-distinct
+      ! KEY_FIELD_PROTOTYPE namespace - not a real NamedAlias id.
       call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, num_vgrid_levels=num_vgrid_levels, &
            units=units, long_name=long_name, standard_name=standard_name, &
+           named_alias_id=0, &
            vgrid_id=vgrid_id, &
            regridder_param_info=regridder_param_info, &
            _RC)
@@ -270,11 +275,16 @@ contains
          end block
       end if
 
+      ! standard_name/long_name here describe the bundle as a whole (a
+      ! template, not any specific Field's own per-alias identity), so they
+      ! use the fixed "unaliased" (id=0) slot within this already-distinct
+      ! KEY_FIELD_PROTOTYPE namespace - not a real NamedAlias id.
       call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
            vert_staggerloc=vert_staggerloc, vert_alignment=vert_alignment, &
            units=units, long_name=long_name, standard_name=standard_name, &
+           named_alias_id=0, &
            vgrid_id=vgrid_id, &
            regridder_param_info=regridder_param_info, &
            _RC)
