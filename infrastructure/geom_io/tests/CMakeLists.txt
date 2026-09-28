@@ -13,7 +13,9 @@ add_pfunit_ctest(MAPL.GeomIO.tests
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 MAX_PES 1
                 )
-set_target_properties(MAPL.GeomIO.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+# Each pFUnit executable generates a loader module. Keep their module output
+# directories distinct so Ninja has only one producer for each .mod file.
+set_target_properties(MAPL.GeomIO.tests PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/io")
 set_tests_properties(MAPL.GeomIO.tests PROPERTIES LABELS "ESSENTIAL")
 
 # A separate executable/target from MAPL.GeomIO.tests above: that target
@@ -31,7 +33,7 @@ add_pfunit_ctest(MAPL.pFIOServerBounds.tests
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 MAX_PES 6
                 )
-set_target_properties(MAPL.pFIOServerBounds.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_target_properties(MAPL.pFIOServerBounds.tests PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/pFIOServerBounds")
 set_tests_properties(MAPL.pFIOServerBounds.tests PROPERTIES LABELS "ESSENTIAL")
 
 if (APPLE)
