@@ -413,7 +413,7 @@ contains
    ! Create non-default server communicators and ESMF GridComps when an explicit
    ! servers: section is present.  The default input/output servers created in
    ! initialize() remain available.  This routine re-partitions model_comm to
-   ! exclude server PETs, then adds any local: true servers from the config and
+   ! exclude server PETs, then adds any colocated servers from the config and
    ! builds ESMF GridComps for the remote servers.
    ! Returns server GridComps via servers(:); an empty array if no servers: section.
    subroutine create_servers(this, servers, unusable, rc)
@@ -438,7 +438,7 @@ contains
       end if
 
       ! Complex path: re-partition model_comm to the model-only PETs, add any
-      ! local: true servers from config, and build remote server GridComps.
+      ! colocated servers from config, and build remote server GridComps.
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
       model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
 
@@ -454,7 +454,7 @@ contains
       call MPI_Group_free(world_group, _IERROR)
       this%is_model_pet = (this%model_comm /= MPI_COMM_NULL)
 
-      ! Add any local: true servers declared in the servers: section.
+      ! Add any colocated servers declared in the servers: section.
       call this%initialize_configured_local_servers(_RC)
 
       ! Build ESMF GridComps for remote (non-local) servers.
@@ -551,7 +551,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_non_default_servers
 
-   ! Initialize servers declared with local: true in the servers: config section.
+   ! Initialize colocated servers from the servers: config section.
    ! Called from create_servers() when a servers: section is present.
    ! The two default servers (MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER)
    ! are NOT created here — they were already created in initialize_default_servers().
@@ -568,7 +568,7 @@ contains
         logical :: is_local, has_subclass_local, is_async_local
         type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
 
-       ! Iterate the servers: section and register any local: true entries.
+       ! Iterate the servers: section and register colocated entries.
        servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
        iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
        iter_end   = ESMF_HConfigIterEnd(servers_hconfig, _RC)
@@ -577,8 +577,7 @@ contains
        do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
           server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
           server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-          is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
-          if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
+          is_local = is_local_server_configuration(server_val, _RC)
           if (is_local) then
              subclass_name = 'MpiServer'
              has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
@@ -744,8 +743,7 @@ contains
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
          server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
-         if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
+         is_local = is_local_server_configuration(server_val, _RC)
          subclass_name = 'MpiServer'
          has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
          if (has_subclass_local) subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
@@ -911,8 +909,7 @@ contains
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
          server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
-         if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
+         is_local = is_local_server_configuration(server_val, _RC)
          subclass_name = 'MpiServer'
          has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
          if (has_subclass_local) subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
@@ -995,7 +992,8 @@ contains
        end if
     end function make_client_name
 
-    ! Helper function to check if a server hconfig has local: true.
+    ! Resolve placement. AsyncInputServer has a fixed colocated placement;
+    ! other server classes retain the explicit local setting.
     function is_local_server(server_hconfig, rc) result(is_local)
        type(ESMF_HConfig), intent(in) :: server_hconfig
        integer, optional, intent(out) :: rc
@@ -1003,10 +1001,7 @@ contains
 
        integer :: status
 
-       is_local = ESMF_HConfigIsDefined(server_hconfig, keystring='local', _RC)
-       if (is_local) then
-          is_local = ESMF_HConfigAsLogical(server_hconfig, keystring='local', _RC)
-       end if
+       is_local = is_local_server_configuration(server_hconfig, _RC)
 
        _RETURN(_SUCCESS)
     end function is_local_server

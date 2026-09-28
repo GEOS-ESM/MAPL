@@ -191,20 +191,19 @@ It waits and cleans up the copies next time when it re-uses the `Oserver`.
 
 ## 2.3 AsyncInputServer Class
 
-`AsyncInputServer` is a local ExtData input service. It uses spare MPI ranks
-on each model node to read and cache complete source slabs while model ranks
-receive their local slices through MPI shared-memory mailboxes.
+`AsyncInputServer` is a colocated ExtData input service. It uses separate MPI
+ranks on each model node to read and cache complete source slabs while model
+ranks receive their local slices through MPI shared-memory mailboxes.
 
 ### Configuration
 
-The server must be declared with `local: true`:
+The server subclass implies its required colocated shared-memory placement:
 
 ```yaml
 mapl:
   model_petcount: 2
   servers:
     async_input_server:
-      local: true
       subclass: AsyncInputServer
 ```
 
@@ -214,9 +213,13 @@ Select it from ExtData with:
 input_server_name: async_input_server
 ```
 
-Remote `AsyncInputServer` entries are rejected. The current payload transport
-uses `MPI_Win_allocate_shared`, so each model, its reader captain, and its
-reader workers must belong to the same MPI shared-memory domain.
+The general server configuration's `local` property controls whether classes
+such as `MpiServer` use model-job resources or dedicated remote resources. It
+is unnecessary for `AsyncInputServer`: its current payload transport uses
+`MPI_Win_allocate_shared`, so the subclass always selects a colocated topology
+in which each model, its reader captain, and its reader workers belong to the
+same MPI shared-memory domain. Existing `local: true` entries remain valid,
+but `local: false` is rejected as contradictory.
 
 ### Topology and Minimum Processes
 

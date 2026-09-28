@@ -206,16 +206,17 @@ contains
    end subroutine test_ssis_per_server_wildcard_oversubscribed
 
    @test
-   subroutine test_remote_async_input_server_rejected()
+   subroutine test_async_input_server_implies_local()
       type(ESMF_HConfig) :: hcfg
       integer :: rc
 
       hcfg = ESMF_HConfigCreate(content='subclass: AsyncInputServer', rc=rc)
       @assertEqual(0, rc)
       call validate_server_configuration(hcfg, rc=rc)
-      @assertExceptionRaised('AsyncInputServer requires local: true because model and reader ranks must share memory')
+      @assertEqual(0, rc)
+      @assertTrue(is_local_server_configuration(hcfg, rc=rc))
       call ESMF_HConfigDestroy(hcfg, rc=rc)
-   end subroutine test_remote_async_input_server_rejected
+   end subroutine test_async_input_server_implies_local
 
    @test
    subroutine test_local_async_input_server_accepted()
@@ -226,7 +227,37 @@ contains
       @assertEqual(0, rc)
       call validate_server_configuration(hcfg, rc=rc)
       @assertEqual(0, rc)
+      @assertTrue(is_local_server_configuration(hcfg, rc=rc))
       call ESMF_HConfigDestroy(hcfg, rc=rc)
    end subroutine test_local_async_input_server_accepted
+
+   @test
+   subroutine test_async_input_server_rejects_local_false()
+      type(ESMF_HConfig) :: hcfg
+      integer :: rc
+
+      hcfg = ESMF_HConfigCreate(content='{"local": false, "subclass": "AsyncInputServer"}', rc=rc)
+      @assertEqual(0, rc)
+      call validate_server_configuration(hcfg, rc=rc)
+      @assertExceptionRaised('AsyncInputServer placement is fixed; omit local or set it to true')
+      call ESMF_HConfigDestroy(hcfg, rc=rc)
+   end subroutine test_async_input_server_rejects_local_false
+
+   @test
+   subroutine test_mpi_server_placement_remains_explicit()
+      type(ESMF_HConfig) :: remote_hcfg, local_hcfg
+      integer :: rc
+
+      remote_hcfg = ESMF_HConfigCreate(content='subclass: MpiServer', rc=rc)
+      @assertEqual(0, rc)
+      @assertFalse(is_local_server_configuration(remote_hcfg, rc=rc))
+
+      local_hcfg = ESMF_HConfigCreate(content='{"local": true, "subclass": "MpiServer"}', rc=rc)
+      @assertEqual(0, rc)
+      @assertTrue(is_local_server_configuration(local_hcfg, rc=rc))
+
+      call ESMF_HConfigDestroy(remote_hcfg, rc=rc)
+      call ESMF_HConfigDestroy(local_hcfg, rc=rc)
+   end subroutine test_mpi_server_placement_remains_explicit
 
 end module Test_MaplServerUtilities
