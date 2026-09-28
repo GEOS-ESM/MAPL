@@ -11,6 +11,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
+  by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the
+  requested `nx`/`ny` topology given ESMF's `min_extent=2` constraint, and updated
+  `LatLonGeomFactory`'s `fill_coordinates` to use `grid_has_de`/`grid_get_interior` so PETs
+  that legitimately own no DE in that case are skipped instead of crashing; added
+  `Test_LatLonZeroDE.pf` and a `LatLonDecomposition` unit test covering this case
+- Fixed several crashes affecting ranks with no local decomposition element (DE)
+  for a field's grid (the "coarse grid, extra PET" scenario), continuing the
+  `LatLonDecomposition`/`LatLonGeomFactory` fix above: `pFIOServerBounds` gained
+  a `has_de` argument so a no-DE rank still reports the true, shared
+  `global_start`/`global_count` (required since pfio's server sizes its shared
+  read/write buffer from one arbitrary representative message per collective
+  `request_id`), zeroing only its own local `file_shape`; `ExtDataFileReader`
+  and `GridPFIO` (History/Restart read+write, plus coordinate writing) now call
+  their collective pfio requests unconditionally on every rank instead of
+  skipping no-DE ranks, since `ClientThread`'s `request_id` counter is local
+  and unsynchronized and skipping it on some ranks desyncs which request a
+  given rank's data belongs to; and `FieldGetCptr`/`assign_fptr`'s common
+  `get_cptr` now returns a zero-size result instead of crashing for a no-DE
+  field, transparently fixing `FieldCopy`, `FieldBLAS`, `FieldUtilities`,
+- Added regression test coverage for the no-local-DE fixes above: new
+  `Test_FieldPointerUtilities.pf` and `Test_pFIOServerBounds.pf` exercise
+  `FieldGetCptr`/`assign_fptr`/`FieldCopy` and `pFIOServerBounds` directly on
+  no-DE ranks/inputs, and existing `Test_FieldBLAS.pf`/`Test_FieldArithmetic.pf`/
+  `Test_FieldCondensedArray_private.pf` gained no-DE variants (also adding the
+  first coverage at all for `FieldSet`/`FieldIsConstant`).
+
 ### Added
 
 ### Changed
