@@ -70,10 +70,16 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_HConfig) :: vertical_grid_hconfig
-      type(MAPL_VerticalGridManger), pointer :: vgrid_manager
+      type(MAPL_VerticalGridManager), pointer :: vgrid_manager
+      class(MAPL_VerticalGrid), pointer :: grid_ptr
 
+      vgrid_manager => mapl_get_vertical_grid_manager()
       vertical_grid_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='vertical_grid', _RC)
+      grid_ptr => vgrid_manager%create_grid(vertical_grid_hconfig, _RC)
+      allocate(vertical_grid, source=grid_ptr)
+      call ESMF_HConfigDestroy(vertical_grid_hconfig, _RC)
 
+      _RETURN(_SUCCESS)
    end function make_vertical_grid
 
    function create_output_bundle(hconfig, import_state, rc) result(bundle)

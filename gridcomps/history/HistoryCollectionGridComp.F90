@@ -117,7 +117,7 @@ contains
       end if
       has_vertical_grid = ESMF_HConfigIsDefined(hconfig, keyString='vertical_grid', _RC)
       if (has_vertical_grid) then
-
+         vertical_grid = make_vertical_grid(hconfig, _RC)
          call MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, _RC)
       end if
 
