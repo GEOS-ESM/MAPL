@@ -807,6 +807,73 @@ zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL.mapl.server_
   on a multi-SSI cluster as part of Step 22/cluster verification.
 - Next step: Step 22, regression coverage and documentation.
 
+### Step 22: Regression Coverage and Documentation (2026-09-28)
+
+- State: complete locally.
+- Added round-trip serialization tests for
+  `CollectivePrefetchDataMessage` and `NextCollectivePrefetchMessage`, covering
+  request and collection IDs, file and variable names, type, local/global
+  bounds, and demand versus cache-only semantics.
+- The existing five-rank scheduler integration test provides the required two
+  model, one captain, two worker request and payload coverage. The existing
+  three-rank warm-cache integration test provides the prefetch-then-demand
+  single-read assertion and verifies the worker-published payload.
+- Added server-configuration validation before resource allocation and tests
+  proving a remote `AsyncInputServer` is rejected while `local: true` is
+  accepted.
+- Enhanced PFIO case05 with machine-checkable output assertions requiring both
+  worker service ranks to report at least one request. The component test
+  runner now captures each step's stdout/stderr and validates optional
+  `output_checks.rc` regular expressions. Temporary directories are rooted in
+  the CMake binary directory so captured paths remain valid regardless of the
+  CTest working directory.
+- Documented configuration, node-local topology, minimum process count,
+  local-only transport, communicator ownership, shutdown, cache scheduling,
+  and `MAPL_ASYNC_INPUT_CACHE_SLOTS`/`MAPL_ASYNC_INPUT_SHMEM_WORDS` in
+  `pfio/pfio.md`.
+
+Files changed:
+
+- `mapl/MaplServerUtilities.F90`
+- `mapl/tests/Test_MaplServerUtilities.pf`
+- `pfio/pfio.md`
+- `pfio/tests/Test_AsyncInputServer.pf`
+- `tests/MAPL3G_Component_Testing_Framework/run_comp_tester.cmake`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case05/output_checks.rc`
+
+Commands and results:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step22-build-tests.log'
+zsh -lic 'module load nag-stack && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure --timeout 90 2>&1 | tee build/step22-pfio-tests.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL.mapl.server_utilities$" --output-on-failure --timeout 90 2>&1 | tee build/step22-server-utilities.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure --timeout 180 2>&1 | tee build/step22-pfio-components-final.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -L ESSENTIAL --output-on-failure --timeout 300 2>&1 | tee build/step22-ctest-essential.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case05$" --output-on-failure --timeout 180 2>&1 | tee build/step22-case05-final.log'
+```
+
+- NAG `build-tests`: passed; target reached 100%.
+- `MAPL.pfio.tests`: 1/1 CTest target passed, including the new serialization
+  tests and existing topology, scheduling, shutdown, and warm-cache cases.
+- `MAPL.mapl.server_utilities`: 1/1 passed, including local/remote async-input
+  configuration validation.
+- PFIO component cases 01-05: 5/5 passed; case05 confirmed activity from both
+  workers through its output checks.
+- Full `ESSENTIAL` label: 69/69 passed in 381.33 seconds.
+- Logs: `build/step22-build-tests.log`, `build/step22-pfio-tests.log`,
+  `build/step22-server-utilities.log`,
+  `build/step22-pfio-components-final.log`, and
+  `build/step22-ctest-essential.log`. A final case05 rerun after preserving
+  captured stdout on command failures is in `build/step22-case05-final.log`.
+- One intermediate PFIO component run exposed that a relative random temporary
+  directory produced nested output paths after `WORKING_DIRECTORY` changed.
+  The runner now uses an absolute binary-directory path; the final focused and
+  ESSENTIAL runs passed with that correction.
+- Remaining external verification: the mixed local async-input plus remote
+  output-server configuration still requires a multi-SSI cluster. It cannot be
+  represented by this single-node local CTest environment.
+- Steps 16-22 of the MultiGroup-style redesign are complete locally.
+
 ### Files Added
 - `.opencode/plans/async-input-server-plan.md`
 - `.opencode/plans/async-input-server-status.md`

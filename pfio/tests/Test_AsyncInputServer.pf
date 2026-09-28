@@ -45,6 +45,64 @@ module test_AsyncInputServer
 
 contains
 
+   @test
+   subroutine test_collective_prefetch_serialization()
+      type(CollectivePrefetchDataMessage) :: msg_in, msg_out
+      type(LocalMemReference) :: data_ref
+      integer, allocatable :: buffer(:)
+      integer :: status
+
+      data_ref = LocalMemReference(pFIO_REAL32, [2, 3])
+      msg_in = CollectivePrefetchDataMessage(17, 4, 'collective.nc4', 'temperature', &
+           data_ref, start=[3, 5], global_start=[1, 1], global_count=[8, 9], cache_only=.false.)
+      allocate(buffer(msg_in%get_length()))
+      call msg_in%serialize(buffer, rc=status)
+      @assertEqual(0, status)
+      call msg_out%deserialize(buffer, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(17, msg_out%request_id)
+      @assertEqual(4, msg_out%collection_id)
+      @assertEqual('collective.nc4', msg_out%file_name)
+      @assertEqual('temperature', msg_out%var_name)
+      @assertEqual(pFIO_REAL32, msg_out%type_kind)
+      @assertEqual([3, 5], msg_out%start)
+      @assertEqual([2, 3], msg_out%count)
+      @assertEqual([1, 1], msg_out%global_start)
+      @assertEqual([8, 9], msg_out%global_count)
+      @assertFalse(msg_out%cache_only)
+      call data_ref%deallocate(status)
+   end subroutine test_collective_prefetch_serialization
+
+   @test
+   subroutine test_next_prefetch_serialization()
+      type(NextCollectivePrefetchMessage) :: msg_in, msg_out
+      type(LocalMemReference) :: data_ref
+      integer, allocatable :: buffer(:)
+      integer :: status
+
+      data_ref = LocalMemReference(pFIO_REAL32, [4])
+      msg_in = NextCollectivePrefetchMessage(23, 7, 'next.nc4', 'humidity', &
+           data_ref, start=[6], global_start=[1], global_count=[12])
+      allocate(buffer(msg_in%get_length()))
+      call msg_in%serialize(buffer, rc=status)
+      @assertEqual(0, status)
+      call msg_out%deserialize(buffer, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(23, msg_out%request_id)
+      @assertEqual(7, msg_out%collection_id)
+      @assertEqual('next.nc4', msg_out%file_name)
+      @assertEqual('humidity', msg_out%var_name)
+      @assertEqual(pFIO_REAL32, msg_out%type_kind)
+      @assertEqual([6], msg_out%start)
+      @assertEqual([4], msg_out%count)
+      @assertEqual([1], msg_out%global_start)
+      @assertEqual([12], msg_out%global_count)
+      @assertTrue(msg_out%cache_only)
+      call data_ref%deallocate(status)
+   end subroutine test_next_prefetch_serialization
+
    subroutine capture_receive(this, message, rc)
       class(CaptureSocket), intent(inout) :: this
       class(AbstractMessage), allocatable, intent(out) :: message

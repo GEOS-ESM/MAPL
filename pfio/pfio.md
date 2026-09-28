@@ -13,6 +13,7 @@
       - [Passing a vector of `oservers` and the `MultiGroupServer`](#passing-a-vector-of--oservers--and-the--multigroupserver-)
       - [`MpiServer` using one-sided `MPI_PUT` and shared memory](#-mpiserver--using-one-sided--mpi-put--and-shared-memory)
       - [Additional Options](#additional-options)
+- [2.3 AsyncInputServer Class](#23-asyncinputserver-class)
 - [3 Profiling Features of PFIO](#3-profiling-features-of-pfio)
 - [4 Recommendations](#4-recommendations)
 - [5 Exercising PFIO](#5-exercising-pfio)
@@ -187,6 +188,88 @@ mpirun -np npes executable_file –npes_model n1 --npes_output_server n2 --one_n
 
 - After the client sends history data to the `Oserver`, by default it waits and makes sure all the data is sent even it uses non-blocking `isend`. If this option is set to true, the client copies the data before non-blocking `isend`.
 It waits and cleans up the copies next time when it re-uses the `Oserver`.
+
+## 2.3 AsyncInputServer Class
+
+`AsyncInputServer` is a local ExtData input service. It uses spare MPI ranks
+on each model node to read and cache complete source slabs while model ranks
+receive their local slices through MPI shared-memory mailboxes.
+
+### Configuration
+
+The server must be declared with `local: true`:
+
+```yaml
+mapl:
+  model_petcount: 2
+  servers:
+    async_input_server:
+      local: true
+      subclass: AsyncInputServer
+```
+
+Select it from ExtData with:
+
+```yaml
+input_server_name: async_input_server
+```
+
+Remote `AsyncInputServer` entries are rejected. The current payload transport
+uses `MPI_Win_allocate_shared`, so each model, its reader captain, and its
+reader workers must belong to the same MPI shared-memory domain.
+
+### Topology and Minimum Processes
+
+On every node containing model ranks, the service requires:
+
+- one or more model ranks;
+- one reader captain;
+- at least one reader worker.
+
+Therefore the minimum single-node configuration is three MPI processes: one
+model, one captain, and one worker. For `M` model ranks on a node, at least
+`M + 2` total ranks must be available on that node. Additional reader ranks
+become additional workers.
+
+Models submit request metadata only to their node-local captain. The captain
+tracks exact-key ownership, worker load, file affinity, and queued requests.
+Workers own their caches and one result mailbox per node-local model rank. The
+captain never copies payload data; a selected worker writes the model's local
+slice directly into its shared-memory mailbox.
+
+### Communicator Ownership
+
+The constructor receives two communicators:
+
+- `comm` contains all ranks participating in the local service topology;
+- `model_comm` identifies model ranks during initialization only.
+
+`model_comm` remains caller-owned. `AsyncInputServer` does not duplicate,
+retain, or free it. During construction the server derives immutable role and
+rank maps plus its own node-local and reader communicators. The shared window
+and all server-created communicators are released by the server's idempotent
+runtime cleanup path.
+
+Shutdown is hierarchical. One model-node root asks its captain to terminate.
+The captain stops accepting work, drains active and queued requests, terminates
+all workers, collects their acknowledgments, and then acknowledges the model
+root. Other model ranks participate in collective cleanup but do not send a
+second termination request.
+
+### Environment Variables
+
+- `MAPL_ASYNC_INPUT_CACHE_SLOTS`: cache slots owned by each worker. The
+  default is `2`; invalid or values below one fall back to the default.
+- `MAPL_ASYNC_INPUT_SHMEM_WORDS`: payload capacity, in default-integer words,
+  of each worker-owned mailbox for each model rank. The default is
+  `4194304`. Increase it if a local slice exceeds the mailbox and the server
+  reports an overflow.
+
+The cache key is `(file_name, var_name, type_kind, global_start,
+global_count)`. Concurrent requests for one key stay with one owning worker,
+causing one physical read followed by separate local-slice deliveries. Among
+otherwise available workers, scheduling prefers useful file affinity and then
+least load, with filename hashing used only to break ties.
 
 # 3 Profiling Features of PFIO
 
@@ -457,4 +540,3 @@ Here are some preliminary results:
 - LIS/PFIO produces files bitwise identical to the original version of the code.
 - LIS/PFIO requires less computing resources to achieve the same wall-clock time as the original LIS.
 - Using virtual collections (set at run time) significantly improve the IO performance.
-

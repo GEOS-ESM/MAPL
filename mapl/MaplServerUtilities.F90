@@ -17,6 +17,7 @@ module mapl_MaplServerUtilities_mod
    public :: get_ssis_per_server
    public :: create_server_comms
    public :: make_server_gridcomp
+   public :: validate_server_configuration
 
    type :: ServerResources
       integer :: world_comm
@@ -27,6 +28,27 @@ module mapl_MaplServerUtilities_mod
    end type ServerResources
 
 contains
+
+   subroutine validate_server_configuration(server_hconfig, rc)
+      type(ESMF_HConfig), intent(in) :: server_hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: is_local, has_local, has_subclass
+      character(:), allocatable :: subclass_name
+
+      has_local = ESMF_HConfigIsDefined(server_hconfig, keystring='local', _RC)
+      is_local = .false.
+      if (has_local) is_local = ESMF_HConfigAsLogical(server_hconfig, keystring='local', _RC)
+      has_subclass = ESMF_HConfigIsDefined(server_hconfig, keystring='subclass', _RC)
+      subclass_name = 'MpiServer'
+      if (has_subclass) subclass_name = ESMF_HConfigAsString(server_hconfig, keystring='subclass', _RC)
+
+      _ASSERT(subclass_name /= 'AsyncInputServer' .or. is_local, &
+           'AsyncInputServer requires local: true because model and reader ranks must share memory')
+
+      _RETURN(_SUCCESS)
+   end subroutine validate_server_configuration
 
    ! Return the PET indices of all PETs whose SSI index falls in [ssi_lo, ssi_hi).
    pure function pets_on_ssis(ssiMap, ssi_lo, ssi_hi) result(pets)
@@ -142,6 +164,7 @@ contains
           allocate(ssis_per_server(n_servers))
           used_ssis = num_model_ssis
           do i_server = 1, n_servers
+             call validate_server_configuration(server_hconfigs(i_server), _RC)
              ! Check if this is a local server.
              has_local = ESMF_HConfigIsDefined(server_hconfigs(i_server), keystring='local', _RC)
 

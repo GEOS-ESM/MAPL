@@ -205,4 +205,28 @@ contains
       @assertExceptionRaised("PET resources oversubscribed: no SSIs remain for wildcard server")
    end subroutine test_ssis_per_server_wildcard_oversubscribed
 
+   @test
+   subroutine test_remote_async_input_server_rejected()
+      type(ESMF_HConfig) :: hcfg
+      integer :: rc
+
+      hcfg = ESMF_HConfigCreate(content='subclass: AsyncInputServer', rc=rc)
+      @assertEqual(0, rc)
+      call validate_server_configuration(hcfg, rc=rc)
+      @assertExceptionRaised('AsyncInputServer requires local: true because model and reader ranks must share memory')
+      call ESMF_HConfigDestroy(hcfg, rc=rc)
+   end subroutine test_remote_async_input_server_rejected
+
+   @test
+   subroutine test_local_async_input_server_accepted()
+      type(ESMF_HConfig) :: hcfg
+      integer :: rc
+
+      hcfg = ESMF_HConfigCreate(content='{"local": true, "subclass": "AsyncInputServer"}', rc=rc)
+      @assertEqual(0, rc)
+      call validate_server_configuration(hcfg, rc=rc)
+      @assertEqual(0, rc)
+      call ESMF_HConfigDestroy(hcfg, rc=rc)
+   end subroutine test_local_async_input_server_accepted
+
 end module Test_MaplServerUtilities
