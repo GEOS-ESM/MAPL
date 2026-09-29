@@ -1,0 +1,170 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Regression coverage for the bug where a genuinely 2D field (explicitly
+! declared vertical_dim_spec: NONE, e.g. a History collection var_list entry
+! with no vertical structure) was incorrectly forced through a real vertical
+! interpolation because the *destination*'s vertical_stagger had silently
+! defaulted to CENTER (an omitted vertical_dim_spec never defaults to NONE
+! anywhere in the codebase - see VerticalGridAspect's own constructor
+! default). VERTICAL_STAGGER_NONE is only ever set by an explicit,
+! deliberate declaration, so it must always win: if the source has no
+! vertical dimension, there is nothing to regrid regardless of what the
+! destination nominally requests.
+!
+! This is a separate, minimal file (rather than adding to
+! Test_VerticalGridAspect.pf) because that file is not currently wired into
+! the build (not referenced by CMakeLists.txt) and, when compiled, its other,
+! pre-existing tests fail for unrelated reasons (a stale mapl_vertical_grid_api
+! naming mismatch, and a separate zero-sized-array crash in
+! test_update_field_no_vgrid) that are out of scope for this fix.
+module Test_VerticalGridAspect_NoneMatch
+   use mapl_VerticalGridAspect_mod
+   use mapl_VerticalRegridMethod_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalAlignment_mod
+   use mapl_AspectStatus_mod
+   use mapl_vertical_grid_api, only: &
+      VerticalGrid => mapl_VerticalGrid, &
+      BasicVerticalGridSpec => mapl_BasicVerticalGridSpec, &
+      BasicVerticalGridFactory => mapl_BasicVerticalGridFactory, &
+      VerticalGridManager => mapl_VerticalGridManager, &
+      VerticalGridFactory => mapl_VerticalGridFactory, &
+      get_vertical_grid_manager => mapl_get_vertical_grid_manager
+
+   use mapl_ErrorHandling_mod
+   use esmf
+   use funit
+   use ESMF_TestMethod_mod
+   implicit none(type, external)
+
+   integer, parameter :: SOURCE_NUM_LEVELS = 3
+   integer, parameter :: DEST_NUM_LEVELS = 2
+
+   class(VerticalGrid), pointer :: SourceVertGrid => null()
+   class(VerticalGrid), pointer :: DestVertGrid => null()
+
+contains
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_none_src_matches_any_dst(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: src, dst
+
+      src = VerticalGridAspect(regrid_method=VERTICAL_REGRID_CONSERVATIVE, &
+         & vertical_stagger=VERTICAL_STAGGER_NONE, vertical_alignment=VALIGN_UP, &
+         & aspect_status=ASPECT_STATUS_SPECIFIED)
+      dst = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP, aspect_status=ASPECT_STATUS_SPECIFIED)
+
+      @assertTrue(src%matches(dst), &
+         & 'A source with VERTICAL_STAGGER_NONE should match any destination: nothing to regrid.')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_matches_none_src_matches_any_dst
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_none_dst_mismatches_real_src(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: src, dst
+
+      src = VerticalGridAspect(SourceVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP, aspect_status=ASPECT_STATUS_SPECIFIED)
+      dst = VerticalGridAspect(regrid_method=VERTICAL_REGRID_CONSERVATIVE, &
+         & vertical_stagger=VERTICAL_STAGGER_NONE, vertical_alignment=VALIGN_UP, &
+         & aspect_status=ASPECT_STATUS_SPECIFIED)
+
+      @assertFalse(src%matches(dst), &
+         & 'A destination declared NONE should NOT match a source with real vertical structure.')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_matches_none_dst_mismatches_real_src
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_none_src_none_dst(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: src, dst
+
+      src = VerticalGridAspect(regrid_method=VERTICAL_REGRID_CONSERVATIVE, &
+         & vertical_stagger=VERTICAL_STAGGER_NONE, vertical_alignment=VALIGN_UP, &
+         & aspect_status=ASPECT_STATUS_SPECIFIED)
+      dst = VerticalGridAspect(regrid_method=VERTICAL_REGRID_CONSERVATIVE, &
+         & vertical_stagger=VERTICAL_STAGGER_NONE, vertical_alignment=VALIGN_UP, &
+         & aspect_status=ASPECT_STATUS_SPECIFIED)
+
+      @assertTrue(src%matches(dst), 'Two NONE-staggered aspects should still match each other.')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_matches_none_src_none_dst
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_matches_center_differing_grids_still_mismatch(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: src, dst
+
+      ! Sanity check: the NONE special-casing above must not have weakened
+      ! ordinary (non-NONE) mismatch detection - a real regrid must still be
+      ! recognized as needed when source and destination grids genuinely
+      ! differ (SourceVertGrid has SOURCE_NUM_LEVELS, DestVertGrid has
+      ! DEST_NUM_LEVELS - see setUp).
+      src = VerticalGridAspect(SourceVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP, aspect_status=ASPECT_STATUS_SPECIFIED)
+      dst = VerticalGridAspect(DestVertGrid, VERTICAL_REGRID_CONSERVATIVE, &
+         & VERTICAL_STAGGER_CENTER, VALIGN_UP, aspect_status=ASPECT_STATUS_SPECIFIED)
+
+      @assertFalse(src%matches(dst), &
+         & 'Differing vertical grids must still be recognized as a mismatch needing a regrid.')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_matches_center_differing_grids_still_mismatch
+
+!===============================================================================
+!HELPER PROCEDURES
+!===============================================================================
+
+   @Before
+   subroutine setUp(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridManager), pointer :: mgr
+      integer :: status
+
+      if (associated(SourceVertGrid) .and. associated(DestVertGrid)) return
+
+      mgr => get_vertical_grid_manager(_RC)
+      call force_register(mgr, _RC)
+
+      if (.not. associated(SourceVertGrid)) then
+         SourceVertGrid => mgr%add_grid(BasicVerticalGridSpec(num_levels=SOURCE_NUM_LEVELS), _RC)
+      end if
+      if (.not. associated(DestVertGrid)) then
+         DestVertGrid => mgr%add_grid(BasicVerticalGridSpec(num_levels=DEST_NUM_LEVELS), _RC)
+      end if
+
+      _UNUSED_DUMMY(this)
+
+   end subroutine setUp
+
+   subroutine force_register(mgr, rc)
+      type(VerticalGridManager), pointer, intent(in) :: mgr
+      integer, optional, intent(out) :: rc
+      integer :: status
+      class(VerticalGridFactory), pointer :: ptr
+
+      if (.not. associated(mgr)) then
+         _RETURN(_FAILURE)
+      end if
+      ptr => mgr%find_factory(BasicVerticalGridSpec(1), rc=status)
+      if (.not. associated(ptr) .or. status /= ESMF_SUCCESS) then
+         call mgr%register_factory('Basic', BasicVerticalGridFactory(), _RC)
+      end if
+
+   end subroutine force_register
+
+   @After
+   subroutine shutDown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      _UNUSED_DUMMY(this)
+
+   end subroutine shutDown
+
+end module Test_VerticalGridAspect_NoneMatch

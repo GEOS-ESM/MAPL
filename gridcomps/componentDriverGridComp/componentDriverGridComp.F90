@@ -209,6 +209,12 @@ contains
       type(ESMF_VM) :: vm
       logical :: is_present
       real :: quarter_grid_fac1, quarter_grid_fac2
+      type(ESMF_HConfig) :: vertical_levels_cfg, level_val_cfg
+      type(ESMF_HConfigIter) :: iter, b, e
+      character(len=:), allocatable :: level_field_name
+      real(kind=ESMF_KIND_R4), allocatable :: level_values(:)
+      real(kind=ESMF_KIND_R4), pointer :: ptr3d(:, :, :)
+      integer :: ii, jj, shape_(3)
 
       ! rand
       call MAPL_StateGetPointer(internal_state, ptr_2d, 'rand', _RC)
@@ -250,6 +256,27 @@ contains
             ptr_2d(i, j) = quarter_grid_fac1
          end do
       end do
+
+      is_present = ESMF_HConfigIsDefined(hconfig, keyString='vertical_levels', _RC)
+      if (is_present) then
+         vertical_levels_cfg = ESMF_HConfigCreateAt(hconfig, keyString='vertical_levels', _RC)
+         b = ESMF_HConfigIterBegin(vertical_levels_cfg, _RC)
+         e = ESMF_HConfigIterEnd(vertical_levels_cfg, _RC)
+         iter = b
+         do while (ESMF_HConfigIterLoop(iter, b, e))
+            level_field_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+            level_val_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
+            level_values = ESMF_HConfigAsR4Seq(level_val_cfg, _RC)
+            call MAPL_StateGetPointer(internal_state, ptr3d, trim(level_field_name), _RC)
+            shape_ = shape(ptr3d)
+            _ASSERT(shape_(3) == size(level_values), &
+                 "vertical_levels size mismatch for field " // trim(level_field_name))
+            do concurrent(ii = 1:shape_(1), jj = 1:shape_(2))
+               ptr3d(ii, jj, :) = level_values
+            end do
+         end do
+         call ESMF_HConfigDestroy(vertical_levels_cfg, _RC)
+      end if
 
       _RETURN(_SUCCESS)
 
