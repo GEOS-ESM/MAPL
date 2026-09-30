@@ -25,9 +25,9 @@ configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
 # WORKING_DIRECTORY), in PERMISSIVE ValidationMode (the default).
 configure_file(field_dictionary_test.yaml geos_field_dictionary.yaml COPYONLY)
 
-# Create a shared library for common test sources to avoid parallel build race conditions
-# When multiple test suites compile the same OTHER_SOURCES files to the same MODULE_DIRECTORY,
-# they can conflict during parallel builds
+# Create a shared library for common test sources to avoid parallel build race conditions.
+# Unlike each pFUnit executable below, this library intentionally writes to the
+# shared module directory because it publishes modules for every test suite.
 add_library(MAPL.generic.test_common SHARED
   MockUserGridComp.F90
   MockAspect.F90
@@ -61,6 +61,9 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+# Each pFUnit executable generates a loader module. Keep their module output
+# directories distinct so Ninja has only one producer for each .mod file.
+set_target_properties(MAPL.generic.scenarios PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/scenarios")
 set_tests_properties(MAPL.generic.scenarios PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios)
 
@@ -87,6 +90,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.transforms PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/transforms")
 set_tests_properties(MAPL.generic.transforms PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.transforms proto_extdata_gc proto_stat_gc)
 
@@ -107,6 +111,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.vertical PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/vertical")
 set_tests_properties(MAPL.generic.vertical PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.vertical proto_extdata_gc proto_stat_gc)
 
@@ -137,6 +142,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.aspects PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/aspects")
 set_tests_properties(MAPL.generic.aspects PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.aspects proto_extdata_gc proto_stat_gc)
 
@@ -158,6 +164,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.components PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/components")
 set_tests_properties(MAPL.generic.components PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
 
@@ -189,6 +196,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.core PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/core")
 set_tests_properties(MAPL.generic.core PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.core proto_extdata_gc proto_stat_gc)
 
