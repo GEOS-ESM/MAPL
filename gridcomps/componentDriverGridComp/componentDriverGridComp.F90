@@ -164,11 +164,13 @@ contains
       type(Comp_Driver_Support), pointer :: support
       type(ESMF_Time) :: current_time
       type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, Comp_Driver_Support, PRIVATE_STATE, support)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
       call MAPL_GridCompGetInternalState(gridcomp, internal_state, _RC)
-      call update_internal_state(internal_state, current_time, support, _RC)
+      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      call update_internal_state(internal_state, current_time, support, hconfig, _RC)
 
       if (support%runMode == "GenerateExports") then
          call fill_state_from_internal(exportState, internal_state, support, _RC)
@@ -187,6 +189,10 @@ contains
       else
          _FAIL("no run mode selected")
       end if
+
+      ! DEBUG: print min/max of every field in the export state
+      call print_state_min_max(exportState, "exportState", _RC)
+
       _UNUSED_DUMMY(importState)
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(clock)
@@ -209,12 +215,6 @@ contains
       type(ESMF_VM) :: vm
       logical :: is_present
       real :: quarter_grid_fac1, quarter_grid_fac2
-      type(ESMF_HConfig) :: vertical_levels_cfg, level_val_cfg
-      type(ESMF_HConfigIter) :: iter, b, e
-      character(len=:), allocatable :: level_field_name
-      real(kind=ESMF_KIND_R4), allocatable :: level_values(:)
-      real(kind=ESMF_KIND_R4), pointer :: ptr3d(:, :, :)
-      integer :: ii, jj, shape_(3)
 
       ! rand
       call MAPL_StateGetPointer(internal_state, ptr_2d, 'rand', _RC)
@@ -257,6 +257,59 @@ contains
          end do
       end do
 
+      call fill_vertical_levels_from_config(internal_state, hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_internal_state
+
+   subroutine update_internal_state(internal_state, current_time, support, hconfig, rc)
+      type(ESMF_State), intent(inout) :: internal_state
+      type(ESMF_Time), intent(inout) :: current_time
+      type(Comp_Driver_Support), intent(inout) :: support
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real, pointer :: ptr_2d(:, :)
+
+      call MAPL_StateGetPointer(internal_state, ptr_2d, 'time_interval', _RC)
+      ptr_2d = support%tFunc%evaluate_time(current_time, _RC)
+
+      ! Re-apply the configured vertical profiles and layer on a fresh,
+      ! independent random whole-number perturbation (in [-100, 100]) for
+      ! each field listed under 'vertical_levels', so the perturbation
+      ! varies each time this routine is called without drifting/accumulating.
+      call fill_vertical_levels_from_config(internal_state, hconfig, apply_perturbation=.true., _RC)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine update_internal_state
+
+   ! Fills fields named under the 'vertical_levels' hconfig map with their
+   ! configured per-level values (broadcast across all columns). When
+   ! apply_perturbation is .true., each such field additionally receives its
+   ! own independently-drawn random whole number in [-100, 100], added
+   ! uniformly to every point in that field.
+   subroutine fill_vertical_levels_from_config(internal_state, hconfig, apply_perturbation, rc)
+      type(ESMF_State), intent(inout) :: internal_state
+      type(ESMF_HConfig), intent(in) :: hconfig
+      logical, optional, intent(in) :: apply_perturbation
+      integer, optional, intent(out) :: rc
+
+      integer :: status, ii, jj, shape_(3)
+      logical :: is_present, do_perturb
+      type(ESMF_HConfig) :: vertical_levels_cfg, level_val_cfg
+      type(ESMF_HConfigIter) :: iter, b, e
+      character(len=:), allocatable :: level_field_name
+      real(kind=ESMF_KIND_R4), allocatable :: level_values(:)
+      real(kind=ESMF_KIND_R4), pointer :: ptr3d(:, :, :)
+      real :: harvest
+      integer :: perturbation
+
+      do_perturb = .false.
+      if (present(apply_perturbation)) do_perturb = apply_perturbation
+
       is_present = ESMF_HConfigIsDefined(hconfig, keyString='vertical_levels', _RC)
       if (is_present) then
          vertical_levels_cfg = ESMF_HConfigCreateAt(hconfig, keyString='vertical_levels', _RC)
@@ -274,29 +327,90 @@ contains
             do concurrent(ii = 1:shape_(1), jj = 1:shape_(2))
                ptr3d(ii, jj, :) = level_values
             end do
+            if (do_perturb) then
+               call random_number(harvest)
+               perturbation = floor(harvest * 201.0) - 100  ! whole number in [-100, 100]
+               ptr3d = ptr3d + real(perturbation, kind=ESMF_KIND_R4)
+            end if
+            if (do_perturb) then
+            write(*,*)"bmaa ple gc: ",minval(ptr3d),maxval(ptr3d),perturbation
+            else
+            write(*,*)"bmaa ple gc: ",minval(ptr3d),maxval(ptr3d)
+            end if
          end do
          call ESMF_HConfigDestroy(vertical_levels_cfg, _RC)
       end if
 
       _RETURN(_SUCCESS)
 
-   end subroutine initialize_internal_state
+   end subroutine fill_vertical_levels_from_config
 
-   subroutine update_internal_state(internal_state, current_time, support, rc)
-      type(ESMF_State), intent(inout) :: internal_state
-      type(ESMF_Time), intent(inout) :: current_time
-      type(Comp_Driver_Support), intent(inout) :: support
+   ! Debug utility: loops over every field in a state (including fields
+   ! nested in field bundles) and prints its min/max value. 'label' is
+   ! printed alongside each field name to identify which state/call the
+   ! output came from.
+   subroutine print_state_min_max(state, label, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: label
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      real, pointer :: ptr_2d(:, :)
+      integer :: status, item_count, i, j
+      character(len=ESMF_MAXSTR), allocatable :: name_list(:)
+      type(ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: field_list(:)
+      character(len=ESMF_MAXSTR) :: component_name
 
-      call MAPL_StateGetPointer(internal_state, ptr_2d, 'time_interval', _RC)
-      ptr_2d = support%tFunc%evaluate_time(current_time, _RC)
+      call ESMF_StateGet(state, itemCount=item_count, _RC)
+      allocate(name_list(item_count), _STAT)
+      allocate(itemTypeList(item_count), _STAT)
+      call ESMF_StateGet(state, itemTypeList=itemTypeList, itemNameList=name_list, _RC)
+      do i = 1, item_count
+         if (itemTypeList(i) == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(state, trim(name_list(i)), field, _RC)
+            call print_field_min_max(label, trim(name_list(i)), field, _RC)
+         else if (itemTypeList(i) == ESMF_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(state, trim(name_list(i)), bundle, _RC)
+            call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+            do j = 1, size(field_list)
+               call ESMF_FieldGet(field_list(j), name=component_name, _RC)
+               call print_field_min_max(label, trim(name_list(i)) // ':' // trim(component_name), field_list(j), _RC)
+            end do
+         end if
+      end do
 
       _RETURN(_SUCCESS)
 
-   end subroutine update_internal_state
+   end subroutine print_state_min_max
+
+   ! Prints the min/max value of a single field, prefixed with a caller
+   ! supplied label and the field name.
+   subroutine print_field_min_max(label, field_name, field, rc)
+      character(*), intent(in) :: label
+      character(*), intent(in) :: field_name
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: typekind
+      real(kind=ESMF_KIND_R4), pointer :: ptr_r4(:)
+      real(kind=ESMF_KIND_R8), pointer :: ptr_r8(:)
+
+      call ESMF_FieldGet(field, typekind=typekind, _RC)
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call mapl_assignFptr(field, ptr_r4, _RC)
+         write(*,'(A,": ",A," min=",ES14.6," max=",ES14.6)') trim(label), trim(field_name), minval(ptr_r4), maxval(ptr_r4)
+      else if (typekind == ESMF_TYPEKIND_R8) then
+         call mapl_assignFptr(field, ptr_r8, _RC)
+         write(*,'(A,": ",A," min=",ES14.6," max=",ES14.6)') trim(label), trim(field_name), minval(ptr_r8), maxval(ptr_r8)
+      else
+         write(*,'(A,": ",A," unsupported typekind for min/max")') trim(label), trim(field_name)
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end subroutine print_field_min_max
 
    subroutine compare_state_to_expressions(state, internal_state, grid, support, threshold, rc)
       type(ESMF_State), intent(inout) :: state
